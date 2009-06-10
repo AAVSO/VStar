@@ -1,0 +1,64 @@
+<project name="VStar" default="dist" basedir=".">
+	<description>
+        Ant build file for VStar.
+    </description>
+
+	<!-- Set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="test" location="test" />
+	<property name="build" location="src/build" />
+	<property name="dist" location="dist" />
+	<property name="extlib" location="extlib" />
+
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+	</target>
+
+	<target name="compile_src" depends="init" description="Compile the source">
+		<javac srcdir="${src}" destdir="${build}" />
+	</target>
+
+	<target name="compile_test" depends="init" description="Compile the test code">
+		<javac classpath="${extlib}/junit.jar" srcdir="${test}" destdir="${build}" />
+	</target>
+
+	<target name="dist" depends="compile_src" description="Generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}" />
+
+		<jar jarfile="${dist}/vstar.jar" basedir="${build}" manifest="MANIFEST.MF" />
+	</target>
+
+	<target name="run" depends="dist" description="Run VStar GUI">
+		<java fork="true" jar="${dist}/vstar.jar" />
+	</target>
+
+	<target name="test" depends="compile_test" description="Run unit tests">
+
+		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+			<formatter type="plain" />
+			<test name="org.aavso.tools.vstar.input.SimpleTextFormatTest" />
+			<test name="org.aavso.tools.vstar.util.JDCalculatorTest" />
+			<test name="org.aavso.tools.vstar.util.MeeusDateUtilTest" />
+			<jvmarg value="-ea" />
+			<classpath>
+				<pathelement location="${extlib}/junit.jar" />
+				<pathelement path="${build}" />
+			</classpath>
+		</junit>
+	</target>
+
+	<target name="clean" description="Clean up">
+		<delete includeemptydirs="true">
+			<!-- Delete the ${build} and ${dist} directory trees -->
+			<fileset dir="${build}" includes="**/*" />
+			<fileset dir="${dist}" includes="**/*" />
+
+			<!-- Clean TEST report files -->
+			<fileset dir="." includes="TEST-*" />
+		</delete>
+	</target>
+</project>
