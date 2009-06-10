@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+Created-By: Apache Ant 1.7
+Main-Class: org.aavso.tools.vstar.ui.VStarGUI
