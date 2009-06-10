@@ -21,7 +21,7 @@
 		<javac srcdir="${src}" destdir="${build}" />
 	</target>
 
-	<target name="compile_test" depends="init" description="Compile the test code">
+	<target name="compile_test" depends="compile_src" description="Compile the test code">
 		<javac classpath="${extlib}/junit.jar" srcdir="${test}" destdir="${build}" />
 	</target>
 
