@@ -48,6 +48,10 @@ public class InvalidObservation implements Observation {
 		return error;
 	}
 
+	public void accept(ObservationVisitor v) {
+		v.visit(this);
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
@@ -58,10 +62,5 @@ public class InvalidObservation implements Observation {
 		
 		return strBuf.toString();
 		
-	}
-	
-	@Override
-	public void accept(ObservationVisitor v) {
-		v.visit(this);
 	}
 }

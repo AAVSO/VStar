@@ -89,6 +89,10 @@ public class ValidObservation implements Observation {
 		return obsCode;
 	}
 
+	public void accept(ObservationVisitor v) {
+		v.visit(this);
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
@@ -104,10 +108,5 @@ public class ValidObservation implements Observation {
 		strBuf.append(obsCode);
 		
 		return strBuf.toString();
-	}
-
-	@Override
-	public void accept(ObservationVisitor v) {
-		v.visit(this);
 	}
 }
