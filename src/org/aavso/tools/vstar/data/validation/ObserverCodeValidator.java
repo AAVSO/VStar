@@ -24,6 +24,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class ObserverCodeValidator implements IStringValidator<String> {
 
+	// TODO: get rid of this!
 	private final static String[] forbiddenCodes = new String[]{"TST01"};
 	
 	private final RegexValidator regexValidator;
@@ -33,7 +34,6 @@ public class ObserverCodeValidator implements IStringValidator<String> {
 				"Observer Code");
 	}
 
-	@Override
 	public String validate(String str) throws ObservationValidationError {
 		String[] fields = this.regexValidator.validate(str);
 		

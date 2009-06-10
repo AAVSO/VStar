@@ -46,7 +46,6 @@ public class RegexValidator implements IStringValidator<String[]> {
 	/**
 	 * @see org.aavso.tools.vstar.util.validation.IStringValidator#validate(java.lang.String)
 	 */
-	@Override
 	public String[] validate(String str) throws ObservationValidationError {
 		List<String> groups = new ArrayList<String>();
 		

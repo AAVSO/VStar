@@ -36,7 +36,6 @@ public class MagnitudeValueValidator implements IStringValidator<Double> {
 		this.rangePredicate = rangePredicate;
 	}
 
-	@Override
 	public Double validate(String str) throws ObservationValidationError {
 		double value = 0;
 		
