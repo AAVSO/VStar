@@ -32,9 +32,10 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-import org.aavso.tools.vstar.data.Observation;
+import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.visitor.DataListPartitioningVisitor;
-import org.aavso.tools.vstar.input.IObservationRetriever;
+import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.input.SimpleTextFormatReader;
 
 /**
@@ -87,12 +88,13 @@ public class MenuBar extends JMenuBar {
 
 		JMenu helpMenu = new JMenu("Help");
 
-		JMenuItem helpContentsItem = new JMenuItem("Help Contents...", KeyEvent.VK_H);
+		JMenuItem helpContentsItem = new JMenuItem("Help Contents...",
+				KeyEvent.VK_H);
 		helpContentsItem.setEnabled(false);
 		helpMenu.add(helpContentsItem);
-		
+
 		helpMenu.addSeparator();
-		
+
 		JMenuItem aboutItem = new JMenuItem("About...", KeyEvent.VK_A);
 		aboutItem.addActionListener(createAboutListener());
 		helpMenu.add(aboutItem);
@@ -120,20 +122,27 @@ public class MenuBar extends JMenuBar {
 						FileReader fileReader = new FileReader(f.getPath());
 
 						// TODO: Use a factory method to determine observation
-						// retriever
-						// class to use given the file type.
-						IObservationRetriever simpleTextFormatReader = new SimpleTextFormatReader(
+						// retriever class to use given the file type.
+						ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
 								new BufferedReader(fileReader));
 
-						List<Observation> obs = simpleTextFormatReader
-								.retrieveObservations();
+						simpleTextFormatReader.retrieveObservations();
+						List<ValidObservation> validObs = simpleTextFormatReader
+								.getValidObservations();
+						List<InvalidObservation> invalidObs = simpleTextFormatReader
+								.getInvalidObservations();
 
 						DataListPartitioningVisitor visitor = new DataListPartitioningVisitor(
 								parent.getDataListModel(), parent
 										.getDataErrorListModel());
 
-						for (Observation ob : obs) {
-							ob.accept(visitor);
+						// TODO: get rid of visitors, accept()
+						for (ValidObservation validOb : validObs) {
+							validOb.accept(visitor);
+						}
+
+						for (InvalidObservation invalidOb : invalidObs) {
+							invalidOb.accept(visitor);
 						}
 					} catch (Exception ex) {
 						MessageBox.showErrorDialog(parent, "File Open", ex

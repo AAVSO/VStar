@@ -33,7 +33,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  * the form: JD MAG [UNCERTAINTY] [OBSCODE] and yields a collection of
  * observations for one star. [REQ_VSTAR_SIMPLE_TEXT_FILE_READ]
  */
-public class SimpleTextFormatReader implements IObservationRetriever {
+public class SimpleTextFormatReader extends ObservationRetrieverBase {
 
 	private String starName; // may not be required
 	private BufferedReader reader;
@@ -64,18 +64,17 @@ public class SimpleTextFormatReader implements IObservationRetriever {
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.input.IObservationRetriever#retrieveObservations()
+	 * @see org.aavso.tools.vstar.input.ObservationRetrieverBase#retrieveObservations()
 	 */
-	public List<Observation> retrieveObservations() throws ObservationReadError {
-		List<Observation> observations = new ArrayList<Observation>();
+	public void retrieveObservations() throws ObservationReadError {
 		SimpleTextFormatValidator validator = new SimpleTextFormatValidator();
 		try {
 			String line = reader.readLine();
 			while (line != null) {
 				try {
-					observations.add(validator.validate(line));
+					validObservations.add(validator.validate(line));
 				} catch (ObservationValidationError e) {
-					observations.add(new InvalidObservation(line, e.getMessage()));	
+					invalidObservations.add(new InvalidObservation(line, e.getMessage()));	
 				}
 				
 				line = reader.readLine();
@@ -83,7 +82,5 @@ public class SimpleTextFormatReader implements IObservationRetriever {
 		} catch (IOException e) {
 			throw new ObservationReadError("Error when attempting to read observation source.");
 		}
-		
-		return observations;
 	}
 }

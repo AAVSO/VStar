@@ -23,7 +23,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.aavso.tools.vstar.data.Observation;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
@@ -50,13 +49,10 @@ public class SimpleTextFormatTest extends TestCase {
 	// Tests of valid simple text format.
 
 	public void testValidJulianDayAndMag() {
-		List<Observation> obs = commonValidTest("2450001.5 10.0\n");
+		List<ValidObservation> obs = commonValidTest("2450001.5 10.0\n");
 		
 		assertTrue(obs.size() == 1);
 		
-		// TODO: use a test visitor class instead?
-		
-		assertTrue(obs.get(0) instanceof ValidObservation);
 		ValidObservation ob = (ValidObservation) obs.get(0);
 		assertEquals(2450001.5, ob.getDateInfo().getJulianDay());
 		assertEquals(10.0, ob.getMagnitude().getMagValue());
@@ -69,31 +65,28 @@ public class SimpleTextFormatTest extends TestCase {
 		lines.append("2450001.5 10.0\n");
 		lines.append("2430002.0 2.0");
 		
-		List<Observation> obs = commonValidTest(lines.toString());
+		List<ValidObservation> obs = commonValidTest(lines.toString());
 		
 		assertTrue(obs.size() == 2);
 
-		// TODO: use a test visitor class instead?
-
-		assertTrue(obs.get(0) instanceof ValidObservation);
 		ValidObservation ob0 = (ValidObservation) obs.get(0);
 		assertEquals(2450001.5, ob0.getDateInfo().getJulianDay());
 		
-		assertTrue(obs.get(1) instanceof ValidObservation);
 		ValidObservation ob1 = (ValidObservation) obs.get(1);
 		assertEquals(2430002.0, ob1.getDateInfo().getJulianDay());
 	}
 	
-	private List<Observation> commonValidTest(String str) {
-		List<Observation> obs = null;
+	private List<ValidObservation> commonValidTest(String str) {
+		List<ValidObservation> obs = null;
 		
 		try {
 			StringReader strReader = new StringReader(str);
 
-			IObservationRetriever simpleTextFormatReader = new SimpleTextFormatReader(
+			ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
 					new BufferedReader(strReader));
 
-			obs = simpleTextFormatReader.retrieveObservations();
+			simpleTextFormatReader.retrieveObservations();
+			obs = simpleTextFormatReader.getValidObservations();
 		} catch (ObservationReadError e) {
 			fail(e.getMessage());
 		}

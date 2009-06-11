@@ -18,24 +18,57 @@
 
 package org.aavso.tools.vstar.input;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.aavso.tools.vstar.data.Observation;
+import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 
 /**
- * This is the interface to be realised by all observation retrieval classes,
+ * This is the abstract base class for all observation retrieval classes,
  * irrespective of source (AAVSO standard file format, simple file format,
  * VStar database).
  */
-public interface IObservationRetriever {
+public abstract class ObservationRetrieverBase {
+
+	/**
+	 * The list of valid observations retrieved.
+	 */
+	protected List<ValidObservation> validObservations;
+	
+	/**
+	 * The list of invalid observations retrieved.
+	 */
+	protected List<InvalidObservation> invalidObservations;
+	
+	/**
+	 * Constructor
+	 */
+	public ObservationRetrieverBase() {
+		this.validObservations = new ArrayList<ValidObservation>();
+		this.invalidObservations = new ArrayList<InvalidObservation>();
+	}
 
 	/**
 	 * Retrieve the set of observations from the specified source.
 	 * 
-	 * @return A list of observations.
 	 * @throws throws ObservationReadError
 	 */
-	public abstract List<Observation> retrieveObservations()
+	public abstract void retrieveObservations()
 			throws ObservationReadError;
+
+	/**
+	 * @return the validObservations
+	 */
+	public List<ValidObservation> getValidObservations() {
+		return validObservations;
+	}
+
+	/**
+	 * @return the invalidObservations
+	 */
+	public List<InvalidObservation> getInvalidObservations() {
+		return invalidObservations;
+	}	
 }
