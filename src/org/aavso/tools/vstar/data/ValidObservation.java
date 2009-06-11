@@ -28,7 +28,7 @@ import org.aavso.tools.vstar.data.visitor.ObservationVisitor;
 public class ValidObservation implements Observation {
 
 	// Data members
-	private String starName; // TODO: probably not required
+	private String starName; // TODO: probably don't want this here; map to set of observations
 	private DateInfo dateInfo;
 	private Magnitude magnitude;
 	private String obsCode;
@@ -65,7 +65,7 @@ public class ValidObservation implements Observation {
 	 */
 	public ValidObservation(
 			DateInfo dateInfo, Magnitude magnitude, String obsCode) {
-		this.starName = null;
+		this.starName = "Unknown";
 		this.dateInfo = dateInfo;
 		this.magnitude = magnitude;
 		this.obsCode = obsCode;

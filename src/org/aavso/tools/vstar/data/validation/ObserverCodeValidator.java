@@ -24,7 +24,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class ObserverCodeValidator implements IStringValidator<String> {
 
-	// TODO: get rid of this!
+	// TODO: remove this!?
 	private final static String[] forbiddenCodes = new String[]{"TST01"};
 	
 	private final RegexValidator regexValidator;
