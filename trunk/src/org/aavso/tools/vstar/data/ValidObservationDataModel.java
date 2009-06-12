@@ -23,6 +23,11 @@ import javax.swing.table.AbstractTableModel;
 
 /**
  * A table model for valid observations.
+ * 
+ * TODO: may want an abstract factory that returns a family of
+ *       observation and data table model class instances (and 
+ *       maybe other classes, e.g. plot-related classes) given
+ *       the ObservationRetrieverBase subclass.
  */
 public class ValidObservationDataModel extends AbstractTableModel {
 
@@ -43,9 +48,29 @@ public class ValidObservationDataModel extends AbstractTableModel {
 	}
 
 	/**
+	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
+	 */
+	public String getColumnName(int column) {
+		String columnName = null;
+
+		switch (column) {
+		case 0:
+			columnName = "Date";
+			break;
+		case 1:
+			columnName = "Magnitude";
+			break;
+		case 2:
+			columnName = "Observer Code";
+			break;
+		}
+
+		return columnName;
+	}
+
+	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
-	@Override
 	public int getColumnCount() {
 		return COLUMNS;
 	}
@@ -53,7 +78,6 @@ public class ValidObservationDataModel extends AbstractTableModel {
 	/**
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
-	@Override
 	public int getRowCount() {
 		return this.validObservations.size();
 	}
@@ -61,7 +85,6 @@ public class ValidObservationDataModel extends AbstractTableModel {
 	/**
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
-	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		assert columnIndex < COLUMNS;
 		

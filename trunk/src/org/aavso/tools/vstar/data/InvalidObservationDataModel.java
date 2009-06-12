@@ -27,7 +27,7 @@ import javax.swing.table.AbstractTableModel;
 public class InvalidObservationDataModel extends AbstractTableModel {
 
 	private final static int COLUMNS = 2;
-	
+
 	/**
 	 * The list of invalid observations retrieved.
 	 */
@@ -45,9 +45,26 @@ public class InvalidObservationDataModel extends AbstractTableModel {
 	}
 
 	/**
+	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
+	 */
+	public String getColumnName(int column) {
+		String columnName = null;
+
+		switch (column) {
+		case 0:
+			columnName = "Observation";
+			break;
+		case 1:
+			columnName = "Comment";
+			break;
+		}
+
+		return columnName;
+	}
+
+	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
-	@Override
 	public int getColumnCount() {
 		return COLUMNS;
 	}
@@ -55,7 +72,6 @@ public class InvalidObservationDataModel extends AbstractTableModel {
 	/**
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
-	@Override
 	public int getRowCount() {
 		return invalidObservations.size();
 	}
@@ -63,13 +79,12 @@ public class InvalidObservationDataModel extends AbstractTableModel {
 	/**
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
-	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		assert columnIndex < COLUMNS;
-		
+
 		Object value = null;
 		InvalidObservation invalidOb = invalidObservations.get(rowIndex);
-		switch(columnIndex) {
+		switch (columnIndex) {
 		case 0:
 			value = invalidOb.getInputLine();
 			break;
