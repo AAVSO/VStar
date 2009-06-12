@@ -17,33 +17,27 @@
  */
 package org.aavso.tools.vstar.ui;
 
-import java.awt.GridLayout;
 import java.util.List;
 
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 /**
- * The tabbed pane.
+ * This class represents the main frame's tabs.
  */
-public class Tabs extends JPanel {
+public class Tabs extends JTabbedPane {
 
 	/**
 	 * Constructor
 	 */
 	public Tabs(List<NamedComponent> namedComponents) {
-		super(new GridLayout(1, 1));
-
-		JTabbedPane tabbedPane = new JTabbedPane();
+		super();
 
 		for (NamedComponent namedComponent : namedComponents) {
-			tabbedPane.addTab(namedComponent.getName(), null, namedComponent
+			this.addTab(namedComponent.getName(), null, namedComponent
 					.getComponent(), namedComponent.getTip());
 		}
 
 		// We want scrolling tabs.
-		tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-
-		add(tabbedPane);
+		this.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 	}
 }

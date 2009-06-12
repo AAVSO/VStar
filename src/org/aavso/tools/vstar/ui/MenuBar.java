@@ -33,7 +33,9 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.InvalidObservationDataModel;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidObservationDataModel;
 import org.aavso.tools.vstar.data.visitor.DataListPartitioningVisitor;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.input.SimpleTextFormatReader;
@@ -132,21 +134,48 @@ public class MenuBar extends JMenuBar {
 						List<InvalidObservation> invalidObs = simpleTextFormatReader
 								.getInvalidObservations();
 
-						DataListPartitioningVisitor visitor = new DataListPartitioningVisitor(
-								parent.getDataListModel(), parent
-										.getDataErrorListModel());
+//						DataListPartitioningVisitor visitor = new DataListPartitioningVisitor(
+//								parent.getDataListModel(), parent
+//										.getDataErrorListModel());
+//
+//						// TODO: get rid of visitors, accept()
+//						for (ValidObservation validOb : validObs) {
+//							validOb.accept(visitor);
+//						}
+//
+//						for (InvalidObservation invalidOb : invalidObs) {
+//							invalidOb.accept(visitor);
+//						}
 
-						// TODO: get rid of visitors, accept()
-						for (ValidObservation validOb : validObs) {
-							validOb.accept(visitor);
+						// Add a new tab with the observation data.
+
+						ValidObservationDataModel validObsModel = null;
+						InvalidObservationDataModel invalidObsModel = null;
+
+						if (!validObs.isEmpty()) {
+							validObsModel = new ValidObservationDataModel(
+									validObs);
 						}
 
-						for (InvalidObservation invalidOb : invalidObs) {
-							invalidOb.accept(visitor);
+						if (!invalidObs.isEmpty()) {
+							invalidObsModel = new InvalidObservationDataModel(
+									invalidObs);
 						}
+
+						parent.getTabs().insertTab(
+								f.getName(),
+								null, // TODO: add a nice icon; also need a close box
+								new SimpleTextFormatObservationPane(
+										validObsModel, invalidObsModel),
+								f.getPath(), 0);
+						
+						parent.getTabs().setSelectedIndex(0);
+
 					} catch (Exception ex) {
-						MessageBox.showErrorDialog(parent, "File Open", ex
-								.getMessage());
+						MessageBox
+								.showErrorDialog(parent,
+										"Simple Text Format File Open", ex
+												.getMessage());
 					}
 
 				}
