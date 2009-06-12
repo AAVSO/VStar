@@ -134,19 +134,6 @@ public class MenuBar extends JMenuBar {
 						List<InvalidObservation> invalidObs = simpleTextFormatReader
 								.getInvalidObservations();
 
-//						DataListPartitioningVisitor visitor = new DataListPartitioningVisitor(
-//								parent.getDataListModel(), parent
-//										.getDataErrorListModel());
-//
-//						// TODO: get rid of visitors, accept()
-//						for (ValidObservation validOb : validObs) {
-//							validOb.accept(visitor);
-//						}
-//
-//						for (InvalidObservation invalidOb : invalidObs) {
-//							invalidOb.accept(visitor);
-//						}
-
 						// Add a new tab with the observation data.
 
 						ValidObservationDataModel validObsModel = null;

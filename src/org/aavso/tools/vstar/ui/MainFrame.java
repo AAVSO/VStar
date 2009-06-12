@@ -84,14 +84,6 @@ public class MainFrame extends JFrame {
 	private JTabbedPane createContent() {
 		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 
-//		namedComponents.add(new NamedComponent("Valid Data",
-//				createScrollPaneList(dataListModel),
-//				"Data that is well-formed and within expected constraints"));
-//
-//		namedComponents.add(new NamedComponent("Invalid Data",
-//				createScrollPaneList(dataErrorListModel),
-//				"Data that does not conform to expectations"));
-//
 		namedComponents.add(new NamedComponent("Light Curve",
 				createTextPanel("Light Curve Goes Here"),
 				"A plot of magnitude against Julian Day"));
