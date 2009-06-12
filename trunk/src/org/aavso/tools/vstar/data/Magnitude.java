@@ -87,7 +87,6 @@ public class Magnitude {
 		if (isFainterThan) {
 			strBuf.append("Fainter than ");
 		}
-		strBuf.append("Magnitude ");
 		strBuf.append(magValue);
 		if (isUncertain) {
 			strBuf.append(" (uncertain");

@@ -55,7 +55,7 @@ public class InvalidObservationDataModel extends AbstractTableModel {
 			columnName = "Observation";
 			break;
 		case 1:
-			columnName = "Comment";
+			columnName = "Error";
 			break;
 		}
 
