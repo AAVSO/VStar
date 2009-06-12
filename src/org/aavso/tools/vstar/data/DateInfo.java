@@ -51,7 +51,6 @@ public class DateInfo {
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 		
-		strBuf.append("JD: ");
 		strBuf.append(julianDay);
 		strBuf.append(" (");
 		strBuf.append(jdCalc.jdToCalendar(julianDay));

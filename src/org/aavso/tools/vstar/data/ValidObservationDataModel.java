@@ -24,10 +24,12 @@ import javax.swing.table.AbstractTableModel;
 /**
  * A table model for valid observations.
  * 
- * TODO: may want an abstract factory that returns a family of
- *       observation and data table model class instances (and 
- *       maybe other classes, e.g. plot-related classes) given
- *       the ObservationRetrieverBase subclass.
+ * TODO: 
+ * - May want an abstract factory that returns a family of
+ *   observation and data table model class instances (and 
+ *   maybe other classes, e.g. plot-related classes) given
+ *   the ObservationRetrieverBase subclass.
+ * - Also implement methods for cell editing, cell type, ...
  */
 public class ValidObservationDataModel extends AbstractTableModel {
 
