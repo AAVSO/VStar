@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.ui;
 
-import java.awt.Container;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +29,7 @@ import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 
 /**
  * TODO: 
@@ -44,16 +44,6 @@ import javax.swing.JScrollPane;
  */
 public class MainFrame extends JFrame {
 
-	// TODO: Consider using custom models below that simply
-	// reference the data we have read from the input
-	// source. This may be very important given the size
-	// of datasets (unless we use paged data sets of some
-	// kind). At the very least, these should be wrapped in
-	// another object which presents an unchanging interface
-	// permitting the underlying representation to change.
-	// Also, we may want to wrap all data models in an object
-	// to be passed to other objects that need access to them.
-
 	// Model for valid observations.
 	private DefaultListModel dataListModel;
 
@@ -63,6 +53,9 @@ public class MainFrame extends JFrame {
 	// The application's menu bar.
 	private JMenuBar menuBar;
 
+	// The tabs for the main window.
+	private JTabbedPane tabs;
+	
 	/**
 	 * Constructor
 	 */
@@ -73,9 +66,12 @@ public class MainFrame extends JFrame {
 		this.dataErrorListModel = new DefaultListModel();
 
 		this.menuBar = new MenuBar(this);
-
 		this.setJMenuBar(menuBar);
-		this.setContentPane(this.createContent());
+				
+		this.tabs = this.createContent();
+		JPanel panel = new JPanel(new GridLayout(1, 1));
+		panel.add(tabs);
+		this.setContentPane(panel);
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -83,19 +79,19 @@ public class MainFrame extends JFrame {
 	/**
 	 * The main components of the main frame are created here.
 	 * 
-	 * @return The main contents in the form of a container.
+	 * @return The main contents in the form of a tabbed pane.
 	 */
-	private Container createContent() {
+	private JTabbedPane createContent() {
 		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 
-		namedComponents.add(new NamedComponent("Valid Data",
-				createScrollPaneList(dataListModel),
-				"Data that is well-formed and within expected constraints"));
-
-		namedComponents.add(new NamedComponent("Invalid Data",
-				createScrollPaneList(dataErrorListModel),
-				"Data that does not conform to expectations"));
-
+//		namedComponents.add(new NamedComponent("Valid Data",
+//				createScrollPaneList(dataListModel),
+//				"Data that is well-formed and within expected constraints"));
+//
+//		namedComponents.add(new NamedComponent("Invalid Data",
+//				createScrollPaneList(dataErrorListModel),
+//				"Data that does not conform to expectations"));
+//
 		namedComponents.add(new NamedComponent("Light Curve",
 				createTextPanel("Light Curve Goes Here"),
 				"A plot of magnitude against Julian Day"));
@@ -145,5 +141,9 @@ public class MainFrame extends JFrame {
 
 	public DefaultListModel getDataErrorListModel() {
 		return dataErrorListModel;
+	}
+
+	public JTabbedPane getTabs() {
+		return tabs;
 	}
 }
