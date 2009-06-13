@@ -15,18 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.data;
+package org.aavso.tools.vstar.ui.model;
 
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
+
+import org.aavso.tools.vstar.data.InvalidObservation;
 
 /**
  * 
  */
 public class InvalidObservationDataModel extends AbstractTableModel {
 
-	private final static int COLUMNS = 2;
+	private final static int COLUMNS = 3;
 
 	/**
 	 * The list of invalid observations retrieved.
@@ -45,24 +47,6 @@ public class InvalidObservationDataModel extends AbstractTableModel {
 	}
 
 	/**
-	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
-	 */
-	public String getColumnName(int column) {
-		String columnName = null;
-
-		switch (column) {
-		case 0:
-			columnName = "Observation";
-			break;
-		case 1:
-			columnName = "Error";
-			break;
-		}
-
-		return columnName;
-	}
-
-	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
@@ -77,6 +61,29 @@ public class InvalidObservationDataModel extends AbstractTableModel {
 	}
 
 	/**
+	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
+	 */
+	public String getColumnName(int column) {
+		String columnName = null;
+
+		// TODO: use an array?
+		
+		switch (column) {
+		case 0:
+			columnName = "Line";
+			break;
+		case 1:
+			columnName = "Observation";
+			break;
+		case 2:
+			columnName = "Error";
+			break;
+		}
+
+		return columnName;
+	}
+
+	/**
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
@@ -86,9 +93,12 @@ public class InvalidObservationDataModel extends AbstractTableModel {
 		InvalidObservation invalidOb = invalidObservations.get(rowIndex);
 		switch (columnIndex) {
 		case 0:
-			value = invalidOb.getInputLine();
+			value = invalidOb.getLineNumber();
 			break;
 		case 1:
+			value = invalidOb.getInputLine();
+			break;
+		case 2:
 			value = invalidOb.getError();
 			break;
 		}

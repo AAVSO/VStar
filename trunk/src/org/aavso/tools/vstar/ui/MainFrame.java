@@ -38,7 +38,10 @@ import javax.swing.JTabbedPane;
  * - Undoable edits, Edit menu
  * - About box
  * - Splash Screen
+ * - Toolbar
+ * - Button in plot tab for loading data
  */
+
 /**
  * The main VStar window.
  */
@@ -84,13 +87,13 @@ public class MainFrame extends JFrame {
 	private JTabbedPane createContent() {
 		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 
-		namedComponents.add(new NamedComponent("Light Curve",
-				createTextPanel("Light Curve Goes Here"),
-				"A plot of magnitude against Julian Day"));
-
-		namedComponents.add(new NamedComponent("Phase Plot",
-				createTextPanel("Phase Plot Goes Here"),
-				"A phase plot against the light curve"));
+//		namedComponents.add(new NamedComponent("Light Curve",
+//				createTextPanel("Light Curve Goes Here"),
+//				"A plot of magnitude against Julian Day"));
+//
+//		namedComponents.add(new NamedComponent("Phase Plot",
+//				createTextPanel("Phase Plot Goes Here"),
+//				"A phase plot against the light curve"));
 
 		return new Tabs(namedComponents);
 	}

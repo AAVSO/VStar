@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 
 /**
@@ -26,7 +27,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class MagnitudeFieldValidator implements IStringValidator<Magnitude> {
 
-	private final int FAINTER_THAN_INDEX = 0;
+	private final int MAG_MODIFIER_INDEX = 0;
 	private final int MAG_INDEX = 1;
 	private final int UNCERTAINTY_INDEX = 2;
 
@@ -37,12 +38,12 @@ public class MagnitudeFieldValidator implements IStringValidator<Magnitude> {
 	 * Constructor.
 	 */
 	public MagnitudeFieldValidator() {
-		// Optional '<' prefix, followed by a real number (0.4, -4, 5.56),
+		// Optional '<' or '>' prefix, followed by a real number (0.4, -4, 5.56),
 		// and optionally followed by a ':' suffix. Note the use of the
 		// non-capturing group (?:...) for the fractional part. We just want
 		// to group this as an optional sub-pattern, not obtain it separately.
-		this.regexValidator = new RegexValidator("^(<)?(\\-?\\d+(?:\\.\\d+)?)(:)?$",
-				"Magnitude");
+		this.regexValidator = new RegexValidator(
+				"^(<|>)?(\\-?\\d+(?:\\.\\d+)?)(:)?$", "Magnitude");
 		this.magnitudeValueValidator = new MagnitudeValueValidator(
 				new InclusiveRangePredicate(-5, 25));
 	}
@@ -53,30 +54,54 @@ public class MagnitudeFieldValidator implements IStringValidator<Magnitude> {
 		String[] fields = this.regexValidator.validate(str);
 
 		// Here we determine the parts present in the magnitude field.
-		// The magnitude value itself is non-optional whereas the fainter-than
-		// and uncertainty parts are both optional, so we test for combinations
-		// of these two optional parts.
+		// The magnitude value itself is non-optional whereas the magnitude 
+		// modifier (fainter/brighter-than) and uncertainty parts are both 
+		// optional, so we test for combinations of these two optional parts.
 
-		double magnitude = this.magnitudeValueValidator.validate(fields[MAG_INDEX]);
+		double magnitude = this.magnitudeValueValidator
+				.validate(fields[MAG_INDEX]);
 
-		if (fields[FAINTER_THAN_INDEX] != null
+		if (fields[MAG_MODIFIER_INDEX] != null
 				&& fields[UNCERTAINTY_INDEX] != null) {
 			// All 3 parts are present.
-			mag = new Magnitude(true, true, magnitude);
-		} else if (fields[FAINTER_THAN_INDEX] != null
+			mag = new Magnitude(magnitude,
+					getMagModValue(fields[MAG_MODIFIER_INDEX]),
+					Magnitude.IS_UNCERTAIN);
+		} else if (fields[MAG_MODIFIER_INDEX] != null
 				&& fields[UNCERTAINTY_INDEX] == null) {
-			// Fainter-than and magnitude parts are present.
-			mag = new Magnitude(true, false, magnitude);
-		} else if (fields[FAINTER_THAN_INDEX] == null
+			// Magnitude modifier and magnitude parts are present.
+			mag = new Magnitude(magnitude,
+					getMagModValue(fields[MAG_MODIFIER_INDEX]),
+					!Magnitude.IS_UNCERTAIN);
+		} else if (fields[MAG_MODIFIER_INDEX] == null
 				&& fields[UNCERTAINTY_INDEX] != null) {
 			// Magnitude and uncertainty parts are present.
-			mag = new Magnitude(false, true, magnitude);
-		} else if (fields[FAINTER_THAN_INDEX] == null
+			mag = new Magnitude(magnitude, MagnitudeModifier.NO_DELTA,
+					Magnitude.IS_UNCERTAIN);
+		} else if (fields[MAG_MODIFIER_INDEX] == null
 				&& fields[UNCERTAINTY_INDEX] == null) {
 			// Only the magnitude part is present.
-			mag = new Magnitude(false, false, magnitude);
+			mag = new Magnitude(magnitude, MagnitudeModifier.NO_DELTA,
+					!Magnitude.IS_UNCERTAIN);
 		}
 
 		return mag;
+	}
+
+	// Helpers
+
+	private MagnitudeModifier getMagModValue(String modStr) throws ObservationValidationError {
+		MagnitudeModifier mod = MagnitudeModifier.NO_DELTA;
+
+		if ("<".equals(modStr)) {
+			mod = MagnitudeModifier.FAINTER_THAN;
+		} else if (">".equals(modStr)) {
+			mod = MagnitudeModifier.BRIGHTER_THAN;
+		} else {
+			// This should never happen if we are calling this appropriately above.
+			throw new ObservationValidationError("Expected magnitude modifier: < or >");
+		}
+
+		return mod;
 	}
 }

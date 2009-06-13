@@ -23,25 +23,25 @@ package org.aavso.tools.vstar.data;
  */
 public class Magnitude {
 
+	public final static boolean IS_UNCERTAIN = true;
 	public final static double ILLEGAL_UNCERTAINTY = -1;
 	
 	private double magValue;
-	private boolean isFainterThan; // was the observation fainter than the specified magValue?
+	private MagnitudeModifier magModifier;
 	private boolean isUncertain;
 	private double uncertainty;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param isFainterThan Does this magValue constitute a fainter-than observation.
-	 * @param isUncertain Is this an uncertain magValue value?
 	 * @param magValue The magValue itself.
+	 * @param brightnessModifier Does the magValue constitute a fainter/brighter-than observation?
+	 * @param isUncertain Is this an uncertain magValue value?
 	 */
-	public Magnitude(boolean isFainterThan, boolean isUncertain,
-			double magnitude) {
-		this.isFainterThan = isFainterThan;
-		this.isUncertain = isUncertain;
+	public Magnitude(double magnitude, MagnitudeModifier magModifier, boolean isUncertain) {
 		this.magValue = magnitude;
+		this.magModifier = magModifier;
+		this.isUncertain = isUncertain;
 		this.uncertainty = ILLEGAL_UNCERTAINTY; // this must be set after construction
 	}
 	
@@ -56,7 +56,14 @@ public class Magnitude {
 	 * @return whether the magValue is fainter than the specified value
 	 */
 	public boolean isFainterThan() {
-		return isFainterThan;
+		return magModifier == MagnitudeModifier.FAINTER_THAN;
+	}
+
+	/**
+	 * @return whether the magValue is brighter than the specified value
+	 */
+	public boolean isBrighterThan() {
+		return magModifier == MagnitudeModifier.BRIGHTER_THAN;
 	}
 
 	/**
@@ -84,18 +91,24 @@ public class Magnitude {
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 		
-		if (isFainterThan) {
-			strBuf.append("Fainter than ");
+		if (isFainterThan()) {
+			strBuf.append("<");
+		} else if (isBrighterThan()) {
+			strBuf.append(">");
 		}
+		
 		strBuf.append(magValue);
+
 		if (isUncertain) {
-			strBuf.append(" (uncertain");
-			if (uncertainty != 0) {
-				strBuf.append("ty: ");
-				strBuf.append(uncertainty);
-			}
+			strBuf.append(" (uncertain)");
+		}
+
+		if (uncertainty != 0) {
+			strBuf.append(" (\u00B1");
+			strBuf.append(uncertainty);
 			strBuf.append(")");
 		}
+		
 		return strBuf.toString();
 	}
 }

@@ -38,7 +38,7 @@ public class JulianDayValidator implements IStringValidator<DateInfo> {
 	 * Constructor.
 	 */
 	public JulianDayValidator() {
-		this.regexValidator = new RegexValidator("^(\\d+\\.\\d+)$", "Julian Day");
+		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$", "Julian Day");
 	}
 
 	/**

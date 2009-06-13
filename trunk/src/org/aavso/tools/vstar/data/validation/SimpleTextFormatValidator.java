@@ -29,11 +29,9 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 public class SimpleTextFormatValidator implements
 		IStringValidator<ValidObservation> {
 
-	// Field indices
 	private final int JD_FIELD = 0;
 	private final int MAG_FIELD = 1;
 
-	// Validators
 	private final JulianDayValidator julianDayValidator;
 	private final MagnitudeFieldValidator magnitudeFieldValidator;
 	private final MagnitudeValueValidator uncertaintyValueValidator;
@@ -59,7 +57,10 @@ public class SimpleTextFormatValidator implements
 	 * <p>
 	 * Both uncertainty and observer code fields are optional. The uncertainty
 	 * field *may* be present however, whether or not the magnitude field has a
-	 * ":" suffix. If ":" is exists in the magnitude field, the uncertainty
+	 * ":" suffix.
+	 * 
+	 * TODO: REVISE THIS: 
+	 * If ":" is exists in the magnitude field, the uncertainty
 	 * field is required. Otherwise, if present, it must be zero. In either
 	 * case, if the uncertainty field is present, the observer code will be the
 	 * 4th field, otherwise it must be the 3rd. If any of this does not hold
@@ -103,11 +104,6 @@ public class SimpleTextFormatValidator implements
 				// Not a valid uncertainty value. Assume observer code.
 				obsCode = this.observerCodeValidator.validate(fields[2]);
 			}
-		}
-
-		if (!magnitude.isUncertain() && uncertaintyMag != 0) {
-			throw new ObservationValidationError(
-					"The uncertainty value should either be absent or zero.");
 		}
 
 		magnitude.setUncertainty(uncertaintyMag);

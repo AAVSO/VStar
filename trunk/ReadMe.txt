@@ -7,7 +7,7 @@ The src directory contains the Java source code for the tool.
 The test directory contains unit tests and test data.
 
 The file build.xml is an Ant file used for building a VStar distribution jar 
-file. Ant can be downloaded from http://ant.apache.org/ and ant 1.7.0 or higher 
+file. Ant can be downloaded from http://ant.apache.org/ and 1.7.0 or higher 
 is assumed.
 
 VStar uses the following libraries (TODO: review versions):

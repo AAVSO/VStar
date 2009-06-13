@@ -17,13 +17,11 @@
  */
 package org.aavso.tools.vstar.input;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.LineNumberReader;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
-import org.aavso.tools.vstar.data.Observation;
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
@@ -36,7 +34,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 public class SimpleTextFormatReader extends ObservationRetrieverBase {
 
 	private String starName; // may not be required
-	private BufferedReader reader;
+	private LineNumberReader reader;
 
 	/**
 	 * Constructor
@@ -44,10 +42,10 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 	 * @param starName
 	 *            The name of the star to which the observations pertain.
 	 * @param reader
-	 *            A buffered reader from which lines of observations can be
-	 *            read.
+	 *            A line number buffered reader from which lines of observations
+	 *            can be read.
 	 */
-	public SimpleTextFormatReader(String starName, BufferedReader reader) {
+	public SimpleTextFormatReader(String starName, LineNumberReader reader) {
 		this.starName = starName;
 		this.reader = reader;
 	}
@@ -56,10 +54,10 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 	 * Constructor
 	 * 
 	 * @param reader
-	 *            A buffered reader from which lines of observations can be
-	 *            read.
+	 *            A line number buffered reader from which lines of observations
+	 *            can be read.
 	 */
-	public SimpleTextFormatReader(BufferedReader reader) {
+	public SimpleTextFormatReader(LineNumberReader reader) {
 		this("", reader);
 	}
 
@@ -71,16 +69,23 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 		try {
 			String line = reader.readLine();
 			while (line != null) {
+				int lineNum = reader.getLineNumber();
 				try {
-					validObservations.add(validator.validate(line));
+					ValidObservation validOb = validator.validate(line);
+					validOb.setLineNumber(lineNum);
+					validObservations.add(validOb);
 				} catch (ObservationValidationError e) {
-					invalidObservations.add(new InvalidObservation(line, e.getMessage()));	
+					InvalidObservation invalidOb = new InvalidObservation(
+							line, e.getMessage());
+					invalidOb.setLineNumber(lineNum);
+					invalidObservations.add(invalidOb);
 				}
-				
+
 				line = reader.readLine();
 			}
 		} catch (IOException e) {
-			throw new ObservationReadError("Error when attempting to read observation source.");
+			throw new ObservationReadError(
+					"Error when attempting to read observation source.");
 		}
 	}
 }

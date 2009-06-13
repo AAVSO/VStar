@@ -20,19 +20,20 @@ package org.aavso.tools.vstar.data;
 import org.aavso.tools.vstar.data.visitor.ObservationVisitor;
 
 /**
- * This class corresponds to a single valid variable star observation. 
- * Depending upon the source, some fields may be null. Some are not 
- * permitted to be null however and these are documented below.
- * TODO: or we will specialise classes for input source type
+ * This class corresponds to a single valid variable star observation. Depending
+ * upon the source, some fields may be null. Some are not permitted to be null
+ * however and these are documented below. TODO: or we will specialise classes
+ * for input source type
  */
-public class ValidObservation implements Observation {
+public class ValidObservation extends Observation {
 
-	// Data members
-	private String starName; // TODO: probably don't want this here; map to set of observations
+	private String starName; // TODO: probably don't want this here; map to set
+								// of observations
 	private DateInfo dateInfo;
 	private Magnitude magnitude;
 	private String obsCode;
-
+	private boolean discrepant;
+	
 	/**
 	 * Constructor for use with simple observation format.
 	 * 
@@ -45,12 +46,14 @@ public class ValidObservation implements Observation {
 	 * @param obsCode
 	 *            The observer code.
 	 */
-	public ValidObservation(String starName,
-			DateInfo dateInfo, Magnitude magnitude, String obsCode) {
+	public ValidObservation(String starName, DateInfo dateInfo,
+			Magnitude magnitude, String obsCode) {
+		super(0);
 		this.starName = starName;
 		this.dateInfo = dateInfo;
 		this.magnitude = magnitude;
 		this.obsCode = obsCode;
+		this.discrepant = false;
 	}
 
 	/**
@@ -63,16 +66,13 @@ public class ValidObservation implements Observation {
 	 * @param obsCode
 	 *            The observer code.
 	 */
-	public ValidObservation(
-			DateInfo dateInfo, Magnitude magnitude, String obsCode) {
-		this.starName = "Unknown";
-		this.dateInfo = dateInfo;
-		this.magnitude = magnitude;
-		this.obsCode = obsCode;
+	public ValidObservation(DateInfo dateInfo, Magnitude magnitude,
+			String obsCode) {
+		this("Unknown", dateInfo, magnitude, obsCode);
 	}
 
 	// Getters and Setters
-	
+
 	public String getStarName() {
 		return starName;
 	}
@@ -88,6 +88,15 @@ public class ValidObservation implements Observation {
 	public String getObsCode() {
 		return obsCode;
 	}
+	
+	public boolean isDiscrepant() {
+		return discrepant;
+	}
+
+	public void setDiscrepant(boolean discrepant) {
+		// TODO: notify listeners if old and new values are different!
+		this.discrepant = discrepant;
+	}
 
 	public void accept(ObservationVisitor v) {
 		v.visit(this);
@@ -96,8 +105,8 @@ public class ValidObservation implements Observation {
 	@Override
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
-		
-		if (starName != null) { 
+
+		if (starName != null) {
 			strBuf.append(starName);
 			strBuf.append(", ");
 		}
@@ -106,7 +115,7 @@ public class ValidObservation implements Observation {
 		strBuf.append(magnitude);
 		strBuf.append(", Observer code: ");
 		strBuf.append(obsCode);
-		
+
 		return strBuf.toString();
 	}
 }
