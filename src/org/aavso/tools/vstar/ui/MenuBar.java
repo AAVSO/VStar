@@ -20,9 +20,9 @@ package org.aavso.tools.vstar.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,12 +33,11 @@ import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
-import org.aavso.tools.vstar.data.InvalidObservationDataModel;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.data.ValidObservationDataModel;
-import org.aavso.tools.vstar.data.visitor.DataListPartitioningVisitor;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.input.SimpleTextFormatReader;
+import org.aavso.tools.vstar.ui.model.InvalidObservationDataModel;
+import org.aavso.tools.vstar.ui.model.ValidObservationDataModel;
 
 /**
  * VStar's menu bar.
@@ -120,13 +119,14 @@ public class MenuBar extends JMenuBar {
 
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File f = fileOpenDialog.getSelectedFile();
+
 					try {
 						FileReader fileReader = new FileReader(f.getPath());
-
+						
 						// TODO: Use a factory method to determine observation
 						// retriever class to use given the file type.
 						ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
-								new BufferedReader(fileReader));
+								new LineNumberReader(fileReader));
 
 						simpleTextFormatReader.retrieveObservations();
 						List<ValidObservation> validObs = simpleTextFormatReader
@@ -134,6 +134,10 @@ public class MenuBar extends JMenuBar {
 						List<InvalidObservation> invalidObs = simpleTextFormatReader
 								.getInvalidObservations();
 
+						// TODO: we need a DocManager class to store a mapping from
+						// data files to tabs/observation lists, and also to handle
+						// undo, document "is-dirty" handling etc.
+						
 						// Add a new tab with the observation data.
 
 						ValidObservationDataModel validObsModel = null;
@@ -150,7 +154,7 @@ public class MenuBar extends JMenuBar {
 						}
 
 						parent.getTabs().insertTab(
-								f.getName(),
+								f.getName() + " Data",
 								null, // TODO: add a nice icon; also need a close box
 								new SimpleTextFormatObservationPane(
 										validObsModel, invalidObsModel),
@@ -175,7 +179,8 @@ public class MenuBar extends JMenuBar {
 	 */
 	private ActionListener createQuitListener() {
 		return new ActionListener() {
-			// TODO: do other cleanup, e.g. if file needs saving (phase II)
+			// TODO: do other cleanup, e.g. if file needs saving (phase II);
+			//       need a document model including undo for this 
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
@@ -188,8 +193,15 @@ public class MenuBar extends JMenuBar {
 	private ActionListener createAboutListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO
-				MessageBox.showMessageDialog(parent, "VStar", "VStar");
+				StringBuffer strBuf = new StringBuffer();
+				strBuf.append("VStar\n\n");
+				strBuf.append("A variable star data statistical analysis tool\n");
+				strBuf.append("developed for:\n\n");
+				strBuf.append("  The American Association of Variable Star\n");
+				strBuf.append("  Observers: http://www.aavso.org/\n\n");
+				strBuf.append("  and\n\n");
+				strBuf.append("  The CitizenSky Project: http://www.citizensky.org/");
+				MessageBox.showMessageDialog(parent, "VStar", strBuf.toString());
 			}
 		};
 	}

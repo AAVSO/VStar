@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.data;
 
 import org.aavso.tools.vstar.util.AbstractDateUtil;
-import org.aavso.tools.vstar.util.JDCalculator;
 import org.aavso.tools.vstar.util.MeeusDateUtil;
 
 
@@ -41,12 +40,19 @@ public class DateInfo {
 	}
 
 	/**
-	 * @return the julianDay
+	 * @return the Julian Day
 	 */
 	public double getJulianDay() {
 		return julianDay;
 	}
 
+	/**
+	 * @return the Calendar Date
+	 */
+	public String getCalendarDate() {
+		return jdCalc.jdToCalendar(julianDay);
+	}
+	
 	@Override
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();

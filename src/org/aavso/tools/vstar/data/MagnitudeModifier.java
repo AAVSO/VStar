@@ -1,6 +1,3 @@
-package org.aavso.tools.vstar.data;
-
-import org.aavso.tools.vstar.data.visitor.ObservationVisitor;
 /**
  * VStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
@@ -18,41 +15,14 @@ import org.aavso.tools.vstar.data.visitor.ObservationVisitor;
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
+package org.aavso.tools.vstar.data;
 
 /**
- * The base class for all file-sourced observation classes. 
+ * This enumeration represents a magnitude modifier type. 
  */
-public abstract class Observation {
+public enum MagnitudeModifier {
 
-	private int lineNumber;	
-
-	/**
-	 * @param lineNumber
-	 */
-	public Observation(int lineNumber) {
-		super();
-		this.lineNumber = lineNumber;
-	}
-	
-	/**
-	 * Accept an observation visitor.
-	 * 
-	 * @param v A concrete observation visitor.
-	 */
-	public abstract void accept(ObservationVisitor v);
-
-
-	/**
-	 * @return the lineNumber
-	 */
-	public int getLineNumber() {
-		return lineNumber;
-	}
-
-	/**
-	 * @param lineNumber the lineNumber to set
-	 */
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber;
-	}
+	FAINTER_THAN,
+	BRIGHTER_THAN,
+	NO_DELTA
 }

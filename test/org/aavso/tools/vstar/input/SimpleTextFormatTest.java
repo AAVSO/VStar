@@ -17,7 +17,7 @@
  */
 package org.aavso.tools.vstar.input;
 
-import java.io.BufferedReader;
+import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.util.List;
 
@@ -83,7 +83,7 @@ public class SimpleTextFormatTest extends TestCase {
 			StringReader strReader = new StringReader(str);
 
 			ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
-					new BufferedReader(strReader));
+					new LineNumberReader(strReader));
 
 			simpleTextFormatReader.retrieveObservations();
 			obs = simpleTextFormatReader.getValidObservations();

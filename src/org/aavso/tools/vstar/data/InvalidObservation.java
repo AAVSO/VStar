@@ -22,7 +22,7 @@ import org.aavso.tools.vstar.data.visitor.ObservationVisitor;
 /**
  * This class corresponds to a single invalid variable star observation.
  */
-public class InvalidObservation implements Observation {
+public class InvalidObservation extends Observation {
 
 	private String inputLine;
 	private String error;
@@ -30,20 +30,24 @@ public class InvalidObservation implements Observation {
 	/**
 	 * Constructor
 	 * 
-	 * @param inputLine The original input line.
-	 * @param error The error message.
+	 * @param lineNum
+	 *            The line number at which this observation was found in the
+	 *            originating source file.
+	 * @param inputLine
+	 *            The original input line.
+	 * @param error
+	 *            The error message.
 	 */
 	public InvalidObservation(String inputLine, String error) {
-		super();
+		super(0);
 		this.inputLine = inputLine;
-		// String[] fields = line.split("\\s+"); 
 		this.error = error;
 	}
 
 	public String getInputLine() {
 		return inputLine;
 	}
-	
+
 	public String getError() {
 		return error;
 	}
@@ -55,12 +59,11 @@ public class InvalidObservation implements Observation {
 	@Override
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
-		
+
 		strBuf.append(inputLine);
 		strBuf.append(": ");
 		strBuf.append(error);
-		
+
 		return strBuf.toString();
-		
 	}
 }
