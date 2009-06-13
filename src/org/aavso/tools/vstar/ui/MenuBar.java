@@ -136,7 +136,8 @@ public class MenuBar extends JMenuBar {
 
 						// TODO: we need a DocManager class to store a mapping from
 						// data files to tabs/observation lists, and also to handle
-						// undo, document "is-dirty" handling etc.
+						// undo, document "is-dirty" handling, don't load same
+						// file twice etc.
 						
 						// Add a new tab with the observation data.
 
