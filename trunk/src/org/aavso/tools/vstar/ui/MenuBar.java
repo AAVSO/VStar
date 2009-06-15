@@ -17,11 +17,13 @@
  */
 package org.aavso.tools.vstar.ui;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +39,14 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.input.SimpleTextFormatReader;
 import org.aavso.tools.vstar.ui.model.InvalidObservationDataModel;
+import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.aavso.tools.vstar.ui.model.ValidObservationDataModel;
 
 /**
  * VStar's menu bar.
+ * 
+ * TODO: menu keyboard accelerators may need to use "ctrl" key instead of meta
+ * key to make the most cross-platform sense. Test!
  */
 public class MenuBar extends JMenuBar {
 
@@ -49,7 +55,11 @@ public class MenuBar extends JMenuBar {
 
 	// The parent window.
 	private MainFrame parent;
-
+	
+	// Menu items.
+	JMenuItem fileLightCurveSaveItem;
+	JMenuItem fileLightCurvePrintItem;
+	
 	/**
 	 * Constructor
 	 * 
@@ -76,6 +86,16 @@ public class MenuBar extends JMenuBar {
 				ActionEvent.META_MASK));
 		fileOpenItem.addActionListener(createFileOpenListener());
 		fileMenu.add(fileOpenItem);
+
+		fileLightCurveSaveItem = new JMenuItem("Save Light Curve...");
+		fileLightCurveSaveItem.addActionListener(this.createSaveLightCurveListener());
+		fileLightCurveSaveItem.setEnabled(false);
+		fileMenu.add(fileLightCurveSaveItem);
+
+		fileLightCurvePrintItem = new JMenuItem("Print Light Curve...");
+		fileLightCurvePrintItem.addActionListener(this.createPrintLightCurveListener());
+		fileLightCurvePrintItem.setEnabled(false);
+		fileMenu.add(fileLightCurvePrintItem);
 
 		fileMenu.addSeparator();
 
@@ -112,6 +132,9 @@ public class MenuBar extends JMenuBar {
 	private ActionListener createFileOpenListener() {
 		final JFileChooser fileOpenDialog = this.fileOpenDialog;
 		final MainFrame parent = this.parent;
+		final MenuBar self = this;
+		
+		// TODO: refactor with helper functions! way too long!
 
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -122,7 +145,7 @@ public class MenuBar extends JMenuBar {
 
 					try {
 						FileReader fileReader = new FileReader(f.getPath());
-						
+
 						// TODO: Use a factory method to determine observation
 						// retriever class to use given the file type.
 						ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
@@ -134,13 +157,7 @@ public class MenuBar extends JMenuBar {
 						List<InvalidObservation> invalidObs = simpleTextFormatReader
 								.getInvalidObservations();
 
-						// TODO: we need a DocManager class to store a mapping from
-						// data files to tabs/observation lists, and also to handle
-						// undo, document "is-dirty" handling, don't load same
-						// file twice etc.
-						
 						// Add a new tab with the observation data.
-
 						ValidObservationDataModel validObsModel = null;
 						InvalidObservationDataModel invalidObsModel = null;
 
@@ -155,22 +172,77 @@ public class MenuBar extends JMenuBar {
 						}
 
 						parent.getTabs().insertTab(
-								f.getName() + " Data",
-								null, // TODO: add a nice icon; also need a close box
+								f.getName(),
+								null, // TODO: add a nice icon; also need a
+								// close box
 								new SimpleTextFormatObservationPane(
 										validObsModel, invalidObsModel),
 								f.getPath(), 0);
-						
+
 						parent.getTabs().setSelectedIndex(0);
 
+						if (parent.getObsModel() == null) {
+							ObservationPlotModel model = new ObservationPlotModel(
+									f.getName(), validObs);
+							parent.setObsModel(model);
+							Dimension bounds = new Dimension((int) (parent
+									.getWidth() * 0.75), (int) (parent
+									.getHeight() * 0.75));
+							// TODO: would like title to be more meaningful
+							LightCurvePane lightCurvePane = new LightCurvePane(
+									"JD vs Magnitude", model, bounds);
+
+							for (int i = 0; i < parent.getTabs().getTabCount(); i++) {
+								String tabName = parent.getTabs().getTitleAt(i);
+								if (MainFrame.LIGHT_CURVE.equals(tabName)) {
+									parent.getTabs().setComponentAt(i,
+											lightCurvePane);
+									parent.setLightCurveChartPane(lightCurvePane);
+									break;
+								}
+							}
+							
+							self.enableLightCurveMenuItems();
+							
+						} else {
+							// Add to the existing plot model.
+							parent.getObsModel().addObservationSeries(
+									f.getName(), validObs);
+						}
 					} catch (Exception ex) {
 						MessageBox
 								.showErrorDialog(parent,
 										"Simple Text Format File Open", ex
 												.getMessage());
 					}
-
 				}
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File->Save Light Curve...
+	 */
+	private ActionListener createSaveLightCurveListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					parent.getLightCurveChartPane().doSaveAs();
+				} catch (IOException ex) {
+					MessageBox.showErrorDialog(parent, "Light Curve Save", ex
+							.getMessage());
+				}
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File->Print Light Curve...
+	 */
+	private ActionListener createPrintLightCurveListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				parent.getLightCurveChartPane().createChartPrintJob();
 			}
 		};
 	}
@@ -181,7 +253,7 @@ public class MenuBar extends JMenuBar {
 	private ActionListener createQuitListener() {
 		return new ActionListener() {
 			// TODO: do other cleanup, e.g. if file needs saving (phase II);
-			//       need a document model including undo for this 
+			// need a document model including undo for this
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
@@ -195,15 +267,28 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				StringBuffer strBuf = new StringBuffer();
-				strBuf.append("VStar\n\n");
-				strBuf.append("A variable star data statistical analysis tool\n");
+				strBuf.append("VStar (alpha)\n\n");
+				strBuf
+						.append("A variable star observation data analysis tool\n");
 				strBuf.append("developed for:\n\n");
 				strBuf.append("  The American Association of Variable Star\n");
 				strBuf.append("  Observers: http://www.aavso.org/\n\n");
 				strBuf.append("  and\n\n");
-				strBuf.append("  The CitizenSky Project: http://www.citizensky.org/");
-				MessageBox.showMessageDialog(parent, "VStar", strBuf.toString());
+				strBuf
+						.append("  The CitizenSky Project: http://www.citizensky.org/\n\n");
+				strBuf.append("Authors: David Benn, Sara Beck\n");
+				strBuf.append("Contact: aavso@aavso.org\n");
+				strBuf.append("License: GNU Affero General Public License");
+				MessageBox
+						.showMessageDialog(parent, "VStar", strBuf.toString());
 			}
 		};
+	}
+	
+	// Helpers
+	
+	private void enableLightCurveMenuItems() {
+		this.fileLightCurveSaveItem.setEnabled(true);
+		this.fileLightCurvePrintItem.setEnabled(true);
 	}
 }

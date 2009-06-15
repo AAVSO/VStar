@@ -17,46 +17,32 @@
  */
 package org.aavso.tools.vstar.ui;
 
-import java.awt.GridLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.Dimension;
 
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
+import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.plot.PlotOrientation;
 
 /**
- * A check-box panel component.
+ * This class represents a chart pane containing a light curve.
  */
-public class CheckBoxPanel extends JPanel implements ItemListener {
+public class LightCurvePane extends ChartPanel {
 
-	private boolean selected;
-	private JCheckBox checkBox;
-	
 	/**
 	 * Constructor
-	 */
-	public CheckBoxPanel() {
-		super(new GridLayout(1, 1));
-		this.selected = false;
-		this.checkBox = new JCheckBox();
-		this.checkBox.addItemListener(this);
-		this.add(checkBox);
-	}
-
-	public boolean isSelected() {
-		return selected;
-	}
-
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-	}
-
-	/**
-	 * If the checkbox's state changes, change the state of this check box.
 	 * 
-	 * @param ItemEvent The check-box state change event.
+	 * @param title The title for the chart.
+	 * @param obsModel The data model to plot.
+	 * @param bounds The bounding box to which to set the chart's preferred size.
 	 */
-	public void itemStateChanged(ItemEvent e) {
-		this.setSelected(e.getStateChange() == ItemEvent.SELECTED);
+	public LightCurvePane(String title, ObservationPlotModel obsModel, Dimension bounds) {
+		// Create a chart with legend, tooltips, and URLs showing
+		// and add it to the panel.
+		super(ChartFactory.createScatterPlot(title, "Julian Day",
+				"Magnitude", obsModel, PlotOrientation.VERTICAL, true, true,
+				true));
+
+		this.setPreferredSize(bounds);
 	}
 }

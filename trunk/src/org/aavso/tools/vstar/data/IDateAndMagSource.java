@@ -15,40 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
 
-import java.util.List;
-
-import javax.swing.JTabbedPane;
+package org.aavso.tools.vstar.data;
 
 /**
- * This class represents the main frame's tabs.
+ * Classes that implement this interface are date and magnitude sources.
  */
-public class Tabs extends JTabbedPane {
+public interface IDateAndMagSource {
 
-	/**
-	 * Constructor
-	 * 
-	 * @param namedComponents A list of components to be added to the tabbed pane.
-	 */
-	public Tabs(List<NamedComponent> namedComponents) {
-		super();
+	public abstract DateInfo getDateInfo();
 
-		if (namedComponents != null) {
-			for (NamedComponent namedComponent : namedComponents) {
-				this.addTab(namedComponent.getName(), null, namedComponent
-						.getComponent(), namedComponent.getTip());
-			}
-		}
+	public abstract Magnitude getMagnitude();
 
-		// We want scrolling tabs.
-		this.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-	}
-	
-	/**
-	 * Constructor
-	 */
-	public Tabs() {
-		this(null);
-	}
 }

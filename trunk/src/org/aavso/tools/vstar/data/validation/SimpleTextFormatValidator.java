@@ -77,6 +77,7 @@ public class SimpleTextFormatValidator implements
 			throws ObservationValidationError {
 
 		// Split fields on spaces and tabs.
+		// TODO: handle other odd whitespace characters, e.g. as found in some sample data
 		String[] fields = line.split("\\s+");
 
 		if (fields.length < 2 || fields.length > 4) {

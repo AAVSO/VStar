@@ -17,15 +17,15 @@
  */
 package org.aavso.tools.vstar.data.visitor;
 
+import org.aavso.tools.vstar.data.IDateAndMagSource;
 import org.aavso.tools.vstar.data.InvalidObservation;
-import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
  * The base class for all observation visitors. 
  */
 public abstract class ObservationVisitor {
 
-	public void visit(ValidObservation ob) {
+	public void visit(IDateAndMagSource ob) {
 	}
 	
 	public void visit(InvalidObservation ob) {
