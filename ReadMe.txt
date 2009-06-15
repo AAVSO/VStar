@@ -10,10 +10,10 @@ The file build.xml is an Ant file used for building a VStar distribution jar
 file. Ant can be downloaded from http://ant.apache.org/ and 1.7.0 or higher 
 is assumed.
 
-VStar uses the following libraries (TODO: review versions):
+VStar uses the following libraries:
 
-- jcommon-1.0.9.jar
-- jfreechart-1.0.5.jar
-- mysql-connector-java-5.0.5-bin.jar
+- jcommon-1.0.16.jar
+- jfreechart-1.0.13.jar
+- mysql-connector-java-5.0.5-bin.jar (TODO: review)
 
 For testing, JUnit 3.8.2 or higher is assumed (http://www.junit.org).

@@ -96,13 +96,8 @@ public class SimpleTextFormatTest extends TestCase {
 
 	// Tests of invalid simple text format.
 
-	public void testInvalidJDNoDecimalPlace() {
-		commonInvalidTest("2450001 10.0\n");
-	}
-
-	public void testInvalidNonZeroUncertaintyField() {
-		// Magnitude is not uncertain but an uncertainty value is given. 
-		commonInvalidTest("2445501.3      <4.3    0.2       VNL");
+	public void testInvalidMagNoDecimalDigit() {
+		commonInvalidTest("2450001 10.\n");
 	}
 	
 	private void commonInvalidTest(String str) {		

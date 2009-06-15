@@ -69,16 +69,20 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 		try {
 			String line = reader.readLine();
 			while (line != null) {
-				int lineNum = reader.getLineNumber();
-				try {
-					ValidObservation validOb = validator.validate(line);
-					validOb.setLineNumber(lineNum);
-					validObservations.add(validOb);
-				} catch (ObservationValidationError e) {
-					InvalidObservation invalidOb = new InvalidObservation(
-							line, e.getMessage());
-					invalidOb.setLineNumber(lineNum);
-					invalidObservations.add(invalidOb);
+
+				// Ignore comment or blank line.
+				if (!line.startsWith("#") && !line.matches("^\\s*$")) {
+					int lineNum = reader.getLineNumber();
+					try {
+						ValidObservation validOb = validator.validate(line);
+						validOb.setLineNumber(lineNum);
+						validObservations.add(validOb);
+					} catch (ObservationValidationError e) {
+						InvalidObservation invalidOb = new InvalidObservation(
+								line, e.getMessage());
+						invalidOb.setLineNumber(lineNum);
+						invalidObservations.add(invalidOb);
+					}
 				}
 
 				line = reader.readLine();

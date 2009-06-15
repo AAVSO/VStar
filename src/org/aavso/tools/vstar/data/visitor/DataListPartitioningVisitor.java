@@ -19,8 +19,8 @@ package org.aavso.tools.vstar.data.visitor;
 
 import javax.swing.DefaultListModel;
 
+import org.aavso.tools.vstar.data.IDateAndMagSource;
 import org.aavso.tools.vstar.data.InvalidObservation;
-import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
  * This class chooses which data list an observation belongs in and adds it to
@@ -53,7 +53,7 @@ public class DataListPartitioningVisitor extends ObservationVisitor {
 	}
 
 	@Override
-	public void visit(ValidObservation ob) {
+	public void visit(IDateAndMagSource ob) {
 		this.dataListModel.addElement(ob);
 	}
 }

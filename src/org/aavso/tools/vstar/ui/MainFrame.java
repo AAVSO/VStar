@@ -31,6 +31,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
+import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
+import org.jfree.chart.ChartPanel;
+
 /**
  * TODO: 
  * - JTable not JList
@@ -40,6 +43,11 @@ import javax.swing.JTabbedPane;
  * - Splash Screen
  * - Toolbar
  * - Button in plot tab for loading data
+ * 
+ * - We need a DocManager class to store a mapping
+ *   from data files to tabs/observation lists, and also to
+ *   handle undo, document "is-dirty" handling, don't load same
+ *   file twice etc.
  */
 
 /**
@@ -47,30 +55,39 @@ import javax.swing.JTabbedPane;
  */
 public class MainFrame extends JFrame {
 
-	// Model for valid observations.
-	private DefaultListModel dataListModel;
+	public final static String LIGHT_CURVE = "Light Curve";
 
-	// Model for invalid observations.
-	private DefaultListModel dataErrorListModel;
+	// // Model for valid observations.
+	// private DefaultListModel dataListModel;
+	//
+	// // Model for invalid observations.
+	// private DefaultListModel dataErrorListModel;
+
+	// The observation model.
+	// TODO: very temporarily here; put this into a Document Manager
+	private ObservationPlotModel obsModel;
+	private ChartPanel lightCurveChartPane;
 
 	// The application's menu bar.
 	private JMenuBar menuBar;
 
 	// The tabs for the main window.
-	private JTabbedPane tabs;
-	
+	private Tabs tabs;
+
 	/**
 	 * Constructor
 	 */
 	public MainFrame() {
 		super("VStar");
 
-		this.dataListModel = new DefaultListModel();
-		this.dataErrorListModel = new DefaultListModel();
+		// this.dataListModel = new DefaultListModel();
+		// this.dataErrorListModel = new DefaultListModel();
+
+		this.obsModel = null;
 
 		this.menuBar = new MenuBar(this);
 		this.setJMenuBar(menuBar);
-				
+
 		this.tabs = this.createContent();
 		JPanel panel = new JPanel(new GridLayout(1, 1));
 		panel.add(tabs);
@@ -82,18 +99,20 @@ public class MainFrame extends JFrame {
 	/**
 	 * The main components of the main frame are created here.
 	 * 
+	 * TODO: ultimately when we have document management, we will support
+	 * File->New creating a new document containing a plot, possibly multiple
+	 * phase plots, and multiple file tabs, and in phase III, analysis tabs...
+	 * 
 	 * @return The main contents in the form of a tabbed pane.
 	 */
-	private JTabbedPane createContent() {
+	private Tabs createContent() {
 		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 
-//		namedComponents.add(new NamedComponent("Light Curve",
-//				createTextPanel("Light Curve Goes Here"),
-//				"A plot of magnitude against Julian Day"));
-//
-//		namedComponents.add(new NamedComponent("Phase Plot",
-//				createTextPanel("Phase Plot Goes Here"),
-//				"A phase plot against the light curve"));
+		namedComponents
+				.add(new NamedComponent(
+						LIGHT_CURVE,
+						createTextPanel("Open a data file or select a star from the database."),
+						"A plot of magnitude against Julian Day."));
 
 		return new Tabs(namedComponents);
 	}
@@ -130,15 +149,44 @@ public class MainFrame extends JFrame {
 
 	// Getters
 
-	public DefaultListModel getDataListModel() {
-		return dataListModel;
-	}
-
-	public DefaultListModel getDataErrorListModel() {
-		return dataErrorListModel;
-	}
+	// public DefaultListModel getDataListModel() {
+	// return dataListModel;
+	// }
+	//
+	// public DefaultListModel getDataErrorListModel() {
+	// return dataErrorListModel;
+	// }
 
 	public JTabbedPane getTabs() {
 		return tabs;
+	}
+
+	/**
+	 * @return the obsModel
+	 */
+	public ObservationPlotModel getObsModel() {
+		return obsModel;
+	}
+
+	/**
+	 * @param obsModel
+	 *            the obsModel to set
+	 */
+	public void setObsModel(ObservationPlotModel obsModel) {
+		this.obsModel = obsModel;
+	}
+
+	/**
+	 * @return the lightCurveChartPane
+	 */
+	public ChartPanel getLightCurveChartPane() {
+		return lightCurveChartPane;
+	}
+
+	/**
+	 * @param lightCurveChartPane the lightCurveChartPane to set
+	 */
+	public void setLightCurveChartPane(ChartPanel lightCurveChartPane) {
+		this.lightCurveChartPane = lightCurveChartPane;
 	}
 }

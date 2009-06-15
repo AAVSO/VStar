@@ -18,7 +18,12 @@
 	</target>
 
 	<target name="compile_src" depends="init" description="Compile the source">
-		<javac srcdir="${src}" destdir="${build}" />
+		<javac srcdir="${src}" destdir="${build}">
+			<classpath>
+				<pathelement location="${extlib}/jcommon-1.0.16.jar" />
+				<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
+			</classpath>
+		</javac>
 	</target>
 
 	<target name="compile_test" depends="compile_src" description="Compile the test code">
@@ -33,7 +38,13 @@
 	</target>
 
 	<target name="run" depends="dist" description="Run VStar GUI">
-		<java fork="true" jar="${dist}/vstar.jar" />
+		<java fork="true" jar="${dist}/vstar.jar">
+			<classpath>
+				<pathelement location="${extlib}/jcommon-1.0.16.jar" />
+				<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
+				<pathelement path="${build}" />
+			</classpath>
+		</java>
 	</target>
 
 	<target name="test" depends="compile_test" description="Run unit tests">

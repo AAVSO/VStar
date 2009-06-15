@@ -25,7 +25,7 @@ import org.aavso.tools.vstar.data.visitor.ObservationVisitor;
  * however and these are documented below. TODO: or we will specialise classes
  * for input source type
  */
-public class ValidObservation extends Observation {
+public class ValidObservation extends Observation implements IDateAndMagSource {
 
 	private String starName; // TODO: probably don't want this here; map to set
 								// of observations
@@ -77,10 +77,16 @@ public class ValidObservation extends Observation {
 		return starName;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.aavso.tools.vstar.data.IDateAndMagSource#getDateInfo()
+	 */
 	public DateInfo getDateInfo() {
 		return dateInfo;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.aavso.tools.vstar.data.IDateAndMagSource#getMagnitude()
+	 */
 	public Magnitude getMagnitude() {
 		return magnitude;
 	}
