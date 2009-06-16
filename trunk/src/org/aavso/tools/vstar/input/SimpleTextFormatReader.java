@@ -65,6 +65,7 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 	 * @see org.aavso.tools.vstar.input.ObservationRetrieverBase#retrieveObservations()
 	 */
 	public void retrieveObservations() throws ObservationReadError {
+		// TODO: requirement to determine which validator to use by content not file xtn
 		SimpleTextFormatValidator validator = new SimpleTextFormatValidator();
 		try {
 			String line = reader.readLine();
