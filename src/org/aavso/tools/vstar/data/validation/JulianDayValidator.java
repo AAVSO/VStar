@@ -23,22 +23,18 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This class validates provided text as a Julian Day.
  * 
- * TODO: 
- * - Store Calendar object.
- * - Configure "business rule" values such as minimum date via
- *   constructor-based Inversion of Control (Spring, PicoContainer, ...)? 
- * - Code reuse from Zapper etc subject to AGPL restrictions? 
- * - Existing JD code -ve year bug caused by use of rounding int cast? UT!
+ * TODO: - Store Calendar object.
  */
 public class JulianDayValidator implements IStringValidator<DateInfo> {
-	
-	private final RegexValidator regexValidator; 
-	
+
+	private final RegexValidator regexValidator;
+
 	/**
 	 * Constructor.
 	 */
 	public JulianDayValidator() {
-		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$", "Julian Day");
+		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$",
+				"Julian Day", "Only decimal digits and a single '.' are permitted.");
 	}
 
 	/**
@@ -52,11 +48,11 @@ public class JulianDayValidator implements IStringValidator<DateInfo> {
 	 */
 	public DateInfo validate(String str) throws ObservationValidationError {
 		String[] fields = this.regexValidator.validate(str);
-		
-		// By virtue of the regex pattern above, 
+
+		// By virtue of the regex pattern above,
 		// this must parse as a double.
 		double value = Double.parseDouble(fields[0]);
-			
+
 		return new DateInfo(value);
 	}
 }
