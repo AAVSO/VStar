@@ -7,6 +7,3 @@ Product:
 
 Unit Testing:
 - JUnit 3.8.2 (http://www.junit.org/)
-
-TODO: For now use latest JUnit 3 version (even though JUnit 4 is available; 
-decide whether to switch).
