@@ -1,3 +1,4 @@
 Manifest-Version: 1.0
 Created-By: Apache Ant 1.7
 Main-Class: org.aavso.tools.vstar.ui.VStarGUI
+Class-Path: jcommon-1.0.16.jar jfreechart-1.0.13.jar
