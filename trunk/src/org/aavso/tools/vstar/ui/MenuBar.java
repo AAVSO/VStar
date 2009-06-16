@@ -276,9 +276,12 @@ public class MenuBar extends JMenuBar {
 				strBuf.append("  and\n\n");
 				strBuf
 						.append("  The CitizenSky Project: http://www.citizensky.org/\n\n");
-				strBuf.append("Authors: David Benn, Sara Beck\n");
+				strBuf.append("Code By: David Benn, Sara Beck, Kate Davis\n");
 				strBuf.append("Contact: aavso@aavso.org\n");
-				strBuf.append("License: GNU Affero General Public License");
+				strBuf.append("License: GNU Affero General Public License\n\n");
+				strBuf.append("Thanks to the staff of AAVSO for support, in particular:\n");
+				strBuf.append("Arne Henden, Aaron Price, Sara Beck, Doc Kinne, and\n");
+				strBuf.append("Matt Templeton.");
 				MessageBox
 						.showMessageDialog(parent, "VStar", strBuf.toString());
 			}

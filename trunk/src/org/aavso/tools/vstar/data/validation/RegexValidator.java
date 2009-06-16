@@ -31,6 +31,20 @@ public class RegexValidator implements IStringValidator<String[]> {
 
 	private final Pattern pattern;
 	private final String kind;
+	private final String errorNotes;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param patternStr The regular expression string to be used for validation.
+	 * @param kind The kind of entity we are validating.
+	 * @param errorNotes Additional error comment to be added to validation failure error message.
+	 */
+	public RegexValidator(String patternStr, String kind, String errorNotes) {
+		this.pattern = Pattern.compile(patternStr);
+		this.kind = kind;
+		this.errorNotes = errorNotes;
+	}
 	
 	/**
 	 * Constructor.
@@ -39,8 +53,7 @@ public class RegexValidator implements IStringValidator<String[]> {
 	 * @param kind The kind of entity we are validating.
 	 */
 	public RegexValidator(String patternStr, String kind) {
-		this.pattern = Pattern.compile(patternStr);
-		this.kind = kind;
+		this(patternStr, kind, null);
 	}
 	
 	/**
@@ -51,7 +64,17 @@ public class RegexValidator implements IStringValidator<String[]> {
 		
 		Matcher matcher = pattern.matcher(str);
 		if (!matcher.matches()) {
-			throw new ObservationValidationError("'" + str + "' is not a well-formed '" + kind + "'");
+			StringBuffer msgBuf = new StringBuffer();
+			msgBuf.append("'");
+			msgBuf.append(str);
+			msgBuf.append("' is not a well-formed '");
+			msgBuf.append(kind);
+			msgBuf.append("'");
+			if (this.errorNotes != null) {
+				msgBuf.append(". ");
+				msgBuf.append(this.errorNotes);
+			}
+			throw new ObservationValidationError(msgBuf.toString());
 		} else {
 			for (int i=1;i<=matcher.groupCount();i++) {
 				groups.add(matcher.group(i));
