@@ -280,7 +280,7 @@ public class MenuBar extends JMenuBar {
 				strBuf.append("Contact: aavso@aavso.org\n");
 				strBuf.append("License: GNU Affero General Public License\n\n");
 				strBuf.append("Thanks to the staff of AAVSO for support, in particular:\n");
-				strBuf.append("Arne Henden, Aaron Price, Sara Beck, Doc Kinne, and\n");
+				strBuf.append("Arne Henden, Sara Beck, Aaron Price, Doc Kinne, and\n");
 				strBuf.append("Matt Templeton.");
 				MessageBox
 						.showMessageDialog(parent, "VStar", strBuf.toString());
