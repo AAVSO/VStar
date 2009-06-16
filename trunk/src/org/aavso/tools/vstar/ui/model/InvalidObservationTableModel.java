@@ -24,9 +24,9 @@ import javax.swing.table.AbstractTableModel;
 import org.aavso.tools.vstar.data.InvalidObservation;
 
 /**
- * 
+ * A table model for invalid observations.
  */
-public class InvalidObservationDataModel extends AbstractTableModel {
+public class InvalidObservationTableModel extends AbstractTableModel {
 
 	private final static int COLUMNS = 3;
 
@@ -40,7 +40,7 @@ public class InvalidObservationDataModel extends AbstractTableModel {
 	 * 
 	 * @param invalidObservations
 	 */
-	public InvalidObservationDataModel(
+	public InvalidObservationTableModel(
 			List<InvalidObservation> invalidObservations) {
 		super();
 		this.invalidObservations = invalidObservations;

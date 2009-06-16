@@ -38,9 +38,9 @@ import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.input.SimpleTextFormatReader;
-import org.aavso.tools.vstar.ui.model.InvalidObservationDataModel;
+import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
-import org.aavso.tools.vstar.ui.model.ValidObservationDataModel;
+import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 
 /**
  * VStar's menu bar.
@@ -158,16 +158,16 @@ public class MenuBar extends JMenuBar {
 								.getInvalidObservations();
 
 						// Add a new tab with the observation data.
-						ValidObservationDataModel validObsModel = null;
-						InvalidObservationDataModel invalidObsModel = null;
+						ValidObservationTableModel validObsModel = null;
+						InvalidObservationTableModel invalidObsModel = null;
 
 						if (!validObs.isEmpty()) {
-							validObsModel = new ValidObservationDataModel(
+							validObsModel = new ValidObservationTableModel(
 									validObs);
 						}
 
 						if (!invalidObs.isEmpty()) {
-							invalidObsModel = new InvalidObservationDataModel(
+							invalidObsModel = new InvalidObservationTableModel(
 									invalidObs);
 						}
 
