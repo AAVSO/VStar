@@ -33,7 +33,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
  *   the ObservationRetrieverBase subclass.
  * - Also implement methods for cell editing, cell type, ...
  */
-public class ValidObservationDataModel extends AbstractTableModel {
+public class ValidObservationTableModel extends AbstractTableModel {
 
 	private final static int COLUMNS = 6;
 
@@ -47,7 +47,7 @@ public class ValidObservationDataModel extends AbstractTableModel {
 	 * 
 	 * @param validObservations A list of valid observations.
 	 */
-	public ValidObservationDataModel(List<ValidObservation> validObservations) {
+	public ValidObservationTableModel(List<ValidObservation> validObservations) {
 		this.validObservations = validObservations;
 	}
 
@@ -72,25 +72,26 @@ public class ValidObservationDataModel extends AbstractTableModel {
 		String columnName = null;
 
 		// TODO: put into an array!!
+		// (especially for download version of this!)
 		
 		switch (column) {
 		case 0:
-			columnName = "Line";
+			columnName = "Discrepant?";
 			break;
 		case 1:
-			columnName = "Julian Day";
+			columnName = "Line";
 			break;
 		case 2:
-			columnName = "Calendar Date";
+			columnName = "Julian Day";
 			break;
 		case 3:
-			columnName = "Magnitude";
+			columnName = "Calendar Date";
 			break;
 		case 4:
-			columnName = "Observer Code";
+			columnName = "Magnitude";
 			break;
 		case 5:
-			columnName = "Discrepant?";
+			columnName = "Observer Code";
 			break;
 		}
 
@@ -108,22 +109,22 @@ public class ValidObservationDataModel extends AbstractTableModel {
 		
 		switch(columnIndex) {
 		case 0:
-			value = validOb.getLineNumber();
+			value = this.validObservations.get(rowIndex).isDiscrepant();
 			break;
 		case 1:
-			value = validOb.getDateInfo().getJulianDay();
+			value = validOb.getLineNumber();
 			break;
 		case 2:
-			value = validOb.getDateInfo().getCalendarDate();
+			value = validOb.getDateInfo().getJulianDay();
 			break;
 		case 3:
-			value = validOb.getMagnitude().toString();
+			value = validOb.getDateInfo().getCalendarDate();
 			break;
 		case 4:
-			value = validOb.getObsCode();
+			value = validOb.getMagnitude().toString();
 			break;
 		case 5:
-			value = this.validObservations.get(rowIndex).isDiscrepant();
+			value = validOb.getObsCode();
 			break;
 		}
 		
@@ -134,24 +135,20 @@ public class ValidObservationDataModel extends AbstractTableModel {
 	 * @see javax.swing.table.AbstractTableModel#setValueAt(java.lang.Object, int, int)
 	 */
 	public void setValueAt(Object value, int rowIndex, int columnIndex) {
-		assert columnIndex == 5;
+		assert columnIndex == 0;
 
 		switch(columnIndex) {		
 		case 0:
-			break;
-		case 1:
-			break;
-		case 2:
-			break;
-		case 3:
-			break;
-		case 4:
-			break;
-		case 5:
 			// Toggle discrepant value.
 			ValidObservation ob = this.validObservations.get(rowIndex);
 			boolean discrepant = ob.isDiscrepant(); 
 			ob.setDiscrepant(!discrepant);
+			break;
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
 			break;
 		}
 	}
@@ -161,7 +158,7 @@ public class ValidObservationDataModel extends AbstractTableModel {
 	 */
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// Discrepant check box. TODO: what other fields?
-		return columnIndex == 5;
+		return columnIndex == 0;
 	}
 
 	/**
@@ -172,7 +169,7 @@ public class ValidObservationDataModel extends AbstractTableModel {
 		
 		switch(columnIndex) {
 		case 0:
-			clazz = String.class;
+			clazz = Boolean.class;
 			break;
 		case 1:
 			clazz = String.class;
@@ -187,7 +184,7 @@ public class ValidObservationDataModel extends AbstractTableModel {
 			clazz = String.class;
 			break;
 		case 5:
-			clazz = Boolean.class;
+			clazz = String.class;
 			break;
 		}
 		

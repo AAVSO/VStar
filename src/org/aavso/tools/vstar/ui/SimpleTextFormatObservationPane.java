@@ -25,8 +25,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 
-import org.aavso.tools.vstar.ui.model.InvalidObservationDataModel;
-import org.aavso.tools.vstar.ui.model.ValidObservationDataModel;
+import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
+import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 
 /**
  * This class represents a GUI component that renders information about simple
@@ -45,8 +45,8 @@ public class SimpleTextFormatObservationPane extends JPanel {
 	 *            A table data model that encapsulates invalid observations.
 	 */
 	public SimpleTextFormatObservationPane(
-			ValidObservationDataModel validDataModel,
-			InvalidObservationDataModel invalidDataModel) {
+			ValidObservationTableModel validDataModel,
+			InvalidObservationTableModel invalidDataModel) {
 
 		super(new GridLayout(1, 1));
 
@@ -95,7 +95,7 @@ public class SimpleTextFormatObservationPane extends JPanel {
 	 *            A table data model that encapsulates valid observations.
 	 */
 	public SimpleTextFormatObservationPane(
-			ValidObservationDataModel validDataModel) {
+			ValidObservationTableModel validDataModel) {
 		this(validDataModel, null);
 	}
 
@@ -106,7 +106,7 @@ public class SimpleTextFormatObservationPane extends JPanel {
 	 *            A table data model that encapsulates invalid observations.
 	 */
 	public SimpleTextFormatObservationPane(
-			InvalidObservationDataModel invalidDataModel) {
+			InvalidObservationTableModel invalidDataModel) {
 		this(null, invalidDataModel);
 	}
 }
