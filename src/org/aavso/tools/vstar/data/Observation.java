@@ -1,6 +1,5 @@
 package org.aavso.tools.vstar.data;
 
-import org.aavso.tools.vstar.data.visitor.ObservationVisitor;
 /**
  * VStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
@@ -33,14 +32,6 @@ public abstract class Observation {
 		super();
 		this.lineNumber = lineNumber;
 	}
-	
-	/**
-	 * Accept an observation visitor.
-	 * 
-	 * @param v A concrete observation visitor.
-	 */
-	public abstract void accept(ObservationVisitor v);
-
 
 	/**
 	 * @return the lineNumber

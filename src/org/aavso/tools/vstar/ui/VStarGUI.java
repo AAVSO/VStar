@@ -30,7 +30,6 @@ public class VStarGUI {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
-			// TODO: use a JOptionPane instead
 			System.err.println("Unable to set default look and feel. Exiting.");
 		}
 

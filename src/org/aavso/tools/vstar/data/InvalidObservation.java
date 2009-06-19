@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.data;
 
-import org.aavso.tools.vstar.data.visitor.ObservationVisitor;
 
 /**
  * This class corresponds to a single invalid variable star observation.
@@ -50,10 +49,6 @@ public class InvalidObservation extends Observation {
 
 	public String getError() {
 		return error;
-	}
-
-	public void accept(ObservationVisitor v) {
-		v.visit(this);
 	}
 
 	@Override

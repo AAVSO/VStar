@@ -56,6 +56,12 @@ public class ObservationPlotModel extends AbstractXYDataset {
 		this.seriesNumToObSrcListMap = new HashMap<Integer, List<? extends IDateAndMagSource>>();
 	}
 
+	/**
+	 * Constructor
+	 * 
+	 * @param name Name of observation source list.
+	 * @param obsSourceList The list of observation sources.
+	 */
 	public <T extends IDateAndMagSource> ObservationPlotModel(String name, List<T> obsSourceList) {
 		this();
 		this.addObservationSeries(name, obsSourceList);

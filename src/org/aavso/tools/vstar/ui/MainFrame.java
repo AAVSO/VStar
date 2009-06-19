@@ -36,13 +36,11 @@ import org.jfree.chart.ChartPanel;
 
 /**
  * TODO: 
- * - JTable not JList
  * - Status bar with current star from plot, file loaded etc
  * - Undoable edits, Edit menu
  * - About box
  * - Splash Screen
  * - Toolbar
- * - Button in plot tab for loading data
  * 
  * - We need a DocManager class to store a mapping
  *   from data files to tabs/observation lists, and also to

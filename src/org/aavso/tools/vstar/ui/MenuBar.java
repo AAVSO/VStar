@@ -36,6 +36,7 @@ import javax.swing.KeyStroke;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.input.SimpleTextFormatReader;
 import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
@@ -44,22 +45,18 @@ import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 
 /**
  * VStar's menu bar.
- * 
- * TODO: menu keyboard accelerators may need to use "ctrl" key instead of meta
- * key to make the most cross-platform sense. Test!
  */
 public class MenuBar extends JMenuBar {
 
-	// TODO: we may need more instances for different file types
 	private JFileChooser fileOpenDialog;
 
 	// The parent window.
 	private MainFrame parent;
-	
+
 	// Menu items.
 	JMenuItem fileLightCurveSaveItem;
 	JMenuItem fileLightCurvePrintItem;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -83,17 +80,19 @@ public class MenuBar extends JMenuBar {
 
 		JMenuItem fileOpenItem = new JMenuItem("Open...");
 		fileOpenItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
-				ActionEvent.META_MASK));
+				ActionEvent.CTRL_MASK));
 		fileOpenItem.addActionListener(createFileOpenListener());
 		fileMenu.add(fileOpenItem);
 
 		fileLightCurveSaveItem = new JMenuItem("Save Light Curve...");
-		fileLightCurveSaveItem.addActionListener(this.createSaveLightCurveListener());
+		fileLightCurveSaveItem.addActionListener(this
+				.createSaveLightCurveListener());
 		fileLightCurveSaveItem.setEnabled(false);
 		fileMenu.add(fileLightCurveSaveItem);
 
 		fileLightCurvePrintItem = new JMenuItem("Print Light Curve...");
-		fileLightCurvePrintItem.addActionListener(this.createPrintLightCurveListener());
+		fileLightCurvePrintItem.addActionListener(this
+				.createPrintLightCurveListener());
 		fileLightCurvePrintItem.setEnabled(false);
 		fileMenu.add(fileLightCurvePrintItem);
 
@@ -101,7 +100,7 @@ public class MenuBar extends JMenuBar {
 
 		JMenuItem quitItem = new JMenuItem("Quit", KeyEvent.VK_Q);
 		quitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
-				ActionEvent.META_MASK));
+				ActionEvent.CTRL_MASK));
 		quitItem.addActionListener(createQuitListener());
 		fileMenu.add(quitItem);
 
@@ -133,8 +132,6 @@ public class MenuBar extends JMenuBar {
 		final JFileChooser fileOpenDialog = this.fileOpenDialog;
 		final MainFrame parent = this.parent;
 		final MenuBar self = this;
-		
-		// TODO: refactor with helper functions! way too long!
 
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -144,71 +141,9 @@ public class MenuBar extends JMenuBar {
 					File f = fileOpenDialog.getSelectedFile();
 
 					try {
-						FileReader fileReader = new FileReader(f.getPath());
-
-						// TODO: Use a factory method to determine observation
-						// retriever class to use given the file type.
-						ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
-								new LineNumberReader(fileReader));
-
-						simpleTextFormatReader.retrieveObservations();
-						List<ValidObservation> validObs = simpleTextFormatReader
-								.getValidObservations();
-						List<InvalidObservation> invalidObs = simpleTextFormatReader
-								.getInvalidObservations();
-
-						// Add a new tab with the observation data.
-						ValidObservationTableModel validObsModel = null;
-						InvalidObservationTableModel invalidObsModel = null;
-
-						if (!validObs.isEmpty()) {
-							validObsModel = new ValidObservationTableModel(
-									validObs);
-						}
-
-						if (!invalidObs.isEmpty()) {
-							invalidObsModel = new InvalidObservationTableModel(
-									invalidObs);
-						}
-
-						parent.getTabs().insertTab(
-								f.getName(),
-								null, // TODO: add a nice icon; also need a
-								// close box
-								new SimpleTextFormatObservationPane(
-										validObsModel, invalidObsModel),
-								f.getPath(), 0);
-
-						parent.getTabs().setSelectedIndex(0);
-
-						if (parent.getObsModel() == null) {
-							ObservationPlotModel model = new ObservationPlotModel(
-									f.getName(), validObs);
-							parent.setObsModel(model);
-							Dimension bounds = new Dimension((int) (parent
-									.getWidth() * 0.75), (int) (parent
-									.getHeight() * 0.75));
-							// TODO: would like title to be more meaningful
-							LightCurvePane lightCurvePane = new LightCurvePane(
-									"JD vs Magnitude", model, bounds);
-
-							for (int i = 0; i < parent.getTabs().getTabCount(); i++) {
-								String tabName = parent.getTabs().getTitleAt(i);
-								if (MainFrame.LIGHT_CURVE.equals(tabName)) {
-									parent.getTabs().setComponentAt(i,
-											lightCurvePane);
-									parent.setLightCurveChartPane(lightCurvePane);
-									break;
-								}
-							}
-							
-							self.enableLightCurveMenuItems();
-							
-						} else {
-							// Add to the existing plot model.
-							parent.getObsModel().addObservationSeries(
-									f.getName(), validObs);
-						}
+						List<ValidObservation> validObs = self
+								.createObservationTab(f);
+						self.updateLightCurve(f.getName(), validObs);
 					} catch (Exception ex) {
 						MessageBox
 								.showErrorDialog(parent,
@@ -252,7 +187,7 @@ public class MenuBar extends JMenuBar {
 	 */
 	private ActionListener createQuitListener() {
 		return new ActionListener() {
-			// TODO: do other cleanup, e.g. if file needs saving (phase II);
+			// TODO: do other cleanup, e.g. if file needs saving;
 			// need a document model including undo for this
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
@@ -279,19 +214,106 @@ public class MenuBar extends JMenuBar {
 				strBuf.append("Code By: David Benn, Sara Beck, Kate Davis\n");
 				strBuf.append("Contact: aavso@aavso.org\n");
 				strBuf.append("License: GNU Affero General Public License\n\n");
-				strBuf.append("Thanks to the staff of AAVSO for support, in particular:\n");
-				strBuf.append("Arne Henden, Sara Beck, Aaron Price, Doc Kinne, and\n");
+				strBuf
+						.append("Thanks to the staff of AAVSO for support, in particular:\n");
+				strBuf
+						.append("Arne Henden, Sara Beck, Aaron Price, Doc Kinne, and\n");
 				strBuf.append("Matt Templeton.");
 				MessageBox
 						.showMessageDialog(parent, "VStar", strBuf.toString());
 			}
 		};
 	}
-	
+
 	// Helpers
-	
+
 	private void enableLightCurveMenuItems() {
 		this.fileLightCurveSaveItem.setEnabled(true);
 		this.fileLightCurvePrintItem.setEnabled(true);
+	}
+
+	/**
+	 * Create a table in a new tab for the observations in the file.
+	 * 
+	 * @param obsFile
+	 *            The file from which to read observations.
+	 * @throws IOException
+	 * @throws ObservationReadError
+	 * @return The list of valid observations.
+	 */
+	private List<ValidObservation> createObservationTab(File obsFile)
+			throws IOException, ObservationReadError {
+		FileReader fileReader = new FileReader(obsFile.getPath());
+
+		// TODO: Use a factory method to determine observation
+		// retriever class to use given the file type.
+		ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
+				new LineNumberReader(fileReader));
+
+		simpleTextFormatReader.retrieveObservations();
+
+		List<ValidObservation> validObs = simpleTextFormatReader
+				.getValidObservations();
+
+		List<InvalidObservation> invalidObs = simpleTextFormatReader
+				.getInvalidObservations();
+
+		// Add a new tab with the observation data.
+		ValidObservationTableModel validObsModel = null;
+		InvalidObservationTableModel invalidObsModel = null;
+
+		if (!validObs.isEmpty()) {
+			validObsModel = new ValidObservationTableModel(validObs);
+		}
+
+		if (!invalidObs.isEmpty()) {
+			invalidObsModel = new InvalidObservationTableModel(invalidObs);
+		}
+
+		this.parent.getTabs().insertTab(obsFile.getName(),
+				null, // TODO: icon, close box
+				new SimpleTextFormatObservationPane(validObsModel,
+						invalidObsModel), obsFile.getPath(), 0);
+
+		this.parent.getTabs().setSelectedIndex(0);
+
+		return validObs;
+	}
+
+	/**
+	 * Create or update the light curve.
+	 * 
+	 * @param obsName
+	 *            The name of the observation list.
+	 * @param validObs
+	 *            The observation list.
+	 */
+	private void updateLightCurve(String obsName,
+			List<ValidObservation> validObs) {
+		if (parent.getObsModel() == null) {
+			ObservationPlotModel model = new ObservationPlotModel(obsName,
+					validObs);
+			parent.setObsModel(model);
+			Dimension bounds = new Dimension((int) (parent.getWidth() * 0.75),
+					(int) (parent.getHeight() * 0.75));
+			// TODO: would like title to be more meaningful
+			LightCurvePane lightCurvePane = new LightCurvePane(
+					"JD vs Magnitude", model, bounds);
+
+			for (int i = 0; i < parent.getTabs().getTabCount(); i++) {
+				String tabName = parent.getTabs().getTitleAt(i);
+				if (MainFrame.LIGHT_CURVE.equals(tabName)) {
+					parent.getTabs().setComponentAt(i, lightCurvePane);
+					parent.setLightCurveChartPane(lightCurvePane);
+					break;
+				}
+			}
+
+			this.enableLightCurveMenuItems();
+
+		} else {
+			// Add to the existing plot model.
+			parent.getObsModel().addObservationSeries(obsName, validObs);
+		}
 	}
 }
