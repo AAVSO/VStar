@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.data;
 
-import org.aavso.tools.vstar.data.visitor.ObservationVisitor;
 
 /**
  * This class corresponds to a single valid variable star observation. Depending
@@ -77,14 +76,14 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 		return starName;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.aavso.tools.vstar.data.IDateAndMagSource#getDateInfo()
 	 */
 	public DateInfo getDateInfo() {
 		return dateInfo;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see org.aavso.tools.vstar.data.IDateAndMagSource#getMagnitude()
 	 */
 	public Magnitude getMagnitude() {
@@ -102,10 +101,6 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 	public void setDiscrepant(boolean discrepant) {
 		// TODO: notify listeners if old and new values are different!
 		this.discrepant = discrepant;
-	}
-
-	public void accept(ObservationVisitor v) {
-		v.visit(this);
 	}
 
 	@Override
