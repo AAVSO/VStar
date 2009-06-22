@@ -1,2 +1,2 @@
 This directory is intended to contain internal developer documentation, such 
-as design docs and Javadoc.
+as GUI mock-ups, design docs and Javadoc.
