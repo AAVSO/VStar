@@ -22,6 +22,8 @@ import java.awt.Dimension;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 
 /**
@@ -32,9 +34,12 @@ public class LightCurvePane extends ChartPanel {
 	/**
 	 * Constructor
 	 * 
-	 * @param title The title for the chart.
-	 * @param obsModel The data model to plot.
-	 * @param bounds The bounding box to which to set the chart's preferred size.
+	 * @param title
+	 *            The title for the chart.
+	 * @param obsModel
+	 *            The data model to plot.
+	 * @param bounds
+	 *            The bounding box to which to set the chart's preferred size.
 	 */
 	public LightCurvePane(String title, ObservationPlotModel obsModel, Dimension bounds) {
 		// Create a chart with legend, tooltips, and URLs showing
@@ -44,5 +49,12 @@ public class LightCurvePane extends ChartPanel {
 				true));
 
 		this.setPreferredSize(bounds);
+		
+		JFreeChart chart = this.getChart();
+		
+		// We want the magnitude scale to go from high to low as we ascend the Y axis
+		// since as magnitude values get smaller, brightness increases.
+		NumberAxis rangeAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
+		rangeAxis.setInverted(true);
 	}
 }
