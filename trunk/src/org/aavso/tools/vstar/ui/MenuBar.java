@@ -60,13 +60,13 @@ public class MenuBar extends JMenuBar {
 	JMenuItem filePrintItem;
 	JMenuItem fileQuitItem;
 
-	JMenuItem analysisRawDataItem;	
-	JMenuItem analysisPhasePlotItem;	
-	JMenuItem analysisPeriodSearchItem;	
+	JMenuItem analysisRawDataItem;
+	JMenuItem analysisPhasePlotItem;
+	JMenuItem analysisPeriodSearchItem;
 
 	JMenuItem helpContentsItem;
-	JMenuItem helpAboutItem;	
-	
+	JMenuItem helpAboutItem;
+
 	/**
 	 * Constructor
 	 */
@@ -80,7 +80,7 @@ public class MenuBar extends JMenuBar {
 		extensions.add("simple");
 		this.fileOpenDialog = new JFileChooser();
 		this.fileOpenDialog.setFileFilter(new FileExtensionFilter(extensions));
-		
+
 		createFileMenu();
 		createAnalysisMenu();
 		createHelpMenu();
@@ -89,24 +89,25 @@ public class MenuBar extends JMenuBar {
 	private void createFileMenu() {
 		JMenu fileMenu = new JMenu("File");
 
-		fileNewStarFromDatabaseItem = new JMenuItem("New Star from AAVSO Database...");
-		fileNewStarFromDatabaseItem.addActionListener(createNewStarFromDatabaseListener());
+		fileNewStarFromDatabaseItem = new JMenuItem(
+				"New Star from AAVSO Database...");
+		fileNewStarFromDatabaseItem
+				.addActionListener(createNewStarFromDatabaseListener());
 		fileNewStarFromDatabaseItem.setEnabled(false);
 		fileMenu.add(fileNewStarFromDatabaseItem);
 
 		fileNewStarFromFileItem = new JMenuItem("New Star from File...");
-		fileNewStarFromFileItem.addActionListener(createNewStarFromFileListener());
+		fileNewStarFromFileItem
+				.addActionListener(createNewStarFromFileListener());
 		fileMenu.add(fileNewStarFromFileItem);
 
 		fileSaveItem = new JMenuItem("Save...");
-		fileSaveItem.addActionListener(this
-				.createSaveLightCurveListener());
+		fileSaveItem.addActionListener(this.createSaveLightCurveListener());
 		fileSaveItem.setEnabled(false);
 		fileMenu.add(fileSaveItem);
 
 		filePrintItem = new JMenuItem("Print...");
-		filePrintItem.addActionListener(this
-				.createPrintLightCurveListener());
+		filePrintItem.addActionListener(this.createPrintLightCurveListener());
 		filePrintItem.setEnabled(false);
 		fileMenu.add(filePrintItem);
 
@@ -118,31 +119,30 @@ public class MenuBar extends JMenuBar {
 		fileQuitItem.addActionListener(createQuitListener());
 		fileMenu.add(fileQuitItem);
 
-		this.add(fileMenu);		
+		this.add(fileMenu);
 	}
 
 	private void createAnalysisMenu() {
 		JMenu analysisMenu = new JMenu("Analysis");
-		
+
 		analysisRawDataItem = new JMenuItem("Raw Data");
 		// TODO: select card in conjunction with mode radio group
 		analysisMenu.add(analysisRawDataItem);
-		
+
 		analysisPhasePlotItem = new JMenuItem("Phase Plot...");
 		analysisMenu.add(analysisPhasePlotItem);
-		
+
 		analysisPeriodSearchItem = new JMenuItem("Period Search...");
 		analysisPeriodSearchItem.setEnabled(false);
 		analysisMenu.add(analysisPeriodSearchItem);
-		
+
 		this.add(analysisMenu);
 	}
-	
+
 	private void createHelpMenu() {
 		JMenu helpMenu = new JMenu("Help");
 
-		helpContentsItem = new JMenuItem("Help Contents...",
-				KeyEvent.VK_H);
+		helpContentsItem = new JMenuItem("Help Contents...", KeyEvent.VK_H);
 		helpContentsItem.setEnabled(false);
 		helpMenu.add(helpContentsItem);
 
@@ -152,11 +152,12 @@ public class MenuBar extends JMenuBar {
 		helpAboutItem.addActionListener(createAboutListener());
 		helpMenu.add(helpAboutItem);
 
-		this.add(helpMenu);		
+		this.add(helpMenu);
 	}
 
 	/**
-	 * Returns the action listener to be invoked for File->New Star from AAVSO Database...
+	 * Returns the action listener to be invoked for File->New Star from AAVSO
+	 * Database...
 	 */
 	private ActionListener createNewStarFromDatabaseListener() {
 		return new ActionListener() {
@@ -169,8 +170,8 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Returns the action listener to be invoked for File->New Star from File...
 	 * 
-	 * The action is to open a file dialog to allow the user to select a 
-	 * single file.
+	 * The action is to open a file dialog to allow the user to select a single
+	 * file.
 	 */
 	private ActionListener createNewStarFromFileListener() {
 		final JFileChooser fileOpenDialog = this.fileOpenDialog;
@@ -187,19 +188,17 @@ public class MenuBar extends JMenuBar {
 					try {
 						List<ValidObservation> validObs = self
 								.createObservationTab(f);
-						
+
 						self.createLightCurve(f.getName(), validObs);
 					} catch (Exception ex) {
-						MessageBox
-								.showErrorDialog(parent,
-										"New Star from File", ex
-												.getMessage());
+						MessageBox.showErrorDialog(parent,
+								"New Star from File", ex.getMessage());
 					}
 				}
 			}
 		};
 	}
-	
+
 	/**
 	 * Returns the action listener to be invoked for File->Save Light Curve...
 	 */
@@ -260,10 +259,12 @@ public class MenuBar extends JMenuBar {
 				strBuf.append("Contact: aavso@aavso.org\n");
 				strBuf.append("License: GNU Affero General Public License\n\n");
 				strBuf
-						.append("Thanks to the staff of AAVSO for support, in particular:\n");
+						.append("Thanks to the following AAVSO staff for support:\n");
 				strBuf
-						.append("Arne Henden, Sara Beck, Aaron Price, Doc Kinne, and\n");
-				strBuf.append("Matt Templeton.");
+						.append("Sara Beck, Arne Henden, Doc Kinne, Aaron Price,");
+				strBuf
+						.append("Matt Templeton, Rebecca Turner, and Elizabeth Waagen.");
+
 				MessageBox
 						.showMessageDialog(parent, "VStar", strBuf.toString());
 			}
@@ -349,12 +350,12 @@ public class MenuBar extends JMenuBar {
 
 			this.enableOutputMenuItems();
 		}
-//		} else {
-//			// Add to the existing plot model.
-//			parent.getObsModel().addObservationSeries(obsName, validObs);
-//		}
+		// } else {
+		// // Add to the existing plot model.
+		// parent.getObsModel().addObservationSeries(obsName, validObs);
+		// }
 	}
-	
+
 	private void enableOutputMenuItems() {
 		this.fileSaveItem.setEnabled(true);
 		this.filePrintItem.setEnabled(true);
