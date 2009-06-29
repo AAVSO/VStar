@@ -47,7 +47,8 @@ public class VStarGUI {
 	 */
 	private static void createAndShowGUI() {
 		MainFrame wdw = new MainFrame();
-		wdw.setSize(800, 600);
+		//wdw.setSize(800, 600);
+		wdw.pack();
 		wdw.setVisible(true);
 	}
 }
