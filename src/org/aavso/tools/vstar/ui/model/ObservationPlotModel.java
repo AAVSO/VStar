@@ -169,6 +169,8 @@ public class ObservationPlotModel extends AbstractXYDataset {
 		return DomainOrder.ASCENDING;
 	}
 
+	// TODO: also getRangeOrder()?
+	
 	// Helpers
 
 	private int getNextSeriesNum() {

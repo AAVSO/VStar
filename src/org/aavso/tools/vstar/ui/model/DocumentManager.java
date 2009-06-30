@@ -30,6 +30,9 @@ import org.jfree.data.xy.AbstractXYDataset;
  * 
  * This is a Singleton since only one document manager per
  * application instance needs to exist.
+ * 
+ * TODO:
+ * - FSM for GUI behaviour notification
  */
 public class DocumentManager {
 

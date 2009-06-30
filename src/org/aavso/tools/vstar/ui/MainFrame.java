@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -89,11 +90,6 @@ public class MainFrame extends JFrame {
 
 		this.setContentPane(createContent());
 
-//		this.tabs = this.createContent();
-//		JPanel panel = new JPanel(new GridLayout(1, 1));
-//		panel.add(tabs);
-//		this.setContentPane(panel);
-		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
@@ -102,65 +98,29 @@ public class MainFrame extends JFrame {
 		// Top-level pane with left to right layout and an empty border.
 		JPanel topPane = new JPanel();
 		topPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-		topPane.setLayout(new BoxLayout(topPane, BoxLayout.LINE_AXIS));
-		
-//		topPane.add(Box.createRigidArea(new Dimension(10, 0)));
+		topPane.setLayout(new BoxLayout(topPane, BoxLayout.LINE_AXIS));		
 
+		// TODO: move all firstPane code to ModePane class
 		// The first (left-most) pane containing mode buttons.
 		JPanel firstPane = new JPanel();
 		firstPane.setLayout(new BoxLayout(firstPane, BoxLayout.PAGE_AXIS));
 		firstPane.add(Box.createVerticalGlue());
-		firstPane.add(createModeButtonPanel());
+		firstPane.add(new ModePane());
 		firstPane.add(Box.createVerticalGlue());
+//		JPanel firstPane = new JPanel(new BorderLayout());
+//		firstPane.add(createModeButtonPanel(), BorderLayout.CENTER);		
 		topPane.add(firstPane);
+		
+		// Create space between the mode and data panes.
 		topPane.add(Box.createRigidArea(new Dimension(10, 0)));
 		
 		// The second (right-most) pane containing data tables, plots,
 		// and observation information.
-		// TODO: panel with CardLayout
-		topPane.add(createTextPanel("Data, Plot"));
+		topPane.add(new DataPane());
 		
 		return topPane;
 	}
-	
-	// Create the mode radio button group.
-	private JPanel createModeButtonPanel() {
-		// Create a radio button panel with N rows and 1 column,
-		// a radio button group, and each radio button and its action
-		// listener.
-		JPanel modePanel = new JPanel(new GridLayout(0,1));
-		ButtonGroup modeGroup = new ButtonGroup();
 		
-		JRadioButton plotObsRadioButton = new JRadioButton(PLOT_OBS);
-		plotObsRadioButton.setActionCommand(PLOT_OBS);
-		modePanel.add(plotObsRadioButton);
-		modeGroup.add(plotObsRadioButton);
-		
-		JRadioButton plotObsAndMeansRadioButton = new JRadioButton(PLOT_OBS_AND_MEANS);
-		plotObsAndMeansRadioButton.setActionCommand(PLOT_OBS_AND_MEANS);
-		modePanel.add(plotObsAndMeansRadioButton);
-		modeGroup.add(plotObsAndMeansRadioButton);
-		
-		JRadioButton listObsRadioButton = new JRadioButton(LIST_OBS);
-		listObsRadioButton.setActionCommand(LIST_OBS);
-		modePanel.add(listObsRadioButton);		
-		modeGroup.add(listObsRadioButton);
-		
-		JRadioButton listMeansRadioButton = new JRadioButton(LIST_MEANS);
-		listMeansRadioButton.setActionCommand(LIST_MEANS);
-		modePanel.add(listMeansRadioButton);
-		modeGroup.add(listMeansRadioButton);
-
-		modePanel.setBorder(BorderFactory.createTitledBorder("Mode"));
-		//modePanel.setPreferredSize(new Dimension(100,100));
-		
-		// TODO: add common action listener
-		
-		plotObsRadioButton.setSelected(true);
-
-		return modePanel;
-	}
-	
 	/**
 	 * The main components of the main frame are created here.
 	 * 
@@ -181,22 +141,6 @@ public class MainFrame extends JFrame {
 //
 //		return new Tabs(namedComponents);
 //	}
-
-	/**
-	 * Create a text panel.
-	 * 
-	 * @param text
-	 *            The text to be displayed.
-	 * @return The panel component.
-	 */
-	private JComponent createTextPanel(String text) {
-		JLabel label = new JLabel(text);
-		label.setHorizontalAlignment(JLabel.CENTER);
-		JPanel panel = new JPanel(false);
-		panel.setLayout(new GridLayout(1, 1));
-		panel.add(label);
-		return panel;
-	}
 
 	/**
 	 * Create a list in a scroll pane.
