@@ -45,6 +45,9 @@ import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 
 /**
  * VStar's menu bar.
+ * 
+ * TODO:
+ * - put menu item names in property file
  */
 public class MenuBar extends JMenuBar {
 
@@ -259,9 +262,9 @@ public class MenuBar extends JMenuBar {
 				strBuf.append("Contact: aavso@aavso.org\n");
 				strBuf.append("License: GNU Affero General Public License\n\n");
 				strBuf
-						.append("Thanks to the following AAVSO staff for support:\n");
+						.append("Thanks to the staff of AAVSO for their support, in particular:\n");
 				strBuf
-						.append("Sara Beck, Arne Henden, Doc Kinne, Aaron Price,");
+						.append("Sara Beck, Arne Henden, Doc Kinne, Aaron Price,\n");
 				strBuf
 						.append("Matt Templeton, Rebecca Turner, and Elizabeth Waagen.");
 
