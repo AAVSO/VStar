@@ -19,9 +19,12 @@ package org.aavso.tools.vstar.ui;
 
 import java.awt.GridLayout;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 /**
  * UI utility methods.
@@ -43,4 +46,18 @@ public class Util {
 		panel.add(label);
 		return panel;
 	}
+
+	/**
+	 * Create a list in a scroll pane.
+	 * 
+	 * @param listModel
+	 *            The list model to be used by the list.
+	 * @return The scroll pane component.
+	 */
+//	public static JComponent createScrollPaneList(DefaultListModel listModel) {
+//		JList list = new JList(listModel);
+//		list.setSelectedIndex(0);
+//		list.setVisibleRowCount(20);
+//		return new JScrollPane(list);
+//	}
 }

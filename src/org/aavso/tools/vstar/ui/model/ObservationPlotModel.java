@@ -27,8 +27,7 @@ import org.jfree.data.xy.AbstractXYDataset;
 
 /**
  * This class is a model that represents a series of valid variable star
- * observations from disparate sources, e.g. files, AAVSO database. This
- * corresponds to a light curve (TODO: rename to LightCurvePlotModel?)
+ * observations, e.g. for different bands (or from different sources). 
  */
 public class ObservationPlotModel extends AbstractXYDataset {
 

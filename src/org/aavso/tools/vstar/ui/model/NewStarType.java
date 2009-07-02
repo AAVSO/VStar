@@ -15,39 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
-
-import javax.swing.UIManager;
+package org.aavso.tools.vstar.ui.model;
 
 /**
- * The VStar GUI.
- * 
- * Note: this is a tentative first approximation...
+ * A new star creation type. 
  */
-public class VStarGUI {
+public enum NewStarType {
 
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			System.err.println("Unable to set default look and feel. Exiting.");
-		}
-
-		// Schedule a job for the event-dispatching thread:
-		// creating and showing this application's GUI.
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				createAndShowGUI();
-			}
-		});
-	}
-
-	/**
-	 * Create and display the main window.
-	 */
-	private static void createAndShowGUI() {
-		MainFrame wdw = new MainFrame();
-		wdw.pack();
-		wdw.setVisible(true);
-	}
+	NEW_STAR_FROM_SIMPLE_FILE,
+	NEW_STAR_FROM_DOWNLOAD_FILE,
+	NEW_STAR_FROM_DATABASE
 }

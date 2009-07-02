@@ -39,6 +39,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.input.SimpleTextFormatReader;
+import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
@@ -51,6 +52,8 @@ import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
  */
 public class MenuBar extends JMenuBar {
 
+	private ModelManager modelMgr = ModelManager.getInstance();
+	
 	private JFileChooser fileOpenDialog;
 
 	// The parent window.
@@ -189,10 +192,7 @@ public class MenuBar extends JMenuBar {
 					File f = fileOpenDialog.getSelectedFile();
 
 					try {
-						List<ValidObservation> validObs = self
-								.createObservationTab(f);
-
-						self.createLightCurve(f.getName(), validObs);
+						modelMgr.createObservationModelsFromFile(f);
 					} catch (Exception ex) {
 						MessageBox.showErrorDialog(parent,
 								"New Star from File", ex.getMessage());
@@ -203,28 +203,30 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
-	 * Returns the action listener to be invoked for File->Save Light Curve...
+	 * Returns the action listener to be invoked for File->Save...
 	 */
 	private ActionListener createSaveLightCurveListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					parent.getLightCurveChartPane().doSaveAs();
-				} catch (IOException ex) {
-					MessageBox.showErrorDialog(parent, "Light Curve Save", ex
-							.getMessage());
-				}
+//				try {
+//					// TODO: need to ask model mgr to save curr model/doc
+//					//parent.getLightCurveChartPane().doSaveAs();
+//				} catch (IOException ex) {
+//					MessageBox.showErrorDialog(parent, "Light Curve Save", ex
+//							.getMessage());
+//				}
 			}
 		};
 	}
 
 	/**
-	 * Returns the action listener to be invoked for File->Print Light Curve...
+	 * Returns the action listener to be invoked for File->Print...
 	 */
 	private ActionListener createPrintLightCurveListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				parent.getLightCurveChartPane().createChartPrintJob();
+				// TODO: need to ask model mgr to print curr model/doc
+				//parent.getLightCurveChartPane().createChartPrintJob();
 			}
 		};
 	}
@@ -273,92 +275,9 @@ public class MenuBar extends JMenuBar {
 			}
 		};
 	}
-
-	/**
-	 * Create a table in a new tab for the observations in the file.
-	 * 
-	 * @param obsFile
-	 *            The file from which to read observations.
-	 * @throws IOException
-	 * @throws ObservationReadError
-	 * @return The list of valid observations.
-	 */
-	private List<ValidObservation> createObservationTab(File obsFile)
-			throws IOException, ObservationReadError {
-		FileReader fileReader = new FileReader(obsFile.getPath());
-
-		// TODO: Use a factory method to determine observation
-		// retriever class to use given the file type.
-		ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
-				new LineNumberReader(fileReader));
-
-		simpleTextFormatReader.retrieveObservations();
-
-		List<ValidObservation> validObs = simpleTextFormatReader
-				.getValidObservations();
-
-		List<InvalidObservation> invalidObs = simpleTextFormatReader
-				.getInvalidObservations();
-
-		// Add a new tab with the observation data.
-		ValidObservationTableModel validObsModel = null;
-		InvalidObservationTableModel invalidObsModel = null;
-
-		if (!validObs.isEmpty()) {
-			validObsModel = new ValidObservationTableModel(validObs);
-		}
-
-		if (!invalidObs.isEmpty()) {
-			invalidObsModel = new InvalidObservationTableModel(invalidObs);
-		}
-
-		this.parent.getTabs().insertTab(obsFile.getName(),
-				null, // TODO: icon, close box
-				new SimpleTextFormatObservationPane(validObsModel,
-						invalidObsModel), obsFile.getPath(), 0);
-
-		this.parent.getTabs().setSelectedIndex(0);
-
-		return validObs;
-	}
-
-	/**
-	 * Create the light curve for a list of valid observations.
-	 * 
-	 * @param obsName
-	 *            The name of the observation list.
-	 * @param validObs
-	 *            The observation list.
-	 */
-	private void createLightCurve(String obsName,
-			List<ValidObservation> validObs) {
-		if (parent.getObsModel() == null) {
-			ObservationPlotModel model = new ObservationPlotModel(obsName,
-					validObs);
-			parent.setObsModel(model);
-			Dimension bounds = new Dimension((int) (parent.getWidth() * 0.75),
-					(int) (parent.getHeight() * 0.75));
-			// TODO: make title more meaningful
-			LightCurvePane lightCurvePane = new LightCurvePane(
-					"JD vs Magnitude", model, bounds);
-
-			for (int i = 0; i < parent.getTabs().getTabCount(); i++) {
-				String tabName = parent.getTabs().getTitleAt(i);
-				if (MainFrame.LIGHT_CURVE.equals(tabName)) {
-					parent.getTabs().setComponentAt(i, lightCurvePane);
-					parent.setLightCurveChartPane(lightCurvePane);
-					break;
-				}
-			}
-
-			this.enableOutputMenuItems();
-		}
-		// } else {
-		// // Add to the existing plot model.
-		// parent.getObsModel().addObservationSeries(obsName, validObs);
-		// }
-	}
-
+	
+	// TODO: this should be called as a result of a notification 
+	//       by model manager.
 	private void enableOutputMenuItems() {
 		this.fileSaveItem.setEnabled(true);
 		this.filePrintItem.setEnabled(true);

@@ -87,7 +87,6 @@ public class Magnitude {
 		this.uncertainty = uncertainty;
 	}
 
-	@Override
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 		

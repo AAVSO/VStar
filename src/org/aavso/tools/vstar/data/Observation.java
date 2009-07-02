@@ -29,7 +29,6 @@ public abstract class Observation {
 	 * @param lineNumber
 	 */
 	public Observation(int lineNumber) {
-		super();
 		this.lineNumber = lineNumber;
 	}
 
