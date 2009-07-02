@@ -28,11 +28,16 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import org.aavso.tools.vstar.ui.model.ModeType;
+import org.aavso.tools.vstar.ui.model.ModelManager;
+
 /**
  * Create the mode radio button group pane.
  */
 public class ModePane extends JPanel implements ActionListener {
 
+	private ModelManager modelMgr = ModelManager.getInstance();
+	
 	/**
 	 * Constructor.
 	 */
@@ -51,26 +56,27 @@ public class ModePane extends JPanel implements ActionListener {
 	private void createModeButtonPanel() {
 		ButtonGroup modeGroup = new ButtonGroup();
 		
-		JRadioButton plotObsRadioButton = new JRadioButton(MainFrame.PLOT_OBS);
-		plotObsRadioButton.setActionCommand(MainFrame.PLOT_OBS);
+		JRadioButton plotObsRadioButton = new JRadioButton(ModeType.PLOT_OBS_MODE_DESC);
+		plotObsRadioButton.setActionCommand(ModeType.PLOT_OBS_MODE_DESC);
 		plotObsRadioButton.addActionListener(this);
 		this.add(plotObsRadioButton);
 		modeGroup.add(plotObsRadioButton);
 		
-		JRadioButton plotObsAndMeansRadioButton = new JRadioButton(MainFrame.PLOT_OBS_AND_MEANS);
-		plotObsAndMeansRadioButton.setActionCommand(MainFrame.PLOT_OBS_AND_MEANS);
+		JRadioButton plotObsAndMeansRadioButton = new JRadioButton(
+				ModeType.PLOT_OBS_AND_MEANS_MODE_DESC);
+		plotObsAndMeansRadioButton.setActionCommand(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC);
 		plotObsAndMeansRadioButton.addActionListener(this);
 		this.add(plotObsAndMeansRadioButton);
 		modeGroup.add(plotObsAndMeansRadioButton);
 		
-		JRadioButton listObsRadioButton = new JRadioButton(MainFrame.LIST_OBS);
-		listObsRadioButton.setActionCommand(MainFrame.LIST_OBS);
+		JRadioButton listObsRadioButton = new JRadioButton(ModeType.LIST_OBS_MODE_DESC);
+		listObsRadioButton.setActionCommand(ModeType.LIST_OBS_MODE_DESC);
 		listObsRadioButton.addActionListener(this);
 		this.add(listObsRadioButton);		
 		modeGroup.add(listObsRadioButton);
 		
-		JRadioButton listMeansRadioButton = new JRadioButton(MainFrame.LIST_MEANS);
-		listMeansRadioButton.setActionCommand(MainFrame.LIST_MEANS);
+		JRadioButton listMeansRadioButton = new JRadioButton(ModeType.LIST_MEANS_MODE_DESC);
+		listMeansRadioButton.setActionCommand(ModeType.LIST_MEANS_MODE_DESC);
 		listMeansRadioButton.addActionListener(this);
 		this.add(listMeansRadioButton);
 		modeGroup.add(listMeansRadioButton);
@@ -81,10 +87,14 @@ public class ModePane extends JPanel implements ActionListener {
 	// This method will be called when a radio button is selected.
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
+		ModeType mode = ModeType.getModeFromDesc(command);
+		// TODO: call a method on model mgr that does the below but also sets curr mode
+		this.modelMgr.getModeChangeNotifier().notifyListeners(mode);
+		//TODO: call out to notifier in model mgr ***
 		// TODO: Combine command with Analysis menu selection to
-		// set the table/plot to view from DocumentManager. For now
+		// set the table/plot to view from ModelManager. For now
 		// just assume Analysis->Raw Data.
-		// May want DocumentManager to notify the DataPane which in turn 
+		// May want ModelManager to notify the DataPane which in turn 
 		// calls showCard().
 	}
 }

@@ -15,39 +15,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
-
-import javax.swing.UIManager;
+package org.aavso.tools.vstar.util;
 
 /**
- * The VStar GUI.
- * 
- * Note: this is a tentative first approximation...
+ * A listener interface genericised on the class of object
+ * that will be sent by the notifier. This is a simpler,
+ * more flexible, and more type-safe form of the Observer 
+ * pattern than the one provided via the standard Java
+ * Observer/Observable framework. A good candidate for T 
+ * is an enum.
  */
-public class VStarGUI {
-
-	public static void main(String[] args) {
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			System.err.println("Unable to set default look and feel. Exiting.");
-		}
-
-		// Schedule a job for the event-dispatching thread:
-		// creating and showing this application's GUI.
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				createAndShowGUI();
-			}
-		});
-	}
+public interface Listener<T> {
 
 	/**
-	 * Create and display the main window.
+	 * The method that is called back by the notifier whose
+	 * activities this listener is interested in.
+	 * 
+	 * @param info The type-safe information.
 	 */
-	private static void createAndShowGUI() {
-		MainFrame wdw = new MainFrame();
-		wdw.pack();
-		wdw.setVisible(true);
-	}
+	public abstract void update(T info);
 }

@@ -21,13 +21,11 @@ package org.aavso.tools.vstar.data;
 /**
  * This class corresponds to a single valid variable star observation. Depending
  * upon the source, some fields may be null. Some are not permitted to be null
- * however and these are documented below. TODO: or we will specialise classes
- * for input source type
+ * however and these are documented below.
  */
 public class ValidObservation extends Observation implements IDateAndMagSource {
 
-	private String starName; // TODO: probably don't want this here; map to set
-								// of observations
+	private String starName;
 	private DateInfo dateInfo;
 	private Magnitude magnitude;
 	private String obsCode;
@@ -103,7 +101,6 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 		this.discrepant = discrepant;
 	}
 
-	@Override
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 

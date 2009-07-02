@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
  *   maybe other classes, e.g. plot-related classes) given
  *   the ObservationRetrieverBase subclass.
  * - Also implement methods for cell editing, cell type, ...
+ * - Use an enum for columns
  */
 public class ValidObservationTableModel extends AbstractTableModel {
 

@@ -23,6 +23,7 @@ import javax.swing.JTabbedPane;
 
 /**
  * This class represents the main frame's tabs.
+ * @deprecated
  */
 public class Tabs extends JTabbedPane {
 

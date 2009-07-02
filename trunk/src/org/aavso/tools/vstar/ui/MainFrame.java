@@ -18,21 +18,16 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
@@ -47,7 +42,7 @@ import org.jfree.chart.ChartPanel;
  * - Splash Screen?
  * - Toolbar
  * 
- * - We need a DocManager class to store a mapping
+ * - We need a ModelManager class to store a mapping
  *   from data files to tabs/observation lists, and also to
  *   handle undo, document "is-dirty" handling, don't load same
  *   file twice etc.
@@ -58,32 +53,14 @@ import org.jfree.chart.ChartPanel;
  */
 public class MainFrame extends JFrame {
 
-	public final static String LIGHT_CURVE = "Light Curve";
-
-	// Mode strings.
-	public final static String PLOT_OBS = "Plot Observations";
-	public final static String PLOT_OBS_AND_MEANS = "Plot Observations and Means";
-	public final static String LIST_OBS = "List Observations";
-	public final static String LIST_MEANS = "List Means";
-
-	// The observation model.
-	// TODO: very temporarily here; put this into a Document Manager
-	private ObservationPlotModel obsModel;
-	private ChartPanel lightCurveChartPane;
-
 	// The application's menu bar.
 	private JMenuBar menuBar;
-
-	// The tabs for the main window.
-	private Tabs tabs;
 
 	/**
 	 * Constructor
 	 */
 	public MainFrame() {
 		super("VStar");
-
-		this.obsModel = null;
 
 		this.menuBar = new MenuBar(this);
 		this.setJMenuBar(menuBar);
@@ -100,15 +77,12 @@ public class MainFrame extends JFrame {
 		topPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.LINE_AXIS));		
 
-		// TODO: move all firstPane code to ModePane class
 		// The first (left-most) pane containing mode buttons.
 		JPanel firstPane = new JPanel();
 		firstPane.setLayout(new BoxLayout(firstPane, BoxLayout.PAGE_AXIS));
 		firstPane.add(Box.createVerticalGlue());
 		firstPane.add(new ModePane());
 		firstPane.add(Box.createVerticalGlue());
-//		JPanel firstPane = new JPanel(new BorderLayout());
-//		firstPane.add(createModeButtonPanel(), BorderLayout.CENTER);		
 		topPane.add(firstPane);
 		
 		// Create space between the mode and data panes.
@@ -119,75 +93,5 @@ public class MainFrame extends JFrame {
 		topPane.add(new DataPane());
 		
 		return topPane;
-	}
-		
-	/**
-	 * The main components of the main frame are created here.
-	 * 
-	 * TODO: ultimately when we have document management, we will support
-	 * File->New creating a new document containing a plot, possibly multiple
-	 * phase plots, and multiple file tabs, and in phase III, analysis tabs...
-	 * 
-	 * @return The main contents in the form of a tabbed pane.
-	 */
-//	private Tabs createContent() {
-//		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
-//
-//		namedComponents
-//				.add(new NamedComponent(
-//						LIGHT_CURVE,
-//						createTextPanel("Open a data file or select a star from the database."),
-//						"A plot of magnitude against Julian Day."));
-//
-//		return new Tabs(namedComponents);
-//	}
-
-	/**
-	 * Create a list in a scroll pane.
-	 * 
-	 * @param listModel
-	 *            The list model to be used by the list.
-	 * @return The scroll pane component.
-	 */
-	private JComponent createScrollPaneList(DefaultListModel listModel) {
-		JList list = new JList(listModel);
-		list.setSelectedIndex(0);
-		list.setVisibleRowCount(20);
-		return new JScrollPane(list);
-	}
-
-	// Getters
-
-	public JTabbedPane getTabs() {
-		return tabs;
-	}
-
-	/**
-	 * @return the obsModel
-	 */
-	public ObservationPlotModel getObsModel() {
-		return obsModel;
-	}
-
-	/**
-	 * @param obsModel
-	 *            the obsModel to set
-	 */
-	public void setObsModel(ObservationPlotModel obsModel) {
-		this.obsModel = obsModel;
-	}
-
-	/**
-	 * @return the lightCurveChartPane
-	 */
-	public ChartPanel getLightCurveChartPane() {
-		return lightCurveChartPane;
-	}
-
-	/**
-	 * @param lightCurveChartPane the lightCurveChartPane to set
-	 */
-	public void setLightCurveChartPane(ChartPanel lightCurveChartPane) {
-		this.lightCurveChartPane = lightCurveChartPane;
-	}
+	}		
 }
