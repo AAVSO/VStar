@@ -49,15 +49,16 @@ public class Util {
 
 	/**
 	 * Create a list in a scroll pane.
+	 * @deprecated
 	 * 
 	 * @param listModel
 	 *            The list model to be used by the list.
 	 * @return The scroll pane component.
 	 */
-//	public static JComponent createScrollPaneList(DefaultListModel listModel) {
-//		JList list = new JList(listModel);
-//		list.setSelectedIndex(0);
-//		list.setVisibleRowCount(20);
-//		return new JScrollPane(list);
-//	}
+	public static JComponent createScrollPaneList(DefaultListModel listModel) {
+		JList list = new JList(listModel);
+		list.setSelectedIndex(0);
+		list.setVisibleRowCount(20);
+		return new JScrollPane(list);
+	}
 }

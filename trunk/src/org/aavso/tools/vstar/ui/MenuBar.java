@@ -39,10 +39,13 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.input.SimpleTextFormatReader;
+import org.aavso.tools.vstar.ui.model.ModeType;
 import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
+import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
+import org.aavso.tools.vstar.util.Listener;
 
 /**
  * VStar's menu bar.
@@ -81,6 +84,8 @@ public class MenuBar extends JMenuBar {
 
 		this.parent = parent;
 
+		this.modelMgr.getNewStarNotifier().addListener(createNewStarListener());
+		
 		List<String> extensions = new ArrayList<String>();
 		extensions.add("sim");
 		extensions.add("simple");
@@ -131,11 +136,17 @@ public class MenuBar extends JMenuBar {
 	private void createAnalysisMenu() {
 		JMenu analysisMenu = new JMenu("Analysis");
 
-		analysisRawDataItem = new JMenuItem("Raw Data");
-		// TODO: select card in conjunction with mode radio group
-		analysisMenu.add(analysisRawDataItem);
+		// TODO: add checkboxes for these menu items
+		// see what NetBeans yields, see Sun docs
 
+		// TODO: add listeners; select card in conjunction with mode 
+		//       radio group
+		analysisRawDataItem = new JMenuItem("Raw Data");
+		analysisRawDataItem.setEnabled(false);
+		analysisMenu.add(analysisRawDataItem);
+		
 		analysisPhasePlotItem = new JMenuItem("Phase Plot...");
+		analysisPhasePlotItem.setEnabled(false);
 		analysisMenu.add(analysisPhasePlotItem);
 
 		analysisPeriodSearchItem = new JMenuItem("Period Search...");
@@ -276,10 +287,23 @@ public class MenuBar extends JMenuBar {
 		};
 	}
 	
-	// TODO: this should be called as a result of a notification 
-	//       by model manager.
+	/**
+	 * Return a new star creation listener.
+	 */
+	private Listener<NewStarType> createNewStarListener() {
+		return new Listener<NewStarType>() {
+			public void update(NewStarType info) {
+				enableOutputMenuItems();
+			}
+		};
+	}
+	
 	private void enableOutputMenuItems() {
 		this.fileSaveItem.setEnabled(true);
 		this.filePrintItem.setEnabled(true);
+		
+		this.analysisRawDataItem.setEnabled(true);
+		this.analysisPhasePlotItem.setEnabled(true);
+		this.analysisPeriodSearchItem.setEnabled(true);
 	}
 }

@@ -88,13 +88,6 @@ public class ModePane extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
 		ModeType mode = ModeType.getModeFromDesc(command);
-		// TODO: call a method on model mgr that does the below but also sets curr mode
-		this.modelMgr.getModeChangeNotifier().notifyListeners(mode);
-		//TODO: call out to notifier in model mgr ***
-		// TODO: Combine command with Analysis menu selection to
-		// set the table/plot to view from ModelManager. For now
-		// just assume Analysis->Raw Data.
-		// May want ModelManager to notify the DataPane which in turn 
-		// calls showCard().
+		this.modelMgr.changeMode(mode);
 	}
 }

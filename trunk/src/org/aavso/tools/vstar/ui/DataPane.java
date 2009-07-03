@@ -45,8 +45,8 @@ public class DataPane extends JPanel {
 
 	private ModelManager modelMgr = ModelManager.getInstance();
 
-	private final static int WIDTH = 600;
-	private final static int HEIGHT = 500;
+	private final static int WIDTH = 800;
+	private final static int HEIGHT = 600;
 
 	// Shared data and plot display pane.
 	private JPanel cards;
@@ -94,9 +94,9 @@ public class DataPane extends JPanel {
 		cards.setPreferredSize(new Dimension((int) (WIDTH * 0.9),
 				(int) (HEIGHT * 0.9)));
 
-		topPane.add(cards);
+		addDefaultCards();
 
-		// showCard(ModeType.PLOT_OBS);
+		topPane.add(cards);
 
 		// Create space between shared space pane and observation
 		// information.
@@ -107,7 +107,6 @@ public class DataPane extends JPanel {
 		obsInfo.setBorder(BorderFactory.createEtchedBorder());
 		obsInfo.setPreferredSize(new Dimension((int) (WIDTH * 0.9),
 				(int) (HEIGHT * 0.1)));
-		obsInfo.setText("Select a 'New Star' item from the File menu.");
 		obsInfo.setEditable(false);
 		topPane.add(obsInfo);
 
@@ -115,17 +114,43 @@ public class DataPane extends JPanel {
 	}
 
 	/**
+	 * Add default components to the card view and ensure appropriate default is
+	 * shown.
+	 */
+	private void addDefaultCards() {
+		setCard(ModeType.PLOT_OBS_MODE_DESC, Util
+				.createTextPanel(noSomethingYet("Observations plot")));
+
+		setCard(
+				ModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
+				Util
+						.createTextPanel(noSomethingYet("Observations and means plot")));
+
+		setCard(ModeType.LIST_OBS_MODE_DESC, Util
+				.createTextPanel(noSomethingYet("Observation list")));
+
+		setCard(ModeType.LIST_MEANS_MODE_DESC, Util
+				.createTextPanel(noSomethingYet("Means list")));
+
+		showCard(ModeType.PLOT_OBS_MODE_DESC);
+	}
+
+	private String noSomethingYet(String s) {
+		return s + " not yet available.";
+	}
+
+	/**
 	 * Return a new star creation listener.
 	 */
 	private Listener<NewStarType> createNewStarListener() {
 		return new Listener<NewStarType>() {
-			// Create the cards components for each model type.
+			// Set the cards components for each model type.
 			public void update(NewStarType info) {
 				if (info == NewStarType.NEW_STAR_FROM_SIMPLE_FILE) {
 					// TODO: create in model manager instead?
-					setCard(ModeType.PLOT_OBS_MODE_DESC, createLightCurve());					
+					setCard(ModeType.PLOT_OBS_MODE_DESC, createLightCurve());
 					setCard(ModeType.LIST_OBS_MODE_DESC, createObsTable());
-					
+
 					showCard(ModeType.PLOT_OBS_MODE_DESC);
 				}
 			}
@@ -171,7 +196,6 @@ public class DataPane extends JPanel {
 	 *            The name of the card.
 	 */
 	private void showCard(String name) {
-		System.out.println("foo");
 		CardLayout cardLayout = (CardLayout) cards.getLayout();
 		cardLayout.show(cards, name);
 	}

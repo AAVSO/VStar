@@ -37,6 +37,9 @@ import org.aavso.tools.vstar.util.Notifier;
  * This is a Singleton since only one manager per application instance
  * needs to exist.
  * 
+ * TODO: if we store GUI components here also, it should be DocManager 
+ * again...or ArtefactManager (like that one!) or...
+ * 
  */
 public class ModelManager {
 
@@ -53,6 +56,8 @@ public class ModelManager {
 	// TODO: mean, phase plot models...
 
 	private ModeType currentMode;
+	
+	private String newStarFileName;
 	
 	// New star creation notifier.
 	private Notifier<NewStarType> newStarNotifier;
@@ -74,6 +79,20 @@ public class ModelManager {
 		return modeChangeNotifier;
 	}
 
+	/**
+	 * Change the mode of VStar's focus (i.e what is 
+	 * to be presented to the user).
+	 * 
+	 * @param mode The mode to change to.
+	 */
+	public void changeMode(ModeType mode) {
+		this.currentMode = mode;
+		this.getModeChangeNotifier().notifyListeners(mode);
+		// TODO: Combine command with Analysis menu selection to
+		// set the table/plot to view from ModelManager. For now
+		// just assume Analysis->Raw Data.
+	}
+	
 	/**
 	 * Create observation table and plot models from a file.
 	 * 
@@ -123,6 +142,8 @@ public class ModelManager {
 			this.invalidObsTableModel = 
 					new InvalidObservationTableModel(invalidObs);
 		}
+		
+		this.newStarFileName = obsFile.getPath();
 
 		// TODO: NewStarType enum value should depend upon factory or 
 		//       some other setting
@@ -134,6 +155,13 @@ public class ModelManager {
 	 */
 	public List<ValidObservation> getValidObsList() {
 		return validObsList;
+	}
+
+	/**
+	 * @return the invalidObsList
+	 */
+	public List<InvalidObservation> getInvalidObsList() {
+		return invalidObsList;
 	}
 
 	/**
@@ -162,6 +190,7 @@ public class ModelManager {
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		
 		this.currentMode = ModeType.PLOT_OBS_MODE;
+		this.currentMode = null;
 	}
 
 	/**
@@ -176,5 +205,12 @@ public class ModelManager {
 	 */
 	public ObservationPlotModel getObsPlotModel() {
 		return obsPlotModel;
+	}
+
+	/**
+	 * @return the newStarFileName
+	 */
+	public String getNewStarFileName() {
+		return newStarFileName;
 	}
 }
