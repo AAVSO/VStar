@@ -17,7 +17,9 @@
  */
 package org.aavso.tools.vstar.ui;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -70,28 +72,42 @@ public class MainFrame extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-	// Create everything inside the main GUI view.
+	// Create everything inside the main GUI view except for
+	// menus, toolbars; essentially the interior content of
+	// the GUI that represents the core functionality of interest
+	// to the user.
 	private JPanel createContent() {
-		// Top-level pane with left to right layout and an empty border.
-		JPanel topPane = new JPanel();
-		topPane.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-		topPane.setLayout(new BoxLayout(topPane, BoxLayout.LINE_AXIS));		
+		// Top-level content pane to include status pane.
+		JPanel topPane = new JPanel(new BorderLayout());
+
+		// Major pane with left to right layout and an empty border.
+		JPanel majorPane = new JPanel();
+		majorPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		majorPane.setLayout(new BoxLayout(majorPane, BoxLayout.LINE_AXIS));
 
 		// The first (left-most) pane containing mode buttons.
+		// TODO: put all of this inside ModePane ctor!
 		JPanel firstPane = new JPanel();
 		firstPane.setLayout(new BoxLayout(firstPane, BoxLayout.PAGE_AXIS));
 		firstPane.add(Box.createVerticalGlue());
 		firstPane.add(new ModePane());
 		firstPane.add(Box.createVerticalGlue());
-		topPane.add(firstPane);
-		
+		majorPane.add(firstPane);
+
 		// Create space between the mode and data panes.
-		topPane.add(Box.createRigidArea(new Dimension(10, 0)));
-		
+		majorPane.add(Box.createRigidArea(new Dimension(10, 0)));
+
 		// The second (right-most) pane containing data tables, plots,
 		// and observation information.
-		topPane.add(new DataPane());
-		
+		majorPane.add(new DataPane());
+
+		topPane.add(majorPane, BorderLayout.CENTER);
+
+		// Add status pane with an initial message.
+		topPane.add(new StatusPane(
+				"Select a 'New Star' item from the File menu."),
+				BorderLayout.PAGE_END);
+
 		return topPane;
-	}		
+	}
 }
