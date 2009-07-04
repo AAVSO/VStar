@@ -119,12 +119,12 @@ public class DataPane extends JPanel {
 	 */
 	private void addDefaultCards() {
 		setCard(ModeType.PLOT_OBS_MODE_DESC, Util
-				.createTextPanel(noSomethingYet("Observations plot")));
+				.createTextPanel(noSomethingYet("Observation plot")));
 
 		setCard(
 				ModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
 				Util
-						.createTextPanel(noSomethingYet("Observations and means plot")));
+						.createTextPanel(noSomethingYet("Observation and mean plot")));
 
 		setCard(ModeType.LIST_OBS_MODE_DESC, Util
 				.createTextPanel(noSomethingYet("Observation list")));
