@@ -27,7 +27,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This class validates strings using regular expressions.
  */
-public class RegexValidator implements IStringValidator<String[]> {
+public class RegexValidator extends StringValidatorBase<String[]> {
 
 	private final Pattern pattern;
 	private final String kind;
