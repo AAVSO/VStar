@@ -30,6 +30,8 @@ import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.ui.model.ModeType;
 import org.aavso.tools.vstar.ui.model.ModelManager;
+import org.aavso.tools.vstar.ui.model.NewStarType;
+import org.aavso.tools.vstar.util.Listener;
 
 /**
  * Create the mode radio button group pane.
@@ -37,6 +39,11 @@ import org.aavso.tools.vstar.ui.model.ModelManager;
 public class ModePane extends JPanel implements ActionListener {
 
 	private ModelManager modelMgr = ModelManager.getInstance();
+	
+	private JRadioButton plotObsRadioButton;
+	private JRadioButton plotObsAndMeansRadioButton;
+	private JRadioButton listObsRadioButton;
+	private JRadioButton listMeansRadioButton;
 	
 	/**
 	 * Constructor.
@@ -48,34 +55,47 @@ public class ModePane extends JPanel implements ActionListener {
 		
 		this.setBorder(BorderFactory.createTitledBorder("Mode"));
 		this.setPreferredSize(new Dimension(250,200));		
+		
+		modelMgr.getNewStarNotifier().addListener(createNewStarListener());
 	}
 	
+	/**
+	 * Return a new star creation listener.
+	 */
+	private Listener<NewStarType> createNewStarListener() {
+		return new Listener<NewStarType>() {
+			public void update(NewStarType info) {
+				plotObsRadioButton.setSelected(true);
+			}
+		};
+	}
+
 	// Create a radio button panel with N rows and 1 column, a
 	// radio button group, and each radio button and its action
 	// listener.
 	private void createModeButtonPanel() {
 		ButtonGroup modeGroup = new ButtonGroup();
 		
-		JRadioButton plotObsRadioButton = new JRadioButton(ModeType.PLOT_OBS_MODE_DESC);
+		plotObsRadioButton = new JRadioButton(ModeType.PLOT_OBS_MODE_DESC);
 		plotObsRadioButton.setActionCommand(ModeType.PLOT_OBS_MODE_DESC);
 		plotObsRadioButton.addActionListener(this);
 		this.add(plotObsRadioButton);
 		modeGroup.add(plotObsRadioButton);
 		
-		JRadioButton plotObsAndMeansRadioButton = new JRadioButton(
+		plotObsAndMeansRadioButton = new JRadioButton(
 				ModeType.PLOT_OBS_AND_MEANS_MODE_DESC);
 		plotObsAndMeansRadioButton.setActionCommand(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC);
 		plotObsAndMeansRadioButton.addActionListener(this);
 		this.add(plotObsAndMeansRadioButton);
 		modeGroup.add(plotObsAndMeansRadioButton);
 		
-		JRadioButton listObsRadioButton = new JRadioButton(ModeType.LIST_OBS_MODE_DESC);
+		listObsRadioButton = new JRadioButton(ModeType.LIST_OBS_MODE_DESC);
 		listObsRadioButton.setActionCommand(ModeType.LIST_OBS_MODE_DESC);
 		listObsRadioButton.addActionListener(this);
 		this.add(listObsRadioButton);		
 		modeGroup.add(listObsRadioButton);
 		
-		JRadioButton listMeansRadioButton = new JRadioButton(ModeType.LIST_MEANS_MODE_DESC);
+		listMeansRadioButton = new JRadioButton(ModeType.LIST_MEANS_MODE_DESC);
 		listMeansRadioButton.setActionCommand(ModeType.LIST_MEANS_MODE_DESC);
 		listMeansRadioButton.addActionListener(this);
 		this.add(listMeansRadioButton);
