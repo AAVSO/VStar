@@ -32,10 +32,11 @@ import org.aavso.tools.vstar.data.ValidObservation;
  *   maybe other classes, e.g. plot-related classes) given
  *   the ObservationRetrieverBase subclass.
  * - Also implement methods for cell editing, cell type, ...
- * - Use an enum for columns
  */
 public class ValidObservationTableModel extends AbstractTableModel {
 
+	// TODO: Use an enum + ordinal values for columns with a max enum/ord value
+	// for a particular source; if a field value is null, it renders as ''
 	private final static int COLUMNS = 6;
 
 	/**

@@ -102,8 +102,8 @@ public class ModelManager {
 	public void createObservationModelsFromFile(File obsFile)
 			throws IOException, ObservationReadError {
 
-		FileReader fileReader = new FileReader(obsFile.getPath());
-
+		// TODO: factory -> DocType, retriever instance + delimiter
+		
 		// TODO: Use an abstract factory to determine observation
 		// retriever class to use given the file type, along
 		// with all other classes of relevance to us! The
@@ -113,8 +113,10 @@ public class ModelManager {
 		// could be used to give us the concrete factory. For files
 		// we need first determine NewStarType via file content.
 
+		String delimiter = "\t";
+		
 		ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
-				new LineNumberReader(fileReader));
+				new LineNumberReader(new FileReader(obsFile.getPath())), delimiter);
 
 		simpleTextFormatReader.retrieveObservations();
 
@@ -190,7 +192,7 @@ public class ModelManager {
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		
 		this.currentMode = ModeType.PLOT_OBS_MODE;
-		this.currentMode = null;
+		this.newStarFileName = null;
 	}
 
 	/**
