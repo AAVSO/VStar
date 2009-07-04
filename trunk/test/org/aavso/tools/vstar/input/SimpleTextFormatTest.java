@@ -48,8 +48,34 @@ public class SimpleTextFormatTest extends TestCase {
 
 	// Tests of valid simple text format.
 
-	public void testValidJulianDayAndMag() {
-		List<ValidObservation> obs = commonValidTest("2450001.5 10.0\n");
+	public void testValidJulianDayAndMagTSV() {
+		commonValidJulianDayAndMagTest("2450001.5\t10.0\n", "\t");
+	}
+
+	public void testValidJulianDayAndMagCSV() {
+		commonValidJulianDayAndMagTest("2450001.5,10.0\n", ",");
+	}
+
+	public void testValidMultipleLines() {
+		StringBuffer lines = new StringBuffer();
+		lines.append("2450001.5\t10.0\n");
+		lines.append("2430002.0\t2.0");
+		
+		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t");
+		
+		assertTrue(obs.size() == 2);
+
+		ValidObservation ob0 = (ValidObservation) obs.get(0);
+		assertEquals(2450001.5, ob0.getDateInfo().getJulianDay());
+		
+		ValidObservation ob1 = (ValidObservation) obs.get(1);
+		assertEquals(2430002.0, ob1.getDateInfo().getJulianDay());
+	}
+
+	// Helpers
+	
+	private void commonValidJulianDayAndMagTest(String line, String delimiter) {
+		List<ValidObservation> obs = commonValidTest(line, delimiter);
 		
 		assertTrue(obs.size() == 1);
 		
@@ -60,30 +86,14 @@ public class SimpleTextFormatTest extends TestCase {
 		assertFalse(ob.getMagnitude().isFainterThan());
 	}
 
-	public void testValidMultipleLines() {
-		StringBuffer lines = new StringBuffer();
-		lines.append("2450001.5 10.0\n");
-		lines.append("2430002.0 2.0");
-		
-		List<ValidObservation> obs = commonValidTest(lines.toString());
-		
-		assertTrue(obs.size() == 2);
-
-		ValidObservation ob0 = (ValidObservation) obs.get(0);
-		assertEquals(2450001.5, ob0.getDateInfo().getJulianDay());
-		
-		ValidObservation ob1 = (ValidObservation) obs.get(1);
-		assertEquals(2430002.0, ob1.getDateInfo().getJulianDay());
-	}
-	
-	private List<ValidObservation> commonValidTest(String str) {
+	private List<ValidObservation> commonValidTest(String str, String delimiter) {
 		List<ValidObservation> obs = null;
 		
 		try {
 			StringReader strReader = new StringReader(str);
 
 			ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
-					new LineNumberReader(strReader));
+					new LineNumberReader(strReader), delimiter);
 
 			simpleTextFormatReader.retrieveObservations();
 			obs = simpleTextFormatReader.getValidObservations();
@@ -96,13 +106,13 @@ public class SimpleTextFormatTest extends TestCase {
 
 	// Tests of invalid simple text format.
 
-	public void testInvalidMagNoDecimalDigit() {
-		commonInvalidTest("2450001 10.\n");
+	public void testInvalidMagTrailingDecimalPoint() {
+		commonInvalidTest("2450001\t10.\n");
 	}
 	
 	private void commonInvalidTest(String str) {		
 		try {
-			SimpleTextFormatValidator validator = new SimpleTextFormatValidator();
+			SimpleTextFormatValidator validator = new SimpleTextFormatValidator("\t");
 			validator.validate(str);
 			// We should have thrown a ObservationValidationError...
 			fail();
