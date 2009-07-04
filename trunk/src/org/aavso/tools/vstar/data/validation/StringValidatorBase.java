@@ -22,7 +22,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This is the base class for all string-based validators.
  */
-public interface IStringValidator<T> {
+public abstract class StringValidatorBase<T> {
 
 	/**
 	 * Validate the supplied string, throwing an exception on failure.
@@ -31,4 +31,34 @@ public interface IStringValidator<T> {
 	 * @throws ObservationValidationError
 	 */
 	abstract public T validate(String str) throws ObservationValidationError;
-}
+
+	/**
+	 * Can the string to be validated by this class be empty?
+	 * Default to false.
+	 * @return True or False
+	 */
+	public boolean canBeEmpty() {
+		return false;
+	}
+
+	/**
+	 * Is the supplied string legally empty or null?
+	 * 
+	 * @param str The string to be validated.
+	 * @return True or False
+	 * @throws ObservationValidationError if the string is empty or null but canBeEmpty() 
+	 * returns false.
+	 * @precondition The string is either null, empty, or contains characters besides whitespace. 
+	 */
+	public boolean isLegallyEmpty(String str) throws ObservationValidationError {
+		if (str == null || "".equals(str)) {
+			if (canBeEmpty()) {
+				return true;
+			} else {
+				throw new ObservationValidationError();
+			}
+		} else {
+			return false;
+		}
+	}
+}	

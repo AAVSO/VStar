@@ -26,12 +26,13 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  * This class accepts a line of text for tokenising, validation, and
  * ValidObservation instance creation.
  */
-public class SimpleTextFormatValidator implements
-		IStringValidator<ValidObservation> {
+public class SimpleTextFormatValidator extends
+		StringValidatorBase<ValidObservation> {
 
 	private final int JD_FIELD = 0;
 	private final int MAG_FIELD = 1;
 
+	private final String delimiter; 
 	private final JulianDayValidator julianDayValidator;
 	private final MagnitudeFieldValidator magnitudeFieldValidator;
 	private final MagnitudeValueValidator uncertaintyValueValidator;
@@ -40,7 +41,8 @@ public class SimpleTextFormatValidator implements
 	/**
 	 * Constructor.
 	 */
-	public SimpleTextFormatValidator() {
+	public SimpleTextFormatValidator(String delimiter) {
+		this.delimiter = delimiter;
 		this.julianDayValidator = new JulianDayValidator();
 		this.magnitudeFieldValidator = new MagnitudeFieldValidator();
 		this.uncertaintyValueValidator = new MagnitudeValueValidator(
@@ -49,25 +51,13 @@ public class SimpleTextFormatValidator implements
 	}
 
 	/**
-	 * <p>
 	 * Validate an observation line and either return an ValidObservation
 	 * instance, or throw an exception indicating the error.
-	 * </p>
 	 * 
-	 * <p>
 	 * Both uncertainty and observer code fields are optional. The uncertainty
-	 * field *may* be present however, whether or not the magnitude field has a
+	 * field may be present however, whether or not the magnitude field has a
 	 * ":" suffix.
-	 * 
-	 * TODO: REVISE THIS: 
-	 * If ":" is exists in the magnitude field, the uncertainty
-	 * field is required. Otherwise, if present, it must be zero. In either
-	 * case, if the uncertainty field is present, the observer code will be the
-	 * 4th field, otherwise it must be the 3rd. If any of this does not hold
-	 * true, we throw an exception. It's at this point that the attraction of
-	 * CSV format becomes clear. :)
-	 * </p>
-	 * 
+	 *
 	 * @param line
 	 *            The line of text to be tokenised and validated.
 	 * @return The validated ValidObservation object.
@@ -76,20 +66,29 @@ public class SimpleTextFormatValidator implements
 	public ValidObservation validate(String line)
 			throws ObservationValidationError {
 
-		// Split fields on spaces and tabs.
-		// TODO: handle other odd whitespace characters, e.g. as found in some sample data
-		String[] fields = line.split("\\s+");
+		// JD MAG [UNCERTAINTY] [OBSCODE] [VALFLAG]
+		                      
+		ValidObservation observation = new ValidObservation();
+		
+		// TODO: Must have 2 or 5 fields
+		//       Create a VO with empty fields then use setters
+		//       Add nulls to fields to make up to 5
+		                      
+		// Split fields on the specified delimiter.
+		String[] fields = line.split(this.delimiter); // delegate to util class to do
 
-		if (fields.length < 2 || fields.length > 4) {
+		// TODO: chnage to be must be equal to 5
+		if (fields.length < 2 || fields.length > 5) {
 			throw new ObservationValidationError(
 					"The observation contains an invalid number of fields.");
 		}
 
 		DateInfo dateInfo = julianDayValidator.validate(fields[JD_FIELD]);
-
+		observation.setDateInfo(dateInfo);
+		
 		Magnitude magnitude = magnitudeFieldValidator
 				.validate(fields[MAG_FIELD]);
-
+		
 		double uncertaintyMag = 0;
 		String obsCode = "";
 
@@ -108,9 +107,16 @@ public class SimpleTextFormatValidator implements
 		}
 
 		magnitude.setUncertainty(uncertaintyMag);
-
+		observation.setMagnitude(magnitude);
+		
 		assert (magnitude.getUncertainty() != Magnitude.ILLEGAL_UNCERTAINTY);
 
-		return new ValidObservation(dateInfo, magnitude, obsCode);
+		if (obsCode != null) {
+			observation.setObsCode(obsCode);
+		}
+
+		// TODO: handle option valflag field
+		
+		return observation;
 	}
 }

@@ -25,7 +25,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  * 
  * TODO: - Store Calendar object.
  */
-public class JulianDayValidator implements IStringValidator<DateInfo> {
+public class JulianDayValidator extends StringValidatorBase<DateInfo> {
 
 	private final RegexValidator regexValidator;
 

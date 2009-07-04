@@ -22,7 +22,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This class validates an observer code.
  */
-public class ObserverCodeValidator implements IStringValidator<String> {
+public class ObserverCodeValidator extends StringValidatorBase<String> {
 
 	// TODO: remove this!?
 	private final static String[] forbiddenCodes = new String[]{"TST01"};
@@ -35,6 +35,8 @@ public class ObserverCodeValidator implements IStringValidator<String> {
 	}
 
 	public String validate(String str) throws ObservationValidationError {
+		if (this.isLegallyEmpty(str)) return null;
+		
 		String[] fields = this.regexValidator.validate(str);
 		
 		for (String code : forbiddenCodes) {
@@ -45,5 +47,8 @@ public class ObserverCodeValidator implements IStringValidator<String> {
 		
 		return fields[0];
 	}
-
+	
+	public boolean canBeEmpty() {
+		return true;
+	}
 }
