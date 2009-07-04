@@ -1,5 +1,3 @@
-package org.aavso.tools.vstar.data;
-
 /**
  * VStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
@@ -17,36 +15,47 @@ package org.aavso.tools.vstar.data;
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
+package org.aavso.tools.vstar.data;
 
 /**
- * The base class for all file-sourced observation classes. 
- * 
- * TODO: this should probably decorate valid and invalid observation objects
- * rather than being a subclass for them; or we could change this to row vs line
- * which would also make sense for a database source, or just be set to 0
+ * Observation fields.
  */
-public abstract class Observation {
-
-	private int lineNumber;	
-
+public enum ObsFields {
+	
+	JD(0),
+	MAGNITUDE(1),
+	UNCERTAINTY(2),
+	HQ_UNCERTAINTY(3),
+	BAND(4),
+	OBSERVER_CODE(5),
+	COMMENT_CODE(6),
+	COMP_STAR_1(7),
+	COMP_STAR_2(8),
+	CHARTS(9),
+	COMMENTS(10),
+	TRANSFORMED(11),
+	AIRMASS(12),
+	VALFLAG(13),
+	CMAG(14),
+	KMAG(15),
+	HJD(16),
+	NAME(17);
+	
+	// Index associated with current enum value.
+	private int index;
+	
 	/**
-	 * @param lineNumber
+	 * Private constructor.
+	 * @param index The index associated with current enum value.
 	 */
-	public Observation(int lineNumber) {
-		this.lineNumber = lineNumber;
+	private ObsFields(int index) {
+		this.index = index;
 	}
 
 	/**
-	 * @return the lineNumber
+	 * @return the index
 	 */
-	public int getLineNumber() {
-		return lineNumber;
-	}
-
-	/**
-	 * @param lineNumber the lineNumber to set
-	 */
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber;
+	public int getIndex() {
+		return index;
 	}
 }

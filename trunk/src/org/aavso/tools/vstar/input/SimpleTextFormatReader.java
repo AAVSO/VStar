@@ -33,32 +33,21 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class SimpleTextFormatReader extends ObservationRetrieverBase {
 
-	private String starName; // may not be required
 	private LineNumberReader reader;
 
+	private String delimiter = "\t";
+	
 	/**
 	 * Constructor
 	 * 
-	 * @param starName
-	 *            The name of the star to which the observations pertain.
 	 * @param reader
 	 *            A line number buffered reader from which lines of observations
 	 *            can be read.
+	 * @param delimiter A column (field) delimiter, most likely a tab or comma.
 	 */
-	public SimpleTextFormatReader(String starName, LineNumberReader reader) {
-		this.starName = starName;
+	public SimpleTextFormatReader(LineNumberReader reader, String delimiter) {
 		this.reader = reader;
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param reader
-	 *            A line number buffered reader from which lines of observations
-	 *            can be read.
-	 */
-	public SimpleTextFormatReader(LineNumberReader reader) {
-		this("", reader);
+		this.delimiter = delimiter;
 	}
 
 	/**
@@ -66,11 +55,12 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 	 */
 	public void retrieveObservations() throws ObservationReadError {
 		// TODO: requirement to determine which validator to use by content not file xtn
-		SimpleTextFormatValidator validator = new SimpleTextFormatValidator();
+		
+		SimpleTextFormatValidator validator = new SimpleTextFormatValidator(delimiter);
 		try {
 			String line = reader.readLine();
+			
 			while (line != null) {
-
 				// Ignore comment or blank line.
 				if (!line.startsWith("#") && !line.matches("^\\s*$")) {
 					int lineNum = reader.getLineNumber();
