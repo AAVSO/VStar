@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.input;
 
+import org.aavso.tools.vstar.exception.ObservationValidationError;
 
 /**
  * This class splits an observation line given a delimiter. If the result of the
@@ -39,7 +40,8 @@ public class ObservationFieldSplitter {
 	 * @param maxFields
 	 *            The maximum allowed number of fields to be returned.
 	 */
-	public ObservationFieldSplitter(String delimiter, int minFields, int maxFields) {
+	public ObservationFieldSplitter(String delimiter, int minFields,
+			int maxFields) {
 		this.delimiter = delimiter;
 		this.minFields = minFields;
 		this.maxFields = maxFields;
@@ -52,11 +54,14 @@ public class ObservationFieldSplitter {
 	 * @param line
 	 *            The line to be split.
 	 * @return The fields in the line.
-	 * @postcondition: The returned field array's length must be in the range 
+	 * @throws ObservationValidationError
+	 *             If the number of fields does not fall into the required
+	 *             range.
+	 * @postcondition: The returned field array's length must be in the range
 	 *                 minFields..maxFields (inclusive) correspond to the
 	 *                 required number of fields.
 	 */
-	public String[] getFields(String line) {
+	public String[] getFields(String line) throws ObservationValidationError {
 		String[] fields = line.split(this.delimiter);
 
 		if (fields.length < this.minFields) {
@@ -71,7 +76,15 @@ public class ObservationFieldSplitter {
 			fields = moreFields;
 		}
 
-		assert (fields.length >= this.minFields && fields.length <= this.maxFields);
+		if (fields.length < this.minFields || fields.length > this.maxFields) {
+			StringBuffer strBuf = new StringBuffer();
+			strBuf.append("The number of fields in '");
+			strBuf.append(line);
+			strBuf.append("' ");
+			strBuf.append("falls outside of the range");
+
+			throw new ObservationValidationError(strBuf.toString());
+		}
 
 		return fields;
 	}
