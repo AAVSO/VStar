@@ -34,7 +34,6 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.ui.model.ModeType;
 import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.NewStarType;
-import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.aavso.tools.vstar.util.Listener;
 
 /**
@@ -45,8 +44,8 @@ public class DataPane extends JPanel {
 
 	private ModelManager modelMgr = ModelManager.getInstance();
 
-	private final static int WIDTH = 800;
-	private final static int HEIGHT = 600;
+	public final static int WIDTH = 800;
+	public final static int HEIGHT = 600;
 
 	// Shared data and plot display pane.
 	private JPanel cards;
@@ -145,11 +144,14 @@ public class DataPane extends JPanel {
 	private Listener<NewStarType> createNewStarListener() {
 		return new Listener<NewStarType>() {
 			// Set the cards components for each model type.
+			// TODO: looks like we can ignore info conditional below
 			public void update(NewStarType info) {
-				if (info == NewStarType.NEW_STAR_FROM_SIMPLE_FILE) {
-					// TODO: create in model manager instead?
-					setCard(ModeType.PLOT_OBS_MODE_DESC, createLightCurve());
-					setCard(ModeType.LIST_OBS_MODE_DESC, createObsTable());
+				if (info == NewStarType.NEW_STAR_FROM_SIMPLE_FILE ||
+						info == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE ||
+						info == NewStarType.NEW_STAR_FROM_DATABASE) {
+					// TODO: should get this from message (create a message package)
+					setCard(ModeType.PLOT_OBS_MODE_DESC, modelMgr.getObsChartPane());
+					setCard(ModeType.LIST_OBS_MODE_DESC, modelMgr.getObsTablePane());
 
 					showCard(ModeType.PLOT_OBS_MODE_DESC);
 				}
@@ -198,25 +200,5 @@ public class DataPane extends JPanel {
 	private void showCard(String name) {
 		CardLayout cardLayout = (CardLayout) cards.getLayout();
 		cardLayout.show(cards, name);
-	}
-
-	/**
-	 * Create the observation table component.
-	 */
-	private Component createObsTable() {
-
-		return new SimpleTextFormatObservationPane(modelMgr
-				.getValidObsTableModel(), modelMgr.getInvalidObsTableModel());
-	}
-
-	/**
-	 * Create the light curve for a list of valid observations.
-	 */
-	private Component createLightCurve() {
-		ObservationPlotModel model = modelMgr.getObsPlotModel();
-		Dimension bounds = new Dimension((int) (WIDTH * 0.75),
-				(int) (HEIGHT * 0.75));
-		// TODO: make title more meaningful
-		return new LightCurvePane("JD vs Magnitude", model, bounds);
 	}
 }

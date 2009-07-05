@@ -15,47 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
-
-import java.awt.Component;
+package org.aavso.tools.vstar.ui.model;
 
 /**
- * A component with an associated name.
- * @deprecated
+ * This enum represents application progress.
  */
-public class NamedComponent {
-	
-	private String name;
-	private Component component;
-	private String tip;
-	
-	/**
-	 * Constructor
-	 */
-	public NamedComponent(String name, Component component) {
-		this.name = name;
-		this.component = component;
-		this.tip = "";
-	}
+public enum ProgressType {
 
-	/**
-	 * Constructor
-	 */
-	public NamedComponent(String name, Component component, String tip) {
-		this.name = name;
-		this.component = component;
-		this.tip = tip;
-	}
-	
-	public String getName() {
-		return name;
-	}
-
-	public Component getComponent() {
-		return component;
-	}
-
-	public String getTip() {
-		return tip;
-	}
+	MIN_PROGRESS,
+	MAX_PROGRESS,
+	RESET_PROGRESS, // TODO: call this TASK_BEGIN?
+	COMPLETE_PROGRESS, // TODO: call this TASK_END?
+	INCREMENT_PROGRESS;
 }

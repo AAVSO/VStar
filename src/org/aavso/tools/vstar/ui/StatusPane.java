@@ -17,70 +17,157 @@
  */
 package org.aavso.tools.vstar.ui;
 
-import java.awt.GridLayout;
-
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.border.BevelBorder;
 
 import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.NewStarType;
+import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.Listener;
 
 /**
- * A status panel. The intention is that this should be added to
- * the bottom of the GUI.
+ * A status panel. The intention is that this should be added to the bottom of
+ * the GUI.
  * 
  * This class will also listen to various events.
  */
 public class StatusPane extends JPanel {
-	
+
 	private ModelManager modelMgr = ModelManager.getInstance();
-	
+
 	private JLabel statusLabel;
-	
+	private JProgressBar progressBar;
+
+
 	/**
 	 * Constructor.
 	 * 
-	 * @param firstMessage The first message we want to display.
+	 * @param firstMsg The first message to be displayed in the status pane.
 	 */
-	public StatusPane(String firstMessage) {
+	public StatusPane(String firstMsg) {
 		super(false); // not double buffered
-		this.setLayout(new GridLayout(1, 1));
-		
+		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+
 		statusLabel = new JLabel();
 		statusLabel.setHorizontalAlignment(JLabel.LEFT);
-		
+		statusLabel.setText(firstMsg);
 		this.add(statusLabel);
+
+		this.add(Box.createHorizontalGlue());
+
+		this.progressBar = new JProgressBar();
+		this.add(progressBar);
+
 		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		
-		this.setMessage(firstMessage);
-		
+
 		modelMgr.getNewStarNotifier().addListener(createNewStarListener());
+		modelMgr.getProgressNotifier().addListener(createProgressListener());
 	}
-	
+
 	/**
 	 * Set the status message to be displayed.
 	 * 
-	 * @param msg The message to be displayed.
+	 * @param msg
+	 *            The message to be displayed.
 	 */
 	public void setMessage(String msg) {
 		this.statusLabel.setText(" " + msg);
 	}
-	
+
+	/**
+	 * Set the minimum progress bar value.
+	 * 
+	 * @param n
+	 *            The minimum value to set.
+	 */
+	public void setMinProgressValue(int n) {
+		this.progressBar.setMinimum(n);
+		assert (this.progressBar.getMinimum() <= this.progressBar.getMaximum());
+	}
+
+	/**
+	 * Set the maximum progress bar value.
+	 * 
+	 * @param n
+	 *            The maximum value to set.
+	 */
+	public void setMaxProgressValue(int n) {
+		this.progressBar.setMaximum(n);
+		assert (this.progressBar.getMaximum() >= this.progressBar.getMinimum());
+	}
+
+	/**
+	 * Reset the progress bar to its minimum value.
+	 */
+	public void resetProgressBar() {
+		this.progressBar.setValue(this.progressBar.getMinimum());
+	}
+
+	/**
+	 * Increment the progress bar by N.
+	 */
+	public void incrementProgressBar(int n) {
+		if (this.progressBar.getValue() + n <= this.progressBar.getMaximum()) {
+			this.progressBar.setValue(this.progressBar.getValue() + n);
+		}
+	}
+
+	/**
+	 * Set the progress bar to its maximum value, i.e. complete the progress bar.
+	 */
+	public void completeProgressBar() {
+		this.progressBar.setValue(this.progressBar.getMaximum());
+	}
+
 	/**
 	 * Return a new star creation listener.
 	 */
 	private Listener<NewStarType> createNewStarListener() {
 		return new Listener<NewStarType>() {
 			public void update(NewStarType info) {
-				if (info == NewStarType.NEW_STAR_FROM_SIMPLE_FILE) {
+				if (info == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
+						|| info == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE) {
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
 					strBuf.append(modelMgr.getNewStarFileName());
 					strBuf.append("' loaded.");
 					setMessage(strBuf.toString());
+				} else if (info == NewStarType.NEW_STAR_FROM_DATABASE) {
+					// TODO
+				}
+			}
+		};
+	}
+	
+	/**
+	 * Return a progress listener.
+	 */
+	private Listener<ProgressInfo> createProgressListener() {
+		final StatusPane self = this;
+		return new Listener<ProgressInfo>() {
+			public void update(ProgressInfo info) {
+				switch(info.getType()) {
+				case MIN_PROGRESS:
+					self.setMinProgressValue(info.getNum());
+					break;
+				case MAX_PROGRESS:
+					self.setMaxProgressValue(info.getNum());
+					break;
+				case RESET_PROGRESS:
+					self.resetProgressBar();
+					setMessage("");
+					break;
+				case COMPLETE_PROGRESS:
+					self.completeProgressBar();
+					break;
+				case INCREMENT_PROGRESS:
+					self.incrementProgressBar(info.getNum());
+					break;
 				}
 			}
 		};

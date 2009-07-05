@@ -17,14 +17,11 @@
  */
 package org.aavso.tools.vstar.ui;
 
-import java.awt.Dimension;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,17 +31,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
-import org.aavso.tools.vstar.data.InvalidObservation;
-import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.exception.ObservationReadError;
-import org.aavso.tools.vstar.input.ObservationRetrieverBase;
-import org.aavso.tools.vstar.input.SimpleTextFormatReader;
-import org.aavso.tools.vstar.ui.model.ModeType;
 import org.aavso.tools.vstar.ui.model.ModelManager;
-import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.NewStarType;
-import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
-import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
+import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.Listener;
 
 /**
@@ -83,18 +72,20 @@ public class MenuBar extends JMenuBar {
 		super();
 
 		this.parent = parent;
-
-		this.modelMgr.getNewStarNotifier().addListener(createNewStarListener());
 		
 		List<String> extensions = new ArrayList<String>();
-		extensions.add("sim");
-		extensions.add("simple");
+		extensions.add("csv");
+		extensions.add("tsv");
+		extensions.add("txt");		
 		this.fileOpenDialog = new JFileChooser();
 		this.fileOpenDialog.setFileFilter(new FileExtensionFilter(extensions));
 
 		createFileMenu();
 		createAnalysisMenu();
 		createHelpMenu();
+		
+		this.modelMgr.getNewStarNotifier().addListener(createNewStarListener());
+		this.modelMgr.getProgressNotifier().addListener(createProgressListener());
 	}
 
 	private void createFileMenu() {
@@ -113,20 +104,20 @@ public class MenuBar extends JMenuBar {
 		fileMenu.add(fileNewStarFromFileItem);
 
 		fileSaveItem = new JMenuItem("Save...");
-		fileSaveItem.addActionListener(this.createSaveLightCurveListener());
+		fileSaveItem.addActionListener(this.createSaveListener());
 		fileSaveItem.setEnabled(false);
 		fileMenu.add(fileSaveItem);
 
 		filePrintItem = new JMenuItem("Print...");
-		filePrintItem.addActionListener(this.createPrintLightCurveListener());
+		filePrintItem.addActionListener(this.createPrintListener());
 		filePrintItem.setEnabled(false);
 		fileMenu.add(filePrintItem);
 
 		fileMenu.addSeparator();
 
 		fileQuitItem = new JMenuItem("Quit", KeyEvent.VK_Q);
-		fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
-				ActionEvent.META_MASK));
+//		fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+//				ActionEvent.META_MASK));
 		fileQuitItem.addActionListener(createQuitListener());
 		fileMenu.add(fileQuitItem);
 
@@ -139,8 +130,7 @@ public class MenuBar extends JMenuBar {
 		// TODO: add checkboxes for these menu items
 		// see what NetBeans yields, see Sun docs
 
-		// TODO: add listeners; select card in conjunction with mode 
-		//       radio group
+		// TODO: add listeners
 		analysisRawDataItem = new JMenuItem("Raw Data");
 		analysisRawDataItem.setEnabled(false);
 		analysisMenu.add(analysisRawDataItem);
@@ -193,7 +183,6 @@ public class MenuBar extends JMenuBar {
 	private ActionListener createNewStarFromFileListener() {
 		final JFileChooser fileOpenDialog = this.fileOpenDialog;
 		final MainFrame parent = this.parent;
-		final MenuBar self = this;
 
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -203,7 +192,7 @@ public class MenuBar extends JMenuBar {
 					File f = fileOpenDialog.getSelectedFile();
 
 					try {
-						modelMgr.createObservationModelsFromFile(f);
+						modelMgr.createObservationModelsFromFile(f, parent);
 					} catch (Exception ex) {
 						MessageBox.showErrorDialog(parent,
 								"New Star from File", ex.getMessage());
@@ -216,7 +205,7 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Returns the action listener to be invoked for File->Save...
 	 */
-	private ActionListener createSaveLightCurveListener() {
+	private ActionListener createSaveListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 //				try {
@@ -233,7 +222,7 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Returns the action listener to be invoked for File->Print...
 	 */
-	private ActionListener createPrintLightCurveListener() {
+	private ActionListener createPrintListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: need to ask model mgr to print curr model/doc
@@ -268,10 +257,10 @@ public class MenuBar extends JMenuBar {
 				strBuf.append("developed for:\n\n");
 				strBuf.append("  The American Association of Variable Star\n");
 				strBuf.append("  Observers: http://www.aavso.org/\n\n");
-				strBuf.append("  and\n\n");
+				strBuf.append("  as part of\n\n");
 				strBuf
 						.append("  The CitizenSky Project: http://www.citizensky.org/\n\n");
-				strBuf.append("Code By: David Benn, Sara Beck, Kate Davis\n");
+				strBuf.append("Code by: David Benn\n");
 				strBuf.append("Contact: aavso@aavso.org\n");
 				strBuf.append("License: GNU Affero General Public License\n\n");
 				strBuf
@@ -293,17 +282,47 @@ public class MenuBar extends JMenuBar {
 	private Listener<NewStarType> createNewStarListener() {
 		return new Listener<NewStarType>() {
 			public void update(NewStarType info) {
-				enableOutputMenuItems();
 			}
 		};
 	}
-	
-	private void enableOutputMenuItems() {
-		this.fileSaveItem.setEnabled(true);
-		this.filePrintItem.setEnabled(true);
+
+	/**
+	 * Return a progress listener.
+	 */
+	private Listener<ProgressInfo> createProgressListener() {
+		final MenuBar self = this;
+		final MainFrame parent = this.parent;
+		return new Listener<ProgressInfo>() {
+			public void update(ProgressInfo info) {
+				switch(info.getType()) {
+				case MIN_PROGRESS:
+					break;
+				case MAX_PROGRESS:
+					break;
+				case RESET_PROGRESS:
+					parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					setEnabledFileAndAnalysisMenuItems(false);
+					break;
+				case COMPLETE_PROGRESS:
+					parent.setCursor(null); //turn off the wait cursor
+					setEnabledFileAndAnalysisMenuItems(true);
+					break;
+				case INCREMENT_PROGRESS:
+					break;
+				}
+			}
+		};
+	}
+
+	// Enables or disabled all File and Analysis menu items.
+	private void setEnabledFileAndAnalysisMenuItems(boolean state) {
+		this.fileNewStarFromDatabaseItem.setEnabled(state);
+		this.fileNewStarFromFileItem.setEnabled(state);
+		this.fileSaveItem.setEnabled(state);
+		this.filePrintItem.setEnabled(state);
 		
-		this.analysisRawDataItem.setEnabled(true);
-		this.analysisPhasePlotItem.setEnabled(true);
-		this.analysisPeriodSearchItem.setEnabled(true);
+		this.analysisRawDataItem.setEnabled(state);
+		this.analysisPhasePlotItem.setEnabled(state);
+		this.analysisPeriodSearchItem.setEnabled(state);
 	}
 }
