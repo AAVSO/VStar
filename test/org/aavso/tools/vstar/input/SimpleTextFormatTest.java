@@ -33,7 +33,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  * 
  * It contains tests for valid and invalid test data.
  * 
- * The format is for each line is: JD MAG [UNCERTAINTY] [OBSCODE]
+ * The format is for each line is: JD MAG [UNCERTAINTY] [OBSCODE] [VALFLAG]
  */
 public class SimpleTextFormatTest extends TestCase {
 

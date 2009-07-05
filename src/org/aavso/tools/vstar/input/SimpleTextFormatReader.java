@@ -25,25 +25,30 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.ui.model.ModelManager;
+import org.aavso.tools.vstar.ui.model.ProgressInfo;
 
 /**
  * This class reads a simple variable star data file format containing lines of
- * the form: JD MAG [UNCERTAINTY] [OBSCODE] and yields a collection of
+ * the form: JD MAG [UNCERTAINTY] [OBSCODE] [VALFLAG] and yields a collection of
  * observations for one star. [REQ_VSTAR_SIMPLE_TEXT_FILE_READ]
  */
 public class SimpleTextFormatReader extends ObservationRetrieverBase {
 
+	private ModelManager modelMgr = ModelManager.getInstance();
+
 	private LineNumberReader reader;
 
-	private String delimiter = "\t";
-	
+	private String delimiter;
+
 	/**
 	 * Constructor
 	 * 
 	 * @param reader
 	 *            A line number buffered reader from which lines of observations
 	 *            can be read.
-	 * @param delimiter A column (field) delimiter, most likely a tab or comma.
+	 * @param delimiter
+	 *            A column (field) delimiter, most likely a tab or comma.
 	 */
 	public SimpleTextFormatReader(LineNumberReader reader, String delimiter) {
 		this.reader = reader;
@@ -54,12 +59,14 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 	 * @see org.aavso.tools.vstar.input.ObservationRetrieverBase#retrieveObservations()
 	 */
 	public void retrieveObservations() throws ObservationReadError {
-		// TODO: requirement to determine which validator to use by content not file xtn
-		
-		SimpleTextFormatValidator validator = new SimpleTextFormatValidator(delimiter);
+		// TODO: requirement to determine which validator to use by content not
+		// file xtn
+
+		SimpleTextFormatValidator validator = new SimpleTextFormatValidator(
+				delimiter);
 		try {
 			String line = reader.readLine();
-			
+
 			while (line != null) {
 				// Ignore comment or blank line.
 				if (!line.startsWith("#") && !line.matches("^\\s*$")) {
@@ -75,6 +82,9 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 						invalidObservations.add(invalidOb);
 					}
 				}
+
+				modelMgr.getProgressNotifier().notifyListeners(
+						ProgressInfo.INCREMENT_PROGRESS);
 
 				line = reader.readLine();
 			}
