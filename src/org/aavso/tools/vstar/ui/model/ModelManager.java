@@ -29,7 +29,6 @@ import java.io.LineNumberReader;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -42,6 +41,7 @@ import org.aavso.tools.vstar.ui.LightCurvePane;
 import org.aavso.tools.vstar.ui.MessageBox;
 import org.aavso.tools.vstar.ui.SimpleTextFormatObservationPane;
 import org.aavso.tools.vstar.util.Notifier;
+import org.jdesktop.swingworker.SwingWorker;
 import org.jfree.chart.ChartPanel;
 
 /**
@@ -250,7 +250,7 @@ public class ModelManager implements PropertyChangeListener {
 			}
 
 			modelMgr.obsTablePane = createObsTablePane();
-			setProgress(progress++);
+			//setProgress(progress++);
 		}
 	}
 
@@ -290,6 +290,7 @@ public class ModelManager implements PropertyChangeListener {
 
 	/**
 	 * Invoked when task's progress property changes.
+	 * TODO: replace this with inline calls to increment progress bar?
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		if ("progress" == evt.getPropertyName()) {
