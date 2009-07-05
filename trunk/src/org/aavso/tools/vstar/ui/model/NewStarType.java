@@ -23,28 +23,38 @@ package org.aavso.tools.vstar.ui.model;
  */
 public enum NewStarType {
 	
-	// TODO: also create a NewStarInfo message class with components to set
+	// TODO: also create a NewStarInfo message class with GUI component refs for DataPane
 	
-	NEW_STAR_FROM_SIMPLE_FILE(5), NEW_STAR_FROM_DOWNLOAD_FILE(18), NEW_STAR_FROM_DATABASE(
-			18);
+	NEW_STAR_FROM_SIMPLE_FILE(5,5), NEW_STAR_FROM_DOWNLOAD_FILE(18,18), NEW_STAR_FROM_DATABASE(
+			18,18);
 
-	private int requiredFields;
+	private int minFields;
+	private int maxFields;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param requiredFields
-	 *            The required number of fields for each observation in this
-	 *            source.
+	 * @param minFields
+	 *            The minimum allowed number of fields.
+	 * @param maxFields
+	 *            The maximum allowed number of fields.
 	 */
-	private NewStarType(int requiredFields) {
-		this.requiredFields = requiredFields;
+	private NewStarType(int minFields, int maxFields) {
+		this.minFields = minFields;
+		this.maxFields = maxFields;
 	}
 
 	/**
-	 * @return the requiredFields
+	 * @return the minFields
 	 */
-	public int getRequiredFields() {
-		return requiredFields;
+	public int getMinFields() {
+		return minFields;
+	}
+
+	/**
+	 * @return the maxFields
+	 */
+	public int getMaxFields() {
+		return maxFields;
 	}
 }

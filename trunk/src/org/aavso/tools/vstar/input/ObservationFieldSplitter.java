@@ -26,19 +26,23 @@ package org.aavso.tools.vstar.input;
 public class ObservationFieldSplitter {
 
 	private final String delimiter;
-	private final int requiredFields;
+	private final int minFields;
+	private final int maxFields;
 
 	/**
 	 * Constructor.
 	 * 
 	 * @param delimiter
 	 *            The delimiter to use to split the fields.
-	 * @param requiredFields
-	 *            The required number of fields to be returned.
+	 * @param minFields
+	 *            The minimum allowed number of fields to be returned.
+	 * @param maxFields
+	 *            The maximum allowed number of fields to be returned.
 	 */
-	public ObservationFieldSplitter(String delimiter, int requiredFields) {
+	public ObservationFieldSplitter(String delimiter, int minFields, int maxFields) {
 		this.delimiter = delimiter;
-		this.requiredFields = requiredFields;
+		this.minFields = minFields;
+		this.maxFields = maxFields;
 	}
 
 	/**
@@ -48,14 +52,15 @@ public class ObservationFieldSplitter {
 	 * @param line
 	 *            The line to be split.
 	 * @return The fields in the line.
-	 * @postcondition: The returned field array's length must correspond to the
+	 * @postcondition: The returned field array's length must be in the range 
+	 *                 minFields..maxFields (inclusive) correspond to the
 	 *                 required number of fields.
 	 */
 	public String[] getFields(String line) {
 		String[] fields = line.split(this.delimiter);
 
-		if (fields.length < this.requiredFields) {
-			int howManyMoreRequired = requiredFields - fields.length;
+		if (fields.length < this.minFields) {
+			int howManyMoreRequired = minFields - fields.length;
 			int total = fields.length + howManyMoreRequired;
 			String[] moreFields = new String[total];
 			// Copy fields to new array. The additional fields
@@ -66,7 +71,7 @@ public class ObservationFieldSplitter {
 			fields = moreFields;
 		}
 
-		assert (fields.length == this.requiredFields);
+		assert (fields.length >= this.minFields && fields.length <= this.maxFields);
 
 		return fields;
 	}
