@@ -19,35 +19,20 @@ package org.aavso.tools.vstar.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-
-import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
-import org.jfree.chart.ChartPanel;
 
 /**
  * TODO: 
- * - Status bar with current star from plot, file loaded etc?
  * - Undoable edits, Edit menu?
- * - About box
+ * - About box images, text check
  * - Splash Screen?
- * - Toolbar
- * 
- * - We need a ModelManager class to store a mapping
- *   from data files to tabs/observation lists, and also to
- *   handle undo, document "is-dirty" handling, don't load same
- *   file twice etc.
+ * - Toolbar?
  */
 
 /**

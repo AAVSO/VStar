@@ -18,11 +18,33 @@
 package org.aavso.tools.vstar.ui.model;
 
 /**
- * A new star creation type. 
+ * A new star creation type. It also encodes the required number of fields for
+ * each observation in the source.
  */
 public enum NewStarType {
+	
+	// TODO: also create a NewStarInfo message class with components to set
+	
+	NEW_STAR_FROM_SIMPLE_FILE(5), NEW_STAR_FROM_DOWNLOAD_FILE(18), NEW_STAR_FROM_DATABASE(
+			18);
 
-	NEW_STAR_FROM_SIMPLE_FILE,
-	NEW_STAR_FROM_DOWNLOAD_FILE,
-	NEW_STAR_FROM_DATABASE
+	private int requiredFields;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param requiredFields
+	 *            The required number of fields for each observation in this
+	 *            source.
+	 */
+	private NewStarType(int requiredFields) {
+		this.requiredFields = requiredFields;
+	}
+
+	/**
+	 * @return the requiredFields
+	 */
+	public int getRequiredFields() {
+		return requiredFields;
+	}
 }

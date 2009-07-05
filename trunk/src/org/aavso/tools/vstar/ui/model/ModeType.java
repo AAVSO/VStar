@@ -23,6 +23,8 @@ package org.aavso.tools.vstar.ui.model;
  */
 public enum ModeType {
 
+	// TODO: use ctor based approach to desc strings etc; call it ModeInfo
+	
 	PLOT_OBS_MODE, PLOT_OBS_AND_MEANS_MODE, LIST_OBS_MODE, LIST_MEANS_MODE;
 
 	public final static String PLOT_OBS_MODE_DESC = "Plot Observations";
