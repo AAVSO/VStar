@@ -23,6 +23,7 @@ import java.io.LineNumberReader;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
+import org.aavso.tools.vstar.data.validation.StringValidatorBase;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.ui.model.ModelManager;
@@ -30,8 +31,10 @@ import org.aavso.tools.vstar.ui.model.ProgressInfo;
 
 /**
  * This class reads a simple variable star data file format containing lines of
- * the form: JD MAG [UNCERTAINTY] [OBSCODE] [VALFLAG] and yields a collection of
- * observations for one star. [REQ_VSTAR_SIMPLE_TEXT_FILE_READ]
+ * text or comma separated fields, and yields a collection of observations for
+ * one star. [REQ_VSTAR_SIMPLE_TEXT_FILE_READ]
+ * 
+ * TODO: change the name of this class!
  */
 public class SimpleTextFormatReader extends ObservationRetrieverBase {
 
@@ -39,7 +42,7 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 
 	private LineNumberReader reader;
 
-	private String delimiter;
+	private ObservationFileAnalyser analyser;
 
 	/**
 	 * Constructor
@@ -47,23 +50,23 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 	 * @param reader
 	 *            A line number buffered reader from which lines of observations
 	 *            can be read.
-	 * @param delimiter
-	 *            A column (field) delimiter, most likely a tab or comma.
+	 * @param analyser
+	 *            An observation file analyser.
 	 */
-	public SimpleTextFormatReader(LineNumberReader reader, String delimiter) {
+	public SimpleTextFormatReader(LineNumberReader reader,
+			ObservationFileAnalyser analyser) {
 		this.reader = reader;
-		this.delimiter = delimiter;
+		this.analyser = analyser;
 	}
 
 	/**
 	 * @see org.aavso.tools.vstar.input.ObservationRetrieverBase#retrieveObservations()
 	 */
 	public void retrieveObservations() throws ObservationReadError {
-		// TODO: requirement to determine which validator to use by content not
-		// file xtn
 
-		SimpleTextFormatValidator validator = new SimpleTextFormatValidator(
-				delimiter);
+		StringValidatorBase<ValidObservation> validator = this.analyser
+				.getType().getTextFormatValidator(this.analyser);
+		
 		try {
 			String line = reader.readLine();
 

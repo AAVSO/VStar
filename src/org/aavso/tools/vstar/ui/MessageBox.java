@@ -26,11 +26,37 @@ import javax.swing.JOptionPane;
  */
 public class MessageBox {
 
+	/**
+	 * Pop-up an informational message dialog box.
+	 * 
+	 * @param parent The component to appear with respect to.
+	 * @param title The title of the dialog.
+	 * @param msg The message that is the content of the dialog.
+	 */
 	public static void showMessageDialog(Component parent, String title, String msg) {
 		JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.INFORMATION_MESSAGE);
 	}
 
+	/**
+	 * Pop-up an error message dialog box.
+	 * 
+	 * @param parent The component to appear with respect to.
+	 * @param title The title of the dialog.
+	 * @param msg The message that is the content of the dialog.
+	 */
 	public static void showErrorDialog(Component parent, String title, String msg) {
 		JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.ERROR_MESSAGE);
+	}
+	
+	/**
+	 * Pop-up an error message dialog box given an exception.
+	 * 
+	 * @param parent The component to appear with respect to.
+	 * @param title The title of the dialog.
+	 * @param e The exception whose message will be the content of the dialog.
+	 */
+	public static void showErrorDialog(Component parent, String title, Exception e) {
+		JOptionPane.showMessageDialog(parent, e.getMessage(), title, JOptionPane.ERROR_MESSAGE);
+		e.printStackTrace();
 	}
 }

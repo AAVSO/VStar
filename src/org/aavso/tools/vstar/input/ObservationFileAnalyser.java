@@ -17,9 +17,7 @@
  */
 package org.aavso.tools.vstar.input;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 
@@ -28,15 +26,16 @@ import org.aavso.tools.vstar.ui.model.NewStarType;
 
 /**
  * This class analyses an observation file (simple or download formats) and
- * makes information available for use by consumers.
+ * makes information about the file available for use by consumers.
+ * TODO: rename as ObservationSourceAnalyser
  */
 public class ObservationFileAnalyser {
 
-	private static final String TAB_DELIM = "\t";
-	private static final String COMMA_DELIM = ","; // TODO: optional whitespace
-													// around comma?
+	public static final String TAB_DELIM = "\t";
+	public static final String COMMA_DELIM = ","; // TODO: optional whitespace around comma?
 
-	private File obsFile;
+	private LineNumberReader obsSource;
+	private String obsSourceIdentifier;
 	private int lineCount;
 	private NewStarType type;
 	private String delimiter;
@@ -44,23 +43,24 @@ public class ObservationFileAnalyser {
 	/**
 	 * Constructor.
 	 * 
-	 * @param obsFile
-	 *            The file to be analysed.
+	 * @param obsSource
+	 *            The observation source to be analysed.
 	 */
-	public ObservationFileAnalyser(File obsFile) {
-		this.obsFile = obsFile;
+	public ObservationFileAnalyser(LineNumberReader obsSource, String obsSourceIdentifier) {
+		this.obsSource = obsSource;
+		this.obsSourceIdentifier = obsSourceIdentifier;
 		this.lineCount = 0;
 	}
 
 	/**
-	 * Analyse the file.
+	 * Analyse the source
 	 */
-	public void analyse() throws FileNotFoundException, IOException, ObservationReadError {
-		LineNumberReader reader = new LineNumberReader(new FileReader(obsFile));
+	public void analyse() throws IOException,
+			ObservationReadError {
 
 		boolean gleanedFormat = false;
 
-		String line = reader.readLine();
+		String line = obsSource.readLine();
 		while (line != null) {
 			// Using one line of data, glean format information.
 			// Other than doing this once, just read all lines
@@ -74,26 +74,28 @@ public class ObservationFileAnalyser {
 						gleanedFormat = determineFormat(line, COMMA_DELIM);
 						if (!gleanedFormat) {
 							throw new ObservationReadError("'"
-									+ obsFile.getPath()
+									+ obsSourceIdentifier
 									+ "' is in an unknown format.");
 						}
 					}
 				}
 			}
 
-			line = reader.readLine();
+			line = obsSource.readLine();
 		}
 
-		this.lineCount = reader.getLineNumber();
-		reader.close();
+		this.lineCount = obsSource.getLineNumber();
+		obsSource.close();
 	}
 
 	/**
-	 * Try to determine the format of the file from a single line: 
-	 * TSV vs CSV and simple vs download format.
-	 *  
-	 * @param line The line to be analysed.
-	 * @param delimiter Tab or comma.
+	 * Try to determine the format of the file from a single line: TSV vs CSV
+	 * and simple vs download format.
+	 * 
+	 * @param line
+	 *            The line to be analysed.
+	 * @param delimiter
+	 *            Tab or comma.
 	 * @return Whether or not the format was determined.
 	 */
 	private boolean determineFormat(String line, String delimiter) {
@@ -102,23 +104,15 @@ public class ObservationFileAnalyser {
 		String[] fields = line.split(delimiter);
 		if (fields.length >= 2 && fields.length <= 5) {
 			this.delimiter = delimiter;
-			this.type = NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
+			this.type = NewStarType.NEW_STAR_FROM_SIMPLE_FILE; // TODO: FILE -> FORMAT ?
 			determined = true;
 		} else if (fields.length > 5) {
-			// TODO: what is the minimum number of fields?
 			this.delimiter = delimiter;
-			this.type = NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE;
+			this.type = NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE; // TODO: FILE -> FORMAT ?
 			determined = true;
 		}
 
 		return determined;
-	}
-
-	/**
-	 * @return the obsFile
-	 */
-	public File getObsFile() {
-		return obsFile;
 	}
 
 	/**
