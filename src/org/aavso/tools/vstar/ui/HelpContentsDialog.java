@@ -33,6 +33,8 @@ import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 /**
  * This class represents a help content frame.
  * 
+ * TODO: JDialog or JFrame?
+ * 
  * Adapted from the JDK Sun API docs.
  */
 public class HelpContentsDialog extends JDialog {
@@ -54,7 +56,7 @@ public class HelpContentsDialog extends JDialog {
 		editorPane.addHyperlinkListener(createHyperlinkListener());
 		
 		java.net.URL helpURL = HelpContentsDialog.class
-				.getResource("resources/HelpContents.html");
+				.getResource("resources/html/HelpContents.html");
 		if (helpURL != null) {
 			try {
 				editorPane.setPage(helpURL);
@@ -87,6 +89,7 @@ public class HelpContentsDialog extends JDialog {
 				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 					JEditorPane pane = (JEditorPane) e.getSource();
 					if (e instanceof HTMLFrameHyperlinkEvent) {
+						// TODO: doesn't seem to work; need JFrame vs JDialog?
 						parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 						HTMLFrameHyperlinkEvent evt = (HTMLFrameHyperlinkEvent) e;
 						HTMLDocument doc = (HTMLDocument) pane.getDocument();
