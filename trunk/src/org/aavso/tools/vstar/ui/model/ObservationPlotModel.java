@@ -37,6 +37,10 @@ public class ObservationPlotModel extends AbstractXYDataset {
 	/**
 	 * A mapping from series number to a list of observations where each such
 	 * list is a data series.
+	 * 
+	 * TODO: possibly switch to List<ValidObservation> to give us more
+	 * flexibility with respect to formatting the output of fields on the 
+	 * chart.
 	 */
 	private Map<Integer, List<? extends IDateAndMagSource>> seriesNumToObSrcListMap;
 
