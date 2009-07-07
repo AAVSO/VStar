@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.ui.model;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.data.validation.StringValidatorBase;
-import org.aavso.tools.vstar.input.ObservationFileAnalyser;
+import org.aavso.tools.vstar.input.ObservationSourceAnalyser;
 
 /**
  * A new star creation type. It also encodes the required number of fields for
@@ -30,7 +30,8 @@ import org.aavso.tools.vstar.input.ObservationFileAnalyser;
 public enum NewStarType {
 
 	// TODO: also create a NewStarInfo message class with GUI component refs for
-	// DataPane
+	// DataPane so that created components can be passed to listeners rather
+	// than the latter having to receive an event and then query the model manager.
 
 	NEW_STAR_FROM_SIMPLE_FILE(5, 5), NEW_STAR_FROM_DOWNLOAD_FILE(18, 18), NEW_STAR_FROM_DATABASE(
 			18, 18);
@@ -78,10 +79,10 @@ public enum NewStarType {
 	 * @return The validator object corresponding to this "new star" type.
 	 */
 	public StringValidatorBase<ValidObservation> getTextFormatValidator(
-			ObservationFileAnalyser analyser) {
+			ObservationSourceAnalyser analyser) {
 
 		String delimiter = analyser.getDelimiter();
-		assert (ObservationFileAnalyser.TAB_DELIM.equals(delimiter) || ObservationFileAnalyser.COMMA_DELIM
+		assert (ObservationSourceAnalyser.TAB_DELIM.equals(delimiter) || ObservationSourceAnalyser.COMMA_DELIM
 				.equals(delimiter));
 
 		StringValidatorBase<ValidObservation> validator = null;

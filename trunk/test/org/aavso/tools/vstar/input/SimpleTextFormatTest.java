@@ -31,7 +31,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 
 /**
- * This is a unit test for SimpleTextFormatReader.
+ * This is a unit test for TextFormatObservationReader.
  * 
  * It contains tests for valid and invalid test data.
  * 
@@ -92,11 +92,11 @@ public class SimpleTextFormatTest extends TestCase {
 		List<ValidObservation> obs = null;
 		
 		try {
-			ObservationFileAnalyser analyser = new ObservationFileAnalyser(
+			ObservationSourceAnalyser analyser = new ObservationSourceAnalyser(
 					new LineNumberReader(new StringReader(str)), "Some String");
 			analyser.analyse();
 			
-			ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
+			ObservationRetrieverBase simpleTextFormatReader = new TextFormatObservationReader(
 					new LineNumberReader(new StringReader(str)), analyser);
 
 			simpleTextFormatReader.retrieveObservations();

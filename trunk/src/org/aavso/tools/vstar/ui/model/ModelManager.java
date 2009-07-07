@@ -33,9 +33,9 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
-import org.aavso.tools.vstar.input.ObservationFileAnalyser;
+import org.aavso.tools.vstar.input.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
-import org.aavso.tools.vstar.input.SimpleTextFormatReader;
+import org.aavso.tools.vstar.input.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.DataPane;
 import org.aavso.tools.vstar.ui.LightCurvePane;
 import org.aavso.tools.vstar.ui.MessageBox;
@@ -135,7 +135,7 @@ public class ModelManager implements PropertyChangeListener {
 		private ModelManager modelMgr = ModelManager.getInstance();
 
 		private File obsFile;
-		private ObservationFileAnalyser analyser;
+		private ObservationSourceAnalyser analyser;
 		private int plotTaskPortion;
 		private Component parent;
 
@@ -153,7 +153,7 @@ public class ModelManager implements PropertyChangeListener {
 		 *            A GUI component that can be considered a parent.
 		 */
 		public NewStarFromFileTask(File obsFile,
-				ObservationFileAnalyser analyser, Component parent,
+				ObservationSourceAnalyser analyser, Component parent,
 				int plotTaskPortion) {
 			this.obsFile = obsFile;
 			this.analyser = analyser;
@@ -203,22 +203,21 @@ public class ModelManager implements PropertyChangeListener {
 		 *            possibly overload for DB
 		 */
 		private void createObservationModelsFromFileHelper(File obsFile,
-				ObservationFileAnalyser analyser) throws IOException,
+				ObservationSourceAnalyser analyser) throws IOException,
 				ObservationReadError {
 
-			// TODO: rename simpletextformatreader var and class!
-			ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
+			ObservationRetrieverBase textFormatReader = new TextFormatObservationReader(
 					new LineNumberReader(new FileReader(obsFile.getPath())),
 					analyser);
 
-			simpleTextFormatReader.retrieveObservations();
+			textFormatReader.retrieveObservations();
 
 			clearData();
 
-			modelMgr.validObsList = simpleTextFormatReader
+			modelMgr.validObsList = textFormatReader
 					.getValidObservations();
 
-			modelMgr.invalidObsList = simpleTextFormatReader
+			modelMgr.invalidObsList = textFormatReader
 					.getInvalidObservations();
 
 			if (!modelMgr.validObsList.isEmpty()) {
@@ -269,8 +268,7 @@ public class ModelManager implements PropertyChangeListener {
 		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
 
 		// Analyse the observation file.
-		// TODO: rename this class!
-		ObservationFileAnalyser analyser = new ObservationFileAnalyser(
+		ObservationSourceAnalyser analyser = new ObservationSourceAnalyser(
 				new LineNumberReader(new FileReader(obsFile)), obsFile.getName());
 		analyser.analyse();
 
