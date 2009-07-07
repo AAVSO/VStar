@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.input;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.LineNumberReader;
 
@@ -27,9 +26,8 @@ import org.aavso.tools.vstar.ui.model.NewStarType;
 /**
  * This class analyses an observation file (simple or download formats) and
  * makes information about the file available for use by consumers.
- * TODO: rename as ObservationSourceAnalyser
  */
-public class ObservationFileAnalyser {
+public class ObservationSourceAnalyser {
 
 	public static final String TAB_DELIM = "\t";
 	public static final String COMMA_DELIM = ","; // TODO: optional whitespace around comma?
@@ -46,7 +44,7 @@ public class ObservationFileAnalyser {
 	 * @param obsSource
 	 *            The observation source to be analysed.
 	 */
-	public ObservationFileAnalyser(LineNumberReader obsSource, String obsSourceIdentifier) {
+	public ObservationSourceAnalyser(LineNumberReader obsSource, String obsSourceIdentifier) {
 		this.obsSource = obsSource;
 		this.obsSourceIdentifier = obsSourceIdentifier;
 		this.lineCount = 0;

@@ -22,7 +22,6 @@ import java.io.LineNumberReader;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.data.validation.StringValidatorBase;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
@@ -36,13 +35,13 @@ import org.aavso.tools.vstar.ui.model.ProgressInfo;
  * 
  * TODO: change the name of this class!
  */
-public class SimpleTextFormatReader extends ObservationRetrieverBase {
+public class TextFormatObservationReader extends ObservationRetrieverBase {
 
 	private ModelManager modelMgr = ModelManager.getInstance();
 
 	private LineNumberReader reader;
 
-	private ObservationFileAnalyser analyser;
+	private ObservationSourceAnalyser analyser;
 
 	/**
 	 * Constructor
@@ -53,8 +52,8 @@ public class SimpleTextFormatReader extends ObservationRetrieverBase {
 	 * @param analyser
 	 *            An observation file analyser.
 	 */
-	public SimpleTextFormatReader(LineNumberReader reader,
-			ObservationFileAnalyser analyser) {
+	public TextFormatObservationReader(LineNumberReader reader,
+			ObservationSourceAnalyser analyser) {
 		this.reader = reader;
 		this.analyser = analyser;
 	}
