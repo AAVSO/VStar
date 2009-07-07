@@ -25,18 +25,14 @@ import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
  * A table model for valid observations.
- * 
- * TODO: 
- * - May want an abstract factory that returns a family of
- *   observation and data table model class instances (and 
- *   maybe other classes, e.g. plot-related classes) given
- *   the ObservationRetrieverBase subclass.
- * - Also implement methods for cell editing, cell type, ...
  */
 public class ValidObservationTableModel extends AbstractTableModel {
 
-	// TODO: Use an enum + ordinal values for columns with a max enum/ord value
-	// for a particular source; if a field value is null, it renders as ''
+	// TODO: Have a mapping from a column index to functors that return an object.
+	// This mapping would be parameterisable on the constructor of this class. For
+	// a null field, it renders as an empty string. Get this from a NewStarType enum
+	// Factory Method!
+	
 	private final static int COLUMNS = 6;
 
 	/**
@@ -78,6 +74,8 @@ public class ValidObservationTableModel extends AbstractTableModel {
 		
 		switch (column) {
 		case 0:
+			// TODO: according to specs/discussion, this 
+			// needs to move to being on the RHS!
 			columnName = "Discrepant?";
 			break;
 		case 1:
