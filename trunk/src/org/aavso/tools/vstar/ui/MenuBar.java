@@ -76,7 +76,8 @@ public class MenuBar extends JMenuBar {
 		List<String> extensions = new ArrayList<String>();
 		extensions.add("csv");
 		extensions.add("tsv");
-		extensions.add("txt");		
+		extensions.add("txt");
+		
 		this.fileOpenDialog = new JFileChooser();
 		this.fileOpenDialog.setFileFilter(new FileExtensionFilter(extensions));
 
@@ -150,7 +151,7 @@ public class MenuBar extends JMenuBar {
 		JMenu helpMenu = new JMenu("Help");
 
 		helpContentsItem = new JMenuItem("Help Contents...", KeyEvent.VK_H);
-		helpContentsItem.setEnabled(false);
+		helpContentsItem.addActionListener(createHelpContentsListener());
 		helpMenu.add(helpContentsItem);
 
 		helpMenu.addSeparator();
@@ -195,7 +196,7 @@ public class MenuBar extends JMenuBar {
 						modelMgr.createObservationModelsFromFile(f, parent);
 					} catch (Exception ex) {
 						MessageBox.showErrorDialog(parent,
-								"New Star from File", ex.getMessage());
+								"New Star from File", ex);
 					}
 				}
 			}
@@ -245,7 +246,26 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
+	 * Returns the action listener to be invoked for Help->Help Contents...
+	 */
+	private ActionListener createHelpContentsListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				javax.swing.SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						HelpContentsDialog helpContentsDialog = new HelpContentsDialog();
+						helpContentsDialog.pack();
+						helpContentsDialog.setVisible(true);
+					}
+				});
+			}
+		};
+	}
+	
+	/**
 	 * Returns the action listener to be invoked for Help->About...
+	 * 
+	 * TODO: make a separate component for the About Box?
 	 */
 	private ActionListener createAboutListener() {
 		return new ActionListener() {
@@ -260,22 +280,40 @@ public class MenuBar extends JMenuBar {
 				strBuf.append("  as part of\n\n");
 				strBuf
 						.append("  The CitizenSky Project: http://www.citizensky.org/\n\n");
+				
+				strBuf.append("This project was funded in part by grant No. 000379097\n");
+				strBuf.append("from the National Science Foundation.\n\n");
 				strBuf.append("Code by: David Benn\n");
 				strBuf.append("Contact: aavso@aavso.org\n");
 				strBuf.append("License: GNU Affero General Public License\n\n");
+				
 				strBuf
-						.append("Thanks to the staff of AAVSO for their support, in particular:\n");
+						.append("Thanks to the staff of AAVSO for their support, in particular:\n\n");
 				strBuf
-						.append("Sara Beck, Arne Henden, Doc Kinne, Aaron Price,\n");
+						.append(" Sara Beck, Arne Henden, Doc Kinne, Aaron Price,\n");
 				strBuf
-						.append("Matt Templeton, Rebecca Turner, and Elizabeth Waagen.");
+						.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.");
 
 				MessageBox
 						.showMessageDialog(parent, "VStar", strBuf.toString());
 			}
 		};
 	}
-	
+
+// Comment by Aaron in email (6 July 2009):
+//	
+//	I think you can use anything in HOA or the Citizen Sky web site.
+//	However, you'll need to retain whatever credit is shown in VSA and
+//	maybe add "as appeared in VSA at
+//	"http://www.aavso.org/education/vsa/".
+//
+//	Add a credit to Citizen Sky and the National Science Foundation to
+//	the About box (if you haven't already). A good NSF logo is here:
+//	http://www.nsf.gov/policies/logos.jsp
+//
+//	The NSF credit should be something like "This project was funded in
+//	part by grant No. 000379097 from the National Science Foundation."
+
 	/**
 	 * Return a new star creation listener.
 	 */
