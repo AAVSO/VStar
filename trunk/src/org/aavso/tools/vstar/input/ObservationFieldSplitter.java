@@ -62,6 +62,7 @@ public class ObservationFieldSplitter {
 	 *                 required number of fields.
 	 */
 	public String[] getFields(String line) throws ObservationValidationError {
+		// TODO: remove end of line char if present?
 		String[] fields = line.split(this.delimiter);
 
 		if (fields.length < this.minFields) {

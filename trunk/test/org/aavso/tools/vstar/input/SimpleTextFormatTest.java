@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.input;
 
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.util.List;
@@ -90,14 +92,18 @@ public class SimpleTextFormatTest extends TestCase {
 		List<ValidObservation> obs = null;
 		
 		try {
-			StringReader strReader = new StringReader(str);
-
+			ObservationFileAnalyser analyser = new ObservationFileAnalyser(
+					new LineNumberReader(new StringReader(str)), "Some String");
+			analyser.analyse();
+			
 			ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
-					new LineNumberReader(strReader), delimiter);
+					new LineNumberReader(new StringReader(str)), analyser);
 
 			simpleTextFormatReader.retrieveObservations();
 			obs = simpleTextFormatReader.getValidObservations();
 		} catch (ObservationReadError e) {
+			fail(e.getMessage());
+		} catch (IOException e) {
 			fail(e.getMessage());
 		}
 		
@@ -112,7 +118,7 @@ public class SimpleTextFormatTest extends TestCase {
 	
 	private void commonInvalidTest(String str) {		
 		try {
-			SimpleTextFormatValidator validator = new SimpleTextFormatValidator("\t");
+			SimpleTextFormatValidator validator = new SimpleTextFormatValidator("\t", 2, 5);
 			validator.validate(str);
 			// We should have thrown a ObservationValidationError...
 			fail();

@@ -17,38 +17,31 @@
  */
 package org.aavso.tools.vstar.data;
 
-
 /**
  * This class corresponds to a single valid variable star observation. Depending
  * upon the source, some fields may be null. Some are not permitted to be null
  * however and these are documented below.
+ * 
+ * For reference, here are the fields in the order they appear in the 
+ * AAVSO download format:
+ *  
+ * JD(0), MAGNITUDE(1), UNCERTAINTY(2), HQ_UNCERTAINTY(3), BAND(4),
+ * OBSERVER_CODE(5), COMMENT_CODE(6), COMP_STAR_1(7), COMP_STAR_2(8), CHARTS(9),
+ * COMMENTS(10), TRANSFORMED(11), AIRMASS(12), VALFLAG(13), CMAG(14), KMAG(15),
+ * HJD(16), NAME(17)
+ * 
+ * The simple format file has these fields:
+ * 
+ * JD MAGNITUDE [UNCERTAINTY] [OBSERVER_CODE] [VALFLAG]
  */
 public class ValidObservation extends Observation implements IDateAndMagSource {
 
-	private DateInfo dateInfo;
-	private Magnitude magnitude;
-	private String obsCode;
-	private boolean discrepant; // TODO: need valflag enum
+	private DateInfo dateInfo; // JD(0)
+	private Magnitude magnitude; // MAGNITUDE(1) {<N:}, UNCERTAINTY(2)
+	private String obsCode; // OBSERVER_CODE(5)
+	private ValidationType validationType; // VALFLAG(13)
+	private boolean discrepant; // TODO: get rid of this!
 	private String starName;
-
-//	JD(0),
-//	MAGNITUDE(1),
-//	UNCERTAINTY(2),
-//	HQ_UNCERTAINTY(3),
-//	BAND(4),
-//	OBSERVER_CODE(5),
-//	COMMENT_CODE(6),
-//	COMP_STAR_1(7),
-//	COMP_STAR_2(8),
-//	CHARTS(9),
-//	COMMENTS(10),
-//	TRANSFORMED(11),
-//	AIRMASS(12),
-//	VALFLAG(13),
-//	CMAG(14),
-//	KMAG(15),
-//	HJD(16),
-//	NAME(17);
 
 	/**
 	 * Constructor.
@@ -59,6 +52,7 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 		super(0);
 		this.dateInfo = null;
 		this.magnitude = null;
+		
 		this.obsCode = null;
 		this.discrepant = false;
 		this.starName = null;
@@ -66,15 +60,14 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 
 	// Getters and Setters
 
-	
-//	public boolean isDiscrepant() {
-//		return discrepant; // TODO: use an enum comparison
-//	}
-//
-//	public void setDiscrepant(boolean discrepant) {
-//		// TODO: notify listeners if old and new values are different!
-//		this.discrepant = discrepant;
-//	}
+	// public boolean isDiscrepant() {
+	// return discrepant; // TODO: use an enum comparison
+	// }
+	//
+	// public void setDiscrepant(boolean discrepant) {
+	// // TODO: notify listeners if old and new values are different!
+	// this.discrepant = discrepant;
+	// }
 
 	/**
 	 * @return the dateInfo
@@ -84,7 +77,8 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 	}
 
 	/**
-	 * @param dateInfo the dateInfo to set
+	 * @param dateInfo
+	 *            the dateInfo to set
 	 */
 	public void setDateInfo(DateInfo dateInfo) {
 		this.dateInfo = dateInfo;
@@ -98,7 +92,8 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 	}
 
 	/**
-	 * @param magnitude the magnitude to set
+	 * @param magnitude
+	 *            the magnitude to set
 	 */
 	public void setMagnitude(Magnitude magnitude) {
 		this.magnitude = magnitude;
@@ -112,7 +107,8 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 	}
 
 	/**
-	 * @param obsCode the obsCode to set
+	 * @param obsCode
+	 *            the obsCode to set
 	 */
 	public void setObsCode(String obsCode) {
 		this.obsCode = obsCode;
@@ -126,7 +122,8 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 	}
 
 	/**
-	 * @param discrepant the discrepant to set
+	 * @param discrepant
+	 *            the discrepant to set
 	 */
 	public void setDiscrepant(boolean discrepant) {
 		this.discrepant = discrepant;
@@ -140,12 +137,13 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 	}
 
 	/**
-	 * @param starName the starName to set
+	 * @param starName
+	 *            the starName to set
 	 */
 	public void setStarName(String starName) {
 		this.starName = starName;
 	}
-	
+
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 
