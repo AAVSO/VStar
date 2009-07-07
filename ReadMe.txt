@@ -12,8 +12,10 @@ is assumed.
 
 VStar uses the following libraries:
 
-- jcommon-1.0.16.jar
-- jfreechart-1.0.13.jar
-- mysql-connector-java-5.0.5-bin.jar (TODO: review)
+- jcommon-1.0.16.jar (http://www.jfree.org/jcommon/)
+- jfreechart-1.0.13.jar (http://www.jfree.org/jfreechart/)
+- mysql-connector-java-5.0.5-bin.jar (http://dev.mysql.com/downloads/connector/j/5.0.html)  (TODO: review)
+- swing-worker-1.2.jar (https://swingworker.dev.java.net/servlets/ProjectDocumentList)
+- JUnit 3.8.2 (http://www.junit.org/)
 
 For testing, JUnit 3.8.2 or higher is assumed (http://www.junit.org).
