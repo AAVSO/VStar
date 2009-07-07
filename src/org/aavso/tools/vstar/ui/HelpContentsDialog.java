@@ -89,7 +89,7 @@ public class HelpContentsDialog extends JDialog {
 				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 					JEditorPane pane = (JEditorPane) e.getSource();
 					if (e instanceof HTMLFrameHyperlinkEvent) {
-						// TODO: doesn't seem to work; need JFrame vs JDialog?
+						// TODO: cursor change doesn't seem to work; need JFrame vs JDialog?
 						parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 						HTMLFrameHyperlinkEvent evt = (HTMLFrameHyperlinkEvent) e;
 						HTMLDocument doc = (HTMLDocument) pane.getDocument();
@@ -107,16 +107,5 @@ public class HelpContentsDialog extends JDialog {
 				}
 			}
 		};
-	}
-
-	// Singleton
-	
-	private static HelpContentsDialog helpContents = new HelpContentsDialog();
-
-	/**
-	 * Return the helpContents Singleton.
-	 */
-	public static HelpContentsDialog getHelpContents() {
-		return helpContents;
 	}
 }

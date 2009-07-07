@@ -37,9 +37,9 @@ import org.aavso.tools.vstar.input.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.input.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.DataPane;
-import org.aavso.tools.vstar.ui.LightCurvePane;
+import org.aavso.tools.vstar.ui.ObservationPlotPane;
 import org.aavso.tools.vstar.ui.MessageBox;
-import org.aavso.tools.vstar.ui.SimpleTextFormatObservationPane;
+import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.util.Notifier;
 import org.jdesktop.swingworker.SwingWorker;
 import org.jfree.chart.ChartPanel;
@@ -303,7 +303,7 @@ public class ModelManager implements PropertyChangeListener {
 	 * Create the observation table component.
 	 */
 	private JPanel createObsTablePane() {
-		return new SimpleTextFormatObservationPane(
+		return new ObservationListPane(
 				this.getValidObsTableModel(), this.getInvalidObsTableModel());
 	}
 
@@ -314,7 +314,7 @@ public class ModelManager implements PropertyChangeListener {
 		ObservationPlotModel model = this.getObsPlotModel();
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.75),
 				(int) (DataPane.HEIGHT * 0.75));
-		return new LightCurvePane("Julian Day vs Magnitude", model, bounds);
+		return new ObservationPlotPane("Julian Day vs Magnitude", model, bounds);
 	}
 
 	/**

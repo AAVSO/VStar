@@ -29,7 +29,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.KeyStroke;
 
 import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.NewStarType;
@@ -265,7 +264,8 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Returns the action listener to be invoked for Help->About...
 	 * 
-	 * TODO: make a separate component for the About Box?
+	 * TODO: Make a separate component for the About Box? Possibly put text into
+	 * a resource file and use a JEditorPane to render HTML?
 	 */
 	private ActionListener createAboutListener() {
 		return new ActionListener() {
@@ -283,9 +283,12 @@ public class MenuBar extends JMenuBar {
 				
 				strBuf.append("This project was funded in part by grant No. 000379097\n");
 				strBuf.append("from the National Science Foundation.\n\n");
+				
 				strBuf.append("Code by: David Benn\n");
 				strBuf.append("Contact: aavso@aavso.org\n");
 				strBuf.append("License: GNU Affero General Public License\n\n");
+				strBuf.append("Images as appeared in Variable Star Astronomy at\n");
+				strBuf.append("http://www.aavso.org/education/vsa/\n\n");
 				
 				strBuf
 						.append("Thanks to the staff of AAVSO for their support, in particular:\n\n");

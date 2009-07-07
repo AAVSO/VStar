@@ -29,12 +29,12 @@ import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 
 /**
- * This class represents a GUI component that renders information about simple
- * text format observation data, including one or both of valid and invalid
- * observation data. If both are present, they are rendered as tables in a
- * vertical split pane. Otherwise, a single table will appear.
+ * This class represents a GUI component that renders information about observation 
+ * data, including one or both of valid and invalid observation data. If both are 
+ * present, they are rendered as tables in a vertical split pane. Otherwise, a single 
+ * table will appear.
  */
-public class SimpleTextFormatObservationPane extends JPanel {
+public class ObservationListPane extends JPanel {
 
 	/**
 	 * Constructor
@@ -44,7 +44,7 @@ public class SimpleTextFormatObservationPane extends JPanel {
 	 * @param invalidDataModel
 	 *            A table data model that encapsulates invalid observations.
 	 */
-	public SimpleTextFormatObservationPane(
+	public ObservationListPane(
 			ValidObservationTableModel validDataModel,
 			InvalidObservationTableModel invalidDataModel) {
 
@@ -94,7 +94,7 @@ public class SimpleTextFormatObservationPane extends JPanel {
 	 * @param validDataModel
 	 *            A table data model that encapsulates valid observations.
 	 */
-	public SimpleTextFormatObservationPane(
+	public ObservationListPane(
 			ValidObservationTableModel validDataModel) {
 		this(validDataModel, null);
 	}
@@ -105,7 +105,7 @@ public class SimpleTextFormatObservationPane extends JPanel {
 	 * @param invalidDataModel
 	 *            A table data model that encapsulates invalid observations.
 	 */
-	public SimpleTextFormatObservationPane(
+	public ObservationListPane(
 			InvalidObservationTableModel invalidDataModel) {
 		this(null, invalidDataModel);
 	}

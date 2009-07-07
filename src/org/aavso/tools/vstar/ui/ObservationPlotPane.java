@@ -29,7 +29,7 @@ import org.jfree.chart.plot.PlotOrientation;
 /**
  * This class represents a chart pane containing a light curve.
  */
-public class LightCurvePane extends ChartPanel {
+public class ObservationPlotPane extends ChartPanel {
 
 	/**
 	 * Constructor
@@ -41,7 +41,7 @@ public class LightCurvePane extends ChartPanel {
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
-	public LightCurvePane(String title, ObservationPlotModel obsModel, Dimension bounds) {
+	public ObservationPlotPane(String title, ObservationPlotModel obsModel, Dimension bounds) {
 		// Create a chart with legend, tooltips, and URLs showing
 		// and add it to the panel.
 		super(ChartFactory.createScatterPlot(title, "Julian Day",
