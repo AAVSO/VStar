@@ -17,24 +17,14 @@
  */
 package org.aavso.tools.vstar.data.validation;
 
-import org.aavso.tools.vstar.exception.ObservationValidationError;
-
 /**
- * This class validates an observer code.
+ * This class specialises magnitude value validator to handle
+ * optional uncertainty values.
  */
-public class ObserverCodeValidator extends StringValidatorBase<String> {
+public class UncertaintyValueValidator extends MagnitudeValueValidator {
 
-	private final RegexValidator regexValidator;
-
-	public ObserverCodeValidator() {
-		this.regexValidator = new RegexValidator("^(([A-Za-z]|[0-9]){1,5})$",
-				"Observer Code");
-	}
-
-	public String validate(String str) throws ObservationValidationError {
-		if (this.isLegallyEmpty(str)) return null;
-		
-		return this.regexValidator.validate(str)[0];
+	public UncertaintyValueValidator(RangePredicate rangePredicate) {
+		super(rangePredicate);
 	}
 	
 	protected boolean canBeEmpty() {

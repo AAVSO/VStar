@@ -22,8 +22,6 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.ObservationFieldSplitter;
-import org.aavso.tools.vstar.input.ObservationSourceAnalyser;
-import org.aavso.tools.vstar.ui.model.NewStarType;
 
 /**
  * This class accepts a line of text for tokenising, validation, and
@@ -41,7 +39,8 @@ public class SimpleTextFormatValidator extends
 	private final MagnitudeFieldValidator magnitudeFieldValidator;
 	private final MagnitudeValueValidator uncertaintyValueValidator;
 	private final ObserverCodeValidator observerCodeValidator;
-
+	private final ValflagValidator valflagValidator;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -54,9 +53,10 @@ public class SimpleTextFormatValidator extends
 
 		this.julianDayValidator = new JulianDayValidator();
 		this.magnitudeFieldValidator = new MagnitudeFieldValidator();
-		this.uncertaintyValueValidator = new MagnitudeValueValidator(
+		this.uncertaintyValueValidator = new UncertaintyValueValidator(
 				new ExclusiveRangePredicate(0, 1));
 		this.observerCodeValidator = new ObserverCodeValidator();
+		this.valflagValidator = new ValflagValidator("D");
 	}
 
 	/**
@@ -130,5 +130,9 @@ public class SimpleTextFormatValidator extends
 		// TODO: handle option valflag field
 
 		return observation;
+	}
+	
+	protected boolean canBeEmpty() {
+		return false;
 	}
 }
