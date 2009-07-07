@@ -134,14 +134,16 @@ public class ModelManager implements PropertyChangeListener {
 	public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 		private ModelManager modelMgr = ModelManager.getInstance();
 
+		private File obsFile;
 		private ObservationFileAnalyser analyser;
 		private int plotTaskPortion;
 		private Component parent;
-		private int progress;
 
 		/**
 		 * Constructor.
 		 * 
+		 * @param obsFile
+		 *            The file from which to load the star observations.
 		 * @param analyser
 		 *            An observation file analyser.
 		 * @param plotTaskPortion
@@ -150,12 +152,13 @@ public class ModelManager implements PropertyChangeListener {
 		 * @param parent
 		 *            A GUI component that can be considered a parent.
 		 */
-		public NewStarFromFileTask(ObservationFileAnalyser analyser,
-				Component parent, int plotTaskPortion) {
+		public NewStarFromFileTask(File obsFile,
+				ObservationFileAnalyser analyser, Component parent,
+				int plotTaskPortion) {
+			this.obsFile = obsFile;
 			this.analyser = analyser;
 			this.plotTaskPortion = plotTaskPortion;
 			this.parent = parent;
-			this.progress = 0;
 		}
 
 		/**
@@ -163,10 +166,10 @@ public class ModelManager implements PropertyChangeListener {
 		 */
 		public Void doInBackground() {
 			try {
-				createObservationModelsFromFileHelper(analyser);
+				createObservationModelsFromFileHelper(obsFile, analyser);
 			} catch (Exception e) {
 				MessageBox.showErrorDialog(parent,
-						"New Star From File Read Error", e.getMessage());
+						"New Star From File Read Error", e);
 
 				modelMgr.newStarFileName = null;
 
@@ -190,28 +193,23 @@ public class ModelManager implements PropertyChangeListener {
 		/**
 		 * Create observation table and plot models from a file.
 		 * 
+		 * @param obsFile
+		 *            The file from which to load the star observations.
+		 * 
 		 * @param analyser
-		 *            An observation file analyser. TODO: rename method as
-		 *            createObservationArtefacts(), possibly overload for DB
+		 *            An observation file analyser.
+		 * 
+		 *            TODO: rename method as createObservationArtefacts(),
+		 *            possibly overload for DB
 		 */
-		private void createObservationModelsFromFileHelper(
+		private void createObservationModelsFromFileHelper(File obsFile,
 				ObservationFileAnalyser analyser) throws IOException,
 				ObservationReadError {
 
-			// TODO: factory -> retriever instance
-
-			// TODO: Use an abstract factory to determine observation
-			// retriever class to use given the file type, along
-			// with all other classes of relevance to us! The
-			// concrete factory could be stored in the model manager.
-			// Factory could give us NewStarType, ObservationRetrieverBase,
-			// (In)ValidObservation (sub)classes etc.
-
-			String delimiter = analyser.getDelimiter();
-
+			// TODO: rename simpletextformatreader var and class!
 			ObservationRetrieverBase simpleTextFormatReader = new SimpleTextFormatReader(
-					new LineNumberReader(new FileReader(analyser.getObsFile()
-							.getPath())), delimiter);
+					new LineNumberReader(new FileReader(obsFile.getPath())),
+					analyser);
 
 			simpleTextFormatReader.retrieveObservations();
 
@@ -227,17 +225,18 @@ public class ModelManager implements PropertyChangeListener {
 				modelMgr.validObsTableModel = new ValidObservationTableModel(
 						modelMgr.validObsList);
 
-				//setProgress(progress++);
+				// setProgress(progress++);
 
-				modelMgr.obsPlotModel = new ObservationPlotModel(analyser
-						.getObsFile().getName(), modelMgr.validObsList);
+				modelMgr.obsPlotModel = new ObservationPlotModel(obsFile
+						.getName(), modelMgr.validObsList);
 
-				//setProgress(progress++);
+				// setProgress(progress++);
 
 				modelMgr.obsChartPane = createLightCurvePane();
 
 				modelMgr.getProgressNotifier().notifyListeners(
-						new ProgressInfo(ProgressType.INCREMENT_PROGRESS, plotTaskPortion));
+						new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
+								plotTaskPortion));
 
 				// TODO: same for means ...
 			}
@@ -246,11 +245,11 @@ public class ModelManager implements PropertyChangeListener {
 				modelMgr.invalidObsTableModel = new InvalidObservationTableModel(
 						modelMgr.invalidObsList);
 
-//				setProgress(progress++);
+				// setProgress(progress++);
 			}
 
 			modelMgr.obsTablePane = createObsTablePane();
-			//setProgress(progress++);
+			// setProgress(progress++);
 		}
 	}
 
@@ -270,7 +269,9 @@ public class ModelManager implements PropertyChangeListener {
 		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
 
 		// Analyse the observation file.
-		ObservationFileAnalyser analyser = new ObservationFileAnalyser(obsFile);
+		// TODO: rename this class!
+		ObservationFileAnalyser analyser = new ObservationFileAnalyser(
+				new LineNumberReader(new FileReader(obsFile)), obsFile.getName());
 		analyser.analyse();
 
 		// Task begins: Number of lines in file and a portion for the light
@@ -282,15 +283,15 @@ public class ModelManager implements PropertyChangeListener {
 						.getLineCount()
 						+ plotPortion));
 
-		NewStarFromFileTask task = new NewStarFromFileTask(analyser, parent,
-				plotPortion);
+		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
+				parent, plotPortion);
 		task.addPropertyChangeListener(this);
 		task.execute();
 	}
 
 	/**
-	 * Invoked when task's progress property changes.
-	 * TODO: replace this with inline calls to increment progress bar?
+	 * Invoked when task's progress property changes. TODO: replace this with
+	 * inline calls to increment progress bar?
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		if ("progress" == evt.getPropertyName()) {
