@@ -29,17 +29,10 @@ public abstract class StringValidatorBase<T> {
 	 * 
 	 * @param str The string to be validated.
 	 * @throws ObservationValidationError
+	 * 
+	 * TODO: default to checking for legal empty strings?
 	 */
 	abstract public T validate(String str) throws ObservationValidationError;
-
-	/**
-	 * Can the string to be validated by this class be empty?
-	 * Default to false.
-	 * @return True or False
-	 */
-	public boolean canBeEmpty() {
-		return false;
-	}
 
 	/**
 	 * Is the supplied string legally empty or null?
@@ -50,7 +43,7 @@ public abstract class StringValidatorBase<T> {
 	 * returns false.
 	 * @precondition The string is either null, empty, or contains characters besides whitespace. 
 	 */
-	public boolean isLegallyEmpty(String str) throws ObservationValidationError {
+	protected boolean isLegallyEmpty(String str) throws ObservationValidationError {
 		if (str == null || "".equals(str)) {
 			if (canBeEmpty()) {
 				return true;
@@ -61,4 +54,11 @@ public abstract class StringValidatorBase<T> {
 			return false;
 		}
 	}
+	
+	/**
+	 * Can the string to be validated by this class be empty?
+	 * TODO: Default to false?
+	 * @return True or False
+	 */
+	abstract protected boolean canBeEmpty();
 }	

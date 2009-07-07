@@ -83,4 +83,8 @@ public class RegexValidator extends StringValidatorBase<String[]> {
 		
 		return groups.toArray(new String[0]);
 	}
+	
+	public boolean canBeEmpty() {
+		return false;
+	}
 }

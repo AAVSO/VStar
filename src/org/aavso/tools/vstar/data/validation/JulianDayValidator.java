@@ -55,4 +55,8 @@ public class JulianDayValidator extends StringValidatorBase<DateInfo> {
 
 		return new DateInfo(value);
 	}
+	
+	public boolean canBeEmpty() {
+		return false;
+	}
 }

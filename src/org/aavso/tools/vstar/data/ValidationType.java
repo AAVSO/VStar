@@ -24,7 +24,11 @@ public enum ValidationType {
 	DISCREPANT;
 	// TODO: add more
 	
-	public ValidationType getValidationTypeFromValFlag(String valflag) {
+	/**
+	 * Given a valflag from an input file or database, return
+	 * the corresponding validation type.
+	 */
+	public static ValidationType getTypeFromFlag(String valflag) {
 		ValidationType valtype = null;
 		
 		if ("D".equals(valflag)) {

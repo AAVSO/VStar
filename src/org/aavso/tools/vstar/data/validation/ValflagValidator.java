@@ -17,46 +17,37 @@
  */
 package org.aavso.tools.vstar.data.validation;
 
+import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 
 /**
- * This class validates magnitude values (e.g. magnitude, uncertainty). 
+ * This class validates a valflag.
  */
-public class MagnitudeValueValidator extends StringValidatorBase<Double> {
+public class ValflagValidator extends StringValidatorBase<ValidationType> {
 
-	private final RangePredicate rangePredicate;
+	private final RegexValidator regexValidator;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param rangePredicate
-	 *            A numeric range predicate.
+	 * @param valflagPatternStr A regex pattern representing the
+	 * alternations of permission valflags for this validator instance,
+	 * e.g. "D" (simple format) or "G|D|P" (AAVSO download format).
 	 */
-	public MagnitudeValueValidator(RangePredicate rangePredicate) {
-		this.rangePredicate = rangePredicate;
+	public ValflagValidator(String valflagPatternStr) {
+		this.regexValidator = new RegexValidator("^" + valflagPatternStr + "$",
+				"Validation Flag");
 	}
 
-	public Double validate(String str) throws ObservationValidationError {
+	public ValidationType validate(String str) throws ObservationValidationError {
 		if (this.isLegallyEmpty(str))
 			return null;
 
-		double value = 0;
-		
-		try {
-			value = Double.parseDouble(str);
-			if (!rangePredicate.holds(value)) {
-				throw new ObservationValidationError("The magnitude '" + str
-						+ "' falls outside of the range " + rangePredicate);
-			}
-		} catch (NumberFormatException e) {
-			throw new ObservationValidationError("The magnitude '" + str
-					+ "' is not a real number.");
-		}
-		
-		return value;
+		String field = this.regexValidator.validate(str)[0];
+		return ValidationType.getTypeFromFlag(field);
 	}
-	
+
 	protected boolean canBeEmpty() {
-		return false;
+		return true;
 	}
 }
