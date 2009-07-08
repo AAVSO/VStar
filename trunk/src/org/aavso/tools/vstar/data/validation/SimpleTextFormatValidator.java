@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SimpleFormatFieldType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.ObservationFieldSplitter;
@@ -30,12 +31,11 @@ import org.aavso.tools.vstar.input.ObservationFieldSplitter;
 public class SimpleTextFormatValidator extends
 		StringValidatorBase<ValidObservation> {
 
-	// TODO: use an enum instead (SimpleFormatField; see ObsFields!)
-	private final int JD_FIELD = 0;
-	private final int MAG_FIELD = 1;
-	private final int UNCERTAINTY_FIELD = 2;
-	private final int OBSCODE_FIELD = 3;
-	private final int VALFLAG_FIELD = 4;
+	private final int JD_FIELD = SimpleFormatFieldType.JD.getIndex();
+	private final int MAG_FIELD = SimpleFormatFieldType.MAGNITUDE.getIndex();
+	private final int UNCERTAINTY_FIELD = SimpleFormatFieldType.UNCERTAINTY.getIndex();
+	private final int OBSCODE_FIELD = SimpleFormatFieldType.OBSERVER_CODE.getIndex();
+	private final int VALFLAG_FIELD = SimpleFormatFieldType.VALFLAG.getIndex();
 	
 	private final ObservationFieldSplitter fieldSplitter;
 
