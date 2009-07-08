@@ -36,10 +36,10 @@ package org.aavso.tools.vstar.data;
  */
 public class ValidObservation extends Observation implements IDateAndMagSource {
 
-	private DateInfo dateInfo; // JD(0)
-	private Magnitude magnitude; // MAGNITUDE(1) {<N:}, UNCERTAINTY(2)
-	private String obsCode; // OBSERVER_CODE(5)
-	private ValidationType validationType; // VALFLAG(13)
+	private DateInfo dateInfo; // JD
+	private Magnitude magnitude; // MAGNITUDE {<N:}, UNCERTAINTY
+	private String obsCode; // OBSERVER_CODE
+	private ValidationType validationType; // VALFLAG
 	private boolean discrepant; // TODO: get rid of this!
 	private String starName;
 
@@ -115,10 +115,10 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 	}
 
 	/**
-	 * @return the discrepant
+	 * @return whether this observation is discrepant
 	 */
 	public boolean isDiscrepant() {
-		return discrepant;
+		return ValidationType.DISCREPANT.equals(validationType);
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 	 *            the discrepant to set
 	 */
 	public void setDiscrepant(boolean discrepant) {
-		this.discrepant = discrepant;
+		this.validationType = ValidationType.DISCREPANT;
 	}
 
 	/**
@@ -144,6 +144,20 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 		this.starName = starName;
 	}
 
+	/**
+	 * @return the validationType
+	 */
+	public ValidationType getValidationType() {
+		return validationType;
+	}
+
+	/**
+	 * @param validationType the validationType to set
+	 */
+	public void setValidationType(ValidationType validationType) {
+		this.validationType = validationType;
+	}
+
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 
@@ -156,6 +170,7 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 		strBuf.append(magnitude);
 		strBuf.append(", Observer code: ");
 		strBuf.append(obsCode);
+		strBuf.append(validationType.toString());
 
 		return strBuf.toString();
 	}

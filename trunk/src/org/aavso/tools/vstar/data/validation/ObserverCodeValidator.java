@@ -24,11 +24,14 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class ObserverCodeValidator extends StringValidatorBase<String> {
 
+	private static final String KIND = "observer code";
+
 	private final RegexValidator regexValidator;
 
 	public ObserverCodeValidator() {
+		super(KIND);
 		this.regexValidator = new RegexValidator("^(([A-Za-z]|[0-9]){1,5})$",
-				"Observer Code");
+				KIND);
 	}
 
 	public String validate(String str) throws ObservationValidationError {

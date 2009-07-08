@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.input;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
@@ -56,6 +55,22 @@ public class SimpleTextFormatTest extends TestCase {
 
 	public void testValidJulianDayAndMagCSV() {
 		commonValidJulianDayAndMagTest("2450001.5,10.0\n", ",");
+	}
+
+	public void testValidFullObservationTSV() {
+		commonValidJulianDayAndMagTest("2450001.5\t10.0\t0.1\tDJB\tD\n", "\t");
+	}
+
+	public void testValidAllButUncertaintyTSV() {
+		commonValidJulianDayAndMagTest("2450001.5\t10.0\t\tDJB\tD\n", "\t");
+	}
+
+	public void testValidAllButUncertaintyAndValflagTSV() {
+		commonValidJulianDayAndMagTest("2450001.5\t10.0\t\tDJB\n", "\t");
+	}
+
+	public void testValidAllButUncertaintyAndValflagCSV() {
+		commonValidJulianDayAndMagTest("2450001.5,10.0,,DJB\n", ",");
 	}
 
 	public void testValidMultipleLines() {

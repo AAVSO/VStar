@@ -30,26 +30,36 @@ import org.aavso.tools.vstar.input.ObservationFieldSplitter;
 public class SimpleTextFormatValidator extends
 		StringValidatorBase<ValidObservation> {
 
+	// TODO: use an enum instead (SimpleFormatField; see ObsFields!)
 	private final int JD_FIELD = 0;
 	private final int MAG_FIELD = 1;
-
+	private final int UNCERTAINTY_FIELD = 2;
+	private final int OBSCODE_FIELD = 3;
+	private final int VALFLAG_FIELD = 4;
+	
 	private final ObservationFieldSplitter fieldSplitter;
 
 	private final JulianDayValidator julianDayValidator;
 	private final MagnitudeFieldValidator magnitudeFieldValidator;
-	private final MagnitudeValueValidator uncertaintyValueValidator;
+	private final UncertaintyValueValidator uncertaintyValueValidator;
 	private final ObserverCodeValidator observerCodeValidator;
 	private final ValflagValidator valflagValidator;
-	
+
 	/**
 	 * Constructor.
 	 * 
-	 * @param delimiter The field delimiter to use.
-	 * @param minFields The minimum number of fields permitted in an observation line.
-	 * @param maxFields The maximum number of fields permitted in an observation line.
+	 * @param delimiter
+	 *            The field delimiter to use.
+	 * @param minFields
+	 *            The minimum number of fields permitted in an observation line.
+	 * @param maxFields
+	 *            The maximum number of fields permitted in an observation line.
 	 */
-	public SimpleTextFormatValidator(String delimiter, int minFields, int maxFields) {
-		this.fieldSplitter = new ObservationFieldSplitter(delimiter, minFields, maxFields);
+	public SimpleTextFormatValidator(String delimiter, int minFields,
+			int maxFields) {
+		super("simple text format observation line");
+		this.fieldSplitter = new ObservationFieldSplitter(delimiter, minFields,
+				maxFields);
 
 		this.julianDayValidator = new JulianDayValidator();
 		this.magnitudeFieldValidator = new MagnitudeFieldValidator();
@@ -79,21 +89,39 @@ public class SimpleTextFormatValidator extends
 
 		ValidObservation observation = new ValidObservation();
 
-		// TODO: Must have 2 or 5 fields
-		// Create a VO with empty fields then use setters
-		// Add nulls to fields to make up to 5
-
-		// Split fields on the specified delimiter.
-		// String[] fields = line.split(this.delimiter); // delegate to util
-		// class
-		// to do
 		String[] fields = fieldSplitter.getFields(line);
 
-		// TODO: chnage to be must be equal to 5
-		if (fields.length < 2 || fields.length > 5) {
-			throw new ObservationValidationError(
-					"The observation contains an invalid number of fields.");
-		}
+		// DateInfo dateInfo = julianDayValidator.validate(fields[JD_FIELD]);
+		// observation.setDateInfo(dateInfo);
+		//
+		// Magnitude magnitude = magnitudeFieldValidator
+		// .validate(fields[MAG_FIELD]);
+		//
+		// double uncertaintyMag = 0;
+		// String obsCode = "";
+		//
+		// if (fields.length == 4) {
+		// uncertaintyMag = this.uncertaintyValueValidator.validate(fields[2]);
+		// obsCode = this.observerCodeValidator.validate(fields[3]);
+		// } else if (fields.length == 3) {
+		// try {
+		// // Start by assuming uncertainty value in 3rd field.
+		// uncertaintyMag = this.uncertaintyValueValidator
+		// .validate(fields[2]);
+		// } catch (ObservationValidationError e) {
+		// // Not a valid uncertainty value. Assume observer code.
+		// obsCode = this.observerCodeValidator.validate(fields[2]);
+		// }
+		// }
+		//
+		// magnitude.setUncertainty(uncertaintyMag);
+		// observation.setMagnitude(magnitude);
+		//
+		// assert (magnitude.getUncertainty() != Magnitude.ILLEGAL_UNCERTAINTY);
+		//
+		// if (obsCode != null) {
+		// observation.setObsCode(obsCode);
+		// }
 
 		DateInfo dateInfo = julianDayValidator.validate(fields[JD_FIELD]);
 		observation.setDateInfo(dateInfo);
@@ -101,37 +129,24 @@ public class SimpleTextFormatValidator extends
 		Magnitude magnitude = magnitudeFieldValidator
 				.validate(fields[MAG_FIELD]);
 
-		double uncertaintyMag = 0;
-		String obsCode = "";
+		Double uncertaintyMag = uncertaintyValueValidator
+				.validate(fields[UNCERTAINTY_FIELD]);
 
-		if (fields.length == 4) {
-			uncertaintyMag = this.uncertaintyValueValidator.validate(fields[2]);
-			obsCode = this.observerCodeValidator.validate(fields[3]);
-		} else if (fields.length == 3) {
-			try {
-				// Start by assuming uncertainty value in 3rd field.
-				uncertaintyMag = this.uncertaintyValueValidator
-						.validate(fields[2]);
-			} catch (ObservationValidationError e) {
-				// Not a valid uncertainty value. Assume observer code.
-				obsCode = this.observerCodeValidator.validate(fields[2]);
-			}
+		if (uncertaintyMag != null) {
+			magnitude.setUncertainty(uncertaintyMag);
+		} else {
+			magnitude.setUncertainty(0); // TODO: make the default in Magnitude?
 		}
-
-		magnitude.setUncertainty(uncertaintyMag);
+		
 		observation.setMagnitude(magnitude);
-
-		assert (magnitude.getUncertainty() != Magnitude.ILLEGAL_UNCERTAINTY);
-
-		if (obsCode != null) {
-			observation.setObsCode(obsCode);
-		}
-
-		// TODO: handle option valflag field
-
+		
+		observation.setObsCode(observerCodeValidator.validate(fields[OBSCODE_FIELD]));
+		
+		observation.setValidationType(valflagValidator.validate(fields[VALFLAG_FIELD]));
+		
 		return observation;
 	}
-	
+
 	protected boolean canBeEmpty() {
 		return false;
 	}

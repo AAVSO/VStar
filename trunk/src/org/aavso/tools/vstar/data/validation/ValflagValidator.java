@@ -25,6 +25,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class ValflagValidator extends StringValidatorBase<ValidationType> {
 
+	private static final String KIND = "validation flag";
+
 	private final RegexValidator regexValidator;
 
 	/**
@@ -33,10 +35,13 @@ public class ValflagValidator extends StringValidatorBase<ValidationType> {
 	 * @param valflagPatternStr A regex pattern representing the
 	 * alternations of permission valflags for this validator instance,
 	 * e.g. "D" (simple format) or "G|D|P" (AAVSO download format).
+	 * This pattern string will be wrapped in a ^(...)$ to ensure that nothing
+	 * else exists in the string, and that there is one capturing group.
 	 */
 	public ValflagValidator(String valflagPatternStr) {
-		this.regexValidator = new RegexValidator("^" + valflagPatternStr + "$",
-				"Validation Flag");
+		super(KIND);
+		this.regexValidator = new RegexValidator("^(" + valflagPatternStr + ")$",
+				KIND);
 	}
 
 	public ValidationType validate(String str) throws ObservationValidationError {

@@ -24,6 +24,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class MagnitudeValueValidator extends StringValidatorBase<Double> {
 
+	private static final String KIND = "magnitude";
+
 	private final RangePredicate rangePredicate;
 
 	/**
@@ -33,6 +35,7 @@ public class MagnitudeValueValidator extends StringValidatorBase<Double> {
 	 *            A numeric range predicate.
 	 */
 	public MagnitudeValueValidator(RangePredicate rangePredicate) {
+		super(KIND);
 		this.rangePredicate = rangePredicate;
 	}
 
@@ -45,11 +48,11 @@ public class MagnitudeValueValidator extends StringValidatorBase<Double> {
 		try {
 			value = Double.parseDouble(str);
 			if (!rangePredicate.holds(value)) {
-				throw new ObservationValidationError("The magnitude '" + str
+				throw new ObservationValidationError("The " + kind + " '" + str
 						+ "' falls outside of the range " + rangePredicate);
 			}
 		} catch (NumberFormatException e) {
-			throw new ObservationValidationError("The magnitude '" + str
+			throw new ObservationValidationError("The " + kind + " '" + str
 					+ "' is not a real number.");
 		}
 		

@@ -30,7 +30,6 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 public class RegexValidator extends StringValidatorBase<String[]> {
 
 	private final Pattern pattern;
-	private final String kind;
 	private final String errorNotes;
 	
 	/**
@@ -41,8 +40,8 @@ public class RegexValidator extends StringValidatorBase<String[]> {
 	 * @param errorNotes Additional error comment to be added to validation failure error message.
 	 */
 	public RegexValidator(String patternStr, String kind, String errorNotes) {
+		super(kind);
 		this.pattern = Pattern.compile(patternStr);
-		this.kind = kind;
 		this.errorNotes = errorNotes;
 	}
 	

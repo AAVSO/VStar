@@ -25,6 +25,7 @@ public class UncertaintyValueValidator extends MagnitudeValueValidator {
 
 	public UncertaintyValueValidator(RangePredicate rangePredicate) {
 		super(rangePredicate);
+		this.kind = "uncertainty";
 	}
 	
 	protected boolean canBeEmpty() {
