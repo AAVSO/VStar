@@ -24,7 +24,6 @@ package org.aavso.tools.vstar.data;
 public class Magnitude {
 
 	public final static boolean IS_UNCERTAIN = true;
-	public final static double ILLEGAL_UNCERTAINTY = -1;
 	
 	private double magValue;
 	private MagnitudeModifier magModifier;
@@ -42,7 +41,7 @@ public class Magnitude {
 		this.magValue = magnitude;
 		this.magModifier = magModifier;
 		this.isUncertain = isUncertain;
-		this.uncertainty = ILLEGAL_UNCERTAINTY; // this must be set after construction
+		this.uncertainty = 0; // defaults to zero; may be changed after construction
 	}
 	
 	/**
