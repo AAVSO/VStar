@@ -58,19 +58,31 @@ public class SimpleTextFormatTest extends TestCase {
 	}
 
 	public void testValidFullObservationTSV() {
-		commonValidJulianDayAndMagTest("2450001.5\t10.0\t0.1\tDJB\tD\n", "\t");
+		ValidObservation ob = commonValidJulianDayAndMagTest("2450001.5\t10.0\t0.1\tDJB\tD\n", "\t");
+		assertEquals(0.1, ob.getMagnitude().getUncertainty());
+		assertEquals("DJB", ob.getObsCode());
+		assertTrue(ob.isDiscrepant());
 	}
 
 	public void testValidAllButUncertaintyTSV() {
-		commonValidJulianDayAndMagTest("2450001.5\t10.0\t\tDJB\tD\n", "\t");
+		ValidObservation ob = commonValidJulianDayAndMagTest("2450001.5\t10.0\t\tDJB\tD\n", "\t");
+		assertEquals(0.0, ob.getMagnitude().getUncertainty());
+		assertEquals("DJB", ob.getObsCode());
+		assertTrue(ob.isDiscrepant());
 	}
 
 	public void testValidAllButUncertaintyAndValflagTSV() {
-		commonValidJulianDayAndMagTest("2450001.5\t10.0\t\tDJB\n", "\t");
+		ValidObservation ob = commonValidJulianDayAndMagTest("2450001.5\t10.0\t\tDJB\n", "\t");
+		assertEquals(0.0, ob.getMagnitude().getUncertainty());
+		assertEquals("DJB", ob.getObsCode());
+		assertTrue(!ob.isDiscrepant());
 	}
 
 	public void testValidAllButUncertaintyAndValflagCSV() {
-		commonValidJulianDayAndMagTest("2450001.5,10.0,,DJB\n", ",");
+		ValidObservation ob = commonValidJulianDayAndMagTest("2450001.5,10.0,,DJB\n", ",");
+		assertEquals(0.0, ob.getMagnitude().getUncertainty());
+		assertEquals("DJB", ob.getObsCode());
+		assertTrue(!ob.isDiscrepant());
 	}
 
 	public void testValidMultipleLines() {
@@ -89,9 +101,21 @@ public class SimpleTextFormatTest extends TestCase {
 		assertEquals(2430002.0, ob1.getDateInfo().getJulianDay());
 	}
 
+	// Tests of invalid simple text format.
+
+	public void testInvalidMagTrailingDecimalPoint() {
+		commonInvalidTest("2450001\t10.\n");
+	}
+
+	public void testInvalidAllButUncertaintyAndValflagTSV() {
+		// There should be another tab between the magnitude and obscode
+		// to account for the missing uncertainty value field.
+		commonInvalidTest("2450001.5\t10.0\tDJB\n");
+	}
+
 	// Helpers
 	
-	private void commonValidJulianDayAndMagTest(String line, String delimiter) {
+	private ValidObservation commonValidJulianDayAndMagTest(String line, String delimiter) {
 		List<ValidObservation> obs = commonValidTest(line, delimiter);
 		
 		assertTrue(obs.size() == 1);
@@ -101,6 +125,8 @@ public class SimpleTextFormatTest extends TestCase {
 		assertEquals(10.0, ob.getMagnitude().getMagValue());
 		assertFalse(ob.getMagnitude().isUncertain());
 		assertFalse(ob.getMagnitude().isFainterThan());
+		
+		return ob;
 	}
 
 	private List<ValidObservation> commonValidTest(String str, String delimiter) {
@@ -125,12 +151,6 @@ public class SimpleTextFormatTest extends TestCase {
 		return obs;
 	}
 
-	// Tests of invalid simple text format.
-
-	public void testInvalidMagTrailingDecimalPoint() {
-		commonInvalidTest("2450001\t10.\n");
-	}
-	
 	private void commonInvalidTest(String str) {		
 		try {
 			SimpleTextFormatValidator validator = new SimpleTextFormatValidator("\t", 2, 5);

@@ -91,38 +91,6 @@ public class SimpleTextFormatValidator extends
 
 		String[] fields = fieldSplitter.getFields(line);
 
-		// DateInfo dateInfo = julianDayValidator.validate(fields[JD_FIELD]);
-		// observation.setDateInfo(dateInfo);
-		//
-		// Magnitude magnitude = magnitudeFieldValidator
-		// .validate(fields[MAG_FIELD]);
-		//
-		// double uncertaintyMag = 0;
-		// String obsCode = "";
-		//
-		// if (fields.length == 4) {
-		// uncertaintyMag = this.uncertaintyValueValidator.validate(fields[2]);
-		// obsCode = this.observerCodeValidator.validate(fields[3]);
-		// } else if (fields.length == 3) {
-		// try {
-		// // Start by assuming uncertainty value in 3rd field.
-		// uncertaintyMag = this.uncertaintyValueValidator
-		// .validate(fields[2]);
-		// } catch (ObservationValidationError e) {
-		// // Not a valid uncertainty value. Assume observer code.
-		// obsCode = this.observerCodeValidator.validate(fields[2]);
-		// }
-		// }
-		//
-		// magnitude.setUncertainty(uncertaintyMag);
-		// observation.setMagnitude(magnitude);
-		//
-		// assert (magnitude.getUncertainty() != Magnitude.ILLEGAL_UNCERTAINTY);
-		//
-		// if (obsCode != null) {
-		// observation.setObsCode(obsCode);
-		// }
-
 		DateInfo dateInfo = julianDayValidator.validate(fields[JD_FIELD]);
 		observation.setDateInfo(dateInfo);
 
@@ -134,8 +102,6 @@ public class SimpleTextFormatValidator extends
 
 		if (uncertaintyMag != null) {
 			magnitude.setUncertainty(uncertaintyMag);
-		} else {
-			magnitude.setUncertainty(0); // TODO: make the default in Magnitude?
 		}
 		
 		observation.setMagnitude(magnitude);
