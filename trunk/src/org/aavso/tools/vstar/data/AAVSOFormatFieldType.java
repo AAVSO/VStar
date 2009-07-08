@@ -18,9 +18,10 @@
 package org.aavso.tools.vstar.data;
 
 /**
- * Observation fields.
+ * Observation fields for the AAVSO Download file format and database 
+ * sourced observations.
  */
-public enum ObsFields {
+public enum AAVSOFormatFieldType {
 	
 	JD(0),
 	MAGNITUDE(1),
@@ -48,7 +49,7 @@ public enum ObsFields {
 	 * Private constructor.
 	 * @param index The index associated with current enum value.
 	 */
-	private ObsFields(int index) {
+	private AAVSOFormatFieldType(int index) {
 		this.index = index;
 	}
 
