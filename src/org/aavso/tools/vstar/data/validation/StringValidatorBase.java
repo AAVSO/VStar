@@ -24,6 +24,25 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public abstract class StringValidatorBase<T> {
 
+	// The kind of field (e.g. name) we are validating.
+	protected String kind;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param kind The kind of entity (e.g. field name) we are validating.
+	 */
+	public StringValidatorBase(String kind) {
+		this.kind = kind;
+	}
+	
+	/**
+	 * Constructor.
+	 */
+	public StringValidatorBase() {
+		this(null);
+	}
+	
 	/**
 	 * Validate the supplied string, throwing an exception on failure.
 	 * 

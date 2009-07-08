@@ -39,4 +39,20 @@ public enum ValidationType {
 		
 		return valtype;
 	}
+	
+	/**
+	 * Return the valflag string corresponding to this this enum value.
+	 */
+	public String getValflag() {
+		String str = null;
+		switch(this) {
+		case DISCREPANT:
+			str = "D";
+			break;			
+		}
+		
+		assert(str != null);
+		
+		return str;
+	}
 }

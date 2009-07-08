@@ -27,6 +27,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class MagnitudeFieldValidator extends StringValidatorBase<Magnitude> {
 
+	private static final String KIND = "magnitude";
+
 	private final int MAG_MODIFIER_INDEX = 0;
 	private final int MAG_INDEX = 1;
 	private final int UNCERTAINTY_INDEX = 2;
@@ -38,12 +40,14 @@ public class MagnitudeFieldValidator extends StringValidatorBase<Magnitude> {
 	 * Constructor.
 	 */
 	public MagnitudeFieldValidator() {
+		super(KIND);
+		
 		// Optional '<' or '>' prefix, followed by a real number (0.4, -4, 5.56),
 		// and optionally followed by a ':' suffix. Note the use of the
 		// non-capturing group (?:...) for the fractional part. We just want
 		// to group this as an optional sub-pattern, not obtain it separately.
 		this.regexValidator = new RegexValidator(
-				"^(<|>)?(\\-?\\d+(?:\\.\\d+)?)(:)?$", "Magnitude");
+				"^(<|>)?(\\-?\\d+(?:\\.\\d+)?)(:)?$", KIND);
 		this.magnitudeValueValidator = new MagnitudeValueValidator(
 				new InclusiveRangePredicate(-5, 25));
 	}
@@ -103,7 +107,7 @@ public class MagnitudeFieldValidator extends StringValidatorBase<Magnitude> {
 			mod = MagnitudeModifier.BRIGHTER_THAN;
 		} else {
 			// This should never happen if we are calling this appropriately above.
-			throw new ObservationValidationError("Expected magnitude modifier: < or >");
+			throw new ObservationValidationError("Expected " + kind + " modifier: < or >");
 		}
 
 		return mod;

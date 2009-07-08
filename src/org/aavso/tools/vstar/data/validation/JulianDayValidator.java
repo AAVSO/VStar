@@ -27,14 +27,17 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class JulianDayValidator extends StringValidatorBase<DateInfo> {
 
+	private static final String KIND = "Julian Day";
+	
 	private final RegexValidator regexValidator;
 
 	/**
 	 * Constructor.
 	 */
 	public JulianDayValidator() {
+		super(KIND);
 		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$",
-				"Julian Day", "Only decimal digits and a single '.' are permitted.");
+				KIND, "Only decimal digits and a single '.' are permitted.");
 	}
 
 	/**
