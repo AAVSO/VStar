@@ -18,13 +18,14 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.net.URL;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 
 /**
@@ -40,14 +41,19 @@ import javax.swing.JPanel;
  */
 public class MainFrame extends JFrame {
 
+	private URL fileURL;
+	private URL dbaseURL;
+	
 	// The application's menu bar.
-	private JMenuBar menuBar;
+	private MenuBar menuBar;
 
 	/**
 	 * Constructor
 	 */
 	public MainFrame() {
 		super("VStar");
+
+		loadIcons();
 
 		this.menuBar = new MenuBar(this);
 		this.setJMenuBar(menuBar);
@@ -57,14 +63,23 @@ public class MainFrame extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
+	private void loadIcons() {
+		// TODO: replace these with icons from Java Standard L&F Repository!
+		this.dbaseURL = MainFrame.class.getResource("resources/icons/dbase.gif");
+		this.fileURL = MainFrame.class.getResource("resources/icons/file.gif");
+	}
+
 	// Create everything inside the main GUI view except for
 	// menus, toolbars; essentially the interior content of
 	// the GUI that represents the core functionality of interest
 	// to the user.
-	private JPanel createContent() {
+	private JPanel createContent() {		
 		// Top-level content pane to include status pane.
-		JPanel topPane = new JPanel(new BorderLayout());
+		JPanel topPane = new JPanel(new BorderLayout());		
 
+		// Add the toolbar.
+		topPane.add(new ToolBar(this, this.menuBar, this.dbaseURL, this.fileURL), BorderLayout.PAGE_START);
+		
 		// Major pane with left to right layout and an empty border.
 		JPanel majorPane = new JPanel();
 		majorPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));

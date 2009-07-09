@@ -38,13 +38,16 @@ import org.aavso.tools.vstar.util.Listener;
 /**
  * VStar's menu bar.
  * 
- * TODO:
- * - put menu item names in property file
+ * TODO: - put menu item names in property file
  */
 public class MenuBar extends JMenuBar {
 
+	// TODO: factor out into a common class to be shared by menu and tool bar?
+	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
+	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
+
 	private ModelManager modelMgr = ModelManager.getInstance();
-	
+
 	private JFileChooser fileOpenDialog;
 
 	// The parent window.
@@ -71,34 +74,33 @@ public class MenuBar extends JMenuBar {
 		super();
 
 		this.parent = parent;
-		
+
 		List<String> extensions = new ArrayList<String>();
 		extensions.add("csv");
 		extensions.add("tsv");
 		extensions.add("txt");
-		
+
 		this.fileOpenDialog = new JFileChooser();
 		this.fileOpenDialog.setFileFilter(new FileExtensionFilter(extensions));
 
 		createFileMenu();
 		createAnalysisMenu();
 		createHelpMenu();
-		
+
 		this.modelMgr.getNewStarNotifier().addListener(createNewStarListener());
-		this.modelMgr.getProgressNotifier().addListener(createProgressListener());
+		this.modelMgr.getProgressNotifier().addListener(
+				createProgressListener());
 	}
 
 	private void createFileMenu() {
 		JMenu fileMenu = new JMenu("File");
 
-		fileNewStarFromDatabaseItem = new JMenuItem(
-				"New Star from AAVSO Database...");
+		fileNewStarFromDatabaseItem = new JMenuItem(NEW_STAR_FROM_DATABASE);
 		fileNewStarFromDatabaseItem
 				.addActionListener(createNewStarFromDatabaseListener());
-		fileNewStarFromDatabaseItem.setEnabled(false);
 		fileMenu.add(fileNewStarFromDatabaseItem);
 
-		fileNewStarFromFileItem = new JMenuItem("New Star from File...");
+		fileNewStarFromFileItem = new JMenuItem(NEW_STAR_FROM_FILE);
 		fileNewStarFromFileItem
 				.addActionListener(createNewStarFromFileListener());
 		fileMenu.add(fileNewStarFromFileItem);
@@ -116,8 +118,8 @@ public class MenuBar extends JMenuBar {
 		fileMenu.addSeparator();
 
 		fileQuitItem = new JMenuItem("Quit", KeyEvent.VK_Q);
-//		fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
-//				ActionEvent.META_MASK));
+		// fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+		// ActionEvent.META_MASK));
 		fileQuitItem.addActionListener(createQuitListener());
 		fileMenu.add(fileQuitItem);
 
@@ -134,7 +136,7 @@ public class MenuBar extends JMenuBar {
 		analysisRawDataItem = new JMenuItem("Raw Data");
 		analysisRawDataItem.setEnabled(false);
 		analysisMenu.add(analysisRawDataItem);
-		
+
 		analysisPhasePlotItem = new JMenuItem("Phase Plot...");
 		analysisPhasePlotItem.setEnabled(false);
 		analysisMenu.add(analysisPhasePlotItem);
@@ -166,10 +168,11 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for File->New Star from AAVSO
 	 * Database...
 	 */
-	private ActionListener createNewStarFromDatabaseListener() {
+	public ActionListener createNewStarFromDatabaseListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO
+				MessageBox.showMessageDialog(parent, NEW_STAR_FROM_DATABASE,
+						"This feature is not implemented yet.");
 			}
 		};
 	}
@@ -180,7 +183,7 @@ public class MenuBar extends JMenuBar {
 	 * The action is to open a file dialog to allow the user to select a single
 	 * file.
 	 */
-	private ActionListener createNewStarFromFileListener() {
+	public ActionListener createNewStarFromFileListener() {
 		final JFileChooser fileOpenDialog = this.fileOpenDialog;
 		final MainFrame parent = this.parent;
 
@@ -208,13 +211,13 @@ public class MenuBar extends JMenuBar {
 	private ActionListener createSaveListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				try {
-//					// TODO: need to ask model mgr to save curr model/doc
-//					//parent.getLightCurveChartPane().doSaveAs();
-//				} catch (IOException ex) {
-//					MessageBox.showErrorDialog(parent, "Light Curve Save", ex
-//							.getMessage());
-//				}
+				// try {
+				// // TODO: need to ask model mgr to save curr model/doc
+				// //parent.getLightCurveChartPane().doSaveAs();
+				// } catch (IOException ex) {
+				// MessageBox.showErrorDialog(parent, "Light Curve Save", ex
+				// .getMessage());
+				// }
 			}
 		};
 	}
@@ -226,7 +229,7 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: need to ask model mgr to print curr model/doc
-				//parent.getLightCurveChartPane().createChartPrintJob();
+				// parent.getLightCurveChartPane().createChartPrintJob();
 			}
 		};
 	}
@@ -260,7 +263,7 @@ public class MenuBar extends JMenuBar {
 			}
 		};
 	}
-	
+
 	/**
 	 * Returns the action listener to be invoked for Help->About...
 	 * 
@@ -280,16 +283,18 @@ public class MenuBar extends JMenuBar {
 				strBuf.append("  as part of\n\n");
 				strBuf
 						.append("  The CitizenSky Project: http://www.citizensky.org/\n\n");
-				
-				strBuf.append("This project was funded in part by grant No. 000379097\n");
+
+				strBuf
+						.append("This project was funded in part by grant No. 000379097\n");
 				strBuf.append("from the National Science Foundation.\n\n");
-				
+
 				strBuf.append("Code by: David Benn\n");
 				strBuf.append("Contact: aavso@aavso.org\n");
 				strBuf.append("License: GNU Affero General Public License\n\n");
-				strBuf.append("Images as appeared in Variable Star Astronomy at\n");
+				strBuf
+						.append("Images as appeared in Variable Star Astronomy at\n");
 				strBuf.append("http://www.aavso.org/education/vsa/\n\n");
-				
+
 				strBuf
 						.append("Thanks to the staff of AAVSO for their support, in particular:\n\n");
 				strBuf
@@ -303,19 +308,19 @@ public class MenuBar extends JMenuBar {
 		};
 	}
 
-// Comment by Aaron in email (6 July 2009):
-//	
-//	I think you can use anything in HOA or the Citizen Sky web site.
-//	However, you'll need to retain whatever credit is shown in VSA and
-//	maybe add "as appeared in VSA at
-//	"http://www.aavso.org/education/vsa/".
-//
-//	Add a credit to Citizen Sky and the National Science Foundation to
-//	the About box (if you haven't already). A good NSF logo is here:
-//	http://www.nsf.gov/policies/logos.jsp
-//
-//	The NSF credit should be something like "This project was funded in
-//	part by grant No. 000379097 from the National Science Foundation."
+	// Comment by Aaron in email (6 July 2009):
+	//	
+	// I think you can use anything in HOA or the Citizen Sky web site.
+	// However, you'll need to retain whatever credit is shown in VSA and
+	// maybe add "as appeared in VSA at
+	// "http://www.aavso.org/education/vsa/".
+	//
+	// Add a credit to Citizen Sky and the National Science Foundation to
+	// the About box (if you haven't already). A good NSF logo is here:
+	// http://www.nsf.gov/policies/logos.jsp
+	//
+	// The NSF credit should be something like "This project was funded in
+	// part by grant No. 000379097 from the National Science Foundation."
 
 	/**
 	 * Return a new star creation listener.
@@ -335,17 +340,18 @@ public class MenuBar extends JMenuBar {
 		final MainFrame parent = this.parent;
 		return new Listener<ProgressInfo>() {
 			public void update(ProgressInfo info) {
-				switch(info.getType()) {
+				switch (info.getType()) {
 				case MIN_PROGRESS:
 					break;
 				case MAX_PROGRESS:
 					break;
 				case RESET_PROGRESS:
-					parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					parent.setCursor(Cursor
+							.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					setEnabledFileAndAnalysisMenuItems(false);
 					break;
 				case COMPLETE_PROGRESS:
-					parent.setCursor(null); //turn off the wait cursor
+					parent.setCursor(null); // turn off the wait cursor
 					setEnabledFileAndAnalysisMenuItems(true);
 					break;
 				case INCREMENT_PROGRESS:
@@ -361,7 +367,7 @@ public class MenuBar extends JMenuBar {
 		this.fileNewStarFromFileItem.setEnabled(state);
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
-		
+
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
 		this.analysisPeriodSearchItem.setEnabled(state);

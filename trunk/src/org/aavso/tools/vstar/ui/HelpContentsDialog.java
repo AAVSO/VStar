@@ -57,6 +57,7 @@ public class HelpContentsDialog extends JDialog {
 		
 		java.net.URL helpURL = HelpContentsDialog.class
 				.getResource("resources/html/HelpContents.html");
+		
 		if (helpURL != null) {
 			try {
 				editorPane.setPage(helpURL);
