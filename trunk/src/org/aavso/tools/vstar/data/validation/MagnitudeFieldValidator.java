@@ -91,10 +91,6 @@ public class MagnitudeFieldValidator extends StringValidatorBase<Magnitude> {
 
 		return mag;
 	}
-	
-	protected boolean canBeEmpty() {
-		return false;
-	}
 
 	// Helpers
 

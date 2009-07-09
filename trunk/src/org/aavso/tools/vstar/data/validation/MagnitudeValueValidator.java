@@ -58,8 +58,4 @@ public class MagnitudeValueValidator extends StringValidatorBase<Double> {
 		
 		return value;
 	}
-	
-	protected boolean canBeEmpty() {
-		return false;
-	}
 }

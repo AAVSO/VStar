@@ -114,8 +114,4 @@ public class SimpleTextFormatValidator extends
 		
 		return observation;
 	}
-
-	protected boolean canBeEmpty() {
-		return false;
-	}
 }

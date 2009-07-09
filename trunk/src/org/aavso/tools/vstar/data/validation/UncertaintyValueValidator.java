@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.data.validation;
 
+import org.aavso.tools.vstar.exception.ObservationValidationError;
+
 /**
  * This class specialises magnitude value validator to handle
  * optional uncertainty values.
@@ -28,6 +30,11 @@ public class UncertaintyValueValidator extends MagnitudeValueValidator {
 		this.kind = "uncertainty";
 	}
 	
+	public Double validate(String str) throws ObservationValidationError {
+		if (this.isLegallyEmpty(str)) return null;
+		return super.validate(str);
+	}
+
 	protected boolean canBeEmpty() {
 		return true;
 	}
