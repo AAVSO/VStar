@@ -22,7 +22,7 @@ package org.aavso.tools.vstar.data;
  */
 public enum ValidationType {
 	DISCREPANT;
-	// TODO: add more
+	// TODO: add more (for AAVSO format)
 	
 	/**
 	 * Given a valflag from an input file or database, return

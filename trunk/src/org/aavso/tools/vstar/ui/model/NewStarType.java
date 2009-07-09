@@ -17,28 +17,28 @@
  */
 package org.aavso.tools.vstar.ui.model;
 
-import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
-import org.aavso.tools.vstar.data.validation.StringValidatorBase;
-import org.aavso.tools.vstar.input.ObservationSourceAnalyser;
+import org.aavso.tools.vstar.data.SimpleFormatFieldInfoSource;
 
 /**
  * A new star creation type. It also encodes the required number of fields for
  * each observation in the source, and acts as a Factory Method (GoF pattern)
- * for determining text format validator (simple or AAVSO download format).
+ * for determining text format validator (simple or AAVSO download format), and
+ * table column information.
  */
 public enum NewStarType {
 
 	// TODO: also create a NewStarInfo message class with GUI component refs for
 	// DataPane so that created components can be passed to listeners rather
-	// than the latter having to receive an event and then query the model manager.
+	// than the latter having to receive an event and then query the model
+	// manager.
 
-	NEW_STAR_FROM_SIMPLE_FILE(5, 5), NEW_STAR_FROM_DOWNLOAD_FILE(18, 18), NEW_STAR_FROM_DATABASE(
-			18, 18);
+	NEW_STAR_FROM_SIMPLE_FILE(5, 5, new SimpleFormatFieldInfoSource()), NEW_STAR_FROM_DOWNLOAD_FILE(
+			18, 18, null), NEW_STAR_FROM_DATABASE(18, 18, null);
 
 	private final int minFields;
 	private final int maxFields;
-
+	private final ITableColumnInfoSource columnInfoSource;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -46,10 +46,14 @@ public enum NewStarType {
 	 *            The minimum allowed number of fields.
 	 * @param maxFields
 	 *            The maximum allowed number of fields.
+	 * @param columnInfoSource
+	 *            An object that supplies information about table columns.
 	 */
-	private NewStarType(int minFields, int maxFields) {
+	private NewStarType(int minFields, int maxFields,
+			ITableColumnInfoSource columnInfoSource) {
 		this.minFields = minFields;
 		this.maxFields = maxFields;
+		this.columnInfoSource = columnInfoSource;
 	}
 
 	/**
@@ -67,36 +71,9 @@ public enum NewStarType {
 	}
 
 	/**
-	 * Return an instance of the text format validator class to be used for
-	 * creating observation objects from a sequence of lines containing comma or
-	 * tab delimited fields (CSV, TSV).
-	 * 
-	 * TODO: keep a Singleton Registry of validator-delimiter combinations and
-	 * reuse
-	 * 
-	 * @param delimiter
-	 *            A tab or comma.
-	 * @return The validator object corresponding to this "new star" type.
+	 * @return the columnInfoSource
 	 */
-	public StringValidatorBase<ValidObservation> getTextFormatValidator(
-			ObservationSourceAnalyser analyser) {
-
-		String delimiter = analyser.getDelimiter();
-		assert (ObservationSourceAnalyser.TAB_DELIM.equals(delimiter) || ObservationSourceAnalyser.COMMA_DELIM
-				.equals(delimiter));
-
-		StringValidatorBase<ValidObservation> validator = null;
-
-		if (NEW_STAR_FROM_SIMPLE_FILE.equals(this)) {
-			validator = new SimpleTextFormatValidator(analyser.getDelimiter(),
-					analyser.getType().getMinFields(), analyser.getType()
-							.getMaxFields());
-		} else if (NEW_STAR_FROM_DOWNLOAD_FILE.equals(this)) {
-
-		}
-
-		assert (validator != null);
-
-		return validator;
+	public ITableColumnInfoSource getColumnInfoSource() {
+		return columnInfoSource;
 	}
 }

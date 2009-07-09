@@ -28,32 +28,47 @@ import org.aavso.tools.vstar.data.ValidObservation;
  */
 public class ValidObservationTableModel extends AbstractTableModel {
 
-	// TODO: Have a mapping from a column index to functors that return an object.
-	// This mapping would be parameterisable on the constructor of this class. For
-	// a null field, it renders as an empty string. Get this from a NewStarType enum
-	// Factory Method!
-	
-	private final static int COLUMNS = 6;
-
 	/**
 	 * The list of valid observations retrieved.
 	 */
-	private List<ValidObservation> validObservations;
-	
+	private final List<ValidObservation> validObservations;
+
+	/**
+	 * The new-star-from type.
+	 */
+	private final NewStarType newStarType;
+
+	/**
+	 * The source of column information.
+	 */
+	private final ITableColumnInfoSource columnInfoSource;
+
+	/**
+	 * The total number of columns in the table.
+	 */
+	private final int columnCount;
+
 	/**
 	 * Constructor
 	 * 
-	 * @param validObservations A list of valid observations.
+	 * @param validObservations
+	 *            A list of valid observations.
+	 * @param newStarType
+	 *            The new star type.
 	 */
-	public ValidObservationTableModel(List<ValidObservation> validObservations) {
+	public ValidObservationTableModel(List<ValidObservation> validObservations,
+			NewStarType newStarType) {
 		this.validObservations = validObservations;
+		this.newStarType = newStarType;
+		this.columnInfoSource = newStarType.getColumnInfoSource();
+		this.columnCount = columnInfoSource.getColumnCount();
 	}
 
 	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
-		return COLUMNS;
+		return columnCount;
 	}
 
 	/**
@@ -67,89 +82,29 @@ public class ValidObservationTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
-		String columnName = null;
-
-		// TODO: put into an array!!
-		// (especially for download version of this!)
-		
-		switch (column) {
-		case 0:
-			// TODO: according to specs/discussion, this 
-			// needs to move to being on the RHS!
-			columnName = "Discrepant?";
-			break;
-		case 1:
-			columnName = "Line";
-			break;
-		case 2:
-			columnName = "Julian Day";
-			break;
-		case 3:
-			columnName = "Calendar Date";
-			break;
-		case 4:
-			columnName = "Magnitude";
-			break;
-		case 5:
-			columnName = "Observer Code";
-			break;
-		}
-
-		return columnName;
+		assert column < columnCount;
+		return this.columnInfoSource.getTableColumnTitle(column);
 	}
 
 	/**
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		assert columnIndex < COLUMNS;
-		
-		Object value = null;
+		assert columnIndex < columnCount;
 		ValidObservation validOb = this.validObservations.get(rowIndex);
-		
-		switch(columnIndex) {
-		case 0:
-			value = this.validObservations.get(rowIndex).isDiscrepant();
-			break;
-		case 1:
-			value = validOb.getLineNumber();
-			break;
-		case 2:
-			value = validOb.getDateInfo().getJulianDay();
-			break;
-		case 3:
-			value = validOb.getDateInfo().getCalendarDate();
-			break;
-		case 4:
-			value = validOb.getMagnitude().toString();
-			break;
-		case 5:
-			value = validOb.getObsCode();
-			break;
-		}
-		
-		return value;
+		return this.columnInfoSource.getTableColumnValue(columnIndex, validOb);
 	}
 
 	/**
-	 * @see javax.swing.table.AbstractTableModel#setValueAt(java.lang.Object, int, int)
+	 * @see javax.swing.table.AbstractTableModel#setValueAt(java.lang.Object,
+	 *      int, int)
 	 */
 	public void setValueAt(Object value, int rowIndex, int columnIndex) {
-		assert columnIndex == 0;
-
-		switch(columnIndex) {		
-		case 0:
-			// Toggle discrepant value.
+		if (columnIndex == columnInfoSource.getDiscrepantColumnIndex()) {
+			// Toggle "is-discrepant" checkbox and value.
 			ValidObservation ob = this.validObservations.get(rowIndex);
-			boolean discrepant = ob.isDiscrepant(); 
+			boolean discrepant = ob.isDiscrepant();
 			ob.setDiscrepant(!discrepant);
-			break;
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 5:
-			break;
 		}
 	}
 
@@ -157,37 +112,22 @@ public class ValidObservationTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.AbstractTableModel#isCellEditable(int, int)
 	 */
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		// Discrepant check box. TODO: what other fields?
-		return columnIndex == 0;
+		// "is-discrepant" check box?
+		return columnIndex == columnInfoSource.getDiscrepantColumnIndex();
 	}
 
 	/**
 	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
 	 */
 	public Class<?> getColumnClass(int columnIndex) {
-		Class<?> clazz = Object.class;
-		
-		switch(columnIndex) {
-		case 0:
-			clazz = Boolean.class;
-			break;
-		case 1:
+		Class<?> clazz = null;
+
+		if (columnIndex == columnInfoSource.getDiscrepantColumnIndex()) {
+			clazz = Boolean.class;	
+		} else {
 			clazz = String.class;
-			break;
-		case 2:
-			clazz = String.class;
-			break;
-		case 3:
-			clazz = String.class;
-			break;
-		case 4:
-			clazz = String.class;
-			break;
-		case 5:
-			clazz = String.class;
-			break;
 		}
-		
+
 		return clazz;
 	}
 }
