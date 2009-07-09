@@ -45,8 +45,7 @@ public class ValflagValidator extends StringValidatorBase<ValidationType> {
 	}
 
 	public ValidationType validate(String str) throws ObservationValidationError {
-		if (this.isLegallyEmpty(str))
-			return null;
+		if (this.isLegallyEmpty(str)) return null;
 
 		String field = this.regexValidator.validate(str)[0];
 		return ValidationType.getTypeFromFlag(field);

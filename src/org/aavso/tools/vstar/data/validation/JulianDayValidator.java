@@ -55,11 +55,7 @@ public class JulianDayValidator extends StringValidatorBase<DateInfo> {
 		// By virtue of the regex pattern above,
 		// this must parse as a double.
 		double value = Double.parseDouble(fields[0]);
-
+		
 		return new DateInfo(value);
-	}
-	
-	public boolean canBeEmpty() {
-		return false;
 	}
 }

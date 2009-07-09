@@ -26,43 +26,49 @@ public abstract class StringValidatorBase<T> {
 
 	// The kind of field (e.g. name) we are validating.
 	protected String kind;
-	
+
 	/**
 	 * Constructor.
 	 * 
-	 * @param kind The kind of entity (e.g. field name) we are validating.
+	 * @param kind
+	 *            The kind of entity (e.g. field name) we are validating.
 	 */
 	public StringValidatorBase(String kind) {
 		this.kind = kind;
 	}
-	
+
 	/**
 	 * Constructor.
 	 */
 	public StringValidatorBase() {
 		this(null);
 	}
-	
+
 	/**
 	 * Validate the supplied string, throwing an exception on failure.
 	 * 
-	 * @param str The string to be validated.
+	 * @param str
+	 *            The string to be validated.
 	 * @throws ObservationValidationError
-	 * 
-	 * TODO: default to checking for legal empty strings?
 	 */
 	abstract public T validate(String str) throws ObservationValidationError;
-
+	
 	/**
 	 * Is the supplied string legally empty or null?
 	 * 
-	 * @param str The string to be validated.
-	 * @return True or False
-	 * @throws ObservationValidationError if the string is empty or null but canBeEmpty() 
-	 * returns false.
-	 * @precondition The string is either null, empty, or contains characters besides whitespace. 
+	 * @param str
+	 *            The string to be validated.
+	 * @return True if the string is allowed to be empty and is empty or null,
+	 *         and False if the string is allowed to be empty but is NOT empty
+	 *         or null.
+	 * @throws ObservationValidationError
+	 *             if the string is empty or null but canBeEmpty() returns
+	 *             false.
+	 * @precondition The string is either null, empty, or contains characters
+	 *               besides whitespace.
 	 */
-	protected boolean isLegallyEmpty(String str) throws ObservationValidationError {
+	protected boolean isLegallyEmpty(String str)
+			throws ObservationValidationError {
 		if (str == null || "".equals(str)) {
 			if (canBeEmpty()) {
 				return true;
@@ -73,11 +79,13 @@ public abstract class StringValidatorBase<T> {
 			return false;
 		}
 	}
-	
+
 	/**
-	 * Can the string to be validated by this class be empty?
-	 * TODO: Default to false?
+	 * Can the string to be validated by this class be empty? Defaults to false.
+	 * 
 	 * @return True or False
 	 */
-	abstract protected boolean canBeEmpty();
-}	
+	protected boolean canBeEmpty() {
+		return false;
+	}
+}
