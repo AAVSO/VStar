@@ -8,3 +8,7 @@ Product:
 
 Unit Testing:
 - JUnit 3.8.2 (http://www.junit.org/)
+
+Java look and feel Graphics Repository:
+  http://java.sun.com/developer/techDocs/hi/repository/
+
