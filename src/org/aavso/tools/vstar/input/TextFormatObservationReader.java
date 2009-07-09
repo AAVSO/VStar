@@ -64,8 +64,8 @@ public class TextFormatObservationReader extends ObservationRetrieverBase {
 	public void retrieveObservations() throws ObservationReadError {
 
 		StringValidatorBase<ValidObservation> validator = this.analyser
-				.getType().getTextFormatValidator(this.analyser);
-		
+				.getTextFormatValidator();
+
 		try {
 			String line = reader.readLine();
 

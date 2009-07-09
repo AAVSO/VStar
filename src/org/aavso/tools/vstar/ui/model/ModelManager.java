@@ -33,13 +33,13 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
-import org.aavso.tools.vstar.input.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
+import org.aavso.tools.vstar.input.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.DataPane;
-import org.aavso.tools.vstar.ui.ObservationPlotPane;
 import org.aavso.tools.vstar.ui.MessageBox;
 import org.aavso.tools.vstar.ui.ObservationListPane;
+import org.aavso.tools.vstar.ui.ObservationPlotPane;
 import org.aavso.tools.vstar.util.Notifier;
 import org.jdesktop.swingworker.SwingWorker;
 import org.jfree.chart.ChartPanel;
@@ -187,7 +187,7 @@ public class ModelManager implements PropertyChangeListener {
 					ProgressInfo.COMPLETE_PROGRESS);
 
 			// Notify whoever is listening that a new star has been loaded.
-			modelMgr.newStarNotifier.notifyListeners(analyser.getType());
+			modelMgr.newStarNotifier.notifyListeners(analyser.getNewStarType());
 		}
 
 		/**
@@ -222,7 +222,7 @@ public class ModelManager implements PropertyChangeListener {
 
 			if (!modelMgr.validObsList.isEmpty()) {
 				modelMgr.validObsTableModel = new ValidObservationTableModel(
-						modelMgr.validObsList);
+						modelMgr.validObsList, analyser.getNewStarType());
 
 				// setProgress(progress++);
 
@@ -268,6 +268,7 @@ public class ModelManager implements PropertyChangeListener {
 		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
 
 		// Analyse the observation file.
+		// TODO: include this step under progressing task below?
 		ObservationSourceAnalyser analyser = new ObservationSourceAnalyser(
 				new LineNumberReader(new FileReader(obsFile)), obsFile.getName());
 		analyser.analyse();

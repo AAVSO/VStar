@@ -40,7 +40,6 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 	private Magnitude magnitude; // MAGNITUDE {<N:}, UNCERTAINTY
 	private String obsCode; // OBSERVER_CODE
 	private ValidationType validationType; // VALFLAG
-	private boolean discrepant; // TODO: get rid of this!
 	private String starName;
 
 	/**
@@ -52,22 +51,12 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 		super(0);
 		this.dateInfo = null;
 		this.magnitude = null;
-		
 		this.obsCode = null;
-		this.discrepant = false;
+		this.validationType = null;
 		this.starName = null;
 	}
 
 	// Getters and Setters
-
-	// public boolean isDiscrepant() {
-	// return discrepant; // TODO: use an enum comparison
-	// }
-	//
-	// public void setDiscrepant(boolean discrepant) {
-	// // TODO: notify listeners if old and new values are different!
-	// this.discrepant = discrepant;
-	// }
 
 	/**
 	 * @return the dateInfo
@@ -126,7 +115,7 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 	 *            the discrepant to set
 	 */
 	public void setDiscrepant(boolean discrepant) {
-		this.validationType = ValidationType.DISCREPANT;
+		this.validationType = discrepant ? ValidationType.DISCREPANT : null;
 	}
 
 	/**
@@ -170,7 +159,7 @@ public class ValidObservation extends Observation implements IDateAndMagSource {
 		strBuf.append(magnitude);
 		strBuf.append(", Observer code: ");
 		strBuf.append(obsCode);
-		strBuf.append(validationType.toString());
+		strBuf.append(validationType.getValflag());
 
 		return strBuf.toString();
 	}

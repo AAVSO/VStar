@@ -20,6 +20,9 @@ package org.aavso.tools.vstar.input;
 import java.io.IOException;
 import java.io.LineNumberReader;
 
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
+import org.aavso.tools.vstar.data.validation.StringValidatorBase;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 
@@ -30,12 +33,13 @@ import org.aavso.tools.vstar.ui.model.NewStarType;
 public class ObservationSourceAnalyser {
 
 	public static final String TAB_DELIM = "\t";
-	public static final String COMMA_DELIM = ","; // TODO: optional whitespace around comma?
+	public static final String COMMA_DELIM = ","; // TODO: optional whitespace
+													// around comma?
 
 	private LineNumberReader obsSource;
 	private String obsSourceIdentifier;
 	private int lineCount;
-	private NewStarType type;
+	private NewStarType newStarType;
 	private String delimiter;
 
 	/**
@@ -44,17 +48,17 @@ public class ObservationSourceAnalyser {
 	 * @param obsSource
 	 *            The observation source to be analysed.
 	 */
-	public ObservationSourceAnalyser(LineNumberReader obsSource, String obsSourceIdentifier) {
+	public ObservationSourceAnalyser(LineNumberReader obsSource,
+			String obsSourceIdentifier) {
 		this.obsSource = obsSource;
 		this.obsSourceIdentifier = obsSourceIdentifier;
 		this.lineCount = 0;
 	}
 
 	/**
-	 * Analyse the source
+	 * Analyse the source.
 	 */
-	public void analyse() throws IOException,
-			ObservationReadError {
+	public void analyse() throws IOException, ObservationReadError {
 
 		boolean gleanedFormat = false;
 
@@ -67,9 +71,9 @@ public class ObservationSourceAnalyser {
 				// Ignore comment or blank line.
 				if (!line.startsWith("#") && !line.matches("^\\s*$")) {
 					// Try different delimiter types to guess CSV or TSV.
-					gleanedFormat = determineFormat(line, TAB_DELIM);
+					gleanedFormat = determinedFormat(line, TAB_DELIM);
 					if (!gleanedFormat) {
-						gleanedFormat = determineFormat(line, COMMA_DELIM);
+						gleanedFormat = determinedFormat(line, COMMA_DELIM);
 						if (!gleanedFormat) {
 							throw new ObservationReadError("'"
 									+ obsSourceIdentifier
@@ -96,17 +100,25 @@ public class ObservationSourceAnalyser {
 	 *            Tab or comma.
 	 * @return Whether or not the format was determined.
 	 */
-	private boolean determineFormat(String line, String delimiter) {
+	private boolean determinedFormat(String line, String delimiter) {
 		boolean determined = false;
 
 		String[] fields = line.split(delimiter);
 		if (fields.length >= 2 && fields.length <= 5) {
 			this.delimiter = delimiter;
-			this.type = NewStarType.NEW_STAR_FROM_SIMPLE_FILE; // TODO: FILE -> FORMAT ?
+			this.newStarType = NewStarType.NEW_STAR_FROM_SIMPLE_FILE; // TODO:
+																		// FILE
+																		// ->
+																		// FORMAT
+																		// ?
 			determined = true;
 		} else if (fields.length > 5) {
 			this.delimiter = delimiter;
-			this.type = NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE; // TODO: FILE -> FORMAT ?
+			this.newStarType = NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE; // TODO:
+																		// FILE
+																		// ->
+																		// FORMAT
+																		// ?
 			determined = true;
 		}
 
@@ -121,10 +133,10 @@ public class ObservationSourceAnalyser {
 	}
 
 	/**
-	 * @return the type
+	 * @return the newStarType
 	 */
-	public NewStarType getType() {
-		return type;
+	public NewStarType getNewStarType() {
+		return newStarType;
 	}
 
 	/**
@@ -132,5 +144,31 @@ public class ObservationSourceAnalyser {
 	 */
 	public String getDelimiter() {
 		return delimiter;
+	}
+
+	/**
+	 * Return an instance of the text format validator class to be used for
+	 * creating observation objects from a sequence of lines containing comma or
+	 * tab delimited fields (CSV, TSV).
+	 * 
+	 * @return The validator object corresponding to this "new star" type.
+	 */
+	public StringValidatorBase<ValidObservation> getTextFormatValidator() {
+
+		assert (ObservationSourceAnalyser.TAB_DELIM.equals(delimiter) || ObservationSourceAnalyser.COMMA_DELIM
+				.equals(delimiter));
+
+		StringValidatorBase<ValidObservation> validator = null;
+
+		if (NewStarType.NEW_STAR_FROM_SIMPLE_FILE.equals(newStarType)) {
+			validator = new SimpleTextFormatValidator(delimiter, newStarType
+					.getMinFields(), newStarType.getMaxFields());
+		} else if (NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE.equals(newStarType)) {
+			// TODO
+		}
+
+		assert (validator != null);
+
+		return validator;
 	}
 }

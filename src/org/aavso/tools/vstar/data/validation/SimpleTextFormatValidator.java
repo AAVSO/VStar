@@ -19,7 +19,7 @@ package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
-import org.aavso.tools.vstar.data.SimpleFormatFieldType;
+import org.aavso.tools.vstar.data.SimpleFormatFieldInfoSource;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.ObservationFieldSplitter;
@@ -31,11 +31,11 @@ import org.aavso.tools.vstar.input.ObservationFieldSplitter;
 public class SimpleTextFormatValidator extends
 		StringValidatorBase<ValidObservation> {
 
-	private final int JD_FIELD = SimpleFormatFieldType.JD.getIndex();
-	private final int MAG_FIELD = SimpleFormatFieldType.MAGNITUDE.getIndex();
-	private final int UNCERTAINTY_FIELD = SimpleFormatFieldType.UNCERTAINTY.getIndex();
-	private final int OBSCODE_FIELD = SimpleFormatFieldType.OBSERVER_CODE.getIndex();
-	private final int VALFLAG_FIELD = SimpleFormatFieldType.VALFLAG.getIndex();
+	private final int JD_FIELD = SimpleFormatFieldInfoSource.JD_FIELD;
+	private final int MAG_FIELD = SimpleFormatFieldInfoSource.MAGNITUDE_FIELD;
+	private final int UNCERTAINTY_FIELD = SimpleFormatFieldInfoSource.UNCERTAINTY_FIELD;
+	private final int OBSCODE_FIELD = SimpleFormatFieldInfoSource.OBSERVER_CODE_FIELD;
+	private final int VALFLAG_FIELD = SimpleFormatFieldInfoSource.VALFLAG_FIELD;
 	
 	private final ObservationFieldSplitter fieldSplitter;
 
@@ -109,6 +109,8 @@ public class SimpleTextFormatValidator extends
 		observation.setObsCode(observerCodeValidator.validate(fields[OBSCODE_FIELD]));
 		
 		observation.setValidationType(valflagValidator.validate(fields[VALFLAG_FIELD]));
+		
+		// TODO: assert which fields should not be null
 		
 		return observation;
 	}
