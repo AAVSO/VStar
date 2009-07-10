@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.data;
 
+
 /**
  * This class corresponds to a single valid variable star observation. Depending
  * upon the source, some fields may be null. Some are not permitted to be null

@@ -21,8 +21,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
  * This interface must be implemented by any class wanting 
- * to be a source of table model column information: column count,
- * values, names.
+ * to be a source of table model column information: column 
+ * count, values, names.
  */
 public interface ITableColumnInfoSource {
 

@@ -28,6 +28,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.ui.model.NewStarType;
 
 /**
  * This is a unit test for TextFormatObservationReader.
@@ -58,28 +59,32 @@ public class SimpleTextFormatTest extends TestCase {
 	}
 
 	public void testValidFullObservationTSV() {
-		ValidObservation ob = commonValidJulianDayAndMagTest("2450001.5\t10.0\t0.1\tDJB\tD\n", "\t");
+		ValidObservation ob = commonValidJulianDayAndMagTest(
+				"2450001.5\t10.0\t0.1\tDJB\tD\n", "\t");
 		assertEquals(0.1, ob.getMagnitude().getUncertainty());
 		assertEquals("DJB", ob.getObsCode());
 		assertTrue(ob.isDiscrepant());
 	}
 
 	public void testValidAllButUncertaintyTSV() {
-		ValidObservation ob = commonValidJulianDayAndMagTest("2450001.5\t10.0\t\tDJB\tD\n", "\t");
+		ValidObservation ob = commonValidJulianDayAndMagTest(
+				"2450001.5\t10.0\t\tDJB\tD\n", "\t");
 		assertEquals(0.0, ob.getMagnitude().getUncertainty());
 		assertEquals("DJB", ob.getObsCode());
 		assertTrue(ob.isDiscrepant());
 	}
 
 	public void testValidAllButUncertaintyAndValflagTSV() {
-		ValidObservation ob = commonValidJulianDayAndMagTest("2450001.5\t10.0\t\tDJB\n", "\t");
+		ValidObservation ob = commonValidJulianDayAndMagTest(
+				"2450001.5\t10.0\t\tDJB\n", "\t");
 		assertEquals(0.0, ob.getMagnitude().getUncertainty());
 		assertEquals("DJB", ob.getObsCode());
 		assertTrue(!ob.isDiscrepant());
 	}
 
 	public void testValidAllButUncertaintyAndValflagCSV() {
-		ValidObservation ob = commonValidJulianDayAndMagTest("2450001.5,10.0,,DJB\n", ",");
+		ValidObservation ob = commonValidJulianDayAndMagTest(
+				"2450001.5,10.0,,DJB\n", ",");
 		assertEquals(0.0, ob.getMagnitude().getUncertainty());
 		assertEquals("DJB", ob.getObsCode());
 		assertTrue(!ob.isDiscrepant());
@@ -89,14 +94,14 @@ public class SimpleTextFormatTest extends TestCase {
 		StringBuffer lines = new StringBuffer();
 		lines.append("2450001.5\t10.0\n");
 		lines.append("2430002.0\t2.0");
-		
+
 		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t");
-		
+
 		assertTrue(obs.size() == 2);
 
 		ValidObservation ob0 = (ValidObservation) obs.get(0);
 		assertEquals(2450001.5, ob0.getDateInfo().getJulianDay());
-		
+
 		ValidObservation ob1 = (ValidObservation) obs.get(1);
 		assertEquals(2430002.0, ob1.getDateInfo().getJulianDay());
 	}
@@ -114,29 +119,30 @@ public class SimpleTextFormatTest extends TestCase {
 	}
 
 	// Helpers
-	
-	private ValidObservation commonValidJulianDayAndMagTest(String line, String delimiter) {
+
+	private ValidObservation commonValidJulianDayAndMagTest(String line,
+			String delimiter) {
 		List<ValidObservation> obs = commonValidTest(line, delimiter);
-		
+
 		assertTrue(obs.size() == 1);
-		
+
 		ValidObservation ob = (ValidObservation) obs.get(0);
 		assertEquals(2450001.5, ob.getDateInfo().getJulianDay());
 		assertEquals(10.0, ob.getMagnitude().getMagValue());
 		assertFalse(ob.getMagnitude().isUncertain());
 		assertFalse(ob.getMagnitude().isFainterThan());
-		
+
 		return ob;
 	}
 
 	private List<ValidObservation> commonValidTest(String str, String delimiter) {
 		List<ValidObservation> obs = null;
-		
+
 		try {
 			ObservationSourceAnalyser analyser = new ObservationSourceAnalyser(
 					new LineNumberReader(new StringReader(str)), "Some String");
 			analyser.analyse();
-			
+
 			ObservationRetrieverBase simpleTextFormatReader = new TextFormatObservationReader(
 					new LineNumberReader(new StringReader(str)), analyser);
 
@@ -147,13 +153,15 @@ public class SimpleTextFormatTest extends TestCase {
 		} catch (IOException e) {
 			fail(e.getMessage());
 		}
-		
+
 		return obs;
 	}
 
-	private void commonInvalidTest(String str) {		
+	private void commonInvalidTest(String str) {
 		try {
-			SimpleTextFormatValidator validator = new SimpleTextFormatValidator("\t", 2, 5);
+			SimpleTextFormatValidator validator = new SimpleTextFormatValidator(
+					"\t", 2, 5, NewStarType.NEW_STAR_FROM_SIMPLE_FILE
+							.getFieldInfoSource());
 			validator.validate(str);
 			// We should have thrown a ObservationValidationError...
 			fail();
