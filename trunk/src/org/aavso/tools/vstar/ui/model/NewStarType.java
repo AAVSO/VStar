@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.model;
 
 import org.aavso.tools.vstar.data.SimpleFormatFieldInfoSource;
+import org.aavso.tools.vstar.data.validation.ITableFieldInfoSource;
 
 /**
  * A new star creation type. It also encodes the required number of fields for
@@ -32,13 +33,16 @@ public enum NewStarType {
 	// than the latter having to receive an event and then query the model
 	// manager.
 
-	NEW_STAR_FROM_SIMPLE_FILE(5, 5, new SimpleFormatFieldInfoSource()), NEW_STAR_FROM_DOWNLOAD_FILE(
-			18, 18, null), NEW_STAR_FROM_DATABASE(18, 18, null);
+	NEW_STAR_FROM_SIMPLE_FILE(5, 5,
+			SimpleFormatFieldInfoSource.simpleFormatFieldInfoSource,
+			SimpleFormatFieldInfoSource.simpleFormatFieldInfoSource), NEW_STAR_FROM_DOWNLOAD_FILE(
+			18, 18, null, null), NEW_STAR_FROM_DATABASE(18, 18, null, null);
 
 	private final int minFields;
 	private final int maxFields;
 	private final ITableColumnInfoSource columnInfoSource;
-	
+	private final ITableFieldInfoSource fieldInfoSource;
+
 	/**
 	 * Constructor.
 	 * 
@@ -47,13 +51,16 @@ public enum NewStarType {
 	 * @param maxFields
 	 *            The maximum allowed number of fields.
 	 * @param columnInfoSource
-	 *            An object that supplies information about table columns.
+	 *            An object that supplies information about fields and table
+	 *            columns.
 	 */
 	private NewStarType(int minFields, int maxFields,
-			ITableColumnInfoSource columnInfoSource) {
+			ITableColumnInfoSource columnInfoSource,
+			ITableFieldInfoSource fieldInfoSource) {
 		this.minFields = minFields;
 		this.maxFields = maxFields;
 		this.columnInfoSource = columnInfoSource;
+		this.fieldInfoSource = fieldInfoSource;
 	}
 
 	/**
@@ -75,5 +82,9 @@ public enum NewStarType {
 	 */
 	public ITableColumnInfoSource getColumnInfoSource() {
 		return columnInfoSource;
+	}
+
+	public ITableFieldInfoSource getFieldInfoSource() {
+		return this.fieldInfoSource;
 	}
 }

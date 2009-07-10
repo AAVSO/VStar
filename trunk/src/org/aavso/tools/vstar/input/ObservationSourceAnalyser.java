@@ -34,7 +34,7 @@ public class ObservationSourceAnalyser {
 
 	public static final String TAB_DELIM = "\t";
 	public static final String COMMA_DELIM = ","; // TODO: optional whitespace
-													// around comma?
+	// around comma?
 
 	private LineNumberReader obsSource;
 	private String obsSourceIdentifier;
@@ -107,18 +107,18 @@ public class ObservationSourceAnalyser {
 		if (fields.length >= 2 && fields.length <= 5) {
 			this.delimiter = delimiter;
 			this.newStarType = NewStarType.NEW_STAR_FROM_SIMPLE_FILE; // TODO:
-																		// FILE
-																		// ->
-																		// FORMAT
-																		// ?
+			// FILE
+			// ->
+			// FORMAT
+			// ?
 			determined = true;
 		} else if (fields.length > 5) {
 			this.delimiter = delimiter;
 			this.newStarType = NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE; // TODO:
-																		// FILE
-																		// ->
-																		// FORMAT
-																		// ?
+			// FILE
+			// ->
+			// FORMAT
+			// ?
 			determined = true;
 		}
 
@@ -162,7 +162,8 @@ public class ObservationSourceAnalyser {
 
 		if (NewStarType.NEW_STAR_FROM_SIMPLE_FILE.equals(newStarType)) {
 			validator = new SimpleTextFormatValidator(delimiter, newStarType
-					.getMinFields(), newStarType.getMaxFields());
+					.getMinFields(), newStarType.getMaxFields(), newStarType
+					.getFieldInfoSource());
 		} else if (NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE.equals(newStarType)) {
 			// TODO
 		}

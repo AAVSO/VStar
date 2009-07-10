@@ -20,11 +20,12 @@ package org.aavso.tools.vstar.data;
 
 /**
  * Classes that implement this interface are date and magnitude sources.
+ * 
+ * TODO: move this to ui.model package?
  */
 public interface IDateAndMagSource {
 
 	public abstract DateInfo getDateInfo();
 
 	public abstract Magnitude getMagnitude();
-
 }

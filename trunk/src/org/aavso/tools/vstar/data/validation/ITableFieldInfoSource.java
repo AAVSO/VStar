@@ -15,48 +15,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.data;
+package org.aavso.tools.vstar.data.validation;
+
+import java.util.Map;
 
 /**
- * Observation fields for the AAVSO Download file format and database 
- * sourced observations.
+ * This interface must be implemented by any class wanting 
+ * to be a source of field name to index information.
  */
-public enum AAVSOFormatFieldType {
-	
-	JD(0),
-	MAGNITUDE(1),
-	UNCERTAINTY(2),
-	HQ_UNCERTAINTY(3),
-	BAND(4),
-	OBSERVER_CODE(5),
-	COMMENT_CODE(6),
-	COMP_STAR_1(7),
-	COMP_STAR_2(8),
-	CHARTS(9),
-	COMMENTS(10),
-	TRANSFORMED(11),
-	AIRMASS(12),
-	VALFLAG(13),
-	CMAG(14),
-	KMAG(15),
-	HJD(16),
-	NAME(17);
-	
-	// Index associated with current enum value.
-	private int index;
+public interface ITableFieldInfoSource {
 	
 	/**
-	 * Private constructor.
-	 * @param index The index associated with current enum value.
+	 * Return a mapping from field name to index in the text format
+	 * associated with this source.
 	 */
-	private AAVSOFormatFieldType(int index) {
-		this.index = index;
-	}
-
-	/**
-	 * @return the index
-	 */
-	public int getIndex() {
-		return index;
-	}
+	abstract public Map<String, Integer> getFieldIndexMap();	
 }
