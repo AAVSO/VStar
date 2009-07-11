@@ -100,10 +100,14 @@ public class CommonTextFormatValidator extends
 	public ValidObservation validate(String line)
 			throws ObservationValidationError {
 
+		// Create a new valid observation, making the assumption
+		// that validation will pass.
 		ValidObservation observation = new ValidObservation();
 
+		// Get an array of fields split on the expected delimiter.
 		String[] fields = fieldSplitter.getFields(line);
 
+		// Validate the fields.
 		DateInfo dateInfo = julianDayValidator.validate(fields[fieldIndexMap
 				.get("JD_FIELD")]);
 		observation.setDateInfo(dateInfo);

@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.model;
 
+import org.aavso.tools.vstar.data.AAVSOFormatFieldInfoSource;
 import org.aavso.tools.vstar.data.SimpleFormatFieldInfoSource;
 import org.aavso.tools.vstar.data.validation.ITableFieldInfoSource;
 
@@ -28,20 +29,29 @@ import org.aavso.tools.vstar.data.validation.ITableFieldInfoSource;
  */
 public enum NewStarType {
 
-	// TODO: also create a NewStarInfo message class with GUI component refs for
-	// DataPane so that created components can be passed to listeners rather
-	// than the latter having to receive an event and then query the model
-	// manager.
-
-	NEW_STAR_FROM_SIMPLE_FILE(5, 5,
+	NEW_STAR_FROM_SIMPLE_FILE(SimpleFormatFieldInfoSource.FIELD_COUNT,
+			SimpleFormatFieldInfoSource.FIELD_COUNT,
 			SimpleFormatFieldInfoSource.simpleFormatFieldInfoSource,
-			SimpleFormatFieldInfoSource.simpleFormatFieldInfoSource), NEW_STAR_FROM_DOWNLOAD_FILE(
-			18, 18, null, null), NEW_STAR_FROM_DATABASE(18, 18, null, null);
+			SimpleFormatFieldInfoSource.simpleFormatFieldInfoSource),
+
+	NEW_STAR_FROM_DOWNLOAD_FILE(AAVSOFormatFieldInfoSource.FIELD_COUNT - 1,
+			AAVSOFormatFieldInfoSource.FIELD_COUNT,
+			AAVSOFormatFieldInfoSource.aavsoFormatFieldInfoSource,
+			AAVSOFormatFieldInfoSource.aavsoFormatFieldInfoSource),
+
+	NEW_STAR_FROM_DATABASE(0, 0,
+			AAVSOFormatFieldInfoSource.aavsoFormatFieldInfoSource,
+			AAVSOFormatFieldInfoSource.aavsoFormatFieldInfoSource);
 
 	private final int minFields;
 	private final int maxFields;
 	private final ITableColumnInfoSource columnInfoSource;
 	private final ITableFieldInfoSource fieldInfoSource;
+
+	// TODO: also create a NewStarInfo message class with GUI component refs for
+	// DataPane so that created components can be passed to listeners rather
+	// than the latter having to receive an event and then query the model
+	// manager.
 
 	/**
 	 * Constructor.

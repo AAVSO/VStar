@@ -33,8 +33,7 @@ import org.aavso.tools.vstar.ui.model.NewStarType;
 public class ObservationSourceAnalyser {
 
 	public static final String TAB_DELIM = "\t";
-	public static final String COMMA_DELIM = ","; // TODO: optional whitespace
-	// around comma?
+	public static final String COMMA_DELIM = ",";
 
 	private LineNumberReader obsSource;
 	private String obsSourceIdentifier;

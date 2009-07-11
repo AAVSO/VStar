@@ -27,6 +27,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -75,6 +76,7 @@ public class ModelManager implements PropertyChangeListener {
 
 	private ValidObservationTableModel validObsTableModel;
 	private InvalidObservationTableModel invalidObsTableModel;
+	private Map<String, List<ValidObservation>> validObservationCategoryMap;
 
 	private ObservationPlotModel obsPlotModel;
 
@@ -214,11 +216,10 @@ public class ModelManager implements PropertyChangeListener {
 
 			clearData();
 
-			modelMgr.validObsList = textFormatReader
-					.getValidObservations();
-
-			modelMgr.invalidObsList = textFormatReader
-					.getInvalidObservations();
+			modelMgr.validObsList = textFormatReader.getValidObservations();
+			modelMgr.invalidObsList = textFormatReader.getInvalidObservations();
+			modelMgr.validObservationCategoryMap = textFormatReader
+					.getValidObservationCategoryMap();
 
 			if (!modelMgr.validObsList.isEmpty()) {
 				modelMgr.validObsTableModel = new ValidObservationTableModel(
@@ -226,12 +227,13 @@ public class ModelManager implements PropertyChangeListener {
 
 				// setProgress(progress++);
 
-				modelMgr.obsPlotModel = new ObservationPlotModel(obsFile
-						.getName(), modelMgr.validObsList);
+				modelMgr.obsPlotModel = new ObservationPlotModel(
+						modelMgr.validObservationCategoryMap);
 
 				// setProgress(progress++);
 
-				modelMgr.obsChartPane = createLightCurvePane();
+				modelMgr.obsChartPane = createLightCurvePane(this.obsFile
+						.getName());
 
 				modelMgr.getProgressNotifier().notifyListeners(
 						new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
@@ -270,7 +272,8 @@ public class ModelManager implements PropertyChangeListener {
 		// Analyse the observation file.
 		// TODO: include this step under progressing task below?
 		ObservationSourceAnalyser analyser = new ObservationSourceAnalyser(
-				new LineNumberReader(new FileReader(obsFile)), obsFile.getName());
+				new LineNumberReader(new FileReader(obsFile)), obsFile
+						.getName());
 		analyser.analyse();
 
 		// Task begins: Number of lines in file and a portion for the light
@@ -304,18 +307,19 @@ public class ModelManager implements PropertyChangeListener {
 	 * Create the observation table component.
 	 */
 	private JPanel createObsTablePane() {
-		return new ObservationListPane(
-				this.getValidObsTableModel(), this.getInvalidObsTableModel());
+		return new ObservationListPane(this.getValidObsTableModel(), this
+				.getInvalidObsTableModel());
 	}
 
 	/**
 	 * Create the light curve for a list of valid observations.
 	 */
-	private ChartPanel createLightCurvePane() {
+	private ChartPanel createLightCurvePane(String plotName) {
 		ObservationPlotModel model = this.getObsPlotModel();
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.75),
 				(int) (DataPane.HEIGHT * 0.75));
-		return new ObservationPlotPane("Julian Day vs Magnitude", model, bounds);
+		return new ObservationPlotPane("Julian Day vs Magnitude Plot for "
+				+ plotName, model, bounds);
 	}
 
 	/**
