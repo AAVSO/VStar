@@ -28,4 +28,6 @@ public interface IDateAndMagSource {
 	public abstract DateInfo getDateInfo();
 
 	public abstract Magnitude getMagnitude();
+	
+	// TODO: add band getter!
 }
