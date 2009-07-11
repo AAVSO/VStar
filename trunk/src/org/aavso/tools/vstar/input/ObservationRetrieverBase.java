@@ -20,6 +20,8 @@ package org.aavso.tools.vstar.input;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -41,13 +43,20 @@ public abstract class ObservationRetrieverBase {
 	 * The list of invalid observations retrieved.
 	 */
 	protected List<InvalidObservation> invalidObservations;
+
+	/**
+	 * A mapping from observation category (e.g. band, fainter-than) to
+	 * list of valid observations.
+	 */
+	protected Map<String, List<ValidObservation>> validObservationCategoryMap;
 	
 	/**
-	 * Constructor
+	 * Constructor.
 	 */
 	public ObservationRetrieverBase() {
 		this.validObservations = new ArrayList<ValidObservation>();
 		this.invalidObservations = new ArrayList<InvalidObservation>();
+		this.validObservationCategoryMap = new TreeMap<String, List<ValidObservation>>();
 	}
 
 	/**
@@ -70,5 +79,12 @@ public abstract class ObservationRetrieverBase {
 	 */
 	public List<InvalidObservation> getInvalidObservations() {
 		return invalidObservations;
-	}	
+	}
+
+	/**
+	 * @return the validObservationCategoryMap
+	 */
+	public Map<String, List<ValidObservation>> getValidObservationCategoryMap() {
+		return validObservationCategoryMap;
+	}
 }

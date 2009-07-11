@@ -25,6 +25,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  * ValidObservation instance creation given a simple text format source.
  * 
  * JD MAG [UNCERTAINTY] [OBSCODE] [VALFLAG]
+ * 
+ * REQ_VSTAR_SIMPLE_TEXT_FILE_READ
  */
 public class SimpleTextFormatValidator extends CommonTextFormatValidator {
 

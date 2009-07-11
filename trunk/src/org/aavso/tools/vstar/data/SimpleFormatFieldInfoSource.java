@@ -32,12 +32,14 @@ public class SimpleFormatFieldInfoSource implements ITableColumnInfoSource,
 	public final static SimpleFormatFieldInfoSource simpleFormatFieldInfoSource = new SimpleFormatFieldInfoSource();
 
 	// Text format fields.
-	public static final int JD_FIELD = 0;
-	public static final int MAGNITUDE_FIELD = 1;
-	public static final int UNCERTAINTY_FIELD = 2;
-	public static final int OBSERVER_CODE_FIELD = 3;
-	public static final int VALFLAG_FIELD = 4;
+	private static final int JD_FIELD = 0;
+	private static final int MAGNITUDE_FIELD = 1;
+	private static final int UNCERTAINTY_FIELD = 2;
+	private static final int OBSERVER_CODE_FIELD = 3;
+	private static final int VALFLAG_FIELD = 4;
 
+	public static final int FIELD_COUNT = VALFLAG_FIELD+1;
+	
 	// Table columns.
 	private static final int JD_COLUMN = 0;
 	private static final int CALENDAR_DATE_COLUMN = 1;
@@ -55,11 +57,11 @@ public class SimpleFormatFieldInfoSource implements ITableColumnInfoSource,
 	 */
 	public SimpleFormatFieldInfoSource() {
 		this.fieldIndexMap = new HashMap<String, Integer>();
-		this.fieldIndexMap.put("JD_FIELD", 0);
-		this.fieldIndexMap.put("MAGNITUDE_FIELD", 1);
-		this.fieldIndexMap.put("UNCERTAINTY_FIELD", 2);
-		this.fieldIndexMap.put("OBSERVER_CODE_FIELD", 3);
-		this.fieldIndexMap.put("VALFLAG_FIELD", 4);
+		this.fieldIndexMap.put("JD_FIELD", JD_FIELD);
+		this.fieldIndexMap.put("MAGNITUDE_FIELD", MAGNITUDE_FIELD);
+		this.fieldIndexMap.put("UNCERTAINTY_FIELD", UNCERTAINTY_FIELD);
+		this.fieldIndexMap.put("OBSERVER_CODE_FIELD", OBSERVER_CODE_FIELD);
+		this.fieldIndexMap.put("VALFLAG_FIELD", VALFLAG_FIELD);
 	}
 
 	public int getColumnCount() {

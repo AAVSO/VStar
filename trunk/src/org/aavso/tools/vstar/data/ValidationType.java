@@ -21,8 +21,10 @@ package org.aavso.tools.vstar.data;
  * This enum represents "validation flag" found in all data sources.
  */
 public enum ValidationType {
-	DISCREPANT;
-	// TODO: add more (for AAVSO format)
+
+	GOOD,
+	DISCREPANT,
+	PREVALIDATION;
 	
 	/**
 	 * Given a valflag from an input file or database, return
@@ -31,8 +33,12 @@ public enum ValidationType {
 	public static ValidationType getTypeFromFlag(String valflag) {
 		ValidationType valtype = null;
 		
-		if ("D".equals(valflag)) {
+		if ("G".equals(valflag)) {
+			valtype = GOOD; // passed AAVSO validation tests
+		} else if ("D".equals(valflag)) {
 			valtype = DISCREPANT;
+		} else if ("P".equals(valflag)) {
+			valtype = PREVALIDATION;
 		}
 		
 		assert(valtype != null);
@@ -46,8 +52,14 @@ public enum ValidationType {
 	public String getValflag() {
 		String str = null;
 		switch(this) {
+		case GOOD:
+			str = "G";
+			break;			
 		case DISCREPANT:
 			str = "D";
+			break;			
+		case PREVALIDATION:
+			str = "P";
 			break;			
 		}
 		

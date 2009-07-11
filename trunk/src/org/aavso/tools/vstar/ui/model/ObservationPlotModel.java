@@ -21,28 +21,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.aavso.tools.vstar.data.IDateAndMagSource;
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.jfree.data.DomainOrder;
 import org.jfree.data.xy.AbstractXYDataset;
 
 /**
  * This class is a model that represents a series of valid variable star
- * observations, e.g. for different bands (or from different sources). 
+ * observations, e.g. for different bands (or from different sources).
  */
 public class ObservationPlotModel extends AbstractXYDataset {
 
-	// A unique series number for this model.
+	// A unique next series number for this model.
 	private int seriesNum;
+
+	// TODO: possibly switch to List<ValidObservation> to give us more
+	// flexibility with respect to formatting the output of fields on the
+	// chart.
 
 	/**
 	 * A mapping from series number to a list of observations where each such
 	 * list is a data series.
-	 * 
-	 * TODO: possibly switch to List<ValidObservation> to give us more
-	 * flexibility with respect to formatting the output of fields on the 
-	 * chart.
 	 */
-	private Map<Integer, List<? extends IDateAndMagSource>> seriesNumToObSrcListMap;
+	private Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap;
 
 	/**
 	 * A mapping from series number to source name.
@@ -56,18 +56,39 @@ public class ObservationPlotModel extends AbstractXYDataset {
 		super();
 		this.seriesNum = 0;
 		this.seriesNumToSrcNameMap = new HashMap<Integer, String>();
-		this.seriesNumToObSrcListMap = new HashMap<Integer, List<? extends IDateAndMagSource>>();
+		this.seriesNumToObSrcListMap = new HashMap<Integer, List<ValidObservation>>();
 	}
 
 	/**
 	 * Constructor
 	 * 
-	 * @param name Name of observation source list.
-	 * @param obsSourceList The list of observation sources.
+	 * We add a named observation source list to a unique series number.
+	 *  
+	 * @param name
+	 *            Name of observation source list.
+	 * @param obsSourceList
+	 *            The list of observation sources.
 	 */
-	public <T extends IDateAndMagSource> ObservationPlotModel(String name, List<T> obsSourceList) {
+	public ObservationPlotModel(String name,
+			List<ValidObservation> obsSourceList) {
 		this();
 		this.addObservationSeries(name, obsSourceList);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * We add named observation source lists to unique series numbers.
+	 * 
+	 * @param obsSourceListMap
+	 *            A mapping from source name to lists of observation sources.
+	 */
+	public ObservationPlotModel(
+			Map<String, List<ValidObservation>> obsSourceListMap) {
+		this();
+		for (String name : obsSourceListMap.keySet()) {
+			this.addObservationSeries(name, obsSourceListMap.get(name));
+		}
 	}
 
 	/**
@@ -81,17 +102,17 @@ public class ObservationPlotModel extends AbstractXYDataset {
 	 * @postcondition Both seriesNumToObSrcListMap and seriesNumToSrcNameMap
 	 *                must be the same length.
 	 */
-	public <T extends IDateAndMagSource> void addObservationSeries(String name,
-			List<T> obSourceList) {
-		
+	public void addObservationSeries(String name,
+			List<ValidObservation> obSourceList) {
+
 		int seriesNum = this.getNextSeriesNum();
-		
+
 		this.seriesNumToObSrcListMap.put(seriesNum, obSourceList);
 		this.seriesNumToSrcNameMap.put(seriesNum, name);
-		
+
 		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcNameMap
 				.size());
-		
+
 		this.fireDatasetChanged();
 	}
 
@@ -173,7 +194,7 @@ public class ObservationPlotModel extends AbstractXYDataset {
 	}
 
 	// TODO: also getRangeOrder()?
-	
+
 	// Helpers
 
 	private int getNextSeriesNum() {
