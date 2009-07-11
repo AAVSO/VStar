@@ -17,31 +17,17 @@
  */
 package org.aavso.tools.vstar.data.validation;
 
-import java.util.Map;
-
-import org.aavso.tools.vstar.data.DateInfo;
-import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
-import org.aavso.tools.vstar.input.ObservationFieldSplitter;
 
 /**
  * This class accepts a line of text for tokenising, validation, and
- * ValidObservation instance creation.
+ * ValidObservation instance creation given a simple text format source.
+ * 
+ * JD MAG [UNCERTAINTY] [OBSCODE] [VALFLAG]
  */
-public class SimpleTextFormatValidator extends
-		StringValidatorBase<ValidObservation> {
+public class SimpleTextFormatValidator extends CommonTextFormatValidator {
 
-	private final ObservationFieldSplitter fieldSplitter;
-
-	private final JulianDayValidator julianDayValidator;
-	private final MagnitudeFieldValidator magnitudeFieldValidator;
-	private final UncertaintyValueValidator uncertaintyValueValidator;
-	private final ObserverCodeValidator observerCodeValidator;
-	private final ValflagValidator valflagValidator;
-	
-	private final Map<String, Integer> fieldIndexMap;
-	
 	/**
 	 * Constructor.
 	 * 
@@ -51,31 +37,19 @@ public class SimpleTextFormatValidator extends
 	 *            The minimum number of fields permitted in an observation line.
 	 * @param maxFields
 	 *            The maximum number of fields permitted in an observation line.
+	 * @param fieldInfoSource
+	 *            A mapping from field name to field index that makes sense for
+	 *            the source.
 	 */
 	public SimpleTextFormatValidator(String delimiter, int minFields,
 			int maxFields, ITableFieldInfoSource fieldInfoSource) {
-		super("simple text format observation line");
-
-		this.fieldSplitter = new ObservationFieldSplitter(delimiter, minFields,
-				maxFields);
-
-		this.fieldIndexMap = fieldInfoSource.getFieldIndexMap();
-		
-		this.julianDayValidator = new JulianDayValidator();
-		this.magnitudeFieldValidator = new MagnitudeFieldValidator();
-		this.uncertaintyValueValidator = new UncertaintyValueValidator(
-				new ExclusiveRangePredicate(0, 1));
-		this.observerCodeValidator = new ObserverCodeValidator();
-		this.valflagValidator = new ValflagValidator("D");
+		super("simple text format observation line", delimiter, minFields,
+				maxFields, "D", fieldInfoSource);
 	}
 
 	/**
 	 * Validate an observation line and either return a ValidObservation
 	 * instance, or throw an exception indicating the error.
-	 * 
-	 * Uncertainty, observer code, and valflag fields are optional. The uncertainty
-	 * field may be present however, whether or not the magnitude field has a
-	 * ":" (meaning 'uncertain') suffix.
 	 * 
 	 * @param line
 	 *            The line of text to be tokenised and validated.
@@ -85,35 +59,8 @@ public class SimpleTextFormatValidator extends
 	public ValidObservation validate(String line)
 			throws ObservationValidationError {
 
-		// JD MAG [UNCERTAINTY] [OBSCODE] [VALFLAG]
-
-		ValidObservation observation = new ValidObservation();
-
-		String[] fields = fieldSplitter.getFields(line);
-
-		DateInfo dateInfo = julianDayValidator
-				.validate(fields[fieldIndexMap.get("JD_FIELD")]);
-		observation.setDateInfo(dateInfo);
-
-		Magnitude magnitude = magnitudeFieldValidator
-				.validate(fields[fieldIndexMap.get("MAGNITUDE_FIELD")]);
-
-		Double uncertaintyMag = uncertaintyValueValidator
-				.validate(fields[fieldIndexMap.get("UNCERTAINTY_FIELD")]);
-
-		if (uncertaintyMag != null) {
-			magnitude.setUncertainty(uncertaintyMag);
-		}
-
-		observation.setMagnitude(magnitude);
-
-		observation
-				.setObsCode(observerCodeValidator
-						.validate(fields[fieldIndexMap.get("OBSERVER_CODE_FIELD")]));
-
-		observation.setValidationType(valflagValidator
-				.validate(fields[fieldIndexMap.get("VALFLAG_FIELD")]));
-
+		ValidObservation observation = super.validate(line);
+		
 		// TODO: assert which fields should not be null
 
 		return observation;
