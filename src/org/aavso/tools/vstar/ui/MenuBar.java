@@ -45,6 +45,7 @@ public class MenuBar extends JMenuBar {
 	// TODO: factor out into a common class to be shared by menu and tool bar?
 	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
 	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
+	public static final String HELP_CONTENTS = "Help Contents...";
 
 	private ModelManager modelMgr = ModelManager.getInstance();
 
@@ -208,7 +209,7 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Returns the action listener to be invoked for File->Save...
 	 */
-	private ActionListener createSaveListener() {
+	public ActionListener createSaveListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// try {
@@ -225,7 +226,7 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Returns the action listener to be invoked for File->Print...
 	 */
-	private ActionListener createPrintListener() {
+	public ActionListener createPrintListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: need to ask model mgr to print curr model/doc
@@ -250,7 +251,7 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Returns the action listener to be invoked for Help->Help Contents...
 	 */
-	private ActionListener createHelpContentsListener() {
+	public ActionListener createHelpContentsListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -267,8 +268,9 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Returns the action listener to be invoked for Help->About...
 	 * 
-	 * TODO: Make a separate component for the About Box? Possibly put text into
-	 * a resource file and use a JEditorPane to render HTML?
+	 * TODO: Make a separate component for the About Box. Put text into
+	 * a resource file and use a JEditorPane to render HTML or use a 
+	 * JDialog with JLabels and images.
 	 */
 	private ActionListener createAboutListener() {
 		return new ActionListener() {
