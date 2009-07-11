@@ -30,10 +30,9 @@ import javax.swing.JPanel;
 
 /**
  * TODO: 
- * - Undoable edits, Edit menu?
+ * - Undoable edits (Edit menu)
  * - About box images, text check
- * - Splash Screen?
- * - Toolbar?
+ * - Splash Screen
  */
 
 /**
@@ -41,9 +40,11 @@ import javax.swing.JPanel;
  */
 public class MainFrame extends JFrame {
 
+	private ResourceAccessor resourceAccessor;
+
 	private URL fileURL;
 	private URL dbaseURL;
-	
+
 	// The application's menu bar.
 	private MenuBar menuBar;
 
@@ -52,6 +53,8 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		super("VStar");
+
+		this.resourceAccessor = new ResourceAccessor();
 
 		loadIcons();
 
@@ -65,21 +68,23 @@ public class MainFrame extends JFrame {
 
 	private void loadIcons() {
 		// TODO: replace these with icons from Java Standard L&F Repository!
-		this.dbaseURL = MainFrame.class.getResource("resources/icons/dbase.gif");
+		this.dbaseURL = MainFrame.class
+				.getResource("resources/icons/dbase.gif");
 		this.fileURL = MainFrame.class.getResource("resources/icons/file.gif");
 	}
 
 	// Create everything inside the main GUI view except for
-	// menus, toolbars; essentially the interior content of
-	// the GUI that represents the core functionality of interest
-	// to the user.
-	private JPanel createContent() {		
+	// menus, but including the  toolbar; essentially the interior 
+	// content of the GUI that represents the core functionality of 
+	// interest to the user.
+	private JPanel createContent() {
 		// Top-level content pane to include status pane.
-		JPanel topPane = new JPanel(new BorderLayout());		
+		JPanel topPane = new JPanel(new BorderLayout());
 
 		// Add the toolbar.
-		topPane.add(new ToolBar(this, this.menuBar, this.dbaseURL, this.fileURL), BorderLayout.PAGE_START);
-		
+		topPane.add(new ToolBar(this, this.menuBar, this.resourceAccessor,
+				this.dbaseURL, this.fileURL), BorderLayout.PAGE_START);
+
 		// Major pane with left to right layout and an empty border.
 		JPanel majorPane = new JPanel();
 		majorPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
