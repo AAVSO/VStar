@@ -33,8 +33,13 @@ import javax.swing.JToolBar;
 public class ToolBar extends JPanel {
 
 	private Component parent;
-	private ResourceAccessor resourceAccessor;
 	private MenuBar menuBar;
+
+	private Icon newStarFromFileIcon;
+	private Icon newStarFromDatabaseIcon;
+	private Icon helpContentsIcon;
+
+	private JToolBar toolBar;
 
 	/**
 	 * Creates the application's toolbar.
@@ -44,34 +49,56 @@ public class ToolBar extends JPanel {
 	 * @param menuBar
 	 *            Pass in menu bar to get listeners. TODO: put them into a
 	 *            common class shared by both instead?
-	 * @param resourceAccessor
-	 *            A resource accessor (for icons, HTML etc).
 	 */
 	public ToolBar(Component parent, MenuBar menuBar,
-			ResourceAccessor resourceAccessor, URL newStarFromDatabaseIconURL,
+			URL newStarFromDatabaseIconURL,
 			URL newStarFromFileIconURL) {
 		super(new BorderLayout());
 
 		this.parent = parent;
-		this.resourceAccessor = resourceAccessor;
 		this.menuBar = menuBar;
 
+		retrieveToolBarIcons();
+
+		this.toolBar = new JToolBar("VStar operations");
+
+		createToolbarButtons();
+
+		// Add the toolbar to the panel.
+		this.setPreferredSize(new Dimension(150, 35));
+		this.add(toolBar, BorderLayout.PAGE_START);
+
+		// TODO: add save, print buttons
+	}
+
+	// Helpers
+
+	private void retrieveToolBarIcons() {
 		// Create the toolbar icons.
 		// TODO: put these paths into a Properties file
 
-		Icon newStarFromFileIcon = resourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/New24.gif");
+		newStarFromFileIcon = getIcon("/toolbarButtonGraphics/general/New24.gif");
+		newStarFromDatabaseIcon = getIcon("/toolbarButtonGraphics/general/Import24.gif");
+		helpContentsIcon = getIcon("/toolbarButtonGraphics/general/Help24.gif");
 
-		Icon newStarFromDatabaseIcon = resourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/Import24.gif");
+		if (newStarFromDatabaseIcon == null || newStarFromDatabaseIcon == null
+				|| helpContentsIcon == null) {
+			System.exit(1);
+		}
+	}
 
-		Icon helpContentsIcon = resourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/Help24.gif");
+	private Icon getIcon(String path) {
+		Icon icon = ResourceAccessor.getIconResource(path);
 
-		JToolBar toolBar = new JToolBar("VStar operations");
+		if (icon == null) {
+			MessageBox.showErrorDialog(parent, "VStar Toolbar",
+					"Can't locate icon: " + path);
+		}
 
-		// Create the toolbar buttons.
+		return icon;
+	}
 
+	private void createToolbarButtons() {
 		JButton newStarFromDatabaseButton = new JButton(newStarFromDatabaseIcon);
 		newStarFromDatabaseButton
 				.setToolTipText(MenuBar.NEW_STAR_FROM_DATABASE);
@@ -87,27 +114,8 @@ public class ToolBar extends JPanel {
 
 		JButton helpContentsButton = new JButton(helpContentsIcon);
 		helpContentsButton.setToolTipText(MenuBar.HELP_CONTENTS);
-		helpContentsButton.addActionListener(menuBar.createHelpContentsListener());
+		helpContentsButton.addActionListener(menuBar
+				.createHelpContentsListener());
 		toolBar.add(helpContentsButton);
-
-		// Add the toolbar to the panel.
-		this.setPreferredSize(new Dimension(150, 35));
-		this.add(toolBar, BorderLayout.PAGE_START);
-
-		// TODO: add save, print, help buttons
-	}
-
-	// Helpers
-
-	private void X(String path) {
-		Icon icon = resourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/New24.gif");
-
-		if (icon == null) {
-			MessageBox.showErrorDialog(parent, "VStar Toolbar",
-					"Can't locate icon: " + path);
-			return;
-		}
-
 	}
 }

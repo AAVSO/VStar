@@ -40,8 +40,6 @@ import javax.swing.JPanel;
  */
 public class MainFrame extends JFrame {
 
-	private ResourceAccessor resourceAccessor;
-
 	private URL fileURL;
 	private URL dbaseURL;
 
@@ -54,23 +52,12 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		super("VStar");
 
-		this.resourceAccessor = new ResourceAccessor();
-
-		loadIcons();
-
 		this.menuBar = new MenuBar(this);
 		this.setJMenuBar(menuBar);
 
 		this.setContentPane(createContent());
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
-
-	private void loadIcons() {
-		// TODO: replace these with icons from Java Standard L&F Repository!
-		this.dbaseURL = MainFrame.class
-				.getResource("resources/icons/dbase.gif");
-		this.fileURL = MainFrame.class.getResource("resources/icons/file.gif");
 	}
 
 	// Create everything inside the main GUI view except for
@@ -82,7 +69,7 @@ public class MainFrame extends JFrame {
 		JPanel topPane = new JPanel(new BorderLayout());
 
 		// Add the toolbar.
-		topPane.add(new ToolBar(this, this.menuBar, this.resourceAccessor,
+		topPane.add(new ToolBar(this, this.menuBar,
 				this.dbaseURL, this.fileURL), BorderLayout.PAGE_START);
 
 		// Major pane with left to right layout and an empty border.

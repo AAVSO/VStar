@@ -38,7 +38,7 @@ import org.aavso.tools.vstar.util.Listener;
 /**
  * VStar's menu bar.
  * 
- * TODO: - put menu item names in property file
+ * TODO: put menu item names in property file
  */
 public class MenuBar extends JMenuBar {
 
