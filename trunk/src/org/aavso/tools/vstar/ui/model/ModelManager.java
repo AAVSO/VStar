@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.model;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.print.PrinterException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JPanel;
+import javax.swing.JTable.PrintMode;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -84,9 +86,9 @@ public class ModelManager implements PropertyChangeListener {
 
 	// Current GUI table and chart elements.
 	private ChartPanel obsChartPane;
-	private JPanel obsTablePane;
+	private ObservationListPane obsTablePane;
 
-	// TODO: mean, phase plot models...
+	// TODO: mean, phase plot GUI elements...
 
 	// Notifiers.
 	private Notifier<NewStarType> newStarNotifier;
@@ -306,7 +308,7 @@ public class ModelManager implements PropertyChangeListener {
 	/**
 	 * Create the observation table component.
 	 */
-	private JPanel createObsTablePane() {
+	private ObservationListPane createObsTablePane() {
 		return new ObservationListPane(this.getValidObsTableModel(), this
 				.getInvalidObsTableModel());
 	}
@@ -334,13 +336,15 @@ public class ModelManager implements PropertyChangeListener {
 			try {
 				this.obsChartPane.doSaveAs();
 			} catch (IOException ex) {
-				MessageBox.showErrorDialog(parent, "Light Curve Save", ex
+				MessageBox.showErrorDialog(parent, "Save Light Curve", ex
 						.getMessage());
 			}
 			break;
-		case LIST_OBS_MODE:
-			break;
 		case PLOT_OBS_AND_MEANS_MODE:
+			break;
+		case LIST_OBS_MODE:
+			MessageBox.showMessageDialog(parent, "Save Observations",
+					"This feature is not implemented yet.");
 			break;
 		case LIST_MEANS_MODE:
 			break;
@@ -349,15 +353,30 @@ public class ModelManager implements PropertyChangeListener {
 
 	/**
 	 * Print the artefact corresponding to the current mode.
+	 * 
+	 * @param parent
+	 *            The parent component to be used by an error dialog.
 	 */
-	public void printCurrentMode() {
+	public void printCurrentMode(Component parent) {
 		switch (currentMode) {
 		case PLOT_OBS_MODE:
 			this.obsChartPane.createChartPrintJob();
 			break;
-		case LIST_OBS_MODE:
-			break;
 		case PLOT_OBS_AND_MEANS_MODE:
+			break;
+		case LIST_OBS_MODE:
+			try {
+				this.obsTablePane.getValidDataTable()
+						.print(PrintMode.FIT_WIDTH);
+
+				if (this.obsTablePane.getInvalidDataTable() != null) {
+					this.obsTablePane.getInvalidDataTable().print(
+							PrintMode.FIT_WIDTH);
+				}
+			} catch (PrinterException e) {
+				MessageBox.showErrorDialog(parent, "Print Observations", e
+						.getMessage());
+			}
 			break;
 		case LIST_MEANS_MODE:
 			break;

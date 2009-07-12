@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,6 +48,7 @@ public class MenuBar extends JMenuBar {
 	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
 	public static final String SAVE = "Save";
 	public static final String PRINT = "Print";
+	public static final String PREFS = "Preferences...";
 	public static final String HELP_CONTENTS = "Help Contents...";
 
 	private ModelManager modelMgr = ModelManager.getInstance();
@@ -61,6 +63,7 @@ public class MenuBar extends JMenuBar {
 	JMenuItem fileNewStarFromFileItem;
 	JMenuItem fileSaveItem;
 	JMenuItem filePrintItem;
+	JMenuItem filePrefsItem;
 	JMenuItem fileQuitItem;
 
 	JMenuItem analysisRawDataItem;
@@ -90,7 +93,6 @@ public class MenuBar extends JMenuBar {
 		createAnalysisMenu();
 		createHelpMenu();
 
-//		this.modelMgr.getNewStarNotifier().addListener(createNewStarListener());
 		this.modelMgr.getProgressNotifier().addListener(
 				createProgressListener());
 	}
@@ -108,15 +110,23 @@ public class MenuBar extends JMenuBar {
 				.addActionListener(createNewStarFromFileListener());
 		fileMenu.add(fileNewStarFromFileItem);
 
-		fileSaveItem = new JMenuItem("Save...");
+		fileMenu.addSeparator();
+
+		fileSaveItem = new JMenuItem(SAVE);
 		fileSaveItem.addActionListener(this.createSaveListener());
 		fileSaveItem.setEnabled(false);
 		fileMenu.add(fileSaveItem);
 
-		filePrintItem = new JMenuItem("Print...");
+		filePrintItem = new JMenuItem(PRINT);
 		filePrintItem.addActionListener(this.createPrintListener());
 		filePrintItem.setEnabled(false);
 		fileMenu.add(filePrintItem);
+
+		fileMenu.addSeparator();
+
+		filePrefsItem = new JMenuItem(PREFS);
+		filePrefsItem.addActionListener(this.createPrefsListener());
+		fileMenu.add(filePrefsItem);
 
 		fileMenu.addSeparator();
 
@@ -212,7 +222,7 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for File->Save...
 	 */
 	public ActionListener createSaveListener() {
-		final MainFrame parent = this.parent;
+		final Component parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				modelMgr.saveCurrentMode(parent);
@@ -224,10 +234,23 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for File->Print...
 	 */
 	public ActionListener createPrintListener() {
-		final MainFrame parent = this.parent;
+		final Component parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				modelMgr.printCurrentMode();
+				modelMgr.printCurrentMode(parent);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File->Preferences...
+	 */
+	public ActionListener createPrefsListener() {
+		final Component parent = this.parent;
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				MessageBox.showMessageDialog(parent, "Preferences...",
+						"This feature is not implemented yet.");
 			}
 		};
 	}
@@ -265,9 +288,9 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Returns the action listener to be invoked for Help->About...
 	 * 
-	 * TODO: Make a separate component for the About Box. Put text into
-	 * a resource file and use a JEditorPane to render HTML or use a 
-	 * JDialog with JLabels and images.
+	 * TODO: Make a separate component for the About Box. Put text into a
+	 * resource file and use a JEditorPane to render HTML or use a JDialog with
+	 * JLabels and images.
 	 */
 	private ActionListener createAboutListener() {
 		return new ActionListener() {
@@ -320,16 +343,6 @@ public class MenuBar extends JMenuBar {
 	//
 	// The NSF credit should be something like "This project was funded in
 	// part by grant No. 000379097 from the National Science Foundation."
-
-	/**
-	 * Return a new star creation listener.
-	 */
-//	private Listener<NewStarType> createNewStarListener() {
-//		return new Listener<NewStarType>() {
-//			public void update(NewStarType info) {
-//			}
-//		};
-//	}
 
 	/**
 	 * Return a progress listener.

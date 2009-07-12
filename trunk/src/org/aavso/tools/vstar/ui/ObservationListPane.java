@@ -36,6 +36,9 @@ import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
  */
 public class ObservationListPane extends JPanel {
 
+	private JTable validDataTable;
+	private JTable invalidDataTable;
+	
 	/**
 	 * Constructor
 	 * 
@@ -53,14 +56,14 @@ public class ObservationListPane extends JPanel {
 		JScrollPane validDataScrollPane = null;
 		
 		if (validDataModel != null) {
-			JTable validDataTable = new JTable(validDataModel);
+			validDataTable = new JTable(validDataModel);
 			validDataScrollPane = new JScrollPane(validDataTable);
 		}
 		
 		JScrollPane invalidDataScrollPane = null;
 
 		if (invalidDataModel != null) {
-			JTable invalidDataTable = new JTable(invalidDataModel);
+			invalidDataTable = new JTable(invalidDataModel);
 			invalidDataScrollPane = new JScrollPane(invalidDataTable);
 		}
 
@@ -108,5 +111,19 @@ public class ObservationListPane extends JPanel {
 	public ObservationListPane(
 			InvalidObservationTableModel invalidDataModel) {
 		this(null, invalidDataModel);
+	}
+
+	/**
+	 * @return the validDataTable
+	 */
+	public JTable getValidDataTable() {
+		return validDataTable;
+	}
+
+	/**
+	 * @return the invalidDataTable
+	 */
+	public JTable getInvalidDataTable() {
+		return invalidDataTable;
 	}
 }
