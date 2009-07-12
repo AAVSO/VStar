@@ -45,16 +45,18 @@ public class ToolBar extends JPanel {
 	private Icon newStarFromDatabaseIcon;
 	private Icon saveIcon;
 	private Icon printIcon;
+	private Icon prefsIcon;
 	private Icon helpContentsIcon;
 
 	private JToolBar toolBar;
-	
+
 	private JButton newStarFromDatabaseButton;
 	private JButton newStarFromFileButton;
 	private JButton saveButton;
 	private JButton printButton;
+	private JButton prefsButton;
 	private JButton helpContentsButton;
-	
+
 	/**
 	 * Creates the application's toolbar.
 	 * 
@@ -96,9 +98,11 @@ public class ToolBar extends JPanel {
 		newStarFromDatabaseIcon = getIcon("/toolbarButtonGraphics/general/Import24.gif");
 		saveIcon = getIcon("/toolbarButtonGraphics/general/Save24.gif");
 		printIcon = getIcon("/toolbarButtonGraphics/general/Print24.gif");
+		prefsIcon = getIcon("/toolbarButtonGraphics/general/Preferences24.gif");
 		helpContentsIcon = getIcon("/toolbarButtonGraphics/general/Help24.gif");
 
 		if (newStarFromDatabaseIcon == null || newStarFromDatabaseIcon == null
+				|| saveIcon == null || printIcon == null || prefsIcon == null
 				|| helpContentsIcon == null) {
 			System.exit(1);
 		}
@@ -141,13 +145,18 @@ public class ToolBar extends JPanel {
 		printButton.setEnabled(false);
 		toolBar.add(printButton);
 
+		prefsButton = new JButton(prefsIcon);
+		prefsButton.setToolTipText(MenuBar.PREFS);
+		prefsButton.addActionListener(menuBar.createPrefsListener());
+		toolBar.add(prefsButton);
+
 		helpContentsButton = new JButton(helpContentsIcon);
 		helpContentsButton.setToolTipText(MenuBar.HELP_CONTENTS);
 		helpContentsButton.addActionListener(menuBar
 				.createHelpContentsListener());
 		toolBar.add(helpContentsButton);
 	}
-	
+
 	/**
 	 * Return a progress listener.
 	 */
@@ -171,7 +180,7 @@ public class ToolBar extends JPanel {
 			}
 		};
 	}
-	
+
 	private void setEnabledToolbarItems(boolean state) {
 		saveButton.setEnabled(state);
 		printButton.setEnabled(state);
