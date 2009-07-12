@@ -65,7 +65,12 @@ public class ModePane extends JPanel implements ActionListener {
 	private Listener<NewStarType> createNewStarListener() {
 		return new Listener<NewStarType>() {
 			public void update(NewStarType info) {
+				// Select the light curve plot radio button and 
+				// deselect all others.
 				plotObsRadioButton.setSelected(true);
+				plotObsAndMeansRadioButton.setSelected(false);
+				listObsRadioButton.setSelected(false);
+				listMeansRadioButton.setSelected(false);
 			}
 		};
 	}
@@ -101,6 +106,7 @@ public class ModePane extends JPanel implements ActionListener {
 		this.add(listMeansRadioButton);
 		modeGroup.add(listMeansRadioButton);
 		
+		// Select the light curve pane by default.
 		plotObsRadioButton.setSelected(true);
 	}
 
