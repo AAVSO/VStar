@@ -27,20 +27,34 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
+import org.aavso.tools.vstar.ui.model.ModelManager;
+import org.aavso.tools.vstar.ui.model.ProgressInfo;
+import org.aavso.tools.vstar.util.Listener;
+
 /**
  * The application's toolbar.
  */
 public class ToolBar extends JPanel {
+
+	private ModelManager modelMgr = ModelManager.getInstance();
 
 	private Component parent;
 	private MenuBar menuBar;
 
 	private Icon newStarFromFileIcon;
 	private Icon newStarFromDatabaseIcon;
+	private Icon saveIcon;
+	private Icon printIcon;
 	private Icon helpContentsIcon;
 
 	private JToolBar toolBar;
-
+	
+	private JButton newStarFromDatabaseButton;
+	private JButton newStarFromFileButton;
+	private JButton saveButton;
+	private JButton printButton;
+	private JButton helpContentsButton;
+	
 	/**
 	 * Creates the application's toolbar.
 	 * 
@@ -51,8 +65,7 @@ public class ToolBar extends JPanel {
 	 *            common class shared by both instead?
 	 */
 	public ToolBar(Component parent, MenuBar menuBar,
-			URL newStarFromDatabaseIconURL,
-			URL newStarFromFileIconURL) {
+			URL newStarFromDatabaseIconURL, URL newStarFromFileIconURL) {
 		super(new BorderLayout());
 
 		this.parent = parent;
@@ -68,7 +81,9 @@ public class ToolBar extends JPanel {
 		this.setPreferredSize(new Dimension(150, 35));
 		this.add(toolBar, BorderLayout.PAGE_START);
 
-		// TODO: add save, print buttons
+		this.modelMgr.getProgressNotifier().addListener(
+				createProgressListener());
+
 	}
 
 	// Helpers
@@ -79,6 +94,8 @@ public class ToolBar extends JPanel {
 
 		newStarFromFileIcon = getIcon("/toolbarButtonGraphics/general/New24.gif");
 		newStarFromDatabaseIcon = getIcon("/toolbarButtonGraphics/general/Import24.gif");
+		saveIcon = getIcon("/toolbarButtonGraphics/general/Save24.gif");
+		printIcon = getIcon("/toolbarButtonGraphics/general/Print24.gif");
 		helpContentsIcon = getIcon("/toolbarButtonGraphics/general/Help24.gif");
 
 		if (newStarFromDatabaseIcon == null || newStarFromDatabaseIcon == null
@@ -99,23 +116,64 @@ public class ToolBar extends JPanel {
 	}
 
 	private void createToolbarButtons() {
-		JButton newStarFromDatabaseButton = new JButton(newStarFromDatabaseIcon);
+		newStarFromDatabaseButton = new JButton(newStarFromDatabaseIcon);
 		newStarFromDatabaseButton
 				.setToolTipText(MenuBar.NEW_STAR_FROM_DATABASE);
 		newStarFromDatabaseButton.addActionListener(menuBar
 				.createNewStarFromDatabaseListener());
 		toolBar.add(newStarFromDatabaseButton);
 
-		JButton newStarFromFileButton = new JButton(newStarFromFileIcon);
+		newStarFromFileButton = new JButton(newStarFromFileIcon);
 		newStarFromFileButton.setToolTipText(MenuBar.NEW_STAR_FROM_FILE);
 		newStarFromFileButton.addActionListener(menuBar
 				.createNewStarFromFileListener());
 		toolBar.add(newStarFromFileButton);
 
-		JButton helpContentsButton = new JButton(helpContentsIcon);
+		saveButton = new JButton(saveIcon);
+		saveButton.setToolTipText(MenuBar.SAVE);
+		saveButton.addActionListener(menuBar.createSaveListener());
+		saveButton.setEnabled(false);
+		toolBar.add(saveButton);
+
+		printButton = new JButton(printIcon);
+		printButton.setToolTipText(MenuBar.PRINT);
+		printButton.addActionListener(menuBar.createPrintListener());
+		printButton.setEnabled(false);
+		toolBar.add(printButton);
+
+		helpContentsButton = new JButton(helpContentsIcon);
 		helpContentsButton.setToolTipText(MenuBar.HELP_CONTENTS);
 		helpContentsButton.addActionListener(menuBar
 				.createHelpContentsListener());
 		toolBar.add(helpContentsButton);
+	}
+	
+	/**
+	 * Return a progress listener.
+	 */
+	private Listener<ProgressInfo> createProgressListener() {
+		return new Listener<ProgressInfo>() {
+			public void update(ProgressInfo info) {
+				switch (info.getType()) {
+				case MIN_PROGRESS:
+					break;
+				case MAX_PROGRESS:
+					break;
+				case RESET_PROGRESS:
+					setEnabledToolbarItems(false);
+					break;
+				case COMPLETE_PROGRESS:
+					setEnabledToolbarItems(true);
+					break;
+				case INCREMENT_PROGRESS:
+					break;
+				}
+			}
+		};
+	}
+	
+	private void setEnabledToolbarItems(boolean state) {
+		saveButton.setEnabled(state);
+		printButton.setEnabled(state);
 	}
 }
