@@ -31,7 +31,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import org.aavso.tools.vstar.ui.model.ModelManager;
-import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.Listener;
 
@@ -42,9 +41,12 @@ import org.aavso.tools.vstar.util.Listener;
  */
 public class MenuBar extends JMenuBar {
 
-	// TODO: factor out into a common class to be shared by menu and tool bar?
+	// TODO: factor out code to be shared by menu and tool bar?
+
 	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
 	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
+	public static final String SAVE = "Save";
+	public static final String PRINT = "Print";
 	public static final String HELP_CONTENTS = "Help Contents...";
 
 	private ModelManager modelMgr = ModelManager.getInstance();
@@ -88,7 +90,7 @@ public class MenuBar extends JMenuBar {
 		createAnalysisMenu();
 		createHelpMenu();
 
-		this.modelMgr.getNewStarNotifier().addListener(createNewStarListener());
+//		this.modelMgr.getNewStarNotifier().addListener(createNewStarListener());
 		this.modelMgr.getProgressNotifier().addListener(
 				createProgressListener());
 	}
@@ -210,15 +212,10 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for File->Save...
 	 */
 	public ActionListener createSaveListener() {
+		final MainFrame parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// try {
-				// // TODO: need to ask model mgr to save curr model/doc
-				// //parent.getLightCurveChartPane().doSaveAs();
-				// } catch (IOException ex) {
-				// MessageBox.showErrorDialog(parent, "Light Curve Save", ex
-				// .getMessage());
-				// }
+				modelMgr.saveCurrentMode(parent);
 			}
 		};
 	}
@@ -227,10 +224,10 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for File->Print...
 	 */
 	public ActionListener createPrintListener() {
+		final MainFrame parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: need to ask model mgr to print curr model/doc
-				// parent.getLightCurveChartPane().createChartPrintJob();
+				modelMgr.printCurrentMode();
 			}
 		};
 	}
@@ -327,18 +324,17 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Return a new star creation listener.
 	 */
-	private Listener<NewStarType> createNewStarListener() {
-		return new Listener<NewStarType>() {
-			public void update(NewStarType info) {
-			}
-		};
-	}
+//	private Listener<NewStarType> createNewStarListener() {
+//		return new Listener<NewStarType>() {
+//			public void update(NewStarType info) {
+//			}
+//		};
+//	}
 
 	/**
 	 * Return a progress listener.
 	 */
 	private Listener<ProgressInfo> createProgressListener() {
-		final MenuBar self = this;
 		final MainFrame parent = this.parent;
 		return new Listener<ProgressInfo>() {
 			public void update(ProgressInfo info) {
@@ -348,6 +344,7 @@ public class MenuBar extends JMenuBar {
 				case MAX_PROGRESS:
 					break;
 				case RESET_PROGRESS:
+					// TODO: should really do cursor ops in MainFrame!
 					parent.setCursor(Cursor
 							.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					setEnabledFileAndAnalysisMenuItems(false);

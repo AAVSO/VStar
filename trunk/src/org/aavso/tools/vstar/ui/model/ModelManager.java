@@ -323,6 +323,48 @@ public class ModelManager implements PropertyChangeListener {
 	}
 
 	/**
+	 * Save the artefact corresponding to the current mode.
+	 * 
+	 * @param parent
+	 *            The parent component to be used by an error dialog.
+	 */
+	public void saveCurrentMode(Component parent) {
+		switch (currentMode) {
+		case PLOT_OBS_MODE:
+			try {
+				this.obsChartPane.doSaveAs();
+			} catch (IOException ex) {
+				MessageBox.showErrorDialog(parent, "Light Curve Save", ex
+						.getMessage());
+			}
+			break;
+		case LIST_OBS_MODE:
+			break;
+		case PLOT_OBS_AND_MEANS_MODE:
+			break;
+		case LIST_MEANS_MODE:
+			break;
+		}
+	}
+
+	/**
+	 * Print the artefact corresponding to the current mode.
+	 */
+	public void printCurrentMode() {
+		switch (currentMode) {
+		case PLOT_OBS_MODE:
+			this.obsChartPane.createChartPrintJob();
+			break;
+		case LIST_OBS_MODE:
+			break;
+		case PLOT_OBS_AND_MEANS_MODE:
+			break;
+		case LIST_MEANS_MODE:
+			break;
+		}
+	}
+
+	/**
 	 * Clear all data (lists, models).
 	 */
 	private void clearData() {
