@@ -35,16 +35,36 @@ public class ResourceAccessor {
 	 *            The URL string.
 	 * @return The icon, or null if the resource was not found.
 	 */
-	public Icon getIconResource(String urlStr) {
+	public static Icon getIconResource(String urlStr) {
 		Icon icon = null;
 
 		if (urlStr != null) {
-			URL url = this.getClass().getResource(urlStr);
+			URL url = ResourceAccessor.class.getResource(urlStr);
 			if (url != null) {
 				icon = new ImageIcon(url);
 			}
 		}
 
 		return icon;
+	}
+
+	/**
+	 * Returns the HTML help resource URL.
+	 * 
+	 * @return The URL of the HTML help file.
+	 */
+	public static URL getHelpHTMLResource() {
+		// This is where it will be in vstar.jar (see build.xml).
+		URL url = ResourceAccessor.class
+				.getResource("/help/html/HelpContents.html");
+
+		if (url == null) {
+			// Otherwise, look in resources dir under ui (e.g. if running
+			// from Eclipse, not from a distribution of vstar.jar.
+			url = ResourceAccessor.class
+					.getResource("resources/help/html/HelpContents.html");
+		}
+
+		return url;
 	}
 }

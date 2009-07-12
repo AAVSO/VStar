@@ -8,7 +8,8 @@
 	<property name="test" location="test" />
 	<property name="build" location="src/build" />
 	<property name="dist" location="dist" />
-	<property name="extlib" location="extlib" />
+	<property name="extlib" location="extlib" /> <!-- just call this lib? -->
+	<property name="ui_resources" location="src/org/aavso/tools/vstar/ui/resources" />  
 
 	<target name="init">
 		<!-- Create the time stamp -->
@@ -42,6 +43,7 @@
 
 		<jar jarfile="${dist}/vstar.jar" basedir="${build}" manifest="MANIFEST.MF">
 			<zipfileset dir="${extlib}" />
+			<fileset dir="${ui_resources}" />
 		</jar>		
 	</target>
 
