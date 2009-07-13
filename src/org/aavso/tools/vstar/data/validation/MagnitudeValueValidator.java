@@ -24,9 +24,26 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class MagnitudeValueValidator extends StringValidatorBase<Double> {
 
+	public static final boolean CAN_BE_EMPTY = true;
+	
+	private boolean canBeEmpty;
+
 	private static final String KIND = "magnitude";
 
 	private final RangePredicate rangePredicate;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param rangePredicate
+	 *            A numeric range predicate.
+	 * @param canBeEmpty Can the magnitude field be empty?
+	 */
+	public MagnitudeValueValidator(RangePredicate rangePredicate, boolean canBeEmpty) {
+		super(KIND);
+		this.rangePredicate = rangePredicate;
+		this.canBeEmpty = canBeEmpty;
+	}
 
 	/**
 	 * Constructor.
@@ -37,11 +54,11 @@ public class MagnitudeValueValidator extends StringValidatorBase<Double> {
 	public MagnitudeValueValidator(RangePredicate rangePredicate) {
 		super(KIND);
 		this.rangePredicate = rangePredicate;
+		this.canBeEmpty = false;
 	}
 
 	public Double validate(String str) throws ObservationValidationError {
-		if (this.isLegallyEmpty(str))
-			return null;
+		if (this.isLegallyEmpty(str)) return null;
 
 		double value = 0;
 		
@@ -57,5 +74,9 @@ public class MagnitudeValueValidator extends StringValidatorBase<Double> {
 		}
 		
 		return value;
+	}	
+
+	protected boolean canBeEmpty() {
+		return this.canBeEmpty;
 	}
 }

@@ -80,8 +80,6 @@ public class TextFormatObservationReader extends ObservationRetrieverBase {
 						validOb.setLineNumber(lineNum);
 						validObservations.add(validOb);
 						categoriseValidObservation(validOb);
-						// TODO: should we put greater-thans into invalid obs
-						// list?
 					} catch (ObservationValidationError e) {
 						InvalidObservation invalidOb = new InvalidObservation(
 								line, e.getMessage());

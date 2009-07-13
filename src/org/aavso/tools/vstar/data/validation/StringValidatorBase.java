@@ -53,6 +53,9 @@ public abstract class StringValidatorBase<T> {
 	 */
 	abstract public T validate(String str) throws ObservationValidationError;
 	
+	// TODO: require that isLegallyEmpty() and canBeEmpty() be replaced with
+	// suitable regexes, i.e. as in RegexValidator?
+	
 	/**
 	 * Is the supplied string legally empty or null?
 	 * 
@@ -69,6 +72,7 @@ public abstract class StringValidatorBase<T> {
 	 */
 	protected boolean isLegallyEmpty(String str)
 			throws ObservationValidationError {
+		// TODO: change string equals part to use a regex like "^\s*$" ?
 		if (str == null || "".equals(str)) {
 			if (canBeEmpty()) {
 				return true;

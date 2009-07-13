@@ -22,7 +22,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 
 /**
  * This class accepts a line of text for tokenising, validation, and
- * ValidObservation instance creation given a simple text format source.
+ * ValidObservation instance creation given a simple text format source:
  * 
  * JD MAG [UNCERTAINTY] [OBSCODE] [VALFLAG]
  * 

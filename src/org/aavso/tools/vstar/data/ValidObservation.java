@@ -44,7 +44,7 @@ public class ValidObservation extends Observation {
 	// - Use single chars or enum values where strings are used if possible
 	
 	private DateInfo dateInfo = null; // Julian Day, calendar date
-	private Magnitude magnitude = null; // magnitude, uncertainty, fainter-than
+	private Magnitude magnitude = null; // magnitude, uncertainty, fainter/brighter-than
 	private Double hqUncertainty = null;
 	private String band = null; 
 	private String obsCode = null;
@@ -56,11 +56,11 @@ public class ValidObservation extends Observation {
 	private boolean transformed = false;
 	private String airmass = null;
 	private ValidationType validationType = null;
-	private Magnitude cMag = null;
-	private Magnitude kMag = null;
+	private Double cMag = null;
+	private Double kMag = null;
 	private DateInfo hJD = null; // Heliocentric vs Geocentric Julian Day
 	private String name = null;
-	private String mType = null;
+	private String mType = null; // TODO: make an enum
 	
 	/**
 	 * Constructor.
@@ -291,28 +291,28 @@ public class ValidObservation extends Observation {
 	/**
 	 * @return the cMag
 	 */
-	public Magnitude getCMag() {
+	public Double getCMag() {
 		return cMag;
 	}
 
 	/**
 	 * @param cMag the cMag to set
 	 */
-	public void setCMag(Magnitude cMag) {
+	public void setCMag(Double cMag) {
 		this.cMag = cMag;
 	}
 
 	/**
 	 * @return the kMag
 	 */
-	public Magnitude getKMag() {
+	public Double getKMag() {
 		return kMag;
 	}
 
 	/**
 	 * @param kMag the kMag to set
 	 */
-	public void setKMag(Magnitude kMag) {
+	public void setKMag(Double kMag) {
 		this.kMag = kMag;
 	}
 
