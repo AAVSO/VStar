@@ -27,26 +27,27 @@ import org.aavso.tools.vstar.input.ObservationFieldSplitter;
 
 /**
  * This class accepts a line of text for tokenising, validation, and
- * ValidObservation instance creation that is common to all text 
- * format sources. Currently, simple and AAVSO download file formats
- * have an intersecting set of mandatory and optional fields. The field
- * indices differ across formats, as does what counts as a legal valflag
- * field value, but the fieldIndexMap and valflagPatternStr constructor
- * arguments cater for the differences. 
+ * ValidObservation instance creation that is common to all text format sources.
+ * Currently, simple and AAVSO download file formats have an intersecting set of
+ * mandatory and optional fields. The field indices differ across formats, as
+ * does what counts as a legal valflag field value, but the fieldIndexMap and
+ * valflagPatternStr constructor arguments cater for the differences.
  */
 public class CommonTextFormatValidator extends
 		StringValidatorBase<ValidObservation> {
 
 	private final ObservationFieldSplitter fieldSplitter;
 
-	private final JulianDayValidator julianDayValidator;
-	private final MagnitudeFieldValidator magnitudeFieldValidator;
-	private final UncertaintyValueValidator uncertaintyValueValidator;
-	private final ObserverCodeValidator observerCodeValidator;
-	private final ValflagValidator valflagValidator;
+	protected final JulianDayValidator julianDayValidator;
+	protected final MagnitudeFieldValidator magnitudeFieldValidator;
+	protected final UncertaintyValueValidator uncertaintyValueValidator;
+	protected final ObserverCodeValidator observerCodeValidator;
+	protected final ValflagValidator valflagValidator;
 
-	private final Map<String, Integer> fieldIndexMap;
+	protected final Map<String, Integer> fieldIndexMap;
 
+	protected String[] fields;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -82,6 +83,8 @@ public class CommonTextFormatValidator extends
 				new ExclusiveRangePredicate(0, 1));
 		this.observerCodeValidator = new ObserverCodeValidator();
 		this.valflagValidator = new ValflagValidator(valflagPatternStr);
+		
+		this.fields = null;
 	}
 
 	/**
@@ -105,7 +108,7 @@ public class CommonTextFormatValidator extends
 		ValidObservation observation = new ValidObservation();
 
 		// Get an array of fields split on the expected delimiter.
-		String[] fields = fieldSplitter.getFields(line);
+		fields = fieldSplitter.getFields(line);
 
 		// Validate the fields.
 		DateInfo dateInfo = julianDayValidator.validate(fields[fieldIndexMap
@@ -122,6 +125,11 @@ public class CommonTextFormatValidator extends
 			magnitude.setUncertainty(uncertaintyMag);
 		}
 
+		if (magnitude.isBrighterThan()) {
+			throw new ObservationValidationError(
+					"Was '>' intended (brighter than) or '<'?");
+		}
+
 		observation.setMagnitude(magnitude);
 
 		observation.setObsCode(observerCodeValidator
@@ -129,7 +137,7 @@ public class CommonTextFormatValidator extends
 
 		observation.setValidationType(valflagValidator
 				.validate(fields[fieldIndexMap.get("VALFLAG_FIELD")]));
-		
+
 		return observation;
 	}
 }

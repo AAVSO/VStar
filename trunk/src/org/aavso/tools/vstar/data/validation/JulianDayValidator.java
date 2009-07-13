@@ -23,13 +23,29 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This class validates provided text as a Julian Day.
  * 
- * TODO: - Store Calendar object.
+ * TODO: Store a GregorianCalendar object?
  */
 public class JulianDayValidator extends StringValidatorBase<DateInfo> {
+
+	public static final boolean CAN_BE_EMPTY = true;
+
+	private boolean canBeEmpty;
 
 	private static final String KIND = "Julian Day";
 	
 	private final RegexValidator regexValidator;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param canBeEmpty Can the magnitude field be empty?
+	 */
+	public JulianDayValidator(boolean canBeEmpty) {
+		super(KIND);
+		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$",
+				KIND, "Only decimal digits and a single '.' are permitted.");
+		this.canBeEmpty = canBeEmpty;
+	}
 
 	/**
 	 * Constructor.
@@ -38,6 +54,7 @@ public class JulianDayValidator extends StringValidatorBase<DateInfo> {
 		super(KIND);
 		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$",
 				KIND, "Only decimal digits and a single '.' are permitted.");
+		this.canBeEmpty = false;
 	}
 
 	/**
@@ -50,6 +67,8 @@ public class JulianDayValidator extends StringValidatorBase<DateInfo> {
 	 *             if validation is unsuccessful.
 	 */
 	public DateInfo validate(String str) throws ObservationValidationError {
+		if (this.isLegallyEmpty(str)) return null;
+
 		String[] fields = this.regexValidator.validate(str);
 
 		// By virtue of the regex pattern above,
@@ -57,5 +76,9 @@ public class JulianDayValidator extends StringValidatorBase<DateInfo> {
 		double value = Double.parseDouble(fields[0]);
 		
 		return new DateInfo(value);
+	}
+	
+	protected boolean canBeEmpty() {
+		return this.canBeEmpty;
 	}
 }

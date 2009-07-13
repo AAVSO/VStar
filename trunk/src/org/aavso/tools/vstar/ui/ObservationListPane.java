@@ -57,6 +57,9 @@ public class ObservationListPane extends JPanel {
 		
 		if (validDataModel != null) {
 			validDataTable = new JTable(validDataModel);
+			// This next line ensures we get a horizontal scrollbar if necessary
+			// rather than trying to cram all the columns into the visible pane.
+			validDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			validDataScrollPane = new JScrollPane(validDataTable);
 		}
 		

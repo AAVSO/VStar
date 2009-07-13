@@ -20,9 +20,9 @@ package org.aavso.tools.vstar.input;
 import java.io.IOException;
 import java.io.LineNumberReader;
 
-import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.validation.AAVSODownloadFormatValidator;
+import org.aavso.tools.vstar.data.validation.CommonTextFormatValidator;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
-import org.aavso.tools.vstar.data.validation.StringValidatorBase;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 
@@ -105,19 +105,11 @@ public class ObservationSourceAnalyser {
 		String[] fields = line.split(delimiter);
 		if (fields.length >= 2 && fields.length <= 5) {
 			this.delimiter = delimiter;
-			this.newStarType = NewStarType.NEW_STAR_FROM_SIMPLE_FILE; // TODO:
-			// FILE
-			// ->
-			// FORMAT
-			// ?
+			this.newStarType = NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
 			determined = true;
 		} else if (fields.length > 5) {
 			this.delimiter = delimiter;
-			this.newStarType = NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE; // TODO:
-			// FILE
-			// ->
-			// FORMAT
-			// ?
+			this.newStarType = NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE;
 			determined = true;
 		}
 
@@ -152,19 +144,21 @@ public class ObservationSourceAnalyser {
 	 * 
 	 * @return The validator object corresponding to this "new star" type.
 	 */
-	public StringValidatorBase<ValidObservation> getTextFormatValidator() {
+	public CommonTextFormatValidator getTextFormatValidator() {
 
 		assert (ObservationSourceAnalyser.TAB_DELIM.equals(delimiter) || ObservationSourceAnalyser.COMMA_DELIM
 				.equals(delimiter));
 
-		StringValidatorBase<ValidObservation> validator = null;
+		CommonTextFormatValidator validator = null;
 
 		if (NewStarType.NEW_STAR_FROM_SIMPLE_FILE.equals(newStarType)) {
 			validator = new SimpleTextFormatValidator(delimiter, newStarType
 					.getMinFields(), newStarType.getMaxFields(), newStarType
 					.getFieldInfoSource());
 		} else if (NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE.equals(newStarType)) {
-			// TODO
+			validator = new AAVSODownloadFormatValidator(delimiter, newStarType
+					.getMinFields(), newStarType.getMaxFields(), newStarType
+					.getFieldInfoSource());			
 		}
 
 		assert (validator != null);
