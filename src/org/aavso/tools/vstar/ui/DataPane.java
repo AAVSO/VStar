@@ -135,7 +135,7 @@ public class DataPane extends JPanel {
 	}
 
 	private String noSomethingYet(String s) {
-		return s + " not yet available.";
+		return s + " not available yet.";
 	}
 
 	/**

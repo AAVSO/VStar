@@ -382,6 +382,6 @@ public class MenuBar extends JMenuBar {
 
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
-		this.analysisPeriodSearchItem.setEnabled(state);
+		//this.analysisPeriodSearchItem.setEnabled(state);
 	}
 }

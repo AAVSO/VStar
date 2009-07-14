@@ -37,28 +37,28 @@ import org.aavso.tools.vstar.ui.model.NewStarType;
  * 
  * The format is for each line is: JD MAG [UNCERTAINTY] [OBSCODE] [VALFLAG]
  */
-public class SimpleTextFormatTest extends TestCase {
+public class TextFormatObservationReaderTest extends TestCase {
 
 	/**
 	 * Constructor
 	 * 
 	 * @param name
 	 */
-	public SimpleTextFormatTest(String name) {
+	public TextFormatObservationReaderTest(String name) {
 		super(name);
 	}
 
 	// Tests of valid simple text format.
 
-	public void testValidJulianDayAndMagTSV() {
+	public void testSimpleValidJulianDayAndMagTSV() {
 		commonValidJulianDayAndMagTest("2450001.5\t10.0\n", "\t");
 	}
 
-	public void testValidJulianDayAndMagCSV() {
+	public void testSimpleValidJulianDayAndMagCSV() {
 		commonValidJulianDayAndMagTest("2450001.5,10.0\n", ",");
 	}
 
-	public void testValidFullObservationTSV() {
+	public void testSimpleValidFullObservationTSV() {
 		ValidObservation ob = commonValidJulianDayAndMagTest(
 				"2450001.5\t10.0\t0.1\tDJB\tD\n", "\t");
 		assertEquals(0.1, ob.getMagnitude().getUncertainty());
@@ -66,7 +66,7 @@ public class SimpleTextFormatTest extends TestCase {
 		assertTrue(ob.isDiscrepant());
 	}
 
-	public void testValidAllButUncertaintyTSV() {
+	public void testSimpleValidAllButUncertaintyTSV() {
 		ValidObservation ob = commonValidJulianDayAndMagTest(
 				"2450001.5\t10.0\t\tDJB\tD\n", "\t");
 		assertEquals(0.0, ob.getMagnitude().getUncertainty());
@@ -74,7 +74,7 @@ public class SimpleTextFormatTest extends TestCase {
 		assertTrue(ob.isDiscrepant());
 	}
 
-	public void testValidAllButUncertaintyAndValflagTSV() {
+	public void testSimpleValidAllButUncertaintyAndValflagTSV() {
 		ValidObservation ob = commonValidJulianDayAndMagTest(
 				"2450001.5\t10.0\t\tDJB\n", "\t");
 		assertEquals(0.0, ob.getMagnitude().getUncertainty());
@@ -82,7 +82,7 @@ public class SimpleTextFormatTest extends TestCase {
 		assertTrue(!ob.isDiscrepant());
 	}
 
-	public void testValidAllButUncertaintyAndValflagCSV() {
+	public void testSimpleValidAllButUncertaintyAndValflagCSV() {
 		ValidObservation ob = commonValidJulianDayAndMagTest(
 				"2450001.5,10.0,,DJB\n", ",");
 		assertEquals(0.0, ob.getMagnitude().getUncertainty());
@@ -90,7 +90,7 @@ public class SimpleTextFormatTest extends TestCase {
 		assertTrue(!ob.isDiscrepant());
 	}
 
-	public void testValidMultipleLines() {
+	public void testSimpleValidMultipleLines() {
 		StringBuffer lines = new StringBuffer();
 		lines.append("2450001.5\t10.0\n");
 		lines.append("2430002.0\t2.0");
@@ -99,20 +99,55 @@ public class SimpleTextFormatTest extends TestCase {
 
 		assertTrue(obs.size() == 2);
 
-		ValidObservation ob0 = (ValidObservation) obs.get(0);
+		ValidObservation ob0 =  obs.get(0);
 		assertEquals(2450001.5, ob0.getDateInfo().getJulianDay());
 
-		ValidObservation ob1 = (ValidObservation) obs.get(1);
+		ValidObservation ob1 =  obs.get(1);
 		assertEquals(2430002.0, ob1.getDateInfo().getJulianDay());
+	}
+
+	// Tests of valid AAVSO Download format.
+	
+	public void testAAVSODownloadTSV1() {
+		StringBuffer lines = new StringBuffer();
+		lines.append("2400020	3.86			Visual	AFW	K					No		G				miu Cep	NULL\n");				
+		lines.append("2400038	4			Visual	WAI	K					No		G				miu Cep	0\n");
+		
+		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t");
+
+		assertTrue(obs.size() == 2);
+
+		// A few checks.
+		ValidObservation ob0 = obs.get(0);
+		assertEquals(2400020.0, ob0.getDateInfo().getJulianDay());
+		assertEquals("Visual", ob0.getBand());
+		assertEquals("miu Cep", ob0.getName());
+	}
+
+	public void testAAVSODownloadCSV1() {
+		StringBuffer lines = new StringBuffer();
+		lines.append("2454924.60694,3.95,,,Visual,SSW,,34,45,1036bbr,,No,,G,,,,000-BCT-763\n");				
+		lines.append("2454931.86042,3.6,,,Visual,MDP,B,37,34,Star Tutorial,MOON,No,,G,,,,000-BCT-763\n");
+		lines.append("2454933.89861,4.0,,,Visual,MDP,B,37,44,Star Tutorial,MOON AND TWILIGHT,No,,G,,,,000-BCT-763\n");
+		
+		List<ValidObservation> obs = commonValidTest(lines.toString(), ",");
+
+		assertTrue(obs.size() == 3);
+
+		// A few checks.
+		ValidObservation ob0 = obs.get(0);
+		assertEquals(2454924.60694, ob0.getDateInfo().getJulianDay());
+		assertEquals("Visual", ob0.getBand());
+		assertEquals("000-BCT-763", ob0.getName());
 	}
 
 	// Tests of invalid simple text format.
 
-	public void testInvalidMagTrailingDecimalPoint() {
+	public void testSimpleInvalidMagTrailingDecimalPoint() {
 		commonInvalidTest("2450001\t10.\n");
 	}
 
-	public void testInvalidAllButUncertaintyAndValflagTSV() {
+	public void testSimpleInvalidAllButUncertaintyAndValflagTSV() {
 		// There should be another tab between the magnitude and obscode
 		// to account for the missing uncertainty value field.
 		commonInvalidTest("2450001.5\t10.0\tDJB\n");
@@ -126,7 +161,7 @@ public class SimpleTextFormatTest extends TestCase {
 
 		assertTrue(obs.size() == 1);
 
-		ValidObservation ob = (ValidObservation) obs.get(0);
+		ValidObservation ob =  obs.get(0);
 		assertEquals(2450001.5, ob.getDateInfo().getJulianDay());
 		assertEquals(10.0, ob.getMagnitude().getMagValue());
 		assertFalse(ob.getMagnitude().isUncertain());

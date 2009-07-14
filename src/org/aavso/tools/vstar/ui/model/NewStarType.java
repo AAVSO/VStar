@@ -29,8 +29,7 @@ import org.aavso.tools.vstar.data.validation.ITableFieldInfoSource;
  */
 public enum NewStarType {
 
-	NEW_STAR_FROM_SIMPLE_FILE(SimpleFormatFieldInfoSource.FIELD_COUNT,
-			SimpleFormatFieldInfoSource.FIELD_COUNT,
+	NEW_STAR_FROM_SIMPLE_FILE(2, SimpleFormatFieldInfoSource.FIELD_COUNT,
 			SimpleFormatFieldInfoSource.simpleFormatFieldInfoSource,
 			SimpleFormatFieldInfoSource.simpleFormatFieldInfoSource),
 

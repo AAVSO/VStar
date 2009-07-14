@@ -38,7 +38,7 @@ public class ObservationFieldSplitterTest extends TestCase {
 			ObservationFieldSplitter splitter = new ObservationFieldSplitter(
 					"\t", 2, 5);
 			String[] fields = splitter.getFields(line);
-			assertEquals(2, fields.length);
+			assertEquals(5, fields.length);
 		} catch (ObservationValidationError e) {
 			fail();
 		}
@@ -49,7 +49,7 @@ public class ObservationFieldSplitterTest extends TestCase {
 
 		try {
 			ObservationFieldSplitter splitter = new ObservationFieldSplitter(
-					"\t", 5, 5);
+					"\t", 2, 5);
 			String[] fields = splitter.getFields(line);
 			assertEquals(5, fields.length);
 		} catch (ObservationValidationError e) {
