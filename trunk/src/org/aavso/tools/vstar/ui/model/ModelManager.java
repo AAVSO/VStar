@@ -174,7 +174,7 @@ public class ModelManager implements PropertyChangeListener {
 			} catch (Exception e) {
 				MessageBox.showErrorDialog(parent,
 						"New Star From File Read Error", e);
-
+				e.printStackTrace();
 				modelMgr.newStarFileName = null;
 
 				// TODO: set all other artefacts to null

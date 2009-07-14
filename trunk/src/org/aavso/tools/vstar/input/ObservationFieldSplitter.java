@@ -57,16 +57,28 @@ public class ObservationFieldSplitter {
 	 * @throws ObservationValidationError
 	 *             If the number of fields does not fall into the required
 	 *             range.
-	 * @postcondition: The returned field array's length must be in the range
-	 *                 minFields..maxFields (inclusive) correspond to the
-	 *                 required number of fields.
+	 * @postcondition: The returned field array's length must be 
+	 *                 maxFields to simplify validation.
 	 */
 	public String[] getFields(String line) throws ObservationValidationError {
-		// TODO: remove end of line char if present?
-		String[] fields = line.split(this.delimiter);
+		// Get the fields after removing a possible line-feed character.
+		String[] fields = line.replaceFirst("\n", "").split(this.delimiter);
 
-		if (fields.length < this.minFields) {
-			int howManyMoreRequired = minFields - fields.length;
+		if (fields.length < this.minFields || fields.length > this.maxFields) {
+			StringBuffer strBuf = new StringBuffer();
+			strBuf.append("The number of fields in '");
+			strBuf.append(line);
+			strBuf.append("' ");
+			strBuf.append("falls outside of the range ");
+			strBuf.append(minFields);
+			strBuf.append("..");
+			strBuf.append(maxFields);
+
+			throw new ObservationValidationError(strBuf.toString());
+		}
+
+		if (fields.length < this.maxFields) {
+			int howManyMoreRequired = maxFields - fields.length;
 			int total = fields.length + howManyMoreRequired;
 			String[] moreFields = new String[total];
 			// Copy fields to new array. The additional fields
@@ -75,16 +87,6 @@ public class ObservationFieldSplitter {
 				moreFields[i] = fields[i];
 			}
 			fields = moreFields;
-		}
-
-		if (fields.length < this.minFields || fields.length > this.maxFields) {
-			StringBuffer strBuf = new StringBuffer();
-			strBuf.append("The number of fields in '");
-			strBuf.append(line);
-			strBuf.append("' ");
-			strBuf.append("falls outside of the range");
-
-			throw new ObservationValidationError(strBuf.toString());
 		}
 
 		return fields;
