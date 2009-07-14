@@ -142,6 +142,7 @@ public class ModelManager implements PropertyChangeListener {
 		private ObservationSourceAnalyser analyser;
 		private int plotTaskPortion;
 		private Component parent;
+		private boolean success;
 
 		/**
 		 * Constructor.
@@ -163,22 +164,14 @@ public class ModelManager implements PropertyChangeListener {
 			this.analyser = analyser;
 			this.plotTaskPortion = plotTaskPortion;
 			this.parent = parent;
+			this.success = false;
 		}
 
 		/**
 		 * Main task. Executed in background thread.
 		 */
 		public Void doInBackground() {
-			try {
-				createObservationModelsFromFileHelper(obsFile, analyser);
-			} catch (Exception e) {
-				MessageBox.showErrorDialog(parent,
-						"New Star From File Read Error", e);
-				e.printStackTrace();
-				modelMgr.newStarFileName = null;
-
-				// TODO: set all other artefacts to null
-			}
+			this.success = createObservationArtefacts(obsFile, analyser);
 			return null;
 		}
 
@@ -190,8 +183,11 @@ public class ModelManager implements PropertyChangeListener {
 			modelMgr.getProgressNotifier().notifyListeners(
 					ProgressInfo.COMPLETE_PROGRESS);
 
-			// Notify whoever is listening that a new star has been loaded.
-			modelMgr.newStarNotifier.notifyListeners(analyser.getNewStarType());
+			if (success) {
+				// Notify whoever is listening that a new star has been loaded.
+				modelMgr.newStarNotifier.notifyListeners(analyser
+						.getNewStarType());
+			}
 		}
 
 		/**
@@ -202,26 +198,31 @@ public class ModelManager implements PropertyChangeListener {
 		 * 
 		 * @param analyser
 		 *            An observation file analyser.
-		 * 
-		 *            TODO: rename method as createObservationArtefacts(),
-		 *            possibly overload for DB
 		 */
-		private void createObservationModelsFromFileHelper(File obsFile,
-				ObservationSourceAnalyser analyser) throws IOException,
-				ObservationReadError {
+		private boolean createObservationArtefacts(File obsFile,
+				ObservationSourceAnalyser analyser) {
 
-			ObservationRetrieverBase textFormatReader = new TextFormatObservationReader(
-					new LineNumberReader(new FileReader(obsFile.getPath())),
-					analyser);
+			try {
+				ObservationRetrieverBase textFormatReader = new TextFormatObservationReader(
+						new LineNumberReader(new FileReader(obsFile.getPath())),
+						analyser);
 
-			textFormatReader.retrieveObservations();
+				textFormatReader.retrieveObservations();
 
-			clearData();
+				clearData();
 
-			modelMgr.validObsList = textFormatReader.getValidObservations();
-			modelMgr.invalidObsList = textFormatReader.getInvalidObservations();
-			modelMgr.validObservationCategoryMap = textFormatReader
-					.getValidObservationCategoryMap();
+				modelMgr.validObsList = textFormatReader.getValidObservations();
+				modelMgr.invalidObsList = textFormatReader
+						.getInvalidObservations();
+				modelMgr.validObservationCategoryMap = textFormatReader
+						.getValidObservationCategoryMap();
+			} catch (Exception e) {
+				MessageBox.showErrorDialog(parent,
+						"New Star From File Read Error", e);
+				modelMgr.newStarFileName = null;
+				clearData();
+				return false;
+			}
 
 			if (!modelMgr.validObsList.isEmpty()) {
 				modelMgr.validObsTableModel = new ValidObservationTableModel(
@@ -253,6 +254,8 @@ public class ModelManager implements PropertyChangeListener {
 
 			modelMgr.obsTablePane = createObsTablePane();
 			// setProgress(progress++);
+
+			return true;
 		}
 	}
 
@@ -392,6 +395,7 @@ public class ModelManager implements PropertyChangeListener {
 		this.validObsList = null;
 		this.validObsTableModel = null;
 		this.obsPlotModel = null;
+		// TODO: GUI components too?
 	}
 
 	/**

@@ -91,7 +91,7 @@ public class MainFrame extends JFrame {
 
 		// The second (right-most) pane containing data tables, plots,
 		// and observation information.
-		majorPane.add(new DataPane());
+		majorPane.add(new DataPane(this));
 
 		topPane.add(majorPane, BorderLayout.CENTER);
 
