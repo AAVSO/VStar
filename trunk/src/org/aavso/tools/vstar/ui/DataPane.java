@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.ui.model.ModeType;
 import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.util.Listener;
+import org.jfree.chart.ChartPanel;
 
 /**
  * A panel for rendering data lists, plots and other observation-related
@@ -47,6 +48,8 @@ public class DataPane extends JPanel {
 	public final static int WIDTH = 800;
 	public final static int HEIGHT = 600;
 
+	private Component parent;
+
 	// Shared data and plot display pane.
 	private JPanel cards;
 
@@ -56,8 +59,10 @@ public class DataPane extends JPanel {
 	/**
 	 * Constructor.
 	 */
-	public DataPane() {
+	public DataPane(Component parent) {
 		super();
+
+		this.parent = parent;
 
 		this.cardMap = new TreeMap<String, Component>();
 
@@ -93,7 +98,7 @@ public class DataPane extends JPanel {
 		cards.setPreferredSize(new Dimension((int) (WIDTH * 0.9),
 				(int) (HEIGHT * 0.9)));
 
-		addDefaultCards();
+		setDefaultCards();
 
 		topPane.add(cards);
 
@@ -113,17 +118,15 @@ public class DataPane extends JPanel {
 	}
 
 	/**
-	 * Add default components to the card view and ensure appropriate default is
-	 * shown.
+	 * Create default components to the card view and ensure appropriate default
+	 * is shown.
 	 */
-	private void addDefaultCards() {
+	private void setDefaultCards() {
 		setCard(ModeType.PLOT_OBS_MODE_DESC, Util
 				.createTextPanel(noSomethingYet("Observation plot")));
 
-		setCard(
-				ModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
-				Util
-						.createTextPanel(noSomethingYet("Observation and mean plot")));
+		setCard(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC, Util
+				.createTextPanel(noSomethingYet("Observation and mean plot")));
 
 		setCard(ModeType.LIST_OBS_MODE_DESC, Util
 				.createTextPanel(noSomethingYet("Observation list")));
@@ -146,14 +149,22 @@ public class DataPane extends JPanel {
 			// Set the cards components for each model type.
 			// TODO: looks like we can ignore info conditional below
 			public void update(NewStarType info) {
-				if (info == NewStarType.NEW_STAR_FROM_SIMPLE_FILE ||
-						info == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE ||
-						info == NewStarType.NEW_STAR_FROM_DATABASE) {
-					// TODO: should get this from message (create a message package)
-					setCard(ModeType.PLOT_OBS_MODE_DESC, modelMgr.getObsChartPane());
-					setCard(ModeType.LIST_OBS_MODE_DESC, modelMgr.getObsTablePane());
+				if (info == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
+						|| info == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE
+						|| info == NewStarType.NEW_STAR_FROM_DATABASE) {
+					// TODO: should get these from message (create a message
+					// package)
+					ChartPanel obsPlotPane = modelMgr.getObsChartPane();
+					JPanel obsListPane = modelMgr.getObsTablePane();
 
-					showCard(ModeType.PLOT_OBS_MODE_DESC);
+					if (obsPlotPane != null && obsListPane != null) {
+						setCard(ModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
+						setCard(ModeType.LIST_OBS_MODE_DESC, obsListPane);
+						modelMgr.changeMode(ModeType.PLOT_OBS_MODE);
+					} else {
+						MessageBox.showErrorDialog(parent, "New Star...",
+								"Error in observation source.");
+					}
 				}
 			}
 		};
