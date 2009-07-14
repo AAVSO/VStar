@@ -71,7 +71,7 @@
 	<target name="test" depends="compile_ut" description="Run unit tests">
 		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
 			<formatter type="plain" />
-			<test name="org.aavso.tools.vstar.input.SimpleTextFormatTest" />
+			<test name="org.aavso.tools.vstar.input.TextFormatObservationReaderTest" />
 			<test name="org.aavso.tools.vstar.util.JDCalculatorTest" />
 			<test name="org.aavso.tools.vstar.util.MeeusDateUtilTest" />
 			<jvmarg value="-ea" />
