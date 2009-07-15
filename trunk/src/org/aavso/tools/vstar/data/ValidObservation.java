@@ -40,8 +40,8 @@ public class ValidObservation extends Observation {
 	// Optimisations (TODO):
 	// - Use Flyweight pattern to ensure that immutable values 
 	//   (mostly strings) exist only once for a given value. This will reduce
-	//   memory consumption considerably!
-	// - Use single chars or enum values where strings are used if possible
+	//   memory consumption considerably! Use a weak ref hashmap?
+	// - Use single chars or enum values where strings are used if possible.
 	
 	private DateInfo dateInfo = null; // Julian Day, calendar date
 	private Magnitude magnitude = null; // magnitude, uncertainty, fainter/brighter-than

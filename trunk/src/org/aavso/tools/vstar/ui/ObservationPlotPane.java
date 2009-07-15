@@ -18,6 +18,15 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.jfree.chart.ChartFactory;
@@ -25,12 +34,24 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.xy.XYErrorRenderer;
 
 /**
  * This class represents a chart pane containing a light curve.
  */
-public class ObservationPlotPane extends ChartPanel {
+public class ObservationPlotPane extends JPanel {
 
+	private ChartPanel chartPanel;
+
+	private JTextArea obsInfo;
+	
+	// We use this renderer in order to be able to plot error bars.
+	// TODO: or should we use StatisticalLineAndShapeRenderer? (for means plot?)
+	private XYErrorRenderer renderer;
+
+	// Show error bars?
+	private boolean showErrorBars;
+	
 	/**
 	 * Constructor
 	 * 
@@ -41,20 +62,78 @@ public class ObservationPlotPane extends ChartPanel {
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
-	public ObservationPlotPane(String title, ObservationPlotModel obsModel, Dimension bounds) {
+	public ObservationPlotPane(String title, ObservationPlotModel obsModel,
+			Dimension bounds) {
+		super();
+		
+		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+
+		this.showErrorBars = true;
+		
 		// Create a chart with legend, tooltips, and URLs showing
 		// and add it to the panel.
-		super(ChartFactory.createScatterPlot(title, "Julian Day",
-				"Magnitude", obsModel, PlotOrientation.VERTICAL, true, true,
-				true));
+		this.chartPanel = new ChartPanel(ChartFactory.createScatterPlot(
+				title, "Julian Day", "Magnitude", obsModel,
+				PlotOrientation.VERTICAL, true, true, true));
+		
+		this.chartPanel.setPreferredSize(bounds);
 
-		this.setPreferredSize(bounds);
-		
-		JFreeChart chart = this.getChart();
-		
-		// We want the magnitude scale to go from high to low as we ascend the Y axis
-		// since as magnitude values get smaller, brightness increases.
+		JFreeChart chart = chartPanel.getChart();
+
+		this.renderer = new XYErrorRenderer();
+		this.renderer.setDrawYError(this.showErrorBars);
+
+		chart.getXYPlot().setRenderer(renderer);
+
+		// We want the magnitude scale to go from high to low as we ascend the 
+		// Y axis since as magnitude values get smaller, brightness increases.
 		NumberAxis rangeAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
 		rangeAxis.setInverted(true);
+
+		this.add(chartPanel);
+
+		this.add(Box.createRigidArea(new Dimension(0, 10)));		
+
+		// Checkbox to show/hide error bars.
+		JCheckBox errorBarCheckBox = new JCheckBox("Show error bars?");
+		errorBarCheckBox.setSelected(this.showErrorBars);
+		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());		
+		this.add(errorBarCheckBox);
+
+		this.add(Box.createRigidArea(new Dimension(0, 10)));
+
+		// Create the observation information text area.
+		this.obsInfo = new JTextArea();
+		obsInfo.setBorder(BorderFactory.createEtchedBorder());
+		obsInfo.setPreferredSize(new Dimension((int) (bounds.width),
+				(int) (bounds.height * 0.1)));
+		obsInfo.setEditable(false);
+		this.add(obsInfo);
+	}
+	
+	/**
+	 * @return the chartPanel
+	 */
+	public ChartPanel getChartPanel() {
+		return chartPanel;
+	}
+
+	/**
+	 * Show/hide the error bars.
+	 */
+	public void toggleErrorBars() {
+		this.showErrorBars = !this.showErrorBars;
+		this.renderer.setDrawYError(this.showErrorBars);		
+	}
+	
+	// Return a listener for the error bar visibility checkbox.
+	private ActionListener createErrorBarCheckBoxListener() {
+		final ObservationPlotPane self = this;
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				self.showErrorBars = !self.showErrorBars;
+				self.renderer.setDrawYError(self.showErrorBars);
+			}
+		};
 	}
 }

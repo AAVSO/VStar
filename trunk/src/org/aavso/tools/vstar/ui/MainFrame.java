@@ -99,7 +99,7 @@ public class MainFrame extends JFrame {
 		topPane.add(new StatusPane(
 				"Select a 'New Star' item from the File menu."),
 				BorderLayout.PAGE_END);
-
+		
 		return topPane;
 	}
 }

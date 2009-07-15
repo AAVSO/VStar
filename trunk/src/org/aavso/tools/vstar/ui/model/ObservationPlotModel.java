@@ -23,20 +23,16 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.jfree.data.DomainOrder;
-import org.jfree.data.xy.AbstractXYDataset;
+import org.jfree.data.xy.AbstractIntervalXYDataset;
 
 /**
  * This class is a model that represents a series of valid variable star
  * observations, e.g. for different bands (or from different sources).
  */
-public class ObservationPlotModel extends AbstractXYDataset {
+public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 	// A unique next series number for this model.
 	private int seriesNum;
-
-	// TODO: possibly switch to List<ValidObservation> to give us more
-	// flexibility with respect to formatting the output of fields on the
-	// chart.
 
 	/**
 	 * A mapping from series number to a list of observations where each such
@@ -154,6 +150,50 @@ public class ObservationPlotModel extends AbstractXYDataset {
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
 	public Number getX(int series, int item) {
+		return getJDAsXCoord(series, item);
+	}
+
+	/**
+	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
+	 */
+	public Number getY(int series, int item) {
+		return getMagAsYCoord(series, item);
+	}
+
+	/**
+	 * @see org.jfree.data.xy.AbstractXYDataset#getDomainOrder()
+	 */
+	public DomainOrder getDomainOrder() {
+		return DomainOrder.ASCENDING;
+	}
+
+	// AbstractIntervalXYDataSet methods.
+	// To be used for error bar handling.
+	
+	public Number getStartX(int series, int item) {
+		return getJDAsXCoord(series, item);
+	}
+
+	public Number getEndX(int series, int item) {
+		return getJDAsXCoord(series, item);
+	}
+
+	public Number getStartY(int series, int item) {
+		return getMagAsYCoord(series, item) - getMagError(series, item);
+	}
+
+	public Number getEndY(int series, int item) {
+		return getMagAsYCoord(series, item) + getMagError(series, item);
+	}
+
+	// Helpers
+
+	private int getNextSeriesNum() {
+		return seriesNum++;
+	}
+	
+	// Return the Julian Day as the X coordinate.
+	private double getJDAsXCoord(int series, int item) {
 		if (series >= this.seriesNumToObSrcListMap.size()) {
 			throw new IllegalArgumentException("Series number '" + series
 					+ "' out of range.");
@@ -168,10 +208,8 @@ public class ObservationPlotModel extends AbstractXYDataset {
 				.getJulianDay();
 	}
 
-	/**
-	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
-	 */
-	public Number getY(int series, int item) {
+	// Return the magnitude as the Y coordinate.
+	private double getMagAsYCoord(int series, int item) {
 		if (series >= this.seriesNumToObSrcListMap.size()) {
 			throw new IllegalArgumentException("Series number '" + series
 					+ "' out of range.");
@@ -185,19 +223,27 @@ public class ObservationPlotModel extends AbstractXYDataset {
 		return this.seriesNumToObSrcListMap.get(series).get(item)
 				.getMagnitude().getMagValue();
 	}
-
-	/**
-	 * @see org.jfree.data.xy.AbstractXYDataset#getDomainOrder()
-	 */
-	public DomainOrder getDomainOrder() {
-		return DomainOrder.ASCENDING;
-	}
-
-	// TODO: also getRangeOrder()?
-
-	// Helpers
-
-	private int getNextSeriesNum() {
-		return seriesNum++;
+	
+	// Return the error associated with the magnitude.
+	// We skip the series and item legality check to improve 
+	// performance on the assumption that this has been checked
+	// already when calling getMagAsYCoord(). So this is a 
+	// precondition of calling the current function.
+	private double getMagError(int series, int item) {
+		double error = 0;
+		
+		// If the HQ uncertainty field is non-null, use that, otherwise
+		// use the uncertainty value, which may be zero, in which case
+		// the error will be zero.
+		
+		Double hqUncertainty = this.seriesNumToObSrcListMap.get(series).get(item).getHqUncertainty();
+		
+		if (hqUncertainty != null) {
+			error = hqUncertainty;
+		} else {
+			error = this.seriesNumToObSrcListMap.get(series).get(item).getMagnitude().getUncertainty();
+		}
+		
+		return error;
 	}
 }
