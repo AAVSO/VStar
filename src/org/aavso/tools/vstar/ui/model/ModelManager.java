@@ -85,7 +85,7 @@ public class ModelManager implements PropertyChangeListener {
 	// TODO: mean, phase plot models...
 
 	// Current GUI table and chart elements.
-	private ChartPanel obsChartPane;
+	private ObservationPlotPane obsChartPane;
 	private ObservationListPane obsTablePane;
 
 	// TODO: mean, phase plot GUI elements...
@@ -319,10 +319,10 @@ public class ModelManager implements PropertyChangeListener {
 	/**
 	 * Create the light curve for a list of valid observations.
 	 */
-	private ChartPanel createLightCurvePane(String plotName) {
+	private ObservationPlotPane createLightCurvePane(String plotName) {
 		ObservationPlotModel model = this.getObsPlotModel();
-		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.75),
-				(int) (DataPane.HEIGHT * 0.75));
+		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
+				(int) (DataPane.HEIGHT * 0.9));
 		return new ObservationPlotPane("Julian Day vs Magnitude Plot for "
 				+ plotName, model, bounds);
 	}
@@ -337,7 +337,7 @@ public class ModelManager implements PropertyChangeListener {
 		switch (currentMode) {
 		case PLOT_OBS_MODE:
 			try {
-				this.obsChartPane.doSaveAs();
+				this.obsChartPane.getChartPanel().doSaveAs();
 			} catch (IOException ex) {
 				MessageBox.showErrorDialog(parent, "Save Light Curve", ex
 						.getMessage());
@@ -363,7 +363,7 @@ public class ModelManager implements PropertyChangeListener {
 	public void printCurrentMode(Component parent) {
 		switch (currentMode) {
 		case PLOT_OBS_MODE:
-			this.obsChartPane.createChartPrintJob();
+			this.obsChartPane.getChartPanel().createChartPrintJob();
 			break;
 		case PLOT_OBS_AND_MEANS_MODE:
 			break;
@@ -443,7 +443,7 @@ public class ModelManager implements PropertyChangeListener {
 	/**
 	 * @return the obsChartPane
 	 */
-	public ChartPanel getObsChartPane() {
+	public ObservationPlotPane getObsChartPane() {
 		return obsChartPane;
 	}
 

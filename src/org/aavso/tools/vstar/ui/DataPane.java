@@ -87,7 +87,7 @@ public class DataPane extends JPanel {
 		// are inset.
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-		topPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		// Create the panel that will be a shared space for
 		// data tables and plots as a function of mode radio
@@ -96,23 +96,11 @@ public class DataPane extends JPanel {
 		cards = new JPanel(new CardLayout());
 		cards.setBorder(BorderFactory.createEtchedBorder());
 		cards.setPreferredSize(new Dimension((int) (WIDTH * 0.9),
-				(int) (HEIGHT * 0.9)));
+				(int) (HEIGHT * 0.95)));
 
 		setDefaultCards();
 
 		topPane.add(cards);
-
-		// Create space between shared space pane and observation
-		// information.
-		topPane.add(Box.createRigidArea(new Dimension(0, 10)));
-
-		// Create the observation information text area.
-		JTextArea obsInfo = new JTextArea();
-		obsInfo.setBorder(BorderFactory.createEtchedBorder());
-		obsInfo.setPreferredSize(new Dimension((int) (WIDTH * 0.9),
-				(int) (HEIGHT * 0.1)));
-		obsInfo.setEditable(false);
-		topPane.add(obsInfo);
 
 		this.add(topPane, BorderLayout.CENTER);
 	}
@@ -154,7 +142,7 @@ public class DataPane extends JPanel {
 						|| info == NewStarType.NEW_STAR_FROM_DATABASE) {
 					// TODO: should get these from message (create a message
 					// package)
-					ChartPanel obsPlotPane = modelMgr.getObsChartPane();
+					JPanel obsPlotPane = modelMgr.getObsChartPane();
 					JPanel obsListPane = modelMgr.getObsTablePane();
 
 					if (obsPlotPane != null && obsListPane != null) {
