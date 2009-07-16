@@ -24,7 +24,7 @@ import javax.swing.UIManager;
  * 
  * Note: this is a tentative first approximation...
  */
-public class VStarGUI {
+public class VStar {
 
 	public static void main(String[] args) {
 		try {

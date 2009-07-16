@@ -56,7 +56,7 @@
 			</classpath>
 		</java>
 -->
-		<java fork="true" classname="org.aavso.tools.vstar.ui.VStarGUI">
+		<java fork="true" classname="org.aavso.tools.vstar.ui.VStar">
 			<!-- TODO: use a CP ref instead -->
 			<classpath>
  				<pathelement location="${extlib}/jcommon-1.0.16.jar" />
