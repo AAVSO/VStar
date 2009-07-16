@@ -26,16 +26,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.ui.model.ModeType;
 import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.util.Listener;
-import org.jfree.chart.ChartPanel;
 
 /**
  * A panel for rendering data lists, plots and other observation-related
