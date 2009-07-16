@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.data;
 
+import org.aavso.tools.vstar.util.IMagAndJDSource;
+
 
 /**
  * This class corresponds to a single valid variable star observation. Depending
@@ -35,7 +37,7 @@ package org.aavso.tools.vstar.data;
  * 
  * JD MAGNITUDE [UNCERTAINTY] [OBSERVER_CODE] [VALFLAG]
  */
-public class ValidObservation extends Observation {
+public class ValidObservation extends Observation implements IMagAndJDSource {
 
 	// Optimisations (TODO):
 	// - Use Flyweight pattern to ensure that immutable values 
@@ -360,5 +362,15 @@ public class ValidObservation extends Observation {
 		strBuf.append(validationType.getValflag());
 
 		return strBuf.toString();
+	}
+
+	// IMagAndJDSource methods
+	
+	public double getJD() {
+		return this.dateInfo.getJulianDay();
+	}
+
+	public double getMag() {
+		return this.magnitude.getMagValue();
 	}
 }
