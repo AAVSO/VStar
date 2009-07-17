@@ -146,6 +146,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		return this.seriesNumToObSrcListMap.get(series).size();
 	}
 
+	// TODO: are these next two still required?
+	
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
