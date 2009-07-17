@@ -33,7 +33,7 @@ public class Magnitude {
 	/**
 	 * Constructor.
 	 * 
-	 * @param magValue The magValue itself.
+	 * @param magnitude The magnitude value itself.
 	 * @param brightnessModifier Does the magValue constitute a fainter/brighter-than observation?
 	 * @param isUncertain Is this an uncertain magValue value?
 	 */
@@ -42,6 +42,18 @@ public class Magnitude {
 		this.magModifier = magModifier;
 		this.isUncertain = isUncertain;
 		this.uncertainty = 0; // defaults to zero; may be changed after construction
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * Creates a Magnitude with magnitude and uncertainty values.
+	 * 
+	 * @param magnitude The magnitude value itself.
+	 */
+	public Magnitude(double magnitude, double uncertainty) {
+		this(magnitude, MagnitudeModifier.NO_DELTA, !IS_UNCERTAIN);
+		this.uncertainty = uncertainty;
 	}
 	
 	/**
