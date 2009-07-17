@@ -17,9 +17,12 @@
  */
 package org.aavso.tools.vstar.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.aavso.tools.vstar.data.validation.InclusiveRangePredicate;
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
  * Descriptive statistics functions for magnitude and Julian Day sources.
@@ -32,24 +35,25 @@ public class DescStats {
 	 * 
 	 * @param source
 	 *            A source of (magnitude, Julian Day) pairs.
-	 * @param jdRange
-	 *            An inclusive range of Julian Days.
+	 * @param minJDIndex
+	 *            The first Julian Day index in the inclusive range.
+	 * @param maxJDIndex
+	 *            The last Julian Day index in the inclusive range.
 	 * @return The mean of magnitudes in the JD range.
 	 */
-	public static double calcMagMeanInJDRange(List<? extends IMagAndJDSource> source,
-			InclusiveRangePredicate jdRange) {
+	public static double calcMagMeanInJDRange(
+			List<? extends IMagAndJDSource> source, int minJDIndex,
+			int maxJDIndex) {
 
-		int itemsInRange = 0;
+		assert (maxJDIndex >= minJDIndex);
+
 		double total = 0;
 
-		for (IMagAndJDSource item : source) {
-			if (jdRange.holds(item.getJD())) {
-				itemsInRange++;
-				total += item.getMag();
-			}
+		for (int i = minJDIndex; i <= maxJDIndex; i++) {
+			total += source.get(i).getMag();
 		}
 
-		return total / itemsInRange;
+		return total / (maxJDIndex - minJDIndex + 1);
 	}
 
 	/**
@@ -61,65 +65,104 @@ public class DescStats {
 	 * 
 	 * @param source
 	 *            A source of (magnitude, Julian Day) pairs.
-	 * @param jdRange
-	 *            An inclusive range of Julian Days.
+	 * @param minJDIndex
+	 *            The first Julian Day index in the inclusive range.
+	 * @param maxJDIndex
+	 *            The last Julian Day index in the inclusive range.
 	 * @return The sample standard deviation of the magnitudes in the JD range.
 	 */
 	public static double calcMagSampleStdDevInJDRange(
-			List<? extends IMagAndJDSource> source, InclusiveRangePredicate jdRange) {
+			List<? extends IMagAndJDSource> source, int minJDIndex,
+			int maxJDIndex) {
 
-		double magMean = calcMagMeanInJDRange(source, jdRange);
+		assert (maxJDIndex >= minJDIndex);
 
-		int itemsInRange = 0;
+		double magMean = calcMagMeanInJDRange(source, minJDIndex, maxJDIndex);
+
 		double total = 0;
 
-		for (IMagAndJDSource item : source) {
-			if (jdRange.holds(item.getJD())) {
-				itemsInRange++;
-				double delta = item.getMag() - magMean;
-				total += delta * delta;
-			}
+		for (int i = minJDIndex; i <= maxJDIndex; i++) {
+			double delta = source.get(i).getMag() - magMean;
+			total += delta * delta;
 		}
 
-		double variance = total / (itemsInRange - 1);
-		
+		// Standard sample variance.
+		double variance = total / (maxJDIndex - minJDIndex);
+
 		return Math.sqrt(variance);
 	}
 
 	/**
-	 * Calculates the standard error/deviation or the average of a sample of
-	 * magnitudes for Julian Days in a specified inclusive range. We use the
-	 * sample standard deviation formula as per
+	 * Calculates the Standard Error of the Average of a sample of magnitudes
+	 * for Julian Days in a specified inclusive range. We use the sample
+	 * standard deviation formula as per
 	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
 	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
 	 * 
 	 * @param source
 	 *            A source of (magnitude, Julian Day) pairs.
-	 * @param jdRange
-	 *            An inclusive range of Julian Days.
-	 * @return The standard error/deviation or the average of the magnitudes in
-	 *         the JD range.
+	 * @param minJDIndex
+	 *            The first Julian Day index in the inclusive range.
+	 * @param maxJDIndex
+	 *            The last Julian Day index in the inclusive range.
+	 * @return A ValidObservation instance whose Julian Day is at the mid-point
+	 *         between the two indexed JDs, and whose magnitude captures the
+	 *         mean of magnitude values in that range, and the Standard Error of
+	 *         the Average for that mean magnitude value.
 	 */
-	public static double calcMagStdErrorOfAverageInJDRange(
-			List<? extends IMagAndJDSource> source, InclusiveRangePredicate jdRange) {
+	public static ValidObservation createMeanObservationForJDRange(
+			List<? extends IMagAndJDSource> source, int minJDIndex,
+			int maxJDIndex) {
 
-		double magMean = calcMagMeanInJDRange(source, jdRange);
+		assert (maxJDIndex >= minJDIndex);
 
-		int itemsInRange = 0;
+		double magMean = calcMagMeanInJDRange(source, minJDIndex, maxJDIndex);
+
 		double total = 0;
 
-		for (IMagAndJDSource item : source) {
-			if (jdRange.holds(item.getJD())) {
-				itemsInRange++;
-				double delta = item.getMag() - magMean;
-				total += delta * delta;
-			}
+		for (int i = minJDIndex; i <= maxJDIndex; i++) {
+			double delta = source.get(i).getMag() - magMean;
+			total += delta * delta;
 		}
 
-		double variance = total / (itemsInRange - 1);
-
+		// Standard sample variance.
+		double variance = total / (maxJDIndex - minJDIndex);
 		double magStdDev = Math.sqrt(variance);
-		
-		return magStdDev / Math.sqrt(itemsInRange);
+		double magStdErrOfMean = magStdDev
+				/ Math.sqrt(maxJDIndex - minJDIndex + 1);
+
+		// Mean Julian Day. TODO: should we instead use median?
+		double meanJD = (source.get(minJDIndex).getJD() + source
+				.get(maxJDIndex).getJD()) / 2;
+
+		ValidObservation observation = new ValidObservation();
+		observation.setMagnitude(new Magnitude(magMean, magStdErrOfMean));
+		observation.setDateInfo(new DateInfo(meanJD));
+
+		return observation;
+	}
+
+	/**
+	 * Create a sequence of observations based upon bin size.
+	 * The observations represent mean magnitudes at the mid-point of each bin.
+	 * Each bin consists of the range index..index+binSize-1
+	 * 
+	 * @param observations
+	 *            The observations to which binning will be applied.
+	 * @param binSize
+	 *            The bin size in whole number of Julian Days.
+	 * @return The observation sequence consisting of magnitude means per bin
+	 *         and the Julian Day at the center point of each bin.
+	 */
+	public List<ValidObservation> createdBinnedObservations(
+			List<ValidObservation> observations, int binSize) {
+		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
+
+		for (int i = 0; i < observations.size(); i += binSize) {
+			binnedObs.add(createMeanObservationForJDRange(observations, i, i
+					+ binSize - 1));
+		}
+
+		return binnedObs;
 	}
 }
