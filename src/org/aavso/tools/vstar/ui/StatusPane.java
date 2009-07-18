@@ -26,6 +26,7 @@ import javax.swing.JProgressBar;
 import javax.swing.border.BevelBorder;
 
 import org.aavso.tools.vstar.ui.model.ModelManager;
+import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.Listener;
@@ -43,11 +44,11 @@ public class StatusPane extends JPanel {
 	private JLabel statusLabel;
 	private JProgressBar progressBar;
 
-
 	/**
 	 * Constructor.
 	 * 
-	 * @param firstMsg The first message to be displayed in the status pane.
+	 * @param firstMsg
+	 *            The first message to be displayed in the status pane.
 	 */
 	public StatusPane(String firstMsg) {
 		super(false); // not double buffered
@@ -118,7 +119,8 @@ public class StatusPane extends JPanel {
 	}
 
 	/**
-	 * Set the progress bar to its maximum value, i.e. complete the progress bar.
+	 * Set the progress bar to its maximum value, i.e. complete the progress
+	 * bar.
 	 */
 	public void completeProgressBar() {
 		this.progressBar.setValue(this.progressBar.getMaximum());
@@ -127,23 +129,25 @@ public class StatusPane extends JPanel {
 	/**
 	 * Return a new star creation listener.
 	 */
-	private Listener<NewStarType> createNewStarListener() {
-		return new Listener<NewStarType>() {
-			public void update(NewStarType info) {
-				if (info == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
-						|| info == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE) {
+	private Listener<NewStarMessage> createNewStarListener() {
+		return new Listener<NewStarMessage>() {
+			// Update the status bar to say something about the fact that a
+			// new star has just been loaded.
+			public void update(NewStarMessage msg) {
+				if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
+						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE) {
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
 					strBuf.append(modelMgr.getNewStarFileName());
 					strBuf.append("' loaded.");
 					setMessage(strBuf.toString());
-				} else if (info == NewStarType.NEW_STAR_FROM_DATABASE) {
+				} else if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 					// TODO
 				}
 			}
 		};
 	}
-	
+
 	/**
 	 * Return a progress listener.
 	 */
@@ -151,7 +155,7 @@ public class StatusPane extends JPanel {
 		final StatusPane self = this;
 		return new Listener<ProgressInfo>() {
 			public void update(ProgressInfo info) {
-				switch(info.getType()) {
+				switch (info.getType()) {
 				case MIN_PROGRESS:
 					self.setMinProgressValue(info.getNum());
 					break;

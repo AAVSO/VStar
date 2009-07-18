@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.model.ModeType;
 import org.aavso.tools.vstar.ui.model.ModelManager;
+import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.util.Listener;
 
@@ -129,22 +130,22 @@ public class DataPane extends JPanel {
 	/**
 	 * Return a new star creation listener.
 	 */
-	private Listener<NewStarType> createNewStarListener() {
-		return new Listener<NewStarType>() {
+	private Listener<NewStarMessage> createNewStarListener() {
+		return new Listener<NewStarMessage>() {
 			// Set the cards components for each model type.
 			// TODO: looks like we can ignore info conditional below
-			public void update(NewStarType info) {
-				if (info == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
-						|| info == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE
-						|| info == NewStarType.NEW_STAR_FROM_DATABASE) {
-					// TODO: should get these from message (create a message
-					// package)
-					JPanel obsPlotPane = modelMgr.getObsChartPane();
-					JPanel obsListPane = modelMgr.getObsTablePane();
+			public void update(NewStarMessage msg) {
+				if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
+						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE
+						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+
+					JPanel obsPlotPane = msg.getObsChartPane();
+					JPanel obsListPane = msg.getObsTablePane();
 
 					if (obsPlotPane != null && obsListPane != null) {
 						setCard(ModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
 						setCard(ModeType.LIST_OBS_MODE_DESC, obsListPane);
+						// TODO: pass modelMgr around in message, Actors style?
 						modelMgr.changeMode(ModeType.PLOT_OBS_MODE);
 					} else {
 						MessageBox.showErrorDialog(parent, "New Star...",

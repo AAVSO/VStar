@@ -31,6 +31,8 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
  */
 public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
+	public static final String MEANS_SERIES_NAME = "Means";
+	
 	// A unique next series number for this model.
 	private int seriesNum;
 
@@ -44,7 +46,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 * A mapping from series number to source name.
 	 */
 	private Map<Integer, String> seriesNumToSrcNameMap;
-
+	
 	/**
 	 * Constructor
 	 */
@@ -113,6 +115,34 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	}
 
 	/**
+	 * Remove the named series from the model.
+	 * This operation has time complexity O(n) but n
+	 * (the number of series) will never be too large. 
+	 *
+	 * @param name The source name of the series. 
+	 */
+	public void removeObservationSeries(String name) {
+		boolean found = false;
+		
+		for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap.entrySet()) {
+			if (name.equals(entry.getValue())) {
+				int series = entry.getKey();
+				this.seriesNumToSrcNameMap.remove(series);
+				this.seriesNumToObSrcListMap.remove(series);
+				this.fireDatasetChanged();
+				found = true;
+				break;
+			}
+		}
+		
+		// This should be used only as an internal operation, 
+		// so we should never be asking to delete an entry from
+		// the maps that does not exist. If so, it is a programming 
+		// error and should be reported as a bug.
+		assert(found);
+	}
+
+	/**
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesCount()
 	 * @param Return
 	 *            the number of observation series that exist on the plot.
@@ -138,6 +168,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 * @return The number of observations (items) in the requested series.
 	 */
 	public int getItemCount(int series) {
+		// TODO: here and elsewhere, should this instead be:
+		// if (!seriesNumToSrcName.containsKey(series)) ... ?
 		if (series >= this.seriesNumToSrcNameMap.size()) {
 			throw new IllegalArgumentException("Series number '" + series
 					+ "' out of range.");
@@ -169,6 +201,21 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		return DomainOrder.ASCENDING;
 	}
 
+	/**
+	 * Should the elements of the specified series be joined visually (e.g. with lines)?
+	 * 
+	 * @param series The series number.
+	 * @return Whether or not the elements should be joined visually.
+	 */
+	public boolean shouldJoinSeriesElements(int series) {
+		if (!seriesNumToSrcNameMap.containsKey(series)) {
+			throw new IllegalArgumentException("'" + series
+					+ "' is not a known series number.");
+		}
+
+		return MEANS_SERIES_NAME.equals(seriesNumToSrcNameMap.get(series));
+	}
+	
 	// AbstractIntervalXYDataSet methods.
 	// To be used for error bar handling.
 	
@@ -231,7 +278,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	// performance on the assumption that this has been checked
 	// already when calling getMagAsYCoord(). So this is a 
 	// precondition of calling the current function.
-	private double getMagError(int series, int item) {
+	protected double getMagError(int series, int item) {
 		double error = 0;
 		
 		// If the HQ uncertainty field is non-null, use that, otherwise

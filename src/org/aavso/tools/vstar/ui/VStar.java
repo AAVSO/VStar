@@ -21,8 +21,6 @@ import javax.swing.UIManager;
 
 /**
  * The VStar GUI.
- * 
- * Note: this is a tentative first approximation...
  */
 public class VStar {
 
