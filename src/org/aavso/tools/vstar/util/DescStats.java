@@ -154,7 +154,7 @@ public class DescStats {
 	 * @return The observation sequence consisting of magnitude means per bin
 	 *         and the Julian Day at the center point of each bin.
 	 */
-	public List<ValidObservation> createdBinnedObservations(
+	public static List<ValidObservation> createdBinnedObservations(
 			List<ValidObservation> observations, int binSize) {
 		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
 
