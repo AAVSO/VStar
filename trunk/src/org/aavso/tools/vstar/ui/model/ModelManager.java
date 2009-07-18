@@ -56,6 +56,9 @@ import org.jdesktop.swingworker.SwingWorker;
  * 
  * TODO: also handle undo, document "is-dirty" handling, don't load same file
  * twice etc.
+ * 
+ * TODO: where we currently refer to modelMgr artefacts, we should use local
+ * variables instead where possible and get rid of those members.
  */
 public class ModelManager {
 
@@ -71,20 +74,22 @@ public class ModelManager {
 	// type.
 	private List<ValidObservation> validObsList;
 	private List<InvalidObservation> invalidObsList;
+	private Map<String, List<ValidObservation>> validObservationCategoryMap;
 
 	private ValidObservationTableModel validObsTableModel;
 	private InvalidObservationTableModel invalidObsTableModel;
-	private Map<String, List<ValidObservation>> validObservationCategoryMap;
 
 	private ObservationPlotModel obsPlotModel;
+	private ObservationPlotModel obsAndMeanPlotModel;
 
-	// TODO: mean, phase plot models...
+	// TODO: phase plot models...
 
 	// Current GUI table and chart components.
 	private ObservationPlotPane obsChartPane;
+	private ObservationPlotPane obsAndMeanChartPane;
 	private ObservationListPane obsTablePane;
 
-	// TODO: mean, phase plot GUI components...
+	// TODO: phase plot GUI components...
 
 	// Notifiers.
 	private Notifier<NewStarMessage> newStarNotifier;
@@ -167,7 +172,8 @@ public class ModelManager {
 		 * Main task. Executed in background thread.
 		 */
 		public Void doInBackground() {
-			this.success = createFileBasedObservationArtefacts(obsFile, analyser);
+			this.success = createFileBasedObservationArtefacts(obsFile,
+					analyser);
 			return null;
 		}
 
@@ -183,8 +189,9 @@ public class ModelManager {
 				// Notify whoever is listening that a new star has been loaded,
 				// passing GUI components in the message.
 				NewStarMessage msg = new NewStarMessage(analyser
-						.getNewStarType(), modelMgr.obsChartPane, modelMgr.obsTablePane);
-				
+						.getNewStarType(), modelMgr.obsChartPane,
+						modelMgr.obsAndMeanChartPane, modelMgr.obsTablePane);
+
 				modelMgr.newStarNotifier.notifyListeners(msg);
 			}
 		}
@@ -223,20 +230,28 @@ public class ModelManager {
 				return false;
 			}
 
-			// Given raw valid and invalid observation data, create observation 
+			// Given raw valid and invalid observation data, create observation
 			// table and plot models, along with corresponding GUI components.
-			
+
 			if (!modelMgr.validObsList.isEmpty()) {
+				// Observation table and plot.
 				modelMgr.validObsTableModel = new ValidObservationTableModel(
 						modelMgr.validObsList, analyser.getNewStarType());
 
 				modelMgr.obsPlotModel = new ObservationPlotModel(
 						modelMgr.validObservationCategoryMap);
 
-				modelMgr.obsChartPane = createLightCurvePane(this.obsFile
+				modelMgr.obsChartPane = createObservationPane(this.obsFile
 						.getName());
 
-				// TODO: same for means ...
+				// Observation-and-mean table and plot.
+
+				// TODO: for means ...
+				// - table with means-based data
+				modelMgr.obsAndMeanPlotModel = createObservationAndMeanPlotModel();
+
+				modelMgr.obsAndMeanChartPane = createObservationAndMeanPane(this.obsFile
+						.getName());
 
 				modelMgr.getProgressNotifier().notifyListeners(
 						new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
@@ -248,6 +263,8 @@ public class ModelManager {
 						modelMgr.invalidObsList);
 			}
 
+			// The observation table pane contains valid and potentially
+			// invalid data components.
 			modelMgr.obsTablePane = createObsTablePane();
 
 			return true;
@@ -278,7 +295,8 @@ public class ModelManager {
 
 		// Task begins: Number of lines in file and a portion for the light
 		// curve plot.
-		int plotPortion = (int) (analyser.getLineCount() * 0.2);
+		int plotPortion = (int) (analyser.getLineCount() * 0.2); // TODO: review
+		// 0.2
 
 		this.getProgressNotifier().notifyListeners(
 				new ProgressInfo(ProgressType.MAX_PROGRESS, analyser
@@ -299,14 +317,38 @@ public class ModelManager {
 	}
 
 	/**
-	 * Create the light curve for a list of valid observations.
+	 * Create the observation pane for a list of valid observations.
 	 */
-	private ObservationPlotPane createLightCurvePane(String plotName) {
-		ObservationPlotModel model = this.getObsPlotModel();
+	private ObservationPlotPane createObservationPane(String plotName) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 		return new ObservationPlotPane("Julian Day vs Magnitude Plot for "
-				+ plotName, model, bounds);
+				+ plotName, this.obsPlotModel, bounds);
+	}
+
+	/**
+	 * Create a plot model containing observations and a means series based upon
+	 * a default bin size that the user can change later. TODO: bin
+	 * size/percentage could become subject to Preferences.
+	 * 
+	 * @return The plot model.
+	 */
+	private ObservationAndMeanPlotModel createObservationAndMeanPlotModel() {
+		ObservationAndMeanPlotModel plotModel = new ObservationAndMeanPlotModel(
+				modelMgr.validObsList, modelMgr.validObservationCategoryMap);
+
+		return plotModel;
+	}
+
+	/**
+	 * Create the observation-and-mean pane for the current list of valid
+	 * observations.
+	 */
+	private ObservationPlotPane createObservationAndMeanPane(String plotName) {
+		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
+				(int) (DataPane.HEIGHT * 0.9));
+		return new ObservationPlotPane("Julian Day vs Magnitude Plot for "
+				+ plotName, this.obsAndMeanPlotModel, bounds);
 	}
 
 	/**
