@@ -28,8 +28,8 @@ import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * Unit tests for descriptive stats class. Sample data taken from chapter 10 of
- * the AAVSO's Hands-on Astrophysics.
+ * Unit tests for descriptive stats class. Sample data taken from chapter 10 
+ * of the AAVSO's Hands-on Astrophysics.
  */
 public class DescStatsTest extends TestCase {
 
@@ -108,9 +108,57 @@ public class DescStatsTest extends TestCase {
 		String magMeanStr = String.format("%1.1f", magMean);
 		assertEquals("4.0", magMeanStr);
 
-		double magStdDev = observation.getMagnitude().getUncertainty();
-		String magStdDevStr = String.format("%1.3f", magStdDev);
-		assertEquals("0.038", magStdDevStr);
+		double magStdErr = observation.getMagnitude().getUncertainty();
+		String magStdErrStr = String.format("%1.3f", magStdErr);
+		assertEquals("0.038", magStdErrStr);
+	}
+
+	public void testObservationBinning1() {
+		List<ValidObservation> observations = DescStats
+				.createdBinnedObservations(this.observations1,
+						this.observations1.size());
+
+		assertTrue(observations.size() == 1);
+
+		double magMean = observations.get(0).getMagnitude().getMagValue();
+		String magMeanStr = String.format("%1.1f", magMean);
+		assertEquals("3.0", magMeanStr);
+
+		double magStdErr = observations.get(0).getMagnitude().getUncertainty();
+		String magStdErrStr = String.format("%1.3f", magStdErr);
+		assertEquals("0.707", magStdErrStr);
+	}
+
+	public void testObservationBinning2() {
+		List<ValidObservation> observations = DescStats
+				.createdBinnedObservations(this.observations2,
+						this.observations2.size());
+
+		assertTrue(observations.size() == 1);
+
+		double magMean = observations.get(0).getMagnitude().getMagValue();
+		String magMeanStr = String.format("%1.1f", magMean);
+		assertEquals("3.0", magMeanStr);
+
+		double magStdErr = observations.get(0).getMagnitude().getUncertainty();
+		String magStdErrStr = String.format("%1.3f", magStdErr);
+		assertEquals("0.316", magStdErrStr);
+	}
+
+	public void testObservationBinning3() {
+		List<ValidObservation> observations = DescStats
+				.createdBinnedObservations(this.observations3,
+						this.observations3.size());
+
+		assertTrue(observations.size() == 1);
+
+		double magMean = observations.get(0).getMagnitude().getMagValue();
+		String magMeanStr = String.format("%1.1f", magMean);
+		assertEquals("4.0", magMeanStr);
+
+		double magStdErr = observations.get(0).getMagnitude().getUncertainty();
+		String magStdErrStr = String.format("%1.3f", magStdErr);
+		assertEquals("0.038", magStdErrStr);
 	}
 
 	// Helpers

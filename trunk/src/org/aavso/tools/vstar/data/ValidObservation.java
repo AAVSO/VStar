@@ -346,7 +346,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 		this.mType = mType;
 	}
 
-	// TODO: complete for all fields or remove!
+	// TODO: complete for all fields!
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 
