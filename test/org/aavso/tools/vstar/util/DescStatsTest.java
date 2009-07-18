@@ -28,8 +28,8 @@ import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * Unit tests for descriptive stats class. Sample data taken from chapter 10 
- * of the AAVSO's Hands-on Astrophysics.
+ * Unit tests for descriptive stats class. Sample data taken from chapter 10 of
+ * the AAVSO's Hands-on Astrophysics.
  */
 public class DescStatsTest extends TestCase {
 
@@ -159,6 +159,38 @@ public class DescStatsTest extends TestCase {
 		double magStdErr = observations.get(0).getMagnitude().getUncertainty();
 		String magStdErrStr = String.format("%1.3f", magStdErr);
 		assertEquals("0.038", magStdErrStr);
+	}
+
+	// A bin size of 5 for observations3 should give us a list 
+	// of two ValidObservations.
+	public void testObservationBinning4() {
+		int binSize = this.observations3.size() / 2;
+
+		List<ValidObservation> observations = DescStats
+				.createdBinnedObservations(this.observations3, binSize);
+
+		// Two ValidObservation elements?
+		assertTrue(observations.size() == 2);
+
+		// Check the magnitude mean and standard error of the average
+		// for the first element.
+		double magMean1 = observations.get(0).getMagnitude().getMagValue();
+		String magMean1Str = String.format("%1.2f", magMean1);
+		assertEquals("4.04", magMean1Str);
+
+		double magStdErr1 = observations.get(0).getMagnitude().getUncertainty();
+		String magStdErr1Str = String.format("%1.3f", magStdErr1);
+		assertEquals("0.051", magStdErr1Str);
+
+		// Check the magnitude mean and standard error of the average
+		// for the second element.
+		double magMean2 = observations.get(1).getMagnitude().getMagValue();
+		String magMean2Str = String.format("%1.2f", magMean2);
+		assertEquals("3.94", magMean2Str);
+
+		double magStdErr2 = observations.get(1).getMagnitude().getUncertainty();
+		String magStdErr2Str = String.format("%1.3f", magStdErr2);
+		assertEquals("0.051", magStdErr2Str);
 	}
 
 	// Helpers
