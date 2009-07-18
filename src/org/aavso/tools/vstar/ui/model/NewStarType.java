@@ -47,11 +47,6 @@ public enum NewStarType {
 	private final ITableColumnInfoSource columnInfoSource;
 	private final ITableFieldInfoSource fieldInfoSource;
 
-	// TODO: also create a NewStarInfo message class with GUI component refs for
-	// DataPane so that created components can be passed to listeners rather
-	// than the latter having to receive an event and then query the model
-	// manager.
-
 	/**
 	 * Constructor.
 	 * 

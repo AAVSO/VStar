@@ -26,23 +26,35 @@ import org.aavso.tools.vstar.ui.ObservationPlotPane;
 public class NewStarMessage {
 
 	private NewStarType newStarType;
-	
+
 	// GUI table and chart components.
 	private ObservationPlotPane obsChartPane;
 	private ObservationListPane obsTablePane;
-	// TODO: add obsWithMeans{Chart,Table}Pane
-	
+	private ObservationPlotPane obsAndMeanChartPane;
+
+	// TODO: add meansTablePane
+
 	/**
 	 * Constructor
 	 * 
-	 * @param newStarType The new star type enum.
-	 * @param obsChartPane The observation plot GUI component.
-	 * @param obsTablePane The observation table GUI component.
+	 * @param newStarType
+	 *            The new star type enum.
+	 * @param obsChartPane
+	 *            The observation plot GUI component.
+	 * @param obsWithMeanChartPane
+	 *            The observation-and-mean plot GUI component.
+	 * @param obsTablePane
+	 *            The observation table GUI component.
 	 */
 	public NewStarMessage(NewStarType newStarType,
-			ObservationPlotPane obsChartPane, ObservationListPane obsTablePane) {
+			ObservationPlotPane obsChartPane,
+			ObservationPlotPane obsAndMeanChartPane,
+			ObservationListPane obsTablePane) {
 		this.newStarType = newStarType;
+		
 		this.obsChartPane = obsChartPane;
+		this.obsAndMeanChartPane = obsAndMeanChartPane;
+		
 		this.obsTablePane = obsTablePane;
 	}
 
@@ -65,5 +77,12 @@ public class NewStarMessage {
 	 */
 	public ObservationListPane getObsTablePane() {
 		return obsTablePane;
-	}	
+	}
+
+	/**
+	 * @return the obsAndMeanChartPane
+	 */
+	public ObservationPlotPane getObsAndMeanChartPane() {
+		return obsAndMeanChartPane;
+	}
 }

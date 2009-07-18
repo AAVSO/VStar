@@ -29,6 +29,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
  */
 public class DescStats {
 
+	public static final int DEFAULT_BIN_PERCENTAGE = 10;
+
 	/**
 	 * Calculates the mean of a sequence of magnitudes for Julian Days in a
 	 * specified inclusive range.
@@ -45,7 +47,9 @@ public class DescStats {
 			List<? extends IMagAndJDSource> source, int minJDIndex,
 			int maxJDIndex) {
 
+		// Pre-conditions.
 		assert (maxJDIndex >= minJDIndex);
+		assert (maxJDIndex < source.size());
 
 		double total = 0;
 
@@ -75,7 +79,9 @@ public class DescStats {
 			List<? extends IMagAndJDSource> source, int minJDIndex,
 			int maxJDIndex) {
 
+		// Pre-conditions.
 		assert (maxJDIndex >= minJDIndex);
+		assert (maxJDIndex < source.size());
 
 		double magMean = calcMagMeanInJDRange(source, minJDIndex, maxJDIndex);
 
@@ -114,8 +120,10 @@ public class DescStats {
 			List<? extends IMagAndJDSource> source, int minJDIndex,
 			int maxJDIndex) {
 
+		// Pre-conditions.
 		assert (maxJDIndex >= minJDIndex);
-
+		assert (maxJDIndex < source.size());
+		
 		double magMean = calcMagMeanInJDRange(source, minJDIndex, maxJDIndex);
 
 		double total = 0;
@@ -143,9 +151,9 @@ public class DescStats {
 	}
 
 	/**
-	 * Create a sequence of observations based upon bin size.
-	 * The observations represent mean magnitudes at the mid-point of each bin.
-	 * Each bin consists of the range index..index+binSize-1
+	 * Create a sequence of observations based upon bin size. The observations
+	 * represent mean magnitudes at the mid-point of each bin. Each bin consists
+	 * of the range index..index+binSize-1
 	 * 
 	 * @param observations
 	 *            The observations to which binning will be applied.
@@ -159,8 +167,18 @@ public class DescStats {
 		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
 
 		for (int i = 0; i < observations.size(); i += binSize) {
-			binnedObs.add(createMeanObservationForJDRange(observations, i, i
-					+ binSize - 1));
+			int minJDIndex = i;
+			int maxJDIndex = i + binSize - 1;
+
+			// The last bin size may be smaller than the preceding bins
+			// unless we have equal number of ranges. If so, cap the 
+			// maximum index to the last index of the observations list.
+			if (maxJDIndex >= observations.size()) {
+				maxJDIndex = observations.size() - 1;
+			}
+
+			binnedObs.add(createMeanObservationForJDRange(observations,
+					minJDIndex, maxJDIndex));
 		}
 
 		return binnedObs;

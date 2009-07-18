@@ -26,13 +26,11 @@ import org.jfree.data.DomainOrder;
 import org.jfree.data.xy.AbstractIntervalXYDataset;
 
 /**
- * This class is a model that represents a series of valid variable star
- * observations, e.g. for different bands (or from different sources).
+ * This is the base class for models that represent a series of valid variable
+ * star observations, e.g. for different bands (or from different sources).
  */
 public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
-	public static final String MEANS_SERIES_NAME = "Means";
-	
 	// A unique next series number for this model.
 	private int seriesNum;
 
@@ -40,13 +38,13 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 * A mapping from series number to a list of observations where each such
 	 * list is a data series.
 	 */
-	private Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap;
+	protected Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap;
 
 	/**
 	 * A mapping from series number to source name.
 	 */
-	private Map<Integer, String> seriesNumToSrcNameMap;
-	
+	protected Map<Integer, String> seriesNumToSrcNameMap;
+
 	/**
 	 * Constructor
 	 */
@@ -61,7 +59,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 * Constructor
 	 * 
 	 * We add a named observation source list to a unique series number.
-	 *  
+	 * 
 	 * @param name
 	 *            Name of observation source list.
 	 * @param obsSourceList
@@ -96,7 +94,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 *            A name to be associated with the data source.
 	 * @param obSourceList
 	 *            A series (list) of observations, in particular, magnitude and
-	 *            Julian Day.
+	 *            Julian Day.           
 	 * @postcondition Both seriesNumToObSrcListMap and seriesNumToSrcNameMap
 	 *                must be the same length.
 	 */
@@ -115,16 +113,22 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	}
 
 	/**
-	 * Remove the named series from the model.
-	 * This operation has time complexity O(n) but n
-	 * (the number of series) will never be too large. 
-	 *
-	 * @param name The source name of the series. 
+	 * Remove the named series from the model. This operation has time
+	 * complexity O(n) but n (the number of series) will never be too large.
+	 * 
+	 * Whether or not the named series was removed (it may not have existed
+	 * to begin with) is returned. The caller can determine whether or not this
+	 * matters.
+	 * 
+	 * @param name
+	 *            The source name of the series.
+	 * @return Whether or not the series was removed.
 	 */
-	public void removeObservationSeries(String name) {
+	public boolean removeObservationSeries(String name) {
 		boolean found = false;
-		
-		for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap.entrySet()) {
+
+		for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap
+				.entrySet()) {
 			if (name.equals(entry.getValue())) {
 				int series = entry.getKey();
 				this.seriesNumToSrcNameMap.remove(series);
@@ -134,12 +138,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 				break;
 			}
 		}
-		
-		// This should be used only as an internal operation, 
-		// so we should never be asking to delete an entry from
-		// the maps that does not exist. If so, it is a programming 
-		// error and should be reported as a bug.
-		assert(found);
+
+		return found;
 	}
 
 	/**
@@ -179,7 +179,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	}
 
 	// TODO: are these next two still required?
-	
+
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
@@ -202,23 +202,18 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	}
 
 	/**
-	 * Should the elements of the specified series be joined visually (e.g. with lines)?
+	 * Which series' elements should be joined visually (e.g. with lines)?
 	 * 
-	 * @param series The series number.
-	 * @return Whether or not the elements should be joined visually.
+	 * @return An array of series numbers for series whose elements should be
+	 *         joined visually.
 	 */
-	public boolean shouldJoinSeriesElements(int series) {
-		if (!seriesNumToSrcNameMap.containsKey(series)) {
-			throw new IllegalArgumentException("'" + series
-					+ "' is not a known series number.");
-		}
-
-		return MEANS_SERIES_NAME.equals(seriesNumToSrcNameMap.get(series));
+	public int[] getSeriesWhoseElementsShouldBeJoinedVisually() {
+		return new int[0];
 	}
-	
+
 	// AbstractIntervalXYDataSet methods.
 	// To be used for error bar handling.
-	
+
 	public Number getStartX(int series, int item) {
 		return getJDAsXCoord(series, item);
 	}
@@ -240,7 +235,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	private int getNextSeriesNum() {
 		return seriesNum++;
 	}
-	
+
 	// Return the Julian Day as the X coordinate.
 	private double getJDAsXCoord(int series, int item) {
 		if (series >= this.seriesNumToObSrcListMap.size()) {
@@ -272,27 +267,36 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		return this.seriesNumToObSrcListMap.get(series).get(item)
 				.getMagnitude().getMagValue();
 	}
-	
-	// Return the error associated with the magnitude.
-	// We skip the series and item legality check to improve 
-	// performance on the assumption that this has been checked
-	// already when calling getMagAsYCoord(). So this is a 
-	// precondition of calling the current function.
+
+	/**
+	 * Return the error associated with the magnitude. We skip the series and
+	 * item legality check to improve performance on the assumption that this
+	 * has been checked already when calling getMagAsYCoord(). So this is a
+	 * precondition of calling the current function.
+	 * 
+	 * @param series
+	 *            The series number.
+	 * @param item
+	 *            The item number within the series.
+	 * @return The error value associated with the mean.
+	 */
 	protected double getMagError(int series, int item) {
 		double error = 0;
-		
+
 		// If the HQ uncertainty field is non-null, use that, otherwise
 		// use the uncertainty value, which may be zero, in which case
 		// the error will be zero.
-		
-		Double hqUncertainty = this.seriesNumToObSrcListMap.get(series).get(item).getHqUncertainty();
-		
+
+		Double hqUncertainty = this.seriesNumToObSrcListMap.get(series).get(
+				item).getHqUncertainty();
+
 		if (hqUncertainty != null) {
 			error = hqUncertainty;
 		} else {
-			error = this.seriesNumToObSrcListMap.get(series).get(item).getMagnitude().getUncertainty();
+			error = this.seriesNumToObSrcListMap.get(series).get(item)
+					.getMagnitude().getUncertainty();
 		}
-		
+
 		return error;
 	}
 }
