@@ -142,8 +142,10 @@ public class MenuBar extends JMenuBar {
 	private void createAnalysisMenu() {
 		JMenu analysisMenu = new JMenu("Analysis");
 
-		// TODO: add checkboxes for these menu items
-		// see what NetBeans yields, see Sun docs
+		// TODO: Add checkboxes for these menu items
+		// see what NetBeans yields, see Sun docs.
+		// Could instead just show "raw" vs "phase plot"
+		// in status bar, at least initially.
 
 		// TODO: add listeners
 		analysisRawDataItem = new JMenuItem("Raw Data");

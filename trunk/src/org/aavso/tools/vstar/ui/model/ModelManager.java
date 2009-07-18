@@ -20,8 +20,6 @@ package org.aavso.tools.vstar.ui.model;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.print.PrinterException;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -45,7 +43,6 @@ import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
 import org.aavso.tools.vstar.util.Notifier;
 import org.jdesktop.swingworker.SwingWorker;
-import org.jfree.chart.ChartPanel;
 
 /**
  * This class manages models, in particular, the data models that under-pin the
@@ -55,13 +52,12 @@ import org.jfree.chart.ChartPanel;
  * exist.
  * 
  * TODO: if we store GUI components here also, it should be DocManager
- * again...or ArtefactManager (like that one!) or...
+ * again...or ArtefactManager or...
  * 
  * TODO: also handle undo, document "is-dirty" handling, don't load same file
  * twice etc.
- * 
  */
-public class ModelManager implements PropertyChangeListener {
+public class ModelManager {
 
 	// Current mode.
 	private ModeType currentMode;
@@ -84,21 +80,21 @@ public class ModelManager implements PropertyChangeListener {
 
 	// TODO: mean, phase plot models...
 
-	// Current GUI table and chart elements.
+	// Current GUI table and chart components.
 	private ObservationPlotPane obsChartPane;
 	private ObservationListPane obsTablePane;
 
-	// TODO: mean, phase plot GUI elements...
+	// TODO: mean, phase plot GUI components...
 
 	// Notifiers.
-	private Notifier<NewStarType> newStarNotifier;
+	private Notifier<NewStarMessage> newStarNotifier;
 	private Notifier<ModeType> modeChangeNotifier;
 	private Notifier<ProgressInfo> progressNotifier;
 
 	/**
 	 * @return the newStarNotifier
 	 */
-	public Notifier<NewStarType> getNewStarNotifier() {
+	public Notifier<NewStarMessage> getNewStarNotifier() {
 		return newStarNotifier;
 	}
 
@@ -171,7 +167,7 @@ public class ModelManager implements PropertyChangeListener {
 		 * Main task. Executed in background thread.
 		 */
 		public Void doInBackground() {
-			this.success = createObservationArtefacts(obsFile, analyser);
+			this.success = createFileBasedObservationArtefacts(obsFile, analyser);
 			return null;
 		}
 
@@ -184,9 +180,12 @@ public class ModelManager implements PropertyChangeListener {
 					ProgressInfo.COMPLETE_PROGRESS);
 
 			if (success) {
-				// Notify whoever is listening that a new star has been loaded.
-				modelMgr.newStarNotifier.notifyListeners(analyser
-						.getNewStarType());
+				// Notify whoever is listening that a new star has been loaded,
+				// passing GUI components in the message.
+				NewStarMessage msg = new NewStarMessage(analyser
+						.getNewStarType(), modelMgr.obsChartPane, modelMgr.obsTablePane);
+				
+				modelMgr.newStarNotifier.notifyListeners(msg);
 			}
 		}
 
@@ -199,7 +198,7 @@ public class ModelManager implements PropertyChangeListener {
 		 * @param analyser
 		 *            An observation file analyser.
 		 */
-		private boolean createObservationArtefacts(File obsFile,
+		private boolean createFileBasedObservationArtefacts(File obsFile,
 				ObservationSourceAnalyser analyser) {
 
 			try {
@@ -224,36 +223,32 @@ public class ModelManager implements PropertyChangeListener {
 				return false;
 			}
 
+			// Given raw valid and invalid observation data, create observation 
+			// table and plot models, along with corresponding GUI components.
+			
 			if (!modelMgr.validObsList.isEmpty()) {
 				modelMgr.validObsTableModel = new ValidObservationTableModel(
 						modelMgr.validObsList, analyser.getNewStarType());
 
-				// setProgress(progress++);
-
 				modelMgr.obsPlotModel = new ObservationPlotModel(
 						modelMgr.validObservationCategoryMap);
-
-				// setProgress(progress++);
 
 				modelMgr.obsChartPane = createLightCurvePane(this.obsFile
 						.getName());
 
+				// TODO: same for means ...
+
 				modelMgr.getProgressNotifier().notifyListeners(
 						new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
 								plotTaskPortion));
-
-				// TODO: same for means ...
 			}
 
 			if (!modelMgr.invalidObsList.isEmpty()) {
 				modelMgr.invalidObsTableModel = new InvalidObservationTableModel(
 						modelMgr.invalidObsList);
-
-				// setProgress(progress++);
 			}
 
 			modelMgr.obsTablePane = createObsTablePane();
-			// setProgress(progress++);
 
 			return true;
 		}
@@ -292,20 +287,7 @@ public class ModelManager implements PropertyChangeListener {
 
 		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
 				parent, plotPortion);
-		task.addPropertyChangeListener(this);
 		task.execute();
-	}
-
-	/**
-	 * Invoked when task's progress property changes. TODO: replace this with
-	 * inline calls to increment progress bar?
-	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		if ("progress" == evt.getPropertyName()) {
-			// We don't care what the progress value is
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.INCREMENT_PROGRESS);
-		}
 	}
 
 	/**
@@ -462,7 +444,7 @@ public class ModelManager implements PropertyChangeListener {
 	 * Private constructor.
 	 */
 	private ModelManager() {
-		this.newStarNotifier = new Notifier<NewStarType>();
+		this.newStarNotifier = new Notifier<NewStarMessage>();
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
 

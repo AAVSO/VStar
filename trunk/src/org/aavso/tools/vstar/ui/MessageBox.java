@@ -46,6 +46,7 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title, String msg) {
 		JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.ERROR_MESSAGE);
+		parent.setCursor(null); // turn off the wait cursor, in case it's enabled
 	}
 	
 	/**
@@ -57,6 +58,7 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title, Exception e) {
 		JOptionPane.showMessageDialog(parent, e.getMessage(), title, JOptionPane.ERROR_MESSAGE);
-		e.printStackTrace();
+		parent.setCursor(null); // turn off the wait cursor, in case it's enabled
+		//e.printStackTrace();
 	}
 }

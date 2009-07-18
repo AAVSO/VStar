@@ -30,7 +30,7 @@ import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.ui.model.ModeType;
 import org.aavso.tools.vstar.ui.model.ModelManager;
-import org.aavso.tools.vstar.ui.model.NewStarType;
+import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.util.Listener;
 
 /**
@@ -62,9 +62,9 @@ public class ModePane extends JPanel implements ActionListener {
 	/**
 	 * Return a new star creation listener.
 	 */
-	private Listener<NewStarType> createNewStarListener() {
-		return new Listener<NewStarType>() {
-			public void update(NewStarType info) {
+	private Listener<NewStarMessage> createNewStarListener() {
+		return new Listener<NewStarMessage>() {
+			public void update(NewStarMessage msg) {
 				// Select the light curve plot radio button and 
 				// deselect all others.
 				plotObsRadioButton.setSelected(true);
