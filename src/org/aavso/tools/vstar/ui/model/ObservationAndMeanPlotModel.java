@@ -35,23 +35,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	/**
 	 * Constructor
 	 * 
-	 * We add a named observation source list to a unique series number.
-	 * 
-	 * @param name
-	 *            Name of observation source list.
-	 * @param obsSourceList
-	 *            The list of observation sources.
-	 */
-	// public ObservationAndMeanPlotModel(String name,
-	// List<ValidObservation> obsSourceList) {
-	// super(name, obsSourceList);
-	// }
-
-	/**
-	 * Constructor
-	 * 
-	 * We add named observation source lists to unique series numbers.
-	 * Then we add the initial mean-based series.
+	 * We add named observation source lists to unique series numbers. Then we
+	 * add the initial mean-based series.
 	 * 
 	 * @param observations
 	 *            The complete list of valid observations.
@@ -77,22 +62,26 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		List<ValidObservation> meanObsList = DescStats
 				.createdBinnedObservations(observations, binSize);
 
-		boolean found = false;
+		// As long as there were enough observations to create a means list
+		// to make a "means" series, we do so. TODO: tell user otherwise?
+		if (!meanObsList.isEmpty()) {
+			boolean found = false;
 
-		for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap
-				.entrySet()) {
-			if (MEANS_SERIES_NAME.equals(entry.getValue())) {
-				int series = entry.getKey();
-				this.seriesNumToObSrcListMap.put(series, meanObsList);
-				this.fireDatasetChanged();
-				found = true;
-				break;
+			for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap
+					.entrySet()) {
+				if (MEANS_SERIES_NAME.equals(entry.getValue())) {
+					int series = entry.getKey();
+					this.seriesNumToObSrcListMap.put(series, meanObsList);
+					this.fireDatasetChanged();
+					found = true;
+					break;
+				}
 			}
-		}
 
-		// Is this the first time the means series has been added?
-		if (!found) {
-			this.addObservationSeries(MEANS_SERIES_NAME, meanObsList);
+			// Is this the first time the means series has been added?
+			if (!found) {
+				this.addObservationSeries(MEANS_SERIES_NAME, meanObsList);
+			}
 		}
 	}
 
@@ -104,11 +93,11 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	public void addInitialMeanSeries(List<ValidObservation> observations) {
 		// Determine default bin size as a percentage of observations.
-		// TODO: We may need to change this to be a JD-based bin size
-		// (number of days) instead of number of elements in bin, as
-		// per specification.
-		int binSize = observations.size() * DescStats.DEFAULT_BIN_PERCENTAGE
-				/ 100;
+		// TODO: bin size/percentage could become subject to Preferences.
+//		 int binSize = observations.size() * DescStats.DEFAULT_BIN_PERCENTAGE
+//		 / 100;
+
+		int binSize = DescStats.DEFAULT_BIN_DAYS;
 
 		if (binSize >= 1) {
 			addMeanSeries(observations, binSize);

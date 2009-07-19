@@ -55,7 +55,9 @@ import org.jdesktop.swingworker.SwingWorker;
  * again...or ArtefactManager or...
  * 
  * TODO: also handle undo, document "is-dirty" handling, don't load same file
- * twice etc.
+ * twice etc. Only need to detect whether table models are dirty, in particular
+ * the valid observations portion of the table model, and probably *only* that.
+ * All other artefacts (means, plots) are derived from that.
  * 
  * TODO: where we currently refer to modelMgr artefacts, we should use local
  * variables instead where possible and get rid of those members.
@@ -334,10 +336,8 @@ public class ModelManager {
 	 * @return The plot model.
 	 */
 	private ObservationAndMeanPlotModel createObservationAndMeanPlotModel() {
-		ObservationAndMeanPlotModel plotModel = new ObservationAndMeanPlotModel(
-				modelMgr.validObsList, modelMgr.validObservationCategoryMap);
-
-		return plotModel;
+		return new ObservationAndMeanPlotModel(modelMgr.validObsList,
+				modelMgr.validObservationCategoryMap);
 	}
 
 	/**

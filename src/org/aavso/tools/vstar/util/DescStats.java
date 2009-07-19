@@ -29,8 +29,9 @@ import org.aavso.tools.vstar.data.ValidObservation;
  */
 public class DescStats {
 
-	public static final int DEFAULT_BIN_PERCENTAGE = 10;
-
+//	public static final int DEFAULT_BIN_PERCENTAGE = 10;
+	public static final int DEFAULT_BIN_DAYS = 20;
+	
 	/**
 	 * Calculates the mean of a sequence of magnitudes for Julian Days in a
 	 * specified inclusive range.
@@ -123,7 +124,7 @@ public class DescStats {
 		// Pre-conditions.
 		assert (maxJDIndex >= minJDIndex);
 		assert (maxJDIndex < source.size());
-		
+
 		double magMean = calcMagMeanInJDRange(source, minJDIndex, maxJDIndex);
 
 		double total = 0;
@@ -157,29 +158,60 @@ public class DescStats {
 	 * 
 	 * @param observations
 	 *            The observations to which binning will be applied.
-	 * @param binSize
+	 * @param daysInBin
 	 *            The bin size in whole number of Julian Days.
-	 * @return The observation sequence consisting of magnitude means per bin
-	 *         and the Julian Day at the center point of each bin.
+	 * @return An observation sequence consisting of magnitude means per bin and
+	 *         the Julian Day at the center point of each bin.
 	 */
 	public static List<ValidObservation> createdBinnedObservations(
-			List<ValidObservation> observations, int binSize) {
+			List<ValidObservation> observations, int daysInBin) {
+		
 		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
 
-		for (int i = 0; i < observations.size(); i += binSize) {
-			int minJDIndex = i;
-			int maxJDIndex = i + binSize - 1;
+		double minJD = observations.get(0).getJD();
+		int minJDIndex = 0;
 
-			// The last bin size may be smaller than the preceding bins
-			// unless we have equal number of ranges. If so, cap the 
-			// maximum index to the last index of the observations list.
-			if (maxJDIndex >= observations.size()) {
-				maxJDIndex = observations.size() - 1;
+		int i = 1;
+
+		while (i < observations.size()) {
+
+			// If we have not reached the end of the observation list
+			// and the current observation's Julian Day is less than the
+			// minimum Julian Day for the bottom of the current range plus 
+			// the number of days in the bin, continue to the next observation. 
+			if (i < observations.size()
+					&& observations.get(i).getJD() < (minJD + daysInBin)) {
+				i++;
+			} else {
+				// Otherwise, we have found the top of the current range,
+				// so add a ValidObservation containing mean and error value
+				// to the list.
+				int maxJDIndex = i - 1;
+
+				binnedObs.add(createMeanObservationForJDRange(observations,
+						minJDIndex, maxJDIndex));
+
+				minJDIndex = i;
+				minJD = observations.get(i).getJD();
+				
+				i++;
 			}
-
-			binnedObs.add(createMeanObservationForJDRange(observations,
-					minJDIndex, maxJDIndex));
 		}
+
+		// for (int i = 0; i < observations.size(); i += binSize) {
+		// int minJDIndex = i;
+		// int maxJDIndex = i + binSize - 1;
+		//
+		// // The last bin size may be smaller than the preceding bins
+		// // unless we have equal number of ranges. If so, cap the
+		// // maximum index to the last index of the observations list.
+		// if (maxJDIndex >= observations.size()) {
+		// maxJDIndex = observations.size() - 1;
+		// }
+		//
+		// binnedObs.add(createMeanObservationForJDRange(observations,
+		// minJDIndex, maxJDIndex));
+		// }
 
 		return binnedObs;
 	}
