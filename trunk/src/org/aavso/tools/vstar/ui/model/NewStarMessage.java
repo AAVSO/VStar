@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.model;
 
+import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
 
@@ -29,9 +30,8 @@ public class NewStarMessage {
 
 	// GUI table and chart components.
 	private ObservationPlotPane obsChartPane;
+	private ObservationAndMeanPlotPane obsAndMeanChartPane;
 	private ObservationListPane obsTablePane;
-	private ObservationPlotPane obsAndMeanChartPane;
-
 	// TODO: add meansTablePane
 
 	/**
@@ -48,7 +48,7 @@ public class NewStarMessage {
 	 */
 	public NewStarMessage(NewStarType newStarType,
 			ObservationPlotPane obsChartPane,
-			ObservationPlotPane obsAndMeanChartPane,
+			ObservationAndMeanPlotPane obsAndMeanChartPane,
 			ObservationListPane obsTablePane) {
 		this.newStarType = newStarType;
 		
