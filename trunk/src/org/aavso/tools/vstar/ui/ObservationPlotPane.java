@@ -36,17 +36,16 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 
-// TODO: either fork this class to handle obs vs obs-with-means plots
-// or generalise for both
-
 /**
  * This class represents a chart pane containing a plot for a set of valid
  * observations.
  */
 public class ObservationPlotPane extends JPanel {
 
+	private ObservationPlotModel obsModel;
+	
 	private ChartPanel chartPanel;
-
+	
 	private JTextArea obsInfo;
 
 	// We use this renderer in order to be able to plot error bars.
@@ -70,6 +69,8 @@ public class ObservationPlotPane extends JPanel {
 			Dimension bounds) {
 		super();
 
+		this.obsModel = obsModel;
+		
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
 		this.showErrorBars = true;
@@ -104,12 +105,12 @@ public class ObservationPlotPane extends JPanel {
 
 		this.add(Box.createRigidArea(new Dimension(0, 10)));
 
-		// Checkbox to show/hide error bars.
-		JCheckBox errorBarCheckBox = new JCheckBox("Show error bars?");
-		errorBarCheckBox.setSelected(this.showErrorBars);
-		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());
-		this.add(errorBarCheckBox);
-
+		// Create a panel that can be used to add chart control widgets.
+		JPanel chartControlPanel = new JPanel();
+		chartControlPanel.setLayout(new BoxLayout(chartControlPanel, BoxLayout.LINE_AXIS));
+		createChartControlPanel(chartControlPanel);
+		this.add(chartControlPanel);
+		
 		this.add(Box.createRigidArea(new Dimension(0, 10)));
 
 		// Create the observation information text area.
@@ -120,7 +121,7 @@ public class ObservationPlotPane extends JPanel {
 		obsInfo.setEditable(false);
 		this.add(obsInfo);
 	}
-
+	
 	/**
 	 * @return the chartPanel
 	 */
@@ -129,21 +130,43 @@ public class ObservationPlotPane extends JPanel {
 	}
 
 	/**
-	 * Show/hide the error bars.
+	 * @return the obsInfo
 	 */
-	public void toggleErrorBars() {
-		this.showErrorBars = !this.showErrorBars;
-		this.renderer.setDrawYError(this.showErrorBars);
+	public JTextArea getObsInfo() {
+		return obsInfo;
 	}
 
+	/**
+	 * @return the renderer
+	 */
+	public XYErrorRenderer getRenderer() {
+		return renderer;
+	}
+
+	// Populate a panel that can be used to add chart control widgets.
+	protected void createChartControlPanel(JPanel chartControlPanel) {
+		// A checkbox to show/hide error bars.
+		JCheckBox errorBarCheckBox = new JCheckBox("Show error bars?");
+		errorBarCheckBox.setSelected(this.showErrorBars);
+		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());
+		chartControlPanel.add(errorBarCheckBox);
+	}
+	
 	// Return a listener for the error bar visibility checkbox.
 	private ActionListener createErrorBarCheckBoxListener() {
 		final ObservationPlotPane self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				self.showErrorBars = !self.showErrorBars;
-				self.renderer.setDrawYError(self.showErrorBars);
+				self.toggleErrorBars();
 			}
 		};
+	}
+	
+	/**
+	 * Show/hide the error bars.
+	 */
+	private void toggleErrorBars() {
+		this.showErrorBars = !this.showErrorBars;
+		this.renderer.setDrawYError(this.showErrorBars);
 	}
 }

@@ -39,6 +39,7 @@ import org.aavso.tools.vstar.input.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.DataPane;
 import org.aavso.tools.vstar.ui.MessageBox;
+import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
 import org.aavso.tools.vstar.util.Notifier;
@@ -82,7 +83,7 @@ public class ModelManager {
 	private InvalidObservationTableModel invalidObsTableModel;
 
 	private ObservationPlotModel obsPlotModel;
-	private ObservationPlotModel obsAndMeanPlotModel;
+	private ObservationAndMeanPlotModel obsAndMeanPlotModel;
 
 	// TODO: phase plot models...
 
@@ -347,7 +348,7 @@ public class ModelManager {
 	private ObservationPlotPane createObservationAndMeanPane(String plotName) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
-		return new ObservationPlotPane("Julian Day vs Magnitude Plot for "
+		return new ObservationAndMeanPlotPane("Julian Day vs Magnitude Plot for "
 				+ plotName, this.obsAndMeanPlotModel, bounds);
 	}
 
