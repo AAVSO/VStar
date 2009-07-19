@@ -30,8 +30,12 @@ import org.aavso.tools.vstar.util.DescStats;
  */
 public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
-	private static final String MEANS_SERIES_NAME = "Means";
+	public static final String MEANS_SERIES_NAME = "Means";
 
+	public static final int NO_MEANS_SERIES = -1;
+	
+	private int meansSeriesNum;
+	
 	/**
 	 * Constructor
 	 * 
@@ -46,6 +50,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	public ObservationAndMeanPlotModel(List<ValidObservation> observations,
 			Map<String, List<ValidObservation>> obsSourceListMap) {
 		super(obsSourceListMap);
+		this.meansSeriesNum = NO_MEANS_SERIES;
 		this.addInitialMeanSeries(observations);
 	}
 
@@ -80,7 +85,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 			// Is this the first time the means series has been added?
 			if (!found) {
-				this.addObservationSeries(MEANS_SERIES_NAME, meanObsList);
+				this.meansSeriesNum = this.addObservationSeries(MEANS_SERIES_NAME, meanObsList);
 			}
 		}
 	}
@@ -94,6 +99,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	public void addInitialMeanSeries(List<ValidObservation> observations) {
 		// Determine default bin size as a percentage of observations.
 		// TODO: bin size/percentage could become subject to Preferences.
+		
 //		 int binSize = observations.size() * DescStats.DEFAULT_BIN_PERCENTAGE
 //		 / 100;
 
@@ -149,5 +155,12 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// TODO: handle Means series!
 
 		return super.getMagError(series, item);
+	}
+
+	/**
+	 * @return the means series number
+	 */
+	public int getMeansSeriesNum() {
+		return meansSeriesNum;
 	}
 }

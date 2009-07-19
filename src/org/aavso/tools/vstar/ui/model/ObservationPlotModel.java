@@ -94,11 +94,12 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 *            A name to be associated with the data source.
 	 * @param obSourceList
 	 *            A series (list) of observations, in particular, magnitude and
-	 *            Julian Day.           
+	 *            Julian Day.
+	 * @return The number of the series added.            
 	 * @postcondition Both seriesNumToObSrcListMap and seriesNumToSrcNameMap
 	 *                must be the same length.
 	 */
-	public void addObservationSeries(String name,
+	public int addObservationSeries(String name,
 			List<ValidObservation> obSourceList) {
 
 		int seriesNum = this.getNextSeriesNum();
@@ -110,6 +111,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 				.size());
 
 		this.fireDatasetChanged();
+		
+		return seriesNum;
 	}
 
 	/**
