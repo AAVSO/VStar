@@ -114,9 +114,11 @@ public class DescStatsTest extends TestCase {
 	}
 
 	public void testObservationBinning1() {
+		// Use a bin that is greater than the number of days in the observation
+		// set to ensure we don't exclude some values at the upper end of the
+		// range.
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservations(this.observations1,
-						this.observations1.size());
+				.createdBinnedObservations(this.observations1, 3);
 
 		assertTrue(observations.size() == 1);
 
@@ -146,6 +148,8 @@ public class DescStatsTest extends TestCase {
 	}
 
 	public void testObservationBinning3() {
+		// If we choose a bin that is the too small, we should
+		// just get all the data.
 		List<ValidObservation> observations = DescStats
 				.createdBinnedObservations(this.observations3,
 						this.observations3.size());
@@ -161,10 +165,10 @@ public class DescStatsTest extends TestCase {
 		assertEquals("0.038", magStdErrStr);
 	}
 
-	// A bin size of 5 for observations3 should give us a list 
-	// of two ValidObservations.
+	// A bin size of 2.5 JDs for observations3 should give us 
+	// a list of two ValidObservations.
 	public void testObservationBinning4() {
-		int binSize = this.observations3.size() / 2;
+		double binSize = 2.5;
 
 		List<ValidObservation> observations = DescStats
 				.createdBinnedObservations(this.observations3, binSize);
@@ -198,15 +202,15 @@ public class DescStatsTest extends TestCase {
 	// Populates and returns a list of valid observations with supplied
 	// magnitude values and bogus JD values.
 	private List<ValidObservation> populateObservations(double[] mags) {
-		int jdIncrement = 0;
+		double jd = 0;
 		List<ValidObservation> observations = new ArrayList<ValidObservation>();
 		for (double mag : mags) {
 			ValidObservation obs = new ValidObservation();
 			obs.setMagnitude(new Magnitude(mag, MagnitudeModifier.NO_DELTA,
 					false));
-			obs.setDateInfo(new DateInfo(2450000));
+			obs.setDateInfo(new DateInfo(jd));
 			observations.add(obs);
-			jdIncrement += 0.5;
+			jd += 0.5;
 		}
 
 		return observations;

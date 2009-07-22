@@ -159,17 +159,18 @@ public class DescStats {
 	 * @param observations
 	 *            The observations to which binning will be applied.
 	 * @param daysInBin
-	 *            The bin size in whole number of Julian Days.
+	 *            The bin size in number of Julian Days or portions thereof.
 	 * @return An observation sequence consisting of magnitude means per bin and
 	 *         the Julian Day at the center point of each bin.
 	 */
 	public static List<ValidObservation> createdBinnedObservations(
-			List<ValidObservation> observations, int daysInBin) {
+			List<ValidObservation> observations, double daysInBin) {
 		
 		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
 
 		double minJD = observations.get(0).getJD();
 		int minJDIndex = 0;
+		int maxJDIndex = 0;
 
 		int i = 1;
 
@@ -182,11 +183,11 @@ public class DescStats {
 			if (i < observations.size()
 					&& observations.get(i).getJD() < (minJD + daysInBin)) {
 				i++;
-			} else {
+			} else {				
 				// Otherwise, we have found the top of the current range,
 				// so add a ValidObservation containing mean and error value
 				// to the list.
-				int maxJDIndex = i - 1;
+				maxJDIndex = i - 1;
 
 				binnedObs.add(createMeanObservationForJDRange(observations,
 						minJDIndex, maxJDIndex));
@@ -198,6 +199,14 @@ public class DescStats {
 			}
 		}
 
+		// Ensure that if we have reached the end of the observations
+		// that we include any left over data that would otherwise be 
+		// excluded by the JD less-than constraint?
+		if (maxJDIndex < observations.size()-1) {
+			binnedObs.add(createMeanObservationForJDRange(observations,
+					minJDIndex, observations.size()-1));			
+		}
+		
 		// for (int i = 0; i < observations.size(); i += binSize) {
 		// int minJDIndex = i;
 		// int maxJDIndex = i + binSize - 1;
