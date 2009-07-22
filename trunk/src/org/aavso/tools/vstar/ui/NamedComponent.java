@@ -21,7 +21,6 @@ import java.awt.Component;
 
 /**
  * A component with an associated name.
- * @deprecated
  */
 public class NamedComponent {
 	
