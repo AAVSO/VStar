@@ -46,8 +46,8 @@ public class MenuBar extends JMenuBar {
 
 	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
 	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
-	public static final String SAVE = "Save";
-	public static final String PRINT = "Print";
+	public static final String SAVE = "Save...";
+	public static final String PRINT = "Print...";
 	public static final String PREFS = "Preferences...";
 	public static final String HELP_CONTENTS = "Help Contents...";
 
@@ -187,7 +187,7 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				MessageBox.showMessageDialog(parent, NEW_STAR_FROM_DATABASE,
-						"This feature is not implemented yet.");
+						ModelManager.NOT_IMPLEMENTED_YET);
 			}
 		};
 	}
@@ -252,7 +252,7 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				MessageBox.showMessageDialog(parent, "Preferences...",
-						"This feature is not implemented yet.");
+						ModelManager.NOT_IMPLEMENTED_YET);
 			}
 		};
 	}
