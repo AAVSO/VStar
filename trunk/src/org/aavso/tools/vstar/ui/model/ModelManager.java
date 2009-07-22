@@ -35,8 +35,8 @@ import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
-import org.aavso.tools.vstar.input.ObservationSourceAnalyser;
-import org.aavso.tools.vstar.input.TextFormatObservationReader;
+import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
+import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.DataPane;
 import org.aavso.tools.vstar.ui.MessageBox;
 import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
@@ -53,17 +53,19 @@ import org.jdesktop.swingworker.SwingWorker;
  * exist.
  * 
  * TODO: if we store GUI components here also, it should be DocManager
- * again...or ArtefactManager or...
+ * again...or ArtefactManager or similar.
  * 
- * TODO: also handle undo, document "is-dirty" handling, don't load same file
- * twice etc. Only need to detect whether table models are dirty, in particular
- * the valid observations portion of the table model, and probably *only* that.
- * All other artefacts (means, plots) are derived from that.
+ * TODO: also handle undo, document "needs saving", don't load same file twice
+ * etc. Only need to detect whether table models need saving, in particular the
+ * valid observations portion of the table model, and probably *only* that. All
+ * other artefacts (means, plots) are derived from that.
  * 
  * TODO: where we currently refer to modelMgr artefacts, we should use local
  * variables instead where possible and get rid of those members.
  */
 public class ModelManager {
+
+	public static final String NOT_IMPLEMENTED_YET = "This feature is not implemented yet.";
 
 	// Current mode.
 	private ModeType currentMode;
@@ -139,7 +141,7 @@ public class ModelManager {
 	 * A concurrent task in which a new star from file request task is handled.
 	 * TODO: move to a different src file
 	 */
-	public class NewStarFromFileTask extends SwingWorker<Void, Void> {
+	private class NewStarFromFileTask extends SwingWorker<Void, Void> {
 		private ModelManager modelMgr = ModelManager.getInstance();
 
 		private File obsFile;
@@ -345,11 +347,13 @@ public class ModelManager {
 	 * Create the observation-and-mean pane for the current list of valid
 	 * observations.
 	 */
-	private ObservationAndMeanPlotPane createObservationAndMeanPane(String plotName) {
+	private ObservationAndMeanPlotPane createObservationAndMeanPane(
+			String plotName) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
-		return new ObservationAndMeanPlotPane("Julian Day vs Magnitude Plot for "
-				+ plotName, this.obsAndMeanPlotModel, bounds);
+		return new ObservationAndMeanPlotPane(
+				"Julian Day vs Magnitude Plot for " + plotName,
+				this.obsAndMeanPlotModel, bounds);
 	}
 
 	/**
@@ -364,17 +368,25 @@ public class ModelManager {
 			try {
 				this.obsChartPane.getChartPanel().doSaveAs();
 			} catch (IOException ex) {
-				MessageBox.showErrorDialog(parent, "Save Light Curve", ex
+				MessageBox.showErrorDialog(parent, "Save Observation Plot", ex
 						.getMessage());
 			}
 			break;
 		case PLOT_OBS_AND_MEANS_MODE:
+			try {
+				this.obsChartPane.getChartPanel().doSaveAs();
+			} catch (IOException ex) {
+				MessageBox.showErrorDialog(parent,
+						"Save Observation and Means Plot", ex.getMessage());
+			}
 			break;
 		case LIST_OBS_MODE:
 			MessageBox.showMessageDialog(parent, "Save Observations",
-					"This feature is not implemented yet.");
+					NOT_IMPLEMENTED_YET);
 			break;
 		case LIST_MEANS_MODE:
+			MessageBox.showMessageDialog(parent, "Save Means",
+					NOT_IMPLEMENTED_YET);
 			break;
 		}
 	}
@@ -391,6 +403,7 @@ public class ModelManager {
 			this.obsChartPane.getChartPanel().createChartPrintJob();
 			break;
 		case PLOT_OBS_AND_MEANS_MODE:
+			this.obsAndMeanChartPane.getChartPanel().createChartPrintJob();
 			break;
 		case LIST_OBS_MODE:
 			try {
@@ -407,12 +420,16 @@ public class ModelManager {
 			}
 			break;
 		case LIST_MEANS_MODE:
+			MessageBox.showMessageDialog(parent, "Print Means",
+					NOT_IMPLEMENTED_YET);
 			break;
 		}
 	}
 
 	/**
 	 * Clear all data (lists, models).
+	 * TODO: or only have fundamental data collections with everything
+	 * derived and passed via messages to listeners?
 	 */
 	private void clearData() {
 		this.invalidObsList = null;
@@ -420,6 +437,7 @@ public class ModelManager {
 		this.validObsList = null;
 		this.validObsTableModel = null;
 		this.obsPlotModel = null;
+		this.obsAndMeanPlotModel = null;
 		// TODO: GUI components too?
 	}
 
