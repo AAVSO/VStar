@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.input;
+package org.aavso.tools.vstar.input.text;
 
 import java.io.IOException;
 import java.io.LineNumberReader;

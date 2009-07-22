@@ -23,7 +23,7 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
-import org.aavso.tools.vstar.input.ObservationFieldSplitter;
+import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
 
 /**
  * This class accepts a line of text for tokenising, validation, and
