@@ -29,6 +29,7 @@ public class NewStarMessage {
 	private NewStarType newStarType;
 
 	// GUI table and chart components.
+	// TODO: we could use NamedComponents instead, e.g. to get tooltips
 	private ObservationPlotPane obsChartPane;
 	private ObservationAndMeanPlotPane obsAndMeanChartPane;
 	private ObservationListPane obsTablePane;
