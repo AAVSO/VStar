@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.input;
 import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
 
 /**
  * Unit test for ObservationFieldSplitter class.
