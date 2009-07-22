@@ -68,6 +68,12 @@ public class ObservationAndMeanPlotPane extends ObservationPlotPane {
 
 		// TODO: add...
 		// - slider/spinbox for days-per-bin and an associated update button
+		// - the model needs to have a changeDaysPerBin(int daysPerBin) method
+		//   which causes the current means series to be replaced. Get rid of
+		//   addInitialMeanSeries() and just use addMeanSeries() also calling this
+		//   from the ctor with the default days per bin. Probably should also
+		//   store days-per-bin as a field in the model so that we can update
+		//   the slider from the model.
 	}
 
 	// Return a listener for the "join means visually" checkbox.
