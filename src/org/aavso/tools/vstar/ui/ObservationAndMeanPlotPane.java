@@ -30,9 +30,10 @@ import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
  * This class represents a chart pane containing a plot for a set of valid
  * observations along with mean-based data.
  */
-public class ObservationAndMeanPlotPane extends ObservationPlotPane {
+public class ObservationAndMeanPlotPane extends
+		ObservationPlotPane<ObservationAndMeanPlotModel> {
 
-	private ObservationAndMeanPlotModel obsAndMeanModel;
+	// private ObservationAndMeanPlotModel obsAndMeanModel;
 
 	// Should the means series elements be joined visually?
 	private boolean joinMeans;
@@ -49,16 +50,18 @@ public class ObservationAndMeanPlotPane extends ObservationPlotPane {
 	 */
 	public ObservationAndMeanPlotPane(String title,
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
+
 		super(title, obsAndMeanModel, bounds);
-		this.obsAndMeanModel = obsAndMeanModel;
+
+		// this.obsAndMeanModel = obsAndMeanModel;
 		this.joinMeans = true;
+
+		addToChartControlPanel(this.getChartControlPanel());
 	}
 
-	/**
-	 * @see org.aavso.tools.vstar.ui.ObservationPlotPane#createChartControlPanel(javax.swing.JPanel)
-	 */
-	protected void createChartControlPanel(JPanel chartControlPanel) {
-		super.createChartControlPanel(chartControlPanel);
+	// Add means-specific widgets to chart control panel.
+	private void addToChartControlPanel(JPanel chartControlPanel) {
+		// super.createChartControlPanel(chartControlPanel);
 
 		// A checkbox to determine whether or not to join mean series elements.
 		JCheckBox joinMeansCheckBox = new JCheckBox("Join means?");
@@ -66,14 +69,8 @@ public class ObservationAndMeanPlotPane extends ObservationPlotPane {
 		joinMeansCheckBox.addActionListener(createJoinMeansCheckBoxListener());
 		chartControlPanel.add(joinMeansCheckBox);
 
-		// TODO: add...
-		// - slider/spinbox for days-per-bin and an associated update button
-		// - the model needs to have a changeDaysPerBin(int daysPerBin) method
-		//   which causes the current means series to be replaced. Get rid of
-		//   addInitialMeanSeries() and just use addMeanSeries() also calling this
-		//   from the ctor with the default days per bin. Probably should also
-		//   store days-per-bin as a field in the model so that we can update
-		//   the slider from the model.
+		// An update days-in-bin component.
+		chartControlPanel.add(new DaysInBinSettingPane(this.obsModel));
 	}
 
 	// Return a listener for the "join means visually" checkbox.
@@ -86,11 +83,11 @@ public class ObservationAndMeanPlotPane extends ObservationPlotPane {
 		};
 	}
 
-	// Toggle the "join means" setting which dictates whether or 
+	// Toggle the "join means" setting which dictates whether or
 	// not the means are visually joined (by lines).
 	private void toggleJoinMeansSetting() {
 		this.joinMeans = !this.joinMeans;
 		this.getRenderer().setSeriesLinesVisible(
-				this.obsAndMeanModel.getMeansSeriesNum(), this.joinMeans);
+				this.obsModel.getMeansSeriesNum(), this.joinMeans);
 	}
 }
