@@ -90,7 +90,7 @@ public class ModelManager {
 	// TODO: phase plot models...
 
 	// Current GUI table and chart components.
-	private ObservationPlotPane obsChartPane;
+	private ObservationPlotPane<ObservationPlotModel> obsChartPane;
 	private ObservationAndMeanPlotPane obsAndMeanChartPane;
 	private ObservationListPane obsTablePane;
 
@@ -324,10 +324,10 @@ public class ModelManager {
 	/**
 	 * Create the observation pane for a list of valid observations.
 	 */
-	private ObservationPlotPane createObservationPane(String plotName) {
+	private ObservationPlotPane<ObservationPlotModel> createObservationPane(String plotName) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
-		return new ObservationPlotPane("Julian Day vs Magnitude Plot for "
+		return new ObservationPlotPane<ObservationPlotModel>("Julian Day vs Magnitude Plot for "
 				+ plotName, this.obsPlotModel, bounds);
 	}
 
@@ -486,7 +486,7 @@ public class ModelManager {
 	/**
 	 * @return the obsChartPane
 	 */
-	public ObservationPlotPane getObsChartPane() {
+	public ObservationPlotPane<ObservationPlotModel> getObsChartPane() {
 		return obsChartPane;
 	}
 

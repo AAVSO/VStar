@@ -30,7 +30,7 @@ public class NewStarMessage {
 
 	// GUI table and chart components.
 	// TODO: we could use NamedComponents instead, e.g. to get tooltips
-	private ObservationPlotPane obsChartPane;
+	private ObservationPlotPane<ObservationPlotModel> obsChartPane;
 	private ObservationAndMeanPlotPane obsAndMeanChartPane;
 	private ObservationListPane obsTablePane;
 	// TODO: add meansTablePane
@@ -48,7 +48,7 @@ public class NewStarMessage {
 	 *            The observation table GUI component.
 	 */
 	public NewStarMessage(NewStarType newStarType,
-			ObservationPlotPane obsChartPane,
+			ObservationPlotPane<ObservationPlotModel> obsChartPane,
 			ObservationAndMeanPlotPane obsAndMeanChartPane,
 			ObservationListPane obsTablePane) {
 		this.newStarType = newStarType;
@@ -69,7 +69,7 @@ public class NewStarMessage {
 	/**
 	 * @return the obsChartPane
 	 */
-	public ObservationPlotPane getObsChartPane() {
+	public ObservationPlotPane<ObservationPlotModel> getObsChartPane() {
 		return obsChartPane;
 	}
 
@@ -83,7 +83,7 @@ public class NewStarMessage {
 	/**
 	 * @return the obsAndMeanChartPane
 	 */
-	public ObservationPlotPane getObsAndMeanChartPane() {
+	public ObservationAndMeanPlotPane getObsAndMeanChartPane() {
 		return obsAndMeanChartPane;
 	}
 }
