@@ -33,13 +33,13 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	public static final String MEANS_SERIES_NAME = "Means";
 
 	public static final int NO_MEANS_SERIES = -1;
-	
+
 	private int meansSeriesNum;
-	
+
 	private double daysInBin;
-	
+
 	private List<ValidObservation> observations;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -56,7 +56,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		super(obsSourceListMap);
 		this.observations = observations;
 		this.meansSeriesNum = NO_MEANS_SERIES;
-		this.daysInBin = DescStats.DEFAULT_BIN_DAYS; // TODO: or just define this in this class?
+		this.daysInBin = DescStats.DEFAULT_BIN_DAYS; // TODO: or just define
+														// this in this class?
 		this.setMeanSeries();
 	}
 
@@ -89,11 +90,12 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 			// Is this the first time the means series has been added?
 			if (!found) {
-				this.meansSeriesNum = this.addObservationSeries(MEANS_SERIES_NAME, meanObsList);
+				this.meansSeriesNum = this.addObservationSeries(
+						MEANS_SERIES_NAME, meanObsList);
 			}
 		} else {
-			// TODO: remove empty check; should never happen because of way 
-			//       binning is done
+			// TODO: remove empty check; should never happen because of way
+			// binning is done
 		}
 	}
 
@@ -101,28 +103,6 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		this.daysInBin = daysInBin;
 		this.setMeanSeries();
 	}
-	
-	/**
-	 * Add a mean-based series using a default bin size.
-	 * 
-	 * @param observations
-	 *            A sequence of valid observations from which to select bins.
-	 */
-//	public void addInitialMeanSeries(List<ValidObservation> observations) {
-//		// Determine default bin size as a percentage of observations.
-//		// TODO: bin size/percentage could become subject to Preferences.
-//		
-////		 int binSize = observations.size() * DescStats.DEFAULT_BIN_PERCENTAGE
-////		 / 100;
-//
-//		int binSize = DescStats.DEFAULT_BIN_DAYS;  use this in ctor for a daysInBin field 
-//
-//		if (binSize >= 1) {
-//			addMeanSeries(observations, binSize);
-//		}
-//
-//		// TODO: otherwise throw an exception?
-//	}
 
 	/**
 	 * Which series' elements should be joined visually (e.g. with lines)?
@@ -163,10 +143,16 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * @return The error value associated with the mean.
 	 */
 	protected double getMagError(int series, int item) {
-
-		// TODO: handle Means series!
-
-		return super.getMagError(series, item);
+		if (series != this.meansSeriesNum) {
+			// The series is something other than the means series
+			// so just default to the superclass behaviour.
+			return super.getMagError(series, item);
+		} else {
+			// For the means series, we store the mean magnitude error
+			// value as the magnitude's uncertainty. TODO: change this?
+			return this.seriesNumToObSrcListMap.get(series).get(item)
+					.getMagnitude().getUncertainty();
+		}
 	}
 
 	/**
