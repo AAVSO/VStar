@@ -33,8 +33,6 @@ import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
 public class ObservationAndMeanPlotPane extends
 		ObservationPlotPane<ObservationAndMeanPlotModel> {
 
-	// private ObservationAndMeanPlotModel obsAndMeanModel;
-
 	// Should the means series elements be joined visually?
 	private boolean joinMeans;
 
@@ -53,7 +51,6 @@ public class ObservationAndMeanPlotPane extends
 
 		super(title, obsAndMeanModel, bounds);
 
-		// this.obsAndMeanModel = obsAndMeanModel;
 		this.joinMeans = true;
 
 		addToChartControlPanel(this.getChartControlPanel());
@@ -61,8 +58,6 @@ public class ObservationAndMeanPlotPane extends
 
 	// Add means-specific widgets to chart control panel.
 	private void addToChartControlPanel(JPanel chartControlPanel) {
-		// super.createChartControlPanel(chartControlPanel);
-
 		// A checkbox to determine whether or not to join mean series elements.
 		JCheckBox joinMeansCheckBox = new JCheckBox("Join means?");
 		joinMeansCheckBox.setSelected(true);
