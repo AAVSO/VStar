@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Untitled Gantt Project" company="" webLink="http://" view-date="2009-05-17" view-index="0" gantt-divider-location="552" resource-divider-location="-1" version="2.0">
+<description></description>
+<view zooming-state="default:5" id="gantt-chart"/>
+<view id="resource-table">
+<field id="0" name="Name" width="55" order="0"/>
+<field id="1" name="Default role" width="44" order="1"/>
+</view>
+<!-- -->
+<calendars>
+<day-types>
+<day-type id="0"/>
+<day-type id="1"/>
+<calendar id="1" name="default">
+<default-week sun="1" mon="0" tue="0" wed="0" thu="0" fri="0" sat="1"/>
+<overriden-day-types/>
+<days/>
+</calendar>
+</day-types>
+</calendars>
+<tasks color="#8cb6ce">
+<taskproperties>
+<taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+<taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+<taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+<taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+<taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+<taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+<taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+<taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+<taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+<taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+</taskproperties>
+<task id="0" name="Draft Spec Received" color="#8cb6ce" meeting="true" start="2009-05-08" duration="1" complete="0" priority="1" expand="true">
+<depend id="1" type="2" difference="0" hardness="Strong"/>
+</task>
+<task id="1" name="Spec clarification &amp; Requirements Analysis" color="#8cb6ce" meeting="false" start="2009-05-11" duration="14" complete="0" priority="1" expand="true">
+<depend id="2" type="2" difference="0" hardness="Strong"/>
+</task>
+<task id="2" name="Code and Unit Test" color="#8cb6ce" meeting="false" start="2009-05-29" duration="42" complete="0" priority="1" expand="true">
+<task id="7" name="Text validation framework" color="#8cb6ce" meeting="false" start="2009-06-01" duration="12" complete="0" priority="1" expand="true"/>
+<task id="6" name="Model infrastructure, initial GUI, observer framework" color="#8cb6ce" meeting="false" start="2009-06-01" duration="14" complete="0" priority="1" expand="true"/>
+<task id="9" name="GUI mockups" color="#8cb6ce" meeting="false" start="2009-06-19" duration="16" complete="0" priority="1" expand="true"/>
+<task id="4" name="Simple format input and text reader framework" color="#8cb6ce" meeting="false" start="2009-06-11" duration="23" complete="0" priority="1" expand="true"/>
+<task id="5" name="AAVSO Download format input" color="#8cb6ce" meeting="false" start="2009-07-10" duration="2" complete="0" priority="1" expand="true"/>
+<task id="8" name="View experimentation, SQL for separate &amp; combined tables" color="#8cb6ce" meeting="false" start="2009-06-26" duration="8" complete="0" priority="1" expand="true"/>
+<task id="11" name="Raw data plot and table" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="12" name="Raw data means plot and table" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="13" name="Phase plot and table" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="14" name="Phase plot and table (means)" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="15" name="Saving plots &amp; tables" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="16" name="Printing plots &amp; tables" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="10" name="AAVSO Database input" color="#8cb6ce" meeting="false" start="2009-07-23" duration="3" complete="0" priority="1" expand="true"/>
+<task id="22" name="Plot interactions (single ob details, discrepant) " color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="23" name="Joining observer data" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="24" name="Time panning" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="25" name="Zooming" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="26" name="Category (band, fainter-than) colors" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="27" name="Preferences, properties (e.g. window size, position)" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="29" name="Web Start (JNLP)" color="#8cb6ce" meeting="false" start="2009-05-29" duration="1" complete="0" priority="1" expand="true"/>
+</task>
+<task id="19" name="Documentation" color="#8cb6ce" meeting="false" start="2009-07-24" duration="5" complete="0" priority="1" expand="true">
+<task id="20" name="HTML for Help menu item" color="#8cb6ce" meeting="false" start="2009-07-24" duration="5" complete="0" priority="1" expand="true"/>
+</task>
+<task id="21" name="Testing" color="#8cb6ce" meeting="false" start="2009-06-23" duration="29" complete="0" priority="1" expand="true">
+<task id="3" name="System Testing" color="#8cb6ce" shape="0,1,0,1,0,0,1,0,0,1,0,1,1,0,0,0" meeting="false" start="2009-06-23" duration="28" complete="0" priority="1" expand="true"/>
+<task id="30" name="Bug Fixes and Improvements" color="#8cb6ce" meeting="false" start="2009-07-31" duration="1" complete="0" priority="1" expand="true"/>
+<task id="17" name="Acceptance Testing" color="#8cb6ce" shape="0,1,0,1,0,0,1,0,0,1,0,1,1,0,0,0" meeting="false" start="2009-07-31" duration="1" complete="0" priority="1" expand="true"/>
+</task>
+<task id="18" name="CitizenSky Workshop 1" color="#8cb6ce" meeting="true" start="2009-08-04" duration="3" complete="0" priority="1" expand="true"/>
+</tasks>
+<resources/>
+<allocations/>
+<vacations/>
+<taskdisplaycolumns>
+<displaycolumn property-id="tpd3" order="0" width="350"/>
+<displaycolumn property-id="tpd4" order="1" width="31"/>
+<displaycolumn property-id="tpd5" order="2" width="29"/>
+</taskdisplaycolumns>
+<previous/>
+<roles roleset-name="Default"/>
+<roles roleset-name="SoftwareDevelopment"/>
+</project>
