@@ -38,13 +38,15 @@ import org.jfree.chart.renderer.xy.XYErrorRenderer;
 
 /**
  * This class represents a chart pane containing a plot for a set of valid
- * observations.
+ * observations. It is genericised on observation model.
  */
-public class ObservationPlotPane extends JPanel {
+public class ObservationPlotPane<T extends ObservationPlotModel> extends JPanel {
 
-	private ObservationPlotModel obsModel;
-	
+	protected T obsModel;
+
 	private ChartPanel chartPanel;
+
+	private JPanel chartControlPanel;
 	
 	private JTextArea obsInfo;
 
@@ -65,7 +67,7 @@ public class ObservationPlotPane extends JPanel {
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
-	public ObservationPlotPane(String title, ObservationPlotModel obsModel,
+	public ObservationPlotPane(String title, T obsModel,
 			Dimension bounds) {
 		super();
 
@@ -106,7 +108,7 @@ public class ObservationPlotPane extends JPanel {
 		this.add(Box.createRigidArea(new Dimension(0, 10)));
 
 		// Create a panel that can be used to add chart control widgets.
-		JPanel chartControlPanel = new JPanel();
+		chartControlPanel = new JPanel();
 		chartControlPanel.setLayout(new BoxLayout(chartControlPanel, BoxLayout.LINE_AXIS));
 		createChartControlPanel(chartControlPanel);
 		this.add(chartControlPanel);
@@ -127,6 +129,13 @@ public class ObservationPlotPane extends JPanel {
 	 */
 	public ChartPanel getChartPanel() {
 		return chartPanel;
+	}
+
+	/**
+	 * @return the chartControlPanel
+	 */
+	public JPanel getChartControlPanel() {
+		return chartControlPanel;
 	}
 
 	/**
@@ -154,7 +163,7 @@ public class ObservationPlotPane extends JPanel {
 	
 	// Return a listener for the error bar visibility checkbox.
 	private ActionListener createErrorBarCheckBoxListener() {
-		final ObservationPlotPane self = this;
+		final ObservationPlotPane<T> self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				self.toggleErrorBars();
