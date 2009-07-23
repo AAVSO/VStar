@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.model;
 import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
+import org.aavso.tools.vstar.ui.ObservationPlotPaneBase;
 
 /**
  * A message class containing new star type and GUI component information.
@@ -30,7 +31,7 @@ public class NewStarMessage {
 
 	// GUI table and chart components.
 	// TODO: we could use NamedComponents instead, e.g. to get tooltips
-	private ObservationPlotPane<ObservationPlotModel> obsChartPane;
+	private ObservationPlotPane obsChartPane;
 	private ObservationAndMeanPlotPane obsAndMeanChartPane;
 	private ObservationListPane obsTablePane;
 	// TODO: add meansTablePane
@@ -48,7 +49,7 @@ public class NewStarMessage {
 	 *            The observation table GUI component.
 	 */
 	public NewStarMessage(NewStarType newStarType,
-			ObservationPlotPane<ObservationPlotModel> obsChartPane,
+			ObservationPlotPane obsChartPane,
 			ObservationAndMeanPlotPane obsAndMeanChartPane,
 			ObservationListPane obsTablePane) {
 		this.newStarType = newStarType;
@@ -69,7 +70,7 @@ public class NewStarMessage {
 	/**
 	 * @return the obsChartPane
 	 */
-	public ObservationPlotPane<ObservationPlotModel> getObsChartPane() {
+	public ObservationPlotPane getObsChartPane() {
 		return obsChartPane;
 	}
 
