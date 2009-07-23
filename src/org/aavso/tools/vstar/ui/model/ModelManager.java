@@ -42,6 +42,7 @@ import org.aavso.tools.vstar.ui.MessageBox;
 import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
+import org.aavso.tools.vstar.ui.ObservationPlotPaneBase;
 import org.aavso.tools.vstar.util.Notifier;
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -90,7 +91,7 @@ public class ModelManager {
 	// TODO: phase plot models...
 
 	// Current GUI table and chart components.
-	private ObservationPlotPane<ObservationPlotModel> obsChartPane;
+	private ObservationPlotPane obsChartPane;
 	private ObservationAndMeanPlotPane obsAndMeanChartPane;
 	private ObservationListPane obsTablePane;
 
@@ -324,10 +325,10 @@ public class ModelManager {
 	/**
 	 * Create the observation pane for a list of valid observations.
 	 */
-	private ObservationPlotPane<ObservationPlotModel> createObservationPane(String plotName) {
+	private ObservationPlotPane createObservationPane(String plotName) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
-		return new ObservationPlotPane<ObservationPlotModel>("Julian Day vs Magnitude Plot for "
+		return new ObservationPlotPane("Julian Day vs Magnitude Plot for "
 				+ plotName, this.obsPlotModel, bounds);
 	}
 
@@ -486,7 +487,7 @@ public class ModelManager {
 	/**
 	 * @return the obsChartPane
 	 */
-	public ObservationPlotPane<ObservationPlotModel> getObsChartPane() {
+	public ObservationPlotPane getObsChartPane() {
 		return obsChartPane;
 	}
 
