@@ -29,7 +29,6 @@ import org.aavso.tools.vstar.data.ValidObservation;
  */
 public class DescStats {
 
-//	public static final int DEFAULT_BIN_PERCENTAGE = 10;
 	public static final int DEFAULT_BIN_DAYS = 20;
 	
 	/**
@@ -206,21 +205,6 @@ public class DescStats {
 			binnedObs.add(createMeanObservationForJDRange(observations,
 					minJDIndex, observations.size()-1));			
 		}
-		
-		// for (int i = 0; i < observations.size(); i += binSize) {
-		// int minJDIndex = i;
-		// int maxJDIndex = i + binSize - 1;
-		//
-		// // The last bin size may be smaller than the preceding bins
-		// // unless we have equal number of ranges. If so, cap the
-		// // maximum index to the last index of the observations list.
-		// if (maxJDIndex >= observations.size()) {
-		// maxJDIndex = observations.size() - 1;
-		// }
-		//
-		// binnedObs.add(createMeanObservationForJDRange(observations,
-		// minJDIndex, maxJDIndex));
-		// }
 
 		return binnedObs;
 	}
