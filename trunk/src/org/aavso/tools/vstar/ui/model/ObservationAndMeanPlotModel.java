@@ -36,6 +36,10 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	
 	private int meansSeriesNum;
 	
+	private double daysInBin;
+	
+	private List<ValidObservation> observations;
+	
 	/**
 	 * Constructor
 	 * 
@@ -50,25 +54,25 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	public ObservationAndMeanPlotModel(List<ValidObservation> observations,
 			Map<String, List<ValidObservation>> obsSourceListMap) {
 		super(obsSourceListMap);
+		this.observations = observations;
 		this.meansSeriesNum = NO_MEANS_SERIES;
-		this.addInitialMeanSeries(observations);
+		this.daysInBin = DescStats.DEFAULT_BIN_DAYS; // TODO: or just define this in this class?
+		this.setMeanSeries();
 	}
 
 	/**
-	 * Add a mean-based series with the specified bin size.
+	 * Set the mean-based series with the specified bin size.
 	 * 
-	 * @param observations
-	 *            A sequence of valid observations from which to select bins.
-	 * @param binSize
-	 *            The number of elements in the bin.
+	 * @param daysInBin
+	 *            The number of days in the bin.
 	 */
-	public void addMeanSeries(List<ValidObservation> observations, int binSize) {
+	public void setMeanSeries() {
 
 		List<ValidObservation> meanObsList = DescStats
-				.createdBinnedObservations(observations, binSize);
+				.createdBinnedObservations(observations, daysInBin);
 
 		// As long as there were enough observations to create a means list
-		// to make a "means" series, we do so. TODO: tell user otherwise?
+		// to make a "means" series, we do so.
 		if (!meanObsList.isEmpty()) {
 			boolean found = false;
 
@@ -87,30 +91,38 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			if (!found) {
 				this.meansSeriesNum = this.addObservationSeries(MEANS_SERIES_NAME, meanObsList);
 			}
+		} else {
+			// TODO: remove empty check; should never happen because of way 
+			//       binning is done
 		}
 	}
 
+	public void changeMeansSeries(double daysInBin) {
+		this.daysInBin = daysInBin;
+		this.setMeanSeries();
+	}
+	
 	/**
 	 * Add a mean-based series using a default bin size.
 	 * 
 	 * @param observations
 	 *            A sequence of valid observations from which to select bins.
 	 */
-	public void addInitialMeanSeries(List<ValidObservation> observations) {
-		// Determine default bin size as a percentage of observations.
-		// TODO: bin size/percentage could become subject to Preferences.
-		
-//		 int binSize = observations.size() * DescStats.DEFAULT_BIN_PERCENTAGE
-//		 / 100;
-
-		int binSize = DescStats.DEFAULT_BIN_DAYS;
-
-		if (binSize >= 1) {
-			addMeanSeries(observations, binSize);
-		}
-
-		// TODO: otherwise throw an exception?
-	}
+//	public void addInitialMeanSeries(List<ValidObservation> observations) {
+//		// Determine default bin size as a percentage of observations.
+//		// TODO: bin size/percentage could become subject to Preferences.
+//		
+////		 int binSize = observations.size() * DescStats.DEFAULT_BIN_PERCENTAGE
+////		 / 100;
+//
+//		int binSize = DescStats.DEFAULT_BIN_DAYS;  use this in ctor for a daysInBin field 
+//
+//		if (binSize >= 1) {
+//			addMeanSeries(observations, binSize);
+//		}
+//
+//		// TODO: otherwise throw an exception?
+//	}
 
 	/**
 	 * Which series' elements should be joined visually (e.g. with lines)?
@@ -162,5 +174,12 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	public int getMeansSeriesNum() {
 		return meansSeriesNum;
+	}
+
+	/**
+	 * @return the daysInBin
+	 */
+	public double getDaysInBin() {
+		return daysInBin;
 	}
 }
