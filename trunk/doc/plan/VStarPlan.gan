@@ -65,6 +65,7 @@
 </task>
 <task id="21" name="Testing" color="#8cb6ce" meeting="false" start="2009-06-23" duration="34" complete="8" priority="1" expand="true">
 <task id="3" name="System Testing" color="#8cb6ce" shape="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" meeting="false" start="2009-06-23" duration="33" complete="10" priority="1" expand="true"/>
+<task id="32" name="Bug Fixes" color="#8cb6ce" meeting="false" start="2009-07-27" duration="9" complete="0" priority="1" expand="true"/>
 <task id="17" name="Acceptance Testing" color="#8cb6ce" shape="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" meeting="false" start="2009-08-04" duration="4" complete="0" priority="1" expand="true"/>
 </task>
 <task id="18" name="CitizenSky Workshop 1" color="#8cb6ce" meeting="true" start="2009-08-04" duration="3" complete="0" priority="1" expand="true"/>
@@ -87,6 +88,7 @@
 <allocation task-id="3" resource-id="11" function="SoftwareDevelopment:8" responsible="false" load="50.0"/>
 <allocation task-id="3" resource-id="7" function="Default:1" responsible="false" load="100.0"/>
 <allocation task-id="3" resource-id="10" function="SoftwareDevelopment:4" responsible="false" load="100.0"/>
+<allocation task-id="32" resource-id="6" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
 </allocations>
 <vacations/>
 <taskdisplaycolumns>
