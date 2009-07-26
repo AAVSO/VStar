@@ -82,7 +82,8 @@ public class AboutBox {
 				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.\n\n");
 
 		strBuf
-				.append("and to the following people testers: Michael Umbricht (others to be added).");
+				.append("and to the following people for testing VStar:\n\n");
+		strBuf.append("  Michael Umbricht (and others to be added).");
 
 		MessageBox.showMessageDialog(parent, "VStar", strBuf.toString());
 	}
