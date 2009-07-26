@@ -38,12 +38,12 @@ import org.aavso.tools.vstar.util.Listener;
 /**
  * VStar's menu bar.
  * 
- * TODO: put menu item names in property file
+ * TODO:
+ * - Put menu item names in property file
+ * - Factor out code to be shared by menu and tool bar?
  */
 public class MenuBar extends JMenuBar {
-
-	// TODO: factor out code to be shared by menu and tool bar?
-
+	
 	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
 	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
 	public static final String SAVE = "Save...";
@@ -297,54 +297,10 @@ public class MenuBar extends JMenuBar {
 	private ActionListener createAboutListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				StringBuffer strBuf = new StringBuffer();
-				strBuf.append("VStar (alpha)\n\n");
-				strBuf
-						.append("A variable star observation data analysis tool\n");
-				strBuf.append("developed for:\n\n");
-				strBuf.append("  The American Association of Variable Star\n");
-				strBuf.append("  Observers: http://www.aavso.org/\n\n");
-				strBuf.append("  as part of\n\n");
-				strBuf
-						.append("  The CitizenSky Project: http://www.citizensky.org/\n\n");
-
-				strBuf
-						.append("This project was funded in part by grant No. 000379097\n");
-				strBuf.append("from the National Science Foundation.\n\n");
-
-				strBuf.append("Code by: David Benn\n");
-				strBuf.append("Contact: aavso@aavso.org\n");
-				strBuf.append("License: GNU Affero General Public License\n\n");
-				strBuf
-						.append("Images as appeared in Variable Star Astronomy at\n");
-				strBuf.append("http://www.aavso.org/education/vsa/\n\n");
-
-				strBuf
-						.append("Thanks to the staff of AAVSO for their support, in particular:\n\n");
-				strBuf
-						.append(" Sara Beck, Arne Henden, Doc Kinne, Aaron Price,\n");
-				strBuf
-						.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.");
-
-				MessageBox
-						.showMessageDialog(parent, "VStar", strBuf.toString());
+				AboutBox.showAboutBox(parent);
 			}
 		};
 	}
-
-	// Comment by Aaron in email (6 July 2009):
-	//	
-	// I think you can use anything in HOA or the Citizen Sky web site.
-	// However, you'll need to retain whatever credit is shown in VSA and
-	// maybe add "as appeared in VSA at
-	// "http://www.aavso.org/education/vsa/".
-	//
-	// Add a credit to Citizen Sky and the National Science Foundation to
-	// the About box (if you haven't already). A good NSF logo is here:
-	// http://www.nsf.gov/policies/logos.jsp
-	//
-	// The NSF credit should be something like "This project was funded in
-	// part by grant No. 000379097 from the National Science Foundation."
 
 	/**
 	 * Return a progress listener.
