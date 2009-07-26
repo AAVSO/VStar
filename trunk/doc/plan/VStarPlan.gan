@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Untitled Gantt Project" company="" webLink="http://" view-date="2009-05-03" view-index="0" gantt-divider-location="518" resource-divider-location="302" version="2.0">
-<description></description>
+<project name="VStar Phase I" company="AAVSO" webLink="https://sourceforge.net/projects/vstar/" view-date="2009-05-03" view-index="0" gantt-divider-location="518" resource-divider-location="302" version="2.0">
+<description><![CDATA[VStar Phase I tasks and progress.]]></description>
 <view zooming-state="default:5" id="gantt-chart"/>
 <view id="resource-table">
 <field id="0" name="Name" width="55" order="0"/>
