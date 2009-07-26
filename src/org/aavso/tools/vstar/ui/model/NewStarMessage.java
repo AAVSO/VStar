@@ -17,10 +17,10 @@
  */
 package org.aavso.tools.vstar.ui.model;
 
+import org.aavso.tools.vstar.ui.MeanObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
-import org.aavso.tools.vstar.ui.ObservationPlotPaneBase;
 
 /**
  * A message class containing new star type and GUI component information.
@@ -33,8 +33,8 @@ public class NewStarMessage {
 	// TODO: we could use NamedComponents instead, e.g. to get tooltips
 	private ObservationPlotPane obsChartPane;
 	private ObservationAndMeanPlotPane obsAndMeanChartPane;
-	private ObservationListPane obsTablePane;
-	// TODO: add meansTablePane
+	private ObservationListPane obsListPane;
+	private MeanObservationListPane meansListPane;
 
 	/**
 	 * Constructor
@@ -45,19 +45,22 @@ public class NewStarMessage {
 	 *            The observation plot GUI component.
 	 * @param obsWithMeanChartPane
 	 *            The observation-and-mean plot GUI component.
-	 * @param obsTablePane
+	 * @param obsListPane
 	 *            The observation table GUI component.
+	 * @param meansTablePane           
 	 */
 	public NewStarMessage(NewStarType newStarType,
 			ObservationPlotPane obsChartPane,
 			ObservationAndMeanPlotPane obsAndMeanChartPane,
-			ObservationListPane obsTablePane) {
+			ObservationListPane obsListPane,
+			MeanObservationListPane meansListPane) {
 		this.newStarType = newStarType;
 		
 		this.obsChartPane = obsChartPane;
 		this.obsAndMeanChartPane = obsAndMeanChartPane;
 		
-		this.obsTablePane = obsTablePane;
+		this.obsListPane = obsListPane;
+		this.meansListPane = meansListPane;
 	}
 
 	/**
@@ -75,10 +78,10 @@ public class NewStarMessage {
 	}
 
 	/**
-	 * @return the obsTablePane
+	 * @return the obsListPane
 	 */
 	public ObservationListPane getObsTablePane() {
-		return obsTablePane;
+		return obsListPane;
 	}
 
 	/**
@@ -86,5 +89,12 @@ public class NewStarMessage {
 	 */
 	public ObservationAndMeanPlotPane getObsAndMeanChartPane() {
 		return obsAndMeanChartPane;
+	}
+
+	/**
+	 * @return the meansListPane
+	 */
+	public MeanObservationListPane getMeansListPane() {
+		return meansListPane;
 	}
 }

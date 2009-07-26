@@ -24,8 +24,8 @@ import org.aavso.tools.vstar.data.validation.ITableFieldInfoSource;
 import org.aavso.tools.vstar.ui.model.ITableColumnInfoSource;
 
 /**
- * Field and column information source for AAVSO Download file format 
- * and database read observations.
+ * Field and column information source for AAVSO Download file format and
+ * database read observations.
  */
 public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 		ITableFieldInfoSource {
@@ -52,8 +52,8 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 	private static final int HJD_FIELD = 16;
 	private static final int NAME_FIELD = 17;
 	private static final int MTYPE_FIELD = 18;
-	
-	public static final int FIELD_COUNT = MTYPE_FIELD+1;
+
+	public static final int FIELD_COUNT = MTYPE_FIELD + 1;
 
 	// Table columns.
 	private static final int JD_COLUMN = 0;
@@ -188,12 +188,69 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 		return columnName;
 	}
 
+	public Class<?> getTableColumnClass(int index) {
+		Class<?> clazz = String.class;
+
+		switch (index) {
+		case JD_COLUMN:
+			clazz = String.class;
+			break;
+		case CALENDAR_DATE_COLUMN:
+			break;
+		case MAGNITUDE_COLUMN:
+			break;
+		case HQ_UNCERTAINTY_COLUMN:
+			clazz = Double.class;
+			break;
+		case BAND_COLUMN:
+			break;
+		case OBSERVER_CODE_COLUMN:
+			break;
+		case COMMENT_CODE_COLUMN:
+			break;
+		case COMP_STAR_1_COLUMN:
+			break;
+		case COMP_STAR_2_COLUMN:
+			break;
+		case CHARTS_COLUMN:
+			break;
+		case COMMENTS_COLUMN:
+			break;
+		case TRANSFORMED_COLUMN:
+			break;
+		case AIRMASS_COLUMN:
+			break;
+		case VALFLAG_COLUMN:
+			break;
+		case CMAG_COLUMN:
+			clazz = Double.class;
+			break;
+		case KMAG_COLUMN:
+			clazz = Double.class;
+			break;
+		case HJD_COLUMN:
+			clazz = Double.class;
+			break;
+		case NAME_COLUMN:
+			break;
+		case MTYPE_COLUMN:
+			break;
+		case LINE_NUM_COLUMN:
+			break;
+		case DISCREPANT_COLUMN:
+			clazz = Boolean.class;
+			break;
+		}
+
+		return clazz;
+	}
+
 	public Object getTableColumnValue(int index, ValidObservation ob) {
 		Object value = null;
 
 		switch (index) {
 		case JD_COLUMN:
-			value = ob.getDateInfo().getJulianDay();
+			value = String.format("%1.2f", ob.getDateInfo().getJulianDay());
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
@@ -226,13 +283,14 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 			value = ob.getComments();
 			break;
 		case TRANSFORMED_COLUMN:
-			value = ob.isTransformed();
+			value = ob.isTransformed() ? "yes" : "no";
 			break;
 		case AIRMASS_COLUMN:
 			value = ob.getAirmass();
 			break;
 		case VALFLAG_COLUMN:
-			value = ob.getValidationType().getValflag(); // TODO: or print enum value?
+			value = ob.getValidationType().getValflag(); // TODO: or print enum
+															// value?
 			break;
 		case CMAG_COLUMN:
 			value = ob.getCMag();

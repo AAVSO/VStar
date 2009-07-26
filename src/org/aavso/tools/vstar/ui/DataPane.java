@@ -142,14 +142,15 @@ public class DataPane extends JPanel {
 					JPanel obsPlotPane = msg.getObsChartPane();
 					JPanel obsAndMeanPane = msg.getObsAndMeanChartPane();
 					JPanel obsListPane = msg.getObsTablePane();
-
+					JPanel meansListPane = msg.getMeansListPane();
+					
 					if (obsPlotPane != null && obsListPane != null
 							&& obsAndMeanPane != null) {
 						setCard(ModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
 						setCard(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
 								obsAndMeanPane);
 						setCard(ModeType.LIST_OBS_MODE_DESC, obsListPane);
-						// TODO: add means list
+						setCard(ModeType.LIST_MEANS_MODE_DESC, meansListPane);
 						// TODO: pass modelMgr around in message, Actors style?
 						modelMgr.changeMode(ModeType.PLOT_OBS_MODE);
 					} else {

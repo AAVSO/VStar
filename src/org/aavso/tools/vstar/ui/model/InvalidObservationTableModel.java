@@ -65,8 +65,6 @@ public class InvalidObservationTableModel extends AbstractTableModel {
 	 */
 	public String getColumnName(int column) {
 		String columnName = null;
-
-		// TODO: use an array?
 		
 		switch (column) {
 		case 0:
@@ -93,7 +91,9 @@ public class InvalidObservationTableModel extends AbstractTableModel {
 		InvalidObservation invalidOb = invalidObservations.get(rowIndex);
 		switch (columnIndex) {
 		case 0:
-			value = invalidOb.getLineNumber();
+			// TODO: we really want to return an integer so that column 
+			// sorting works properly for numbers!
+			value = String.format("%d", invalidOb.getLineNumber());
 			break;
 		case 1:
 			value = invalidOb.getInputLine();
@@ -104,4 +104,25 @@ public class InvalidObservationTableModel extends AbstractTableModel {
 		}
 		return value;
 	}
+
+	/**
+	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
+	 */
+	public Class<?> getColumnClass(int columnIndex) {
+		Class<?> clazz = null;
+		
+		switch(columnIndex) {
+		case 0:
+			clazz = String.class;
+			break;
+		case 1:
+			clazz = String.class;
+			break;
+		case 2:
+			clazz = String.class;
+			break;
+		}
+		
+		return clazz;
+	}	
 }

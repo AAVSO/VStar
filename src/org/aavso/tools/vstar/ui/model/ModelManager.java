@@ -38,11 +38,11 @@ import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.DataPane;
+import org.aavso.tools.vstar.ui.MeanObservationListPane;
 import org.aavso.tools.vstar.ui.MessageBox;
 import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
-import org.aavso.tools.vstar.ui.ObservationPlotPaneBase;
 import org.aavso.tools.vstar.util.Notifier;
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -84,18 +84,16 @@ public class ModelManager {
 
 	private ValidObservationTableModel validObsTableModel;
 	private InvalidObservationTableModel invalidObsTableModel;
+	private MeanObservationTableModel meanObsTableModel;
 
 	private ObservationPlotModel obsPlotModel;
 	private ObservationAndMeanPlotModel obsAndMeanPlotModel;
 
-	// TODO: phase plot models...
-
 	// Current GUI table and chart components.
 	private ObservationPlotPane obsChartPane;
 	private ObservationAndMeanPlotPane obsAndMeanChartPane;
-	private ObservationListPane obsTablePane;
-
-	// TODO: phase plot GUI components...
+	private ObservationListPane obsListPane;
+	private MeanObservationListPane meansListPane;
 
 	// Notifiers.
 	private Notifier<NewStarMessage> newStarNotifier;
@@ -196,7 +194,8 @@ public class ModelManager {
 				// passing GUI components in the message.
 				NewStarMessage msg = new NewStarMessage(analyser
 						.getNewStarType(), modelMgr.obsChartPane,
-						modelMgr.obsAndMeanChartPane, modelMgr.obsTablePane);
+						modelMgr.obsAndMeanChartPane, modelMgr.obsListPane,
+						modelMgr.meansListPane);
 
 				modelMgr.newStarNotifier.notifyListeners(msg);
 			}
@@ -239,6 +238,9 @@ public class ModelManager {
 			// Given raw valid and invalid observation data, create observation
 			// table and plot models, along with corresponding GUI components.
 
+			// TODO: should be able to refactor the remainder of this method to
+			// be used with database artefact creation method.
+
 			if (!modelMgr.validObsList.isEmpty()) {
 				// Observation table and plot.
 				modelMgr.validObsTableModel = new ValidObservationTableModel(
@@ -247,18 +249,31 @@ public class ModelManager {
 				modelMgr.obsPlotModel = new ObservationPlotModel(
 						modelMgr.validObservationCategoryMap);
 
-				modelMgr.obsChartPane = createObservationPane(this.obsFile
+				// TODO: why not just pass a locally created obsPlotModel
+				// to this method instead rather than storing it in a field?
+				modelMgr.obsChartPane = createObservationPlotPane(this.obsFile
 						.getName());
 
 				// Observation-and-mean table and plot.
 
-				// TODO: for means ...
-				// - table with means-based data
 				modelMgr.obsAndMeanPlotModel = createObservationAndMeanPlotModel();
 
-				modelMgr.obsAndMeanChartPane = createObservationAndMeanPane(this.obsFile
+				// TODO: why not just pass a locally created obsPlotModel
+				// to this method instead rather than storing it in a field?
+				modelMgr.obsAndMeanChartPane = createObservationAndMeanPlotPane(this.obsFile
 						.getName());
 
+				// The mean observation table model must listen to the plot
+				// model to know when the means data has changed. We also pass
+				// the initial means data obtained from the plot model to
+				// the mean observation table model.
+				modelMgr.meanObsTableModel = new MeanObservationTableModel(
+						modelMgr.obsAndMeanPlotModel.getMeanObsList());
+
+				modelMgr.obsAndMeanPlotModel.getMeansChangeNotifier()
+						.addListener(modelMgr.meanObsTableModel);
+
+				// Update progress.
 				modelMgr.getProgressNotifier().notifyListeners(
 						new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
 								plotTaskPortion));
@@ -270,8 +285,16 @@ public class ModelManager {
 			}
 
 			// The observation table pane contains valid and potentially
-			// invalid data components.
-			modelMgr.obsTablePane = createObsTablePane();
+			// invalid data components. Tell the valid data table to have 
+			// a horizontal scrollbar if it the source was a simple-format
+			// file since there won't be many columns. We don't want to do that
+			// when there are many columns (i.e. for AAVSO download format files
+			// and database source).
+			boolean enableColumnAutoResize = analyser.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
+			modelMgr.obsListPane = createObsListPane(enableColumnAutoResize);
+
+			// We also create the means list pane.
+			modelMgr.meansListPane = createMeanObsListPane();
 
 			return true;
 		}
@@ -315,17 +338,24 @@ public class ModelManager {
 	}
 
 	/**
-	 * Create the observation table component.
+	 * Create the observation list component.
 	 */
-	private ObservationListPane createObsTablePane() {
+	private ObservationListPane createObsListPane(boolean enableColumnAutoResize) {
 		return new ObservationListPane(this.getValidObsTableModel(), this
-				.getInvalidObsTableModel());
+				.getInvalidObsTableModel(), enableColumnAutoResize, true);
 	}
 
 	/**
-	 * Create the observation pane for a list of valid observations.
+	 * Create the means list pane.
 	 */
-	private ObservationPlotPane createObservationPane(String plotName) {
+	private MeanObservationListPane createMeanObsListPane() {
+		return new MeanObservationListPane(this.getMeanObsTableModel());
+	}
+
+	/**
+	 * Create the observation pane for a plot of valid observations.
+	 */
+	private ObservationPlotPane createObservationPlotPane(String plotName) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 		return new ObservationPlotPane("Julian Day vs Magnitude Plot for "
@@ -345,10 +375,10 @@ public class ModelManager {
 	}
 
 	/**
-	 * Create the observation-and-mean pane for the current list of valid
+	 * Create the observation-and-mean plot pane for the current list of valid
 	 * observations.
 	 */
-	private ObservationAndMeanPlotPane createObservationAndMeanPane(
+	private ObservationAndMeanPlotPane createObservationAndMeanPlotPane(
 			String plotName) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
@@ -408,11 +438,10 @@ public class ModelManager {
 			break;
 		case LIST_OBS_MODE:
 			try {
-				this.obsTablePane.getValidDataTable()
-						.print(PrintMode.FIT_WIDTH);
+				this.obsListPane.getValidDataTable().print(PrintMode.FIT_WIDTH);
 
-				if (this.obsTablePane.getInvalidDataTable() != null) {
-					this.obsTablePane.getInvalidDataTable().print(
+				if (this.obsListPane.getInvalidDataTable() != null) {
+					this.obsListPane.getInvalidDataTable().print(
 							PrintMode.FIT_WIDTH);
 				}
 			} catch (PrinterException e) {
@@ -428,9 +457,8 @@ public class ModelManager {
 	}
 
 	/**
-	 * Clear all data (lists, models).
-	 * TODO: or only have fundamental data collections with everything
-	 * derived and passed via messages to listeners?
+	 * Clear all data (lists, models). TODO: or only have fundamental data
+	 * collections with everything derived and passed via messages to listeners?
 	 */
 	private void clearData() {
 		this.invalidObsList = null;
@@ -471,6 +499,13 @@ public class ModelManager {
 	}
 
 	/**
+	 * @return the meanObsTableModel
+	 */
+	public MeanObservationTableModel getMeanObsTableModel() {
+		return meanObsTableModel;
+	}
+
+	/**
 	 * @return the obsPlotModel
 	 */
 	public ObservationPlotModel getObsPlotModel() {
@@ -492,10 +527,10 @@ public class ModelManager {
 	}
 
 	/**
-	 * @return the obsTablePane
+	 * @return the obsListPane
 	 */
-	public JPanel getObsTablePane() {
-		return obsTablePane;
+	public JPanel getObsListPane() {
+		return obsListPane;
 	}
 
 	// ** Singleton member, constructor, and getter. **

@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.DescStats;
+import org.aavso.tools.vstar.util.Notifier;
 
 /**
  * This class is a model that represents a series of valid variable star
@@ -39,6 +40,10 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	private double daysInBin;
 
 	private List<ValidObservation> observations;
+
+	private List<ValidObservation> meanObsList;
+	
+	private Notifier<List<ValidObservation>> meansChangeNotifier;
 
 	/**
 	 * Constructor
@@ -57,7 +62,10 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		this.observations = observations;
 		this.meansSeriesNum = NO_MEANS_SERIES;
 		this.daysInBin = DescStats.DEFAULT_BIN_DAYS; // TODO: or just define
-														// this in this class?
+		// this in this class?
+
+		this.meansChangeNotifier = new Notifier<List<ValidObservation>>();
+
 		this.setMeanSeries();
 	}
 
@@ -69,8 +77,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	public void setMeanSeries() {
 
-		List<ValidObservation> meanObsList = DescStats
-				.createdBinnedObservations(observations, daysInBin);
+		meanObsList = DescStats.createdBinnedObservations(observations,
+				daysInBin);
 
 		// As long as there were enough observations to create a means list
 		// to make a "means" series, we do so.
@@ -93,6 +101,10 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 				this.meansSeriesNum = this.addObservationSeries(
 						MEANS_SERIES_NAME, meanObsList);
 			}
+
+			// Notify listeners.
+			this.meansChangeNotifier.notifyListeners(meanObsList);
+
 		} else {
 			// TODO: remove empty check; should never happen because of way
 			// binning is done
@@ -167,5 +179,19 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	public double getDaysInBin() {
 		return daysInBin;
+	}
+
+	/**
+	 * @return the meanObsList
+	 */
+	public List<ValidObservation> getMeanObsList() {
+		return meanObsList;
+	}
+
+	/**
+	 * @return the meansChangeNotifier
+	 */
+	public Notifier<List<ValidObservation>> getMeansChangeNotifier() {
+		return meansChangeNotifier;
 	}
 }

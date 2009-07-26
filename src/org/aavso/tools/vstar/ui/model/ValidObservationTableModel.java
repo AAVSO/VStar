@@ -120,14 +120,6 @@ public class ValidObservationTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
 	 */
 	public Class<?> getColumnClass(int columnIndex) {
-		Class<?> clazz = null;
-
-		if (columnIndex == columnInfoSource.getDiscrepantColumnIndex()) {
-			clazz = Boolean.class;	
-		} else {
-			clazz = String.class;
-		}
-
-		return clazz;
+		return columnInfoSource.getTableColumnClass(columnIndex);
 	}
 }
