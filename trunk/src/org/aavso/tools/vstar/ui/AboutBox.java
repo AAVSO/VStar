@@ -34,8 +34,8 @@ public class AboutBox {
 	// maybe add "as appeared in VSA at
 	// "http://www.aavso.org/education/vsa/".
 	//
-	// Add a credit to Citizen Sky and the National Science Foundation to
-	// the About box (if you haven't already). A good NSF logo is here:
+	// Add a credit to the National Science Foundation to the About
+	// box (if you haven't already). A good NSF logo is here:
 	// http://www.nsf.gov/policies/logos.jsp
 	//
 	// The NSF credit should be something like "This project was funded in
