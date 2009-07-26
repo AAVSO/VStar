@@ -55,7 +55,7 @@ public class AboutBox {
 
 	public static void showAboutBox(Component parent) {
 		StringBuffer strBuf = new StringBuffer();
-		strBuf.append("VStar (revision ");
+		strBuf.append("VStar (svn revision ");
 		strBuf.append(getRevNum());
 		strBuf.append(")\n\n");
 
@@ -63,19 +63,20 @@ public class AboutBox {
 		strBuf.append("developed for:\n\n");
 		strBuf.append("  The American Association of Variable Star\n");
 		strBuf.append("  Observers: http://www.aavso.org/\n\n");
-		strBuf.append("as part of\n\n");
+		strBuf.append("as part of:\n\n");
 		strBuf
 				.append("  The CitizenSky Project: http://www.citizensky.org/\n\n");
 
 		strBuf
-				.append("This project was funded in part by grant No. 000379097\n");
-		strBuf.append("from the National Science Foundation.\n\n");
+				.append("This project was funded in part by grant No. 000379097 from the\n");
+		strBuf.append("National Science Foundation.\n\n");
 
 		strBuf.append("Code by: David Benn\n");
 		strBuf.append("Contact: aavso@aavso.org\n");
 		strBuf.append("License: GNU Affero General Public License\n\n");
-		strBuf.append("Images as appeared in Variable Star Astronomy at\n");
-		strBuf.append("http://www.aavso.org/education/vsa/\n\n");
+		strBuf.append("Images were sourced from:\n\n");
+		strBuf.append(" Ten Stars Tutorial: http://www.citizensky.org/content/10-star-training\n");
+		strBuf.append(" Variable Star Astronomy at: http://www.aavso.org/education/vsa/\n\n");
 
 		strBuf
 				.append("Thanks to the staff of AAVSO for their support, in particular:\n\n");
@@ -83,7 +84,7 @@ public class AboutBox {
 		strBuf
 				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.\n\n");
 
-		strBuf.append("and to the following people for testing VStar:\n\n");
+		strBuf.append("Thanks also to the following people for testing VStar:\n\n");
 		strBuf.append("  Michael Umbricht (and others to be added).");
 
 		MessageBox.showMessageDialog(parent, "About VStar", strBuf.toString(),
