@@ -99,12 +99,35 @@ public class SimpleFormatFieldInfoSource implements ITableColumnInfoSource,
 		return columnName;
 	}
 
+	public Class<?> getTableColumnClass(int index) {
+		Class<?> clazz = String.class;
+
+		switch (index) {
+		case JD_COLUMN:
+			clazz = String.class; 
+			break;
+		case CALENDAR_DATE_COLUMN:
+			break;
+		case MAGNITUDE_COLUMN:
+			break;
+		case OBSERVER_CODE_COLUMN:
+			break;
+		case LINE_NUM_COLUMN:
+			break;
+		case DISCREPANT_COLUMN:
+			clazz = Boolean.class;
+			break;
+		}
+
+		return clazz;
+	}
+
 	public Object getTableColumnValue(int index, ValidObservation ob) {
 		Object value = null;
 
 		switch (index) {
 		case JD_COLUMN:
-			value = ob.getDateInfo().getJulianDay();
+			value = String.format("%1.2f", ob.getDateInfo().getJulianDay());
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();

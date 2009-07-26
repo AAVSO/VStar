@@ -49,6 +49,14 @@ public interface ITableColumnInfoSource {
 	abstract public String getTableColumnTitle(int index);
 
 	/**
+	 * Given a column index return the type for that table column.
+	 * 
+	 * @param index A column index.
+	 * @return The column type.
+	 */
+	abstract public Class<?> getTableColumnClass(int index);
+	
+	/**
 	 * Given a column index and a valid observation, return an object
 	 * for a table column. 
 	 * 

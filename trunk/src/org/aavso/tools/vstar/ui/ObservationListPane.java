@@ -29,16 +29,16 @@ import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 
 /**
- * This class represents a GUI component that renders information about observation 
- * data, including one or both of valid and invalid observation data. If both are 
- * present, they are rendered as tables in a vertical split pane. Otherwise, a single 
- * table will appear.
+ * This class represents a GUI component that renders information about
+ * observation data, including one or both of valid and invalid observation
+ * data. If both are present, they are rendered as tables in a vertical split
+ * pane. Otherwise, a single table will appear.
  */
 public class ObservationListPane extends JPanel {
 
 	private JTable validDataTable;
 	private JTable invalidDataTable;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -46,31 +46,46 @@ public class ObservationListPane extends JPanel {
 	 *            A table data model that encapsulates valid observations.
 	 * @param invalidDataModel
 	 *            A table data model that encapsulates invalid observations.
+	 * @param enableAutoResize
+	 *            Enable auto-resize of columns? If true, we won't get a
+	 *            horizontal scrollbar for valid observation table.
+	 * @param enableSorting Enable sorting by clicking on columns?
 	 */
-	public ObservationListPane(
-			ValidObservationTableModel validDataModel,
-			InvalidObservationTableModel invalidDataModel) {
+	public ObservationListPane(ValidObservationTableModel validDataModel,
+			InvalidObservationTableModel invalidDataModel,
+			boolean enableAutoResize, boolean enableSorting) {
 
 		super(new GridLayout(1, 1));
 
 		JScrollPane validDataScrollPane = null;
-		
+
 		if (validDataModel != null) {
 			validDataTable = new JTable(validDataModel);
 			// This next line ensures we get a horizontal scrollbar if necessary
 			// rather than trying to cram all the columns into the visible pane.
-			validDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			if (!enableAutoResize) {
+				validDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			}
+			
+			// Enable table sorting by clicking on a column.
+			// We do the same for invalid table below.
+			// Note: this is only available from Java 1.6
+//			if (enableSorting) {
+//				validDataTable.setAutoCreateRowSorter(true);
+//			}
+			
 			validDataScrollPane = new JScrollPane(validDataTable);
 		}
-		
+
 		JScrollPane invalidDataScrollPane = null;
 
 		if (invalidDataModel != null) {
 			invalidDataTable = new JTable(invalidDataModel);
+			//invalidDataTable.setAutoCreateRowSorter(true);
 			invalidDataScrollPane = new JScrollPane(invalidDataTable);
 		}
 
-		// In the presence of both valid and invalid data, we put 
+		// In the presence of both valid and invalid data, we put
 		// them into a split pane.
 		if (validDataScrollPane != null && invalidDataScrollPane != null) {
 			JSplitPane splitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -92,28 +107,6 @@ public class ObservationListPane extends JPanel {
 			this.setLayout(new GridLayout(1, 1));
 			this.add(label);
 		}
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param validDataModel
-	 *            A table data model that encapsulates valid observations.
-	 */
-	public ObservationListPane(
-			ValidObservationTableModel validDataModel) {
-		this(validDataModel, null);
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param invalidDataModel
-	 *            A table data model that encapsulates invalid observations.
-	 */
-	public ObservationListPane(
-			InvalidObservationTableModel invalidDataModel) {
-		this(null, invalidDataModel);
 	}
 
 	/**
