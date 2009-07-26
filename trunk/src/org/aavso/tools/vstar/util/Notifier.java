@@ -43,14 +43,28 @@ public class Notifier<T> {
 	}
 	
 	/**
-	 * Add a listener.
+	 * Add a listener with no immediate notification message.
 	 * 
 	 * @param listener The listener to add.
 	 */
 	public void addListener(Listener<T> listener) {
-		listeners.add(listener);
+		this.addListener(listener, null);
 	}
 	
+	/**
+	 * Add a listener, and specify whether to notify it immediately.
+	 * 
+	 * @param listener The listener to add.
+	 * @param immediateMessage The initial notification message, or null.
+	 */
+	public void addListener(Listener<T> listener, T message) {
+		listeners.add(listener);
+		
+		if (message != null) {
+			this.notifyListeners(message);
+		}
+	}
+
 	/**
 	 * Remove a listener.
 	 * 
@@ -63,11 +77,11 @@ public class Notifier<T> {
 	/**
 	 * Notify all iListeners of an activity update.
 	 * 
-	 * @param info The information to pass to each listener.
+	 * @param message The message to pass to each listener.
 	 */
-	public void notifyListeners(T info) {
+	public void notifyListeners(T message) {
 		for (Listener<T> listener : listeners) {
-			listener.update(info);
+			listener.update(message);
 		}
 	}
 }
