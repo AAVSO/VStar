@@ -18,12 +18,14 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.Component;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class creates and displays VStar's About Box.
  * 
- * TODO: create a JDialog with image and panel components instead of what
- * we do here so we have more control over the form and content.
+ * TODO: create a JDialog with image and panel components instead of what we do
+ * here so we have more control over the form and content.
  */
 public class AboutBox {
 
@@ -41,20 +43,25 @@ public class AboutBox {
 	// The NSF credit should be something like "This project was funded in
 	// part by grant No. 000379097 from the National Science Foundation."
 
+	// This file has had its "Revision" keyword property set via:
+	// svn propset svn:keywords "Revision" AboutBox.java
+	// such that upon all commits, the revision will be updated.
 	private static final String REVISION = "$Rev$";
-	
+
+	private static final Pattern revNumPat = Pattern
+			.compile("^\\$Rev: (\\d+) \\$$");
+
 	public static void showAboutBox(Component parent) {
 		StringBuffer strBuf = new StringBuffer();
 		strBuf.append("VStar (revision ");
 		strBuf.append(getRevNum());
 		strBuf.append(")\n\n");
-		
-		strBuf
-				.append("A variable star observation data analysis tool\n");
+
+		strBuf.append("A variable star observation data analysis tool\n");
 		strBuf.append("developed for:\n\n");
 		strBuf.append("  The American Association of Variable Star\n");
 		strBuf.append("  Observers: http://www.aavso.org/\n\n");
-		strBuf.append("  as part of\n\n");
+		strBuf.append("as part of\n\n");
 		strBuf
 				.append("  The CitizenSky Project: http://www.citizensky.org/\n\n");
 
@@ -65,26 +72,33 @@ public class AboutBox {
 		strBuf.append("Code by: David Benn\n");
 		strBuf.append("Contact: aavso@aavso.org\n");
 		strBuf.append("License: GNU Affero General Public License\n\n");
-		strBuf
-				.append("Images as appeared in Variable Star Astronomy at\n");
+		strBuf.append("Images as appeared in Variable Star Astronomy at\n");
 		strBuf.append("http://www.aavso.org/education/vsa/\n\n");
 
 		strBuf
 				.append("Thanks to the staff of AAVSO for their support, in particular:\n\n");
+		strBuf.append(" Sara Beck, Arne Henden, Doc Kinne, Aaron Price,\n");
 		strBuf
-				.append(" Sara Beck, Arne Henden, Doc Kinne, Aaron Price,\n");
-		strBuf
-				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.");
+				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.\n\n");
 
-		MessageBox
-				.showMessageDialog(parent, "VStar", strBuf.toString());
+		strBuf
+				.append("and to the following people testers: Michael Umbricht (others to be added).");
+
+		MessageBox.showMessageDialog(parent, "VStar", strBuf.toString());
 	}
-	
+
 	// Helpers
-	
+
 	private static String getRevNum() {
+		// Use whole revision string in case regex match fails.
 		String revNum = REVISION;
-		
+
+		Matcher matcher = revNumPat.matcher(REVISION);
+
+		if (matcher.matches()) {
+			revNum = matcher.group(1);
+		}
+
 		return revNum;
 	}
 }
