@@ -33,8 +33,6 @@ import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 /**
  * This class represents a help content frame.
  * 
- * TODO: JDialog or JFrame?
- * 
  * Adapted from the JDK Sun API docs.
  */
 public class HelpContentsDialog extends JDialog {

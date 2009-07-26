@@ -21,6 +21,8 @@ import java.awt.Component;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.Icon;
+
 /**
  * This class creates and displays VStar's About Box.
  * 
@@ -81,11 +83,11 @@ public class AboutBox {
 		strBuf
 				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.\n\n");
 
-		strBuf
-				.append("and to the following people for testing VStar:\n\n");
+		strBuf.append("and to the following people for testing VStar:\n\n");
 		strBuf.append("  Michael Umbricht (and others to be added).");
 
-		MessageBox.showMessageDialog(parent, "VStar", strBuf.toString());
+		MessageBox.showMessageDialog(parent, "About VStar", strBuf.toString(),
+				getIcon("/images/tenstar_artist_conception1.jpg", parent));
 	}
 
 	// Helpers
@@ -101,5 +103,16 @@ public class AboutBox {
 		}
 
 		return revNum;
+	}
+
+	private static Icon getIcon(String path, Component parent) {
+		Icon icon = ResourceAccessor.getIconResource(path);
+
+		if (icon == null) {
+			MessageBox.showErrorDialog(parent, "VStar About Box",
+					"Can't locate icon: " + path);
+		}
+
+		return icon;
 	}
 }

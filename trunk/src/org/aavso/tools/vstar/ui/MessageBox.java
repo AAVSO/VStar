@@ -19,12 +19,25 @@ package org.aavso.tools.vstar.ui;
 
 import java.awt.Component;
 
+import javax.swing.Icon;
 import javax.swing.JOptionPane;
 
 /**
  * Message dialog box utility class.
  */
 public class MessageBox {
+
+	/**
+	 * Pop-up an informational message dialog box.
+	 * 
+	 * @param parent The component to appear with respect to.
+	 * @param title The title of the dialog.
+	 * @param msg The message that is the content of the dialog.
+	 * @param icon The icon to be displayed in the dialog.
+	 */
+	public static void showMessageDialog(Component parent, String title, String msg, Icon icon) {
+		JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.INFORMATION_MESSAGE, icon);
+	}
 
 	/**
 	 * Pop-up an informational message dialog box.
