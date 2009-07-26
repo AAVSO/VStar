@@ -40,6 +40,13 @@ public class ResourceAccessor {
 
 		if (urlStr != null) {
 			URL url = ResourceAccessor.class.getResource(urlStr);
+
+			if (url == null) {
+				// Otherwise, look in resources dir under ui (e.g. if running
+				// from Eclipse, not from a distribution of vstar.jar.
+				url = ResourceAccessor.class.getResource("resources/" + urlStr);
+			}
+
 			if (url != null) {
 				icon = new ImageIcon(url);
 			}
