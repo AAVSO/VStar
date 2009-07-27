@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="VStar Phase I" company="AAVSO" webLink="https://sourceforge.net/projects/vstar/" view-date="2009-05-03" view-index="0" gantt-divider-location="518" resource-divider-location="302" version="2.0">
+<project name="VStar Phase I" company="AAVSO" webLink="https://sourceforge.net/projects/vstar/" view-date="2009-04-26" view-index="0" gantt-divider-location="518" resource-divider-location="302" version="2.0">
 <description><![CDATA[VStar Phase I tasks and progress.]]></description>
 <view zooming-state="default:5" id="gantt-chart"/>
 <view id="resource-table">
@@ -41,7 +41,7 @@
 <task id="7" name="Text input validation framework" color="#8cb6ce" meeting="false" start="2009-06-01" duration="12" complete="100" priority="2" expand="true"/>
 <task id="6" name="Model-observer framework, initial GUI" color="#8cb6ce" meeting="false" start="2009-06-01" duration="14" complete="100" priority="2" expand="true"/>
 <task id="9" name="GUI mockups and incorporation of feedback" color="#8cb6ce" meeting="false" start="2009-06-19" duration="16" complete="100" priority="2" expand="true"/>
-<task id="4" name="Simple format input and text reader framework" color="#8cb6ce" meeting="false" start="2009-06-11" duration="23" complete="100" priority="2" expand="true"/>
+<task id="4" name="Simple format input and observation reader framework" color="#8cb6ce" meeting="false" start="2009-06-11" duration="23" complete="100" priority="2" expand="true"/>
 <task id="5" name="AAVSO Download format input" color="#8cb6ce" meeting="false" start="2009-07-10" duration="2" complete="100" priority="2" expand="true"/>
 <task id="8" name="SQL expts for views, separate &amp; combined tables" color="#8cb6ce" meeting="false" start="2009-06-26" duration="8" complete="100" priority="1" expand="true"/>
 <task id="11" name="Raw data plot and table" color="#8cb6ce" meeting="false" start="2009-06-15" duration="7" complete="100" priority="1" expand="true"/>
@@ -65,7 +65,7 @@
 </task>
 <task id="21" name="Testing" color="#8cb6ce" meeting="false" start="2009-06-23" duration="34" complete="8" priority="1" expand="true">
 <task id="3" name="System Testing" color="#8cb6ce" shape="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" meeting="false" start="2009-06-23" duration="33" complete="10" priority="1" expand="true"/>
-<task id="32" name="Bug Fixes" color="#8cb6ce" meeting="false" start="2009-07-27" duration="9" complete="0" priority="1" expand="true"/>
+<task id="32" name="Bug Fixes (https://sourceforge.net/tracker/?func=browse&amp;group_id=263306&amp;atid=1152052)" color="#8cb6ce" meeting="false" start="2009-07-27" duration="9" complete="0" priority="1" expand="true"/>
 <task id="17" name="Acceptance Testing" color="#8cb6ce" shape="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" meeting="false" start="2009-08-04" duration="4" complete="0" priority="1" expand="true"/>
 </task>
 <task id="18" name="CitizenSky Workshop 1" color="#8cb6ce" meeting="true" start="2009-08-04" duration="3" complete="0" priority="1" expand="true"/>
