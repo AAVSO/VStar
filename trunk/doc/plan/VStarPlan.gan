@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="VStar Phase I" company="AAVSO" webLink="https://sourceforge.net/projects/vstar/" view-date="2009-04-26" view-index="0" gantt-divider-location="518" resource-divider-location="302" version="2.0">
+<project name="VStar Phase I" company="AAVSO" webLink="https://sourceforge.net/projects/vstar/" view-date="2009-05-03" view-index="0" gantt-divider-location="518" resource-divider-location="302" version="2.0">
 <description><![CDATA[VStar Phase I tasks and progress.]]></description>
 <view zooming-state="default:5" id="gantt-chart"/>
 <view id="resource-table">
@@ -37,7 +37,7 @@
 <task id="1" name="Spec clarification &amp; Requirements Analysis" color="#8cb6ce" meeting="false" start="2009-05-11" duration="14" complete="100" priority="2" expand="true">
 <depend id="2" type="2" difference="0" hardness="Strong"/>
 </task>
-<task id="2" name="Code and Unit Test" color="#8cb6ce" meeting="false" start="2009-06-01" duration="41" complete="80" priority="1" expand="true">
+<task id="2" name="Code and Unit Test" color="#8cb6ce" meeting="false" start="2009-06-01" duration="41" complete="79" priority="1" expand="true">
 <task id="7" name="Text input validation framework" color="#8cb6ce" meeting="false" start="2009-06-01" duration="12" complete="100" priority="2" expand="true"/>
 <task id="6" name="Model-observer framework, initial GUI" color="#8cb6ce" meeting="false" start="2009-06-01" duration="14" complete="100" priority="2" expand="true"/>
 <task id="9" name="GUI mockups and incorporation of feedback" color="#8cb6ce" meeting="false" start="2009-06-19" duration="16" complete="100" priority="2" expand="true"/>
@@ -50,7 +50,7 @@
 <task id="14" name="Phase plot and table (means)" color="#8cb6ce" meeting="false" start="2009-07-23" duration="3" complete="0" priority="1" expand="true"/>
 <task id="15" name="Saving plots &amp; tables" color="#8cb6ce" meeting="false" start="2009-07-13" duration="7" complete="50" priority="1" expand="true"/>
 <task id="16" name="Printing plots &amp; tables" color="#8cb6ce" meeting="false" start="2009-07-13" duration="7" complete="75" priority="1" expand="true"/>
-<task id="10" name="AAVSO Database input" color="#8cb6ce" meeting="false" start="2009-07-23" duration="3" complete="0" priority="1" expand="true"/>
+<task id="10" name="AAVSO Database input" color="#8cb6ce" meeting="false" start="2009-07-23" duration="3" complete="20" priority="1" expand="true"/>
 <task id="22" name="Single observation details from plot" color="#8cb6ce" meeting="false" start="2009-07-27" duration="1" complete="0" priority="2" expand="true"/>
 <task id="31" name="Marking observation as discrepant (plot &amp; table)" color="#8cb6ce" meeting="false" start="2009-07-27" duration="1" complete="0" priority="2" expand="true"/>
 <task id="23" name="Visually joining observer data" color="#8cb6ce" meeting="false" start="2009-07-27" duration="1" complete="0" priority="1" expand="true"/>
