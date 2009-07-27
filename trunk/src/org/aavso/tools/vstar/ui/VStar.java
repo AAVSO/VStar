@@ -44,7 +44,7 @@ public class VStar {
 	 * Create and display the main window.
 	 */
 	private static void createAndShowGUI() {
-		MainFrame wdw = new MainFrame();
+		MainFrame wdw = MainFrame.getInstance();
 		wdw.pack();
 		wdw.setVisible(true);
 	}

@@ -21,8 +21,6 @@ import java.awt.Component;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.Icon;
-
 /**
  * This class creates and displays VStar's About Box.
  * 
@@ -31,7 +29,7 @@ import javax.swing.Icon;
  */
 public class AboutBox {
 
-	// Comment by Aaron in email (6 July 2009):
+	// Comment from Aaron in email (6 July 2009):
 	//	
 	// I think you can use anything in HOA or the Citizen Sky web site.
 	// However, you'll need to retain whatever credit is shown in VSA and
@@ -88,7 +86,7 @@ public class AboutBox {
 		strBuf.append("  Michael Umbricht (and others to be added).");
 
 		MessageBox.showMessageDialog(parent, "About VStar", strBuf.toString(),
-				getIcon("/images/tenstar_artist_conception1.jpg", parent));
+				ResourceAccessor.getIconResource("/images/tenstar_artist_conception1.jpg"));
 	}
 
 	// Helpers
@@ -104,16 +102,5 @@ public class AboutBox {
 		}
 
 		return revNum;
-	}
-
-	private static Icon getIcon(String path, Component parent) {
-		Icon icon = ResourceAccessor.getIconResource(path);
-
-		if (icon == null) {
-			MessageBox.showErrorDialog(parent, "VStar About Box",
-					"Can't locate icon: " + path);
-		}
-
-		return icon;
 	}
 }

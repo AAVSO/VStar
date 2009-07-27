@@ -20,7 +20,6 @@ package org.aavso.tools.vstar.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.net.URL;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -38,7 +37,6 @@ public class ToolBar extends JPanel {
 
 	private ModelManager modelMgr = ModelManager.getInstance();
 
-	private Component parent;
 	private MenuBar menuBar;
 
 	private Icon newStarFromFileIcon;
@@ -60,22 +58,18 @@ public class ToolBar extends JPanel {
 	/**
 	 * Creates the application's toolbar.
 	 * 
-	 * @param parent
-	 *            The parent GUI component.
 	 * @param menuBar
 	 *            Pass in menu bar to get listeners. TODO: put them into a
 	 *            common class shared by both instead?
 	 */
-	public ToolBar(Component parent, MenuBar menuBar,
-			URL newStarFromDatabaseIconURL, URL newStarFromFileIconURL) {
+	public ToolBar(MenuBar menuBar) {
 		super(new BorderLayout());
 
-		this.parent = parent;
 		this.menuBar = menuBar;
 
 		retrieveToolBarIcons();
 
-		this.toolBar = new JToolBar("VStar operations");
+		this.toolBar = new JToolBar("VStar Operations");
 
 		createToolbarButtons();
 
@@ -85,7 +79,6 @@ public class ToolBar extends JPanel {
 
 		this.modelMgr.getProgressNotifier().addListener(
 				createProgressListener());
-
 	}
 
 	// Helpers
@@ -94,29 +87,24 @@ public class ToolBar extends JPanel {
 		// Create the toolbar icons.
 		// TODO: put these paths into a Properties file
 
-		newStarFromFileIcon = getIcon("/toolbarButtonGraphics/general/New24.gif");
-		newStarFromDatabaseIcon = getIcon("/toolbarButtonGraphics/general/Import24.gif");
-		saveIcon = getIcon("/toolbarButtonGraphics/general/Save24.gif");
-		printIcon = getIcon("/toolbarButtonGraphics/general/Print24.gif");
-		prefsIcon = getIcon("/toolbarButtonGraphics/general/Preferences24.gif");
-		helpContentsIcon = getIcon("/toolbarButtonGraphics/general/Help24.gif");
+		newStarFromFileIcon = ResourceAccessor
+				.getIconResource("/toolbarButtonGraphics/general/New24.gif");
+		newStarFromDatabaseIcon = ResourceAccessor
+				.getIconResource("/toolbarButtonGraphics/general/Import24.gif");
+		saveIcon = ResourceAccessor
+				.getIconResource("/toolbarButtonGraphics/general/Save24.gif");
+		printIcon = ResourceAccessor
+				.getIconResource("/toolbarButtonGraphics/general/Print24.gif");
+		prefsIcon = ResourceAccessor
+				.getIconResource("/toolbarButtonGraphics/general/Preferences24.gif");
+		helpContentsIcon = ResourceAccessor
+				.getIconResource("/toolbarButtonGraphics/general/Help24.gif");
 
 		if (newStarFromDatabaseIcon == null || newStarFromDatabaseIcon == null
 				|| saveIcon == null || printIcon == null || prefsIcon == null
 				|| helpContentsIcon == null) {
 			System.exit(1);
 		}
-	}
-
-	private Icon getIcon(String path) {
-		Icon icon = ResourceAccessor.getIconResource(path);
-
-		if (icon == null) {
-			MessageBox.showErrorDialog(parent, "VStar Toolbar",
-					"Can't locate icon: " + path);
-		}
-
-		return icon;
 	}
 
 	private void createToolbarButtons() {
