@@ -49,6 +49,9 @@ public class ResourceAccessor {
 
 			if (url != null) {
 				icon = new ImageIcon(url);
+			} else {
+				MessageBox.showErrorDialog(MainFrame.getInstance(),
+						"VStar About Box", "Can't locate icon: " + urlStr);
 			}
 		}
 

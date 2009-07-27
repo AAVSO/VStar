@@ -18,9 +18,7 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.net.URL;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -31,7 +29,6 @@ import javax.swing.JPanel;
 /**
  * TODO: 
  * - Undoable edits (Edit menu)
- * - About box images, text check
  * - Splash Screen
  */
 
@@ -40,16 +37,23 @@ import javax.swing.JPanel;
  */
 public class MainFrame extends JFrame {
 
-	private URL fileURL;
-	private URL dbaseURL;
-
 	// The application's menu bar.
 	private MenuBar menuBar;
 
+	// Singleton field and getter. 
+	private static final MainFrame instance = new MainFrame();
+	
+	public static MainFrame getInstance() {
+		return instance;
+	}
+	
 	/**
-	 * Constructor
+	 * Private constructor in support of Singleton.
 	 */
-	public MainFrame() {
+	private MainFrame() {
+		// TODO: Add version? Move REVISION handling string to 
+		// ResourceAccessor class so we can use it here and in 
+		// About Box?
 		super("VStar");
 
 		this.menuBar = new MenuBar(this);
@@ -69,8 +73,7 @@ public class MainFrame extends JFrame {
 		JPanel topPane = new JPanel(new BorderLayout());
 
 		// Add the toolbar.
-		topPane.add(new ToolBar(this, this.menuBar,
-				this.dbaseURL, this.fileURL), BorderLayout.PAGE_START);
+		topPane.add(new ToolBar(this.menuBar), BorderLayout.PAGE_START);
 
 		// Major pane with left to right layout and an empty border.
 		JPanel majorPane = new JPanel();

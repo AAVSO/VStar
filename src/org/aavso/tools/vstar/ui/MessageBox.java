@@ -27,51 +27,77 @@ import javax.swing.JOptionPane;
  */
 public class MessageBox {
 
+	private final static Icon VSTAR_ICON = ResourceAccessor
+			.getIconResource("/images/tenstar_artist_conception1.jpg");
+
 	/**
 	 * Pop-up an informational message dialog box.
 	 * 
-	 * @param parent The component to appear with respect to.
-	 * @param title The title of the dialog.
-	 * @param msg The message that is the content of the dialog.
-	 * @param icon The icon to be displayed in the dialog.
+	 * @param parent
+	 *            The component to appear with respect to.
+	 * @param title
+	 *            The title of the dialog.
+	 * @param msg
+	 *            The message that is the content of the dialog.
+	 * @param icon
+	 *            The icon to be displayed in the dialog.
 	 */
-	public static void showMessageDialog(Component parent, String title, String msg, Icon icon) {
-		JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.INFORMATION_MESSAGE, icon);
+	public static void showMessageDialog(Component parent, String title,
+			String msg, Icon icon) {
+		JOptionPane.showMessageDialog(parent, msg, title,
+				JOptionPane.INFORMATION_MESSAGE, icon);
 	}
 
 	/**
 	 * Pop-up an informational message dialog box.
 	 * 
-	 * @param parent The component to appear with respect to.
-	 * @param title The title of the dialog.
-	 * @param msg The message that is the content of the dialog.
+	 * @param parent
+	 *            The component to appear with respect to.
+	 * @param title
+	 *            The title of the dialog.
+	 * @param msg
+	 *            The message that is the content of the dialog.
 	 */
-	public static void showMessageDialog(Component parent, String title, String msg) {
-		JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.INFORMATION_MESSAGE);
+	public static void showMessageDialog(Component parent, String title,
+			String msg) {
+		JOptionPane.showMessageDialog(parent, msg, title,
+				JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	/**
 	 * Pop-up an error message dialog box.
 	 * 
-	 * @param parent The component to appear with respect to.
-	 * @param title The title of the dialog.
-	 * @param msg The message that is the content of the dialog.
+	 * @param parent
+	 *            The component to appear with respect to.
+	 * @param title
+	 *            The title of the dialog.
+	 * @param msg
+	 *            The message that is the content of the dialog.
 	 */
-	public static void showErrorDialog(Component parent, String title, String msg) {
-		JOptionPane.showMessageDialog(parent, msg, title, JOptionPane.ERROR_MESSAGE);
-		parent.setCursor(null); // turn off the wait cursor, in case it's enabled
+	public static void showErrorDialog(Component parent, String title,
+			String msg) {
+		JOptionPane.showMessageDialog(parent, msg, title,
+				JOptionPane.ERROR_MESSAGE);
+		parent.setCursor(null); // turn off the wait cursor, in case it's
+								// enabled
 	}
-	
+
 	/**
 	 * Pop-up an error message dialog box given an exception.
 	 * 
-	 * @param parent The component to appear with respect to.
-	 * @param title The title of the dialog.
-	 * @param e The exception whose message will be the content of the dialog.
+	 * @param parent
+	 *            The component to appear with respect to.
+	 * @param title
+	 *            The title of the dialog.
+	 * @param e
+	 *            The exception whose message will be the content of the dialog.
 	 */
-	public static void showErrorDialog(Component parent, String title, Exception e) {
-		JOptionPane.showMessageDialog(parent, e.getMessage(), title, JOptionPane.ERROR_MESSAGE);
-		parent.setCursor(null); // turn off the wait cursor, in case it's enabled
-		//e.printStackTrace();
+	public static void showErrorDialog(Component parent, String title,
+			Exception e) {
+		JOptionPane.showMessageDialog(parent, e.getMessage(), title,
+				JOptionPane.ERROR_MESSAGE);
+		parent.setCursor(null); // turn off the wait cursor, in case it's
+								// enabled
+		// e.printStackTrace();
 	}
 }
