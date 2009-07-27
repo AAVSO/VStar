@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
@@ -63,6 +64,8 @@ public class ObservationAndMeanPlotPane extends
 		joinMeansCheckBox.setSelected(true);
 		joinMeansCheckBox.addActionListener(createJoinMeansCheckBoxListener());
 		chartControlPanel.add(joinMeansCheckBox);
+
+		chartControlPanel.add(Box.createHorizontalGlue());
 
 		// An update days-in-bin component.
 		chartControlPanel.add(new DaysInBinSettingPane(this.obsModel));
