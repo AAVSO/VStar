@@ -59,7 +59,7 @@
 </task>
 <task id="22" name="Single observation details by clicking point on plot" color="#8cb6ce" meeting="false" start="2009-07-29" duration="1" complete="0" priority="2" expand="true"/>
 <task id="31" name="Marking observation as discrepant (plot &amp; table)" color="#8cb6ce" meeting="false" start="2009-07-29" duration="1" complete="0" priority="2" expand="true"/>
-<task id="23" name="Visually joining observer data (from selected ob or login)" color="#ff6600" meeting="false" start="2009-07-29" duration="1" complete="0" priority="1" expand="true"/>
+<task id="23" name="Visually joining observer data (from selected ob or login)" color="#ff6600" meeting="false" start="2009-07-30" duration="1" complete="0" priority="1" expand="true"/>
 <task id="25" name="Zooming (more control than default chart zoom)" color="#ff6600" meeting="false" start="2009-07-31" duration="1" complete="0" priority="0" expand="true"/>
 <task id="26" name="Category (band, fainter-than) colors (default, chooser)" color="#8cb6ce" meeting="false" start="2009-07-30" duration="2" complete="0" priority="2" expand="true"/>
 <task id="27" name="Preferences (e.g. window size &amp; position, band colors)" color="#ff6600" meeting="false" start="2009-07-31" duration="1" complete="0" priority="0" expand="true"/>
@@ -80,6 +80,7 @@
 <resource id="8" name="Rebecca Turner" function="Default:1" contacts="" phone=""/>
 <resource id="12" name="Sara Beck" function="SoftwareDevelopment:8" contacts="" phone=""/>
 <resource id="11" name="Elizabeth Waagen" function="SoftwareDevelopment:8" contacts="" phone=""/>
+<resource id="13" name="Richard (Doc) " function="SoftwareDevelopment:8" contacts="" phone=""/>
 <resource id="6" name="David Benn" function="SoftwareDevelopment:2" contacts="" phone=""/>
 <resource id="9" name="Michael Umbricht" function="SoftwareDevelopment:4" contacts="" phone=""/>
 <resource id="10" name="Michael Kran" function="SoftwareDevelopment:4" contacts="" phone=""/>
