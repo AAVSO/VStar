@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.Listener;
 import org.jfree.data.DomainOrder;
 import org.jfree.data.xy.AbstractIntervalXYDataset;
 
@@ -29,7 +30,7 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
  * This is the base class for models that represent a series of valid variable
  * star observations, e.g. for different bands (or from different sources).
  */
-public class ObservationPlotModel extends AbstractIntervalXYDataset {
+public class ObservationPlotModel extends AbstractIntervalXYDataset implements Listener<ValidObservation> {
 
 	// A unique next series number for this model.
 	private int seriesNum;
@@ -301,5 +302,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		}
 
 		return error;
+	}
+
+	/** 
+	 * Listen for valid observation change notification,
+	 * e.g. an observation is marked as discrepant.
+	 */
+	public void update(ValidObservation ob) {
+		// We do nothing for now. What we do need to do
+		// is to plot the value in a different color, or
+		// possibly not at all.
 	}
 }

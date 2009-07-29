@@ -26,11 +26,13 @@ import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
  * Descriptive statistics functions for magnitude and Julian Day sources.
+ * 
+ * Discrepant source values are ignored in all calculations.
  */
 public class DescStats {
 
 	public static final int DEFAULT_BIN_DAYS = 20;
-	
+
 	/**
 	 * Calculates the mean of a sequence of magnitudes for Julian Days in a
 	 * specified inclusive range.
@@ -52,12 +54,16 @@ public class DescStats {
 		assert (maxJDIndex < source.size());
 
 		double total = 0;
+		double included = 0;
 
 		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			total += source.get(i).getMag();
+			if (!source.get(i).isDiscrepant()) {
+				total += source.get(i).getMag();
+				included++;
+			}
 		}
 
-		return total / (maxJDIndex - minJDIndex + 1);
+		return total / included;
 	}
 
 	/**
@@ -86,14 +92,19 @@ public class DescStats {
 		double magMean = calcMagMeanInJDRange(source, minJDIndex, maxJDIndex);
 
 		double total = 0;
+		double included = 0;
 
 		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			double delta = source.get(i).getMag() - magMean;
-			total += delta * delta;
+			if (!source.get(i).isDiscrepant()) {
+				double delta = source.get(i).getMag() - magMean;
+				total += delta * delta;
+				included++;
+			}
 		}
 
 		// Standard sample variance.
-		double variance = total / (maxJDIndex - minJDIndex);
+		// The sample standard deviation requires total-1 as denominator.
+		double variance = total / (included - 1);
 
 		return Math.sqrt(variance);
 	}
@@ -127,17 +138,20 @@ public class DescStats {
 		double magMean = calcMagMeanInJDRange(source, minJDIndex, maxJDIndex);
 
 		double total = 0;
+		double included = 0;
 
 		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			double delta = source.get(i).getMag() - magMean;
-			total += delta * delta;
+			if (!source.get(i).isDiscrepant()) {
+				double delta = source.get(i).getMag() - magMean;
+				total += delta * delta;
+				included++;
+			}
 		}
 
 		// Standard sample variance.
-		double variance = total / (maxJDIndex - minJDIndex);
+		double variance = total / (included - 1);
 		double magStdDev = Math.sqrt(variance);
-		double magStdErrOfMean = magStdDev
-				/ Math.sqrt(maxJDIndex - minJDIndex + 1);
+		double magStdErrOfMean = magStdDev / Math.sqrt(included);
 
 		// Mean Julian Day. TODO: should we instead use median?
 		double meanJD = (source.get(minJDIndex).getJD() + source
@@ -164,7 +178,7 @@ public class DescStats {
 	 */
 	public static List<ValidObservation> createdBinnedObservations(
 			List<ValidObservation> observations, double daysInBin) {
-		
+
 		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
 
 		double minJD = observations.get(0).getJD();
@@ -177,12 +191,12 @@ public class DescStats {
 
 			// If we have not reached the end of the observation list
 			// and the current observation's Julian Day is less than the
-			// minimum Julian Day for the bottom of the current range plus 
-			// the number of days in the bin, continue to the next observation. 
+			// minimum Julian Day for the bottom of the current range plus
+			// the number of days in the bin, continue to the next observation.
 			if (i < observations.size()
 					&& observations.get(i).getJD() < (minJD + daysInBin)) {
 				i++;
-			} else {				
+			} else {
 				// Otherwise, we have found the top of the current range,
 				// so add a ValidObservation containing mean and error value
 				// to the list.
@@ -193,17 +207,17 @@ public class DescStats {
 
 				minJDIndex = i;
 				minJD = observations.get(i).getJD();
-				
+
 				i++;
 			}
 		}
 
 		// Ensure that if we have reached the end of the observations
-		// that we include any left over data that would otherwise be 
+		// that we include any left over data that would otherwise be
 		// excluded by the JD less-than constraint?
-		if (maxJDIndex < observations.size()-1) {
+		if (maxJDIndex < observations.size() - 1) {
 			binnedObs.add(createMeanObservationForJDRange(observations,
-					minJDIndex, observations.size()-1));			
+					minJDIndex, observations.size() - 1));
 		}
 
 		return binnedObs;

@@ -54,6 +54,9 @@ public abstract class ObservationRetrieverBase {
 	 * Constructor.
 	 */
 	public ObservationRetrieverBase() {
+		// TODO: consider making lists LinkedLists to accommodate all
+		// input types, and the possible need to add to head or tail for
+		// time panning.
 		this.validObservations = new ArrayList<ValidObservation>();
 		this.invalidObservations = new ArrayList<InvalidObservation>();
 		this.validObservationCategoryMap = new TreeMap<String, List<ValidObservation>>();
@@ -86,5 +89,32 @@ public abstract class ObservationRetrieverBase {
 	 */
 	public Map<String, List<ValidObservation>> getValidObservationCategoryMap() {
 		return validObservationCategoryMap;
+	}
+	
+	/**
+	 * Here we categorise a valid observation in terms of whether it is a
+	 * fainter-than or belongs to a particular band, in that order.
+	 * 
+	 * @param validOb A valid observation.
+	 */
+	protected void categoriseValidObservation(ValidObservation validOb) {
+		String category = null;
+
+		if (validOb.getMagnitude().isFainterThan()) {
+			category = "Fainter than";
+		} else {
+			String band = validOb.getBand();
+			category = (band == null) ? "unspecified" : band;
+		}
+
+		List<ValidObservation> validObsList = validObservationCategoryMap
+				.get(category);
+
+		if (validObsList == null) {
+			validObsList = new ArrayList<ValidObservation>();
+			validObservationCategoryMap.put(category, validObsList);
+		}
+
+		validObsList.add(validOb);
 	}
 }

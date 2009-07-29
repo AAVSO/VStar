@@ -46,6 +46,8 @@ public class ObservationSourceAnalyser {
 	 * 
 	 * @param obsSource
 	 *            The observation source to be analysed.
+	 * @param obsSourceIdentifier
+	 *            An identifier for the source of the observations.
 	 */
 	public ObservationSourceAnalyser(LineNumberReader obsSource,
 			String obsSourceIdentifier) {
@@ -158,7 +160,7 @@ public class ObservationSourceAnalyser {
 		} else if (NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE.equals(newStarType)) {
 			validator = new AAVSODownloadFormatValidator(delimiter, newStarType
 					.getMinFields(), newStarType.getMaxFields(), newStarType
-					.getFieldInfoSource());			
+					.getFieldInfoSource());
 		}
 
 		assert (validator != null);

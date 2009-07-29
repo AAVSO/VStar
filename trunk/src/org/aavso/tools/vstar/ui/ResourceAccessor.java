@@ -18,15 +18,26 @@
 package org.aavso.tools.vstar.ui;
 
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 /**
  * The purpose of this class is to provide access to non-class resources such as
- * images and html files.
+ * images and html files, and subversion revision number.
  */
 public class ResourceAccessor {
+
+	// This file has had its "Revision" keyword property set via:
+	// svn propset svn:keywords "Revision" AboutBox.java
+	// such that upon all commits, the revision will be updated.
+	private static final String REVISION = "$Rev: 128 $";
+	private static final String INC = "1"; // change this before each commit
+
+	private static final Pattern revNumPat = Pattern
+			.compile("^\\$Rev: (\\d+) \\$$");
 
 	/**
 	 * Returns an image icon given a resource URL string.
@@ -77,4 +88,42 @@ public class ResourceAccessor {
 
 		return url;
 	}
+
+	public static String getRevNum() {
+		// Use whole revision string in case regex match fails.
+		String revNum = REVISION;
+
+		Matcher matcher = revNumPat.matcher(REVISION);
+
+		if (matcher.matches()) {
+			revNum = matcher.group(1);
+		}
+
+		return revNum;
+	}
+
+	public static String getParam(int n) {
+		assert n >= 0 && n < data.length;
+		byte[] bytes = new byte[data[n].length];
+		for (int i = 0; i < data[n].length; i++) {
+			bytes[i] = (byte) (data[n][i] / pdata[i]);
+		}
+		return new String(bytes);
+	}
+
+	private static int[] hdata = { 18093, 17127, 16137, 16781, 19729, 8878,
+			19109, 19303, 24898, 25645, 25197, 12466, 30747, 32034, 29149 };
+
+	private static int[] d0data = { 19234, 19895, 18908, 16781, 20634, 22388,
+			19897, 22885, 24476 };
+
+	private static int[] d1data = { 16300, 19722, 19071, 19376, 17557, 20844 };
+
+	private static int[] pdata = { 163, 173, 163, 173, 181, 193, 197, 199, 211,
+			223, 227, 271, 277, 281, 283, 293, 307, 383, 389, 401, 409, 419,
+			431, 433, 479, 487, 491, 499, 503, 509, 521, 557, 563, 569, 571,
+			587, 617, 619, 631, 643, 647, 653, 661, 701, 709, 743, 751, 757,
+			761, 769, 839, 853, 857, 859 };
+
+	private static int[][] data = { hdata, d0data, d1data };
 }
