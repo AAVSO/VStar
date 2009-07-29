@@ -19,15 +19,14 @@ package org.aavso.tools.vstar.data;
 
 import org.aavso.tools.vstar.util.IMagAndJDSource;
 
-
 /**
  * This class corresponds to a single valid variable star observation. Depending
  * upon the source, some fields may be null. Some are not permitted to be null
  * however and these are documented below.
  * 
- * For reference, here are the fields in the order they appear in the 
- * AAVSO download format:
- *  
+ * For reference, here are the fields in the order they appear in the AAVSO
+ * download format:
+ * 
  * JD(0), MAGNITUDE(1), UNCERTAINTY(2), HQ_UNCERTAINTY(3), BAND(4),
  * OBSERVER_CODE(5), COMMENT_CODE(6), COMP_STAR_1(7), COMP_STAR_2(8), CHARTS(9),
  * COMMENTS(10), TRANSFORMED(11), AIRMASS(12), VALFLAG(13), CMAG(14), KMAG(15),
@@ -40,15 +39,16 @@ import org.aavso.tools.vstar.util.IMagAndJDSource;
 public class ValidObservation extends Observation implements IMagAndJDSource {
 
 	// Optimisations (TODO):
-	// - Use Flyweight pattern to ensure that immutable values 
-	//   (mostly strings) exist only once for a given value. This will reduce
-	//   memory consumption considerably! Use a weak ref hashmap?
+	// - Use Flyweight pattern to ensure that immutable values
+	// (mostly strings) exist only once for a given value. This will reduce
+	// memory consumption considerably! Use a weak ref hashmap?
 	// - Use single chars or enum values where strings are used if possible.
-	
+
 	private DateInfo dateInfo = null; // Julian Day, calendar date
-	private Magnitude magnitude = null; // magnitude, uncertainty, fainter/brighter-than
+	private Magnitude magnitude = null; // magnitude, uncertainty,
+										// fainter/brighter-than
 	private Double hqUncertainty = null;
-	private String band = null; 
+	private String band = null;
 	private String obsCode = null;
 	private String commentCode = null;
 	private String compStar1 = null;
@@ -63,7 +63,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	private DateInfo hJD = null; // Heliocentric vs Geocentric Julian Day
 	private String name = null;
 	private String mType = null; // TODO: make an enum
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -132,7 +132,13 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	 *            the discrepant to set
 	 */
 	public void setDiscrepant(boolean discrepant) {
-		this.validationType = discrepant ? ValidationType.DISCREPANT : null;
+		// TODO: Should we keep a record of the last known value of
+		// this field before it was marked as discrepant? Right now,
+		// we are going from {G,D,P} -> D -> G -> D -> G ... so we are
+		// potentially losing information. This is a good candidate 
+		// for undoable edits.
+		this.validationType = discrepant ? ValidationType.DISCREPANT
+				: ValidationType.GOOD;
 	}
 
 	/**
@@ -158,7 +164,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param validationType the validationType to set
+	 * @param validationType
+	 *            the validationType to set
 	 */
 	public void setValidationType(ValidationType validationType) {
 		this.validationType = validationType;
@@ -172,7 +179,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param hqUncertainty the hqUncertainty to set
+	 * @param hqUncertainty
+	 *            the hqUncertainty to set
 	 */
 	public void setHqUncertainty(Double hqUncertainty) {
 		this.hqUncertainty = hqUncertainty;
@@ -186,7 +194,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param band the band to set
+	 * @param band
+	 *            the band to set
 	 */
 	public void setBand(String band) {
 		this.band = band;
@@ -200,7 +209,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param commentCode the commentCode to set
+	 * @param commentCode
+	 *            the commentCode to set
 	 */
 	public void setCommentCode(String commentCode) {
 		this.commentCode = commentCode;
@@ -214,7 +224,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param compStar1 the compStar1 to set
+	 * @param compStar1
+	 *            the compStar1 to set
 	 */
 	public void setCompStar1(String compStar1) {
 		this.compStar1 = compStar1;
@@ -228,7 +239,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param compStar2 the compStar2 to set
+	 * @param compStar2
+	 *            the compStar2 to set
 	 */
 	public void setCompStar2(String compStar2) {
 		this.compStar2 = compStar2;
@@ -242,7 +254,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param charts the charts to set
+	 * @param charts
+	 *            the charts to set
 	 */
 	public void setCharts(String charts) {
 		this.charts = charts;
@@ -256,7 +269,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param comments the comments to set
+	 * @param comments
+	 *            the comments to set
 	 */
 	public void setComments(String comments) {
 		this.comments = comments;
@@ -270,7 +284,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param transformed the transformed to set
+	 * @param transformed
+	 *            the transformed to set
 	 */
 	public void setTransformed(boolean transformed) {
 		this.transformed = transformed;
@@ -284,7 +299,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param airmass the airmass to set
+	 * @param airmass
+	 *            the airmass to set
 	 */
 	public void setAirmass(String airmass) {
 		this.airmass = airmass;
@@ -298,7 +314,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param cMag the cMag to set
+	 * @param cMag
+	 *            the cMag to set
 	 */
 	public void setCMag(Double cMag) {
 		this.cMag = cMag;
@@ -312,7 +329,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param kMag the kMag to set
+	 * @param kMag
+	 *            the kMag to set
 	 */
 	public void setKMag(Double kMag) {
 		this.kMag = kMag;
@@ -326,7 +344,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param hJD the hJD to set
+	 * @param hJD
+	 *            the hJD to set
 	 */
 	public void setHJD(DateInfo hJD) {
 		this.hJD = hJD;
@@ -340,7 +359,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param mType the mType to set
+	 * @param mType
+	 *            the mType to set
 	 */
 	public void setMType(String mType) {
 		this.mType = mType;
@@ -365,7 +385,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	// IMagAndJDSource methods
-	
+
 	public double getJD() {
 		return this.dateInfo.getJulianDay();
 	}

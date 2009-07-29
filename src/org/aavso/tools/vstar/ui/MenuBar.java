@@ -38,12 +38,11 @@ import org.aavso.tools.vstar.util.Listener;
 /**
  * VStar's menu bar.
  * 
- * TODO:
- * - Put menu item names in property file
- * - Factor out code to be shared by menu and tool bar?
+ * TODO: - Put menu item names in property file - Factor out code to be shared
+ * by menu and tool bar?
  */
 public class MenuBar extends JMenuBar {
-	
+
 	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
 	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
 	public static final String SAVE = "Save...";
@@ -182,12 +181,17 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Returns the action listener to be invoked for File->New Star from AAVSO
 	 * Database...
+	 * 
+	 * The action is to: a. ask the user for star and date range details; b.
+	 * open a database connection and get the data for star in that range; c.
+	 * create the corresponding observation models and GUI elements.
 	 */
 	public ActionListener createNewStarFromDatabaseListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MessageBox.showMessageDialog(parent, NEW_STAR_FROM_DATABASE,
-						ModelManager.NOT_IMPLEMENTED_YET);
+				MessageBox.showMessageDialog(MainFrame.getInstance(),
+						NEW_STAR_FROM_DATABASE, "Not yet implemented.");
+				// modelMgr.createObservationArtefactsFromDatabase();
 			}
 		};
 	}
@@ -210,10 +214,10 @@ public class MenuBar extends JMenuBar {
 					File f = fileOpenDialog.getSelectedFile();
 
 					try {
-						modelMgr.createObservationModelsFromFile(f, parent);
+						modelMgr.createObservationArtefactsFromFile(f, parent);
 					} catch (Exception ex) {
-						MessageBox.showErrorDialog(parent,
-								"New Star from File", ex);
+						MessageBox.showErrorDialog(parent, NEW_STAR_FROM_FILE,
+								ex);
 					}
 				}
 			}
@@ -263,7 +267,8 @@ public class MenuBar extends JMenuBar {
 	private ActionListener createQuitListener() {
 		return new ActionListener() {
 			// TODO: do other cleanup, e.g. if file needs saving;
-			// need a document model including undo for this
+			// need a document model including undo for this;
+			// defer to ModelManager.
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
@@ -340,6 +345,6 @@ public class MenuBar extends JMenuBar {
 
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
-		//this.analysisPeriodSearchItem.setEnabled(state);
+		// this.analysisPeriodSearchItem.setEnabled(state);
 	}
 }

@@ -25,12 +25,14 @@ import org.aavso.tools.vstar.ui.model.ITableColumnInfoSource;
 
 /**
  * Field and column information source for AAVSO Download file format and
- * database read observations.
+ * database sourced observations.
  */
 public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 		ITableFieldInfoSource {
 
-	public static final AAVSOFormatFieldInfoSource aavsoFormatFieldInfoSource = new AAVSOFormatFieldInfoSource();
+	// Singleton values for AAVSO download and database sources.
+	public static final AAVSOFormatFieldInfoSource aavsoDownloadFormatFieldInfoSource = new AAVSOFormatFieldInfoSource(true);
+	public static final AAVSOFormatFieldInfoSource aavsoInternationalDatabaseFormatFieldInfoSource = new AAVSOFormatFieldInfoSource(false);
 
 	// Text format fields.
 	private static final int JD_FIELD = 0;
@@ -75,17 +77,23 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 	private static final int HJD_COLUMN = 16;
 	private static final int NAME_COLUMN = 17;
 	private static final int MTYPE_COLUMN = 18;
-	private static final int LINE_NUM_COLUMN = 19;
-	private static final int DISCREPANT_COLUMN = 20;
+	private static final int DISCREPANT_COLUMN = 19;
+	private static final int LINE_NUM_COLUMN = 20;
 
-	private static final int COLUMNS = DISCREPANT_COLUMN + 1;
+	private static final int COLUMNS = LINE_NUM_COLUMN + 1;
 
 	private Map<String, Integer> fieldIndexMap;
 
+	private boolean useLineNumbers;
+	
 	/**
 	 * Constructor.
+	 * 
+	 * @param Should line numbers be used?
 	 */
-	public AAVSOFormatFieldInfoSource() {
+	private AAVSOFormatFieldInfoSource(boolean useLineNumbers) {
+		this.useLineNumbers = useLineNumbers;
+		
 		this.fieldIndexMap = new HashMap<String, Integer>();
 		this.fieldIndexMap.put("JD_FIELD", JD_FIELD);
 		this.fieldIndexMap.put("MAGNITUDE_FIELD", MAGNITUDE_FIELD);
@@ -109,7 +117,7 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 	}
 
 	public int getColumnCount() {
-		return COLUMNS;
+		return useLineNumbers ? COLUMNS : COLUMNS-1;
 	}
 
 	public int getDiscrepantColumnIndex() {
@@ -177,11 +185,11 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 		case MTYPE_COLUMN:
 			columnName = "MType";
 			break;
-		case LINE_NUM_COLUMN:
-			columnName = "Line";
-			break;
 		case DISCREPANT_COLUMN:
 			columnName = "Discrepant?";
+			break;
+		case LINE_NUM_COLUMN:
+			columnName = "Line";
 			break;
 		}
 
@@ -235,10 +243,10 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 			break;
 		case MTYPE_COLUMN:
 			break;
-		case LINE_NUM_COLUMN:
-			break;
 		case DISCREPANT_COLUMN:
 			clazz = Boolean.class;
+			break;
+		case LINE_NUM_COLUMN:
 			break;
 		}
 
@@ -289,8 +297,7 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 			value = ob.getAirmass();
 			break;
 		case VALFLAG_COLUMN:
-			value = ob.getValidationType().getValflag(); // TODO: or print enum
-															// value?
+			value = ob.getValidationType().getValflag();
 			break;
 		case CMAG_COLUMN:
 			value = ob.getCMag();
@@ -307,11 +314,11 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 		case MTYPE_COLUMN:
 			value = ob.getMType();
 			break;
-		case LINE_NUM_COLUMN:
-			value = ob.getLineNumber();
-			break;
 		case DISCREPANT_COLUMN:
 			value = ob.isDiscrepant();
+			break;
+		case LINE_NUM_COLUMN:
+			value = ob.getLineNumber();
 			break;
 		}
 

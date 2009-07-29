@@ -18,8 +18,6 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.Component;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This class creates and displays VStar's About Box.
@@ -28,7 +26,7 @@ import java.util.regex.Pattern;
  * here so we have more control over the form and content.
  */
 public class AboutBox {
-
+	
 	// Comment from Aaron in email (6 July 2009):
 	//	
 	// I think you can use anything in HOA or the Citizen Sky web site.
@@ -43,18 +41,10 @@ public class AboutBox {
 	// The NSF credit should be something like "This project was funded in
 	// part by grant No. 000379097 from the National Science Foundation."
 
-	// This file has had its "Revision" keyword property set via:
-	// svn propset svn:keywords "Revision" AboutBox.java
-	// such that upon all commits, the revision will be updated.
-	private static final String REVISION = "$Rev$";
-
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\$Rev: (\\d+) \\$$");
-
 	public static void showAboutBox(Component parent) {
 		StringBuffer strBuf = new StringBuffer();
 		strBuf.append("VStar (svn revision ");
-		strBuf.append(getRevNum());
+		strBuf.append(ResourceAccessor.getRevNum());
 		strBuf.append(")\n\n");
 
 		strBuf.append("A variable star observation data analysis tool\n");
@@ -87,20 +77,5 @@ public class AboutBox {
 
 		MessageBox.showMessageDialog(parent, "About VStar", strBuf.toString(),
 				ResourceAccessor.getIconResource("/images/tenstar_artist_conception1.jpg"));
-	}
-
-	// Helpers
-
-	private static String getRevNum() {
-		// Use whole revision string in case regex match fails.
-		String revNum = REVISION;
-
-		Matcher matcher = revNumPat.matcher(REVISION);
-
-		if (matcher.matches()) {
-			revNum = matcher.group(1);
-		}
-
-		return revNum;
 	}
 }

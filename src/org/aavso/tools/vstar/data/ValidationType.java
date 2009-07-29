@@ -21,10 +21,20 @@ package org.aavso.tools.vstar.data;
  * This enum represents "validation flag" found in all data sources.
  */
 public enum ValidationType {
-
+	
 	GOOD,
 	DISCREPANT,
 	PREVALIDATION;
+	
+	// Note: from database we can also have:
+	// Z = Prevalidated, 
+	// P = Published observation, 
+	// T = Discrepant, 
+	// V = Good, 
+	// Y = Deleted
+	
+//	PUBLISHED,
+//	DELETED;
 	
 	/**
 	 * Given a valflag from an input file or database, return
@@ -37,6 +47,8 @@ public enum ValidationType {
 			valtype = GOOD; // passed AAVSO validation tests
 		} else if ("D".equals(valflag)) {
 			valtype = DISCREPANT;
+		} else if ("P".equals(valflag)) {
+			valtype = PREVALIDATION;
 		} else if ("P".equals(valflag)) {
 			valtype = PREVALIDATION;
 		}

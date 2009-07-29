@@ -33,7 +33,7 @@ public class RegexValidator extends StringValidatorBase<String[]> {
 	private final String errorNotes;
 	
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * @param patternStr The regular expression string to be used for validation.
 	 * @param kind The kind of entity we are validating.
@@ -46,7 +46,7 @@ public class RegexValidator extends StringValidatorBase<String[]> {
 	}
 	
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * @param patternStr The regular expression string to be used for validation.
 	 * @param kind The kind of entity we are validating.
@@ -56,7 +56,7 @@ public class RegexValidator extends StringValidatorBase<String[]> {
 	}
 	
 	/**
-	 * @see org.aavso.tools.vstar.util.validation.IStringValidator#validate(java.lang.String)
+	 * @see org.aavso.tools.vstar.util.validation.StringValidatorBase#validate(java.lang.String)
 	 */
 	public String[] validate(String str) throws ObservationValidationError {
 		List<String> groups = new ArrayList<String>();

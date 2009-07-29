@@ -22,6 +22,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.Notifier;
 
 /**
  * A table model for valid observations.
@@ -47,6 +48,14 @@ public class ValidObservationTableModel extends AbstractTableModel {
 	 * The total number of columns in the table.
 	 */
 	private final int columnCount;
+	
+	/**
+	 * This notifies listeners when an observation in the model
+	 * changes. Right now, the only possible change is for an 
+	 * observation to be marked as discrepant or to have this
+	 * designation removed.
+	 */
+	private Notifier<ValidObservation> observationChangeNotifier;
 
 	/**
 	 * Constructor
@@ -62,6 +71,7 @@ public class ValidObservationTableModel extends AbstractTableModel {
 		this.newStarType = newStarType;
 		this.columnInfoSource = newStarType.getColumnInfoSource();
 		this.columnCount = columnInfoSource.getColumnCount();
+		this.observationChangeNotifier = new Notifier<ValidObservation>();
 	}
 
 	/**
@@ -105,6 +115,7 @@ public class ValidObservationTableModel extends AbstractTableModel {
 			ValidObservation ob = this.validObservations.get(rowIndex);
 			boolean discrepant = ob.isDiscrepant();
 			ob.setDiscrepant(!discrepant);
+			observationChangeNotifier.notifyListeners(ob);
 		}
 	}
 
@@ -121,5 +132,12 @@ public class ValidObservationTableModel extends AbstractTableModel {
 	 */
 	public Class<?> getColumnClass(int columnIndex) {
 		return columnInfoSource.getTableColumnClass(columnIndex);
+	}
+
+	/**
+	 * @return the observationChangeNotifier
+	 */
+	public Notifier<ValidObservation> getObservationChangeNotifier() {
+		return observationChangeNotifier;
 	}
 }

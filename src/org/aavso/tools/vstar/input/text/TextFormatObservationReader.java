@@ -19,8 +19,6 @@ package org.aavso.tools.vstar.input.text;
 
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -32,9 +30,9 @@ import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 
 /**
- * This class reads a simple variable star data file format containing lines of
- * text or comma separated fields, and yields a collection of observations for
- * one star.
+ * This class reads a variable star data file format containing lines of
+ * text or comma separated fields, and yields a collection of observations 
+ * for one star.
  * 
  * REQ_VSTAR_SIMPLE_TEXT_FILE_READ REQ_VSTAR_AAVSO_DATA_DOWNLOAD_FILE_READ
  */
@@ -98,32 +96,5 @@ public class TextFormatObservationReader extends ObservationRetrieverBase {
 			throw new ObservationReadError(
 					"Error when attempting to read observation source.");
 		}
-	}
-
-	// Helpers
-
-	/**
-	 * Here we categorise a valid observation in terms of whether it is a
-	 * fainter-than or belongs to a particular band, in that order.
-	 */
-	private void categoriseValidObservation(ValidObservation validOb) {
-		String category = null;
-
-		if (validOb.getMagnitude().isFainterThan()) {
-			category = "Fainter than";
-		} else {
-			String band = validOb.getBand();
-			category = (band == null) ? "unspecified" : band;
-		}
-
-		List<ValidObservation> validObsList = validObservationCategoryMap
-				.get(category);
-
-		if (validObsList == null) {
-			validObsList = new ArrayList<ValidObservation>();
-			validObservationCategoryMap.put(category, validObsList);
-		}
-
-		validObsList.add(validOb);
 	}
 }

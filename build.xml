@@ -6,34 +6,54 @@
 	<!-- Set global properties for this build -->
 	<property name="src" location="src" />
 	<property name="test" location="test" />
-	<property name="build" location="src/build" />
+	<property name="src_build" location="src/build" />
+	<property name="test_build" location="test/build" />
 	<property name="dist" location="dist" />
-	<property name="extlib" location="extlib" /> <!-- just call this lib? -->
-	<property name="ui_resources" location="src/org/aavso/tools/vstar/ui/resources" />  
+	<property name="extlib" location="extlib" />
+	<property name="ui_resources" location="src/org/aavso/tools/vstar/ui/resources" />
+
+	<path id="build.classpath">
+		<pathelement location="${extlib}/jcommon-1.0.16.jar" />
+		<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
+		<pathelement location="${extlib}/swing-worker-1.2.jar" />
+		<pathelement location="${extlib}/jlfgr-1_0.jar" />
+		<pathelement location="${extlib}/mysql-connector-java-5.1.8-bin.jar" />
+	</path>
+
+	<path id="run.classpath">
+		<pathelement location="${extlib}/jcommon-1.0.16.jar" />
+		<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
+		<pathelement location="${extlib}/swing-worker-1.2.jar" />
+		<pathelement location="${extlib}/jlfgr-1_0.jar" />
+		<pathelement location="${extlib}/mysql-connector-java-5.1.8-bin.jar" />
+		<pathelement location="${dist}/vstar.jar" />
+	</path>
+
+	<!-- TODO: could also have a test.build.classpath that includes junit.jar 
+	     but does not include ${test_build} -->
+	
+	<path id="test.classpath">
+		<pathelement location="${extlib}/jcommon-1.0.16.jar" />
+		<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
+		<pathelement location="${extlib}/swing-worker-1.2.jar" />
+		<pathelement location="${extlib}/jlfgr-1_0.jar" />
+		<pathelement location="${extlib}/mysql-connector-java-5.1.8-bin.jar" />
+		<pathelement location="${extlib}/junit.jar" />
+		<pathelement location="${dist}/vstar.jar" />
+		<pathelement path="${test_build}" />
+	</path>
 
 	<target name="init">
 		<!-- Create the time stamp -->
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->
-		<mkdir dir="${build}" />
+		<mkdir dir="${src_build}" />
+		<mkdir dir="${test_build}" />
 	</target>
 
 	<target name="compile_src" depends="init" description="Compile the source">
-		<javac compiler="modern" srcdir="${src}" destdir="${build}">
-			<classpath>
-				<pathelement location="${extlib}/jcommon-1.0.16.jar" />
-				<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
-				<pathelement location="${extlib}/swing-worker-1.2.jar" />
-				<pathelement location="${extlib}/jlfgr-1_0.jar" />
-			</classpath>
-		</javac>
-	</target>
-
-	<target name="compile_ut" depends="compile_src" description="Compile the test code">
-		<javac srcdir="${test}" destdir="${build}" >
-			<classpath>
-				<pathelement location="${extlib}/junit.jar" />
-			</classpath>
+		<javac compiler="modern" srcdir="${src}" destdir="${src_build}">
+			<classpath refid="build.classpath"/>
 		</javac>
 	</target>
 
@@ -41,56 +61,53 @@
 		<!-- Create the distribution directory -->
 		<mkdir dir="${dist}" />
 
-		<jar jarfile="${dist}/vstar.jar" basedir="${build}" manifest="MANIFEST.MF">
+		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="MANIFEST.MF">
 			<zipfileset dir="${extlib}" />
 			<fileset dir="${ui_resources}" />
-		</jar>		
+		</jar>
 	</target>
 
 	<target name="run" depends="dist" description="Run VStar GUI">
-<!--
+		<!--
 		<java fork="true" jar="${dist}/vstar.jar">
-			<classpath>
-				<pathelement location="${extlib}/jcommon-1.0.16.jar" />
-				<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
-			</classpath>
+			<classpath refid="run.classpath"/>
 		</java>
--->
+		-->
 		<java fork="true" classname="org.aavso.tools.vstar.ui.VStar">
-			<!-- TODO: use a CP ref instead -->
-			<classpath>
- 				<pathelement location="${extlib}/jcommon-1.0.16.jar" />
-				<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
-				<pathelement location="${extlib}/swing-worker-1.2.jar" />
- 				<pathelement location="${extlib}/jlfgr-1_0.jar" />
-				<pathelement location="${dist}/vstar.jar" />
-			</classpath>
+			<classpath refid="run.classpath"/>
 		</java>
+	</target>
+
+	<target name="compile_ut" depends="dist" description="Compile the test code">
+		<javac srcdir="${test}" destdir="${test_build}">
+			<classpath refid="test.classpath"/>
+		</javac>
 	</target>
 
 	<target name="test" depends="compile_ut" description="Run unit tests">
 		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
 			<formatter type="plain" />
-			<!-- TODO: consider a test suite class instead -->
+			
 			<test name="org.aavso.tools.vstar.input.TextFormatObservationReaderTest" />
- 			<test name="org.aavso.tools.vstar.input.ObservationFieldSplitterTest" />
+			<test name="org.aavso.tools.vstar.input.ObservationFieldSplitterTest" />
 			<test name="org.aavso.tools.vstar.util.MeeusDateUtilTest" />
 			<test name="org.aavso.tools.vstar.util.DescStatsTest" />
+			<test name="org.aavso.tools.vstar.input.DatabaseObservationReaderTest" />
+			
 			<jvmarg value="-ea" />
-			<classpath>
-			 	<pathelement location="${extlib}/junit.jar" />
-				<pathelement path="${build}" />
-			</classpath>
+			
+			<classpath refid="test.classpath"/>			
 		</junit>
 	</target>
 
 	<target name="clean" description="Clean up">
 		<delete includeemptydirs="true">
-			<!-- Delete the ${build} and ${dist} directory trees -->
-			<fileset dir="${build}" includes="**/*" />
+			<!-- Delete the build and dist directory trees -->
+			<fileset dir="${src_build}" includes="**/*" />
+			<fileset dir="${test_build}" includes="**/*" />
 			<fileset dir="${dist}" includes="**/*" />
 
-			<!-- Clean TEST report files -->
+			<!-- Delete TEST report files -->
 			<fileset dir="." includes="TEST-*" />
 		</delete>
 	</target>

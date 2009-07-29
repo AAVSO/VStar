@@ -25,6 +25,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 
@@ -33,12 +35,16 @@ import javax.swing.JTable.PrintMode;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.DialogCancelledException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
+import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.DataPane;
+import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MeanObservationListPane;
+import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.MessageBox;
 import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
@@ -68,11 +74,15 @@ public class ModelManager {
 
 	public static final String NOT_IMPLEMENTED_YET = "This feature is not implemented yet.";
 
+	// Has the user authenticated. This is necessary if database access
+	// is required.
+	private boolean isAuthenticated;
+
 	// Current mode.
 	private ModeType currentMode;
 
-	// Current star file name, assuming file source.
-	private String newStarFileName;
+	// Current star name or file name (assuming file source).
+	private String newStarName;
 
 	// Current models.
 	// TODO: To handle Analysis menu items, may want a map of analysis type
@@ -230,7 +240,7 @@ public class ModelManager {
 			} catch (Exception e) {
 				MessageBox.showErrorDialog(parent,
 						"New Star From File Read Error", e);
-				modelMgr.newStarFileName = null;
+				modelMgr.newStarName = null;
 				clearData();
 				return false;
 			}
@@ -248,6 +258,8 @@ public class ModelManager {
 
 				modelMgr.obsPlotModel = new ObservationPlotModel(
 						modelMgr.validObservationCategoryMap);
+				modelMgr.validObsTableModel.getObservationChangeNotifier()
+						.addListener(modelMgr.obsPlotModel);
 
 				// TODO: why not just pass a locally created obsPlotModel
 				// to this method instead rather than storing it in a field?
@@ -257,6 +269,8 @@ public class ModelManager {
 				// Observation-and-mean table and plot.
 
 				modelMgr.obsAndMeanPlotModel = createObservationAndMeanPlotModel();
+				modelMgr.validObsTableModel.getObservationChangeNotifier()
+						.addListener(modelMgr.obsAndMeanPlotModel);
 
 				// TODO: why not just pass a locally created obsPlotModel
 				// to this method instead rather than storing it in a field?
@@ -285,7 +299,7 @@ public class ModelManager {
 			}
 
 			// The observation table pane contains valid and potentially
-			// invalid data components. Tell the valid data table to have 
+			// invalid data components. Tell the valid data table to have
 			// a horizontal scrollbar if it the source was a simple-format
 			// file since there won't be many columns. We don't want to do that
 			// when there are many columns (i.e. for AAVSO download format files
@@ -308,10 +322,11 @@ public class ModelManager {
 	 * @param parent
 	 *            The GUI component that can be used to display.
 	 */
-	public void createObservationModelsFromFile(File obsFile, Component parent)
-			throws FileNotFoundException, IOException, ObservationReadError {
+	public void createObservationArtefactsFromFile(File obsFile,
+			Component parent) throws FileNotFoundException, IOException,
+			ObservationReadError {
 
-		modelMgr.newStarFileName = obsFile.getPath();
+		modelMgr.newStarName = obsFile.getPath();
 
 		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
 
@@ -335,6 +350,52 @@ public class ModelManager {
 		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
 				parent, plotPortion);
 		task.execute();
+	}
+
+	/**
+	 * Creates and executes a background task to handle new-star-from-database.
+	 * 
+	 * @param starName
+	 *            The name of the star.
+	 * @param auid
+	 *            AAVSO unique ID for the star.
+	 * @param minJD
+	 *            The minimum Julian Day of the requested range.
+	 * @param maxJD
+	 *            The maximum Julian Day of the requested range.
+	 */
+	// public void createObservationArtefactsFromDatabase(String starName,
+	// String auid, double minJD, double maxJD) {
+
+	public void createObservationArtefactsFromDatabase() {
+		Component parent = MainFrame.getInstance();
+
+		try {
+			// TODO: setup progress bar and use it
+
+			AAVSODatabaseConnector connector = new AAVSODatabaseConnector();
+
+			Connection connection = connector.createConnection(1);
+
+			// TODO: do all of what follows in a task as for file loads
+
+			PreparedStatement stmt = connector
+					.createObservationQuery(connection);
+
+			// TODO: bring up dialog box for star and JD range selection
+
+			// TODO: set params via setObservationQueryParams(), then
+			// executeQuery(), get result-set and pass to
+			// DatabaseObsRetriever; see UT
+
+			String starName = ""; // get this from star/date-range selection
+			// dialog
+			modelMgr.newStarName = starName;
+
+		} catch (Exception ex) {
+			MessageBox.showErrorDialog(parent, MenuBar.NEW_STAR_FROM_DATABASE,
+					ex);
+		}
 	}
 
 	/**
@@ -516,7 +577,7 @@ public class ModelManager {
 	 * @return the newStarFileName
 	 */
 	public String getNewStarFileName() {
-		return newStarFileName;
+		return newStarName;
 	}
 
 	/**
@@ -541,12 +602,13 @@ public class ModelManager {
 	 * Private constructor.
 	 */
 	private ModelManager() {
+		this.isAuthenticated = false;
 		this.newStarNotifier = new Notifier<NewStarMessage>();
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
 
 		this.currentMode = ModeType.PLOT_OBS_MODE;
-		this.newStarFileName = null;
+		this.newStarName = null;
 	}
 
 	/**

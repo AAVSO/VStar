@@ -15,17 +15,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util;
+package org.aavso.tools.vstar.exception;
 
 /**
- * An interface to be implemented by any class wanting to be a source of
- * magnitude and Julian Day.
+ * This exception can be thrown if a dialog was cancelled.
  */
-public interface IMagAndJDSource {
+public class DialogCancelledException extends Exception {
 
-	abstract public double getJD();
+	public DialogCancelledException() {
+		super();
+	}
 	
-	abstract public double getMag(); 
-	
-	abstract public boolean isDiscrepant();
+	public DialogCancelledException(String msg) {
+		super(msg);
+	}
 }

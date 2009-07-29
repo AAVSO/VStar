@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.DescStats;
+import org.aavso.tools.vstar.util.Listener;
 import org.aavso.tools.vstar.util.Notifier;
 
 /**
@@ -42,7 +43,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	private List<ValidObservation> observations;
 
 	private List<ValidObservation> meanObsList;
-	
+
 	private Notifier<List<ValidObservation>> meansChangeNotifier;
 
 	/**
@@ -193,5 +194,16 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	public Notifier<List<ValidObservation>> getMeansChangeNotifier() {
 		return meansChangeNotifier;
+	}
+	
+	/** 
+	 * Listen for valid observation change notification,
+	 * e.g. an observation is marked as discrepant. Since
+	 * a discrepant observation is ignored for statistical
+	 * analysis purposes (see DescStats class), we need to
+	 * re-calculate the means series.
+	 */
+	public void update(ValidObservation ob) {
+		setMeanSeries();
 	}
 }
