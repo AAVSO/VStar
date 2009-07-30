@@ -32,7 +32,7 @@ import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
  */
 public class DatabaseObservationReaderTest extends TestCase {
 
-	private AAVSODatabaseConnector connector = new AAVSODatabaseConnector();
+	private AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
 
 	/**
 	 * Constructor
@@ -50,7 +50,7 @@ public class DatabaseObservationReaderTest extends TestCase {
 	// Julian Day range 2454000.5..2454939.56597.
 	public void testSampleRead1() {
 		try {
-			Connection connection = connector.createConnection(1);
+			Connection connection = connector.createConnection();
 			assertNotNull(connection);
 
 			PreparedStatement stmt = connector

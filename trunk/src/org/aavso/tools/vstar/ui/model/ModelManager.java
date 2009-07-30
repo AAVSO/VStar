@@ -25,32 +25,22 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JPanel;
 import javax.swing.JTable.PrintMode;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.exception.DialogCancelledException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
-import org.aavso.tools.vstar.input.ObservationRetrieverBase;
-import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
-import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.DataPane;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MeanObservationListPane;
-import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.MessageBox;
 import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
 import org.aavso.tools.vstar.util.Notifier;
-import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * This class manages models, in particular, the data models that under-pin the
@@ -59,7 +49,7 @@ import org.jdesktop.swingworker.SwingWorker;
  * This is a Singleton since only one manager per application instance needs to
  * exist.
  * 
- * TODO: if we store GUI components here also, it should be DocManager
+ * TODO: since we store GUI components here also, it should be DocManager
  * again...or ArtefactManager or similar.
  * 
  * TODO: also handle undo, document "needs saving", don't load same file twice
@@ -73,10 +63,6 @@ import org.jdesktop.swingworker.SwingWorker;
 public class ModelManager {
 
 	public static final String NOT_IMPLEMENTED_YET = "This feature is not implemented yet.";
-
-	// Has the user authenticated. This is necessary if database access
-	// is required.
-	private boolean isAuthenticated;
 
 	// Current mode.
 	private ModeType currentMode;
@@ -147,174 +133,6 @@ public class ModelManager {
 	}
 
 	/**
-	 * A concurrent task in which a new star from file request task is handled.
-	 * TODO: move to a different src file
-	 */
-	private class NewStarFromFileTask extends SwingWorker<Void, Void> {
-		private ModelManager modelMgr = ModelManager.getInstance();
-
-		private File obsFile;
-		private ObservationSourceAnalyser analyser;
-		private int plotTaskPortion;
-		private Component parent;
-		private boolean success;
-
-		/**
-		 * Constructor.
-		 * 
-		 * @param obsFile
-		 *            The file from which to load the star observations.
-		 * @param analyser
-		 *            An observation file analyser.
-		 * @param plotTaskPortion
-		 *            The portion of the total task that involves the light
-		 *            curve plot.
-		 * @param parent
-		 *            A GUI component that can be considered a parent.
-		 */
-		public NewStarFromFileTask(File obsFile,
-				ObservationSourceAnalyser analyser, Component parent,
-				int plotTaskPortion) {
-			this.obsFile = obsFile;
-			this.analyser = analyser;
-			this.plotTaskPortion = plotTaskPortion;
-			this.parent = parent;
-			this.success = false;
-		}
-
-		/**
-		 * Main task. Executed in background thread.
-		 */
-		public Void doInBackground() {
-			this.success = createFileBasedObservationArtefacts(obsFile,
-					analyser);
-			return null;
-		}
-
-		/**
-		 * Executed in event dispatching thread.
-		 */
-		public void done() {
-			// Task ends.
-			modelMgr.getProgressNotifier().notifyListeners(
-					ProgressInfo.COMPLETE_PROGRESS);
-
-			if (success) {
-				// Notify whoever is listening that a new star has been loaded,
-				// passing GUI components in the message.
-				NewStarMessage msg = new NewStarMessage(analyser
-						.getNewStarType(), modelMgr.obsChartPane,
-						modelMgr.obsAndMeanChartPane, modelMgr.obsListPane,
-						modelMgr.meansListPane);
-
-				modelMgr.newStarNotifier.notifyListeners(msg);
-			}
-		}
-
-		/**
-		 * Create observation table and plot models from a file.
-		 * 
-		 * @param obsFile
-		 *            The file from which to load the star observations.
-		 * 
-		 * @param analyser
-		 *            An observation file analyser.
-		 */
-		private boolean createFileBasedObservationArtefacts(File obsFile,
-				ObservationSourceAnalyser analyser) {
-
-			try {
-				ObservationRetrieverBase textFormatReader = new TextFormatObservationReader(
-						new LineNumberReader(new FileReader(obsFile.getPath())),
-						analyser);
-
-				textFormatReader.retrieveObservations();
-
-				clearData();
-
-				modelMgr.validObsList = textFormatReader.getValidObservations();
-				modelMgr.invalidObsList = textFormatReader
-						.getInvalidObservations();
-				modelMgr.validObservationCategoryMap = textFormatReader
-						.getValidObservationCategoryMap();
-			} catch (Exception e) {
-				MessageBox.showErrorDialog(parent,
-						"New Star From File Read Error", e);
-				modelMgr.newStarName = null;
-				clearData();
-				return false;
-			}
-
-			// Given raw valid and invalid observation data, create observation
-			// table and plot models, along with corresponding GUI components.
-
-			// TODO: should be able to refactor the remainder of this method to
-			// be used with database artefact creation method.
-
-			if (!modelMgr.validObsList.isEmpty()) {
-				// Observation table and plot.
-				modelMgr.validObsTableModel = new ValidObservationTableModel(
-						modelMgr.validObsList, analyser.getNewStarType());
-
-				modelMgr.obsPlotModel = new ObservationPlotModel(
-						modelMgr.validObservationCategoryMap);
-				modelMgr.validObsTableModel.getObservationChangeNotifier()
-						.addListener(modelMgr.obsPlotModel);
-
-				// TODO: why not just pass a locally created obsPlotModel
-				// to this method instead rather than storing it in a field?
-				modelMgr.obsChartPane = createObservationPlotPane(this.obsFile
-						.getName());
-
-				// Observation-and-mean table and plot.
-
-				modelMgr.obsAndMeanPlotModel = createObservationAndMeanPlotModel();
-				modelMgr.validObsTableModel.getObservationChangeNotifier()
-						.addListener(modelMgr.obsAndMeanPlotModel);
-
-				// TODO: why not just pass a locally created obsPlotModel
-				// to this method instead rather than storing it in a field?
-				modelMgr.obsAndMeanChartPane = createObservationAndMeanPlotPane(this.obsFile
-						.getName());
-
-				// The mean observation table model must listen to the plot
-				// model to know when the means data has changed. We also pass
-				// the initial means data obtained from the plot model to
-				// the mean observation table model.
-				modelMgr.meanObsTableModel = new MeanObservationTableModel(
-						modelMgr.obsAndMeanPlotModel.getMeanObsList());
-
-				modelMgr.obsAndMeanPlotModel.getMeansChangeNotifier()
-						.addListener(modelMgr.meanObsTableModel);
-
-				// Update progress.
-				modelMgr.getProgressNotifier().notifyListeners(
-						new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
-								plotTaskPortion));
-			}
-
-			if (!modelMgr.invalidObsList.isEmpty()) {
-				modelMgr.invalidObsTableModel = new InvalidObservationTableModel(
-						modelMgr.invalidObsList);
-			}
-
-			// The observation table pane contains valid and potentially
-			// invalid data components. Tell the valid data table to have
-			// a horizontal scrollbar if it the source was a simple-format
-			// file since there won't be many columns. We don't want to do that
-			// when there are many columns (i.e. for AAVSO download format files
-			// and database source).
-			boolean enableColumnAutoResize = analyser.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
-			modelMgr.obsListPane = createObsListPane(enableColumnAutoResize);
-
-			// We also create the means list pane.
-			modelMgr.meansListPane = createMeanObsListPane();
-
-			return true;
-		}
-	}
-
-	/**
 	 * Creates and executes a background task to handle new-star-from-file.
 	 * 
 	 * @param obsFile
@@ -326,12 +144,11 @@ public class ModelManager {
 			Component parent) throws FileNotFoundException, IOException,
 			ObservationReadError {
 
-		modelMgr.newStarName = obsFile.getPath();
+		modelMgr.setNewStarName(obsFile.getPath());
 
 		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
 
 		// Analyse the observation file.
-		// TODO: include this step under progressing task below?
 		ObservationSourceAnalyser analyser = new ObservationSourceAnalyser(
 				new LineNumberReader(new FileReader(obsFile)), obsFile
 						.getName());
@@ -339,8 +156,7 @@ public class ModelManager {
 
 		// Task begins: Number of lines in file and a portion for the light
 		// curve plot.
-		int plotPortion = (int) (analyser.getLineCount() * 0.2); // TODO: review
-		// 0.2
+		int plotPortion = (int) (analyser.getLineCount() * 0.2);
 
 		this.getProgressNotifier().notifyListeners(
 				new ProgressInfo(ProgressType.MAX_PROGRESS, analyser
@@ -348,7 +164,7 @@ public class ModelManager {
 						+ plotPortion));
 
 		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
-				parent, plotPortion);
+				plotPortion);
 		task.execute();
 	}
 
@@ -364,38 +180,90 @@ public class ModelManager {
 	 * @param maxJD
 	 *            The maximum Julian Day of the requested range.
 	 */
-	// public void createObservationArtefactsFromDatabase(String starName,
-	// String auid, double minJD, double maxJD) {
+	public void createObservationArtefactsFromDatabase(String starName,
+			String auid, double minJD, double maxJD) {
 
-	public void createObservationArtefactsFromDatabase() {
-		Component parent = MainFrame.getInstance();
+		modelMgr.setNewStarName(starName);
 
-		try {
-			// TODO: setup progress bar and use it
+		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
 
-			AAVSODatabaseConnector connector = new AAVSODatabaseConnector();
+		this.getProgressNotifier().notifyListeners(
+				new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
 
-			Connection connection = connector.createConnection(1);
+		NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(starName, auid, minJD, maxJD);
+		task.execute();
+	}
 
-			// TODO: do all of what follows in a task as for file loads
+	/**
+	 * Create observation artefacts (models, GUI elements) on the assumption
+	 * that a valid observation list and category map have already been created.
+	 * 
+	 * @param newStarType
+	 *            The new star enum type.
+	 * @param objName
+	 *            The name of the object for display in plot panes.
+	 * @param obsArtefactProgressAmount
+	 *            The amount the progress bar should be incremented by, a value
+	 *            corresponding to a portion of the overall task of which this
+	 *            is just a part.
+	 */
+	protected void createObservationArtefacts(NewStarType newStarType,
+			String objName, int obsArtefactProgressAmount) {
+		// Given raw valid and invalid observation data, create observation
+		// table and plot models, along with corresponding GUI components.
 
-			PreparedStatement stmt = connector
-					.createObservationQuery(connection);
+		if (!modelMgr.validObsList.isEmpty()) {
+			// Observation table and plot.
+			modelMgr.validObsTableModel = new ValidObservationTableModel(
+					modelMgr.validObsList, newStarType);
 
-			// TODO: bring up dialog box for star and JD range selection
+			modelMgr.obsPlotModel = new ObservationPlotModel(
+					modelMgr.validObservationCategoryMap);
+			modelMgr.validObsTableModel.getObservationChangeNotifier()
+					.addListener(modelMgr.obsPlotModel);
 
-			// TODO: set params via setObservationQueryParams(), then
-			// executeQuery(), get result-set and pass to
-			// DatabaseObsRetriever; see UT
+			modelMgr.obsChartPane = createObservationPlotPane(objName);
 
-			String starName = ""; // get this from star/date-range selection
-			// dialog
-			modelMgr.newStarName = starName;
+			// Observation-and-mean table and plot.
 
-		} catch (Exception ex) {
-			MessageBox.showErrorDialog(parent, MenuBar.NEW_STAR_FROM_DATABASE,
-					ex);
+			modelMgr.obsAndMeanPlotModel = createObservationAndMeanPlotModel();
+			modelMgr.validObsTableModel.getObservationChangeNotifier()
+					.addListener(modelMgr.obsAndMeanPlotModel);
+
+			modelMgr.obsAndMeanChartPane = createObservationAndMeanPlotPane(objName);
+
+			// The mean observation table model must listen to the plot
+			// model to know when the means data has changed. We also pass
+			// the initial means data obtained from the plot model to
+			// the mean observation table model.
+			modelMgr.meanObsTableModel = new MeanObservationTableModel(
+					modelMgr.obsAndMeanPlotModel.getMeanObsList());
+
+			modelMgr.obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
+					modelMgr.meanObsTableModel);
+
+			// Update progress.
+			modelMgr.getProgressNotifier().notifyListeners(
+					new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
+							obsArtefactProgressAmount));
 		}
+
+		if (!modelMgr.invalidObsList.isEmpty()) {
+			modelMgr.invalidObsTableModel = new InvalidObservationTableModel(
+					modelMgr.invalidObsList);
+		}
+
+		// The observation table pane contains valid and potentially
+		// invalid data components. Tell the valid data table to have
+		// a horizontal scrollbar if it the source was a simple-format
+		// file since there won't be many columns. We don't want to do that
+		// when there are many columns (i.e. for AAVSO download format files
+		// and database source).
+		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
+		modelMgr.obsListPane = createObsListPane(enableColumnAutoResize);
+
+		// We also create the means list pane.
+		modelMgr.meansListPane = createMeanObsListPane();
 	}
 
 	/**
@@ -521,14 +389,13 @@ public class ModelManager {
 	 * Clear all data (lists, models). TODO: or only have fundamental data
 	 * collections with everything derived and passed via messages to listeners?
 	 */
-	private void clearData() {
+	protected void clearData() {
 		this.invalidObsList = null;
 		this.invalidObsTableModel = null;
 		this.validObsList = null;
 		this.validObsTableModel = null;
 		this.obsPlotModel = null;
 		this.obsAndMeanPlotModel = null;
-		// TODO: GUI components too?
 	}
 
 	/**
@@ -574,9 +441,9 @@ public class ModelManager {
 	}
 
 	/**
-	 * @return the newStarFileName
+	 * @return the newStarName
 	 */
-	public String getNewStarFileName() {
+	public String getNewStarName() {
 		return newStarName;
 	}
 
@@ -590,11 +457,166 @@ public class ModelManager {
 	/**
 	 * @return the obsListPane
 	 */
-	public JPanel getObsListPane() {
+	public ObservationListPane getObsListPane() {
 		return obsListPane;
 	}
 
 	// ** Singleton member, constructor, and getter. **
+
+	/**
+	 * @param currentMode
+	 *            the currentMode to set
+	 */
+	public void setCurrentMode(ModeType currentMode) {
+		this.currentMode = currentMode;
+	}
+
+	/**
+	 * @param validObsList
+	 *            the validObsList to set
+	 */
+	public void setValidObsList(List<ValidObservation> validObsList) {
+		this.validObsList = validObsList;
+	}
+
+	/**
+	 * @param invalidObsList
+	 *            the invalidObsList to set
+	 */
+	public void setInvalidObsList(List<InvalidObservation> invalidObsList) {
+		this.invalidObsList = invalidObsList;
+	}
+
+	/**
+	 * @param validObsTableModel
+	 *            the validObsTableModel to set
+	 */
+	public void setValidObsTableModel(
+			ValidObservationTableModel validObsTableModel) {
+		this.validObsTableModel = validObsTableModel;
+	}
+
+	/**
+	 * @param invalidObsTableModel
+	 *            the invalidObsTableModel to set
+	 */
+	public void setInvalidObsTableModel(
+			InvalidObservationTableModel invalidObsTableModel) {
+		this.invalidObsTableModel = invalidObsTableModel;
+	}
+
+	/**
+	 * @param meanObsTableModel
+	 *            the meanObsTableModel to set
+	 */
+	public void setMeanObsTableModel(MeanObservationTableModel meanObsTableModel) {
+		this.meanObsTableModel = meanObsTableModel;
+	}
+
+	/**
+	 * @param obsPlotModel
+	 *            the obsPlotModel to set
+	 */
+	public void setObsPlotModel(ObservationPlotModel obsPlotModel) {
+		this.obsPlotModel = obsPlotModel;
+	}
+
+	/**
+	 * @param obsAndMeanPlotModel
+	 *            the obsAndMeanPlotModel to set
+	 */
+	public void setObsAndMeanPlotModel(
+			ObservationAndMeanPlotModel obsAndMeanPlotModel) {
+		this.obsAndMeanPlotModel = obsAndMeanPlotModel;
+	}
+
+	/**
+	 * @param obsChartPane
+	 *            the obsChartPane to set
+	 */
+	public void setObsChartPane(ObservationPlotPane obsChartPane) {
+		this.obsChartPane = obsChartPane;
+	}
+
+	/**
+	 * @param obsAndMeanChartPane
+	 *            the obsAndMeanChartPane to set
+	 */
+	public void setObsAndMeanChartPane(
+			ObservationAndMeanPlotPane obsAndMeanChartPane) {
+		this.obsAndMeanChartPane = obsAndMeanChartPane;
+	}
+
+	/**
+	 * @param obsListPane
+	 *            the obsListPane to set
+	 */
+	public void setObsListPane(ObservationListPane obsListPane) {
+		this.obsListPane = obsListPane;
+	}
+
+	/**
+	 * @param meansListPane
+	 *            the meansListPane to set
+	 */
+	public void setMeansListPane(MeanObservationListPane meansListPane) {
+		this.meansListPane = meansListPane;
+	}
+
+	/**
+	 * @param modelMgr
+	 *            the modelMgr to set
+	 */
+	public static void setModelMgr(ModelManager modelMgr) {
+		ModelManager.modelMgr = modelMgr;
+	}
+
+	/**
+	 * @return the obsAndMeanPlotModel
+	 */
+	public ObservationAndMeanPlotModel getObsAndMeanPlotModel() {
+		return obsAndMeanPlotModel;
+	}
+
+	/**
+	 * @return the obsAndMeanChartPane
+	 */
+	public ObservationAndMeanPlotPane getObsAndMeanChartPane() {
+		return obsAndMeanChartPane;
+	}
+
+	/**
+	 * @return the meansListPane
+	 */
+	public MeanObservationListPane getMeansListPane() {
+		return meansListPane;
+	}
+
+	/**
+	 * @return the validObservationCategoryMap
+	 */
+	public Map<String, List<ValidObservation>> getValidObservationCategoryMap() {
+		return validObservationCategoryMap;
+	}
+
+	/**
+	 * @param validObservationCategoryMap
+	 *            the validObservationCategoryMap to set
+	 */
+	public void setValidObservationCategoryMap(
+			Map<String, List<ValidObservation>> validObservationCategoryMap) {
+		this.validObservationCategoryMap = validObservationCategoryMap;
+	}
+
+	// Singleton fields, constructor, getter.
+
+	/**
+	 * @param newStarName
+	 *            the newStarName to set
+	 */
+	public void setNewStarName(String newStarName) {
+		this.newStarName = newStarName;
+	}
 
 	private static ModelManager modelMgr = new ModelManager();
 
@@ -602,7 +624,6 @@ public class ModelManager {
 	 * Private constructor.
 	 */
 	private ModelManager() {
-		this.isAuthenticated = false;
 		this.newStarNotifier = new Notifier<NewStarMessage>();
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();

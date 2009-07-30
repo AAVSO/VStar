@@ -201,14 +201,12 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 
 		switch (index) {
 		case JD_COLUMN:
-			clazz = String.class;
 			break;
 		case CALENDAR_DATE_COLUMN:
 			break;
 		case MAGNITUDE_COLUMN:
 			break;
 		case HQ_UNCERTAINTY_COLUMN:
-			clazz = Double.class;
 			break;
 		case BAND_COLUMN:
 			break;
@@ -267,7 +265,7 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 			value = ob.getMagnitude().toString();
 			break;
 		case HQ_UNCERTAINTY_COLUMN:
-			value = ob.getHqUncertainty();
+			value = String.format("%1.2f", ob.getHqUncertainty());
 			break;
 		case BAND_COLUMN:
 			value = ob.getBand();

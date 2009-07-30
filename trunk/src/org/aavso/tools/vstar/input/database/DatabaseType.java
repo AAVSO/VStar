@@ -15,20 +15,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.exception;
-
+package org.aavso.tools.vstar.input.database;
 
 /**
- * Instances of this class will be thrown in the case of
- * an observation validation error.
+ * The type of database to be connected to. Each has a number associated with it
+ * for internal use.
  */
-public class ObservationValidationError extends Exception {
+public enum DatabaseType {
 
-	public ObservationValidationError() {
-		super();
+	OBSERVATION(1), USER(2);
+
+	private int n;
+
+	private DatabaseType(int n) {
+		this.n = n;
 	}
 
-	public ObservationValidationError(String message) {
-		super(message);
+	public int getDBNum() {
+		return n;
 	}
 }

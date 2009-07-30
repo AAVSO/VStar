@@ -40,19 +40,22 @@ public class MainFrame extends JFrame {
 	// The application's menu bar.
 	private MenuBar menuBar;
 
-	// Singleton field and getter. 
-	private static final MainFrame instance = new MainFrame();
+	// The status bar which includes text and progress bar components.
+	private StatusPane statusPane;
 	
+	// Singleton field and getter.
+	private static final MainFrame instance = new MainFrame();
+
 	public static MainFrame getInstance() {
 		return instance;
 	}
-	
+
 	/**
 	 * Private constructor in support of Singleton.
 	 */
 	private MainFrame() {
-		// TODO: Add version? Move REVISION handling string to 
-		// ResourceAccessor class so we can use it here and in 
+		// TODO: Add version? Move REVISION handling string to
+		// ResourceAccessor class so we can use it here and in
 		// About Box?
 		super("VStar");
 
@@ -65,8 +68,8 @@ public class MainFrame extends JFrame {
 	}
 
 	// Create everything inside the main GUI view except for
-	// menus, but including the  toolbar; essentially the interior 
-	// content of the GUI that represents the core functionality of 
+	// menus, but including the toolbar; essentially the interior
+	// content of the GUI that represents the core functionality of
 	// interest to the user.
 	private JPanel createContent() {
 		// Top-level content pane to include status pane.
@@ -99,10 +102,16 @@ public class MainFrame extends JFrame {
 		topPane.add(majorPane, BorderLayout.CENTER);
 
 		// Add status pane with an initial message.
-		topPane.add(new StatusPane(
-				"Select a 'New Star' item from the File menu."),
-				BorderLayout.PAGE_END);
+		statusPane = new StatusPane("Select a 'New Star' item from the File menu.");
+		topPane.add(statusPane, BorderLayout.PAGE_END);
 		
 		return topPane;
+	}
+
+	/**
+	 * @return the statusPane
+	 */
+	public StatusPane getStatusPane() {
+		return statusPane;
 	}
 }

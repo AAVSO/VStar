@@ -44,7 +44,7 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 	// pre-validation filters page suggests otherwise.
 	// - Create a validator for 'transformed' field?
 	// - MType should have its own validator and associated enum type.
-	// -Assert which fields should not be null at end of validate().
+	// - Assert which fields should not be null at end of validate().
 
 	private final OptionalityFieldValidator optionalFieldValidator;
 	private final OptionalityFieldValidator nonOptionalFieldValidator;
@@ -150,11 +150,11 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 
 		Double cMag = magnitudeValueValidator.validate(fields[fieldIndexMap
 				.get("CMAG_FIELD")]);
-		observation.setCMag(cMag);
+		observation.setCMag(cMag != null ? cMag.toString() : ""); // see ValidationObject comment
 
 		Double kMag = magnitudeValueValidator.validate(fields[fieldIndexMap
 				.get("KMAG_FIELD")]);
-		observation.setKMag(kMag);
+		observation.setKMag(kMag != null ? kMag.toString() : ""); // see ValidationObject comment
 
 		DateInfo hjdInfo = hjdValidator.validate(fields[fieldIndexMap
 				.get("HJD_FIELD")]);

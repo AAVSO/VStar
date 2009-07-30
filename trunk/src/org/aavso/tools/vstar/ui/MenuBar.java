@@ -189,9 +189,14 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createNewStarFromDatabaseListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MessageBox.showMessageDialog(MainFrame.getInstance(),
-						NEW_STAR_FROM_DATABASE, "Not yet implemented.");
-				// modelMgr.createObservationArtefactsFromDatabase();
+				// TODO: bring up dialog box for star and JD range selection
+				// (start with Epsilon Auriga)
+				String starName = "Eps Aur";
+				String auid = "000-BCT-905";
+				double minJD = 2454000.5;
+				double maxJD = 2454939.56597;
+				
+				modelMgr.createObservationArtefactsFromDatabase(starName, auid, minJD, maxJD);
 			}
 		};
 	}
