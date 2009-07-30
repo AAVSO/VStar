@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="VStar Phase I" company="AAVSO" webLink="https://sourceforge.net/projects/vstar/" view-date="2009-05-03" view-index="0" gantt-divider-location="518" resource-divider-location="302" version="2.0">
 <description><![CDATA[VStar Phase I tasks and progress.]]></description>
-<view zooming-state="default:5" id="gantt-chart"/>
+<view zooming-state="default:6" id="gantt-chart"/>
 <view id="resource-table">
 <field id="0" name="Name" width="55" order="0"/>
 <field id="1" name="Default role" width="44" order="1"/>
@@ -52,8 +52,8 @@
 <task id="10" name="AAVSO Database input" color="#8cb6ce" meeting="false" start="2009-06-26" duration="26" complete="77" priority="1" expand="true">
 <task id="8" name="SQL: view experiments, obs query tweaking" color="#8cb6ce" meeting="false" start="2009-06-26" duration="8" complete="100" priority="1" expand="true"/>
 <task id="34" name="AID observation reader" color="#8cb6ce" meeting="false" start="2009-07-23" duration="6" complete="100" priority="1" expand="true"/>
-<task id="33" name="10 Stars Selection" color="#8cb6ce" meeting="false" start="2009-07-29" duration="1" complete="0" priority="1" expand="true"/>
-<task id="35" name="Arbitrary star selection" color="#ff6600" meeting="false" start="2009-07-31" duration="1" complete="0" priority="1" expand="true"/>
+<task id="33" name="10 Stars Selection" color="#8cb6ce" meeting="false" start="2009-07-31" duration="1" complete="0" priority="1" expand="true"/>
+<task id="35" name="Arbitrary star selection" color="#ffcc00" meeting="false" start="2009-07-31" duration="1" complete="0" priority="1" expand="true"/>
 <task id="36" name="Obscode lookup via CitizenSky login" color="#ff6600" meeting="false" start="2009-07-31" duration="1" complete="0" priority="1" expand="true"/>
 <task id="24" name="Time panning (when mode is AID)" color="#ff6600" meeting="false" start="2009-07-31" duration="1" complete="0" priority="1" expand="true"/>
 </task>
@@ -68,34 +68,15 @@
 <task id="19" name="Documentation" color="#8cb6ce" meeting="false" start="2009-07-24" duration="6" complete="5" priority="1" expand="true">
 <task id="20" name="HTML for Help menu item" color="#8cb6ce" meeting="false" start="2009-07-24" duration="6" complete="5" priority="1" expand="true"/>
 </task>
-<task id="21" name="Testing" color="#8cb6ce" meeting="false" start="2009-06-23" duration="34" complete="8" priority="1" expand="true">
+<task id="21" name="Testing" color="#8cb6ce" meeting="false" start="2009-06-23" duration="33" complete="8" priority="1" expand="true">
 <task id="3" name="System Testing" color="#8cb6ce" shape="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" meeting="false" start="2009-06-23" duration="33" complete="10" priority="1" expand="true"/>
 <task id="32" name="Bug Fixes (https://sourceforge.net/tracker/?func=browse&amp;group_id=263306&amp;atid=1152052)" color="#8cb6ce" meeting="false" start="2009-07-27" duration="9" complete="0" priority="1" expand="true"/>
-<task id="17" name="Acceptance Testing" color="#8cb6ce" shape="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" meeting="false" start="2009-08-04" duration="4" complete="0" priority="1" expand="true"/>
+<task id="17" name="Acceptance Testing" color="#8cb6ce" shape="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" meeting="false" start="2009-08-04" duration="3" complete="0" priority="1" expand="true"/>
 </task>
 <task id="18" name="CitizenSky Workshop 1" color="#8cb6ce" meeting="true" start="2009-08-04" duration="3" complete="0" priority="1" expand="true"/>
 </tasks>
-<resources>
-<resource id="7" name="Aaron Price" function="Default:1" contacts="" phone=""/>
-<resource id="8" name="Rebecca Turner" function="Default:1" contacts="" phone=""/>
-<resource id="12" name="Sara Beck" function="SoftwareDevelopment:8" contacts="" phone=""/>
-<resource id="11" name="Elizabeth Waagen" function="SoftwareDevelopment:8" contacts="" phone=""/>
-<resource id="13" name="Richard (Doc) " function="SoftwareDevelopment:8" contacts="" phone=""/>
-<resource id="6" name="David Benn" function="SoftwareDevelopment:2" contacts="" phone=""/>
-<resource id="9" name="Michael Umbricht" function="SoftwareDevelopment:4" contacts="" phone=""/>
-<resource id="10" name="Michael Kran" function="SoftwareDevelopment:4" contacts="" phone=""/>
-</resources>
-<allocations>
-<allocation task-id="1" resource-id="6" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
-<allocation task-id="1" resource-id="12" function="SoftwareDevelopment:8" responsible="false" load="100.0"/>
-<allocation task-id="2" resource-id="6" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
-<allocation task-id="20" resource-id="9" function="SoftwareDevelopment:4" responsible="true" load="25.0"/>
-<allocation task-id="3" resource-id="9" function="SoftwareDevelopment:4" responsible="false" load="75.0"/>
-<allocation task-id="3" resource-id="11" function="SoftwareDevelopment:8" responsible="false" load="50.0"/>
-<allocation task-id="3" resource-id="7" function="Default:1" responsible="false" load="100.0"/>
-<allocation task-id="3" resource-id="10" function="SoftwareDevelopment:4" responsible="false" load="100.0"/>
-<allocation task-id="32" resource-id="6" function="SoftwareDevelopment:2" responsible="true" load="100.0"/>
-</allocations>
+<resources/>
+<allocations/>
 <vacations/>
 <taskdisplaycolumns>
 <displaycolumn property-id="tpd3" order="0" width="350"/>
