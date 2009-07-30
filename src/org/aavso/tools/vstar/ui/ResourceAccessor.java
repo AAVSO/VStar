@@ -33,8 +33,7 @@ public class ResourceAccessor {
 	// This file has had its "Revision" keyword property set via:
 	// svn propset svn:keywords "Revision" AboutBox.java
 	// such that upon all commits, the revision will be updated.
-	private static final String REVISION = "$Rev: 140 $";
-	private static final String INC = "2"; // change this before each commit
+	private static final String REVISION = "$Rev: 143 $";
 
 	private static final Pattern revNumPat = Pattern
 			.compile("^\\$Rev: (\\d+) \\$$");
