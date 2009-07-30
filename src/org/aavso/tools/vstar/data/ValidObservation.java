@@ -58,8 +58,11 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	private boolean transformed = false;
 	private String airmass = null;
 	private ValidationType validationType = null;
-	private Double cMag = null;
-	private Double kMag = null;
+	// Note: these next two should be double, but some values
+	// in the database are non-numeric. VStar doesn't use these
+	// fields anyway except for display purposes.
+	private String cMag = null;
+	private String kMag = null;
 	private DateInfo hJD = null; // Heliocentric vs Geocentric Julian Day
 	private String name = null;
 	private String mType = null; // TODO: make an enum
@@ -309,7 +312,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	/**
 	 * @return the cMag
 	 */
-	public Double getCMag() {
+	public String getCMag() {
 		return cMag;
 	}
 
@@ -317,14 +320,14 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	 * @param cMag
 	 *            the cMag to set
 	 */
-	public void setCMag(Double cMag) {
+	public void setCMag(String cMag) {
 		this.cMag = cMag;
 	}
 
 	/**
 	 * @return the kMag
 	 */
-	public Double getKMag() {
+	public String getKMag() {
 		return kMag;
 	}
 
@@ -332,7 +335,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	 * @param kMag
 	 *            the kMag to set
 	 */
-	public void setKMag(Double kMag) {
+	public void setKMag(String kMag) {
 		this.kMag = kMag;
 	}
 

@@ -18,13 +18,13 @@
 package org.aavso.tools.vstar.data;
 
 /**
- * This class represents a magValue including uncertainty 
- * and fainter-than information.
+ * This class represents a magValue including uncertainty and fainter-than
+ * information.
  */
 public class Magnitude {
 
 	public final static boolean IS_UNCERTAIN = true;
-	
+
 	private double magValue;
 	private MagnitudeModifier magModifier;
 	private boolean isUncertain;
@@ -33,15 +33,40 @@ public class Magnitude {
 	/**
 	 * Constructor.
 	 * 
-	 * @param magnitude The magnitude value itself.
-	 * @param brightnessModifier Does the magValue constitute a fainter/brighter-than observation?
-	 * @param isUncertain Is this an uncertain magValue value?
+	 * @param magnitude
+	 *            The magnitude value itself.
+	 * @param brightnessModifier
+	 *            Does the magValue constitute a fainter/brighter-than
+	 *            observation?
+	 * @param isUncertain
+	 *            Is this an uncertain magValue value?
+	 * @param uncertainty
+	 *            The uncertainty of the magnitude.
 	 */
-	public Magnitude(double magnitude, MagnitudeModifier magModifier, boolean isUncertain) {
+	public Magnitude(double magnitude, MagnitudeModifier magModifier,
+			boolean isUncertain, double uncertainty) {
 		this.magValue = magnitude;
 		this.magModifier = magModifier;
 		this.isUncertain = isUncertain;
-		this.uncertainty = 0; // defaults to zero; may be changed after construction
+		this.uncertainty = uncertainty;
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * Uncertainty value defaults to zero; may be changed after construction.
+	 * 
+	 * @param magnitude
+	 *            The magnitude value itself.
+	 * @param brightnessModifier
+	 *            Does the magValue constitute a fainter/brighter-than
+	 *            observation?
+	 * @param isUncertain
+	 *            Is this an uncertain magValue value?
+	 */
+	public Magnitude(double magnitude, MagnitudeModifier magModifier,
+			boolean isUncertain) {
+		this(magnitude, magModifier, isUncertain, 0);
 	}
 
 	/**
@@ -49,13 +74,15 @@ public class Magnitude {
 	 * 
 	 * Creates a Magnitude with magnitude and uncertainty values.
 	 * 
-	 * @param magnitude The magnitude value itself.
+	 * @param magnitude
+	 *            The magnitude value itself.
+	 * @param uncertainty
+	 *            The uncertainty of the magnitude.
 	 */
 	public Magnitude(double magnitude, double uncertainty) {
-		this(magnitude, MagnitudeModifier.NO_DELTA, !IS_UNCERTAIN);
-		this.uncertainty = uncertainty;
+		this(magnitude, MagnitudeModifier.NO_DELTA, !IS_UNCERTAIN, uncertainty);
 	}
-	
+
 	/**
 	 * @return the magValue
 	 */
@@ -92,7 +119,8 @@ public class Magnitude {
 	}
 
 	/**
-	 * @param uncertainty The quantitative uncertainty value to set
+	 * @param uncertainty
+	 *            The quantitative uncertainty value to set
 	 */
 	public void setUncertainty(double uncertainty) {
 		this.uncertainty = uncertainty;
@@ -100,13 +128,13 @@ public class Magnitude {
 
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
-		
+
 		if (isFainterThan()) {
 			strBuf.append("<");
 		} else if (isBrighterThan()) {
 			strBuf.append(">");
 		}
-		
+
 		strBuf.append(magValue);
 
 		if (isUncertain) {
@@ -118,7 +146,7 @@ public class Magnitude {
 			strBuf.append(uncertainty);
 			strBuf.append(")");
 		}
-		
+
 		return strBuf.toString();
 	}
 }

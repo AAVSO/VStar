@@ -23,13 +23,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.aavso.tools.vstar.exception.DialogCancelledException;
 import org.aavso.tools.vstar.ui.LoginDialog;
 import org.aavso.tools.vstar.ui.ResourceAccessor;
 
 /**
  * This class handles the details of connecting to the MySQL AAVSO observation
- * database. This is a Singleton.
+ * database, a data accessor. This is a Singleton.
  * 
  * Portions of code were adapted (with permission) from the AAVSO Zapper code
  * base.
@@ -39,14 +38,19 @@ public class AAVSODatabaseConnector {
 	private final static String CONN_URL = "jdbc:mysql://"
 			+ ResourceAccessor.getParam(0) + "/";
 
+	private DatabaseType type;
 	private Driver driver;
 	private Connection connection;
 	private PreparedStatement stmt;
 
+	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(DatabaseType.OBSERVATION);
+	public static AAVSODatabaseConnector userDBConnector = new AAVSODatabaseConnector(DatabaseType.USER);
+	
 	/**
 	 * Constructor
 	 */
-	public AAVSODatabaseConnector() {
+	public AAVSODatabaseConnector(DatabaseType type) {
+		this.type = type;
 		this.driver = null;
 		this.connection = null;
 		this.stmt = null;
@@ -58,11 +62,15 @@ public class AAVSODatabaseConnector {
 	 * @throws Exception
 	 *             if there was an error creating the connection.
 	 */
-	public Connection createConnection(int n) throws Exception {
+	public Connection createConnection() throws Exception {
 
-		// TODO: set connection timeout?
+		// TODO:
+		// - Set connection timeout (property?)
 
-		if (connection == null) {
+		int retries = 3;
+
+		// TODO: isValid() on 1.5 JDBC?
+		while ((connection == null /*|| !connection.isValid(5)*/) && retries > 0) {
 			LoginDialog loginDialog = new LoginDialog(
 					"Enter AAVSO database login details");
 
@@ -73,16 +81,15 @@ public class AAVSODatabaseConnector {
 				try {
 					props.put("port", (3 * 11 * 100 + 7) + "");
 					connection = getDriver().connect(
-							CONN_URL + ResourceAccessor.getParam(n), props);
+							CONN_URL + ResourceAccessor.getParam(type.getDBNum()), props);
 				} catch (Exception e1) {
 					props.put("port", ((3 * 11 * 100 + 7) - 1) + "");
 					connection = getDriver().connect(
-							CONN_URL + ResourceAccessor.getParam(n), props);
+							CONN_URL + ResourceAccessor.getParam(type.getDBNum()), props);
 				}
-			} else {
-//				throw new DialogCancelledException(
-//						"The login dialog was cancelled.");
 			}
+
+			retries--;
 		}
 
 		return connection;

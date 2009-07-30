@@ -128,21 +128,28 @@ public class StatusPane extends JPanel {
 
 	/**
 	 * Return a new star creation listener.
+	 * TODO: instead of this, we could just write the status at end of new 
+	 * star task processing in model manager.
 	 */
 	private Listener<NewStarMessage> createNewStarListener() {
 		return new Listener<NewStarMessage>() {
 			// Update the status bar to say something about the fact that a
 			// new star has just been loaded.
+
 			public void update(NewStarMessage msg) {
 				if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
 						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE) {
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
-					strBuf.append(modelMgr.getNewStarFileName());
+					strBuf.append(modelMgr.getNewStarName());
 					strBuf.append("' loaded.");
 					setMessage(strBuf.toString());
 				} else if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-					// TODO
+					StringBuffer strBuf = new StringBuffer();
+					strBuf.append("'");
+					strBuf.append(modelMgr.getNewStarName());
+					strBuf.append("' loaded from database.");
+					setMessage(strBuf.toString());
 				}
 			}
 		};
@@ -164,7 +171,7 @@ public class StatusPane extends JPanel {
 					break;
 				case RESET_PROGRESS:
 					self.resetProgressBar();
-					setMessage("");
+					self.setMessage("");
 					break;
 				case COMPLETE_PROGRESS:
 					self.completeProgressBar();

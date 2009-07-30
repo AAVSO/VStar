@@ -39,8 +39,8 @@ public enum NewStarType {
 			AAVSOFormatFieldInfoSource.aavsoDownloadFormatFieldInfoSource),
 
 	NEW_STAR_FROM_DATABASE(0, 0,
-			AAVSOFormatFieldInfoSource.aavsoDownloadFormatFieldInfoSource,
-			AAVSOFormatFieldInfoSource.aavsoDownloadFormatFieldInfoSource);
+			AAVSOFormatFieldInfoSource.aavsoInternationalDatabaseFormatFieldInfoSource,
+			AAVSOFormatFieldInfoSource.aavsoInternationalDatabaseFormatFieldInfoSource);
 
 	private final int minFields;
 	private final int maxFields;
