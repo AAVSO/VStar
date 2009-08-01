@@ -43,9 +43,11 @@ public class AAVSODatabaseConnector {
 	private Connection connection;
 	private PreparedStatement stmt;
 
-	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(DatabaseType.OBSERVATION);
-	public static AAVSODatabaseConnector userDBConnector = new AAVSODatabaseConnector(DatabaseType.USER);
-	
+	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(
+			DatabaseType.OBSERVATION);
+	public static AAVSODatabaseConnector userDBConnector = new AAVSODatabaseConnector(
+			DatabaseType.USER);
+
 	/**
 	 * Constructor
 	 */
@@ -70,23 +72,48 @@ public class AAVSODatabaseConnector {
 		int retries = 3;
 
 		// TODO: isValid() on 1.5 JDBC?
-		while ((connection == null /*|| !connection.isValid(5)*/) && retries > 0) {
-			LoginDialog loginDialog = new LoginDialog(
-					"Enter AAVSO database login details");
+		while ((connection == null /* || !connection.isValid(5) */)
+				&& retries > 0) {
 
-			if (!loginDialog.isCancelled()) {
-				Properties props = new Properties();
-				props.put("user", loginDialog.getUsername());
-				props.put("password", new String(loginDialog.getPassword()));
+			Properties props = new Properties();
+
+			String username = null;
+			String password = null;
+
+			// TODO: change this to DatabaseType.USERS
+			if (DatabaseType.OBSERVATION.equals(type)) {
+				LoginDialog loginDialog = new LoginDialog(
+						"Enter AAVSO database login details");
+				if (!loginDialog.isCancelled()) {
+					username = loginDialog.getUsername();
+					password = new String(loginDialog.getPassword());
+				} else {
+					break;
+				}
+			} else {
+				// TODO: set username and password from OBSERVATION type
+			}
+
+			if (username != null && password != null) {
+				props.put("user", username);
+				props.put("password", password);
+
 				try {
 					props.put("port", (3 * 11 * 100 + 7) + "");
 					connection = getDriver().connect(
-							CONN_URL + ResourceAccessor.getParam(type.getDBNum()), props);
+							CONN_URL
+									+ ResourceAccessor
+											.getParam(type.getDBNum()), props);
 				} catch (Exception e1) {
 					props.put("port", ((3 * 11 * 100 + 7) - 1) + "");
 					connection = getDriver().connect(
-							CONN_URL + ResourceAccessor.getParam(type.getDBNum()), props);
+							CONN_URL
+									+ ResourceAccessor
+											.getParam(type.getDBNum()), props);
 				}
+			} else {
+				throw new IllegalArgumentException(
+						"Username or password are invalid.");
 			}
 
 			retries--;

@@ -189,14 +189,21 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createNewStarFromDatabaseListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: bring up dialog box for star and JD range selection
-				// (start with Epsilon Auriga)
-				String starName = "Eps Aur";
-				String auid = "000-BCT-905";
-				double minJD = 2454000.5;
-				double maxJD = 2454939.56597;
-				
-				modelMgr.createObservationArtefactsFromDatabase(starName, auid, minJD, maxJD);
+				// Prompt user for star and JD range selection.
+				MainFrame.getInstance().getStatusPane().setMessage(
+						"Select a star...");
+				StarSelectorDialog starSelectorDialog = new StarSelectorDialog();
+				if (!starSelectorDialog.isCancelled()) {
+					String starName = starSelectorDialog.getStarName();
+					String auid = starSelectorDialog.getAuid();
+					double minJD = starSelectorDialog.getMinDate().getJulianDay();
+					double maxJD = starSelectorDialog.getMaxDate().getJulianDay();
+					//double minJD = 2454000.5;
+					//double maxJD = 2454939.56597;
+
+					modelMgr.createObservationArtefactsFromDatabase(starName,
+							auid, minJD, maxJD);
+				}
 			}
 		};
 	}
@@ -349,7 +356,7 @@ public class MenuBar extends JMenuBar {
 		this.filePrintItem.setEnabled(state);
 
 		this.analysisRawDataItem.setEnabled(state);
-		this.analysisPhasePlotItem.setEnabled(state);
+		// this.analysisPhasePlotItem.setEnabled(state);
 		// this.analysisPeriodSearchItem.setEnabled(state);
 	}
 }
