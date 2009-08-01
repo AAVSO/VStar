@@ -72,7 +72,6 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 
 	/**
 	 * Create observation table and plot models from a file.
-	 * 
 	 */
 	protected boolean createDatabaseBasedObservationArtefacts() {
 
@@ -125,7 +124,6 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// Create table/plot models and GUI elements.
 			modelMgr.createObservationArtefacts(
 					NewStarType.NEW_STAR_FROM_DATABASE, starName, 2);
-
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
