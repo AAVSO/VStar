@@ -12,8 +12,8 @@ Product:
    jlfgr-1_0.jar (http://java.sun.com/developer/techDocs/hi/repository/)
 
  - MySQL JDBC:
-   mysql-connector-java-5.0.5-bin.jar (http://dev.mysql.com/downloads/connector/j/5.0.html)
- 
+   mysql-connector-java-5.1.8-bin.jar (http://dev.mysql.com/downloads/connector/j/5.1.html)
+   
 Unit Testing:
 - JUnit 3.8.2 (http://www.junit.org/)
 

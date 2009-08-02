@@ -33,7 +33,7 @@ public class ResourceAccessor {
 	// This file has had its "Revision" keyword property set via:
 	// svn propset svn:keywords "Revision" AboutBox.java
 	// such that upon all commits, the revision will be updated.
-	private static final String REVISION = "$Rev: 143 $";
+	private static final String REVISION = "$Rev: 147 $";
 
 	private static final Pattern revNumPat = Pattern
 			.compile("^\\$Rev: (\\d+) \\$$");
@@ -110,13 +110,22 @@ public class ResourceAccessor {
 		return new String(bytes);
 	}
 
+	// 0
 	private static int[] hdata = { 18093, 17127, 16137, 16781, 19729, 8878,
 			19109, 19303, 24898, 25645, 25197, 12466, 30747, 32034, 29149 };
 
+	// 1
 	private static int[] d0data = { 19234, 19895, 18908, 16781, 20634, 22388,
 			19897, 22885, 24476 };
 
+	// 2
 	private static int[] d1data = { 16300, 19722, 19071, 19376, 17557, 20844 };
+
+	// 3
+	private static int[] udata = { 19234, 19895, 18908, 16781, 20634, 22581, 22655, 20099, 24054 };
+
+	// 4
+	private static int[] sdata = { 11899, 15397, 10595, 8650, 8688, 9264, 11229, 16318, 23421, 22077, 24289, 31165, 9141 };
 
 	private static int[] pdata = { 163, 173, 163, 173, 181, 193, 197, 199, 211,
 			223, 227, 271, 277, 281, 283, 293, 307, 383, 389, 401, 409, 419,
@@ -124,5 +133,5 @@ public class ResourceAccessor {
 			587, 617, 619, 631, 643, 647, 653, 661, 701, 709, 743, 751, 757,
 			761, 769, 839, 853, 857, 859 };
 
-	private static int[][] data = { hdata, d0data, d1data };
+	private static int[][] data = { hdata, d0data, d1data, udata, sdata };
 }

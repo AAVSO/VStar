@@ -17,14 +17,21 @@
  */
 package org.aavso.tools.vstar.input.database;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.ui.LoginDialog;
+import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.MessageBox;
 import org.aavso.tools.vstar.ui.ResourceAccessor;
+import org.aavso.tools.vstar.ui.StatusPane;
 
 /**
  * This class handles the details of connecting to the MySQL AAVSO observation
@@ -32,6 +39,12 @@ import org.aavso.tools.vstar.ui.ResourceAccessor;
  * 
  * Portions of code were adapted (with permission) from the AAVSO Zapper code
  * base.
+ * 
+ * generateHexDigest() was adapted from Zapper UserInfo.encryptPassword()
+ * 
+ * TODO: - Handle the case where the connection becomes invalid but we try to
+ * use it, e.g. to create a statement or execute a query. We need to set the
+ * connection to null and open an error dialog.
  */
 public class AAVSODatabaseConnector {
 
@@ -41,7 +54,10 @@ public class AAVSODatabaseConnector {
 	private DatabaseType type;
 	private Driver driver;
 	private Connection connection;
-	private PreparedStatement stmt;
+	private PreparedStatement obsStmt;
+	private PreparedStatement authStmt;
+	private boolean authenticatedWithCitizenSky;
+	private String obsCode;
 
 	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.OBSERVATION);
@@ -55,7 +71,9 @@ public class AAVSODatabaseConnector {
 		this.type = type;
 		this.driver = null;
 		this.connection = null;
-		this.stmt = null;
+		this.obsStmt = null;
+		this.authenticatedWithCitizenSky = false;
+		this.obsCode = null;
 	}
 
 	/**
@@ -66,54 +84,25 @@ public class AAVSODatabaseConnector {
 	 */
 	public Connection createConnection() throws Exception {
 
-		// TODO:
-		// - Set connection timeout (property?)
-
 		int retries = 3;
 
-		// TODO: isValid() on 1.5 JDBC?
-		while ((connection == null /* || !connection.isValid(5) */)
-				&& retries > 0) {
+		while (connection == null && retries > 0) {
 
 			Properties props = new Properties();
 
-			String username = null;
-			String password = null;
+			props.put("user", ResourceAccessor.getParam(3));
+			props.put("password", ResourceAccessor.getParam(4));
 
-			// TODO: change this to DatabaseType.USERS
-			if (DatabaseType.OBSERVATION.equals(type)) {
-				LoginDialog loginDialog = new LoginDialog(
-						"Enter AAVSO database login details");
-				if (!loginDialog.isCancelled()) {
-					username = loginDialog.getUsername();
-					password = new String(loginDialog.getPassword());
-				} else {
-					break;
-				}
-			} else {
-				// TODO: set username and password from OBSERVATION type
-			}
-
-			if (username != null && password != null) {
-				props.put("user", username);
-				props.put("password", password);
-
-				try {
-					props.put("port", (3 * 11 * 100 + 7) + "");
-					connection = getDriver().connect(
-							CONN_URL
-									+ ResourceAccessor
-											.getParam(type.getDBNum()), props);
-				} catch (Exception e1) {
-					props.put("port", ((3 * 11 * 100 + 7) - 1) + "");
-					connection = getDriver().connect(
-							CONN_URL
-									+ ResourceAccessor
-											.getParam(type.getDBNum()), props);
-				}
-			} else {
-				throw new IllegalArgumentException(
-						"Username or password are invalid.");
+			try {
+				props.put("port", (3 * 11 * 100 + 7) + "");
+				connection = getDriver().connect(
+						CONN_URL + ResourceAccessor.getParam(type.getDBNum()),
+						props);
+			} catch (Exception e1) {
+				props.put("port", ((3 * 11 * 100 + 7) - 1) + "");
+				connection = getDriver().connect(
+						CONN_URL + ResourceAccessor.getParam(type.getDBNum()),
+						props);
 			}
 
 			retries--;
@@ -126,15 +115,19 @@ public class AAVSODatabaseConnector {
 	 * Return a prepared statement for the specified AUID and date range. This
 	 * is a once-only-created prepared statement with parameters set.
 	 * 
+	 * /** Return a prepared statement for the specified AUID and date range.
+	 * This is a once-only-created prepared statement with parameters set.
+	 * 
+	 * @return A prepared statement.
 	 * @return A prepared statement.
 	 */
 	public PreparedStatement createObservationQuery(Connection connection)
 			throws SQLException {
 
-		// TODO: also use ResultSet.TYPE_SCROLL_SENSITIVE for panning?
+		// TODO: also use ResultSet.TYPE_SCROLL_SENSITIVE for panning (later)?
 
-		if (stmt == null) {
-			stmt = connection
+		if (obsStmt == null) {
+			obsStmt = connection
 					.prepareStatement("SELECT\n"
 							+ "observations.JD AS jd,\n"
 							+ "observations.magnitude AS magnitude,\n"
@@ -167,14 +160,14 @@ public class AAVSODatabaseConnector {
 							+ "observations.JD;");
 		}
 
-		return stmt;
+		return obsStmt;
 	}
 
 	/**
 	 * Return a prepared statement for the specified AUID and date range. This
 	 * may be a once-only-created prepared statement with parameters set.
 	 * 
-	 * @param stmt
+	 * @param obsStmt
 	 *            The prepared statement on which to set parameters.
 	 * @param auid
 	 *            The star's AUID.
@@ -192,13 +185,94 @@ public class AAVSODatabaseConnector {
 	}
 
 	/**
+	 * Return a prepared statement for the specified CitizenSky user login. This
+	 * is a once-only-created prepared statement with parameters set for each
+	 * query execution.
+	 * 
+	 * @param connection
+	 *            database connection.
+	 * @return A prepared statement.
+	 */
+	public PreparedStatement createCitizenSkyLoginQuery(Connection connection)
+			throws SQLException {
+		if (authStmt == null) {
+			authStmt = connection
+					.prepareStatement("select users.name, users.pass from users where users.name = ?");
+		}
+
+		return authStmt;
+	}
+
+	/**
+	 * Authenticate with the CitizenSky database by prompting the user to enter
+	 * credentials in a dialog, throwing an exception upon failure after retries. 
+	 * A manifest reason for this authentication is to obtain the observer code.
+	 * 
+	 * @param statusBar
+	 *            Status bar component so we tell the user what's happening.
+	 */
+	public void authenticateWithCitizenSky(StatusPane statusBar)
+			throws Exception {
+
+		assert (this == userDBConnector);
+		
+		int retries = 3;
+		boolean cancelled = false;
+		
+		while (!cancelled && !authenticatedWithCitizenSky && retries > 0) {
+			LoginDialog loginDialog = new LoginDialog(
+					"CitizenSky Authentication");
+
+			if (!loginDialog.isCancelled()) {
+				String username = loginDialog.getUsername();
+				String suppliedPassword = new String(loginDialog.getPassword());
+				String passwordDigest = generateHexDigest(suppliedPassword);
+
+				// Login to CitizenSky if we haven't done so already.
+				statusBar.setMessage("Checking CitizenSky credentials...");
+				Connection userConnection = createConnection();
+
+				// Get a prepared statement to read a user details
+				// from the database, setting the parameters for user
+				// who is logging in.
+				PreparedStatement userStmt = createCitizenSkyLoginQuery(userConnection);
+				userStmt.setString(1, username);
+
+				ResultSet userResults = userStmt.executeQuery();
+
+				if (userResults.next()) {
+					String actualPassword = userResults.getString("pass");
+					if (passwordDigest.equals(actualPassword)) {
+						authenticatedWithCitizenSky = true;
+					} else {
+						retries--;
+					}
+				}
+			} else {
+				cancelled = true;
+			}
+		}
+		
+		if (!authenticatedWithCitizenSky) {
+			throw new AuthenticationError("Unable to authenticate.");
+		}
+	}
+
+	/**
+	 * @return the obsCode
+	 */
+	public String getObsCode() {
+		return obsCode;
+	}
+
+	/**
 	 * Get an instance of a MySQL database JDBC driver class.
 	 * 
 	 * @return The driver class instance.
 	 * @throws SQLException
 	 *             If there was a problem creating this instance.
 	 */
-	public Driver getDriver() throws SQLException, ClassCastException,
+	protected Driver getDriver() throws SQLException, ClassCastException,
 			ClassNotFoundException, InstantiationException,
 			IllegalAccessException {
 		if (driver == null) {
@@ -207,5 +281,34 @@ public class AAVSODatabaseConnector {
 			driver = (Driver) driverClass.newInstance();
 		}
 		return driver;
+	}
+
+	/**
+	 * Generate a string consisting of 2 hex digits per byte of a MD5 message
+	 * digest.
+	 * 
+	 * @param str
+	 *            the string to generate a digest from
+	 * @return the message digest as hex digits
+	 */
+	protected static String generateHexDigest(String str) {
+		String digest = null;
+
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.reset();
+			md.update(str.getBytes());
+			byte messageDigest[] = md.digest();
+			StringBuffer hexString = new StringBuffer();
+			for (int byteVal : messageDigest) {
+				hexString.append(String.format("%02x", 0xFF & byteVal));
+			}
+			digest = hexString.toString();
+		} catch (NoSuchAlgorithmException e) {
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					"Error generating digest", e);
+		}
+
+		return digest;
 	}
 }
