@@ -34,6 +34,7 @@ import org.jdesktop.swingworker.SwingWorker;
  */
 public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	private ModelManager modelMgr = ModelManager.getInstance();
+	private StatusPane statusBar = MainFrame.getInstance().getStatusPane();
 
 	private String starName;
 	private String auid;
@@ -75,34 +76,37 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	 */
 	protected boolean createDatabaseBasedObservationArtefacts() {
 
-		StatusPane statusBar = MainFrame.getInstance().getStatusPane();
-
 		boolean success = true;
 
 		try {
-			// Connect to the database if we haven't already done so.
-			statusBar.setMessage("Connecting to AAVSO database...");
-			AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
-
-			Connection connection = connector.createConnection();
+			// CitizenSky authentication.
+			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.userDBConnector;
+			userConnector.authenticateWithCitizenSky(statusBar);
 			updateProgress(2);
+
+			// TODO: query for user code
+			
+			// Connect to the observation database if we haven't already
+			// done so.
+			statusBar.setMessage("Connecting to AAVSO database...");
+			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
+
+			Connection obsConnection = obsConnector.createConnection();
 
 			// Get a prepared statement to read a set of observations
 			// from the database, setting the parameters for the star
-			// we are targetting.
-			statusBar.setMessage("Preparing query...");
-			PreparedStatement stmt = connector
-					.createObservationQuery(connection);
+			// we are targeting.
+			PreparedStatement obsStmt = obsConnector
+					.createObservationQuery(obsConnection);
 			updateProgress(2);
-
-			connector.setObservationQueryParams(stmt, auid, minJD, maxJD);
 
 			// Execute the query, passing the result set to the
 			// database observation retriever to give us the valid
 			// and observation lists and categorised valid observation
 			// map from which all else flows.
+			obsConnector.setObservationQueryParams(obsStmt, auid, minJD, maxJD);
 			statusBar.setMessage("Retrieving observations...");
-			ResultSet results = stmt.executeQuery();
+			ResultSet results = obsStmt.executeQuery();
 			updateProgress(2);
 
 			AAVSODatabaseObservationReader databaseObsReader = new AAVSODatabaseObservationReader(
@@ -120,6 +124,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 					.getInvalidObservations());
 			modelMgr.setValidObservationCategoryMap(databaseObsReader
 					.getValidObservationCategoryMap());
+
+			updateProgress(2);
 
 			// Create table/plot models and GUI elements.
 			modelMgr.createObservationArtefacts(

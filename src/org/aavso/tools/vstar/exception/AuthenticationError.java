@@ -18,15 +18,15 @@
 package org.aavso.tools.vstar.exception;
 
 /**
- * This exception can be thrown if a dialog was cancelled.
+ * This exception can be thrown if there was an authentication error.
  */
-public class DialogCancelledException extends Exception {
+public class AuthenticationError extends Exception {
 
-	public DialogCancelledException() {
+	public AuthenticationError() {
 		super();
 	}
 	
-	public DialogCancelledException(String msg) {
+	public AuthenticationError(String msg) {
 		super(msg);
 	}
 }

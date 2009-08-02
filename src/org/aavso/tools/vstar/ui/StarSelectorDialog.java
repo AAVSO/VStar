@@ -31,6 +31,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -103,6 +104,9 @@ public class StarSelectorDialog extends JDialog {
 		this.setVisible(true);
 	}
 
+	// We know the AUID of the CitizenSky ten-stars, so there is
+	// no need to query the database for these.
+	// TODO: put these in a properties file?
 	private void createTenStarMap() {
 		tenStarMap = new TreeMap<String, String>();
 		tenStarMap.put("Alpha Orionis", "000-BDY-978");
@@ -195,12 +199,12 @@ public class StarSelectorDialog extends JDialog {
 
 	// TODO: may want to get rid of all action listeners except for
 	// buttons
-	
+
 	// Return a listener for the 10-star selector.
 	private ActionListener createTenStarSelectorActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//checkInput();
+				// checkInput();
 			}
 		};
 	}
@@ -209,7 +213,7 @@ public class StarSelectorDialog extends JDialog {
 	private ActionListener createStarFieldActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//checkInput();
+				// checkInput();
 			}
 		};
 	}
@@ -218,7 +222,7 @@ public class StarSelectorDialog extends JDialog {
 	private ActionListener createMinJDFieldActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//checkInput();
+				// checkInput();
 			}
 		};
 	}
@@ -227,7 +231,7 @@ public class StarSelectorDialog extends JDialog {
 	private ActionListener createMaxJDFieldActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//checkInput();
+				// checkInput();
 			}
 		};
 	}
@@ -254,10 +258,10 @@ public class StarSelectorDialog extends JDialog {
 
 	private void checkInput() {
 		// TODO: check if text box is empty; if so, prioritise
-		
+
 		starName = (String) tenStarSelector.getSelectedItem();
 		auid = tenStarMap.get(starName);
-		
+
 		try {
 			minDate = jdValidator.validate(minJDField.getText());
 		} catch (ObservationValidationError ex) {
