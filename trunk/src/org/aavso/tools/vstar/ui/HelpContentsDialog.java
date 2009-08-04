@@ -71,7 +71,7 @@ public class HelpContentsDialog extends JDialog {
 		JScrollPane editorScrollPane = new JScrollPane(editorPane);
 		editorScrollPane
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		editorScrollPane.setPreferredSize(new Dimension(500, 500));
+		editorScrollPane.setPreferredSize(new Dimension(600, 600));
 		editorScrollPane.setMinimumSize(new Dimension(100, 100));
 
 		return editorScrollPane;
