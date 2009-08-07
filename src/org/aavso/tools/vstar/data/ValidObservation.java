@@ -46,7 +46,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 
 	private DateInfo dateInfo = null; // Julian Day, calendar date
 	private Magnitude magnitude = null; // magnitude, uncertainty,
-										// fainter/brighter-than
+	// fainter/brighter-than
 	private Double hqUncertainty = null;
 	private String band = null;
 	private String obsCode = null;
@@ -67,6 +67,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	private String name = null;
 	private String mType = null; // TODO: make an enum
 
+	private boolean visible = true;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -138,7 +140,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 		// TODO: Should we keep a record of the last known value of
 		// this field before it was marked as discrepant? Right now,
 		// we are going from {G,D,P} -> D -> G -> D -> G ... so we are
-		// potentially losing information. This is a good candidate 
+		// potentially losing information. This is a good candidate
 		// for undoable edits.
 		this.validationType = discrepant ? ValidationType.DISCREPANT
 				: ValidationType.GOOD;
@@ -375,14 +377,95 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 
 		if (name != null) {
 			strBuf.append(name);
-			strBuf.append(", ");
+			strBuf.append("\n");
 		}
+
+		strBuf.append("Geocentric Date: ");
 		strBuf.append(dateInfo);
-		strBuf.append(", ");
+		strBuf.append("\n");
+
 		strBuf.append(magnitude);
-		strBuf.append(", Observer code: ");
-		strBuf.append(obsCode);
-		strBuf.append(validationType.getValflag());
+
+		if (obsCode != null) {
+			strBuf.append("Observer code: ");
+			strBuf.append(obsCode);
+			strBuf.append("\n");
+		}
+
+		if (validationType != null) {
+			strBuf.append("Validation flag: ");
+			strBuf.append(validationType.getValflag());
+			strBuf.append("\n");
+		}
+
+		if (hqUncertainty != null) {
+			strBuf.append("HQ Uncertainty: ");
+			strBuf.append(hqUncertainty);
+			strBuf.append("\n");
+		}
+		if (band != null) {
+			strBuf.append("Band: ");
+			strBuf.append(band);
+			strBuf.append("\n");
+		}
+		if (obsCode != null) {
+			strBuf.append("Observer Code: ");
+			strBuf.append(obsCode);
+			strBuf.append("\n");
+		}
+		if (commentCode != null) {
+			strBuf.append("Comment Code: ");
+			strBuf.append(commentCode);
+			strBuf.append("\n");
+		}
+		if (compStar1 != null) {
+			strBuf.append("Comparison Star 1: ");
+			strBuf.append(compStar1);
+			strBuf.append("\n");
+		}
+		if (compStar2 != null) {
+			strBuf.append("Comparison Star 2: ");
+			strBuf.append(compStar2);
+			strBuf.append("\n");
+		}
+		if (charts != null) {
+			strBuf.append("Charts: ");
+			strBuf.append(charts);
+			strBuf.append("\n");
+		}
+		if (comments != null) {
+			strBuf.append("Comments: ");
+			strBuf.append(comments);
+			strBuf.append("\n");
+		}
+
+		strBuf.append("Transformed: ");
+		strBuf.append(transformed ? "yes" : "no");
+		strBuf.append("\n");
+
+		if (airmass != null) {
+			strBuf.append("Airmass: ");
+			strBuf.append(airmass);
+			strBuf.append("\n");
+		}
+
+		if (cMag != null) {
+			strBuf.append("CMag: ");
+			strBuf.append(cMag);
+			strBuf.append("\n");
+		}
+
+		if (kMag != null) {
+			strBuf.append("KMag: ");
+			strBuf.append(kMag);
+			strBuf.append("\n");
+		}
+		
+		if (hJD != null) {
+			strBuf.append("Heliocentric Julian Day: ");
+			strBuf.append(hJD);
+			strBuf.append("\n");
+		}
 
 		return strBuf.toString();
 	}
@@ -395,5 +478,19 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 
 	public double getMag() {
 		return this.magnitude.getMagValue();
+	}
+
+	/**
+	 * @return the visible
+	 */
+	public boolean isVisible() {
+		return visible;
+	}
+
+	/**
+	 * @param visible the visible to set
+	 */
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 }
