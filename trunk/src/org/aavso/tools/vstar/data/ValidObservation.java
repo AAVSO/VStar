@@ -371,7 +371,6 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 		this.mType = mType;
 	}
 
-	// TODO: complete for all fields!
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 
@@ -384,7 +383,9 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 		strBuf.append(dateInfo);
 		strBuf.append("\n");
 
+		strBuf.append("Magnitude: ");
 		strBuf.append(magnitude);
+		strBuf.append("\n");
 
 		if (obsCode != null) {
 			strBuf.append("Observer code: ");

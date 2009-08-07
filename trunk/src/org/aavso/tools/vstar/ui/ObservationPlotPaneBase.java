@@ -18,8 +18,11 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -32,26 +35,35 @@ import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.event.ChartProgressEvent;
+import org.jfree.chart.event.ChartProgressListener;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 
 /**
  * This class is the base class for chart panes containing a plot of a set of
  * valid observations. It is genericised on observation model.
  */
-abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends
-		JPanel {
+abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
+		extends JPanel implements ChartProgressListener, ChartMouseListener {
 
 	protected T obsModel;
 
-	private ChartPanel chartPanel;
+	protected JFreeChart chart;
 
-	private JPanel chartControlPanel;
+	protected ChartPanel chartPanel;
 
-	private JTextArea obsInfo;
+	protected JPanel chartControlPanel;
+
+	protected JTextArea obsInfo;
 
 	// We use this renderer in order to be able to plot error bars.
 	// TODO: or should we use StatisticalLineAndShapeRenderer? (for means plot?)
@@ -89,7 +101,7 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel> ex
 
 		this.chartPanel.setPreferredSize(bounds);
 
-		JFreeChart chart = chartPanel.getChart();
+		chart = chartPanel.getChart();
 
 		this.renderer = new XYErrorRenderer();
 		this.renderer.setDrawYError(this.showErrorBars);
@@ -102,6 +114,8 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel> ex
 		}
 
 		chart.getXYPlot().setRenderer(renderer);
+
+		setupCrossHairs();
 
 		setSeriesAppearance();
 
@@ -198,32 +212,57 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel> ex
 
 	protected boolean invokeSeriesVisibilityChangeDialog() {
 		boolean delta = false;
-		
-		SeriesVisibilityDialog dialog = new SeriesVisibilityDialog(
-				obsModel);
+
+		SeriesVisibilityDialog dialog = new SeriesVisibilityDialog(obsModel);
 		if (!dialog.isCancelled()) {
-			Map<Integer, Boolean> deltaMap = dialog
-					.getVisibilityDeltaMap();
+			Map<Integer, Boolean> deltaMap = dialog.getVisibilityDeltaMap();
 			for (int seriesNum : deltaMap.keySet()) {
 				boolean visibility = deltaMap.get(seriesNum);
 				delta |= obsModel.changeSeriesVisibility(seriesNum, visibility);
 				renderer.setSeriesVisible(seriesNum, visibility);
 			}
 		}
-		
+
 		return delta;
 	}
-	
+
 	/**
 	 * Set the appearance of each series with respect to size, shape, and color.
 	 */
 	private void setSeriesAppearance() {
-		// TODO: should probably have BandType later...
-		// for (BandType band : obsModel.getBandIDs()) {
-		// renderer.setSeriesShape(1, new Rectangle2D.Double(2, 2, 3, 3));
-		// }
 		// for (int i=0;i<obsModel.getSeriesCount();i++) {
 		// renderer.setSeriesShape(i, new Rectangle2D.Double(-1,-1,3,3));
 		// }
+	}
+
+	// Cross hair handling methods.
+
+	private void setupCrossHairs() {
+		chart.getXYPlot().setDomainCrosshairValue(0);
+		chart.getXYPlot().setRangeCrosshairValue(0);
+
+		chart.getXYPlot().setDomainCrosshairVisible(true);
+		chart.getXYPlot().setRangeCrosshairVisible(true);
+
+		chartPanel.addChartMouseListener(this);
+	}
+
+	// From ChartProgressListener
+	public void chartProgress(ChartProgressEvent arg0) {
+	}
+
+	// From ChartMouseListener
+	public void chartMouseClicked(ChartMouseEvent event) {
+		if (event.getEntity() instanceof XYItemEntity) {
+			XYItemEntity entity = (XYItemEntity) event.getEntity();
+			int series = entity.getSeriesIndex();
+			int item = entity.getItem();
+			obsInfo.setText(obsModel.getValidObservation(series, item)
+					.toString());
+		}
+	}
+
+	// From ChartMouseListener
+	public void chartMouseMoved(ChartMouseEvent event) {
 	}
 }
