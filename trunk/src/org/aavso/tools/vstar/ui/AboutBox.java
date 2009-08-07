@@ -72,8 +72,8 @@ public class AboutBox {
 		strBuf
 				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.\n\n");
 
-		strBuf.append("Thanks also to the following people for testing VStar:\n\n");
-		strBuf.append("  Michael Umbricht (and others to be added).");
+		strBuf.append("Thanks also to Michael Umbricht for testing, bug reports,\n");
+		strBuf.append("great conversations, and beer.\n");
 
 		MessageBox.showMessageDialog(parent, "About VStar", strBuf.toString(),
 				ResourceAccessor.getIconResource("/images/tenstar_artist_conception1.jpg"));

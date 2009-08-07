@@ -17,9 +17,9 @@
  */
 package org.aavso.tools.vstar.ui.model;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.Listener;
@@ -52,8 +52,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements L
 	public ObservationPlotModel() {
 		super();
 		this.seriesNum = 0;
-		this.seriesNumToSrcNameMap = new HashMap<Integer, String>();
-		this.seriesNumToObSrcListMap = new HashMap<Integer, List<ValidObservation>>();
+		this.seriesNumToSrcNameMap = new TreeMap<Integer, String>();
+		this.seriesNumToObSrcListMap = new TreeMap<Integer, List<ValidObservation>>();
 	}
 
 	/**
@@ -167,6 +167,14 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements L
 		return this.seriesNumToSrcNameMap.get(series);
 	}
 
+	/**
+	 * Get an array of series keys.
+	 * @return The number of series keys.
+	 */
+	public String[] getSeriesKeys() {
+		return this.seriesNumToSrcNameMap.keySet().toArray(new String[0]);
+	}
+	
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getItemCount(int)
 	 * @return The number of observations (items) in the requested series.

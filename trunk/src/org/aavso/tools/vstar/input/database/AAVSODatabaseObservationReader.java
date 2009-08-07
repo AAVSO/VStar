@@ -31,6 +31,7 @@ import org.aavso.tools.vstar.input.ObservationRetrieverBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.MessageBox;
+import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This class reads variable star observations from an AAVSO database and yields
@@ -90,25 +91,33 @@ public class AAVSODatabaseObservationReader extends ObservationRetrieverBase {
 			ob.setDateInfo(new DateInfo(source.getDouble("jd")));
 			ob.setMagnitude(getNextMagnitude());
 			ob.setHqUncertainty(source.getDouble("hq_uncertainty"));
-			// TODO: convert band from num (as string)! 
+			// TODO: convert band from num (as string)!
 			// http://www.aavso.org/vstarwiki/index.php/Bands
-			ob.setBand(getNextPossiblyNullString("band"));
+			String bandName = SeriesType.UNKNOWN.getName();
+			String bandNum = getNextPossiblyNullString("band");
+			if (bandNum != null && !"".equals(bandNum)) {
+				int num = Integer.parseInt(bandNum);
+				if (num >= 0 && num <= 35) {
+					bandName = SeriesType.getNameFromIndex(num);
+				}
+			}
+			ob.setBand(bandName);
 			ob.setObsCode(getNextPossiblyNullString("observer_code"));
 			ob.setCommentCode(getNextPossiblyNullString("comment_code"));
 			ob.setCompStar1(getNextPossiblyNullString("comp_star_1"));
 			ob.setCompStar2(getNextPossiblyNullString("comp_star_2"));
 			ob.setCharts(getNextPossiblyNullString("charts"));
 			ob.setComments(getNextPossiblyNullString("comments"));
-			
+
 			ob.setTransformed("yes"
 					.equals(getNextPossiblyNullString("transformed")) ? true
 					: false);
-			
+
 			ob.setAirmass(getNextPossiblyNullString("airmass"));
 			ob.setValidationType(getNextValidationType());
 			ob.setCMag(getNextPossiblyNullString("cmag"));
 			ob.setKMag(getNextPossiblyNullString("kmag"));
-			
+
 			Double hjd = getNextPossiblyNullDouble("hjd");
 			ob.setHJD(hjd != null ? new DateInfo(hjd) : null);
 
@@ -144,22 +153,17 @@ public class AAVSODatabaseObservationReader extends ObservationRetrieverBase {
 
 	/*
 	 * According to:
-	 *   http://www.aavso.org/vstarwiki/index.php/AAVSO_International_Database_Schema
-	 * we have:
-	 *   Z = Prevalidated
-	 *   P = Published observation
-	 *   T = Discrepant
-	 *   V = Good
-	 *   Y = Deleted
-	 * Our query converts any occurrence of 'T' to 'D'.
-	 * Currently we convert everything to Good, Discrepant, or Prevalidated below.
-	 * TODO: rationalise/fix!
+	 * http://www.aavso.org/vstarwiki/index.php/AAVSO_International_Database_Schema
+	 * we have: Z = Prevalidated P = Published observation T = Discrepant V =
+	 * Good Y = Deleted Our query converts any occurrence of 'T' to 'D'.
+	 * Currently we convert everything to Good, Discrepant, or Prevalidated
+	 * below. TODO: rationalise/fix!
 	 */
 	private ValidationType getNextValidationType() throws SQLException {
 		ValidationType type;
 
 		String valflag = getNextPossiblyNullString("valflag");
-		
+
 		if ("Z".equals(valflag)) {
 			type = ValidationType.PREVALIDATION;
 		} else if ("D".equals(valflag)) {
@@ -167,7 +171,7 @@ public class AAVSODatabaseObservationReader extends ObservationRetrieverBase {
 		} else {
 			type = ValidationType.GOOD;
 		}
-		
+
 		return type;
 	}
 

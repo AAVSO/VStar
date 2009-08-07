@@ -189,20 +189,28 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createNewStarFromDatabaseListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Prompt user for star and JD range selection.
-				MainFrame.getInstance().getStatusPane().setMessage(
-						"Select a star...");
-				StarSelectorDialog starSelectorDialog = new StarSelectorDialog();
-				if (!starSelectorDialog.isCancelled()) {
-					String starName = starSelectorDialog.getStarName();
-					String auid = starSelectorDialog.getAuid();
-					double minJD = starSelectorDialog.getMinDate().getJulianDay();
-					double maxJD = starSelectorDialog.getMaxDate().getJulianDay();
-					//double minJD = 2454000.5;
-					//double maxJD = 2454939.56597;
+				try {
+					// Prompt user for star and JD range selection.
+					MainFrame.getInstance().getStatusPane().setMessage(
+							"Select a star...");
+					StarSelectorDialog starSelectorDialog = new StarSelectorDialog();
+					if (!starSelectorDialog.isCancelled()) {
+						String starName = starSelectorDialog.getStarName();
+						String auid = starSelectorDialog.getAuid();
+						double minJD = starSelectorDialog.getMinDate()
+								.getJulianDay();
+						double maxJD = starSelectorDialog.getMaxDate()
+								.getJulianDay();
+						// double minJD = 2454000.5;
+						// double maxJD = 2454939.56597;
 
-					modelMgr.createObservationArtefactsFromDatabase(starName,
-							auid, minJD, maxJD);
+						modelMgr.createObservationArtefactsFromDatabase(
+								starName, auid, minJD, maxJD);
+					}
+				} catch (Exception ex) {
+					MessageBox.showErrorDialog(MainFrame.getInstance(),
+							"Star Selection", ex);
+					MainFrame.getInstance().getStatusPane().setMessage("");
 				}
 			}
 		};

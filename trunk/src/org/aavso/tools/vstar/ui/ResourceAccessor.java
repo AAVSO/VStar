@@ -114,6 +114,8 @@ public class ResourceAccessor {
 	private static int[] hdata = { 18093, 17127, 16137, 16781, 19729, 8878,
 			19109, 19303, 24898, 25645, 25197, 12466, 30747, 32034, 29149 };
 
+//	private static int[] hdata = { 15811, 18165, 16300 };
+	
 	// 1
 	private static int[] d0data = { 19234, 19895, 18908, 16781, 20634, 22388,
 			19897, 22885, 24476 };

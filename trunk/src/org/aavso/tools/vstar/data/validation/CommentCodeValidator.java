@@ -40,7 +40,7 @@ public class CommentCodeValidator extends StringValidatorBase<String> {
 	public CommentCodeValidator(String commentCodePatternStr) {
 		super(KIND);
 		this.regexValidator = new RegexValidator("^(" + commentCodePatternStr
-				+ ")$", KIND);
+				+ ")+$", KIND);
 	}
 
 	public String validate(String str)

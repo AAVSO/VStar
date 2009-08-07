@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -55,6 +56,13 @@ public class ObservationAndMeanPlotPane extends
 		this.joinMeans = true;
 
 		addToChartControlPanel(this.getChartControlPanel());
+		
+		// TODO: This is temporary; we will ultimately handle this via
+		// enum values.
+		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
+		if (meanSeriesNum != ObservationAndMeanPlotModel.NO_MEANS_SERIES) {
+			this.getRenderer().setSeriesPaint(meanSeriesNum, Color.BLUE);
+		}
 	}
 
 	// Add means-specific widgets to chart control panel.

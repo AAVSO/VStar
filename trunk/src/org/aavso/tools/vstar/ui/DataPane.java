@@ -124,7 +124,7 @@ public class DataPane extends JPanel {
 	}
 
 	private String noSomethingYet(String s) {
-		return s + " not available yet.";
+		return "No '" + s.toLowerCase() + "' yet.";
 	}
 
 	/**
@@ -143,7 +143,7 @@ public class DataPane extends JPanel {
 					JPanel obsAndMeanPane = msg.getObsAndMeanChartPane();
 					JPanel obsListPane = msg.getObsTablePane();
 					JPanel meansListPane = msg.getMeansListPane();
-					
+
 					if (obsPlotPane != null && obsListPane != null
 							&& obsAndMeanPane != null) {
 						setCard(ModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
@@ -154,8 +154,13 @@ public class DataPane extends JPanel {
 						// TODO: pass modelMgr around in message, Actors style?
 						modelMgr.changeMode(ModeType.PLOT_OBS_MODE);
 					} else {
-						MessageBox.showErrorDialog(parent, "New Star...",
-								"Error in observation source.");
+						String errMsg = null;
+						if (modelMgr.getValidObsList().isEmpty()) {
+							errMsg = "No observations for the specified period.";
+						} else {
+							errMsg = "Error in observation source.";
+						}
+						MessageBox.showErrorDialog(parent, "New Star...", errMsg);
 					}
 				}
 			}

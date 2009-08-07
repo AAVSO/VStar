@@ -81,7 +81,7 @@ public class ObservationListPane extends JPanel {
 
 		if (invalidDataModel != null) {
 			invalidDataTable = new JTable(invalidDataModel);
-			//invalidDataTable.setAutoCreateRowSorter(true);
+//			invalidDataTable.setAutoCreateRowSorter(true);
 			invalidDataScrollPane = new JScrollPane(invalidDataTable);
 		}
 
