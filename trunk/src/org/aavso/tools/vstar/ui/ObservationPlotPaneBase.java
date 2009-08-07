@@ -18,14 +18,10 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -38,14 +34,10 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.chart.event.ChartProgressEvent;
-import org.jfree.chart.event.ChartProgressListener;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 
 /**
@@ -53,7 +45,7 @@ import org.jfree.chart.renderer.xy.XYErrorRenderer;
  * valid observations. It is genericised on observation model.
  */
 abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
-		extends JPanel implements ChartProgressListener, ChartMouseListener {
+		extends JPanel implements ChartMouseListener {
 
 	protected T obsModel;
 
@@ -134,16 +126,6 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 				BoxLayout.LINE_AXIS));
 		createChartControlPanel(chartControlPanel);
 		this.add(chartControlPanel);
-
-		this.add(Box.createRigidArea(new Dimension(0, 10)));
-
-		// Create the observation information text area.
-		this.obsInfo = new JTextArea();
-		obsInfo.setBorder(BorderFactory.createEtchedBorder());
-		obsInfo.setPreferredSize(new Dimension((int) (bounds.width),
-				(int) (bounds.height * 0.1)));
-		obsInfo.setEditable(false);
-		this.add(obsInfo);
 	}
 
 	/**
@@ -247,22 +229,18 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 		chartPanel.addChartMouseListener(this);
 	}
 
-	// From ChartProgressListener
-	public void chartProgress(ChartProgressEvent arg0) {
-	}
-
 	// From ChartMouseListener
 	public void chartMouseClicked(ChartMouseEvent event) {
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
-			obsInfo.setText(obsModel.getValidObservation(series, item)
-					.toString());
+			new ObservationInfoDialog(obsModel.getValidObservation(series, item));
 		}
 	}
+	
 
-	// From ChartMouseListener
-	public void chartMouseMoved(ChartMouseEvent event) {
+	public void chartMouseMoved(ChartMouseEvent arg0) {
+		// Nothing to do here.
 	}
 }

@@ -43,7 +43,6 @@ public class SeriesVisibilityDialog extends JDialog {
 
 	private ObservationPlotModel obsPlotModel;
 	private Container contentPane;
-	// private Map<String, JCheckBox> seriesCheckBoxMap;
 	private Map<Integer, Boolean> visibilityDeltaMap;
 
 	private boolean cancelled;
@@ -61,7 +60,6 @@ public class SeriesVisibilityDialog extends JDialog {
 
 		this.obsPlotModel = obsPlotModel;
 
-		// seriesCheckBoxMap = new TreeMap<String, JCheckBox>();
 		visibilityDeltaMap = new HashMap<Integer, Boolean>();
 
 		contentPane = this.getContentPane();
@@ -97,7 +95,6 @@ public class SeriesVisibilityDialog extends JDialog {
 				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(
 						seriesNum);
 				checkBox.setSelected(vis);
-				// seriesCheckBoxMap.put(seriesName, checkBox);
 				panel.add(checkBox);
 				panel.add(Box.createRigidArea(new Dimension(10, 10)));
 			}
@@ -116,10 +113,6 @@ public class SeriesVisibilityDialog extends JDialog {
 		JButton okButton = new JButton("OK");
 		okButton.addActionListener(createOKButtonListener());
 		panel.add(okButton, BorderLayout.LINE_END);
-
-		// JButton cancelButton = new JButton("Dismiss");
-		// cancelButton.addActionListener(createDismissButtonListener());
-		// panel.add(cancelButton, BorderLayout.LINE_START);
 
 		return panel;
 	}
@@ -156,21 +149,6 @@ public class SeriesVisibilityDialog extends JDialog {
 				dispose();
 			}
 		};
-	}
-
-	// Return a listener for the "dismiss" button.
-	// private ActionListener createDismissButtonListener() {
-	// return new ActionListener() {
-	// public void actionPerformed(ActionEvent e) {
-	// cancelled = true;
-	// setVisible(false);
-	// dispose();
-	// }
-	// };
-	// }
-
-	private void checkInput() {
-		// TODO: nothing?
 	}
 
 	/**
