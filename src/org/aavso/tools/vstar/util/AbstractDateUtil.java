@@ -32,7 +32,7 @@ public abstract class AbstractDateUtil {
 	 * 
 	 * @return The concrete AbstractDateUtil Singleton instance.
 	 */
-	public AbstractDateUtil getInstance() {
+	public static AbstractDateUtil getInstance() {
 		return dateUtilInstance;
 	}
 

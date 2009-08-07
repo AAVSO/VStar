@@ -22,6 +22,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -31,18 +32,20 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.util.AbstractDateUtil;
 
 /**
  * This dialog allows the user to select a star.
  */
 public class StarSelectorDialog extends JDialog {
+
+	private static AbstractDateUtil dateUtil = AbstractDateUtil.getInstance();
 
 	private Map<String, String> tenStarMap;
 
@@ -62,6 +65,9 @@ public class StarSelectorDialog extends JDialog {
 
 	private boolean cancelled;
 
+	private Calendar cal;
+	private int year, month, day;
+	
 	/**
 	 * Constructor
 	 */
@@ -79,6 +85,11 @@ public class StarSelectorDialog extends JDialog {
 
 		this.cancelled = false;
 
+		cal = Calendar.getInstance();
+		year = cal.get(Calendar.YEAR);
+		month = cal.get(Calendar.MONTH)+1; // 0..11 -> 1..12
+		day = cal.get(Calendar.DAY_OF_MONTH);
+		
 		createTenStarMap();
 
 		contentPane = this.getContentPane();
@@ -86,7 +97,12 @@ public class StarSelectorDialog extends JDialog {
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		topPane
+				.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
 
+		// topPane.add(new
+		// JLabel("Select star from drop-down or\nenter name/AUID/alias"));
+		// topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createTenStarSelectorPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createStarFieldPane());
@@ -159,9 +175,11 @@ public class StarSelectorDialog extends JDialog {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Minimum Julian Day"));
 
-		minJDField = new JTextField("2450000");
+		double jd = dateUtil.calendarToJD(year-2, month, day);
+		minJDField = new JTextField(jd + "");
 		minJDField.addActionListener(createMinJDFieldActionListener());
-		minJDField.setToolTipText("Enter minimum Julian Day in required range");
+		minJDField
+				.setToolTipText(dateUtil.jdToCalendar(jd));
 		panel.add(minJDField);
 
 		return panel;
@@ -172,9 +190,11 @@ public class StarSelectorDialog extends JDialog {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Maximum Julian Day"));
 
-		maxJDField = new JTextField("2460000");
+		double jd = dateUtil.calendarToJD(year, month, day);
+		maxJDField = new JTextField(jd + "");
 		maxJDField.addActionListener(createMaxJDFieldActionListener());
-		maxJDField.setToolTipText("Enter maximum Julian Day in required range");
+		maxJDField
+				.setToolTipText(dateUtil.jdToCalendar(jd));
 		panel.add(maxJDField);
 
 		return panel;

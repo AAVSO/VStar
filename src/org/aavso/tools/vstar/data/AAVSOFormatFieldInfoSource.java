@@ -31,8 +31,10 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 		ITableFieldInfoSource {
 
 	// Singleton values for AAVSO download and database sources.
-	public static final AAVSOFormatFieldInfoSource aavsoDownloadFormatFieldInfoSource = new AAVSOFormatFieldInfoSource(true);
-	public static final AAVSOFormatFieldInfoSource aavsoInternationalDatabaseFormatFieldInfoSource = new AAVSOFormatFieldInfoSource(false);
+	public static final AAVSOFormatFieldInfoSource aavsoDownloadFormatFieldInfoSource = new AAVSOFormatFieldInfoSource(
+			true);
+	public static final AAVSOFormatFieldInfoSource aavsoInternationalDatabaseFormatFieldInfoSource = new AAVSOFormatFieldInfoSource(
+			false);
 
 	// Text format fields.
 	private static final int JD_FIELD = 0;
@@ -85,15 +87,16 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 	private Map<String, Integer> fieldIndexMap;
 
 	private boolean useLineNumbers;
-	
+
 	/**
 	 * Constructor.
 	 * 
-	 * @param Should line numbers be used?
+	 * @param Should
+	 *            line numbers be used?
 	 */
 	private AAVSOFormatFieldInfoSource(boolean useLineNumbers) {
 		this.useLineNumbers = useLineNumbers;
-		
+
 		this.fieldIndexMap = new HashMap<String, Integer>();
 		this.fieldIndexMap.put("JD_FIELD", JD_FIELD);
 		this.fieldIndexMap.put("MAGNITUDE_FIELD", MAGNITUDE_FIELD);
@@ -117,7 +120,7 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 	}
 
 	public int getColumnCount() {
-		return useLineNumbers ? COLUMNS : COLUMNS-1;
+		return useLineNumbers ? COLUMNS : COLUMNS - 1;
 	}
 
 	public int getDiscrepantColumnIndex() {
@@ -265,7 +268,8 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 			value = ob.getMagnitude().toString();
 			break;
 		case HQ_UNCERTAINTY_COLUMN:
-			value = String.format("%1.2f", ob.getHqUncertainty());
+			value = "".equals(ob.getHqUncertainty()) ? "" : String.format(
+					"%1.2f", ob.getHqUncertainty());
 			break;
 		case BAND_COLUMN:
 			value = ob.getBand();

@@ -287,7 +287,7 @@ public class ModelManager {
 	private ObservationPlotPane createObservationPlotPane(String plotName) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
-		return new ObservationPlotPane("Julian Day vs Magnitude Plot for "
+		return new ObservationPlotPane("Light Curve for "
 				+ plotName, this.obsPlotModel, bounds);
 	}
 
@@ -312,7 +312,7 @@ public class ModelManager {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 		return new ObservationAndMeanPlotPane(
-				"Julian Day vs Magnitude Plot for " + plotName,
+				"Light Curve for " + plotName,
 				this.obsAndMeanPlotModel, bounds);
 	}
 

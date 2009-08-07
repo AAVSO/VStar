@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -37,17 +38,18 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 
 /**
- * This class is the base class for chart panes containing a plot of 
- * a set of valid observations. It is genericised on observation model.
+ * This class is the base class for chart panes containing a plot of a set of
+ * valid observations. It is genericised on observation model.
  */
-public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends JPanel {
+public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends
+		JPanel {
 
 	protected T obsModel;
 
 	private ChartPanel chartPanel;
 
 	private JPanel chartControlPanel;
-	
+
 	private JTextArea obsInfo;
 
 	// We use this renderer in order to be able to plot error bars.
@@ -67,12 +69,11 @@ public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends JPa
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
-	public ObservationPlotPaneBase(String title, T obsModel,
-			Dimension bounds) {
+	public ObservationPlotPaneBase(String title, T obsModel, Dimension bounds) {
 		super();
 
 		this.obsModel = obsModel;
-		
+
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
 		this.showErrorBars = true;
@@ -80,7 +81,7 @@ public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends JPa
 		// Create a chart with legend, tooltips, and URLs showing
 		// and add it to the panel.
 		this.chartPanel = new ChartPanel(ChartFactory.createScatterPlot(title,
-				"Julian Day", "Magnitude", obsModel, PlotOrientation.VERTICAL,
+				"Julian Date", "Magnitude", obsModel, PlotOrientation.VERTICAL,
 				true, true, true));
 
 		this.chartPanel.setPreferredSize(bounds);
@@ -89,14 +90,17 @@ public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends JPa
 
 		this.renderer = new XYErrorRenderer();
 		this.renderer.setDrawYError(this.showErrorBars);
-		
+
 		// Tell renderer which series's elements should be rendered
 		// as visually joined with lines.
-		for (int series : obsModel.getSeriesWhoseElementsShouldBeJoinedVisually()) {
+		for (int series : obsModel
+				.getSeriesWhoseElementsShouldBeJoinedVisually()) {
 			this.renderer.setSeriesLinesVisible(series, true);
 		}
 
 		chart.getXYPlot().setRenderer(renderer);
+
+		setSeriesAppearance();
 
 		// We want the magnitude scale to go from high to low as we ascend the
 		// Y axis since as magnitude values get smaller, brightness increases.
@@ -109,10 +113,11 @@ public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends JPa
 
 		// Create a panel that can be used to add chart control widgets.
 		chartControlPanel = new JPanel();
-		chartControlPanel.setLayout(new BoxLayout(chartControlPanel, BoxLayout.LINE_AXIS));
+		chartControlPanel.setLayout(new BoxLayout(chartControlPanel,
+				BoxLayout.LINE_AXIS));
 		createChartControlPanel(chartControlPanel);
 		this.add(chartControlPanel);
-		
+
 		this.add(Box.createRigidArea(new Dimension(0, 10)));
 
 		// Create the observation information text area.
@@ -123,7 +128,7 @@ public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends JPa
 		obsInfo.setEditable(false);
 		this.add(obsInfo);
 	}
-	
+
 	/**
 	 * @return the chartPanel
 	 */
@@ -160,7 +165,7 @@ public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends JPa
 		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());
 		chartControlPanel.add(errorBarCheckBox);
 	}
-	
+
 	// Return a listener for the error bar visibility checkbox.
 	private ActionListener createErrorBarCheckBoxListener() {
 		final ObservationPlotPaneBase<T> self = this;
@@ -170,12 +175,25 @@ public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends JPa
 			}
 		};
 	}
-	
+
 	/**
 	 * Show/hide the error bars.
 	 */
 	private void toggleErrorBars() {
 		this.showErrorBars = !this.showErrorBars;
 		this.renderer.setDrawYError(this.showErrorBars);
+	}
+
+	/**
+	 * Set the appearance of each series with respect to size, shape, and color.
+	 */
+	private void setSeriesAppearance() {
+		// TODO: should probably have BandType later...
+		// for (BandType band : obsModel.getBandIDs()) {
+		// renderer.setSeriesShape(1, new Rectangle2D.Double(2, 2, 3, 3));
+		// }
+		// for (int i=0;i<obsModel.getSeriesCount();i++) {
+		// renderer.setSeriesShape(i, new Rectangle2D.Double(-1,-1,3,3));
+		// }
 	}
 }
