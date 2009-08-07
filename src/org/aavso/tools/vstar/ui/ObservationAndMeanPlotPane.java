@@ -27,6 +27,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
+import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.event.ChartProgressEvent;
 
 /**
