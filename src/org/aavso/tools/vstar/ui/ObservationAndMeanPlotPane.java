@@ -27,6 +27,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
+import org.jfree.chart.event.ChartProgressEvent;
 
 /**
  * This class represents a chart pane containing a plot for a set of valid
@@ -109,5 +110,5 @@ public class ObservationAndMeanPlotPane extends
 				}
 			}
 		};
-	}	
+	}
 }
