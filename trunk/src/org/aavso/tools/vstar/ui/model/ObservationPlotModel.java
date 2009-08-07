@@ -30,7 +30,8 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
  * This is the base class for models that represent a series of valid variable
  * star observations, e.g. for different bands (or from different sources).
  */
-public class ObservationPlotModel extends AbstractIntervalXYDataset implements Listener<ValidObservation> {
+public class ObservationPlotModel extends AbstractIntervalXYDataset implements
+		Listener<ValidObservation> {
 
 	// A unique next series number for this model.
 	private int seriesNum;
@@ -47,12 +48,24 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements L
 	protected Map<Integer, String> seriesNumToSrcNameMap;
 
 	/**
+	 * A mapping from source name to series number.
+	 */
+	protected Map<String, Integer> srcNameToSeriesNumMap;
+
+	/**
+	 * A mapping from series numbers to whether or not they visible.
+	 */
+	protected Map<Integer, Boolean> seriesVisibilityMap;
+
+	/**
 	 * Constructor
 	 */
 	public ObservationPlotModel() {
 		super();
 		this.seriesNum = 0;
 		this.seriesNumToSrcNameMap = new TreeMap<Integer, String>();
+		this.srcNameToSeriesNumMap = new TreeMap<String, Integer>();
+		this.seriesVisibilityMap = new TreeMap<Integer, Boolean>();
 		this.seriesNumToObSrcListMap = new TreeMap<Integer, List<ValidObservation>>();
 	}
 
@@ -96,7 +109,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements L
 	 * @param obSourceList
 	 *            A series (list) of observations, in particular, magnitude and
 	 *            Julian Day.
-	 * @return The number of the series added.            
+	 * @return The number of the series added.
 	 * @postcondition Both seriesNumToObSrcListMap and seriesNumToSrcNameMap
 	 *                must be the same length.
 	 */
@@ -105,14 +118,16 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements L
 
 		int seriesNum = this.getNextSeriesNum();
 
+		this.srcNameToSeriesNumMap.put(name, seriesNum);
 		this.seriesNumToObSrcListMap.put(seriesNum, obSourceList);
 		this.seriesNumToSrcNameMap.put(seriesNum, name);
-
+		this.seriesVisibilityMap.put(seriesNum, true);
+		
 		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcNameMap
 				.size());
 
 		this.fireDatasetChanged();
-		
+
 		return seriesNum;
 	}
 
@@ -120,8 +135,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements L
 	 * Remove the named series from the model. This operation has time
 	 * complexity O(n) but n (the number of series) will never be too large.
 	 * 
-	 * Whether or not the named series was removed (it may not have existed
-	 * to begin with) is returned. The caller can determine whether or not this
+	 * Whether or not the named series was removed (it may not have existed to
+	 * begin with) is returned. The caller can determine whether or not this
 	 * matters.
 	 * 
 	 * @param name
@@ -134,9 +149,11 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements L
 		for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap
 				.entrySet()) {
 			if (name.equals(entry.getValue())) {
+				this.srcNameToSeriesNumMap.remove(name);
 				int series = entry.getKey();
 				this.seriesNumToSrcNameMap.remove(series);
 				this.seriesNumToObSrcListMap.remove(series);
+				this.seriesVisibilityMap.remove(series);
 				this.fireDatasetChanged();
 				found = true;
 				break;
@@ -144,6 +161,36 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements L
 		}
 
 		return found;
+	}
+
+	/**
+	 * Attempt to change the specified series' visibility.
+	 * 
+	 * @param seriesNum
+	 *            The series number of interest.
+	 * @param visibility
+	 *            Whether this series should be visible.
+	 * @return Whether or not the visibility of the object changed.
+	 */
+	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
+		Boolean currVis = this.seriesVisibilityMap.get(seriesNum);
+
+		boolean changed = currVis != null && currVis != visibility;
+
+		if (changed) {
+			this.seriesVisibilityMap.put(seriesNum, visibility);
+			
+			List<ValidObservation> obs = this.seriesNumToObSrcListMap
+					.get(seriesNum);
+			
+			for (ValidObservation ob : obs) {
+				ob.setVisible(visibility);
+			}
+			
+			this.fireDatasetChanged();
+		}
+
+		return changed;
 	}
 
 	/**
@@ -169,12 +216,14 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements L
 
 	/**
 	 * Get an array of series keys.
+	 * 
 	 * @return The number of series keys.
 	 */
 	public String[] getSeriesKeys() {
-		return this.seriesNumToSrcNameMap.keySet().toArray(new String[0]);
+		//return this.seriesNumToSrcNameMap.keySet().toArray(new String[0]);
+		return this.srcNameToSeriesNumMap.keySet().toArray(new String[0]);
 	}
-	
+
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getItemCount(int)
 	 * @return The number of observations (items) in the requested series.
@@ -312,13 +361,27 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements L
 		return error;
 	}
 
-	/** 
-	 * Listen for valid observation change notification,
-	 * e.g. an observation is marked as discrepant.
+	/**
+	 * Listen for valid observation change notification, e.g. an observation is
+	 * marked as discrepant.
 	 */
 	public void update(ValidObservation ob) {
 		// We do nothing for now. What we do need to do
 		// is to plot the value in a different color, or
 		// possibly not at all.
+	}
+
+	/**
+	 * @return the srcNameToSeriesNumMap
+	 */
+	public Map<String, Integer> getSrcNameToSeriesNumMap() {
+		return srcNameToSeriesNumMap;
+	}
+
+	/**
+	 * @return the seriesVisibilityMap
+	 */
+	public Map<Integer, Boolean> getSeriesVisibilityMap() {
+		return seriesVisibilityMap;
 	}
 }

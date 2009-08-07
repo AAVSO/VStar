@@ -96,4 +96,18 @@ public class ObservationAndMeanPlotPane extends
 		this.getRenderer().setSeriesLinesVisible(
 				this.obsModel.getMeansSeriesNum(), this.joinMeans);
 	}
+	
+	// Return a listener for the "change series visibility" button.
+	protected ActionListener createSeriesChangeVisibilityButtonListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				boolean delta = invokeSeriesVisibilityChangeDialog();
+				if (delta) {
+					// Update mean series based upon changed visibility
+					// of one or more series.
+					obsModel.changeMeansSeries(obsModel.getDaysInBin());
+				}
+			}
+		};
+	}	
 }

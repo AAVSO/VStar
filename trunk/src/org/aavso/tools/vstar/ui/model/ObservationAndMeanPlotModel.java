@@ -118,6 +118,19 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
+	 * @see org.aavso.tools.vstar.ui.model.ObservationPlotModel#changeSeriesVisibility(int, boolean)
+	 */
+	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
+		// It doesn't make sense to remove the means series from a plot
+		// whose purpose is to render a means series. :)
+		if (seriesNum != meansSeriesNum) {
+			return super.changeSeriesVisibility(seriesNum, visibility);
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Which series' elements should be joined visually (e.g. with lines)?
 	 * 
 	 * @return An array of series numbers for series whose elements should be

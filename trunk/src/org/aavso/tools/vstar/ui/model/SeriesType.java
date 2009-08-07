@@ -28,7 +28,7 @@ public enum SeriesType {
 
 	// From http://www.aavso.org/data/ql/bandhelp.shtml
 	FAINTER_THAN(-1, "Fainter Than", Color.BLACK),
-	MEAN(-1, "Mean", Color.BLACK),
+	MEANS(-1, "Means", Color.BLACK),
 
 	// TODO: need to map this group manually in ctor!
 	UNKNOWN(-1, "Unknown", Color.BLACK),

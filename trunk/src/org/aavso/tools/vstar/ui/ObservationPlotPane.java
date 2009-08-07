@@ -18,6 +18,9 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Map;
 
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 
@@ -39,4 +42,13 @@ public class ObservationPlotPane extends
 			Dimension bounds) {
 		super(title, obsModel, bounds);
 	}
+	
+	// Return a listener for the "change series visibility" button.
+	protected ActionListener createSeriesChangeVisibilityButtonListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				invokeSeriesVisibilityChangeDialog();
+			}
+		};
+	}	
 }

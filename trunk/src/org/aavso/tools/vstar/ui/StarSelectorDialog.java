@@ -277,7 +277,7 @@ public class StarSelectorDialog extends JDialog {
 	}
 
 	private void checkInput() {
-		// TODO: check if text box is empty; if so, prioritise
+		// TODO: check if text box is empty; if not, prioritise it
 
 		starName = (String) tenStarSelector.getSelectedItem();
 		auid = tenStarMap.get(starName);
@@ -334,7 +334,7 @@ public class StarSelectorDialog extends JDialog {
 	}
 
 	/**
-	 * @return the cancelled
+	 * @return has the dialog been cancelled?
 	 */
 	public boolean isCancelled() {
 		return cancelled;

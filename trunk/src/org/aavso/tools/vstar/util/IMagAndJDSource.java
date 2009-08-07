@@ -28,4 +28,6 @@ public interface IMagAndJDSource {
 	abstract public double getMag(); 
 	
 	abstract public boolean isDiscrepant();
+	
+	abstract public boolean isVisible();
 }

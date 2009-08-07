@@ -20,11 +20,12 @@ package org.aavso.tools.vstar.ui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Rectangle2D;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -41,7 +42,7 @@ import org.jfree.chart.renderer.xy.XYErrorRenderer;
  * This class is the base class for chart panes containing a plot of a set of
  * valid observations. It is genericised on observation model.
  */
-public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends
+abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends
 		JPanel {
 
 	protected T obsModel;
@@ -54,10 +55,12 @@ public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends
 
 	// We use this renderer in order to be able to plot error bars.
 	// TODO: or should we use StatisticalLineAndShapeRenderer? (for means plot?)
-	private XYErrorRenderer renderer;
+	protected XYErrorRenderer renderer;
 
 	// Show error bars?
 	private boolean showErrorBars;
+
+	protected JButton visibilityButton;
 
 	/**
 	 * Constructor
@@ -159,6 +162,12 @@ public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends
 
 	// Populate a panel that can be used to add chart control widgets.
 	protected void createChartControlPanel(JPanel chartControlPanel) {
+		// A button to change series visibility.
+		JButton visibilityButton = new JButton("Change Series Visibility");
+		visibilityButton
+				.addActionListener(createSeriesChangeVisibilityButtonListener());
+		chartControlPanel.add(visibilityButton);
+
 		// A checkbox to show/hide error bars.
 		JCheckBox errorBarCheckBox = new JCheckBox("Show error bars?");
 		errorBarCheckBox.setSelected(this.showErrorBars);
@@ -184,6 +193,27 @@ public class ObservationPlotPaneBase<T extends ObservationPlotModel> extends
 		this.renderer.setDrawYError(this.showErrorBars);
 	}
 
+	// Return a listener for the "change series visibility" button.
+	abstract protected ActionListener createSeriesChangeVisibilityButtonListener();
+
+	protected boolean invokeSeriesVisibilityChangeDialog() {
+		boolean delta = false;
+		
+		SeriesVisibilityDialog dialog = new SeriesVisibilityDialog(
+				obsModel);
+		if (!dialog.isCancelled()) {
+			Map<Integer, Boolean> deltaMap = dialog
+					.getVisibilityDeltaMap();
+			for (int seriesNum : deltaMap.keySet()) {
+				boolean visibility = deltaMap.get(seriesNum);
+				delta |= obsModel.changeSeriesVisibility(seriesNum, visibility);
+				renderer.setSeriesVisible(seriesNum, visibility);
+			}
+		}
+		
+		return delta;
+	}
+	
 	/**
 	 * Set the appearance of each series with respect to size, shape, and color.
 	 */

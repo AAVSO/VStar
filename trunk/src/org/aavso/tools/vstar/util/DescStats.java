@@ -57,7 +57,7 @@ public class DescStats {
 		double included = 0;
 
 		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			if (!source.get(i).isDiscrepant()) {
+			if (!source.get(i).isDiscrepant() && source.get(i).isVisible()) {
 				total += source.get(i).getMag();
 				included++;
 			}
@@ -95,7 +95,7 @@ public class DescStats {
 		double included = 0;
 
 		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			if (!source.get(i).isDiscrepant()) {
+			if (!source.get(i).isDiscrepant() && source.get(i).isVisible()) {
 				double delta = source.get(i).getMag() - magMean;
 				total += delta * delta;
 				included++;
@@ -141,7 +141,7 @@ public class DescStats {
 		double included = 0;
 
 		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			if (!source.get(i).isDiscrepant()) {
+			if (!source.get(i).isDiscrepant() && source.get(i).isVisible()) {
 				double delta = source.get(i).getMag() - magMean;
 				total += delta * delta;
 				included++;
