@@ -206,6 +206,8 @@ public class MenuBar extends JMenuBar {
 
 						modelMgr.createObservationArtefactsFromDatabase(
 								starName, auid, minJD, maxJD);
+					} else {
+						MainFrame.getInstance().getStatusPane().setMessage("");						
 					}
 				} catch (Exception ex) {
 					MessageBox.showErrorDialog(MainFrame.getInstance(),
