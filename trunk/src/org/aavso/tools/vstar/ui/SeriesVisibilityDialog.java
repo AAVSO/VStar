@@ -64,6 +64,9 @@ public class SeriesVisibilityDialog extends JDialog {
 
 		contentPane = this.getContentPane();
 
+		// TODO: need this to become one component, and have a
+		// separate radio button component for analysis
+		
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -103,6 +106,8 @@ public class SeriesVisibilityDialog extends JDialog {
 		return panel;
 	}
 
+	// TODO: need to refactor code for OkCancelDialog
+	
 	private JPanel createButtonPane() {
 		JPanel panel = new JPanel(new BorderLayout());
 
