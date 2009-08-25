@@ -1,25 +1,34 @@
-This is VStar: a statistical analysis tool for variable star data
+VStar is a statistical analysis tool for variable star observation data
 developed for the American Association of Variable Star Observers 
 (http://www.aavso.org/) and the CitizenSky project (http://www.citizensky.org/).
 
-The src directory contains the Java source code for the tool.
-
-The test directory contains unit tests. For testing, JUnit 3.8.2 or higher 
-is assumed (http://www.junit.org). 
-
-The data directory contains sample data files.
-
 The dist directory contains the latest vstar.jar built from source so you
-don't have to build it.
+don't have to build it with Ant (see below).
 
-See extlib/ReadMe.txt regearding required libraries.
+The file extlib/ReadMe.txt details the required additional libraries.
+
+Once the required libraries are in the extlib directory, VStar can be run 
+using one of the following methods:
+
+o Double-click the file: dist/vstar.jar
+o Unix shell: vstar.sh (Linux, Mac OS X, other Unixen, cygwin, mingw)
+o DOS shell: vstar.bat
+o ant run
+
+When VStar is mature enough, the plan is to make it available via Java 
+WebStart on the AAVSO website.
 
 The file build.xml is an Ant file used for building a VStar distribution jar 
-file. Ant can be downloaded from http://ant.apache.org/ and 1.7.0 or higher 
-is assumed. Type "ant -p" to see the options.
+file from source. This is not necessary if you just want to run VStar, only if
+you want to Ant can be downloaded from http://ant.apache.org/ and 1.7.0 
+or higher is assumed. Type "ant -p" to see the options.
 
-VStar can be run using ant ("ant run") or with vstar.sh (Linux, Mac OS X, 
-other Unixen) or vstar.bat (Windows).
+The src directory contains the Java source code for the tool.
 
-Ultimately the plan is to make VStar available via Java WebStart on the AAVSO 
-website.
+The test directory contains unit tests. For testing, JUnit 3.8.2 is 
+assumed (http://www.junit.org). 
+
+The data directory contains sample variable star data files.
+
+VStar is licensed under the Affero GNU Public License. See doc/license for
+details.
