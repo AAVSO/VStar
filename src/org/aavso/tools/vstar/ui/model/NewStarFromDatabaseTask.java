@@ -84,7 +84,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			userConnector.authenticateWithCitizenSky(statusBar);
 			updateProgress(2);
 
-			// TODO: query for user code
+			// TODO: query for observer code
 			
 			// Connect to the observation database if we haven't already
 			// done so.
