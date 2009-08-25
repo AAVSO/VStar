@@ -28,7 +28,12 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This modeless dialog class displays info about a single information. 
+ * This modeless dialog class displays info about a single observation.
+ * 
+ *  TODO:
+ *  - We should have a pool of these and clear the text for each use
+ *    since they take awhile to render otherwise and we are likely
+ *    to create many per session.
  */
 public class ObservationInfoDialog extends JDialog {
 
@@ -44,13 +49,12 @@ public class ObservationInfoDialog extends JDialog {
 		this.ob = ob;
 
 		contentPane = this.getContentPane();
-
 		
 		JPanel topPane = new JPanel();
-		//topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JTextArea textArea = new JTextArea(ob.toString());
+		textArea.setEditable(false);
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		topPane.add(scrollPane);
 		
@@ -59,7 +63,5 @@ public class ObservationInfoDialog extends JDialog {
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
 		this.setVisible(true);
-	}
-	
-	
+	}	
 }
