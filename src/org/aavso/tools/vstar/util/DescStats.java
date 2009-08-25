@@ -152,8 +152,15 @@ public class DescStats {
 		double variance = total / (included - 1);
 		double magStdDev = Math.sqrt(variance);
 		double magStdErrOfMean = magStdDev / Math.sqrt(included);
+		
+		// If in any of the 3 steps above we get NaN, we use 0
+		// (e.g. because there is only one sample), we set the
+		// Standard Error of the Average to 0.
+		if (Double.isNaN(magStdErrOfMean)) {
+			magStdErrOfMean = 0;
+		}
 
-		// Mean Julian Day. TODO: should we instead use median?
+		// Mean Julian Day. TODO: could we instead use median?
 		double meanJD = (source.get(minJDIndex).getJD() + source
 				.get(maxJDIndex).getJD()) / 2;
 
@@ -202,9 +209,16 @@ public class DescStats {
 				// to the list.
 				maxJDIndex = i - 1;
 
-				binnedObs.add(createMeanObservationForJDRange(observations,
-						minJDIndex, maxJDIndex));
-
+				ValidObservation ob = createMeanObservationForJDRange(observations,
+						minJDIndex, maxJDIndex);
+				
+				// If the mean magnitude value is NaN (e.g. because
+				// there was no valid data in the JD range in question), 
+				// it doesn't make sense to include this observation.
+				if (!Double.isNaN(ob.getMag())) {
+					binnedObs.add(ob);
+				}
+				
 				minJDIndex = i;
 				minJD = observations.get(i).getJD();
 
@@ -216,8 +230,15 @@ public class DescStats {
 		// that we include any left over data that would otherwise be
 		// excluded by the JD less-than constraint?
 		if (maxJDIndex < observations.size() - 1) {
-			binnedObs.add(createMeanObservationForJDRange(observations,
-					minJDIndex, observations.size() - 1));
+			ValidObservation ob = createMeanObservationForJDRange(observations,
+					minJDIndex, observations.size() - 1);
+			
+			// If the mean magnitude value is NaN (e.g. because
+			// there was no valid data in the JD range in question), 
+			// it doesn't make sense to include this observation.
+			if (!Double.isNaN(ob.getMag())) {
+				binnedObs.add(ob);
+			}
 		}
 
 		return binnedObs;
