@@ -63,6 +63,7 @@ public class LoginDialog extends JDialog {
 		this.setTitle("Login");
 		this.setModal(true);
 
+		// TODO: fix these!
 		this.usernamePattern = Pattern
 				.compile("^[A-Za-z0-9!@#\\$%&\\*\\(\\)_\\-\\+=\\?<>]{2,15}/$");
 		this.passwordPattern = Pattern
