@@ -194,6 +194,7 @@ public class MenuBar extends JMenuBar {
 					MainFrame.getInstance().getStatusPane().setMessage(
 							"Select a star...");
 					StarSelectorDialog starSelectorDialog = new StarSelectorDialog();
+					
 					if (!starSelectorDialog.isCancelled()) {
 						String starName = starSelectorDialog.getStarName();
 						String auid = starSelectorDialog.getAuid();
@@ -201,13 +202,11 @@ public class MenuBar extends JMenuBar {
 								.getJulianDay();
 						double maxJD = starSelectorDialog.getMaxDate()
 								.getJulianDay();
-						// double minJD = 2454000.5;
-						// double maxJD = 2454939.56597;
 
 						modelMgr.createObservationArtefactsFromDatabase(
 								starName, auid, minJD, maxJD);
 					} else {
-						MainFrame.getInstance().getStatusPane().setMessage("");						
+						MainFrame.getInstance().getStatusPane().setMessage("");
 					}
 				} catch (Exception ex) {
 					MessageBox.showErrorDialog(MainFrame.getInstance(),
@@ -342,7 +341,6 @@ public class MenuBar extends JMenuBar {
 				case MAX_PROGRESS:
 					break;
 				case RESET_PROGRESS:
-					// TODO: should really do cursor ops in MainFrame!
 					parent.setCursor(Cursor
 							.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					setEnabledFileAndAnalysisMenuItems(false);
