@@ -15,6 +15,13 @@ o Unix shell: vstar.sh (Linux, Mac OS X, other Unixen, cygwin, mingw)
 o DOS shell: vstar.bat
 o ant run
 
+Try opening a data file:
+
+1. Select "New Star from File..." from the File menu.
+2. Navigate to the vstar/data menu via the file dialog.
+3. Choose the file "eps_aur_2445000.csv".
+4. Click each Mode radio button in turn to see the different data and plot views.
+
 When VStar is mature enough, the plan is to make it available via Java 
 WebStart on the AAVSO website.
 
