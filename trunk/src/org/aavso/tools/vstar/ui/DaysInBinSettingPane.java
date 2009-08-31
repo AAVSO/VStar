@@ -56,20 +56,27 @@ public class DaysInBinSettingPane extends JPanel {
 
 		this.setBorder(BorderFactory.createTitledBorder("Days in Means Bin"));
 
-		// Slider for days-in-bin.
-		// Note that a slider can only handle integer values.
-		List<ValidObservation> meanAndObsList = obsAndMeanModel
-				.getMeanObsList();
-
-		int max = (int) (meanAndObsList.get(meanAndObsList.size() - 1).getJD() - meanAndObsList
-				.get(0).getJD());
+		// Spinner for days-in-bin.
 
 		this.add(Box.createHorizontalGlue());
 
+		// Given the source-series of the means series, determine the
+		// maximum day range for the days-in-bin spinner.
+		List<ValidObservation> meanSrcObsList = obsAndMeanModel
+				.getSeriesNumToObSrcListMap().get(
+						obsAndMeanModel.getMeanSourceSeriesNum());
+
+		double max = meanSrcObsList.get(meanSrcObsList.size() - 1).getJD() - meanSrcObsList
+				.get(0).getJD();
+
 		// Spinner for days-in-bin with the specified current, min, and max
-		// values, and step size (1 day).
-		daysInBinSpinnerModel = new SpinnerNumberModel(obsAndMeanModel
-				.getDaysInBin(), 0, max, 1);
+		// values, and step size (1 day). If the "current days in bin" value
+		// is larger than the calculated max value, correct that.
+		double currDaysInBin = (int) obsAndMeanModel.getDaysInBin();
+		currDaysInBin = currDaysInBin <= max ? currDaysInBin : max;
+		obsAndMeanModel.setDaysInBin(currDaysInBin);
+
+		daysInBinSpinnerModel = new SpinnerNumberModel((int) currDaysInBin, 0, max, 1);
 		daysInBinSpinner = new JSpinner(daysInBinSpinnerModel);
 		this.add(daysInBinSpinner);
 
@@ -79,7 +86,7 @@ public class DaysInBinSettingPane extends JPanel {
 		JButton updateButton = new JButton("Update");
 		updateButton.addActionListener(createUpdateMeansButtonListener());
 		this.add(updateButton);
-		
+
 		this.add(Box.createHorizontalGlue());
 	}
 
@@ -88,9 +95,7 @@ public class DaysInBinSettingPane extends JPanel {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Get the value and change the means series.
-				// double daysInBin =
-				// Double.parseDouble(daysInBinField.getText());
-				double daysInBin = (Double) daysInBinSpinnerModel.getNumber();
+				double daysInBin = daysInBinSpinnerModel.getNumber().doubleValue();
 				obsAndMeanModel.changeMeansSeries(daysInBin);
 			}
 		};

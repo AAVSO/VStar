@@ -36,12 +36,17 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 	public static final int NO_MEANS_SERIES = -1;
 
+	// The series number of the series that is the source of the
+	// means series.
+	private int meanSourceSeriesNum;
+
+	// The series number of the means series.
 	private int meansSeriesNum;
 
+	// The number of days in a means series bin.
 	private double daysInBin;
 
-	private List<ValidObservation> observations;
-
+	// The observations that constitute the means series.
 	private List<ValidObservation> meanObsList;
 
 	private Notifier<List<ValidObservation>> meansChangeNotifier;
@@ -52,20 +57,19 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * We add named observation source lists to unique series numbers. Then we
 	 * add the initial mean-based series.
 	 * 
-	 * @param observations
-	 *            The complete list of valid observations.
 	 * @param obsSourceListMap
 	 *            A mapping from source name to lists of observation sources.
 	 */
-	public ObservationAndMeanPlotModel(List<ValidObservation> observations,
+	public ObservationAndMeanPlotModel(
 			Map<String, List<ValidObservation>> obsSourceListMap) {
 		super(obsSourceListMap);
-		this.observations = observations;
 		this.meansSeriesNum = NO_MEANS_SERIES;
 		this.daysInBin = DescStats.DEFAULT_BIN_DAYS; // TODO: or just define
 		// this in this class?
 
 		this.meansChangeNotifier = new Notifier<List<ValidObservation>>();
+
+		this.meanSourceSeriesNum = determineMeanSeriesSource();
 
 		this.setMeanSeries();
 	}
@@ -78,8 +82,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	public void setMeanSeries() {
 
-		meanObsList = DescStats.createdBinnedObservations(observations,
-				daysInBin);
+		meanObsList = DescStats.createdBinnedObservations(
+				seriesNumToObSrcListMap.get(meanSourceSeriesNum), daysInBin);
 
 		// As long as there were enough observations to create a means list
 		// to make a "means" series, we do so.
@@ -118,7 +122,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.ui.model.ObservationPlotModel#changeSeriesVisibility(int, boolean)
+	 * @see org.aavso.tools.vstar.ui.model.ObservationPlotModel#changeSeriesVisibility(int,
+	 *      boolean)
 	 */
 	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
 		// It doesn't make sense to remove the means series from a plot
@@ -182,6 +187,21 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
+	 * @return the meanSourceSeriesNum
+	 */
+	public int getMeanSourceSeriesNum() {
+		return meanSourceSeriesNum;
+	}
+
+	/**
+	 * @param meanSourceSeriesNum
+	 *            the meanSourceSeriesNum to set
+	 */
+	public void setMeanSourceSeriesNum(int meanSourceSeriesNum) {
+		this.meanSourceSeriesNum = meanSourceSeriesNum;
+	}
+
+	/**
 	 * @return the means series number
 	 */
 	public int getMeansSeriesNum() {
@@ -193,6 +213,14 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	public double getDaysInBin() {
 		return daysInBin;
+	}
+
+	/**
+	 * @param daysInBin
+	 *            the daysInBin to set
+	 */
+	public void setDaysInBin(double daysInBin) {
+		this.daysInBin = daysInBin;
 	}
 
 	/**
@@ -208,15 +236,58 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	public Notifier<List<ValidObservation>> getMeansChangeNotifier() {
 		return meansChangeNotifier;
 	}
-	
-	/** 
-	 * Listen for valid observation change notification,
-	 * e.g. an observation is marked as discrepant. Since
-	 * a discrepant observation is ignored for statistical
-	 * analysis purposes (see DescStats class), we need to
+
+	/**
+	 * Listen for valid observation change notification, e.g. an observation is
+	 * marked as discrepant. Since a discrepant observation is ignored for
+	 * statistical analysis purposes (see DescStats class), we need to
 	 * re-calculate the means series.
 	 */
 	public void update(ValidObservation ob) {
 		setMeanSeries();
+	}
+
+	// Helper methods.
+
+	/**
+	 * Determine which series will be the source of the mean series. Note that
+	 * this may be changed subsequently. Visual bands are highest priority, and
+	 * if not found, the first band will be chosen at random. TODO: should this
+	 * be refined?
+	 * 
+	 * @return The series number on which to base the mean series.
+	 */
+	private int determineMeanSeriesSource() {
+		int seriesNum = -1;
+
+		// Look for Visual, then V.
+		for (String series : srcNameToSeriesNumMap.keySet()) {
+			if (SeriesType.Visual.getName().equals(series)
+					|| SeriesType.VISUAL.getName().equals(series)) {
+				// Visual band
+				seriesNum = srcNameToSeriesNumMap.get(series);
+				break;
+			}
+		}
+
+		if (seriesNum == -1) {
+			for (String series : srcNameToSeriesNumMap.keySet()) {
+				if (SeriesType.V.getName().equals(series)
+						|| SeriesType.Johnson_V.getName().equals(series)) {
+					// V band
+					seriesNum = srcNameToSeriesNumMap.get(series);
+					break;
+				}
+
+			}
+		}
+
+		// TODO: what about Stromgren V, unfiltered with V zero point
+
+		if (seriesNum == -1) {
+			seriesNum = seriesNumToSrcNameMap.keySet().iterator().next();
+		}
+
+		return seriesNum;
 	}
 }

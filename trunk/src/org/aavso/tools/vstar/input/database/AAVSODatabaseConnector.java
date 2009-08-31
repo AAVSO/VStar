@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.ui.LoginDialog;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MessageBox;
@@ -79,10 +80,10 @@ public class AAVSODatabaseConnector {
 	/**
 	 * Create a connection to the database if it has not already been created.
 	 * 
-	 * @throws Exception
+	 * @throws ConnectionException
 	 *             if there was an error creating the connection.
 	 */
-	public Connection createConnection() throws Exception {
+	public Connection createConnection() throws ConnectionException {
 
 		int retries = 3;
 
@@ -99,10 +100,14 @@ public class AAVSODatabaseConnector {
 						CONN_URL + ResourceAccessor.getParam(type.getDBNum()),
 						props);
 			} catch (Exception e1) {
+				try {
 				props.put("port", ((3 * 11 * 100 + 7) - 1) + "");
 				connection = getDriver().connect(
 						CONN_URL + ResourceAccessor.getParam(type.getDBNum()),
 						props);
+				} catch (Exception e) {
+					throw new ConnectionException(e.getMessage());
+				}
 			}
 
 			retries--;

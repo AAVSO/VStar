@@ -21,6 +21,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseObservationReader;
 import org.aavso.tools.vstar.ui.MainFrame;
@@ -130,6 +131,10 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// Create table/plot models and GUI elements.
 			modelMgr.createObservationArtefacts(
 					NewStarType.NEW_STAR_FROM_DATABASE, starName, 2);
+		} catch (ConnectionException ex) {
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					MenuBar.NEW_STAR_FROM_DATABASE, "Cannot connect to database.");
+			success = false;
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);

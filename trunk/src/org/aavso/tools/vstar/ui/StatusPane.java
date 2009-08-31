@@ -32,8 +32,10 @@ import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.Listener;
 
 /**
- * A status panel. The intention is that this should be added to the bottom of
- * the GUI.
+ * A status panel containing a text status message component and a
+ * status bar.
+ * 
+ * The intention is that this should be added to the bottom of the GUI.
  * 
  * This class will also listen to various events.
  */
@@ -51,7 +53,7 @@ public class StatusPane extends JPanel {
 	 *            The first message to be displayed in the status pane.
 	 */
 	public StatusPane(String firstMsg) {
-		super(false); // not double buffered
+		super(true);
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
 		statusLabel = new JLabel();
@@ -170,6 +172,9 @@ public class StatusPane extends JPanel {
 					self.setMaxProgressValue(info.getNum());
 					break;
 				case RESET_PROGRESS:
+					// Ensure the main window now has focus so we see
+					// the progress bar and busy cursor as enabled.
+					//self.requestFocusInWindow();
 					self.resetProgressBar();
 					self.setMessage("");
 					break;
@@ -177,6 +182,10 @@ public class StatusPane extends JPanel {
 					self.completeProgressBar();
 					break;
 				case INCREMENT_PROGRESS:
+					// Ensure the main window now has focus so we see
+					// the progress bar and busy cursor as enabled.
+					// Except that it does not work here or above.
+					//self.requestFocusInWindow();
 					self.incrementProgressBar(info.getNum());
 					break;
 				}

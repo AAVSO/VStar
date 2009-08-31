@@ -15,7 +15,7 @@ o Unix shell: vstar.sh (Linux, Mac OS X, other Unixen, cygwin, mingw)
 o DOS shell: vstar.bat
 o ant run
 
-Try opening a data file:
+Try opening a sample data file:
 
 1. Select "New Star from File..." from the File menu.
 2. Navigate to the vstar/data menu via the file dialog.

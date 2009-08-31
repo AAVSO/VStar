@@ -43,12 +43,16 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	protected Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap;
 
 	/**
-	 * A mapping from series number to source name.
+	 * A mapping from series number to source name. TODO: should be an enum not
+	 * a string; then all these cases would collapse into a single case per
+	 * series type (e.g. one for visual).
 	 */
 	protected Map<Integer, String> seriesNumToSrcNameMap;
 
 	/**
-	 * A mapping from source name to series number.
+	 * A mapping from source name to series number. TODO: should be an enum not
+	 * a string; then all these cases would collapse into a single case per
+	 * series type (e.g. one for visual).
 	 */
 	protected Map<String, Integer> srcNameToSeriesNumMap;
 
@@ -122,7 +126,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		this.seriesNumToObSrcListMap.put(seriesNum, obSourceList);
 		this.seriesNumToSrcNameMap.put(seriesNum, name);
 		this.seriesVisibilityMap.put(seriesNum, true);
-		
+
 		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcNameMap
 				.size());
 
@@ -179,14 +183,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 
 		if (changed) {
 			this.seriesVisibilityMap.put(seriesNum, visibility);
-			
+
 			List<ValidObservation> obs = this.seriesNumToObSrcListMap
 					.get(seriesNum);
-			
+
+			// TODO: remove this property from ValidObservation?
 			for (ValidObservation ob : obs) {
 				ob.setVisible(visibility);
 			}
-			
+
 			this.fireDatasetChanged();
 		}
 
@@ -220,7 +225,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @return The number of series keys.
 	 */
 	public String[] getSeriesKeys() {
-		//return this.seriesNumToSrcNameMap.keySet().toArray(new String[0]);
+		// return this.seriesNumToSrcNameMap.keySet().toArray(new String[0]);
 		return this.srcNameToSeriesNumMap.keySet().toArray(new String[0]);
 	}
 
@@ -372,13 +377,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
-	 * Given a series and item number, return the corresponding 
-	 * observation.
-	 *  
-	 * @param series The series number.
-	 * @param item The item within the series.
+	 * Given a series and item number, return the corresponding observation.
+	 * 
+	 * @param series
+	 *            The series number.
+	 * @param item
+	 *            The item within the series.
 	 * @return The valid observation.
-	 * @throws IllegalArgumentException if series or item are out of range.
+	 * @throws IllegalArgumentException
+	 *             if series or item are out of range.
 	 */
 	public ValidObservation getValidObservation(int series, int item) {
 		if (series >= this.seriesNumToObSrcListMap.size()) {
