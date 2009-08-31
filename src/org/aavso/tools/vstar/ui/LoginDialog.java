@@ -63,11 +63,11 @@ public class LoginDialog extends JDialog {
 		this.setTitle("Login");
 		this.setModal(true);
 
-		// TODO: fix these!
-		this.usernamePattern = Pattern
-				.compile("^[A-Za-z0-9!@#\\$%&\\*\\(\\)_\\-\\+=\\?<>]{2,15}/$");
-		this.passwordPattern = Pattern
-				.compile("^[A-Za-z0-9!@#\\$%&\\*\\(\\)_\\-\\+=\\?<>]{5,15}/$");
+		Pattern commonPattern = Pattern
+				.compile("^[A-Za-z0-9\\!@#\\$%&\\*\\(\\)_\\-\\+=\\?<>]{2,15}$");
+
+		this.usernamePattern = commonPattern;
+		this.passwordPattern = commonPattern;
 
 		this.cancelled = false;
 
@@ -88,7 +88,7 @@ public class LoginDialog extends JDialog {
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
 		this.setVisible(true);
 	}
-	
+
 	private JPanel createIntroPane(String intro) {
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -171,21 +171,19 @@ public class LoginDialog extends JDialog {
 	// to go away.
 	private void checkInput() {
 		setVisible(false);
-		
-		// TODO: fix validation regex!
-		
-//		if (!usernamePattern.matcher(usernameField.getText()).matches()
-//				|| !passwordPattern.matcher(
-//						new String(passwordField.getPassword())).matches()) {
-//			MessageBox.showErrorDialog(MainFrame.getInstance(),
-//					"Login Details Error", "Invalid username or password.");
-//			usernameField.setText("");
-//			passwordField.setText("");
-//			setVisible(true);
-//		} else {
+
+		if (!usernamePattern.matcher(usernameField.getText()).matches()
+				|| !passwordPattern.matcher(
+						new String(passwordField.getPassword())).matches()) {
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					"Login Details Error", "Invalid username or password.");
+			usernameField.setText("");
+			passwordField.setText("");
+			setVisible(true);
+		} else {
 			// The fields validated, so dismiss the dialog box.
 			dispose();
-//		}
+		}
 	}
 
 	/**

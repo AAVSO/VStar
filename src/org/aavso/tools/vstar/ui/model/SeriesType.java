@@ -65,6 +65,7 @@ public enum SeriesType {
 	Stromgren_Hb21_H_beta_wide(34, "Stromgren Hbw (H beta wide)", Color.BLACK),
 	Stromgren_Hbn_H_bet_narrow(35, "Stromgren Hbn (H bet narrow)", Color.BLACK);
 
+	// TODO: populate this with canonical band representations
 	private static Map<Integer, String> index2NameMap = new HashMap<Integer, String>();
 	
 	private int index;

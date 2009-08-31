@@ -190,7 +190,8 @@ public class ModelManager {
 		this.getProgressNotifier().notifyListeners(
 				new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
 
-		NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(starName, auid, minJD, maxJD);
+		NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(starName,
+				auid, minJD, maxJD);
 		task.execute();
 	}
 
@@ -287,19 +288,18 @@ public class ModelManager {
 	private ObservationPlotPane createObservationPlotPane(String plotName) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
-		return new ObservationPlotPane("Light Curve for "
-				+ plotName, this.obsPlotModel, bounds);
+		return new ObservationPlotPane("Light Curve for " + plotName,
+				this.obsPlotModel, bounds);
 	}
 
 	/**
-	 * Create a plot model containing observations and a means series based upon
-	 * a default bin size that the user can change later. TODO: bin
-	 * size/percentage could become subject to Preferences.
+	 * Create a plot model containing a means series based upon
+	 * a default bin size that the user can change later.
 	 * 
 	 * @return The plot model.
 	 */
 	private ObservationAndMeanPlotModel createObservationAndMeanPlotModel() {
-		return new ObservationAndMeanPlotModel(modelMgr.validObsList,
+		return new ObservationAndMeanPlotModel(
 				modelMgr.validObservationCategoryMap);
 	}
 
@@ -311,8 +311,7 @@ public class ModelManager {
 			String plotName) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
-		return new ObservationAndMeanPlotPane(
-				"Light Curve for " + plotName,
+		return new ObservationAndMeanPlotPane("Light Curve for " + plotName,
 				this.obsAndMeanPlotModel, bounds);
 	}
 

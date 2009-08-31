@@ -27,6 +27,10 @@ import org.aavso.tools.vstar.data.ValidObservation;
 /**
  * Descriptive statistics functions for magnitude and Julian Day sources.
  * 
+ * For a series of mean data to make sense, it should only include a single
+ * band, so the data sources passed to the functions below should should
+ * consist of observations in just such a single band.
+ * 
  * Discrepant source values are ignored in all calculations.
  */
 public class DescStats {
@@ -57,7 +61,7 @@ public class DescStats {
 		double included = 0;
 
 		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			if (!source.get(i).isDiscrepant() && source.get(i).isVisible()) {
+			if (!source.get(i).isDiscrepant()) {
 				total += source.get(i).getMag();
 				included++;
 			}
@@ -95,7 +99,7 @@ public class DescStats {
 		double included = 0;
 
 		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			if (!source.get(i).isDiscrepant() && source.get(i).isVisible()) {
+			if (!source.get(i).isDiscrepant()) {
 				double delta = source.get(i).getMag() - magMean;
 				total += delta * delta;
 				included++;
@@ -141,7 +145,7 @@ public class DescStats {
 		double included = 0;
 
 		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			if (!source.get(i).isDiscrepant() && source.get(i).isVisible()) {
+			if (!source.get(i).isDiscrepant()) {
 				double delta = source.get(i).getMag() - magMean;
 				total += delta * delta;
 				included++;
