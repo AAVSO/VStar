@@ -28,6 +28,7 @@ import javax.swing.JToolBar;
 
 import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.Listener;
 
 /**

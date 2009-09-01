@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
+package org.aavso.tools.vstar.ui.resources;
 
 import java.net.URL;
 import java.util.regex.Matcher;
@@ -23,6 +23,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+
+import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
 /**
  * The purpose of this class is to provide access to non-class resources such as

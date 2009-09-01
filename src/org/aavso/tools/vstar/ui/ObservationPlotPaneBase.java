@@ -29,6 +29,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import org.aavso.tools.vstar.ui.dialog.ObservationInfoDialog;
+import org.aavso.tools.vstar.ui.dialog.SeriesVisibilityDialog;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -159,7 +161,7 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 	// Populate a panel that can be used to add chart control widgets.
 	protected void createChartControlPanel(JPanel chartControlPanel) {
 		// A button to change series visibility.
-		JButton visibilityButton = new JButton("Change Series Visibility");
+		JButton visibilityButton = new JButton("Change Series");
 		visibilityButton
 				.addActionListener(createSeriesChangeVisibilityButtonListener());
 		chartControlPanel.add(visibilityButton);
@@ -242,5 +244,6 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// Nothing to do here.
+		// TODO: Zoom?
 	}
 }

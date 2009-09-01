@@ -28,11 +28,11 @@ import java.util.Properties;
 
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.ui.LoginDialog;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.MessageBox;
-import org.aavso.tools.vstar.ui.ResourceAccessor;
 import org.aavso.tools.vstar.ui.StatusPane;
+import org.aavso.tools.vstar.ui.dialog.LoginDialog;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * This class handles the details of connecting to the MySQL AAVSO observation

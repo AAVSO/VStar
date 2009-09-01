@@ -15,12 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
+package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.Component;
 
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
+
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * Message dialog box utility class.

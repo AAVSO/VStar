@@ -260,6 +260,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	private int determineMeanSeriesSource() {
 		int seriesNum = -1;
 
+		// TODO: refactor these for loops into a single method that takes 
+		// varargs or an array of strings!
+		
 		// Look for Visual, then V.
 		for (String series : srcNameToSeriesNumMap.keySet()) {
 			if (SeriesType.Visual.getName().equals(series)
@@ -278,16 +281,23 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 					seriesNum = srcNameToSeriesNumMap.get(series);
 					break;
 				}
-
 			}
 		}
 
 		// TODO: what about Stromgren V, unfiltered with V zero point
 
+		// Choose some series other than "fainter than".
 		if (seriesNum == -1) {
-			seriesNum = seriesNumToSrcNameMap.keySet().iterator().next();
+			for (String series : srcNameToSeriesNumMap.keySet()) {
+				if (!SeriesType.FAINTER_THAN.getName().equalsIgnoreCase(series)) {
+					seriesNum = srcNameToSeriesNumMap.get(series);
+					break;
+				}
+			}
 		}
 
+		assert seriesNum != -1;
+		
 		return seriesNum;
 	}
 }

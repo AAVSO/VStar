@@ -15,9 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
+package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.Component;
+
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * This class creates and displays VStar's About Box.

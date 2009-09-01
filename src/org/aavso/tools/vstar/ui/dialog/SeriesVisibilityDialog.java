@@ -15,36 +15,36 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
+package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
-import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This dialog permits the visibility of plot series to be changed.
  */
 public class SeriesVisibilityDialog extends JDialog {
 
-	private ObservationPlotModel obsPlotModel;
-	private Container contentPane;
-	private Map<Integer, Boolean> visibilityDeltaMap;
-
+	protected JPanel topPane;
+	protected JPanel seriesPane;
+	
+	protected ObservationPlotModel obsPlotModel;
+	protected SeriesVisibilityPane seriesVisibilityPane;
+	
 	private boolean cancelled;
 
 	/**
@@ -55,25 +55,25 @@ public class SeriesVisibilityDialog extends JDialog {
 	 */
 	public SeriesVisibilityDialog(ObservationPlotModel obsPlotModel) {
 		super();
-		this.setTitle("Change Series Visibility");
+		this.setTitle("Change Series");
 		this.setModal(true);
 
 		this.obsPlotModel = obsPlotModel;
 
-		visibilityDeltaMap = new HashMap<Integer, Boolean>();
-
-		contentPane = this.getContentPane();
-
-		// TODO: need this to become one component, and have a
-		// separate radio button component for analysis
+		Container contentPane = this.getContentPane();
 		
-		JPanel topPane = new JPanel();
+		// This pane contains a series pane and buttons.
+		
+		topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		topPane
-				.setToolTipText("Select or deselect series for desired visibility.");
 
-		topPane.add(createSeriesCheckBoxPane());
+		seriesPane = new JPanel();
+		seriesPane.setLayout(new BoxLayout(seriesPane, BoxLayout.LINE_AXIS));
+		seriesVisibilityPane = new SeriesVisibilityPane(obsPlotModel);
+		seriesPane.add(seriesVisibilityPane);
+		topPane.add(seriesPane);
+		
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createButtonPane());
 
@@ -84,29 +84,7 @@ public class SeriesVisibilityDialog extends JDialog {
 		this.setVisible(true);
 	}
 
-	private JPanel createSeriesCheckBoxPane() {
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-
-		for (String seriesName : this.obsPlotModel.getSeriesKeys()) {
-			if (!SeriesType.MEANS.getName().equals(seriesName)) {
-				JCheckBox checkBox = new JCheckBox(seriesName);
-				checkBox
-						.addActionListener(createSeriesVisibilityCheckBoxListener());
-				int seriesNum = obsPlotModel.getSrcNameToSeriesNumMap().get(
-						seriesName);
-				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(
-						seriesNum);
-				checkBox.setSelected(vis);
-				panel.add(checkBox);
-				panel.add(Box.createRigidArea(new Dimension(10, 10)));
-			}
-		}
-
-		return panel;
-	}
-
-	// TODO: need to refactor code for OkCancelDialog
+	// TODO: need to refactor code for OkCancelDialog (including topPane)
 	
 	private JPanel createButtonPane() {
 		JPanel panel = new JPanel(new BorderLayout());
@@ -120,19 +98,6 @@ public class SeriesVisibilityDialog extends JDialog {
 		panel.add(okButton, BorderLayout.LINE_END);
 
 		return panel;
-	}
-
-	// Return a listener for the series visibility checkboxes.
-	private ActionListener createSeriesVisibilityCheckBoxListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JCheckBox checkBox = (JCheckBox) e.getSource();
-				String seriesName = checkBox.getText();
-				int seriesNum = obsPlotModel.getSrcNameToSeriesNumMap().get(
-						seriesName);
-				visibilityDeltaMap.put(seriesNum, checkBox.isSelected());
-			}
-		};
 	}
 
 	// Return a listener for the "OK" button.
@@ -167,6 +132,6 @@ public class SeriesVisibilityDialog extends JDialog {
 	 * @return the visibilityDeltaMap
 	 */
 	public Map<Integer, Boolean> getVisibilityDeltaMap() {
-		return visibilityDeltaMap;
+		return seriesVisibilityPane.getVisibilityDeltaMap();
 	}
 }
