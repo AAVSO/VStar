@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
+package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.Component;
 import java.awt.Cursor;
@@ -29,6 +29,8 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
+
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * This class represents a help content frame.
