@@ -17,9 +17,11 @@
  */
 package org.aavso.tools.vstar.ui.model;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.Listener;
@@ -109,7 +111,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * Add an observation series.
 	 * 
 	 * @param name
-	 *            A name to be associated with the data source.
+	 *            A name to be associated with the series.
 	 * @param obSourceList
 	 *            A series (list) of observations, in particular, magnitude and
 	 *            Julian Day.
@@ -125,7 +127,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		this.srcNameToSeriesNumMap.put(name, seriesNum);
 		this.seriesNumToObSrcListMap.put(seriesNum, obSourceList);
 		this.seriesNumToSrcNameMap.put(seriesNum, name);
-		this.seriesVisibilityMap.put(seriesNum, true);
+		this.seriesVisibilityMap.put(seriesNum, isSeriesVisibleByDefault(name));
 
 		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcNameMap
 				.size());
@@ -184,13 +186,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		if (changed) {
 			this.seriesVisibilityMap.put(seriesNum, visibility);
 
-			List<ValidObservation> obs = this.seriesNumToObSrcListMap
-					.get(seriesNum);
-
-			// TODO: remove this property from ValidObservation?
-			for (ValidObservation ob : obs) {
-				ob.setVisible(visibility);
-			}
+//			List<ValidObservation> obs = this.seriesNumToObSrcListMap
+//					.get(seriesNum);
 
 			this.fireDatasetChanged();
 		}
@@ -270,11 +267,13 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	/**
 	 * Which series' elements should be joined visually (e.g. with lines)?
 	 * 
-	 * @return An array of series numbers for series whose elements should be
+	 * TODO: need to specialise this later to join observer's obs etc?
+	 * 
+	 * @return A collection of series numbers for series whose elements should be
 	 *         joined visually.
 	 */
-	public int[] getSeriesWhoseElementsShouldBeJoinedVisually() {
-		return new int[0];
+	public Collection<Integer> getSeriesWhoseElementsShouldBeJoinedVisually() {
+		return new TreeSet<Integer>();
 	}
 
 	// AbstractIntervalXYDataSet methods.
@@ -401,7 +400,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		return this.seriesNumToObSrcListMap.get(series).get(item);
 	}
 
-	// TODO: rethink whether these should be exposed
+	// TODO: do these need to be exposed?
 
 	/**
 	 * @return the seriesNumToObSrcListMap
@@ -422,5 +421,48 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 */
 	public Map<Integer, Boolean> getSeriesVisibilityMap() {
 		return seriesVisibilityMap;
+	}
+	
+	// Helper methods.
+
+	/**
+	 * Should the specified series be visible by default?
+	 * 
+	 * TODO: for now we just look for visual bands; eventually this should be
+	 * specifiable via Preferences; check that we add this to the notes ticket
+	 * on this topic.
+	 * 
+	 * @param series
+	 *            The series name. TODO: should eventually be enum.
+	 * @return Whether or not the series should be visible by default.
+	 */
+	private boolean isSeriesVisibleByDefault(String series) {
+		boolean visible = false;
+
+		// Look for Visual, then V.
+		// TODO: what about Stromgren V, unfiltered with V zero point?
+
+		// TODO: We could delegate "is visible" to SeriesType which 
+		// could also be used by means plot model code.
+		
+		visible |= SeriesType.Visual.getName().equals(series)
+				|| SeriesType.VISUAL.getName().equals(series);
+
+		if (!visible) {
+			visible = SeriesType.V.getName().equals(series)
+					|| SeriesType.Johnson_V.getName().equals(series);
+		}
+
+		// We also allow for unspecified or unknown, e.g. since the source 
+		// could be from a simple observation file where no band is specified. 
+		// People could use this for visual, CCD/DSLR photometry observation 
+		// etc. TODO: add enum value for "unspecified".
+		if (!visible) {
+			visible = SeriesType.UNKNOWN.getName().equals(series)
+					|| SeriesType.Unknown.getName().equals(series) ||
+					"Unspecified".equalsIgnoreCase(series);
+		}
+		
+		return visible;
 	}
 }

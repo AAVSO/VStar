@@ -100,10 +100,18 @@ public class ObservationAndMeanPlotPane extends
 	}
 	
 	// Return a listener for the "change series visibility" button.
-	protected ActionListener createSeriesChangeVisibilityButtonListener() {
+	protected ActionListener createSeriesChangeButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				boolean delta = invokeSeriesVisibilityChangeDialog();
+				
+				// TODO: override what the below method does
+				// and change the delta critera to be "did the means series
+				// source change"? Actually, we may be able to simply
+				// invoke the specialised dialog here and in ObservationPlotPane
+				// (createSeriesChangeButtonListener()) and pass the delta
+				// map to a common method rather than invokeSeriesChangeDialog.
+				
+				boolean delta = invokeSeriesChangeDialog();
 				if (delta) {
 					// Update mean series based upon changed visibility
 					// of one or more series.

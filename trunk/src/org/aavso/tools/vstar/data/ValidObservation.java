@@ -66,8 +66,6 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	private DateInfo hJD = null; // Heliocentric vs Geocentric Julian Day
 	private String name = null;
 	private String mType = null; // TODO: make an enum
-
-	private boolean visible = true;
 	
 	/**
 	 * Constructor.
@@ -479,19 +477,5 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 
 	public double getMag() {
 		return this.magnitude.getMagValue();
-	}
-
-	/**
-	 * @return the visible
-	 */
-	public boolean isVisible() {
-		return visible;
-	}
-
-	/**
-	 * @param visible the visible to set
-	 */
-	public void setVisible(boolean visible) {
-		this.visible = visible;
 	}
 }

@@ -100,11 +100,19 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 		this.renderer = new XYErrorRenderer();
 		this.renderer.setDrawYError(this.showErrorBars);
 
-		// Tell renderer which series's elements should be rendered
+		// Tell renderer which series elements should be rendered
 		// as visually joined with lines.
+		// TODO: change return type of getter below to be Set<Integer>
 		for (int series : obsModel
 				.getSeriesWhoseElementsShouldBeJoinedVisually()) {
 			this.renderer.setSeriesLinesVisible(series, true);
+		}
+
+		// Tell renderer which series' elements should initially be
+		// rendered, i.e. visible.
+		for (int series : obsModel.getSeriesVisibilityMap().keySet()) {
+			this.renderer.setSeriesVisible(series, obsModel
+					.getSeriesVisibilityMap().get(series));
 		}
 
 		chart.getXYPlot().setRenderer(renderer);
@@ -162,8 +170,7 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 	protected void createChartControlPanel(JPanel chartControlPanel) {
 		// A button to change series visibility.
 		JButton visibilityButton = new JButton("Change Series");
-		visibilityButton
-				.addActionListener(createSeriesChangeVisibilityButtonListener());
+		visibilityButton.addActionListener(createSeriesChangeButtonListener());
 		chartControlPanel.add(visibilityButton);
 
 		// A checkbox to show/hide error bars.
@@ -191,10 +198,18 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 		this.renderer.setDrawYError(this.showErrorBars);
 	}
 
-	// Return a listener for the "change series visibility" button.
-	abstract protected ActionListener createSeriesChangeVisibilityButtonListener();
+	/**
+	 * Return a listener for the "change series visibility" button.
+	 */
+	abstract protected ActionListener createSeriesChangeButtonListener();
 
-	protected boolean invokeSeriesVisibilityChangeDialog() {
+	/**
+	 * Invokes the series change dialog and return whether or not there was a
+	 * change.
+	 * 
+	 * @return Was there a change?
+	 */
+	protected boolean invokeSeriesChangeDialog() {
 		boolean delta = false;
 
 		SeriesVisibilityDialog dialog = new SeriesVisibilityDialog(obsModel);
@@ -237,10 +252,10 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
-			new ObservationInfoDialog(obsModel.getValidObservation(series, item));
+			new ObservationInfoDialog(obsModel
+					.getValidObservation(series, item));
 		}
 	}
-	
 
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// Nothing to do here.
