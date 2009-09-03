@@ -44,10 +44,10 @@ public class ObservationPlotPane extends
 	}
 	
 	// Return a listener for the "change series visibility" button.
-	protected ActionListener createSeriesChangeVisibilityButtonListener() {
+	protected ActionListener createSeriesChangeButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				invokeSeriesVisibilityChangeDialog();
+				invokeSeriesChangeDialog();
 			}
 		};
 	}	

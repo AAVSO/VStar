@@ -260,6 +260,8 @@ public class ModelManager {
 		// file since there won't be many columns. We don't want to do that
 		// when there are many columns (i.e. for AAVSO download format files
 		// and database source).
+		// TODO: Why don't we delegate this to the component that renders the obs list?
+		// The model manager shouldn't care about this kind of stuff.
 		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
 		modelMgr.obsListPane = createObsListPane(enableColumnAutoResize);
 

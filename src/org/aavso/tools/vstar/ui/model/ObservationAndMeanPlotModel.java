@@ -18,12 +18,12 @@
 package org.aavso.tools.vstar.ui.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.DescStats;
-import org.aavso.tools.vstar.util.Listener;
 import org.aavso.tools.vstar.util.Notifier;
 
 /**
@@ -105,6 +105,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			if (!found) {
 				this.meansSeriesNum = this.addObservationSeries(
 						MEANS_SERIES_NAME, meanObsList);
+				
+				// Make sure it's rendered!
+				this.getSeriesVisibilityMap().put(this.meansSeriesNum, true);
 			}
 
 			// Notify listeners.
@@ -138,10 +141,10 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	/**
 	 * Which series' elements should be joined visually (e.g. with lines)?
 	 * 
-	 * @return An array of series numbers for series whose elements should be
+	 * @return A collection of series numbers for series whose elements should be
 	 *         joined visually.
 	 */
-	public int[] getSeriesWhoseElementsShouldBeJoinedVisually() {
+	public Collection<Integer> getSeriesWhoseElementsShouldBeJoinedVisually() {
 		List<Integer> seriesNumList = new ArrayList<Integer>();
 
 		for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap
@@ -152,13 +155,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			}
 		}
 
-		int[] seriesNums = new int[seriesNumList.size()];
-		int i = 0;
-		for (Integer series : seriesNumList) {
-			seriesNums[i++] = series;
-		}
-
-		return seriesNums;
+		return seriesNumList;
 	}
 
 	/**
@@ -259,11 +256,10 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	private int determineMeanSeriesSource() {
 		int seriesNum = -1;
-
-		// TODO: refactor these for loops into a single method that takes 
-		// varargs or an array of strings!
 		
 		// Look for Visual, then V.
+		// TODO: what about Stromgren V, unfiltered with V zero point?
+
 		for (String series : srcNameToSeriesNumMap.keySet()) {
 			if (SeriesType.Visual.getName().equals(series)
 					|| SeriesType.VISUAL.getName().equals(series)) {
@@ -284,9 +280,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			}
 		}
 
-		// TODO: what about Stromgren V, unfiltered with V zero point
-
-		// Choose some series other than "fainter than".
+		// No match: choose some series other than "fainter than".
 		if (seriesNum == -1) {
 			for (String series : srcNameToSeriesNumMap.keySet()) {
 				if (!SeriesType.FAINTER_THAN.getName().equalsIgnoreCase(series)) {
