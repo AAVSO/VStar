@@ -84,7 +84,7 @@ public class StarSelectorDialog extends JDialog {
 
 		this.jdValidator = new JulianDayValidator();
 
-		this.cancelled = false;
+		this.cancelled = true;
 
 		cal = Calendar.getInstance();
 		year = cal.get(Calendar.YEAR);
@@ -101,9 +101,6 @@ public class StarSelectorDialog extends JDialog {
 		topPane
 				.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
 
-		// topPane.add(new
-		// JLabel("Select star from drop-down or\nenter name/AUID/alias"));
-		// topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createTenStarSelectorPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createStarFieldPane());
@@ -115,6 +112,8 @@ public class StarSelectorDialog extends JDialog {
 		topPane.add(createButtonPane());
 		contentPane.add(topPane);
 
+//		this.addWindowListener(this.createWindowListener());
+		
 		this.pack();
 		tenStarSelector.requestFocusInWindow();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
@@ -270,7 +269,6 @@ public class StarSelectorDialog extends JDialog {
 	private ActionListener createCancelButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				cancelled = true;
 				setVisible(false);
 				dispose();
 			}
@@ -299,6 +297,7 @@ public class StarSelectorDialog extends JDialog {
 
 		if (starName != null && auid != null && minDate != null
 				&& maxDate != null) {
+			cancelled = false;
 			setVisible(false);
 			dispose();
 		}
