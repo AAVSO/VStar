@@ -122,10 +122,10 @@ public class StarSelectorDialog extends JDialog {
 
 	// We know the AUID of the CitizenSky ten-stars, so there is
 	// no need to query the database for these.
-	// TODO: put these in a properties file?
+	// TODO: put these in a properties file!
 	private void createTenStarMap() {
 		tenStarMap = new TreeMap<String, String>();
-		tenStarMap.put("Alpha Orionis", "000-BDY-978");
+		tenStarMap.put("Alpha Orionis", "000-BCZ-336");
 		tenStarMap.put("Beta Lyrae", "000-BDB-937");
 		tenStarMap.put("Beta Persei", "000-BCY-922");
 		tenStarMap.put("Delta Cephei", "000-BDC-570");
