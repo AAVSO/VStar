@@ -1,0 +1,9 @@
+Frequently Asked Questions
+==========================
+
+Q: I got an error message during startup with "Can't locate icon:
+
+   /toolbarButtonGraphics/general/New24.gif"
+
+A: This is because the application cannot find the jlfgr look and feel icons.
+   Make sure the *.jar files are directly under extlib.

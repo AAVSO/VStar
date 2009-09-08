@@ -25,7 +25,8 @@ import junit.framework.TestCase;
  * 
  * Most test cases were taken from Jean Meeus's Astronomical Algorithms 
  * 1991, 1st edition, chapter 7. A few (marked) were were checked with  
- * http://www.sizes.com/time/dayJulianr.htm
+ * http://www.sizes.com/time/dayJulianr.htm. Others were checked with
+ * http://www.aavso.org/observing/aids/jdcalendar.shtml (marked).
  */
 public class DateUtilTestBase extends TestCase {
 
@@ -198,7 +199,7 @@ public class DateUtilTestBase extends TestCase {
 		commonCaltoJDTest(-4712, 1, 1.5, 0.0);
 	}
 
-	// http://www.sizes.com/time/dayJulianr.htm
+	// Checked with http://www.sizes.com/time/dayJulianr.htm
 	
 	public void testCaltoJD2010a() {
 		commonCaltoJDTest(2010, 1, 1, 2455197.5);
@@ -214,6 +215,12 @@ public class DateUtilTestBase extends TestCase {
 
 	public void testCaltoJD2009b() {
 		commonCaltoJDTest(2009, 12, 31, 2455196.5);
+	}
+
+	// Checked with http://www.aavso.org/observing/aids/jdcalendar.shtml
+	
+	public void testCaltoJD2009c() {
+		commonCaltoJDTest(2009, 9, 5, 2455079.5);
 	}
 
 	// Helper
