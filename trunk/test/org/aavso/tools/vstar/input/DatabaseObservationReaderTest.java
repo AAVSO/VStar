@@ -46,7 +46,7 @@ public class DatabaseObservationReaderTest extends TestCase {
 
 	// Valid tests.
 
-	// Read a result set from the database for Epsilon Auriga in the
+	// Read a result set from the database for Epsilon Aurigae in the
 	// Julian Day range 2454000.5..2454939.56597.
 	public void testSampleRead1() {
 		try {
@@ -61,10 +61,21 @@ public class DatabaseObservationReaderTest extends TestCase {
 					2454939.56597);
 
 			ResultSet results = stmt.executeQuery();
-			assertTrue(results.next());
 
-			double mag = results.getDouble("magnitude");
-			assertEquals(3.0, mag);
+			// Look for a particular observation that we know exists
+			// in the database and check the magnitude we find there.
+			boolean found = false;
+			while (results.next()) {
+				double jd = results.getDouble("JD");
+				if (jd == 2454134.3819) {
+					double mag = results.getDouble("magnitude");
+					assertEquals(3.0, mag);
+					int band = results.getInt("band");
+					assertEquals(0, band); // Visual band
+					found = true;
+				}
+			}
+			assertTrue(found);
 		} catch (Exception e) {
 			fail();
 		}
