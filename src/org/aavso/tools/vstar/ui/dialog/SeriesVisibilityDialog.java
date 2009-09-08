@@ -37,14 +37,15 @@ import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 /**
  * This dialog permits the visibility of plot series to be changed.
  */
-public class SeriesVisibilityDialog extends JDialog {
+public class SeriesVisibilityDialog<T extends JPanel> extends JDialog {
 
 	protected JPanel topPane;
 	protected JPanel seriesPane;
-	
+
 	protected ObservationPlotModel obsPlotModel;
 	protected SeriesVisibilityPane seriesVisibilityPane;
-	
+	protected T nextPane;
+
 	private boolean cancelled;
 
 	/**
@@ -54,16 +55,33 @@ public class SeriesVisibilityDialog extends JDialog {
 	 *            An observation plot model.
 	 */
 	public SeriesVisibilityDialog(ObservationPlotModel obsPlotModel) {
+		this(obsPlotModel, "Change Series", null);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param obsPlotModel
+	 *            An observation plot model.
+	 * @param title
+	 *            The dialog title.
+	 * @param nextPane
+	 *            An optional (may be null) pane to be added next to the primary
+	 *            pane. This allows us to specialise dialog panes by chaining.
+	 */
+	public SeriesVisibilityDialog(ObservationPlotModel obsPlotModel,
+			String title, T nextPane) {
 		super();
-		this.setTitle("Change Series");
+		this.setTitle(title);
 		this.setModal(true);
 
 		this.obsPlotModel = obsPlotModel;
+		this.nextPane = nextPane;
 
 		Container contentPane = this.getContentPane();
 		
 		// This pane contains a series pane and buttons.
-		
+
 		topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -72,8 +90,13 @@ public class SeriesVisibilityDialog extends JDialog {
 		seriesPane.setLayout(new BoxLayout(seriesPane, BoxLayout.LINE_AXIS));
 		seriesVisibilityPane = new SeriesVisibilityPane(obsPlotModel);
 		seriesPane.add(seriesVisibilityPane);
-		topPane.add(seriesPane);
 		
+		if (nextPane != null) {
+			seriesPane.add(nextPane);
+		}
+		
+		topPane.add(seriesPane);
+
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createButtonPane());
 
@@ -85,7 +108,7 @@ public class SeriesVisibilityDialog extends JDialog {
 	}
 
 	// TODO: need to refactor code for OkCancelDialog (including topPane)
-	
+
 	private JPanel createButtonPane() {
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -126,6 +149,13 @@ public class SeriesVisibilityDialog extends JDialog {
 	 */
 	public boolean isCancelled() {
 		return cancelled;
+	}
+
+	/**
+	 * @return the nextPane
+	 */
+	public T getNextPane() {
+		return nextPane;
 	}
 
 	/**
