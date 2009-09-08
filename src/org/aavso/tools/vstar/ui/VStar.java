@@ -25,10 +25,27 @@ import javax.swing.UIManager;
 public class VStar {
 
 	public static void main(String[] args) {
+		// Set the Look & Feel of the application to be native.
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 			System.err.println("Unable to set default look and feel. Exiting.");
+			System.exit(1);
+		}
+
+		// Further, for Mac OS X, make it look more native
+		// by using the screen menu bar. Suggested by Adam Weber.
+		try {
+			String os_name = System.getProperty("os.name");
+			if (os_name.startsWith("Mac OS X")) {
+				System.setProperty("apple.laf.useScreenMenuBar", "true");
+				System.setProperty(
+						"com.apple.mrj.application.apple.menu.about.name",
+						"VStar");
+			}
+		} catch (Exception e) {
+			System.err.println("Unable to detect operating system. Exiting.");
+			System.exit(1);
 		}
 
 		// Schedule a job for the event-dispatching thread:
