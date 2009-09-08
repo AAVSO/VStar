@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This class represents a pane with checkboxes showing those series
- * that are rendered. 
+ * that are rendered. The series to be displayed can be changed. 
  */
 public class SeriesVisibilityPane extends JPanel {
 
@@ -56,6 +56,7 @@ public class SeriesVisibilityPane extends JPanel {
 		addSeriesCheckBoxes();
 	}
 	
+	// Create a checkbox for each series.
 	private void addSeriesCheckBoxes() {
 		for (String seriesName : this.obsPlotModel.getSeriesKeys()) {
 			if (!SeriesType.MEANS.getName().equals(seriesName)) {

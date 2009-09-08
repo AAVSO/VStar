@@ -30,7 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.ui.dialog.ObservationInfoDialog;
-import org.aavso.tools.vstar.ui.dialog.SeriesVisibilityDialog;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -204,22 +203,25 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 	abstract protected ActionListener createSeriesChangeButtonListener();
 
 	/**
-	 * Invokes the series change dialog and return whether or not there was a
-	 * change.
+	 * Was there a change in the series visibility?
+	 * Some callers may want to invoke this only for its
+	 * side effects, while others may want to know the result.
 	 * 
-	 * @return Was there a change?
+	 * @param deltaMap A mapping from series number to whether or not
+	 * each series' visibility was changed.
+	 *  
+	 * @return Was there a change in the visibility of any series?
+	 * 
+	 * TODO: delegate to SeriesVisibilityDialog!?
 	 */
-	protected boolean invokeSeriesChangeDialog() {
+	protected boolean seriesVisibilityChange(
+			Map<Integer, Boolean> deltaMap) {
 		boolean delta = false;
 
-		SeriesVisibilityDialog dialog = new SeriesVisibilityDialog(obsModel);
-		if (!dialog.isCancelled()) {
-			Map<Integer, Boolean> deltaMap = dialog.getVisibilityDeltaMap();
-			for (int seriesNum : deltaMap.keySet()) {
-				boolean visibility = deltaMap.get(seriesNum);
-				delta |= obsModel.changeSeriesVisibility(seriesNum, visibility);
-				renderer.setSeriesVisible(seriesNum, visibility);
-			}
+		for (int seriesNum : deltaMap.keySet()) {
+			boolean visibility = deltaMap.get(seriesNum);
+			delta |= obsModel.changeSeriesVisibility(seriesNum, visibility);
+			renderer.setSeriesVisible(seriesNum, visibility);
 		}
 
 		return delta;

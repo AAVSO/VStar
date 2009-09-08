@@ -20,13 +20,15 @@ package org.aavso.tools.vstar.ui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Map;
 
+import javax.swing.JPanel;
+
+import org.aavso.tools.vstar.ui.dialog.SeriesVisibilityDialog;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 
 /**
- * This class represents a chart pane containing a raw plot for a set 
- * of valid observations (magnitude vs Julian Day).
+ * This class represents a chart pane containing a raw plot for a set of valid
+ * observations (magnitude vs Julian Day).
  */
 public class ObservationPlotPane extends
 		ObservationPlotPaneBase<ObservationPlotModel> {
@@ -34,21 +36,31 @@ public class ObservationPlotPane extends
 	/**
 	 * Constructor.
 	 * 
-	 * @param title The title of the plot.
-	 * @param obsModel The observation model.
-	 * @param bounds The bounds of the pane.
+	 * @param title
+	 *            The title of the plot.
+	 * @param obsModel
+	 *            The observation model.
+	 * @param bounds
+	 *            The bounds of the pane.
 	 */
 	public ObservationPlotPane(String title, ObservationPlotModel obsModel,
 			Dimension bounds) {
 		super(title, obsModel, bounds);
 	}
-	
+
 	// Return a listener for the "change series visibility" button.
 	protected ActionListener createSeriesChangeButtonListener() {
 		return new ActionListener() {
+			// TODO: the bletcherosity of the next line may be an argument
+			// for using a common abstract base class.
 			public void actionPerformed(ActionEvent e) {
-				invokeSeriesChangeDialog();
+				SeriesVisibilityDialog<JPanel> dialog = new SeriesVisibilityDialog<JPanel>(
+						obsModel);
+
+				if (!dialog.isCancelled()) {
+					seriesVisibilityChange(dialog.getVisibilityDeltaMap());
+				}
 			}
 		};
-	}	
+	}
 }

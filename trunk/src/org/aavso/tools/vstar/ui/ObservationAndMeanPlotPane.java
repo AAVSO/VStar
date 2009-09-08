@@ -26,9 +26,8 @@ import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.dialog.MeanSourceDialog;
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
-import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.event.ChartProgressEvent;
 
 /**
  * This class represents a chart pane containing a plot for a set of valid
@@ -101,22 +100,25 @@ public class ObservationAndMeanPlotPane extends
 	
 	// Return a listener for the "change series visibility" button.
 	protected ActionListener createSeriesChangeButtonListener() {
+		final ObservationAndMeanPlotPane self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+								
+				int oldMeanSeriesSourceNum = self.obsModel.getMeanSourceSeriesNum();
+
+				MeanSourceDialog dialog = new MeanSourceDialog(self.obsModel);
 				
-				// TODO: override what the below method does
-				// and change the delta critera to be "did the means series
-				// source change"? Actually, we may be able to simply
-				// invoke the specialised dialog here and in ObservationPlotPane
-				// (createSeriesChangeButtonListener()) and pass the delta
-				// map to a common method rather than invokeSeriesChangeDialog.
-				
-				boolean delta = invokeSeriesChangeDialog();
-				if (delta) {
-					// Update mean series based upon changed visibility
-					// of one or more series.
-					obsModel.changeMeansSeries(obsModel.getDaysInBin());
-				}
+				if (!dialog.isCancelled()) {
+					seriesVisibilityChange(dialog.getVisibilityDeltaMap());
+					
+					int newMeanSeriesSourceNum = dialog.getMeanSeriesSourceNum();
+					
+					if (newMeanSeriesSourceNum != oldMeanSeriesSourceNum) {
+						// Update mean series based upon changed means 
+						// source series.
+						obsModel.changeMeansSeries(obsModel.getDaysInBin());
+					}
+				}				
 			}
 		};
 	}

@@ -34,9 +34,9 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 public class ResourceAccessor {
 
 	// This file has had its "Revision" keyword property set via:
-	// svn propset svn:keywords "Revision" AboutBox.java
+	// svn propset svn:keywords "Revision" ResourceAccessor.java
 	// such that upon all commits, the revision will be updated.
-	private static final String REVISION = "$Rev: 147 $";
+	private static final String REVISION = "$Rev:$";
 
 	private static final Pattern revNumPat = Pattern
 			.compile("^\\$Rev: (\\d+) \\$$");
