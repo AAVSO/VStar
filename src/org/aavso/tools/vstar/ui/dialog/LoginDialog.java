@@ -65,8 +65,10 @@ public class LoginDialog extends JDialog {
 		this.setTitle("Login");
 		this.setModal(true);
 
+		// TODO: do we want to impose maximum lengths on usernames 
+		// and passwords; should we split patterns for each out?
 		Pattern commonPattern = Pattern
-				.compile("^[A-Za-z0-9\\!@#\\$%&\\*\\(\\)_\\-\\+=\\?<>]{2,15}$");
+				.compile("^[A-Za-z0-9\\!@#\\$%&\\*\\(\\)_\\-\\+=\\?<><>\\.\\,]{2,40}$");
 
 		this.usernamePattern = commonPattern;
 		this.passwordPattern = commonPattern;
