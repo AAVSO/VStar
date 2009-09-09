@@ -62,7 +62,6 @@
 		<mkdir dir="${dist}" />
 
 		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="MANIFEST.MF">
-			<zipfileset dir="${extlib}" />
 			<fileset dir="${ui_resources}" />
 		</jar>
 	</target>

@@ -61,7 +61,7 @@ public class AboutBox {
 				.append("This project was funded in part by grant No. 000379097 from the\n");
 		strBuf.append("National Science Foundation.\n\n");
 
-		strBuf.append("Code by: David Benn\n");
+		strBuf.append("Lead Developer: David Benn\n");
 		strBuf.append("Contact: aavso@aavso.org\n");
 		strBuf.append("License: GNU Affero General Public License\n\n");
 		strBuf.append("Images were sourced from:\n\n");
