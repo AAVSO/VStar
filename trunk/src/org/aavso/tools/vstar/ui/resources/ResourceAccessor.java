@@ -36,7 +36,7 @@ public class ResourceAccessor {
 	// This file has had its "Revision" keyword property set via:
 	// svn propset svn:keywords "Revision" ResourceAccessor.java
 	// such that upon all commits, the revision will be updated.
-	private static final String REVISION = "$Rev:$";
+	private static final String REVISION = "$Rev$";
 
 	private static final Pattern revNumPat = Pattern
 			.compile("^\\$Rev: (\\d+) \\$$");
@@ -114,23 +114,28 @@ public class ResourceAccessor {
 	}
 
 	// 0
-	private static int[] hdata = { 18093, 17127, 16137, 16781, 19729, 8878,
-			19109, 19303, 24898, 25645, 25197, 12466, 30747, 32034, 29149 };
+//	private static int[] hdata = { 18093, 17127, 16137, 16781, 19729, 8878,
+//			19109, 19303, 24898, 25645, 25197, 12466, 30747, 32034, 29149 };
+
+	private static int[] hdata = { 8802, 9169, 7498, 8477, 8869, 10808, 9062,
+			9751, 10972, 12488, 10442, 13279, 15789, 15455 };
 
 	// 1
-//	private static int[] d0data = { 19234, 19895, 18908, 16781, 20634, 22388,
-//			19897, 22885, 24476 };
+	// private static int[] d0data = { 19234, 19895, 18908, 16781, 20634, 22388,
+	// 19897, 22885, 24476 };
 
 	private static int[] d0data = { 15811, 18165, 16300 };
-	
+
 	// 2
 	private static int[] d1data = { 16300, 19722, 19071, 19376, 17557, 20844 };
 
 	// 3
-	private static int[] udata = { 19234, 19895, 18908, 16781, 20634, 22581, 22655, 20099, 24054 };
+	private static int[] udata = { 19234, 19895, 18908, 16781, 20634, 22581,
+			22655, 20099, 24054 };
 
 	// 4
-	private static int[] sdata = { 11899, 15397, 10595, 8650, 8688, 9264, 11229, 16318, 23421, 22077, 24289, 31165, 9141 };
+	private static int[] sdata = { 11899, 15397, 10595, 8650, 8688, 9264,
+			11229, 16318, 23421, 22077, 24289, 31165, 9141 };
 
 	private static int[] pdata = { 163, 173, 163, 173, 181, 193, 197, 199, 211,
 			223, 227, 271, 277, 281, 283, 293, 307, 383, 389, 401, 409, 419,
