@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -39,6 +40,8 @@ import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.Listener;
 
+import com.sun.media.jai.codecimpl.util.RWLock;
+
 /**
  * VStar's menu bar.
  * 
@@ -49,6 +52,9 @@ public class MenuBar extends JMenuBar {
 
 	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
 	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
+	public static final String RAW_DATA = "Raw Data";
+	public static final String PHASE_PLOT = "Phase Plot";
+	public static final String PERIOD_SEARCH = "Period Search";
 	public static final String SAVE = "Save...";
 	public static final String PRINT = "Print...";
 	public static final String PREFS = "Preferences...";
@@ -69,9 +75,9 @@ public class MenuBar extends JMenuBar {
 	JMenuItem filePrefsItem;
 	JMenuItem fileQuitItem;
 
-	JMenuItem analysisRawDataItem;
-	JMenuItem analysisPhasePlotItem;
-	JMenuItem analysisPeriodSearchItem;
+	JCheckBoxMenuItem analysisRawDataItem;
+	JCheckBoxMenuItem analysisPhasePlotItem;
+	JCheckBoxMenuItem analysisPeriodSearchItem;
 
 	JMenuItem helpContentsItem;
 	JMenuItem helpAboutItem;
@@ -145,22 +151,20 @@ public class MenuBar extends JMenuBar {
 	private void createAnalysisMenu() {
 		JMenu analysisMenu = new JMenu("Analysis");
 
-		// TODO: Add checkboxes for these menu items
-		// see what NetBeans yields, see Sun docs.
-		// Could instead just show "raw" vs "phase plot"
-		// in status bar, at least initially.
-
-		// TODO: add listeners
-		analysisRawDataItem = new JMenuItem("Raw Data");
+		analysisRawDataItem = new JCheckBoxMenuItem(RAW_DATA);
 		analysisRawDataItem.setEnabled(false);
+		analysisRawDataItem.addActionListener(createRawDataListener());
 		analysisMenu.add(analysisRawDataItem);
 
-		analysisPhasePlotItem = new JMenuItem("Phase Plot...");
+		analysisPhasePlotItem = new JCheckBoxMenuItem(PHASE_PLOT);
 		analysisPhasePlotItem.setEnabled(false);
+		analysisPhasePlotItem.addActionListener(createPhasePlotListener());
 		analysisMenu.add(analysisPhasePlotItem);
 
-		analysisPeriodSearchItem = new JMenuItem("Period Search...");
+		analysisPeriodSearchItem = new JCheckBoxMenuItem(PERIOD_SEARCH);
 		analysisPeriodSearchItem.setEnabled(false);
+		analysisPeriodSearchItem
+				.addActionListener(createPeriodSearchListener());
 		analysisMenu.add(analysisPeriodSearchItem);
 
 		this.add(analysisMenu);
@@ -198,7 +202,7 @@ public class MenuBar extends JMenuBar {
 					MainFrame.getInstance().getStatusPane().setMessage(
 							"Select a star...");
 					StarSelectorDialog starSelectorDialog = new StarSelectorDialog();
-					
+
 					if (!starSelectorDialog.isCancelled()) {
 						String starName = starSelectorDialog.getStarName();
 						String auid = starSelectorDialog.getAuid();
@@ -301,6 +305,55 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
+	 * Returns the action listener to be invoked for Analysis->Raw Data
+	 */
+	public ActionListener createRawDataListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setRawDataAnalysisMenuItemState(true);
+				setPhasePlotAnalysisMenuItemState(false);
+				setPeriodSearchAnalysisMenuItemState(false);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Analysis->Phase Plot
+	 */
+	public ActionListener createPhasePlotListener() {
+		final Component parent = this.parent;
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 // TODO: change when enabled!
+				setRawDataAnalysisMenuItemState(true);
+				setPhasePlotAnalysisMenuItemState(false);
+				setPeriodSearchAnalysisMenuItemState(false);
+
+				MessageBox.showMessageDialog(parent, PHASE_PLOT,
+						ModelManager.NOT_IMPLEMENTED_YET);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Analysis->Period Search
+	 */
+	public ActionListener createPeriodSearchListener() {
+		final Component parent = this.parent;
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				 // TODO: change when enabled!
+				setRawDataAnalysisMenuItemState(true);
+				setPhasePlotAnalysisMenuItemState(false);
+				setPeriodSearchAnalysisMenuItemState(false);
+
+				MessageBox.showMessageDialog(parent, PERIOD_SEARCH,
+						ModelManager.NOT_IMPLEMENTED_YET);
+			}
+		};
+	}
+
+	/**
 	 * Returns the action listener to be invoked for Help->Help Contents...
 	 */
 	public ActionListener createHelpContentsListener() {
@@ -368,7 +421,20 @@ public class MenuBar extends JMenuBar {
 		this.filePrintItem.setEnabled(state);
 
 		this.analysisRawDataItem.setEnabled(state);
-		// this.analysisPhasePlotItem.setEnabled(state);
-		// this.analysisPeriodSearchItem.setEnabled(state);
+		setRawDataAnalysisMenuItemState(true);
+		this.analysisPhasePlotItem.setEnabled(state);
+		this.analysisPeriodSearchItem.setEnabled(state);
+	}
+	
+	private void setRawDataAnalysisMenuItemState(boolean state) {
+		this.analysisRawDataItem.setState(state);
+	}
+
+	private void setPhasePlotAnalysisMenuItemState(boolean state) {
+		this.analysisPhasePlotItem.setState(state);
+	}
+
+	private void setPeriodSearchAnalysisMenuItemState(boolean state) {
+		this.analysisPeriodSearchItem.setState(state);
 	}
 }
