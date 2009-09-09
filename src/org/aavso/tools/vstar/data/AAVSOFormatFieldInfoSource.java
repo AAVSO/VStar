@@ -232,13 +232,10 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 		case VALFLAG_COLUMN:
 			break;
 		case CMAG_COLUMN:
-			clazz = Double.class;
 			break;
 		case KMAG_COLUMN:
-			clazz = Double.class;
 			break;
 		case HJD_COLUMN:
-			clazz = Double.class;
 			break;
 		case NAME_COLUMN:
 			break;
