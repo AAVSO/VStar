@@ -38,6 +38,9 @@ import org.aavso.tools.vstar.util.IMagAndJDSource;
  */
 public class ValidObservation extends Observation implements IMagAndJDSource {
 
+	// TODO: This needs to be thinly wrapped in places where a class might
+	// change instance of it so that notification can be centralised.
+	
 	// Optimisations (TODO):
 	// - Use Flyweight pattern to ensure that immutable values
 	// (mostly strings) exist only once for a given value. This will reduce

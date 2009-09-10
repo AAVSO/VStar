@@ -211,8 +211,6 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 	 * each series' visibility was changed.
 	 *  
 	 * @return Was there a change in the visibility of any series?
-	 * 
-	 * TODO: delegate to SeriesVisibilityDialog!?
 	 */
 	protected boolean seriesVisibilityChange(
 			Map<Integer, Boolean> deltaMap) {

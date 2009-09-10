@@ -145,8 +145,8 @@ public class DataPane extends JPanel {
 					JPanel obsListPane = msg.getObsTablePane();
 					JPanel meansListPane = msg.getMeansListPane();
 
-					if (obsPlotPane != null && obsListPane != null
-							&& obsAndMeanPane != null) {
+					if (obsPlotPane != null && obsAndMeanPane != null
+							&& obsListPane != null && meansListPane != null) {
 						setCard(ModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
 						setCard(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
 								obsAndMeanPane);
@@ -161,7 +161,8 @@ public class DataPane extends JPanel {
 						} else {
 							errMsg = "Error in observation source.";
 						}
-						MessageBox.showErrorDialog(parent, "New Star...", errMsg);
+						MessageBox.showErrorDialog(parent, "New Star...",
+								errMsg);
 					}
 				}
 			}
