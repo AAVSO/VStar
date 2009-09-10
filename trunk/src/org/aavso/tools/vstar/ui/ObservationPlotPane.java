@@ -21,8 +21,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JPanel;
-
 import org.aavso.tools.vstar.ui.dialog.SeriesVisibilityDialog;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 
@@ -51,10 +49,8 @@ public class ObservationPlotPane extends
 	// Return a listener for the "change series visibility" button.
 	protected ActionListener createSeriesChangeButtonListener() {
 		return new ActionListener() {
-			// TODO: the bletcherosity of the next line may be an argument
-			// for using a common abstract base class.
 			public void actionPerformed(ActionEvent e) {
-				SeriesVisibilityDialog<JPanel> dialog = new SeriesVisibilityDialog<JPanel>(
+				SeriesVisibilityDialog dialog = new SeriesVisibilityDialog(
 						obsModel);
 
 				if (!dialog.isCancelled()) {
