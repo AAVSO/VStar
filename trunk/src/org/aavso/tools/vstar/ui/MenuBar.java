@@ -40,8 +40,6 @@ import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.Listener;
 
-import com.sun.media.jai.codecimpl.util.RWLock;
-
 /**
  * VStar's menu bar.
  * 
@@ -310,6 +308,8 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createRawDataListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// TODO: set analysis action in ModelManager so it can
+				// choose the right artefacts out of a map (for example).
 				setRawDataAnalysisMenuItemState(true);
 				setPhasePlotAnalysisMenuItemState(false);
 				setPeriodSearchAnalysisMenuItemState(false);
