@@ -22,6 +22,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
@@ -34,6 +36,8 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import java.lang.Double;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
@@ -98,8 +102,7 @@ public class StarSelectorDialog extends JDialog {
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		topPane
-				.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
+		topPane.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
 
 		topPane.add(createTenStarSelectorPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -178,8 +181,8 @@ public class StarSelectorDialog extends JDialog {
 		double jd = dateUtil.calendarToJD(year-2, month, day);
 		minJDField = new JTextField(jd + "");
 		minJDField.addActionListener(createMinJDFieldActionListener());
-		minJDField
-				.setToolTipText(dateUtil.jdToCalendar(jd));
+		minJDField.addFocusListener(createMinJDFieldFocusListener());
+		minJDField.setToolTipText(dateUtil.jdToCalendar(jd));
 		panel.add(minJDField);
 
 		return panel;
@@ -193,8 +196,8 @@ public class StarSelectorDialog extends JDialog {
 		double jd = dateUtil.calendarToJD(year, month, day);
 		maxJDField = new JTextField(jd + "");
 		maxJDField.addActionListener(createMaxJDFieldActionListener());
-		maxJDField
-				.setToolTipText(dateUtil.jdToCalendar(jd));
+		maxJDField.addFocusListener(createMaxJDFieldFocusListener());
+		maxJDField.setToolTipText(dateUtil.jdToCalendar(jd));
 		panel.add(maxJDField);
 
 		return panel;
@@ -238,20 +241,58 @@ public class StarSelectorDialog extends JDialog {
 		};
 	}
 
-	// Return a listener for the minimum Julian Day field.
+	// Return listeners for the minimum Julian Day field.
+	
 	private ActionListener createMinJDFieldActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// checkInput();
+				minJDField.setToolTipText(dateUtil.jdToCalendar(Double.parseDouble(minJDField.getText())));
 			}
 		};
 	}
 
-	// Return a listener for the maximum Julian Day field.
+	private FocusListener createMinJDFieldFocusListener() {
+		return new FocusListener() { 
+			String prevString = "";
+
+			public void focusGained(FocusEvent e) {
+			}
+			
+			public void focusLost(FocusEvent e) {
+				String current = minJDField.getText();
+				if (!prevString.equals(current)){
+					minJDField.setToolTipText(dateUtil.jdToCalendar(Double.parseDouble(current)));
+					prevString = current;
+				}			
+			}
+		};
+	}
+
+	// Return listeners for the maximum Julian Day field.
+	
 	private ActionListener createMaxJDFieldActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// checkInput();
+				maxJDField.setToolTipText(dateUtil.jdToCalendar(Double.parseDouble(maxJDField.getText())));
+			}
+		};
+	}
+
+	private FocusListener createMaxJDFieldFocusListener() {
+		return new FocusListener() { 
+			String prevString = "";
+
+			public void focusGained(FocusEvent e) {
+			}
+			
+			public void focusLost(FocusEvent e) {
+				String current = maxJDField.getText();
+				if (!prevString.equals(current)){
+					maxJDField.setToolTipText(dateUtil.jdToCalendar(Double.parseDouble(current)));
+					prevString = current;
+				}				
 			}
 		};
 	}
@@ -276,7 +317,7 @@ public class StarSelectorDialog extends JDialog {
 	}
 
 	private void checkInput() {
-		// TODO: check if text box is empty; if not, prioritise it
+		// TODO: check if text box is empty; if not, prioritise it over drop-down
 
 		starName = (String) tenStarSelector.getSelectedItem();
 		auid = tenStarMap.get(starName);
