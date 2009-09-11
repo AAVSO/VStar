@@ -38,7 +38,6 @@ import org.aavso.tools.vstar.ui.MainFrame;
  */
 public class ObservationInfoDialog extends JDialog {
 
-	private ValidObservation ob;
 	private Container contentPane;
 
 	public ObservationInfoDialog(ValidObservation ob) {
@@ -46,8 +45,6 @@ public class ObservationInfoDialog extends JDialog {
 		this.setTitle("Observation Information");
 		this.setModal(false);
 		this.setSize(200, 200);
-
-		this.ob = ob;
 
 		contentPane = this.getContentPane();
 		
@@ -63,6 +60,7 @@ public class ObservationInfoDialog extends JDialog {
 
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 	}	
 }
