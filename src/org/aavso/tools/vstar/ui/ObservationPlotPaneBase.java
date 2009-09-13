@@ -63,10 +63,14 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 	protected XYErrorRenderer renderer;
 
 	// Show error bars?
-	private boolean showErrorBars;
+	protected boolean showErrorBars;
 
 	protected JButton visibilityButton;
 
+	// Axis titles.
+	protected String domainTitle = "Time (Julian Date)";
+	protected String rangeTitle = "Brightness (magnitude)";
+	
 	/**
 	 * Constructor
 	 * 
@@ -89,7 +93,7 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 		// Create a chart with legend, tooltips, and URLs showing
 		// and add it to the panel.
 		this.chartPanel = new ChartPanel(ChartFactory.createScatterPlot(title,
-				"Julian Date", "Magnitude", obsModel, PlotOrientation.VERTICAL,
+				domainTitle, rangeTitle, obsModel, PlotOrientation.VERTICAL,
 				true, true, true));
 
 		this.chartPanel.setPreferredSize(bounds);
