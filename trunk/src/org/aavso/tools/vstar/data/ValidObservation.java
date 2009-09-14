@@ -388,12 +388,6 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 		strBuf.append(magnitude);
 		strBuf.append("\n");
 
-		if (obsCode != null) {
-			strBuf.append("Observer code: ");
-			strBuf.append(obsCode);
-			strBuf.append("\n");
-		}
-
 		if (validationType != null) {
 			strBuf.append("Validation flag: ");
 			strBuf.append(validationType.getValflag());
