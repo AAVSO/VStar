@@ -21,13 +21,10 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -42,7 +39,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
  * when a valid username/password combination is entered or the dialog is
  * dismissed.
  */
-public class LoginDialog extends JDialog {
+public class LoginDialog extends AbstractOkCancelDialog {
 
 	private Container contentPane;
 
@@ -52,8 +49,6 @@ public class LoginDialog extends JDialog {
 	private Pattern usernamePattern;
 	private Pattern passwordPattern;
 
-	private boolean cancelled;
-
 	/**
 	 * Constructor
 	 * 
@@ -61,9 +56,7 @@ public class LoginDialog extends JDialog {
 	 *            The introductory text to be displayed in this dialog's.
 	 */
 	public LoginDialog(String intro) {
-		super();
-		this.setTitle("Login");
-		this.setModal(true);
+		super("Login");
 
 		// TODO: do we want to impose maximum lengths on usernames 
 		// and passwords; should we split patterns for each out?
@@ -72,8 +65,6 @@ public class LoginDialog extends JDialog {
 
 		this.usernamePattern = commonPattern;
 		this.passwordPattern = commonPattern;
-
-		this.cancelled = false;
 
 		contentPane = this.getContentPane();
 
@@ -125,43 +116,8 @@ public class LoginDialog extends JDialog {
 		return panel;
 	}
 
-	private JPanel createButtonPane() {
-		JPanel panel = new JPanel(new BorderLayout());
-
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(createCancelButtonListener());
-		panel.add(cancelButton, BorderLayout.LINE_START);
-
-		JButton okButton = new JButton("OK");
-		okButton.addActionListener(createOKButtonListener());
-		// okButton.setEnabled(false);
-		panel.add(okButton, BorderLayout.LINE_END);
-
-		return panel;
-	}
-
 	// Return a listener for the username and password fields.
 	private ActionListener createFieldActionListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				checkInput();
-			}
-		};
-	}
-
-	// Return a listener for the "cancel" button.
-	private ActionListener createCancelButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cancelled = true;
-				setVisible(false);
-				dispose();
-			}
-		};
-	}
-
-	// Return a listener for the "OK" button.
-	private ActionListener createOKButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				checkInput();
@@ -185,7 +141,9 @@ public class LoginDialog extends JDialog {
 			passwordField.setText("");
 			setVisible(true);
 		} else {
-			// The fields validated, so dismiss the dialog box.
+			// The fields validated, so dismiss the dialog box, indicating 
+			// success.
+			cancelled = false;
 			dispose();
 		}
 	}
@@ -209,5 +167,13 @@ public class LoginDialog extends JDialog {
 	 */
 	public boolean isCancelled() {
 		return cancelled;
+	}
+
+	protected void cancelAction() {
+		// Nothing to do		
+	}
+
+	protected void okAction() {
+		checkInput();
 	}
 }

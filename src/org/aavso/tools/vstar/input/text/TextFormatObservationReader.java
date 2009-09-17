@@ -26,7 +26,7 @@ import org.aavso.tools.vstar.data.validation.StringValidatorBase;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.ObservationRetrieverBase;
-import org.aavso.tools.vstar.ui.model.ModelManager;
+import org.aavso.tools.vstar.ui.controller.ModelManager;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 
 /**

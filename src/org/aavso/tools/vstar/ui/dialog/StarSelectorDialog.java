@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -31,13 +30,9 @@ import java.util.TreeMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
-import java.lang.Double;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
@@ -48,7 +43,7 @@ import org.aavso.tools.vstar.util.AbstractDateUtil;
 /**
  * This dialog allows the user to select a star.
  */
-public class StarSelectorDialog extends JDialog {
+public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	private static AbstractDateUtil dateUtil = AbstractDateUtil.getInstance();
 
@@ -68,8 +63,6 @@ public class StarSelectorDialog extends JDialog {
 	private DateInfo minDate;
 	private DateInfo maxDate;
 
-	private boolean cancelled;
-
 	private Calendar cal;
 	private int year, month, day;
 	
@@ -77,9 +70,7 @@ public class StarSelectorDialog extends JDialog {
 	 * Constructor
 	 */
 	public StarSelectorDialog() {
-		super();
-		this.setTitle("Select a Star");
-		this.setModal(true);
+		super("Select a Star");
 
 		this.starName = null;
 		this.auid = null;
@@ -87,8 +78,6 @@ public class StarSelectorDialog extends JDialog {
 		this.maxDate = null;
 
 		this.jdValidator = new JulianDayValidator();
-
-		this.cancelled = true;
 
 		cal = Calendar.getInstance();
 		year = cal.get(Calendar.YEAR);
@@ -125,7 +114,7 @@ public class StarSelectorDialog extends JDialog {
 
 	// We know the AUID of the CitizenSky ten-stars, so there is
 	// no need to query the database for these.
-	// TODO: put these in a properties file!
+	// TODO: put these in a properties file and move this method to ResourceAccessor()!
 	private void createTenStarMap() {
 		tenStarMap = new TreeMap<String, String>();
 		tenStarMap.put("Alpha Orionis", "000-BCZ-336");
@@ -203,25 +192,7 @@ public class StarSelectorDialog extends JDialog {
 		return panel;
 	}
 
-	private JPanel createButtonPane() {
-		JPanel panel = new JPanel(new BorderLayout());
-
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(createCancelButtonListener());
-		panel.add(cancelButton, BorderLayout.LINE_START);
-
-		JButton okButton = new JButton("OK");
-		okButton.addActionListener(createOKButtonListener());
-		// okButton.setEnabled(false);
-		panel.add(okButton, BorderLayout.LINE_END);
-
-		return panel;
-	}
-
 	// Event handlers
-
-	// TODO: may want to get rid of all action listeners except for
-	// buttons
 
 	// Return a listener for the 10-star selector.
 	private ActionListener createTenStarSelectorActionListener() {
@@ -297,25 +268,6 @@ public class StarSelectorDialog extends JDialog {
 		};
 	}
 
-	// Return a listener for the "OK" button.
-	private ActionListener createOKButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				checkInput();
-			}
-		};
-	}
-
-	// Return a listener for the "cancel" button.
-	private ActionListener createCancelButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-				dispose();
-			}
-		};
-	}
-
 	private void checkInput() {
 		// TODO: check if text box is empty; if not, prioritise it over drop-down
 
@@ -379,5 +331,13 @@ public class StarSelectorDialog extends JDialog {
 	 */
 	public boolean isCancelled() {
 		return cancelled;
+	}
+
+	protected void cancelAction() {
+		// Nothing to do.
+	}
+
+	protected void okAction() {
+		checkInput();		
 	}
 }
