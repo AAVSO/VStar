@@ -29,9 +29,9 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.controller.ModelManager;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.model.ModeType;
-import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.util.Listener;

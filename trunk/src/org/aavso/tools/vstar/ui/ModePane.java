@@ -28,8 +28,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import org.aavso.tools.vstar.ui.controller.ModelManager;
 import org.aavso.tools.vstar.ui.model.ModeType;
-import org.aavso.tools.vstar.ui.model.ModelManager;
 import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.util.Listener;
 

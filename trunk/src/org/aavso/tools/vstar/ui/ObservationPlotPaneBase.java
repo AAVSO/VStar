@@ -29,7 +29,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import org.aavso.tools.vstar.ui.dialog.ObservationInfoDialog;
+import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -256,7 +256,7 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
-			new ObservationInfoDialog(obsModel
+			new ObservationDetailsDialog(obsModel
 					.getValidObservation(series, item));
 		}
 	}

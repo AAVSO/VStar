@@ -25,7 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.BevelBorder;
 
-import org.aavso.tools.vstar.ui.model.ModelManager;
+import org.aavso.tools.vstar.ui.controller.ModelManager;
 import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;

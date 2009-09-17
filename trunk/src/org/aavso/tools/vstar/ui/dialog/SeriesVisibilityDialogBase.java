@@ -17,18 +17,13 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.MainFrame;
@@ -37,12 +32,12 @@ import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 /**
  * This dialog permits the visibility of plot series to be changed, and allows
  * subclasses to extend its functionality by adding series-related panes and
- * behaviour. Note that this class must be specialised at least by specifying
+ * behavior. Note that this class must be specialised at least by specifying
  * the generic parameter.
  *
  * TODO: change the generic type to permit Void (set of types?)
  */
-abstract public class SeriesVisibilityDialogBase<T extends JPanel> extends JDialog {
+abstract public class SeriesVisibilityDialogBase<T extends JPanel> extends AbstractOkCancelDialog {
 
 	protected JPanel topPane;
 	protected JPanel seriesPane;
@@ -50,8 +45,6 @@ abstract public class SeriesVisibilityDialogBase<T extends JPanel> extends JDial
 	protected ObservationPlotModel obsPlotModel;
 	protected SeriesVisibilityPane seriesVisibilityPane;
 	protected T nextPane;
-
-	private boolean cancelled;
 
 	/**
 	 * Constructor.
@@ -76,9 +69,7 @@ abstract public class SeriesVisibilityDialogBase<T extends JPanel> extends JDial
 	 */
 	public SeriesVisibilityDialogBase(ObservationPlotModel obsPlotModel,
 			String title, T nextPane) {
-		super();
-		this.setTitle(title);
-		this.setModal(true);
+		super(title);
 
 		this.obsPlotModel = obsPlotModel;
 		this.nextPane = nextPane;
@@ -112,48 +103,21 @@ abstract public class SeriesVisibilityDialogBase<T extends JPanel> extends JDial
 		this.setVisible(true);
 	}
 
-	// TODO: need to refactor code for OkCancelDialog (including topPane)
-
-	private JPanel createButtonPane() {
-		JPanel panel = new JPanel(new BorderLayout());
-
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(createCancelButtonListener());
-		panel.add(cancelButton, BorderLayout.LINE_START);
-
-		JButton okButton = new JButton("OK");
-		okButton.addActionListener(createOKButtonListener());
-		panel.add(okButton, BorderLayout.LINE_END);
-
-		return panel;
-	}
-
-	// Return a listener for the "OK" button.
-	private ActionListener createOKButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-				dispose();
-			}
-		};
-	}
-
-	// Return a listener for the "cancel" button.
-	private ActionListener createCancelButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cancelled = true;
-				setVisible(false);
-				dispose();
-			}
-		};
-	}
-
 	/**
 	 * @return has the dialog been cancelled?
 	 */
 	public boolean isCancelled() {
 		return cancelled;
+	}
+
+	protected void cancelAction() {
+		// Nothing to do
+	}
+
+	protected void okAction() {
+		cancelled = false;
+		setVisible(false);
+		dispose();						
 	}
 
 	/**
