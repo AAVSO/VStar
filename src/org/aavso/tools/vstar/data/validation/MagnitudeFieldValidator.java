@@ -25,7 +25,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  * This class represents a magnitude value including uncertainty and
  * fainter-than values.
  */
-public class MagnitudeFieldValidator extends StringValidatorBase<Magnitude> {
+public class MagnitudeFieldValidator extends AbstractStringValidator<Magnitude> {
 
 	private static final String KIND = "magnitude";
 

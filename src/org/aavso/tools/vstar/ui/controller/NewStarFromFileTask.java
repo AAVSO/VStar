@@ -22,7 +22,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.LineNumberReader;
 
-import org.aavso.tools.vstar.input.ObservationRetrieverBase;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.MainFrame;
@@ -85,7 +85,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 		boolean success = true;
 		
 		try {
-			ObservationRetrieverBase textFormatReader = new TextFormatObservationReader(
+			AbstractObservationRetriever textFormatReader = new TextFormatObservationReader(
 					new LineNumberReader(new FileReader(obsFile.getPath())),
 					analyser);
 

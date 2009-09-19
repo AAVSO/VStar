@@ -25,7 +25,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  * 
  * TODO: Store a GregorianCalendar object?
  */
-public class JulianDayValidator extends StringValidatorBase<DateInfo> {
+public class JulianDayValidator extends AbstractStringValidator<DateInfo> {
 
 	public static final boolean CAN_BE_EMPTY = true;
 

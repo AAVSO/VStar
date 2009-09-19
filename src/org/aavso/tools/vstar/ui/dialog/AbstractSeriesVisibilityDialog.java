@@ -37,7 +37,7 @@ import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
  *
  * TODO: change the generic type to permit Void (set of types?)
  */
-abstract public class SeriesVisibilityDialogBase<T extends JPanel> extends AbstractOkCancelDialog {
+abstract public class AbstractSeriesVisibilityDialog<T extends JPanel> extends AbstractOkCancelDialog {
 
 	protected JPanel topPane;
 	protected JPanel seriesPane;
@@ -52,7 +52,7 @@ abstract public class SeriesVisibilityDialogBase<T extends JPanel> extends Abstr
 	 * @param obsPlotModel
 	 *            An observation plot model.
 	 */
-	public SeriesVisibilityDialogBase(ObservationPlotModel obsPlotModel) {
+	public AbstractSeriesVisibilityDialog(ObservationPlotModel obsPlotModel) {
 		this(obsPlotModel, "Change Series", null);
 	}
 
@@ -67,7 +67,7 @@ abstract public class SeriesVisibilityDialogBase<T extends JPanel> extends Abstr
 	 *            An optional (may be null) pane to be added next to the primary
 	 *            pane. This allows us to specialise dialog panes by chaining.
 	 */
-	public SeriesVisibilityDialogBase(ObservationPlotModel obsPlotModel,
+	public AbstractSeriesVisibilityDialog(ObservationPlotModel obsPlotModel,
 			String title, T nextPane) {
 		super(title);
 

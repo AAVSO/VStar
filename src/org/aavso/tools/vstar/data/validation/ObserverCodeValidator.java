@@ -22,7 +22,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This class validates an observer code.
  */
-public class ObserverCodeValidator extends StringValidatorBase<String> {
+public class ObserverCodeValidator extends AbstractStringValidator<String> {
 
 	private static final String KIND = "observer code";
 

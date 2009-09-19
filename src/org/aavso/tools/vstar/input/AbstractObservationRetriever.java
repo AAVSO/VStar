@@ -32,7 +32,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
  * irrespective of source (AAVSO standard file format, simple file format,
  * VStar database).
  */
-public abstract class ObservationRetrieverBase {
+public abstract class AbstractObservationRetriever {
 
 	/**
 	 * The list of valid observations retrieved.
@@ -53,7 +53,7 @@ public abstract class ObservationRetrieverBase {
 	/**
 	 * Constructor.
 	 */
-	public ObservationRetrieverBase() {
+	public AbstractObservationRetriever() {
 		// TODO: consider making lists LinkedLists to accommodate all
 		// input types, and the possible need to add to head or tail for
 		// time panning.

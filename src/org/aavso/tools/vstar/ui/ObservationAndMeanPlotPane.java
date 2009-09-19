@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
  * observations along with mean-based data.
  */
 public class ObservationAndMeanPlotPane extends
-		ObservationPlotPaneBase<ObservationAndMeanPlotModel> {
+		AbstractObservationPlotPane<ObservationAndMeanPlotModel> {
 
 	// Should the means series elements be joined visually?
 	private boolean joinMeans;

@@ -45,7 +45,7 @@ import org.jfree.chart.renderer.xy.XYErrorRenderer;
  * This class is the base class for chart panes containing a plot of a set of
  * valid observations. It is genericised on observation model.
  */
-abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
+abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel>
 		extends JPanel implements ChartMouseListener {
 
 	protected T obsModel;
@@ -81,7 +81,7 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
-	public ObservationPlotPaneBase(String title, T obsModel, Dimension bounds) {
+	public AbstractObservationPlotPane(String title, T obsModel, Dimension bounds) {
 		super();
 
 		this.obsModel = obsModel;
@@ -185,7 +185,7 @@ abstract public class ObservationPlotPaneBase<T extends ObservationPlotModel>
 
 	// Return a listener for the error bar visibility checkbox.
 	private ActionListener createErrorBarCheckBoxListener() {
-		final ObservationPlotPaneBase<T> self = this;
+		final AbstractObservationPlotPane<T> self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				self.toggleErrorBars();

@@ -22,10 +22,10 @@ import java.io.LineNumberReader;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.data.validation.StringValidatorBase;
+import org.aavso.tools.vstar.data.validation.AbstractStringValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
-import org.aavso.tools.vstar.input.ObservationRetrieverBase;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.controller.ModelManager;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 
@@ -36,7 +36,7 @@ import org.aavso.tools.vstar.ui.model.ProgressInfo;
  * 
  * REQ_VSTAR_SIMPLE_TEXT_FILE_READ REQ_VSTAR_AAVSO_DATA_DOWNLOAD_FILE_READ
  */
-public class TextFormatObservationReader extends ObservationRetrieverBase {
+public class TextFormatObservationReader extends AbstractObservationRetriever {
 
 	private ModelManager modelMgr = ModelManager.getInstance();
 
@@ -60,11 +60,11 @@ public class TextFormatObservationReader extends ObservationRetrieverBase {
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.input.ObservationRetrieverBase#retrieveObservations()
+	 * @see org.aavso.tools.vstar.input.AbstractObservationRetriever#retrieveObservations()
 	 */
 	public void retrieveObservations() throws ObservationReadError {
 
-		StringValidatorBase<ValidObservation> validator = this.analyser
+		AbstractStringValidator<ValidObservation> validator = this.analyser
 				.getTextFormatValidator();
 
 		try {

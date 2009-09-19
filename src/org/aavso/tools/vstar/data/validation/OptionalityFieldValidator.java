@@ -23,7 +23,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  * This class validates fields as optional or non-optional, returning 
  * the field or null.
  */
-public class OptionalityFieldValidator extends StringValidatorBase<String> {
+public class OptionalityFieldValidator extends AbstractStringValidator<String> {
 
 	public static final boolean CAN_BE_EMPTY = true;
 	public static final boolean CANNOT_BE_EMPTY = false;

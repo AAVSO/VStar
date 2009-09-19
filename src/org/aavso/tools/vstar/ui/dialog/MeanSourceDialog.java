@@ -24,7 +24,7 @@ import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
  * order to permit selection of the series that is to be the source of the means
  * series. Only one band/series should be used to calculate the mean series.
  */
-public class MeanSourceDialog extends SeriesVisibilityDialogBase<MeanSourcePane> {
+public class MeanSourceDialog extends AbstractSeriesVisibilityDialog<MeanSourcePane> {
 
 	/**
 	 * Constructor

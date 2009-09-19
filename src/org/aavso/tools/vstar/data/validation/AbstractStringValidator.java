@@ -22,7 +22,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This is the base class for all string-based validators.
  */
-public abstract class StringValidatorBase<T> {
+public abstract class AbstractStringValidator<T> {
 
 	// The kind of field (e.g. name) we are validating.
 	protected String kind;
@@ -33,14 +33,14 @@ public abstract class StringValidatorBase<T> {
 	 * @param kind
 	 *            The kind of entity (e.g. field name) we are validating.
 	 */
-	public StringValidatorBase(String kind) {
+	public AbstractStringValidator(String kind) {
 		this.kind = kind;
 	}
 
 	/**
 	 * Constructor.
 	 */
-	public StringValidatorBase() {
+	public AbstractStringValidator() {
 		this(null);
 	}
 
