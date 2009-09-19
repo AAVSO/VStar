@@ -22,7 +22,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This class validates magnitude values (e.g. magnitude, uncertainty). 
  */
-public class MagnitudeValueValidator extends StringValidatorBase<Double> {
+public class MagnitudeValueValidator extends AbstractStringValidator<Double> {
 
 	public static final boolean CAN_BE_EMPTY = true;
 	

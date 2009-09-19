@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
  * valflagPatternStr constructor arguments cater for the differences.
  */
 public class CommonTextFormatValidator extends
-		StringValidatorBase<ValidObservation> {
+		AbstractStringValidator<ValidObservation> {
 
 	private final ObservationFieldSplitter fieldSplitter;
 

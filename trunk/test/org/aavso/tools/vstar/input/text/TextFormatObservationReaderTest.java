@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.input;
+package org.aavso.tools.vstar.input.text;
 
 import java.io.IOException;
 import java.io.LineNumberReader;
@@ -28,6 +28,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.model.NewStarType;
@@ -180,7 +181,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 					new LineNumberReader(new StringReader(str)), "Some String");
 			analyser.analyse();
 
-			ObservationRetrieverBase simpleTextFormatReader = new TextFormatObservationReader(
+			AbstractObservationRetriever simpleTextFormatReader = new TextFormatObservationReader(
 					new LineNumberReader(new StringReader(str)), analyser);
 
 			simpleTextFormatReader.retrieveObservations();

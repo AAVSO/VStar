@@ -27,7 +27,7 @@ import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.exception.ObservationReadError;
-import org.aavso.tools.vstar.input.ObservationRetrieverBase;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -39,7 +39,7 @@ import org.aavso.tools.vstar.ui.model.SeriesType;
  * 
  * REQ_VSTAR_AAVSO_DATABASE_READ REQ_VSTAR_DATABASE_READ_ONLY
  */
-public class AAVSODatabaseObservationReader extends ObservationRetrieverBase {
+public class AAVSODatabaseObservationReader extends AbstractObservationRetriever {
 
 	private ResultSet source;
 
@@ -55,7 +55,7 @@ public class AAVSODatabaseObservationReader extends ObservationRetrieverBase {
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.input.ObservationRetrieverBase#retrieveObservations()
+	 * @see org.aavso.tools.vstar.input.AbstractObservationRetriever#retrieveObservations()
 	 * 
 	 *      Note: It would be incrementally faster to use the numeric index
 	 *      forms of the ResultSet getter methods instead of strings. We use the

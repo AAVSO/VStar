@@ -29,7 +29,7 @@ import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
  * observations (magnitude vs Julian Day).
  */
 public class ObservationPlotPane extends
-		ObservationPlotPaneBase<ObservationPlotModel> {
+		AbstractObservationPlotPane<ObservationPlotModel> {
 
 	/**
 	 * Constructor.

@@ -22,7 +22,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * A comment code field validator.
  */
-public class CommentCodeValidator extends StringValidatorBase<String> {
+public class CommentCodeValidator extends AbstractStringValidator<String> {
 
 	private static final String KIND = "comment code";
 

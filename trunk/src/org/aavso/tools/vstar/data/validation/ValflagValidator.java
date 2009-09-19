@@ -23,7 +23,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This class validates a valflag.
  */
-public class ValflagValidator extends StringValidatorBase<ValidationType> {
+public class ValflagValidator extends AbstractStringValidator<ValidationType> {
 
 	private static final String KIND = "validation flag";
 

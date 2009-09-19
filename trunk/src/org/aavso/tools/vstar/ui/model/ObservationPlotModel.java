@@ -185,10 +185,6 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 
 		if (changed) {
 			this.seriesVisibilityMap.put(seriesNum, visibility);
-
-//			List<ValidObservation> obs = this.seriesNumToObSrcListMap
-//					.get(seriesNum);
-
 			this.fireDatasetChanged();
 		}
 

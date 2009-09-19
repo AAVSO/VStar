@@ -22,7 +22,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 /**
  * This class validates the 'transformed' field.
  */
-public class TransformedValidator extends StringValidatorBase<Boolean> {
+public class TransformedValidator extends AbstractStringValidator<Boolean> {
 
 	private final OptionalityFieldValidator nonOptionalFieldValidator;
 

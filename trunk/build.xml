@@ -87,9 +87,9 @@
 		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
 			<formatter type="plain" />
 			
-			<test name="org.aavso.tools.vstar.input.TextFormatObservationReaderTest" />
-			<test name="org.aavso.tools.vstar.input.ObservationFieldSplitterTest" />
-			<test name="org.aavso.tools.vstar.input.DatabaseObservationReaderTest" />
+			<test name="org.aavso.tools.vstar.input.text.TextFormatObservationReaderTest" />
+			<test name="org.aavso.tools.vstar.input.text.ObservationFieldSplitterTest" />
+			<test name="org.aavso.tools.vstar.input.database.DatabaseObservationReaderTest" />
 			<test name="org.aavso.tools.vstar.input.database.DatabaseConnectorTest" />
 			<test name="org.aavso.tools.vstar.util.MeeusDateUtilTest" />
 			<test name="org.aavso.tools.vstar.util.DescStatsTest" />
