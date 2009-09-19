@@ -40,6 +40,8 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
+import org.jfree.chart.title.TextTitle;
+
 
 /**
  * This class is the base class for chart panes containing a plot of a set of
@@ -76,12 +78,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * 
 	 * @param title
 	 *            The title for the chart.
+	 * @param subTitle
+	 *            The sub-title for the chart.
 	 * @param obsModel
 	 *            The data model to plot.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
-	public AbstractObservationPlotPane(String title, T obsModel, Dimension bounds) {
+	public AbstractObservationPlotPane(String title, String subTitle, T obsModel, Dimension bounds) {
 		super();
 
 		this.obsModel = obsModel;
@@ -95,11 +99,13 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		this.chartPanel = new ChartPanel(ChartFactory.createScatterPlot(title,
 				domainTitle, rangeTitle, obsModel, PlotOrientation.VERTICAL,
 				true, true, true));
-
+		
 		this.chartPanel.setPreferredSize(bounds);
+		
+		this.chart = chartPanel.getChart();
 
-		chart = chartPanel.getChart();
-
+		this.chart.addSubtitle(new TextTitle(subTitle));
+		
 		this.renderer = new XYErrorRenderer();
 		this.renderer.setDrawYError(this.showErrorBars);
 

@@ -44,15 +44,17 @@ public class ObservationAndMeanPlotPane extends
 	 * 
 	 * @param title
 	 *            The title for the chart.
+	 * @param subTitle
+	 *            The sub-title for the chart.
 	 * @param obsModel
 	 *            The data model to plot.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
-	public ObservationAndMeanPlotPane(String title,
+	public ObservationAndMeanPlotPane(String title, String subTitle,
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
 
-		super(title, obsAndMeanModel, bounds);
+		super(title, subTitle, obsAndMeanModel, bounds);
 
 		this.joinMeans = true;
 

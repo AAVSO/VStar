@@ -36,14 +36,16 @@ public class ObservationPlotPane extends
 	 * 
 	 * @param title
 	 *            The title of the plot.
+	 * @param subTitle
+	 *            The sub-title for the chart.
 	 * @param obsModel
 	 *            The observation model.
 	 * @param bounds
 	 *            The bounds of the pane.
 	 */
-	public ObservationPlotPane(String title, ObservationPlotModel obsModel,
+	public ObservationPlotPane(String title, String subTitle, ObservationPlotModel obsModel,
 			Dimension bounds) {
-		super(title, obsModel, bounds);
+		super(title, subTitle, obsModel, bounds);
 	}
 
 	// Return a listener for the "change series visibility" button.
