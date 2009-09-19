@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -233,15 +234,21 @@ public class ModelManager {
 			modelMgr.validObsTableModel.getObservationChangeNotifier()
 					.addListener(modelMgr.obsPlotModel);
 
-			modelMgr.obsChartPane = createObservationPlotPane(objName);
+			String subTitle = "";			
+			if (newStarType == NewStarType.NEW_STAR_FROM_DATABASE) {
+				subTitle = new Date().toString() + " (database)";
+			} else {
+				subTitle = this.getNewStarName();
+			}
+
+			modelMgr.obsChartPane = createObservationPlotPane(objName, subTitle);
 
 			// Observation-and-mean table and plot.
-
 			modelMgr.obsAndMeanPlotModel = createObservationAndMeanPlotModel();
 			modelMgr.validObsTableModel.getObservationChangeNotifier()
 					.addListener(modelMgr.obsAndMeanPlotModel);
 
-			modelMgr.obsAndMeanChartPane = createObservationAndMeanPlotPane(objName);
+			modelMgr.obsAndMeanChartPane = createObservationAndMeanPlotPane(objName, subTitle);
 
 			// The mean observation table model must listen to the plot
 			// model to know when the means data has changed. We also pass
@@ -270,7 +277,8 @@ public class ModelManager {
 		// file since there won't be many columns. We don't want to do that
 		// when there are many columns (i.e. for AAVSO download format files
 		// and database source).
-		// TODO: Why don't we delegate this to the component that renders the obs list?
+		// TODO: Why don't we delegate this to the component that renders the
+		// obs list?
 		// The model manager shouldn't care about this kind of stuff.
 		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
 		modelMgr.obsListPane = createObsListPane(enableColumnAutoResize);
@@ -297,16 +305,16 @@ public class ModelManager {
 	/**
 	 * Create the observation pane for a plot of valid observations.
 	 */
-	private ObservationPlotPane createObservationPlotPane(String plotName) {
+	private ObservationPlotPane createObservationPlotPane(String plotName, String subTitle) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 		return new ObservationPlotPane("Light Curve for " + plotName,
-				this.obsPlotModel, bounds);
+				subTitle, this.obsPlotModel, bounds);
 	}
 
 	/**
-	 * Create a plot model containing a means series based upon
-	 * a default bin size that the user can change later.
+	 * Create a plot model containing a means series based upon a default bin
+	 * size that the user can change later.
 	 * 
 	 * @return The plot model.
 	 */
@@ -320,11 +328,11 @@ public class ModelManager {
 	 * observations.
 	 */
 	private ObservationAndMeanPlotPane createObservationAndMeanPlotPane(
-			String plotName) {
+			String plotName, String subTitle) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 		return new ObservationAndMeanPlotPane("Light Curve for " + plotName,
-				this.obsAndMeanPlotModel, bounds);
+				subTitle, this.obsAndMeanPlotModel, bounds);
 	}
 
 	/**
