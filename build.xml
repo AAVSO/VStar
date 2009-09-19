@@ -52,6 +52,14 @@
 	</target>
 
 	<target name="compile_src" depends="init" description="Compile the source">
+		<!-- Uppdate svn revision. -->
+		<exec outputproperty="svn_revision" executable="svnversion">
+			<arg value="-n"/>
+		</exec>
+		<copy file="${ui_resources}/RevisionAccessor.java.template" tofile="${ui_resources}/RevisionAccessor.java" overwrite="true"/>
+		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${svn_revision}"/>
+		
+		<!-- Compile source. -->
 		<javac compiler="modern" srcdir="${src}" destdir="${src_build}">
 			<classpath refid="build.classpath"/>
 		</javac>

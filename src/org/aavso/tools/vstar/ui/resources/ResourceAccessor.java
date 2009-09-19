@@ -18,8 +18,6 @@
 package org.aavso.tools.vstar.ui.resources;
 
 import java.net.URL;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -32,14 +30,6 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
  * images and html files, and subversion revision number.
  */
 public class ResourceAccessor {
-
-	// This file has had its "Revision" keyword property set via:
-	// svn propset svn:keywords "Revision" ResourceAccessor.java
-	// such that upon all commits, the revision will be updated.
-	private static final String REVISION = "$Rev$";
-
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\$Rev: (\\d+) \\$$");
 
 	/**
 	 * Returns an image icon given a resource URL string.
@@ -92,16 +82,7 @@ public class ResourceAccessor {
 	}
 
 	public static String getRevNum() {
-		// Use whole revision string in case regex match fails.
-		String revNum = REVISION;
-
-		Matcher matcher = revNumPat.matcher(REVISION);
-
-		if (matcher.matches()) {
-			revNum = matcher.group(1);
-		}
-
-		return revNum;
+		return RevisionAccessor.getRevNum();
 	}
 
 	public static String getParam(int n) {
