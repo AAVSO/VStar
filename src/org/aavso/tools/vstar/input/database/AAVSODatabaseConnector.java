@@ -55,20 +55,25 @@ public class AAVSODatabaseConnector {
 	private DatabaseType type;
 	private Driver driver;
 	private Connection connection;
-	private PreparedStatement obsStmt;
+
 	private PreparedStatement authStmt;
+	private PreparedStatement obsStmt;
+	private PreparedStatement auidFromValidationStmt;
+	private PreparedStatement auidFromAliasStmt;
+
 	private boolean authenticatedWithCitizenSky;
 	private String obsCode;
 
 	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.OBSERVATION);
+
 	public static AAVSODatabaseConnector userDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.USER);
 
 	/**
 	 * Constructor
 	 */
-	public AAVSODatabaseConnector(DatabaseType type) {
+	private AAVSODatabaseConnector(DatabaseType type) {
 		this.type = type;
 		this.driver = null;
 		this.connection = null;
@@ -101,10 +106,11 @@ public class AAVSODatabaseConnector {
 						props);
 			} catch (Exception e1) {
 				try {
-				props.put("port", ((3 * 11 * 100 + 7) - 1) + "");
-				connection = getDriver().connect(
-						CONN_URL + ResourceAccessor.getParam(type.getDBNum()),
-						props);
+					props.put("port", ((3 * 11 * 100 + 7) - 1) + "");
+					connection = getDriver().connect(
+							CONN_URL
+									+ ResourceAccessor
+											.getParam(type.getDBNum()), props);
 				} catch (Exception e) {
 					throw new ConnectionException(e.getMessage());
 				}
@@ -120,10 +126,8 @@ public class AAVSODatabaseConnector {
 	 * Return a prepared statement for the specified AUID and date range. This
 	 * is a once-only-created prepared statement with parameters set.
 	 * 
-	 * /** Return a prepared statement for the specified AUID and date range.
-	 * This is a once-only-created prepared statement with parameters set.
-	 * 
-	 * @return A prepared statement.
+	 * @param connection
+	 *            A JDBC connection.
 	 * @return A prepared statement.
 	 */
 	public PreparedStatement createObservationQuery(Connection connection)
@@ -190,6 +194,83 @@ public class AAVSODatabaseConnector {
 	}
 
 	/**
+	 * Return a prepared statement to find the AUID from the validation table
+	 * given a star name. This is a once-only-created prepared statement with
+	 * parameters set.
+	 * 
+	 * @param connection
+	 *            A JDBC connection.
+	 * @return A prepared statement.
+	 */
+	protected PreparedStatement createAUIDFromValidationQuery(
+			Connection connection) throws SQLException {
+
+		if (auidFromValidationStmt == null) {
+			auidFromValidationStmt = connection
+					.prepareStatement("SELECT auid FROM validation WHERE validation.name = ? limit 1;");
+		}
+
+		return auidFromValidationStmt;
+	}
+
+	/**
+	 * Return a prepared statement to find the AUID from the alias table given a
+	 * star name. This is a once-only-created prepared statement with parameters
+	 * set.
+	 * 
+	 * @param connection
+	 *            A JDBC connection.
+	 * @return A prepared statement.
+	 */
+	protected PreparedStatement createAUIDFromAliasQuery(Connection connection)
+			throws SQLException {
+
+		if (auidFromAliasStmt == null) {
+			auidFromAliasStmt = connection
+					.prepareStatement("SELECT auid FROM aliases WHERE aliases.name = ? limit 1;");
+		}
+
+		return auidFromAliasStmt;
+	}
+
+	/**
+	 * Return the AUID of the named star.
+	 * 
+	 * @param connection
+	 *            A JDBC connection.
+	 * @param name
+	 *            The star name or alias.
+	 * @return The AUID as a string, or null if it is not recognised as a valid
+	 *         star name in the AAVSO International Database.
+	 */
+	public String getAUID(Connection connection, String name)
+			throws SQLException {
+		String auid = null;
+
+		// Can we find the name in the validation table?
+		PreparedStatement validationStmt = this
+				.createAUIDFromValidationQuery(connection);
+		validationStmt.setString(1, name);
+		ResultSet validationResults = validationStmt.executeQuery();
+
+		if (validationResults.next()) {
+			auid = validationResults.getString("auid");
+		} else {
+			// No, how about in the aliases database?
+			PreparedStatement aliasStmt = this
+					.createAUIDFromAliasQuery(connection);
+			aliasStmt.setString(1, name);
+			ResultSet aliasResults = aliasStmt.executeQuery();
+			
+			if (aliasResults.next()) {
+				auid = aliasResults.getString("auid");
+			}
+		}
+
+		return auid;
+	}
+
+	/**
 	 * Return a prepared statement for the specified CitizenSky user login. This
 	 * is a once-only-created prepared statement with parameters set for each
 	 * query execution.
@@ -198,7 +279,7 @@ public class AAVSODatabaseConnector {
 	 *            database connection.
 	 * @return A prepared statement.
 	 */
-	public PreparedStatement createCitizenSkyLoginQuery(Connection connection)
+	protected PreparedStatement createCitizenSkyLoginQuery(Connection connection)
 			throws SQLException {
 		if (authStmt == null) {
 			authStmt = connection
@@ -210,20 +291,17 @@ public class AAVSODatabaseConnector {
 
 	/**
 	 * Authenticate with the CitizenSky database by prompting the user to enter
-	 * credentials in a dialog, throwing an exception upon failure after retries. 
-	 * A manifest reason for this authentication is to obtain the observer code.
-	 * 
-	 * @param statusBar
-	 *            Status bar component so we tell the user what's happening.
+	 * credentials in a dialog, throwing an exception upon failure after
+	 * retries. A manifest reason for this authentication is to obtain the
+	 * observer code.
 	 */
-	public void authenticateWithCitizenSky(StatusPane statusBar)
-			throws Exception {
+	public void authenticateWithCitizenSky() throws Exception {
 
 		assert (this == userDBConnector);
-		
+
 		int retries = 3;
 		boolean cancelled = false;
-		
+
 		while (!cancelled && !authenticatedWithCitizenSky && retries > 0) {
 			LoginDialog loginDialog = new LoginDialog(
 					"CitizenSky Authentication");
@@ -234,7 +312,8 @@ public class AAVSODatabaseConnector {
 				String passwordDigest = generateHexDigest(suppliedPassword);
 
 				// Login to CitizenSky if we haven't done so already.
-				statusBar.setMessage("Checking CitizenSky credentials...");
+				MainFrame.getInstance().getStatusPane().setMessage(
+						"Checking CitizenSky credentials...");
 				Connection userConnection = createConnection();
 
 				// Get a prepared statement to read a user details
@@ -257,7 +336,7 @@ public class AAVSODatabaseConnector {
 				cancelled = true;
 			}
 		}
-		
+
 		if (!authenticatedWithCitizenSky) {
 			throw new AuthenticationError("Unable to authenticate.");
 		}
