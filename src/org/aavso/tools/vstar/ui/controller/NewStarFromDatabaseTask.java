@@ -22,11 +22,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.exception.UnknownStarError;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseObservationReader;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
-import org.aavso.tools.vstar.ui.StatusPane;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
@@ -39,7 +39,6 @@ import org.jdesktop.swingworker.SwingWorker;
  */
 public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	private ModelManager modelMgr = ModelManager.getInstance();
-	private StatusPane statusBar = MainFrame.getInstance().getStatusPane();
 
 	private String starName;
 	private String auid;
@@ -86,21 +85,37 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 		try {
 			// CitizenSky authentication.
 			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.userDBConnector;
-			userConnector.authenticateWithCitizenSky(statusBar);
+			userConnector.authenticateWithCitizenSky();
 			updateProgress(2);
 
-			// TODO: query for observer code
-			
+			// TODO: query for observer code; return value of
+			// authenticateWithCitizenSky() above?
+
 			// Connect to the observation database if we haven't already
 			// done so.
-			statusBar.setMessage("Connecting to AAVSO database...");
+			MainFrame.getInstance().getStatusPane().setMessage(
+					"Connecting to AAVSO database...");
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
 
 			Connection obsConnection = obsConnector.createConnection();
 
+			// Do we need to ask for the AUID from the database before 
+			// proceeding?
+			if (auid == null) {
+				auid = obsConnector.getAUID(obsConnection, starName);
+				
+				if (auid == null) {
+					throw new UnknownStarError(starName);
+				}
+			}
+			
 			// Get a prepared statement to read a set of observations
 			// from the database, setting the parameters for the star
 			// we are targeting.
+			
+			// TODO: hide all this statement stuff behind a get-observations
+			// method. **
+			
 			PreparedStatement obsStmt = obsConnector
 					.createObservationQuery(obsConnection);
 			updateProgress(2);
@@ -110,7 +125,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// and observation lists and categorised valid observation
 			// map from which all else flows.
 			obsConnector.setObservationQueryParams(obsStmt, auid, minJD, maxJD);
-			statusBar.setMessage("Retrieving observations...");
+			MainFrame.getInstance().getStatusPane().setMessage(
+					"Retrieving observations...");
 			ResultSet results = obsStmt.executeQuery();
 			updateProgress(2);
 
@@ -120,7 +136,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			databaseObsReader.retrieveObservations();
 			updateProgress(2);
 
-			statusBar.setMessage("Creating charts and tables...");
+			MainFrame.getInstance().getStatusPane().setMessage(
+					"Creating charts and tables...");
 
 			modelMgr.clearData();
 
@@ -137,7 +154,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 					NewStarType.NEW_STAR_FROM_DATABASE, starName, 2);
 		} catch (ConnectionException ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					MenuBar.NEW_STAR_FROM_DATABASE, "Cannot connect to database.");
+					MenuBar.NEW_STAR_FROM_DATABASE,
+					"Cannot connect to database.");
 			success = false;
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
