@@ -151,7 +151,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JPanel createStarFieldPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Arbitrary Star"));
+		panel.setBorder(BorderFactory.createTitledBorder("Other Star"));
 
 		starField = new JTextField();
 		starField.addActionListener(createStarFieldActionListener());
