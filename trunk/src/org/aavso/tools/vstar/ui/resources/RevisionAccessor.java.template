@@ -33,7 +33,7 @@ public class RevisionAccessor {
 
 	/**
 	 * Get the latest revision number if REVISION is of the form:
-	 * n:m... (i.e. get m), otherwise just return th whole revision
+	 * n:m... (i.e. get m), otherwise just return the whole revision
 	 * string. It doesn't really matter what it is so long as it's
 	 * unique from one commit of dist/vstar.jar to the next.
 	 */

@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.input.database;
 
+import java.sql.Connection;
+
 import junit.framework.TestCase;
 
 /**
@@ -26,14 +28,44 @@ public class DatabaseConnectorTest extends TestCase {
 
 	/**
 	 * Constructor
-	 *  
-	 * @param name Test name.
+	 * 
+	 * @param name
+	 *            Test name.
 	 */
 	public DatabaseConnectorTest(String name) {
 		super(name);
 	}
 
+	// Valid tests
+
 	public void testGenerateMessageDigest() {
-		assertEquals("acbd18db4cc2f85cedef654fccc4a4d8", AAVSODatabaseConnector.generateHexDigest("foo"));
+		assertEquals("acbd18db4cc2f85cedef654fccc4a4d8", AAVSODatabaseConnector
+				.generateHexDigest("foo"));
+	}
+
+	// 'epsilon aur' should be found in the aliases table, but not in the validation table.
+	// At the end of the day, we see a single AUID arising from the getAUID() method.
+	public void testGetEpsilonAurAUID() {
+		try {
+			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
+			Connection connection = obsConnector.createConnection();
+			String auid = obsConnector.getAUID(connection, "epsilon aur");
+			assertEquals("000-BCT-905", auid);
+		} catch (Exception e) {
+			fail();
+		}
+	}
+
+	// 'eps aur' should be found in the validation table before we ever hit the aliases 
+	// table. At the end of the day, we see a single AUID arising from the getAUID() method.
+	public void testGetEpsAurAUID() {
+		try {
+			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
+			Connection connection = obsConnector.createConnection();
+			String auid = obsConnector.getAUID(connection, "eps aur");
+			assertEquals("000-BCT-905", auid);
+		} catch (Exception e) {
+			fail();
+		}
 	}
 }
