@@ -65,7 +65,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	private Calendar cal;
 	private int year, month, day;
-	
+
 	/**
 	 * Constructor
 	 */
@@ -81,9 +81,9 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 		cal = Calendar.getInstance();
 		year = cal.get(Calendar.YEAR);
-		month = cal.get(Calendar.MONTH)+1; // 0..11 -> 1..12
+		month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
 		day = cal.get(Calendar.DAY_OF_MONTH);
-		
+
 		createTenStarMap();
 
 		contentPane = this.getContentPane();
@@ -91,7 +91,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		topPane.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
+		topPane
+				.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
 
 		topPane.add(createTenStarSelectorPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -104,8 +105,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		topPane.add(createButtonPane());
 		contentPane.add(topPane);
 
-//		this.addWindowListener(this.createWindowListener());
-		
+		// this.addWindowListener(this.createWindowListener());
+
 		this.pack();
 		tenStarSelector.requestFocusInWindow();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
@@ -114,7 +115,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	// We know the AUID of the CitizenSky ten-stars, so there is
 	// no need to query the database for these.
-	// TODO: put these in a properties file and move this method to ResourceAccessor()!
+	// TODO: put these in a properties file and move this method to
+	// ResourceAccessor()!
 	private void createTenStarMap() {
 		tenStarMap = new TreeMap<String, String>();
 		tenStarMap.put("Alpha Orionis", "000-BCZ-336");
@@ -154,10 +156,10 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		starField = new JTextField();
 		starField.addActionListener(createStarFieldActionListener());
 		starField.setToolTipText("Enter star name, alias or AUID");
-		starField.setEnabled(false);
+		// starField.setEnabled(false);
 		panel.add(starField);
 
-		panel.setEnabled(false);
+		// panel.setEnabled(false);
 
 		return panel;
 	}
@@ -167,7 +169,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Minimum Julian Day"));
 
-		double jd = dateUtil.calendarToJD(year-2, month, day);
+		double jd = dateUtil.calendarToJD(year - 2, month, day);
 		minJDField = new JTextField(jd + "");
 		minJDField.addActionListener(createMinJDFieldActionListener());
 		minJDField.addFocusListener(createMinJDFieldFocusListener());
@@ -213,66 +215,78 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	}
 
 	// Return listeners for the minimum Julian Day field.
-	
+
 	private ActionListener createMinJDFieldActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// checkInput();
-				minJDField.setToolTipText(dateUtil.jdToCalendar(Double.parseDouble(minJDField.getText())));
+				minJDField.setToolTipText(dateUtil.jdToCalendar(Double
+						.parseDouble(minJDField.getText())));
 			}
 		};
 	}
 
 	private FocusListener createMinJDFieldFocusListener() {
-		return new FocusListener() { 
+		return new FocusListener() {
 			String prevString = "";
 
 			public void focusGained(FocusEvent e) {
 			}
-			
+
 			public void focusLost(FocusEvent e) {
 				String current = minJDField.getText();
-				if (!prevString.equals(current)){
-					minJDField.setToolTipText(dateUtil.jdToCalendar(Double.parseDouble(current)));
+				if (!prevString.equals(current)) {
+					minJDField.setToolTipText(dateUtil.jdToCalendar(Double
+							.parseDouble(current)));
 					prevString = current;
-				}			
+				}
 			}
 		};
 	}
 
 	// Return listeners for the maximum Julian Day field.
-	
+
 	private ActionListener createMaxJDFieldActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// checkInput();
-				maxJDField.setToolTipText(dateUtil.jdToCalendar(Double.parseDouble(maxJDField.getText())));
+				maxJDField.setToolTipText(dateUtil.jdToCalendar(Double
+						.parseDouble(maxJDField.getText())));
 			}
 		};
 	}
 
 	private FocusListener createMaxJDFieldFocusListener() {
-		return new FocusListener() { 
+		return new FocusListener() {
 			String prevString = "";
 
 			public void focusGained(FocusEvent e) {
 			}
-			
+
 			public void focusLost(FocusEvent e) {
 				String current = maxJDField.getText();
-				if (!prevString.equals(current)){
-					maxJDField.setToolTipText(dateUtil.jdToCalendar(Double.parseDouble(current)));
+				if (!prevString.equals(current)) {
+					maxJDField.setToolTipText(dateUtil.jdToCalendar(Double
+							.parseDouble(current)));
 					prevString = current;
-				}				
+				}
 			}
 		};
 	}
 
 	private void checkInput() {
-		// TODO: check if text box is empty; if not, prioritise it over drop-down
+		// If text box is empty; if not, prioritise it over drop-down.
 
-		starName = (String) tenStarSelector.getSelectedItem();
-		auid = tenStarMap.get(starName);
+		if (starField.getText().length() > 0) {
+			// TODO: apply some regex to this, including pure whitespace checking...
+			// TODO: also need to handle NNN-ZZZ-MMM which means AUID,
+			//       where where N and M are 0..9 and Z is a letter of the alphabet.
+			starName = starField.getText();
+			auid = null;
+		} else {
+			starName = (String) tenStarSelector.getSelectedItem();
+			auid = tenStarMap.get(starName);
+		}
 
 		try {
 			minDate = jdValidator.validate(minJDField.getText());
@@ -288,7 +302,9 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 					"Maximum Julian Day", ex);
 		}
 
-		if (starName != null && auid != null && minDate != null
+		// TODO: probably want to add some state to say that auid can only be null
+		// if we're using the text field.
+		if (starName != null /* && auid != null */&& minDate != null
 				&& maxDate != null) {
 			cancelled = false;
 			setVisible(false);
@@ -338,6 +354,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	}
 
 	protected void okAction() {
-		checkInput();		
+		checkInput();
 	}
 }
