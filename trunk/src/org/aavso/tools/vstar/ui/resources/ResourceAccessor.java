@@ -94,12 +94,17 @@ public class ResourceAccessor {
 		return new String(bytes);
 	}
 
+	// TODO: move to a props file?
+	
 	// 0
 	private static int[] hdata = { 8802, 9169, 7498, 8477, 8869, 10808, 9062,
 			9751, 10972, 12488, 10442, 13279, 15789, 15455 };
 
 	// 1
 	private static int[] d0data = { 15811, 18165, 16300 };
+
+//	private static int[] d0data = { 19234, 19895, 18908, 16781, 20634, 22388,
+//		19897, 22885, 24476 };
 
 	// 2
 	private static int[] d1data = { 16300, 19722, 19071, 19376, 17557, 20844 };

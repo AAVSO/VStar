@@ -43,9 +43,12 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  * 
  * generateHexDigest() was adapted from Zapper UserInfo.encryptPassword()
  * 
- * TODO: - Handle the case where the connection becomes invalid but we try to
- * use it, e.g. to create a statement or execute a query. We need to set the
+ * TODO: Handle the case where the connection becomes invalid but we try to use
+ * it, e.g. to create a statement or execute a query. We need to set the
  * connection to null and open an error dialog.
+ * 
+ * TODO: should we split this class into a data accessor object and connection
+ * object?
  */
 public class AAVSODatabaseConnector {
 
@@ -60,6 +63,7 @@ public class AAVSODatabaseConnector {
 	private PreparedStatement obsStmt;
 	private PreparedStatement auidFromValidationStmt;
 	private PreparedStatement auidFromAliasStmt;
+	private PreparedStatement starNameFromValidationStmt;
 
 	private boolean authenticatedWithCitizenSky;
 	private String obsCode;
@@ -141,8 +145,8 @@ public class AAVSODatabaseConnector {
 							+ "observations.JD AS jd,\n"
 							+ "observations.magnitude AS magnitude,\n"
 							+ "observations.fainterthan AS fainterthan,\n"
-							+ "observations_extra.uncertain AS uncertain,\n"
-							+ "IF (observations_extra.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
+							+ "observations.uncertain AS uncertain,\n"
+							+ "IF (observations.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
 							+ "observations.uncertaintyhq AS hq_uncertainty,\n"
 							+ "observations.band AS band,\n"
 							+ "observations.obscode AS observer_code,\n"
@@ -150,27 +154,73 @@ public class AAVSODatabaseConnector {
 							+ "observations.comp1_C AS comp_star_1,\n"
 							+ "observations.comp2_K AS comp_star_2,\n"
 							+ "observations.charts AS charts,\n"
-							+ "observations_extra.comments AS comments,\n"
-							+ "IF (observations_extra.transformed = 1, 'yes', 'no') AS transformed,\n"
-							+ "observations_extra.airmass AS airmass,\n"
+							+ "observations.comments AS comments,\n"
+							+ "IF (observations.transformed = 1, 'yes', 'no') AS transformed,\n"
+							+ "observations.airmass AS airmass,\n"
 							+ "IF (observations.valflag = 'T', 'D', observations.valflag) AS valflag,\n"
-							+ "observations_extra.CMag AS cmag,\n"
-							+ "observations_extra.KMag AS kmag,\n"
-							+ "observations_extra.HJD AS hjd,\n"
-							+ "observations.name AS name\n"
-							+ "FROM\n"
-							+ "observations,\n"
-							+ "observations_extra\n"
-							+ "WHERE\n"
-							+ "observations.unique_id = observations_extra.unique_id AND\n"
+							+ "observations.CMag AS cmag,\n"
+							+ "observations.KMag AS kmag,\n"
+							+ "observations.HJD AS hjd,\n"
+							+ "observations.name AS name\n" + "FROM\n"
+							+ "observations\n" + "WHERE\n"
 							+ "observations.AUID = ? AND\n"
 							+ "observations.JD >= ? AND\n"
-							+ "observations.JD <= ? " + "ORDER BY\n"
+							+ "observations.JD <= ?\n" + "ORDER BY\n"
 							+ "observations.JD;");
 		}
 
 		return obsStmt;
 	}
+
+	/**
+	 * Return a prepared statement for the specified AUID and date range. This
+	 * is a once-only-created prepared statement with parameters set.
+	 * 
+	 * @param connection
+	 *            A JDBC connection.
+	 * @return A prepared statement.
+	 */
+//	public PreparedStatement createObservationQueryOld(Connection connection)
+//			throws SQLException {
+//
+//		// TODO: also use ResultSet.TYPE_SCROLL_SENSITIVE for panning (later)?
+//
+//		if (obsStmt == null) {
+//			obsStmt = connection
+//					.prepareStatement("SELECT\n"
+//							+ "observations.JD AS jd,\n"
+//							+ "observations.magnitude AS magnitude,\n"
+//							+ "observations.fainterthan AS fainterthan,\n"
+//							+ "observations_extra.uncertain AS uncertain,\n"
+//							+ "IF (observations_extra.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
+//							+ "observations.uncertaintyhq AS hq_uncertainty,\n"
+//							+ "observations.band AS band,\n"
+//							+ "observations.obscode AS observer_code,\n"
+//							+ "observations.commentcode AS comment_code,\n"
+//							+ "observations.comp1_C AS comp_star_1,\n"
+//							+ "observations.comp2_K AS comp_star_2,\n"
+//							+ "observations.charts AS charts,\n"
+//							+ "observations_extra.comments AS comments,\n"
+//							+ "IF (observations_extra.transformed = 1, 'yes', 'no') AS transformed,\n"
+//							+ "observations_extra.airmass AS airmass,\n"
+//							+ "IF (observations.valflag = 'T', 'D', observations.valflag) AS valflag,\n"
+//							+ "observations_extra.CMag AS cmag,\n"
+//							+ "observations_extra.KMag AS kmag,\n"
+//							+ "observations_extra.HJD AS hjd,\n"
+//							+ "observations.name AS name\n"
+//							+ "FROM\n"
+//							+ "observations,\n"
+//							+ "observations_extra\n"
+//							+ "WHERE\n"
+//							+ "observations.unique_id = observations_extra.unique_id AND\n"
+//							+ "observations.AUID = ? AND\n"
+//							+ "observations.JD >= ? AND\n"
+//							+ "observations.JD <= ?\n" + "ORDER BY\n"
+//							+ "observations.JD;");
+//		}
+//
+//		return obsStmt;
+//	}
 
 	/**
 	 * Return a prepared statement for the specified AUID and date range. This
@@ -195,8 +245,7 @@ public class AAVSODatabaseConnector {
 
 	/**
 	 * Return a prepared statement to find the AUID from the validation table
-	 * given a star name. This is a once-only-created prepared statement with
-	 * parameters set.
+	 * given a star name. This is a once-only-created prepared statement.
 	 * 
 	 * @param connection
 	 *            A JDBC connection.
@@ -215,8 +264,7 @@ public class AAVSODatabaseConnector {
 
 	/**
 	 * Return a prepared statement to find the AUID from the alias table given a
-	 * star name. This is a once-only-created prepared statement with parameters
-	 * set.
+	 * star name. This is a once-only-created prepared statement.
 	 * 
 	 * @param connection
 	 *            A JDBC connection.
@@ -261,13 +309,58 @@ public class AAVSODatabaseConnector {
 					.createAUIDFromAliasQuery(connection);
 			aliasStmt.setString(1, name);
 			ResultSet aliasResults = aliasStmt.executeQuery();
-			
+
 			if (aliasResults.next()) {
 				auid = aliasResults.getString("auid");
 			}
 		}
 
 		return auid;
+	}
+
+	/**
+	 * Return a prepared statement to find the star name from the validation
+	 * table given an AUID. This is a once-only-created prepared statement.
+	 * 
+	 * @param connection
+	 *            A JDBC connection.
+	 * @return A prepared statement.
+	 */
+	protected PreparedStatement createStarNameFromValidationQuery(
+			Connection connection) throws SQLException {
+
+		if (starNameFromValidationStmt == null) {
+			starNameFromValidationStmt = connection
+					.prepareStatement("select name from validation where validation.auid = ? limit 1;");
+		}
+
+		return starNameFromValidationStmt;
+	}
+
+	/**
+	 * Return the AUID of the named star.
+	 * 
+	 * @param connection
+	 *            A JDBC connection.
+	 * @param name
+	 *            The AUID.
+	 * @return The star name as a string, or null if it is not recognised as a
+	 *         valid AUID in the AAVSO International Database.
+	 */
+	public String getStarName(Connection connection, String auid)
+			throws SQLException {
+		String starName = null;
+
+		// Can we find the AUID in the validation table?
+		PreparedStatement starNamePreparedStatement = this
+				.createStarNameFromValidationQuery(connection);
+		starNamePreparedStatement.setString(1, auid);
+		ResultSet validationResults = starNamePreparedStatement.executeQuery();
+		if (validationResults.next()) {
+			starName = validationResults.getString("name");
+		}
+
+		return starName;
 	}
 
 	/**
