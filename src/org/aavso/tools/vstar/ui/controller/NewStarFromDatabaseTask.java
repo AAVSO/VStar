@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.exception.UnknownAUIDError;
 import org.aavso.tools.vstar.exception.UnknownStarError;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseObservationReader;
@@ -106,6 +107,16 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 				
 				if (auid == null) {
 					throw new UnknownStarError(starName);
+				}
+			}
+			
+			// No, do we need instead to ask for the star name because
+			// we have an AUID but no star name?
+			if (starName == null) {
+				starName = obsConnector.getStarName(obsConnection, auid);
+				
+				if (starName == null) {
+					throw new UnknownAUIDError(auid);
 				}
 			}
 			

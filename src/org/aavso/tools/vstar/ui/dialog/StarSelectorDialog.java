@@ -26,6 +26,7 @@ import java.awt.event.FocusListener;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -65,6 +66,12 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	private Calendar cal;
 	private int year, month, day;
+
+	private static Pattern whitespacePattern = Pattern.compile("^\\s*$");
+
+	// Regex pattern for AUID (AAVSO unique ID per each star).
+	private static Pattern auidPattern = Pattern
+			.compile("^\\d{3}\\-\\w{3}\\-\\d{3}$");
 
 	/**
 	 * Constructor
@@ -274,15 +281,24 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		};
 	}
 
+	// Check that we have valid input in an appropriate subset
+	// of dialog widgets. The dialog will not be dismissed until
+	// there is a valid star selection and date range.
 	private void checkInput() {
-		// If text box is empty; if not, prioritise it over drop-down.
+		// TODO: Is this a confusing interface? Split out as 2 dialogs:
+		// one for 10-star drop down, another for star name/AUID?
 
-		if (starField.getText().length() > 0) {
-			// TODO: apply some regex to this, including pure whitespace checking...
-			// TODO: also need to handle NNN-ZZZ-MMM which means AUID,
-			//       where where N and M are 0..9 and Z is a letter of the alphabet.
-			starName = starField.getText();
-			auid = null;
+		String text = starField.getText();
+		if (!whitespacePattern.matcher(text).matches()) {
+			// If text box is not empty, prioritise it over 10-star
+			// drop-down menu. AUID or star name?
+			if (auidPattern.matcher(text).matches()) {
+				auid = text;
+			} else {
+				// TODO: is there a pattern we should check for 
+				// star name (e.g. letters, digits, whitespace; ask EOW)?
+				starName = text;
+			}
 		} else {
 			starName = (String) tenStarSelector.getSelectedItem();
 			auid = tenStarMap.get(starName);
@@ -302,9 +318,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 					"Maximum Julian Day", ex);
 		}
 
-		// TODO: probably want to add some state to say that auid can only be null
-		// if we're using the text field.
-		if (starName != null /* && auid != null */&& minDate != null
+		if ((starName != null || auid != null) && minDate != null
 				&& maxDate != null) {
 			cancelled = false;
 			setVisible(false);
@@ -315,14 +329,18 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	// Getters
 
 	/**
-	 * @return the starName
+	 * @return the starName; a valid value is null in the case where an auid is
+	 *         entered in the "Other Star" field rather than being selected from
+	 *         the pull-down menu.
 	 */
 	public String getStarName() {
 		return starName;
 	}
 
 	/**
-	 * @return the auid
+	 * @return the auid; a valid value is null in the case where a name is
+	 *         entered in the "Other Star" field rather than being selected from
+	 *         the pull-down menu.
 	 */
 	public String getAuid() {
 		return auid;
