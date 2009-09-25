@@ -82,14 +82,14 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	 * 
 	 * @param status The status.
 	 */
-	protected synchronized void setCancelled(boolean status) {
+	protected void setCancelled(boolean status) {
 		cancelled = status;
 	}
 	
 	/**
 	 * @return whether this dialog box cancelled
 	 */
-	public synchronized boolean isCancelled() {
+	public boolean isCancelled() {
 		return cancelled;
 	}
 	

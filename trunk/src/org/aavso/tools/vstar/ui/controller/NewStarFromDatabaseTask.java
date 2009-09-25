@@ -84,20 +84,11 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 		boolean success = true;
 
 		try {
-			// CitizenSky authentication.
-			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.userDBConnector;
-			userConnector.authenticateWithCitizenSky();
-			updateProgress(2);
-
-			// TODO: query for observer code; return value of
-			// authenticateWithCitizenSky() above?
-
 			// Connect to the observation database if we haven't already
 			// done so.
 			MainFrame.getInstance().getStatusPane().setMessage(
 					"Connecting to AAVSO database...");
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
-
 			Connection obsConnection = obsConnector.createConnection();
 
 			// Do we need to ask for the AUID from the database before 
@@ -119,7 +110,11 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 					throw new UnknownAUIDError(auid);
 				}
 			}
-			
+
+			modelMgr.setNewStarName(starName);
+
+			updateProgress(2);
+
 			// Get a prepared statement to read a set of observations
 			// from the database, setting the parameters for the star
 			// we are targeting.
