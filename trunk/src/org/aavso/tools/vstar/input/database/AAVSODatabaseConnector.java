@@ -349,9 +349,21 @@ public class AAVSODatabaseConnector {
 			LoginDialog loginDialog = new LoginDialog(
 					"CitizenSky Authentication");
 
-			System.out.println(">> login dialog is-cancelled: " + loginDialog.isCancelled());
+			// Temporary hack to fix race condition.
+			try {
+				Thread.sleep(500); 
+			} catch (Exception e) {
+			}
 
-			if (!loginDialog.isCancelled()) {
+			System.out.println("finished sleeping...");
+
+			cancelled = loginDialog.isCancelled();
+			
+			System.out.println(">> login dialog is-cancelled: " + cancelled);
+
+			if (!cancelled) {
+				System.out.println(">> login dialog is-cancelled: " + loginDialog.isCancelled());
+
 				String username = loginDialog.getUsername();
 				String suppliedPassword = new String(loginDialog.getPassword());
 				String passwordDigest = generateHexDigest(suppliedPassword);
@@ -379,7 +391,7 @@ public class AAVSODatabaseConnector {
 				}
 			} else {
 				cancelled = true;
-			}
+			}			
 		}
 
 		if (!authenticatedWithCitizenSky) {
