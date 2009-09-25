@@ -349,6 +349,8 @@ public class AAVSODatabaseConnector {
 			LoginDialog loginDialog = new LoginDialog(
 					"CitizenSky Authentication");
 
+			System.out.println(">> login dialog is-cancelled: " + loginDialog.isCancelled());
+
 			if (!loginDialog.isCancelled()) {
 				String username = loginDialog.getUsername();
 				String suppliedPassword = new String(loginDialog.getPassword());
@@ -381,6 +383,7 @@ public class AAVSODatabaseConnector {
 		}
 
 		if (!authenticatedWithCitizenSky) {
+			System.out.println(">> cancelled: " + cancelled);
 			throw new AuthenticationError("Unable to authenticate.");
 		}
 	}
