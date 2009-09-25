@@ -171,57 +171,7 @@ public class AAVSODatabaseConnector {
 
 		return obsStmt;
 	}
-
-	/**
-	 * Return a prepared statement for the specified AUID and date range. This
-	 * is a once-only-created prepared statement with parameters set.
-	 * 
-	 * @param connection
-	 *            A JDBC connection.
-	 * @return A prepared statement.
-	 */
-//	public PreparedStatement createObservationQueryOld(Connection connection)
-//			throws SQLException {
-//
-//		// TODO: also use ResultSet.TYPE_SCROLL_SENSITIVE for panning (later)?
-//
-//		if (obsStmt == null) {
-//			obsStmt = connection
-//					.prepareStatement("SELECT\n"
-//							+ "observations.JD AS jd,\n"
-//							+ "observations.magnitude AS magnitude,\n"
-//							+ "observations.fainterthan AS fainterthan,\n"
-//							+ "observations_extra.uncertain AS uncertain,\n"
-//							+ "IF (observations_extra.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
-//							+ "observations.uncertaintyhq AS hq_uncertainty,\n"
-//							+ "observations.band AS band,\n"
-//							+ "observations.obscode AS observer_code,\n"
-//							+ "observations.commentcode AS comment_code,\n"
-//							+ "observations.comp1_C AS comp_star_1,\n"
-//							+ "observations.comp2_K AS comp_star_2,\n"
-//							+ "observations.charts AS charts,\n"
-//							+ "observations_extra.comments AS comments,\n"
-//							+ "IF (observations_extra.transformed = 1, 'yes', 'no') AS transformed,\n"
-//							+ "observations_extra.airmass AS airmass,\n"
-//							+ "IF (observations.valflag = 'T', 'D', observations.valflag) AS valflag,\n"
-//							+ "observations_extra.CMag AS cmag,\n"
-//							+ "observations_extra.KMag AS kmag,\n"
-//							+ "observations_extra.HJD AS hjd,\n"
-//							+ "observations.name AS name\n"
-//							+ "FROM\n"
-//							+ "observations,\n"
-//							+ "observations_extra\n"
-//							+ "WHERE\n"
-//							+ "observations.unique_id = observations_extra.unique_id AND\n"
-//							+ "observations.AUID = ? AND\n"
-//							+ "observations.JD >= ? AND\n"
-//							+ "observations.JD <= ?\n" + "ORDER BY\n"
-//							+ "observations.JD;");
-//		}
-//
-//		return obsStmt;
-//	}
-
+	
 	/**
 	 * Return a prepared statement for the specified AUID and date range. This
 	 * may be a once-only-created prepared statement with parameters set.
