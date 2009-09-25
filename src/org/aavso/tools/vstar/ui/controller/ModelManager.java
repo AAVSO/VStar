@@ -33,10 +33,15 @@ import javax.swing.JTable.PrintMode;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.ui.DataPane;
+import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MeanObservationListPane;
+import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
@@ -194,16 +199,33 @@ public class ModelManager {
 	public void createObservationArtefactsFromDatabase(String starName,
 			String auid, double minJD, double maxJD) {
 
-		modelMgr.setNewStarName(starName);
+		try {
+			// CitizenSky authentication.
+			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.userDBConnector;
+			userConnector.authenticateWithCitizenSky();
 
-		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
+			// TODO: query for observer code; return value of
+			// authenticateWithCitizenSky() above?
 
-		this.getProgressNotifier().notifyListeners(
-				new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
+			this.getProgressNotifier().notifyListeners(
+					ProgressInfo.RESET_PROGRESS);
 
-		NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(starName,
-				auid, minJD, maxJD);
-		task.execute();
+			this.getProgressNotifier().notifyListeners(
+					new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
+
+			NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(
+					starName, auid, minJD, maxJD);
+			task.execute();
+		} catch (CancellationException ex) {
+			// Nothing to do.
+		} catch (ConnectionException ex) {
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					MenuBar.NEW_STAR_FROM_DATABASE,
+					"Cannot connect to database.");
+		} catch (Exception ex) {
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					MenuBar.NEW_STAR_FROM_DATABASE, ex);
+		}
 	}
 
 	/**
@@ -234,7 +256,7 @@ public class ModelManager {
 			modelMgr.validObsTableModel.getObservationChangeNotifier()
 					.addListener(modelMgr.obsPlotModel);
 
-			String subTitle = "";			
+			String subTitle = "";
 			if (newStarType == NewStarType.NEW_STAR_FROM_DATABASE) {
 				subTitle = new Date().toString() + " (database)";
 			} else {
@@ -248,7 +270,8 @@ public class ModelManager {
 			modelMgr.validObsTableModel.getObservationChangeNotifier()
 					.addListener(modelMgr.obsAndMeanPlotModel);
 
-			modelMgr.obsAndMeanChartPane = createObservationAndMeanPlotPane(objName, subTitle);
+			modelMgr.obsAndMeanChartPane = createObservationAndMeanPlotPane(
+					objName, subTitle);
 
 			// The mean observation table model must listen to the plot
 			// model to know when the means data has changed. We also pass
@@ -305,11 +328,12 @@ public class ModelManager {
 	/**
 	 * Create the observation pane for a plot of valid observations.
 	 */
-	private ObservationPlotPane createObservationPlotPane(String plotName, String subTitle) {
+	private ObservationPlotPane createObservationPlotPane(String plotName,
+			String subTitle) {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
-		return new ObservationPlotPane("Light Curve for " + plotName,
-				subTitle, this.obsPlotModel, bounds);
+		return new ObservationPlotPane("Light Curve for " + plotName, subTitle,
+				this.obsPlotModel, bounds);
 	}
 
 	/**

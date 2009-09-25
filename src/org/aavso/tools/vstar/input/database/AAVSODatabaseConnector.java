@@ -27,9 +27,9 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.StatusPane;
 import org.aavso.tools.vstar.ui.dialog.LoginDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
@@ -346,24 +346,14 @@ public class AAVSODatabaseConnector {
 		boolean cancelled = false;
 
 		while (!cancelled && !authenticatedWithCitizenSky && retries > 0) {
+			MainFrame.getInstance().getStatusPane().setMessage("CitizenSky Login...");
+
 			LoginDialog loginDialog = new LoginDialog(
 					"CitizenSky Authentication");
 
-			// Temporary hack to fix race condition.
-			try {
-				Thread.sleep(500); 
-			} catch (Exception e) {
-			}
-
-			System.out.println("finished sleeping...");
-
 			cancelled = loginDialog.isCancelled();
-			
-			System.out.println(">> login dialog is-cancelled: " + cancelled);
 
 			if (!cancelled) {
-				System.out.println(">> login dialog is-cancelled: " + loginDialog.isCancelled());
-
 				String username = loginDialog.getUsername();
 				String suppliedPassword = new String(loginDialog.getPassword());
 				String passwordDigest = generateHexDigest(suppliedPassword);
@@ -389,13 +379,16 @@ public class AAVSODatabaseConnector {
 						retries--;
 					}
 				}
-			} else {
-				cancelled = true;
 			}			
+		}
+		
+		MainFrame.getInstance().getStatusPane().setMessage("");
+
+		if (cancelled) {
+			throw new CancellationException();
 		}
 
 		if (!authenticatedWithCitizenSky) {
-			System.out.println(">> cancelled: " + cancelled);
 			throw new AuthenticationError("Unable to authenticate.");
 		}
 	}

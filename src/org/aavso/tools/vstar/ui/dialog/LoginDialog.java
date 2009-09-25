@@ -132,13 +132,6 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	private void checkInput() {
 		setVisible(false);
 
-		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-		System.out.println("username match: "
-				+ usernamePattern.matcher(usernameField.getText()).matches());
-		System.out.println("password match: "
-				+ passwordPattern.matcher(
-						new String(passwordField.getPassword())).matches());
-
 		if (!usernamePattern.matcher(usernameField.getText()).matches()
 				|| !passwordPattern.matcher(
 						new String(passwordField.getPassword())).matches()) {
@@ -147,17 +140,12 @@ public class LoginDialog extends AbstractOkCancelDialog {
 			usernameField.setText("");
 			passwordField.setText("");
 			setVisible(true);
-			System.out.println("1");
 		} else {
 			// The fields validated, so dismiss the dialog box, indicating
 			// success.
 			setCancelled(false);
 			dispose();
-			System.out.println("2");
 		}
-
-		System.out.println("cancelled: " + isCancelled());
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 	}
 
 	/**
