@@ -39,7 +39,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 		this.setTitle(title);
 		this.setModal(true);
 		this.cancelled = true;
-		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		//this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}
 	
 	protected JPanel createButtonPane() {
@@ -78,9 +78,18 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	}
 	
 	/**
-	 * @return has the dialog been cancelled?
+	 * Set the cancelled status of this dialog.
+	 * 
+	 * @param status The status.
 	 */
-	public boolean isCancelled() {
+	protected synchronized void setCancelled(boolean status) {
+		cancelled = status;
+	}
+	
+	/**
+	 * @return whether this dialog box cancelled
+	 */
+	public synchronized boolean isCancelled() {
 		return cancelled;
 	}
 	

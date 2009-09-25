@@ -151,12 +151,12 @@ public class LoginDialog extends AbstractOkCancelDialog {
 		} else {
 			// The fields validated, so dismiss the dialog box, indicating
 			// success.
-			cancelled = false;
+			setCancelled(false);
 			dispose();
 			System.out.println("2");
 		}
 
-		System.out.println("cancelled: " + cancelled);
+		System.out.println("cancelled: " + isCancelled());
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 	}
 
@@ -172,13 +172,6 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	 */
 	public char[] getPassword() {
 		return passwordField.getPassword();
-	}
-
-	/**
-	 * @return was this dialog box cancelled?
-	 */
-	public boolean isCancelled() {
-		return cancelled;
 	}
 
 	protected void cancelAction() {
