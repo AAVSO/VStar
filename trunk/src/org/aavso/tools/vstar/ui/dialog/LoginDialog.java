@@ -58,7 +58,7 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	public LoginDialog(String intro) {
 		super("Login");
 
-		// TODO: do we want to impose maximum lengths on usernames 
+		// TODO: do we want to impose maximum lengths on usernames
 		// and passwords; should we split patterns for each out?
 		Pattern commonPattern = Pattern
 				.compile("^[A-Za-z0-9\\!@#\\$%&\\*\\(\\)_\\-\\+=\\?<><>\\.\\,]{2,40}$");
@@ -120,7 +120,7 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	private ActionListener createFieldActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				checkInput();
+				// checkInput();
 			}
 		};
 	}
@@ -132,6 +132,13 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	private void checkInput() {
 		setVisible(false);
 
+		System.out.println("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+		System.out.println("username match: "
+				+ usernamePattern.matcher(usernameField.getText()).matches());
+		System.out.println("password match: "
+				+ passwordPattern.matcher(
+						new String(passwordField.getPassword())).matches());
+
 		if (!usernamePattern.matcher(usernameField.getText()).matches()
 				|| !passwordPattern.matcher(
 						new String(passwordField.getPassword())).matches()) {
@@ -140,12 +147,17 @@ public class LoginDialog extends AbstractOkCancelDialog {
 			usernameField.setText("");
 			passwordField.setText("");
 			setVisible(true);
+			System.out.println("1");
 		} else {
-			// The fields validated, so dismiss the dialog box, indicating 
+			// The fields validated, so dismiss the dialog box, indicating
 			// success.
 			cancelled = false;
 			dispose();
+			System.out.println("2");
 		}
+
+		System.out.println("cancelled: " + cancelled);
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 	}
 
 	/**
@@ -170,7 +182,7 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	}
 
 	protected void cancelAction() {
-		// Nothing to do		
+		// Nothing to do
 	}
 
 	protected void okAction() {
