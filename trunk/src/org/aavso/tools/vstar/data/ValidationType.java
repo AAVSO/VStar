@@ -27,11 +27,14 @@ public enum ValidationType {
 	PREVALIDATION;
 	
 	// Note: from database we can also have:
+	// 
 	// Z = Prevalidated, 
 	// P = Published observation, 
 	// T = Discrepant, 
 	// V = Good, 
 	// Y = Deleted
+	//
+	// See https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag:
 	
 //	PUBLISHED,
 //	DELETED;
