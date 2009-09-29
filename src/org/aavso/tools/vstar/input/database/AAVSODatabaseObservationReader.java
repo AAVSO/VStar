@@ -157,7 +157,8 @@ public class AAVSODatabaseObservationReader extends AbstractObservationRetriever
 	 * we have: Z = Prevalidated P = Published observation T = Discrepant V =
 	 * Good Y = Deleted Our query converts any occurrence of 'T' to 'D'.
 	 * Currently we convert everything to Good, Discrepant, or Prevalidated
-	 * below. TODO: rationalise/fix!
+	 * below. TODO: once 'Y' (deleted) observations are filtered out, this
+	 * classification should make sense.
 	 */
 	private ValidationType getNextValidationType() throws SQLException {
 		ValidationType type;
