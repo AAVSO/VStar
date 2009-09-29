@@ -22,22 +22,22 @@ package org.aavso.tools.vstar.data;
  */
 public enum ValidationType {
 	
-	GOOD,
-	DISCREPANT,
-	PREVALIDATION;
-	
-	// Note: from database we can also have:
+	// Note: from database we can have:
 	// 
-	// Z = Prevalidated, 
-	// P = Published observation, 
-	// T = Discrepant, 
-	// V = Good, 
-	// Y = Deleted
+	//	P = Published observation (should be treated as Good)
+	//	T = Discrepant (mapped to 'D' in SQL query)
+	//	V = Good 
+	//	Y = Deleted
+	//	Z = Prevalidated 
 	//
 	// See https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag:
+	//
+	// In AAVSO download format files we also see 'G' for "Good".
 	
-//	PUBLISHED,
-//	DELETED;
+	GOOD,
+	DISCREPANT,
+	PREVALIDATION,
+	DELETED;	
 	
 	/**
 	 * Given a valflag from an input file or database, return
@@ -51,9 +51,13 @@ public enum ValidationType {
 		} else if ("D".equals(valflag)) {
 			valtype = DISCREPANT;
 		} else if ("P".equals(valflag)) {
+			valtype = GOOD;
+		} else if ("V".equals(valflag)) {
+			valtype = GOOD;
+		} else if ("Z".equals(valflag)) {
 			valtype = PREVALIDATION;
-		} else if ("P".equals(valflag)) {
-			valtype = PREVALIDATION;
+		} else if ("Y".equals(valflag)) {
+			valtype = DELETED;
 		}
 		
 		assert(valtype != null);
@@ -66,6 +70,7 @@ public enum ValidationType {
 	 */
 	public String getValflag() {
 		String str = null;
+		
 		switch(this) {
 		case GOOD:
 			str = "G";
@@ -76,10 +81,15 @@ public enum ValidationType {
 		case PREVALIDATION:
 			str = "P";
 			break;			
+		case DELETED:
+			str = "Y";
+			break;			
 		}
 		
 		assert(str != null);
 		
 		return str;
 	}
+	
+	// TODO: add toString() for human readability
 }

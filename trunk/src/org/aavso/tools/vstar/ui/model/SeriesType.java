@@ -40,7 +40,7 @@ public enum SeriesType {
 	
 	// From http://www.aavso.org/vstarwiki/index.php/Bands
 	// The indices here correspond to database band numbers.
-	// TODO: fix the colors!
+	// TODO: fix the colors (these are not currently used)!
 	Visual(0, "Visual", Color.BLACK),
 	Unknown(1, "Unknown", Color.BLACK),
 	Johnson_V(2, "Johnson V", Color.BLACK),
