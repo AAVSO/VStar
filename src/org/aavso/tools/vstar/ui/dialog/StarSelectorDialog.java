@@ -45,9 +45,9 @@ import org.aavso.tools.vstar.util.AbstractDateUtil;
  * This dialog allows the user to select a star.
  */
 public class StarSelectorDialog extends AbstractOkCancelDialog {
-
+	
 	private static AbstractDateUtil dateUtil = AbstractDateUtil.getInstance();
-
+	
 	private Map<String, String> tenStarMap;
 
 	private Container contentPane;
@@ -74,9 +74,9 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			.compile("^\\d{3}\\-\\w{3}\\-\\d{3}$");
 
 	/**
-	 * Constructor
+	 * Constructor (singleton)
 	 */
-	public StarSelectorDialog() {
+	private StarSelectorDialog() {
 		super("Select a Star");
 
 		this.starName = null;
@@ -117,7 +117,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		this.pack();
 		tenStarSelector.requestFocusInWindow();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
-		this.setVisible(true);
 	}
 
 	// We know the AUID of the CitizenSky ten-stars, so there is
@@ -373,5 +372,13 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	protected void okAction() {
 		checkInput();
+	}
+	
+	// Singleton
+	
+	private static StarSelectorDialog instance = new StarSelectorDialog();
+
+	public static StarSelectorDialog getInstance() {
+		return instance;
 	}
 }

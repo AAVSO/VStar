@@ -199,8 +199,9 @@ public class MenuBar extends JMenuBar {
 					// Prompt user for star and JD range selection.
 					MainFrame.getInstance().getStatusPane().setMessage(
 							"Select a star...");
-					StarSelectorDialog starSelectorDialog = new StarSelectorDialog();
-
+					StarSelectorDialog starSelectorDialog = StarSelectorDialog.getInstance();
+					starSelectorDialog.setVisible(true);
+					
 					if (!starSelectorDialog.isCancelled()) {
 						String starName = starSelectorDialog.getStarName();
 						String auid = starSelectorDialog.getAuid();
