@@ -18,6 +18,8 @@
 package org.aavso.tools.vstar.input.database;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import junit.framework.TestCase;
 
@@ -81,4 +83,41 @@ public class DatabaseConnectorTest extends TestCase {
 			fail();
 		}
 	}	
+	
+
+	// Read a result set from the database for Epsilon Aurigae in the
+	// Julian Day range 2454000.5..2454939.56597.
+	public void testSampleRead() {
+		try {
+			AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
+			Connection connection = connector.createConnection();
+			assertNotNull(connection);
+
+			PreparedStatement stmt = connector
+					.createObservationQuery(connection);
+			assertNotNull(stmt);
+
+			connector.setObservationQueryParams(stmt, "000-BCT-905", 2454000.5,
+					2454939.56597);
+
+			ResultSet results = stmt.executeQuery();
+
+			// Look for a particular observation that we know exists
+			// in the database and check the magnitude we find there.
+			boolean found = false;
+			while (results.next()) {
+				double jd = results.getDouble("JD");
+				if (jd == 2454134.3819) {
+					double mag = results.getDouble("magnitude");
+					assertEquals(3.0, mag);
+					int band = results.getInt("band");
+					assertEquals(0, band); // Visual band
+					found = true;
+				}
+			}
+			assertTrue(found);
+		} catch (Exception e) {
+			fail();
+		}
+	}
 }
