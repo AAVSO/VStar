@@ -39,7 +39,8 @@ import org.aavso.tools.vstar.ui.model.SeriesType;
  * 
  * REQ_VSTAR_AAVSO_DATABASE_READ REQ_VSTAR_DATABASE_READ_ONLY
  */
-public class AAVSODatabaseObservationReader extends AbstractObservationRetriever {
+public class AAVSODatabaseObservationReader extends
+		AbstractObservationRetriever {
 
 	private ResultSet source;
 
@@ -56,17 +57,13 @@ public class AAVSODatabaseObservationReader extends AbstractObservationRetriever
 
 	/**
 	 * @see org.aavso.tools.vstar.input.AbstractObservationRetriever#retrieveObservations()
-	 * 
-	 *      Note: It would be incrementally faster to use the numeric index
-	 *      forms of the ResultSet getter methods instead of strings. We use the
-	 *      string versions for clarity. We can change this to use named
-	 *      constants if it proves to be too inefficient.
 	 */
 	public void retrieveObservations() throws ObservationReadError {
 		try {
 			while (source.next()) {
 				ValidObservation validOb = getNextObservation();
-				if (!validOb.getMagnitude().isBrighterThan()) {
+				if (!validOb.getMagnitude().isBrighterThan()
+						&& !"".equals(validOb.getBand())) {
 					validObservations.add(validOb);
 					categoriseValidObservation(validOb);
 				} else {
@@ -84,6 +81,14 @@ public class AAVSODatabaseObservationReader extends AbstractObservationRetriever
 
 	// Helpers
 
+	/**
+	 * Get the next observation.
+	 * 
+	 * Note: It would be incrementally faster to use the numeric index
+	 * forms of the ResultSet getter methods instead of strings. We use the
+	 * string versions for clarity. We can change this to use named
+	 * constants if it proves to be too inefficient.
+	 */
 	private ValidObservation getNextObservation() throws ObservationReadError {
 		ValidObservation ob = new ValidObservation();
 
@@ -91,9 +96,8 @@ public class AAVSODatabaseObservationReader extends AbstractObservationRetriever
 			ob.setDateInfo(new DateInfo(source.getDouble("jd")));
 			ob.setMagnitude(getNextMagnitude());
 			ob.setHqUncertainty(source.getDouble("hq_uncertainty"));
-			// TODO: convert band from num (as string)!
-			// http://www.aavso.org/vstarwiki/index.php/Bands
-			String bandName = SeriesType.UNKNOWN.getName();
+			// String bandName = SeriesType.UNKNOWN.getName();
+			String bandName = "";
 			String bandNum = getNextPossiblyNullString("band");
 			if (bandNum != null && !"".equals(bandNum)) {
 				int num = Integer.parseInt(bandNum);
@@ -175,6 +179,8 @@ public class AAVSODatabaseObservationReader extends AbstractObservationRetriever
 
 		return type;
 	}
+
+	// TODO: genericse
 
 	private String getNextPossiblyNullString(String colName)
 			throws SQLException {

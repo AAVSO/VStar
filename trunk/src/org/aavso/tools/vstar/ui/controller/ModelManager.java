@@ -75,6 +75,8 @@ import org.aavso.tools.vstar.util.Notifier;
  * 
  * TODO: where we currently refer to modelMgr artefacts, we should use local
  * variables instead where possible and get rid of those members.
+ * 
+ * TODO: call this a Mediator of some kind? Check GoF.
  */
 public class ModelManager {
 

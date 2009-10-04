@@ -25,6 +25,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidationType;
 
 /**
  * This is a unit test for reading observations from a text file. This is really
@@ -97,8 +98,8 @@ public class DatabaseObservationReaderTest extends TestCase {
 					.createObservationQuery(connection);
 			assertNotNull(stmt);
 
-			connector.setObservationQueryParams(stmt, "000-BCT-905", 2455105.6056,
-					2455105.6056);
+			connector.setObservationQueryParams(stmt, "000-BCT-905", 2455101.5347,
+					2455101.5347);
 
 			ResultSet results = stmt.executeQuery();
 			
@@ -106,8 +107,8 @@ public class DatabaseObservationReaderTest extends TestCase {
 			reader.retrieveObservations();
 			List<ValidObservation> obs = reader.getValidObservations();
 			
-			assertTrue(obs.size() == 1);
-//			assertEquals(ValidationType.DELETED, obs.get(0).getValidationType());
+			assertTrue(obs.size() == 2);
+//			assertEquals(ValidationType.DELETED, obs.get(1).getValidationType());
 		} catch (Exception e) {
 			fail();
 		}
