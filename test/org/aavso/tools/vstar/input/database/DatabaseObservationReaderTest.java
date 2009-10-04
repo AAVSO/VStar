@@ -20,10 +20,12 @@ package org.aavso.tools.vstar.input.database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidationType;
 
 /**
  * This is a unit test for reading observations from a text file. This is really
@@ -31,8 +33,6 @@ import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
  * from an AAVSO database.
  */
 public class DatabaseObservationReaderTest extends TestCase {
-
-	private AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
 
 	/**
 	 * Constructor
@@ -43,13 +43,13 @@ public class DatabaseObservationReaderTest extends TestCase {
 	public DatabaseObservationReaderTest(String name) {
 		super(name);
 	}
-
-	// Valid tests.
-
-	// Read a result set from the database for Epsilon Aurigae in the
-	// Julian Day range 2454000.5..2454939.56597.
-	public void testSampleRead1() {
+	
+	// Read a result set from the database for Eps Aur in the
+	// Julian Day range 2454000.5..2454939.56597 and check one
+	// of the known observation's values.
+	public void testReadValidObservationEpsAur1() {
 		try {
+			AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
 			Connection connection = connector.createConnection();
 			assertNotNull(connection);
 
@@ -61,21 +61,54 @@ public class DatabaseObservationReaderTest extends TestCase {
 					2454939.56597);
 
 			ResultSet results = stmt.executeQuery();
+			
+			AAVSODatabaseObservationReader reader = new AAVSODatabaseObservationReader(results);						
+			reader.retrieveObservations();
+			List<ValidObservation> obs = reader.getValidObservations();
 
-			// Look for a particular observation that we know exists
-			// in the database and check the magnitude we find there.
 			boolean found = false;
-			while (results.next()) {
-				double jd = results.getDouble("JD");
+			for (ValidObservation ob : obs) {
+				double jd = ob.getDateInfo().getJulianDay();
 				if (jd == 2454134.3819) {
-					double mag = results.getDouble("magnitude");
+					double mag = ob.getMag();
 					assertEquals(3.0, mag);
-					int band = results.getInt("band");
-					assertEquals(0, band); // Visual band
+					String band = ob.getBand();
+					assertEquals("Visual", band);
 					found = true;
-				}
+					break;
+				}				
 			}
+			
 			assertTrue(found);
+		} catch (Exception e) {
+			fail();
+		}
+	}
+	
+	// Read an observation that is known to be deleted in the
+	// the database. This should fail but does not!
+	// See http://sourceforge.net/tracker/?func=detail&aid=2858633&group_id=263306&atid=1152052
+	public void testReadDeletedEpsAurObservation1() {
+		try {
+			AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
+			Connection connection = connector.createConnection();
+			assertNotNull(connection);
+
+			PreparedStatement stmt = connector
+					.createObservationQuery(connection);
+			assertNotNull(stmt);
+
+			connector.setObservationQueryParams(stmt, "000-BCT-905", 2455105.6056,
+					2455105.6056);
+
+			ResultSet results = stmt.executeQuery();
+			
+			AAVSODatabaseObservationReader reader = new AAVSODatabaseObservationReader(results);						
+			reader.retrieveObservations();
+			List<ValidObservation> obs = reader.getValidObservations();
+			
+			assertTrue(obs.size() == 1);
+//			assertEquals(ValidationType.DELETED, obs.get(0).getValidationType());
 		} catch (Exception e) {
 			fail();
 		}
