@@ -75,10 +75,11 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
-	 * Set the mean-based series with the specified bin size.
+	 * Set the mean-based series.
 	 * 
-	 * @param daysInBin
-	 *            The number of days in the bin.
+	 * This method creates a new means series based upon the current
+	 * mean source series index and days-in-bin. It then updates the
+	 * view and any listeners.
 	 */
 	public void setMeanSeries() {
 
