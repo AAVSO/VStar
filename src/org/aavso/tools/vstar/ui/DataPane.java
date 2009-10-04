@@ -145,6 +145,9 @@ public class DataPane extends JPanel {
 					JPanel obsListPane = msg.getObsTablePane();
 					JPanel meansListPane = msg.getMeansListPane();
 
+					// TODO: why are we doing this check here rather than
+					// before we even send the message (e.g. in ModelManager)?
+					
 					if (obsPlotPane != null && obsAndMeanPane != null
 							&& obsListPane != null && meansListPane != null) {
 						setCard(ModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
@@ -161,6 +164,9 @@ public class DataPane extends JPanel {
 						} else {
 							errMsg = "Error in observation source.";
 						}
+						
+						// As per above TODO, instead deal with this in ModelManager
+						// and also clear the status pane.
 						MessageBox.showErrorDialog(parent, "New Star...",
 								errMsg);
 					}
