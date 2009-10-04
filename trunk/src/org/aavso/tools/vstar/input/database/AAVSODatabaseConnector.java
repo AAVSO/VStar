@@ -281,7 +281,7 @@ public class AAVSODatabaseConnector {
 
 		if (starNameFromValidationStmt == null) {
 			starNameFromValidationStmt = connection
-					.prepareStatement("select name from validation where validation.auid = ? limit 1;");
+					.prepareStatement("SELECT name FROM validation WHERE validation.auid = ? LIMIT 1;");
 		}
 
 		return starNameFromValidationStmt;

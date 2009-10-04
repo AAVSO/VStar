@@ -265,8 +265,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * 
 	 * TODO: need to specialise this later to join observer's obs etc?
 	 * 
-	 * @return A collection of series numbers for series whose elements should be
-	 *         joined visually.
+	 * @return A collection of series numbers for series whose elements should
+	 *         be joined visually.
 	 */
 	public Collection<Integer> getSeriesWhoseElementsShouldBeJoinedVisually() {
 		return new TreeSet<Integer>();
@@ -418,7 +418,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	public Map<Integer, Boolean> getSeriesVisibilityMap() {
 		return seriesVisibilityMap;
 	}
-	
+
 	// Helper methods.
 
 	/**
@@ -432,33 +432,26 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *            The series name. TODO: should eventually be enum.
 	 * @return Whether or not the series should be visible by default.
 	 */
-	private boolean isSeriesVisibleByDefault(String series) {
+	protected boolean isSeriesVisibleByDefault(String series) {
 		boolean visible = false;
 
 		// Look for Visual, then V.
-		// TODO: what about Stromgren V, unfiltered with V zero point?
 
-		// TODO: We could delegate "is visible" to SeriesType which 
+		// TODO: We could delegate "is visible" to SeriesType which
 		// could also be used by means plot model code.
-		
+
 		visible |= SeriesType.Visual.getName().equals(series)
 				|| SeriesType.VISUAL.getName().equals(series);
 
-		if (!visible) {
-			visible = SeriesType.V.getName().equals(series)
-					|| SeriesType.Johnson_V.getName().equals(series);
-		}
+		visible |= SeriesType.V.getName().equals(series)
+				|| SeriesType.Johnson_V.getName().equals(series);
 
-		// We also allow for unspecified or unknown, e.g. since the source 
-		// could be from a simple observation file where no band is specified. 
-		// People could use this for visual, CCD/DSLR photometry observation 
+		// We also allow for unspecified series type, e.g. since the source
+		// could be from a simple observation file where no band is specified.
+		// People could use this for visual, CCD/DSLR photometry observation
 		// etc. TODO: add enum value for "unspecified".
-		if (!visible) {
-			visible = SeriesType.UNKNOWN.getName().equals(series)
-					|| SeriesType.Unknown.getName().equals(series) ||
-					"Unspecified".equalsIgnoreCase(series);
-		}
-		
+		visible |= "Unspecified".equalsIgnoreCase(series);
+
 		return visible;
 	}
 }

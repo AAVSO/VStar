@@ -30,7 +30,9 @@ public enum SeriesType {
 	FAINTER_THAN(-1, "Fainter Than", Color.BLACK),
 	MEANS(-1, "Means", Color.BLACK),
 
-	// TODO: need to map this group manually in ctor!
+	// TODO: This group and the next and any others missed from either
+	// (see wiki re: bands for different input sources) need to become
+	// one.
 	UNKNOWN(-1, "Unknown", Color.BLACK),
 	VISUAL(-1, "Visual", Color.BLACK),
 	V(-1, "V", Color.BLACK),
@@ -64,7 +66,9 @@ public enum SeriesType {
 	Stromgren_b(32, "Stromgren b", Color.BLACK),
 	Stromgren_y(33, "Stromgreny", Color.BLACK),
 	Stromgren_Hb21_H_beta_wide(34, "Stromgren Hbw (H beta wide)", Color.BLACK),
-	Stromgren_Hbn_H_bet_narrow(35, "Stromgren Hbn (H bet narrow)", Color.BLACK);
+	Stromgren_Hbn_H_bet_narrow(35, "Stromgren Hbn (H bet narrow)", Color.BLACK),
+
+	Unspecified(-1, "Unspecified", Color.BLACK);
 
 	// TODO: populate this with canonical band representations
 	private static Map<Integer, String> index2NameMap = new HashMap<Integer, String>();
@@ -99,12 +103,16 @@ public enum SeriesType {
 	public Color getColor() {
 		return color;
 	}
-	
-	// Note: This method will go away once all band values are natively enums!
-	//       This is just here as a convenience for when observations are read 
-	//       from database right now.
+
+	/**
+	 * Map from (database) band index to band name.
+	 * TODO: should eventually return enum value
+	 * 
+	 * @param index The integer band index
+	 * @return The band name or "Unspecified".
+	 */
 	public static String getNameFromIndex(int index) {
-		String name = "Unspecified";
+		String name = Unspecified.getName();
 		
 		for (SeriesType type : values()) {
 			if (type.getIndex() == index) {

@@ -68,4 +68,17 @@ public class DatabaseConnectorTest extends TestCase {
 			fail();
 		}
 	}
+	
+	// '000-BCT-905' should be found in the validation table as corresponding to
+	// Epsilon Aurigae.
+	public void testGetEpsAurFromAUID() {
+		try {
+			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
+			Connection connection = obsConnector.createConnection();
+			String starName = obsConnector.getStarName(connection, "000-BCT-905");
+			assertTrue("Eps Aur".equalsIgnoreCase(starName));
+		} catch (Exception e) {
+			fail();
+		}
+	}	
 }
