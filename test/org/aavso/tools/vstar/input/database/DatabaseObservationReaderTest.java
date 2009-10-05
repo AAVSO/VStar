@@ -86,7 +86,7 @@ public class DatabaseObservationReaderTest extends TestCase {
 	}
 	
 	// Read an observation that is known to be deleted in the
-	// the database. This should fail but does not!
+	// the database.
 	// See http://sourceforge.net/tracker/?func=detail&aid=2858633&group_id=263306&atid=1152052
 	public void testReadDeletedEpsAurObservation1() {
 		try {
