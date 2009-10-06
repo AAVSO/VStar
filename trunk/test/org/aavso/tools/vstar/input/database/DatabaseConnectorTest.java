@@ -45,8 +45,10 @@ public class DatabaseConnectorTest extends TestCase {
 				.generateHexDigest("foo"));
 	}
 
-	// 'epsilon aur' should be found in the aliases table, but not in the validation table.
-	// At the end of the day, we see a single AUID arising from the getAUID() method.
+	// 'epsilon aur' should be found in the aliases table, but not in the
+	// validation table.
+	// At the end of the day, we see a single AUID arising from the getAUID()
+	// method.
 	public void testGetEpsilonAurAUID() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
@@ -58,8 +60,10 @@ public class DatabaseConnectorTest extends TestCase {
 		}
 	}
 
-	// 'eps aur' should be found in the validation table before we ever hit the aliases 
-	// table. At the end of the day, we see a single AUID arising from the getAUID() method.
+	// 'eps aur' should be found in the validation table before we ever hit the
+	// aliases
+	// table. At the end of the day, we see a single AUID arising from the
+	// getAUID() method.
 	public void testGetEpsAurAUID() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
@@ -70,20 +74,20 @@ public class DatabaseConnectorTest extends TestCase {
 			fail();
 		}
 	}
-	
+
 	// '000-BCT-905' should be found in the validation table as corresponding to
 	// Epsilon Aurigae.
 	public void testGetEpsAurFromAUID() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
 			Connection connection = obsConnector.createConnection();
-			String starName = obsConnector.getStarName(connection, "000-BCT-905");
+			String starName = obsConnector.getStarName(connection,
+					"000-BCT-905");
 			assertTrue("Eps Aur".equalsIgnoreCase(starName));
 		} catch (Exception e) {
 			fail();
 		}
-	}	
-	
+	}
 
 	// Read a result set from the database for Epsilon Aurigae in the
 	// Julian Day range 2454000.5..2454939.56597.
