@@ -98,8 +98,13 @@ public class DatabaseObservationReaderTest extends TestCase {
 					.createObservationQuery(connection);
 			assertNotNull(stmt);
 
-			connector.setObservationQueryParams(stmt, "000-BCT-905", 2455101.5347,
-					2455101.5347);
+			// Eps Aur
+//			connector.setObservationQueryParams(stmt, "000-BCT-905", 2455101.5347,
+//					2455101.5347);
+
+			// Del Cep
+			connector.setObservationQueryParams(stmt, "000-BDC-570",
+					2455019.4229, 2455019.4229);
 
 			ResultSet results = stmt.executeQuery();
 			
@@ -107,8 +112,8 @@ public class DatabaseObservationReaderTest extends TestCase {
 			reader.retrieveObservations();
 			List<ValidObservation> obs = reader.getValidObservations();
 			
-			assertTrue(obs.size() == 2);
-//			assertEquals(ValidationType.DELETED, obs.get(1).getValidationType());
+			assertTrue(obs.size() == 1);
+//			assertEquals(ValidationType.DELETED, obs.get(0).getValidationType());
 		} catch (Exception e) {
 			fail();
 		}
