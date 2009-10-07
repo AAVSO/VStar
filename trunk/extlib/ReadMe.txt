@@ -8,11 +8,12 @@ The following libraries must be present in the current directory
 for VStar to function. The jar file is given, along with the
 web address from which to obtain it.
 
-  jcommon-1.0.16.jar (http://www.jfree.org/jcommon/)
-  jfreechart-1.0.13.jar (http://www.jfree.org/jfreechart/)
-  swing-worker-1.2.jar (https://swingworker.dev.java.net/servlets/ProjectDocumentList)
-  jlfgr-1_0.jar (http://java.sun.com/developer/techDocs/hi/repository/)
-  mysql-connector-java-5.1.8-bin.jar (http://dev.mysql.com/downloads/connector/j/5.1.html)
+  o jcommon-1.0.16.jar (http://www.jfree.org/jcommon/)
+  o jfreechart-1.0.13.jar (http://www.jfree.org/jfreechart/)
+  o swing-worker-1.2.jar (https://swingworker.dev.java.net/servlets/ProjectDocumentList)
+  o jlfgr-1_0.jar (http://java.sun.com/developer/techDocs/hi/repository/)
+  o mysql-connector-java-5.1.8-bin.jar or latest 5.1.x jar file 
+    (http://dev.mysql.com/downloads/connector/j/5.1.html)
 
 This section categorises these libraries in terms of function for those
 who may be interested:
@@ -28,7 +29,7 @@ who may be interested:
      jlfgr-1_0.jar
      
  - MySQL JDBC:
-     mysql-connector-java-5.1.8-bin.jar
+     mysql-connector-java-5.1.8-bin.jar (or latest 5.1.x jar file)
      
 If you are a developer who wishes to contribute toward coding or 
 testing VStar, the following library must be downloaded for unit 
