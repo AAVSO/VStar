@@ -13,37 +13,18 @@
 	<property name="ui_resources" location="src/org/aavso/tools/vstar/ui/resources" />
 
 	<path id="build.classpath">
-		<pathelement location="${extlib}/jcommon-1.0.16.jar" />
-		<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
-		<pathelement location="${extlib}/swing-worker-1.2.jar" />
-		<pathelement location="${extlib}/jlfgr-1_0.jar" />
-		<pathelement location="${extlib}/mysql-connector-java-5.1.8-bin.jar" />
+		<fileset dir="${extlib}" includes="*.jar" excludes="junit*.jar" />
 	</path>
-
-	<path id="run.classpath">
-		<pathelement location="${extlib}/jcommon-1.0.16.jar" />
-		<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
-		<pathelement location="${extlib}/swing-worker-1.2.jar" />
-		<pathelement location="${extlib}/jlfgr-1_0.jar" />
-		<pathelement location="${extlib}/mysql-connector-java-5.1.8-bin.jar" />
-		<pathelement location="${dist}/vstar.jar" />
-	</path>
-
-	<!-- TODO: could also have a test.build.classpath that includes junit.jar 
-	     but does not include ${test_build} -->
 
 	<path id="test.classpath">
-		<pathelement location="${extlib}/jcommon-1.0.16.jar" />
-		<pathelement location="${extlib}/jfreechart-1.0.13.jar" />
-		<pathelement location="${extlib}/swing-worker-1.2.jar" />
-		<pathelement location="${extlib}/jlfgr-1_0.jar" />
-		<pathelement location="${extlib}/mysql-connector-java-5.1.8-bin.jar" />
-		<pathelement location="${extlib}/junit.jar" />
-		<pathelement location="${dist}/vstar.jar" />
+		<fileset dir="${extlib}" includes="*.jar" />
+   		<pathelement location="${dist}/vstar.jar" />
 		<pathelement path="${test_build}" />
 	</path>
 
 	<target name="init">
+		<echo message="${build.classpath}" />
+		
 		<!-- Create the time stamp -->
 		<tstamp />
 		<!-- Create the build directory structure used by compile -->
@@ -75,14 +56,7 @@
 	</target>
 
 	<target name="run" depends="dist" description="Run VStar GUI">
-		<!--
-		<java fork="true" jar="${dist}/vstar.jar">
-			<classpath refid="run.classpath"/>
-		</java>
-		-->
-		<java fork="true" classname="org.aavso.tools.vstar.ui.VStar">
-			<classpath refid="run.classpath" />
-		</java>
+		<java fork="true" jar="${dist}/vstar.jar" />
 	</target>
 
 	<target name="compile_ut" depends="dist" description="Compile the test code">
