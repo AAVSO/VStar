@@ -15,14 +15,14 @@ don't have to build it (see below).
 The file extlib/ReadMe.txt details additional free Java libraries that are
 required to run VStar.
 
+The data directory contains sample variable star data files.
+
 Running VStar
 =============
 Once the required libraries are in the extlib directory, VStar can be run 
 using one of the following methods:
 
 o Double-click the file: dist/vstar.jar
-o Unix shell: vstar.sh (Linux, Mac OS X, Solaris, cygwin, mingw)
-o DOS shell: vstar.bat
 o ant run
 
 Try opening a sample data file:
@@ -51,8 +51,6 @@ Testing
 =======
 The test directory contains unit tests. For testing, JUnit 3.8.2 is 
 assumed (http://www.junit.org). This is of interest to developers only.
-
-The data directory contains sample variable star data files.
 
 Licensing
 =========
