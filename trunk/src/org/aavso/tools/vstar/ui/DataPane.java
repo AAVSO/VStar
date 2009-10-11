@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.model.ModeType;
 import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
-import org.aavso.tools.vstar.util.Listener;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * A panel for rendering data lists, plots and other observation-related

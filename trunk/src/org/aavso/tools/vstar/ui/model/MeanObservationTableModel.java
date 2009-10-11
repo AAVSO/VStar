@@ -22,7 +22,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.Listener;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This class is a table model for mean observation data. The model is notified

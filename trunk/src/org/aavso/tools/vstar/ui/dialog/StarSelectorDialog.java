@@ -39,7 +39,7 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.util.AbstractDateUtil;
+import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
 /**
  * This dialog allows the user to select a star.

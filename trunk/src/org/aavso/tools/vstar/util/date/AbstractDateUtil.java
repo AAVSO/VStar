@@ -16,7 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
-package org.aavso.tools.vstar.util;
+package org.aavso.tools.vstar.util.date;
+
 
 /**
  * This abstract class is the base for classes that need to convert between

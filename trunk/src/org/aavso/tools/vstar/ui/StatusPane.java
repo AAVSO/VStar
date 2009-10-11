@@ -29,7 +29,7 @@ import org.aavso.tools.vstar.ui.controller.ModelManager;
 import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
-import org.aavso.tools.vstar.util.Listener;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * A status panel containing a text status message component and a

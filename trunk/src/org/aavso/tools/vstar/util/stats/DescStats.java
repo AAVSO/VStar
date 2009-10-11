@@ -15,12 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util;
+package org.aavso.tools.vstar.util.stats;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.IMagAndJDSource;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 
