@@ -23,7 +23,9 @@ Once the required libraries are in the extlib directory, VStar can be run
 using one of the following methods:
 
 o Double-click the file: dist/vstar.jar
-o ant run
+o From a Linux, Mac OS X, or other Unix shell type: java -jar dist/vstar.jar    
+o From a DOS prompt type: java -jar dist\vstar.jar 
+o ant run (for developers and testers)
 
 Try opening a sample data file:
 
