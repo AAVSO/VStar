@@ -95,7 +95,7 @@ public class ResourceAccessor {
 	}
 
 	// TODO: move to a props file?
-	
+
 	// 0
 	private static int[] hdata = { 8802, 9169, 7498, 8477, 8869, 10808, 9062,
 			9751, 10972, 12488, 10442, 13279, 15789, 15455 };
@@ -103,17 +103,18 @@ public class ResourceAccessor {
 	// 1
 	private static int[] d0data = { 15811, 18165, 16300 };
 
-//	private static int[] d0data = { 19234, 19895, 18908, 16781, 20634, 22388,
-//		19897, 22885, 24476 };
-
 	// 2
 	private static int[] d1data = { 16300, 19722, 19071, 19376, 17557, 20844 };
 
 	// 3
+	private static int[] d2data = { 19234, 19895, 18908, 16781, 20634, 22388,
+			19897, 22885, 24476 };
+
+	// 4
 	private static int[] udata = { 19234, 19895, 18908, 16781, 20634, 22581,
 			22655, 20099, 24054 };
 
-	// 4
+	// 5
 	private static int[] sdata = { 11899, 15397, 10595, 8650, 8688, 9264,
 			11229, 16318, 23421, 22077, 24289, 31165, 9141 };
 
@@ -123,5 +124,5 @@ public class ResourceAccessor {
 			587, 617, 619, 631, 643, 647, 653, 661, 701, 709, 743, 751, 757,
 			761, 769, 839, 853, 857, 859 };
 
-	private static int[][] data = { hdata, d0data, d1data, udata, sdata };
+	private static int[][] data = { hdata, d0data, d1data, d2data, udata, sdata };
 }

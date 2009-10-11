@@ -51,7 +51,7 @@ public class DatabaseConnectorTest extends TestCase {
 	// method.
 	public void testGetEpsilonAurAUID() {
 		try {
-			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
+			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
 			Connection connection = obsConnector.createConnection();
 			String auid = obsConnector.getAUID(connection, "epsilon aur");
 			assertEquals("000-BCT-905", auid);
@@ -66,7 +66,7 @@ public class DatabaseConnectorTest extends TestCase {
 	// getAUID() method.
 	public void testGetEpsAurAUID() {
 		try {
-			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
+			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
 			Connection connection = obsConnector.createConnection();
 			String auid = obsConnector.getAUID(connection, "eps aur");
 			assertEquals("000-BCT-905", auid);
@@ -79,11 +79,12 @@ public class DatabaseConnectorTest extends TestCase {
 	// Epsilon Aurigae.
 	public void testGetEpsAurFromAUID() {
 		try {
-			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
+			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
 			Connection connection = obsConnector.createConnection();
 			String starName = obsConnector.getStarName(connection,
 					"000-BCT-905");
-			assertTrue("Eps Aur".equalsIgnoreCase(starName));
+			// Test for equality, trimming and ignoring case.
+			assertTrue("Eps Aur".equalsIgnoreCase(starName.trim()));
 		} catch (Exception e) {
 			fail();
 		}
@@ -93,7 +94,7 @@ public class DatabaseConnectorTest extends TestCase {
 	// Julian Day range 2454000.5..2454939.56597.
 	public void testSampleRead() {
 		try {
-			AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
+			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
 			Connection connection = connector.createConnection();
 			assertNotNull(connection);
 
@@ -101,8 +102,8 @@ public class DatabaseConnectorTest extends TestCase {
 					.createObservationQuery(connection);
 			assertNotNull(stmt);
 
-			connector.setObservationQueryParams(stmt, "000-BCT-905", 2454000.5,
-					2454939.56597);
+			connector.setObservationQueryParams(stmt, "000-BCT-905", 2454000,
+					2454150);
 
 			ResultSet results = stmt.executeQuery();
 

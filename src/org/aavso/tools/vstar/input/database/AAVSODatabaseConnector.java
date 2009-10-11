@@ -74,6 +74,9 @@ public class AAVSODatabaseConnector {
 	public static AAVSODatabaseConnector userDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.USER);
 
+	protected static AAVSODatabaseConnector utDBConnector = new AAVSODatabaseConnector(
+			DatabaseType.UT);
+
 	/**
 	 * Constructor
 	 */
@@ -100,8 +103,8 @@ public class AAVSODatabaseConnector {
 
 			Properties props = new Properties();
 
-			props.put("user", ResourceAccessor.getParam(3));
-			props.put("password", ResourceAccessor.getParam(4));
+			props.put("user", ResourceAccessor.getParam(4));
+			props.put("password", ResourceAccessor.getParam(5));
 
 			try {
 				props.put("port", (3 * 11 * 100 + 7) + "");
@@ -171,7 +174,7 @@ public class AAVSODatabaseConnector {
 
 		return obsStmt;
 	}
-	
+
 	/**
 	 * Return a prepared statement for the specified AUID and date range. This
 	 * may be a once-only-created prepared statement with parameters set.
@@ -346,7 +349,8 @@ public class AAVSODatabaseConnector {
 		boolean cancelled = false;
 
 		while (!cancelled && !authenticatedWithCitizenSky && retries > 0) {
-			MainFrame.getInstance().getStatusPane().setMessage("CitizenSky Login...");
+			MainFrame.getInstance().getStatusPane().setMessage(
+					"CitizenSky Login...");
 
 			LoginDialog loginDialog = new LoginDialog(
 					"CitizenSky Authentication");
@@ -379,9 +383,9 @@ public class AAVSODatabaseConnector {
 						retries--;
 					}
 				}
-			}			
+			}
 		}
-		
+
 		MainFrame.getInstance().getStatusPane().setMessage("");
 
 		if (cancelled) {

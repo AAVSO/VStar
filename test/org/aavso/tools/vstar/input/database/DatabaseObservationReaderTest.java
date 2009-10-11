@@ -49,7 +49,7 @@ public class DatabaseObservationReaderTest extends TestCase {
 	// of the known observation's values.
 	public void testReadValidObservationEpsAur1() {
 		try {
-			AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
+			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
 			Connection connection = connector.createConnection();
 			assertNotNull(connection);
 
@@ -90,7 +90,7 @@ public class DatabaseObservationReaderTest extends TestCase {
 	// See http://sourceforge.net/tracker/?func=detail&aid=2858633&group_id=263306&atid=1152052
 	public void testReadDeletedEpsAurObservation1() {
 		try {
-			AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
+			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
 			Connection connection = connector.createConnection();
 			assertNotNull(connection);
 
@@ -98,13 +98,9 @@ public class DatabaseObservationReaderTest extends TestCase {
 					.createObservationQuery(connection);
 			assertNotNull(stmt);
 
-			// Eps Aur
-//			connector.setObservationQueryParams(stmt, "000-BCT-905", 2455101.5347,
-//					2455101.5347);
-
 			// Del Cep
 			connector.setObservationQueryParams(stmt, "000-BDC-570",
-					2455019.4229, 2455019.4229);
+					2455066.28125, 2455066.28125);
 
 			ResultSet results = stmt.executeQuery();
 			
@@ -112,7 +108,8 @@ public class DatabaseObservationReaderTest extends TestCase {
 			reader.retrieveObservations();
 			List<ValidObservation> obs = reader.getValidObservations();
 			
-//			assertEquals(1, obs.size());
+			// There are two observations, the first of which is deleted.
+			assertEquals(2, obs.size());
 //			assertEquals(ValidationType.DELETED, obs.get(0).getValidationType());
 		} catch (Exception e) {
 			fail();
