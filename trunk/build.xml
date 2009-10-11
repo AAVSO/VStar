@@ -8,6 +8,7 @@
 	<property name="test" location="test" />
 	<property name="src_build" location="src/build" />
 	<property name="test_build" location="test/build" />
+	<property name="manifest_file" location="MANIFEST.MF" />
 	<property name="dist" location="dist" />
 	<property name="extlib" location="extlib" />
 	<property name="ui_resources" location="src/org/aavso/tools/vstar/ui/resources" />
@@ -50,7 +51,7 @@
 			<classpath refid="build.classpath" />
 		</manifestclasspath>
 
-		<manifest file="MANIFEST.MF">
+		<manifest file="${manifest_file}">
 			<attribute name="Manifest-Version" value="1.0" />
 			<attribute name="Created-By" value="${user.name}" />
 			<attribute name="Main-Class" value="org.aavso.tools.vstar.ui.VStar" />
@@ -61,9 +62,11 @@
 	<target name="dist" depends="compile_src, manifest" description="Generate the distribution">
 		<mkdir dir="${dist}" />
 
-		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="MANIFEST.MF">
+		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="${manifest_file}">
 			<fileset dir="${ui_resources}" />
 		</jar>
+		
+		<delete file="${manifest_file}" />
 	</target>
 
 	<target name="run" depends="dist" description="Run VStar GUI">
