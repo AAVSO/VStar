@@ -18,34 +18,47 @@
 
 	<path id="test.classpath">
 		<fileset dir="${extlib}" includes="*.jar" />
-   		<pathelement location="${dist}/vstar.jar" />
+		<pathelement location="${dist}/vstar.jar" />
 		<pathelement path="${test_build}" />
 	</path>
 
 	<target name="init">
 		<!-- Create the time stamp -->
 		<tstamp />
+		
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${src_build}" />
 		<mkdir dir="${test_build}" />
 	</target>
 
 	<target name="compile_src" depends="init" description="Compile the source">
-		<!-- Uppdate svn revision. -->
+		<!-- Uppdate svn revision -->
 		<exec outputproperty="svn_revision" executable="svnversion">
 			<arg value="-n" />
 		</exec>
 		<copy file="${ui_resources}/RevisionAccessor.java.template" tofile="${ui_resources}/RevisionAccessor.java" overwrite="true" />
 		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${svn_revision}" />
 
-		<!-- Compile source. -->
+		<!-- Compile source -->
 		<javac compiler="modern" source="1.5" target="1.5" srcdir="${src}" destdir="${src_build}">
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
 
-	<target name="dist" depends="compile_src" description="Generate the distribution">
-		<!-- Create the distribution directory -->
+	<target name="manifest" description="Creates a manifest file for VStar">
+		<manifestclasspath property="jar.classpath" jarfile="${dist}/vstar.jar">
+			<classpath refid="build.classpath" />
+		</manifestclasspath>
+
+		<manifest file="MANIFEST.MF">
+			<attribute name="Manifest-Version" value="1.0" />
+			<attribute name="Created-By" value="${user.name}" />
+			<attribute name="Main-Class" value="org.aavso.tools.vstar.ui.VStar" />
+			<attribute name="Class-Path" value="${jar.classpath}" />
+		</manifest>
+	</target>
+
+	<target name="dist" depends="compile_src, manifest" description="Generate the distribution">
 		<mkdir dir="${dist}" />
 
 		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="MANIFEST.MF">
