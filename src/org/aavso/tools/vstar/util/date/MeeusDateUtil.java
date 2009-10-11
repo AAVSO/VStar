@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util;
+package org.aavso.tools.vstar.util.date;
+
 
 /**
  * This class implements AbstractDateUtil methods using Jean Meeus's
@@ -27,7 +28,7 @@ public class MeeusDateUtil extends AbstractDateUtil {
 	 * This method determines the Calendar day given the Julian Day. It is not
 	 * valid for negative Julian Days (but is valid for negative year results).
 	 * 
-	 * @see org.aavso.tools.vstar.util.AbstractDateUtil#jdToCalendar(double)
+	 * @see org.aavso.tools.vstar.util.date.AbstractDateUtil#jdToCalendar(double)
 	 */
 	@Override
 	public String jdToCalendar(double jd) throws IllegalArgumentException {
@@ -79,7 +80,7 @@ public class MeeusDateUtil extends AbstractDateUtil {
 	 * to the start of the Gregorian Calendar. It is not valid for negative
 	 * Julian Day results (but is valid for negative years).
 	 * 
-	 * @see org.aavso.tools.vstar.util.AbstractDateUtil#calendarToJD(int, int,
+	 * @see org.aavso.tools.vstar.util.date.AbstractDateUtil#calendarToJD(int, int,
 	 *      double)
 	 */
 	@Override

@@ -22,7 +22,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.Notifier;
+import org.aavso.tools.vstar.util.notification.Notifier;
 
 /**
  * A table model for valid observations.

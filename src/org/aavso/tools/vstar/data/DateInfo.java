@@ -17,8 +17,8 @@
  */
 package org.aavso.tools.vstar.data;
 
-import org.aavso.tools.vstar.util.AbstractDateUtil;
-import org.aavso.tools.vstar.util.MeeusDateUtil;
+import org.aavso.tools.vstar.util.date.AbstractDateUtil;
+import org.aavso.tools.vstar.util.date.MeeusDateUtil;
 
 
 /**

@@ -31,7 +31,7 @@ import javax.swing.JRadioButton;
 import org.aavso.tools.vstar.ui.controller.ModelManager;
 import org.aavso.tools.vstar.ui.model.ModeType;
 import org.aavso.tools.vstar.ui.model.NewStarMessage;
-import org.aavso.tools.vstar.util.Listener;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * Create the mode radio button group pane.

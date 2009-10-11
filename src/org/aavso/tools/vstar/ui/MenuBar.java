@@ -38,7 +38,7 @@ import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
-import org.aavso.tools.vstar.util.Listener;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * VStar's menu bar.

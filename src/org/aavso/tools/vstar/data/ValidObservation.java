@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.data;
 
-import org.aavso.tools.vstar.util.IMagAndJDSource;
 
 /**
  * This class corresponds to a single valid variable star observation. Depending

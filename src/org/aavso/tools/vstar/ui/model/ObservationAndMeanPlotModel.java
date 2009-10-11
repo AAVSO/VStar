@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.DescStats;
-import org.aavso.tools.vstar.util.Notifier;
+import org.aavso.tools.vstar.util.notification.Notifier;
+import org.aavso.tools.vstar.util.stats.DescStats;
 
 /**
  * This class is a model that represents a series of valid variable star

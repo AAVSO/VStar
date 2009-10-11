@@ -56,7 +56,7 @@ import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.ui.model.ProgressType;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
-import org.aavso.tools.vstar.util.Notifier;
+import org.aavso.tools.vstar.util.notification.Notifier;
 
 /**
  * This class manages models, in particular, the data models that under-pin the

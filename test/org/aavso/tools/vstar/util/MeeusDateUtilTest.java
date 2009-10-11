@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.util;
 
+import org.aavso.tools.vstar.util.date.MeeusDateUtil;
+
 /**
  * Unit test for MeeusDateUtil.
  */
