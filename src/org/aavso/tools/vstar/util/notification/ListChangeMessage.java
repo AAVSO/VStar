@@ -23,11 +23,38 @@ import java.util.List;
  * A message to be sent to listeners of notifying list classes.
  */
 public class ListChangeMessage<E> {
-	public static int AT_END = -1;
+	public static int NONE = -1;
 	
 	private ListChangeType type;
 	private List<E> source;
 	private int index;
+	private Object object;
+
+	/**
+	 * Construct a list change message with type, source, and element index.
+	 * 
+	 * @param type List change message type.
+	 * @param source Source list of change.
+	 * @param index Index of element in changed source list.
+	 * @param object The object that was removed, added, or set (may be null).
+	 */
+	public ListChangeMessage(ListChangeType type, List<E> source, int index, Object object) {
+		this.type = type;
+		this.source = source;
+		this.index = index;
+		this.object = object;
+	}
+
+	/**
+	 * Construct a list change message with type, source, and element index.
+	 * 
+	 * @param type List change message type.
+	 * @param source Source list of change.
+	 * @param object The object that was removed, added, or set (may be null).
+	 */
+	public ListChangeMessage(ListChangeType type, List<E> source, Object object) {
+		this(type, source, NONE, object);
+	}
 
 	/**
 	 * Construct a list change message with type, source, and element index.
@@ -37,9 +64,7 @@ public class ListChangeMessage<E> {
 	 * @param index Index of element in changed source list.
 	 */
 	public ListChangeMessage(ListChangeType type, List<E> source, int index) {
-		this.type = type;
-		this.source = source;
-		this.index = index;
+		this(type, source, index, null);
 	}
 
 	/**
@@ -49,9 +74,7 @@ public class ListChangeMessage<E> {
 	 * @param source Source list of change.
 	 */
 	public ListChangeMessage(ListChangeType type, List<E> source) {
-		this.type = type;
-		this.source = source;
-		this.index = AT_END;
+		this(type, source, NONE, null);
 	}
 
 	/**
@@ -73,5 +96,12 @@ public class ListChangeMessage<E> {
 	 */
 	public int getIndex() {
 		return index;
+	}
+
+	/**
+	 * @return the object
+	 */
+	public Object getObject() {
+		return object;
 	}
 }
