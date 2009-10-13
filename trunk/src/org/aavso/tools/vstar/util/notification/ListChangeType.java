@@ -22,5 +22,5 @@ package org.aavso.tools.vstar.util.notification;
  */
 public enum ListChangeType {
 
-	ADDED_ONE, ADDED_MANY, CLEARED, REMOVED, SET;
+	ADDED_ONE, ADDED_MANY, CLEARED, REMOVED, REMOVED_MANY, SET;
 }

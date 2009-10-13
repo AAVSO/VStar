@@ -34,14 +34,20 @@ public class NotifyingArrayList<E> extends NotifyingList<E> {
 
 	// TODO: do we really want to notify for *all* additions or have the
 	// option of doing bulk notifications via a constructor boolean?
+	// => add a setter for this and make if (changed) into if (changed && notifyImmediately)
+	//    and also add a fireUpdate() or fireNotify() that sends a generic CHANGED message?
+	
+	// TODO: write UTs!
 
 	private ArrayList<E> list;
 
 	public boolean add(E e) {
-		boolean result = list.add(e);
-		this.notifier.notifyListeners(new ListChangeMessage<E>(
-				ListChangeType.ADDED_ONE, this));
-		return result;
+		boolean changed = list.add(e);
+		if (changed) {
+			this.notifier.notifyListeners(new ListChangeMessage<E>(
+					ListChangeType.ADDED_ONE, this));
+		}
+		return changed;
 	}
 
 	public void add(int index, E element) {
@@ -51,17 +57,21 @@ public class NotifyingArrayList<E> extends NotifyingList<E> {
 	}
 
 	public boolean addAll(Collection<? extends E> c) {
-		boolean result = list.addAll(c);
-		this.notifier.notifyListeners(new ListChangeMessage<E>(
-				ListChangeType.ADDED_MANY, this));
-		return result;
+		boolean changed = list.addAll(c);
+		if (changed) {
+			this.notifier.notifyListeners(new ListChangeMessage<E>(
+					ListChangeType.ADDED_MANY, this));
+		}
+		return changed;
 	}
 
 	public boolean addAll(int index, Collection<? extends E> c) {
-		boolean result = list.addAll(c);
-		this.notifier.notifyListeners(new ListChangeMessage<E>(
-				ListChangeType.ADDED_MANY, this, index));
-		return result;
+		boolean changed = list.addAll(c);
+		if (changed) {
+			this.notifier.notifyListeners(new ListChangeMessage<E>(
+					ListChangeType.ADDED_MANY, this, index));
+		}
+		return changed;
 	}
 
 	public void clear() {
@@ -70,92 +80,97 @@ public class NotifyingArrayList<E> extends NotifyingList<E> {
 	}
 
 	public boolean contains(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		return list.contains(o);
 	}
 
 	public boolean containsAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		return list.containsAll(c);
 	}
 
 	public E get(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		return list.get(index);
 	}
 
 	public int indexOf(Object o) {
-		// TODO Auto-generated method stub
-		return 0;
+		return list.indexOf(o);
 	}
 
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+		return list.isEmpty();
 	}
 
 	public Iterator<E> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return list.iterator();
 	}
 
 	public int lastIndexOf(Object o) {
-		// TODO Auto-generated method stub
-		return 0;
+		return list.lastIndexOf(o);
 	}
 
 	public ListIterator<E> listIterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return list.listIterator();
 	}
 
 	public ListIterator<E> listIterator(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		return list.listIterator(index);
 	}
 
 	public boolean remove(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean changed = list.remove(o);
+		if (changed) {
+			this.notifier.notifyListeners(new ListChangeMessage<E>(
+					ListChangeType.REMOVED, this, o));
+		}
+		return changed;
 	}
 
 	public E remove(int index) {
-		// TODO Auto-generated method stub
-		return null;
+		E element = list.remove(index);
+		if (element != null) {
+			this.notifier.notifyListeners(new ListChangeMessage<E>(
+					ListChangeType.REMOVED, this, index));
+		}
+		return element;
 	}
 
 	public boolean removeAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean changed = list.removeAll(c);
+		if (changed) {
+			this.notifier.notifyListeners(new ListChangeMessage<E>(
+					ListChangeType.REMOVED_MANY, this));
+		}
+		return changed;
 	}
 
 	public boolean retainAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean changed = list.retainAll(c);
+		if (changed) {
+			this.notifier.notifyListeners(new ListChangeMessage<E>(
+					ListChangeType.REMOVED_MANY, this));
+		}
+		return changed;
 	}
 
 	public E set(int index, E element) {
-		// TODO Auto-generated method stub
-		return null;
+		E old = list.set(index, element);
+		this.notifier.notifyListeners(new ListChangeMessage<E>(
+				ListChangeType.SET, this, index));
+		return old;
 	}
 
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		return list.size();
 	}
 
 	public List<E> subList(int fromIndex, int toIndex) {
-		// TODO Auto-generated method stub
-		return null;
+		return list.subList(fromIndex, toIndex);
 	}
 
 	public Object[] toArray() {
-		// TODO Auto-generated method stub
-		return null;
+		return list.toArray();
 	}
 
 	public <T> T[] toArray(T[] a) {
-		// TODO Auto-generated method stub
-		return null;
+		return list.toArray(a);
 	}
 }
