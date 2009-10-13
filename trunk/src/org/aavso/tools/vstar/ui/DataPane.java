@@ -145,9 +145,6 @@ public class DataPane extends JPanel {
 					JPanel obsListPane = msg.getObsTablePane();
 					JPanel meansListPane = msg.getMeansListPane();
 
-					// TODO: why are we doing this check here rather than
-					// before we even send the message (e.g. in ModelManager)?
-					
 					if (obsPlotPane != null && obsAndMeanPane != null
 							&& obsListPane != null && meansListPane != null) {
 						setCard(ModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
@@ -157,18 +154,6 @@ public class DataPane extends JPanel {
 						setCard(ModeType.LIST_MEANS_MODE_DESC, meansListPane);
 						// TODO: pass modelMgr around in message, Actors style?
 						modelMgr.changeMode(ModeType.PLOT_OBS_MODE);
-					} else {
-						String errMsg = null;
-						if (modelMgr.getValidObsList().isEmpty()) {
-							errMsg = "No observations for the specified period.";
-						} else {
-							errMsg = "Error in observation source.";
-						}
-						
-						// As per above TODO, instead deal with this in ModelManager
-						// and also clear the status pane.
-						MessageBox.showErrorDialog(parent, "New Star...",
-								errMsg);
 					}
 				}
 			}

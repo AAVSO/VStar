@@ -17,11 +17,11 @@
  */
 package org.aavso.tools.vstar.ui.controller;
 
-import java.awt.Component;
 import java.io.File;
 import java.io.FileReader;
 import java.io.LineNumberReader;
 
+import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
@@ -40,7 +40,6 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	private File obsFile;
 	private ObservationSourceAnalyser analyser;
 	private int plotTaskPortion;
-	private boolean success;
 
 	/**
 	 * Constructor.
@@ -54,20 +53,17 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	 *            plot.
 	 */
 	public NewStarFromFileTask(File obsFile,
-			ObservationSourceAnalyser analyser,
-			int plotTaskPortion) {
+			ObservationSourceAnalyser analyser, int plotTaskPortion) {
 		this.obsFile = obsFile;
 		this.analyser = analyser;
 		this.plotTaskPortion = plotTaskPortion;
-		this.success = false;
 	}
 
 	/**
 	 * Main task. Executed in background thread.
 	 */
 	public Void doInBackground() {
-		this.success = createFileBasedObservationArtefacts(obsFile,
-				analyser);
+		createFileBasedObservationArtefacts(obsFile, analyser);
 		return null;
 	}
 
@@ -79,18 +75,25 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	 * @param analyser
 	 *            An observation file analyser.
 	 */
-	protected boolean createFileBasedObservationArtefacts(File obsFile,
+	protected void createFileBasedObservationArtefacts(File obsFile,
 			ObservationSourceAnalyser analyser) {
 
-		boolean success = true;
-		
 		try {
+			// Read the observations.
+			
 			AbstractObservationRetriever textFormatReader = new TextFormatObservationReader(
 					new LineNumberReader(new FileReader(obsFile.getPath())),
 					analyser);
 
 			textFormatReader.retrieveObservations();
 
+			if (textFormatReader.getValidObservations().isEmpty()) {
+				throw new ObservationReadError(
+						"No observations for the specified period or error in observation source.");
+			}
+
+			// Set the current observation artefacts.
+			
 			modelMgr.clearData();
 
 			modelMgr.setValidObsList(textFormatReader.getValidObservations());
@@ -99,18 +102,24 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 			modelMgr.setValidObservationCategoryMap(textFormatReader
 					.getValidObservationCategoryMap());
 
-			modelMgr.createObservationArtefacts(analyser.getNewStarType(), obsFile
-					.getName(), plotTaskPortion);
+			modelMgr.createObservationArtefacts(analyser.getNewStarType(),
+					obsFile.getName(), plotTaskPortion);
+
+			// Notify whoever is listening that a new star has been loaded,
+			// passing GUI components in the message.
+			NewStarMessage msg = new NewStarMessage(analyser.getNewStarType(),
+					modelMgr.getObsChartPane(), modelMgr
+							.getObsAndMeanChartPane(), modelMgr
+							.getObsListPane(), modelMgr.getMeansListPane());
+
+			modelMgr.getNewStarNotifier().notifyListeners(msg);
 
 		} catch (Exception e) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					"New Star From File Read Error", e);
 			modelMgr.setNewStarName(null);
 			modelMgr.clearData();
-			success = false;
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					"New Star From File Read Error", e);
 		}
-
-		return success;
 	}
 
 	/**
@@ -120,16 +129,5 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 		// Task ends.
 		modelMgr.getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
-
-		if (success) {
-			// Notify whoever is listening that a new star has been loaded,
-			// passing GUI components in the message.
-			NewStarMessage msg = new NewStarMessage(analyser.getNewStarType(),
-					modelMgr.getObsChartPane(), modelMgr
-							.getObsAndMeanChartPane(), modelMgr
-							.getObsListPane(), modelMgr.getMeansListPane());
-
-			modelMgr.getNewStarNotifier().notifyListeners(msg);
-		}
 	}
 }

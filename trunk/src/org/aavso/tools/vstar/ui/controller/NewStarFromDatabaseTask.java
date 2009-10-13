@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.UnknownAUIDError;
 import org.aavso.tools.vstar.exception.UnknownStarError;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
@@ -72,16 +73,14 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	 * Main task. Executed in background thread.
 	 */
 	public Void doInBackground() {
-		this.success = createDatabaseBasedObservationArtefacts();
+		createDatabaseBasedObservationArtefacts();
 		return null;
 	}
 
 	/**
 	 * Create observation table and plot models from a file.
 	 */
-	protected boolean createDatabaseBasedObservationArtefacts() {
-
-		boolean success = true;
+	protected void createDatabaseBasedObservationArtefacts() {
 
 		try {
 			// Connect to the observation database if we haven't already
@@ -142,6 +141,11 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			databaseObsReader.retrieveObservations();
 			updateProgress(2);
 
+			if (databaseObsReader.getValidObservations().isEmpty()) {
+				throw new ObservationReadError(
+						"No observations for the specified period.");
+			}
+
 			MainFrame.getInstance().getStatusPane().setMessage(
 					"Creating charts and tables...");
 
@@ -158,18 +162,25 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// Create table/plot models and GUI elements.
 			modelMgr.createObservationArtefacts(
 					NewStarType.NEW_STAR_FROM_DATABASE, starName, 2);
+
+			success = true;
+			
 		} catch (ConnectionException ex) {
+			modelMgr.setNewStarName(null);
+			modelMgr.clearData();			
+			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE,
 					"Cannot connect to database.");
-			success = false;
+			MainFrame.getInstance().getStatusPane().setMessage("");
 		} catch (Exception ex) {
+			modelMgr.setNewStarName(null);
+			modelMgr.clearData();
+			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
-			success = false;
+			MainFrame.getInstance().getStatusPane().setMessage("");
 		}
-
-		return success;
 	}
 
 	/**
