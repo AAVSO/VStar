@@ -218,7 +218,6 @@ public class MenuBar extends JMenuBar {
 				} catch (Exception ex) {
 					MessageBox.showErrorDialog(MainFrame.getInstance(),
 							"Star Selection", ex);
-					MainFrame.getInstance().getStatusPane().setMessage("");
 				}
 			}
 		};
