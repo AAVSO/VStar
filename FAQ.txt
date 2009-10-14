@@ -7,3 +7,12 @@ Q: I got an error message during startup with "Can't locate icon:
 
 A: This is because the application cannot find the jlfgr look and feel icons.
    Make sure the *.jar files are directly under extlib.
+
+Q: Build and load a debugging version of Vstar?
+A: 
+   ant clean
+   ant debug
+   ant run_debug
+   jdb -attach 8000
+   stop in org.aavso.tools.vstar.ui.VStar.main
+   use ${path up to src}
