@@ -27,9 +27,6 @@ import java.util.Map;
 public enum SeriesType {
 
 	// From http://www.aavso.org/data/ql/bandhelp.shtml
-	FAINTER_THAN(-1, "Fainter Than", Color.BLACK),
-	MEANS(-1, "Means", Color.BLACK),
-
 	// TODO: This group and the next and any others missed from either
 	// (see wiki re: bands for different input sources) need to become
 	// one.
@@ -68,6 +65,10 @@ public enum SeriesType {
 	Stromgren_Hb21_H_beta_wide(34, "Stromgren Hbw (H beta wide)", Color.BLACK),
 	Stromgren_Hbn_H_bet_narrow(35, "Stromgren Hbn (H bet narrow)", Color.BLACK),
 
+	FAINTER_THAN(-1, "Fainter Than", Color.BLACK),
+	MEANS(-1, "Means", Color.BLACK),
+	DISCREPANT(-1, "Discrepant", Color.LIGHT_GRAY), // Aaron's suggestion
+	
 	Unspecified(-1, "Unspecified", Color.BLACK);
 
 	// TODO: populate this with canonical band representations
