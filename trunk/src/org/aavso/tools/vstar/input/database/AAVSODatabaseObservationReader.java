@@ -157,7 +157,8 @@ public class AAVSODatabaseObservationReader extends
 
 	/*
 	 * According to:
-	 * http://www.aavso.org/vstarwiki/index.php/AAVSO_International_Database_Schema
+	 * https://sourceforge.net/apps/mediawiki/vstar/index.php?title=AAVSO_International_Database_Schema
+	 * (https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag:)
 	 * we have: Z = Prevalidated P = Published observation T = Discrepant V =
 	 * Good Y = Deleted Our query converts any occurrence of 'T' to 'D'.
 	 * Currently we convert everything to Good, Discrepant, or Prevalidated
