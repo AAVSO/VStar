@@ -93,37 +93,38 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 
 			// Set the current observation artefacts.
 
-			modelMgr.clearData();
+			// modelMgr.clearData();
 
-			modelMgr.setValidObsList(textFormatReader.getValidObservations());
-			modelMgr.setInvalidObsList(textFormatReader
-					.getInvalidObservations());
-			modelMgr.setValidObservationCategoryMap(textFormatReader
-					.getValidObservationCategoryMap());
+//			modelMgr.setValidObsList(textFormatReader.getValidObservations());
+//			modelMgr.setInvalidObsList(textFormatReader
+//					.getInvalidObservations());
+//			modelMgr.setValidObservationCategoryMap(textFormatReader
+//					.getValidObservationCategoryMap());
 
 			modelMgr.createObservationArtefacts(analyser.getNewStarType(),
-					obsFile.getName(), plotTaskPortion);
+					obsFile.getName(), textFormatReader, plotTaskPortion);
 
 			// TODO: move these next two messages to the done() method, as we
 			// do for the database task?
-			
-			// Notify whoever is listening that a new star has been loaded.
-			NewStarMessage newStarMsg = new NewStarMessage(analyser.getNewStarType(),
-					obsFile.getPath());
 
-			modelMgr.getNewStarNotifier().notifyListeners(newStarMsg);
-
-			// Notify whoever is listening that the analysis type has changed
-			// (we could have been viewing a phase plot for a different star 
-			// before now) passing GUI components in the message.
-			AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
-					AnalysisType.RAW_DATA, modelMgr.getObsChartPane(), modelMgr
-							.getObsAndMeanChartPane(), modelMgr
-							.getObsListPane(), modelMgr.getMeansListPane());
-
-			modelMgr.getAnalysisTypeChangeNotifier().notifyListeners(analysisTypeMsg);
+//			// Notify whoever is listening that a new star has been loaded.
+//			NewStarMessage newStarMsg = new NewStarMessage(analyser
+//					.getNewStarType(), obsFile.getPath());
+//
+//			modelMgr.getNewStarNotifier().notifyListeners(newStarMsg);
+//
+//			// Notify whoever is listening that the analysis type has changed
+//			// (we could have been viewing a phase plot for a different star
+//			// before now) passing GUI components in the message.
+//			AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
+//					AnalysisType.RAW_DATA, modelMgr.getObsChartPane(), modelMgr
+//							.getObsAndMeanChartPane(), modelMgr
+//							.getObsListPane(), modelMgr.getMeansListPane());
+//
+//			modelMgr.getAnalysisTypeChangeNotifier().notifyListeners(
+//					analysisTypeMsg);
 		} catch (Exception e) {
-			modelMgr.clearData();
+			// modelMgr.clearData();
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"New Star From File Read Error", e);
 		}
