@@ -91,56 +91,11 @@ public class ModelManager {
 	private AnalysisType analysisType;
 
 	// The latest new star message created and sent to listeners.
-	private NewStarMessage latestNewStarMessage;
+	private NewStarMessage newStarMessage;
 
 	// Mapping from analysis type to the latest analysis change
 	// messages created and sent to listeners.
 	private Map<AnalysisType, AnalysisTypeChangeMessage> analysisTypeMap;
-
-	// Current models.
-
-	// TODO: To handle Analysis menu items, may want a map of analysis type
-	// to an object containing the models/charts/tables for that analysis
-	// type...
-
-	// ...like this...
-	// private Map<AnalysisType, List<ValidObservation>> validObsListMap;
-	// ...or keep an undoable stack AnalysisTypeMessages!
-	// When a NewStarMessage is sent, this stack will be trashed.
-
-	// private List<ValidObservation> validObsList;
-	// private List<InvalidObservation> invalidObsList;
-	// private Map<String, List<ValidObservation>> validObservationCategoryMap;
-
-	// /**
-	// * @return the validObservationCategoryMap
-	// */
-	// public Map<String, List<ValidObservation>>
-	// getValidObservationCategoryMap() {
-	// return validObservationCategoryMap;
-	// }
-	//
-	// /**
-	// * @param validObservationCategoryMap the validObservationCategoryMap to
-	// set
-	// */
-	// public void setValidObservationCategoryMap(
-	// Map<String, List<ValidObservation>> validObservationCategoryMap) {
-	// this.validObservationCategoryMap = validObservationCategoryMap;
-	// }
-
-	// private ValidObservationTableModel validObsTableModel;
-	// private InvalidObservationTableModel invalidObsTableModel;
-	// private MeanObservationTableModel meanObsTableModel;
-	//
-	// private ObservationPlotModel obsPlotModel;
-	// private ObservationAndMeanPlotModel obsAndMeanPlotModel;
-	//
-	// // Current GUI table and chart components.
-	// private ObservationPlotPane obsChartPane;
-	// private ObservationAndMeanPlotPane obsAndMeanChartPane;
-	// private ObservationListPane obsListPane;
-	// private MeanObservationListPane meansListPane;
 
 	// Notifiers.
 	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
@@ -186,9 +141,6 @@ public class ModelManager {
 	public void changeMode(ModeType mode) {
 		this.mode = mode;
 		this.getModeChangeNotifier().notifyListeners(mode);
-		// TODO: Combine command with Analysis menu selection to
-		// set the table/plot to view from ModelManager. For now
-		// just assume Analysis->Raw Data.
 	}
 
 	/**
@@ -202,8 +154,6 @@ public class ModelManager {
 	public void createObservationArtefactsFromFile(File obsFile,
 			Component parent) throws FileNotFoundException, IOException,
 			ObservationReadError {
-
-		// modelMgr.setNewStarName(obsFile.getPath());
 
 		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
 
@@ -286,7 +236,8 @@ public class ModelManager {
 	 *            corresponding to a portion of the overall task of which this
 	 *            is just a part.
 	 */
-	protected void createObservationArtefacts(NewStarType newStarType,
+	// TODO: split this up!
+	protected void createNewStarObservationArtefacts(NewStarType newStarType,
 			String objName, AbstractObservationRetriever obsRetriever,
 			int obsArtefactProgressAmount) {
 
@@ -379,13 +330,12 @@ public class ModelManager {
 		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
 		obsListPane = new ObservationListPane(validObsTableModel,
 				invalidObsTableModel, enableColumnAutoResize, true);
-		// obsListPane = createObsListPane(enableColumnAutoResize);
 
 		// We also create the means list pane.
 		meansListPane = new MeanObservationListPane(meanObsTableModel);
 
 		// Notify whoever is listening that a new star has been loaded.
-		latestNewStarMessage = new NewStarMessage(
+		newStarMessage = new NewStarMessage(
 				NewStarType.NEW_STAR_FROM_DATABASE, objName);
 
 		// Notify whoever is listening that the analysis type has changed
@@ -400,27 +350,11 @@ public class ModelManager {
 		analysisTypeMap.put(AnalysisType.RAW_DATA, analysisTypeMsg);
 
 		// Notify listeners of new star and analysis type change.
-		getNewStarNotifier().notifyListeners(latestNewStarMessage);
+		getNewStarNotifier().notifyListeners(newStarMessage);
 
 		getAnalysisTypeChangeNotifier().notifyListeners(
 				analysisTypeMsg);
 	}
-
-	/**
-	 * Create the observation list component.
-	 */
-	// private ObservationListPane createObsListPane(boolean
-	// enableColumnAutoResize) {
-	// return new ObservationListPane(this.getValidObsTableModel(), this
-	// .getInvalidObsTableModel(), enableColumnAutoResize, true);
-	// }
-
-	/**
-	 * Create the means list pane.
-	 */
-	// private MeanObservationListPane createMeanObsListPane() {
-	// return new MeanObservationListPane(this.getMeanObsTableModel());
-	// }
 
 	/**
 	 * Create the observation pane for a plot of valid observations.
@@ -434,16 +368,6 @@ public class ModelManager {
 		return new ObservationPlotPane("Light Curve for " + plotName, subTitle,
 				obsPlotModel, bounds);
 	}
-
-	/**
-	 * Create a plot model containing a means series based upon a default bin
-	 * size that the user can change later.
-	 * 
-	 * @return The plot model.
-	 */
-	// private ObservationAndMeanPlotModel createObservationAndMeanPlotModel() {
-	// return new ObservationAndMeanPlotModel(validObservationCategoryMap);
-	// }
 
 	/**
 	 * Create the observation-and-mean plot pane for the current list of valid
@@ -537,231 +461,6 @@ public class ModelManager {
 		}
 	}
 
-	/**
-	 * Clear all data (lists, models). TODO: or only have fundamental data
-	 * collections with everything derived and passed via messages to listeners?
-	 */
-	// protected void clearData() {
-	// this.invalidObsList = null;
-	// this.invalidObsTableModel = null;
-	// this.validObsList = null;
-	// this.validObsTableModel = null;
-	// this.obsPlotModel = null;
-	// this.obsAndMeanPlotModel = null;
-	// }
-
-	/**
-	 * @return the validObsList
-	 */
-	// public List<ValidObservation> getValidObsList() {
-	// return validObsList;
-	// }
-
-	/**
-	 * @return the invalidObsList
-	 */
-	// public List<InvalidObservation> getInvalidObsList() {
-	// return invalidObsList;
-	// }
-
-	/**
-	 * @return the validObsTableModel
-	 */
-	// public ValidObservationTableModel getValidObsTableModel() {
-	// return validObsTableModel;
-	// }
-
-	/**
-	 * @return the invalidObsTableModel
-	 */
-	// public InvalidObservationTableModel getInvalidObsTableModel() {
-	// return invalidObsTableModel;
-	// }
-
-	/**
-	 * @return the meanObsTableModel
-	 */
-	// public MeanObservationTableModel getMeanObsTableModel() {
-	// return meanObsTableModel;
-	// }
-
-	/**
-	 * @return the obsPlotModel
-	 */
-	// public ObservationPlotModel getObsPlotModel() {
-	// return obsPlotModel;
-	// }
-
-	/**
-	 * @return the newStarName
-	 */
-	// public String getNewStarName() {
-	// return newStarName;
-	// }
-
-	/**
-	 * @return the obsChartPane
-	 */
-	// public ObservationPlotPane getObsChartPane() {
-	// return obsChartPane;
-	// }
-
-	/**
-	 * @return the obsListPane
-	 */
-	// public ObservationListPane getObsListPane() {
-	// return obsListPane;
-	// }
-
-	// ** Singleton member, constructor, and getter. **
-
-	/**
-	 * @param mode
-	 *            the mode to set
-	 */
-	// public void setCurrentMode(ModeType mode) {
-	// this.currentMode = mode;
-	// }
-
-	/**
-	 * @param validObsList
-	 *            the validObsList to set
-	 */
-	// public void setValidObsList(List<ValidObservation> validObsList) {
-	// this.validObsList = validObsList;
-	// }
-
-	/**
-	 * @param invalidObsList
-	 *            the invalidObsList to set
-	 */
-	// public void setInvalidObsList(List<InvalidObservation> invalidObsList) {
-	// this.invalidObsList = invalidObsList;
-	// }
-
-	/**
-	 * @param validObsTableModel
-	 *            the validObsTableModel to set
-	 */
-	// public void setValidObsTableModel(
-	// ValidObservationTableModel validObsTableModel) {
-	// this.validObsTableModel = validObsTableModel;
-	// }
-
-	/**
-	 * @param invalidObsTableModel
-	 *            the invalidObsTableModel to set
-	 */
-	// public void setInvalidObsTableModel(
-	// InvalidObservationTableModel invalidObsTableModel) {
-	// this.invalidObsTableModel = invalidObsTableModel;
-	// }
-
-	/**
-	 * @param meanObsTableModel
-	 *            the meanObsTableModel to set
-	 */
-	// public void setMeanObsTableModel(MeanObservationTableModel
-	// meanObsTableModel) {
-	// this.meanObsTableModel = meanObsTableModel;
-	// }
-
-	/**
-	 * @param obsPlotModel
-	 *            the obsPlotModel to set
-	 */
-	// public void setObsPlotModel(ObservationPlotModel obsPlotModel) {
-	// this.obsPlotModel = obsPlotModel;
-	// }
-
-	/**
-	 * @param obsAndMeanPlotModel
-	 *            the obsAndMeanPlotModel to set
-	 */
-	// public void setObsAndMeanPlotModel(
-	// ObservationAndMeanPlotModel obsAndMeanPlotModel) {
-	// this.obsAndMeanPlotModel = obsAndMeanPlotModel;
-	// }
-
-	/**
-	 * @param obsChartPane
-	 *            the obsChartPane to set
-	 */
-	// public void setObsChartPane(ObservationPlotPane obsChartPane) {
-	// this.obsChartPane = obsChartPane;
-	// }
-
-	/**
-	 * @param obsAndMeanChartPane
-	 *            the obsAndMeanChartPane to set
-	 */
-	// public void setObsAndMeanChartPane(
-	// ObservationAndMeanPlotPane obsAndMeanChartPane) {
-	// this.obsAndMeanChartPane = obsAndMeanChartPane;
-	// }
-
-	/**
-	 * @param obsListPane
-	 *            the obsListPane to set
-	 */
-	// public void setObsListPane(ObservationListPane obsListPane) {
-	// this.obsListPane = obsListPane;
-	// }
-
-	/**
-	 * @param meansListPane
-	 *            the meansListPane to set
-	 */
-	// public void setMeansListPane(MeanObservationListPane meansListPane) {
-	// this.meansListPane = meansListPane;
-	// }
-
-	/**
-	 * @param modelMgr
-	 *            the modelMgr to set
-	 */
-	// public static void setModelMgr(ModelManager modelMgr) {
-	// ModelManager.modelMgr = modelMgr;
-	// }
-
-	/**
-	 * @return the obsAndMeanPlotModel
-	 */
-	// public ObservationAndMeanPlotModel getObsAndMeanPlotModel() {
-	// return obsAndMeanPlotModel;
-	// }
-
-	/**
-	 * @return the obsAndMeanChartPane
-	 */
-	// public ObservationAndMeanPlotPane getObsAndMeanChartPane() {
-	// return obsAndMeanChartPane;
-	// }
-
-	/**
-	 * @return the meansListPane
-	 */
-	// public MeanObservationListPane getMeansListPane() {
-	// return meansListPane;
-	// }
-
-	/**
-	 * @return the validObservationCategoryMap
-	 */
-	// public Map<String, List<ValidObservation>>
-	// getValidObservationCategoryMap() {
-	// return validObservationCategoryMap;
-	// }
-
-	/**
-	 * @param validObservationCategoryMap
-	 *            the validObservationCategoryMap to set
-	 */
-	// public void setValidObservationCategoryMap(
-	// Map<String, List<ValidObservation>> validObservationCategoryMap) {
-	// this.validObservationCategoryMap = validObservationCategoryMap;
-	// }
-
 	// Singleton fields, constructor, getter.
 
 	private static ModelManager modelMgr = new ModelManager();
@@ -777,7 +476,7 @@ public class ModelManager {
 
 		this.mode = ModeType.PLOT_OBS_MODE;
 		this.analysisType = AnalysisType.RAW_DATA;
-		this.latestNewStarMessage = null;
+		this.newStarMessage = null;
 		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
 	}
 

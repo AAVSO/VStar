@@ -78,8 +78,6 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 			ObservationSourceAnalyser analyser) {
 
 		try {
-			// Read the observations.
-
 			AbstractObservationRetriever textFormatReader = new TextFormatObservationReader(
 					new LineNumberReader(new FileReader(obsFile.getPath())),
 					analyser);
@@ -91,40 +89,10 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 						"No observations for the specified period or error in observation source.");
 			}
 
-			// Set the current observation artefacts.
-
-			// modelMgr.clearData();
-
-//			modelMgr.setValidObsList(textFormatReader.getValidObservations());
-//			modelMgr.setInvalidObsList(textFormatReader
-//					.getInvalidObservations());
-//			modelMgr.setValidObservationCategoryMap(textFormatReader
-//					.getValidObservationCategoryMap());
-
-			modelMgr.createObservationArtefacts(analyser.getNewStarType(),
+			modelMgr.createNewStarObservationArtefacts(analyser.getNewStarType(),
 					obsFile.getName(), textFormatReader, plotTaskPortion);
 
-			// TODO: move these next two messages to the done() method, as we
-			// do for the database task?
-
-//			// Notify whoever is listening that a new star has been loaded.
-//			NewStarMessage newStarMsg = new NewStarMessage(analyser
-//					.getNewStarType(), obsFile.getPath());
-//
-//			modelMgr.getNewStarNotifier().notifyListeners(newStarMsg);
-//
-//			// Notify whoever is listening that the analysis type has changed
-//			// (we could have been viewing a phase plot for a different star
-//			// before now) passing GUI components in the message.
-//			AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
-//					AnalysisType.RAW_DATA, modelMgr.getObsChartPane(), modelMgr
-//							.getObsAndMeanChartPane(), modelMgr
-//							.getObsListPane(), modelMgr.getMeansListPane());
-//
-//			modelMgr.getAnalysisTypeChangeNotifier().notifyListeners(
-//					analysisTypeMsg);
 		} catch (Exception e) {
-			// modelMgr.clearData();
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"New Star From File Read Error", e);
 		}
@@ -134,7 +102,6 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		// Task ends.
 		modelMgr.getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 	}
