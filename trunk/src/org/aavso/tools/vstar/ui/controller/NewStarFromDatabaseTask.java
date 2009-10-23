@@ -146,32 +146,22 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			MainFrame.getInstance().getStatusPane().setMessage(
 					"Creating charts and tables...");
 
-			// modelMgr.clearData();
-
-//			modelMgr.setValidObsList(databaseObsReader.getValidObservations());
-//			modelMgr.setInvalidObsList(databaseObsReader
-//					.getInvalidObservations());
-//			modelMgr.setValidObservationCategoryMap(databaseObsReader
-//					.getValidObservationCategoryMap());
-
 			updateProgress(2);
 
 			// Create table/plot models and GUI elements.
-			modelMgr.createObservationArtefacts(
+			modelMgr.createNewStarObservationArtefacts(
 					NewStarType.NEW_STAR_FROM_DATABASE, starName,
 					databaseObsReader, 2);
 
 			success = true;
 
 		} catch (ConnectionException ex) {
-//			modelMgr.clearData();
 			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE,
 					"Cannot connect to database.");
 			MainFrame.getInstance().getStatusPane().setMessage("");
 		} catch (Exception ex) {
-//			modelMgr.clearData();
 			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
@@ -183,27 +173,6 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-
-		if (success) {
-			// Notify whoever is listening that a new star has been loaded.
-			NewStarMessage newStarMsg = new NewStarMessage(
-					NewStarType.NEW_STAR_FROM_DATABASE, starName);
-
-			modelMgr.getNewStarNotifier().notifyListeners(newStarMsg);
-
-			// Notify whoever is listening that the analysis type has changed
-			// (we could have been viewing a phase plot for a different star
-			// before now) passing GUI components in the message.
-//			AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
-//					AnalysisType.RAW_DATA, modelMgr.getObsChartPane(), modelMgr
-//							.getObsAndMeanChartPane(), modelMgr
-//							.getObsListPane(), modelMgr.getMeansListPane());
-
-//			modelMgr.getAnalysisTypeChangeNotifier().notifyListeners(
-//					analysisTypeMsg);
-		}
-
-		// Task ends.
 		modelMgr.getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 	}
