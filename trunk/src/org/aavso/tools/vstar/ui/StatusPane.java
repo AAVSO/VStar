@@ -26,7 +26,7 @@ import javax.swing.JProgressBar;
 import javax.swing.border.BevelBorder;
 
 import org.aavso.tools.vstar.ui.controller.ModelManager;
-import org.aavso.tools.vstar.ui.model.NewStarMessage;
+import org.aavso.tools.vstar.ui.controller.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -143,13 +143,13 @@ public class StatusPane extends JPanel {
 						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE) {
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
-					strBuf.append(modelMgr.getNewStarName());
+					strBuf.append(msg.getNewStarName());
 					strBuf.append("' loaded.");
 					setMessage(strBuf.toString());
 				} else if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
-					strBuf.append(modelMgr.getNewStarName());
+					strBuf.append(msg.getNewStarName());
 					strBuf.append("' loaded from database.");
 					setMessage(strBuf.toString());
 				}

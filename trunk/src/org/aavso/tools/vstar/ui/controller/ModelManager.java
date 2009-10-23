@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.ui.controller;
 
+// TODO: rename this package as mediator?
+
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.print.PrinterException;
@@ -48,8 +50,6 @@ import org.aavso.tools.vstar.ui.ObservationPlotPane;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.MeanObservationTableModel;
-import org.aavso.tools.vstar.ui.model.ModeType;
-import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
@@ -85,16 +85,35 @@ public class ModelManager {
 	// Current mode.
 	private ModeType currentMode;
 
-	// Current star name or file name (assuming file source).
-	private String newStarName;
-
 	// Current models.
+	
 	// TODO: To handle Analysis menu items, may want a map of analysis type
 	// to an object containing the models/charts/tables for that analysis
-	// type.
+	// type...
+	
+	// ...like this...
+	private Map<AnalysisType, List<ValidObservation>> validObsListMap;
+	// ...or keep an undoable stack AnalysisTypeMessages!
+	// When a NewStarMessage is sent, this stack will be trashed.
+	
 	private List<ValidObservation> validObsList;
 	private List<InvalidObservation> invalidObsList;
 	private Map<String, List<ValidObservation>> validObservationCategoryMap;
+
+	/**
+	 * @return the validObservationCategoryMap
+	 */
+	public Map<String, List<ValidObservation>> getValidObservationCategoryMap() {
+		return validObservationCategoryMap;
+	}
+
+	/**
+	 * @param validObservationCategoryMap the validObservationCategoryMap to set
+	 */
+	public void setValidObservationCategoryMap(
+			Map<String, List<ValidObservation>> validObservationCategoryMap) {
+		this.validObservationCategoryMap = validObservationCategoryMap;
+	}
 
 	private ValidObservationTableModel validObsTableModel;
 	private InvalidObservationTableModel invalidObsTableModel;
@@ -110,9 +129,17 @@ public class ModelManager {
 	private MeanObservationListPane meansListPane;
 
 	// Notifiers.
+	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
 	private Notifier<NewStarMessage> newStarNotifier;
 	private Notifier<ModeType> modeChangeNotifier;
 	private Notifier<ProgressInfo> progressNotifier;
+
+	/**
+	 * @return the analysisTypeChangeNotifier
+	 */
+	public Notifier<AnalysisTypeChangeMessage> getAnalysisTypeChangeNotifier() {
+		return analysisTypeChangeNotifier;
+	}
 
 	/**
 	 * @return the newStarNotifier
@@ -162,7 +189,7 @@ public class ModelManager {
 			Component parent) throws FileNotFoundException, IOException,
 			ObservationReadError {
 
-		modelMgr.setNewStarName(obsFile.getPath());
+		//modelMgr.setNewStarName(obsFile.getPath());
 
 		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
 
@@ -248,52 +275,52 @@ public class ModelManager {
 		// Given raw valid and invalid observation data, create observation
 		// table and plot models, along with corresponding GUI components.
 
-		if (!modelMgr.validObsList.isEmpty()) {
+		if (!validObsList.isEmpty()) {
 			// Observation table and plot.
-			modelMgr.validObsTableModel = new ValidObservationTableModel(
-					modelMgr.validObsList, newStarType);
+			validObsTableModel = new ValidObservationTableModel(
+					validObsList, newStarType);
 
-			modelMgr.obsPlotModel = new ObservationPlotModel(
-					modelMgr.validObservationCategoryMap);
-			modelMgr.validObsTableModel.getObservationChangeNotifier()
-					.addListener(modelMgr.obsPlotModel);
+			obsPlotModel = new ObservationPlotModel(
+					validObservationCategoryMap);
+			validObsTableModel.getObservationChangeNotifier()
+					.addListener(obsPlotModel);
 
 			String subTitle = "";
 			if (newStarType == NewStarType.NEW_STAR_FROM_DATABASE) {
 				subTitle = new Date().toString() + " (database)";
 			} else {
-				subTitle = this.getNewStarName();
+				subTitle = objName;
 			}
 
-			modelMgr.obsChartPane = createObservationPlotPane(objName, subTitle);
+			obsChartPane = createObservationPlotPane(objName, subTitle);
 
 			// Observation-and-mean table and plot.
-			modelMgr.obsAndMeanPlotModel = createObservationAndMeanPlotModel();
-			modelMgr.validObsTableModel.getObservationChangeNotifier()
-					.addListener(modelMgr.obsAndMeanPlotModel);
+			obsAndMeanPlotModel = createObservationAndMeanPlotModel();
+			validObsTableModel.getObservationChangeNotifier()
+					.addListener(obsAndMeanPlotModel);
 
-			modelMgr.obsAndMeanChartPane = createObservationAndMeanPlotPane(
+			obsAndMeanChartPane = createObservationAndMeanPlotPane(
 					objName, subTitle);
 
 			// The mean observation table model must listen to the plot
 			// model to know when the means data has changed. We also pass
 			// the initial means data obtained from the plot model to
 			// the mean observation table model.
-			modelMgr.meanObsTableModel = new MeanObservationTableModel(
-					modelMgr.obsAndMeanPlotModel.getMeanObsList());
+			meanObsTableModel = new MeanObservationTableModel(
+					obsAndMeanPlotModel.getMeanObsList());
 
-			modelMgr.obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
-					modelMgr.meanObsTableModel);
+			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
+					meanObsTableModel);
 
 			// Update progress.
-			modelMgr.getProgressNotifier().notifyListeners(
+			getProgressNotifier().notifyListeners(
 					new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
 							obsArtefactProgressAmount));
 		}
 
-		if (!modelMgr.invalidObsList.isEmpty()) {
-			modelMgr.invalidObsTableModel = new InvalidObservationTableModel(
-					modelMgr.invalidObsList);
+		if (!invalidObsList.isEmpty()) {
+			invalidObsTableModel = new InvalidObservationTableModel(
+					invalidObsList);
 		}
 
 		// The observation table pane contains valid and potentially
@@ -306,10 +333,10 @@ public class ModelManager {
 		// obs list?
 		// The model manager shouldn't care about this kind of stuff.
 		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
-		modelMgr.obsListPane = createObsListPane(enableColumnAutoResize);
+		obsListPane = createObsListPane(enableColumnAutoResize);
 
 		// We also create the means list pane.
-		modelMgr.meansListPane = createMeanObsListPane();
+		meansListPane = createMeanObsListPane();
 	}
 
 	/**
@@ -346,7 +373,7 @@ public class ModelManager {
 	 */
 	private ObservationAndMeanPlotModel createObservationAndMeanPlotModel() {
 		return new ObservationAndMeanPlotModel(
-				modelMgr.validObservationCategoryMap);
+				validObservationCategoryMap);
 	}
 
 	/**
@@ -488,9 +515,9 @@ public class ModelManager {
 	/**
 	 * @return the newStarName
 	 */
-	public String getNewStarName() {
-		return newStarName;
-	}
+//	public String getNewStarName() {
+//		return newStarName;
+//	}
 
 	/**
 	 * @return the obsChartPane
@@ -640,28 +667,20 @@ public class ModelManager {
 	/**
 	 * @return the validObservationCategoryMap
 	 */
-	public Map<String, List<ValidObservation>> getValidObservationCategoryMap() {
-		return validObservationCategoryMap;
-	}
+//	public Map<String, List<ValidObservation>> getValidObservationCategoryMap() {
+//		return validObservationCategoryMap;
+//	}
 
 	/**
 	 * @param validObservationCategoryMap
 	 *            the validObservationCategoryMap to set
 	 */
-	public void setValidObservationCategoryMap(
-			Map<String, List<ValidObservation>> validObservationCategoryMap) {
-		this.validObservationCategoryMap = validObservationCategoryMap;
-	}
+//	public void setValidObservationCategoryMap(
+//			Map<String, List<ValidObservation>> validObservationCategoryMap) {
+//		this.validObservationCategoryMap = validObservationCategoryMap;
+//	}
 
 	// Singleton fields, constructor, getter.
-
-	/**
-	 * @param newStarName
-	 *            the newStarName to set
-	 */
-	public void setNewStarName(String newStarName) {
-		this.newStarName = newStarName;
-	}
 
 	private static ModelManager modelMgr = new ModelManager();
 
@@ -669,12 +688,12 @@ public class ModelManager {
 	 * Private constructor.
 	 */
 	private ModelManager() {
+		this.analysisTypeChangeNotifier = new Notifier<AnalysisTypeChangeMessage>();
 		this.newStarNotifier = new Notifier<NewStarMessage>();
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
 
 		this.currentMode = ModeType.PLOT_OBS_MODE;
-		this.newStarName = null;
 	}
 
 	/**

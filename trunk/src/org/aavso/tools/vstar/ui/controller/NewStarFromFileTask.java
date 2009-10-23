@@ -27,7 +27,6 @@ import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -80,7 +79,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 
 		try {
 			// Read the observations.
-			
+
 			AbstractObservationRetriever textFormatReader = new TextFormatObservationReader(
 					new LineNumberReader(new FileReader(obsFile.getPath())),
 					analyser);
@@ -93,7 +92,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 			}
 
 			// Set the current observation artefacts.
-			
+
 			modelMgr.clearData();
 
 			modelMgr.setValidObsList(textFormatReader.getValidObservations());
@@ -105,17 +104,25 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 			modelMgr.createObservationArtefacts(analyser.getNewStarType(),
 					obsFile.getName(), plotTaskPortion);
 
-			// Notify whoever is listening that a new star has been loaded,
-			// passing GUI components in the message.
-			NewStarMessage msg = new NewStarMessage(analyser.getNewStarType(),
-					modelMgr.getObsChartPane(), modelMgr
+			// TODO: move these next two messages to the done() method, as we
+			// do for the database task?
+			
+			// Notify whoever is listening that a new star has been loaded.
+			NewStarMessage newStarMsg = new NewStarMessage(analyser.getNewStarType(),
+					obsFile.getPath());
+
+			modelMgr.getNewStarNotifier().notifyListeners(newStarMsg);
+
+			// Notify whoever is listening that the analysis type has changed
+			// (we could have been viewing a phase plot for a different star 
+			// before now) passing GUI components in the message.
+			AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
+					AnalysisType.RAW_DATA, modelMgr.getObsChartPane(), modelMgr
 							.getObsAndMeanChartPane(), modelMgr
 							.getObsListPane(), modelMgr.getMeansListPane());
 
-			modelMgr.getNewStarNotifier().notifyListeners(msg);
-
+			modelMgr.getAnalysisTypeChangeNotifier().notifyListeners(analysisTypeMsg);
 		} catch (Exception e) {
-			modelMgr.setNewStarName(null);
 			modelMgr.clearData();
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"New Star From File Read Error", e);

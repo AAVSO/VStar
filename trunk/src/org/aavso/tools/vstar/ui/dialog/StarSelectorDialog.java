@@ -291,6 +291,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		if (!whitespacePattern.matcher(text).matches()) {
 			// If text box is not empty, prioritise it over 10-star
 			// drop-down menu. AUID or star name?
+			text = sanitise(text);
 			if (auidPattern.matcher(text).matches()) {
 				auid = text;
 			} else {
@@ -325,6 +326,10 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		}
 	}
 
+	private String sanitise(String str) {
+		return str.replace("\'", "");
+	}
+	
 	// Getters
 
 	/**
