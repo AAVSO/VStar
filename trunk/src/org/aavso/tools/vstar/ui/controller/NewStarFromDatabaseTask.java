@@ -89,21 +89,21 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
 			Connection obsConnection = obsConnector.createConnection();
 
-			// Do we need to ask for the AUID from the database before 
+			// Do we need to ask for the AUID from the database before
 			// proceeding?
 			if (auid == null) {
 				auid = obsConnector.getAUID(obsConnection, starName);
-				
+
 				if (auid == null) {
 					throw new UnknownStarError(starName);
 				}
 			}
-			
+
 			// No, do we need instead to ask for the star name because
 			// we have an AUID but no star name?
 			if (starName == null) {
 				starName = obsConnector.getStarName(obsConnection, auid);
-				
+
 				if (starName == null) {
 					throw new UnknownAUIDError(auid);
 				}
@@ -114,10 +114,10 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// Get a prepared statement to read a set of observations
 			// from the database, setting the parameters for the star
 			// we are targeting.
-			
+
 			// TODO: hide all this statement stuff behind a get-observations
 			// method. **
-			
+
 			PreparedStatement obsStmt = obsConnector
 					.createObservationQuery(obsConnection);
 			updateProgress(2);
@@ -146,31 +146,32 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			MainFrame.getInstance().getStatusPane().setMessage(
 					"Creating charts and tables...");
 
-			modelMgr.clearData();
+			// modelMgr.clearData();
 
-			modelMgr.setValidObsList(databaseObsReader.getValidObservations());
-			modelMgr.setInvalidObsList(databaseObsReader
-					.getInvalidObservations());
-			modelMgr.setValidObservationCategoryMap(databaseObsReader
-					.getValidObservationCategoryMap());
+//			modelMgr.setValidObsList(databaseObsReader.getValidObservations());
+//			modelMgr.setInvalidObsList(databaseObsReader
+//					.getInvalidObservations());
+//			modelMgr.setValidObservationCategoryMap(databaseObsReader
+//					.getValidObservationCategoryMap());
 
 			updateProgress(2);
 
 			// Create table/plot models and GUI elements.
 			modelMgr.createObservationArtefacts(
-					NewStarType.NEW_STAR_FROM_DATABASE, starName, 2);
+					NewStarType.NEW_STAR_FROM_DATABASE, starName,
+					databaseObsReader, 2);
 
 			success = true;
-			
+
 		} catch (ConnectionException ex) {
-			modelMgr.clearData();			
+//			modelMgr.clearData();
 			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE,
 					"Cannot connect to database.");
 			MainFrame.getInstance().getStatusPane().setMessage("");
 		} catch (Exception ex) {
-			modelMgr.clearData();
+//			modelMgr.clearData();
 			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
@@ -182,9 +183,6 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		// Task ends.
-		modelMgr.getProgressNotifier().notifyListeners(
-				ProgressInfo.COMPLETE_PROGRESS);
 
 		if (success) {
 			// Notify whoever is listening that a new star has been loaded.
@@ -194,16 +192,20 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			modelMgr.getNewStarNotifier().notifyListeners(newStarMsg);
 
 			// Notify whoever is listening that the analysis type has changed
-			// (we could have been viewing a phase plot for a different star 
+			// (we could have been viewing a phase plot for a different star
 			// before now) passing GUI components in the message.
-			AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
-					AnalysisType.RAW_DATA, modelMgr
-							.getObsChartPane(), modelMgr
-							.getObsAndMeanChartPane(), modelMgr
-							.getObsListPane(), modelMgr.getMeansListPane());
+//			AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
+//					AnalysisType.RAW_DATA, modelMgr.getObsChartPane(), modelMgr
+//							.getObsAndMeanChartPane(), modelMgr
+//							.getObsListPane(), modelMgr.getMeansListPane());
 
-			modelMgr.getAnalysisTypeChangeNotifier().notifyListeners(analysisTypeMsg);
+//			modelMgr.getAnalysisTypeChangeNotifier().notifyListeners(
+//					analysisTypeMsg);
 		}
+
+		// Task ends.
+		modelMgr.getProgressNotifier().notifyListeners(
+				ProgressInfo.COMPLETE_PROGRESS);
 	}
 
 	// Update the progress of the task by the specified number of steps.
