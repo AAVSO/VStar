@@ -30,7 +30,6 @@ import org.aavso.tools.vstar.input.database.AAVSODatabaseObservationReader;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.model.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.ui.model.ProgressType;
@@ -110,8 +109,6 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 				}
 			}
 
-			modelMgr.setNewStarName(starName);
-
 			updateProgress(2);
 
 			// Get a prepared statement to read a set of observations
@@ -166,7 +163,6 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			success = true;
 			
 		} catch (ConnectionException ex) {
-			modelMgr.setNewStarName(null);
 			modelMgr.clearData();			
 			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
@@ -174,7 +170,6 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 					"Cannot connect to database.");
 			MainFrame.getInstance().getStatusPane().setMessage("");
 		} catch (Exception ex) {
-			modelMgr.setNewStarName(null);
 			modelMgr.clearData();
 			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
@@ -192,15 +187,22 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 				ProgressInfo.COMPLETE_PROGRESS);
 
 		if (success) {
-			// Notify whoever is listening that a new star has been loaded,
-			// passing GUI components in the message.
-			NewStarMessage msg = new NewStarMessage(
-					NewStarType.NEW_STAR_FROM_DATABASE, modelMgr
+			// Notify whoever is listening that a new star has been loaded.
+			NewStarMessage newStarMsg = new NewStarMessage(
+					NewStarType.NEW_STAR_FROM_DATABASE, starName);
+
+			modelMgr.getNewStarNotifier().notifyListeners(newStarMsg);
+
+			// Notify whoever is listening that the analysis type has changed
+			// (we could have been viewing a phase plot for a different star 
+			// before now) passing GUI components in the message.
+			AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
+					AnalysisType.RAW_DATA, modelMgr
 							.getObsChartPane(), modelMgr
 							.getObsAndMeanChartPane(), modelMgr
 							.getObsListPane(), modelMgr.getMeansListPane());
 
-			modelMgr.getNewStarNotifier().notifyListeners(msg);
+			modelMgr.getAnalysisTypeChangeNotifier().notifyListeners(analysisTypeMsg);
 		}
 	}
 

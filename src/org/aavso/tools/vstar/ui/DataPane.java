@@ -29,11 +29,9 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.controller.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.controller.ModeType;
 import org.aavso.tools.vstar.ui.controller.ModelManager;
-import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.model.ModeType;
-import org.aavso.tools.vstar.ui.model.NewStarMessage;
-import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -72,7 +70,8 @@ public class DataPane extends JPanel {
 		createDataPanel();
 
 		// We want to be notified of new star creation or changes to mode.
-		modelMgr.getNewStarNotifier().addListener(createNewStarListener());
+		modelMgr.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeChangeListener());
+		
 		modelMgr.getModeChangeNotifier()
 				.addListener(createModeChangeListener());
 	}
@@ -131,18 +130,13 @@ public class DataPane extends JPanel {
 	/**
 	 * Return a new star creation listener.
 	 */
-	private Listener<NewStarMessage> createNewStarListener() {
-		return new Listener<NewStarMessage>() {
+	private Listener<AnalysisTypeChangeMessage> createAnalysisTypeChangeListener() {
+		return new Listener<AnalysisTypeChangeMessage>() {
 			// Set the cards components for each model type.
-			// TODO: looks like we can ignore info conditional below
-			public void update(NewStarMessage msg) {
-				if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
-						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE
-						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-
+			public void update(AnalysisTypeChangeMessage msg) {
 					JPanel obsPlotPane = msg.getObsChartPane();
 					JPanel obsAndMeanPane = msg.getObsAndMeanChartPane();
-					JPanel obsListPane = msg.getObsTablePane();
+					JPanel obsListPane = msg.getObsListPane();
 					JPanel meansListPane = msg.getMeansListPane();
 
 					if (obsPlotPane != null && obsAndMeanPane != null
@@ -156,7 +150,6 @@ public class DataPane extends JPanel {
 						modelMgr.changeMode(ModeType.PLOT_OBS_MODE);
 					}
 				}
-			}
 		};
 	}
 
