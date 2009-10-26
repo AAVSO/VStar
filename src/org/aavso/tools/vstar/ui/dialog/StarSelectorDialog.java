@@ -295,8 +295,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			if (auidPattern.matcher(text).matches()) {
 				auid = text;
 			} else {
-				// TODO: is there a pattern we should check for 
-				// star name (e.g. letters, digits, whitespace; ask EOW)?
 				starName = text;
 			}
 		} else {
@@ -377,6 +375,16 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	protected void okAction() {
 		checkInput();
+	}
+
+	/**
+	 * Reset this dialog's state so that we don't process old state.
+	 */
+	public void reset() {
+		this.auid = null;
+		this.starName = null;
+		this.minDate = null;
+		this.maxDate = null;
 	}
 	
 	// Singleton

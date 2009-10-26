@@ -200,6 +200,7 @@ public class MenuBar extends JMenuBar {
 					MainFrame.getInstance().getStatusPane().setMessage(
 							"Select a star...");
 					StarSelectorDialog starSelectorDialog = StarSelectorDialog.getInstance();
+					starSelectorDialog.reset();
 					starSelectorDialog.setVisible(true);
 					
 					if (!starSelectorDialog.isCancelled()) {
