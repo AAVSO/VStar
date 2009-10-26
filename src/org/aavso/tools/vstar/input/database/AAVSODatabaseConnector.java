@@ -21,6 +21,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -52,6 +53,8 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class AAVSODatabaseConnector {
 
+	private final static int MAX_TIME = 20;
+	
 	private final static String CONN_URL = "jdbc:mysql://"
 			+ ResourceAccessor.getParam(0) + "/";
 
@@ -77,6 +80,15 @@ public class AAVSODatabaseConnector {
 	protected static AAVSODatabaseConnector utDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.UT);
 
+	static {
+		try {
+			Class.forName("com.mysql.jdbc.Driver", true,
+					AAVSODatabaseConnector.class.getClassLoader());
+		} catch (ClassNotFoundException e) {
+			// TODO
+		}
+	}
+
 	/**
 	 * Constructor
 	 */
@@ -96,7 +108,6 @@ public class AAVSODatabaseConnector {
 	 *             if there was an error creating the connection.
 	 */
 	public Connection createConnection() throws ConnectionException {
-
 		int retries = 3;
 
 		while (connection == null && retries > 0) {
@@ -107,15 +118,16 @@ public class AAVSODatabaseConnector {
 			props.put("password", ResourceAccessor.getParam(5));
 
 			try {
+				DriverManager.setLoginTimeout(MAX_TIME);
 				props.put("port", (3 * 11 * 100 + 7) + "");
-				connection = getDriver().connect(
-						CONN_URL + ResourceAccessor.getParam(type.getDBNum()),
-						props);
+				connection = DriverManager.getConnection(CONN_URL
+						+ ResourceAccessor.getParam(type.getDBNum()), props);
 			} catch (Exception e1) {
 				try {
+					DriverManager.setLoginTimeout(MAX_TIME);
 					props.put("port", ((3 * 11 * 100 + 7) - 1) + "");
-					connection = getDriver().connect(
-							CONN_URL
+					connection = DriverManager
+							.getConnection(CONN_URL
 									+ ResourceAccessor
 											.getParam(type.getDBNum()), props);
 				} catch (Exception e) {
@@ -402,24 +414,6 @@ public class AAVSODatabaseConnector {
 	 */
 	public String getObsCode() {
 		return obsCode;
-	}
-
-	/**
-	 * Get an instance of a MySQL database JDBC driver class.
-	 * 
-	 * @return The driver class instance.
-	 * @throws SQLException
-	 *             If there was a problem creating this instance.
-	 */
-	protected Driver getDriver() throws SQLException, ClassCastException,
-			ClassNotFoundException, InstantiationException,
-			IllegalAccessException {
-		if (driver == null) {
-			Class<?> driverClass = Class.forName("com.mysql.jdbc.Driver", true,
-					AAVSODatabaseConnector.class.getClassLoader());
-			driver = (Driver) driverClass.newInstance();
-		}
-		return driver;
 	}
 
 	/**
