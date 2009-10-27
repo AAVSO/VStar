@@ -28,9 +28,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import org.aavso.tools.vstar.ui.controller.ModeType;
-import org.aavso.tools.vstar.ui.controller.ModelManager;
-import org.aavso.tools.vstar.ui.controller.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ModeType;
+import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -38,7 +38,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public class ModePane extends JPanel implements ActionListener {
 
-	private ModelManager modelMgr = ModelManager.getInstance();
+	private Mediator mediator = Mediator.getInstance();
 	
 	private JRadioButton plotObsRadioButton;
 	private JRadioButton plotObsAndMeansRadioButton;
@@ -56,7 +56,7 @@ public class ModePane extends JPanel implements ActionListener {
 		this.setBorder(BorderFactory.createTitledBorder("Mode"));
 		this.setPreferredSize(new Dimension(250,200));		
 		
-		modelMgr.getNewStarNotifier().addListener(createNewStarListener());
+		mediator.getNewStarNotifier().addListener(createNewStarListener());
 	}
 	
 	/**
@@ -114,6 +114,6 @@ public class ModePane extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
 		ModeType mode = ModeType.getModeFromDesc(command);
-		this.modelMgr.changeMode(mode);
+		this.mediator.changeMode(mode);
 	}
 }

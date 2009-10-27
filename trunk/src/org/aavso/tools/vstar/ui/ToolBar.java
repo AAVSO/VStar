@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 
 import javax.swing.Icon;
@@ -26,7 +25,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
-import org.aavso.tools.vstar.ui.controller.ModelManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -36,7 +35,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public class ToolBar extends JPanel {
 
-	private ModelManager modelMgr = ModelManager.getInstance();
+	private Mediator mediator = Mediator.getInstance();
 
 	private MenuBar menuBar;
 
@@ -78,7 +77,7 @@ public class ToolBar extends JPanel {
 		this.setPreferredSize(new Dimension(150, 35));
 		this.add(toolBar, BorderLayout.PAGE_START);
 
-		this.modelMgr.getProgressNotifier().addListener(
+		this.mediator.getProgressNotifier().addListener(
 				createProgressListener());
 	}
 

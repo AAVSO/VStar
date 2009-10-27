@@ -32,19 +32,19 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-import org.aavso.tools.vstar.ui.controller.ModelManager;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * VStar's menu bar.
  * 
- * TODO: - Put menu item names in property file - Factor out code to be shared
- * by menu and tool bar?
+ * TODO: 
+ * - Factor out code to be shared by menu and tool bar?
  */
 public class MenuBar extends JMenuBar {
 
@@ -58,7 +58,7 @@ public class MenuBar extends JMenuBar {
 	public static final String PREFS = "Preferences...";
 	public static final String HELP_CONTENTS = "Help Contents...";
 
-	private ModelManager modelMgr = ModelManager.getInstance();
+	private Mediator mediator = Mediator.getInstance();
 
 	private JFileChooser fileOpenDialog;
 
@@ -100,7 +100,7 @@ public class MenuBar extends JMenuBar {
 		createAnalysisMenu();
 		createHelpMenu();
 
-		this.modelMgr.getProgressNotifier().addListener(
+		this.mediator.getProgressNotifier().addListener(
 				createProgressListener());
 	}
 
@@ -211,7 +211,7 @@ public class MenuBar extends JMenuBar {
 						double maxJD = starSelectorDialog.getMaxDate()
 								.getJulianDay();
 
-						modelMgr.createObservationArtefactsFromDatabase(
+						mediator.createObservationArtefactsFromDatabase(
 								starName, auid, minJD, maxJD);
 					} else {
 						MainFrame.getInstance().getStatusPane().setMessage("");
@@ -242,7 +242,7 @@ public class MenuBar extends JMenuBar {
 					File f = fileOpenDialog.getSelectedFile();
 
 					try {
-						modelMgr.createObservationArtefactsFromFile(f, parent);
+						mediator.createObservationArtefactsFromFile(f, parent);
 					} catch (Exception ex) {
 						MessageBox.showErrorDialog(parent, NEW_STAR_FROM_FILE,
 								ex);
@@ -259,7 +259,7 @@ public class MenuBar extends JMenuBar {
 		final Component parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				modelMgr.saveCurrentMode(parent);
+				mediator.saveCurrentMode(parent);
 			}
 		};
 	}
@@ -271,7 +271,7 @@ public class MenuBar extends JMenuBar {
 		final Component parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				modelMgr.printCurrentMode(parent);
+				mediator.printCurrentMode(parent);
 			}
 		};
 	}
@@ -284,7 +284,7 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				MessageBox.showMessageDialog(parent, "Preferences...",
-						ModelManager.NOT_IMPLEMENTED_YET);
+						Mediator.NOT_IMPLEMENTED_YET);
 			}
 		};
 	}
@@ -296,7 +296,7 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			// TODO: do other cleanup, e.g. if file needs saving;
 			// need a document model including undo for this;
-			// defer to ModelManager.
+			// defer to Mediator.
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
@@ -309,7 +309,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createRawDataListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: set analysis action in ModelManager so it can
+				// TODO: set analysis action in Mediator so it can
 				// choose the right artefacts out of a map (for example).
 				setRawDataAnalysisMenuItemState(true);
 				setPhasePlotAnalysisMenuItemState(false);
@@ -331,7 +331,7 @@ public class MenuBar extends JMenuBar {
 				setPeriodSearchAnalysisMenuItemState(false);
 
 				MessageBox.showMessageDialog(parent, PHASE_PLOT,
-						ModelManager.NOT_IMPLEMENTED_YET);
+						Mediator.NOT_IMPLEMENTED_YET);
 			}
 		};
 	}
@@ -349,7 +349,7 @@ public class MenuBar extends JMenuBar {
 				setPeriodSearchAnalysisMenuItemState(false);
 
 				MessageBox.showMessageDialog(parent, PERIOD_SEARCH,
-						ModelManager.NOT_IMPLEMENTED_YET);
+						Mediator.NOT_IMPLEMENTED_YET);
 			}
 		};
 	}
