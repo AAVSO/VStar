@@ -29,9 +29,9 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
-import org.aavso.tools.vstar.ui.controller.AnalysisTypeChangeMessage;
-import org.aavso.tools.vstar.ui.controller.ModeType;
-import org.aavso.tools.vstar.ui.controller.ModelManager;
+import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ModeType;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -40,12 +40,10 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public class DataPane extends JPanel {
 
-	private ModelManager modelMgr = ModelManager.getInstance();
+	private Mediator mediator = Mediator.getInstance();
 
 	public final static int WIDTH = 800;
 	public final static int HEIGHT = 600;
-
-	private Component parent;
 
 	// Shared data and plot display pane.
 	private JPanel cards;
@@ -56,10 +54,8 @@ public class DataPane extends JPanel {
 	/**
 	 * Constructor.
 	 */
-	public DataPane(Component parent) {
+	public DataPane() {
 		super();
-
-		this.parent = parent;
 
 		this.cardMap = new TreeMap<String, Component>();
 
@@ -70,9 +66,9 @@ public class DataPane extends JPanel {
 		createDataPanel();
 
 		// We want to be notified of new star creation or changes to mode.
-		modelMgr.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeChangeListener());
+		mediator.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeChangeListener());
 		
-		modelMgr.getModeChangeNotifier()
+		mediator.getModeChangeNotifier()
 				.addListener(createModeChangeListener());
 	}
 
@@ -146,8 +142,8 @@ public class DataPane extends JPanel {
 								obsAndMeanPane);
 						setCard(ModeType.LIST_OBS_MODE_DESC, obsListPane);
 						setCard(ModeType.LIST_MEANS_MODE_DESC, meansListPane);
-						// TODO: pass modelMgr around in message, Actors style?
-						modelMgr.changeMode(ModeType.PLOT_OBS_MODE);
+						// TODO: pass mediator around in message, Actors style?
+						mediator.changeMode(ModeType.PLOT_OBS_MODE);
 					}
 				}
 		};

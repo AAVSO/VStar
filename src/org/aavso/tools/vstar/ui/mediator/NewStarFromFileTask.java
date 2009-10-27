@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.controller;
+package org.aavso.tools.vstar.ui.mediator;
 
 import java.io.File;
 import java.io.FileReader;
@@ -34,7 +34,8 @@ import org.jdesktop.swingworker.SwingWorker;
  * A concurrent task in which a new star from file request task is handled.
  */
 public class NewStarFromFileTask extends SwingWorker<Void, Void> {
-	private ModelManager modelMgr = ModelManager.getInstance();
+	
+	private Mediator mediator = Mediator.getInstance();
 
 	private File obsFile;
 	private ObservationSourceAnalyser analyser;
@@ -89,7 +90,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 						"No observations for the specified period or error in observation source.");
 			}
 
-			modelMgr.createNewStarObservationArtefacts(analyser.getNewStarType(),
+			mediator.createNewStarObservationArtefacts(analyser.getNewStarType(),
 					obsFile.getName(), textFormatReader, plotTaskPortion);
 
 		} catch (Exception e) {
@@ -102,7 +103,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		modelMgr.getProgressNotifier().notifyListeners(
+		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 	}
 }

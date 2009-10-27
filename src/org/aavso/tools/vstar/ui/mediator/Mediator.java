@@ -15,9 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.controller;
-
-// TODO: rename this package as mediator?
+package org.aavso.tools.vstar.ui.mediator;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -67,22 +65,20 @@ import org.aavso.tools.vstar.util.notification.Notifier;
  * This is a Singleton since only one manager per application instance needs to
  * exist.
  * 
- * TODO: since we store GUI components here also, it should be DocManager
- * again...or ArtefactManager or similar.
- * 
- * TODO: also handle undo, document "needs saving", don't load same file twice
- * etc. Only need to detect whether table models need saving, in particular the
- * valid observations portion of the table model, and probably *only* that. All
- * other artefacts (means, plots) are derived from that.
- * 
- * TODO: where we currently refer to modelMgr artefacts, we should use local
- * variables instead where possible and get rid of those members.
- * 
- * TODO: call this a Mediator of some kind? Check GoF.
+ * TODO: - Handle undo, document "needs saving", don't load same file twice etc.
+ * Only need to detect whether table models need saving, in particular the valid
+ * observations portion of the table model, and probably *only* that. All other
+ * artefacts (means, plots) are derived from that. - Where we currently refer to
+ * mediator artefacts, we should use local variables instead where possible and
+ * get rid of those members.
  */
-public class ModelManager {
+public class Mediator {
 
 	public static final String NOT_IMPLEMENTED_YET = "This feature is not implemented yet.";
+
+	// Valid and invalid observation lists.
+	private List<ValidObservation> validObsList;
+	private List<InvalidObservation> invalidObsList;
 
 	// Current mode.
 	private ModeType mode;
@@ -324,9 +320,6 @@ public class ModelManager {
 		// file since there won't be many columns. We don't want to do that
 		// when there are many columns (i.e. for AAVSO download format files
 		// and database source).
-		// TODO: Why don't we delegate this to the component that renders the
-		// obs list?
-		// The model manager shouldn't care about this kind of stuff.
 		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
 		obsListPane = new ObservationListPane(validObsTableModel,
 				invalidObsTableModel, enableColumnAutoResize, true);
@@ -335,25 +328,28 @@ public class ModelManager {
 		meansListPane = new MeanObservationListPane(meanObsTableModel);
 
 		// Notify whoever is listening that a new star has been loaded.
-		newStarMessage = new NewStarMessage(
-				NewStarType.NEW_STAR_FROM_DATABASE, objName);
+		newStarMessage = new NewStarMessage(NewStarType.NEW_STAR_FROM_DATABASE,
+				objName);
 
 		// Notify whoever is listening that the analysis type has changed
 		// (we could have been viewing a phase plot for a different star
 		// before now) passing GUI components in the message.
-		AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
-				AnalysisType.RAW_DATA, obsChartPane, obsAndMeanChartPane,
-				obsListPane, meansListPane);
-
 		analysisType = AnalysisType.RAW_DATA;
-		analysisTypeMap.clear(); // throw away old artefacts since we have a new star
-		analysisTypeMap.put(AnalysisType.RAW_DATA, analysisTypeMsg);
 
+		AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
+				analysisType, obsChartPane, obsAndMeanChartPane, obsListPane,
+				meansListPane);
+
+		analysisTypeMap.clear(); // throw away old artefacts
+		analysisTypeMap.put(analysisType, analysisTypeMsg);
+
+		// Commit to using the new observation lists.
+		this.validObsList = validObsList;
+		this.invalidObsList = invalidObsList;
+		
 		// Notify listeners of new star and analysis type change.
 		getNewStarNotifier().notifyListeners(newStarMessage);
-
-		getAnalysisTypeChangeNotifier().notifyListeners(
-				analysisTypeMsg);
+		getAnalysisTypeChangeNotifier().notifyListeners(analysisTypeMsg);
 	}
 
 	/**
@@ -403,8 +399,8 @@ public class ModelManager {
 			break;
 		case PLOT_OBS_AND_MEANS_MODE:
 			try {
-				this.analysisTypeMap.get(analysisType)
-						.getObsAndMeanChartPane().getChartPanel().doSaveAs();
+				this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
+						.getChartPanel().doSaveAs();
 			} catch (IOException ex) {
 				MessageBox.showErrorDialog(parent,
 						"Save Observation and Means Plot", ex.getMessage());
@@ -434,9 +430,8 @@ public class ModelManager {
 					.getChartPanel().createChartPrintJob();
 			break;
 		case PLOT_OBS_AND_MEANS_MODE:
-			this.analysisTypeMap.get(analysisType)
-					.getObsAndMeanChartPane().getChartPanel()
-					.createChartPrintJob();
+			this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
+					.getChartPanel().createChartPrintJob();
 			break;
 		case LIST_OBS_MODE:
 			try {
@@ -463,17 +458,19 @@ public class ModelManager {
 
 	// Singleton fields, constructor, getter.
 
-	private static ModelManager modelMgr = new ModelManager();
+	private static Mediator mediator = new Mediator();
 
 	/**
 	 * Private constructor.
 	 */
-	private ModelManager() {		
+	private Mediator() {
 		this.analysisTypeChangeNotifier = new Notifier<AnalysisTypeChangeMessage>();
 		this.newStarNotifier = new Notifier<NewStarMessage>();
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
 
+		this.validObsList = null;
+		this.invalidObsList = null;
 		this.mode = ModeType.PLOT_OBS_MODE;
 		this.analysisType = AnalysisType.RAW_DATA;
 		this.newStarMessage = null;
@@ -483,7 +480,7 @@ public class ModelManager {
 	/**
 	 * Return the Singleton instance.
 	 */
-	public static ModelManager getInstance() {
-		return modelMgr;
+	public static Mediator getInstance() {
+		return mediator;
 	}
 }

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.controller;
+package org.aavso.tools.vstar.ui.mediator;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,7 +39,8 @@ import org.jdesktop.swingworker.SwingWorker;
  * A concurrent task in which a new star from file request task is handled.
  */
 public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
-	private ModelManager modelMgr = ModelManager.getInstance();
+	
+	private Mediator mediator = Mediator.getInstance();
 
 	private String starName;
 	private String auid;
@@ -149,7 +150,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			updateProgress(2);
 
 			// Create table/plot models and GUI elements.
-			modelMgr.createNewStarObservationArtefacts(
+			mediator.createNewStarObservationArtefacts(
 					NewStarType.NEW_STAR_FROM_DATABASE, starName,
 					databaseObsReader, 2);
 
@@ -173,13 +174,13 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		modelMgr.getProgressNotifier().notifyListeners(
+		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 	}
 
 	// Update the progress of the task by the specified number of steps.
 	private void updateProgress(int steps) {
-		modelMgr.getProgressNotifier().notifyListeners(
+		mediator.getProgressNotifier().notifyListeners(
 				new ProgressInfo(ProgressType.INCREMENT_PROGRESS, steps));
 	}
 }

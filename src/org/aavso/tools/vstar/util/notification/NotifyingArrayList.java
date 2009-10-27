@@ -32,18 +32,37 @@ import java.util.ListIterator;
  */
 public class NotifyingArrayList<E> extends NotifyingList<E> {
 
-	// TODO: do we really want to notify for *all* additions or have the
-	// option of doing bulk notifications via a constructor boolean?
-	// => add a setter for this and make if (changed) into if (changed && notifyImmediately)
-	//    and also add a fireUpdate() or fireNotify() that sends a generic CHANGED message?
-	
-	// TODO: write UTs!
-
 	private ArrayList<E> list;
 
+	private boolean notifyEnabled;
+	
+	/**
+	 * Constructor.
+	 */
+	public NotifyingArrayList() {
+		list = new ArrayList<E>();
+		notifyEnabled = true;
+	}
+	
+	/**
+	 * Are change notifications enabled?
+	 */
+	public boolean isNotifyEnabled() {
+		return notifyEnabled;
+	}
+
+	/**
+	 * Should notifications be enabled?
+	 */
+	public void setNotifyEnabled(boolean status) {
+		this.notifyEnabled = status;
+	}
+
+	// List interface methods.
+	
 	public boolean add(E e) {
 		boolean changed = list.add(e);
-		if (changed) {
+		if (notifyEnabled && changed) {
 			this.notifier.notifyListeners(new ListChangeMessage<E>(
 					ListChangeType.ADDED_ONE, this));
 		}
@@ -58,7 +77,7 @@ public class NotifyingArrayList<E> extends NotifyingList<E> {
 
 	public boolean addAll(Collection<? extends E> c) {
 		boolean changed = list.addAll(c);
-		if (changed) {
+		if (notifyEnabled && changed) {
 			this.notifier.notifyListeners(new ListChangeMessage<E>(
 					ListChangeType.ADDED_MANY, this));
 		}
@@ -67,7 +86,7 @@ public class NotifyingArrayList<E> extends NotifyingList<E> {
 
 	public boolean addAll(int index, Collection<? extends E> c) {
 		boolean changed = list.addAll(c);
-		if (changed) {
+		if (notifyEnabled && changed) {
 			this.notifier.notifyListeners(new ListChangeMessage<E>(
 					ListChangeType.ADDED_MANY, this, index));
 		}
@@ -117,7 +136,7 @@ public class NotifyingArrayList<E> extends NotifyingList<E> {
 
 	public boolean remove(Object o) {
 		boolean changed = list.remove(o);
-		if (changed) {
+		if (notifyEnabled && changed) {
 			this.notifier.notifyListeners(new ListChangeMessage<E>(
 					ListChangeType.REMOVED, this, o));
 		}
@@ -135,7 +154,7 @@ public class NotifyingArrayList<E> extends NotifyingList<E> {
 
 	public boolean removeAll(Collection<?> c) {
 		boolean changed = list.removeAll(c);
-		if (changed) {
+		if (notifyEnabled && changed) {
 			this.notifier.notifyListeners(new ListChangeMessage<E>(
 					ListChangeType.REMOVED_MANY, this));
 		}
@@ -144,7 +163,7 @@ public class NotifyingArrayList<E> extends NotifyingList<E> {
 
 	public boolean retainAll(Collection<?> c) {
 		boolean changed = list.retainAll(c);
-		if (changed) {
+		if (notifyEnabled && changed) {
 			this.notifier.notifyListeners(new ListChangeMessage<E>(
 					ListChangeType.REMOVED_MANY, this));
 		}

@@ -26,7 +26,7 @@ import org.aavso.tools.vstar.data.validation.AbstractStringValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
-import org.aavso.tools.vstar.ui.controller.ModelManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 
 /**
@@ -38,7 +38,7 @@ import org.aavso.tools.vstar.ui.model.ProgressInfo;
  */
 public class TextFormatObservationReader extends AbstractObservationRetriever {
 
-	private ModelManager modelMgr = ModelManager.getInstance();
+	private Mediator mediator = Mediator.getInstance();
 
 	private LineNumberReader reader;
 
@@ -87,7 +87,7 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 					}
 				}
 
-				modelMgr.getProgressNotifier().notifyListeners(
+				mediator.getProgressNotifier().notifyListeners(
 						ProgressInfo.INCREMENT_PROGRESS);
 
 				line = reader.readLine();

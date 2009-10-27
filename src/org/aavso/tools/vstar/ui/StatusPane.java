@@ -25,8 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.border.BevelBorder;
 
-import org.aavso.tools.vstar.ui.controller.ModelManager;
-import org.aavso.tools.vstar.ui.controller.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -41,7 +41,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public class StatusPane extends JPanel {
 
-	private ModelManager modelMgr = ModelManager.getInstance();
+	private Mediator mediator = Mediator.getInstance();
 
 	private JLabel statusLabel;
 	private JProgressBar progressBar;
@@ -68,8 +68,8 @@ public class StatusPane extends JPanel {
 
 		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
-		modelMgr.getNewStarNotifier().addListener(createNewStarListener());
-		modelMgr.getProgressNotifier().addListener(createProgressListener());
+		mediator.getNewStarNotifier().addListener(createNewStarListener());
+		mediator.getProgressNotifier().addListener(createProgressListener());
 	}
 
 	/**
