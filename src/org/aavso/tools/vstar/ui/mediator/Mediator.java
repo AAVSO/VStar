@@ -59,18 +59,11 @@ import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Notifier;
 
 /**
- * This class manages models, in particular, the data models that under-pin the
- * table and chart views. A kind of super-controller.
+ * This class manages the creation of models and views and sends notifications 
+ * for changes to mode and analysis types.
  * 
- * This is a Singleton since only one manager per application instance needs to
+ * This is a Singleton since only one mediator per application instance needs to
  * exist.
- * 
- * TODO: - Handle undo, document "needs saving", don't load same file twice etc.
- * Only need to detect whether table models need saving, in particular the valid
- * observations portion of the table model, and probably *only* that. All other
- * artefacts (means, plots) are derived from that. - Where we currently refer to
- * mediator artefacts, we should use local variables instead where possible and
- * get rid of those members.
  */
 public class Mediator {
 

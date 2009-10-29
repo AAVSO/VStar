@@ -85,7 +85,7 @@ public class AAVSODatabaseConnector {
 			Class.forName("com.mysql.jdbc.Driver", true,
 					AAVSODatabaseConnector.class.getClassLoader());
 		} catch (ClassNotFoundException e) {
-			// TODO
+			MessageBox.showErrorDialog(MainFrame.getInstance(), "Read from database", e);
 		}
 	}
 
