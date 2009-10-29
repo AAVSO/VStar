@@ -37,9 +37,6 @@ package org.aavso.tools.vstar.data;
  */
 public class ValidObservation extends Observation implements IMagAndJDSource {
 
-	// TODO: This needs to be thinly wrapped in places where a class might
-	// change instance of it so that notification can be centralised.
-	
 	// Optimisations (TODO):
 	// - Use Flyweight pattern to ensure that immutable values
 	// (mostly strings) exist only once for a given value. This will reduce
@@ -50,9 +47,9 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	private Magnitude magnitude = null; // magnitude, uncertainty,
 	// fainter/brighter-than
 	private Double hqUncertainty = null;
-	private String band = null;
+	private String band = null; // TODO: make SeriesType
 	private String obsCode = null;
-	private String commentCode = null;
+	private String commentCode = null; // TODO: make an enum
 	private String compStar1 = null;
 	private String compStar2 = null;
 	private String charts = null;
@@ -68,11 +65,18 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	private DateInfo hJD = null; // Heliocentric vs Geocentric Julian Day
 	private String name = null;
 	private String mType = null; // TODO: make an enum
+
+	// Phase values will be computed later, if a phase plot is requested.
+	// They may change over the lifetime of a ValidObservation instance
+	// since different epoch determination methods will result in different
+	// phase values.
+	private Double standardPhase = null;
+	private Double previousCyclePhase = null;
 	
 	/**
 	 * Constructor.
 	 * 
-	 * All fields start out as null.
+	 * All fields start out as null or false.
 	 */
 	public ValidObservation() {
 		super(0);
@@ -371,6 +375,34 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 		this.mType = mType;
 	}
 
+	/**
+	 * @return the standardPhase
+	 */
+	public Double getStandardPhase() {
+		return standardPhase;
+	}
+
+	/**
+	 * @param standardPhase the standardPhase to set
+	 */
+	public void setStandardPhase(Double standardPhase) {
+		this.standardPhase = standardPhase;
+	}
+
+	/**
+	 * @return the previousCyclePhase
+	 */
+	public Double getPreviousCyclePhase() {
+		return previousCyclePhase;
+	}
+
+	/**
+	 * @param previousCyclePhase the previousCyclePhase to set
+	 */
+	public void setPreviousCyclePhase(Double previousCyclePhase) {
+		this.previousCyclePhase = previousCyclePhase;
+	}
+
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 
@@ -459,6 +491,18 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 		if (hJD != null) {
 			strBuf.append("Heliocentric Julian Day: ");
 			strBuf.append(hJD);
+			strBuf.append("\n");
+		}
+
+		if (standardPhase != null) {
+			strBuf.append("Standard Phase: ");
+			strBuf.append(standardPhase);
+			strBuf.append("\n");
+		}
+
+		if (previousCyclePhase != null) {
+			strBuf.append("Previous Cycle Phase: ");
+			strBuf.append(previousCyclePhase);
 			strBuf.append("\n");
 		}
 

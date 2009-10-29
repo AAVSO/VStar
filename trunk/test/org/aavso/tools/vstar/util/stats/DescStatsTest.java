@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util;
+package org.aavso.tools.vstar.util.stats;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +34,8 @@ import org.aavso.tools.vstar.util.stats.DescStats;
  */
 public class DescStatsTest extends TestCase {
 
-	private static double[] mags1 = { 1, 2, 3, 4, 5 };
-	private static double[] mags2 = { 2, 3, 3, 3, 4 };
+	private final static double[] mags1 = { 1, 2, 3, 4, 5 };
+	private final static double[] mags2 = { 2, 3, 3, 3, 4 };
 	private static double[] mags3 = { 4.0, 3.9, 4.1, 4.0, 4.2, 3.9, 3.9, 4.1,
 			3.8, 4.0 };
 
