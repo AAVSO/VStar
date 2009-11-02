@@ -59,10 +59,13 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * 
 	 * @param obsSourceListMap
 	 *            A mapping from source name to lists of observation sources.
+	 * @param coordSrc coordinate and error source.
 	 */
 	public ObservationAndMeanPlotModel(
-			Map<String, List<ValidObservation>> obsSourceListMap) {
-		super(obsSourceListMap);
+			Map<String, List<ValidObservation>> obsSourceListMap, ICoordSource coordSrc) {
+		
+		super(obsSourceListMap, coordSrc);
+		
 		this.meansSeriesNum = NO_MEANS_SERIES;
 		this.daysInBin = DescStats.DEFAULT_BIN_DAYS; // TODO: or just define
 		// this in this class?
@@ -91,6 +94,12 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		if (!meanObsList.isEmpty()) {
 			boolean found = false;
 
+			// TODO: instead of this, why not just ask:
+			// if (this.meansSeriesNum != NO_MEANS_SERIES) {
+			// ...
+			// } else {
+			// ...do the if (!found) code below...
+			// }
 			for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap
 					.entrySet()) {
 				if (MEANS_SERIES_NAME.equals(entry.getValue())) {
@@ -259,7 +268,6 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		int seriesNum = -1;
 		
 		// Look for Visual, then V.
-		// TODO: what about Stromgren V, unfiltered with V zero point?
 
 		for (String series : srcNameToSeriesNumMap.keySet()) {
 			if (SeriesType.Visual.getName().equals(series)

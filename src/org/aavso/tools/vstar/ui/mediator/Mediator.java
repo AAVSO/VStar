@@ -48,7 +48,9 @@ import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.model.ICoordSource;
 import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
+import org.aavso.tools.vstar.ui.model.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.MeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
@@ -258,11 +260,15 @@ public class Mediator {
 		ObservationAndMeanPlotPane obsAndMeanChartPane = null;
 
 		if (!validObsList.isEmpty()) {
+			// Observation and mean plot models can both share the
+			// same X coordinate source (Julian Day).
+			ICoordSource coordSrc = new JDCoordSource();
+			
 			// Observation table and plot.
 			validObsTableModel = new ValidObservationTableModel(validObsList,
 					newStarType);
 
-			obsPlotModel = new ObservationPlotModel(validObservationCategoryMap);
+			obsPlotModel = new ObservationPlotModel(validObservationCategoryMap, coordSrc);
 			validObsTableModel.getObservationChangeNotifier().addListener(
 					obsPlotModel);
 
@@ -278,7 +284,7 @@ public class Mediator {
 
 			// Observation-and-mean table and plot.
 			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
-					validObservationCategoryMap);
+					validObservationCategoryMap, coordSrc);
 
 			validObsTableModel.getObservationChangeNotifier().addListener(
 					obsAndMeanPlotModel);

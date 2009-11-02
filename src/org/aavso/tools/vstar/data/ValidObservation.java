@@ -494,6 +494,9 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 			strBuf.append("\n");
 		}
 
+		// TODO: only show these if analysis mode is phase plot
+		// or is it okay to show last-non-null phases in any mode?
+		
 		if (standardPhase != null) {
 			strBuf.append("Standard Phase: ");
 			strBuf.append(standardPhase);
