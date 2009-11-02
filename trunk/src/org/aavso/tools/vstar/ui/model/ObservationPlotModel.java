@@ -35,7 +35,14 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
 public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		Listener<ValidObservation> {
 
-	// A unique next series number for this model.
+	/**
+	 * Coordinate and error source.
+	 */
+	private ICoordSource coordSrc;
+
+	/**
+	 * A unique next series number for this model.
+	 */
 	private int seriesNum;
 
 	/**
@@ -64,10 +71,14 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	protected Map<Integer, Boolean> seriesVisibilityMap;
 
 	/**
-	 * Constructor
+	 * Constructor.
+	 * 
+	 * @param coordSrc
+	 *            A coordinate and error source.
 	 */
-	public ObservationPlotModel() {
+	public ObservationPlotModel(ICoordSource coordSrc) {
 		super();
+		this.coordSrc = coordSrc;
 		this.seriesNum = 0;
 		this.seriesNumToSrcNameMap = new TreeMap<Integer, String>();
 		this.srcNameToSeriesNumMap = new TreeMap<String, Integer>();
@@ -78,30 +89,18 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	/**
 	 * Constructor
 	 * 
-	 * We add a named observation source list to a unique series number.
-	 * 
-	 * @param name
-	 *            Name of observation source list.
-	 * @param obsSourceList
-	 *            The list of observation sources.
-	 */
-	public ObservationPlotModel(String name,
-			List<ValidObservation> obsSourceList) {
-		this();
-		this.addObservationSeries(name, obsSourceList);
-	}
-
-	/**
-	 * Constructor
-	 * 
 	 * We add named observation source lists to unique series numbers.
 	 * 
 	 * @param obsSourceListMap
 	 *            A mapping from source name to lists of observation sources.
+	 * @param coordSrc A coordinate and error source.
 	 */
 	public ObservationPlotModel(
-			Map<String, List<ValidObservation>> obsSourceListMap) {
-		this();
+			Map<String, List<ValidObservation>> obsSourceListMap,
+			ICoordSource coordSrc) {
+
+		this(coordSrc);
+
 		for (String name : obsSourceListMap.keySet()) {
 			this.addObservationSeries(name, obsSourceListMap.get(name));
 		}
@@ -204,7 +203,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesKey(int)
 	 */
 	public Comparable getSeriesKey(int series) {
-		if (series >= this.seriesNumToSrcNameMap.size()) {
+		if (!seriesNumToObSrcListMap.containsKey(series)) {
 			throw new IllegalArgumentException("Series number '" + series
 					+ "' out of range.");
 		}
@@ -218,7 +217,6 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @return The number of series keys.
 	 */
 	public String[] getSeriesKeys() {
-		// return this.seriesNumToSrcNameMap.keySet().toArray(new String[0]);
 		return this.srcNameToSeriesNumMap.keySet().toArray(new String[0]);
 	}
 
@@ -227,14 +225,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @return The number of observations (items) in the requested series.
 	 */
 	public int getItemCount(int series) {
-		// TODO: here and elsewhere, should this instead be:
-		// if (!seriesNumToSrcName.containsKey(series)) ... ?
-		if (series >= this.seriesNumToSrcNameMap.size()) {
-			throw new IllegalArgumentException("Series number '" + series
-					+ "' out of range.");
-		}
-
-		return this.seriesNumToObSrcListMap.get(series).size();
+		return coordSrc.getItemCount(series, seriesNumToObSrcListMap);
 	}
 
 	// TODO: are these next two still required?
@@ -243,14 +234,14 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
 	public Number getX(int series, int item) {
-		return getJDAsXCoord(series, item);
+		return coordSrc.getXCoord(series, item, this.seriesNumToObSrcListMap);
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
 	 */
 	public Number getY(int series, int item) {
-		return getMagAsYCoord(series, item);
+		return getMagAsYCoord(series, coordSrc.getActualYItemNum(series, item, seriesNumToObSrcListMap));
 	}
 
 	/**
@@ -276,19 +267,21 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	// To be used for error bar handling.
 
 	public Number getStartX(int series, int item) {
-		return getJDAsXCoord(series, item);
+		return coordSrc.getXCoord(series, item, this.seriesNumToObSrcListMap);
 	}
 
 	public Number getEndX(int series, int item) {
-		return getJDAsXCoord(series, item);
+		return coordSrc.getXCoord(series, item, this.seriesNumToObSrcListMap);
 	}
 
 	public Number getStartY(int series, int item) {
-		return getMagAsYCoord(series, item) - getMagError(series, item);
+		int actualItem = coordSrc.getActualYItemNum(series, item, seriesNumToObSrcListMap);
+		return getMagAsYCoord(series, actualItem) - getMagError(series, actualItem);
 	}
 
 	public Number getEndY(int series, int item) {
-		return getMagAsYCoord(series, item) + getMagError(series, item);
+		int actualItem = coordSrc.getActualYItemNum(series, item, seriesNumToObSrcListMap);
+		return getMagAsYCoord(series, actualItem) + getMagError(series, actualItem);
 	}
 
 	// Helpers
@@ -297,25 +290,17 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		return seriesNum++;
 	}
 
-	// Return the Julian Day as the X coordinate.
-	private double getJDAsXCoord(int series, int item) {
-		if (series >= this.seriesNumToObSrcListMap.size()) {
-			throw new IllegalArgumentException("Series number '" + series
-					+ "' out of range.");
-		}
-
-		if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
-			throw new IllegalArgumentException("Item number '" + item
-					+ "' out of range.");
-		}
-
-		return this.seriesNumToObSrcListMap.get(series).get(item).getDateInfo()
-				.getJulianDay();
-	}
-
-	// Return the magnitude as the Y coordinate.
-	private double getMagAsYCoord(int series, int item) {
-		if (series >= this.seriesNumToObSrcListMap.size()) {
+	/**
+	 * Return the magnitude as the Y coordinate.
+	 *  
+	 * @param series
+	 *            The series number.
+	 * @param item
+	 *            The item number within the series.
+	 * @return The magnitude value.
+	 */
+	protected double getMagAsYCoord(int series, int item) {
+		if (!seriesNumToObSrcListMap.containsKey(series)) {
 			throw new IllegalArgumentException("Series number '" + series
 					+ "' out of range.");
 		}
@@ -366,9 +351,12 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * marked as discrepant.
 	 */
 	public void update(ValidObservation ob) {
-		// We do nothing for now. What we do need to do
-		// is to plot the value in a different color, or
-		// possibly not at all.
+		// TODO: We do nothing for now. What we do need to
+		// do is to plot the value in a different color,
+		// and the best way to do that is to move it
+		// to a different band. This of course assumes
+		// that the change to ob is of the "discrepant"
+		// value.
 	}
 
 	/**
@@ -383,7 +371,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *             if series or item are out of range.
 	 */
 	public ValidObservation getValidObservation(int series, int item) {
-		if (series >= this.seriesNumToObSrcListMap.size()) {
+		if (!seriesNumToObSrcListMap.containsKey(series)) {
 			throw new IllegalArgumentException("Series number '" + series
 					+ "' out of range.");
 		}
@@ -449,8 +437,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		// We also allow for unspecified series type, e.g. since the source
 		// could be from a simple observation file where no band is specified.
 		// People could use this for visual, CCD/DSLR photometry observation
-		// etc. TODO: add enum value for "unspecified".
-		visible |= "Unspecified".equalsIgnoreCase(series);
+		// etc.
+		visible |= SeriesType.Unspecified.getName().equalsIgnoreCase(series);
 
 		return visible;
 	}

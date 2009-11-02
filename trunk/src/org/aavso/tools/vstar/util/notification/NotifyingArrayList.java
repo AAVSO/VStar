@@ -43,7 +43,22 @@ public class NotifyingArrayList<E> extends NotifyingList<E> {
 		list = new ArrayList<E>();
 		notifyEnabled = true;
 	}
-	
+
+	/**
+	 * Constructor.
+	 * 
+	 * One use case may be to construct this list from another.
+	 * 
+	 * @param otherList A list to be added to this new list.
+	 */
+	public NotifyingArrayList(List<E> otherList) {
+		list = new ArrayList<E>();
+		for (E e : otherList) {
+			list.add(e);
+		}
+		notifyEnabled = true;
+	}
+
 	/**
 	 * Are change notifications enabled?
 	 */
