@@ -53,7 +53,7 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class AAVSODatabaseConnector {
 
-	private final static int MAX_TIME = 20;
+	private final static int MAX_TIME = 30;
 	
 	private final static String CONN_URL = "jdbc:mysql://"
 			+ ResourceAccessor.getParam(0) + "/";
