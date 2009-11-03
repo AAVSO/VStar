@@ -54,7 +54,7 @@ public class ObservationAndMeanPlotPane extends
 	public ObservationAndMeanPlotPane(String title, String subTitle,
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
 
-		super(title, subTitle, obsAndMeanModel, bounds);
+		super("Light Curve with Means for " + title, subTitle, obsAndMeanModel, bounds);
 
 		this.joinMeans = true;
 

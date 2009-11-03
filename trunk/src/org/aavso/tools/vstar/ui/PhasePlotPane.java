@@ -15,36 +15,33 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.resources;
+package org.aavso.tools.vstar.ui;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.awt.Dimension;
+
+import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 
 /**
- * The purpose of this class is to provide access to subversion revision number.
+ * This class represents a chart pane containing a phase plot for a set of valid
+ * observations (magnitude vs standard phase).
  */
+public class PhasePlotPane extends ObservationPlotPane {
 
-public class RevisionAccessor {
-
-	private static String REVISION = "29:251MP";
-
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\d+:(\\d+).*$");
 
 	/**
-	 * Get the latest revision number if REVISION is of the form:
-	 * n:m... (i.e. get m), otherwise just return the whole revision
-	 * string. It doesn't really matter what it is so long as it's
-	 * unique from one commit of dist/vstar.jar to the next.
+	 * Constructor.
+	 * 
+	 * @param title
+	 *            The title of the plot.
+	 * @param subTitle
+	 *            The sub-title for the chart.
+	 * @param obsModel
+	 *            The observation model.
+	 * @param bounds
+	 *            The bounds of the pane.
 	 */
-	public static String getRevNum() {
-		String rev = REVISION;
-
-		Matcher revMatcher = revNumPat.matcher(rev);
-		if (revMatcher.matches()) {
-			rev = revMatcher.group(1);
-		}
-		
-		return rev;
+	public PhasePlotPane(String title, String subTitle,
+			ObservationPlotModel obsModel, Dimension bounds) {
+		super("Phase Plot for " + title, subTitle, obsModel, bounds);
 	}
 }
