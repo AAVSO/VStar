@@ -142,7 +142,11 @@ public class DataPane extends JPanel {
 								obsAndMeanPane);
 						setCard(ModeType.LIST_OBS_MODE_DESC, obsListPane);
 						setCard(ModeType.LIST_MEANS_MODE_DESC, meansListPane);
-						// TODO: pass mediator around in message, Actors style?
+						
+						// This class will respond to this message via
+						// createModeChangeListener(). Other components
+						// may also want to know, e.g. status bar, hence
+						// the choice of this message "broadcast".
 						mediator.changeMode(ModeType.PLOT_OBS_MODE);
 					}
 				}

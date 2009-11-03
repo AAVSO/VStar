@@ -36,6 +36,7 @@ import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -43,16 +44,15 @@ import org.aavso.tools.vstar.util.notification.Listener;
 /**
  * VStar's menu bar.
  * 
- * TODO: 
- * - Factor out code to be shared by menu and tool bar?
+ * TODO: - Factor out code to be shared by menu and tool bar?
  */
 public class MenuBar extends JMenuBar {
 
 	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
 	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
 	public static final String RAW_DATA = "Raw Data";
-	public static final String PHASE_PLOT = "Phase Plot";
-	public static final String PERIOD_SEARCH = "Period Search";
+	public static final String PHASE_PLOT = "Phase Plot...";
+	public static final String PERIOD_SEARCH = "Period Search...";
 	public static final String SAVE = "Save...";
 	public static final String PRINT = "Print...";
 	public static final String PREFS = "Preferences...";
@@ -199,10 +199,11 @@ public class MenuBar extends JMenuBar {
 					// Prompt user for star and JD range selection.
 					MainFrame.getInstance().getStatusPane().setMessage(
 							"Select a star...");
-					StarSelectorDialog starSelectorDialog = StarSelectorDialog.getInstance();
+					StarSelectorDialog starSelectorDialog = StarSelectorDialog
+							.getInstance();
 					starSelectorDialog.reset();
 					starSelectorDialog.setVisible(true);
-					
+
 					if (!starSelectorDialog.isCancelled()) {
 						String starName = starSelectorDialog.getStarName();
 						String auid = starSelectorDialog.getAuid();
@@ -309,8 +310,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createRawDataListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: set analysis action in Mediator so it can
-				// choose the right artefacts out of a map (for example).
+				mediator.changeAnalysisType(AnalysisType.RAW_DATA);
 				setRawDataAnalysisMenuItemState(true);
 				setPhasePlotAnalysisMenuItemState(false);
 				setPeriodSearchAnalysisMenuItemState(false);
@@ -322,16 +322,17 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for Analysis->Phase Plot
 	 */
 	public ActionListener createPhasePlotListener() {
-		final Component parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				 // TODO: change when enabled!
-				setRawDataAnalysisMenuItemState(true);
-				setPhasePlotAnalysisMenuItemState(false);
-				setPeriodSearchAnalysisMenuItemState(false);
-
-				MessageBox.showMessageDialog(parent, PHASE_PLOT,
-						Mediator.NOT_IMPLEMENTED_YET);
+				if (false) {
+					mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
+					setRawDataAnalysisMenuItemState(false);
+					setPhasePlotAnalysisMenuItemState(true);
+					setPeriodSearchAnalysisMenuItemState(false);
+				} else {
+					MessageBox.showMessageDialog(MainFrame.getInstance(),
+							PHASE_PLOT, Mediator.NOT_IMPLEMENTED_YET);
+				}
 			}
 		};
 	}
@@ -340,16 +341,15 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for Analysis->Period Search
 	 */
 	public ActionListener createPeriodSearchListener() {
-		final Component parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				 // TODO: change when enabled!
+				// TODO: change when enabled!
 				setRawDataAnalysisMenuItemState(true);
 				setPhasePlotAnalysisMenuItemState(false);
 				setPeriodSearchAnalysisMenuItemState(false);
 
-				MessageBox.showMessageDialog(parent, PERIOD_SEARCH,
-						Mediator.NOT_IMPLEMENTED_YET);
+				MessageBox.showMessageDialog(MainFrame.getInstance(),
+						PERIOD_SEARCH, Mediator.NOT_IMPLEMENTED_YET);
 			}
 		};
 	}
@@ -420,13 +420,31 @@ public class MenuBar extends JMenuBar {
 		this.fileNewStarFromFileItem.setEnabled(state);
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
-
 		this.analysisRawDataItem.setEnabled(state);
-		setRawDataAnalysisMenuItemState(true);
 		this.analysisPhasePlotItem.setEnabled(state);
 		this.analysisPeriodSearchItem.setEnabled(state);
+
+		AnalysisType type = mediator.getAnalysisType();
+
+		switch (type) {
+		case RAW_DATA:
+			setRawDataAnalysisMenuItemState(true);
+			setPhasePlotAnalysisMenuItemState(false);
+			setPeriodSearchAnalysisMenuItemState(false);
+			break;
+		case PHASE_PLOT:
+			setRawDataAnalysisMenuItemState(false);
+			setPhasePlotAnalysisMenuItemState(true);
+			setPeriodSearchAnalysisMenuItemState(false);
+			break;
+		case PERIOD_SEARCH:
+			setRawDataAnalysisMenuItemState(false);
+			setPhasePlotAnalysisMenuItemState(false);
+			setPeriodSearchAnalysisMenuItemState(true);
+			break;
+		}
 	}
-	
+
 	private void setRawDataAnalysisMenuItemState(boolean state) {
 		this.analysisRawDataItem.setState(state);
 	}

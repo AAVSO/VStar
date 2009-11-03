@@ -47,6 +47,8 @@ import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
+import org.aavso.tools.vstar.ui.PhaseAndMeanPlotPane;
+import org.aavso.tools.vstar.ui.PhasePlotPane;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.model.ICoordSource;
 import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
@@ -55,13 +57,15 @@ import org.aavso.tools.vstar.ui.model.MeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.PhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.ui.model.ProgressType;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Notifier;
+import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 
 /**
- * This class manages the creation of models and views and sends notifications 
+ * This class manages the creation of models and views and sends notifications
  * for changes to mode and analysis types.
  * 
  * This is a Singleton since only one mediator per application instance needs to
@@ -71,9 +75,10 @@ public class Mediator {
 
 	public static final String NOT_IMPLEMENTED_YET = "This feature is not implemented yet.";
 
-	// Valid and invalid observation lists.
+	// Valid and invalid observation lists and series category map.
 	private List<ValidObservation> validObsList;
-	private List<InvalidObservation> invalidObsList;
+	private List<InvalidObservation> invalidObsList; // TODO: need to store this?
+	private Map<String, List<ValidObservation>> validObservationCategoryMap;
 
 	// Current mode.
 	private ModeType mode;
@@ -132,6 +137,66 @@ public class Mediator {
 	public void changeMode(ModeType mode) {
 		this.mode = mode;
 		this.getModeChangeNotifier().notifyListeners(mode);
+	}
+
+	/**
+	 * @return the mode
+	 */
+	public ModeType getMode() {
+		return mode;
+	}
+
+	/**
+	 * Change the analysis type. If the old and new types are the same, there
+	 * will be no effect.
+	 * 
+	 * @param analysisType
+	 *            The analysis type to change to.
+	 */
+	public void changeAnalysisType(AnalysisType analysisType) {
+		if (this.analysisType != analysisType) {
+			try {
+				AnalysisTypeChangeMessage msg;
+
+				switch (analysisType) {
+				case RAW_DATA:
+					// There has to be observations loaded already in order
+					// to be able to switch to raw data analysis mode.
+					msg = this.analysisTypeMap.get(AnalysisType.RAW_DATA);
+
+					if (msg != null) {
+						this.analysisType = analysisType;
+						this.analysisTypeChangeNotifier.notifyListeners(msg);
+					}
+					break;
+
+				case PHASE_PLOT:
+					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
+
+					if (msg == null) {
+						msg = createPhasePlotArtefacts();
+					}
+
+					this.analysisType = analysisType;
+					this.analysisTypeChangeNotifier.notifyListeners(msg);
+					break;
+
+				case PERIOD_SEARCH:
+					// TODO: Shouldn't get here yet!
+					break;
+				}
+			} catch (Exception e) {
+				MessageBox.showErrorDialog(MainFrame.getInstance(),
+						"Analysis Type Change", e);
+			}
+		}
+	}
+
+	/**
+	 * @return the analysisType
+	 */
+	public AnalysisType getAnalysisType() {
+		return analysisType;
 	}
 
 	/**
@@ -263,12 +328,13 @@ public class Mediator {
 			// Observation and mean plot models can both share the
 			// same X coordinate source (Julian Day).
 			ICoordSource coordSrc = new JDCoordSource();
-			
+
 			// Observation table and plot.
 			validObsTableModel = new ValidObservationTableModel(validObsList,
 					newStarType);
 
-			obsPlotModel = new ObservationPlotModel(validObservationCategoryMap, coordSrc);
+			obsPlotModel = new ObservationPlotModel(
+					validObservationCategoryMap, coordSrc);
 			validObsTableModel.getObservationChangeNotifier().addListener(
 					obsPlotModel);
 
@@ -327,8 +393,7 @@ public class Mediator {
 		meansListPane = new MeanObservationListPane(meanObsTableModel);
 
 		// Notify whoever is listening that a new star has been loaded.
-		newStarMessage = new NewStarMessage(NewStarType.NEW_STAR_FROM_DATABASE,
-				objName);
+		newStarMessage = new NewStarMessage(newStarType, objName);
 
 		// Notify whoever is listening that the analysis type has changed
 		// (we could have been viewing a phase plot for a different star
@@ -342,13 +407,102 @@ public class Mediator {
 		analysisTypeMap.clear(); // throw away old artefacts
 		analysisTypeMap.put(analysisType, analysisTypeMsg);
 
-		// Commit to using the new observation lists.
+		// Commit to using the new observation lists and category map.
 		this.validObsList = validObsList;
 		this.invalidObsList = invalidObsList;
-		
+		this.validObservationCategoryMap = validObservationCategoryMap;
+
 		// Notify listeners of new star and analysis type change.
 		getNewStarNotifier().notifyListeners(newStarMessage);
 		getAnalysisTypeChangeNotifier().notifyListeners(analysisTypeMsg);
+	}
+
+	/**
+	 * Create phase plot artefacts, adding them to the analysis type map and
+	 * returning this message.
+	 * 
+	 * @return An analysis type message consisting of phase plot artefacts.
+	 */
+	protected AnalysisTypeChangeMessage createPhasePlotArtefacts()
+			throws Exception {
+
+		// TODO: enable busy cursor, progress bar, status pane updates...
+		
+		// Get the existing new star message for now, to reuse some components.
+		// TODO: This is temporary.
+		AnalysisTypeChangeMessage rawDataMsg = this.analysisTypeMap
+				.get(AnalysisType.RAW_DATA);
+		assert (rawDataMsg != null); // failure of this assertion implies a
+		// programmatic error
+
+		// TODO: refactor this code against what is in
+		// createObservationArtefacts()
+
+		String objName = newStarMessage.getNewStarName();
+
+		String subTitle = "";
+		if (this.newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+			subTitle = new Date().toString() + " (database)";
+		} else {
+			subTitle = objName;
+		}
+
+		// Observation and mean plot models can both share the
+		// same X coordinate source (phases).
+		ICoordSource coordSrc = new PhaseCoordSource();
+
+		// Table and plot models.
+		// TODO: consider reusing plot models across all modes, just
+		// changing the coordinate source when mode-switching (to save
+		// memory)...
+		ObservationPlotModel obsPlotModel = new ObservationPlotModel(
+				validObservationCategoryMap, coordSrc);
+
+		ObservationAndMeanPlotModel obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
+				validObservationCategoryMap, coordSrc);
+
+		// Set the phases for the valid observation models in each series,
+		// including the means series.
+
+		double epoch = PhaseCalcs.getEpoch(validObsList); // TODO: dialog box
+		// with radio
+		// buttons
+		double period = validObsList.size() / 2; // essentially meaningless;
+		// TODO: same dialog box as
+		// above
+		PhaseCalcs.setPhases(validObsList, epoch, period);
+
+		// TODO: we are going to need an observer or callback that gets invoked
+		// when we change the means series; use a notifying list?
+		// TODO: to avoid the visual mean value line joining problem, we
+		// will need to double the means list and set the means series number
+		// in PhaseCoordSource, treating that series differently from all others.
+		PhaseCalcs.setPhases(obsAndMeanPlotModel.getMeanObsList(), epoch,
+				period);
+
+		// TODO: add table models x 2
+
+		// GUI table and chart components.
+		// TODO: specialise the next 2 plot components
+		PhasePlotPane obsChartPane = createPhasePlotPane(objName,
+				subTitle, obsPlotModel);
+
+		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
+				objName, subTitle, obsAndMeanPlotModel);
+
+		ObservationListPane obsListPane = rawDataMsg.getObsListPane(); // TODO:
+		// fix to be phase-friendly
+		MeanObservationListPane meansListPane = rawDataMsg.getMeansListPane(); // TODO:
+		// fix to be phase-friendly
+
+		// Observation-and-mean table and plot.
+		AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(
+				AnalysisType.PHASE_PLOT, obsChartPane, obsAndMeanChartPane,
+				obsListPane, meansListPane);
+
+		this.analysisTypeChangeNotifier.notifyListeners(phasePlotMsg);
+
+		return phasePlotMsg;
 	}
 
 	/**
@@ -360,7 +514,7 @@ public class Mediator {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 
-		return new ObservationPlotPane("Light Curve for " + plotName, subTitle,
+		return new ObservationPlotPane(plotName, subTitle,
 				obsPlotModel, bounds);
 	}
 
@@ -375,7 +529,35 @@ public class Mediator {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 
-		return new ObservationAndMeanPlotPane("Light Curve for " + plotName,
+		return new ObservationAndMeanPlotPane(plotName,
+				subTitle, obsAndMeanPlotModel, bounds);
+	}
+
+	/**
+	 * Create the pane for a phase plot of valid observations.
+	 */
+	private PhasePlotPane createPhasePlotPane(String plotName,
+			String subTitle, ObservationPlotModel obsPlotModel) {
+
+		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
+				(int) (DataPane.HEIGHT * 0.9));
+
+		return new PhasePlotPane(plotName, subTitle,
+				obsPlotModel, bounds);
+	}
+
+	/**
+	 * Create the observation-and-mean phase plot pane for the current list 
+	 * of valid observations.
+	 */
+	private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(
+			String plotName, String subTitle,
+			ObservationAndMeanPlotModel obsAndMeanPlotModel) {
+
+		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
+				(int) (DataPane.HEIGHT * 0.9));
+
+		return new PhaseAndMeanPlotPane(plotName,
 				subTitle, obsAndMeanPlotModel, bounds);
 	}
 
@@ -468,12 +650,16 @@ public class Mediator {
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
 
+		// These 3 are created for each new star.
 		this.validObsList = null;
 		this.invalidObsList = null;
+		this.validObservationCategoryMap = null;
+
+		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
+
 		this.mode = ModeType.PLOT_OBS_MODE;
 		this.analysisType = AnalysisType.RAW_DATA;
 		this.newStarMessage = null;
-		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
 	}
 
 	/**

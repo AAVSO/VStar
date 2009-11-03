@@ -45,7 +45,7 @@ public class ObservationPlotPane extends
 	 */
 	public ObservationPlotPane(String title, String subTitle, ObservationPlotModel obsModel,
 			Dimension bounds) {
-		super(title, subTitle, obsModel, bounds);
+		super("Light Curve for " + title, subTitle, obsModel, bounds);
 	}
 
 	// Return a listener for the "change series visibility" button.
