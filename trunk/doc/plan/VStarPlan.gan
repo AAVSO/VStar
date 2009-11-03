@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="VStar Phase I" company="AAVSO" webLink="https://sourceforge.net/projects/vstar/" view-date="2009-07-12" view-index="0" gantt-divider-location="518" resource-divider-location="302" version="2.0">
+<project name="VStar Phase I" company="AAVSO" webLink="https://sourceforge.net/projects/vstar/" view-date="2009-09-06" view-index="0" gantt-divider-location="518" resource-divider-location="302" version="2.0">
 <description><![CDATA[VStar Phase I tasks and progress.]]></description>
-<view zooming-state="default:5" id="gantt-chart"/>
+<view zooming-state="default:3" id="gantt-chart"/>
 <view id="resource-table">
 <field id="0" name="Name" width="55" order="0"/>
 <field id="1" name="Default role" width="44" order="1"/>
@@ -37,7 +37,7 @@
 <task id="1" name="Spec clarification &amp; Requirements Analysis" color="#8cb6ce" meeting="false" start="2009-05-11" duration="14" complete="100" priority="2" expand="true">
 <depend id="2" type="2" difference="0" hardness="Strong"/>
 </task>
-<task id="2" name="Code and Unit Test" color="#8cb6ce" meeting="false" start="2009-06-01" duration="87" complete="76" priority="1" expand="true">
+<task id="2" name="Code and Unit Test" color="#8cb6ce" meeting="false" start="2009-06-01" duration="132" complete="83" priority="1" expand="true">
 <task id="7" name="Text input validation framework" color="#8cb6ce" meeting="false" start="2009-06-01" duration="12" complete="100" priority="2" expand="true"/>
 <task id="6" name="Model-observer framework, initial GUI" color="#8cb6ce" meeting="false" start="2009-06-01" duration="14" complete="100" priority="2" expand="true"/>
 <task id="9" name="GUI mockups and incorporation of feedback" color="#8cb6ce" meeting="false" start="2009-06-19" duration="16" complete="100" priority="2" expand="true"/>
@@ -45,24 +45,24 @@
 <task id="5" name="AAVSO Download format input" color="#8cb6ce" meeting="false" start="2009-07-10" duration="2" complete="100" priority="2" expand="true"/>
 <task id="11" name="Raw data plot and table" color="#8cb6ce" meeting="false" start="2009-06-15" duration="7" complete="100" priority="1" expand="true"/>
 <task id="12" name="Raw data means plot and table" color="#8cb6ce" meeting="false" start="2009-07-20" duration="5" complete="75" priority="1" expand="true"/>
-<task id="13" name="Phase plot and table" color="#ff6600" meeting="false" start="2009-09-21" duration="6" complete="0" priority="1" expand="true"/>
-<task id="14" name="Phase plot and table (means)" color="#ff6600" meeting="false" start="2009-09-24" duration="3" complete="0" priority="1" expand="true"/>
+<task id="13" name="Phase plot and table" color="#ff6600" meeting="false" start="2009-10-26" duration="3" complete="0" priority="1" expand="true"/>
+<task id="14" name="Phase plot and table (means)" color="#ff6600" meeting="false" start="2009-10-27" duration="2" complete="0" priority="1" expand="true"/>
 <task id="15" name="Saving plots &amp; tables" color="#0000cc" meeting="false" start="2009-07-13" duration="7" complete="50" priority="1" expand="true"/>
 <task id="16" name="Printing plots &amp; tables" color="#8cb6ce" meeting="false" start="2009-07-13" duration="7" complete="100" priority="1" expand="true"/>
-<task id="10" name="AAVSO Database input" color="#8cb6ce" meeting="false" start="2009-06-26" duration="68" complete="77" priority="1" expand="true">
+<task id="10" name="AAVSO Database input" color="#8cb6ce" meeting="false" start="2009-06-26" duration="101" complete="90" priority="1" expand="true">
 <task id="8" name="SQL: view experiments, obs query tweaking" color="#8cb6ce" meeting="false" start="2009-06-26" duration="8" complete="100" priority="1" expand="true"/>
 <task id="34" name="AID observation reader" color="#8cb6ce" meeting="false" start="2009-07-23" duration="6" complete="100" priority="1" expand="true"/>
-<task id="33" name="10 Stars Selection" color="#8cb6ce" meeting="false" start="2009-07-31" duration="1" complete="0" priority="1" expand="true"/>
-<task id="35" name="Arbitrary star selection" color="#ff6600" meeting="false" start="2009-09-21" duration="1" complete="0" priority="1" expand="true"/>
-<task id="36" name="Obscode lookup via CitizenSky login" color="#ff6600" meeting="false" start="2009-09-21" duration="1" complete="0" priority="1" expand="true"/>
-<task id="24" name="Time panning (when database is source)" color="#ff6600" meeting="false" start="2009-09-23" duration="5" complete="0" priority="1" expand="true"/>
+<task id="33" name="10 Stars Selection" color="#8cb6ce" meeting="false" start="2009-07-31" duration="1" complete="100" priority="1" expand="true"/>
+<task id="35" name="Arbitrary star selection" color="#8cb6ce" meeting="false" start="2009-09-21" duration="25" complete="100" priority="1" expand="true"/>
+<task id="36" name="Obscode lookup via CitizenSky login" color="#ff6600" meeting="false" start="2009-11-10" duration="1" complete="0" priority="1" expand="true"/>
+<task id="24" name="Time panning (when database is source)" color="#ff6600" meeting="false" start="2009-11-11" duration="3" complete="0" priority="1" expand="true"/>
 </task>
 <task id="22" name="Single observation details by clicking point on plot" color="#8cb6ce" meeting="false" start="2009-08-10" duration="11" complete="100" priority="2" expand="true"/>
-<task id="31" name="Marking observation as discrepant (plot &amp; table)" color="#8cb6ce" meeting="false" start="2009-07-29" duration="1" complete="0" priority="2" expand="true"/>
-<task id="23" name="Visually joining observer data (from selected ob or login)" color="#ff6600" meeting="false" start="2009-09-22" duration="5" complete="0" priority="1" expand="true"/>
-<task id="25" name="Zooming (more control than default chart zoom)" color="#ff6600" meeting="false" start="2009-09-23" duration="5" complete="0" priority="0" expand="true"/>
+<task id="31" name="Marking observation as discrepant (plot &amp; table)" color="#ff6600" meeting="false" start="2009-11-09" duration="1" complete="10" priority="2" expand="true"/>
+<task id="23" name="Visually joining observer data (from selected ob or login)" color="#ff6600" meeting="false" start="2009-11-13" duration="2" complete="0" priority="1" expand="true"/>
+<task id="25" name="Zooming (more control than default chart zoom)" color="#ff6600" meeting="false" start="2009-11-17" duration="6" complete="0" priority="0" expand="true"/>
 <task id="26" name="Category (band, fainter-than) colors (default, chooser)" color="#0000cc" meeting="false" start="2009-09-23" duration="4" complete="24" priority="2" expand="true"/>
-<task id="27" name="Preferences (e.g. window size &amp; position, band colors)" color="#ff6600" meeting="false" start="2009-09-22" duration="5" complete="0" priority="0" expand="true"/>
+<task id="27" name="Preferences (e.g. window size &amp; position, band colors)" color="#ff6600" meeting="false" start="2009-11-25" duration="5" complete="0" priority="0" expand="true"/>
 <task id="29" name="Web Start (JNLP)" color="#8cb6ce" meeting="false" start="2009-07-30" duration="1" complete="50" priority="1" expand="true"/>
 </task>
 <task id="19" name="Documentation" color="#8cb6ce" meeting="false" start="2009-07-24" duration="6" complete="5" priority="1" expand="true">
