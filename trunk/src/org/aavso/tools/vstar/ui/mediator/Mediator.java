@@ -77,10 +77,12 @@ public class Mediator {
 
 	// Valid and invalid observation lists and series category map.
 	private List<ValidObservation> validObsList;
-	private List<InvalidObservation> invalidObsList; // TODO: need to store this?
+	private List<InvalidObservation> invalidObsList; // TODO: need to store
+	// this?
 	private Map<String, List<ValidObservation>> validObservationCategoryMap;
-
+	
 	// Current mode.
+	// TODO: why doesn't this live in ModePane?
 	private ModeType mode;
 
 	// Current analysis type.
@@ -135,8 +137,10 @@ public class Mediator {
 	 *            The mode to change to.
 	 */
 	public void changeMode(ModeType mode) {
-		this.mode = mode;
-		this.getModeChangeNotifier().notifyListeners(mode);
+		if (mode != this.mode) {
+			this.mode = mode;
+			this.getModeChangeNotifier().notifyListeners(mode);
+		}
 	}
 
 	/**
@@ -160,6 +164,7 @@ public class Mediator {
 
 				switch (analysisType) {
 				case RAW_DATA:
+					// Create or retrieve raw plots and data tables.
 					// There has to be observations loaded already in order
 					// to be able to switch to raw data analysis mode.
 					msg = this.analysisTypeMap.get(AnalysisType.RAW_DATA);
@@ -171,6 +176,7 @@ public class Mediator {
 					break;
 
 				case PHASE_PLOT:
+					// Create or retrieve phase plots and data tables.
 					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
 
 					if (msg == null) {
@@ -345,8 +351,8 @@ public class Mediator {
 				subTitle = objName;
 			}
 
-			obsChartPane = createObservationPlotPane(objName, subTitle,
-					obsPlotModel);
+			obsChartPane = createObservationPlotPane("Light Curve for "
+					+ objName, subTitle, obsPlotModel);
 
 			// Observation-and-mean table and plot.
 			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
@@ -355,8 +361,9 @@ public class Mediator {
 			validObsTableModel.getObservationChangeNotifier().addListener(
 					obsAndMeanPlotModel);
 
-			obsAndMeanChartPane = createObservationAndMeanPlotPane(objName,
-					subTitle, obsAndMeanPlotModel);
+			obsAndMeanChartPane = createObservationAndMeanPlotPane(
+					"Light Curve with Means for " + objName, subTitle,
+					obsAndMeanPlotModel);
 
 			// The mean observation table model must listen to the plot
 			// model to know when the means data has changed. We also pass
@@ -402,7 +409,7 @@ public class Mediator {
 
 		AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
 				analysisType, obsChartPane, obsAndMeanChartPane, obsListPane,
-				meansListPane);
+				meansListPane, ModeType.PLOT_OBS_MODE);
 
 		analysisTypeMap.clear(); // throw away old artefacts
 		analysisTypeMap.put(analysisType, analysisTypeMsg);
@@ -427,7 +434,7 @@ public class Mediator {
 			throws Exception {
 
 		// TODO: enable busy cursor, progress bar, status pane updates...
-		
+
 		// Get the existing new star message for now, to reuse some components.
 		// TODO: This is temporary.
 		AnalysisTypeChangeMessage rawDataMsg = this.analysisTypeMap
@@ -464,6 +471,7 @@ public class Mediator {
 		// Set the phases for the valid observation models in each series,
 		// including the means series.
 
+		// TODO: 
 		double epoch = PhaseCalcs.getEpoch(validObsList); // TODO: dialog box
 		// with radio
 		// buttons
@@ -472,23 +480,31 @@ public class Mediator {
 		// above
 		PhaseCalcs.setPhases(validObsList, epoch, period);
 
-		// TODO: we are going to need an observer or callback that gets invoked
-		// when we change the means series; use a notifying list?
-		// TODO: to avoid the visual mean value line joining problem, we
+		// TODO: 1. to avoid the visual mean value line joining problem, we
 		// will need to double the means list and set the means series number
-		// in PhaseCoordSource, treating that series differently from all others.
+		// in PhaseCoordSource, treating that series differently from all
+		// others; either this, or we have to double all series lists and
+		// that's just wasting memory we may not have!
+		// TODO: 2. we are going to need an Observer or callback that gets invoked
+		// when we change the means series; use a notifying list -> an obvious choice?
 		PhaseCalcs.setPhases(obsAndMeanPlotModel.getMeanObsList(), epoch,
 				period);
 
+		// TODO:
+		// 1. create a separate coord src subclass and instance for mean plot
+		// 2. pass means model or just means list and means series num to coord 
+		// src where it will be duplicated
+		
 		// TODO: add table models x 2
 
 		// GUI table and chart components.
 		// TODO: specialise the next 2 plot components
-		PhasePlotPane obsChartPane = createPhasePlotPane(objName,
-				subTitle, obsPlotModel);
+		PhasePlotPane obsChartPane = createPhasePlotPane("Phase Plot for "
+				+ objName, subTitle, obsPlotModel);
 
 		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
-				objName, subTitle, obsAndMeanPlotModel);
+				"Phase Plot with Means for " + objName, subTitle,
+				obsAndMeanPlotModel);
 
 		ObservationListPane obsListPane = rawDataMsg.getObsListPane(); // TODO:
 		// fix to be phase-friendly
@@ -498,7 +514,9 @@ public class Mediator {
 		// Observation-and-mean table and plot.
 		AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(
 				AnalysisType.PHASE_PLOT, obsChartPane, obsAndMeanChartPane,
-				obsListPane, meansListPane);
+				obsListPane, meansListPane, ModeType.PLOT_OBS_MODE);
+
+		analysisTypeMap.put(AnalysisType.PHASE_PLOT, phasePlotMsg);
 
 		this.analysisTypeChangeNotifier.notifyListeners(phasePlotMsg);
 
@@ -514,8 +532,7 @@ public class Mediator {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 
-		return new ObservationPlotPane(plotName, subTitle,
-				obsPlotModel, bounds);
+		return new ObservationPlotPane(plotName, subTitle, obsPlotModel, bounds);
 	}
 
 	/**
@@ -529,36 +546,34 @@ public class Mediator {
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 
-		return new ObservationAndMeanPlotPane(plotName,
-				subTitle, obsAndMeanPlotModel, bounds);
+		return new ObservationAndMeanPlotPane(plotName, subTitle,
+				obsAndMeanPlotModel, bounds);
 	}
 
 	/**
 	 * Create the pane for a phase plot of valid observations.
 	 */
-	private PhasePlotPane createPhasePlotPane(String plotName,
-			String subTitle, ObservationPlotModel obsPlotModel) {
+	private PhasePlotPane createPhasePlotPane(String plotName, String subTitle,
+			ObservationPlotModel obsPlotModel) {
 
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 
-		return new PhasePlotPane(plotName, subTitle,
-				obsPlotModel, bounds);
+		return new PhasePlotPane(plotName, subTitle, obsPlotModel, bounds);
 	}
 
 	/**
-	 * Create the observation-and-mean phase plot pane for the current list 
-	 * of valid observations.
+	 * Create the observation-and-mean phase plot pane for the current list of
+	 * valid observations.
 	 */
-	private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(
-			String plotName, String subTitle,
-			ObservationAndMeanPlotModel obsAndMeanPlotModel) {
+	private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(String plotName,
+			String subTitle, ObservationAndMeanPlotModel obsAndMeanPlotModel) {
 
 		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
 				(int) (DataPane.HEIGHT * 0.9));
 
-		return new PhaseAndMeanPlotPane(plotName,
-				subTitle, obsAndMeanPlotModel, bounds);
+		return new PhaseAndMeanPlotPane(plotName, subTitle,
+				obsAndMeanPlotModel, bounds);
 	}
 
 	/**
