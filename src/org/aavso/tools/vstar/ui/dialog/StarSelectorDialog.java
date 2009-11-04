@@ -125,14 +125,14 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	// ResourceAccessor()!
 	private void createTenStarMap() {
 		tenStarMap = new TreeMap<String, String>();
-		tenStarMap.put("Alpha Orionis", "000-BCZ-336");
-		tenStarMap.put("Beta Lyrae", "000-BDB-937");
-		tenStarMap.put("Beta Persei", "000-BCY-922");
+		tenStarMap.put("Alpha Orionis", "000-BBK-383");
+		tenStarMap.put("Beta Lyrae", "000-BCW-361");
+		tenStarMap.put("Beta Persei", "000-BBF-713");
 		tenStarMap.put("Delta Cephei", "000-BDC-570");
 		tenStarMap.put("Epsilon Aurigae", "000-BCT-905");
 		tenStarMap.put("Eta Aquilae", "000-BCT-763");
 		tenStarMap.put("Eta Geminorum", "000-BBK-904");
-		tenStarMap.put("Gamma Cassiopeia", "000-BCY-660");
+		tenStarMap.put("Gamma Cassiopeia", "000-BBC-215");
 		tenStarMap.put("Miu Cephei", "000-BCP-244");
 		tenStarMap.put("R Lyrae", "000-BCD-657");
 	}
