@@ -147,7 +147,7 @@ public class DataPane extends JPanel {
 						// createModeChangeListener(). Other components
 						// may also want to know, e.g. status bar, hence
 						// the choice of this message "broadcast".
-						mediator.changeMode(ModeType.PLOT_OBS_MODE);
+						mediator.changeMode(msg.getMode());
 					}
 				}
 		};

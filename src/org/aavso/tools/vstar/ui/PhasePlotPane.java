@@ -42,6 +42,6 @@ public class PhasePlotPane extends ObservationPlotPane {
 	 */
 	public PhasePlotPane(String title, String subTitle,
 			ObservationPlotModel obsModel, Dimension bounds) {
-		super("Phase Plot for " + title, subTitle, obsModel, bounds);
+		super(title, subTitle, obsModel, bounds);
 	}
 }

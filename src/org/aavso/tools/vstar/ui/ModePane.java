@@ -28,9 +28,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ModeType;
-import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -56,25 +56,48 @@ public class ModePane extends JPanel implements ActionListener {
 		this.setBorder(BorderFactory.createTitledBorder("Mode"));
 		this.setPreferredSize(new Dimension(250,200));		
 		
-		mediator.getNewStarNotifier().addListener(createNewStarListener());
+		mediator.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeListener());
 	}
 	
 	/**
-	 * Return a new star creation listener.
+	 * Create an analysis type change listener.
 	 */
-	private Listener<NewStarMessage> createNewStarListener() {
-		return new Listener<NewStarMessage>() {
-			public void update(NewStarMessage msg) {
-				// Select the light curve plot radio button and 
-				// deselect all others.
-				plotObsRadioButton.setSelected(true);
-				plotObsAndMeansRadioButton.setSelected(false);
-				listObsRadioButton.setSelected(false);
-				listMeansRadioButton.setSelected(false);
+	private Listener<AnalysisTypeChangeMessage> createAnalysisTypeListener() {
+		return new Listener<AnalysisTypeChangeMessage>() {
+			public void update(AnalysisTypeChangeMessage msg) {
+				// Make sure the radio buttons are consistent with the mode.
+				// Maybe this is wrong and what we need is one or more stacks
+				// of modes.
+				switch(msg.getMode()) {
+				case PLOT_OBS_MODE:
+					plotObsRadioButton.setSelected(true);
+					plotObsAndMeansRadioButton.setSelected(false);
+					listObsRadioButton.setSelected(false);
+					listMeansRadioButton.setSelected(false);
+					break;
+				case PLOT_OBS_AND_MEANS_MODE:
+					plotObsRadioButton.setSelected(false);
+					plotObsAndMeansRadioButton.setSelected(true);
+					listObsRadioButton.setSelected(false);
+					listMeansRadioButton.setSelected(false);
+					break;
+				case LIST_OBS_MODE:
+					plotObsRadioButton.setSelected(false);
+					plotObsAndMeansRadioButton.setSelected(false);
+					listObsRadioButton.setSelected(true);
+					listMeansRadioButton.setSelected(false);
+					break;
+				case LIST_MEANS_MODE:
+					plotObsRadioButton.setSelected(false);
+					plotObsAndMeansRadioButton.setSelected(false);
+					listObsRadioButton.setSelected(false);
+					listMeansRadioButton.setSelected(true);
+					break;
+				}
 			}
 		};
 	}
-
+	
 	// Create a radio button panel with N rows and 1 column, a
 	// radio button group, and each radio button and its action
 	// listener.

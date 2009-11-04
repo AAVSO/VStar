@@ -77,18 +77,17 @@ public class PhaseCoordSource implements ICoordSource {
 			List<ValidObservation> obs;
 			ValidObservation ob;
 			Double ph;
-			try {
-				// -1..
-				obs = seriesNumToObSrcListMap
-						.get(series);
-				ob = obs.get(item);
-				ph = ob.getPreviousCyclePhase();
-				phase = ph;
-				//phase = seriesNumToObSrcListMap.get(series).get(item)
-				//		.getPreviousCyclePhase();
-			} catch (NullPointerException e) {
-				e.printStackTrace();
-			}
+			// try {
+			// -1..
+			obs = seriesNumToObSrcListMap.get(series);
+			ob = obs.get(item);
+			ph = ob.getPreviousCyclePhase();
+			phase = ph;
+			// phase = seriesNumToObSrcListMap.get(series).get(item)
+			// .getPreviousCyclePhase();
+			// } catch (NullPointerException e) {
+			// e.printStackTrace();
+			// }
 		} else {
 			// 0..1
 			phase = seriesNumToObSrcListMap.get(series).get(item % itemCount)
