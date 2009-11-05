@@ -81,7 +81,7 @@ public class MessageBox {
 		JOptionPane.showMessageDialog(parent, msg, title,
 				JOptionPane.ERROR_MESSAGE);
 		parent.setCursor(null); // turn off the wait cursor, in case it's
-								// enabled
+		// enabled
 	}
 
 	/**
@@ -96,10 +96,15 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			Exception e) {
-		JOptionPane.showMessageDialog(parent, e.getMessage(), title,
+		String msg = e.getMessage();
+		if (msg == null || "".equals(msg)) {
+			StackTraceElement elt = e.getStackTrace()[e.getStackTrace().length-1];
+			msg = "Error in file " + elt.getFileName() + " at line "
+					+ elt.getLineNumber();
+		}
+		JOptionPane.showMessageDialog(parent, msg, title,
 				JOptionPane.ERROR_MESSAGE);
-		parent.setCursor(null); // turn off the wait cursor, in case it's
-								// enabled
-//		e.printStackTrace();
+		// Turn off the wait cursor, in case it's enabled.
+		parent.setCursor(null); 
 	}
 }
