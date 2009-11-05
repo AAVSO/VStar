@@ -47,7 +47,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 	 * Constructor.
 	 */
 	public PhaseParameterDialog() {
-		super("Phase Parameter Selection");
+		super("Phase Plot");
 
 		Container contentPane = this.getContentPane();
 

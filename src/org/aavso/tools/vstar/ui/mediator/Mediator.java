@@ -178,15 +178,15 @@ public class Mediator {
 
 				case PHASE_PLOT:
 					// Create or retrieve phase plots and data tables.
-					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
-
-					if (msg == null) {
+//					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
+					msg = null;
+//					if (msg == null) {
 						PhaseParameterDialog phaseDialog = new PhaseParameterDialog();
 						if (!phaseDialog.isCancelled()) {
 							double period = phaseDialog.getPeriod();
 							msg = createPhasePlotArtefacts(period);
 						}
-					}
+//					}
 
 					if (msg != null) {
 						this.analysisType = analysisType;
