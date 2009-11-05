@@ -50,6 +50,7 @@ import org.aavso.tools.vstar.ui.ObservationPlotPane;
 import org.aavso.tools.vstar.ui.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.PhasePlotPane;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.model.ICoordSource;
 import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.JDCoordSource;
@@ -57,7 +58,6 @@ import org.aavso.tools.vstar.ui.model.MeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
-import org.aavso.tools.vstar.ui.model.PhaseAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.PhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.ui.model.ProgressType;
@@ -158,7 +158,7 @@ public class Mediator {
 	 * @param analysisType
 	 *            The analysis type to change to.
 	 */
-	public void changeAnalysisType(AnalysisType analysisType) {
+	public AnalysisType changeAnalysisType(AnalysisType analysisType) {
 		if (this.analysisType != analysisType) {
 			try {
 				AnalysisTypeChangeMessage msg;
@@ -181,11 +181,17 @@ public class Mediator {
 					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
 
 					if (msg == null) {
-						msg = createPhasePlotArtefacts();
+						PhaseParameterDialog phaseDialog = new PhaseParameterDialog();
+						if (!phaseDialog.isCancelled()) {
+							double period = phaseDialog.getPeriod();
+							msg = createPhasePlotArtefacts(period);
+						}
 					}
 
-					this.analysisType = analysisType;
-					this.analysisTypeChangeNotifier.notifyListeners(msg);
+					if (msg != null) {
+						this.analysisType = analysisType;
+						this.analysisTypeChangeNotifier.notifyListeners(msg);
+					}
 					break;
 
 				case PERIOD_SEARCH:
@@ -197,6 +203,8 @@ public class Mediator {
 						"Analysis Type Change", e);
 			}
 		}
+		
+		return this.analysisType;
 	}
 
 	/**
@@ -429,15 +437,17 @@ public class Mediator {
 	 * Create phase plot artefacts, adding them to the analysis type map and
 	 * returning this message.
 	 * 
+	 * @param period
+	 *            The requested period of the phase plot.
 	 * @return An analysis type message consisting of phase plot artefacts.
 	 */
-	protected AnalysisTypeChangeMessage createPhasePlotArtefacts()
+	protected AnalysisTypeChangeMessage createPhasePlotArtefacts(double period)
 			throws Exception {
 
 		// TODO: invoke dialog from here
 		// - for dialog, start with period entry box
 		// - add radio buttons for epoch calc algorithm later
-		
+
 		// TODO: enable busy cursor, progress bar, status pane updates...
 
 		// Get the existing new star message for now, to reuse some components.
@@ -470,8 +480,9 @@ public class Mediator {
 		ObservationPlotModel obsPlotModel = new ObservationPlotModel(
 				validObservationCategoryMap, phaseCoordSrc);
 
-		PhaseAndMeanPlotModel phaseAndMeanPlotModel = new PhaseAndMeanPlotModel(
-				validObservationCategoryMap, phaseCoordSrc);
+		// PhaseAndMeanPlotModel phaseAndMeanPlotModel = new
+		// PhaseAndMeanPlotModel(
+		// validObservationCategoryMap, phaseCoordSrc);
 
 		// Set the phases for the valid observation models in each series,
 		// including the means series.
@@ -479,13 +490,13 @@ public class Mediator {
 		double epoch = PhaseCalcs.getEpoch(validObsList); // TODO: dialog box
 		// with radio
 		// buttons
-		double period = validObsList.size() / 2; // essentially meaningless;
+		//double period = validObsList.size() / 2; // essentially meaningless;
 		// TODO: same dialog box as
 		// above
 		PhaseCalcs.setPhases(validObsList, epoch, period);
 
-//		phaseCoordSrc.setMeanObs(obsAndMeanPlotModel.getMeanObsList(),
-//				obsAndMeanPlotModel.getMeansSeriesNum(), epoch, period);
+		// phaseCoordSrc.setMeanObs(obsAndMeanPlotModel.getMeanObsList(),
+		// obsAndMeanPlotModel.getMeansSeriesNum(), epoch, period);
 
 		// TODO: 1. to avoid the visual mean value line joining problem, we
 		// will need to double the means list and set the means series number
@@ -496,7 +507,8 @@ public class Mediator {
 		// invoked
 		// when we change the means series; use a notifying list -> an obvious
 		// choice?
-		PhaseCalcs.setPhases(phaseAndMeanPlotModel.getMeanObsList(), epoch, period);
+		// PhaseCalcs.setPhases(phaseAndMeanPlotModel.getMeanObsList(), epoch,
+		// period);
 
 		// TODO:
 		// 1. create a separate coord src subclass and instance for mean plot
@@ -506,13 +518,17 @@ public class Mediator {
 		// TODO: add table models x 2
 
 		// GUI table and chart components.
-		// TODO: specialise the next 2 plot components
 		PhasePlotPane obsChartPane = createPhasePlotPane("Phase Plot for "
 				+ objName, subTitle, obsPlotModel);
 
-		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
-				"Phase Plot with Means for " + objName, subTitle,
-				phaseAndMeanPlotModel);
+		// PhaseAndMeanPlotPane obsAndMeanChartPane =
+		// createPhaseAndMeanPlotPane(
+		// "Phase Plot with Means for " + objName, subTitle,
+		// phaseAndMeanPlotModel);
+
+		// TODO: use this until we have PhaseAndMeanPlot{Pane,Model} working.
+		ObservationAndMeanPlotPane obsAndMeanChartPane = rawDataMsg
+				.getObsAndMeanChartPane();
 
 		ObservationListPane obsListPane = rawDataMsg.getObsListPane(); // TODO:
 		// fix to be phase-friendly

@@ -58,6 +58,9 @@ public class SeriesVisibilityPane extends JPanel {
 	
 	// Create a checkbox for each series.
 	private void addSeriesCheckBoxes() {
+		// Ensure the panel is always wide enough.
+		this.add(Box.createRigidArea(new Dimension(75, 10)));
+		
 		for (String seriesName : this.obsPlotModel.getSeriesKeys()) {
 			if (!SeriesType.MEANS.getName().equals(seriesName)) {
 				JCheckBox checkBox = new JCheckBox(seriesName);

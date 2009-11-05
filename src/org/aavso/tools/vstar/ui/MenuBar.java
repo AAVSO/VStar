@@ -310,10 +310,13 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createRawDataListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mediator.changeAnalysisType(AnalysisType.RAW_DATA);
-				setRawDataAnalysisMenuItemState(true);
-				setPhasePlotAnalysisMenuItemState(false);
-				setPeriodSearchAnalysisMenuItemState(false);
+				AnalysisType type = mediator
+						.changeAnalysisType(AnalysisType.RAW_DATA);
+				if (type == AnalysisType.RAW_DATA) {
+					setRawDataAnalysisMenuItemState(true);
+					setPhasePlotAnalysisMenuItemState(false);
+					setPeriodSearchAnalysisMenuItemState(false);
+				}
 			}
 		};
 	}
@@ -324,11 +327,18 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createPhasePlotListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (false) {
-					mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
-					setRawDataAnalysisMenuItemState(false);
-					setPhasePlotAnalysisMenuItemState(true);
-					setPeriodSearchAnalysisMenuItemState(false);
+				if (true) {
+					AnalysisType type = mediator
+							.changeAnalysisType(AnalysisType.PHASE_PLOT);
+					if (type == AnalysisType.PHASE_PLOT) {
+						setRawDataAnalysisMenuItemState(false);
+						setPhasePlotAnalysisMenuItemState(true);
+						setPeriodSearchAnalysisMenuItemState(false);
+					} else {
+						setRawDataAnalysisMenuItemState(true);
+						setPhasePlotAnalysisMenuItemState(false);
+						setPeriodSearchAnalysisMenuItemState(false);
+					}
 				} else {
 					MessageBox.showMessageDialog(MainFrame.getInstance(),
 							PHASE_PLOT, Mediator.NOT_IMPLEMENTED_YET);
