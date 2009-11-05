@@ -385,6 +385,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		this.starName = null;
 		this.minDate = null;
 		this.maxDate = null;
+		this.cancelled = true;
 	}
 	
 	// Singleton
