@@ -28,6 +28,54 @@ import org.aavso.tools.vstar.data.ValidObservation;
 public class PhaseCoordSource implements ICoordSource {
 
 	/**
+	 * Duplicated mean observations for previous and standard phases. We do this
+	 * for the pragmatic reason that not doing so will cause a mean series plot
+	 * to eat its tail (i.e. a circuit).
+	 * 
+	 * TODO: actually, this solution is completely bogus!
+	 * The only ways to solve this is either:
+	 * o subclass the mean obs model and have *two* means series!
+	 * o disable joining of means series for phase plots, possibly also via a subclass
+	 * => start with the 2nd and if time permits, do the first; focus on dialog first!
+	 */
+//	private List<ValidObservation> meanObsPrevious; // for phases -1..<0
+//	private List<ValidObservation> meanObsStandard; // for phases 0..1
+
+	/**
+	 * The series item number of the mean series. We use this to distinguish the
+	 * mean series from all others and give it special treatment.
+	 */
+//	private int meanSeriesNum;
+
+	/**
+	 * Set the mean obs list and series number and set the phases for each
+	 * observation.
+	 * 
+	 * @param meanObs
+	 *            The list of mean observations.
+	 * @param meanSeriesNum
+	 *            The series number of the mean.
+	 * @param epoch
+	 *            The epoch to be used for phase calculations.
+	 * @param period
+	 *            The period to be used for phase calculations.
+	 */
+//	public void setMeanObs(List<ValidObservation> meanObs, int meanSeriesNum,
+//			double epoch, double period) {
+
+		// TODO: meanObs should be a notifying list with which we register!
+		// If we do this, we will need to turn off notifications for setPhases()
+		// above! >:^/
+//		this.meanObsPrevious = new ArrayList<ValidObservation>();
+//		this.meanObsPrevious.addAll(meanObs);
+//
+//		this.meanObsStandard = new ArrayList<ValidObservation>();
+//		this.meanObsStandard.addAll(meanObs);
+//
+//		this.meanSeriesNum = meanSeriesNum;
+//	}
+
+	/**
 	 * Twice the number of items in the map, since we want to facilitate a
 	 * Standard Phase Diagram where the phase ranges over -1..1 inclusive.
 	 * 
@@ -60,38 +108,36 @@ public class PhaseCoordSource implements ICoordSource {
 	public double getXCoord(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 
-		if (!seriesNumToObSrcListMap.containsKey(series)) {
-			throw new IllegalArgumentException("Series number '" + series
-					+ "' out of range.");
-		}
+		// if (!seriesNumToObSrcListMap.containsKey(series)) {
+		// throw new IllegalArgumentException("Series number '" + series
+		// + "' out of range.");
+		// }
+		//
+		// if (item >= seriesNumToObSrcListMap.get(series).size() * 2) {
+		// throw new IllegalArgumentException("Item number '" + item
+		// + "' out of range.");
+		// }
 
-		if (item >= seriesNumToObSrcListMap.get(series).size() * 2) {
-			throw new IllegalArgumentException("Item number '" + item
-					+ "' out of range.");
-		}
-
-		// Everything is modulo the number of elements in the series.
+		// Everything is modulo the number of elements in the series
+		// except the means series which we treat separately.
 		double phase = -99;
 		int itemCount = seriesNumToObSrcListMap.get(series).size();
 		if (item < itemCount) {
-			List<ValidObservation> obs;
-			ValidObservation ob;
-			Double ph;
-			// try {
-			// -1..
-			obs = seriesNumToObSrcListMap.get(series);
-			ob = obs.get(item);
-			ph = ob.getPreviousCyclePhase();
-			phase = ph;
-			// phase = seriesNumToObSrcListMap.get(series).get(item)
-			// .getPreviousCyclePhase();
-			// } catch (NullPointerException e) {
-			// e.printStackTrace();
-			// }
+			// -1..<0
+//			if (series == this.meanSeriesNum) {
+//				phase = this.meanObsPrevious.get(item).getPreviousCyclePhase();
+//			} else {
+				phase = seriesNumToObSrcListMap.get(series).get(
+						item).getPreviousCyclePhase();
+//			}
 		} else {
 			// 0..1
-			phase = seriesNumToObSrcListMap.get(series).get(item % itemCount)
-					.getStandardPhase();
+//			if (series == this.meanSeriesNum) {
+//				phase = this.meanObsStandard.get(item % itemCount).getStandardPhase();
+//			} else {
+				phase = seriesNumToObSrcListMap.get(series).get(
+						item % itemCount).getStandardPhase();
+			// }
 		}
 
 		return phase;
