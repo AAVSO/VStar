@@ -300,15 +300,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @return The magnitude value.
 	 */
 	protected double getMagAsYCoord(int series, int item) {
-		if (!seriesNumToObSrcListMap.containsKey(series)) {
-			throw new IllegalArgumentException("Series number '" + series
-					+ "' out of range.");
-		}
-
-		if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
-			throw new IllegalArgumentException("Item number '" + item
-					+ "' out of range.");
-		}
+//		if (!seriesNumToObSrcListMap.containsKey(series)) {
+//			throw new IllegalArgumentException("Series number '" + series
+//					+ "' out of range.");
+//		}
+//
+//		if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
+//			throw new IllegalArgumentException("Item number '" + item
+//					+ "' out of range.");
+//		}
 
 		return this.seriesNumToObSrcListMap.get(series).get(item)
 				.getMagnitude().getMagValue();
@@ -371,15 +371,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *             if series or item are out of range.
 	 */
 	public ValidObservation getValidObservation(int series, int item) {
-		if (!seriesNumToObSrcListMap.containsKey(series)) {
-			throw new IllegalArgumentException("Series number '" + series
-					+ "' out of range.");
-		}
-
-		if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
-			throw new IllegalArgumentException("Item number '" + item
-					+ "' out of range.");
-		}
+//		if (!seriesNumToObSrcListMap.containsKey(series)) {
+//			throw new IllegalArgumentException("Series number '" + series
+//					+ "' out of range.");
+//		}
+//
+//		if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
+//			throw new IllegalArgumentException("Item number '" + item
+//					+ "' out of range.");
+//		}
 
 		return this.seriesNumToObSrcListMap.get(series).get(item);
 	}

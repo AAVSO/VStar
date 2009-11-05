@@ -28,7 +28,8 @@ import org.aavso.tools.vstar.util.stats.DescStats;
 
 /**
  * This class is a model that represents a series of valid variable star
- * observations, e.g. for different bands (or from different sources).
+ * observations, e.g. for different bands (or from different sources)
+ * along with a means series that can change over time. 
  */
 public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
