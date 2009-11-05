@@ -88,31 +88,31 @@ public class DatabaseObservationReaderTest extends TestCase {
 	// Read an observation that is known to be deleted in the
 	// the database.
 	// See http://sourceforge.net/tracker/?func=detail&aid=2858633&group_id=263306&atid=1152052
-	public void testReadDeletedEpsAurObservation1() {
-		try {
-			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = connector.createConnection();
-			assertNotNull(connection);
-
-			PreparedStatement stmt = connector
-					.createObservationQuery(connection);
-			assertNotNull(stmt);
-
-			// Del Cep
-			connector.setObservationQueryParams(stmt, "000-BDC-570",
-					2455066.28125, 2455066.28125);
-
-			ResultSet results = stmt.executeQuery();
-			
-			AAVSODatabaseObservationReader reader = new AAVSODatabaseObservationReader(results);						
-			reader.retrieveObservations();
-			List<ValidObservation> obs = reader.getValidObservations();
-			
-			// There are two observations, the first of which is deleted.
-			assertEquals(2, obs.size());
-//			assertEquals(ValidationType.DELETED, obs.get(0).getValidationType());
-		} catch (Exception e) {
-			fail();
-		}
-	}
+//	public void testReadDeletedEpsAurObservation1() {
+//		try {
+//			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
+//			Connection connection = connector.createConnection();
+//			assertNotNull(connection);
+//
+//			PreparedStatement stmt = connector
+//					.createObservationQuery(connection);
+//			assertNotNull(stmt);
+//
+//			// Del Cep
+//			connector.setObservationQueryParams(stmt, "000-BDC-570",
+//					2455066.28125, 2455066.28125);
+//
+//			ResultSet results = stmt.executeQuery();
+//			
+//			AAVSODatabaseObservationReader reader = new AAVSODatabaseObservationReader(results);						
+//			reader.retrieveObservations();
+//			List<ValidObservation> obs = reader.getValidObservations();
+//			
+//			// There are two observations, the first of which is deleted.
+//			assertEquals(2, obs.size());
+////			assertEquals(ValidationType.DELETED, obs.get(0).getValidationType());
+//		} catch (Exception e) {
+//			fail();
+//		}
+//	}
 }
