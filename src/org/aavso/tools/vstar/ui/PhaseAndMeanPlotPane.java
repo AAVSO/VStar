@@ -41,6 +41,6 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	 */
 	public PhaseAndMeanPlotPane(String title, String subTitle,
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
-		super(title, subTitle, obsAndMeanModel, bounds);
+		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModel, bounds);
 	}
 }
