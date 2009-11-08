@@ -23,7 +23,7 @@ import java.util.Map;
  * This interface must be implemented by any class wanting 
  * to be a source of field name to index information.
  */
-public interface ITableFieldInfoSource {
+public interface IFieldInfoSource {
 	
 	/**
 	 * Return a mapping from field name to index in the text format

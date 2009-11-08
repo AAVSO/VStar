@@ -21,7 +21,12 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
-// TODO: rework this so that we each enum represents a row from bands table
+// TODO:
+// - Rework this so that we each enum represents a row from bands table.
+// - Note that this enum-based approach won't necessarily work once we
+//   try to extend VStar to accept other sources, e.g. photometrica.
+// - When we store series as enums, should we change name getters to
+//   AAVSODownloadFormatName and AIDName.
 
 /**
  * A type for bands and other series types, e.g. fainter-thans, means.

@@ -20,14 +20,14 @@ package org.aavso.tools.vstar.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.aavso.tools.vstar.data.validation.ITableFieldInfoSource;
+import org.aavso.tools.vstar.data.validation.IFieldInfoSource;
 import org.aavso.tools.vstar.ui.model.ITableColumnInfoSource;
 
 /**
  * Simple file format field information source.
  */
 public class SimpleFormatFieldInfoSource implements ITableColumnInfoSource,
-		ITableFieldInfoSource {
+		IFieldInfoSource {
 
 	public final static SimpleFormatFieldInfoSource simpleFormatFieldInfoSource = new SimpleFormatFieldInfoSource();
 

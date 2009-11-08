@@ -71,6 +71,11 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	protected Map<Integer, Boolean> seriesVisibilityMap;
 
 	/**
+	 * Is at least one visual band observation present?
+	 */
+	protected boolean atLeastOneVisualBandPresent;
+
+	/**
 	 * Constructor.
 	 * 
 	 * @param coordSrc
@@ -84,6 +89,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		this.srcNameToSeriesNumMap = new TreeMap<String, Integer>();
 		this.seriesVisibilityMap = new TreeMap<Integer, Boolean>();
 		this.seriesNumToObSrcListMap = new TreeMap<Integer, List<ValidObservation>>();
+		this.atLeastOneVisualBandPresent = false;
 	}
 
 	/**
@@ -93,7 +99,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * 
 	 * @param obsSourceListMap
 	 *            A mapping from source name to lists of observation sources.
-	 * @param coordSrc A coordinate and error source.
+	 * @param coordSrc
+	 *            A coordinate and error source.
 	 */
 	public ObservationPlotModel(
 			Map<String, List<ValidObservation>> obsSourceListMap,
@@ -103,6 +110,20 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 
 		for (String name : obsSourceListMap.keySet()) {
 			this.addObservationSeries(name, obsSourceListMap.get(name));
+		}
+
+		// We should only make "unspecified" band-based observations visible
+		// by default if one of the visual bands is not present.
+		// See
+		// https://sourceforge.net/tracker/?func=detail&aid=2837957&group_id=263306&atid=1152052
+		if (atLeastOneVisualBandPresent) {
+			String unspecifiedSeriesName = SeriesType.Unspecified.getName();
+			int unspecifiedSeriesNum = srcNameToSeriesNumMap
+					.get(unspecifiedSeriesName);
+			if (seriesVisibilityMap.get(unspecifiedSeriesNum) == true) {
+				seriesVisibilityMap.put(unspecifiedSeriesNum, false);
+				fireDatasetChanged();
+			}
 		}
 	}
 
@@ -241,7 +262,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
 	 */
 	public Number getY(int series, int item) {
-		return getMagAsYCoord(series, coordSrc.getActualYItemNum(series, item, seriesNumToObSrcListMap));
+		return getMagAsYCoord(series, coordSrc.getActualYItemNum(series, item,
+				seriesNumToObSrcListMap));
 	}
 
 	/**
@@ -275,13 +297,17 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	public Number getStartY(int series, int item) {
-		int actualItem = coordSrc.getActualYItemNum(series, item, seriesNumToObSrcListMap);
-		return getMagAsYCoord(series, actualItem) - getMagError(series, actualItem);
+		int actualItem = coordSrc.getActualYItemNum(series, item,
+				seriesNumToObSrcListMap);
+		return getMagAsYCoord(series, actualItem)
+				- getMagError(series, actualItem);
 	}
 
 	public Number getEndY(int series, int item) {
-		int actualItem = coordSrc.getActualYItemNum(series, item, seriesNumToObSrcListMap);
-		return getMagAsYCoord(series, actualItem) + getMagError(series, actualItem);
+		int actualItem = coordSrc.getActualYItemNum(series, item,
+				seriesNumToObSrcListMap);
+		return getMagAsYCoord(series, actualItem)
+				+ getMagError(series, actualItem);
 	}
 
 	// Helpers
@@ -292,7 +318,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 
 	/**
 	 * Return the magnitude as the Y coordinate.
-	 *  
+	 * 
 	 * @param series
 	 *            The series number.
 	 * @param item
@@ -300,15 +326,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @return The magnitude value.
 	 */
 	protected double getMagAsYCoord(int series, int item) {
-//		if (!seriesNumToObSrcListMap.containsKey(series)) {
-//			throw new IllegalArgumentException("Series number '" + series
-//					+ "' out of range.");
-//		}
-//
-//		if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
-//			throw new IllegalArgumentException("Item number '" + item
-//					+ "' out of range.");
-//		}
+		// if (!seriesNumToObSrcListMap.containsKey(series)) {
+		// throw new IllegalArgumentException("Series number '" + series
+		// + "' out of range.");
+		// }
+		//
+		// if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
+		// throw new IllegalArgumentException("Item number '" + item
+		// + "' out of range.");
+		// }
 
 		return this.seriesNumToObSrcListMap.get(series).get(item)
 				.getMagnitude().getMagValue();
@@ -371,15 +397,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *             if series or item are out of range.
 	 */
 	public ValidObservation getValidObservation(int series, int item) {
-//		if (!seriesNumToObSrcListMap.containsKey(series)) {
-//			throw new IllegalArgumentException("Series number '" + series
-//					+ "' out of range.");
-//		}
-//
-//		if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
-//			throw new IllegalArgumentException("Item number '" + item
-//					+ "' out of range.");
-//		}
+		// if (!seriesNumToObSrcListMap.containsKey(series)) {
+		// throw new IllegalArgumentException("Series number '" + series
+		// + "' out of range.");
+		// }
+		//
+		// if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
+		// throw new IllegalArgumentException("Item number '" + item
+		// + "' out of range.");
+		// }
 
 		return this.seriesNumToObSrcListMap.get(series).get(item);
 	}
@@ -428,14 +454,20 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		// TODO: We could delegate "is visible" to SeriesType which
 		// could also be used by means plot model code.
 
-		visible |= SeriesType.Visual.getName().equals(series)
-				|| SeriesType.VISUAL.getName().equals(series);
+		visible |= SeriesType.Visual.getName().equalsIgnoreCase(series)
+				|| SeriesType.VISUAL.getName().equalsIgnoreCase(series);
 
-		visible |= SeriesType.V.getName().equals(series)
-				|| SeriesType.Johnson_V.getName().equals(series);
+		visible |= SeriesType.V.getName().equalsIgnoreCase(series)
+				|| SeriesType.Johnson_V.getName().equalsIgnoreCase(series);
+
+		if (!atLeastOneVisualBandPresent && visible) {
+			atLeastOneVisualBandPresent = true;
+		}
 
 		// We also allow for unspecified series type, e.g. since the source
-		// could be from a simple observation file where no band is specified.
+		// could be from a simple observation file where no band is
+		// specified.
+		//
 		// People could use this for visual, CCD/DSLR photometry observation
 		// etc.
 		visible |= SeriesType.Unspecified.getName().equalsIgnoreCase(series);

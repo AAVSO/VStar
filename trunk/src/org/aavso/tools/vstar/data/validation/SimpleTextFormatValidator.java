@@ -44,7 +44,7 @@ public class SimpleTextFormatValidator extends CommonTextFormatValidator {
 	 *            the source.
 	 */
 	public SimpleTextFormatValidator(String delimiter, int minFields,
-			int maxFields, ITableFieldInfoSource fieldInfoSource) {
+			int maxFields, IFieldInfoSource fieldInfoSource) {
 		super("simple text format observation line", delimiter, minFields,
 				maxFields, "D", fieldInfoSource);
 	}

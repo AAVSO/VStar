@@ -19,7 +19,7 @@ package org.aavso.tools.vstar.ui.model;
 
 import org.aavso.tools.vstar.data.AAVSOFormatFieldInfoSource;
 import org.aavso.tools.vstar.data.SimpleFormatFieldInfoSource;
-import org.aavso.tools.vstar.data.validation.ITableFieldInfoSource;
+import org.aavso.tools.vstar.data.validation.IFieldInfoSource;
 
 /**
  * A new star creation type. It also encodes the required number of fields for
@@ -45,7 +45,7 @@ public enum NewStarType {
 	private final int minFields;
 	private final int maxFields;
 	private final ITableColumnInfoSource columnInfoSource;
-	private final ITableFieldInfoSource fieldInfoSource;
+	private final IFieldInfoSource fieldInfoSource;
 
 	/**
 	 * Constructor.
@@ -60,7 +60,7 @@ public enum NewStarType {
 	 */
 	private NewStarType(int minFields, int maxFields,
 			ITableColumnInfoSource columnInfoSource,
-			ITableFieldInfoSource fieldInfoSource) {
+			IFieldInfoSource fieldInfoSource) {
 		this.minFields = minFields;
 		this.maxFields = maxFields;
 		this.columnInfoSource = columnInfoSource;
@@ -88,7 +88,7 @@ public enum NewStarType {
 		return columnInfoSource;
 	}
 
-	public ITableFieldInfoSource getFieldInfoSource() {
+	public IFieldInfoSource getFieldInfoSource() {
 		return this.fieldInfoSource;
 	}
 }

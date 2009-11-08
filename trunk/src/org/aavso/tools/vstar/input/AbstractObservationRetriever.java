@@ -26,6 +26,7 @@ import java.util.TreeMap;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This is the abstract base class for all observation retrieval classes,
@@ -101,10 +102,12 @@ public abstract class AbstractObservationRetriever {
 		String category = null;
 
 		if (validOb.getMagnitude().isFainterThan()) {
-			category = "Fainter than";
+			category = SeriesType.FAINTER_THAN.getName();
+		} else if (validOb.isDiscrepant()) {
+			category = SeriesType.DISCREPANT.getName();
 		} else {
 			String band = validOb.getBand();
-			category = (band == null) ? "unspecified" : band;
+			category = (band == null) ? SeriesType.Unspecified.getName() : band;
 		}
 
 		List<ValidObservation> validObsList = validObservationCategoryMap
