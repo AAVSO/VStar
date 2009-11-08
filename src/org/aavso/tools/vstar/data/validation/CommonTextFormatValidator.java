@@ -70,7 +70,7 @@ public class CommonTextFormatValidator extends
 	 */
 	public CommonTextFormatValidator(String desc, String delimiter,
 			int minFields, int maxFields, String valflagPatternStr,
-			ITableFieldInfoSource fieldInfoSource) {
+			IFieldInfoSource fieldInfoSource) {
 
 		this.fieldSplitter = new ObservationFieldSplitter(delimiter, minFields,
 				maxFields);

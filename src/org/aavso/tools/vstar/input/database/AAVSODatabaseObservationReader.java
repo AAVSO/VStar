@@ -159,8 +159,8 @@ public class AAVSODatabaseObservationReader extends
 	 * According to:
 	 * https://sourceforge.net/apps/mediawiki/vstar/index.php?title=AAVSO_International_Database_Schema
 	 * (https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag:)
-	 * we have: Z = Prevalidated P = Published observation T = Discrepant V =
-	 * Good Y = Deleted Our query converts any occurrence of 'T' to 'D'.
+	 * we have: Z = Prevalidated, P = Published observation, T = Discrepant, V =
+	 * Good, Y = Deleted Our query converts any occurrence of 'T' to 'D'.
 	 * Currently we convert everything to Good, Discrepant, or Prevalidated
 	 * below. TODO: once 'Y' (deleted) observations are filtered out, this
 	 * classification should make sense.
@@ -180,8 +180,6 @@ public class AAVSODatabaseObservationReader extends
 
 		return type;
 	}
-
-	// TODO: genericse
 
 	private String getNextPossiblyNullString(String colName)
 			throws SQLException {

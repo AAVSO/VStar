@@ -68,9 +68,12 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 
 		for (String seriesName : this.obsPlotModel.getSeriesKeys()) {
 			// We want to be able to select from any series except
-			// "means" and "fainter-than".
+			// "means", "fainter-than", and "discrepant".
+			// TODO: and, again, we could delegate this filtering to SeriesType
 			if (!SeriesType.MEANS.getName().equalsIgnoreCase(seriesName)
 					&& !SeriesType.FAINTER_THAN.getName().equalsIgnoreCase(
+							seriesName)
+					&& !SeriesType.DISCREPANT.getName().equalsIgnoreCase(
 							seriesName)) {
 				JRadioButton seriesRadioButton = new JRadioButton(seriesName);
 				seriesRadioButton.setActionCommand(seriesName);

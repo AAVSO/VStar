@@ -249,6 +249,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	/**
 	 * Set the appearance of each series with respect to size, shape, and color.
+	 * TODO: this should be called *after* all series are present, e.g. means,
+	 * so after construction of model (well, of course it should!).
 	 */
 	private void setSeriesAppearance() {
 		// for (int i=0;i<obsModel.getSeriesCount();i++) {

@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.aavso.tools.vstar.data.validation.ITableFieldInfoSource;
+import org.aavso.tools.vstar.data.validation.IFieldInfoSource;
 import org.aavso.tools.vstar.ui.model.ITableColumnInfoSource;
 
 /**
@@ -28,7 +28,7 @@ import org.aavso.tools.vstar.ui.model.ITableColumnInfoSource;
  * database sourced observations.
  */
 public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
-		ITableFieldInfoSource {
+		IFieldInfoSource {
 
 	// Singleton values for AAVSO download and database sources.
 	public static final AAVSOFormatFieldInfoSource aavsoDownloadFormatFieldInfoSource = new AAVSOFormatFieldInfoSource(

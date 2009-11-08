@@ -67,7 +67,7 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 	 *            the source.
 	 */
 	public AAVSODownloadFormatValidator(String delimiter, int minFields,
-			int maxFields, ITableFieldInfoSource fieldInfoSource) {
+			int maxFields, IFieldInfoSource fieldInfoSource) {
 		super("AAVSO format observation line", delimiter, minFields, maxFields,
 				"G|D|P", fieldInfoSource);
 
