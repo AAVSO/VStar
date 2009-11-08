@@ -22,6 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -41,7 +42,6 @@ import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.title.TextTitle;
-
 
 /**
  * This class is the base class for chart panes containing a plot of a set of
@@ -70,9 +70,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	protected JButton visibilityButton;
 
 	// Axis titles.
-	protected String domainTitle = "Time (Julian Date)";
-	protected String rangeTitle = "Brightness (magnitude)";
-	
+	public static String JD_TITLE = "Time (Julian Date)";
+	public static String PHASE_TITLE = "Phase";
+	public static String MAG_TITLE = "Brightness (magnitude)";
+
 	/**
 	 * Constructor
 	 * 
@@ -80,12 +81,17 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 *            The title for the chart.
 	 * @param subTitle
 	 *            The sub-title for the chart.
+	 * @param domainTitle
+	 *            The domain title (e.g. Julian Date, phase).
+	 * @param rangeTitle
+	 *            The range title (e.g. magnitude).
 	 * @param obsModel
 	 *            The data model to plot.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
-	public AbstractObservationPlotPane(String title, String subTitle, T obsModel, Dimension bounds) {
+	public AbstractObservationPlotPane(String title, String subTitle,
+			String domainTitle, String rangeTitle, T obsModel, Dimension bounds) {
 		super();
 
 		this.obsModel = obsModel;
@@ -99,13 +105,13 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		this.chartPanel = new ChartPanel(ChartFactory.createScatterPlot(title,
 				domainTitle, rangeTitle, obsModel, PlotOrientation.VERTICAL,
 				true, true, true));
-		
+
 		this.chartPanel.setPreferredSize(bounds);
-		
+
 		this.chart = chartPanel.getChart();
 
 		this.chart.addSubtitle(new TextTitle(subTitle));
-		
+
 		this.renderer = new XYErrorRenderer();
 		this.renderer.setDrawYError(this.showErrorBars);
 
@@ -140,10 +146,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		this.add(Box.createRigidArea(new Dimension(0, 10)));
 
 		// Create a panel that can be used to add chart control widgets.
-		chartControlPanel = new JPanel();
-		chartControlPanel.setLayout(new BoxLayout(chartControlPanel,
-				BoxLayout.LINE_AXIS));
-		createChartControlPanel(chartControlPanel);
+		chartControlPanel = createChartControlPanel();
 		this.add(chartControlPanel);
 	}
 
@@ -176,7 +179,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	}
 
 	// Populate a panel that can be used to add chart control widgets.
-	protected void createChartControlPanel(JPanel chartControlPanel) {
+	protected JPanel createChartControlPanel() {
+		chartControlPanel = new JPanel();
+		chartControlPanel.setLayout(new BoxLayout(chartControlPanel,
+				BoxLayout.LINE_AXIS));
+
+		chartControlPanel.setBorder(BorderFactory
+				.createTitledBorder("Plot Control"));
+
 		// A button to change series visibility.
 		JButton visibilityButton = new JButton("Change Series");
 		visibilityButton.addActionListener(createSeriesChangeButtonListener());
@@ -187,9 +197,11 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		errorBarCheckBox.setSelected(this.showErrorBars);
 		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());
 		chartControlPanel.add(errorBarCheckBox);
+
+		return chartControlPanel;
 	}
 
-	// Return a listener for the error bar visibility checkbox.
+	// / Return a listener for the error bar visibility checkbox.
 	private ActionListener createErrorBarCheckBoxListener() {
 		final AbstractObservationPlotPane<T> self = this;
 		return new ActionListener() {
@@ -213,17 +225,17 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	abstract protected ActionListener createSeriesChangeButtonListener();
 
 	/**
-	 * Was there a change in the series visibility?
-	 * Some callers may want to invoke this only for its
-	 * side effects, while others may want to know the result.
+	 * Was there a change in the series visibility? Some callers may want to
+	 * invoke this only for its side effects, while others may want to know the
+	 * result.
 	 * 
-	 * @param deltaMap A mapping from series number to whether or not
-	 * each series' visibility was changed.
-	 *  
+	 * @param deltaMap
+	 *            A mapping from series number to whether or not each series'
+	 *            visibility was changed.
+	 * 
 	 * @return Was there a change in the visibility of any series?
 	 */
-	protected boolean seriesVisibilityChange(
-			Map<Integer, Boolean> deltaMap) {
+	protected boolean seriesVisibilityChange(Map<Integer, Boolean> deltaMap) {
 		boolean delta = false;
 
 		for (int seriesNum : deltaMap.keySet()) {
@@ -262,8 +274,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
-			new ObservationDetailsDialog(obsModel
-					.getValidObservation(series, item));
+			new ObservationDetailsDialog(obsModel.getValidObservation(series,
+					item));
 		}
 	}
 

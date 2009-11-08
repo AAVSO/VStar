@@ -38,14 +38,36 @@ public class ObservationPlotPane extends
 	 *            The title of the plot.
 	 * @param subTitle
 	 *            The sub-title for the chart.
+	 * @param domainTitle
+	 *            The domain title (e.g. Julian Date, phase).
+	 * @param rangeTitle
+	 *            The range title (e.g. magnitude).
 	 * @param obsModel
 	 *            The observation model.
 	 * @param bounds
 	 *            The bounds of the pane.
 	 */
-	public ObservationPlotPane(String title, String subTitle, ObservationPlotModel obsModel,
-			Dimension bounds) {
-		super(title, subTitle, obsModel, bounds);
+	public ObservationPlotPane(String title, String subTitle,
+			String domainTitle, String rangeTitle,
+			ObservationPlotModel obsModel, Dimension bounds) {
+		super(title, subTitle, domainTitle, rangeTitle, obsModel, bounds);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param title
+	 *            The title of the plot.
+	 * @param subTitle
+	 *            The sub-title for the chart.
+	 * @param obsModel
+	 *            The observation model.
+	 * @param bounds
+	 *            The bounds of the pane.
+	 */
+	public ObservationPlotPane(String title, String subTitle,
+			ObservationPlotModel obsModel, Dimension bounds) {
+		this(title, subTitle, JD_TITLE, MAG_TITLE, obsModel, bounds);
 	}
 
 	// Return a listener for the "change series visibility" button.

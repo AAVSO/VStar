@@ -46,6 +46,40 @@ public class ObservationAndMeanPlotPane extends
 	 *            The title for the chart.
 	 * @param subTitle
 	 *            The sub-title for the chart.
+	 * @param domainTitle
+	 *            The domain title (e.g. Julian Date, phase).
+	 * @param rangeTitle
+	 *            The range title (e.g. magnitude).
+	 * @param obsModel
+	 *            The data model to plot.
+	 * @param bounds
+	 *            The bounding box to which to set the chart's preferred size.
+	 */
+	public ObservationAndMeanPlotPane(String title, String subTitle,
+			String domainTitle, String rangeTitle,
+			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
+
+		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
+
+		this.joinMeans = true;
+
+		addToChartControlPanel(this.getChartControlPanel());
+
+		// TODO: This is temporary; we will ultimately handle this via
+		// enum values.
+		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
+		if (meanSeriesNum != ObservationAndMeanPlotModel.NO_MEANS_SERIES) {
+			this.getRenderer().setSeriesPaint(meanSeriesNum, Color.BLUE);
+		}
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param title
+	 *            The title for the chart.
+	 * @param subTitle
+	 *            The sub-title for the chart.
 	 * @param obsModel
 	 *            The data model to plot.
 	 * @param bounds
@@ -54,18 +88,7 @@ public class ObservationAndMeanPlotPane extends
 	public ObservationAndMeanPlotPane(String title, String subTitle,
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
 
-		super(title, subTitle, obsAndMeanModel, bounds);
-
-		this.joinMeans = true;
-
-		addToChartControlPanel(this.getChartControlPanel());
-		
-		// TODO: This is temporary; we will ultimately handle this via
-		// enum values.
-		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
-		if (meanSeriesNum != ObservationAndMeanPlotModel.NO_MEANS_SERIES) {
-			this.getRenderer().setSeriesPaint(meanSeriesNum, Color.BLUE);
-		}
+		this(title, subTitle, JD_TITLE, MAG_TITLE, obsAndMeanModel, bounds);
 	}
 
 	// Add means-specific widgets to chart control panel.
@@ -99,28 +122,30 @@ public class ObservationAndMeanPlotPane extends
 		this.getRenderer().setSeriesLinesVisible(
 				this.obsModel.getMeansSeriesNum(), this.joinMeans);
 	}
-	
+
 	// Return a listener for the "change series visibility" button.
 	protected ActionListener createSeriesChangeButtonListener() {
 		final ObservationAndMeanPlotPane self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-								
-				int oldMeanSeriesSourceNum = self.obsModel.getMeanSourceSeriesNum();
+
+				int oldMeanSeriesSourceNum = self.obsModel
+						.getMeanSourceSeriesNum();
 
 				MeanSourceDialog dialog = new MeanSourceDialog(self.obsModel);
-				
+
 				if (!dialog.isCancelled()) {
 					seriesVisibilityChange(dialog.getVisibilityDeltaMap());
-					
-					int newMeanSeriesSourceNum = dialog.getMeanSeriesSourceNum();
-					
+
+					int newMeanSeriesSourceNum = dialog
+							.getMeanSeriesSourceNum();
+
 					if (newMeanSeriesSourceNum != oldMeanSeriesSourceNum) {
-						// Update mean series based upon changed means 
+						// Update mean series based upon changed means
 						// source series.
 						obsModel.changeMeansSeries(obsModel.getDaysInBin());
 					}
-				}				
+				}
 			}
 		};
 	}

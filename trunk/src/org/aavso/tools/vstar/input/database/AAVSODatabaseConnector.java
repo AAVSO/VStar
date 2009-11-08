@@ -303,7 +303,7 @@ public class AAVSODatabaseConnector {
 	}
 
 	/**
-	 * Return the AUID of the named star.
+	 * Return the name of the star given an AUID.
 	 * 
 	 * @param connection
 	 *            A JDBC connection.

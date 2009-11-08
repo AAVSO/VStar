@@ -21,6 +21,8 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO: rework this so that we each enum represents a row from bands table
+
 /**
  * A type for bands and other series types, e.g. fainter-thans, means.
  */
