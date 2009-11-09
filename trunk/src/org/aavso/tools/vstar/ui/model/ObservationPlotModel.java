@@ -118,11 +118,13 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		// https://sourceforge.net/tracker/?func=detail&aid=2837957&group_id=263306&atid=1152052
 		if (atLeastOneVisualBandPresent) {
 			String unspecifiedSeriesName = SeriesType.Unspecified.getName();
-			int unspecifiedSeriesNum = srcNameToSeriesNumMap
-					.get(unspecifiedSeriesName);
-			if (seriesVisibilityMap.get(unspecifiedSeriesNum) == true) {
-				seriesVisibilityMap.put(unspecifiedSeriesNum, false);
-				fireDatasetChanged();
+			if (srcNameToSeriesNumMap.containsKey(unspecifiedSeriesName)) {
+				int unspecifiedSeriesNum = srcNameToSeriesNumMap
+						.get(unspecifiedSeriesName);
+				if (seriesVisibilityMap.get(unspecifiedSeriesNum) == true) {
+					seriesVisibilityMap.put(unspecifiedSeriesNum, false);
+					fireDatasetChanged();
+				}
 			}
 		}
 	}

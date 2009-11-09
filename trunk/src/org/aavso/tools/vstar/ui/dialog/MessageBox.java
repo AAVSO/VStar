@@ -106,6 +106,6 @@ public class MessageBox {
 				JOptionPane.ERROR_MESSAGE);
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null); 
-		//e.printStackTrace();
+		e.printStackTrace();
 	}
 }
