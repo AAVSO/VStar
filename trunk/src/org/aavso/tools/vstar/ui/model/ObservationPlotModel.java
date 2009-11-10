@@ -154,7 +154,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcNameMap
 				.size());
 
-		this.fireDatasetChanged();
+		fireDatasetChanged();
 
 		return seriesNum;
 	}
@@ -312,6 +312,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 				+ getMagError(series, actualItem);
 	}
 
+	
 	// Helpers
 
 	private int getNextSeriesNum() {
@@ -411,8 +412,6 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 
 		return this.seriesNumToObSrcListMap.get(series).get(item);
 	}
-
-	// TODO: do these need to be exposed?
 
 	/**
 	 * @return the seriesNumToObSrcListMap
