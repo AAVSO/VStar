@@ -420,8 +420,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 		strBuf.append("\n");
 
 		if (validationType != null) {
-			strBuf.append("Validation flag: ");
-			strBuf.append(validationType.getValflag());
+			strBuf.append("Validation: ");
+			strBuf.append(validationType.toString());
 			strBuf.append("\n");
 		}
 
@@ -441,7 +441,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 			strBuf.append("\n");
 		}
 		if (commentCode != null) {
-			strBuf.append("Comment Code: ");
+			strBuf.append("Comment Codes: ");
 			strBuf.append(commentCode);
 			strBuf.append("\n");
 		}
