@@ -91,5 +91,27 @@ public enum ValidationType {
 		return str;
 	}
 	
-	// TODO: add toString() for human readability
+	// TODONE: add toString() for human readability
+	public String toString() {
+		String str = null;
+		
+		switch(this) {
+		case GOOD:
+			str = "Good";
+			break;			
+		case DISCREPANT:
+			str = "Discrepant";
+			break;			
+		case PREVALIDATION:
+			str = "Prevalidated";
+			break;			
+		case DELETED:
+			str = "Deleted";
+			break;			
+		}
+		
+		assert(str != null);
+		
+		return str;
+	}
 }
