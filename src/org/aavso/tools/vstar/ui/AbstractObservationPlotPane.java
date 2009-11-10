@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -30,6 +31,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.jfree.chart.ChartFactory;
@@ -42,13 +44,16 @@ import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.title.TextTitle;
+import org.jfree.data.Range;
+import org.jfree.data.general.DatasetChangeEvent;
+import org.jfree.data.general.DatasetChangeListener;
 
 /**
  * This class is the base class for chart panes containing a plot of a set of
  * valid observations. It is genericised on observation model.
  */
 abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel>
-		extends JPanel implements ChartMouseListener {
+		extends JPanel implements ChartMouseListener, DatasetChangeListener {
 
 	protected T obsModel;
 
@@ -141,8 +146,11 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		NumberAxis rangeAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
 		rangeAxis.setInverted(true);
 
-		this.add(chartPanel);
+		setMagScale();
+		
+		obsModel.addChangeListener(this);
 
+		this.add(chartPanel);
 		this.add(Box.createRigidArea(new Dimension(0, 10)));
 
 		// Create a panel that can be used to add chart control widgets.
@@ -281,8 +289,57 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		}
 	}
 
+	// From ChartMouseListener
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// Nothing to do here.
 		// TODO: Zoom?
 	}
+
+	/**
+	 * From DatasetChangeListener.
+	 * 
+	 * When the dataset changes, e.g. series visibility, we want to set the
+	 * appropriate magnitude value range, ignoring any series that is not
+	 * visible.
+	 */
+	public void datasetChanged(DatasetChangeEvent event) {
+		setMagScale();
+	}
+	
+	// Helpers
+	
+	/**
+	 * Set the appropriate magnitude value scale, ignoring any series that 
+	 * is not visible.
+	 */
+	private void setMagScale() {
+		double min = Double.MAX_VALUE;
+		double max = Double.MIN_VALUE;
+
+		Map<Integer, List<ValidObservation>> seriesNumToObsMap = obsModel
+				.getSeriesNumToObSrcListMap();
+
+		Map<Integer, Boolean> seriesVisibilityMap = obsModel.getSeriesVisibilityMap();
+		
+		for (int series : seriesNumToObsMap.keySet()) {
+			if (seriesVisibilityMap.get(series)) {
+				for (ValidObservation ob : seriesNumToObsMap.get(series)) {
+					double mag = ob.getMagnitude().getMagValue();
+					if (mag < min) {
+						min = mag;
+					} else if (mag > max) {
+						max = mag;
+					}
+				}
+			}
+		}
+		
+		// Add a small (1%) margin around min/max.
+		double margin = (max-min)/100;
+		min -= margin;
+		max += margin;
+		
+		NumberAxis magAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
+		magAxis.setRange(new Range(min, max));
+	}	
 }
