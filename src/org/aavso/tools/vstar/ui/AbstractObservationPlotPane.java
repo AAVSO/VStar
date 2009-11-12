@@ -263,15 +263,18 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * Set the appearance of each series with respect to size, shape, and color.
 	 */
 	private void setSeriesAppearance() {
+		// TODO: Hmm. A white background with no grids looks a bit barren.
+//		this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
+				
 		Map<Integer, SeriesType> seriesToTypeMap = obsModel.getSeriesNumToSrcTypeMap();
 		
 		for (int seriesNum : seriesToTypeMap.keySet()) {
 			Color color = seriesToTypeMap.get(seriesNum).getColor();
 			renderer.setSeriesPaint(seriesNum, color);
 			// TODO: what do we want this to be?
-			//RectangularShape shape = new Rectangle2D.Double(-1, -1, 3, 3);
-			//RectangularShape shape = new Ellipse2D.Double(-1, 1, 3, 3);
-			//renderer.setSeriesShape(seriesNum, shape);
+			// Try enabling and disabling these next 2 lines...
+//			RectangularShape shape = new Rectangle2D.Double(0, 0, 5, 5);
+//			renderer.setSeriesShape(seriesNum, shape);
 		}
 	}
 
