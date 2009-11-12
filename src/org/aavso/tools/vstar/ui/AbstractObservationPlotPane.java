@@ -17,9 +17,12 @@
  */
 package org.aavso.tools.vstar.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RectangularShape;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +37,7 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.SeriesType;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -257,13 +261,18 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	/**
 	 * Set the appearance of each series with respect to size, shape, and color.
-	 * TODO: this should be called *after* all series are present, e.g. means,
-	 * so after construction of model (well, of course it should!).
 	 */
 	private void setSeriesAppearance() {
-		// for (int i=0;i<obsModel.getSeriesCount();i++) {
-		// renderer.setSeriesShape(i, new Rectangle2D.Double(-1,-1,3,3));
-		// }
+		Map<Integer, SeriesType> seriesToTypeMap = obsModel.getSeriesNumToSrcTypeMap();
+		
+		for (int seriesNum : seriesToTypeMap.keySet()) {
+			Color color = seriesToTypeMap.get(seriesNum).getColor();
+			renderer.setSeriesPaint(seriesNum, color);
+			// TODO: what do we want this to be?
+			//RectangularShape shape = new Rectangle2D.Double(-1, -1, 3, 3);
+			//RectangularShape shape = new Ellipse2D.Double(-1, 1, 3, 3);
+			//renderer.setSeriesShape(seriesNum, shape);
+		}
 	}
 
 	// Cross hair handling methods.

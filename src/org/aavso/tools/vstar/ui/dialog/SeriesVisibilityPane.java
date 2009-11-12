@@ -61,13 +61,14 @@ public class SeriesVisibilityPane extends JPanel {
 		// Ensure the panel is always wide enough.
 		this.add(Box.createRigidArea(new Dimension(75, 10)));
 		
-		for (String seriesName : this.obsPlotModel.getSeriesKeys()) {
-			if (!SeriesType.MEANS.getName().equals(seriesName)) {
+		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
+			if (series != SeriesType.MEANS) {
+				String seriesName = series.getDescription();
 				JCheckBox checkBox = new JCheckBox(seriesName);
 				checkBox
 						.addActionListener(createSeriesVisibilityCheckBoxListener());
-				int seriesNum = obsPlotModel.getSrcNameToSeriesNumMap().get(
-						seriesName);
+				int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
+						series);
 				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(
 						seriesNum);
 				checkBox.setSelected(vis);
@@ -83,8 +84,8 @@ public class SeriesVisibilityPane extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				JCheckBox checkBox = (JCheckBox) e.getSource();
 				String seriesName = checkBox.getText();
-				int seriesNum = obsPlotModel.getSrcNameToSeriesNumMap().get(
-						seriesName);
+				int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
+						SeriesType.getSeriesFromDescription(seriesName));
 				visibilityDeltaMap.put(seriesNum, checkBox.isSelected());
 			}
 		};

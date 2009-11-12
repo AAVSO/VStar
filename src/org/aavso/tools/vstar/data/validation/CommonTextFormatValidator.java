@@ -24,6 +24,7 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
+import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This class accepts a line of text for tokenising, validation, and
@@ -132,6 +133,10 @@ public class CommonTextFormatValidator extends
 
 		observation.setMagnitude(magnitude);
 
+		if (observation.getBand() == null) {
+			observation.setBand(SeriesType.Unspecified);
+		}
+		
 		observation.setObsCode(observerCodeValidator
 				.validate(fields[fieldIndexMap.get("OBSERVER_CODE_FIELD")]));
 

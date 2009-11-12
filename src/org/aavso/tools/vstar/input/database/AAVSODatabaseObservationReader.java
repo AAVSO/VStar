@@ -84,10 +84,10 @@ public class AAVSODatabaseObservationReader extends
 	/**
 	 * Get the next observation.
 	 * 
-	 * Note: It would be incrementally faster to use the numeric index
-	 * forms of the ResultSet getter methods instead of strings. We use the
-	 * string versions for clarity. We can change this to use named
-	 * constants if it proves to be too inefficient.
+	 * Note: It would be incrementally faster to use the numeric index forms of
+	 * the ResultSet getter methods instead of strings. We use the string
+	 * versions for clarity. We can change this to use named constants if it
+	 * proves to be too inefficient.
 	 */
 	private ValidObservation getNextObservation() throws ObservationReadError {
 		ValidObservation ob = new ValidObservation();
@@ -96,16 +96,13 @@ public class AAVSODatabaseObservationReader extends
 			ob.setDateInfo(new DateInfo(source.getDouble("jd")));
 			ob.setMagnitude(getNextMagnitude());
 			ob.setHqUncertainty(source.getDouble("hq_uncertainty"));
-			// String bandName = SeriesType.UNKNOWN.getName();
-			String bandName = "";
+			SeriesType band = SeriesType.Unspecified;
 			String bandNum = getNextPossiblyNullString("band");
 			if (bandNum != null && !"".equals(bandNum)) {
 				int num = Integer.parseInt(bandNum);
-				if (num >= 0 && num <= 35) {
-					bandName = SeriesType.getNameFromIndex(num);
-				}
+				band = SeriesType.getSeriesFromIndex(num);
 			}
-			ob.setBand(bandName);
+			ob.setBand(band);
 			ob.setObsCode(getNextPossiblyNullString("observer_code"));
 			ob.setCommentCode(getNextPossiblyNullString("comment_code"));
 			ob.setCompStar1(getNextPossiblyNullString("comp_star_1"));
@@ -157,7 +154,8 @@ public class AAVSODatabaseObservationReader extends
 
 	/*
 	 * According to:
-	 * https://sourceforge.net/apps/mediawiki/vstar/index.php?title=AAVSO_International_Database_Schema
+	 * https://sourceforge.net/apps/mediawiki/vstar/index.php?title
+	 * =AAVSO_International_Database_Schema
 	 * (https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag:)
 	 * we have: Z = Prevalidated, P = Published observation, T = Discrepant, V =
 	 * Good, Y = Deleted Our query converts any occurrence of 'T' to 'D'.

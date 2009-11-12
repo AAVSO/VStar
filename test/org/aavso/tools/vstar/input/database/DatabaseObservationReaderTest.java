@@ -25,7 +25,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.data.ValidationType;
+import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This is a unit test for reading observations from a text file. This is really
@@ -72,8 +72,8 @@ public class DatabaseObservationReaderTest extends TestCase {
 				if (jd == 2454134.3819) {
 					double mag = ob.getMag();
 					assertEquals(3.0, mag);
-					String band = ob.getBand();
-					assertEquals("Visual", band);
+					SeriesType band = ob.getBand();
+					assertEquals(SeriesType.Visual, band);
 					found = true;
 					break;
 				}				

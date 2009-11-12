@@ -49,7 +49,7 @@ public abstract class AbstractObservationRetriever {
 	 * A mapping from observation category (e.g. band, fainter-than) to
 	 * list of valid observations.
 	 */
-	protected Map<String, List<ValidObservation>> validObservationCategoryMap;
+	protected Map<SeriesType, List<ValidObservation>> validObservationCategoryMap;
 	
 	/**
 	 * Constructor.
@@ -60,7 +60,7 @@ public abstract class AbstractObservationRetriever {
 		// time panning.
 		this.validObservations = new ArrayList<ValidObservation>();
 		this.invalidObservations = new ArrayList<InvalidObservation>();
-		this.validObservationCategoryMap = new TreeMap<String, List<ValidObservation>>();
+		this.validObservationCategoryMap = new TreeMap<SeriesType, List<ValidObservation>>();
 	}
 
 	/**
@@ -88,7 +88,7 @@ public abstract class AbstractObservationRetriever {
 	/**
 	 * @return the validObservationCategoryMap
 	 */
-	public Map<String, List<ValidObservation>> getValidObservationCategoryMap() {
+	public Map<SeriesType, List<ValidObservation>> getValidObservationCategoryMap() {
 		return validObservationCategoryMap;
 	}
 	
@@ -99,15 +99,14 @@ public abstract class AbstractObservationRetriever {
 	 * @param validOb A valid observation.
 	 */
 	protected void categoriseValidObservation(ValidObservation validOb) {
-		String category = null;
+		SeriesType category = null;
 
 		if (validOb.getMagnitude().isFainterThan()) {
-			category = SeriesType.FAINTER_THAN.getName();
+			category = SeriesType.FAINTER_THAN;
 		} else if (validOb.isDiscrepant()) {
-			category = SeriesType.DISCREPANT.getName();
+			category = SeriesType.DISCREPANT;
 		} else {
-			String band = validOb.getBand();
-			category = (band == null) ? SeriesType.Unspecified.getName() : band;
+			category = validOb.getBand();
 		}
 
 		List<ValidObservation> validObsList = validObservationCategoryMap

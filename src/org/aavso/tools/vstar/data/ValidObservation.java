@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.data;
 
+import org.aavso.tools.vstar.ui.model.SeriesType;
+
 
 /**
  * This class corresponds to a single valid variable star observation. Depending
@@ -47,7 +49,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	private Magnitude magnitude = null; // magnitude, uncertainty,
 	// fainter/brighter-than
 	private Double hqUncertainty = null;
-	private String band = null; // TODO: make SeriesType
+	private SeriesType band = null;
 	private String obsCode = null;
 	private String commentCode = null; // TODO: make an enum
 	private String compStar1 = null;
@@ -198,7 +200,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	/**
 	 * @return the band
 	 */
-	public String getBand() {
+	public SeriesType getBand() {
 		return band;
 	}
 
@@ -206,7 +208,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	 * @param band
 	 *            the band to set
 	 */
-	public void setBand(String band) {
+	public void setBand(SeriesType band) {
 		this.band = band;
 	}
 

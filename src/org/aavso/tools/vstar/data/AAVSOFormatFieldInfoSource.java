@@ -269,7 +269,7 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 					"%1.2f", ob.getHqUncertainty());
 			break;
 		case BAND_COLUMN:
-			value = ob.getBand();
+			value = ob.getBand().getDescription();
 			break;
 		case OBSERVER_CODE_COLUMN:
 			value = ob.getObsCode();
