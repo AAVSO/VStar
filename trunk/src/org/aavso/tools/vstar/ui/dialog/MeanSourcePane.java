@@ -66,15 +66,14 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 
 		ButtonGroup seriesGroup = new ButtonGroup();
 
-		for (String seriesName : this.obsPlotModel.getSeriesKeys()) {
+		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
 			// We want to be able to select from any series except
 			// "means", "fainter-than", and "discrepant".
 			// TODO: and, again, we could delegate this filtering to SeriesType
-			if (!SeriesType.MEANS.getName().equalsIgnoreCase(seriesName)
-					&& !SeriesType.FAINTER_THAN.getName().equalsIgnoreCase(
-							seriesName)
-					&& !SeriesType.DISCREPANT.getName().equalsIgnoreCase(
-							seriesName)) {
+			if (series != SeriesType.MEANS
+					&& series != SeriesType.FAINTER_THAN
+					&& series != SeriesType.DISCREPANT) {
+				String seriesName = series.getDescription();
 				JRadioButton seriesRadioButton = new JRadioButton(seriesName);
 				seriesRadioButton.setActionCommand(seriesName);
 				seriesRadioButton.addActionListener(this);
@@ -82,8 +81,8 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 				this.add(Box.createRigidArea(new Dimension(10, 10)));
 				seriesGroup.add(seriesRadioButton);
 
-				if (this.obsPlotModel.getSrcNameToSeriesNumMap()
-						.get(seriesName) == this.obsPlotModel
+				if (this.obsPlotModel.getSrcTypeToSeriesNumMap()
+						.get(series) == this.obsPlotModel
 						.getMeanSourceSeriesNum()) {
 					seriesRadioButton.setSelected(true);
 				}
@@ -97,8 +96,8 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	// source series number.
 	public void actionPerformed(ActionEvent e) {
 		String seriesName = e.getActionCommand();
-		this.seriesNum = obsPlotModel.getSrcNameToSeriesNumMap()
-				.get(seriesName);
+		this.seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
+				.get(SeriesType.getSeriesFromDescription(seriesName));
 
 		if (this.seriesNum != obsPlotModel.getMeanSourceSeriesNum()) {
 			obsPlotModel.setMeanSourceSeriesNum(this.seriesNum);

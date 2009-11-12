@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.data.validation;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This class accepts a line of text for tokenising, validation, and
@@ -118,7 +119,7 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 
 		String band = nonOptionalFieldValidator.validate(fields[fieldIndexMap
 				.get("BAND_FIELD")]);
-		observation.setBand(band);
+		observation.setBand(SeriesType.getSeriesFromShortName(band));
 
 		String commentCode = commentCodeValidator.validate(fields[fieldIndexMap
 				.get("COMMENT_CODE_FIELD")]);

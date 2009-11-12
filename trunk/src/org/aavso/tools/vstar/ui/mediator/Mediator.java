@@ -61,6 +61,7 @@ import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.aavso.tools.vstar.ui.model.PhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.ui.model.ProgressType;
+import org.aavso.tools.vstar.ui.model.SeriesType;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
@@ -80,7 +81,7 @@ public class Mediator {
 	private List<ValidObservation> validObsList;
 	private List<InvalidObservation> invalidObsList; // TODO: need to store
 	// this?
-	private Map<String, List<ValidObservation>> validObservationCategoryMap;
+	private Map<SeriesType, List<ValidObservation>> validObservationCategoryMap;
 
 	// Current mode.
 	// TODO: why doesn't this live in ModePane?
@@ -281,14 +282,16 @@ public class Mediator {
 					starName, auid, minJD, maxJD);
 			task.execute();
 		} catch (CancellationException ex) {
-			// Nothing to do.
+			MainFrame.getInstance().getStatusPane().setMessage("");
 		} catch (ConnectionException ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE,
 					"Cannot connect to database.");
+			MainFrame.getInstance().getStatusPane().setMessage("");			
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
+			MainFrame.getInstance().getStatusPane().setMessage("");
 		}
 	}
 
@@ -321,7 +324,7 @@ public class Mediator {
 		List<InvalidObservation> invalidObsList = obsRetriever
 				.getInvalidObservations();
 
-		Map<String, List<ValidObservation>> validObservationCategoryMap = obsRetriever
+		Map<SeriesType, List<ValidObservation>> validObservationCategoryMap = obsRetriever
 				.getValidObservationCategoryMap();
 
 		// Table models.

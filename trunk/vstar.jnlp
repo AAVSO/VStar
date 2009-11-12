@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!-- ** This is a work in progress. ** -->
+<!-- 
+ ** This is a work in progress. **
+ 
+ It would be cool to include a splash screen while VStar is 
+ (down)loading, which I *think* may be permitted by JNLP.
+-->
 
 <jnlp spec="1.0+" codebase="." href="vstar.jnlp">
 

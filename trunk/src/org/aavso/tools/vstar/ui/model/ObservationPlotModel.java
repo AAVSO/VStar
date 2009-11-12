@@ -52,18 +52,14 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	protected Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap;
 
 	/**
-	 * A mapping from series number to source name. TODO: should be an enum not
-	 * a string; then all these cases would collapse into a single case per
-	 * series type (e.g. one for visual).
+	 * A mapping from series number to source name.
 	 */
-	protected Map<Integer, String> seriesNumToSrcNameMap;
+	protected Map<Integer, SeriesType> seriesNumToSrcTypeMap;
 
 	/**
-	 * A mapping from source name to series number. TODO: should be an enum not
-	 * a string; then all these cases would collapse into a single case per
-	 * series type (e.g. one for visual).
+	 * A mapping from source name to series number.
 	 */
-	protected Map<String, Integer> srcNameToSeriesNumMap;
+	protected Map<SeriesType, Integer> srcTypeToSeriesNumMap;
 
 	/**
 	 * A mapping from series numbers to whether or not they visible.
@@ -85,8 +81,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		super();
 		this.coordSrc = coordSrc;
 		this.seriesNum = 0;
-		this.seriesNumToSrcNameMap = new TreeMap<Integer, String>();
-		this.srcNameToSeriesNumMap = new TreeMap<String, Integer>();
+		this.seriesNumToSrcTypeMap = new TreeMap<Integer, SeriesType>();
+		this.srcTypeToSeriesNumMap = new TreeMap<SeriesType, Integer>();
 		this.seriesVisibilityMap = new TreeMap<Integer, Boolean>();
 		this.seriesNumToObSrcListMap = new TreeMap<Integer, List<ValidObservation>>();
 		this.atLeastOneVisualBandPresent = false;
@@ -98,18 +94,18 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * We add named observation source lists to unique series numbers.
 	 * 
 	 * @param obsSourceListMap
-	 *            A mapping from source name to lists of observation sources.
+	 *            A mapping from source series to lists of observation sources.
 	 * @param coordSrc
 	 *            A coordinate and error source.
 	 */
 	public ObservationPlotModel(
-			Map<String, List<ValidObservation>> obsSourceListMap,
+			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
 			ICoordSource coordSrc) {
 
 		this(coordSrc);
 
-		for (String name : obsSourceListMap.keySet()) {
-			this.addObservationSeries(name, obsSourceListMap.get(name));
+		for (SeriesType type : obsSourceListMap.keySet()) {
+			this.addObservationSeries(type, obsSourceListMap.get(type));
 		}
 
 		// We should only make "unspecified" band-based observations visible
@@ -117,10 +113,9 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		// See
 		// https://sourceforge.net/tracker/?func=detail&aid=2837957&group_id=263306&atid=1152052
 		if (atLeastOneVisualBandPresent) {
-			String unspecifiedSeriesName = SeriesType.Unspecified.getName();
-			if (srcNameToSeriesNumMap.containsKey(unspecifiedSeriesName)) {
-				int unspecifiedSeriesNum = srcNameToSeriesNumMap
-						.get(unspecifiedSeriesName);
+			if (srcTypeToSeriesNumMap.containsKey(SeriesType.Unspecified)) {
+				int unspecifiedSeriesNum = srcTypeToSeriesNumMap
+						.get(SeriesType.Unspecified);
 				if (seriesVisibilityMap.get(unspecifiedSeriesNum) == true) {
 					seriesVisibilityMap.put(unspecifiedSeriesNum, false);
 					fireDatasetChanged();
@@ -132,26 +127,26 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	/**
 	 * Add an observation series.
 	 * 
-	 * @param name
-	 *            A name to be associated with the series.
+	 * @param type
+	 *            The series type to be associated with the series.
 	 * @param obSourceList
 	 *            A series (list) of observations, in particular, magnitude and
 	 *            Julian Day.
 	 * @return The number of the series added.
-	 * @postcondition Both seriesNumToObSrcListMap and seriesNumToSrcNameMap
+	 * @postcondition Both seriesNumToObSrcListMap and seriesNumToSrcTypeMap
 	 *                must be the same length.
 	 */
-	public int addObservationSeries(String name,
+	public int addObservationSeries(SeriesType type,
 			List<ValidObservation> obSourceList) {
 
 		int seriesNum = this.getNextSeriesNum();
 
-		this.srcNameToSeriesNumMap.put(name, seriesNum);
+		this.srcTypeToSeriesNumMap.put(type, seriesNum);
 		this.seriesNumToObSrcListMap.put(seriesNum, obSourceList);
-		this.seriesNumToSrcNameMap.put(seriesNum, name);
-		this.seriesVisibilityMap.put(seriesNum, isSeriesVisibleByDefault(name));
+		this.seriesNumToSrcTypeMap.put(seriesNum, type);
+		this.seriesVisibilityMap.put(seriesNum, isSeriesVisibleByDefault(type));
 
-		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcNameMap
+		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcTypeMap
 				.size());
 
 		fireDatasetChanged();
@@ -174,12 +169,12 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	public boolean removeObservationSeries(String name) {
 		boolean found = false;
 
-		for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap
+		for (Map.Entry<Integer, SeriesType> entry : this.seriesNumToSrcTypeMap
 				.entrySet()) {
 			if (name.equals(entry.getValue())) {
-				this.srcNameToSeriesNumMap.remove(name);
+				this.srcTypeToSeriesNumMap.remove(name);
 				int series = entry.getKey();
-				this.seriesNumToSrcNameMap.remove(series);
+				this.seriesNumToSrcTypeMap.remove(series);
 				this.seriesNumToObSrcListMap.remove(series);
 				this.seriesVisibilityMap.remove(series);
 				this.fireDatasetChanged();
@@ -231,16 +226,16 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 					+ "' out of range.");
 		}
 
-		return this.seriesNumToSrcNameMap.get(series);
+		return this.seriesNumToSrcTypeMap.get(series);
 	}
 
 	/**
 	 * Get an array of series keys.
 	 * 
-	 * @return The number of series keys.
+	 * @return The array of series keys.
 	 */
-	public String[] getSeriesKeys() {
-		return this.srcNameToSeriesNumMap.keySet().toArray(new String[0]);
+	public SeriesType[] getSeriesKeys() {
+		return this.srcTypeToSeriesNumMap.keySet().toArray(new SeriesType[0]);
 	}
 
 	/**
@@ -312,7 +307,6 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 				+ getMagError(series, actualItem);
 	}
 
-	
 	// Helpers
 
 	private int getNextSeriesNum() {
@@ -421,10 +415,17 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
-	 * @return the srcNameToSeriesNumMap
+	 * @return the srcTypeToSeriesNumMap
 	 */
-	public Map<String, Integer> getSrcNameToSeriesNumMap() {
-		return srcNameToSeriesNumMap;
+	public Map<SeriesType, Integer> getSrcTypeToSeriesNumMap() {
+		return srcTypeToSeriesNumMap;
+	}
+
+	/**
+	 * @return the seriesNumToSrcTypeMap
+	 */
+	public Map<Integer, SeriesType> getSeriesNumToSrcTypeMap() {
+		return seriesNumToSrcTypeMap;
 	}
 
 	/**
@@ -447,7 +448,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *            The series name. TODO: should eventually be enum.
 	 * @return Whether or not the series should be visible by default.
 	 */
-	protected boolean isSeriesVisibleByDefault(String series) {
+	protected boolean isSeriesVisibleByDefault(SeriesType series) {
 		boolean visible = false;
 
 		// Look for Visual, then V.
@@ -455,11 +456,9 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		// TODO: We could delegate "is visible" to SeriesType which
 		// could also be used by means plot model code.
 
-		visible |= SeriesType.Visual.getName().equalsIgnoreCase(series)
-				|| SeriesType.VISUAL.getName().equalsIgnoreCase(series);
+		visible |= series == SeriesType.Visual;
 
-		visible |= SeriesType.V.getName().equalsIgnoreCase(series)
-				|| SeriesType.Johnson_V.getName().equalsIgnoreCase(series);
+		visible |= series == SeriesType.Johnson_V;
 
 		if (!atLeastOneVisualBandPresent && visible) {
 			atLeastOneVisualBandPresent = true;
@@ -471,7 +470,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		//
 		// People could use this for visual, CCD/DSLR photometry observation
 		// etc.
-		visible |= SeriesType.Unspecified.getName().equalsIgnoreCase(series);
+		visible |= series == SeriesType.Unspecified;
 
 		return visible;
 	}

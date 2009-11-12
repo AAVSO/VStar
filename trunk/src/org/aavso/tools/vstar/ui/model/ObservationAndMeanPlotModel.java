@@ -28,12 +28,13 @@ import org.aavso.tools.vstar.util.stats.DescStats;
 
 /**
  * This class is a model that represents a series of valid variable star
- * observations, e.g. for different bands (or from different sources)
- * along with a means series that can change over time. 
+ * observations, e.g. for different bands (or from different sources) along with
+ * a means series that can change over time.
  */
 public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
-	public static final String MEANS_SERIES_NAME = "Means";
+	// public static final String MEANS_SERIES_NAME =
+	// SeriesType.MEAN.getDescription();
 
 	public static final int NO_MEANS_SERIES = -1;
 
@@ -59,14 +60,16 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * add the initial mean-based series.
 	 * 
 	 * @param obsSourceListMap
-	 *            A mapping from source name to lists of observation sources.
-	 * @param coordSrc coordinate and error source.
+	 *            A mapping from source series to lists of observation sources.
+	 * @param coordSrc
+	 *            coordinate and error source.
 	 */
 	public ObservationAndMeanPlotModel(
-			Map<String, List<ValidObservation>> obsSourceListMap, ICoordSource coordSrc) {
-		
+			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
+			ICoordSource coordSrc) {
+
 		super(obsSourceListMap, coordSrc);
-		
+
 		this.meansSeriesNum = NO_MEANS_SERIES;
 		this.daysInBin = DescStats.DEFAULT_BIN_DAYS; // TODO: or just define
 		// this in this class?
@@ -81,9 +84,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	/**
 	 * Set the mean-based series.
 	 * 
-	 * This method creates a new means series based upon the current
-	 * mean source series index and days-in-bin. It then updates the
-	 * view and any listeners.
+	 * This method creates a new means series based upon the current mean source
+	 * series index and days-in-bin. It then updates the view and any listeners.
 	 */
 	public void setMeanSeries() {
 
@@ -101,9 +103,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			// } else {
 			// ...do the if (!found) code below...
 			// }
-			for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap
+			for (Map.Entry<Integer, SeriesType> entry : this.seriesNumToSrcTypeMap
 					.entrySet()) {
-				if (MEANS_SERIES_NAME.equals(entry.getValue())) {
+				if (SeriesType.MEANS.equals(entry.getValue())) {
 					int series = entry.getKey();
 					this.seriesNumToObSrcListMap.put(series, meanObsList);
 					this.fireDatasetChanged();
@@ -115,8 +117,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			// Is this the first time the means series has been added?
 			if (!found) {
 				this.meansSeriesNum = this.addObservationSeries(
-						MEANS_SERIES_NAME, meanObsList);
-				
+						SeriesType.MEANS, meanObsList);
+
 				// Make sure it's rendered!
 				this.getSeriesVisibilityMap().put(this.meansSeriesNum, true);
 			}
@@ -152,15 +154,15 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	/**
 	 * Which series' elements should be joined visually (e.g. with lines)?
 	 * 
-	 * @return A collection of series numbers for series whose elements should be
-	 *         joined visually.
+	 * @return A collection of series numbers for series whose elements should
+	 *         be joined visually.
 	 */
 	public Collection<Integer> getSeriesWhoseElementsShouldBeJoinedVisually() {
 		List<Integer> seriesNumList = new ArrayList<Integer>();
 
-		for (Map.Entry<Integer, String> entry : this.seriesNumToSrcNameMap
+		for (Map.Entry<Integer, SeriesType> entry : this.seriesNumToSrcTypeMap
 				.entrySet()) {
-			if (MEANS_SERIES_NAME.equals(entry.getValue())) {
+			if (SeriesType.MEANS == entry.getValue()) {
 				seriesNumList.add(entry.getKey());
 				break;
 			}
@@ -267,24 +269,22 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	private int determineMeanSeriesSource() {
 		int seriesNum = -1;
-		
+
 		// Look for Visual, then V.
 
-		for (String series : srcNameToSeriesNumMap.keySet()) {
-			if (SeriesType.Visual.getName().equals(series)
-					|| SeriesType.VISUAL.getName().equals(series)) {
+		for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
+			if (series == SeriesType.Visual) {
 				// Visual band
-				seriesNum = srcNameToSeriesNumMap.get(series);
+				seriesNum = srcTypeToSeriesNumMap.get(series);
 				break;
 			}
 		}
 
 		if (seriesNum == -1) {
-			for (String series : srcNameToSeriesNumMap.keySet()) {
-				if (SeriesType.V.getName().equals(series)
-						|| SeriesType.Johnson_V.getName().equals(series)) {
-					// V band
-					seriesNum = srcNameToSeriesNumMap.get(series);
+			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
+				if (series == SeriesType.Johnson_V) {
+					// Johnson V band
+					seriesNum = srcTypeToSeriesNumMap.get(series);
 					break;
 				}
 			}
@@ -292,16 +292,16 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 		// No match: choose some series other than "fainter than".
 		if (seriesNum == -1) {
-			for (String series : srcNameToSeriesNumMap.keySet()) {
-				if (!SeriesType.FAINTER_THAN.getName().equalsIgnoreCase(series)) {
-					seriesNum = srcNameToSeriesNumMap.get(series);
+			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
+				if (series != SeriesType.FAINTER_THAN) {
+					seriesNum = srcTypeToSeriesNumMap.get(series);
 					break;
 				}
 			}
 		}
 
 		assert seriesNum != -1;
-		
+
 		return seriesNum;
 	}
 }

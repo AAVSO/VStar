@@ -41,12 +41,12 @@ public class PhaseAndMeanPlotModel extends ObservationAndMeanPlotModel {
 	 * add the initial mean-based series.
 	 * 
 	 * @param obsSourceListMap
-	 *            A mapping from source name to lists of observation sources.
+	 *            A mapping from source series to lists of observation sources.
 	 * @param coordSrc
 	 *            coordinate and error source.
 	 */
 	public PhaseAndMeanPlotModel(
-			Map<String, List<ValidObservation>> obsSourceListMap,
+			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
 			ICoordSource coordSrc) {
 		super(obsSourceListMap, coordSrc);
 		this.joinedSeriesNumList = new ArrayList<Integer>();

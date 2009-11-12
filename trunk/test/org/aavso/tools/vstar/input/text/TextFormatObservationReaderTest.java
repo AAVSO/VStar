@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.model.NewStarType;
+import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This is a unit test for TextFormatObservationReader.
@@ -123,7 +124,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 		// A few checks.
 		ValidObservation ob0 = obs.get(0);
 		assertEquals(2400020.0, ob0.getDateInfo().getJulianDay());
-		assertEquals("Visual", ob0.getBand());
+		assertEquals(SeriesType.Visual, ob0.getBand());
 		assertEquals("miu Cep", ob0.getName());
 	}
 
@@ -140,7 +141,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 		// A few checks.
 		ValidObservation ob0 = obs.get(0);
 		assertEquals(2454924.60694, ob0.getDateInfo().getJulianDay());
-		assertEquals("Visual", ob0.getBand());
+		assertEquals(SeriesType.Visual, ob0.getBand());
 		assertEquals("000-BCT-763", ob0.getName());
 	}
 
