@@ -67,16 +67,20 @@ public class PhasePlotPane extends ObservationPlotPane {
 
 	// Return a listener for the "new phase plot" button.
 	private ActionListener createNewPhasePlotButtonListener() {
+		final PhasePlotPane self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					// TODO: selected bands should carry over from one phase plot
-					// to the next. Use this.seriesVisibilityChange() and model's
-					// getSeriesVisibilityMap() method
 					PhaseParameterDialog phaseDialog = new PhaseParameterDialog();
 					if (!phaseDialog.isCancelled()) {
 						double period = phaseDialog.getPeriod();
 						Mediator.getInstance().createPhasePlotArtefacts(period);
+						
+						// Selected bands should carry over from one phase plot
+						// to the next. TODO: this will not work unless the plot
+						// and model remain the same; but they are recreated anew
+						// by the code above!
+						self.seriesVisibilityChange(obsModel.getSeriesVisibilityMap());
 					}
 				} catch (Exception ex) {
 					MessageBox.showErrorDialog(MainFrame.getInstance(),
