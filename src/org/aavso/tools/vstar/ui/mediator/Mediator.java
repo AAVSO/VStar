@@ -173,22 +173,24 @@ public class Mediator {
 
 					if (msg != null) {
 						this.analysisType = analysisType;
+						// TODO: why are we doing this again here?
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
 					}
 					break;
 
 				case PHASE_PLOT:
 					// Create or retrieve phase plots and data tables.
-//					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
-					msg = null;
-//					if (msg == null) {
+					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
+
+					if (msg == null) {
 						PhaseParameterDialog phaseDialog = new PhaseParameterDialog();
 						if (!phaseDialog.isCancelled()) {
 							double period = phaseDialog.getPeriod();
 							msg = createPhasePlotArtefacts(period);
 						}
-//					}
+					}
 
+					// TODO: sort out what should happen here and above...
 					if (msg != null) {
 						this.analysisType = analysisType;
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
@@ -204,7 +206,7 @@ public class Mediator {
 						"Analysis Type Change", e);
 			}
 		}
-		
+
 		return this.analysisType;
 	}
 
@@ -287,7 +289,7 @@ public class Mediator {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE,
 					"Cannot connect to database.");
-			MainFrame.getInstance().getStatusPane().setMessage("");			
+			MainFrame.getInstance().getStatusPane().setMessage("");
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
@@ -444,7 +446,7 @@ public class Mediator {
 	 *            The requested period of the phase plot.
 	 * @return An analysis type message consisting of phase plot artefacts.
 	 */
-	protected AnalysisTypeChangeMessage createPhasePlotArtefacts(double period)
+	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period)
 			throws Exception {
 
 		// TODO: invoke dialog from here
@@ -493,7 +495,7 @@ public class Mediator {
 		double epoch = PhaseCalcs.getEpoch(validObsList); // TODO: dialog box
 		// with radio
 		// buttons
-		//double period = validObsList.size() / 2; // essentially meaningless;
+		// double period = validObsList.size() / 2; // essentially meaningless;
 		// TODO: same dialog box as
 		// above
 		PhaseCalcs.setPhases(validObsList, epoch, period);

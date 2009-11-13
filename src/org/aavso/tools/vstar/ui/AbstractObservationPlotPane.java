@@ -21,8 +21,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.RectangularShape;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +34,7 @@ import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.aavso.tools.vstar.ui.model.SeriesType;
 import org.jfree.chart.ChartFactory;
@@ -265,7 +264,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	private void setSeriesAppearance() {
 		// TODO: Hmm. A white background with no grids looks a bit barren.
 //		this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
-				
+
 		Map<Integer, SeriesType> seriesToTypeMap = obsModel.getSeriesNumToSrcTypeMap();
 		
 		for (int seriesNum : seriesToTypeMap.keySet()) {
@@ -274,7 +273,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			// TODO: what do we want this to be?
 			// Try enabling and disabling these next 2 lines...
 //			RectangularShape shape = new Rectangle2D.Double(0, 0, 5, 5);
-//			renderer.setSeriesShape(seriesNum, shape);
+//			RectangularShape currBounds = renderer.getSeriesShape(seriesNum).getBounds();
+//			RectangularShape newShape = new Rectangle2D.Double(currBounds.getX()+1, currBounds.getY()+1, currBounds.getWidth()-1, currBounds.getHeight()-1);			
+//			renderer.setSeriesShape(seriesNum, newShape);
 		}
 	}
 

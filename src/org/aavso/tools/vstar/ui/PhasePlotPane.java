@@ -18,7 +18,17 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 
 /**
@@ -26,7 +36,6 @@ import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
  * observations (magnitude vs standard phase).
  */
 public class PhasePlotPane extends ObservationPlotPane {
-
 
 	/**
 	 * Constructor.
@@ -42,6 +51,38 @@ public class PhasePlotPane extends ObservationPlotPane {
 	 */
 	public PhasePlotPane(String title, String subTitle,
 			ObservationPlotModel obsModel, Dimension bounds) {
-		super(title, subTitle,  PHASE_TITLE, MAG_TITLE, obsModel, bounds);
+		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsModel, bounds);
+
+		addToChartControlPanel(this.getChartControlPanel());
+	}
+
+	// TODO: factor following out into common class for means phase plot also
+
+	// Add means-specific widgets to chart control panel.
+	private void addToChartControlPanel(JPanel chartControlPanel) {
+		JButton newPhasePlotButton = new JButton("New Phase Plot");
+		newPhasePlotButton.addActionListener(createNewPhasePlotButtonListener());
+		chartControlPanel.add(newPhasePlotButton);
+	}
+
+	// Return a listener for the "new phase plot" button.
+	private ActionListener createNewPhasePlotButtonListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					// TODO: selected bands should carry over from one phase plot
+					// to the next. Use this.seriesVisibilityChange() and model's
+					// getSeriesVisibilityMap() method
+					PhaseParameterDialog phaseDialog = new PhaseParameterDialog();
+					if (!phaseDialog.isCancelled()) {
+						double period = phaseDialog.getPeriod();
+						Mediator.getInstance().createPhasePlotArtefacts(period);
+					}
+				} catch (Exception ex) {
+					MessageBox.showErrorDialog(MainFrame.getInstance(),
+							"New Phase Plot", ex);
+				}
+			}
+		};
 	}
 }
