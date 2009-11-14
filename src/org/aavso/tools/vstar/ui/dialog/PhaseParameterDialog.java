@@ -72,7 +72,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 
 		periodField = new JTextField();
 		periodField.addActionListener(createPeriodFieldActionListener());
-		periodField.setToolTipText("Enter star name, alias or AUID");
+		periodField.setToolTipText("Enter period in days");
 		panel.add(periodField);
 
 		return panel;
