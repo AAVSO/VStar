@@ -33,9 +33,10 @@ Try opening a sample data file:
 3. Choose the file "eps_aur_2445000.csv".
 4. Click each Mode radio button in turn to see the different data and plot views.
 
-When VStar is mature enough, the plan is to make it available via Java 
-WebStart on the AAVSO website so that the latest version will always just 
-be a mouse-click away.
+Another way to run VStar is by using WebStart from the Citizen Sky website.
+Go to http://www.citizensky.org/teams/vstar-software-development and click on
+the "Run VStar Now" button. Directions for using the WebStart version of VStar
+are on the same webpage.
 
 Building from source
 ====================
