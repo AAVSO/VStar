@@ -7,13 +7,13 @@
  (down)loading, which I *think* may be permitted by JNLP.
 -->
 
-<jnlp spec="1.0+" codebase="." href="vstar.jnlp">
+<jnlp spec="1.0+" codebase="http://www.aavso.org/data/software/vstar" href="vstar.jnlp">
 
   <information>
 
-    <title>Welcome to VStar!</title>
-	<vendor>American Association of Variable Star Observers</vendor>
-    <homepage href="http://www.aavso.org" />
+    <title>VStar</title>
+    <vendor>American Association of Variable Star Observers</vendor>
+    <homepage href="http://www.citizensky.org/teams/vstar-software-development"/>
 
     <offline-allowed />
     
