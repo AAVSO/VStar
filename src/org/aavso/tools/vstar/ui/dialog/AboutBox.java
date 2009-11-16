@@ -64,9 +64,7 @@ public class AboutBox {
 		strBuf.append("Lead Developer: David Benn\n");
 		strBuf.append("Contact: aavso@aavso.org\n");
 		strBuf.append("License: GNU Affero General Public License\n\n");
-		strBuf.append("Images were sourced from:\n\n");
-		strBuf.append(" Ten Stars Tutorial: http://www.citizensky.org/content/10-star-training\n");
-		strBuf.append(" Variable Star Astronomy at: http://www.aavso.org/education/vsa/\n\n");
+		strBuf.append("Illustration by Citizen Sky participant Brian Thieme\n\n");
 
 		strBuf
 				.append("Thanks to the staff of AAVSO for their support, in particular:\n\n");
