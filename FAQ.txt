@@ -29,3 +29,11 @@ View.  The Java Cache Viewer will show VStar if it is installed.  Right click on
 VStar.  You can select Install Shortcuts to put Vstar on the desktop and in a
 program folder in the Start menu.  You can also select Delete to remove VStar
 from your computer.
+
+
+Q: How do I manage a VStar WebStart install?
+
+A: In general you would use the Java Cache Viewer.  On Solaris type "javaws" at
+the command line.  For Windows XP type "javaws -viewer" in a command window.
+(also see the instructions above to start the Java Control Panel)  Other
+operating systems should have a similar javaws command.
