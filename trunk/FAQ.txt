@@ -1,14 +1,15 @@
 Frequently Asked Questions
 ==========================
 
-Q: I got an error message during startup with "Can't locate icon:
-
-   /toolbarButtonGraphics/general/New24.gif"
+Q: I got an error message during startup with
+"Can't locate icon: /toolbarButtonGraphics/general/New24.gif"
 
 A: This is because the application cannot find the jlfgr look and feel icons.
    Make sure the *.jar files are directly under extlib.
 
+
 Q: Build and load a debugging version of Vstar?
+
 A: 
    ant clean
    ant debug
@@ -16,3 +17,15 @@ A:
    jdb -attach 8000
    stop in org.aavso.tools.vstar.ui.VStar.main
    use ${path up to src}
+
+
+Q: How do I add a shortcut to VStar on Windows XP?
+Q: How do I remove VStar from Windows XP?
+
+A: This applies if you have installed VStar using WebStart from the Citizen Sky
+website.  From the Start button select Control Panel.  Double click on the Java
+icon.  In  the Java Control Panel look for Temporary Internet Files and click on
+View.  The Java Cache Viewer will show VStar if it is installed.  Right click on
+VStar.  You can select Install Shortcuts to put Vstar on the desktop and in a
+program folder in the Start menu.  You can also select Delete to remove VStar
+from your computer.
