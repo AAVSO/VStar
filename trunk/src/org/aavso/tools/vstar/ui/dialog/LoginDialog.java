@@ -58,10 +58,13 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	public LoginDialog(String intro) {
 		super("Login");
 
-		// TODO: do we want to impose maximum lengths on usernames
+		// TODO: Do we want to impose maximum lengths on usernames
 		// and passwords; should we split patterns for each out?
+		// Indeed, should we do anything more than ask: is it of 
+		// non-zero length? (add to AW's tentry)
+		// Whitespace: \s or just ' '?
 		Pattern commonPattern = Pattern
-				.compile("^[A-Za-z0-9\\!@#\\$%&\\*\\(\\)_\\-\\+=\\?<><>\\.\\,]{2,40}$");
+				.compile("^[A-Za-z0-9\\!@#\\$%&\\*\\(\\)_\\-\\+=\\?<><>\\.\\,\\s]{2,40}$");
 
 		this.usernamePattern = commonPattern;
 		this.passwordPattern = commonPattern;
