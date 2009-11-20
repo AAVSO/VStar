@@ -58,7 +58,7 @@ public class AAVSODatabaseObservationReader extends
 	/**
 	 * @see org.aavso.tools.vstar.input.AbstractObservationRetriever#retrieveObservations()
 	 */
-	public void retrieveObservations() throws ObservationReadError {
+	public void retrieveObservations() throws ObservationReadError, InterruptedException {
 		try {
 			while (source.next()) {
 				ValidObservation validOb = getNextObservation();
@@ -72,6 +72,7 @@ public class AAVSODatabaseObservationReader extends
 							"A \"Brighter Than\" observation.");
 					invalidObservations.add(invalidOb);
 				}
+				// TODO: why am I not updating progress bar here?
 			}
 		} catch (SQLException e) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),

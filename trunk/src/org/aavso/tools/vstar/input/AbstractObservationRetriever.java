@@ -69,7 +69,7 @@ public abstract class AbstractObservationRetriever {
 	 * @throws throws ObservationReadError
 	 */
 	public abstract void retrieveObservations()
-			throws ObservationReadError;
+			throws ObservationReadError, InterruptedException;
 
 	/**
 	 * @return the validObservations
