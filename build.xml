@@ -36,7 +36,7 @@
 	</target>
 
 	<target name="compile_src" depends="init" description="Compile the source">
-		<!-- Uppdate svn revision -->
+		<!-- Update svn revision -->
 		<exec outputproperty="svn_revision" executable="svnversion">
 			<arg value="-n" />
 		</exec>
