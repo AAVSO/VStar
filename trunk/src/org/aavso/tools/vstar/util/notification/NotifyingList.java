@@ -30,7 +30,7 @@ import java.util.List;
  * too high. Then again, we have that problem with any List<E>. Since subclasses 
  * are unlikely to invent their own lists, instead realising the interface
  * by aggregating an ArrayList<E> or LinkedList<E> member, there will be a
- * double indirection for all array operations. The question that hasn't 
+ * double indirection for all list operations. The question that hasn't 
  * been answered yet is: what is the notification policy? In other words,
  * we know what will be notified (ListChangeMessage) but not when or why.
  * The expected behavior of any subclass is that listeners will be notified 

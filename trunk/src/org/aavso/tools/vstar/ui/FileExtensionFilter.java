@@ -43,7 +43,6 @@ public class FileExtensionFilter extends FileFilter {
 	/**
 	 * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
 	 */
-	@Override
 	public boolean accept(File f) {
 		boolean acceptable = false;
 
@@ -66,7 +65,6 @@ public class FileExtensionFilter extends FileFilter {
 	/**
 	 * @see javax.swing.filechooser.FileFilter#getDescription()
 	 */
-	@Override
 	public String getDescription() {
 		StringBuffer strBuf = new StringBuffer();
 

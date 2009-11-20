@@ -35,7 +35,6 @@ public class ExclusiveRangePredicate extends RangePredicate {
 	/**
 	 * @see org.aavso.tools.vstar.util.validation.RangePredicate#holds(double)
 	 */
-	@Override
 	public boolean holds(double value) {
 		return value > lower && value < upper;
 	}
@@ -43,7 +42,6 @@ public class ExclusiveRangePredicate extends RangePredicate {
 	/**
 	 * @see java.lang.Object#toString()
 	 */
-	@Override
 	public String toString() {
 		return lower + " < x < " + upper;
 	}
