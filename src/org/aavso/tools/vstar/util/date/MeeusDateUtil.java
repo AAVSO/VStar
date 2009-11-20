@@ -30,7 +30,6 @@ public class MeeusDateUtil extends AbstractDateUtil {
 	 * 
 	 * @see org.aavso.tools.vstar.util.date.AbstractDateUtil#jdToCalendar(double)
 	 */
-	@Override
 	public String jdToCalendar(double jd) throws IllegalArgumentException {
 
 		jd += 0.5;
@@ -83,7 +82,6 @@ public class MeeusDateUtil extends AbstractDateUtil {
 	 * @see org.aavso.tools.vstar.util.date.AbstractDateUtil#calendarToJD(int, int,
 	 *      double)
 	 */
-	@Override
 	public double calendarToJD(int year, int month, double day)
 			throws IllegalArgumentException {
 		int a, b;

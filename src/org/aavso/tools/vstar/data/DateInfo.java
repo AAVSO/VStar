@@ -53,7 +53,6 @@ public class DateInfo {
 		return jdCalc.jdToCalendar(julianDay);
 	}
 	
-	@Override
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 		
