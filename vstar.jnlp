@@ -32,7 +32,7 @@
         <jar href="extlib/jfreechart-1.0.13.jar"/>
         <jar href="extlib/swing-worker-1.2.jar"/>
         <jar href="extlib/jlfgr-1_0.jar"/>
-        <jar href="extlib/mysql-connector-java-5.1.8-bin.jar"/>
+        <jar href="extlib/mysql-connector-java-5.1.10-bin.jar"/>
 
   </resources>
 
