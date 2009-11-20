@@ -18,10 +18,18 @@ o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Webe
 ----------------------
   
 Date: November 20 2009
-Version: ?
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20Nov2009/ (r286)
+Version: 29:291MP
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20Nov2009/ (r292)
 Key Changes:
-  
+- Fixed connection timeout and updated extlib/ReadMe.txt to stipulate the use of 
+  the latest stable JDBC MySQL driver to fix bug in port usage. See tracker entry 
+  2894174 for details.
+- Created this change log.
+- Added some infrastructure for handling arbitrary long operation cancellation. 
+  Not yet complete however. See tracker entry 2894174.
+- Removed @Override annotations from a few source files that may cause some 
+  compiler versions to generate errors.
+    
 Date: November 19 2009
 Version: 29:281MP
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-19Nov2009/ (r283)
