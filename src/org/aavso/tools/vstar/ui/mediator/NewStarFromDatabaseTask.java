@@ -72,6 +72,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	/**
 	 * Main task. Executed in background thread.
 	 */
+	// TODO: parameterise with Boolean return type
 	public Void doInBackground() {
 		createDatabaseBasedObservationArtefacts();
 		return null;
@@ -176,6 +177,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	public void done() {
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
+		
+		// TODO: how to detect task cancellation and clean up map etc
 	}
 
 	// Update the progress of the task by the specified number of steps.
