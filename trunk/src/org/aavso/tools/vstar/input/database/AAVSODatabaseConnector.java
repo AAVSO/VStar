@@ -53,7 +53,8 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class AAVSODatabaseConnector {
 
-	private final static int MAX_TIME = 30;
+	 // 30 seconds connection timeout.
+	private final static int MAX_CONN_TIME = 30 * 1000;
 	
 	private final static String CONN_URL = "jdbc:mysql://"
 			+ ResourceAccessor.getParam(0) + "/";
@@ -111,20 +112,21 @@ public class AAVSODatabaseConnector {
 		int retries = 3;
 
 		while (connection == null && retries > 0) {
-
+			// TODO: provide status message updates re: retries 
 			Properties props = new Properties();
 
 			props.put("user", ResourceAccessor.getParam(4));
 			props.put("password", ResourceAccessor.getParam(5));
+			props.put("connectTimeout", MAX_CONN_TIME + "");
 
 			try {
-				DriverManager.setLoginTimeout(MAX_TIME);
+				//DriverManager.setLoginTimeout(MAX_CONN_TIME);
 				props.put("port", (3 * 11 * 100 + 7) + "");
 				connection = DriverManager.getConnection(CONN_URL
 						+ ResourceAccessor.getParam(type.getDBNum()), props);
 			} catch (Exception e1) {
 				try {
-					DriverManager.setLoginTimeout(MAX_TIME);
+					//DriverManager.setLoginTimeout(MAX_CONN_TIME);
 					props.put("port", ((3 * 11 * 100 + 7) - 1) + "");
 					connection = DriverManager
 							.getConnection(CONN_URL
