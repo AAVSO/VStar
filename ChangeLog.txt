@@ -18,8 +18,8 @@ o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Webe
 ----------------------
   
 Date: November 20 2009
-Version: 29:291MP
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20Nov2009/ (r292)
+Version: 294MP
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20Nov2009/
 Key Changes:
 - Fixed connection timeout and updated extlib/ReadMe.txt to stipulate the use of 
   the latest stable JDBC MySQL driver to fix bug in port usage. See tracker entry 
@@ -45,7 +45,7 @@ Key Changes:
 
 Date: November 13 2009
 Version: 29:270MP
-Tag: https://vstar.svn.sourceforge.net/svnroot/vstar/tags/DEV-CS-13Nov2009 (r272)
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-13Nov2009 (r272)
 Key Changes:
 - This was the first WebStar release of VStar to CitizenSky, the culmination of 6
   months of work that began on May 9 2009. Much of the work between Subversion
