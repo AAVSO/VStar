@@ -12,11 +12,9 @@ web address from which to obtain it.
   o jfreechart-1.0.13.jar (http://www.jfree.org/jfreechart/)
   o swing-worker-1.2.jar (https://swingworker.dev.java.net/servlets/ProjectDocumentList)
   o jlfgr-1_0.jar (http://java.sun.com/developer/techDocs/hi/repository/)
-  o mysql-connector-java-5.1.8-bin.jar or latest 5.1.x jar file 
-    (http://dev.mysql.com/downloads/connector/j/5.1.html)
+  o mysql-connector-java-5.1.10-bin.jar (http://dev.mysql.com/downloads/connector/j/5.1.html)
 
-This section categorises these libraries in terms of function for those
-who may be interested:
+This section categorises the libraries in terms of function:
 
  - JFreeChart related:
      jcommon-1.0.16.jar
@@ -29,7 +27,7 @@ who may be interested:
      jlfgr-1_0.jar
      
  - MySQL JDBC:
-     mysql-connector-java-5.1.8-bin.jar (or latest 5.1.x jar file)
+     mysql-connector-java-5.1.10-bin.jar
      
 If you are a developer who wishes to contribute toward coding or 
 testing VStar, the following library must be downloaded for unit 
@@ -37,4 +35,3 @@ testing purposes:
 
  - JUnit 3.8.2:
      junit.jar (http://www.junit.org/)
-
