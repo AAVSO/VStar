@@ -1,0 +1,48 @@
+Change Log
+----------
+
+Notes:
+o Entries appear in reverse chronological order.
+o The "Version" field should be considered to be an arbitrary unique label that 
+  may change over time (e.g. from a Subversion revision to a build number).
+  See Help->About in VStar.
+o The tag for each revision is applied to the VStar SourceForge Subversion repository.
+  By navigating to that URL, the files that made up that release will be viewable. 
+o The Subversion log will reveal the full details of what went into each release and
+  who contributed what. The Key Changes sections below merely summarise key changes
+  and features for each release, but are based directly upon Subversion log entries. 
+o Bug & Issue tracker entries cited below can be found here:
+  https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
+o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Weber.
+  
+----------------------
+  
+Date: November 20 2009
+Version: ?
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20Nov2009/ (r286)
+Key Changes:
+  
+Date: November 19 2009
+Version: 29:281MP
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-19Nov2009/ (r283)
+Key Changes:
+- Fix for the username/password validation problem captured by tracker entry 2899357.
+- Added Java WebStart management and Windows XP information to the FAQ.
+- Clarified credit for illustration in About box.
+- Added link to source code in Help Contents, and other small changes. 
+- Changed .jnlp file so the title now reads simply VStar and the home page 
+  is http://www.citizensky.org/teams/vstar-software-development
+- Modified tooltip text to fix tracker entry 2897303.
+- Added Beta Per and R Sct data files.
+
+Date: November 13 2009
+Version: 29:270MP
+Tag: https://vstar.svn.sourceforge.net/svnroot/vstar/tags/DEV-CS-13Nov2009 (r272)
+Key Changes:
+- This was the first WebStar release of VStar to CitizenSky, the culmination of 6
+  months of work that began on May 9 2009. Much of the work between Subversion
+  revision 166 (http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-17Aug2009/)
+  and this release was bug fixes, refactoring of the code base, improvements due
+  to feedback from David's CitizenSky 1 talk, and the addition of a first cut of
+  phase plots.
+  
