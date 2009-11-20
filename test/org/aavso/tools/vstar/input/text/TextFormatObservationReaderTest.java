@@ -187,9 +187,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 
 			simpleTextFormatReader.retrieveObservations();
 			obs = simpleTextFormatReader.getValidObservations();
-		} catch (ObservationReadError e) {
-			fail(e.getMessage());
-		} catch (IOException e) {
+		} catch (Exception e) {
 			fail(e.getMessage());
 		}
 
