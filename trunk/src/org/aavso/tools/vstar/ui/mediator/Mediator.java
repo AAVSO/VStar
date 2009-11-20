@@ -65,6 +65,7 @@ import org.aavso.tools.vstar.ui.model.SeriesType;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
+import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * This class manages the creation of models and views and sends notifications
@@ -102,6 +103,9 @@ public class Mediator {
 	private Notifier<NewStarMessage> newStarNotifier;
 	private Notifier<ModeType> modeChangeNotifier;
 	private Notifier<ProgressInfo> progressNotifier;
+
+	// Currently active task.
+	private SwingWorker currTask; // TODO: jdesktop or javax version of this?
 
 	/**
 	 * @return the analysisTypeChangeNotifier
@@ -248,6 +252,7 @@ public class Mediator {
 
 		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
 				plotPortion);
+		this.currTask = task;
 		task.execute();
 	}
 
@@ -282,6 +287,7 @@ public class Mediator {
 
 			NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(
 					starName, auid, minJD, maxJD);
+			this.currTask = task;
 			task.execute();
 		} catch (CancellationException ex) {
 			MainFrame.getInstance().getStatusPane().setMessage("");
@@ -550,6 +556,24 @@ public class Mediator {
 		this.analysisTypeChangeNotifier.notifyListeners(phasePlotMsg);
 
 		return phasePlotMsg;
+	}
+
+	/**
+	 * Attempt to stop the current task.
+	 */
+	public void stopCurrentTask() {
+		if (this.currTask != null) {
+			this.currTask.cancel(true);
+		}
+	}
+	
+	/**
+	 * Clear the current task if not already cleared.
+	 */
+	public void clearCurrentTask() {
+		if (this.currTask != null) {
+			this.currTask = null;
+		}
 	}
 
 	/**

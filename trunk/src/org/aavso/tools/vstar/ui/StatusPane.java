@@ -17,9 +17,14 @@
  */
 package org.aavso.tools.vstar.ui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -29,6 +34,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -45,7 +51,8 @@ public class StatusPane extends JPanel {
 
 	private JLabel statusLabel;
 	private JProgressBar progressBar;
-
+	private JButton stopButton;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -66,12 +73,25 @@ public class StatusPane extends JPanel {
 		this.progressBar = new JProgressBar();
 		this.add(progressBar);
 
+		this.add(Box.createHorizontalGlue());
+
+		Icon stopIcon = ResourceAccessor
+		.getIconResource("/toolbarButtonGraphics/media/Stop16.gif");
+		this.stopButton = new JButton(stopIcon);
+		this.stopButton.setToolTipText("Stop the current operation");
+		this.stopButton.setEnabled(false);
+		//this.add(this.stopButton);
+						
 		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
 		mediator.getNewStarNotifier().addListener(createNewStarListener());
 		mediator.getProgressNotifier().addListener(createProgressListener());
 	}
 
+	// TODO: To prevent the progress bar from shifting, pad all messages 
+	// to N length and make sure we are using a fixed width font (tracker).
+	// Or, use a different layout manager.
+	
 	/**
 	 * Set the status message to be displayed.
 	 * 
@@ -174,21 +194,34 @@ public class StatusPane extends JPanel {
 				case RESET_PROGRESS:
 					// Ensure the main window now has focus so we see
 					// the progress bar and busy cursor as enabled.
-					//self.requestFocusInWindow();
+					self.requestFocusInWindow(); // TODO: doesn't work?
 					self.resetProgressBar();
 					self.setMessage("");
+					self.stopButton.setEnabled(true);
 					break;
 				case COMPLETE_PROGRESS:
 					self.completeProgressBar();
+					self.stopButton.setEnabled(false);
+					mediator.clearCurrentTask();
 					break;
 				case INCREMENT_PROGRESS:
 					// Ensure the main window now has focus so we see
 					// the progress bar and busy cursor as enabled.
 					// Except that it does not work here or above.
-					//self.requestFocusInWindow();
+					self.requestFocusInWindow();
 					self.incrementProgressBar(info.getNum());
 					break;
 				}
+			}
+		};
+	}
+	
+	// Create an action listener to stop the current task,
+	// if one is in progress.
+	private ActionListener createStopButtonListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mediator.stopCurrentTask();
 			}
 		};
 	}

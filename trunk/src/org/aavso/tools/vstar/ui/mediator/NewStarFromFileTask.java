@@ -34,7 +34,7 @@ import org.jdesktop.swingworker.SwingWorker;
  * A concurrent task in which a new star from file request task is handled.
  */
 public class NewStarFromFileTask extends SwingWorker<Void, Void> {
-	
+
 	private Mediator mediator = Mediator.getInstance();
 
 	private File obsFile;
@@ -90,8 +90,9 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 						"No observations for the specified period or error in observation source.");
 			}
 
-			mediator.createNewStarObservationArtefacts(analyser.getNewStarType(),
-					obsFile.getName(), textFormatReader, plotTaskPortion);
+			mediator.createNewStarObservationArtefacts(analyser
+					.getNewStarType(), obsFile.getName(), textFormatReader,
+					plotTaskPortion);
 
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
@@ -105,5 +106,9 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	public void done() {
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
+
+		// TODO: how to detect task cancellation and clean up map etc
+//		MessageBox.showMessageDialog(MainFrame.getInstance(), "Yo Yo",
+//				"cancelled? " + this.isCancelled());
 	}
 }
