@@ -32,20 +32,20 @@ public class PhaseCoordSource implements ICoordSource {
 	 * for the pragmatic reason that not doing so will cause a mean series plot
 	 * to eat its tail (i.e. a circuit).
 	 * 
-	 * TODO: actually, this solution is completely bogus!
-	 * The only ways to solve this is either:
-	 * o subclass the mean obs model and have *two* means series!
-	 * o disable joining of means series for phase plots, possibly also via a subclass
-	 * => start with the 2nd and if time permits, do the first; focus on dialog first!
+	 * TODO: actually, this solution is completely bogus! The only ways to solve
+	 * this is either: o subclass the mean obs model and have *two* means
+	 * series! o disable joining of means series for phase plots, possibly also
+	 * via a subclass => start with the 2nd and if time permits, do the first;
+	 * focus on dialog first!
 	 */
-//	private List<ValidObservation> meanObsPrevious; // for phases -1..<0
-//	private List<ValidObservation> meanObsStandard; // for phases 0..1
+	// private List<ValidObservation> meanObsPrevious; // for phases -1..<0
+	// private List<ValidObservation> meanObsStandard; // for phases 0..1
 
 	/**
 	 * The series item number of the mean series. We use this to distinguish the
 	 * mean series from all others and give it special treatment.
 	 */
-//	private int meanSeriesNum;
+	// private int meanSeriesNum;
 
 	/**
 	 * Set the mean obs list and series number and set the phases for each
@@ -60,20 +60,20 @@ public class PhaseCoordSource implements ICoordSource {
 	 * @param period
 	 *            The period to be used for phase calculations.
 	 */
-//	public void setMeanObs(List<ValidObservation> meanObs, int meanSeriesNum,
-//			double epoch, double period) {
+	// public void setMeanObs(List<ValidObservation> meanObs, int meanSeriesNum,
+	// double epoch, double period) {
 
-		// TODO: meanObs should be a notifying list with which we register!
-		// If we do this, we will need to turn off notifications for setPhases()
-		// above! >:^/
-//		this.meanObsPrevious = new ArrayList<ValidObservation>();
-//		this.meanObsPrevious.addAll(meanObs);
-//
-//		this.meanObsStandard = new ArrayList<ValidObservation>();
-//		this.meanObsStandard.addAll(meanObs);
-//
-//		this.meanSeriesNum = meanSeriesNum;
-//	}
+	// TODO: meanObs should be a notifying list with which we register!
+	// If we do this, we will need to turn off notifications for setPhases()
+	// above! >:^/
+	// this.meanObsPrevious = new ArrayList<ValidObservation>();
+	// this.meanObsPrevious.addAll(meanObs);
+	//
+	// this.meanObsStandard = new ArrayList<ValidObservation>();
+	// this.meanObsStandard.addAll(meanObs);
+	//
+	// this.meanSeriesNum = meanSeriesNum;
+	// }
 
 	/**
 	 * Twice the number of items in the map, since we want to facilitate a
@@ -124,19 +124,20 @@ public class PhaseCoordSource implements ICoordSource {
 		int itemCount = seriesNumToObSrcListMap.get(series).size();
 		if (item < itemCount) {
 			// -1..<0
-//			if (series == this.meanSeriesNum) {
-//				phase = this.meanObsPrevious.get(item).getPreviousCyclePhase();
-//			} else {
-				phase = seriesNumToObSrcListMap.get(series).get(
-						item).getPreviousCyclePhase();
-//			}
+			// if (series == this.meanSeriesNum) {
+			// phase = this.meanObsPrevious.get(item).getPreviousCyclePhase();
+			// } else {
+			phase = seriesNumToObSrcListMap.get(series).get(item)
+					.getPreviousCyclePhase();
+			// }
 		} else {
 			// 0..1
-//			if (series == this.meanSeriesNum) {
-//				phase = this.meanObsStandard.get(item % itemCount).getStandardPhase();
-//			} else {
-				phase = seriesNumToObSrcListMap.get(series).get(
-						item % itemCount).getStandardPhase();
+			// if (series == this.meanSeriesNum) {
+			// phase = this.meanObsStandard.get(item %
+			// itemCount).getStandardPhase();
+			// } else {
+			phase = seriesNumToObSrcListMap.get(series).get(item % itemCount)
+					.getStandardPhase();
 			// }
 		}
 
@@ -158,5 +159,24 @@ public class PhaseCoordSource implements ICoordSource {
 	public int getActualYItemNum(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 		return item % seriesNumToObSrcListMap.get(series).size();
+	}
+
+	/**
+	 * Given a series and item number, return the corresponding observation.
+	 * 
+	 * @param series
+	 *            The series number.
+	 * @param item
+	 *            The item within the series.
+	 * @param seriesNumToObSrcListMap
+	 *            A mapping from series number to a list of observations.
+	 * @return The valid observation.
+	 * @throws IllegalArgumentException
+	 *             if series or item are out of range.
+	 */
+	public ValidObservation getValidObservation(int series, int item,
+			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
+		return seriesNumToObSrcListMap.get(series).get(
+				item % seriesNumToObSrcListMap.get(series).size());
 	}
 }

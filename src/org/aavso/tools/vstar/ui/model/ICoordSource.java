@@ -23,13 +23,12 @@ import java.util.Map;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This interface must be implemented by all coordinate sources 
- * for items within a plot series. This interface is motivated out
- * of a pragmatic need to decouple plot models from coordinate
- * information, allowing them to vary independently and for the
- * latter to be aggregated by the former, and at the end of the
- * day to avoid code duplication or promote code reuse depending
- * upon whether your class is half empty of half full.
+ * This interface must be implemented by all coordinate sources for items within
+ * a plot series. This interface is motivated out of a pragmatic need to
+ * decouple plot models from coordinate information, allowing them to vary
+ * independently and for the latter to be aggregated by the former, and at the
+ * end of the day to avoid code duplication or promote code reuse depending upon
+ * whether your glass is half empty or half full.
  */
 public interface ICoordSource {
 
@@ -39,32 +38,58 @@ public interface ICoordSource {
 	 * Note that it may seem "obvious" that this value should be
 	 * seriesNumToObSrcListMap.size(). Don't make that assumption!
 	 * 
-	 * @param series The series of interest.
+	 * @param series
+	 *            The series of interest.
 	 * @return The number of items in this series.
 	 */
-	public int getItemCount(int series, Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap);
-	
+	public int getItemCount(int series,
+			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap);
+
 	/**
 	 * Get the X coordinate value associated with the specified series and item.
 	 * 
-	 * @param series The series of interest. 
-	 * @param item The target item.
-	 * @param seriesNumToObSrcListMap A mapping from series number to a list of observations.
+	 * @param series
+	 *            The series of interest.
+	 * @param item
+	 *            The target item.
+	 * @param seriesNumToObSrcListMap
+	 *            A mapping from series number to a list of observations.
 	 * @return The X coordinate.
 	 */
-	public double getXCoord(int series, int item, Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap);
+	public double getXCoord(int series, int item,
+			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap);
 
 	/**
-	 * Get the actual item number for the Y coordinate value associated with
-	 * the specified series and item.
+	 * Get the actual item number for the Y coordinate value associated with the
+	 * specified series and item.
 	 * 
-	 * Note that it may seem "obvious" that this value should be
-	 * item. Don't make that assumption!
+	 * Note that it may seem "obvious" that this value should be item. Don't
+	 * make that assumption!
 	 * 
-	 * @param series The series of interest. 
-	 * @param item The target item.
-	 * @param seriesNumToObSrcListMap A mapping from series number to a list of observations.
+	 * @param series
+	 *            The series of interest.
+	 * @param item
+	 *            The target item.
+	 * @param seriesNumToObSrcListMap
+	 *            A mapping from series number to a list of observations.
 	 * @return The actual Y item number.
 	 */
-	public int getActualYItemNum(int series, int item, Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap);
+	public int getActualYItemNum(int series, int item,
+			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap);
+
+	/**
+	 * Given a series and item number, return the corresponding observation.
+	 * 
+	 * @param series
+	 *            The series number.
+	 * @param item
+	 *            The item within the series.
+	 * @param seriesNumToObSrcListMap
+	 *            A mapping from series number to a list of observations.
+	 * @return The valid observation.
+	 * @throws IllegalArgumentException
+	 *             if series or item are out of range.
+	 */
+	public ValidObservation getValidObservation(int series, int item,
+			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap);
 }

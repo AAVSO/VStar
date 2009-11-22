@@ -403,8 +403,9 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		// throw new IllegalArgumentException("Item number '" + item
 		// + "' out of range.");
 		// }
-
-		return this.seriesNumToObSrcListMap.get(series).get(item);
+		
+		//return this.seriesNumToObSrcListMap.get(series).get(item);
+		return coordSrc.getValidObservation(series, item, seriesNumToObSrcListMap);
 	}
 
 	/**
