@@ -30,55 +30,81 @@ public class JDCoordSource implements ICoordSource {
 	/**
 	 * The number of JD items is the size of the map.
 	 * 
-	 * @param series The series of interest.
+	 * @param series
+	 *            The series of interest.
 	 * @return The number of items in this series.
 	 */
 	public int getItemCount(int series,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-		
-//		if (!seriesNumToObSrcListMap.containsKey(series)) {
-//			throw new IllegalArgumentException("Series number '" + series
-//					+ "' out of range.");
-//		}
+
+		// if (!seriesNumToObSrcListMap.containsKey(series)) {
+		// throw new IllegalArgumentException("Series number '" + series
+		// + "' out of range.");
+		// }
 
 		return seriesNumToObSrcListMap.get(series).size();
 	}
-	
+
 	/**
 	 * Get the Julian Day associated with the specified series and item.
 	 * 
-	 * @param series The series of interest. 
-	 * @param item The target item.
-	 * @param seriesNumToObSrcListMap A mapping from series number to a list of observations.
+	 * @param series
+	 *            The series of interest.
+	 * @param item
+	 *            The target item.
+	 * @param seriesNumToObSrcListMap
+	 *            A mapping from series number to a list of observations.
 	 * @return The X coordinate (Julian Day).
 	 */
 	public double getXCoord(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-		
-//		if (!seriesNumToObSrcListMap.containsKey(series)) {
-//			throw new IllegalArgumentException("Series number '" + series
-//					+ "' out of range.");
-//		}
-//
-//		if (item >= seriesNumToObSrcListMap.get(series).size()) {
-//			throw new IllegalArgumentException("Item number '" + item
-//					+ "' out of range.");
-//		}
+
+		// if (!seriesNumToObSrcListMap.containsKey(series)) {
+		// throw new IllegalArgumentException("Series number '" + series
+		// + "' out of range.");
+		// }
+		//
+		// if (item >= seriesNumToObSrcListMap.get(series).size()) {
+		// throw new IllegalArgumentException("Item number '" + item
+		// + "' out of range.");
+		// }
 
 		return seriesNumToObSrcListMap.get(series).get(item).getDateInfo()
 				.getJulianDay();
 	}
 
 	/**
-	 * The actual item number for the Y coordinate is in fact, just item in this case.
+	 * The actual item number for the Y coordinate is in fact, just item in this
+	 * case.
 	 * 
-	 * @param series The series of interest. 
-	 * @param item The target item.
-	 * @param seriesNumToObSrcListMap A mapping from series number to a list of observations.
+	 * @param series
+	 *            The series of interest.
+	 * @param item
+	 *            The target item.
+	 * @param seriesNumToObSrcListMap
+	 *            A mapping from series number to a list of observations.
 	 * @return The actual Y item number.
 	 */
 	public int getActualYItemNum(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 		return item;
+	}
+
+	/**
+	 * Given a series and item number, return the corresponding observation.
+	 * 
+	 * @param series
+	 *            The series number.
+	 * @param item
+	 *            The item within the series.
+	 * @param seriesNumToObSrcListMap
+	 *            A mapping from series number to a list of observations.
+	 * @return The valid observation.
+	 * @throws IllegalArgumentException
+	 *             if series or item are out of range.
+	 */
+	public ValidObservation getValidObservation(int series, int item,
+			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
+		return seriesNumToObSrcListMap.get(series).get(item);
 	}
 }
