@@ -16,7 +16,15 @@ o Bug & Issue tracker entries cited below can be found here:
 o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Weber.
   
 ----------------------
-  
+
+Date: November 22 2009
+Version: 299MP
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-22Nov2009/
+Key Changes:
+- A fix for tracker entry 2901383 in which clicking on a phase plot point in the
+  standard half (phase >=0) failed with a null pointer exception.
+- Add minor note to Help about unsupported aavso download format
+
 Date: November 20 2009
 Version: 294MP
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20Nov2009/
