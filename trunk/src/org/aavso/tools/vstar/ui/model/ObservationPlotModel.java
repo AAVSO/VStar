@@ -125,6 +125,33 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
+	 * Constructor
+	 * 
+	 * We add named observation source lists to unique series numbers,
+	 * and if the map is non-null, potentially change the set of visible 
+	 * series.
+	 * 
+	 * @param obsSourceListMap
+	 *            A mapping from source series to lists of observation sources.
+	 * @param coordSrc
+	 *            A coordinate and error source.
+	 * @param seriesVisibilityMap
+	 *            A mapping from series number to visibility status.
+	 */
+	public ObservationPlotModel(
+			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
+			ICoordSource coordSrc, Map<Integer, Boolean> seriesVisibilityMap) {
+
+		this(obsSourceListMap, coordSrc);
+		
+		if (seriesVisibilityMap != null) {
+			for (int seriesNum : seriesVisibilityMap.keySet()) {
+				changeSeriesVisibility(seriesNum, seriesVisibilityMap.get(seriesNum));
+			}
+		}
+	}
+
+	/**
 	 * Add an observation series.
 	 * 
 	 * @param type
@@ -323,16 +350,6 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @return The magnitude value.
 	 */
 	protected double getMagAsYCoord(int series, int item) {
-		// if (!seriesNumToObSrcListMap.containsKey(series)) {
-		// throw new IllegalArgumentException("Series number '" + series
-		// + "' out of range.");
-		// }
-		//
-		// if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
-		// throw new IllegalArgumentException("Item number '" + item
-		// + "' out of range.");
-		// }
-
 		return this.seriesNumToObSrcListMap.get(series).get(item)
 				.getMagnitude().getMagValue();
 	}
@@ -394,18 +411,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *             if series or item are out of range.
 	 */
 	public ValidObservation getValidObservation(int series, int item) {
-		// if (!seriesNumToObSrcListMap.containsKey(series)) {
-		// throw new IllegalArgumentException("Series number '" + series
-		// + "' out of range.");
-		// }
-		//
-		// if (item >= this.seriesNumToObSrcListMap.get(series).size()) {
-		// throw new IllegalArgumentException("Item number '" + item
-		// + "' out of range.");
-		// }
-		
-		//return this.seriesNumToObSrcListMap.get(series).get(item);
-		return coordSrc.getValidObservation(series, item, seriesNumToObSrcListMap);
+		return coordSrc.getValidObservation(series, item,
+				seriesNumToObSrcListMap);
 	}
 
 	/**

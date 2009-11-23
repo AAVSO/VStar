@@ -190,7 +190,7 @@ public class Mediator {
 						PhaseParameterDialog phaseDialog = new PhaseParameterDialog();
 						if (!phaseDialog.isCancelled()) {
 							double period = phaseDialog.getPeriod();
-							msg = createPhasePlotArtefacts(period);
+							msg = createPhasePlotArtefacts(period, null);
 						}
 					}
 
@@ -450,16 +450,18 @@ public class Mediator {
 	 * 
 	 * @param period
 	 *            The requested period of the phase plot.
+	 * @param seriesVisibilityMap A mapping from series number to visibility status.
 	 * @return An analysis type message consisting of phase plot artefacts.
 	 */
-	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period)
-			throws Exception {
+	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period,
+			Map<Integer, Boolean> seriesVisibilityMap) throws Exception {
 
 		// TODO: invoke dialog from here
 		// - for dialog, start with period entry box
 		// - add radio buttons for epoch calc algorithm later
 
 		// TODO: enable busy cursor, progress bar, status pane updates...
+		// => PhasePlotTask required for this
 
 		// Get the existing new star message for now, to reuse some components.
 		// TODO: This is temporary.
@@ -486,10 +488,10 @@ public class Mediator {
 
 		// Table and plot models.
 		// TODO: consider reusing plot models across all modes, just
-		// changing the coordinate source when mode-switching (to save
+		// changing the ICoordSource when mode-switching (to save
 		// memory)...
 		ObservationPlotModel obsPlotModel = new ObservationPlotModel(
-				validObservationCategoryMap, phaseCoordSrc);
+				validObservationCategoryMap, phaseCoordSrc, seriesVisibilityMap);
 
 		// PhaseAndMeanPlotModel phaseAndMeanPlotModel = new
 		// PhaseAndMeanPlotModel(
@@ -566,7 +568,7 @@ public class Mediator {
 			this.currTask.cancel(true);
 		}
 	}
-	
+
 	/**
 	 * Clear the current task if not already cleared.
 	 */

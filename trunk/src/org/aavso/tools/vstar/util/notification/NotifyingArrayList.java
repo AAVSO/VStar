@@ -48,14 +48,14 @@ public class NotifyingArrayList<E> extends NotifyingList<E> {
 	 * Constructor.
 	 * 
 	 * One use case may be to construct this list from another.
+	 * Given how important limiting memory consumption is in VStar,
+	 * for this scenario we will not copy the passed-in list, just
+	 * refer to it, i.e. just wrap it.
 	 * 
-	 * @param otherList A list to be added to this new list.
+	 * @param otherList The list to be used instead of creating a new one.
 	 */
-	public NotifyingArrayList(List<E> otherList) {
-		list = new ArrayList<E>();
-		for (E e : otherList) {
-			list.add(e);
-		}
+	public NotifyingArrayList(ArrayList<E> otherList) {
+		list = otherList;
 		notifyEnabled = true;
 	}
 

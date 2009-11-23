@@ -8,6 +8,6 @@
 	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/jfreechart-1.0.13.jar"/>
 	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/swing-worker-1.2.jar"/>
 	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/jlfgr-1_0.jar"/>
-	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/mysql-connector-java-5.1.8-bin.jar"/>
+	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/mysql-connector-java-5.1.10-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -32,6 +32,14 @@ import org.aavso.tools.vstar.data.ValidObservation;
  */
 public class PhaseAndMeanPlotModel extends ObservationAndMeanPlotModel {
 
+	/**
+	 * Duplicated mean observations for previous and standard phases. We do this
+	 * for the pragmatic reason that not doing so will cause a mean series plot
+	 * to eat its tail (i.e. a circuit).
+	 */
+	// TODO
+	
+	// TODO: temporary
 	private List<Integer> joinedSeriesNumList = new ArrayList<Integer>();
 
 	/**
