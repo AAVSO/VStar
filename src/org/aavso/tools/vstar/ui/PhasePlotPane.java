@@ -21,9 +21,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -61,7 +59,8 @@ public class PhasePlotPane extends ObservationPlotPane {
 	// Add means-specific widgets to chart control panel.
 	private void addToChartControlPanel(JPanel chartControlPanel) {
 		JButton newPhasePlotButton = new JButton("New Phase Plot");
-		newPhasePlotButton.addActionListener(createNewPhasePlotButtonListener());
+		newPhasePlotButton
+				.addActionListener(createNewPhasePlotButtonListener());
 		chartControlPanel.add(newPhasePlotButton);
 	}
 
@@ -74,13 +73,11 @@ public class PhasePlotPane extends ObservationPlotPane {
 					PhaseParameterDialog phaseDialog = new PhaseParameterDialog();
 					if (!phaseDialog.isCancelled()) {
 						double period = phaseDialog.getPeriod();
-						Mediator.getInstance().createPhasePlotArtefacts(period);
-						
-						// Selected bands should carry over from one phase plot
-						// to the next. TODO: this will not work unless the plot
-						// and model remain the same; but they are recreated anew
-						// by the code above!
-						self.seriesVisibilityChange(obsModel.getSeriesVisibilityMap());
+
+						// This will be the final act of this object before
+						// it is usurped by another model+phase-plot-pane pair.
+						Mediator.getInstance().createPhasePlotArtefacts(period,
+								obsModel.getSeriesVisibilityMap());
 					}
 				} catch (Exception ex) {
 					MessageBox.showErrorDialog(MainFrame.getInstance(),

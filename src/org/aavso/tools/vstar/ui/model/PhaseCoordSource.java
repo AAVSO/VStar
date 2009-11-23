@@ -28,20 +28,6 @@ import org.aavso.tools.vstar.data.ValidObservation;
 public class PhaseCoordSource implements ICoordSource {
 
 	/**
-	 * Duplicated mean observations for previous and standard phases. We do this
-	 * for the pragmatic reason that not doing so will cause a mean series plot
-	 * to eat its tail (i.e. a circuit).
-	 * 
-	 * TODO: actually, this solution is completely bogus! The only ways to solve
-	 * this is either: o subclass the mean obs model and have *two* means
-	 * series! o disable joining of means series for phase plots, possibly also
-	 * via a subclass => start with the 2nd and if time permits, do the first;
-	 * focus on dialog first!
-	 */
-	// private List<ValidObservation> meanObsPrevious; // for phases -1..<0
-	// private List<ValidObservation> meanObsStandard; // for phases 0..1
-
-	/**
 	 * The series item number of the mean series. We use this to distinguish the
 	 * mean series from all others and give it special treatment.
 	 */
@@ -107,38 +93,16 @@ public class PhaseCoordSource implements ICoordSource {
 	 */
 	public double getXCoord(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-
-		// if (!seriesNumToObSrcListMap.containsKey(series)) {
-		// throw new IllegalArgumentException("Series number '" + series
-		// + "' out of range.");
-		// }
-		//
-		// if (item >= seriesNumToObSrcListMap.get(series).size() * 2) {
-		// throw new IllegalArgumentException("Item number '" + item
-		// + "' out of range.");
-		// }
-
 		// Everything is modulo the number of elements in the series
 		// except the means series which we treat separately.
 		double phase = -99;
 		int itemCount = seriesNumToObSrcListMap.get(series).size();
 		if (item < itemCount) {
-			// -1..<0
-			// if (series == this.meanSeriesNum) {
-			// phase = this.meanObsPrevious.get(item).getPreviousCyclePhase();
-			// } else {
 			phase = seriesNumToObSrcListMap.get(series).get(item)
 					.getPreviousCyclePhase();
-			// }
 		} else {
-			// 0..1
-			// if (series == this.meanSeriesNum) {
-			// phase = this.meanObsStandard.get(item %
-			// itemCount).getStandardPhase();
-			// } else {
 			phase = seriesNumToObSrcListMap.get(series).get(item % itemCount)
 					.getStandardPhase();
-			// }
 		}
 
 		return phase;

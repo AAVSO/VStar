@@ -36,12 +36,6 @@ public class JDCoordSource implements ICoordSource {
 	 */
 	public int getItemCount(int series,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-
-		// if (!seriesNumToObSrcListMap.containsKey(series)) {
-		// throw new IllegalArgumentException("Series number '" + series
-		// + "' out of range.");
-		// }
-
 		return seriesNumToObSrcListMap.get(series).size();
 	}
 
@@ -58,17 +52,6 @@ public class JDCoordSource implements ICoordSource {
 	 */
 	public double getXCoord(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-
-		// if (!seriesNumToObSrcListMap.containsKey(series)) {
-		// throw new IllegalArgumentException("Series number '" + series
-		// + "' out of range.");
-		// }
-		//
-		// if (item >= seriesNumToObSrcListMap.get(series).size()) {
-		// throw new IllegalArgumentException("Item number '" + item
-		// + "' out of range.");
-		// }
-
 		return seriesNumToObSrcListMap.get(series).get(item).getDateInfo()
 				.getJulianDay();
 	}
