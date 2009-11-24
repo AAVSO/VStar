@@ -57,7 +57,7 @@ public class AAVSODatabaseConnector {
 	private final static int MAX_CONN_TIME = 30 * 1000;
 	
 	private final static String CONN_URL = "jdbc:mysql://"
-			+ ResourceAccessor.getParam(0) + "/";
+			+ ResourceAccessor.getParam(0);
 
 	private DatabaseType type;
 	private Driver driver;
@@ -120,16 +120,14 @@ public class AAVSODatabaseConnector {
 			props.put("connectTimeout", MAX_CONN_TIME + "");
 
 			try {
-				//DriverManager.setLoginTimeout(MAX_CONN_TIME);
-				props.put("port", (3 * 11 * 100 + 7) + "");
-				connection = DriverManager.getConnection(CONN_URL
+				// First try with port 3307...
+				connection = DriverManager.getConnection(CONN_URL + ":3307/"
 						+ ResourceAccessor.getParam(type.getDBNum()), props);
 			} catch (Exception e1) {
 				try {
-					//DriverManager.setLoginTimeout(MAX_CONN_TIME);
-					props.put("port", ((3 * 11 * 100 + 7) - 1) + "");
+					// ..and then with 3306.
 					connection = DriverManager
-							.getConnection(CONN_URL
+							.getConnection(CONN_URL + ":3306/"
 									+ ResourceAccessor
 											.getParam(type.getDBNum()), props);
 				} catch (Exception e) {
