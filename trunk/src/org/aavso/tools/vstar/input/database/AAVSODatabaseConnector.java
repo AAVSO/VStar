@@ -54,7 +54,7 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 public class AAVSODatabaseConnector {
 
 	 // 30 seconds connection timeout.
-	private final static int MAX_CONN_TIME = 30 * 1000;
+	private final static int MAX_CONN_TIME = 15 * 1000;
 	
 	private final static String CONN_URL = "jdbc:mysql://"
 			+ ResourceAccessor.getParam(0);
