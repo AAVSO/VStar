@@ -49,6 +49,9 @@ is assumed. Type "ant -p" to see the options.
 
 The src directory contains the Java source code for the tool.
 
+The most recent version of the source code may be obtained from the VStar 
+SourceForge repository at http://vstar.svn.sourceforge.net
+
 Testing
 =======
 The test directory contains unit tests. For testing, JUnit 3.8.2 is 
@@ -56,5 +59,6 @@ assumed (http://www.junit.org). This is of interest to developers only.
 
 Licensing
 =========
-VStar is licensed under the Affero GNU Public License. See doc/license for
+VStar is licensed under the GNU Affero General Public License, version 3.
+See doc/license or http://www.gnu.org/licenses/agpl-3.0-standalone.html for
 details.
