@@ -275,7 +275,7 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 			value = ob.getObsCode();
 			break;
 		case COMMENT_CODE_COLUMN:
-			value = ob.getCommentCode();
+			value = ob.getCommentCode().getOrigString();
 			break;
 		case COMP_STAR_1_COLUMN:
 			value = ob.getCompStar1();
