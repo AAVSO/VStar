@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.data;
 
 import org.aavso.tools.vstar.ui.model.SeriesType;
+import org.aavso.tools.vstar.data.CommentCodes;
 
 
 /**
@@ -51,7 +52,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	private Double hqUncertainty = null;
 	private SeriesType band = null;
 	private String obsCode = null;
-	private String commentCode = null; // TODO: make an enum
+	private CommentCodes commentCode = null; // TODONE: made into an enum
 	private String compStar1 = null;
 	private String compStar2 = null;
 	private String charts = null;
@@ -215,7 +216,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	/**
 	 * @return the commentCode
 	 */
-	public String getCommentCode() {
+	public CommentCodes getCommentCode() {
 		return commentCode;
 	}
 
@@ -224,7 +225,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	 *            the commentCode to set
 	 */
 	public void setCommentCode(String commentCode) {
-		this.commentCode = commentCode;
+		this.commentCode = new CommentCodes(commentCode);
 	}
 
 	/**
@@ -413,8 +414,12 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 			strBuf.append("\n");
 		}
 
-		strBuf.append("Geocentric Date: ");
-		strBuf.append(dateInfo);
+		strBuf.append("Julian Date: ");
+		strBuf.append(dateInfo.getJulianDay());
+		strBuf.append("\n");
+
+		strBuf.append("Calendar Date: ");
+		strBuf.append(dateInfo.getCalendarDate());
 		strBuf.append("\n");
 
 		strBuf.append("Magnitude: ");
@@ -443,9 +448,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 			strBuf.append("\n");
 		}
 		if (commentCode != null) {
-			strBuf.append("Comment Codes: ");
-			strBuf.append(commentCode);
-			strBuf.append("\n");
+			strBuf.append("Comment Codes:\n");
+			strBuf.append(commentCode.toString());
 		}
 		if (compStar1 != null) {
 			strBuf.append("Comparison Star 1: ");

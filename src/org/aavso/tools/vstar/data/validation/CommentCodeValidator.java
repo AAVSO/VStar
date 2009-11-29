@@ -39,8 +39,11 @@ public class CommentCodeValidator extends AbstractStringValidator<String> {
 	 */
 	public CommentCodeValidator(String commentCodePatternStr) {
 		super(KIND);
-		this.regexValidator = new RegexValidator("^(" + commentCodePatternStr
-				+ ")+$", KIND);
+		//FIXME: AW I'm putting in what is probably a god awful hack.  This is so
+		//       the generic regex engine will return the entire group of comment codes
+		//       in one swoop, otherwise it returns just the last character it finds
+		this.regexValidator = new RegexValidator("^((" + commentCodePatternStr
+				+ "\\s)+)$", KIND);
 	}
 
 	public String validate(String str)
@@ -51,6 +54,7 @@ public class CommentCodeValidator extends AbstractStringValidator<String> {
 		// but VStar doesn't currently need to make
 		// decisions based upon comment code as it does
 		// with say, valflag.
+
 		return this.regexValidator.validate(str)[0];
 	}
 

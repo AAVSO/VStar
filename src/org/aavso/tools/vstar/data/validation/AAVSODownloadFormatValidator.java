@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.data.validation;
 
+import org.aavso.tools.vstar.data.CommentType;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
@@ -81,8 +82,10 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 		this.hjdValidator = new JulianDayValidator(
 				JulianDayValidator.CAN_BE_EMPTY);
 
+		//TODONE: AW updated this list with the list from CommentType.getRegex()
+		//           keeps all the comment codes in one place
 		this.commentCodeValidator = new CommentCodeValidator(
-				"B|U|W|L|D|Y|K|S|Z|I|V");
+				CommentType.getRegex());
 
 		this.transformedValidator = new TransformedValidator();
 
