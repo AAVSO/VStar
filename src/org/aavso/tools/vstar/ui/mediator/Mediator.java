@@ -65,6 +65,7 @@ import org.aavso.tools.vstar.ui.model.SeriesType;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
+import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**
@@ -190,11 +191,12 @@ public class Mediator {
 						PhaseParameterDialog phaseDialog = new PhaseParameterDialog();
 						if (!phaseDialog.isCancelled()) {
 							double period = phaseDialog.getPeriod();
-							msg = createPhasePlotArtefacts(period, null);
+							IEpochStrategy epochStrategy = phaseDialog.getEpochStrategy();
+							msg = createPhasePlotArtefacts(period, epochStrategy, null);
 						}
 					}
 
-					// TODO: sort out what should happen here and above...
+					// TODO: sort out correct GUI state transitions here and above...
 					if (msg != null) {
 						this.analysisType = analysisType;
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
@@ -450,10 +452,13 @@ public class Mediator {
 	 * 
 	 * @param period
 	 *            The requested period of the phase plot.
-	 * @param seriesVisibilityMap A mapping from series number to visibility status.
+	 * @param epochStrategy An epoch determination strategy.
+	 * @param seriesVisibilityMap
+	 *            A mapping from series number to visibility status.
 	 * @return An analysis type message consisting of phase plot artefacts.
 	 */
 	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period,
+			IEpochStrategy epochStrategy,
 			Map<Integer, Boolean> seriesVisibilityMap) throws Exception {
 
 		// TODO: invoke dialog from here
@@ -500,7 +505,7 @@ public class Mediator {
 		// Set the phases for the valid observation models in each series,
 		// including the means series.
 
-		double epoch = PhaseCalcs.getEpoch(validObsList); // TODO: dialog box
+		double epoch = epochStrategy.determineEpoch(validObsList); // TODO: dialog box
 		// with radio
 		// buttons
 		// double period = validObsList.size() / 2; // essentially meaningless;
