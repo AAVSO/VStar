@@ -18,61 +18,77 @@
 package org.aavso.tools.vstar.util.stats;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.stats.epoch.AlphaOmegaMeanJDEpochStrategy;
+import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
+import org.aavso.tools.vstar.util.stats.epoch.MaxMagEpochStrategy;
+import org.aavso.tools.vstar.util.stats.epoch.MinMagEpochStrategy;
 
 /**
  * This class contains static methods for phase calculations.
  */
 public class PhaseCalcs {
 
-	/**
-	 * Determine the epoch for phase plot calculations.
-	 * 
-	 * TODO: parameterise with an IEpochStrategy
-	 * 
-	 * @param validObs A list of valid observations.
-	 * @return The epoch.
-	 */
-	public static double getEpoch(List<ValidObservation> obs) {
-		return (obs.get(0).getJD() + obs.get(obs.size()-1).getJD())/2;
-	}
+	// Map of epoch determination strategies.
+	// TODO: It would be nice to be able to create this collection
+	// dynamically with X.forName(), permitting a plugin approach for
+	// epoch determination strategies.
+	public static Map<String, IEpochStrategy> epochStrategyMap;
 	
+	static {
+		epochStrategyMap = new TreeMap<String, IEpochStrategy>();
+		epochStrategyMap.put("alpha", new AlphaOmegaMeanJDEpochStrategy());
+		epochStrategyMap.put("minmag", new MinMagEpochStrategy());
+		epochStrategyMap.put("maxmag", new MaxMagEpochStrategy());
+	}
+
 	/**
-	 * Set the standard and previous cycle phases for each observation
-	 * given the specified epoch and period.
+	 * Set the standard and previous cycle phases for each observation given the
+	 * specified epoch and period.
 	 * 
-	 * @param obs A list of valid observations.
-	 * @param epoch An epoch (starting JD).
-	 * @param period A period on which to base the phases.
+	 * @param obs
+	 *            A list of valid observations.
+	 * @param epoch
+	 *            An epoch (starting JD).
+	 * @param period
+	 *            A period on which to base the phases.
 	 * @precondition The epoch was determined from the same list of valid
-	 * observations passed to this method.
+	 *               observations passed to this method.
 	 */
-	public static void setPhases(List<ValidObservation> obs, double epoch, double period) {
-		
+	public static void setPhases(List<ValidObservation> obs, double epoch,
+			double period) {
+
 		for (ValidObservation ob : obs) {
 			double phase = calcStandardPhase(ob.getJD(), epoch, period);
 			ob.setStandardPhase(phase);
-			ob.setPreviousCyclePhase(phase-1);
+			ob.setPreviousCyclePhase(phase - 1);
 		}
 	}
 
 	/**
-	 * Calculate the standard phase, i.e. a phase value in the inclusive range 0..1.
+	 * Calculate the standard phase, i.e. a phase value in the inclusive range
+	 * 0..1.
 	 * 
-	 * @param jd A Julian Date.
-	 * @param epoch An epoch (starting JD).
-	 * @param period A period on which to base the phases.
+	 * @param jd
+	 *            A Julian Date.
+	 * @param epoch
+	 *            An epoch (starting JD).
+	 * @param period
+	 *            A period on which to base the phases.
 	 * @return The standard phase.
 	 */
-	protected static double calcStandardPhase(double jd, double epoch, double period) {
+	protected static double calcStandardPhase(double jd, double epoch,
+			double period) {
 		double phase = (jd - epoch) / period;
-		
+
 		// Notice that this works for negative and positive values,
 		// e.g. 2.75 => 2.75 - 2 = 0.75
-		// e.g. -2.75 => -2.75 - -3 = -2.75 + 3 = 0.25 
+		// e.g. -2.75 => -2.75 - -3 = -2.75 + 3 = 0.25
 		phase = phase - Math.floor(phase);
-		
+
 		return phase;
 	}
 }

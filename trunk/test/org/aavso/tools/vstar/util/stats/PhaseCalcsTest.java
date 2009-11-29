@@ -27,6 +27,7 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
+import org.aavso.tools.vstar.util.stats.epoch.AlphaOmegaMeanJDEpochStrategy;
 
 /**
  * Phase calculation UTs.
@@ -59,7 +60,7 @@ public class PhaseCalcsTest extends TestCase {
 
 	public void testDetermineEpoch1() {
 		List<ValidObservation> observations = populateObservations(mags1, jds1);
-		double epoch = PhaseCalcs.getEpoch(observations);		
+		double epoch = new AlphaOmegaMeanJDEpochStrategy().determineEpoch(observations);		
 		assertEquals(2450003.25, epoch);
 	}
 	

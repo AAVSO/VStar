@@ -17,18 +17,25 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.util.stats.PhaseCalcs;
+import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
 
 /**
  * This class represents a dialog to obtain parameters for phase plot
@@ -42,6 +49,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 	private JTextField periodField;
 
 	private double period;
+	private IEpochStrategy epochStrategy;
 
 	/**
 	 * Constructor.
@@ -49,14 +57,25 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 	public PhaseParameterDialog() {
 		super("Phase Plot");
 
+		period = 0;
+		epochStrategy = null;
+		
 		Container contentPane = this.getContentPane();
 
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
+		
+		// Period
 		topPane.add(createPeriodFieldPane());
+
+		// Epoch determination
+		topPane.add(Box.createRigidArea(new Dimension(75, 10)));
+		topPane.add(createEpochStrategyPane());
+		
+		// OK, Cancel
 		topPane.add(createButtonPane());
+
 		contentPane.add(topPane);
 
 		this.pack();
@@ -71,18 +90,58 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 		panel.setBorder(BorderFactory.createTitledBorder("Period (days)"));
 
 		periodField = new JTextField();
-		periodField.addActionListener(createPeriodFieldActionListener());
 		periodField.setToolTipText("Enter period in days");
 		panel.add(periodField);
 
 		return panel;
 	}
 
-	// Return a listener for the period field.
-	private ActionListener createPeriodFieldActionListener() {
+	private JPanel createEpochStrategyPane() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory
+				.createTitledBorder("Epoch Strategy"));
+
+		ButtonGroup strategyGroup = new ButtonGroup();
+
+		boolean first = true;
+
+		for (String key : PhaseCalcs.epochStrategyMap.keySet()) {
+			IEpochStrategy strategy = PhaseCalcs.epochStrategyMap.get(key);
+			String strategyDesc = strategy.getDescription();
+
+			JRadioButton strategyRadioButton = new JRadioButton(strategyDesc);
+			strategyRadioButton.setActionCommand(key);
+			strategyRadioButton
+					.addActionListener(createEpochStrategyActionListener());
+			panel.add(strategyRadioButton);
+			panel.add(Box.createRigidArea(new Dimension(10, 10)));
+
+			strategyGroup.add(strategyRadioButton);
+
+			// Arbitrarily select the first strategy.
+			// TODO: should be able to set this as a Preference.
+			if (first) {
+				strategyRadioButton.setSelected(true);
+				epochStrategy = strategy;
+				first = false;
+			}
+		}
+
+		assert(epochStrategy != null);
+
+		// Without this, the bordered radio group will appear right-justified.
+		JPanel centeringPanel = new JPanel(new BorderLayout());
+		centeringPanel.add(panel, BorderLayout.CENTER);
+		
+		return centeringPanel;
+	}
+
+	private ActionListener createEpochStrategyActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// checkInput();
+				String name = e.getActionCommand();
+				epochStrategy = PhaseCalcs.epochStrategyMap.get(name);
 			}
 		};
 	}
@@ -119,5 +178,12 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 	 */
 	public double getPeriod() {
 		return period;
+	}
+
+	/**
+	 * @return the epochStrategy
+	 */
+	public IEpochStrategy getEpochStrategy() {
+		return epochStrategy;
 	}
 }
