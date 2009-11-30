@@ -35,6 +35,7 @@ import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
+import org.aavso.tools.vstar.util.stats.epoch.AlphaOmegaMeanJDEpochStrategy;
 import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
 
 /**
@@ -58,7 +59,8 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 		super("Phase Plot");
 
 		period = 0;
-		epochStrategy = null;
+		//epochStrategy = null;
+		epochStrategy = new AlphaOmegaMeanJDEpochStrategy();
 		
 		Container contentPane = this.getContentPane();
 
@@ -70,8 +72,9 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 		topPane.add(createPeriodFieldPane());
 
 		// Epoch determination
-		topPane.add(Box.createRigidArea(new Dimension(75, 10)));
-		topPane.add(createEpochStrategyPane());
+		// TODO: disabled until we (Mike, Sara et al) can talk about this.
+		//topPane.add(Box.createRigidArea(new Dimension(75, 10)));
+		//topPane.add(createEpochStrategyPane());
 		
 		// OK, Cancel
 		topPane.add(createButtonPane());

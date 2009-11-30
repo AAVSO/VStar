@@ -22,8 +22,10 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This epoch determination strategy finds the maximum magnitude
- * value in the dataset. This magnitude's JD becomes the epoch.
+ * This epoch determination strategy finds the numerically maximum 
+ * magnitude value in the dataset. This magnitude's JD becomes the 
+ * epoch. TODO: should this instead mean the numerically smallest,
+ * i.e. brightest magnitude? Which is less confusing to the end-user?
  */
 public class MaxMagEpochStrategy implements IEpochStrategy {
 
@@ -35,7 +37,7 @@ public class MaxMagEpochStrategy implements IEpochStrategy {
 		double maxMag = Double.MIN_VALUE;
 		
 		for (ValidObservation ob : obs) {
-			if (ob.getMag() < maxMag) {
+			if (ob.getMag() > maxMag) {
 				maxMag = ob.getMag();
 				maxMagJD = ob.getJD();
 			}
