@@ -13,25 +13,39 @@ o The Subversion log will reveal the full details of what went into each release
   and features for each release, but are based directly upon Subversion log entries. 
 o Bug & Issue tracker entries cited below can be found here:
   https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
+  These contain more detail about who did what, when, and where (in the codebase).
 o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Weber.
   
 ----------------------
 
+Date: November 30 2009
+Version: 310
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-30Nov2009
+Key Changes:
+- Fixed tracker entry 2902388 in which the phase plot pane would forget 
+  selected bands when a new phase plot was generated. 
+- Fixed a long-standing database port fail-over bug. See tracker 2894174.
+- Decreased database timeout as per tracker 2905387.
+- Incorporated Adam's patches and new classes for improvements to comment 
+  code and date format in observation details dialog (tracker 2858640).  
+- Minor correction to license reference and another link to VStar source
+  code (in Help page).
+
 Date: November 22 2009
 Version: 299MP
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-22Nov2009/
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-22Nov2009
 Key Changes:
-- A fix for tracker entry 2901383 in which clicking on a phase plot point in the
-  standard half (phase >=0) failed with a null pointer exception.
-- Add minor note to Help about unsupported aavso download format
+- A fix for tracker entry 2901383 in which clicking on a phase plot point in 
+  the standard half (phase >=0) failed with a null pointer exception.
+- Add minor note to Help about unsupported aavso download format.
 
 Date: November 20 2009
 Version: 294MP
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20Nov2009/
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20Nov2009
 Key Changes:
-- Fixed connection timeout and updated extlib/ReadMe.txt to stipulate the use of 
-  the latest stable JDBC MySQL driver to fix bug in port usage. See tracker entry 
-  2894174 for details.
+- Fixed connection timeout and updated extlib/ReadMe.txt to stipulate the use 
+  of the latest stable JDBC MySQL driver to fix bug in port usage. See tracker 
+  entry 2894174 for details.
 - Created this change log.
 - Added some infrastructure for handling arbitrary long operation cancellation. 
   Not yet complete however. See tracker entry 2894174.
@@ -40,9 +54,10 @@ Key Changes:
     
 Date: November 19 2009
 Version: 29:281MP
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-19Nov2009/ (r283)
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-19Nov2009
 Key Changes:
-- Fix for the username/password validation problem captured by tracker entry 2899357.
+- Fix for the username/password validation problem captured by tracker entry 
+  2899357.
 - Added Java WebStart management and Windows XP information to the FAQ.
 - Clarified credit for illustration in About box.
 - Added link to source code in Help Contents, and other small changes. 
@@ -53,12 +68,13 @@ Key Changes:
 
 Date: November 13 2009
 Version: 29:270MP
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-13Nov2009 (r272)
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-13Nov2009
 Key Changes:
-- This was the first WebStar release of VStar to CitizenSky, the culmination of 6
-  months of work that began on May 9 2009. Much of the work between Subversion
-  revision 166 (http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-17Aug2009/)
-  and this release was bug fixes, refactoring of the code base, improvements due
-  to feedback from David's CitizenSky 1 talk, and the addition of a first cut of
-  phase plots.
+- This was the first WebStar release of VStar to CitizenSky, the culmination
+  of 6 months of work that began on May 9 2009. Much of the work between 
+  Subversion revision 166 
+  (http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-17Aug2009) and this
+  release was bug fixes, refactoring of the code base, improvements due to 
+  feedback from David's CitizenSky 1 talk, and the addition of a first cut 
+  of phase plots.
   
