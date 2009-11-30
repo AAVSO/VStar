@@ -26,8 +26,9 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 import org.aavso.tools.vstar.util.stats.epoch.AlphaOmegaMeanJDEpochStrategy;
+import org.aavso.tools.vstar.util.stats.epoch.MaxMagEpochStrategy;
+import org.aavso.tools.vstar.util.stats.epoch.MinMagEpochStrategy;
 
 /**
  * Phase calculation UTs.
@@ -58,12 +59,24 @@ public class PhaseCalcsTest extends TestCase {
 		assertEquals(0.8, phase);
 	}
 
-	public void testDetermineEpoch1() {
+	public void testDetermineEpochAlphaAndOmegaMeanJD() {
 		List<ValidObservation> observations = populateObservations(mags1, jds1);
 		double epoch = new AlphaOmegaMeanJDEpochStrategy().determineEpoch(observations);		
 		assertEquals(2450003.25, epoch);
 	}
 	
+	public void testDetermineMinMagJD() {
+		List<ValidObservation> observations = populateObservations(mags1, jds1);
+		double epoch = new MinMagEpochStrategy().determineEpoch(observations);		
+		assertEquals(2450001.5, epoch);		
+	}
+	
+	public void testDetermineMaxMagJD() {
+		List<ValidObservation> observations = populateObservations(mags1, jds1);
+		double epoch = new MaxMagEpochStrategy().determineEpoch(observations);		
+		assertEquals(2450003.5, epoch);		
+	}
+
 	public void testPhases1() {
 		List<ValidObservation> observations = populateObservations(mags1, jds1);
 		double epoch = 2450003.25;
