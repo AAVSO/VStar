@@ -1,5 +1,5 @@
 /**
- * VìStar: a statistical analysis tool for variable star data.
+ * VStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -249,7 +249,7 @@ public class AAVSODatabaseConnector {
 	}
 
 	/**
-	 * Return a prepared statement for the specified CitizenSky user login. This
+	 * Return a prepared statement for the specified Citizen Sky user login. This
 	 * is a once-only-created prepared statement with parameters set for each
 	 * query execution.
 	 * 
@@ -268,7 +268,7 @@ public class AAVSODatabaseConnector {
 	}
 
 	/**
-	 * Authenticate with the CitizenSky database by prompting the user to enter
+	 * Authenticate with the Citizen Sky database by prompting the user to enter
 	 * credentials in a dialog, throwing an exception upon failure after
 	 * retries. A manifest reason for this authentication is to obtain the
 	 * observer code.
@@ -282,10 +282,10 @@ public class AAVSODatabaseConnector {
 
 		while (!cancelled && !authenticatedWithCitizenSky && retries > 0) {
 			MainFrame.getInstance().getStatusPane().setMessage(
-					"CitizenSky Login...");
+					"Citizen Sky Login...");
 
 			LoginDialog loginDialog = new LoginDialog(
-					"CitizenSky Authentication");
+					"Citizen Sky Authentication");
 
 			cancelled = loginDialog.isCancelled();
 
@@ -294,9 +294,9 @@ public class AAVSODatabaseConnector {
 				String suppliedPassword = new String(loginDialog.getPassword());
 				String passwordDigest = generateHexDigest(suppliedPassword);
 
-				// Login to CitizenSky if we haven't done so already.
+				// Login to Citizen Sky if we haven't done so already.
 				MainFrame.getInstance().getStatusPane().setMessage(
-						"Checking CitizenSky credentials...");
+						"Checking Citizen Sky credentials...");
 				Connection userConnection = createConnection();
 
 				// Get a prepared statement to read a user details
