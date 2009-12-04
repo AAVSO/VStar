@@ -143,7 +143,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory
-				.createTitledBorder("CitizenSky \"10 Stars\""));
+				.createTitledBorder("Citizen Sky \"10 Stars\""));
 
 		tenStarSelector = new JComboBox(tenStarMap.keySet().toArray(
 				new String[0]));

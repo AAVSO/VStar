@@ -55,7 +55,7 @@ public class AboutBox {
 		strBuf.append("  Observers: http://www.aavso.org/\n\n");
 		strBuf.append("as part of:\n\n");
 		strBuf
-				.append("  The CitizenSky Project: http://www.citizensky.org/\n\n");
+				.append("  The Citizen Sky Project: http://www.citizensky.org/\n\n");
 
 		strBuf
 				.append("This project was funded in part by grant No. 000379097 from the\n");

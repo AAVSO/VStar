@@ -2,7 +2,7 @@ Introduction
 ============
 VStar is a statistical analysis tool for variable star observation data
 developed for the American Association of Variable Star Observers 
-(http://www.aavso.org/) and the CitizenSky project (http://www.citizensky.org/).
+(http://www.aavso.org/) and the Citizen Sky project (http://www.citizensky.org/).
 
 Installation
 ============
