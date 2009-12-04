@@ -55,6 +55,11 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 			findAUIDFromAliasStatement.setString(1, name);
 			findAUIDFromAliasStatement.setString(2, name);
 			rs = findAUIDFromAliasStatement.executeQuery();
+			if (rs.first()) {
+				auid = rs.getString("o_auid");				
+			}
+		} else {
+			auid = rs.getString("o_auid");
 		}
 
 		return auid;
