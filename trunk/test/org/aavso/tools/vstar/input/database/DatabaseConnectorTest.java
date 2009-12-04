@@ -106,7 +106,7 @@ public class DatabaseConnectorTest extends TestCase {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.vsxDBConnector;
 			Connection connection = obsConnector.createConnection();
-			String auid = aidStarNameAndAUIDRetriever.getAUID(connection, "epsilon aur");
+			String auid = vsxStarNameAndAUIDRetriever.getAUID(connection, "epsilon aur");
 			assertEquals("000-BCT-905", auid);
 		} catch (Exception e) {
 			fail();
@@ -121,7 +121,7 @@ public class DatabaseConnectorTest extends TestCase {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.vsxDBConnector;
 			Connection connection = obsConnector.createConnection();
-			String auid = aidStarNameAndAUIDRetriever.getAUID(connection, "eps aur");
+			String auid = vsxStarNameAndAUIDRetriever.getAUID(connection, "eps aur");
 			assertEquals("000-BCT-905", auid);
 		} catch (Exception e) {
 			fail();
@@ -134,7 +134,7 @@ public class DatabaseConnectorTest extends TestCase {
 //		try {
 //			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.vsxDBConnector;
 //			Connection connection = obsConnector.createConnection();
-//			String starName = aidStarNameAndAUIDRetriever.getStarName(connection,
+//			String starName = vsxStarNameAndAUIDRetriever.getStarName(connection,
 //					"000-BCT-905");
 //			// Test for equality, trimming and ignoring case.
 //			assertTrue("Eps Aur".equalsIgnoreCase(starName.trim()));
