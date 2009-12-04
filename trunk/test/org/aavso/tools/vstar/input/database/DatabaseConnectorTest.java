@@ -28,6 +28,9 @@ import junit.framework.TestCase;
  */
 public class DatabaseConnectorTest extends TestCase {
 
+	private static IStarNameAndAUIDSource aidStarNameAndAUIDRetriever = new AIDStarNameAndAUIDSource();
+	private static IStarNameAndAUIDSource vsxStarNameAndAUIDRetriever = new VSXStarNameAndAUIDSource();
+	
 	/**
 	 * Constructor
 	 * 
@@ -45,15 +48,17 @@ public class DatabaseConnectorTest extends TestCase {
 				.generateHexDigest("foo"));
 	}
 
+	// AID accessor tests.
+	
 	// 'epsilon aur' should be found in the aliases table, but not in the
 	// validation table.
 	// At the end of the day, we see a single AUID arising from the getAUID()
 	// method.
-	public void testGetEpsilonAurAUID() {
+	public void testGetEpsilonAurAUIDViaAID() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
 			Connection connection = obsConnector.createConnection();
-			String auid = obsConnector.getAUID(connection, "epsilon aur");
+			String auid = aidStarNameAndAUIDRetriever.getAUID(connection, "epsilon aur");
 			assertEquals("000-BCT-905", auid);
 		} catch (Exception e) {
 			fail();
@@ -64,11 +69,11 @@ public class DatabaseConnectorTest extends TestCase {
 	// aliases
 	// table. At the end of the day, we see a single AUID arising from the
 	// getAUID() method.
-	public void testGetEpsAurAUID() {
+	public void testGetEpsAurAUIDViaAID() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
 			Connection connection = obsConnector.createConnection();
-			String auid = obsConnector.getAUID(connection, "eps aur");
+			String auid = aidStarNameAndAUIDRetriever.getAUID(connection, "eps aur");
 			assertEquals("000-BCT-905", auid);
 		} catch (Exception e) {
 			fail();
@@ -77,17 +82,65 @@ public class DatabaseConnectorTest extends TestCase {
 
 	// '000-BCT-905' should be found in the validation table as corresponding to
 	// Epsilon Aurigae.
-	public void testGetEpsAurFromAUID() {
+	public void testGetEpsAurFromAUIDViaAID() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
 			Connection connection = obsConnector.createConnection();
-			String starName = obsConnector.getStarName(connection,
+			String starName = aidStarNameAndAUIDRetriever.getStarName(connection,
 					"000-BCT-905");
 			// Test for equality, trimming and ignoring case.
 			assertTrue("Eps Aur".equalsIgnoreCase(starName.trim()));
 		} catch (Exception e) {
 			fail();
 		}
+	}
+
+	// VSX accessor tests.
+	// TODO: need vstartest equivalent of this so it doesn't change over time.
+	
+	// 'epsilon aur' should be found in the aliases table, but not in the
+	// validation table.
+	// At the end of the day, we see a single AUID arising from the getAUID()
+	// method.
+	public void testGetEpsilonAurAUIDViaVSX() {
+		try {
+			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.vsxDBConnector;
+			Connection connection = obsConnector.createConnection();
+			String auid = aidStarNameAndAUIDRetriever.getAUID(connection, "epsilon aur");
+			assertEquals("000-BCT-905", auid);
+		} catch (Exception e) {
+			fail();
+		}
+	}
+
+	// 'eps aur' should be found in the validation table before we ever hit the
+	// aliases
+	// table. At the end of the day, we see a single AUID arising from the
+	// getAUID() method.
+	public void testGetEpsAurAUIDViaVSX() {
+		try {
+			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.vsxDBConnector;
+			Connection connection = obsConnector.createConnection();
+			String auid = aidStarNameAndAUIDRetriever.getAUID(connection, "eps aur");
+			assertEquals("000-BCT-905", auid);
+		} catch (Exception e) {
+			fail();
+		}
+	}
+
+	// '000-BCT-905' should be found in the validation table as corresponding to
+	// Epsilon Aurigae.
+	public void testGetEpsAurFromAUIDViaVSX() {
+//		try {
+//			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.vsxDBConnector;
+//			Connection connection = obsConnector.createConnection();
+//			String starName = aidStarNameAndAUIDRetriever.getStarName(connection,
+//					"000-BCT-905");
+//			// Test for equality, trimming and ignoring case.
+//			assertTrue("Eps Aur".equalsIgnoreCase(starName.trim()));
+//		} catch (Exception e) {
+//			fail();
+//		}
 	}
 
 	// Read a result set from the database for Epsilon Aurigae in the

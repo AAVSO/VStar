@@ -1,5 +1,5 @@
 /**
- * VStar: a statistical analysis tool for variable star data.
+ * VìStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -53,9 +53,9 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class AAVSODatabaseConnector {
 
-	 // 30 seconds connection timeout.
+	// 30 seconds connection timeout.
 	private final static int MAX_CONN_TIME = 15 * 1000;
-	
+
 	private final static String CONN_URL = "jdbc:mysql://"
 			+ ResourceAccessor.getParam(0);
 
@@ -63,30 +63,38 @@ public class AAVSODatabaseConnector {
 	private Driver driver;
 	private Connection connection;
 
+	// Authorisation and observation retrieval statements.
 	private PreparedStatement authStmt;
 	private PreparedStatement obsStmt;
-	private PreparedStatement auidFromValidationStmt;
-	private PreparedStatement auidFromAliasStmt;
-	private PreparedStatement starNameFromValidationStmt;
 
 	private boolean authenticatedWithCitizenSky;
 	private String obsCode;
 
+	// Database connectors.
 	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.OBSERVATION);
 
 	public static AAVSODatabaseConnector userDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.USER);
 
+	public static AAVSODatabaseConnector vsxDBConnector = new AAVSODatabaseConnector(
+			DatabaseType.VSX);
+
 	protected static AAVSODatabaseConnector utDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.UT);
+
+	// Star name and AUID retrievers.
+	// TODO: continue the refactoring of sub-data-accessors begin with this,
+	// e.g. for observations and CS authentiction.
+	private static IStarNameAndAUIDSource starNameAndAUIDRetriever = new AIDStarNameAndAUIDSource();
 
 	static {
 		try {
 			Class.forName("com.mysql.jdbc.Driver", true,
 					AAVSODatabaseConnector.class.getClassLoader());
 		} catch (ClassNotFoundException e) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(), "Read from database", e);
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					"Read from database", e);
 		}
 	}
 
@@ -100,6 +108,7 @@ public class AAVSODatabaseConnector {
 		this.obsStmt = null;
 		this.authenticatedWithCitizenSky = false;
 		this.obsCode = null;
+		this.starNameAndAUIDRetriever = null;
 	}
 
 	/**
@@ -112,11 +121,11 @@ public class AAVSODatabaseConnector {
 		int retries = 3;
 
 		while (connection == null && retries > 0) {
-			// TODO: provide status message updates re: retries 
+			// TODO: provide status message updates re: retries
 			Properties props = new Properties();
 
-			props.put("user", ResourceAccessor.getParam(4));
-			props.put("password", ResourceAccessor.getParam(5));
+			props.put("user", ResourceAccessor.getParam(5));
+			props.put("password", ResourceAccessor.getParam(6));
 			props.put("connectTimeout", MAX_CONN_TIME + "");
 
 			try {
@@ -127,7 +136,8 @@ public class AAVSODatabaseConnector {
 				try {
 					// ..and then with 3306.
 					connection = DriverManager
-							.getConnection(CONN_URL + ":3306/"
+							.getConnection(CONN_URL
+									+ ":3306/"
 									+ ResourceAccessor
 											.getParam(type.getDBNum()), props);
 				} catch (Exception e) {
@@ -209,44 +219,6 @@ public class AAVSODatabaseConnector {
 	}
 
 	/**
-	 * Return a prepared statement to find the AUID from the validation table
-	 * given a star name. This is a once-only-created prepared statement.
-	 * 
-	 * @param connection
-	 *            A JDBC connection.
-	 * @return A prepared statement.
-	 */
-	protected PreparedStatement createAUIDFromValidationQuery(
-			Connection connection) throws SQLException {
-
-		if (auidFromValidationStmt == null) {
-			auidFromValidationStmt = connection
-					.prepareStatement("SELECT auid FROM validation WHERE validation.name = ? limit 1;");
-		}
-
-		return auidFromValidationStmt;
-	}
-
-	/**
-	 * Return a prepared statement to find the AUID from the alias table given a
-	 * star name. This is a once-only-created prepared statement.
-	 * 
-	 * @param connection
-	 *            A JDBC connection.
-	 * @return A prepared statement.
-	 */
-	protected PreparedStatement createAUIDFromAliasQuery(Connection connection)
-			throws SQLException {
-
-		if (auidFromAliasStmt == null) {
-			auidFromAliasStmt = connection
-					.prepareStatement("SELECT auid FROM aliases WHERE aliases.name = ? limit 1;");
-		}
-
-		return auidFromAliasStmt;
-	}
-
-	/**
 	 * Return the AUID of the named star.
 	 * 
 	 * @param connection
@@ -258,48 +230,7 @@ public class AAVSODatabaseConnector {
 	 */
 	public String getAUID(Connection connection, String name)
 			throws SQLException {
-		String auid = null;
-
-		// Can we find the name in the validation table?
-		PreparedStatement validationStmt = this
-				.createAUIDFromValidationQuery(connection);
-		validationStmt.setString(1, name);
-		ResultSet validationResults = validationStmt.executeQuery();
-
-		if (validationResults.next()) {
-			auid = validationResults.getString("auid");
-		} else {
-			// No, how about in the aliases database?
-			PreparedStatement aliasStmt = this
-					.createAUIDFromAliasQuery(connection);
-			aliasStmt.setString(1, name);
-			ResultSet aliasResults = aliasStmt.executeQuery();
-
-			if (aliasResults.next()) {
-				auid = aliasResults.getString("auid");
-			}
-		}
-
-		return auid;
-	}
-
-	/**
-	 * Return a prepared statement to find the star name from the validation
-	 * table given an AUID. This is a once-only-created prepared statement.
-	 * 
-	 * @param connection
-	 *            A JDBC connection.
-	 * @return A prepared statement.
-	 */
-	protected PreparedStatement createStarNameFromValidationQuery(
-			Connection connection) throws SQLException {
-
-		if (starNameFromValidationStmt == null) {
-			starNameFromValidationStmt = connection
-					.prepareStatement("SELECT name FROM validation WHERE validation.auid = ? LIMIT 1;");
-		}
-
-		return starNameFromValidationStmt;
+		return starNameAndAUIDRetriever.getAUID(connection, name);
 	}
 
 	/**
@@ -314,18 +245,7 @@ public class AAVSODatabaseConnector {
 	 */
 	public String getStarName(Connection connection, String auid)
 			throws SQLException {
-		String starName = null;
-
-		// Can we find the AUID in the validation table?
-		PreparedStatement starNamePreparedStatement = this
-				.createStarNameFromValidationQuery(connection);
-		starNamePreparedStatement.setString(1, auid);
-		ResultSet validationResults = starNamePreparedStatement.executeQuery();
-		if (validationResults.next()) {
-			starName = validationResults.getString("name");
-		}
-
-		return starName;
+		return starNameAndAUIDRetriever.getStarName(connection, auid);
 	}
 
 	/**
@@ -414,6 +334,13 @@ public class AAVSODatabaseConnector {
 	 */
 	public String getObsCode() {
 		return obsCode;
+	}
+
+	/**
+	 * @return the connection
+	 */
+	public Connection getConnection() {
+		return connection;
 	}
 
 	/**

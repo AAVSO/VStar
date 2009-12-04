@@ -23,7 +23,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * This class obtains star name and AUID information from the AID.
+ * This class obtains star name and AUID information from the AAVSO 
+ * International Database (AID).
  */
 public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	
@@ -68,6 +69,34 @@ public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	}
 
 	/**
+	 * Return the name of the star given an AUID.
+	 * 
+	 * @param connection
+	 *            A JDBC connection.
+	 * @param name
+	 *            The AUID.
+	 * @return The star name as a string, or null if it is not recognised as a
+	 *         valid AUID in the AAVSO International Database.
+	 */
+	public String getStarName(Connection connection, String auid)
+			throws SQLException {
+		String starName = null;
+
+		// Can we find the AUID in the validation table?
+		PreparedStatement starNamePreparedStatement = this
+				.createStarNameFromValidationQuery(connection);
+		starNamePreparedStatement.setString(1, auid);
+		ResultSet validationResults = starNamePreparedStatement.executeQuery();
+		if (validationResults.next()) {
+			starName = validationResults.getString("name");
+		}
+
+		return starName;
+	}
+	
+	// Helpers
+	
+	/**
 	 * Return a prepared statement to find the AUID from the validation table
 	 * given a star name. This is a once-only-created prepared statement.
 	 * 
@@ -105,32 +134,6 @@ public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		return auidFromAliasStmt;
 	}
 
-	/**
-	 * Return the name of the star given an AUID.
-	 * 
-	 * @param connection
-	 *            A JDBC connection.
-	 * @param name
-	 *            The AUID.
-	 * @return The star name as a string, or null if it is not recognised as a
-	 *         valid AUID in the AAVSO International Database.
-	 */
-	public String getStarName(Connection connection, String auid)
-			throws SQLException {
-		String starName = null;
-
-		// Can we find the AUID in the validation table?
-		PreparedStatement starNamePreparedStatement = this
-				.createStarNameFromValidationQuery(connection);
-		starNamePreparedStatement.setString(1, auid);
-		ResultSet validationResults = starNamePreparedStatement.executeQuery();
-		if (validationResults.next()) {
-			starName = validationResults.getString("name");
-		}
-
-		return starName;
-	}
-	
 	/**
 	 * Return a prepared statement to find the star name from the validation
 	 * table given an AUID. This is a once-only-created prepared statement.
