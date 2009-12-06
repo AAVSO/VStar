@@ -25,6 +25,7 @@ import java.sql.SQLException;
 /**
  * This class obtains star name and AUID information from the AAVSO 
  * International Database (AID).
+ * @deprecated
  */
 public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	

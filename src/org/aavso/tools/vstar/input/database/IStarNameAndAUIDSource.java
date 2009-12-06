@@ -35,7 +35,7 @@ public interface IStarNameAndAUIDSource {
 	 * @param name
 	 *            The star name or alias.
 	 * @return The AUID as a string, or null if it is not recognised as a valid
-	 *         star name in the AAVSO International Database.
+	 *         star name in the database.
 	 */
 	public String getAUID(Connection connection, String name) throws SQLException;
 
@@ -45,7 +45,7 @@ public interface IStarNameAndAUIDSource {
 	 * @param name
 	 *            The AUID.
 	 * @return The star name as a string, or null if it is not recognised as a
-	 *         valid AUID in the AAVSO International Database.
+	 *         valid AUID in the database.
 	 */
 	public String getStarName(Connection connection, String auid) throws SQLException;
 }
