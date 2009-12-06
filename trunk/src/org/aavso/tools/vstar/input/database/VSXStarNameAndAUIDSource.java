@@ -32,6 +32,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 
 	private PreparedStatement findAUIDFromNameStatement;
 	private PreparedStatement findAUIDFromAliasStatement;
+	private PreparedStatement findStarNameFromAUID;
 
 	/**
 	 * Return the AUID of the named star.
@@ -56,7 +57,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 			findAUIDFromAliasStatement.setString(2, name);
 			rs = findAUIDFromAliasStatement.executeQuery();
 			if (rs.first()) {
-				auid = rs.getString("o_auid");				
+				auid = rs.getString("o_auid");
 			}
 		} else {
 			auid = rs.getString("o_auid");
@@ -75,18 +76,34 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	 */
 	public String getStarName(Connection connection, String auid)
 			throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+		String starName = null;
+
+		createFindStarNameFromAUIDStatement(connection);
+		findStarNameFromAUID.setString(1, auid);
+
+		ResultSet rs = findStarNameFromAUID.executeQuery();
+
+		if (rs.first()) {
+			starName = rs.getString("o_designation");
+		}
+
+		return starName;
 	}
 
 	// Helpers
 
+	// Create statements to retrieve AUID from star name.
+	
+	// TODO: Look more closely at CONCAT and REPLACE function usage in next 
+	// two queries (REPLACE: substitution of 'V0' with 'V'). Can we use LIKE 
+	// or REGEX instead? Would that be more or less performant.
+	
 	protected PreparedStatement createFindAUIDFromNameStatement(
 			Connection connect) throws SQLException {
 		if (findAUIDFromNameStatement == null) {
 			findAUIDFromNameStatement = connect
 					.prepareStatement("SELECT o_auid, o_designation, "
-							+ "o_varType, o_period, o_specType from "
+							+ "o_varType, o_period, o_specType FROM "
 							+ STARTABLE
 							+ " WHERE (o_auid = ? OR o_designation = ? OR REPLACE(o_designation, \"V0\", \"V\") = ?) "
 							+ "AND o_auid is not null");
@@ -99,7 +116,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		if (findAUIDFromAliasStatement == null) {
 			findAUIDFromAliasStatement = connect
 					.prepareStatement("SELECT o_auid, o_designation, "
-							+ "o_varType, o_period, o_specType from "
+							+ "o_varType, o_period, o_specType FROM "
 							+ STARTABLE
 							+ ", "
 							+ ALIASTABLE
@@ -112,5 +129,18 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 							+ "= REPLACE(?,\" \",\"\")) AND o_auid is not null");
 		}
 		return findAUIDFromAliasStatement;
+	}
+
+	// Create statement to retrieve star name from AUID.
+	protected PreparedStatement createFindStarNameFromAUIDStatement(
+			Connection connect) throws SQLException {
+
+		if (findStarNameFromAUID == null) {
+			findStarNameFromAUID = connect
+					.prepareStatement("SELECT o_designation, o_period FROM "
+							+ STARTABLE + " WHERE o_auid = ?");
+		}
+
+		return findStarNameFromAUID;
 	}
 }

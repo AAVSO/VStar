@@ -84,9 +84,18 @@ public class AAVSODatabaseConnector {
 			DatabaseType.UT);
 
 	// Star name and AUID retrievers.
-	// TODO: continue the refactoring of sub-data-accessors begin with this,
-	// e.g. for observations and CS authentiction.
-	private static IStarNameAndAUIDSource starNameAndAUIDRetriever = new AIDStarNameAndAUIDSource();
+	
+	// TODO: Continue the refactoring of sub-data-accessors begin with this,
+	// e.g. for observations and CS authentication. Actually, it's worse 
+	// than this; some methods in this class will only work with certain 
+	// databases, e.g. VSX for name/AUID lookup, user database etc; we need
+	// to have separate data connector/accessor classes for each category 
+	// otherwise MySQL will tell us that have been denied access to a database 
+	// table because we're calling the wrong database-method combination. 
+	// Also, we should not have to be passing an observation connector to 
+	// each method! The different classes should handle that internally.
+	
+	private static IStarNameAndAUIDSource starNameAndAUIDRetriever = new VSXStarNameAndAUIDSource();
 
 	static {
 		try {

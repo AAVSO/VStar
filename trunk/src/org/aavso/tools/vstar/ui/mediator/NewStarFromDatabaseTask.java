@@ -88,13 +88,13 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// done so.
 			MainFrame.getInstance().getStatusPane().setMessage(
 					"Connecting to AAVSO database...");
-			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
-			Connection obsConnection = obsConnector.createConnection();
+			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
+			Connection vsxConnection = vsxConnector.createConnection();
 
 			// Do we need to ask for the AUID from the database before
 			// proceeding?
 			if (auid == null) {
-				auid = obsConnector.getAUID(obsConnection, starName);
+				auid = vsxConnector.getAUID(vsxConnection, starName);
 
 				if (auid == null) {
 					throw new UnknownStarError(starName);
@@ -104,7 +104,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// No, do we need instead to ask for the star name because
 			// we have an AUID but no star name?
 			if (starName == null) {
-				starName = obsConnector.getStarName(obsConnection, auid);
+				starName = vsxConnector.getStarName(vsxConnection, auid);
 
 				if (starName == null) {
 					throw new UnknownAUIDError(auid);
@@ -119,6 +119,9 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 
 			// TODO: hide all this statement stuff behind a get-observations
 			// method. **
+
+			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
+			Connection obsConnection = obsConnector.createConnection();
 
 			PreparedStatement obsStmt = obsConnector
 					.createObservationQuery(obsConnection);
