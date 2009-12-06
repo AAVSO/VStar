@@ -15,8 +15,19 @@ o Bug & Issue tracker entries cited below can be found here:
   https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
   These contain more detail about who did what, when, and where (in the codebase).
 o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Weber.
-  
+
 ----------------------
+
+Date: December 6 2009
+Version: 318M
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-06Dec2009
+Key Changes:
+- Converted VStar to use VSX for AUID and star name lookup; added more unit tests.
+  See tracker entries: 2907485, 2893284 for more details.
+- Minor changes to Citizen Sky references.
+- Added a new FAQ about VStar database port and firewalls.
+- Added descriptions for different contexts and tooltip to vstar.jlnp WebStart.
+- Update/correct license for About box artwork.
 
 Date: November 30 2009
 Version: 310
