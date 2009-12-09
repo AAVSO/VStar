@@ -71,7 +71,8 @@ public class PhasePlotPane extends ObservationPlotPane {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					PhaseParameterDialog phaseDialog = new PhaseParameterDialog();
+					PhaseParameterDialog phaseDialog = PhaseParameterDialog.getInstance();
+					phaseDialog.setVisible(true);
 					if (!phaseDialog.isCancelled()) {
 						double period = phaseDialog.getPeriod();
 						IEpochStrategy epochStrategy = phaseDialog

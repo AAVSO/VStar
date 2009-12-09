@@ -22,6 +22,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
+
 /**
  * This class obtains star name and AUID information from the AAVSO 
  * International Database (AID).
@@ -40,10 +42,9 @@ public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	 *            A JDBC connection.
 	 * @param name
 	 *            The star name or alias.
-	 * @return The AUID as a string, or null if it is not recognised as a valid
-	 *         star name in the AAVSO International Database.
+	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public String getAUID(Connection connection, String name) throws SQLException {
+	public StarInfo getAUID(Connection connection, String name) throws SQLException {
 		String auid = null;
 
 		// Can we find the name in the validation table?
@@ -66,7 +67,7 @@ public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 			}
 		}
 
-		return auid;
+		return new StarInfo(name, auid);
 	}
 
 	/**
@@ -76,10 +77,9 @@ public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	 *            A JDBC connection.
 	 * @param name
 	 *            The AUID.
-	 * @return The star name as a string, or null if it is not recognised as a
-	 *         valid AUID in the AAVSO International Database.
+	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public String getStarName(Connection connection, String auid)
+	public StarInfo getStarName(Connection connection, String auid)
 			throws SQLException {
 		String starName = null;
 
@@ -92,7 +92,7 @@ public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 			starName = validationResults.getString("name");
 		}
 
-		return starName;
+		return new StarInfo(starName, auid);
 	}
 	
 	// Helpers

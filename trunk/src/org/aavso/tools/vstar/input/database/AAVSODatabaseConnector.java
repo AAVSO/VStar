@@ -33,6 +33,7 @@ import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.LoginDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
@@ -234,10 +235,9 @@ public class AAVSODatabaseConnector {
 	 *            A JDBC connection.
 	 * @param name
 	 *            The star name or alias.
-	 * @return The AUID as a string, or null if it is not recognised as a valid
-	 *         star name in the AAVSO International Database.
+	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public String getAUID(Connection connection, String name)
+	public StarInfo getAUID(Connection connection, String name)
 			throws SQLException {
 		return starNameAndAUIDRetriever.getAUID(connection, name);
 	}
@@ -249,10 +249,9 @@ public class AAVSODatabaseConnector {
 	 *            A JDBC connection.
 	 * @param name
 	 *            The AUID.
-	 * @return The star name as a string, or null if it is not recognised as a
-	 *         valid AUID in the AAVSO International Database.
+	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public String getStarName(Connection connection, String auid)
+	public StarInfo getStarName(Connection connection, String auid)
 			throws SQLException {
 		return starNameAndAUIDRetriever.getStarName(connection, auid);
 	}

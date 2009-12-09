@@ -25,85 +25,21 @@ import org.aavso.tools.vstar.ui.model.NewStarType;
 public class NewStarMessage {
 
 	private NewStarType newStarType;
-	private String newStarName;
-	
-	// GUI table and chart components.
-	// TODO: we could use NamedComponents instead, e.g. to get tooltips
-//	private ObservationPlotPane obsChartPane;
-//	private ObservationAndMeanPlotPane obsAndMeanChartPane;
-//	private ObservationListPane obsListPane;
-//	private MeanObservationListPane meansListPane;
+	private StarInfo starInfo;
 
 	/**
-	 * @param newStarType
-	 * @param newStarName
-	 */
-	public NewStarMessage(NewStarType newStarType, String newStarName) {
-		this.newStarType = newStarType;
-		this.newStarName = newStarName;
-	}
-	
-	/**
-	 * Constructor
+	 * Constructor.
 	 * 
 	 * @param newStarType
-	 *            The new star type enum.
-	 * @param obsChartPane
-	 *            The observation plot GUI component.
-	 * @param obsWithMeanChartPane
-	 *            The observation-and-mean plot GUI component.
-	 * @param obsListPane
-	 *            The observation table GUI component.
-	 * @param meansTablePane           
+	 *            The type of the new star.
+	 * @param info
+	 *            Information about the star's characteristics, e.g.
+	 *            designation, name, and possibly: period, epoch).
 	 */
-//	public NewStarMessage(NewStarType newStarType,
-//			ObservationPlotPane obsChartPane,
-//			ObservationAndMeanPlotPane obsAndMeanChartPane,
-//			ObservationListPane obsListPane,
-//			MeanObservationListPane meansListPane) {
-//		this.newStarType = newStarType;
-//		
-//		this.obsChartPane = obsChartPane;
-//		this.obsAndMeanChartPane = obsAndMeanChartPane;
-//		
-//		this.obsListPane = obsListPane;
-//		this.meansListPane = meansListPane;
-//	}
-
-//	/**
-//	 * @return the newStarType
-//	 */
-//	public NewStarType getNewStarType() {
-//		return newStarType;
-//	}
-//
-//	/**
-//	 * @return the obsChartPane
-//	 */
-//	public ObservationPlotPane getObsChartPane() {
-//		return obsChartPane;
-//	}
-//
-//	/**
-//	 * @return the obsListPane
-//	 */
-//	public ObservationListPane getObsTablePane() {
-//		return obsListPane;
-//	}
-//
-//	/**
-//	 * @return the obsAndMeanChartPane
-//	 */
-//	public ObservationAndMeanPlotPane getObsAndMeanChartPane() {
-//		return obsAndMeanChartPane;
-//	}
-//
-//	/**
-//	 * @return the meansListPane
-//	 */
-//	public MeanObservationListPane getMeansListPane() {
-//		return meansListPane;
-//	}
+	public NewStarMessage(NewStarType newStarType, StarInfo info) {
+		this.newStarType = newStarType;
+		this.starInfo = info;
+	}
 
 	/**
 	 * @return the newStarType
@@ -113,11 +49,9 @@ public class NewStarMessage {
 	}
 
 	/**
-	 * @return the newStarName
+	 * @return the starInfo
 	 */
-	public String getNewStarName() {
-		return newStarName;
+	public StarInfo getStarInfo() {
+		return starInfo;
 	}
-
-	
 }

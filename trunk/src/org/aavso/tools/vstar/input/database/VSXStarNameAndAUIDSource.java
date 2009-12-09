@@ -22,6 +22,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
+
 /**
  * This class obtains star name and AUID information from the VSX database.
  */
@@ -39,12 +41,13 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	 * 
 	 * @param name
 	 *            The star name or alias.
-	 * @return The AUID as a string, or null if it is not recognised as a valid
-	 *         star name in the VSX database.
+	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public String getAUID(Connection connection, String name)
+	public StarInfo getAUID(Connection connection, String name)
 			throws SQLException {
 		String auid = null;
+		Double period = null;
+		Double epoch = null;
 
 		createFindAUIDFromNameStatement(connection);
 		findAUIDFromNameStatement.setString(1, name);
@@ -58,12 +61,16 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 			rs = findAUIDFromAliasStatement.executeQuery();
 			if (rs.first()) {
 				auid = rs.getString("o_auid");
+				period = getPossiblyNullPeriod(rs);
+				epoch = getPossiblyNullEpoch(rs);
 			}
 		} else {
 			auid = rs.getString("o_auid");
+			period = getPossiblyNullPeriod(rs);
+			epoch = getPossiblyNullEpoch(rs);
 		}
 
-		return auid;
+		return new StarInfo(name, auid, period, epoch);
 	}
 
 	/**
@@ -71,12 +78,13 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	 * 
 	 * @param name
 	 *            The AUID.
-	 * @return The star name as a string, or null if it is not recognised as a
-	 *         valid AUID in the VSX database.
+	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public String getStarName(Connection connection, String auid)
+	public StarInfo getStarName(Connection connection, String auid)
 			throws SQLException {
 		String starName = null;
+		Double period = null;
+		Double epoch = null;
 
 		createFindStarNameFromAUIDStatement(connection);
 		findStarNameFromAUID.setString(1, auid);
@@ -85,25 +93,51 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 
 		if (rs.first()) {
 			starName = rs.getString("o_designation");
+			period = getPossiblyNullPeriod(rs);
+			epoch = getPossiblyNullEpoch(rs);
 		}
 
-		return starName;
+		return new StarInfo(starName, auid, period, epoch);
 	}
 
 	// Helpers
 
+	// Possibly null period and epoch getters.
+
+	private Double getPossiblyNullPeriod(ResultSet rs) throws SQLException {
+		Double period = null;
+
+		period = rs.getDouble("o_period");
+		if (rs.wasNull()) {
+			period = null; // TODO: necessary?
+		}
+		
+		return period;
+	}
+
+	private Double getPossiblyNullEpoch(ResultSet rs) throws SQLException {
+		Double epoch = null;
+
+		epoch = rs.getDouble("o_epoch");
+		if (rs.wasNull()) {
+			epoch = null; // TODO: necessary?
+		}
+		
+		return epoch;
+	}
+
 	// Create statements to retrieve AUID from star name.
-	
-	// TODO: Look more closely at CONCAT and REPLACE function usage in next 
-	// two queries (REPLACE: substitution of 'V0' with 'V'). Can we use LIKE 
+
+	// TODO: Look more closely at CONCAT and REPLACE function usage in next
+	// two queries (REPLACE: substitution of 'V0' with 'V'). Can we use LIKE
 	// or REGEX instead? Would that be more or less performant.
-	
+
 	protected PreparedStatement createFindAUIDFromNameStatement(
 			Connection connect) throws SQLException {
 		if (findAUIDFromNameStatement == null) {
 			findAUIDFromNameStatement = connect
 					.prepareStatement("SELECT o_auid, o_designation, "
-							+ "o_varType, o_period, o_specType FROM "
+							+ "o_varType, o_period, o_epoch, o_specType FROM "
 							+ STARTABLE
 							+ " WHERE (o_auid = ? OR o_designation = ? OR REPLACE(o_designation, \"V0\", \"V\") = ?) "
 							+ "AND o_auid is not null");
@@ -116,7 +150,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		if (findAUIDFromAliasStatement == null) {
 			findAUIDFromAliasStatement = connect
 					.prepareStatement("SELECT o_auid, o_designation, "
-							+ "o_varType, o_period, o_specType FROM "
+							+ "o_varType, o_period, o_epoch, o_specType FROM "
 							+ STARTABLE
 							+ ", "
 							+ ALIASTABLE
@@ -137,7 +171,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 
 		if (findStarNameFromAUID == null) {
 			findStarNameFromAUID = connect
-					.prepareStatement("SELECT o_designation, o_period FROM "
+					.prepareStatement("SELECT o_designation, o_period, o_epoch FROM "
 							+ STARTABLE + " WHERE o_auid = ?");
 		}
 
