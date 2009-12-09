@@ -34,6 +34,11 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.model.NewStarType;
+import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 import org.aavso.tools.vstar.util.stats.epoch.AlphaOmegaMeanJDEpochStrategy;
 import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
@@ -42,40 +47,58 @@ import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
  * This class represents a dialog to obtain parameters for phase plot
  * calculation: period, epoch determination method.
  */
-public class PhaseParameterDialog extends AbstractOkCancelDialog {
+public class PhaseParameterDialog extends AbstractOkCancelDialog implements
+		Listener<NewStarMessage> {
 
-	private static Pattern periodPattern = Pattern
+	private static PhaseParameterDialog instance = new PhaseParameterDialog();
+
+	private static Pattern realNumberPattern = Pattern
 			.compile("^\\s*(\\d+(\\.\\d+)?)\\s*$");
 
 	private JTextField periodField;
+	private JTextField epochField;
 
 	private double period;
+	private double epoch;
 	private IEpochStrategy epochStrategy;
 
 	/**
-	 * Constructor.
+	 * @return The Singleton instance.
 	 */
-	public PhaseParameterDialog() {
+	public static PhaseParameterDialog getInstance() {
+		return instance;
+	}
+
+	/**
+	 * Constructor (Singleton).
+	 */
+	private PhaseParameterDialog() {
 		super("Phase Plot");
 
 		period = 0;
-		//epochStrategy = null;
+		epoch = 0;
+		// epochStrategy = null;
 		epochStrategy = new AlphaOmegaMeanJDEpochStrategy();
-		
+
 		Container contentPane = this.getContentPane();
 
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		
+
 		// Period
 		topPane.add(createPeriodFieldPane());
-
+		
+		// Epoch
+		createEpochFieldPane();
+		// topPane.add(Box.createRigidArea(new Dimension(75, 10)));
+		// topPane.add(createEpochFieldPane());
+		
 		// Epoch determination
 		// TODO: disabled until we (Mike, Sara et al) can talk about this.
-		//topPane.add(Box.createRigidArea(new Dimension(75, 10)));
-		//topPane.add(createEpochStrategyPane());
-		
+		// topPane.add(Box.createRigidArea(new Dimension(75, 10)));
+		// topPane.add(createEpochStrategyPane());
+
 		// OK, Cancel
 		topPane.add(createButtonPane());
 
@@ -84,7 +107,10 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 		this.pack();
 		periodField.requestFocusInWindow();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
-		this.setVisible(true);
+
+		// We want to be updated when a new star is loaded in order to
+		// adjust our fields and instance variables.
+		Mediator.getInstance().getNewStarNotifier().addListener(this);
 	}
 
 	private JPanel createPeriodFieldPane() {
@@ -95,15 +121,26 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 		periodField = new JTextField();
 		periodField.setToolTipText("Enter period in days");
 		panel.add(periodField);
-
+		
 		return panel;
 	}
 
+	private JPanel createEpochFieldPane() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+		panel.setBorder(BorderFactory.createTitledBorder("Epoch (Julian Date)"));
+		
+		epochField = new JTextField();
+		epochField.setToolTipText("Enter epoch as a Julian Date");
+		//panel.add(epochField);
+
+		return panel;
+	}
+	
 	private JPanel createEpochStrategyPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.setBorder(BorderFactory
-				.createTitledBorder("Epoch Strategy"));
+		panel.setBorder(BorderFactory.createTitledBorder("Epoch Strategy"));
 
 		ButtonGroup strategyGroup = new ButtonGroup();
 
@@ -131,12 +168,12 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 			}
 		}
 
-		assert(epochStrategy != null);
+		assert (epochStrategy != null);
 
 		// Without this, the bordered radio group will appear right-justified.
 		JPanel centeringPanel = new JPanel(new BorderLayout());
 		centeringPanel.add(panel, BorderLayout.CENTER);
-		
+
 		return centeringPanel;
 	}
 
@@ -163,7 +200,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 		String periodText = periodField.getText();
 
 		if (periodText != null) {
-			Matcher periodMatcher = periodPattern.matcher(periodText);
+			Matcher periodMatcher = realNumberPattern.matcher(periodText);
 			if (periodMatcher.matches()) {
 				String periodStr = periodMatcher.group(1);
 				period = Double.parseDouble(periodStr);
@@ -184,9 +221,53 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog {
 	}
 
 	/**
+	 * @return the epoch
+	 */
+	public double getEpoch() {
+		return epoch;
+	}
+
+	/**
 	 * @return the epochStrategy
 	 */
 	public IEpochStrategy getEpochStrategy() {
 		return epochStrategy;
+	}
+
+	/**
+	 * New star message listener. We either want to clear the fields or
+	 * if period or epoch values are available to us, populate the fields
+	 * accordingly.
+	 */
+	public void update(NewStarMessage msg) {
+		if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+			StarInfo info = msg.getStarInfo();
+			Double period = info.getPeriod();
+			Double epoch = info.getEpoch();
+			
+			if (period == null) {
+				this.periodField.setText("");
+				this.period = 0;
+			} else {
+				this.periodField.setText(period.toString());
+				this.period = period;
+			}
+			
+			if (epoch == null) {
+				this.epochField.setText("");
+				this.epoch = 0;
+			} else {
+				this.epochField.setText(epoch.toString());
+				this.epoch = epoch;
+			}
+		} else {
+			// Just clear the fields since we have no params
+			// with which to pre-populate the fields.
+			this.periodField.setText("");
+			this.period = 0;
+			
+			this.epochField.setText("");
+			this.epoch = 0;
+		}
 	}
 }
