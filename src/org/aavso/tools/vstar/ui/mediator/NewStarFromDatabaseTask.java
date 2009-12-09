@@ -88,14 +88,21 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// done so.
 			MainFrame.getInstance().getStatusPane().setMessage(
 					"Connecting to AAVSO database...");
+			
+			// TODO: only need VSX connector if star is not a 10-star, 
+			// i.e. auid and starName are both null.
 			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
 			Connection vsxConnection = vsxConnector.createConnection();
 
+			// TODO: need to cache period and epoch for 10-star stars
+			// Use this 2 parameter constructor until then.
+			StarInfo starInfo = new StarInfo(starName, auid);
+			
 			// Do we need to ask for the AUID from the database before
 			// proceeding?
 			if (auid == null) {
-				auid = vsxConnector.getAUID(vsxConnection, starName);
-
+				starInfo = vsxConnector.getAUID(vsxConnection, starName);
+				auid = starInfo.getAuid();
 				if (auid == null) {
 					throw new UnknownStarError(starName);
 				}
@@ -104,8 +111,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// No, do we need instead to ask for the star name because
 			// we have an AUID but no star name?
 			if (starName == null) {
-				starName = vsxConnector.getStarName(vsxConnection, auid);
-
+				starInfo = vsxConnector.getStarName(vsxConnection, auid);
+				starName = starInfo.getDesignation();
 				if (starName == null) {
 					throw new UnknownAUIDError(auid);
 				}
@@ -155,7 +162,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 
 			// Create table/plot models and GUI elements.
 			mediator.createNewStarObservationArtefacts(
-					NewStarType.NEW_STAR_FROM_DATABASE, starName,
+					NewStarType.NEW_STAR_FROM_DATABASE, starInfo,
 					databaseObsReader, 2);
 
 			success = true;

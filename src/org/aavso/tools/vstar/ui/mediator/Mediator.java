@@ -188,15 +188,19 @@ public class Mediator {
 					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
 
 					if (msg == null) {
-						PhaseParameterDialog phaseDialog = new PhaseParameterDialog();
+						PhaseParameterDialog phaseDialog = PhaseParameterDialog.getInstance();
+						phaseDialog.setVisible(true);
 						if (!phaseDialog.isCancelled()) {
 							double period = phaseDialog.getPeriod();
-							IEpochStrategy epochStrategy = phaseDialog.getEpochStrategy();
-							msg = createPhasePlotArtefacts(period, epochStrategy, null);
+							IEpochStrategy epochStrategy = phaseDialog
+									.getEpochStrategy();
+							msg = createPhasePlotArtefacts(period,
+									epochStrategy, null);
 						}
 					}
 
-					// TODO: sort out correct GUI state transitions here and above...
+					// TODO: sort out correct GUI state transitions here and
+					// above...
 					if (msg != null) {
 						this.analysisType = analysisType;
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
@@ -311,8 +315,9 @@ public class Mediator {
 	 * 
 	 * @param newStarType
 	 *            The new star enum type.
-	 * @param objName
-	 *            The name of the object for display in plot panes.
+	 * @param starInfo
+	 *            Information about the star, e.g. name (designation), AUID (for
+	 *            AID), period, epoch.
 	 * @param obsRetriever
 	 *            The observation source.
 	 * @param obsArtefactProgressAmount
@@ -322,7 +327,7 @@ public class Mediator {
 	 */
 	// TODO: split this up!
 	protected void createNewStarObservationArtefacts(NewStarType newStarType,
-			String objName, AbstractObservationRetriever obsRetriever,
+			StarInfo starInfo, AbstractObservationRetriever obsRetriever,
 			int obsArtefactProgressAmount) {
 
 		// Given raw valid and invalid observation data, create observation
@@ -370,11 +375,11 @@ public class Mediator {
 			if (newStarType == NewStarType.NEW_STAR_FROM_DATABASE) {
 				subTitle = new Date().toString() + " (database)";
 			} else {
-				subTitle = objName;
+				subTitle = starInfo.getDesignation();
 			}
 
 			obsChartPane = createObservationPlotPane("Light Curve for "
-					+ objName, subTitle, obsPlotModel);
+					+ starInfo.getDesignation(), subTitle, obsPlotModel);
 
 			// Observation-and-mean table and plot.
 			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
@@ -384,7 +389,7 @@ public class Mediator {
 					obsAndMeanPlotModel);
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					"Light Curve with Means for " + objName, subTitle,
+					"Light Curve with Means for " + starInfo.getDesignation(), subTitle,
 					obsAndMeanPlotModel);
 
 			// The mean observation table model must listen to the plot
@@ -422,7 +427,7 @@ public class Mediator {
 		meansListPane = new MeanObservationListPane(meanObsTableModel);
 
 		// Notify whoever is listening that a new star has been loaded.
-		newStarMessage = new NewStarMessage(newStarType, objName);
+		newStarMessage = new NewStarMessage(newStarType, starInfo);
 
 		// Notify whoever is listening that the analysis type has changed
 		// (we could have been viewing a phase plot for a different star
@@ -452,7 +457,8 @@ public class Mediator {
 	 * 
 	 * @param period
 	 *            The requested period of the phase plot.
-	 * @param epochStrategy An epoch determination strategy.
+	 * @param epochStrategy
+	 *            An epoch determination strategy.
 	 * @param seriesVisibilityMap
 	 *            A mapping from series number to visibility status.
 	 * @return An analysis type message consisting of phase plot artefacts.
@@ -478,7 +484,7 @@ public class Mediator {
 		// TODO: refactor this code against what is in
 		// createObservationArtefacts()
 
-		String objName = newStarMessage.getNewStarName();
+		String objName = newStarMessage.getStarInfo().getDesignation();
 
 		String subTitle = "";
 		if (this.newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
@@ -505,7 +511,9 @@ public class Mediator {
 		// Set the phases for the valid observation models in each series,
 		// including the means series.
 
-		double epoch = epochStrategy.determineEpoch(validObsList); // TODO: dialog box
+		double epoch = epochStrategy.determineEpoch(validObsList); // TODO:
+																	// dialog
+																	// box
 		// with radio
 		// buttons
 		// double period = validObsList.size() / 2; // essentially meaningless;

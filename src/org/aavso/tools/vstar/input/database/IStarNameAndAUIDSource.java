@@ -20,6 +20,8 @@ package org.aavso.tools.vstar.input.database;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
+
 /**
  * This interface must be implemented by any class wishing to retrieve
  * star name or AUID from a database.
@@ -34,18 +36,16 @@ public interface IStarNameAndAUIDSource {
 	 * 
 	 * @param name
 	 *            The star name or alias.
-	 * @return The AUID as a string, or null if it is not recognised as a valid
-	 *         star name in the database.
+	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public String getAUID(Connection connection, String name) throws SQLException;
+	public StarInfo getAUID(Connection connection, String name) throws SQLException;
 
 	/**
 	 * Return the name of the star given an AUID.
 	 * 
 	 * @param name
 	 *            The AUID.
-	 * @return The star name as a string, or null if it is not recognised as a
-	 *         valid AUID in the database.
+	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public String getStarName(Connection connection, String auid) throws SQLException;
+	public StarInfo getStarName(Connection connection, String auid) throws SQLException;
 }

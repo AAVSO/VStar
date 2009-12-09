@@ -163,13 +163,13 @@ public class StatusPane extends JPanel {
 						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE) {
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
-					strBuf.append(msg.getNewStarName());
+					strBuf.append(msg.getStarInfo().getDesignation());
 					strBuf.append("' loaded.");
 					setMessage(strBuf.toString());
 				} else if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
-					strBuf.append(msg.getNewStarName());
+					strBuf.append(msg.getStarInfo().getDesignation());
 					strBuf.append("' loaded from database.");
 					setMessage(strBuf.toString());
 				}

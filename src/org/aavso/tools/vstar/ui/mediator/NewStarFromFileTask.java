@@ -91,7 +91,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 			}
 
 			mediator.createNewStarObservationArtefacts(analyser
-					.getNewStarType(), obsFile.getName(), textFormatReader,
+					.getNewStarType(), new StarInfo(obsFile.getName()), textFormatReader,
 					plotTaskPortion);
 
 		} catch (Exception e) {

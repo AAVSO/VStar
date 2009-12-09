@@ -54,6 +54,8 @@ public class Notifier<T> {
 	/**
 	 * Add a listener, and specify whether to notify it immediately.
 	 * 
+	 * TODO: not sure we really need this one!
+	 * 
 	 * @param listener The listener to add.
 	 * @param immediateMessage The initial notification message, or null.
 	 */
