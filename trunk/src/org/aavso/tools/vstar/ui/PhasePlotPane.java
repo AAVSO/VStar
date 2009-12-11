@@ -28,7 +28,6 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
-import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
 
 /**
  * This class represents a chart pane containing a phase plot for a set of valid
@@ -67,22 +66,19 @@ public class PhasePlotPane extends ObservationPlotPane {
 
 	// Return a listener for the "new phase plot" button.
 	private ActionListener createNewPhasePlotButtonListener() {
-		final PhasePlotPane self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					PhaseParameterDialog phaseDialog = PhaseParameterDialog.getInstance();
-					phaseDialog.setVisible(true);
+					PhaseParameterDialog phaseDialog = Mediator.getInstance()
+							.getPhaseParameterDialog();
+					phaseDialog.showDialog();
 					if (!phaseDialog.isCancelled()) {
 						double period = phaseDialog.getPeriod();
-						IEpochStrategy epochStrategy = phaseDialog
-								.getEpochStrategy();
-
+						double epoch = phaseDialog.getEpoch();
 						// This will be the final act of this object before
 						// it is usurped by another model+phase-plot-pane pair.
 						Mediator.getInstance().createPhasePlotArtefacts(period,
-								epochStrategy,
-								obsModel.getSeriesVisibilityMap());
+								epoch, obsModel.getSeriesVisibilityMap());
 					}
 				} catch (Exception ex) {
 					MessageBox.showErrorDialog(MainFrame.getInstance(),
