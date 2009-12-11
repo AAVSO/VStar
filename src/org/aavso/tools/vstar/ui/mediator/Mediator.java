@@ -65,7 +65,6 @@ import org.aavso.tools.vstar.ui.model.SeriesType;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
-import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**
@@ -106,7 +105,44 @@ public class Mediator {
 	private Notifier<ProgressInfo> progressNotifier;
 
 	// Currently active task.
-	private SwingWorker currTask; // TODO: jdesktop or javax version of this?
+	private SwingWorker currTask;
+
+	// Singleton fields, constructor, getter.
+
+	private static Mediator mediator = new Mediator();
+
+	private PhaseParameterDialog phaseParameterDialog;
+
+	/**
+	 * Private constructor.
+	 */
+	private Mediator() {
+		this.analysisTypeChangeNotifier = new Notifier<AnalysisTypeChangeMessage>();
+		this.newStarNotifier = new Notifier<NewStarMessage>();
+		this.modeChangeNotifier = new Notifier<ModeType>();
+		this.progressNotifier = new Notifier<ProgressInfo>();
+
+		// These 3 are created for each new star.
+		this.validObsList = null;
+		this.invalidObsList = null;
+		this.validObservationCategoryMap = null;
+
+		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
+
+		this.mode = ModeType.PLOT_OBS_MODE;
+		this.analysisType = AnalysisType.RAW_DATA;
+		this.newStarMessage = null;
+
+		this.phaseParameterDialog = new PhaseParameterDialog();
+		this.newStarNotifier.addListener(this.phaseParameterDialog);
+	}
+
+	/**
+	 * Return the Singleton instance.
+	 */
+	public static Mediator getInstance() {
+		return mediator;
+	}
 
 	/**
 	 * @return the analysisTypeChangeNotifier
@@ -158,6 +194,13 @@ public class Mediator {
 	}
 
 	/**
+	 * @return the phaseParameterDialog
+	 */
+	public PhaseParameterDialog getPhaseParameterDialog() {
+		return phaseParameterDialog;
+	}
+
+	/**
 	 * Change the analysis type. If the old and new types are the same, there
 	 * will be no effect.
 	 * 
@@ -188,14 +231,13 @@ public class Mediator {
 					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
 
 					if (msg == null) {
-						PhaseParameterDialog phaseDialog = PhaseParameterDialog.getInstance();
-						phaseDialog.setVisible(true);
+						PhaseParameterDialog phaseDialog = Mediator
+								.getInstance().getPhaseParameterDialog();
+						phaseDialog.showDialog();
 						if (!phaseDialog.isCancelled()) {
 							double period = phaseDialog.getPeriod();
-							IEpochStrategy epochStrategy = phaseDialog
-									.getEpochStrategy();
-							msg = createPhasePlotArtefacts(period,
-									epochStrategy, null);
+							double epoch = phaseDialog.getEpoch();
+							msg = createPhasePlotArtefacts(period, epoch, null);
 						}
 					}
 
@@ -389,8 +431,8 @@ public class Mediator {
 					obsAndMeanPlotModel);
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					"Light Curve with Means for " + starInfo.getDesignation(), subTitle,
-					obsAndMeanPlotModel);
+					"Light Curve with Means for " + starInfo.getDesignation(),
+					subTitle, obsAndMeanPlotModel);
 
 			// The mean observation table model must listen to the plot
 			// model to know when the means data has changed. We also pass
@@ -427,7 +469,7 @@ public class Mediator {
 		meansListPane = new MeanObservationListPane(meanObsTableModel);
 
 		// Notify whoever is listening that a new star has been loaded.
-		newStarMessage = new NewStarMessage(newStarType, starInfo);
+		newStarMessage = new NewStarMessage(newStarType, starInfo, validObsList);
 
 		// Notify whoever is listening that the analysis type has changed
 		// (we could have been viewing a phase plot for a different star
@@ -457,15 +499,15 @@ public class Mediator {
 	 * 
 	 * @param period
 	 *            The requested period of the phase plot.
-	 * @param epochStrategy
-	 *            An epoch determination strategy.
+	 * @param epoch
+	 *            The epoch (first Julian Date) for the phase plot.
 	 * @param seriesVisibilityMap
 	 *            A mapping from series number to visibility status.
 	 * @return An analysis type message consisting of phase plot artefacts.
 	 */
 	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period,
-			IEpochStrategy epochStrategy,
-			Map<Integer, Boolean> seriesVisibilityMap) throws Exception {
+			double epoch, Map<Integer, Boolean> seriesVisibilityMap)
+			throws Exception {
 
 		// TODO: invoke dialog from here
 		// - for dialog, start with period entry box
@@ -511,9 +553,6 @@ public class Mediator {
 		// Set the phases for the valid observation models in each series,
 		// including the means series.
 
-		double epoch = epochStrategy.determineEpoch(validObsList); // TODO:
-																	// dialog
-																	// box
 		// with radio
 		// buttons
 		// double period = validObsList.size() / 2; // essentially meaningless;
@@ -718,37 +757,5 @@ public class Mediator {
 					NOT_IMPLEMENTED_YET);
 			break;
 		}
-	}
-
-	// Singleton fields, constructor, getter.
-
-	private static Mediator mediator = new Mediator();
-
-	/**
-	 * Private constructor.
-	 */
-	private Mediator() {
-		this.analysisTypeChangeNotifier = new Notifier<AnalysisTypeChangeMessage>();
-		this.newStarNotifier = new Notifier<NewStarMessage>();
-		this.modeChangeNotifier = new Notifier<ModeType>();
-		this.progressNotifier = new Notifier<ProgressInfo>();
-
-		// These 3 are created for each new star.
-		this.validObsList = null;
-		this.invalidObsList = null;
-		this.validObservationCategoryMap = null;
-
-		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
-
-		this.mode = ModeType.PLOT_OBS_MODE;
-		this.analysisType = AnalysisType.RAW_DATA;
-		this.newStarMessage = null;
-	}
-
-	/**
-	 * Return the Singleton instance.
-	 */
-	public static Mediator getInstance() {
-		return mediator;
 	}
 }

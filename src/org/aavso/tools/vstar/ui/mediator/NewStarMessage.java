@@ -17,6 +17,9 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
+import java.util.List;
+
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 
 /**
@@ -26,7 +29,8 @@ public class NewStarMessage {
 
 	private NewStarType newStarType;
 	private StarInfo starInfo;
-
+	private List<ValidObservation> obs;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -35,10 +39,12 @@ public class NewStarMessage {
 	 * @param info
 	 *            Information about the star's characteristics, e.g.
 	 *            designation, name, and possibly: period, epoch).
+	 * @param obs The list of valid observations for the loaded star.
 	 */
-	public NewStarMessage(NewStarType newStarType, StarInfo info) {
+	public NewStarMessage(NewStarType newStarType, StarInfo info, List<ValidObservation> obs) {
 		this.newStarType = newStarType;
 		this.starInfo = info;
+		this.obs = obs;
 	}
 
 	/**
@@ -53,5 +59,12 @@ public class NewStarMessage {
 	 */
 	public StarInfo getStarInfo() {
 		return starInfo;
+	}
+
+	/**
+	 * @return the observation list for the star
+	 */
+	public List<ValidObservation> getObservations() {
+		return obs;
 	}
 }

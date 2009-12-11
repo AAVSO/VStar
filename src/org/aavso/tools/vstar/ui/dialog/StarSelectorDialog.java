@@ -69,7 +69,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	private static Pattern whitespacePattern = Pattern.compile("^\\s*$");
 
-	// Regex pattern for AUID (AAVSO unique ID per each star).
+	// Regex pattern for AUID (AAVSO unique ID per star).
 	private static Pattern auidPattern = Pattern
 			.compile("^\\d{3}\\-\\w{3}\\-\\d{3}$");
 
@@ -284,9 +284,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	// of dialog widgets. The dialog will not be dismissed until
 	// there is a valid star selection and date range.
 	private void checkInput() {
-		// TODO: Is this a confusing interface? Split out as 2 dialogs:
-		// one for 10-star drop down, another for star name/AUID?
-
 		String text = starField.getText();
 		if (!whitespacePattern.matcher(text).matches()) {
 			// If text box is not empty, prioritise it over 10-star
@@ -298,8 +295,13 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 				starName = text;
 			}
 		} else {
-			starName = (String) tenStarSelector.getSelectedItem();
-			auid = tenStarMap.get(starName);
+			// There's nothing in the text field, so use the
+			// selected 10-star menu item. Note that by only 
+			// setting AUID, we will force the lookup of star 
+			// info from the database, at least the name, but 
+			// also period and epoch if they are available. 
+			String name = (String) tenStarSelector.getSelectedItem();
+			auid = tenStarMap.get(name);
 		}
 
 		try {
