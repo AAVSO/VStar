@@ -1,18 +1,49 @@
-VStar is reliant upon a number of freely available Java libraries
-("jar" files) that are not included with this distribution due to 
-licensing restrictions, so must be obtained from the Internet 
-separately. Some of these restrictions may be lifted, but further
-investigation is necessary.
+VStar is reliant upon a number of freely available open source libraries that
+are distributed as Java archive files ("jar" files) which are described below.
 
-The following libraries must be present in the current directory 
-for VStar to function. The jar file is given, along with the
-web address from which to obtain it.
+The following libraries must be present in the current directory (./extlib)
+for VStar to function. The list of jar files is given below, along with the web
+address from which to obtain the source code.
 
-  o jcommon-1.0.16.jar (http://www.jfree.org/jcommon/)
-  o jfreechart-1.0.13.jar (http://www.jfree.org/jfreechart/)
-  o swing-worker-1.2.jar (https://swingworker.dev.java.net/servlets/ProjectDocumentList)
-  o jlfgr-1_0.jar (http://java.sun.com/developer/techDocs/hi/repository/)
-  o mysql-connector-java-5.1.10-bin.jar (http://dev.mysql.com/downloads/connector/j/5.1.html)
+  o jcommon-1.0.16.jar
+    http://sourceforge.net/projects/jfreechart/files/
+
+  o jfreechart-1.0.13.jar
+    http://sourceforge.net/projects/jfreechart/files/
+
+  o swing-worker-1.2.jar
+    http://swingworker.dev.java.net/servlets/ProjectDocumentList
+
+  o jlfgr-1_0.jar
+    http://java.sun.com/developer/techDocs/hi/repository/
+
+  o mysql-connector-java-5.1.10-bin.jar
+    http://dev.mysql.com/downloads/connector/j/5.1.html
+
+The libraries are covered under the following licenses, and plain text copies
+of the licenses are included in the ./extlib directory.  See the url for the
+homepage of each project for more information.
+
+  o GNU Lesser General Public License, version 2.1
+    ./extlib/lgpl-2.1.txt
+    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+
+    * JCommon  http://sourceforge.net/projects/jfreechart/
+    * JFreeChart  http://sourceforge.net/projects/jfreechart/
+    * SwingWorker  http://swingworker.dev.java.net/
+
+  o GNU General Public License, version 2
+    ./extlib/gpl-2.0.txt
+    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+
+    * MySQL Connector/J  http://dev.mysql.com/downloads/connector/j/
+
+  o Sun Software License Agreement
+    ./extlib/sun_license.txt
+    (see download page which is linked from the url below)
+
+    * Java Look and Feel Graphics Repository (jlfgr)
+      http://java.sun.com/developer/techDocs/hi/repository/
 
 This section categorises the libraries in terms of function:
 
@@ -23,7 +54,7 @@ This section categorises the libraries in terms of function:
  - Swing extras:
      swing-worker-1.2.jar
      
- - Java look and feel Graphics Repository:
+ - Java Look and Feel Graphics Repository:
      jlfgr-1_0.jar
      
  - MySQL JDBC:

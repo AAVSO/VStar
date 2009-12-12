@@ -62,3 +62,6 @@ Licensing
 VStar is licensed under the GNU Affero General Public License, version 3.
 See doc/license or http://www.gnu.org/licenses/agpl-3.0-standalone.html for
 details.
+
+For licensing and links to source code for the external libraries used by VStar
+see the included ./extlib/ReadMe.txt file.
