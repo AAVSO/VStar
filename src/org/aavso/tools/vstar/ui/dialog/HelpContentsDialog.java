@@ -54,7 +54,8 @@ public class HelpContentsDialog extends JDialog {
 		JEditorPane editorPane = new JEditorPane();
 		editorPane.setEditable(false);
 		editorPane.addHyperlinkListener(createHyperlinkListener());
-		
+        setTitle("VStar Help");
+
 		java.net.URL helpURL = ResourceAccessor.getHelpHTMLResource();
 		
 		if (helpURL != null) {
