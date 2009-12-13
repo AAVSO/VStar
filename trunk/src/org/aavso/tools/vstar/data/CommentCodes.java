@@ -43,8 +43,10 @@ public class CommentCodes {
 		if (cc != null) {
 			origString = cc;
 			for (char c : cc.toCharArray()) {
-				commentcodes
-						.add(CommentType.getTypeFromFlag(String.valueOf(c)));
+				if (c != ' ') {
+					commentcodes.add(CommentType.getTypeFromFlag(String
+							.valueOf(c)));
+				}
 			}
 		} else {
 			origString = new String();
