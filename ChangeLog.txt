@@ -6,11 +6,14 @@ o Entries appear in reverse chronological order.
 o The "Version" field should be considered to be an arbitrary unique label that 
   may change over time (e.g. from a Subversion revision to a build number).
   See Help->About in VStar.
-o The tag for each revision is applied to the VStar SourceForge Subversion repository.
-  By navigating to that URL, the files that made up that release will be viewable. 
-o The Subversion log will reveal the full details of what went into each release and
-  who contributed what. The Key Changes sections below merely summarise key changes
-  and features for each release, but are based directly upon Subversion log entries. 
+o The tag for each revision is applied to the VStar SourceForge Subversion 
+  repository. By navigating to that URL, the files that made up that release
+  will be viewable.
+o The Subversion log will reveal the full details of what went into each release 
+  and who contributed what. The Key Changes sections below merely summarise key
+  changes and features for each release, but are based directly upon Subversion
+  log entries. For the detailed svn commit log comments see:
+  http://vstar.svn.sourceforge.net/viewvc/vstar/trunk/?view=log
 o Bug & Issue tracker entries cited below can be found here:
   https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
   These contain more detail about who did what, when, and where (in the codebase).
@@ -18,9 +21,28 @@ o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Webe
 
 ----------------------
 
+Date: December 13 2009
+Version: 339M
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-13Dec2009
+Key Changes:
+- VStar retrieves VSX values for epoch and period.  These are used as the
+  default initial values in Phase Plot.  Test database is used for VSX Unit
+  tests.  Epoch and period values now persist when entering values for a New
+  Phase Plot.  (2902477)
+- The RJD value from VSX is now converted to HJD.  Modified Phase Plot labels
+  and tooltips to clarify that epoch is HJD.  (2912793)
+- Fix bug where a cancel of Phase Plot causes a replot of the chart.  (2913376)
+- Add library .jar files and licenses to ./extlib with updates to ReadMe files.
+  Add extlib source code and license info to Help with links to full licenses
+  and library project homepages.  See tracker 2826668 for outstanding issue.
+- Add title to Help windows (2898529) and other minor changes to Help text.
+- Added vstar.jnlp.txt info file (ie. release notes) for vstar.jnlp for use at
+  SourceForge Download Now page:  https://sourceforge.net/projects/vstar/files
+- Applied Adam's comment code patch (2909469)
+
 Date: December 6 2009
 Version: 318M
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-06Dec2009
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-6Dec2009
 Key Changes:
 - Converted VStar to use VSX for AUID and star name lookup; added more unit tests.
   See tracker entries: 2907485, 2893284 for more details.
