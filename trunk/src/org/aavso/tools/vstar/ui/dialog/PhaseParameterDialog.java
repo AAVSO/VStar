@@ -108,6 +108,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 			firstUse = false;
 		}
 
+		this.setCancelled(true);
 		this.setVisible(true);
 	}
 
