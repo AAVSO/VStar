@@ -272,7 +272,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 				this.epochField.setToolTipText(epochStrategy.getDescription());
 			} else {
 				this.epochField.setText(epoch.toString());
-				this.epochField.setToolTipText("Default epoch");
+				this.epochField.setToolTipText("Enter HJD of epoch");
 				this.epoch = epoch;
 			}
 		} else {
