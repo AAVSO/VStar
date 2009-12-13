@@ -67,6 +67,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private Calendar cal;
 	private int year, month, day;
 
+	private boolean firstUse;
+
 	private static Pattern whitespacePattern = Pattern.compile("^\\s*$");
 
 	// Regex pattern for AUID (AAVSO unique ID per star).
@@ -79,6 +81,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private StarSelectorDialog() {
 		super("Select a Star");
 
+		firstUse = true;
+		
 		this.starName = null;
 		this.auid = null;
 		this.minDate = null;
@@ -116,7 +120,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 		this.pack();
 		tenStarSelector.requestFocusInWindow();
-		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
 	}
 
 	// We know the AUID of the CitizenSky ten-stars, so there is
@@ -380,6 +383,19 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	}
 
 	/**
+	 * Show the dialog.
+	 */
+	public void showDialog() {
+		if (firstUse) {
+			setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+			firstUse = false;
+		}
+
+		reset();
+		this.setVisible(true);
+	}
+	
+	/**
 	 * Reset this dialog's state so that we don't process old state.
 	 */
 	public void reset() {
@@ -387,7 +403,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		this.starName = null;
 		this.minDate = null;
 		this.maxDate = null;
-		this.cancelled = true;
+		this.setCancelled(true);
 	}
 	
 	// Singleton
