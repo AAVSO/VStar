@@ -1,0 +1,36 @@
+VStar is an easy-to-use variable star data visualization tool. Data can be read
+from a file or the AAVSO database and plotted as a light curve along with means
+data and error bars. Phase plots are under development and period search
+functions are planned.
+
+This is a pre-release version of VStar.  It will run on any platform that has
+version 1.5 or later of the Java run-time environment.  Download vstar.jnlp to
+install using Java WebStart.  This version is the same as the one on the Citizen
+Sky website, where you can learn more about the VStar project:
+http://www.citizensky.org/teams/vstar-software-development
+
+You will also need to register for a free account on Citizen Sky to use the
+download from AAVSO database feature of VStar.
+
+VStar is licensed under the GNU Affero General Public License, version 3.  See
+http://www.gnu.org/licenses/agpl-3.0-standalone.html for details.  The source
+code and detailed information about the software can be found at the VStar
+SourceForge site: https://sourceforge.net/projects/vstar
+
+VStar uses the following external libraries. See the links for project info,
+source code and licensing.
+
+    * JCommon
+      http://sourceforge.net/projects/jfreechart/
+      GNU Lesser General Public License, version 2.1
+    * JFreeChart
+      http://sourceforge.net/projects/jfreechart/
+      GNU Lesser General Public License, version 2.1
+    * SwingWorker
+      http://swingworker.dev.java.net/
+      GNU Lesser General Public License, version 2.1
+    * MySQL Connector/J
+      http://dev.mysql.com/downloads/connector/j/
+      GNU General Public License, version 2
+    * Java Look and Feel Graphics Repository
+      http://java.sun.com/developer/techDocs/hi/repository/
