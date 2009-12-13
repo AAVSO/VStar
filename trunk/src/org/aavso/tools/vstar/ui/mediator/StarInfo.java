@@ -40,7 +40,7 @@ public class StarInfo {
 	 *            The star's period, if known.
 	 * @param epoch
 	 *            The star's (corresponding to period for phase plot purposes)
-	 *            epoch, if known.
+	 *            epoch, if known, as a Heliocentric Julian Date.
 	 */
 	public StarInfo(String designation, String auid, Double period, Double epoch) {
 		this.designation = designation;
