@@ -239,7 +239,7 @@ public class AAVSODatabaseConnector {
 	 */
 	public StarInfo getAUID(Connection connection, String name)
 			throws SQLException {
-		return starNameAndAUIDRetriever.getAUID(connection, name);
+		return starNameAndAUIDRetriever.getStarByName(connection, name);
 	}
 
 	/**
@@ -253,7 +253,7 @@ public class AAVSODatabaseConnector {
 	 */
 	public StarInfo getStarName(Connection connection, String auid)
 			throws SQLException {
-		return starNameAndAUIDRetriever.getStarName(connection, auid);
+		return starNameAndAUIDRetriever.getStarByAUID(connection, auid);
 	}
 
 	/**

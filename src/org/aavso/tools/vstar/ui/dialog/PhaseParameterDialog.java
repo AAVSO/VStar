@@ -128,10 +128,9 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel
 				.setBorder(BorderFactory
-						.createTitledBorder("Epoch (Julian Date)"));
+						.createTitledBorder("Epoch (HJD)"));
 
 		epochField = new JTextField();
-		epochField.setToolTipText("Enter epoch as a Julian Date");
 		panel.add(epochField);
 
 		return panel;
@@ -152,8 +151,8 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	//
 	// JRadioButton strategyRadioButton = new JRadioButton(strategyDesc);
 	// strategyRadioButton.setActionCommand(key);
-	// strategyRadioButton
 	// .addActionListener(createEpochStrategyActionListener());
+	// strategyRadioButton
 	// panel.add(strategyRadioButton);
 	// panel.add(Box.createRigidArea(new Dimension(10, 10)));
 	//
@@ -269,8 +268,10 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 				this.epoch = this.epochStrategy.determineEpoch(msg
 						.getObservations());
 				this.epochField.setText(this.epoch + "");
+				this.epochField.setToolTipText(epochStrategy.getDescription());
 			} else {
 				this.epochField.setText(epoch.toString());
+				this.epochField.setToolTipText("Default epoch");
 				this.epoch = epoch;
 			}
 		} else {
@@ -282,6 +283,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 			this.epoch = this.epochStrategy.determineEpoch(msg
 					.getObservations());
 			this.epochField.setText(this.epoch + "");
+			this.epochField.setToolTipText(epochStrategy.getDescription());
 		}
 	}
 }

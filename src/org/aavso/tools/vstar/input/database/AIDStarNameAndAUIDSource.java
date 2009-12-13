@@ -44,7 +44,7 @@ public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	 *            The star name or alias.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getAUID(Connection connection, String name) throws SQLException {
+	public StarInfo getStarByName(Connection connection, String name) throws SQLException {
 		String auid = null;
 
 		// Can we find the name in the validation table?
@@ -79,7 +79,7 @@ public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	 *            The AUID.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getStarName(Connection connection, String auid)
+	public StarInfo getStarByAUID(Connection connection, String auid)
 			throws SQLException {
 		String starName = null;
 

@@ -43,7 +43,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	 *            The star name or alias.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getAUID(Connection connection, String name)
+	public StarInfo getStarByName(Connection connection, String name)
 			throws SQLException {
 		String auid = null;
 		Double period = null;
@@ -80,7 +80,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	 *            The AUID.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getStarName(Connection connection, String auid)
+	public StarInfo getStarByAUID(Connection connection, String auid)
 			throws SQLException {
 		String starName = null;
 		Double period = null;
@@ -111,7 +111,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		if (rs.wasNull()) {
 			period = null; // TODO: necessary?
 		}
-		
+
 		return period;
 	}
 
@@ -121,6 +121,11 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		epoch = rs.getDouble("o_epoch");
 		if (rs.wasNull()) {
 			epoch = null; // TODO: necessary?
+		}
+
+		// Convert RJD to HJD.
+		if (epoch != null) {
+			epoch = epoch.doubleValue() + 2400000.0;
 		}
 		
 		return epoch;

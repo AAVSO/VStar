@@ -38,7 +38,7 @@ public interface IStarNameAndAUIDSource {
 	 *            The star name or alias.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getAUID(Connection connection, String name) throws SQLException;
+	public StarInfo getStarByName(Connection connection, String name) throws SQLException;
 
 	/**
 	 * Return the name of the star given an AUID.
@@ -47,5 +47,5 @@ public interface IStarNameAndAUIDSource {
 	 *            The AUID.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getStarName(Connection connection, String auid) throws SQLException;
+	public StarInfo getStarByAUID(Connection connection, String auid) throws SQLException;
 }
