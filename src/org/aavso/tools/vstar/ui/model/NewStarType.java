@@ -18,19 +18,23 @@
 package org.aavso.tools.vstar.ui.model;
 
 import org.aavso.tools.vstar.data.AAVSOFormatFieldInfoSource;
-import org.aavso.tools.vstar.data.SimpleFormatFieldInfoSource;
 import org.aavso.tools.vstar.data.validation.IFieldInfoSource;
+import org.aavso.tools.vstar.data.validation.SimpleFormatFieldInfoSource;
 
 /**
  * A new star creation type. It also encodes the required number of fields for
  * each observation in the source, and acts as a Factory Method (GoF pattern)
  * for determining text format validator (simple or AAVSO download format), and
  * table column information.
+ * 
+ * TODO: I think we may need to decouple NewStarMessage from column and field
+ * info sources. Instead we could pass them to AnalysisTypeChangeMessages.
+ * This makes things much more composable.
  */
 public enum NewStarType {
 
 	NEW_STAR_FROM_SIMPLE_FILE(2, SimpleFormatFieldInfoSource.FIELD_COUNT,
-			SimpleFormatFieldInfoSource.simpleFormatFieldInfoSource,
+			SimpleFormatColumnInfoSource.simpleFormatColumnInfoSource,
 			SimpleFormatFieldInfoSource.simpleFormatFieldInfoSource),
 
 	NEW_STAR_FROM_DOWNLOAD_FILE(AAVSOFormatFieldInfoSource.FIELD_COUNT - 1,
