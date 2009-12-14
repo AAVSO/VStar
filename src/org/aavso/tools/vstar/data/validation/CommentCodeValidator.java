@@ -43,7 +43,7 @@ public class CommentCodeValidator extends AbstractStringValidator<String> {
 		//       the generic regex engine will return the entire group of comment codes
 		//       in one swoop, otherwise it returns just the last character it finds
 		this.regexValidator = new RegexValidator("^((" + commentCodePatternStr
-				+ "\\s)+)$", KIND);
+				+ "|\\s)+)$", KIND);
 	}
 
 	public String validate(String str)
