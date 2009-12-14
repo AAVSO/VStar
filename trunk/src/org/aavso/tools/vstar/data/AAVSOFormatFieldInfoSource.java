@@ -256,7 +256,7 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 
 		switch (index) {
 		case JD_COLUMN:
-			value = String.format("%1.2f", ob.getDateInfo().getJulianDay());
+			value = ob.getDateInfo().getJulianDay();
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
@@ -324,6 +324,10 @@ public class AAVSOFormatFieldInfoSource implements ITableColumnInfoSource,
 		return value;
 	}
 
+	/**
+	 * Return a mapping from field name to index in the text format
+	 * associated with this source (for field validation).
+	 */
 	public Map<String, Integer> getFieldIndexMap() {
 		return this.fieldIndexMap;
 	}

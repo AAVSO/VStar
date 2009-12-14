@@ -27,7 +27,7 @@ public interface IFieldInfoSource {
 	
 	/**
 	 * Return a mapping from field name to index in the text format
-	 * associated with this source.
+	 * associated with this source (for field validation).
 	 */
 	abstract public Map<String, Integer> getFieldIndexMap();	
 }

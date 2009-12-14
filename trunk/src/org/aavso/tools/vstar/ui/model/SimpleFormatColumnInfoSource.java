@@ -15,30 +15,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.data;
+package org.aavso.tools.vstar.ui.model;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.aavso.tools.vstar.data.validation.IFieldInfoSource;
-import org.aavso.tools.vstar.ui.model.ITableColumnInfoSource;
+import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * Simple file format field information source.
+ * Simple file format table column information source.
+ * 
+ * TODO: may need to rename this and create another specialisation
+ * for phase plots.
  */
-public class SimpleFormatFieldInfoSource implements ITableColumnInfoSource,
-		IFieldInfoSource {
+public class SimpleFormatColumnInfoSource implements ITableColumnInfoSource {
 
-	public final static SimpleFormatFieldInfoSource simpleFormatFieldInfoSource = new SimpleFormatFieldInfoSource();
-
-	// Text format fields.
-	private static final int JD_FIELD = 0;
-	private static final int MAGNITUDE_FIELD = 1;
-	private static final int UNCERTAINTY_FIELD = 2;
-	private static final int OBSERVER_CODE_FIELD = 3;
-	private static final int VALFLAG_FIELD = 4;
-
-	public static final int FIELD_COUNT = VALFLAG_FIELD+1;
+	public static SimpleFormatColumnInfoSource simpleFormatColumnInfoSource = new SimpleFormatColumnInfoSource();
 	
 	// Table columns.
 	private static final int JD_COLUMN = 0;
@@ -49,20 +38,6 @@ public class SimpleFormatFieldInfoSource implements ITableColumnInfoSource,
 	private static final int DISCREPANT_COLUMN = 5;
 
 	private static final int COLUMNS = DISCREPANT_COLUMN + 1;
-
-	private Map<String, Integer> fieldIndexMap;
-
-	/**
-	 * Constructor.
-	 */
-	public SimpleFormatFieldInfoSource() {
-		this.fieldIndexMap = new HashMap<String, Integer>();
-		this.fieldIndexMap.put("JD_FIELD", JD_FIELD);
-		this.fieldIndexMap.put("MAGNITUDE_FIELD", MAGNITUDE_FIELD);
-		this.fieldIndexMap.put("UNCERTAINTY_FIELD", UNCERTAINTY_FIELD);
-		this.fieldIndexMap.put("OBSERVER_CODE_FIELD", OBSERVER_CODE_FIELD);
-		this.fieldIndexMap.put("VALFLAG_FIELD", VALFLAG_FIELD);
-	}
 
 	public int getColumnCount() {
 		return COLUMNS;
@@ -104,7 +79,7 @@ public class SimpleFormatFieldInfoSource implements ITableColumnInfoSource,
 
 		switch (index) {
 		case JD_COLUMN:
-			clazz = String.class; 
+			clazz = String.class;
 			break;
 		case CALENDAR_DATE_COLUMN:
 			break;
@@ -127,7 +102,7 @@ public class SimpleFormatFieldInfoSource implements ITableColumnInfoSource,
 
 		switch (index) {
 		case JD_COLUMN:
-			value = String.format("%1.2f", ob.getDateInfo().getJulianDay());
+			value = ob.getDateInfo().getJulianDay();
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
@@ -147,9 +122,5 @@ public class SimpleFormatFieldInfoSource implements ITableColumnInfoSource,
 		}
 
 		return value;
-	}
-
-	public Map<String, Integer> getFieldIndexMap() {
-		return this.fieldIndexMap;
 	}
 }
