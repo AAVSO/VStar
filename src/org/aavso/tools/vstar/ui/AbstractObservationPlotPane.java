@@ -347,6 +347,11 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			}
 		}
 		
+		//With only one observation max is smaller than min
+		if(max < min){
+			max = min+1;
+			min = min-1;
+		}
 		// Add a small (1%) margin around min/max.
 		double margin = (max-min)/100;
 		min -= margin;
