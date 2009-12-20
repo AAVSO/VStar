@@ -17,9 +17,9 @@
  */
 package org.aavso.tools.vstar.ui.model;
 
-import org.aavso.tools.vstar.data.AAVSOFormatFieldInfoSource;
 import org.aavso.tools.vstar.data.validation.IFieldInfoSource;
 import org.aavso.tools.vstar.data.validation.SimpleFormatFieldInfoSource;
+import org.aavso.tools.vstar.data.validation.AAVSOFormatFieldInfoSource;
 
 /**
  * A new star creation type. It also encodes the required number of fields for
@@ -34,17 +34,17 @@ import org.aavso.tools.vstar.data.validation.SimpleFormatFieldInfoSource;
 public enum NewStarType {
 
 	NEW_STAR_FROM_SIMPLE_FILE(2, SimpleFormatFieldInfoSource.FIELD_COUNT,
-			SimpleFormatColumnInfoSource.simpleFormatColumnInfoSource,
-			SimpleFormatFieldInfoSource.simpleFormatFieldInfoSource),
+			SimpleFormatRawDataColumnInfoSource.instance,
+			SimpleFormatFieldInfoSource.instance),
 
 	NEW_STAR_FROM_DOWNLOAD_FILE(AAVSOFormatFieldInfoSource.FIELD_COUNT - 1,
 			AAVSOFormatFieldInfoSource.FIELD_COUNT,
-			AAVSOFormatFieldInfoSource.aavsoDownloadFormatFieldInfoSource,
-			AAVSOFormatFieldInfoSource.aavsoDownloadFormatFieldInfoSource),
+			AAVSOFormatRawDataColumnInfoSource.fileInstance,
+			AAVSOFormatFieldInfoSource.instance),
 
 	NEW_STAR_FROM_DATABASE(0, 0,
-			AAVSOFormatFieldInfoSource.aavsoInternationalDatabaseFormatFieldInfoSource,
-			AAVSOFormatFieldInfoSource.aavsoInternationalDatabaseFormatFieldInfoSource);
+			AAVSOFormatRawDataColumnInfoSource.databaseInstance,
+			null);
 
 	private final int minFields;
 	private final int maxFields;
