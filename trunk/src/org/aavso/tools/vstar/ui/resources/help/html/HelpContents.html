@@ -13,8 +13,8 @@
 analysis. Its current capabilities are:</p>
 
 <ul>
- <li>Plotting a Light Curve or Standard Phase Plot from raw observation data, optionally with error
- bars for each observation.</li>
+ <li>Plotting a Light Curve or Standard Phase Plot from raw observation data, 
+ optionally with error  bars for each observation.</li>
  <li>Showing a table of the raw observations associated with the light curve.</li>
  <li>Plotting a mean light curve (again, with optional error bars) along with
  the raw light curve.</li>
@@ -22,8 +22,8 @@ analysis. Its current capabilities are:</p>
  average for each.</li>
 </ul>
 
-<p>The plots mentioned above have magnitude on the Y axis and Julian Day on the
-X axis.</p>
+<p>The plots mentioned above have magnitude on the Y axis and Julian Day (or 
+phase) on the X axis.</p>
 
 <p>When the <code>Plot Observations and Means</code> Mode radio button is
 selected, the number of days per bin size can be specified. This will change
@@ -78,6 +78,25 @@ for each mode of the corresponding radio buttons in the Mode pane are created.
 <p>For a given run of VStar, you only need to enter your Citizen Sky credentials
 just once.</p>
 
+<br></br><h2>Phase Plots</h2>
+
+<p>Selecting <code>Phase Plot...</code> from the Analysis menu opens a dialogue
+where you can enter the period and epoch for a star.  Values from the AAVSO
+International Variable Star Index (VSX) are used as the default, if they are
+available.  VStar will then fold the data and display a Phase Plot of magnitude
+versus phase.  Select New Phase Plot to change the period or epoch and
+generate a new phase plot.</p>
+
+<br></br><h2>Period Searches</h2>
+
+  <ul>
+   <li>Fast Fourier Transform</li>
+   <li>Phase Dispersion Minimization</li>
+   <li>Others? (WWZ, CLEANEST, ...)</li>
+  </ul>
+
+<p><i>To be implemented.</i></p>
+
 <br></br><h2>Saving Plots and Tables</h2>
 
 <p>Any chart can be saved as a PNG file via the File menu's <code>Save...</code>
@@ -94,21 +113,6 @@ item or the equivalent toolbar icon.</p>
 
 <p>Preferences can be set via the File menu's <code>Preferences...</code> item
 or the equivalent toolbar icon.</p>
-
-<p><i>To be implemented.</i></p>
-
-<br></br><h2>Phase Plots</h2>
-
-<p>An initial version of the Phase Plot feature is available via the Analysis
-menu's <code>Phase Plot...</code> item.</p>
-
-<br></br><h2>Period Searches</h2>
-
-  <ul>
-   <li>Fast Fourier Transform</li>
-   <li>Phase Dispersion Minimization</li>
-   <li>Others? (WWZ, CLEANEST, ...)</li>
-  </ul>
 
 <p><i>To be implemented.</i></p>
 
