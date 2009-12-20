@@ -22,12 +22,12 @@ import org.aavso.tools.vstar.data.ValidObservation;
 /**
  * Simple file format table column information source.
  * 
- * TODO: may need to rename this and create another specialisation
- * for phase plots.
+ * TODO: can we instead inherit from RawData class and specialise 
+ * each switch function?
  */
-public class SimpleFormatColumnInfoSource implements ITableColumnInfoSource {
+public class SimpleFormatRawDataColumnInfoSource implements ITableColumnInfoSource {
 
-	public static SimpleFormatColumnInfoSource simpleFormatColumnInfoSource = new SimpleFormatColumnInfoSource();
+	public static SimpleFormatRawDataColumnInfoSource instance = new SimpleFormatRawDataColumnInfoSource();
 	
 	// Table columns.
 	private static final int JD_COLUMN = 0;
@@ -37,10 +37,8 @@ public class SimpleFormatColumnInfoSource implements ITableColumnInfoSource {
 	private static final int LINE_NUM_COLUMN = 4;
 	private static final int DISCREPANT_COLUMN = 5;
 
-	private static final int COLUMNS = DISCREPANT_COLUMN + 1;
-
 	public int getColumnCount() {
-		return COLUMNS;
+		return DISCREPANT_COLUMN + 1;
 	}
 
 	public int getDiscrepantColumnIndex() {

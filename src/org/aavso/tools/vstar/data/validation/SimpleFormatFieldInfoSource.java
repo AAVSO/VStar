@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class SimpleFormatFieldInfoSource implements IFieldInfoSource {
 
-	public final static SimpleFormatFieldInfoSource simpleFormatFieldInfoSource = new SimpleFormatFieldInfoSource();
+	public final static SimpleFormatFieldInfoSource instance = new SimpleFormatFieldInfoSource();
 
 	// Text format fields.
 	private static final int JD_FIELD = 0;

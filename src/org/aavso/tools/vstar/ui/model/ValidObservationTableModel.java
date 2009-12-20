@@ -68,7 +68,7 @@ public class ValidObservationTableModel extends AbstractTableModel {
 	public ValidObservationTableModel(List<ValidObservation> validObservations,
 			NewStarType newStarType) {
 		this.validObservations = validObservations;
-		this.newStarType = newStarType;
+		this.newStarType = newStarType; // TODO: we do not need this, only column info!
 		this.columnInfoSource = newStarType.getColumnInfoSource();
 		this.columnCount = columnInfoSource.getColumnCount();
 		this.observationChangeNotifier = new Notifier<ValidObservation>();
