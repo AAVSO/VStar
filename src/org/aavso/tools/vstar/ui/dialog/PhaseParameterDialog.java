@@ -203,13 +203,13 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 		if (periodText != null && epochText != null) {
 			Matcher periodMatcher = realNumberPattern.matcher(periodText);
 			if (periodMatcher.matches()) {
-				String periodStr = periodMatcher.group(1);
+				String periodStr = periodMatcher.group(1).trim();
 				period = Double.parseDouble(periodStr);
 			}
 
 			Matcher epochMatcher = realNumberPattern.matcher(epochText);
 			if (epochMatcher.matches()) {
-				String epochStr = epochMatcher.group(1);
+				String epochStr = epochMatcher.group(1).trim();
 				epoch = Double.parseDouble(epochStr);
 			}
 
