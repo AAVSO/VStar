@@ -293,9 +293,9 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			// drop-down menu. AUID or star name?
 			text = sanitise(text);
 			if (auidPattern.matcher(text).matches()) {
-				auid = text;
+				auid = text.trim();
 			} else {
-				starName = text;
+				starName = text.trim();
 			}
 		} else {
 			// There's nothing in the text field, so use the
@@ -307,15 +307,19 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			auid = tenStarMap.get(name);
 		}
 
+		// Julian Date range.
+		
 		try {
-			minDate = jdValidator.validate(minJDField.getText());
+			String minJDText = minJDField.getText().trim();
+			minDate = jdValidator.validate(minJDText);
 		} catch (ObservationValidationError ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"Minimum Julian Day", ex);
 		}
 
 		try {
-			maxDate = jdValidator.validate(maxJDField.getText());
+			String maxJDText = maxJDField.getText().trim();
+			maxDate = jdValidator.validate(maxJDText);
 		} catch (ObservationValidationError ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"Maximum Julian Day", ex);
