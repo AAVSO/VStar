@@ -57,8 +57,8 @@ public class ObservationFieldSplitter {
 	 * @throws ObservationValidationError
 	 *             If the number of fields does not fall into the required
 	 *             range.
-	 * @postcondition: The returned field array's length must be 
-	 *                 maxFields to simplify validation.
+	 * @postcondition: The returned field array's length must be maxFields to
+	 *                 simplify validation.
 	 */
 	public String[] getFields(String line) throws ObservationValidationError {
 		// Get the fields after removing a possible line-feed character.
@@ -87,6 +87,13 @@ public class ObservationFieldSplitter {
 				moreFields[i] = fields[i];
 			}
 			fields = moreFields;
+		}
+
+		// Remove trailing and leading whitespace from each field.
+		for (int i = 0; i < fields.length; i++) {
+			if (fields[i] != null) {
+				fields[i] = fields[i].trim();
+			}
 		}
 
 		return fields;
