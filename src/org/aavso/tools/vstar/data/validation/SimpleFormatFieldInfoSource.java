@@ -42,6 +42,7 @@ public class SimpleFormatFieldInfoSource implements IFieldInfoSource {
 	 * Constructor.
 	 */
 	public SimpleFormatFieldInfoSource() {
+		// TODO: why are the keys not enums? (type safe, faster)
 		this.fieldIndexMap = new HashMap<String, Integer>();
 		this.fieldIndexMap.put("JD_FIELD", JD_FIELD);
 		this.fieldIndexMap.put("MAGNITUDE_FIELD", MAGNITUDE_FIELD);
