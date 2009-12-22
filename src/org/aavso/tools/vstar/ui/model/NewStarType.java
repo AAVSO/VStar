@@ -37,7 +37,7 @@ public enum NewStarType {
 			SimpleFormatRawDataColumnInfoSource.instance,
 			SimpleFormatFieldInfoSource.instance),
 
-	NEW_STAR_FROM_DOWNLOAD_FILE(AAVSOFormatFieldInfoSource.FIELD_COUNT - 1,
+	NEW_STAR_FROM_DOWNLOAD_FILE(AAVSOFormatFieldInfoSource.FIELD_COUNT - 3,
 			AAVSOFormatFieldInfoSource.FIELD_COUNT,
 			AAVSOFormatRawDataColumnInfoSource.fileInstance,
 			AAVSOFormatFieldInfoSource.instance),
