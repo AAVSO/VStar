@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.mediator;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
@@ -39,7 +40,7 @@ import org.jdesktop.swingworker.SwingWorker;
  * A concurrent task in which a new star from file request task is handled.
  */
 public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
-	
+
 	private Mediator mediator = Mediator.getInstance();
 
 	private String starName;
@@ -83,13 +84,15 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	 */
 	protected void createDatabaseBasedObservationArtefacts() {
 
+		ResultSet results = null;
+
 		try {
 			// Connect to the observation database if we haven't already
 			// done so.
 			MainFrame.getInstance().getStatusPane().setMessage(
 					"Connecting to AAVSO database...");
-			
-			// TODO: only need VSX connector if star is not a 10-star, 
+
+			// TODO: only need VSX connector if star is not a 10-star,
 			// i.e. auid and starName are both null.
 			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
 			Connection vsxConnection = vsxConnector.createConnection();
@@ -97,7 +100,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// TODO: need to cache period and epoch for 10-star stars
 			// Use this 2 parameter constructor until then.
 			StarInfo starInfo = new StarInfo(starName, auid);
-			
+
 			// Do we need to ask for the AUID from the database before
 			// proceeding?
 			if (auid == null) {
@@ -141,7 +144,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			obsConnector.setObservationQueryParams(obsStmt, auid, minJD, maxJD);
 			MainFrame.getInstance().getStatusPane().setMessage(
 					"Retrieving observations...");
-			ResultSet results = obsStmt.executeQuery();
+			results = obsStmt.executeQuery();
 			updateProgress(2);
 
 			AAVSODatabaseObservationReader databaseObsReader = new AAVSODatabaseObservationReader(
@@ -178,6 +181,15 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
 			MainFrame.getInstance().getStatusPane().setMessage("");
+		} finally {
+			try {
+				if (results != null) {
+					results.close();
+				}
+			} catch (SQLException e) {
+				MessageBox.showErrorDialog(MainFrame.getInstance(),
+						MenuBar.NEW_STAR_FROM_DATABASE, e);
+			}
 		}
 	}
 
@@ -187,7 +199,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	public void done() {
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
-		
+
 		// TODO: how to detect task cancellation and clean up map etc
 	}
 
