@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.AbstractStringValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
@@ -30,9 +31,8 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 
 /**
- * This class reads a variable star data file format containing lines of
- * text or comma separated fields, and yields a collection of observations 
- * for one star.
+ * This class reads a variable star data file format containing lines of text or
+ * comma separated fields, and yields a collection of observations for one star.
  * 
  * REQ_VSTAR_SIMPLE_TEXT_FILE_READ REQ_VSTAR_AAVSO_DATA_DOWNLOAD_FILE_READ
  */
@@ -76,9 +76,12 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 					int lineNum = reader.getLineNumber();
 					try {
 						ValidObservation validOb = validator.validate(line);
-						validOb.setLineNumber(lineNum);
-						validObservations.add(validOb);
-						categoriseValidObservation(validOb);
+						MTypeType magType = validOb.getMType();
+						if (MTypeType.STD.equals(magType)) {
+							validOb.setLineNumber(lineNum);
+							validObservations.add(validOb);
+							categoriseValidObservation(validOb);
+						}
 					} catch (ObservationValidationError e) {
 						InvalidObservation invalidOb = new InvalidObservation(
 								line, e.getMessage());

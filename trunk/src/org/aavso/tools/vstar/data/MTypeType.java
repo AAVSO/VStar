@@ -15,36 +15,44 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.resources;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+package org.aavso.tools.vstar.data;
 
 /**
- * The purpose of this class is to provide access to subversion revision number.
+ * This type enumerates valid mtype (magnitude type) values.
+ * 
+ * Yes folks, it really is MTypeType. I'm not repeating myself.
+ * 
+ * See also http://www.aavso.org/data/download/downloadformat.shtml
  */
+public enum MTypeType {
 
-public class RevisionAccessor {
+	// Magnitude Type: describes the kind of magnitude used in an
+	// observation.
 
-	private static String REVISION = "344:352MP";
-
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\d+:(\\d+).*$");
-
-	/**
-	 * Get the latest revision number if REVISION is of the form:
-	 * n:m... (i.e. get m), otherwise just return the whole revision
-	 * string. It doesn't really matter what it is so long as it's
-	 * unique from one commit of dist/vstar.jar to the next.
-	 */
-	public static String getRevNum() {
-		String rev = REVISION;
-
-		Matcher revMatcher = revNumPat.matcher(rev);
-		if (revMatcher.matches()) {
-			rev = revMatcher.group(1);
+	// Standard magnitude.
+	STD,
+	// Differential magnitude; value of comparison star 1 needed to
+	// compute standard magnitude.
+	DIFF,
+	// Non-reduced step magnitude; given as 0.0 and the step sequence
+	// may be found in the Comment Code field.
+	STEP;
+	
+	public String toString() {
+		String str = "";
+		
+		switch(this) {
+		case STD:
+			str = "Standard";
+			break;
+		case DIFF:
+			str = "Differential";
+			break;
+		case STEP:
+			str = "Step";
+			break;
 		}
 		
-		return rev;
+		return str;
 	}
 }

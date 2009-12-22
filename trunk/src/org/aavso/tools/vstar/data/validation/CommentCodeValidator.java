@@ -50,6 +50,12 @@ public class CommentCodeValidator extends AbstractStringValidator<String> {
 			throws ObservationValidationError {
 		if (this.isLegallyEmpty(str)) return null;
 
+		// TODO: note, we should indeed do what we say below
+		// leaving much work for CommentCodes to do. We would
+		// need to genericise this class on CommentType not String.
+		// Indeed, we could probably return a CommentCodes instance
+		// from here.
+		
 		// We could return an enum value of some kind,
 		// but VStar doesn't currently need to make
 		// decisions based upon comment code as it does

@@ -96,6 +96,8 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			Exception e) {
+		// TODO: review what we're extracting here. It may just be better to display 
+		// the message in most cases.
 		String msg = e.getMessage();
 		if (msg == null || "".equals(msg)) {
 			StackTraceElement elt = e.getStackTrace()[e.getStackTrace().length-1];

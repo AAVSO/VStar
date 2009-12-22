@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.data.CommentType;
 import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.ui.model.SeriesType;
@@ -35,11 +36,11 @@ import org.aavso.tools.vstar.ui.model.SeriesType;
  * 
  * REQ_VSTAR_AAVSO_DATA_DOWNLOAD_FILE_READ
  * 
- * TODO: From Doc, Dec 22 2009: "OK, the data download has been changed so that 
- * the end of it is now Star Name, affiliation, mtype, group. I'll get the 
- * wiki page changed." and "Affiliation is a tinyint(4) right now. It's not greatly 
- * populated yet. Once it is I may make it an ASCII representation in the data download. 
- * Group is a varchar(5) and has to do with filter wheels."
+ * TODO: From Doc, Dec 22 2009: "OK, the data download has been changed so that
+ * the end of it is now Star Name, affiliation, mtype, group. I'll get the wiki
+ * page changed." and "Affiliation is a tinyint(4) right now. It's not greatly
+ * populated yet. Once it is I may make it an ASCII representation in the data
+ * download. Group is a varchar(5) and has to do with filter wheels."
  */
 public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 
@@ -60,6 +61,7 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 	private final CommentCodeValidator commentCodeValidator;
 	private final TransformedValidator transformedValidator;
 	private final MagnitudeValueValidator magnitudeValueValidator;
+	private final MTypeValidator magTypeValidator;
 
 	/**
 	 * Constructor.
@@ -88,16 +90,19 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 		this.hjdValidator = new JulianDayValidator(
 				JulianDayValidator.CAN_BE_EMPTY);
 
-		//TODONE: AW updated this list with the list from CommentType.getRegex()
-		//           keeps all the comment codes in one place
-		this.commentCodeValidator = new CommentCodeValidator(
-				CommentType.getRegex());
+		// TODONE: AW updated this list with the list from
+		// CommentType.getRegex()
+		// keeps all the comment codes in one place
+		this.commentCodeValidator = new CommentCodeValidator(CommentType
+				.getRegex());
 
 		this.transformedValidator = new TransformedValidator();
 
 		this.magnitudeValueValidator = new MagnitudeValueValidator(
 				new InclusiveRangePredicate(-5, 25),
 				MagnitudeValueValidator.CAN_BE_EMPTY);
+
+		this.magTypeValidator = new MTypeValidator();
 	}
 
 	/**
@@ -160,11 +165,15 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 
 		Double cMag = magnitudeValueValidator.validate(fields[fieldIndexMap
 				.get("CMAG_FIELD")]);
-		observation.setCMag(cMag != null ? cMag.toString() : ""); // see ValidationObject comment
+		observation.setCMag(cMag != null ? cMag.toString() : ""); // see
+		// ValidationObject
+		// comment
 
 		Double kMag = magnitudeValueValidator.validate(fields[fieldIndexMap
 				.get("KMAG_FIELD")]);
-		observation.setKMag(kMag != null ? kMag.toString() : ""); // see ValidationObject comment
+		observation.setKMag(kMag != null ? kMag.toString() : ""); // see
+		// ValidationObject
+		// comment
 
 		DateInfo hjdInfo = hjdValidator.validate(fields[fieldIndexMap
 				.get("HJD_FIELD")]);
@@ -174,13 +183,13 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 				.get("NAME_FIELD")]);
 		observation.setName(name);
 
-		// For now, we just store this.
-		String mType = optionalFieldValidator.validate(fields[fieldIndexMap
+		MTypeType mType = magTypeValidator.validate(fields[fieldIndexMap
 				.get("MTYPE_FIELD")]);
-		if ("NULL".equals(mType)) {
-			mType = null;
+		if (mType != null) {
+			observation.setMType(mType);
 		}
-		observation.setMType(mType);
+
+		// TODO: add group and affiliation fields and getters
 
 		return observation;
 	}

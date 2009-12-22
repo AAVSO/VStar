@@ -110,6 +110,7 @@
 			<formatter type="plain" />
 
 			<test name="org.aavso.tools.vstar.data.validation.CommentCodeValidationTest" />
+			<test name="org.aavso.tools.vstar.data.validation.MTypeValidationTest" />
 			<test name="org.aavso.tools.vstar.input.text.TextFormatObservationReaderTest" />
 			<test name="org.aavso.tools.vstar.input.text.ObservationFieldSplitterTest" />
 			<test name="org.aavso.tools.vstar.input.database.DatabaseObservationReaderTest" />

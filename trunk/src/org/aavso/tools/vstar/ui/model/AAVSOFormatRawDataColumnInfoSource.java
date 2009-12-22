@@ -254,7 +254,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements ITableColumnInfoSourc
 			value = ob.getName();
 			break;
 		case MTYPE_COLUMN:
-			value = ob.getMType();
+			value = ob.getMType().toString();
 			break;
 		case DISCREPANT_COLUMN:
 			value = ob.isDiscrepant();

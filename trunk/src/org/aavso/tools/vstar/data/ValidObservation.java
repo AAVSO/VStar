@@ -40,12 +40,6 @@ import org.aavso.tools.vstar.data.CommentCodes;
  */
 public class ValidObservation extends Observation implements IMagAndJDSource {
 
-	// Optimisations (TODO):
-	// - Use Flyweight pattern to ensure that immutable values
-	// (mostly strings) exist only once for a given value. This will reduce
-	// memory consumption considerably! Use a weak ref hashmap?
-	// - Use single chars or enum values where strings are used if possible.
-
 	private DateInfo dateInfo = null; // Julian Day, calendar date
 	private Magnitude magnitude = null; // magnitude, uncertainty,
 	// fainter/brighter-than
@@ -65,9 +59,9 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	// fields anyway except for display purposes.
 	private String cMag = null;
 	private String kMag = null;
-	private DateInfo hJD = null; // Heliocentric vs Geocentric Julian Day
+	private DateInfo hJD = null; // Heliocentric vs Geocentric Julian Date
 	private String name = null;
-	private String mType = null; // TODO: make an enum
+	private MTypeType mType = MTypeType.STD;
 
 	// Phase values will be computed later, if a phase plot is requested.
 	// They may change over the lifetime of a ValidObservation instance
@@ -366,7 +360,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	/**
 	 * @return the mType
 	 */
-	public String getMType() {
+	public MTypeType getMType() {
 		return mType;
 	}
 
@@ -374,7 +368,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	 * @param mType
 	 *            the mType to set
 	 */
-	public void setMType(String mType) {
+	public void setMType(MTypeType mType) {
 		this.mType = mType;
 	}
 
