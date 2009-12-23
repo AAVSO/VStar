@@ -76,8 +76,8 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 					int lineNum = reader.getLineNumber();
 					try {
 						ValidObservation validOb = validator.validate(line);
-						MTypeType magType = validOb.getMType();
-						if (MTypeType.STD.equals(magType)) {
+						
+						if (validOb.getMType() == MTypeType.STD) {
 							validOb.setLineNumber(lineNum);
 							validObservations.add(validOb);
 							categoriseValidObservation(validOb);

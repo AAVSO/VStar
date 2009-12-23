@@ -85,17 +85,17 @@ public class AAVSODatabaseConnector {
 			DatabaseType.UT);
 
 	// Star name and AUID retrievers.
-	
+
 	// TODO: Continue the refactoring of sub-data-accessors begin with this,
-	// e.g. for observations and CS authentication. Actually, it's worse 
-	// than this; some methods in this class will only work with certain 
+	// e.g. for observations and CS authentication. Actually, it's worse
+	// than this; some methods in this class will only work with certain
 	// databases, e.g. VSX for name/AUID lookup, user database etc; we need
-	// to have separate data connector/accessor classes for each category 
-	// otherwise MySQL will tell us that have been denied access to a database 
-	// table because we're calling the wrong database-method combination. 
-	// Also, we should not have to be passing an observation connector to 
+	// to have separate data connector/accessor classes for each category
+	// otherwise MySQL will tell us that have been denied access to a database
+	// table because we're calling the wrong database-method combination.
+	// Also, we should not have to be passing an observation connector to
 	// each method! The different classes should handle that internally.
-	
+
 	private static IStarNameAndAUIDSource starNameAndAUIDRetriever = new VSXStarNameAndAUIDSource();
 
 	static {
@@ -196,7 +196,8 @@ public class AAVSODatabaseConnector {
 							+ "observations.CMag AS cmag,\n"
 							+ "observations.KMag AS kmag,\n"
 							+ "observations.HJD AS hjd,\n"
-							+ "observations.name AS name\n" + "FROM\n"
+							+ "observations.name AS name,\n"
+							+ "observations.mtype AS mtype\n" + "FROM\n"
 							+ "observations\n" + "WHERE\n"
 							+ "observations.AUID = ? AND\n"
 							+ "observations.JD >= ? AND\n"
@@ -257,9 +258,9 @@ public class AAVSODatabaseConnector {
 	}
 
 	/**
-	 * Return a prepared statement for the specified Citizen Sky user login. This
-	 * is a once-only-created prepared statement with parameters set for each
-	 * query execution.
+	 * Return a prepared statement for the specified Citizen Sky user login.
+	 * This is a once-only-created prepared statement with parameters set for
+	 * each query execution.
 	 * 
 	 * @param connection
 	 *            database connection.

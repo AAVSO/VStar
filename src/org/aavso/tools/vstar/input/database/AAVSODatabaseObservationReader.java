@@ -22,6 +22,7 @@ import java.sql.SQLException;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -58,14 +59,19 @@ public class AAVSODatabaseObservationReader extends
 	/**
 	 * @see org.aavso.tools.vstar.input.AbstractObservationRetriever#retrieveObservations()
 	 */
-	public void retrieveObservations() throws ObservationReadError, InterruptedException {
+	public void retrieveObservations() throws ObservationReadError,
+			InterruptedException {
 		try {
 			while (source.next()) {
 				ValidObservation validOb = getNextObservation();
-				if (!validOb.getMagnitude().isBrighterThan()
-						&& !"".equals(validOb.getBand())) {
-					validObservations.add(validOb);
-					categoriseValidObservation(validOb);
+
+				// Consider a brighter-than to be invalid.
+				if (!validOb.getMagnitude().isBrighterThan()) {
+					// Ignore non-standard magnitude type observations.
+					if (validOb.getMType() == MTypeType.STD) {
+						validObservations.add(validOb);
+						categoriseValidObservation(validOb);
+					}
 				} else {
 					InvalidObservation invalidOb = new InvalidObservation(
 							"Julian Day " + validOb.getJD(),
@@ -124,8 +130,20 @@ public class AAVSODatabaseObservationReader extends
 			ob.setHJD(hjd != null ? new DateInfo(hjd) : null);
 
 			ob.setName(getNextPossiblyNullString("name"));
+			
+			// If mtype is null or 0, we use the ValidObservation's 
+			// constructed default (standard magnitude type).
+			Integer mtype = getNextPossiblyNullInteger("mtype");
+			if (mtype != null && mtype != 0) {
+				if (mtype == 1) {
+					ob.setMType(MTypeType.DIFF);
+				} else if (mtype == 2) {
+					ob.setMType(MTypeType.STEP);
+				}
+			}
+			
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw new ObservationReadError(
 					"Error when attempting to read observation source: "
 							+ e.getMessage());
@@ -189,6 +207,12 @@ public class AAVSODatabaseObservationReader extends
 	private Double getNextPossiblyNullDouble(String colName)
 			throws SQLException {
 		Double num = source.getDouble(colName);
+		return !source.wasNull() ? num : null;
+	}
+
+	private Integer getNextPossiblyNullInteger(String colName)
+			throws SQLException {
+		Integer num = source.getInt(colName);
 		return !source.wasNull() ? num : null;
 	}
 }
