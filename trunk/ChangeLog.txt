@@ -21,7 +21,7 @@ o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Webe
 
 ----------------------
 Date: December 24 2009
-Version: 358M
+Version: 361
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-24Dec2009
 Key Changes:
 - Added handling of magnitude type for AAVSO download files, including mtype 
