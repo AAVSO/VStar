@@ -129,7 +129,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel
 				.setBorder(BorderFactory
-						.createTitledBorder("Epoch (HJD)"));
+						.createTitledBorder("Epoch (JD)"));
 
 		epochField = new JTextField();
 		panel.add(epochField);
@@ -272,7 +272,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 				this.epochField.setToolTipText(epochStrategy.getDescription());
 			} else {
 				this.epochField.setText(epoch.toString());
-				this.epochField.setToolTipText("Enter HJD of epoch");
+				this.epochField.setToolTipText("Enter JD of epoch");
 				this.epoch = epoch;
 			}
 		} else {

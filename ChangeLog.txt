@@ -20,6 +20,28 @@ o Bug & Issue tracker entries cited below can be found here:
 o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Weber.
 
 ----------------------
+Date: December 24 2009
+Version: 355M
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20Dec2009
+Key Changes:
+- Added handling of magnitude type for AAVSO download files, including mtype 
+  enum, validator, unit tests. Handling mtype = STD filtering for database 
+  reads. (2909476.)
+- Add SS Cyg data to test mtype fix.
+- Closing database result set in a try to avoid resource leak. (2919290)
+- Fields are now uniformly trimmed of spaces (start and end) for both simple and
+  AAVSO download format files. (2913523)
+- Add Phase Plot to Help box.
+- Trimmed spaces from JD, star/AUID name, period and epoch text boxes. (2917874)
+- Refactoring table model column info and field info classes. (2917611)
+  Implemented phase plot table model column info classes. (2902477)
+- Add file of WY Hya data showing the addition of the mtype field. (test file
+  for 2909476)
+- Fixes a range error when there is only one observation point in the set.
+  (2908523 and 2907603)
+- Applied commentfix.patch. (2858640)
+- Added unit test for comment code validation.
+- Fixed tracker 2913727 in which JD values were being rounded.
 
 Date: December 13 2009
 Version: 339M
