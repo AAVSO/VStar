@@ -3,6 +3,21 @@
         Ant build file for VStar.
     </description>
 
+	<!-- Cobertura task definition -->
+
+	<!-- TODO: we may need a devlib directory for this, junit.jar etc -->
+
+	<property name="cobertura_dir" value="/opt/local/cobertura-1.9.3" />
+
+	<path id="cobertura.classpath">
+		<fileset dir="${cobertura_dir}">
+			<include name="cobertura.jar" />
+			<include name="lib/**/*.jar" />
+		</fileset>
+	</path>
+
+	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+
 	<!-- Set global properties for this build -->
 	<property name="src" location="src" />
 	<property name="test" location="test" />
@@ -14,6 +29,10 @@
 	<property name="dist_debug" location="dist_debug" />
 	<property name="extlib" location="extlib" />
 	<property name="ui_resources" location="src/org/aavso/tools/vstar/ui/resources" />
+	<property name="instrumented_dir" location="instrumented" />
+	<property name="coveragereport_dir" location="coverage_report" />
+
+	<!-- Classpaths -->
 
 	<path id="build.classpath">
 		<fileset dir="${extlib}" includes="*.jar" excludes="junit*.jar" />
@@ -25,10 +44,16 @@
 		<pathelement path="${test_build}" />
 	</path>
 
+	<path id="coverage.classpath">
+		<fileset dir="${extlib}" includes="*.jar" />
+		<pathelement path="${src_build_debug}" />
+		<pathelement path="${test_build}" />
+	</path>
+
 	<target name="init">
 		<!-- Create the time stamp -->
 		<tstamp />
-		
+
 		<!-- Create the build directory structure used by compile -->
 		<mkdir dir="${src_build}" />
 		<mkdir dir="${src_build_debug}" />
@@ -49,20 +74,20 @@
 		</javac>
 	</target>
 
- 	<target name="debug" depends="init, manifest" description="Compile the source">
- 		<!-- Compile source. -->
- 		<javac compiler="modern" source="1.5" target="1.5" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
- 			<classpath refid="build.classpath" />
- 		</javac>
- 
- 		<mkdir dir="${dist_debug}" />
- 
- 		<jar jarfile="${dist_debug}/vstar.jar" basedir="${src_build_debug}" manifest="${manifest_file}">
- 			<fileset dir="${ui_resources}" />
- 		</jar>
-		
+	<target name="debug" depends="init, manifest" description="Compile the source">
+		<!-- Compile source. -->
+		<javac compiler="modern" source="1.5" target="1.5" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
+			<classpath refid="build.classpath" />
+		</javac>
+
+		<mkdir dir="${dist_debug}" />
+
+		<jar jarfile="${dist_debug}/vstar.jar" basedir="${src_build_debug}" manifest="${manifest_file}">
+			<fileset dir="${ui_resources}" />
+		</jar>
+
 		<delete file="${manifest_file}" />
- 	</target>
+	</target>
 
 	<target name="manifest" description="Creates a manifest file for VStar">
 		<manifestclasspath property="jar.classpath" jarfile="${dist}/vstar.jar">
@@ -83,7 +108,7 @@
 		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="${manifest_file}">
 			<fileset dir="${ui_resources}" />
 		</jar>
-		
+
 		<delete file="${manifest_file}" />
 	</target>
 
@@ -92,11 +117,11 @@
 	</target>
 
 	<target name="run_debug" depends="debug" description="Run debug VStar GUI">
-		 <java jar="${dist_debug}/vstar.jar" fork="true" >
-	   		<sysproperty key="DEBUG" value="true"/>
-		        <arg value="-h"/>
-		        <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"/>
-		 </java>
+		<java jar="${dist_debug}/vstar.jar" fork="true">
+			<sysproperty key="DEBUG" value="true" />
+			<arg value="-h" />
+			<jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y" />
+		</java>
 	</target>
 
 	<target name="compile_ut" depends="dist" description="Compile the test code">
@@ -125,16 +150,90 @@
 		</junit>
 	</target>
 
+	<target name="coverage_instrument" description="Cobertura coverage instrumentation">
+		<delete file="${basedir}/cobertura.ser" />
+
+		<!-- Compile source as debug. -->
+		<javac compiler="modern" source="1.5" target="1.5" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
+			<classpath refid="build.classpath" />
+		</javac>
+
+		<!-- Compile UT code. -->
+		<javac srcdir="${test}" destdir="${test_build}">
+			<classpath refid="coverage.classpath" />
+		</javac>
+
+		<cobertura-instrument todir="${instrumented_dir}">
+			<fileset dir="${src_build_debug}">
+				<include name="**/*.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<target name="test_coverage" depends="coverage_instrument" description="Collect coverage data from a UT run">
+		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+			<!--
+				Specify the name of the coverage data file to use.
+				The value specified below is the default.
+			-->
+			<sysproperty key="net.sourceforge.cobertura.datafile" file="${basedir}/cobertura.ser" />
+
+			<!--
+				Note the classpath order: instrumented classes are before the
+				original (uninstrumented) classes. This is important.
+			-->
+			<classpath location="${instrumented_dir}" />
+			<classpath refid="coverage.classpath" />
+
+			<!--
+				The instrumented classes reference classes used by the
+				Cobertura runtime, so Cobertura and its dependencies
+				must be on the classpath.
+			-->
+			<classpath refid="cobertura.classpath" />
+
+			<formatter type="plain" />
+
+			<test name="org.aavso.tools.vstar.data.validation.CommentCodeValidationTest" />
+			<test name="org.aavso.tools.vstar.data.validation.MTypeValidationTest" />
+			<test name="org.aavso.tools.vstar.input.text.TextFormatObservationReaderTest" />
+			<test name="org.aavso.tools.vstar.input.text.ObservationFieldSplitterTest" />
+			<test name="org.aavso.tools.vstar.input.database.DatabaseObservationReaderTest" />
+			<test name="org.aavso.tools.vstar.input.database.DatabaseConnectorTest" />
+			<test name="org.aavso.tools.vstar.util.MeeusDateUtilTest" />
+			<test name="org.aavso.tools.vstar.util.stats.DescStatsTest" />
+			<test name="org.aavso.tools.vstar.util.stats.PhaseCalcsTest" />
+
+			<jvmarg value="-ea" />
+
+			<!--
+			<formatter type="xml" />
+			<test name="${testcase}" todir="${reports.xml.dir}" if="testcase" />
+			<batchtest todir="${reports.xml.dir}" unless="testcase">
+				<fileset dir="${test}">
+					<include name="**/*Test.java" />
+				</fileset>
+			</batchtest>
+			-->
+		</junit>
+	</target>
+
+	<target name="coverage_report" depends="test_coverage" description="Generate a UT coverage report">
+		<cobertura-report format="html" destdir="${coveragereport_dir}" srcdir="${src}" />
+	</target>
+
 	<target name="clean" description="Clean up">
 		<delete includeemptydirs="true">
-			<!-- Delete the build and dist directory trees -->
+			<!-- Delete the build, dist, UT, coverage directory trees -->
 			<fileset dir="${src_build}" includes="**/*" />
 			<fileset dir="${src_build_debug}" includes="**/*" />
 			<fileset dir="${test_build}" includes="**/*" />
 			<fileset dir="${dist}" includes="**/*" />
 			<fileset dir="${dist_debug}" includes="**/*" />
-
-			<!-- Delete TEST report files -->
+			<fileset dir="${instrumented_dir}" includes="**/*" />
+			<fileset dir="${coveragereport_dir}" includes="**/*" />
+			<!-- TODO: use ${basedir}? -->
+			<fileset dir="${basedir}" includes="cobertura.ser" />
 			<fileset dir="." includes="TEST-*" />
 		</delete>
 	</target>
