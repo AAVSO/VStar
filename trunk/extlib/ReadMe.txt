@@ -66,3 +66,7 @@ testing purposes:
 
  - JUnit 3.8.2:
      junit.jar (http://www.junit.org/)
+     
+ - Cobertura 1.9.3:
+     o http://cobertura.sourceforge.net/
+     o Unpack the cobertura-1.9.3 archive into the extlib directory.  
