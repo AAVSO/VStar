@@ -5,9 +5,7 @@
 
 	<!-- Cobertura task definition -->
 
-	<!-- TODO: we may need a devlib directory for this, junit.jar etc -->
-
-	<property name="cobertura_dir" value="/opt/local/cobertura-1.9.3" />
+	<property name="cobertura_dir" value="${basedir}/extlib/cobertura-1.9.3" />
 
 	<path id="cobertura.classpath">
 		<fileset dir="${cobertura_dir}">
