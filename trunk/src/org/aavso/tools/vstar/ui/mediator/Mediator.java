@@ -497,6 +497,9 @@ public class Mediator {
 			this.validObservationCategoryMap.clear();
 		}
 
+		// Suggest garbage collection.
+		System.gc();
+		
 		this.validObsList = validObsList;
 		this.invalidObsList = invalidObsList;
 		this.validObservationCategoryMap = validObservationCategoryMap;
