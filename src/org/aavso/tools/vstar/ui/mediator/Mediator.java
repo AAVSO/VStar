@@ -483,7 +483,20 @@ public class Mediator {
 		analysisTypeMap.clear(); // throw away old artefacts
 		analysisTypeMap.put(analysisType, analysisTypeMsg);
 
-		// Commit to using the new observation lists and category map.
+		// Commit to using the new observation lists and category map,
+		// first making old values available for garbage collection.
+		if (this.validObsList != null) {
+			this.validObsList.clear();
+		}
+
+		if (this.invalidObsList != null) {
+			this.invalidObsList.clear();
+		}
+
+		if (this.validObservationCategoryMap != null) {
+			this.validObservationCategoryMap.clear();
+		}
+
 		this.validObsList = validObsList;
 		this.invalidObsList = invalidObsList;
 		this.validObservationCategoryMap = validObservationCategoryMap;
