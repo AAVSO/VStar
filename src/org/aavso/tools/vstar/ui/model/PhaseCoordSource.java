@@ -96,10 +96,22 @@ public class PhaseCoordSource implements ICoordSource {
 		// Everything is modulo the number of elements in the series
 		// except the means series which we treat separately.
 		double phase = -99;
+		// TODO: do the map lookup only once
 		int itemCount = seriesNumToObSrcListMap.get(series).size();
 		if (item < itemCount) {
-			phase = seriesNumToObSrcListMap.get(series).get(item)
-					.getPreviousCyclePhase();
+			List<ValidObservation> obs = null;
+			ValidObservation ob = null;
+			try {
+				obs = seriesNumToObSrcListMap.get(series);
+				ob = obs.get(item);
+				phase = ob.getPreviousCyclePhase();
+				//System.out.println("ob: " + ob + ", item: " + item);
+			} catch (NullPointerException e) {
+				System.out.println(item);
+				//e.printStackTrace();
+			}
+			// phase = seriesNumToObSrcListMap.get(series).get(item)
+			// .getPreviousCyclePhase();
 		} else {
 			phase = seriesNumToObSrcListMap.get(series).get(item % itemCount)
 					.getStandardPhase();

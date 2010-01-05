@@ -35,11 +35,6 @@ public class ValidObservationTableModel extends AbstractTableModel {
 	private final List<ValidObservation> validObservations;
 
 	/**
-	 * The new-star-from type.
-	 */
-	private final NewStarType newStarType;
-
-	/**
 	 * The source of column information.
 	 */
 	private final ITableColumnInfoSource columnInfoSource;
@@ -62,14 +57,13 @@ public class ValidObservationTableModel extends AbstractTableModel {
 	 * 
 	 * @param validObservations
 	 *            A list of valid observations.
-	 * @param newStarType
-	 *            The new star type.
+	 * @param columnInfoSource
+	 *            The source of column information for the table.
 	 */
 	public ValidObservationTableModel(List<ValidObservation> validObservations,
-			NewStarType newStarType) {
+			ITableColumnInfoSource columnInfoSource) {
 		this.validObservations = validObservations;
-		this.newStarType = newStarType; // TODO: we do not need this, only column info!
-		this.columnInfoSource = newStarType.getColumnInfoSource();
+		this.columnInfoSource = columnInfoSource;
 		this.columnCount = columnInfoSource.getColumnCount();
 		this.observationChangeNotifier = new Notifier<ValidObservation>();
 	}

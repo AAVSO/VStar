@@ -23,7 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import org.aavso.tools.vstar.ui.model.MeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.RawDataMeanObservationTableModel;
 
 /**
  * This class is a component that renders observation mean and standard error of
@@ -36,7 +36,7 @@ public class MeanObservationListPane extends JPanel {
 	 * 
 	 * @param meanObsTableModel The mean observation table model.
 	 */
-	public MeanObservationListPane(MeanObservationTableModel meanObsTableModel) {
+	public MeanObservationListPane(RawDataMeanObservationTableModel meanObsTableModel) {
 		super(new GridLayout(1, 1));
 		
 		JTable meanObsTable = new JTable(meanObsTableModel);

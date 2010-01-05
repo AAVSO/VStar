@@ -90,7 +90,7 @@ public class AAVSOFormatPhasePlotColumnInfoSource extends
 
 		switch (index) {
 		case PHASE_COLUMN:
-			value = ob.getStandardPhase();
+			value = String.format("%1.3f", ob.getStandardPhase());
 			break;
 		default:
 			value = super.getTableColumnValue(index - 1, ob);
