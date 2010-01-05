@@ -54,7 +54,8 @@ import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.model.ICoordSource;
 import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.JDCoordSource;
-import org.aavso.tools.vstar.ui.model.MeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.PhasePlotMeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.RawDataMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
@@ -387,7 +388,7 @@ public class Mediator {
 		// Table models.
 		ValidObservationTableModel validObsTableModel = null;
 		InvalidObservationTableModel invalidObsTableModel = null;
-		MeanObservationTableModel meanObsTableModel = null;
+		RawDataMeanObservationTableModel meanObsTableModel = null;
 
 		// Plot models.
 		ObservationPlotModel obsPlotModel = null;
@@ -406,10 +407,16 @@ public class Mediator {
 
 			// Observation table and plot.
 			validObsTableModel = new ValidObservationTableModel(validObsList,
-					newStarType);
+					newStarType.getRawDataTableColumnInfoSource());
 
 			obsPlotModel = new ObservationPlotModel(
 					validObservationCategoryMap, coordSrc);
+
+			// TODO: This is bogus! The models should change the valid obs list
+			// which should then notify its listeners of that change, including
+			// the above two models. Use NotifyingList for this! This class
+			// (Mediator) may also need to be a listener, at least to update
+			// the valid obs category map.
 			validObsTableModel.getObservationChangeNotifier().addListener(
 					obsPlotModel);
 
@@ -427,6 +434,7 @@ public class Mediator {
 			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
 					validObservationCategoryMap, coordSrc);
 
+			// TODO: bogosity alert! see comment above about this.
 			validObsTableModel.getObservationChangeNotifier().addListener(
 					obsAndMeanPlotModel);
 
@@ -438,7 +446,7 @@ public class Mediator {
 			// model to know when the means data has changed. We also pass
 			// the initial means data obtained from the plot model to
 			// the mean observation table model.
-			meanObsTableModel = new MeanObservationTableModel(
+			meanObsTableModel = new RawDataMeanObservationTableModel(
 					obsAndMeanPlotModel.getMeanObsList());
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
@@ -499,7 +507,7 @@ public class Mediator {
 
 		// Suggest garbage collection.
 		System.gc();
-		
+
 		this.validObsList = validObsList;
 		this.invalidObsList = invalidObsList;
 		this.validObservationCategoryMap = validObservationCategoryMap;
@@ -536,8 +544,7 @@ public class Mediator {
 		// TODO: This is temporary.
 		AnalysisTypeChangeMessage rawDataMsg = this.analysisTypeMap
 				.get(AnalysisType.RAW_DATA);
-		assert (rawDataMsg != null); // failure of this assertion implies a
-		// programmatic error
+		assert (rawDataMsg != null);
 
 		// TODO: refactor this code against what is in
 		// createObservationArtefacts()
@@ -555,12 +562,43 @@ public class Mediator {
 		// same X coordinate source (phases).
 		PhaseCoordSource phaseCoordSrc = new PhaseCoordSource();
 
+		// Here we modify the underlying ValidObservation objects which will
+		// affect both validObsList and validObservationCategoryMap.
+		PhaseCalcs.setPhases(validObsList, epoch, period);
+
 		// Table and plot models.
 		// TODO: consider reusing plot models across all modes, just
 		// changing the ICoordSource when mode-switching (to save
 		// memory)...
 		ObservationPlotModel obsPlotModel = new ObservationPlotModel(
 				validObservationCategoryMap, phaseCoordSrc, seriesVisibilityMap);
+
+		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(
+				validObsList, newStarMessage.getNewStarType()
+						.getPhasePlotTableColumnInfoSource());
+
+		// Observation-and-mean table and plot.
+		// TODO: clone validObservationCategoryMap; listen to voice message
+		// TODO: consider sharing this with raw data plot and creating it as
+		// double
+		// up front, using only half for obs; but what if someone doesn't want
+		// to do
+		// phase plots?
+		ObservationAndMeanPlotModel obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
+				validObservationCategoryMap, phaseCoordSrc);
+
+		// We need to set the phase values for each raw and mean data value.
+		PhaseCalcs.setPhases(obsAndMeanPlotModel.getMeanObsList(), epoch, period);
+
+		// The mean observation table model must listen to the plot
+		// model to know when the means data has changed. We also pass
+		// the initial means data obtained from the plot model to
+		// the mean observation table model.
+		PhasePlotMeanObservationTableModel meanObsTableModel = new PhasePlotMeanObservationTableModel(
+				obsAndMeanPlotModel.getMeanObsList());
+
+		obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
+				meanObsTableModel);
 
 		// PhaseAndMeanPlotModel phaseAndMeanPlotModel = new
 		// PhaseAndMeanPlotModel(
@@ -574,7 +612,6 @@ public class Mediator {
 		// double period = validObsList.size() / 2; // essentially meaningless;
 		// TODO: same dialog box as
 		// above
-		PhaseCalcs.setPhases(validObsList, epoch, period);
 
 		// phaseCoordSrc.setMeanObs(obsAndMeanPlotModel.getMeanObsList(),
 		// obsAndMeanPlotModel.getMeansSeriesNum(), epoch, period);
@@ -586,7 +623,8 @@ public class Mediator {
 		// that's just wasting memory we may not have!
 		// TODO: 2. we are going to need an Observer or callback that gets
 		// invoked
-		// when we change the means series; use a notifying list -> an obvious
+		// when we change the means series in order to set new phase mean 
+		// values; use a notifying list -> an obvious
 		// choice?
 		// PhaseCalcs.setPhases(phaseAndMeanPlotModel.getMeanObsList(), epoch,
 		// period);
@@ -610,11 +648,31 @@ public class Mediator {
 		// TODO: use this until we have PhaseAndMeanPlot{Pane,Model} working.
 		ObservationAndMeanPlotPane obsAndMeanChartPane = rawDataMsg
 				.getObsAndMeanChartPane();
+		// ObservationAndMeanPlotPane obsAndMeanChartPane =
+		// createObservationAndMeanPlotPane(
+		// "Light Curve with Means for " + objName, subTitle,
+		// obsAndMeanPlotModel);
 
-		ObservationListPane obsListPane = rawDataMsg.getObsListPane(); // TODO:
+		// The observation table pane contains valid and potentially
+		// invalid data components but for phase plot purposes, we only
+		// display valid data, as opposed to the raw data view in which
+		// both are shown. Tell the valid data table to have a horizontal
+		// scrollbar if it the source was a simple-format file since there
+		// won't be many columns. We don't want to do that when there are
+		// many columns (i.e. for AAVSO download format files and database
+		// source).
+		boolean enableColumnAutoResize = newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
+		ObservationListPane obsListPane = new ObservationListPane(
+				validObsTableModel, null, enableColumnAutoResize, true);
+
+		// ObservationListPane obsListPane = rawDataMsg.getObsListPane(); //
+		// TODO:
 		// fix to be phase-friendly
-		MeanObservationListPane meansListPane = rawDataMsg.getMeansListPane(); // TODO:
+		// MeanObservationListPane meansListPane =
+		// rawDataMsg.getMeansListPane(); // TODO:
 		// fix to be phase-friendly
+		MeanObservationListPane meansListPane = new MeanObservationListPane(
+				meanObsTableModel);
 
 		// Observation-and-mean table and plot.
 		AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(

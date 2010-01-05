@@ -25,10 +25,10 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
- * This class is a table model for mean observation data. The model is notified
- * of wholesale mean data change.
+ * This class is a table model for mean observation data derived from raw data. 
+ * The model is notified of wholesale mean data change.
  */
-public class MeanObservationTableModel extends AbstractTableModel implements
+public class RawDataMeanObservationTableModel extends AbstractTableModel implements
 		Listener<List<ValidObservation>> {
 
 	private static final int COLUMN_COUNT = 4;
@@ -38,7 +38,7 @@ public class MeanObservationTableModel extends AbstractTableModel implements
 	private static final int MEAN_COLUMN = 2;
 	private static final int STDERR_COLUMN = 3;
 
-	private List<ValidObservation> meanObsData;
+	protected List<ValidObservation> meanObsData;
 
 	/**
 	 * Constructor.
@@ -47,7 +47,7 @@ public class MeanObservationTableModel extends AbstractTableModel implements
 	 *            The mean initial observation data. The mean data can be 
 	 *            updated later via this class's listener interface.
 	 */
-	public MeanObservationTableModel(List<ValidObservation> meanObsData) {
+	public RawDataMeanObservationTableModel(List<ValidObservation> meanObsData) {
 		this.meanObsData = meanObsData;
 	}
 
