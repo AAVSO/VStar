@@ -15,36 +15,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.resources;
+package org.aavso.tools.vstar.ui.model;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Comparator;
+
+import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * The purpose of this class is to provide access to subversion revision number.
+ * This comparator provides the basis of an ordering over observations
+ * based upon Standard Phase. 
  */
+public class StandardPhaseComparator implements Comparator<ValidObservation> {
 
-public class RevisionAccessor {
-
-	private static String REVISION = "370:375MP";
-
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\d+:(\\d+).*$");
-
-	/**
-	 * Get the latest revision number if REVISION is of the form:
-	 * n:m... (i.e. get m), otherwise just return the whole revision
-	 * string. It doesn't really matter what it is so long as it's
-	 * unique from one commit of dist/vstar.jar to the next.
-	 */
-	public static String getRevNum() {
-		String rev = REVISION;
-
-		Matcher revMatcher = revNumPat.matcher(rev);
-		if (revMatcher.matches()) {
-			rev = revMatcher.group(1);
-		}
-		
-		return rev;
+	public static final StandardPhaseComparator instance = new StandardPhaseComparator();
+	
+	public int compare(ValidObservation o1, ValidObservation o2) {
+		return Double.compare(o1.getStandardPhase(), o2.getStandardPhase());
 	}
 }

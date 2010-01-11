@@ -23,12 +23,18 @@ import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
  * This class is a table model for mean observation data derived from phase plot
- * data. The model is notified of wholesale mean data change.
+ * data.
+ * 
+ * The model is notified of wholesale mean data change.
  */
 public class PhasePlotMeanObservationTableModel extends
-		RawDataMeanObservationTableModel {
+		AbstractMeanObservationTableModel {
 
 	private static final int PHASE_COLUMN = 0;
+	private static final int MEAN_COLUMN = 1;
+	private static final int STDERR_COLUMN = 2;
+
+	private static final int COLUMN_COUNT = 3;
 
 	/**
 	 * Constructor.
@@ -45,21 +51,33 @@ public class PhasePlotMeanObservationTableModel extends
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
-		return super.getColumnCount() + 1;
+		return COLUMN_COUNT;
+	}
+
+	/**
+	 * @see javax.swing.table.TableModel#getRowCount()
+	 */
+	public int getRowCount() {
+		return meanObsData.size();
 	}
 
 	/**
 	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
+		assert column < COLUMN_COUNT;
+
 		String columnName = null;
 
 		switch (column) {
 		case PHASE_COLUMN:
 			columnName = "Phase";
 			break;
-		default:
-			columnName = super.getColumnName(column - 1);
+		case MEAN_COLUMN:
+			columnName = "Mean Magnitude";
+			break;
+		case STDERR_COLUMN:
+			columnName = "Standard Error of the Average";
 			break;
 		}
 
@@ -70,16 +88,27 @@ public class PhasePlotMeanObservationTableModel extends
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
+		assert columnIndex < COLUMN_COUNT;
+
 		ValidObservation ob = meanObsData.get(rowIndex);
 
 		Object value = null;
 
 		switch (columnIndex) {
 		case PHASE_COLUMN:
-			value = String.format("%1.3f", ob.getStandardPhase());
+			if (rowIndex < meanObsData.size() / 2) {
+				value = String.format("%1.3f", ob.getPreviousCyclePhase());
+			} else {
+				value = String.format("%1.3f", ob.getStandardPhase());
+			}
 			break;
-		default:
-			value = super.getValueAt(rowIndex, columnIndex - 1);
+		case MEAN_COLUMN:
+			// The mean magnitude.
+			value = ob.getMagnitude().getMagValue();
+			break;
+		case STDERR_COLUMN:
+			// The standard error of the average.
+			value = ob.getMagnitude().getUncertainty();
 			break;
 		}
 
@@ -96,8 +125,11 @@ public class PhasePlotMeanObservationTableModel extends
 		case PHASE_COLUMN:
 			clazz = String.class;
 			break;
-		default:
-			clazz = super.getColumnClass(columnIndex - 1);
+		case MEAN_COLUMN:
+			clazz = Double.class;
+			break;
+		case STDERR_COLUMN:
+			clazz = Double.class;
 			break;
 		}
 

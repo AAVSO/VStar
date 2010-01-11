@@ -27,6 +27,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.dialog.MeanSourceDialog;
+import org.aavso.tools.vstar.ui.model.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
 
 /**
@@ -35,6 +36,8 @@ import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
  */
 public class ObservationAndMeanPlotPane extends
 		AbstractObservationPlotPane<ObservationAndMeanPlotModel> {
+
+	private TimeElementsInBinSettingPane timeElementsInBinSettingPane;
 
 	// Should the means series elements be joined visually?
 	private boolean joinMeans;
@@ -52,21 +55,26 @@ public class ObservationAndMeanPlotPane extends
 	 *            The range title (e.g. magnitude).
 	 * @param obsModel
 	 *            The data model to plot.
+	 * @param timeElementsInBinSettingPane
+	 *            The time-elements-in-mean-pane used by this observation and
+	 *            mean plot pane.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
 	public ObservationAndMeanPlotPane(String title, String subTitle,
 			String domainTitle, String rangeTitle,
-			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
+			ObservationAndMeanPlotModel obsAndMeanModel,
+			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
+			Dimension bounds) {
 
 		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
+
+		this.timeElementsInBinSettingPane = timeElementsInBinSettingPane;
 
 		this.joinMeans = true;
 
 		addToChartControlPanel(this.getChartControlPanel());
 
-		// TODO: This is temporary; we will ultimately handle this via
-		// enum values.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
 		if (meanSeriesNum != ObservationAndMeanPlotModel.NO_MEANS_SERIES) {
 			this.getRenderer().setSeriesPaint(meanSeriesNum, Color.BLUE);
@@ -82,13 +90,19 @@ public class ObservationAndMeanPlotPane extends
 	 *            The sub-title for the chart.
 	 * @param obsModel
 	 *            The data model to plot.
+	 * @param timeElementsInBinSettingPane
+	 *            The time-elements-in-mean-pane used by this observation and
+	 *            mean plot pane.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
 	public ObservationAndMeanPlotPane(String title, String subTitle,
-			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
+			ObservationAndMeanPlotModel obsAndMeanModel,
+			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
+			Dimension bounds) {
 
-		this(title, subTitle, JD_TITLE, MAG_TITLE, obsAndMeanModel, bounds);
+		this(title, subTitle, JD_TITLE, MAG_TITLE, obsAndMeanModel,
+				timeElementsInBinSettingPane, bounds);
 	}
 
 	// Add means-specific widgets to chart control panel.
@@ -101,8 +115,8 @@ public class ObservationAndMeanPlotPane extends
 
 		chartControlPanel.add(Box.createHorizontalGlue());
 
-		// An update days-in-bin component.
-		chartControlPanel.add(new DaysInBinSettingPane(this.obsModel));
+		// An update time-elements-in-bin component.
+		chartControlPanel.add(this.timeElementsInBinSettingPane);		
 	}
 
 	// Return a listener for the "join means visually" checkbox.
@@ -143,7 +157,8 @@ public class ObservationAndMeanPlotPane extends
 					if (newMeanSeriesSourceNum != oldMeanSeriesSourceNum) {
 						// Update mean series based upon changed means
 						// source series.
-						obsModel.changeMeansSeries(obsModel.getDaysInBin());
+						obsModel.changeMeansSeries(obsModel
+								.getTimeElementsInBin());
 					}
 				}
 			}

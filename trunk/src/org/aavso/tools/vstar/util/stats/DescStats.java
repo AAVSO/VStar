@@ -20,50 +20,46 @@ package org.aavso.tools.vstar.util.stats;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.aavso.tools.vstar.data.DateInfo;
-import org.aavso.tools.vstar.data.IMagAndJDSource;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.model.ITimeElementEntity;
 
 /**
- * Descriptive statistics functions for magnitude and Julian Day sources.
+ * Descriptive statistics functions for observations.
  * 
  * For a series of mean data to make sense, it should only include a single
- * band, so the data sources passed to the functions below should should
- * consist of observations in just such a single band.
+ * band, so the data sources passed to the functions below should should consist
+ * of observations in just such a single band.
  * 
- * Discrepant source values are ignored in all calculations.
+ * Discrepant observations are ignored in all calculations.
  */
 public class DescStats {
 
-	public static final int DEFAULT_BIN_DAYS = 20;
-
 	/**
-	 * Calculates the mean of a sequence of magnitudes for Julian Days in a
+	 * Calculates the mean of a sequence of magnitudes for observations in a
 	 * specified inclusive range.
 	 * 
-	 * @param source
-	 *            A source of (magnitude, Julian Day) pairs.
-	 * @param minJDIndex
-	 *            The first Julian Day index in the inclusive range.
-	 * @param maxJDIndex
-	 *            The last Julian Day index in the inclusive range.
-	 * @return The mean of magnitudes in the JD range.
+	 * @param observations
+	 *            A valid observation.
+	 * @param minIndex
+	 *            The first observation index in the inclusive range.
+	 * @param maxIndex
+	 *            The last observation index in the inclusive range.
+	 * @return The mean of magnitudes in the range.
 	 */
-	public static double calcMagMeanInJDRange(
-			List<? extends IMagAndJDSource> source, int minJDIndex,
-			int maxJDIndex) {
+	public static double calcMagMeanInRange(
+			List<ValidObservation> observations, int minIndex, int maxIndex) {
 
 		// Pre-conditions.
-		assert (maxJDIndex >= minJDIndex);
-		assert (maxJDIndex < source.size());
+		assert (maxIndex >= minIndex);
+		assert (maxIndex < observations.size());
 
 		double total = 0;
 		double included = 0;
 
-		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			if (!source.get(i).isDiscrepant()) {
-				total += source.get(i).getMag();
+		for (int i = minIndex; i <= maxIndex; i++) {
+			if (!observations.get(i).isDiscrepant()) {
+				total += observations.get(i).getMag();
 				included++;
 			}
 		}
@@ -72,36 +68,36 @@ public class DescStats {
 	}
 
 	/**
-	 * Calculates the standard deviation of a sample of magnitudes for Julian
-	 * Days in a specified inclusive range. We use the sample standard deviation
-	 * formula as per http://www.aavso.org/education/vsa/Chapter10.pdf. See also
-	 * a discussion of this here:
-	 * http://en.wikipedia.org/wiki/Standard_deviation
+	 * Calculates the standard deviation of a sample of magnitudes for
+	 * observations in a specified inclusive range.
 	 * 
-	 * @param source
-	 *            A source of (magnitude, Julian Day) pairs.
-	 * @param minJDIndex
-	 *            The first Julian Day index in the inclusive range.
-	 * @param maxJDIndex
-	 *            The last Julian Day index in the inclusive range.
-	 * @return The sample standard deviation of the magnitudes in the JD range.
+	 * We use the sample standard deviation formula as per
+	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
+	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
+	 * 
+	 * @param observations
+	 *            The observations to which binning will be applied.
+	 * @param minIndex
+	 *            The first observation index in the inclusive range.
+	 * @param maxIndex
+	 *            The last observation index in the inclusive range.
+	 * @return The sample standard deviation of the magnitudes in the range.
 	 */
-	public static double calcMagSampleStdDevInJDRange(
-			List<? extends IMagAndJDSource> source, int minJDIndex,
-			int maxJDIndex) {
+	public static double calcMagSampleStdDevInRange(
+			List<ValidObservation> observations, int minIndex, int maxIndex) {
 
 		// Pre-conditions.
-		assert (maxJDIndex >= minJDIndex);
-		assert (maxJDIndex < source.size());
+		assert (maxIndex >= minIndex);
+		assert (maxIndex < observations.size());
 
-		double magMean = calcMagMeanInJDRange(source, minJDIndex, maxJDIndex);
+		double magMean = calcMagMeanInRange(observations, minIndex, maxIndex);
 
 		double total = 0;
 		double included = 0;
 
-		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			if (!source.get(i).isDiscrepant()) {
-				double delta = source.get(i).getMag() - magMean;
+		for (int i = minIndex; i <= maxIndex; i++) {
+			if (!observations.get(i).isDiscrepant()) {
+				double delta = observations.get(i).getMag() - magMean;
 				total += delta * delta;
 				included++;
 			}
@@ -116,38 +112,42 @@ public class DescStats {
 
 	/**
 	 * Calculates the Standard Error of the Average of a sample of magnitudes
-	 * for Julian Days in a specified inclusive range. We use the sample
-	 * standard deviation formula as per
+	 * for observations in a specified inclusive range.
+	 * 
+	 * We use the sample standard deviation formula as per
 	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
 	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
 	 * 
-	 * @param source
-	 *            A source of (magnitude, Julian Day) pairs.
-	 * @param minJDIndex
-	 *            The first Julian Day index in the inclusive range.
-	 * @param maxJDIndex
-	 *            The last Julian Day index in the inclusive range.
-	 * @return A ValidObservation instance whose Julian Day is at the mid-point
-	 *         between the two indexed JDs, and whose magnitude captures the
-	 *         mean of magnitude values in that range, and the Standard Error of
-	 *         the Average for that mean magnitude value.
+	 * @param observations
+	 *            A list of valid observations.
+	 * @param timeElementEntity
+	 *            A time element source for observations.
+	 * @param minIndex
+	 *            The first observation index in the inclusive range.
+	 * @param maxIndex
+	 *            The last observation index in the inclusive range.
+	 * @return A ValidObservation instance whose time parameter (JD, phase) is
+	 *         at the mid-point between the two indexed observations, and whose
+	 *         magnitude captures the mean of magnitude values in that range,
+	 *         and the Standard Error of the Average for that mean magnitude
+	 *         value.
 	 */
-	public static ValidObservation createMeanObservationForJDRange(
-			List<? extends IMagAndJDSource> source, int minJDIndex,
-			int maxJDIndex) {
+	public static ValidObservation createMeanObservationForRange(
+			List<ValidObservation> observations,
+			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex) {
 
 		// Pre-conditions.
-		assert (maxJDIndex >= minJDIndex);
-		assert (maxJDIndex < source.size());
+		assert (maxIndex >= minIndex);
+		assert (maxIndex < observations.size());
 
-		double magMean = calcMagMeanInJDRange(source, minJDIndex, maxJDIndex);
+		double magMean = calcMagMeanInRange(observations, minIndex, maxIndex);
 
 		double total = 0;
 		double included = 0;
 
-		for (int i = minJDIndex; i <= maxJDIndex; i++) {
-			if (!source.get(i).isDiscrepant()) {
-				double delta = source.get(i).getMag() - magMean;
+		for (int i = minIndex; i <= maxIndex; i++) {
+			if (!observations.get(i).isDiscrepant()) {
+				double delta = observations.get(i).getMag() - magMean;
 				total += delta * delta;
 				included++;
 			}
@@ -157,7 +157,7 @@ public class DescStats {
 		double variance = total / (included - 1);
 		double magStdDev = Math.sqrt(variance);
 		double magStdErrOfMean = magStdDev / Math.sqrt(included);
-		
+
 		// If in any of the 3 steps above we get NaN, we use 0
 		// (e.g. because there is only one sample), we set the
 		// Standard Error of the Average to 0.
@@ -165,13 +165,14 @@ public class DescStats {
 			magStdErrOfMean = 0;
 		}
 
-		// Mean Julian Day. TODO: could we instead use median?
-		double meanJD = (source.get(minJDIndex).getJD() + source
-				.get(maxJDIndex).getJD()) / 2;
+		// Create the mean observation.
+		double meanTimeElement = (timeElementEntity.getTimeElement(
+				observations, minIndex) + timeElementEntity.getTimeElement(
+				observations, maxIndex)) / 2;
 
 		ValidObservation observation = new ValidObservation();
 		observation.setMagnitude(new Magnitude(magMean, magStdErrOfMean));
-		observation.setDateInfo(new DateInfo(meanJD));
+		timeElementEntity.setTimeElement(observation, meanTimeElement);
 
 		return observation;
 	}
@@ -183,49 +184,55 @@ public class DescStats {
 	 * 
 	 * @param observations
 	 *            The observations to which binning will be applied.
-	 * @param daysInBin
-	 *            The bin size in number of Julian Days or portions thereof.
+	 * @param timeElementEntity
+	 *            A time element source for observations.
+	 * @param timeElementsInBin
+	 *            The bin size in number of time elements (days, phase
+	 *            increments) or portions thereof.
 	 * @return An observation sequence consisting of magnitude means per bin and
-	 *         the Julian Day at the center point of each bin.
+	 *         the observation at the center point of each bin.
 	 */
 	public static List<ValidObservation> createdBinnedObservations(
-			List<ValidObservation> observations, double daysInBin) {
+			List<ValidObservation> observations,
+			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
 		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
 
-		double minJD = observations.get(0).getJD();
-		int minJDIndex = 0;
-		int maxJDIndex = 0;
+		double minTimeElement = timeElementEntity.getTimeElement(observations,
+				0);
+		int minIndex = 0;
+		int maxIndex = 0;
 
 		int i = 1;
 
 		while (i < observations.size()) {
 
 			// If we have not reached the end of the observation list
-			// and the current observation's Julian Day is less than the
-			// minimum Julian Day for the bottom of the current range plus
+			// and the current observation's time element is less than the
+			// minimum time element for the bottom of the current range plus
 			// the number of days in the bin, continue to the next observation.
 			if (i < observations.size()
-					&& observations.get(i).getJD() < (minJD + daysInBin)) {
+					&& timeElementEntity.getTimeElement(observations, i) < (minTimeElement + timeElementsInBin)) {
 				i++;
 			} else {
 				// Otherwise, we have found the top of the current range,
 				// so add a ValidObservation containing mean and error value
 				// to the list.
-				maxJDIndex = i - 1;
+				maxIndex = i - 1;
 
-				ValidObservation ob = createMeanObservationForJDRange(observations,
-						minJDIndex, maxJDIndex);
-				
+				ValidObservation ob = createMeanObservationForRange(
+						observations, timeElementEntity, minIndex, maxIndex);
+
 				// If the mean magnitude value is NaN (e.g. because
-				// there was no valid data in the JD range in question), 
+				// there was no valid data in the range in question),
 				// it doesn't make sense to include this observation.
 				if (!Double.isNaN(ob.getMag())) {
 					binnedObs.add(ob);
 				}
-				
-				minJDIndex = i;
-				minJD = observations.get(i).getJD();
+
+				minIndex = i;
+				minTimeElement = timeElementEntity.getTimeElement(observations,
+						i);
 
 				i++;
 			}
@@ -233,13 +240,13 @@ public class DescStats {
 
 		// Ensure that if we have reached the end of the observations
 		// that we include any left over data that would otherwise be
-		// excluded by the JD less-than constraint?
-		if (maxJDIndex < observations.size() - 1) {
-			ValidObservation ob = createMeanObservationForJDRange(observations,
-					minJDIndex, observations.size() - 1);
-			
+		// excluded by the less-than constraint?
+		if (maxIndex < observations.size() - 1) {
+			ValidObservation ob = createMeanObservationForRange(observations,
+					timeElementEntity, minIndex, observations.size() - 1);
+
 			// If the mean magnitude value is NaN (e.g. because
-			// there was no valid data in the JD range in question), 
+			// there was no valid data in the range in question),
 			// it doesn't make sense to include this observation.
 			if (!Double.isNaN(ob.getMag())) {
 				binnedObs.add(ob);

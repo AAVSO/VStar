@@ -20,10 +20,11 @@ package org.aavso.tools.vstar.ui;
 import java.awt.Dimension;
 
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.model.PhaseTimeElementEntity;
 
 /**
- * This class represents a chart pane containing a phase plot for 
- * a set of valid observations along with mean-based data.
+ * This class represents a chart pane containing a phase plot for a set of valid
+ * observations along with mean-based data.
  */
 public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
@@ -41,6 +42,10 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	 */
 	public PhaseAndMeanPlotPane(String title, String subTitle,
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
-		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModel, bounds);
+
+		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModel,
+				new TimeElementsInBinSettingPane("Phase Steps in Means Bin",
+						obsAndMeanModel, PhaseTimeElementEntity.instance),
+				bounds);
 	}
 }

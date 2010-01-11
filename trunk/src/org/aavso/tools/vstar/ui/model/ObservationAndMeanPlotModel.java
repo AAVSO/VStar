@@ -40,18 +40,21 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 	// The series number of the series that is the source of the
 	// means series.
-	private int meanSourceSeriesNum;
+	protected int meanSourceSeriesNum;
 
 	// The series number of the means series.
-	private int meansSeriesNum;
+	protected int meansSeriesNum;
 
-	// The number of days in a means series bin.
-	private double daysInBin;
+	// An observation time source.
+	protected ITimeElementEntity timeElementEntity;
+
+	// The number of time elements in a means series bin.
+	protected double timeElementsInBin;
 
 	// The observations that constitute the means series.
-	private List<ValidObservation> meanObsList;
+	protected List<ValidObservation> meanObsList;
 
-	private Notifier<List<ValidObservation>> meansChangeNotifier;
+	protected Notifier<List<ValidObservation>> meansChangeNotifier;
 
 	/**
 	 * Constructor
@@ -63,16 +66,20 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 *            A mapping from source series to lists of observation sources.
 	 * @param coordSrc
 	 *            coordinate and error source.
+	 * @param timeElementEntity
+	 *            A time element source for observations.
 	 */
 	public ObservationAndMeanPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
-			ICoordSource coordSrc) {
+			ICoordSource coordSrc, ITimeElementEntity timeElementEntity) {
 
 		super(obsSourceListMap, coordSrc);
 
 		this.meansSeriesNum = NO_MEANS_SERIES;
-		this.daysInBin = DescStats.DEFAULT_BIN_DAYS; // TODO: or just define
-		// this in this class?
+
+		this.timeElementEntity = timeElementEntity;
+
+		this.timeElementsInBin = this.timeElementEntity.getDefaultTimeElementsInBin();
 
 		this.meansChangeNotifier = new Notifier<List<ValidObservation>>();
 
@@ -85,12 +92,13 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * Set the mean-based series.
 	 * 
 	 * This method creates a new means series based upon the current mean source
-	 * series index and days-in-bin. It then updates the view and any listeners.
+	 * series index and time-elements-in-bin. It then updates the view and any listeners.
 	 */
 	public void setMeanSeries() {
 
 		meanObsList = DescStats.createdBinnedObservations(
-				seriesNumToObSrcListMap.get(meanSourceSeriesNum), daysInBin);
+				seriesNumToObSrcListMap.get(meanSourceSeriesNum),
+				timeElementEntity, timeElementsInBin);
 
 		// As long as there were enough observations to create a means list
 		// to make a "means" series, we do so.
@@ -132,8 +140,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		}
 	}
 
-	public void changeMeansSeries(double daysInBin) {
-		this.daysInBin = daysInBin;
+	public void changeMeansSeries(double timeElementsInBin) {
+		this.timeElementsInBin = timeElementsInBin;
 		this.setMeanSeries();
 	}
 
@@ -219,18 +227,18 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
-	 * @return the daysInBin
+	 * @return the timeElementsInBin
 	 */
-	public double getDaysInBin() {
-		return daysInBin;
+	public double getTimeElementsInBin() {
+		return timeElementsInBin;
 	}
 
 	/**
-	 * @param daysInBin
-	 *            the daysInBin to set
+	 * @param timeElementsInBin
+	 *            the timeElementsInBin to set
 	 */
-	public void setDaysInBin(double daysInBin) {
-		this.daysInBin = daysInBin;
+	public void setTimeElementsInBin(double timeElementsInBin) {
+		this.timeElementsInBin = timeElementsInBin;
 	}
 
 	/**

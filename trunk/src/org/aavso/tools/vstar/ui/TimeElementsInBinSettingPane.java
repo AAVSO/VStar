@@ -30,59 +30,71 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.model.ITimeElementEntity;
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
 
 /**
- * This component permits the days-in-bin value to be changed which in turn
- * modifies the means series in the observations and means plot.
+ * This component permits the time-elements-in-bin value to be changed which in
+ * turn can be used to modify the means series in an observations and means
+ * plot.
  */
-public class DaysInBinSettingPane extends JPanel {
+public class TimeElementsInBinSettingPane extends JPanel {
 
 	private ObservationAndMeanPlotModel obsAndMeanModel;
 
-	private JSpinner daysInBinSpinner;
-	private SpinnerNumberModel daysInBinSpinnerModel;
+	private JSpinner timeElementsInBinSpinner;
+	private SpinnerNumberModel timeElementsInBinSpinnerModel;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 * 
+	 * @param spinnerTitle
+	 *            A title for the spinner.
 	 * @param obsAndMeanModel
+	 *            An observation and mean model.
+	 * @param timeElementEntity
+	 *            A time element source for observations.
 	 */
-	public DaysInBinSettingPane(ObservationAndMeanPlotModel obsAndMeanModel) {
+	public TimeElementsInBinSettingPane(String spinnerTitle,
+			ObservationAndMeanPlotModel obsAndMeanModel,
+			ITimeElementEntity timeElementEntity) {
+
 		super();
 
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		this.obsAndMeanModel = obsAndMeanModel;
 
-		this.setBorder(BorderFactory.createTitledBorder("Days in Means Bin"));
+		this.setBorder(BorderFactory.createTitledBorder(spinnerTitle));
 
-		// Spinner for days-in-bin.
+		// Spinner for time-elements-in-bin.
 
 		this.add(Box.createHorizontalGlue());
 
 		// Given the source-series of the means series, determine the
-		// maximum day range for the days-in-bin spinner.
+		// maximum day range for the time-elements-in-bin spinner.
 		List<ValidObservation> meanSrcObsList = obsAndMeanModel
 				.getSeriesNumToObSrcListMap().get(
 						obsAndMeanModel.getMeanSourceSeriesNum());
 
-		double max = meanSrcObsList.get(meanSrcObsList.size() - 1).getJD() - meanSrcObsList
-				.get(0).getJD();
+		double max = timeElementEntity.getTimeElement(meanSrcObsList,
+				meanSrcObsList.size() - 1)
+				- timeElementEntity.getTimeElement(meanSrcObsList, 0);
 
-		// Spinner for days-in-bin with the specified current, min, and max
-		// values, and step size (1 day). If the "current days in bin" value
+		// Spinner for time-elements-in-bin with the specified current, min, and max
+		// values, and step size (1 day). If the "current time elements in bin" value
 		// is larger than the calculated max value, correct that.
-		double currDaysInBin = (int) obsAndMeanModel.getDaysInBin();
-		currDaysInBin = currDaysInBin <= max ? currDaysInBin : max;
-		obsAndMeanModel.setDaysInBin(currDaysInBin);
+		double currTimeElementsInBin = (int) obsAndMeanModel.getTimeElementsInBin();
+		currTimeElementsInBin = currTimeElementsInBin <= max ? currTimeElementsInBin : max;
+		obsAndMeanModel.setTimeElementsInBin(currTimeElementsInBin);
 
-		daysInBinSpinnerModel = new SpinnerNumberModel((int) currDaysInBin, 0, max, 1);
-		daysInBinSpinner = new JSpinner(daysInBinSpinnerModel);
-		this.add(daysInBinSpinner);
+		timeElementsInBinSpinnerModel = new SpinnerNumberModel((int) currTimeElementsInBin, 0,
+				max, timeElementEntity.getDefaultTimeIncrements());
+		timeElementsInBinSpinner = new JSpinner(timeElementsInBinSpinnerModel);
+		this.add(timeElementsInBinSpinner);
 
 		this.add(Box.createHorizontalGlue());
 
-		// Update button for days-in-bin.
+		// Update button for time-elements-in-bin.
 		JButton updateButton = new JButton("Update");
 		updateButton.addActionListener(createUpdateMeansButtonListener());
 		this.add(updateButton);
@@ -95,8 +107,9 @@ public class DaysInBinSettingPane extends JPanel {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Get the value and change the means series.
-				double daysInBin = daysInBinSpinnerModel.getNumber().doubleValue();
-				obsAndMeanModel.changeMeansSeries(daysInBin);
+				double timeElementsInBin = timeElementsInBinSpinnerModel.getNumber()
+						.doubleValue();
+				obsAndMeanModel.changeMeansSeries(timeElementsInBin);
 			}
 		};
 	}

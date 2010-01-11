@@ -33,9 +33,6 @@ import org.aavso.tools.vstar.util.stats.epoch.MinMagEpochStrategy;
 public class PhaseCalcs {
 
 	// Map of epoch determination strategies.
-	// TODO: It would be nice to be able to create this collection
-	// dynamically with X.forName(), permitting a plugin approach for
-	// epoch determination strategies.
 	public static Map<String, IEpochStrategy> epochStrategyMap;
 	
 	static {
