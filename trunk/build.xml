@@ -113,7 +113,9 @@
 	</target>
 
 	<target name="run" depends="dist" description="Run VStar GUI">
-		<java fork="true" jar="${dist}/vstar.jar" />
+		<java fork="true" jar="${dist}/vstar.jar">
+			<jvmarg value="-ea" />
+		</java>
 	</target>
 
 	<target name="run_debug" depends="debug" description="Run debug VStar GUI">
@@ -121,6 +123,7 @@
 			<sysproperty key="DEBUG" value="true" />
 			<arg value="-h" />
 			<jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y" />
+			<jvmarg value="-ea" />
 		</java>
 	</target>
 
