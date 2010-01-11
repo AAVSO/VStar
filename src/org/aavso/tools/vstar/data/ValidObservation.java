@@ -20,7 +20,6 @@ package org.aavso.tools.vstar.data;
 import org.aavso.tools.vstar.ui.model.SeriesType;
 import org.aavso.tools.vstar.data.CommentCodes;
 
-
 /**
  * This class corresponds to a single valid variable star observation. Depending
  * upon the source, some fields may be null. Some are not permitted to be null
@@ -38,7 +37,7 @@ import org.aavso.tools.vstar.data.CommentCodes;
  * 
  * JD MAGNITUDE [UNCERTAINTY] [OBSERVER_CODE] [VALFLAG]
  */
-public class ValidObservation extends Observation implements IMagAndJDSource {
+public class ValidObservation extends Observation {
 
 	private DateInfo dateInfo = null; // Julian Day, calendar date
 	private Magnitude magnitude = null; // magnitude, uncertainty,
@@ -69,7 +68,7 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	// phase values.
 	private Double standardPhase = null;
 	private Double previousCyclePhase = null;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -380,7 +379,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param standardPhase the standardPhase to set
+	 * @param standardPhase
+	 *            the standardPhase to set
 	 */
 	public void setStandardPhase(Double standardPhase) {
 		this.standardPhase = standardPhase;
@@ -394,7 +394,8 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 	}
 
 	/**
-	 * @param previousCyclePhase the previousCyclePhase to set
+	 * @param previousCyclePhase
+	 *            the previousCyclePhase to set
 	 */
 	public void setPreviousCyclePhase(Double previousCyclePhase) {
 		this.previousCyclePhase = previousCyclePhase;
@@ -408,13 +409,30 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 			strBuf.append("\n");
 		}
 
-		strBuf.append("Julian Date: ");
-		strBuf.append(dateInfo.getJulianDay());
-		strBuf.append("\n");
+		if (dateInfo != null) {
+			strBuf.append("Julian Date: ");
+			strBuf.append(dateInfo.getJulianDay());
+			strBuf.append("\n");
 
-		strBuf.append("Calendar Date: ");
-		strBuf.append(dateInfo.getCalendarDate());
-		strBuf.append("\n");
+			strBuf.append("Calendar Date: ");
+			strBuf.append(dateInfo.getCalendarDate());
+			strBuf.append("\n");
+		}
+
+		// TODO: only show these if analysis mode is phase plot
+		// or is it okay to show last-non-null phases in any mode?
+		
+		if (standardPhase != null) {
+			strBuf.append("Standard Phase: ");
+			strBuf.append(standardPhase);
+			strBuf.append("\n");
+		}
+
+		if (previousCyclePhase != null) {
+			strBuf.append("Previous Cycle Phase: ");
+			strBuf.append(previousCyclePhase);
+			strBuf.append("\n");
+		}
 
 		strBuf.append("Magnitude: ");
 		strBuf.append(magnitude);
@@ -431,30 +449,36 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 			strBuf.append(hqUncertainty);
 			strBuf.append("\n");
 		}
+		
 		if (band != null) {
 			strBuf.append("Band: ");
 			strBuf.append(band);
 			strBuf.append("\n");
 		}
+		
 		if (obsCode != null) {
 			strBuf.append("Observer Code: ");
 			strBuf.append(obsCode);
 			strBuf.append("\n");
 		}
+		
 		if (commentCode != null) {
 			strBuf.append("Comment Codes:\n");
 			strBuf.append(commentCode.toString());
 		}
+		
 		if (compStar1 != null) {
 			strBuf.append("Comparison Star 1: ");
 			strBuf.append(compStar1);
 			strBuf.append("\n");
 		}
+
 		if (compStar2 != null) {
 			strBuf.append("Comparison Star 2: ");
 			strBuf.append(compStar2);
 			strBuf.append("\n");
 		}
+
 		if (charts != null) {
 			strBuf.append("Charts: ");
 			strBuf.append(charts);
@@ -487,32 +511,17 @@ public class ValidObservation extends Observation implements IMagAndJDSource {
 			strBuf.append(kMag);
 			strBuf.append("\n");
 		}
-		
+
 		if (hJD != null) {
 			strBuf.append("Heliocentric Julian Day: ");
 			strBuf.append(hJD);
 			strBuf.append("\n");
 		}
 
-		// TODO: only show these if analysis mode is phase plot
-		// or is it okay to show last-non-null phases in any mode?
-		
-		if (standardPhase != null) {
-			strBuf.append("Standard Phase: ");
-			strBuf.append(standardPhase);
-			strBuf.append("\n");
-		}
-
-		if (previousCyclePhase != null) {
-			strBuf.append("Previous Cycle Phase: ");
-			strBuf.append(previousCyclePhase);
-			strBuf.append("\n");
-		}
-
 		return strBuf.toString();
 	}
 
-	// IMagAndJDSource methods
+	// IMagJDAndPhaseSource methods
 
 	public double getJD() {
 		return this.dateInfo.getJulianDay();

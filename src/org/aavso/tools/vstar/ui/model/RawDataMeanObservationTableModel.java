@@ -19,26 +19,21 @@ package org.aavso.tools.vstar.ui.model;
 
 import java.util.List;
 
-import javax.swing.table.AbstractTableModel;
-
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
- * This class is a table model for mean observation data derived from raw data. 
+ * This class is a table model for mean observation data derived from raw data.
+ *  
  * The model is notified of wholesale mean data change.
  */
-public class RawDataMeanObservationTableModel extends AbstractTableModel implements
-		Listener<List<ValidObservation>> {
-
-	private static final int COLUMN_COUNT = 4;
+public class RawDataMeanObservationTableModel extends AbstractMeanObservationTableModel {
 
 	private static final int JD_COLUMN = 0;
 	private static final int CALDATE_COLUMN = 1;
 	private static final int MEAN_COLUMN = 2;
 	private static final int STDERR_COLUMN = 3;
 
-	protected List<ValidObservation> meanObsData;
+	private static final int COLUMN_COUNT = 4;
 
 	/**
 	 * Constructor.
@@ -48,25 +43,25 @@ public class RawDataMeanObservationTableModel extends AbstractTableModel impleme
 	 *            updated later via this class's listener interface.
 	 */
 	public RawDataMeanObservationTableModel(List<ValidObservation> meanObsData) {
-		this.meanObsData = meanObsData;
+		super(meanObsData);
 	}
 
 	/**
-	 * @see javax.swing.table.TableModel#getColumnCount()
+	 * @see org.aavso.tools.vstar.ui.model.AbstractMeanObservationTableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
 		return COLUMN_COUNT;
 	}
 
 	/**
-	 * @see javax.swing.table.TableModel#getRowCount()
+	 * @see org.aavso.tools.vstar.ui.model.AbstractMeanObservationTableModel#getRowCount()
 	 */
 	public int getRowCount() {
 		return meanObsData.size();
 	}
 
 	/**
-	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
+	 * @see org.aavso.tools.vstar.ui.model.AbstractMeanObservationTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
 		assert column < COLUMN_COUNT;
@@ -92,7 +87,7 @@ public class RawDataMeanObservationTableModel extends AbstractTableModel impleme
 	}
 
 	/**
-	 * @see javax.swing.table.TableModel#getValueAt(int, int)
+	 * @see org.aavso.tools.vstar.ui.model.AbstractMeanObservationTableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		assert columnIndex < COLUMN_COUNT;
@@ -122,7 +117,7 @@ public class RawDataMeanObservationTableModel extends AbstractTableModel impleme
 	}
 
 	/**
-	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
+	 * @see org.aavso.tools.vstar.ui.model.AbstractMeanObservationTableModel#getColumnClass(int)
 	 */
 	public Class<?> getColumnClass(int columnIndex) {
 		Class<?> clazz = null;
@@ -143,12 +138,5 @@ public class RawDataMeanObservationTableModel extends AbstractTableModel impleme
 		}
 
 		return clazz;
-	}
-
-	// Listen for updates to the mean data observation list, e.g.
-	// if the bin size has changed.
-	public void update(List<ValidObservation> obs) {
-		this.meanObsData = obs;
-		this.fireTableDataChanged();
 	}
 }

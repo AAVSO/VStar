@@ -28,42 +28,9 @@ import org.aavso.tools.vstar.data.ValidObservation;
 public class PhaseCoordSource implements ICoordSource {
 
 	/**
-	 * The series item number of the mean series. We use this to distinguish the
-	 * mean series from all others and give it special treatment.
-	 */
-	// private int meanSeriesNum;
-
-	/**
-	 * Set the mean obs list and series number and set the phases for each
-	 * observation.
-	 * 
-	 * @param meanObs
-	 *            The list of mean observations.
-	 * @param meanSeriesNum
-	 *            The series number of the mean.
-	 * @param epoch
-	 *            The epoch to be used for phase calculations.
-	 * @param period
-	 *            The period to be used for phase calculations.
-	 */
-	// public void setMeanObs(List<ValidObservation> meanObs, int meanSeriesNum,
-	// double epoch, double period) {
-
-	// TODO: meanObs should be a notifying list with which we register!
-	// If we do this, we will need to turn off notifications for setPhases()
-	// above! >:^/
-	// this.meanObsPrevious = new ArrayList<ValidObservation>();
-	// this.meanObsPrevious.addAll(meanObs);
-	//
-	// this.meanObsStandard = new ArrayList<ValidObservation>();
-	// this.meanObsStandard.addAll(meanObs);
-	//
-	// this.meanSeriesNum = meanSeriesNum;
-	// }
-
-	/**
-	 * Twice the number of items in the map, since we want to facilitate a
-	 * Standard Phase Diagram where the phase ranges over -1..1 inclusive.
+	 * Each mapped series list is assumed to be have been duplicated to
+	 * facilitate a Standard Phase Diagram where the phase ranges over 
+	 * -1..1 inclusive.
 	 * 
 	 * @param series
 	 *            The series of interest.
@@ -72,16 +39,13 @@ public class PhaseCoordSource implements ICoordSource {
 	public int getItemCount(int series,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 
-		if (!seriesNumToObSrcListMap.containsKey(series)) {
-			throw new IllegalArgumentException("Series number '" + series
-					+ "' out of range.");
-		}
-
-		return seriesNumToObSrcListMap.get(series).size() * 2;
+		return seriesNumToObSrcListMap.get(series).size();
 	}
 
 	/**
-	 * Get the phase associated with the specified series and item.
+	 * Get the phase associated with the specified series and item. The item
+	 * number determines whether the value returned should be the standard or
+	 * previous cycle phase.
 	 * 
 	 * @param series
 	 *            The series of interest.
@@ -89,40 +53,29 @@ public class PhaseCoordSource implements ICoordSource {
 	 *            The target item.
 	 * @param seriesNumToObSrcListMap
 	 *            A mapping from series number to a list of observations.
-	 * @return The X coordinate (phase).
+	 * @return The X coordinate (standard or previous cycle phase).
 	 */
 	public double getXCoord(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-		// Everything is modulo the number of elements in the series
-		// except the means series which we treat separately.
-		double phase = -99;
-		// TODO: do the map lookup only once
-		int itemCount = seriesNumToObSrcListMap.get(series).size();
-		if (item < itemCount) {
-			List<ValidObservation> obs = null;
-			ValidObservation ob = null;
-			try {
-				obs = seriesNumToObSrcListMap.get(series);
-				ob = obs.get(item);
-				phase = ob.getPreviousCyclePhase();
-				//System.out.println("ob: " + ob + ", item: " + item);
-			} catch (NullPointerException e) {
-				System.out.println(item);
-				//e.printStackTrace();
-			}
-			// phase = seriesNumToObSrcListMap.get(series).get(item)
-			// .getPreviousCyclePhase();
+
+		Double phase = null;
+
+		List<ValidObservation> obs = seriesNumToObSrcListMap.get(series);
+
+		if (item < obs.size() / 2) {
+			phase = obs.get(item).getPreviousCyclePhase();
 		} else {
-			phase = seriesNumToObSrcListMap.get(series).get(item % itemCount)
-					.getStandardPhase();
+			phase = obs.get(item).getStandardPhase();
 		}
 
+		assert phase != null;
+		
 		return phase;
 	}
 
 	/**
-	 * The actual item number for the Y coordinate is modulo the number of
-	 * elements in the series in this case.
+	 * The actual item number for the Y coordinate is in fact, just item in this
+	 * case.
 	 * 
 	 * @param series
 	 *            The series of interest.
@@ -134,7 +87,7 @@ public class PhaseCoordSource implements ICoordSource {
 	 */
 	public int getActualYItemNum(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-		return item % seriesNumToObSrcListMap.get(series).size();
+		return item;
 	}
 
 	/**
@@ -152,7 +105,7 @@ public class PhaseCoordSource implements ICoordSource {
 	 */
 	public ValidObservation getValidObservation(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-		return seriesNumToObSrcListMap.get(series).get(
-				item % seriesNumToObSrcListMap.get(series).size());
+		
+		return seriesNumToObSrcListMap.get(series).get(item);
 	}
 }

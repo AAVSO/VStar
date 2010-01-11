@@ -25,10 +25,13 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.JTable.PrintMode;
 
@@ -49,20 +52,24 @@ import org.aavso.tools.vstar.ui.ObservationListPane;
 import org.aavso.tools.vstar.ui.ObservationPlotPane;
 import org.aavso.tools.vstar.ui.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.PhasePlotPane;
+import org.aavso.tools.vstar.ui.TimeElementsInBinSettingPane;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.model.ICoordSource;
 import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.JDCoordSource;
-import org.aavso.tools.vstar.ui.model.PhasePlotMeanObservationTableModel;
-import org.aavso.tools.vstar.ui.model.RawDataMeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.aavso.tools.vstar.ui.model.PhaseCoordSource;
+import org.aavso.tools.vstar.ui.model.PhasePlotMeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.ui.model.ProgressType;
+import org.aavso.tools.vstar.ui.model.RawDataMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.SeriesType;
+import org.aavso.tools.vstar.ui.model.StandardPhaseComparator;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
@@ -432,7 +439,8 @@ public class Mediator {
 
 			// Observation-and-mean table and plot.
 			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
-					validObservationCategoryMap, coordSrc);
+					validObservationCategoryMap, coordSrc,
+					JDTimeElementEntity.instance);
 
 			// TODO: bogosity alert! see comment above about this.
 			validObsTableModel.getObservationChangeNotifier().addListener(
@@ -505,6 +513,9 @@ public class Mediator {
 			this.validObservationCategoryMap.clear();
 		}
 
+		// TODO: Should we clear the phased valid observation category map
+		// if it exists? Anything else?
+
 		// Suggest garbage collection.
 		System.gc();
 
@@ -566,12 +577,31 @@ public class Mediator {
 		// affect both validObsList and validObservationCategoryMap.
 		PhaseCalcs.setPhases(validObsList, epoch, period);
 
+		// We duplicate the valid observation category map
+		// so that we have two sets of identical data for the
+		// two cycles of the phase plot. This map will be shared
+		// by ordinary plot and mean plot models.
+		Map<SeriesType, List<ValidObservation>> phasedValidObservationCategoryMap = new TreeMap<SeriesType, List<ValidObservation>>();
+
+		for (SeriesType series : validObservationCategoryMap.keySet()) {
+			List<ValidObservation> obs = validObservationCategoryMap
+					.get(series);
+
+			List<ValidObservation> doubledObs = new ArrayList<ValidObservation>();
+			doubledObs.addAll(obs);
+			Collections.sort(doubledObs, StandardPhaseComparator.instance);
+			doubledObs.addAll(obs);
+
+			phasedValidObservationCategoryMap.put(series, doubledObs);
+		}
+
 		// Table and plot models.
 		// TODO: consider reusing plot models across all modes, just
 		// changing the ICoordSource when mode-switching (to save
 		// memory)...
 		ObservationPlotModel obsPlotModel = new ObservationPlotModel(
-				validObservationCategoryMap, phaseCoordSrc, seriesVisibilityMap);
+				phasedValidObservationCategoryMap, phaseCoordSrc,
+				seriesVisibilityMap);
 
 		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(
 				validObsList, newStarMessage.getNewStarType()
@@ -585,10 +615,12 @@ public class Mediator {
 		// to do
 		// phase plots?
 		ObservationAndMeanPlotModel obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
-				validObservationCategoryMap, phaseCoordSrc);
+				phasedValidObservationCategoryMap, phaseCoordSrc,
+				PhaseTimeElementEntity.instance);
 
 		// We need to set the phase values for each raw and mean data value.
-		PhaseCalcs.setPhases(obsAndMeanPlotModel.getMeanObsList(), epoch, period);
+//		PhaseCalcs.setPhases(obsAndMeanPlotModel.getMeanObsList(), epoch,
+//				period);
 
 		// The mean observation table model must listen to the plot
 		// model to know when the means data has changed. We also pass
@@ -623,7 +655,7 @@ public class Mediator {
 		// that's just wasting memory we may not have!
 		// TODO: 2. we are going to need an Observer or callback that gets
 		// invoked
-		// when we change the means series in order to set new phase mean 
+		// when we change the means series in order to set new phase mean
 		// values; use a notifying list -> an obvious
 		// choice?
 		// PhaseCalcs.setPhases(phaseAndMeanPlotModel.getMeanObsList(), epoch,
@@ -646,12 +678,15 @@ public class Mediator {
 		// phaseAndMeanPlotModel);
 
 		// TODO: use this until we have PhaseAndMeanPlot{Pane,Model} working.
-		ObservationAndMeanPlotPane obsAndMeanChartPane = rawDataMsg
-				.getObsAndMeanChartPane();
-		// ObservationAndMeanPlotPane obsAndMeanChartPane =
+		// ObservationAndMeanPlotPane obsAndMeanChartPane = rawDataMsg
+		// .getObsAndMeanChartPane();
+		// PhasePlotMeanObservationTableModel obsAndMeanChartPane =
 		// createObservationAndMeanPlotPane(
 		// "Light Curve with Means for " + objName, subTitle,
 		// obsAndMeanPlotModel);
+		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
+				"Phase Plot with Means for " + objName, subTitle,
+				obsAndMeanPlotModel);
 
 		// The observation table pane contains valid and potentially
 		// invalid data components but for phase plot purposes, we only
@@ -728,7 +763,9 @@ public class Mediator {
 				(int) (DataPane.HEIGHT * 0.9));
 
 		return new ObservationAndMeanPlotPane(plotName, subTitle,
-				obsAndMeanPlotModel, bounds);
+				obsAndMeanPlotModel, new TimeElementsInBinSettingPane(
+						"Days in Means Bin", obsAndMeanPlotModel,
+						JDTimeElementEntity.instance), bounds);
 	}
 
 	/**

@@ -15,36 +15,35 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.resources;
+package org.aavso.tools.vstar.ui.model;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
+
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * The purpose of this class is to provide access to subversion revision number.
+ * A Julian Date element source/sink.
  */
+public class JDTimeElementEntity implements ITimeElementEntity {
 
-public class RevisionAccessor {
+	private static final int DEFAULT_BIN_DAYS = 20;
 
-	private static String REVISION = "370:375MP";
+	public static final JDTimeElementEntity instance = new JDTimeElementEntity();
 
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\d+:(\\d+).*$");
+	public double getTimeElement(List<ValidObservation> obs, int index) {
+		return obs.get(index).getJD();
+	}
 
-	/**
-	 * Get the latest revision number if REVISION is of the form:
-	 * n:m... (i.e. get m), otherwise just return the whole revision
-	 * string. It doesn't really matter what it is so long as it's
-	 * unique from one commit of dist/vstar.jar to the next.
-	 */
-	public static String getRevNum() {
-		String rev = REVISION;
+	public void setTimeElement(ValidObservation ob, double meanJD) {
+		ob.setDateInfo(new DateInfo(meanJD));
+	}
 
-		Matcher revMatcher = revNumPat.matcher(rev);
-		if (revMatcher.matches()) {
-			rev = revMatcher.group(1);
-		}
-		
-		return rev;
+	public double getDefaultTimeElementsInBin() {
+		return DEFAULT_BIN_DAYS;
+	}
+
+	public double getDefaultTimeIncrements() {
+		return 1;
 	}
 }

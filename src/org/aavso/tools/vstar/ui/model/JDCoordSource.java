@@ -28,7 +28,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 public class JDCoordSource implements ICoordSource {
 
 	/**
-	 * The number of JD items is the size of the map.
+	 * The number of JD items is the size of the mapped series list.
 	 * 
 	 * @param series
 	 *            The series of interest.
@@ -36,6 +36,7 @@ public class JDCoordSource implements ICoordSource {
 	 */
 	public int getItemCount(int series,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
+		
 		return seriesNumToObSrcListMap.get(series).size();
 	}
 
@@ -52,6 +53,7 @@ public class JDCoordSource implements ICoordSource {
 	 */
 	public double getXCoord(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
+		
 		return seriesNumToObSrcListMap.get(series).get(item).getDateInfo()
 				.getJulianDay();
 	}
@@ -88,6 +90,7 @@ public class JDCoordSource implements ICoordSource {
 	 */
 	public ValidObservation getValidObservation(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
+		
 		return seriesNumToObSrcListMap.get(series).get(item);
 	}
 }

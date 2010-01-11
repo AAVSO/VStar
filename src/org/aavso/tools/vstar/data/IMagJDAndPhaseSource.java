@@ -19,13 +19,15 @@ package org.aavso.tools.vstar.data;
 
 /**
  * An interface to be implemented by any class wanting to be a source of
- * magnitude and Julian Day.
+ * magnitude, Julian Day, and phase information.
+ * 
+ * @deprecated
  */
-public interface IMagAndJDSource {
+public interface IMagJDAndPhaseSource {
 
 	abstract public double getJD();
 	
 	abstract public double getMag(); 
 	
-	abstract public boolean isDiscrepant();
+	abstract public boolean isDiscrepant();	
 }
