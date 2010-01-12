@@ -192,7 +192,86 @@ public class DescStats {
 	 * @return An observation sequence consisting of magnitude means per bin and
 	 *         the observation at the center point of each bin.
 	 */
-	public static List<ValidObservation> createdBinnedObservations(
+	public static List<ValidObservation> createdBinnedObservationsA(
+			List<ValidObservation> observations,
+			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
+
+		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
+
+		double minTimeElement = timeElementEntity.getTimeElement(observations,
+				0);
+		int minIndex = 0;
+		int maxIndex = 0;
+
+		int i = 1;
+
+		while (i < observations.size()) {
+
+			// If we have not reached the end of the observation list
+			// and the current observation's time element is less than the
+			// minimum time element for the bottom of the current range plus
+			// the number of days in the bin, continue to the next observation.
+			if (i < observations.size()
+					&& timeElementEntity.getTimeElement(observations, i) < (minTimeElement + timeElementsInBin)) {
+				i++;
+			} else {
+				// Otherwise, we have found the top of the current range,
+				// so add a ValidObservation containing mean and error value
+				// to the list.
+				maxIndex = i - 1;
+
+				ValidObservation ob = createMeanObservationForRange(
+						observations, timeElementEntity, minIndex, maxIndex);
+
+				// If the mean magnitude value is NaN (e.g. because
+				// there was no valid data in the range in question),
+				// it doesn't make sense to include this observation.
+				if (!Double.isNaN(ob.getMag())) {
+					binnedObs.add(ob);
+				}
+
+				minIndex = i;
+				minTimeElement = timeElementEntity.getTimeElement(observations,
+						i);
+
+				i++;
+			}
+		}
+
+		// Ensure that if we have reached the end of the observations
+		// that we include any left over data that would otherwise be
+		// excluded by the less-than constraint?
+		if (maxIndex < observations.size() - 1) {
+			ValidObservation ob = createMeanObservationForRange(observations,
+					timeElementEntity, minIndex, observations.size() - 1);
+
+			// If the mean magnitude value is NaN (e.g. because
+			// there was no valid data in the range in question),
+			// it doesn't make sense to include this observation.
+			if (!Double.isNaN(ob.getMag())) {
+				binnedObs.add(ob);
+			}
+		}
+
+		return binnedObs;
+	}
+	
+	/**
+	 * Create a sequence of observations based upon bin size. The observations
+	 * represent mean magnitudes at the mid-point of each bin. Each bin consists
+	 * of the range index..index+binSize-1
+	 * 
+	 * @param observations
+	 *            The observations to which binning will be applied.
+	 * @param timeElementEntity
+	 *            A time element source for observations.
+	 * @param timeElementsInBin
+	 *            The bin size in number of time elements (days, phase
+	 *            increments) or portions thereof.
+	 * @return An observation sequence consisting of magnitude means per bin and
+	 *         the observation at the center point of each bin.
+	 */
+	public static List<ValidObservation> createdBinnedObservationsB(
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
