@@ -96,7 +96,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	public void setMeanSeries() {
 
-		meanObsList = DescStats.createdBinnedObservations(
+		meanObsList = DescStats.createdBinnedObservationsA(
 				seriesNumToObSrcListMap.get(meanSourceSeriesNum),
 				timeElementEntity, timeElementsInBin);
 

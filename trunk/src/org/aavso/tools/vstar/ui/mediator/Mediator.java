@@ -93,7 +93,6 @@ public class Mediator {
 	private Map<SeriesType, List<ValidObservation>> validObservationCategoryMap;
 
 	// Current mode.
-	// TODO: why doesn't this live in ModePane?
 	private ModeType mode;
 
 	// Current analysis type.
@@ -375,7 +374,6 @@ public class Mediator {
 	 *            corresponding to a portion of the overall task of which this
 	 *            is just a part.
 	 */
-	// TODO: split this up!
 	protected void createNewStarObservationArtefacts(NewStarType newStarType,
 			StarInfo starInfo, AbstractObservationRetriever obsRetriever,
 			int obsArtefactProgressAmount) {
@@ -544,21 +542,8 @@ public class Mediator {
 			double epoch, Map<Integer, Boolean> seriesVisibilityMap)
 			throws Exception {
 
-		// TODO: invoke dialog from here
-		// - for dialog, start with period entry box
-		// - add radio buttons for epoch calc algorithm later
-
 		// TODO: enable busy cursor, progress bar, status pane updates...
 		// => PhasePlotTask required for this
-
-		// Get the existing new star message for now, to reuse some components.
-		// TODO: This is temporary.
-		AnalysisTypeChangeMessage rawDataMsg = this.analysisTypeMap
-				.get(AnalysisType.RAW_DATA);
-		assert (rawDataMsg != null);
-
-		// TODO: refactor this code against what is in
-		// createObservationArtefacts()
 
 		String objName = newStarMessage.getStarInfo().getDesignation();
 
@@ -590,15 +575,12 @@ public class Mediator {
 			List<ValidObservation> doubledObs = new ArrayList<ValidObservation>();
 			doubledObs.addAll(obs);
 			Collections.sort(doubledObs, StandardPhaseComparator.instance);
-			doubledObs.addAll(obs);
+			doubledObs.addAll(doubledObs);
 
 			phasedValidObservationCategoryMap.put(series, doubledObs);
 		}
 
 		// Table and plot models.
-		// TODO: consider reusing plot models across all modes, just
-		// changing the ICoordSource when mode-switching (to save
-		// memory)...
 		ObservationPlotModel obsPlotModel = new ObservationPlotModel(
 				phasedValidObservationCategoryMap, phaseCoordSrc,
 				seriesVisibilityMap);
@@ -608,19 +590,13 @@ public class Mediator {
 						.getPhasePlotTableColumnInfoSource());
 
 		// Observation-and-mean table and plot.
-		// TODO: clone validObservationCategoryMap; listen to voice message
-		// TODO: consider sharing this with raw data plot and creating it as
-		// double
-		// up front, using only half for obs; but what if someone doesn't want
-		// to do
-		// phase plots?
 		ObservationAndMeanPlotModel obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
 				phasedValidObservationCategoryMap, phaseCoordSrc,
 				PhaseTimeElementEntity.instance);
 
 		// We need to set the phase values for each raw and mean data value.
-//		PhaseCalcs.setPhases(obsAndMeanPlotModel.getMeanObsList(), epoch,
-//				period);
+		// PhaseCalcs.setPhases(obsAndMeanPlotModel.getMeanObsList(), epoch,
+		// period);
 
 		// The mean observation table model must listen to the plot
 		// model to know when the means data has changed. We also pass
@@ -632,58 +608,10 @@ public class Mediator {
 		obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 				meanObsTableModel);
 
-		// PhaseAndMeanPlotModel phaseAndMeanPlotModel = new
-		// PhaseAndMeanPlotModel(
-		// validObservationCategoryMap, phaseCoordSrc);
-
-		// Set the phases for the valid observation models in each series,
-		// including the means series.
-
-		// with radio
-		// buttons
-		// double period = validObsList.size() / 2; // essentially meaningless;
-		// TODO: same dialog box as
-		// above
-
-		// phaseCoordSrc.setMeanObs(obsAndMeanPlotModel.getMeanObsList(),
-		// obsAndMeanPlotModel.getMeansSeriesNum(), epoch, period);
-
-		// TODO: 1. to avoid the visual mean value line joining problem, we
-		// will need to double the means list and set the means series number
-		// in PhaseCoordSource, treating that series differently from all
-		// others; either this, or we have to double all series lists and
-		// that's just wasting memory we may not have!
-		// TODO: 2. we are going to need an Observer or callback that gets
-		// invoked
-		// when we change the means series in order to set new phase mean
-		// values; use a notifying list -> an obvious
-		// choice?
-		// PhaseCalcs.setPhases(phaseAndMeanPlotModel.getMeanObsList(), epoch,
-		// period);
-
-		// TODO:
-		// 1. create a separate coord src subclass and instance for mean plot
-		// 2. pass means model or just means list and means series num to coord
-		// src where it will be duplicated
-
-		// TODO: add table models x 2
-
 		// GUI table and chart components.
 		PhasePlotPane obsChartPane = createPhasePlotPane("Phase Plot for "
 				+ objName, subTitle, obsPlotModel);
 
-		// PhaseAndMeanPlotPane obsAndMeanChartPane =
-		// createPhaseAndMeanPlotPane(
-		// "Phase Plot with Means for " + objName, subTitle,
-		// phaseAndMeanPlotModel);
-
-		// TODO: use this until we have PhaseAndMeanPlot{Pane,Model} working.
-		// ObservationAndMeanPlotPane obsAndMeanChartPane = rawDataMsg
-		// .getObsAndMeanChartPane();
-		// PhasePlotMeanObservationTableModel obsAndMeanChartPane =
-		// createObservationAndMeanPlotPane(
-		// "Light Curve with Means for " + objName, subTitle,
-		// obsAndMeanPlotModel);
 		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
 				"Phase Plot with Means for " + objName, subTitle,
 				obsAndMeanPlotModel);
@@ -700,12 +628,6 @@ public class Mediator {
 		ObservationListPane obsListPane = new ObservationListPane(
 				validObsTableModel, null, enableColumnAutoResize, true);
 
-		// ObservationListPane obsListPane = rawDataMsg.getObsListPane(); //
-		// TODO:
-		// fix to be phase-friendly
-		// MeanObservationListPane meansListPane =
-		// rawDataMsg.getMeansListPane(); // TODO:
-		// fix to be phase-friendly
 		MeanObservationListPane meansListPane = new MeanObservationListPane(
 				meanObsTableModel);
 

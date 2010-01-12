@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.util.stats;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -27,7 +28,8 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.model.JDTimeElementEntity;
-import org.aavso.tools.vstar.util.stats.DescStats;
+import org.aavso.tools.vstar.ui.model.PhaseTimeElementEntity;
+import org.aavso.tools.vstar.ui.model.StandardPhaseComparator;
 
 /**
  * Unit tests for descriptive stats class. Sample data taken from chapter 10 of
@@ -115,12 +117,12 @@ public class DescStatsTest extends TestCase {
 		assertEquals("0.038", magStdErrStr);
 	}
 
-	public void testObservationBinning1() {
+	public void testObservationBinningA1() {
 		// Use a bin that is greater than the number of days in the observation
 		// set to ensure we don't exclude some values at the upper end of the
 		// range.
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservations(this.observations1,
+				.createdBinnedObservationsA(this.observations1,
 						JDTimeElementEntity.instance, 3);
 
 		assertTrue(observations.size() == 1);
@@ -134,9 +136,9 @@ public class DescStatsTest extends TestCase {
 		assertEquals("0.707", magStdErrStr);
 	}
 
-	public void testObservationBinning2() {
+	public void testObservationBinningA2() {
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservations(this.observations2,
+				.createdBinnedObservationsA(this.observations2,
 						JDTimeElementEntity.instance, this.observations2.size());
 
 		assertTrue(observations.size() == 1);
@@ -150,11 +152,11 @@ public class DescStatsTest extends TestCase {
 		assertEquals("0.316", magStdErrStr);
 	}
 
-	public void testObservationBinning3() {
+	public void testObservationBinningA3() {
 		// If we choose a bin that is too small, we should
 		// just get all the data.
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservations(this.observations3,
+				.createdBinnedObservationsA(this.observations3,
 						JDTimeElementEntity.instance, this.observations3.size());
 
 		assertTrue(observations.size() == 1);
@@ -170,11 +172,120 @@ public class DescStatsTest extends TestCase {
 
 	// A bin size of 2.5 JDs for observations3 should give us
 	// a list of two ValidObservations.
-	public void testObservationBinning4() {
+	public void testObservationBinningA4() {
 		double binSize = 2.5;
 
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservations(this.observations3,
+				.createdBinnedObservationsA(this.observations3,
+						JDTimeElementEntity.instance, binSize);
+
+		// Two ValidObservation elements?
+		assertTrue(observations.size() == 2);
+
+		// Check the magnitude mean and standard error of the average
+		// for the first element.
+		double magMean1 = observations.get(0).getMagnitude().getMagValue();
+		String magMean1Str = String.format("%1.2f", magMean1);
+		assertEquals("4.04", magMean1Str);
+
+		double magStdErr1 = observations.get(0).getMagnitude().getUncertainty();
+		String magStdErr1Str = String.format("%1.3f", magStdErr1);
+		assertEquals("0.051", magStdErr1Str);
+
+		// Check the magnitude mean and standard error of the average
+		// for the second element.
+		double magMean2 = observations.get(1).getMagnitude().getMagValue();
+		String magMean2Str = String.format("%1.2f", magMean2);
+		assertEquals("3.94", magMean2Str);
+
+		double magStdErr2 = observations.get(1).getMagnitude().getUncertainty();
+		String magStdErr2Str = String.format("%1.3f", magStdErr2);
+		assertEquals("0.051", magStdErr2Str);
+	}
+
+	// Create binned observations of phase plot data.
+	public void testObservationBinningA5() {
+		List<ValidObservation> obs = new ArrayList<ValidObservation>();
+		obs.addAll(this.observations3);
+		Collections.sort(obs, StandardPhaseComparator.instance);
+		obs.addAll(obs);
+
+		List<ValidObservation> binnedObs = DescStats
+				.createdBinnedObservationsA(obs,
+						PhaseTimeElementEntity.instance, obs.size());
+
+		// assertTrue(observations.size() == 1);
+
+		// double magMean = observations.get(0).getMagnitude().getMagValue();
+		// String magMeanStr = String.format("%1.1f", magMean);
+		// assertEquals("3.0", magMeanStr);
+		//
+		// double magStdErr =
+		// observations.get(0).getMagnitude().getUncertainty();
+		// String magStdErrStr = String.format("%1.3f", magStdErr);
+		// assertEquals("0.316", magStdErrStr);
+	}
+
+	public void testObservationBinningB1() {
+		// Use a bin that is greater than the number of days in the observation
+		// set to ensure we don't exclude some values at the upper end of the
+		// range.
+		List<ValidObservation> observations = DescStats
+				.createdBinnedObservationsB(this.observations1,
+						JDTimeElementEntity.instance, 3);
+
+		assertTrue(observations.size() == 1);
+
+		double magMean = observations.get(0).getMagnitude().getMagValue();
+		String magMeanStr = String.format("%1.1f", magMean);
+		assertEquals("3.0", magMeanStr);
+
+		double magStdErr = observations.get(0).getMagnitude().getUncertainty();
+		String magStdErrStr = String.format("%1.3f", magStdErr);
+		assertEquals("0.707", magStdErrStr);
+	}
+
+	public void testObservationBinningB2() {
+		List<ValidObservation> observations = DescStats
+				.createdBinnedObservationsB(this.observations2,
+						JDTimeElementEntity.instance, this.observations2.size());
+
+		assertTrue(observations.size() == 1);
+
+		double magMean = observations.get(0).getMagnitude().getMagValue();
+		String magMeanStr = String.format("%1.1f", magMean);
+		assertEquals("3.0", magMeanStr);
+
+		double magStdErr = observations.get(0).getMagnitude().getUncertainty();
+		String magStdErrStr = String.format("%1.3f", magStdErr);
+		assertEquals("0.316", magStdErrStr);
+	}
+
+	public void testObservationBinningB3() {
+		// If we choose a bin that is too small, we should
+		// just get all the data.
+		List<ValidObservation> observations = DescStats
+				.createdBinnedObservationsB(this.observations3,
+						JDTimeElementEntity.instance, this.observations3.size());
+
+		assertTrue(observations.size() == 1);
+
+		double magMean = observations.get(0).getMagnitude().getMagValue();
+		String magMeanStr = String.format("%1.1f", magMean);
+		assertEquals("4.0", magMeanStr);
+
+		double magStdErr = observations.get(0).getMagnitude().getUncertainty();
+		String magStdErrStr = String.format("%1.3f", magStdErr);
+		assertEquals("0.038", magStdErrStr);
+	}
+
+	// A bin size of 2.5 JDs for observations3 should give us
+	// a list of two ValidObservations.
+	public void testObservationBinningB4() {
+		double binSize = 2.5;
+
+		List<ValidObservation> observations = DescStats
+				.createdBinnedObservationsB(this.observations3,
 						JDTimeElementEntity.instance, binSize);
 
 		// Two ValidObservation elements?
