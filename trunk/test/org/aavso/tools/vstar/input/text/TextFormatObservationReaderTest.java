@@ -17,22 +17,18 @@
  */
 package org.aavso.tools.vstar.input.text;
 
-import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
-import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
-import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
-import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.model.NewStarType;
-import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This is a unit test for TextFormatObservationReader.

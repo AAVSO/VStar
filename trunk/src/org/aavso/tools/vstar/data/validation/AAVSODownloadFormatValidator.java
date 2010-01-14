@@ -20,9 +20,9 @@ package org.aavso.tools.vstar.data.validation;
 import org.aavso.tools.vstar.data.CommentType;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.MTypeType;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
-import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This class accepts a line of text for tokenising, validation, and

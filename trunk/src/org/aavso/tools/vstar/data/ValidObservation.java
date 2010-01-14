@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.data;
 
-import org.aavso.tools.vstar.ui.model.SeriesType;
 import org.aavso.tools.vstar.data.CommentCodes;
 
 /**
@@ -452,7 +451,7 @@ public class ValidObservation extends Observation {
 		
 		if (band != null) {
 			strBuf.append("Band: ");
-			strBuf.append(band);
+			strBuf.append(band.getDescription());
 			strBuf.append("\n");
 		}
 		

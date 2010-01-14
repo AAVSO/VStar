@@ -18,7 +18,9 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 import java.util.List;
+import java.util.Map;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.model.NewStarType;
 
@@ -30,7 +32,8 @@ public class NewStarMessage {
 	private NewStarType newStarType;
 	private StarInfo starInfo;
 	private List<ValidObservation> obs;
-	
+	private Map<SeriesType, List<ValidObservation>> obsCategoryMap;
+
 	/**
 	 * Constructor.
 	 * 
@@ -39,12 +42,18 @@ public class NewStarMessage {
 	 * @param info
 	 *            Information about the star's characteristics, e.g.
 	 *            designation, name, and possibly: period, epoch).
-	 * @param obs The list of valid observations for the loaded star.
+	 * @param obs
+	 *            The list of valid observations for the loaded star.
+	 * @param obsCategoryMap
+	 *            A mapping from category (band, fainter-than) to observation.
 	 */
-	public NewStarMessage(NewStarType newStarType, StarInfo info, List<ValidObservation> obs) {
+	public NewStarMessage(NewStarType newStarType, StarInfo info,
+			List<ValidObservation> obs,
+			Map<SeriesType, List<ValidObservation>> obsCategoryMap) {
 		this.newStarType = newStarType;
 		this.starInfo = info;
 		this.obs = obs;
+		this.obsCategoryMap = obsCategoryMap;
 	}
 
 	/**
@@ -67,4 +76,12 @@ public class NewStarMessage {
 	public List<ValidObservation> getObservations() {
 		return obs;
 	}
+
+	/**
+	 * @return the obsCategoryMap
+	 */
+	public Map<SeriesType, List<ValidObservation>> getObsCategoryMap() {
+		return obsCategoryMap;
+	}
+
 }

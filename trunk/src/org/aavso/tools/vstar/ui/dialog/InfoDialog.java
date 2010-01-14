@@ -18,45 +18,58 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
- * This modeless dialog class displays info about a single observation.
- * 
- * TODO: - We should have a pool of these and clear the text for each use since
- * they take awhile to render otherwise and we are likely to create many per
- * session.
+ * Information dialog for the currently loaded document.
  */
-public class ObservationDetailsDialog extends JDialog implements ActionListener {
+public class InfoDialog extends JDialog implements ActionListener {
 
-	public ObservationDetailsDialog(ValidObservation ob) {
+	// TODO: Use a table instead of a text area?
+	// Column numbers could vary depending upon
+	// how much info is present in StarInfo etc.
+
+	private JTextArea textArea;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param newStarMessage A new (loaded) star message.
+	 */
+	public InfoDialog(NewStarMessage newStarMessage) {
 		super();
-		this.setTitle("Observation Details");
+		this.setTitle("Information");
 		this.setModal(false);
-		this.setSize(200, 200);
 
 		JPanel topPane = new JPanel();
+		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		JTextArea textArea = new JTextArea(ob.toString());
+		textArea = new JTextArea();
 		textArea.setEditable(false);
+		setText(newStarMessage);
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		topPane.add(scrollPane);
-
+		
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		JPanel buttonPane = new JPanel();
@@ -64,7 +77,7 @@ public class ObservationDetailsDialog extends JDialog implements ActionListener 
 		okButton.addActionListener(this);
 		buttonPane.add(okButton, BorderLayout.CENTER);
 		topPane.add(buttonPane);
-
+		
 		this.getContentPane().add(topPane);
 
 		this.pack();
@@ -72,7 +85,48 @@ public class ObservationDetailsDialog extends JDialog implements ActionListener 
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 	}
-	
+
+	/**
+	 * Set the dialog text given a new star message.
+	 */
+	private void setText(NewStarMessage msg) {
+		StarInfo starInfo = msg.getStarInfo();
+		List<ValidObservation> obs = msg.getObservations();
+		Map<SeriesType, List<ValidObservation>> obsCategoryMap = msg
+				.getObsCategoryMap();
+
+		StringBuffer buf = new StringBuffer();
+
+		buf.append("Object: ");
+		buf.append(starInfo.getDesignation());
+		buf.append("\n");
+
+		if (starInfo.getAuid() != null) {
+			buf.append("AUID: ");
+			buf.append(starInfo.getAuid());
+			buf.append("\n");
+		}
+
+		if (starInfo.getPeriod() != null) {
+			buf.append("Period: ");
+			buf.append(starInfo.getPeriod());
+			buf.append("days\n");
+		}
+
+		buf.append("Total Observations: ");
+		buf.append(obs.size());
+		buf.append("\n");
+
+		for (SeriesType type : obsCategoryMap.keySet()) {
+			List<ValidObservation> obsOfType = obsCategoryMap.get(type);
+			buf.append(type.getDescription());
+			buf.append(": ");
+			buf.append(obsOfType.size());
+			buf.append("\n");
+		}
+
+		textArea.setText(buf.toString());
+	}
 
 	/**
 	 * OK button handler.

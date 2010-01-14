@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
-import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This is the abstract base class for all observation retrieval classes,

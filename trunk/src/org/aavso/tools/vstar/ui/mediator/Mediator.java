@@ -36,6 +36,7 @@ import java.util.TreeMap;
 import javax.swing.JTable.PrintMode;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
@@ -68,7 +69,6 @@ import org.aavso.tools.vstar.ui.model.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.ui.model.ProgressType;
 import org.aavso.tools.vstar.ui.model.RawDataMeanObservationTableModel;
-import org.aavso.tools.vstar.ui.model.SeriesType;
 import org.aavso.tools.vstar.ui.model.StandardPhaseComparator;
 import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Notifier;
@@ -483,7 +483,8 @@ public class Mediator {
 		meansListPane = new MeanObservationListPane(meanObsTableModel);
 
 		// Notify whoever is listening that a new star has been loaded.
-		newStarMessage = new NewStarMessage(newStarType, starInfo, validObsList);
+		newStarMessage = new NewStarMessage(newStarType, starInfo,
+				validObsList, validObservationCategoryMap);
 
 		// Notify whoever is listening that the analysis type has changed
 		// (we could have been viewing a phase plot for a different star

@@ -25,6 +25,7 @@ import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.exception.ObservationReadError;
@@ -32,7 +33,6 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This class reads variable star observations from an AAVSO database and yields

@@ -19,13 +19,15 @@ package org.aavso.tools.vstar.ui;
 
 import javax.swing.UIManager;
 
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+
 /**
  * The VStar GUI.
  */
 public class VStar {
 
 	public static void main(String[] args) {
-		// For Mac OS X, make it look more native by using the screen 
+		// For Mac OS X, make it look more native by using the screen
 		// menu bar. Suggested by Adam Weber.
 		try {
 			String os_name = System.getProperty("os.name");
@@ -61,8 +63,12 @@ public class VStar {
 	 * Create and display the main window.
 	 */
 	private static void createAndShowGUI() {
+		try {
 		MainFrame wdw = MainFrame.getInstance();
 		wdw.pack();
 		wdw.setVisible(true);
+		} catch(Throwable t) {
+			MessageBox.showErrorDialog(MainFrame.getInstance(), "Error", t);
+		}
 	}
 }

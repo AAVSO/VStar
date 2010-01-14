@@ -22,10 +22,13 @@ import org.aavso.tools.vstar.data.ValidObservation;
 /**
  * AAVSO format (file, database) table column information source.
  */
-public class AAVSOFormatRawDataColumnInfoSource implements ITableColumnInfoSource {
+public class AAVSOFormatRawDataColumnInfoSource implements
+		ITableColumnInfoSource {
 
-	public static final AAVSOFormatRawDataColumnInfoSource fileInstance = new AAVSOFormatRawDataColumnInfoSource(true);
-	public static final AAVSOFormatRawDataColumnInfoSource databaseInstance = new AAVSOFormatRawDataColumnInfoSource(false);
+	public static final AAVSOFormatRawDataColumnInfoSource fileInstance = new AAVSOFormatRawDataColumnInfoSource(
+			true);
+	public static final AAVSOFormatRawDataColumnInfoSource databaseInstance = new AAVSOFormatRawDataColumnInfoSource(
+			false);
 
 	// Table columns.
 	private static final int JD_COLUMN = 0;
@@ -60,7 +63,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements ITableColumnInfoSourc
 	 */
 	protected AAVSOFormatRawDataColumnInfoSource(boolean useLineNumbers) {
 		this.useLineNumbers = useLineNumbers;
-	}	
+	}
 
 	public int getColumnCount() {
 		return useLineNumbers ? LINE_NUM_COLUMN + 1 : LINE_NUM_COLUMN;
@@ -263,7 +266,6 @@ public class AAVSOFormatRawDataColumnInfoSource implements ITableColumnInfoSourc
 			value = ob.getLineNumber();
 			break;
 		}
-
 		return value;
 	}
 }
