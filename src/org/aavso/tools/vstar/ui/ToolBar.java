@@ -41,6 +41,7 @@ public class ToolBar extends JPanel {
 
 	private Icon newStarFromFileIcon;
 	private Icon newStarFromDatabaseIcon;
+	private Icon infoIcon;
 	private Icon saveIcon;
 	private Icon printIcon;
 	private Icon prefsIcon;
@@ -50,6 +51,7 @@ public class ToolBar extends JPanel {
 
 	private JButton newStarFromDatabaseButton;
 	private JButton newStarFromFileButton;
+	private JButton infoButton;
 	private JButton saveButton;
 	private JButton printButton;
 	private JButton prefsButton;
@@ -91,6 +93,10 @@ public class ToolBar extends JPanel {
 				.getIconResource("/toolbarButtonGraphics/general/New24.gif");
 		newStarFromDatabaseIcon = ResourceAccessor
 				.getIconResource("/toolbarButtonGraphics/general/Import24.gif");
+
+		infoIcon = ResourceAccessor
+				.getIconResource("/toolbarButtonGraphics/general/Information24.gif");
+
 		saveIcon = ResourceAccessor
 				.getIconResource("/toolbarButtonGraphics/general/Save24.gif");
 		printIcon = ResourceAccessor
@@ -101,8 +107,8 @@ public class ToolBar extends JPanel {
 				.getIconResource("/toolbarButtonGraphics/general/Help24.gif");
 
 		if (newStarFromDatabaseIcon == null || newStarFromDatabaseIcon == null
-				|| saveIcon == null || printIcon == null || prefsIcon == null
-				|| helpContentsIcon == null) {
+				|| infoIcon == null || saveIcon == null || printIcon == null
+				|| prefsIcon == null || helpContentsIcon == null) {
 			System.exit(1);
 		}
 	}
@@ -120,6 +126,12 @@ public class ToolBar extends JPanel {
 		newStarFromFileButton.addActionListener(menuBar
 				.createNewStarFromFileListener());
 		toolBar.add(newStarFromFileButton);
+
+		infoButton = new JButton(infoIcon);
+		infoButton.setToolTipText(MenuBar.INFO);
+		infoButton.addActionListener(menuBar.createInfoListener());
+		infoButton.setEnabled(false);
+		toolBar.add(infoButton);
 
 		saveButton = new JButton(saveIcon);
 		saveButton.setToolTipText(MenuBar.SAVE);
@@ -170,6 +182,7 @@ public class ToolBar extends JPanel {
 	}
 
 	private void setEnabledToolbarItems(boolean state) {
+		infoButton.setEnabled(state);
 		saveButton.setEnabled(state);
 		printButton.setEnabled(state);
 	}

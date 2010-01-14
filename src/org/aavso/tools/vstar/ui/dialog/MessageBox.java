@@ -95,7 +95,7 @@ public class MessageBox {
 	 *            The exception whose message will be the content of the dialog.
 	 */
 	public static void showErrorDialog(Component parent, String title,
-			Exception e) {
+			Throwable e) {
 		// TODO: review what we're extracting here. It may just be better to display 
 		// the message in most cases.
 		String msg = e.getMessage();

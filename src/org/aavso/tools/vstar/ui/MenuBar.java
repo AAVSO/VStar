@@ -34,10 +34,12 @@ import javax.swing.JMenuItem;
 
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
+import org.aavso.tools.vstar.ui.dialog.InfoDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.ProgressInfo;
 import org.aavso.tools.vstar.util.notification.Listener;
 
@@ -46,18 +48,26 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * 
  * TODO: - Factor out code to be shared by menu and tool bar?
  */
-public class MenuBar extends JMenuBar {
+public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
+	// File menu item names.
 	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
-	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
+	public static final String NEW_STAR_FROM_FILE = "New Star from File...";	
+	public static final String SAVE = "Save...";
+	public static final String PRINT = "Print...";
+	public static final String INFO = "Info...";
+	public static final String PREFS = "Preferences...";
+	public static final String QUIT = "Quit";
+	
+	// Analysis menu item names.
 	public static final String RAW_DATA = "Raw Data";
 	public static final String PHASE_PLOT = "Phase Plot...";
 	public static final String PERIOD_SEARCH = "Period Search...";
-	public static final String SAVE = "Save...";
-	public static final String PRINT = "Print...";
-	public static final String PREFS = "Preferences...";
+	
+	// Help menu item names.
 	public static final String HELP_CONTENTS = "Help Contents...";
-
+	public static final String ABOUT = "About...";
+	
 	private Mediator mediator = Mediator.getInstance();
 
 	private JFileChooser fileOpenDialog;
@@ -66,20 +76,28 @@ public class MenuBar extends JMenuBar {
 	private MainFrame parent;
 
 	// Menu items.
+	
+	// File menu.
 	JMenuItem fileNewStarFromDatabaseItem;
 	JMenuItem fileNewStarFromFileItem;
 	JMenuItem fileSaveItem;
 	JMenuItem filePrintItem;
+	JMenuItem fileInfoItem;
 	JMenuItem filePrefsItem;
 	JMenuItem fileQuitItem;
 
+	// Analysis menu.
 	JCheckBoxMenuItem analysisRawDataItem;
 	JCheckBoxMenuItem analysisPhasePlotItem;
 	JCheckBoxMenuItem analysisPeriodSearchItem;
 
+	// Help menu.
 	JMenuItem helpContentsItem;
 	JMenuItem helpAboutItem;
 
+	// New star message.
+	private NewStarMessage newStarMessage;
+	
 	/**
 	 * Constructor
 	 */
@@ -100,8 +118,12 @@ public class MenuBar extends JMenuBar {
 		createAnalysisMenu();
 		createHelpMenu();
 
+		this.newStarMessage = null;
+		
 		this.mediator.getProgressNotifier().addListener(
 				createProgressListener());
+		
+		this.mediator.getNewStarNotifier().addListener(this);
 	}
 
 	private void createFileMenu() {
@@ -131,13 +153,19 @@ public class MenuBar extends JMenuBar {
 
 		fileMenu.addSeparator();
 
+		fileInfoItem = new JMenuItem(INFO);
+		fileInfoItem.addActionListener(this.createInfoListener());
+		fileMenu.add(fileInfoItem);
+
+		fileMenu.addSeparator();
+
 		filePrefsItem = new JMenuItem(PREFS);
 		filePrefsItem.addActionListener(this.createPrefsListener());
 		fileMenu.add(filePrefsItem);
 
 		fileMenu.addSeparator();
 
-		fileQuitItem = new JMenuItem("Quit", KeyEvent.VK_Q);
+		fileQuitItem = new JMenuItem(QUIT, KeyEvent.VK_Q);
 		// fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
 		// ActionEvent.META_MASK));
 		fileQuitItem.addActionListener(createQuitListener());
@@ -171,13 +199,13 @@ public class MenuBar extends JMenuBar {
 	private void createHelpMenu() {
 		JMenu helpMenu = new JMenu("Help");
 
-		helpContentsItem = new JMenuItem("Help Contents...", KeyEvent.VK_H);
+		helpContentsItem = new JMenuItem(HELP_CONTENTS, KeyEvent.VK_H);
 		helpContentsItem.addActionListener(createHelpContentsListener());
 		helpMenu.add(helpContentsItem);
 
 		helpMenu.addSeparator();
 
-		helpAboutItem = new JMenuItem("About...", KeyEvent.VK_A);
+		helpAboutItem = new JMenuItem(ABOUT, KeyEvent.VK_A);
 		helpAboutItem.addActionListener(createAboutListener());
 		helpMenu.add(helpAboutItem);
 
@@ -272,6 +300,18 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mediator.printCurrentMode(parent);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File->Info...
+	 */
+	public ActionListener createInfoListener() {
+		final MenuBar self = this;
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new InfoDialog(self.newStarMessage);
 			}
 		};
 	}
@@ -392,6 +432,8 @@ public class MenuBar extends JMenuBar {
 
 	/**
 	 * Return a progress listener.
+	 * TODO: why are we doing the wait-cursor handling here rather than 
+	 * in MainFrame?
 	 */
 	private Listener<ProgressInfo> createProgressListener() {
 		final MainFrame parent = this.parent;
@@ -418,12 +460,21 @@ public class MenuBar extends JMenuBar {
 		};
 	}
 
-	// Enables or disabled all File and Analysis menu items.
+	/**
+	 * New star listener.
+	 */
+	public void update(NewStarMessage msg) {
+		this.newStarMessage = msg;
+	}
+	
+	// Enables or disabled File and Analysis menu items.
 	private void setEnabledFileAndAnalysisMenuItems(boolean state) {
 		this.fileNewStarFromDatabaseItem.setEnabled(state);
 		this.fileNewStarFromFileItem.setEnabled(state);
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
+		this.fileInfoItem.setEnabled(state);
+		
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
 		this.analysisPeriodSearchItem.setEnabled(state);

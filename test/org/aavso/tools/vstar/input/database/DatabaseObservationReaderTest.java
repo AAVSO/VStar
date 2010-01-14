@@ -24,8 +24,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.model.SeriesType;
 
 /**
  * This is a unit test for reading observations from a text file. This is really

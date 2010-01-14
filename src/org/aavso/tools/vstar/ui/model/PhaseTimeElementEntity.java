@@ -26,7 +26,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
  */
 public class PhaseTimeElementEntity implements ITimeElementEntity {
 
-	private static final double DEFAULT_BIN_PHASE_INCREMENTS = 1;
+	private static final double DEFAULT_BIN_PHASE_INCREMENTS = 0.1;
 
 	public static final PhaseTimeElementEntity instance = new PhaseTimeElementEntity();
 
