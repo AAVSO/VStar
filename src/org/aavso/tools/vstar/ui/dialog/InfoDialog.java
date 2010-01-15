@@ -110,7 +110,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 		if (starInfo.getPeriod() != null) {
 			buf.append("Period: ");
 			buf.append(starInfo.getPeriod());
-			buf.append("days\n");
+			buf.append(" days\n");
 		}
 
 		buf.append("Total Observations: ");

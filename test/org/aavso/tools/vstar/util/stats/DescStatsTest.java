@@ -208,7 +208,7 @@ public class DescStatsTest extends TestCase {
 		List<ValidObservation> obs = new ArrayList<ValidObservation>();
 		obs.addAll(this.observations3);
 		double epoch = (obs.get(obs.size()-1).getJD() + obs.get(0).getJD()) / 2;
-		double period = 10;
+		double period = 2;
 		PhaseCalcs.setPhases(obs, epoch, period);
 		Collections.sort(obs, StandardPhaseComparator.instance);
 		obs.addAll(obs);
@@ -219,7 +219,7 @@ public class DescStatsTest extends TestCase {
 
 		// TODO: complete
 		
-		// assertTrue(observations.size() == 1);
+//		assertTrue(binnedObs.size() == 1);
 
 		// double magMean = observations.get(0).getMagnitude().getMagValue();
 		// String magMeanStr = String.format("%1.1f", magMean);

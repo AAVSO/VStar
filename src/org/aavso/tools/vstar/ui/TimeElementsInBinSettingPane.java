@@ -81,13 +81,14 @@ public class TimeElementsInBinSettingPane extends JPanel {
 				- timeElementEntity.getTimeElement(meanSrcObsList, 0);
 
 		// Spinner for time-elements-in-bin with the specified current, min, and max
-		// values, and step size (1 day). If the "current time elements in bin" value
+		// values, and step size. If the "current time elements in bin" value
 		// is larger than the calculated max value, correct that.
 		double currTimeElementsInBin = obsAndMeanModel.getTimeElementsInBin();
 		currTimeElementsInBin = currTimeElementsInBin <= max ? currTimeElementsInBin : max;
 		obsAndMeanModel.setTimeElementsInBin(currTimeElementsInBin);
 
-		timeElementsInBinSpinnerModel = new SpinnerNumberModel(currTimeElementsInBin, 0,
+		// We make the minimum arbitrarily small.
+		timeElementsInBinSpinnerModel = new SpinnerNumberModel(currTimeElementsInBin, 0.05,
 				max, timeElementEntity.getDefaultTimeIncrements());
 		timeElementsInBinSpinner = new JSpinner(timeElementsInBinSpinnerModel);
 		this.add(timeElementsInBinSpinner);
