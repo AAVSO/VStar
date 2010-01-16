@@ -26,6 +26,10 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.pane.DataPane;
+import org.aavso.tools.vstar.ui.pane.ModePane;
+import org.aavso.tools.vstar.ui.pane.StatusPane;
+
 /**
  * TODO: 
  * - Undoable edits (Edit menu)

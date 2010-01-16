@@ -15,18 +15,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
+package org.aavso.tools.vstar.ui.pane;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
@@ -66,8 +69,9 @@ public class DataPane extends JPanel {
 		createDataPanel();
 
 		// We want to be notified of new star creation or changes to mode.
-		mediator.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeChangeListener());
-		
+		mediator.getAnalysisTypeChangeNotifier().addListener(
+				createAnalysisTypeChangeListener());
+
 		mediator.getModeChangeNotifier()
 				.addListener(createModeChangeListener());
 	}
@@ -104,19 +108,28 @@ public class DataPane extends JPanel {
 	 * is shown.
 	 */
 	private void setDefaultCards() {
-		setCard(ModeType.PLOT_OBS_MODE_DESC, Util
-				.createTextPanel(noSomethingYet("Observation plot")));
+		setCard(ModeType.PLOT_OBS_MODE_DESC,
+				createTextPanel(noSomethingYet("Observation plot")));
 
-		setCard(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC, Util
-				.createTextPanel(noSomethingYet("Observation and mean plot")));
+		setCard(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
+				createTextPanel(noSomethingYet("Observation and mean plot")));
 
-		setCard(ModeType.LIST_OBS_MODE_DESC, Util
-				.createTextPanel(noSomethingYet("Observation list")));
+		setCard(ModeType.LIST_OBS_MODE_DESC,
+				createTextPanel(noSomethingYet("Observation list")));
 
-		setCard(ModeType.LIST_MEANS_MODE_DESC, Util
-				.createTextPanel(noSomethingYet("Means list")));
+		setCard(ModeType.LIST_MEANS_MODE_DESC,
+				createTextPanel(noSomethingYet("Means list")));
 
 		showCard(ModeType.PLOT_OBS_MODE_DESC);
+	}
+
+	private static JComponent createTextPanel(String text) {
+		JLabel label = new JLabel(text);
+		label.setHorizontalAlignment(JLabel.CENTER);
+		JPanel panel = new JPanel(false);
+		panel.setLayout(new GridLayout(1, 1));
+		panel.add(label);
+		return panel;
 	}
 
 	private String noSomethingYet(String s) {
@@ -130,26 +143,26 @@ public class DataPane extends JPanel {
 		return new Listener<AnalysisTypeChangeMessage>() {
 			// Set the cards components for each model type.
 			public void update(AnalysisTypeChangeMessage msg) {
-					JPanel obsPlotPane = msg.getObsChartPane();
-					JPanel obsAndMeanPane = msg.getObsAndMeanChartPane();
-					JPanel obsListPane = msg.getObsListPane();
-					JPanel meansListPane = msg.getMeansListPane();
+				JPanel obsPlotPane = msg.getObsChartPane();
+				JPanel obsAndMeanPane = msg.getObsAndMeanChartPane();
+				JPanel obsListPane = msg.getObsListPane();
+				JPanel meansListPane = msg.getMeansListPane();
 
-					if (obsPlotPane != null && obsAndMeanPane != null
-							&& obsListPane != null && meansListPane != null) {
-						setCard(ModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
-						setCard(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
-								obsAndMeanPane);
-						setCard(ModeType.LIST_OBS_MODE_DESC, obsListPane);
-						setCard(ModeType.LIST_MEANS_MODE_DESC, meansListPane);
-						
-						// This class will respond to this message via
-						// createModeChangeListener(). Other components
-						// may also want to know, e.g. status bar, hence
-						// the choice of this message "broadcast".
-						mediator.changeMode(msg.getMode());
-					}
+				if (obsPlotPane != null && obsAndMeanPane != null
+						&& obsListPane != null && meansListPane != null) {
+					setCard(ModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
+					setCard(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
+							obsAndMeanPane);
+					setCard(ModeType.LIST_OBS_MODE_DESC, obsListPane);
+					setCard(ModeType.LIST_MEANS_MODE_DESC, meansListPane);
+
+					// This class will respond to this message via
+					// createModeChangeListener(). Other components
+					// may also want to know, e.g. status bar, hence
+					// the choice of this message "broadcast".
+					mediator.changeMode(msg.getMode());
 				}
+			}
 		};
 	}
 
