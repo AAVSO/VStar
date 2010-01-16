@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui;
+package org.aavso.tools.vstar.ui.pane;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -35,7 +36,6 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -45,6 +45,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.SeriesRenderingOrder;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
@@ -140,6 +141,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		chart.getXYPlot().setRenderer(renderer);
 
+		// The motivation for this is that when a means series is added, it will be
+		// last in sequence and we want it to be rendered last. We could just do this
+		// in subclasses dealing with such a means series, but then this would make
+		// all other series renderings look different compared with other plots without
+		// means series. So, in short, we're doing this for consistency and with the
+		// knowledge of the use cases for plot pane classes.
+		chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
+		
 		setupCrossHairs();
 
 		setSeriesAppearance();

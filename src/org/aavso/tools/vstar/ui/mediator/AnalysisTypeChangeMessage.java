@@ -17,10 +17,10 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
-import org.aavso.tools.vstar.ui.MeanObservationListPane;
-import org.aavso.tools.vstar.ui.ObservationAndMeanPlotPane;
-import org.aavso.tools.vstar.ui.ObservationListPane;
-import org.aavso.tools.vstar.ui.ObservationPlotPane;
+import org.aavso.tools.vstar.ui.pane.MeanObservationListPane;
+import org.aavso.tools.vstar.ui.pane.ObservationAndMeanPlotPane;
+import org.aavso.tools.vstar.ui.pane.ObservationListPane;
+import org.aavso.tools.vstar.ui.pane.ObservationPlotPane;
 
 /**
  * This message is intended to be sent to listeners when VStar's 
