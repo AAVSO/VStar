@@ -69,9 +69,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	protected JTextArea obsInfo;
 
-	// We use this renderer in order to be able to plot error bars.
-	// TODO: or should we use StatisticalLineAndShapeRenderer? (for means plot?)
-	protected XYErrorRenderer renderer;
+	protected VStarPlotDataRenderer renderer;
 
 	// Show error bars?
 	protected boolean showErrorBars;
@@ -121,7 +119,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		this.chart.addSubtitle(new TextTitle(subTitle));
 
-		this.renderer = new XYErrorRenderer();
+		this.renderer = new VStarPlotDataRenderer();
 		this.renderer.setDrawYError(this.showErrorBars);
 
 		// Tell renderer which series elements should be rendered
