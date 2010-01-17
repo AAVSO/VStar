@@ -95,7 +95,7 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 
 				line = reader.readLine();
 			}
-		} catch (IOException e) {
+		} catch (Throwable t) {
 			throw new ObservationReadError(
 					"Error when attempting to read observation source.");
 		}

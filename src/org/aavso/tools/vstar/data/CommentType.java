@@ -141,6 +141,13 @@ public enum CommentType {
 			commenttype =  REJECTED;
 		}
 
+		if (commenttype == null) {
+			if ("0".equals(commentflag)) {
+				commenttype =  OTHER;
+			}
+			//System.out.println(">> " + commentflag);
+		}
+		
 		assert(commenttype != null);
 		
 		return commenttype;

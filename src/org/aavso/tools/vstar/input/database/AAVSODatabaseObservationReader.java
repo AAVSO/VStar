@@ -80,9 +80,9 @@ public class AAVSODatabaseObservationReader extends
 				}
 				// TODO: why am I not updating progress bar here?
 			}
-		} catch (SQLException e) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					MenuBar.NEW_STAR_FROM_DATABASE, e);
+		} catch (Throwable t) {
+			throw new ObservationReadError(
+					"Error when attempting to read observation source.");
 		}
 	}
 
@@ -130,8 +130,8 @@ public class AAVSODatabaseObservationReader extends
 			ob.setHJD(hjd != null ? new DateInfo(hjd) : null);
 
 			ob.setName(getNextPossiblyNullString("name"));
-			
-			// If mtype is null or 0, we use the ValidObservation's 
+
+			// If mtype is null or 0, we use the ValidObservation's
 			// constructed default (standard magnitude type).
 			Integer mtype = getNextPossiblyNullInteger("mtype");
 			if (mtype != null && mtype != 0) {
@@ -141,9 +141,9 @@ public class AAVSODatabaseObservationReader extends
 					ob.setMType(MTypeType.STEP);
 				}
 			}
-			
+
 		} catch (SQLException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			throw new ObservationReadError(
 					"Error when attempting to read observation source: "
 							+ e.getMessage());
