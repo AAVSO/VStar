@@ -173,7 +173,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 					MenuBar.NEW_STAR_FROM_DATABASE,
 					"Cannot connect to database.");
 			MainFrame.getInstance().getStatusPane().setMessage("");
-		} catch (Exception ex) {
+		} catch (Throwable ex) {
 			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);

@@ -93,9 +93,9 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 					.getNewStarType(), new StarInfo(obsFile.getName()), textFormatReader,
 					plotTaskPortion);
 
-		} catch (Exception e) {
+		} catch (Throwable t) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					"New Star From File Read Error", e);
+					"New Star From File Read Error", t);
 		}
 	}
 
