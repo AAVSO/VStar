@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.model;
+package org.aavso.tools.vstar.ui.model.plot;
 
 import java.util.List;
 import java.util.Map;
@@ -23,14 +23,12 @@ import java.util.Map;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * A phase based coordinate source.
+ * A Julian Day based coordinate source.
  */
-public class PhaseCoordSource implements ICoordSource {
+public class JDCoordSource implements ICoordSource {
 
 	/**
-	 * Each mapped series list is assumed to be have been duplicated to
-	 * facilitate a Standard Phase Diagram where the phase ranges over 
-	 * -1..1 inclusive.
+	 * The number of JD items is the size of the mapped series list.
 	 * 
 	 * @param series
 	 *            The series of interest.
@@ -38,14 +36,12 @@ public class PhaseCoordSource implements ICoordSource {
 	 */
 	public int getItemCount(int series,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-
+		
 		return seriesNumToObSrcListMap.get(series).size();
 	}
 
 	/**
-	 * Get the phase associated with the specified series and item. The item
-	 * number determines whether the value returned should be the standard or
-	 * previous cycle phase.
+	 * Get the Julian Day associated with the specified series and item.
 	 * 
 	 * @param series
 	 *            The series of interest.
@@ -53,24 +49,13 @@ public class PhaseCoordSource implements ICoordSource {
 	 *            The target item.
 	 * @param seriesNumToObSrcListMap
 	 *            A mapping from series number to a list of observations.
-	 * @return The X coordinate (standard or previous cycle phase).
+	 * @return The X coordinate (Julian Day).
 	 */
 	public double getXCoord(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-
-		Double phase = null;
-
-		List<ValidObservation> obs = seriesNumToObSrcListMap.get(series);
-
-		if (item < obs.size() / 2) {
-			phase = obs.get(item).getPreviousCyclePhase();
-		} else {
-			phase = obs.get(item).getStandardPhase();
-		}
-
-		assert phase != null;
 		
-		return phase;
+		return seriesNumToObSrcListMap.get(series).get(item).getDateInfo()
+				.getJulianDay();
 	}
 
 	/**

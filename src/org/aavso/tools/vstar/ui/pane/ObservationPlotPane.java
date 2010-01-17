@@ -22,7 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import org.aavso.tools.vstar.ui.dialog.SeriesVisibilityDialog;
-import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 
 /**
  * This class represents a chart pane containing a raw plot for a set of valid

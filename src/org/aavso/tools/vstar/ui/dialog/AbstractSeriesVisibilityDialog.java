@@ -27,7 +27,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 
 /**
  * This dialog permits the visibility of plot series to be changed, and allows

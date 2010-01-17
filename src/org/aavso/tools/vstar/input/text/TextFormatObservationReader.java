@@ -28,7 +28,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.model.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.ProgressInfo;
 
 /**
  * This class reads a variable star data file format containing lines of text or

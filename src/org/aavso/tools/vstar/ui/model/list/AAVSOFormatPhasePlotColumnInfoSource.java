@@ -15,23 +15,37 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.model;
+package org.aavso.tools.vstar.ui.model.list;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * Simple file format table column information source for phase plot mode.
+ * AAVSO format (file, database) table column information source for phase plot
+ * mode.
  * 
  * This class exploits the knowledge that its base class's column indices are
  * offset by one compared to its. Yes, this breaks encapsulation but promotes
  * reuse and easier maintainability in a controlled manner.
  */
-public class SimpleFormatPhasePlotColumnInfoSource extends
-		SimpleFormatRawDataColumnInfoSource {
+public class AAVSOFormatPhasePlotColumnInfoSource extends
+		AAVSOFormatRawDataColumnInfoSource {
 
-	public static SimpleFormatPhasePlotColumnInfoSource instance = new SimpleFormatPhasePlotColumnInfoSource();
+	public static final AAVSOFormatPhasePlotColumnInfoSource fileInstance = new AAVSOFormatPhasePlotColumnInfoSource(
+			true);
+	public static final AAVSOFormatPhasePlotColumnInfoSource databaseInstance = new AAVSOFormatPhasePlotColumnInfoSource(
+			false);
 
 	private static final int PHASE_COLUMN = 0;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param useLineNumbers
+	 *            Should line numbers be used?
+	 */
+	private AAVSOFormatPhasePlotColumnInfoSource(boolean useLineNumbers) {
+		super(useLineNumbers);
+	}
 
 	public int getColumnCount() {
 		return super.getColumnCount() + 1;
@@ -67,7 +81,7 @@ public class SimpleFormatPhasePlotColumnInfoSource extends
 			clazz = super.getTableColumnClass(index - 1);
 			break;
 		}
-		
+
 		return clazz;
 	}
 

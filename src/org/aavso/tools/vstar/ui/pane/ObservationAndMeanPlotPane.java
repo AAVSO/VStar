@@ -27,7 +27,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.dialog.MeanSourceDialog;
-import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 
 /**
  * This class represents a chart pane containing a plot for a set of valid

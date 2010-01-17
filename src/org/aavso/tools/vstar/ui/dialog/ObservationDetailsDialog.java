@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -50,6 +51,7 @@ public class ObservationDetailsDialog extends JDialog implements ActionListener 
 		this.setSize(200, 200);
 
 		JPanel topPane = new JPanel();
+		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JTextArea textArea = new JTextArea(ob.toString());

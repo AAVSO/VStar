@@ -15,11 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.model;
+package org.aavso.tools.vstar.ui.mediator;
 
 import org.aavso.tools.vstar.data.validation.IFieldInfoSource;
 import org.aavso.tools.vstar.data.validation.SimpleFormatFieldInfoSource;
 import org.aavso.tools.vstar.data.validation.AAVSOFormatFieldInfoSource;
+import org.aavso.tools.vstar.ui.model.list.AAVSOFormatPhasePlotColumnInfoSource;
+import org.aavso.tools.vstar.ui.model.list.AAVSOFormatRawDataColumnInfoSource;
+import org.aavso.tools.vstar.ui.model.list.ITableColumnInfoSource;
+import org.aavso.tools.vstar.ui.model.list.SimpleFormatPhasePlotColumnInfoSource;
+import org.aavso.tools.vstar.ui.model.list.SimpleFormatRawDataColumnInfoSource;
 
 /**
  * A new star creation type. It also encodes the required number of fields for

@@ -30,8 +30,8 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.model.ITimeElementEntity;
-import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ITimeElementEntity;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 
 /**
  * This component permits the time-elements-in-bin value to be changed which in
@@ -88,7 +88,7 @@ public class TimeElementsInBinSettingPane extends JPanel {
 		obsAndMeanModel.setTimeElementsInBin(currTimeElementsInBin);
 
 		// We make the minimum arbitrarily small.
-		timeElementsInBinSpinnerModel = new SpinnerNumberModel(currTimeElementsInBin, 0.05,
+		timeElementsInBinSpinnerModel = new SpinnerNumberModel(currTimeElementsInBin, 0,
 				max, timeElementEntity.getDefaultTimeIncrements());
 		timeElementsInBinSpinner = new JSpinner(timeElementsInBinSpinnerModel);
 		this.add(timeElementsInBinSpinner);

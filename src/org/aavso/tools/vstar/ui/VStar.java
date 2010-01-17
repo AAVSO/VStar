@@ -64,10 +64,10 @@ public class VStar {
 	 */
 	private static void createAndShowGUI() {
 		try {
-		MainFrame wdw = MainFrame.getInstance();
-		wdw.pack();
-		wdw.setVisible(true);
-		} catch(Throwable t) {
+			MainFrame wdw = MainFrame.getInstance();
+			wdw.pack();
+			wdw.setVisible(true);
+		} catch (Throwable t) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(), "Error", t);
 		}
 	}

@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.model.ITimeElementEntity;
+import org.aavso.tools.vstar.ui.model.plot.ITimeElementEntity;
 
 /**
  * Descriptive statistics functions for observations.
