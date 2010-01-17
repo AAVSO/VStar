@@ -29,7 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 
 /**
  * This class represents a pane with radio buttons showing which series is to be

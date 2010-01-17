@@ -17,7 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
-import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 
 /**
  * This class represents a dialog that builds on the series visibility dialog in

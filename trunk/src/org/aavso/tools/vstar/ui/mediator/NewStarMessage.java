@@ -22,7 +22,6 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.model.NewStarType;
 
 /**
  * A message class containing new star type and GUI component information.

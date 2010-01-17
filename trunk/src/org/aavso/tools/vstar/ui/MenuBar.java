@@ -40,7 +40,7 @@ import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
-import org.aavso.tools.vstar.ui.model.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.ProgressInfo;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**

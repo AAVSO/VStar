@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.model;
+package org.aavso.tools.vstar.ui.model.plot;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -147,7 +147,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.ui.model.ObservationPlotModel#changeSeriesVisibility(int,
+	 * @see org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel#changeSeriesVisibility(int,
 	 *      boolean)
 	 */
 	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {

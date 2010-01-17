@@ -15,16 +15,35 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.model;
+package org.aavso.tools.vstar.ui.model.plot;
+
+import java.util.List;
+
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This enum represents application progress.
+ * A Julian Date element source/sink.
  */
-public enum ProgressType {
+public class JDTimeElementEntity implements ITimeElementEntity {
 
-	MIN_PROGRESS,
-	MAX_PROGRESS,
-	RESET_PROGRESS, // TODO: call this TASK_BEGIN?
-	COMPLETE_PROGRESS, // TODO: call this TASK_END?
-	INCREMENT_PROGRESS;
+	private static final int DEFAULT_BIN_DAYS = 20;
+
+	public static final JDTimeElementEntity instance = new JDTimeElementEntity();
+
+	public double getTimeElement(List<ValidObservation> obs, int index) {
+		return obs.get(index).getJD();
+	}
+
+	public void setTimeElement(ValidObservation ob, double meanJD) {
+		ob.setDateInfo(new DateInfo(meanJD));
+	}
+
+	public double getDefaultTimeElementsInBin() {
+		return DEFAULT_BIN_DAYS;
+	}
+
+	public double getDefaultTimeIncrements() {
+		return 1;
+	}
 }

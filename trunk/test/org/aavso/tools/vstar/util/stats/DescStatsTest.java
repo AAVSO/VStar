@@ -27,9 +27,8 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.model.JDTimeElementEntity;
-import org.aavso.tools.vstar.ui.model.PhaseTimeElementEntity;
-import org.aavso.tools.vstar.ui.model.StandardPhaseComparator;
+import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
+import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 
 /**
  * Unit tests for descriptive stats class. Sample data taken from chapter 10 of

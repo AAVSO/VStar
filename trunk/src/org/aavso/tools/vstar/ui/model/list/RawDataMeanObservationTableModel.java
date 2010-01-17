@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.model;
+package org.aavso.tools.vstar.ui.model.list;
 
 import java.util.List;
 
@@ -47,21 +47,21 @@ public class RawDataMeanObservationTableModel extends AbstractMeanObservationTab
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.ui.model.AbstractMeanObservationTableModel#getColumnCount()
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
 		return COLUMN_COUNT;
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.ui.model.AbstractMeanObservationTableModel#getRowCount()
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel#getRowCount()
 	 */
 	public int getRowCount() {
 		return meanObsData.size();
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.ui.model.AbstractMeanObservationTableModel#getColumnName(int)
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
 		assert column < COLUMN_COUNT;
@@ -87,7 +87,7 @@ public class RawDataMeanObservationTableModel extends AbstractMeanObservationTab
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.ui.model.AbstractMeanObservationTableModel#getValueAt(int, int)
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		assert columnIndex < COLUMN_COUNT;
@@ -117,7 +117,7 @@ public class RawDataMeanObservationTableModel extends AbstractMeanObservationTab
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.ui.model.AbstractMeanObservationTableModel#getColumnClass(int)
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel#getColumnClass(int)
 	 */
 	public Class<?> getColumnClass(int columnIndex) {
 		Class<?> clazz = null;

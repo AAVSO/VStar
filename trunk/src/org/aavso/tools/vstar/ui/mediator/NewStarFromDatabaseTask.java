@@ -31,9 +31,6 @@ import org.aavso.tools.vstar.input.database.AAVSODatabaseObservationReader;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.model.NewStarType;
-import org.aavso.tools.vstar.ui.model.ProgressInfo;
-import org.aavso.tools.vstar.ui.model.ProgressType;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**

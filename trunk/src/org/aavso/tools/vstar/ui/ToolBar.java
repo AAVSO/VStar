@@ -26,7 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.model.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.ProgressInfo;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
 

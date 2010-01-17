@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
-package org.aavso.tools.vstar.ui.model;
+package org.aavso.tools.vstar.ui.model.list;
 
 import java.util.List;
 

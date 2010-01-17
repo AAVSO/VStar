@@ -28,7 +28,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 
 /**
  * This class represents a chart pane containing a phase plot for a set of valid

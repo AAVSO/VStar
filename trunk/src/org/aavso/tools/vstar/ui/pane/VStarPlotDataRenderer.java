@@ -27,7 +27,8 @@ import org.jfree.chart.renderer.xy.XYErrorRenderer;
  * This is VStar's plot data-point and error renderer.
  * 
  * We subclass XYErrorRenderer in order to be able to plot error bars.
- * TODO: Should we instead use StatisticalLineAndShapeRenderer? (for means plot)
+ * TODO: Should we instead use StatisticalLineAndShapeRenderer
+ *  (at least for means plot)?
  * 
  * We override DATAPOINT_SHAPE rendering methods.
  */

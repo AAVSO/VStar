@@ -19,8 +19,8 @@ package org.aavso.tools.vstar.ui.pane;
 
 import java.awt.Dimension;
 
-import org.aavso.tools.vstar.ui.model.ObservationAndMeanPlotModel;
-import org.aavso.tools.vstar.ui.model.PhaseTimeElementEntity;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 
 /**
  * This class represents a chart pane containing a phase plot for a set of valid

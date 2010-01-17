@@ -24,7 +24,7 @@ import org.aavso.tools.vstar.data.validation.AAVSODownloadFormatValidator;
 import org.aavso.tools.vstar.data.validation.CommonTextFormatValidator;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
-import org.aavso.tools.vstar.ui.model.NewStarType;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
 
 /**
  * This class analyses an observation file (simple or download formats) and

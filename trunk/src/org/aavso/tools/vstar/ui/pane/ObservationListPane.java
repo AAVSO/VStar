@@ -25,8 +25,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 
-import org.aavso.tools.vstar.ui.model.InvalidObservationTableModel;
-import org.aavso.tools.vstar.ui.model.ValidObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
 
 /**
  * This class represents a GUI component that renders information about

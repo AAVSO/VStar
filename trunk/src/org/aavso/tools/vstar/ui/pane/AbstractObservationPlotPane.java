@@ -36,7 +36,7 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
-import org.aavso.tools.vstar.ui.model.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
