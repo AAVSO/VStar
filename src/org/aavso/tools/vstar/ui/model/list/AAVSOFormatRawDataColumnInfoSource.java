@@ -211,8 +211,9 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getMagnitude().toString();
 			break;
 		case HQ_UNCERTAINTY_COLUMN:
-			value = "".equals(ob.getHqUncertainty()) ? "" : String.format(
-					"%1.2f", ob.getHqUncertainty());
+			Double hqUncertainty = ob.getHqUncertainty();
+			value = null == hqUncertainty || "".equals(hqUncertainty) ? ""
+					: String.format("%1.2f", ob.getHqUncertainty());
 			break;
 		case BAND_COLUMN:
 			value = ob.getBand().getDescription();
