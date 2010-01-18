@@ -219,6 +219,10 @@ public class DateUtilTestBase extends TestCase {
 		commonCaltoJDTest(2009, 12, 31, 2455196.5);
 	}
 
+	public void testCaltoJD2010c() {
+		commonCaltoJDTest(2010, 1, 18.5, 2455215.0);
+	}
+	
 	// Checked with http://www.aavso.org/observing/aids/jdcalendar.shtml
 	
 	public void testCaltoJD2009c() {

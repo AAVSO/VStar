@@ -52,6 +52,6 @@ public class MinMagEpochStrategy implements IEpochStrategy {
 	 * @see org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy#getDescription()
 	 */
 	public String getDescription() {
-		return "Julian Date of minimum magnitude";
+		return "JD of minimum magnitude";
 	}
 }

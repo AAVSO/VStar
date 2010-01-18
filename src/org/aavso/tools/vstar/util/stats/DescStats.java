@@ -182,6 +182,8 @@ public class DescStats {
 	 * represent mean magnitudes at the mid-point of each bin. Each bin consists
 	 * of the range index..index+binSize-1
 	 * 
+	 * Observation bins are populated from left to right of the time domain.
+	 * 
 	 * @param observations
 	 *            The observations to which binning will be applied.
 	 * @param timeElementEntity
@@ -192,7 +194,7 @@ public class DescStats {
 	 * @return An observation sequence consisting of magnitude means per bin and
 	 *         the observation at the center point of each bin.
 	 */
-	public static List<ValidObservation> createdBinnedObservationsA(
+	public static List<ValidObservation> createLeftToRightBinnedObservations(
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
@@ -255,11 +257,14 @@ public class DescStats {
 
 		return binnedObs;
 	}
-	
+
 	/**
 	 * Create a sequence of observations based upon bin size. The observations
 	 * represent mean magnitudes at the mid-point of each bin. Each bin consists
 	 * of the range index..index+binSize-1
+	 * 
+	 * Observation bins are populated from center to left, then from center to
+	 * right of the time domain.
 	 * 
 	 * @param observations
 	 *            The observations to which binning will be applied.
@@ -271,11 +276,21 @@ public class DescStats {
 	 * @return An observation sequence consisting of magnitude means per bin and
 	 *         the observation at the center point of each bin.
 	 */
-	public static List<ValidObservation> createdBinnedObservationsB(
+	public static List<ValidObservation> createSymmetricBinnedObservations(
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
 		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
+
+		createLeftmostBinnedObservations(observations, observations.size() / 2,
+				timeElementEntity, timeElementsInBin, binnedObs);
+
+		// TODO:
+		// - populate binnedObs from center to left, then
+		// - populate binnedObs from center to right
+		// - there will be no time period(s) "left over"
+		// - left and right-most bins may be less than the
+		// bin size
 
 		double minTimeElement = timeElementEntity.getTimeElement(observations,
 				0);
@@ -333,5 +348,61 @@ public class DescStats {
 		}
 
 		return binnedObs;
+	}
+
+	// Helpers
+
+	/**
+	 * Create a sequence of observations based upon bin size. The observations
+	 * represent mean magnitudes at the mid-point of each bin. Each bin consists
+	 * of the range index..index+binSize-1
+	 * 
+	 * Observation bins are populated only from the left-most region of the
+	 * supplied list, starting at the specified index.
+	 * 
+	 * @param obs
+	 *            The observations to which binning will be applied.
+	 * @param startIndex
+	 *            The starting index in the list.
+	 * @param timeElementEntity
+	 *            A time element source for observations.
+	 * @param timeElementsInBin
+	 *            The bin size in number of time elements (days, phase
+	 *            increments) or portions thereof.
+	 * @param binnedObs
+	 *            An observation sequence consisting of magnitude means per bin
+	 *            and the observation at the center point of each bin.
+	 */
+	private static void createLeftmostBinnedObservations(
+			List<ValidObservation> observations, int startIndex,
+			ITimeElementEntity timeElementEntity, double timeElementsInBin,
+			List<ValidObservation> binnedObservations) {
+	}
+
+	/**
+	 * Create a sequence of observations based upon bin size. The observations
+	 * represent mean magnitudes at the mid-point of each bin. Each bin consists
+	 * of the range index..index+binSize-1
+	 * 
+	 * Observation bins are populated only from the right-most region of the
+	 * supplied list, starting at the specified index.
+	 * 
+	 * @param obs
+	 *            The observations to which binning will be applied.
+	 * @param startIndex
+	 *            The starting index in the list.
+	 * @param timeElementEntity
+	 *            A time element source for observations.
+	 * @param timeElementsInBin
+	 *            The bin size in number of time elements (days, phase
+	 *            increments) or portions thereof.
+	 * @param binnedObs
+	 *            An observation sequence consisting of magnitude means per bin
+	 *            and the observation at the center point of each bin.
+	 */
+	private static void createRightmostBinnedObservations(
+			List<ValidObservation> observations, int startIndex,
+			ITimeElementEntity timeElementEntity, double timeElementsInBin,
+			List<ValidObservation> binnedObservations) {
 	}
 }

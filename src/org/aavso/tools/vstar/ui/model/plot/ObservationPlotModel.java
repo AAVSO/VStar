@@ -397,7 +397,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		// and the best way to do that is to move it
 		// to a different band. This of course assumes
 		// that the change to ob is of the "discrepant"
-		// value.
+		// value which we can check just by asking ob.isDiscrepant()?
 	}
 
 	/**

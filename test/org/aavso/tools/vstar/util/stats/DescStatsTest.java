@@ -121,7 +121,7 @@ public class DescStatsTest extends TestCase {
 		// set to ensure we don't exclude some values at the upper end of the
 		// range.
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservationsA(this.observations1,
+				.createLeftToRightBinnedObservations(this.observations1,
 						JDTimeElementEntity.instance, 3);
 
 		assertTrue(observations.size() == 1);
@@ -137,7 +137,7 @@ public class DescStatsTest extends TestCase {
 
 	public void testObservationBinningA2() {
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservationsA(this.observations2,
+				.createLeftToRightBinnedObservations(this.observations2,
 						JDTimeElementEntity.instance, this.observations2.size());
 
 		assertTrue(observations.size() == 1);
@@ -155,7 +155,7 @@ public class DescStatsTest extends TestCase {
 		// If we choose a bin that is too small, we should
 		// just get all the data.
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservationsA(this.observations3,
+				.createLeftToRightBinnedObservations(this.observations3,
 						JDTimeElementEntity.instance, this.observations3.size());
 
 		assertTrue(observations.size() == 1);
@@ -175,7 +175,7 @@ public class DescStatsTest extends TestCase {
 		double binSize = 2.5;
 
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservationsA(this.observations3,
+				.createLeftToRightBinnedObservations(this.observations3,
 						JDTimeElementEntity.instance, binSize);
 
 		// Two ValidObservation elements?
@@ -213,7 +213,7 @@ public class DescStatsTest extends TestCase {
 		obs.addAll(obs);
 
 		List<ValidObservation> binnedObs = DescStats
-				.createdBinnedObservationsA(obs,
+				.createLeftToRightBinnedObservations(obs,
 						PhaseTimeElementEntity.instance, obs.size());
 
 		// TODO: complete
@@ -235,7 +235,7 @@ public class DescStatsTest extends TestCase {
 		// set to ensure we don't exclude some values at the upper end of the
 		// range.
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservationsB(this.observations1,
+				.createSymmetricBinnedObservations(this.observations1,
 						JDTimeElementEntity.instance, 3);
 
 		assertTrue(observations.size() == 1);
@@ -251,7 +251,7 @@ public class DescStatsTest extends TestCase {
 
 	public void testObservationBinningB2() {
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservationsB(this.observations2,
+				.createSymmetricBinnedObservations(this.observations2,
 						JDTimeElementEntity.instance, this.observations2.size());
 
 		assertTrue(observations.size() == 1);
@@ -269,7 +269,7 @@ public class DescStatsTest extends TestCase {
 		// If we choose a bin that is too small, we should
 		// just get all the data.
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservationsB(this.observations3,
+				.createSymmetricBinnedObservations(this.observations3,
 						JDTimeElementEntity.instance, this.observations3.size());
 
 		assertTrue(observations.size() == 1);
@@ -289,7 +289,7 @@ public class DescStatsTest extends TestCase {
 		double binSize = 2.5;
 
 		List<ValidObservation> observations = DescStats
-				.createdBinnedObservationsB(this.observations3,
+				.createSymmetricBinnedObservations(this.observations3,
 						JDTimeElementEntity.instance, binSize);
 
 		// Two ValidObservation elements?
