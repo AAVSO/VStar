@@ -19,6 +19,8 @@ package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,7 +43,7 @@ import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
  * calculation: period, epoch determination method.
  */
 public class PhaseParameterDialog extends AbstractOkCancelDialog implements
-		Listener<NewStarMessage> {
+		Listener<NewStarMessage>, PropertyChangeListener {
 
 	private static Pattern realNumberPattern = Pattern
 			.compile("^\\s*(\\d+(\\.\\d+)?)\\s*$");
@@ -66,11 +68,6 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 
 		firstUse = true;
 
-		// TODO: later perhaps we could incorporate the epoch strategy
-		// pane along with the epoch text box so people could see the
-		// effect (on the text box) of selecting a different strategy.
-		// This assumes we can agree upon any other useful epoch determination
-		// strategies.
 		epochStrategy = new AlphaOmegaMeanJDEpochStrategy();
 
 		Container contentPane = this.getContentPane();
@@ -90,10 +87,6 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 		topPane.add(createButtonPane());
 
 		contentPane.add(topPane);
-
-		// We want to be updated when a new star is loaded in order to
-		// adjust our fields and instance variables.
-		// Mediator.getInstance().getNewStarNotifier().addListener(this);
 
 		this.pack();
 		periodField.requestFocusInWindow();
@@ -119,6 +112,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 
 		periodField = new JTextField();
 		periodField.setToolTipText("Enter period in days");
+//		periodField.addPropertyChangeListener(this);
 		panel.add(periodField);
 
 		return panel;
@@ -127,64 +121,34 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	private JPanel createEpochFieldPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel
-				.setBorder(BorderFactory
-						.createTitledBorder("Epoch (JD)"));
+		panel.setBorder(BorderFactory.createTitledBorder("Epoch (JD)"));
 
 		epochField = new JTextField();
+		epochField.setToolTipText("Enter epoch as JD");
+//		epochField.addPropertyChangeListener(this);
 		panel.add(epochField);
 
 		return panel;
 	}
 
-	// private JPanel createEpochStrategyPane() {
-	// JPanel panel = new JPanel();
-	// panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-	// panel.setBorder(BorderFactory.createTitledBorder("Epoch Strategy"));
-	//
-	// ButtonGroup strategyGroup = new ButtonGroup();
-	//
-	// boolean first = true;
-	//
-	// for (String key : PhaseCalcs.epochStrategyMap.keySet()) {
-	// IEpochStrategy strategy = PhaseCalcs.epochStrategyMap.get(key);
-	// String strategyDesc = strategy.getDescription();
-	//
-	// JRadioButton strategyRadioButton = new JRadioButton(strategyDesc);
-	// strategyRadioButton.setActionCommand(key);
-	// .addActionListener(createEpochStrategyActionListener());
-	// strategyRadioButton
-	// panel.add(strategyRadioButton);
-	// panel.add(Box.createRigidArea(new Dimension(10, 10)));
-	//
-	// strategyGroup.add(strategyRadioButton);
-	//
-	// // Arbitrarily select the first strategy.
-	// // TODO: should be able to set this as a Preference.
-	// if (first) {
-	// strategyRadioButton.setSelected(true);
-	// epochStrategy = strategy;
-	// first = false;
-	// }
-	// }
-	//
-	// assert (epochStrategy != null);
-	//
-	// // Without this, the bordered radio group will appear right-justified.
-	// JPanel centeringPanel = new JPanel(new BorderLayout());
-	// centeringPanel.add(panel, BorderLayout.CENTER);
-	//
-	// return centeringPanel;
-	// }
+	/**
+	 * Field change handler for period and epoch fields to set tool-tips when
+	 * fields cleared.
+	 * TODO doesn't get fired when the fields are cleared by a user
+	 */
+	public void propertyChange(PropertyChangeEvent e) {
+		Object source = e.getSource();
 
-	// private ActionListener createEpochStrategyActionListener() {
-	// return new ActionListener() {
-	// public void actionPerformed(ActionEvent e) {
-	// String name = e.getActionCommand();
-	// epochStrategy = PhaseCalcs.epochStrategyMap.get(name);
-	// }
-	// };
-	// }
+		if (source == this.periodField) {
+			if ("".equals(this.periodField.getText())) {
+				this.periodField.setToolTipText("Enter period in days");
+			}
+		} else if (source == this.epochField) {
+			if ("".equals(this.epochField.getText())) {
+				this.epochField.setToolTipText("Enter epoch as JD");
+			}
+		}
+	}
 
 	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
@@ -235,52 +199,57 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 		return epoch;
 	}
 
-	// /**
-	// * @return the epochStrategy
-	// */
-	// public IEpochStrategy getEpochStrategy() {
-	// return epochStrategy;
-	// }
-
 	/**
 	 * Update with new star message. We either want to clear the fields or if
 	 * period or epoch values are available to us, populate the fields
 	 * accordingly. We also obtain the observations for the newly loaded star to
 	 * which to apply the epoch determination strategy in the case where there
-	 * is no epoch available. TODO: presumably if there is a period, there is
-	 * also an epoch. If not, should we flag this as an error or warning (via a
-	 * dialog) and then just continue?
+	 * is no epoch available.
+	 * 
+	 * TODO: presumably if there is a period, there is also an epoch. If not,
+	 * should we flag this as an error or warning (via a dialog) and then just
+	 * continue?
 	 */
 	public void update(NewStarMessage msg) {
 		if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+			// We may have period and/or epoch information from
+			// the database.
 			StarInfo info = msg.getStarInfo();
 			Double period = info.getPeriod();
 			Double epoch = info.getEpoch();
 
 			if (period == null) {
+				// No period available, so just clear the field.
 				this.periodField.setText("");
+				this.periodField.setToolTipText("Enter period in days");
 				this.period = 0;
 			} else {
+				// Use the supplied period to set the period field.
 				this.periodField.setText(period.toString());
+				this.periodField.setToolTipText("Period in days");
 				this.period = period;
 			}
 
 			if (epoch == null) {
+				// No epoch available, so use the epoch strategy to
+				// set the epoch field.
 				this.epoch = this.epochStrategy.determineEpoch(msg
 						.getObservations());
 				this.epochField.setText(this.epoch + "");
 				this.epochField.setToolTipText(epochStrategy.getDescription());
 			} else {
+				// Use the supplied epoch to set the epoch field.
 				this.epochField.setText(epoch.toString());
-				this.epochField.setToolTipText("Enter JD of epoch");
+				this.epochField.setToolTipText("Epoch as HJD");
 				this.epoch = epoch;
 			}
 		} else {
-			// Just clear the fields since we have no parameters
-			// with which to pre-populate the fields.
+			// No period available, so just clear the field.
 			this.periodField.setText("");
+			this.periodField.setToolTipText("Enter period in days");
 			this.period = 0;
 
+			// Use the epoch strategy to set the epoch field.
 			this.epoch = this.epochStrategy.determineEpoch(msg
 					.getObservations());
 			this.epochField.setText(this.epoch + "");

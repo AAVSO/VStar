@@ -19,7 +19,6 @@ package org.aavso.tools.vstar.ui.pane;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -122,6 +121,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		this.renderer = new VStarPlotDataRenderer();
 		this.renderer.setDrawYError(this.showErrorBars);
 
+		// Should reduce number of Java2D draw operations.
+		//this.renderer.setDrawSeriesLineAsPath(true);
+		
 		// Tell renderer which series elements should be rendered
 		// as visually joined with lines.
 		// TODO: change return type of getter below to be Set<Integer>
@@ -137,15 +139,16 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 					.getSeriesVisibilityMap().get(series));
 		}
 
-		chart.getXYPlot().setRenderer(renderer);
-
 		// The motivation for this is that when a means series is added, it will be
 		// last in sequence and we want it to be rendered last. We could just do this
 		// in subclasses dealing with such a means series, but then this would make
 		// all other series renderings look different compared with other plots without
 		// means series. So, in short, we're doing this for consistency and with the
 		// knowledge of the use cases for plot pane classes.
-		chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
+		this.chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
+		//this.chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
+
+		chart.getXYPlot().setRenderer(renderer);
 		
 		setupCrossHairs();
 
