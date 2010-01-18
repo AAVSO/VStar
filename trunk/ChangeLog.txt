@@ -21,20 +21,21 @@ o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Webe
 
 ----------------------
 Date: January 19 2010
-Version: 389
+Version: 391
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-19Jan2010
 Key Changes:
 - Clearing old lists and maps when creating artefacts for a new star
   and suggested subsequent garbage collection to VM in an effort to 
-  reduce memory consumption and improve performance.
+  reduce memory consumption and improve performance. See tracker 2924511.
 - Incorporated phase plot analysis artefacts into all view modes. 
   See tracker 2926870.
 - Changed series rendering order in plot in an attempt to improve
   visibility of means series in datasets with tightly packed plots.
+  See tracker 2830059.
 - Changed all data points in plots to be small circles for easier
-  visibility.
+  visibility. See tracker 2898494.
 - Added information item to File menu and toolbar to provide summary
-  information about loaded dataset.
+  information about loaded dataset. See tracker 2926870.
 - Added handling of unexpected '0' comment code. See tracker 2933825.
 - Fixed HQ uncertainty formatting error in which null values were being 
   shown in the observation list pane as "nu". See tracker 2933617.
