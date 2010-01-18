@@ -36,6 +36,6 @@ public class AlphaOmegaMeanJDEpochStrategy implements IEpochStrategy {
 	}
 	
 	public String getDescription() {
-		return "Mean of first and last Julian Date";
+		return "Mean of first and last JD";
 	}
 }

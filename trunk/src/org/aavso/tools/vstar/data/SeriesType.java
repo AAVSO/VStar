@@ -185,11 +185,9 @@ public enum SeriesType {
 		SeriesType type = shortName2SeriesMap.get(shortName);
 
 		if (type == null) {
-			// TODO: remove this block when we have converted to bands
-			// table content! Will need to change or download new files
-			// in the case where band short-names have changed! Or just
-			// leave in place short-term wrapping in a null-check but
-			// using only the strings from the old enums.
+			// TODO: We can remove this block when we have changed or 
+			// downloaded new files to replace existing ones in the case 
+			// where band short-names have changed!
 			if (shortName.equals("Unknown")) {
 				type = Unknown;
 			} else if (shortName.equals("Visual")) {
@@ -237,5 +235,12 @@ public enum SeriesType {
 	 */
 	public static SeriesType getDefault() {
 		return Unspecified;
+	}
+
+	/**
+	 * We override toString() to return description rather than enum name.
+	 */
+	public String toString() {
+		return this.getDescription();
 	}
 }

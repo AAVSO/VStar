@@ -52,6 +52,6 @@ public class MaxMagEpochStrategy implements IEpochStrategy {
 	 * @see org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy#getDescription()
 	 */
 	public String getDescription() {
-		return "Julian Date of maximum magnitude";
+		return "JD of maximum magnitude";
 	}
 }
