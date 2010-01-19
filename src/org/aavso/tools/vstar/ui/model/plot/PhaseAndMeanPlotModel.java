@@ -72,7 +72,7 @@ public class PhaseAndMeanPlotModel extends ObservationAndMeanPlotModel {
 	 */
 	public void setMeanSeries() {
 
-		meanObsList = DescStats.createLeftToRightBinnedObservations(
+		meanObsList = DescStats.createSymmetricBinnedObservations(
 				seriesNumToObSrcListMap.get(meanSourceSeriesNum),
 				timeElementEntity, timeElementsInBin);
 

@@ -134,7 +134,8 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	/**
 	 * Field change handler for period and epoch fields to set tool-tips when
 	 * fields cleared.
-	 * TODO doesn't get fired when the fields are cleared by a user
+	 * TODO: Doesn't get fired when the fields are cleared by a user.
+	 * Do we need JFormattedTextField instead?
 	 */
 	public void propertyChange(PropertyChangeEvent e) {
 		Object source = e.getSource();

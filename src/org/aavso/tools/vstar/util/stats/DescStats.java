@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.util.stats;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.Magnitude;
@@ -212,7 +213,8 @@ public class DescStats {
 			// If we have not reached the end of the observation list
 			// and the current observation's time element is less than the
 			// minimum time element for the bottom of the current range plus
-			// the number of days in the bin, continue to the next observation.
+			// the number of time elements in the bin, continue to the next
+			// observation.
 			if (i < observations.size()
 					&& timeElementEntity.getTimeElement(observations, i) < (minTimeElement + timeElementsInBin)) {
 				i++;
@@ -280,72 +282,15 @@ public class DescStats {
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
-		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
+		List<ValidObservation> binnedObs = new LinkedList<ValidObservation>();
 
-		createLeftmostBinnedObservations(observations, observations.size() / 2,
-				timeElementEntity, timeElementsInBin, binnedObs);
+		createLeftmostBinnedObservations(observations,
+				observations.size() / 2 - 1, timeElementEntity,
+				timeElementsInBin, binnedObs);
 
-		// TODO:
-		// - populate binnedObs from center to left, then
-		// - populate binnedObs from center to right
-		// - there will be no time period(s) "left over"
-		// - left and right-most bins may be less than the
-		// bin size
-
-		double minTimeElement = timeElementEntity.getTimeElement(observations,
-				0);
-		int minIndex = 0;
-		int maxIndex = 0;
-
-		int i = 1;
-
-		while (i < observations.size()) {
-
-			// If we have not reached the end of the observation list
-			// and the current observation's time element is less than the
-			// minimum time element for the bottom of the current range plus
-			// the number of days in the bin, continue to the next observation.
-			if (i < observations.size()
-					&& timeElementEntity.getTimeElement(observations, i) < (minTimeElement + timeElementsInBin)) {
-				i++;
-			} else {
-				// Otherwise, we have found the top of the current range,
-				// so add a ValidObservation containing mean and error value
-				// to the list.
-				maxIndex = i - 1;
-
-				ValidObservation ob = createMeanObservationForRange(
-						observations, timeElementEntity, minIndex, maxIndex);
-
-				// If the mean magnitude value is NaN (e.g. because
-				// there was no valid data in the range in question),
-				// it doesn't make sense to include this observation.
-				if (!Double.isNaN(ob.getMag())) {
-					binnedObs.add(ob);
-				}
-
-				minIndex = i;
-				minTimeElement = timeElementEntity.getTimeElement(observations,
-						i);
-
-				i++;
-			}
-		}
-
-		// Ensure that if we have reached the end of the observations
-		// that we include any left over data that would otherwise be
-		// excluded by the less-than constraint?
-		if (maxIndex < observations.size() - 1) {
-			ValidObservation ob = createMeanObservationForRange(observations,
-					timeElementEntity, minIndex, observations.size() - 1);
-
-			// If the mean magnitude value is NaN (e.g. because
-			// there was no valid data in the range in question),
-			// it doesn't make sense to include this observation.
-			if (!Double.isNaN(ob.getMag())) {
-				binnedObs.add(ob);
-			}
-		}
+		createRightmostBinnedObservations(observations,
+				observations.size() / 2, timeElementEntity, timeElementsInBin,
+				binnedObs);
 
 		return binnedObs;
 	}
@@ -373,10 +318,60 @@ public class DescStats {
 	 *            An observation sequence consisting of magnitude means per bin
 	 *            and the observation at the center point of each bin.
 	 */
-	private static void createLeftmostBinnedObservations(
+	protected static void createLeftmostBinnedObservations(
 			List<ValidObservation> observations, int startIndex,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin,
-			List<ValidObservation> binnedObservations) {
+			List<ValidObservation> binnedObs) {
+
+		int maxIndex = startIndex;
+
+		double maxTimeElement = timeElementEntity.getTimeElement(observations,
+				maxIndex);
+
+		int i = startIndex - 1;
+
+		boolean finished = false;
+
+		while (!finished) {
+			// Are we still either:
+			// o not at the start of the list or
+			// o not at the bottom of the current range?
+			// If either is true, search further to the left.
+			if (i >= 0
+					&& timeElementEntity.getTimeElement(observations, i)
+							+ timeElementsInBin > maxTimeElement) {
+				i--;
+			} else {
+				// Otherwise, we have found the bottom of the current range,
+				// so add a ValidObservation containing mean and error value
+				// to the list.
+				ValidObservation ob = createMeanObservationForRange(
+						observations, timeElementEntity, i + 1, maxIndex);
+
+				// If the mean magnitude value is NaN (e.g. because
+				// there was no valid data in the range in question),
+				// it doesn't make sense to include this observation.
+				if (!Double.isNaN(ob.getMag())) {
+					// Notice that we add to the start of the list
+					// to avoid having to reverse the list since we
+					// are moving from right to left along the original
+					// list.
+					binnedObs.add(0, ob);
+				}
+
+				// If we have not yet reached the start of the list, prepare
+				// for the next round of range finding.
+				if (i >= 0) {
+					maxIndex = i;
+					maxTimeElement = timeElementEntity.getTimeElement(
+							observations, maxIndex);
+
+					i--;
+				} else {
+					finished = true;
+				}
+			}
+		}
 	}
 
 	/**
@@ -400,9 +395,52 @@ public class DescStats {
 	 *            An observation sequence consisting of magnitude means per bin
 	 *            and the observation at the center point of each bin.
 	 */
-	private static void createRightmostBinnedObservations(
+	protected static void createRightmostBinnedObservations(
 			List<ValidObservation> observations, int startIndex,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin,
-			List<ValidObservation> binnedObservations) {
+			List<ValidObservation> binnedObs) {
+
+		int minIndex = startIndex;
+
+		double minTimeElement = timeElementEntity.getTimeElement(observations,
+				minIndex);
+
+		int i = startIndex + 1;
+
+		boolean finished = false;
+
+		while (!finished) {
+			// Are we still either:
+			// o not at the end of the list or
+			// o not at the top of the current range?
+			// If either is true, search further to the right.
+			if (i < observations.size()
+					&& (minTimeElement + timeElementsInBin) > timeElementEntity.getTimeElement(observations, i)) {
+				i++;
+			} else {
+				// Otherwise, we have found the top of the current range,
+				// so add a ValidObservation containing mean and error value
+				// to the list.
+				ValidObservation ob = createMeanObservationForRange(
+						observations, timeElementEntity, minIndex, i - 1);
+
+				// If the mean magnitude value is NaN (e.g. because
+				// there was no valid data in the range in question),
+				// it doesn't make sense to include this observation.
+				if (!Double.isNaN(ob.getMag())) {
+					binnedObs.add(ob);
+				}
+
+				if (i < observations.size()) {
+					minIndex = i;
+					minTimeElement = timeElementEntity.getTimeElement(
+							observations, minIndex);
+
+					i++;
+				} else {
+					finished = true;
+				}
+			}
+		}
 	}
 }
