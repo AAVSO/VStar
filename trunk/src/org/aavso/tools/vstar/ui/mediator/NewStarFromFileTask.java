@@ -107,7 +107,5 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 				ProgressInfo.COMPLETE_PROGRESS);
 
 		// TODO: how to detect task cancellation and clean up map etc
-//		MessageBox.showMessageDialog(MainFrame.getInstance(), "Yo Yo",
-//				"cancelled? " + this.isCancelled());
 	}
 }
