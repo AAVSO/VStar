@@ -21,7 +21,7 @@ o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Webe
 
 ----------------------
 Date: January 19 2010
-Version: 391
+Version: 392
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-19Jan2010
 Key Changes:
 - Clearing old lists and maps when creating artefacts for a new star
@@ -39,6 +39,12 @@ Key Changes:
 - Added handling of unexpected '0' comment code. See tracker 2933825.
 - Fixed HQ uncertainty formatting error in which null values were being 
   shown in the observation list pane as "nu". See tracker 2933617.
+- Fixed a bug in which File menu items were being disabled after an 
+  unknown format error upon attempted file load. See tracker 2934762.
+- Improved the symmetry of mean curves with respect to raw data plots
+  and phase plots. This also fixes a bug in which some phase plot 
+  mean curves showed out-of-sequence mean values for some datasets
+  and small values of phase-elements-per-bin. See tracker 2902477.
 - Various unit test infrastructure and code-base improvements.
   
 Date: December 24 2009
