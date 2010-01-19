@@ -52,22 +52,22 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	// File menu item names.
 	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
-	public static final String NEW_STAR_FROM_FILE = "New Star from File...";	
+	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
 	public static final String SAVE = "Save...";
 	public static final String PRINT = "Print...";
 	public static final String INFO = "Info...";
 	public static final String PREFS = "Preferences...";
 	public static final String QUIT = "Quit";
-	
+
 	// Analysis menu item names.
 	public static final String RAW_DATA = "Raw Data";
 	public static final String PHASE_PLOT = "Phase Plot...";
 	public static final String PERIOD_SEARCH = "Period Search...";
-	
+
 	// Help menu item names.
 	public static final String HELP_CONTENTS = "Help Contents...";
 	public static final String ABOUT = "About...";
-	
+
 	private Mediator mediator = Mediator.getInstance();
 
 	private JFileChooser fileOpenDialog;
@@ -76,7 +76,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	private MainFrame parent;
 
 	// Menu items.
-	
+
 	// File menu.
 	JMenuItem fileNewStarFromDatabaseItem;
 	JMenuItem fileNewStarFromFileItem;
@@ -97,7 +97,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	// New star message.
 	private NewStarMessage newStarMessage;
-	
+
 	/**
 	 * Constructor
 	 */
@@ -119,10 +119,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		createHelpMenu();
 
 		this.newStarMessage = null;
-		
+
 		this.mediator.getProgressNotifier().addListener(
 				createProgressListener());
-		
+
 		this.mediator.getNewStarNotifier().addListener(this);
 	}
 
@@ -245,6 +245,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 						MainFrame.getInstance().getStatusPane().setMessage("");
 					}
 				} catch (Exception ex) {
+					completeProgress();
 					MessageBox.showErrorDialog(MainFrame.getInstance(),
 							"Star Selection", ex);
 				}
@@ -272,6 +273,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 					try {
 						mediator.createObservationArtefactsFromFile(f, parent);
 					} catch (Exception ex) {
+						completeProgress();
 						MessageBox.showErrorDialog(parent, NEW_STAR_FROM_FILE,
 								ex);
 					}
@@ -432,8 +434,6 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	/**
 	 * Return a progress listener.
-	 * TODO: why are we doing the wait-cursor handling here rather than 
-	 * in MainFrame?
 	 */
 	private Listener<ProgressInfo> createProgressListener() {
 		final MainFrame parent = this.parent;
@@ -445,13 +445,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 				case MAX_PROGRESS:
 					break;
 				case RESET_PROGRESS:
-					parent.setCursor(Cursor
-							.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					setEnabledFileAndAnalysisMenuItems(false);
+					resetProgress(parent);
 					break;
 				case COMPLETE_PROGRESS:
-					parent.setCursor(null); // turn off the wait cursor
-					setEnabledFileAndAnalysisMenuItems(true);
+					completeProgress();
 					break;
 				case INCREMENT_PROGRESS:
 					break;
@@ -460,13 +457,23 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		};
 	}
 
+	private void resetProgress(MainFrame parent) {
+		parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		setEnabledFileAndAnalysisMenuItems(false);
+	}
+
+	private void completeProgress() {
+		parent.setCursor(null); // turn off the wait cursor
+		setEnabledFileAndAnalysisMenuItems(true);
+	}
+
 	/**
 	 * New star listener.
 	 */
 	public void update(NewStarMessage msg) {
 		this.newStarMessage = msg;
 	}
-	
+
 	// Enables or disabled File and Analysis menu items.
 	private void setEnabledFileAndAnalysisMenuItems(boolean state) {
 		this.fileNewStarFromDatabaseItem.setEnabled(state);
@@ -474,7 +481,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
 		this.fileInfoItem.setEnabled(state);
-		
+
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
 		this.analysisPeriodSearchItem.setEnabled(state);
