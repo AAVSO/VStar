@@ -420,7 +420,7 @@ public class ValidObservation extends Observation {
 
 		// TODO: only show these if analysis mode is phase plot
 		// or is it okay to show last-non-null phases in any mode?
-		
+
 		if (standardPhase != null) {
 			strBuf.append("Standard Phase: ");
 			strBuf.append(standardPhase);
@@ -448,24 +448,24 @@ public class ValidObservation extends Observation {
 			strBuf.append(hqUncertainty);
 			strBuf.append("\n");
 		}
-		
+
 		if (band != null) {
 			strBuf.append("Band: ");
 			strBuf.append(band.getDescription());
 			strBuf.append("\n");
 		}
-		
+
 		if (obsCode != null) {
 			strBuf.append("Observer Code: ");
 			strBuf.append(obsCode);
 			strBuf.append("\n");
 		}
-		
+
 		if (commentCode != null) {
 			strBuf.append("Comment Codes:\n");
 			strBuf.append(commentCode.toString());
 		}
-		
+
 		if (compStar1 != null) {
 			strBuf.append("Comparison Star 1: ");
 			strBuf.append(compStar1);
@@ -489,9 +489,9 @@ public class ValidObservation extends Observation {
 			strBuf.append("\n");
 		}
 
-		strBuf.append("Transformed: ");
-		strBuf.append(transformed ? "yes" : "no");
-		strBuf.append("\n");
+		if (transformed) {
+			strBuf.append("Transformed: yes\n");
+		}
 
 		if (airmass != null) {
 			strBuf.append("Airmass: ");

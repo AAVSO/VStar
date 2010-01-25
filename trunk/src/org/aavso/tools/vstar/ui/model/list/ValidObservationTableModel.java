@@ -22,12 +22,17 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ObservationChange;
+import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
+import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 
 /**
  * A table model for valid observations.
  */
-public class ValidObservationTableModel extends AbstractTableModel {
+public class ValidObservationTableModel extends AbstractTableModel implements
+		Listener<ObservationChange> {
 
 	/**
 	 * The list of valid observations retrieved.
@@ -43,14 +48,13 @@ public class ValidObservationTableModel extends AbstractTableModel {
 	 * The total number of columns in the table.
 	 */
 	private final int columnCount;
-	
+
 	/**
-	 * This notifies listeners when an observation in the model
-	 * changes. Right now, the only possible change is for an 
-	 * observation to be marked as discrepant or to have this
-	 * designation removed.
+	 * This notifies listeners when an observation in the model changes. Right
+	 * now, the only possible change is for an observation to be marked as
+	 * discrepant or to have this designation removed.
 	 */
-	private Notifier<ValidObservation> observationChangeNotifier;
+	//private Notifier<ValidObservation> observationChangeNotifier;
 
 	/**
 	 * Constructor
@@ -65,7 +69,8 @@ public class ValidObservationTableModel extends AbstractTableModel {
 		this.validObservations = validObservations;
 		this.columnInfoSource = columnInfoSource;
 		this.columnCount = columnInfoSource.getColumnCount();
-		this.observationChangeNotifier = new Notifier<ValidObservation>();
+		//this.observationChangeNotifier = new Notifier<ValidObservation>();
+		Mediator.getInstance().getObservationChangeNotifier().addListener(this);
 	}
 
 	/**
@@ -109,7 +114,10 @@ public class ValidObservationTableModel extends AbstractTableModel {
 			ValidObservation ob = this.validObservations.get(rowIndex);
 			boolean discrepant = ob.isDiscrepant();
 			ob.setDiscrepant(!discrepant);
-			observationChangeNotifier.notifyListeners(ob);
+//			observationChangeNotifier.notifyListeners(ob);
+			// Tell anyone who's listening about the change.
+			ObservationChange message = new ObservationChange(ob, ObservationChangeType.DISCREPANT, this);
+			Mediator.getInstance().getObservationChangeNotifier().notifyListeners(message);
 		}
 	}
 
@@ -131,7 +139,23 @@ public class ValidObservationTableModel extends AbstractTableModel {
 	/**
 	 * @return the observationChangeNotifier
 	 */
-	public Notifier<ValidObservation> getObservationChangeNotifier() {
-		return observationChangeNotifier;
+//	public Notifier<ValidObservation> getObservationChangeNotifier() {
+//		return observationChangeNotifier;
+//	}
+
+	/**
+	 * Listen for valid observation change notification, e.g. an observation's
+	 * discrepant notification is changed.
+	 */
+	public void update(ObservationChange info) {
+		if (info.getSource() != this) {
+			for (ObservationChangeType change : info.getChanges()) {
+				switch (change) {
+				case DISCREPANT:
+					this.fireTableDataChanged();
+					break;
+				}
+			}
+		}
 	}
 }

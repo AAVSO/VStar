@@ -38,6 +38,7 @@ public class ObservationListPane extends JPanel {
 
 	private JTable validDataTable;
 	private JTable invalidDataTable;
+	private ValidObservationTableModel validDataModel;
 
 	/**
 	 * Constructor
@@ -49,7 +50,8 @@ public class ObservationListPane extends JPanel {
 	 * @param enableAutoResize
 	 *            Enable auto-resize of columns? If true, we won't get a
 	 *            horizontal scrollbar for valid observation table.
-	 * @param enableSorting Enable sorting by clicking on columns?
+	 * @param enableSorting
+	 *            Enable sorting by clicking on columns?
 	 */
 	public ObservationListPane(ValidObservationTableModel validDataModel,
 			InvalidObservationTableModel invalidDataModel,
@@ -59,21 +61,24 @@ public class ObservationListPane extends JPanel {
 
 		JScrollPane validDataScrollPane = null;
 
+		// TODO: when would it ever make sense for this to be null?
 		if (validDataModel != null) {
+			this.validDataModel = validDataModel;
+
 			validDataTable = new JTable(validDataModel);
 			// This next line ensures we get a horizontal scrollbar if necessary
 			// rather than trying to cram all the columns into the visible pane.
 			if (!enableAutoResize) {
 				validDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			}
-			
+
 			// Enable table sorting by clicking on a column.
 			// We do the same for invalid table below.
 			// Note: this is only available from Java 1.6
-//			if (enableSorting) {
-//				validDataTable.setAutoCreateRowSorter(true);
-//			}
-			
+			// if (enableSorting) {
+			// validDataTable.setAutoCreateRowSorter(true);
+			// }
+
 			validDataScrollPane = new JScrollPane(validDataTable);
 		}
 
@@ -81,7 +86,7 @@ public class ObservationListPane extends JPanel {
 
 		if (invalidDataModel != null) {
 			invalidDataTable = new JTable(invalidDataModel);
-//			invalidDataTable.setAutoCreateRowSorter(true);
+			// invalidDataTable.setAutoCreateRowSorter(true);
 			invalidDataScrollPane = new JScrollPane(invalidDataTable);
 		}
 

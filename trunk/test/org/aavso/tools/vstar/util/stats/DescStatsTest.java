@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
+import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 
 /**
  * Unit tests for descriptive stats class. Sample data taken from chapter 10 of
@@ -350,23 +351,26 @@ public class DescStatsTest extends TestCase {
 	// assertEquals("0.316", magStdErrStr);
 	// }
 
-	// public void testObservationSymmetricBinning3() {
-	// // If we choose a bin that is too small, we should
-	// // just get all the data.
-	// List<ValidObservation> observations = DescStats
-	// .createSymmetricBinnedObservations(this.observations3,
-	// JDTimeElementEntity.instance, this.observations3.size());
-	//
-	// assertTrue(observations.size() == 1);
-	//
-	// double magMean = observations.get(0).getMagnitude().getMagValue();
-	// String magMeanStr = String.format("%1.1f", magMean);
-	// assertEquals("4.0", magMeanStr);
-	//
-	// double magStdErr = observations.get(0).getMagnitude().getUncertainty();
-	// String magStdErrStr = String.format("%1.3f", magStdErr);
-	// assertEquals("0.038", magStdErrStr);
-	// }
+	// If we choose a bin that is too large, we will get
+	// two observations, one from each half. Note that
+	// this is different from what we see with DescStat's
+	// createLeftToRightBinnedObservations() which treats
+	// the whole observation sequence as a whole.
+	public void testObservationSymmetricBinning3() {
+		List<ValidObservation> observations = DescStats
+				.createSymmetricBinnedObservations(this.observations3,
+						JDTimeElementEntity.instance, this.observations3.size());
+
+		assertTrue(observations.size() == 2);
+
+		double magMean = observations.get(0).getMagnitude().getMagValue();
+		String magMeanStr = String.format("%1.2f", magMean);
+		assertEquals("4.04", magMeanStr);
+
+		magMean = observations.get(1).getMagnitude().getMagValue();
+		magMeanStr = String.format("%1.2f", magMean);
+		assertEquals("3.94", magMeanStr);
+	}
 
 	// A bin size of 2.5 JDs for observations3 should give us
 	// a list of two ValidObservations.
@@ -385,17 +389,17 @@ public class DescStatsTest extends TestCase {
 	// double magMean1 = observations.get(0).getMagnitude().getMagValue();
 	// String magMean1Str = String.format("%1.2f", magMean1);
 	// assertEquals("4.04", magMean1Str);
-	//
+	// //
 	// double magStdErr1 = observations.get(0).getMagnitude().getUncertainty();
 	// String magStdErr1Str = String.format("%1.3f", magStdErr1);
 	// assertEquals("0.051", magStdErr1Str);
-	//
+	// //
 	// // Check the magnitude mean and standard error of the average
 	// // for the second element.
 	// double magMean2 = observations.get(1).getMagnitude().getMagValue();
 	// String magMean2Str = String.format("%1.2f", magMean2);
 	// assertEquals("3.94", magMean2Str);
-	//
+	// //
 	// double magStdErr2 = observations.get(1).getMagnitude().getUncertainty();
 	// String magStdErr2Str = String.format("%1.3f", magStdErr2);
 	// assertEquals("0.051", magStdErr2Str);

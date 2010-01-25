@@ -19,11 +19,14 @@ package org.aavso.tools.vstar.ui.model.plot;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.ObservationChange;
+import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.DescStats;
 
@@ -33,9 +36,6 @@ import org.aavso.tools.vstar.util.stats.DescStats;
  * a means series that can change over time.
  */
 public class ObservationAndMeanPlotModel extends ObservationPlotModel {
-
-	// public static final String MEANS_SERIES_NAME =
-	// SeriesType.MEAN.getDescription();
 
 	public static final int NO_MEANS_SERIES = -1;
 
@@ -69,18 +69,22 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 *            coordinate and error source.
 	 * @param timeElementEntity
 	 *            A time element source for observations.
+	 * @param obComparator
+	 *            A valid observation comparator (e.g. by JD or phase).
 	 */
 	public ObservationAndMeanPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
-			ICoordSource coordSrc, ITimeElementEntity timeElementEntity) {
+			ICoordSource coordSrc, Comparator<ValidObservation> obComparator,
+			ITimeElementEntity timeElementEntity) {
 
-		super(obsSourceListMap, coordSrc);
+		super(obsSourceListMap, coordSrc, obComparator);
 
 		this.meansSeriesNum = NO_MEANS_SERIES;
 
 		this.timeElementEntity = timeElementEntity;
 
-		this.timeElementsInBin = this.timeElementEntity.getDefaultTimeElementsInBin();
+		this.timeElementsInBin = this.timeElementEntity
+				.getDefaultTimeElementsInBin();
 
 		this.meansChangeNotifier = new Notifier<List<ValidObservation>>();
 
@@ -93,7 +97,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * Set the mean-based series.
 	 * 
 	 * This method creates a new means series based upon the current mean source
-	 * series index and time-elements-in-bin. It then updates the view and any listeners.
+	 * series index and time-elements-in-bin. It then updates the view and any
+	 * listeners.
 	 */
 	public void setMeanSeries() {
 
@@ -117,6 +122,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 				if (SeriesType.MEANS.equals(entry.getValue())) {
 					int series = entry.getKey();
 					this.seriesNumToObSrcListMap.put(series, meanObsList);
+					// TODO: why not do this fire call after !found block below?
 					this.fireDatasetChanged();
 					found = true;
 					break;
@@ -256,16 +262,6 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		return meansChangeNotifier;
 	}
 
-	/**
-	 * Listen for valid observation change notification, e.g. an observation is
-	 * marked as discrepant. Since a discrepant observation is ignored for
-	 * statistical analysis purposes (see DescStats class), we need to
-	 * re-calculate the means series.
-	 */
-	public void update(ValidObservation ob) {
-		setMeanSeries();
-	}
-
 	// Helper methods.
 
 	/**
@@ -312,5 +308,23 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		assert seriesNum != -1;
 
 		return seriesNum;
+	}
+
+	/**
+	 * Listen for valid observation change notification, e.g. an observation's
+	 * discrepant notification is changed. Since a discrepant observation is
+	 * ignored for statistical analysis purposes (see DescStats class), we need
+	 * to re-calculate the means series.
+	 */
+	public void update(ObservationChange info) {
+		super.update(info);
+
+		for (ObservationChangeType change : info.getChanges()) {
+			switch (change) {
+			case DISCREPANT:
+				this.setMeanSeries();
+				break;
+			}
+		}
 	}
 }
