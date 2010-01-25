@@ -280,12 +280,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		for (int seriesNum : seriesToTypeMap.keySet()) {
 			Color color = seriesToTypeMap.get(seriesNum).getColor();
 			renderer.setSeriesPaint(seriesNum, color);
-			// TODO: what do we want this to be?
-			// Try enabling and disabling these next 2 lines...
-//			RectangularShape shape = new Rectangle2D.Double(0, 0, 5, 5);
-//			RectangularShape currBounds = renderer.getSeriesShape(seriesNum).getBounds();
-//			RectangularShape newShape = new Rectangle2D.Double(currBounds.getX()+1, currBounds.getY()+1, currBounds.getWidth()-1, currBounds.getHeight()-1);			
-//			renderer.setSeriesShape(seriesNum, newShape);
 		}
 	}
 
@@ -301,12 +295,15 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		chartPanel.addChartMouseListener(this);
 	}
 
-	// From ChartMouseListener
+	// From ChartMouseListener.
+	// If the user clicks on a plot point, open an information
+	// dialog.
 	public void chartMouseClicked(ChartMouseEvent event) {
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
+			
 			new ObservationDetailsDialog(obsModel.getValidObservation(series,
 					item));
 		}
@@ -357,7 +354,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			}
 		}
 		
-		//With only one observation max is smaller than min
+		// With only one observation max is smaller than min.
 		if(max < min){
 			max = min+1;
 			min = min-1;

@@ -27,6 +27,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
  */
 public class JDCoordSource implements ICoordSource {
 
+	public static JDCoordSource instance = new JDCoordSource();
+	
 	/**
 	 * The number of JD items is the size of the mapped series list.
 	 * 

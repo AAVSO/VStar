@@ -33,7 +33,7 @@ import java.util.Map;
  * A type for bands and other series types, e.g. fainter-thans, means.
  */
 public enum SeriesType {
-
+			
 	// ** Auto-generated bands from aid.bands start here **
 
 	Visual(0, "Visual", "Vis.", new Color(0, 0, 0)), Unknown(1, "Unknown",

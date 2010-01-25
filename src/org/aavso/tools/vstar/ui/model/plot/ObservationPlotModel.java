@@ -17,7 +17,10 @@
  */
 package org.aavso.tools.vstar.ui.model.plot;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,6 +28,9 @@ import java.util.TreeSet;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ObservationChange;
+import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.data.DomainOrder;
 import org.jfree.data.xy.AbstractIntervalXYDataset;
@@ -34,12 +40,18 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
  * star observations, e.g. for different bands (or from different sources).
  */
 public class ObservationPlotModel extends AbstractIntervalXYDataset implements
-		Listener<ValidObservation> {
+		Listener<ObservationChange> {
 
 	/**
 	 * Coordinate and error source.
 	 */
 	private ICoordSource coordSrc;
+
+	/**
+	 * An observation comparator (e.g. to provide an ordering over time: JD or
+	 * phase).
+	 */
+	private Comparator<ValidObservation> obComparator;
 
 	/**
 	 * A unique next series number for this model.
@@ -87,6 +99,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		this.seriesVisibilityMap = new TreeMap<Integer, Boolean>();
 		this.seriesNumToObSrcListMap = new TreeMap<Integer, List<ValidObservation>>();
 		this.atLeastOneVisualBandPresent = false;
+		Mediator.getInstance().getObservationChangeNotifier().addListener(this);
 	}
 
 	/**
@@ -98,12 +111,16 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *            A mapping from source series to lists of observation sources.
 	 * @param coordSrc
 	 *            A coordinate and error source.
+	 * @param obComparator
+	 *            A valid observation comparator (e.g. by JD or phase).
 	 */
 	public ObservationPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
-			ICoordSource coordSrc) {
+			ICoordSource coordSrc, Comparator<ValidObservation> obComparator) {
 
 		this(coordSrc);
+
+		this.obComparator = obComparator;
 
 		for (SeriesType type : obsSourceListMap.keySet()) {
 			this.addObservationSeries(type, obsSourceListMap.get(type));
@@ -128,9 +145,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	/**
 	 * Constructor
 	 * 
-	 * We add named observation source lists to unique series numbers,
-	 * and if the map is non-null, potentially change the set of visible 
-	 * series.
+	 * We add named observation source lists to unique series numbers, and if
+	 * the map is non-null, potentially change the set of visible series.
 	 * 
 	 * @param obsSourceListMap
 	 *            A mapping from source series to lists of observation sources.
@@ -138,16 +154,20 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *            A coordinate and error source.
 	 * @param seriesVisibilityMap
 	 *            A mapping from series number to visibility status.
+	 * @param obComparator
+	 *            A valid observation comparator (e.g. by JD or phase).
 	 */
 	public ObservationPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
-			ICoordSource coordSrc, Map<Integer, Boolean> seriesVisibilityMap) {
+			ICoordSource coordSrc, Comparator<ValidObservation> obComparator,
+			Map<Integer, Boolean> seriesVisibilityMap) {
 
-		this(obsSourceListMap, coordSrc);
-		
+		this(obsSourceListMap, coordSrc, obComparator);
+
 		if (seriesVisibilityMap != null) {
 			for (int seriesNum : seriesVisibilityMap.keySet()) {
-				changeSeriesVisibility(seriesNum, seriesVisibilityMap.get(seriesNum));
+				changeSeriesVisibility(seriesNum, seriesVisibilityMap
+						.get(seriesNum));
 			}
 		}
 	}
@@ -183,6 +203,35 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
+	 * Add a single observation to a series list, creating the series first if
+	 * necessary.
+	 * 
+	 * @param ob
+	 *            A valid observation.
+	 * @param series
+	 *            A series.
+	 */
+	protected void addObservationToSeries(ValidObservation ob, SeriesType series) {
+		Integer seriesNum = this.srcTypeToSeriesNumMap.get(series);
+
+		if (seriesNum != null) {
+			List<ValidObservation> obList = this.seriesNumToObSrcListMap
+					.get(seriesNum);
+			obList.add(ob);
+			// TODO: this is an expensive operation for the addition of a
+			// single observation! Perhaps we should mandate these lists as
+			// having to be SortedSet. Traversal is no more expensive and
+			// insertion is Log2(n).
+			// SortedSet<E> l = null;
+			Collections.sort(obList, obComparator);
+		} else {
+			// The series does not yet exist, so create it with a single datapoint.
+			List<ValidObservation> obs = new ArrayList<ValidObservation>();
+			addObservationSeries(series, obs);
+		}
+	}
+
+	/**
 	 * Remove the named series from the model. This operation has time
 	 * complexity O(n) but n (the number of series) will never be too large.
 	 * 
@@ -212,6 +261,28 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		}
 
 		return found;
+	}
+
+	/**
+	 * Remove a single observation from a series list.
+	 * 
+	 * @param ob
+	 *            A valid observation.
+	 * @param series
+	 *            A series.
+	 * @return Whether or not the observation was removed.
+	 */
+	protected boolean removeObservationFromSeries(ValidObservation ob,
+			SeriesType series) {
+		boolean removed = false;
+
+		Integer seriesNum = this.srcTypeToSeriesNumMap.get(series);
+
+		if (seriesNum != null) {
+			removed = this.seriesNumToObSrcListMap.get(seriesNum).remove(ob);
+		}
+
+		return removed;
 	}
 
 	/**
@@ -388,19 +459,6 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
-	 * Listen for valid observation change notification, e.g. an observation is
-	 * marked as discrepant.
-	 */
-	public void update(ValidObservation ob) {
-		// TODO: We do nothing for now. What we do need to
-		// do is to plot the value in a different color,
-		// and the best way to do that is to move it
-		// to a different band. This of course assumes
-		// that the change to ob is of the "discrepant"
-		// value which we can check just by asking ob.isDiscrepant()?
-	}
-
-	/**
 	 * Given a series and item number, return the corresponding observation.
 	 * 
 	 * @param series
@@ -449,12 +507,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	/**
 	 * Should the specified series be visible by default?
 	 * 
-	 * TODO: for now we just look for visual bands; eventually this should be
-	 * specifiable via Preferences; check that we add this to the notes ticket
-	 * on this topic.
-	 * 
 	 * @param series
-	 *            The series name. TODO: should eventually be enum.
+	 *            The series name.
 	 * @return Whether or not the series should be visible by default.
 	 */
 	protected boolean isSeriesVisibleByDefault(SeriesType series) {
@@ -482,5 +536,33 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		visible |= series == SeriesType.Unspecified;
 
 		return visible;
+	}
+
+	/**
+	 * Listen for valid observation change notification, e.g. an observation's
+	 * discrepant notification is changed.
+	 */
+	public void update(ObservationChange info) {
+		for (ObservationChangeType change : info.getChanges()) {
+			switch (change) {
+			case DISCREPANT:
+				// Did we go to or from being discrepant?
+				ValidObservation ob = info.getObservation();
+				if (ob.isDiscrepant()) {
+					// Now marked as discrepant so move observation from
+					// its designated band series to the discrepant series.
+					removeObservationFromSeries(ob, ob.getBand());
+					addObservationToSeries(ob, SeriesType.DISCREPANT);
+				} else {
+					// Was marked as discrepant, now is not, so move
+					// observation from the discrepant series to its
+					// designated band series.
+					removeObservationFromSeries(ob, SeriesType.DISCREPANT);
+					addObservationToSeries(ob, ob.getBand());
+				}
+				this.fireDatasetChanged();
+				break;
+			}
+		}
 	}
 }

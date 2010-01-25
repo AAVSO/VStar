@@ -27,6 +27,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
  */
 public class PhaseCoordSource implements ICoordSource {
 
+	public static PhaseCoordSource instance = new PhaseCoordSource();
+	
 	/**
 	 * Each mapped series list is assumed to be have been duplicated to
 	 * facilitate a Standard Phase Diagram where the phase ranges over 

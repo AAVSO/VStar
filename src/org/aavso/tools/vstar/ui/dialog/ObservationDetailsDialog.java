@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,6 +26,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -34,18 +34,28 @@ import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ObservationChange;
+import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
 
 /**
  * This modeless dialog class displays info about a single observation.
  * 
- * TODO: - We should have a pool of these and clear the text for each use since
+ * It also allows us to change the discrepant status of the observation.
+ * 
+ * TODO: We should have a pool of these and clear the text for each use since
  * they take awhile to render otherwise and we are likely to create many per
  * session.
  */
-public class ObservationDetailsDialog extends JDialog implements ActionListener {
+public class ObservationDetailsDialog extends JDialog {
 
+	private ValidObservation ob;
+	
 	public ObservationDetailsDialog(ValidObservation ob) {
 		super();
+		
+		this.ob = ob;
+		
 		this.setTitle("Observation Details");
 		this.setModal(false);
 		this.setSize(200, 200);
@@ -61,9 +71,16 @@ public class ObservationDetailsDialog extends JDialog implements ActionListener 
 
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
+		JPanel checkBoxPane = new JPanel();		
+		JCheckBox discrepantCheckBox = new JCheckBox("Discrepant?");
+		discrepantCheckBox.addActionListener(createDiscreantCheckBoxHandler());
+		discrepantCheckBox.setSelected(ob.isDiscrepant());
+		checkBoxPane.add(discrepantCheckBox);
+		topPane.add(checkBoxPane, BorderLayout.CENTER);
+		
 		JPanel buttonPane = new JPanel();
 		JButton okButton = new JButton("OK");
-		okButton.addActionListener(this);
+		okButton.addActionListener(createOKButtonHandler());
 		buttonPane.add(okButton, BorderLayout.CENTER);
 		topPane.add(buttonPane);
 
@@ -75,12 +92,37 @@ public class ObservationDetailsDialog extends JDialog implements ActionListener 
 		this.setVisible(true);
 	}
 	
-
+	private void toggleDiscrepantStatus() {
+		ob.setDiscrepant(!ob.isDiscrepant());
+	}
+	
 	/**
 	 * OK button handler.
 	 */
-	public void actionPerformed(ActionEvent e) {
-		this.setVisible(false);
-		dispose();
+	private ActionListener createOKButtonHandler() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				dispose();
+			}
+		};
+	}
+
+	/**
+	 * Discrepant checkbox handler.
+	 */
+	private ActionListener createDiscreantCheckBoxHandler() {
+		final ObservationDetailsDialog parent = this;
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Toggle the observation's discrepant status and 
+				// tell anyone who's listening about the change.
+				toggleDiscrepantStatus();
+				ObservationChange message = new ObservationChange(ob,
+						ObservationChangeType.DISCREPANT, parent);
+				Mediator.getInstance().getObservationChangeNotifier()
+						.notifyListeners(message);
+			}
+		};
 	}
 }

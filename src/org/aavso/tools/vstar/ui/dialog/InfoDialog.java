@@ -113,7 +113,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 			buf.append(" days\n");
 		}
 
-		buf.append("Total Observations: ");
+		buf.append("Loaded Observations: ");
 		buf.append(obs.size());
 		buf.append("\n");
 

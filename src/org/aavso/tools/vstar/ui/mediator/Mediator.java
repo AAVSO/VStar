@@ -67,9 +67,10 @@ import org.aavso.tools.vstar.ui.pane.ObservationPlotPane;
 import org.aavso.tools.vstar.ui.pane.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.PhasePlotPane;
 import org.aavso.tools.vstar.ui.pane.TimeElementsInBinSettingPane;
+import org.aavso.tools.vstar.util.comparator.JDComparator;
+import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
-import org.aavso.tools.vstar.util.stats.StandardPhaseComparator;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**
@@ -107,7 +108,11 @@ public class Mediator {
 	private Notifier<NewStarMessage> newStarNotifier;
 	private Notifier<ModeType> modeChangeNotifier;
 	private Notifier<ProgressInfo> progressNotifier;
-
+	// TODO: This next notifier could be used to mark the "document" 
+	// (the current star's dataset) associated with the valid obs 
+	// as dirty (optional for now).
+	private Notifier<ObservationChange> observationChangeNotifier;
+	
 	// Currently active task.
 	private SwingWorker currTask;
 
@@ -125,6 +130,7 @@ public class Mediator {
 		this.newStarNotifier = new Notifier<NewStarMessage>();
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
+		this.observationChangeNotifier = new Notifier<ObservationChange>();
 
 		// These 3 are created for each new star.
 		this.validObsList = null;
@@ -174,6 +180,13 @@ public class Mediator {
 	 */
 	public Notifier<ProgressInfo> getProgressNotifier() {
 		return progressNotifier;
+	}
+
+	/**
+	 * @return the observationChangeNotifier
+	 */
+	public Notifier<ObservationChange> getObservationChangeNotifier() {
+		return observationChangeNotifier;
 	}
 
 	/**
@@ -403,24 +416,21 @@ public class Mediator {
 		ObservationAndMeanPlotPane obsAndMeanChartPane = null;
 
 		if (!validObsList.isEmpty()) {
-			// Observation and mean plot models can both share the
-			// same X coordinate source (Julian Day).
-			ICoordSource coordSrc = new JDCoordSource();
-
 			// Observation table and plot.
 			validObsTableModel = new ValidObservationTableModel(validObsList,
 					newStarType.getRawDataTableColumnInfoSource());
 
 			obsPlotModel = new ObservationPlotModel(
-					validObservationCategoryMap, coordSrc);
+					validObservationCategoryMap, JDCoordSource.instance,
+					JDComparator.instance);
 
 			// TODO: This is bogus! The models should change the valid obs list
 			// which should then notify its listeners of that change, including
 			// the above two models. Use NotifyingList for this! This class
 			// (Mediator) may also need to be a listener, at least to update
 			// the valid obs category map.
-			validObsTableModel.getObservationChangeNotifier().addListener(
-					obsPlotModel);
+			//validObsTableModel.getObservationChangeNotifier().addListener(
+			//		obsPlotModel);
 
 			String subTitle = "";
 			if (newStarType == NewStarType.NEW_STAR_FROM_DATABASE) {
@@ -434,12 +444,12 @@ public class Mediator {
 
 			// Observation-and-mean table and plot.
 			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
-					validObservationCategoryMap, coordSrc,
-					JDTimeElementEntity.instance);
+					validObservationCategoryMap, JDCoordSource.instance,
+					JDComparator.instance, JDTimeElementEntity.instance);
 
 			// TODO: bogosity alert! see comment above about this.
-			validObsTableModel.getObservationChangeNotifier().addListener(
-					obsAndMeanPlotModel);
+			//validObsTableModel.getObservationChangeNotifier().addListener(
+			//		obsAndMeanPlotModel);
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
 					"Light Curve with Means for " + starInfo.getDesignation(),
@@ -510,7 +520,10 @@ public class Mediator {
 		}
 
 		// TODO: Should we clear the phased valid observation category map
-		// if it exists? Anything else?
+		// if it exists? Anything else? YES! notifiers! To the Listener
+		// interface, add a canBeRemoved() method which Mediator invokes
+		// before removing centrally here, e.g. MenuBar would never return
+		// true from that method.
 
 		// Suggest garbage collection.
 		System.gc();
@@ -552,10 +565,6 @@ public class Mediator {
 			subTitle = objName;
 		}
 
-		// Observation and mean plot models can both share the
-		// same X coordinate source (phases).
-		PhaseCoordSource phaseCoordSrc = new PhaseCoordSource();
-
 		// Here we modify the underlying ValidObservation objects which will
 		// affect both validObsList and validObservationCategoryMap.
 		PhaseCalcs.setPhases(validObsList, epoch, period);
@@ -580,8 +589,8 @@ public class Mediator {
 
 		// Table and plot models.
 		ObservationPlotModel obsPlotModel = new ObservationPlotModel(
-				phasedValidObservationCategoryMap, phaseCoordSrc,
-				seriesVisibilityMap);
+				phasedValidObservationCategoryMap, PhaseCoordSource.instance,
+				StandardPhaseComparator.instance, seriesVisibilityMap);
 
 		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(
 				validObsList, newStarMessage.getNewStarType()
@@ -589,7 +598,8 @@ public class Mediator {
 
 		// Observation-and-mean table and plot.
 		ObservationAndMeanPlotModel obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
-				phasedValidObservationCategoryMap, phaseCoordSrc,
+				phasedValidObservationCategoryMap, PhaseCoordSource.instance,
+				StandardPhaseComparator.instance,
 				PhaseTimeElementEntity.instance);
 
 		// We need to set the phase values for each raw and mean data value.

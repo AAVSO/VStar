@@ -194,6 +194,7 @@ public class DescStats {
 	 *            increments) or portions thereof.
 	 * @return An observation sequence consisting of magnitude means per bin and
 	 *         the observation at the center point of each bin.
+	 * @deprecated Use createSymmetricBinnedObservations() in preference.
 	 */
 	public static List<ValidObservation> createLeftToRightBinnedObservations(
 			List<ValidObservation> observations,
