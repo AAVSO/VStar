@@ -48,6 +48,15 @@ public abstract class AbstractMeanObservationTableModel extends
 	}
 
 	/**
+	 * This method returns the underlying data for this table model.
+	 * 
+	 * @return the meanObsData
+	 */
+	public List<ValidObservation> getMeanObsData() {
+		return meanObsData;
+	}
+
+	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public abstract int getColumnCount();

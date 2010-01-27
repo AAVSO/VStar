@@ -295,10 +295,11 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			}
 		}
 
-		// No match: choose some series other than "fainter than".
+		// No match: choose some series other than fainter-than or discrepant.
 		if (seriesNum == -1) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
-				if (series != SeriesType.FAINTER_THAN) {
+				if (series != SeriesType.FAINTER_THAN
+						&& series != SeriesType.DISCREPANT) {
 					seriesNum = srcTypeToSeriesNumMap.get(series);
 					break;
 				}
