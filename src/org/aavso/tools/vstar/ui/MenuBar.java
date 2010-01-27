@@ -33,6 +33,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
+import org.aavso.tools.vstar.ui.dialog.FileExtensionFilter;
 import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
 import org.aavso.tools.vstar.ui.dialog.InfoDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;

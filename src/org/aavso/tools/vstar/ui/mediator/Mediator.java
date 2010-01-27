@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.swing.JFileChooser;
 import javax.swing.JTable.PrintMode;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -52,7 +53,6 @@ import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.PhasePlotMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.RawDataMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
-import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
@@ -108,11 +108,14 @@ public class Mediator {
 	private Notifier<NewStarMessage> newStarNotifier;
 	private Notifier<ModeType> modeChangeNotifier;
 	private Notifier<ProgressInfo> progressNotifier;
-	// TODO: This next notifier could be used to mark the "document" 
-	// (the current star's dataset) associated with the valid obs 
+	// TODO: This next notifier could be used to mark the "document"
+	// (the current star's dataset) associated with the valid obs
 	// as dirty (optional for now).
 	private Notifier<ObservationChange> observationChangeNotifier;
-	
+
+	// A file dialog for saving any kind of observation list.
+	private JFileChooser obsListFileSaveDialog;
+
 	// Currently active task.
 	private SwingWorker currTask;
 
@@ -131,6 +134,8 @@ public class Mediator {
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
 		this.observationChangeNotifier = new Notifier<ObservationChange>();
+
+		this.obsListFileSaveDialog = new JFileChooser();
 
 		// These 3 are created for each new star.
 		this.validObsList = null;
@@ -424,14 +429,6 @@ public class Mediator {
 					validObservationCategoryMap, JDCoordSource.instance,
 					JDComparator.instance);
 
-			// TODO: This is bogus! The models should change the valid obs list
-			// which should then notify its listeners of that change, including
-			// the above two models. Use NotifyingList for this! This class
-			// (Mediator) may also need to be a listener, at least to update
-			// the valid obs category map.
-			//validObsTableModel.getObservationChangeNotifier().addListener(
-			//		obsPlotModel);
-
 			String subTitle = "";
 			if (newStarType == NewStarType.NEW_STAR_FROM_DATABASE) {
 				subTitle = new Date().toString() + " (database)";
@@ -446,10 +443,6 @@ public class Mediator {
 			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
 					validObservationCategoryMap, JDCoordSource.instance,
 					JDComparator.instance, JDTimeElementEntity.instance);
-
-			// TODO: bogosity alert! see comment above about this.
-			//validObsTableModel.getObservationChangeNotifier().addListener(
-			//		obsAndMeanPlotModel);
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
 					"Light Curve with Means for " + starInfo.getDesignation(),
@@ -552,9 +545,6 @@ public class Mediator {
 	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period,
 			double epoch, Map<Integer, Boolean> seriesVisibilityMap)
 			throws Exception {
-
-		// TODO: enable busy cursor, progress bar, status pane updates...
-		// => PhasePlotTask required for this
 
 		String objName = newStarMessage.getStarInfo().getDesignation();
 
@@ -751,14 +741,38 @@ public class Mediator {
 			}
 			break;
 		case LIST_OBS_MODE:
-			MessageBox.showMessageDialog(parent, "Save Observations",
-					NOT_IMPLEMENTED_YET);
+			int returnVal = obsListFileSaveDialog.showSaveDialog(parent);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File outFile = obsListFileSaveDialog.getSelectedFile();
+				saveObsListToFile(outFile);
+			}
 			break;
 		case LIST_MEANS_MODE:
 			MessageBox.showMessageDialog(parent, "Save Means",
 					NOT_IMPLEMENTED_YET);
 			break;
 		}
+	}
+
+	/**
+	 * Save some kind of observation list to a file in a separate thread.
+	 * 
+	 * @param outFile The output file.
+	 */
+	private void saveObsListToFile(File outFile) {
+		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
+
+		this.getProgressNotifier()
+				.notifyListeners(
+						new ProgressInfo(ProgressType.MAX_PROGRESS,
+								validObsList.size()));
+
+		ObsListFileSaveTask task = new ObsListFileSaveTask(validObsList,
+				outFile, this.newStarMessage.getNewStarType());
+		
+		this.currTask = task;
+		task.execute();
 	}
 
 	/**

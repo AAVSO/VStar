@@ -17,8 +17,6 @@
  */
 package org.aavso.tools.vstar.data;
 
-import org.aavso.tools.vstar.data.CommentCodes;
-
 /**
  * This class corresponds to a single valid variable star observation. Depending
  * upon the source, some fields may be null. Some are not permitted to be null
@@ -400,6 +398,8 @@ public class ValidObservation extends Observation {
 		this.previousCyclePhase = previousCyclePhase;
 	}
 
+	// Output formatting methods.
+
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 
@@ -518,6 +518,49 @@ public class ValidObservation extends Observation {
 		}
 
 		return strBuf.toString();
+	}
+
+	/**
+	 * Returns a line in CSV format of the following fields (bracketed fields
+	 * are optional):
+	 * 
+	 * JD,MAGNITUDE,[UNCERTAINTY],[OBSERVER_CODE],[VALFLAG]
+	 */
+	public String toSimpleFormatString() {
+		StringBuffer buf = new StringBuffer();
+
+		buf.append(this.getDateInfo().getJulianDay());
+		buf.append(",");
+
+		buf.append(this.getMagnitude());
+		buf.append(",");
+
+		double uncertainty = this.getMagnitude().getUncertainty();
+		if (uncertainty != 0.0) {
+			buf.append(uncertainty);
+		}
+		buf.append(",");
+
+		if (this.obsCode != null) {
+			buf.append(this.obsCode);
+		}
+		buf.append(",");
+
+		if (this.validationType != null) {
+			buf.append(this.validationType.getValflag());
+		}
+		buf.append("\n");
+
+		return buf.toString();
+	}
+
+	/**
+	 * Returns a line in CSV AAVSO download format.
+	 */
+	public String toAAVSOFormatString() {
+		StringBuffer buf = new StringBuffer();
+		// TODO
+		return buf.toString();
 	}
 
 	// IMagJDAndPhaseSource methods

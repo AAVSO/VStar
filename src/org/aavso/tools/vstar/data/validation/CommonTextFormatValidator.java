@@ -48,7 +48,7 @@ public class CommonTextFormatValidator extends
 	protected final Map<String, Integer> fieldIndexMap;
 
 	protected String[] fields;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -84,7 +84,7 @@ public class CommonTextFormatValidator extends
 				new ExclusiveRangePredicate(0, 1));
 		this.observerCodeValidator = new ObserverCodeValidator();
 		this.valflagValidator = new ValflagValidator(valflagPatternStr);
-		
+
 		this.fields = null;
 	}
 
@@ -104,9 +104,11 @@ public class CommonTextFormatValidator extends
 	public ValidObservation validate(String line)
 			throws ObservationValidationError {
 
+		ValidObservation observation = null;
+
 		// Create a new valid observation, making the assumption
 		// that validation will pass.
-		ValidObservation observation = new ValidObservation();
+		observation = new ValidObservation();
 
 		// Get an array of fields split on the expected delimiter.
 		fields = fieldSplitter.getFields(line);
@@ -136,7 +138,7 @@ public class CommonTextFormatValidator extends
 		if (observation.getBand() == null) {
 			observation.setBand(SeriesType.Unspecified);
 		}
-		
+
 		observation.setObsCode(observerCodeValidator
 				.validate(fields[fieldIndexMap.get("OBSERVER_CODE_FIELD")]));
 
