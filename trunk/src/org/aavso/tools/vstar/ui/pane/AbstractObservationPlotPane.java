@@ -134,10 +134,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		// Tell renderer which series' elements should initially be
 		// rendered, i.e. visible.
-		for (int series : obsModel.getSeriesVisibilityMap().keySet()) {
-			this.renderer.setSeriesVisible(series, obsModel
-					.getSeriesVisibilityMap().get(series));
-		}
+		setSeriesVisibility();
 
 		// The motivation for this is that when a means series is added, it will be
 		// last in sequence and we want it to be rendered last. We could just do this
@@ -265,13 +262,23 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		for (int seriesNum : deltaMap.keySet()) {
 			boolean visibility = deltaMap.get(seriesNum);
-			renderer.setSeriesVisible(seriesNum, visibility);
 			delta |= obsModel.changeSeriesVisibility(seriesNum, visibility);
 		}
 
 		return delta;
 	}
 
+	/**
+	 * Set the visibility of each series.
+	 */
+	private void setSeriesVisibility() {
+		Map<Integer, Boolean> seriesVisibilityMap = obsModel.getSeriesVisibilityMap();
+		
+		for (int seriesNum : seriesVisibilityMap.keySet()) {
+			renderer.setSeriesVisible(seriesNum, seriesVisibilityMap.get(seriesNum));
+		}
+	}
+	
 	/**
 	 * Set the color of each series.
 	 */
@@ -324,9 +331,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * visible. We also make sure that the loaded series colors are all set.
 	 */
 	public void datasetChanged(DatasetChangeEvent event) {
-//		o this is being called >1 for each dataset change!
+		setSeriesVisibility();
 		setSeriesColors();
 		setMagScale();
+		
 	}
 	
 	// Helpers
