@@ -149,10 +149,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		//this.chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
 
 		chart.getXYPlot().setRenderer(renderer);
-		
+
+		// TODO: Hmm. A white background with no grids looks a bit barren.
+		// Where (if at all) should this go now? Constructor?
+//		this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
+
 		setupCrossHairs();
 
-		setSeriesAppearance();
+		setSeriesColors();
 
 		// We want the magnitude scale to go from high to low as we ascend the
 		// Y axis since as magnitude values get smaller, brightness increases.
@@ -222,7 +226,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		return chartControlPanel;
 	}
 
-	// / Return a listener for the error bar visibility checkbox.
+	// Return a listener for the error bar visibility checkbox.
 	private ActionListener createErrorBarCheckBoxListener() {
 		final AbstractObservationPlotPane<T> self = this;
 		return new ActionListener() {
@@ -247,8 +251,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	/**
 	 * Was there a change in the series visibility? Some callers may want to
-	 * invoke this only for its side effects, while others may want to know the
-	 * result.
+	 * invoke this only for its side effects, while others may also want to 
+	 * know the result.
 	 * 
 	 * @param deltaMap
 	 *            A mapping from series number to whether or not each series'
@@ -261,24 +265,21 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		for (int seriesNum : deltaMap.keySet()) {
 			boolean visibility = deltaMap.get(seriesNum);
-			delta |= obsModel.changeSeriesVisibility(seriesNum, visibility);
 			renderer.setSeriesVisible(seriesNum, visibility);
+			delta |= obsModel.changeSeriesVisibility(seriesNum, visibility);
 		}
 
 		return delta;
 	}
 
 	/**
-	 * Set the appearance of each series with respect to size, shape, and color.
+	 * Set the color of each series.
 	 */
-	private void setSeriesAppearance() {
-		// TODO: Hmm. A white background with no grids looks a bit barren.
-//		this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
-
-		Map<Integer, SeriesType> seriesToTypeMap = obsModel.getSeriesNumToSrcTypeMap();
+	private void setSeriesColors() {
+		Map<Integer, SeriesType> seriesNumToTypeMap = obsModel.getSeriesNumToSrcTypeMap();
 		
-		for (int seriesNum : seriesToTypeMap.keySet()) {
-			Color color = seriesToTypeMap.get(seriesNum).getColor();
+		for (int seriesNum : seriesNumToTypeMap.keySet()) {
+			Color color = seriesNumToTypeMap.get(seriesNum).getColor();
 			renderer.setSeriesPaint(seriesNum, color);
 		}
 	}
@@ -320,9 +321,11 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * 
 	 * When the dataset changes, e.g. series visibility, we want to set the
 	 * appropriate magnitude value range, ignoring any series that is not
-	 * visible.
+	 * visible. We also make sure that the loaded series colors are all set.
 	 */
 	public void datasetChanged(DatasetChangeEvent event) {
+//		o this is being called >1 for each dataset change!
+		setSeriesColors();
 		setMagScale();
 	}
 	
@@ -331,6 +334,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	/**
 	 * Set the appropriate magnitude value scale, ignoring any series that 
 	 * is not visible.
+	 * 
+	 * Note: for large datasets, this could be very expensive!
 	 */
 	private void setMagScale() {
 		double min = Double.MAX_VALUE;
@@ -345,9 +350,12 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			if (seriesVisibilityMap.get(series)) {
 				for (ValidObservation ob : seriesNumToObsMap.get(series)) {
 					double mag = ob.getMagnitude().getMagValue();
+					
 					if (mag < min) {
 						min = mag;
-					} else if (mag > max) {
+					}
+					
+					if (mag > max) {
 						max = mag;
 					}
 				}
@@ -355,7 +363,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		}
 		
 		// With only one observation max is smaller than min.
-		if(max < min){
+		if (max < min) {
 			max = min+1;
 			min = min-1;
 		}

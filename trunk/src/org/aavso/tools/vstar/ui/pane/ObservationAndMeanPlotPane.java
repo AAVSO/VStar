@@ -26,6 +26,7 @@ import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.dialog.MeanSourceDialog;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 
@@ -74,9 +75,10 @@ public class ObservationAndMeanPlotPane extends
 
 		addToChartControlPanel(this.getChartControlPanel());
 
+		// Set the means series color.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
 		if (meanSeriesNum != ObservationAndMeanPlotModel.NO_MEANS_SERIES) {
-			this.getRenderer().setSeriesPaint(meanSeriesNum, Color.BLUE);
+			this.getRenderer().setSeriesPaint(meanSeriesNum, SeriesType.MEANS.getColor());
 		}
 	}
 

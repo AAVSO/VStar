@@ -125,6 +125,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		for (SeriesType type : obsSourceListMap.keySet()) {
 			this.addObservationSeries(type, obsSourceListMap.get(type));
 		}
+		fireDatasetChanged();
 
 		// We should only make "unspecified" band-based observations visible
 		// by default if one of the visual bands is not present.
@@ -197,8 +198,6 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcTypeMap
 				.size());
 
-		fireDatasetChanged();
-
 		return seriesNum;
 	}
 
@@ -226,8 +225,9 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 			Collections.sort(obList, obComparator);
 		} else {
 			// The series does not yet exist, so create it with a single datapoint.
-			List<ValidObservation> obs = new ArrayList<ValidObservation>();
-			addObservationSeries(series, obs);
+			List<ValidObservation> obsList = new ArrayList<ValidObservation>();
+			obsList.add(ob);
+			addObservationSeries(series, obsList);
 		}
 	}
 
@@ -301,7 +301,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 
 		if (changed) {
 			this.seriesVisibilityMap.put(seriesNum, visibility);
-			this.fireDatasetChanged();
+			this.fireDatasetChanged(); // TODO: necessary?
 		}
 
 		return changed;
@@ -539,8 +539,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
-	 * Listen for valid observation change notification, e.g. an observation's
-	 * discrepant notification is changed.
+	 * Listen for observation change notification, e.g. an observation's
+	 * discrepant status is changed.
 	 */
 	public void update(ObservationChange info) {
 		for (ObservationChangeType change : info.getChanges()) {
@@ -560,7 +560,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 					removeObservationFromSeries(ob, SeriesType.DISCREPANT);
 					addObservationToSeries(ob, ob.getBand());
 				}
-				this.fireDatasetChanged();
+				fireDatasetChanged();
 				break;
 			}
 		}
