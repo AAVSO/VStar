@@ -50,9 +50,8 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 	// - Throw an exception if both comparison stars are empty?
 	// - What are the format constraints on compStar{1,2}
 	// - Is the charts field optional? Sample data says yes, but
-	// pre-validation filters page suggests otherwise.
+	//   pre-validation filters page suggests otherwise.
 	// - Create a validator for 'transformed' field?
-	// - MType should have its own validator and associated enum type.
 	// - Assert which fields should not be null at end of validate().
 
 	private final OptionalityFieldValidator optionalFieldValidator;

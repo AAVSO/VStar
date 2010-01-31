@@ -106,15 +106,11 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	 */
 	private void saveObsToFileInAAVSOFormat(BufferedOutputStream ostream)
 			throws IOException {
-		MessageBox.showMessageDialog(MainFrame.getInstance(),
-				"Save Observations", Mediator.NOT_IMPLEMENTED_YET);
-
-		if (false)
-			for (ValidObservation ob : this.observations) {
-				ostream.write(ob.toAAVSOFormatString().getBytes());
-				Mediator.getInstance().getProgressNotifier().notifyListeners(
-						ProgressInfo.INCREMENT_PROGRESS);
-			}
+		for (ValidObservation ob : this.observations) {
+			ostream.write(ob.toAAVSOFormatString().getBytes());
+			Mediator.getInstance().getProgressNotifier().notifyListeners(
+					ProgressInfo.INCREMENT_PROGRESS);
+		}
 	}
 
 	/**
