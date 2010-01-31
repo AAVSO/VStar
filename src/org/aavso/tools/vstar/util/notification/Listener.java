@@ -34,4 +34,10 @@ public interface Listener<T> {
 	 * @param info The type-safe information.
 	 */
 	public abstract void update(T info);
+	
+	/**
+	 * Informs the caller whether this listener can be removed.
+	 * @return A boolean denoting whether this listener can be removed.
+	 */
+	public abstract boolean canBeRemoved();
 }

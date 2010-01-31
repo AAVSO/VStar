@@ -95,6 +95,10 @@ public class ModePane extends JPanel implements ActionListener {
 					break;
 				}
 			}
+			
+			public boolean canBeRemoved() {
+				return false;
+			}
 		};
 	}
 	

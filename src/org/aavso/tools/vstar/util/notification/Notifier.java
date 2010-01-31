@@ -54,8 +54,6 @@ public class Notifier<T> {
 	/**
 	 * Add a listener, and specify whether to notify it immediately.
 	 * 
-	 * TODO: not sure we really need this one!
-	 * 
 	 * @param listener The listener to add.
 	 * @param immediateMessage The initial notification message, or null.
 	 */
@@ -68,16 +66,27 @@ public class Notifier<T> {
 	}
 
 	/**
-	 * Remove a listener.
+	 * Remove a listener, if it says it is willing to be removed.
 	 * 
 	 * @param listener The listener to remove.
 	 */
-	public void removeListener(Listener<T> listener) {
-		listeners.remove(listener);
+	public void removeListenerIfWilling(Listener<T> listener) {
+		if (listener.canBeRemoved()) {
+			listeners.remove(listener);
+		}
 	}
 
 	/**
-	 * Notify all iListeners of an activity update.
+	 * Remove all listeners that are willing to be removed.
+	 */
+	public void removeAllWillingListeners() {
+		for (Listener<T> listener : listeners) {
+			removeListenerIfWilling(listener);
+		}
+	}
+	
+	/**
+	 * Notify all listeners of an activity update.
 	 * 
 	 * @param message The message to pass to each listener.
 	 */

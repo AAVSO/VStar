@@ -178,6 +178,10 @@ public class ToolBar extends JPanel {
 					break;
 				}
 			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
 		};
 	}
 
