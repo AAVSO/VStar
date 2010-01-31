@@ -30,14 +30,30 @@ public enum MTypeType {
 	// observation.
 
 	// Standard magnitude.
-	STD,
+	STD("STD"),
 	// Differential magnitude; value of comparison star 1 needed to
 	// compute standard magnitude.
-	DIFF,
+	DIFF("DIFF"),
 	// Non-reduced step magnitude; given as 0.0 and the step sequence
 	// may be found in the Comment Code field.
-	STEP;
+	STEP("STEP");
 	
+	private String shortName;
+	
+	private MTypeType(String shortName) {
+		this.shortName = shortName;
+	}
+	
+	/**
+	 * @return the shortName
+	 */
+	public String getShortName() {
+		return shortName;
+	}
+
+	/**
+	 * @return a descriptive name for the current MType value.
+	 */
 	public String toString() {
 		String str = "";
 		
