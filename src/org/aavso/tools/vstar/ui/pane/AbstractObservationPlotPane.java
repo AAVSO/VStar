@@ -36,6 +36,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
+import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -122,8 +123,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		this.renderer.setDrawYError(this.showErrorBars);
 
 		// Should reduce number of Java2D draw operations.
-		//this.renderer.setDrawSeriesLineAsPath(true);
-		
+		// this.renderer.setDrawSeriesLineAsPath(true);
+
 		// Tell renderer which series elements should be rendered
 		// as visually joined with lines.
 		// TODO: change return type of getter below to be Set<Integer>
@@ -136,24 +137,30 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		// rendered, i.e. visible.
 		setSeriesVisibility();
 
-		// The motivation for this is that when a means series is added, it will be
-		// last in sequence and we want it to be rendered last. We could just do this
-		// in subclasses dealing with such a means series, but then this would make
-		// all other series renderings look different compared with other plots without
-		// means series. So, in short, we're doing this for consistency and with the
-		// knowledge of the use cases for plot pane classes.
-		this.chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.FORWARD);
-		//this.chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
+		/*
+		 * The motivation for this is that when a means series is added, it will
+		 * be last in sequence and we want it to be rendered last. We could just
+		 * do this in subclasses dealing with such a means series, but then this
+		 * would make all other series renderings look different compared with
+		 * other plots without means series. So, in short, we're doing this for
+		 * consistency and with the knowledge of the use cases for plot pane
+		 * classes.
+		 */
+		this.chart.getXYPlot().setSeriesRenderingOrder(
+				SeriesRenderingOrder.FORWARD);
+		// this.chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
 
 		chart.getXYPlot().setRenderer(renderer);
 
 		// TODO: Hmm. A white background with no grids looks a bit barren.
-		// Where (if at all) should this go now? Constructor?
-//		this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
+		// this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
 
 		setupCrossHairs();
 
 		setSeriesColors();
+
+		SeriesType.getSeriesColorChangeNotifier().addListener(
+				createSeriesColorChangeListener());
 
 		// We want the magnitude scale to go from high to low as we ascend the
 		// Y axis since as magnitude values get smaller, brightness increases.
@@ -161,7 +168,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		rangeAxis.setInverted(true);
 
 		setMagScale();
-		
+
 		obsModel.addChangeListener(this);
 
 		this.add(chartPanel);
@@ -223,12 +230,26 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		return chartControlPanel;
 	}
 
-	// Return a listener for the error bar visibility checkbox.
+	/**
+	 * Returns a listener for the error bar visibility checkbox.
+	 */
 	private ActionListener createErrorBarCheckBoxListener() {
 		final AbstractObservationPlotPane<T> self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				self.toggleErrorBars();
+			}
+		};
+	}
+
+	/**
+	 * Returns a series color change listener.
+	 */
+	private Listener<Map<SeriesType, Color>> createSeriesColorChangeListener() {
+		return new Listener<Map<SeriesType, Color>>() {
+			// Update the series colors.
+			public void update(Map<SeriesType, Color> info) {
+				setSeriesColors();
 			}
 		};
 	}
@@ -248,8 +269,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	/**
 	 * Was there a change in the series visibility? Some callers may want to
-	 * invoke this only for its side effects, while others may also want to 
-	 * know the result.
+	 * invoke this only for its side effects, while others may also want to know
+	 * the result.
 	 * 
 	 * @param deltaMap
 	 *            A mapping from series number to whether or not each series'
@@ -272,21 +293,25 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * Set the visibility of each series.
 	 */
 	private void setSeriesVisibility() {
-		Map<Integer, Boolean> seriesVisibilityMap = obsModel.getSeriesVisibilityMap();
-		
+		Map<Integer, Boolean> seriesVisibilityMap = obsModel
+				.getSeriesVisibilityMap();
+
 		for (int seriesNum : seriesVisibilityMap.keySet()) {
-			renderer.setSeriesVisible(seriesNum, seriesVisibilityMap.get(seriesNum));
+			renderer.setSeriesVisible(seriesNum, seriesVisibilityMap
+					.get(seriesNum));
 		}
 	}
-	
+
 	/**
 	 * Set the color of each series.
 	 */
 	private void setSeriesColors() {
-		Map<Integer, SeriesType> seriesNumToTypeMap = obsModel.getSeriesNumToSrcTypeMap();
-		
+		Map<Integer, SeriesType> seriesNumToTypeMap = obsModel
+				.getSeriesNumToSrcTypeMap();
+
 		for (int seriesNum : seriesNumToTypeMap.keySet()) {
-			Color color = seriesNumToTypeMap.get(seriesNum).getColor();
+			Color color = SeriesType.getColorFromSeries(seriesNumToTypeMap
+					.get(seriesNum));
 			renderer.setSeriesPaint(seriesNum, color);
 		}
 	}
@@ -311,7 +336,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
-			
+
 			new ObservationDetailsDialog(obsModel.getValidObservation(series,
 					item));
 		}
@@ -334,14 +359,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		setSeriesVisibility();
 		setSeriesColors();
 		setMagScale();
-		
+
 	}
-	
+
 	// Helpers
-	
+
 	/**
-	 * Set the appropriate magnitude value scale, ignoring any series that 
-	 * is not visible.
+	 * Set the appropriate magnitude value scale, ignoring any series that is
+	 * not visible.
 	 * 
 	 * Note: for large datasets, this could be very expensive!
 	 */
@@ -352,35 +377,36 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		Map<Integer, List<ValidObservation>> seriesNumToObsMap = obsModel
 				.getSeriesNumToObSrcListMap();
 
-		Map<Integer, Boolean> seriesVisibilityMap = obsModel.getSeriesVisibilityMap();
-		
+		Map<Integer, Boolean> seriesVisibilityMap = obsModel
+				.getSeriesVisibilityMap();
+
 		for (int series : seriesNumToObsMap.keySet()) {
 			if (seriesVisibilityMap.get(series)) {
 				for (ValidObservation ob : seriesNumToObsMap.get(series)) {
 					double mag = ob.getMagnitude().getMagValue();
-					
+
 					if (mag < min) {
 						min = mag;
 					}
-					
+
 					if (mag > max) {
 						max = mag;
 					}
 				}
 			}
 		}
-		
+
 		// With only one observation max is smaller than min.
 		if (max < min) {
-			max = min+1;
-			min = min-1;
+			max = min + 1;
+			min = min - 1;
 		}
 		// Add a small (1%) margin around min/max.
-		double margin = (max-min)/100;
+		double margin = (max - min) / 100;
 		min -= margin;
 		max += margin;
-		
+
 		NumberAxis magAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
 		magAxis.setRange(new Range(min, max));
-	}	
+	}
 }

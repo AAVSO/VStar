@@ -38,6 +38,7 @@ import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
 import org.aavso.tools.vstar.ui.dialog.InfoDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
+import org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
@@ -323,11 +324,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	 * Returns the action listener to be invoked for File->Preferences...
 	 */
 	public ActionListener createPrefsListener() {
-		final Component parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MessageBox.showMessageDialog(parent, "Preferences...",
-						Mediator.NOT_IMPLEMENTED_YET);
+				PreferencesDialog prefsDialog = PreferencesDialog.getInstance();
+				prefsDialog.showDialog();
 			}
 		};
 	}

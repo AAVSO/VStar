@@ -21,6 +21,8 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.aavso.tools.vstar.util.notification.Notifier;
+
 // TODO:
 // - Note that this enum-based approach won't necessarily work once we
 //   try to extend VStar to accept other sources, e.g. photometrica, so...
@@ -28,12 +30,14 @@ import java.util.Map;
 //   of series enum values but when connected to AID, it "refreshes" that
 //   Set<SeriesType> dynamically. Or just live with periodic code-generated
 //   updates to this class's enums. Other possibilities?
+// - Review all places where null or default type is permitted and
+//   eliminate.
 
 /**
  * A type for bands and other series types, e.g. fainter-thans, means.
  */
 public enum SeriesType {
-			
+
 	// ** Auto-generated bands from aid.bands start here **
 
 	Visual(0, "Visual", "Vis.", new Color(0, 0, 0)), Unknown(1, "Unknown",
@@ -81,15 +85,29 @@ public enum SeriesType {
 	private static Map<Integer, SeriesType> index2SeriesMap = new HashMap<Integer, SeriesType>();
 	private static Map<String, SeriesType> shortName2SeriesMap = new HashMap<String, SeriesType>();
 	private static Map<String, SeriesType> description2SeriesMap = new HashMap<String, SeriesType>();
+	private static Map<SeriesType, Color> series2ColorMap = new HashMap<SeriesType, Color>();
 
 	static {
 		for (SeriesType type : values()) {
 			index2SeriesMap.put(type.getIndex(), type);
 			shortName2SeriesMap.put(type.getShortName(), type);
 			description2SeriesMap.put(type.getDescription(), type);
+			series2ColorMap.put(type, type.getColor());
 		}
 	}
 
+	// Series color change notifier.
+
+	private static Notifier<Map<SeriesType, Color>> seriesColorChangeNotifier = new Notifier<Map<SeriesType, Color>>();
+
+	/**
+	 * @return The series color change notifier.
+	 */
+	public static Notifier<Map<SeriesType, Color>> getSeriesColorChangeNotifier() {
+		return seriesColorChangeNotifier;
+	}
+
+	// Instance members per SeriesType value.
 	private int index;
 	private String description;
 	private String shortName;
@@ -185,8 +203,8 @@ public enum SeriesType {
 		SeriesType type = shortName2SeriesMap.get(shortName);
 
 		if (type == null) {
-			// TODO: We can remove this block when we have changed or 
-			// downloaded new files to replace existing ones in the case 
+			// TODO: We can remove this block when we have changed or
+			// downloaded new files to replace existing ones in the case
 			// where band short-names have changed!
 			if (shortName.equals("Unknown")) {
 				type = Unknown;
@@ -225,6 +243,57 @@ public enum SeriesType {
 		}
 
 		return type;
+	}
+
+	/**
+	 * Given a series, retrieve its color.
+	 * 
+	 * @param series
+	 *            The series in question.
+	 * @return The corresponding color.
+	 */
+	public static Color getColorFromSeries(SeriesType series) {
+		Color color = series2ColorMap.get(series);
+
+		if (color == null) {
+			color = getDefault().getColor();
+		}
+
+		return color;
+	}
+
+	/**
+	 * Updates the series to color mapping according to the pairs in the
+	 * supplied map. Note that this may be a subset of all series-color pairs,
+	 * so it may not completely replace the existing map, just overwrite some
+	 * pairs. It also notifies listeners of the change.
+	 * 
+	 * @param newSeries2ColorMap
+	 *            The map with which to update the series-color map.
+	 */
+	public static void updateSeriesColorMap(
+			Map<SeriesType, Color> newSeries2ColorMap) {
+
+		if (!newSeries2ColorMap.isEmpty()) {
+			for (SeriesType series : newSeries2ColorMap.keySet()) {
+				series2ColorMap.put(series, newSeries2ColorMap.get(series));
+			}
+
+			seriesColorChangeNotifier.notifyListeners(newSeries2ColorMap);
+		}
+	}
+
+	/**
+	 * Restore the default series colors and notifies listeners.
+	 */
+	public static void setDefaultSeriesColors() {
+		series2ColorMap.clear();
+
+		for (SeriesType type : values()) {
+			series2ColorMap.put(type, type.getColor());
+		}
+		
+		seriesColorChangeNotifier.notifyListeners(series2ColorMap);
 	}
 
 	/**

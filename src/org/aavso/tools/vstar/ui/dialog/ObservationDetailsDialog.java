@@ -21,6 +21,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -47,8 +49,9 @@ import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
  * they take awhile to render otherwise and we are likely to create many per
  * session.
  */
-public class ObservationDetailsDialog extends JDialog {
+public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
+	private JButton okButton;
 	private ValidObservation ob;
 	
 	public ObservationDetailsDialog(ValidObservation ob) {
@@ -79,12 +82,14 @@ public class ObservationDetailsDialog extends JDialog {
 		topPane.add(checkBoxPane, BorderLayout.CENTER);
 		
 		JPanel buttonPane = new JPanel();
-		JButton okButton = new JButton("OK");
+		okButton = new JButton("OK");
 		okButton.addActionListener(createOKButtonHandler());
 		buttonPane.add(okButton, BorderLayout.CENTER);
 		topPane.add(buttonPane);
 
 		this.getContentPane().add(topPane);
+
+		this.getRootPane().setDefaultButton(okButton);		
 
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
@@ -124,5 +129,14 @@ public class ObservationDetailsDialog extends JDialog {
 						.notifyListeners(message);
 			}
 		};
+	}
+
+	// TODO: this method is not being invoked when the window regains focus; fix!
+	public void focusGained(FocusEvent e) {
+		this.getRootPane().setDefaultButton(okButton);		
+	}
+
+	public void focusLost(FocusEvent e) {
+		// Nothing to do.		
 	}
 }

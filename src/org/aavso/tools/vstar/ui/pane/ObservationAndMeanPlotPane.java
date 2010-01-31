@@ -78,7 +78,7 @@ public class ObservationAndMeanPlotPane extends
 		// Set the means series color.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
 		if (meanSeriesNum != ObservationAndMeanPlotModel.NO_MEANS_SERIES) {
-			this.getRenderer().setSeriesPaint(meanSeriesNum, SeriesType.MEANS.getColor());
+			this.getRenderer().setSeriesPaint(meanSeriesNum, SeriesType.getColorFromSeries(SeriesType.MEANS));
 		}
 	}
 

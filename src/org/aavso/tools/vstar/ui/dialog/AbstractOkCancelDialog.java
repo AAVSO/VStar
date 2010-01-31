@@ -25,6 +25,8 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.MainFrame;
+
 /**
  * This abstract class should be subclassed  by any class that wants
  * to have modal OK-Cancel dialog behaviour. The default result is
@@ -32,13 +34,20 @@ import javax.swing.JPanel;
  */
 abstract public class AbstractOkCancelDialog extends JDialog {
 
+	// Was this dialog cancelled?
 	protected boolean cancelled;
+
+	// Intended for Singleton subclasses. 
+	protected boolean firstUse;
+
+	JButton okButton;
 	
 	public AbstractOkCancelDialog(String title) {
 		super();
 		this.setTitle(title);
 		this.setModal(true);
 		this.cancelled = true;
+		this.firstUse = true;
 		//this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}
 	
@@ -49,11 +58,12 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 		cancelButton.addActionListener(createCancelButtonListener());
 		panel.add(cancelButton, BorderLayout.LINE_START);
 
-		JButton okButton = new JButton("OK");
+		okButton = new JButton("OK");
 		okButton.addActionListener(createOKButtonListener());
-		// okButton.setEnabled(false);
 		panel.add(okButton, BorderLayout.LINE_END);
 
+		this.getRootPane().setDefaultButton(okButton);
+		
 		return panel;
 	}
 
@@ -75,6 +85,38 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 				dispose();				
 			}
 		};
+	}
+	
+	/**
+	 * Show the dialog.
+	 * Intended for Singleton subclasses.
+	 */
+	public void showDialog() {
+		if (firstUse) {
+			setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+			firstUse = false;
+		}
+
+		localReset();
+		this.getRootPane().setDefaultButton(okButton);
+		this.setVisible(true);
+	}
+	
+	/**
+	 * Reset this dialog's state so that we don't process old state.
+	 * Intended for Singleton subclasses.
+	 */
+	private void localReset() {
+		this.setCancelled(true);
+		reset();
+	}
+
+	/**
+	 * Subclasses should override this. 
+	 * Intended for Singleton subclasses, hence a default
+	 * do-nothing implementation is provided.
+	 */
+	protected void reset() {
 	}
 	
 	/**
