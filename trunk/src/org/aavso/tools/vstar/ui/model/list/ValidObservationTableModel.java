@@ -137,13 +137,6 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	}
 
 	/**
-	 * @return the observationChangeNotifier
-	 */
-//	public Notifier<ValidObservation> getObservationChangeNotifier() {
-//		return observationChangeNotifier;
-//	}
-
-	/**
 	 * Listen for valid observation change notification, e.g. an observation's
 	 * discrepant notification is changed.
 	 */
@@ -157,5 +150,12 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 				}
 			}
 		}
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+	 */
+	public boolean canBeRemoved() {
+		return true;
 	}
 }

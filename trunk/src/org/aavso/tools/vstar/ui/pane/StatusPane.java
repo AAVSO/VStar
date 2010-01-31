@@ -174,6 +174,10 @@ public class StatusPane extends JPanel {
 					setMessage(strBuf.toString());
 				}
 			}
+			
+			public boolean canBeRemoved() {
+				return false;
+			}
 		};
 	}
 
@@ -212,6 +216,10 @@ public class StatusPane extends JPanel {
 					self.incrementProgressBar(info.getNum());
 					break;
 				}
+			}
+			
+			public boolean canBeRemoved() {
+				return false;
 			}
 		};
 	}

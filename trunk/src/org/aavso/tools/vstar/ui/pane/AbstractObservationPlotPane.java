@@ -251,6 +251,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			public void update(Map<SeriesType, Color> info) {
 				setSeriesColors();
 			}
+			
+			public boolean canBeRemoved() {
+				return true;
+			}
 		};
 	}
 

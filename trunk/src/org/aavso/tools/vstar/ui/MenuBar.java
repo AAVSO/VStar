@@ -455,6 +455,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 					break;
 				}
 			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
 		};
 	}
 
@@ -469,12 +473,21 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	}
 
 	/**
-	 * New star listener.
+	 * New star listener update method.
 	 */
 	public void update(NewStarMessage msg) {
 		this.newStarMessage = msg;
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+	 */
+	public boolean canBeRemoved() {
+		return false;
+	}
+
+	// Helper methods
+	
 	// Enables or disabled File and Analysis menu items.
 	private void setEnabledFileAndAnalysisMenuItems(boolean state) {
 		this.fileNewStarFromDatabaseItem.setEnabled(state);

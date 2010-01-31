@@ -565,4 +565,11 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 			}
 		}
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+	 */
+	public boolean canBeRemoved() {
+		return true;
+	}
 }

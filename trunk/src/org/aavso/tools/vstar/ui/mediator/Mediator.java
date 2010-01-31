@@ -86,9 +86,9 @@ public class Mediator {
 
 	// Valid and invalid observation lists and series category map.
 	private List<ValidObservation> validObsList;
-	private List<InvalidObservation> invalidObsList; // TODO: need to store
-	// this?
+	private List<InvalidObservation> invalidObsList;
 	private Map<SeriesType, List<ValidObservation>> validObservationCategoryMap;
+	private Map<SeriesType, List<ValidObservation>> phasedValidObservationCategoryMap;
 
 	// Current mode.
 	private ModeType mode;
@@ -137,11 +137,12 @@ public class Mediator {
 
 		this.obsListFileSaveDialog = new JFileChooser();
 
-		// These 3 are created for each new star.
+		// These 4 are created for each new star.
 		this.validObsList = null;
 		this.invalidObsList = null;
 		this.validObservationCategoryMap = null;
-
+		this.phasedValidObservationCategoryMap = null;
+		
 		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
 
 		this.mode = ModeType.PLOT_OBS_MODE;
@@ -194,6 +195,31 @@ public class Mediator {
 		return observationChangeNotifier;
 	}
 
+	/**
+	 * Remove all willing listeners from notifiers.
+	 * This is essentially a move to free up any indirectly referenced 
+	 * objects that may cause a memory leak if left unchecked from new-star 
+	 * to new-star, e.g. mean observations.
+	 * 
+	 * TODO: Is this method necessary? As long as anything that can be
+	 * freed up indirectly, has been at new-star time, I think we're okay.
+	 * One thing to note is that this method must not be invoked from a
+	 * different thread otherwise the listener removal method will yield
+	 * a concurrent modification exception. 
+	 * 
+	 * @param obsAndMeanPlotModel A raw observation and mean plot model from
+	 * which to remove willing listeners. This will change between stars.
+	 */
+	private void removeWillingListeners(ObservationAndMeanPlotModel obsAndMeanPlotModel) {
+		this.analysisTypeChangeNotifier.removeAllWillingListeners();
+		this.newStarNotifier.removeAllWillingListeners();
+		this.modeChangeNotifier.removeAllWillingListeners();
+		this.progressNotifier.removeAllWillingListeners();
+		this.observationChangeNotifier.removeAllWillingListeners();		
+		obsAndMeanPlotModel.getMeansChangeNotifier().removeAllWillingListeners();
+		SeriesType.getSeriesColorChangeNotifier().removeAllWillingListeners();
+	}
+	
 	/**
 	 * Change the mode of VStar's focus (i.e what is to be presented to the
 	 * user).
@@ -482,24 +508,25 @@ public class Mediator {
 		// We also create the means list pane.
 		meansListPane = new MeanObservationListPane(meanObsTableModel);
 
-		// Notify whoever is listening that a new star has been loaded.
+		// Create a message to notify whoever is listening that a new star 
+		// has been loaded.
 		newStarMessage = new NewStarMessage(newStarType, starInfo,
 				validObsList, validObservationCategoryMap);
 
-		// Notify whoever is listening that the analysis type has changed
-		// (we could have been viewing a phase plot for a different star
-		// before now) passing GUI components in the message.
+		// Create a message to notify whoever is listening that the analysis 
+		// type has changed (we could have been viewing a phase plot for a 
+		// different star before now) passing GUI components in the message.
 		analysisType = AnalysisType.RAW_DATA;
 
 		AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
 				analysisType, obsChartPane, obsAndMeanChartPane, obsListPane,
 				meansListPane, ModeType.PLOT_OBS_MODE);
 
-		analysisTypeMap.clear(); // throw away old artefacts
-		analysisTypeMap.put(analysisType, analysisTypeMsg);
-
 		// Commit to using the new observation lists and category map,
 		// first making old values available for garbage collection.
+		// TODO: It would be worth considering doing this at the start
+		// of this method, not at the end, so more memory is free.
+
 		if (this.validObsList != null) {
 			this.validObsList.clear();
 		}
@@ -512,20 +539,26 @@ public class Mediator {
 			this.validObservationCategoryMap.clear();
 		}
 
-		// TODO: Should we clear the phased valid observation category map
-		// if it exists? Anything else? YES! notifiers! To the Listener
-		// interface, add a canBeRemoved() method which Mediator invokes
-		// before removing centrally here, e.g. MenuBar would never return
-		// true from that method.
+		if (this.phasedValidObservationCategoryMap != null) {
+			// In case we did a phase plot, free this up.
+			this.phasedValidObservationCategoryMap.clear();
+			this.phasedValidObservationCategoryMap = null;
+		}
+
+		// Throw away old artefacts from raw and phase plot, 
+		// if there was (at least) one.
+		analysisTypeMap.clear();
+		analysisTypeMap.put(analysisType, analysisTypeMsg);
 
 		// Suggest garbage collection.
 		System.gc();
 
+		// Store new data.
 		this.validObsList = validObsList;
 		this.invalidObsList = invalidObsList;
 		this.validObservationCategoryMap = validObservationCategoryMap;
-
-		// Notify listeners of new star and analysis type change.
+		
+		// Notify listeners of new star and analysis type.
 		getNewStarNotifier().notifyListeners(newStarMessage);
 		getAnalysisTypeChangeNotifier().notifyListeners(analysisTypeMsg);
 	}

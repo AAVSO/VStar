@@ -257,4 +257,11 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 			this.epochField.setToolTipText(epochStrategy.getDescription());
 		}
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+	 */
+	public boolean canBeRemoved() {
+		return false;
+	}
 }

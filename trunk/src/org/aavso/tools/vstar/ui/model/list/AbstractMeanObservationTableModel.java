@@ -89,4 +89,11 @@ public abstract class AbstractMeanObservationTableModel extends
 		this.meanObsData = obs;
 		this.fireTableDataChanged();
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+	 */
+	public boolean canBeRemoved() {
+		return true;
+	}
 }

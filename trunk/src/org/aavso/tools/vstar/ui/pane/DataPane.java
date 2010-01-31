@@ -163,6 +163,10 @@ public class DataPane extends JPanel {
 					mediator.changeMode(msg.getMode());
 				}
 			}
+			
+			public boolean canBeRemoved() {
+				return false;
+			}
 		};
 	}
 
@@ -175,6 +179,10 @@ public class DataPane extends JPanel {
 			public void update(ModeType info) {
 				String modeDesc = info.getModeDesc();
 				showCard(modeDesc);
+			}
+			
+			public boolean canBeRemoved() {
+				return false;
 			}
 		};
 	}
