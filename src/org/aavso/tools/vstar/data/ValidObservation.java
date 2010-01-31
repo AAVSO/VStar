@@ -569,13 +569,16 @@ public class ValidObservation extends Observation {
 		buf.append(",");
 
 		double uncertainty = this.getMagnitude().getUncertainty();
-		if (uncertainty != 0.0) {
+		if (uncertainty > 0.0) {
 			buf.append(uncertainty);
 		}
 		buf.append(",");
 
 		if (this.getHqUncertainty() != null) {
-			buf.append(this.getHqUncertainty());
+			double hqUncertainty = this.getHqUncertainty();
+			if (hqUncertainty > 0.0) {
+				buf.append(hqUncertainty);
+			}
 		}
 		buf.append(",");
 

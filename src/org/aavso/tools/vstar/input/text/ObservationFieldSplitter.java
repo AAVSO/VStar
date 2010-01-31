@@ -66,9 +66,9 @@ public class ObservationFieldSplitter {
 
 		if (fields.length < this.minFields || fields.length > this.maxFields) {
 			StringBuffer strBuf = new StringBuffer();
-			strBuf.append("The number of fields in '");
-			strBuf.append(line);
-			strBuf.append("' ");
+			strBuf.append("The number of fields (");
+			strBuf.append(fields.length);
+			strBuf.append(") ");
 			strBuf.append("falls outside of the range ");
 			strBuf.append(minFields);
 			strBuf.append("..");
