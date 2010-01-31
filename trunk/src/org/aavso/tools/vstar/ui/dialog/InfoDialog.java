@@ -80,6 +80,8 @@ public class InfoDialog extends JDialog implements ActionListener {
 		
 		this.getContentPane().add(topPane);
 
+		this.getRootPane().setDefaultButton(okButton);
+
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
 		this.setAlwaysOnTop(true);

@@ -67,8 +67,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private Calendar cal;
 	private int year, month, day;
 
-	private boolean firstUse;
-
 	private static Pattern whitespacePattern = Pattern.compile("^\\s*$");
 
 	// Regex pattern for AUID (AAVSO unique ID per star).
@@ -81,8 +79,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private StarSelectorDialog() {
 		super("Select a Star");
 
-		firstUse = true;
-		
 		this.starName = null;
 		this.auid = null;
 		this.minDate = null;
@@ -385,29 +381,16 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	protected void okAction() {
 		checkInput();
 	}
-
-	/**
-	 * Show the dialog.
-	 */
-	public void showDialog() {
-		if (firstUse) {
-			setLocationRelativeTo(MainFrame.getInstance().getContentPane());
-			firstUse = false;
-		}
-
-		reset();
-		this.setVisible(true);
-	}
 	
 	/**
 	 * Reset this dialog's state so that we don't process old state.
+	 * This is invoked by the base class's showDialog() method.
 	 */
 	public void reset() {
 		this.auid = null;
 		this.starName = null;
 		this.minDate = null;
 		this.maxDate = null;
-		this.setCancelled(true);
 	}
 	
 	// Singleton
