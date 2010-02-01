@@ -247,8 +247,6 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 							maxJD = Double.MAX_VALUE;
 						}
 						
-						// TODO: instead, call a different method for
-						// each of the two cases above
 						mediator.createObservationArtefactsFromDatabase(
 								starName, auid, minJD, maxJD);
 					} else {

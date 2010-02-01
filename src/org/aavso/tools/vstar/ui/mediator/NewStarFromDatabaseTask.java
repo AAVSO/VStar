@@ -122,23 +122,42 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 
 			// Get a prepared statement to read a set of observations
 			// from the database, setting the parameters for the star
-			// we are targeting.
+			// we are targeting. We distinguish between the case where
+			// no JD min/max is supplied, and when one is.
 
-			// TODO: hide all this statement stuff behind a get-observations
-			// method. **
+			// TODO: 
+			// - Hide all this statement stuff behind a get-observations
+			//   method.
+			// - Obs stmt creation and param setting should be a single 
+			//   operation to avoid possible mismatched calls! Either that
+			//   or remove stmt parameter from parameter setting method.
 
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
 			Connection obsConnection = obsConnector.createConnection();
 
-			PreparedStatement obsStmt = obsConnector
-					.createObservationQuery(obsConnection);
+			PreparedStatement obsStmt = null;
+
+			if (minJD == 0 && maxJD == Double.MAX_VALUE) {
+				obsStmt = obsConnector
+						.createObservationWithNoJDRangeQuery(obsConnection);
+			} else {
+				obsStmt = obsConnector
+						.createObservationWithJDRangeQuery(obsConnection);
+			}
 			updateProgress(2);
 
 			// Execute the query, passing the result set to the
 			// database observation retriever to give us the valid
 			// and observation lists and categorised valid observation
 			// map from which all else flows.
-			obsConnector.setObservationQueryParams(obsStmt, auid, minJD, maxJD);
+			if (minJD == 0 && maxJD == Double.MAX_VALUE) {
+				obsConnector.setObservationWithNoJDRangeQueryParams(obsStmt,
+						auid);
+			} else {
+				obsConnector.setObservationWithJDRangeQueryParams(obsStmt,
+						auid, minJD, maxJD);
+			}
+
 			MainFrame.getInstance().getStatusPane().setMessage(
 					"Retrieving observations...");
 			results = obsStmt.executeQuery();

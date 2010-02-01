@@ -350,6 +350,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// Nothing to do here.
 		// TODO: Zoom?
+		int x = 0;
 	}
 
 	/**

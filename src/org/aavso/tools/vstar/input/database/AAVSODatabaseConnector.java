@@ -66,7 +66,8 @@ public class AAVSODatabaseConnector {
 
 	// Authorisation and observation retrieval statements.
 	private PreparedStatement authStmt;
-	private PreparedStatement obsStmt;
+	private PreparedStatement obsWithJDRangeStmt;
+	private PreparedStatement obsWithNoJDRangeStmt;
 
 	private boolean authenticatedWithCitizenSky;
 	private String obsCode;
@@ -115,7 +116,7 @@ public class AAVSODatabaseConnector {
 		this.type = type;
 		this.driver = null;
 		this.connection = null;
-		this.obsStmt = null;
+		this.obsWithJDRangeStmt = null;
 		this.authenticatedWithCitizenSky = false;
 		this.obsCode = null;
 		this.starNameAndAUIDRetriever = null;
@@ -162,20 +163,21 @@ public class AAVSODatabaseConnector {
 	}
 
 	/**
-	 * Return a prepared statement for the specified AUID and date range. This
-	 * is a once-only-created prepared statement with parameters set.
+	 * Return a prepared statement for for observation retrieval with a JD
+	 * range. This is a once-only-created prepared statement with parameters
+	 * set.
 	 * 
 	 * @param connection
 	 *            A JDBC connection.
 	 * @return A prepared statement.
 	 */
-	public PreparedStatement createObservationQuery(Connection connection)
+	public PreparedStatement createObservationWithJDRangeQuery(Connection connection)
 			throws SQLException {
 
 		// TODO: also use ResultSet.TYPE_SCROLL_SENSITIVE for panning (later)?
 
-		if (obsStmt == null) {
-			obsStmt = connection
+		if (obsWithJDRangeStmt == null) {
+			obsWithJDRangeStmt = connection
 					.prepareStatement("SELECT\n"
 							+ "observations.JD AS jd,\n"
 							+ "observations.magnitude AS magnitude,\n"
@@ -205,14 +207,14 @@ public class AAVSODatabaseConnector {
 							+ "observations.JD;");
 		}
 
-		return obsStmt;
+		return obsWithJDRangeStmt;
 	}
 
 	/**
-	 * Return a prepared statement for the specified AUID and date range. This
-	 * may be a once-only-created prepared statement with parameters set.
+	 * Set prepared statement parameters for observation retrieval with AUID and
+	 * date range.
 	 * 
-	 * @param obsStmt
+	 * @param obsWithJDRangeStmt
 	 *            The prepared statement on which to set parameters.
 	 * @param auid
 	 *            The star's AUID.
@@ -220,13 +222,71 @@ public class AAVSODatabaseConnector {
 	 *            The minimum Julian Day.
 	 * @param maxJD
 	 *            The maximum Julian Day.
-	 * @return The prepared statement.
 	 */
-	public void setObservationQueryParams(PreparedStatement stmt, String auid,
+	public void setObservationWithJDRangeQueryParams(PreparedStatement stmt, String auid,
 			double minJD, double maxJD) throws SQLException {
 		stmt.setString(1, auid);
 		stmt.setDouble(2, minJD);
 		stmt.setDouble(3, maxJD);
+	}
+
+	/**
+	 * Return a prepared statement for observation retrieval with no JD range.
+	 * This is a once-only-created prepared statement with parameters set.
+	 * 
+	 * @param connection
+	 *            A JDBC connection.
+	 * @return A prepared statement.
+	 */
+	public PreparedStatement createObservationWithNoJDRangeQuery(
+			Connection connection) throws SQLException {
+
+		// TODO: also use ResultSet.TYPE_SCROLL_SENSITIVE for panning (later)?
+
+		if (obsWithNoJDRangeStmt == null) {
+			obsWithNoJDRangeStmt = connection
+					.prepareStatement("SELECT\n"
+							+ "observations.JD AS jd,\n"
+							+ "observations.magnitude AS magnitude,\n"
+							+ "observations.fainterthan AS fainterthan,\n"
+							+ "observations.uncertain AS uncertain,\n"
+							+ "IF (observations.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
+							+ "observations.uncertaintyhq AS hq_uncertainty,\n"
+							+ "observations.band AS band,\n"
+							+ "observations.obscode AS observer_code,\n"
+							+ "observations.commentcode AS comment_code,\n"
+							+ "observations.comp1_C AS comp_star_1,\n"
+							+ "observations.comp2_K AS comp_star_2,\n"
+							+ "observations.charts AS charts,\n"
+							+ "observations.comments AS comments,\n"
+							+ "IF (observations.transformed = 1, 'yes', 'no') AS transformed,\n"
+							+ "observations.airmass AS airmass,\n"
+							+ "IF (observations.valflag = 'T', 'D', observations.valflag) AS valflag,\n"
+							+ "observations.CMag AS cmag,\n"
+							+ "observations.KMag AS kmag,\n"
+							+ "observations.HJD AS hjd,\n"
+							+ "observations.name AS name,\n"
+							+ "observations.mtype AS mtype\n" + "FROM\n"
+							+ "observations\n" + "WHERE\n"
+							+ "observations.AUID = ?\n" + "ORDER BY\n"
+							+ "observations.JD;");
+		}
+
+		return obsWithNoJDRangeStmt;
+	}
+
+	/**
+	 * Set prepared statement parameters for observation retrieval with AUID but
+	 * no date range.
+	 * 
+	 * @param obsWithJDRangeStmt
+	 *            The prepared statement on which to set parameters.
+	 * @param auid
+	 *            The star's AUID.
+	 */
+	public void setObservationWithNoJDRangeQueryParams(PreparedStatement stmt,
+			String auid) throws SQLException {
+		stmt.setString(1, auid);
 	}
 
 	/**
