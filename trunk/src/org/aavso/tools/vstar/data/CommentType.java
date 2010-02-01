@@ -22,71 +22,60 @@ package org.aavso.tools.vstar.data;
  */
 public enum CommentType {
 
+	// These are the current acceptable comment codes (per
+	// http://sourceforge.net/tracker/?func=detail&aid=2858640&group_id=263306&atid=1152052):
 
-	//These are the current acceptable comment codes (per http://sourceforge.net/tracker/?func=detail&aid=2858640&group_id=263306&atid=1152052):
+	// The below was used to auto generate the rest of the functions of this
+	// class. Programs writing programs, how perverse.
 
-	//The below was used to auto generate the rest of the functions of this class.  Programs writing programs, how perverse.
+	// COMMENTCODE!! B: Sky is bright, moon, twilight, light pollution, aurorae:
+	// SKY_BRIGHT
+	// COMMENTCODE!! U: Clouds, dust, smoke, haze, etc.: CLOUDS
+	// COMMENTCODE!! W: Poor seeing: POOR_SEEING
+	// COMMENTCODE!! L: Low in the sky, near horizon, in trees, obstructed view:
+	// LOW_IN_SKY
+	// COMMENTCODE!! D: Unusual Activity (fading, flare, bizarre behavior,
+	// etc.): UFOS
+	// COMMENTCODE!! Y: Outburst: OUTBURST
+	// COMMENTCODE!! K: Non-AAVSO chart: NON_AAVSO_CHART
+	// COMMENTCODE!! S: Comparison sequence problem: COMP_SEQ_PROBLEM
+	// COMMENTCODE!! Z: Magnitude of star uncertain: MAG_UNCERTAIN
+	// COMMENTCODE!! I: Identification of star uncertain: IDENT_UNCERTAIN
+	// COMMENTCODE!! V: Faint star, near observing limit, only glimpsed:
+	// FAINT_STAR
 
-	//COMMENTCODE!! B: Sky is bright, moon, twilight, light pollution, aurorae: SKY_BRIGHT
-	//COMMENTCODE!! U: Clouds, dust, smoke, haze, etc.: CLOUDS
-	//COMMENTCODE!! W: Poor seeing: POOR_SEEING
-	//COMMENTCODE!! L: Low in the sky, near horizon, in trees, obstructed view: LOW_IN_SKY
-	//COMMENTCODE!! D: Unusual Activity (fading, flare, bizarre behavior, etc.): UFOS
-	//COMMENTCODE!! Y: Outburst: OUTBURST
-	//COMMENTCODE!! K: Non-AAVSO chart: NON_AAVSO_CHART
-	//COMMENTCODE!! S: Comparison sequence problem: COMP_SEQ_PROBLEM
-	//COMMENTCODE!! Z: Magnitude of star uncertain: MAG_UNCERTAIN
-	//COMMENTCODE!! I: Identification of star uncertain: IDENT_UNCERTAIN
-	//COMMENTCODE!! V: Faint star, near observing limit, only glimpsed: FAINT_STAR
-	
-	//These are Obsolete Comment Codes: These comment codes are no longer
-	//accepted, but may be found in archival observations.
+	// These are Obsolete Comment Codes: These comment codes are no longer
+	// accepted, but may be found in archival observations.
 
-	//OBSCOMMENTCODE!! A: AAVSO Atlas: AAVSO_ATLAS
-	//OBSCOMMENTCODE!! F: Unconventional method (out of focus, visual photometer, etc.): UNCONVENTIONAL
-	//OBSCOMMENTCODE!! G: Non-AAVSO chart with Guide Star Catalog magnitudes: NON_AAVSO_GUIDE_STAR_CAT
-	//OBSCOMMENTCODE!! H: Haze, mist, fog: HAZE
-	//OBSCOMMENTCODE!! J: Non-AAVSO chart with HIPPARCOS magnitudes: NON_AAVSO_HIPPARCOS
-	//OBSCOMMENTCODE!! M: Moon present and inteferes: MOON
-	//OBSCOMMENTCODE!! N: Angle, position angle: ANGLE
-	//OBSCOMMENTCODE!! O: "Other" comment: OTHER
-	//OBSCOMMENTCODE!! P: Magnitude derived from step magnitude (internal use only): MAG_FROM_STEP_MAG
-	//OBSCOMMENTCODE!! Q: Questioned by HQ (internal use only): QUESTIONED_BY_HQ
-	//OBSCOMMENTCODE!! R: Color comment (star is red, blue, etc.): COLOR_COMMENT
-	//OBSCOMMENTCODE!! T: Non-AAVSO chart with Tycho magnitudes: NON_AAVSO_TYCHO
-	//OBSCOMMENTCODE!! X: Rejected by HQ (internal use only): REJECTED
+	// OBSCOMMENTCODE!! A: AAVSO Atlas: AAVSO_ATLAS
+	// OBSCOMMENTCODE!! F: Unconventional method (out of focus, visual
+	// photometer, etc.): UNCONVENTIONAL
+	// OBSCOMMENTCODE!! G: Non-AAVSO chart with Guide Star Catalog magnitudes:
+	// NON_AAVSO_GUIDE_STAR_CAT
+	// OBSCOMMENTCODE!! H: Haze, mist, fog: HAZE
+	// OBSCOMMENTCODE!! J: Non-AAVSO chart with HIPPARCOS magnitudes:
+	// NON_AAVSO_HIPPARCOS
+	// OBSCOMMENTCODE!! M: Moon present and inteferes: MOON
+	// OBSCOMMENTCODE!! N: Angle, position angle: ANGLE
+	// OBSCOMMENTCODE!! O: "Other" comment: OTHER
+	// OBSCOMMENTCODE!! P: Magnitude derived from step magnitude (internal use
+	// only): MAG_FROM_STEP_MAG
+	// OBSCOMMENTCODE!! Q: Questioned by HQ (internal use only):
+	// QUESTIONED_BY_HQ
+	// OBSCOMMENTCODE!! R: Color comment (star is red, blue, etc.):
+	// COLOR_COMMENT
+	// OBSCOMMENTCODE!! T: Non-AAVSO chart with Tycho magnitudes:
+	// NON_AAVSO_TYCHO
+	// OBSCOMMENTCODE!! X: Rejected by HQ (internal use only): REJECTED
 	//
-	//Multiple comment codes should be separated by spaces or not separated at
-	//all. (Ex: "A Z Y" or "AZY")
+	// Multiple comment codes should be separated by spaces or not separated at
+	// all. (Ex: "A Z Y" or "AZY")
 
-	SKY_BRIGHT,
-	CLOUDS,
-	POOR_SEEING,
-	LOW_IN_SKY,
-	UFOS,
-	OUTBURST,
-	NON_AAVSO_CHART,
-	COMP_SEQ_PROBLEM,
-	MAG_UNCERTAIN,
-	IDENT_UNCERTAIN,
-	FAINT_STAR,
-	AAVSO_ATLAS,
-	UNCONVENTIONAL,
-	NON_AAVSO_GUIDE_STAR_CAT,
-	HAZE,
-	NON_AAVSO_HIPPARCOS,
-	MOON,
-	ANGLE,
-	OTHER,
-	MAG_FROM_STEP_MAG,
-	QUESTIONED_BY_HQ,
-	COLOR_COMMENT,
-	NON_AAVSO_TYCHO,
-	REJECTED;
-	
+	SKY_BRIGHT, CLOUDS, POOR_SEEING, LOW_IN_SKY, UFOS, OUTBURST, NON_AAVSO_CHART, COMP_SEQ_PROBLEM, MAG_UNCERTAIN, IDENT_UNCERTAIN, FAINT_STAR, AAVSO_ATLAS, UNCONVENTIONAL, NON_AAVSO_GUIDE_STAR_CAT, HAZE, NON_AAVSO_HIPPARCOS, MOON, ANGLE, OTHER, MAG_FROM_STEP_MAG, QUESTIONED_BY_HQ, COLOR_COMMENT, NON_AAVSO_TYCHO, REJECTED;
+
 	/**
-	 * Given a commentcode  from an input file or database, return
-	 * the corresponding comment type.
+	 * Given a commentcode from an input file or database, return the
+	 * corresponding comment type.
 	 */
 	public static CommentType getTypeFromFlag(String commentflag) {
 		CommentType commenttype = null;
@@ -114,213 +103,222 @@ public enum CommentType {
 		} else if ("V".equals(commentflag)) {
 			commenttype = FAINT_STAR;
 		} else if ("A".equals(commentflag)) {
-			commenttype =  AAVSO_ATLAS;
+			commenttype = AAVSO_ATLAS;
 		} else if ("F".equals(commentflag)) {
-			commenttype =  UNCONVENTIONAL;
+			commenttype = UNCONVENTIONAL;
 		} else if ("G".equals(commentflag)) {
-			commenttype =  NON_AAVSO_GUIDE_STAR_CAT;
+			commenttype = NON_AAVSO_GUIDE_STAR_CAT;
 		} else if ("H".equals(commentflag)) {
-			commenttype =  HAZE;
+			commenttype = HAZE;
 		} else if ("J".equals(commentflag)) {
-			commenttype =  NON_AAVSO_HIPPARCOS;
+			commenttype = NON_AAVSO_HIPPARCOS;
 		} else if ("M".equals(commentflag)) {
-			commenttype =  MOON;
+			commenttype = MOON;
 		} else if ("N".equals(commentflag)) {
-			commenttype =  ANGLE;
+			commenttype = ANGLE;
 		} else if ("O".equals(commentflag)) {
-			commenttype =  OTHER;
+			commenttype = OTHER;
 		} else if ("P".equals(commentflag)) {
-			commenttype =  MAG_FROM_STEP_MAG;
+			commenttype = MAG_FROM_STEP_MAG;
 		} else if ("Q".equals(commentflag)) {
-			commenttype =  QUESTIONED_BY_HQ;
+			commenttype = QUESTIONED_BY_HQ;
 		} else if ("R".equals(commentflag)) {
-			commenttype =  COLOR_COMMENT;
+			commenttype = COLOR_COMMENT;
 		} else if ("T".equals(commentflag)) {
-			commenttype =  NON_AAVSO_TYCHO;
+			commenttype = NON_AAVSO_TYCHO;
 		} else if ("X".equals(commentflag)) {
-			commenttype =  REJECTED;
+			commenttype = REJECTED;
 		}
 
+		// if (commenttype == null) {
+		// if ("0".equals(commentflag)) {
+		// commenttype = OTHER;
+		// }
+		// }
+
 		if (commenttype == null) {
-			if ("0".equals(commentflag)) {
-				commenttype =  OTHER;
-			}
-			//System.out.println(">> " + commentflag);
+			commenttype = OTHER;
 		}
-		
-		assert(commenttype != null);
-		
+
+		// assert (commenttype != null);
+
 		return commenttype;
 	}
-	
+
 	/**
 	 * Return the comment string corresponding to this this enum value.
 	 */
 	public String getCommentFlag() {
 		String str = null;
-		
-		switch(this) {
-			case SKY_BRIGHT:
-				str = "B";
-				break;
-			case CLOUDS:
-				str = "U";
-				break;
-			case POOR_SEEING:
-				str = "W";
-				break;
-			case LOW_IN_SKY:
-				str = "L";
-				break;
-			case UFOS:
-				str = "D";
-				break;
-			case OUTBURST:
-				str = "Y";
-				break;
-			case NON_AAVSO_CHART:
-				str = "K";
-				break;
-			case COMP_SEQ_PROBLEM:
-				str = "S";
-				break;
-			case MAG_UNCERTAIN:
-				str = "Z";
-				break;
-			case IDENT_UNCERTAIN:
-				str = "I";
-				break;
-			case FAINT_STAR:
-				str = "V";
-				break;
-			case  AAVSO_ATLAS:
-				str = "A";
-				break;
-			case  UNCONVENTIONAL:
-				str = "F";
-				break;
-			case  NON_AAVSO_GUIDE_STAR_CAT:
-				str = "G";
-				break;
-			case  HAZE:
-				str = "H";
-				break;
-			case  NON_AAVSO_HIPPARCOS:
-				str = "J";
-				break;
-			case  MOON:
-				str = "M";
-				break;
-			case  ANGLE:
-				str = "N";
-				break;
-			case  OTHER:
-				str = "O";
-				break;
-			case  MAG_FROM_STEP_MAG:
-				str = "P";
-				break;
-			case  QUESTIONED_BY_HQ:
-				str = "Q";
-				break;
-			case  COLOR_COMMENT:
-				str = "R";
-				break;
-			case  NON_AAVSO_TYCHO:
-				str = "T";
-				break;
-			case  REJECTED:
-				str = "X";
-				break;
+
+		switch (this) {
+		case SKY_BRIGHT:
+			str = "B";
+			break;
+		case CLOUDS:
+			str = "U";
+			break;
+		case POOR_SEEING:
+			str = "W";
+			break;
+		case LOW_IN_SKY:
+			str = "L";
+			break;
+		case UFOS:
+			str = "D";
+			break;
+		case OUTBURST:
+			str = "Y";
+			break;
+		case NON_AAVSO_CHART:
+			str = "K";
+			break;
+		case COMP_SEQ_PROBLEM:
+			str = "S";
+			break;
+		case MAG_UNCERTAIN:
+			str = "Z";
+			break;
+		case IDENT_UNCERTAIN:
+			str = "I";
+			break;
+		case FAINT_STAR:
+			str = "V";
+			break;
+		case AAVSO_ATLAS:
+			str = "A";
+			break;
+		case UNCONVENTIONAL:
+			str = "F";
+			break;
+		case NON_AAVSO_GUIDE_STAR_CAT:
+			str = "G";
+			break;
+		case HAZE:
+			str = "H";
+			break;
+		case NON_AAVSO_HIPPARCOS:
+			str = "J";
+			break;
+		case MOON:
+			str = "M";
+			break;
+		case ANGLE:
+			str = "N";
+			break;
+		case OTHER:
+			str = "O";
+			break;
+		case MAG_FROM_STEP_MAG:
+			str = "P";
+			break;
+		case QUESTIONED_BY_HQ:
+			str = "Q";
+			break;
+		case COLOR_COMMENT:
+			str = "R";
+			break;
+		case NON_AAVSO_TYCHO:
+			str = "T";
+			break;
+		case REJECTED:
+			str = "X";
+			break;
+		default:
+			// Default to OTHER
+			str = "O";
+			break;
 		}
-		
-		assert(str != null);
-		
+
+		// assert (str != null);
+
 		return str;
 	}
-	
+
 	// TODONE: add toString() for human readability
 	public String toString() {
 		String str = null;
-		
-		switch(this) {
-			case SKY_BRIGHT:
-				str = "Sky is bright, moon, twilight, light pollution, aurorae\n";
-				break;
-			case CLOUDS:
-				str = "Clouds, dust, smoke, haze, etc.\n";
-				break;
-			case POOR_SEEING:
-				str = "Poor seeing\n";
-				break;
-			case LOW_IN_SKY:
-				str = "Low in the sky, near horizon, in trees, obstructed view\n";
-				break;
-			case UFOS:
-				str = "Unusual Activity (fading, flare, bizarre behavior, etc.)\n";
-				break;
-			case OUTBURST:
-				str = "Outburst\n";
-				break;
-			case NON_AAVSO_CHART:
-				str = "Non-AAVSO chart\n";
-				break;
-			case COMP_SEQ_PROBLEM:
-				str = "Comparison sequence problem\n";
-				break;
-			case MAG_UNCERTAIN:
-				str = "Magnitude of star uncertain\n";
-				break;
-			case IDENT_UNCERTAIN:
-				str = "Identification of star uncertain\n";
-				break;
-			case FAINT_STAR:
-				str = "Faint star, near observing limit, only glimpsed\n";
-				break;
-			case  AAVSO_ATLAS:
-				str = "AAVSO Atlas\n";
-				break;
-			case  UNCONVENTIONAL:
-				str = "Unconventional method (out of focus, visual photometer, etc.)\n";
-				break;
-			case  NON_AAVSO_GUIDE_STAR_CAT:
-				str = "Non-AAVSO chart with Guide Star Catalog magnitudes\n";
-				break;
-			case  HAZE:
-				str = "Haze, mist, fog\n";
-				break;
-			case  NON_AAVSO_HIPPARCOS:
-				str = "Non-AAVSO chart with HIPPARCOS magnitudes\n";
-				break;
-			case  MOON:
-				str = "Moon present and inteferes\n";
-				break;
-			case  ANGLE:
-				str = "Angle, position angle\n";
-				break;
-			case OTHER:
-				str = "\"Other\" comment\n";
-				break;
-			case  MAG_FROM_STEP_MAG:
-				str = "Magnitude derived from step magnitude (internal use only)\n";
-				break;
-			case  QUESTIONED_BY_HQ:
-				str = "Questioned by HQ (internal use only)\n";
-				break;
-			case  COLOR_COMMENT:
-				str = "Color comment (star is red, blue, etc.)\n";
-				break;
-			case  NON_AAVSO_TYCHO:
-				str = "Non-AAVSO chart with Tycho magnitudes\n";
-				break;
-			case  REJECTED:
-				str = "Rejected by HQ (internal use only)\n";
-				break;
+
+		switch (this) {
+		case SKY_BRIGHT:
+			str = "Sky is bright, moon, twilight, light pollution, aurorae\n";
+			break;
+		case CLOUDS:
+			str = "Clouds, dust, smoke, haze, etc.\n";
+			break;
+		case POOR_SEEING:
+			str = "Poor seeing\n";
+			break;
+		case LOW_IN_SKY:
+			str = "Low in the sky, near horizon, in trees, obstructed view\n";
+			break;
+		case UFOS:
+			str = "Unusual Activity (fading, flare, bizarre behavior, etc.)\n";
+			break;
+		case OUTBURST:
+			str = "Outburst\n";
+			break;
+		case NON_AAVSO_CHART:
+			str = "Non-AAVSO chart\n";
+			break;
+		case COMP_SEQ_PROBLEM:
+			str = "Comparison sequence problem\n";
+			break;
+		case MAG_UNCERTAIN:
+			str = "Magnitude of star uncertain\n";
+			break;
+		case IDENT_UNCERTAIN:
+			str = "Identification of star uncertain\n";
+			break;
+		case FAINT_STAR:
+			str = "Faint star, near observing limit, only glimpsed\n";
+			break;
+		case AAVSO_ATLAS:
+			str = "AAVSO Atlas\n";
+			break;
+		case UNCONVENTIONAL:
+			str = "Unconventional method (out of focus, visual photometer, etc.)\n";
+			break;
+		case NON_AAVSO_GUIDE_STAR_CAT:
+			str = "Non-AAVSO chart with Guide Star Catalog magnitudes\n";
+			break;
+		case HAZE:
+			str = "Haze, mist, fog\n";
+			break;
+		case NON_AAVSO_HIPPARCOS:
+			str = "Non-AAVSO chart with HIPPARCOS magnitudes\n";
+			break;
+		case MOON:
+			str = "Moon present and inteferes\n";
+			break;
+		case ANGLE:
+			str = "Angle, position angle\n";
+			break;
+		case OTHER:
+			str = "\"Other\" comment\n";
+			break;
+		case MAG_FROM_STEP_MAG:
+			str = "Magnitude derived from step magnitude (internal use only)\n";
+			break;
+		case QUESTIONED_BY_HQ:
+			str = "Questioned by HQ (internal use only)\n";
+			break;
+		case COLOR_COMMENT:
+			str = "Color comment (star is red, blue, etc.)\n";
+			break;
+		case NON_AAVSO_TYCHO:
+			str = "Non-AAVSO chart with Tycho magnitudes\n";
+			break;
+		case REJECTED:
+			str = "Rejected by HQ (internal use only)\n";
+			break;
+		default:
+			str = "\"Other\" comment\n";
+			break;
 		}
 
-		
-		assert(str != null);
-		
+		// assert (str != null);
+
 		return str;
 	}
 
@@ -328,5 +326,3 @@ public enum CommentType {
 		return "B|U|W|L|D|Y|K|S|Z|I|V|A|F|G|H|J|M|N|O|P|Q|R|T|X";
 	}
 }
-
- 	  	 

@@ -30,9 +30,6 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
-import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.MenuBar;
-import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
 /**
  * This class reads variable star observations from an AAVSO database and yields
@@ -81,6 +78,7 @@ public class AAVSODatabaseObservationReader extends
 				// TODO: why am I not updating progress bar here?
 			}
 		} catch (Throwable t) {
+			t.printStackTrace();
 			throw new ObservationReadError(
 					"Error when attempting to read observation source.");
 		}

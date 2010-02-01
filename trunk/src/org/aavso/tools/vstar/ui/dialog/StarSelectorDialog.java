@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -45,9 +47,9 @@ import org.aavso.tools.vstar.util.date.AbstractDateUtil;
  * This dialog allows the user to select a star.
  */
 public class StarSelectorDialog extends AbstractOkCancelDialog {
-	
+
 	private static AbstractDateUtil dateUtil = AbstractDateUtil.getInstance();
-	
+
 	private Map<String, String> tenStarMap;
 
 	private Container contentPane;
@@ -56,6 +58,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JTextField starField;
 	private JTextField minJDField;
 	private JTextField maxJDField;
+	private JCheckBox allDataCheckBox;
 
 	private JulianDayValidator jdValidator;
 
@@ -63,6 +66,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private String auid;
 	private DateInfo minDate;
 	private DateInfo maxDate;
+	private boolean wantAllData;
 
 	private Calendar cal;
 	private int year, month, day;
@@ -83,6 +87,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		this.auid = null;
 		this.minDate = null;
 		this.maxDate = null;
+		this.wantAllData = false;
 
 		this.jdValidator = new JulianDayValidator();
 
@@ -109,7 +114,10 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createMaxJDFieldPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		topPane.add(createAllDataCheckBoxPane());
+		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createButtonPane());
+
 		contentPane.add(topPane);
 
 		// this.addWindowListener(this.createWindowListener());
@@ -172,7 +180,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JPanel createMinJDFieldPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Minimum Julian Day"));
+		panel.setBorder(BorderFactory.createTitledBorder("Minimum JD"));
 
 		double jd = dateUtil.calendarToJD(year - 2, month, day);
 		minJDField = new JTextField(jd + "");
@@ -187,7 +195,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JPanel createMaxJDFieldPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Maximum Julian Day"));
+		panel.setBorder(BorderFactory.createTitledBorder("Maximum JD"));
 
 		double jd = dateUtil.calendarToJD(year, month, day);
 		maxJDField = new JTextField(jd + "");
@@ -199,13 +207,27 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		return panel;
 	}
 
+	private JPanel createAllDataCheckBoxPane() {
+		JPanel panel = new JPanel();
+
+		allDataCheckBox = new JCheckBox("All Data?");
+		allDataCheckBox
+				.addActionListener(createAllDataCheckBoxActionListener());
+		panel.add(allDataCheckBox, BorderLayout.CENTER);
+		panel.add(allDataCheckBox);
+
+		return panel;
+	}
+
 	// Event handlers
 
 	// Return a listener for the 10-star selector.
 	private ActionListener createTenStarSelectorActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// checkInput();
+				// If the user makes a selection here,
+				// clear the text box.
+				starField.setText("");
 			}
 		};
 	}
@@ -214,7 +236,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private ActionListener createStarFieldActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// checkInput();
+				// Nothing to do
 			}
 		};
 	}
@@ -244,6 +266,27 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 					minJDField.setToolTipText(dateUtil.jdToCalendar(Double
 							.parseDouble(current)));
 					prevString = current;
+				}
+			}
+		};
+	}
+
+	// Return a listener for the all-data checkbox.
+	private ActionListener createAllDataCheckBoxActionListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (allDataCheckBox.isSelected()) {
+					// We want all data, so clear date fields.
+					minJDField.setText("");
+					maxJDField.setText("");
+				} else {
+					// We don't want all data so populate JD
+					// fields with current year, month, day
+					// member values.
+					double minJD = dateUtil.calendarToJD(year - 2, month, day);
+					double maxJD = dateUtil.calendarToJD(year, month, day);
+					minJDField.setText(minJD + "");
+					maxJDField.setText(maxJD + "");
 				}
 			}
 		};
@@ -281,7 +324,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	// Check that we have valid input in an appropriate subset
 	// of dialog widgets. The dialog will not be dismissed until
-	// there is a valid star selection and date range.
+	// there is a valid star selection and date range or the
+	// all-data checkbox is selected.
 	private void checkInput() {
 		String text = starField.getText();
 		if (!whitespacePattern.matcher(text).matches()) {
@@ -295,34 +339,43 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			}
 		} else {
 			// There's nothing in the text field, so use the
-			// selected 10-star menu item. Note that by only 
-			// setting AUID, we will force the lookup of star 
-			// info from the database, at least the name, but 
-			// also period and epoch if they are available. 
+			// selected 10-star menu item. Note that by only
+			// setting AUID, we will force the lookup of star
+			// info from the database, at least the name, but
+			// also period and epoch if they are available.
 			String name = (String) tenStarSelector.getSelectedItem();
 			auid = tenStarMap.get(name);
 		}
 
-		// Julian Date range.
-		
-		try {
-			String minJDText = minJDField.getText().trim();
-			minDate = jdValidator.validate(minJDText);
-		} catch (ObservationValidationError ex) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					"Minimum Julian Day", ex);
+		// Is the all-data checkbox selected?
+		wantAllData = allDataCheckBox.isSelected();
+
+		if (!wantAllData) {
+			// Valid Julian Date range?
+			try {
+				String minJDText = minJDField.getText().trim();
+				minDate = jdValidator.validate(minJDText);
+			} catch (ObservationValidationError ex) {
+				// TODO: try to extract mm/dd/yyyy => JD?
+				// No, use a calendar widget
+				MessageBox.showErrorDialog(MainFrame.getInstance(),
+						"Minimum Julian Day", ex);
+			}
+
+			try {
+				String maxJDText = maxJDField.getText().trim();
+				maxDate = jdValidator.validate(maxJDText);
+			} catch (ObservationValidationError ex) {
+				// TODO: try to extract mm/dd/yyyy => JD?
+				// No, use a calendar widget
+				MessageBox.showErrorDialog(MainFrame.getInstance(),
+						"Maximum Julian Day", ex);
+			}
 		}
 
-		try {
-			String maxJDText = maxJDField.getText().trim();
-			maxDate = jdValidator.validate(maxJDText);
-		} catch (ObservationValidationError ex) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					"Maximum Julian Day", ex);
-		}
-
-		if ((starName != null || auid != null) && minDate != null
-				&& maxDate != null) {
+		// Can we dismiss the dialog?
+		if ((starName != null || auid != null)
+				&& ((minDate != null && maxDate != null) || wantAllData)) {
 			cancelled = false;
 			setVisible(false);
 			dispose();
@@ -332,7 +385,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private String sanitise(String str) {
 		return str.replace("\'", "");
 	}
-	
+
 	// Getters
 
 	/**
@@ -368,7 +421,14 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	}
 
 	/**
-	 * @return has the dialog been cancelled?
+	 * @return return whether we want all the data
+	 */
+	public boolean wantAllData() {
+		return wantAllData;
+	}
+
+	/**
+	 * @return has the dialog been cancelled? TODO: isn't this in base class?
 	 */
 	public boolean isCancelled() {
 		return cancelled;
@@ -381,20 +441,24 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	protected void okAction() {
 		checkInput();
 	}
-	
+
 	/**
-	 * Reset this dialog's state so that we don't process old state.
-	 * This is invoked by the base class's showDialog() method.
+	 * Reset this dialog's state so that we don't process old state. This is
+	 * invoked by the base class's showDialog() method.
 	 */
 	public void reset() {
+		// These fields will either be set to non-null values
+		// by checkInput() before the dialog is dismissed, or
+		// they will be irrelevant if wantAllData is true.
 		this.auid = null;
 		this.starName = null;
 		this.minDate = null;
 		this.maxDate = null;
+		this.wantAllData = false;
 	}
-	
+
 	// Singleton
-	
+
 	private static StarSelectorDialog instance = new StarSelectorDialog();
 
 	public static StarSelectorDialog getInstance() {
