@@ -28,6 +28,7 @@ import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
+import org.aavso.tools.vstar.data.validation.InclusiveRangePredicate;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 
@@ -41,6 +42,7 @@ public class AAVSODatabaseObservationReader extends
 		AbstractObservationRetriever {
 
 	private ResultSet source;
+	private InclusiveRangePredicate uncertaintyRangePredicate;
 
 	/**
 	 * Constructor.
@@ -51,6 +53,7 @@ public class AAVSODatabaseObservationReader extends
 	public AAVSODatabaseObservationReader(ResultSet source) {
 		super();
 		this.source = source;
+		this.uncertaintyRangePredicate = new InclusiveRangePredicate(0, 1);
 	}
 
 	/**
@@ -62,18 +65,32 @@ public class AAVSODatabaseObservationReader extends
 			while (source.next()) {
 				ValidObservation validOb = getNextObservation();
 
-				// Consider a brighter-than to be invalid.
-				if (!validOb.getMagnitude().isBrighterThan()) {
-					// Ignore non-standard magnitude type observations.
+				// TODO: when we do more field validation here,
+				// we should do these checks in getNextObservation()
+				// and just throw an exception; something like ValidationError?
+				// May need to modify some validators to take types other than
+				// string.
+
+				if (validOb.getMagnitude().isBrighterThan()) {
+					InvalidObservation invalidOb = new InvalidObservation("JD "
+							+ validOb.getJD(),
+							"A \"Brighter Than\" observation.");
+					invalidObservations.add(invalidOb);
+				} else if (validOb.getHqUncertainty() != null
+						&& !uncertaintyRangePredicate.holds(validOb
+								.getHqUncertainty())) {
+					InvalidObservation invalidOb = new InvalidObservation("JD "
+							+ validOb.getJD(),
+							"HQ uncertainty value out of range "
+									+ uncertaintyRangePredicate.toString());
+					invalidObservations.add(invalidOb);
+				} else {
+					// Okay. Accept this as a valid observation, but
+					// ignore non-standard magnitude type observations.
 					if (validOb.getMType() == MTypeType.STD) {
 						validObservations.add(validOb);
 						categoriseValidObservation(validOb);
 					}
-				} else {
-					InvalidObservation invalidOb = new InvalidObservation(
-							"Julian Day " + validOb.getJD(),
-							"A \"Brighter Than\" observation.");
-					invalidObservations.add(invalidOb);
 				}
 				// TODO: why am I not updating progress bar here?
 			}
