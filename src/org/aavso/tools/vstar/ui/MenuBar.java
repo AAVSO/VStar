@@ -236,11 +236,19 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 					if (!starSelectorDialog.isCancelled()) {
 						String starName = starSelectorDialog.getStarName();
 						String auid = starSelectorDialog.getAuid();
-						double minJD = starSelectorDialog.getMinDate()
-								.getJulianDay();
-						double maxJD = starSelectorDialog.getMaxDate()
-								.getJulianDay();
-
+						double minJD, maxJD;
+						if (!starSelectorDialog.wantAllData()) {
+							minJD = starSelectorDialog.getMinDate()
+									.getJulianDay();
+							maxJD = starSelectorDialog.getMaxDate()
+									.getJulianDay();
+						} else {
+							minJD = 0;
+							maxJD = Double.MAX_VALUE;
+						}
+						
+						// TODO: instead, call a different method for
+						// each of the two cases above
 						mediator.createObservationArtefactsFromDatabase(
 								starName, auid, minJD, maxJD);
 					} else {
@@ -487,7 +495,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	}
 
 	// Helper methods
-	
+
 	// Enables or disabled File and Analysis menu items.
 	private void setEnabledFileAndAnalysisMenuItems(boolean state) {
 		this.fileNewStarFromDatabaseItem.setEnabled(state);

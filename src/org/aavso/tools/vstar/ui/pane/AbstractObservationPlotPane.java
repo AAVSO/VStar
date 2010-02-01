@@ -77,7 +77,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	protected JButton visibilityButton;
 
 	// Axis titles.
-	public static String JD_TITLE = "Time (Julian Date)";
+	public static String JD_TITLE = "Time (JD)";
 	public static String PHASE_TITLE = "Phase";
 	public static String MAG_TITLE = "Brightness (magnitude)";
 
