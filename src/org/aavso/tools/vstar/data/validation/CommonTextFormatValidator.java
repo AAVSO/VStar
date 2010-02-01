@@ -81,7 +81,7 @@ public class CommonTextFormatValidator extends
 		this.julianDayValidator = new JulianDayValidator();
 		this.magnitudeFieldValidator = new MagnitudeFieldValidator();
 		this.uncertaintyValueValidator = new UncertaintyValueValidator(
-				new ExclusiveRangePredicate(0, 1));
+				new InclusiveRangePredicate(0, 1));
 		this.observerCodeValidator = new ObserverCodeValidator();
 		this.valflagValidator = new ValflagValidator(valflagPatternStr);
 
