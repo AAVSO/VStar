@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.input.text;
 
-import java.io.IOException;
 import java.io.LineNumberReader;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
