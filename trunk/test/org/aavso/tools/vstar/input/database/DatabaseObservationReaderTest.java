@@ -54,10 +54,10 @@ public class DatabaseObservationReaderTest extends TestCase {
 			assertNotNull(connection);
 
 			PreparedStatement stmt = connector
-					.createObservationQuery(connection);
+					.createObservationWithJDRangeQuery(connection);
 			assertNotNull(stmt);
 
-			connector.setObservationQueryParams(stmt, "000-BCT-905", 2454000.5,
+			connector.setObservationWithJDRangeQueryParams(stmt, "000-BCT-905", 2454000.5,
 					2454939.56597);
 
 			ResultSet results = stmt.executeQuery();

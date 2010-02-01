@@ -191,10 +191,10 @@ public class DatabaseConnectorTest extends TestCase {
 			assertNotNull(connection);
 
 			PreparedStatement stmt = connector
-					.createObservationQuery(connection);
+					.createObservationWithJDRangeQuery(connection);
 			assertNotNull(stmt);
 
-			connector.setObservationQueryParams(stmt, "000-BCT-905", 2454000,
+			connector.setObservationWithJDRangeQueryParams(stmt, "000-BCT-905", 2454000,
 					2454150);
 
 			ResultSet results = stmt.executeQuery();
