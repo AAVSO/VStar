@@ -21,7 +21,7 @@ o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Webe
 
 ----------------------
 Date: February 2 2010
-Version: 409
+Version: 411
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-2Feb2010
 Key Changes:
 - Added proper notification and update of observation change (discrepant
@@ -30,26 +30,30 @@ Key Changes:
   a plot data point) and all views including mean plots will be suitably 
   updated. See tracker 2837691.
 - Implemented preferences dialog with a series colors tab since that's 
-  something that's been requested recently.  See tracker 2843087.
+  something that's been requested recently and is useful. See tracker 
+  2843087.
 - Added support for saving observation list in simple and AAVSO file format.
   Database and AAVSO download format file originated observations yield
   AAVSO format CSV files. Fixed a problem with some saved fields when source 
   is database. More problems await when saving an obs list after loading from 
-  th database. The reason is that we do not currently subject database sourced 
+  the database. The reason is that we do not currently subject database sourced 
   obs to the same scrutiny as we do file loaded obs. See tracker 2940215.  
 - Added an "all data" checkbox to the star selection dialog so min/max JD 
   doesn't have to be supplied if all data is required. Optimised the query
-  in particular that case. Also fixed bug in which the star field was not 
+  in particular that case. Also fixed a bug in which the star field was not 
   being cleared when a 10-star item was selected. See tracker 2943278.
 - Now treating database-loaded obs with HQ uncertainty values outside the 
-  range 0..1 to be invalid. This was prompted due to a number of clearly 
-  wildly incorrect error bars on a small number of observations. See 
-  tracker 2915572.
-- Changed exclusive range predicate to an inclusive one for uncertainty 
+  range 0..1 to be invalid. This was prompted due to a number of wildly 
+  incorrect error bars on a small number of observations (since fixed by 
+  AAVSO). See tracker 2915572.
+- Changed exclusive range predicate to an inclusive range for uncertainty 
   values, i.e. 0..1 inclusive instead of 0 < x < 1. This avoids having so 
   many otherwise good file loaded objects from being considered invalid. 
   We should revisit this though. Talk with Elizabeth about it. See tracker 
   2915572.
+- Changed regex in CommentType to relax comment code string validation
+  so we don't exclude otherwise good data. Anything not known by CommentType 
+  will be treated as "other". See tracker 2915572.
 
 Date: January 19 2010
 Version: 392
