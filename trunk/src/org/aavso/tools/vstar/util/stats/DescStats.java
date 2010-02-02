@@ -112,8 +112,9 @@ public class DescStats {
 	}
 
 	/**
-	 * Calculates the Standard Error of the Average of a sample of magnitudes
-	 * for observations in a specified inclusive range.
+	 * Calculates the mean magnitude and the Standard Error of the Average 
+	 * for a sample of magnitudes for observations in a specified inclusive 
+	 * range.
 	 * 
 	 * We use the sample standard deviation formula as per
 	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion

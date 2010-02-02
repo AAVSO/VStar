@@ -30,9 +30,12 @@ public enum ValidationType {
 	//	Y = Deleted
 	//	Z = Prevalidated 
 	//
-	// See https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag:
+	// See https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag
 	//
-	// In AAVSO download format files we also see 'G' for "Good".
+	// In AAVSO download format files we also see 'G' for "Good" and 
+	// according to http://www.aavso.org/data/download/downloadformat.shtml,
+	// 'P' means "Pre-validated"; so we have a conflict between download
+	// format and database originated validation flags.
 	
 	GOOD,
 	DISCREPANT,

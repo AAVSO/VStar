@@ -50,9 +50,9 @@ public class CommentCodeValidationTest extends TestCase {
 	// Invalid (negative) tests
 	
 	// TODO: should this be considered valid or invalid?
-	public void testCCommentCode() {
-		commonInvalidCommentCodeTest("C");
-	}
+//	public void testCCommentCode() {
+//		commonInvalidCommentCodeTest("C");
+//	}
 
 	// Helpers
 	

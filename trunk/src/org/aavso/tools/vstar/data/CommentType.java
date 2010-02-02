@@ -130,17 +130,9 @@ public enum CommentType {
 			commenttype = REJECTED;
 		}
 
-		// if (commenttype == null) {
-		// if ("0".equals(commentflag)) {
-		// commenttype = OTHER;
-		// }
-		// }
-
 		if (commenttype == null) {
 			commenttype = OTHER;
 		}
-
-		// assert (commenttype != null);
 
 		return commenttype;
 	}
@@ -230,8 +222,6 @@ public enum CommentType {
 			break;
 		}
 
-		// assert (str != null);
-
 		return str;
 	}
 
@@ -317,12 +307,15 @@ public enum CommentType {
 			break;
 		}
 
-		// assert (str != null);
-
 		return str;
 	}
 
 	public static String getRegex() {
-		return "B|U|W|L|D|Y|K|S|Z|I|V|A|F|G|H|J|M|N|O|P|Q|R|T|X";
+		// Permit any character through. We don't want to
+		// exclude a data-point just because of an invalid
+		// comment code being used. Anything that is not known
+		// (see methods above) will be treated as "other".
+		return ".";
+		//return "B|U|W|L|D|Y|K|S|Z|I|V|A|F|G|H|J|M|N|O|P|Q|R|T|X";
 	}
 }
