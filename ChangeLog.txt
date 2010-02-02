@@ -21,7 +21,7 @@ o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Webe
 
 ----------------------
 Date: February 2 2010
-Version: 411
+Version: 409
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-2Feb2010
 Key Changes:
 - Added proper notification and update of observation change (discrepant
