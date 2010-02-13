@@ -36,7 +36,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  * 
  * REQ_VSTAR_AAVSO_DATA_DOWNLOAD_FILE_READ
  * 
- * TODO: From Doc, Dec 22 2009: "OK, the data download has been changed so that
+ * From Doc, Dec 22 2009: "OK, the data download has been changed so that
  * the end of it is now Star Name, affiliation, mtype, group. I'll get the wiki
  * page changed." and "Affiliation is a tinyint(4) right now. It's not greatly
  * populated yet. Once it is I may make it an ASCII representation in the data

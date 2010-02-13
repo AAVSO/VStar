@@ -23,6 +23,7 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
 
@@ -142,8 +143,20 @@ public class CommonTextFormatValidator extends
 		observation.setObsCode(observerCodeValidator
 				.validate(fields[fieldIndexMap.get("OBSERVER_CODE_FIELD")]));
 
-		observation.setValidationType(valflagValidator
-				.validate(fields[fieldIndexMap.get("VALFLAG_FIELD")]));
+		// Here we convert 'P' to "pre-validated" since 'P' for database
+		// source observations means "Published" (which is treated as "Good").
+		// If we ever want to use this class for database observation field
+		// validation, we should probably just change the SQL to change 'P'
+		// to 'G' (published to good), allowing ValidationType to treat 'Z'
+		// and 'P' as pre-validated. Then we can get rid of the first case 
+		// below.
+		String valflag = fields[fieldIndexMap.get("VALFLAG_FIELD")];
+		if ("P".equals(valflag)) {
+			observation.setValidationType(ValidationType.PREVALIDATION);
+		} else {
+			// G, D
+			observation.setValidationType(valflagValidator.validate(valflag));
+		}
 
 		return observation;
 	}
