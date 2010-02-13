@@ -65,11 +65,13 @@ public class AAVSODatabaseObservationReader extends
 			while (source.next()) {
 				ValidObservation validOb = getNextObservation();
 
-				// TODO: when we do more field validation here,
+				// TODO: When we do more field validation here,
 				// we should do these checks in getNextObservation()
 				// and just throw an exception; something like ValidationError?
 				// May need to modify some validators to take types other than
-				// string.
+				// string. Actually, another approach is to read all fields as
+				// strings and then do *exactly* the same validation as for file
+				// sourced data.
 
 				if (validOb.getMagnitude().isBrighterThan()) {
 					InvalidObservation invalidOb = new InvalidObservation("JD "
