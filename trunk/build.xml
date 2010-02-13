@@ -17,6 +17,7 @@
 	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
 
 	<!-- Set global properties for this build -->
+
 	<property name="src" location="src" />
 	<property name="test" location="test" />
 	<property name="src_build" location="src/build" />
@@ -30,6 +31,7 @@
 	<property name="test_report" location="test_report" />
 	<property name="instrumented" location="instrumented" />
 	<property name="coverage_report" location="coverage_report" />
+	<property name="jdepend_report" location="jdepend-report.txt" />
 
 	<!-- Classpaths -->
 
@@ -59,6 +61,8 @@
 		<mkdir dir="${test_build}" />
 		<mkdir dir="${test_report}" />
 	</target>
+
+	<!-- Build targets -->
 
 	<target name="compile_src" depends="init" description="Compile the source">
 		<!-- Update svn revision -->
@@ -112,6 +116,8 @@
 		<delete file="${manifest_file}" />
 	</target>
 
+	<!-- Run targets -->
+
 	<target name="run" depends="dist" description="Run VStar GUI">
 		<java fork="true" jar="${dist}/vstar.jar">
 			<jvmarg value="-ea" />
@@ -126,6 +132,8 @@
 			<jvmarg value="-ea" />
 		</java>
 	</target>
+
+	<!-- Unit test targets -->
 
 	<target name="compile_ut" depends="dist" description="Compile the test code">
 		<javac srcdir="${test}" destdir="${test_build}">
@@ -172,6 +180,8 @@
 			</filterchain>
 		</concat>
 	</target>
+
+	<!-- Test coverage targets -->
 
 	<target name="coverage_instrument" description="Cobertura coverage instrumentation">
 		<delete file="${basedir}/cobertura.ser" />
@@ -233,6 +243,21 @@
 		<cobertura-report format="html" destdir="${coverage_report}" srcdir="${src}" />
 	</target>
 
+	<!-- Code analysis targets -->
+<!--
+	<target name="jdepend" depends="compile_src" description="Dependency analysis">
+		<jdepend outputfile="${jdepend_report}">
+			<exclude name="java.*" />
+			<exclude name="javax.*" />
+			<classespath>
+				<pathelement location="${dist}/vstar.jar" />
+			</classespath>
+			<classpath refid="build.classpath" />
+		</jdepend>
+	</target>
+-->
+	<!-- Clean targets -->
+
 	<target name="clean" description="Clean up">
 		<delete includeemptydirs="true">
 			<!-- Delete the build, dist, UT, coverage directory trees -->
@@ -245,6 +270,7 @@
 			<fileset dir="${instrumented}" includes="**/*" />
 			<fileset dir="${coverage_report}" includes="**/*" />
 			<fileset dir="${basedir}" includes="cobertura.ser" />
+			<fileset dir="${basedir}" includes="${jdepend_report}" />
 		</delete>
 	</target>
 </project>
