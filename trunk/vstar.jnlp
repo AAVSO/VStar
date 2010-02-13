@@ -8,10 +8,10 @@
     <vendor>American Association of Variable Star Observers</vendor>
     <homepage href="http://www.citizensky.org/teams/vstar-software-development"/>
     <description>
-      VStar is an easy-to-use variable star data visualization tool. Data can
-      be read from a file or AAVSO database and plotted on a light curve along
-      with mean data and error bars. Phase plots are under development and
-      period search functions are planned.
+      VStar is a multi-platform, easy-to-use variable star data visualization tool. 
+      Data can be read from a file or the AAVSO database and plotted as a light curve 
+      and phase plot along with mean data and error bars. Period search functionality 
+      is planned.
     </description>
     <description kind="short">VStar</description>
     <description kind="one-line">VStar: a variable star data visualization tool.</description>
@@ -50,6 +50,3 @@
   </application-desc>
 
 </jnlp>
-
-
-
