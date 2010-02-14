@@ -48,7 +48,10 @@ public class ValflagValidator extends AbstractStringValidator<ValidationType> {
 		if (this.isLegallyEmpty(str)) return null;
 
 		String field = this.regexValidator.validate(str)[0];
-		return ValidationType.getTypeFromFlag(field);
+//		return ValidationType.getTypeFromFlag(field);
+		// TODO: when we have sorted out getTypeFromFlag(), reinstate its 
+		// use. For now, just do the validation above. 
+		return null;
 	}
 
 	protected boolean canBeEmpty() {

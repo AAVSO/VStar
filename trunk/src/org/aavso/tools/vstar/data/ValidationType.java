@@ -32,19 +32,22 @@ public enum ValidationType {
 	//
 	// See https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag
 	//
-	// In AAVSO download format files we also see 'G' for "Good" and 
+	// In AAVSO download format files we see 'G' for "Good" and 
 	// according to http://www.aavso.org/data/download/downloadformat.shtml,
-	// 'P' means "Pre-validated"; so we have a conflict between download
-	// format and database originated validation flags.
+	// 'P' means "Pre-validated"; so there is a conflict between download
+	// format and database originated validation flags. We assume this has
+	// been mapped from 'P' to 'Z' in getTypeFromFlag() below.
 	
 	GOOD,
 	DISCREPANT,
-	PREVALIDATION,
-	DELETED;	
-	
+	PREVALIDATION;	
+		
 	/**
 	 * Given a valflag from an input file or database, return
 	 * the corresponding validation type.
+	 * 
+	 * @deprecated This needs to be re-examined with respect to its usage.
+	 * It should either go away or be farmed out to subclasses.
 	 */
 	public static ValidationType getTypeFromFlag(String valflag) {
 		ValidationType valtype = null;
@@ -54,13 +57,12 @@ public enum ValidationType {
 		} else if ("D".equals(valflag)) {
 			valtype = DISCREPANT;
 		} else if ("P".equals(valflag)) {
+			// Published
 			valtype = GOOD;
 		} else if ("V".equals(valflag)) {
 			valtype = GOOD;
 		} else if ("Z".equals(valflag)) {
 			valtype = PREVALIDATION;
-		} else if ("Y".equals(valflag)) {
-			valtype = DELETED;
 		}
 		
 		assert(valtype != null);
@@ -81,11 +83,11 @@ public enum ValidationType {
 		case DISCREPANT:
 			str = "D";
 			break;			
+			// Note that we choose the AAVSO Download format 'P' 
+			// not database format 'Z' here. So long as we're using
+			// this for saving files, this seems reasonable.
 		case PREVALIDATION:
 			str = "P";
-			break;			
-		case DELETED:
-			str = "Y";
 			break;			
 		}
 		
@@ -94,7 +96,9 @@ public enum ValidationType {
 		return str;
 	}
 	
-	// TODONE: add toString() for human readability
+	/**
+	 * Human readable validation type.
+	 */
 	public String toString() {
 		String str = null;
 		
@@ -107,9 +111,6 @@ public enum ValidationType {
 			break;			
 		case PREVALIDATION:
 			str = "Prevalidated";
-			break;			
-		case DELETED:
-			str = "Deleted";
 			break;			
 		}
 		

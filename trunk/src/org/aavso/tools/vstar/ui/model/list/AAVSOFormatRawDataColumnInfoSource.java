@@ -117,7 +117,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			columnName = "Airmass";
 			break;
 		case VALFLAG_COLUMN:
-			columnName = "Valflag";
+			columnName = "Validation";
 			break;
 		case CMAG_COLUMN:
 			columnName = "CMag";
@@ -243,7 +243,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getAirmass();
 			break;
 		case VALFLAG_COLUMN:
-			value = ob.getValidationType().getValflag();
+			value = ob.getValidationType().toString();
 			break;
 		case CMAG_COLUMN:
 			value = ob.getCMag();

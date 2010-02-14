@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidationType;
 
 /**
  * This is a unit test for reading observations from a text file. This is really
@@ -85,34 +86,46 @@ public class DatabaseObservationReaderTest extends TestCase {
 		}
 	}
 	
-	// Read an observation that is known to be deleted in the
-	// the database.
+	// Read an observation that is known to have been marked as deleted in the
+	// the test database.
 	// See http://sourceforge.net/tracker/?func=detail&aid=2858633&group_id=263306&atid=1152052
-//	public void testReadDeletedEpsAurObservation1() {
-//		try {
-//			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
-//			Connection connection = connector.createConnection();
-//			assertNotNull(connection);
-//
-//			PreparedStatement stmt = connector
-//					.createObservationQuery(connection);
-//			assertNotNull(stmt);
-//
-//			// Del Cep
-//			connector.setObservationQueryParams(stmt, "000-BDC-570",
-//					2455066.28125, 2455066.28125);
-//
-//			ResultSet results = stmt.executeQuery();
-//			
-//			AAVSODatabaseObservationReader reader = new AAVSODatabaseObservationReader(results);						
-//			reader.retrieveObservations();
-//			List<ValidObservation> obs = reader.getValidObservations();
-//			
-//			// There are two observations, the first of which is deleted.
-//			assertEquals(2, obs.size());
-////			assertEquals(ValidationType.DELETED, obs.get(0).getValidationType());
-//		} catch (Exception e) {
-//			fail();
-//		}
-//	}
+	public void testReadDeletedEpsAurObservation1() {
+		try {
+			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
+			Connection connection = connector.createConnection();
+			assertNotNull(connection);
+
+			PreparedStatement stmt = connector.createObservationWithJDRangeQuery(connection);
+			assertNotNull(stmt);
+
+			// U Scorpii
+			connector.setObservationWithJDRangeQueryParams(stmt, "000-BBX-412",
+					2455139.89306, 2455139.89306);
+
+			ResultSet results = stmt.executeQuery();
+			
+			AAVSODatabaseObservationReader reader = new AAVSODatabaseObservationReader(results);						
+			reader.retrieveObservations();
+			List<ValidObservation> obs = reader.getValidObservations();
+			
+			// There are two observations, the first of which is deleted. 
+			//
+			// select name,jd,valflag from observations where auid = '000-BBX-412' 
+			// and jd >= 2455139.89306 and jd <= 2455139.89306;
+			// +-------+---------------+---------+
+			// | name  | jd            | valflag |
+			// +-------+---------------+---------+
+			// | U SCO | 2455139.89306 | Y       | 
+			// | U SCO | 2455139.89306 | Z       | 
+			// +-------+---------------+---------+
+			//
+			// We should only see 1 since we are excluding it via the query.
+
+			assertEquals(1, obs.size());
+			assertEquals(ValidationType.PREVALIDATION, obs.get(0).getValidationType());
+			
+		} catch (Exception e) {
+			fail();
+		}
+	}
 }
