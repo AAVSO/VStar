@@ -193,11 +193,10 @@ public class AAVSODatabaseObservationReader extends
 	 * https://sourceforge.net/apps/mediawiki/vstar/index.php?title
 	 * =AAVSO_International_Database_Schema
 	 * (https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag:)
-	 * we have: Z = Prevalidated, P = Published observation, T = Discrepant, V =
-	 * Good, Y = Deleted Our query converts any occurrence of 'T' to 'D'.
-	 * Currently we convert everything to Good, Discrepant, or Prevalidated
-	 * below. TODO: once 'Y' (deleted) observations are filtered out, this
-	 * classification should make sense.
+	 * we have: Z = Prevalidated, P = Published observation, T = Discrepant, 
+	 * V = Good, Y = Deleted (filtered out via SQL). Our query converts any 
+	 * occurrence of 'T' to 'D'. Currently we convert everything to Good (V,G), 
+	 * Discrepant (D), or Prevalidated (Z) below.
 	 */
 	private ValidationType getNextValidationType() throws SQLException {
 		ValidationType type;

@@ -203,7 +203,8 @@ public class AAVSODatabaseConnector {
 							+ "observations\n" + "WHERE\n"
 							+ "observations.AUID = ? AND\n"
 							+ "observations.JD >= ? AND\n"
-							+ "observations.JD <= ?\n" + "ORDER BY\n"
+							+ "observations.JD <= ? AND\n" 
+							+ "observations.valflag <> 'Y'\n"+ "ORDER BY\n"
 							+ "observations.JD;");
 		}
 
