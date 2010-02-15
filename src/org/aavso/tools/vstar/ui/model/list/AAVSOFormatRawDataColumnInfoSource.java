@@ -34,21 +34,21 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final int JD_COLUMN = 0;
 	private static final int CALENDAR_DATE_COLUMN = 1;
 	private static final int MAGNITUDE_COLUMN = 2;
-	private static final int HQ_UNCERTAINTY_COLUMN = 3;
-	private static final int BAND_COLUMN = 4;
-	private static final int OBSERVER_CODE_COLUMN = 5;
-	private static final int COMMENT_CODE_COLUMN = 6;
-	private static final int COMP_STAR_1_COLUMN = 7;
-	private static final int COMP_STAR_2_COLUMN = 8;
-	private static final int CHARTS_COLUMN = 9;
+	private static final int BAND_COLUMN = 3;
+	private static final int OBSERVER_CODE_COLUMN = 4;
+	private static final int VALFLAG_COLUMN = 5;
+	private static final int COMP_STAR_1_COLUMN = 6;
+	private static final int COMP_STAR_2_COLUMN = 7;
+	private static final int CHARTS_COLUMN = 8;
+	private static final int COMMENT_CODE_COLUMN = 9;
 	private static final int COMMENTS_COLUMN = 10;
 	private static final int TRANSFORMED_COLUMN = 11;
 	private static final int AIRMASS_COLUMN = 12;
-	private static final int VALFLAG_COLUMN = 13;
-	private static final int CMAG_COLUMN = 14;
-	private static final int KMAG_COLUMN = 15;
-	private static final int HJD_COLUMN = 16;
-	private static final int NAME_COLUMN = 17;
+	private static final int CMAG_COLUMN = 13;
+	private static final int KMAG_COLUMN = 14;
+	private static final int HJD_COLUMN = 15;
+	private static final int NAME_COLUMN = 16;
+	private static final int HQ_UNCERTAINTY_COLUMN = 17;
 	private static final int MTYPE_COLUMN = 18;
 	private static final int DISCREPANT_COLUMN = 19;
 	private static final int LINE_NUM_COLUMN = 20;
@@ -86,17 +86,14 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case MAGNITUDE_COLUMN:
 			columnName = "Magnitude";
 			break;
-		case HQ_UNCERTAINTY_COLUMN:
-			columnName = "HQ Uncertainty";
-			break;
 		case BAND_COLUMN:
 			columnName = "Band";
 			break;
 		case OBSERVER_CODE_COLUMN:
 			columnName = "Observer Code";
 			break;
-		case COMMENT_CODE_COLUMN:
-			columnName = "Comment";
+		case VALFLAG_COLUMN:
+			columnName = "Validation";
 			break;
 		case COMP_STAR_1_COLUMN:
 			columnName = "Comp Star 1";
@@ -107,6 +104,9 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case CHARTS_COLUMN:
 			columnName = "Charts";
 			break;
+		case COMMENT_CODE_COLUMN:
+			columnName = "Comment Type";
+			break;
 		case COMMENTS_COLUMN:
 			columnName = "Comments";
 			break;
@@ -115,9 +115,6 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case AIRMASS_COLUMN:
 			columnName = "Airmass";
-			break;
-		case VALFLAG_COLUMN:
-			columnName = "Validation";
 			break;
 		case CMAG_COLUMN:
 			columnName = "CMag";
@@ -130,6 +127,9 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case NAME_COLUMN:
 			columnName = "Name";
+			break;
+		case HQ_UNCERTAINTY_COLUMN:
+			columnName = "HQ Uncertainty";
 			break;
 		case MTYPE_COLUMN:
 			columnName = "MType";
@@ -155,13 +155,11 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case MAGNITUDE_COLUMN:
 			break;
-		case HQ_UNCERTAINTY_COLUMN:
-			break;
 		case BAND_COLUMN:
 			break;
 		case OBSERVER_CODE_COLUMN:
 			break;
-		case COMMENT_CODE_COLUMN:
+		case VALFLAG_COLUMN:
 			break;
 		case COMP_STAR_1_COLUMN:
 			break;
@@ -169,13 +167,13 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case CHARTS_COLUMN:
 			break;
+		case COMMENT_CODE_COLUMN:
+			break;
 		case COMMENTS_COLUMN:
 			break;
 		case TRANSFORMED_COLUMN:
 			break;
 		case AIRMASS_COLUMN:
-			break;
-		case VALFLAG_COLUMN:
 			break;
 		case CMAG_COLUMN:
 			break;
@@ -184,6 +182,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case HJD_COLUMN:
 			break;
 		case NAME_COLUMN:
+			break;
+		case HQ_UNCERTAINTY_COLUMN:
 			break;
 		case MTYPE_COLUMN:
 			break;
@@ -210,19 +210,14 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case MAGNITUDE_COLUMN:
 			value = ob.getMagnitude().toString();
 			break;
-		case HQ_UNCERTAINTY_COLUMN:
-			Double hqUncertainty = ob.getHqUncertainty();
-			value = null == hqUncertainty || "".equals(hqUncertainty) ? ""
-					: String.format("%1.2f", ob.getHqUncertainty());
-			break;
 		case BAND_COLUMN:
 			value = ob.getBand().getDescription();
 			break;
 		case OBSERVER_CODE_COLUMN:
 			value = ob.getObsCode();
 			break;
-		case COMMENT_CODE_COLUMN:
-			value = ob.getCommentCode().getOrigString();
+		case VALFLAG_COLUMN:
+			value = ob.getValidationType().toString();
 			break;
 		case COMP_STAR_1_COLUMN:
 			value = ob.getCompStar1();
@@ -233,6 +228,10 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case CHARTS_COLUMN:
 			value = ob.getCharts();
 			break;
+		case COMMENT_CODE_COLUMN:
+			// TODO: having a tool-tip (via cell renderer?) with full comment codes would be good -> tracker
+			value = ob.getCommentCode().getOrigString();
+			break;
 		case COMMENTS_COLUMN:
 			value = ob.getComments();
 			break;
@@ -241,9 +240,6 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case AIRMASS_COLUMN:
 			value = ob.getAirmass();
-			break;
-		case VALFLAG_COLUMN:
-			value = ob.getValidationType().toString();
 			break;
 		case CMAG_COLUMN:
 			value = ob.getCMag();
@@ -256,6 +252,11 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case NAME_COLUMN:
 			value = ob.getName();
+			break;
+		case HQ_UNCERTAINTY_COLUMN:
+			Double hqUncertainty = ob.getHqUncertainty();
+			value = null == hqUncertainty || "".equals(hqUncertainty) ? ""
+					: String.format("%1.2f", ob.getHqUncertainty());
 			break;
 		case MTYPE_COLUMN:
 			value = ob.getMType().toString();
