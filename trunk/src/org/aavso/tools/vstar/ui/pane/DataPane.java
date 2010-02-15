@@ -31,6 +31,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -100,7 +101,7 @@ public class DataPane extends JPanel {
 
 		topPane.add(cards);
 
-		this.add(topPane, BorderLayout.CENTER);
+		this.add(new JScrollPane(topPane), BorderLayout.CENTER);
 	}
 
 	/**
