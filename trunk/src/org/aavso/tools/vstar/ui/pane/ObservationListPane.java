@@ -127,7 +127,7 @@ public class ObservationListPane extends JPanel implements
 			this.add(label);
 		}
 
-		// Listen for observation selection events. Notice that this class 
+		// Listen for observation selection events. Notice that this class
 		// also generates these, but ignores them if sent by itself.
 		Mediator.getInstance().getObservationSelectionNotifier().addListener(
 				createObservationSelectionListener());
@@ -189,8 +189,6 @@ public class ObservationListPane extends JPanel implements
 		};
 	}
 
-	// TODO: cross hairs on/off checkbox in plot pane
-
 	// We send an observation selection event when the value has
 	// "settled". This event could be consumed by other views such
 	// as plots.
@@ -200,11 +198,13 @@ public class ObservationListPane extends JPanel implements
 				&& !e.getValueIsAdjusting()) {
 			int row = validDataTable.getSelectedRow();
 
-			ValidObservation ob = validDataModel.getObservations().get(row);
-			ObservationSelectionMessage message = new ObservationSelectionMessage(
-					ob, this);
-			Mediator.getInstance().getObservationSelectionNotifier()
-					.notifyListeners(message);
+			if (row >= 0) {
+				ValidObservation ob = validDataModel.getObservations().get(row);
+				ObservationSelectionMessage message = new ObservationSelectionMessage(
+						ob, this);
+				Mediator.getInstance().getObservationSelectionNotifier()
+						.notifyListeners(message);
+			}
 		}
 	}
 }
