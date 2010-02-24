@@ -69,11 +69,11 @@ public class MeanObservationListPane extends JPanel implements
 
 		this.add(meanObsTableScrollPane);
 
-		// Listen for observation selection events. Notice that this class 
+		// Listen for observation selection events. Notice that this class
 		// also generates these, but ignores them if sent by itself.
 		Mediator.getInstance().getObservationSelectionNotifier().addListener(
 				createObservationSelectionListener());
-		
+
 		// List row selection handling.
 		this.meanObsTable.getSelectionModel().addListSelectionListener(this);
 	}
@@ -126,7 +126,6 @@ public class MeanObservationListPane extends JPanel implements
 			}
 		};
 	}
-	
 
 	// List row selection event handler.
 	// We send an observation selection event when the value has
@@ -138,11 +137,14 @@ public class MeanObservationListPane extends JPanel implements
 				&& !e.getValueIsAdjusting()) {
 			int row = meanObsTable.getSelectedRow();
 
-			ValidObservation ob = meanObsTableModel.getMeanObsData().get(row);
-			ObservationSelectionMessage message = new ObservationSelectionMessage(
-					ob, this);
-			Mediator.getInstance().getObservationSelectionNotifier()
-					.notifyListeners(message);
+			if (row >= 0) {
+				ValidObservation ob = meanObsTableModel.getMeanObsData().get(
+						row);
+				ObservationSelectionMessage message = new ObservationSelectionMessage(
+						ob, this);
+				Mediator.getInstance().getObservationSelectionNotifier()
+						.notifyListeners(message);
+			}
 		}
 	}
 }
