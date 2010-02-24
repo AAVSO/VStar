@@ -35,6 +35,8 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.chart.ChartFactory;
@@ -74,6 +76,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	// Show error bars?
 	protected boolean showErrorBars;
 
+	// Show cross-hairs?
+	protected boolean showCrossHairs;
+
 	protected JButton visibilityButton;
 
 	// Axis titles.
@@ -106,7 +111,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
 		this.showErrorBars = true;
-
+		this.showCrossHairs = true;
+		
 		// Create a chart with legend, tooltips, and URLs showing
 		// and add it to the panel.
 		this.chartPanel = new ChartPanel(ChartFactory.createScatterPlot(title,
@@ -177,6 +183,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		// Create a panel that can be used to add chart control widgets.
 		chartControlPanel = createChartControlPanel();
 		this.add(chartControlPanel);
+
+		Mediator.getInstance().getObservationSelectionNotifier().addListener(
+				createObservationSelectionListener());
 	}
 
 	/**
@@ -227,6 +236,12 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());
 		chartControlPanel.add(errorBarCheckBox);
 
+		// A checkbox to show/hide cross hairs.
+		JCheckBox crossHairCheckBox = new JCheckBox("Show cross-hairs?");
+		crossHairCheckBox.setSelected(this.showCrossHairs);
+		crossHairCheckBox.addActionListener(createCrossHairCheckBoxListener());
+		chartControlPanel.add(crossHairCheckBox);
+
 		return chartControlPanel;
 	}
 
@@ -234,10 +249,20 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * Returns a listener for the error bar visibility checkbox.
 	 */
 	private ActionListener createErrorBarCheckBoxListener() {
-		final AbstractObservationPlotPane<T> self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				self.toggleErrorBars();
+				toggleErrorBars();
+			}
+		};
+	}
+
+	/**
+	 * Returns a listener for the cross-hair visibility checkbox.
+	 */
+	private ActionListener createCrossHairCheckBoxListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				toggleCrossHairs();
 			}
 		};
 	}
@@ -251,7 +276,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			public void update(Map<SeriesType, Color> info) {
 				setSeriesColors();
 			}
-			
+
 			public boolean canBeRemoved() {
 				return true;
 			}
@@ -266,6 +291,15 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		this.renderer.setDrawYError(this.showErrorBars);
 	}
 
+	/**
+	 * Show/hide the cross hairs.
+	 */
+	private void toggleCrossHairs() {
+		this.showCrossHairs = !this.showCrossHairs;
+		chart.getXYPlot().setDomainCrosshairVisible(this.showCrossHairs);
+		chart.getXYPlot().setRangeCrosshairVisible(this.showCrossHairs);
+	}
+	
 	/**
 	 * Return a listener for the "change series visibility" button.
 	 */
@@ -333,24 +367,31 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	}
 
 	// From ChartMouseListener.
-	// If the user clicks on a plot point, open an information
-	// dialog.
+	// If the user clicks on a plot point, send a selection message,
+	// open an information dialog.
 	public void chartMouseClicked(ChartMouseEvent event) {
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
+			ValidObservation ob = obsModel.getValidObservation(series, item);
 
-			new ObservationDetailsDialog(obsModel.getValidObservation(series,
-					item));
+			new ObservationDetailsDialog(ob);
+
+			ObservationSelectionMessage message = new ObservationSelectionMessage(
+					ob, this);
+			Mediator.getInstance().getObservationSelectionNotifier()
+					.notifyListeners(message);
 		}
 	}
 
+	// Returns an observation selection listener specific to the concrete plot pane.
+	abstract protected Listener<ObservationSelectionMessage> createObservationSelectionListener();
+	
 	// From ChartMouseListener
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// Nothing to do here.
 		// TODO: Zoom?
-		int x = 0;
 	}
 
 	/**
@@ -364,7 +405,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		setSeriesVisibility();
 		setSeriesColors();
 		setMagScale();
-
 	}
 
 	// Helpers

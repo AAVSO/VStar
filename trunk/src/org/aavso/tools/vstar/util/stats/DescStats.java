@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.model.plot.ITimeElementEntity;
 
@@ -174,6 +175,7 @@ public class DescStats {
 
 		ValidObservation observation = new ValidObservation();
 		observation.setMagnitude(new Magnitude(magMean, magStdErrOfMean));
+		observation.setBand(SeriesType.MEANS);		
 		timeElementEntity.setTimeElement(observation, meanTimeElement);
 
 		return observation;

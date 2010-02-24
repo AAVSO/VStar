@@ -18,27 +18,34 @@
 package org.aavso.tools.vstar.ui.model.list;
 
 import java.util.List;
+import java.util.WeakHashMap;
 
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.ObservationChange;
+import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.notification.Notifier;
 
 /**
  * A table model for valid observations.
  */
 public class ValidObservationTableModel extends AbstractTableModel implements
-		Listener<ObservationChange> {
+		Listener<ObservationChangeMessage> {
 
 	/**
 	 * The list of valid observations retrieved.
 	 */
 	private final List<ValidObservation> validObservations;
 
+	/**
+	 * A weak reference hash map from observations to row indices.
+	 * We only want this map's entries to exist if they (ValidObservation
+	 * instances in particular) are in use elsewhere.
+	 */
+	private final WeakHashMap<ValidObservation, Integer> validObservationToRowIndexMap;
+	
 	/**
 	 * The source of column information.
 	 */
@@ -48,13 +55,6 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 * The total number of columns in the table.
 	 */
 	private final int columnCount;
-
-	/**
-	 * This notifies listeners when an observation in the model changes. Right
-	 * now, the only possible change is for an observation to be marked as
-	 * discrepant or to have this designation removed.
-	 */
-	//private Notifier<ValidObservation> observationChangeNotifier;
 
 	/**
 	 * Constructor
@@ -67,12 +67,35 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	public ValidObservationTableModel(List<ValidObservation> validObservations,
 			ITableColumnInfoSource columnInfoSource) {
 		this.validObservations = validObservations;
+		
+		this.validObservationToRowIndexMap = new WeakHashMap<ValidObservation, Integer>();
+		for (int i=0;i<validObservations.size();i++) {
+			this.validObservationToRowIndexMap.put(validObservations.get(i), i);
+		}
+		
 		this.columnInfoSource = columnInfoSource;
 		this.columnCount = columnInfoSource.getColumnCount();
-		//this.observationChangeNotifier = new Notifier<ValidObservation>();
+		
 		Mediator.getInstance().getObservationChangeNotifier().addListener(this);
 	}
 
+	/**
+	 * @return the validObservations
+	 */
+	public List<ValidObservation> getObservations() {
+		return validObservations;
+	}
+
+	/**
+	 * Returns the row index (0..n-1) given an observation. 
+	 * 
+	 * @param ob a valid observation whose row index we want.
+	 * @return The observation's row index.
+	 */
+	public Integer getRowIndexFromObservation(ValidObservation ob) {
+		return validObservationToRowIndexMap.get(ob);
+	}
+	
 	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
@@ -114,9 +137,8 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 			ValidObservation ob = this.validObservations.get(rowIndex);
 			boolean discrepant = ob.isDiscrepant();
 			ob.setDiscrepant(!discrepant);
-//			observationChangeNotifier.notifyListeners(ob);
 			// Tell anyone who's listening about the change.
-			ObservationChange message = new ObservationChange(ob, ObservationChangeType.DISCREPANT, this);
+			ObservationChangeMessage message = new ObservationChangeMessage(ob, ObservationChangeType.DISCREPANT, this);
 			Mediator.getInstance().getObservationChangeNotifier().notifyListeners(message);
 		}
 	}
@@ -140,7 +162,7 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 * Listen for valid observation change notification, e.g. an observation's
 	 * discrepant notification is changed.
 	 */
-	public void update(ObservationChange info) {
+	public void update(ObservationChangeMessage info) {
 		if (info.getSource() != this) {
 			for (ObservationChangeType change : info.getChanges()) {
 				switch (change) {
@@ -157,5 +179,5 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 */
 	public boolean canBeRemoved() {
 		return true;
-	}
+	}	
 }

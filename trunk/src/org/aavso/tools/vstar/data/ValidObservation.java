@@ -661,7 +661,7 @@ public class ValidObservation extends Observation {
 		return buf.toString();
 	}
 
-	// IMagJDAndPhaseSource methods
+	// Convenience methods.
 
 	public double getJD() {
 		return this.dateInfo.getJulianDay();

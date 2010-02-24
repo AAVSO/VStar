@@ -24,11 +24,15 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This class represents a chart pane containing a phase plot for a set of valid
@@ -85,6 +89,29 @@ public class PhasePlotPane extends ObservationPlotPane {
 					MessageBox.showErrorDialog(MainFrame.getInstance(),
 							"New Phase Plot", ex);
 				}
+			}
+		};
+	}
+
+	// Returns an observation selection listener.
+	protected Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		return new Listener<ObservationSelectionMessage>() {
+
+			public void update(ObservationSelectionMessage message) {
+				// Move the cross hairs if this is not a mean observation and
+				// we have phase information since this plot's domain is phase.
+				if (message.getSource() != this
+						&& message.getObservation().getStandardPhase() != null
+						&& message.getObservation().getBand() != SeriesType.MEANS) {
+					chart.getXYPlot().setDomainCrosshairValue(
+							message.getObservation().getStandardPhase());
+					chart.getXYPlot().setRangeCrosshairValue(
+							message.getObservation().getMag());
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return true;
 			}
 		};
 	}
