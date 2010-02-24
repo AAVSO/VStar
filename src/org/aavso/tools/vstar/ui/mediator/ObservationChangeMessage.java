@@ -23,12 +23,12 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This message will be sent to Listener<ObservationChange> implementers
- * registered with a Notifier<ObservationChange> implementer.
+ * This message will be sent to Listener<ObservationChangeMessage> implementers
+ * registered with a Notifier<ObservationChangeMessage> implementer.
  * 
  * The message signals a specific change in an observation by a source object. 
  */
-public class ObservationChange {
+public class ObservationChangeMessage {
 
 	private ValidObservation observation;
 	private Iterable<ObservationChangeType> changes;
@@ -41,7 +41,7 @@ public class ObservationChange {
 	 * @param changes The iterable set of changes to the observation.
 	 * @param source The object that caused the change.
 	 */
-	public ObservationChange(ValidObservation observation,
+	public ObservationChangeMessage(ValidObservation observation,
 			Iterable<ObservationChangeType> changes, Object source) {
 		this.observation = observation;
 		this.changes = changes;
@@ -55,7 +55,7 @@ public class ObservationChange {
 	 * @param change A single change to the observation.
 	 * @param source The object that caused the change.
 	 */
-	public ObservationChange(ValidObservation observation,
+	public ObservationChangeMessage(ValidObservation observation,
 			ObservationChangeType change, Object source) {
 		this.observation = observation;
 		List<ObservationChangeType> changes = new ArrayList<ObservationChangeType>();

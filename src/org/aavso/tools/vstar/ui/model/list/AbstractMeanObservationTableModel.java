@@ -19,6 +19,7 @@
 package org.aavso.tools.vstar.ui.model.list;
 
 import java.util.List;
+import java.util.WeakHashMap;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -37,6 +38,13 @@ public abstract class AbstractMeanObservationTableModel extends
 	protected List<ValidObservation> meanObsData;
 
 	/**
+	 * A weak reference hash map from observations to row indices.
+	 * We only want this map's entries to exist if they (ValidObservation
+	 * instances in particular) are in use elsewhere.
+	 */
+	protected final WeakHashMap<ValidObservation, Integer> meanObservationToRowIndexMap;
+
+	/**
 	 * Constructor.
 	 * 
 	 * @param meanObsData
@@ -45,6 +53,19 @@ public abstract class AbstractMeanObservationTableModel extends
 	 */
 	public AbstractMeanObservationTableModel(List<ValidObservation> meanObsData) {
 		this.meanObsData = meanObsData;
+		
+		this.meanObservationToRowIndexMap = new WeakHashMap<ValidObservation, Integer>();
+		populateObsToRowMap();
+	}
+
+	/**
+	 * Returns the row index (0..n-1) given an observation. 
+	 * 
+	 * @param ob a valid observation whose row index we want.
+	 * @return The observation's row index.
+	 */
+	public Integer getRowIndexFromObservation(ValidObservation ob) {
+		return meanObservationToRowIndexMap.get(ob);
 	}
 
 	/**
@@ -87,6 +108,7 @@ public abstract class AbstractMeanObservationTableModel extends
 	 */
 	public void update(List<ValidObservation> obs) {
 		this.meanObsData = obs;
+		populateObsToRowMap();
 		this.fireTableDataChanged();
 	}
 	
@@ -95,5 +117,15 @@ public abstract class AbstractMeanObservationTableModel extends
 	 */
 	public boolean canBeRemoved() {
 		return true;
+	}
+	
+	// Helpers
+	
+	private void populateObsToRowMap() {
+		this.meanObservationToRowIndexMap.clear();
+		
+		for (int i=0;i<meanObsData.size();i++) {
+			this.meanObservationToRowIndexMap.put(meanObsData.get(i), i);
+		}
 	}
 }

@@ -27,8 +27,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.MeanSourceDialog;
+import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This class represents a chart pane containing a plot for a set of valid
@@ -162,6 +165,28 @@ public class ObservationAndMeanPlotPane extends
 								.getTimeElementsInBin());
 					}
 				}
+			}
+		};
+	}
+
+	// Returns an observation selection listener.
+	protected Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		return new Listener<ObservationSelectionMessage>() {
+
+			public void update(ObservationSelectionMessage message) {
+				// Move the cross hairs if we have date information since
+				// this plot's domain is JD.
+				if (message.getSource() != this
+						&& message.getObservation().getDateInfo() != null) {
+					chart.getXYPlot().setDomainCrosshairValue(
+							message.getObservation().getJD());
+					chart.getXYPlot().setRangeCrosshairValue(
+							message.getObservation().getMag());
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return true;
 			}
 		};
 	}

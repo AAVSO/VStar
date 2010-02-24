@@ -21,8 +21,12 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.SeriesVisibilityDialog;
+import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This class represents a chart pane containing a raw plot for a set of valid
@@ -80,6 +84,29 @@ public class ObservationPlotPane extends
 				if (!dialog.isCancelled()) {
 					seriesVisibilityChange(dialog.getVisibilityDeltaMap());
 				}
+			}
+		};
+	}
+
+	// Returns an observation selection listener.
+	protected Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		return new Listener<ObservationSelectionMessage>() {
+
+			public void update(ObservationSelectionMessage message) {
+				// Move the cross hairs if this is not a mean observation and
+				// we have date information since this plot's domain is JD.
+				if (message.getSource() != this
+						&& message.getObservation().getDateInfo() != null
+						&& message.getObservation().getBand() != SeriesType.MEANS) {
+					chart.getXYPlot().setDomainCrosshairValue(
+							message.getObservation().getJD());
+					chart.getXYPlot().setRangeCrosshairValue(
+							message.getObservation().getMag());
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return true;
 			}
 		};
 	}

@@ -19,8 +19,10 @@ package org.aavso.tools.vstar.ui.pane;
 
 import java.awt.Dimension;
 
+import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This class represents a chart pane containing a phase plot for a set of valid
@@ -47,5 +49,27 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 				new TimeElementsInBinSettingPane("Phase Steps in Means Bin",
 						obsAndMeanModel, PhaseTimeElementEntity.instance),
 				bounds);
+	}
+
+	// Returns an observation selection listener.
+	protected Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		return new Listener<ObservationSelectionMessage>() {
+
+			public void update(ObservationSelectionMessage message) {
+				// Move the cross hairs if we have phase information since
+				// this plot's domain is phase.
+				if (message.getSource() != this
+						&& message.getObservation().getStandardPhase() != null) {
+					chart.getXYPlot().setDomainCrosshairValue(
+							message.getObservation().getStandardPhase());
+					chart.getXYPlot().setRangeCrosshairValue(
+							message.getObservation().getMag());
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
 	}
 }

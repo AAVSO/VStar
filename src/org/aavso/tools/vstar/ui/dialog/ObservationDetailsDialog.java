@@ -34,10 +34,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.ObservationChange;
+import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
 
 /**
@@ -53,12 +54,12 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
 	private JButton okButton;
 	private ValidObservation ob;
-	
+
 	public ObservationDetailsDialog(ValidObservation ob) {
 		super();
-		
+
 		this.ob = ob;
-		
+
 		this.setTitle("Observation Details");
 		this.setModal(false);
 		this.setSize(200, 200);
@@ -74,13 +75,18 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
-		JPanel checkBoxPane = new JPanel();		
-		JCheckBox discrepantCheckBox = new JCheckBox("Discrepant?");
-		discrepantCheckBox.addActionListener(createDiscreantCheckBoxHandler());
-		discrepantCheckBox.setSelected(ob.isDiscrepant());
-		checkBoxPane.add(discrepantCheckBox);
-		topPane.add(checkBoxPane, BorderLayout.CENTER);
-		
+		// It doesn't make sense to mark a mean observation as discrepant
+		// since it's a derived (computed) observation.
+		if (ob.getBand() != SeriesType.MEANS) {
+			JPanel checkBoxPane = new JPanel();
+			JCheckBox discrepantCheckBox = new JCheckBox("Discrepant?");
+			discrepantCheckBox
+					.addActionListener(createDiscreantCheckBoxHandler());
+			discrepantCheckBox.setSelected(ob.isDiscrepant());
+			checkBoxPane.add(discrepantCheckBox);
+			topPane.add(checkBoxPane, BorderLayout.CENTER);
+		}
+
 		JPanel buttonPane = new JPanel();
 		okButton = new JButton("OK");
 		okButton.addActionListener(createOKButtonHandler());
@@ -89,18 +95,18 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
 		this.getContentPane().add(topPane);
 
-		this.getRootPane().setDefaultButton(okButton);		
+		this.getRootPane().setDefaultButton(okButton);
 
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 	}
-	
+
 	private void toggleDiscrepantStatus() {
 		ob.setDiscrepant(!ob.isDiscrepant());
 	}
-	
+
 	/**
 	 * OK button handler.
 	 */
@@ -120,23 +126,24 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 		final ObservationDetailsDialog parent = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Toggle the observation's discrepant status and 
+				// Toggle the observation's discrepant status and
 				// tell anyone who's listening about the change.
 				toggleDiscrepantStatus();
-				ObservationChange message = new ObservationChange(ob,
-						ObservationChangeType.DISCREPANT, parent);
+				ObservationChangeMessage message = new ObservationChangeMessage(
+						ob, ObservationChangeType.DISCREPANT, parent);
 				Mediator.getInstance().getObservationChangeNotifier()
 						.notifyListeners(message);
 			}
 		};
 	}
 
-	// TODO: this method is not being invoked when the window regains focus; fix!
+	// TODO: this method is not being invoked when the window regains focus;
+	// fix!
 	public void focusGained(FocusEvent e) {
-		this.getRootPane().setDefaultButton(okButton);		
+		this.getRootPane().setDefaultButton(okButton);
 	}
 
 	public void focusLost(FocusEvent e) {
-		// Nothing to do.		
+		// Nothing to do.
 	}
 }

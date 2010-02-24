@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**

@@ -29,7 +29,7 @@ import java.util.TreeSet;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.ObservationChange;
+import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.data.DomainOrder;
@@ -40,7 +40,7 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
  * star observations, e.g. for different bands (or from different sources).
  */
 public class ObservationPlotModel extends AbstractIntervalXYDataset implements
-		Listener<ObservationChange> {
+		Listener<ObservationChangeMessage> {
 
 	/**
 	 * Coordinate and error source.
@@ -542,7 +542,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * Listen for observation change notification, e.g. an observation's
 	 * discrepant status is changed.
 	 */
-	public void update(ObservationChange info) {
+	public void update(ObservationChangeMessage info) {
 		for (ObservationChangeType change : info.getChanges()) {
 			switch (change) {
 			case DISCREPANT:

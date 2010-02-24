@@ -18,15 +18,23 @@
 package org.aavso.tools.vstar.ui.pane;
 
 import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This class represents a GUI component that renders information about
@@ -34,7 +42,8 @@ import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
  * data. If both are present, they are rendered as tables in a vertical split
  * pane. Otherwise, a single table will appear.
  */
-public class ObservationListPane extends JPanel {
+public class ObservationListPane extends JPanel implements
+		ListSelectionListener {
 
 	private JTable validDataTable;
 	private JTable invalidDataTable;
@@ -71,6 +80,11 @@ public class ObservationListPane extends JPanel {
 			if (!enableAutoResize) {
 				validDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			}
+
+			// Set selection mode to be row-only.
+			// These appear to be the defaults anyway.
+			validDataTable.setColumnSelectionAllowed(false);
+			validDataTable.setRowSelectionAllowed(true);
 
 			// Enable table sorting by clicking on a column.
 			// We do the same for invalid table below.
@@ -112,6 +126,14 @@ public class ObservationListPane extends JPanel {
 			this.setLayout(new GridLayout(1, 1));
 			this.add(label);
 		}
+
+		// Listen for observation selection events. Notice that this class 
+		// also generates these, but ignores them if sent by itself.
+		Mediator.getInstance().getObservationSelectionNotifier().addListener(
+				createObservationSelectionListener());
+
+		// List row selection handling.
+		this.validDataTable.getSelectionModel().addListSelectionListener(this);
 	}
 
 	/**
@@ -126,5 +148,63 @@ public class ObservationListPane extends JPanel {
 	 */
 	public JTable getInvalidDataTable() {
 		return invalidDataTable;
+	}
+
+	// Returns an observation selection listener.
+	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		return new Listener<ObservationSelectionMessage>() {
+
+			public void update(ObservationSelectionMessage message) {
+				if (message.getSource() != this) {
+					List<ValidObservation> obs = validDataModel
+							.getObservations();
+					ValidObservation ob = message.getObservation();
+					Integer rowIndex = validDataModel
+							.getRowIndexFromObservation(ob);
+					if (rowIndex != null) {
+						// Scroll to an arbitrary column (zeroth) within
+						// the selected row, then select that row.
+						// Assumption: we are specifying the zeroth cell
+						// within row i as an x,y coordinate relative to
+						// the top of the table pane.
+						// Note that we could call this on the scroll
+						// pane, which would then forward the request to
+						// the table pane anyway.
+						int colWidth = (int) validDataTable.getCellRect(
+								rowIndex, 0, true).getWidth();
+						int rowHeight = validDataTable.getRowHeight(rowIndex);
+						validDataTable.scrollRectToVisible(new Rectangle(
+								colWidth, rowHeight * rowIndex, colWidth,
+								rowHeight));
+
+						validDataTable.setRowSelectionInterval(rowIndex,
+								rowIndex);
+					}
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	// TODO: cross hairs on/off checkbox in plot pane
+
+	// We send an observation selection event when the value has
+	// "settled". This event could be consumed by other views such
+	// as plots.
+	public void valueChanged(ListSelectionEvent e) {
+		if (e.getSource() == validDataTable.getSelectionModel()
+				&& validDataTable.getRowSelectionAllowed()
+				&& !e.getValueIsAdjusting()) {
+			int row = validDataTable.getSelectedRow();
+
+			ValidObservation ob = validDataModel.getObservations().get(row);
+			ObservationSelectionMessage message = new ObservationSelectionMessage(
+					ob, this);
+			Mediator.getInstance().getObservationSelectionNotifier()
+					.notifyListeners(message);
+		}
 	}
 }

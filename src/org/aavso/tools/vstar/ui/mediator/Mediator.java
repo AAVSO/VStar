@@ -111,7 +111,8 @@ public class Mediator {
 	// TODO: This next notifier could be used to mark the "document"
 	// (the current star's dataset) associated with the valid obs
 	// as dirty (optional for now).
-	private Notifier<ObservationChange> observationChangeNotifier;
+	private Notifier<ObservationChangeMessage> observationChangeNotifier;
+	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
 
 	// A file dialog for saving any kind of observation list.
 	private JFileChooser obsListFileSaveDialog;
@@ -133,7 +134,8 @@ public class Mediator {
 		this.newStarNotifier = new Notifier<NewStarMessage>();
 		this.modeChangeNotifier = new Notifier<ModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
-		this.observationChangeNotifier = new Notifier<ObservationChange>();
+		this.observationChangeNotifier = new Notifier<ObservationChangeMessage>();
+		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
 
 		this.obsListFileSaveDialog = new JFileChooser();
 
@@ -142,7 +144,7 @@ public class Mediator {
 		this.invalidObsList = null;
 		this.validObservationCategoryMap = null;
 		this.phasedValidObservationCategoryMap = null;
-		
+
 		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
 
 		this.mode = ModeType.PLOT_OBS_MODE;
@@ -191,35 +193,46 @@ public class Mediator {
 	/**
 	 * @return the observationChangeNotifier
 	 */
-	public Notifier<ObservationChange> getObservationChangeNotifier() {
+	public Notifier<ObservationChangeMessage> getObservationChangeNotifier() {
 		return observationChangeNotifier;
 	}
 
 	/**
-	 * Remove all willing listeners from notifiers.
-	 * This is essentially a move to free up any indirectly referenced 
-	 * objects that may cause a memory leak if left unchecked from new-star 
-	 * to new-star, e.g. mean observations.
-	 * 
-	 * TODO: Is this method necessary? As long as anything that can be
-	 * freed up indirectly, has been at new-star time, I think we're okay.
-	 * One thing to note is that this method must not be invoked from a
-	 * different thread otherwise the listener removal method will yield
-	 * a concurrent modification exception. 
-	 * 
-	 * @param obsAndMeanPlotModel A raw observation and mean plot model from
-	 * which to remove willing listeners. This will change between stars.
+	 * @return the observationSelectionNotifier
 	 */
-	private void removeWillingListeners(ObservationAndMeanPlotModel obsAndMeanPlotModel) {
+	public Notifier<ObservationSelectionMessage> getObservationSelectionNotifier() {
+		return observationSelectionNotifier;
+	}
+
+	/**
+	 * Remove all willing listeners from notifiers. This is essentially a move
+	 * to free up any indirectly referenced objects that may cause a memory leak
+	 * if left unchecked from new-star to new-star, e.g. mean observations.
+	 * 
+	 * TODO: Is this method necessary? As long as anything that can be freed up
+	 * indirectly, has been at new-star time, I think we're okay. One thing to
+	 * note is that this method must not be invoked from a different thread
+	 * otherwise the listener removal method will yield a concurrent
+	 * modification exception.
+	 * 
+	 * @param obsAndMeanPlotModel
+	 *            A raw observation and mean plot model from which to remove
+	 *            willing listeners. This will change between stars.
+	 */
+	private void removeWillingListeners(
+			ObservationAndMeanPlotModel obsAndMeanPlotModel) {
 		this.analysisTypeChangeNotifier.removeAllWillingListeners();
 		this.newStarNotifier.removeAllWillingListeners();
 		this.modeChangeNotifier.removeAllWillingListeners();
 		this.progressNotifier.removeAllWillingListeners();
-		this.observationChangeNotifier.removeAllWillingListeners();		
-		obsAndMeanPlotModel.getMeansChangeNotifier().removeAllWillingListeners();
+		this.observationChangeNotifier.removeAllWillingListeners();
+		this.observationSelectionNotifier.removeAllWillingListeners();
+
+		obsAndMeanPlotModel.getMeansChangeNotifier()
+				.removeAllWillingListeners();
 		SeriesType.getSeriesColorChangeNotifier().removeAllWillingListeners();
 	}
-	
+
 	/**
 	 * Change the mode of VStar's focus (i.e what is to be presented to the
 	 * user).
@@ -508,13 +521,13 @@ public class Mediator {
 		// We also create the means list pane.
 		meansListPane = new MeanObservationListPane(meanObsTableModel);
 
-		// Create a message to notify whoever is listening that a new star 
+		// Create a message to notify whoever is listening that a new star
 		// has been loaded.
 		newStarMessage = new NewStarMessage(newStarType, starInfo,
 				validObsList, validObservationCategoryMap);
 
-		// Create a message to notify whoever is listening that the analysis 
-		// type has changed (we could have been viewing a phase plot for a 
+		// Create a message to notify whoever is listening that the analysis
+		// type has changed (we could have been viewing a phase plot for a
 		// different star before now) passing GUI components in the message.
 		analysisType = AnalysisType.RAW_DATA;
 
@@ -545,7 +558,7 @@ public class Mediator {
 			this.phasedValidObservationCategoryMap = null;
 		}
 
-		// Throw away old artefacts from raw and phase plot, 
+		// Throw away old artefacts from raw and phase plot,
 		// if there was (at least) one.
 		analysisTypeMap.clear();
 		analysisTypeMap.put(analysisType, analysisTypeMsg);
@@ -557,7 +570,7 @@ public class Mediator {
 		this.validObsList = validObsList;
 		this.invalidObsList = invalidObsList;
 		this.validObservationCategoryMap = validObservationCategoryMap;
-		
+
 		// Notify listeners of new star and analysis type.
 		getNewStarNotifier().notifyListeners(newStarMessage);
 		getAnalysisTypeChangeNotifier().notifyListeners(analysisTypeMsg);
@@ -791,7 +804,8 @@ public class Mediator {
 	/**
 	 * Save some kind of observation list to a file in a separate thread.
 	 * 
-	 * @param outFile The output file.
+	 * @param outFile
+	 *            The output file.
 	 */
 	private void saveObsListToFile(File outFile) {
 		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
@@ -803,7 +817,7 @@ public class Mediator {
 
 		ObsListFileSaveTask task = new ObsListFileSaveTask(validObsList,
 				outFile, this.newStarMessage.getNewStarType());
-		
+
 		this.currTask = task;
 		task.execute();
 	}
@@ -820,10 +834,12 @@ public class Mediator {
 			this.analysisTypeMap.get(analysisType).getObsChartPane()
 					.getChartPanel().createChartPrintJob();
 			break;
+
 		case PLOT_OBS_AND_MEANS_MODE:
 			this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
 					.getChartPanel().createChartPrintJob();
 			break;
+
 		case LIST_OBS_MODE:
 			try {
 				ObservationListPane obsListPane = this.analysisTypeMap.get(
@@ -840,9 +856,17 @@ public class Mediator {
 						.getMessage());
 			}
 			break;
+
 		case LIST_MEANS_MODE:
-			MessageBox.showMessageDialog(parent, "Print Means",
-					NOT_IMPLEMENTED_YET);
+			try {
+				MeanObservationListPane meanObsListPane = this.analysisTypeMap
+						.get(analysisType).getMeansListPane();
+
+				meanObsListPane.getMeanObsTable().print(PrintMode.FIT_WIDTH);
+			} catch (PrinterException e) {
+				MessageBox.showErrorDialog(parent, "Print Means", e
+						.getMessage());
+			}
 			break;
 		}
 	}

@@ -25,7 +25,7 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.mediator.ObservationChange;
+import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.DescStats;
@@ -317,7 +317,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * ignored for statistical analysis purposes (see DescStats class), we need
 	 * to re-calculate the means series.
 	 */
-	public void update(ObservationChange info) {
+	public void update(ObservationChangeMessage info) {
 		super.update(info);
 
 		for (ObservationChangeType change : info.getChanges()) {
