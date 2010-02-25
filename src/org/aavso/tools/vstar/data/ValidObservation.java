@@ -423,13 +423,13 @@ public class ValidObservation extends Observation {
 
 		if (standardPhase != null) {
 			strBuf.append("Standard Phase: ");
-			strBuf.append(standardPhase);
+			strBuf.append(String.format("%.4f", standardPhase));
 			strBuf.append("\n");
 		}
 
 		if (previousCyclePhase != null) {
 			strBuf.append("Previous Cycle Phase: ");
-			strBuf.append(previousCyclePhase);
+			strBuf.append(String.format("%.4f", previousCyclePhase));
 			strBuf.append("\n");
 		}
 

@@ -135,7 +135,7 @@ public class Magnitude {
 			strBuf.append(">");
 		}
 
-		strBuf.append(magValue);
+		strBuf.append(String.format("%.4f", magValue));
 
 		if (isUncertain) {
 			strBuf.append(" (uncertain)");
@@ -143,7 +143,7 @@ public class Magnitude {
 
 		if (uncertainty != 0) {
 			strBuf.append(" (\u00B1");
-			strBuf.append(uncertainty);
+			strBuf.append(String.format("%.4f", uncertainty));
 			strBuf.append(")");
 		}
 
