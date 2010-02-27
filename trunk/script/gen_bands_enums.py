@@ -5,6 +5,8 @@
 # Columns in each line of input are:
 # Code Description shortName R_color G_color B_color
 #
+# The script that generates such lines is get_bands.sh
+#  
 # The enum values go to standard output.
 
 import sys

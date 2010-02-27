@@ -149,4 +149,28 @@ public class Magnitude {
 
 		return strBuf.toString();
 	}
+
+	public String toFormattedString(String numericFormat) {
+		StringBuffer strBuf = new StringBuffer();
+
+		if (isFainterThan()) {
+			strBuf.append("<");
+		} else if (isBrighterThan()) {
+			strBuf.append(">");
+		}
+
+		strBuf.append(String.format(numericFormat, magValue));
+
+		if (isUncertain) {
+			strBuf.append(" (uncertain)");
+		}
+
+		if (uncertainty != 0) {
+			strBuf.append(" (\u00B1");
+			strBuf.append(String.format(numericFormat, uncertainty));
+			strBuf.append(")");
+		}
+
+		return strBuf.toString();
+	}
 }

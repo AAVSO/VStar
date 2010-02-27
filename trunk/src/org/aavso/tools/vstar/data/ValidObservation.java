@@ -410,7 +410,11 @@ public class ValidObservation extends Observation {
 
 		if (dateInfo != null) {
 			strBuf.append("Julian Date: ");
-			strBuf.append(dateInfo.getJulianDay());
+			if (this.band != SeriesType.MEANS) {
+				strBuf.append(dateInfo.getJulianDay());
+			} else {
+				strBuf.append(String.format("%1.4f", dateInfo.getJulianDay()));				
+			}
 			strBuf.append("\n");
 
 			strBuf.append("Calendar Date: ");
@@ -418,23 +422,36 @@ public class ValidObservation extends Observation {
 			strBuf.append("\n");
 		}
 
-		// TODO: only show these if analysis mode is phase plot
-		// or is it okay to show last-non-null phases in any mode?
+		// TODO: only show phase values if analysis mode is phase plot
+		// (ask Mediator) or is it okay to show last-non-null phases in 
+		// any mode?
 
 		if (standardPhase != null) {
 			strBuf.append("Standard Phase: ");
-			strBuf.append(standardPhase);
+			if (this.band != SeriesType.MEANS) {
+				strBuf.append(standardPhase);
+			} else {
+				strBuf.append(String.format("%1.4f", standardPhase));
+			}
 			strBuf.append("\n");
 		}
 
 		if (previousCyclePhase != null) {
 			strBuf.append("Previous Cycle Phase: ");
-			strBuf.append(previousCyclePhase);
+			if (this.band != SeriesType.MEANS) {
+				strBuf.append(previousCyclePhase);
+			} else {
+				strBuf.append(String.format("%1.4f", previousCyclePhase));
+			}
 			strBuf.append("\n");
 		}
 
 		strBuf.append("Magnitude: ");
-		strBuf.append(magnitude);
+		if (this.band != SeriesType.MEANS) {
+			strBuf.append(magnitude);
+		} else {
+			strBuf.append(magnitude.toFormattedString("%1.4f"));
+		}
 		strBuf.append("\n");
 
 		if (validationType != null) {

@@ -118,9 +118,6 @@ public class MeanObservationListPane extends JPanel implements
 				}
 			}
 
-			// TODO: also need to add selection listener on this class for plot:
-			// http://www.exampledepot.com/egs/javax.swing.table/SelEvent.html
-
 			public boolean canBeRemoved() {
 				return true;
 			}
