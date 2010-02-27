@@ -97,18 +97,18 @@ public class PhasePlotMeanObservationTableModel extends
 		switch (columnIndex) {
 		case PHASE_COLUMN:
 			if (rowIndex < meanObsData.size() / 2) {
-				value = String.format("%1.3f", ob.getPreviousCyclePhase());
+				value = String.format("%1.4f", ob.getPreviousCyclePhase());
 			} else {
-				value = String.format("%1.3f", ob.getStandardPhase());
+				value = String.format("%1.4f", ob.getStandardPhase());
 			}
 			break;
 		case MEAN_COLUMN:
 			// The mean magnitude.
-			value = ob.getMagnitude().getMagValue();
+			value = String.format("%1.4f", ob.getMagnitude().getMagValue());
 			break;
 		case STDERR_COLUMN:
 			// The standard error of the average.
-			value = ob.getMagnitude().getUncertainty();
+			value = String.format("%1.4f", ob.getMagnitude().getUncertainty());
 			break;
 		}
 
@@ -126,10 +126,10 @@ public class PhasePlotMeanObservationTableModel extends
 			clazz = String.class;
 			break;
 		case MEAN_COLUMN:
-			clazz = Double.class;
+			clazz = String.class;
 			break;
 		case STDERR_COLUMN:
-			clazz = Double.class;
+			clazz = String.class;
 			break;
 		}
 

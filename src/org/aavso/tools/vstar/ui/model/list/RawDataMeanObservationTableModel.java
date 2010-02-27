@@ -98,18 +98,18 @@ public class RawDataMeanObservationTableModel extends AbstractMeanObservationTab
 
 		switch (columnIndex) {
 		case JD_COLUMN:
-			value = String.format("%1.2f", ob.getDateInfo().getJulianDay());
+			value = String.format("%1.4f", ob.getDateInfo().getJulianDay());
 			break;
 		case CALDATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MEAN_COLUMN:
 			// The mean magnitude.
-			value = ob.getMagnitude().getMagValue();
+			value = String.format("%1.4f", ob.getMagnitude().getMagValue());
 			break;
 		case STDERR_COLUMN:
 			// The standard error of the average.
-			value = ob.getMagnitude().getUncertainty();
+			value =  String.format("%1.4f", ob.getMagnitude().getUncertainty());
 			break;
 		}
 
@@ -130,10 +130,10 @@ public class RawDataMeanObservationTableModel extends AbstractMeanObservationTab
 			clazz = String.class;
 			break;
 		case MEAN_COLUMN:
-			clazz = Double.class;
+			clazz = String.class;
 			break;
 		case STDERR_COLUMN:
-			clazz = Double.class;
+			clazz = String.class;
 			break;
 		}
 
