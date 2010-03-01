@@ -19,7 +19,7 @@ package org.aavso.tools.vstar.data;
 
 import org.aavso.tools.vstar.data.CommentType;
 import java.util.Collection;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * This class stores the possible array of comment codes
@@ -38,7 +38,7 @@ public class CommentCodes {
 	public CommentCodes(String cc) {
 		// parse the string and bust it up and fill the array with the values
 		// returned from the enum
-		commentcodes = new ArrayList<CommentType>();
+		commentcodes = new HashSet<CommentType>();
 
 		if (cc != null) {
 			origString = cc;
