@@ -54,6 +54,13 @@ public class CommentCodes {
 
 	}
 
+	/**
+	 * @return the commentcodes
+	 */
+	public Collection<CommentType> getCommentcodes() {
+		return commentcodes;
+	}
+
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 
