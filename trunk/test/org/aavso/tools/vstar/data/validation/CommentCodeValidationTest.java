@@ -1,9 +1,10 @@
 package org.aavso.tools.vstar.data.validation;
 
+import junit.framework.TestCase;
+
+import org.aavso.tools.vstar.data.CommentCodes;
 import org.aavso.tools.vstar.data.CommentType;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
-
-import junit.framework.TestCase;
 
 /**
  * VStar: a statistical analysis tool for variable star data.
@@ -47,13 +48,14 @@ public class CommentCodeValidationTest extends TestCase {
 		commonValidCommentCodeTest("B", CommentType.SKY_BRIGHT);
 	}
 
-	// Invalid (negative) tests
+	public void testCommentCodes1() {
+		CommentCodes commentTypes = new CommentCodes(" CCDV ");
+		
+		for (CommentType type : commentTypes.getCommentcodes()) {
+			System.out.println(type);
+		}
+	}
 	
-	// TODO: should this be considered valid or invalid?
-//	public void testCCommentCode() {
-//		commonInvalidCommentCodeTest("C");
-//	}
-
 	// Helpers
 	
 	private void commonValidCommentCodeTest(String code, CommentType expected) {	
