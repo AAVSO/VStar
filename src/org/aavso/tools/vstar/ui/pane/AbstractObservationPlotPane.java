@@ -112,7 +112,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		this.showErrorBars = true;
 		this.showCrossHairs = true;
-		
+
 		// Create a chart with legend, tooltips, and URLs showing
 		// and add it to the panel.
 		this.chartPanel = new ChartPanel(ChartFactory.createScatterPlot(title,
@@ -299,7 +299,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		chart.getXYPlot().setDomainCrosshairVisible(this.showCrossHairs);
 		chart.getXYPlot().setRangeCrosshairVisible(this.showCrossHairs);
 	}
-	
+
 	/**
 	 * Return a listener for the "change series visibility" button.
 	 */
@@ -385,9 +385,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		}
 	}
 
-	// Returns an observation selection listener specific to the concrete plot pane.
+	// Returns an observation selection listener specific to the concrete plot
+	// pane.
 	abstract protected Listener<ObservationSelectionMessage> createObservationSelectionListener();
-	
+
 	// From ChartMouseListener
 	public void chartMouseMoved(ChartMouseEvent arg0) {
 		// Nothing to do here.
@@ -413,7 +414,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * Set the appropriate magnitude value scale, ignoring any series that is
 	 * not visible.
 	 * 
-	 * Note: for large datasets, this could be very expensive!
+	 * Note: for large datasets, this could be very expensive! Should maintain
+	 * last min and max and only check observations for bands that have changed.
 	 */
 	private void setMagScale() {
 		double min = Double.MAX_VALUE;
@@ -427,7 +429,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		for (int series : seriesNumToObsMap.keySet()) {
 			if (seriesVisibilityMap.get(series)) {
-				for (ValidObservation ob : seriesNumToObsMap.get(series)) {
+
+				List<ValidObservation> obs = seriesNumToObsMap.get(series);
+				for (ValidObservation ob : obs) {
 					double mag = ob.getMagnitude().getMagValue();
 
 					if (mag < min) {
@@ -441,11 +445,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			}
 		}
 
-		// With only one observation max is smaller than min.
-		if (max < min) {
-			max = min + 1;
-			min = min - 1;
+		// For one observation we will simply have one point at the
+		// centre of the range.
+		if (min == max) {
+			double mag = min;
+			min = mag - 1;
+			max = mag + 1;
 		}
+
 		// Add a small (1%) margin around min/max.
 		double margin = (max - min) / 100;
 		min -= margin;

@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.model.plot;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -106,9 +107,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 				seriesNumToObSrcListMap.get(meanSourceSeriesNum),
 				timeElementEntity, timeElementsInBin);
 
-		// As long as there were enough observations to create a means list
-		// to make a "means" series, we do so.
-		if (!meanObsList.isEmpty()) {
+		if (meanObsList != Collections.EMPTY_LIST) {
+			// As long as there were enough observations to create a means list
+			// to make a "means" series, we do so.
 			boolean found = false;
 
 			// TODO: instead of this, why not just ask:
@@ -140,10 +141,6 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 			// Notify listeners.
 			this.meansChangeNotifier.notifyListeners(meanObsList);
-
-		} else {
-			// TODO: remove empty check; should never happen because of way
-			// binning is done
 		}
 	}
 
