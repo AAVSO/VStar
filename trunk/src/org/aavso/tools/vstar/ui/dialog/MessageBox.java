@@ -96,15 +96,7 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			Throwable e) {
-		// TODO: review what we're extracting here. It may just be better to display 
-		// the message in most cases.
-		String msg = e.getMessage();
-		if (msg == null || "".equals(msg)) {
-			StackTraceElement elt = e.getStackTrace()[e.getStackTrace().length-1];
-			msg = "Error in file " + elt.getFileName() + " at line "
-					+ elt.getLineNumber();
-		}
-		JOptionPane.showMessageDialog(parent, msg, title,
+		JOptionPane.showMessageDialog(parent, e, title,
 				JOptionPane.ERROR_MESSAGE);
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null); 

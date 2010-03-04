@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.util.stats;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -113,9 +114,8 @@ public class DescStats {
 	}
 
 	/**
-	 * Calculates the mean magnitude and the Standard Error of the Average 
-	 * for a sample of magnitudes for observations in a specified inclusive 
-	 * range.
+	 * Calculates the mean magnitude and the Standard Error of the Average for a
+	 * sample of magnitudes for observations in a specified inclusive range.
 	 * 
 	 * We use the sample standard deviation formula as per
 	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
@@ -175,7 +175,7 @@ public class DescStats {
 
 		ValidObservation observation = new ValidObservation();
 		observation.setMagnitude(new Magnitude(magMean, magStdErrOfMean));
-		observation.setBand(SeriesType.MEANS);		
+		observation.setBand(SeriesType.MEANS);
 		timeElementEntity.setTimeElement(observation, meanTimeElement);
 
 		return observation;
@@ -280,21 +280,28 @@ public class DescStats {
 	 *            The bin size in number of time elements (days, phase
 	 *            increments) or portions thereof.
 	 * @return An observation sequence consisting of magnitude means per bin and
-	 *         the observation at the center point of each bin.
+	 *         the observation at the center point of each bin. If there were
+	 *         insufficient observations, the empty list is returned.
 	 */
 	public static List<ValidObservation> createSymmetricBinnedObservations(
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
-		List<ValidObservation> binnedObs = new LinkedList<ValidObservation>();
+		List<ValidObservation> binnedObs = Collections.EMPTY_LIST;
 
-		createLeftmostBinnedObservations(observations,
-				observations.size() / 2 - 1, timeElementEntity,
-				timeElementsInBin, binnedObs);
+		// Are there sufficient (size > 1) observations to create
+		// binned mean observations?.
+		if (observations.size() > 1) {
+			binnedObs = new LinkedList<ValidObservation>();
 
-		createRightmostBinnedObservations(observations,
-				observations.size() / 2, timeElementEntity, timeElementsInBin,
-				binnedObs);
+			createLeftmostBinnedObservations(observations,
+					observations.size() / 2 - 1, timeElementEntity,
+					timeElementsInBin, binnedObs);
+
+			createRightmostBinnedObservations(observations,
+					observations.size() / 2, timeElementEntity,
+					timeElementsInBin, binnedObs);
+		}
 
 		return binnedObs;
 	}
@@ -419,7 +426,8 @@ public class DescStats {
 			// o not at the top of the current range?
 			// If either is true, search further to the right.
 			if (i < observations.size()
-					&& (minTimeElement + timeElementsInBin) > timeElementEntity.getTimeElement(observations, i)) {
+					&& (minTimeElement + timeElementsInBin) > timeElementEntity
+							.getTimeElement(observations, i)) {
 				i++;
 			} else {
 				// Otherwise, we have found the top of the current range,
