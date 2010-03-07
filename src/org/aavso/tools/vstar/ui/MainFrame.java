@@ -31,12 +31,6 @@ import org.aavso.tools.vstar.ui.pane.ModePane;
 import org.aavso.tools.vstar.ui.pane.StatusPane;
 
 /**
- * TODO: 
- * - Undoable edits (Edit menu)
- * - Splash Screen
- */
-
-/**
  * The main VStar window.
  */
 public class MainFrame extends JFrame {
@@ -58,9 +52,7 @@ public class MainFrame extends JFrame {
 	 * Private constructor in support of Singleton.
 	 */
 	private MainFrame() {
-		// TODO: Add version? Move REVISION handling string to
-		// ResourceAccessor class so we can use it here and in
-		// About Box?
+		// TODO: Add version
 		super("VStar");
 
 		this.menuBar = new MenuBar(this);
@@ -88,7 +80,6 @@ public class MainFrame extends JFrame {
 		majorPane.setLayout(new BoxLayout(majorPane, BoxLayout.LINE_AXIS));
 
 		// The first (left-most) pane containing mode buttons.
-		// TODO: put all of this inside ModePane ctor!
 		JPanel firstPane = new JPanel();
 		firstPane.setLayout(new BoxLayout(firstPane, BoxLayout.PAGE_AXIS));
 		firstPane.add(Box.createVerticalGlue());
