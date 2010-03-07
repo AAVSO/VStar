@@ -28,6 +28,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableColumnModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -70,14 +71,13 @@ public class ObservationListPane extends JPanel implements
 
 		JScrollPane validDataScrollPane = null;
 
-		// TODO: when would it ever make sense for this to be null?
 		if (validDataModel != null) {
 			this.validDataModel = validDataModel;
 
 			validDataTable = new JTable(validDataModel);
-			// This next line ensures we get a horizontal scrollbar if necessary
-			// rather than trying to cram all the columns into the visible pane.
 			if (!enableAutoResize) {
+				// Ensure we get a horizontal scrollbar if necessary rather than 
+				// trying to cram all the columns into the visible pane.
 				validDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			}
 
@@ -100,6 +100,20 @@ public class ObservationListPane extends JPanel implements
 
 		if (invalidDataModel != null) {
 			invalidDataTable = new JTable(invalidDataModel);
+			
+			// Ensure we get a horizontal scrollbar if necessary rather than 
+			// trying to cram all the columns into the visible pane. This is
+			// particularly pertinent to the invalid data table since one of
+			// its columns contains the original line in the case of a file 
+			// source.
+			invalidDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			
+			// Set the column containing the observation row to be greater 
+			// than the others.
+			TableColumnModel colModel = invalidDataTable.getColumnModel();
+			int totalWidth = colModel.getTotalColumnWidth();
+			colModel.getColumn(1).setPreferredWidth((int)(totalWidth*2.5));
+			
 			// invalidDataTable.setAutoCreateRowSorter(true);
 			invalidDataScrollPane = new JScrollPane(invalidDataTable);
 		}
