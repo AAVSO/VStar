@@ -230,17 +230,24 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		visibilityButton.addActionListener(createSeriesChangeButtonListener());
 		chartControlPanel.add(visibilityButton);
 
+		JPanel checkBoxPanel = new JPanel();
+		checkBoxPanel.setBorder(BorderFactory.createTitledBorder("Show"));
+		checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel,
+				BoxLayout.PAGE_AXIS));
+		
 		// A checkbox to show/hide error bars.
-		JCheckBox errorBarCheckBox = new JCheckBox("Show error bars?");
+		JCheckBox errorBarCheckBox = new JCheckBox("Error bars?");
 		errorBarCheckBox.setSelected(this.showErrorBars);
 		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());
-		chartControlPanel.add(errorBarCheckBox);
+		checkBoxPanel.add(errorBarCheckBox);
 
 		// A checkbox to show/hide cross hairs.
-		JCheckBox crossHairCheckBox = new JCheckBox("Show cross-hairs?");
+		JCheckBox crossHairCheckBox = new JCheckBox("Cross-hairs?");
 		crossHairCheckBox.setSelected(this.showCrossHairs);
 		crossHairCheckBox.addActionListener(createCrossHairCheckBoxListener());
-		chartControlPanel.add(crossHairCheckBox);
+		checkBoxPanel.add(crossHairCheckBox);
+
+		chartControlPanel.add(checkBoxPanel);
 
 		return chartControlPanel;
 	}

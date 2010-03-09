@@ -730,7 +730,7 @@ public class Mediator {
 
 		return new ObservationAndMeanPlotPane(plotName, subTitle,
 				obsAndMeanPlotModel, new TimeElementsInBinSettingPane(
-						"Days in Means Bin", obsAndMeanPlotModel,
+						"Days per Mean Series Bin", obsAndMeanPlotModel,
 						JDTimeElementEntity.instance), bounds);
 	}
 

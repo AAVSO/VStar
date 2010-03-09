@@ -18,19 +18,11 @@
 package org.aavso.tools.vstar.ui.pane;
 
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
+import java.util.Map;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 
@@ -38,7 +30,8 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * This class represents a chart pane containing a phase plot for a set of valid
  * observations (magnitude vs standard phase).
  */
-public class PhasePlotPane extends ObservationPlotPane {
+public class PhasePlotPane extends ObservationPlotPane implements
+		IVisibilityMapSource {
 
 	/**
 	 * Constructor.
@@ -56,41 +49,11 @@ public class PhasePlotPane extends ObservationPlotPane {
 			ObservationPlotModel obsModel, Dimension bounds) {
 		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsModel, bounds);
 
-		addToChartControlPanel(this.getChartControlPanel());
+		this.getChartControlPanel().add(new NewPhasePlotButtonPane(this));
 	}
 
-	// TODO: factor following out into common class for means phase plot also
-
-	// Add means-specific widgets to chart control panel.
-	private void addToChartControlPanel(JPanel chartControlPanel) {
-		JButton newPhasePlotButton = new JButton("New Phase Plot");
-		newPhasePlotButton
-				.addActionListener(createNewPhasePlotButtonListener());
-		chartControlPanel.add(newPhasePlotButton);
-	}
-
-	// Return a listener for the "new phase plot" button.
-	private ActionListener createNewPhasePlotButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					PhaseParameterDialog phaseDialog = Mediator.getInstance()
-							.getPhaseParameterDialog();
-					phaseDialog.showDialog();
-					if (!phaseDialog.isCancelled()) {
-						double period = phaseDialog.getPeriod();
-						double epoch = phaseDialog.getEpoch();
-						// This will be the final act of this object before
-						// it is usurped by another model+phase-plot-pane pair.
-						Mediator.getInstance().createPhasePlotArtefacts(period,
-								epoch, obsModel.getSeriesVisibilityMap());
-					}
-				} catch (Exception ex) {
-					MessageBox.showErrorDialog(MainFrame.getInstance(),
-							"New Phase Plot", ex);
-				}
-			}
-		};
+	public Map<Integer, Boolean> getVisibilityMap() {
+		return obsModel.getSeriesVisibilityMap();
 	}
 
 	// Returns an observation selection listener.
