@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.ui.pane;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,7 +26,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.MeanSourceDialog;
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
@@ -110,8 +108,9 @@ public class ObservationAndMeanPlotPane extends
 	}
 
 	// Add means-specific widgets to chart control panel.
-	private void addToChartControlPanel(JPanel chartControlPanel) {
-		// A checkbox to determine whether or not to join mean series elements.
+	protected void addToChartControlPanel(JPanel chartControlPanel) {
+		// A checkbox to determine whether or not to join mean 
+		// series elements.
 		JCheckBox joinMeansCheckBox = new JCheckBox("Join means?");
 		joinMeansCheckBox.setSelected(true);
 		joinMeansCheckBox.addActionListener(createJoinMeansCheckBoxListener());

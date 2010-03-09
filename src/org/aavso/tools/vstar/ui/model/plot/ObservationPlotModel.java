@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -85,27 +86,27 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	protected boolean atLeastOneVisualBandPresent;
 
 	/**
-	 * Constructor.
+	 * Common constructor.
 	 * 
 	 * @param coordSrc
 	 *            A coordinate and error source.
 	 */
-	public ObservationPlotModel(ICoordSource coordSrc) {
+	private ObservationPlotModel(ICoordSource coordSrc) {
 		super();
 		this.coordSrc = coordSrc;
 		this.seriesNum = 0;
-		this.seriesNumToSrcTypeMap = new TreeMap<Integer, SeriesType>();
+		this.seriesNumToSrcTypeMap = new HashMap<Integer, SeriesType>();
 		this.srcTypeToSeriesNumMap = new TreeMap<SeriesType, Integer>();
-		this.seriesVisibilityMap = new TreeMap<Integer, Boolean>();
-		this.seriesNumToObSrcListMap = new TreeMap<Integer, List<ValidObservation>>();
+		this.seriesVisibilityMap = new HashMap<Integer, Boolean>();
+		this.seriesNumToObSrcListMap = new HashMap<Integer, List<ValidObservation>>();
 		this.atLeastOneVisualBandPresent = false;
 		Mediator.getInstance().getObservationChangeNotifier().addListener(this);
 	}
 
 	/**
-	 * Constructor
+	 * Constructor (for light curve plots).
 	 * 
-	 * We add named observation source lists to unique series numbers.
+	 * We add named observation source lists to unique series numbers. 
 	 * 
 	 * @param obsSourceListMap
 	 *            A mapping from source series to lists of observation sources.
@@ -144,10 +145,11 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
-	 * Constructor
+	 * Constructor (for phase plots).
 	 * 
-	 * We add named observation source lists to unique series numbers, and if
-	 * the map is non-null, potentially change the set of visible series.
+	 * We add named observation source lists to unique series numbers, 
+	 * and if the visibility map is non-null, potentially change the set 
+	 * of visible series.
 	 * 
 	 * @param obsSourceListMap
 	 *            A mapping from source series to lists of observation sources.
@@ -372,7 +374,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	/**
 	 * Which series' elements should be joined visually (e.g. with lines)?
 	 * 
-	 * TODO: need to specialise this later to join observer's obs etc?
+	 * TODO: need to specialise this later to join observer's obs etc
 	 * 
 	 * @return A collection of series numbers for series whose elements should
 	 *         be joined visually.

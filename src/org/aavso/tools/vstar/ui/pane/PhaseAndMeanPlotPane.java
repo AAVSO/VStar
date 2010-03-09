@@ -18,8 +18,11 @@
 package org.aavso.tools.vstar.ui.pane;
 
 import java.awt.Dimension;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -28,7 +31,8 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * This class represents a chart pane containing a phase plot for a set of valid
  * observations along with mean-based data.
  */
-public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
+public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
+		IVisibilityMapSource {
 
 	/**
 	 * Constructor.
@@ -37,7 +41,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	 *            The title for the chart.
 	 * @param subTitle
 	 *            The sub-title for the chart.
-	 * @param obsModel
+	 * @param obsAndMeanModel
 	 *            The data model to plot.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
@@ -46,9 +50,28 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
 
 		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModel,
-				new TimeElementsInBinSettingPane("Phase Steps in Means Bin",
+				new TimeElementsInBinSettingPane("Phase Steps per Mean Series Bin",
 						obsAndMeanModel, PhaseTimeElementEntity.instance),
 				bounds);
+
+		this.getChartControlPanel().add(new NewPhasePlotButtonPane(this));
+	}
+
+	// Return a mapping from series number to visibility status,
+	// filtering out the means series. The means series is always
+	// visible, so we are simply excluding this from consideration
+	// (in the context of creating a phase plot, see NewPhasePlotButtonPane).
+	public Map<Integer, Boolean> getVisibilityMap() {
+		Map<Integer, Boolean> visibilityMap = obsModel.getSeriesVisibilityMap();
+		Map<Integer, Boolean> visibilityMapWithoutMeans = new HashMap<Integer, Boolean>();
+		for (Integer seriesNum : visibilityMap.keySet()) {
+			if (seriesNum != obsModel.getMeanSourceSeriesNum()) {
+				visibilityMapWithoutMeans.put(seriesNum, visibilityMap
+						.get(seriesNum));
+			}
+		}
+
+		return null;
 	}
 
 	// Returns an observation selection listener.
