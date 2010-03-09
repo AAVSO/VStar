@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.pane;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -80,17 +81,25 @@ public class TimeElementsInBinSettingPane extends JPanel {
 				meanSrcObsList.size() - 1)
 				- timeElementEntity.getTimeElement(meanSrcObsList, 0);
 
-		// Spinner for time-elements-in-bin with the specified current, min, and max
-		// values, and step size. If the "current time elements in bin" value
+		// Spinner for time-elements-in-bin with the specified current, min, and
+		// max values, and step size. If the "current time elements in bin" value
 		// is larger than the calculated max value, correct that.
 		double currTimeElementsInBin = obsAndMeanModel.getTimeElementsInBin();
-		currTimeElementsInBin = currTimeElementsInBin <= max ? currTimeElementsInBin : max;
+		currTimeElementsInBin = currTimeElementsInBin <= max ? currTimeElementsInBin
+				: max;
 		obsAndMeanModel.setTimeElementsInBin(currTimeElementsInBin);
 
 		// We make the minimum arbitrarily small.
-		timeElementsInBinSpinnerModel = new SpinnerNumberModel(currTimeElementsInBin, 0,
-				max, timeElementEntity.getDefaultTimeIncrements());
+		timeElementsInBinSpinnerModel = new SpinnerNumberModel(
+				currTimeElementsInBin, 0, max, timeElementEntity
+						.getDefaultTimeIncrements());
 		timeElementsInBinSpinner = new JSpinner(timeElementsInBinSpinnerModel);
+		int spinnerWidth = 50;
+		int spinnerHeight = 30;		
+		timeElementsInBinSpinner.setMaximumSize(new Dimension(spinnerWidth,
+				spinnerHeight));
+		timeElementsInBinSpinner.setMinimumSize(new Dimension(spinnerWidth,
+				spinnerHeight));
 		this.add(timeElementsInBinSpinner);
 
 		this.add(Box.createHorizontalGlue());
@@ -108,8 +117,8 @@ public class TimeElementsInBinSettingPane extends JPanel {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Get the value and change the means series.
-				double timeElementsInBin = timeElementsInBinSpinnerModel.getNumber()
-						.doubleValue();
+				double timeElementsInBin = timeElementsInBinSpinnerModel
+						.getNumber().doubleValue();
 				obsAndMeanModel.changeMeansSeries(timeElementsInBin);
 			}
 		};
