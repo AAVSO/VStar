@@ -91,7 +91,7 @@ public class Mediator {
 	private Map<SeriesType, List<ValidObservation>> phasedValidObservationCategoryMap;
 
 	// Current mode.
-	private ModeType mode;
+	private ViewModeType mode;
 
 	// Current analysis type.
 	private AnalysisType analysisType;
@@ -106,7 +106,7 @@ public class Mediator {
 	// Notifiers.
 	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
 	private Notifier<NewStarMessage> newStarNotifier;
-	private Notifier<ModeType> modeChangeNotifier;
+	private Notifier<ViewModeType> modeChangeNotifier;
 	private Notifier<ProgressInfo> progressNotifier;
 	// TODO: This next notifier could be used to mark the "document"
 	// (the current star's dataset) associated with the valid obs
@@ -132,7 +132,7 @@ public class Mediator {
 	private Mediator() {
 		this.analysisTypeChangeNotifier = new Notifier<AnalysisTypeChangeMessage>();
 		this.newStarNotifier = new Notifier<NewStarMessage>();
-		this.modeChangeNotifier = new Notifier<ModeType>();
+		this.modeChangeNotifier = new Notifier<ViewModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
 		this.observationChangeNotifier = new Notifier<ObservationChangeMessage>();
 		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
@@ -147,7 +147,7 @@ public class Mediator {
 
 		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
 
-		this.mode = ModeType.PLOT_OBS_MODE;
+		this.mode = ViewModeType.PLOT_OBS_MODE;
 		this.analysisType = AnalysisType.RAW_DATA;
 		this.newStarMessage = null;
 
@@ -179,7 +179,7 @@ public class Mediator {
 	/**
 	 * @return the modeChangeNotifier
 	 */
-	public Notifier<ModeType> getModeChangeNotifier() {
+	public Notifier<ViewModeType> getModeChangeNotifier() {
 		return modeChangeNotifier;
 	}
 
@@ -240,7 +240,7 @@ public class Mediator {
 	 * @param mode
 	 *            The mode to change to.
 	 */
-	public void changeMode(ModeType mode) {
+	public void changeMode(ViewModeType mode) {
 		if (mode != this.mode) {
 			this.mode = mode;
 			this.getModeChangeNotifier().notifyListeners(mode);
@@ -250,7 +250,7 @@ public class Mediator {
 	/**
 	 * @return the mode
 	 */
-	public ModeType getMode() {
+	public ViewModeType getMode() {
 		return mode;
 	}
 
@@ -533,7 +533,7 @@ public class Mediator {
 
 		AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
 				analysisType, obsChartPane, obsAndMeanChartPane, obsListPane,
-				meansListPane, ModeType.PLOT_OBS_MODE);
+				meansListPane, ViewModeType.PLOT_OBS_MODE);
 
 		// Commit to using the new observation lists and category map,
 		// first making old values available for garbage collection.
@@ -678,7 +678,7 @@ public class Mediator {
 		// Observation-and-mean table and plot.
 		AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(
 				AnalysisType.PHASE_PLOT, obsChartPane, obsAndMeanChartPane,
-				obsListPane, meansListPane, ModeType.PLOT_OBS_MODE);
+				obsListPane, meansListPane, ViewModeType.PLOT_OBS_MODE);
 
 		analysisTypeMap.put(AnalysisType.PHASE_PLOT, phasePlotMsg);
 
