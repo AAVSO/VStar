@@ -123,7 +123,7 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	private ActionListener createFieldActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// checkInput();
+				checkInput();
 			}
 		};
 	}
@@ -133,8 +133,6 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	// fields, and start again, otherwise we tell the dialog
 	// to go away.
 	private void checkInput() {
-		setVisible(false);
-
 		if (!usernamePattern.matcher(usernameField.getText()).matches()
 				|| !passwordPattern.matcher(
 						new String(passwordField.getPassword())).matches()) {
@@ -147,6 +145,7 @@ public class LoginDialog extends AbstractOkCancelDialog {
 			// The fields validated, so dismiss the dialog box, indicating
 			// success.
 			setCancelled(false);
+			setVisible(false);
 			dispose();
 		}
 	}
