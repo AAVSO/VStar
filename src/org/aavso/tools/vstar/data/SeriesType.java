@@ -25,11 +25,12 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 
 // TODO:
 // - Note that this enum-based approach won't necessarily work once we
-//   try to extend VStar to accept other sources, e.g. photometrica, so...
+//   try to extend VStar to accept other sources, so...
 // - Eventually change this enum so that it starts out with a default set
 //   of series enum values but when connected to AID, it "refreshes" that
 //   Set<SeriesType> dynamically. Or just live with periodic code-generated
-//   updates to this class's enums. Other possibilities?
+//   updates to this class's enums. Other possibilities? Use a class with a
+//   Singleton Registry of instances of the class.
 // - Review all places where null or default type is permitted and
 //   eliminate.
 
@@ -66,7 +67,10 @@ public enum SeriesType {
 			5, "Cousins I", "I", new Color(255, 64, 0)), Tri_Color_Blue(50,
 			"Tri-Color Blue", "TB", new Color(0, 0, 64)), Tri_Color_Green(51,
 			"Tri-Color Green", "TG", new Color(0, 64, 0)), Tri_Color_Red(52,
-			"Tri-Color Red", "TR", new Color(64, 0, 0)), Orange_Liller(6,
+			"Tri-Color Red", "TR", new Color(64, 0, 0)), Optec_Wing_A(55,
+			"Optec Wing A", "MA", new Color(128, 64, 255)), Optec_Wing_B(56,
+			"Optec Wing B", "MB", new Color(128, 64, 128)), Optec_Wing_C(57,
+			"Optec Wing C", "MI", new Color(128, 0, 192)), Orange_Liller(6,
 			"Orange (Liller)", "Orange", new Color(255, 128, 0)), Johnson_U(7,
 			"Johnson U", "U", new Color(0, 255, 255)), Unfiltered_with_V_Zeropoint(
 			8, "Unfiltered with V Zeropoint", "CV", new Color(0, 192, 0)), Unfiltered_with_Red_Zeropoint(
@@ -292,7 +296,7 @@ public enum SeriesType {
 		for (SeriesType type : values()) {
 			series2ColorMap.put(type, type.getColor());
 		}
-		
+
 		seriesColorChangeNotifier.notifyListeners(series2ColorMap);
 	}
 

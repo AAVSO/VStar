@@ -17,6 +17,9 @@
  */
 package org.aavso.tools.vstar.data;
 
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+
 /**
  * This class corresponds to a single valid variable star observation. Depending
  * upon the source, some fields may be null. Some are not permitted to be null
@@ -413,7 +416,7 @@ public class ValidObservation extends Observation {
 			if (this.band != SeriesType.MEANS) {
 				strBuf.append(dateInfo.getJulianDay());
 			} else {
-				strBuf.append(String.format("%1.4f", dateInfo.getJulianDay()));				
+				strBuf.append(String.format("%1.4f", dateInfo.getJulianDay()));
 			}
 			strBuf.append("\n");
 
@@ -422,28 +425,20 @@ public class ValidObservation extends Observation {
 			strBuf.append("\n");
 		}
 
-		// TODO: only show phase values if analysis mode is phase plot
-		// (ask Mediator) or is it okay to show last-non-null phases in 
-		// any mode?
-
-		if (standardPhase != null) {
-			strBuf.append("Standard Phase: ");
-			if (this.band != SeriesType.MEANS) {
-				strBuf.append(standardPhase);
-			} else {
+		// If we are not in phase plot mode, we should not represent ourselves as
+		// having a phase.
+		if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
+			if (standardPhase != null) {
+				strBuf.append("Standard Phase: ");
 				strBuf.append(String.format("%1.4f", standardPhase));
+				strBuf.append("\n");
 			}
-			strBuf.append("\n");
-		}
 
-		if (previousCyclePhase != null) {
-			strBuf.append("Previous Cycle Phase: ");
-			if (this.band != SeriesType.MEANS) {
-				strBuf.append(previousCyclePhase);
-			} else {
+			if (previousCyclePhase != null) {
+				strBuf.append("Previous Cycle Phase: ");
 				strBuf.append(String.format("%1.4f", previousCyclePhase));
+				strBuf.append("\n");
 			}
-			strBuf.append("\n");
 		}
 
 		strBuf.append("Magnitude: ");
