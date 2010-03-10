@@ -35,7 +35,7 @@ import javax.swing.JScrollPane;
 
 import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.ModeType;
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -109,19 +109,19 @@ public class DataPane extends JPanel {
 	 * is shown.
 	 */
 	private void setDefaultCards() {
-		setCard(ModeType.PLOT_OBS_MODE_DESC,
+		setCard(ViewModeType.PLOT_OBS_MODE_DESC,
 				createTextPanel(noSomethingYet("Observation plot")));
 
-		setCard(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
+		setCard(ViewModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
 				createTextPanel(noSomethingYet("Observation and mean plot")));
 
-		setCard(ModeType.LIST_OBS_MODE_DESC,
+		setCard(ViewModeType.LIST_OBS_MODE_DESC,
 				createTextPanel(noSomethingYet("Observation list")));
 
-		setCard(ModeType.LIST_MEANS_MODE_DESC,
+		setCard(ViewModeType.LIST_MEANS_MODE_DESC,
 				createTextPanel(noSomethingYet("Means list")));
 
-		showCard(ModeType.PLOT_OBS_MODE_DESC);
+		showCard(ViewModeType.PLOT_OBS_MODE_DESC);
 	}
 
 	private static JComponent createTextPanel(String text) {
@@ -151,11 +151,11 @@ public class DataPane extends JPanel {
 
 				if (obsPlotPane != null && obsAndMeanPane != null
 						&& obsListPane != null && meansListPane != null) {
-					setCard(ModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
-					setCard(ModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
+					setCard(ViewModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
+					setCard(ViewModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
 							obsAndMeanPane);
-					setCard(ModeType.LIST_OBS_MODE_DESC, obsListPane);
-					setCard(ModeType.LIST_MEANS_MODE_DESC, meansListPane);
+					setCard(ViewModeType.LIST_OBS_MODE_DESC, obsListPane);
+					setCard(ViewModeType.LIST_MEANS_MODE_DESC, meansListPane);
 
 					// This class will respond to this message via
 					// createModeChangeListener(). Other components
@@ -174,10 +174,10 @@ public class DataPane extends JPanel {
 	/**
 	 * Return a mode change listener.
 	 */
-	private Listener<ModeType> createModeChangeListener() {
-		return new Listener<ModeType>() {
+	private Listener<ViewModeType> createModeChangeListener() {
+		return new Listener<ViewModeType>() {
 			// Change the component in the specified card.
-			public void update(ModeType info) {
+			public void update(ViewModeType info) {
 				String modeDesc = info.getModeDesc();
 				showCard(modeDesc);
 			}

@@ -21,10 +21,9 @@ package org.aavso.tools.vstar.ui.mediator;
  * Mode type enum and methods for transforming enum values into other values of
  * interest.
  */
-public enum ModeType {
+public enum ViewModeType {
 
-	// TODO: use ctor based approach to desc strings etc; call it ModeInfo
-	
+	// View modes.
 	PLOT_OBS_MODE, PLOT_OBS_AND_MEANS_MODE, LIST_OBS_MODE, LIST_MEANS_MODE;
 
 	public final static String PLOT_OBS_MODE_DESC = "Plot Observations";
@@ -44,14 +43,14 @@ public enum ModeType {
 	/**
 	 * Given the mode type, return mode description string.
 	 * 
-	 * @param modeType
+	 * @param viewModeType
 	 *            The document type.
 	 * @return The mode string.
 	 */
-	private static String getModeDesc(ModeType modeType) {
+	private static String getModeDesc(ViewModeType viewModeType) {
 		String mode = null;
 
-		switch (modeType) {
+		switch (viewModeType) {
 		case PLOT_OBS_MODE:
 			mode = PLOT_OBS_MODE_DESC;
 			break;
@@ -76,8 +75,8 @@ public enum ModeType {
 	 *            The mode description string.
 	 * @return The corresponding mode type value.
 	 */
-	public static ModeType getModeFromDesc(String desc) {
-		ModeType mode = null;
+	public static ViewModeType getModeFromDesc(String desc) {
+		ViewModeType mode = null;
 
 		assert (PLOT_OBS_MODE_DESC.equals(desc)
 				|| PLOT_OBS_AND_MEANS_MODE_DESC.equals(desc)

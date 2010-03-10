@@ -38,7 +38,7 @@ public class AnalysisTypeChangeMessage {
 	private MeanObservationListPane meansListPane;
 	
 	// Include the required mode.
-	private ModeType mode;
+	private ViewModeType mode;
 
 	/**
 	 * Constructor.
@@ -59,7 +59,7 @@ public class AnalysisTypeChangeMessage {
 			ObservationAndMeanPlotPane obsAndMeanChartPane,
 			ObservationListPane obsListPane,
 			MeanObservationListPane meansListPane,
-			ModeType mode) {
+			ViewModeType mode) {
 		super();
 		this.analysisType = analysisType;
 		this.obsChartPane = obsChartPane;
@@ -107,7 +107,7 @@ public class AnalysisTypeChangeMessage {
 	/**
 	 * @return the mode
 	 */
-	public ModeType getMode() {
+	public ViewModeType getMode() {
 		return mode;
 	}
 }
