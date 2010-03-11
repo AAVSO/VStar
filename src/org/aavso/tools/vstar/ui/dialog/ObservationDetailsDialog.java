@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This modeless dialog class displays info about a single observation.
@@ -50,10 +51,12 @@ import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
  * they take awhile to render otherwise and we are likely to create many per
  * session.
  */
-public class ObservationDetailsDialog extends JDialog implements FocusListener {
+public class ObservationDetailsDialog extends JDialog implements FocusListener,
+		Listener<ObservationChangeMessage> {
 
-	private JButton okButton;
 	private ValidObservation ob;
+	private JButton okButton;
+	private JCheckBox discrepantCheckBox;
 
 	public ObservationDetailsDialog(ValidObservation ob) {
 		super();
@@ -79,12 +82,14 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 		// since it's a derived (computed) observation.
 		if (ob.getBand() != SeriesType.MEANS) {
 			JPanel checkBoxPane = new JPanel();
-			JCheckBox discrepantCheckBox = new JCheckBox("Discrepant?");
+			discrepantCheckBox = new JCheckBox("Discrepant?");
 			discrepantCheckBox
 					.addActionListener(createDiscreantCheckBoxHandler());
 			discrepantCheckBox.setSelected(ob.isDiscrepant());
 			checkBoxPane.add(discrepantCheckBox);
 			topPane.add(checkBoxPane, BorderLayout.CENTER);
+			
+			Mediator.getInstance().getObservationChangeNotifier().addListener(this);
 		}
 
 		JPanel buttonPane = new JPanel();
@@ -145,5 +150,22 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
 	public void focusLost(FocusEvent e) {
 		// Nothing to do.
+	}
+
+	public boolean canBeRemoved() {
+		return false;
+	}
+
+	// If it was not this object that generated a discrepant observation 
+	// change message, update the discrepant checkbox.
+	public void update(ObservationChangeMessage info) {
+		for (ObservationChangeType change : info.getChanges()) {
+			if (info.getSource() != this && change == ObservationChangeType.DISCREPANT
+					&& info.getObservation() == this.ob) {
+				boolean isDiscrepant = !this.discrepantCheckBox.isSelected();
+				this.discrepantCheckBox.setSelected(isDiscrepant);
+				break;
+			}
+		}
 	}
 }
