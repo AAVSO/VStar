@@ -234,7 +234,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		checkBoxPanel.setBorder(BorderFactory.createTitledBorder("Show"));
 		checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel,
 				BoxLayout.PAGE_AXIS));
-		
+
 		// A checkbox to show/hide error bars.
 		JCheckBox errorBarCheckBox = new JCheckBox("Error bars?");
 		errorBarCheckBox.setSelected(this.showErrorBars);
@@ -452,20 +452,24 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			}
 		}
 
-		// For one observation we will simply have one point at the
-		// centre of the range.
-		if (min == max) {
-			double mag = min;
-			min = mag - 1;
-			max = mag + 1;
+		boolean obsToPlot = min <= max;
+
+		if (obsToPlot) {
+			if (min == max) {
+				// For just one observation we will simply have one point at the
+				// centre of the range.
+				double mag = min;
+				min = mag - 1;
+				max = mag + 1;
+			}
+
+			// Add a small (1%) margin around min/max.
+			double margin = (max - min) / 100;
+			min -= margin;
+			max += margin;
+
+			NumberAxis magAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
+			magAxis.setRange(new Range(min, max));
 		}
-
-		// Add a small (1%) margin around min/max.
-		double margin = (max - min) / 100;
-		min -= margin;
-		max += margin;
-
-		NumberAxis magAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
-		magAxis.setRange(new Range(min, max));
 	}
 }
