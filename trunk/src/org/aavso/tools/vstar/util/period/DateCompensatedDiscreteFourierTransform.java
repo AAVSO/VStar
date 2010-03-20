@@ -31,19 +31,27 @@ import org.aavso.tools.vstar.data.ValidObservation;
  * References (supplied by M. Templeton):
  * 
  * <ol>
- * <li>Ferraz-Mello, S., 1981, Estimation of Periods from Unequally Spaced
- * Observations, Astron. Journal 86, 619</li>
- * <li>Foster, G., 1995, Time Series Analysis by Projection. II. Tensor Methods
- * for Time Series Analysis, Astron. Journal 111, 555</li>
+ * <li>
+ * Ferraz-Mello, S., 1981, Estimation of Periods from Unequally Spaced
+ * Observations, Astron. Journal 86, 619 
+ * (http://adsabs.harvard.edu/abs/1981AJ.....86..619F)
+ * </li>
+ * <li>
+ * Foster, G., 1995, Time Series Analysis by Projection. II. Tensor Methods
+ * for Time Series Analysis, Astron. Journal 111, 555
+ * (http://adsabs.harvard.edu/abs/1996AJ....111..555F)
+ * </li>
  * </ol>
  */
 
 // TODO:
-// - create an interface that this class implements, e.g. 
+// - Create an interface that this class implements, e.g. 
 //   void execute(), Map<String, List<DataPoint>> getPlotSeriesMap(),
 //   where the key is a series name and the values are a set of points
 //   to be plotted, void PlotType getPlotType(), where PlotType is an 
 //   enum. This would allow us to have arbitrary analysis types, plots,
+// - Don't create arrays if we don't have to; instead pull everything we
+//   can out of the obs list.
 
 public class DateCompensatedDiscreteFourierTransform {
 
@@ -130,7 +138,7 @@ public class DateCompensatedDiscreteFourierTransform {
 	private int nx;
 	private int nzoom;
 	private String obias[] = new String[51];
-	private String obs[] = new String[1000001];
+	private String obs[];
 	private double pp;
 	private double sfit[] = new double[1000001];
 	private double tcur;
@@ -146,13 +154,13 @@ public class DateCompensatedDiscreteFourierTransform {
 	private double tuplim;
 	private double tuplimit;
 	private double tupzoom;
-	private double tvec[] = new double[1000001];
+	private double tvec[];
 	private double twopi;
-	private double wvec[] = new double[1000001];
+	private double wvec[];
 	private double xfit[] = new double[1000001];
 	private double xleft;
 	private double xright;
-	private double xvec[] = new double[1000001];
+	private double xvec[];
 	private double xx;
 	private double ybottom;
 	private double ytop;
@@ -167,8 +175,38 @@ public class DateCompensatedDiscreteFourierTransform {
 	public DateCompensatedDiscreteFourierTransform(
 			List<ValidObservation> observations) {
 		this.observations = observations;
+				
+		// TODO: change to zero index start to get rid of +1!
+		int sz = observations.size()+1;
+		this.obs = new String[sz];
+		this.tvec = new double[sz];
+		this.xvec = new double[sz];
+		this.wvec = new double[sz];
 	}
 
+	// -------------------------------------------------------------------------------
+
+	/**
+	 * @return the adjusted time vector.
+	 */
+	public double[] getAdjustedJDs() {
+		return tvec;
+	}
+
+	/**
+	 * @return the magnitude vector.
+	 */
+	public double[] getMags() {
+		return xvec;
+	}
+
+	/**
+	 * @return the weight vector.
+	 */
+	public double[] getWeights() {
+		return wvec;
+	}
+	
 	// -------------------------------------------------------------------------------
 
 	void execute() {
@@ -232,11 +270,11 @@ public class DateCompensatedDiscreteFourierTransform {
 			deex = observation.getMag();
 			tvec[num] = deetee;
 			xvec[num] = deex;
-			System.out.println(tvec[num] + " " + xvec[num]);
+			//System.out.println(tvec[num] + " " + xvec[num]);
 			if (num == 1)
-				dt0 = (int) (tvec[num]);
+				dt0 = (int) (tvec[num]); // TODO: do this once at start?
 
-			tvec[num] = tvec[num] - dt0;
+			tvec[num] = tvec[num] - dt0; // yields MJD
 			wvec[num] = 1.0;
 			obs[num] = "    ";
 			if (tvec[num] < tvec[num - 1]) {
@@ -376,13 +414,13 @@ public class DateCompensatedDiscreteFourierTransform {
 	 * @return TODO: do we return anything? TODO: rename to dcdft()?
 	 */
 	void fft(double ff) {
-		double pp = 0; // TODO: are Fortran vars initialised? apparently not
+		double pp = 0;
 
 		int na, nb;
 		// double dd;
 
 		if (ff != 0.0)
-			pp = 1.0 / ff;
+			pp = 1.0 / ff; // TODO: what should the default/else case be?
 		// print*,ff,pp
 		dfre[nfre] = ff;
 		project();
@@ -391,7 +429,7 @@ public class DateCompensatedDiscreteFourierTransform {
 		na = npoly + 1;
 		nb = na + 1;
 		dd = Math.sqrt(dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb]);
-		// write(1,200) ff,pp,dfpow,dd
+		// write(1,200) ff,pp,dfpow,dd // TODO: this one should be enabled
 		// end of bugfix
 		if (damp < dlamp && dlamp >= dllamp)
 			tablit();
