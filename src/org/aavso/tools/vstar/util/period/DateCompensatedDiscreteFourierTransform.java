@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.util.period;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -33,37 +34,38 @@ import org.aavso.tools.vstar.data.ValidObservation;
  * <ol>
  * <li>
  * Ferraz-Mello, S., 1981, Estimation of Periods from Unequally Spaced
- * Observations, Astron. Journal 86, 619 
- * (http://adsabs.harvard.edu/abs/1981AJ.....86..619F)
- * </li>
+ * Observations, Astron. Journal 86, 619
+ * (http://adsabs.harvard.edu/abs/1981AJ.....86..619F)</li>
  * <li>
- * Foster, G., 1995, Time Series Analysis by Projection. II. Tensor Methods
- * for Time Series Analysis, Astron. Journal 111, 555
- * (http://adsabs.harvard.edu/abs/1996AJ....111..555F)
- * </li>
+ * Foster, G., 1995, Time Series Analysis by Projection. II. Tensor Methods for
+ * Time Series Analysis, Astron. Journal 111, 555
+ * (http://adsabs.harvard.edu/abs/1996AJ....111..555F)</li>
  * </ol>
  */
 
 // TODO:
-// - Create an interface that this class implements, e.g. 
-//   void execute(), Map<String, List<DataPoint>> getPlotSeriesMap(),
-//   where the key is a series name and the values are a set of points
-//   to be plotted, void PlotType getPlotType(), where PlotType is an 
-//   enum. This would allow us to have arbitrary analysis types, plots,
+// - Create an interface that this class implements, e.g.
+// void execute(), Map<String, List<DcDftDataPoint>> getPlotSeriesMap(),
+// where the key is a series name and the values are a set of points
+// to be plotted, void PlotType getPlotType(), where PlotType is an
+// enum. This would allow us to have arbitrary analysis types, plots,
 // - Don't create arrays if we don't have to; instead pull everything we
-//   can out of the obs list.
+// can out of the obs list.
 
 public class DateCompensatedDiscreteFourierTransform {
 
 	private List<ValidObservation> observations;
-	
-	private double dang0;
+	private List<DcDftDataPoint> results;
+
+	// private Map<String, List<DcDftDataPoint>> series;
+
+	// private double dang0;
 	private double dangcut;
 	private double damp;
 	private double damp2;
 	private double dave;
 	private double dcoef[] = new double[51];
-	private double dd;
+	// private double dd;
 	private double dfouramp2;
 	private double dfpow;
 	private double dfre[] = new double[21];
@@ -76,112 +78,117 @@ public class DateCompensatedDiscreteFourierTransform {
 	private double dlper;
 	private double dlpower;
 	private double dmat[][] = new double[51][51];
-	private double dphase;
-	private double dpow;
+	// private double dphase;
+	// private double dpow;
 	private double dpower;
 	private double dsig;
-	private double dsol;
-	private double dt;
+	// private double dsol;
+	// private double dt;
 	private double dt0;
 	private double dtsig;
 	private double dtave;
-	private double dts;
+	// private double dts;
 	private double dtscale;
 	private double dtvar;
 	private double dtzero;
 	private double dvar;
 	private double dvec[] = new double[51];
-	private double dw;
+	// private double dw;
 	private double dweight;
-	private double dx;
-	private double dxout;
+	// private double dx;
+	// private double dxout;
 	private double ff;
 	private double hifre;
-	private int ii;
-	private int jj;
+	// private int ii;
+	// private int jj;
 	private int ma;
-	private int magmark;
+	// private int magmark;
 	private int magspan;
-	private int mazoom;
+	// private int mazoom;
 	private int mb;
-	private int mbzoom;
-	private int mcur;
-	private int mflag;
+	// private int mbzoom;
+	// private int mcur;
+	// private int mflag;
 	private int mhigh;
 	private int mlow;
-	private int mput;
-	private int na;
-	private int nactual;
-	private int nb;
+	// private int mput;
+	// private int na;
+	// private int nactual;
+	// private int nb;
 	private int nbias;
-	private int nbins;
-	private int nbottom;
+	// private int nbins;
+	// private int nbottom;
 	private int nbrake;
 	private int ndigt;
 	private int ndim;
 	private int ndim2;
-	private int nfit[] = new int[1000001];
+	// private int nfit[] = new int[1000001];
 	private int nfre;
-	private int ni;
+	// private int ni;
 	private int nj;
-	private int nk;
+	// private int nk;
 	private int nlolim;
 	private int npoly;
-	private int nright;
-	private int ntcol;
-	private int nthis;
-	private int ntop;
+	// private int nright;
+	// private int ntcol;
+	// private int nthis;
+	// private int ntop;
 	private int numact;
 	private int numraw;
-	private int numred;
+	// private int numred;
 	private int nuplim;
-	private int nx;
-	private int nzoom;
+	// private int nx;
+	// private int nzoom;
 	private String obias[] = new String[51];
 	private String obs[];
-	private double pp;
-	private double sfit[] = new double[1000001];
-	private double tcur;
-	private double tfit[] = new double[1000001];
+	// private double pp;
+	// private double sfit[] = new double[1000001];
+	// private double tcur;
+	// private double tfit[] = new double[1000001];
 	private double tlolim;
-	private double tlozoom;
+	// private double tlozoom;
 	private double tmark;
-	private double toff;
-	private double toffl;
-	private double tput;
+	// private double toff;
+	// private double toffl;
+	// private double tput;
 	private double tresolv;
-	private double tsize;
+	// private double tsize;
 	private double tuplim;
 	private double tuplimit;
-	private double tupzoom;
+	// private double tupzoom;
 	private double tvec[];
-	private double twopi;
+	// private double twopi;
 	private double wvec[];
-	private double xfit[] = new double[1000001];
-	private double xleft;
-	private double xright;
+	// private double xfit[] = new double[1000001];
+	// private double xleft;
+	// private double xright;
 	private double xvec[];
-	private double xx;
-	private double ybottom;
-	private double ytop;
-		
+
+	// private double xx;
+	// private double ybottom;
+	// private double ytop;
+
 	// -------------------------------------------------------------------------------
 
 	/**
-	 * Constructor
-	 * Note: In future, we may want to specify a min and max JD here.
-	 * @param observations The observations over which to perform a period analysis.
+	 * Constructor Note: In future, we may want to specify a min and max JD
+	 * here.
+	 * 
+	 * @param observations
+	 *            The observations over which to perform a period analysis.
 	 */
 	public DateCompensatedDiscreteFourierTransform(
 			List<ValidObservation> observations) {
 		this.observations = observations;
-				
+
 		// TODO: change to zero index start to get rid of +1!
-		int sz = observations.size()+1;
+		int sz = observations.size() + 1;
 		this.obs = new String[sz];
 		this.tvec = new double[sz];
 		this.xvec = new double[sz];
 		this.wvec = new double[sz];
+
+		this.results = new ArrayList<DcDftDataPoint>();
 	}
 
 	// -------------------------------------------------------------------------------
@@ -206,30 +213,37 @@ public class DateCompensatedDiscreteFourierTransform {
 	public double[] getWeights() {
 		return wvec;
 	}
-	
+
+	/**
+	 * @return the results
+	 */
+	public List<DcDftDataPoint> getResults() {
+		return results;
+	}
+
 	// -------------------------------------------------------------------------------
 
 	void execute() {
 		load_raw();
 		dcdft();
 		statcomp();
-		// TODO: now, where are the results...?
+		// TODO: now, where are the results...? see line 432
 	}
 
 	// -------------------------------------------------------------------------------
 
 	void load_raw() {
 
-		String fin, flog;
+		// String fin, flog;
 		double dtspan, x, dd, dtcorr, dx;
 		double jda, jdb;
-		int ijda, ijdb;
-		int idot, ispace;
-		int num, n, nxx;
+		// int ijda, ijdb;
+		// int idot, ispace;
+		int num, n;
 		double deetee, deex;
 
-		ijda = 0;
-		ijdb = 0;
+		// ijda = 0;
+		// ijdb = 0;
 
 		// idot=index[fin]['.'];
 		// ispace=index[fin][' '];
@@ -247,34 +261,34 @@ public class DateCompensatedDiscreteFourierTransform {
 		// }
 		// read*,ijdb
 		// read[5][909] ijdb;
-		if (ijdb == 0)
-			ijdb = 2500000;
+		// if (ijdb == 0)
+		// ijdb = 2500000;
 		// 909 format(i7)
 		// TODO: set these to min/max JD from obs list
-//		jda = (double) ijda;
-//		jdb = (double) ijdb;
-		jda = this.observations.get(0).getJD();
-		jdb = this.observations.get(observations.size()-1).getJD();
-		
+		// jda = (double) ijda;
+		// jdb = (double) ijdb;
+		jda = observations.get(0).getJD();
+		jdb = observations.get(observations.size() - 1).getJD();
+
 		// TODO: change this to iterate over list
-//		for (nxx = 1; nxx <= 1000000; nxx++) {
+		// for (nxx = 1; nxx <= 1000000; nxx++) {
 		for (ValidObservation observation : this.observations) {
 			// read(9,*,end=99) deetee,deex
 			// if (deetee<jda) goto 97;
 			// if (deetee>jdb) goto 99;
 			num = num + 1;
 			// TODO: get detee and deex from obs list!
-//			deetee = 0; // JD
-//			deex = 0; // mag
+			// deetee = 0; // JD
+			// deex = 0; // mag
 			deetee = observation.getJD();
 			deex = observation.getMag();
 			tvec[num] = deetee;
 			xvec[num] = deex;
-			//System.out.println(tvec[num] + " " + xvec[num]);
+			// System.out.println(tvec[num] + " " + xvec[num]);
 			if (num == 1)
 				dt0 = (int) (tvec[num]); // TODO: do this once at start?
 
-			tvec[num] = tvec[num] - dt0; // yields MJD
+			tvec[num] = tvec[num] - dt0;
 			wvec[num] = 1.0;
 			obs[num] = "    ";
 			if (tvec[num] < tvec[num - 1]) {
@@ -344,22 +358,30 @@ public class DateCompensatedDiscreteFourierTransform {
 
 	void dcdft() {
 		int magres, nchoice;
-		double dpolyamp2, dang0, dang00, damplit, dt, dx, hifre, xlofre;
-		int nj, iff, ixx, nbest, ipp;
-		double ff, res, hiper, xloper, pper;
-		String rfil;
-		String rname;
-		double avemod, varmod;
-		int nb, np, nn, na;
-		double dd;
-		double ttl, xml, resid, residl, tt, xm, rdev;
-		int n;
-		double[] dtest = new double[21];
-		double[] dres = new double[21];
-		int nvariable, nvary, nlocked, nsofar, nv, nvlast, nchange;
-		double dbpower;
-		int iwhile1, iwhile2, iswap;
-		int i, j;
+		double dpolyamp2, dang0, dang00, damplit, dt, dx, hifre, xlofre; // TODO:
+		// should
+		// we
+		// use
+		// this
+		// dt, dang0
+		// or
+		// global?
+		int nbest;
+		// int nj, iff, ixx, nbest, ipp;
+		// double ff, res, hiper, xloper, pper;
+		// String rfil;
+		// String rname;
+		// double avemod, varmod;
+		// int nb, np, nn, na;
+		// double dd;
+		// double ttl, xml, resid, residl, tt, xm, rdev;
+		// int n;
+		// double[] dtest = new double[21];
+		// double[] dres = new double[21];
+		// int nvariable, nvary, nlocked, nsofar, nv, nvlast, nchange;
+		// double dbpower;
+		// int iwhile1, iwhile2, iswap;
+		// int i, j;
 
 		// iname=index[fin][' '];
 		// fprint=fin(1:iname)
@@ -379,14 +401,14 @@ public class DateCompensatedDiscreteFourierTransform {
 		damplit = (int) ((double) (mb - ma) / 2.0) + 1.0;
 		dt = (tvec[nuplim] - tvec[nlolim]) / (double) numact;
 		if (dt <= 0.0)
-			dt = 1.0;
+			dt = 1.0; // TODO: this will never be communicated!
 
-		standard_scan();
+		standard_scan(dang0);
 	}
 
 	// -------------------------------------------------------------------------------
 
-	void standard_scan() {
+	void standard_scan(double dang0) {
 		nfre = 1;
 		hifre = (double) numact * dang0;
 		// write(1,290) fprint,numact,dave,dsig,dvar
@@ -396,6 +418,7 @@ public class DateCompensatedDiscreteFourierTransform {
 		for (nj = 1 + npoly; nj <= numact; nj++) {
 			ff = (double) nj * dang0;
 			fft(ff);
+			// TODO: nbrake is never set to anything other than 0!!
 			if (nbrake < 0) {
 				statcomp();
 				// goto 1
@@ -417,7 +440,7 @@ public class DateCompensatedDiscreteFourierTransform {
 		double pp = 0;
 
 		int na, nb;
-		// double dd;
+		double dd;
 
 		if (ff != 0.0)
 			pp = 1.0 / ff; // TODO: what should the default/else case be?
@@ -430,6 +453,9 @@ public class DateCompensatedDiscreteFourierTransform {
 		nb = na + 1;
 		dd = Math.sqrt(dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb]);
 		// write(1,200) ff,pp,dfpow,dd // TODO: this one should be enabled
+		// System.out.println(String.format("%14.9f%10.4f%10.4f%10.4f", ff, pp,
+		// dfpow, dd));
+		collect_datapoint(ff, pp, dfpow, dd);
 		// end of bugfix
 		if (damp < dlamp && dlamp >= dllamp)
 			tablit();
@@ -439,6 +465,11 @@ public class DateCompensatedDiscreteFourierTransform {
 		dlper = pp;
 		dlpower = dfpow;
 		// 200 format(f14.9,3(1x,f10.4))
+	}
+
+	void collect_datapoint(double ff, double pp, double dfpow, double dd) {
+		DcDftDataPoint datapoint = new DcDftDataPoint(ff, pp, dfpow, dd);
+		this.results.add(datapoint);
 	}
 
 	// -------------------------------------------------------------------------------
@@ -544,7 +575,8 @@ public class DateCompensatedDiscreteFourierTransform {
 			}
 			drad[nf] = twopi * dfre[nf] * dtscale;
 			for (nf2 = nf + 1; nf2 <= nfre; nf2++) {
-				if (Math.abs(dfre[nf] - dfre[nf2]) < 1.d - 8) {
+				// if (Math.abs(dfre[nf] - dfre[nf2]) < 1.d - 8) {
+				if (Math.abs(dfre[nf] - dfre[nf2]) < 1E-8) {
 					dpower = 0.0;
 					return;
 				}
