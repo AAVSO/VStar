@@ -31,19 +31,18 @@ import org.aavso.tools.vstar.data.ValidObservation;
  */
 public class DateCompensatedDiscreteFourierTransformTest extends TestCase {
 
-	// This is the same data as is found in the first two columns of 
-	// the delcep.vis data file accompanying the ts1201.f AAVSO DCDFT 
+	// This is the same data as is found in the first two columns of
+	// the delcep.vis data file accompanying the ts1201.f AAVSO DCDFT
 	// archive sent to me by Matt Templeton in March 2010.
-	
-	private double[][] jd_and_mag = { 
-			{ 2450000.2569, 3.9 }, { 2450000.3528, 4.3 },
-			{ 2450000.4826, 3.7 }, { 2450000.5, 3.8 }, { 2450000.5, 3.5 },
-			{ 2450000.52, 3.7 }, { 2450000.5424, 3.6 }, { 2450000.58, 3.7 },
-			{ 2450000.58, 3.8 }, { 2450000.58, 3.8 }, { 2450000.5833, 3.6 },
-			{ 2450000.59, 3.9 }, { 2450000.6, 3.7 }, { 2450000.63, 3.8 },
-			{ 2450000.74, 3.7 }, { 2450001.2257, 3.6 }, { 2450001.4063, 3.8 },
-			{ 2450001.4972, 3.9 }, { 2450001.50, 3.7 }, { 2450001.52, 3.7 },
-			{ 2450001.5437, 3.7 }, { 2450001.5833, 3.6 },
+
+	private static double[][] jd_and_mag = { { 2450000.2569, 3.9 },
+			{ 2450000.3528, 4.3 }, { 2450000.4826, 3.7 }, { 2450000.5, 3.8 },
+			{ 2450000.5, 3.5 }, { 2450000.52, 3.7 }, { 2450000.5424, 3.6 },
+			{ 2450000.58, 3.7 }, { 2450000.58, 3.8 }, { 2450000.58, 3.8 },
+			{ 2450000.5833, 3.6 }, { 2450000.59, 3.9 }, { 2450000.6, 3.7 },
+			{ 2450000.63, 3.8 }, { 2450000.74, 3.7 }, { 2450001.2257, 3.6 },
+			{ 2450001.4063, 3.8 }, { 2450001.4972, 3.9 }, { 2450001.50, 3.7 },
+			{ 2450001.52, 3.7 }, { 2450001.5437, 3.7 }, { 2450001.5833, 3.6 },
 			{ 2450001.5833, 3.6 }, { 2450001.59, 3.6 }, { 2450001.6, 3.6 },
 			{ 2450001.62, 3.7 }, { 2450001.62, 3.6 }, { 2450001.64, 3.6 },
 			{ 2450002.2403, 4.0 }, { 2450002.2535, 3.7 },
@@ -1210,32 +1209,52 @@ public class DateCompensatedDiscreteFourierTransformTest extends TestCase {
 			{ 2450995.7479, 4.1 }, { 2450996.63, 4.1 }, { 2450996.6889, 4.2 },
 			{ 2450996.7743, 4.1 }, { 2450997.60, 4.1 }, { 2450997.7208, 4.4 },
 			{ 2450997.7958, 4.1 }, { 2450998.5, 4.0 }, { 2450998.62, 3.6 },
-			{ 2450998.72, 3.9 }, { 2450999.3986, 3.8 }, { 2450999.7097, 3.9 }};
+			{ 2450998.72, 3.9 }, { 2450999.3986, 3.8 }, { 2450999.7097, 3.9 } };
 
-	private List<ValidObservation> observations;
-	
+	// A subset of expected results. While we need all the observation
+	// data to get a particular result set, we only need to check part
+	// of the latter. The first data-point in this array corresponds to
+	// the element whose index is 723 in the actual expected result array.
+	private static DcDftDataPoint[] expectedResults = {
+			new DcDftDataPoint(0.185096958, 5.4026, 29.1473, 0.0434),
+			new DcDftDataPoint(0.185352617, 5.3951, 1.1650, 0.0087),
+			new DcDftDataPoint(0.185608276, 5.3877, 73.6941, 0.0694),
+			new DcDftDataPoint(0.185863935, 5.3803, 286.2345, 0.1348),
+			new DcDftDataPoint(0.186119594, 5.3729, 532.3003, 0.1837),
+			new DcDftDataPoint(0.186375252, 5.3655, 629.2575, 0.2013), // **
+			new DcDftDataPoint(0.186630911, 5.3582, 485.0491, 0.1779),
+			new DcDftDataPoint(0.186886570, 5.3508, 222.2465, 0.1203),
+			new DcDftDataPoint(0.187142229, 5.3435, 40.4382, 0.0510),
+			new DcDftDataPoint(0.187397888, 5.3362, 2.2775, 0.0122) };
+
+	private static List<ValidObservation> observations;
+
 	private DateCompensatedDiscreteFourierTransform dcdft;
-	
-	/**
-	 * Constructor.
-	 * @param name The test name.
-	 */
-	public DateCompensatedDiscreteFourierTransformTest(String name) {
-		super(name);
-		
-		this.observations = new ArrayList<ValidObservation>();
-		
-		for (double[] single_obs_pair : this.jd_and_mag) {
+
+	static {
+		observations = new ArrayList<ValidObservation>();
+
+		for (double[] single_obs_pair : jd_and_mag) {
 			double jd = single_obs_pair[0];
 			double mag = single_obs_pair[1];
 			double uncertainty = 0;
-			
+
 			ValidObservation ob = new ValidObservation();
 			ob.setDateInfo(new DateInfo(jd));
 			ob.setMagnitude(new Magnitude(mag, uncertainty));
-			
-			this.observations.add(ob);
+
+			observations.add(ob);
 		}
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param name
+	 *            The test name.
+	 */
+	public DateCompensatedDiscreteFourierTransformTest(String name) {
+		super(name);
 	}
 
 	/**
@@ -1244,28 +1263,49 @@ public class DateCompensatedDiscreteFourierTransformTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		assert !observations.isEmpty();
-		dcdft = new DateCompensatedDiscreteFourierTransform(this.observations);
+		dcdft = new DateCompensatedDiscreteFourierTransform(observations);
 	}
 
 	/**
-	 * Load raw data test.
+	 * Load raw data test and do a few simple checks.
 	 * {@link org.aavso.tools.vstar.util.period.DateCompensatedDiscreteFourierTransform#load_raw()}
 	 */
 	public void testLoad_raw() {
 		dcdft.load_raw();
-		
-		double mjds[] = dcdft.getAdjustedJDs();
+
 		double mags[] = dcdft.getMags();
 		double weights[] = dcdft.getWeights();
 		
-		double mjdDiff = 2400000.5;
-		
-//		assertEquals(String.format("%1.4f", 2450000.2569-mjdDiff), String.format("%1.4f", mjds[1]));
 		assertEquals(3.9, mags[1]);
 		assertEquals(1.0, weights[1]);
-		
-//		assertEquals(String.format("%1.4f", 2450999.7097-mjdDiff), String.format("%1.4f", mjds[mjds.length-1]));
-		assertEquals(3.9, mags[mags.length-1]);
-		assertEquals(1.0, weights[weights.length-1]);
+
+		assertEquals(3.9, mags[mags.length - 1]);
+		assertEquals(1.0, weights[weights.length - 1]);
+	}
+
+	/**
+	 * Test the execute method which performs a DC DFT on the data.
+	 * We test a subset of the results. 
+	 */
+	public void testExecute() {
+		dcdft.execute();
+
+		List<DcDftDataPoint> results = dcdft.getResults();
+
+		assertEquals("5.3655", String.format("%1.4f", results.get(728)
+				.getPeriod()));
+
+		int startIndex = 723; // starting result index
+
+		for (int i = 0; i < expectedResults.length; i++) {
+			DcDftDataPoint expected = expectedResults[i];
+			DcDftDataPoint actual = results.get(i + startIndex);
+
+			assertEquals(String.format("%1.4f", expected.getFrequency()),
+					String.format("%1.4f", actual.getFrequency()));
+
+			assertEquals(String.format("%1.4f", expected.getPeriod()), String
+					.format("%1.4f", actual.getPeriod()));
+		}
 	}
 }
