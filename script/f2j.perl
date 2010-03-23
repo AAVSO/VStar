@@ -22,6 +22,7 @@ for my $arg (@ARGV) {
     }
 
     print "class Class$i {\n";
+    print "    // TODO: check loop limits in Fortran vs Java!\n";
     gen_fields();
     for my $java_line (@java_lines) {
 	print "    $java_line\n";
@@ -32,11 +33,13 @@ for my $arg (@ARGV) {
 sub process_line {
     my $line = $_[0];
 
-    return if ($line =~ /^\s*$/);
-
     $line = stmt_substs($line);
 
-    if ($line =~ /^c(.+)\s*/) {
+    if ($line =~ /^\s*$/) {
+	push @java_lines, "";
+    } elsif ($line =~ /^c(.+)\s*/) {
+	push @java_lines, "// $1";
+    } elsif ($line =~ /^C(\-+)\s*/) {
 	push @java_lines, "// $1";
     } elsif ($line =~ /^\s*enddo|endif|end\s*/) {
 	push @java_lines, "}";
@@ -58,10 +61,16 @@ sub process_line {
 	$funcall .= "()" if ($funcall !~ /\)/);
 	push @java_lines, "$funcall;";
     } elsif ($line =~ /\s*(\d*)\s*if\s*\((.+)\)\s*(.+)\s*$/) {
-	my $if_line = "if ($2) $3 {";
+	my $if_line = "if ($2)";
 	$if_line = "line_$1: $if_line" if (length($1) > 0);
+	$if_line .= " $3";
+	if ($if_line =~ /then/) {
+	    $if_line .= " {";
+	} else {
+	    $if_line .= ";";
+	}
 	push @java_lines, $if_line;
-    } elsif ($line =~ /\s*(\d*)\s*do\s+(\w+)\s*=\s*(\w+)\s*,\s*(\w+)/) {
+    } elsif ($line =~ /\s*(\d*)\s*do\s+(\w+)\s*=\s*([^,]+)\s*,\s*(.+)/) {
 	my $variable = $2;
 	my $min = $3;
 	my $max = $4;
@@ -114,8 +123,7 @@ sub stmt_substs {
     $line =~ s/\.le\./<=/g;
     $line =~ s/\.and\./&&/g;
     $line =~ s/\.or\./||/g;
-    $line =~ s/0\.d0/0.0/g;
-    $line =~ s/1\.d0/1.0/g;
+    $line =~ s/(\d+)\.d0/$1.0/g;
     $line =~ s/real\*8/double/;
     $line =~ s/real/float/;
     $line =~ s/integer/int/;
@@ -129,10 +137,13 @@ sub gen_fields {
 	my $type = $var_map{$var};
 	my $field = "private $type $var";
 	my $decl = $decl_map{$var};
-	if (length($decl) > 0) {
-	    $field .= " = new $type$decl";
+	if (defined $decl and length($decl) > 0) {
+	    $field .= "[] = new $type$decl; // TODO: num indices; inc by 1 or 2!";
+	} else {
+	    $field .= ";";
 	}
-	print "    $field;\n";
+
+	print "    $field\n";
     }
 
     print "\n";
