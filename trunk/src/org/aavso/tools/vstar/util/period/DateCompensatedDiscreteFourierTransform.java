@@ -40,6 +40,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
  * Foster, G., 1995, Time Series Analysis by Projection. II. Tensor Methods for
  * Time Series Analysis, Astron. Journal 111, 555
  * (http://adsabs.harvard.edu/abs/1996AJ....111..555F)</li>
+ * <li>
+ * http://www.aavso.org/aavso/meetings/spring03present/templeton.shtml</li>
  * </ol>
  */
 
@@ -51,6 +53,17 @@ import org.aavso.tools.vstar.data.ValidObservation;
 // enum. This would allow us to have arbitrary analysis types, plots,
 // - Don't create arrays if we don't have to; instead pull everything we
 // can out of the obs list.
+// - If possible, remove weights array.
+// - If possible, avoid having to copy any data at all, i.e. skip load_raw().
+// - Also be able to retrieve via getters info in header of generated
+// .ts file, e.g.
+// DCDFT File=delcep.vis NUM= 3079 AVE= 3.9213 SDV=
+// 0.2235 VAR= 0.0500
+// JD 2450000.2569-2450999.7097 T.AVE=2450446.0000
+// - Double check with Matt that we are doing the date compensation
+// part in dcdft() here.
+// - Is DCDFT primarily intended to solve the aliasing problem? See
+// cataclysmic variable book.
 
 public class DateCompensatedDiscreteFourierTransform {
 
@@ -223,7 +236,10 @@ public class DateCompensatedDiscreteFourierTransform {
 
 	// -------------------------------------------------------------------------------
 
-	void execute() {
+	/**
+	 * Perform a "standard scan", a date compensated discrete Fourier transform.
+	 */
+	public void execute() {
 		load_raw();
 		dcdft();
 		statcomp();
@@ -232,7 +248,7 @@ public class DateCompensatedDiscreteFourierTransform {
 
 	// -------------------------------------------------------------------------------
 
-	void load_raw() {
+	protected void load_raw() {
 
 		// String fin, flog;
 		double dtspan, x, dd, dtcorr, dx;
@@ -356,7 +372,7 @@ public class DateCompensatedDiscreteFourierTransform {
 
 	// -------------------------------------------------------------------------------
 
-	void dcdft() {
+	protected void dcdft() {
 		int magres, nchoice;
 		double dpolyamp2, dang0, dang00, damplit, dt, dx, hifre, xlofre; // TODO:
 		// should
@@ -408,7 +424,7 @@ public class DateCompensatedDiscreteFourierTransform {
 
 	// -------------------------------------------------------------------------------
 
-	void standard_scan(double dang0) {
+	protected void standard_scan(double dang0) {
 		nfre = 1;
 		hifre = (double) numact * dang0;
 		// write(1,290) fprint,numact,dave,dsig,dvar
@@ -436,7 +452,7 @@ public class DateCompensatedDiscreteFourierTransform {
 	 *            TODO: what *is* this?
 	 * @return TODO: do we return anything? TODO: rename to dcdft()?
 	 */
-	void fft(double ff) {
+	protected void fft(double ff) {
 		double pp = 0;
 
 		int na, nb;
@@ -467,14 +483,16 @@ public class DateCompensatedDiscreteFourierTransform {
 		// 200 format(f14.9,3(1x,f10.4))
 	}
 
-	void collect_datapoint(double ff, double pp, double dfpow, double dd) {
-		DcDftDataPoint datapoint = new DcDftDataPoint(ff, pp, dfpow, dd);
+	private void collect_datapoint(double freq, double period, double power,
+			double amplitude) {
+		DcDftDataPoint datapoint = new DcDftDataPoint(freq, period, power,
+				amplitude);
 		this.results.add(datapoint);
 	}
 
 	// -------------------------------------------------------------------------------
 
-	void matinv() {
+	protected void matinv() {
 		double dsol[][] = new double[101][101];
 		double dfac = 0;
 		int ni = 0;
@@ -488,42 +506,67 @@ public class DateCompensatedDiscreteFourierTransform {
 			dsol[ni][ni] = 1.0;
 		}
 
-		boolean exit_and_carry_on = false;
-
 		for (ni = 0; ni <= ndim; ni++) {
+//			System.out.println(">>[ndim: " + ndim + "]<<");
+//			System.out.println(">>[ni: " + ni + "]<<");
+//			System.out.println(">>[dmat: " + dmat[ni][ni] + "]<<");
 			if (dmat[ni][ni] == 0.0) {
 				if (ni == ndim)
 					return;
-
-				for (nj = ni + 1; nj <= ndim && !exit_and_carry_on; nj++) {
+				// System.out.println("!!!!!!");
+				boolean exit_and_carry_on = false;
+				for (nj = ni + 1; nj <= ndim; nj++) {
 					if (dmat[nj][ni] != 0.0) {
 						exit_and_carry_on = true;
 						break;
 					}
+					System.out.println(">> 1");
+				}
+
+				System.out.println(">> 2");
+
+				if (!exit_and_carry_on)
+					return;
+
+				for (nk = 0; nk <= ndim; nk++) {
+					System.out.println(">> 3");
+					dmat[ni][nk] = dmat[ni][nk] + dmat[nj][nk];
+					dsol[ni][nk] = dsol[ni][nk] + dsol[nj][nk];
 				}
 			}
 
-			if (!exit_and_carry_on)
-				return;
+			// System.out.println(">> 4");
 
-			for (nk = 0; nk <= ndim; nk++) {
-				dmat[ni][nk] = dmat[ni][nk] + dmat[nj][nk];
-				dsol[ni][nk] = dsol[ni][nk] + dsol[nj][nk];
+			dfac = dmat[ni][ni];
+//			System.out.println(String.format(">> ni: %d, dfac: %f", ni, dfac));
+			for (nj = 0; nj <= ndim; nj++) {
+				dmat[ni][nj] = dmat[ni][nj] / dfac;
+				dsol[ni][nj] = dsol[ni][nj] / dfac;
+
+				// System.out.println("dmat[ni]: ");
+				// for (double n : dmat[ni]) {
+				// System.out.print(n + " ");
+				// }
+				// System.out.println();
+				//
+				// System.out.println("dsol[ni]: ");
+				// for (double m : dsol[ni]) {
+				// System.out.print(m + " ");
+				// }
+				// System.out.println();
+				//
+				// System.out.println(String.format(
+				// "ni: %d, dmat: %10.4f, dsol: %10.4f, dfac: %10.4f", ni,
+				// dmat[ni][nj], dsol[ni][nj], dfac));
 			}
-		}
 
-		dfac = dmat[ni][ni];
-		for (nj = 0; nj <= ndim; nj++) {
-			dmat[ni][nj] = dmat[ni][nj] / dfac;
-			dsol[ni][nj] = dsol[ni][nj] / dfac;
-		}
-
-		for (nj = 0; nj <= ndim; nj++) {
-			if (nj != ni) {
-				dfac = dmat[nj][ni];
-				for (nk = 0; nk <= ndim; nk++) {
-					dmat[nj][nk] = dmat[nj][nk] - (dmat[ni][nk] * dfac);
-					dsol[nj][nk] = dsol[nj][nk] - (dsol[ni][nk] * dfac);
+			for (nj = 0; nj <= ndim; nj++) {
+				if (nj != ni) {
+					dfac = dmat[nj][ni];
+					for (nk = 0; nk <= ndim; nk++) {
+						dmat[nj][nk] = dmat[nj][nk] - (dmat[ni][nk] * dfac);
+						dsol[nj][nk] = dsol[nj][nk] - (dsol[ni][nk] * dfac);
+					}
 				}
 			}
 		}
@@ -537,8 +580,9 @@ public class DateCompensatedDiscreteFourierTransform {
 
 	// -------------------------------------------------------------------------------
 
-	void project() {
-		double dpow[] = new double[51];
+	protected void project() {
+		double dpow[] = new double[51]; // TODO just 50 (0:50); same for others
+		// below?
 		double drad[] = new double[51];
 		double dcc[] = new double[51];
 		double dss[] = new double[51];
@@ -612,6 +656,10 @@ public class DateCompensatedDiscreteFourierTransform {
 						dmat[np][npoly] = dmat[np][npoly]
 								+ (dpow[np] * dpow[npoly]);
 					}
+
+					// System.out.println(String.format("%d, %d, %f, %f, %f\n",
+					// np, npoly, dpow[np], dpow[npoly], dmat[np][npoly]));
+
 					dvec[np] = dvec[np] + (dx * dpow[np]);
 					n2 = npoly;
 					// ...and for products of polynomials with trig functions
@@ -620,6 +668,11 @@ public class DateCompensatedDiscreteFourierTransform {
 						dmat[np][n2 - 1] = dmat[np][n2 - 1]
 								+ (dpow[np] * dcc[nf]);
 						dmat[np][n2] = dmat[np][n2] + (dpow[np] * dss[nf]);
+
+						// System.out.println(String.format("%d, %f, %f %f %f\n",
+						// nf,
+						// dcc[nf], dss[nf], dmat[np][n2 - 1], dmat[np][n2]));
+
 					}
 				}
 
@@ -639,6 +692,8 @@ public class DateCompensatedDiscreteFourierTransform {
 						dmat[n1][n2 - 1] = dmat[n1][n2 - 1]
 								+ (dss[nf] * dcc[nf2]);
 						dmat[n1][n2] = dmat[n1][n2] + (dss[nf] * dss[nf2]);
+						// System.out.println(String.format("%d, %d, %f\n", n1,
+						// n2, dmat[n1][n2]));
 					}
 				}
 
@@ -655,7 +710,11 @@ public class DateCompensatedDiscreteFourierTransform {
 						for (nf = 1; nf <= nfre; nf++) {
 							n1 = n1 + 2;
 							dmat[n1 - 1][n2] = dmat[n1 - 1][n2] + dcc[nf];
+							// System.out.println(String.format("%d, %d, %f, %f\n",
+							// n1-1, n2, dmat[n1-1][n2], dcc[nf]));
 							dmat[n1][n2] = dmat[n1][n2] + dss[nf];
+							// System.out.println(String.format("%d, %d, %f, %f\n",
+							// n1, n2, dmat[n1][n2], dss[nf]));
 						}
 					}
 				}
@@ -683,6 +742,8 @@ public class DateCompensatedDiscreteFourierTransform {
 			dvec[n1] = dvec[n1] / dweight;
 			for (n2 = n1; n2 <= ndim; n2++) {
 				dmat[n1][n2] = dmat[n1][n2] / dweight;
+				// System.out.println(String.format("%d, %d, %f", n1, n2,
+				// dmat[n1][n2]));
 			}
 		}
 
@@ -690,6 +751,8 @@ public class DateCompensatedDiscreteFourierTransform {
 		for (n1 = 1; n1 <= ndim; n1++) {
 			for (n2 = 0; n2 <= n1 - 1; n2++) {
 				dmat[n1][n2] = dmat[n2][n1];
+				// System.out.println(String.format("%d, %d, %f", n1, n2,
+				// dmat[n1][n2]));
 			}
 		}
 
@@ -700,11 +763,17 @@ public class DateCompensatedDiscreteFourierTransform {
 			dcoef[n1] = 0.0;
 			for (n2 = 0; n2 <= ndim; n2++) {
 				dcoef[n1] = dcoef[n1] + (dmat[n1][n2] * dvec[n2]);
+				// System.out.println(String.format("n1: %d, n2: %d", n1, n2));
+				// System.out.println(String.format(
+				// "dcoef: %10.4f, dmat: %10.4f, dvec: %10.4f", dcoef[n1],
+				// dmat[n1][n2], dvec[n2]));
 			}
 			damp2 = damp2 + (dcoef[n1] * dvec[n1]);
+			// System.out.println(String.format("A: damp2: %10.4f", damp2));
 		}
 
 		damp2 = damp2 - (dave * dave);
+		// System.out.println(String.format("B: damp2: %10.4f", damp2));
 		if (damp2 < 0.0)
 			damp2 = 0.0;
 		if (ndim > 0) {
@@ -716,16 +785,24 @@ public class DateCompensatedDiscreteFourierTransform {
 		// compute Fourier power, amplitude squared
 
 		dfpow = (double) (numact - 1) * (damp2 - dfouramp2);
+		// System.out.println(String.format(
+		// "1: dfpow: %8.4f, damp2: %8.4f, dfouramp2: %8s.4f", dfpow,
+		// damp2, dfouramp2));
 		dfpow = dfpow / (dvar - dfouramp2) / 2.0;
+		// System.out.println(String.format("2: dfpow: %10.4f, dvar: %10.4f",
+		// dfpow, dvar));
 		damp = 2.0 * (damp2 - dfouramp2);
+		// System.out.println(String.format("3: damp: %10.4f", damp));
 		if (damp < 0.0)
 			damp = 0.0;
 		damp = Math.sqrt(damp);
+		// System.out.println(String.format("4: damp: %10.4f", damp));
+		// System.out.println();
 	}
 
 	// -------------------------------------------------------------------------------
 
-	void statcomp() {
+	protected void statcomp() {
 		int n, nx;
 		double dw, dt, dx, dtspan, xx, dts2;
 
@@ -792,7 +869,7 @@ public class DateCompensatedDiscreteFourierTransform {
 
 	// -------------------------------------------------------------------------------
 
-	void tablit() {
+	protected void tablit() {
 		int nq = 0;
 		int nqq = 0;
 
@@ -813,7 +890,7 @@ public class DateCompensatedDiscreteFourierTransform {
 
 	// -------------------------------------------------------------------------------
 
-	void setlimit() {
+	protected void setlimit() {
 		int n;
 
 		nlolim = 0;
