@@ -18,14 +18,10 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 /**
- * This enum represents application progress.
+ * Classes implementing an algorithm to be executed must 
+ * realise this interface.
  */
-public enum ProgressType {
+public interface IAlgorithm {
 
-	MIN_PROGRESS,
-	MAX_PROGRESS,
-	RESET_PROGRESS, // TODO: call this TASK_BEGIN?
-	COMPLETE_PROGRESS, // TODO: call this TASK_END?
-	INCREMENT_PROGRESS,
-	BUSY_PROGRESS; // indeterminate mode
+	abstract public void execute();
 }

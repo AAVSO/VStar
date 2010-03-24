@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util.period;
+package org.aavso.tools.vstar.util.period.dcdft;
 
 /**
  * This class represents a DC DFT data-point to be plotted on a chart.

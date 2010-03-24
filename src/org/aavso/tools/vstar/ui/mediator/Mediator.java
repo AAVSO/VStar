@@ -70,6 +70,7 @@ import org.aavso.tools.vstar.ui.pane.TimeElementsInBinSettingPane;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.notification.Notifier;
+import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransform;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -758,6 +759,41 @@ public class Mediator {
 
 		return new PhaseAndMeanPlotPane(plotName, subTitle,
 				obsAndMeanPlotModel, bounds);
+	}
+
+	/**
+	 * Create a period analysis dialog. TODO: we will ultimately need to pass
+	 * one or more info parameters that will lead to selection of plug-in
+	 * classes. What we have here is a first cut. Currently we implement only
+	 * Date Compensated DFT.
+	 */
+	public void createPeriodAnalysisDialog() {
+		try {
+			if (this.newStarMessage != null && this.validObsList != null) {
+				DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
+						this.validObsList);
+
+				this.getProgressNotifier().notifyListeners(
+						ProgressInfo.RESET_PROGRESS);
+				this.getProgressNotifier().notifyListeners(
+						ProgressInfo.BUSY_PROGRESS);
+
+				PeriodAnalysisTask task = new PeriodAnalysisTask(dcdft, newStarMessage
+						.getStarInfo());
+				this.currTask = task;
+				task.execute();
+			}
+		} catch (Exception e) {
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					MenuBar.PERIOD_SEARCH, e);
+
+			// TODO: should we do this in other places where we catch exceptions
+			// and have progress bars potentially still updating?
+			this.getProgressNotifier().notifyListeners(
+					ProgressInfo.RESET_PROGRESS);
+
+			MainFrame.getInstance().getStatusPane().setMessage("");
+		}
 	}
 
 	/**

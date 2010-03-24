@@ -15,12 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util.period;
+package org.aavso.tools.vstar.util.period.dcdft;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.IPeriodAnalysisAlgorithm;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
  * This class computes a Date Compensated Discrete Fourier Transform over an
@@ -57,20 +61,21 @@ import org.aavso.tools.vstar.data.ValidObservation;
 // - If possible, avoid having to copy any data at all, i.e. skip load_raw().
 // - Also be able to retrieve via getters info in header of generated
 // .ts file, e.g.
-//   DCDFT File=delcep.vis NUM= 3079 AVE= 3.9213 SDV=
-//   0.2235 VAR= 0.0500
-//   JD 2450000.2569-2450999.7097 T.AVE=2450446.0000
+// DCDFT File=delcep.vis NUM= 3079 AVE= 3.9213 SDV=
+// 0.2235 VAR= 0.0500
+// JD 2450000.2569-2450999.7097 T.AVE=2450446.0000
 // - Double check with Matt that we are doing the date compensation
 // part in dcdft() here.
 // - Is DCDFT primarily intended to solve the aliasing problem? See
 // cataclysmic variable book ref.
+// How to properly deal with the many large frequencies? Skip, given
+// some user-definable threshold or other criteria? See also requirements.
 
-public class DateCompensatedDiscreteFourierTransform {
+public class DateCompensatedDiscreteFourierTransform implements IPeriodAnalysisAlgorithm {
 
 	private List<ValidObservation> observations;
-	private List<DcDftDataPoint> results;
-
-	// private Map<String, List<DcDftDataPoint>> series;
+	private List<DcDftDataPoint> resultDataPoints;
+	private Map<PeriodAnalysisCoordinateType, List<Double>> resultSeries;
 
 	private double dangcut;
 	private double damp;
@@ -150,7 +155,14 @@ public class DateCompensatedDiscreteFourierTransform {
 		this.xvec = new double[sz];
 		this.wvec = new double[sz];
 
-		this.results = new ArrayList<DcDftDataPoint>();
+		// Create result collections.
+		this.resultDataPoints = new ArrayList<DcDftDataPoint>();
+
+		this.resultSeries = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
+		for (PeriodAnalysisCoordinateType type : PeriodAnalysisCoordinateType
+				.values()) {
+			this.resultSeries.put(type, new ArrayList<Double>());
+		}
 	}
 
 	// -------------------------------------------------------------------------------
@@ -177,10 +189,17 @@ public class DateCompensatedDiscreteFourierTransform {
 	}
 
 	/**
-	 * @return the results
+	 * @return the resultDataPoints
 	 */
 	public List<DcDftDataPoint> getResults() {
-		return results;
+		return resultDataPoints;
+	}
+
+	/**
+	 * @return the resultSeries
+	 */
+	public Map<PeriodAnalysisCoordinateType, List<Double>> getResultSeries() {
+		return resultSeries;
 	}
 
 	// -------------------------------------------------------------------------------
@@ -336,7 +355,8 @@ public class DateCompensatedDiscreteFourierTransform {
 	/**
 	 * Compute a FFT.
 	 * 
-	 * @param ff The frequency.
+	 * @param ff
+	 *            The frequency.
 	 */
 	protected void fft(double ff) {
 		double pp = 0;
@@ -365,11 +385,38 @@ public class DateCompensatedDiscreteFourierTransform {
 		dlpower = dfpow;
 	}
 
+	/**
+	 * Collect a single <frequency, period, power, amplitude> result as a
+	 * data-point and as elements of an array in a series map.
+	 * 
+	 * @param freq
+	 *            The frequency.
+	 * @param period
+	 *            The period.
+	 * @param power
+	 *            The power.
+	 * @param amplitude
+	 *            The amplitude.
+	 */
 	private void collect_datapoint(double freq, double period, double power,
 			double amplitude) {
-		DcDftDataPoint datapoint = new DcDftDataPoint(freq, period, power,
-				amplitude);
-		this.results.add(datapoint);
+		if (freq >= 0.1) {
+			// Exclude very low frequencies since most associated periods
+			// will be too large and these large values will dominate the
+			// plot. TODO: how to properly deal with this?
+			DcDftDataPoint datapoint = new DcDftDataPoint(freq, period, power,
+					amplitude);
+			this.resultDataPoints.add(datapoint);
+
+			this.resultSeries.get(PeriodAnalysisCoordinateType.FREQUENCY).add(
+					freq);
+			this.resultSeries.get(PeriodAnalysisCoordinateType.PERIOD).add(
+					period);
+			this.resultSeries.get(PeriodAnalysisCoordinateType.POWER)
+					.add(power);
+			this.resultSeries.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
+					amplitude);
+		}
 	}
 
 	// -------------------------------------------------------------------------------

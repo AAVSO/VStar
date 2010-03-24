@@ -71,7 +71,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	protected JTextArea obsInfo;
 
-	protected VStarPlotDataRenderer renderer;
+	protected XYErrorRenderer renderer;
 
 	// Show error bars?
 	protected boolean showErrorBars;

@@ -24,7 +24,7 @@ import java.awt.geom.RectangularShape;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 
 /**
- * This is VStar's plot data-point and error renderer.
+ * This is VStar's plot data-point renderer.
  * 
  * We subclass XYErrorRenderer in order to be able to plot error bars.
  * TODO: Should we instead use StatisticalLineAndShapeRenderer
