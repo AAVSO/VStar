@@ -149,6 +149,15 @@ public class StatusPane extends JPanel {
 	}
 
 	/**
+	 * Set the progress bar to be in busy or indeterminate mode
+	 * (or not) to indicate that some kind of work is being done.
+	 */
+	public void setIndeterminateMode(boolean status) {
+		this.progressBar.setIndeterminate(status);
+		
+	}
+	
+	/**
 	 * Return a new star creation listener.
 	 * TODO: instead of this, we could just write the status at end of new 
 	 * star task processing in model manager.
@@ -188,6 +197,8 @@ public class StatusPane extends JPanel {
 		final StatusPane self = this;
 		return new Listener<ProgressInfo>() {
 			public void update(ProgressInfo info) {
+				self.setIndeterminateMode(false);
+				
 				switch (info.getType()) {
 				case MIN_PROGRESS:
 					self.setMinProgressValue(info.getNum());
@@ -198,7 +209,7 @@ public class StatusPane extends JPanel {
 				case RESET_PROGRESS:
 					// Ensure the main window now has focus so we see
 					// the progress bar and busy cursor as enabled.
-					self.requestFocusInWindow(); // TODO: doesn't work?
+					self.requestFocusInWindow(); // TODO: doesn't work; remove?
 					self.resetProgressBar();
 					self.setMessage("");
 					self.stopButton.setEnabled(true);
@@ -212,8 +223,11 @@ public class StatusPane extends JPanel {
 					// Ensure the main window now has focus so we see
 					// the progress bar and busy cursor as enabled.
 					// Except that it does not work here or above.
-					self.requestFocusInWindow();
+					self.requestFocusInWindow(); // TODO: remove?
 					self.incrementProgressBar(info.getNum());
+					break;
+				case BUSY_PROGRESS:
+					self.setIndeterminateMode(true);
 					break;
 				}
 			}

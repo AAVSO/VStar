@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util.period;
+package org.aavso.tools.vstar.util.period.dcdft;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,8 @@ import junit.framework.TestCase;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransform;
+import org.aavso.tools.vstar.util.period.dcdft.DcDftDataPoint;
 
 /**
  * Date Compensated Discrete Fourier Transform unit tests.
@@ -4345,7 +4347,7 @@ public class DateCompensatedDiscreteFourierTransformTest extends TestCase {
 
 	/**
 	 * Load raw data test and do a few simple checks.
-	 * {@link org.aavso.tools.vstar.util.period.DateCompensatedDiscreteFourierTransform#load_raw()}
+	 * {@link org.aavso.tools.vstar.util.period.dcdft.dcdft.DateCompensatedDiscreteFourierTransform#load_raw()}
 	 */
 	public void testLoad_raw() {
 		dcdft.load_raw();

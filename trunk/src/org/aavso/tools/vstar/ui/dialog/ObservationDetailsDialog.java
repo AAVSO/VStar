@@ -88,8 +88,9 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 			discrepantCheckBox.setSelected(ob.isDiscrepant());
 			checkBoxPane.add(discrepantCheckBox);
 			topPane.add(checkBoxPane, BorderLayout.CENTER);
-			
-			Mediator.getInstance().getObservationChangeNotifier().addListener(this);
+
+			Mediator.getInstance().getObservationChangeNotifier().addListener(
+					this);
 		}
 
 		JPanel buttonPane = new JPanel();
@@ -156,11 +157,12 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 		return false;
 	}
 
-	// If it was not this object that generated a discrepant observation 
+	// If it was not this object that generated a discrepant observation
 	// change message, update the discrepant checkbox.
 	public void update(ObservationChangeMessage info) {
 		for (ObservationChangeType change : info.getChanges()) {
-			if (info.getSource() != this && change == ObservationChangeType.DISCREPANT
+			if (info.getSource() != this
+					&& change == ObservationChangeType.DISCREPANT
 					&& info.getObservation() == this.ob) {
 				boolean isDiscrepant = !this.discrepantCheckBox.isSelected();
 				this.discrepantCheckBox.setSelected(isDiscrepant);

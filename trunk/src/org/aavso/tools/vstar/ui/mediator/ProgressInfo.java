@@ -32,6 +32,9 @@ public class ProgressInfo {
 	public static ProgressInfo COMPLETE_PROGRESS = new ProgressInfo(
 			ProgressType.COMPLETE_PROGRESS);
 
+	public static ProgressInfo BUSY_PROGRESS = new ProgressInfo(
+			ProgressType.BUSY_PROGRESS);
+
 	// Type of this progress info.
 	private ProgressType type;
 

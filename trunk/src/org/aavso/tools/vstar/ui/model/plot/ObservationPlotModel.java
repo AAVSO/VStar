@@ -347,7 +347,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		return coordSrc.getItemCount(series, seriesNumToObSrcListMap);
 	}
 
-	// TODO: are these next two still required?
+	// TODO: are these next two still required? (are they ever hit?)
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
