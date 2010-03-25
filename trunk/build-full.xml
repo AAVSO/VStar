@@ -3,6 +3,19 @@
         Ant build file for VStar.
     </description>
 
+	<!-- Cobertura task definition -->
+
+	<property name="cobertura" value="${basedir}/extlib/cobertura-1.9.3" />
+
+	<path id="cobertura.classpath">
+		<fileset dir="${cobertura}">
+			<include name="cobertura.jar" />
+			<include name="lib/**/*.jar" />
+		</fileset>
+	</path>
+
+	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
+
 	<!-- Set global properties for this build -->
 
 	<property name="src" location="src" />
@@ -16,6 +29,9 @@
 	<property name="extlib" location="extlib" />
 	<property name="ui_resources" location="src/org/aavso/tools/vstar/ui/resources" />
 	<property name="test_report" location="test_report" />
+	<property name="instrumented" location="instrumented" />
+	<property name="coverage_report" location="coverage_report" />
+	<property name="jdepend_report" location="jdepend-report.txt" />
 
 	<!-- Classpaths -->
 
@@ -26,6 +42,12 @@
 	<path id="test.classpath">
 		<fileset dir="${extlib}" includes="*.jar" />
 		<pathelement location="${dist}/vstar.jar" />
+		<pathelement path="${test_build}" />
+	</path>
+
+	<path id="coverage.classpath">
+		<fileset dir="${extlib}" includes="*.jar" />
+		<pathelement path="${src_build_debug}" />
 		<pathelement path="${test_build}" />
 	</path>
 
@@ -159,6 +181,81 @@
 		</concat>
 	</target>
 
+	<!-- Test coverage targets -->
+
+	<target name="coverage_instrument" description="Cobertura coverage instrumentation">
+		<delete file="${basedir}/cobertura.ser" />
+
+		<!-- Compile source as debug. -->
+		<javac compiler="modern" source="1.5" target="1.5" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
+			<classpath refid="build.classpath" />
+		</javac>
+
+		<!-- Compile UT code. -->
+		<javac srcdir="${test}" destdir="${test_build}">
+			<classpath refid="coverage.classpath" />
+		</javac>
+
+		<cobertura-instrument todir="${instrumented}">
+			<fileset dir="${src_build_debug}">
+				<include name="**/*.class" />
+			</fileset>
+		</cobertura-instrument>
+	</target>
+
+	<target name="test_coverage" depends="coverage_instrument" description="Collect coverage data from a UT run">
+		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+			<!--
+				Specify the name of the coverage data file to use.
+				The value specified below is the default.
+			-->
+			<sysproperty key="net.sourceforge.cobertura.datafile" file="${basedir}/cobertura.ser" />
+
+			<!--
+				Note the classpath order: instrumented classes are before the
+				original (uninstrumented) classes. This is important.
+			-->
+			<classpath location="${instrumented}" />
+			<classpath refid="coverage.classpath" />
+
+			<!--
+				The instrumented classes reference classes used by the
+				Cobertura runtime, so Cobertura and its dependencies
+				must be on the classpath.
+			-->
+			<classpath refid="cobertura.classpath" />
+
+			<jvmarg value="-ea" />
+
+			<formatter type="plain" />
+
+			<test name="${testcase}" todir="${test_report}" if="testcase" />
+
+			<batchtest todir="${test_report}" unless="testcase">
+				<fileset dir="${test}">
+					<include name="**/*Test.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+
+	<target name="coverage_report" depends="test_coverage" description="Generate a UT coverage report">
+		<cobertura-report format="html" destdir="${coverage_report}" srcdir="${src}" />
+	</target>
+
+	<!-- Code analysis targets -->
+<!--
+	<target name="jdepend" depends="compile_src" description="Dependency analysis">
+		<jdepend outputfile="${jdepend_report}">
+			<exclude name="java.*" />
+			<exclude name="javax.*" />
+			<classespath>
+				<pathelement location="${dist}/vstar.jar" />
+			</classespath>
+			<classpath refid="build.classpath" />
+		</jdepend>
+	</target>
+-->
 	<!-- Clean targets -->
 
 	<target name="clean" description="Clean up">
@@ -170,6 +267,10 @@
 			<fileset dir="${dist}" includes="**/*" />
 			<fileset dir="${dist_debug}" includes="**/*" />
 			<fileset dir="${test_report}" includes="**/*" />
+			<fileset dir="${instrumented}" includes="**/*" />
+			<fileset dir="${coverage_report}" includes="**/*" />
+			<fileset dir="${basedir}" includes="cobertura.ser" />
+			<fileset dir="${basedir}" includes="${jdepend_report}" />
 		</delete>
 	</target>
 </project>
