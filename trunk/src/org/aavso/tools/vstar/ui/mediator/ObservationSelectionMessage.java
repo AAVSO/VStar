@@ -20,14 +20,13 @@ package org.aavso.tools.vstar.ui.mediator;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This message is sent to denote the selection of a valid observation from a
- * specific source.
+ * This message is sent to denote the selection of a valid observation 
+ * from a specific source.
  */
-public class ObservationSelectionMessage {
+public class ObservationSelectionMessage extends MessageBase {
 
 	private ValidObservation observation;
-	private Object source;
-
+	
 	/**
 	 * Constructor.
 	 * 
@@ -38,8 +37,8 @@ public class ObservationSelectionMessage {
 	 */
 	public ObservationSelectionMessage(ValidObservation observation,
 			Object source) {
+		super(source);
 		this.observation = observation;
-		this.source = source;
 	}
 
 	/**
@@ -47,12 +46,5 @@ public class ObservationSelectionMessage {
 	 */
 	public ValidObservation getObservation() {
 		return observation;
-	}
-
-	/**
-	 * @return the source
-	 */
-	public Object getSource() {
-		return source;
 	}
 }

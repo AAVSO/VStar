@@ -17,13 +17,19 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.PeriodAnalysis2DPlotDialog;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**
- * A concurrent task in which a potentially long-running periodAnalysisAlgorithm is executed.
+ * A concurrent task in which a potentially long-running periodAnalysisAlgorithm
+ * is executed.
  */
 public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 
@@ -38,7 +44,8 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	 * @param info
 	 *            Information about the star.
 	 */
-	public PeriodAnalysisTask(IPeriodAnalysisAlgorithm periodAnalysisAlgorithm, StarInfo info) {
+	public PeriodAnalysisTask(IPeriodAnalysisAlgorithm periodAnalysisAlgorithm,
+			StarInfo info) {
 		this.periodAnalysisAlgorithm = periodAnalysisAlgorithm;
 		this.starInfo = info;
 	}
@@ -63,13 +70,26 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 
 		// Mediator.getInstance().getProgressNotifier().notifyListeners(
 		// ProgressInfo.RESET_PROGRESS);
-		
-		PeriodAnalysis2DPlotModel model = new PeriodAnalysis2DPlotModel(
-				periodAnalysisAlgorithm.getResultSeries());
+
+		List<PeriodAnalysis2DPlotModel> models = new ArrayList<PeriodAnalysis2DPlotModel>();
+
+		Map<PeriodAnalysisCoordinateType, List<Double>> seriesMap = periodAnalysisAlgorithm
+				.getResultSeries();
+
+		for (PeriodAnalysisCoordinateType type : seriesMap.keySet()) {
+			// TODO: this shows us that we probably want to have dcdft 
+			// and its kin return something more like a list of independent
+			// variable values, and a map of strings to lists of dependent 
+			// variable values.
+			if (type != PeriodAnalysisCoordinateType.FREQUENCY) {
+				models.add(new PeriodAnalysis2DPlotModel(seriesMap
+						.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
+						.get(type), type.getDescription()));
+			}
+		}
 
 		new PeriodAnalysis2DPlotDialog("Date Compensated DFT for "
-				+ starInfo.getDesignation(), "Frequency",
-				"Period/Power/Amplitude", model);
+				+ starInfo.getDesignation(), "Frequency", models);
 
 		// TODO: how to detect task cancellation and clean up map etc
 	}

@@ -400,7 +400,8 @@ public class DateCompensatedDiscreteFourierTransform implements IPeriodAnalysisA
 	 */
 	private void collect_datapoint(double freq, double period, double power,
 			double amplitude) {
-		if (freq >= 0.1) {
+//		if (freq >= 0.1) {
+		if (true) {
 			// Exclude very low frequencies since most associated periods
 			// will be too large and these large values will dominate the
 			// plot. TODO: how to properly deal with this?

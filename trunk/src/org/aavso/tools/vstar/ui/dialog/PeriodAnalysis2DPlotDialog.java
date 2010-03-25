@@ -17,13 +17,17 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -34,11 +38,9 @@ import org.jfree.chart.plot.PlotOrientation;
  */
 public class PeriodAnalysis2DPlotDialog extends JDialog {
 
-	protected JFreeChart chart;
-
-	protected ChartPanel chartPanel;
-
-	// protected XYErrorRenderer renderer;
+	private String chartTitle;
+	private String domainTitle;
+	private List<PeriodAnalysis2DPlotModel> models;
 
 	/**
 	 * Constructor
@@ -47,47 +49,58 @@ public class PeriodAnalysis2DPlotDialog extends JDialog {
 	 *            The title for the chart.
 	 * @param domainTitle
 	 *            The domain title (e.g. Julian Date, phase).
-	 * @param rangeTitle
-	 *            The range title (e.g. magnitude).
 	 * @param model
-	 *            The data model to plot.
+	 *            The data models on which to base plots.
 	 */
-	public PeriodAnalysis2DPlotDialog(String title,
-			String domainTitle,
-			String rangeTitle, PeriodAnalysis2DPlotModel model) {
+	public PeriodAnalysis2DPlotDialog(String title, String domainTitle,
+			List<PeriodAnalysis2DPlotModel> models) {
 		super();
+
 		this.setTitle(title);
 		this.setModal(false);
 
-		// Create a line chart with legend, tooltips, and URLs showing
-		// and add it to the panel.
-		this.chartPanel = new ChartPanel(ChartFactory.createXYLineChart(title,
-				domainTitle, rangeTitle, model, PlotOrientation.VERTICAL, true,
-				true, true));
+		this.chartTitle = title;
+		this.domainTitle = domainTitle;
+		this.models = models;
 
-		this.chart = chartPanel.getChart();
-
-		// this.renderer = new VStarPlotDataRenderer();
-		// this.chart.getXYPlot().setRenderer(this.renderer);
-
-		// TODO: may need tabbed panes, one per range type (period, power,
-		// amplitude)
-		
 		// TODO: may also need table with data
-		
-		// TODO: need progress bar (of "busy" variety)
-		
-		JPanel topPane = new JPanel();
-		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		topPane.add(chartPanel);
+		// JPanel topPane = new JPanel();
+		// topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+		// topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		//
+		// topPane.add(chartPanel);
 
-		this.getContentPane().add(topPane);
+		// this.getContentPane().add(topPane);
+
+		this.getContentPane().add(getTabs());
 
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
-		this.setAlwaysOnTop(true);
+		this.setAlwaysOnTop(true); // TODO: or false?
 		this.setVisible(true);
+	}
+
+	// Return the tabs containing plots of frequency vs one of the dependent
+	// variables of period, power, or amplitude. Is this what we want, or
+	// something
+	// different?
+	private JTabbedPane getTabs() {
+		JTabbedPane tabs = new JTabbedPane();
+
+		for (PeriodAnalysis2DPlotModel model : models) {
+			// Create a line chart with legend, tooltips, and URLs showing
+			// and add it to the panel.
+			// TODO: for period plot, make Y scale logarithmic?
+			ChartPanel chartPanel = new PeriodAnalysis2DChartPane(ChartFactory
+					.createXYLineChart(this.chartTitle, domainTitle, model
+							.getDependentDesc(), model,
+							PlotOrientation.VERTICAL, true, true, true), model);
+
+			tabs.addTab(model.getDependentDesc(), chartPanel);
+			// JFreeChart chart = chartPanel.getChart();
+		}
+
+		return tabs;
 	}
 }

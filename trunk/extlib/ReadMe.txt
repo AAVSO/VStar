@@ -69,4 +69,5 @@ testing purposes:
      
  - Cobertura 1.9.3:
      o http://cobertura.sourceforge.net/
-     o Unpack the cobertura-1.9.3 archive into the extlib directory.  
+     o Unpack the cobertura-1.9.3 archive into the extlib directory.
+     o This is used in build-full.xml for code coverage.

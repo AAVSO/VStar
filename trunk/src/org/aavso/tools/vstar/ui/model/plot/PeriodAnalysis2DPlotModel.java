@@ -17,11 +17,8 @@
  */
 package org.aavso.tools.vstar.ui.model.plot;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jfree.data.xy.AbstractXYDataset;
 
 /**
@@ -31,10 +28,11 @@ import org.jfree.data.xy.AbstractXYDataset;
  */
 public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 
-	private Map<PeriodAnalysisCoordinateType, List<Double>> coordinates;
+	// private Map<PeriodAnalysisCoordinateType, List<Double>> coordinates;
 
-	// TODO: instead, pass in freq array and one of period, power, amplitude
-	// and also PeriodAnalysisCoordinateType.
+	private List<Double> frequencies;
+	private List<Double> dependents;
+	private String dependentDesc;
 	
 	/**
 	 * Constructor
@@ -43,55 +41,83 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	 *            A mapping from period analysis coordinates type to lists of
 	 *            data values.
 	 */
-	public PeriodAnalysis2DPlotModel(
-			Map<PeriodAnalysisCoordinateType, List<Double>> coordinates) {
+	// public PeriodAnalysis2DPlotModel(
+	// Map<PeriodAnalysisCoordinateType, List<Double>> coordinates) {
+	// super();
+	// this.coordinates = coordinates;
+	// }
+
+	/**
+	 * Constructor
+	 * 
+	 * @param frequencies
+	 *            A list of frequencies (domain values).
+	 * @param dependents
+	 *            A list of values that are dependent upon the frequencies
+	 *            (range values).
+	 */
+	public PeriodAnalysis2DPlotModel(List<Double> frequencies,
+			List<Double> dependents, String dependentDesc) {
 		super();
-		this.coordinates = coordinates;
+		assert frequencies.size() == dependents.size();
+		this.frequencies = frequencies;
+		this.dependents = dependents;
+		this.dependentDesc = dependentDesc;
+	}
+
+	/**
+	 * @return the frequencies
+	 */
+	public List<Double> getFrequencies() {
+		return frequencies;
+	}
+
+	/**
+	 * @return the dependents
+	 */
+	public List<Double> getDependents() {
+		return dependents;
+	}
+
+	/**
+	 * @return the dependentDesc
+	 */
+	public String getDependentDesc() {
+		return dependentDesc;
 	}
 
 	/**
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesCount()
-	 * @return The number of series to plot, which is the number of coordinates
-	 *         less 2 since the frequency coordinate is used as the x coordinate
-	 *         to make (x,y) coordinate pairs (where y is period, power), and
-	 *         we exclude amplitude.
 	 */
 	public int getSeriesCount() {
-		return PeriodAnalysisCoordinateType.values().length - 1;
+		return 1;
 	}
 
 	/**
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesKey(int)
 	 */
 	public Comparable getSeriesKey(int series) {
-		return PeriodAnalysisCoordinateType.getTypeFromIndex(series)
-				.getDescription();
+		return dependentDesc;
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getItemCount(int)
 	 */
 	public int getItemCount(int series) {
-		PeriodAnalysisCoordinateType type = PeriodAnalysisCoordinateType
-				.getTypeFromIndex(series);
-		return this.coordinates.get(type).size();
+		return frequencies.size();
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
 	public Number getX(int series, int item) {
-		// TODO: this is really a special case, as per enum type comment
-		return this.coordinates.get(PeriodAnalysisCoordinateType.FREQUENCY)
-				.get(item);
+		return frequencies.get(item);
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
 	 */
 	public Number getY(int series, int item) {
-		PeriodAnalysisCoordinateType type = PeriodAnalysisCoordinateType
-				.getTypeFromIndex(series);
-		return this.coordinates.get(type).get(item);
+		return dependents.get(item);
 	}
 }

@@ -29,6 +29,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.MessageBase;
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Listener;
