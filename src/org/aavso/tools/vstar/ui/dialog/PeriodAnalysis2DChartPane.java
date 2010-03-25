@@ -25,6 +25,7 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.LogAxis;
 import org.jfree.chart.entity.XYItemEntity;
 
 /**
@@ -49,18 +50,23 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 		this.chart = chart;
 		this.model = model;
 
-		setupCrossHairs();
+		configureChart();
 
 		this.addChartMouseListener(this);
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier().addListener(this);
 	}
 
-	private void setupCrossHairs() {
+	private void configureChart() {
 		chart.getXYPlot().setDomainCrosshairValue(0);
 		chart.getXYPlot().setRangeCrosshairValue(0);
 
 		chart.getXYPlot().setDomainCrosshairVisible(true);
 		chart.getXYPlot().setRangeCrosshairVisible(true);
+		
+		// erk...should at least use the enum not a string...
+		if ("Period".equals(model.getDependentDesc())) {
+			chart.getXYPlot().setRangeAxis(new LogAxis(model.getDependentDesc()));
+		}
 	}
 
 	public void chartMouseClicked(ChartMouseEvent event) {
