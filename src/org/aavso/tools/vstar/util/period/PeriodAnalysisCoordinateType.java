@@ -31,8 +31,8 @@ public enum PeriodAnalysisCoordinateType {
 			PeriodAnalysisCoordinateType.POWER_INDEX), AMPLITUDE("Amplitude",
 			PeriodAnalysisCoordinateType.AMPLITUDE_INDEX);
 
-	private final static int PERIOD_INDEX = 0;
-	private final static int POWER_INDEX = 1;
+	private final static int POWER_INDEX = 0;
+	private final static int PERIOD_INDEX = 1;
 	private final static int AMPLITUDE_INDEX = 2;
 	private final static int FREQUENCY_INDEX = 3;
 

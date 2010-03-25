@@ -114,7 +114,8 @@ public class Mediator {
 	// as dirty (optional for now).
 	private Notifier<ObservationChangeMessage> observationChangeNotifier;
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
-
+	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
+	
 	// A file dialog for saving any kind of observation list.
 	private JFileChooser obsListFileSaveDialog;
 
@@ -137,7 +138,8 @@ public class Mediator {
 		this.progressNotifier = new Notifier<ProgressInfo>();
 		this.observationChangeNotifier = new Notifier<ObservationChangeMessage>();
 		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
-
+		this.periodAnalysisSelectionNotifier = new Notifier<PeriodAnalysisSelectionMessage>();
+		
 		this.obsListFileSaveDialog = new JFileChooser();
 
 		// These 4 are created for each new star.
@@ -206,6 +208,13 @@ public class Mediator {
 	}
 
 	/**
+	 * @return the periodAnalysisSelectionNotifier
+	 */
+	public Notifier<PeriodAnalysisSelectionMessage> getPeriodAnalysisSelectionNotifier() {
+		return periodAnalysisSelectionNotifier;
+	}
+
+	/**
 	 * Remove all willing listeners from notifiers. This is essentially a move
 	 * to free up any indirectly referenced objects that may cause a memory leak
 	 * if left unchecked from new-star to new-star, e.g. mean observations.
@@ -228,9 +237,11 @@ public class Mediator {
 		this.progressNotifier.removeAllWillingListeners();
 		this.observationChangeNotifier.removeAllWillingListeners();
 		this.observationSelectionNotifier.removeAllWillingListeners();
-
+		this.periodAnalysisSelectionNotifier.removeAllWillingListeners();
+		
 		obsAndMeanPlotModel.getMeansChangeNotifier()
 				.removeAllWillingListeners();
+		
 		SeriesType.getSeriesColorChangeNotifier().removeAllWillingListeners();
 	}
 
