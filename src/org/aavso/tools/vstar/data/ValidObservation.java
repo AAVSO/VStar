@@ -323,7 +323,11 @@ public class ValidObservation extends Observation {
 	 *            the cMag to set
 	 */
 	public void setCMag(String cMag) {
-		this.cMag = cMag;
+		if(cMag.equals("0.ensemb")){
+			this.cMag = "Ensemble";
+		}else{
+			this.cMag = cMag;
+		}
 	}
 
 	/**
