@@ -450,7 +450,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		Double hqUncertainty = this.seriesNumToObSrcListMap.get(series).get(
 				item).getHqUncertainty();
 
-		if (hqUncertainty != null) {
+		if (hqUncertainty != null && hqUncertainty != 0) {
 			error = hqUncertainty;
 		} else {
 			error = this.seriesNumToObSrcListMap.get(series).get(item)

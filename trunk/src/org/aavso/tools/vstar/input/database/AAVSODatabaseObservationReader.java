@@ -97,6 +97,9 @@ public class AAVSODatabaseObservationReader extends
 				// TODO: why am I not updating progress bar here?
 			}
 		} catch (Throwable t) {
+			// TODO: note that because of this broad catch, an
+			// InterruptedException
+			// will never make it pas this method currently.
 			t.printStackTrace();
 			throw new ObservationReadError(
 					"Error when attempting to read observation source.");
@@ -119,7 +122,8 @@ public class AAVSODatabaseObservationReader extends
 		try {
 			ob.setDateInfo(new DateInfo(source.getDouble("jd")));
 			ob.setMagnitude(getNextMagnitude());
-			ob.setHqUncertainty(source.getDouble("hq_uncertainty"));
+			// ob.setHqUncertainty(source.getDouble("hq_uncertainty"));
+			ob.setHqUncertainty(getNextPossiblyNullDouble("hq_uncertainty"));
 			SeriesType band = SeriesType.Unspecified;
 			String bandNum = getNextPossiblyNullString("band");
 			if (bandNum != null && !"".equals(bandNum)) {
@@ -184,8 +188,12 @@ public class AAVSODatabaseObservationReader extends
 
 		boolean isUncertain = source.getInt("uncertain") != 0;
 
+		Double uncertainty = getNextPossiblyNullDouble("uncertainty");
+		
+		// return new Magnitude(source.getDouble("magnitude"), modifier,
+		// isUncertain, source.getDouble("uncertainty"));
 		return new Magnitude(source.getDouble("magnitude"), modifier,
-				isUncertain, source.getDouble("uncertainty"));
+				isUncertain, uncertainty != null ? uncertainty : 0);
 	}
 
 	/*
@@ -193,9 +201,9 @@ public class AAVSODatabaseObservationReader extends
 	 * https://sourceforge.net/apps/mediawiki/vstar/index.php?title
 	 * =AAVSO_International_Database_Schema
 	 * (https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag:)
-	 * we have: Z = Prevalidated, P = Published observation, T = Discrepant, 
-	 * V = Good, Y = Deleted (filtered out via SQL). Our query converts any 
-	 * occurrence of 'T' to 'D'. Currently we convert everything to Good (V,G), 
+	 * we have: Z = Prevalidated, P = Published observation, T = Discrepant, V =
+	 * Good, Y = Deleted (filtered out via SQL). Our query converts any
+	 * occurrence of 'T' to 'D'. Currently we convert everything to Good (V,G),
 	 * Discrepant (D), or Prevalidated (Z) below.
 	 */
 	private ValidationType getNextValidationType() throws SQLException {
@@ -222,13 +230,39 @@ public class AAVSODatabaseObservationReader extends
 
 	private Double getNextPossiblyNullDouble(String colName)
 			throws SQLException {
-		Double num = source.getDouble(colName);
+		Double num = null;
+		try {
+			String str = source.getString(colName);
+			if (str != null) {
+				num = Double.parseDouble(str);
+			}
+		} catch (NumberFormatException e) {
+			// The value will default to null.
+			// In fact, the corresponding observation
+			// should probably be invalidated! We don't
+			// yet do proper validation for database read
+			// observations however.
+		}
+		// Double num = source.getDouble(colName);
 		return !source.wasNull() ? num : null;
 	}
 
 	private Integer getNextPossiblyNullInteger(String colName)
 			throws SQLException {
-		Integer num = source.getInt(colName);
+		Integer num = null;
+		try {
+			String str = source.getString(colName);
+			if (str != null) {
+				num = Integer.parseInt(str);
+			}
+		} catch (NumberFormatException e) {
+			// The value will default to null.
+			// In fact, the corresponding observation
+			// should probably be invalidated! We don't
+			// yet do proper validation for database read
+			// observations however.
+		}
+		// Integer num = source.getInt(colName);
 		return !source.wasNull() ? num : null;
 	}
 }
