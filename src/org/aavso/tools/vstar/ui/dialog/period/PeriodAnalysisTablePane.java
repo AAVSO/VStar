@@ -55,6 +55,8 @@ public class PeriodAnalysisTablePane extends JPanel implements
 
 		this.add(scrollPane);
 
+		// We listen for and generate period analysis selection messages.
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier().addListener(this);
 		table.getSelectionModel().addListSelectionListener(this);
 	}
 
