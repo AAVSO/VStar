@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.dialog.PeriodAnalysis2DPlotDialog;
+import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
+import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jdesktop.swingworker.SwingWorker;
@@ -77,9 +78,9 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 				.getResultSeries();
 
 		for (PeriodAnalysisCoordinateType type : seriesMap.keySet()) {
-			// TODO: this shows us that we probably want to have dcdft 
+			// TODO: this shows us that we probably want to have dcdft
 			// and its kin return something more like a list of independent
-			// variable values, and a map of strings to lists of dependent 
+			// variable values, and a map of strings to lists of dependent
 			// variable values.
 			if (type != PeriodAnalysisCoordinateType.FREQUENCY) {
 				models.add(new PeriodAnalysis2DPlotModel(seriesMap
@@ -88,8 +89,9 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 			}
 		}
 
-		new PeriodAnalysis2DPlotDialog("Date Compensated DFT for "
-				+ starInfo.getDesignation(), "Frequency", models);
+		new PeriodAnalysis2DResultDialog("Date Compensated DFT for "
+				+ starInfo.getDesignation(), "Frequency", models,
+				new PeriodAnalysisTableModel(seriesMap));
 
 		// TODO: how to detect task cancellation and clean up map etc
 	}

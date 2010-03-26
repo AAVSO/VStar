@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.dialog;
+package org.aavso.tools.vstar.ui.dialog.period;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.PeriodAnalysisSelectionMessage;
@@ -72,7 +72,6 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 	public void chartMouseClicked(ChartMouseEvent event) {
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
-			// int series = entity.getSeriesIndex();
 			int item = entity.getItem();
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(this, item);
 			Mediator.getInstance().getPeriodAnalysisSelectionNotifier().notifyListeners(message);
@@ -86,7 +85,7 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 	// PeriodAnalysisSelectionMessage listener methods.
 	
 	public boolean canBeRemoved() {
-		return false;
+		return true;
 	}
 
 	public void update(PeriodAnalysisSelectionMessage info) {

@@ -37,19 +37,6 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	/**
 	 * Constructor
 	 * 
-	 * @param coordinates
-	 *            A mapping from period analysis coordinates type to lists of
-	 *            data values.
-	 */
-	// public PeriodAnalysis2DPlotModel(
-	// Map<PeriodAnalysisCoordinateType, List<Double>> coordinates) {
-	// super();
-	// this.coordinates = coordinates;
-	// }
-
-	/**
-	 * Constructor
-	 * 
 	 * @param frequencies
 	 *            A list of frequencies (domain values).
 	 * @param dependents

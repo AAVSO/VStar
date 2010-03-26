@@ -25,6 +25,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
@@ -91,7 +92,7 @@ abstract public class AbstractSeriesVisibilityDialog<T extends JPanel> extends A
 			seriesPane.add(nextPane);
 		}
 		
-		topPane.add(seriesPane);
+		topPane.add(new JScrollPane(seriesPane));
 
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createButtonPane());
