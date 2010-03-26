@@ -183,7 +183,7 @@ public class AAVSODatabaseConnector {
 							+ "observations.magnitude AS magnitude,\n"
 							+ "observations.fainterthan AS fainterthan,\n"
 							+ "observations.uncertain AS uncertain,\n"
-							+ "IF (observations.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
+							+ "observations.uncertainty AS uncertainty,\n"
 							+ "observations.uncertaintyhq AS hq_uncertainty,\n"
 							+ "observations.band AS band,\n"
 							+ "observations.obscode AS observer_code,\n"
