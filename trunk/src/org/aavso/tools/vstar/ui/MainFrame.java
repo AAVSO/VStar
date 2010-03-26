@@ -79,6 +79,8 @@ public class MainFrame extends JFrame {
 		majorPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		majorPane.setLayout(new BoxLayout(majorPane, BoxLayout.LINE_AXIS));
 
+		// TODO: consider using a JSplitPane here.
+		
 		// The first (left-most) pane containing mode buttons.
 		JPanel firstPane = new JPanel();
 		firstPane.setLayout(new BoxLayout(firstPane, BoxLayout.PAGE_AXIS));

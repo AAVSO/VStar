@@ -15,33 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.dialog;
+package org.aavso.tools.vstar.ui.dialog.period;
 
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JDialog;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
-import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 
 /**
- * This class is used to render 2D period analysis plots.
+ * This class is used to visualise period analysis results.
  */
-public class PeriodAnalysis2DPlotDialog extends JDialog {
+public class PeriodAnalysis2DResultDialog extends JDialog {
 
 	private String chartTitle;
 	private String domainTitle;
-	private List<PeriodAnalysis2DPlotModel> models;
-
+	private List<PeriodAnalysis2DPlotModel> plotModels;
+	private PeriodAnalysisTableModel tableModel;
+	
 	/**
 	 * Constructor
 	 * 
@@ -49,11 +46,14 @@ public class PeriodAnalysis2DPlotDialog extends JDialog {
 	 *            The title for the chart.
 	 * @param domainTitle
 	 *            The domain title (e.g. Julian Date, phase).
-	 * @param model
-	 *            The data models on which to base plots.
+	 * @param plotModels
+	 *            The data plotModels on which to base plots.
+	 * @param tableModel
+	 *            A model with which to display all data in a table.
 	 */
-	public PeriodAnalysis2DPlotDialog(String title, String domainTitle,
-			List<PeriodAnalysis2DPlotModel> models) {
+	public PeriodAnalysis2DResultDialog(String title, String domainTitle,
+			List<PeriodAnalysis2DPlotModel> plotModels,
+			PeriodAnalysisTableModel tableModel) {
 		super();
 
 		this.setTitle(title);
@@ -61,46 +61,38 @@ public class PeriodAnalysis2DPlotDialog extends JDialog {
 
 		this.chartTitle = title;
 		this.domainTitle = domainTitle;
-		this.models = models;
-
-		// TODO: may also need table with data
-
-		// JPanel topPane = new JPanel();
-		// topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-		// topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		//
-		// topPane.add(chartPanel);
-
-		// this.getContentPane().add(topPane);
-
+		this.plotModels = plotModels;
+		this.tableModel = tableModel;
+		
 		this.getContentPane().add(getTabs());
 
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
-		this.setAlwaysOnTop(true); // TODO: or false?
+		this.setAlwaysOnTop(false);
 		this.setVisible(true);
 	}
 
-	// Return the tabs containing plots of frequency vs one of the dependent
+	// Return the tabs containing table and plots of frequency vs one of the dependent
 	// variables of period, power, or amplitude. Is this what we want, or
-	// something
-	// different?
+	// something different?
 	private JTabbedPane getTabs() {
 		JTabbedPane tabs = new JTabbedPane();
 
-		for (PeriodAnalysis2DPlotModel model : models) {
+		// Add plots.
+		for (PeriodAnalysis2DPlotModel model : plotModels) {
 			// Create a line chart with legend, tooltips, and URLs showing
 			// and add it to the panel.
-			// TODO: for period plot, make Y scale logarithmic?
 			ChartPanel chartPanel = new PeriodAnalysis2DChartPane(ChartFactory
 					.createXYLineChart(this.chartTitle, domainTitle, model
 							.getDependentDesc(), model,
 							PlotOrientation.VERTICAL, true, true, true), model);
 
 			tabs.addTab(model.getDependentDesc(), chartPanel);
-			// JFreeChart chart = chartPanel.getChart();
 		}
 
+		// Add table view.
+		tabs.addTab("Data", new PeriodAnalysisTablePane(tableModel));
+		
 		return tabs;
 	}
 }

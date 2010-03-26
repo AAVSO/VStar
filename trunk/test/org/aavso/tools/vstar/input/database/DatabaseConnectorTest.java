@@ -184,7 +184,7 @@ public class DatabaseConnectorTest extends TestCase {
 	
 	// Read a result set from the database for Epsilon Aurigae in the
 	// Julian Day range 2454000.5..2454939.56597.
-	public void testSampleRead() {
+	public void testSampleRead1() {
 		try {
 			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
 			Connection connection = connector.createConnection();
@@ -213,8 +213,49 @@ public class DatabaseConnectorTest extends TestCase {
 				}
 			}
 			assertTrue(found);
+
+			results.close();
 		} catch (Exception e) {
 			fail();
+		}
+	}
+	
+	// Read a result set from the database for Epsilon Aurigae in the
+	// Julian Day range 2455113.34255..2454486.50292.
+	public void testSampleRead2() {
+		try {
+			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
+			Connection connection = connector.createConnection();
+			assertNotNull(connection);
+
+			PreparedStatement stmt = connector
+					.createObservationWithJDRangeQuery(connection);
+			assertNotNull(stmt);
+
+			connector.setObservationWithJDRangeQueryParams(stmt, "000-BCT-905", 2445231.9900,
+					2445237.9700);
+
+			ResultSet results = stmt.executeQuery();
+
+			double x = Double.parseDouble(".007");
+			
+			// Look for a particular observation that we know exists
+			// in the database and check the magnitude we find there.
+			boolean found = false;
+			while (results.next()) {
+				double jd = results.getDouble("JD");
+				double mag = results.getDouble("magnitude");
+				if (jd == 2445231.9900 && mag == 3.954) {
+					double uncertainty = results.getDouble("uncertainty");
+					assertEquals(0.007, uncertainty);
+					found = true;
+				}
+			}
+			assertTrue(found);
+			
+			results.close();
+		} catch (Exception e) {
+			fail();			
 		}
 	}
 }

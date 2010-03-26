@@ -28,11 +28,10 @@ import org.aavso.tools.vstar.data.ValidObservation;
  * 
  * The message signals a specific change in an observation by a source object. 
  */
-public class ObservationChangeMessage {
+public class ObservationChangeMessage extends MessageBase {
 
 	private ValidObservation observation;
 	private Iterable<ObservationChangeType> changes;
-	private Object source;
 	
 	/**
 	 * Constructor.
@@ -43,9 +42,9 @@ public class ObservationChangeMessage {
 	 */
 	public ObservationChangeMessage(ValidObservation observation,
 			Iterable<ObservationChangeType> changes, Object source) {
+		super(source);
 		this.observation = observation;
 		this.changes = changes;
-		this.source = source;
 	}
 
 	/**
@@ -57,11 +56,11 @@ public class ObservationChangeMessage {
 	 */
 	public ObservationChangeMessage(ValidObservation observation,
 			ObservationChangeType change, Object source) {
+		super(source);
 		this.observation = observation;
 		List<ObservationChangeType> changes = new ArrayList<ObservationChangeType>();
 		changes.add(change);
 		this.changes = changes;
-		this.source = source;
 	}
 	
 	/**
@@ -76,12 +75,5 @@ public class ObservationChangeMessage {
 	 */
 	public Iterable<ObservationChangeType> getChanges() {
 		return changes;
-	}
-	
-	/**
-	 * @return the source
-	 */
-	public Object getSource() {
-		return source;
 	}
 }
