@@ -122,7 +122,6 @@ public class AAVSODatabaseObservationReader extends
 		try {
 			ob.setDateInfo(new DateInfo(source.getDouble("jd")));
 			ob.setMagnitude(getNextMagnitude());
-			// ob.setHqUncertainty(source.getDouble("hq_uncertainty"));
 			ob.setHqUncertainty(getNextPossiblyNullDouble("hq_uncertainty"));
 			SeriesType band = SeriesType.Unspecified;
 			String bandNum = getNextPossiblyNullString("band");
@@ -190,8 +189,6 @@ public class AAVSODatabaseObservationReader extends
 
 		Double uncertainty = getNextPossiblyNullDouble("uncertainty");
 		
-		// return new Magnitude(source.getDouble("magnitude"), modifier,
-		// isUncertain, source.getDouble("uncertainty"));
 		return new Magnitude(source.getDouble("magnitude"), modifier,
 				isUncertain, uncertainty != null ? uncertainty : 0);
 	}
@@ -243,7 +240,6 @@ public class AAVSODatabaseObservationReader extends
 			// yet do proper validation for database read
 			// observations however.
 		}
-		// Double num = source.getDouble(colName);
 		return !source.wasNull() ? num : null;
 	}
 
@@ -262,7 +258,6 @@ public class AAVSODatabaseObservationReader extends
 			// yet do proper validation for database read
 			// observations however.
 		}
-		// Integer num = source.getInt(colName);
 		return !source.wasNull() ? num : null;
 	}
 }
