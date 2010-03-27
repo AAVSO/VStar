@@ -71,10 +71,10 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 // How to properly deal with the many large frequencies? Skip, given
 // some user-definable threshold or other criteria? See also requirements.
 
-public class DateCompensatedDiscreteFourierTransform implements IPeriodAnalysisAlgorithm {
+public class DateCompensatedDiscreteFourierTransform implements
+		IPeriodAnalysisAlgorithm {
 
 	private List<ValidObservation> observations;
-	private List<DcDftDataPoint> resultDataPoints;
 	private Map<PeriodAnalysisCoordinateType, List<Double>> resultSeries;
 
 	private double dangcut;
@@ -156,7 +156,6 @@ public class DateCompensatedDiscreteFourierTransform implements IPeriodAnalysisA
 		this.wvec = new double[sz];
 
 		// Create result collections.
-		this.resultDataPoints = new ArrayList<DcDftDataPoint>();
 
 		this.resultSeries = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
 		for (PeriodAnalysisCoordinateType type : PeriodAnalysisCoordinateType
@@ -186,13 +185,6 @@ public class DateCompensatedDiscreteFourierTransform implements IPeriodAnalysisA
 	 */
 	public double[] getWeights() {
 		return wvec;
-	}
-
-	/**
-	 * @return the resultDataPoints
-	 */
-	public List<DcDftDataPoint> getResults() {
-		return resultDataPoints;
 	}
 
 	/**
@@ -400,24 +392,11 @@ public class DateCompensatedDiscreteFourierTransform implements IPeriodAnalysisA
 	 */
 	private void collect_datapoint(double freq, double period, double power,
 			double amplitude) {
-//		if (freq >= 0.1) {
-		if (true) {
-			// Exclude very low frequencies since most associated periods
-			// will be too large and these large values will dominate the
-			// plot. TODO: how to properly deal with this?
-			DcDftDataPoint datapoint = new DcDftDataPoint(freq, period, power,
-					amplitude);
-			this.resultDataPoints.add(datapoint);
-
-			this.resultSeries.get(PeriodAnalysisCoordinateType.FREQUENCY).add(
-					freq);
-			this.resultSeries.get(PeriodAnalysisCoordinateType.PERIOD).add(
-					period);
-			this.resultSeries.get(PeriodAnalysisCoordinateType.POWER)
-					.add(power);
-			this.resultSeries.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
-					amplitude);
-		}
+		this.resultSeries.get(PeriodAnalysisCoordinateType.FREQUENCY).add(freq);
+		this.resultSeries.get(PeriodAnalysisCoordinateType.PERIOD).add(period);
+		this.resultSeries.get(PeriodAnalysisCoordinateType.POWER).add(power);
+		this.resultSeries.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
+				amplitude);
 	}
 
 	// -------------------------------------------------------------------------------

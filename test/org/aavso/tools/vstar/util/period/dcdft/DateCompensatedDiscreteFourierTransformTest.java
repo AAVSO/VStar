@@ -19,12 +19,14 @@ package org.aavso.tools.vstar.util.period.dcdft;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransform;
 import org.aavso.tools.vstar.util.period.dcdft.DcDftDataPoint;
 
@@ -4368,26 +4370,25 @@ public class DateCompensatedDiscreteFourierTransformTest extends TestCase {
 	 */
 	public void testExecute() {
 		dcdft.execute();
+		Map<PeriodAnalysisCoordinateType, List<Double>> results = dcdft.getResultSeries();
 
-		List<DcDftDataPoint> results = dcdft.getResults();
-
-		assertEquals(3079, results.size());
+		// Choose an arbitrary series to check number of data values for each series.
+		assertEquals(3079, results.get(PeriodAnalysisCoordinateType.FREQUENCY).size());
 		
 		for (int i = 0; i < expectedResults.length; i++) {
 			DcDftDataPoint expected = expectedResults[i];
-			DcDftDataPoint actual = results.get(i);
 
 			assertEquals(String.format("%1.4f", expected.getFrequency()),
-					String.format("%1.4f", actual.getFrequency()));
+					String.format("%1.4f", results.get(PeriodAnalysisCoordinateType.FREQUENCY).get(i)));
 
 			assertEquals(String.format("%1.4f", expected.getPeriod()), String
-					.format("%1.4f", actual.getPeriod()));
+					.format("%1.4f", results.get(PeriodAnalysisCoordinateType.PERIOD).get(i)));
 			
 			assertEquals(String.format("%1.4f", expected.getAmplitude()),
-					String.format("%1.4f", actual.getAmplitude()));
+					String.format("%1.4f", results.get(PeriodAnalysisCoordinateType.AMPLITUDE).get(i)));
 
 			assertEquals(String.format("%1.4f", expected.getPower()),
-					String.format("%1.4f", actual.getPower()));
+					String.format("%1.4f", results.get(PeriodAnalysisCoordinateType.POWER).get(i)));
 		}
 	}
 }
