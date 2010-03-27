@@ -23,6 +23,7 @@ import java.util.WeakHashMap;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
@@ -40,12 +41,12 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	private final List<ValidObservation> validObservations;
 
 	/**
-	 * A weak reference hash map from observations to row indices.
-	 * We only want this map's entries to exist if they (ValidObservation
-	 * instances in particular) are in use elsewhere.
+	 * A weak reference hash map from observations to row indices. We only want
+	 * this map's entries to exist if they (ValidObservation instances in
+	 * particular) are in use elsewhere.
 	 */
 	private final WeakHashMap<ValidObservation, Integer> validObservationToRowIndexMap;
-	
+
 	/**
 	 * The source of column information.
 	 */
@@ -67,15 +68,15 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	public ValidObservationTableModel(List<ValidObservation> validObservations,
 			ITableColumnInfoSource columnInfoSource) {
 		this.validObservations = validObservations;
-		
+
 		this.validObservationToRowIndexMap = new WeakHashMap<ValidObservation, Integer>();
-		for (int i=0;i<validObservations.size();i++) {
+		for (int i = 0; i < validObservations.size(); i++) {
 			this.validObservationToRowIndexMap.put(validObservations.get(i), i);
 		}
-		
+
 		this.columnInfoSource = columnInfoSource;
 		this.columnCount = columnInfoSource.getColumnCount();
-		
+
 		Mediator.getInstance().getObservationChangeNotifier().addListener(this);
 	}
 
@@ -87,15 +88,16 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	}
 
 	/**
-	 * Returns the row index (0..n-1) given an observation. 
+	 * Returns the row index (0..n-1) given an observation.
 	 * 
-	 * @param ob a valid observation whose row index we want.
+	 * @param ob
+	 *            a valid observation whose row index we want.
 	 * @return The observation's row index.
 	 */
 	public Integer getRowIndexFromObservation(ValidObservation ob) {
 		return validObservationToRowIndexMap.get(ob);
 	}
-	
+
 	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
@@ -138,8 +140,10 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 			boolean discrepant = ob.isDiscrepant();
 			ob.setDiscrepant(!discrepant);
 			// Tell anyone who's listening about the change.
-			ObservationChangeMessage message = new ObservationChangeMessage(ob, ObservationChangeType.DISCREPANT, this);
-			Mediator.getInstance().getObservationChangeNotifier().notifyListeners(message);
+			ObservationChangeMessage message = new ObservationChangeMessage(ob,
+					ObservationChangeType.DISCREPANT, this);
+			Mediator.getInstance().getObservationChangeNotifier()
+					.notifyListeners(message);
 		}
 	}
 
@@ -148,7 +152,18 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 */
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// "is-discrepant" check box?
-		return columnIndex == columnInfoSource.getDiscrepantColumnIndex();
+		// We currently disable the discrepant checkbox for anything other 
+		// than raw data mode due to this bug in which a chunk of data disappears 
+		// after marking a point as discrepant, then unmarking it. Since the cross 
+		// hair change is reflected in raw data mode also, this is no great user 
+		// interface problem. The problem should be fixed though. See 
+		// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
+		// for more detail.
+		boolean is_discrepant_checkbox_editable = columnIndex == columnInfoSource
+				.getDiscrepantColumnIndex()
+				&& Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA;
+		
+		return is_discrepant_checkbox_editable;
 	}
 
 	/**
@@ -173,11 +188,11 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 			}
 		}
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
 	 */
 	public boolean canBeRemoved() {
 		return true;
-	}	
+	}
 }

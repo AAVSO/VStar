@@ -37,6 +37,7 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
@@ -78,19 +79,28 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
-		// It doesn't make sense to mark a mean observation as discrepant
-		// since it's a derived (computed) observation.
-		if (ob.getBand() != SeriesType.MEANS) {
-			JPanel checkBoxPane = new JPanel();
-			discrepantCheckBox = new JCheckBox("Discrepant?");
-			discrepantCheckBox
-					.addActionListener(createDiscreantCheckBoxHandler());
-			discrepantCheckBox.setSelected(ob.isDiscrepant());
-			checkBoxPane.add(discrepantCheckBox);
-			topPane.add(checkBoxPane, BorderLayout.CENTER);
+		// We currently disable the discrepant checkbox for anything other 
+		// than raw data mode due to this bug in which a chunk of data disappears 
+		// after marking a point as discrepant, then unmarking it. Since the cross 
+		// hair change is reflected in raw data mode also, this is no great user 
+		// interface problem. The problem should be fixed though.
+		// See https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
+		// for more detail.
+		if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+			// It doesn't make sense to mark a mean observation as discrepant
+			// since it's a derived (computed) observation.
+			if (ob.getBand() != SeriesType.MEANS) {
+				JPanel checkBoxPane = new JPanel();
+				discrepantCheckBox = new JCheckBox("Discrepant?");
+				discrepantCheckBox
+						.addActionListener(createDiscreantCheckBoxHandler());
+				discrepantCheckBox.setSelected(ob.isDiscrepant());
+				checkBoxPane.add(discrepantCheckBox);
+				topPane.add(checkBoxPane, BorderLayout.CENTER);
 
-			Mediator.getInstance().getObservationChangeNotifier().addListener(
-					this);
+				Mediator.getInstance().getObservationChangeNotifier()
+						.addListener(this);
+			}
 		}
 
 		JPanel buttonPane = new JPanel();
