@@ -62,13 +62,21 @@ public class PeriodAnalysisTableModel extends AbstractTableModel {
 	}
 
 	/**
+	 * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
+	 */
+	public Class<?> getColumnClass(int columnIndex) {
+		return String.class;
+	}
+
+	/**
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		// column = coordinate type (freq, period, power, ampl)
 		// row = value within the chosen coordinate's list
-		return this.data.get(
+		double val = this.data.get(
 				PeriodAnalysisCoordinateType.getTypeFromIndex(columnIndex))
 				.get(rowIndex);
+		return String.format("%10.4f", val);
 	}
 }

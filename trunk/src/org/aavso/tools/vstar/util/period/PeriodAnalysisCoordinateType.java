@@ -26,15 +26,15 @@ package org.aavso.tools.vstar.util.period;
  */
 public enum PeriodAnalysisCoordinateType {
 
-	POWER("Power", PeriodAnalysisCoordinateType.POWER_INDEX), AMPLITUDE(
-			"Amplitude", PeriodAnalysisCoordinateType.AMPLITUDE_INDEX), PERIOD(
-			"Period", PeriodAnalysisCoordinateType.PERIOD_INDEX), FREQUENCY(
-			"Frequency");
+	FREQUENCY("Frequency", PeriodAnalysisCoordinateType.FREQUENCY_INDEX), AMPLITUDE(
+			"Amplitude", PeriodAnalysisCoordinateType.AMPLITUDE_INDEX), POWER(
+			"Power", PeriodAnalysisCoordinateType.POWER_INDEX), PERIOD(
+			"Period", PeriodAnalysisCoordinateType.PERIOD_INDEX);
 
-	private final static int POWER_INDEX = 0;
-	private final static int PERIOD_INDEX = 1;
-	private final static int AMPLITUDE_INDEX = 2;
-	private final static int FREQUENCY_INDEX = 3;
+	private final static int FREQUENCY_INDEX = 0;
+	private final static int AMPLITUDE_INDEX = 1;
+	private final static int POWER_INDEX = 2;
+	private final static int PERIOD_INDEX = 3;
 
 	private String description;
 	private int index;
@@ -50,16 +50,6 @@ public enum PeriodAnalysisCoordinateType {
 	private PeriodAnalysisCoordinateType(String description, int index) {
 		this.description = description;
 		this.index = index;
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param description
-	 *            A string describing this coordinate type.
-	 */
-	private PeriodAnalysisCoordinateType(String description) {
-		this(description, FREQUENCY_INDEX);
 	}
 
 	/**
