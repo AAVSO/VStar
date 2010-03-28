@@ -46,4 +46,8 @@ public class JDTimeElementEntity implements ITimeElementEntity {
 	public double getDefaultTimeIncrements() {
 		return 1;
 	}
+	
+	public String getNumberFormat() {
+		return "  #.#";
+	}
 }
