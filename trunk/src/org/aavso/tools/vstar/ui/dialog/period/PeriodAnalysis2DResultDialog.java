@@ -28,22 +28,26 @@ import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.title.TextTitle;
 
 /**
  * This class is used to visualise period analysis results.
  */
 public class PeriodAnalysis2DResultDialog extends JDialog {
 
+	private String seriesTitle;
 	private String chartTitle;
 	private String domainTitle;
 	private List<PeriodAnalysis2DPlotModel> plotModels;
 	private PeriodAnalysisTableModel tableModel;
-	
+
 	/**
 	 * Constructor
 	 * 
 	 * @param title
 	 *            The title for the chart.
+	 * @param subTitle
+	 *            The source series sub-title for the chart.
 	 * @param domainTitle
 	 *            The domain title (e.g. Julian Date, phase).
 	 * @param plotModels
@@ -51,19 +55,20 @@ public class PeriodAnalysis2DResultDialog extends JDialog {
 	 * @param tableModel
 	 *            A model with which to display all data in a table.
 	 */
-	public PeriodAnalysis2DResultDialog(String title, String domainTitle,
-			List<PeriodAnalysis2DPlotModel> plotModels,
+	public PeriodAnalysis2DResultDialog(String title, String seriesTitle,
+			String domainTitle, List<PeriodAnalysis2DPlotModel> plotModels,
 			PeriodAnalysisTableModel tableModel) {
 		super();
 
 		this.setTitle(title);
 		this.setModal(false);
 
+		this.seriesTitle = seriesTitle;
 		this.chartTitle = title;
 		this.domainTitle = domainTitle;
 		this.plotModels = plotModels;
 		this.tableModel = tableModel;
-		
+
 		this.getContentPane().add(getTabs());
 
 		this.pack();
@@ -72,7 +77,8 @@ public class PeriodAnalysis2DResultDialog extends JDialog {
 		this.setVisible(true);
 	}
 
-	// Return the tabs containing table and plots of frequency vs one of the dependent
+	// Return the tabs containing table and plots of frequency vs one of the
+	// dependent
 	// variables of period, power, or amplitude. Is this what we want, or
 	// something different?
 	private JTabbedPane getTabs() {
@@ -87,12 +93,14 @@ public class PeriodAnalysis2DResultDialog extends JDialog {
 							.getDependentDesc(), model,
 							PlotOrientation.VERTICAL, true, true, true), model);
 
+			chartPanel.getChart().addSubtitle(new TextTitle(this.seriesTitle));
+			
 			tabs.addTab(model.getDependentDesc(), chartPanel);
 		}
 
 		// Add table view.
 		tabs.addTab("Data", new PeriodAnalysisTablePane(tableModel));
-		
+
 		return tabs;
 	}
 }

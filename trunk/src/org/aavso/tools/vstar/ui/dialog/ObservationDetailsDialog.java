@@ -113,6 +113,8 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 
 		this.getRootPane().setDefaultButton(okButton);
 
+//		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
 		this.setAlwaysOnTop(true);

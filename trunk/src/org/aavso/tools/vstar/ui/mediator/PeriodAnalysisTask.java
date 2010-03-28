@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTableModel;
@@ -36,6 +37,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 
 	private IPeriodAnalysisAlgorithm periodAnalysisAlgorithm;
 	private StarInfo starInfo;
+	private SeriesType sourceSeriesType;
 
 	/**
 	 * Constructor
@@ -46,9 +48,10 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	 *            Information about the star.
 	 */
 	public PeriodAnalysisTask(IPeriodAnalysisAlgorithm periodAnalysisAlgorithm,
-			StarInfo info) {
+			StarInfo info, SeriesType sourceSeriesType) {
 		this.periodAnalysisAlgorithm = periodAnalysisAlgorithm;
 		this.starInfo = info;
+		this.sourceSeriesType = sourceSeriesType;
 	}
 
 	/**
@@ -69,9 +72,6 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 
-		// Mediator.getInstance().getProgressNotifier().notifyListeners(
-		// ProgressInfo.RESET_PROGRESS);
-
 		List<PeriodAnalysis2DPlotModel> models = new ArrayList<PeriodAnalysis2DPlotModel>();
 
 		Map<PeriodAnalysisCoordinateType, List<Double>> seriesMap = periodAnalysisAlgorithm
@@ -89,10 +89,11 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 			}
 		}
 
-		new PeriodAnalysis2DResultDialog("Date Compensated DFT for "
-				+ starInfo.getDesignation(), "Frequency", models,
+		new PeriodAnalysis2DResultDialog("Period Analysis (DC DFT) for "
+				+ starInfo.getDesignation(), "(series: "
+				+ sourceSeriesType.getDescription() + ")", "Frequency", models,
 				new PeriodAnalysisTableModel(seriesMap));
 
-		// TODO: how to detect task cancellation and clean up map etc
+		// TODO: how to detect task cancellation and clean up map etc?
 	}
 }

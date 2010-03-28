@@ -91,6 +91,11 @@ public class Mediator {
 	private Map<SeriesType, List<ValidObservation>> validObservationCategoryMap;
 	private Map<SeriesType, List<ValidObservation>> phasedValidObservationCategoryMap;
 
+	// Current observation and mean plot model.
+	// Period search needs access to this to determine
+	// the current mean source band.
+	private ObservationAndMeanPlotModel obsAndMeanPlotModel;
+
 	// Current mode.
 	private ViewModeType mode;
 
@@ -115,7 +120,7 @@ public class Mediator {
 	private Notifier<ObservationChangeMessage> observationChangeNotifier;
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
-	
+
 	// A file dialog for saving any kind of observation list.
 	private JFileChooser obsListFileSaveDialog;
 
@@ -139,7 +144,7 @@ public class Mediator {
 		this.observationChangeNotifier = new Notifier<ObservationChangeMessage>();
 		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
 		this.periodAnalysisSelectionNotifier = new Notifier<PeriodAnalysisSelectionMessage>();
-		
+
 		this.obsListFileSaveDialog = new JFileChooser();
 
 		// These 4 are created for each new star.
@@ -147,6 +152,8 @@ public class Mediator {
 		this.invalidObsList = null;
 		this.validObservationCategoryMap = null;
 		this.phasedValidObservationCategoryMap = null;
+
+		this.obsAndMeanPlotModel = null;
 
 		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
 
@@ -238,10 +245,10 @@ public class Mediator {
 		this.observationChangeNotifier.removeAllWillingListeners();
 		this.observationSelectionNotifier.removeAllWillingListeners();
 		this.periodAnalysisSelectionNotifier.removeAllWillingListeners();
-		
+
 		obsAndMeanPlotModel.getMeansChangeNotifier()
 				.removeAllWillingListeners();
-		
+
 		SeriesType.getSeriesColorChangeNotifier().removeAllWillingListeners();
 	}
 
@@ -398,7 +405,7 @@ public class Mediator {
 			userConnector.authenticateWithCitizenSky();
 
 			// TODO: query for observer code; return value of
-			// authenticateWithCitizenSky() above?
+			// authenticateWithCitizenSky() above
 
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.RESET_PROGRESS);
@@ -463,7 +470,7 @@ public class Mediator {
 
 		// Plot models.
 		ObservationPlotModel obsPlotModel = null;
-		ObservationAndMeanPlotModel obsAndMeanPlotModel = null;
+		obsAndMeanPlotModel = null;
 
 		// GUI table and chart components.
 		ObservationListPane obsListPane = null;
@@ -773,24 +780,44 @@ public class Mediator {
 	}
 
 	/**
-	 * Create a period analysis dialog. TODO: we will ultimately need to pass
-	 * one or more info parameters that will lead to selection of plug-in
-	 * classes. What we have here is a first cut. Currently we implement only
-	 * Date Compensated DFT.
+	 * Create a period analysis dialog after the analysis is done. We apply the
+	 * analysis to the series that is currently selected as being the mean
+	 * series source. It only makes sense to apply the observations to a single
+	 * band as per this Q & A between Matt Templeton and I: DB: Like mean curve
+	 * creation in VStar, should we only apply DC DFT to a single band, e.g.
+	 * visual? MT: Yes, because of two things: 1) The different bands will have
+	 * different mean values, and 2) The different bands will have different
+	 * amplitudes or frequencies depending on what is physically causing the
+	 * variation. Variablity caused by temperature changes can have wildy
+	 * different amplitudes in U or B versus Rc or Ic.
+	 * 
+	 * TODO: we will ultimately need to pass one or more info parameters that
+	 * will lead to selection of plug-in classes. What we have here is a first
+	 * cut. Currently we implement only Date Compensated DFT.
 	 */
 	public void createPeriodAnalysisDialog() {
 		try {
 			if (this.newStarMessage != null && this.validObsList != null) {
+				int meanObsSourceSeriesNum = obsAndMeanPlotModel
+						.getMeanSourceSeriesNum();
+
+				List<ValidObservation> meanObsSourceList = obsAndMeanPlotModel
+						.getSeriesNumToObSrcListMap().get(
+								meanObsSourceSeriesNum);
+
+				SeriesType meanObsSourceSeriesType = obsAndMeanPlotModel
+						.getSeriesNumToSrcTypeMap().get(meanObsSourceSeriesNum);
+
 				DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
-						this.validObsList);
+						meanObsSourceList);
 
 				this.getProgressNotifier().notifyListeners(
 						ProgressInfo.RESET_PROGRESS);
 				this.getProgressNotifier().notifyListeners(
 						ProgressInfo.BUSY_PROGRESS);
 
-				PeriodAnalysisTask task = new PeriodAnalysisTask(dcdft, newStarMessage
-						.getStarInfo());
+				PeriodAnalysisTask task = new PeriodAnalysisTask(dcdft,
+						newStarMessage.getStarInfo(), meanObsSourceSeriesType);
 				this.currTask = task;
 				task.execute();
 			}

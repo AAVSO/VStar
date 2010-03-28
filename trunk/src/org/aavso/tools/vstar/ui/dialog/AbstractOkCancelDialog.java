@@ -48,7 +48,6 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 		this.setModal(true);
 		this.cancelled = true;
 		this.firstUse = true;
-		//this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}
 	
 	protected JPanel createButtonPane() {
