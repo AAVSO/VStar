@@ -82,24 +82,30 @@ public class TimeElementsInBinSettingPane extends JPanel {
 				- timeElementEntity.getTimeElement(meanSrcObsList, 0);
 
 		// Spinner for time-elements-in-bin with the specified current, min, and
-		// max values, and step size. If the "current time elements in bin" value
-		// is larger than the calculated max value, correct that.
+		// max values, and step size. If the "current time elements in bin"
+		// value is larger than the calculated max value, correct that.
 		double currTimeElementsInBin = obsAndMeanModel.getTimeElementsInBin();
 		currTimeElementsInBin = currTimeElementsInBin <= max ? currTimeElementsInBin
 				: max;
 		obsAndMeanModel.setTimeElementsInBin(currTimeElementsInBin);
 
-		// We make the minimum arbitrarily small.
 		timeElementsInBinSpinnerModel = new SpinnerNumberModel(
 				currTimeElementsInBin, 0, max, timeElementEntity
 						.getDefaultTimeIncrements());
 		timeElementsInBinSpinner = new JSpinner(timeElementsInBinSpinnerModel);
+		timeElementsInBinSpinner.setEditor(new JSpinner.NumberEditor(
+				timeElementsInBinSpinner, timeElementEntity.getNumberFormat()));
+		
+		// Tweak the size of the component to be suitable independent of
+		// max size. The BoxLayout matters here. Layout Managers usage
+		// sometimes requires a lot of experimentation.
 		int spinnerWidth = 50;
-		int spinnerHeight = 30;		
+		int spinnerHeight = 30;
 		timeElementsInBinSpinner.setMaximumSize(new Dimension(spinnerWidth,
 				spinnerHeight));
 		timeElementsInBinSpinner.setMinimumSize(new Dimension(spinnerWidth,
 				spinnerHeight));
+
 		this.add(timeElementsInBinSpinner);
 
 		this.add(Box.createHorizontalGlue());

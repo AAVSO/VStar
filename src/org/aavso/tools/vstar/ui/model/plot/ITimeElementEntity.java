@@ -22,7 +22,7 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This interface must be implemented by any class wanting to be
+ * This interface must be implemented by any component wanting to be
  * a source or sink of time element values (Julian Day, phase) from 
  * a list of observations.
  */
@@ -57,5 +57,9 @@ public interface ITimeElementEntity {
 	 */
 	abstract public double getDefaultTimeIncrements();
 	
-	
+	/**
+	 * Get the desired DecimalNumber-style format.
+	 * @return The number format string.
+	 */
+	abstract public String getNumberFormat();
 }
