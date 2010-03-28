@@ -68,6 +68,6 @@ public class PhaseTimeElementEntity implements ITimeElementEntity {
 	}
 
 	public String getNumberFormat() {
-		return "  #.#";
+		return "   #.###";
 	}
 }

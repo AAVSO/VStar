@@ -30,44 +30,58 @@ import org.aavso.tools.vstar.ui.model.plot.ITimeElementEntity;
 /**
  * Descriptive statistics functions for observations.
  * 
- * For a series of mean data to make sense, it should only include a single
- * band, so the data sources passed to the functions below should should consist
- * of observations in just such a single band.
+ * For a series of mean observational data to make sense, it should only include
+ * a single band (or highly related bands such as Johnson V and Visual), so the
+ * data collections passed to the functions below should be chosen accordingly.
  * 
  * Discrepant observations are ignored in all calculations.
  */
 public class DescStats {
 
+	public final static int MEAN_MAG_INDEX = 0;
+	public final static int MEAN_TIME_INDEX = 1;
+
 	/**
-	 * Calculates the mean of a sequence of magnitudes for observations in a
-	 * specified inclusive range.
+	 * Calculates the means of a sequence of magnitudes and time elements for
+	 * observations in a specified inclusive range.
 	 * 
 	 * @param observations
 	 *            A valid observation.
+	 * @param timeElementEntity
+	 *            A time element source for observations.
 	 * @param minIndex
 	 *            The first observation index in the inclusive range.
 	 * @param maxIndex
 	 *            The last observation index in the inclusive range.
-	 * @return The mean of magnitudes in the range.
+	 * @return The means of magnitudes and time elements in the range as a
+	 *         2-element double array.
 	 */
-	public static double calcMagMeanInRange(
-			List<ValidObservation> observations, int minIndex, int maxIndex) {
+	public static double[] calcMagMeanInRange(
+			List<ValidObservation> observations,
+			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex) {
 
 		// Pre-conditions.
 		assert (maxIndex >= minIndex);
 		assert (maxIndex < observations.size());
 
-		double total = 0;
+		double totalMag = 0;
+		double totalTimeElement = 0;
 		double included = 0;
 
 		for (int i = minIndex; i <= maxIndex; i++) {
 			if (!observations.get(i).isDiscrepant()) {
-				total += observations.get(i).getMag();
+				totalMag += observations.get(i).getMag();
+				totalTimeElement += timeElementEntity.getTimeElement(
+						observations, i);
 				included++;
 			}
 		}
 
-		return total / included;
+		double[] meanPair = new double[2];
+		meanPair[MEAN_MAG_INDEX] = totalMag / included;
+		meanPair[MEAN_TIME_INDEX] = totalTimeElement / included;
+
+		return meanPair;
 	}
 
 	/**
@@ -80,20 +94,25 @@ public class DescStats {
 	 * 
 	 * @param observations
 	 *            The observations to which binning will be applied.
+	 * @param timeElementEntity
+	 *            A time element source for observations.
 	 * @param minIndex
 	 *            The first observation index in the inclusive range.
 	 * @param maxIndex
 	 *            The last observation index in the inclusive range.
 	 * @return The sample standard deviation of the magnitudes in the range.
+	 * @deprecated Only used in tests.
 	 */
 	public static double calcMagSampleStdDevInRange(
-			List<ValidObservation> observations, int minIndex, int maxIndex) {
+			List<ValidObservation> observations,
+			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex) {
 
 		// Pre-conditions.
 		assert (maxIndex >= minIndex);
 		assert (maxIndex < observations.size());
 
-		double magMean = calcMagMeanInRange(observations, minIndex, maxIndex);
+		double magMean = calcMagMeanInRange(observations, timeElementEntity,
+				minIndex, maxIndex)[MEAN_MAG_INDEX];
 
 		double total = 0;
 		double included = 0;
@@ -143,7 +162,11 @@ public class DescStats {
 		assert (maxIndex >= minIndex);
 		assert (maxIndex < observations.size());
 
-		double magMean = calcMagMeanInRange(observations, minIndex, maxIndex);
+		double[] meanPair = calcMagMeanInRange(observations, timeElementEntity,
+				minIndex, maxIndex);
+
+		double magMean = meanPair[MEAN_MAG_INDEX];
+		double timeMean = meanPair[MEAN_TIME_INDEX];
 
 		double total = 0;
 		double included = 0;
@@ -169,14 +192,10 @@ public class DescStats {
 		}
 
 		// Create the mean observation.
-		double meanTimeElement = (timeElementEntity.getTimeElement(
-				observations, minIndex) + timeElementEntity.getTimeElement(
-				observations, maxIndex)) / 2;
-
 		ValidObservation observation = new ValidObservation();
 		observation.setMagnitude(new Magnitude(magMean, magStdErrOfMean));
 		observation.setBand(SeriesType.MEANS);
-		timeElementEntity.setTimeElement(observation, meanTimeElement);
+		timeElementEntity.setTimeElement(observation, timeMean);
 
 		return observation;
 	}
