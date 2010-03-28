@@ -48,6 +48,6 @@ public class JDTimeElementEntity implements ITimeElementEntity {
 	}
 	
 	public String getNumberFormat() {
-		return "   #.###";
+		return "#####.####";
 	}
 }
