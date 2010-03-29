@@ -28,5 +28,21 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
  */
 public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 
+	/**
+	 * Return the result of the 
+	 * @return
+	 */
 	abstract public Map<PeriodAnalysisCoordinateType, List<Double>> getResultSeries();
+	
+	/**
+	 * From the resulting data, create an array of power-index pairs
+	 * (first and second elements respectively) sorted by power.
+	 * 
+	 * It is a precondition that results have been generated, i.e. the
+	 * execute() method has been invoked.
+	 * TODO: the name and return type of this method may not be general enough
+	 * and indeed, the double[][] should be a class since the 2nd dimension's
+	 * 2nd elements are actually integer indices.
+	 */
+	abstract public double[][] getTopNRankedIndices(int topN);
 }

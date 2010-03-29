@@ -81,6 +81,10 @@ public class ResourceAccessor {
 		return url;
 	}
 
+	public static String getVersionString() {
+		return "version 1.0 Beta 1";
+	}
+	
 	public static String getRevNum() {
 		return RevisionAccessor.getRevNum();
 	}
@@ -93,8 +97,6 @@ public class ResourceAccessor {
 		}
 		return new String(bytes);
 	}
-
-	// TODO: move to a props file?
 
 	// 0
 	private static int[] hdata = { 8802, 9169, 7498, 8477, 8869, 10808, 9062,

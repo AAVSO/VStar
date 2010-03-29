@@ -32,9 +32,9 @@ public enum PeriodAnalysisCoordinateType {
 			"Period", PeriodAnalysisCoordinateType.PERIOD_INDEX);
 
 	private final static int FREQUENCY_INDEX = 0;
-	private final static int AMPLITUDE_INDEX = 1;
+	private final static int AMPLITUDE_INDEX = 3;
 	private final static int POWER_INDEX = 2;
-	private final static int PERIOD_INDEX = 3;
+	private final static int PERIOD_INDEX = 1;
 
 	private String description;
 	private int index;

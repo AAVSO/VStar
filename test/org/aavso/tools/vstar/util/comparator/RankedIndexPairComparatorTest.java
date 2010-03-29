@@ -15,35 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
+package org.aavso.tools.vstar.util.comparator;
 
+import java.util.Arrays;
+
+import junit.framework.TestCase;
 
 /**
- * Instances of this message class can be sent when a period analysis chart
- * data-point selection occurs.
+ * Power-index pair comparator test.
  */
-public class PeriodAnalysisSelectionMessage extends MessageBase {
+public class RankedIndexPairComparatorTest extends TestCase {
 
-	private int item;
-
-	/**
-	 * Constructor
-	 * 
-	 * @param source
-	 *            The source of this message.
-	 * @param item
-	 *            The item number of the value at the selection.
-	 */
-	public PeriodAnalysisSelectionMessage(Object source,
-			int item) {
-		super(source);
-		this.item = item;
+	public RankedIndexPairComparatorTest(String name) {
+		super(name);
 	}
 
-	/**
-	 * @return the item
-	 */
-	public int getItem() {
-		return item;
+	public void testPairs1() {
+		double[][] pairs = { { 1, 0 }, { 3, 1 }, { 2, 2 } };
+		double[][] expected = { { 3, 1 }, { 2, 2 }, { 1, 0 } };
+
+		Arrays.sort(pairs, RankedIndexPairComparator.instance);
+
+		for (int i = 0; i < pairs.length; i++) {
+			assertEquals(expected[i][0], pairs[i][0]);
+			assertEquals(expected[i][1], pairs[i][1]);
+		}
 	}
 }

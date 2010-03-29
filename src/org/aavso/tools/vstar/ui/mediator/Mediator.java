@@ -49,6 +49,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
+import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.PhasePlotMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.RawDataMeanObservationTableModel;
@@ -69,6 +70,7 @@ import org.aavso.tools.vstar.ui.pane.PhasePlotPane;
 import org.aavso.tools.vstar.ui.pane.TimeElementsInBinSettingPane;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
+import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransform;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
@@ -109,6 +111,17 @@ public class Mediator {
 	// messages created and sent to listeners.
 	private Map<AnalysisType, AnalysisTypeChangeMessage> analysisTypeMap;
 
+	// If this member is non-null, we can just invoke the dialog rather
+	// than re-computing the results that permit it to be invoked, since
+	// it is so expensive.
+	private PeriodAnalysis2DResultDialog periodAnalysisResultDialog;
+
+	// A file dialog for saving any kind of observation list.
+	private JFileChooser obsListFileSaveDialog;
+
+	// Persistent phase parameter dialog.
+	private PhaseParameterDialog phaseParameterDialog;
+
 	// Notifiers.
 	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
 	private Notifier<NewStarMessage> newStarNotifier;
@@ -121,17 +134,12 @@ public class Mediator {
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
 
-	// A file dialog for saving any kind of observation list.
-	private JFileChooser obsListFileSaveDialog;
-
 	// Currently active task.
 	private SwingWorker currTask;
 
 	// Singleton fields, constructor, getter.
 
 	private static Mediator mediator = new Mediator();
-
-	private PhaseParameterDialog phaseParameterDialog;
 
 	/**
 	 * Private constructor.
@@ -147,12 +155,11 @@ public class Mediator {
 
 		this.obsListFileSaveDialog = new JFileChooser();
 
-		// These 4 are created for each new star.
+		// These (among other things) are created for each new star.
 		this.validObsList = null;
 		this.invalidObsList = null;
 		this.validObservationCategoryMap = null;
 		this.phasedValidObservationCategoryMap = null;
-
 		this.obsAndMeanPlotModel = null;
 
 		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
@@ -160,6 +167,7 @@ public class Mediator {
 		this.mode = ViewModeType.PLOT_OBS_MODE;
 		this.analysisType = AnalysisType.RAW_DATA;
 		this.newStarMessage = null;
+		this.periodAnalysisResultDialog = null;
 
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
@@ -222,6 +230,39 @@ public class Mediator {
 	}
 
 	/**
+	 * Create a mean observation change listener and return it. Whenever the
+	 * mean series source changes, we need to perform a new period analysis. We
+	 * only want to use one of these for raw data mode's obs-and-mean-plot-model
+	 * since that's where period analysis creation currently gets its mean source
+	 * series information from. That may change in future, for example, if we make
+	 * period analysis responsible for determining its own mean source series via
+	 * GUI component of its own.
+	 */
+	private Listener<List<ValidObservation>> createMeanObsChangeListener() {
+		return new Listener<List<ValidObservation>>() {
+			private int meanSourceSeriesNum = Integer.MIN_VALUE;
+
+			public boolean canBeRemoved() {
+				return true;
+			}
+
+			public void update(List<ValidObservation> info) {
+				// A new mean series source has been selected, so blow away the
+				// current period analysis dialog so it must be regenerated. It
+				// may be that the mean series source has not changed, just the
+				// mean time bin value, in which case we do not need a new
+				// period analysis next time it is requested.
+				if (this.meanSourceSeriesNum != obsAndMeanPlotModel
+						.getMeanSourceSeriesNum()) {
+					this.meanSourceSeriesNum = obsAndMeanPlotModel
+							.getMeanSourceSeriesNum();
+					setPeriodAnalysisResultDialog(null);
+				}
+			}
+		};
+	}
+
+	/**
 	 * Remove all willing listeners from notifiers. This is essentially a move
 	 * to free up any indirectly referenced objects that may cause a memory leak
 	 * if left unchecked from new-star to new-star, e.g. mean observations.
@@ -236,21 +277,21 @@ public class Mediator {
 	 *            A raw observation and mean plot model from which to remove
 	 *            willing listeners. This will change between stars.
 	 */
-	private void removeWillingListeners(
-			ObservationAndMeanPlotModel obsAndMeanPlotModel) {
-		this.analysisTypeChangeNotifier.removeAllWillingListeners();
-		this.newStarNotifier.removeAllWillingListeners();
-		this.modeChangeNotifier.removeAllWillingListeners();
-		this.progressNotifier.removeAllWillingListeners();
-		this.observationChangeNotifier.removeAllWillingListeners();
-		this.observationSelectionNotifier.removeAllWillingListeners();
-		this.periodAnalysisSelectionNotifier.removeAllWillingListeners();
-
-		obsAndMeanPlotModel.getMeansChangeNotifier()
-				.removeAllWillingListeners();
-
-		SeriesType.getSeriesColorChangeNotifier().removeAllWillingListeners();
-	}
+	// private void removeWillingListeners(
+	// ObservationAndMeanPlotModel obsAndMeanPlotModel) {
+	// this.analysisTypeChangeNotifier.removeAllWillingListeners();
+	// this.newStarNotifier.removeAllWillingListeners();
+	// this.modeChangeNotifier.removeAllWillingListeners();
+	// this.progressNotifier.removeAllWillingListeners();
+	// this.observationChangeNotifier.removeAllWillingListeners();
+	// this.observationSelectionNotifier.removeAllWillingListeners();
+	// this.periodAnalysisSelectionNotifier.removeAllWillingListeners();
+	//
+	// obsAndMeanPlotModel.getMeansChangeNotifier()
+	// .removeAllWillingListeners();
+	//
+	// SeriesType.getSeriesColorChangeNotifier().removeAllWillingListeners();
+	// }
 
 	/**
 	 * Change the mode of VStar's focus (i.e what is to be presented to the
@@ -278,6 +319,21 @@ public class Mediator {
 	 */
 	public PhaseParameterDialog getPhaseParameterDialog() {
 		return phaseParameterDialog;
+	}
+
+	/**
+	 * @return the periodAnalysisResultDialog
+	 */
+	public PeriodAnalysis2DResultDialog getPeriodAnalysisResultDialog() {
+		return periodAnalysisResultDialog;
+	}
+
+	/**
+	 * @param periodAnalysisResultDialog the periodAnalysisResultDialog to set
+	 */
+	public void setPeriodAnalysisResultDialog(
+			PeriodAnalysis2DResultDialog periodAnalysisResultDialog) {
+		this.periodAnalysisResultDialog = periodAnalysisResultDialog;
 	}
 
 	/**
@@ -330,7 +386,6 @@ public class Mediator {
 					break;
 
 				case PERIOD_SEARCH:
-					// TODO: Shouldn't get here yet!
 					break;
 				}
 			} catch (Exception e) {
@@ -477,6 +532,7 @@ public class Mediator {
 		MeanObservationListPane meansListPane = null;
 		ObservationPlotPane obsChartPane = null;
 		ObservationAndMeanPlotPane obsAndMeanChartPane = null;
+		periodAnalysisResultDialog = null;
 
 		if (!validObsList.isEmpty()) {
 			// Observation table and plot.
@@ -505,6 +561,9 @@ public class Mediator {
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
 					"Light Curve with Means for " + starInfo.getDesignation(),
 					subTitle, obsAndMeanPlotModel);
+
+			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
+					createMeanObsChangeListener());
 
 			// The mean observation table model must listen to the plot
 			// model to know when the means data has changed. We also pass
@@ -656,11 +715,7 @@ public class Mediator {
 				phasedValidObservationCategoryMap, PhaseCoordSource.instance,
 				StandardPhaseComparator.instance,
 				PhaseTimeElementEntity.instance);
-
-		// We need to set the phase values for each raw and mean data value.
-		// PhaseCalcs.setPhases(obsAndMeanPlotModel.getMeanObsList(), epoch,
-		// period);
-
+		
 		// The mean observation table model must listen to the plot
 		// model to know when the means data has changed. We also pass
 		// the initial means data obtained from the plot model to

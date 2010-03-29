@@ -18,12 +18,14 @@
 package org.aavso.tools.vstar.util.period.dcdft;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.IPeriodAnalysisAlgorithm;
+import org.aavso.tools.vstar.util.comparator.RankedIndexPairComparator;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
@@ -50,32 +52,30 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
  */
 
 // TODO:
-// - Create an interface that this class implements, e.g.
-// void execute(), Map<String, List<DcDftDataPoint>> getPlotSeriesMap(),
-// where the key is a series name and the values are a set of points
-// to be plotted, void PlotType getPlotType(), where PlotType is an
-// enum. This would allow us to have arbitrary analysis types, plots,
-// - Don't create arrays if we don't have to; instead pull everything we
-// can out of the obs list.
 // - If possible, remove weights array.
 // - If possible, avoid having to copy any data at all, i.e. skip load_raw().
 // - Also be able to retrieve via getters info in header of generated
 // .ts file, e.g.
-// DCDFT File=delcep.vis NUM= 3079 AVE= 3.9213 SDV=
-// 0.2235 VAR= 0.0500
+// DCDFT File=delcep.vis NUM= 3079 AVE= 3.9213 SDV=0.2235 VAR= 0.0500
 // JD 2450000.2569-2450999.7097 T.AVE=2450446.0000
 // - Double check with Matt that we are doing the date compensation
 // part in dcdft() here.
 // - Is DCDFT primarily intended to solve the aliasing problem? See
 // cataclysmic variable book ref.
-// How to properly deal with the many large frequencies? Skip, given
+// - How to properly deal with the many large frequencies? Skip, given
 // some user-definable threshold or other criteria? See also requirements.
 
 public class DateCompensatedDiscreteFourierTransform implements
 		IPeriodAnalysisAlgorithm {
 
 	private List<ValidObservation> observations;
-	private Map<PeriodAnalysisCoordinateType, List<Double>> resultSeries;
+	private Map<PeriodAnalysisCoordinateType, List<Double>> resultSeries; // TODO:
+	// not
+	// the
+	// perfect
+	// name
+
+	// TODO: what is the significance of the 21 and 51 element maxima below?
 
 	private double dangcut;
 	private double damp;
@@ -148,6 +148,8 @@ public class DateCompensatedDiscreteFourierTransform implements
 			List<ValidObservation> observations) {
 		this.observations = observations;
 
+		// Create input arrays.
+
 		// TODO: change to zero index start to get rid of +1!
 		int sz = observations.size() + 1;
 		this.obs = new String[sz];
@@ -203,6 +205,38 @@ public class DateCompensatedDiscreteFourierTransform implements
 		load_raw();
 		dcdft();
 		statcomp();
+	}
+
+	// -------------------------------------------------------------------------------
+
+	/**
+	 * From the resulting data, create an array of rank-index pairs
+	 * (first and second elements respectively) sorted by rank, where
+	 * rank could be power or amplitude.
+	 * 
+	 * It is a precondition that results have been generated, i.e. the
+	 * execute() method has been invoked. 
+	 */
+	public double[][] getTopNRankedIndices(int topN) {
+		assert !this.resultSeries.keySet().isEmpty();
+		
+		// Create an array of doubles where the first element is amplitude, and
+		// the second is the common index into all result lists (frequency,
+		// period, power, amplitude).
+		int n = this.resultSeries.get(PeriodAnalysisCoordinateType.AMPLITUDE)
+				.size();
+		double[][] topRankedIndexArray = new double[n][2];
+
+		for (int i = 0; i < n; i++) {
+			topRankedIndexArray[i][0] = this.resultSeries.get(
+					PeriodAnalysisCoordinateType.AMPLITUDE).get(i);
+
+			topRankedIndexArray[i][1] = i;
+		}
+		
+		Arrays.sort(topRankedIndexArray, RankedIndexPairComparator.instance);
+
+		return topRankedIndexArray;
 	}
 
 	// -------------------------------------------------------------------------------

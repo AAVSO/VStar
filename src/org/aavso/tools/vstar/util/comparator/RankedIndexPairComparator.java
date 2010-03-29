@@ -15,35 +15,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
+package org.aavso.tools.vstar.util.comparator;
 
+import java.util.Comparator;
 
 /**
- * Instances of this message class can be sent when a period analysis chart
- * data-point selection occurs.
+ * This comparator compares two 2-dimensional arrays of double
+ * values where the first element is a ranking value of some kind
+ * and the second element is assumed to be an index into another
+ * collection. Comparison applies to the first element (power). 
+ * What we want here is for the largest values to come first, e.g. 
+ * {{1,0}, {3,1}, {2,2}} would be sorted as {{3,1}, {2,2}, {1,0}}.
  */
-public class PeriodAnalysisSelectionMessage extends MessageBase {
+public class RankedIndexPairComparator implements Comparator<double[]> {
 
-	private int item;
-
-	/**
-	 * Constructor
-	 * 
-	 * @param source
-	 *            The source of this message.
-	 * @param item
-	 *            The item number of the value at the selection.
-	 */
-	public PeriodAnalysisSelectionMessage(Object source,
-			int item) {
-		super(source);
-		this.item = item;
-	}
-
-	/**
-	 * @return the item
-	 */
-	public int getItem() {
-		return item;
+	public final static RankedIndexPairComparator instance = new RankedIndexPairComparator();
+	
+	public int compare(double[] o1, double[] o2) {
+		// Negate the result to reverse the ordinary
+		// sense of the comparison.
+		return -Double.compare(o1[0], o2[0]);
 	}
 }
