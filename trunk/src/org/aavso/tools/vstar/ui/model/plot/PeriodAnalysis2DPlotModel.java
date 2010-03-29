@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.model.plot;
 
 import java.util.List;
 
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jfree.data.xy.AbstractXYDataset;
 
 /**
@@ -28,49 +29,61 @@ import org.jfree.data.xy.AbstractXYDataset;
  */
 public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 
-	// private Map<PeriodAnalysisCoordinateType, List<Double>> coordinates;
+	private List<Double> domainValues;
+	private List<Double> rangeValues;
+	private PeriodAnalysisCoordinateType domainType;
+	private PeriodAnalysisCoordinateType rangeType;
 
-	private List<Double> frequencies;
-	private List<Double> dependents;
-	private String dependentDesc;
-	
 	/**
 	 * Constructor
 	 * 
-	 * @param frequencies
-	 *            A list of frequencies (domain values).
-	 * @param dependents
-	 *            A list of values that are dependent upon the frequencies
+	 * @param domainValues
+	 *            A list of domainValues (domain values).
+	 * @param rangeValues
+	 *            A list of values that are dependent upon the domainValues
 	 *            (range values).
+	 * @param domainType
+	 *            The type of the domain axis.
+	 * @param rangeType
+	 *            The type of the range axis.
 	 */
-	public PeriodAnalysis2DPlotModel(List<Double> frequencies,
-			List<Double> dependents, String dependentDesc) {
+	public PeriodAnalysis2DPlotModel(List<Double> domainValues,
+			List<Double> rangeValues, PeriodAnalysisCoordinateType domainType,
+			PeriodAnalysisCoordinateType rangeType) {
 		super();
-		assert frequencies.size() == dependents.size();
-		this.frequencies = frequencies;
-		this.dependents = dependents;
-		this.dependentDesc = dependentDesc;
+		assert domainValues.size() == rangeValues.size();
+		this.domainValues = domainValues;
+		this.rangeValues = rangeValues;
+		this.domainType = domainType;
+		this.rangeType = rangeType;
 	}
 
 	/**
-	 * @return the frequencies
+	 * @return the domainValues
 	 */
-	public List<Double> getFrequencies() {
-		return frequencies;
+	public List<Double> getDomainValues() {
+		return domainValues;
 	}
 
 	/**
-	 * @return the dependents
+	 * @return the rangeValues
 	 */
-	public List<Double> getDependents() {
-		return dependents;
+	public List<Double> getRangeValues() {
+		return rangeValues;
 	}
 
 	/**
-	 * @return the dependentDesc
+	 * @return the domainType
 	 */
-	public String getDependentDesc() {
-		return dependentDesc;
+	public PeriodAnalysisCoordinateType getDomainType() {
+		return domainType;
+	}
+
+	/**
+	 * @return the rangeType
+	 */
+	public PeriodAnalysisCoordinateType getRangeType() {
+		return rangeType;
 	}
 
 	/**
@@ -84,27 +97,27 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesKey(int)
 	 */
 	public Comparable getSeriesKey(int series) {
-		return dependentDesc;
+		return rangeType.getDescription() + " vs " + domainType.getDescription();
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getItemCount(int)
 	 */
 	public int getItemCount(int series) {
-		return frequencies.size();
+		return domainValues.size();
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
 	public Number getX(int series, int item) {
-		return frequencies.get(item);
+		return domainValues.get(item);
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
 	 */
 	public Number getY(int series, int item) {
-		return dependents.get(item);
+		return rangeValues.get(item);
 	}
 }

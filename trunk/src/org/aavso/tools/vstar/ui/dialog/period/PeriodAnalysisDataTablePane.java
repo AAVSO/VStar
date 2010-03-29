@@ -28,16 +28,17 @@ import javax.swing.event.ListSelectionListener;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.PeriodAnalysisSelectionMessage;
-import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTableModel;
+import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
- * This class represents a period analysis table pane.
+ * This class represents a period analysis data table pane.
  */
-public class PeriodAnalysisTablePane extends JPanel implements
+public class PeriodAnalysisDataTablePane extends JPanel implements
 		ListSelectionListener, Listener<PeriodAnalysisSelectionMessage> {
 
 	private JTable table;
+	private PeriodAnalysisDataTableModel model;
 
 	/**
 	 * Constructor
@@ -45,7 +46,7 @@ public class PeriodAnalysisTablePane extends JPanel implements
 	 * @param model
 	 *            The period analysis table model.
 	 */
-	public PeriodAnalysisTablePane(PeriodAnalysisTableModel model) {
+	public PeriodAnalysisDataTablePane(PeriodAnalysisDataTableModel model) {
 		super(new GridLayout(1, 1));
 
 		table = new JTable(model);
@@ -56,7 +57,8 @@ public class PeriodAnalysisTablePane extends JPanel implements
 		this.add(scrollPane);
 
 		// We listen for and generate period analysis selection messages.
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier().addListener(this);
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(this);
 		table.getSelectionModel().addListSelectionListener(this);
 	}
 

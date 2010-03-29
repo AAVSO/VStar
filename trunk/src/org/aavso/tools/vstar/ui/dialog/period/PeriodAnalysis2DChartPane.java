@@ -25,7 +25,6 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.LogAxis;
 import org.jfree.chart.entity.XYItemEntity;
 
 /**
@@ -53,7 +52,8 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 		configureChart();
 
 		this.addChartMouseListener(this);
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier().addListener(this);
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(this);
 	}
 
 	private void configureChart() {
@@ -62,19 +62,16 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 
 		chart.getXYPlot().setDomainCrosshairVisible(true);
 		chart.getXYPlot().setRangeCrosshairVisible(true);
-		
-		// erk...should at least use the enum not a string...
-		if ("Period".equals(model.getDependentDesc())) {
-			chart.getXYPlot().setRangeAxis(new LogAxis(model.getDependentDesc()));
-		}
 	}
 
 	public void chartMouseClicked(ChartMouseEvent event) {
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int item = entity.getItem();
-			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(this, item);
-			Mediator.getInstance().getPeriodAnalysisSelectionNotifier().notifyListeners(message);
+			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
+					this, item);
+			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+					.notifyListeners(message);
 		}
 	}
 
@@ -83,18 +80,18 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 	}
 
 	// PeriodAnalysisSelectionMessage listener methods.
-	
+
 	public boolean canBeRemoved() {
 		return true;
 	}
 
 	public void update(PeriodAnalysisSelectionMessage info) {
 		if (info.getSource() != this) {
-			double x = model.getFrequencies().get(info.getItem());
-			double y = model.getDependents().get(info.getItem());
-			
+			double x = model.getDomainValues().get(info.getItem());
+			double y = model.getRangeValues().get(info.getItem());
+
 			chart.getXYPlot().setDomainCrosshairValue(x);
-			chart.getXYPlot().setRangeCrosshairValue(y);			
+			chart.getXYPlot().setRangeCrosshairValue(y);
 		}
 	}
 }

@@ -27,11 +27,21 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 /**
  * This class represents a model for a period analysis table.
  */
-public class PeriodAnalysisTableModel extends AbstractTableModel {
+public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 
 	private Map<PeriodAnalysisCoordinateType, List<Double>> data;
 
-	public PeriodAnalysisTableModel(
+	/**
+	 * Constructor
+	 * 
+	 * @param data
+	 *            The result data mapping from coordinate type to list of
+	 *            values.
+	 * @param topPowerIndexPairs
+	 *            A 2-dimensional array of power-index pairs where the index
+	 *            refers to an element in the above value lists.
+	 */
+	public PeriodAnalysisDataTableModel(
 			Map<PeriodAnalysisCoordinateType, List<Double>> data) {
 		this.data = data;
 	}

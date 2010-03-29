@@ -396,13 +396,6 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public ActionListener createPeriodSearchListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-//				setRawDataAnalysisMenuItemState(true);
-//				setPhasePlotAnalysisMenuItemState(false);
-//				setPeriodSearchAnalysisMenuItemState(false);
-//
-//				MessageBox.showMessageDialog(MainFrame.getInstance(),
-//						PERIOD_SEARCH, Mediator.NOT_IMPLEMENTED_YET);
-				
 				Mediator.getInstance().createPeriodAnalysisDialog();
 			}
 		};

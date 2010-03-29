@@ -24,7 +24,8 @@ import java.util.Map;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
-import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTableModel;
+import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
+import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jdesktop.swingworker.SwingWorker;
@@ -58,10 +59,12 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	 * @see org.jdesktop.swingworker.SwingWorker#doInBackground()
 	 */
 	protected Void doInBackground() throws Exception {
-		MainFrame.getInstance().getStatusPane().setMessage(
-				"Performing Period Analysis...");
-		periodAnalysisAlgorithm.execute();
-		MainFrame.getInstance().getStatusPane().setMessage("");
+		if (Mediator.getInstance().getPeriodAnalysisResultDialog() == null) {
+			MainFrame.getInstance().getStatusPane().setMessage(
+					"Performing Period Analysis...");
+			periodAnalysisAlgorithm.execute();
+			MainFrame.getInstance().getStatusPane().setMessage("");
+		}
 		return null;
 	}
 
@@ -72,27 +75,57 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 
-		List<PeriodAnalysis2DPlotModel> models = new ArrayList<PeriodAnalysis2DPlotModel>();
+		if (Mediator.getInstance().getPeriodAnalysisResultDialog() == null) {
+			List<PeriodAnalysis2DPlotModel> models = new ArrayList<PeriodAnalysis2DPlotModel>();
 
-		Map<PeriodAnalysisCoordinateType, List<Double>> seriesMap = periodAnalysisAlgorithm
-				.getResultSeries();
+			Map<PeriodAnalysisCoordinateType, List<Double>> seriesMap = periodAnalysisAlgorithm
+					.getResultSeries();
 
-		for (PeriodAnalysisCoordinateType type : seriesMap.keySet()) {
-			// TODO: this shows us that we probably want to have dcdft
-			// and its kin return something more like a list of independent
-			// variable values, and a map of strings to lists of dependent
-			// variable values.
-			if (type != PeriodAnalysisCoordinateType.FREQUENCY) {
-				models.add(new PeriodAnalysis2DPlotModel(seriesMap
-						.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
-						.get(type), type.getDescription()));
-			}
+			// Frequency vs Power
+//			models.add(new PeriodAnalysis2DPlotModel(seriesMap
+//					.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
+//					.get(PeriodAnalysisCoordinateType.POWER),
+//					PeriodAnalysisCoordinateType.FREQUENCY,
+//					PeriodAnalysisCoordinateType.POWER));
+
+			// Frequency vs Amplitude
+			models.add(new PeriodAnalysis2DPlotModel(seriesMap
+					.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
+					.get(PeriodAnalysisCoordinateType.AMPLITUDE),
+					PeriodAnalysisCoordinateType.FREQUENCY,
+					PeriodAnalysisCoordinateType.AMPLITUDE));
+
+			// Period vs Power
+//			models.add(new PeriodAnalysis2DPlotModel(seriesMap
+//					.get(PeriodAnalysisCoordinateType.PERIOD), seriesMap
+//					.get(PeriodAnalysisCoordinateType.POWER),
+//					PeriodAnalysisCoordinateType.PERIOD,
+//					PeriodAnalysisCoordinateType.POWER));
+
+			// Period vs Amplitude
+			models.add(new PeriodAnalysis2DPlotModel(seriesMap
+					.get(PeriodAnalysisCoordinateType.PERIOD), seriesMap
+					.get(PeriodAnalysisCoordinateType.AMPLITUDE),
+					PeriodAnalysisCoordinateType.PERIOD,
+					PeriodAnalysisCoordinateType.AMPLITUDE));
+
+			int maxHits = 20; // TODO: parameterise this; make user selectable
+
+			Mediator.getInstance().setPeriodAnalysisResultDialog(
+					new PeriodAnalysis2DResultDialog(
+							"Period Analysis (DC DFT) for "
+									+ starInfo.getDesignation(), "(series: "
+									+ sourceSeriesType.getDescription() + ")",
+							models,
+							new PeriodAnalysisDataTableModel(seriesMap),
+							new PeriodAnalysisTopHitsTableModel(seriesMap,
+									periodAnalysisAlgorithm
+											.getTopNRankedIndices(maxHits),
+									maxHits)));
+		} else {
+			Mediator.getInstance().getPeriodAnalysisResultDialog().setVisible(
+					true);
 		}
-
-		new PeriodAnalysis2DResultDialog("Period Analysis (DC DFT) for "
-				+ starInfo.getDesignation(), "(series: "
-				+ sourceSeriesType.getDescription() + ")", "Frequency", models,
-				new PeriodAnalysisTableModel(seriesMap));
 
 		// TODO: how to detect task cancellation and clean up map etc?
 	}
