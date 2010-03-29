@@ -62,7 +62,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	// that corresponds to the current mean source series.
 	private void addSeriesRadioButtons() {
 		// Ensure the panel is always wide enough.
-		this.add(Box.createRigidArea(new Dimension(75, 10)));
+		this.add(Box.createRigidArea(new Dimension(75, 1)));
 
 		ButtonGroup seriesGroup = new ButtonGroup();
 
@@ -78,7 +78,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 				seriesRadioButton.setActionCommand(seriesName);
 				seriesRadioButton.addActionListener(this);
 				this.add(seriesRadioButton);
-				this.add(Box.createRigidArea(new Dimension(10, 10)));
+				this.add(Box.createRigidArea(new Dimension(3, 3)));
 				seriesGroup.add(seriesRadioButton);
 
 				if (this.obsPlotModel.getSrcTypeToSeriesNumMap()

@@ -24,8 +24,8 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 /**
  * This class creates and displays VStar's About Box.
  * 
- * TODO: create a JDialog with image and panel components instead of what we do
- * here so we have more control over the form and content.
+ * See also https://sourceforge.net/tracker/?func=detail&aid=2870716&group_id=263306&atid=1152052
+ * which will result in this being done better.
  */
 public class AboutBox {
 	
@@ -45,7 +45,9 @@ public class AboutBox {
 
 	public static void showAboutBox(Component parent) {
 		StringBuffer strBuf = new StringBuffer();
-		strBuf.append("VStar (svn revision ");
+		strBuf.append("VStar ");
+		strBuf.append(ResourceAccessor.getVersionString());
+		strBuf.append(" (svn revision ");
 		strBuf.append(ResourceAccessor.getRevNum());
 		strBuf.append(")\n\n");
 
@@ -73,8 +75,8 @@ public class AboutBox {
 				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.\n\n");
 
 		strBuf.append("Thanks also to Michael Umbricht for ongoing testing, bug reports,\n");
-		strBuf.append("great conversations, and beer. Thanks also to the following testers\n");
-		strBuf.append("and code contributors: Adam Weber");
+		strBuf.append("great conversations, and beer. Thanks also to Adam Weber for\n");
+		strBuf.append("code and bug-fix contributions.");
 
 		MessageBox.showMessageDialog(parent, "About VStar", strBuf.toString(),
 				ResourceAccessor.getIconResource("/images/tenstar_artist_conception1.jpg"));

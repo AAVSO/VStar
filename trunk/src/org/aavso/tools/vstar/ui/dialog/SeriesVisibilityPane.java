@@ -59,7 +59,7 @@ public class SeriesVisibilityPane extends JPanel {
 	// Create a checkbox for each series.
 	private void addSeriesCheckBoxes() {
 		// Ensure the panel is always wide enough.
-		this.add(Box.createRigidArea(new Dimension(75, 10)));
+		this.add(Box.createRigidArea(new Dimension(75, 1)));
 		
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
 			if (series != SeriesType.MEANS) {
@@ -73,7 +73,7 @@ public class SeriesVisibilityPane extends JPanel {
 						seriesNum);
 				checkBox.setSelected(vis);
 				this.add(checkBox);
-				this.add(Box.createRigidArea(new Dimension(10, 10)));
+				this.add(Box.createRigidArea(new Dimension(3, 3)));
 			}
 		}
 	}
