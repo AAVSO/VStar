@@ -13,13 +13,14 @@
 analysis. Its current capabilities are:</p>
 
 <ul>
- <li>Plotting a Light Curve or Standard Phase Plot from raw observation data, 
+ <li>Plotting a Light Curve or Phase Plot from raw observation data, 
  optionally with error  bars for each observation.</li>
  <li>Showing a table of the raw observations associated with the light curve.</li>
  <li>Plotting a mean light curve (again, with optional error bars) along with
  the raw light curve.</li>
  <li>Showing a table of mean observations along with the standard error of the
  average for each.</li>
+ <li>Performing period analysis.</li>
 </ul>
 
 <p>The plots mentioned above have magnitude on the Y axis and Julian Day (or 
@@ -40,7 +41,7 @@ formats can be loaded:</p>
 
 <ol>
  <li><a href="http://www.aavso.org/data/download/downloadformat.shtml">AAVSO
- download format</a></li>
+ download format</a> (CSV and TSV formats only currently, not VOTable)</li>
  <li>Lines of the form: Julian Day,Magnitude,[Uncertainy],[Observer Code],[Validation Flag]
  or simply: Julian Day,Magnitude</li>
 </ol>
@@ -90,19 +91,21 @@ generate a new phase plot.</p>
 <br></br><h2>Period Searches</h2>
 
   <ul>
-   <li>Date Compensated Discrete Fourier Transforms</li>
+   <li>Date Compensated Discrete Fourier Transform</li>
    <li>Phase Dispersion Minimization</li>
-   <li>Other possibilities: WWZ, CLEANEST, ...</li>
+   <li>Other possibilities: WWZ, CLEANEST, ANOVA (analysis of variance), ...</li>
   </ul>
 
-<p><i>To be implemented.</i></p>
+<p><i>Only the first of these is currently implemented.</i></p>
 
 <br></br><h2>Saving Plots and Tables</h2>
 
 <p>Any chart can be saved as a PNG file via the File menu's <code>Save...</code>
 item or the equivalent toolbar icon.</p>
 
-<p><i>Table saving is yet to be implemented.</i></p>
+<p><i>Tables in "List Observations" mode can be saved as CSV files, but "List Means" 
+table saving is yet to be implemented. For the latter, what may also be needed is to 
+save not just the data, but also the parameters that lead to it.</i></p>
 
 <br></br><h2>Printing Plots and Tables</h2>
 
@@ -114,7 +117,7 @@ item or the equivalent toolbar icon.</p>
 <p>Preferences can be set via the File menu's <code>Preferences...</code> item
 or the equivalent toolbar icon.</p>
 
-<p><i>To be implemented.</i></p>
+<p><i>Currently, only plot color preferences are implemented.</i></p>
 
 <br></br><h2>License and Source Code</h2>
 
@@ -128,7 +131,6 @@ VStar SourceForge repository at:
 source code and licensing.</p>
 
 <ul>
-
     <li>JCommon<br>
     <a href="http://sourceforge.net/projects/jfreechart/">
     http://sourceforge.net/projects/jfreechart/</a><br>
@@ -155,7 +157,6 @@ source code and licensing.</p>
     <li>Java Look and Feel Graphics Repository<br>
     <a href="http://java.sun.com/developer/techDocs/hi/repository/">
     http://java.sun.com/developer/techDocs/hi/repository/</a></li>
-
 </ul>
 
 <br></br><h2>Links</h2>
