@@ -18,7 +18,7 @@
 
 <!-- Add hooks for inclusion of icon and splash page artwork for when they are ready.
      The lines below use dummy filenames, replace with the actual path to the images.
-
+ 
     <icon href="images/vstar_icon.gif"/>
     <icon kind="splash" href="images/vstar_splash_page.jpg"/>
 
