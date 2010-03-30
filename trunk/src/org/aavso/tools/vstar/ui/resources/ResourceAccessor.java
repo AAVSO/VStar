@@ -82,7 +82,7 @@ public class ResourceAccessor {
 	}
 
 	public static String getVersionString() {
-		return "version 1.0 Beta 1";
+		return "version 1.0 Beta";
 	}
 	
 	public static String getRevNum() {
