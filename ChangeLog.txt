@@ -16,12 +16,81 @@ o The Subversion log will reveal the full details of what went into each release
   http://vstar.svn.sourceforge.net/viewvc/vstar/trunk/?view=log
 o Bug & Issue tracker entries cited below can be found here:
   https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
-  These contain more detail about who did what, when, and where (in the codebase).
-o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam Weber.
+  These contain more detail about who did what, when, and where (in the 
+  codebase).
+o Major contributors are: David Benn, Michael Umbricht, Sara Beck, and Adam 
+  Weber.
 
+Known Issues:
+o VStar can become low on memory with continued use. Currently, the best 
+  course of action is to exit and restart VStar if it becomes unresponsive. 
+  This problem will be addressed in forthcoming incremental releases. See 
+  trackers 2924511 and 2909500 for more details.
+   
 ----------------------
+Date: March 30 2010
+Version: 1.0 Beta
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-30Mar2010
+Key Changes:
+- Date Compensated Discrete Fourier Transform (DC DFT) period analysis 
+  implemented. This is a translation from Matthew Templeton's and Grant 
+  Foster's DC DFT Fortran code. Plots of amplitude vs period and frequency, 
+  and data tables (all results, top hits) are used to visualise the result. 
+  Period analysis is carried out on the series which is the source of the 
+  mean curve series as selected in the observations and mean plot mode. See 
+  tracker 2942299 and Help page for more details. This should be considered
+  to be a first attempt at period analysis and may change.
+- Selecting a point in a plot now affects table row selection and vice versa.
+  Each plot pane now has a "show cross hairs?" checkbox so cross-hairs can be
+  made invisible if desired. See tracker 2917612.
+- Re-ordered a number of observation list columns. See tracker 2952041.
+- Changed format of doubles for means (JD, phase, mag) to have 4 decimal 
+  places. See tracker 2947381.
+- Observation details dialogs now only have discrepant checkboxes if the 
+  observation is not a mean observation.
+- Means list printing now works (but not saving yet).
+- Made data pane (containing plots and table) scrollable for small (e.g. 
+  800x600) screen sizes. See tracker 2947376.
+- Invalid data table column auto-resizing disabled, forcing horizontal 
+  scroll-bar to appear when columns resize beyond visible bounds of 
+  containing-pane. Also, the column containing the offending observation 
+  has been increased in size to emphasise it. See tracker 2944557.
+- Changed spacing between series checkboxes and radio buttons in series 
+  change panes because the related dialogs (e.g. for Epsilon Aurigae) were 
+  getting way too big for 1028x768 screens. See tracker 2978559 for more 
+  details.
+- Fixes for tracker 2955919 in which a single observation yielded an index 
+  out of bounds exception.
+- Fixes for tracker 2836600 (Days in means bin looks odd in full screen).
+- Fixed tracker 2952564 (login dialog should be dismissable by hitting return).
+- Fixed uncertainty value loading. We were never loading them from the 
+  database! Also made validation of such values more robust for database 
+  loads. See tracker 2975998.
+- Fixed tracker 2913670 (deselection of all bands on a plot causes exception). 
+- Consolidated treatment of pre-validation comment code in database (Z) and 
+  download format (P). Changed comment code handling to permit any text so 
+  we don't exclude otherwise good data. Any unknown comment code will be 
+  treated as "other". See trackers 2915572, 2950557.
+- Excluding observations with a valflag of "Y". Rationalised validation type 
+  handling. Displaying human readable validation type instead of valflag 
+  in observation list table. See tracker 2858633.
+- Updated bands categories from database (see script directory re: how).
+- Phases are only included in an observation details dialog if the current 
+  analysis mode is "phase plots".
+- The observation details dialog discrepant checkbox is now updated when an 
+  observation is made discrepant from the observation list (or potentially 
+  from anywhere else).
+- Fixed JD/phase mean calculation. First and last in range were being averaged
+  rather than all time values in the range. Mean magnitude values remain unchanged. 
+  See tracker 2944549.
+- Numerous internal code improvements and some additional test cases.
+- Brought help document up to date with current feature set. See tracker
+  2960025.
+- Updated JNLP description element to take into account current stage of 
+  development. See tracker 2901509. 
+
 Date: February 2 2010
-Version: 409
+Version: 412
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-2Feb2010
 Key Changes:
 - Added proper notification and update of observation change (discrepant

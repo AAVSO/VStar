@@ -1,9 +1,10 @@
 VStar is reliant upon a number of freely available open source libraries that
 are distributed as Java archive files ("jar" files) which are described below.
 
-The following libraries must be present in the current directory (./extlib)
-for VStar to function. The list of jar files is given below, along with the web
-address from which to obtain the source code.
+The following libraries must (and should already be) be present in the 
+current directory (./extlib) for VStar to function. The list of jar files
+is given below, along with the web address from which to obtain the source 
+code.
 
   o jcommon-1.0.16.jar
     http://sourceforge.net/projects/jfreechart/files/
@@ -21,8 +22,8 @@ address from which to obtain the source code.
     http://dev.mysql.com/downloads/connector/j/5.1.html
 
 The libraries are covered under the following licenses, and plain text copies
-of the licenses are included in the ./extlib directory.  See the url for the
-homepage of each project for more information.
+of the licenses are included in the ./extlib directory. See the URL for the
+web page of each project for more information.
 
   o GNU Lesser General Public License, version 2.1
     ./extlib/lgpl-2.1.txt
@@ -61,7 +62,7 @@ This section categorises the libraries in terms of function:
      mysql-connector-java-5.1.10-bin.jar
      
 If you are a developer who wishes to contribute toward coding or 
-testing VStar, the following library must be downloaded for unit 
+testing VStar, the following libraries must be downloaded for unit 
 testing purposes:
 
  - JUnit 3.8.2:
