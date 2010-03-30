@@ -91,12 +91,24 @@ generate a new phase plot.</p>
 <br></br><h2>Period Searches</h2>
 
   <ul>
-   <li>Date Compensated Discrete Fourier Transform</li>
+   <li>Date Compensated Discrete Fourier Transform (DC DFT)</li>
    <li>Phase Dispersion Minimization</li>
    <li>Other possibilities: WWZ, CLEANEST, ANOVA (analysis of variance), ...</li>
   </ul>
 
 <p><i>Only the first of these is currently implemented.</i></p>
+
+<p>Selecting <code>Period Search...</code> from the <code>Analysis</code> menu 
+performs a period analysis using DC DFT with the current mean source series (e.g. 
+Visual, Johnson V). This can be changed via the <code>Change Series</code> button 
+(and the ensuing dialog) in the <code>Plot Observations and Means</code> view.</p>
+
+<p>The period analysis window dialog that opens after a delay contains plots of
+amplitude against frequency and period, a table of all results, and a table of the
+top 20 hits ranked by amplitude. The latter is a good starting point for testing
+candidate periods. Clicking an entry in this table highlights the corresponding
+table entry or data-point in the other views. You can test different candidate 
+periods by creating phase plots with those periods.</p>
 
 <br></br><h2>Saving Plots and Tables</h2>
 
