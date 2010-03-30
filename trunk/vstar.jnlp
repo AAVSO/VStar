@@ -34,7 +34,7 @@
 
   <resources>
 
-    <j2se version="1.5+" java-vm-args="-Xms100m -Xmx800m"/> 
+    <j2se version="1.5+" java-vm-args="-Xms25m -Xmx500m"/> 
 
         <jar href="dist/vstar.jar"/>
         <jar href="extlib/jcommon-1.0.16.jar"/>
