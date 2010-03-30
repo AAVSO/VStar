@@ -233,14 +233,17 @@ public class Mediator {
 	 * Create a mean observation change listener and return it. Whenever the
 	 * mean series source changes, we need to perform a new period analysis. We
 	 * only want to use one of these for raw data mode's obs-and-mean-plot-model
-	 * since that's where period analysis creation currently gets its mean source
-	 * series information from. That may change in future, for example, if we make
-	 * period analysis responsible for determining its own mean source series via
-	 * GUI component of its own.
+	 * since that's where period analysis creation currently gets its mean
+	 * source series information from. That may change in future, for example,
+	 * if we make period analysis responsible for determining its own mean
+	 * source series via GUI component of its own.
 	 */
-	private Listener<List<ValidObservation>> createMeanObsChangeListener() {
+	private Listener<List<ValidObservation>> createMeanObsChangeListener(
+			int initialSeriesNum) {
+		final int initialSeriesNumFinal = initialSeriesNum;
+		
 		return new Listener<List<ValidObservation>>() {
-			private int meanSourceSeriesNum = Integer.MIN_VALUE;
+			private int meanSourceSeriesNum = initialSeriesNumFinal;
 
 			public boolean canBeRemoved() {
 				return true;
@@ -329,7 +332,8 @@ public class Mediator {
 	}
 
 	/**
-	 * @param periodAnalysisResultDialog the periodAnalysisResultDialog to set
+	 * @param periodAnalysisResultDialog
+	 *            the periodAnalysisResultDialog to set
 	 */
 	public void setPeriodAnalysisResultDialog(
 			PeriodAnalysis2DResultDialog periodAnalysisResultDialog) {
@@ -563,7 +567,8 @@ public class Mediator {
 					subTitle, obsAndMeanPlotModel);
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
-					createMeanObsChangeListener());
+					createMeanObsChangeListener(obsAndMeanPlotModel
+							.getMeanSourceSeriesNum()));
 
 			// The mean observation table model must listen to the plot
 			// model to know when the means data has changed. We also pass
@@ -715,7 +720,7 @@ public class Mediator {
 				phasedValidObservationCategoryMap, PhaseCoordSource.instance,
 				StandardPhaseComparator.instance,
 				PhaseTimeElementEntity.instance);
-		
+
 		// The mean observation table model must listen to the plot
 		// model to know when the means data has changed. We also pass
 		// the initial means data obtained from the plot model to
