@@ -94,13 +94,19 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 			// Note that we could call this on the scroll
 			// pane, which would then forward the request to
 			// the table pane anyway.
-			int row = info.getItem();
-			int colWidth = (int) table.getCellRect(row, 0, true).getWidth();
-			int rowHeight = table.getRowHeight(row);
-			table.scrollRectToVisible(new Rectangle(colWidth, rowHeight * row,
-					colWidth, rowHeight));
+			try {
+				int row = info.getItem();
+				int colWidth = (int) table.getCellRect(row, 0, true).getWidth();
+				int rowHeight = table.getRowHeight(row);
+				table.scrollRectToVisible(new Rectangle(colWidth, rowHeight
+						* row, colWidth, rowHeight));
 
-			table.setRowSelectionInterval(row, row);
+				table.setRowSelectionInterval(row, row);
+			} catch (Throwable t) {
+				// TODO: investigate! (e.g. Johnson V band, then click top-most
+				// top hits table row.
+				// t.printStackTrace();
+			}
 		}
 	}
 }

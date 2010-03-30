@@ -87,11 +87,17 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 
 	public void update(PeriodAnalysisSelectionMessage info) {
 		if (info.getSource() != this) {
-			double x = model.getDomainValues().get(info.getItem());
-			double y = model.getRangeValues().get(info.getItem());
+			try {
+				double x = model.getDomainValues().get(info.getItem());
+				double y = model.getRangeValues().get(info.getItem());
 
-			chart.getXYPlot().setDomainCrosshairValue(x);
-			chart.getXYPlot().setRangeCrosshairValue(y);
+				chart.getXYPlot().setDomainCrosshairValue(x);
+				chart.getXYPlot().setRangeCrosshairValue(y);
+			} catch (Throwable t) {
+				// TODO: investigate! (e.g. Johnson V band, then click top-most
+				// top hits table row.
+				//t.printStackTrace();
+			}
 		}
 	}
 }
