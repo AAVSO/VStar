@@ -441,13 +441,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 				List<ValidObservation> obs = seriesNumToObsMap.get(series);
 				for (ValidObservation ob : obs) {
 					double mag = ob.getMagnitude().getMagValue();
+					double uncert = ob.getMagnitude().getUncertainty();
 
-					if (mag < min) {
-						min = mag;
+					if (mag-uncert < min) {
+						min = mag-uncert;
 					}
 
-					if (mag > max) {
-						max = mag;
+					if (mag+uncert > max) {
+						max = mag+uncert;
 					}
 				}
 			}
