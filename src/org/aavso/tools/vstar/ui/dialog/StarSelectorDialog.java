@@ -277,12 +277,16 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			public void actionPerformed(ActionEvent e) {
 				if (allDataCheckBox.isSelected()) {
 					// We want all data, so clear date fields.
-					minJDField.setText("");
-					maxJDField.setText("");
+					//minJDField.setText("");
+					//maxJDField.setText("");
+					minJDField.setEnabled(false);
+					maxJDField.setEnabled(false);
 				} else {
 					// We don't want all data so populate JD
 					// fields with current year, month, day
 					// member values.
+					minJDField.setEnabled(true);
+					maxJDField.setEnabled(true);
 					double minJD = dateUtil.calendarToJD(year - 2, month, day);
 					double maxJD = dateUtil.calendarToJD(year, month, day);
 					minJDField.setText(minJD + "");
