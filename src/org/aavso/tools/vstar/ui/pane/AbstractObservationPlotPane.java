@@ -442,6 +442,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 				for (ValidObservation ob : obs) {
 					double mag = ob.getMagnitude().getMagValue();
 					double uncert = ob.getMagnitude().getUncertainty();
+					//here if getUncertainty is null then get HQ
+					if(uncert == 0.0){
+						uncert = ob.getHqUncertainty();
+					}
 
 					if (mag-uncert < min) {
 						min = mag-uncert;
