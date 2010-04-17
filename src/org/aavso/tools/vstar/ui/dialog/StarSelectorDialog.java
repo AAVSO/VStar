@@ -282,15 +282,10 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 					minJDField.setEnabled(false);
 					maxJDField.setEnabled(false);
 				} else {
-					// We don't want all data so populate JD
-					// fields with current year, month, day
-					// member values.
+					//We've unchecked all data so we want to reenable fields
+					//leaving the values that are there.
 					minJDField.setEnabled(true);
 					maxJDField.setEnabled(true);
-					double minJD = dateUtil.calendarToJD(year - 2, month, day);
-					double maxJD = dateUtil.calendarToJD(year, month, day);
-					minJDField.setText(minJD + "");
-					maxJDField.setText(maxJD + "");
 				}
 			}
 		};
