@@ -23,14 +23,23 @@ package org.aavso.tools.vstar.ui.mediator;
 public class ProgressInfo {
 
 	// Singletons for use by consumers of this class.
-	public static ProgressInfo RESET_PROGRESS = new ProgressInfo(
-			ProgressType.RESET_PROGRESS);
+	public static ProgressInfo MIN_PROGRESS = new ProgressInfo(
+			ProgressType.MIN_PROGRESS);
+
+	public static ProgressInfo MAX_PROGRESS = new ProgressInfo(
+			ProgressType.MAX_PROGRESS);
+
+	public static ProgressInfo START_PROGRESS = new ProgressInfo(
+			ProgressType.START_PROGRESS);
 
 	public static ProgressInfo INCREMENT_PROGRESS = new ProgressInfo(
 			ProgressType.INCREMENT_PROGRESS, 1);
 
 	public static ProgressInfo COMPLETE_PROGRESS = new ProgressInfo(
 			ProgressType.COMPLETE_PROGRESS);
+
+	public static ProgressInfo CLEAR_PROGRESS = new ProgressInfo(
+			ProgressType.CLEAR_PROGRESS);
 
 	public static ProgressInfo BUSY_PROGRESS = new ProgressInfo(
 			ProgressType.BUSY_PROGRESS);

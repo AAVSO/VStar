@@ -60,13 +60,13 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
-import org.aavso.tools.vstar.ui.pane.DataPane;
 import org.aavso.tools.vstar.ui.pane.MeanObservationListPane;
 import org.aavso.tools.vstar.ui.pane.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.ObservationListPane;
 import org.aavso.tools.vstar.ui.pane.ObservationPlotPane;
 import org.aavso.tools.vstar.ui.pane.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.PhasePlotPane;
+import org.aavso.tools.vstar.ui.pane.TabbedDataPane;
 import org.aavso.tools.vstar.ui.pane.TimeElementsInBinSettingPane;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
@@ -98,8 +98,8 @@ public class Mediator {
 	// the current mean source band.
 	private ObservationAndMeanPlotModel obsAndMeanPlotModel;
 
-	// Current mode.
-	private ViewModeType mode;
+	// Current view viewMode.
+	private ViewModeType viewMode;
 
 	// Current analysis type.
 	private AnalysisType analysisType;
@@ -125,7 +125,6 @@ public class Mediator {
 	// Notifiers.
 	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
 	private Notifier<NewStarMessage> newStarNotifier;
-	private Notifier<ViewModeType> modeChangeNotifier;
 	private Notifier<ProgressInfo> progressNotifier;
 	// TODO: This next notifier could be used to mark the "document"
 	// (the current star's dataset) associated with the valid obs
@@ -147,7 +146,6 @@ public class Mediator {
 	private Mediator() {
 		this.analysisTypeChangeNotifier = new Notifier<AnalysisTypeChangeMessage>();
 		this.newStarNotifier = new Notifier<NewStarMessage>();
-		this.modeChangeNotifier = new Notifier<ViewModeType>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
 		this.observationChangeNotifier = new Notifier<ObservationChangeMessage>();
 		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
@@ -164,7 +162,7 @@ public class Mediator {
 
 		this.analysisTypeMap = new HashMap<AnalysisType, AnalysisTypeChangeMessage>();
 
-		this.mode = ViewModeType.PLOT_OBS_MODE;
+		this.viewMode = ViewModeType.PLOT_OBS_MODE;
 		this.analysisType = AnalysisType.RAW_DATA;
 		this.newStarMessage = null;
 		this.periodAnalysisResultDialog = null;
@@ -192,13 +190,6 @@ public class Mediator {
 	 */
 	public Notifier<NewStarMessage> getNewStarNotifier() {
 		return newStarNotifier;
-	}
-
-	/**
-	 * @return the modeChangeNotifier
-	 */
-	public Notifier<ViewModeType> getModeChangeNotifier() {
-		return modeChangeNotifier;
 	}
 
 	/**
@@ -284,7 +275,6 @@ public class Mediator {
 	// ObservationAndMeanPlotModel obsAndMeanPlotModel) {
 	// this.analysisTypeChangeNotifier.removeAllWillingListeners();
 	// this.newStarNotifier.removeAllWillingListeners();
-	// this.modeChangeNotifier.removeAllWillingListeners();
 	// this.progressNotifier.removeAllWillingListeners();
 	// this.observationChangeNotifier.removeAllWillingListeners();
 	// this.observationSelectionNotifier.removeAllWillingListeners();
@@ -295,26 +285,25 @@ public class Mediator {
 	//
 	// SeriesType.getSeriesColorChangeNotifier().removeAllWillingListeners();
 	// }
-
+	
 	/**
 	 * Change the mode of VStar's focus (i.e what is to be presented to the
 	 * user).
 	 * 
-	 * @param mode
+	 * @param viewMode
 	 *            The mode to change to.
 	 */
-	public void changeMode(ViewModeType mode) {
-		if (mode != this.mode) {
-			this.mode = mode;
-			this.getModeChangeNotifier().notifyListeners(mode);
+	public void changeViewMode(ViewModeType viewMode) {
+		if (viewMode != this.viewMode) {
+			this.viewMode = viewMode;
 		}
 	}
 
 	/**
-	 * @return the mode
+	 * @return the viewMode
 	 */
-	public ViewModeType getMode() {
-		return mode;
+	public ViewModeType getViewMode() {
+		return viewMode;
 	}
 
 	/**
@@ -420,7 +409,7 @@ public class Mediator {
 			Component parent) throws FileNotFoundException, IOException,
 			ObservationReadError {
 
-		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
+		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
 		// Analyse the observation file.
 		ObservationSourceAnalyser analyser = new ObservationSourceAnalyser(
@@ -467,7 +456,7 @@ public class Mediator {
 			// authenticateWithCitizenSky() above
 
 			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.RESET_PROGRESS);
+					ProgressInfo.START_PROGRESS);
 
 			this.getProgressNotifier().notifyListeners(
 					new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
@@ -790,8 +779,8 @@ public class Mediator {
 	private ObservationPlotPane createObservationPlotPane(String plotName,
 			String subTitle, ObservationPlotModel obsPlotModel) {
 
-		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
-				(int) (DataPane.HEIGHT * 0.9));
+		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
+				(int) (TabbedDataPane.HEIGHT * 0.9));
 
 		return new ObservationPlotPane(plotName, subTitle, obsPlotModel, bounds);
 	}
@@ -804,8 +793,8 @@ public class Mediator {
 			String plotName, String subTitle,
 			ObservationAndMeanPlotModel obsAndMeanPlotModel) {
 
-		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
-				(int) (DataPane.HEIGHT * 0.9));
+		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
+				(int) (TabbedDataPane.HEIGHT * 0.9));
 
 		return new ObservationAndMeanPlotPane(plotName, subTitle,
 				obsAndMeanPlotModel, new TimeElementsInBinSettingPane(
@@ -819,8 +808,8 @@ public class Mediator {
 	private PhasePlotPane createPhasePlotPane(String plotName, String subTitle,
 			ObservationPlotModel obsPlotModel) {
 
-		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
-				(int) (DataPane.HEIGHT * 0.9));
+		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
+				(int) (TabbedDataPane.HEIGHT * 0.9));
 
 		return new PhasePlotPane(plotName, subTitle, obsPlotModel, bounds);
 	}
@@ -832,8 +821,8 @@ public class Mediator {
 	private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(String plotName,
 			String subTitle, ObservationAndMeanPlotModel obsAndMeanPlotModel) {
 
-		Dimension bounds = new Dimension((int) (DataPane.WIDTH * 0.9),
-				(int) (DataPane.HEIGHT * 0.9));
+		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
+				(int) (TabbedDataPane.HEIGHT * 0.9));
 
 		return new PhaseAndMeanPlotPane(plotName, subTitle,
 				obsAndMeanPlotModel, bounds);
@@ -872,7 +861,7 @@ public class Mediator {
 						meanObsSourceList);
 
 				this.getProgressNotifier().notifyListeners(
-						ProgressInfo.RESET_PROGRESS);
+						ProgressInfo.START_PROGRESS);
 				this.getProgressNotifier().notifyListeners(
 						ProgressInfo.BUSY_PROGRESS);
 
@@ -888,20 +877,20 @@ public class Mediator {
 			// TODO: should we do this in other places where we catch exceptions
 			// and have progress bars potentially still updating?
 			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.RESET_PROGRESS);
+					ProgressInfo.START_PROGRESS);
 
 			MainFrame.getInstance().getStatusPane().setMessage("");
 		}
 	}
 
 	/**
-	 * Save the artefact corresponding to the current mode.
+	 * Save the artefact corresponding to the current viewMode.
 	 * 
 	 * @param parent
 	 *            The parent component to be used by an error dialog.
 	 */
 	public void saveCurrentMode(Component parent) {
-		switch (mode) {
+		switch (viewMode) {
 		case PLOT_OBS_MODE:
 			try {
 				this.analysisTypeMap.get(analysisType).getObsChartPane()
@@ -942,7 +931,7 @@ public class Mediator {
 	 *            The output file.
 	 */
 	private void saveObsListToFile(File outFile) {
-		this.getProgressNotifier().notifyListeners(ProgressInfo.RESET_PROGRESS);
+		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
 		this.getProgressNotifier()
 				.notifyListeners(
@@ -963,7 +952,7 @@ public class Mediator {
 	 *            The parent component to be used by an error dialog.
 	 */
 	public void printCurrentMode(Component parent) {
-		switch (mode) {
+		switch (viewMode) {
 		case PLOT_OBS_MODE:
 			this.analysisTypeMap.get(analysisType).getObsChartPane()
 					.getChartPanel().createChartPrintJob();

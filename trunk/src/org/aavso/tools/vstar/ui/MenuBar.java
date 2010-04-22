@@ -445,12 +445,14 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 					break;
 				case MAX_PROGRESS:
 					break;
-				case RESET_PROGRESS:
+				case START_PROGRESS:
 					resetProgress(parent);
 					break;
 				case COMPLETE_PROGRESS:
 					completeProgress();
 					break;
+				case CLEAR_PROGRESS:
+					break;					
 				case INCREMENT_PROGRESS:
 					break;
 				}
@@ -463,11 +465,13 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	}
 
 	private void resetProgress(MainFrame parent) {
+		// TODO: why not set cursor in MainFrame or StatusPane?
 		parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		setEnabledFileAndAnalysisMenuItems(false);
 	}
 
 	private void completeProgress() {
+		// TODO: why not set cursor in MainFrame or StatusPane?
 		parent.setCursor(null); // turn off the wait cursor
 		setEnabledFileAndAnalysisMenuItems(true);
 	}

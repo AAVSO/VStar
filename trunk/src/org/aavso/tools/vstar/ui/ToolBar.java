@@ -168,11 +168,13 @@ public class ToolBar extends JPanel {
 					break;
 				case MAX_PROGRESS:
 					break;
-				case RESET_PROGRESS:
+				case START_PROGRESS:
 					setEnabledToolbarItems(false);
 					break;
 				case COMPLETE_PROGRESS:
 					setEnabledToolbarItems(true);
+					break;
+				case CLEAR_PROGRESS:
 					break;
 				case INCREMENT_PROGRESS:
 					break;

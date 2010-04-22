@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * Create the mode radio button group pane.
+ * @deprecated
  */
 public class ModePane extends JPanel implements ActionListener {
 
@@ -68,7 +69,7 @@ public class ModePane extends JPanel implements ActionListener {
 				// Make sure the radio buttons are consistent with the mode.
 				// Maybe this is wrong and what we need is one or more stacks
 				// of modes.
-				switch(msg.getMode()) {
+				switch(msg.getViewMode()) {
 				case PLOT_OBS_MODE:
 					plotObsRadioButton.setSelected(true);
 					plotObsAndMeansRadioButton.setSelected(false);
@@ -141,6 +142,6 @@ public class ModePane extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		String command = e.getActionCommand();
 		ViewModeType mode = ViewModeType.getModeFromDesc(command);
-		this.mediator.changeMode(mode);
+		this.mediator.changeViewMode(mode);
 	}
 }

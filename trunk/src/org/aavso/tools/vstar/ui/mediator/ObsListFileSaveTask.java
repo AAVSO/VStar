@@ -122,6 +122,9 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 		MainFrame.getInstance().getStatusPane().setMessage(
 				"Saved '" + outFile.getAbsolutePath() + "'");
 
+		Mediator.getInstance().getProgressNotifier().notifyListeners(
+				ProgressInfo.CLEAR_PROGRESS);
+
 		// TODO: how to detect task cancellation and clean up map etc
 	}
 }
