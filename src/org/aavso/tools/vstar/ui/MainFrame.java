@@ -18,17 +18,15 @@
 package org.aavso.tools.vstar.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.aavso.tools.vstar.ui.pane.DataPane;
-import org.aavso.tools.vstar.ui.pane.ModePane;
 import org.aavso.tools.vstar.ui.pane.StatusPane;
+import org.aavso.tools.vstar.ui.pane.TabbedDataPane;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * The main VStar window.
@@ -52,8 +50,7 @@ public class MainFrame extends JFrame {
 	 * Private constructor in support of Singleton.
 	 */
 	private MainFrame() {
-		// TODO: Add version
-		super("VStar");
+		super("VStar " + ResourceAccessor.getVersionString());
 
 		this.menuBar = new MenuBar(this);
 		this.setJMenuBar(menuBar);
@@ -64,14 +61,14 @@ public class MainFrame extends JFrame {
 	}
 
 	// Create everything inside the main GUI view except for
-	// menus, but including the toolbar; essentially the interior
+	// menus, but including the tool-bar; essentially the interior
 	// content of the GUI that represents the core functionality of
 	// interest to the user.
 	private JPanel createContent() {
 		// Top-level content pane to include status pane.
 		JPanel topPane = new JPanel(new BorderLayout());
 
-		// Add the toolbar.
+		// Add the tool-bar.
 		topPane.add(new ToolBar(this.menuBar), BorderLayout.PAGE_START);
 
 		// Major pane with left to right layout and an empty border.
@@ -79,23 +76,8 @@ public class MainFrame extends JFrame {
 		majorPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		majorPane.setLayout(new BoxLayout(majorPane, BoxLayout.LINE_AXIS));
 
-		// TODO: consider using a JSplitPane here.
+		majorPane.add(new TabbedDataPane());
 		
-		// The first (left-most) pane containing mode buttons.
-		JPanel firstPane = new JPanel();
-		firstPane.setLayout(new BoxLayout(firstPane, BoxLayout.PAGE_AXIS));
-		firstPane.add(Box.createVerticalGlue());
-		firstPane.add(new ModePane());
-		firstPane.add(Box.createVerticalGlue());
-		majorPane.add(firstPane);
-
-		// Create space between the mode and data panes.
-		majorPane.add(Box.createRigidArea(new Dimension(10, 0)));
-
-		// The second (right-most) pane containing data tables, plots,
-		// and observation information.
-		majorPane.add(new DataPane());
-
 		topPane.add(majorPane, BorderLayout.CENTER);
 
 		// Add status pane with an initial message.

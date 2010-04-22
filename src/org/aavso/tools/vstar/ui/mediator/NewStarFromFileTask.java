@@ -90,8 +90,8 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 			}
 
 			mediator.createNewStarObservationArtefacts(analyser
-					.getNewStarType(), new StarInfo(obsFile.getName()), textFormatReader,
-					plotTaskPortion);
+					.getNewStarType(), new StarInfo(obsFile.getName()),
+					textFormatReader, plotTaskPortion);
 
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
@@ -105,6 +105,9 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	public void done() {
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
+
+		mediator.getProgressNotifier().notifyListeners(
+				ProgressInfo.CLEAR_PROGRESS);
 
 		// TODO: how to detect task cancellation and clean up map etc
 	}

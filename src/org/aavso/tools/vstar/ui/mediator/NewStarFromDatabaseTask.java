@@ -216,6 +216,9 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 
+		mediator.getProgressNotifier().notifyListeners(
+				ProgressInfo.CLEAR_PROGRESS);
+
 		// TODO: how to detect task cancellation and clean up map etc
 	}
 

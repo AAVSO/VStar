@@ -26,10 +26,15 @@ public enum ViewModeType {
 	// View modes.
 	PLOT_OBS_MODE, PLOT_OBS_AND_MEANS_MODE, LIST_OBS_MODE, LIST_MEANS_MODE;
 
-	public final static String PLOT_OBS_MODE_DESC = "Plot Observations";
-	public final static String PLOT_OBS_AND_MEANS_MODE_DESC = "Plot Observations and Means";
-	public final static String LIST_OBS_MODE_DESC = "List Observations";
-	public final static String LIST_MEANS_MODE_DESC = "List Means";
+//	public final static String PLOT_OBS_MODE_DESC = "Plot Observations";
+//	public final static String PLOT_OBS_AND_MEANS_MODE_DESC = "Plot Observations and Means";
+//	public final static String LIST_OBS_MODE_DESC = "List Observations";
+//	public final static String LIST_MEANS_MODE_DESC = "List Means";
+
+	public final static String PLOT_OBS_MODE_DESC = "Observation Plot";
+	public final static String PLOT_OBS_AND_MEANS_MODE_DESC = "Observation and Mean Plot";
+	public final static String LIST_OBS_MODE_DESC = "Observation List";
+	public final static String LIST_MEANS_MODE_DESC = "Mean Observation List";
 
 	/**
 	 * Return this mode type's description string.
@@ -40,6 +45,8 @@ public enum ViewModeType {
 		return getModeDesc(this);
 	}
 
+	// TODO: may want this to become viewName and add viewDesc for tool-tips etc
+	
 	/**
 	 * Given the mode type, return mode description string.
 	 * 

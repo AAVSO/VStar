@@ -37,8 +37,8 @@ public class AnalysisTypeChangeMessage {
 	private ObservationListPane obsListPane;
 	private MeanObservationListPane meansListPane;
 	
-	// Include the required mode.
-	private ViewModeType mode;
+	// Include the required viewMode.
+	private ViewModeType viewMode;
 
 	/**
 	 * Constructor.
@@ -52,21 +52,21 @@ public class AnalysisTypeChangeMessage {
 	 *            The observation table GUI component.
 	 * @param meansTablePane
 	 * 			  The means table GUI component.
-	 * @param mode The required mode.           
+	 * @param viewMode The required viewMode.           
 	 */
 	public AnalysisTypeChangeMessage(AnalysisType analysisType,
 			ObservationPlotPane obsChartPane,
 			ObservationAndMeanPlotPane obsAndMeanChartPane,
 			ObservationListPane obsListPane,
 			MeanObservationListPane meansListPane,
-			ViewModeType mode) {
+			ViewModeType viewMode) {
 		super();
 		this.analysisType = analysisType;
 		this.obsChartPane = obsChartPane;
 		this.obsAndMeanChartPane = obsAndMeanChartPane;
 		this.obsListPane = obsListPane;
 		this.meansListPane = meansListPane;
-		this.mode = mode;
+		this.viewMode = viewMode;
 	}
 
 	/**
@@ -105,9 +105,9 @@ public class AnalysisTypeChangeMessage {
 	}
 
 	/**
-	 * @return the mode
+	 * @return the viewMode
 	 */
-	public ViewModeType getMode() {
-		return mode;
+	public ViewModeType getViewMode() {
+		return viewMode;
 	}
 }

@@ -160,7 +160,7 @@ public class StatusPane extends JPanel {
 	/**
 	 * Return a new star creation listener.
 	 * TODO: instead of this, we could just write the status at end of new 
-	 * star task processing in model manager.
+	 * star task processing in mediator.
 	 */
 	private Listener<NewStarMessage> createNewStarListener() {
 		return new Listener<NewStarMessage>() {
@@ -206,10 +206,10 @@ public class StatusPane extends JPanel {
 				case MAX_PROGRESS:
 					self.setMaxProgressValue(info.getNum());
 					break;
-				case RESET_PROGRESS:
+				case START_PROGRESS:
 					// Ensure the main window now has focus so we see
 					// the progress bar and busy cursor as enabled.
-					self.requestFocusInWindow(); // TODO: doesn't work; remove?
+					//self.requestFocusInWindow(); // TODO: doesn't work; remove?
 					self.resetProgressBar();
 					self.setMessage("");
 					self.stopButton.setEnabled(true);
@@ -223,8 +223,11 @@ public class StatusPane extends JPanel {
 					// Ensure the main window now has focus so we see
 					// the progress bar and busy cursor as enabled.
 					// Except that it does not work here or above.
-					self.requestFocusInWindow(); // TODO: remove?
+					//self.requestFocusInWindow(); // TODO: remove?
 					self.incrementProgressBar(info.getNum());
+					break;
+				case CLEAR_PROGRESS:
+					self.progressBar.setValue(0);
 					break;
 				case BUSY_PROGRESS:
 					self.setIndeterminateMode(true);

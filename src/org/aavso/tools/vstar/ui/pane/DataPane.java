@@ -41,6 +41,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 /**
  * A panel for rendering data lists, plots and other observation-related
  * information.
+ * @deprecated
  */
 public class DataPane extends JPanel {
 
@@ -73,8 +74,8 @@ public class DataPane extends JPanel {
 		mediator.getAnalysisTypeChangeNotifier().addListener(
 				createAnalysisTypeChangeListener());
 
-		mediator.getModeChangeNotifier()
-				.addListener(createModeChangeListener());
+//		mediator.getViewModeChangeNotifier()
+//				.addListener(createModeChangeListener());
 	}
 
 	/**
@@ -161,7 +162,7 @@ public class DataPane extends JPanel {
 					// createModeChangeListener(). Other components
 					// may also want to know, e.g. status bar, hence
 					// the choice of this message "broadcast".
-					mediator.changeMode(msg.getMode());
+					mediator.changeViewMode(msg.getViewMode());
 				}
 			}
 			
