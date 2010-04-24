@@ -96,7 +96,7 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			Throwable e) {
-		JOptionPane.showMessageDialog(parent, e, title,
+		JOptionPane.showMessageDialog(parent, e.getMessage(), title,
 				JOptionPane.ERROR_MESSAGE);
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null); 
