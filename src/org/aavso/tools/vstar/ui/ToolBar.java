@@ -96,7 +96,6 @@ public class ToolBar extends JPanel {
 
 	private void retrieveToolBarIcons() {
 		// Create the toolbar icons.
-		// TODO: put these paths into a Properties file
 
 		newStarFromFileIcon = ResourceAccessor
 				.getIconResource("/toolbarButtonGraphics/general/New24.gif");

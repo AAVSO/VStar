@@ -75,7 +75,7 @@ public class AboutBox {
 				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.\n\n");
 
 		strBuf.append("Thanks also to Michael Umbricht for ongoing testing, bug reports,\n");
-		strBuf.append("great conversations, and beer. Thanks also to Adam Weber for\n");
+		strBuf.append("great conversations, and beer. Thanks also to the Weber brothers (Adam and George) for\n");
 		strBuf.append("code and bug-fix contributions.");
 
 		MessageBox.showMessageDialog(parent, "About VStar", strBuf.toString(),

@@ -540,7 +540,7 @@ public class Mediator {
 			if (newStarType == NewStarType.NEW_STAR_FROM_DATABASE) {
 				subTitle = new Date().toString() + " (database)";
 			} else {
-				subTitle = starInfo.getDesignation();
+				subTitle = "";
 			}
 
 			obsChartPane = createObservationPlotPane("Light Curve for "
@@ -668,9 +668,9 @@ public class Mediator {
 
 		String subTitle = "";
 		if (this.newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-			subTitle = new Date().toString() + " (database)";
+			subTitle = new Date().toString() + " (database), period=" + period;
 		} else {
-			subTitle = objName;
+			subTitle = "period=" + period;
 		}
 
 		// Here we modify the underlying ValidObservation objects which will

@@ -36,6 +36,6 @@ public class UnknownStarError extends Exception {
 	 * @param name The star's name.
 	 */
 	public UnknownStarError(String name) {
-		super("'Unknown star '"+ name + "'.");
+		super("Unknown star '"+ name + "'.");
 	}
 }
