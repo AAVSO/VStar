@@ -109,11 +109,12 @@ public class ObservationListPane extends JPanel implements
 			// source.
 			invalidDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			
-			// Set the column containing the observation row to be greater 
-			// than the others.
+			// Set the columns containing the observation and error to be 
+			// greater than the default width of the others.
 			TableColumnModel colModel = invalidDataTable.getColumnModel();
 			int totalWidth = colModel.getTotalColumnWidth();
 			colModel.getColumn(1).setPreferredWidth((int)(totalWidth*2.5));
+			colModel.getColumn(2).setPreferredWidth((int)(totalWidth*2));
 			
 			// invalidDataTable.setAutoCreateRowSorter(true);
 			invalidDataScrollPane = new JScrollPane(invalidDataTable);
