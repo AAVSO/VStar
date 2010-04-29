@@ -41,6 +41,8 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.model.list.Star;
+import org.aavso.tools.vstar.ui.resources.PropertiesAccessor;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
 /**
@@ -128,20 +130,14 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	// We know the AUID of the CitizenSky ten-stars, so there is
 	// no need to query the database for these.
-	// TODO: put these in a properties file and move this method to
-	// ResourceAccessor()!
+	// TODONE: put these in a properties file and move this method to
+	// PropertiesAccessor()!
 	private void createTenStarMap() {
 		tenStarMap = new TreeMap<String, String>();
-		tenStarMap.put("Alpha Orionis", "000-BBK-383");
-		tenStarMap.put("Beta Lyrae", "000-BCW-361");
-		tenStarMap.put("Beta Persei", "000-BBF-713");
-		tenStarMap.put("Delta Cephei", "000-BDC-570");
-		tenStarMap.put("Epsilon Aurigae", "000-BCT-905");
-		tenStarMap.put("Eta Aquilae", "000-BCT-763");
-		tenStarMap.put("Eta Geminorum", "000-BBK-904");
-		tenStarMap.put("Gamma Cassiopeia", "000-BBC-215");
-		tenStarMap.put("Miu Cephei", "000-BCP-244");
-		tenStarMap.put("R Lyrae", "000-BCD-657");
+		Star list[] = PropertiesAccessor.getNorthernStarList();
+		for(int i = 0; i < list.length; i++){
+			tenStarMap.put(list[i].getName(), list[i].getIdentifier());
+		}
 	}
 
 	// GUI components
