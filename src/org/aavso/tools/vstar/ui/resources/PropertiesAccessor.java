@@ -30,6 +30,9 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class PropertiesAccessor {
 
+	/**
+	  * TODO: Pull the accessing of the URL out to a class that does that in the constructor
+	  */
 	//build some constants here for the starlists
 	public static Star [] getNorthernStarList(/*constant indicating starlist*/){
 		//based on constant passed in use the resource accessor to get the appropriate properties file path
@@ -59,6 +62,26 @@ public class PropertiesAccessor {
 		}   
 
 		return tenstarlist;
+
+	}
+
+	public static String getNorthernStarTitle(/*constant indicating starlist*/){
+		//based on constant passed in use the resource accessor to get the appropriate properties file path
+		String value = null;
+
+		try {
+
+			URL url = PropertiesAccessor.class.getResource("/etc/TenStarList.properties");
+			Properties props = new Properties();
+			props.load(url.openStream());
+
+			value = props.getProperty("tenstartitle");
+
+		}catch(IOException e){ 
+			e.printStackTrace();
+		}   
+
+		return value;
 
 	}
 

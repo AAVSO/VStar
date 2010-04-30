@@ -146,7 +146,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory
-				.createTitledBorder("Citizen Sky \"10 Stars\""));
+				.createTitledBorder(PropertiesAccessor.getNorthernStarTitle()));
 
 		tenStarSelector = new JComboBox(tenStarMap.keySet().toArray(
 				new String[0]));
