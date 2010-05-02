@@ -17,12 +17,11 @@
  */
 package org.aavso.tools.vstar.ui.resources;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.Properties;
 
-import java.io.*;
-import java.util.*;
 import org.aavso.tools.vstar.ui.model.list.Star;
-import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * The purpose of this class is to provide access to non-class properties such as

@@ -33,12 +33,15 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class MainFrame extends JFrame {
 
+	public final static int WIDTH = 800;
+	public final static int HEIGHT = 600;
+
 	// The application's menu bar.
 	private MenuBar menuBar;
 
 	// The status bar which includes text and progress bar components.
 	private StatusPane statusPane;
-	
+
 	// Singleton field and getter.
 	private static final MainFrame instance = new MainFrame();
 
@@ -58,6 +61,8 @@ public class MainFrame extends JFrame {
 		this.setContentPane(createContent());
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		this.pack();
 	}
 
 	// Create everything inside the main GUI view except for
@@ -77,16 +82,17 @@ public class MainFrame extends JFrame {
 		majorPane.setLayout(new BoxLayout(majorPane, BoxLayout.LINE_AXIS));
 
 		majorPane.add(new TabbedDataPane());
-		
+
 		topPane.add(majorPane, BorderLayout.CENTER);
 
 		// Add status pane with an initial message.
-		statusPane = new StatusPane("Select a 'New Star' item from the File menu.");
+		statusPane = new StatusPane(
+				"Select a 'New Star' item from the File menu.");
 		topPane.add(statusPane, BorderLayout.PAGE_END);
-		
+
 		return topPane;
 	}
-
+	
 	/**
 	 * @return the statusPane
 	 */

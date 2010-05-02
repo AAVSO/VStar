@@ -32,9 +32,9 @@ public enum ViewModeType {
 //	public final static String LIST_MEANS_MODE_DESC = "List Means";
 
 	public final static String PLOT_OBS_MODE_DESC = "Observation Plot";
-	public final static String PLOT_OBS_AND_MEANS_MODE_DESC = "Observation and Mean Plot";
+	public final static String PLOT_OBS_AND_MEANS_MODE_DESC = "Mean Plot";
 	public final static String LIST_OBS_MODE_DESC = "Observation List";
-	public final static String LIST_MEANS_MODE_DESC = "Mean Observation List";
+	public final static String LIST_MEANS_MODE_DESC = "Mean List";
 
 	/**
 	 * Return this mode type's description string.

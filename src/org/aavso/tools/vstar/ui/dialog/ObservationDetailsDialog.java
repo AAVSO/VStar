@@ -61,7 +61,9 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 
 	public ObservationDetailsDialog(ValidObservation ob) {
 		super();
-
+		
+		//com.sun.awt.AWTUtilities.setWindowOpacity(this, 0.2f); // TODO: needs Java 1.6
+		
 		this.ob = ob;
 
 		this.setTitle("Observation Details");
