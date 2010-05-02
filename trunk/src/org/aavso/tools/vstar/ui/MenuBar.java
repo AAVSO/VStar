@@ -47,8 +47,6 @@ import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * VStar's menu bar.
- * 
- * TODO: - Factor out code to be shared by menu and tool bar?
  */
 public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
@@ -165,13 +163,18 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		filePrefsItem.addActionListener(this.createPrefsListener());
 		fileMenu.add(filePrefsItem);
 
-		fileMenu.addSeparator();
-
-		fileQuitItem = new JMenuItem(QUIT, KeyEvent.VK_Q);
-		// fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
-		// ActionEvent.META_MASK));
-		fileQuitItem.addActionListener(createQuitListener());
-		fileMenu.add(fileQuitItem);
+		// Mac OS X applications don't have Quit item in File menu,
+		// but in application (VStar) menu. See also VStar.java. 
+		String os_name = System.getProperty("os.name");
+		if (!os_name.startsWith("Mac OS X")) {
+			fileMenu.addSeparator();
+			
+			fileQuitItem = new JMenuItem(QUIT, KeyEvent.VK_Q);
+			// fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+			// ActionEvent.META_MASK));
+			fileQuitItem.addActionListener(createQuitListener());
+			fileMenu.add(fileQuitItem);
+		}
 
 		this.add(fileMenu);
 	}
@@ -246,7 +249,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 							minJD = 0;
 							maxJD = Double.MAX_VALUE;
 						}
-						
+
 						mediator.createObservationArtefactsFromDatabase(
 								starName, auid, minJD, maxJD);
 					} else {
@@ -452,7 +455,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 					completeProgress();
 					break;
 				case CLEAR_PROGRESS:
-					break;					
+					break;
 				case INCREMENT_PROGRESS:
 					break;
 				}

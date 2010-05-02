@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui;
 import javax.swing.UIManager;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.util.property.ApplicationProperties;
 
 /**
  * The VStar GUI.
@@ -46,7 +47,7 @@ public class VStar {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
-			System.err.println("Unable to set default look and feel. Exiting.");
+			System.err.println("Unable to set look and feel. Exiting.");
 			System.exit(1);
 		}
 
@@ -64,9 +65,28 @@ public class VStar {
 	 */
 	private static void createAndShowGUI() {
 		try {
-			MainFrame wdw = MainFrame.getInstance();
-			wdw.pack();
-			wdw.setVisible(true);
+			final MainFrame frame = MainFrame.getInstance();
+			final ApplicationProperties appProps = new ApplicationProperties(frame);
+			
+			frame.setSize(appProps.getMainWdwWidth(), appProps.getMainWdwHeight());
+			frame.setLocation(appProps.getMainWdwUpperLeftX(), appProps.getMainWdwUpperLeftY());
+
+			frame.setVisible(true);
+
+			// We create a shutdown task rather than a window listener
+			// to store application properties, otherwise on the Mac, we
+			// would also have to trap the VStar (vs File) menu Quit item.
+			// This shutdown task should work uniformly across operating
+			// systems.
+			Runnable shutdownTask = new Runnable() {
+				public void run() {
+					appProps.update(frame);
+				}
+			};
+
+			Runtime.getRuntime().addShutdownHook(
+					new Thread(shutdownTask,
+							"Application shutdown task"));
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(), "Error", t);
 		}

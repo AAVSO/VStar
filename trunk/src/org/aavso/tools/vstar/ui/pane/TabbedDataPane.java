@@ -34,6 +34,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
@@ -44,9 +45,6 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * A tabbed pane is used for each view.
  */
 public class TabbedDataPane extends JPanel {
-
-	public final static int WIDTH = 800;
-	public final static int HEIGHT = 600;
 
 	private Mediator mediator = Mediator.getInstance();
 
@@ -89,8 +87,8 @@ public class TabbedDataPane extends JPanel {
 		tabs = new JTabbedPane();
 
 		tabs.setBorder(BorderFactory.createEtchedBorder());
-		tabs.setPreferredSize(new Dimension((int) (WIDTH * 0.9),
-				(int) (HEIGHT * 0.95)));
+		tabs.setPreferredSize(new Dimension((int) (MainFrame.WIDTH * 0.9),
+				(int) (MainFrame.HEIGHT * 0.95)));
 
 		int index = 0;
 		for (ViewModeType type : ViewModeType.values()) {
