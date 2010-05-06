@@ -61,7 +61,7 @@ public class MainFrame extends JFrame {
 		this.setContentPane(createContent());
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+		
 		this.pack();
 	}
 
