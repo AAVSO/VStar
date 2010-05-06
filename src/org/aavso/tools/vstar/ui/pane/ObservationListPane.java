@@ -205,9 +205,13 @@ public class ObservationListPane extends JPanel implements
 		};
 	}
 
-	// We send an observation selection event when the value has
-	// "settled". This event could be consumed by other views such
-	// as plots.
+	/**
+	 * We send an observation selection event when the value has
+	 * "settled". This event could be consumed by other views such
+	 * as plots.
+	 * 
+	 * @param e The list selection event.
+	 */
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getSource() == validDataTable.getSelectionModel()
 				&& validDataTable.getRowSelectionAllowed()

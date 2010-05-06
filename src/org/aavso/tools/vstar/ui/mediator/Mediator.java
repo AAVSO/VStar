@@ -132,6 +132,7 @@ public class Mediator {
 	private Notifier<ObservationChangeMessage> observationChangeNotifier;
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
+	private Notifier<PeriodChangeMessage> periodChangeMessageNotifier;
 
 	// Currently active task.
 	private SwingWorker currTask;
@@ -150,6 +151,7 @@ public class Mediator {
 		this.observationChangeNotifier = new Notifier<ObservationChangeMessage>();
 		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
 		this.periodAnalysisSelectionNotifier = new Notifier<PeriodAnalysisSelectionMessage>();
+		this.periodChangeMessageNotifier = new Notifier<PeriodChangeMessage>();
 
 		this.obsListFileSaveDialog = new JFileChooser();
 
@@ -169,6 +171,8 @@ public class Mediator {
 
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
+		
+		this.periodChangeMessageNotifier.addListener(createPeriodChangeListener());
 	}
 
 	/**
@@ -221,6 +225,13 @@ public class Mediator {
 	}
 
 	/**
+	 * @return the periodChangeMessageNotifier
+	 */
+	public Notifier<PeriodChangeMessage> getPeriodChangeMessageNotifier() {
+		return periodChangeMessageNotifier;
+	}
+
+	/**
 	 * Create a mean observation change listener and return it. Whenever the
 	 * mean series source changes, we need to perform a new period analysis. We
 	 * only want to use one of these for raw data mode's obs-and-mean-plot-model
@@ -232,7 +243,7 @@ public class Mediator {
 	private Listener<List<ValidObservation>> createMeanObsChangeListener(
 			int initialSeriesNum) {
 		final int initialSeriesNumFinal = initialSeriesNum;
-		
+
 		return new Listener<List<ValidObservation>>() {
 			private int meanSourceSeriesNum = initialSeriesNumFinal;
 
@@ -252,6 +263,37 @@ public class Mediator {
 							.getMeanSourceSeriesNum();
 					setPeriodAnalysisResultDialog(null);
 				}
+			}
+		};
+	}
+
+	// When the period changes, create a new phase plot.
+	private Listener<PeriodChangeMessage> createPeriodChangeListener() {
+		return new Listener<PeriodChangeMessage>() {
+			public void update(PeriodChangeMessage info) {
+				try {
+					AnalysisTypeChangeMessage msg = null;
+
+					PhaseParameterDialog phaseDialog = Mediator.getInstance()
+							.getPhaseParameterDialog();
+					phaseDialog.setPeriodField(info.getPeriod());
+					phaseDialog.showDialog();
+					
+					if (!phaseDialog.isCancelled()) {
+						double period = phaseDialog.getPeriod();
+						double epoch = phaseDialog.getEpoch();
+						msg = createPhasePlotArtefacts(period, epoch, null);
+						analysisType = AnalysisType.PHASE_PLOT;
+						analysisTypeChangeNotifier.notifyListeners(msg);
+					}
+				} catch (Exception e) {
+					MessageBox.showErrorDialog(MainFrame.getInstance(),
+							"New Phase Plot", e);
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return false;
 			}
 		};
 	}
@@ -285,7 +327,7 @@ public class Mediator {
 	//
 	// SeriesType.getSeriesColorChangeNotifier().removeAllWillingListeners();
 	// }
-	
+
 	/**
 	 * Change the mode of VStar's focus (i.e what is to be presented to the
 	 * user).
@@ -350,7 +392,6 @@ public class Mediator {
 
 					if (msg != null) {
 						this.analysisType = analysisType;
-						// TODO: why are we doing this again here?
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
 					}
 					break;
@@ -370,15 +411,13 @@ public class Mediator {
 						}
 					}
 
-					// TODO: sort out correct GUI state transitions here and
-					// above...
 					if (msg != null) {
 						this.analysisType = analysisType;
+						// TODO: we should only do this if msg != oldMsg
+						// since we do this in createPhasePlotArtefacts(); should
+						// just make this an else clause of above if stmt.
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
 					}
-					break;
-
-				case PERIOD_SEARCH:
 					break;
 				}
 			} catch (Exception e) {
@@ -872,7 +911,7 @@ public class Mediator {
 			}
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					MenuBar.PERIOD_SEARCH, e);
+					MenuBar.DC_DFT, e);
 
 			// TODO: should we do this in other places where we catch exceptions
 			// and have progress bars potentially still updating?

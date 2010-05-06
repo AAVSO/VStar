@@ -201,15 +201,29 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	}
 
 	/**
-	 * Update with new star message. We either want to clear the fields or if
-	 * period or epoch values are available to us, populate the fields
-	 * accordingly. We also obtain the observations for the newly loaded star to
-	 * which to apply the epoch determination strategy in the case where there
-	 * is no epoch available.
+	 * Set the period field.
 	 * 
-	 * TODO: presumably if there is a period, there is also an epoch. If not,
-	 * should we flag this as an error or warning (via a dialog) and then just
-	 * continue?
+	 * @param period the period to set
+	 */
+	public void setPeriodField(double period) {
+		this.periodField.setText(period + "");
+	}
+
+	/**
+	 * Set the epoch field.
+	 * 
+	 * @param epoch the epoch to set
+	 */
+	public void setEpochField(double epoch) {
+		this.epochField.setText(epoch + "");
+	}
+
+	/**
+	 * Update from new star message. We either want to clear the fields or
+	 * if period or epoch values are available to us, populate the fields
+	 * accordingly. We also obtain the observations for the newly loaded star
+	 * to which to apply the epoch determination strategy in the case where 
+	 * there is no epoch available.
 	 */
 	public void update(NewStarMessage msg) {
 		if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {

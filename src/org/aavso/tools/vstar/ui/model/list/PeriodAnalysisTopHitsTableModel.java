@@ -117,7 +117,7 @@ public class PeriodAnalysisTopHitsTableModel extends AbstractTableModel {
 		// to the index of the value within the chosen coordinate's list
 		
 		// TODO: rather than a double[][] here, we should probably use a class
-		// since the second element is actuall an integer!
+		// since the second element is actually an integer!
 		int n = (int) this.topRankedIndexPairs[rowIndex][1]; // 1 = index into data lists
 		
 		double val = this.data.get(
