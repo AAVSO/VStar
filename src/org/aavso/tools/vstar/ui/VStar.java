@@ -47,7 +47,7 @@ public class VStar {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
-			System.err.println("Unable to set look and feel. Exiting.");
+			System.err.println("Unable to set native look & feel. Exiting.");
 			System.exit(1);
 		}
 
@@ -65,8 +65,11 @@ public class VStar {
 	 */
 	private static void createAndShowGUI() {
 		try {
-			final MainFrame frame = MainFrame.getInstance();
+			MainFrame frame = MainFrame.getInstance();
 			final ApplicationProperties appProps = new ApplicationProperties(frame);
+			
+			int x = appProps.getMainWdwWidth();
+			int y = appProps.getMainWdwHeight();
 			
 			frame.setSize(appProps.getMainWdwWidth(), appProps.getMainWdwHeight());
 			frame.setLocation(appProps.getMainWdwUpperLeftX(), appProps.getMainWdwUpperLeftY());
@@ -77,10 +80,12 @@ public class VStar {
 			// to store application properties, otherwise on the Mac, we
 			// would also have to trap the VStar (vs File) menu Quit item.
 			// This shutdown task should work uniformly across operating
-			// systems.
+			// systems. The frame stored within appProps cannot be GC'd
+			// until appProps is, so its state will still be valid at the
+			// time run() is invoked.
 			Runnable shutdownTask = new Runnable() {
 				public void run() {
-					appProps.update(frame);
+					appProps.update();
 				}
 			};
 

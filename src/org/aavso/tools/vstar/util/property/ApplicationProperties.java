@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.util.property;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -52,7 +54,8 @@ public class ApplicationProperties {
 	private static final int DEFAULT_MAIN_WDW_WIDTH = MainFrame.WIDTH;
 	private static final int DEFAULT_MAIN_WDW_UPPER_LEFT_X = 0;
 	private static final int DEFAULT_MAIN_WDW_UPPER_LEFT_Y = 0;
-	
+
+	private MainFrame frame;
 	private File propsFile;
 	private Properties props;
 
@@ -69,10 +72,12 @@ public class ApplicationProperties {
 		propsFile = new File(PROPS_PATH);
 		props = new Properties();
 
+		this.frame = frame;
+
 		try {
 			if (!propsFile.exists()) {
 				propsFile.createNewFile();
-				update(frame);
+				init();
 			} else {
 				props.load(new FileReader(propsFile));
 			}
@@ -83,61 +88,85 @@ public class ApplicationProperties {
 	}
 
 	// Property getters.
-	
+
 	// If a property value is not present (e.g. when migrating to newer versions
-	// of the properties file) or corrupt (e.g. because of hand-editing), a default
-	// value is returned.
+	// of the properties file) or corrupt (e.g. because of hand-editing), a
+	// default value is returned.
 
 	public int getMainWdwHeight() {
-		Integer height = parseInt(props.getProperty(MAIN_WDW_HEIGHT)); 
+		Integer height = parseInt(props.getProperty(MAIN_WDW_HEIGHT));
 		return height != null ? height : DEFAULT_MAIN_WDW_HEIGHT;
 	}
 
 	public int getMainWdwWidth() {
-		Integer width = parseInt(props.getProperty(MAIN_WDW_WIDTH)); 
+		Integer width = parseInt(props.getProperty(MAIN_WDW_WIDTH));
 		return width != null ? width : DEFAULT_MAIN_WDW_WIDTH;
 	}
 
 	public int getMainWdwUpperLeftX() {
-		Integer x = parseInt(props.getProperty(MAIN_WDW_UPPER_LEFT_X)); 
+		Integer x = parseInt(props.getProperty(MAIN_WDW_UPPER_LEFT_X));
 		return x != null ? x : DEFAULT_MAIN_WDW_UPPER_LEFT_X;
 	}
 
 	public int getMainWdwUpperLeftY() {
-		Integer y = parseInt(props.getProperty(MAIN_WDW_UPPER_LEFT_Y)); 
+		Integer y = parseInt(props.getProperty(MAIN_WDW_UPPER_LEFT_Y));
 		return y != null ? y : DEFAULT_MAIN_WDW_UPPER_LEFT_Y;
 	}
 
 	/**
 	 * Return an integer from the specified string, or null.
-	 * @param s The string to be parsed.
+	 * We may actually be dealing with a double value, but we
+	 * convert to integer in that case.
+	 * 
+	 * @param s
+	 *            The string to be parsed.
 	 * @return The integer value in s, or null.
 	 */
 	private Integer parseInt(String s) {
 		Integer n = null;
-		
+
 		try {
 			n = Integer.parseInt(s);
-		} catch (NumberFormatException e) {
-			
+		} catch (NumberFormatException e1) {
+			try {
+				n = (int) Double.parseDouble(s);
+			} catch (NumberFormatException e2) {
+				// now we're in trouble; not a number: return null
+			}
 		}
-		
+
 		return n;
 	}
-	
+
+	/**
+	 * Initialise the application properties and store them.
+	 */
+	public void init() {
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		Dimension screenSize = toolkit.getScreenSize();
+		double height = screenSize.getHeight();
+		double width = screenSize.getWidth();
+		
+		props.setProperty(MAIN_WDW_HEIGHT, height + "");
+		props.setProperty(MAIN_WDW_WIDTH, width + "");
+		props.setProperty(MAIN_WDW_UPPER_LEFT_X, DEFAULT_MAIN_WDW_UPPER_LEFT_X + "");
+		props.setProperty(MAIN_WDW_UPPER_LEFT_Y, DEFAULT_MAIN_WDW_UPPER_LEFT_Y + "");
+		store();
+	}
+
 	/**
 	 * Update the application properties and store them.
-	 * 
-	 * @param frame
-	 *            The main window instance from which to update properties.
 	 */
-	public void update(MainFrame frame) {
+	public void update() {
+		props.setProperty(MAIN_WDW_HEIGHT, frame.getHeight() + "");
+		props.setProperty(MAIN_WDW_WIDTH, frame.getWidth() + "");
+		props.setProperty(MAIN_WDW_UPPER_LEFT_X, frame.getX() + "");
+		props.setProperty(MAIN_WDW_UPPER_LEFT_Y, frame.getY() + "");
+		store();
+	}
+
+	private void store() {
 		try {
-			props.setProperty(MAIN_WDW_HEIGHT, frame.getHeight() + "");
-			props.setProperty(MAIN_WDW_WIDTH, frame.getWidth() + "");
-			props.setProperty(MAIN_WDW_UPPER_LEFT_X, frame.getX() + "");
-			props.setProperty(MAIN_WDW_UPPER_LEFT_Y, frame.getY() + "");
-			
 			props.store(new FileWriter(propsFile), PROPS_FILE_COMMENT);
 		} catch (IOException e) {
 			MessageBox.showErrorDialog(frame, ERROR_DIALOG_TITLE, e);
