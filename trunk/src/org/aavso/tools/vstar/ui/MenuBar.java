@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
 import org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.ProgressInfo;
@@ -59,10 +60,12 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public static final String PREFS = "Preferences...";
 	public static final String QUIT = "Quit";
 
-	// Analysis menu item names.
+	// View menu item names.
 	public static final String RAW_DATA = "Raw Data";
 	public static final String PHASE_PLOT = "Phase Plot...";
-	public static final String PERIOD_SEARCH = "Period Search...";
+
+	// Analysis menu item names.
+	public static final String DC_DFT = "Date Compensated DFT...";
 
 	// Help menu item names.
 	public static final String HELP_CONTENTS = "Help Contents...";
@@ -86,10 +89,13 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JMenuItem filePrefsItem;
 	JMenuItem fileQuitItem;
 
+	// View menu.
+	JCheckBoxMenuItem viewRawDataItem;
+	JCheckBoxMenuItem viewPhasePlotItem;
+
 	// Analysis menu.
-	JCheckBoxMenuItem analysisRawDataItem;
-	JCheckBoxMenuItem analysisPhasePlotItem;
-	JCheckBoxMenuItem analysisPeriodSearchItem;
+	JMenu analysisPeriodSearchMenu;
+	JMenuItem analysisPeriodSearchItem; // TODO: rather than this: a JList?
 
 	// Help menu.
 	JMenuItem helpContentsItem;
@@ -115,6 +121,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.fileOpenDialog.setFileFilter(new FileExtensionFilter(extensions));
 
 		createFileMenu();
+		createViewMenu();
 		createAnalysisMenu();
 		createHelpMenu();
 
@@ -124,6 +131,9 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 				createProgressListener());
 
 		this.mediator.getNewStarNotifier().addListener(this);
+
+		this.mediator.getAnalysisTypeChangeNotifier().addListener(
+				createAnalysisTypeChangeListener());
 	}
 
 	private void createFileMenu() {
@@ -164,11 +174,11 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		fileMenu.add(filePrefsItem);
 
 		// Mac OS X applications don't have Quit item in File menu,
-		// but in application (VStar) menu. See also VStar.java. 
+		// but in application (VStar) menu. See also VStar.java.
 		String os_name = System.getProperty("os.name");
 		if (!os_name.startsWith("Mac OS X")) {
 			fileMenu.addSeparator();
-			
+
 			fileQuitItem = new JMenuItem(QUIT, KeyEvent.VK_Q);
 			// fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
 			// ActionEvent.META_MASK));
@@ -179,24 +189,38 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.add(fileMenu);
 	}
 
+	private void createViewMenu() {
+		JMenu viewMenu = new JMenu("View");
+
+		viewRawDataItem = new JCheckBoxMenuItem(RAW_DATA);
+		viewRawDataItem.setEnabled(false);
+		viewRawDataItem.addActionListener(createRawDataListener());
+		viewMenu.add(viewRawDataItem);
+
+		viewPhasePlotItem = new JCheckBoxMenuItem(PHASE_PLOT);
+		viewPhasePlotItem.setEnabled(false);
+		viewPhasePlotItem.addActionListener(createPhasePlotListener());
+		viewMenu.add(viewPhasePlotItem);
+
+		// TODO: put search in here?
+
+		this.add(viewMenu);
+	}
+
 	private void createAnalysisMenu() {
 		JMenu analysisMenu = new JMenu("Analysis");
 
-		analysisRawDataItem = new JCheckBoxMenuItem(RAW_DATA);
-		analysisRawDataItem.setEnabled(false);
-		analysisRawDataItem.addActionListener(createRawDataListener());
-		analysisMenu.add(analysisRawDataItem);
+		analysisPeriodSearchMenu = new JMenu("Period Search");
+		analysisPeriodSearchMenu.setEnabled(false);
 
-		analysisPhasePlotItem = new JCheckBoxMenuItem(PHASE_PLOT);
-		analysisPhasePlotItem.setEnabled(false);
-		analysisPhasePlotItem.addActionListener(createPhasePlotListener());
-		analysisMenu.add(analysisPhasePlotItem);
+		// TODO: populate this from resource and props file...
 
-		analysisPeriodSearchItem = new JCheckBoxMenuItem(PERIOD_SEARCH);
-		analysisPeriodSearchItem.setEnabled(false);
+		analysisPeriodSearchItem = new JCheckBoxMenuItem(DC_DFT);
 		analysisPeriodSearchItem
 				.addActionListener(createPeriodSearchListener());
-		analysisMenu.add(analysisPeriodSearchItem);
+		analysisPeriodSearchMenu.add(analysisPeriodSearchItem);
+
+		analysisMenu.add(analysisPeriodSearchMenu);
 
 		this.add(analysisMenu);
 	}
@@ -361,13 +385,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public ActionListener createRawDataListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				AnalysisType type = mediator
-						.changeAnalysisType(AnalysisType.RAW_DATA);
-				if (type == AnalysisType.RAW_DATA) {
-					setRawDataAnalysisMenuItemState(true);
-					setPhasePlotAnalysisMenuItemState(false);
-					setPeriodSearchAnalysisMenuItemState(false);
-				}
+				mediator.changeAnalysisType(AnalysisType.RAW_DATA);
 			}
 		};
 	}
@@ -378,17 +396,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public ActionListener createPhasePlotListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				AnalysisType type = mediator
-						.changeAnalysisType(AnalysisType.PHASE_PLOT);
-				if (type == AnalysisType.PHASE_PLOT) {
-					setRawDataAnalysisMenuItemState(false);
-					setPhasePlotAnalysisMenuItemState(true);
-					setPeriodSearchAnalysisMenuItemState(false);
-				} else {
-					setRawDataAnalysisMenuItemState(true);
-					setPhasePlotAnalysisMenuItemState(false);
-					setPeriodSearchAnalysisMenuItemState(false);
-				}
+				mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
 			}
 		};
 	}
@@ -423,10 +431,6 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	/**
 	 * Returns the action listener to be invoked for Help->About...
-	 * 
-	 * TODO: Make a separate component for the About Box. Put text into a
-	 * resource file and use a JEditorPane to render HTML or use a JDialog with
-	 * JLabels and images.
 	 */
 	private ActionListener createAboutListener() {
 		return new ActionListener() {
@@ -467,16 +471,40 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		};
 	}
 
+	/**
+	 * Return an analysis type change listener.
+	 */
+	private Listener<AnalysisTypeChangeMessage> createAnalysisTypeChangeListener() {
+		return new Listener<AnalysisTypeChangeMessage>() {
+			public void update(AnalysisTypeChangeMessage info) {
+				switch (info.getAnalysisType()) {
+				case RAW_DATA:
+					setRawDataAnalysisMenuItemState(true);
+					setPhasePlotAnalysisMenuItemState(false);
+					break;
+				case PHASE_PLOT:
+					setRawDataAnalysisMenuItemState(false);
+					setPhasePlotAnalysisMenuItemState(true);
+					break;
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
 	private void resetProgress(MainFrame parent) {
 		// TODO: why not set cursor in MainFrame or StatusPane?
 		parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		setEnabledFileAndAnalysisMenuItems(false);
+		changeKeyMenuItemEnableState(false);
 	}
 
 	private void completeProgress() {
 		// TODO: why not set cursor in MainFrame or StatusPane?
 		parent.setCursor(null); // turn off the wait cursor
-		setEnabledFileAndAnalysisMenuItems(true);
+		changeKeyMenuItemEnableState(true);
 	}
 
 	/**
@@ -495,17 +523,18 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	// Helper methods
 
-	// Enables or disabled File and Analysis menu items.
-	private void setEnabledFileAndAnalysisMenuItems(boolean state) {
+	// Enables or disabled key menu items.
+	private void changeKeyMenuItemEnableState(boolean state) {
 		this.fileNewStarFromDatabaseItem.setEnabled(state);
 		this.fileNewStarFromFileItem.setEnabled(state);
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
 		this.fileInfoItem.setEnabled(state);
 
-		this.analysisRawDataItem.setEnabled(state);
-		this.analysisPhasePlotItem.setEnabled(state);
-		this.analysisPeriodSearchItem.setEnabled(state);
+		this.viewRawDataItem.setEnabled(state);
+		this.viewPhasePlotItem.setEnabled(state);
+
+		this.analysisPeriodSearchMenu.setEnabled(state);
 
 		AnalysisType type = mediator.getAnalysisType();
 
@@ -513,30 +542,19 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		case RAW_DATA:
 			setRawDataAnalysisMenuItemState(true);
 			setPhasePlotAnalysisMenuItemState(false);
-			setPeriodSearchAnalysisMenuItemState(false);
 			break;
 		case PHASE_PLOT:
 			setRawDataAnalysisMenuItemState(false);
 			setPhasePlotAnalysisMenuItemState(true);
-			setPeriodSearchAnalysisMenuItemState(false);
-			break;
-		case PERIOD_SEARCH:
-			setRawDataAnalysisMenuItemState(false);
-			setPhasePlotAnalysisMenuItemState(false);
-			setPeriodSearchAnalysisMenuItemState(true);
 			break;
 		}
 	}
 
 	private void setRawDataAnalysisMenuItemState(boolean state) {
-		this.analysisRawDataItem.setState(state);
+		this.viewRawDataItem.setState(state);
 	}
 
 	private void setPhasePlotAnalysisMenuItemState(boolean state) {
-		this.analysisPhasePlotItem.setState(state);
-	}
-
-	private void setPeriodSearchAnalysisMenuItemState(boolean state) {
-		this.analysisPeriodSearchItem.setState(state);
+		this.viewPhasePlotItem.setState(state);
 	}
 }

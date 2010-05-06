@@ -134,9 +134,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	// PropertiesAccessor()!
 	private void createTenStarMap() {
 		tenStarMap = new TreeMap<String, String>();
-		Star list[] = PropertiesAccessor.getNorthernStarList();
-		for(int i = 0; i < list.length; i++){
-			tenStarMap.put(list[i].getName(), list[i].getIdentifier());
+		for (Star star : PropertiesAccessor.getNorthernStarList()) {
+			tenStarMap.put(star.getName(), star.getIdentifier());
 		}
 	}
 
@@ -145,8 +144,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JPanel createTenStarSelectorPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory
-				.createTitledBorder(PropertiesAccessor.getNorthernStarTitle()));
+		panel.setBorder(BorderFactory.createTitledBorder(PropertiesAccessor
+				.getNorthernStarTitle()));
 
 		tenStarSelector = new JComboBox(tenStarMap.keySet().toArray(
 				new String[0]));
@@ -273,13 +272,13 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			public void actionPerformed(ActionEvent e) {
 				if (allDataCheckBox.isSelected()) {
 					// We want all data, so clear date fields.
-					//minJDField.setText("");
-					//maxJDField.setText("");
+					// minJDField.setText("");
+					// maxJDField.setText("");
 					minJDField.setEnabled(false);
 					maxJDField.setEnabled(false);
 				} else {
-					//We've unchecked all data so we want to reenable fields
-					//leaving the values that are there.
+					// We've unchecked all data so we want to reenable fields
+					// leaving the values that are there.
 					minJDField.setEnabled(true);
 					maxJDField.setEnabled(true);
 				}

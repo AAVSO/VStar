@@ -17,15 +17,27 @@
  */
 package org.aavso.tools.vstar.ui.dialog.period;
 
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.PeriodAnalysisSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.PlotOrientation;
@@ -38,10 +50,15 @@ public class PeriodAnalysis2DResultDialog extends JDialog {
 
 	private String seriesTitle;
 	private String chartTitle;
+
 	private List<PeriodAnalysis2DPlotModel> plotModels;
 	private PeriodAnalysisDataTableModel dataTableModel;
 	private PeriodAnalysisTopHitsTableModel topHitsTableModel;
-	
+
+	private int selectedRow = -1;
+
+	private JButton newPhasePlotButton;
+
 	/**
 	 * Constructor
 	 * 
@@ -68,8 +85,18 @@ public class PeriodAnalysis2DResultDialog extends JDialog {
 		this.plotModels = plotModels;
 		this.dataTableModel = dataTableModel;
 		this.topHitsTableModel = topHitsTableModel;
-		
-		this.getContentPane().add(getTabs());
+
+		JPanel topPane = new JPanel();
+		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+		topPane.add(createTabs());
+		topPane.add(createButtonPanel());
+
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(this.createPeriodAnalysisListener());
+
+		this.getContentPane().add(topPane);
 
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
@@ -80,7 +107,7 @@ public class PeriodAnalysis2DResultDialog extends JDialog {
 	// Return the tabs containing table and plots of frequency vs one of the
 	// dependent variables of period, power, or amplitude. Is this what we want,
 	// or something different?
-	private JTabbedPane getTabs() {
+	private JTabbedPane createTabs() {
 		JTabbedPane tabs = new JTabbedPane();
 
 		// Add plots.
@@ -104,8 +131,77 @@ public class PeriodAnalysis2DResultDialog extends JDialog {
 		tabs.addTab("Data", new PeriodAnalysisDataTablePane(dataTableModel));
 
 		// Add top-hits table view.
-		tabs.addTab("Top Hits", new PeriodAnalysisTopHitsTablePane(topHitsTableModel));
+		tabs.addTab("Top Hits", new PeriodAnalysisTopHitsTablePane(
+				topHitsTableModel));
 
 		return tabs;
+	}
+
+	private JPanel createButtonPanel() {
+		JPanel buttonPane = new JPanel();
+
+		newPhasePlotButton = new JButton("New Phase Plot");
+		newPhasePlotButton.addActionListener(createNewPhasePlotButtonHandler());
+		buttonPane.add(newPhasePlotButton, BorderLayout.LINE_START);
+		newPhasePlotButton.setEnabled(false);
+
+		JButton dismissButton = new JButton("Dismiss");
+		dismissButton.addActionListener(createDismissButtonHandler());
+		buttonPane.add(dismissButton, BorderLayout.LINE_END);
+
+		return buttonPane;
+	}
+
+	// Dismiss button listener.
+
+	private ActionListener createDismissButtonHandler() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+				dispose();
+			}
+		};
+	}
+
+	// New phase plot button listener.
+	//
+	// This button will only be enabled when a period analysis
+	// selection message has been received by this class, so we
+	// *know* without having to ask that there is a selected row
+	// in the data table.
+	private ActionListener createNewPhasePlotButtonHandler() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String periodStr = (String) dataTableModel.getValueAt(
+						selectedRow, PeriodAnalysisCoordinateType.PERIOD
+								.getIndex());
+
+				double period = Double.valueOf(periodStr);
+
+				PeriodChangeMessage message = new PeriodChangeMessage(this,
+						period);
+				Mediator.getInstance().getPeriodChangeMessageNotifier()
+						.notifyListeners(message);
+			}
+		};
+	}
+
+	// Enable the new phase plot button and store the selected
+	// item number.
+	//
+	// There is a 1:1 correspondence between the item value
+	// in the message and the selected data table row since
+	// the item denotes an index into an observation sequence.
+	private Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
+		return new Listener<PeriodAnalysisSelectionMessage>() {
+			public void update(PeriodAnalysisSelectionMessage info) {
+				newPhasePlotButton.setEnabled(true);
+				selectedRow = info.getItem();
+			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 }

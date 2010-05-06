@@ -18,11 +18,30 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 /**
- * This enumerated type represents VStar's current analysis mode.
- * 
- * TODO: or change to VisualisationType or ViewType?
+ * This message should be sent
  */
-public enum AnalysisType {
+public class PeriodChangeMessage extends MessageBase {
 
-	RAW_DATA, PHASE_PLOT;
+	private double period;
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param source
+	 *            The source of the message.
+	 * @param period
+	 *            The new period. Note that it may not actually be new. That is
+	 *            up to the receiver to decide.
+	 */
+	public PeriodChangeMessage(Object source, double period) {
+		super(source);
+		this.period = period;
+	}
+
+	/**
+	 * @return the period
+	 */
+	public double getPeriod() {
+		return period;
+	}
 }
