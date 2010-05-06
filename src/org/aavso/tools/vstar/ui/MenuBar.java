@@ -215,7 +215,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		// TODO: populate this from resource and props file...
 
-		analysisPeriodSearchItem = new JCheckBoxMenuItem(DC_DFT);
+		analysisPeriodSearchItem = new JMenuItem(DC_DFT);
 		analysisPeriodSearchItem
 				.addActionListener(createPeriodSearchListener());
 		analysisPeriodSearchMenu.add(analysisPeriodSearchItem);
