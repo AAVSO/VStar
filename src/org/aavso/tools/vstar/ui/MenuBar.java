@@ -385,6 +385,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public ActionListener createRawDataListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				setRawDataAnalysisMenuItemState(true); // ensure selected
 				mediator.changeAnalysisType(AnalysisType.RAW_DATA);
 			}
 		};
@@ -396,6 +397,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public ActionListener createPhasePlotListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				setPhasePlotAnalysisMenuItemState(true); // ensure selected
 				mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
 			}
 		};
