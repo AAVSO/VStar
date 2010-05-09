@@ -33,26 +33,26 @@ public class PropertiesAccessor {
 	  * TODO: Pull the accessing of the URL out to a class that does that in the constructor
 	  */
 	//build some constants here for the starlists
-	public static Star [] getNorthernStarList(/*constant indicating starlist*/){
+	public static Star [] getStarList(){
 		//based on constant passed in use the resource accessor to get the appropriate properties file path
-		Star tenstarlist[] = null;
+		Star starlist[] = null;
 		String list[];
 
 		try {
 
-			URL url = PropertiesAccessor.class.getResource("/etc/TenStarList.properties");
+			URL url = PropertiesAccessor.class.getResource("/etc/StarList.properties");
 			Properties props = new Properties();
 			props.load(url.openStream());
 
-			list = props.getProperty("tenstarnorthlist").split(",");
+			list = props.getProperty("starlist").split(",");
 
-			tenstarlist = new Star[list.length/2];
+			starlist = new Star[list.length/2];
 
 			for(int i = 0, j = 0; i < list.length; j++, i+=2){
 				Star S = new Star();
 				S.setName(list[i]);
 				S.setIdentifier(list[i+1]);
-				tenstarlist[j] = S;
+				starlist[j] = S;
 			}   
 			//Process star list and make a hashmap or whatever the drop down needs
 
@@ -60,21 +60,21 @@ public class PropertiesAccessor {
 			e.printStackTrace();
 		}   
 
-		return tenstarlist;
+		return starlist;
 
 	}
 
-	public static String getNorthernStarTitle(/*constant indicating starlist*/){
+	public static String getStarListTitle(){
 		//based on constant passed in use the resource accessor to get the appropriate properties file path
 		String value = null;
 
 		try {
 
-			URL url = PropertiesAccessor.class.getResource("/etc/TenStarList.properties");
+			URL url = PropertiesAccessor.class.getResource("/etc/StarList.properties");
 			Properties props = new Properties();
 			props.load(url.openStream());
 
-			value = props.getProperty("tenstartitle");
+			value = props.getProperty("starlisttitle");
 
 		}catch(IOException e){ 
 			e.printStackTrace();

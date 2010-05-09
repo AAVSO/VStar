@@ -134,7 +134,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	// PropertiesAccessor()!
 	private void createTenStarMap() {
 		tenStarMap = new TreeMap<String, String>();
-		for (Star star : PropertiesAccessor.getNorthernStarList()) {
+		for (Star star : PropertiesAccessor.getStarList()) {
 			tenStarMap.put(star.getName(), star.getIdentifier());
 		}
 	}
@@ -145,7 +145,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder(PropertiesAccessor
-				.getNorthernStarTitle()));
+				.getStarListTitle()));
 
 		tenStarSelector = new JComboBox(tenStarMap.keySet().toArray(
 				new String[0]));
