@@ -20,8 +20,8 @@ package org.aavso.tools.vstar.util.property;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -79,7 +79,7 @@ public class ApplicationProperties {
 				propsFile.createNewFile();
 				init();
 			} else {
-				props.load(new FileReader(propsFile));
+				props.load(new FileInputStream(propsFile));
 			}
 		} catch (IOException e) {
 			MessageBox.showErrorDialog(frame, ERROR_DIALOG_TITLE, e);
@@ -167,7 +167,7 @@ public class ApplicationProperties {
 
 	private void store() {
 		try {
-			props.store(new FileWriter(propsFile), PROPS_FILE_COMMENT);
+			props.store(new FileOutputStream(propsFile), PROPS_FILE_COMMENT);
 		} catch (IOException e) {
 			MessageBox.showErrorDialog(frame, ERROR_DIALOG_TITLE, e);
 			System.exit(-1);
