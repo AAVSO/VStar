@@ -162,7 +162,7 @@
 	<!-- Clean targets -->
 
 	<target name="clean" description="Clean up">
-		<delete includeemptydirs="true">
+		<delete failonerror="false" includeemptydirs="true">
 			<!-- Delete the build, dist, UT, coverage directory trees -->
 			<fileset dir="${src_build}" includes="**/*" />
 			<fileset dir="${src_build_debug}" includes="**/*" />
