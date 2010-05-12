@@ -706,10 +706,12 @@ public class Mediator {
 		String objName = newStarMessage.getStarInfo().getDesignation();
 
 		String subTitle = "";
+		String periodAndEpochStr = "period=" + period + ", epoch=" + epoch;
+		
 		if (this.newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-			subTitle = new Date().toString() + " (database), period=" + period;
+			subTitle = new Date().toString() + " (database), " + periodAndEpochStr;
 		} else {
-			subTitle = "period=" + period;
+			subTitle = periodAndEpochStr;
 		}
 
 		// Here we modify the underlying ValidObservation objects which will
