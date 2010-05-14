@@ -594,6 +594,9 @@ public class Mediator {
 					"Light Curve with Means for " + starInfo.getDesignation(),
 					subTitle, obsAndMeanPlotModel);
 
+			// TODO: instead, here we want to iterate over the collection of
+			// period analysis plugin objects and register a listener with each
+			// via PeriodAnalysisPlugin.getMeanObsChangeListener().
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					createMeanObsChangeListener(obsAndMeanPlotModel
 							.getMeanSourceSeriesNum()));
@@ -878,7 +881,7 @@ public class Mediator {
 	 * visual? MT: Yes, because of two things: 1) The different bands will have
 	 * different mean values, and 2) The different bands will have different
 	 * amplitudes or frequencies depending on what is physically causing the
-	 * variation. Variablity caused by temperature changes can have wildy
+	 * variation. Variability caused by temperature changes can have wildly
 	 * different amplitudes in U or B versus Rc or Ic.
 	 * 
 	 * TODO: we will ultimately need to pass one or more info parameters that
@@ -915,8 +918,6 @@ public class Mediator {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.DC_DFT, e);
 
-			// TODO: should we do this in other places where we catch exceptions
-			// and have progress bars potentially still updating?
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
 
