@@ -31,7 +31,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 /**
  * This class creates, reads, and updates VStar properties, e.g. Window location
  * and size. Although there can be more than one instance of this class, it
- * makes most sense for one class (e.g. MainFrame) to have control over just one
+ * makes most sense for one class to have control over just one
  * instance.
  */
 public class ApplicationProperties {
@@ -75,6 +75,13 @@ public class ApplicationProperties {
 		this.frame = frame;
 
 		try {
+			// We've seen one instance of the props file being empty,
+			// so if it is, delete it, and re-create it, because it 
+			// won't load.
+			if (propsFile.length() == 0) {
+				propsFile.delete();
+			}			
+			
 			if (!propsFile.exists()) {
 				propsFile.createNewFile();
 				init();
