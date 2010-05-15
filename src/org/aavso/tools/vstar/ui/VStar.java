@@ -68,9 +68,6 @@ public class VStar {
 			MainFrame frame = MainFrame.getInstance();
 			final ApplicationProperties appProps = new ApplicationProperties(frame);
 			
-			int x = appProps.getMainWdwWidth();
-			int y = appProps.getMainWdwHeight();
-			
 			frame.setSize(appProps.getMainWdwWidth(), appProps.getMainWdwHeight());
 			frame.setLocation(appProps.getMainWdwUpperLeftX(), appProps.getMainWdwUpperLeftY());
 

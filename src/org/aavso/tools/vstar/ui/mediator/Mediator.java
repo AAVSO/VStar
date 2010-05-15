@@ -133,7 +133,8 @@ public class Mediator {
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
 	private Notifier<PeriodChangeMessage> periodChangeMessageNotifier;
-
+    private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
+    
 	// Currently active task.
 	private SwingWorker currTask;
 
@@ -152,6 +153,7 @@ public class Mediator {
 		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
 		this.periodAnalysisSelectionNotifier = new Notifier<PeriodAnalysisSelectionMessage>();
 		this.periodChangeMessageNotifier = new Notifier<PeriodChangeMessage>();
+		this.meanSourceSeriesChangeNotifier = new Notifier<MeanSourceSeriesChangeMessage>();
 
 		this.obsListFileSaveDialog = new JFileChooser();
 
@@ -172,7 +174,7 @@ public class Mediator {
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
 		
-		this.periodChangeMessageNotifier.addListener(createPeriodChangeListener());
+		this.periodChangeMessageNotifier.addListener(createPeriodChangeListener());		
 	}
 
 	/**
@@ -229,6 +231,13 @@ public class Mediator {
 	 */
 	public Notifier<PeriodChangeMessage> getPeriodChangeMessageNotifier() {
 		return periodChangeMessageNotifier;
+	}
+
+	/**
+	 * @return the meanSourceSeriesChangeNotifier
+	 */
+	public Notifier<MeanSourceSeriesChangeMessage> getMeanSourceSeriesChangeNotifier() {
+		return meanSourceSeriesChangeNotifier;
 	}
 
 	/**

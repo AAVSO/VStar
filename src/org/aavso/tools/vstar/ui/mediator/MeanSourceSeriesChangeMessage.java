@@ -18,8 +18,8 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 /**
- * This message is sent when the source series of the current mean series
- * has changed.
+ * This message is sent when the source series of the current mean 
+ * series has changed.
  */
 public class MeanSourceSeriesChangeMessage extends MessageBase {
 
