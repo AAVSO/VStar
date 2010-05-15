@@ -28,9 +28,9 @@ o VStar can become low on memory with continued use. Currently, the best
   trackers 2924511 and 2909500 for more details.
    
 ----------------------
-Date: May ?? 2010
+Date: May 17 2010
 Version: 2.0 Beta
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??May2010
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-17May2010
 Key Changes:
 - Changed main display to use tabbed panes instead of mode radio buttons 
   to better utilise screen real estate. See tracker 2983883. 
