@@ -49,6 +49,17 @@ abstract public class PeriodAnalysisPluginBase {
 	}
 
 	// ** Methods that must be implemented by concrete plugin subclasses. **
+
+	/**
+	 * Get the human-readable display name for this plugin, 
+	 * e.g. for a period analysis menu item.
+	 */
+	abstract public String getDisplayName();
+
+	/**
+	 * Get a description of this plugin.
+	 */
+	abstract public String getDescription();
 	
 	/**
 	 * Get the period analysis algorithm for this plugin.
@@ -75,7 +86,7 @@ abstract public class PeriodAnalysisPluginBase {
 	 * current mean series.
 	 */
 	abstract protected void meanSourceSeriesChangeAction();
-
+	
 	// ** Methods for use by subclasses. **
 	
 	/**
