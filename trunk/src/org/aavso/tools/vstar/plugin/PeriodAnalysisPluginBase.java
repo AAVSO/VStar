@@ -17,12 +17,10 @@
  */
 package org.aavso.tools.vstar.plugin;
 
-import java.util.List;
-
 import javax.swing.JDialog;
 
-import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.IPeriodAnalysisAlgorithm;
+import org.aavso.tools.vstar.ui.mediator.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.PeriodAnalysisSelectionMessage;
@@ -32,95 +30,97 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 
 /**
  * This is the abstract base class for all period analysis plugin classes.
- * Each plugin is a Singleton.
  * 
- * Note: plugins will have to be GPL (even AGPL?) because they will use some 
- * VStar classes!
+ * Note: plugins will have to be licensed under AGPL because they will use 
+ * some VStar classes!
  */
 abstract public class PeriodAnalysisPluginBase {
-	
-	// Enables notification to consumers of period change.
-	private Notifier<PeriodChangeMessage> periodChangeNotifier;
 
-	// Enables notification to consumers of period analysis selection.
-	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
-
-	private static PeriodAnalysisPluginBase instance = null;
-	
-	/**
-	 * Protected constructor for Singleton.
-	 */
-	protected PeriodAnalysisPluginBase() {
-		instance = this;
-		
-		this.periodAnalysisSelectionNotifier = Mediator.getInstance().getPeriodAnalysisSelectionNotifier();
-		this.periodChangeNotifier = Mediator.getInstance().getPeriodChangeMessageNotifier();
-		
-		Mediator.getInstance().getNewStarNotifier().addListener(this.getNewStarListener());
-	}
+	private Mediator mediator = Mediator.getInstance();
 
 	/**
-	 * Return the Singleton instance.
+	 * Parameterless constructor for creation within Mediator.
 	 */
-	public static PeriodAnalysisPluginBase getInstance() {
-		return instance;
+	public PeriodAnalysisPluginBase() {
+		mediator.getNewStarNotifier().addListener(this.getNewStarListener());
+		
+		mediator.getMeanSourceSeriesChangeNotifier().addListener(
+				this.getMeanSourceSeriesChangeListener());
 	}
+
+	// ** Methods that must be implemented by concrete plugin subclasses. **
 	
-	// TODO:
-	// - Put existing dcdft in map without creating a jar; test that separately
+	/**
+	 * Get the period analysis algorithm for this plugin.
+	 */
+	abstract public IPeriodAnalysisAlgorithm getAlgorithm();
+
+	/**
+	 * Get the period analysis dialog for this plugin.
+	 */
+	abstract public JDialog getDialog();
+
+	/**
+	 * When a new dataset is loaded, previous computation results and GUI
+	 * components should be discarded, so the plugin will listen for such
+	 * messages.
+	 */
+	abstract protected void newStarAction();
+
+	/**
+	 * When the mean source series changes is loaded, a plugin may want to
+	 * discard previous computation results and GUI components, so the plugin
+	 * will listen for such messages. Of course, a plugin will only care about
+	 * such messages if the period analysis computations are based upon the
+	 * current mean series.
+	 */
+	abstract protected void meanSourceSeriesChangeAction();
+
+	// ** Methods for use by subclasses. **
 	
 	/**
 	 * @return the periodChangeNotifier
 	 */
 	protected Notifier<PeriodChangeMessage> getPeriodChangeNotifier() {
-		return periodChangeNotifier;
+		return mediator.getPeriodChangeMessageNotifier();	
 	}
 
 	/**
 	 * @return the periodAnalysisSelectionNotifier
 	 */
 	protected Notifier<PeriodAnalysisSelectionMessage> getPeriodAnalysisSelectionNotifier() {
-		return periodAnalysisSelectionNotifier;
+		return mediator.getPeriodAnalysisSelectionNotifier();
 	}
 
-	/**
-	 * Get the period analysis algorithm for this plugin.
-	 */
-	abstract public IPeriodAnalysisAlgorithm getAlgorithm();
-	
-	/**
-	 * Get the period analysis dialog for this plugin.
-	 */ 
-	abstract public JDialog getDialog();
+	// ** Internal helper methods. **
 	
 	/**
 	 * Get the new star listener for this plugin.
-	 * 
-	 * When a new dataset is loaded, previous computation results and GUI
-	 * components should be discarded, so the plugin will listen for such
-	 * messages.
 	 */
-	abstract protected Listener<NewStarMessage> getNewStarListener();
+	private Listener<NewStarMessage> getNewStarListener() {
+		return new Listener<NewStarMessage>() {
+			public void update(NewStarMessage info) {
+				newStarAction();
+			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
 
 	/**
 	 * Get the mean observation change listener for this plugin.
-	 * 
-	 * The plugin itself cannot register this listener. It must be done
-	 * at new dataset load time, either by Mediator or via a new-star or
-	 * analysis change message. TODO: which?
-	 * 
-	 * This should do the kind of thing Mediator.createMeanObsChangeListener()
-	 * does now. Can we create some base class functionality here? Either that,
-	 * or we really do leave that method in Mediator as the only registered listener
-	 * and it just calls reset() on this class? Or better yet, have Mediator generate
-	 * yet another mean
 	 */
-	abstract public Listener<List<ValidObservation>> getMeanObsChangeListener();
-	
-	/**
-	 * This method should discard the result of previous computations, 
-	 * previously created dialogs or whatever makes sense for the plugin
-	 * when a new dataset is loaded or a mean series changes etc. 
-	 */
-	abstract public void reset();
+	private Listener<MeanSourceSeriesChangeMessage> getMeanSourceSeriesChangeListener() {
+		return new Listener<MeanSourceSeriesChangeMessage>() {
+			public void update(MeanSourceSeriesChangeMessage info) {
+				meanSourceSeriesChangeAction();
+			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
 }
