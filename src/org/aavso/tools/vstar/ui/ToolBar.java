@@ -190,11 +190,11 @@ public class ToolBar extends JPanel {
 		buttonPanel.add(phasePlotButton);
 
 		periodSearchButton = new JButton(periodSearchIcon);
-		periodSearchButton.setToolTipText(MenuBar.DC_DFT);
+		//periodSearchButton.setToolTipText(MenuBar.DC_DFT);
 		periodSearchButton.addActionListener(menuBar
 				.createPeriodSearchListener());
 		periodSearchButton.setEnabled(false);
-		buttonPanel.add(periodSearchButton);
+//		buttonPanel.add(periodSearchButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 

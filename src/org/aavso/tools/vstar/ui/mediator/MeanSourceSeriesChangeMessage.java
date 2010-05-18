@@ -17,24 +17,26 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
+import org.aavso.tools.vstar.data.SeriesType;
+
 /**
  * This message is sent when the source series of the current mean 
  * series has changed.
  */
 public class MeanSourceSeriesChangeMessage extends MessageBase {
 
-	private int meanSourceSeriesNum;
+	private SeriesType meanSourceSeriesType;
 	
-	public MeanSourceSeriesChangeMessage(Object source, int meanSourceSeriesNum) {
+	public MeanSourceSeriesChangeMessage(Object source, SeriesType meanSourceSeriesType) {
 		super(source);
 		
-		this.meanSourceSeriesNum = meanSourceSeriesNum;
+		this.meanSourceSeriesType = meanSourceSeriesType;
 	}
 
 	/**
-	 * @return the meanSourceSeriesNum
+	 * @return the meanSourceSeriesType
 	 */
-	public int getMeanSourceSeriesNum() {
-		return meanSourceSeriesNum;
+	public SeriesType getMeanSourceSeriesType() {
+		return meanSourceSeriesType;
 	}
 }

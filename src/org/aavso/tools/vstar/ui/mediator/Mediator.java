@@ -45,6 +45,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
+import org.aavso.tools.vstar.plugin.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -72,7 +73,6 @@ import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
-import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransform;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -133,8 +133,8 @@ public class Mediator {
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
 	private Notifier<PeriodChangeMessage> periodChangeMessageNotifier;
-    private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
-    
+	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
+
 	// Currently active task.
 	private SwingWorker currTask;
 
@@ -173,8 +173,9 @@ public class Mediator {
 
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
-		
-		this.periodChangeMessageNotifier.addListener(createPeriodChangeListener());		
+
+		this.periodChangeMessageNotifier
+				.addListener(createPeriodChangeListener());
 	}
 
 	/**
@@ -270,7 +271,20 @@ public class Mediator {
 						.getMeanSourceSeriesNum()) {
 					this.meanSourceSeriesNum = obsAndMeanPlotModel
 							.getMeanSourceSeriesNum();
-					setPeriodAnalysisResultDialog(null);
+
+					SeriesType meanSourceSeriesType = obsAndMeanPlotModel
+							.getSeriesNumToSrcTypeMap().get(
+									this.meanSourceSeriesNum);
+
+					meanSourceSeriesChangeNotifier
+							.notifyListeners(new MeanSourceSeriesChangeMessage(
+									this, meanSourceSeriesType));
+
+//					 need to re-up this listener when model changes due to phase plot!
+//					 move all of this into plugin even... including re-registration?
+					
+					// TODO: this should go away eventually...
+//					setPeriodAnalysisResultDialog(null);
 				}
 			}
 		};
@@ -287,7 +301,7 @@ public class Mediator {
 							.getPhaseParameterDialog();
 					phaseDialog.setPeriodField(info.getPeriod());
 					phaseDialog.showDialog();
-					
+
 					if (!phaseDialog.isCancelled()) {
 						double period = phaseDialog.getPeriod();
 						double epoch = phaseDialog.getEpoch();
@@ -367,18 +381,18 @@ public class Mediator {
 	/**
 	 * @return the periodAnalysisResultDialog
 	 */
-	public PeriodAnalysis2DResultDialog getPeriodAnalysisResultDialog() {
-		return periodAnalysisResultDialog;
-	}
+//	public PeriodAnalysis2DResultDialog getPeriodAnalysisResultDialog() {
+//		return periodAnalysisResultDialog;
+//	}
 
 	/**
 	 * @param periodAnalysisResultDialog
 	 *            the periodAnalysisResultDialog to set
 	 */
-	public void setPeriodAnalysisResultDialog(
-			PeriodAnalysis2DResultDialog periodAnalysisResultDialog) {
-		this.periodAnalysisResultDialog = periodAnalysisResultDialog;
-	}
+//	public void setPeriodAnalysisResultDialog(
+//			PeriodAnalysis2DResultDialog periodAnalysisResultDialog) {
+//		this.periodAnalysisResultDialog = periodAnalysisResultDialog;
+//	}
 
 	/**
 	 * Change the analysis type. If the old and new types are the same, there
@@ -423,7 +437,8 @@ public class Mediator {
 					if (msg != null) {
 						this.analysisType = analysisType;
 						// TODO: we should only do this if msg != oldMsg
-						// since we do this in createPhasePlotArtefacts(); should
+						// since we do this in createPhasePlotArtefacts();
+						// should
 						// just make this an else clause of above if stmt.
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
 					}
@@ -603,9 +618,6 @@ public class Mediator {
 					"Light Curve with Means for " + starInfo.getDesignation(),
 					subTitle, obsAndMeanPlotModel);
 
-			// TODO: instead, here we want to iterate over the collection of
-			// period analysis plugin objects and register a listener with each
-			// via PeriodAnalysisPlugin.getMeanObsChangeListener().
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					createMeanObsChangeListener(obsAndMeanPlotModel
 							.getMeanSourceSeriesNum()));
@@ -719,9 +731,10 @@ public class Mediator {
 
 		String subTitle = "";
 		String periodAndEpochStr = "period=" + period + ", epoch=" + epoch;
-		
+
 		if (this.newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-			subTitle = new Date().toString() + " (database), " + periodAndEpochStr;
+			subTitle = new Date().toString() + " (database), "
+					+ periodAndEpochStr;
 		} else {
 			subTitle = periodAndEpochStr;
 		}
@@ -892,14 +905,15 @@ public class Mediator {
 	 * amplitudes or frequencies depending on what is physically causing the
 	 * variation. Variability caused by temperature changes can have wildly
 	 * different amplitudes in U or B versus Rc or Ic.
-	 * 
-	 * TODO: we will ultimately need to pass one or more info parameters that
-	 * will lead to selection of plug-in classes. What we have here is a first
-	 * cut. Currently we implement only Date Compensated DFT.
 	 */
-	public void createPeriodAnalysisDialog() {
+	public void createPeriodAnalysisDialog(PeriodAnalysisPluginBase plugin) {
 		try {
 			if (this.newStarMessage != null && this.validObsList != null) {
+				// TODO: instead, pass obsAndMeanPlotModel in as a parameter
+				// to a setter to determine its own source of obs, series type
+				
+				//move this stuff into plugin
+				
 				int meanObsSourceSeriesNum = obsAndMeanPlotModel
 						.getMeanSourceSeriesNum();
 
@@ -910,22 +924,23 @@ public class Mediator {
 				SeriesType meanObsSourceSeriesType = obsAndMeanPlotModel
 						.getSeriesNumToSrcTypeMap().get(meanObsSourceSeriesNum);
 
-				DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
-						meanObsSourceList);
+//				DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
+//						meanObsSourceList);
 
 				this.getProgressNotifier().notifyListeners(
 						ProgressInfo.START_PROGRESS);
 				this.getProgressNotifier().notifyListeners(
 						ProgressInfo.BUSY_PROGRESS);
 
-				PeriodAnalysisTask task = new PeriodAnalysisTask(dcdft,
-						newStarMessage.getStarInfo(), meanObsSourceSeriesType);
+				PeriodAnalysisTask task = new PeriodAnalysisTask(plugin,
+						meanObsSourceSeriesType, meanObsSourceList);
+								
 				this.currTask = task;
 				task.execute();
 			}
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					MenuBar.DC_DFT, e);
+					"Period Analysis", e);
 
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);

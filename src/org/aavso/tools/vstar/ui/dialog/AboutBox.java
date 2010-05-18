@@ -74,7 +74,10 @@ public class AboutBox {
 		strBuf
 				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.\n\n");
 
-		strBuf.append("Thanks also to Michael Umbricht for ongoing testing, bug reports,\n");
+		strBuf.append("Sara's roles as guide, domain expert, AAVSO liason, and\n");
+		strBuf.append("advocate have been indispensible.\n\n");
+		
+		strBuf.append("Thanks also to Michael Umbricht for testing, bug reports,\n");
 		strBuf.append("great conversations, and beer. Thanks also to the Weber brothers (Adam and George) for\n");
 		strBuf.append("code and bug-fix contributions.");
 

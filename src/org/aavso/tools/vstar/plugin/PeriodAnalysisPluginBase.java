@@ -17,9 +17,12 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.util.List;
+
 import javax.swing.JDialog;
 
-import org.aavso.tools.vstar.ui.mediator.IPeriodAnalysisAlgorithm;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
@@ -31,19 +34,19 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 /**
  * This is the abstract base class for all period analysis plugin classes.
  * 
- * Note: plugins will have to be licensed under AGPL because they will use 
- * some VStar classes!
+ * Note: plugins will have to be licensed under AGPL because they will use some
+ * VStar classes!
  */
 abstract public class PeriodAnalysisPluginBase {
 
-	private Mediator mediator = Mediator.getInstance();
+	protected Mediator mediator = Mediator.getInstance();
 
 	/**
 	 * Parameterless constructor for creation within Mediator.
 	 */
 	public PeriodAnalysisPluginBase() {
 		mediator.getNewStarNotifier().addListener(this.getNewStarListener());
-		
+
 		mediator.getMeanSourceSeriesChangeNotifier().addListener(
 				this.getMeanSourceSeriesChangeListener());
 	}
@@ -51,8 +54,8 @@ abstract public class PeriodAnalysisPluginBase {
 	// ** Methods that must be implemented by concrete plugin subclasses. **
 
 	/**
-	 * Get the human-readable display name for this plugin, 
-	 * e.g. for a period analysis menu item.
+	 * Get the human-readable display name for this plugin, e.g. for a period
+	 * analysis menu item.
 	 */
 	abstract public String getDisplayName();
 
@@ -60,23 +63,34 @@ abstract public class PeriodAnalysisPluginBase {
 	 * Get a description of this plugin.
 	 */
 	abstract public String getDescription();
-	
+
 	/**
-	 * Get the period analysis algorithm for this plugin.
+	 * Execute a period analysis algorithm instance for this plugin to
+	 * be applied to the specified observations. 
 	 */
-	abstract public IPeriodAnalysisAlgorithm getAlgorithm();
+	abstract public void executeAlgorithm(List<ValidObservation> obs);
 
 	/**
 	 * Get the period analysis dialog for this plugin.
+	 * 
+	 * @param sourceSeriesType
+	 *            The mean source series type to be used on the plot for display
+	 *            purposes.
+	 *            
+	 * TODO: may need an overloaded method here since some period analysis plugins
+	 * may self-determine the period analysis source type.  
 	 */
-	abstract public JDialog getDialog();
+	abstract public JDialog getDialog(SeriesType sourceSeriesType);
 
 	/**
 	 * When a new dataset is loaded, previous computation results and GUI
 	 * components should be discarded, so the plugin will listen for such
 	 * messages.
+	 * 
+	 * @param message
+	 *            The new star message.
 	 */
-	abstract protected void newStarAction();
+	abstract protected void newStarAction(NewStarMessage message);
 
 	/**
 	 * When the mean source series changes is loaded, a plugin may want to
@@ -84,16 +98,22 @@ abstract public class PeriodAnalysisPluginBase {
 	 * will listen for such messages. Of course, a plugin will only care about
 	 * such messages if the period analysis computations are based upon the
 	 * current mean series.
+	 * 
+	 * Note: some period analysis plugins may be uninterested in this message. 
+	 * 
+	 * @param The
+	 *            mean source series change message.
 	 */
-	abstract protected void meanSourceSeriesChangeAction();
-	
+	abstract protected void meanSourceSeriesChangeAction(
+			MeanSourceSeriesChangeMessage message);
+
 	// ** Methods for use by subclasses. **
-	
+
 	/**
 	 * @return the periodChangeNotifier
 	 */
 	protected Notifier<PeriodChangeMessage> getPeriodChangeNotifier() {
-		return mediator.getPeriodChangeMessageNotifier();	
+		return mediator.getPeriodChangeMessageNotifier();
 	}
 
 	/**
@@ -104,14 +124,14 @@ abstract public class PeriodAnalysisPluginBase {
 	}
 
 	// ** Internal helper methods. **
-	
+
 	/**
 	 * Get the new star listener for this plugin.
 	 */
 	private Listener<NewStarMessage> getNewStarListener() {
 		return new Listener<NewStarMessage>() {
 			public void update(NewStarMessage info) {
-				newStarAction();
+				newStarAction(info);
 			}
 
 			public boolean canBeRemoved() {
@@ -126,7 +146,7 @@ abstract public class PeriodAnalysisPluginBase {
 	private Listener<MeanSourceSeriesChangeMessage> getMeanSourceSeriesChangeListener() {
 		return new Listener<MeanSourceSeriesChangeMessage>() {
 			public void update(MeanSourceSeriesChangeMessage info) {
-				meanSourceSeriesChangeAction();
+				meanSourceSeriesChangeAction(info);
 			}
 
 			public boolean canBeRemoved() {

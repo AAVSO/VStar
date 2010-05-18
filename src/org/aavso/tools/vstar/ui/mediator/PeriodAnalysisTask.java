@@ -17,54 +17,52 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
+import javax.swing.JDialog;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.plugin.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
-import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
-import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
-import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
-import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**
- * A concurrent task in which a potentially long-running periodAnalysisAlgorithm
- * is executed.
+ * A concurrent task in which a potentially long-running periodAnalysisPlugin is
+ * executed.
  */
 public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 
-	private IPeriodAnalysisAlgorithm periodAnalysisAlgorithm;
-	private StarInfo starInfo;
+	private PeriodAnalysisPluginBase periodAnalysisPlugin;
 	private SeriesType sourceSeriesType;
+	private List<ValidObservation> obs;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param periodAnalysisAlgorithm
-	 *            The periodAnalysisAlgorithm to be executed.
-	 * @param info
-	 *            Information about the star.
+	 * @param periodAnalysisPlugin
+	 *            The period analysis plugin.
+	 * @param sourceSeriesType
+	 *            The source series of this analysis run.
+	 * @param obs
+	 *            The observations to which the period analysis is to be
+	 *            applied.
 	 */
-	public PeriodAnalysisTask(IPeriodAnalysisAlgorithm periodAnalysisAlgorithm,
-			StarInfo info, SeriesType sourceSeriesType) {
-		this.periodAnalysisAlgorithm = periodAnalysisAlgorithm;
-		this.starInfo = info;
+	public PeriodAnalysisTask(PeriodAnalysisPluginBase plugin,
+			SeriesType sourceSeriesType, List<ValidObservation> obs) {
+		this.periodAnalysisPlugin = plugin;
 		this.sourceSeriesType = sourceSeriesType;
+		this.obs = obs;
 	}
 
 	/**
 	 * @see org.jdesktop.swingworker.SwingWorker#doInBackground()
 	 */
 	protected Void doInBackground() throws Exception {
-		if (Mediator.getInstance().getPeriodAnalysisResultDialog() == null) {
-			MainFrame.getInstance().getStatusPane().setMessage(
-					"Performing Period Analysis...");
-			periodAnalysisAlgorithm.execute();
-			MainFrame.getInstance().getStatusPane().setMessage("");
-		}
+		MainFrame.getInstance().getStatusPane().setMessage(
+				"Performing Period Analysis...");
+		periodAnalysisPlugin.executeAlgorithm(obs);
+		MainFrame.getInstance().getStatusPane().setMessage("");
 		return null;
 	}
 
@@ -72,61 +70,12 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
+		JDialog dialog = periodAnalysisPlugin.getDialog(sourceSeriesType);
+		dialog.setVisible(true);
+
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 
-		if (Mediator.getInstance().getPeriodAnalysisResultDialog() == null) {
-			List<PeriodAnalysis2DPlotModel> models = new ArrayList<PeriodAnalysis2DPlotModel>();
-
-			Map<PeriodAnalysisCoordinateType, List<Double>> seriesMap = periodAnalysisAlgorithm
-					.getResultSeries();
-
-			// Frequency vs Power
-//			models.add(new PeriodAnalysis2DPlotModel(seriesMap
-//					.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
-//					.get(PeriodAnalysisCoordinateType.POWER),
-//					PeriodAnalysisCoordinateType.FREQUENCY,
-//					PeriodAnalysisCoordinateType.POWER));
-
-			// Frequency vs Amplitude
-			models.add(new PeriodAnalysis2DPlotModel(seriesMap
-					.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
-					.get(PeriodAnalysisCoordinateType.AMPLITUDE),
-					PeriodAnalysisCoordinateType.FREQUENCY,
-					PeriodAnalysisCoordinateType.AMPLITUDE));
-
-			// Period vs Power
-//			models.add(new PeriodAnalysis2DPlotModel(seriesMap
-//					.get(PeriodAnalysisCoordinateType.PERIOD), seriesMap
-//					.get(PeriodAnalysisCoordinateType.POWER),
-//					PeriodAnalysisCoordinateType.PERIOD,
-//					PeriodAnalysisCoordinateType.POWER));
-
-			// Period vs Amplitude
-			models.add(new PeriodAnalysis2DPlotModel(seriesMap
-					.get(PeriodAnalysisCoordinateType.PERIOD), seriesMap
-					.get(PeriodAnalysisCoordinateType.AMPLITUDE),
-					PeriodAnalysisCoordinateType.PERIOD,
-					PeriodAnalysisCoordinateType.AMPLITUDE));
-
-			int maxHits = 20; // TODO: parameterise this; make user selectable
-
-			Mediator.getInstance().setPeriodAnalysisResultDialog(
-					new PeriodAnalysis2DResultDialog(
-							"Period Analysis (DC DFT) for "
-									+ starInfo.getDesignation(), "(series: "
-									+ sourceSeriesType.getDescription() + ")",
-							models,
-							new PeriodAnalysisDataTableModel(seriesMap),
-							new PeriodAnalysisTopHitsTableModel(seriesMap,
-									periodAnalysisAlgorithm
-											.getTopNRankedIndices(maxHits),
-									maxHits)));
-		} else {
-			Mediator.getInstance().getPeriodAnalysisResultDialog().setVisible(
-					true);
-		}
-
-		// TODO: how to detect task cancellation and clean up map etc?
+		// TODO: how to detect task cancellation?
 	}
 }
