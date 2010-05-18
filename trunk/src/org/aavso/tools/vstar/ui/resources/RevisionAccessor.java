@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 public class RevisionAccessor {
 
-	private static String REVISION = "370:497MP";
+	private static String REVISION = "370:500MP";
 
 	private static final Pattern revNumPat = Pattern
 			.compile("^\\d+:(\\d+).*$");

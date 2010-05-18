@@ -18,10 +18,14 @@
 package org.aavso.tools.vstar.ui.resources;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import org.aavso.tools.vstar.plugin.PeriodAnalysisPluginBase;
+import org.aavso.tools.vstar.plugin.impl.DcDftPeriodAnalysisPlugin;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
@@ -84,9 +88,21 @@ public class ResourceAccessor {
 	public static String getVersionString() {
 		return "version 2.0 Beta";
 	}
-	
+
 	public static String getRevNum() {
 		return RevisionAccessor.getRevNum();
+	}
+
+	/**
+	 * Return a list of period analysis plugins, whether internal to VStar 
+	 * or dynamically loaded.
+	 */
+	public static List<PeriodAnalysisPluginBase> getPeriodAnalysisPlugins() {
+		List<PeriodAnalysisPluginBase> plugins = new ArrayList<PeriodAnalysisPluginBase>();
+
+		plugins.add(new DcDftPeriodAnalysisPlugin());
+		
+		return plugins;
 	}
 
 	public static String getParam(int n) {
@@ -114,7 +130,7 @@ public class ResourceAccessor {
 	// 4
 	private static int[] d3data = { 19234, 19895, 18908, 16781, 20634, 22388,
 			19897, 22885, 24476 };
-	 
+
 	// 5
 	private static int[] udata = { 19234, 19895, 18908, 16781, 20634, 22581,
 			22655, 20099, 24054 };
@@ -129,5 +145,6 @@ public class ResourceAccessor {
 			587, 617, 619, 631, 643, 647, 653, 661, 701, 709, 743, 751, 757,
 			761, 769, 839, 853, 857, 859 };
 
-	private static int[][] data = { hdata, d0data, d1data, d2data, d3data, udata, sdata };
+	private static int[][] data = { hdata, d0data, d1data, d2data, d3data,
+			udata, sdata };
 }

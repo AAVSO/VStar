@@ -25,6 +25,8 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
@@ -32,6 +34,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.aavso.tools.vstar.plugin.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.FileExtensionFilter;
 import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
@@ -44,6 +47,7 @@ import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.ProgressInfo;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -65,7 +69,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public static final String PHASE_PLOT = "Phase Plot...";
 
 	// Analysis menu item names.
-	public static final String DC_DFT = "Date Compensated DFT...";
+	// TODO: this should go away eventually...
+	// public static final String DC_DFT = "Date Compensated DFT...";
 
 	// Help menu item names.
 	public static final String HELP_CONTENTS = "Help Contents...";
@@ -74,6 +79,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	private Mediator mediator = Mediator.getInstance();
 
 	private JFileChooser fileOpenDialog;
+
+	private Map<String, PeriodAnalysisPluginBase> menuItemNameToPeriodAnalysisPlugin;
 
 	// The parent window.
 	private MainFrame parent;
@@ -213,12 +220,20 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		analysisPeriodSearchMenu = new JMenu("Period Search");
 		analysisPeriodSearchMenu.setEnabled(false);
 
-		// TODO: populate this from resource and props file...
+		ActionListener periodSearchListener = createPeriodSearchListener();
 
-		analysisPeriodSearchItem = new JMenuItem(DC_DFT);
-		analysisPeriodSearchItem
-				.addActionListener(createPeriodSearchListener());
-		analysisPeriodSearchMenu.add(analysisPeriodSearchItem);
+		menuItemNameToPeriodAnalysisPlugin = new TreeMap<String, PeriodAnalysisPluginBase>();
+
+		for (PeriodAnalysisPluginBase plugin : ResourceAccessor
+				.getPeriodAnalysisPlugins()) {
+			String itemName = plugin.getDisplayName() + "...";
+
+			analysisPeriodSearchItem = new JMenuItem(itemName);
+			analysisPeriodSearchItem.addActionListener(periodSearchListener);
+			analysisPeriodSearchMenu.add(analysisPeriodSearchItem);
+			
+			menuItemNameToPeriodAnalysisPlugin.put(itemName, plugin);
+		}
 
 		analysisMenu.add(analysisPeriodSearchMenu);
 
@@ -409,7 +424,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public ActionListener createPeriodSearchListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Mediator.getInstance().createPeriodAnalysisDialog();
+				String item = e.getActionCommand();
+				PeriodAnalysisPluginBase plugin = menuItemNameToPeriodAnalysisPlugin
+						.get(item);
+				Mediator.getInstance().createPeriodAnalysisDialog(plugin);
 			}
 		};
 	}
