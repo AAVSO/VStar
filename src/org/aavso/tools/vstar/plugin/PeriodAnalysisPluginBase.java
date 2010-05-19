@@ -37,7 +37,7 @@ import org.aavso.tools.vstar.util.notification.Notifier;
  * Note: plugins will have to be licensed under AGPL because they will use some
  * VStar classes!
  */
-abstract public class PeriodAnalysisPluginBase {
+abstract public class PeriodAnalysisPluginBase implements PluginBase {
 
 	protected Mediator mediator = Mediator.getInstance();
 
@@ -51,22 +51,31 @@ abstract public class PeriodAnalysisPluginBase {
 				this.getMeanSourceSeriesChangeListener());
 	}
 
+	/**
+	 * Send a period change message.
+	 * 
+	 * @param The period to be sent in the notification.
+	 */
+	public void sendPeriodChangeMessage(double period) {
+		mediator.getPeriodChangeMessageNotifier().notifyListeners(
+				new PeriodChangeMessage(this, period));
+	}
+
 	// ** Methods that must be implemented by concrete plugin subclasses. **
 
 	/**
-	 * Get the human-readable display name for this plugin, e.g. for a period
-	 * analysis menu item.
+	 * @see org.aavso.tools.vstar.plugin.PluginBase#getDisplayName()
 	 */
 	abstract public String getDisplayName();
 
 	/**
-	 * Get a description of this plugin.
+	 * @see org.aavso.tools.vstar.plugin.PluginBase#getDescription()
 	 */
 	abstract public String getDescription();
 
 	/**
-	 * Execute a period analysis algorithm instance for this plugin to
-	 * be applied to the specified observations. 
+	 * Execute a period analysis algorithm instance for this plugin to be
+	 * applied to the specified observations.
 	 */
 	abstract public void executeAlgorithm(List<ValidObservation> obs);
 
@@ -76,9 +85,10 @@ abstract public class PeriodAnalysisPluginBase {
 	 * @param sourceSeriesType
 	 *            The mean source series type to be used on the plot for display
 	 *            purposes.
-	 *            
-	 * TODO: may need an overloaded method here since some period analysis plugins
-	 * may self-determine the period analysis source type.  
+	 * 
+	 *            TODO: may need an overloaded method here since some period
+	 *            analysis plugins may self-determine the period analysis source
+	 *            type.
 	 */
 	abstract public JDialog getDialog(SeriesType sourceSeriesType);
 
@@ -99,7 +109,7 @@ abstract public class PeriodAnalysisPluginBase {
 	 * such messages if the period analysis computations are based upon the
 	 * current mean series.
 	 * 
-	 * Note: some period analysis plugins may be uninterested in this message. 
+	 * Note: some period analysis plugins may be uninterested in this message.
 	 * 
 	 * @param The
 	 *            mean source series change message.

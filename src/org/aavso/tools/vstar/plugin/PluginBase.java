@@ -15,36 +15,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.resources;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+package org.aavso.tools.vstar.plugin;
 
 /**
- * The purpose of this class is to provide access to subversion revision number.
+ * All VStar plugins must implement this interface.
+ * TODO: add execute{Algorithm}()?
  */
-
-public class RevisionAccessor {
-
-	private static String REVISION = "370:501MP";
-
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\d+:(\\d+).*$");
+public interface PluginBase {
 
 	/**
-	 * Get the latest revision number if REVISION is of the form:
-	 * n:m... (i.e. get m), otherwise just return the whole revision
-	 * string. It doesn't really matter what it is so long as it's
-	 * unique from one commit of dist/vstar.jar to the next.
+	 * Get the human-readable display name for this plugin, e.g. for a period
+	 * analysis menu item.
 	 */
-	public static String getRevNum() {
-		String rev = REVISION;
+	abstract public String getDisplayName();
 
-		Matcher revMatcher = revNumPat.matcher(rev);
-		if (revMatcher.matches()) {
-			rev = revMatcher.group(1);
-		}
-		
-		return rev;
-	}
+	/**
+	 * Get a description of this plugin.
+	 */
+	abstract public String getDescription();
+
 }
