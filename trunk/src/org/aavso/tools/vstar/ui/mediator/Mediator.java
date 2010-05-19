@@ -114,7 +114,7 @@ public class Mediator {
 	// If this member is non-null, we can just invoke the dialog rather
 	// than re-computing the results that permit it to be invoked, since
 	// it is so expensive.
-	private PeriodAnalysis2DResultDialog periodAnalysisResultDialog;
+//	private PeriodAnalysis2DResultDialog periodAnalysisResultDialog;
 
 	// A file dialog for saving any kind of observation list.
 	private JFileChooser obsListFileSaveDialog;
@@ -169,7 +169,7 @@ public class Mediator {
 		this.viewMode = ViewModeType.PLOT_OBS_MODE;
 		this.analysisType = AnalysisType.RAW_DATA;
 		this.newStarMessage = null;
-		this.periodAnalysisResultDialog = null;
+//		this.periodAnalysisResultDialog = null;
 
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
@@ -588,7 +588,7 @@ public class Mediator {
 		MeanObservationListPane meansListPane = null;
 		ObservationPlotPane obsChartPane = null;
 		ObservationAndMeanPlotPane obsAndMeanChartPane = null;
-		periodAnalysisResultDialog = null;
+//		periodAnalysisResultDialog = null;
 
 		if (!validObsList.isEmpty()) {
 			// Observation table and plot.
@@ -913,6 +913,8 @@ public class Mediator {
 				// to a setter to determine its own source of obs, series type
 				
 				//move this stuff into plugin
+				// actually, make each plugin responsible for determining
+				// and tracking source series (see mean source series dialog)
 				
 				int meanObsSourceSeriesNum = obsAndMeanPlotModel
 						.getMeanSourceSeriesNum();

@@ -47,6 +47,7 @@ import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.ProgressInfo;
+import org.aavso.tools.vstar.ui.resources.PluginClassLoader;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
 
@@ -224,14 +225,14 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		menuItemNameToPeriodAnalysisPlugin = new TreeMap<String, PeriodAnalysisPluginBase>();
 
-		for (PeriodAnalysisPluginBase plugin : ResourceAccessor
+		for (PeriodAnalysisPluginBase plugin : PluginClassLoader
 				.getPeriodAnalysisPlugins()) {
 			String itemName = plugin.getDisplayName() + "...";
 
 			analysisPeriodSearchItem = new JMenuItem(itemName);
 			analysisPeriodSearchItem.addActionListener(periodSearchListener);
 			analysisPeriodSearchMenu.add(analysisPeriodSearchItem);
-			
+
 			menuItemNameToPeriodAnalysisPlugin.put(itemName, plugin);
 		}
 

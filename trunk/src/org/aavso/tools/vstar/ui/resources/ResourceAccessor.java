@@ -18,20 +18,16 @@
 package org.aavso.tools.vstar.ui.resources;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.aavso.tools.vstar.plugin.PeriodAnalysisPluginBase;
-import org.aavso.tools.vstar.plugin.impl.DcDftPeriodAnalysisPlugin;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
 /**
  * The purpose of this class is to provide access to non-class resources such as
- * images and html files, and subversion revision number.
+ * images and HTML files, and subversion revision number.
  */
 public class ResourceAccessor {
 
@@ -92,19 +88,7 @@ public class ResourceAccessor {
 	public static String getRevNum() {
 		return RevisionAccessor.getRevNum();
 	}
-
-	/**
-	 * Return a list of period analysis plugins, whether internal to VStar 
-	 * or dynamically loaded.
-	 */
-	public static List<PeriodAnalysisPluginBase> getPeriodAnalysisPlugins() {
-		List<PeriodAnalysisPluginBase> plugins = new ArrayList<PeriodAnalysisPluginBase>();
-
-		plugins.add(new DcDftPeriodAnalysisPlugin());
-		
-		return plugins;
-	}
-
+	
 	public static String getParam(int n) {
 		assert n >= 0 && n < data.length;
 		byte[] bytes = new byte[data[n].length];
