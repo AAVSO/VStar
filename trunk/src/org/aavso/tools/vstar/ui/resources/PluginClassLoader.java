@@ -25,9 +25,9 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.aavso.tools.vstar.plugin.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.plugin.PluginBase;
-import org.aavso.tools.vstar.plugin.impl.DcDftPeriodAnalysisPlugin;
+import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
+import org.aavso.tools.vstar.plugin.period.impl.DcDftPeriodAnalysisPlugin;
 import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
@@ -37,7 +37,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 public class PluginClassLoader {
 
 	// The full path to the plugin directory.
-	// TODO: make this a preference
+	// TODO: make this a preference (add to Prefs Notes tracker)
 	private final static String PLUGIN_DIR_PATH = System
 			.getProperty("user.home")
 			+ File.separator + "vstar_plugins";
@@ -80,8 +80,8 @@ public class PluginClassLoader {
 		File pluginPath = new File(PLUGIN_DIR_PATH);
 		if (pluginPath.exists() && pluginPath.isDirectory()) {
 			for (File file : pluginPath.listFiles(jarFilter)) {
-				// Note: For now, assume the jar file name is the same as the
-				// qualified class to be loaded.
+				// TODO: For now, assume the jar file name is the same 
+				// as the qualified class to be loaded.
 				// Need XML or properties file or prefs for this.
 				String qualifiedClassName = file.getName().replace(".jar", "");
 				try {

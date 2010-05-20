@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.plugin;
+package org.aavso.tools.vstar.plugin.period;
 
 import java.util.List;
 
@@ -23,6 +23,7 @@ import javax.swing.JDialog;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.plugin.PluginBase;
 import org.aavso.tools.vstar.ui.mediator.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
@@ -36,6 +37,11 @@ import org.aavso.tools.vstar.util.notification.Notifier;
  * 
  * Note: plugins will have to be licensed under AGPL because they will use some
  * VStar classes!
+ * 
+ * TODO: 
+ * - Add a getter method to say whether or not a series selection dialog
+ * should be invoked before the algorithm is executed, the SeriesType from which
+ * would be made available via another getter.
  */
 abstract public class PeriodAnalysisPluginBase implements PluginBase {
 
