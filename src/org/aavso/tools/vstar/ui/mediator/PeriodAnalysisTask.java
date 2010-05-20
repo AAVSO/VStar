@@ -23,7 +23,7 @@ import javax.swing.JDialog;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.plugin.PeriodAnalysisPluginBase;
+import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.jdesktop.swingworker.SwingWorker;
 

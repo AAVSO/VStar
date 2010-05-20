@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.plugin.impl;
+package org.aavso.tools.vstar.plugin.period.impl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ import javax.swing.JDialog;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.plugin.PeriodAnalysisPluginBase;
+import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
 import org.aavso.tools.vstar.ui.mediator.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.ui.mediator.MeanSourceSeriesChangeMessage;

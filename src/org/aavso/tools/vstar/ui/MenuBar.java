@@ -34,7 +34,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-import org.aavso.tools.vstar.plugin.PeriodAnalysisPluginBase;
+import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.FileExtensionFilter;
 import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
