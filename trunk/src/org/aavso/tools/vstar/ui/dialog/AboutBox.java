@@ -24,11 +24,12 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 /**
  * This class creates and displays VStar's About Box.
  * 
- * See also https://sourceforge.net/tracker/?func=detail&aid=2870716&group_id=263306&atid=1152052
- * which will result in this being done better.
+ * See also
+ * https://sourceforge.net/tracker/?func=detail&aid=2870716&group_id=263306
+ * &atid=1152052 which will result in this being done better.
  */
 public class AboutBox {
-	
+
 	// Comment from Aaron in email (6 July 2009):
 	//	
 	// I think you can use anything in HOA or the Citizen Sky web site.
@@ -60,28 +61,36 @@ public class AboutBox {
 				.append("  The Citizen Sky Project: http://www.citizensky.org/\n\n");
 
 		strBuf
-				.append("This project was funded in part by grant No. 000379097 from the\n");
-		strBuf.append("National Science Foundation.\n\n");
+				.append("This project was funded in part by grant No. 000379097\n");
+		strBuf.append("from the National Science Foundation.\n\n");
 
 		strBuf.append("Lead Developer: David Benn\n");
 		strBuf.append("Contact: aavso@aavso.org\n");
 		strBuf.append("License: GNU Affero General Public License\n\n");
-		strBuf.append("Illustration by Citizen Sky participant Brian Thieme\n\n");
-
 		strBuf
-				.append("Thanks to the staff of AAVSO for their support, in particular:\n\n");
+				.append("Illustration by Citizen Sky participant Brian Thieme.\n\n");
+
+		strBuf.append("Thanks to the staff of AAVSO for their support and\n");
+		strBuf.append("ongoing encouragement, in particular:\n\n");
 		strBuf.append(" Sara Beck, Arne Henden, Doc Kinne, Aaron Price,\n");
 		strBuf
-				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen.\n\n");
+				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen\n\n");
 
-		strBuf.append("Sara's roles as guide, domain expert, AAVSO liason, and\n");
-		strBuf.append("advocate have been indispensible.\n\n");
-		
-		strBuf.append("Thanks also to Michael Umbricht for testing, bug reports,\n");
-		strBuf.append("great conversations, and beer. Thanks also to the Weber brothers (Adam and George) for\n");
-		strBuf.append("code and bug-fix contributions.");
+		strBuf.append("As guide, domain expert, AAVSO liason, and advocate,\n");
+		strBuf.append("Sara has been indispensible.\n\n");
 
-		MessageBox.showMessageDialog(parent, "About VStar", strBuf.toString(),
-				ResourceAccessor.getIconResource("/images/tenstar_artist_conception1.jpg"));
+		strBuf.append("Thanks also to Michael Umbricht for testing, bug\n");
+		strBuf.append("reports, advocacy, great conversations, and beer.\n\n");
+
+		strBuf.append("Thanks also to the Weber brothers (Adam and George)\n");
+		strBuf.append("for code and bug-fix contributions.");
+
+		MessageBox
+				.showMessageDialog(
+						parent,
+						"About VStar",
+						strBuf.toString(),
+						ResourceAccessor
+								.getIconResource("/images/tenstar_artist_conception1.jpg"));
 	}
 }

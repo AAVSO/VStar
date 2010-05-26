@@ -24,5 +24,5 @@ package org.aavso.tools.vstar.ui.mediator;
  */
 public enum AnalysisType {
 
-	RAW_DATA, PHASE_PLOT;
+	RAW_DATA, PHASE_PLOT/*, PERIOD_SEARCH*/;
 }

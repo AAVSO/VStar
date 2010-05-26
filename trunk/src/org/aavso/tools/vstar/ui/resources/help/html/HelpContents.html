@@ -15,7 +15,7 @@
 <ul>
  <li>Sourcing data from a file or the AAVSO database.</li>
  <li>Plotting a Light Curve or Phase Plot from raw observation data, 
- optionally with error  bars for each observation.</li>
+ optionally with error bars for each observation.</li>
  <li>Showing a table of the raw observations associated with the light curve.</li>
  <li>Plotting a mean light curve (again, with optional error bars) along with
  the raw light curve.</li>
@@ -27,9 +27,9 @@
 <p>The plots mentioned above have magnitude on the Y axis and Julian Day (or 
 phase) on the X axis.</p>
 
-<p>When the <code>Plot Observations and Means</code> Mode radio button is
+<p>When the <code>Mean Plot</code> tab is
 selected, the number of days per bin size can be specified. This will change
-both the plot and the means table seen when in <code>Means List</code> mode.</p>
+both the plot and the means table (see the <code>Mean List</code> tab).</p>
 
 <p>VStar allows data to be loaded from one of two file formats or from the AAVSO
 International Database (AID).</p>
@@ -52,10 +52,9 @@ lines of tab or comma-delimited form. The fields of the second simple format
 have the same meaning as in the AAVSO Download Format.  VStar does not support
 the AAVSO Space Delimited download format.</p>
 
-<p>Once loaded, you will notice that when the "List Observation" mode radio
-button is selected, any observation lines VStar deems to have failed validation
-will appear in a separate split pane. Such invalid observations will not appear
-on any plot.</p>
+<p>Once loaded, you will notice that when the <code>Observation List</code> tab is 
+selected, any observation lines VStar deems to have failed validation will appear 
+in a separate split pane. Such invalid observations will not appear on any plot.</p>
 
 <p>VStar detects the file's format from its content.</p>
 
@@ -67,15 +66,14 @@ Citizen Sky account which may be obtained for free from
 
 <p>Selecting <code>New Star from AAVSO Database...</code> from the File menu or
 clicking the equivalent toolbar icon opens dialog that allows one of the stars
-from the 10 star tutorial to be selected from a drop-down menu, or a star name,
-unique ID, or alias to be entered. Note that currently, only the drop-down menu
-is enabled.</p>
+from the 10 star tutorial to be selected from a drop-down menu. Alternatively,
+a star name, unique ID, or alias may be entered.</p>
 
-<p>After selecting the star for which you want observations and the Julian Day
-range, a Citizen Sky login dialog will appear. Once authenticated, the data
-for the star's observations within that range are loaded, and the plot or table
-for each mode of the corresponding radio buttons in the Mode pane are created.
-</p>
+<p>After selecting the star for which you want to retrieve observation data and 
+the Julian Day range (or all data; take care: this may result in a lot of data being 
+retrieved), a Citizen Sky login dialog will appear. Once authenticated, the data for 
+the star's observations within that range are loaded, and charts and tables for the
+data, including means, are created.</p>
 
 <p>For a given run of VStar, you only need to enter your Citizen Sky credentials
 just once.</p>
@@ -86,8 +84,8 @@ just once.</p>
 where you can enter the period and epoch for a star.  Values from the AAVSO
 International Variable Star Index (VSX) are used as the default, if they are
 available.  VStar will then fold the data and display a Phase Plot of magnitude
-versus phase.  Select New Phase Plot to change the period or epoch and
-generate a new phase plot.</p>
+versus phase. Click the <code>New Phase Plot</code> button to change the period
+or epoch and generate a new phase plot.</p>
 
 <br></br><h2>Period Searches</h2>
 
@@ -99,10 +97,11 @@ generate a new phase plot.</p>
 
 <p><i>Only the first of these is currently implemented.</i></p>
 
-<p>Selecting <code>Period Search...</code> from the <code>Analysis</code> menu 
-performs a period analysis using DC DFT with the current mean source series (e.g. 
-Visual, Johnson V). This can be changed via the <code>Change Series</code> button 
-(and the ensuing dialog) in the <code>Plot Observations and Means</code> view.</p>
+<p>Selecting an item from the <code>Analysis->Period Search</code> sub-menu 
+performs a period analysis on the loaded dataset. This uses the current mean source 
+series (e.g. Visual, Johnson V) as the series on which to perform the analysis. This 
+can be changed via the <code>Change Series</code> button (and the ensuing dialog) in 
+the <code>Mean Plot</code> tab.</p>
 
 <p>The period analysis window dialog that opens after a delay contains plots of
 amplitude against frequency and period, a table of all results, and a table of the
@@ -116,9 +115,10 @@ periods by creating phase plots with those periods.</p>
 <p>Any chart can be saved as a PNG file via the File menu's <code>Save...</code>
 item or the equivalent toolbar icon.</p>
 
-<p><i>Tables in "List Observations" mode can be saved as CSV files, but "List Means" 
-table saving is yet to be implemented. For the latter, what may also be needed is to 
-save not just the data, but also the parameters that lead to it.</i></p>
+<p><i>Tables in the <code>Observation List</code> tab can be saved as CSV files, but 
+<code>Mean List</code> table saving is yet to be implemented. For the latter, what 
+may also be needed is to save not just the data, but also the parameters that lead 
+to it.</i></p>
 
 <br></br><h2>Printing Plots and Tables</h2>
 
@@ -174,13 +174,12 @@ source code and licensing.</p>
 
 <br></br><h2>Links</h2>
   <ul>
+   <li><a href="http://www.citizensky.org/content/vstar">Citizen Sky VStar Page</a></li>
+   <li><a href="http://www.citizensky.org/content/getting-started-analysis">Getting Started with Analysis</a></li>
+   <li><a href="http://www.citizensky.org/content/5-star-analysis">5 Star Analysis Tutorial</a></li>
    <li><a href="http://www.aavso.org/">AAVSO</a></li>
    <li><a href="http://www.citizensky.org/content/10-star-training">10 Star
    Training Tutorial</a></li>
-   <li><a href="http://www.citizensky.org/content/5-star-analysis">5 Star Analysis Tutorial</a></li>
-   <!--
-   <li><a href="https://sourceforge.net/projects/vstar/">VStar SourceForge site</a></li>
-   -->
   </ul>
   
  </body>

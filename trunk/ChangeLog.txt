@@ -28,32 +28,33 @@ o VStar can become low on memory with continued use. Currently, the best
   trackers 2924511 and 2909500 for more details.
    
 ----------------------
-Date: May 17 2010
+Date: May 26 2010
 Version: 2.0 Beta
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-17May2010
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-26May2010
 Key Changes:
 - Changed main display to use tabbed panes instead of mode radio buttons 
   to better utilise screen real estate. See tracker 2983883. 
 - Disabled JD field text entry in star selector dialog when the all-data 
-  checkbox is selected. See tracker 2986311.
+  check-box is selected. See tracker 2986311.
 - Fixed chart size to take into account error bars where they could
   previously go out of bounds; use HQ uncertainty when uncertainty 
   is zero. See tracker 2986297.
 - When new star tasks end, the progress bar is now cleared.
-- Changes to Help page including addition of Aaron's 5-star analysis 
-  tutorial. See tracker 2980809.
+- When changed via the Analysis menu or toolbar, raw data or phase plot 
+  mode is indicated in the status bar.
 - Period and epoch are now displayed on phase plots. See tracker 2980530.
 - Increased the default size of the Error column in the invalid 
   observation table. See tracker 2944557.
-- Implemented application properties (e.g. window location and size) 
+- Implemented application properties (e.g. window location and size) which 
   are loaded at VStar startup and saved at VStar exit. See tracker 2937599.
 - A new phase plot can now be initiated from a period analysis dialog. 
-  See tracker 2942299.
-- Added toolbar buttons for View and Analysis menu items added. See tracker 
-  2966046. The icons may change in a future release.
-- Separated Analysis menu into View (raw data vs phase plot) and Analysis 
-  menus (for period analysis currently). There may be further changes to
-  these menus in future releases. 
+  See trackers 2942299 and 2981712.
+- Added toolbar buttons for Analysis menu items. See tracker 2966046.
+- Updated the Help page including the addition of Aaron's 5-star analysis 
+  tutorial. See tracker 2980809. The Help page needs an overhaul.
+- Fixed a bug in which selecting an already selected raw or phase plot 
+  analysis menu item would cause that menu item to be shown as unselected
+  (no check mark). See tracker 2997675.
 
 Date: March 30 2010
 Version: 1.0 Beta
