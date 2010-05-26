@@ -134,7 +134,14 @@ public class Mediator {
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
 	private Notifier<PeriodChangeMessage> periodChangeMessageNotifier;
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
-
+	
+//	- Add series visibility change message with delta map as payload.
+//	- Mean source series change should be propagated directly to all (up to 4) 
+//	  plot models; ditto for series visibility.
+//	- May need to have mean source series and visibility maps created and updated
+//	  here in Mediator when a new data set is loaded. Checkboxes and radio buttons
+//	  will then be populated from these for each dialog.
+	
 	// Currently active task.
 	private SwingWorker currTask;
 
@@ -416,6 +423,8 @@ public class Mediator {
 					if (msg != null) {
 						this.analysisType = analysisType;
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
+						String statusMsg  = "Raw data mode (" + this.newStarMessage.getStarInfo().getDesignation() + ")";
+						MainFrame.getInstance().getStatusPane().setMessage(statusMsg);
 					}
 					break;
 
@@ -441,6 +450,8 @@ public class Mediator {
 						// should
 						// just make this an else clause of above if stmt.
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
+						String statusMsg  = "Phase plot mode (" + this.newStarMessage.getStarInfo().getDesignation() + ")";
+						MainFrame.getInstance().getStatusPane().setMessage(statusMsg);
 					}
 					break;
 				}

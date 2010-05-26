@@ -98,10 +98,11 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JMenuItem fileQuitItem;
 
 	// View menu.
-	JCheckBoxMenuItem viewRawDataItem;
-	JCheckBoxMenuItem viewPhasePlotItem;
 
 	// Analysis menu.
+	JCheckBoxMenuItem analysisRawDataItem;
+	JCheckBoxMenuItem analysisPhasePlotItem;
+
 	JMenu analysisPeriodSearchMenu;
 	JMenuItem analysisPeriodSearchItem; // TODO: rather than this: a JList?
 
@@ -198,25 +199,37 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	}
 
 	private void createViewMenu() {
-		JMenu viewMenu = new JMenu("View");
+//		JMenu viewMenu = new JMenu("View");
 
-		viewRawDataItem = new JCheckBoxMenuItem(RAW_DATA);
-		viewRawDataItem.setEnabled(false);
-		viewRawDataItem.addActionListener(createRawDataListener());
-		viewMenu.add(viewRawDataItem);
+//		viewRawDataItem = new JCheckBoxMenuItem(RAW_DATA);
+//		viewRawDataItem.setEnabled(false);
+//		viewRawDataItem.addActionListener(createRawDataListener());
+//		viewMenu.add(viewRawDataItem);
+//
+//		viewPhasePlotItem = new JCheckBoxMenuItem(PHASE_PLOT);
+//		viewPhasePlotItem.setEnabled(false);
+//		viewPhasePlotItem.addActionListener(createPhasePlotListener());
+//		viewMenu.add(viewPhasePlotItem);
 
-		viewPhasePlotItem = new JCheckBoxMenuItem(PHASE_PLOT);
-		viewPhasePlotItem.setEnabled(false);
-		viewPhasePlotItem.addActionListener(createPhasePlotListener());
-		viewMenu.add(viewPhasePlotItem);
+		// TODO: put search, zoom in here?
 
-		// TODO: put search in here?
-
-		this.add(viewMenu);
+//		this.add(viewMenu);
 	}
 
 	private void createAnalysisMenu() {
 		JMenu analysisMenu = new JMenu("Analysis");
+
+		analysisRawDataItem = new JCheckBoxMenuItem(RAW_DATA);
+		analysisRawDataItem.setEnabled(false);
+		analysisRawDataItem.addActionListener(createRawDataListener());
+		analysisMenu.add(analysisRawDataItem);
+
+		analysisPhasePlotItem = new JCheckBoxMenuItem(PHASE_PLOT);
+		analysisPhasePlotItem.setEnabled(false);
+		analysisPhasePlotItem.addActionListener(createPhasePlotListener());
+		analysisMenu.add(analysisPhasePlotItem);
+
+		analysisMenu.addSeparator();
 
 		analysisPeriodSearchMenu = new JMenu("Period Search");
 		analysisPeriodSearchMenu.setEnabled(false);
@@ -552,8 +565,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.filePrintItem.setEnabled(state);
 		this.fileInfoItem.setEnabled(state);
 
-		this.viewRawDataItem.setEnabled(state);
-		this.viewPhasePlotItem.setEnabled(state);
+		this.analysisRawDataItem.setEnabled(state);
+		this.analysisPhasePlotItem.setEnabled(state);
 
 		this.analysisPeriodSearchMenu.setEnabled(state);
 
@@ -572,10 +585,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	}
 
 	private void setRawDataAnalysisMenuItemState(boolean state) {
-		this.viewRawDataItem.setState(state);
+		this.analysisRawDataItem.setState(state);
 	}
 
 	private void setPhasePlotAnalysisMenuItemState(boolean state) {
-		this.viewPhasePlotItem.setState(state);
+		this.analysisPhasePlotItem.setState(state);
 	}
 }

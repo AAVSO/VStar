@@ -65,7 +65,7 @@ public class StatusPane extends JPanel {
 
 		statusLabel = new JLabel();
 		statusLabel.setHorizontalAlignment(JLabel.LEFT);
-		statusLabel.setText(firstMsg);
+		this.setMessage(firstMsg);
 		this.add(statusLabel);
 
 		this.add(Box.createHorizontalGlue());
@@ -101,7 +101,7 @@ public class StatusPane extends JPanel {
 	public void setMessage(String msg) {
 		this.statusLabel.setText(" " + msg);
 	}
-
+	
 	/**
 	 * Set the minimum progress bar value.
 	 * 
