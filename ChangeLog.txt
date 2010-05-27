@@ -57,7 +57,11 @@ Key Changes:
   (no check mark). See tracker 2997675.
 - Moved the 10-star list into a resource file in preparation to permit a 
   user-provided list can be used instead. See tracker 2892659.
-   
+- When an unknown comment code is encountered in an observation, further
+  comment code checking for that observation now stops, and "other" is used
+  as the single comment code. Also made small changes to the text of some
+  comment codes. See tracker 2909469.
+     
 Date: March 30 2010
 Version: 1.0 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-30Mar2010
