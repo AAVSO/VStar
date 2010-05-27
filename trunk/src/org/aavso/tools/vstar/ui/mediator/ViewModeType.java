@@ -18,8 +18,8 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 /**
- * Mode type enum and methods for transforming enum values into other values of
- * interest.
+ * View mode type enum and methods for transforming enum values into 
+ * other values of interest.
  */
 public enum ViewModeType {
 

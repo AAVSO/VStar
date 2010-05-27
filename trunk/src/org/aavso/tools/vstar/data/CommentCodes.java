@@ -44,8 +44,19 @@ public class CommentCodes {
 			origString = cc;
 			for (char c : cc.toCharArray()) {
 				if (c != ' ') {
-					commentcodes.add(CommentType.getTypeFromFlag(String
-							.valueOf(c)));
+					CommentType commentCode = CommentType
+							.getTypeFromFlag(String.valueOf(c));
+
+					if (commentCode != CommentType.OTHER) {
+						commentcodes.add(commentCode);
+					} else {
+						// If we encounter an "other" comment,
+						// stop processing and just use "other".
+						// See tracker 2909469.
+						commentcodes.clear();
+						commentcodes.add(CommentType.OTHER);
+						break;
+					}
 				}
 			}
 		} else {
