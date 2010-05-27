@@ -26,7 +26,7 @@ public enum CommentType {
 	// http://sourceforge.net/tracker/?func=detail&aid=2858640&group_id=263306&atid=1152052):
 
 	// The below was used to auto generate the rest of the functions of this
-	// class. Programs writing programs, how perverse.
+	// class.
 
 	// COMMENTCODE!! B: Sky is bright, moon, twilight, light pollution, aurorae:
 	// SKY_BRIGHT
@@ -58,15 +58,13 @@ public enum CommentType {
 	// OBSCOMMENTCODE!! M: Moon present and inteferes: MOON
 	// OBSCOMMENTCODE!! N: Angle, position angle: ANGLE
 	// OBSCOMMENTCODE!! O: "Other" comment: OTHER
-	// OBSCOMMENTCODE!! P: Magnitude derived from step magnitude (internal use
-	// only): MAG_FROM_STEP_MAG
-	// OBSCOMMENTCODE!! Q: Questioned by HQ (internal use only):
-	// QUESTIONED_BY_HQ
+	// OBSCOMMENTCODE!! P: Magnitude derived from step magnitude: MAG_FROM_STEP_MAG
+	// OBSCOMMENTCODE!! Q: Questioned by HQ: QUESTIONED_BY_HQ
 	// OBSCOMMENTCODE!! R: Color comment (star is red, blue, etc.):
 	// COLOR_COMMENT
 	// OBSCOMMENTCODE!! T: Non-AAVSO chart with Tycho magnitudes:
 	// NON_AAVSO_TYCHO
-	// OBSCOMMENTCODE!! X: Rejected by HQ (internal use only): REJECTED
+	// OBSCOMMENTCODE!! X: Rejected by HQ: REJECTED
 	//
 	// Multiple comment codes should be separated by spaces or not separated at
 	// all. (Ex: "A Z Y" or "AZY")
@@ -225,7 +223,6 @@ public enum CommentType {
 		return str;
 	}
 
-	// TODONE: add toString() for human readability
 	public String toString() {
 		String str = null;
 
@@ -288,10 +285,10 @@ public enum CommentType {
 			str = "Other comment\n";
 			break;
 		case MAG_FROM_STEP_MAG:
-			str = "Magnitude derived from step magnitude (internal use only)\n";
+			str = "Magnitude derived from step magnitude\n";
 			break;
 		case QUESTIONED_BY_HQ:
-			str = "Questioned by HQ (internal use only)\n";
+			str = "Questioned by HQ\n";
 			break;
 		case COLOR_COMMENT:
 			str = "Color comment (star is red, blue, etc.)\n";
@@ -300,7 +297,7 @@ public enum CommentType {
 			str = "Non-AAVSO chart with Tycho magnitudes\n";
 			break;
 		case REJECTED:
-			str = "Rejected by HQ (internal use only)\n";
+			str = "Rejected by HQ\n";
 			break;
 		default:
 			str = "\"Other\" comment\n";

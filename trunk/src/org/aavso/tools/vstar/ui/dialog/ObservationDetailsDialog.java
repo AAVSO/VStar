@@ -50,7 +50,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * 
  * TODO: We should have a pool of these and clear the text for each use since
  * they take awhile to render otherwise and we are likely to create many per
- * session.
+ * session. Or just have one per observation.
  */
 public class ObservationDetailsDialog extends JDialog implements FocusListener,
 		Listener<ObservationChangeMessage> {
