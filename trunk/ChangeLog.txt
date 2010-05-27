@@ -55,7 +55,9 @@ Key Changes:
 - Fixed a bug in which selecting an already selected raw or phase plot 
   analysis menu item would cause that menu item to be shown as unselected
   (no check mark). See tracker 2997675.
-
+- Moved the 10-star list into a resource file in preparation to permit a 
+  user-provided list can be used instead. See tracker 2892659.
+   
 Date: March 30 2010
 Version: 1.0 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-30Mar2010
