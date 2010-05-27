@@ -28,9 +28,9 @@ o VStar can become low on memory with continued use. Currently, the best
   trackers 2924511 and 2909500 for more details.
    
 ----------------------
-Date: May 26 2010
+Date: May 27 2010
 Version: 2.0 Beta
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-26May2010
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-27May2010
 Key Changes:
 - Changed main display to use tabbed panes instead of mode radio buttons 
   to better utilise screen real estate. See tracker 2983883. 
@@ -61,6 +61,9 @@ Key Changes:
   comment code checking for that observation now stops, and "other" is used
   as the single comment code. Also made small changes to the text of some
   comment codes. See tracker 2909469.
+- Fixed a bug in which an error (NullPointerException) occurred when marking 
+  observations as discrepant in 2nd and subsequently loaded datasets, but only
+  after at least one dataset has had a phase plot created. See tracker 3007948.
      
 Date: March 30 2010
 Version: 1.0 Beta

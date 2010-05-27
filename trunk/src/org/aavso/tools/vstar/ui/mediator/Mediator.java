@@ -79,7 +79,7 @@ import org.jdesktop.swingworker.SwingWorker;
  * This class manages the creation of models and views and sends notifications
  * for changes to mode and analysis types.
  * 
- * This is a Singleton since only one mediator per application instance needs to
+ * This is a Singleton since only one mediator per application instance should
  * exist.
  */
 public class Mediator {
@@ -110,11 +110,6 @@ public class Mediator {
 	// messages created and sent to listeners.
 	private Map<AnalysisType, AnalysisTypeChangeMessage> analysisTypeMap;
 
-	// If this member is non-null, we can just invoke the dialog rather
-	// than re-computing the results that permit it to be invoked, since
-	// it is so expensive.
-//	private PeriodAnalysis2DResultDialog periodAnalysisResultDialog;
-
 	// A file dialog for saving any kind of observation list.
 	private JFileChooser obsListFileSaveDialog;
 
@@ -133,14 +128,17 @@ public class Mediator {
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
 	private Notifier<PeriodChangeMessage> periodChangeMessageNotifier;
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
-	
-//	- Add series visibility change message with delta map as payload.
-//	- Mean source series change should be propagated directly to all (up to 4) 
-//	  plot models; ditto for series visibility.
-//	- May need to have mean source series and visibility maps created and updated
-//	  here in Mediator when a new data set is loaded. Checkboxes and radio buttons
-//	  will then be populated from these for each dialog.
-	
+
+	// - Add series visibility change message with delta map as payload.
+	// - Mean source series change should be propagated directly to all (up to
+	// 4)
+	// plot models; ditto for series visibility.
+	// - May need to have mean source series and visibility maps created and
+	// updated
+	// here in Mediator when a new data set is loaded. Checkboxes and radio
+	// buttons
+	// will then be populated from these for each dialog.
+
 	// Currently active task.
 	private SwingWorker currTask;
 
@@ -175,7 +173,6 @@ public class Mediator {
 		this.viewMode = ViewModeType.PLOT_OBS_MODE;
 		this.analysisType = AnalysisType.RAW_DATA;
 		this.newStarMessage = null;
-//		this.periodAnalysisResultDialog = null;
 
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
@@ -286,11 +283,13 @@ public class Mediator {
 							.notifyListeners(new MeanSourceSeriesChangeMessage(
 									this, meanSourceSeriesType));
 
-//					 need to re-up this listener when model changes due to phase plot!
-//					 move all of this into plugin even... including re-registration?
-					
+					// need to re-up this listener when model changes due to
+					// phase plot!
+					// move all of this into plugin even... including
+					// re-registration?
+
 					// TODO: this should go away eventually...
-//					setPeriodAnalysisResultDialog(null);
+					// setPeriodAnalysisResultDialog(null);
 				}
 			}
 		};
@@ -331,12 +330,6 @@ public class Mediator {
 	 * Remove all willing listeners from notifiers. This is essentially a move
 	 * to free up any indirectly referenced objects that may cause a memory leak
 	 * if left unchecked from new-star to new-star, e.g. mean observations.
-	 * 
-	 * TODO: Is this method necessary? As long as anything that can be freed up
-	 * indirectly, has been at new-star time, I think we're okay. One thing to
-	 * note is that this method must not be invoked from a different thread
-	 * otherwise the listener removal method will yield a concurrent
-	 * modification exception.
 	 * 
 	 * @param obsAndMeanPlotModel
 	 *            A raw observation and mean plot model from which to remove
@@ -385,22 +378,6 @@ public class Mediator {
 	}
 
 	/**
-	 * @return the periodAnalysisResultDialog
-	 */
-//	public PeriodAnalysis2DResultDialog getPeriodAnalysisResultDialog() {
-//		return periodAnalysisResultDialog;
-//	}
-
-	/**
-	 * @param periodAnalysisResultDialog
-	 *            the periodAnalysisResultDialog to set
-	 */
-//	public void setPeriodAnalysisResultDialog(
-//			PeriodAnalysis2DResultDialog periodAnalysisResultDialog) {
-//		this.periodAnalysisResultDialog = periodAnalysisResultDialog;
-//	}
-
-	/**
 	 * Change the analysis type. If the old and new types are the same, there
 	 * will be no effect.
 	 * 
@@ -422,8 +399,11 @@ public class Mediator {
 					if (msg != null) {
 						this.analysisType = analysisType;
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
-						String statusMsg  = "Raw data mode (" + this.newStarMessage.getStarInfo().getDesignation() + ")";
-						MainFrame.getInstance().getStatusPane().setMessage(statusMsg);
+						String statusMsg = "Raw data mode ("
+								+ this.newStarMessage.getStarInfo()
+										.getDesignation() + ")";
+						MainFrame.getInstance().getStatusPane().setMessage(
+								statusMsg);
 					}
 					break;
 
@@ -449,8 +429,11 @@ public class Mediator {
 						// should
 						// just make this an else clause of above if stmt.
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
-						String statusMsg  = "Phase plot mode (" + this.newStarMessage.getStarInfo().getDesignation() + ")";
-						MainFrame.getInstance().getStatusPane().setMessage(statusMsg);
+						String statusMsg = "Phase plot mode ("
+								+ this.newStarMessage.getStarInfo()
+										.getDesignation() + ")";
+						MainFrame.getInstance().getStatusPane().setMessage(
+								statusMsg);
 					}
 					break;
 				}
@@ -498,7 +481,7 @@ public class Mediator {
 				new ProgressInfo(ProgressType.MAX_PROGRESS, analyser
 						.getLineCount()
 						+ plotPortion));
-
+		
 		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
 				plotPortion);
 		this.currTask = task;
@@ -598,9 +581,12 @@ public class Mediator {
 		MeanObservationListPane meansListPane = null;
 		ObservationPlotPane obsChartPane = null;
 		ObservationAndMeanPlotPane obsAndMeanChartPane = null;
-//		periodAnalysisResultDialog = null;
 
 		if (!validObsList.isEmpty()) {
+
+			// This is a specific fix for tracker 3007948.
+			this.observationChangeNotifier = new Notifier<ObservationChangeMessage>();
+
 			// Observation table and plot.
 			validObsTableModel = new ValidObservationTableModel(validObsList,
 					newStarType.getRawDataTableColumnInfoSource());
@@ -921,11 +907,11 @@ public class Mediator {
 			if (this.newStarMessage != null && this.validObsList != null) {
 				// TODO: instead, pass obsAndMeanPlotModel in as a parameter
 				// to a setter to determine its own source of obs, series type
-				
-				//move this stuff into plugin
+
+				// move this stuff into plugin
 				// actually, make each plugin responsible for determining
 				// and tracking source series (see mean source series dialog)
-				
+
 				int meanObsSourceSeriesNum = obsAndMeanPlotModel
 						.getMeanSourceSeriesNum();
 
@@ -936,9 +922,6 @@ public class Mediator {
 				SeriesType meanObsSourceSeriesType = obsAndMeanPlotModel
 						.getSeriesNumToSrcTypeMap().get(meanObsSourceSeriesNum);
 
-//				DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
-//						meanObsSourceList);
-
 				this.getProgressNotifier().notifyListeners(
 						ProgressInfo.START_PROGRESS);
 				this.getProgressNotifier().notifyListeners(
@@ -946,7 +929,7 @@ public class Mediator {
 
 				PeriodAnalysisTask task = new PeriodAnalysisTask(plugin,
 						meanObsSourceSeriesType, meanObsSourceList);
-								
+
 				this.currTask = task;
 				task.execute();
 			}
