@@ -285,7 +285,7 @@ public enum CommentType {
 			str = "Angle, position angle\n";
 			break;
 		case OTHER:
-			str = "\"Other\" comment\n";
+			str = "Other comment\n";
 			break;
 		case MAG_FROM_STEP_MAG:
 			str = "Magnitude derived from step magnitude (internal use only)\n";
@@ -316,6 +316,5 @@ public enum CommentType {
 		// comment code being used. Anything that is not known
 		// (see methods above) will be treated as "other".
 		return ".";
-		//return "B|U|W|L|D|Y|K|S|Z|I|V|A|F|G|H|J|M|N|O|P|Q|R|T|X";
 	}
 }
