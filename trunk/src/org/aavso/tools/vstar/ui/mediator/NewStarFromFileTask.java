@@ -27,7 +27,7 @@ import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.jdesktop.swingworker.SwingWorker;
+import javax.swing.SwingWorker;
 
 /**
  * A concurrent task in which a new star from file request task is handled.

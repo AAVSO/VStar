@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.JFileChooser;
+import javax.swing.SwingWorker;
 import javax.swing.JTable.PrintMode;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -73,7 +74,6 @@ import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
-import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * This class manages the creation of models and views and sends notifications

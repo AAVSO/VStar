@@ -38,7 +38,6 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		ListSelectionListener, Listener<PeriodAnalysisSelectionMessage> {
 
 	private JTable table;
-	private PeriodAnalysisDataTableModel model;
 
 	/**
 	 * Constructor
@@ -59,7 +58,10 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		// We listen for and generate period analysis selection messages.
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.addListener(this);
+		
 		table.getSelectionModel().addListSelectionListener(this);
+		
+		table.setAutoCreateRowSorter(true);
 	}
 
 	// We send a row selection event when the value has "settled".

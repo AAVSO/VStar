@@ -51,14 +51,14 @@
 		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${svn_revision}" />
 
 		<!-- Compile source -->
-		<javac compiler="modern" source="1.5" target="1.5" srcdir="${src}" destdir="${src_build}">
+		<javac compiler="modern" source="1.6" target="1.6" srcdir="${src}" destdir="${src_build}">
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
 
 	<target name="debug" depends="init, manifest" description="Compile the source">
 		<!-- Compile source. -->
-		<javac compiler="modern" source="1.5" target="1.5" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
+		<javac compiler="modern" source="1.6" target="1.6" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
 			<classpath refid="build.classpath" />
 		</javac>
 

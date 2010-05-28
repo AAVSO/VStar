@@ -24,12 +24,14 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.MessageBase;
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -57,14 +59,11 @@ public class MeanObservationListPane extends JPanel implements
 		this.meanObsTableModel = meanObsTableModel;
 		this.meanObsTable = new JTable(meanObsTableModel);
 
-		// This next line ensures we get a horizontal scrollbar if necessary
-		// rather than trying to cram all the columns into the visible pane.
-		// TODO: why don't we use this?
-		// meanObsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
 		// Enable table sorting by clicking on a column.
-		// Note: this is only available from Java 1.6
-		// meanObsTable.setAutoCreateRowSorter(true);
+//		RowSorter<TableModel> rowSorter = new TableRowSorter<TableModel>(
+//				meanObsTableModel);
+//		meanObsTable.setRowSorter(rowSorter);
+		meanObsTable.setAutoCreateRowSorter(true);
 
 		JScrollPane meanObsTableScrollPane = new JScrollPane(meanObsTable);
 

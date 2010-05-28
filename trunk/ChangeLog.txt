@@ -28,6 +28,18 @@ o VStar can become low on memory with continued use. Currently, the best
   trackers 2924511 and 2909500 for more details.
    
 ----------------------
+Date: June ?? 2010
+Version: 2.1 Beta
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??June2010
+Key Changes:
+- Switched to Java 1.6 as base Java Runtime Environment including minor
+  changes to build.xml.
+- Implemented table row sorting (sort by selected column) for observation 
+  list, mean list, and DC DFT period analysis data and top hits tables. 
+- Set transparency of observation detail dialogs to 70%.
+- Removed swing-worker jar from extlib since from JRE 1.6, SwingWorker is
+  in javax.swing.
+   
 Date: May 27 2010
 Version: 2.0 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-27May2010

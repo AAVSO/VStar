@@ -59,6 +59,9 @@ public class PeriodAnalysisTopHitsTablePane extends JPanel implements
 
 		// We generate period analysis selection messages.
 		table.getSelectionModel().addListSelectionListener(this);
+		
+		// Enable table sorting by clicking on a column.
+		table.setAutoCreateRowSorter(true);
 	}
 
 	// We send a row selection event when the value has "settled".
