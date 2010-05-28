@@ -22,6 +22,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.swing.SwingWorker;
+
 import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.UnknownAUIDError;
@@ -31,7 +33,6 @@ import org.aavso.tools.vstar.input.database.AAVSODatabaseObservationReader;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * A concurrent task in which a new star from file request task is handled.

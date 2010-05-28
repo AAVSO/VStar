@@ -20,12 +20,12 @@ package org.aavso.tools.vstar.ui.mediator;
 import java.util.List;
 
 import javax.swing.JDialog;
+import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * A concurrent task in which a potentially long-running periodAnalysisPlugin is
@@ -56,7 +56,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	}
 
 	/**
-	 * @see org.jdesktop.swingworker.SwingWorker#doInBackground()
+	 * @see javax.swing.SwingWorker#doInBackground()
 	 */
 	protected Void doInBackground() throws Exception {
 		MainFrame.getInstance().getStatusPane().setMessage(

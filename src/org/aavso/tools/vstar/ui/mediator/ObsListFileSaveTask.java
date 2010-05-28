@@ -23,9 +23,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import javax.swing.SwingWorker;
+
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * A concurrent task in which an observation list file save operation takes

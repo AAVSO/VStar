@@ -191,6 +191,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			clazz = Boolean.class;
 			break;
 		case LINE_NUM_COLUMN:
+			clazz = Integer.class;			
 			break;
 		}
 
@@ -202,7 +203,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			value = ob.getDateInfo().getJulianDay();
+			value = ob.getDateInfo().getJulianDay() + "";
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
@@ -229,7 +230,6 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getCharts();
 			break;
 		case COMMENT_CODE_COLUMN:
-			// TODO: having a tool-tip (via cell renderer?) with full comment codes would be good -> tracker
 			value = ob.getCommentCode().getOrigString();
 			break;
 		case COMMENTS_COLUMN:
@@ -248,7 +248,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getKMag();
 			break;
 		case HJD_COLUMN:
-			value = ob.getHJD();
+			value = ob.getHJD() == null ? "" : ob.getHJD().toString();
 			break;
 		case NAME_COLUMN:
 			value = ob.getName();

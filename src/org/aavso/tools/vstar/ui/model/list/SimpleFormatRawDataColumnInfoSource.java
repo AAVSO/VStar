@@ -77,7 +77,6 @@ public class SimpleFormatRawDataColumnInfoSource implements ITableColumnInfoSour
 
 		switch (index) {
 		case JD_COLUMN:
-			clazz = String.class;
 			break;
 		case CALENDAR_DATE_COLUMN:
 			break;
@@ -86,6 +85,7 @@ public class SimpleFormatRawDataColumnInfoSource implements ITableColumnInfoSour
 		case OBSERVER_CODE_COLUMN:
 			break;
 		case LINE_NUM_COLUMN:
+			clazz = Integer.class;
 			break;
 		case DISCREPANT_COLUMN:
 			clazz = Boolean.class;
@@ -100,7 +100,7 @@ public class SimpleFormatRawDataColumnInfoSource implements ITableColumnInfoSour
 
 		switch (index) {
 		case JD_COLUMN:
-			value = ob.getDateInfo().getJulianDay();
+			value = ob.getDateInfo().getJulianDay() + "";
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();

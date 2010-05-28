@@ -26,9 +26,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -88,11 +91,11 @@ public class ObservationListPane extends JPanel implements
 			validDataTable.setRowSelectionAllowed(true);
 
 			// Enable table sorting by clicking on a column.
-			// We do the same for invalid table below.
-			// Note: this is only available from Java 1.6
-			// if (enableSorting) {
-			// validDataTable.setAutoCreateRowSorter(true);
-			// }
+			if (enableSorting) {
+//				RowSorter<TableModel> rowSorter = new TableRowSorter<TableModel>(validDataModel);
+//				validDataTable.setRowSorter(rowSorter);
+				validDataTable.setAutoCreateRowSorter(true);
+			}
 
 			validDataScrollPane = new JScrollPane(validDataTable);
 		}
@@ -115,8 +118,14 @@ public class ObservationListPane extends JPanel implements
 			int totalWidth = colModel.getTotalColumnWidth();
 			colModel.getColumn(1).setPreferredWidth((int)(totalWidth*2.5));
 			colModel.getColumn(2).setPreferredWidth((int)(totalWidth*2));
-			
-			// invalidDataTable.setAutoCreateRowSorter(true);
+
+			// Enable table sorting by clicking on a column.
+			if (enableSorting) {
+//				RowSorter<TableModel> rowSorter = new TableRowSorter<TableModel>(invalidDataModel);
+//				invalidDataTable.setRowSorter(rowSorter);
+				invalidDataTable.setAutoCreateRowSorter(true);
+			}
+
 			invalidDataScrollPane = new JScrollPane(invalidDataTable);
 		}
 
