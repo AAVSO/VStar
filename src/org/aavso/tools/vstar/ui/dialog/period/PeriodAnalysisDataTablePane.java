@@ -70,7 +70,8 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		if (e.getSource() == table.getSelectionModel()
 				&& table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
 			int row = table.getSelectedRow();
-
+			row = table.convertRowIndexToModel(row);
+			
 			if (row >= 0) {
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 						this, row);
@@ -98,6 +99,9 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 			// the table pane anyway.
 			try {
 				int row = info.getItem();
+				// Convert to view index!
+				row = table.convertRowIndexToView(row);
+				
 				int colWidth = (int) table.getCellRect(row, 0, true).getWidth();
 				int rowHeight = table.getRowHeight(row);
 				table.scrollRectToVisible(new Rectangle(colWidth, rowHeight

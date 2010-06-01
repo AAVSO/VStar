@@ -72,6 +72,8 @@ public class PeriodAnalysisTopHitsTablePane extends JPanel implements
 			int row = table.getSelectedRow();
 
 			if (row >= 0) {
+				row = table.convertRowIndexToModel(row);
+
 				// TODO: rather than a double[][] here, we should probably use a class
 				// since the second element is actuall an integer!
 				int item = (int) this.model.getTopPowerIndexPairs()[row][1]; // 1 = index into data lists
