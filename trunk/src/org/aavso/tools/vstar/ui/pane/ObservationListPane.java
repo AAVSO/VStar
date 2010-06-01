@@ -187,6 +187,9 @@ public class ObservationListPane extends JPanel implements
 					Integer rowIndex = validDataModel
 							.getRowIndexFromObservation(ob);
 					if (rowIndex != null) {
+						// Convert to view index!
+						rowIndex = validDataTable.convertRowIndexToView(rowIndex);
+
 						// Scroll to an arbitrary column (zeroth) within
 						// the selected row, then select that row.
 						// Assumption: we are specifying the zeroth cell
@@ -226,6 +229,7 @@ public class ObservationListPane extends JPanel implements
 				&& validDataTable.getRowSelectionAllowed()
 				&& !e.getValueIsAdjusting()) {
 			int row = validDataTable.getSelectedRow();
+			row = validDataTable.convertRowIndexToModel(row);
 
 			if (row >= 0) {
 				ValidObservation ob = validDataModel.getObservations().get(row);

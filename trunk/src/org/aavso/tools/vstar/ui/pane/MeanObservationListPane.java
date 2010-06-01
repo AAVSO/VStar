@@ -97,6 +97,9 @@ public class MeanObservationListPane extends JPanel implements
 					Integer rowIndex = meanObsTableModel
 							.getRowIndexFromObservation(ob);
 					if (rowIndex != null) {
+						// Convert to view index!
+						rowIndex = meanObsTable.convertRowIndexToView(rowIndex);
+						
 						// Scroll to an arbitrary column (zeroth) within
 						// the selected row, then select that row.
 						// Assumption: we are specifying the zeroth cell
@@ -133,7 +136,8 @@ public class MeanObservationListPane extends JPanel implements
 				&& meanObsTable.getRowSelectionAllowed()
 				&& !e.getValueIsAdjusting()) {
 			int row = meanObsTable.getSelectedRow();
-
+			row = meanObsTable.convertRowIndexToModel(row);
+			
 			if (row >= 0) {
 				ValidObservation ob = meanObsTableModel.getMeanObsData().get(
 						row);
