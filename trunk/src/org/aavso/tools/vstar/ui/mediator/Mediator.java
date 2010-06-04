@@ -128,7 +128,8 @@ public class Mediator {
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
 	private Notifier<PeriodChangeMessage> periodChangeMessageNotifier;
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
-
+	private Notifier<ZoomRequestMessage> zoomRequestNotifier;
+	
 	// - Add series visibility change message with delta map as payload.
 	// - Mean source series change should be propagated directly to all (up to
 	// 4)
@@ -158,7 +159,8 @@ public class Mediator {
 		this.periodAnalysisSelectionNotifier = new Notifier<PeriodAnalysisSelectionMessage>();
 		this.periodChangeMessageNotifier = new Notifier<PeriodChangeMessage>();
 		this.meanSourceSeriesChangeNotifier = new Notifier<MeanSourceSeriesChangeMessage>();
-
+		this.zoomRequestNotifier = new Notifier<ZoomRequestMessage>();
+		
 		this.obsListFileSaveDialog = new JFileChooser();
 
 		// These (among other things) are created for each new star.
@@ -242,6 +244,13 @@ public class Mediator {
 	 */
 	public Notifier<MeanSourceSeriesChangeMessage> getMeanSourceSeriesChangeNotifier() {
 		return meanSourceSeriesChangeNotifier;
+	}
+
+	/**
+	 * @return the zoomRequestNotifier
+	 */
+	public Notifier<ZoomRequestMessage> getZoomRequestNotifier() {
+		return zoomRequestNotifier;
 	}
 
 	/**

@@ -15,36 +15,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.resources;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+package org.aavso.tools.vstar.ui.mediator;
 
 /**
- * The purpose of this class is to provide access to subversion revision number.
+ * This message should be sent when a zoom (in or out) action is required by
+ * some or all listeners.
  */
+public class ZoomRequestMessage extends MessageBase {
 
-public class RevisionAccessor {
-
-	private static String REVISION = "370:516MP";
-
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\d+:(\\d+).*$");
+	private ZoomType zoomType;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param source The source of this message.
+	 * @param zoomType Zoom in or out?
+	 */
+	public ZoomRequestMessage(Object source, ZoomType zoomType) {
+		super(source);
+		this.zoomType = zoomType;
+	}
 
 	/**
-	 * Get the latest revision number if REVISION is of the form:
-	 * n:m... (i.e. get m), otherwise just return the whole revision
-	 * string. It doesn't really matter what it is so long as it's
-	 * unique from one commit of dist/vstar.jar to the next.
+	 * @return the zoomType
 	 */
-	public static String getRevNum() {
-		String rev = REVISION;
-
-		Matcher revMatcher = revNumPat.matcher(rev);
-		if (revMatcher.matches()) {
-			rev = revMatcher.group(1);
-		}
-		
-		return rev;
+	public ZoomType getZoomType() {
+		return zoomType;
 	}
 }

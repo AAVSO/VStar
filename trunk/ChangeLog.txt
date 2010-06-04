@@ -28,18 +28,23 @@ o VStar can become low on memory with continued use. Currently, the best
   trackers 2924511 and 2909500 for more details.
    
 ----------------------
-Date: June ?? 2010
+Date: June 4 2010
 Version: 2.1 Beta
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??June2010
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-04June2010
 Key Changes:
 - Switched to Java 1.6 as base Java Runtime Environment including minor
-  changes to build.xml.
+  changes to build infrastructure.
+- Removed swing-worker jar from extlib since from JRE 1.6, the SwingWorker 
+  class is in javax.swing package.
 - Implemented table row sorting (sort by selected column) for observation 
   list, mean list, and DC DFT period analysis data and top hits tables. 
-- Set transparency of observation detail dialogs to 70%.
-- Removed swing-worker jar from extlib since from JRE 1.6, SwingWorker is
-  in javax.swing.
-   
+- Set transparency of observation detail dialogs to 70%. See tracker 2947383.
+- Initial implementation of menu/tool-bar driven zoom. An observation must 
+  currently have been selected (with observation details dialog opened) via 
+  cross-hairs before a zoom will occur; this is likely to be relaxed in 
+  future. Zoom for each plot/view-mode combination is currently independent, 
+  but in future, plot zooms may instead be synchronised. See tracker 2827041.
+     
 Date: May 27 2010
 Version: 2.0 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-27May2010

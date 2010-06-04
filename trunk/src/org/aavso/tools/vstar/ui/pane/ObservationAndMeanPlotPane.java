@@ -27,7 +27,11 @@ import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.dialog.MeanSourceDialog;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
+import org.aavso.tools.vstar.ui.mediator.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 
@@ -184,6 +188,22 @@ public class ObservationAndMeanPlotPane extends
 				}
 			}
 
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+	
+	// Returns a zoom request listener.
+	protected Listener<ZoomRequestMessage> createZoomRequestListener() {
+		return new Listener<ZoomRequestMessage>() {
+			public void update(ZoomRequestMessage info) {
+				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA &&
+						Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_AND_MEANS_MODE) {
+					doZoom(info.getZoomType());
+				}
+			}
+			
 			public boolean canBeRemoved() {
 				return true;
 			}

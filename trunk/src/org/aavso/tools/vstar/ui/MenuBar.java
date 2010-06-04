@@ -47,8 +47,9 @@ import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.ZoomRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.ZoomType;
 import org.aavso.tools.vstar.ui.resources.PluginClassLoader;
-import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -66,12 +67,12 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public static final String QUIT = "Quit";
 
 	// View menu item names.
-	public static final String RAW_DATA = "Raw Data";
-	public static final String PHASE_PLOT = "Phase Plot...";
+	public static final String ZOOM_IN = "Zoom In";
+	public static final String ZOOM_OUT = "Zoom Out";
 
 	// Analysis menu item names.
-	// TODO: this should go away eventually...
-	// public static final String DC_DFT = "Date Compensated DFT...";
+	public static final String RAW_DATA = "Raw Data";
+	public static final String PHASE_PLOT = "Phase Plot...";
 
 	// Help menu item names.
 	public static final String HELP_CONTENTS = "Help Contents...";
@@ -98,6 +99,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JMenuItem fileQuitItem;
 
 	// View menu.
+	JMenuItem viewZoomInItem;
+	JMenuItem viewZoomOutItem;
 
 	// Analysis menu.
 	JCheckBoxMenuItem analysisRawDataItem;
@@ -135,6 +138,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		createHelpMenu();
 
 		this.newStarMessage = null;
+
+		// Listen to events
 
 		this.mediator.getProgressNotifier().addListener(
 				createProgressListener());
@@ -199,21 +204,19 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	}
 
 	private void createViewMenu() {
-//		JMenu viewMenu = new JMenu("View");
+		JMenu viewMenu = new JMenu("View");
 
-//		viewRawDataItem = new JCheckBoxMenuItem(RAW_DATA);
-//		viewRawDataItem.setEnabled(false);
-//		viewRawDataItem.addActionListener(createRawDataListener());
-//		viewMenu.add(viewRawDataItem);
-//
-//		viewPhasePlotItem = new JCheckBoxMenuItem(PHASE_PLOT);
-//		viewPhasePlotItem.setEnabled(false);
-//		viewPhasePlotItem.addActionListener(createPhasePlotListener());
-//		viewMenu.add(viewPhasePlotItem);
+		viewZoomInItem = new JMenuItem(ZOOM_IN);
+		viewZoomInItem.setEnabled(false);
+		viewZoomInItem.addActionListener(createZoomInListener());
+		viewMenu.add(viewZoomInItem);
 
-		// TODO: put search, zoom in here?
+		viewZoomOutItem = new JMenuItem(ZOOM_OUT);
+		viewZoomOutItem.setEnabled(false);
+		viewZoomOutItem.addActionListener(createZoomOutListener());
+		viewMenu.add(viewZoomOutItem);
 
-//		this.add(viewMenu);
+		this.add(viewMenu);
 	}
 
 	private void createAnalysisMenu() {
@@ -270,6 +273,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.add(helpMenu);
 	}
 
+	// ** File Menu listeners **
+
 	/**
 	 * Returns the action listener to be invoked for File->New Star from AAVSO
 	 * Database...
@@ -293,6 +298,9 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 						String starName = starSelectorDialog.getStarName();
 						String auid = starSelectorDialog.getAuid();
 						double minJD, maxJD;
+						// TODO: consider doing these value mods in the dialog
+						// getters
+						// to make this code more declarative.
 						if (!starSelectorDialog.wantAllData()) {
 							minJD = starSelectorDialog.getMinDate()
 									.getJulianDay();
@@ -408,6 +416,36 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		};
 	}
 
+	// ** View Menu listeners **
+
+	/**
+	 * Returns the action listener to be invoked for View->Zoom In
+	 */
+	public ActionListener createZoomInListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ZoomRequestMessage msg = new ZoomRequestMessage(this,
+						ZoomType.ZOOM_IN);
+				mediator.getZoomRequestNotifier().notifyListeners(msg);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View->Zoom Out
+	 */
+	public ActionListener createZoomOutListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ZoomRequestMessage msg = new ZoomRequestMessage(this,
+						ZoomType.ZOOM_OUT);
+				mediator.getZoomRequestNotifier().notifyListeners(msg);
+			}
+		};
+	}
+
+	// ** Analysis Menu listeners **
+
 	/**
 	 * Returns the action listener to be invoked for Analysis->Raw Data
 	 */
@@ -445,6 +483,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 			}
 		};
 	}
+
+	// ** Help Menu listeners **
 
 	/**
 	 * Returns the action listener to be invoked for Help->Help Contents...
@@ -528,7 +568,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 			}
 		};
 	}
-
+	
 	private void resetProgress(MainFrame parent) {
 		// TODO: why not set cursor in MainFrame or StatusPane?
 		parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -564,6 +604,9 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
 		this.fileInfoItem.setEnabled(state);
+
+		this.viewZoomInItem.setEnabled(state);
+		this.viewZoomOutItem.setEnabled(state);
 
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);

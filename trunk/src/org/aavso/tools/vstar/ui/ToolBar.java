@@ -47,10 +47,14 @@ public class ToolBar extends JPanel {
 	private Icon infoIcon;
 	private Icon saveIcon;
 	private Icon printIcon;
-	private Icon prefsIcon;
+
 	private Icon rawDataIcon;
 	private Icon phasePlotIcon;
-	private Icon periodSearchIcon;
+
+	private Icon zoomInIcon;
+	private Icon zoomOutIcon;
+
+	private Icon prefsIcon;
 	private Icon helpContentsIcon;
 
 	private JToolBar toolBar;
@@ -60,10 +64,14 @@ public class ToolBar extends JPanel {
 	private JButton infoButton;
 	private JButton saveButton;
 	private JButton printButton;
-	private JButton prefsButton;
+
 	private JButton rawDataButton;
 	private JButton phasePlotButton;
-	private JButton periodSearchButton;
+
+	private JButton zoomInButton;
+	private JButton zoomOutButton;
+
+	private JButton prefsButton;
 	private JButton helpContentsButton;
 
 	/**
@@ -87,6 +95,8 @@ public class ToolBar extends JPanel {
 		// Add the toolbar to the panel.
 		this.setPreferredSize(new Dimension(150, 35));
 		this.add(toolBar, BorderLayout.PAGE_START);
+
+		// Add event listeners.
 
 		this.mediator.getProgressNotifier().addListener(
 				createProgressListener());
@@ -119,8 +129,11 @@ public class ToolBar extends JPanel {
 		phasePlotIcon = ResourceAccessor
 				.getIconResource("/toolbarButtonGraphics/general/Refresh24.gif");
 
-		periodSearchIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/Search24.gif");
+		zoomInIcon = ResourceAccessor
+				.getIconResource("/toolbarButtonGraphics/general/ZoomIn24.gif");
+
+		zoomOutIcon = ResourceAccessor
+				.getIconResource("/toolbarButtonGraphics/general/ZoomOut24.gif");
 
 		helpContentsIcon = ResourceAccessor
 				.getIconResource("/toolbarButtonGraphics/general/Help24.gif");
@@ -128,10 +141,13 @@ public class ToolBar extends JPanel {
 		if (newStarFromDatabaseIcon == null || newStarFromDatabaseIcon == null
 				|| infoIcon == null || saveIcon == null || printIcon == null
 				|| rawDataIcon == null || phasePlotIcon == null
-				|| periodSearchIcon == null || prefsIcon == null
-				|| helpContentsIcon == null) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(), "Resource Error",
-			"Some icon resources are not available. Exiting.");
+				|| zoomInIcon == null || zoomOutIcon == null
+				|| prefsIcon == null || helpContentsIcon == null) {
+			
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					"Resource Error",
+					"Some icon resources are not available. Exiting.");
+			
 			System.exit(1);
 		}
 	}
@@ -189,12 +205,19 @@ public class ToolBar extends JPanel {
 		phasePlotButton.setEnabled(false);
 		buttonPanel.add(phasePlotButton);
 
-		periodSearchButton = new JButton(periodSearchIcon);
-		//periodSearchButton.setToolTipText(MenuBar.DC_DFT);
-		periodSearchButton.addActionListener(menuBar
-				.createPeriodSearchListener());
-		periodSearchButton.setEnabled(false);
-//		buttonPanel.add(periodSearchButton);
+		buttonPanel.add(Box.createHorizontalStrut(10));
+
+		zoomInButton = new JButton(zoomInIcon);
+		zoomInButton.setToolTipText(MenuBar.ZOOM_IN);
+		zoomInButton.addActionListener(menuBar.createZoomInListener());
+		zoomInButton.setEnabled(false);
+		buttonPanel.add(zoomInButton);
+
+		zoomOutButton = new JButton(zoomOutIcon);
+		zoomOutButton.setToolTipText(MenuBar.ZOOM_OUT);
+		zoomOutButton.addActionListener(menuBar.createZoomOutListener());
+		zoomOutButton.setEnabled(false);
+		buttonPanel.add(zoomOutButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
@@ -251,6 +274,8 @@ public class ToolBar extends JPanel {
 
 		rawDataButton.setEnabled(state);
 		phasePlotButton.setEnabled(state);
-		periodSearchButton.setEnabled(state);
+		
+		zoomInButton.setEnabled(state);
+		zoomOutButton.setEnabled(state);		
 	}
 }

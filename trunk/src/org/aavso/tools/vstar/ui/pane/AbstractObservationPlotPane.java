@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.ZoomRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.ZoomType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.chart.ChartFactory;
@@ -47,6 +50,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.SeriesRenderingOrder;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.title.TextTitle;
@@ -80,6 +84,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	protected boolean showCrossHairs;
 
 	protected JButton visibilityButton;
+
+	protected Point2D lastPointClicked;
 
 	// Axis titles.
 	public static String JD_TITLE = "Time (JD)";
@@ -128,12 +134,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		this.renderer = new VStarPlotDataRenderer();
 		this.renderer.setDrawYError(this.showErrorBars);
 
+		this.lastPointClicked = null;
+
 		// Should reduce number of Java2D draw operations.
 		// this.renderer.setDrawSeriesLineAsPath(true);
 
 		// Tell renderer which series elements should be rendered
 		// as visually joined with lines.
-		// TODO: change return type of getter below to be Set<Integer>
+		// TODO: change return type of getter below to be Set<Integer>?
 		for (int series : obsModel
 				.getSeriesWhoseElementsShouldBeJoinedVisually()) {
 			this.renderer.setSeriesLinesVisible(series, true);
@@ -158,7 +166,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		chart.getXYPlot().setRenderer(renderer);
 
-		// TODO: Hmm. A white background with no grids looks a bit barren.
+		// Note: Hmm. A white background with no grids looks a bit barren.
 		// this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
 
 		setupCrossHairs();
@@ -184,8 +192,13 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		chartControlPanel = createChartControlPanel();
 		this.add(chartControlPanel);
 
+		// Listen to events.
+
 		Mediator.getInstance().getObservationSelectionNotifier().addListener(
 				createObservationSelectionListener());
+
+		Mediator.getInstance().getZoomRequestNotifier().addListener(
+				createZoomRequestListener());
 	}
 
 	/**
@@ -389,12 +402,68 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 					ob, this);
 			Mediator.getInstance().getObservationSelectionNotifier()
 					.notifyListeners(message);
+
+			// TODO: see also
+			// http://stackoverflow.com/questions/1512112/jfreechart-get-mouse-coordinates
+			// if we are unconvinced about getting the right point at all zoom
+			// levels.
+			lastPointClicked = event.getTrigger().getPoint();
 		}
 	}
 
-	// Returns an observation selection listener specific to the concrete plot
-	// pane.
+	// Returns an observation selection listener specific to the concrete plot.
 	abstract protected Listener<ObservationSelectionMessage> createObservationSelectionListener();
+
+	// Returns a zoom request listener specific to the concrete plot.
+	abstract protected Listener<ZoomRequestMessage> createZoomRequestListener();
+
+	/**
+	 * Perform a zoom on the current plot.
+	 * 
+	 * @param info The zoom message.
+	 */
+	protected void doZoom(ZoomType zoomType) {
+		// TODO: This may need to be handled uniformly across
+		// all plots, i.e. all plots (raw x 2 and phase plot x 2)
+		// should zoom in unison, just like all plots should
+		// reflect changes in selected bands made in one plot.
+		// One way to do this is to add to observation selection
+		// listener a Point2D. The only problem with this is that
+		// such messages can originate from tables as well as plots.
+		// Therefore, need a new message type for this, e.g. "cross-hair
+		// location change".
+		//
+		// For now, only zoom if we have a cross-hair selection in
+		// this plot, until we decide what the behaviour should be.
+		if (lastPointClicked != null) {
+			// Determine zoom factor.
+			double zoomDelta = 0.25; // TODO: get from prefs
+
+			double factor = 1;
+
+			if (zoomType == ZoomType.ZOOM_IN) {
+				factor = 1 - zoomDelta;
+			} else if (zoomType == ZoomType.ZOOM_OUT) {
+				factor = 1 + zoomDelta;
+			}
+
+			// Zoom in on the specified point.
+			PlotRenderingInfo plotInfo = chartPanel.getChartRenderingInfo()
+					.getPlotInfo();
+
+			Point2D sourcePoint = null;
+
+			sourcePoint = lastPointClicked;
+
+			boolean anchorOnPoint = lastPointClicked != null;
+
+			chart.getXYPlot().zoomDomainAxes(factor, plotInfo, sourcePoint,
+					anchorOnPoint);
+
+			chart.getXYPlot().zoomRangeAxes(factor, plotInfo, sourcePoint,
+					anchorOnPoint);
+		}
+	}
 
 	// From ChartMouseListener
 	public void chartMouseMoved(ChartMouseEvent arg0) {
@@ -423,6 +492,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * 
 	 * Note: for large datasets, this could be very expensive! Should maintain
 	 * last min and max and only check observations for bands that have changed.
+	 * 
+	 * TODO: I think we should revisit the need for this! It does not always
+	 * behave as desired.
 	 */
 	private void setMagScale() {
 		double min = Double.MAX_VALUE;
@@ -442,16 +514,16 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 					double mag = ob.getMagnitude().getMagValue();
 					double uncert = ob.getMagnitude().getUncertainty();
 					// If uncertainty not given, get HQ uncertainty if present.
-					if (uncert == 0.0 && ob.getHqUncertainty() != null){
+					if (uncert == 0.0 && ob.getHqUncertainty() != null) {
 						uncert = ob.getHqUncertainty();
 					}
 
-					if (mag-uncert < min) {
-						min = mag-uncert;
+					if (mag - uncert < min) {
+						min = mag - uncert;
 					}
 
-					if (mag+uncert > max) {
-						max = mag+uncert;
+					if (mag + uncert > max) {
+						max = mag + uncert;
 					}
 				}
 			}
