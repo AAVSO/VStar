@@ -21,7 +21,11 @@ import java.awt.Dimension;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
+import org.aavso.tools.vstar.ui.mediator.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -73,6 +77,22 @@ public class PhasePlotPane extends ObservationPlotPane implements
 				}
 			}
 
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+	
+	// Returns a zoom request listener.
+	protected Listener<ZoomRequestMessage> createZoomRequestListener() {
+		return new Listener<ZoomRequestMessage>() {
+			public void update(ZoomRequestMessage info) {
+				if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT &&
+						Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
+					doZoom(info.getZoomType());
+				}
+			}
+			
 			public boolean canBeRemoved() {
 				return true;
 			}
