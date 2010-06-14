@@ -18,8 +18,8 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 /**
- * The type of zoom: in or out.
+ * The type of zoom.
  */
 public enum ZoomType {
-	ZOOM_IN, ZOOM_OUT;
+	ZOOM_IN, ZOOM_OUT, ZOOM_TO_FIT;
 }

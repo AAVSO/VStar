@@ -388,7 +388,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	// From ChartMouseListener.
 	// If the user clicks on a plot point, send a selection message,
-	// open an information dialog.
+	// open an information dialog. Also record the point.
 	public void chartMouseClicked(ChartMouseEvent event) {
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
@@ -407,8 +407,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			// http://stackoverflow.com/questions/1512112/jfreechart-get-mouse-coordinates
 			// if we are unconvinced about getting the right point at all zoom
 			// levels.
-			lastPointClicked = event.getTrigger().getPoint();
 		}
+		
+		lastPointClicked = event.getTrigger().getPoint();
 	}
 
 	// Returns an observation selection listener specific to the concrete plot.
@@ -423,6 +424,11 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * @param info The zoom message.
 	 */
 	protected void doZoom(ZoomType zoomType) {
+		// "Reset" zoom level.
+		if (zoomType == ZoomType.ZOOM_TO_FIT) {
+			setMagScale();
+		}
+		
 		// TODO: This may need to be handled uniformly across
 		// all plots, i.e. all plots (raw x 2 and phase plot x 2)
 		// should zoom in unison, just like all plots should
@@ -432,6 +438,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		// such messages can originate from tables as well as plots.
 		// Therefore, need a new message type for this, e.g. "cross-hair
 		// location change".
+		//
+		// Actually, the need to do this at all is open to question.
 		//
 		// For now, only zoom if we have a cross-hair selection in
 		// this plot, until we decide what the behaviour should be.
@@ -546,7 +554,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			max += margin;
 
 			NumberAxis magAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
-			magAxis.setRange(new Range(min, max));
+			magAxis.setRange(new Range(min, max));			
 		}
 	}
 }

@@ -61,10 +61,10 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 
 	public ObservationDetailsDialog(ValidObservation ob) {
 		super();
-		
+
 		// Set window transparency.
 		com.sun.awt.AWTUtilities.setWindowOpacity(this, 0.7f);
-		
+
 		this.ob = ob;
 
 		this.setTitle("Observation Details");
@@ -82,11 +82,11 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
-		// We currently disable the discrepant checkbox for anything other 
-		// than raw data mode due to this bug in which a chunk of data disappears 
-		// after marking a point as discrepant, then unmarking it. Since the cross 
-		// hair change is reflected in raw data mode also, this is no great user 
-		// interface problem. The problem should be fixed though.
+		// We currently disable the discrepant checkbox for anything other
+		// than raw data mode due to this bug in which a chunk of data
+		// disappears after marking a point as discrepant, then unmarking it. 
+		// Since the cross hair change is reflected in raw data mode also, this 
+		// is no great user interface problem. The problem should be fixed though.
 		// See https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
 		// for more detail.
 		if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
@@ -147,13 +147,20 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 		final ObservationDetailsDialog parent = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Toggle the observation's discrepant status and
-				// tell anyone who's listening about the change.
-				toggleDiscrepantStatus();
-				ObservationChangeMessage message = new ObservationChangeMessage(
-						ob, ObservationChangeType.DISCREPANT, parent);
-				Mediator.getInstance().getObservationChangeNotifier()
-						.notifyListeners(message);
+				// We disable discrepant toggling here for now, in case this dialog was opened
+				// in raw data mode, but we have since switched to phase plot mode.
+				// See
+				// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
+				// for more detail.
+				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+					// Toggle the observation's discrepant status and
+					// tell anyone who's listening about the change.
+					toggleDiscrepantStatus();
+					ObservationChangeMessage message = new ObservationChangeMessage(
+							ob, ObservationChangeType.DISCREPANT, parent);
+					Mediator.getInstance().getObservationChangeNotifier()
+							.notifyListeners(message);
+				}
 			}
 		};
 	}
