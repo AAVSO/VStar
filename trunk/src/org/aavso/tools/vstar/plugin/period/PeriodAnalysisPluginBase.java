@@ -40,8 +40,8 @@ import org.aavso.tools.vstar.util.notification.Notifier;
  * 
  * TODO: 
  * - Add a getter method to say whether or not a series selection dialog
- * should be invoked before the algorithm is executed, the SeriesType from which
- * would be made available via another getter.
+ * should be invoked before the algorithm is executed, the SeriesType from 
+ * which would be made available via another getter.
  */
 abstract public class PeriodAnalysisPluginBase implements PluginBase {
 

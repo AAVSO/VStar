@@ -38,22 +38,45 @@ abstract public class PeriodAnalysisDialogBase extends JDialog {
 	private JButton newPhasePlotButton;
 	private JPanel topPane;
 	
-	public PeriodAnalysisDialogBase(String title) {
+	/**
+	 * Constructor.
+	 * 
+	 * @param title The dialog title.
+	 * @param isModal Should the dialog be modal.
+	 */
+	public PeriodAnalysisDialogBase(String title, boolean isModal) {
 		super();
 		this.setTitle(title);
-
+		this.setModal(isModal);		
+	}
+	
+	/**
+	 * Constructor for a non-modal dialog.
+	 * 
+	 * @param title The dialog title.
+	 */
+	public PeriodAnalysisDialogBase(String title) {
+		this(title, false);
+	}
+	
+	/**
+	 * A subclass must invoke this when it wants to add the dialog's
+	 * content and prepare it for visibility. It will in turn call
+	 * createContent() and createButtonPanel().
+	 */
+	protected void prepareDialog() {
 		topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-	
+		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));	
+
 		topPane.add(createContent());
 		topPane.add(createButtonPanel());
 
 		this.getContentPane().add(topPane);
 		this.pack();
-		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());		
 	}
-
+	
 	// Methods that must be overridden by subclasses.
 	
 	/**
@@ -68,17 +91,7 @@ abstract public class PeriodAnalysisDialogBase extends JDialog {
 		
 	// Protected methods for use by subclasses.
 	
-	/**
-	 * Sets the enabled state of the new-phase-plot button.
-	 * @param state The desired boolean state.
-	 */
-	protected void setNewPhasePlotButtonState(boolean state) {
-		this.newPhasePlotButton.setEnabled(state);
-	}
-	
-	// Private helper methods.
-	
-	private JPanel createButtonPanel() {
+	protected JPanel createButtonPanel() {
 		JPanel buttonPane = new JPanel();
 
 		newPhasePlotButton = new JButton("New Phase Plot");
@@ -93,6 +106,14 @@ abstract public class PeriodAnalysisDialogBase extends JDialog {
 		return buttonPane;
 	}
 
+	/**
+	 * Sets the enabled state of the new-phase-plot button.
+	 * @param state The desired boolean state.
+	 */
+	protected void setNewPhasePlotButtonState(boolean state) {
+		this.newPhasePlotButton.setEnabled(state);
+	}
+		
 	// Dismiss button listener.
 	private ActionListener createDismissButtonHandler() {
 		return new ActionListener() {
