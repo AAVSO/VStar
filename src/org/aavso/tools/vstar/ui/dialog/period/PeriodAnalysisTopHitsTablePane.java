@@ -57,7 +57,8 @@ public class PeriodAnalysisTopHitsTablePane extends JPanel implements
 
 		this.add(scrollPane);
 
-		// We generate period analysis selection messages.
+		// We want to be able to generate period analysis selection 
+		// messages when a table row is selected.
 		table.getSelectionModel().addListSelectionListener(this);
 		
 		// Enable table sorting by clicking on a column.

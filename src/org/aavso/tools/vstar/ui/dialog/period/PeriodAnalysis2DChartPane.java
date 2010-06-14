@@ -52,6 +52,8 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 		configureChart();
 
 		this.addChartMouseListener(this);
+		
+		// We listen for and generate period analysis selection messages.
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.addListener(this);
 	}
