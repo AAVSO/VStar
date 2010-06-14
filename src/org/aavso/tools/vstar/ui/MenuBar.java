@@ -69,6 +69,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	// View menu item names.
 	public static final String ZOOM_IN = "Zoom In";
 	public static final String ZOOM_OUT = "Zoom Out";
+	public static final String ZOOM_TO_FIT = "Zoom To Fit";
 
 	// Analysis menu item names.
 	public static final String RAW_DATA = "Raw Data";
@@ -101,6 +102,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	// View menu.
 	JMenuItem viewZoomInItem;
 	JMenuItem viewZoomOutItem;
+	JMenuItem viewZoomToFitItem;
 
 	// Analysis menu.
 	JCheckBoxMenuItem analysisRawDataItem;
@@ -215,6 +217,11 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		viewZoomOutItem.setEnabled(false);
 		viewZoomOutItem.addActionListener(createZoomOutListener());
 		viewMenu.add(viewZoomOutItem);
+
+		viewZoomToFitItem = new JMenuItem(ZOOM_TO_FIT);
+		viewZoomToFitItem.setEnabled(false);
+		viewZoomToFitItem.addActionListener(createZoomToFitListener());
+		//viewMenu.add(viewZoomToFitItem);
 
 		this.add(viewMenu);
 	}
@@ -444,6 +451,19 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		};
 	}
 
+	/**
+	 * Returns the action listener to be invoked for View->Zoom To Fit
+	 */
+	public ActionListener createZoomToFitListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ZoomRequestMessage msg = new ZoomRequestMessage(this,
+						ZoomType.ZOOM_TO_FIT);
+				mediator.getZoomRequestNotifier().notifyListeners(msg);
+			}
+		};
+	}
+
 	// ** Analysis Menu listeners **
 
 	/**
@@ -607,7 +627,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		this.viewZoomInItem.setEnabled(state);
 		this.viewZoomOutItem.setEnabled(state);
-
+		this.viewZoomToFitItem.setEnabled(state);
+		
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
 

@@ -135,15 +135,24 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 */
 	public void setValueAt(Object value, int rowIndex, int columnIndex) {
 		if (columnIndex == columnInfoSource.getDiscrepantColumnIndex()) {
-			// Toggle "is-discrepant" checkbox and value.
-			ValidObservation ob = this.validObservations.get(rowIndex);
-			boolean discrepant = ob.isDiscrepant();
-			ob.setDiscrepant(!discrepant);
-			// Tell anyone who's listening about the change.
-			ObservationChangeMessage message = new ObservationChangeMessage(ob,
-					ObservationChangeType.DISCREPANT, this);
-			Mediator.getInstance().getObservationChangeNotifier()
-					.notifyListeners(message);
+			// We disable discrepant toggling here for now, in case this dialog
+			// was opened
+			// in raw data mode, but we have since switched to phase plot mode.
+			// See
+			// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
+			// for more detail.
+			if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+
+				// Toggle "is-discrepant" checkbox and value.
+				ValidObservation ob = this.validObservations.get(rowIndex);
+				boolean discrepant = ob.isDiscrepant();
+				ob.setDiscrepant(!discrepant);
+				// Tell anyone who's listening about the change.
+				ObservationChangeMessage message = new ObservationChangeMessage(
+						ob, ObservationChangeType.DISCREPANT, this);
+				Mediator.getInstance().getObservationChangeNotifier()
+						.notifyListeners(message);
+			}
 		}
 	}
 
@@ -152,17 +161,19 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 */
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// "is-discrepant" check box?
-		// We currently disable the discrepant checkbox for anything other 
-		// than raw data mode due to this bug in which a chunk of data disappears 
-		// after marking a point as discrepant, then unmarking it. Since the cross 
-		// hair change is reflected in raw data mode also, this is no great user 
-		// interface problem. The problem should be fixed though. See 
+		// We currently disable the discrepant checkbox for anything other
+		// than raw data mode due to this bug in which a chunk of data
+		// disappears
+		// after marking a point as discrepant, then unmarking it. Since the
+		// cross
+		// hair change is reflected in raw data mode also, this is no great user
+		// interface problem. The problem should be fixed though. See
 		// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
 		// for more detail.
 		boolean is_discrepant_checkbox_editable = columnIndex == columnInfoSource
 				.getDiscrepantColumnIndex()
 				&& Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA;
-		
+
 		return is_discrepant_checkbox_editable;
 	}
 

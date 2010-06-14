@@ -22,10 +22,12 @@ o Major contributors are: David Benn, Michael Umbricht, Sara Beck, Adam
   Weber, and George Weber.
 
 Known Issues:
-o VStar can become low on memory with continued use. Currently, the best 
-  course of action is to exit and restart VStar if it becomes unresponsive. 
-  This problem will be addressed in forthcoming incremental releases. See 
-  trackers 2924511 and 2909500 for more details.
+o VStar leaks memory with continued use. The WebStart JNLP file specifies 
+  a larger-than-default heap, which helps to some extent, but does not 
+  solve the problem, merely pushes its effects further out into the future.
+  Currently, the best course of action is to exit and restart VStar if it 
+  becomes unresponsive. This problem will be addressed in forthcoming 
+  releases. See trackers 2924511, 2909500, and 3011104 for more details.
    
 ----------------------
 Date: June 4 2010
@@ -174,9 +176,9 @@ Key Changes:
   many otherwise good file loaded objects from being considered invalid. 
   We should revisit this though. Talk with Elizabeth about it. See tracker 
   2915572.
-- Changed regex in CommentType to relax comment code string validation
-  so we don't exclude otherwise good data. Anything not known by CommentType 
-  will be treated as "other". See tracker 2915572.
+- Changed regular expression in CommentType to relax comment code string 
+  validation so we don't exclude otherwise good data. Anything not known by 
+  CommentType will be treated as "other". See tracker 2915572.
 
 Date: January 19 2010
 Version: 392
@@ -209,18 +211,18 @@ Date: December 24 2009
 Version: 361
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-24Dec2009
 Key Changes:
-- Added handling of magnitude type for AAVSO download files, including mtype 
-  enum, validator, unit tests. Handling mtype = STD filtering for database 
-  reads. (2909476.)
+- Added handling of magnitude type field for AAVSO download files, including 
+  mtype enum, validator, unit tests. Handling mtype = STD filtering for 
+  database reads. (2909476.)
 - Add SS Cyg data to test mtype fix.
 - Closing database result set in a try to avoid resource leak. (2919290)
-- Fields are now uniformly trimmed of spaces (start and end) for both simple and
-  AAVSO download format files. (2913523)
-- Add Phase Plot to Help box.
+- Fields are now uniformly trimmed of spaces (start and end) for both simple 
+  and AAVSO download format files. (2913523)
+- Add Phase Plot to Help page.
 - Trimmed spaces from JD, star/AUID name, period and epoch text boxes. (2917874)
 - Refactoring table model column info and field info classes. (2917611)
   Implemented phase plot table model column info classes. (2902477)
-- Add file of WY Hya data showing the addition of the mtype field. (test file
+- Added file of WY Hya data showing the addition of the mtype field. (test file
   for 2909476)
 - Fixes a range error when there is only one observation point in the set.
   (2908523 and 2907603)
@@ -267,7 +269,7 @@ Key Changes:
 - Fixed a long-standing database port fail-over bug. See tracker 2894174.
 - Decreased database timeout as per tracker 2905387.
 - Incorporated Adam's patches and new classes for improvements to comment 
-  code and date format in observation details dialog (tracker 2858640).  
+  field code and date format in observation details dialog (tracker 2858640).  
 - Minor correction to license reference and another link to VStar source
   code (in Help page).
 
@@ -277,7 +279,7 @@ Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-22Nov2009
 Key Changes:
 - A fix for tracker entry 2901383 in which clicking on a phase plot point in 
   the standard half (phase >=0) failed with a null pointer exception.
-- Add minor note to Help about unsupported aavso download format.
+- Add minor note to Help about unsupported AAVSO download format.
 
 Date: November 20 2009
 Version: 294MP
@@ -310,11 +312,11 @@ Date: November 13 2009
 Version: 29:270MP
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-13Nov2009
 Key Changes:
-- This was the first WebStar release of VStar to CitizenSky, the culmination
+- This was the first WebStart release of VStar to CitizenSky, the culmination
   of 6 months of work that began on May 9 2009. Much of the work between 
   Subversion revision 166 
   (http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-17Aug2009) and this
-  release was bug fixes, refactoring of the code base, improvements due to 
-  feedback from David's CitizenSky 1 talk, and the addition of a first cut 
+  release consisted of bug fixes, refactoring of the code base, improvements 
+  due to feedback from David's Citizen Sky 1 talk, and the addition of a first cut 
   of phase plots.
   
