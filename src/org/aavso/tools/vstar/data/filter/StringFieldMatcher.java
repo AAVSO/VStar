@@ -20,28 +20,51 @@ package org.aavso.tools.vstar.data.filter;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * An observer code field matcher.
+ * String code field matcher.
  */
-public class ObsCodeFieldMatcher extends StringFieldMatcher {
+public abstract class StringFieldMatcher extends
+		AbstractObservationFieldMatcher<String> {
 
 	private final static ObservationMatcherOp[] ops = {
-		ObservationMatcherOp.EQUALS };
+			ObservationMatcherOp.EQUALS, ObservationMatcherOp.CONTAINS };
 
-	public ObsCodeFieldMatcher(String testValue, ObservationMatcherOp op) {
+	public StringFieldMatcher(String testValue, ObservationMatcherOp op,
+			ObservationMatcherOp[] ops) {
 		super(testValue, op, ops);
 	}
 
-	public ObsCodeFieldMatcher() {
-		super();
+	public StringFieldMatcher(String testValue, ObservationMatcherOp op) {
+		this(testValue, op, ops);
+	}
+
+	protected StringFieldMatcher() {
+		super(ops);
 	}
 
 	@Override
-	protected String getValue(ValidObservation ob) {
-		return ob.getObsCode();
+	public boolean matches(ValidObservation ob) {
+		boolean result = false;
+
+		switch (op) {
+		case EQUALS:
+			result = testValue.equals(getValue(ob));
+			break;
+		}
+
+		return result;
 	}
-	
+
+	/**
+	 * Get the value under test.
+	 * 
+	 * @param An
+	 *            observation containing the value.
+	 * @return The value to be matched against.
+	 */
+	protected abstract String getValue(ValidObservation ob);
+
 	@Override
-	public String getDisplayName() {
-		return "observer code";
+	public Class<?> getType() {
+		return String.class;
 	}
 }

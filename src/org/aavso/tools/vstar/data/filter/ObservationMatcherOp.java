@@ -25,5 +25,34 @@ public enum ObservationMatcherOp {
 	EQUALS,
 	CONTAINS,
 	LESS_THAN,
-	GREATER_THAN
+	GREATER_THAN,
+	LESS_THAN_OR_EQUAL,
+	GREATER_THAN_OR_EQUAL;
+	
+	public String toString() {
+		String s = null;
+		
+		switch(this) {
+		case EQUALS:
+			s = "equals";
+			break;
+		case CONTAINS:
+			s = "contains";
+			break;
+		case LESS_THAN:
+			s = "less than";
+			break;
+		case GREATER_THAN:
+			s = "greater than";
+			break;
+		case LESS_THAN_OR_EQUAL:
+			s = "less than or equal to";
+			break;
+		case GREATER_THAN_OR_EQUAL:
+			s = "greater than or equal to";
+			break;
+		}
+		
+		return s;
+	}
 }

@@ -38,4 +38,10 @@ public interface IObservationFieldMatcher {
 	 * An array of operations supported by this matcher.
 	 */
 	public abstract ObservationMatcherOp[] getMatcherOps();
+	
+	/**
+	 * What is the type of the field to be matched against?
+	 * @return A class representing a type.
+	 */
+	public abstract Class<?> getType();
 }
