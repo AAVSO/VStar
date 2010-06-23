@@ -42,6 +42,23 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 		this.testValue = testValue;
 		this.op = op;
 		this.ops = ops;
+		
+		// Is the operator legal with respect to supplied legal operators?
+		if (op != null) {
+			boolean found = false;
+			
+			for (ObservationMatcherOp possibleOp : ops) {
+				if (op == possibleOp) {
+					found = true;
+					break;
+				}
+			}
+			
+			if (!found) {
+				String msg = "Observation field matcher operation '" + op + "'";
+				throw new IllegalArgumentException(msg);
+			}
+		}
 	}
 
 	/**

@@ -20,28 +20,26 @@ package org.aavso.tools.vstar.data.filter;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * An observer code field matcher.
+ * A magnitude field matcher.
  */
-public class ObsCodeFieldMatcher extends StringFieldMatcher {
+public class MagnitudeFieldMatcher extends DoubleFieldMatcher {
 
-	private final static ObservationMatcherOp[] ops = {
-		ObservationMatcherOp.EQUALS };
-
-	public ObsCodeFieldMatcher(String testValue, ObservationMatcherOp op) {
-		super(testValue, op, ops);
+	public MagnitudeFieldMatcher(Double testValue, ObservationMatcherOp op) {
+		super(testValue, op);
 	}
 
-	public ObsCodeFieldMatcher() {
+	public MagnitudeFieldMatcher() {
 		super();
 	}
 
 	@Override
-	protected String getValue(ValidObservation ob) {
-		return ob.getObsCode();
+	protected Double getValue(ValidObservation ob) {
+		// Magnitude is mandatory; it cannot be null.
+		return ob.getMag();
 	}
 	
 	@Override
 	public String getDisplayName() {
-		return "observer code";
+		return "magnitude";
 	}
 }
