@@ -40,7 +40,7 @@ import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
 
 /**
  * This class represents a dialog to obtain parameters for phase plot
- * calculation: period, epoch determination method.
+ * calculation: period, epoch.
  */
 public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 		Listener<NewStarMessage>, PropertyChangeListener {
@@ -107,6 +107,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 
 	private JPanel createPeriodFieldPane() {
 		JPanel panel = new JPanel();
+		
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Period (days)"));
 
@@ -120,6 +121,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 
 	private JPanel createEpochFieldPane() {
 		JPanel panel = new JPanel();
+		// TODO: needed?
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Epoch (JD)"));
 

@@ -83,7 +83,8 @@ public class AboutBox {
 		strBuf.append("reports, advocacy, great conversations, and beer.\n\n");
 
 		strBuf.append("Thanks also to the Weber brothers (Adam and George)\n");
-		strBuf.append("for code and bug-fix contributions.");
+		strBuf.append("for code and bug-fix contributions, and to the\n");
+		strBuf.append("broader Citizen Sky VStar Software Development team.\n");
 
 		MessageBox
 				.showMessageDialog(

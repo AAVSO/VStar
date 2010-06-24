@@ -22,9 +22,26 @@ import org.aavso.tools.vstar.data.ValidObservation;
 public interface IObservationFieldMatcher {
 
 	/**
+	 * Creates and returns an instance of an observation matcher for the current
+	 * field matcher type. The returned matcher contains a value-to-be-matched
+	 * of the expected type given the supplied string field value. If the latter
+	 * cannot be converted to the expected type, null is returned. The match
+	 * operator to be used is also included in the returned object.
+	 * 
+	 * @param fieldValue
+	 *            The string field value to be converted to a match object.
+	 * @param op
+	 *            The match operator to be used.
+	 * @return The created matcher.
+	 */
+	public abstract IObservationFieldMatcher create(String fieldValue,
+			ObservationMatcherOp op);
+
+	/**
 	 * Does the specified observation match a test value?
 	 * 
-	 * @param ob The observation under test.
+	 * @param ob
+	 *            The observation under test.
 	 * @return True or false.
 	 */
 	public abstract boolean matches(ValidObservation ob);
@@ -38,9 +55,10 @@ public interface IObservationFieldMatcher {
 	 * An array of operations supported by this matcher.
 	 */
 	public abstract ObservationMatcherOp[] getMatcherOps();
-	
+
 	/**
 	 * What is the type of the field to be matched against?
+	 * 
 	 * @return A class representing a type.
 	 */
 	public abstract Class<?> getType();

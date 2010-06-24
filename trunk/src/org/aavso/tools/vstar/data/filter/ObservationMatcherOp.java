@@ -29,6 +29,36 @@ public enum ObservationMatcherOp {
 	LESS_THAN_OR_EQUAL,
 	GREATER_THAN_OR_EQUAL;
 	
+	/**
+	 * Given a string, return an operator enum value, or null.
+	 * Legal strings are those returned by toString().
+	 * 
+	 * @param str The operator as a string.
+	 * @return The operator as an enum value.
+	 */
+	public static ObservationMatcherOp fromString(String str) {
+		ObservationMatcherOp op = null;
+		
+		if (EQUALS.toString().equals(str)) {
+			op = EQUALS;
+		} else if (CONTAINS.toString().equals(str)) {
+			op = CONTAINS;
+		} else if (LESS_THAN.toString().equals(str)) {
+			op = LESS_THAN;
+		} else if (GREATER_THAN.toString().equals(str)) {
+			op = GREATER_THAN;
+		} else if (LESS_THAN_OR_EQUAL.toString().equals(str)) {
+			op = LESS_THAN_OR_EQUAL;
+		} else if (GREATER_THAN_OR_EQUAL.toString().equals(str)) {
+			op = GREATER_THAN_OR_EQUAL;
+		}
+		
+		return op;
+	}
+	
+	/**
+	 * Return a human-readable string for this operator.
+	 */
 	public String toString() {
 		String s = null;
 		

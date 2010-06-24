@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.data.filter;
 
+import org.aavso.tools.vstar.data.ValidObservation;
+
 /**
  * The interface for all observation field matchers.
  */
