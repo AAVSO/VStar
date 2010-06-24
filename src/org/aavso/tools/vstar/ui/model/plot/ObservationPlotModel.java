@@ -190,6 +190,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	public int addObservationSeries(SeriesType type,
 			List<ValidObservation> obSourceList) {
 
+		// TODO: we should assert that no series of this type
+		// has already been added
 		int seriesNum = this.getNextSeriesNum();
 
 		this.srcTypeToSeriesNumMap.put(type, seriesNum);
@@ -248,6 +250,9 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	public boolean removeObservationSeries(String name) {
 		boolean found = false;
 
+		// TODO: why don't we just pass SeriesType instead of string here
+		// and ask "Has this series been added yet? If so, remove it"?
+		
 		for (Map.Entry<Integer, SeriesType> entry : this.seriesNumToSrcTypeMap
 				.entrySet()) {
 			if (name.equals(entry.getValue())) {

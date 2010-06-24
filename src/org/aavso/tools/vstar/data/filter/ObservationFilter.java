@@ -65,6 +65,13 @@ public class ObservationFilter {
 	}
 
 	/**
+	 * Reset this filter's state.
+	 */
+	public void reset() {
+		matchers.clear();
+	}
+	
+	/**
 	 * Filter the supplied list of observations.
 	 * 
 	 * @param obs

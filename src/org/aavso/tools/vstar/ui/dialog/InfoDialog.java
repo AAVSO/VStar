@@ -47,6 +47,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 	// TODO: Use a table instead of a text area?
 	// Column numbers could vary depending upon
 	// how much info is present in StarInfo etc.
+	// Add more data of interest, e.g. spectral type
 
 	private JTextArea textArea;
 

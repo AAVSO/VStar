@@ -33,6 +33,20 @@ public class MagnitudeFieldMatcher extends DoubleFieldMatcher {
 	}
 
 	@Override
+	public IObservationFieldMatcher create(String fieldValue,
+			ObservationMatcherOp op) {
+		IObservationFieldMatcher matcher = null;
+		
+		try {
+			Double value = Double.parseDouble(fieldValue);
+			matcher = new MagnitudeFieldMatcher(value, op);
+		} catch (NumberFormatException e) {	
+		}
+		
+		return matcher;
+	}
+
+	@Override
 	protected Double getValue(ValidObservation ob) {
 		// Magnitude is mandatory; it cannot be null.
 		return ob.getMag();

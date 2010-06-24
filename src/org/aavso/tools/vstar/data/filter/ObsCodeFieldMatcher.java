@@ -36,6 +36,12 @@ public class ObsCodeFieldMatcher extends StringFieldMatcher {
 	}
 
 	@Override
+	public IObservationFieldMatcher create(String fieldValue,
+			ObservationMatcherOp op) {
+		return new ObsCodeFieldMatcher(fieldValue, op);
+	}
+
+	@Override
 	protected String getValue(ValidObservation ob) {
 		return ob.getObsCode();
 	}

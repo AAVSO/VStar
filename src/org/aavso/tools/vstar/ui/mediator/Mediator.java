@@ -51,6 +51,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
+import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.PhasePlotMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.RawDataMeanObservationTableModel;
@@ -116,13 +117,16 @@ public class Mediator {
 	// Persistent phase parameter dialog.
 	private PhaseParameterDialog phaseParameterDialog;
 
+	// Persistent observation filter dialog.
+	private ObservationFilterDialog obsFilterDialog;
+	
 	// Notifiers.
 	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
 	private Notifier<NewStarMessage> newStarNotifier;
 	private Notifier<ProgressInfo> progressNotifier;
 	// TODO: This next notifier could be used to mark the "document"
 	// (the current star's dataset) associated with the valid obs
-	// as dirty (optional for now).
+	// as being in need of saving (optional for now).
 	private Notifier<ObservationChangeMessage> observationChangeNotifier;
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
@@ -130,16 +134,6 @@ public class Mediator {
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
 	private Notifier<ZoomRequestMessage> zoomRequestNotifier;
 	
-	// - Add series visibility change message with delta map as payload.
-	// - Mean source series change should be propagated directly to all (up to
-	// 4)
-	// plot models; ditto for series visibility.
-	// - May need to have mean source series and visibility maps created and
-	// updated
-	// here in Mediator when a new data set is loaded. Checkboxes and radio
-	// buttons
-	// will then be populated from these for each dialog.
-
 	// Currently active task.
 	private SwingWorker currTask;
 
@@ -179,6 +173,9 @@ public class Mediator {
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
 
+		this.obsFilterDialog = new ObservationFilterDialog();
+		this.newStarNotifier.addListener(this.obsFilterDialog);
+		
 		this.periodChangeMessageNotifier
 				.addListener(createPeriodChangeListener());
 	}
@@ -384,6 +381,13 @@ public class Mediator {
 	 */
 	public PhaseParameterDialog getPhaseParameterDialog() {
 		return phaseParameterDialog;
+	}
+
+	/**
+	 * @return the obsFilterDialog
+	 */
+	public ObservationFilterDialog getObsFilterDialog() {
+		return obsFilterDialog;
 	}
 
 	/**

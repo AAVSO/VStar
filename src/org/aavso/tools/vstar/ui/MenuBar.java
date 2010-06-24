@@ -70,7 +70,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public static final String ZOOM_IN = "Zoom In";
 	public static final String ZOOM_OUT = "Zoom Out";
 	public static final String ZOOM_TO_FIT = "Zoom To Fit";
-
+	public static final String FILTER = "Filter...";
+	
 	// Analysis menu item names.
 	public static final String RAW_DATA = "Raw Data";
 	public static final String PHASE_PLOT = "Phase Plot...";
@@ -103,13 +104,14 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JMenuItem viewZoomInItem;
 	JMenuItem viewZoomOutItem;
 	JMenuItem viewZoomToFitItem;
-
+	JMenuItem viewFilterItem;
+	
 	// Analysis menu.
 	JCheckBoxMenuItem analysisRawDataItem;
 	JCheckBoxMenuItem analysisPhasePlotItem;
 
 	JMenu analysisPeriodSearchMenu;
-	JMenuItem analysisPeriodSearchItem; // TODO: rather than this: a JList?
+	JMenuItem analysisPeriodSearchItem;
 
 	// Help menu.
 	JMenuItem helpContentsItem;
@@ -223,6 +225,15 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		viewZoomToFitItem.addActionListener(createZoomToFitListener());
 		//viewMenu.add(viewZoomToFitItem);
 
+		viewMenu.addSeparator();		
+		
+		viewFilterItem = new JMenuItem(FILTER);
+		viewFilterItem.setEnabled(false);
+		viewFilterItem.addActionListener(createFilterListener());
+		viewMenu.add(viewFilterItem);
+		
+		// TODO: need menu item to negate filter(s)
+		
 		this.add(viewMenu);
 	}
 
@@ -464,6 +475,17 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		};
 	}
 
+	/**
+	 * Returns the action listener to be invoked for View->Filter...
+	 */
+	public ActionListener createFilterListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mediator.getObsFilterDialog().showDialog();
+			}
+		};
+	}
+	
 	// ** Analysis Menu listeners **
 
 	/**
@@ -628,6 +650,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.viewZoomInItem.setEnabled(state);
 		this.viewZoomOutItem.setEnabled(state);
 		this.viewZoomToFitItem.setEnabled(state);
+		this.viewFilterItem.setEnabled(state);
 		
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);

@@ -26,7 +26,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.ui.dialog.MeanSourceDialog;
+import org.aavso.tools.vstar.ui.dialog.series.MeanSourceDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;

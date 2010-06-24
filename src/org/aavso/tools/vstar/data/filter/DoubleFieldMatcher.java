@@ -43,7 +43,7 @@ public abstract class DoubleFieldMatcher extends
 	public DoubleFieldMatcher() {
 		super(ops);
 	}
-
+	
 	@Override
 	public boolean matches(ValidObservation ob) {
 		boolean result = false;
