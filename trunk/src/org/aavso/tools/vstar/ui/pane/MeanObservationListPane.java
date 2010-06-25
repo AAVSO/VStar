@@ -31,9 +31,11 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -45,7 +47,8 @@ public class MeanObservationListPane extends JPanel implements
 
 	private AbstractMeanObservationTableModel meanObsTableModel;
 	private JTable meanObsTable;
-
+	private TableRowSorter<AbstractMeanObservationTableModel> rowSorter;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -60,10 +63,9 @@ public class MeanObservationListPane extends JPanel implements
 		this.meanObsTable = new JTable(meanObsTableModel);
 
 		// Enable table sorting by clicking on a column.
-//		RowSorter<TableModel> rowSorter = new TableRowSorter<TableModel>(
-//				meanObsTableModel);
-//		meanObsTable.setRowSorter(rowSorter);
-		meanObsTable.setAutoCreateRowSorter(true);
+		rowSorter = new TableRowSorter<AbstractMeanObservationTableModel>(
+				meanObsTableModel);
+		meanObsTable.setRowSorter(rowSorter);
 
 		JScrollPane meanObsTableScrollPane = new JScrollPane(meanObsTable);
 
@@ -73,6 +75,11 @@ public class MeanObservationListPane extends JPanel implements
 		// also generates these, but ignores them if sent by itself.
 		Mediator.getInstance().getObservationSelectionNotifier().addListener(
 				createObservationSelectionListener());
+
+		// Listen to filtered observation messages so we can filter what's
+		// displayed in the table.
+//		Mediator.getInstance().getFilteredObservationNotifier().addListener(
+//				createFilteredObservationListener());
 
 		// List row selection handling.
 		this.meanObsTable.getSelectionModel().addListSelectionListener(this);
@@ -127,6 +134,23 @@ public class MeanObservationListPane extends JPanel implements
 		};
 	}
 
+	// Returns a filtered observation listener.
+//	private Listener<FilteredObservationMessage> createFilteredObservationListener() {
+//		return new Listener<FilteredObservationMessage>() {
+//			public void update(FilteredObservationMessage info) {
+//				if (info == FilteredObservationMessage.NO_FILTER) {
+//					rowSorter.setRowFilter(null);
+//				} else {
+//					rowSorter.setRowFilter(new ObservationTableRowFilter(info));
+//				}
+//			}
+//
+//			public boolean canBeRemoved() {
+//				return false;
+//			}
+//		};
+//	}
+
 	// List row selection event handler.
 	// We send an observation selection event when the value has
 	// "settled". This event could be consumed by other views such
@@ -136,9 +160,9 @@ public class MeanObservationListPane extends JPanel implements
 				&& meanObsTable.getRowSelectionAllowed()
 				&& !e.getValueIsAdjusting()) {
 			int row = meanObsTable.getSelectedRow();
-			row = meanObsTable.convertRowIndexToModel(row);
 			
 			if (row >= 0) {
+				row = meanObsTable.convertRowIndexToModel(row);
 				ValidObservation ob = meanObsTableModel.getMeanObsData().get(
 						row);
 				ObservationSelectionMessage message = new ObservationSelectionMessage(

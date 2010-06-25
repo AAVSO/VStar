@@ -45,10 +45,26 @@ public abstract class StringFieldMatcher extends
 	public boolean matches(ValidObservation ob) {
 		boolean result = false;
 
-		switch (op) {
-		case EQUALS:
-			result = testValue.equals(getValue(ob));
-			break;
+		String value = getValue(ob);
+
+		if (value == null) {
+			// If the underlying value is null and the
+			// test value (from filter text field) is
+			// the empty string, this should be considered
+			// a match. TODO: extend to ^\s*$ ? But spaces
+			// could be a legitimate search string.
+			if ("".equals(testValue)) {
+				result = true;
+			}
+		} else {
+			switch (op) {
+			case EQUALS:
+				result = value.equals(testValue);
+				break;
+			case CONTAINS:
+				result = value.contains(testValue);
+				break;
+			}
 		}
 
 		return result;
