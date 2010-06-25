@@ -44,6 +44,7 @@ import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
 import org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.ProgressInfo;
@@ -71,7 +72,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public static final String ZOOM_OUT = "Zoom Out";
 	public static final String ZOOM_TO_FIT = "Zoom To Fit";
 	public static final String FILTER = "Filter...";
-	
+	public static final String SHOW_ALL = "Show All";
+
 	// Analysis menu item names.
 	public static final String RAW_DATA = "Raw Data";
 	public static final String PHASE_PLOT = "Phase Plot...";
@@ -105,7 +107,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JMenuItem viewZoomOutItem;
 	JMenuItem viewZoomToFitItem;
 	JMenuItem viewFilterItem;
-	
+	JMenuItem viewShowAllItem;
+
 	// Analysis menu.
 	JCheckBoxMenuItem analysisRawDataItem;
 	JCheckBoxMenuItem analysisPhasePlotItem;
@@ -223,17 +226,20 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		viewZoomToFitItem = new JMenuItem(ZOOM_TO_FIT);
 		viewZoomToFitItem.setEnabled(false);
 		viewZoomToFitItem.addActionListener(createZoomToFitListener());
-		//viewMenu.add(viewZoomToFitItem);
+		// viewMenu.add(viewZoomToFitItem);
 
-		viewMenu.addSeparator();		
-		
+		viewMenu.addSeparator();
+
 		viewFilterItem = new JMenuItem(FILTER);
 		viewFilterItem.setEnabled(false);
 		viewFilterItem.addActionListener(createFilterListener());
 		viewMenu.add(viewFilterItem);
-		
-		// TODO: need menu item to negate filter(s)
-		
+
+		viewShowAllItem = new JMenuItem(SHOW_ALL);
+		viewShowAllItem.setEnabled(false);
+		viewShowAllItem.addActionListener(createShowAllListener());
+		viewMenu.add(viewShowAllItem);
+
 		this.add(viewMenu);
 	}
 
@@ -485,7 +491,19 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 			}
 		};
 	}
-	
+
+	/**
+	 * Returns the action listener to be invoked for View->Show All...
+	 */
+	public ActionListener createShowAllListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mediator.getFilteredObservationNotifier().notifyListeners(
+						FilteredObservationMessage.NO_FILTER);
+			}
+		};
+	}
+
 	// ** Analysis Menu listeners **
 
 	/**
@@ -610,7 +628,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 			}
 		};
 	}
-	
+
 	private void resetProgress(MainFrame parent) {
 		// TODO: why not set cursor in MainFrame or StatusPane?
 		parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -651,6 +669,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.viewZoomOutItem.setEnabled(state);
 		this.viewZoomToFitItem.setEnabled(state);
 		this.viewFilterItem.setEnabled(state);
+		this.viewShowAllItem.setEnabled(state);
 		
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);

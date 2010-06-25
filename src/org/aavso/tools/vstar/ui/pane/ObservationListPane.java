@@ -26,16 +26,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.RowSorter;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.MessageBase;
 import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
@@ -53,6 +51,7 @@ public class ObservationListPane extends JPanel implements
 	private JTable validDataTable;
 	private JTable invalidDataTable;
 	private ValidObservationTableModel validDataModel;
+	private TableRowSorter<ValidObservationTableModel> rowSorter;
 
 	/**
 	 * Constructor
@@ -64,12 +63,10 @@ public class ObservationListPane extends JPanel implements
 	 * @param enableAutoResize
 	 *            Enable auto-resize of columns? If true, we won't get a
 	 *            horizontal scrollbar for valid observation table.
-	 * @param enableSorting
-	 *            Enable sorting by clicking on columns?
 	 */
 	public ObservationListPane(ValidObservationTableModel validDataModel,
 			InvalidObservationTableModel invalidDataModel,
-			boolean enableAutoResize, boolean enableSorting) {
+			boolean enableAutoResize) {
 
 		super(new GridLayout(1, 1));
 
@@ -80,7 +77,7 @@ public class ObservationListPane extends JPanel implements
 
 			validDataTable = new JTable(validDataModel);
 			if (!enableAutoResize) {
-				// Ensure we get a horizontal scrollbar if necessary rather than 
+				// Ensure we get a horizontal scrollbar if necessary rather than
 				// trying to cram all the columns into the visible pane.
 				validDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			}
@@ -91,11 +88,9 @@ public class ObservationListPane extends JPanel implements
 			validDataTable.setRowSelectionAllowed(true);
 
 			// Enable table sorting by clicking on a column.
-			if (enableSorting) {
-//				RowSorter<TableModel> rowSorter = new TableRowSorter<TableModel>(validDataModel);
-//				validDataTable.setRowSorter(rowSorter);
-				validDataTable.setAutoCreateRowSorter(true);
-			}
+			rowSorter = new TableRowSorter<ValidObservationTableModel>(
+					validDataModel);
+			validDataTable.setRowSorter(rowSorter);
 
 			validDataScrollPane = new JScrollPane(validDataTable);
 		}
@@ -104,27 +99,23 @@ public class ObservationListPane extends JPanel implements
 
 		if (invalidDataModel != null) {
 			invalidDataTable = new JTable(invalidDataModel);
-			
-			// Ensure we get a horizontal scrollbar if necessary rather than 
+
+			// Ensure we get a horizontal scrollbar if necessary rather than
 			// trying to cram all the columns into the visible pane. This is
 			// particularly pertinent to the invalid data table since one of
-			// its columns contains the original line in the case of a file 
+			// its columns contains the original line in the case of a file
 			// source.
 			invalidDataTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-			
-			// Set the columns containing the observation and error to be 
+
+			// Set the columns containing the observation and error to be
 			// greater than the default width of the others.
 			TableColumnModel colModel = invalidDataTable.getColumnModel();
 			int totalWidth = colModel.getTotalColumnWidth();
-			colModel.getColumn(1).setPreferredWidth((int)(totalWidth*2.5));
-			colModel.getColumn(2).setPreferredWidth((int)(totalWidth*2));
+			colModel.getColumn(1).setPreferredWidth((int) (totalWidth * 2.5));
+			colModel.getColumn(2).setPreferredWidth((int) (totalWidth * 2));
 
 			// Enable table sorting by clicking on a column.
-			if (enableSorting) {
-//				RowSorter<TableModel> rowSorter = new TableRowSorter<TableModel>(invalidDataModel);
-//				invalidDataTable.setRowSorter(rowSorter);
-				invalidDataTable.setAutoCreateRowSorter(true);
-			}
+			invalidDataTable.setAutoCreateRowSorter(true);
 
 			invalidDataScrollPane = new JScrollPane(invalidDataTable);
 		}
@@ -157,6 +148,11 @@ public class ObservationListPane extends JPanel implements
 		Mediator.getInstance().getObservationSelectionNotifier().addListener(
 				createObservationSelectionListener());
 
+		// Listen to filtered observation messages so we can filter what's
+		// displayed in the table.
+		Mediator.getInstance().getFilteredObservationNotifier().addListener(
+				createFilteredObservationListener());
+
 		// List row selection handling.
 		this.validDataTable.getSelectionModel().addListSelectionListener(this);
 	}
@@ -188,7 +184,8 @@ public class ObservationListPane extends JPanel implements
 							.getRowIndexFromObservation(ob);
 					if (rowIndex != null) {
 						// Convert to view index!
-						rowIndex = validDataTable.convertRowIndexToView(rowIndex);
+						rowIndex = validDataTable
+								.convertRowIndexToView(rowIndex);
 
 						// Scroll to an arbitrary column (zeroth) within
 						// the selected row, then select that row.
@@ -217,21 +214,38 @@ public class ObservationListPane extends JPanel implements
 		};
 	}
 
+	// Returns a filtered observation listener.
+	private Listener<FilteredObservationMessage> createFilteredObservationListener() {
+		return new Listener<FilteredObservationMessage>() {
+			public void update(FilteredObservationMessage info) {
+				if (info == FilteredObservationMessage.NO_FILTER) {
+					rowSorter.setRowFilter(null);
+				} else {
+					rowSorter.setRowFilter(new ObservationTableRowFilter(info));
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
 	/**
-	 * We send an observation selection event when the value has
-	 * "settled". This event could be consumed by other views such
-	 * as plots.
+	 * We send an observation selection event when the value has "settled". This
+	 * event could be consumed by other views such as plots.
 	 * 
-	 * @param e The list selection event.
+	 * @param e
+	 *            The list selection event.
 	 */
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getSource() == validDataTable.getSelectionModel()
 				&& validDataTable.getRowSelectionAllowed()
 				&& !e.getValueIsAdjusting()) {
 			int row = validDataTable.getSelectedRow();
-			row = validDataTable.convertRowIndexToModel(row);
 
 			if (row >= 0) {
+				row = validDataTable.convertRowIndexToModel(row);
 				ValidObservation ob = validDataModel.getObservations().get(row);
 				ObservationSelectionMessage message = new ObservationSelectionMessage(
 						ob, this);

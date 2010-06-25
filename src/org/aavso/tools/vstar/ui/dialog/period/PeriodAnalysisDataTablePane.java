@@ -70,9 +70,10 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		if (e.getSource() == table.getSelectionModel()
 				&& table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
 			int row = table.getSelectedRow();
-			row = table.convertRowIndexToModel(row);
 			
 			if (row >= 0) {
+				row = table.convertRowIndexToModel(row);
+				
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 						this, row);
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()

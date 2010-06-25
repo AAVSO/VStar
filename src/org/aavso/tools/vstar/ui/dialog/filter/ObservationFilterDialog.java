@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.filter.IObservationFieldMatcher;
 import org.aavso.tools.vstar.data.filter.ObservationFilter;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.mediator.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -121,14 +122,21 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 			}
 		}
 
+		// Apply the filter (and all its sub-filters) to the full set of
+		// observations.
 		List<ValidObservation> obs = newStarMessage.getObservations();
-
+		
 		Map<Integer, ValidObservation> filteredObs = filter
 				.getFilteredObservations(obs);
 
-		// TODO: send message with obs map
+		// Send a message containing the observation subset.
+		FilteredObservationMessage msg = new FilteredObservationMessage(this,
+				filteredObs);
 
-		filterPanes.clear();
+		Mediator.getInstance().getFilteredObservationNotifier()
+				.notifyListeners(msg);
+
+		// Clear state for next use of this dialog.
 		filter.reset();
 		
 		setVisible(false);

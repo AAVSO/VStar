@@ -133,6 +133,7 @@ public class Mediator {
 	private Notifier<PeriodChangeMessage> periodChangeMessageNotifier;
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
 	private Notifier<ZoomRequestMessage> zoomRequestNotifier;
+	private Notifier<FilteredObservationMessage> filteredObservationNotifier;
 	
 	// Currently active task.
 	private SwingWorker currTask;
@@ -154,6 +155,7 @@ public class Mediator {
 		this.periodChangeMessageNotifier = new Notifier<PeriodChangeMessage>();
 		this.meanSourceSeriesChangeNotifier = new Notifier<MeanSourceSeriesChangeMessage>();
 		this.zoomRequestNotifier = new Notifier<ZoomRequestMessage>();
+		this.filteredObservationNotifier = new Notifier<FilteredObservationMessage>();
 		
 		this.obsListFileSaveDialog = new JFileChooser();
 
@@ -248,6 +250,13 @@ public class Mediator {
 	 */
 	public Notifier<ZoomRequestMessage> getZoomRequestNotifier() {
 		return zoomRequestNotifier;
+	}
+
+	/**
+	 * @return the filteredObservationNotifier
+	 */
+	public Notifier<FilteredObservationMessage> getFilteredObservationNotifier() {
+		return filteredObservationNotifier;
 	}
 
 	/**
@@ -660,7 +669,7 @@ public class Mediator {
 		// and database source).
 		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
 		obsListPane = new ObservationListPane(validObsTableModel,
-				invalidObsTableModel, enableColumnAutoResize, true);
+				invalidObsTableModel, enableColumnAutoResize);
 
 		// We also create the means list pane.
 		meansListPane = new MeanObservationListPane(meanObsTableModel);
@@ -813,7 +822,7 @@ public class Mediator {
 		// source).
 		boolean enableColumnAutoResize = newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
 		ObservationListPane obsListPane = new ObservationListPane(
-				validObsTableModel, null, enableColumnAutoResize, true);
+				validObsTableModel, null, enableColumnAutoResize);
 
 		MeanObservationListPane meansListPane = new MeanObservationListPane(
 				meanObsTableModel);

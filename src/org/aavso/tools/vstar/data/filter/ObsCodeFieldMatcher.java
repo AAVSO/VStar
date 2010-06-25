@@ -32,7 +32,7 @@ public class ObsCodeFieldMatcher extends StringFieldMatcher {
 	}
 
 	public ObsCodeFieldMatcher() {
-		super();
+		super(null, null, ops);
 	}
 
 	@Override
