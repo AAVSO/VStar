@@ -15,36 +15,35 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.resources;
+package org.aavso.tools.vstar.ui.mediator.message;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * The purpose of this class is to provide access to subversion revision number.
+ * Instances of this message class can be sent when a period analysis chart
+ * data-point selection occurs.
  */
+public class PeriodAnalysisSelectionMessage extends MessageBase {
 
-public class RevisionAccessor {
-
-	private static String REVISION = "370:526MP";
-
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\d+:(\\d+).*$");
+	private int item;
 
 	/**
-	 * Get the latest revision number if REVISION is of the form:
-	 * n:m... (i.e. get m), otherwise just return the whole revision
-	 * string. It doesn't really matter what it is so long as it's
-	 * unique from one commit of dist/vstar.jar to the next.
+	 * Constructor
+	 * 
+	 * @param source
+	 *            The source of this message.
+	 * @param item
+	 *            The item number of the value at the selection.
 	 */
-	public static String getRevNum() {
-		String rev = REVISION;
+	public PeriodAnalysisSelectionMessage(Object source,
+			int item) {
+		super(source);
+		this.item = item;
+	}
 
-		Matcher revMatcher = revNumPat.matcher(rev);
-		if (revMatcher.matches()) {
-			rev = revMatcher.group(1);
-		}
-		
-		return rev;
+	/**
+	 * @return the item
+	 */
+	public int getItem() {
+		return item;
 	}
 }

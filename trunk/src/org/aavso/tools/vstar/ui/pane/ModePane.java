@@ -28,9 +28,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
+import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**

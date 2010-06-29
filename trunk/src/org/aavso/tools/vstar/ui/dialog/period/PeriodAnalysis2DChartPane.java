@@ -18,7 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog.period;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.PeriodAnalysisSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.chart.ChartMouseEvent;

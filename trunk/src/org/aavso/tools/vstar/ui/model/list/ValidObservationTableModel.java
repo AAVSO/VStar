@@ -22,18 +22,19 @@ import java.util.WeakHashMap;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.aavso.tools.vstar.data.IOrderedObservationSource;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
-import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeType;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * A table model for valid observations.
  */
 public class ValidObservationTableModel extends AbstractTableModel implements
-		Listener<ObservationChangeMessage> {
+		Listener<ObservationChangeMessage>, IOrderedObservationSource {
 
 	/**
 	 * The list of valid observations retrieved.

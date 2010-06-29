@@ -15,28 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
-
-import org.aavso.tools.vstar.data.SeriesType;
+package org.aavso.tools.vstar.ui.mediator.message;
 
 /**
- * This message is sent when the source series of the current mean 
- * series has changed.
+ * The type of zoom.
  */
-public class MeanSourceSeriesChangeMessage extends MessageBase {
-
-	private SeriesType meanSourceSeriesType;
-	
-	public MeanSourceSeriesChangeMessage(Object source, SeriesType meanSourceSeriesType) {
-		super(source);
-		
-		this.meanSourceSeriesType = meanSourceSeriesType;
-	}
-
-	/**
-	 * @return the meanSourceSeriesType
-	 */
-	public SeriesType getMeanSourceSeriesType() {
-		return meanSourceSeriesType;
-	}
+public enum ZoomType {
+	ZOOM_IN, ZOOM_OUT, ZOOM_TO_FIT;
 }

@@ -15,36 +15,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
+package org.aavso.tools.vstar.ui.mediator.message;
 
-import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.SeriesType;
 
 /**
- * This message is sent to denote the selection of a valid observation 
- * from a specific source.
+ * This message is sent when the source series of the current mean 
+ * series has changed.
  */
-public class ObservationSelectionMessage extends MessageBase {
+public class MeanSourceSeriesChangeMessage extends MessageBase {
 
-	private ValidObservation observation;
+	private SeriesType meanSourceSeriesType;
 	
-	/**
-	 * Constructor.
-	 * 
-	 * @param observation
-	 *            The observation.
-	 * @param source
-	 *            The source of the message.
-	 */
-	public ObservationSelectionMessage(ValidObservation observation,
-			Object source) {
+	public MeanSourceSeriesChangeMessage(Object source, SeriesType meanSourceSeriesType) {
 		super(source);
-		this.observation = observation;
+		
+		this.meanSourceSeriesType = meanSourceSeriesType;
 	}
 
 	/**
-	 * @return the observation
+	 * @return the meanSourceSeriesType
 	 */
-	public ValidObservation getObservation() {
-		return observation;
+	public SeriesType getMeanSourceSeriesType() {
+		return meanSourceSeriesType;
 	}
 }

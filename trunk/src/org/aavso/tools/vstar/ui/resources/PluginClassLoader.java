@@ -80,7 +80,7 @@ public class PluginClassLoader {
 		File pluginPath = new File(PLUGIN_DIR_PATH);
 		if (pluginPath.exists() && pluginPath.isDirectory()) {
 			for (File file : pluginPath.listFiles(jarFilter)) {
-				// TODO: For now, assume the jar file name is the same 
+				// Note: Currently assume the jar file name is the same 
 				// as the qualified class to be loaded.
 				// Need XML or properties file or prefs for this.
 				String qualifiedClassName = file.getName().replace(".jar", "");

@@ -29,9 +29,9 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.dialog.series.MeanSourceDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
-import org.aavso.tools.vstar.ui.mediator.ZoomRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 

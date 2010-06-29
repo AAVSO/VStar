@@ -22,6 +22,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +38,10 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.ObservationSelectionMessage;
-import org.aavso.tools.vstar.ui.mediator.ZoomRequestMessage;
-import org.aavso.tools.vstar.ui.mediator.ZoomType;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.chart.ChartFactory;
@@ -199,6 +201,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		Mediator.getInstance().getZoomRequestNotifier().addListener(
 				createZoomRequestListener());
+
+		Mediator.getInstance().getFilteredObservationNotifier().addListener(
+				createFilteredObservationListener());
 	}
 
 	/**
@@ -408,7 +413,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			// if we are unconvinced about getting the right point at all zoom
 			// levels.
 		}
-		
+
 		lastPointClicked = event.getTrigger().getPoint();
 	}
 
@@ -421,14 +426,15 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	/**
 	 * Perform a zoom on the current plot.
 	 * 
-	 * @param info The zoom message.
+	 * @param info
+	 *            The zoom message.
 	 */
 	protected void doZoom(ZoomType zoomType) {
 		// "Reset" zoom level.
 		if (zoomType == ZoomType.ZOOM_TO_FIT) {
 			setMagScale();
 		}
-		
+
 		// TODO: This may need to be handled uniformly across
 		// all plots, i.e. all plots (raw x 2 and phase plot x 2)
 		// should zoom in unison, just like all plots should
@@ -471,6 +477,42 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			chart.getXYPlot().zoomRangeAxes(factor, plotInfo, sourcePoint,
 					anchorOnPoint);
 		}
+	}
+
+	// Returns a filtered observation listener.
+	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
+		return new Listener<FilteredObservationMessage>() {
+			public void update(FilteredObservationMessage info) {
+				if (info == FilteredObservationMessage.NO_FILTER) {
+					// No filter, so make the filtered series invisible.
+					if (obsModel.seriesExists(SeriesType.Filtered)) {
+						int num = obsModel.getSrcTypeToSeriesNumMap().get(
+								SeriesType.Filtered);
+						obsModel.changeSeriesVisibility(num, false);
+					}
+				} else {
+					// Convert set of filtered observations to list then add
+					// or replace the filter series.
+					List<ValidObservation> obs = new ArrayList<ValidObservation>();
+					for (ValidObservation ob : info.getFilteredObs()) {
+						obs.add(ob);
+					}
+
+					if (obsModel.seriesExists(SeriesType.Filtered)) {
+						obsModel.replaceObservationSeries(SeriesType.Filtered,
+								obs);
+					} else {
+						int num = obsModel.addObservationSeries(
+								SeriesType.Filtered, obs);
+						obsModel.changeSeriesVisibility(num, true);
+					}
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
 	}
 
 	// From ChartMouseListener
@@ -554,7 +596,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			max += margin;
 
 			NumberAxis magAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
-			magAxis.setRange(new Range(min, max));			
+			magAxis.setRange(new Range(min, max));
 		}
 	}
 }

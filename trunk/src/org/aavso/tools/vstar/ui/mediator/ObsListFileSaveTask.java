@@ -27,6 +27,7 @@ import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
 /**
  * A concurrent task in which an observation list file save operation takes

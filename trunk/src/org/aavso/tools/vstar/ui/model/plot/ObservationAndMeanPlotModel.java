@@ -26,8 +26,8 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
-import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeType;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.DescStats;
 
@@ -118,12 +118,14 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			// } else {
 			// ...do the if (!found) code below...
 			// }
+			//
+			// or even: 
+			// if (this.srcTypeToSeriesNumMap.get(type) != null) ...
 			for (Map.Entry<Integer, SeriesType> entry : this.seriesNumToSrcTypeMap
 					.entrySet()) {
 				if (SeriesType.MEANS.equals(entry.getValue())) {
 					int series = entry.getKey();
 					this.seriesNumToObSrcListMap.put(series, meanObsList);
-					// TODO: why not do this fire call after !found block below?
 					this.fireDatasetChanged();
 					found = true;
 					break;

@@ -36,8 +36,8 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 
 /**
  * Information dialog for the currently loaded document.

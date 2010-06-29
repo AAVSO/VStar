@@ -24,8 +24,8 @@ import javax.swing.JTabbedPane;
 
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.PeriodAnalysisSelectionMessage;
-import org.aavso.tools.vstar.ui.mediator.PeriodChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;

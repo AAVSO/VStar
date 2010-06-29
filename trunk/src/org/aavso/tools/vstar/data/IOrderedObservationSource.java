@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,31 +15,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
+package org.aavso.tools.vstar.data;
+
+import java.util.List;
 
 /**
- * This message should be sent when a zoom (in or out) action is required by
- * some or all listeners.
+ * Classes implementing this interface are a source of ordered, 
+ * valid observations.
  */
-public class ZoomRequestMessage extends MessageBase {
-
-	private ZoomType zoomType;
-	
-	/**
-	 * Constructor.
-	 * 
-	 * @param source The source of this message.
-	 * @param zoomType Zoom in or out?
-	 */
-	public ZoomRequestMessage(Object source, ZoomType zoomType) {
-		super(source);
-		this.zoomType = zoomType;
-	}
+public interface IOrderedObservationSource {
 
 	/**
-	 * @return the zoomType
+	 * Returns a list of valid observations.
 	 */
-	public ZoomType getZoomType() {
-		return zoomType;
-	}
+	public abstract List<ValidObservation> getObservations();
 }

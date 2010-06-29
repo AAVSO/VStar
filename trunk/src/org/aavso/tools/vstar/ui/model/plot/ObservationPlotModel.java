@@ -30,8 +30,8 @@ import java.util.TreeSet;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
-import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeType;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.data.DomainOrder;
 import org.jfree.data.xy.AbstractIntervalXYDataset;
@@ -106,7 +106,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	/**
 	 * Constructor (for light curve plots).
 	 * 
-	 * We add named observation source lists to unique series numbers. 
+	 * We add named observation source lists to unique series numbers.
 	 * 
 	 * @param obsSourceListMap
 	 *            A mapping from source series to lists of observation sources.
@@ -147,9 +147,9 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	/**
 	 * Constructor (for phase plots).
 	 * 
-	 * We add named observation source lists to unique series numbers, 
-	 * and if the visibility map is non-null, potentially change the set 
-	 * of visible series.
+	 * We add named observation source lists to unique series numbers, and if
+	 * the visibility map is non-null, potentially change the set of visible
+	 * series.
 	 * 
 	 * @param obsSourceListMap
 	 *            A mapping from source series to lists of observation sources.
@@ -176,26 +176,27 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
-	 * Add an observation series.
+	 * Add an observation series, first removing an existing entry for the
+	 * specified series type if one exists.
 	 * 
 	 * @param type
 	 *            The series type to be associated with the series.
-	 * @param obSourceList
+	 * @param obs
 	 *            A series (list) of observations, in particular, magnitude and
 	 *            Julian Day.
 	 * @return The number of the series added.
+	 * @precondition The series has not yet been added to the plot.
 	 * @postcondition Both seriesNumToObSrcListMap and seriesNumToSrcTypeMap
 	 *                must be the same length.
 	 */
-	public int addObservationSeries(SeriesType type,
-			List<ValidObservation> obSourceList) {
+	public int addObservationSeries(SeriesType type, List<ValidObservation> obs) {
 
-		// TODO: we should assert that no series of this type
-		// has already been added
+		assert this.srcTypeToSeriesNumMap.get(type) == null;
+
 		int seriesNum = this.getNextSeriesNum();
 
 		this.srcTypeToSeriesNumMap.put(type, seriesNum);
-		this.seriesNumToObSrcListMap.put(seriesNum, obSourceList);
+		this.seriesNumToObSrcListMap.put(seriesNum, obs);
 		this.seriesNumToSrcTypeMap.put(seriesNum, type);
 		this.seriesVisibilityMap.put(seriesNum, isSeriesVisibleByDefault(type));
 
@@ -228,7 +229,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 			// SortedSet<E> l = null;
 			Collections.sort(obList, obComparator);
 		} else {
-			// The series does not yet exist, so create it with a single datapoint.
+			// The series does not yet exist, so create it with
+			// a single datapoint.
 			List<ValidObservation> obsList = new ArrayList<ValidObservation>();
 			obsList.add(ob);
 			addObservationSeries(series, obsList);
@@ -236,35 +238,50 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
-	 * Remove the named series from the model. This operation has time
-	 * complexity O(n) but n (the number of series) will never be too large.
+	 * Replace an existing series
+	 * 
+	 * @param type
+	 *            The series type to be associated with the series.
+	 * @param obs
+	 *            A series (list) of observations, in particular, magnitude and
+	 *            Julian Day.
+	 * @return The number of the series added.
+	 * @precondition The series has already been added to the plot.
+	 */
+	public void replaceObservationSeries(SeriesType type,
+			List<ValidObservation> obs) {
+		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);
+		assert seriesNum != null;
+		this.seriesNumToObSrcListMap.put(seriesNum, obs);
+		this.fireDatasetChanged();
+	}
+
+	/**
+	 * Remove the specified series from the model.
 	 * 
 	 * Whether or not the named series was removed (it may not have existed to
 	 * begin with) is returned. The caller can determine whether or not this
 	 * matters.
 	 * 
-	 * @param name
-	 *            The source name of the series.
+	 * Note: Be careful with this method, otherwise there will be gaps in the
+	 * series number sequence. Arguably we should remove this method.
+	 * 
+	 * @param type
+	 *            The series type.
 	 * @return Whether or not the series was removed.
 	 */
-	public boolean removeObservationSeries(String name) {
+	public boolean removeObservationSeries(SeriesType type) {
 		boolean found = false;
 
-		// TODO: why don't we just pass SeriesType instead of string here
-		// and ask "Has this series been added yet? If so, remove it"?
-		
-		for (Map.Entry<Integer, SeriesType> entry : this.seriesNumToSrcTypeMap
-				.entrySet()) {
-			if (name.equals(entry.getValue())) {
-				this.srcTypeToSeriesNumMap.remove(name);
-				int series = entry.getKey();
-				this.seriesNumToSrcTypeMap.remove(series);
-				this.seriesNumToObSrcListMap.remove(series);
-				this.seriesVisibilityMap.remove(series);
-				this.fireDatasetChanged();
-				found = true;
-				break;
-			}
+		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);
+
+		if (seriesNum != null) {
+			this.srcTypeToSeriesNumMap.remove(type);
+			this.seriesNumToSrcTypeMap.remove(seriesNum);
+			this.seriesNumToObSrcListMap.remove(seriesNum);
+			this.seriesVisibilityMap.remove(seriesNum);
+			this.fireDatasetChanged();
+			found = true;
 		}
 
 		return found;
@@ -342,6 +359,17 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 */
 	public SeriesType[] getSeriesKeys() {
 		return this.srcTypeToSeriesNumMap.keySet().toArray(new SeriesType[0]);
+	}
+
+	/**
+	 * Does the specified series type exist, i.e. has it been added to the plot?
+	 * 
+	 * @param type
+	 *            The series type in question.
+	 * @return Whether the series has been added to the plot.
+	 */
+	public boolean seriesExists(SeriesType type) {
+		return this.srcTypeToSeriesNumMap.containsKey(type);
 	}
 
 	/**
@@ -572,7 +600,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 			}
 		}
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
 	 */

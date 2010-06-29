@@ -43,13 +43,13 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
 import org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
-import org.aavso.tools.vstar.ui.mediator.AnalysisTypeChangeMessage;
-import org.aavso.tools.vstar.ui.mediator.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
-import org.aavso.tools.vstar.ui.mediator.ProgressInfo;
-import org.aavso.tools.vstar.ui.mediator.ZoomRequestMessage;
-import org.aavso.tools.vstar.ui.mediator.ZoomType;
+import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.resources.PluginClassLoader;
 import org.aavso.tools.vstar.util.notification.Listener;
 
@@ -72,7 +72,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public static final String ZOOM_OUT = "Zoom Out";
 	public static final String ZOOM_TO_FIT = "Zoom To Fit";
 	public static final String FILTER = "Filter...";
-	public static final String SHOW_ALL = "Show All";
+	public static final String NO_FILTER = "No Filter";
 
 	// Analysis menu item names.
 	public static final String RAW_DATA = "Raw Data";
@@ -107,7 +107,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JMenuItem viewZoomOutItem;
 	JMenuItem viewZoomToFitItem;
 	JMenuItem viewFilterItem;
-	JMenuItem viewShowAllItem;
+	JMenuItem viewNoFilterItem;
 
 	// Analysis menu.
 	JCheckBoxMenuItem analysisRawDataItem;
@@ -235,10 +235,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		viewFilterItem.addActionListener(createFilterListener());
 		viewMenu.add(viewFilterItem);
 
-		viewShowAllItem = new JMenuItem(SHOW_ALL);
-		viewShowAllItem.setEnabled(false);
-		viewShowAllItem.addActionListener(createShowAllListener());
-		viewMenu.add(viewShowAllItem);
+		viewNoFilterItem = new JMenuItem(NO_FILTER);
+		viewNoFilterItem.setEnabled(false);
+		viewNoFilterItem.addActionListener(createShowAllListener());
+		viewMenu.add(viewNoFilterItem);
 
 		this.add(viewMenu);
 	}
@@ -669,7 +669,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.viewZoomOutItem.setEnabled(state);
 		this.viewZoomToFitItem.setEnabled(state);
 		this.viewFilterItem.setEnabled(state);
-		this.viewShowAllItem.setEnabled(state);
+		this.viewNoFilterItem.setEnabled(state);
 		
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);

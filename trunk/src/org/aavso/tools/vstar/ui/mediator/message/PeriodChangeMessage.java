@@ -15,35 +15,33 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
-
+package org.aavso.tools.vstar.ui.mediator.message;
 
 /**
- * Instances of this message class can be sent when a period analysis chart
- * data-point selection occurs.
+ * This message should be sent
  */
-public class PeriodAnalysisSelectionMessage extends MessageBase {
+public class PeriodChangeMessage extends MessageBase {
 
-	private int item;
+	private double period;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 * 
 	 * @param source
-	 *            The source of this message.
-	 * @param item
-	 *            The item number of the value at the selection.
+	 *            The source of the message.
+	 * @param period
+	 *            The new period. Note that it may not actually be new. That is
+	 *            up to the receiver to decide.
 	 */
-	public PeriodAnalysisSelectionMessage(Object source,
-			int item) {
+	public PeriodChangeMessage(Object source, double period) {
 		super(source);
-		this.item = item;
+		this.period = period;
 	}
 
 	/**
-	 * @return the item
+	 * @return the period
 	 */
-	public int getItem() {
-		return item;
+	public double getPeriod() {
+		return period;
 	}
 }
