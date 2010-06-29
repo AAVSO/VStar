@@ -19,37 +19,29 @@ package org.aavso.tools.vstar.ui.pane;
 
 import javax.swing.RowFilter;
 
-import org.aavso.tools.vstar.ui.mediator.FilteredObservationMessage;
-import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
+import org.aavso.tools.vstar.data.IOrderedObservationSource;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 
 /**
- * An observation table row filter class.
+ * An observation table row filter.
  */
 public class ObservationTableRowFilter extends
-		RowFilter<ValidObservationTableModel, Integer> {
-	
+		RowFilter<IOrderedObservationSource, Integer> {
+
 	private FilteredObservationMessage filteredObsMsg;
 
-	ObservationTableRowFilter(FilteredObservationMessage msg) {
-		filteredObsMsg = msg;
+	ObservationTableRowFilter(FilteredObservationMessage filteredObsMsg) {
+		this.filteredObsMsg = filteredObsMsg;
 	}
 
-	// TODO: Instead, create an interface IObservationSource with getObservations()
-	// method that we can pull ValidObservations from and check for presence in a
-	// HashSet of filtered ValidObservations keyed on reference for O(1) lookup.
-	
-	// Note that this won't help mean observation list filtering since the
-	// filtered set will only contain raw valid obs. So, we won't include mean
-	// observations in table or on plots for filtering. Either that or we have to
-	// add the means in with the obs being filtered, recalculating the set when 
-	// the mean series changes.
-	
-	// The code changes are still worth it from the efficiency and genericity angles.
-	
 	@Override
 	public boolean include(
-			RowFilter.Entry<? extends ValidObservationTableModel, ? extends Integer> entry) {
+			RowFilter.Entry<? extends IOrderedObservationSource, ? extends Integer> entry) {
 		int id = entry.getIdentifier();
-		return filteredObsMsg.getFilteredObsMap().keySet().contains(id);
+		IOrderedObservationSource model = entry.getModel();
+		ValidObservation ob = model.getObservations().get(id);
+		boolean include = filteredObsMsg.getFilteredObs().contains(ob);
+		return include;
 	}
 }

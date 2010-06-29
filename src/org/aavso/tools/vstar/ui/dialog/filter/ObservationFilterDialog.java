@@ -21,7 +21,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -32,9 +32,9 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.filter.IObservationFieldMatcher;
 import org.aavso.tools.vstar.data.filter.ObservationFilter;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
-import org.aavso.tools.vstar.ui.mediator.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -122,11 +122,15 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 			}
 		}
 
+		// TODO: at time of filtering, also get current mean obs list
+		// and apply getFilteredObservations() to that, then create the
+		// set of valid obs from both filterings?
+		
 		// Apply the filter (and all its sub-filters) to the full set of
 		// observations.
 		List<ValidObservation> obs = newStarMessage.getObservations();
 		
-		Map<Integer, ValidObservation> filteredObs = filter
+		Set<ValidObservation> filteredObs = filter
 				.getFilteredObservations(obs);
 
 		// Send a message containing the observation subset.

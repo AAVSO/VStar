@@ -15,11 +15,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
+package org.aavso.tools.vstar.ui.mediator.message;
 
 /**
- * The type of zoom.
+ * This message should be sent when a zoom (in or out) action is required by
+ * some or all listeners.
  */
-public enum ZoomType {
-	ZOOM_IN, ZOOM_OUT, ZOOM_TO_FIT;
+public class ZoomRequestMessage extends MessageBase {
+
+	private ZoomType zoomType;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param source The source of this message.
+	 * @param zoomType Zoom in or out?
+	 */
+	public ZoomRequestMessage(Object source, ZoomType zoomType) {
+		super(source);
+		this.zoomType = zoomType;
+	}
+
+	/**
+	 * @return the zoomType
+	 */
+	public ZoomType getZoomType() {
+		return zoomType;
+	}
 }

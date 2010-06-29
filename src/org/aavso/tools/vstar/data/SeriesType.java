@@ -38,7 +38,7 @@ import org.aavso.tools.vstar.util.notification.Notifier;
  * A type for bands and other series types, e.g. fainter-thans, means.
  */
 public enum SeriesType {
-
+	
 	// ** Auto-generated bands from aid.bands start here **
 
 	Visual(0, "Visual", "Vis.", new Color(0, 0, 0)), Unknown(1, "Unknown",
@@ -81,10 +81,14 @@ public enum SeriesType {
 	// Aaron's suggestion was to make Discrepant points light gray.
 	// TODO: change dark gray to this below once chart background is white?
 
-	FAINTER_THAN(-1, "Fainter Than", Color.YELLOW), MEANS(-1, "Means",
+	FAINTER_THAN(SeriesType.NO_INDEX, "Fainter Than", Color.YELLOW), MEANS(-1, "Means",
 			Color.BLUE), DISCREPANT(-1, "Discrepant", Color.DARK_GRAY),
 
-	Unspecified(-1, "Unspecified", Color.ORANGE);
+	Unspecified(SeriesType.NO_INDEX, "Unspecified", Color.ORANGE),
+
+	Filtered(SeriesType.NO_INDEX, "Filtered", Color.WHITE);
+
+	private final static int NO_INDEX = -1;
 
 	private static Map<Integer, SeriesType> index2SeriesMap = new HashMap<Integer, SeriesType>();
 	private static Map<String, SeriesType> shortName2SeriesMap = new HashMap<String, SeriesType>();

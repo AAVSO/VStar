@@ -15,33 +15,36 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
+package org.aavso.tools.vstar.ui.mediator.message;
+
+import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This message should be sent
+ * This message is sent to denote the selection of a valid observation 
+ * from a specific source.
  */
-public class PeriodChangeMessage extends MessageBase {
+public class ObservationSelectionMessage extends MessageBase {
 
-	private double period;
-
+	private ValidObservation observation;
+	
 	/**
 	 * Constructor.
 	 * 
+	 * @param observation
+	 *            The observation.
 	 * @param source
 	 *            The source of the message.
-	 * @param period
-	 *            The new period. Note that it may not actually be new. That is
-	 *            up to the receiver to decide.
 	 */
-	public PeriodChangeMessage(Object source, double period) {
+	public ObservationSelectionMessage(ValidObservation observation,
+			Object source) {
 		super(source);
-		this.period = period;
+		this.observation = observation;
 	}
 
 	/**
-	 * @return the period
+	 * @return the observation
 	 */
-	public double getPeriod() {
-		return period;
+	public ValidObservation getObservation() {
+		return observation;
 	}
 }

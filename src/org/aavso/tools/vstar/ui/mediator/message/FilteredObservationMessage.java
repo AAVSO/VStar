@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
+package org.aavso.tools.vstar.ui.mediator.message;
 
-import java.util.Map;
+import java.util.Set;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 
@@ -28,8 +28,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 public class FilteredObservationMessage extends MessageBase {
 
 	public static final FilteredObservationMessage NO_FILTER = null;
-	
-	private Map<Integer, ValidObservation> filteredObsMap;
+
+	private Set<ValidObservation> filteredObs;
 
 	/**
 	 * Constructor.
@@ -37,19 +37,18 @@ public class FilteredObservationMessage extends MessageBase {
 	 * @param source
 	 *            The source of the message.
 	 * @param filteredObsMap
-	 *            A mapping from index to observation which denotes a subset of
-	 *            valid observations.
+	 *            A sorted subset of valid observations.
 	 */
 	public FilteredObservationMessage(Object source,
-			Map<Integer, ValidObservation> filteredObsMap) {
+			Set<ValidObservation> filteredObs) {
 		super(source);
-		this.filteredObsMap = filteredObsMap;
+		this.filteredObs = filteredObs;
 	}
 
 	/**
-	 * @return the filteredObsMap
+	 * @return the filteredObs
 	 */
-	public Map<Integer, ValidObservation> getFilteredObsMap() {
-		return filteredObsMap;
+	public Set<ValidObservation> getFilteredObs() {
+		return filteredObs;
 	}
 }

@@ -18,9 +18,10 @@
 package org.aavso.tools.vstar.data.filter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -70,25 +71,27 @@ public class ObservationFilter {
 	public void reset() {
 		matchers.clear();
 	}
-	
+
 	/**
 	 * Filter the supplied list of observations.
 	 * 
 	 * @param obs
 	 *            The observation list to be filtered.
-	 * @return The filtered list.
+	 * @return The set of filtered observations, ordered by JD.
 	 */
-	public Map<Integer, ValidObservation> getFilteredObservations(
+	public Set<ValidObservation> getFilteredObservations(
 			List<ValidObservation> obs) {
-		Map<Integer, ValidObservation> matchingObs = new HashMap<Integer, ValidObservation>();
+		// We use a LinkedHashSet to maintain addition and lookup efficiency
+		// while maintaining insertion order.
+		Set<ValidObservation> matchingObs = new LinkedHashSet<ValidObservation>();
 
 		for (int i = 0; i < obs.size(); i++) {
 			ValidObservation ob = obs.get(i);
 			if (matches(ob)) {
-				matchingObs.put(i, ob);
+				matchingObs.add(ob);
 			}
 		}
-
+		
 		return matchingObs;
 	}
 

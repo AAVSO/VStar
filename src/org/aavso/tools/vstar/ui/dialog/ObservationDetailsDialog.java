@@ -39,8 +39,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.ObservationChangeMessage;
-import org.aavso.tools.vstar.ui.mediator.ObservationChangeType;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeType;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**

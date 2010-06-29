@@ -24,11 +24,11 @@ import javax.swing.JDialog;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.PluginBase;
-import org.aavso.tools.vstar.ui.mediator.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.NewStarMessage;
-import org.aavso.tools.vstar.ui.mediator.PeriodAnalysisSelectionMessage;
-import org.aavso.tools.vstar.ui.mediator.PeriodChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 

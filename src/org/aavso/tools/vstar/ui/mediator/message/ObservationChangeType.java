@@ -15,23 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
+package org.aavso.tools.vstar.ui.mediator.message;
 
 /**
- * A base class for Notifier messages.
+ * This enumeration specifies possible changes that 
+ * may take place on one or more observations.
  */
-public class MessageBase {
+public enum ObservationChangeType {
 
-	protected Object source;
-
-	public MessageBase(Object source) {
-		this.source = source;
-	}
-
-	/**
-	 * @return the source
-	 */
-	public Object getSource() {
-		return source;
-	}
+	// The observation has been marked as discrepant.
+	DISCREPANT;
 }
