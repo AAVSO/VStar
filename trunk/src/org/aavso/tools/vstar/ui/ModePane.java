@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
-package org.aavso.tools.vstar.ui.pane;
+package org.aavso.tools.vstar.ui;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;

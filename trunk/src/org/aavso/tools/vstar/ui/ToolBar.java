@@ -54,6 +54,8 @@ public class ToolBar extends JPanel {
 	private Icon zoomInIcon;
 	private Icon zoomOutIcon;
 
+	private Icon filterIcon;
+
 	private Icon prefsIcon;
 	private Icon helpContentsIcon;
 
@@ -70,6 +72,8 @@ public class ToolBar extends JPanel {
 
 	private JButton zoomInButton;
 	private JButton zoomOutButton;
+
+	private JButton filterButton;
 
 	private JButton prefsButton;
 	private JButton helpContentsButton;
@@ -135,6 +139,9 @@ public class ToolBar extends JPanel {
 		zoomOutIcon = ResourceAccessor
 				.getIconResource("/toolbarButtonGraphics/general/ZoomOut24.gif");
 
+		filterIcon = ResourceAccessor
+		.getIconResource("/toolbarButtonGraphics/general/Find24.gif");
+
 		helpContentsIcon = ResourceAccessor
 				.getIconResource("/toolbarButtonGraphics/general/Help24.gif");
 
@@ -142,6 +149,7 @@ public class ToolBar extends JPanel {
 				|| infoIcon == null || saveIcon == null || printIcon == null
 				|| rawDataIcon == null || phasePlotIcon == null
 				|| zoomInIcon == null || zoomOutIcon == null
+				|| filterIcon == null
 				|| prefsIcon == null || helpContentsIcon == null) {
 			
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
@@ -221,6 +229,14 @@ public class ToolBar extends JPanel {
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
+		filterButton = new JButton(filterIcon);
+		filterButton.setToolTipText(MenuBar.FILTER);
+		filterButton.addActionListener(menuBar.createFilterListener());
+		filterButton.setEnabled(false);
+		buttonPanel.add(filterButton);
+
+		buttonPanel.add(Box.createHorizontalStrut(10));
+
 		prefsButton = new JButton(prefsIcon);
 		prefsButton.setToolTipText(MenuBar.PREFS);
 		prefsButton.addActionListener(menuBar.createPrefsListener());
@@ -277,5 +293,7 @@ public class ToolBar extends JPanel {
 		
 		zoomInButton.setEnabled(state);
 		zoomOutButton.setEnabled(state);		
+		
+		filterButton.setEnabled(state);		
 	}
 }

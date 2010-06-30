@@ -67,6 +67,22 @@ public class MessageBox {
 	}
 
 	/**
+	 * Pop-up a warning message dialog box.
+	 * 
+	 * @param parent
+	 *            The component to appear with respect to.
+	 * @param title
+	 *            The title of the dialog.
+	 * @param msg
+	 *            The message that is the content of the dialog.
+	 */
+	public static void showWarningDialog(Component parent, String title,
+			String msg) {
+		JOptionPane.showMessageDialog(parent, msg, title,
+				JOptionPane.WARNING_MESSAGE);
+	}
+
+	/**
 	 * Pop-up an error message dialog box.
 	 * 
 	 * @param parent

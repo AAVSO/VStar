@@ -24,8 +24,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.aavso.tools.vstar.ui.pane.StatusPane;
-import org.aavso.tools.vstar.ui.pane.TabbedDataPane;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**

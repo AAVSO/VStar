@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.pane;
+package org.aavso.tools.vstar.ui.pane.list;
 
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -32,6 +32,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
@@ -172,7 +173,7 @@ public class ObservationListPane extends JPanel implements
 	}
 
 	// Returns an observation selection listener.
-	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+	protected Listener<ObservationSelectionMessage> createObservationSelectionListener() {
 		return new Listener<ObservationSelectionMessage>() {
 
 			public void update(ObservationSelectionMessage message) {
@@ -202,8 +203,14 @@ public class ObservationListPane extends JPanel implements
 								colWidth, rowHeight * rowIndex, colWidth,
 								rowHeight));
 
-						validDataTable.setRowSelectionInterval(rowIndex,
-								rowIndex);
+						try {
+							validDataTable.setRowSelectionInterval(rowIndex,
+									rowIndex);
+						} catch (IllegalArgumentException e) {
+							// We ignore this since this is entirely possible when filtering
+							// is enabled. If filtering is not enabled, we should probably
+							// open an error dialog.
+						}
 					}
 				}
 			}
@@ -215,13 +222,19 @@ public class ObservationListPane extends JPanel implements
 	}
 
 	// Returns a filtered observation listener.
-	private Listener<FilteredObservationMessage> createFilteredObservationListener() {
+	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
 		return new Listener<FilteredObservationMessage>() {
 			public void update(FilteredObservationMessage info) {
-				if (info == FilteredObservationMessage.NO_FILTER) {
-					rowSorter.setRowFilter(null);
-				} else {
-					rowSorter.setRowFilter(new ObservationTableRowFilter(info));
+				// Currently, due to the way we render phase plots, filtering
+				// will be disabled for anything but raw analysis mode, and that
+				// includes tables, for consistency.
+				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+					if (info == FilteredObservationMessage.NO_FILTER) {
+						rowSorter.setRowFilter(null);
+					} else {
+						rowSorter.setRowFilter(new ObservationTableRowFilter(
+								info));
+					}
 				}
 			}
 

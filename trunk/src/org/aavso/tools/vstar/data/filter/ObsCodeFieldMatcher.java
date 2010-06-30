@@ -48,6 +48,6 @@ public class ObsCodeFieldMatcher extends StringFieldMatcher {
 	
 	@Override
 	public String getDisplayName() {
-		return "observer code";
+		return "Observer Code";
 	}
 }
