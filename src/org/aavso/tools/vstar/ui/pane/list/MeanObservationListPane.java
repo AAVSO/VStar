@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.pane;
+package org.aavso.tools.vstar.ui.pane.list;
 
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -133,23 +133,6 @@ public class MeanObservationListPane extends JPanel implements
 			}
 		};
 	}
-
-	// Returns a filtered observation listener.
-//	private Listener<FilteredObservationMessage> createFilteredObservationListener() {
-//		return new Listener<FilteredObservationMessage>() {
-//			public void update(FilteredObservationMessage info) {
-//				if (info == FilteredObservationMessage.NO_FILTER) {
-//					rowSorter.setRowFilter(null);
-//				} else {
-//					rowSorter.setRowFilter(new ObservationTableRowFilter(info));
-//				}
-//			}
-//
-//			public boolean canBeRemoved() {
-//				return false;
-//			}
-//		};
-//	}
 
 	// List row selection event handler.
 	// We send an observation selection event when the value has

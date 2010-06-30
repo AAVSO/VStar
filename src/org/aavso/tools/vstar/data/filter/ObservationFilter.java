@@ -45,6 +45,9 @@ public class ObservationFilter {
 
 		IObservationFieldMatcher magnitudeMatcher = new MagnitudeFieldMatcher();
 		MATCHERS.put(magnitudeMatcher.getDisplayName(), magnitudeMatcher);
+		
+		IObservationFieldMatcher jdMatcher = new JDFieldMatcher();
+		MATCHERS.put(jdMatcher.getDisplayName(), jdMatcher);
 	}
 
 	// Actual matchers for this observation filter instance.
@@ -91,7 +94,7 @@ public class ObservationFilter {
 				matchingObs.add(ob);
 			}
 		}
-		
+
 		return matchingObs;
 	}
 
@@ -102,6 +105,8 @@ public class ObservationFilter {
 	 * @param ob
 	 *            The observation under test.
 	 * @return True or false.
+	 * @precondition It only makes sense to call this method when 'matchers' is
+	 *               non-empty, otherwise all observations will be filtered in.
 	 */
 	protected boolean matches(ValidObservation ob) {
 		boolean matching = true;

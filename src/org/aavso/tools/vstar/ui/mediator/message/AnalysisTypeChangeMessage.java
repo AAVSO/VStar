@@ -19,10 +19,10 @@ package org.aavso.tools.vstar.ui.mediator.message;
 
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
-import org.aavso.tools.vstar.ui.pane.MeanObservationListPane;
-import org.aavso.tools.vstar.ui.pane.ObservationAndMeanPlotPane;
-import org.aavso.tools.vstar.ui.pane.ObservationListPane;
-import org.aavso.tools.vstar.ui.pane.ObservationPlotPane;
+import org.aavso.tools.vstar.ui.pane.list.MeanObservationListPane;
+import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
+import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
+import org.aavso.tools.vstar.ui.pane.plot.ObservationPlotPane;
 
 /**
  * This message is intended to be sent to listeners when VStar's 

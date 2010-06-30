@@ -24,7 +24,9 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -42,7 +44,9 @@ public class ObservationFilterPane extends JPanel {
 
 	private JComboBox filterNamesList;
 	private JComboBox filterOpsList;
-	private JTextField valueField;
+	// TODO: for booleans this should be a checkbox; 
+	// for enums a combo-box; base on currFilter.getType()
+	private JTextField valueField; 
 
 	private ActionListener filterOpsListener;
 
@@ -88,18 +92,40 @@ public class ObservationFilterPane extends JPanel {
 	}
 
 	/**
-	 * Return a field matcher corresponding to the selection. If no matcher is
-	 * selected or the entered value does not match the type of the filter, null
-	 * is returned.
+	 * Return a field matcher corresponding to the selection. If no matcher
+	 * is selected, null is returned. If the value of the text field does not 
+	 * conform to the filter's type, an exception is thrown.
+	 * 
+	 * @return A field matcher or null.
+	 * @throws IllegalArgumentException
+	 *             if the entered value does not match the type of the filter.
 	 */
-	public IObservationFieldMatcher getFieldMatcher() {
+	public IObservationFieldMatcher getFieldMatcher() throws IllegalArgumentException {
 		IObservationFieldMatcher matcher = null;
 
 		if (currFilter != null) {
 			matcher = currFilter.create(valueField.getText(), currOp);
+			if (matcher == null) {
+				String msg = "Invalid " + currFilter.getDisplayName()
+						+ " value: '" + valueField.getText() + "'";
+				throw new IllegalArgumentException(msg);
+			}
 		}
 
 		return matcher;
+	}
+
+	/**
+	 * This method resets this pane's filter-related members and UI elements so
+	 * that no filter is selected.
+	 */
+	public void resetFilter() {
+		currFilter = null;
+		currOp = null;
+		filterNamesList.setSelectedItem(NONE);
+		filterOpsList.removeAllItems();
+		filterOpsList.addItem(NONE);
+		valueField.setText("");
 	}
 
 	// Listen to the name list in order to update the operations list
@@ -112,14 +138,10 @@ public class ObservationFilterPane extends JPanel {
 				// selected matcher.
 				String name = (String) filterNamesList.getSelectedItem();
 
-				filterOpsList.removeAllItems();
-
 				if (NONE.equals(name)) {
-					currFilter = null;
-					currOp = null;
-					filterOpsList.addItem(NONE);
-					valueField.setText("");
+					resetFilter();
 				} else {
+					filterOpsList.removeAllItems();
 					IObservationFieldMatcher filter = ObservationFilter.MATCHERS
 							.get(name);
 					// Update operator list and current values if a different

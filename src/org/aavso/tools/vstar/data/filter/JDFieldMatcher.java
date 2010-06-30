@@ -15,33 +15,46 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.pane;
+package org.aavso.tools.vstar.data.filter;
 
-import javax.swing.RowFilter;
-
-import org.aavso.tools.vstar.data.IOrderedObservationSource;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 
 /**
- * An observation table row filter.
+ * A Julian Day field matcher.
  */
-public class ObservationTableRowFilter extends
-		RowFilter<IOrderedObservationSource, Integer> {
+public class JDFieldMatcher extends DoubleFieldMatcher {
 
-	private FilteredObservationMessage filteredObsMsg;
+	public JDFieldMatcher(Double testValue, ObservationMatcherOp op) {
+		super(testValue, op);
+	}
 
-	ObservationTableRowFilter(FilteredObservationMessage filteredObsMsg) {
-		this.filteredObsMsg = filteredObsMsg;
+	public JDFieldMatcher() {
+		super();
 	}
 
 	@Override
-	public boolean include(
-			RowFilter.Entry<? extends IOrderedObservationSource, ? extends Integer> entry) {
-		int id = entry.getIdentifier();
-		IOrderedObservationSource model = entry.getModel();
-		ValidObservation ob = model.getObservations().get(id);
-		boolean include = filteredObsMsg.getFilteredObs().contains(ob);
-		return include;
+	protected Double getValue(ValidObservation ob) {
+		// JD is mandatory; it cannot be null.
+		return ob.getJD();
+	}
+
+	@Override
+	public IObservationFieldMatcher create(String fieldValue,
+			ObservationMatcherOp op) {
+		IObservationFieldMatcher matcher = null;
+		
+		try {
+			Double value = Double.parseDouble(fieldValue);
+			matcher = new JDFieldMatcher(value, op);
+		} catch (NumberFormatException e) {
+			// Nothing to do but return null.
+		}
+		
+		return matcher;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return "Julian Day";
 	}
 }

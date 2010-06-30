@@ -40,7 +40,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	// Intended for Singleton subclasses. 
 	protected boolean firstUse;
 
-	JButton okButton;
+	protected JButton okButton;
 	
 	public AbstractOkCancelDialog(String title) {
 		super();
@@ -67,7 +67,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	}
 
 	// Return a listener for the "OK" button.
-	private ActionListener createOKButtonListener() {
+	protected ActionListener createOKButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				okAction();
@@ -76,7 +76,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	}
 
 	// Return a listener for the "cancel" button.
-	private ActionListener createCancelButtonListener() {
+	protected ActionListener createCancelButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				cancelAction();

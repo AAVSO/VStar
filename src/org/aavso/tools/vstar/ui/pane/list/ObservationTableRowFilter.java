@@ -15,46 +15,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.data.filter;
+package org.aavso.tools.vstar.ui.pane.list;
 
+import javax.swing.RowFilter;
+
+import org.aavso.tools.vstar.data.IOrderedObservationSource;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 
 /**
- * A magnitude field matcher.
+ * An observation table row filter.
  */
-public class MagnitudeFieldMatcher extends DoubleFieldMatcher {
+public class ObservationTableRowFilter extends
+		RowFilter<IOrderedObservationSource, Integer> {
 
-	public MagnitudeFieldMatcher(Double testValue, ObservationMatcherOp op) {
-		super(testValue, op);
-	}
+	private FilteredObservationMessage filteredObsMsg;
 
-	public MagnitudeFieldMatcher() {
-		super();
-	}
-
-	@Override
-	public IObservationFieldMatcher create(String fieldValue,
-			ObservationMatcherOp op) {
-		IObservationFieldMatcher matcher = null;
-		
-		try {
-			Double value = Double.parseDouble(fieldValue);
-			matcher = new MagnitudeFieldMatcher(value, op);
-		} catch (NumberFormatException e) {
-			// Nothing to do but return null.
-		}
-		
-		return matcher;
+	ObservationTableRowFilter(FilteredObservationMessage filteredObsMsg) {
+		this.filteredObsMsg = filteredObsMsg;
 	}
 
 	@Override
-	protected Double getValue(ValidObservation ob) {
-		// Magnitude is mandatory; it cannot be null.
-		return ob.getMag();
-	}
-	
-	@Override
-	public String getDisplayName() {
-		return "Magnitude";
+	public boolean include(
+			RowFilter.Entry<? extends IOrderedObservationSource, ? extends Integer> entry) {
+		int id = entry.getIdentifier();
+		IOrderedObservationSource model = entry.getModel();
+		ValidObservation ob = model.getObservations().get(id);
+		return filteredObsMsg.getFilteredObs().contains(ob);
 	}
 }

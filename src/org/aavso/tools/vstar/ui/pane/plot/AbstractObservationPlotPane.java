@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.pane;
+package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -37,6 +37,7 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
@@ -447,8 +448,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		//
 		// Actually, the need to do this at all is open to question.
 		//
-		// For now, only zoom if we have a cross-hair selection in
-		// this plot, until we decide what the behaviour should be.
+		// Only zoom if we have a cross-hair selection in this plot.
 		if (lastPointClicked != null) {
 			// Determine zoom factor.
 			double zoomDelta = 0.25; // TODO: get from prefs
@@ -483,28 +483,32 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
 		return new Listener<FilteredObservationMessage>() {
 			public void update(FilteredObservationMessage info) {
-				if (info == FilteredObservationMessage.NO_FILTER) {
-					// No filter, so make the filtered series invisible.
-					if (obsModel.seriesExists(SeriesType.Filtered)) {
-						int num = obsModel.getSrcTypeToSeriesNumMap().get(
-								SeriesType.Filtered);
-						obsModel.changeSeriesVisibility(num, false);
-					}
-				} else {
-					// Convert set of filtered observations to list then add
-					// or replace the filter series.
-					List<ValidObservation> obs = new ArrayList<ValidObservation>();
-					for (ValidObservation ob : info.getFilteredObs()) {
-						obs.add(ob);
-					}
-
-					if (obsModel.seriesExists(SeriesType.Filtered)) {
-						obsModel.replaceObservationSeries(SeriesType.Filtered,
-								obs);
+				// Currently, due to the way we render phase plots, filtering
+				// will be disabled for anything but raw analysis mode.
+				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+					if (info == FilteredObservationMessage.NO_FILTER) {
+						// No filter, so make the filtered series invisible.
+						if (obsModel.seriesExists(SeriesType.Filtered)) {
+							int num = obsModel.getSrcTypeToSeriesNumMap().get(
+									SeriesType.Filtered);
+							obsModel.changeSeriesVisibility(num, false);
+						}
 					} else {
-						int num = obsModel.addObservationSeries(
-								SeriesType.Filtered, obs);
-						obsModel.changeSeriesVisibility(num, true);
+						// Convert set of filtered observations to list then add
+						// or replace the filter series.
+						List<ValidObservation> obs = new ArrayList<ValidObservation>();
+						for (ValidObservation ob : info.getFilteredObs()) {
+							obs.add(ob);
+						}
+
+						if (obsModel.seriesExists(SeriesType.Filtered)) {
+							obsModel.replaceObservationSeries(
+									SeriesType.Filtered, obs);
+						} else {
+							int num = obsModel.addObservationSeries(
+									SeriesType.Filtered, obs);							
+							obsModel.changeSeriesVisibility(num, true);
+						}
 					}
 				}
 			}

@@ -17,8 +17,11 @@
  */
 package org.aavso.tools.vstar.ui.dialog.filter;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -26,12 +29,15 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.filter.IObservationFieldMatcher;
 import org.aavso.tools.vstar.data.filter.ObservationFilter;
+import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
@@ -71,18 +77,39 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		// Filters
 		topPane.add(createFiltersPane());
-
-		// OK, Cancel
 		topPane.add(createButtonPane());
-
+		
 		contentPane.add(topPane);
 
 		this.pack();
 	}
 
-	// Create a filter pane.
+	@Override
+	protected JPanel createButtonPane() {
+		JPanel resetButtonPanel = new JPanel(new BorderLayout());
+		JButton resetButton = new JButton("Reset");
+		resetButton.addActionListener(createResetButtonListener());
+		resetButtonPanel.add(resetButton, BorderLayout.LINE_END);
+
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+
+		panel.add(resetButtonPanel);
+		panel.add(super.createButtonPane());
+		
+		return panel;
+	}
+
+	// Return a listener for the reset button.
+	private ActionListener createResetButtonListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetFilters();
+			}
+		};
+	}
+	
 	private JPanel createFiltersPane() {
 		JPanel panel = new JPanel();
 
@@ -114,45 +141,69 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 	@Override
 	protected void okAction() {
 		// Add all non-null (valid) matchers to the filter.
-		for (ObservationFilterPane filterPane : filterPanes) {
-			IObservationFieldMatcher matcher = filterPane.getFieldMatcher();
+		boolean filterError = false;
 
-			if (matcher != null) {
-				filter.addMatcher(matcher);
+		for (ObservationFilterPane filterPane : filterPanes) {
+			try {
+				IObservationFieldMatcher matcher = filterPane.getFieldMatcher();
+				if (matcher != null) {
+					filter.addMatcher(matcher);
+				}
+			} catch (IllegalArgumentException e) {
+				filterError = true;
+				MessageBox.showErrorDialog(this, "Observation Filter", e
+						.getMessage());
 			}
 		}
 
-		// TODO: at time of filtering, also get current mean obs list
-		// and apply getFilteredObservations() to that, then create the
-		// set of valid obs from both filterings?
-		
-		// Apply the filter (and all its sub-filters) to the full set of
-		// observations.
-		List<ValidObservation> obs = newStarMessage.getObservations();
-		
-		Set<ValidObservation> filteredObs = filter
-				.getFilteredObservations(obs);
+		if (!filterError) {
+			if (filter.getMatchers().size() != 0) {
 
-		// Send a message containing the observation subset.
-		FilteredObservationMessage msg = new FilteredObservationMessage(this,
-				filteredObs);
+				setVisible(false);
+				
+				// Apply the filter (and all its sub-filters) to the full set of
+				// observations.
+				List<ValidObservation> obs = newStarMessage.getObservations();
 
-		Mediator.getInstance().getFilteredObservationNotifier()
-				.notifyListeners(msg);
+				Set<ValidObservation> filteredObs = filter
+						.getFilteredObservations(obs);
 
-		// Clear state for next use of this dialog.
-		filter.reset();
-		
-		setVisible(false);
+				if (filteredObs.size() != 0) {
+					// Send a message containing the observation subset.
+					FilteredObservationMessage msg = new FilteredObservationMessage(
+							this, filteredObs);
+
+					Mediator.getInstance().getFilteredObservationNotifier()
+							.notifyListeners(msg);
+				} else {
+					String msg = "No observations matched.";
+					MessageBox.showWarningDialog(MainFrame.getInstance(), "Observation Filter",
+							msg);
+				}
+			} else {
+				String msg = "No filter selected.";
+				MessageBox.showWarningDialog(MainFrame.getInstance(), "Observation Filter", msg);
+			}
+
+			// Clear state for next use of this dialog.
+			filter.reset();
+		}
 	}
 
 	@Override
 	public void update(NewStarMessage info) {
 		newStarMessage = info;
+		resetFilters();
 	}
 
 	@Override
 	public boolean canBeRemoved() {
 		return false;
+	}
+	
+	private void resetFilters() {
+		for (ObservationFilterPane filterPane : filterPanes) {
+			filterPane.resetFilter();
+		}
 	}
 }
