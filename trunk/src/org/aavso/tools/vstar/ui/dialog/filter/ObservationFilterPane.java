@@ -24,9 +24,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -46,6 +44,7 @@ public class ObservationFilterPane extends JPanel {
 	private JComboBox filterOpsList;
 	// TODO: for booleans this should be a checkbox; 
 	// for enums a combo-box; base on currFilter.getType()
+	// Need IValueWidget.{getValue() => String,setValue(String)}
 	private JTextField valueField; 
 
 	private ActionListener filterOpsListener;
@@ -85,6 +84,10 @@ public class ObservationFilterPane extends JPanel {
 		valueField.setPreferredSize(new Dimension(TEXT_WIDTH, 20));
 		this.add(valueField);
 
+//		JPanel p = new JPanel(new BorderLayout());
+//		p.add(new JLabel(""), BorderLayout.CENTER);
+//		set min/max/pref sizes then add to map of Class<?> =? IValueWidget
+				
 		this.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		currFilter = null;
@@ -104,7 +107,7 @@ public class ObservationFilterPane extends JPanel {
 		IObservationFieldMatcher matcher = null;
 
 		if (currFilter != null) {
-			matcher = currFilter.create(valueField.getText(), currOp);
+			matcher = currFilter.create(valueField.getText().trim(), currOp);
 			if (matcher == null) {
 				String msg = "Invalid " + currFilter.getDisplayName()
 						+ " value: '" + valueField.getText() + "'";
@@ -134,6 +137,7 @@ public class ObservationFilterPane extends JPanel {
 	private ActionListener createFilterNameListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+								
 				// Re-populate the operations list according to the
 				// selected matcher.
 				String name = (String) filterNamesList.getSelectedItem();
@@ -151,7 +155,6 @@ public class ObservationFilterPane extends JPanel {
 						filterOpsList.removeActionListener(filterOpsListener);
 						for (ObservationMatcherOp op : currFilter
 								.getMatcherOps()) {
-							String opStr = op.toString();
 							filterOpsList.addItem(op.toString());
 						}
 						filterOpsList.addActionListener(filterOpsListener);

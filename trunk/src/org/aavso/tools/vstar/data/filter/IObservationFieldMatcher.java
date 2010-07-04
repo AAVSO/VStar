@@ -19,14 +19,17 @@ package org.aavso.tools.vstar.data.filter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 
+/**
+ * The interface for all observation field matchers.
+ */
 public interface IObservationFieldMatcher {
 
 	/**
 	 * Creates and returns an instance of an observation matcher for the current
 	 * field matcher type. The returned matcher contains a value-to-be-matched
-	 * of the expected type given the supplied string field value. If the latter
-	 * cannot be converted to the expected type, null is returned. The match
-	 * operator to be used is also included in the returned object.
+	 * against the expected type given the supplied string field value. If the 
+	 * latter cannot be converted to the expected type, null is returned. The 
+	 * match operator to be used is also included in the returned object.
 	 * 
 	 * @param fieldValue
 	 *            The string field value to be converted to a match object.
@@ -34,6 +37,10 @@ public interface IObservationFieldMatcher {
 	 *            The match operator to be used.
 	 * @return The created matcher.
 	 */
+	// TODO: should be able to genericise this class with T and use T 
+	// fieldValue instead of string; the onus for conversion of the 
+	// field-value would then be on the caller (e.g. filter dialog code) 
+	// and things would be more type-safe.
 	public abstract IObservationFieldMatcher create(String fieldValue,
 			ObservationMatcherOp op);
 

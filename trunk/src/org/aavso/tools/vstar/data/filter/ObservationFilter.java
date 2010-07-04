@@ -30,7 +30,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
  * A filter for valid observations.
  * 
  * An observation will be passed via this filter if the conjunction of all its
- * filters match the observation.
+ * sub-filters (field matchers) match the observation.
  */
 public class ObservationFilter {
 
@@ -48,6 +48,9 @@ public class ObservationFilter {
 		
 		IObservationFieldMatcher jdMatcher = new JDFieldMatcher();
 		MATCHERS.put(jdMatcher.getDisplayName(), jdMatcher);
+
+		IObservationFieldMatcher transformedMatcher = new TransformedFieldMatcher();
+		MATCHERS.put(transformedMatcher.getDisplayName(), transformedMatcher);
 	}
 
 	// Actual matchers for this observation filter instance.
@@ -80,7 +83,7 @@ public class ObservationFilter {
 	 * 
 	 * @param obs
 	 *            The observation list to be filtered.
-	 * @return The set of filtered observations, ordered by JD.
+	 * @return The ordered (by insertion) set of filtered observations.
 	 */
 	public Set<ValidObservation> getFilteredObservations(
 			List<ValidObservation> obs) {
