@@ -17,15 +17,19 @@
  */
 package org.aavso.tools.vstar.ui.dialog.series;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
@@ -33,34 +37,39 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 
 /**
- * This class represents a pane with checkboxes showing those series
- * that are rendered. The series to be displayed can be changed. 
+ * This class represents a pane with checkboxes showing those series that are
+ * rendered. The series to be displayed can be changed.
  */
 public class SeriesVisibilityPane extends JPanel {
 
 	private ObservationPlotModel obsPlotModel;
 	private Map<Integer, Boolean> visibilityDeltaMap;
+	private List<JCheckBox> checkBoxes;
 
 	/**
-	 * Constructor 
+	 * Constructor
 	 */
 	public SeriesVisibilityPane(ObservationPlotModel obsPlotModel) {
 		super();
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder("Visibility"));
-		this.setToolTipText("Select or deselect series for desired visibility.");
+		this
+				.setToolTipText("Select or deselect series for desired visibility.");
 
 		this.obsPlotModel = obsPlotModel;
 		this.visibilityDeltaMap = new HashMap<Integer, Boolean>();
 
 		addSeriesCheckBoxes();
+		addSelectAllButtons();
 	}
-	
+
 	// Create a checkbox for each series.
 	private void addSeriesCheckBoxes() {
 		// Ensure the panel is always wide enough.
 		this.add(Box.createRigidArea(new Dimension(75, 1)));
-		
+
+		checkBoxes = new ArrayList<JCheckBox>();
+
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
 			if (series != SeriesType.MEANS) {
 				String seriesName = series.getDescription();
@@ -74,23 +83,71 @@ public class SeriesVisibilityPane extends JPanel {
 				checkBox.setSelected(vis);
 				this.add(checkBox);
 				this.add(Box.createRigidArea(new Dimension(3, 3)));
+
+				checkBoxes.add(checkBox);
 			}
 		}
 	}
-	
+
 	// Return a listener for the series visibility checkboxes.
 	private ActionListener createSeriesVisibilityCheckBoxListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JCheckBox checkBox = (JCheckBox) e.getSource();
-				String seriesName = checkBox.getText();
-				int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
-						SeriesType.getSeriesFromDescription(seriesName));
-				visibilityDeltaMap.put(seriesNum, checkBox.isSelected());
+				updateSeriesVisibilityMap(checkBox);
 			}
 		};
 	}
 
+	// Create a button for en-masse selection/deselection
+	// of visibility checkboxes.
+	private void addSelectAllButtons() {
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.setBorder(BorderFactory.createEtchedBorder());
+
+		JButton selectAllButton = new JButton("Select All");
+		selectAllButton
+				.addActionListener(createEnMasseSelectionButtonListener(true));
+		panel.add(selectAllButton, BorderLayout.LINE_START);
+
+		JButton deSelectAllButton = new JButton("Deselect All");
+		deSelectAllButton
+				.addActionListener(createEnMasseSelectionButtonListener(false));
+		panel.add(deSelectAllButton, BorderLayout.LINE_END);
+
+		this.add(panel);
+	}
+
+	/**
+	 * Return a listener for the "select/deselect all" checkbox.
+	 * @param target The target check-button state.
+	 * @return The button listener.
+	 */
+	private ActionListener createEnMasseSelectionButtonListener(
+			final boolean target) {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				for (JCheckBox checkBox : checkBoxes) {
+					checkBox.setSelected(target);
+					updateSeriesVisibilityMap(checkBox);					
+				}
+			}
+		};
+	}
+
+	/**
+	 * Update the series visibility map according to the state
+	 * of the checkboxes.
+	 * 
+	 * @param checkBox The checkbox whose state we want to update from.
+	 */
+	private void updateSeriesVisibilityMap(JCheckBox checkBox) {
+		String seriesName = checkBox.getText();
+		int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
+				SeriesType.getSeriesFromDescription(seriesName));
+		visibilityDeltaMap.put(seriesNum, checkBox.isSelected());
+	}
+	
 	/**
 	 * @return the visibilityDeltaMap
 	 */
