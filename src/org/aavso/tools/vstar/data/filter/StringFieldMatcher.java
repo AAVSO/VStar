@@ -26,7 +26,8 @@ public abstract class StringFieldMatcher extends
 		AbstractObservationFieldMatcher<String> {
 
 	private final static ObservationMatcherOp[] ops = {
-			ObservationMatcherOp.EQUALS, ObservationMatcherOp.CONTAINS };
+			ObservationMatcherOp.EQUALS, ObservationMatcherOp.NOT_EQUALS,
+			ObservationMatcherOp.CONTAINS };
 
 	public StringFieldMatcher(String testValue, ObservationMatcherOp op,
 			ObservationMatcherOp[] ops) {
@@ -45,7 +46,7 @@ public abstract class StringFieldMatcher extends
 	public boolean matches(ValidObservation ob) {
 		boolean result = false;
 
-		String value = getValue(ob);
+		String value = getValueUnderTest(ob);
 
 		if (value == null) {
 			// If the underlying value is null and the
@@ -61,6 +62,9 @@ public abstract class StringFieldMatcher extends
 			case EQUALS:
 				result = value.equals(testValue);
 				break;
+			case NOT_EQUALS:
+				result = !value.equals(testValue);
+				break;
 			case CONTAINS:
 				result = value.contains(testValue);
 				break;
@@ -69,15 +73,6 @@ public abstract class StringFieldMatcher extends
 
 		return result;
 	}
-
-	/**
-	 * Get the value under test.
-	 * 
-	 * @param An
-	 *            observation containing the value.
-	 * @return The value to be matched against.
-	 */
-	protected abstract String getValue(ValidObservation ob);
 
 	@Override
 	public Class<?> getType() {

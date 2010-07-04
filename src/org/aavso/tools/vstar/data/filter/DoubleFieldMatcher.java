@@ -26,7 +26,8 @@ public abstract class DoubleFieldMatcher extends
 		AbstractObservationFieldMatcher<Double> {
 
 	private final static ObservationMatcherOp[] ops = {
-			ObservationMatcherOp.EQUALS, ObservationMatcherOp.LESS_THAN,
+			ObservationMatcherOp.EQUALS, ObservationMatcherOp.NOT_EQUALS,
+			ObservationMatcherOp.LESS_THAN,
 			ObservationMatcherOp.GREATER_THAN,
 			ObservationMatcherOp.GREATER_THAN_OR_EQUAL,
 			ObservationMatcherOp.LESS_THAN_OR_EQUAL };
@@ -48,11 +49,14 @@ public abstract class DoubleFieldMatcher extends
 	public boolean matches(ValidObservation ob) {
 		boolean result = false;
 
-		int comparison = getValue(ob).compareTo(testValue);
+		int comparison = getValueUnderTest(ob).compareTo(testValue);
 
 		switch (op) {
 		case EQUALS:
 			result = comparison == 0;
+			break;
+		case NOT_EQUALS:
+			result = comparison != 0;
 			break;
 		case LESS_THAN:
 			result = comparison < 0;
@@ -70,17 +74,7 @@ public abstract class DoubleFieldMatcher extends
 
 		return result;
 	}
-
-	/**
-	 * Get the value under test. If any conversion must first be done, e.g. from
-	 * string, this method must handle that.
-	 * 
-	 * @param ob
-	 *            An observation containing the value.
-	 * @return The value to be matched against.
-	 */
-	protected abstract Double getValue(ValidObservation ob);
-
+	
 	@Override
 	public Class<?> getType() {
 		return Double.class;

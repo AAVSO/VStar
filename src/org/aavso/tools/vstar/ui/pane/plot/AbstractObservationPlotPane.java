@@ -52,6 +52,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.event.ChartChangeListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.SeriesRenderingOrder;
@@ -436,19 +437,17 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			setMagScale();
 		}
 
-		// TODO: This may need to be handled uniformly across
-		// all plots, i.e. all plots (raw x 2 and phase plot x 2)
-		// should zoom in unison, just like all plots should
-		// reflect changes in selected bands made in one plot.
-		// One way to do this is to add to observation selection
-		// listener a Point2D. The only problem with this is that
-		// such messages can originate from tables as well as plots.
-		// Therefore, need a new message type for this, e.g. "cross-hair
-		// location change".
-		//
-		// Actually, the need to do this at all is open to question.
-		//
 		// Only zoom if we have a cross-hair selection in this plot.
+		
+//		if (lastPointClicked == null) {
+//			double x = chart.getXYPlot().getDomainCrosshairValue();
+//			double y = chart.getXYPlot().getRangeCrosshairValue();
+//			if (x != 0 && y != 0) {
+//				// Somewhere other than initial position.
+//				lastPointClicked = new Point2D.Double(x, y);
+//			}
+//		}
+
 		if (lastPointClicked != null) {
 			// Determine zoom factor.
 			double zoomDelta = 0.25; // TODO: get from prefs
@@ -506,7 +505,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 									SeriesType.Filtered, obs);
 						} else {
 							int num = obsModel.addObservationSeries(
-									SeriesType.Filtered, obs);							
+									SeriesType.Filtered, obs);
 							obsModel.changeSeriesVisibility(num, true);
 						}
 					}

@@ -41,7 +41,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 /**
  * A panel for rendering data lists, plots and other observation-related
  * information.
- * @deprecated
+ * @deprecated Use TabbedDataPane instead
  */
 public class DataPane extends JPanel {
 

@@ -20,41 +20,47 @@ package org.aavso.tools.vstar.data.filter;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * A Julian Day field matcher.
+ * A boolean field matcher.
  */
-public class JDFieldMatcher extends DoubleFieldMatcher {
+public abstract class BooleanFieldMatcher extends
+		AbstractObservationFieldMatcher<Boolean> {
 
-	public JDFieldMatcher(Double testValue, ObservationMatcherOp op) {
-		super(testValue, op);
+	private final static ObservationMatcherOp[] ops = {
+		ObservationMatcherOp.EQUALS, ObservationMatcherOp.NOT_EQUALS };
+
+	public BooleanFieldMatcher(Boolean testValue, ObservationMatcherOp op,
+			ObservationMatcherOp[] ops) {
+		super(testValue, op, ops);
 	}
 
-	public JDFieldMatcher() {
-		super();
+	public BooleanFieldMatcher(Boolean testValue, ObservationMatcherOp op) {
+		super(testValue, op, ops);
 	}
 
+	public BooleanFieldMatcher() {
+		super(ops);
+	}
+	
 	@Override
-	protected Double getValueUnderTest(ValidObservation ob) {
-		// JD is mandatory; it cannot be null.
-		return ob.getJD();
-	}
-
-	@Override
-	public IObservationFieldMatcher create(String fieldValue,
-			ObservationMatcherOp op) {
-		IObservationFieldMatcher matcher = null;
-				
-		try {
-			Double value = Double.parseDouble(fieldValue);
-			matcher = new JDFieldMatcher(value, op);
-		} catch (NumberFormatException e) {
-			// Nothing to do but return null.
+	public boolean matches(ValidObservation ob) {
+		boolean result = false;
+		
+		int comparison = getValueUnderTest(ob).compareTo(testValue);
+		
+		switch(op) {
+		case EQUALS:
+			result = comparison == 0;
+			break;
+		case NOT_EQUALS:
+			result = comparison != 0;
+			break;
 		}
 		
-		return matcher;
+		return result;
 	}
-
+	
 	@Override
-	public String getDisplayName() {
-		return "Julian Day";
+	public Class<?> getType() {
+		return Boolean.class;
 	}
 }

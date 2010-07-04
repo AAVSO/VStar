@@ -35,7 +35,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * Create the mode radio button group pane.
- * @deprecated
+ * @deprecated Use TabbedDataPane instead.
  */
 public class ModePane extends JPanel implements ActionListener {
 

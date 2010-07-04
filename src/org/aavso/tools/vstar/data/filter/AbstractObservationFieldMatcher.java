@@ -79,4 +79,14 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	public ObservationMatcherOp[] getMatcherOps() {
 		return ops;
 	}
+	
+	/**
+	 * Get the value under test. If any conversion must first be done, 
+	 * e.g. from string, this method must handle that.
+	 * 
+	 * @param ob
+	 *            An observation containing the value.
+	 * @return The value to be matched against.
+	 */
+	protected abstract T getValueUnderTest(ValidObservation ob);
 }

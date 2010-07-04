@@ -20,41 +20,44 @@ package org.aavso.tools.vstar.data.filter;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * A Julian Day field matcher.
+ * A "transformed" field matcher.
  */
-public class JDFieldMatcher extends DoubleFieldMatcher {
+public class TransformedFieldMatcher extends BooleanFieldMatcher {
 
-	public JDFieldMatcher(Double testValue, ObservationMatcherOp op) {
+	public TransformedFieldMatcher(Boolean testValue, ObservationMatcherOp op) {
 		super(testValue, op);
 	}
 
-	public JDFieldMatcher() {
+	public TransformedFieldMatcher() {
 		super();
 	}
 
 	@Override
-	protected Double getValueUnderTest(ValidObservation ob) {
-		// JD is mandatory; it cannot be null.
-		return ob.getJD();
+	protected Boolean getValueUnderTest(ValidObservation ob) {
+		// Defaults to false, so it's safe not to check for null.
+		return ob.isTransformed();
 	}
 
 	@Override
 	public IObservationFieldMatcher create(String fieldValue,
 			ObservationMatcherOp op) {
 		IObservationFieldMatcher matcher = null;
-				
-		try {
-			Double value = Double.parseDouble(fieldValue);
-			matcher = new JDFieldMatcher(value, op);
-		} catch (NumberFormatException e) {
-			// Nothing to do but return null.
+
+		Boolean value = false;
+		if ("no".equalsIgnoreCase(fieldValue)) {
+			value = false;
+		} else if ("yes".equalsIgnoreCase(fieldValue)) {
+			value = true;
+		} else {
+			value = Boolean.parseBoolean(fieldValue);
 		}
-		
+		matcher = new TransformedFieldMatcher(value, op);
+
 		return matcher;
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "Julian Day";
+		return "Transformed";
 	}
 }

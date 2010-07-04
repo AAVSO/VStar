@@ -42,10 +42,10 @@ public class ObsCodeFieldMatcher extends StringFieldMatcher {
 	}
 
 	@Override
-	protected String getValue(ValidObservation ob) {
+	protected String getValueUnderTest(ValidObservation ob) {
 		return ob.getObsCode();
 	}
-	
+
 	@Override
 	public String getDisplayName() {
 		return "Observer Code";

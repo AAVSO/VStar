@@ -35,7 +35,9 @@ Version: 2.2 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??June2010
 Key Changes:
 - Fixed zoom point selection handling so that an observation details dialog 
-  does not first have to be opened.
+  does not first have to be opened before a Zoom In/Out operation can have
+  effect.
+- 
    
 Date: June 4 2010
 Version: 2.1 Beta

@@ -48,7 +48,7 @@ public class MagnitudeFieldMatcher extends DoubleFieldMatcher {
 	}
 
 	@Override
-	protected Double getValue(ValidObservation ob) {
+	protected Double getValueUnderTest(ValidObservation ob) {
 		// Magnitude is mandatory; it cannot be null.
 		return ob.getMag();
 	}

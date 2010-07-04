@@ -22,25 +22,23 @@ package org.aavso.tools.vstar.data.filter;
  */
 public enum ObservationMatcherOp {
 
-	EQUALS,
-	CONTAINS,
-	LESS_THAN,
-	GREATER_THAN,
-	LESS_THAN_OR_EQUAL,
-	GREATER_THAN_OR_EQUAL;
-	
+	EQUALS, NOT_EQUALS, CONTAINS, LESS_THAN, GREATER_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN_OR_EQUAL;
+
 	/**
-	 * Given a string, return an operator enum value, or null.
-	 * Legal strings are those returned by toString().
+	 * Given a string, return an operator enum value, or null. Legal strings are
+	 * those returned by toString().
 	 * 
-	 * @param str The operator as a string.
+	 * @param str
+	 *            The operator as a string.
 	 * @return The operator as an enum value.
 	 */
 	public static ObservationMatcherOp fromString(String str) {
 		ObservationMatcherOp op = null;
-		
+
 		if (EQUALS.toString().equals(str)) {
 			op = EQUALS;
+		} else if (NOT_EQUALS.toString().equals(str)) {
+			op = NOT_EQUALS;
 		} else if (CONTAINS.toString().equals(str)) {
 			op = CONTAINS;
 		} else if (LESS_THAN.toString().equals(str)) {
@@ -52,19 +50,22 @@ public enum ObservationMatcherOp {
 		} else if (GREATER_THAN_OR_EQUAL.toString().equals(str)) {
 			op = GREATER_THAN_OR_EQUAL;
 		}
-		
+
 		return op;
 	}
-	
+
 	/**
 	 * Return a human-readable string for this operator.
 	 */
 	public String toString() {
 		String s = null;
-		
-		switch(this) {
+
+		switch (this) {
 		case EQUALS:
-			s = "equals";
+			s = "equal to";
+			break;
+		case NOT_EQUALS:
+			s = "not equal to";
 			break;
 		case CONTAINS:
 			s = "contains";
@@ -82,7 +83,7 @@ public enum ObservationMatcherOp {
 			s = "greater than or equal to";
 			break;
 		}
-		
+
 		return s;
 	}
 }
