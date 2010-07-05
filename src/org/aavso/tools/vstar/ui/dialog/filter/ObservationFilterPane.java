@@ -145,12 +145,12 @@ public class ObservationFilterPane extends JPanel {
 				if (NONE.equals(name)) {
 					resetFilter();
 				} else {
-					filterOpsList.removeAllItems();
 					IObservationFieldMatcher filter = ObservationFilter.MATCHERS
 							.get(name);
 					// Update operator list and current values if a different
 					// matcher has been selected.
 					if (filter != currFilter) {
+						filterOpsList.removeAllItems();
 						currFilter = filter;
 						filterOpsList.removeActionListener(filterOpsListener);
 						for (ObservationMatcherOp op : currFilter

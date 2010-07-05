@@ -27,7 +27,7 @@ import org.aavso.tools.vstar.ui.mediator.StarInfo;
 /**
  * This class obtains star name and AUID information from the AAVSO 
  * International Database (AID).
- * @deprecated
+ * @deprecated Use VSXStarNameAndAUIDSource instead.
  */
 public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	

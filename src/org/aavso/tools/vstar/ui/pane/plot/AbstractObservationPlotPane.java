@@ -481,6 +481,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	// Returns a filtered observation listener.
 	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
 		return new Listener<FilteredObservationMessage>() {
+			private int filterSeriesNum = -1;
+			
 			public void update(FilteredObservationMessage info) {
 				// Currently, due to the way we render phase plots, filtering
 				// will be disabled for anything but raw analysis mode.
@@ -501,13 +503,18 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 						}
 
 						if (obsModel.seriesExists(SeriesType.Filtered)) {
+							assert filterSeriesNum != -1;
 							obsModel.replaceObservationSeries(
 									SeriesType.Filtered, obs);
 						} else {
-							int num = obsModel.addObservationSeries(
+							filterSeriesNum = obsModel.addObservationSeries(
 									SeriesType.Filtered, obs);
-							obsModel.changeSeriesVisibility(num, true);
 						}
+						
+						// Make the filter series visible either because this is
+						// its first appearance or because it may have been made
+						// invisible via a NO_FILTER message.
+						obsModel.changeSeriesVisibility(filterSeriesNum, true);
 					}
 				}
 			}

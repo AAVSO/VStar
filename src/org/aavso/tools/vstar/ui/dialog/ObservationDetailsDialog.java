@@ -62,6 +62,8 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 	public ObservationDetailsDialog(ValidObservation ob) {
 		super();
 
+		this.setAlwaysOnTop(true);
+
 		// Set window transparency.
 		com.sun.awt.AWTUtilities.setWindowOpacity(this, 0.7f);
 
@@ -117,7 +119,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 		this.getRootPane().setDefaultButton(okButton);
 
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
+		
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
 		this.setAlwaysOnTop(true);

@@ -25,7 +25,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 public class ObsCodeFieldMatcher extends StringFieldMatcher {
 
 	private final static ObservationMatcherOp[] ops = {
-		ObservationMatcherOp.EQUALS };
+		ObservationMatcherOp.EQUALS, ObservationMatcherOp.NOT_EQUALS };
 
 	public ObsCodeFieldMatcher(String testValue, ObservationMatcherOp op) {
 		super(testValue, op, ops);

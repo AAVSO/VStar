@@ -212,8 +212,8 @@ public enum SeriesType {
 
 		if (type == null) {
 			// TODO: We can remove this block when we have changed or
-			// downloaded new files to replace existing ones in the case
-			// where band short-names have changed!
+			// downloaded new (or just deleted) files to replace existing 
+			// ones in the case where band short-names have changed!
 			if (shortName.equals("Unknown")) {
 				type = Unknown;
 			} else if (shortName.equals("Visual")) {
