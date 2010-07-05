@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.dialog.filter;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -161,8 +162,10 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 
 				setVisible(false);
 				
-				// Apply the filter (and all its sub-filters) to the full set of
-				// observations.
+				//MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+				// Apply the filter (and all its matchers) to the full set
+				// of observations.
 				List<ValidObservation> obs = newStarMessage.getObservations();
 
 				Set<ValidObservation> filteredObs = filter
@@ -180,6 +183,8 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 					MessageBox.showWarningDialog(MainFrame.getInstance(), "Observation Filter",
 							msg);
 				}
+				
+				//MainFrame.getInstance().setCursor(null);
 			} else {
 				String msg = "No filter selected.";
 				MessageBox.showWarningDialog(MainFrame.getInstance(), "Observation Filter", msg);

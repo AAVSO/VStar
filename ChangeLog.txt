@@ -30,14 +30,20 @@ o VStar leaks memory with continued use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
    
 ----------------------
-Date: June ? 2010
+Date: July 6 2010
 Version: 2.2 Beta
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??June2010
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-06July2010
 Key Changes:
+- Initial implementation of observation filtering. See tracker 2870766.
+  A filter dialog allows one or more matchers to be specified, all of
+  which must match for an observation to be included in the filtered
+  set of observations.
+- Added select-all and deselect-all buttons to series selection dialogs 
+  (in observation and mean plots) permitting en-masse series selection
+  and deselection. See tracker 2897886.
 - Fixed zoom point selection handling so that an observation details dialog 
   does not first have to be opened before a Zoom In/Out operation can have
-  effect.
-- 
+  effect after having clicked a point on a plot. 
    
 Date: June 4 2010
 Version: 2.1 Beta
