@@ -51,6 +51,9 @@ public class ObservationFilter {
 
 		IObservationFieldMatcher transformedMatcher = new TransformedFieldMatcher();
 		MATCHERS.put(transformedMatcher.getDisplayName(), transformedMatcher);
+		
+		IObservationFieldMatcher seriesTypeMatcher = new SeriesTypeFieldMatcher();
+		MATCHERS.put(seriesTypeMatcher.getDisplayName(), seriesTypeMatcher);
 	}
 
 	// Actual matchers for this observation filter instance.

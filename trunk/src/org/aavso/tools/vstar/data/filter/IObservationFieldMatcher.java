@@ -22,25 +22,29 @@ import org.aavso.tools.vstar.data.ValidObservation;
 /**
  * The interface for all observation field matchers.
  */
+// TODO: why not just replace with with AbstractObservationFieldMatcher?
+// TODO: add tool-tip getter, e.g. for band (long name)
 public interface IObservationFieldMatcher {
 
 	/**
 	 * Creates and returns an instance of an observation matcher for the current
 	 * field matcher type. The returned matcher contains a value-to-be-matched
-	 * against the expected type given the supplied string field value. If the 
-	 * latter cannot be converted to the expected type, null is returned. The 
+	 * against the expected type given the supplied string field value. If the
+	 * latter cannot be converted to the expected type, null is returned. The
 	 * match operator to be used is also included in the returned object.
 	 * 
 	 * @param fieldValue
 	 *            The string field value to be converted to a match object.
 	 * @param op
 	 *            The match operator to be used.
-	 * @return The created matcher.
+	 * @return The created matcher or null if the field value does not conform
+	 *         to the type required by the matcher.
 	 */
-	// TODO: should be able to genericise this class with T and use T 
-	// fieldValue instead of string; the onus for conversion of the 
-	// field-value would then be on the caller (e.g. filter dialog code) 
-	// and things would be more type-safe.
+	// TODO: should be able to genericise this class with T and use T
+	// fieldValue instead of string; the onus for conversion of the
+	// field-value would then be on the caller (e.g. filter dialog code)
+	// and things would be more type-safe and in particular, null would 
+	// not need to be returned for non-comforming field values.
 	public abstract IObservationFieldMatcher create(String fieldValue,
 			ObservationMatcherOp op);
 

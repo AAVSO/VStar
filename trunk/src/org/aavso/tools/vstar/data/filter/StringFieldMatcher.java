@@ -48,12 +48,7 @@ public abstract class StringFieldMatcher extends
 
 		String value = getValueUnderTest(ob);
 
-		if (value == null) {
-			// If the underlying value is null and the
-			// test value (from filter text field) is
-			// the empty string, this should be considered
-			// a match. TODO: extend to ^\s*$ ? But spaces
-			// could be a legitimate search string.
+		if (value == null || "".equals(value)) {
 			if ("".equals(testValue)) {
 				result = true;
 			}

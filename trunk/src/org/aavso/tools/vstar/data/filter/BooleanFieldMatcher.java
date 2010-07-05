@@ -28,11 +28,6 @@ public abstract class BooleanFieldMatcher extends
 	private final static ObservationMatcherOp[] ops = {
 		ObservationMatcherOp.EQUALS, ObservationMatcherOp.NOT_EQUALS };
 
-	public BooleanFieldMatcher(Boolean testValue, ObservationMatcherOp op,
-			ObservationMatcherOp[] ops) {
-		super(testValue, op, ops);
-	}
-
 	public BooleanFieldMatcher(Boolean testValue, ObservationMatcherOp op) {
 		super(testValue, op, ops);
 	}
