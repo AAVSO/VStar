@@ -38,6 +38,8 @@ Key Changes:
   A filter dialog allows one or more matchers to be specified, all of
   which must match for an observation to be included in the filtered
   set of observations.
+- The observer code is retrieved for a user authenticated against 
+  Citizen Sky (if one has been assigned). See tracker 2952531.
 - Added select-all and deselect-all buttons to series selection dialogs 
   (in observation and mean plots) permitting en-masse series selection
   and deselection. See tracker 2897886.
