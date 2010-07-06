@@ -178,38 +178,45 @@ public class ObservationListPane extends JPanel implements
 
 			public void update(ObservationSelectionMessage message) {
 				if (message.getSource() != this) {
-					List<ValidObservation> obs = validDataModel
-							.getObservations();
 					ValidObservation ob = message.getObservation();
 					Integer rowIndex = validDataModel
 							.getRowIndexFromObservation(ob);
 					if (rowIndex != null) {
-						// Convert to view index!
-						rowIndex = validDataTable
-								.convertRowIndexToView(rowIndex);
-
-						// Scroll to an arbitrary column (zeroth) within
-						// the selected row, then select that row.
-						// Assumption: we are specifying the zeroth cell
-						// within row i as an x,y coordinate relative to
-						// the top of the table pane.
-						// Note that we could call this on the scroll
-						// pane, which would then forward the request to
-						// the table pane anyway.
-						int colWidth = (int) validDataTable.getCellRect(
-								rowIndex, 0, true).getWidth();
-						int rowHeight = validDataTable.getRowHeight(rowIndex);
-						validDataTable.scrollRectToVisible(new Rectangle(
-								colWidth, rowHeight * rowIndex, colWidth,
-								rowHeight));
-
 						try {
-							validDataTable.setRowSelectionInterval(rowIndex,
-									rowIndex);
-						} catch (IllegalArgumentException e) {
-							// We ignore this since this is entirely possible when filtering
-							// is enabled. If filtering is not enabled, we should probably
-							// open an error dialog.
+							// Convert to view index!
+							rowIndex = validDataTable
+									.convertRowIndexToView(rowIndex);
+
+							// Scroll to an arbitrary column (zeroth) within
+							// the selected row, then select that row.
+							// Assumption: we are specifying the zeroth cell
+							// within row i as an x,y coordinate relative to
+							// the top of the table pane.
+							// Note that we could call this on the scroll
+							// pane, which would then forward the request to
+							// the table pane anyway.
+							int colWidth = (int) validDataTable.getCellRect(
+									rowIndex, 0, true).getWidth();
+							int rowHeight = validDataTable
+									.getRowHeight(rowIndex);
+							validDataTable.scrollRectToVisible(new Rectangle(
+									colWidth, rowHeight * rowIndex, colWidth,
+									rowHeight));
+
+							try {
+								validDataTable.setRowSelectionInterval(
+										rowIndex, rowIndex);
+							} catch (IllegalArgumentException e) {
+								// We ignore this since this is entirely
+								// possible when filtering
+								// is enabled. If filtering is not enabled, we
+								// should probably
+								// open an error dialog.
+							}
+						} catch (ArrayIndexOutOfBoundsException e) {
+							// Again, we ignore this on the same grounds as the
+							// IllegalArgumentException, and should check for 
+							// whether filtering is enabled here also.
 						}
 					}
 				}
@@ -228,14 +235,14 @@ public class ObservationListPane extends JPanel implements
 				// Currently, due to the way we render phase plots, filtering
 				// will be disabled for anything but raw analysis mode, and that
 				// includes tables, for consistency.
-				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+//				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
 					if (info == FilteredObservationMessage.NO_FILTER) {
 						rowSorter.setRowFilter(null);
 					} else {
 						rowSorter.setRowFilter(new ObservationTableRowFilter(
 								info));
 					}
-				}
+//				}
 			}
 
 			public boolean canBeRemoved() {
