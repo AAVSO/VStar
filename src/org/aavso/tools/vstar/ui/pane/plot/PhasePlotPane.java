@@ -24,6 +24,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
@@ -95,6 +96,24 @@ public class PhasePlotPane extends ObservationPlotPane implements
 			
 			public boolean canBeRemoved() {
 				return true;
+			}
+		};
+	}
+
+	@Override
+	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
+		return new Listener<FilteredObservationMessage>() {
+			public void update(FilteredObservationMessage info) {
+				// Do nothing for phase plots currently.
+				// When we do eventually enable this,
+				// this method should only do something
+				// if a phase plot has been created, otherwise
+				// we see assertion errors from PhaseCoordSource.getXCoord()
+				// since phase values will be null.
+			}
+			
+			public boolean canBeRemoved() {
+				return false;
 			}
 		};
 	}

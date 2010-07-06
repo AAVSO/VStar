@@ -486,7 +486,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			public void update(FilteredObservationMessage info) {
 				// Currently, due to the way we render phase plots, filtering
 				// will be disabled for anything but raw analysis mode.
-				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+//				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
 					if (info == FilteredObservationMessage.NO_FILTER) {
 						// No filter, so make the filtered series invisible.
 						if (obsModel.seriesExists(SeriesType.Filtered)) {
@@ -516,7 +516,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 						// invisible via a NO_FILTER message.
 						obsModel.changeSeriesVisibility(filterSeriesNum, true);
 					}
-				}
+//				}
 			}
 
 			public boolean canBeRemoved() {

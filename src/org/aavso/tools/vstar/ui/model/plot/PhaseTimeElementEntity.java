@@ -64,7 +64,7 @@ public class PhaseTimeElementEntity implements ITimeElementEntity {
 	}
 
 	public double getDefaultTimeIncrements() {
-		return 0.1;
+		return 0.05;
 	}
 
 	public String getNumberFormat() {
