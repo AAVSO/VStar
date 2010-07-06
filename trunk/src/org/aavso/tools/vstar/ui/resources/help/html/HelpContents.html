@@ -13,7 +13,7 @@
 <p>Its current capabilities are:</p>
 
 <ul>
- <li>Sourcing data from a file or the AAVSO database.</li>
+ <li>Sourcing data from a file or the AAVSO International Database.</li>
  <li>Plotting a Light Curve or Phase Plot from raw observation data, 
  optionally with error bars for each observation.</li>
  <li>Showing a table of the raw observations associated with the light curve.</li>
@@ -99,10 +99,17 @@ This point becomes the focus of subsequent zoom operations.</p>
 <p>Selecting the View menu's <code>Filter...</code> item or the corresponding toolbar 
 button opens an observation filter dialog that permits one or more "matchers" to be
 specified, each of which must match for a given observation to be included in the set 
-of filtered observations. Only raw observations are filtered, not mean values. Observation 
-list rows are reduced in number according to the filter, and light curve plots (not phase plots 
-currently) have a "Filtered" series added. <em>This new series can be treated in the same way as 
-any other series, including being selected/deselected, and used as the source for a mean curve.</em></p>
+of filtered observations.</p>
+
+<p>Only raw observations are filtered, not mean values. Observation 
+list rows are reduced in number according to the filter, and light curve plots 
+(not phase plots currently) have a "Filtered" series added. <em>This new series 
+can be treated in the same way as any other series, including being selected/deselected,
+and used as the source for a mean curve.</em></p>
+
+<p>If an observer code field matcher is selected and the user has logged in to retrieve 
+observations from the AID and the user has an assigned observer code by virtue of having 
+submitted observations, the value field will default to that observer code.</p>
 
 <p>Selecting <code>No Filter...</code> from the View menu removes the effect of filtering.</p>
 
