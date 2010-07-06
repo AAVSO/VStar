@@ -61,16 +61,15 @@ public class AAVSODatabaseConnector {
 			+ ResourceAccessor.getParam(0);
 
 	private DatabaseType type;
-	private Driver driver;
 	private Connection connection;
 
 	// Authorisation and observation retrieval statements.
 	private PreparedStatement authStmt;
+	private PreparedStatement obsCodeStmt;
 	private PreparedStatement obsWithJDRangeStmt;
 	private PreparedStatement obsWithNoJDRangeStmt;
 
 	private boolean authenticatedWithCitizenSky;
-	private String obsCode;
 
 	// Database connectors.
 	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(
@@ -114,11 +113,14 @@ public class AAVSODatabaseConnector {
 	 */
 	private AAVSODatabaseConnector(DatabaseType type) {
 		this.type = type;
-		this.driver = null;
 		this.connection = null;
+
+		this.authStmt = null;
+		this.obsCodeStmt = null;
 		this.obsWithJDRangeStmt = null;
+		this.obsWithNoJDRangeStmt = null;
+
 		this.authenticatedWithCitizenSky = false;
-		this.obsCode = null;
 		this.starNameAndAUIDRetriever = null;
 	}
 
@@ -171,8 +173,8 @@ public class AAVSODatabaseConnector {
 	 *            A JDBC connection.
 	 * @return A prepared statement.
 	 */
-	public PreparedStatement createObservationWithJDRangeQuery(Connection connection)
-			throws SQLException {
+	public PreparedStatement createObservationWithJDRangeQuery(
+			Connection connection) throws SQLException {
 
 		// TODO: also use ResultSet.TYPE_SCROLL_SENSITIVE for panning (later)?
 
@@ -203,8 +205,8 @@ public class AAVSODatabaseConnector {
 							+ "observations\n" + "WHERE\n"
 							+ "observations.AUID = ? AND\n"
 							+ "observations.JD >= ? AND\n"
-							+ "observations.JD <= ? AND\n" 
-							+ "observations.valflag <> 'Y'\n"+ "ORDER BY\n"
+							+ "observations.JD <= ? AND\n"
+							+ "observations.valflag <> 'Y'\n" + "ORDER BY\n"
 							+ "observations.JD;");
 		}
 
@@ -224,8 +226,8 @@ public class AAVSODatabaseConnector {
 	 * @param maxJD
 	 *            The maximum Julian Day.
 	 */
-	public void setObservationWithJDRangeQueryParams(PreparedStatement stmt, String auid,
-			double minJD, double maxJD) throws SQLException {
+	public void setObservationWithJDRangeQueryParams(PreparedStatement stmt,
+			String auid, double minJD, double maxJD) throws SQLException {
 		stmt.setString(1, auid);
 		stmt.setDouble(2, minJD);
 		stmt.setDouble(3, maxJD);
@@ -320,6 +322,7 @@ public class AAVSODatabaseConnector {
 
 	/**
 	 * Return a prepared statement for the specified Citizen Sky user login.
+	 * 
 	 * This is a once-only-created prepared statement with parameters set for
 	 * each query execution.
 	 * 
@@ -331,11 +334,36 @@ public class AAVSODatabaseConnector {
 			throws SQLException {
 		if (authStmt == null) {
 			authStmt = connection
-					.prepareStatement("select users.name, users.pass from users where users.name = ?");
+					.prepareStatement("select users.name, users.pass, users.uid from users where users.name = ?");
 		}
 
 		return authStmt;
 	}
+
+	/**
+	 * Return a prepared statement to obtain the observer code given the Citizen
+	 * Sky user's user ID. TODO: once we can also authenticate via AAVSO
+	 * credentials, we will need to split this into different DAOs as we have
+	 * for VSX info.
+	 * 
+	 * This is a once-only-created prepared statement with parameters set for
+	 * each query execution.
+	 * 
+	 * @param connection
+	 *            database connection.
+	 * @return A prepared statement.
+	 */
+	protected PreparedStatement createCitizenSkyObserverCodeQuery(
+			Connection connection) throws SQLException {
+		if (obsCodeStmt == null) {
+			obsCodeStmt = connection
+					.prepareStatement("select profile_values.value from profile_values where fid = 15 and uid = ?;");
+		}
+
+		return obsCodeStmt;
+	}
+
+	// TODO: There's a huge mix of DAO and GUI code in here; fix!!
 
 	/**
 	 * Authenticate with the Citizen Sky database by prompting the user to enter
@@ -381,6 +409,9 @@ public class AAVSODatabaseConnector {
 					String actualPassword = userResults.getString("pass");
 					if (passwordDigest.equals(actualPassword)) {
 						authenticatedWithCitizenSky = true;
+
+						int uid = userResults.getInt("uid");
+						retrieveObserverCode(uid, userConnection);
 					} else {
 						retries--;
 					}
@@ -400,10 +431,26 @@ public class AAVSODatabaseConnector {
 	}
 
 	/**
-	 * @return the obsCode
+	 * Attempt to retrieve the observer code. There will only be one if the
+	 * logged-in user has submitted an observation to AID via Citizen Sky. If
+	 * there is one, store it, e.g. for use in observation filtering.
+	 * 
+	 * @param uid The logged-in user's ID.
+	 * @param userConnection The user database connection.
+	 * @throws Exception If an SQL error occurs.
 	 */
-	public String getObsCode() {
-		return obsCode;
+	private void retrieveObserverCode(int uid, Connection userConnection) throws Exception {
+		
+		PreparedStatement obsCodeStmt = createCitizenSkyObserverCodeQuery(userConnection);
+		obsCodeStmt.setInt(1, uid);
+		ResultSet obsCodeResults = obsCodeStmt.executeQuery();
+		
+		if (obsCodeResults.next()) {
+			String obsCode = obsCodeResults.getString("value");
+			if (!obsCodeResults.wasNull()) {
+				ResourceAccessor.setObserverCode(obsCode);
+			}
+		}
 	}
 
 	/**

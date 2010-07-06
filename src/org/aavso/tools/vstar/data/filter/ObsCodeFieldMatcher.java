@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.data.filter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * An observer code field matcher.
@@ -49,5 +50,10 @@ public class ObsCodeFieldMatcher extends StringFieldMatcher {
 	@Override
 	public String getDisplayName() {
 		return "Observer Code";
+	}
+
+	@Override
+	public String getDefaultTestValue() {
+		return ResourceAccessor.getObserverCode();
 	}
 }

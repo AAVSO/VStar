@@ -160,7 +160,8 @@ public class ObservationFilterPane extends JPanel {
 						filterOpsList.addActionListener(filterOpsListener);
 						String opName = (String) filterOpsList.getItemAt(0);
 						currOp = ObservationMatcherOp.fromString(opName);
-						valueField.setText("");
+						String defaultTestValue = currFilter.getDefaultTestValue();
+						valueField.setText((defaultTestValue == null) ? "" : defaultTestValue);
 					}
 				}
 			}

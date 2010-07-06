@@ -60,4 +60,9 @@ public class TransformedFieldMatcher extends BooleanFieldMatcher {
 	public String getDisplayName() {
 		return "Transformed";
 	}
+
+	@Override
+	public String getDefaultTestValue() {
+		return null;
+	}
 }

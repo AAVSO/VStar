@@ -57,4 +57,9 @@ public class MagnitudeFieldMatcher extends DoubleFieldMatcher {
 	public String getDisplayName() {
 		return "Magnitude";
 	}
+
+	@Override
+	public String getDefaultTestValue() {
+		return null;
+	}
 }
