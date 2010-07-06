@@ -57,4 +57,9 @@ public class JDFieldMatcher extends DoubleFieldMatcher {
 	public String getDisplayName() {
 		return "Julian Day";
 	}
+
+	@Override
+	public String getDefaultTestValue() {
+		return null;
+	}
 }

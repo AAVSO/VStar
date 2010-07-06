@@ -90,4 +90,9 @@ public class SeriesTypeFieldMatcher extends
 	public Class<?> getType() {
 		return SeriesType.class;
 	}
+
+	@Override
+	public String getDefaultTestValue() {
+		return null;
+	}
 }

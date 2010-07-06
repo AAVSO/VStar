@@ -27,10 +27,32 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
 /**
  * The purpose of this class is to provide access to non-class resources such as
- * images and HTML files, and subversion revision number.
+ * images and HTML files, observer code.
  */
 public class ResourceAccessor {
 
+	// ** Observer Code. **
+	
+	// TODO: Store observer code somewhere else? Also store as a user property/preference?
+	
+	private static String observerCode = null;
+	
+	/**
+	 * @return the observerCode
+	 */
+	public static String getObserverCode() {
+		return observerCode;
+	}
+
+	/**
+	 * @param observerCode the observerCode to set
+	 */
+	public static void setObserverCode(String observerCode) {
+		ResourceAccessor.observerCode = observerCode;
+	}
+
+	// ** Image resource accessor. **
+	
 	/**
 	 * Returns an image icon given a resource URL string.
 	 * 
@@ -61,6 +83,8 @@ public class ResourceAccessor {
 		return icon;
 	}
 
+	// ** HTML help URL resource accessor. ***
+	
 	/**
 	 * Returns the HTML help resource URL.
 	 * 
@@ -81,6 +105,8 @@ public class ResourceAccessor {
 		return url;
 	}
 
+	// ** Version info. **
+	
 	public static String getVersionString() {
 		return "version 2.2 Beta";
 	}
@@ -88,6 +114,8 @@ public class ResourceAccessor {
 	public static String getRevNum() {
 		return RevisionAccessor.getRevNum();
 	}
+	
+	// ** Various parameters. **
 	
 	public static String getParam(int n) {
 		assert n >= 0 && n < data.length;

@@ -73,4 +73,15 @@ public interface IObservationFieldMatcher {
 	 * @return A class representing a type.
 	 */
 	public abstract Class<?> getType();
+
+	/**
+	 * Return a default test value for this matcher, or null 
+	 * if there isn't one. TODO: this should return a T! All
+	 * the more reason this interface should be replaced by
+	 * AbstractObservationFieldMatcher, or this interface or
+	 * method parameterised with T.
+	 * 
+	 * @return The default test value, or null.
+	 */
+	public abstract String getDefaultTestValue();
 }
