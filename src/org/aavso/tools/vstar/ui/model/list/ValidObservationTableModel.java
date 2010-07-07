@@ -82,6 +82,13 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	}
 
 	/**
+	 * @return the columnInfoSource
+	 */
+	public ITableColumnInfoSource getColumnInfoSource() {
+		return columnInfoSource;
+	}
+
+	/**
 	 * @return the validObservations
 	 */
 	public List<ValidObservation> getObservations() {
@@ -206,5 +213,5 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 */
 	public boolean canBeRemoved() {
 		return true;
-	}
+	}	
 }
