@@ -116,6 +116,24 @@ public class InfoDialog extends JDialog implements ActionListener {
 			buf.append(" days\n");
 		}
 
+		if (starInfo.getVarType() != null) {
+			buf.append("Variable Type: ");
+			buf.append(starInfo.getVarType());
+			buf.append("\n");
+		}
+
+		if (starInfo.getSpectralType() != null) {
+			buf.append("Spectral Type: ");
+			buf.append(starInfo.getSpectralType());
+			buf.append("\n");
+		}
+
+		if (starInfo.getDiscoverer() != null) {
+			buf.append("Discoverer: ");
+			buf.append(starInfo.getDiscoverer());
+			buf.append("\n");
+		}
+
 		buf.append("Loaded Observations: ");
 		buf.append(obs.size());
 		buf.append("\n");

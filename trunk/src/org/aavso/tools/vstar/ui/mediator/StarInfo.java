@@ -28,6 +28,9 @@ public class StarInfo {
 	String auid = null;
 	Double period = null;
 	Double epoch = null;
+	String varType = null;
+	String spectralType = null;
+	String discoverer = null;
 
 	/**
 	 * Constructor.
@@ -42,17 +45,21 @@ public class StarInfo {
 	 *            The star's (corresponding to period for phase plot purposes)
 	 *            epoch, if known, as a Heliocentric Julian Date.
 	 */
-	public StarInfo(String designation, String auid, Double period, Double epoch) {
+	public StarInfo(String designation, String auid, Double period,
+			Double epoch, String varType, String spectralType, String discoverer) {
 		this.designation = designation;
 		this.auid = auid;
 		this.period = period;
 		this.epoch = epoch;
+		this.varType = varType;
+		this.spectralType = spectralType;
+		this.discoverer = discoverer;
 	}
 
 	/**
 	 * Constructor.
 	 * 
-	 * The AUID, period and epoch are null.
+	 * All but designation and AUID are null.
 	 * 
 	 * @param designation
 	 *            A name or designation for the star.
@@ -60,19 +67,19 @@ public class StarInfo {
 	 *            The star's unique identifier (AAVSO unique ID).
 	 */
 	public StarInfo(String designation, String auid) {
-		this(designation, auid, null, null);
+		this(designation, auid, null, null, null, null, null);
 	}
-	
+
 	/**
 	 * Constructor.
 	 * 
-	 * The AUID, period and epoch are null.
+	 * All but designation is null.
 	 * 
 	 * @param designation
 	 *            A name or designation for the star.
 	 */
 	public StarInfo(String designation) {
-		this(designation, null, null, null);
+		this(designation, null);
 	}
 
 	/**
@@ -102,4 +109,25 @@ public class StarInfo {
 	public Double getEpoch() {
 		return epoch;
 	}
+
+	/**
+	 * @return the varType
+	 */
+	public String getVarType() {
+		return varType;
+	}
+
+	/**
+	 * @return the spectralType
+	 */
+	public String getSpectralType() {
+		return spectralType;
+	}
+
+	/**
+	 * @return the discoverer
+	 */
+	public String getDiscoverer() {
+		return discoverer;
+	}	
 }
