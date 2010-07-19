@@ -41,6 +41,11 @@ public class PropertiesAccessor {
 		try {
 
 			URL url = PropertiesAccessor.class.getResource("/etc/StarList.properties");
+			if (url == null) {
+				// Otherwise, look in resources dir under ui (e.g. if running
+				// from Eclipse, not from a distribution of vstar.jar).
+				url = PropertiesAccessor.class.getResource("etc/StarList.properties");
+			}
 			Properties props = new Properties();
 			props.load(url.openStream());
 
@@ -71,6 +76,11 @@ public class PropertiesAccessor {
 		try {
 
 			URL url = PropertiesAccessor.class.getResource("/etc/StarList.properties");
+			if (url == null) {
+				// Otherwise, look in resources dir under ui (e.g. if running
+				// from Eclipse, not from a distribution of vstar.jar).
+				url = PropertiesAccessor.class.getResource("etc/StarList.properties");
+			}
 			Properties props = new Properties();
 			props.load(url.openStream());
 

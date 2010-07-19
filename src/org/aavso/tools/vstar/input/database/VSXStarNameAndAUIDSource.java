@@ -48,6 +48,9 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		String auid = null;
 		Double period = null;
 		Double epoch = null;
+		String varType = null;
+		String spectralType = null;
+		String discoverer = null;
 
 		createFindAUIDFromNameStatement(connection);
 		findAUIDFromNameStatement.setString(1, name);
@@ -63,14 +66,21 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 				auid = rs.getString("o_auid");
 				period = getPossiblyNullPeriod(rs);
 				epoch = getPossiblyNullEpoch(rs);
+				varType = getPossiblyNullStringValue(rs, "o_varType");
+				spectralType = getPossiblyNullStringValue(rs, "o_specType");
+				discoverer = getPossiblyNullStringValue(rs, "o_discoverer");
 			}
 		} else {
 			auid = rs.getString("o_auid");
 			period = getPossiblyNullPeriod(rs);
 			epoch = getPossiblyNullEpoch(rs);
+			varType = getPossiblyNullStringValue(rs, "o_varType");
+			spectralType = getPossiblyNullStringValue(rs, "o_specType");
+			discoverer = getPossiblyNullStringValue(rs, "o_discoverer");
 		}
 
-		return new StarInfo(name, auid, period, epoch);
+		return new StarInfo(name, auid, period, epoch, varType, spectralType,
+				discoverer);
 	}
 
 	/**
@@ -85,6 +95,9 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		String starName = null;
 		Double period = null;
 		Double epoch = null;
+		String varType = null;
+		String spectralType = null;
+		String discoverer = null;
 
 		createFindStarNameFromAUIDStatement(connection);
 		findStarNameFromAUID.setString(1, auid);
@@ -95,9 +108,13 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 			starName = rs.getString("o_designation");
 			period = getPossiblyNullPeriod(rs);
 			epoch = getPossiblyNullEpoch(rs);
+			varType = getPossiblyNullStringValue(rs, "o_varType");
+			spectralType = getPossiblyNullStringValue(rs, "o_specType");
+			discoverer = getPossiblyNullStringValue(rs, "o_discoverer");
 		}
 
-		return new StarInfo(starName, auid, period, epoch);
+		return new StarInfo(starName, auid, period, epoch, varType,
+				spectralType, discoverer);
 	}
 
 	// Helpers
@@ -127,8 +144,19 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		if (epoch != null) {
 			epoch = epoch.doubleValue() + 2400000.0;
 		}
-		
+
 		return epoch;
+	}
+
+	private String getPossiblyNullStringValue(ResultSet rs, String colName)
+			throws SQLException {
+		String value = rs.getString(colName);
+
+		if (rs.wasNull()) {
+			value = null; // TODO: necessary?
+		}
+
+		return value;
 	}
 
 	// Create statements to retrieve AUID from star name.
@@ -142,7 +170,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		if (findAUIDFromNameStatement == null) {
 			findAUIDFromNameStatement = connect
 					.prepareStatement("SELECT o_auid, o_designation, "
-							+ "o_varType, o_period, o_epoch, o_specType FROM "
+							+ "o_period, o_epoch, o_varType, o_specType, o_discoverer FROM "
 							+ STARTABLE
 							+ " WHERE (o_auid = ? OR o_designation = ? OR REPLACE(o_designation, \"V0\", \"V\") = ?) "
 							+ "AND o_auid is not null");
@@ -155,7 +183,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		if (findAUIDFromAliasStatement == null) {
 			findAUIDFromAliasStatement = connect
 					.prepareStatement("SELECT o_auid, o_designation, "
-							+ "o_varType, o_period, o_epoch, o_specType FROM "
+							+ "o_period, o_epoch, o_varType, o_specType, o_discoverer FROM "
 							+ STARTABLE
 							+ ", "
 							+ ALIASTABLE
@@ -176,7 +204,8 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 
 		if (findStarNameFromAUID == null) {
 			findStarNameFromAUID = connect
-					.prepareStatement("SELECT o_designation, o_period, o_epoch FROM "
+					.prepareStatement("SELECT o_designation, o_period, o_epoch, "
+							+ "o_varType, o_specType, o_discoverer FROM "
 							+ STARTABLE + " WHERE o_auid = ?");
 		}
 

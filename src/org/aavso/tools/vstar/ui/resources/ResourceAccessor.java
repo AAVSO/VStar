@@ -97,7 +97,7 @@ public class ResourceAccessor {
 
 		if (url == null) {
 			// Otherwise, look in resources dir under ui (e.g. if running
-			// from Eclipse, not from a distribution of vstar.jar.
+			// from Eclipse, not from a distribution of vstar.jar).
 			url = ResourceAccessor.class
 					.getResource("resources/help/html/HelpContents.html");
 		}
