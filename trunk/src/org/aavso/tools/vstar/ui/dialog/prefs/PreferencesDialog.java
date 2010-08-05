@@ -58,7 +58,6 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
 	}
 
-	// TODO: reuse old tabbed pane class?
 	private JTabbedPane createTabs() {
 		JTabbedPane tabs = new JTabbedPane();
 
@@ -80,6 +79,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
 	 */
 	protected void okAction() {
+		// TODO: need an update method for each prefs pane?
 		seriesColorPane.updateSeriesColors();
 		
 		this.setVisible(false);

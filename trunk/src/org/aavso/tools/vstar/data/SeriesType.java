@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.data;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 import org.aavso.tools.vstar.util.notification.Notifier;
 
@@ -38,7 +39,7 @@ import org.aavso.tools.vstar.util.notification.Notifier;
  * A type for bands and other series types, e.g. fainter-thans, means.
  */
 public enum SeriesType {
-	
+
 	// ** Auto-generated bands from aid.bands start here **
 
 	Visual(0, "Visual", "Vis.", new Color(0, 0, 0)), Unknown(1, "Unknown",
@@ -78,35 +79,53 @@ public enum SeriesType {
 
 	// ** Auto-generated bands from aid.bands end here **
 
+	FAINTER_THAN(SeriesType.NO_INDEX, "Fainter Than", "FainterThan",
+			Color.YELLOW),
+
+	MEANS(SeriesType.NO_INDEX, "Means", "Means", Color.BLUE),
+
 	// Aaron's suggestion was to make Discrepant points light gray.
-	// TODO: change dark gray to this below once chart background is white?
+	// TODO: change to this below once chart background is white?
+	DISCREPANT(SeriesType.NO_INDEX, "Discrepant", "Discrepant", Color.DARK_GRAY),
 
-	FAINTER_THAN(SeriesType.NO_INDEX, "Fainter Than", Color.YELLOW), MEANS(-1, "Means",
-			Color.BLUE), DISCREPANT(-1, "Discrepant", Color.DARK_GRAY),
+	Unspecified(SeriesType.NO_INDEX, "Unspecified", "Unspecified", Color.ORANGE),
 
-	Unspecified(SeriesType.NO_INDEX, "Unspecified", Color.ORANGE),
+	Filtered(SeriesType.NO_INDEX, "Filtered", "Filtered", Color.WHITE);
 
-	Filtered(SeriesType.NO_INDEX, "Filtered", Color.WHITE);
-
+	// Static members
+	
 	private final static int NO_INDEX = -1;
+
+	private final static String PREFS_PREFIX = "SERIES_COLOR_";
 
 	private static Map<Integer, SeriesType> index2SeriesMap = new HashMap<Integer, SeriesType>();
 	private static Map<String, SeriesType> shortName2SeriesMap = new HashMap<String, SeriesType>();
 	private static Map<String, SeriesType> description2SeriesMap = new HashMap<String, SeriesType>();
 	private static Map<SeriesType, Color> series2ColorMap = new HashMap<SeriesType, Color>();
 
+	private static Notifier<Map<SeriesType, Color>> seriesColorChangeNotifier = new Notifier<Map<SeriesType, Color>>();
+
+	private static Preferences prefs;
+
 	static {
+		// Create preferences node for series colors.
+		try {
+			prefs = Preferences.userNodeForPackage(SeriesType.class);
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+
+		// Populate mappings from index & name to type, and type to color.
 		for (SeriesType type : values()) {
 			index2SeriesMap.put(type.getIndex(), type);
 			shortName2SeriesMap.put(type.getShortName(), type);
 			description2SeriesMap.put(type.getDescription(), type);
-			series2ColorMap.put(type, type.getColor());
+
+			Color colorPref = getColorPref(type);
+			series2ColorMap.put(type, colorPref == null ? type.getColor()
+					: colorPref);
 		}
 	}
-
-	// Series color change notifier.
-
-	private static Notifier<Map<SeriesType, Color>> seriesColorChangeNotifier = new Notifier<Map<SeriesType, Color>>();
 
 	/**
 	 * @return The series color change notifier.
@@ -139,20 +158,6 @@ public enum SeriesType {
 		this.description = description;
 		this.shortName = shortName;
 		this.color = color;
-	}
-
-	/**
-	 * Private constructor. TODO: remove me!
-	 * 
-	 * @param index
-	 *            The series type's index (AID.Code).
-	 * @param description
-	 *            The series type's description.
-	 * @param color
-	 *            The series type's color.
-	 */
-	private SeriesType(int index, String description, Color color) {
-		this(index, description, "", color);
 	}
 
 	/**
@@ -212,7 +217,7 @@ public enum SeriesType {
 
 		if (type == null) {
 			// TODO: We can remove this block when we have changed or
-			// downloaded new (or just deleted) files to replace existing 
+			// downloaded new (or just deleted) files to replace existing
 			// ones in the case where band short-names have changed!
 			if (shortName.equals("Unknown")) {
 				type = Unknown;
@@ -253,6 +258,40 @@ public enum SeriesType {
 		return type;
 	}
 
+	private static Color getColorPref(SeriesType series) {
+		Color color = null;
+
+		if (series != null) {
+			String colorPrefName = PREFS_PREFIX + series.getDescription();
+			try {
+				String colorPrefValue = prefs.get(colorPrefName, null);
+				if (colorPrefValue != null) {
+					// We expect this to be an integer RGB color value
+					// but we need a way to distinguish between there
+					// being no preference for the value and a valid
+					// color RGB value which there is no way of doing
+					// with a primitive integer.
+					color = new Color(Integer.parseInt(colorPrefValue));
+				}
+			} catch (Throwable t) {
+				// We need VStar to function in the absence of prefs.
+			}
+		}
+
+		return color;
+	}
+
+	private static void setColorPref(SeriesType series, Color color) {
+		if (series != null && color != null) {
+			String colorPrefName = PREFS_PREFIX + series.getDescription();
+			try {
+				prefs.put(colorPrefName, color.getRGB() + "");
+			} catch (Throwable t) {
+				// We need VStar to function in the absence of prefs.
+			}
+		}
+	}
+
 	/**
 	 * Given a series, retrieve its color.
 	 * 
@@ -274,7 +313,8 @@ public enum SeriesType {
 	 * Updates the series to color mapping according to the pairs in the
 	 * supplied map. Note that this may be a subset of all series-color pairs,
 	 * so it may not completely replace the existing map, just overwrite some
-	 * pairs. It also notifies listeners of the change.
+	 * pairs. It also updates the series color preference and notifies listeners
+	 * of the change.
 	 * 
 	 * @param newSeries2ColorMap
 	 *            The map with which to update the series-color map.
@@ -284,7 +324,15 @@ public enum SeriesType {
 
 		if (!newSeries2ColorMap.isEmpty()) {
 			for (SeriesType series : newSeries2ColorMap.keySet()) {
-				series2ColorMap.put(series, newSeries2ColorMap.get(series));
+				Color color = newSeries2ColorMap.get(series);
+				series2ColorMap.put(series, color);
+				setColorPref(series, color);
+			}
+			
+			try {
+				prefs.flush();
+			} catch (Throwable t) {
+				// We need VStar to function in the absence of prefs.
 			}
 
 			seriesColorChangeNotifier.notifyListeners(newSeries2ColorMap);
@@ -297,8 +345,22 @@ public enum SeriesType {
 	public static void setDefaultSeriesColors() {
 		series2ColorMap.clear();
 
+		try {
+			prefs.clear();
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+
 		for (SeriesType type : values()) {
-			series2ColorMap.put(type, type.getColor());
+			Color color = type.getColor();
+			series2ColorMap.put(type, color);
+			setColorPref(type, color);
+		}
+
+		try {
+			prefs.flush();
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
 		}
 
 		seriesColorChangeNotifier.notifyListeners(series2ColorMap);
