@@ -44,7 +44,6 @@ import org.aavso.tools.vstar.data.SeriesType;
  */
 public class SeriesColorSelectionPane extends JPanel {
 
-	SortedSet<String> seriesDescList;
 	private JComboBox seriesSelector;
 	private JColorChooser colorChooser;
 	private Map<SeriesType, Color> changedSeriesColorMap;
@@ -64,9 +63,7 @@ public class SeriesColorSelectionPane extends JPanel {
 		seriesColorPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		// Add a combo-box showing all series descriptions.
-		// TODO: show all series or just those currently plotted?
-
-		seriesDescList = new TreeSet<String>();
+		SortedSet<String> seriesDescList = new TreeSet<String>();
 		for (SeriesType series : SeriesType.values()) {
 			seriesDescList.add(series.getDescription());
 		}
@@ -124,12 +121,11 @@ public class SeriesColorSelectionPane extends JPanel {
 				// value of the selected series is.
 				String seriesDesc = (String) seriesSelector.getSelectedItem();
 				currentSeries = SeriesType.getSeriesFromDescription(seriesDesc);
-				Color color = SeriesType.getColorFromSeries(currentSeries);
-				colorChooser.setColor(color);
+				colorChooser.setColor(SeriesType.getColorFromSeries(currentSeries));
 			}
 		};
 	}
-	
+
 	// Color selection state change listener.
 	private ChangeListener createColorChooserChangeListener() {
 		return new ChangeListener() {
@@ -148,8 +144,8 @@ public class SeriesColorSelectionPane extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				// Reset all series colors to defaults.
 				SeriesType.setDefaultSeriesColors();
-				
-				// Bring the currently selected series color into 
+
+				// Bring the currently selected series color into
 				// line with this.
 				Color color = SeriesType.getColorFromSeries(currentSeries);
 				colorChooser.setColor(color);
@@ -173,10 +169,11 @@ public class SeriesColorSelectionPane extends JPanel {
 		if (!changedSeriesColorMap.isEmpty()) {
 			// Apply the changed color map to SeriesType and notify
 			// listeners.
+			// TODO: update colors in prefs (see key info above)
 			SeriesType.updateSeriesColorMap(changedSeriesColorMap);
 		}
 	}
-	
+
 	/**
 	 * Prepare this pane for use by resetting whatever needs to be.
 	 */
@@ -186,11 +183,11 @@ public class SeriesColorSelectionPane extends JPanel {
 		// it was cancelled.
 		Color color = SeriesType.getColorFromSeries(currentSeries);
 		colorChooser.setColor(color);
-		
+
 		// Start with a blank slate for the color series map.
 		changedSeriesColorMap.clear();
 	}
-	
+
 	/**
 	 * @return the changedSeriesColorMap
 	 */
