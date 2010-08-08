@@ -15,13 +15,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.model.list;
+package org.aavso.tools.vstar.ui.resources;
 
 /*
- * A model object for the stars that make up the list of avaiable stars in the DB
- * This is to ensure that the information needed to process that list is maintained in one place.
+ * A model object for the stars that make up the list of available stars in 
+ * the DB. This is to ensure that the information needed to process that list 
+ * is maintained in one place.
  */
-public class Star{
+public class Star {
 	private String name;
 	private String identifier;
 

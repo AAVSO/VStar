@@ -41,8 +41,8 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.model.list.Star;
 import org.aavso.tools.vstar.ui.resources.PropertiesAccessor;
+import org.aavso.tools.vstar.ui.resources.Star;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
 /**
@@ -52,11 +52,9 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	private static AbstractDateUtil dateUtil = AbstractDateUtil.getInstance();
 
-	private Map<String, String> tenStarMap;
-
 	private Container contentPane;
 
-	private JComboBox tenStarSelector;
+	private StarGroupSelectionPane starGroupSelectionPane;	
 	private JTextField starField;
 	private JTextField minJDField;
 	private JTextField maxJDField;
@@ -98,8 +96,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
 		day = cal.get(Calendar.DAY_OF_MONTH);
 
-		createTenStarMap();
-
 		contentPane = this.getContentPane();
 
 		JPanel topPane = new JPanel();
@@ -108,7 +104,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		topPane
 				.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
 
-		topPane.add(createTenStarSelectorPane());
+		starGroupSelectionPane = new StarGroupSelectionPane();
+		topPane.add(starGroupSelectionPane);
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createStarFieldPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -125,36 +122,10 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		// this.addWindowListener(this.createWindowListener());
 
 		this.pack();
-		tenStarSelector.requestFocusInWindow();
-	}
-
-	// We know the AUID of the CitizenSky ten-stars, so there is
-	// no need to query the database for these.
-	// TODONE: put these in a properties file and move this method to
-	// PropertiesAccessor()!
-	private void createTenStarMap() {
-		tenStarMap = new TreeMap<String, String>();
-		for (Star star : PropertiesAccessor.getStarList()) {
-			tenStarMap.put(star.getName(), star.getIdentifier());
-		}
+		starGroupSelectionPane.requestFocusInWindow();
 	}
 
 	// GUI components
-
-	private JPanel createTenStarSelectorPane() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder(PropertiesAccessor
-				.getStarListTitle()));
-
-		tenStarSelector = new JComboBox(tenStarMap.keySet().toArray(
-				new String[0]));
-		tenStarSelector
-				.addActionListener(createTenStarSelectorActionListener());
-		panel.add(tenStarSelector);
-
-		return panel;
-	}
 
 	private JPanel createStarFieldPane() {
 		JPanel panel = new JPanel();
@@ -164,10 +135,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		starField = new JTextField();
 		starField.addActionListener(createStarFieldActionListener());
 		starField.setToolTipText("Enter star name, alias or AUID");
-		// starField.setEnabled(false);
 		panel.add(starField);
-
-		// panel.setEnabled(false);
 
 		return panel;
 	}
@@ -333,12 +301,11 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			}
 		} else {
 			// There's nothing in the text field, so use the
-			// selected 10-star menu item. Note that by only
+			// selected star group item. Note that by only
 			// setting AUID, we will force the lookup of star
 			// info from the database, at least the name, but
 			// also period and epoch if they are available.
-			String name = (String) tenStarSelector.getSelectedItem();
-			auid = tenStarMap.get(name);
+			auid = starGroupSelectionPane.getSelectedAUID();
 		}
 
 		// Is the all-data checkbox selected?
@@ -350,8 +317,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 				String minJDText = minJDField.getText().trim();
 				minDate = jdValidator.validate(minJDText);
 			} catch (ObservationValidationError ex) {
-				// TODO: try to extract mm/dd/yyyy => JD?
-				// No, use a calendar widget
 				MessageBox.showErrorDialog(MainFrame.getInstance(),
 						"Minimum Julian Day", ex);
 			}
@@ -360,8 +325,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 				String maxJDText = maxJDField.getText().trim();
 				maxDate = jdValidator.validate(maxJDText);
 			} catch (ObservationValidationError ex) {
-				// TODO: try to extract mm/dd/yyyy => JD?
-				// No, use a calendar widget
 				MessageBox.showErrorDialog(MainFrame.getInstance(),
 						"Maximum Julian Day", ex);
 			}

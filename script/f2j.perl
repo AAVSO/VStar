@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Partial Fortran to Java translation.
+# Partial Fortran to Java translator.
 
 require 5;
 use strict;
