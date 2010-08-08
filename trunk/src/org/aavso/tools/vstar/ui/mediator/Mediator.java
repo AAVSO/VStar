@@ -541,9 +541,6 @@ public class Mediator {
 			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.userDBConnector;
 			userConnector.authenticateWithCitizenSky();
 
-			// TODO: query for observer code; return value of
-			// authenticateWithCitizenSky() above
-
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
 
@@ -938,13 +935,10 @@ public class Mediator {
 	public void createPeriodAnalysisDialog(PeriodAnalysisPluginBase plugin) {
 		try {
 			if (this.newStarMessage != null && this.validObsList != null) {
-				// TODO: instead, pass obsAndMeanPlotModel in as a parameter
-				// to a setter to determine its own source of obs, series type
-
-				// move this stuff into plugin
-				// actually, make each plugin responsible for determining
-				// and tracking source series (see mean source series dialog)
-
+				// TODO: make each plugin responsible for determining
+				// and tracking source series (see mean source series dialog
+				// which could be invoked from here or from within plugin code).
+				
 				int meanObsSourceSeriesNum = obsAndMeanPlotModel
 						.getMeanSourceSeriesNum();
 
