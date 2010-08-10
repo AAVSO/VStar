@@ -121,7 +121,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 
 	private JPanel createEpochFieldPane() {
 		JPanel panel = new JPanel();
-		// TODO: needed?
+
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder("Epoch (JD)"));
 

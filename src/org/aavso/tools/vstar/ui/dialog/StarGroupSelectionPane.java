@@ -29,10 +29,12 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.ui.resources.StarGroups;
 
 /**
- * This class represents a widget that permits a star group to be selected
- * from a pop-up list and a star in that group from another pop-up list.
+ * This class represents a widget that permits a star group to be selected from
+ * a pop-up list and a star in that group from another pop-up list.
  */
 public class StarGroupSelectionPane extends JPanel {
+
+	private final static String NO_STARS = "No stars";
 
 	private JComboBox starGroupSelector;
 	private JComboBox starSelector;
@@ -48,23 +50,22 @@ public class StarGroupSelectionPane extends JPanel {
 	/**
 	 * Constructor.
 	 */
-	public StarGroupSelectionPane() {		
+	public StarGroupSelectionPane() {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createEtchedBorder());
 
 		selectedStarGroup = null;
-		
+
 		selectedStarName = null;
 		selectedAUID = null;
 
 		starGroups = StarGroups.getInstance();
-		Set<String> starGroupMapKeys = starGroups.getStarGroupMap().keySet();
+		Set<String> starGroupMapKeys = starGroups.getGroupNames();
 
 		starGroupSelector = new JComboBox(starGroupMapKeys
 				.toArray(new String[0]));
 		selectedStarGroup = (String) starGroupSelector.getItemAt(0);
-		starGroupSelector.setBorder(BorderFactory
-				.createTitledBorder("Group"));
+		starGroupSelector.setBorder(BorderFactory.createTitledBorder("Group"));
 		starGroupSelector.addActionListener(createStarGroupSelectorListener());
 
 		starSelector = new JComboBox();
@@ -96,27 +97,141 @@ public class StarGroupSelectionPane extends JPanel {
 	private ActionListener createStarSelectorListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Select a new star & AUID.
-				selectedStarName = (String) starSelector.getSelectedItem();
-				selectedAUID = starGroups.getStarGroupMap().get(
-						selectedStarGroup).get(selectedStarName);
+				String starName = (String) starSelector.getSelectedItem();
+				if (NO_STARS.equals(starName)) {
+					// Select a new star & AUID.
+					selectedStarName = starName;
+					selectedAUID = starGroups.getAUID(selectedStarGroup,
+							selectedStarName);
+				}
 			}
 		};
 	}
 
-	// Populate the star list combo-box given the currently selected star group.
-	private void populateStarListForSelectedGroup() {
+	/**
+	 * Populate the star list combo-box given the currently selected star group.
+	 */
+	public void populateStarListForSelectedGroup() {
 		starSelector.removeAllItems();
 
-		for (String starName : starGroups.getStarGroupMap().get(
-				selectedStarGroup).keySet()) {
-			starSelector.addItem(starName);
+		if (!starGroups.getStarNamesInGroup(selectedStarGroup).isEmpty()) {
+
+			for (String starName : starGroups
+					.getStarNamesInGroup(selectedStarGroup)) {
+				starSelector.addItem(starName);
+			}
+
+			// Maintain the invariant that a star & AUID are always selected.
+			selectedStarName = (String) starSelector.getItemAt(0);
+			selectedAUID = starGroups.getAUID(selectedStarGroup,
+					selectedStarName);
+		} else {
+			starSelector.addItem(NO_STARS);
+		}
+	}
+
+	/**
+	 * Add the specified group (to the map and visually) if it does not exist.
+	 * 
+	 * @param groupName
+	 *            The group to add.
+	 */
+	public void addGroup(String groupName) {
+		if (!starGroups.doesGroupExist(groupName)) {
+			starGroups.addStarGroup(groupName);
+			starGroupSelector.addItem(groupName);
+			selectAndRefreshStarsInGroup(groupName);
+		}
+	}
+
+	/**
+	 * Remove the specified group (from the map and visually) if it exists.
+	 * 
+	 * @param groupName
+	 *            The group to remove.
+	 */
+	public void removeGroup(String groupName) {
+		if (starGroups.doesGroupExist(groupName)) {
+			starGroups.removeStarGroup(groupName);
+			starGroupSelector.removeItem(groupName);
+			selectAndRefreshStarsInGroup((String) starGroupSelector
+					.getItemAt(0));
+		}
+	}
+
+	/**
+	 * Add the specified group-star-AUID triple.
+	 * 
+	 * @param groupName
+	 *            The group to add.
+	 * @param starName
+	 *            The star to add to the specified group.
+	 * @param auid
+	 *            The AUID of the star to be added.
+	 */
+	public void addStar(String groupName, String starName, String auid) {
+		if (starGroups.doesGroupExist(groupName)) {
+			starGroups.addStar(groupName, starName, auid);
+			selectAndRefreshStarsInGroup(groupName);
+		}
+	}
+
+	/**
+	 * Remove the specified star in the specified group.
+	 * 
+	 * @param groupName
+	 *            The group to add.
+	 * @param starName
+	 */
+	public void removeStar(String groupName, String starName) {
+		if (starGroups.doesGroupExist(groupName)) {
+			starGroups.removeStar(groupName, starName);
+			selectAndRefreshStarsInGroup(groupName);
+		}
+	}
+
+	/**
+	 * Remove all groups except the default group.
+	 */
+	public void clearGroups() {
+		starGroups.clearGroups();
+		
+		while (starGroupSelector.getItemCount() > 1) {
+			String groupName = (String) starGroupSelector.getSelectedItem();
+			if (!starGroups.getDefaultStarListTitle().equals(groupName)) {
+				starGroupSelector.removeItem(groupName);
+			}
 		}
 		
-		// Maintain the invariant that a star & AUID are always selected.
-		selectedStarName = (String) starSelector.getItemAt(0);
-		selectedAUID = starGroups.getStarGroupMap().get(
-				selectedStarGroup).get(selectedStarName);		
+		selectAndRefreshStarsInGroup((String)starGroupSelector.getItemAt(0));
+	}
+
+	/**
+	 * Select the specified group and refresh its stars.
+	 * 
+	 * @param groupName
+	 *            The group to select.
+	 */
+	public void selectAndRefreshStarsInGroup(String groupName) {
+		if (starGroups.doesGroupExist(groupName)) {
+			starGroupSelector.setSelectedItem(groupName);
+			selectedStarGroup = groupName;
+			populateStarListForSelectedGroup();
+		}
+	}
+
+	/**
+	 * @return the starGroups
+	 */
+	public StarGroups getStarGroups() {
+		return starGroups;
+	}
+
+	/**
+	 * @return the selectedStarGroup
+	 */
+	public String getSelectedStarGroupName() {
+		return selectedStarGroup;
 	}
 
 	/**

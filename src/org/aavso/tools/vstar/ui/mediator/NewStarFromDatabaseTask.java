@@ -92,13 +92,10 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			MainFrame.getInstance().getStatusPane().setMessage(
 					"Connecting to AAVSO database...");
 
-			// TODO: only need VSX connector if star is not a 10-star,
-			// i.e. auid and starName are both null.
 			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
 			Connection vsxConnection = vsxConnector.createConnection();
 
-			// TODO: need to cache period and epoch for 10-star stars
-			// Use this 2 parameter constructor until then.
+			// TODO: do we really need to create this default?
 			StarInfo starInfo = new StarInfo(starName, auid);
 
 			// Do we need to ask for the AUID from the database before

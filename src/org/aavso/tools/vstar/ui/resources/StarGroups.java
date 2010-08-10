@@ -17,7 +17,9 @@
  */
 package org.aavso.tools.vstar.ui.resources;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
@@ -30,34 +32,26 @@ import org.aavso.tools.vstar.data.SeriesType;
 public class StarGroups {
 
 	private final static StarGroups instance = new StarGroups();
-	
+
 	private final static String PREFS_KEY = "STAR_GROUPS";
 
 	private Map<String, Map<String, String>> starGroupMap;
 	private Preferences prefs;
 	private String defaultStarListTitle;
 
-	/**
-	 * Singleton getter.
-	 */
+	// Get Singleton instance.
 	public static StarGroups getInstance() {
 		return instance;
 	}
-	
+
 	/**
 	 * Private constructor to ensure Singleton.
 	 */
 	private StarGroups() {
 		starGroupMap = new TreeMap<String, Map<String, String>>();
 
-		// Add known default Citizen Sky 10-star group.
 		defaultStarListTitle = PropertiesAccessor.getStarListTitle();
-		starGroupMap.put(defaultStarListTitle, new TreeMap<String, String>());
-
-		for (Star star : PropertiesAccessor.getStarList()) {
-			starGroupMap.get(defaultStarListTitle).put(star.getName(),
-					star.getIdentifier());
-		}
+		addDefaultStarGroup();
 
 		// Add to star group map from user preferences.
 		try {
@@ -70,6 +64,143 @@ public class StarGroups {
 		} catch (Throwable t) {
 			// We need VStar to function in the absence of prefs.
 		}
+	}
+
+	/**
+	 * Return an ordered set of star group names.
+	 */
+	public Set<String> getGroupNames() {
+		return starGroupMap.keySet();
+	}
+
+	/**
+	 * @return the defaultStarListTitle
+	 */
+	public String getDefaultStarListTitle() {
+		return defaultStarListTitle;
+	}
+
+	/**
+	 * Return an ordered set of star names in the specified group.
+	 * 
+	 * @param groupName
+	 *            The group name.
+	 * @return An ordered set of stars in the group.
+	 */
+	public Set<String> getStarNamesInGroup(String groupName) {
+		Set<String> starNames = null;
+
+		if (starGroupMap.containsKey(groupName)) {
+			starNames = starGroupMap.get(groupName).keySet();
+		} else {
+			starNames = Collections.EMPTY_SET;
+		}
+
+		return starNames;
+	}
+
+	/**
+	 * Return the AUID for the specified group and star.
+	 * 
+	 * @param groupName
+	 *            The group name.
+	 * @param starName
+	 *            The star name.
+	 * @return The corresponding AUID; may be null.
+	 */
+	public String getAUID(String groupName, String starName) {
+		String auid = null;
+
+		if (starGroupMap.containsKey(groupName)) {
+			auid = starGroupMap.get(groupName).get(starName);
+		}
+
+		return auid;
+	}
+
+	/**
+	 * Does the specified group exist?
+	 * 
+	 * @param groupName
+	 *            The name of the group.
+	 * @return True if the group exists, false otherwise.
+	 */
+	public boolean doesGroupExist(String groupName) {
+		return starGroupMap.containsKey(groupName);
+	}
+
+	/**
+	 * Does the specified star exist in the specified group?
+	 * 
+	 * @param groupName
+	 *            The name of the group.
+	 * @param starName
+	 *            The name of the star.
+	 * @return True if the star exists in the group, false otherwise.
+	 */
+	public boolean doesStarExistInGroup(String groupName, String starName) {
+		boolean exists = false;
+		if (starGroupMap.containsKey(groupName)) {
+			exists = starGroupMap.get(groupName).containsKey(starName);
+		}
+		return exists;
+	}
+
+	/**
+	 * Add a new (empty) star group to the map. If the group previously existed,
+	 * this will replace it.
+	 * 
+	 * @param groupName
+	 *            The name of the group.
+	 */
+	public void addStarGroup(String groupName) {
+		starGroupMap.put(groupName, new TreeMap<String, String>());
+	}
+
+	/**
+	 * Remove the named star group, if it exists.
+	 * 
+	 * @param groupName
+	 *            The name of the group.
+	 */
+	public void removeStarGroup(String groupName) {
+		starGroupMap.remove(groupName);
+	}
+
+	/**
+	 * Add a star (name and AUID) to the specified group. If the star previously
+	 * existed in that group, this will replace it.
+	 * 
+	 * @param groupName
+	 *            The name of the group.
+	 * @param starName
+	 *            The name of the star.
+	 * @param auid
+	 *            The AUID of the star. This is assumed to correspond to a
+	 *            validated (i.e. existing the the database) AUID.
+	 */
+	public void addStar(String groupName, String starName, String auid) {
+		starGroupMap.get(groupName).put(starName, auid);
+	}
+
+	/**
+	 * Remove a star (name and AUID) from the specified group, if it exists.
+	 * 
+	 * @param groupName
+	 *            The name of the group.
+	 * @param starName
+	 *            The name of the star.
+	 */
+	public void removeStar(String groupName, String starName) {
+		starGroupMap.get(groupName).remove(starName);
+	}
+
+	/**
+	 * Remove all groups except the default group.
+	 */
+	public void clearGroups() {
+		starGroupMap.clear();
+		addDefaultStarGroup();
 	}
 
 	/**
@@ -120,17 +251,32 @@ public class StarGroups {
 			// Don't include default star list in preferences.
 			if (!defaultStarListTitle.equals(groupName)) {
 				Map<String, String> starMap = starGroupMap.get(groupName);
+
+				if (!starMap.isEmpty()) {
+					// ...|groupN:...
+					if (prefsValue.length() != 0) {
+						prefsValue += "|";
+					}
+
+					// groupN:
+					prefsValue += groupName + ":";
+
+					// starN,auidN;...
+					for (String starName : starMap.keySet()) {
+						String auid = starMap.get(starName);
+						prefsValue += starName + "," + auid + ";";
+					}
+
+					// Remove trailing semi-colon after star-auid pairs.
+					if (prefsValue.endsWith(";")) {
+						prefsValue = prefsValue.substring(0, prefsValue
+								.length() - 1);
+					}
+				}
 			}
 		}
 
 		return prefsValue;
-	}
-
-	/**
-	 * @return the starGroupMap
-	 */
-	public Map<String, Map<String, String>> getStarGroupMap() {
-		return starGroupMap;
 	}
 
 	/**
@@ -139,35 +285,23 @@ public class StarGroups {
 	public void storeStarGroupPrefs() {
 		try {
 			String prefsValue = createStarGroupPrefsValue();
-			if (prefsValue != "") {
-				prefs.put(PREFS_KEY, prefsValue);
-			}
+			// System.out.println("prefs: " + prefsValue);
+			prefs.put(PREFS_KEY, prefsValue);
+			prefs.flush();
 		} catch (Throwable t) {
 			// We need VStar to function in the absence of prefs.
 		}
 	}
 
-	/**
-	 * Add a star group to the map. If the group previously existed, this will
-	 * replace it.
-	 * 
-	 * @param groupName
-	 *            The name of the group.
-	 * @param stars
-	 *            A mapping from star names to AUIDs for stars to be associated
-	 *            with the group.
-	 */
-	public void addStarGroup(String groupName, Map<String, String> stars) {
-		starGroupMap.put(groupName, stars);
-	}
+	// Helpers
 
-	/**
-	 * Remove the named star group, if it exists.
-	 * 
-	 * @param groupName
-	 *            The name of the group.
-	 */
-	public void removeStarGroup(String groupName) {
-		starGroupMap.remove(groupName);
+	// Add known default star group.
+	private void addDefaultStarGroup() {
+		starGroupMap.put(defaultStarListTitle, new TreeMap<String, String>());
+
+		for (Star star : PropertiesAccessor.getStarList()) {
+			starGroupMap.get(defaultStarListTitle).put(star.getName(),
+					star.getIdentifier());
+		}
 	}
 }

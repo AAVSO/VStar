@@ -29,14 +29,12 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 
 /**
  * Preferences Dialog.
- * 
- * TODO: Use Java 1.4 Preferences as model. Is there corresponding GUI rendering
- * code?
  */
 public class PreferencesDialog extends AbstractOkCancelDialog {
 
 	private SeriesColorSelectionPane seriesColorPane;
-
+	private StarGroupManagementPane starGroupManagementPane;
+	
 	/**
 	 * Constructor.
 	 */
@@ -61,9 +59,12 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	private JTabbedPane createTabs() {
 		JTabbedPane tabs = new JTabbedPane();
 
-		this.seriesColorPane = new SeriesColorSelectionPane();
+		seriesColorPane = new SeriesColorSelectionPane();
 		tabs.addTab("Series Colors", this.seriesColorPane);
-		tabs.setToolTipText("Change Series Colors");
+		//tabs.setToolTipText("Change Series Colors");
+		
+		starGroupManagementPane = new StarGroupManagementPane();
+		tabs.addTab("Star Groups", starGroupManagementPane);		
 
 		return tabs;
 	}
@@ -79,8 +80,8 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
 	 */
 	protected void okAction() {
-		// TODO: need an update method for each prefs pane?
 		seriesColorPane.updateSeriesColors();
+		starGroupManagementPane.updateStarGroups();
 		
 		this.setVisible(false);
 	}
