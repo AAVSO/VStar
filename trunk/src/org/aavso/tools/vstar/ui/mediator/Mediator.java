@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -130,7 +131,7 @@ public class Mediator {
 
 	// Persistent observation filter dialog.
 	private ObservationFilterDialog obsFilterDialog;
-	
+
 	// Notifiers.
 	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
 	private Notifier<NewStarMessage> newStarNotifier;
@@ -145,7 +146,7 @@ public class Mediator {
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
 	private Notifier<ZoomRequestMessage> zoomRequestNotifier;
 	private Notifier<FilteredObservationMessage> filteredObservationNotifier;
-	
+
 	// Currently active task.
 	private SwingWorker currTask;
 
@@ -167,7 +168,7 @@ public class Mediator {
 		this.meanSourceSeriesChangeNotifier = new Notifier<MeanSourceSeriesChangeMessage>();
 		this.zoomRequestNotifier = new Notifier<ZoomRequestMessage>();
 		this.filteredObservationNotifier = new Notifier<FilteredObservationMessage>();
-		
+
 		this.obsListFileSaveDialog = new JFileChooser();
 
 		// These (among other things) are created for each new star.
@@ -188,7 +189,7 @@ public class Mediator {
 
 		this.obsFilterDialog = new ObservationFilterDialog();
 		this.newStarNotifier.addListener(this.obsFilterDialog);
-		
+
 		this.periodChangeMessageNotifier
 				.addListener(createPeriodChangeListener());
 	}
@@ -514,7 +515,7 @@ public class Mediator {
 				new ProgressInfo(ProgressType.MAX_PROGRESS, analyser
 						.getLineCount()
 						+ plotPortion));
-		
+
 		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
 				plotPortion);
 		this.currTask = task;
@@ -537,7 +538,7 @@ public class Mediator {
 			String auid, double minJD, double maxJD) {
 
 		try {
-			// CitizenSky authentication.
+			// Citizen Sky authentication.
 			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.userDBConnector;
 			userConnector.authenticateWithCitizenSky();
 
@@ -938,7 +939,7 @@ public class Mediator {
 				// TODO: make each plugin responsible for determining
 				// and tracking source series (see mean source series dialog
 				// which could be invoked from here or from within plugin code).
-				
+
 				int meanObsSourceSeriesNum = obsAndMeanPlotModel
 						.getMeanSourceSeriesNum();
 
