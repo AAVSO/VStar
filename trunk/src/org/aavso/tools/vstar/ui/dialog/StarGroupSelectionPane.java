@@ -98,7 +98,7 @@ public class StarGroupSelectionPane extends JPanel {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String starName = (String) starSelector.getSelectedItem();
-				if (NO_STARS.equals(starName)) {
+				if (!NO_STARS.equals(starName)) {
 					// Select a new star & AUID.
 					selectedStarName = starName;
 					selectedAUID = starGroups.getAUID(selectedStarGroup,
