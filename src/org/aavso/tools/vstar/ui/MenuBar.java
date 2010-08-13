@@ -289,7 +289,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	private void createToolMenu() {
 		toolMenu = new JMenu("Tool");
-		toolMenu.setEnabled(false);
+//		toolMenu.setEnabled(false);
 		
 		ActionListener toolMenuItemListener = createToolMenuItemListener();
 		
@@ -719,7 +719,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		this.analysisPeriodSearchMenu.setEnabled(state);
 		
-		this.toolMenu.setEnabled(state);
+//		this.toolMenu.setEnabled(state);
 
 		AnalysisType type = mediator.getAnalysisType();
 

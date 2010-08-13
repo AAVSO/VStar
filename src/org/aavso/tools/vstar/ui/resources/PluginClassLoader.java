@@ -38,10 +38,13 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 public class PluginClassLoader {
 
 	// The full path to the plugin directory.
-	// TODO: make this a preference (add to Prefs Notes tracker)
 	private final static String PLUGIN_DIR_PATH = System
 			.getProperty("user.home")
 			+ File.separator + "vstar_plugins";
+
+	private final static String PLUGIN_LIB_DIR_PATH = System
+			.getProperty("user.home")
+			+ File.separator + "vstar_plugin_libs";
 
 	private static List<PluginBase> plugins = loadPlugins();
 
@@ -76,7 +79,7 @@ public class PluginClassLoader {
 				toolPlugins.add((ToolPluginBase) plugin);
 			}
 		}
-		
+
 		return toolPlugins;
 	}
 
@@ -84,27 +87,44 @@ public class PluginClassLoader {
 	 * Load and return all VStar plugins and create an instance of each.
 	 */
 	private static List<PluginBase> loadPlugins() {
-		List<PluginBase> plugins = new ArrayList<PluginBase>();
 
-		// Locate external plugins, if any exist.
 		FilenameFilter jarFilter = new FilenameFilter() {
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".jar");
 			}
 		};
 
+		// Locate additional libraries (as jars) on which plugins may be
+		// dependent.
+		List<URL> depLibs = new ArrayList<URL>();
+
+		File pluginLibPath = new File(PLUGIN_LIB_DIR_PATH);
+		if (pluginLibPath.exists() && pluginLibPath.isDirectory()) {
+			for (File file : pluginLibPath.listFiles(jarFilter)) {
+				try {
+					depLibs.add(file.toURI().toURL());
+				} catch (MalformedURLException e) {
+					MessageBox.showErrorDialog(null, "Plugin Loader",
+							"Invalid plugin library jar file: "
+									+ file.getAbsolutePath());
+				}
+			}
+		}
+
+		// Locate plugins, if any exist.
+		List<PluginBase> plugins = new ArrayList<PluginBase>();
+
 		File pluginPath = new File(PLUGIN_DIR_PATH);
 		if (pluginPath.exists() && pluginPath.isDirectory()) {
 			for (File file : pluginPath.listFiles(jarFilter)) {
 				// Note: Currently assume the jar file name is the same
-				// as the qualified class to be loaded.
-				// Instead, we could use reflection to find the class
-				// implementing
-				// a one or more PluginBase methods.
+				// as the qualified class to be loaded. Instead, we could
+				// use reflection to find the class implementing one or more
+				// PluginBase methods.
 				String qualifiedClassName = file.getName().replace(".jar", "");
 				try {
-					Class pluginClass = loadClass(file, qualifiedClassName);
-					Object plugin = pluginClass.newInstance();
+					Class clazz = loadClass(file, qualifiedClassName, depLibs);
+					Object plugin = clazz.newInstance();
 					plugins.add((PluginBase) plugin);
 				} catch (MalformedURLException e) {
 					MessageBox.showErrorDialog(null, "Plugin Loader",
@@ -146,16 +166,23 @@ public class PluginClassLoader {
 	 *            The full path to a jar file.
 	 * @param qualifiedClass
 	 *            A qualified class name.
+	 * @param depLibs
+	 *            The library (jar) files on which the jar plugin to be loaded
+	 *            may be dependent.
 	 * @return The loaded class.
 	 * @throws MalformedURLException
 	 *             If the jar path is not valid.
 	 * @throws ClassNotFoundException
 	 *             If the class cannot be loaded.
 	 */
-	private static Class loadClass(File jarFile, String qualifiedClassName)
-			throws MalformedURLException, ClassNotFoundException {
+	private static Class loadClass(File jarFile, String qualifiedClassName,
+			List<URL> depLibs) throws MalformedURLException,
+			ClassNotFoundException {
 		URL url = jarFile.toURI().toURL();
-		URL[] urls = new URL[] { url };
+		List<URL> urlList = new ArrayList<URL>();
+		urlList.add(url);
+		urlList.addAll(depLibs);
+		URL[] urls = urlList.toArray(new URL[0]);
 		ClassLoader cl = new URLClassLoader(urls, VStar.class.getClassLoader());
 
 		return cl.loadClass(qualifiedClassName);

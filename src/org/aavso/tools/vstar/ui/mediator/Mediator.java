@@ -976,12 +976,18 @@ public class Mediator {
 	/**
 	 * Invokes the tool plugin with the currently loaded observation set.
 	 * 
-	 * @param plugin The tool plugin to be invoked.
+	 * @param plugin
+	 *            The tool plugin to be invoked.
 	 */
 	public void invokeToolWithCurrentObservations(ToolPluginBase plugin) {
-		plugin.invoke(validObsList);
+		if (validObsList != null) {
+			plugin.invoke(validObsList);
+		} else {
+			MessageBox.showMessageDialog(MainFrame.getInstance(),
+					"Tool Invocation", "There are no observations loaded.");
+		}
 	}
-	
+
 	/**
 	 * Save the artefact corresponding to the current viewMode.
 	 * 
