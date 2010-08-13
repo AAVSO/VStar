@@ -152,7 +152,8 @@ public class DescStats {
 	 *         at the mid-point between the two indexed observations, and whose
 	 *         magnitude captures the mean of magnitude values in that range,
 	 *         and the Standard Error of the Average for that mean magnitude
-	 *         value.
+	 *         value; more precisely, the Confidence Interval is used instead
+	 *         of Standard Error of the Average, which is twice the latter.
 	 */
 	public static ValidObservation createMeanObservationForRange(
 			List<ValidObservation> observations,
@@ -179,11 +180,14 @@ public class DescStats {
 			}
 		}
 
-		// Standard sample variance.
+		// Standard sample variance, deviation and error of average.
+		// As a final step, the CI (confidence interval) is calculated.
+		// See Grant Foster's book "Analyzing Light Curves" re: this.
 		double variance = total / (included - 1);
 		double magStdDev = Math.sqrt(variance);
 		double magStdErrOfMean = magStdDev / Math.sqrt(included);
-
+		double confidenceInternal = magStdErrOfMean * 2;
+		
 		// If in any of the 3 steps above we get NaN, we use 0
 		// (e.g. because there is only one sample), we set the
 		// Standard Error of the Average to 0.
@@ -193,7 +197,7 @@ public class DescStats {
 
 		// Create the mean observation.
 		ValidObservation observation = new ValidObservation();
-		observation.setMagnitude(new Magnitude(magMean, magStdErrOfMean));
+		observation.setMagnitude(new Magnitude(magMean, confidenceInternal));
 		observation.setBand(SeriesType.MEANS);
 		timeElementEntity.setTimeElement(observation, timeMean);
 
