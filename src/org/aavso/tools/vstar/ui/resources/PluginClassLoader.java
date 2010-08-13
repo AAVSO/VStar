@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.aavso.tools.vstar.plugin.PluginBase;
+import org.aavso.tools.vstar.plugin.ToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftPeriodAnalysisPlugin;
 import org.aavso.tools.vstar.ui.VStar;
@@ -43,7 +44,7 @@ public class PluginClassLoader {
 			+ File.separator + "vstar_plugins";
 
 	private static List<PluginBase> plugins = loadPlugins();
-	
+
 	/**
 	 * Return a list of period analysis plugins, whether internal to VStar or
 	 * dynamically loaded.
@@ -65,6 +66,21 @@ public class PluginClassLoader {
 	}
 
 	/**
+	 * Return a list of VStar tool plugins.
+	 */
+	public static List<ToolPluginBase> getToolPlugins() {
+		List<ToolPluginBase> toolPlugins = new ArrayList<ToolPluginBase>();
+
+		for (PluginBase plugin : plugins) {
+			if (plugin instanceof ToolPluginBase) {
+				toolPlugins.add((ToolPluginBase) plugin);
+			}
+		}
+		
+		return toolPlugins;
+	}
+
+	/**
 	 * Load and return all VStar plugins and create an instance of each.
 	 */
 	private static List<PluginBase> loadPlugins() {
@@ -80,9 +96,11 @@ public class PluginClassLoader {
 		File pluginPath = new File(PLUGIN_DIR_PATH);
 		if (pluginPath.exists() && pluginPath.isDirectory()) {
 			for (File file : pluginPath.listFiles(jarFilter)) {
-				// Note: Currently assume the jar file name is the same 
+				// Note: Currently assume the jar file name is the same
 				// as the qualified class to be loaded.
-				// Need XML or properties file or prefs for this.
+				// Instead, we could use reflection to find the class
+				// implementing
+				// a one or more PluginBase methods.
 				String qualifiedClassName = file.getName().replace(".jar", "");
 				try {
 					Class pluginClass = loadClass(file, qualifiedClassName);
