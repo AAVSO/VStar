@@ -47,6 +47,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
+import org.aavso.tools.vstar.plugin.ToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
@@ -972,6 +973,15 @@ public class Mediator {
 		}
 	}
 
+	/**
+	 * Invokes the tool plugin with the currently loaded observation set.
+	 * 
+	 * @param plugin The tool plugin to be invoked.
+	 */
+	public void invokeToolWithCurrentObservations(ToolPluginBase plugin) {
+		plugin.invoke(validObsList);
+	}
+	
 	/**
 	 * Save the artefact corresponding to the current viewMode.
 	 * 

@@ -34,6 +34,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.aavso.tools.vstar.plugin.ToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.FileExtensionFilter;
@@ -86,8 +87,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	private JFileChooser fileOpenDialog;
 
+	// Plug-in menu items.
 	private Map<String, PeriodAnalysisPluginBase> menuItemNameToPeriodAnalysisPlugin;
-
+	private Map<String, ToolPluginBase> menuItemNameToToolPlugin;
+	
 	// The parent window.
 	private MainFrame parent;
 
@@ -114,8 +117,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JCheckBoxMenuItem analysisPhasePlotItem;
 
 	JMenu analysisPeriodSearchMenu;
-	JMenuItem analysisPeriodSearchItem;
 
+	// Tool menu.
+	JMenu toolMenu;
+	
 	// Help menu.
 	JMenuItem helpContentsItem;
 	JMenuItem helpAboutItem;
@@ -142,6 +147,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		createFileMenu();
 		createViewMenu();
 		createAnalysisMenu();
+		createToolMenu();
 		createHelpMenu();
 
 		this.newStarMessage = null;
@@ -269,7 +275,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 				.getPeriodAnalysisPlugins()) {
 			String itemName = plugin.getDisplayName() + "...";
 
-			analysisPeriodSearchItem = new JMenuItem(itemName);
+			JMenuItem analysisPeriodSearchItem = new JMenuItem(itemName);
 			analysisPeriodSearchItem.addActionListener(periodSearchListener);
 			analysisPeriodSearchMenu.add(analysisPeriodSearchItem);
 
@@ -281,6 +287,27 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.add(analysisMenu);
 	}
 
+	private void createToolMenu() {
+		toolMenu = new JMenu("Tool");
+		toolMenu.setEnabled(false);
+		
+		ActionListener toolMenuItemListener = createToolMenuItemListener();
+		
+		menuItemNameToToolPlugin = new TreeMap<String, ToolPluginBase>();
+		
+		for (ToolPluginBase plugin : PluginClassLoader.getToolPlugins()) {
+			String itemName = plugin.getDisplayName() + "...";
+			
+			JMenuItem toolMenuItem = new JMenuItem(itemName);
+			toolMenuItem.addActionListener(toolMenuItemListener);
+			toolMenu.add(toolMenuItem);			
+			
+			menuItemNameToToolPlugin.put(itemName, plugin);
+		}
+		
+		this.add(toolMenu);
+	}
+	
 	private void createHelpMenu() {
 		JMenu helpMenu = new JMenu("Help");
 
@@ -544,6 +571,22 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		};
 	}
 
+	// ** Tool menu listeners **
+	
+	/**
+	 * Returns the action listener to be invoked for Tool menu item selections.
+	 */
+	public ActionListener createToolMenuItemListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String item = e.getActionCommand();
+				ToolPluginBase plugin = menuItemNameToToolPlugin
+						.get(item);
+				Mediator.getInstance().invokeToolWithCurrentObservations(plugin);
+			}
+		};
+	}
+
 	// ** Help Menu listeners **
 
 	/**
@@ -675,6 +718,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.analysisPhasePlotItem.setEnabled(state);
 
 		this.analysisPeriodSearchMenu.setEnabled(state);
+		
+		this.toolMenu.setEnabled(state);
 
 		AnalysisType type = mediator.getAnalysisType();
 
