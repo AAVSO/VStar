@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/jlfgr-1_0.jar"/>
 	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/mysql-connector-java-5.1.10-bin.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/commons-math-2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

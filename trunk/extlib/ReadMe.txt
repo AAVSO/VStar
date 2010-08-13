@@ -6,6 +6,9 @@ current directory (./extlib) for VStar to function. The list of jar files
 is given below, along with the web address from which to obtain the source 
 code.
 
+  o commons-math-2.1.jar
+    http://commons.apache.org/math/
+    
   o jcommon-1.0.16.jar
     http://sourceforge.net/projects/jfreechart/files/
 
@@ -25,6 +28,13 @@ The libraries are covered under the following licenses, and plain text copies
 of the licenses are included in the ./extlib directory. See the URL for the
 web page of each project for more information.
 
+  o Apache License
+    ./extlib/apache-LICENSE.txt
+    http://commons.apache.org/license.html
+    See also http://www.apache.org/licenses/GPL-compatibility.html
+        
+    * Commons Math  http://commons.apache.org/math/
+        
   o GNU Lesser General Public License, version 2.1
     ./extlib/lgpl-2.1.txt
     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
@@ -48,12 +58,12 @@ web page of each project for more information.
 
 This section categorises the libraries in terms of function:
 
+ - Math (statistics):
+     commons-math-2.1.jar
+      
  - JFreeChart related:
      jcommon-1.0.16.jar
      jfreechart-1.0.13.jar
-
- - Swing extras:
-     swing-worker-1.2.jar
      
  - Java Look and Feel Graphics Repository:
      jlfgr-1_0.jar
