@@ -54,8 +54,6 @@ public class StarGroupManagementPane extends JPanel {
 	private NewStarDialog newStarDialog;
 	private NewGroupWithStarsDialog newGroupWithStarsDialog;
 	
-	private JLabel infoLabel;
-	
 	/**
 	 * Constructor.
 	 */
@@ -69,8 +67,6 @@ public class StarGroupManagementPane extends JPanel {
 		newStarDialog = new NewStarDialog();
 		newGroupWithStarsDialog = new NewGroupWithStarsDialog();
 
-		infoLabel = new JLabel();
-		
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -86,8 +82,6 @@ public class StarGroupManagementPane extends JPanel {
 		topPane.add(createClearButtonPane());
 		topPane.add(Box.createRigidArea(new Dimension(20, 20)));
 		topPane.add(createApplyButtonPane());
-//		topPane.add(Box.createRigidArea(new Dimension(40, 40)));
-//		topPane.add(createInfoPane());
 		
 		this.add(topPane);
 	}
@@ -150,16 +144,6 @@ public class StarGroupManagementPane extends JPanel {
 		applyButton.addActionListener(createApplyButtonActionListener());
 		panel.add(applyButton, BorderLayout.CENTER);
 
-		return panel;
-	}
-
-	private JPanel createInfoPane() {
-		JPanel panel = new JPanel(new BorderLayout());
-
-		infoLabel = new JLabel("                          ");
-		panel.add(infoLabel);
-		infoLabel.setBorder(BorderFactory.createEtchedBorder());
-		
 		return panel;
 	}
 	
@@ -278,7 +262,7 @@ public class StarGroupManagementPane extends JPanel {
 	private ActionListener createClearButtonActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				starGroupSelectionPane.clearGroups();
+				starGroupSelectionPane.resetGroups();
 			}
 		};		
 	}
