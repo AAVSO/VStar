@@ -130,7 +130,7 @@ public class DescStatsTest extends TestCase {
 
 		double magStdErr = observation.getMagnitude().getUncertainty();
 		String magStdErrStr = String.format("%1.3f", magStdErr);
-		assertEquals("0.038", magStdErrStr);
+		assertEquals("0.076", magStdErrStr);
 	}
 
 	public void testObservationLeftToRightBinning1() {
@@ -149,7 +149,7 @@ public class DescStatsTest extends TestCase {
 
 		double magStdErr = observations.get(0).getMagnitude().getUncertainty();
 		String magStdErrStr = String.format("%1.3f", magStdErr);
-		assertEquals("0.707", magStdErrStr);
+		assertEquals("1.414", magStdErrStr);
 	}
 
 	public void testObservationLeftToRightBinning2() {
@@ -165,7 +165,7 @@ public class DescStatsTest extends TestCase {
 
 		double magStdErr = observations.get(0).getMagnitude().getUncertainty();
 		String magStdErrStr = String.format("%1.3f", magStdErr);
-		assertEquals("0.316", magStdErrStr);
+		assertEquals("0.632", magStdErrStr);
 	}
 
 	public void testObservationLeftToRightBinning3() {
@@ -183,7 +183,7 @@ public class DescStatsTest extends TestCase {
 
 		double magStdErr = observations.get(0).getMagnitude().getUncertainty();
 		String magStdErrStr = String.format("%1.3f", magStdErr);
-		assertEquals("0.038", magStdErrStr);
+		assertEquals("0.076", magStdErrStr);
 	}
 
 	// A bin size of 2.5 JDs for observations3 should give us
@@ -206,7 +206,7 @@ public class DescStatsTest extends TestCase {
 
 		double magStdErr1 = observations.get(0).getMagnitude().getUncertainty();
 		String magStdErr1Str = String.format("%1.3f", magStdErr1);
-		assertEquals("0.051", magStdErr1Str);
+		assertEquals("0.102", magStdErr1Str);
 
 		// Check the magnitude mean and standard error of the average
 		// for the second element.
@@ -216,7 +216,7 @@ public class DescStatsTest extends TestCase {
 
 		double magStdErr2 = observations.get(1).getMagnitude().getUncertainty();
 		String magStdErr2Str = String.format("%1.3f", magStdErr2);
-		assertEquals("0.051", magStdErr2Str);
+		assertEquals("0.102", magStdErr2Str);
 	}
 
 	// Create binned observations of phase plot data.
