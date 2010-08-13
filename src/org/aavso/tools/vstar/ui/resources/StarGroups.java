@@ -47,7 +47,7 @@ public class StarGroups {
 	/**
 	 * Private constructor to ensure Singleton.
 	 */
-	private StarGroups() {
+	public StarGroups() {
 		starGroupMap = new TreeMap<String, Map<String, String>>();
 
 		defaultStarListTitle = PropertiesAccessor.getStarListTitle();
@@ -198,7 +198,7 @@ public class StarGroups {
 	/**
 	 * Remove all groups except the default group.
 	 */
-	public void clearGroups() {
+	public void resetGroupsToDefault() {
 		starGroupMap.clear();
 		addDefaultStarGroup();
 	}
@@ -285,7 +285,6 @@ public class StarGroups {
 	public void storeStarGroupPrefs() {
 		try {
 			String prefsValue = createStarGroupPrefsValue();
-			// System.out.println("prefs: " + prefsValue);
 			prefs.put(PREFS_KEY, prefsValue);
 			prefs.flush();
 		} catch (Throwable t) {

@@ -98,7 +98,7 @@ public class StarGroupSelectionPane extends JPanel {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String starName = (String) starSelector.getSelectedItem();
-				if (!NO_STARS.equals(starName)) {
+				if (starName != null && !NO_STARS.equals(starName)) {
 					// Select a new star & AUID.
 					selectedStarName = starName;
 					selectedAUID = starGroups.getAUID(selectedStarGroup,
@@ -114,14 +114,14 @@ public class StarGroupSelectionPane extends JPanel {
 	public void populateStarListForSelectedGroup() {
 		starSelector.removeAllItems();
 
-		if (!starGroups.getStarNamesInGroup(selectedStarGroup).isEmpty()) {
+		if (selectedStarGroup != null
+				&& !starGroups.getStarNamesInGroup(selectedStarGroup).isEmpty()) {
 
 			for (String starName : starGroups
 					.getStarNamesInGroup(selectedStarGroup)) {
 				starSelector.addItem(starName);
 			}
 
-			// Maintain the invariant that a star & AUID are always selected.
 			selectedStarName = (String) starSelector.getItemAt(0);
 			selectedAUID = starGroups.getAUID(selectedStarGroup,
 					selectedStarName);
@@ -191,19 +191,39 @@ public class StarGroupSelectionPane extends JPanel {
 	}
 
 	/**
-	 * Remove all groups except the default group.
+	 * Clear the groups in the star group selector list.
 	 */
-	public void clearGroups() {
-		starGroups.clearGroups();
-		
-		while (starGroupSelector.getItemCount() > 1) {
-			String groupName = (String) starGroupSelector.getSelectedItem();
-			if (!starGroups.getDefaultStarListTitle().equals(groupName)) {
-				starGroupSelector.removeItem(groupName);
+	public void resetGroups() {
+		starGroups.resetGroupsToDefault();
+
+		starGroupSelector.removeAllItems();
+
+		for (String groupName : starGroups.getGroupNames()) {
+			starGroupSelector.addItem(groupName);
+		}
+
+		selectAndRefreshStarsInGroup(starGroups.getDefaultStarListTitle());
+	}
+
+	/**
+	 * Refresh the groups in the star group selector list. Only groups with
+	 * stars will be "refreshed".
+	 */
+	public void refreshGroups() {
+		starGroupSelector.removeAllItems();
+
+		for (String groupName : starGroups.getGroupNames()) {
+			if (!starGroups.getStarNamesInGroup(groupName).isEmpty()) {
+				starGroupSelector.addItem(groupName);
 			}
 		}
-		
-		selectAndRefreshStarsInGroup((String)starGroupSelector.getItemAt(0));
+
+		if (selectedStarGroup != null
+				&& starGroups.doesGroupExist(selectedStarGroup)) {
+			selectAndRefreshStarsInGroup(selectedStarGroup);
+		} else {
+			selectAndRefreshStarsInGroup(starGroups.getDefaultStarListTitle());
+		}
 	}
 
 	/**

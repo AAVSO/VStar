@@ -412,6 +412,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		this.minDate = null;
 		this.maxDate = null;
 		this.wantAllData = false;
+		
+		starGroupSelectionPane.refreshGroups();
 	}
 
 	// Singleton
