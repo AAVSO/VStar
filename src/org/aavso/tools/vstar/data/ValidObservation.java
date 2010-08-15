@@ -21,21 +21,21 @@ import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
- * This class corresponds to a single valid variable star observation. Depending
+ * <p>This class corresponds to a single valid variable star observation. Depending
  * upon the source, some fields may be null. Some are not permitted to be null
- * however and these are documented below.
+ * however and these are documented below.</p>
  * 
- * For reference, here are the fields in the order they appear in the AAVSO
- * download format:
+ * <p>For reference, here are the fields in the order they appear in the AAVSO
+ * download format:</p>
  * 
- * JD(0), MAGNITUDE(1), UNCERTAINTY(2), HQ_UNCERTAINTY(3), BAND(4),
+ * <p>JD(0), MAGNITUDE(1), UNCERTAINTY(2), HQ_UNCERTAINTY(3), BAND(4),
  * OBSERVER_CODE(5), COMMENT_CODE(6), COMP_STAR_1(7), COMP_STAR_2(8), CHARTS(9),
  * COMMENTS(10), TRANSFORMED(11), AIRMASS(12), VALFLAG(13), CMAG(14), KMAG(15),
- * HJD(16), NAME(17), AFFILIATION(18), MTYPE(19), GROUP(20)
+ * HJD(16), NAME(17), AFFILIATION(18), MTYPE(19), GROUP(20)</p>
  * 
- * The simple format file has these fields:
+ * <p>The simple format file has these fields:</p>
  * 
- * JD MAGNITUDE [UNCERTAINTY] [OBSERVER_CODE] [VALFLAG]
+ * <p>JD MAGNITUDE [UNCERTAINTY] [OBSERVER_CODE] [VALFLAG]</p>
  */
 public class ValidObservation extends Observation {
 

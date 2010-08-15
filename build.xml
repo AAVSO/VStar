@@ -16,7 +16,9 @@
 	<property name="extlib" location="extlib" />
 	<property name="ui_resources" location="src/org/aavso/tools/vstar/ui/resources" />
 	<property name="test_report" location="test_report" />
-
+	<property name="doc" location="doc" />
+	<property name="javadoc" location="doc/vstar_docs" />
+	
 	<!-- Classpaths -->
 
 	<path id="build.classpath">
@@ -159,6 +161,22 @@
 		</concat>
 	</target>
 
+	<!-- Documentation targets -->
+	
+	<target name="javadoc" description="Javadoc generation">
+		<delete failonerror="false" includeemptydirs="true">
+			<fileset dir="${javadoc}" includes="**/*" />
+		</delete>
+		
+		<javadoc sourcepath="${src}" destdir="${javadoc}" 
+				 classpathref="build.classpath" 
+				 header="VStar" />
+		
+		<zip destfile="${doc}/vstar_docs.zip"
+		     basedir="${doc}"
+			 includes="vstar_docs/**/*" />
+	</target>
+	
 	<!-- Clean targets -->
 
 	<target name="clean" description="Clean up">

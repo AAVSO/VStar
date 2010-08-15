@@ -18,8 +18,16 @@
 package org.aavso.tools.vstar.plugin;
 
 /**
- * All VStar plugins must implement this interface.
- * TODO: add execute{Algorithm}()?
+ * <p>All VStar plugins must implement this interface.</p>
+ *
+ * <p>Plugin jars must be placed into the vstar_plugins directory in your home directory 
+ * (for Mac or *nix that's $HOME or ~, "C:\Documents and Settings\<em>user</em>" under Windows).</p> 
+ * 
+ * <p>Any dependent jar files not already known to VStar (in the extlib directory) must go into 
+ * the vstar_plugin_libs directory.</p>
+ * 
+ * <p>Note: plugins will have to be licensed under AGPL because they will use some
+ * VStar classes!</p>
  */
 public interface PluginBase {
 
@@ -33,5 +41,4 @@ public interface PluginBase {
 	 * Get a description of this plugin.
 	 */
 	abstract public String getDescription();
-
 }

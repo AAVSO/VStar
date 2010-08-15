@@ -33,16 +33,19 @@ import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 
 /**
- * This is the abstract base class for all period analysis plugin classes.
+ * <p>This is the abstract base class for all period analysis plugin classes.</p>
  * 
- * Note: plugins will have to be licensed under AGPL because they will use some
- * VStar classes!
+ * <p>Period analysis plugins will appear in VStar's Analysis -> Period Search 
+ * menu when its jar file is placed into the vstar_plugins directory.</p>
  * 
- * TODO: 
- * - Add a getter method to say whether or not a series selection dialog
- * should be invoked before the algorithm is executed, the SeriesType from 
- * which would be made available via another getter.
+ * @see org.aavso.tools.vstar.plugin.PluginBase
  */
+
+// TODO: 
+// - Add a getter method to say whether or not a series selection dialog
+//   should be invoked before the algorithm is executed, the SeriesType from 
+//   which would be made available via another getter.
+
 abstract public class PeriodAnalysisPluginBase implements PluginBase {
 
 	protected Mediator mediator = Mediator.getInstance();
