@@ -32,6 +32,8 @@
 	<property name="instrumented" location="instrumented" />
 	<property name="coverage_report" location="coverage_report" />
 	<property name="jdepend_report" location="jdepend-report.txt" />
+	<property name="doc" location="doc" />
+	<property name="javadoc" location="doc/vstar_docs" />
 
 	<!-- Classpaths -->
 
@@ -256,6 +258,23 @@
 		</jdepend>
 	</target>
 -->
+	
+	<!-- Documentation targets -->
+	
+	<target name="javadoc" description="Javadoc generation">
+		<delete failonerror="false" includeemptydirs="true">
+			<fileset dir="${javadoc}" includes="**/*" />
+		</delete>
+		
+		<javadoc sourcepath="${src}" destdir="${javadoc}" 
+				 classpathref="build.classpath" 
+				 header="VStar" />
+		
+		<zip destfile="${doc}/vstar_docs.zip"
+		     basedir="${doc}"
+			 includes="vstar_docs/**/*" />
+	</target>
+	
 	<!-- Clean targets -->
 
 	<target name="clean" description="Clean up">
