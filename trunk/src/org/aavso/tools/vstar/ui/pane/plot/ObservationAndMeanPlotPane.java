@@ -260,7 +260,7 @@ public class ObservationAndMeanPlotPane extends
 			"anova: F value=%2.2f, p-value=%1.7f", binningResult.getFValue(),
 					binningResult.getPValue());
 		} else {
-			msg = "";
+			msg = "anova: insufficient data";
 		}
 		
 		return msg;
