@@ -25,6 +25,7 @@ import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.stats.BinningResult;
 
 /**
  * This class is a base table model for derived mean observation data. from raw
@@ -33,7 +34,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * The model is notified of wholesale mean data change.
  */
 public abstract class AbstractMeanObservationTableModel extends
-		AbstractTableModel implements Listener<List<ValidObservation>> {
+		AbstractTableModel implements Listener<BinningResult> {
 
 	protected List<ValidObservation> meanObsData;
 
@@ -106,8 +107,9 @@ public abstract class AbstractMeanObservationTableModel extends
 	 * Listen for updates to the mean data observation list, e.g.
 	 * if the bin size has changed.
 	 */
-	public void update(List<ValidObservation> obs) {
-		this.meanObsData = obs;
+	public void update(BinningResult binningResult) {
+		
+		this.meanObsData = binningResult.getMeanObservations();
 		populateObsToRowMap();
 		this.fireTableDataChanged();
 	}

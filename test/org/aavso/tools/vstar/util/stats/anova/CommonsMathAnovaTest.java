@@ -26,9 +26,9 @@ import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
 
 import junit.framework.TestCase;
 
-public class AnovaTest extends TestCase {
+public class CommonsMathAnovaTest extends TestCase {
 
-	public AnovaTest(String name) {
+	public CommonsMathAnovaTest(String name) {
 		super(name);
 	}
 
@@ -40,7 +40,7 @@ public class AnovaTest extends TestCase {
 		super.tearDown();
 	}
 
-	// A test of the Apache ANOVA library.
+	// A simple test of the Apache ANOVA library.
 	public void testApacheAnova() {
 		// See http://en.wikipedia.org/wiki/F-test for example data used here.
 		double[] a1 = { 6, 8, 4, 5, 3, 4 };
@@ -71,7 +71,4 @@ public class AnovaTest extends TestCase {
 			fail();
 		}
 	}
-
-	// TODO: test using delcep data as doubles; then another extracted from
-	// ValidObservations
 }

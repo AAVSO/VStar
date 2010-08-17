@@ -11,7 +11,7 @@ analysis.
  
 Installation
 ============
-In order to run VStar, you need to have version 1.5 or higher of the Java 
+In order to run VStar, you need to have version 1.6 or higher of the Java 
 runtime installed on your computer. See http://java.com/en/download/manual.jsp
 
 The dist directory contains the latest vstar.jar built from source so you
@@ -81,6 +81,7 @@ Testing
 =======
 The test directory contains unit tests. For testing, JUnit 3.8.2 is 
 assumed (http://www.junit.org). This is of interest to developers only.
+See also extlib/ReadMe.txt for more about testing libraries.
 
 Licensing
 =========

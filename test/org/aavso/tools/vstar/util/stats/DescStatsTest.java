@@ -120,9 +120,11 @@ public class DescStatsTest extends TestCase {
 	}
 
 	public void testMeanObservationSample3() {
-		ValidObservation observation = DescStats.createMeanObservationForRange(
+		Bin bin = DescStats.createMeanObservationForRange(
 				this.observations3, JDTimeElementEntity.instance, 0,
 				mags3.length - 1);
+
+		ValidObservation observation = bin.getMeanObservation();
 
 		double magMean = observation.getMagnitude().getMagValue();
 		String magMeanStr = String.format("%1.1f", magMean);
@@ -254,9 +256,10 @@ public class DescStatsTest extends TestCase {
 		List<ValidObservation> obs = populateTimeMagObs(times, mags);
 
 		List<ValidObservation> binnedObs = new LinkedList<ValidObservation>();
-
+		List<double[]> magBins = new LinkedList<double[]>();
+		
 		DescStats.createLeftmostBinnedObservations(obs, times.length - 1,
-				JDTimeElementEntity.instance, 4, binnedObs);
+				JDTimeElementEntity.instance, 4, binnedObs, magBins);
 
 		assertEquals(2, binnedObs.size());
 		assertEquals(2.0, binnedObs.get(0).getMag());
@@ -270,9 +273,10 @@ public class DescStatsTest extends TestCase {
 		List<ValidObservation> obs = populateTimeMagObs(times, mags);
 
 		List<ValidObservation> binnedObs = new LinkedList<ValidObservation>();
+		List<double[]> magBins = new LinkedList<double[]>();
 
 		DescStats.createLeftmostBinnedObservations(obs, times.length - 1,
-				JDTimeElementEntity.instance, 4, binnedObs);
+				JDTimeElementEntity.instance, 4, binnedObs, magBins);
 
 		assertEquals(2, binnedObs.size());
 		assertEquals(2.5, binnedObs.get(0).getMag());
@@ -286,9 +290,10 @@ public class DescStatsTest extends TestCase {
 		List<ValidObservation> obs = populateTimeMagObs(times, mags);
 
 		List<ValidObservation> binnedObs = new LinkedList<ValidObservation>();
+		List<double[]> magBins = new LinkedList<double[]>();
 
 		DescStats.createRightmostBinnedObservations(obs, 0,
-				JDTimeElementEntity.instance, 4, binnedObs);
+				JDTimeElementEntity.instance, 4, binnedObs, magBins);
 
 		assertEquals(2, binnedObs.size());
 		assertEquals(2.5, binnedObs.get(0).getMag());
@@ -303,9 +308,10 @@ public class DescStatsTest extends TestCase {
 		List<ValidObservation> obs = populateTimeMagObs(times, mags);
 
 		List<ValidObservation> binnedObs = new LinkedList<ValidObservation>();
+		List<double[]> magBins = new LinkedList<double[]>();
 
 		DescStats.createRightmostBinnedObservations(obs, 0,
-				JDTimeElementEntity.instance, 4, binnedObs);
+				JDTimeElementEntity.instance, 4, binnedObs, magBins);
 
 		assertEquals(2, binnedObs.size());
 		assertEquals(2.5, binnedObs.get(0).getMag());
@@ -320,10 +326,12 @@ public class DescStatsTest extends TestCase {
 
 		List<ValidObservation> obs = populateTimeMagObs(times, mags);
 
-		List<ValidObservation> binnedObs = DescStats
+		BinningResult binSeq = DescStats
 				.createSymmetricBinnedObservations(obs,
 						JDTimeElementEntity.instance, 4);
 
+		List<ValidObservation> binnedObs = binSeq.getMeanObservations();
+		
 		assertEquals(4, binnedObs.size());
 		assertEquals(1.5, binnedObs.get(0).getMag());
 		assertEquals(4.5, binnedObs.get(1).getMag());
@@ -373,9 +381,11 @@ public class DescStatsTest extends TestCase {
 	// createLeftToRightBinnedObservations() which treats
 	// the observation sequence as a whole.
 	public void testObservationSymmetricBinning3() {
-		List<ValidObservation> observations = DescStats
+		BinningResult binSeq = DescStats
 				.createSymmetricBinnedObservations(this.observations3,
 						JDTimeElementEntity.instance, this.observations3.size());
+
+		List<ValidObservation> observations = binSeq.getMeanObservations();
 
 		assertTrue(observations.size() == 2);
 

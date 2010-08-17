@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeType;
 import org.aavso.tools.vstar.util.notification.Notifier;
+import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.DescStats;
 
 /**
@@ -56,7 +57,10 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	// The observations that constitute the means series.
 	protected List<ValidObservation> meanObsList;
 
-	protected Notifier<List<ValidObservation>> meansChangeNotifier;
+	// The binning result associated with this mean observation list.
+	protected BinningResult binningResult;
+	
+	protected Notifier<BinningResult> meansChangeNotifier;
 
 	/**
 	 * Constructor
@@ -87,7 +91,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		this.timeElementsInBin = this.timeElementEntity
 				.getDefaultTimeElementsInBin();
 
-		this.meansChangeNotifier = new Notifier<List<ValidObservation>>();
+		this.meansChangeNotifier = new Notifier<BinningResult>();
 
 		this.meanSourceSeriesNum = determineMeanSeriesSource();
 
@@ -103,10 +107,12 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 */
 	public void setMeanSeries() {
 
-		meanObsList = DescStats.createSymmetricBinnedObservations(
+		binningResult = DescStats.createSymmetricBinnedObservations(
 				seriesNumToObSrcListMap.get(meanSourceSeriesNum),
 				timeElementEntity, timeElementsInBin);
 
+		meanObsList = binningResult.getMeanObservations();
+		
 		if (meanObsList != Collections.EMPTY_LIST) {
 			// As long as there were enough observations to create a means list
 			// to make a "means" series, we do so.
@@ -142,7 +148,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			}
 
 			// Notify listeners.
-			this.meansChangeNotifier.notifyListeners(meanObsList);
+			this.meansChangeNotifier.notifyListeners(binningResult);
 		}
 	}
 
@@ -255,9 +261,16 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
+	 * @return the binningResult
+	 */
+	public BinningResult getBinningResult() {
+		return binningResult;
+	}
+
+	/**
 	 * @return the meansChangeNotifier
 	 */
-	public Notifier<List<ValidObservation>> getMeansChangeNotifier() {
+	public Notifier<BinningResult> getMeansChangeNotifier() {
 		return meansChangeNotifier;
 	}
 
