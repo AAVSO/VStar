@@ -133,8 +133,9 @@ public class DescStats {
 	}
 
 	/**
-	 * Calculates the mean magnitude and the Standard Error of the Average for a
-	 * sample of magnitudes for observations in a specified inclusive range.
+	 * Calculates the mean magnitude and the Standard Error of the Average
+	 * (actually twice that: the Confidence Interval) for a sample of magnitudes
+	 * for observations in a specified inclusive range.
 	 * 
 	 * We use the sample standard deviation formula as per
 	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
@@ -148,18 +149,20 @@ public class DescStats {
 	 *            The first observation index in the inclusive range.
 	 * @param maxIndex
 	 *            The last observation index in the inclusive range.
-	 * @return A ValidObservation instance whose time parameter (JD, phase) is
-	 *         at the mid-point between the two indexed observations, and whose
-	 *         magnitude captures the mean of magnitude values in that range,
-	 *         and the Standard Error of the Average for that mean magnitude
-	 *         value; more precisely, the Confidence Interval is used instead
-	 *         of Standard Error of the Average, which is twice the latter.
+	 * @return A Bin object containing magnitude bin data and a ValidObservation
+	 *         instance whose time parameter (JD or phase) is at the mid-point
+	 *         between the two indexed observations, and whose magnitude
+	 *         captures the mean of magnitude values in that range, and the
+	 *         Standard Error of the Average for that mean magnitude value; more
+	 *         precisely, the Confidence Interval is used instead of Standard
+	 *         Error of the Average, which is twice the latter. The binned
+	 *         magnitude data can be used for other analysis, e.g. anova.
 	 */
-	public static ValidObservation createMeanObservationForRange(
+	public static Bin createMeanObservationForRange(
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex) {
 
-		// Pre-conditions.
+		// Pre-conditions
 		assert (maxIndex >= minIndex);
 		assert (maxIndex < observations.size());
 
@@ -172,11 +175,16 @@ public class DescStats {
 		double total = 0;
 		double included = 0;
 
+		int size = (maxIndex - minIndex) + 1;
+		double[] binData = new double[size];
+
 		for (int i = minIndex; i <= maxIndex; i++) {
 			if (!observations.get(i).isDiscrepant()) {
+				double mag = observations.get(i).getMag();
 				double delta = observations.get(i).getMag() - magMean;
 				total += delta * delta;
 				included++;
+				binData[i - minIndex] = mag;
 			}
 		}
 
@@ -187,7 +195,7 @@ public class DescStats {
 		double magStdDev = Math.sqrt(variance);
 		double magStdErrOfMean = magStdDev / Math.sqrt(included);
 		double confidenceInternal = magStdErrOfMean * 2;
-		
+
 		// If in any of the 3 steps above we get NaN, we use 0
 		// (e.g. because there is only one sample), we set the
 		// Standard Error of the Average to 0.
@@ -201,7 +209,7 @@ public class DescStats {
 		observation.setBand(SeriesType.MEANS);
 		timeElementEntity.setTimeElement(observation, timeMean);
 
-		return observation;
+		return new Bin(observation, binData);
 	}
 
 	/**
@@ -251,8 +259,10 @@ public class DescStats {
 				// to the list.
 				maxIndex = i - 1;
 
-				ValidObservation ob = createMeanObservationForRange(
-						observations, timeElementEntity, minIndex, maxIndex);
+				Bin bin = createMeanObservationForRange(observations,
+						timeElementEntity, minIndex, maxIndex);
+
+				ValidObservation ob = bin.getMeanObservation();
 
 				// If the mean magnitude value is NaN (e.g. because
 				// there was no valid data in the range in question),
@@ -273,8 +283,10 @@ public class DescStats {
 		// that we include any left over data that would otherwise be
 		// excluded by the less-than constraint?
 		if (maxIndex < observations.size() - 1) {
-			ValidObservation ob = createMeanObservationForRange(observations,
+			Bin bin = createMeanObservationForRange(observations,
 					timeElementEntity, minIndex, observations.size() - 1);
+
+			ValidObservation ob = bin.getMeanObservation();
 
 			// If the mean magnitude value is NaN (e.g. because
 			// there was no valid data in the range in question),
@@ -306,27 +318,29 @@ public class DescStats {
 	 *         the observation at the center point of each bin. If there were
 	 *         insufficient observations, the empty list is returned.
 	 */
-	public static List<ValidObservation> createSymmetricBinnedObservations(
+	public static BinningResult createSymmetricBinnedObservations(
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
 		List<ValidObservation> binnedObs = Collections.EMPTY_LIST;
-
+		List<double[]> magnitudeBins = Collections.EMPTY_LIST;
+		
 		// Are there sufficient (size > 1) observations to create
-		// binned mean observations?.
+		// binned mean observations?
 		if (observations.size() > 1) {
 			binnedObs = new LinkedList<ValidObservation>();
-
+			magnitudeBins = new LinkedList<double[]>();
+			
 			createLeftmostBinnedObservations(observations,
 					observations.size() / 2 - 1, timeElementEntity,
-					timeElementsInBin, binnedObs);
+					timeElementsInBin, binnedObs, magnitudeBins);
 
 			createRightmostBinnedObservations(observations,
 					observations.size() / 2, timeElementEntity,
-					timeElementsInBin, binnedObs);
+					timeElementsInBin, binnedObs, magnitudeBins);
 		}
 
-		return binnedObs;
+		return new BinningResult(binnedObs, magnitudeBins);
 	}
 
 	// Helpers
@@ -351,11 +365,13 @@ public class DescStats {
 	 * @param binnedObs
 	 *            An observation sequence consisting of magnitude means per bin
 	 *            and the observation at the center point of each bin.
+	 * @param bins
+	 *            A list of binned data (magnitude) arrays.
 	 */
 	protected static void createLeftmostBinnedObservations(
 			List<ValidObservation> observations, int startIndex,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin,
-			List<ValidObservation> binnedObs) {
+			List<ValidObservation> binnedObs, List<double[]> bins) {
 
 		int maxIndex = startIndex;
 
@@ -379,8 +395,10 @@ public class DescStats {
 				// Otherwise, we have found the bottom of the current range,
 				// so add a ValidObservation containing mean and error value
 				// to the list.
-				ValidObservation ob = createMeanObservationForRange(
+				Bin bin = createMeanObservationForRange(
 						observations, timeElementEntity, i + 1, maxIndex);
+
+				ValidObservation ob = bin.getMeanObservation();
 
 				// If the mean magnitude value is NaN (e.g. because
 				// there was no valid data in the range in question),
@@ -391,6 +409,15 @@ public class DescStats {
 					// are moving from right to left along the original
 					// list.
 					binnedObs.add(0, ob);
+					
+					// Tests like ANOVA may not like bins with less than 2 values.
+					// There should only be one or two of these (at start
+					// and end of dataset) unless the amount of data is small.
+					// The alternative is that the same single data item is
+					// added to the array. But won't that skew the result?
+					if (bin.getMagnitudes().length > 1) {
+						bins.add(0, bin.getMagnitudes());
+					}
 				}
 
 				// If we have not yet reached the start of the list, prepare
@@ -428,11 +455,13 @@ public class DescStats {
 	 * @param binnedObs
 	 *            An observation sequence consisting of magnitude means per bin
 	 *            and the observation at the center point of each bin.
+	 * @param bins
+	 *            A list of binned data (magnitude) arrays.
 	 */
 	protected static void createRightmostBinnedObservations(
 			List<ValidObservation> observations, int startIndex,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin,
-			List<ValidObservation> binnedObs) {
+			List<ValidObservation> binnedObs, List<double[]> bins) {
 
 		int minIndex = startIndex;
 
@@ -456,14 +485,25 @@ public class DescStats {
 				// Otherwise, we have found the top of the current range,
 				// so add a ValidObservation containing mean and error value
 				// to the list.
-				ValidObservation ob = createMeanObservationForRange(
-						observations, timeElementEntity, minIndex, i - 1);
+				Bin bin = createMeanObservationForRange(observations,
+						timeElementEntity, minIndex, i - 1);
+
+				ValidObservation ob = bin.getMeanObservation();
 
 				// If the mean magnitude value is NaN (e.g. because
 				// there was no valid data in the range in question),
 				// it doesn't make sense to include this observation.
 				if (!Double.isNaN(ob.getMag())) {
 					binnedObs.add(ob);
+										
+					// Tests like ANOVA may not like bins with less than 2 values.
+					// There should only be one or two of these (at start
+					// and end of dataset) unless the amount of data is small.
+					// The alternative is that the same single data item is
+					// added to the array. But won't that skew the result?
+					if (bin.getMagnitudes().length > 1) {
+						bins.add(bin.getMagnitudes());
+					}
 				}
 
 				if (i < observations.size()) {

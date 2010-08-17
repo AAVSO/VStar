@@ -22,12 +22,16 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * <p>This is the base class for all arbitrary VStar "tool" plugins, where "tool"
+ * <p>
+ * This is the base class for all arbitrary VStar "tool" plugins, where "tool"
  * can be anything that takes as input a list of valid observations and does any
- * arbitrary thing with them.</p>
+ * arbitrary thing with (or without) them.
+ * </p>
  * 
- * <p>Tool plugins will appear in VStar's Tools menu when its jar file is placed into 
- * the vstar_plugins directory.</p>
+ * <p>
+ * Tool plugins will appear in VStar's Tools menu when its jar file is placed
+ * into the vstar_plugins directory.
+ * </p>
  * 
  * @see org.aavso.tools.vstar.plugin.PluginBase
  * @see org.aavso.tools.vstar.ui.mediator.Mediator#invokeToolWithCurrentObservations(org.aavso.tools.vstar.plugin.ToolPluginBase)
@@ -35,7 +39,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 abstract public class ToolPluginBase implements PluginBase {
 
 	/**
-	 * Given a list of valid observations, do something, <em>anything</em> in fact. :)
+	 * Given a list of valid observations, do something, <em>anything</em> in
+	 * fact, with or without the observations.
 	 * 
 	 * @param obs
 	 *            A list of currently loaded observations.

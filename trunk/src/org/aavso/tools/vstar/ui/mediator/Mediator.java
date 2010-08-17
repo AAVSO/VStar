@@ -25,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -87,6 +86,7 @@ import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
+import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 
 /**
@@ -281,18 +281,18 @@ public class Mediator {
 	 * if we make period analysis responsible for determining its own mean
 	 * source series via GUI component of its own.
 	 */
-	private Listener<List<ValidObservation>> createMeanObsChangeListener(
+	private Listener<BinningResult> createMeanObsChangeListener(
 			int initialSeriesNum) {
 		final int initialSeriesNumFinal = initialSeriesNum;
 
-		return new Listener<List<ValidObservation>>() {
+		return new Listener<BinningResult>() {
 			private int meanSourceSeriesNum = initialSeriesNumFinal;
 
 			public boolean canBeRemoved() {
 				return true;
 			}
 
-			public void update(List<ValidObservation> info) {
+			public void update(BinningResult info) {
 				// A new mean series source has been selected, so blow away the
 				// current period analysis dialog so it must be regenerated. It
 				// may be that the mean series source has not changed, just the

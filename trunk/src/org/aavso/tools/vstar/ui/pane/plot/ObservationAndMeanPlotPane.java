@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.pane.plot;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JCheckBox;
@@ -34,6 +35,9 @@ import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.stats.BinningResult;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.title.Title;
 
 /**
  * This class represents a chart pane containing a plot for a set of valid
@@ -83,8 +87,16 @@ public class ObservationAndMeanPlotPane extends
 		// Set the means series color.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
 		if (meanSeriesNum != ObservationAndMeanPlotModel.NO_MEANS_SERIES) {
-			this.getRenderer().setSeriesPaint(meanSeriesNum, SeriesType.getColorFromSeries(SeriesType.MEANS));
+			this.getRenderer().setSeriesPaint(meanSeriesNum,
+					SeriesType.getColorFromSeries(SeriesType.MEANS));
 		}
+
+		// Update the initial ANOVA sub-title.
+		this.updateAnovaSubtitle(obsAndMeanModel.getBinningResult());
+		
+		// Add mean obs listener for binning ANOVA result chart updates.
+		obsAndMeanModel.getMeansChangeNotifier().addListener(
+				createBinChangeListener());
 	}
 
 	/**
@@ -113,7 +125,7 @@ public class ObservationAndMeanPlotPane extends
 
 	// Add means-specific widgets to chart control panel.
 	protected void addToChartControlPanel(JPanel chartControlPanel) {
-		// A checkbox to determine whether or not to join mean 
+		// A checkbox to determine whether or not to join mean
 		// series elements.
 		JCheckBox joinMeansCheckBox = new JCheckBox("Join means?");
 		joinMeansCheckBox.setSelected(true);
@@ -123,7 +135,7 @@ public class ObservationAndMeanPlotPane extends
 		chartControlPanel.add(Box.createHorizontalGlue());
 
 		// An update time-elements-in-bin component.
-		chartControlPanel.add(this.timeElementsInBinSettingPane);		
+		chartControlPanel.add(this.timeElementsInBinSettingPane);
 	}
 
 	// Return a listener for the "join means visually" checkbox.
@@ -193,20 +205,64 @@ public class ObservationAndMeanPlotPane extends
 			}
 		};
 	}
-	
+
 	// Returns a zoom request listener.
 	protected Listener<ZoomRequestMessage> createZoomRequestListener() {
 		return new Listener<ZoomRequestMessage>() {
 			public void update(ZoomRequestMessage info) {
-				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA &&
-						Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_AND_MEANS_MODE) {
+				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA
+						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_AND_MEANS_MODE) {
 					doZoom(info.getZoomType());
 				}
 			}
-			
+
 			public boolean canBeRemoved() {
 				return true;
 			}
 		};
+	}
+
+	// Returns a mean observation change (binning result) listener.
+	protected Listener<BinningResult> createBinChangeListener() {
+		return new Listener<BinningResult>() {
+			public void update(BinningResult info) {
+				updateAnovaSubtitle(info);
+			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	// Updates the chart sub-title with ANOVA information, if suitable.
+	private void updateAnovaSubtitle(BinningResult binningResult) {
+		String anovaText = createAnovaText(binningResult);
+
+		List<Title> subtitles = chart.getSubtitles();
+
+		if (subtitles.size() > 1) {
+			// Assume the last subtitle is the previous ANOVA message and remove it.
+			subtitles.remove(subtitles.size()-1);
+		}
+		
+		subtitles.add(new TextTitle(anovaText));
+		chart.setSubtitles(subtitles);
+	}
+	
+	// Returns ANOVA result text suitable for display.
+	private String createAnovaText(BinningResult binningResult) {
+		String msg = null;
+		
+		if (binningResult.hasValidAnovaValues()) {
+			msg = String.format(
+
+			"anova: F value=%2.2f, p-value=%1.7f", binningResult.getFValue(),
+					binningResult.getPValue());
+		} else {
+			msg = "";
+		}
+		
+		return msg;
 	}
 }
