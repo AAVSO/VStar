@@ -15,36 +15,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.resources;
+package org.aavso.tools.vstar.exception;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * The purpose of this class is to provide access to subversion revision number.
+ * Instances of this class will be thrown in the case of
+ * an observation validation warning.
  */
+public class ObservationValidationWarning extends Exception {
 
-public class RevisionAccessor {
+	private ValidObservation ob;
+	
+	public ObservationValidationWarning(ValidObservation ob) {
+		super();
+		this.ob = ob;
+	}
 
-	private static String REVISION = "370:555MP";
-
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\d+:(\\d+).*$");
+	public ObservationValidationWarning(String message, ValidObservation ob) {
+		super(message);
+		this.ob = ob;
+	}
 
 	/**
-	 * Get the latest revision number if REVISION is of the form:
-	 * n:m... (i.e. get m), otherwise just return the whole revision
-	 * string. It doesn't really matter what it is so long as it's
-	 * unique from one commit of dist/vstar.jar to the next.
+	 * @return the observation
 	 */
-	public static String getRevNum() {
-		String rev = REVISION;
-
-		Matcher revMatcher = revNumPat.matcher(rev);
-		if (revMatcher.matches()) {
-			rev = revMatcher.group(1);
-		}
-		
-		return rev;
+	public ValidObservation getObservation() {
+		return ob;
 	}
 }

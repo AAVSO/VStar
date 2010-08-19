@@ -22,15 +22,12 @@ import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 
-import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.ui.MainFrame;
 
 /**
  * Message dialog box utility class.
  */
 public class MessageBox {
-
-	private final static Icon VSTAR_ICON = ResourceAccessor
-			.getIconResource("/images/tenstar_artist_conception1.jpg");
 
 	/**
 	 * Pop-up an informational message dialog box.
@@ -51,6 +48,21 @@ public class MessageBox {
 	}
 
 	/**
+	 * Pop-up an informational message dialog box relative to the main window.
+	 * 
+	 * @param title
+	 *            The title of the dialog.
+	 * @param msg
+	 *            The message that is the content of the dialog.
+	 * @param icon
+	 *            The icon to be displayed in the dialog.
+	 */
+	public static void showMessageDialog(String title, String msg, Icon icon) {
+		JOptionPane.showMessageDialog(MainFrame.getInstance(), msg, title,
+				JOptionPane.INFORMATION_MESSAGE, icon);
+	}
+
+	/**
 	 * Pop-up an informational message dialog box.
 	 * 
 	 * @param parent
@@ -63,6 +75,19 @@ public class MessageBox {
 	public static void showMessageDialog(Component parent, String title,
 			String msg) {
 		JOptionPane.showMessageDialog(parent, msg, title,
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	/**
+	 * Pop-up an informational message dialog box relative to the main window.
+	 * 
+	 * @param title
+	 *            The title of the dialog.
+	 * @param msg
+	 *            The message that is the content of the dialog.
+	 */
+	public static void showMessageDialog(String title, String msg) {
+		JOptionPane.showMessageDialog(MainFrame.getInstance(), msg, title,
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 
@@ -83,6 +108,19 @@ public class MessageBox {
 	}
 
 	/**
+	 * Pop-up a warning message dialog box relative to the main window.
+	 * 
+	 * @param title
+	 *            The title of the dialog.
+	 * @param msg
+	 *            The message that is the content of the dialog.
+	 */
+	public static void showWarningDialog(String title, String msg) {
+		JOptionPane.showMessageDialog(MainFrame.getInstance(), msg, title,
+				JOptionPane.WARNING_MESSAGE);
+	}
+
+	/**
 	 * Pop-up an error message dialog box.
 	 * 
 	 * @param parent
@@ -96,8 +134,26 @@ public class MessageBox {
 			String msg) {
 		JOptionPane.showMessageDialog(parent, msg, title,
 				JOptionPane.ERROR_MESSAGE);
-		parent.setCursor(null); // turn off the wait cursor, in case it's
-		// enabled
+		// Turn off the wait cursor, in case it's
+		// enabled.
+		parent.setCursor(null);
+	}
+
+	/**
+	 * Pop-up an error message dialog box relative to the main window.
+	 * 
+	 * @param title
+	 *            The title of the dialog.
+	 * @param msg
+	 *            The message that is the content of the dialog.
+	 */
+	public static void showErrorDialog(String title, String msg) {
+		Component parent = MainFrame.getInstance();
+		JOptionPane.showMessageDialog(parent, msg, title,
+				JOptionPane.ERROR_MESSAGE);
+		// Turn off the wait cursor, in case it's
+		// enabled.
+		parent.setCursor(null);
 	}
 
 	/**
@@ -115,7 +171,24 @@ public class MessageBox {
 		JOptionPane.showMessageDialog(parent, e.getMessage(), title,
 				JOptionPane.ERROR_MESSAGE);
 		// Turn off the wait cursor, in case it's enabled.
-		parent.setCursor(null); 
-		//e.printStackTrace();
+		parent.setCursor(null);
+	}
+
+	/**
+	 * Pop-up an error message dialog box given an exception relative to the
+	 * main window.
+	 * 
+	 * @param title
+	 *            The title of the dialog.
+	 * @param e
+	 *            The exception whose message will be the content of the dialog.
+	 */
+	public static void showErrorDialog(String title,
+			Throwable e) {
+		Component parent = MainFrame.getInstance();
+		JOptionPane.showMessageDialog(parent, e.getMessage(), title,
+				JOptionPane.ERROR_MESSAGE);
+		// Turn off the wait cursor, in case it's enabled.
+		parent.setCursor(null);
 	}
 }

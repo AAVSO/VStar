@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.exception;
 
-
 /**
  * Instances of this class will be thrown in the case of
  * an observation validation error.

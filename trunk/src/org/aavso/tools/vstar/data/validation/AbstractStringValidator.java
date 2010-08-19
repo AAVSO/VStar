@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 
 /**
  * This is the base class for all string-based validators.
@@ -49,9 +50,9 @@ public abstract class AbstractStringValidator<T> {
 	 * 
 	 * @param str
 	 *            The string to be validated.
-	 * @throws ObservationValidationError
+	 * @throws ObservationValidationError, ObservationValidationWarning
 	 */
-	abstract public T validate(String str) throws ObservationValidationError;
+	abstract public T validate(String str) throws ObservationValidationError, ObservationValidationWarning;
 	
 	// TODO: require that isLegallyEmpty() and canBeEmpty() be replaced with
 	// suitable regexes, i.e. as in RegexValidator?

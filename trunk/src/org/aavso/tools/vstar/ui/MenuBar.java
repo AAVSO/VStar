@@ -34,6 +34,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.ToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
@@ -87,7 +88,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	private JFileChooser fileOpenDialog;
 
-	// Plug-in menu items.
+	// Plug-in menu name to plug-in object maps.
+	private Map<String, CustomFilterPluginBase> menuItemNameToCustomFilterPlugin;
 	private Map<String, PeriodAnalysisPluginBase> menuItemNameToPeriodAnalysisPlugin;
 	private Map<String, ToolPluginBase> menuItemNameToToolPlugin;
 	
@@ -112,6 +114,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JMenuItem viewFilterItem;
 	JMenuItem viewNoFilterItem;
 
+	JMenu viewCustomFilterMenu;
+	
 	// Analysis menu.
 	JCheckBoxMenuItem analysisRawDataItem;
 	JCheckBoxMenuItem analysisPhasePlotItem;
@@ -241,6 +245,25 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		viewFilterItem.addActionListener(createFilterListener());
 		viewMenu.add(viewFilterItem);
 
+		viewCustomFilterMenu = new JMenu("Custom Filters");
+		viewCustomFilterMenu.setEnabled(false);
+		
+		ActionListener customFilterListener = createCustomFilterListener();
+		
+		menuItemNameToCustomFilterPlugin = new TreeMap<String, CustomFilterPluginBase>();
+		
+		for (CustomFilterPluginBase plugin : PluginClassLoader.getCustomFilterPlugins()) {
+			String itemName = plugin.getDisplayName() + "...";
+			
+			JMenuItem customFilterMenuItem = new JMenuItem(itemName);
+			customFilterMenuItem.addActionListener(customFilterListener);
+			viewCustomFilterMenu.add(customFilterMenuItem);			
+			
+			menuItemNameToCustomFilterPlugin.put(itemName, plugin);
+		}
+		
+		viewMenu.add(viewCustomFilterMenu);
+		
 		viewNoFilterItem = new JMenuItem(NO_FILTER);
 		viewNoFilterItem.setEnabled(false);
 		viewNoFilterItem.addActionListener(createShowAllListener());
@@ -248,7 +271,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		this.add(viewMenu);
 	}
-
+	
 	private void createAnalysisMenu() {
 		JMenu analysisMenu = new JMenu("Analysis");
 
@@ -520,6 +543,20 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	}
 
 	/**
+	 * Returns the action listener to be invoked for Custom Filter menu item selections.
+	 */
+	public ActionListener createCustomFilterListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String item = e.getActionCommand();
+				CustomFilterPluginBase plugin = menuItemNameToCustomFilterPlugin
+						.get(item);				
+				Mediator.getInstance().applyCustomFilterToCurrentObservations(plugin);
+			}
+		};
+	}
+	
+	/**
 	 * Returns the action listener to be invoked for View->Show All...
 	 */
 	public ActionListener createShowAllListener() {
@@ -712,6 +749,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.viewZoomOutItem.setEnabled(state);
 		this.viewZoomToFitItem.setEnabled(state);
 		this.viewFilterItem.setEnabled(state);
+		this.viewCustomFilterMenu.setEnabled(state);
 		this.viewNoFilterItem.setEnabled(state);
 		
 		this.analysisRawDataItem.setEnabled(state);

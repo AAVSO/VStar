@@ -46,6 +46,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
+import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.ToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
@@ -988,6 +989,21 @@ public class Mediator {
 		}
 	}
 
+	/**
+	 * Applies the custom filter plugin to the currently loaded observation set.
+	 * 
+	 * @param plugin
+	 *            The tool plugin to be invoked.
+	 */
+	public void applyCustomFilterToCurrentObservations(CustomFilterPluginBase plugin) {
+		if (validObsList != null) {
+			plugin.apply(validObsList);
+		} else {
+			MessageBox.showMessageDialog(MainFrame.getInstance(),
+					"Custom Filter", "There are no observations loaded.");
+		}		
+	}
+	
 	/**
 	 * Save the artefact corresponding to the current viewMode.
 	 * 
