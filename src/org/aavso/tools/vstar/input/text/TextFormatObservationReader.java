@@ -25,6 +25,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.AbstractStringValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
@@ -75,17 +76,19 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 					int lineNum = reader.getLineNumber();
 					try {
 						ValidObservation validOb = validator.validate(line);
-						
-						if (validOb.getMType() == MTypeType.STD) {
-							validOb.setLineNumber(lineNum);
-							validObservations.add(validOb);
-							categoriseValidObservation(validOb);
-						}
+						addValidObservation(validOb, lineNum);
 					} catch (ObservationValidationError e) {
 						InvalidObservation invalidOb = new InvalidObservation(
 								line, e.getMessage());
 						invalidOb.setLineNumber(lineNum);
 						invalidObservations.add(invalidOb);
+					} catch (ObservationValidationWarning e) {
+						InvalidObservation invalidOb = new InvalidObservation(
+								line, e.getMessage(), true);
+						invalidOb.setLineNumber(lineNum);
+						invalidObservations.add(invalidOb);
+						
+						addValidObservation(e.getObservation(), lineNum);
 					}
 				}
 
@@ -97,6 +100,16 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 		} catch (Throwable t) {
 			throw new ObservationReadError(
 					"Error when attempting to read observation source.");
+		}
+	}
+	
+	// Helpers
+	
+	private void addValidObservation(ValidObservation validOb, int lineNum) {
+		if (validOb.getMType() == MTypeType.STD) {
+			validOb.setLineNumber(lineNum);
+			validObservations.add(validOb);
+			categoriseValidObservation(validOb);
 		}
 	}
 }

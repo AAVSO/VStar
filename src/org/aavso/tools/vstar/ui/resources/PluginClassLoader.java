@@ -25,6 +25,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.PluginBase;
 import org.aavso.tools.vstar.plugin.ToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
@@ -49,7 +50,7 @@ public class PluginClassLoader {
 	private static List<PluginBase> plugins = loadPlugins();
 
 	/**
-	 * Return a list of period analysis plugins, whether internal to VStar or
+	 * Return a list of Period Analysis plugins, whether internal to VStar or
 	 * dynamically loaded.
 	 */
 	public static List<PeriodAnalysisPluginBase> getPeriodAnalysisPlugins() {
@@ -69,7 +70,7 @@ public class PluginClassLoader {
 	}
 
 	/**
-	 * Return a list of VStar tool plugins.
+	 * Return a list of VStar Tool plugins.
 	 */
 	public static List<ToolPluginBase> getToolPlugins() {
 		List<ToolPluginBase> toolPlugins = new ArrayList<ToolPluginBase>();
@@ -81,6 +82,21 @@ public class PluginClassLoader {
 		}
 
 		return toolPlugins;
+	}
+
+	/**
+	 * Return a list of VStar Custom Filter plugins.
+	 */
+	public static List<CustomFilterPluginBase> getCustomFilterPlugins() {
+		List<CustomFilterPluginBase> customFilterPlugins = new ArrayList<CustomFilterPluginBase>();
+
+		for (PluginBase plugin : plugins) {
+			if (plugin instanceof CustomFilterPluginBase) {
+				customFilterPlugins.add((CustomFilterPluginBase) plugin);
+			}
+		}
+
+		return customFilterPlugins;
 	}
 
 	/**

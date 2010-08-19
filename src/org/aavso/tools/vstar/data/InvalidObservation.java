@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.data;
 
-
 /**
  * This class corresponds to a single invalid variable star observation.
  */
@@ -25,9 +24,30 @@ public class InvalidObservation extends Observation {
 
 	private String inputLine;
 	private String error;
+	private boolean isWarning;
 
 	/**
 	 * Constructor
+	 * 
+	 * @param lineNum
+	 *            The line number at which this observation was found in the
+	 *            originating source file.
+	 * @param inputLine
+	 *            The original input line.
+	 * @param error
+	 *            The error message.
+	 * @param isWarning
+	 *            Does this invalid observation represent a warning or an error?
+	 */
+	public InvalidObservation(String inputLine, String error, boolean isWarning) {
+		super(0);
+		this.inputLine = inputLine;
+		this.error = error;
+		this.isWarning = isWarning;
+	}
+
+	/**
+	 * Construct an InvalidObservation that defaults as an error.
 	 * 
 	 * @param lineNum
 	 *            The line number at which this observation was found in the
@@ -41,6 +61,7 @@ public class InvalidObservation extends Observation {
 		super(0);
 		this.inputLine = inputLine;
 		this.error = error;
+		this.isWarning = false;
 	}
 
 	public String getInputLine() {
@@ -51,13 +72,21 @@ public class InvalidObservation extends Observation {
 		return error;
 	}
 
+	public boolean isWarning() {
+		return isWarning;
+	}
+
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 
+		if (isWarning) {
+			strBuf.append("Warning: ");
+		}
+		
 		strBuf.append(inputLine);
 		strBuf.append(": ");
 		strBuf.append(error);
-
+		
 		return strBuf.toString();
 	}
 }

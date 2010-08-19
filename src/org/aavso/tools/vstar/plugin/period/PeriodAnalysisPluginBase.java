@@ -33,18 +33,22 @@ import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 
 /**
- * <p>This is the abstract base class for all period analysis plugin classes.</p>
+ * <p>
+ * This is the abstract base class for all period analysis plugin classes.
+ * </p>
  * 
- * <p>Period analysis plugins will appear in VStar's Analysis -> Period Search 
- * menu when its jar file is placed into the vstar_plugins directory.</p>
+ * <p>
+ * Period analysis plugins will appear in VStar's Analysis -> Period Search menu
+ * when its jar file is placed into the vstar_plugins directory.
+ * </p>
  * 
  * @see org.aavso.tools.vstar.plugin.PluginBase
  */
 
-// TODO: 
+// TODO:
 // - Add a getter method to say whether or not a series selection dialog
-//   should be invoked before the algorithm is executed, the SeriesType from 
-//   which would be made available via another getter.
+// should be invoked before the algorithm is executed, the SeriesType from
+// which would be made available via another getter.
 
 abstract public class PeriodAnalysisPluginBase implements PluginBase {
 
@@ -63,7 +67,10 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	/**
 	 * Send a period change message.
 	 * 
-	 * @param The period to be sent in the notification.
+	 * @param The
+	 *            period to be sent in the notification. This will cause a phase
+	 *            plot dialog to be invoked, asking for confirmation of the new
+	 *            period (and epoch) before creating a new phase plot.
 	 */
 	public void sendPeriodChangeMessage(double period) {
 		mediator.getPeriodChangeMessageNotifier().notifyListeners(
@@ -94,10 +101,6 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	 * @param sourceSeriesType
 	 *            The mean source series type to be used on the plot for display
 	 *            purposes.
-	 * 
-	 *            TODO: may need an overloaded method here since some period
-	 *            analysis plugins may self-determine the period analysis source
-	 *            type.
 	 */
 	abstract public JDialog getDialog(SeriesType sourceSeriesType);
 
@@ -112,13 +115,11 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	abstract protected void newStarAction(NewStarMessage message);
 
 	/**
-	 * When the mean source series changes is loaded, a plugin may want to
-	 * discard previous computation results and GUI components, so the plugin
-	 * will listen for such messages. Of course, a plugin will only care about
-	 * such messages if the period analysis computations are based upon the
-	 * current mean series.
-	 * 
-	 * Note: some period analysis plugins may be uninterested in this message.
+	 * When the mean source series changes, a plugin may want to discard
+	 * previous computation results and GUI components, so the plugin will
+	 * listen for such messages. Of course, a plugin will only care about such
+	 * messages if the period analysis computations are based upon the current
+	 * mean series.
 	 * 
 	 * @param The
 	 *            mean source series change message.
