@@ -30,6 +30,39 @@ o VStar leaks memory with continued use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
    
 ----------------------
+Date: August 20 2010
+Version: 2.3 Beta
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20August2010
+Key Changes:
+- Now also retrieving variable and spectral type from VSX along with
+  discoverer (which appears often to be null). See tracker 2926870.
+- Implemented color preference persistence. See tracker 2843087.
+- Incorporated generalised 10-star list in star selection dialog to permit 
+  arbitrary star groups. This was initially motivated by the Southern Gems 
+  Citizen Sky Team which is developing a southern equivalent of the 10-star 
+  tutorial. A preferences dialog pane is now dedicated to star group
+  maintenance. See tracker 3041516.
+- Modified uncertainty values in mean observations to use Confidence Intervals
+  rather than Standard Error of the Average (twice the latter) as per Grant 
+  Foster's suggestion. Unit tests were updated to account for this change.
+  See tracker 3031083.
+- Added a tool plugin mechanism alongside period analysis plugins that permits 
+  the currently loaded observations to be processed in arbitrary ways.
+- Created a VStar plugin development PDF document (see doc directory). See tracker 
+  2983857.
+- Added custom filter plugin capability.
+- Added the Apache Commons Math library to the extlib directory; updated 
+  extlib/ReadMe.txt re: licenses in preparation for anova algorithm addition.
+- Implemented anova (F-test, p-value) as per Grant's request. See tracker
+  3005590.
+- Introduced another directory (vstar_plugin_libs) which can contain jars upon 
+  which plugins are dependent. These are added to the list of jar URLs used by 
+  the plugin class loading functionality. See also tracker 2983857.
+- Added Javadoc generation to Ant files and made some key comment blocks more 
+  Javadoc friendly. These HTML docs are useful for VStar and VStar plugin 
+  developers. The doc directory will contain periodically (e.g. for new VStar 
+  versions) updated Javadocs and a zip archive of the these.                                                                              
+
 Date: July 7 2010
 Version: 2.2 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-07July2010
