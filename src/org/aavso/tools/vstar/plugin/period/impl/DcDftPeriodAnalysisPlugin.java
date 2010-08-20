@@ -104,7 +104,6 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 					PeriodAnalysisCoordinateType.PERIOD,
 					PeriodAnalysisCoordinateType.AMPLITUDE));
 
-			// TODO: this will go away with sortable tables from Java 1.6
 			int maxHits = 20;
 
 			dialog = new PeriodAnalysis2DResultDialog(

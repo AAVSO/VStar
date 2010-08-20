@@ -92,6 +92,27 @@ public enum PeriodAnalysisCoordinateType {
 		return type;
 	}
 
+	/**
+	 * Given a description, return the corresponding coordinate type.
+	 */
+	public static PeriodAnalysisCoordinateType getTypeFromDescription(String desc) {
+		PeriodAnalysisCoordinateType type = null;
+
+		if ("Period".equals(desc)) {
+			type = PERIOD;
+		} else if ("Power".equals(desc)) {
+			type = POWER;
+		} else if ("Amplitude".equals(desc)) {
+			type = AMPLITUDE;
+		} else if ("Frequency".equals(desc)) {
+			type = FREQUENCY;
+		}
+
+		assert type != null;
+
+		return type;
+	}
+
 	public String toString() {
 		return description;
 	}
