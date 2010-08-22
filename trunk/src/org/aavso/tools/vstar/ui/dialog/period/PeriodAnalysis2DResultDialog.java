@@ -33,7 +33,6 @@ import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
  * This class is used to visualise period analysis results.
@@ -116,9 +115,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	// so we *know* without having to ask that there is a selected
 	// row in the data table.
 	protected void newPhasePlotButtonAction() {
-		String periodStr = (String) dataTableModel.getValueAt(selectedRow,
-				PeriodAnalysisCoordinateType.PERIOD.getIndex());
-
+		String periodStr = (String) dataTableModel.getPeriodValueInRow(selectedRow);
 		double period = Double.valueOf(periodStr);
 
 		PeriodChangeMessage message = new PeriodChangeMessage(this, period);

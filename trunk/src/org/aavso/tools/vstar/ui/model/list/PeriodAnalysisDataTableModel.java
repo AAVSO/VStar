@@ -29,20 +29,23 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
  */
 public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 
+	private PeriodAnalysisCoordinateType[] columnTypes;
 	private Map<PeriodAnalysisCoordinateType, List<Double>> data;
 
 	/**
 	 * Constructor
 	 * 
+	 * @param columnTypes
+	 *            An array of column types as they are to appear in the
+	 *            table.
 	 * @param data
 	 *            The result data mapping from coordinate type to list of
 	 *            values.
-	 * @param topPowerIndexPairs
-	 *            A 2-dimensional array of power-index pairs where the index
-	 *            refers to an element in the above value lists.
 	 */
 	public PeriodAnalysisDataTableModel(
+			PeriodAnalysisCoordinateType[] columnTypes,
 			Map<PeriodAnalysisCoordinateType, List<Double>> data) {
+		this.columnTypes = columnTypes;
 		this.data = data;
 	}
 
@@ -51,7 +54,7 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 */
 	public int getColumnCount() {
 		// column = coordinate type (freq, period, power, ampl)
-		return this.data.keySet().size();
+		return data.keySet().size();
 	}
 
 	/**
@@ -60,15 +63,14 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	public int getRowCount() {
 		// Arbitrarily choose one coordinate and ask how many data-points
 		// it has (same for all coordinates).
-		return this.data.get(PeriodAnalysisCoordinateType.FREQUENCY).size();
+		return data.get(columnTypes[0]).size();
 	}
 
 	/**
 	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
-		return PeriodAnalysisCoordinateType.getTypeFromIndex(column)
-				.getDescription();
+		return columnTypes[column].getDescription();
 	}
 
 	/**
@@ -84,9 +86,26 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		// column = coordinate type (freq, period, power, ampl)
 		// row = value within the chosen coordinate's list
-		double val = this.data.get(
-				PeriodAnalysisCoordinateType.getTypeFromIndex(columnIndex))
-				.get(rowIndex);
+		PeriodAnalysisCoordinateType columnType = columnTypes[columnIndex];
+		double val = data.get(columnType).get(rowIndex);
+
 		return String.format("%10.4f", val);
+	}
+	
+	/**
+	 * Return the period value at the specified row.
+	 * @param rowIndex The specified row.
+	 * @return The period value.
+	 */
+	public Object getPeriodValueInRow(int rowIndex) {
+		Object period = null;
+		
+		for (int i=0;i<columnTypes.length;i++) {
+			if (columnTypes[i] == PeriodAnalysisCoordinateType.PERIOD) {
+				period = getValueAt(rowIndex, i);
+			}
+		}
+		
+		return period;
 	}
 }
