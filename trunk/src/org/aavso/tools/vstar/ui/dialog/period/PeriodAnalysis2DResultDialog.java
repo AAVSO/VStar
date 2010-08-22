@@ -18,11 +18,14 @@
 package org.aavso.tools.vstar.ui.dialog.period;
 
 import java.awt.Component;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JTabbedPane;
 
+import org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
+import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
@@ -31,10 +34,6 @@ import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.title.TextTitle;
 
 /**
  * This class is used to visualise period analysis results.
@@ -73,10 +72,10 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		this.plotModels = plotModels;
 		this.dataTableModel = dataTableModel;
 		this.topHitsTableModel = topHitsTableModel;
-		
+
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.addListener(this.createPeriodAnalysisListener());
-		
+
 		prepareDialog();
 	}
 
@@ -88,48 +87,41 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	// dependent variables of period, power, or amplitude. Is this what we want,
 	// or something different?
 	private JTabbedPane createTabs() {
-		JTabbedPane tabs = new JTabbedPane();
+		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 
 		// Add plots.
 		for (PeriodAnalysis2DPlotModel model : plotModels) {
-			// Create a line chart with legend, tool-tips, and URLs showing
-			// and add it to the panel.
-			ChartPanel chartPanel = new PeriodAnalysis2DChartPane(ChartFactory
-					.createXYLineChart(this.chartTitle, model.getDomainType()
-							.getDescription(), model.getRangeType()
-							.getDescription(), model, PlotOrientation.VERTICAL,
-							true, true, true), model);
-
-			chartPanel.getChart().addSubtitle(new TextTitle(this.seriesTitle));
+			Component plot = PeriodAnalysisComponentFactory.createLinePlot(
+					chartTitle, seriesTitle, model);
 
 			String tabName = model.getRangeType() + " vs "
 					+ model.getDomainType();
-			tabs.addTab(tabName, chartPanel);
+
+			namedComponents.add(new NamedComponent(tabName, plot));
 		}
 
 		// Add data table view.
-		tabs.addTab("Data", new PeriodAnalysisDataTablePane(dataTableModel));
+		namedComponents.add(new NamedComponent("Data",
+				new PeriodAnalysisDataTablePane(dataTableModel)));
 
 		// Add top-hits table view.
-		tabs.addTab("Top Hits", new PeriodAnalysisTopHitsTablePane(
-				topHitsTableModel));
+		namedComponents.add(new NamedComponent("Top Hits",
+				new PeriodAnalysisTopHitsTablePane(topHitsTableModel)));
 
-		return tabs;
+		return PeriodAnalysisComponentFactory.createTabs(namedComponents);
 	}
 
-	// The new phase plot button will only be enabled when a period 
-	// analysis selection message has been received by this class, 
-	// so we *know* without having to ask that there is a selected 
+	// The new phase plot button will only be enabled when a period
+	// analysis selection message has been received by this class,
+	// so we *know* without having to ask that there is a selected
 	// row in the data table.
 	protected void newPhasePlotButtonAction() {
-		String periodStr = (String) dataTableModel.getValueAt(
-				selectedRow, PeriodAnalysisCoordinateType.PERIOD
-						.getIndex());
+		String periodStr = (String) dataTableModel.getValueAt(selectedRow,
+				PeriodAnalysisCoordinateType.PERIOD.getIndex());
 
 		double period = Double.valueOf(periodStr);
 
-		PeriodChangeMessage message = new PeriodChangeMessage(this,
-				period);
+		PeriodChangeMessage message = new PeriodChangeMessage(this, period);
 		Mediator.getInstance().getPeriodChangeMessageNotifier()
 				.notifyListeners(message);
 	}

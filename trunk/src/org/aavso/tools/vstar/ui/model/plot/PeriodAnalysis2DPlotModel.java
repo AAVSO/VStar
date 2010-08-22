@@ -24,8 +24,6 @@ import org.jfree.data.xy.AbstractXYDataset;
 
 /**
  * This class is the basis of all 2D period analysis plot models.
- * 
- * TODO: may later need a PlotType enum for 2D XY, 3D XY etc
  */
 public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 
