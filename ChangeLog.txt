@@ -58,10 +58,9 @@ Key Changes:
 - Introduced another directory (vstar_plugin_libs) which can contain jars upon 
   which plugins are dependent. These are added to the list of jar URLs used by 
   the plugin class loading functionality. See also tracker 2983857.
-- Added Javadoc generation to Ant files and made some key comment blocks more 
-  Javadoc friendly. These HTML docs are useful for VStar and VStar plugin 
-  developers. The doc directory will contain periodically (e.g. for new VStar 
-  versions) updated Javadocs and a zip archive of the these.                                                                              
+- Added Javadoc generation to Ant files. These HTML docs are useful for VStar 
+  and VStar plugin developers. The doc directory will contain periodically (e.g. 
+  for new VStar versions) updated Javadocs and a zip archive of the these.                                                                              
 
 Date: July 7 2010
 Version: 2.2 Beta

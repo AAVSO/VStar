@@ -20,11 +20,14 @@ package org.aavso.tools.vstar.plugin.period;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JTabbedPane;
 
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
+import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
+import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jfree.chart.ChartFactory;
@@ -40,7 +43,15 @@ import org.jfree.chart.title.TextTitle;
 public class PeriodAnalysisComponentFactory {
 
 	/**
+	 * <p>
 	 * Create a line plot given arrays of domain and range values.
+	 * </p>
+	 * 
+	 * <p>
+	 * The component sends and receives period analysis selection messages.
+	 * </p>
+	 * 
+	 * @see org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage
 	 * 
 	 * @param title
 	 *            The main title of the plot.
@@ -77,7 +88,15 @@ public class PeriodAnalysisComponentFactory {
 	}
 
 	/**
+	 * <p>
 	 * Create a line plot given lists of domain and range values.
+	 * </p>
+	 * 
+	 * <p>
+	 * The component sends and receives period analysis selection messages.
+	 * </p>
+	 * 
+	 * @see org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage
 	 * 
 	 * @param title
 	 *            The main title of the plot.
@@ -115,7 +134,15 @@ public class PeriodAnalysisComponentFactory {
 	}
 
 	/**
+	 * <p>
 	 * Create a line plot given a 2D plot model.
+	 * </p>
+	 * 
+	 * <p>
+	 * The component sends and receives period analysis selection messages.
+	 * </p>
+	 * 
+	 * @see org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage
 	 * 
 	 * @param title
 	 *            The main title of the plot.
@@ -139,6 +166,29 @@ public class PeriodAnalysisComponentFactory {
 		chartPanel.getChart().addSubtitle(new TextTitle(subtitle));
 
 		return chartPanel;
+	}
+
+	/**
+	 * <p>
+	 * Create a data table given column type and data collections.
+	 * </p>
+	 * 
+	 * <p>
+	 * The component sends and receives period analysis selection messages.
+	 * </p>
+	 * 
+	 * @param columnTypes
+	 *            An array of column types as they are to appear in the table.
+	 * @param data
+	 *            A mapping from coordinate type to lists of data values.
+	 * @return A GUI data table component.
+	 */
+	public static Component createDataTable(
+			PeriodAnalysisCoordinateType[] columnTypes,
+			Map<PeriodAnalysisCoordinateType, List<Double>> data) {
+
+		return new PeriodAnalysisDataTablePane(
+				new PeriodAnalysisDataTableModel(columnTypes, data));
 	}
 
 	/**

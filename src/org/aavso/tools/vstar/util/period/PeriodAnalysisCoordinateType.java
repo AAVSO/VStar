@@ -26,30 +26,19 @@ package org.aavso.tools.vstar.util.period;
  */
 public enum PeriodAnalysisCoordinateType {
 
-	FREQUENCY("Frequency", PeriodAnalysisCoordinateType.FREQUENCY_INDEX), AMPLITUDE(
-			"Amplitude", PeriodAnalysisCoordinateType.AMPLITUDE_INDEX), POWER(
-			"Power", PeriodAnalysisCoordinateType.POWER_INDEX), PERIOD(
-			"Period", PeriodAnalysisCoordinateType.PERIOD_INDEX);
-
-	private final static int FREQUENCY_INDEX = 0;
-	private final static int AMPLITUDE_INDEX = 3;
-	private final static int POWER_INDEX = 2;
-	private final static int PERIOD_INDEX = 1;
+	FREQUENCY("Frequency"), AMPLITUDE("Amplitude"), POWER("Power"), PERIOD(
+			"Period");
 
 	private String description;
-	private int index;
 
 	/**
 	 * Constructor
 	 * 
 	 * @param description
 	 *            A string describing this coordinate type.
-	 * @param index
-	 *            An arbitrary unique index number for this coordinate type.
 	 */
-	private PeriodAnalysisCoordinateType(String description, int index) {
+	private PeriodAnalysisCoordinateType(String description) {
 		this.description = description;
-		this.index = index;
 	}
 
 	/**
@@ -60,42 +49,10 @@ public enum PeriodAnalysisCoordinateType {
 	}
 
 	/**
-	 * @return the index
-	 */
-	public int getIndex() {
-		return index;
-	}
-
-	/**
-	 * Given an index, return the corresponding coordinate type.
-	 */
-	public static PeriodAnalysisCoordinateType getTypeFromIndex(int index) {
-		PeriodAnalysisCoordinateType type = null;
-
-		switch (index) {
-		case PERIOD_INDEX:
-			type = PERIOD;
-			break;
-		case POWER_INDEX:
-			type = POWER;
-			break;
-		case AMPLITUDE_INDEX:
-			type = AMPLITUDE;
-			break;
-		case FREQUENCY_INDEX:
-			type = FREQUENCY;
-			break;
-		}
-
-		assert type != null;
-
-		return type;
-	}
-
-	/**
 	 * Given a description, return the corresponding coordinate type.
 	 */
-	public static PeriodAnalysisCoordinateType getTypeFromDescription(String desc) {
+	public static PeriodAnalysisCoordinateType getTypeFromDescription(
+			String desc) {
 		PeriodAnalysisCoordinateType type = null;
 
 		if ("Period".equals(desc)) {
@@ -107,8 +64,6 @@ public enum PeriodAnalysisCoordinateType {
 		} else if ("Frequency".equals(desc)) {
 			type = FREQUENCY;
 		}
-
-		assert type != null;
 
 		return type;
 	}

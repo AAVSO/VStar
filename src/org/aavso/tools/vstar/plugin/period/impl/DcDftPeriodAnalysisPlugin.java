@@ -41,6 +41,12 @@ import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTra
  */
 public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 
+	private final static PeriodAnalysisCoordinateType[] COLUMN_TYPES = {
+			PeriodAnalysisCoordinateType.FREQUENCY,
+			PeriodAnalysisCoordinateType.PERIOD,
+			PeriodAnalysisCoordinateType.POWER,
+			PeriodAnalysisCoordinateType.AMPLITUDE };
+
 	private NewStarMessage newStarMessage;
 
 	private MeanSourceSeriesChangeMessage meanSourceSeriesChangeMessage;
@@ -110,9 +116,9 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 					"Period Analysis (DC DFT) for "
 							+ newStarMessage.getStarInfo().getDesignation(),
 					"(series: " + sourceSeriesType.getDescription() + ")",
-					models, new PeriodAnalysisDataTableModel(seriesMap),
-					new PeriodAnalysisTopHitsTableModel(seriesMap,
-							periodAnalysisAlgorithm
+					models, new PeriodAnalysisDataTableModel(COLUMN_TYPES,
+							seriesMap), new PeriodAnalysisTopHitsTableModel(
+							COLUMN_TYPES, seriesMap, periodAnalysisAlgorithm
 									.getTopNRankedIndices(maxHits), maxHits));
 		}
 

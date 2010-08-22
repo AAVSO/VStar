@@ -26,11 +26,12 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
  * This class represents a model for a period analysis top-hits table (e.g.
- * ranked (e.g. by power or amplitude), depending upon the topRankedIndexPairs 
+ * ranked (e.g. by power or amplitude), depending upon the topRankedIndexPairs
  * array).
  */
 public class PeriodAnalysisTopHitsTableModel extends AbstractTableModel {
 
+	private PeriodAnalysisCoordinateType[] columnTypes;
 	private Map<PeriodAnalysisCoordinateType, List<Double>> data;
 	private double[][] topRankedIndexPairs;
 	private int topN;
@@ -38,18 +39,22 @@ public class PeriodAnalysisTopHitsTableModel extends AbstractTableModel {
 	/**
 	 * Constructor
 	 * 
+	 * @param columnTypes
+	 *            An array of column types as they are to appear in the table.
 	 * @param data
 	 *            The result data mapping from coordinate type to list of
 	 *            values.
 	 * @param topRankedIndexPairs
-	 *            A 2-dimensional array of power-index pairs where the index
-	 *            refers to an element in the above value lists.
+	 *            A 2-dimensional array of (row-index,data-index) pairs where
+	 *            the data-index refers to an element in the data value lists.
 	 * @param topN
 	 *            The maximum number values to display in the table.
 	 */
 	public PeriodAnalysisTopHitsTableModel(
+			PeriodAnalysisCoordinateType[] columnTypes,
 			Map<PeriodAnalysisCoordinateType, List<Double>> data,
 			double[][] topRankedIndexPairs, int topN) {
+		this.columnTypes = columnTypes;
 		this.data = data;
 		this.topRankedIndexPairs = topRankedIndexPairs;
 		this.topN = topN;
@@ -96,8 +101,7 @@ public class PeriodAnalysisTopHitsTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
-		return PeriodAnalysisCoordinateType.getTypeFromIndex(column)
-				.getDescription();
+		return columnTypes[column].getDescription();
 	}
 
 	/**
@@ -115,15 +119,15 @@ public class PeriodAnalysisTopHitsTableModel extends AbstractTableModel {
 		// row = within the table; we need to convert this supplied index
 		// (table-wise)
 		// to the index of the value within the chosen coordinate's list
-		
+
 		// TODO: rather than a double[][] here, we should probably use a class
 		// since the second element is actually an integer!
-		int n = (int) this.topRankedIndexPairs[rowIndex][1]; // 1 = index into data lists
-		
-		double val = this.data.get(
-				PeriodAnalysisCoordinateType.getTypeFromIndex(columnIndex))
-				.get(n);
-		
+		int n = (int) this.topRankedIndexPairs[rowIndex][1]; // 1 = index into
+																// data lists
+
+		PeriodAnalysisCoordinateType columnType = columnTypes[columnIndex];
+		double val = data.get(columnType).get(n);
+
 		return String.format("%10.4f", val);
 	}
 }
