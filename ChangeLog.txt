@@ -30,9 +30,9 @@ o VStar leaks memory with continued use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
    
 ----------------------
-Date: August 20 2010
+Date: August 24 2010
 Version: 2.3 Beta
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-20August2010
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-24August2010
 Key Changes:
 - Now also retrieving variable and spectral type from VSX along with
   discoverer (which appears often to be null). See tracker 2926870.

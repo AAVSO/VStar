@@ -15,36 +15,46 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.resources;
+package org.aavso.tools.vstar.ui;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.awt.Component;
 
 /**
- * The purpose of this class is to provide access to subversion revision number.
+ * A component with an associated name and optional tool-tip.
  */
-
-public class RevisionAccessor {
-
-	private static String REVISION = "370:558MP";
-
-	private static final Pattern revNumPat = Pattern
-			.compile("^\\d+:(\\d+).*$");
+public class NamedComponent {
+	
+	private String name;
+	private Component component;
+	private String tip;
+	
+	/**
+	 * Constructor
+	 */
+	public NamedComponent(String name, Component component) {
+		this.name = name;
+		this.component = component;
+		this.tip = "";
+	}
 
 	/**
-	 * Get the latest revision number if REVISION is of the form:
-	 * n:m... (i.e. get m), otherwise just return the whole revision
-	 * string. It doesn't really matter what it is so long as it's
-	 * unique from one commit of dist/vstar.jar to the next.
+	 * Constructor
 	 */
-	public static String getRevNum() {
-		String rev = REVISION;
+	public NamedComponent(String name, Component component, String tip) {
+		this.name = name;
+		this.component = component;
+		this.tip = tip;
+	}
+	
+	public String getName() {
+		return name;
+	}
 
-		Matcher revMatcher = revNumPat.matcher(rev);
-		if (revMatcher.matches()) {
-			rev = revMatcher.group(1);
-		}
-		
-		return rev;
+	public Component getComponent() {
+		return component;
+	}
+
+	public String getTip() {
+		return tip;
 	}
 }
