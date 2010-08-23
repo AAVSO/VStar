@@ -110,7 +110,7 @@ abstract public class PeriodAnalysisDialogBase extends JDialog {
 	 * Sets the enabled state of the new-phase-plot button.
 	 * @param state The desired boolean state.
 	 */
-	protected void setNewPhasePlotButtonState(boolean state) {
+	public void setNewPhasePlotButtonState(boolean state) {
 		this.newPhasePlotButton.setEnabled(state);
 	}
 		
