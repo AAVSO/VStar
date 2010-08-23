@@ -35,7 +35,7 @@ Version: 2.3 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-24August2010
 Key Changes:
 - Now also retrieving variable and spectral type from VSX along with
-  discoverer (which appears often to be null). See tracker 2926870.
+  discoverer (which appears often to be empty). See tracker 2926870.
 - Implemented color preference persistence. See tracker 2843087.
 - Incorporated generalised 10-star list in star selection dialog to permit 
   arbitrary star groups. This was initially motivated by the Southern Gems 
@@ -48,8 +48,8 @@ Key Changes:
   See tracker 3031083.
 - Added a tool plugin mechanism alongside period analysis plugins that permits 
   the currently loaded observations to be processed in arbitrary ways.
-- Created a VStar plugin development PDF document (see doc directory). See tracker 
-  2983857.
+- Created a VStar plugin development PDF document (see doc directory). See 
+  tracker 2983857.
 - Added custom filter plugin capability.
 - Added the Apache Commons Math library to the extlib directory; updated 
   extlib/ReadMe.txt re: licenses in preparation for anova algorithm addition.
@@ -61,6 +61,9 @@ Key Changes:
 - Added Javadoc generation to Ant files. These HTML docs are useful for VStar 
   and VStar plugin developers. The doc directory will contain periodically (e.g. 
   for new VStar versions) updated Javadocs and a zip archive of the these.                                                                              
+- Introduced a component factory class to make it easy for the period analysis 
+  plugin developer to create common components (e.g. plots, tables). See tracker 
+  2983857.
 
 Date: July 7 2010
 Version: 2.2 Beta
