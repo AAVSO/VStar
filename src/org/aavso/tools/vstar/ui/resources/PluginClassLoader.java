@@ -26,8 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
+import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.PluginBase;
-import org.aavso.tools.vstar.plugin.ToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftPeriodAnalysisPlugin;
 import org.aavso.tools.vstar.ui.VStar;
@@ -70,14 +71,29 @@ public class PluginClassLoader {
 	}
 
 	/**
-	 * Return a list of VStar Tool plugins.
+	 * Return a list of VStar Observation Tool plugins.
 	 */
-	public static List<ToolPluginBase> getToolPlugins() {
-		List<ToolPluginBase> toolPlugins = new ArrayList<ToolPluginBase>();
+	public static List<ObservationToolPluginBase> getObservationToolPlugins() {
+		List<ObservationToolPluginBase> toolPlugins = new ArrayList<ObservationToolPluginBase>();
 
 		for (PluginBase plugin : plugins) {
-			if (plugin instanceof ToolPluginBase) {
-				toolPlugins.add((ToolPluginBase) plugin);
+			if (plugin instanceof ObservationToolPluginBase) {
+				toolPlugins.add((ObservationToolPluginBase) plugin);
+			}
+		}
+
+		return toolPlugins;
+	}
+
+	/**
+	 * Return a list of General VStar Tool plugins.
+	 */
+	public static List<GeneralToolPluginBase> getGeneralToolPlugins() {
+		List<GeneralToolPluginBase> toolPlugins = new ArrayList<GeneralToolPluginBase>();
+
+		for (PluginBase plugin : plugins) {
+			if (plugin instanceof GeneralToolPluginBase) {
+				toolPlugins.add((GeneralToolPluginBase) plugin);
 			}
 		}
 

@@ -23,9 +23,9 @@ import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
  * <p>
- * This is the base class for all arbitrary VStar "tool" plugins, where "tool"
- * can be anything that takes as input a list of valid observations and does any
- * arbitrary thing with (or without) them.
+ * This is the base class for all observation VStar "tool" plugins. Such tools 
+ * take as input a list of valid observations and perform arbitrary processing
+ * on the list.
  * </p>
  * 
  * <p>
@@ -34,13 +34,12 @@ import org.aavso.tools.vstar.data.ValidObservation;
  * </p>
  * 
  * @see org.aavso.tools.vstar.plugin.PluginBase
- * @see org.aavso.tools.vstar.ui.mediator.Mediator#invokeToolWithCurrentObservations(org.aavso.tools.vstar.plugin.ToolPluginBase)
+ * @see org.aavso.tools.vstar.ui.mediator.Mediator#invokeTool(org.aavso.tools.vstar.plugin.ObservationToolPluginBase)
  */
-abstract public class ToolPluginBase implements PluginBase {
+abstract public class ObservationToolPluginBase implements PluginBase {
 
 	/**
-	 * Given a list of valid observations, do something, <em>anything</em> in
-	 * fact, with or without the observations.
+	 * Given a list of valid observations, perform some arbitrary processing on them.
 	 * 
 	 * @param obs
 	 *            A list of currently loaded observations.
