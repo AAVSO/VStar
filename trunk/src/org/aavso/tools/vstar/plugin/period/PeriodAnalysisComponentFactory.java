@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.plugin.period;
 
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.TextTitle;
 
 /**
- * This factory class creates GUI (e.g. chart and table) components suitable for
+ * This factory class creates GUI (e.g. charts and tables) components suitable for
  * returning from the PeriodAnalysisDialogBase.createContent() method that must
  * be overridden by period analysis plugin subclasses.
  */
@@ -170,7 +171,7 @@ public class PeriodAnalysisComponentFactory {
 
 	/**
 	 * <p>
-	 * Create a data table given column type and data collections.
+	 * Create a data table given column type and data arrays.
 	 * </p>
 	 * 
 	 * <p>
@@ -179,16 +180,49 @@ public class PeriodAnalysisComponentFactory {
 	 * 
 	 * @param columnTypes
 	 *            An array of column types as they are to appear in the table.
-	 * @param data
+	 * @param dataArrays
+	 *            An array of data arrays, where each data array corresponds to
+	 *            each element in the columnTypes array.
+	 * @return A GUI data table component.
+	 */
+	public static Component createDataTable(
+			PeriodAnalysisCoordinateType[] columnTypes, double[][] dataArrays) {
+
+		Map<PeriodAnalysisCoordinateType, List<Double>> dataListMap = new HashMap<PeriodAnalysisCoordinateType, List<Double>>();
+		for (int i = 0; i < dataArrays.length; i++) {
+			double[] dataArray = dataArrays[i];
+			List<Double> dataList = new ArrayList<Double>();
+			for (double x : dataArray) {
+				dataList.add(x);
+			}
+			dataListMap.put(columnTypes[i], dataList);
+		}
+
+		return new PeriodAnalysisDataTablePane(
+				new PeriodAnalysisDataTableModel(columnTypes, dataListMap));
+	}
+
+	/**
+	 * <p>
+	 * Create a data table given column type array and data list.
+	 * </p>
+	 * 
+	 * <p>
+	 * The component sends and receives period analysis selection messages.
+	 * </p>
+	 * 
+	 * @param columnTypes
+	 *            An array of column types as they are to appear in the table.
+	 * @param dataMap
 	 *            A mapping from coordinate type to lists of data values.
 	 * @return A GUI data table component.
 	 */
 	public static Component createDataTable(
 			PeriodAnalysisCoordinateType[] columnTypes,
-			Map<PeriodAnalysisCoordinateType, List<Double>> data) {
+			Map<PeriodAnalysisCoordinateType, List<Double>> dataMap) {
 
 		return new PeriodAnalysisDataTablePane(
-				new PeriodAnalysisDataTableModel(columnTypes, data));
+				new PeriodAnalysisDataTableModel(columnTypes, dataMap));
 	}
 
 	/**
