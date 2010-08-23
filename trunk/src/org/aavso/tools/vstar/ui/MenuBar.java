@@ -35,7 +35,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
-import org.aavso.tools.vstar.plugin.ToolPluginBase;
+import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.FileExtensionFilter;
@@ -91,8 +92,9 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	// Plug-in menu name to plug-in object maps.
 	private Map<String, CustomFilterPluginBase> menuItemNameToCustomFilterPlugin;
 	private Map<String, PeriodAnalysisPluginBase> menuItemNameToPeriodAnalysisPlugin;
-	private Map<String, ToolPluginBase> menuItemNameToToolPlugin;
-	
+	private Map<String, ObservationToolPluginBase> menuItemNameToObsToolPlugin;
+	private Map<String, GeneralToolPluginBase> menuItemNameToGenToolPlugin;
+
 	// The parent window.
 	private MainFrame parent;
 
@@ -115,7 +117,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JMenuItem viewNoFilterItem;
 
 	JMenu viewCustomFilterMenu;
-	
+
 	// Analysis menu.
 	JCheckBoxMenuItem analysisRawDataItem;
 	JCheckBoxMenuItem analysisPhasePlotItem;
@@ -124,7 +126,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	// Tool menu.
 	JMenu toolMenu;
-	
+
 	// Help menu.
 	JMenuItem helpContentsItem;
 	JMenuItem helpAboutItem;
@@ -247,23 +249,24 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		viewCustomFilterMenu = new JMenu("Custom Filters");
 		viewCustomFilterMenu.setEnabled(false);
-		
+
 		ActionListener customFilterListener = createCustomFilterListener();
-		
+
 		menuItemNameToCustomFilterPlugin = new TreeMap<String, CustomFilterPluginBase>();
-		
-		for (CustomFilterPluginBase plugin : PluginClassLoader.getCustomFilterPlugins()) {
+
+		for (CustomFilterPluginBase plugin : PluginClassLoader
+				.getCustomFilterPlugins()) {
 			String itemName = plugin.getDisplayName() + "...";
-			
+
 			JMenuItem customFilterMenuItem = new JMenuItem(itemName);
 			customFilterMenuItem.addActionListener(customFilterListener);
-			viewCustomFilterMenu.add(customFilterMenuItem);			
-			
+			viewCustomFilterMenu.add(customFilterMenuItem);
+
 			menuItemNameToCustomFilterPlugin.put(itemName, plugin);
 		}
-		
+
 		viewMenu.add(viewCustomFilterMenu);
-		
+
 		viewNoFilterItem = new JMenuItem(NO_FILTER);
 		viewNoFilterItem.setEnabled(false);
 		viewNoFilterItem.addActionListener(createShowAllListener());
@@ -271,7 +274,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		this.add(viewMenu);
 	}
-	
+
 	private void createAnalysisMenu() {
 		JMenu analysisMenu = new JMenu("Analysis");
 
@@ -312,25 +315,45 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	private void createToolMenu() {
 		toolMenu = new JMenu("Tool");
-//		toolMenu.setEnabled(false);
-		
-		ActionListener toolMenuItemListener = createToolMenuItemListener();
-		
-		menuItemNameToToolPlugin = new TreeMap<String, ToolPluginBase>();
-		
-		for (ToolPluginBase plugin : PluginClassLoader.getToolPlugins()) {
+		// toolMenu.setEnabled(false);
+
+		ActionListener toolMenuItemListener = createObsToolMenuItemListener();
+
+		menuItemNameToObsToolPlugin = new TreeMap<String, ObservationToolPluginBase>();
+
+		for (ObservationToolPluginBase plugin : PluginClassLoader
+				.getObservationToolPlugins()) {
 			String itemName = plugin.getDisplayName() + "...";
-			
+
 			JMenuItem toolMenuItem = new JMenuItem(itemName);
 			toolMenuItem.addActionListener(toolMenuItemListener);
-			toolMenu.add(toolMenuItem);			
-			
-			menuItemNameToToolPlugin.put(itemName, plugin);
+			toolMenu.add(toolMenuItem);
+
+			menuItemNameToObsToolPlugin.put(itemName, plugin);
 		}
-		
+
+		List<GeneralToolPluginBase> genToolPlugins = PluginClassLoader
+				.getGeneralToolPlugins();
+
+		if (!genToolPlugins.isEmpty()) {
+			toolMenu.addSeparator();
+
+			menuItemNameToGenToolPlugin = new TreeMap<String, GeneralToolPluginBase>();
+
+			for (GeneralToolPluginBase plugin : genToolPlugins) {
+				String itemName = plugin.getDisplayName() + "...";
+
+				JMenuItem toolMenuItem = new JMenuItem(itemName);
+				toolMenuItem.addActionListener(toolMenuItemListener);
+				toolMenu.add(toolMenuItem);
+
+				menuItemNameToGenToolPlugin.put(itemName, plugin);
+			}
+		}
+
 		this.add(toolMenu);
 	}
-	
+
 	private void createHelpMenu() {
 		JMenu helpMenu = new JMenu("Help");
 
@@ -543,19 +566,21 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	}
 
 	/**
-	 * Returns the action listener to be invoked for Custom Filter menu item selections.
+	 * Returns the action listener to be invoked for Custom Filter menu item
+	 * selections.
 	 */
 	public ActionListener createCustomFilterListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String item = e.getActionCommand();
 				CustomFilterPluginBase plugin = menuItemNameToCustomFilterPlugin
-						.get(item);				
-				Mediator.getInstance().applyCustomFilterToCurrentObservations(plugin);
+						.get(item);
+				Mediator.getInstance().applyCustomFilterToCurrentObservations(
+						plugin);
 			}
 		};
 	}
-	
+
 	/**
 	 * Returns the action listener to be invoked for View->Show All...
 	 */
@@ -609,17 +634,33 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	}
 
 	// ** Tool menu listeners **
-	
+
 	/**
-	 * Returns the action listener to be invoked for Tool menu item selections.
+	 * Returns the action listener to be invoked for Observation Tool menu item
+	 * selections.
 	 */
-	public ActionListener createToolMenuItemListener() {
+	public ActionListener createObsToolMenuItemListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String item = e.getActionCommand();
-				ToolPluginBase plugin = menuItemNameToToolPlugin
+				ObservationToolPluginBase plugin = menuItemNameToObsToolPlugin
 						.get(item);
-				Mediator.getInstance().invokeToolWithCurrentObservations(plugin);
+				Mediator.getInstance().invokeTool(plugin);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for General Tool menu item
+	 * selections.
+	 */
+	public ActionListener createGenToolMenuItemListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String item = e.getActionCommand();
+				GeneralToolPluginBase plugin = menuItemNameToGenToolPlugin
+						.get(item);
+				plugin.invoke();
 			}
 		};
 	}
@@ -751,13 +792,13 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.viewFilterItem.setEnabled(state);
 		this.viewCustomFilterMenu.setEnabled(state);
 		this.viewNoFilterItem.setEnabled(state);
-		
+
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
 
 		this.analysisPeriodSearchMenu.setEnabled(state);
-		
-//		this.toolMenu.setEnabled(state);
+
+		// this.toolMenu.setEnabled(state);
 
 		AnalysisType type = mediator.getAnalysisType();
 

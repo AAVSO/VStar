@@ -47,7 +47,7 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
-import org.aavso.tools.vstar.plugin.ToolPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
@@ -975,12 +975,12 @@ public class Mediator {
 	}
 
 	/**
-	 * Invokes the tool plugin with the currently loaded observation set.
+	 * Invokes a tool plugin with the currently loaded observation set.
 	 * 
 	 * @param plugin
 	 *            The tool plugin to be invoked.
 	 */
-	public void invokeToolWithCurrentObservations(ToolPluginBase plugin) {
+	public void invokeTool(ObservationToolPluginBase plugin) {
 		if (validObsList != null) {
 			plugin.invoke(validObsList);
 		} else {
