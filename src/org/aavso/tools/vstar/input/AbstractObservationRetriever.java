@@ -30,8 +30,8 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 
 /**
  * This is the abstract base class for all observation retrieval classes,
- * irrespective of source (AAVSO standard file format, simple file format,
- * VStar database).
+ * irrespective of source (AAVSO standard file format, simple file format, VStar
+ * database).
  */
 public abstract class AbstractObservationRetriever {
 
@@ -39,18 +39,18 @@ public abstract class AbstractObservationRetriever {
 	 * The list of valid observations retrieved.
 	 */
 	protected List<ValidObservation> validObservations;
-	
+
 	/**
 	 * The list of invalid observations retrieved.
 	 */
 	protected List<InvalidObservation> invalidObservations;
 
 	/**
-	 * A mapping from observation category (e.g. band, fainter-than) to
-	 * list of valid observations.
+	 * A mapping from observation category (e.g. band, fainter-than) to list of
+	 * valid observations.
 	 */
 	protected Map<SeriesType, List<ValidObservation>> validObservationCategoryMap;
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -68,8 +68,8 @@ public abstract class AbstractObservationRetriever {
 	 * 
 	 * @throws throws ObservationReadError
 	 */
-	public abstract void retrieveObservations()
-			throws ObservationReadError, InterruptedException;
+	public abstract void retrieveObservations() throws ObservationReadError,
+			InterruptedException;
 
 	/**
 	 * @return the validObservations
@@ -91,12 +91,14 @@ public abstract class AbstractObservationRetriever {
 	public Map<SeriesType, List<ValidObservation>> getValidObservationCategoryMap() {
 		return validObservationCategoryMap;
 	}
-	
+
 	/**
 	 * Here we categorise a valid observation in terms of whether it is a
-	 * fainter-than or belongs to a particular band, in that order.
+	 * fainter-than or or discrepant or belongs to a particular band, in that
+	 * order.
 	 * 
-	 * @param validOb A valid observation.
+	 * @param validOb
+	 *            A valid observation.
 	 */
 	protected void categoriseValidObservation(ValidObservation validOb) {
 		SeriesType category = null;

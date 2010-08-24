@@ -27,6 +27,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 
@@ -99,20 +100,20 @@ public class TextFormatObservationReaderTest extends TestCase {
 
 		assertTrue(obs.size() == 2);
 
-		ValidObservation ob0 =  obs.get(0);
+		ValidObservation ob0 = obs.get(0);
 		assertEquals(2450001.5, ob0.getDateInfo().getJulianDay());
 
-		ValidObservation ob1 =  obs.get(1);
+		ValidObservation ob1 = obs.get(1);
 		assertEquals(2430002.0, ob1.getDateInfo().getJulianDay());
 	}
 
 	// Tests of valid AAVSO Download format.
-	
+
 	public void testAAVSODownloadTSV1() {
 		StringBuffer lines = new StringBuffer();
-		lines.append("2400020	3.86			Visual	AFW	K					No		G				miu Cep	NULL\n");				
+		lines.append("2400020	3.86			Visual	AFW	K					No		G				miu Cep	NULL\n");
 		lines.append("2400038	4			Visual	WAI	K					No		G				miu Cep	0\n");
-		
+
 		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t");
 
 		assertTrue(obs.size() == 2);
@@ -126,10 +127,13 @@ public class TextFormatObservationReaderTest extends TestCase {
 
 	public void testAAVSODownloadCSV1() {
 		StringBuffer lines = new StringBuffer();
-		lines.append("2454924.60694,3.95,,,Visual,SSW,,34,45,1036bbr,,No,,G,,,,000-BCT-763\n");				
-		lines.append("2454931.86042,3.6,,,Visual,MDP,B,37,34,Star Tutorial,MOON,No,,G,,,,000-BCT-763\n");
-		lines.append("2454933.89861,4.0,,,Visual,MDP,B,37,44,Star Tutorial,MOON AND TWILIGHT,No,,G,,,,000-BCT-763\n");
-		
+		lines
+				.append("2454924.60694,3.95,,,Visual,SSW,,34,45,1036bbr,,No,,G,,,,000-BCT-763\n");
+		lines
+				.append("2454931.86042,3.6,,,Visual,MDP,B,37,34,Star Tutorial,MOON,No,,G,,,,000-BCT-763\n");
+		lines
+				.append("2454933.89861,4.0,,,Visual,MDP,B,37,44,Star Tutorial,MOON AND TWILIGHT,No,,G,,,,000-BCT-763\n");
+
 		List<ValidObservation> obs = commonValidTest(lines.toString(), ",");
 
 		assertTrue(obs.size() == 3);
@@ -161,7 +165,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 
 		assertTrue(obs.size() == 1);
 
-		ValidObservation ob =  obs.get(0);
+		ValidObservation ob = obs.get(0);
 		assertEquals(2450001.5, ob.getDateInfo().getJulianDay());
 		assertEquals(10.0, ob.getMagnitude().getMagValue());
 		assertFalse(ob.getMagnitude().isUncertain());
@@ -201,6 +205,9 @@ public class TextFormatObservationReaderTest extends TestCase {
 		} catch (ObservationValidationError e) {
 			// We expect to get here.
 			assertTrue(true);
+		} catch (ObservationValidationWarning e) {
+			// We should have thrown a ObservationValidationError...
+			fail();
 		}
 	}
 }

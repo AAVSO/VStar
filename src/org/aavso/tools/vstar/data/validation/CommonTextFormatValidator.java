@@ -25,6 +25,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
 
 /**
@@ -103,7 +104,7 @@ public class CommonTextFormatValidator extends
 	 * @throws ObservationValidationError
 	 */
 	public ValidObservation validate(String line)
-			throws ObservationValidationError {
+			throws ObservationValidationError, ObservationValidationWarning {
 
 		ValidObservation observation = null;
 
