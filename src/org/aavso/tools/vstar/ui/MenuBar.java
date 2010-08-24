@@ -317,7 +317,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		toolMenu = new JMenu("Tool");
 		// toolMenu.setEnabled(false);
 
-		ActionListener toolMenuItemListener = createObsToolMenuItemListener();
+		ActionListener obsToolMenuItemListener = createObsToolMenuItemListener();
 
 		menuItemNameToObsToolPlugin = new TreeMap<String, ObservationToolPluginBase>();
 
@@ -326,7 +326,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 			String itemName = plugin.getDisplayName() + "...";
 
 			JMenuItem toolMenuItem = new JMenuItem(itemName);
-			toolMenuItem.addActionListener(toolMenuItemListener);
+			toolMenuItem.addActionListener(obsToolMenuItemListener);
 			toolMenu.add(toolMenuItem);
 
 			menuItemNameToObsToolPlugin.put(itemName, plugin);
@@ -338,13 +338,15 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		if (!genToolPlugins.isEmpty()) {
 			toolMenu.addSeparator();
 
+			ActionListener genToolMenuItemListener = createGenToolMenuItemListener();
+
 			menuItemNameToGenToolPlugin = new TreeMap<String, GeneralToolPluginBase>();
 
 			for (GeneralToolPluginBase plugin : genToolPlugins) {
 				String itemName = plugin.getDisplayName() + "...";
 
 				JMenuItem toolMenuItem = new JMenuItem(itemName);
-				toolMenuItem.addActionListener(toolMenuItemListener);
+				toolMenuItem.addActionListener(genToolMenuItemListener);
 				toolMenu.add(toolMenuItem);
 
 				menuItemNameToGenToolPlugin.put(itemName, plugin);
@@ -660,7 +662,11 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 				String item = e.getActionCommand();
 				GeneralToolPluginBase plugin = menuItemNameToGenToolPlugin
 						.get(item);
-				plugin.invoke();
+				try {
+					plugin.invoke();
+				} catch (Throwable t) {
+					MessageBox.showErrorDialog("Tool Error", t);
+				}
 			}
 		};
 	}

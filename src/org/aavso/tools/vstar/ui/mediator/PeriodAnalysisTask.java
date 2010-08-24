@@ -26,6 +26,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
 /**
@@ -62,7 +63,12 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	protected Void doInBackground() throws Exception {
 		MainFrame.getInstance().getStatusPane().setMessage(
 				"Performing Period Analysis...");
-		periodAnalysisPlugin.executeAlgorithm(obs);
+		try {
+			periodAnalysisPlugin.executeAlgorithm(obs);
+		} catch (Throwable t) {
+			MessageBox.showErrorDialog("Period Analysis Error", t);
+		}
+
 		MainFrame.getInstance().getStatusPane().setMessage("");
 		return null;
 	}

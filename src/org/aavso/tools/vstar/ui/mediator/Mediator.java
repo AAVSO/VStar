@@ -982,10 +982,15 @@ public class Mediator {
 	 */
 	public void invokeTool(ObservationToolPluginBase plugin) {
 		if (validObsList != null) {
-			plugin.invoke(validObsList);
+			try {
+				plugin.invoke(validObsList);
+			} catch (Throwable t) {
+				MessageBox.showErrorDialog("Tool Error", t);
+			}
 		} else {
 			MessageBox.showMessageDialog(MainFrame.getInstance(),
-					"Tool Invocation", "There are no observations loaded.");
+					"Tool Error",
+					"There are no observations loaded.");
 		}
 	}
 
@@ -995,15 +1000,20 @@ public class Mediator {
 	 * @param plugin
 	 *            The tool plugin to be invoked.
 	 */
-	public void applyCustomFilterToCurrentObservations(CustomFilterPluginBase plugin) {
+	public void applyCustomFilterToCurrentObservations(
+			CustomFilterPluginBase plugin) {
 		if (validObsList != null) {
-			plugin.apply(validObsList);
+			try {
+				plugin.apply(validObsList);
+			} catch (Throwable t) {
+				MessageBox.showErrorDialog("Custom Filter Error", t);
+			}
 		} else {
 			MessageBox.showMessageDialog(MainFrame.getInstance(),
 					"Custom Filter", "There are no observations loaded.");
-		}		
+		}
 	}
-	
+
 	/**
 	 * Save the artefact corresponding to the current viewMode.
 	 * 
