@@ -64,6 +64,7 @@ Key Changes:
 - Introduced a component factory class to make it easy for the period analysis 
   plugin developer to create common components (e.g. plots, tables). See tracker 
   2983857.
+- AAVSO download format file field validation fixes. See tracker 2915572.
 
 Date: July 7 2010
 Version: 2.2 Beta
