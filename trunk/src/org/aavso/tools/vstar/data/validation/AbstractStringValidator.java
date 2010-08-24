@@ -50,13 +50,12 @@ public abstract class AbstractStringValidator<T> {
 	 * 
 	 * @param str
 	 *            The string to be validated.
-	 * @throws ObservationValidationError, ObservationValidationWarning
+	 * @throws ObservationValidationError
+	 *             , ObservationValidationWarning
 	 */
-	abstract public T validate(String str) throws ObservationValidationError, ObservationValidationWarning;
-	
-	// TODO: require that isLegallyEmpty() and canBeEmpty() be replaced with
-	// suitable regexes, i.e. as in RegexValidator?
-	
+	abstract public T validate(String str) throws ObservationValidationError,
+			ObservationValidationWarning;
+
 	/**
 	 * Is the supplied string legally empty or null?
 	 * 
@@ -73,12 +72,16 @@ public abstract class AbstractStringValidator<T> {
 	 */
 	protected boolean isLegallyEmpty(String str)
 			throws ObservationValidationError {
-		// TODO: change string equals part to use a regex like "^\s*$" ?
 		if (str == null || "".equals(str)) {
 			if (canBeEmpty()) {
 				return true;
 			} else {
-				throw new ObservationValidationError();
+				if (kind != null) {
+					throw new ObservationValidationError("The " + kind
+							+ " field cannot be empty.");
+				} else {
+					throw new ObservationValidationError();
+				}
 			}
 		} else {
 			return false;

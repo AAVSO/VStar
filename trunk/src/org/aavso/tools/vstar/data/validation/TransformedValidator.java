@@ -24,35 +24,45 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class TransformedValidator extends AbstractStringValidator<Boolean> {
 
-	private final OptionalityFieldValidator nonOptionalFieldValidator;
+	private final OptionalityFieldValidator optionalFieldValidator;
 
 	/**
 	 * Constructor
 	 */
 	public TransformedValidator() {
-		this.nonOptionalFieldValidator = new OptionalityFieldValidator(
-				OptionalityFieldValidator.CANNOT_BE_EMPTY);
+		optionalFieldValidator = new OptionalityFieldValidator(
+				OptionalityFieldValidator.CAN_BE_EMPTY);
 	}
 
 	public Boolean validate(String str) throws ObservationValidationError {
 		boolean isTransformed = false;
 
-		// It's safe to call toLower() below since an exception will
-		// be thrown if the field is null.
+		String transformed = optionalFieldValidator.validate(str);
 
-		String transformed = nonOptionalFieldValidator.validate(str)
-				.toLowerCase();
-		
-		if ("yes".equals(transformed)) {
-			isTransformed = true;
-		} else if ("no".equals(transformed)) {
-			isTransformed = false;
-		} else {
-			throw new ObservationValidationError(
-					"Transformed field must contain 'yes' or 'no'.");
+		// Legal values: yes, no, 0, 1, empty, null
+		//
+		// In fact, I think 1 and 0 will only ever appear in the database, but
+		// we check for them anyway but don't advertise the fact. Ditto re: empty
+		// field.
+		//
+		// See tracker
+		// https://sourceforge.net/tracker/index.php?func=detail&aid=2915572&group_id=263306&atid=1152052
+
+		// If null or empty, default to false.
+		if (transformed != null) {
+			transformed = transformed.toLowerCase();
+			if (!"".equals(transformed)) {
+				if ("yes".equals(transformed) || "1".equals(transformed)) {
+					isTransformed = true;
+				} else if ("no".equals(transformed) || "0".equals(transformed)) {
+					isTransformed = false;
+				} else {
+					throw new ObservationValidationError(
+							"Transformed field must contain 'yes' or 'no', or be empty.");
+				}
+			}
 		}
 
 		return isTransformed;
 	}
-
 }

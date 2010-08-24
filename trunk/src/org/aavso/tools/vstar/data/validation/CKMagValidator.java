@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -18,48 +18,45 @@
 package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 
 /**
- * This class validates fields as optional or non-optional, returning 
- * the field or null.
+ * This is a validator for CMag and KMag field values.
  */
-public class OptionalityFieldValidator extends AbstractStringValidator<String> {
+public class CKMagValidator extends AbstractStringValidator<String> {
 
-	public static final boolean CAN_BE_EMPTY = true;
-	public static final boolean CANNOT_BE_EMPTY = false;
+	final private static int MAX = 8;
 
-	private boolean canBeEmpty;
+	public final static String CMAG_KIND = "CMag";
+	public final static String KMAG_KIND = "KMag";
 	
 	/**
 	 * Constructor.
 	 * 
 	 * @param kind
 	 *            The kind of entity (e.g. field name) we are validating.
-	 * 
-	 * @param canBeEmpty Can fields validated by this class be empty?  
 	 */
-	public OptionalityFieldValidator(String kind, boolean canBeEmpty) {
+	public CKMagValidator(String kind) {
 		super(kind);
-		this.canBeEmpty = canBeEmpty;
-	}
-	
-	/**
-	 * Constructor.
-	 * 
-	 * @param canBeEmpty Can fields validated by this class be empty?  
-	 */
-	public OptionalityFieldValidator(boolean canBeEmpty) {
-		this.canBeEmpty = canBeEmpty;
+		assert CMAG_KIND.equals(kind) || KMAG_KIND.equals(kind); 
 	}
 
-	public String validate(String str)
-			throws ObservationValidationError {
-		if (this.isLegallyEmpty(str)) return null;
+	@Override
+	public String validate(String str) throws ObservationValidationError,
+			ObservationValidationWarning {
+		if (this.isLegallyEmpty(str))
+			return "";
 
-		return str;
+		if (str.length() <= MAX) {
+			return str;
+		} else {
+			throw new ObservationValidationError("The " + kind + " '" + str
+					+ "' is more than " + MAX + " characters in length.");
+		}
 	}
 
+	@Override
 	protected boolean canBeEmpty() {
-		return this.canBeEmpty;
+		return true;
 	}
 }

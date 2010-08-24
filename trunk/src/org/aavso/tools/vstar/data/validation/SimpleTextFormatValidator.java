@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 
 /**
  * This class accepts a line of text for tokenising, validation, and
@@ -59,7 +60,7 @@ public class SimpleTextFormatValidator extends CommonTextFormatValidator {
 	 * @throws ObservationValidationError
 	 */
 	public ValidObservation validate(String line)
-			throws ObservationValidationError {
+			throws ObservationValidationError, ObservationValidationWarning {
 
 		ValidObservation observation = super.validate(line);
 		
