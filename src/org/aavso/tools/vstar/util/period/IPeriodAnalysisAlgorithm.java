@@ -15,12 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
+package org.aavso.tools.vstar.util.period;
 
 import java.util.List;
 import java.util.Map;
 
-import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.IAlgorithm;
+
 
 /**
  * Classes implementing a period analysis algorithm to be executed must
@@ -29,7 +30,7 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 
 	/**
-	 * Return the result of the 
+	 * Return the result of the period analysis.
 	 * @return
 	 */
 	abstract public Map<PeriodAnalysisCoordinateType, List<Double>> getResultSeries();
