@@ -26,14 +26,15 @@ import javax.swing.JDialog;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
+import org.aavso.tools.vstar.ui.dialog.PeriodAnalysisParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
-import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransform;
 
@@ -52,7 +53,7 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 
 	private MeanSourceSeriesChangeMessage meanSourceSeriesChangeMessage;
 
-	private IPeriodAnalysisAlgorithm periodAnalysisAlgorithm;
+	private DateCompensatedDiscreteFourierTransform periodAnalysisAlgorithm;
 
 	private JDialog dialog;
 
@@ -78,13 +79,30 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 	}
 
 	public void executeAlgorithm(List<ValidObservation> obs)
-			throws AlgorithmError {
+			throws AlgorithmError, CancellationException {
 		assert newStarMessage != null;
 
 		if (periodAnalysisAlgorithm == null) {
 			periodAnalysisAlgorithm = new DateCompensatedDiscreteFourierTransform(
 					obs, true);
-			periodAnalysisAlgorithm.execute();
+
+			double loFreq = periodAnalysisAlgorithm.getLoFreqValue();
+			double hiFreq = periodAnalysisAlgorithm.getHiFreqValue();
+			double resolution = periodAnalysisAlgorithm.getResolutionValue();
+
+			PeriodAnalysisParameterDialog paramDialog = new PeriodAnalysisParameterDialog(
+					loFreq, hiFreq, resolution);
+
+			if (!paramDialog.isCancelled()) {
+				periodAnalysisAlgorithm.setLoFreqValue(paramDialog.getLoFreq());
+				periodAnalysisAlgorithm.setHiFreqValue(paramDialog.getHiFreq());
+				periodAnalysisAlgorithm.setResolutionValue(paramDialog
+						.getResolution());
+
+				periodAnalysisAlgorithm.execute();
+			} else {
+				throw new CancellationException();
+			}
 		}
 	}
 
@@ -92,7 +110,6 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 		assert newStarMessage != null;
 
 		if (dialog == null) {
-
 			List<PeriodAnalysis2DPlotModel> models = new ArrayList<PeriodAnalysis2DPlotModel>();
 
 			Map<PeriodAnalysisCoordinateType, List<Double>> seriesMap = periodAnalysisAlgorithm
@@ -142,7 +159,7 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 
 	// ** Private helper methods **
 
-	private void reset() {
+	public void reset() {
 		periodAnalysisAlgorithm = null;
 		dialog = null;
 	}

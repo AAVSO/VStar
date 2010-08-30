@@ -553,12 +553,12 @@ public class Mediator {
 			String auid, double minJD, double maxJD) {
 
 		try {
+			this.getProgressNotifier().notifyListeners(
+					ProgressInfo.START_PROGRESS);
+
 			// Citizen Sky authentication.
 			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.userDBConnector;
 			userConnector.authenticateWithCitizenSky();
-
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.START_PROGRESS);
 
 			this.getProgressNotifier().notifyListeners(
 					new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
