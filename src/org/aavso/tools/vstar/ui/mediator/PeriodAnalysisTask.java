@@ -24,6 +24,7 @@ import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -38,6 +39,8 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	private PeriodAnalysisPluginBase periodAnalysisPlugin;
 	private SeriesType sourceSeriesType;
 	private List<ValidObservation> obs;
+
+	private boolean successful;
 
 	/**
 	 * Constructor
@@ -55,6 +58,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		this.periodAnalysisPlugin = plugin;
 		this.sourceSeriesType = sourceSeriesType;
 		this.obs = obs;
+		this.successful = true;
 	}
 
 	/**
@@ -64,8 +68,17 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		MainFrame.getInstance().getStatusPane().setMessage(
 				"Performing Period Analysis...");
 		try {
+			// TODO: we should be smarter than just blindly resetting the
+			// plugin;
+			// it only needs to be reset if a. the mean source series changes,
+			// or b. the period analysis parameters change; we basically need
+			// a PeriodAnalysisResetMessage
+			periodAnalysisPlugin.reset();
 			periodAnalysisPlugin.executeAlgorithm(obs);
+		} catch (CancellationException e) {
+			successful = false;
 		} catch (Throwable t) {
+			successful = false;
 			MessageBox.showErrorDialog("Period Analysis Error", t);
 		}
 
@@ -77,8 +90,10 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		JDialog dialog = periodAnalysisPlugin.getDialog(sourceSeriesType);
-		dialog.setVisible(true);
+		if (successful) {
+			JDialog dialog = periodAnalysisPlugin.getDialog(sourceSeriesType);
+			dialog.setVisible(true);
+		}
 
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);

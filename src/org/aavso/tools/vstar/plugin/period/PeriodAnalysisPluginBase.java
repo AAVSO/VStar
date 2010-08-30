@@ -24,6 +24,7 @@ import javax.swing.JDialog;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.plugin.PluginBase;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
@@ -98,9 +99,11 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	 *            The observations on which to perform the period analysis.
 	 * @throws AlgorithmError
 	 *             if an error occurs during period analysis.
+	 * @throws CancellationException
+	 *             if the operation is cancelled.
 	 */
 	abstract public void executeAlgorithm(List<ValidObservation> obs)
-			throws AlgorithmError;
+			throws AlgorithmError, CancellationException;
 
 	/**
 	 * Get the period analysis dialog for this plugin.
@@ -128,11 +131,16 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	 * messages if the period analysis computations are based upon the current
 	 * mean series.
 	 * 
-	 * @param The
-	 *            mean source series change message.
+	 * @param message
+	 *            The mean source series change message.
 	 */
 	abstract protected void meanSourceSeriesChangeAction(
 			MeanSourceSeriesChangeMessage message);
+
+	/**
+	 * Reset the plugin, e.g. clear internal algorithm and dialog objects.
+	 */
+	abstract public void reset();
 
 	// ** Methods for use by subclasses. **
 
