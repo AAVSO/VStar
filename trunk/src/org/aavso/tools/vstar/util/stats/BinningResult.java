@@ -20,8 +20,6 @@ package org.aavso.tools.vstar.util.stats;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.MathRuntimeException;
 import org.apache.commons.math.stat.inference.OneWayAnova;
 import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
 
@@ -37,7 +35,7 @@ public class BinningResult {
 	private double fValue;
 	private double pValue;
 	private boolean error;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -52,7 +50,7 @@ public class BinningResult {
 		this.meanObservations = meanObservations;
 		this.magnitudeBins = magnitudeBins;
 		this.error = false;
-		
+
 		OneWayAnova anova = new OneWayAnovaImpl();
 		try {
 			fValue = anova.anovaFValue(this.magnitudeBins);
@@ -90,6 +88,33 @@ public class BinningResult {
 	 */
 	public double getPValue() {
 		return pValue;
+	}
+
+	/**
+	 * Returns the between-group degrees of freedom for the F-test result. This
+	 * is defined as: df(b) = K-1 where K is the number of groups.
+	 * 
+	 * @return The degrees of freedom.
+	 */
+	public int getBetweenGroupDF() {
+		return magnitudeBins.size()-1;
+	}
+
+	/**
+	 * Returns the within-group degrees of freedom for the F-test result. This
+	 * is defined as: df(w) = (N1-1)+(N2-1)+...+(Nm-1) where N1..Nm are the
+	 * number of values within each group.
+	 * 
+	 * @return The degrees of freedom.
+	 */
+	public int getWithinGroupDF() {
+		int sum = 0;
+		
+		for (double[] binData : magnitudeBins) {
+			sum += (binData.length - 1);
+		}
+		
+		return sum;
 	}
 
 	/**

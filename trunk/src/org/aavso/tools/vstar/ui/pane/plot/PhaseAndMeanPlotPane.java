@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.stats.BinningResult;
 
 /**
  * This class represents a chart pane containing a phase plot for a set of valid
@@ -56,9 +57,9 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
 
 		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModel,
-				new TimeElementsInBinSettingPane("Phase Steps per Mean Series Bin",
-						obsAndMeanModel, PhaseTimeElementEntity.instance),
-				bounds);
+				new TimeElementsInBinSettingPane(
+						"Phase Steps per Mean Series Bin", obsAndMeanModel,
+						PhaseTimeElementEntity.instance), bounds);
 
 		this.getChartControlPanel().add(new NewPhasePlotButtonPane(this));
 	}
@@ -101,23 +102,23 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 			}
 		};
 	}
-	
+
 	// Returns a zoom request listener.
 	protected Listener<ZoomRequestMessage> createZoomRequestListener() {
 		return new Listener<ZoomRequestMessage>() {
 			public void update(ZoomRequestMessage info) {
-				if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT &&
-						Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_AND_MEANS_MODE) {
+				if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT
+						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_AND_MEANS_MODE) {
 					doZoom(info.getZoomType());
 				}
 			}
-			
+
 			public boolean canBeRemoved() {
 				return true;
 			}
 		};
 	}
-	
+
 	@Override
 	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
 		return new Listener<FilteredObservationMessage>() {
@@ -129,13 +130,13 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 				// we see assertion errors from PhaseCoordSource.getXCoord()
 				// since phase values will be null.
 			}
-			
+
 			public boolean canBeRemoved() {
 				return false;
 			}
 		};
 	}
-	
+
 	// Returns a polynomial fit listener.
 	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
 		return new Listener<PolynomialFitMessage>() {
@@ -155,5 +156,24 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 				return true;
 			}
 		};
+	}
+
+	// Returns a mean observation change (binning result) listener.
+	protected Listener<BinningResult> createBinChangeListener() {
+		return new Listener<BinningResult>() {
+			public void update(BinningResult info) {
+				// Do nothing. We may want to show ANOVA here, but I need to
+				// understand whether this is useful for a phase plot by reading
+				// more and talking with Grant et al.
+			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+	
+	protected void updateAnovaSubtitle(BinningResult binningResult) {
+		// Do nothing. See createBinChangeListener().
 	}
 }

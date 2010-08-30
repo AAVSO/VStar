@@ -94,6 +94,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 
 	/**
 	 * Show the dialog.
+	 * TODO: this is on the base class! refactor!
 	 */
 	public void showDialog() {
 		if (firstUse) {

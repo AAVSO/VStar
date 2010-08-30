@@ -772,7 +772,7 @@ public class Mediator {
 		String objName = newStarMessage.getStarInfo().getDesignation();
 
 		String subTitle = "";
-		String periodAndEpochStr = "period=" + period + ", epoch=" + epoch;
+		String periodAndEpochStr = "period: " + period + ", epoch: " + epoch;
 
 		if (this.newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 			subTitle = new Date().toString() + " (database), "

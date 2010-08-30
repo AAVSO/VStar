@@ -240,7 +240,7 @@ public class ObservationAndMeanPlotPane extends
 	}
 
 	// Updates the chart sub-title with ANOVA information, if suitable.
-	private void updateAnovaSubtitle(BinningResult binningResult) {
+	protected void updateAnovaSubtitle(BinningResult binningResult) {
 		String anovaText = createAnovaText(binningResult);
 
 		List<Title> subtitles = chart.getSubtitles();
@@ -256,14 +256,26 @@ public class ObservationAndMeanPlotPane extends
 	}
 
 	// Returns ANOVA result text suitable for display.
-	private String createAnovaText(BinningResult binningResult) {
+	protected String createAnovaText(BinningResult binningResult) {
 		String msg = null;
 
+		// Example: F-value: 18.22 on 12 and 346 degrees of freedom p-value: <
+		// 0.000001.
+
 		if (binningResult.hasValidAnovaValues()) {
+			String pValueStr;
+			if (binningResult.getPValue() < 0.000001) {
+				pValueStr = "p-value: < 0.000001";
+			} else {
+				pValueStr = String.format("p-value: %1.6f", binningResult
+						.getPValue());
+			}
+
 			msg = String.format(
 
-			"anova: F value=%2.2f, p-value=%1.7f", binningResult.getFValue(),
-					binningResult.getPValue());
+			"F-value: %2.2f on %d and %d degrees of freedom, %s", binningResult
+					.getFValue(), binningResult.getBetweenGroupDF(),
+					binningResult.getWithinGroupDF(), pValueStr);
 		} else {
 			msg = "anova: insufficient data";
 		}
