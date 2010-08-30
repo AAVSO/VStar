@@ -63,9 +63,10 @@ public class PolynomialFitTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		PolynomialFitMessage msg = new PolynomialFitMessage(this, polynomialFitter);
+		PolynomialFitMessage msg = new PolynomialFitMessage(this,
+				polynomialFitter);
 		Mediator.getInstance().getPolynomialFitNofitier().notifyListeners(msg);
-		
+
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 

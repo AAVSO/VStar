@@ -32,7 +32,7 @@ public interface IPolynomialFitter extends IAlgorithm {
 	 * 
 	 * @return The minimum degree.
 	 */
-	abstract int getMinDegree();
+	 abstract int getMinDegree();
 
 	/**
 	 * Returns the maximum degree supported by a concrete polynomial fitter.
@@ -40,6 +40,14 @@ public interface IPolynomialFitter extends IAlgorithm {
 	 * @return The maximum degree.
 	 */
 	abstract int getMaxDegree();
+
+	/**
+	 * Set the degree of the polynomial for the fitting operation.
+	 * 
+	 * @param degree
+	 *            The degree of the polynomial.
+	 */
+	abstract void setDegree(int degree);
 
 	/**
 	 * Return the fitted observations, after having executed the algorithm.

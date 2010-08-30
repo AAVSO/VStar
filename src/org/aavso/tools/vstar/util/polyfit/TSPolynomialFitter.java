@@ -27,9 +27,19 @@ import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.TSBase;
 
 /**
+ * <p>
  * This is a Java translation of the Fortran polymast subroutine from the
  * AAVSO's ts1201.f by Matthew Templeton, which in turn was based upon BASIC
  * code by Grant Foster.
+ * </p>
+ * 
+ * <p>
+ * As Matt has said, this is a standard polynomial fit of the form:
+ * </p>
+ * 
+ * <p>
+ * f(x) = sum(ax^n)
+ * </p>
  */
 public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
@@ -43,19 +53,35 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	private List<ValidObservation> residuals;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * @param observations
 	 *            The list of observations (a single band makes most sense) to
 	 *            which the polynomial fit is to be applied.
-	 * @param degree
-	 *            The degree of the polynomial.
 	 */
-	public TSPolynomialFitter(List<ValidObservation> observations, int degree) {
+	public TSPolynomialFitter(List<ValidObservation> observations) {
 		super(observations);
-		this.degree = degree;
+		degree = 0;
 		this.tfit = new double[observations.size() + 1];
 		this.xfit = new double[observations.size() + 1];
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.util.polyfit.IPolynomialFitter#setDegree(int)
+	 */
+	@Override
+	public void setDegree(int degree) {
+		this.degree = degree;
+	}
+
+	@Override
+	public int getMinDegree() {
+		return 0;
+	}
+
+	@Override
+	public int getMaxDegree() {
+		return 50;
 	}
 
 	/**
@@ -67,16 +93,6 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		// of the specified degree.
 		load_raw();
 		polymast(degree);
-	}
-
-	@Override
-	public int getMaxDegree() {
-		return 0;
-	}
-
-	@Override
-	public int getMinDegree() {
-		return 50;
 	}
 
 	/**
@@ -157,7 +173,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 		statcomp();
 
-		assert polyDeg > 0 && polyDeg < 50;
+		assert polyDeg >= 0 && polyDeg <= 50;
 
 		npoly = polyDeg;
 
@@ -233,7 +249,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 			fitOb.setComments(fitComment);
 			fit.add(fitOb);
 		}
-		
+
 		if (fit.isEmpty()) {
 			throw new AlgorithmError("No observations in fit list.");
 		}
@@ -259,7 +275,8 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		// TODO: Do we also want to be able to save these in a file?
 		residuals = new ArrayList<ValidObservation>();
 
-		String residualsComment = "Residual from polynomial fit of degree " + degree;
+		String residualsComment = "Residual from polynomial fit of degree "
+				+ degree;
 
 		for (n = nlolim; n <= nuplim; n++) {
 			if (wvec[n] > 0.0) {

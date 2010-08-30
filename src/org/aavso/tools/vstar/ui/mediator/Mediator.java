@@ -54,6 +54,7 @@ import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
+import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
@@ -989,30 +990,39 @@ public class Mediator {
 		try {
 			if (this.newStarMessage != null && this.validObsList != null) {
 
-				// TODO: invoke dialog
-				int degree = 5;
-
 				List<ValidObservation> meanObsSourceList = getMeanSourceObservations();
 
 				// TODO: later, if we want to allow polynomial fit plugins, this
-				// can be created by a plugin.impl class just as we do for DC
-				// DFT.
+				// can be created by a plugin impl class just as we do
+				// for DC DFT.
 				IPolynomialFitter polynomialFitter = new TSPolynomialFitter(
-						meanObsSourceList, degree);
+						meanObsSourceList);
 
-				this.getProgressNotifier().notifyListeners(
-						ProgressInfo.START_PROGRESS);
-				this.getProgressNotifier().notifyListeners(
-						ProgressInfo.BUSY_PROGRESS);
+				int minDegree = polynomialFitter.getMinDegree();
+				int maxDegree = polynomialFitter.getMaxDegree();
 
-				PolynomialFitTask task = new PolynomialFitTask(polynomialFitter);
+				PolynomialDegreeDialog dialog = new PolynomialDegreeDialog(
+						minDegree, maxDegree);
 
-				this.currTask = task;
-				task.execute();
+				if (!dialog.isCancelled()) {
+					polynomialFitter.setDegree(dialog.getDegree());
+
+					PolynomialFitTask task = new PolynomialFitTask(
+							polynomialFitter);
+
+					this.currTask = task;
+					
+					this.getProgressNotifier().notifyListeners(
+							ProgressInfo.START_PROGRESS);
+					this.getProgressNotifier().notifyListeners(
+							ProgressInfo.BUSY_PROGRESS);
+
+					task.execute();
+				}
 			}
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					"Polynomial Fit", e);
+					"Polynomial Fit Error", e);
 
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
