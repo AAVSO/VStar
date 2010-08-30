@@ -30,6 +30,18 @@ o VStar leaks memory with continued use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
    
 ----------------------
+Date: August 31 2010
+Version: 2.4 Beta
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-31August2010
+Key Changes:
+- Implemented polynomial fit. See the Analysis menu and tracker 2983862.
+- Changes to ANOVA after feedback from Grant and Aaron: added between-group
+  and within-group degrees of freedom to plot sub-title; for p-values of less 
+  than < 0.000001, this is shown. See tracker 3005590.
+- Frequency range and resolution can now be specified for DC DFT. This was
+  prompted by a problem Arne reported re: a V703 Sco dataset. See tracker 
+  3005601.
+
 Date: August 24 2010
 Version: 2.3 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-24August2010

@@ -69,13 +69,18 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		IPeriodAnalysisAlgorithm {
 
+	private boolean specifyParameters;
+
+	private double loFreqValue;
+	private double hiFreqValue;
+	private double resolutionValue;
+
 	private Map<PeriodAnalysisCoordinateType, List<Double>> resultSeries;
 
 	// -------------------------------------------------------------------------------
 
 	/**
-	 * Constructor Note: In future, we may want to specify a min and max JD
-	 * here, and a frequency range (use inclusive range class?) and resolution.
+	 * Constructor
 	 * 
 	 * @param observations
 	 *            The observations over which to perform a period analysis.
@@ -84,16 +89,83 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 			List<ValidObservation> observations) {
 		super(observations);
 
-		// Create result collections.
+		specifyParameters = false;
 
 		this.resultSeries = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
 		for (PeriodAnalysisCoordinateType type : PeriodAnalysisCoordinateType
 				.values()) {
 			this.resultSeries.put(type, new ArrayList<Double>());
 		}
+		
+		load_raw();
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param observations
+	 *            The observations over which to perform a period analysis.
+	 * @param specifyParameters
+	 *            Does the caller want to specify parameters (frequency range,
+	 *            resolution).
+	 */
+	public DateCompensatedDiscreteFourierTransform(
+			List<ValidObservation> observations, boolean specifyParameters) {
+		this(observations);
+		this.specifyParameters = specifyParameters;
+		if (specifyParameters) {
+			// Set the default parameters for the specified dataset
+			// (frequency range and resolution).
+			determineDefaultParameters();
+		}
 	}
 
 	// -------------------------------------------------------------------------------
+
+	/**
+	 * @return the loFreqValue
+	 */
+	public double getLoFreqValue() {
+		return loFreqValue;
+	}
+
+	/**
+	 * @param loFreqValue
+	 *            the loFreqValue to set
+	 */
+	public void setLoFreqValue(double loFreqValue) {
+		this.loFreqValue = loFreqValue;
+	}
+
+	/**
+	 * @return the hiFreqValue
+	 */
+	public double getHiFreqValue() {
+		return hiFreqValue;
+	}
+
+	/**
+	 * @param hiFreqValue
+	 *            the hiFreqValue to set
+	 */
+	public void setHiFreqValue(double hiFreqValue) {
+		this.hiFreqValue = hiFreqValue;
+	}
+
+	/**
+	 * @return the resolutionValue
+	 */
+	public double getResolutionValue() {
+		return resolutionValue;
+	}
+
+	/**
+	 * @param resolutionValue
+	 *            the resolutionValue to set
+	 */
+	public void setResolutionValue(double resolutionValue) {
+		this.resolutionValue = resolutionValue;
+	}
 
 	/**
 	 * @return the adjusted time vector.
@@ -129,7 +201,6 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	 * Perform a "standard scan", a date compensated discrete Fourier transform.
 	 */
 	public void execute() {
-		load_raw();
 		dcdft();
 		statcomp();
 	}
@@ -137,16 +208,16 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	// -------------------------------------------------------------------------------
 
 	/**
-	 * From the resulting data, create an array of rank-index pairs
-	 * (first and second elements respectively) sorted by rank, where
-	 * rank could be power or amplitude.
+	 * From the resulting data, create an array of rank-index pairs (first and
+	 * second elements respectively) sorted by rank, where rank could be power
+	 * or amplitude.
 	 * 
-	 * It is a precondition that results have been generated, i.e. the
-	 * execute() method has been invoked. 
+	 * It is a precondition that results have been generated, i.e. the execute()
+	 * method has been invoked.
 	 */
 	public double[][] getTopNRankedIndices(int topN) {
 		assert !this.resultSeries.keySet().isEmpty();
-		
+
 		// Create an array of doubles where the first element is amplitude, and
 		// the second is the common index into all result lists (frequency,
 		// period, power, amplitude).
@@ -160,7 +231,7 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 
 			topRankedIndexArray[i][1] = i;
 		}
-		
+
 		Arrays.sort(topRankedIndexArray, RankedIndexPairComparator.instance);
 
 		return topRankedIndexArray;
@@ -168,22 +239,11 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 
 	// -------------------------------------------------------------------------------
 
-	protected void dcdft() {
-		int magres, nchoice;
-		double dpolyamp2, dang0, dang00, damplit, dt, dx, hifre, xlofre; // TODO:
-		// should
-		// we
-		// use
-		// this
-		// dt, dang0
-		// or
-		// global?
-		int nbest;
-
+	protected double dcdftCommon() {
+		int magres;
+		double dang0, dang00, damplit, dt, dx;
 		npoly = 0;
-		nbest = 20;
 		nbrake = 0;
-		dpolyamp2 = 0.0;
 		dfouramp2 = 0.0;
 
 		statcomp();
@@ -197,11 +257,50 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		if (dt <= 0.0)
 			dt = 1.0; // TODO: this will never be communicated!
 
-		standard_scan(dang0);
+		return dang0;
+	}
+
+	// For use in conjunction with frequency_range().
+	public void determineDefaultParameters() {
+		double xlofre, res, xloper, hiper;
+		int iff, ixx, nbest;
+
+		double dang0 = dcdftCommon();
+
+		// Initial values.
+		xlofre = 0.0;
+		hifre = 0;
+		res = 0;
+
+		nfre = 1;
+		ndim = npoly + (2 * nfre);
+
+		// write(6,261) dfloat(ndim+1)*dang0/2.0
+		// read[5][260] xlofre;
+		this.loFreqValue = (double) (ndim + 1) * dang0 / 2.0;
+
+		// write(6,262) dfloat(numact)*dang0
+		// read[5][260] hifre;
+		this.hiFreqValue = (double) (numact) * dang0;
+
+		// write(6,263) dang0
+		// read[5][260] res;
+		this.resolutionValue = dang0;
+	}
+
+	protected void dcdft() {
+		if (!specifyParameters) {
+			standard_scan(dcdftCommon());
+		} else {
+			// dcdftCommon() has already been called in determineDefaultParameters() 
+			// via the specify-parameters form of the constructor.
+			frequency_range(this.resolutionValue);
+		}
 	}
 
 	// -------------------------------------------------------------------------------
 
+	// DC DFT as standard scan.
 	protected void standard_scan(double dang0) {
 		nfre = 1;
 		hifre = (double) numact * dang0;
@@ -214,7 +313,57 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 				return;
 			}
 		}
-		return;
+	}
+
+	// DC DFT with frequency range and resolution specified.
+	protected void frequency_range(double dang0) {
+		double xlofre, res, xloper, hiper, dpolyamp2;
+		int iff, ixx, nbest;
+
+		nbest = 20;
+
+		// write(6,261) dfloat(ndim+1)*dang0/2.0
+		// read[5][260] xlofre;
+		xlofre = this.loFreqValue;
+
+		// write(6,262) dfloat(numact)*dang0
+		// read[5][260] hifre;
+		hifre = this.hiFreqValue;
+
+		// write(6,263) dang0
+		// read[5][260] res;
+		res = this.resolutionValue;
+
+		hiper = 0.0;
+		if (xlofre != 0.0)
+			hiper = 1.0 / xlofre;
+		xloper = 0.0;
+		if (hifre != 0.0)
+			xloper = 1.0 / hifre;
+
+		if (hifre > xlofre) {
+			// write(1,290) fprint,numact,dave,dsig,dvar
+			// write(1,292) dt0+tvec(nlolim),dt0+tvec(nuplim),dt0+dtzero
+			// call lognow
+			// write(1,201)
+			iff = (int) ((hifre - xlofre) / res) + 1;
+			for (ixx = 1; ixx <= iff; ixx++) {
+				ff = xlofre + (double) (ixx - 1) * res;
+				fft(ff);
+				if (nbrake < 0) {
+					statcomp();
+					return;
+				}
+			}
+		} else {
+			ff = 1.0 / xloper;
+			fft(ff);
+			dgpower[nbest] = 0.0;
+			tablit();
+		}
+
+		// TODO: doesn't appear to be necessary
+//		dfouramp2 = dpolyamp2;
 	}
 
 	/**
