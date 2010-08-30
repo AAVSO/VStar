@@ -134,8 +134,7 @@ public class MessageBox {
 			String msg) {
 		JOptionPane.showMessageDialog(parent, msg, title,
 				JOptionPane.ERROR_MESSAGE);
-		// Turn off the wait cursor, in case it's
-		// enabled.
+		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
 	}
 
@@ -151,8 +150,7 @@ public class MessageBox {
 		Component parent = MainFrame.getInstance();
 		JOptionPane.showMessageDialog(parent, msg, title,
 				JOptionPane.ERROR_MESSAGE);
-		// Turn off the wait cursor, in case it's
-		// enabled.
+		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
 	}
 

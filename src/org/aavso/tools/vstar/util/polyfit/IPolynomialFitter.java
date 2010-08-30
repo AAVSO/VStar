@@ -28,13 +28,30 @@ import org.aavso.tools.vstar.util.IAlgorithm;
 public interface IPolynomialFitter extends IAlgorithm {
 
 	/**
+	 * Returns the minimum degree supported by a concrete polynomial fitter.
+	 * 
+	 * @return The minimum degree.
+	 */
+	abstract int getMinDegree();
+
+	/**
+	 * Returns the maximum degree supported by a concrete polynomial fitter.
+	 * 
+	 * @return The maximum degree.
+	 */
+	abstract int getMaxDegree();
+
+	/**
 	 * Return the fitted observations, after having executed the algorithm.
+	 * 
 	 * @return A list of observations that represent the fit.
 	 */
 	abstract public List<ValidObservation> getFit();
-	
+
 	/**
-	 * Return the residuals as observations, after having executed the algorithm.
+	 * Return the residuals as observations, after having executed the
+	 * algorithm.
+	 * 
 	 * @return A list of observations that represent the residuals.
 	 */
 	abstract public List<ValidObservation> getResiduals();

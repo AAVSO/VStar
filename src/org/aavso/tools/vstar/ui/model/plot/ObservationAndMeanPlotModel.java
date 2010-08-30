@@ -140,11 +140,11 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 			// Is this the first time the means series has been added?
 			if (!found) {
-				this.meansSeriesNum = this.addObservationSeries(
+				this.meansSeriesNum = addObservationSeries(
 						SeriesType.MEANS, meanObsList);
 
 				// Make sure it's rendered!
-				this.getSeriesVisibilityMap().put(this.meansSeriesNum, true);
+				this.getSeriesVisibilityMap().put(meansSeriesNum, true);
 			}
 
 			// Notify listeners.
@@ -180,6 +180,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	public Collection<Integer> getSeriesWhoseElementsShouldBeJoinedVisually() {
 		List<Integer> seriesNumList = new ArrayList<Integer>();
 
+		// See TODO in setMeanSeries() which also applies here.
 		for (Map.Entry<Integer, SeriesType> entry : this.seriesNumToSrcTypeMap
 				.entrySet()) {
 			if (SeriesType.MEANS == entry.getValue()) {

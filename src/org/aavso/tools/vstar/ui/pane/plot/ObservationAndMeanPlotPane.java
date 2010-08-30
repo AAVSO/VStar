@@ -91,9 +91,13 @@ public class ObservationAndMeanPlotPane extends
 					SeriesType.getColorFromSeries(SeriesType.MEANS));
 		}
 
-		// Update the initial ANOVA sub-title.
+		// Update joined series to ensure that the means series is initially
+		// joined since the base class won't include it in its set.
+		setJoinedSeries();
+
+		// Set the initial ANOVA sub-title.
 		this.updateAnovaSubtitle(obsAndMeanModel.getBinningResult());
-		
+
 		// Add mean obs listener for binning ANOVA result chart updates.
 		obsAndMeanModel.getMeansChangeNotifier().addListener(
 				createBinChangeListener());
@@ -242,18 +246,19 @@ public class ObservationAndMeanPlotPane extends
 		List<Title> subtitles = chart.getSubtitles();
 
 		if (subtitles.size() > 1) {
-			// Assume the last subtitle is the previous ANOVA message and remove it.
-			subtitles.remove(subtitles.size()-1);
+			// Assume the last subtitle is the previous ANOVA message and remove
+			// it.
+			subtitles.remove(subtitles.size() - 1);
 		}
-		
+
 		subtitles.add(new TextTitle(anovaText));
 		chart.setSubtitles(subtitles);
 	}
-	
+
 	// Returns ANOVA result text suitable for display.
 	private String createAnovaText(BinningResult binningResult) {
 		String msg = null;
-		
+
 		if (binningResult.hasValidAnovaValues()) {
 			msg = String.format(
 
@@ -262,7 +267,7 @@ public class ObservationAndMeanPlotPane extends
 		} else {
 			msg = "anova: insufficient data";
 		}
-		
+
 		return msg;
 	}
 }

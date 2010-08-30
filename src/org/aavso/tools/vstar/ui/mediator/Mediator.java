@@ -63,6 +63,7 @@ import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
@@ -87,6 +88,8 @@ import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
+import org.aavso.tools.vstar.util.polyfit.IPolynomialFitter;
+import org.aavso.tools.vstar.util.polyfit.TSPolynomialFitter;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 
@@ -148,6 +151,7 @@ public class Mediator {
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
 	private Notifier<ZoomRequestMessage> zoomRequestNotifier;
 	private Notifier<FilteredObservationMessage> filteredObservationNotifier;
+	private Notifier<PolynomialFitMessage> polynomialFitNofitier;
 
 	// Currently active task.
 	private SwingWorker currTask;
@@ -170,6 +174,7 @@ public class Mediator {
 		this.meanSourceSeriesChangeNotifier = new Notifier<MeanSourceSeriesChangeMessage>();
 		this.zoomRequestNotifier = new Notifier<ZoomRequestMessage>();
 		this.filteredObservationNotifier = new Notifier<FilteredObservationMessage>();
+		this.polynomialFitNofitier = new Notifier<PolynomialFitMessage>();
 
 		this.obsListFileSaveDialog = new JFileChooser();
 
@@ -271,6 +276,13 @@ public class Mediator {
 	 */
 	public Notifier<FilteredObservationMessage> getFilteredObservationNotifier() {
 		return filteredObservationNotifier;
+	}
+
+	/**
+	 * @return the polynomialFitNofitier
+	 */
+	public Notifier<PolynomialFitMessage> getPolynomialFitNofitier() {
+		return polynomialFitNofitier;
 	}
 
 	/**
@@ -942,15 +954,11 @@ public class Mediator {
 				// and tracking source series (see mean source series dialog
 				// which could be invoked from here or from within plugin code).
 
-				int meanObsSourceSeriesNum = obsAndMeanPlotModel
-						.getMeanSourceSeriesNum();
-
-				List<ValidObservation> meanObsSourceList = obsAndMeanPlotModel
-						.getSeriesNumToObSrcListMap().get(
-								meanObsSourceSeriesNum);
+				List<ValidObservation> meanObsSourceList = getMeanSourceObservations();
 
 				SeriesType meanObsSourceSeriesType = obsAndMeanPlotModel
-						.getSeriesNumToSrcTypeMap().get(meanObsSourceSeriesNum);
+						.getSeriesNumToSrcTypeMap().get(
+								obsAndMeanPlotModel.getMeanSourceSeriesNum());
 
 				this.getProgressNotifier().notifyListeners(
 						ProgressInfo.START_PROGRESS);
@@ -975,6 +983,55 @@ public class Mediator {
 	}
 
 	/**
+	 * Perform a polynomial fit operation.
+	 */
+	public void performPolynomialFit() {
+		try {
+			if (this.newStarMessage != null && this.validObsList != null) {
+
+				// TODO: invoke dialog
+				int degree = 5;
+
+				List<ValidObservation> meanObsSourceList = getMeanSourceObservations();
+
+				// TODO: later, if we want to allow polynomial fit plugins, this
+				// can be created by a plugin.impl class just as we do for DC
+				// DFT.
+				IPolynomialFitter polynomialFitter = new TSPolynomialFitter(
+						meanObsSourceList, degree);
+
+				this.getProgressNotifier().notifyListeners(
+						ProgressInfo.START_PROGRESS);
+				this.getProgressNotifier().notifyListeners(
+						ProgressInfo.BUSY_PROGRESS);
+
+				PolynomialFitTask task = new PolynomialFitTask(polynomialFitter);
+
+				this.currTask = task;
+				task.execute();
+			}
+		} catch (Exception e) {
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					"Polynomial Fit", e);
+
+			this.getProgressNotifier().notifyListeners(
+					ProgressInfo.START_PROGRESS);
+
+			MainFrame.getInstance().getStatusPane().setMessage("");
+		}
+	}
+
+	// Returns the observation list corresponding to the series that is the
+	// current means series source (i.e. the source of the mean curve).
+	private List<ValidObservation> getMeanSourceObservations() {
+		int meanObsSourceSeriesNum = obsAndMeanPlotModel
+				.getMeanSourceSeriesNum();
+
+		return obsAndMeanPlotModel.getSeriesNumToObSrcListMap().get(
+				meanObsSourceSeriesNum);
+	}
+
+	/**
 	 * Invokes a tool plugin with the currently loaded observation set.
 	 * 
 	 * @param plugin
@@ -988,8 +1045,7 @@ public class Mediator {
 				MessageBox.showErrorDialog("Tool Error", t);
 			}
 		} else {
-			MessageBox.showMessageDialog(MainFrame.getInstance(),
-					"Tool Error",
+			MessageBox.showMessageDialog(MainFrame.getInstance(), "Tool Error",
 					"There are no observations loaded.");
 		}
 	}

@@ -26,6 +26,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
@@ -131,6 +132,27 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 			
 			public boolean canBeRemoved() {
 				return false;
+			}
+		};
+	}
+	
+	// Returns a polynomial fit listener.
+	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
+		return new Listener<PolynomialFitMessage>() {
+
+			@Override
+			public void update(PolynomialFitMessage info) {
+				// Do nothing for phase plots currently.
+				// When we do eventually enable this,
+				// this method should only do something
+				// if a phase plot has been created, otherwise
+				// we see assertion errors from PhaseCoordSource.getXCoord()
+				// since phase values will be null.
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
 			}
 		};
 	}

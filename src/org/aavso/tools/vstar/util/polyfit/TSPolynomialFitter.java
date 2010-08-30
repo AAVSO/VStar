@@ -23,11 +23,13 @@ import java.util.List;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.TSBase;
 
 /**
  * This is a Java translation of the Fortran polymast subroutine from the
- * AAVSO's ts1201.f by Matthew Templeton and Grant Foster.
+ * AAVSO's ts1201.f by Matthew Templeton, which in turn was based upon BASIC
+ * code by Grant Foster.
  */
 public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
@@ -60,11 +62,21 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	 * @see org.aavso.tools.vstar.util.IAlgorithm#execute()
 	 */
 	@Override
-	public void execute() {
+	public void execute() throws AlgorithmError {
 		// Load the observation data and perform a polynomial fitting operation
 		// of the specified degree.
 		load_raw();
 		polymast(degree);
+	}
+
+	@Override
+	public int getMaxDegree() {
+		return 0;
+	}
+
+	@Override
+	public int getMinDegree() {
+		return 50;
 	}
 
 	/**
@@ -83,7 +95,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		return residuals;
 	}
 
-	void polymast(int polyDeg) {
+	void polymast(int polyDeg) throws AlgorithmError {
 		// implicit none
 
 		// common arrays
@@ -209,6 +221,8 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		// TODO: Do we also want to be able to save these in a file?
 		fit = new ArrayList<ValidObservation>();
 
+		String fitComment = "From a polynomial fit of degree " + degree;
+
 		for (n = 1; n <= numred; n++) {
 			// write(1,222)tfit(n)+dt0,xfit(n),ds9*sfit(n)
 			ValidObservation fitOb = new ValidObservation();
@@ -216,7 +230,12 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 			// double uncertainty = ds9*sfit[n]; // TODO: ask Matt about this;
 			// uncertainty?
 			fitOb.setMagnitude(new Magnitude(xfit[n], 0));
+			fitOb.setComments(fitComment);
 			fit.add(fitOb);
+		}
+		
+		if (fit.isEmpty()) {
+			throw new AlgorithmError("No observations in fit list.");
 		}
 		// goto 1;
 
@@ -240,6 +259,8 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		// TODO: Do we also want to be able to save these in a file?
 		residuals = new ArrayList<ValidObservation>();
 
+		String residualsComment = "Residual from polynomial fit of degree " + degree;
+
 		for (n = nlolim; n <= nuplim; n++) {
 			if (wvec[n] > 0.0) {
 				dtime = tvec[n];
@@ -253,6 +274,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 				ValidObservation residualOb = new ValidObservation();
 				residualOb.setDateInfo(new DateInfo(tvec[n] + dt0));
 				residualOb.setMagnitude(new Magnitude(res, 0));
+				residualOb.setComments(residualsComment);
 				residuals.add(residualOb);
 			}
 		}

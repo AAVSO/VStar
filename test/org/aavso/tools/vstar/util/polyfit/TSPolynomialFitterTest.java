@@ -23,6 +23,7 @@ import java.util.List;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.DelCepTestData;
 
 public class TSPolynomialFitterTest extends DelCepTestData {
@@ -2107,37 +2108,41 @@ public class TSPolynomialFitterTest extends DelCepTestData {
 		super.tearDown();
 	}
 
-	// Polynomial fit test using Del Cep data.
+	// Polynomial fit test using delta Cephei data.
 	public void testDegree2() {
 		TSPolynomialFitter fitter = new TSPolynomialFitter(obs, 2);
-		fitter.execute();
+		try {
+			fitter.execute();
 
-		List<ValidObservation> fitObs = fitter.getFit();
-		assertEquals(polyfit_degree2.length, fitObs.size());
+			List<ValidObservation> fitObs = fitter.getFit();
+			assertEquals(polyfit_degree2.length, fitObs.size());
 
-		for (int i = 0; i < fitObs.size(); i++) {
-			ValidObservation ob = fitObs.get(i);
+			for (int i = 0; i < fitObs.size(); i++) {
+				ValidObservation ob = fitObs.get(i);
 
-			assertEquals(String.format("%1.4f", polyfit_degree2[i][0]), String
-					.format("%1.4f", ob.getJD()));
+				assertEquals(String.format("%1.4f", polyfit_degree2[i][0]),
+						String.format("%1.4f", ob.getJD()));
 
-			assertEquals(String.format("%1.4f", polyfit_degree2[i][1]), String
-					.format("%1.4f", ob.getMag()));
-		}
+				assertEquals(String.format("%1.4f", polyfit_degree2[i][1]),
+						String.format("%1.4f", ob.getMag()));
+			}
 
-		List<ValidObservation> residualObs = fitter.getResiduals();
-		assertEquals(polyfit_residuals_degree2.length, residualObs.size());
+			List<ValidObservation> residualObs = fitter.getResiduals();
+			assertEquals(polyfit_residuals_degree2.length, residualObs.size());
 
-		for (int i = 0; i < residualObs.size(); i++) {
-			ValidObservation ob = residualObs.get(i);
+			for (int i = 0; i < residualObs.size(); i++) {
+				ValidObservation ob = residualObs.get(i);
 
-			assertEquals(String
-					.format("%1.4f", polyfit_residuals_degree2[i][0]), String
-					.format("%1.4f", ob.getJD()));
+				assertEquals(String.format("%1.4f",
+						polyfit_residuals_degree2[i][0]), String.format(
+						"%1.4f", ob.getJD()));
 
-			assertEquals(String
-					.format("%1.4f", polyfit_residuals_degree2[i][1]), String
-					.format("%1.4f", ob.getMag()));
+				assertEquals(String.format("%1.4f",
+						polyfit_residuals_degree2[i][1]), String.format(
+						"%1.4f", ob.getMag()));
+			}
+		} catch (AlgorithmError e) {
+			fail();
 		}
 	}
 }

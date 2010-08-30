@@ -25,6 +25,7 @@ import javax.swing.JDialog;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
@@ -76,7 +77,8 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 		return "Date Compensated Discrete Fourier Transform";
 	}
 
-	public void executeAlgorithm(List<ValidObservation> obs) {
+	public void executeAlgorithm(List<ValidObservation> obs)
+			throws AlgorithmError {
 		assert newStarMessage != null;
 
 		if (periodAnalysisAlgorithm == null) {
