@@ -31,6 +31,7 @@ import org.aavso.tools.vstar.util.polyfit.IPolynomialFitter;
  */
 public class PolynomialFitTask extends SwingWorker<Void, Void> {
 
+	private boolean error;
 	private IPolynomialFitter polynomialFitter;
 
 	/**
@@ -40,6 +41,7 @@ public class PolynomialFitTask extends SwingWorker<Void, Void> {
 	 *            The polynomial fitter to execute.
 	 */
 	public PolynomialFitTask(IPolynomialFitter polynomialFitter) {
+		error = false;
 		this.polynomialFitter = polynomialFitter;
 	}
 
@@ -52,6 +54,7 @@ public class PolynomialFitTask extends SwingWorker<Void, Void> {
 		try {
 			polynomialFitter.execute();
 		} catch (Throwable t) {
+			error = true;
 			MessageBox.showErrorDialog("Polynomial Fit Error", t);
 		}
 
@@ -63,9 +66,12 @@ public class PolynomialFitTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		PolynomialFitMessage msg = new PolynomialFitMessage(this,
-				polynomialFitter);
-		Mediator.getInstance().getPolynomialFitNofitier().notifyListeners(msg);
+		if (!error) {
+			PolynomialFitMessage msg = new PolynomialFitMessage(this,
+					polynomialFitter);
+			Mediator.getInstance().getPolynomialFitNofitier().notifyListeners(
+					msg);
+		}
 
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);

@@ -62,8 +62,6 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	public TSPolynomialFitter(List<ValidObservation> observations) {
 		super(observations);
 		degree = 0;
-		this.tfit = new double[observations.size() + 1];
-		this.xfit = new double[observations.size() + 1];
 	}
 
 	/**
@@ -112,64 +110,9 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	}
 
 	void polymast(int polyDeg) throws AlgorithmError {
-		// implicit none
 
-		// common arrays
-
-		// String fin,flog,fprint
-		// int iname;
-		// common/name/fin,flog;
-
-		// double tvec,xvec,wvec;
-		// common/datapts/tvec(1000000),xvec(1000000),wvec(1000000);
-
-		// int nfit;
-		// double tfit,xfit,sfit;
-		// String obs;
-		// common/fitpts/tfit(1000000),xfit(1000000),sfit(1000000),;
-		// 1 nfit(1000000),obs(1000000);
-
-		// double dmat,dvec,dcoef;
-		// String obias;
-		// common/matproj/dmat(0:50,0:50),dvec(0:50),dcoef(0:50),obias(0:50);
-
-		// double dgnu,dgper,dgpower,dfre;
-		// common/fourarr/dgnu(20),dgper(20),dgpower(20),dfre(20);
-
-		// common scalars
-		// double damp,damp2,dangcut,dave,dfpow,dfouramp2,dpower;
-		// double dt0,dtave,dtscale,dtsig,dtvar,dtzero,dsig,dvar;
-		// double dweight,dxout;
-		// int nbias,nfre,npoly;
-		// common/scalar1/damp,damp2,dangcut,dave,dfpow,dfouramp2,dpower,;
-		// 1 dt0,dtave,dtscale,dtsig,dtvar,dtzero,dsig,dvar,;
-		// 2 dweight,dxout,nbias,nfre,npoly;
-
-		// common old scalars
-		// double tcur,tlolim,tmark,toff,toffl,tput,tresolv,tsize;
-		// double tuplim,tuplimit,tlozoom,tupzoom,xleft,xright,ybottom,ytop;
-		// double dlamp,dllamp,dlnu,dlper,dlpower;
-		// int ma,mb,magmark,magspan,mflag,mcur,mhigh,mlow,mput;
-		// int mazoom,mbzoom,nactual,nbins,nbottom,nbrake,ndigt;
-		// int ndim,ndim2,negf,nleft,nlolim,nocol,nxcol,nparseok;
-		// int nright,ntcol,nthis,ntop;
-		// int numact,numraw,numred,nuplim,nzoom;
-		// common/scalar2/tcur,tlolim,tmark,toff,toffl,tput,tresolv,tsize,;
-		// 1 tuplim,tuplimit,tlozoom,tupzoom,xleft,xright,;
-		// 2 ybottom,ytop,dlamp,dllamp,dlnu,dlper,dlpower,;
-		// 3 ma,mb,magmark,magspan,mflag,mcur,mhigh,mlow,mput,;
-		// 4 mazoom,mbzoom,nactual,nbins,nbottom,nbrake,ndigt,;
-		// 5 ndim,ndim2,negf,nleft,nlolim,nocol,nxcol,nparseok,;
-		// 6 nright,ntcol,nthis,ntop,numact,numraw,numred,;
-		// 7 nuplim,nzoom;
-
-		// local scalars
 		double ds9, dcc, res, dtime, dx;
-		// String ftmp;
 		int n, nb;
-
-		// iname=index[fin][' '];
-		// fprint=fin(1:iname)
 
 		statcomp();
 
@@ -184,31 +127,12 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		if (ds9 < 0.0)
 			ds9 = 0.0;
 		ds9 = Math.sqrt(ds9);
+		
 		// write(1,230) npoly,dpower,ds9,fprint,numact,dave,dsig,dvar
 		// write(1,292) dt0+tvec(nlolim),dt0+tvec(nuplim),dt0+dtzero
-
-		// goto 30;
-		// 1 write(6,*) 'POLYNOMIAL options:'
-		// write(6,*) '0: EXIT POLYNOMIAL'
-		// write(6,*) '1: Save constants'
-		// write(6,*) '2: Save to file'
-		// write(6,*) '4: Save residuals'
-
-		// read*,nchoice;
-		// if (nchoice==0) return;
-		// if (nchoice==1) goto 10;
-		// if (nchoice==2) goto 20;
-		// if (nchoice==4) goto 40;
-		// if (nchoice<0||nchoice>4) then {
-		// write(6,*) 'Please select a valid option'
-		// goto 1;
-		// }
-
-		// TODO: create functions for each Note below
-
+		
 		// Note: save constants
 
-		// 10 continue;
 		// write(1,290) fprint,numact,dave,dsig,dvar
 		// write(1,292) dt0+tvec(nlolim),dt0+tvec(nuplim),dt0+dtzero
 		// write(1,211) dtzero+dt0
@@ -221,7 +145,6 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		for (n = 1; n <= nbias; n++) {
 			// write(1,214) obias(n),dcoef(npoly+n)
 		}
-		// goto 1;
 
 		// Note: save to file
 
@@ -232,9 +155,6 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 		// Store the results of the polynomial fit operation as
 		// "fit observations".
-		// Then we can add this as a plot series. But not in the obs list (same
-		// for filtered obs).
-		// TODO: Do we also want to be able to save these in a file?
 		fit = new ArrayList<ValidObservation>();
 
 		String fitComment = "From a polynomial fit of degree " + degree;
@@ -253,26 +173,16 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		if (fit.isEmpty()) {
 			throw new AlgorithmError("No observations in fit list.");
 		}
-		// goto 1;
 
 		// Note: save residuals (to list)
-		// Need to either create a plot or open a file?
-		// Ideally we should be able to save only certain bands from he main
-		// plot/list
 
 		// 40 write(6,*) 'Residuals filename?'
 		// read*,ftmp;
 		// 41 open(unit=9,file=ftmp,status='unknown',err=42);
-		// goto 43;
 		// 42 write(6,*) 'Could not open file.'
-		// goto 40;
-		// 43 continue;
 
 		// Store the residuals resulting from the polynomial fit operation as
 		// "residual observations".
-		// Then we can add this as a plot series. But not in the obs list (same
-		// for filtered obs).
-		// TODO: Do we also want to be able to save these in a file?
 		residuals = new ArrayList<ValidObservation>();
 
 		String residualsComment = "Residual from polynomial fit of degree "
@@ -295,10 +205,6 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 				residuals.add(residualOb);
 			}
 		}
-		// close[9];
-		// goto 1;
-		//        
-		// return;
 
 		// 211 format(7hTime0= ,f12.4)
 		// 212 format(7hPower= ,1pe12.6)
@@ -318,53 +224,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	}
 
 	double smooth(double dtime) {
-		// implicit none
-
-		// common arrays
-		// double tvec,xvec,wvec;
-		// common/datapts/tvec(1000000),xvec(1000000),wvec(1000000);
-
-		// int nfit;
-		// double tfit,xfit,sfit;
-		// String obs;
-		// common/fitpts/tfit(1000000),xfit(1000000),sfit(1000000),;
-		// 1 nfit(1000000),obs(1000000);
-
-		// double dmat,dvec,dcoef;
-		// String obias;
-		// common/matproj/dmat(0:50,0:50),dvec(0:50),dcoef(0:50),obias(0:50);
-
-		// double dgnu,dgper,dgpower,dfre;
-		// common/fourarr/dgnu(20),dgper(20),dgpower(20),dfre(20);
-
-		// common scalars
-		// double damp,damp2,dangcut,dave,dfpow,dfouramp2,dpower;
-		// double dt0,dtave,dtscale,dtsig,dtvar,dtzero,dsig,dvar;
-		// double dweight,dxout;
-		// int nbias,nfre,npoly;
-		// common/scalar1/damp,damp2,dangcut,dave,dfpow,dfouramp2,dpower,;
-		// 1 dt0,dtave,dtscale,dtsig,dtvar,dtzero,dsig,dvar,;
-		// 2 dweight,dxout,nbias,nfre,npoly;
-
-		// common old scalars
-		// double tcur,tlolim,tmark,toff,toffl,tput,tresolv,tsize;
-		// double tuplim,tuplimit,tlozoom,tupzoom,xleft,xright,ybottom,ytop;
-		// double dlamp,dllamp,dlnu,dlper,dlpower;
-		// int ma,mb,magmark,magspan,mflag,mcur,mhigh,mlow,mput;
-		// int mazoom,mbzoom,nactual,nbins,nbottom,nbrake,ndigt;
-		// int ndim,ndim2,negf,nleft,nlolim,nocol,nxcol,nparseok;
-		// int nright,ntcol,nthis,ntop;
-		// int numact,numraw,numred,nuplim,nzoom;
-		// common/scalar2/tcur,tlolim,tmark,toff,toffl,tput,tresolv,tsize,;
-		// 1 tuplim,tuplimit,tlozoom,tupzoom,xleft,xright,;
-		// 2 ybottom,ytop,dlamp,dllamp,dlnu,dlper,dlpower,;
-		// 3 ma,mb,magmark,magspan,mflag,mcur,mhigh,mlow,mput,;
-		// 4 mazoom,mbzoom,nactual,nbins,nbottom,nbrake,ndigt,;
-		// 5 ndim,ndim2,negf,nleft,nlolim,nocol,nxcol,nparseok,;
-		// 6 nright,ntcol,nthis,ntop,numact,numraw,numred,;
-		// 7 nuplim,nzoom;
-
-		// local variables
+		
 		double dmag;
 		double dt, dphase;
 		double twopi;
@@ -388,57 +248,6 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	}
 
 	void polyfit() {
-		// implicit none
-
-		// common arrays
-
-		// String fin,flog,fprint
-		// int iname;
-		// common/name/fin,flog;
-
-		// double tvec,xvec,wvec;
-		// common/datapts/tvec(1000000),xvec(1000000),wvec(1000000);
-
-		// int nfit;
-		// double tfit,xfit,sfit;
-		// String obs;
-		// common/fitpts/tfit(1000000),xfit(1000000),sfit(1000000),;
-		// 1 nfit(1000000),obs(1000000);
-
-		// double dmat,dvec,dcoef;
-		// String obias;
-		// common/matproj/dmat(0:50,0:50),dvec(0:50),dcoef(0:50),obias(0:50);
-
-		// double dgnu,dgper,dgpower,dfre;
-		// common/fourarr/dgnu(20),dgper(20),dgpower(20),dfre(20);
-
-		// common scalars
-		// double damp,damp2,dangcut,dave,dfpow,dfouramp2,dpower;
-		// double dt0,dtave,dtscale,dtsig,dtvar,dtzero,dsig,dvar;
-		// double dweight,dxout;
-		// int nbias,nfre,npoly;
-		// common/scalar1/damp,damp2,dangcut,dave,dfpow,dfouramp2,dpower,;
-		// 1 dt0,dtave,dtscale,dtsig,dtvar,dtzero,dsig,dvar,;
-		// 2 dweight,dxout,nbias,nfre,npoly;
-
-		// common old scalars
-		// double tcur,tlolim,tmark,toff,toffl,tput,tresolv,tsize;
-		// double tuplim,tuplimit,tlozoom,tupzoom,xleft,xright,ybottom,ytop;
-		// double dlamp,dllamp,dlnu,dlper,dlpower;
-		// int ma,mb,magmark,magspan,mflag,mcur,mhigh,mlow,mput;
-		// int mazoom,mbzoom,nactual,nbins,nbottom,nbrake,ndigt;
-		// int ndim,ndim2,negf,nleft,nlolim,nocol,nxcol,nparseok;
-		// int nright,ntcol,nthis,ntop;
-		// int numact,numraw,numred,nuplim,nzoom;
-		// common/scalar2/tcur,tlolim,tmark,toff,toffl,tput,tresolv,tsize,;
-		// 1 tuplim,tuplimit,tlozoom,tupzoom,xleft,xright,;
-		// 2 ybottom,ytop,dlamp,dllamp,dlnu,dlper,dlpower,;
-		// 3 ma,mb,magmark,magspan,mflag,mcur,mhigh,mlow,mput,;
-		// 4 mazoom,mbzoom,nactual,nbins,nbottom,nbrake,ndigt,;
-		// 5 ndim,ndim2,negf,nleft,nlolim,nocol,nxcol,nparseok,;
-		// 6 nright,ntcol,nthis,ntop,numact,numraw,numred,;
-		// 7 nuplim,nzoom;
-
 		double[] dzeta = new double[101];
 		double d1, d2, tspan, tt, dtime, dt;
 		int n1, n2, nt;
@@ -469,6 +278,9 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 		ntt = (int) ((xx - x) / tt) + 1;
 
+		tfit = new double[ntt+1];
+		xfit = new double[ntt+1];
+
 		for (idtime = 1; idtime <= ntt; idtime++) {
 			dtime = x + (float) (idtime - 1) * tt;
 			dx = smooth(dtime);
@@ -477,7 +289,5 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 			xfit[numred] = dx;
 			dt = (dtime - dtzero) / dtscale;
 		}
-
-		return;
 	}
 }
