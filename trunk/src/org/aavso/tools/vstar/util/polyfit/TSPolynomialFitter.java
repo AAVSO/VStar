@@ -282,7 +282,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		xfit = new double[ntt+1];
 
 		for (idtime = 1; idtime <= ntt; idtime++) {
-			dtime = x + (float) (idtime - 1) * tt;
+			dtime = x + (double) (idtime - 1) * tt;
 			dx = smooth(dtime);
 			numred = numred + 1;
 			tfit[numred] = dtime;

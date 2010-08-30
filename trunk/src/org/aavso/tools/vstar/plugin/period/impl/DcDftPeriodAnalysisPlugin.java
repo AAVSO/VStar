@@ -83,7 +83,7 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 
 		if (periodAnalysisAlgorithm == null) {
 			periodAnalysisAlgorithm = new DateCompensatedDiscreteFourierTransform(
-					obs);
+					obs, true);
 			periodAnalysisAlgorithm.execute();
 		}
 	}
