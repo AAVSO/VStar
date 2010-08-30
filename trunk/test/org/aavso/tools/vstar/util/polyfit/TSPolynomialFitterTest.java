@@ -2110,7 +2110,8 @@ public class TSPolynomialFitterTest extends DelCepTestData {
 
 	// Polynomial fit test using delta Cephei data.
 	public void testDegree2() {
-		TSPolynomialFitter fitter = new TSPolynomialFitter(obs, 2);
+		TSPolynomialFitter fitter = new TSPolynomialFitter(obs);
+		fitter.setDegree(2);
 		try {
 			fitter.execute();
 
