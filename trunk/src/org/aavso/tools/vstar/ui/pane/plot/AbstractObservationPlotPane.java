@@ -37,10 +37,10 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
-import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
@@ -52,7 +52,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.chart.event.ChartChangeListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.SeriesRenderingOrder;
@@ -143,16 +142,12 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		// Should reduce number of Java2D draw operations.
 		// this.renderer.setDrawSeriesLineAsPath(true);
 
-		// Tell renderer which series elements should be rendered
-		// as visually joined with lines.
-		// TODO: change return type of getter below to be Set<Integer>?
-		for (int series : obsModel
-				.getSeriesWhoseElementsShouldBeJoinedVisually()) {
-			this.renderer.setSeriesLinesVisible(series, true);
-		}
-
 		// Tell renderer which series' elements should initially be
-		// rendered, i.e. visible.
+		// rendered (i.e. visible) or joined.
+		// TODO: in future, we should isolate series joining logic to this view
+		// class and its subclasses; see also comments in
+		// ObservationAndMeanPlotModel.
+		setJoinedSeries();
 		setSeriesVisibility();
 
 		/*
@@ -206,6 +201,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		Mediator.getInstance().getFilteredObservationNotifier().addListener(
 				createFilteredObservationListener());
+
+		Mediator.getInstance().getPolynomialFitNofitier().addListener(
+				createPolynomialFitListener());
 	}
 
 	/**
@@ -438,15 +436,15 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		}
 
 		// Only zoom if we have a cross-hair selection in this plot.
-		
-//		if (lastPointClicked == null) {
-//			double x = chart.getXYPlot().getDomainCrosshairValue();
-//			double y = chart.getXYPlot().getRangeCrosshairValue();
-//			if (x != 0 && y != 0) {
-//				// Somewhere other than initial position.
-//				lastPointClicked = new Point2D.Double(x, y);
-//			}
-//		}
+
+		// if (lastPointClicked == null) {
+		// double x = chart.getXYPlot().getDomainCrosshairValue();
+		// double y = chart.getXYPlot().getRangeCrosshairValue();
+		// if (x != 0 && y != 0) {
+		// // Somewhere other than initial position.
+		// lastPointClicked = new Point2D.Double(x, y);
+		// }
+		// }
 
 		if (lastPointClicked != null) {
 			// Determine zoom factor.
@@ -482,43 +480,99 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
 		return new Listener<FilteredObservationMessage>() {
 			private int filterSeriesNum = -1;
-			
-			public void update(FilteredObservationMessage info) {
-				// Currently, due to the way we render phase plots, filtering
-				// will be disabled for anything but raw analysis mode.
-//				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
-					if (info == FilteredObservationMessage.NO_FILTER) {
-						// No filter, so make the filtered series invisible.
-						if (obsModel.seriesExists(SeriesType.Filtered)) {
-							int num = obsModel.getSrcTypeToSeriesNumMap().get(
-									SeriesType.Filtered);
-							obsModel.changeSeriesVisibility(num, false);
-						}
-					} else {
-						// Convert set of filtered observations to list then add
-						// or replace the filter series.
-						List<ValidObservation> obs = new ArrayList<ValidObservation>();
-						for (ValidObservation ob : info.getFilteredObs()) {
-							obs.add(ob);
-						}
 
-						if (obsModel.seriesExists(SeriesType.Filtered)) {
-							assert filterSeriesNum != -1;
-							obsModel.replaceObservationSeries(
-									SeriesType.Filtered, obs);
-						} else {
-							filterSeriesNum = obsModel.addObservationSeries(
-									SeriesType.Filtered, obs);
-						}
-						
-						// Make the filter series visible either because this is
-						// its first appearance or because it may have been made
-						// invisible via a NO_FILTER message.
-						obsModel.changeSeriesVisibility(filterSeriesNum, true);
+			@Override
+			public void update(FilteredObservationMessage info) {
+				if (info == FilteredObservationMessage.NO_FILTER) {
+					// No filter, so make the filtered series invisible.
+					if (obsModel.seriesExists(SeriesType.Filtered)) {
+						int num = obsModel.getSrcTypeToSeriesNumMap().get(
+								SeriesType.Filtered);
+						obsModel.changeSeriesVisibility(num, false);
 					}
-//				}
+				} else {
+					// Convert set of filtered observations to list then add
+					// or replace the filter series.
+					List<ValidObservation> obs = new ArrayList<ValidObservation>();
+					for (ValidObservation ob : info.getFilteredObs()) {
+						obs.add(ob);
+					}
+
+					if (obsModel.seriesExists(SeriesType.Filtered)) {
+						assert filterSeriesNum != -1;
+						obsModel.replaceObservationSeries(SeriesType.Filtered,
+								obs);
+					} else {
+						filterSeriesNum = obsModel.addObservationSeries(
+								SeriesType.Filtered, obs);
+					}
+
+					// Make the filter series visible either because this is
+					// its first appearance or because it may have been made
+					// invisible via a NO_FILTER message.
+					obsModel.changeSeriesVisibility(filterSeriesNum, true);
+				}
 			}
 
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	// Returns a polynomial fit listener.
+	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
+		return new Listener<PolynomialFitMessage>() {
+			private int fitSeriesNum = -1;
+			private int residualsSeriesNum = -1;
+
+			@Override
+			public void update(PolynomialFitMessage info) {
+				// Add or replace a series for the polynomial fit and make sure
+				// the series visible.
+				List<ValidObservation> fitObs = info.getPolynomialFitter()
+						.getFit();
+
+				if (obsModel.seriesExists(SeriesType.PolynomialFit)) {
+					assert fitSeriesNum != -1;
+					obsModel.replaceObservationSeries(SeriesType.PolynomialFit,
+							fitObs);
+				} else {
+					fitSeriesNum = obsModel.addObservationSeries(
+							SeriesType.PolynomialFit, fitObs);
+				}
+
+				// Make the polynomial fit series visible either because this
+				// is its first appearance or because it may have been made
+				// invisible via the change series dialog.
+				obsModel.changeSeriesVisibility(fitSeriesNum, true);
+
+				// TODO: do we really need this? if not, revert means join
+				// handling code
+				// obsModel.addSeriesToBeJoinedVisually(fitSeriesNum);
+
+				// Add or replace a series for the residuals.
+				List<ValidObservation> residualObs = info.getPolynomialFitter()
+						.getResiduals();
+
+				if (obsModel.seriesExists(SeriesType.Residuals)) {
+					assert residualsSeriesNum != -1;
+					obsModel.replaceObservationSeries(SeriesType.Residuals,
+							residualObs);
+				} else {
+					residualsSeriesNum = obsModel.addObservationSeries(
+							SeriesType.Residuals, residualObs);
+				}
+
+				// Hide the residuals series initially. We toggle the series
+				// visibility to achieve this since the default is false. That
+				// shouldn't be necessary; investigate.
+				obsModel.changeSeriesVisibility(residualsSeriesNum, true);
+				obsModel.changeSeriesVisibility(residualsSeriesNum, false);
+			}
+
+			@Override
 			public boolean canBeRemoved() {
 				return true;
 			}
@@ -542,6 +596,15 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		setSeriesVisibility();
 		setSeriesColors();
 		setMagScale();
+	}
+
+	// Tell renderer which series elements should be rendered
+	// as visually joined with lines.
+	protected void setJoinedSeries() {
+		for (int series : obsModel
+				.getSeriesWhoseElementsShouldBeJoinedVisually()) {
+			this.renderer.setSeriesLinesVisible(series, true);
+		}
 	}
 
 	// Helpers

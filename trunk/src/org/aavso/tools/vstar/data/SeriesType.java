@@ -90,8 +90,14 @@ public enum SeriesType {
 
 	Unspecified(SeriesType.NO_INDEX, "Unspecified", "Unspecified", Color.ORANGE),
 
-	Filtered(SeriesType.NO_INDEX, "Filtered", "Filtered", Color.WHITE);
+	Filtered(SeriesType.NO_INDEX, "Filtered", "Filtered", Color.WHITE),
 
+	// Polynomial fit series.
+	PolynomialFit(SeriesType.NO_INDEX, "Polynomial Fit", "Polynomial Fit", Color.RED),
+	
+	// Polynomial fit residuals series.
+	Residuals(SeriesType.NO_INDEX, "Residuals", "Residuals", Color.CYAN);
+	
 	// Static members
 	
 	private final static int NO_INDEX = -1;

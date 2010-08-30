@@ -80,7 +80,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	// Analysis menu item names.
 	public static final String RAW_DATA = "Raw Data";
 	public static final String PHASE_PLOT = "Phase Plot...";
-
+	public static final String POLYNOMIAL_FIT = "Polynomial Fit...";
+	
 	// Help menu item names.
 	public static final String HELP_CONTENTS = "Help Contents...";
 	public static final String ABOUT = "About...";
@@ -121,9 +122,11 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	// Analysis menu.
 	JCheckBoxMenuItem analysisRawDataItem;
 	JCheckBoxMenuItem analysisPhasePlotItem;
-
+	
 	JMenu analysisPeriodSearchMenu;
 
+	JMenuItem analysisPolynomialFitItem;
+	
 	// Tool menu.
 	JMenu toolMenu;
 
@@ -310,6 +313,13 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		analysisMenu.add(analysisPeriodSearchMenu);
 
+		analysisMenu.addSeparator();
+
+		analysisPolynomialFitItem = new JMenuItem(POLYNOMIAL_FIT);
+		analysisPolynomialFitItem.setEnabled(false);
+		analysisPolynomialFitItem.addActionListener(createPolynomialFitListener());
+		analysisMenu.add(analysisPolynomialFitItem);
+		
 		this.add(analysisMenu);
 	}
 
@@ -635,6 +645,17 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		};
 	}
 
+	/**
+	 * Returns the action listener to be invoked for Analysis->Polynomial Fit
+	 */
+	public ActionListener createPolynomialFitListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mediator.performPolynomialFit();
+			}
+		};
+	}
+	
 	// ** Tool menu listeners **
 
 	/**
@@ -801,8 +822,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
-
 		this.analysisPeriodSearchMenu.setEnabled(state);
+		this.analysisPolynomialFitItem.setEnabled(state);
 
 		// this.toolMenu.setEnabled(state);
 

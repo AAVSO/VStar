@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,20 +15,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util;
-
-import org.aavso.tools.vstar.exception.AlgorithmError;
+package org.aavso.tools.vstar.exception;
 
 /**
- * Classes implementing an algorithm to be executed must realise this interface.
+ * This exception can be thrown by an algorithm in the case of an error.
  */
-public interface IAlgorithm {
+public class AlgorithmError extends Exception {
 
-	/**
-	 * Executes the algorithm.
-	 * 
-	 * @throws AlgorithmError
-	 *             in case of an algorithm error.
-	 */
-	abstract public void execute() throws AlgorithmError;
+	public AlgorithmError() {
+		super();
+	}
+
+	public AlgorithmError(String message) {
+		super(message);
+	}
 }

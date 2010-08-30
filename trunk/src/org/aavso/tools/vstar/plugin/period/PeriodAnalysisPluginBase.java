@@ -23,6 +23,7 @@ import javax.swing.JDialog;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.PluginBase;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
@@ -67,10 +68,10 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	/**
 	 * Send a period change message.
 	 * 
-	 * @param The
-	 *            period to be sent in the notification. This will cause a phase
-	 *            plot dialog to be invoked, asking for confirmation of the new
-	 *            period (and epoch) before creating a new phase plot.
+	 * @param period
+	 *            The period to be sent in the notification. This will cause a
+	 *            phase plot dialog to be invoked, asking for confirmation of
+	 *            the new period (and epoch) before creating a new phase plot.
 	 */
 	public void sendPeriodChangeMessage(double period) {
 		mediator.getPeriodChangeMessageNotifier().notifyListeners(
@@ -92,8 +93,14 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	/**
 	 * Execute a period analysis algorithm instance for this plugin to be
 	 * applied to the specified observations.
+	 * 
+	 * @param obs
+	 *            The observations on which to perform the period analysis.
+	 * @throws AlgorithmError
+	 *             if an error occurs during period analysis.
 	 */
-	abstract public void executeAlgorithm(List<ValidObservation> obs);
+	abstract public void executeAlgorithm(List<ValidObservation> obs)
+			throws AlgorithmError;
 
 	/**
 	 * Get the period analysis dialog for this plugin.

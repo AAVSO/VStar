@@ -22,10 +22,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -86,6 +87,11 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	protected boolean atLeastOneVisualBandPresent;
 
 	/**
+	 * A collection of series to be joined visually.
+	 */
+	protected Set<Integer> seriesToBeJoinedVisually;
+
+	/**
 	 * Common constructor.
 	 * 
 	 * @param coordSrc
@@ -100,6 +106,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		this.seriesVisibilityMap = new HashMap<Integer, Boolean>();
 		this.seriesNumToObSrcListMap = new HashMap<Integer, List<ValidObservation>>();
 		this.atLeastOneVisualBandPresent = false;
+		this.seriesToBeJoinedVisually = new HashSet<Integer>();
+
 		Mediator.getInstance().getObservationChangeNotifier().addListener(this);
 	}
 
@@ -404,16 +412,19 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		return DomainOrder.ASCENDING;
 	}
 
+	// TODO: in future, I think we want to get rid of this approach and just
+	// leave all series join login in the view classes.
+	// In addition, it ought to be possible for *any* series to joined, so we
+	// need to unify this at the series change dialog level (for example).
+	
 	/**
 	 * Which series' elements should be joined visually (e.g. with lines)?
-	 * 
-	 * TODO: need to specialise this later to join observer's obs etc
 	 * 
 	 * @return A collection of series numbers for series whose elements should
 	 *         be joined visually.
 	 */
 	public Collection<Integer> getSeriesWhoseElementsShouldBeJoinedVisually() {
-		return new TreeSet<Integer>();
+		return seriesToBeJoinedVisually;
 	}
 
 	// AbstractIntervalXYDataSet methods.

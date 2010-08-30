@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,20 +15,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util;
+package org.aavso.tools.vstar.ui.mediator.message;
 
-import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.util.polyfit.IPolynomialFitter;
 
 /**
- * Classes implementing an algorithm to be executed must realise this interface.
+ * This message is sent when a polynomial fit operation has completed.
  */
-public interface IAlgorithm {
+public class PolynomialFitMessage extends MessageBase {
+
+	private IPolynomialFitter polynomialFitter;
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param source The source of the message.
+	 * @param polynomialFitter The fitter whose operation is complete.
+	 */
+	public PolynomialFitMessage(Object source, IPolynomialFitter polynomialFitter) {
+		super(source);
+		this.polynomialFitter = polynomialFitter;
+	}
 
 	/**
-	 * Executes the algorithm.
-	 * 
-	 * @throws AlgorithmError
-	 *             in case of an algorithm error.
+	 * @return the polynomialFitter
 	 */
-	abstract public void execute() throws AlgorithmError;
+	public IPolynomialFitter getPolynomialFitter() {
+		return polynomialFitter;
+	}
 }
