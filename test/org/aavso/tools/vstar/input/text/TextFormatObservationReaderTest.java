@@ -145,6 +145,38 @@ public class TextFormatObservationReaderTest extends TestCase {
 		assertEquals("000-BCT-763", ob0.getName());
 	}
 
+	// Last time I looked (now: Aug 31 2010), an example AAVSO download line
+	// looked like this:
+	// 2430929.7861,8.0,,,Visual,LJ,QK,,,,,No,,G,,,,000-BBR-655
+	//
+	// but what we see now is:
+	// 2430929.7861,8.0,,,Vis.,LJ,QK,,,,,,,V,,,,ETA CAR,,STD,
+
+	public void testLineWithValidationFlagV() {
+
+		try {
+			String str = "2430929.7861,8.0,,,Vis.,LJ,QK,,,,,,,V,,,,ETA CAR,,STD,";
+
+			ObservationSourceAnalyser analyser = new ObservationSourceAnalyser(
+					new LineNumberReader(new StringReader(str)), "Some String");
+			analyser.analyse();
+
+			AbstractObservationRetriever simpleTextFormatReader = new TextFormatObservationReader(
+					new LineNumberReader(new StringReader(str)), analyser);
+
+			simpleTextFormatReader.retrieveObservations();
+
+			// This is not what we want of course. We want there to be one
+			// valid observation and not invalid observations.
+			assertEquals(1, simpleTextFormatReader.getInvalidObservations()
+					.size());
+
+			// assertEquals(8.0, obs.get(0).getMagnitude());
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
+	}
+
 	// Tests of invalid simple text format.
 
 	public void testSimpleInvalidMagTrailingDecimalPoint() {
