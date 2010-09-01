@@ -23,7 +23,6 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
@@ -63,10 +62,9 @@ public class CommonTextFormatValidator extends
 	 * @param maxFields
 	 *            The maximum number of fields permitted in an observation line.
 	 * @param valflagPatternStr
-	 *            A regex pattern representing the alternations of permission
+	 *            A regex pattern representing the alternations of permitted
 	 *            valflags for this validator instance, e.g. "D" (simple format)
-	 *            or "G|D|P" (AAVSO download format). A mapping from field name
-	 *            to index.
+	 *            or "G|D|T|P|V|Z" (AAVSO download format).
 	 * @param fieldInfoSource
 	 *            A mapping from field name to field index that makes sense for
 	 *            the source.
@@ -145,15 +143,7 @@ public class CommonTextFormatValidator extends
 				.validate(fields[fieldIndexMap.get("OBSERVER_CODE_FIELD")]));
 
 		String valflag = fields[fieldIndexMap.get("VALFLAG_FIELD")];
-		valflagValidator.validate(valflag);
-		
-		if ("G".equals(valflag)) {
-			observation.setValidationType(ValidationType.GOOD);
-		} else if ("D".equals(valflag)) {
-			observation.setValidationType(ValidationType.DISCREPANT);
-		} else if ("P".equals(valflag)) {
-			observation.setValidationType(ValidationType.PREVALIDATION);
-		}
+		observation.setValidationType(valflagValidator.validate(valflag));
 
 		return observation;
 	}

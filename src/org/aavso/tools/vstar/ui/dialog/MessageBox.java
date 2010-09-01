@@ -162,12 +162,17 @@ public class MessageBox {
 	 * @param title
 	 *            The title of the dialog.
 	 * @param e
-	 *            The exception whose message will be the content of the dialog.
+	 *            The exception whose content will be the content of the dialog.
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			Throwable e) {
-		JOptionPane.showMessageDialog(parent, e.getClass().getName() + ": "
-				+ e.getMessage(), title, JOptionPane.ERROR_MESSAGE);
+		String msg = e.getMessage();
+		if (msg == null || msg.length() == 0) {
+			msg = e.getClass().getName();
+		}
+
+		JOptionPane.showMessageDialog(parent, msg, title,
+				JOptionPane.ERROR_MESSAGE);
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
 	}
@@ -179,12 +184,18 @@ public class MessageBox {
 	 * @param title
 	 *            The title of the dialog.
 	 * @param e
-	 *            The exception whose message will be the content of the dialog.
+	 *            The exception whose content will be the content of the dialog.
 	 */
 	public static void showErrorDialog(String title, Throwable e) {
 		Component parent = MainFrame.getInstance();
-		JOptionPane.showMessageDialog(parent, e.getClass().getName() + ": "
-				+ e.getMessage(), title, JOptionPane.ERROR_MESSAGE);
+
+		String msg = e.getMessage();
+		if (msg == null || msg.length() == 0) {
+			msg = e.getClass().getName();
+		}
+
+		JOptionPane.showMessageDialog(parent, msg, title,
+				JOptionPane.ERROR_MESSAGE);
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
 	}

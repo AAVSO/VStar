@@ -25,15 +25,17 @@ public enum ValidationType {
 	// Note: from database we can have:
 	// 
 	//	P = Published observation (should be treated as Good)
-	//	T = Discrepant (mapped to 'D' in SQL query)
-	//	V = Good 
+	//	T = Discrepant (mapped to 'D' in SQL query, but may be present in text files)
+	//	V = Good (passed AAVSO validation tests)
 	//	Y = Deleted
 	//	Z = Prevalidated 
 	//
 	// See https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag
 	//
-	// In AAVSO download format files we see 'G' for "Good" and 
-	// according to http://www.aavso.org/data/download/downloadformat.shtml,
+	// In older AAVSO download format files we see 'G' for "Good" instead of 'V'.
+	// We could deprecate its use, but permitting it provides backward compatibility.
+	//
+	// According to http://www.aavso.org/data/download/downloadformat.shtml,
 	// 'P' means "Pre-validated"; so there is a conflict between download
 	// format and database originated validation flags. We assume this has
 	// been mapped from 'P' to 'Z' in getTypeFromFlag() below.
@@ -45,19 +47,15 @@ public enum ValidationType {
 	/**
 	 * Given a valflag from an input file or database, return
 	 * the corresponding validation type.
-	 * 
-	 * @deprecated This needs to be re-examined with respect to its usage.
-	 * It should either go away or be farmed out to subclasses.
 	 */
 	public static ValidationType getTypeFromFlag(String valflag) {
 		ValidationType valtype = null;
 		
 		if ("G".equals(valflag)) {
-			valtype = GOOD; // passed AAVSO validation tests
-		} else if ("D".equals(valflag)) {
+			valtype = GOOD;
+		} else if ("D".equals(valflag) || "T".equals(valflag)) {
 			valtype = DISCREPANT;
 		} else if ("P".equals(valflag)) {
-			// Published
 			valtype = GOOD;
 		} else if ("V".equals(valflag)) {
 			valtype = GOOD;

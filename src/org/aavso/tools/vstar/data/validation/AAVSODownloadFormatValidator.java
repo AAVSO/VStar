@@ -72,7 +72,7 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 	public AAVSODownloadFormatValidator(String delimiter, int minFields,
 			int maxFields, IFieldInfoSource fieldInfoSource) {
 		super("AAVSO format observation line", delimiter, minFields, maxFields,
-				"G|D|P", fieldInfoSource);
+				"G|D|T|P|V|Z", fieldInfoSource);
 
 		this.optionalFieldValidator = new OptionalityFieldValidator(
 				OptionalityFieldValidator.CAN_BE_EMPTY);
@@ -128,7 +128,7 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 				.validate(fields[fieldIndexMap.get("HQ_UNCERTAINTY_FIELD")]);
 		observation.setHqUncertainty(hqUncertaintyMag);
 
-		// TODO: we should use a specific band validator!
+		// TODO: we should use a specific band validator that returns SeriesType
 		String band = nonOptionalFieldValidator.validate(fields[fieldIndexMap
 				.get("BAND_FIELD")]);
 		observation.setBand(SeriesType.getSeriesFromShortName(band));
