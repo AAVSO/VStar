@@ -196,11 +196,11 @@ public class DescStats {
 		double magStdErrOfMean = magStdDev / Math.sqrt(included);
 		double confidenceInternal = magStdErrOfMean * 2;
 
-		// If in any of the 3 steps above we get NaN, we use 0
+		// If in any of the steps above we get NaN, we use 0
 		// (e.g. because there is only one sample), we set the
 		// Standard Error of the Average to 0.
-		if (Double.isNaN(magStdErrOfMean)) {
-			magStdErrOfMean = 0;
+		if (Double.isNaN(confidenceInternal)) {
+			confidenceInternal = 0;
 		}
 
 		// Create the mean observation.

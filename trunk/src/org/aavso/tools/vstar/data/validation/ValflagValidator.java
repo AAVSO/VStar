@@ -34,7 +34,7 @@ public class ValflagValidator extends AbstractStringValidator<ValidationType> {
 	 * 
 	 * @param valflagPatternStr A regex pattern representing the
 	 * alternations of permission valflags for this validator instance,
-	 * e.g. "D" (simple format) or "G|D|P" (AAVSO download format).
+	 * e.g. "D" (simple format) or "G|V|D|P|Z" (AAVSO download format).
 	 * This pattern string will be wrapped in a ^(...)$ to ensure that nothing
 	 * else exists in the string, and that there is one capturing group.
 	 */
@@ -48,10 +48,7 @@ public class ValflagValidator extends AbstractStringValidator<ValidationType> {
 		if (this.isLegallyEmpty(str)) return null;
 
 		String field = this.regexValidator.validate(str)[0];
-//		return ValidationType.getTypeFromFlag(field);
-		// TODO: when we have sorted out getTypeFromFlag(), reinstate its 
-		// use. For now, just do the validation above. 
-		return null;
+		return ValidationType.getTypeFromFlag(field);
 	}
 
 	protected boolean canBeEmpty() {

@@ -98,9 +98,8 @@ public class AAVSODatabaseObservationReader extends
 			}
 		} catch (Throwable t) {
 			// TODO: note that because of this broad catch, an
-			// InterruptedException
-			// will never make it pas this method currently.
-			t.printStackTrace();
+			// InterruptedException will never make it past this method
+			// currently.
 			throw new ObservationReadError(
 					"Error when attempting to read observation source.");
 		}
@@ -188,7 +187,7 @@ public class AAVSODatabaseObservationReader extends
 		boolean isUncertain = source.getInt("uncertain") != 0;
 
 		Double uncertainty = getNextPossiblyNullDouble("uncertainty");
-		
+
 		return new Magnitude(source.getDouble("magnitude"), modifier,
 				isUncertain, uncertainty != null ? uncertainty : 0);
 	}
