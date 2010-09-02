@@ -30,6 +30,15 @@ o VStar leaks memory with continued use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
    
 ----------------------
+Date: September 2 2010
+Version: 2.5 Beta
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-02September2010
+Key Changes:
+- Fixed handling of V and T valflags in AAVSO download format.
+- Fixed NaNs in confidence interval calculation. 
+- Changed save-as format to TSV vs CSV to avoid lossy nature of save up 
+  to now in the presence of comment fields containing commas. 
+
 Date: August 31 2010
 Version: 2.4 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-31August2010
