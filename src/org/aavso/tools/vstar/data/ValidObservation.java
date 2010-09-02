@@ -537,7 +537,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * Returns a line in CSV format of the following fields (bracketed fields
+	 * Returns a line in TSV format of the following fields (bracketed fields
 	 * are optional):
 	 * 
 	 * JD,MAGNITUDE,[UNCERTAINTY],[OBSERVER_CODE],[VALFLAG]
@@ -546,22 +546,22 @@ public class ValidObservation extends Observation {
 		StringBuffer buf = new StringBuffer();
 
 		buf.append(this.getDateInfo().getJulianDay());
-		buf.append(",");
+		buf.append("\t");
 
 		buf.append(this.getMagnitude().isFainterThan() ? "<" : "");
 		buf.append(this.getMagnitude().getMagValue());
-		buf.append(",");
+		buf.append("\t");
 
 		double uncertainty = this.getMagnitude().getUncertainty();
 		if (uncertainty != 0.0) {
 			buf.append(uncertainty);
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.obsCode != null) {
 			buf.append(this.obsCode);
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.validationType != null) {
 			buf.append(this.validationType.getValflag());
@@ -572,23 +572,23 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * Returns a line in CSV AAVSO download format.
+	 * Returns a line in TSV AAVSO download format.
 	 */
 	public String toAAVSOFormatString() {
 		StringBuffer buf = new StringBuffer();
 
 		buf.append(this.getDateInfo().getJulianDay());
-		buf.append(",");
+		buf.append("\t");
 
 		buf.append(this.getMagnitude().isFainterThan() ? "<" : "");
 		buf.append(this.getMagnitude().getMagValue());
-		buf.append(",");
+		buf.append("\t");
 
 		double uncertainty = this.getMagnitude().getUncertainty();
 		if (uncertainty > 0.0) {
 			buf.append(uncertainty);
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.getHqUncertainty() != null) {
 			double hqUncertainty = this.getHqUncertainty();
@@ -596,81 +596,81 @@ public class ValidObservation extends Observation {
 				buf.append(hqUncertainty);
 			}
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		buf.append(this.getBand().getShortName());
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.obsCode != null) {
 			buf.append(this.obsCode);
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.getCommentCode() != null) {
 			buf.append(this.getCommentCode().getOrigString());
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.getCompStar1() != null) {
 			buf.append(this.getCompStar1());
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.getCompStar2() != null) {
 			buf.append(this.getCompStar2());
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.getCharts() != null) {
 			buf.append(this.getCharts());
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.getComments() != null) {
 			buf.append(this.getComments());
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		buf.append(this.isTransformed() ? "Yes" : "No");
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.getAirmass() != null) {
 			buf.append(this.getAirmass());
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.validationType != null) {
 			buf.append(this.validationType.getValflag());
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.getCMag() != null) {
 			buf.append(this.getCMag());
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.getKMag() != null) {
 			buf.append(this.getKMag());
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		if (this.getHJD() != null) {
 			buf.append(this.getHJD().getJulianDay());
 		}
-		buf.append(",");
+		buf.append("\t");
 
 		buf.append(this.getName());
-		buf.append(",");
+		buf.append("\t");
 
 		// Affiliation
-		buf.append(",");
+		buf.append("\t");
 
 		buf.append(this.getMType() != null ? this.getMType().getShortName()
 				: MTypeType.STD.getShortName());
-		buf.append(",");
+		buf.append("\t");
 
 		// Group
-		buf.append(",");
+		buf.append("\t");
 
 		buf.append("\n");
 
