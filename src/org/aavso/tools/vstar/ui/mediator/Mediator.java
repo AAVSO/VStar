@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.print.PrinterException;
 import java.io.File;
@@ -325,13 +326,10 @@ public class Mediator {
 							.notifyListeners(new MeanSourceSeriesChangeMessage(
 									this, meanSourceSeriesType));
 
-					// need to re-up this listener when model changes due to
+					// TODO: need to re-up this listener when model changes due to
 					// phase plot!
 					// move all of this into plugin even... including
 					// re-registration?
-
-					// TODO: this should go away eventually...
-					// setPeriodAnalysisResultDialog(null);
 				}
 			}
 		};
@@ -352,11 +350,14 @@ public class Mediator {
 					if (!phaseDialog.isCancelled()) {
 						double period = phaseDialog.getPeriod();
 						double epoch = phaseDialog.getEpoch();
+						MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 						msg = createPhasePlotArtefacts(period, epoch, null);
 						analysisType = AnalysisType.PHASE_PLOT;
 						analysisTypeChangeNotifier.notifyListeners(msg);
+						MainFrame.getInstance().setCursor(null);
 					}
 				} catch (Exception e) {
+					MainFrame.getInstance().setCursor(null);
 					MessageBox.showErrorDialog(MainFrame.getInstance(),
 							"New Phase Plot", e);
 				}
@@ -467,6 +468,7 @@ public class Mediator {
 						if (!phaseDialog.isCancelled()) {
 							double period = phaseDialog.getPeriod();
 							double epoch = phaseDialog.getEpoch();
+							MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 							msg = createPhasePlotArtefacts(period, epoch, null);
 						}
 					}
@@ -483,10 +485,12 @@ public class Mediator {
 										.getDesignation() + ")";
 						MainFrame.getInstance().getStatusPane().setMessage(
 								statusMsg);
+						MainFrame.getInstance().setCursor(null);
 					}
 					break;
 				}
 			} catch (Exception e) {
+				MainFrame.getInstance().setCursor(null);
 				MessageBox.showErrorDialog(MainFrame.getInstance(),
 						"Analysis Type Change", e);
 			}

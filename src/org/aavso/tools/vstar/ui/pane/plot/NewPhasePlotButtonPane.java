@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.pane.plot;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -62,10 +63,15 @@ public class NewPhasePlotButtonPane extends JButton {
 						double epoch = phaseDialog.getEpoch();
 						// This will be the final act of this object before
 						// it is usurped by another model+phase-plot-pane pair.
+						MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+						
 						Mediator.getInstance().createPhasePlotArtefacts(period,
 								epoch, visibilityMapSrc.getVisibilityMap());
+						
+						MainFrame.getInstance().setCursor(null);
 					}
 				} catch (Exception ex) {
+					MainFrame.getInstance().setCursor(null);
 					MessageBox.showErrorDialog(MainFrame.getInstance(),
 							"New Phase Plot", ex);
 				}
