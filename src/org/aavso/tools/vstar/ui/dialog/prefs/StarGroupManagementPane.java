@@ -28,7 +28,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
@@ -60,7 +59,7 @@ public class StarGroupManagementPane extends JPanel {
 	public StarGroupManagementPane() {
 		defaultGroupName = PropertiesAccessor.getStarListTitle();
 
-		starGroupSelectionPane = new StarGroupSelectionPane();
+		starGroupSelectionPane = new StarGroupSelectionPane(null);
 		starGroups = starGroupSelectionPane.getStarGroups();
 
 		newGroupDialog = new NewGroupDialog();
