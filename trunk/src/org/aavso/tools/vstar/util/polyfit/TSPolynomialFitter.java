@@ -79,7 +79,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 	@Override
 	public int getMaxDegree() {
-		return 50;
+		return 20;
 	}
 
 	/**
