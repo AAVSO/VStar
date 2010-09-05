@@ -25,6 +25,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.resources.StarGroups;
 
@@ -42,17 +43,24 @@ public class StarGroupSelectionPane extends JPanel {
 
 	private StarGroups starGroups;
 
+	private JTextField starField;
+
 	// Selected star group, name and AUID.
 	private String selectedStarGroup;
 	private String selectedStarName;
 	private String selectedAUID;
 
 	/**
-	 * Constructor.
+	 * Constructor
+	 * 
+	 * @param starField
+	 *            An optional star field to be cleared when a group star is selected.
 	 */
-	public StarGroupSelectionPane() {
+	public StarGroupSelectionPane(JTextField starField) {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createEtchedBorder());
+
+		this.starField = starField;
 
 		selectedStarGroup = null;
 
@@ -103,6 +111,9 @@ public class StarGroupSelectionPane extends JPanel {
 					selectedStarName = starName;
 					selectedAUID = starGroups.getAUID(selectedStarGroup,
 							selectedStarName);
+					if (starField != null) {
+						starField.setText("");
+					}
 				}
 			}
 		};

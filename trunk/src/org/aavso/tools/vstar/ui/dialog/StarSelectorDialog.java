@@ -25,15 +25,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Calendar;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -41,8 +38,6 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.resources.PropertiesAccessor;
-import org.aavso.tools.vstar.ui.resources.Star;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
 /**
@@ -104,10 +99,11 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		topPane
 				.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
 
-		starGroupSelectionPane = new StarGroupSelectionPane();
+		JPanel starFieldPane = createStarFieldPane();
+		starGroupSelectionPane = new StarGroupSelectionPane(starField);
 		topPane.add(starGroupSelectionPane);
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		topPane.add(createStarFieldPane());
+		topPane.add(starFieldPane);
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createMinJDFieldPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -183,17 +179,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	}
 
 	// Event handlers
-
-	// Return a listener for the 10-star selector.
-	private ActionListener createTenStarSelectorActionListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// If the user makes a selection here,
-				// clear the text box.
-				starField.setText("");
-			}
-		};
-	}
 
 	// Return a listener for the star field.
 	private ActionListener createStarFieldActionListener() {
