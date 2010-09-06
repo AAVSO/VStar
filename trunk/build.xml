@@ -58,6 +58,20 @@
 		</javac>
 	</target>
 
+	<target name="compile_src_5" depends="init" description="Compile the source for Java 5">
+		<!-- Update svn revision -->
+		<exec outputproperty="svn_revision" executable="svnversion">
+			<arg value="-n" />
+		</exec>
+		<copy file="${ui_resources}/RevisionAccessor.java.template" tofile="${ui_resources}/RevisionAccessor.java" overwrite="true" />
+		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${svn_revision}" />
+
+		<!-- Compile source -->
+		<javac compiler="modern" source="1.5" target="1.5" srcdir="${src}" destdir="${src_build}">
+			<classpath refid="build.classpath" />
+		</javac>
+	</target>
+
 	<target name="debug" depends="init, manifest" description="Compile the source">
 		<!-- Compile source. -->
 		<javac compiler="modern" source="1.6" target="1.6" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
@@ -89,7 +103,18 @@
 	<target name="dist" depends="compile_src, manifest" description="Generate the distribution">
 		<mkdir dir="${dist}" />
 
-		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="${manifest_file}">
+		<jar jarfile="${dist}/vstar-1.5.jar" basedir="${src_build}" manifest="${manifest_file}">
+			<fileset dir="${ui_resources}" />
+		</jar>
+
+		<delete file="${manifest_file}" />
+	</target>
+
+
+	<target name="dist_5" depends="compile_src_5, manifest" description="Generate the distribution">
+		<mkdir dir="${dist}" />
+
+		<jar jarfile="${dist}/vstar-5.jar" basedir="${src_build}" manifest="${manifest_file}">
 			<fileset dir="${ui_resources}" />
 		</jar>
 

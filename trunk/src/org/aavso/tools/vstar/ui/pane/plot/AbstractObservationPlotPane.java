@@ -165,8 +165,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		chart.getXYPlot().setRenderer(renderer);
 
-		// Note: Hmm. A white background with no grids looks a bit barren.
-		// this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
+		this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
 
 		setupCrossHairs();
 
