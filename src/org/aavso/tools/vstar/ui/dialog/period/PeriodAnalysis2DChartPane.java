@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.ui.dialog.period;
 
+import java.awt.Color;
+
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
@@ -59,11 +61,13 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 	}
 
 	private void configureChart() {
+		chart.getXYPlot().setBackgroundPaint(Color.WHITE);
+
 		chart.getXYPlot().setDomainCrosshairValue(0);
 		chart.getXYPlot().setRangeCrosshairValue(0);
 
 		chart.getXYPlot().setDomainCrosshairVisible(true);
-		chart.getXYPlot().setRangeCrosshairVisible(true);
+		chart.getXYPlot().setRangeCrosshairVisible(true);		
 	}
 
 	public void chartMouseClicked(ChartMouseEvent event) {

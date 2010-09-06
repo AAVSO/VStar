@@ -166,7 +166,7 @@ public class Magnitude {
 		}
 
 		if (uncertainty != 0) {
-			strBuf.append(" (\u00B1");
+			//strBuf.append(" (\u00B1");
 			strBuf.append(String.format(numericFormat, uncertainty));
 			strBuf.append(")");
 		}
