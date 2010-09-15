@@ -30,6 +30,7 @@ import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
  */
 public class BinningResult {
 
+	private int sourceObsCount;
 	private List<ValidObservation> meanObservations;
 	private List<double[]> magnitudeBins;
 	private double fValue;
@@ -39,14 +40,18 @@ public class BinningResult {
 	/**
 	 * Constructor
 	 * 
+	 * @param sourceObsCount
+	 *            The number of source observations.
 	 * @param meanObservations
 	 *            A list of mean observations.
 	 * @param magnitudeBins
 	 *            The corresponding magnitude bins that gave rise to the binned
 	 *            mean observations.
 	 */
-	public BinningResult(List<ValidObservation> meanObservations,
+	public BinningResult(int sourceObsCount,
+			List<ValidObservation> meanObservations,
 			List<double[]> magnitudeBins) {
+		this.sourceObsCount = sourceObsCount;
 		this.meanObservations = meanObservations;
 		this.magnitudeBins = magnitudeBins;
 		this.error = false;
@@ -97,24 +102,30 @@ public class BinningResult {
 	 * @return The degrees of freedom.
 	 */
 	public int getBetweenGroupDF() {
-		return magnitudeBins.size()-1;
+		return magnitudeBins.size() - 1;
 	}
 
 	/**
 	 * Returns the within-group degrees of freedom for the F-test result. This
 	 * is defined as: df(w) = (N1-1)+(N2-1)+...+(Nm-1) where N1..Nm are the
-	 * number of values within each group.
+	 * number of values within each group. This should be k (the number of
+	 * groups, i.e. bins) less than N, the total number of data-points (observations)
+	 * used for binning.
 	 * 
 	 * @return The degrees of freedom.
 	 */
 	public int getWithinGroupDF() {
-		int sum = 0;
+//		int sum = 0;
+//
+//		for (double[] binData : magnitudeBins) {
+//			sum += (binData.length - 1);
+//		}
 		
-		for (double[] binData : magnitudeBins) {
-			sum += (binData.length - 1);
-		}
-		
-		return sum;
+
+		// N-k
+		int N_minus_k = sourceObsCount - magnitudeBins.size();
+//		assert N_minus_k == sum;
+		return N_minus_k; 
 	}
 
 	/**

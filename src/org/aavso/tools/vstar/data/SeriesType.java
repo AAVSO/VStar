@@ -90,7 +90,7 @@ public enum SeriesType {
 
 	Unspecified(SeriesType.NO_INDEX, "Unspecified", "Unspecified", Color.ORANGE),
 
-	Filtered(SeriesType.NO_INDEX, "Filtered", "Filtered", Color.WHITE),
+	Filtered(SeriesType.NO_INDEX, "Filtered", "Filtered", new Color(0, 153, 204)),
 
 	// Polynomial fit series.
 	PolynomialFit(SeriesType.NO_INDEX, "Polynomial Fit", "Polynomial Fit", Color.RED),
