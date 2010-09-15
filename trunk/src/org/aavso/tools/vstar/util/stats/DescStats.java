@@ -133,9 +133,8 @@ public class DescStats {
 	}
 
 	/**
-	 * Calculates the mean magnitude and the Standard Error of the Average
-	 * (actually twice that: the Confidence Interval) for a sample of magnitudes
-	 * for observations in a specified inclusive range.
+	 * Calculates the mean magnitude and the Standard Error of the Average for 
+	 * a sample of magnitudes for observations in a specified inclusive range.
 	 * 
 	 * We use the sample standard deviation formula as per
 	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
@@ -150,13 +149,11 @@ public class DescStats {
 	 * @param maxIndex
 	 *            The last observation index in the inclusive range.
 	 * @return A Bin object containing magnitude bin data and a ValidObservation
-	 *         instance whose time parameter (JD or phase) is at the mid-point
-	 *         between the two indexed observations, and whose magnitude
-	 *         captures the mean of magnitude values in that range, and the
-	 *         Standard Error of the Average for that mean magnitude value; more
-	 *         precisely, the Confidence Interval is used instead of Standard
-	 *         Error of the Average, which is twice the latter. The binned
-	 *         magnitude data can be used for other analysis, e.g. anova.
+	 *         instance whose time parameter (JD or phase) is the mean of the 
+	 *         indexed observations, and whose magnitude captures the mean of 
+	 *         magnitude values in that range, and the Standard Error of the 
+	 *         Average for that mean magnitude value. The binned magnitude data
+	 *         can be used for further analysis such as ANOVA.
 	 */
 	public static Bin createMeanObservationForRange(
 			List<ValidObservation> observations,
@@ -209,6 +206,17 @@ public class DescStats {
 		observation.setBand(SeriesType.MEANS);
 		timeElementEntity.setTimeElement(observation, timeMean);
 
+		// If bin data array contains only one element, we replace this
+		// with a pair since some implementations of ANOVA (e.g. Apache
+		// Commons Math) require all sample sizes to be greater than one.
+		// Question: even though the mean resulting from this will be just
+		// the value itself, will the greater sample size of this bin skew
+		// the ANOVA result in any way?
+		if (binData.length == 1) {
+			double datum = binData[0];
+			binData = new double[]{datum, datum};
+		}
+		
 		return new Bin(observation, binData);
 	}
 
@@ -340,7 +348,7 @@ public class DescStats {
 					timeElementsInBin, binnedObs, magnitudeBins);
 		}
 
-		return new BinningResult(binnedObs, magnitudeBins);
+		return new BinningResult(observations.size(), binnedObs, magnitudeBins);
 	}
 
 	// Helpers
@@ -402,22 +410,14 @@ public class DescStats {
 
 				// If the mean magnitude value is NaN (e.g. because
 				// there was no valid data in the range in question),
-				// it doesn't make sense to include this observation.
+				// it doesn't make sense to include this bin.
 				if (!Double.isNaN(ob.getMag())) {
 					// Notice that we add to the start of the list
 					// to avoid having to reverse the list since we
 					// are moving from right to left along the original
 					// list.
-					binnedObs.add(0, ob);
-					
-					// Tests like ANOVA may not like bins with less than 2 values.
-					// There should only be one or two of these (at start
-					// and end of dataset) unless the amount of data is small.
-					// The alternative is that the same single data item is
-					// added to the array. But won't that skew the result?
-					if (bin.getMagnitudes().length > 1) {
-						bins.add(0, bin.getMagnitudes());
-					}
+					binnedObs.add(0, ob);			
+					bins.add(0, bin.getMagnitudes());
 				}
 
 				// If we have not yet reached the start of the list, prepare
@@ -492,18 +492,10 @@ public class DescStats {
 
 				// If the mean magnitude value is NaN (e.g. because
 				// there was no valid data in the range in question),
-				// it doesn't make sense to include this observation.
+				// it doesn't make sense to include this bin.
 				if (!Double.isNaN(ob.getMag())) {
 					binnedObs.add(ob);
-										
-					// Tests like ANOVA may not like bins with less than 2 values.
-					// There should only be one or two of these (at start
-					// and end of dataset) unless the amount of data is small.
-					// The alternative is that the same single data item is
-					// added to the array. But won't that skew the result?
-					if (bin.getMagnitudes().length > 1) {
-						bins.add(bin.getMagnitudes());
-					}
+					bins.add(bin.getMagnitudes());
 				}
 
 				if (i < observations.size()) {

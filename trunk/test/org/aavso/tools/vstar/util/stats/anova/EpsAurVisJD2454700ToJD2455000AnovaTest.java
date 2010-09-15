@@ -574,6 +574,14 @@ public class EpsAurVisJD2454700ToJD2455000AnovaTest extends TestCase {
 
 		double pValue = result.getPValue();
 		assertEquals("0.000002", String.format("%1.6f", pValue));
+		
+		int k = result.getMagnitudeBins().size();
+		
+		int dfW = result.getWithinGroupDF();
+		assertEquals(obs.size()-k, dfW);
+		
+		int dfB = result.getBetweenGroupDF();
+		assertEquals(k-1, dfB);
 	}
 
 	// Helpers
