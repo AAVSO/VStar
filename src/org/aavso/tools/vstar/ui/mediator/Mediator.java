@@ -326,7 +326,8 @@ public class Mediator {
 							.notifyListeners(new MeanSourceSeriesChangeMessage(
 									this, meanSourceSeriesType));
 
-					// TODO: need to re-up this listener when model changes due to
+					// TODO: need to re-up this listener when model changes due
+					// to
 					// phase plot!
 					// move all of this into plugin even... including
 					// re-registration?
@@ -350,7 +351,8 @@ public class Mediator {
 					if (!phaseDialog.isCancelled()) {
 						double period = phaseDialog.getPeriod();
 						double epoch = phaseDialog.getEpoch();
-						MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+						MainFrame.getInstance().setCursor(
+								Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 						msg = createPhasePlotArtefacts(period, epoch, null);
 						analysisType = AnalysisType.PHASE_PLOT;
 						analysisTypeChangeNotifier.notifyListeners(msg);
@@ -662,7 +664,8 @@ public class Mediator {
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
 					"Light Curve with Means for " + starInfo.getDesignation(),
-					subTitle, obsAndMeanPlotModel);
+					"Mean error bars denote 95% Confidence Interval (twice Standard Error) "
+							+ subTitle, obsAndMeanPlotModel);
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					createMeanObsChangeListener(obsAndMeanPlotModel
@@ -1015,7 +1018,7 @@ public class Mediator {
 							polynomialFitter);
 
 					this.currTask = task;
-					
+
 					this.getProgressNotifier().notifyListeners(
 							ProgressInfo.START_PROGRESS);
 					this.getProgressNotifier().notifyListeners(

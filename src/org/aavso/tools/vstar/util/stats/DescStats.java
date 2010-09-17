@@ -186,23 +186,20 @@ public class DescStats {
 		}
 
 		// Standard sample variance, deviation and error of average.
-		// As a final step, the CI (confidence interval) is calculated.
-		// See Grant Foster's book "Analyzing Light Curves" re: this.
 		double variance = total / (included - 1);
 		double magStdDev = Math.sqrt(variance);
 		double magStdErrOfMean = magStdDev / Math.sqrt(included);
-		double confidenceInternal = magStdErrOfMean * 2;
 
 		// If in any of the steps above we get NaN, we use 0
 		// (e.g. because there is only one sample), we set the
 		// Standard Error of the Average to 0.
-		if (Double.isNaN(confidenceInternal)) {
-			confidenceInternal = 0;
+		if (Double.isNaN(magStdErrOfMean)) {
+			magStdErrOfMean = 0;
 		}
 
 		// Create the mean observation.
 		ValidObservation observation = new ValidObservation();
-		observation.setMagnitude(new Magnitude(magMean, confidenceInternal));
+		observation.setMagnitude(new Magnitude(magMean, magStdErrOfMean));
 		observation.setBand(SeriesType.MEANS);
 		timeElementEntity.setTimeElement(observation, timeMean);
 
