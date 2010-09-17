@@ -245,10 +245,28 @@ public class ObservationAndMeanPlotPane extends
 
 		List<Title> subtitles = chart.getSubtitles();
 
+		// Remove old ANOVA sub-title.
+		int removalIndex = -1;
+		
 		if (subtitles.size() > 1) {
-			// Assume the last subtitle is the previous ANOVA message and remove
-			// it.
-			subtitles.remove(subtitles.size() - 1);
+			for (int i = 0; i < subtitles.size(); i++) {
+				Title subTitle = subtitles.get(i);
+				if (subTitle != null && subTitle instanceof TextTitle) {
+					TextTitle textTitle = (TextTitle) subTitle;
+					String text = textTitle.getText();
+					if (text != null
+							&& text.length() != 0
+							&& (text.contains("anova") || text
+									.contains("p-value"))) {
+						removalIndex = i;
+						break;
+					}
+				}
+			}
+
+			if (removalIndex != -1) {
+				subtitles.remove(removalIndex);
+			}
 		}
 
 		subtitles.add(new TextTitle(anovaText));

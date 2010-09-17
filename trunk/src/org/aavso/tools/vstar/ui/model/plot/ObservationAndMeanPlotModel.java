@@ -211,9 +211,15 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			return super.getMagError(series, item);
 		} else {
 			// For the means series, we store the mean magnitude error
-			// value as the magnitude's uncertainty. TODO: change this?
+			// value as the magnitude's uncertainty, and we are only interested
+			// in this (not HQ vs user-specified, since only one value exists for
+			// a mean observation).
+			
+			// For mean observations we double the error value to show the 95% 
+			// Confidence Interval, as suggested to me by Grant Foster. See his book
+			// "Analyzing Light Curves" re: this.
 			return this.seriesNumToObSrcListMap.get(series).get(item)
-					.getMagnitude().getUncertainty();
+					.getMagnitude().getUncertainty() * 2;
 		}
 	}
 
