@@ -59,7 +59,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 	// The binning result associated with this mean observation list.
 	protected BinningResult binningResult;
-	
+
 	protected Notifier<BinningResult> meansChangeNotifier;
 
 	/**
@@ -112,7 +112,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 				timeElementEntity, timeElementsInBin);
 
 		meanObsList = binningResult.getMeanObservations();
-		
+
 		if (meanObsList != Collections.EMPTY_LIST) {
 			// As long as there were enough observations to create a means list
 			// to make a "means" series, we do so.
@@ -125,7 +125,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			// ...do the if (!found) code below...
 			// }
 			//
-			// or even: 
+			// or even:
 			// if (this.srcTypeToSeriesNumMap.get(type) != null) ...
 			for (Map.Entry<Integer, SeriesType> entry : this.seriesNumToSrcTypeMap
 					.entrySet()) {
@@ -140,8 +140,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 			// Is this the first time the means series has been added?
 			if (!found) {
-				this.meansSeriesNum = addObservationSeries(
-						SeriesType.MEANS, meanObsList);
+				this.meansSeriesNum = addObservationSeries(SeriesType.MEANS,
+						meanObsList);
 
 				// Make sure it's rendered!
 				this.getSeriesVisibilityMap().put(meansSeriesNum, true);
@@ -212,11 +212,13 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		} else {
 			// For the means series, we store the mean magnitude error
 			// value as the magnitude's uncertainty, and we are only interested
-			// in this (not HQ vs user-specified, since only one value exists for
+			// in this (not HQ vs user-specified, since only one value exists
+			// for
 			// a mean observation).
-			
-			// For mean observations we double the error value to show the 95% 
-			// Confidence Interval, as suggested to me by Grant Foster. See his book
+
+			// For mean observations we double the error value to show the 95%
+			// Confidence Interval, as suggested to me by Grant Foster. See his
+			// book
 			// "Analyzing Light Curves" re: this.
 			return this.seriesNumToObSrcListMap.get(series).get(item)
 					.getMagnitude().getUncertainty() * 2;
@@ -286,8 +288,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	/**
 	 * Determine which series will be the source of the mean series. Note that
 	 * this may be changed subsequently. Visual bands are highest priority, and
-	 * if not found, the first band will be chosen at random. TODO: should this
-	 * be refined?
+	 * if not found, the first band will be chosen at random.
 	 * 
 	 * @return The series number on which to base the mean series.
 	 */
@@ -322,6 +323,22 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 					seriesNum = srcTypeToSeriesNumMap.get(series);
 					break;
 				}
+			}
+		}
+
+		// Still nothing? Okay, now we just choose the first series we come to,
+		// including fainter-thans or discrepants.
+		//
+		// For this to happen should be very rare, but it could happen
+		// For example, CM Cru as of Sep 2010 contains one data value
+		// since around 1949 and that is a Fainter-than. Note that currently,
+		// determineMeanSeriesSource() will ignore Fainter-thans and discrepants
+		// with respect to mean curves. We might want to revise this. Of course,
+		// fainter-thans can later be selected as the means-source.
+		if (seriesNum == -1) {
+			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
+				seriesNum = srcTypeToSeriesNumMap.get(series);
+				break;
 			}
 		}
 
