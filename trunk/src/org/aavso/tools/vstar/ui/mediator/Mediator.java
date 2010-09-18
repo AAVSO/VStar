@@ -470,7 +470,11 @@ public class Mediator {
 						if (!phaseDialog.isCancelled()) {
 							double period = phaseDialog.getPeriod();
 							double epoch = phaseDialog.getEpoch();
-							MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+							MainFrame
+									.getInstance()
+									.setCursor(
+											Cursor
+													.getPredefinedCursor(Cursor.WAIT_CURSOR));
 							msg = createPhasePlotArtefacts(period, epoch, null);
 						}
 					}
@@ -662,10 +666,16 @@ public class Mediator {
 					validObservationCategoryMap, JDCoordSource.instance,
 					JDComparator.instance, JDTimeElementEntity.instance);
 
+			String meanPlotSubtitle = subTitle;
+			if (!"".equals(meanPlotSubtitle)) {
+				meanPlotSubtitle += ", ";
+			}
+
+			meanPlotSubtitle += "Mean error bars denote 95% Confidence Interval (twice Standard Error)";
+
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
 					"Light Curve with Means for " + starInfo.getDesignation(),
-					"Mean error bars denote 95% Confidence Interval (twice Standard Error) "
-							+ subTitle, obsAndMeanPlotModel);
+					meanPlotSubtitle, obsAndMeanPlotModel);
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					createMeanObsChangeListener(obsAndMeanPlotModel
