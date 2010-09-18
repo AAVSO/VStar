@@ -78,6 +78,11 @@ public class ObservationAndMeanPlotPane extends
 
 		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
 
+//		String confIntSubtitle = "Mean error bars denote 95% Confidence Interval (twice Standard Error)";
+//		List<Title> subtitles = chart.getSubtitles();
+//		subtitles.add(new TextTitle(confIntSubtitle));
+//		chart.setSubtitles(subtitles);
+
 		this.timeElementsInBinSettingPane = timeElementsInBinSettingPane;
 
 		this.joinMeans = true;
