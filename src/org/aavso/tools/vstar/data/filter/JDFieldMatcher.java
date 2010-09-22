@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.data.filter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
  * A Julian Day field matcher.
@@ -44,7 +45,7 @@ public class JDFieldMatcher extends DoubleFieldMatcher {
 		IObservationFieldMatcher matcher = null;
 				
 		try {
-			Double value = Double.parseDouble(fieldValue);
+			Double value = NumberParser.parseDouble(fieldValue);
 			matcher = new JDFieldMatcher(value, op);
 		} catch (NumberFormatException e) {
 			// Nothing to do but return null.

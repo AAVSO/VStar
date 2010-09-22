@@ -265,7 +265,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.isDiscrepant();
 			break;
 		case LINE_NUM_COLUMN:
-			value = ob.getLineNumber();
+			value = ob.getRecordNumber();
 			break;
 		}
 		return value;

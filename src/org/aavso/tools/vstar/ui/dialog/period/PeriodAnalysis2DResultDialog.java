@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
+import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -116,7 +117,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	// row in the data table.
 	protected void newPhasePlotButtonAction() {
 		String periodStr = (String) dataTableModel.getPeriodValueInRow(selectedRow);
-		double period = Double.valueOf(periodStr);
+		double period = NumberParser.parseDouble(periodStr);
 
 		PeriodChangeMessage message = new PeriodChangeMessage(this, period);
 		Mediator.getInstance().getPeriodChangeMessageNotifier()

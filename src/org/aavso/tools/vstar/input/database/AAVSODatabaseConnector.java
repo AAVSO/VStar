@@ -20,7 +20,6 @@ package org.aavso.tools.vstar.input.database;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -72,6 +71,7 @@ public class AAVSODatabaseConnector {
 	private boolean authenticatedWithCitizenSky;
 
 	// Database connectors.
+	// TODO: Each of these should instead be separate classes!! See also below.
 	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.OBSERVATION);
 
@@ -86,9 +86,11 @@ public class AAVSODatabaseConnector {
 
 	// Star name and AUID retrievers.
 
-	// TODO: Continue the refactoring of sub-data-accessors begin with this,
-	// e.g. for observations and CS authentication. Actually, it's worse
-	// than this; some methods in this class will only work with certain
+	// TODO: Refactor to sub-data-accessors, possibly with a base class with
+	// static driver init as per below.
+
+	// e.g. for object identification, observations and authentication. Some
+	// methods in this class will only work with certain
 	// databases, e.g. VSX for name/AUID lookup, user database etc; we need
 	// to have separate data connector/accessor classes for each category
 	// otherwise MySQL will tell us that have been denied access to a database
@@ -121,7 +123,6 @@ public class AAVSODatabaseConnector {
 		this.obsWithNoJDRangeStmt = null;
 
 		this.authenticatedWithCitizenSky = false;
-		this.starNameAndAUIDRetriever = null;
 	}
 
 	/**
@@ -181,6 +182,7 @@ public class AAVSODatabaseConnector {
 		if (obsWithJDRangeStmt == null) {
 			obsWithJDRangeStmt = connection
 					.prepareStatement("SELECT\n"
+							+ "observations.unique_id AS unique_id,\n"
 							+ "observations.JD AS jd,\n"
 							+ "observations.magnitude AS magnitude,\n"
 							+ "observations.fainterthan AS fainterthan,\n"
@@ -249,6 +251,7 @@ public class AAVSODatabaseConnector {
 		if (obsWithNoJDRangeStmt == null) {
 			obsWithNoJDRangeStmt = connection
 					.prepareStatement("SELECT\n"
+							+ "observations.unique_id AS unique_id,\n"
 							+ "observations.JD AS jd,\n"
 							+ "observations.magnitude AS magnitude,\n"
 							+ "observations.fainterthan AS fainterthan,\n"
@@ -435,16 +438,20 @@ public class AAVSODatabaseConnector {
 	 * logged-in user has submitted an observation to AID via Citizen Sky. If
 	 * there is one, store it, e.g. for use in observation filtering.
 	 * 
-	 * @param uid The logged-in user's ID.
-	 * @param userConnection The user database connection.
-	 * @throws Exception If an SQL error occurs.
+	 * @param uid
+	 *            The logged-in user's ID.
+	 * @param userConnection
+	 *            The user database connection.
+	 * @throws Exception
+	 *             If an SQL error occurs.
 	 */
-	private void retrieveObserverCode(int uid, Connection userConnection) throws Exception {
-		
+	private void retrieveObserverCode(int uid, Connection userConnection)
+			throws Exception {
+
 		PreparedStatement obsCodeStmt = createCitizenSkyObserverCodeQuery(userConnection);
 		obsCodeStmt.setInt(1, uid);
 		ResultSet obsCodeResults = obsCodeStmt.executeQuery();
-		
+
 		if (obsCodeResults.next()) {
 			String obsCode = obsCodeResults.getString("value");
 			if (!obsCodeResults.wasNull()) {

@@ -211,6 +211,13 @@ public class Mediator {
 	}
 
 	/**
+	 * @return the newStarMessage
+	 */
+	public NewStarMessage getNewStarMessage() {
+		return newStarMessage;
+	}
+
+	/**
 	 * @return the analysisTypeChangeNotifier
 	 */
 	public Notifier<AnalysisTypeChangeMessage> getAnalysisTypeChangeNotifier() {

@@ -93,7 +93,7 @@ public class InvalidObservationTableModel extends AbstractTableModel {
 		case 0:
 			// TODO: we really want to return an integer so that column 
 			// sorting works properly for numbers!
-			value = String.format("%d", invalidOb.getLineNumber());
+			value = String.format("%d", invalidOb.getRecordNumber());
 			break;
 		case 1:
 			value = invalidOb.getInputLine();
