@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
  * This class validates provided text as a Julian Day.
@@ -73,7 +74,7 @@ public class JulianDayValidator extends AbstractStringValidator<DateInfo> {
 
 		// By virtue of the regex pattern above,
 		// this must parse as a double.
-		double value = Double.parseDouble(fields[0]);
+		double value = NumberParser.parseDouble(fields[0]);
 		
 		return new DateInfo(value);
 	}

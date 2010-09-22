@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
  * This modal dialog class allows period analysis parameters to be entered.
@@ -132,9 +133,9 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 	@Override
 	protected void okAction() {
 		try {
-			loFreq = Double.parseDouble(loFreqField.getText());
-			hiFreq = Double.parseDouble(hiFreqField.getText());
-			resolution = Double.parseDouble(resolutionField.getText());
+			loFreq = NumberParser.parseDouble(loFreqField.getText());
+			hiFreq = NumberParser.parseDouble(hiFreqField.getText());
+			resolution = NumberParser.parseDouble(resolutionField.getText());
 
 			// If we got to here without a parse error, we can dismiss the dialog.
 			cancelled = false;

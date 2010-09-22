@@ -1,8 +1,6 @@
-package org.aavso.tools.vstar.data;
-
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -17,32 +15,11 @@ package org.aavso.tools.vstar.data;
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
+package org.aavso.tools.vstar.plugin;
 
 /**
- * The base class for all file-sourced observation classes. 
+ * <p>This is the base class for all observation source plug-in classes.</p>
  */
-public abstract class Observation {
+public interface ObservationSourcePluginBase extends PluginBase {
 
-	private int recordNumber;	
-
-	/**
-	 * @param recordNumber
-	 */
-	public Observation(int recordNumber) {
-		this.recordNumber = recordNumber;
-	}
-
-	/**
-	 * @return the recordNumber
-	 */
-	public int getRecordNumber() {
-		return recordNumber;
-	}
-
-	/**
-	 * @param recordNumber the recordNumber to set
-	 */
-	public void setRecordNumber(int lineNumber) {
-		this.recordNumber = lineNumber;
-	}
 }

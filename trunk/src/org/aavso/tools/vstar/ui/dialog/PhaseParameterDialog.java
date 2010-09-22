@@ -34,6 +34,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.stats.epoch.AlphaOmegaMeanJDEpochStrategy;
 import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
@@ -172,13 +173,13 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 			Matcher periodMatcher = realNumberPattern.matcher(periodText);
 			if (periodMatcher.matches()) {
 				String periodStr = periodMatcher.group(1).trim();
-				period = Double.parseDouble(periodStr);
+				period = NumberParser.parseDouble(periodStr);
 			}
 
 			Matcher epochMatcher = realNumberPattern.matcher(epochText);
 			if (epochMatcher.matches()) {
 				String epochStr = epochMatcher.group(1).trim();
-				epoch = Double.parseDouble(epochStr);
+				epoch = NumberParser.parseDouble(epochStr);
 			}
 
 			if (period > 0 && epoch >= 0) {

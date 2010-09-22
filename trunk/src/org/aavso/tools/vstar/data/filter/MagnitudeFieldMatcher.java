@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.data.filter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
  * A magnitude field matcher.
@@ -38,7 +39,7 @@ public class MagnitudeFieldMatcher extends DoubleFieldMatcher {
 		IObservationFieldMatcher matcher = null;
 		
 		try {
-			Double value = Double.parseDouble(fieldValue);
+			Double value = NumberParser.parseDouble(fieldValue);
 			matcher = new MagnitudeFieldMatcher(value, op);
 		} catch (NumberFormatException e) {
 			// Nothing to do but return null.

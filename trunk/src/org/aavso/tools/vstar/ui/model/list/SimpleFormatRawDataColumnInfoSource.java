@@ -112,7 +112,7 @@ public class SimpleFormatRawDataColumnInfoSource implements ITableColumnInfoSour
 			value = ob.getObsCode();
 			break;
 		case LINE_NUM_COLUMN:
-			value = ob.getLineNumber();
+			value = ob.getRecordNumber();
 			break;
 		case DISCREPANT_COLUMN:
 			value = ob.isDiscrepant();
