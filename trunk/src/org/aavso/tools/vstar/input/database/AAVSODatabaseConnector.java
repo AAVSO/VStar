@@ -33,6 +33,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.LoginDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.resources.LoginType;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
@@ -45,8 +46,7 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  * generateHexDigest() was adapted from Zapper UserInfo.encryptPassword()
  * 
  * TODO: Handle the case where the connection becomes invalid but we try to use
- * it, e.g. to create a statement or execute a query. We need to set the
- * connection to null and open an error dialog.
+ * it, e.g. to create a statement or execute a query.
  * 
  * TODO: should we split this class into a data accessor object and connection
  * object?
@@ -148,7 +148,7 @@ public class AAVSODatabaseConnector {
 						+ ResourceAccessor.getParam(type.getDBNum()), props);
 			} catch (Exception e1) {
 				try {
-					// ..and then with 3306.
+					// ...and then with 3306.
 					connection = DriverManager
 							.getConnection(CONN_URL
 									+ ":3306/"
@@ -411,8 +411,13 @@ public class AAVSODatabaseConnector {
 				if (userResults.next()) {
 					String actualPassword = userResults.getString("pass");
 					if (passwordDigest.equals(actualPassword)) {
+						// We're authenticated, so update login info and retrieve
+						// observer code if the user has one.
 						authenticatedWithCitizenSky = true;
-
+						
+						ResourceAccessor.getLoginInfo().setType(LoginType.CITIZEN_SKY);
+						ResourceAccessor.getLoginInfo().setUserName(username);
+						
 						int uid = userResults.getInt("uid");
 						retrieveObserverCode(uid, userConnection);
 					} else {
@@ -455,7 +460,7 @@ public class AAVSODatabaseConnector {
 		if (obsCodeResults.next()) {
 			String obsCode = obsCodeResults.getString("value");
 			if (!obsCodeResults.wasNull()) {
-				ResourceAccessor.setObserverCode(obsCode);
+				ResourceAccessor.getLoginInfo().setObserverCode(obsCode);
 			}
 		}
 	}

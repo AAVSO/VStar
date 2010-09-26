@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,11 +37,18 @@ import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeType;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.discrepant.DiscrepantReport;
+import org.aavso.tools.vstar.util.discrepant.IDiscrepantReporter;
+import org.aavso.tools.vstar.util.discrepant.ZapperLogger;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -65,7 +73,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 		this.setAlwaysOnTop(true);
 
 		// Set window transparency.
-		com.sun.awt.AWTUtilities.setWindowOpacity(this, 0.7f);
+		com.sun.awt.AWTUtilities.setWindowOpacity(this, 0.8f);
 
 		this.ob = ob;
 
@@ -86,10 +94,12 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 
 		// We currently disable the discrepant checkbox for anything other
 		// than raw data mode due to this bug in which a chunk of data
-		// disappears after marking a point as discrepant, then unmarking it. 
-		// Since the cross hair change is reflected in raw data mode also, this 
-		// is no great user interface problem. The problem should be fixed though.
-		// See https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
+		// disappears after marking a point as discrepant, then unmarking it.
+		// Since the cross hair change is reflected in raw data mode also, this
+		// is no great user interface problem. The problem should be fixed
+		// though.
+		// See
+		// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
 		// for more detail.
 		if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
 			// It doesn't make sense to mark a mean observation as discrepant
@@ -119,7 +129,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 		this.getRootPane().setDefaultButton(okButton);
 
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		
+
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
 		this.setAlwaysOnTop(true);
@@ -142,13 +152,14 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 		};
 	}
 
-	 // Creates a discrepant checkbox handler.
+	// Creates a discrepant checkbox handler.
 	private ActionListener createDiscrepantCheckBoxHandler() {
 		final ObservationDetailsDialog parent = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// We disable discrepant toggling here for now, in case this dialog was opened
-				// in raw data mode, but we have since switched to phase plot mode.
+				// We disable discrepant toggling here for now unless we are in
+				// raw mode, in case this dialog was opened in raw data mode,
+				// but we have since switched to phase plot mode.
 				// See
 				// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
 				// for more detail.
@@ -160,13 +171,72 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 							ob, ObservationChangeType.DISCREPANT, parent);
 					Mediator.getInstance().getObservationChangeNotifier()
 							.notifyListeners(message);
+
+					// If the dataset was loaded from AID and the change was
+					// to mark this observation as discrepant, we ask the user
+					// whether to report this to AAVSO.
+					NewStarMessage newStarMessage = Mediator.getInstance()
+							.getNewStarMessage();
+
+					if (ob.isDiscrepant()
+							&& newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+
+						String auid = newStarMessage.getStarInfo().getAuid();
+						String name = ob.getName();
+						int uniqueId = ob.getRecordNumber();
+
+						DiscrepantReportDialog reportDialog = new DiscrepantReportDialog(
+								auid, ob);
+
+						if (!reportDialog.isCancelled()) {
+							try {
+								MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+								// Get login information for report.
+								String userName = ResourceAccessor
+										.getLoginInfo().getUserName();
+
+								if (userName == null) {
+									AAVSODatabaseConnector.userDBConnector
+											.authenticateWithCitizenSky();
+
+									userName = ResourceAccessor.getLoginInfo()
+											.getUserName();
+								}
+
+								String editor = "vstar:" + userName;
+
+								setVisible(false);
+
+								// Create and submit the discrepant report.
+								DiscrepantReport report = new DiscrepantReport(
+										auid, name, uniqueId, editor,
+										reportDialog.getComments());
+								
+								IDiscrepantReporter reporter = ZapperLogger
+										.getInstance();
+
+								reporter.lodge(report);
+
+								MainFrame.getInstance().setCursor(null);
+
+								dispose();
+
+							} catch (Exception ex) {
+								MessageBox.showErrorDialog(
+										"Discrepant Reporting Error", ex);
+							} finally {
+								MainFrame.getInstance().setCursor(null);
+							}
+						}
+					}
 				}
 			}
 		};
 	}
 
 	// TODO: this method is not being invoked when the window regains focus;
-	// fix!
+	// FIX!
 	public void focusGained(FocusEvent e) {
 		this.getRootPane().setDefaultButton(okButton);
 	}

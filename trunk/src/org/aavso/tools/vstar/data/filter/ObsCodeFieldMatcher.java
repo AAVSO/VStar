@@ -54,6 +54,6 @@ public class ObsCodeFieldMatcher extends StringFieldMatcher {
 
 	@Override
 	public String getDefaultTestValue() {
-		return ResourceAccessor.getObserverCode();
+		return ResourceAccessor.getLoginInfo().getObserverCode();
 	}
 }
