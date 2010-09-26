@@ -31,28 +31,19 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
  */
 public class ResourceAccessor {
 
-	// ** Observer Code. **
-	
-	// TODO: Store observer code somewhere else? Also store as a user property/preference?
-	
-	private static String observerCode = null;
-	
-	/**
-	 * @return the observerCode
-	 */
-	public static String getObserverCode() {
-		return observerCode;
-	}
+	// ** User name, observer code, login type. **
 
-	/**
-	 * @param observerCode the observerCode to set
-	 */
-	public static void setObserverCode(String observerCode) {
-		ResourceAccessor.observerCode = observerCode;
-	}
+	private static LoginInfo loginInfo = new LoginInfo();
 
 	// ** Image resource accessor. **
-	
+
+	/**
+	 * @return the loginInfo
+	 */
+	public static LoginInfo getLoginInfo() {
+		return loginInfo;
+	}
+
 	/**
 	 * Returns an image icon given a resource URL string.
 	 * 
@@ -84,7 +75,7 @@ public class ResourceAccessor {
 	}
 
 	// ** HTML help URL resource accessor. ***
-	
+
 	/**
 	 * Returns the HTML help resource URL.
 	 * 
@@ -106,7 +97,7 @@ public class ResourceAccessor {
 	}
 
 	// ** Version info. **
-	
+
 	public static String getVersionString() {
 		return "version 2.5 Beta";
 	}
@@ -114,9 +105,9 @@ public class ResourceAccessor {
 	public static String getRevNum() {
 		return RevisionAccessor.getRevNum();
 	}
-	
+
 	// ** Various parameters. **
-	
+
 	public static String getParam(int n) {
 		assert n >= 0 && n < data.length;
 		byte[] bytes = new byte[data[n].length];
@@ -151,6 +142,9 @@ public class ResourceAccessor {
 	private static int[] sdata = { 11899, 15397, 10595, 8650, 8688, 9264,
 			11229, 16318, 23421, 22077, 24289, 31165, 9141 };
 
+	// 7
+	private static int[] d4data = { 19886, 16781, 18256, 19376, 18281, 22002 };
+
 	private static int[] pdata = { 163, 173, 163, 173, 181, 193, 197, 199, 211,
 			223, 227, 271, 277, 281, 283, 293, 307, 383, 389, 401, 409, 419,
 			431, 433, 479, 487, 491, 499, 503, 509, 521, 557, 563, 569, 571,
@@ -158,5 +152,5 @@ public class ResourceAccessor {
 			761, 769, 839, 853, 857, 859 };
 
 	private static int[][] data = { hdata, d0data, d1data, d2data, d3data,
-			udata, sdata };
+			udata, sdata, d4data };
 }
