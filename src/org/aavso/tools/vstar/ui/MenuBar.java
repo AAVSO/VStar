@@ -36,6 +36,7 @@ import javax.swing.JMenuItem;
 
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
@@ -81,7 +82,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public static final String RAW_DATA = "Raw Data";
 	public static final String PHASE_PLOT = "Phase Plot...";
 	public static final String POLYNOMIAL_FIT = "Polynomial Fit...";
-	
+
 	// Help menu item names.
 	public static final String HELP_CONTENTS = "Help Contents...";
 	public static final String ABOUT = "About...";
@@ -91,6 +92,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	private JFileChooser fileOpenDialog;
 
 	// Plug-in menu name to plug-in object maps.
+	private Map<String, ObservationSourcePluginBase> menuItemNameToObSourcePlugin;
 	private Map<String, CustomFilterPluginBase> menuItemNameToCustomFilterPlugin;
 	private Map<String, PeriodAnalysisPluginBase> menuItemNameToPeriodAnalysisPlugin;
 	private Map<String, ObservationToolPluginBase> menuItemNameToObsToolPlugin;
@@ -122,11 +124,11 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	// Analysis menu.
 	JCheckBoxMenuItem analysisRawDataItem;
 	JCheckBoxMenuItem analysisPhasePlotItem;
-	
+
 	JMenu analysisPeriodSearchMenu;
 
 	JMenuItem analysisPolynomialFitItem;
-	
+
 	// Tool menu.
 	JMenu toolMenu;
 
@@ -186,6 +188,27 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		fileMenu.add(fileNewStarFromFileItem);
 
 		fileMenu.addSeparator();
+
+		List<ObservationSourcePluginBase> obSourcePlugins = PluginClassLoader
+				.getObservationSourcePlugins();
+
+		if (!obSourcePlugins.isEmpty()) {
+			menuItemNameToObSourcePlugin = new TreeMap<String, ObservationSourcePluginBase>();
+
+			ActionListener obSourceListener = createObservationSourceListener();
+
+			for (ObservationSourcePluginBase plugin : obSourcePlugins) {
+				String itemName = plugin.getDisplayName();
+
+				JMenuItem obSourceMenuItem = new JMenuItem(itemName);
+				obSourceMenuItem.addActionListener(obSourceListener);
+				fileMenu.add(obSourceMenuItem);
+
+				menuItemNameToObSourcePlugin.put(itemName, plugin);
+			}
+
+			fileMenu.addSeparator();
+		}
 
 		fileSaveItem = new JMenuItem(SAVE);
 		fileSaveItem.addActionListener(this.createSaveListener());
@@ -317,9 +340,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		analysisPolynomialFitItem = new JMenuItem(POLYNOMIAL_FIT);
 		analysisPolynomialFitItem.setEnabled(false);
-		analysisPolynomialFitItem.addActionListener(createPolynomialFitListener());
+		analysisPolynomialFitItem
+				.addActionListener(createPolynomialFitListener());
 		analysisMenu.add(analysisPolynomialFitItem);
-		
+
 		this.add(analysisMenu);
 	}
 
@@ -408,8 +432,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 						String auid = starSelectorDialog.getAuid();
 						double minJD, maxJD;
 						// TODO: consider doing these value mods in the dialog
-						// getters
-						// to make this code more declarative.
+						// getters to make this code more declarative.
 						if (!starSelectorDialog.wantAllData()) {
 							minJD = starSelectorDialog.getMinDate()
 									.getJulianDay();
@@ -452,13 +475,28 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 					File f = fileOpenDialog.getSelectedFile();
 
 					try {
-						mediator.createObservationArtefactsFromFile(f, parent);
+						mediator.createObservationArtefactsFromFile(f);
 					} catch (Exception ex) {
 						completeProgress();
 						MessageBox.showErrorDialog(parent, NEW_STAR_FROM_FILE,
 								ex);
 					}
 				}
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for observation source menu
+	 * item selections.
+	 */
+	public ActionListener createObservationSourceListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String item = e.getActionCommand();
+				ObservationSourcePluginBase plugin = menuItemNameToObSourcePlugin
+						.get(item);
+				mediator.createObservationArtefactsFromObSourcePlugin(plugin);
 			}
 		};
 	}
@@ -655,7 +693,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 			}
 		};
 	}
-	
+
 	// ** Tool menu listeners **
 
 	/**

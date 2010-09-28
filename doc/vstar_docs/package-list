@@ -24,6 +24,8 @@ org.aavso.tools.vstar.ui.resources
 org.aavso.tools.vstar.util
 org.aavso.tools.vstar.util.comparator
 org.aavso.tools.vstar.util.date
+org.aavso.tools.vstar.util.discrepant
+org.aavso.tools.vstar.util.locale
 org.aavso.tools.vstar.util.notification
 org.aavso.tools.vstar.util.period
 org.aavso.tools.vstar.util.period.dcdft

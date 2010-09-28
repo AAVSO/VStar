@@ -81,12 +81,12 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 						InvalidObservation invalidOb = new InvalidObservation(
 								line, e.getMessage());
 						invalidOb.setRecordNumber(lineNum);
-						invalidObservations.add(invalidOb);
+						addInvalidObservation(invalidOb);
 					} catch (ObservationValidationWarning e) {
 						InvalidObservation invalidOb = new InvalidObservation(
 								line, e.getMessage(), true);
 						invalidOb.setRecordNumber(lineNum);
-						invalidObservations.add(invalidOb);
+						addInvalidObservation(invalidOb);
 						
 						addValidObservation(e.getObservation(), lineNum);
 					}
@@ -108,7 +108,7 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	private void addValidObservation(ValidObservation validOb, int lineNum) {
 		if (validOb.getMType() == MTypeType.STD) {
 			validOb.setRecordNumber(lineNum);
-			validObservations.add(validOb);
+			addValidObservation(validOb);
 			categoriseValidObservation(validOb);
 		}
 	}

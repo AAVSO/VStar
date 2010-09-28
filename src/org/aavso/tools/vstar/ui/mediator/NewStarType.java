@@ -17,11 +17,13 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
+import org.aavso.tools.vstar.data.validation.AAVSOFormatFieldInfoSource;
 import org.aavso.tools.vstar.data.validation.IFieldInfoSource;
 import org.aavso.tools.vstar.data.validation.SimpleFormatFieldInfoSource;
-import org.aavso.tools.vstar.data.validation.AAVSOFormatFieldInfoSource;
 import org.aavso.tools.vstar.ui.model.list.AAVSOFormatPhasePlotColumnInfoSource;
 import org.aavso.tools.vstar.ui.model.list.AAVSOFormatRawDataColumnInfoSource;
+import org.aavso.tools.vstar.ui.model.list.ExternalFormatPhasePlotColumnInfoSource;
+import org.aavso.tools.vstar.ui.model.list.ExternalFormatRawDataColumnInfoSource;
 import org.aavso.tools.vstar.ui.model.list.ITableColumnInfoSource;
 import org.aavso.tools.vstar.ui.model.list.SimpleFormatPhasePlotColumnInfoSource;
 import org.aavso.tools.vstar.ui.model.list.SimpleFormatRawDataColumnInfoSource;
@@ -46,7 +48,11 @@ public enum NewStarType {
 			AAVSOFormatFieldInfoSource.instance),
 
 	NEW_STAR_FROM_DATABASE(AAVSOFormatRawDataColumnInfoSource.databaseInstance,
-			AAVSOFormatPhasePlotColumnInfoSource.databaseInstance);
+			AAVSOFormatPhasePlotColumnInfoSource.databaseInstance),
+
+	NEW_STAR_FROM_EXTERNAL_SOURCE(
+			ExternalFormatRawDataColumnInfoSource.instance,
+			ExternalFormatPhasePlotColumnInfoSource.instance);
 
 	private final int minFields;
 	private final int maxFields;

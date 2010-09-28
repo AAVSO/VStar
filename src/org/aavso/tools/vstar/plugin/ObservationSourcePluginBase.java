@@ -17,9 +17,34 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+
 /**
- * <p>This is the base class for all observation source plug-in classes.</p>
+ * <p>
+ * This is the base class for all observation source plug-in classes.
+ * </p>
  */
 public interface ObservationSourcePluginBase extends PluginBase {
 
+	/**
+	 * <p>
+	 * Get an observation retriever for this plug-in.
+	 * </p>
+	 * 
+	 * <p>
+	 * A new observation retriever instance should be created for each call to
+	 * this method to avoid side-effects relating to clearing of collections by
+	 * Mediator upon each new-star-artefact creation operation.
+	 * </p>
+	 * 
+	 * @return An observation retriever.
+	 */
+	public AbstractObservationRetriever getObservationRetriever();
+
+	/**
+	 * Get the name of the star associated with the current observation dataset.
+	 * 
+	 * @return The current star name.
+	 */
+	public String getCurrentStarName();
 }

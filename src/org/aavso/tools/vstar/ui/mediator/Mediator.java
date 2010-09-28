@@ -48,6 +48,7 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
@@ -527,9 +528,8 @@ public class Mediator {
 	 * @param parent
 	 *            The GUI component that can be used to display.
 	 */
-	public void createObservationArtefactsFromFile(File obsFile,
-			Component parent) throws FileNotFoundException, IOException,
-			ObservationReadError {
+	public void createObservationArtefactsFromFile(File obsFile)
+			throws IOException, ObservationReadError {
 
 		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
@@ -596,6 +596,25 @@ public class Mediator {
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
 			MainFrame.getInstance().getStatusPane().setMessage("");
 		}
+	}
+
+	/**
+	 * Creates and executes a background task to handle
+	 * new-star-from-external-source-plugin.
+	 * 
+	 * @param obSourcePlugin
+	 *            The plugin that will be used to obtain observations.
+	 */
+	public void createObservationArtefactsFromObSourcePlugin(
+			ObservationSourcePluginBase obSourcePlugin) {
+
+		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
+		this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
+
+		NewStarFromObSourcePluginTask task = new NewStarFromObSourcePluginTask(
+				obSourcePlugin);
+		this.currTask = task;
+		task.execute();
 	}
 
 	/**
@@ -698,10 +717,12 @@ public class Mediator {
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					meanObsTableModel);
 
-			// Update progress.
-			getProgressNotifier().notifyListeners(
-					new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
-							obsArtefactProgressAmount));
+			if (obsArtefactProgressAmount > 0) {
+				// Update progress.
+				getProgressNotifier().notifyListeners(
+						new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
+								obsArtefactProgressAmount));
+			}
 		}
 
 		if (!invalidObsList.isEmpty()) {
@@ -715,7 +736,9 @@ public class Mediator {
 		// file since there won't be many columns. We don't want to do that
 		// when there are many columns (i.e. for AAVSO download format files
 		// and database source).
-		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
+		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
+				|| newStarType == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
+
 		obsListPane = new ObservationListPane(validObsTableModel,
 				invalidObsTableModel, enableColumnAutoResize);
 
@@ -868,7 +891,9 @@ public class Mediator {
 		// won't be many columns. We don't want to do that when there are
 		// many columns (i.e. for AAVSO download format files and database
 		// source).
-		boolean enableColumnAutoResize = newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE;
+		boolean enableColumnAutoResize = newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
+				|| newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
+		
 		ObservationListPane obsListPane = new ObservationListPane(
 				validObsTableModel, null, enableColumnAutoResize);
 

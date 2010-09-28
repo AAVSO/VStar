@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.ui.model.list;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * AAVSO format (file, database) table column information source.
+ * AAVSO format (file, database) raw data table column information source.
  */
 public class AAVSOFormatRawDataColumnInfoSource implements
 		ITableColumnInfoSource {

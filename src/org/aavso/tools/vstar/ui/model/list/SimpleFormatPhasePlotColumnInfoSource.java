@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.ui.model.list;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * Simple file format table column information source for phase plot mode.
+ * Simple file format phase plot table column information source for phase plot mode.
  * 
  * This class exploits the knowledge that its base class's column indices are
  * offset by one compared to its. Yes, this breaks encapsulation but promotes
