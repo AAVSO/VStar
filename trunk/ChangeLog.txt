@@ -30,6 +30,16 @@ o VStar leaks memory with continued use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
    
 ----------------------
+Date: September 29 2010
+Version: 2.6 Beta
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-29September2010
+Key Changes:
+- Fixed number parsing bug reported by Citizen Sky participant, Bikeman. See 
+  tracker 3059737. 
+- Implemented and system-tested discrepant reporting. See tracker 2937949.
+- Implemented observation source plug-in capability and updated plug-in 
+  development document. See tracker 2983857.
+
 Date: September 2 2010
 Version: 2.5 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-02September2010

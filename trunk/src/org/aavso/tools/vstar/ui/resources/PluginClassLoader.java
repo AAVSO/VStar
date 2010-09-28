@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.PluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
@@ -113,6 +114,21 @@ public class PluginClassLoader {
 		}
 
 		return customFilterPlugins;
+	}
+
+	/**
+	 * Return a list of VStar Observation Source plugins.
+	 */
+	public static List<ObservationSourcePluginBase> getObservationSourcePlugins() {
+		List<ObservationSourcePluginBase> obSourcePlugins = new ArrayList<ObservationSourcePluginBase>();
+
+		for (PluginBase plugin : plugins) {
+			if (plugin instanceof ObservationSourcePluginBase) {
+				obSourcePlugins.add((ObservationSourcePluginBase) plugin);
+			}
+		}
+
+		return obSourcePlugins;
 	}
 
 	/**

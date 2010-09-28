@@ -94,7 +94,7 @@ public abstract class AbstractObservationRetriever {
 
 	/**
 	 * Here we categorise a valid observation in terms of whether it is a
-	 * fainter-than or or discrepant or belongs to a particular band, in that
+	 * fainter-than or discrepant or belongs to a particular band, in that
 	 * order.
 	 * 
 	 * @param validOb
@@ -120,5 +120,59 @@ public abstract class AbstractObservationRetriever {
 		}
 
 		validObsList.add(validOb);
+	}
+
+	/**
+	 * <p>
+	 * Add an observation to the list of valid observations.
+	 * </p>
+	 * 
+	 * <p>
+	 * This is a convenience method that adds an observation to the list of
+	 * valid observations and categorises it by band. This method is
+	 * particularly suitable for observation source plugins since it asks
+	 * whether an observation satisfies the requirement that it has at least JD
+	 * and magnitude values. The caller can either propagate this exception
+	 * further or add to the invalid observation list, or do whatever else it
+	 * considers to be appropriate.
+	 * </p>
+	 * 
+	 * @param ob
+	 *            The valid observation to be added to collections.
+	 */
+	protected void collectObservation(ValidObservation ob)
+			throws ObservationReadError {
+		if (ob.getDateInfo() == null) {
+			throw new ObservationReadError("Observation #"
+					+ ob.getRecordNumber() + " has no date.");
+		}
+
+		if (ob.getMagnitude() == null) {
+			throw new ObservationReadError("Observation #"
+					+ ob.getRecordNumber() + " has no magnitude.");
+		}
+
+		addValidObservation(ob);
+		categoriseValidObservation(ob);
+	}
+
+	/**
+	 * Add an observation to the list of valid observations.
+	 * 
+	 * @param ob
+	 *            The valid observation to be added.
+	 */
+	protected void addValidObservation(ValidObservation ob) {
+		validObservations.add(ob);
+	}
+
+	/**
+	 * Add an observation to the list of invalid observations.
+	 * 
+	 * @param ob
+	 *            The invalid observation to be added.
+	 */
+	protected void addInvalidObservation(InvalidObservation ob) {
+		invalidObservations.add(ob);
 	}
 }

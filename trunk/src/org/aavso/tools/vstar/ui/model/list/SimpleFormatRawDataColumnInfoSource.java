@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.ui.model.list;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * Simple file format table column information source.
+ * Simple file format raw data table column information source.
  * 
  * TODO: can we instead inherit from RawData class and specialise 
  * each switch function?
