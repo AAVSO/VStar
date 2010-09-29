@@ -39,6 +39,7 @@ Key Changes:
 - Implemented and system-tested discrepant reporting. See tracker 2937949.
 - Implemented observation source plug-in capability and updated plug-in 
   development document. See tracker 2983857.
+- Several small GUI fixes.
 
 Date: September 2 2010
 Version: 2.5 Beta
