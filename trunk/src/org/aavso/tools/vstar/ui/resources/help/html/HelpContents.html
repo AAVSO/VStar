@@ -113,15 +113,9 @@ submitted observations, the value field will default to that observer code.</p>
 
 <p>Selecting <code>No Filter...</code> from the View menu removes the effect of filtering.</p>
 
-<br></br><h2>Period Searches</h2>
+<p>See also the <em>Create your own plug-in!</em> section.</p>
 
-  <ul>
-   <li>Date Compensated Discrete Fourier Transform (DC DFT)</li>
-   <li>Phase Dispersion Minimization</li>
-   <li>Other possibilities: WWZ, CLEANEST, AoV (analysis of variance), ...</li>
-  </ul>
-
-<p><i>Only the first of these is currently implemented.</i></p>
+<br></br><h2>Period Search</h2>
 
 <p>Selecting an item from the <code>Analysis->Period Search</code> sub-menu 
 performs a period analysis on the loaded dataset. This uses the current mean source 
@@ -129,12 +123,29 @@ series (e.g. Visual, Johnson V) as the series on which to perform the analysis. 
 can be changed via the <code>Change Series</code> button (and the ensuing dialog) in 
 the <code>Mean Plot</code> tab.</p>
 
-<p>The period analysis window dialog that opens after a delay contains plots of
+<p>The period analysis dialog that opens after a delay contains plots of
 amplitude against frequency and period, a table of all results, and a table of the
 top 20 hits ranked by amplitude. The latter is a good starting point for testing
 candidate periods. Clicking an entry in this table highlights the corresponding
 table entry or data-point in the other views. You can test different candidate 
 periods by creating phase plots with those periods.</p>
+
+<p>Currently implemented: Date Compensated Discrete Fourier Transform (DC DFT). Other 
+possibilities: WWZ, AoV (analysis of variance), ...</p>
+
+<p>See also the <em>Create your own plug-in!</em> section.</p>
+ 
+<br></br><h2>Polynomial Fit</h2>
+
+<p>By selecting <code>Analysis->Polynomial Fit</code>, a polynomial of a particular 
+degree will be created in an attempt to fit (i.e. model) the currently loaded 
+observation data. The current mean source series will be used as the basis for the 
+fit.</p>
+
+<p>A polynomial fit series will be added to the light curve plot and made visible.
+In addition, a <em>Residuals</em> series (dataset with polynomial removed) is added 
+but not initially made visible. See also the <code>Change Series</code> button in the 
+light curve pane.</p>
 
 <br></br><h2>Saving Plots and Tables</h2>
 
@@ -156,7 +167,18 @@ item or the equivalent toolbar icon.</p>
 <p>Preferences can be set via the File menu's <code>Preferences...</code> item
 or the equivalent toolbar icon.</p>
 
-<p><i>Currently, only plot color preferences are implemented.</i></p>
+<br></br><h2>Create your own plug-in!</h2>
+
+<p>VStar's functionality can be extended by developing Java plug-ins for:</p>
+
+<ul>
+  <li>loading data from arbitrary sources;</li>
+  <li>custom observation filtering;</li>
+  <li>alternative period analysis algorithms;</li>
+</ul>
+
+among other things. For more information see the Citizen Sky or AAVSO VStar web pages 
+(see <em>Links</em> section below).
 
 <br></br><h2>License and Source Code</h2>
 
@@ -166,7 +188,7 @@ General Public License, version 3</a>.  The source code may be obtained from the
 VStar SourceForge repository at:
 <a href="http://vstar.svn.sourceforge.net">http://vstar.svn.sourceforge.net</a></p>
 
-<p>VStar uses the following external libraries.  See the links for project info,
+<p>VStar uses the following external libraries. See the links for project info,
 source code and licensing.</p>
 
 <ul>
@@ -188,11 +210,6 @@ source code and licensing.</p>
     <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt">GNU Lesser
     General Public License, version 2.1</a></li>
 
-    <li>SwingWorker<br>
-    <a href="http://swingworker.dev.java.net/">http://swingworker.dev.java.net/</a><br>
-    <a href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt">GNU Lesser
-    General Public License, version 2.1</a></li>
-
     <li>MySQL Connector/J<br>
     <a href="http://dev.mysql.com/downloads/connector/j/">
     http://dev.mysql.com/downloads/connector/j/</a><br>
@@ -207,9 +224,9 @@ source code and licensing.</p>
 <br></br><h2>Links</h2>
   <ul>
    <li><a href="http://www.citizensky.org/content/vstar">Citizen Sky VStar Page</a></li>
+   <li><a href="http://www.aavso.org/vstar-overview/">AAVSO VStar overview Page</a></li>
    <li><a href="http://www.citizensky.org/content/getting-started-analysis">Getting Started with Analysis</a></li>
    <li><a href="http://www.citizensky.org/content/5-star-analysis">5 Star Analysis Tutorial</a></li>
-   <li><a href="http://www.aavso.org/">AAVSO</a></li>
    <li><a href="http://www.citizensky.org/content/10-star-training">10 Star
    Training Tutorial</a></li>
   </ul>
