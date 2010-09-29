@@ -40,6 +40,7 @@ Key Changes:
 - Implemented observation source plug-in capability and updated plug-in 
   development document. See tracker 2983857.
 - Several small GUI fixes.
+- Updated Help docs re: polynomial fit, plug-ins.
 
 Date: September 2 2010
 Version: 2.5 Beta
