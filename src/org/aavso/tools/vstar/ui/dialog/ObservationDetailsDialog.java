@@ -77,7 +77,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 
 		this.ob = ob;
 
-		this.setTitle("Observation Details");
+		this.setTitle("Details");
 		this.setModal(false);
 		this.setSize(200, 200);
 
