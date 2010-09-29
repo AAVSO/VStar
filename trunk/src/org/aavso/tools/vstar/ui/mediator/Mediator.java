@@ -586,6 +586,12 @@ public class Mediator {
 			task.execute();
 		} catch (CancellationException ex) {
 			MainFrame.getInstance().getStatusPane().setMessage("");
+			
+			mediator.getProgressNotifier().notifyListeners(
+					ProgressInfo.COMPLETE_PROGRESS);
+
+			mediator.getProgressNotifier().notifyListeners(
+					ProgressInfo.CLEAR_PROGRESS);
 		} catch (ConnectionException ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE,
