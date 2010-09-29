@@ -50,6 +50,8 @@ public class StarGroupSelectionPane extends JPanel {
 	private String selectedStarName;
 	private String selectedAUID;
 
+	private boolean clearStarField;
+	
 	/**
 	 * Constructor
 	 * 
@@ -67,6 +69,8 @@ public class StarGroupSelectionPane extends JPanel {
 		selectedStarName = null;
 		selectedAUID = null;
 
+		clearStarField = true;
+		
 		starGroups = StarGroups.getInstance();
 		Set<String> starGroupMapKeys = starGroups.getGroupNames();
 
@@ -97,6 +101,10 @@ public class StarGroupSelectionPane extends JPanel {
 				starSelector.removeActionListener(starSelectorListener);
 				populateStarListForSelectedGroup();
 				starSelector.addActionListener(starSelectorListener);
+
+				if (starField != null && clearStarField) {
+					starField.setText("");
+				}
 			}
 		};
 	}
@@ -111,7 +119,8 @@ public class StarGroupSelectionPane extends JPanel {
 					selectedStarName = starName;
 					selectedAUID = starGroups.getAUID(selectedStarGroup,
 							selectedStarName);
-					if (starField != null) {
+					
+					if (starField != null && clearStarField) {
 						starField.setText("");
 					}
 				}
@@ -221,6 +230,8 @@ public class StarGroupSelectionPane extends JPanel {
 	 * stars will be "refreshed".
 	 */
 	public void refreshGroups() {
+		clearStarField = false;
+		
 		starGroupSelector.removeAllItems();
 
 		for (String groupName : starGroups.getGroupNames()) {
@@ -235,6 +246,8 @@ public class StarGroupSelectionPane extends JPanel {
 		} else {
 			selectAndRefreshStarsInGroup(starGroups.getDefaultStarListTitle());
 		}
+		
+		clearStarField = true;
 	}
 
 	/**
