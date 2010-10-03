@@ -154,8 +154,6 @@ public class TabbedDataPane extends JPanel {
 							.get(ViewModeType.LIST_OBS_MODE), obsListPane);
 					tabs.setComponentAt(viewModeToTabIndexMap
 							.get(ViewModeType.LIST_MEANS_MODE), meansListPane);
-
-					mediator.changeViewMode(msg.getViewMode());
 					
 					tabs.repaint();
 				}
