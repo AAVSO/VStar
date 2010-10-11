@@ -110,6 +110,8 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 		if (!slider.getValueIsAdjusting()) {
 			degree = slider.getValue();
 			degreeLabel.setText(degree+"");
+		} else {
+			degreeLabel.setText(slider.getValue()+"");			
 		}
 	}
 
