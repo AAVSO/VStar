@@ -1,5 +1,5 @@
 VStar is reliant upon a number of freely available open source libraries that
-are distributed as Java archive files ("jar" files) which are described below.
+are distributed as Java archive files ("jar" files) and are described below.
 
 The following libraries must (and should already be) be present in the 
 current directory (./extlib) for VStar to function. The list of jar files
