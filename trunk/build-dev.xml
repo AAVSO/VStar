@@ -88,7 +88,7 @@
 
 		<mkdir dir="${dist_debug}" />
 
-		<jar jarfile="${dist_debug}/vstar.jar" basedir="${src_build_debug}" manifest="${manifest_file}">
+		<jar jarfile="${dist_debug}/vstar.jar" basedir="${src_build_debug}" manifest="${manifest_file}" excludes="**/external/plugin/*.class">
 			<fileset dir="${ui_resources}" />
 		</jar>
 
@@ -111,7 +111,7 @@
 	<target name="dist" depends="compile_src, manifest" description="Generate the distribution">
 		<mkdir dir="${dist}" />
 
-		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="${manifest_file}">
+		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="${manifest_file}" excludes="**/external/plugin/*.class">
 			<fileset dir="${ui_resources}" />
 		</jar>
 
