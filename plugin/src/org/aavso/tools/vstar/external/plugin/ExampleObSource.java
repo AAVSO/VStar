@@ -1,4 +1,4 @@
-package org.aavso.tools.vstar.plugin;
+package org.aavso.tools.vstar.external.plugin;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;

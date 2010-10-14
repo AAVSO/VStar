@@ -85,21 +85,27 @@ public enum SeriesType {
 	MEANS(SeriesType.NO_INDEX, "Means", "Means", Color.BLUE),
 
 	// Aaron's suggestion was to make Discrepant points light gray.
-	// TODO: change to this below once chart background is white?
-	DISCREPANT(SeriesType.NO_INDEX, "Discrepant", "Discrepant", Color.DARK_GRAY),
+	DISCREPANT(SeriesType.NO_INDEX, "Discrepant", "Discrepant",
+			Color.LIGHT_GRAY),
 
 	Unspecified(SeriesType.NO_INDEX, "Unspecified", "Unspecified", Color.ORANGE),
 
-	Filtered(SeriesType.NO_INDEX, "Filtered", "Filtered", new Color(0, 153, 204)),
+	Filtered(SeriesType.NO_INDEX, "Filtered", "Filtered",
+			new Color(0, 153, 204)),
 
 	// Polynomial fit series.
-	PolynomialFit(SeriesType.NO_INDEX, "Polynomial Fit", "Polynomial Fit", Color.RED),
-	
+	PolynomialFit(SeriesType.NO_INDEX, "Polynomial Fit", "Polynomial Fit",
+			Color.RED),
+
 	// Polynomial fit residuals series.
-	Residuals(SeriesType.NO_INDEX, "Residuals", "Residuals", Color.CYAN);
-	
+	Residuals(SeriesType.NO_INDEX, "Residuals", "Residuals", Color.CYAN),
+
+	// This series can be used to mark an observation as being excluded for some
+	// other reason than it being discrepant.
+	Excluded(SeriesType.NO_INDEX, "Excluded", "Excluded", Color.DARK_GRAY);
+
 	// Static members
-	
+
 	private final static int NO_INDEX = -1;
 
 	private final static String PREFS_PREFIX = "SERIES_COLOR_";
@@ -334,7 +340,7 @@ public enum SeriesType {
 				series2ColorMap.put(series, color);
 				setColorPref(series, color);
 			}
-			
+
 			try {
 				prefs.flush();
 			} catch (Throwable t) {
