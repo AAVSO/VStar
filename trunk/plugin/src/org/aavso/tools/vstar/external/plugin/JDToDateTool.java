@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.aavso.tools.vstar.plugin;
+package org.aavso.tools.vstar.external.plugin;
 
 import javax.swing.JOptionPane;
 

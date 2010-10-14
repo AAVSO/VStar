@@ -18,7 +18,7 @@
 	<property name="test_report" location="test_report" />
 	<property name="doc" location="doc" />
 	<property name="javadoc" location="doc/vstar_docs" />
-	
+
 	<!-- Classpaths -->
 
 	<path id="build.classpath">
@@ -58,6 +58,7 @@
 		</javac>
 	</target>
 
+	<!-- experimental -->
 	<target name="compile_src_5" depends="init" description="Compile the source for Java 5">
 		<!-- Update svn revision -->
 		<exec outputproperty="svn_revision" executable="svnversion">
@@ -80,7 +81,7 @@
 
 		<mkdir dir="${dist_debug}" />
 
-		<jar jarfile="${dist_debug}/vstar.jar" basedir="${src_build_debug}" manifest="${manifest_file}">
+		<jar jarfile="${dist_debug}/vstar.jar" basedir="${src_build_debug}" manifest="${manifest_file}" excludes="**/external/plugin/*.class">
 			<fileset dir="${ui_resources}" />
 		</jar>
 
@@ -103,18 +104,18 @@
 	<target name="dist" depends="compile_src, manifest" description="Generate the distribution">
 		<mkdir dir="${dist}" />
 
-		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="${manifest_file}">
+		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="${manifest_file}" excludes="**/external/plugin/*.class">
 			<fileset dir="${ui_resources}" />
 		</jar>
 
 		<delete file="${manifest_file}" />
 	</target>
 
-
+	<!-- experimental -->
 	<target name="dist_5" depends="compile_src_5, manifest" description="Generate the distribution">
 		<mkdir dir="${dist}" />
 
-		<jar jarfile="${dist}/vstar-5.jar" basedir="${src_build}" manifest="${manifest_file}">
+		<jar jarfile="${dist}/vstar-5.jar" basedir="${src_build}" manifest="${manifest_file}" excludes="**/external/plugin/*.class">
 			<fileset dir="${ui_resources}" />
 		</jar>
 
@@ -187,21 +188,17 @@
 	</target>
 
 	<!-- Documentation targets -->
-	
+
 	<target name="javadoc" description="Javadoc generation">
 		<delete failonerror="false" includeemptydirs="true">
 			<fileset dir="${javadoc}" includes="**/*" />
 		</delete>
-		
-		<javadoc sourcepath="${src}" destdir="${javadoc}" 
-				 classpathref="build.classpath" 
-				 header="VStar" />
-		
-		<zip destfile="${doc}/vstar_docs.zip"
-		     basedir="${doc}"
-			 includes="vstar_docs/**/*" />
+
+		<javadoc sourcepath="${src}" destdir="${javadoc}" classpathref="build.classpath" header="VStar" />
+
+		<zip destfile="${doc}/vstar_docs.zip" basedir="${doc}" includes="vstar_docs/**/*" />
 	</target>
-	
+
 	<!-- Clean targets -->
 
 	<target name="clean" description="Clean up">

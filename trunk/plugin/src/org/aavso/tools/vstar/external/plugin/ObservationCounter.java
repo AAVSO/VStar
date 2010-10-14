@@ -1,4 +1,4 @@
-package org.aavso.tools.vstar.plugin;
+package org.aavso.tools.vstar.external.plugin;
 
 import java.util.List;
 

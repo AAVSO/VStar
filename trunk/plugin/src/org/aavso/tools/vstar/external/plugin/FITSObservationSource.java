@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.plugin;
+package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Container;
 import java.awt.Dimension;
@@ -44,6 +44,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.NumberSelectionPane;
 
@@ -76,7 +77,7 @@ public class FITSObservationSource implements ObservationSourcePluginBase {
 
 	@Override
 	public String getDisplayName() {
-		return "New Star from SuperWASP FITS file...";
+		return "New Star from SuperWASP FITS File...";
 	}
 
 	class FITSObservationRetriever extends AbstractObservationRetriever {
@@ -88,15 +89,14 @@ public class FITSObservationSource implements ObservationSourcePluginBase {
 
 			if (result == JFileChooser.APPROVE_OPTION) {
 				currFile = fileChooser.getSelectedFile();
-			}
-
-			try {
-				Fits fits = new Fits(currFile);
-				BasicHDU[] hdus = fits.read();
-				double jdRef = retrieveJDReference(hdus);
-				retrieveObservations(hdus, jdRef);
-			} catch (FitsException e) {
-				throw new ObservationReadError(e.getLocalizedMessage());
+				try {
+					Fits fits = new Fits(currFile);
+					BasicHDU[] hdus = fits.read();
+					double jdRef = retrieveJDReference(hdus);
+					retrieveObservations(hdus, jdRef);
+				} catch (FitsException e) {
+					throw new ObservationReadError(e.getLocalizedMessage());
+				}
 			}
 		}
 
@@ -187,8 +187,7 @@ public class FITSObservationSource implements ObservationSourcePluginBase {
 			for (ValidObservation ob : obs) {
 				double magErr = ob.getMagnitude().getUncertainty();
 				if (magErr >= magErrThreshold) {
-					// TODO: change to something more suitable
-					ob.setBand(SeriesType.DISCREPANT);
+					ob.setBand(SeriesType.Excluded);
 				}
 
 				collectObservation(ob);
