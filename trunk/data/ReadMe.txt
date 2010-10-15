@@ -1,2 +1,1 @@
-Sample data files can go here for test purposes, system testing in particular.
-
+Sample data files can go here for test and experimentation purposes.

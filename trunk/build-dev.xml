@@ -20,6 +20,8 @@
 
 	<property name="src" location="src" />
 	<property name="test" location="test" />
+	<property name="script" location="script" />
+	<property name="plugin" location="plugin" />	
 	<property name="src_build" location="src/build" />
 	<property name="src_build_debug" location="src/build_debug" />
 	<property name="test_build" location="test/build" />
@@ -116,6 +118,28 @@
 		</jar>
 
 		<delete file="${manifest_file}" />
+	</target>
+
+	<target name="zip" depends="dist" description="Create a Zip archive suitable for deploying a standalone distribution.">
+		<zip destfile="vstar.zip">
+			<zipfileset dir="${dist}" prefix="vstar/dist" />
+			<zipfileset dir="${extlib}" prefix="vstar/extlib">
+				<exclude name="cobertura*"/>
+				<exclude name="cobertura*/**"/>
+				<exclude name="junit*"/>
+			</zipfileset>
+			<zipfileset dir="${doc}" prefix="vstar/doc">
+				<exclude name="plan/**" />
+				<exclude name="slides/**" />
+			</zipfileset>
+			<zipfileset dir="${plugin}" prefix="vstar/plugin" />
+			<zipfileset dir="${script}" includes="run_vstar.*" prefix="vstar/script" filemode="755"/>
+			<zipfileset dir="data" prefix="vstar/data" />
+			<zipfileset file="jnlp.*" prefix="vstar" />
+			<zipfileset file="ReadMe.txt" prefix="vstar" />
+			<zipfileset file="FAQ.txt" prefix="vstar" />
+			<zipfileset file="ChangeLog.txt" prefix="vstar" />
+		</zip>
 	</target>
 
 	<!-- Run targets -->
@@ -290,6 +314,7 @@
 			<fileset dir="${coverage_report}" includes="**/*" />
 			<fileset dir="${basedir}" includes="cobertura.ser" />
 			<fileset dir="${basedir}" includes="${jdepend_report}" />
+			<fileset file="vstar.zip" />			
 		</delete>
 	</target>
 </project>
