@@ -7,6 +7,8 @@
 
 	<property name="src" location="src" />
 	<property name="test" location="test" />
+	<property name="script" location="script" />
+	<property name="plugin" location="plugin" />
 	<property name="src_build" location="src/build" />
 	<property name="src_build_debug" location="src/build_debug" />
 	<property name="test_build" location="test/build" />
@@ -58,21 +60,6 @@
 		</javac>
 	</target>
 
-	<!-- experimental -->
-	<target name="compile_src_5" depends="init" description="Compile the source for Java 5">
-		<!-- Update svn revision -->
-		<exec outputproperty="svn_revision" executable="svnversion">
-			<arg value="-n" />
-		</exec>
-		<copy file="${ui_resources}/RevisionAccessor.java.template" tofile="${ui_resources}/RevisionAccessor.java" overwrite="true" />
-		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${svn_revision}" />
-
-		<!-- Compile source -->
-		<javac compiler="modern" source="1.5" target="1.5" srcdir="${src}" destdir="${src_build}">
-			<classpath refid="build.classpath" />
-		</javac>
-	</target>
-
 	<target name="debug" depends="init, manifest" description="Compile the source">
 		<!-- Compile source. -->
 		<javac compiler="modern" source="1.6" target="1.6" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
@@ -111,15 +98,26 @@
 		<delete file="${manifest_file}" />
 	</target>
 
-	<!-- experimental -->
-	<target name="dist_5" depends="compile_src_5, manifest" description="Generate the distribution">
-		<mkdir dir="${dist}" />
-
-		<jar jarfile="${dist}/vstar-5.jar" basedir="${src_build}" manifest="${manifest_file}" excludes="**/external/plugin/*.class">
-			<fileset dir="${ui_resources}" />
-		</jar>
-
-		<delete file="${manifest_file}" />
+	<target name="zip" depends="dist" description="Create a Zip archive suitable for deploying a standalone distribution.">
+		<zip destfile="vstar.zip">
+			<zipfileset dir="${dist}" prefix="vstar/dist" />
+			<zipfileset dir="${extlib}" prefix="vstar/extlib">
+				<exclude name="cobertura*"/>
+				<exclude name="cobertura*/**"/>
+				<exclude name="junit*"/>
+			</zipfileset>
+			<zipfileset dir="${doc}" prefix="vstar/doc">
+				<exclude name="plan/**" />
+				<exclude name="slides/**" />
+			</zipfileset>
+			<zipfileset dir="${plugin}" prefix="vstar/plugin" />
+			<zipfileset dir="${script}" includes="run_vstar.*" prefix="vstar/script" filemode="755"/>
+			<zipfileset dir="data" prefix="vstar/data" />
+			<zipfileset file="jnlp.*" prefix="vstar" />
+			<zipfileset file="ReadMe.txt" prefix="vstar" />
+			<zipfileset file="FAQ.txt" prefix="vstar" />
+			<zipfileset file="ChangeLog.txt" prefix="vstar" />
+		</zip>
 	</target>
 
 	<!-- Run targets -->
@@ -210,6 +208,7 @@
 			<fileset dir="${dist}" includes="**/*" />
 			<fileset dir="${dist_debug}" includes="**/*" />
 			<fileset dir="${test_report}" includes="**/*" />
+			<fileset file="vstar.zip" />
 		</delete>
 	</target>
 </project>

@@ -29,7 +29,12 @@ VStar can be launched by:
 
 o Double-clicking the vstar.jar file icon (dist/vstar.jar)
 o Typing: java -jar dist/vstar.jar (Unix) or java -jar dist\vstar.jar (DOS)
-o Typing: ant run (for developers and testers)
+o Typing: ./script/run_vstar.sh (Unix) or script\run_vstar.bat (DOS)
+  See those script/batch files for more details. The main benefit of these
+  scripts is that they run VStar with the same memory allocation parameters
+  as for WebStart (see below), permitting bigger/more datasets to be loaded.
+o Typing: ant run
+  This option is intended for developers. Type ant -p for more details.
 
 Another way to run VStar is by using Java WebStart (TM) from the Citizen Sky 
 or VStar SourceForge web sites:
@@ -89,5 +94,5 @@ VStar is licensed under the GNU Affero General Public License, version 3.
 See doc/license or http://www.gnu.org/licenses/agpl-3.0-standalone.html for
 details.
 
-For licensing and links to source code for the external libraries used by VStar
-see the included ./extlib/ReadMe.txt file.
+For licensing and links to source code for the external libraries used by 
+VStar see the included ./extlib/ReadMe.txt file.
