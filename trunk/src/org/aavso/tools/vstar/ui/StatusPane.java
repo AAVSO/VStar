@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui;
 
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -38,8 +39,7 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
- * A status panel containing a text status message component and a
- * status bar.
+ * A status panel containing a text status message component and a status bar.
  * 
  * The intention is that this should be added to the bottom of the GUI.
  * 
@@ -52,7 +52,7 @@ public class StatusPane extends JPanel {
 	private JLabel statusLabel;
 	private JProgressBar progressBar;
 	private JButton stopButton;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -76,22 +76,22 @@ public class StatusPane extends JPanel {
 		this.add(Box.createHorizontalGlue());
 
 		Icon stopIcon = ResourceAccessor
-		.getIconResource("/toolbarButtonGraphics/media/Stop16.gif");
+				.getIconResource("/toolbarButtonGraphics/media/Stop16.gif");
 		this.stopButton = new JButton(stopIcon);
 		this.stopButton.setToolTipText("Stop the current operation");
 		this.stopButton.setEnabled(false);
-		//this.add(this.stopButton);
-						
+		// this.add(this.stopButton);
+
 		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
 		mediator.getNewStarNotifier().addListener(createNewStarListener());
 		mediator.getProgressNotifier().addListener(createProgressListener());
 	}
 
-	// TODO: To prevent the progress bar from shifting, pad all messages 
+	// TODO: To prevent the progress bar from shifting, pad all messages
 	// to N length and make sure we are using a fixed width font (tracker).
 	// Or, use a different layout manager.
-	
+
 	/**
 	 * Set the status message to be displayed.
 	 * 
@@ -101,7 +101,7 @@ public class StatusPane extends JPanel {
 	public void setMessage(String msg) {
 		this.statusLabel.setText(" " + msg);
 	}
-	
+
 	/**
 	 * Set the minimum progress bar value.
 	 * 
@@ -149,18 +149,17 @@ public class StatusPane extends JPanel {
 	}
 
 	/**
-	 * Set the progress bar to be in busy or indeterminate mode
-	 * (or not) to indicate that some kind of work is being done.
+	 * Set the progress bar to be in busy or indeterminate mode (or not) to
+	 * indicate that some kind of work is being done.
 	 */
 	public void setIndeterminateMode(boolean status) {
 		this.progressBar.setIndeterminate(status);
-		
+
 	}
-	
+
 	/**
-	 * Return a new star creation listener.
-	 * TODO: instead of this, we could just write the status at end of new 
-	 * star task processing in mediator.
+	 * Return a new star creation listener. TODO: instead of this, we could just
+	 * write the status at end of new star task processing in mediator.
 	 */
 	private Listener<NewStarMessage> createNewStarListener() {
 		return new Listener<NewStarMessage>() {
@@ -183,7 +182,7 @@ public class StatusPane extends JPanel {
 					setMessage(strBuf.toString());
 				}
 			}
-			
+
 			public boolean canBeRemoved() {
 				return false;
 			}
@@ -198,7 +197,7 @@ public class StatusPane extends JPanel {
 		return new Listener<ProgressInfo>() {
 			public void update(ProgressInfo info) {
 				self.setIndeterminateMode(false);
-				
+
 				switch (info.getType()) {
 				case MIN_PROGRESS:
 					self.setMinProgressValue(info.getNum());
@@ -209,7 +208,8 @@ public class StatusPane extends JPanel {
 				case START_PROGRESS:
 					// Ensure the main window now has focus so we see
 					// the progress bar and busy cursor as enabled.
-					//self.requestFocusInWindow(); // TODO: doesn't work; remove?
+//					self.requestFocusInWindow(); // TODO: doesn't work;
+					// remove?
 					self.resetProgressBar();
 					self.setMessage("");
 					self.stopButton.setEnabled(true);
@@ -223,7 +223,7 @@ public class StatusPane extends JPanel {
 					// Ensure the main window now has focus so we see
 					// the progress bar and busy cursor as enabled.
 					// Except that it does not work here or above.
-					//self.requestFocusInWindow(); // TODO: remove?
+					// self.requestFocusInWindow(); // TODO: remove?
 					self.incrementProgressBar(info.getNum());
 					break;
 				case CLEAR_PROGRESS:
@@ -234,13 +234,13 @@ public class StatusPane extends JPanel {
 					break;
 				}
 			}
-			
+
 			public boolean canBeRemoved() {
 				return false;
 			}
 		};
 	}
-	
+
 	// Create an action listener to stop the current task,
 	// if one is in progress.
 	private ActionListener createStopButtonListener() {

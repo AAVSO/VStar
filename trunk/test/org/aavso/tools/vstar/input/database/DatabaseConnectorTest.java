@@ -46,7 +46,7 @@ public class DatabaseConnectorTest extends TestCase {
 	// Valid tests
 
 	public void testGenerateMessageDigest() {
-		assertEquals("acbd18db4cc2f85cedef654fccc4a4d8", AAVSODatabaseConnector
+		assertEquals("acbd18db4cc2f85cedef654fccc4a4d8", Authenticator
 				.generateHexDigest("foo"));
 	}
 

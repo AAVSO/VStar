@@ -45,6 +45,7 @@ import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
+import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
@@ -573,8 +574,10 @@ public class Mediator {
 					ProgressInfo.START_PROGRESS);
 
 			// Citizen Sky authentication.
-			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.userDBConnector;
-			userConnector.authenticateWithCitizenSky();
+//			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.csUserDBConnector;
+//			userConnector.authenticateWithCitizenSky();
+
+//			Authenticator.getInstance().authenticate();
 
 			this.getProgressNotifier().notifyListeners(
 					new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
@@ -583,19 +586,19 @@ public class Mediator {
 					starName, auid, minJD, maxJD);
 			this.currTask = task;
 			task.execute();
-		} catch (CancellationException ex) {
-			MainFrame.getInstance().getStatusPane().setMessage("");
-			
-			mediator.getProgressNotifier().notifyListeners(
-					ProgressInfo.COMPLETE_PROGRESS);
-
-			mediator.getProgressNotifier().notifyListeners(
-					ProgressInfo.CLEAR_PROGRESS);
-		} catch (ConnectionException ex) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					MenuBar.NEW_STAR_FROM_DATABASE,
-					"Cannot connect to database.");
-			MainFrame.getInstance().getStatusPane().setMessage("");
+//		} catch (CancellationException ex) {
+//			MainFrame.getInstance().getStatusPane().setMessage("");
+//			
+//			mediator.getProgressNotifier().notifyListeners(
+//					ProgressInfo.COMPLETE_PROGRESS);
+//
+//			mediator.getProgressNotifier().notifyListeners(
+//					ProgressInfo.CLEAR_PROGRESS);
+//		} catch (ConnectionException ex) {
+//			MessageBox.showErrorDialog(MainFrame.getInstance(),
+//					MenuBar.NEW_STAR_FROM_DATABASE,
+//					"Cannot connect to database.");
+//			MainFrame.getInstance().getStatusPane().setMessage("");
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);

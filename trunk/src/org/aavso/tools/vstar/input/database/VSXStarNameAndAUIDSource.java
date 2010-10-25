@@ -36,6 +36,8 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	private PreparedStatement findAUIDFromAliasStatement;
 	private PreparedStatement findStarNameFromAUID;
 
+	// TODO: connection should be retrieved not passed
+	
 	/**
 	 * Return the AUID of the named star.
 	 * 

@@ -88,8 +88,8 @@ public class ZapperLogger implements IDiscrepantReporter {
 	}
 
 	private PreparedStatement createUpdateLogStatement() throws SQLException {
-		final String z1 = ResourceAccessor.getParam(7) + "."
-				+ ResourceAccessor.getParam(7) + "log";
+		final String z1 = ResourceAccessor.getParam(8) + "."
+				+ ResourceAccessor.getParam(8) + "log";
 
 		if (updateLogStatement == null) {
 			updateLogStatement = connection.prepareStatement("INSERT INTO "

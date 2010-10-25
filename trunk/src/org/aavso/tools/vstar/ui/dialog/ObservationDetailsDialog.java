@@ -37,7 +37,10 @@ import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
+import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -190,19 +193,16 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 
 						if (!reportDialog.isCancelled()) {
 							try {
-								MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+								MainFrame
+										.getInstance()
+										.setCursor(
+												Cursor
+														.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-								// Get login information for report.
+								Authenticator.getInstance().authenticate();
+
 								String userName = ResourceAccessor
 										.getLoginInfo().getUserName();
-
-								if (userName == null) {
-									AAVSODatabaseConnector.userDBConnector
-											.authenticateWithCitizenSky();
-
-									userName = ResourceAccessor.getLoginInfo()
-											.getUserName();
-								}
 
 								String editor = "vstar:" + userName;
 
@@ -212,7 +212,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 								DiscrepantReport report = new DiscrepantReport(
 										auid, name, uniqueId, editor,
 										reportDialog.getComments());
-								
+
 								IDiscrepantReporter reporter = ZapperLogger
 										.getInstance();
 
@@ -221,7 +221,14 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 								MainFrame.getInstance().setCursor(null);
 
 								dispose();
-
+							} catch (CancellationException ex) {
+								// Nothing to do; dialog cancelled.
+							} catch (ConnectionException ex) {
+								MessageBox.showErrorDialog(
+										"Authentication Source Error", ex);
+							} catch (AuthenticationError ex) {
+								MessageBox.showErrorDialog(
+										"Authentication Error", ex);
 							} catch (Exception ex) {
 								MessageBox.showErrorDialog(
 										"Discrepant Reporting Error", ex);

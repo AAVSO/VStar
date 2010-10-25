@@ -25,8 +25,7 @@ public class LoginInfo {
 	private LoginType type;
 	private String userName;
 	private String observerCode;
-	
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -34,7 +33,8 @@ public class LoginInfo {
 		super();
 		this.type = null;
 		this.userName = null;
-		this.observerCode = null;
+		// Sensible default for when login fails or not logged in.
+		this.observerCode = "";
 	}
 
 	/**
@@ -45,7 +45,8 @@ public class LoginInfo {
 	}
 
 	/**
-	 * @param type the type to set
+	 * @param type
+	 *            the type to set
 	 */
 	public void setType(LoginType type) {
 		this.type = type;
@@ -59,7 +60,8 @@ public class LoginInfo {
 	}
 
 	/**
-	 * @param userName the userName to set
+	 * @param userName
+	 *            the userName to set
 	 */
 	public void setUserName(String userName) {
 		this.userName = userName;
@@ -73,7 +75,8 @@ public class LoginInfo {
 	}
 
 	/**
-	 * @param observerCode the observerCode to set
+	 * @param observerCode
+	 *            the observerCode to set
 	 */
 	public void setObserverCode(String observerCode) {
 		this.observerCode = observerCode;

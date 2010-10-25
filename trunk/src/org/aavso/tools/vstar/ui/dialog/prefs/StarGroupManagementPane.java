@@ -296,15 +296,6 @@ public class StarGroupManagementPane extends JPanel {
 	public String retrieveAUID(String starName) {
 		String auid = null;
 		
-		//infoLabel.setText(String.format("Retrieving AUID for '%s'", starName));
-
-		try {
-			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.userDBConnector;
-			userConnector.authenticateWithCitizenSky();
-		} catch (Exception e) {
-			MessageBox.showErrorDialog(this, "Authentication Error", e);
-		}
-
 		try {			
 			getParent().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -313,14 +304,6 @@ public class StarGroupManagementPane extends JPanel {
 
 			StarInfo starInfo = vsxConnector.getAUID(vsxConnection, starName);
 			auid = starInfo.getAuid();
-
-//			String msg = null;
-//			if (auid != null) {
-//				msg = String.format("%s: %s", starName, auid);
-//			} else {
-//				error(String.format("Unknown star '%s'", starName));
-//			}
-			//infoLabel.setText(msg);
 
 			getParent().setCursor(null);
 		} catch (Exception e) {
