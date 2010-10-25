@@ -23,7 +23,7 @@ package org.aavso.tools.vstar.input.database;
  */
 public enum DatabaseType {
 
-	OBSERVATION(1), USER(2), VSX(3), UT(4);
+	OBSERVATION(1), CS_USER(2), AAVSO_USER(3), VSX(4), UT(5);
 
 	private int n;
 

@@ -17,23 +17,16 @@
  */
 package org.aavso.tools.vstar.input.database;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import org.aavso.tools.vstar.exception.AuthenticationError;
-import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.dialog.LoginDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
-import org.aavso.tools.vstar.ui.resources.LoginType;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
@@ -42,14 +35,6 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  * 
  * Portions of code were adapted (with permission) from the AAVSO Zapper code
  * base.
- * 
- * generateHexDigest() was adapted from Zapper UserInfo.encryptPassword()
- * 
- * TODO: Handle the case where the connection becomes invalid but we try to use
- * it, e.g. to create a statement or execute a query.
- * 
- * TODO: should we split this class into a data accessor object and connection
- * object?
  */
 public class AAVSODatabaseConnector {
 
@@ -62,21 +47,19 @@ public class AAVSODatabaseConnector {
 	private DatabaseType type;
 	private Connection connection;
 
-	// Authorisation and observation retrieval statements.
-	private PreparedStatement authStmt;
-	private PreparedStatement obsCodeStmt;
+	// Observation retrieval statements.
 	private PreparedStatement obsWithJDRangeStmt;
 	private PreparedStatement obsWithNoJDRangeStmt;
 
-	private boolean authenticatedWithCitizenSky;
-
 	// Database connectors.
-	// TODO: Each of these should instead be separate classes!! See also below.
 	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.OBSERVATION);
 
-	public static AAVSODatabaseConnector userDBConnector = new AAVSODatabaseConnector(
-			DatabaseType.USER);
+	public static AAVSODatabaseConnector csUserDBConnector = new AAVSODatabaseConnector(
+			DatabaseType.CS_USER);
+
+	public static AAVSODatabaseConnector aavsoUserDBConnector = new AAVSODatabaseConnector(
+			DatabaseType.AAVSO_USER);
 
 	public static AAVSODatabaseConnector vsxDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.VSX);
@@ -85,18 +68,6 @@ public class AAVSODatabaseConnector {
 			DatabaseType.UT);
 
 	// Star name and AUID retrievers.
-
-	// TODO: Refactor to sub-data-accessors, possibly with a base class with
-	// static driver init as per below.
-
-	// e.g. for object identification, observations and authentication. Some
-	// methods in this class will only work with certain
-	// databases, e.g. VSX for name/AUID lookup, user database etc; we need
-	// to have separate data connector/accessor classes for each category
-	// otherwise MySQL will tell us that have been denied access to a database
-	// table because we're calling the wrong database-method combination.
-	// Also, we should not have to be passing an observation connector to
-	// each method! The different classes should handle that internally.
 
 	private static IStarNameAndAUIDSource starNameAndAUIDRetriever = new VSXStarNameAndAUIDSource();
 
@@ -117,12 +88,8 @@ public class AAVSODatabaseConnector {
 		this.type = type;
 		this.connection = null;
 
-		this.authStmt = null;
-		this.obsCodeStmt = null;
 		this.obsWithJDRangeStmt = null;
 		this.obsWithNoJDRangeStmt = null;
-
-		this.authenticatedWithCitizenSky = false;
 	}
 
 	/**
@@ -138,8 +105,8 @@ public class AAVSODatabaseConnector {
 			// TODO: provide status message updates re: retries
 			Properties props = new Properties();
 
-			props.put("user", ResourceAccessor.getParam(5));
-			props.put("password", ResourceAccessor.getParam(6));
+			props.put("user", ResourceAccessor.getParam(6));
+			props.put("password", ResourceAccessor.getParam(7));
 			props.put("connectTimeout", MAX_CONN_TIME + "");
 
 			try {
@@ -162,6 +129,15 @@ public class AAVSODatabaseConnector {
 			retries--;
 		}
 
+		return connection;
+	}
+
+	/**
+	 * @return the connection
+	 * TODO: build connection loss/timeout logic into here
+	 */
+	public Connection getConnection() throws ConnectionException {
+		createConnection();
 		return connection;
 	}
 
@@ -321,183 +297,5 @@ public class AAVSODatabaseConnector {
 	public StarInfo getStarName(Connection connection, String auid)
 			throws SQLException {
 		return starNameAndAUIDRetriever.getStarByAUID(connection, auid);
-	}
-
-	/**
-	 * Return a prepared statement for the specified Citizen Sky user login.
-	 * 
-	 * This is a once-only-created prepared statement with parameters set for
-	 * each query execution.
-	 * 
-	 * @param connection
-	 *            database connection.
-	 * @return A prepared statement.
-	 */
-	protected PreparedStatement createCitizenSkyLoginQuery(Connection connection)
-			throws SQLException {
-		if (authStmt == null) {
-			authStmt = connection
-					.prepareStatement("select users.name, users.pass, users.uid from users where users.name = ?");
-		}
-
-		return authStmt;
-	}
-
-	/**
-	 * Return a prepared statement to obtain the observer code given the Citizen
-	 * Sky user's user ID. TODO: once we can also authenticate via AAVSO
-	 * credentials, we will need to split this into different DAOs as we have
-	 * for VSX info.
-	 * 
-	 * This is a once-only-created prepared statement with parameters set for
-	 * each query execution.
-	 * 
-	 * @param connection
-	 *            database connection.
-	 * @return A prepared statement.
-	 */
-	protected PreparedStatement createCitizenSkyObserverCodeQuery(
-			Connection connection) throws SQLException {
-		if (obsCodeStmt == null) {
-			obsCodeStmt = connection
-					.prepareStatement("select profile_values.value from profile_values where fid = 15 and uid = ?;");
-		}
-
-		return obsCodeStmt;
-	}
-
-	// TODO: There's a huge mix of DAO and GUI code in here; fix!!
-
-	/**
-	 * Authenticate with the Citizen Sky database by prompting the user to enter
-	 * credentials in a dialog, throwing an exception upon failure after
-	 * retries. A manifest reason for this authentication is to obtain the
-	 * observer code.
-	 */
-	public void authenticateWithCitizenSky() throws Exception {
-
-		assert (this == userDBConnector);
-
-		int retries = 3;
-		boolean cancelled = false;
-
-		while (!cancelled && !authenticatedWithCitizenSky && retries > 0) {
-			MainFrame.getInstance().getStatusPane().setMessage(
-					"Citizen Sky Login...");
-
-			LoginDialog loginDialog = new LoginDialog(
-					"Citizen Sky Authentication");
-
-			cancelled = loginDialog.isCancelled();
-
-			if (!cancelled) {
-				String username = loginDialog.getUsername();
-				String suppliedPassword = new String(loginDialog.getPassword());
-				String passwordDigest = generateHexDigest(suppliedPassword);
-
-				// Login to Citizen Sky if we haven't done so already.
-				MainFrame.getInstance().getStatusPane().setMessage(
-						"Checking Citizen Sky credentials...");
-				Connection userConnection = createConnection();
-
-				// Get a prepared statement to read a user details
-				// from the database, setting the parameters for user
-				// who is logging in.
-				PreparedStatement userStmt = createCitizenSkyLoginQuery(userConnection);
-				userStmt.setString(1, username);
-
-				ResultSet userResults = userStmt.executeQuery();
-
-				if (userResults.next()) {
-					String actualPassword = userResults.getString("pass");
-					if (passwordDigest.equals(actualPassword)) {
-						// We're authenticated, so update login info and retrieve
-						// observer code if the user has one.
-						authenticatedWithCitizenSky = true;
-						
-						ResourceAccessor.getLoginInfo().setType(LoginType.CITIZEN_SKY);
-						ResourceAccessor.getLoginInfo().setUserName(username);
-						
-						int uid = userResults.getInt("uid");
-						retrieveObserverCode(uid, userConnection);
-					} else {
-						retries--;
-					}
-				}
-			}
-		}
-
-		MainFrame.getInstance().getStatusPane().setMessage("");
-
-		if (cancelled) {
-			throw new CancellationException();
-		}
-
-		if (!authenticatedWithCitizenSky) {
-			throw new AuthenticationError("Unable to authenticate.");
-		}
-	}
-
-	/**
-	 * Attempt to retrieve the observer code. There will only be one if the
-	 * logged-in user has submitted an observation to AID via Citizen Sky. If
-	 * there is one, store it, e.g. for use in observation filtering.
-	 * 
-	 * @param uid
-	 *            The logged-in user's ID.
-	 * @param userConnection
-	 *            The user database connection.
-	 * @throws Exception
-	 *             If an SQL error occurs.
-	 */
-	private void retrieveObserverCode(int uid, Connection userConnection)
-			throws Exception {
-
-		PreparedStatement obsCodeStmt = createCitizenSkyObserverCodeQuery(userConnection);
-		obsCodeStmt.setInt(1, uid);
-		ResultSet obsCodeResults = obsCodeStmt.executeQuery();
-
-		if (obsCodeResults.next()) {
-			String obsCode = obsCodeResults.getString("value");
-			if (!obsCodeResults.wasNull()) {
-				ResourceAccessor.getLoginInfo().setObserverCode(obsCode);
-			}
-		}
-	}
-
-	/**
-	 * @return the connection
-	 */
-	public Connection getConnection() {
-		return connection;
-	}
-
-	/**
-	 * Generate a string consisting of 2 hex digits per byte of a MD5 message
-	 * digest.
-	 * 
-	 * @param str
-	 *            the string to generate a digest from
-	 * @return the message digest as hex digits
-	 */
-	protected static String generateHexDigest(String str) {
-		String digest = null;
-
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.reset();
-			md.update(str.getBytes());
-			byte messageDigest[] = md.digest();
-			StringBuffer hexString = new StringBuffer();
-			for (int byteVal : messageDigest) {
-				hexString.append(String.format("%02x", 0xFF & byteVal));
-			}
-			digest = hexString.toString();
-		} catch (NoSuchAlgorithmException e) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					"Error generating digest", e);
-		}
-
-		return digest;
 	}
 }

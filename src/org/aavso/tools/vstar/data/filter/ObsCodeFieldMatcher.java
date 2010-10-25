@@ -18,6 +18,14 @@
 package org.aavso.tools.vstar.data.filter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.input.database.Authenticator;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
@@ -26,7 +34,7 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 public class ObsCodeFieldMatcher extends StringFieldMatcher {
 
 	private final static ObservationMatcherOp[] ops = {
-		ObservationMatcherOp.EQUALS, ObservationMatcherOp.NOT_EQUALS };
+			ObservationMatcherOp.EQUALS, ObservationMatcherOp.NOT_EQUALS };
 
 	public ObsCodeFieldMatcher(String testValue, ObservationMatcherOp op) {
 		super(testValue, op, ops);
@@ -54,6 +62,21 @@ public class ObsCodeFieldMatcher extends StringFieldMatcher {
 
 	@Override
 	public String getDefaultTestValue() {
-		return ResourceAccessor.getLoginInfo().getObserverCode();
+		NewStarMessage newStarMessage = Mediator.getInstance()
+				.getNewStarMessage();
+
+		if (newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+			try {
+				Authenticator.getInstance().authenticate();
+			} catch (CancellationException ex) {
+				// Nothing to do; dialog cancelled.
+			} catch (ConnectionException ex) {
+				MessageBox.showErrorDialog("Authentication Source Error", ex);
+			} catch (AuthenticationError ex) {
+				MessageBox.showErrorDialog("Authentication Error", ex);
+			}
+		}
+
+		return  ResourceAccessor.getLoginInfo().getObserverCode();
 	}
 }
