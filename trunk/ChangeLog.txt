@@ -30,6 +30,22 @@ o VStar leaks memory with continued use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
    
 ----------------------
+Date: October 26 2010
+Version: 2.7
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-26October2010
+Key Changes:
+- Fixed a bug in which what was being saved (via the save button or File 
+  menu item) could be out of sync with the current tab (plot, list) selection.
+- Changed polynomial degree slider to show values while slider still in 
+  motion.
+- Created a plug-ins directory with examples and a SuperWASP observation 
+  reader. The latter was suggested by Doug Welch.
+- Changed default discrepant series color to light gray as per Aaron Price's 
+  original request, now that the plot background is white.
+- Implemented the modified AAVSO/CS login proposal of tracker 2926878. Login
+  is now only required for discrepant reporting and observer code retrieval
+  when the dataset has been loaded from the AAVSO International Database.
+
 Date: September 29 2010
 Version: 2.6 Beta
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-29September2010

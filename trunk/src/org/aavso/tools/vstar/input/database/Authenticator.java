@@ -98,19 +98,6 @@ public class Authenticator {
 					MainFrame.getInstance().setCursor(
 							Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-					// MainFrame.getInstance().getGlassPane().addMouseListener(
-					// new MouseAdapter() {
-					// });
-					// MainFrame.getInstance().getGlassPane().setCursor(
-					// Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					//					
-					// MainFrame.getInstance().getGlassPane().setVisible(true);
-
-					Mediator.getInstance().getProgressNotifier()
-							.notifyListeners(ProgressInfo.START_PROGRESS);
-					Mediator.getInstance().getProgressNotifier()
-							.notifyListeners(ProgressInfo.BUSY_PROGRESS);
-
 					AuthenticationTask task = new AuthenticationTask(
 							authenticators, username, password);
 
@@ -121,13 +108,7 @@ public class Authenticator {
 				} catch (InterruptedException e) {
 					// Nothing to do.
 				} finally {
-					Mediator.getInstance().getProgressNotifier()
-							.notifyListeners(ProgressInfo.START_PROGRESS);
-
-					MainFrame.getInstance().setCursor(
-							Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					
-					// MainFrame.getInstance().getGlassPane().setCursor(null);
+					MainFrame.getInstance().setCursor(null);
 				}
 
 				if (!authenticated) {

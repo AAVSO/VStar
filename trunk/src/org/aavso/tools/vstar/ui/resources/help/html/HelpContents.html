@@ -22,6 +22,7 @@
  <li>Showing a table of mean observations along with the standard error of the
  average for each.</li>
  <li>Performing period analysis.</li>
+ <li>Filtering observations.</li>
 </ul>
 
 <p>The plots mentioned above have magnitude on the Y axis and Julian Day (or 
@@ -65,18 +66,35 @@ Citizen Sky account which may be obtained for free from
 <a href="http://www.citizensky.org">http://www.citizensky.org</a>.</p>
 
 <p>Selecting <code>New Star from AAVSO Database...</code> from the File menu or
-clicking the equivalent toolbar icon opens dialog that allows one of the stars
+clicking the equivalent toolbar icon opens a dialog that allows one of the stars
 from the 10 star tutorial to be selected from a drop-down menu. Alternatively,
-a star name, unique ID, or alias may be entered.</p>
+a star name from a user-defined star group may selected. The 10 star tutorial 
+star group is the only default (see also <em>Setting Preferences</em> section). 
+Instead, a star's AAVSO unique ID or alias may be entered.</p>
 
 <p>After selecting the star for which you want to retrieve observation data and 
 the Julian Day range (or all data; take care: this may result in a lot of data being 
-retrieved), a Citizen Sky login dialog will appear. Once authenticated, the data for 
-the star's observations within that range are loaded, and charts and tables for the
-data, including means, are created.</p>
+retrieved), the data for the star's observations within that range are loaded, and 
+charts and tables for the data, including means, are created.</p>
+
+<br/><br/><h2>Authentication</h2>
+
+<p>Note that as of version 2.7, authentication via login dialog only happens when 
+reporting an observation as discrepant (to validate your AAVSO/Citizen Sky username) 
+or creating an observation filter that uses an observer code. In the second case, AAVSO 
+or Citizen Sky login is only necessary to retrieve your observer code (if you have one) 
+to be used as the default value. In both cases, authentication will only be requested
+if the currently loaded dataset is from the AID.</p>
 
 <p>For a given run of VStar, you only need to enter your Citizen Sky credentials
 just once.</p>
+
+<br/><br/><h2>Observation Details</h2>
+
+<p>By selecting an observation datapoint in a plot with the mouse, a dialog 
+is opened with details regarding the observation. This dialog also allows an 
+observation to be marked as discrepant and optionally to send a report to AAVSO.
+See the Zapper link below for more information about discrepant observations.</p>
 
 <br></br><h2>Phase Plots</h2>
 
@@ -147,6 +165,9 @@ In addition, a <em>Residuals</em> series (dataset with polynomial removed) is ad
 but not initially made visible. See also the <code>Change Series</code> button in the 
 light curve pane.</p>
 
+<p><em>A more complete integration of polynomial fit, including the option of saving
+residuals and fit coefficients is planned.</em></p>
+
 <br></br><h2>Saving Plots and Tables</h2>
 
 <p>Any chart can be saved as a PNG file via the File menu's <code>Save...</code>
@@ -166,6 +187,8 @@ item or the equivalent toolbar icon.</p>
 
 <p>Preferences can be set via the File menu's <code>Preferences...</code> item
 or the equivalent toolbar icon.</p>
+
+<p>Per-band colors can be changed and star groups can be created, deleted, and modified.</p>
 
 <br></br><h2>Create your own plug-in!</h2>
 
@@ -229,6 +252,7 @@ source code and licensing.</p>
    <li><a href="http://www.citizensky.org/content/5-star-analysis">5 Star Analysis Tutorial</a></li>
    <li><a href="http://www.citizensky.org/content/10-star-training">10 Star
    Training Tutorial</a></li>
+   <li><a href="http://www.aavso.org/zapper">Zapper</a></li>
   </ul>
   
  </body>
