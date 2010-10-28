@@ -45,8 +45,7 @@ o Click on the "Download VStar Now" button
 
 Directions for using the WebStart version of VStar are on the same web page. 
 Launching VStar via WebStart means that you will always have the most up-to-
-date version of VStar. You can also double-click the vstar.jnlp file at the
-top-level of this distribution.
+date version of VStar.
 
 If you obtained the VStar distribution via SourceForge, try opening a sample
 data file in VStar:
