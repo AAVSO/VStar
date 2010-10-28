@@ -30,6 +30,12 @@ o VStar leaks memory with continued use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
    
 ----------------------
+Date: October 28 2010
+Version: 2.8
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-28October2010
+Key Changes:
+- The addition of Nico's beautiful toolbar icons.
+
 Date: October 26 2010
 Version: 2.7
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-26October2010

@@ -15,15 +15,12 @@ code.
   o jfreechart-1.0.13.jar
     http://sourceforge.net/projects/jfreechart/files/
 
-  o swing-worker-1.2.jar
-    http://swingworker.dev.java.net/servlets/ProjectDocumentList
-
-  o jlfgr-1_0.jar
-    http://java.sun.com/developer/techDocs/hi/repository/
-
   o mysql-connector-java-5.1.10-bin.jar
     http://dev.mysql.com/downloads/connector/j/5.1.html
 
+  o nico-camargo-toolbar-icons-1.0.jar
+    Toolbar icons created by Citizen Sky participant, Nico Camargo.
+    
 The libraries are covered under the following licenses, and plain text copies
 of the licenses are included in the ./extlib directory. See the URL for the
 web page of each project for more information.
@@ -41,20 +38,12 @@ web page of each project for more information.
 
     * JCommon  http://sourceforge.net/projects/jfreechart/
     * JFreeChart  http://sourceforge.net/projects/jfreechart/
-    * SwingWorker  http://swingworker.dev.java.net/
 
   o GNU General Public License, version 2
     ./extlib/gpl-2.0.txt
     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
     * MySQL Connector/J  http://dev.mysql.com/downloads/connector/j/
-
-  o Sun Software License Agreement
-    ./extlib/sun_license.txt
-    (see download page which is linked from the url below)
-
-    * Java Look and Feel Graphics Repository (jlfgr)
-      http://java.sun.com/developer/techDocs/hi/repository/
 
 This section categorises the libraries in terms of function:
 
@@ -64,9 +53,6 @@ This section categorises the libraries in terms of function:
  - JFreeChart related:
      jcommon-1.0.16.jar
      jfreechart-1.0.13.jar
-     
- - Java Look and Feel Graphics Repository:
-     jlfgr-1_0.jar
      
  - MySQL JDBC:
      mysql-connector-java-5.1.10-bin.jar
@@ -81,4 +67,4 @@ testing purposes:
  - Cobertura 1.9.3:
      o http://cobertura.sourceforge.net/
      o Unpack the cobertura-1.9.3 archive into the extlib directory.
-     o This is used in build-full.xml for code coverage.
+     o This is used in build-dev.xml for code coverage.

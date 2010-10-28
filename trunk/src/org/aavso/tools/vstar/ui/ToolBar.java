@@ -111,39 +111,40 @@ public class ToolBar extends JPanel {
 	private void retrieveToolBarIcons() {
 		// Create the toolbar icons.
 
-		newStarFromFileIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/New24.gif");
 		newStarFromDatabaseIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/Import24.gif");
+		.getIconResource("/nico/toolbarIcons/_24_/NewStarFromDatabase.png");
 
+		newStarFromFileIcon = ResourceAccessor
+		.getIconResource("/nico/toolbarIcons/_24_/NewStarFromFile.png");
+		
 		saveIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/Save24.gif");
+				.getIconResource("/nico/toolbarIcons/_24_/Save.png");
 		printIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/Print24.gif");
+				.getIconResource("/nico/toolbarIcons/_24_/Print.png");
 
 		infoIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/Information24.gif");
+				.getIconResource("/nico/toolbarIcons/_24_/Information.png");
 
 		prefsIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/Preferences24.gif");
+				.getIconResource("/nico/toolbarIcons/_24_/Preferences.png");
 
 		rawDataIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/History24.gif");
+				.getIconResource("/nico/toolbarIcons/_24_/RawView.png");
 
 		phasePlotIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/Refresh24.gif");
+				.getIconResource("/nico/toolbarIcons/_24_/PhasePlotView.png");
 
 		zoomInIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/ZoomIn24.gif");
+				.getIconResource("/nico/toolbarIcons/_24_/ZoomIn.png");
 
 		zoomOutIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/ZoomOut24.gif");
+				.getIconResource("/nico/toolbarIcons/_24_/ZoomOut.png");
 
 		filterIcon = ResourceAccessor
-		.getIconResource("/toolbarButtonGraphics/general/Find24.gif");
+		.getIconResource("/nico/toolbarIcons/_24_/Find.png");
 
 		helpContentsIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/general/Help24.gif");
+				.getIconResource("/nico/toolbarIcons/_24_/Help.png");
 
 		if (newStarFromDatabaseIcon == null || newStarFromDatabaseIcon == null
 				|| infoIcon == null || saveIcon == null || printIcon == null
