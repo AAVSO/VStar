@@ -79,12 +79,14 @@ public class AboutBox {
 		strBuf.append("As guide, domain expert, AAVSO liason, and advocate,\n");
 		strBuf.append("Sara has been indispensible.\n\n");
 
-		strBuf.append("Thanks also to Michael Umbricht for testing, bug\n");
+		strBuf.append("Thanks to Michael Umbricht for early testing, bug\n");
 		strBuf.append("reports, advocacy, great conversations, and beer.\n\n");
 
-		strBuf.append("Thanks also to the Weber brothers (Adam and George)\n");
-		strBuf.append("for code and bug-fix contributions, and to the\n");
-		strBuf.append("broader Citizen Sky VStar Software Development team.\n");
+		strBuf.append("Thanks to the Weber brothers (Adam and George)\n");
+		strBuf.append("for code and bug-fix contributions, Nico Camargo for\n");
+		strBuf.append("the beautiful toolbar icons and to the broader\n");
+		strBuf.append("Citizen Sky VStar Software Development for testing,\n");
+		strBuf.append("advice, discussions, and encouragement.\n");
 
 		MessageBox
 				.showMessageDialog(

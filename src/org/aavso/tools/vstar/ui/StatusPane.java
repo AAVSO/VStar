@@ -75,9 +75,9 @@ public class StatusPane extends JPanel {
 
 		this.add(Box.createHorizontalGlue());
 
-		Icon stopIcon = ResourceAccessor
-				.getIconResource("/toolbarButtonGraphics/media/Stop16.gif");
-		this.stopButton = new JButton(stopIcon);
+//		Icon stopIcon = ResourceAccessor
+//				.getIconResource("/toolbarButtonGraphics/media/Stop16.gif");
+		this.stopButton = new JButton("Stop");
 		this.stopButton.setToolTipText("Stop the current operation");
 		this.stopButton.setEnabled(false);
 		// this.add(this.stopButton);

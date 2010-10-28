@@ -37,13 +37,9 @@ source code and licensing:
       http://sourceforge.net/projects/jfreechart/
       GNU Lesser General Public License, version 2.1
       
-    * SwingWorker
-      http://swingworker.dev.java.net/
-      GNU Lesser General Public License, version 2.1
-      
     * MySQL Connector/J
       http://dev.mysql.com/downloads/connector/j/
       GNU General Public License, version 2
-      
-    * Java Look and Feel Graphics Repository
-      http://java.sun.com/developer/techDocs/hi/repository/
+
+    * Toolbar icons created by Citizen Sky participant, Nico Camargo.
+      (nico-camargo-toolbar-icons-1.0.jar)
