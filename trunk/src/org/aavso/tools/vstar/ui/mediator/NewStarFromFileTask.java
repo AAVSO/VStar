@@ -41,6 +41,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	private File obsFile;
 	private ObservationSourceAnalyser analyser;
 	private int plotTaskPortion;
+	private boolean success;
 
 	/**
 	 * Constructor.
@@ -58,6 +59,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 		this.obsFile = obsFile;
 		this.analyser = analyser;
 		this.plotTaskPortion = plotTaskPortion;
+		this.success = false;
 	}
 
 	/**
@@ -95,6 +97,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 					.getNewStarType(), new StarInfo(obsFile.getName()),
 					textFormatReader, plotTaskPortion);
 
+			success = true;
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"New Star From File Read Error", t);
@@ -105,8 +108,10 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		mediator.getProgressNotifier().notifyListeners(
-				ProgressInfo.COMPLETE_PROGRESS);
+		if (success) {
+			mediator.getProgressNotifier().notifyListeners(
+					ProgressInfo.COMPLETE_PROGRESS);
+		}
 
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.CLEAR_PROGRESS);

@@ -51,6 +51,8 @@ public class ToolBar extends JPanel {
 	private Icon rawDataIcon;
 	private Icon phasePlotIcon;
 
+	private Icon polynomialFitIcon;
+
 	private Icon zoomInIcon;
 	private Icon zoomOutIcon;
 
@@ -70,6 +72,8 @@ public class ToolBar extends JPanel {
 	private JButton rawDataButton;
 	private JButton phasePlotButton;
 
+	private JButton polynomialFitButton;
+	
 	private JButton zoomInButton;
 	private JButton zoomOutButton;
 
@@ -112,11 +116,11 @@ public class ToolBar extends JPanel {
 		// Create the toolbar icons.
 
 		newStarFromDatabaseIcon = ResourceAccessor
-		.getIconResource("/nico/toolbarIcons/_24_/NewStarFromDatabase.png");
+				.getIconResource("/nico/toolbarIcons/_24_/NewStarFromDatabase.png");
 
 		newStarFromFileIcon = ResourceAccessor
-		.getIconResource("/nico/toolbarIcons/_24_/NewStarFromFile.png");
-		
+				.getIconResource("/nico/toolbarIcons/_24_/NewStarFromFile.png");
+
 		saveIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/Save.png");
 		printIcon = ResourceAccessor
@@ -134,6 +138,9 @@ public class ToolBar extends JPanel {
 		phasePlotIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/PhasePlotView.png");
 
+		polynomialFitIcon = ResourceAccessor
+				.getIconResource("/nico/toolbarIcons/_24_/PolynomialFit.png");
+
 		zoomInIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/ZoomIn.png");
 
@@ -141,7 +148,7 @@ public class ToolBar extends JPanel {
 				.getIconResource("/nico/toolbarIcons/_24_/ZoomOut.png");
 
 		filterIcon = ResourceAccessor
-		.getIconResource("/nico/toolbarIcons/_24_/Find.png");
+				.getIconResource("/nico/toolbarIcons/_24_/Find.png");
 
 		helpContentsIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/Help.png");
@@ -149,14 +156,15 @@ public class ToolBar extends JPanel {
 		if (newStarFromDatabaseIcon == null || newStarFromDatabaseIcon == null
 				|| infoIcon == null || saveIcon == null || printIcon == null
 				|| rawDataIcon == null || phasePlotIcon == null
+				|| polynomialFitIcon == null
 				|| zoomInIcon == null || zoomOutIcon == null
-				|| filterIcon == null
-				|| prefsIcon == null || helpContentsIcon == null) {
-			
+				|| filterIcon == null || prefsIcon == null
+				|| helpContentsIcon == null) {
+
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"Resource Error",
 					"Some icon resources are not available. Exiting.");
-			
+
 			System.exit(1);
 		}
 	}
@@ -213,6 +221,14 @@ public class ToolBar extends JPanel {
 		phasePlotButton.addActionListener(menuBar.createPhasePlotListener());
 		phasePlotButton.setEnabled(false);
 		buttonPanel.add(phasePlotButton);
+
+		buttonPanel.add(Box.createHorizontalStrut(10));
+
+		polynomialFitButton = new JButton(polynomialFitIcon);
+		polynomialFitButton.setToolTipText(MenuBar.POLYNOMIAL_FIT);
+		polynomialFitButton.addActionListener(menuBar.createPolynomialFitListener());
+		polynomialFitButton.setEnabled(false);
+		buttonPanel.add(polynomialFitButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
@@ -291,10 +307,12 @@ public class ToolBar extends JPanel {
 
 		rawDataButton.setEnabled(state);
 		phasePlotButton.setEnabled(state);
+
+		polynomialFitButton.setEnabled(state);
 		
 		zoomInButton.setEnabled(state);
-		zoomOutButton.setEnabled(state);		
-		
-		filterButton.setEnabled(state);		
+		zoomOutButton.setEnabled(state);
+
+		filterButton.setEnabled(state);
 	}
 }

@@ -125,12 +125,12 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// we are targeting. We distinguish between the case where
 			// no JD min/max is supplied, and when one is.
 
-			// TODO: 
+			// TODO:
 			// - Hide all this statement stuff behind a get-observations
-			//   method.
-			// - Obs stmt creation and param setting should be a single 
-			//   operation to avoid possible mismatched calls! Either that
-			//   or remove stmt parameter from parameter setting method.
+			// method.
+			// - Obs stmt creation and param setting should be a single
+			// operation to avoid possible mismatched calls! Either that
+			// or remove stmt parameter from parameter setting method.
 
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
 			Connection obsConnection = obsConnector.createConnection();
@@ -213,8 +213,10 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		mediator.getProgressNotifier().notifyListeners(
-				ProgressInfo.COMPLETE_PROGRESS);
+		if (success) {
+			mediator.getProgressNotifier().notifyListeners(
+					ProgressInfo.COMPLETE_PROGRESS);
+		}
 
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.CLEAR_PROGRESS);

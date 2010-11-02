@@ -224,6 +224,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		fileInfoItem = new JMenuItem(INFO);
 		fileInfoItem.addActionListener(this.createInfoListener());
+		fileInfoItem.setEnabled(false);
 		fileMenu.add(fileInfoItem);
 
 		fileMenu.addSeparator();
@@ -477,7 +478,6 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 					try {
 						mediator.createObservationArtefactsFromFile(f);
 					} catch (Exception ex) {
-						completeProgress();
 						MessageBox.showErrorDialog(parent, NEW_STAR_FROM_FILE,
 								ex);
 					}
@@ -845,15 +845,15 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	// Enables or disabled key menu items.
 	private void changeKeyMenuItemEnableState(boolean state) {
-		this.fileNewStarFromDatabaseItem.setEnabled(state);
-		this.fileNewStarFromFileItem.setEnabled(state);
+		this.fileInfoItem.setEnabled(state);
+
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
-		this.fileInfoItem.setEnabled(state);
 
 		this.viewZoomInItem.setEnabled(state);
 		this.viewZoomOutItem.setEnabled(state);
 		this.viewZoomToFitItem.setEnabled(state);
+		
 		this.viewFilterItem.setEnabled(state);
 		this.viewCustomFilterMenu.setEnabled(state);
 		this.viewNoFilterItem.setEnabled(state);
@@ -862,8 +862,6 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.analysisPhasePlotItem.setEnabled(state);
 		this.analysisPeriodSearchMenu.setEnabled(state);
 		this.analysisPolynomialFitItem.setEnabled(state);
-
-		// this.toolMenu.setEnabled(state);
 
 		AnalysisType type = mediator.getAnalysisType();
 
