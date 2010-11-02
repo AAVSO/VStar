@@ -30,9 +30,9 @@ o VStar leaks memory with continued use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
-Date: November 2 2010
+Date: November ? 2010
 Version: 2.9
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-02November2010
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??November2010
 Key Changes:
 - Toolbar: added polynomial fit button and changed phase plot button icon.
 - Fixed broken JNLP file.
