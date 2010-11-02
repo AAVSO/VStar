@@ -19,7 +19,7 @@ o Bug & Issue tracker entries cited below can be found here:
   These contain more detail about who did what, when, and where (in the 
   codebase).
 o Major contributors are: David Benn, Michael Umbricht, Sara Beck, Adam 
-  Weber, and George Weber.
+  Weber, George Weber, and Nico Camargo.
 
 Known Issues:
 o VStar leaks memory with continued use. The WebStart JNLP file specifies 
@@ -36,9 +36,9 @@ Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-02November2010
 Key Changes:
 - Toolbar: added polynomial fit button and changed phase plot button icon.
 - Fixed broken JNLP file.
-- Fixed a bug in which toolbar icons became active after failure to load data 
-  from AID or file. This permitted, for example, the Info button or File menu
-  item to be selected.
+- Fixed a bug in which toolbar icons became active after failure to load 
+  data from AID or file, permitting for example, the Info button or File 
+  menu item to be selected when no valid dataset was loaded.
   
 Date: October 28 2010
 Version: 2.8
