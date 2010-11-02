@@ -28,8 +28,18 @@ o VStar leaks memory with continued use. The WebStart JNLP file specifies
   Currently, the best course of action is to exit and restart VStar if it 
   becomes unresponsive. This problem will be addressed in forthcoming 
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
-   
+  
 ----------------------
+Date: November 2 2010
+Version: 2.9
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-02November2010
+Key Changes:
+- Toolbar: added polynomial fit button and changed phase plot button icon.
+- Fixed broken JNLP file.
+- Fixed a bug in which toolbar icons became active after failure to load data 
+  from AID or file. This permitted, for example, the Info button or File menu
+  item to be selected.
+  
 Date: October 28 2010
 Version: 2.8
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-28October2010

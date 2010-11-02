@@ -42,4 +42,4 @@ source code and licensing:
       GNU General Public License, version 2
 
     * Toolbar icons created by Citizen Sky participant, Nico Camargo.
-      (nico-camargo-toolbar-icons-1.0.jar)
+      (nico-camargo-toolbar-icons-1.1.jar)

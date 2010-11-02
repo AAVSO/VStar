@@ -36,7 +36,8 @@ Q4: How do I manage a VStar WebStart install?
 A4: In general you would use the Java Cache Viewer.  On Solaris type "javaws" at
 the command line.  For Windows XP type "javaws -viewer" in a command window.
 (also see the instructions above to start the Java Control Panel)  Other
-operating systems should have a similar javaws command.
+operating systems should have a similar javaws command. Mac OS X has a Java 
+Preferences application in /Applications/Utilities/Java.
 
 Q5: What ports does VStar use to connect to the AAVSO database?
 
