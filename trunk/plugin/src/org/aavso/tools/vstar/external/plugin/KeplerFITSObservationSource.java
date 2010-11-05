@@ -17,26 +17,14 @@ package org.aavso.tools.vstar.external.plugin;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JPanel;
 
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.BinaryTableHDU;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsException;
-import nom.tam.fits.Header;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -46,7 +34,6 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.NumberSelectionPane;
 
 /**
  * A Kepler FITS file observation source plug-in that uses the Topcat FITS library.
@@ -82,7 +69,6 @@ public class KeplerFITSObservationSource implements ObservationSourcePluginBase 
 
 	class KeplerFITSObservationRetriever extends AbstractObservationRetriever {
 		@Override
-//		public void retrieveKeplerObservations() throws ObservationReadError,
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
 
@@ -93,7 +79,6 @@ public class KeplerFITSObservationSource implements ObservationSourcePluginBase 
 				try {
 					Fits fits = new Fits(currFile);
 					BasicHDU[] hdus = fits.read();
-//					retrieveObservations(hdus);
 					retrieveKeplerObservations(hdus);
 				} catch (FitsException e) {
 					throw new ObservationReadError(e.getLocalizedMessage());
@@ -106,7 +91,6 @@ public class KeplerFITSObservationSource implements ObservationSourcePluginBase 
 		private void retrieveKeplerObservations(BasicHDU[] hdus)
 				throws FitsException, ObservationReadError {
 
-			List<ValidObservation> obs = new ArrayList<ValidObservation>();
 			double minMagErr = Double.MAX_VALUE;
 			double maxMagErr = Double.MIN_VALUE;
 
@@ -136,7 +120,6 @@ public class KeplerFITSObservationSource implements ObservationSourcePluginBase 
                                                 float dia_ins_err = ((float[]) tableHDU.getElement(row, 18))[0];
 
 						// For non-infinite magnitude fluxes ...
-//						if (!ap_corr_flux.isInfinite && !ap_corr_err.isInfinite) {
                         if (!Float.isInfinite(ap_corr_flux) && !Float.isInfinite(ap_corr_err)) { 
                                                 
 							double hjd = barytime + 2400000.5;
@@ -155,95 +138,11 @@ public class KeplerFITSObservationSource implements ObservationSourcePluginBase 
 							ob.setMagnitude(new Magnitude(mag, magErr));
 							ob.setBand(SeriesType.Unspecified);
 							ob.setRecordNumber(row);
-
-							obs.add(ob);
+							collectObservation(ob);
 						}
 					}
 				}
 			}
-
-			collectObservations(obs, minMagErr, maxMagErr);
-		}
-
-		// Collect observations, distinguishing those with a magnitude error
-		// greater than or equal to some threshold.
-		private void collectObservations(List<ValidObservation> obs,
-				double minMagErr, double maxMagErr) throws ObservationReadError {
-
-			double magErrThreshold;
-			magErrThreshold = (maxMagErr + minMagErr) / 2;
-
-			MagErrorSelectionDialog magErrThresholdDialog = new MagErrorSelectionDialog(
-					minMagErr, maxMagErr, 0.00001, magErrThreshold);
-
-			magErrThreshold = magErrThresholdDialog.getValue();
-
-			for (ValidObservation ob : obs) {
-				double magErr = ob.getMagnitude().getUncertainty();
-				if (magErr >= magErrThreshold) {
-					ob.setBand(SeriesType.Excluded);
-				}
-
-				collectObservation(ob);
-			}
-		}
-	}
-
-	class MagErrorSelectionDialog extends JDialog {
-
-		private NumberSelectionPane magErrorSelector;
-
-		public MagErrorSelectionDialog(double min, double max,
-				double increment, double initial) {
-			super();
-
-			setTitle("Maximum Magnitude Error");
-			setModal(true);
-			setMinimumSize(new Dimension(250, 100));
-
-			Container contentPane = this.getContentPane();
-
-			JPanel topPane = new JPanel();
-			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-			magErrorSelector = new NumberSelectionPane(
-					"Select Maximum Magnitude Error", min, max, increment,
-					initial);
-
-			topPane.add(magErrorSelector);
-
-			topPane.add(createButtonPane());
-
-			contentPane.add(topPane);
-
-			this.pack();
-			setLocationRelativeTo(MainFrame.getInstance().getContentPane());
-			this.setVisible(true);
-		}
-
-		protected JPanel createButtonPane() {
-			JPanel panel = new JPanel();
-			panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-			JButton okButton = new JButton("OK");
-			okButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					setVisible(false);
-					dispose();
-				}
-			});
-			panel.add(okButton);
-
-			this.getRootPane().setDefaultButton(okButton);
-
-			return panel;
-		}
-
-		/**
-		 * @return The value selected in the spinner.
-		 */
-		public double getValue() {
-			return magErrorSelector.getValue();
 		}
 	}
 }
