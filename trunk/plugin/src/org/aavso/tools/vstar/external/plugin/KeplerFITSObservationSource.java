@@ -118,9 +118,9 @@ public class KeplerFITSObservationSource implements ObservationSourcePluginBase 
 						double barytime = ((double[]) tableHDU.getElement(row, 0))[0];
 						float timcorr = ((float[]) tableHDU.getElement(row, 1))[0];
 						int cadence_number = ((int[]) tableHDU.getElement(row, 2))[0];
-						float ap_cent_row = ((float[]) tableHDU.getElement(row, 3))[0];
+						double ap_cent_row = ((double[]) tableHDU.getElement(row, 3))[0];
 						float ap_cent_r_err = ((float[]) tableHDU.getElement(row, 4))[0];
-						float ap_cent_col = ((float[]) tableHDU.getElement(row, 5))[0];
+						double ap_cent_col = ((double[]) tableHDU.getElement(row, 5))[0];
 						float ap_cent_c_err = ((float[]) tableHDU.getElement(row, 6))[0];
 						float ap_raw_flux = ((float[]) tableHDU.getElement(row, 7))[0];
 						float ap_raw_err = ((float[]) tableHDU.getElement(row, 8))[0];
@@ -171,10 +171,10 @@ public class KeplerFITSObservationSource implements ObservationSourcePluginBase 
 				double minMagErr, double maxMagErr) throws ObservationReadError {
 
 			double magErrThreshold;
-			magErrThreshold = (maxMagErr - minMagErr) / 2;
+			magErrThreshold = (maxMagErr + minMagErr) / 2;
 
 			MagErrorSelectionDialog magErrThresholdDialog = new MagErrorSelectionDialog(
-					minMagErr, maxMagErr, 0.0001, magErrThreshold);
+					minMagErr, maxMagErr, 0.00001, magErrThreshold);
 
 			magErrThreshold = magErrThresholdDialog.getValue();
 
