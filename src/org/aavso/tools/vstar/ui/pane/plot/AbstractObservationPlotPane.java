@@ -614,13 +614,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * 
 	 * Note: for large datasets, this could be very expensive! Should maintain
 	 * last min and max and only check observations for bands that have changed.
-	 * 
-	 * TODO: I think we should revisit the need for this! It does not always
-	 * behave as desired.
 	 */
 	private void setMagScale() {
 		double min = Double.MAX_VALUE;
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE;
 
 		Map<Integer, List<ValidObservation>> seriesNumToObsMap = obsModel
 				.getSeriesNumToObSrcListMap();
