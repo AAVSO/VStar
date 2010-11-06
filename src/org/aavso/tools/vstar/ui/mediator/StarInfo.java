@@ -44,6 +44,8 @@ public class StarInfo {
 	 * @param epoch
 	 *            The star's (corresponding to period for phase plot purposes)
 	 *            epoch, if known, as a Heliocentric Julian Date.
+	 * @param discoverer
+	 *            The discoverer of the star, if known.
 	 */
 	public StarInfo(String designation, String auid, Double period,
 			Double epoch, String varType, String spectralType, String discoverer) {
@@ -129,5 +131,5 @@ public class StarInfo {
 	 */
 	public String getDiscoverer() {
 		return discoverer;
-	}	
+	}
 }
