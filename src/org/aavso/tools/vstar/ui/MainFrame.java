@@ -41,16 +41,20 @@ public class MainFrame extends JFrame {
 	private StatusPane statusPane;
 
 	// Singleton field and getter.
-	private static final MainFrame instance = new MainFrame();
-
+	//private static final MainFrame instance = new MainFrame();
+	private static MainFrame instance = null;
+	
 	public static MainFrame getInstance() {
-		return instance;
+		if (instance == null) {
+			instance = new MainFrame();
+		}
+		return instance;	
 	}
 
 	/**
 	 * Private constructor in support of Singleton.
 	 */
-	private MainFrame() {
+	public MainFrame() {
 		super("VStar " + ResourceAccessor.getVersionString());
 
 		this.menuBar = new MenuBar(this);

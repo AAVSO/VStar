@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<jnlp spec="1.0+" 
-      codebase="http://www.aavso.org/data/software/vstar" 
-      href="vstar.jnlp">
+<jnlp spec="1.0+" codebase="http://www.aavso.org/files/vstar" href="vstar.jnlp">
 
   <information>
 
@@ -10,27 +8,24 @@
     <vendor>American Association of Variable Star Observers</vendor>
     <homepage href="http://www.citizensky.org/teams/vstar-software-development"/>
     <description>
-      VStar is a multi-platform, easy-to-use variable star data visualization 
-      tool. Data can be read from a file or the AAVSO database and plotted as a 
-      light curve or phase plot along with mean data and error bars. Other 
-      features include period analysis and data filtering.
+      VStar is a multi-platform, easy-to-use variable star data visualization tool. 
+      Data can be read from a file or the AAVSO database and plotted as a light curve 
+      or phase plot along with mean data and error bars. Other features include period 
+      analysis and data filtering.
     </description>
     <description kind="short">VStar</description>
-    <description kind="one-line">
-      VStar: a variable star data visualization and analysis tool.
-    </description>
+    <description kind="one-line">VStar: a variable star data visualization and analysis tool.</description>
     <description kind="tooltip">VStar</description>
 
 <!-- 
-    Add hooks for inclusion of icon and splash page artwork for when 
-    they are ready. The lines below use dummy filenames, replace with 
-    the actual path to the images.
+	Add hooks for inclusion of icon and splash page artwork for when they are ready.
+    The lines below use dummy filenames, replace with the actual path to the images.
  
     <icon href="images/vstar_icon.gif"/>
     <icon kind="splash" href="images/vstar_splash_page.jpg"/>
 -->
 
-    <offline-allowed/>
+    <offline-allowed />
     
   </information>
 
@@ -49,9 +44,9 @@
     <jar href="extlib/jfreechart-1.0.13.jar"/>
     <jar href="extlib/mysql-connector-java-5.1.10-bin.jar"/>
     <jar href="extlib/nico-camargo-toolbar-icons-1.1.jar"/>
-
+	
   </resources>
 
-  <application-desc main-class="org.aavso.tools.vstar.ui.VStar"/>
+  <application-desc main-class="org.aavso.tools.vstar.ui.VStar" />
 
 </jnlp>

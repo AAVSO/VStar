@@ -35,10 +35,15 @@ Version: 2.9
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??November2010
 Key Changes:
 - Toolbar: added polynomial fit button and changed phase plot button icon.
-- Fixed broken JNLP file.
+- Fixed broken JNLP file reported by a Citizen Sky participant (Bikeman).
 - Fixed a bug in which toolbar icons became active after failure to load 
   data from AID or file, permitting for example, the Info button or File 
   menu item to be selected when no valid dataset was loaded.
+- Maximum magnitude values for plot ranges were being calculated 
+  incorrectly for magnitude values less than zero. This was discovered
+  while developing a Kepler FITS observation source plugin with Doug Welch.
+- Locale-sensitive number parsing was being used in some places where
+  Double.parseDouble() should have been used, leading to parsing errors.
   
 Date: October 28 2010
 Version: 2.8

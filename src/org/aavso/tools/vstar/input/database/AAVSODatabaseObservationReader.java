@@ -31,7 +31,6 @@ import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.data.validation.InclusiveRangePredicate;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
-import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
  * This class reads variable star observations from an AAVSO database and yields
@@ -234,7 +233,7 @@ public class AAVSODatabaseObservationReader extends
 		try {
 			String str = source.getString(colName);
 			if (str != null) {
-				num = NumberParser.parseDouble(str);
+				num = Double.parseDouble(str);
 			}
 		} catch (NumberFormatException e) {
 			// The value will default to null.
