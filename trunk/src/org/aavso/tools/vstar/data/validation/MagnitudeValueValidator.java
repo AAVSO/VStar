@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.exception.ObservationValidationError;
-import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
  * This class validates magnitude values (e.g. magnitude, uncertainty). 
@@ -64,7 +63,7 @@ public class MagnitudeValueValidator extends AbstractStringValidator<Double> {
 		double value = 0;
 		
 		try {
-			value = NumberParser.parseDouble(str);
+			value = Double.parseDouble(str);
 			if (!rangePredicate.holds(value)) {
 				throw new ObservationValidationError("The " + kind + " '" + str
 						+ "' falls outside of the range " + rangePredicate);

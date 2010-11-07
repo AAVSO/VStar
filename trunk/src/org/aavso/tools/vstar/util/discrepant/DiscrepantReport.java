@@ -21,7 +21,6 @@ import java.text.DecimalFormat;
 import java.util.Calendar;
 
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
-import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
  * An instance of this class represents a discrepant observation report.
@@ -123,7 +122,7 @@ public class DiscrepantReport {
 
 	private static double getTodaysJD() {
 		Calendar today = Calendar.getInstance();
-		double day = NumberParser.parseDouble(dateFormat.format(today
+		double day = Double.parseDouble(dateFormat.format(today
 				.get(Calendar.DAY_OF_MONTH)
 				+ (double) today.get(Calendar.HOUR_OF_DAY)
 				/ 24

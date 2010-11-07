@@ -18,13 +18,16 @@
 package org.aavso.tools.vstar.plugin.period;
 
 import java.awt.Component;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
 
+import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
@@ -37,7 +40,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.TextTitle;
 
 /**
- * This factory class creates GUI (e.g. charts and tables) components suitable for
+ * This factory class creates GUI components (e.g. charts and tables) suitable for
  * returning from the PeriodAnalysisDialogBase.createContent() method that must
  * be overridden by period analysis plugin subclasses.
  */
@@ -259,5 +262,24 @@ public class PeriodAnalysisComponentFactory {
 		}
 
 		return tabs;
+	}
+
+	/**
+	 * Open a "read" file chooser and return the selected file.
+	 * 
+	 * @return The selected file or null if none was selected.
+	 */
+	public static File chooseFileForReading() {
+		File file = null;
+		
+		JFileChooser fileChooser = new JFileChooser();
+		
+		int result = fileChooser.showOpenDialog(MainFrame.getInstance());
+		
+		if (result == JFileChooser.APPROVE_OPTION) {
+			file = fileChooser.getSelectedFile();
+		}
+		
+		return file;
 	}
 }

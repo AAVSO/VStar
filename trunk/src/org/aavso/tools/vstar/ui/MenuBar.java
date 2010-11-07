@@ -54,7 +54,7 @@ import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
-import org.aavso.tools.vstar.ui.resources.PluginClassLoader;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -189,7 +189,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		fileMenu.addSeparator();
 
-		List<ObservationSourcePluginBase> obSourcePlugins = PluginClassLoader
+		List<ObservationSourcePluginBase> obSourcePlugins = PluginLoader
 				.getObservationSourcePlugins();
 
 		if (!obSourcePlugins.isEmpty()) {
@@ -281,7 +281,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		menuItemNameToCustomFilterPlugin = new TreeMap<String, CustomFilterPluginBase>();
 
-		for (CustomFilterPluginBase plugin : PluginClassLoader
+		for (CustomFilterPluginBase plugin : PluginLoader
 				.getCustomFilterPlugins()) {
 			String itemName = plugin.getDisplayName() + "...";
 
@@ -324,7 +324,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		menuItemNameToPeriodAnalysisPlugin = new TreeMap<String, PeriodAnalysisPluginBase>();
 
-		for (PeriodAnalysisPluginBase plugin : PluginClassLoader
+		for (PeriodAnalysisPluginBase plugin : PluginLoader
 				.getPeriodAnalysisPlugins()) {
 			String itemName = plugin.getDisplayName() + "...";
 
@@ -356,7 +356,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		menuItemNameToObsToolPlugin = new TreeMap<String, ObservationToolPluginBase>();
 
-		for (ObservationToolPluginBase plugin : PluginClassLoader
+		for (ObservationToolPluginBase plugin : PluginLoader
 				.getObservationToolPlugins()) {
 			String itemName = plugin.getDisplayName() + "...";
 
@@ -367,7 +367,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 			menuItemNameToObsToolPlugin.put(itemName, plugin);
 		}
 
-		List<GeneralToolPluginBase> genToolPlugins = PluginClassLoader
+		List<GeneralToolPluginBase> genToolPlugins = PluginLoader
 				.getGeneralToolPlugins();
 
 		if (!genToolPlugins.isEmpty()) {
