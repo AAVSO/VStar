@@ -17,12 +17,18 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URL;
+
+import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
@@ -62,7 +68,37 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	protected void createObservationArtefacts() {
 
 		try {
-			AbstractObservationRetriever retriever = this.obSourcePlugin
+			// Set input stream and name, if any is requested by the plug-in.
+			switch (obSourcePlugin.getInputType()) {
+			case FILE:
+				File file = PeriodAnalysisComponentFactory
+						.chooseFileForReading();
+				if (file != null) {
+					obSourcePlugin.setInputInfo(new FileInputStream(file), file
+							.getName());
+				} else {
+					throw new CancellationException();
+				}
+				break;
+
+			case URL:
+				String urlStr = JOptionPane
+						.showInputDialog("Enter Observation Source URL");
+				if (urlStr != null && urlStr.trim().length() != 0) {
+					URL url = new URL(urlStr);
+					obSourcePlugin.setInputInfo(url.openStream(), urlStr);
+				} else {
+					throw new CancellationException();
+				}
+				break;
+
+			case NONE:
+				obSourcePlugin.setInputInfo(null, null);
+				break;
+			}
+
+			// Retrieve the observations.
+			AbstractObservationRetriever retriever = obSourcePlugin
 					.getObservationRetriever();
 
 			retriever.retrieveObservations();
@@ -72,12 +108,19 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						"No observations for the specified period or error in observation source.");
 			}
 
+			// Create plots, tables.
 			NewStarType type = NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
 			mediator.createNewStarObservationArtefacts(type, new StarInfo(
 					obSourcePlugin.getCurrentStarName()), retriever, 0);
 
+		} catch (CancellationException e) {
+			mediator.getProgressNotifier().notifyListeners(
+					ProgressInfo.COMPLETE_PROGRESS);
+
+			mediator.getProgressNotifier().notifyListeners(
+					ProgressInfo.CLEAR_PROGRESS);
 		} catch (Throwable t) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(
 					"New Star From Observation Source Read Error", t);
 
 			mediator.getProgressNotifier().notifyListeners(

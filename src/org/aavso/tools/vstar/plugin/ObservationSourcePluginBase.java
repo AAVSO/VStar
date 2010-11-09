@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.io.InputStream;
+
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 
 /**
@@ -24,7 +26,10 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
  * This is the base class for all observation source plug-in classes.
  * </p>
  */
-public interface ObservationSourcePluginBase extends PluginBase {
+public abstract class ObservationSourcePluginBase implements PluginBase {
+	
+	protected InputStream inputStream;
+	protected String inputName;
 
 	/**
 	 * <p>
@@ -39,12 +44,43 @@ public interface ObservationSourcePluginBase extends PluginBase {
 	 * 
 	 * @return An observation retriever.
 	 */
-	public AbstractObservationRetriever getObservationRetriever();
+	public abstract AbstractObservationRetriever getObservationRetriever();
 
 	/**
 	 * Get the name of the star associated with the current observation dataset.
 	 * 
 	 * @return The current star name.
 	 */
-	public String getCurrentStarName();
+	public abstract String getCurrentStarName();
+	
+	/**
+	 * What is the input type for this plug-in?
+	 * @return The input type.
+	 */
+	public abstract InputType getInputType();
+	
+	/**
+	 * Sets the input stream and name.
+	 *  
+	 * @param inputStream The input stream.
+	 * @param inputName A name associated with the input (e.g. file, URL).
+	 */
+	public void setInputInfo(InputStream inputStream, String inputName) {
+		this.inputStream = inputStream;
+		this.inputName = inputName;
+	}
+
+	/**
+	 * @return the input stream
+	 */
+	public InputStream getInputStream() {
+		return inputStream;
+	}
+
+	/**
+	 * @return the name associated with the input (e.g. file, URL)
+	 */
+	public String getInputName() {
+		return inputName;
+	}
 }
