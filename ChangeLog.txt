@@ -22,17 +22,17 @@ o Major contributors are: David Benn, Michael Umbricht, Sara Beck, Adam
   Weber, George Weber, and Nico Camargo.
 
 Known Issues:
-o VStar leaks memory with continued use. The WebStart JNLP file specifies 
-  a larger-than-default heap, which helps to some extent, but does not 
+o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies 
+  a larger-than-default heap, which helps significantly, but does not 
   solve the problem, merely pushes its effects further out into the future.
   Currently, the best course of action is to exit and restart VStar if it 
   becomes unresponsive. This problem will be addressed in forthcoming 
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
-Date: November ? 2010
+Date: November 9 2010
 Version: 2.9
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??November2010
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-09November2010
 Key Changes:
 - Toolbar: added polynomial fit button and changed phase plot button icon.
 - Fixed broken JNLP file reported by a Citizen Sky participant (Bikeman).
@@ -41,9 +41,15 @@ Key Changes:
   menu item to be selected when no valid dataset was loaded.
 - Maximum magnitude values for plot ranges were being calculated 
   incorrectly for magnitude values less than zero. This was discovered
-  while developing a Kepler FITS observation source plugin with Doug Welch.
+  while developing a Kepler FITS observation source plug-in with Doug Welch.
 - Locale-sensitive number parsing was being used in some places where
   Double.parseDouble() should have been used, leading to parsing errors.
+  Thanks again to Bikeman for reporting this and testing the fix.
+- Re-designed observation source plug-ins to work around the WebStart 
+  sandbox that prevented observation source plug-ins from opening a file 
+  dialog. 
+- Added sections regarding limitations and use of libraries to plug-in 
+  development document.
   
 Date: October 28 2010
 Version: 2.8
