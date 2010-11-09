@@ -856,11 +856,17 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		
 		this.viewFilterItem.setEnabled(state);
 		this.viewCustomFilterMenu.setEnabled(state);
+		for (int i=0;i<this.viewCustomFilterMenu.getItemCount();i++) {
+			this.viewCustomFilterMenu.getItem(i).setEnabled(state);
+		}
 		this.viewNoFilterItem.setEnabled(state);
 
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
 		this.analysisPeriodSearchMenu.setEnabled(state);
+		for (int i=0;i<this.analysisPeriodSearchMenu.getItemCount();i++) {
+			this.analysisPeriodSearchMenu.getItem(i).setEnabled(state);
+		}
 		this.analysisPolynomialFitItem.setEnabled(state);
 
 		AnalysisType type = mediator.getAnalysisType();

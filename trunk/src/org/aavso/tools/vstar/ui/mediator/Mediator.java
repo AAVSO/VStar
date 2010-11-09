@@ -573,12 +573,6 @@ public class Mediator {
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
 
-			// Citizen Sky authentication.
-//			AAVSODatabaseConnector userConnector = AAVSODatabaseConnector.csUserDBConnector;
-//			userConnector.authenticateWithCitizenSky();
-
-//			Authenticator.getInstance().authenticate();
-
 			this.getProgressNotifier().notifyListeners(
 					new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
 
@@ -586,19 +580,6 @@ public class Mediator {
 					starName, auid, minJD, maxJD);
 			this.currTask = task;
 			task.execute();
-//		} catch (CancellationException ex) {
-//			MainFrame.getInstance().getStatusPane().setMessage("");
-//			
-//			mediator.getProgressNotifier().notifyListeners(
-//					ProgressInfo.COMPLETE_PROGRESS);
-//
-//			mediator.getProgressNotifier().notifyListeners(
-//					ProgressInfo.CLEAR_PROGRESS);
-//		} catch (ConnectionException ex) {
-//			MessageBox.showErrorDialog(MainFrame.getInstance(),
-//					MenuBar.NEW_STAR_FROM_DATABASE,
-//					"Cannot connect to database.");
-//			MainFrame.getInstance().getStatusPane().setMessage("");
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
@@ -901,7 +882,7 @@ public class Mediator {
 		// source).
 		boolean enableColumnAutoResize = newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
 				|| newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
-		
+
 		ObservationListPane obsListPane = new ObservationListPane(
 				validObsTableModel, null, enableColumnAutoResize);
 
