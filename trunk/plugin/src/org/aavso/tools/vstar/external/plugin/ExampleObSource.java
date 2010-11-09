@@ -6,20 +6,23 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 
 /**
  * A simple example observation source plug-in. All we do here is to generate a
  * a set of observations based upon small variations around a cosine function.
- * In a real plug-in, such observations would come from a file, or from a web
- * service, an http URL stream, or some database other than the AAVSO
- * International Database.
  */
-public class ExampleObSource implements ObservationSourcePluginBase {
+public class ExampleObSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getCurrentStarName() {
 		return "Noisy Cosine Star";
+	}
+
+	@Override
+	public InputType getInputType() {
+		return InputType.NONE;
 	}
 
 	@Override

@@ -8,7 +8,7 @@ package org.aavso.tools.vstar.external.plugin;
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
+ * This program is distributed inputStream the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
@@ -16,10 +16,6 @@ package org.aavso.tools.vstar.external.plugin;
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-
-import java.io.File;
-
-import javax.swing.JFileChooser;
 
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.BinaryTableHDU;
@@ -32,24 +28,25 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-import org.aavso.tools.vstar.ui.MainFrame;
 
 /**
- * A Kepler FITS file observation source plug-in that uses the Topcat FITS library.
+ * A Kepler FITS file observation source plug-inputStream that uses the Topcat FITS library.
  */
-public class KeplerFITSObservationSource implements ObservationSourcePluginBase {
-
-	private JFileChooser fileChooser;
-	private File currFile;
+public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	public KeplerFITSObservationSource() {
-		fileChooser = new JFileChooser();
 	}
 
 	@Override
 	public String getCurrentStarName() {
-		return currFile.getName();
+		return getInputName();
+	}
+
+	@Override
+	public InputType getInputType() {
+		return InputType.FILE;
 	}
 
 	@Override
@@ -59,7 +56,7 @@ public class KeplerFITSObservationSource implements ObservationSourcePluginBase 
 
 	@Override
 	public String getDescription() {
-		return "A Kepler FITS file observation source plug-in that uses the Topcat FITS library.";
+		return "A Kepler FITS file observation source plug-inputStream that uses the Topcat FITS library.";
 	}
 
 	@Override
@@ -72,17 +69,12 @@ public class KeplerFITSObservationSource implements ObservationSourcePluginBase 
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
 
-			int result = fileChooser.showOpenDialog(MainFrame.getInstance());
-
-			if (result == JFileChooser.APPROVE_OPTION) {
-				currFile = fileChooser.getSelectedFile();
-				try {
-					Fits fits = new Fits(currFile);
-					BasicHDU[] hdus = fits.read();
-					retrieveKeplerObservations(hdus);
-				} catch (FitsException e) {
-					throw new ObservationReadError(e.getLocalizedMessage());
-				}
+			try {
+				Fits fits = new Fits(getInputStream());
+				BasicHDU[] hdus = fits.read();
+				retrieveKeplerObservations(hdus);
+			} catch (FitsException e) {
+				throw new ObservationReadError(e.getLocalizedMessage());
 			}
 		}
 
@@ -119,7 +111,7 @@ public class KeplerFITSObservationSource implements ObservationSourcePluginBase 
 						float dia_ins_flux = ((float[]) tableHDU.getElement(row, 17))[0];
                                                 float dia_ins_err = ((float[]) tableHDU.getElement(row, 18))[0];
 
-						// For non-infinite magnitude fluxes ...
+						// For non-infinite magnitude fluxes...
                         if (!Float.isInfinite(ap_corr_flux) && !Float.isInfinite(ap_corr_err)) { 
                                                 
 							double hjd = barytime + 2400000.5;

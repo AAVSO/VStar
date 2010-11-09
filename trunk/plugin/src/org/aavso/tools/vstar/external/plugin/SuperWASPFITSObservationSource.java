@@ -21,7 +21,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,6 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
 import nom.tam.fits.BasicHDU;
@@ -44,6 +42,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.NumberSelectionPane;
@@ -51,18 +50,19 @@ import org.aavso.tools.vstar.ui.NumberSelectionPane;
 /**
  * A FITS file observation source plug-in that uses the Topcat FITS library.
  */
-public class FITSObservationSource implements ObservationSourcePluginBase {
+public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase {
 
-	private JFileChooser fileChooser;
-	private File currFile;
-
-	public FITSObservationSource() {
-		fileChooser = new JFileChooser();
+	public SuperWASPFITSObservationSource() {
 	}
 
 	@Override
 	public String getCurrentStarName() {
-		return currFile.getName();
+		return getInputName();
+	}
+
+	@Override
+	public InputType getInputType() {
+		return InputType.FILE;
 	}
 
 	@Override
@@ -85,18 +85,13 @@ public class FITSObservationSource implements ObservationSourcePluginBase {
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
 
-			int result = fileChooser.showOpenDialog(MainFrame.getInstance());
-
-			if (result == JFileChooser.APPROVE_OPTION) {
-				currFile = fileChooser.getSelectedFile();
-				try {
-					Fits fits = new Fits(currFile);
-					BasicHDU[] hdus = fits.read();
-					double jdRef = retrieveJDReference(hdus);
-					retrieveObservations(hdus, jdRef);
-				} catch (FitsException e) {
-					throw new ObservationReadError(e.getLocalizedMessage());
-				}
+			try {
+				Fits fits = new Fits(getInputStream());
+				BasicHDU[] hdus = fits.read();
+				double jdRef = retrieveJDReference(hdus);
+				retrieveObservations(hdus, jdRef);
+			} catch (FitsException e) {
+				throw new ObservationReadError(e.getLocalizedMessage());
 			}
 		}
 
@@ -176,8 +171,8 @@ public class FITSObservationSource implements ObservationSourcePluginBase {
 		private void collectObservations(List<ValidObservation> obs,
 				double minMagErr, double maxMagErr) throws ObservationReadError {
 
-			double magErrThreshold = 0.15;
-			magErrThreshold = (maxMagErr - minMagErr) / 2;
+			double magErrThreshold;
+			magErrThreshold = (maxMagErr + minMagErr) / 2;
 
 			MagErrorSelectionDialog magErrThresholdDialog = new MagErrorSelectionDialog(
 					minMagErr, maxMagErr, 0.01, magErrThreshold);
