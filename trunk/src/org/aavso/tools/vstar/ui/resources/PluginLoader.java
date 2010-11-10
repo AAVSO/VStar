@@ -197,7 +197,11 @@ public class PluginLoader {
 				} catch (NoClassDefFoundError e) {
 					MessageBox.showErrorDialog(null, "Plugin Loader",
 							"A class required by " + qualifiedClassName
-									+ " was not found: " + e.getMessage());
+									+ " was not found: " + e.getLocalizedMessage());
+				} catch (Throwable t) {
+					MessageBox.showErrorDialog(null, "Plugin Loader",
+							"An error occurred during plugin loading: "
+									+ t.getLocalizedMessage());
 				}
 			}
 		}

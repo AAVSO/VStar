@@ -24,6 +24,7 @@ import java.util.Map;
 
 /**
  * Custom class loader for VStar plugins.
+ * @deprecated
  */
 public class PluginClassLoader extends ClassLoader {
 
