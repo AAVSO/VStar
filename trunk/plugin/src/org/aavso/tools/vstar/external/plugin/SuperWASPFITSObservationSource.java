@@ -37,6 +37,7 @@ import nom.tam.fits.FitsException;
 import nom.tam.fits.Header;
 
 import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -126,38 +127,49 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 					BinaryTableHDU tableHDU = (BinaryTableHDU) hdu;
 
 					for (int row = 0; row < tableHDU.getNRows(); row++) {
-						int tmid = ((int[]) tableHDU.getElement(row, 0))[0];
-						float flux = ((float[]) tableHDU.getElement(row, 1))[0];
-						float fluxErr = ((float[]) tableHDU.getElement(row, 2))[0];
+						try {
+							int tmid = ((int[]) tableHDU.getElement(row, 0))[0];
+							float flux = ((float[]) tableHDU.getElement(row, 1))[0];
+							float fluxErr = ((float[]) tableHDU.getElement(row,
+									2))[0];
 
-						// TODO: make use of the additional fields...
-						float tamFlux = ((float[]) tableHDU.getElement(row, 3))[0];
-						float tamFluxErr = ((float[]) tableHDU.getElement(row,
-								4))[0];
-						String imageId = (String) tableHDU.getElement(row, 5);
-						short ccdX = ((short[]) tableHDU.getElement(row, 6))[0];
-						short ccdY = ((short[]) tableHDU.getElement(row, 7))[0];
-						short flag = ((short[]) tableHDU.getElement(row, 8))[0];
+							// TODO: make use of the additional fields...
+							float tamFlux = ((float[]) tableHDU.getElement(row,
+									3))[0];
+							float tamFluxErr = ((float[]) tableHDU.getElement(
+									row, 4))[0];
+							String imageId = (String) tableHDU.getElement(row,
+									5);
+							short ccdX = ((short[]) tableHDU.getElement(row, 6))[0];
+							short ccdY = ((short[]) tableHDU.getElement(row, 7))[0];
+							short flag = ((short[]) tableHDU.getElement(row, 8))[0];
 
-						if (flux > 1 && flux - fluxErr > 0) {
-							double hjd = tmid / 86400.0 + jdRef;
-							double mag = 15.0 - 2.5 * Math.log(flux)
-									/ Math.log(10.0);
-							double magErr = 1.086 * fluxErr / flux;
+							if (flux > 1 && flux - fluxErr > 0) {
+								double hjd = tmid / 86400.0 + jdRef;
+								double mag = 15.0 - 2.5 * Math.log(flux)
+										/ Math.log(10.0);
+								double magErr = 1.086 * fluxErr / flux;
 
-							if (magErr < minMagErr) {
-								minMagErr = magErr;
-							} else if (magErr > maxMagErr) {
-								maxMagErr = magErr;
+								if (magErr < minMagErr) {
+									minMagErr = magErr;
+								} else if (magErr > maxMagErr) {
+									maxMagErr = magErr;
+								}
+
+								ValidObservation ob = new ValidObservation();
+								ob.setDateInfo(new DateInfo(hjd));
+								ob.setMagnitude(new Magnitude(mag, magErr));
+								ob.setBand(SeriesType.Unspecified);
+								ob.setRecordNumber(row);
+
+								obs.add(ob);
 							}
-
-							ValidObservation ob = new ValidObservation();
-							ob.setDateInfo(new DateInfo(hjd));
-							ob.setMagnitude(new Magnitude(mag, magErr));
-							ob.setBand(SeriesType.Unspecified);
+						} catch (Exception e) {
+							String input = tableHDU.getRow(row).toString();
+							String error = e.getLocalizedMessage();
+							InvalidObservation ob = new InvalidObservation(input, error);
 							ob.setRecordNumber(row);
-
-							obs.add(ob);
+							addInvalidObservation(ob);
 						}
 					}
 				}
