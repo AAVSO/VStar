@@ -75,10 +75,6 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 
 		this.setAlwaysOnTop(true);
 
-		// Set window transparency.
-		// See https://sourceforge.net/tracker/index.php?func=detail&aid=3106625&group_id=263306&atid=1152052
-//		com.sun.awt.AWTUtilities.setWindowOpacity(this, 0.8f);
-
 		this.ob = ob;
 
 		this.setTitle("Details");
