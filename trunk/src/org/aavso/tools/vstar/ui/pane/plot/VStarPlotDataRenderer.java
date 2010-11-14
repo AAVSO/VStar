@@ -34,7 +34,7 @@ import org.jfree.chart.renderer.xy.XYErrorRenderer;
  */
 public class VStarPlotDataRenderer extends XYErrorRenderer {
 
-//	private final static RectangularShape DATAPOINT_SHAPE = new Ellipse2D.Double(¯-2.5, -2.5, 5, 5);		
+//	private final static RectangularShape DATAPOINT_SHAPE = new Ellipse2D.Double(-2.5, -2.5, 5, 5);		
 	private final static RectangularShape DATAPOINT_SHAPE = new Ellipse2D.Double(-2, -2, 4, 4);		
 
 	/**
