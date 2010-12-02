@@ -44,13 +44,6 @@ import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
  */
 public class InfoDialog extends JDialog implements ActionListener {
 
-	// TODO: Use a table instead of a text area?
-	// Column numbers could vary depending upon
-	// how much info is present in StarInfo etc.
-	// Add more data of interest, e.g. spectral type
-
-	private JTextArea textArea;
-
 	/**
 	 * Constructor.
 	 * 
@@ -65,10 +58,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		textArea = new JTextArea();
-		textArea.setEditable(false);
-		setText(newStarMessage);
-		JScrollPane scrollPane = new JScrollPane(textArea);
+		JScrollPane scrollPane = new JScrollPane(createInfoPanel(newStarMessage));
 		topPane.add(scrollPane);
 		
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -90,63 +80,83 @@ public class InfoDialog extends JDialog implements ActionListener {
 	}
 
 	/**
-	 * Set the dialog text given a new star message.
+	 * Create the info pane given a new star message.
 	 */
-	private void setText(NewStarMessage msg) {
+	private JPanel createInfoPanel(NewStarMessage msg) {
+		JPanel pane = new JPanel();
+		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
+		
 		StarInfo starInfo = msg.getStarInfo();
 		List<ValidObservation> obs = msg.getObservations();
 		Map<SeriesType, List<ValidObservation>> obsCategoryMap = msg
 				.getObsCategoryMap();
 
-		StringBuffer buf = new StringBuffer();
+		JTextArea summaryTextArea = new JTextArea();
+		summaryTextArea.setEditable(false);
+		summaryTextArea.setBorder(BorderFactory.createTitledBorder("Summary"));
+		JTextArea seriesTextArea = new JTextArea();
+		seriesTextArea.setEditable(false);
+		seriesTextArea.setBorder(BorderFactory.createTitledBorder("Series"));
+		
+		StringBuffer summaryBuf = new StringBuffer();
 
-		buf.append("Object: ");
-		buf.append(starInfo.getDesignation());
-		buf.append("\n");
+		summaryBuf.append("Object: ");
+		summaryBuf.append(starInfo.getDesignation());
+		summaryBuf.append("\n");
 
 		if (starInfo.getAuid() != null) {
-			buf.append("AUID: ");
-			buf.append(starInfo.getAuid());
-			buf.append("\n");
+			summaryBuf.append("AUID: ");
+			summaryBuf.append(starInfo.getAuid());
+			summaryBuf.append("\n");
 		}
 
 		if (starInfo.getPeriod() != null) {
-			buf.append("Period: ");
-			buf.append(starInfo.getPeriod());
-			buf.append(" days\n");
+			summaryBuf.append("Period: ");
+			summaryBuf.append(starInfo.getPeriod());
+			summaryBuf.append(" days\n");
 		}
 
 		if (starInfo.getVarType() != null) {
-			buf.append("Variable Type: ");
-			buf.append(starInfo.getVarType());
-			buf.append("\n");
+			summaryBuf.append("Variable Type: ");
+			summaryBuf.append(starInfo.getVarType());
+			summaryBuf.append("\n");
 		}
 
 		if (starInfo.getSpectralType() != null) {
-			buf.append("Spectral Type: ");
-			buf.append(starInfo.getSpectralType());
-			buf.append("\n");
+			summaryBuf.append("Spectral Type: ");
+			summaryBuf.append(starInfo.getSpectralType());
+			summaryBuf.append("\n");
 		}
 
 		if (starInfo.getDiscoverer() != null) {
-			buf.append("Discoverer: ");
-			buf.append(starInfo.getDiscoverer());
-			buf.append("\n");
+			summaryBuf.append("Discoverer: ");
+			summaryBuf.append(starInfo.getDiscoverer());
+			summaryBuf.append("\n");
 		}
 
-		buf.append("Loaded Observations: ");
-		buf.append(obs.size());
-		buf.append("\n");
+		summaryBuf.append("Loaded Observations: ");
+		summaryBuf.append(obs.size());
+		summaryBuf.append("\n");
+
+		summaryTextArea.setText(summaryBuf.toString());
+		
+		StringBuffer seriesBuf = new StringBuffer();
 
 		for (SeriesType type : obsCategoryMap.keySet()) {
 			List<ValidObservation> obsOfType = obsCategoryMap.get(type);
-			buf.append(type.getDescription());
-			buf.append(": ");
-			buf.append(obsOfType.size());
-			buf.append("\n");
+			seriesBuf.append(type.getDescription());
+			seriesBuf.append(": ");
+			seriesBuf.append(obsOfType.size());
+			seriesBuf.append("\n");
 		}
+		
+		seriesTextArea.setText(seriesBuf.toString());
 
-		textArea.setText(buf.toString());
+		pane.add(summaryTextArea);
+		pane.add(Box.createRigidArea(new Dimension(10, 10)));
+		pane.add(seriesTextArea);
+
+		return pane;
 	}
 
 	/**
