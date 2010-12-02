@@ -23,7 +23,14 @@ package org.aavso.tools.vstar.data.filter;
 public enum ObservationMatcherOp {
 
 	EQUALS, NOT_EQUALS, CONTAINS, LESS_THAN, GREATER_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN_OR_EQUAL;
-
+	
+//	o filtering: curr obscode, don't ask for auth, prefs for auth showing obscode
+//	o Need an operator like: SAME_AS_SELECTED_OBSERVATION
+//	o AbstractObservationFieldMatcher or perhaps something central like Mediator should
+//	  be a listener (so each filter class) for ObservationSelectionMessages. If no observation 
+//	  is selected, the user should be informed via a dialog when this op is selected, or the op 
+//	  should not be available.
+	
 	/**
 	 * Given a string, return an operator enum value, or null. Legal strings are
 	 * those returned by toString().
