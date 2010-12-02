@@ -84,5 +84,4 @@ public class NewStarMessage {
 	public Map<SeriesType, List<ValidObservation>> getObsCategoryMap() {
 		return obsCategoryMap;
 	}
-
 }

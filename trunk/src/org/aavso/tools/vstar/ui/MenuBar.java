@@ -51,6 +51,8 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PanType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
@@ -75,6 +77,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public static final String ZOOM_IN = "Zoom In";
 	public static final String ZOOM_OUT = "Zoom Out";
 	public static final String ZOOM_TO_FIT = "Zoom To Fit";
+	public static final String PAN_LEFT = "Pan Left";
+	public static final String PAN_RIGHT = "Pan Right";
+	public static final String PAN_UP = "Pan Up";
+	public static final String PAN_DOWN = "Pan Down";
 	public static final String FILTER = "Filter...";
 	public static final String NO_FILTER = "No Filter";
 
@@ -116,6 +122,10 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JMenuItem viewZoomInItem;
 	JMenuItem viewZoomOutItem;
 	JMenuItem viewZoomToFitItem;
+	JMenuItem viewPanLeftItem;
+	JMenuItem viewPanRightItem;
+	JMenuItem viewPanUpItem;
+	JMenuItem viewPanDownItem;
 	JMenuItem viewFilterItem;
 	JMenuItem viewNoFilterItem;
 
@@ -266,6 +276,28 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		viewZoomToFitItem.setEnabled(false);
 		viewZoomToFitItem.addActionListener(createZoomToFitListener());
 		// viewMenu.add(viewZoomToFitItem);
+
+		viewMenu.addSeparator();
+
+		viewPanLeftItem = new JMenuItem(PAN_LEFT);
+		viewPanLeftItem.setEnabled(false);
+		viewPanLeftItem.addActionListener(createPanLeftListener());
+		viewMenu.add(viewPanLeftItem);
+
+		viewPanRightItem = new JMenuItem(PAN_RIGHT);
+		viewPanRightItem.setEnabled(false);
+		viewPanRightItem.addActionListener(createPanRightListener());
+		viewMenu.add(viewPanRightItem);
+
+		viewPanUpItem = new JMenuItem(PAN_UP);
+		viewPanUpItem.setEnabled(false);
+		viewPanUpItem.addActionListener(createPanUpListener());
+		viewMenu.add(viewPanUpItem);
+
+		viewPanDownItem = new JMenuItem(PAN_UP);
+		viewPanDownItem.setEnabled(false);
+		viewPanDownItem.addActionListener(createPanDownListener());
+		viewMenu.add(viewPanDownItem);
 
 		viewMenu.addSeparator();
 
@@ -643,6 +675,54 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		};
 	}
 
+	/**
+	 * Returns the action listener to be invoked for View->Pan Left...
+	 */
+	public ActionListener createPanLeftListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PanRequestMessage msg = new PanRequestMessage(this, PanType.LEFT);
+				mediator.getPanRequestNotifier().notifyListeners(msg);
+			}
+		};
+	}
+	
+	/**
+	 * Returns the action listener to be invoked for View->Pan Right...
+	 */
+	public ActionListener createPanRightListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PanRequestMessage msg = new PanRequestMessage(this, PanType.RIGHT);
+				mediator.getPanRequestNotifier().notifyListeners(msg);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View->Pan Up...
+	 */
+	public ActionListener createPanUpListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PanRequestMessage msg = new PanRequestMessage(this, PanType.UP);
+				mediator.getPanRequestNotifier().notifyListeners(msg);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View->Pan Down...
+	 */
+	public ActionListener createPanDownListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PanRequestMessage msg = new PanRequestMessage(this, PanType.DOWN);
+				mediator.getPanRequestNotifier().notifyListeners(msg);
+			}
+		};
+	}
+
 	// ** Analysis Menu listeners **
 
 	/**
@@ -861,6 +941,11 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		}
 		this.viewNoFilterItem.setEnabled(state);
 
+		this.viewPanLeftItem.setEnabled(state);
+		this.viewPanRightItem.setEnabled(state);
+		this.viewPanUpItem.setEnabled(state);
+		this.viewPanDownItem.setEnabled(state);
+		
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
 		this.analysisPeriodSearchMenu.setEnabled(state);
