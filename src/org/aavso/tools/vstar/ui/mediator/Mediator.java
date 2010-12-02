@@ -40,12 +40,8 @@ import javax.swing.JTable.PrintMode;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
-import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
-import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
@@ -64,6 +60,7 @@ import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
@@ -155,7 +152,8 @@ public class Mediator {
 	private Notifier<ZoomRequestMessage> zoomRequestNotifier;
 	private Notifier<FilteredObservationMessage> filteredObservationNotifier;
 	private Notifier<PolynomialFitMessage> polynomialFitNofitier;
-
+	private Notifier<PanRequestMessage> panRequestNotifier;
+	
 	// Currently active task.
 	private SwingWorker currTask;
 
@@ -178,7 +176,8 @@ public class Mediator {
 		this.zoomRequestNotifier = new Notifier<ZoomRequestMessage>();
 		this.filteredObservationNotifier = new Notifier<FilteredObservationMessage>();
 		this.polynomialFitNofitier = new Notifier<PolynomialFitMessage>();
-
+		this.panRequestNotifier = new Notifier<PanRequestMessage>();
+		
 		this.obsListFileSaveDialog = new JFileChooser();
 
 		// These (among other things) are created for each new star.
@@ -293,6 +292,13 @@ public class Mediator {
 	 */
 	public Notifier<PolynomialFitMessage> getPolynomialFitNofitier() {
 		return polynomialFitNofitier;
+	}
+
+	/**
+	 * @return the panRequestNotifier
+	 */
+	public Notifier<PanRequestMessage> getPanRequestNotifier() {
+		return panRequestNotifier;
 	}
 
 	/**

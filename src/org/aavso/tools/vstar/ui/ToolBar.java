@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -56,6 +57,11 @@ public class ToolBar extends JPanel {
 	private Icon zoomInIcon;
 	private Icon zoomOutIcon;
 
+	private Icon panLeftIcon;
+	private Icon panRightIcon;
+	private Icon panUpIcon;
+	private Icon panDownIcon;
+
 	private Icon filterIcon;
 
 	private Icon prefsIcon;
@@ -73,9 +79,14 @@ public class ToolBar extends JPanel {
 	private JButton phasePlotButton;
 
 	private JButton polynomialFitButton;
-	
+
 	private JButton zoomInButton;
 	private JButton zoomOutButton;
+
+	private JButton panLeftButton;
+	private JButton panRightButton;
+	private JButton panUpButton;
+	private JButton panDownButton;
 
 	private JButton filterButton;
 
@@ -147,6 +158,18 @@ public class ToolBar extends JPanel {
 		zoomOutIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/ZoomOut.png");
 
+		panLeftIcon = ResourceAccessor
+				.getIconResource("/nico/toolbarIcons/_24_/LeftArrow.png");
+
+		panRightIcon = ResourceAccessor
+				.getIconResource("/nico/toolbarIcons/_24_/RightArrow.png");
+
+		panUpIcon = ResourceAccessor
+				.getIconResource("/nico/toolbarIcons/_24_/UpArrow.png");
+
+		panDownIcon = ResourceAccessor
+				.getIconResource("/nico/toolbarIcons/_24_/DownArrow.png");
+
 		filterIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/Find.png");
 
@@ -156,10 +179,11 @@ public class ToolBar extends JPanel {
 		if (newStarFromDatabaseIcon == null || newStarFromDatabaseIcon == null
 				|| infoIcon == null || saveIcon == null || printIcon == null
 				|| rawDataIcon == null || phasePlotIcon == null
-				|| polynomialFitIcon == null
-				|| zoomInIcon == null || zoomOutIcon == null
-				|| filterIcon == null || prefsIcon == null
-				|| helpContentsIcon == null) {
+				|| polynomialFitIcon == null || zoomInIcon == null
+				|| zoomOutIcon == null || panLeftIcon == null
+				|| panRightIcon == null || panUpIcon == null
+				|| panDownIcon == null || filterIcon == null
+				|| prefsIcon == null || helpContentsIcon == null) {
 
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"Resource Error",
@@ -178,12 +202,14 @@ public class ToolBar extends JPanel {
 				.setToolTipText(MenuBar.NEW_STAR_FROM_DATABASE);
 		newStarFromDatabaseButton.addActionListener(menuBar
 				.createNewStarFromDatabaseListener());
+		newStarFromDatabaseButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(newStarFromDatabaseButton);
 
 		newStarFromFileButton = new JButton(newStarFromFileIcon);
 		newStarFromFileButton.setToolTipText(MenuBar.NEW_STAR_FROM_FILE);
 		newStarFromFileButton.addActionListener(menuBar
 				.createNewStarFromFileListener());
+		newStarFromFileButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(newStarFromFileButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
@@ -192,12 +218,14 @@ public class ToolBar extends JPanel {
 		saveButton.setToolTipText(MenuBar.SAVE);
 		saveButton.addActionListener(menuBar.createSaveListener());
 		saveButton.setEnabled(false);
+		saveButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(saveButton);
 
 		printButton = new JButton(printIcon);
 		printButton.setToolTipText(MenuBar.PRINT);
 		printButton.addActionListener(menuBar.createPrintListener());
 		printButton.setEnabled(false);
+		printButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(printButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
@@ -206,6 +234,7 @@ public class ToolBar extends JPanel {
 		infoButton.setToolTipText(MenuBar.INFO);
 		infoButton.addActionListener(menuBar.createInfoListener());
 		infoButton.setEnabled(false);
+		infoButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(infoButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
@@ -214,20 +243,24 @@ public class ToolBar extends JPanel {
 		rawDataButton.setToolTipText(MenuBar.RAW_DATA);
 		rawDataButton.addActionListener(menuBar.createRawDataListener());
 		rawDataButton.setEnabled(false);
+		rawDataButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(rawDataButton);
 
 		phasePlotButton = new JButton(phasePlotIcon);
 		phasePlotButton.setToolTipText(MenuBar.PHASE_PLOT);
 		phasePlotButton.addActionListener(menuBar.createPhasePlotListener());
 		phasePlotButton.setEnabled(false);
+		phasePlotButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(phasePlotButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
 		polynomialFitButton = new JButton(polynomialFitIcon);
 		polynomialFitButton.setToolTipText(MenuBar.POLYNOMIAL_FIT);
-		polynomialFitButton.addActionListener(menuBar.createPolynomialFitListener());
+		polynomialFitButton.addActionListener(menuBar
+				.createPolynomialFitListener());
 		polynomialFitButton.setEnabled(false);
+		polynomialFitButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(polynomialFitButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
@@ -236,13 +269,45 @@ public class ToolBar extends JPanel {
 		zoomInButton.setToolTipText(MenuBar.ZOOM_IN);
 		zoomInButton.addActionListener(menuBar.createZoomInListener());
 		zoomInButton.setEnabled(false);
+		zoomInButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(zoomInButton);
 
 		zoomOutButton = new JButton(zoomOutIcon);
 		zoomOutButton.setToolTipText(MenuBar.ZOOM_OUT);
 		zoomOutButton.addActionListener(menuBar.createZoomOutListener());
 		zoomOutButton.setEnabled(false);
+		zoomOutButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(zoomOutButton);
+
+		buttonPanel.add(Box.createHorizontalStrut(10));
+
+		panLeftButton = new JButton(panLeftIcon);
+		panLeftButton.setToolTipText(MenuBar.PAN_LEFT);
+		panLeftButton.addActionListener(menuBar.createPanLeftListener());
+		panLeftButton.setEnabled(false);
+		panLeftButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(panLeftButton);
+
+		panRightButton = new JButton(panRightIcon);
+		panRightButton.setToolTipText(MenuBar.PAN_LEFT);
+		panRightButton.addActionListener(menuBar.createPanRightListener());
+		panRightButton.setEnabled(false);
+		panRightButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(panRightButton);
+
+		panUpButton = new JButton(panUpIcon);
+		panUpButton.setToolTipText(MenuBar.PAN_UP);
+		panUpButton.addActionListener(menuBar.createPanUpListener());
+		panUpButton.setEnabled(false);
+		panUpButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(panUpButton);
+
+		panDownButton = new JButton(panDownIcon);
+		panDownButton.setToolTipText(MenuBar.PAN_DOWN);
+		panDownButton.addActionListener(menuBar.createPanDownListener());
+		panDownButton.setEnabled(false);
+		panDownButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(panDownButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
@@ -250,6 +315,7 @@ public class ToolBar extends JPanel {
 		filterButton.setToolTipText(MenuBar.FILTER);
 		filterButton.addActionListener(menuBar.createFilterListener());
 		filterButton.setEnabled(false);
+		filterButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(filterButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
@@ -257,6 +323,7 @@ public class ToolBar extends JPanel {
 		prefsButton = new JButton(prefsIcon);
 		prefsButton.setToolTipText(MenuBar.PREFS);
 		prefsButton.addActionListener(menuBar.createPrefsListener());
+		prefsButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(prefsButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
@@ -265,6 +332,7 @@ public class ToolBar extends JPanel {
 		helpContentsButton.setToolTipText(MenuBar.HELP_CONTENTS);
 		helpContentsButton.addActionListener(menuBar
 				.createHelpContentsListener());
+		helpContentsButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(helpContentsButton);
 
 		toolBar.add(buttonPanel);
@@ -309,9 +377,14 @@ public class ToolBar extends JPanel {
 		phasePlotButton.setEnabled(state);
 
 		polynomialFitButton.setEnabled(state);
-		
+
 		zoomInButton.setEnabled(state);
 		zoomOutButton.setEnabled(state);
+
+		panLeftButton.setEnabled(state);
+		panRightButton.setEnabled(state);
+		panUpButton.setEnabled(state);
+		panDownButton.setEnabled(state);
 
 		filterButton.setEnabled(state);
 	}

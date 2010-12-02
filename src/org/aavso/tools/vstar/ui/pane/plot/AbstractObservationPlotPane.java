@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
@@ -163,6 +164,13 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 				SeriesRenderingOrder.FORWARD);
 		// this.chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
 
+		// this.chart.getXYPlot().setDomainCrosshairLockedOnData(true);
+		// this.chart.getXYPlot().setRangeCrosshairLockedOnData(true);
+
+		// Make it possible to pan the plot.
+		chart.getXYPlot().setDomainPannable(true);
+		chart.getXYPlot().setRangePannable(true);
+
 		chart.getXYPlot().setRenderer(renderer);
 
 		this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
@@ -203,6 +211,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		Mediator.getInstance().getPolynomialFitNofitier().addListener(
 				createPolynomialFitListener());
+
+		Mediator.getInstance().getPanRequestNotifier().addListener(
+				createPanRequestListener());
 	}
 
 	/**
@@ -390,11 +401,21 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		chartPanel.addChartMouseListener(this);
 	}
 
-	// From ChartMouseListener.
-	// If the user clicks on a plot point, send a selection message,
+	// From ChartMouseListener interface.
+	// If the user double-clicks on a plot point, send a selection message,
 	// open an information dialog. Also record the point.
 	public void chartMouseClicked(ChartMouseEvent event) {
-		if (event.getEntity() instanceof XYItemEntity) {
+		// ***
+		// int x1 = event.getTrigger().getX();
+		// int y1 = event.getTrigger().getY();
+		// double x2 = chart.getXYPlot().getDomainCrosshairValue();
+		// double y2 = chart.getXYPlot().getRangeCrosshairValue();
+		// ChartEntity en1 = chartPanel.getEntityForPoint(x1, y1);
+		// ChartEntity en2 = chartPanel.getEntityForPoint((int) x2, (int) y2);
+		// ***
+
+		if (event.getEntity() instanceof XYItemEntity
+				&& event.getTrigger().getClickCount() == 2) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
@@ -421,6 +442,46 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	// Returns a zoom request listener specific to the concrete plot.
 	abstract protected Listener<ZoomRequestMessage> createZoomRequestListener();
+
+	// Returns a pan request listener that may be overridden by the concrete
+	// plot object.
+	protected Listener<PanRequestMessage> createPanRequestListener() {
+		return new Listener<PanRequestMessage>() {
+			@Override
+			public void update(PanRequestMessage msg) {
+				final PlotRenderingInfo plotInfo = chartPanel
+						.getChartRenderingInfo().getPlotInfo();
+
+				final Point2D source = new Point2D.Double(0, 0);
+
+				double percentage = 0.01;
+
+				switch (msg.getPanType()) {
+				case LEFT:
+					chart.getXYPlot().panDomainAxes(-percentage, plotInfo,
+							source);
+					break;
+				case RIGHT:
+					chart.getXYPlot().panDomainAxes(percentage, plotInfo,
+							source);
+					break;
+				case UP:
+					chart.getXYPlot().panRangeAxes(percentage, plotInfo,
+							source);
+					break;
+				case DOWN:
+					chart.getXYPlot().panRangeAxes(-percentage, plotInfo,
+							source);
+					break;
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
 
 	/**
 	 * Perform a zoom on the current plot.

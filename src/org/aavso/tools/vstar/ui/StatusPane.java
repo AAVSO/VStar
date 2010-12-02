@@ -17,14 +17,12 @@
  */
 package org.aavso.tools.vstar.ui;
 
-import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,7 +33,6 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
-import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -67,7 +64,7 @@ public class StatusPane extends JPanel {
 		statusLabel.setHorizontalAlignment(JLabel.LEFT);
 		this.setMessage(firstMsg);
 		this.add(statusLabel);
-
+		
 		this.add(Box.createHorizontalGlue());
 
 		this.progressBar = new JProgressBar();

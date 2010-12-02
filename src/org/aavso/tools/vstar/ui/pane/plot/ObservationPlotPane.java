@@ -100,10 +100,17 @@ public class ObservationPlotPane extends
 				if (message.getSource() != this
 						&& message.getObservation().getDateInfo() != null
 						&& message.getObservation().getBand() != SeriesType.MEANS) {
-					chart.getXYPlot().setDomainCrosshairValue(
-							message.getObservation().getJD());
-					chart.getXYPlot().setRangeCrosshairValue(
-							message.getObservation().getMag());
+					double x = message.getObservation().getJD();
+					double y = message.getObservation().getMag();
+
+					chart.getXYPlot().setDomainCrosshairLockedOnData(true);
+					chart.getXYPlot().setRangeCrosshairLockedOnData(true);
+
+					chart.getXYPlot().setDomainCrosshairValue(x);
+					chart.getXYPlot().setRangeCrosshairValue(y);
+					
+					// TODO: convert from JD,mag to plot x,y; also do this in mean plot class
+//					lastPointClicked = new Point2D.Double(x, y);
 				}
 			}
 
@@ -112,17 +119,17 @@ public class ObservationPlotPane extends
 			}
 		};
 	}
-	
+
 	// Returns a zoom request listener.
 	protected Listener<ZoomRequestMessage> createZoomRequestListener() {
 		return new Listener<ZoomRequestMessage>() {
 			public void update(ZoomRequestMessage info) {
-				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA &&
-						Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
+				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA
+						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
 					doZoom(info.getZoomType());
 				}
 			}
-			
+
 			public boolean canBeRemoved() {
 				return true;
 			}
