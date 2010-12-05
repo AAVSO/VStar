@@ -294,7 +294,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		viewPanUpItem.addActionListener(createPanUpListener());
 		viewMenu.add(viewPanUpItem);
 
-		viewPanDownItem = new JMenuItem(PAN_UP);
+		viewPanDownItem = new JMenuItem(PAN_DOWN);
 		viewPanDownItem.setEnabled(false);
 		viewPanDownItem.addActionListener(createPanDownListener());
 		viewMenu.add(viewPanDownItem);
