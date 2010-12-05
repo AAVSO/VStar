@@ -105,12 +105,26 @@ available.  VStar will then fold the data and display a Phase Plot of magnitude
 versus phase. Click the <code>New Phase Plot</code> button to change the period
 or epoch and generate a new phase plot.</p>
 
-<br></br><h2>Plot Zooming</h2>
+<br></br><h2>Plot Zoom</h2>
 
 <p>Apart from zooming by selecting a bounding box in a plot, or via a chart's 
 pop-up menu items, simple zoom in/out View menu items and toolbar buttons are provided.
 In order to use the latter, you must first select a point on the plot with the mouse.
 This point becomes the focus of subsequent zoom operations.</p>
+
+<br></br><h2>Plot Pan</h2>
+
+<p>Selecting <code>Pan Left</code>, <code>Pan Right</code>, <code>Pan Up</code>, 
+or <code>Pan Down</code> from the <code>View</code> menu (or more likely, using 
+the corresponding toolbar buttons) will cause the domain (JD, phase) or range 
+(magnitude) axis to pan appropriately. This is particularly useful when zooming 
+has been applied to a plot and you want to view surrounding data points.</p>
+
+<p><em>When panning left or right to the limit of the available data, selecting 
+<codePan Left</code> or <code>Pan Right</code>, accordingly, currently has no further 
+effect. In future, the user will be asked whether additional data with a JD less/greater 
+than the lower/upper bound should be read from the AID, if that was the source of the 
+dataset.</em></p>
 
 <br></br><h2>Observation Filtering</h2>
 

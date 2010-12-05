@@ -443,45 +443,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	// Returns a zoom request listener specific to the concrete plot.
 	abstract protected Listener<ZoomRequestMessage> createZoomRequestListener();
 
-	// Returns a pan request listener that may be overridden by the concrete
-	// plot object.
-	protected Listener<PanRequestMessage> createPanRequestListener() {
-		return new Listener<PanRequestMessage>() {
-			@Override
-			public void update(PanRequestMessage msg) {
-				final PlotRenderingInfo plotInfo = chartPanel
-						.getChartRenderingInfo().getPlotInfo();
-
-				final Point2D source = new Point2D.Double(0, 0);
-
-				double percentage = 0.01;
-
-				switch (msg.getPanType()) {
-				case LEFT:
-					chart.getXYPlot().panDomainAxes(-percentage, plotInfo,
-							source);
-					break;
-				case RIGHT:
-					chart.getXYPlot().panDomainAxes(percentage, plotInfo,
-							source);
-					break;
-				case UP:
-					chart.getXYPlot().panRangeAxes(percentage, plotInfo,
-							source);
-					break;
-				case DOWN:
-					chart.getXYPlot().panRangeAxes(-percentage, plotInfo,
-							source);
-					break;
-				}
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
-	}
+	// Returns a pan request listener specific to the concrete plot object.
+	abstract protected Listener<PanRequestMessage> createPanRequestListener();
 
 	/**
 	 * Perform a zoom on the current plot.

@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Dimension;
+import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
@@ -33,6 +35,8 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.stats.BinningResult;
+import org.jfree.chart.plot.PlotRenderingInfo;
+import org.jfree.chart.plot.XYPlot;
 
 /**
  * This class represents a chart pane containing a phase plot for a set of valid
@@ -115,6 +119,47 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 
 			public boolean canBeRemoved() {
 				return true;
+			}
+		};
+	}
+
+	// Returns a pan request listener.
+	protected Listener<PanRequestMessage> createPanRequestListener() {
+		return new Listener<PanRequestMessage>() {
+			@Override
+			public void update(PanRequestMessage msg) {
+				final PlotRenderingInfo plotInfo = chartPanel
+						.getChartRenderingInfo().getPlotInfo();
+
+				final Point2D source = new Point2D.Double(0, 0);
+
+				double percentage = 0.01;
+
+				XYPlot plot = chart.getXYPlot();
+
+				switch (msg.getPanType()) {
+				case LEFT:
+					if (plot.getDomainAxis().getLowerBound() >= -1) {
+						plot.panDomainAxes(-percentage, plotInfo, source);
+					}
+					break;
+				case RIGHT:
+					if (plot.getDomainAxis().getUpperBound() <= 1) {
+						plot.panDomainAxes(percentage, plotInfo, source);
+					}
+					break;
+				case UP:
+					plot.panRangeAxes(percentage, plotInfo, source);
+					break;
+				case DOWN:
+					plot.panRangeAxes(-percentage, plotInfo, source);
+					break;
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
 			}
 		};
 	}
