@@ -34,6 +34,8 @@ public class NewStarMessage {
 	private StarInfo starInfo;
 	private List<ValidObservation> obs;
 	private Map<SeriesType, List<ValidObservation>> obsCategoryMap;
+	private double minMag;
+	private double maxMag;
 
 	/**
 	 * Constructor.
@@ -47,14 +49,21 @@ public class NewStarMessage {
 	 *            The list of valid observations for the loaded star.
 	 * @param obsCategoryMap
 	 *            A mapping from category (band, fainter-than) to observation.
+	 * @param minMag
+	 *            The minimum magnitude value for the dataset.
+	 * @param maxMag
+	 *            The maximum magnitude value for the dataset.
 	 */
 	public NewStarMessage(NewStarType newStarType, StarInfo info,
 			List<ValidObservation> obs,
-			Map<SeriesType, List<ValidObservation>> obsCategoryMap) {
+			Map<SeriesType, List<ValidObservation>> obsCategoryMap,
+			double minMag, double maxMag) {
 		this.newStarType = newStarType;
 		this.starInfo = info;
 		this.obs = obs;
 		this.obsCategoryMap = obsCategoryMap;
+		this.minMag = minMag;
+		this.maxMag = maxMag;
 	}
 
 	/**
@@ -83,5 +92,35 @@ public class NewStarMessage {
 	 */
 	public Map<SeriesType, List<ValidObservation>> getObsCategoryMap() {
 		return obsCategoryMap;
+	}
+
+	/**
+	 * @return the minimum magnitude
+	 */
+	public double getMinMag() {
+		return minMag;
+	}
+
+	/**
+	 * @param minMag
+	 *            the minimum magnitude to set
+	 */
+	public void setMinMag(double minMag) {
+		this.minMag = minMag;
+	}
+
+	/**
+	 * @return the maximum magnitude
+	 */
+	public double getMaxMag() {
+		return maxMag;
+	}
+
+	/**
+	 * @param maxMag
+	 *            the maximum magnitude to set
+	 */
+	public void setMaxMag(double maxMag) {
+		this.maxMag = maxMag;
 	}
 }
