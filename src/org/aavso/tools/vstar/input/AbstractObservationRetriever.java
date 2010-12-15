@@ -35,6 +35,9 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
  */
 public abstract class AbstractObservationRetriever {
 
+	private double minMag;
+	private double maxMag;
+	
 	/**
 	 * The list of valid observations retrieved.
 	 */
@@ -57,10 +60,40 @@ public abstract class AbstractObservationRetriever {
 	public AbstractObservationRetriever() {
 		// TODO: consider making lists LinkedLists to accommodate all
 		// input types, and the possible need to add to head or tail for
-		// time panning.
+		// time panning; this applies mostly to valid observations.
 		this.validObservations = new ArrayList<ValidObservation>();
 		this.invalidObservations = new ArrayList<InvalidObservation>();
 		this.validObservationCategoryMap = new TreeMap<SeriesType, List<ValidObservation>>();
+		this.minMag = Double.MAX_VALUE;
+		this.maxMag = -Double.MAX_VALUE;
+	}
+
+	/**
+	 * @return the minimum magnitude
+	 */
+	public double getMinMag() {
+		return minMag;
+	}
+
+	/**
+	 * @param minMag the minimum magnitude to set
+	 */
+	public void setMinMag(double minMag) {
+		this.minMag = minMag;
+	}
+
+	/**
+	 * @return the maximum magnitude
+	 */
+	public double getMaxMag() {
+		return maxMag;
+	}
+
+	/**
+	 * @param maxMag the maximum magnitude to set
+	 */
+	public void setMaxMag(double maxMag) {
+		this.maxMag = maxMag;
 	}
 
 	/**
@@ -157,13 +190,28 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * Add an observation to the list of valid observations.
+	 * Adds an observation to the list of valid observations.
+	 * Also, updates min/max magnitude values for the dataset.
 	 * 
 	 * @param ob
 	 *            The valid observation to be added.
 	 */
 	protected void addValidObservation(ValidObservation ob) {
 		validObservations.add(ob);
+		
+		double uncert = ob.getMagnitude().getUncertainty();
+		// If uncertainty not given, get HQ uncertainty if present.
+		if (uncert == 0.0 && ob.getHqUncertainty() != null) {
+			uncert = ob.getHqUncertainty();
+		}
+
+		if (ob.getMag() - uncert < minMag) {
+			minMag = ob.getMag() - uncert;
+		}
+
+		if (ob.getMag() + uncert > maxMag) {
+			maxMag = ob.getMag() + uncert;
+		}
 	}
 
 	/**
