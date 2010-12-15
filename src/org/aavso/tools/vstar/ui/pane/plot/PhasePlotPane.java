@@ -26,6 +26,7 @@ import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
@@ -88,17 +89,17 @@ public class PhasePlotPane extends ObservationPlotPane implements
 			}
 		};
 	}
-	
+
 	// Returns a zoom request listener.
 	protected Listener<ZoomRequestMessage> createZoomRequestListener() {
 		return new Listener<ZoomRequestMessage>() {
 			public void update(ZoomRequestMessage info) {
-				if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT &&
-						Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
+				if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT
+						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
 					doZoom(info.getZoomType());
 				}
 			}
-			
+
 			public boolean canBeRemoved() {
 				return true;
 			}
@@ -118,7 +119,9 @@ public class PhasePlotPane extends ObservationPlotPane implements
 				double percentage = 0.01;
 
 				XYPlot plot = chart.getXYPlot();
-
+				NewStarMessage newStarMsg = Mediator.getInstance()
+						.getNewStarMessage();
+				
 				switch (msg.getPanType()) {
 				case LEFT:
 					if (plot.getDomainAxis().getLowerBound() >= -1) {
@@ -131,10 +134,16 @@ public class PhasePlotPane extends ObservationPlotPane implements
 					}
 					break;
 				case UP:
-					plot.panRangeAxes(percentage, plotInfo, source);
+					if (newStarMsg.getMinMag() <= plot.getRangeAxis()
+							.getLowerBound()) {
+						plot.panRangeAxes(percentage, plotInfo, source);
+					}
 					break;
 				case DOWN:
-					plot.panRangeAxes(-percentage, plotInfo, source);
+					if (newStarMsg.getMaxMag() >= plot.getRangeAxis()
+							.getUpperBound()) {
+						plot.panRangeAxes(-percentage, plotInfo, source);
+					}
 					break;
 				}
 			}
@@ -157,13 +166,13 @@ public class PhasePlotPane extends ObservationPlotPane implements
 				// we see assertion errors from PhaseCoordSource.getXCoord()
 				// since phase values will be null.
 			}
-			
+
 			public boolean canBeRemoved() {
 				return false;
 			}
 		};
 	}
-	
+
 	// Returns a polynomial fit listener.
 	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
 		return new Listener<PolynomialFitMessage>() {

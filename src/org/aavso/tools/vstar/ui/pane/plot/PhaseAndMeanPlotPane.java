@@ -26,6 +26,7 @@ import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
@@ -136,6 +137,8 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 				double percentage = 0.01;
 
 				XYPlot plot = chart.getXYPlot();
+				NewStarMessage newStarMsg = Mediator.getInstance()
+						.getNewStarMessage();
 
 				switch (msg.getPanType()) {
 				case LEFT:
@@ -149,10 +152,16 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 					}
 					break;
 				case UP:
-					plot.panRangeAxes(percentage, plotInfo, source);
+					if (newStarMsg.getMinMag() <= plot.getRangeAxis()
+							.getLowerBound()) {
+						plot.panRangeAxes(percentage, plotInfo, source);
+					}
 					break;
 				case DOWN:
-					plot.panRangeAxes(-percentage, plotInfo, source);
+					if (newStarMsg.getMaxMag() >= plot.getRangeAxis()
+							.getUpperBound()) {
+						plot.panRangeAxes(-percentage, plotInfo, source);
+					}
 					break;
 				}
 			}
@@ -217,7 +226,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 			}
 		};
 	}
-	
+
 	protected void updateAnovaSubtitle(BinningResult binningResult) {
 		// Do nothing. See createBinChangeListener().
 	}

@@ -116,9 +116,10 @@ public class ObservationPlotPane extends
 
 					chart.getXYPlot().setDomainCrosshairValue(x);
 					chart.getXYPlot().setRangeCrosshairValue(y);
-					
-					// TODO: convert from JD,mag to plot x,y; also do this in mean plot class
-//					lastPointClicked = new Point2D.Double(x, y);
+
+					// TODO: convert from JD,mag to plot x,y; also do this in
+					// mean plot class
+					// lastPointClicked = new Point2D.Double(x, y);
 				}
 			}
 
@@ -143,7 +144,7 @@ public class ObservationPlotPane extends
 			}
 		};
 	}
-	
+
 	// Returns a pan request listener.
 	protected Listener<PanRequestMessage> createPanRequestListener() {
 		return new Listener<PanRequestMessage>() {
@@ -163,30 +164,38 @@ public class ObservationPlotPane extends
 
 				switch (msg.getPanType()) {
 				case LEFT:
-					if (plot.getDomainAxis().getLowerBound() >= obs
-							.get(0).getJD()) {
+					if (plot.getDomainAxis().getLowerBound() >= obs.get(0)
+							.getJD()) {
 						plot.panDomainAxes(-percentage, plotInfo, source);
 					} else {
 						if (newStarMsg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-							// TODO: ask whether to read more AID data before last JD
+							// TODO: ask whether to read more AID data before
+							// last JD
 						}
 					}
 					break;
 				case RIGHT:
-					if (plot.getDomainAxis().getUpperBound() <= obs
-							.get(obs.size()-1).getJD()) {
+					if (plot.getDomainAxis().getUpperBound() <= obs.get(
+							obs.size() - 1).getJD()) {
 						plot.panDomainAxes(percentage, plotInfo, source);
 					} else {
 						if (newStarMsg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-							// TODO: ask whether to read more AID data after last JD
+							// TODO: ask whether to read more AID data after
+							// last JD
 						}
 					}
 					break;
 				case UP:
-					plot.panRangeAxes(percentage, plotInfo, source);
+					if (newStarMsg.getMinMag() <= plot.getRangeAxis()
+							.getLowerBound()) {
+						plot.panRangeAxes(percentage, plotInfo, source);
+					}
 					break;
 				case DOWN:
-					plot.panRangeAxes(-percentage, plotInfo, source);
+					if (newStarMsg.getMaxMag() >= plot.getRangeAxis()
+							.getUpperBound()) {
+						plot.panRangeAxes(-percentage, plotInfo, source);
+					}
 					break;
 				}
 			}

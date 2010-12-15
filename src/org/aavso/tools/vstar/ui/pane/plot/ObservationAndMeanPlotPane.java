@@ -277,10 +277,16 @@ public class ObservationAndMeanPlotPane extends
 					}
 					break;
 				case UP:
-					plot.panRangeAxes(percentage, plotInfo, source);
+					if (newStarMsg.getMinMag() <= plot.getRangeAxis()
+							.getLowerBound()) {
+						plot.panRangeAxes(percentage, plotInfo, source);
+					}
 					break;
 				case DOWN:
-					plot.panRangeAxes(-percentage, plotInfo, source);
+					if (newStarMsg.getMaxMag() >= plot.getRangeAxis()
+							.getUpperBound()) {
+						plot.panRangeAxes(-percentage, plotInfo, source);
+					}
 					break;
 				}
 			}
