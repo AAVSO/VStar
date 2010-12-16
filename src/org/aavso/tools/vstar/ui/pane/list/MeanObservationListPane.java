@@ -24,18 +24,14 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.RowSorter;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
-import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -48,7 +44,8 @@ public class MeanObservationListPane extends JPanel implements
 	private AbstractMeanObservationTableModel meanObsTableModel;
 	private JTable meanObsTable;
 	private TableRowSorter<AbstractMeanObservationTableModel> rowSorter;
-	
+	private ValidObservation lastObSelected = null;
+
 	/**
 	 * Constructor.
 	 * 
@@ -92,6 +89,13 @@ public class MeanObservationListPane extends JPanel implements
 		return meanObsTable;
 	}
 
+	/**
+	 * @return the lastObSelected
+	 */
+	public ValidObservation getLastObSelected() {
+		return lastObSelected;
+	}
+
 	// Returns an observation selection listener.
 	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {
 		return new Listener<ObservationSelectionMessage>() {
@@ -124,6 +128,8 @@ public class MeanObservationListPane extends JPanel implements
 
 						meanObsTable
 								.setRowSelectionInterval(rowIndex, rowIndex);
+						
+						lastObSelected = ob;
 					}
 				}
 			}
@@ -150,6 +156,7 @@ public class MeanObservationListPane extends JPanel implements
 						row);
 				ObservationSelectionMessage message = new ObservationSelectionMessage(
 						ob, this);
+				lastObSelected = ob;
 				Mediator.getInstance().getObservationSelectionNotifier()
 						.notifyListeners(message);
 			}

@@ -213,6 +213,8 @@ public class ObservationAndMeanPlotPane extends
 							message.getObservation().getJD());
 					chart.getXYPlot().setRangeCrosshairValue(
 							message.getObservation().getMag());
+					
+					updateSelectionFromObservation(message.getObservation());
 				}
 			}
 

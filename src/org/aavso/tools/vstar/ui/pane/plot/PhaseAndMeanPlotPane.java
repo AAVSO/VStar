@@ -99,6 +99,8 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 							message.getObservation().getStandardPhase());
 					chart.getXYPlot().setRangeCrosshairValue(
 							message.getObservation().getMag());
+					
+					updateSelectionFromObservation(message.getObservation());
 				}
 			}
 
