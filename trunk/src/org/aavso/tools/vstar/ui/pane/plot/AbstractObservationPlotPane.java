@@ -54,7 +54,6 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
@@ -250,6 +249,20 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		return renderer;
 	}
 
+	/**
+	 * @return the lastPointClicked
+	 */
+	public Point2D getLastPointClicked() {
+		return lastPointClicked;
+	}
+
+	/**
+	 * @return the lastObSelected
+	 */
+	public ValidObservation getLastObSelected() {
+		return lastObSelected;
+	}
+
 	// Populate a panel that can be used to add chart control widgets.
 	protected JPanel createChartControlPanel() {
 		chartControlPanel = new JPanel();
@@ -408,134 +421,103 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	}
 
 	// From ChartMouseListener interface.
-	// If the user double-clicks on a plot point, send a selection message,
-	// open an information dialog. Also record the point.
+	// If the user double-clicks on a plot point, send a selection
+	// message and open an information dialog. Also record the selection.
 	public void chartMouseClicked(ChartMouseEvent event) {
 
 		lastPointClicked = event.getTrigger().getPoint();
 
-		// ***
-		int x1 = event.getTrigger().getX();
-		int y1 = event.getTrigger().getY();
-
-		double x2 = chart.getXYPlot().getDomainCrosshairValue();
-		double y2 = chart.getXYPlot().getRangeCrosshairValue();
-
-		Point2D x1y1 = event.getTrigger().getPoint();
-		Point2D x2y2 = new Point2D.Double(x2, y2);
-
-		ChartEntity en1 = chartPanel.getEntityForPoint(x1, y1);
-		ChartEntity en2 = chartPanel.getEntityForPoint((int) x2, (int) y2);
-		// ***
-
-		if (event.getEntity() instanceof XYItemEntity
-				&& event.getTrigger().getClickCount() == 2) {
+		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
 			lastObSelected = obsModel.getValidObservation(series, item);
 
-			new ObservationDetailsDialog(lastObSelected);
-
-			ObservationSelectionMessage message = new ObservationSelectionMessage(
-					lastObSelected, this);
-			Mediator.getInstance().getObservationSelectionNotifier()
-					.notifyListeners(message);
-
-			// TODO: see also
-			// http://stackoverflow.com/questions/1512112/jfreechart-get-mouse-coordinates
-			// if we are unconvinced about getting the right point at all zoom
-			// levels.
+			if (event.getTrigger().getClickCount() == 2) {
+				new ObservationDetailsDialog(lastObSelected);
+			}
 		} else {
 			// ...else if not XYItemEntity as subject of the event, select a
 			// valid
 			// observation by asking: which XYItemEntity is closest to the
 			// mouse-click?
-
 			EntityCollection entities = chartPanel.getChartRenderingInfo()
 					.getEntityCollection();
 
 			double closestDist = Integer.MAX_VALUE;
 			XYItemEntity closestItem = null;
 
+			// Note: This operation is linear in the number of observations!
+			// Unfortunately, the list of XYItemEntities must always be searched
+			// exhaustively since we don't know which XYItemEntity will turn out
+			// to be closest to the mouse selection. Actually, this may not the case
+			// if we can assume an ordering of XYItemEntities by domain (X). If so,
+			// once itemBounds.getCenterX() is greater than lastPointClicked.getX(),
+			// we ought to be able to terminate the loop.
 			Iterator it = entities.iterator();
 			while (it.hasNext()) {
 				Object o = it.next();
-				System.out.printf("\n-----------------------------%s\n", o);
 				if (o instanceof XYItemEntity) {
 					XYItemEntity item = (XYItemEntity) o;
-					if (event.getEntity() == item) {
-						System.out
-								.println("**************************************");
-					}
-
-					System.out.printf(" >0> %s\n", item.getArea().getBounds());
-
-					System.out.printf(" >1> x1=%d, y1=%d, contains?=%s\n", x1,
-							y1, item.getArea().contains(x1, y1));
-
-					System.out.printf(" >2> x2=%f, y2=%f, contains?=%s\n", x2,
-							y2, item.getArea().contains(x2, y2));
-
-					System.out.printf(" >4> shape coords: %s\n", item.getArea()
-							.getBounds2D());
-
-					// int datasetIndex =
-					// chart.getCategoryPlot().getCrosshairDatasetIndex();
-					int datasetIndex = 0;
-					System.out.printf(" >3> dataset index=%d\n", datasetIndex);
-
 					Rectangle2D itemBounds = item.getArea().getBounds2D();
-
-					// TODO:
-					// Translate item.getArea() Rectangle2D coords (each) via
-					// chartPanel.translateJava2DToScreen(), creating a new
-					// Rectangle2D, then ask: does this rectangle contain
-					// x1,y1 (assumes this is in same coordinate system);
-					// if so, we can say: we have selected the corresponding
-					// XYItemEntity; so we can always have a valid selected obs,
-					// rather than "contains", use a "closest-to" relationship.
-
-					Point2D upperLeftPt = chartPanel
-							.translateJava2DToScreen(new Point2D.Double(
-									itemBounds.getMinX(), itemBounds.getMinY()));
-
-					Point2D lowerRightPt = chartPanel
-							.translateJava2DToScreen(new Point2D.Double(
-									itemBounds.getMaxX(), itemBounds.getMaxY()));
-
-					Rectangle2D itemRect = new Rectangle2D.Double(upperLeftPt
-							.getX(), upperLeftPt.getY(), (lowerRightPt.getX()
-							- upperLeftPt.getX() + 1) * 2, (lowerRightPt.getY()
-							- upperLeftPt.getY() + 1) * 2);
-
-					System.out
-							.printf(
-									">>>>>>>>>>>>>itemRect (%s) contains x1,y1 (%s): %s\n",
-									itemRect.getBounds2D(), x1y1, itemRect
-											.contains(x1y1));
-
-					// Closest?
 					Point2D centerPt = new Point2D.Double(itemBounds
 							.getCenterX(), itemBounds.getCenterY());
 
-					System.out.printf(" >5> %s\n", chartPanel
-							.translateJava2DToScreen(centerPt));
-
-					double dist = centerPt.distance(x1y1);
+					double dist = centerPt.distance(event.getTrigger()
+							.getPoint());
 					if (dist < closestDist) {
 						closestDist = dist;
 						closestItem = item;
 						lastObSelected = obsModel.getValidObservation(item
 								.getSeriesIndex(), item.getItem());
-						System.out.printf("closest: item=%s, distance=%f\n",
-								closestItem, closestDist);
 					}
+				}
+			}
+		}
 
-					if (event.getEntity() == item) {
-						System.out
-								.println("**************************************");
-					}
+		// If we found an observation (should always), send an observation
+		// selection message.
+		if (lastObSelected != null) {
+			ObservationSelectionMessage message = new ObservationSelectionMessage(
+					lastObSelected, this);
+			Mediator.getInstance().getObservationSelectionNotifier()
+					.notifyListeners(message);
+		}
+	}
+
+	/**
+	 * Given an observation, update the last observation and x,y selections.
+	 * 
+	 * @param ob
+	 *            The observation in question.
+	 */
+	protected void updateSelectionFromObservation(ValidObservation ob) {
+		lastObSelected = ob;
+
+		EntityCollection entities = chartPanel.getChartRenderingInfo()
+				.getEntityCollection();
+
+		// Note: This operation is linear in the number of observations!
+		// However, the loop will on average terminate before exhaustively
+		// searching all entries, i.e. when the observation is matched up
+		// with the corresponding XYItemEntity.
+		Iterator it = entities.iterator();
+		while (it.hasNext()) {
+			Object o = it.next();
+			if (o instanceof XYItemEntity) {
+				XYItemEntity item = (XYItemEntity) o;
+				double jd = obsModel.getXValue(item.getSeriesIndex(), item.getItem());
+				double mag = obsModel.getYValue(item.getSeriesIndex(), item.getItem());
+				
+				// Since the data in the observations and in the XYItemEntities
+				// should be the same, using equality here ought to be safe.
+				if (ob.getJD() == jd && ob.getMag() == mag) {
+					Rectangle2D itemBounds = item.getArea().getBounds2D();
+					Point2D centerPt = new Point2D.Double(itemBounds
+							.getCenterX(), itemBounds.getCenterY());
+
+					lastPointClicked = centerPt;
+					break;
 				}
 			}
 		}
@@ -562,16 +544,12 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			setMagScale();
 		}
 
-		// Only zoom if we have a cross-hair selection in this plot.
+		// Only zoom if we have a selection in this plot.
 
-		// if (lastPointClicked == null) {
-		// double x = chart.getXYPlot().getDomainCrosshairValue();
-		// double y = chart.getXYPlot().getRangeCrosshairValue();
-		// if (x != 0 && y != 0) {
-		// // Somewhere other than initial position.
-		// lastPointClicked = new Point2D.Double(x, y);
-		// }
-		// }
+		// See also
+		// http://stackoverflow.com/questions/1512112/jfreechart-get-mouse-coordinates
+		// if we are unconvinced about getting the right point at all zoom
+		// levels.
 
 		if (lastPointClicked != null) {
 			// Determine zoom factor.

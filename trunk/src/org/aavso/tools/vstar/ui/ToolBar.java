@@ -30,6 +30,7 @@ import javax.swing.JToolBar;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -53,6 +54,8 @@ public class ToolBar extends JPanel {
 	private Icon phasePlotIcon;
 
 	private Icon polynomialFitIcon;
+
+	private Icon obDetailsIcon;
 
 	private Icon zoomInIcon;
 	private Icon zoomOutIcon;
@@ -79,6 +82,8 @@ public class ToolBar extends JPanel {
 	private JButton phasePlotButton;
 
 	private JButton polynomialFitButton;
+
+	private JButton obDetailsButton;
 
 	private JButton zoomInButton;
 	private JButton zoomOutButton;
@@ -119,6 +124,9 @@ public class ToolBar extends JPanel {
 
 		this.mediator.getProgressNotifier().addListener(
 				createProgressListener());
+
+		this.mediator.getObservationSelectionNotifier().addListener(
+				createObservationSelectionListener());
 	}
 
 	// Helpers
@@ -152,6 +160,9 @@ public class ToolBar extends JPanel {
 		polynomialFitIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/PolynomialFit.png");
 
+		obDetailsIcon = ResourceAccessor
+				.getIconResource("/nico/toolbarIcons/_24_/Details.png");
+
 		zoomInIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/ZoomIn.png");
 
@@ -180,10 +191,11 @@ public class ToolBar extends JPanel {
 				|| infoIcon == null || saveIcon == null || printIcon == null
 				|| rawDataIcon == null || phasePlotIcon == null
 				|| polynomialFitIcon == null || zoomInIcon == null
-				|| zoomOutIcon == null || panLeftIcon == null
-				|| panRightIcon == null || panUpIcon == null
-				|| panDownIcon == null || filterIcon == null
-				|| prefsIcon == null || helpContentsIcon == null) {
+				|| obDetailsIcon == null || zoomOutIcon == null
+				|| panLeftIcon == null || panRightIcon == null
+				|| panUpIcon == null || panDownIcon == null
+				|| filterIcon == null || prefsIcon == null
+				|| helpContentsIcon == null) {
 
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"Resource Error",
@@ -262,6 +274,15 @@ public class ToolBar extends JPanel {
 		polynomialFitButton.setEnabled(false);
 		polynomialFitButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(polynomialFitButton);
+
+		buttonPanel.add(Box.createHorizontalStrut(10));
+
+		obDetailsButton = new JButton(obDetailsIcon);
+		obDetailsButton.setToolTipText(MenuBar.OB_DETAILS);
+		obDetailsButton.addActionListener(menuBar.createObDetailsListener());
+		obDetailsButton.setEnabled(false);
+		obDetailsButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(obDetailsButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
@@ -378,14 +399,29 @@ public class ToolBar extends JPanel {
 
 		polynomialFitButton.setEnabled(state);
 
-		zoomInButton.setEnabled(state);
-		zoomOutButton.setEnabled(state);
-
 		panLeftButton.setEnabled(state);
 		panRightButton.setEnabled(state);
 		panUpButton.setEnabled(state);
 		panDownButton.setEnabled(state);
 
 		filterButton.setEnabled(state);
+	}
+
+	// Returns an observation selection listener that sets enables certain
+	// buttons.
+	public Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		return new Listener<ObservationSelectionMessage>() {
+			@Override
+			public void update(ObservationSelectionMessage info) {
+				obDetailsButton.setEnabled(true);
+				zoomInButton.setEnabled(true);
+				zoomOutButton.setEnabled(true);
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 }

@@ -108,18 +108,12 @@ public class ObservationPlotPane extends
 				if (message.getSource() != this
 						&& message.getObservation().getDateInfo() != null
 						&& message.getObservation().getBand() != SeriesType.MEANS) {
-					double x = message.getObservation().getJD();
-					double y = message.getObservation().getMag();
+					chart.getXYPlot().setDomainCrosshairValue(
+							message.getObservation().getJD());
+					chart.getXYPlot().setRangeCrosshairValue(
+							message.getObservation().getMag());
 
-					chart.getXYPlot().setDomainCrosshairLockedOnData(true);
-					chart.getXYPlot().setRangeCrosshairLockedOnData(true);
-
-					chart.getXYPlot().setDomainCrosshairValue(x);
-					chart.getXYPlot().setRangeCrosshairValue(y);
-
-					// TODO: convert from JD,mag to plot x,y; also do this in
-					// mean plot class
-					// lastPointClicked = new Point2D.Double(x, y);
+					updateSelectionFromObservation(message.getObservation());
 				}
 			}
 

@@ -51,6 +51,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
@@ -153,7 +154,7 @@ public class Mediator {
 	private Notifier<FilteredObservationMessage> filteredObservationNotifier;
 	private Notifier<PolynomialFitMessage> polynomialFitNofitier;
 	private Notifier<PanRequestMessage> panRequestNotifier;
-	
+
 	// Currently active task.
 	private SwingWorker currTask;
 
@@ -177,7 +178,7 @@ public class Mediator {
 		this.filteredObservationNotifier = new Notifier<FilteredObservationMessage>();
 		this.polynomialFitNofitier = new Notifier<PolynomialFitMessage>();
 		this.panRequestNotifier = new Notifier<PanRequestMessage>();
-		
+
 		this.obsListFileSaveDialog = new JFileChooser();
 
 		// These (among other things) are created for each new star.
@@ -197,7 +198,10 @@ public class Mediator {
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
 
 		this.obsFilterDialog = new ObservationFilterDialog();
-		this.newStarNotifier.addListener(this.obsFilterDialog);
+		this.newStarNotifier.addListener(this.obsFilterDialog
+				.createNewStarListener());
+		this.observationSelectionNotifier.addListener(this.obsFilterDialog
+				.createObservationSelectionListener());
 
 		this.periodChangeMessageNotifier
 				.addListener(createPeriodChangeListener());
@@ -743,7 +747,8 @@ public class Mediator {
 		// Create a message to notify whoever is listening that a new star
 		// has been loaded.
 		newStarMessage = new NewStarMessage(newStarType, starInfo,
-				validObsList, validObservationCategoryMap);
+				validObsList, validObservationCategoryMap, obsRetriever
+						.getMinMag(), obsRetriever.getMaxMag());
 
 		// Create a message to notify whoever is listening that the analysis
 		// type has changed (we could have been viewing a phase plot for a
@@ -1166,7 +1171,7 @@ public class Mediator {
 	}
 
 	/**
-	 * Save some kind of observation list to a file in a separate thread.
+	 * Save observation list to a file in a separate thread.
 	 * 
 	 * @param outFile
 	 *            The output file.
@@ -1232,6 +1237,40 @@ public class Mediator {
 						.getMessage());
 			}
 			break;
+		}
+	}
+
+	/**
+	 * Show the details of the currently selected observation in the current
+	 * plot or table.
+	 */
+	public void showObservationDetails() {
+		ValidObservation ob = null;
+
+		switch (viewMode) {
+		case PLOT_OBS_MODE:
+			ob = this.analysisTypeMap.get(analysisType).getObsChartPane()
+					.getLastObSelected();
+			break;
+		case PLOT_OBS_AND_MEANS_MODE:
+			ob = this.analysisTypeMap.get(analysisType)
+					.getObsAndMeanChartPane().getLastObSelected();
+			break;
+		case LIST_OBS_MODE:
+			ob = this.analysisTypeMap.get(analysisType).getObsListPane()
+					.getLastObSelected();
+			break;
+		case LIST_MEANS_MODE:
+			ob = this.analysisTypeMap.get(analysisType).getMeansListPane()
+					.getLastObSelected();
+			break;
+		}
+
+		if (ob != null) {
+			new ObservationDetailsDialog(ob);
+		} else {
+			MessageBox.showWarningDialog("Observation Details",
+					"No observation selected");
 		}
 	}
 }

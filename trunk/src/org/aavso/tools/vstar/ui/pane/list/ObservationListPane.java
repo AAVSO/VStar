@@ -53,7 +53,8 @@ public class ObservationListPane extends JPanel implements
 	private JTable invalidDataTable;
 	private ValidObservationTableModel validDataModel;
 	private TableRowSorter<ValidObservationTableModel> rowSorter;
-
+	private ValidObservation lastObSelected = null;
+	
 	/**
 	 * Constructor
 	 * 
@@ -172,6 +173,13 @@ public class ObservationListPane extends JPanel implements
 		return invalidDataTable;
 	}
 
+	/**
+	 * @return the lastObSelected
+	 */
+	public ValidObservation getLastObSelected() {
+		return lastObSelected;
+	}
+
 	// Returns an observation selection listener.
 	protected Listener<ObservationSelectionMessage> createObservationSelectionListener() {
 		return new Listener<ObservationSelectionMessage>() {
@@ -217,6 +225,8 @@ public class ObservationListPane extends JPanel implements
 									// We ignore this since this is entirely
 									// possible when filtering is enabled.
 								}
+								
+								lastObSelected = ob;
 							}
 						} catch (ArrayIndexOutOfBoundsException e) {
 							// This may also happen due to filtering.
@@ -278,6 +288,7 @@ public class ObservationListPane extends JPanel implements
 			if (row >= 0) {
 				row = validDataTable.convertRowIndexToModel(row);
 				ValidObservation ob = validDataModel.getObservations().get(row);
+				lastObSelected = ob;
 				ObservationSelectionMessage message = new ObservationSelectionMessage(
 						ob, this);
 				Mediator.getInstance().getObservationSelectionNotifier()

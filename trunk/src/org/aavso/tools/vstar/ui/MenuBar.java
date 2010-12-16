@@ -51,6 +51,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
@@ -74,6 +75,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public static final String QUIT = "Quit";
 
 	// View menu item names.
+	public static final String OB_DETAILS = "Observation Details...";
 	public static final String ZOOM_IN = "Zoom In";
 	public static final String ZOOM_OUT = "Zoom Out";
 	public static final String ZOOM_TO_FIT = "Zoom To Fit";
@@ -119,6 +121,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	JMenuItem fileQuitItem;
 
 	// View menu.
+	JMenuItem viewObDetailsItem;
 	JMenuItem viewZoomInItem;
 	JMenuItem viewZoomOutItem;
 	JMenuItem viewZoomToFitItem;
@@ -182,6 +185,9 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		this.mediator.getAnalysisTypeChangeNotifier().addListener(
 				createAnalysisTypeChangeListener());
+
+		this.mediator.getObservationSelectionNotifier().addListener(
+				createObservationSelectionListener());
 	}
 
 	private void createFileMenu() {
@@ -261,6 +267,13 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	private void createViewMenu() {
 		JMenu viewMenu = new JMenu("View");
+
+		viewObDetailsItem = new JMenuItem(OB_DETAILS);
+		viewObDetailsItem.setEnabled(false);
+		viewObDetailsItem.addActionListener(createObDetailsListener());
+		viewMenu.add(viewObDetailsItem);
+
+		viewMenu.addSeparator();
 
 		viewZoomInItem = new JMenuItem(ZOOM_IN);
 		viewZoomInItem.setEnabled(false);
@@ -598,6 +611,19 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	// ** View Menu listeners **
 
 	/**
+	 * Returns the action listener to be invoked for View->Observation
+	 * Details...
+	 */
+	public ActionListener createObDetailsListener() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mediator.showObservationDetails();
+			}
+		};
+	}
+
+	/**
 	 * Returns the action listener to be invoked for View->Zoom In
 	 */
 	public ActionListener createZoomInListener() {
@@ -681,19 +707,21 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public ActionListener createPanLeftListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PanRequestMessage msg = new PanRequestMessage(this, PanType.LEFT);
+				PanRequestMessage msg = new PanRequestMessage(this,
+						PanType.LEFT);
 				mediator.getPanRequestNotifier().notifyListeners(msg);
 			}
 		};
 	}
-	
+
 	/**
 	 * Returns the action listener to be invoked for View->Pan Right...
 	 */
 	public ActionListener createPanRightListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PanRequestMessage msg = new PanRequestMessage(this, PanType.RIGHT);
+				PanRequestMessage msg = new PanRequestMessage(this,
+						PanType.RIGHT);
 				mediator.getPanRequestNotifier().notifyListeners(msg);
 			}
 		};
@@ -717,7 +745,8 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 	public ActionListener createPanDownListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PanRequestMessage msg = new PanRequestMessage(this, PanType.DOWN);
+				PanRequestMessage msg = new PanRequestMessage(this,
+						PanType.DOWN);
 				mediator.getPanRequestNotifier().notifyListeners(msg);
 			}
 		};
@@ -930,13 +959,15 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
 
+		this.viewObDetailsItem.setEnabled(state);
+
 		this.viewZoomInItem.setEnabled(state);
 		this.viewZoomOutItem.setEnabled(state);
 		this.viewZoomToFitItem.setEnabled(state);
-		
+
 		this.viewFilterItem.setEnabled(state);
 		this.viewCustomFilterMenu.setEnabled(state);
-		for (int i=0;i<this.viewCustomFilterMenu.getItemCount();i++) {
+		for (int i = 0; i < this.viewCustomFilterMenu.getItemCount(); i++) {
 			this.viewCustomFilterMenu.getItem(i).setEnabled(state);
 		}
 		this.viewNoFilterItem.setEnabled(state);
@@ -945,11 +976,11 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.viewPanRightItem.setEnabled(state);
 		this.viewPanUpItem.setEnabled(state);
 		this.viewPanDownItem.setEnabled(state);
-		
+
 		this.analysisRawDataItem.setEnabled(state);
 		this.analysisPhasePlotItem.setEnabled(state);
 		this.analysisPeriodSearchMenu.setEnabled(state);
-		for (int i=0;i<this.analysisPeriodSearchMenu.getItemCount();i++) {
+		for (int i = 0; i < this.analysisPeriodSearchMenu.getItemCount(); i++) {
 			this.analysisPeriodSearchMenu.getItem(i).setEnabled(state);
 		}
 		this.analysisPolynomialFitItem.setEnabled(state);
@@ -974,5 +1005,24 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	private void setPhasePlotAnalysisMenuItemState(boolean state) {
 		this.analysisPhasePlotItem.setState(state);
+	}
+
+	// Returns an observation selection listener that sets enables certain menu
+	// items.
+	public Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		return new Listener<ObservationSelectionMessage>() {
+			@Override
+			public void update(ObservationSelectionMessage info) {
+				viewObDetailsItem.setEnabled(true);
+				viewZoomInItem.setEnabled(true);
+				viewZoomOutItem.setEnabled(true);
+				viewZoomToFitItem.setEnabled(true);
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 }
