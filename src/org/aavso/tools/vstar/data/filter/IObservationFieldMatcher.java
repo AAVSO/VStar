@@ -84,4 +84,12 @@ public interface IObservationFieldMatcher {
 	 * @return The default test value, or null.
 	 */
 	public abstract String getDefaultTestValue();
+	
+	/**
+	 * Return a test value for this matcher given an observation.
+	 * 
+	 * @param ob The observation from which to extract the test value.
+	 * @return The test value.
+	 */
+	public abstract String getTestValueFromObservation(ValidObservation ob);
 }

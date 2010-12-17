@@ -65,4 +65,9 @@ public class TransformedFieldMatcher extends BooleanFieldMatcher {
 	public String getDefaultTestValue() {
 		return null;
 	}
+
+	@Override
+	public String getTestValueFromObservation(ValidObservation ob) {
+		return ob.isTransformed() + "";
+	}
 }

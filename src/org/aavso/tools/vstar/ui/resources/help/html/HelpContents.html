@@ -79,22 +79,21 @@ charts and tables for the data, including means, are created.</p>
 
 <br/><br/><h2>Authentication</h2>
 
-<p>Note that as of version 2.7, authentication via login dialog only happens when 
-reporting an observation as discrepant (to validate your AAVSO/Citizen Sky username) 
-or creating an observation filter that uses an observer code. In the second case, AAVSO 
-or Citizen Sky login is only necessary to retrieve your observer code (if you have one) 
-to be used as the default value. In both cases, authentication will only be requested
-if the currently loaded dataset is from the AID.</p>
+<p>Note that as of version 2.10, authentication via login dialog only happens when 
+reporting an observation as discrepant (to validate your AAVSO/Citizen Sky username)
+which is only possible if the currently loaded dataset is from the AID.</p>
 
-<p>For a given run of VStar, you only need to enter your Citizen Sky credentials
-just once.</p>
+<p>For a given run of VStar, you need to enter your Citizen Sky credentials
+only once.</p>
 
 <br/><br/><h2>Observation Details</h2>
 
 <p>By selecting an observation datapoint in a plot with the mouse, a dialog 
 is opened with details regarding the observation. This dialog also allows an 
 observation to be marked as discrepant and optionally to send a report to AAVSO.
-See the Zapper link below for more information about discrepant observations.</p>
+See the Zapper link below for more information about discrepant observations. The 
+same dialog can also be opened via the <code>Observation Details...</code> 
+<code>View</code> menu item or the equivalent toolbar button.</p>
 
 <br></br><h2>Phase Plots</h2>
 
@@ -133,15 +132,15 @@ button opens an observation filter dialog that permits one or more "matchers" to
 specified, each of which must match for a given observation to be included in the set 
 of filtered observations.</p>
 
-<p>Only raw observations are filtered, not mean values. Observation 
-list rows (for raw light curve <em>and</em> phase plot lists) are reduced in number 
-according to the filter, and raw light curve plots (not phase plots yet) have a 
-"Filtered" series added. <em>This new series can be treated in the same way as any other 
-series, including being selected/deselected, and used as the source for a mean curve.</em></p>
+<p>Only raw observations are filtered, not mean values. Observation list rows (for 
+raw light curve <em>and</em> phase plot lists) are reduced in number according to 
+the filter, and raw light curve plots (not phase plots yet) have a "Filtered" series 
+added. <em>This new series can be treated in the same way as any other series, 
+including being selected/deselected, and used as the source for a mean curve.</em></p>
 
-<p>If an observer code field matcher is selected and the user has logged in to retrieve 
-observations from the AID and the user has an assigned observer code by virtue of having 
-submitted observations, the value field will default to that observer code.</p>
+<p>If the "Use selected observation?" checkbox is selected, when a matcher is chosen,
+its test value field will be taken from the currently selected observation, if there is
+one.</p>
 
 <p>Selecting <code>No Filter...</code> from the View menu removes the effect of filtering.</p>
 

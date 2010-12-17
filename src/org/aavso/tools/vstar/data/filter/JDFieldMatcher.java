@@ -63,4 +63,9 @@ public class JDFieldMatcher extends DoubleFieldMatcher {
 	public String getDefaultTestValue() {
 		return null;
 	}
+
+	@Override
+	public String getTestValueFromObservation(ValidObservation ob) {
+		return ob.getJD() + "";
+	}
 }
