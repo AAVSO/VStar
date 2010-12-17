@@ -30,6 +30,36 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
+Date: December 17 2010
+Version: 2.10
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-17December2010
+Key Changes:
+- Implemented domain and range panning (tracker 2952532). Note that this permits
+  left, right, up, and down panning while zoomed in. When reaching the left and 
+  right time limits, panning stops. In future, somewhat like Zapper, we will ask 
+  the user whether more data should be retrieved when in database mode. 
+- Removed toolbar button borders and incorporated improved icons (size and 
+  alignment) from Nico Camargo.
+- Split info dialog into summary and series sections.
+- Implemented last observation selection across all views (plots, tables).
+  This permits filtering based upon selected observation and another way of
+  opening the observation details dialog (see next point). In addition, when
+  selecting a table row, the cross-hair and selected observation is reflected
+  in plots.
+- The observation details dialog is now opened by double-clickng on a data point
+  or via the Observation Details view menu item or toolbar button with Nico's
+  awesome new X-ray icon.
+- Removed authentication for obscode filter when dataset is from AID, after
+  discussion with Sara Beck. In future this may again be configurable via 
+  the Preferences dialog, but being asked to authenticate when selecting a 
+  filter dialog matcher is a little disruptive, hence the removal. As Sara
+  said, people tend to remember their own observer code. 
+- Removed non-ubiquitous window transparency code as used by the observation
+  details dialog (tracker 3106625).
+- Removed bogus unprintable UTF-8 character in commented code that caused 
+  build failure under Linux.
+- Updated Help docs re: panning, filtering, observation details dialog etc.
+
 Date: November 9 2010
 Version: 2.9
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-09November2010
