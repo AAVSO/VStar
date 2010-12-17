@@ -95,4 +95,9 @@ public class SeriesTypeFieldMatcher extends
 	public String getDefaultTestValue() {
 		return null;
 	}
+
+	@Override
+	public String getTestValueFromObservation(ValidObservation ob) {
+		return ob.getBand().toString();
+	}
 }

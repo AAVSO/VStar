@@ -30,6 +30,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -41,6 +42,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -50,14 +52,17 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * that some subset of the current observations will be captured in a collection
  * and a message sent.
  */
-public class ObservationFilterDialog extends AbstractOkCancelDialog implements
-		Listener<NewStarMessage> {
+public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 	private NewStarMessage newStarMessage;
+
+	private ValidObservation selectedObservation;
 
 	private ObservationFilter filter;
 
 	private List<ObservationFilterPane> filterPanes;
+
+	private JCheckBox useSelectedObservationCheckbox;
 
 	/**
 	 * Constructor.
@@ -66,6 +71,8 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 		super("Filter Observations");
 
 		newStarMessage = null;
+
+		selectedObservation = null;
 
 		filter = new ObservationFilter();
 
@@ -79,7 +86,7 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 
 		topPane.add(createFiltersPane());
 		topPane.add(createButtonPane());
-		
+
 		contentPane.add(topPane);
 
 		this.pack();
@@ -87,17 +94,26 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 
 	@Override
 	protected JPanel createButtonPane() {
-		JPanel resetButtonPanel = new JPanel(new BorderLayout());
+		JPanel extraButtonPanel = new JPanel(new BorderLayout());
+
+		useSelectedObservationCheckbox = new JCheckBox(
+				"Use selected observation");
+		useSelectedObservationCheckbox
+				.addActionListener(createUseSelectedObservationCheckBoxHandler());
+		useSelectedObservationCheckbox.setEnabled(false);
+		extraButtonPanel.add(useSelectedObservationCheckbox,
+				BorderLayout.LINE_START);
+
 		JButton resetButton = new JButton("Reset");
 		resetButton.addActionListener(createResetButtonListener());
-		resetButtonPanel.add(resetButton, BorderLayout.LINE_END);
+		extraButtonPanel.add(resetButton, BorderLayout.LINE_END);
 
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-		panel.add(resetButtonPanel);
+		panel.add(extraButtonPanel);
 		panel.add(super.createButtonPane());
-		
+
 		return panel;
 	}
 
@@ -109,7 +125,7 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 			}
 		};
 	}
-	
+
 	private JPanel createFiltersPane() {
 		JPanel panel = new JPanel();
 
@@ -125,6 +141,78 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 		}
 
 		return panel;
+	}
+
+	/**
+	 * @return A new star listener for the filter dialog.
+	 */
+	public Listener<NewStarMessage> createNewStarListener() {
+		return new Listener<NewStarMessage>() {
+
+			@Override
+			public void update(NewStarMessage info) {
+				newStarMessage = info;
+				resetFilters();
+				useSelectedObservationCheckbox.setEnabled(false);
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	/**
+	 * @return An observation selection listener for the filter dialog.
+	 */
+	public Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		return new Listener<ObservationSelectionMessage>() {
+
+			@Override
+			public void update(ObservationSelectionMessage msg) {
+				selectedObservation = msg.getObservation();
+				useSelectedObservationCheckbox.setEnabled(true);
+
+				// Pass the selected observation to each filter
+				// pane if the checkbox was already selected.
+				if (useSelectedObservationCheckbox.isSelected()) {
+					for (ObservationFilterPane pane : filterPanes) {
+						pane.useObservation(selectedObservation);
+					}
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	// Returns a use-selected-observation-checkbox listener.
+	private ActionListener createUseSelectedObservationCheckBoxHandler() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ValidObservation ob = null;
+
+				// If the checkbox is selected, retrieve the last selected
+				// observation from the current view. This of course could be
+				// null, except that this checkbox is only enabled when an
+				// observation *has* been selected, so it really *can't* be null
+				// at this point. :)
+				if (useSelectedObservationCheckbox.isSelected()) {
+					ob = selectedObservation;
+				}
+
+				// Pass the last selected observation or null to each filter
+				// pane.
+				for (ObservationFilterPane pane : filterPanes) {
+					pane.useObservation(ob);
+				}
+			}
+		};
 	}
 
 	/**
@@ -160,8 +248,8 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 			if (filter.getMatchers().size() != 0) {
 
 				setVisible(false);
-				
-				//MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+				// MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 				// Apply the filter (and all its matchers) to the full set
 				// of observations.
@@ -179,14 +267,15 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 							.notifyListeners(msg);
 				} else {
 					String msg = "No observations matched.";
-					MessageBox.showWarningDialog(MainFrame.getInstance(), "Observation Filter",
-							msg);
+					MessageBox.showWarningDialog(MainFrame.getInstance(),
+							"Observation Filter", msg);
 				}
-				
-				//MainFrame.getInstance().setCursor(null);
+
+				// MainFrame.getInstance().setCursor(null);
 			} else {
 				String msg = "No filter selected.";
-				MessageBox.showWarningDialog(MainFrame.getInstance(), "Observation Filter", msg);
+				MessageBox.showWarningDialog(MainFrame.getInstance(),
+						"Observation Filter", msg);
 			}
 
 			// Clear state for next use of this dialog.
@@ -194,17 +283,6 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog implements
 		}
 	}
 
-	@Override
-	public void update(NewStarMessage info) {
-		newStarMessage = info;
-		resetFilters();
-	}
-
-	@Override
-	public boolean canBeRemoved() {
-		return false;
-	}
-	
 	private void resetFilters() {
 		for (ObservationFilterPane filterPane : filterPanes) {
 			filterPane.resetFilter();

@@ -1242,7 +1242,7 @@ public class Mediator {
 
 	/**
 	 * Show the details of the currently selected observation in the current
-	 * plot or table.
+	 * view mode (plot or table).
 	 */
 	public void showObservationDetails() {
 		ValidObservation ob = null;

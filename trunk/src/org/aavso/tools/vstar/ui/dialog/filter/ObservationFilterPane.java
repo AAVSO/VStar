@@ -28,6 +28,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.filter.IObservationFieldMatcher;
 import org.aavso.tools.vstar.data.filter.ObservationFilter;
 import org.aavso.tools.vstar.data.filter.ObservationMatcherOp;
@@ -42,15 +43,17 @@ public class ObservationFilterPane extends JPanel {
 
 	private JComboBox filterNamesList;
 	private JComboBox filterOpsList;
-	// TODO: for booleans this should be a checkbox; 
+	// TODO: for booleans this should be a checkbox;
 	// for enums a combo-box; base on currFilter.getType()
 	// Need IValueWidget.{getValue() => String,setValue(String)}
-	private JTextField valueField; 
+	private JTextField valueField;
 
 	private ActionListener filterOpsListener;
 
 	private IObservationFieldMatcher currFilter;
 	private ObservationMatcherOp currOp;
+
+	private ValidObservation observation;
 
 	/**
 	 * Constructor.
@@ -84,26 +87,29 @@ public class ObservationFilterPane extends JPanel {
 		valueField.setPreferredSize(new Dimension(TEXT_WIDTH, 20));
 		this.add(valueField);
 
-//		JPanel p = new JPanel(new BorderLayout());
-//		p.add(new JLabel(""), BorderLayout.CENTER);
-//		set min/max/pref sizes then add to map of Class<?> =? IValueWidget
-				
+		// JPanel p = new JPanel(new BorderLayout());
+		// p.add(new JLabel(""), BorderLayout.CENTER);
+		// set min/max/pref sizes then add to map of Class<?> =? IValueWidget
+
 		this.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		currFilter = null;
 		currOp = null;
+
+		observation = null;
 	}
 
 	/**
-	 * Return a field matcher corresponding to the selection. If no matcher
-	 * is selected, null is returned. If the value of the text field does not 
+	 * Return a field matcher corresponding to the selection. If no matcher is
+	 * selected, null is returned. If the value of the text field does not
 	 * conform to the filter's type, an exception is thrown.
 	 * 
 	 * @return A field matcher or null.
 	 * @throws IllegalArgumentException
 	 *             if the entered value does not match the type of the filter.
 	 */
-	public IObservationFieldMatcher getFieldMatcher() throws IllegalArgumentException {
+	public IObservationFieldMatcher getFieldMatcher()
+			throws IllegalArgumentException {
 		IObservationFieldMatcher matcher = null;
 
 		if (currFilter != null) {
@@ -131,13 +137,33 @@ public class ObservationFilterPane extends JPanel {
 		valueField.setText("");
 	}
 
+	/**
+	 * Tell this filter pane to set its field value now, or when a filter has
+	 * been selected, using the specified observation. If null is passed and
+	 * a current filter is selected, the value field is cleared.
+	 * 
+	 * @param ob
+	 *            The observation from which to extract the value, or null.
+	 */
+	public void useObservation(ValidObservation ob) {
+		this.observation = ob;
+
+		if (currFilter != null) {
+			if (ob != null) {
+				valueField.setText(currFilter.getTestValueFromObservation(ob));
+			} else {
+				valueField.setText("");
+			}
+		}
+	}
+
 	// Listen to the name list in order to update the operations list
 	// and related values according to the operations specific to the
 	// selected filter.
 	private ActionListener createFilterNameListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-								
+
 				// Re-populate the operations list according to the
 				// selected matcher.
 				String name = (String) filterNamesList.getSelectedItem();
@@ -160,8 +186,15 @@ public class ObservationFilterPane extends JPanel {
 						filterOpsList.addActionListener(filterOpsListener);
 						String opName = (String) filterOpsList.getItemAt(0);
 						currOp = ObservationMatcherOp.fromString(opName);
-						String defaultTestValue = currFilter.getDefaultTestValue();
-						valueField.setText((defaultTestValue == null) ? "" : defaultTestValue);
+						String testValue = null;
+						if (observation != null) {
+							testValue = currFilter
+									.getTestValueFromObservation(observation);
+						} else {
+							testValue = currFilter.getDefaultTestValue();
+						}
+						valueField
+								.setText((testValue == null) ? "" : testValue);
 					}
 				}
 			}

@@ -249,6 +249,13 @@ public class ToolBar extends JPanel {
 		infoButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(infoButton);
 
+		obDetailsButton = new JButton(obDetailsIcon);
+		obDetailsButton.setToolTipText(MenuBar.OB_DETAILS);
+		obDetailsButton.addActionListener(menuBar.createObDetailsListener());
+		obDetailsButton.setEnabled(false);
+		obDetailsButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(obDetailsButton);
+
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
 		rawDataButton = new JButton(rawDataIcon);
@@ -274,15 +281,6 @@ public class ToolBar extends JPanel {
 		polynomialFitButton.setEnabled(false);
 		polynomialFitButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(polynomialFitButton);
-
-		buttonPanel.add(Box.createHorizontalStrut(10));
-
-		obDetailsButton = new JButton(obDetailsIcon);
-		obDetailsButton.setToolTipText(MenuBar.OB_DETAILS);
-		obDetailsButton.addActionListener(menuBar.createObDetailsListener());
-		obDetailsButton.setEnabled(false);
-		obDetailsButton.setBorder(BorderFactory.createEmptyBorder());
-		buttonPanel.add(obDetailsButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
