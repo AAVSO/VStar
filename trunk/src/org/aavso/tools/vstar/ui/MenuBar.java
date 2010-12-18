@@ -63,7 +63,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 /**
  * VStar's menu bar.
  */
-public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
+public class MenuBar extends JMenuBar {
 
 	// File menu item names.
 	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
@@ -181,7 +181,7 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		this.mediator.getProgressNotifier().addListener(
 				createProgressListener());
 
-		this.mediator.getNewStarNotifier().addListener(this);
+		this.mediator.getNewStarNotifier().addListener(createNewStarListener());
 
 		this.mediator.getAnalysisTypeChangeNotifier().addListener(
 				createAnalysisTypeChangeListener());
@@ -936,18 +936,49 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 		changeKeyMenuItemEnableState(true);
 	}
 
-	/**
-	 * New star listener update method.
-	 */
-	public void update(NewStarMessage msg) {
-		this.newStarMessage = msg;
+	// Returns a new star listener.
+	private Listener<NewStarMessage> createNewStarListener() {
+		return new Listener<NewStarMessage>() {
+
+			/**
+			 * New star listener update method.
+			 */
+			@Override
+			public void update(NewStarMessage msg) {
+				newStarMessage = msg;
+				viewObDetailsItem.setEnabled(false);
+				viewZoomInItem.setEnabled(false);
+				viewZoomOutItem.setEnabled(false);
+				viewZoomToFitItem.setEnabled(false);				
+			}
+
+			/**
+			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+			 */
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 
-	/**
-	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
-	 */
-	public boolean canBeRemoved() {
-		return false;
+	// Returns an observation selection listener that sets enables certain menu
+	// items.
+	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		return new Listener<ObservationSelectionMessage>() {
+			@Override
+			public void update(ObservationSelectionMessage info) {
+				viewObDetailsItem.setEnabled(true);
+				viewZoomInItem.setEnabled(true);
+				viewZoomOutItem.setEnabled(true);
+				viewZoomToFitItem.setEnabled(true);
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 
 	// Helper methods
@@ -958,12 +989,6 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
-
-		this.viewObDetailsItem.setEnabled(state);
-
-		this.viewZoomInItem.setEnabled(state);
-		this.viewZoomOutItem.setEnabled(state);
-		this.viewZoomToFitItem.setEnabled(state);
 
 		this.viewFilterItem.setEnabled(state);
 		this.viewCustomFilterMenu.setEnabled(state);
@@ -1005,24 +1030,5 @@ public class MenuBar extends JMenuBar implements Listener<NewStarMessage> {
 
 	private void setPhasePlotAnalysisMenuItemState(boolean state) {
 		this.analysisPhasePlotItem.setState(state);
-	}
-
-	// Returns an observation selection listener that sets enables certain menu
-	// items.
-	public Listener<ObservationSelectionMessage> createObservationSelectionListener() {
-		return new Listener<ObservationSelectionMessage>() {
-			@Override
-			public void update(ObservationSelectionMessage info) {
-				viewObDetailsItem.setEnabled(true);
-				viewZoomInItem.setEnabled(true);
-				viewZoomOutItem.setEnabled(true);
-				viewZoomToFitItem.setEnabled(true);
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
 	}
 }
