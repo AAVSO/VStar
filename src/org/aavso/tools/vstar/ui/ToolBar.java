@@ -30,6 +30,7 @@ import javax.swing.JToolBar;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
@@ -121,6 +122,8 @@ public class ToolBar extends JPanel {
 		this.add(toolBar, BorderLayout.PAGE_START);
 
 		// Add event listeners.
+
+		this.mediator.getNewStarNotifier().addListener(createNewStarListener());
 
 		this.mediator.getProgressNotifier().addListener(
 				createProgressListener());
@@ -387,6 +390,48 @@ public class ToolBar extends JPanel {
 		};
 	}
 
+	// Returns a new star listener.
+	private Listener<NewStarMessage> createNewStarListener() {
+		return new Listener<NewStarMessage>() {
+
+			/**
+			 * New star listener update method.
+			 */
+			@Override
+			public void update(NewStarMessage msg) {
+				obDetailsButton.setEnabled(false);
+				zoomInButton.setEnabled(false);
+				zoomOutButton.setEnabled(false);					
+			}
+
+			/**
+			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+			 */
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	// Returns an observation selection listener that sets enables certain
+	// buttons.
+	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		return new Listener<ObservationSelectionMessage>() {
+			@Override
+			public void update(ObservationSelectionMessage info) {
+				obDetailsButton.setEnabled(true);
+				zoomInButton.setEnabled(true);
+				zoomOutButton.setEnabled(true);
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
 	private void setEnabledToolbarItems(boolean state) {
 		infoButton.setEnabled(state);
 		saveButton.setEnabled(state);
@@ -403,23 +448,5 @@ public class ToolBar extends JPanel {
 		panDownButton.setEnabled(state);
 
 		filterButton.setEnabled(state);
-	}
-
-	// Returns an observation selection listener that sets enables certain
-	// buttons.
-	public Listener<ObservationSelectionMessage> createObservationSelectionListener() {
-		return new Listener<ObservationSelectionMessage>() {
-			@Override
-			public void update(ObservationSelectionMessage info) {
-				obDetailsButton.setEnabled(true);
-				zoomInButton.setEnabled(true);
-				zoomOutButton.setEnabled(true);
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
 	}
 }

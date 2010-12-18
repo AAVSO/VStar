@@ -30,9 +30,9 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
-Date: December 17 2010
+Date: December 18 2010
 Version: 2.10
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-17December2010
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-18December2010
 Key Changes:
 - Implemented domain and range panning (tracker 2952532). Note that this permits
   left, right, up, and down panning while zoomed in. When reaching the left and 
