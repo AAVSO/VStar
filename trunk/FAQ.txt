@@ -1,0 +1,47 @@
+Frequently Asked Questions
+==========================
+
+Q1: I got an error message during startup with
+"Can't locate icon: /toolbarButtonGraphics/general/New24.gif"
+
+A1: This is because the application cannot find the jlfgr look and feel icons.
+   Make sure the *.jar files are directly under extlib.
+
+
+Q2: Build and load a debugging version of Vstar?
+
+A2:
+   ant clean
+   ant debug
+   ant run_debug
+   jdb -attach 8000
+   stop in org.aavso.tools.vstar.ui.VStar.main
+   use ${path up to src}
+
+
+Q3a: How do I add a shortcut to VStar on Windows XP?
+Q3b: How do I remove VStar from Windows XP?
+
+A3: This applies if you have installed VStar using WebStart from the Citizen Sky
+website.  From the Start button select Control Panel.  Double click on the Java
+icon.  In  the Java Control Panel look for Temporary Internet Files and click on
+View.  The Java Cache Viewer will show VStar if it is installed.  Right click on
+VStar.  You can select Install Shortcuts to put Vstar on the desktop and in a
+program folder in the Start menu.  You can also select Delete to remove VStar
+from your computer.
+
+
+Q4: How do I manage a VStar WebStart install?
+
+A4: In general you would use the Java Cache Viewer.  On Solaris type "javaws" at
+the command line.  For Windows XP type "javaws -viewer" in a command window.
+(also see the instructions above to start the Java Control Panel)  Other
+operating systems should have a similar javaws command. Mac OS X has a Java 
+Preferences application in /Applications/Utilities/Java.
+
+Q5: What ports does VStar use to connect to the AAVSO database?
+
+Q6: VStar uses port 3307 to connect to the database to retrieve variable star
+observations.  If there is no response it will then try 3306 after a timeout.
+If you are using a firewall you should check to make sure that these ports are
+open.
