@@ -169,8 +169,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 				SeriesRenderingOrder.FORWARD);
 		// this.chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
 
-		// this.chart.getXYPlot().setDomainCrosshairLockedOnData(true);
-		// this.chart.getXYPlot().setRangeCrosshairLockedOnData(true);
+		this.chart.getXYPlot().setDomainCrosshairLockedOnData(true);
+		this.chart.getXYPlot().setRangeCrosshairLockedOnData(true);
 
 		// Make it possible to pan the plot.
 		chart.getXYPlot().setDomainPannable(true);
@@ -425,9 +425,12 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	// message and open an information dialog. Also record the selection.
 	public void chartMouseClicked(ChartMouseEvent event) {
 
-		lastPointClicked = event.getTrigger().getPoint();
-
+		// Now, have we selected an observation?
 		if (event.getEntity() instanceof XYItemEntity) {
+			// The trigger point should correspond to the XYItemEntity's
+			// position.
+			lastPointClicked = event.getTrigger().getPoint();
+
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
@@ -438,22 +441,25 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			}
 		} else {
 			// ...else if not XYItemEntity as subject of the event, select a
-			// valid
-			// observation by asking: which XYItemEntity is closest to the
-			// mouse-click?
+			// valid observation by asking: which XYItemEntity is closest to the
+			// cross hairs?
+
+			// Where are the cross hairs pointing?
+			lastPointClicked = chartPanel.getAnchor();
+
 			EntityCollection entities = chartPanel.getChartRenderingInfo()
 					.getEntityCollection();
 
-			double closestDist = Integer.MAX_VALUE;
+			double closestDist = Double.MAX_VALUE;
 			XYItemEntity closestItem = null;
 
 			// Note: This operation is linear in the number of observations!
 			// Unfortunately, the list of XYItemEntities must always be searched
 			// exhaustively since we don't know which XYItemEntity will turn out
-			// to be closest to the mouse selection. Actually, this may not the case
-			// if we can assume an ordering of XYItemEntities by domain (X). If so,
-			// once itemBounds.getCenterX() is greater than lastPointClicked.getX(),
-			// we ought to be able to terminate the loop.
+			// to be closest to the mouse selection. Actually, this may not bbe
+			// the case if we can assume an ordering of XYItemEntities by domain
+			// (X). If so, once itemBounds.getCenterX() is greater than
+			// lastPointClicked.getX(), we could terminate the loop.
 			Iterator it = entities.iterator();
 			while (it.hasNext()) {
 				Object o = it.next();
@@ -463,8 +469,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 					Point2D centerPt = new Point2D.Double(itemBounds
 							.getCenterX(), itemBounds.getCenterY());
 
-					double dist = centerPt.distance(event.getTrigger()
-							.getPoint());
+					double dist = centerPt.distance(lastPointClicked);
 					if (dist < closestDist) {
 						closestDist = dist;
 						closestItem = item;
@@ -506,9 +511,11 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			Object o = it.next();
 			if (o instanceof XYItemEntity) {
 				XYItemEntity item = (XYItemEntity) o;
-				double jd = obsModel.getXValue(item.getSeriesIndex(), item.getItem());
-				double mag = obsModel.getYValue(item.getSeriesIndex(), item.getItem());
-				
+				double jd = obsModel.getXValue(item.getSeriesIndex(), item
+						.getItem());
+				double mag = obsModel.getYValue(item.getSeriesIndex(), item
+						.getItem());
+
 				// Since the data in the observations and in the XYItemEntities
 				// should be the same, using equality here ought to be safe.
 				if (ob.getJD() == jd && ob.getMag() == mag) {
