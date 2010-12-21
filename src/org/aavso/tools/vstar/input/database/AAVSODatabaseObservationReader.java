@@ -90,7 +90,7 @@ public class AAVSODatabaseObservationReader extends
 					// Okay. Accept this as a valid observation, but
 					// ignore non-standard magnitude type observations.
 					if (validOb.getMType() == MTypeType.STD) {
-						validObservations.add(validOb);
+						addValidObservation(validOb);
 						categoriseValidObservation(validOb);
 					}
 				}
