@@ -420,6 +420,10 @@ public class ToolBar extends JPanel {
 		return new Listener<ObservationSelectionMessage>() {
 			@Override
 			public void update(ObservationSelectionMessage info) {
+				// TODO: really need to distinguish between:
+				// observation selection (for obs details, filtering) and
+				// point selection (for zooming), and to do this across
+				// plot views for raw and phase plot mode.
 				obDetailsButton.setEnabled(true);
 				zoomInButton.setEnabled(true);
 				zoomOutButton.setEnabled(true);
@@ -433,6 +437,10 @@ public class ToolBar extends JPanel {
 	}
 
 	private void setEnabledToolbarItems(boolean state) {
+//		obDetailsButton.setEnabled(state);
+//		zoomInButton.setEnabled(state);
+//		zoomOutButton.setEnabled(state);
+
 		infoButton.setEnabled(state);
 		saveButton.setEnabled(state);
 		printButton.setEnabled(state);

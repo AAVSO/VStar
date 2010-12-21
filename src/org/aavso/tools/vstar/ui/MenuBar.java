@@ -968,6 +968,10 @@ public class MenuBar extends JMenuBar {
 		return new Listener<ObservationSelectionMessage>() {
 			@Override
 			public void update(ObservationSelectionMessage info) {
+				// TODO: really need to distinguish between:
+				// observation selection (for obs details, filtering) and
+				// point selection (for zooming), and to do this across
+				// plot views for raw and phase plot mode.
 				viewObDetailsItem.setEnabled(true);
 				viewZoomInItem.setEnabled(true);
 				viewZoomOutItem.setEnabled(true);
@@ -989,6 +993,11 @@ public class MenuBar extends JMenuBar {
 
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
+
+//		this.viewObDetailsItem.setEnabled(state);
+//		this.viewZoomInItem.setEnabled(state);
+//		this.viewZoomOutItem.setEnabled(state);
+//		this.viewZoomToFitItem.setEnabled(state);				
 
 		this.viewFilterItem.setEnabled(state);
 		this.viewCustomFilterMenu.setEnabled(state);
