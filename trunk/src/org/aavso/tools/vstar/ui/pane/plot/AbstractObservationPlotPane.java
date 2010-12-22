@@ -453,13 +453,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			double closestDist = Double.MAX_VALUE;
 			XYItemEntity closestItem = null;
 
-			// Note: This operation is linear in the number of observations!
+			// Note: This operation is linear in the number of visible observations!
 			// Unfortunately, the list of XYItemEntities must always be searched
 			// exhaustively since we don't know which XYItemEntity will turn out
-			// to be closest to the mouse selection. Actually, this may not bbe
+			// to be closest to the mouse selection. Actually, this may not be
 			// the case if we can assume an ordering of XYItemEntities by domain
 			// (X). If so, once itemBounds.getCenterX() is greater than
-			// lastPointClicked.getX(), we could terminate the loop.
+			// lastPointClicked.getX(), we could terminate the loop. But I don't
+			// know if we can make that assumption.
 			Iterator it = entities.iterator();
 			while (it.hasNext()) {
 				Object o = it.next();
@@ -476,6 +477,13 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 						lastObSelected = obsModel.getValidObservation(item
 								.getSeriesIndex(), item.getItem());
 					}
+					
+					// Note: The approach below definitely does not work.
+//					if (item.getArea().contains(lastPointClicked)) {
+//						lastObSelected = obsModel.getValidObservation(item
+//								.getSeriesIndex(), item.getItem());
+//						
+//					}
 				}
 			}
 		}
