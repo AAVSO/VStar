@@ -18,17 +18,11 @@
 package org.aavso.tools.vstar.plugin.period;
 
 import java.awt.Component;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JFileChooser;
-import javax.swing.JTabbedPane;
-
-import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
@@ -40,9 +34,9 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.TextTitle;
 
 /**
- * This factory class creates GUI components (e.g. charts and tables) suitable for
- * returning from the PeriodAnalysisDialogBase.createContent() method that must
- * be overridden by period analysis plugin subclasses.
+ * This factory class creates GUI components (e.g. charts and tables) suitable
+ * for returning from the PeriodAnalysisDialogBase.createContent() method that
+ * must be overridden by period analysis plug-in subclasses.
  */
 public class PeriodAnalysisComponentFactory {
 
@@ -226,60 +220,5 @@ public class PeriodAnalysisComponentFactory {
 
 		return new PeriodAnalysisDataTablePane(
 				new PeriodAnalysisDataTableModel(columnTypes, dataMap));
-	}
-
-	/**
-	 * Create a tabbed pane component from a list of named components.
-	 * 
-	 * @param components
-	 *            An list of named component parameters.
-	 * @return The tabbed pane component.
-	 */
-	public static JTabbedPane createTabs(List<NamedComponent> components) {
-		JTabbedPane tabs = new JTabbedPane();
-
-		for (NamedComponent component : components) {
-			tabs.addTab(component.getName(), null, component.getComponent(),
-					component.getTip());
-		}
-
-		return tabs;
-	}
-
-	/**
-	 * Create a tabbed pane component from a list of named components.
-	 * 
-	 * @param components
-	 *            An arbitrary number of named component parameters.
-	 * @return The tabbed pane component.
-	 */
-	public static JTabbedPane createTabs(NamedComponent... components) {
-		JTabbedPane tabs = new JTabbedPane();
-
-		for (NamedComponent component : components) {
-			tabs.addTab(component.getName(), null, component.getComponent(),
-					component.getTip());
-		}
-
-		return tabs;
-	}
-
-	/**
-	 * Open a "read" file chooser and return the selected file.
-	 * 
-	 * @return The selected file or null if none was selected.
-	 */
-	public static File chooseFileForReading() {
-		File file = null;
-		
-		JFileChooser fileChooser = new JFileChooser();
-		
-		int result = fileChooser.showOpenDialog(MainFrame.getInstance());
-		
-		if (result == JFileChooser.APPROVE_OPTION) {
-			file = fileChooser.getSelectedFile();
-		}
-		
-		return file;
 	}
 }

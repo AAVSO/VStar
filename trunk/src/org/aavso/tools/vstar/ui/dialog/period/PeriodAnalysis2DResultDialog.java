@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.swing.JTabbedPane;
 
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.ui.NamedComponent;
@@ -108,7 +109,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		namedComponents.add(new NamedComponent("Top Hits",
 				new PeriodAnalysisTopHitsTablePane(topHitsTableModel)));
 
-		return PeriodAnalysisComponentFactory.createTabs(namedComponents);
+		return PluginComponentFactory.createTabs(namedComponents);
 	}
 
 	// The new phase plot button will only be enabled when a period

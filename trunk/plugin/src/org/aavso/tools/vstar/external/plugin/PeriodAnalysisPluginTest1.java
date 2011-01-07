@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
@@ -123,7 +124,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 			JPanel randomPeriod = new RandomPeriodComponent(this);
 
 			// Return tabbed pane of plot and period display component.
-			return PeriodAnalysisComponentFactory.createTabs(
+			return PluginComponentFactory.createTabs(
 					new NamedComponent("Plot", plot), new NamedComponent(
 							"Data", table), new NamedComponent("Random Period",
 							randomPeriod));
