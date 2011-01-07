@@ -28,7 +28,7 @@ import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-import org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
@@ -71,8 +71,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// Set input stream and name, if any is requested by the plug-in.
 			switch (obSourcePlugin.getInputType()) {
 			case FILE:
-				File file = PeriodAnalysisComponentFactory
-						.chooseFileForReading();
+				File file = PluginComponentFactory
+						.chooseFileForReading(obSourcePlugin.getDisplayName());
 				if (file != null) {
 					obSourcePlugin.setInputInfo(new FileInputStream(file), file
 							.getName());

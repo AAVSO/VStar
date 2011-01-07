@@ -57,10 +57,10 @@ public class NumberSelectionPane extends JPanel {
 
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder(title));
-
+				
 		spinnerModel = new SpinnerNumberModel(initial, min, max, increment);
 		spinner = new JSpinner(spinnerModel);
-		spinner.setEditor(new JSpinner.NumberEditor(spinner));
+		spinner.setEditor(new JSpinner.NumberEditor(spinner, "#.#######"));
 
 		if (max < min) {
 			throw new IllegalArgumentException(String.format(

@@ -186,8 +186,10 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 			double magErrThreshold;
 			magErrThreshold = (maxMagErr + minMagErr) / 2;
 
+			double magErrIncrement = (maxMagErr - minMagErr) / 100; 
+						
 			MagErrorSelectionDialog magErrThresholdDialog = new MagErrorSelectionDialog(
-					minMagErr, maxMagErr, 0.01, magErrThreshold);
+					minMagErr, maxMagErr, magErrIncrement, magErrThreshold);
 
 			magErrThreshold = magErrThresholdDialog.getValue();
 
