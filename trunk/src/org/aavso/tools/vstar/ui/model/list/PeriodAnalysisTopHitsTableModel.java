@@ -128,6 +128,6 @@ public class PeriodAnalysisTopHitsTableModel extends AbstractTableModel {
 		PeriodAnalysisCoordinateType columnType = columnTypes[columnIndex];
 		double val = data.get(columnType).get(n);
 
-		return String.format("%10.4f", val);
+		return String.format("%10.8f", val);
 	}
 }
