@@ -18,17 +18,19 @@
 package org.aavso.tools.vstar.ui.model.list;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 
 /**
  * Simple file format raw data table column information source.
  * 
- * TODO: can we instead inherit from RawData class and specialise 
- * each switch function?
+ * TODO: can we instead inherit from RawData class and specialise each switch
+ * function?
  */
-public class SimpleFormatRawDataColumnInfoSource implements ITableColumnInfoSource {
+public class SimpleFormatRawDataColumnInfoSource implements
+		ITableColumnInfoSource {
 
 	public static SimpleFormatRawDataColumnInfoSource instance = new SimpleFormatRawDataColumnInfoSource();
-	
+
 	// Table columns.
 	private static final int JD_COLUMN = 0;
 	private static final int CALENDAR_DATE_COLUMN = 1;
@@ -100,13 +102,14 @@ public class SimpleFormatRawDataColumnInfoSource implements ITableColumnInfoSour
 
 		switch (index) {
 		case JD_COLUMN:
-			value = ob.getDateInfo().getJulianDay() + "";
+			value = String.format(NumericPrefs.getTimeOutputFormat(), ob
+					.getDateInfo().getJulianDay());
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MAGNITUDE_COLUMN:
-			value = ob.getMagnitude().toString();
+			value = ob.getMagnitude();
 			break;
 		case OBSERVER_CODE_COLUMN:
 			value = ob.getObsCode();

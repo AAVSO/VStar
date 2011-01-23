@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 
 /**
  * This class represents a model for a period analysis table.
@@ -36,8 +37,7 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 * Constructor
 	 * 
 	 * @param columnTypes
-	 *            An array of column types as they are to appear in the
-	 *            table.
+	 *            An array of column types as they are to appear in the table.
 	 * @param data
 	 *            The result data mapping from coordinate type to list of
 	 *            values.
@@ -53,7 +53,7 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
-		// column = coordinate type (freq, period, power, ampl)
+		// column: coordinate type (freq, period, power, ampl)
 		return data.keySet().size();
 	}
 
@@ -84,28 +84,30 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		// column = coordinate type (freq, period, power, ampl)
-		// row = value within the chosen coordinate's list
+		// column: coordinate type (freq, period, power, ampl)
+		// row: value within the chosen coordinate's list
 		PeriodAnalysisCoordinateType columnType = columnTypes[columnIndex];
 		double val = data.get(columnType).get(rowIndex);
 
-		return String.format("%10.8f", val);
+		return String.format(NumericPrefs.getOtherOutputFormat(), val);
 	}
-	
+
 	/**
 	 * Return the period value at the specified row.
-	 * @param rowIndex The specified row.
+	 * 
+	 * @param rowIndex
+	 *            The specified row.
 	 * @return The period value.
 	 */
 	public Object getPeriodValueInRow(int rowIndex) {
 		Object period = null;
-		
-		for (int i=0;i<columnTypes.length;i++) {
+
+		for (int i = 0; i < columnTypes.length; i++) {
 			if (columnTypes[i] == PeriodAnalysisCoordinateType.PERIOD) {
 				period = getValueAt(rowIndex, i);
 			}
 		}
-		
+
 		return period;
 	}
 }

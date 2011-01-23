@@ -91,6 +91,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.polyfit.IPolynomialFitter;
 import org.aavso.tools.vstar.util.polyfit.TSPolynomialFitter;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 
@@ -819,7 +820,9 @@ public class Mediator {
 		String objName = newStarMessage.getStarInfo().getDesignation();
 
 		String subTitle = "";
-		String periodAndEpochStr = "period: " + period + ", epoch: " + epoch;
+		String periodAndEpochStr = String.format("period: "
+				+ NumericPrefs.getOtherOutputFormat() + ", epoch: "
+				+ NumericPrefs.getTimeOutputFormat(), period, epoch);
 
 		if (this.newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 			subTitle = new Date().toString() + " (database), "

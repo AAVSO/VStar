@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.data;
 
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
+
 /**
  * This class represents a magValue including uncertainty and fainter-than
  * information.
@@ -135,7 +137,7 @@ public class Magnitude {
 			strBuf.append(">");
 		}
 
-		strBuf.append(magValue);
+		strBuf.append(String.format(NumericPrefs.getMagOutputFormat(), magValue));
 
 		if (isUncertain) {
 			strBuf.append(" (uncertain)");
@@ -144,7 +146,7 @@ public class Magnitude {
 		if (uncertainty != 0) {
 //			strBuf.append(" (\u00B1");
 			strBuf.append(" (");
-			strBuf.append(uncertainty);
+			strBuf.append(String.format(NumericPrefs.getMagOutputFormat(), uncertainty));
 			strBuf.append(")");
 		}
 

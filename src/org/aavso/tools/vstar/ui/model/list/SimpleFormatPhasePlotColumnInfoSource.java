@@ -18,9 +18,11 @@
 package org.aavso.tools.vstar.ui.model.list;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 
 /**
- * Simple file format phase plot table column information source for phase plot mode.
+ * Simple file format phase plot table column information source for phase plot
+ * mode.
  * 
  * This class exploits the knowledge that its base class's column indices are
  * offset by one compared to its. Yes, this breaks encapsulation but promotes
@@ -67,7 +69,7 @@ public class SimpleFormatPhasePlotColumnInfoSource extends
 			clazz = super.getTableColumnClass(index - 1);
 			break;
 		}
-		
+
 		return clazz;
 	}
 
@@ -76,7 +78,8 @@ public class SimpleFormatPhasePlotColumnInfoSource extends
 
 		switch (index) {
 		case PHASE_COLUMN:
-			value = String.format("%1.3f", ob.getStandardPhase());
+			value = String.format(NumericPrefs.getTimeOutputFormat(), ob
+					.getStandardPhase());
 			break;
 		default:
 			value = super.getTableColumnValue(index - 1, ob);

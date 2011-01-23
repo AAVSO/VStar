@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
@@ -85,10 +86,11 @@ public class ObservationAndMeanPlotPane extends
 
 		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
 
-//		String confIntSubtitle = "Mean error bars denote 95% Confidence Interval (twice Standard Error)";
-//		List<Title> subtitles = chart.getSubtitles();
-//		subtitles.add(new TextTitle(confIntSubtitle));
-//		chart.setSubtitles(subtitles);
+		// String confIntSubtitle =
+		// "Mean error bars denote 95% Confidence Interval (twice Standard Error)";
+		// List<Title> subtitles = chart.getSubtitles();
+		// subtitles.add(new TextTitle(confIntSubtitle));
+		// chart.setSubtitles(subtitles);
 
 		this.timeElementsInBinSettingPane = timeElementsInBinSettingPane;
 
@@ -213,7 +215,7 @@ public class ObservationAndMeanPlotPane extends
 							message.getObservation().getJD());
 					chart.getXYPlot().setRangeCrosshairValue(
 							message.getObservation().getMag());
-					
+
 					updateSelectionFromObservation(message.getObservation());
 				}
 			}
@@ -259,22 +261,24 @@ public class ObservationAndMeanPlotPane extends
 
 				switch (msg.getPanType()) {
 				case LEFT:
-					if (plot.getDomainAxis().getLowerBound() >= obs
-							.get(0).getJD()) {
+					if (plot.getDomainAxis().getLowerBound() >= obs.get(0)
+							.getJD()) {
 						plot.panDomainAxes(-percentage, plotInfo, source);
 					} else {
 						if (newStarMsg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-							// TODO: ask whether to read more AID data before last JD
+							// TODO: ask whether to read more AID data before
+							// last JD
 						}
 					}
 					break;
 				case RIGHT:
-					if (plot.getDomainAxis().getUpperBound() <= obs
-							.get(obs.size()-1).getJD()) {
+					if (plot.getDomainAxis().getUpperBound() <= obs.get(
+							obs.size() - 1).getJD()) {
 						plot.panDomainAxes(percentage, plotInfo, source);
 					} else {
 						if (newStarMsg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-							// TODO: ask whether to read more AID data after last JD
+							// TODO: ask whether to read more AID data after
+							// last JD
 						}
 					}
 					break;
@@ -321,7 +325,7 @@ public class ObservationAndMeanPlotPane extends
 
 		// Remove old ANOVA sub-title.
 		int removalIndex = -1;
-		
+
 		if (subtitles.size() > 1) {
 			for (int i = 0; i < subtitles.size(); i++) {
 				Title subTitle = subtitles.get(i);
@@ -359,13 +363,15 @@ public class ObservationAndMeanPlotPane extends
 			if (binningResult.getPValue() < 0.000001) {
 				pValueStr = "p-value: < 0.000001";
 			} else {
-				pValueStr = String.format("p-value: %1.6f", binningResult
+				pValueStr = String.format("p-value: "
+						+ NumericPrefs.getOtherOutputFormat(), binningResult
 						.getPValue());
 			}
 
 			msg = String.format(
 
-			"F-value: %2.2f on %d and %d degrees of freedom, %s", binningResult
+			"F-value: " + NumericPrefs.getOtherOutputFormat()
+					+ " on %d and %d degrees of freedom, %s", binningResult
 					.getFValue(), binningResult.getBetweenGroupDF(),
 					binningResult.getWithinGroupDF(), pValueStr);
 		} else {

@@ -20,13 +20,15 @@ package org.aavso.tools.vstar.ui.model.list;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 
 /**
  * This class is a table model for mean observation data derived from raw data.
- *  
+ * 
  * The model is notified of wholesale mean data change.
  */
-public class RawDataMeanObservationTableModel extends AbstractMeanObservationTableModel {
+public class RawDataMeanObservationTableModel extends
+		AbstractMeanObservationTableModel {
 
 	private static final int JD_COLUMN = 0;
 	private static final int CALDATE_COLUMN = 1;
@@ -39,7 +41,7 @@ public class RawDataMeanObservationTableModel extends AbstractMeanObservationTab
 	 * Constructor.
 	 * 
 	 * @param meanObsData
-	 *            The mean initial observation data. The mean data can be 
+	 *            The mean initial observation data. The mean data can be
 	 *            updated later via this class's listener interface.
 	 */
 	public RawDataMeanObservationTableModel(List<ValidObservation> meanObsData) {
@@ -87,7 +89,8 @@ public class RawDataMeanObservationTableModel extends AbstractMeanObservationTab
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel#getValueAt(int, int)
+	 * @see org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel#getValueAt(int,
+	 *      int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		assert columnIndex < COLUMN_COUNT;
@@ -98,18 +101,21 @@ public class RawDataMeanObservationTableModel extends AbstractMeanObservationTab
 
 		switch (columnIndex) {
 		case JD_COLUMN:
-			value = String.format("%1.4f", ob.getDateInfo().getJulianDay());
+			value = String.format(NumericPrefs.getTimeOutputFormat(), ob
+					.getDateInfo().getJulianDay());
 			break;
 		case CALDATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MEAN_COLUMN:
 			// The mean magnitude.
-			value = String.format("%1.4f", ob.getMagnitude().getMagValue());
+			value = String.format(NumericPrefs.getMagOutputFormat(), ob
+					.getMagnitude().getMagValue());
 			break;
 		case STDERR_COLUMN:
 			// The standard error of the average.
-			value =  String.format("%1.4f", ob.getMagnitude().getUncertainty());
+			value = String.format(NumericPrefs.getMagOutputFormat(), ob
+					.getMagnitude().getUncertainty());
 			break;
 		}
 
