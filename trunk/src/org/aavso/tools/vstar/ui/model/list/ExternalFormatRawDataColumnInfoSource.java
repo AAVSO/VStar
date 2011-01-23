@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.model.list;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 
 /**
  * External raw data format table column information source, associated with
@@ -105,13 +106,14 @@ public class ExternalFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			value = ob.getDateInfo().getJulianDay() + "";
+			value = String.format(NumericPrefs.getTimeOutputFormat(), ob
+					.getDateInfo().getJulianDay());
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MAGNITUDE_COLUMN:
-			value = ob.getMagnitude().toString();
+			value = ob.getMagnitude();
 			break;
 		case BAND_COLUMN:
 			value = ob.getBand() == null ? "" : ob.getBand().getDescription();

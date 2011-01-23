@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 
 /**
  * This class represents a model for a period analysis top-hits table (e.g.
@@ -85,7 +86,7 @@ public class PeriodAnalysisTopHitsTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
-		// column = coordinate type (freq, period, power, ampl)
+		// column: coordinate type (freq, period, power, ampl)
 		return this.data.keySet().size();
 	}
 
@@ -115,19 +116,19 @@ public class PeriodAnalysisTopHitsTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		// column = coordinate type (freq, period, power, ampl)
-		// row = within the table; we need to convert this supplied index
+		// column: coordinate type (freq, period, power, ampl)
+		// row: within the table; we need to convert this supplied index
 		// (table-wise)
 		// to the index of the value within the chosen coordinate's list
 
 		// TODO: rather than a double[][] here, we should probably use a class
 		// since the second element is actually an integer!
 		int n = (int) this.topRankedIndexPairs[rowIndex][1]; // 1 = index into
-																// data lists
+		// data lists
 
 		PeriodAnalysisCoordinateType columnType = columnTypes[columnIndex];
 		double val = data.get(columnType).get(n);
 
-		return String.format("%10.8f", val);
+		return String.format(NumericPrefs.getOtherOutputFormat(), val);
 	}
 }

@@ -36,9 +36,10 @@ import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
-import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
+import org.aavso.tools.vstar.util.locale.NumberParser;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 
 /**
  * This dialog allows the user to select a star.
@@ -142,7 +143,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		panel.setBorder(BorderFactory.createTitledBorder("Minimum JD"));
 
 		double jd = dateUtil.calendarToJD(year - 2, month, day);
-		minJDField = new JTextField(jd + "");
+		minJDField = new JTextField(String.format(NumericPrefs.getTimeOutputFormat(), jd));
 		minJDField.addActionListener(createMinJDFieldActionListener());
 		minJDField.addFocusListener(createMinJDFieldFocusListener());
 		minJDField.setToolTipText(dateUtil.jdToCalendar(jd));
@@ -157,7 +158,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		panel.setBorder(BorderFactory.createTitledBorder("Maximum JD"));
 
 		double jd = dateUtil.calendarToJD(year, month, day);
-		maxJDField = new JTextField(jd + "");
+		maxJDField = new JTextField(String.format(NumericPrefs.getTimeOutputFormat(), jd));
 		maxJDField.addActionListener(createMaxJDFieldActionListener());
 		maxJDField.addFocusListener(createMaxJDFieldFocusListener());
 		maxJDField.setToolTipText(dateUtil.jdToCalendar(jd));
@@ -299,19 +300,19 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		if (!wantAllData) {
 			// Valid Julian Date range?
 			try {
-				String minJDText = minJDField.getText().trim();
-				minDate = jdValidator.validate(minJDText);
-			} catch (ObservationValidationError ex) {
+				String minJDText = minJDField.getText();
+				minDate = new DateInfo(NumberParser.parseDouble(minJDText));
+			} catch (NumberFormatException e) {
 				MessageBox.showErrorDialog(MainFrame.getInstance(),
-						"Minimum Julian Day", ex);
+						"Minimum Julian Day", e);
 			}
 
 			try {
-				String maxJDText = maxJDField.getText().trim();
-				maxDate = jdValidator.validate(maxJDText);
-			} catch (ObservationValidationError ex) {
+				String maxJDText = maxJDField.getText();
+				maxDate = new DateInfo(NumberParser.parseDouble(maxJDText));
+			} catch (NumberFormatException e) {
 				MessageBox.showErrorDialog(MainFrame.getInstance(),
-						"Maximum Julian Day", ex);
+						"Maximum Julian Day", e);
 			}
 		}
 

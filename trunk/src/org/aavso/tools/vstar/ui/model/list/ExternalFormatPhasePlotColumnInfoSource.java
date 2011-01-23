@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.model.list;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 
 /**
  * External format phase plot table column information source, associated with
@@ -77,7 +78,7 @@ public class ExternalFormatPhasePlotColumnInfoSource extends
 
 		switch (index) {
 		case PHASE_COLUMN:
-			value = String.format("%1.3f", ob.getStandardPhase());
+			value = String.format(NumericPrefs.getTimeOutputFormat(), ob.getStandardPhase());
 			break;
 		default:
 			value = super.getTableColumnValue(index - 1, ob);

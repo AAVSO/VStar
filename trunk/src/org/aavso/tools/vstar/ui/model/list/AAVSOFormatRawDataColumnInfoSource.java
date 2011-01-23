@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.model.list;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 
 /**
  * AAVSO format (file, database) raw data table column information source.
@@ -191,7 +192,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			clazz = Boolean.class;
 			break;
 		case LINE_NUM_COLUMN:
-			clazz = Integer.class;			
+			clazz = Integer.class;
 			break;
 		}
 
@@ -203,13 +204,15 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			value = ob.getDateInfo().getJulianDay() + "";
+			value = String.format(NumericPrefs.getTimeOutputFormat(), ob
+					.getDateInfo().getJulianDay());
+			;
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MAGNITUDE_COLUMN:
-			value = ob.getMagnitude().toString();
+			value = ob.getMagnitude();
 			break;
 		case BAND_COLUMN:
 			value = ob.getBand().getDescription();
@@ -248,7 +251,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getKMag();
 			break;
 		case HJD_COLUMN:
-			value = ob.getHJD() == null ? "" : ob.getHJD().toString();
+			value = ob.getHJD() == null ? "" : String.format(NumericPrefs
+					.getTimeOutputFormat(), ob.getHJD());
 			break;
 		case NAME_COLUMN:
 			value = ob.getName();
@@ -256,7 +260,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case HQ_UNCERTAINTY_COLUMN:
 			Double hqUncertainty = ob.getHqUncertainty();
 			value = null == hqUncertainty || "".equals(hqUncertainty) ? ""
-					: String.format("%1.2f", ob.getHqUncertainty());
+					: String.format(NumericPrefs.getMagOutputFormat(), ob
+							.getHqUncertainty());
 			break;
 		case MTYPE_COLUMN:
 			value = ob.getMType().toString();

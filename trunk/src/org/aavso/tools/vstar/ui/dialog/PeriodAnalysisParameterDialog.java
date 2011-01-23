@@ -28,6 +28,7 @@ import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.util.locale.NumberParser;
+import org.aavso.tools.vstar.util.prefs.NumericPrefs;
 
 /**
  * This modal dialog class allows period analysis parameters to be entered.
@@ -71,7 +72,7 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-		loFreqField = new JTextField(String.format("%1.6f", loFreq));
+		loFreqField = new JTextField(String.format(NumericPrefs.getOtherOutputFormat(), loFreq));
 		loFreqField
 				.setBorder(BorderFactory.createTitledBorder("Low Frequency"));
 		loFreqField.setToolTipText("Enter low frequency for scan");
@@ -79,7 +80,7 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 		
 		panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
-		hiFreqField = new JTextField(String.format("%1.6f", hiFreq));
+		hiFreqField = new JTextField(String.format(NumericPrefs.getOtherOutputFormat(), hiFreq));
 		hiFreqField.setBorder(BorderFactory
 				.createTitledBorder("High Frequency"));
 		hiFreqField.setToolTipText("Enter high frequency for scan");
@@ -87,7 +88,7 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 		
 		panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
-		resolutionField = new JTextField(String.format("%1.6f", resolution));
+		resolutionField = new JTextField(String.format(NumericPrefs.getOtherOutputFormat(), resolution));
 		resolutionField.setBorder(BorderFactory
 				.createTitledBorder("Resolution"));
 		resolutionField.setToolTipText("Enter resolution for scan");
