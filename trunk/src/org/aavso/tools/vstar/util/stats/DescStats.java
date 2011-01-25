@@ -197,10 +197,12 @@ public class DescStats {
 			magStdErrOfMean = 0;
 		}
 
-		// Create the mean observation.
+		// Create the mean observation, using an arbitrary observation
+		// to obtain the object name.
 		ValidObservation observation = new ValidObservation();
 		observation.setMagnitude(new Magnitude(magMean, magStdErrOfMean));
 		observation.setBand(SeriesType.MEANS);
+		observation.setName(observations.get(0).getName());
 		timeElementEntity.setTimeElement(observation, timeMean);
 
 		// If bin data array contains only one element, we replace this
