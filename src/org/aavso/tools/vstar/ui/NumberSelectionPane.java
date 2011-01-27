@@ -49,18 +49,20 @@ public class NumberSelectionPane extends JPanel {
 	 *            The increment over the range.
 	 * @param initial
 	 *            The initial value in the range.
+	 * @param inputFormat
+	 *            The input format to be used in the number spinner.
 	 */
 	public NumberSelectionPane(String title, double min, double max,
-			double increment, double initial) {
+			double increment, double initial, String inputFormat) {
 
 		value = initial;
 
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder(title));
-				
+
 		spinnerModel = new SpinnerNumberModel(initial, min, max, increment);
 		spinner = new JSpinner(spinnerModel);
-		spinner.setEditor(new JSpinner.NumberEditor(spinner, "#.#######"));
+		spinner.setEditor(new JSpinner.NumberEditor(spinner, inputFormat));
 
 		if (max < min) {
 			throw new IllegalArgumentException(String.format(
@@ -73,7 +75,7 @@ public class NumberSelectionPane extends JPanel {
 							min, max));
 		}
 
-		if (increment > (max-min)) {
+		if (increment > (max - min)) {
 			throw new IllegalArgumentException(String.format(
 					"Increment (%f) does not make sense for range %f..%f",
 					increment, min, max));

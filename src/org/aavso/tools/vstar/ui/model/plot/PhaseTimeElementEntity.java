@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.model.plot;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * A phase element source/sink.
@@ -68,6 +69,8 @@ public class PhaseTimeElementEntity implements ITimeElementEntity {
 	}
 
 	public String getNumberFormat() {
+		// TODO: once we have plot control dialog, not sure we need this
 		return "  #.####";
+		//return NumericPrefs.getTimeInputFormat();
 	}
 }

@@ -18,7 +18,7 @@
 package org.aavso.tools.vstar.ui.model.list;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.prefs.NumericPrefs;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * AAVSO format (file, database) raw data table column information source.
@@ -204,7 +204,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			value = String.format(NumericPrefs.getTimeOutputFormat(), ob
+			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
 					.getDateInfo().getJulianDay());
 			;
 			break;
@@ -251,7 +251,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getKMag();
 			break;
 		case HJD_COLUMN:
-			value = ob.getHJD() == null ? "" : String.format(NumericPrefs
+			value = ob.getHJD() == null ? "" : String.format(NumericPrecisionPrefs
 					.getTimeOutputFormat(), ob.getHJD());
 			break;
 		case NAME_COLUMN:
@@ -260,7 +260,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case HQ_UNCERTAINTY_COLUMN:
 			Double hqUncertainty = ob.getHqUncertainty();
 			value = null == hqUncertainty || "".equals(hqUncertainty) ? ""
-					: String.format(NumericPrefs.getMagOutputFormat(), ob
+					: String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
 							.getHqUncertainty());
 			break;
 		case MTYPE_COLUMN:

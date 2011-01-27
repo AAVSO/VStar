@@ -47,6 +47,7 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.NumberSelectionPane;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * A FITS file observation source plug-in that uses the Topcat FITS library.
@@ -167,7 +168,8 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 						} catch (Exception e) {
 							String input = tableHDU.getRow(row).toString();
 							String error = e.getLocalizedMessage();
-							InvalidObservation ob = new InvalidObservation(input, error);
+							InvalidObservation ob = new InvalidObservation(
+									input, error);
 							ob.setRecordNumber(row);
 							addInvalidObservation(ob);
 						}
@@ -186,8 +188,8 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 			double magErrThreshold;
 			magErrThreshold = (maxMagErr + minMagErr) / 2;
 
-			double magErrIncrement = (maxMagErr - minMagErr) / 100; 
-						
+			double magErrIncrement = (maxMagErr - minMagErr) / 100;
+
 			MagErrorSelectionDialog magErrThresholdDialog = new MagErrorSelectionDialog(
 					minMagErr, maxMagErr, magErrIncrement, magErrThreshold);
 
@@ -224,7 +226,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 
 			magErrorSelector = new NumberSelectionPane(
 					"Select Maximum Magnitude Error", min, max, increment,
-					initial);
+					initial, NumericPrecisionPrefs.getMagInputFormat());
 
 			topPane.add(magErrorSelector);
 

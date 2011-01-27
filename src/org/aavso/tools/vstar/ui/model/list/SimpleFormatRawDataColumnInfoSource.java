@@ -18,7 +18,7 @@
 package org.aavso.tools.vstar.ui.model.list;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.prefs.NumericPrefs;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * Simple file format raw data table column information source.
@@ -102,7 +102,7 @@ public class SimpleFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			value = String.format(NumericPrefs.getTimeOutputFormat(), ob
+			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
 					.getDateInfo().getJulianDay());
 			break;
 		case CALENDAR_DATE_COLUMN:

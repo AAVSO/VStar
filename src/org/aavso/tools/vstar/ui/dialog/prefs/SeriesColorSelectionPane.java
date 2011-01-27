@@ -42,7 +42,8 @@ import org.aavso.tools.vstar.data.SeriesType;
 /**
  * Series color selection panel.
  */
-public class SeriesColorSelectionPane extends JPanel {
+public class SeriesColorSelectionPane extends JPanel implements
+		IPreferenceComponent {
 
 	private JComboBox seriesSelector;
 	private JColorChooser colorChooser;
@@ -121,7 +122,8 @@ public class SeriesColorSelectionPane extends JPanel {
 				// value of the selected series is.
 				String seriesDesc = (String) seriesSelector.getSelectedItem();
 				currentSeries = SeriesType.getSeriesFromDescription(seriesDesc);
-				colorChooser.setColor(SeriesType.getColorFromSeries(currentSeries));
+				colorChooser.setColor(SeriesType
+						.getColorFromSeries(currentSeries));
 			}
 		};
 	}
@@ -157,7 +159,7 @@ public class SeriesColorSelectionPane extends JPanel {
 	private ActionListener createApplyButtonActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateSeriesColors();
+				update();
 			}
 		};
 	}
@@ -165,7 +167,8 @@ public class SeriesColorSelectionPane extends JPanel {
 	/**
 	 * Updates the global series colors.
 	 */
-	public void updateSeriesColors() {
+	@Override
+	public void update() {
 		if (!changedSeriesColorMap.isEmpty()) {
 			// Apply the changed color map to SeriesType and notify
 			// listeners.
@@ -177,6 +180,7 @@ public class SeriesColorSelectionPane extends JPanel {
 	/**
 	 * Prepare this pane for use by resetting whatever needs to be.
 	 */
+	@Override
 	public void reset() {
 		// Ensure that the selected color matches SeriesType. This is
 		// important if the last time the parent dialog was dismissed

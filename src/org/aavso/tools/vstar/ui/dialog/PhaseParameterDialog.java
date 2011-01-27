@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.prefs.NumericPrefs;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.epoch.AlphaOmegaMeanJDEpochStrategy;
 import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
 
@@ -200,7 +200,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	 *            the period to set
 	 */
 	public void setPeriodField(double period) {
-		this.periodField.setText(String.format(NumericPrefs
+		this.periodField.setText(String.format(NumericPrecisionPrefs
 				.getOtherOutputFormat(), period));
 	}
 
@@ -211,7 +211,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	 *            the epoch to set
 	 */
 	public void setEpochField(double epoch) {
-		this.epochField.setText(String.format(NumericPrefs
+		this.epochField.setText(String.format(NumericPrecisionPrefs
 				.getTimeOutputFormat(), epoch));
 	}
 
@@ -237,7 +237,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 				this.period = 0;
 			} else {
 				// Use the supplied period to set the period field.
-				this.periodField.setText(String.format(NumericPrefs
+				this.periodField.setText(String.format(NumericPrecisionPrefs
 						.getOtherOutputFormat(), period));
 				this.periodField.setToolTipText("Period in days");
 				this.period = period;
@@ -248,12 +248,12 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 				// set the epoch field.
 				this.epoch = this.epochStrategy.determineEpoch(msg
 						.getObservations());
-				this.epochField.setText(String.format(NumericPrefs
+				this.epochField.setText(String.format(NumericPrecisionPrefs
 						.getTimeOutputFormat(), this.epoch));
 				this.epochField.setToolTipText(epochStrategy.getDescription());
 			} else {
 				// Use the supplied epoch to set the epoch field.
-				this.epochField.setText(String.format(NumericPrefs
+				this.epochField.setText(String.format(NumericPrecisionPrefs
 						.getTimeOutputFormat(), epoch));
 				this.epochField.setToolTipText("Epoch as HJD");
 				this.epoch = epoch;
@@ -267,7 +267,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 			// Use the epoch strategy to set the epoch field.
 			this.epoch = this.epochStrategy.determineEpoch(msg
 					.getObservations());
-			this.epochField.setText(String.format(NumericPrefs
+			this.epochField.setText(String.format(NumericPrecisionPrefs
 					.getTimeOutputFormat(), this.epoch));
 			this.epochField.setToolTipText(epochStrategy.getDescription());
 		}

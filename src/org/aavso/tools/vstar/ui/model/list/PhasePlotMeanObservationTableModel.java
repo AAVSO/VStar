@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.ui.model.list;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.prefs.NumericPrefs;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This class is a table model for mean observation data derived from phase plot
@@ -98,21 +98,21 @@ public class PhasePlotMeanObservationTableModel extends
 		switch (columnIndex) {
 		case PHASE_COLUMN:
 			if (rowIndex < meanObsData.size() / 2) {
-				value = String.format(NumericPrefs.getTimeOutputFormat(), ob
+				value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
 						.getPreviousCyclePhase());
 			} else {
-				value = String.format(NumericPrefs.getTimeOutputFormat(), ob
+				value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
 						.getStandardPhase());
 			}
 			break;
 		case MEAN_COLUMN:
 			// The mean magnitude.
-			value = String.format(NumericPrefs.getMagOutputFormat(), ob
+			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
 					.getMagnitude().getMagValue());
 			break;
 		case STDERR_COLUMN:
 			// The standard error of the average.
-			value = String.format(NumericPrefs.getMagOutputFormat(), ob
+			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
 					.getMagnitude().getUncertainty());
 			break;
 		}

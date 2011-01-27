@@ -23,7 +23,7 @@ import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
-import org.aavso.tools.vstar.util.prefs.NumericPrefs;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This class represents a model for a period analysis table.
@@ -89,7 +89,7 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 		PeriodAnalysisCoordinateType columnType = columnTypes[columnIndex];
 		double val = data.get(columnType).get(rowIndex);
 
-		return String.format(NumericPrefs.getOtherOutputFormat(), val);
+		return String.format(NumericPrecisionPrefs.getOtherOutputFormat(), val);
 	}
 
 	/**

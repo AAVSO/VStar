@@ -39,7 +39,7 @@ import org.aavso.tools.vstar.data.validation.JulianDayValidator;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.aavso.tools.vstar.util.locale.NumberParser;
-import org.aavso.tools.vstar.util.prefs.NumericPrefs;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This dialog allows the user to select a star.
@@ -143,7 +143,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		panel.setBorder(BorderFactory.createTitledBorder("Minimum JD"));
 
 		double jd = dateUtil.calendarToJD(year - 2, month, day);
-		minJDField = new JTextField(String.format(NumericPrefs.getTimeOutputFormat(), jd));
+		minJDField = new JTextField(String.format(NumericPrecisionPrefs.getTimeOutputFormat(), jd));
 		minJDField.addActionListener(createMinJDFieldActionListener());
 		minJDField.addFocusListener(createMinJDFieldFocusListener());
 		minJDField.setToolTipText(dateUtil.jdToCalendar(jd));
@@ -158,7 +158,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		panel.setBorder(BorderFactory.createTitledBorder("Maximum JD"));
 
 		double jd = dateUtil.calendarToJD(year, month, day);
-		maxJDField = new JTextField(String.format(NumericPrefs.getTimeOutputFormat(), jd));
+		maxJDField = new JTextField(String.format(NumericPrecisionPrefs.getTimeOutputFormat(), jd));
 		maxJDField.addActionListener(createMaxJDFieldActionListener());
 		maxJDField.addFocusListener(createMaxJDFieldFocusListener());
 		maxJDField.setToolTipText(dateUtil.jdToCalendar(jd));
