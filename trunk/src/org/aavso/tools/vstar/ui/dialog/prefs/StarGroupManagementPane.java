@@ -40,7 +40,8 @@ import org.aavso.tools.vstar.ui.resources.StarGroups;
 /**
  * This is a preferences pane for managing star groups.
  */
-public class StarGroupManagementPane extends JPanel {
+public class StarGroupManagementPane extends JPanel implements
+		IPreferenceComponent {
 
 	private final static String DEFAULT_GROUP_ERROR_MSG_FMT = "Cannot change '%s' group";
 
@@ -52,7 +53,7 @@ public class StarGroupManagementPane extends JPanel {
 	private NewGroupDialog newGroupDialog;
 	private NewStarDialog newStarDialog;
 	private NewGroupWithStarsDialog newGroupWithStarsDialog;
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -81,7 +82,7 @@ public class StarGroupManagementPane extends JPanel {
 		topPane.add(createClearButtonPane());
 		topPane.add(Box.createRigidArea(new Dimension(20, 20)));
 		topPane.add(createApplyButtonPane());
-		
+
 		this.add(topPane);
 	}
 
@@ -145,7 +146,7 @@ public class StarGroupManagementPane extends JPanel {
 
 		return panel;
 	}
-	
+
 	// Create add-star-group button listener.
 	private ActionListener createAddGroupButtonActionListener() {
 		return new ActionListener() {
@@ -193,7 +194,7 @@ public class StarGroupManagementPane extends JPanel {
 				} else {
 					newStarDialog.showDialog();
 					String newStar = newStarDialog.getStarName();
-					
+
 					if (starGroups.doesStarExistInGroup(groupName, newStar)) {
 						error(String.format(
 								"The star '%s' exists in the group '%s'.",
@@ -263,20 +264,26 @@ public class StarGroupManagementPane extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				starGroupSelectionPane.resetGroups();
 			}
-		};		
+		};
 	}
-	
+
 	// Create apply button listener.
 	private ActionListener createApplyButtonActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateStarGroups();
+				update();
 			}
 		};
 	}
 
-	public void updateStarGroups() {
+	@Override
+	public void update() {
 		starGroups.storeStarGroupPrefs();
+	}
+
+	@Override
+	public void reset() {
+		// Nothing to do.
 	}
 
 	// Helpers
@@ -295,9 +302,10 @@ public class StarGroupManagementPane extends JPanel {
 	 */
 	public String retrieveAUID(String starName) {
 		String auid = null;
-		
-		try {			
-			getParent().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+		try {
+			getParent().setCursor(
+					Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
 			Connection vsxConnection = vsxConnector.createConnection();

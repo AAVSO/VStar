@@ -99,6 +99,7 @@ public class TimeElementsInBinSettingPane extends JPanel {
 		// Tweak the size of the component to be suitable independent of
 		// max size. The BoxLayout matters here. Layout Managers usage
 		// sometimes requires a lot of experimentation.
+		// TODO: this can go away once this is in a plot control dialog!
 		int spinnerWidth = 50;
 		int spinnerHeight = 30;
 		timeElementsInBinSpinner.setMaximumSize(new Dimension(spinnerWidth,

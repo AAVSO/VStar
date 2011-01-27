@@ -40,7 +40,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.prefs.NumericPrefs;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
@@ -364,13 +364,13 @@ public class ObservationAndMeanPlotPane extends
 				pValueStr = "p-value: < 0.000001";
 			} else {
 				pValueStr = String.format("p-value: "
-						+ NumericPrefs.getOtherOutputFormat(), binningResult
+						+ NumericPrecisionPrefs.getOtherOutputFormat(), binningResult
 						.getPValue());
 			}
 
 			msg = String.format(
 
-			"F-value: " + NumericPrefs.getOtherOutputFormat()
+			"F-value: " + NumericPrecisionPrefs.getOtherOutputFormat()
 					+ " on %d and %d degrees of freedom, %s", binningResult
 					.getFValue(), binningResult.getBetweenGroupDF(),
 					binningResult.getWithinGroupDF(), pValueStr);

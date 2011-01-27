@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.ui.model.list;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.prefs.NumericPrefs;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This class is a table model for mean observation data derived from raw data.
@@ -101,7 +101,7 @@ public class RawDataMeanObservationTableModel extends
 
 		switch (columnIndex) {
 		case JD_COLUMN:
-			value = String.format(NumericPrefs.getTimeOutputFormat(), ob
+			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
 					.getDateInfo().getJulianDay());
 			break;
 		case CALDATE_COLUMN:
@@ -109,12 +109,12 @@ public class RawDataMeanObservationTableModel extends
 			break;
 		case MEAN_COLUMN:
 			// The mean magnitude.
-			value = String.format(NumericPrefs.getMagOutputFormat(), ob
+			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
 					.getMagnitude().getMagValue());
 			break;
 		case STDERR_COLUMN:
 			// The standard error of the average.
-			value = String.format(NumericPrefs.getMagOutputFormat(), ob
+			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
 					.getMagnitude().getUncertainty());
 			break;
 		}

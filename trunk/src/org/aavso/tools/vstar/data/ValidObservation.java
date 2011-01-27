@@ -19,7 +19,7 @@ package org.aavso.tools.vstar.data;
 
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.util.prefs.NumericPrefs;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * <p>This class corresponds to a single valid variable star observation. Depending
@@ -421,7 +421,7 @@ public class ValidObservation extends Observation {
 			if (this.band != SeriesType.MEANS) {
 				strBuf.append(dateInfo.getJulianDay());
 			} else {
-				strBuf.append(String.format(NumericPrefs.getTimeOutputFormat(), dateInfo.getJulianDay()));
+				strBuf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(), dateInfo.getJulianDay()));
 			}
 			strBuf.append("\n");
 
@@ -435,13 +435,13 @@ public class ValidObservation extends Observation {
 		if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
 			if (standardPhase != null) {
 				strBuf.append("Standard Phase: ");
-				strBuf.append(String.format(NumericPrefs.getTimeOutputFormat(), standardPhase));
+				strBuf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(), standardPhase));
 				strBuf.append("\n");
 			}
 
 			if (previousCyclePhase != null) {
 				strBuf.append("Previous Cycle Phase: ");
-				strBuf.append(String.format(NumericPrefs.getTimeOutputFormat(), previousCyclePhase));
+				strBuf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(), previousCyclePhase));
 				strBuf.append("\n");
 			}
 		}
@@ -450,7 +450,7 @@ public class ValidObservation extends Observation {
 		if (this.band != SeriesType.MEANS) {
 			strBuf.append(magnitude);
 		} else {
-			strBuf.append(magnitude.toFormattedString(NumericPrefs.getMagOutputFormat()));
+			strBuf.append(magnitude.toFormattedString(NumericPrecisionPrefs.getMagOutputFormat()));
 		}
 		strBuf.append("\n");
 

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * A Julian Date element source/sink.
@@ -48,6 +49,8 @@ public class JDTimeElementEntity implements ITimeElementEntity {
 	}
 	
 	public String getNumberFormat() {
+		// TODO: once we have plot control dialog, not sure we need this		
 		return "#####.####";
+		//return NumericPrefs.getTimeInputFormat();
 	}
 }
