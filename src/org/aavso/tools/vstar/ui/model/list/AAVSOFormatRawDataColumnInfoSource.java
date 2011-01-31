@@ -252,13 +252,14 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case HJD_COLUMN:
 			value = ob.getHJD() == null ? "" : String.format(NumericPrecisionPrefs
-					.getTimeOutputFormat(), ob.getHJD());
+					.getTimeOutputFormat(), ob.getHJD().getJulianDay());
 			break;
 		case NAME_COLUMN:
 			value = ob.getName();
 			break;
 		case HQ_UNCERTAINTY_COLUMN:
 			Double hqUncertainty = ob.getHqUncertainty();
+			// TODO: why the empty string equality?; the value has type Double!
 			value = null == hqUncertainty || "".equals(hqUncertainty) ? ""
 					: String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
 							.getHqUncertainty());

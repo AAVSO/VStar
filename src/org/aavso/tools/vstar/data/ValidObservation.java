@@ -22,21 +22,31 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * <p>This class corresponds to a single valid variable star observation. Depending
+ * <p>
+ * This class corresponds to a single valid variable star observation. Depending
  * upon the source, some fields may be null. Some are not permitted to be null
- * however and these are documented below.</p>
+ * however and these are documented below.
+ * </p>
  * 
- * <p>For reference, here are the fields in the order they appear in the AAVSO
- * download format:</p>
+ * <p>
+ * For reference, here are the fields in the order they appear in the AAVSO
+ * download format:
+ * </p>
  * 
- * <p>JD(0), MAGNITUDE(1), UNCERTAINTY(2), HQ_UNCERTAINTY(3), BAND(4),
+ * <p>
+ * JD(0), MAGNITUDE(1), UNCERTAINTY(2), HQ_UNCERTAINTY(3), BAND(4),
  * OBSERVER_CODE(5), COMMENT_CODE(6), COMP_STAR_1(7), COMP_STAR_2(8), CHARTS(9),
  * COMMENTS(10), TRANSFORMED(11), AIRMASS(12), VALFLAG(13), CMAG(14), KMAG(15),
- * HJD(16), NAME(17), AFFILIATION(18), MTYPE(19), GROUP(20)</p>
+ * HJD(16), NAME(17), AFFILIATION(18), MTYPE(19), GROUP(20)
+ * </p>
  * 
- * <p>The simple format file has these fields:</p>
+ * <p>
+ * The simple format file has these fields:
+ * </p>
  * 
- * <p>JD MAGNITUDE [UNCERTAINTY] [OBSERVER_CODE] [VALFLAG]</p>
+ * <p>
+ * JD MAGNITUDE [UNCERTAINTY] [OBSERVER_CODE] [VALFLAG]
+ * </p>
  */
 public class ValidObservation extends Observation {
 
@@ -324,9 +334,9 @@ public class ValidObservation extends Observation {
 	 *            the cMag to set
 	 */
 	public void setCMag(String cMag) {
-		if ("0.ensemb".equals(cMag)){
+		if ("0.ensemb".equals(cMag)) {
 			this.cMag = "Ensemble";
-		}else{
+		} else {
 			this.cMag = cMag;
 		}
 	}
@@ -418,11 +428,8 @@ public class ValidObservation extends Observation {
 
 		if (dateInfo != null) {
 			strBuf.append("Julian Date: ");
-			if (this.band != SeriesType.MEANS) {
-				strBuf.append(dateInfo.getJulianDay());
-			} else {
-				strBuf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(), dateInfo.getJulianDay()));
-			}
+			strBuf.append(String.format(NumericPrecisionPrefs
+					.getTimeOutputFormat(), dateInfo.getJulianDay()));
 			strBuf.append("\n");
 
 			strBuf.append("Calendar Date: ");
@@ -430,28 +437,26 @@ public class ValidObservation extends Observation {
 			strBuf.append("\n");
 		}
 
-		// If we are not in phase plot mode, we should not represent ourselves as
-		// having a phase.
+		// If we are not in phase plot mode, we should not represent ourselves
+		// as having a phase.
 		if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
 			if (standardPhase != null) {
 				strBuf.append("Standard Phase: ");
-				strBuf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(), standardPhase));
+				strBuf.append(String.format(NumericPrecisionPrefs
+						.getTimeOutputFormat(), standardPhase));
 				strBuf.append("\n");
 			}
 
 			if (previousCyclePhase != null) {
 				strBuf.append("Previous Cycle Phase: ");
-				strBuf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(), previousCyclePhase));
+				strBuf.append(String.format(NumericPrecisionPrefs
+						.getTimeOutputFormat(), previousCyclePhase));
 				strBuf.append("\n");
 			}
 		}
 
 		strBuf.append("Magnitude: ");
-		if (this.band != SeriesType.MEANS) {
-			strBuf.append(magnitude);
-		} else {
-			strBuf.append(magnitude.toFormattedString(NumericPrecisionPrefs.getMagOutputFormat()));
-		}
+		strBuf.append(magnitude.toString());
 		strBuf.append("\n");
 
 		if (validationType != null) {
@@ -462,7 +467,8 @@ public class ValidObservation extends Observation {
 
 		if (hqUncertainty != null) {
 			strBuf.append("HQ Uncertainty: ");
-			strBuf.append(hqUncertainty);
+			strBuf.append(String.format(NumericPrecisionPrefs
+					.getMagOutputFormat(), hqUncertainty));
 			strBuf.append("\n");
 		}
 
@@ -530,7 +536,8 @@ public class ValidObservation extends Observation {
 
 		if (hJD != null) {
 			strBuf.append("Heliocentric Julian Day: ");
-			strBuf.append(hJD);
+			strBuf.append(String.format(NumericPrecisionPrefs
+					.getTimeOutputFormat(), hJD.getJulianDay()));
 			strBuf.append("\n");
 		}
 
@@ -546,16 +553,20 @@ public class ValidObservation extends Observation {
 	public String toSimpleFormatString() {
 		StringBuffer buf = new StringBuffer();
 
-		buf.append(this.getDateInfo().getJulianDay());
+		buf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
+				this.getDateInfo().getJulianDay()));
 		buf.append("\t");
 
 		buf.append(this.getMagnitude().isFainterThan() ? "<" : "");
-		buf.append(this.getMagnitude().getMagValue());
+		buf.append(String.format(NumericPrecisionPrefs.getMagOutputFormat(),
+				this.getMagnitude().getMagValue()));
 		buf.append("\t");
 
 		double uncertainty = this.getMagnitude().getUncertainty();
+		// TODO: why != here and > in next method?
 		if (uncertainty != 0.0) {
-			buf.append(uncertainty);
+			buf.append(String.format(
+					NumericPrecisionPrefs.getMagOutputFormat(), uncertainty));
 		}
 		buf.append("\t");
 
@@ -578,23 +589,27 @@ public class ValidObservation extends Observation {
 	public String toAAVSOFormatString() {
 		StringBuffer buf = new StringBuffer();
 
-		buf.append(this.getDateInfo().getJulianDay());
+		buf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
+				this.getDateInfo().getJulianDay()));
 		buf.append("\t");
 
 		buf.append(this.getMagnitude().isFainterThan() ? "<" : "");
-		buf.append(this.getMagnitude().getMagValue());
+		buf.append(String.format(NumericPrecisionPrefs.getMagOutputFormat(),
+				this.getMagnitude().getMagValue()));
 		buf.append("\t");
 
 		double uncertainty = this.getMagnitude().getUncertainty();
 		if (uncertainty > 0.0) {
-			buf.append(uncertainty);
+			buf.append(String.format(
+					NumericPrecisionPrefs.getMagOutputFormat(), uncertainty));
 		}
 		buf.append("\t");
 
 		if (this.getHqUncertainty() != null) {
 			double hqUncertainty = this.getHqUncertainty();
 			if (hqUncertainty > 0.0) {
-				buf.append(hqUncertainty);
+				buf.append(String.format(NumericPrecisionPrefs
+						.getMagOutputFormat(), hqUncertainty));
 			}
 		}
 		buf.append("\t");
@@ -656,7 +671,8 @@ public class ValidObservation extends Observation {
 		buf.append("\t");
 
 		if (this.getHJD() != null) {
-			buf.append(this.getHJD().getJulianDay());
+			buf.append(String.format(NumericPrecisionPrefs
+					.getTimeOutputFormat(), hJD.getJulianDay()));
 		}
 		buf.append("\t");
 
