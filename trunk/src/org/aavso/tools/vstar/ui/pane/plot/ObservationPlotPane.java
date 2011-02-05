@@ -18,32 +18,14 @@
 package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
-import java.util.List;
 
-import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.dialog.series.SeriesVisibilityDialog;
-import org.aavso.tools.vstar.ui.mediator.AnalysisType;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.NewStarType;
-import org.aavso.tools.vstar.ui.mediator.ViewModeType;
-import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
-import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
-import org.aavso.tools.vstar.util.notification.Listener;
-import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.chart.plot.XYPlot;
 
 /**
  * This class represents a chart pane containing a raw plot for a set of valid
  * observations (magnitude vs Julian Day).
  */
-public class ObservationPlotPane extends
+abstract public class ObservationPlotPane extends
 		AbstractObservationPlotPane<ObservationPlotModel> {
 
 	/**
@@ -83,121 +65,5 @@ public class ObservationPlotPane extends
 	public ObservationPlotPane(String title, String subTitle,
 			ObservationPlotModel obsModel, Dimension bounds) {
 		this(title, subTitle, JD_TITLE, MAG_TITLE, obsModel, bounds);
-	}
-
-	// Return a listener for the "change series visibility" button.
-	protected ActionListener createSeriesChangeButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				SeriesVisibilityDialog dialog = new SeriesVisibilityDialog(
-						obsModel);
-
-				if (!dialog.isCancelled()) {
-					seriesVisibilityChange(dialog.getVisibilityDeltaMap());
-				}
-			}
-		};
-	}
-
-	// Returns an observation selection listener.
-	protected Listener<ObservationSelectionMessage> createObservationSelectionListener() {
-		return new Listener<ObservationSelectionMessage>() {
-			public void update(ObservationSelectionMessage message) {
-				// Move the cross hairs if this is not a mean observation and
-				// we have date information since this plot's domain is JD.
-				if (message.getSource() != this
-						&& message.getObservation().getDateInfo() != null
-						&& message.getObservation().getBand() != SeriesType.MEANS) {
-					chart.getXYPlot().setDomainCrosshairValue(
-							message.getObservation().getJD());
-					chart.getXYPlot().setRangeCrosshairValue(
-							message.getObservation().getMag());
-
-					updateSelectionFromObservation(message.getObservation());
-				}
-			}
-
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
-	// Returns a zoom request listener.
-	protected Listener<ZoomRequestMessage> createZoomRequestListener() {
-		return new Listener<ZoomRequestMessage>() {
-			public void update(ZoomRequestMessage info) {
-//				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA
-//						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
-//					doZoom(info.getZoomType());
-//				}
-			}
-
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
-	// Returns a pan request listener.
-	protected Listener<PanRequestMessage> createPanRequestListener() {
-		return new Listener<PanRequestMessage>() {
-			@Override
-			public void update(PanRequestMessage msg) {
-				final PlotRenderingInfo plotInfo = chartPanel
-						.getChartRenderingInfo().getPlotInfo();
-
-				final Point2D source = new Point2D.Double(0, 0);
-
-				double percentage = 0.01;
-
-				XYPlot plot = chart.getXYPlot();
-				NewStarMessage newStarMsg = Mediator.getInstance()
-						.getNewStarMessage();
-				List<ValidObservation> obs = newStarMsg.getObservations();
-
-				switch (msg.getPanType()) {
-				case LEFT:
-					if (plot.getDomainAxis().getLowerBound() >= obs.get(0)
-							.getJD()) {
-						plot.panDomainAxes(-percentage, plotInfo, source);
-					} else {
-						if (newStarMsg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-							// TODO: ask whether to read more AID data before
-							// last JD
-						}
-					}
-					break;
-				case RIGHT:
-					if (plot.getDomainAxis().getUpperBound() <= obs.get(
-							obs.size() - 1).getJD()) {
-						plot.panDomainAxes(percentage, plotInfo, source);
-					} else {
-						if (newStarMsg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-							// TODO: ask whether to read more AID data after
-							// last JD
-						}
-					}
-					break;
-				case UP:
-					if (newStarMsg.getMinMag() <= plot.getRangeAxis()
-							.getLowerBound()) {
-						plot.panRangeAxes(percentage, plotInfo, source);
-					}
-					break;
-				case DOWN:
-					if (newStarMsg.getMaxMag() >= plot.getRangeAxis()
-							.getUpperBound()) {
-						plot.panRangeAxes(-percentage, plotInfo, source);
-					}
-					break;
-				}
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
 	}
 }

@@ -655,13 +655,11 @@ public class Mediator {
 		RawDataMeanObservationTableModel meanObsTableModel = null;
 
 		// Plot models.
-		ObservationPlotModel obsPlotModel = null;
 		obsAndMeanPlotModel = null;
 
 		// GUI table and chart components.
 		ObservationListPane obsListPane = null;
 		MeanObservationListPane meansListPane = null;
-		ObservationPlotPane obsChartPane = null;
 		ObservationAndMeanPlotPane obsAndMeanChartPane = null;
 
 		if (!validObsList.isEmpty()) {
@@ -673,19 +671,12 @@ public class Mediator {
 			validObsTableModel = new ValidObservationTableModel(validObsList,
 					newStarType.getRawDataTableColumnInfoSource());
 
-			obsPlotModel = new ObservationPlotModel(
-					validObservationCategoryMap, JDCoordSource.instance,
-					JDComparator.instance);
-
 			String subTitle = "";
 			if (newStarType == NewStarType.NEW_STAR_FROM_DATABASE) {
 				subTitle = new Date().toString() + " (database)";
 			} else {
 				subTitle = "";
 			}
-
-			obsChartPane = createObservationPlotPane("Light Curve for "
-					+ starInfo.getDesignation(), subTitle, obsPlotModel);
 
 			// Observation-and-mean table and plot.
 			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
@@ -694,13 +685,13 @@ public class Mediator {
 
 			String meanPlotSubtitle = subTitle;
 			if (!"".equals(meanPlotSubtitle)) {
-				meanPlotSubtitle += ", ";
+				meanPlotSubtitle += "\n";
 			}
 
 			meanPlotSubtitle += "Mean error bars denote 95% Confidence Interval (twice Standard Error)";
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					"Light Curve with Means for " + starInfo.getDesignation(),
+					"Light Curve for " + starInfo.getDesignation(),
 					meanPlotSubtitle, obsAndMeanPlotModel);
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
@@ -757,7 +748,7 @@ public class Mediator {
 		analysisType = AnalysisType.RAW_DATA;
 
 		AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
-				analysisType, obsChartPane, obsAndMeanChartPane, obsListPane,
+				analysisType, obsAndMeanChartPane, obsListPane,
 				meansListPane, ViewModeType.PLOT_OBS_MODE);
 
 		// Commit to using the new observation lists and category map,
@@ -854,10 +845,6 @@ public class Mediator {
 		}
 
 		// Table and plot models.
-		ObservationPlotModel obsPlotModel = new ObservationPlotModel(
-				phasedValidObservationCategoryMap, PhaseCoordSource.instance,
-				StandardPhaseComparator.instance, seriesVisibilityMap);
-
 		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(
 				validObsList, newStarMessage.getNewStarType()
 						.getPhasePlotTableColumnInfoSource());
@@ -878,12 +865,8 @@ public class Mediator {
 		obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 				meanObsTableModel);
 
-		// GUI table and chart components.
-		PhasePlotPane obsChartPane = createPhasePlotPane("Phase Plot for "
-				+ objName, subTitle, obsPlotModel);
-
 		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
-				"Phase Plot with Means for " + objName, subTitle,
+				"Phase Plot for " + objName, subTitle,
 				obsAndMeanPlotModel);
 
 		// The observation table pane contains valid and potentially
@@ -905,7 +888,7 @@ public class Mediator {
 
 		// Observation-and-mean table and plot.
 		AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(
-				AnalysisType.PHASE_PLOT, obsChartPane, obsAndMeanChartPane,
+				AnalysisType.PHASE_PLOT, obsAndMeanChartPane,
 				obsListPane, meansListPane, ViewModeType.PLOT_OBS_MODE);
 
 		analysisTypeMap.put(AnalysisType.PHASE_PLOT, phasePlotMsg);
@@ -934,18 +917,6 @@ public class Mediator {
 	}
 
 	/**
-	 * Create the observation pane for a plot of valid observations.
-	 */
-	private ObservationPlotPane createObservationPlotPane(String plotName,
-			String subTitle, ObservationPlotModel obsPlotModel) {
-
-		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
-				(int) (TabbedDataPane.HEIGHT * 0.9));
-
-		return new ObservationPlotPane(plotName, subTitle, obsPlotModel, bounds);
-	}
-
-	/**
 	 * Create the observation-and-mean plot pane for the current list of valid
 	 * observations.
 	 */
@@ -960,18 +931,6 @@ public class Mediator {
 				obsAndMeanPlotModel, new TimeElementsInBinSettingPane(
 						"Days per Mean Series Bin", obsAndMeanPlotModel,
 						JDTimeElementEntity.instance), bounds);
-	}
-
-	/**
-	 * Create the pane for a phase plot of valid observations.
-	 */
-	private PhasePlotPane createPhasePlotPane(String plotName, String subTitle,
-			ObservationPlotModel obsPlotModel) {
-
-		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
-				(int) (TabbedDataPane.HEIGHT * 0.9));
-
-		return new PhasePlotPane(plotName, subTitle, obsPlotModel, bounds);
 	}
 
 	/**
@@ -1241,10 +1200,6 @@ public class Mediator {
 			ob = this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
 					.getLastObSelected();
 			break;
-//		case PLOT_OBS_AND_MEANS_MODE:
-//			ob = this.analysisTypeMap.get(analysisType)
-//					.getObsAndMeanChartPane().getLastObSelected();
-//			break;
 		case LIST_OBS_MODE:
 			ob = this.analysisTypeMap.get(analysisType).getObsListPane()
 					.getLastObSelected();
