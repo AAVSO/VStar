@@ -76,12 +76,12 @@ public class ModePane extends JPanel implements ActionListener {
 					listObsRadioButton.setSelected(false);
 					listMeansRadioButton.setSelected(false);
 					break;
-				case PLOT_OBS_AND_MEANS_MODE:
-					plotObsRadioButton.setSelected(false);
-					plotObsAndMeansRadioButton.setSelected(true);
-					listObsRadioButton.setSelected(false);
-					listMeansRadioButton.setSelected(false);
-					break;
+//				case PLOT_OBS_AND_MEANS_MODE:
+//					plotObsRadioButton.setSelected(false);
+//					plotObsAndMeansRadioButton.setSelected(true);
+//					listObsRadioButton.setSelected(false);
+//					listMeansRadioButton.setSelected(false);
+//					break;
 				case LIST_OBS_MODE:
 					plotObsRadioButton.setSelected(false);
 					plotObsAndMeansRadioButton.setSelected(false);
@@ -115,9 +115,9 @@ public class ModePane extends JPanel implements ActionListener {
 		this.add(plotObsRadioButton);
 		modeGroup.add(plotObsRadioButton);
 		
-		plotObsAndMeansRadioButton = new JRadioButton(
-				ViewModeType.PLOT_OBS_AND_MEANS_MODE_DESC);
-		plotObsAndMeansRadioButton.setActionCommand(ViewModeType.PLOT_OBS_AND_MEANS_MODE_DESC);
+//		plotObsAndMeansRadioButton = new JRadioButton(
+//				ViewModeType.PLOT_OBS_AND_MEANS_MODE_DESC);
+//		plotObsAndMeansRadioButton.setActionCommand(ViewModeType.PLOT_OBS_AND_MEANS_MODE_DESC);
 		plotObsAndMeansRadioButton.addActionListener(this);
 		this.add(plotObsAndMeansRadioButton);
 		modeGroup.add(plotObsAndMeansRadioButton);

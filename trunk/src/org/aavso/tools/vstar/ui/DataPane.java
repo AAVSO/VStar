@@ -113,8 +113,8 @@ public class DataPane extends JPanel {
 		setCard(ViewModeType.PLOT_OBS_MODE_DESC,
 				createTextPanel(noSomethingYet("Observation plot")));
 
-		setCard(ViewModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
-				createTextPanel(noSomethingYet("Observation and mean plot")));
+//		setCard(ViewModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
+//				createTextPanel(noSomethingYet("Observation and mean plot")));
 
 		setCard(ViewModeType.LIST_OBS_MODE_DESC,
 				createTextPanel(noSomethingYet("Observation list")));
@@ -122,7 +122,7 @@ public class DataPane extends JPanel {
 		setCard(ViewModeType.LIST_MEANS_MODE_DESC,
 				createTextPanel(noSomethingYet("Means list")));
 
-		showCard(ViewModeType.PLOT_OBS_MODE_DESC);
+//		showCard(ViewModeType.PLOT_OBS_MODE_DESC);
 	}
 
 	private static JComponent createTextPanel(String text) {
@@ -152,9 +152,9 @@ public class DataPane extends JPanel {
 
 				if (obsPlotPane != null && obsAndMeanPane != null
 						&& obsListPane != null && meansListPane != null) {
-					setCard(ViewModeType.PLOT_OBS_MODE_DESC, obsPlotPane);
-					setCard(ViewModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
-							obsAndMeanPane);
+					setCard(ViewModeType.PLOT_OBS_MODE_DESC, obsAndMeanPane);
+//					setCard(ViewModeType.PLOT_OBS_AND_MEANS_MODE_DESC,
+//							obsAndMeanPane);
 					setCard(ViewModeType.LIST_OBS_MODE_DESC, obsListPane);
 					setCard(ViewModeType.LIST_MEANS_MODE_DESC, meansListPane);
 
