@@ -143,8 +143,13 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 				this.meansSeriesNum = addObservationSeries(SeriesType.MEANS,
 						meanObsList);
 
-				// Make sure it's rendered!
-				this.getSeriesVisibilityMap().put(meansSeriesNum, true);
+				// Mean series not rendered by default.
+				getSeriesVisibilityMap().put(meansSeriesNum, false);
+			} else {
+				// The mean series has been changed after the initial one. If it
+				// is not visible, make it so since the user has updated it and
+				// probably wants to see it right away.
+				changeSeriesVisibility(this.meansSeriesNum, true);
 			}
 
 			// Notify listeners.
@@ -162,13 +167,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 *      boolean)
 	 */
 	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
-		// It doesn't make sense to remove the means series from a plot
-		// whose purpose is to render a means series. :)
-		if (seriesNum != meansSeriesNum) {
-			return super.changeSeriesVisibility(seriesNum, visibility);
-		} else {
-			return false;
-		}
+		return super.changeSeriesVisibility(seriesNum, visibility);
 	}
 
 	/**

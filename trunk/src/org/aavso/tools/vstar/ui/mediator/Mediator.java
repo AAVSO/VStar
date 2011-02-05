@@ -1142,15 +1142,6 @@ public class Mediator {
 		switch (viewMode) {
 		case PLOT_OBS_MODE:
 			try {
-				this.analysisTypeMap.get(analysisType).getObsChartPane()
-						.getChartPanel().doSaveAs();
-			} catch (IOException ex) {
-				MessageBox.showErrorDialog(parent, "Save Observation Plot", ex
-						.getMessage());
-			}
-			break;
-		case PLOT_OBS_AND_MEANS_MODE:
-			try {
 				this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
 						.getChartPanel().doSaveAs();
 			} catch (IOException ex) {
@@ -1203,11 +1194,6 @@ public class Mediator {
 	public void printCurrentMode(Component parent) {
 		switch (viewMode) {
 		case PLOT_OBS_MODE:
-			this.analysisTypeMap.get(analysisType).getObsChartPane()
-					.getChartPanel().createChartPrintJob();
-			break;
-
-		case PLOT_OBS_AND_MEANS_MODE:
 			this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
 					.getChartPanel().createChartPrintJob();
 			break;
@@ -1252,13 +1238,13 @@ public class Mediator {
 
 		switch (viewMode) {
 		case PLOT_OBS_MODE:
-			ob = this.analysisTypeMap.get(analysisType).getObsChartPane()
+			ob = this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
 					.getLastObSelected();
 			break;
-		case PLOT_OBS_AND_MEANS_MODE:
-			ob = this.analysisTypeMap.get(analysisType)
-					.getObsAndMeanChartPane().getLastObSelected();
-			break;
+//		case PLOT_OBS_AND_MEANS_MODE:
+//			ob = this.analysisTypeMap.get(analysisType)
+//					.getObsAndMeanChartPane().getLastObSelected();
+//			break;
 		case LIST_OBS_MODE:
 			ob = this.analysisTypeMap.get(analysisType).getObsListPane()
 					.getLastObSelected();

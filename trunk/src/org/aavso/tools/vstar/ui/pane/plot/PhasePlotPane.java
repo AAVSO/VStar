@@ -96,10 +96,10 @@ public class PhasePlotPane extends ObservationPlotPane implements
 	protected Listener<ZoomRequestMessage> createZoomRequestListener() {
 		return new Listener<ZoomRequestMessage>() {
 			public void update(ZoomRequestMessage info) {
-				if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT
-						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
-					doZoom(info.getZoomType());
-				}
+//				if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT
+//						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
+//					doZoom(info.getZoomType());
+//				}
 			}
 
 			public boolean canBeRemoved() {

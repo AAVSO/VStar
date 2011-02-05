@@ -18,21 +18,15 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 /**
- * View mode type enum and methods for transforming enum values into 
- * other values of interest.
+ * View mode type enum and methods for transforming enum values into other
+ * values of interest.
  */
 public enum ViewModeType {
 
 	// View modes.
-	PLOT_OBS_MODE, PLOT_OBS_AND_MEANS_MODE, LIST_OBS_MODE, LIST_MEANS_MODE;
-
-//	public final static String PLOT_OBS_MODE_DESC = "Plot Observations";
-//	public final static String PLOT_OBS_AND_MEANS_MODE_DESC = "Plot Observations and Means";
-//	public final static String LIST_OBS_MODE_DESC = "List Observations";
-//	public final static String LIST_MEANS_MODE_DESC = "List Means";
+	PLOT_OBS_MODE, LIST_OBS_MODE, LIST_MEANS_MODE;
 
 	public final static String PLOT_OBS_MODE_DESC = "Observation Plot";
-	public final static String PLOT_OBS_AND_MEANS_MODE_DESC = "Mean Plot";
 	public final static String LIST_OBS_MODE_DESC = "Observation List";
 	public final static String LIST_MEANS_MODE_DESC = "Mean List";
 
@@ -46,7 +40,7 @@ public enum ViewModeType {
 	}
 
 	// TODO: may want this to become viewName and add viewDesc for tool-tips etc
-	
+
 	/**
 	 * Given the mode type, return mode description string.
 	 * 
@@ -60,9 +54,6 @@ public enum ViewModeType {
 		switch (viewModeType) {
 		case PLOT_OBS_MODE:
 			mode = PLOT_OBS_MODE_DESC;
-			break;
-		case PLOT_OBS_AND_MEANS_MODE:
-			mode = PLOT_OBS_AND_MEANS_MODE_DESC;
 			break;
 		case LIST_OBS_MODE:
 			mode = LIST_OBS_MODE_DESC;
@@ -86,14 +77,11 @@ public enum ViewModeType {
 		ViewModeType mode = null;
 
 		assert (PLOT_OBS_MODE_DESC.equals(desc)
-				|| PLOT_OBS_AND_MEANS_MODE_DESC.equals(desc)
 				|| LIST_OBS_MODE_DESC.equals(desc) || LIST_MEANS_MODE_DESC
 				.equals(desc));
 
 		if (PLOT_OBS_MODE_DESC.equals(desc)) {
 			mode = PLOT_OBS_MODE;
-		} else if (PLOT_OBS_AND_MEANS_MODE_DESC.equals(desc)) {
-			mode = PLOT_OBS_AND_MEANS_MODE;
 		} else if (LIST_OBS_MODE_DESC.equals(desc)) {
 			mode = LIST_OBS_MODE;
 		} else if (LIST_MEANS_MODE_DESC.equals(desc)) {

@@ -115,7 +115,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 		return new Listener<ZoomRequestMessage>() {
 			public void update(ZoomRequestMessage info) {
 				if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT
-						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_AND_MEANS_MODE) {
+						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
 					doZoom(info.getZoomType());
 				}
 			}

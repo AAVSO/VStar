@@ -99,7 +99,7 @@ public class TabbedDataPane extends JPanel {
 		}
 
 		tabs.addChangeListener(createTabChangeListener());
-		
+
 		topPane.add(tabs);
 
 		this.add(new JScrollPane(topPane), BorderLayout.CENTER);
@@ -138,23 +138,19 @@ public class TabbedDataPane extends JPanel {
 		return new Listener<AnalysisTypeChangeMessage>() {
 			// Set the tabbed pane components for each model type.
 			public void update(AnalysisTypeChangeMessage msg) {
-				JPanel obsPlotPane = msg.getObsChartPane();
 				JPanel obsAndMeanPane = msg.getObsAndMeanChartPane();
 				JPanel obsListPane = msg.getObsListPane();
 				JPanel meansListPane = msg.getMeansListPane();
 
-				if (obsPlotPane != null && obsAndMeanPane != null
-						&& obsListPane != null && meansListPane != null) {
+				if (obsAndMeanPane != null && obsListPane != null
+						&& meansListPane != null) {
 					tabs.setComponentAt(viewModeToTabIndexMap
-							.get(ViewModeType.PLOT_OBS_MODE), obsPlotPane);
-					tabs.setComponentAt(viewModeToTabIndexMap
-							.get(ViewModeType.PLOT_OBS_AND_MEANS_MODE),
-							obsAndMeanPane);
+							.get(ViewModeType.PLOT_OBS_MODE), obsAndMeanPane);
 					tabs.setComponentAt(viewModeToTabIndexMap
 							.get(ViewModeType.LIST_OBS_MODE), obsListPane);
 					tabs.setComponentAt(viewModeToTabIndexMap
 							.get(ViewModeType.LIST_MEANS_MODE), meansListPane);
-					
+
 					tabs.repaint();
 				}
 			}
