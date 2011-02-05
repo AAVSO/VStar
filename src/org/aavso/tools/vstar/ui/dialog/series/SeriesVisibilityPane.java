@@ -71,7 +71,7 @@ public class SeriesVisibilityPane extends JPanel {
 		checkBoxes = new ArrayList<JCheckBox>();
 
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
-			if (series != SeriesType.MEANS) {
+			if (true/*series != SeriesType.MEANS*/) {
 				String seriesName = series.getDescription();
 				JCheckBox checkBox = new JCheckBox(seriesName);
 				checkBox

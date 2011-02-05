@@ -231,7 +231,7 @@ public class ObservationAndMeanPlotPane extends
 		return new Listener<ZoomRequestMessage>() {
 			public void update(ZoomRequestMessage info) {
 				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA
-						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_AND_MEANS_MODE) {
+						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
 					doZoom(info.getZoomType());
 				}
 			}

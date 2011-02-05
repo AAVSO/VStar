@@ -127,10 +127,10 @@ public class ObservationPlotPane extends
 	protected Listener<ZoomRequestMessage> createZoomRequestListener() {
 		return new Listener<ZoomRequestMessage>() {
 			public void update(ZoomRequestMessage info) {
-				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA
-						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
-					doZoom(info.getZoomType());
-				}
+//				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA
+//						&& Mediator.getInstance().getViewMode() == ViewModeType.PLOT_OBS_MODE) {
+//					doZoom(info.getZoomType());
+//				}
 			}
 
 			public boolean canBeRemoved() {
