@@ -22,7 +22,6 @@ import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.pane.list.MeanObservationListPane;
 import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
-import org.aavso.tools.vstar.ui.pane.plot.ObservationPlotPane;
 
 /**
  * This message is intended to be sent to listeners when VStar's 
@@ -34,7 +33,6 @@ public class AnalysisTypeChangeMessage {
 	private AnalysisType analysisType;
 	
 	// GUI table and chart components.
-	private ObservationPlotPane obsChartPane;
 	private ObservationAndMeanPlotPane obsAndMeanChartPane;
 	private ObservationListPane obsListPane;
 	private MeanObservationListPane meansListPane;
@@ -46,8 +44,6 @@ public class AnalysisTypeChangeMessage {
 	 * Constructor.
 	 * 
 	 * @param analysisType The new analysis type.
-	 * @param obsChartPane
-	 *            The observation plot GUI component.
 	 * @param obsWithMeanChartPane
 	 *            The observation-and-mean plot GUI component.
 	 * @param obsListPane
@@ -57,14 +53,12 @@ public class AnalysisTypeChangeMessage {
 	 * @param viewMode The required viewMode.           
 	 */
 	public AnalysisTypeChangeMessage(AnalysisType analysisType,
-			ObservationPlotPane obsChartPane,
 			ObservationAndMeanPlotPane obsAndMeanChartPane,
 			ObservationListPane obsListPane,
 			MeanObservationListPane meansListPane,
 			ViewModeType viewMode) {
 		super();
 		this.analysisType = analysisType;
-		this.obsChartPane = obsChartPane;
 		this.obsAndMeanChartPane = obsAndMeanChartPane;
 		this.obsListPane = obsListPane;
 		this.meansListPane = meansListPane;
@@ -76,13 +70,6 @@ public class AnalysisTypeChangeMessage {
 	 */
 	public AnalysisType getAnalysisType() {
 		return analysisType;
-	}
-
-	/**
-	 * @return the obsChartPane
-	 */
-	public ObservationPlotPane getObsChartPane() {
-		return obsChartPane;
 	}
 
 	/**
