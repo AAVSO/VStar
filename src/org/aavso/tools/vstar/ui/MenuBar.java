@@ -76,6 +76,7 @@ public class MenuBar extends JMenuBar {
 
 	// View menu item names.
 	public static final String OB_DETAILS = "Observation Details...";
+	public static final String PLOT_CONTROL = "Plot Control...";
 	public static final String ZOOM_IN = "Zoom In";
 	public static final String ZOOM_OUT = "Zoom Out";
 	public static final String ZOOM_TO_FIT = "Zoom To Fit";
@@ -122,6 +123,7 @@ public class MenuBar extends JMenuBar {
 
 	// View menu.
 	JMenuItem viewObDetailsItem;
+	JMenuItem viewPlotControlItem;
 	JMenuItem viewZoomInItem;
 	JMenuItem viewZoomOutItem;
 	JMenuItem viewZoomToFitItem;
@@ -273,6 +275,11 @@ public class MenuBar extends JMenuBar {
 		viewObDetailsItem.addActionListener(createObDetailsListener());
 		viewMenu.add(viewObDetailsItem);
 
+		viewPlotControlItem = new JMenuItem(PLOT_CONTROL);
+		viewPlotControlItem.setEnabled(false);
+		viewPlotControlItem.addActionListener(createPlotControlListener());
+		viewMenu.add(viewPlotControlItem);
+		
 		viewMenu.addSeparator();
 
 		viewZoomInItem = new JMenuItem(ZOOM_IN);
@@ -623,6 +630,18 @@ public class MenuBar extends JMenuBar {
 		};
 	}
 
+	/**
+	 * Returns the action listener to be invoked for View->Plot Control...
+	 */
+	public ActionListener createPlotControlListener() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mediator.showPlotControlDialog();
+			}
+		};		
+	}
+	
 	/**
 	 * Returns the action listener to be invoked for View->Zoom In
 	 */
@@ -995,6 +1014,7 @@ public class MenuBar extends JMenuBar {
 		this.filePrintItem.setEnabled(state);
 
 //		this.viewObDetailsItem.setEnabled(state);
+		this.viewPlotControlItem.setEnabled(state);
 //		this.viewZoomInItem.setEnabled(state);
 //		this.viewZoomOutItem.setEnabled(state);
 //		this.viewZoomToFitItem.setEnabled(state);				
@@ -1006,6 +1026,7 @@ public class MenuBar extends JMenuBar {
 		}
 		this.viewNoFilterItem.setEnabled(state);
 
+	
 		this.viewPanLeftItem.setEnabled(state);
 		this.viewPanRightItem.setEnabled(state);
 		this.viewPanUpItem.setEnabled(state);

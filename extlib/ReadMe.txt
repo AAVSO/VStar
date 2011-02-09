@@ -18,7 +18,7 @@ code.
   o mysql-connector-java-5.1.10-bin.jar
     http://dev.mysql.com/downloads/connector/j/5.1.html
 
-  o nico-camargo-toolbar-icons-2.0.jar
+  o nico-camargo-toolbar-icons-3.0.jar
     Toolbar icons created by Citizen Sky participant, Nico Camargo.
     
 The libraries are covered under the following licenses, and plain text copies

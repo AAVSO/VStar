@@ -43,8 +43,7 @@ import org.jfree.chart.plot.XYPlot;
  * This class represents a chart pane containing a phase plot for a set of valid
  * observations along with mean-based data.
  */
-public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
-		IVisibilityMapSource {
+public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 	/**
 	 * Constructor.
@@ -66,24 +65,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane implements
 						"Phase Steps per Mean Series Bin", obsAndMeanModel,
 						PhaseTimeElementEntity.instance), bounds);
 
-		this.getChartControlPanel().add(new NewPhasePlotButtonPane(this));
-	}
-
-	// Return a mapping from series number to visibility status,
-	// filtering out the means series. The means series is always
-	// visible, so we are simply excluding this from consideration
-	// (in the context of creating a phase plot, see NewPhasePlotButtonPane).
-	public Map<Integer, Boolean> getVisibilityMap() {
-		Map<Integer, Boolean> visibilityMap = obsModel.getSeriesVisibilityMap();
-		Map<Integer, Boolean> visibilityMapWithoutMeans = new HashMap<Integer, Boolean>();
-		for (Integer seriesNum : visibilityMap.keySet()) {
-			if (seriesNum != obsModel.getMeanSourceSeriesNum()) {
-				visibilityMapWithoutMeans.put(seriesNum, visibilityMap
-						.get(seriesNum));
-			}
-		}
-
-		return null;
+//		this.getChartControlPanel().add(new NewPhasePlotButtonPane(this));
 	}
 
 	// Returns an observation selection listener.

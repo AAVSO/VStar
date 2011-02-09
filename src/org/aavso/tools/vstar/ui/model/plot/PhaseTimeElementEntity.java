@@ -70,7 +70,7 @@ public class PhaseTimeElementEntity implements ITimeElementEntity {
 
 	public String getNumberFormat() {
 		// TODO: once we have plot control dialog, not sure we need this
-		return "  #.####";
-		//return NumericPrefs.getTimeInputFormat();
+//		return "  #.####";
+		return NumericPrecisionPrefs.getTimeInputFormat();
 	}
 }

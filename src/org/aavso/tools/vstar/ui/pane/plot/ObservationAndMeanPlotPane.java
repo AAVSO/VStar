@@ -96,7 +96,7 @@ public class ObservationAndMeanPlotPane extends
 
 		this.joinMeans = true;
 
-		addToChartControlPanel(this.getChartControlPanel());
+		// addToChartControlPanel(this.getChartControlPanel());
 
 		// Set the means series color.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
@@ -115,6 +115,13 @@ public class ObservationAndMeanPlotPane extends
 		// Add mean obs listener for binning ANOVA result chart updates.
 		obsAndMeanModel.getMeansChangeNotifier().addListener(
 				createBinChangeListener());
+	}
+
+	/**
+	 * @return The observation model.
+	 */
+	public ObservationAndMeanPlotModel getObsModel() {
+		return obsModel;
 	}
 
 	/**
@@ -364,8 +371,8 @@ public class ObservationAndMeanPlotPane extends
 				pValueStr = "p-value: < 0.000001";
 			} else {
 				pValueStr = String.format("p-value: "
-						+ NumericPrecisionPrefs.getOtherOutputFormat(), binningResult
-						.getPValue());
+						+ NumericPrecisionPrefs.getOtherOutputFormat(),
+						binningResult.getPValue());
 			}
 
 			msg = String.format(

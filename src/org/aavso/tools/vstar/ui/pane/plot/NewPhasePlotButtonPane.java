@@ -27,7 +27,8 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
+import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This class represents a widget containing a button that when pressed
@@ -36,17 +37,17 @@ import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
  */
 public class NewPhasePlotButtonPane extends JButton {
 
-	private IVisibilityMapSource visibilityMapSrc;
-
+	private ObservationAndMeanPlotPane plotPane;
+	
 	/**
 	 * Constructor
 	 * 
 	 * @param visibilityMapSrc
 	 *            A source of plot series visibility mappings.
 	 */
-	public NewPhasePlotButtonPane(IVisibilityMapSource visibilityMapSrc) {
+	public NewPhasePlotButtonPane(PhaseAndMeanPlotPane plotPane) {
 		super("New Phase Plot");
-		this.visibilityMapSrc = visibilityMapSrc;		
+		this.plotPane = plotPane;		
 		this.addActionListener(this.createNewPhasePlotButtonListener());
 	}
 
@@ -61,12 +62,10 @@ public class NewPhasePlotButtonPane extends JButton {
 					if (!phaseDialog.isCancelled()) {
 						double period = phaseDialog.getPeriod();
 						double epoch = phaseDialog.getEpoch();
-						// This will be the final act of this object before
-						// it is usurped by another model+phase-plot-pane pair.
 						MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 						
 						Mediator.getInstance().createPhasePlotArtefacts(period,
-								epoch, visibilityMapSrc.getVisibilityMap());
+								epoch, plotPane.getObsModel().getSeriesVisibilityMap());
 						
 						MainFrame.getInstance().setCursor(null);
 					}
@@ -75,6 +74,21 @@ public class NewPhasePlotButtonPane extends JButton {
 					MessageBox.showErrorDialog(MainFrame.getInstance(),
 							"New Phase Plot", ex);
 				}
+			}
+		};
+	}
+	
+	// Returns an analysis type change listener.
+	private Listener<AnalysisTypeChangeMessage> createAnalysisTypeChangeListener() {
+		return new Listener<AnalysisTypeChangeMessage>() {
+			@Override
+			public void update(AnalysisTypeChangeMessage msg) {
+				plotPane = msg.getObsAndMeanChartPane();
+			}
+			
+			@Override
+			public boolean canBeRemoved() {
+				return false;
 			}
 		};
 	}
