@@ -1,0 +1,5 @@
+Testsuite: org.aavso.tools.vstar.input.database.DatabaseObservationReaderTest
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 41.573 sec
+
+Testcase: testReadValidObservationEpsAur1 took 25.431 sec
+Testcase: testReadDeletedEpsAurObservation1 took 16.139 sec

@@ -1,0 +1,19 @@
+
+Test Summary
+============
+Tests run: 10, Failures: 0, Errors: 0, Time elapsed: 0.021 sec
+Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0.14 sec
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.006 sec
+Tests run: 7, Failures: 0, Errors: 0, Time elapsed: 0.134 sec
+Tests run: 12, Failures: 0, Errors: 0, Time elapsed: 58.825 sec
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 41.573 sec
+Tests run: 5, Failures: 0, Errors: 0, Time elapsed: 0.011 sec
+Tests run: 12, Failures: 0, Errors: 0, Time elapsed: 1.415 sec
+Tests run: 42, Failures: 0, Errors: 0, Time elapsed: 0.154 sec
+Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0.13 sec
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 2.716 sec
+Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0.481 sec
+Tests run: 21, Failures: 0, Errors: 0, Time elapsed: 0.312 sec
+Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0.017 sec
+Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0.02 sec
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.294 sec

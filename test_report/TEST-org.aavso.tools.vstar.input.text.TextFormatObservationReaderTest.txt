@@ -1,0 +1,15 @@
+Testsuite: org.aavso.tools.vstar.input.text.TextFormatObservationReaderTest
+Tests run: 12, Failures: 0, Errors: 0, Time elapsed: 1.415 sec
+
+Testcase: testSimpleValidJulianDayAndMagTSV took 1.349 sec
+Testcase: testSimpleValidJulianDayAndMagCSV took 0.001 sec
+Testcase: testSimpleValidFullObservationTSV took 0 sec
+Testcase: testSimpleValidAllButUncertaintyTSV took 0.001 sec
+Testcase: testSimpleValidAllButUncertaintyAndValflagTSV took 0 sec
+Testcase: testSimpleValidAllButUncertaintyAndValflagCSV took 0 sec
+Testcase: testSimpleValidMultipleLines took 0.001 sec
+Testcase: testAAVSODownloadTSV1 took 0.006 sec
+Testcase: testAAVSODownloadCSV1 took 0.001 sec
+Testcase: testLineWithValidationFlagV took 0.001 sec
+Testcase: testSimpleInvalidMagTrailingDecimalPoint took 0 sec
+Testcase: testSimpleInvalidAllButUncertaintyAndValflagTSV took 0.001 sec

@@ -1,0 +1,15 @@
+Testsuite: org.aavso.tools.vstar.input.database.DatabaseConnectorTest
+Tests run: 12, Failures: 0, Errors: 0, Time elapsed: 58.825 sec
+
+Testcase: testGenerateMessageDigest took 0.225 sec
+Testcase: testGetEpsilonAurAUIDViaAID took 9.564 sec
+Testcase: testGetEpsAurAUIDViaAID took 0.615 sec
+Testcase: testGetEpsAurFromAUIDViaAID took 0.921 sec
+Testcase: testGetEpsilonAurAUIDViaVSX took 3.689 sec
+Testcase: testGetEpsAurAUIDViaVSX took 0.68 sec
+Testcase: testGetEpsAurFromAUIDViaVSX took 0.636 sec
+Testcase: testGetNEridaniAUIDViaVSX took 1.491 sec
+Testcase: testGetKTEridaniAUIDViaVSX took 0.759 sec
+Testcase: testGetNovaEridani2009FromAUIDViaVSX took 0.733 sec
+Testcase: testSampleRead1 took 22.754 sec
+Testcase: testSampleRead2 took 16.75 sec

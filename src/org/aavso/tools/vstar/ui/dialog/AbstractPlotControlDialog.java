@@ -85,7 +85,6 @@ public class AbstractPlotControlDialog extends JDialog {
 			NamedComponent extra) {
 		setTitle(title);
 		setModal(true);
-		setAlwaysOnTop(true);
 
 		this.plotPane = plotPane;
 		this.obsModel = plotPane.getObsModel();
@@ -159,14 +158,15 @@ public class AbstractPlotControlDialog extends JDialog {
 		chartControlPanel.setLayout(new BoxLayout(chartControlPanel,
 				BoxLayout.PAGE_AXIS));
 
-		chartControlPanel.setBorder(BorderFactory
-				.createTitledBorder("Plot Control"));
+		chartControlPanel.setBorder(BorderFactory.createEtchedBorder());
 
 		// A button to change series visibility.
+		JPanel seriesChangePanel = new JPanel();
+		seriesChangePanel.setBorder(BorderFactory.createTitledBorder("Series"));
 		JButton visibilityButton = new JButton("Change Series");
 		visibilityButton.addActionListener(createSeriesChangeButtonListener());
-		visibilityButton.setBorder(BorderFactory.createTitledBorder("Series"));
-		chartControlPanel.add(visibilityButton);
+		seriesChangePanel.add(visibilityButton);
+		chartControlPanel.add(seriesChangePanel);
 
 		JPanel showCheckBoxPanel = new JPanel();
 		showCheckBoxPanel.setBorder(BorderFactory.createTitledBorder("Show"));
