@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,17 +15,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.model.plot;
+package org.aavso.tools.vstar.ui.dialog;
 
-import java.util.Map;
+import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
+import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
+import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
 
 /**
- * Implementers of this interface return a mapping from
- * plot series number to visibility. 
- * 
- * @deprecated
+ * The raw plot control dialog.
  */
-public interface IVisibilityMapSource {
+public class RawPlotControlDialog extends AbstractPlotControlDialog {
 
-	public Map<Integer, Boolean> getVisibilityMap();
+	/**
+	 * Constructor.
+	 * 
+	 * @param plotPane
+	 *            The plot pane.
+	 */
+	public RawPlotControlDialog(ObservationAndMeanPlotPane plotPane) {
+		super("Light Curve Control", plotPane,
+				new TimeElementsInBinSettingPane("Days per Mean Series Bin",
+						plotPane.getObsModel(), JDTimeElementEntity.instance));
+	}
 }

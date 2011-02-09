@@ -50,10 +50,13 @@ import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
+import org.aavso.tools.vstar.ui.dialog.AbstractPlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
+import org.aavso.tools.vstar.ui.dialog.PhasePlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
+import org.aavso.tools.vstar.ui.dialog.RawPlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
@@ -75,15 +78,12 @@ import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
-import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.ui.pane.list.MeanObservationListPane;
 import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
-import org.aavso.tools.vstar.ui.pane.plot.ObservationPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
-import org.aavso.tools.vstar.ui.pane.plot.PhasePlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
@@ -138,6 +138,10 @@ public class Mediator {
 
 	// Persistent observation filter dialog.
 	private ObservationFilterDialog obsFilterDialog;
+
+	// Plot control dialogs.
+	private AbstractPlotControlDialog rawPlotControlDialog;
+	private AbstractPlotControlDialog phasePlotControlDialog;
 
 	// Notifiers.
 	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
@@ -203,6 +207,9 @@ public class Mediator {
 				.createNewStarListener());
 		this.observationSelectionNotifier.addListener(this.obsFilterDialog
 				.createObservationSelectionListener());
+
+		this.rawPlotControlDialog = null;
+		this.phasePlotControlDialog = null;
 
 		this.periodChangeMessageNotifier
 				.addListener(createPeriodChangeListener());
@@ -708,6 +715,8 @@ public class Mediator {
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					meanObsTableModel);
 
+			rawPlotControlDialog = new RawPlotControlDialog(obsAndMeanChartPane);
+
 			if (obsArtefactProgressAmount > 0) {
 				// Update progress.
 				getProgressNotifier().notifyListeners(
@@ -748,8 +757,8 @@ public class Mediator {
 		analysisType = AnalysisType.RAW_DATA;
 
 		AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
-				analysisType, obsAndMeanChartPane, obsListPane,
-				meansListPane, ViewModeType.PLOT_OBS_MODE);
+				analysisType, obsAndMeanChartPane, obsListPane, meansListPane,
+				ViewModeType.PLOT_OBS_MODE);
 
 		// Commit to using the new observation lists and category map,
 		// first making old values available for garbage collection.
@@ -866,8 +875,9 @@ public class Mediator {
 				meanObsTableModel);
 
 		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
-				"Phase Plot for " + objName, subTitle,
-				obsAndMeanPlotModel);
+				"Phase Plot for " + objName, subTitle, obsAndMeanPlotModel);
+
+		phasePlotControlDialog = new PhasePlotControlDialog(obsAndMeanChartPane);
 
 		// The observation table pane contains valid and potentially
 		// invalid data components but for phase plot purposes, we only
@@ -888,8 +898,8 @@ public class Mediator {
 
 		// Observation-and-mean table and plot.
 		AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(
-				AnalysisType.PHASE_PLOT, obsAndMeanChartPane,
-				obsListPane, meansListPane, ViewModeType.PLOT_OBS_MODE);
+				AnalysisType.PHASE_PLOT, obsAndMeanChartPane, obsListPane,
+				meansListPane, ViewModeType.PLOT_OBS_MODE);
 
 		analysisTypeMap.put(AnalysisType.PHASE_PLOT, phasePlotMsg);
 
@@ -991,6 +1001,17 @@ public class Mediator {
 					ProgressInfo.START_PROGRESS);
 
 			MainFrame.getInstance().getStatusPane().setMessage("");
+		}
+	}
+
+	/**
+	 * Open the plot control dialog relevant to the current analysis mode.
+	 */
+	public void showPlotControlDialog() {
+		if (analysisType == AnalysisType.RAW_DATA) {
+			rawPlotControlDialog.setVisible(true);
+		} else if (analysisType == AnalysisType.PHASE_PLOT) {
+			phasePlotControlDialog.setVisible(true);
 		}
 	}
 
@@ -1197,8 +1218,8 @@ public class Mediator {
 
 		switch (viewMode) {
 		case PLOT_OBS_MODE:
-			ob = this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
-					.getLastObSelected();
+			ob = this.analysisTypeMap.get(analysisType)
+					.getObsAndMeanChartPane().getLastObSelected();
 			break;
 		case LIST_OBS_MODE:
 			ob = this.analysisTypeMap.get(analysisType).getObsListPane()

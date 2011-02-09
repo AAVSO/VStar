@@ -10,6 +10,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/commons-math-2.1.jar"/>
 	<classpathentry kind="lib" path="plugin/lib/tamfits.jar"/>
-	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/nico-camargo-toolbar-icons-2.0.jar"/>
+	<classpathentry kind="lib" path="/Users/david/Documents/workspace/VStar/extlib/nico-camargo-toolbar-icons-3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

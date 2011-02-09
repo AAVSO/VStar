@@ -200,8 +200,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		this.add(Box.createRigidArea(new Dimension(0, 10)));
 
 		// Create a panel that can be used to add chart control widgets.
-		chartControlPanel = createChartControlPanel();
-		this.add(chartControlPanel);
+//		chartControlPanel = createChartControlPanel();
+//		this.add(chartControlPanel);
 
 		// Listen to events.
 

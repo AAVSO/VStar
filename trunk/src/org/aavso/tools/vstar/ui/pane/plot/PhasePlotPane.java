@@ -46,7 +46,7 @@ abstract public class PhasePlotPane extends ObservationPlotPane implements
 			ObservationPlotModel obsModel, Dimension bounds) {
 		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsModel, bounds);
 
-		this.getChartControlPanel().add(new NewPhasePlotButtonPane(this));
+//		this.getChartControlPanel().add(new NewPhasePlotButtonPane(this));
 	}
 
 	public Map<Integer, Boolean> getVisibilityMap() {

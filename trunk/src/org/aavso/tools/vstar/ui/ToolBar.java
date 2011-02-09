@@ -58,6 +58,8 @@ public class ToolBar extends JPanel {
 
 	private Icon obDetailsIcon;
 
+	private Icon plotControlIcon;
+
 	private Icon zoomInIcon;
 	private Icon zoomOutIcon;
 
@@ -85,6 +87,8 @@ public class ToolBar extends JPanel {
 	private JButton polynomialFitButton;
 
 	private JButton obDetailsButton;
+
+	private JButton plotControlButton;
 
 	private JButton zoomInButton;
 	private JButton zoomOutButton;
@@ -166,6 +170,9 @@ public class ToolBar extends JPanel {
 		obDetailsIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/Details.png");
 
+		plotControlIcon = ResourceAccessor
+				.getIconResource("/nico/toolbarIcons/_24_/Switch.png");
+
 		zoomInIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/ZoomIn.png");
 
@@ -194,11 +201,11 @@ public class ToolBar extends JPanel {
 				|| infoIcon == null || saveIcon == null || printIcon == null
 				|| rawDataIcon == null || phasePlotIcon == null
 				|| polynomialFitIcon == null || zoomInIcon == null
-				|| obDetailsIcon == null || zoomOutIcon == null
-				|| panLeftIcon == null || panRightIcon == null
-				|| panUpIcon == null || panDownIcon == null
-				|| filterIcon == null || prefsIcon == null
-				|| helpContentsIcon == null) {
+				|| obDetailsIcon == null || plotControlIcon == null
+				|| zoomOutIcon == null || panLeftIcon == null
+				|| panRightIcon == null || panUpIcon == null
+				|| panDownIcon == null || filterIcon == null
+				|| prefsIcon == null || helpContentsIcon == null) {
 
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"Resource Error",
@@ -259,6 +266,13 @@ public class ToolBar extends JPanel {
 		obDetailsButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(obDetailsButton);
 
+		plotControlButton = new JButton(plotControlIcon);
+		plotControlButton.setToolTipText(MenuBar.PLOT_CONTROL);
+		plotControlButton.addActionListener(menuBar.createPlotControlListener());
+		plotControlButton.setEnabled(false);
+		plotControlButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(plotControlButton);
+		
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
 		rawDataButton = new JButton(rawDataIcon);
@@ -401,7 +415,7 @@ public class ToolBar extends JPanel {
 			public void update(NewStarMessage msg) {
 				obDetailsButton.setEnabled(false);
 				zoomInButton.setEnabled(false);
-				zoomOutButton.setEnabled(false);					
+				zoomOutButton.setEnabled(false);
 			}
 
 			/**
@@ -437,11 +451,13 @@ public class ToolBar extends JPanel {
 	}
 
 	private void setEnabledToolbarItems(boolean state) {
-//		obDetailsButton.setEnabled(state);
-//		zoomInButton.setEnabled(state);
-//		zoomOutButton.setEnabled(state);
+		// obDetailsButton.setEnabled(state);
+		// zoomInButton.setEnabled(state);
+		// zoomOutButton.setEnabled(state);
 
 		infoButton.setEnabled(state);
+		plotControlButton.setEnabled(state);
+		
 		saveButton.setEnabled(state);
 		printButton.setEnabled(state);
 

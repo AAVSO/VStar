@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.ui.pane.plot;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -42,6 +41,7 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 public class TimeElementsInBinSettingPane extends JPanel {
 
 	private ObservationAndMeanPlotModel obsAndMeanModel;
+	private ITimeElementEntity timeElementEntity;
 
 	private JSpinner timeElementsInBinSpinner;
 	private SpinnerNumberModel timeElementsInBinSpinnerModel;
@@ -64,6 +64,7 @@ public class TimeElementsInBinSettingPane extends JPanel {
 
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 		this.obsAndMeanModel = obsAndMeanModel;
+		this.timeElementEntity = timeElementEntity;
 
 		this.setBorder(BorderFactory.createTitledBorder(spinnerTitle));
 
@@ -95,24 +96,24 @@ public class TimeElementsInBinSettingPane extends JPanel {
 		timeElementsInBinSpinner = new JSpinner(timeElementsInBinSpinnerModel);
 		timeElementsInBinSpinner.setEditor(new JSpinner.NumberEditor(
 				timeElementsInBinSpinner, timeElementEntity.getNumberFormat()));
-		
+
 		// Tweak the size of the component to be suitable independent of
 		// max size. The BoxLayout matters here. Layout Managers usage
 		// sometimes requires a lot of experimentation.
 		// TODO: this can go away once this is in a plot control dialog!
-		int spinnerWidth = 50;
-		int spinnerHeight = 30;
-		timeElementsInBinSpinner.setMaximumSize(new Dimension(spinnerWidth,
-				spinnerHeight));
-		timeElementsInBinSpinner.setMinimumSize(new Dimension(spinnerWidth,
-				spinnerHeight));
+//		int spinnerWidth = 50;
+//		int spinnerHeight = 30;
+//		timeElementsInBinSpinner.setMaximumSize(new Dimension(spinnerWidth,
+//				spinnerHeight));
+//		timeElementsInBinSpinner.setMinimumSize(new Dimension(spinnerWidth,
+//				spinnerHeight));
 
 		this.add(timeElementsInBinSpinner);
 
 		this.add(Box.createHorizontalGlue());
 
 		// Update button for time-elements-in-bin.
-		JButton updateButton = new JButton("Update");
+		JButton updateButton = new JButton("Apply");
 		updateButton.addActionListener(createUpdateMeansButtonListener());
 		this.add(updateButton);
 
