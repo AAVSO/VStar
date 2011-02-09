@@ -1,0 +1,10 @@
+Testsuite: org.aavso.tools.vstar.data.validation.MTypeValidationTest
+Tests run: 7, Failures: 0, Errors: 0, Time elapsed: 0.134 sec
+
+Testcase: testSTD took 0.004 sec
+Testcase: testDIFF took 0 sec
+Testcase: testSTEP took 0 sec
+Testcase: testNull took 0 sec
+Testcase: testFOO took 0 sec
+Testcase: testLowerCase took 0 sec
+Testcase: testMixedCase took 0 sec

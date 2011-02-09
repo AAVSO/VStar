@@ -1,0 +1,5 @@
+Testsuite: org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransformTest
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 2.716 sec
+
+Testcase: testLoad_raw took 0.008 sec
+Testcase: testExecute took 2.705 sec

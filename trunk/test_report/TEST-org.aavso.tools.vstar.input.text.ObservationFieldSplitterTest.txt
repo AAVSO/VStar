@@ -1,0 +1,8 @@
+Testsuite: org.aavso.tools.vstar.input.text.ObservationFieldSplitterTest
+Tests run: 5, Failures: 0, Errors: 0, Time elapsed: 0.011 sec
+
+Testcase: testRightNumberOfFields2To5 took 0.003 sec
+Testcase: testRightNumberOfFields5 took 0 sec
+Testcase: testRightNumberOfFields5AllPresent took 0 sec
+Testcase: testRightNumberOfFields5NoObsCode took 0 sec
+Testcase: testTooManyFields took 0 sec

@@ -1,0 +1,5 @@
+Testsuite: org.aavso.tools.vstar.util.stats.anova.EpsAurVisJD2454700ToJD2455000AnovaTest
+Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.294 sec
+
+Testcase: testRawEpsAurAnova took 0.023 sec
+Testcase: testValidObsEpsAurAnova took 0.16 sec

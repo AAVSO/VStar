@@ -1,0 +1,13 @@
+Testsuite: org.aavso.tools.vstar.data.filter.ObservationFilterTest
+Tests run: 10, Failures: 0, Errors: 0, Time elapsed: 0.021 sec
+
+Testcase: testObsCodeFieldMatcherTest took 0.005 sec
+Testcase: testMagnitudeMatcherTest1 took 0.003 sec
+Testcase: testMagnitudeMatcherTest2 took 0 sec
+Testcase: testMagnitudeMatcherTest3 took 0 sec
+Testcase: testMagnitudeMatcherTest4a took 0 sec
+Testcase: testMagnitudeMatcherTest4b took 0 sec
+Testcase: testMagnitudeMatcherTest5a took 0 sec
+Testcase: testMagnitudeMatcherTest5b took 0 sec
+Testcase: testObservationFilterTest1 took 0.003 sec
+Testcase: testObservationFilterTest2 took 0 sec

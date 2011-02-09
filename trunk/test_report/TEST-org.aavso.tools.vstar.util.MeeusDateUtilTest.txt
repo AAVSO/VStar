@@ -1,0 +1,45 @@
+Testsuite: org.aavso.tools.vstar.util.MeeusDateUtilTest
+Tests run: 42, Failures: 0, Errors: 0, Time elapsed: 0.154 sec
+
+Testcase: testJDtoCal2000 took 0.003 sec
+Testcase: testJDtoCal1987a took 0.001 sec
+Testcase: testJDtoCal1987b took 0 sec
+Testcase: testJDtoCal1988a took 0 sec
+Testcase: testJDtoCa1988b took 0 sec
+Testcase: testJDtoCal1957 took 0 sec
+Testcase: testJDtoCa1900 took 0 sec
+Testcase: testJDtoCal1600a took 0.001 sec
+Testcase: testJDtoCal1600b took 0 sec
+Testcase: testJDtoCal837 took 0 sec
+Testcase: testJDtoCal333 took 0 sec
+Testcase: testJDtoCalNeg584 took 0.001 sec
+Testcase: testJDtoCalNeg1000a took 0 sec
+Testcase: testJDtoCalNeg1000b took 0 sec
+Testcase: testJDtoCalNeg1001 took 0 sec
+Testcase: testJDtoCalNeg4712 took 0 sec
+Testcase: testJDtoCal2010a took 0 sec
+Testcase: testJDtoCal2010b took 0 sec
+Testcase: testJDtoCal2009a took 0 sec
+Testcase: testJDtoCal2009b took 0 sec
+Testcase: testCaltoJD2000 took 0 sec
+Testcase: testCaltoJD1987a took 0.001 sec
+Testcase: testCaltoJD1987b took 0 sec
+Testcase: testCaltoJD1988a took 0 sec
+Testcase: testCaltoJD1988b took 0 sec
+Testcase: testCaltoJD1900 took 0 sec
+Testcase: testCaltoJD1600a took 0 sec
+Testcase: testCaltoJD1600b took 0 sec
+Testcase: testCaltoJD1957 took 0 sec
+Testcase: testCaltoJD837 took 0 sec
+Testcase: testCaltoJD333 took 0 sec
+Testcase: testCaltoJDNeg584 took 0 sec
+Testcase: testCaltoJDNeg1000a took 0.001 sec
+Testcase: testCaltoJDNeg1000b took 0 sec
+Testcase: testCaltoJDNeg1001 took 0 sec
+Testcase: testCaltoJDNeg4712 took 0 sec
+Testcase: testCaltoJD2010a took 0 sec
+Testcase: testCaltoJD2010b took 0 sec
+Testcase: testCaltoJD2009a took 0.001 sec
+Testcase: testCaltoJD2009b took 0 sec
+Testcase: testCaltoJD2010c took 0 sec
+Testcase: testCaltoJD2009c took 0 sec
