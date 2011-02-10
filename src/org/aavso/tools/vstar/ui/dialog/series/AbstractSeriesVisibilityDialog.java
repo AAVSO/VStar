@@ -38,6 +38,8 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
  * the generic parameter.
  *
  * TODO: change the generic type to permit Void (set of types?)
+ * 
+ * @deprecated
  */
 abstract public class AbstractSeriesVisibilityDialog<T extends JPanel> extends AbstractOkCancelDialog {
 

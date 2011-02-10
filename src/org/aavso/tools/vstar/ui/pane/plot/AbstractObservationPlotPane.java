@@ -19,8 +19,6 @@ package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -28,11 +26,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
@@ -54,6 +50,7 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
@@ -199,10 +196,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		this.add(chartPanel);
 		this.add(Box.createRigidArea(new Dimension(0, 10)));
 
-		// Create a panel that can be used to add chart control widgets.
-//		chartControlPanel = createChartControlPanel();
-//		this.add(chartControlPanel);
-
 		// Listen to events.
 
 		Mediator.getInstance().getObservationSelectionNotifier().addListener(
@@ -263,64 +256,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		return lastObSelected;
 	}
 
-	// Populate a panel that can be used to add chart control widgets.
-	protected JPanel createChartControlPanel() {
-		chartControlPanel = new JPanel();
-		chartControlPanel.setLayout(new BoxLayout(chartControlPanel,
-				BoxLayout.LINE_AXIS));
-
-		chartControlPanel.setBorder(BorderFactory
-				.createTitledBorder("Plot Control"));
-
-		// A button to change series visibility.
-		JButton visibilityButton = new JButton("Change Series");
-		visibilityButton.addActionListener(createSeriesChangeButtonListener());
-		chartControlPanel.add(visibilityButton);
-
-		JPanel checkBoxPanel = new JPanel();
-		checkBoxPanel.setBorder(BorderFactory.createTitledBorder("Show"));
-		checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel,
-				BoxLayout.PAGE_AXIS));
-
-		// A checkbox to show/hide error bars.
-		JCheckBox errorBarCheckBox = new JCheckBox("Error bars?");
-		errorBarCheckBox.setSelected(this.showErrorBars);
-		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());
-		checkBoxPanel.add(errorBarCheckBox);
-
-		// A checkbox to show/hide cross hairs.
-		JCheckBox crossHairCheckBox = new JCheckBox("Cross-hairs?");
-		crossHairCheckBox.setSelected(this.showCrossHairs);
-		crossHairCheckBox.addActionListener(createCrossHairCheckBoxListener());
-		checkBoxPanel.add(crossHairCheckBox);
-
-		chartControlPanel.add(checkBoxPanel);
-
-		return chartControlPanel;
-	}
-
-	/**
-	 * Returns a listener for the error bar visibility checkbox.
-	 */
-	private ActionListener createErrorBarCheckBoxListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				toggleErrorBars();
-			}
-		};
-	}
-
-	/**
-	 * Returns a listener for the cross-hair visibility checkbox.
-	 */
-	private ActionListener createCrossHairCheckBoxListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				toggleCrossHairs();
-			}
-		};
-	}
-
 	/**
 	 * Returns a series color change listener.
 	 */
@@ -336,28 +271,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			}
 		};
 	}
-
-	/**
-	 * Show/hide the error bars.
-	 */
-	private void toggleErrorBars() {
-		this.showErrorBars = !this.showErrorBars;
-		this.renderer.setDrawYError(this.showErrorBars);
-	}
-
-	/**
-	 * Show/hide the cross hairs.
-	 */
-	private void toggleCrossHairs() {
-		this.showCrossHairs = !this.showCrossHairs;
-		chart.getXYPlot().setDomainCrosshairVisible(this.showCrossHairs);
-		chart.getXYPlot().setRangeCrosshairVisible(this.showCrossHairs);
-	}
-
-	/**
-	 * Return a listener for the "change series visibility" button.
-	 */
-	abstract protected ActionListener createSeriesChangeButtonListener();
 
 	/**
 	 * Was there a change in the series visibility? Some callers may want to
@@ -496,6 +409,12 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			Mediator.getInstance().getObservationSelectionNotifier()
 					.notifyListeners(message);
 		}
+	}
+
+	// From ChartMouseListener
+	public void chartMouseMoved(ChartMouseEvent event) {
+		ChartEntity entity = event.getEntity();
+		// TODO: update status pane with JD/phase and mag.
 	}
 
 	/**
@@ -697,12 +616,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 				return true;
 			}
 		};
-	}
-
-	// From ChartMouseListener
-	public void chartMouseMoved(ChartMouseEvent arg0) {
-		// Nothing to do here.
-		// TODO: Zoom?
 	}
 
 	/**

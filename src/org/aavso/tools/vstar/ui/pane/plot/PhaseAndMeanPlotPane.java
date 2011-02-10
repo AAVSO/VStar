@@ -19,8 +19,6 @@ package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -31,7 +29,6 @@ import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
-import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -64,8 +61,6 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 				new TimeElementsInBinSettingPane(
 						"Phase Steps per Mean Series Bin", obsAndMeanModel,
 						PhaseTimeElementEntity.instance), bounds);
-
-//		this.getChartControlPanel().add(new NewPhasePlotButtonPane(this));
 	}
 
 	// Returns an observation selection listener.

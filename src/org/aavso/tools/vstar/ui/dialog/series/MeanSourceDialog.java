@@ -23,6 +23,8 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
  * This class represents a dialog that builds on the series visibility dialog in
  * order to permit selection of the series that is to be the source of the means
  * series. Only one band/series should be used to calculate the mean series.
+ * 
+ * @deprecated
  */
 public class MeanSourceDialog extends AbstractSeriesVisibilityDialog<MeanSourcePane> {
 

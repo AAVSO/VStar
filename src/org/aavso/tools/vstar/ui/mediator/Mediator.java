@@ -692,7 +692,7 @@ public class Mediator {
 
 			String meanPlotSubtitle = subTitle;
 			if (!"".equals(meanPlotSubtitle)) {
-				meanPlotSubtitle += "\n";
+				meanPlotSubtitle += ", ";
 			}
 
 			meanPlotSubtitle += "Mean error bars denote 95% Confidence Interval (twice Standard Error)";

@@ -22,7 +22,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -31,10 +30,12 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.NamedComponent;
-import org.aavso.tools.vstar.ui.dialog.series.MeanSourceDialog;
+import org.aavso.tools.vstar.ui.dialog.series.MeanSourcePane;
+import org.aavso.tools.vstar.ui.dialog.series.SeriesVisibilityPane;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
@@ -45,6 +46,10 @@ import org.jfree.chart.JFreeChart;
  */
 public class AbstractPlotControlDialog extends JDialog {
 
+	// Series-related panes. 
+	protected SeriesVisibilityPane seriesVisibilityPane;
+	protected MeanSourcePane meanSourcePane;
+	
 	// Show error bars?
 	protected boolean showErrorBars;
 	protected JCheckBox errorBarCheckBox;
@@ -157,17 +162,10 @@ public class AbstractPlotControlDialog extends JDialog {
 		JPanel chartControlPanel = new JPanel();
 		chartControlPanel.setLayout(new BoxLayout(chartControlPanel,
 				BoxLayout.PAGE_AXIS));
-
 		chartControlPanel.setBorder(BorderFactory.createEtchedBorder());
 
-		// A button to change series visibility.
-		JPanel seriesChangePanel = new JPanel();
-		seriesChangePanel.setBorder(BorderFactory.createTitledBorder("Series"));
-		JButton visibilityButton = new JButton("Change Series");
-		visibilityButton.addActionListener(createSeriesChangeButtonListener());
-		seriesChangePanel.add(visibilityButton);
-		chartControlPanel.add(seriesChangePanel);
-
+		chartControlPanel.add(createSeriesChangePane());
+		
 		JPanel showCheckBoxPanel = new JPanel();
 		showCheckBoxPanel.setBorder(BorderFactory.createTitledBorder("Show"));
 		showCheckBoxPanel.setLayout(new BoxLayout(showCheckBoxPanel,
@@ -190,7 +188,7 @@ public class AbstractPlotControlDialog extends JDialog {
 
 		JPanel meanChangePanel = new JPanel();
 		meanChangePanel.setBorder(BorderFactory
-				.createTitledBorder("Mean Update"));
+				.createTitledBorder("Mean Series Update"));
 		meanChangePanel.setLayout(new BoxLayout(meanChangePanel,
 				BoxLayout.PAGE_AXIS));
 
@@ -220,6 +218,27 @@ public class AbstractPlotControlDialog extends JDialog {
 		return chartControlPanel;
 	}
 
+	// Creates and returns the series change (visibility and mean source) pane.
+	private JPanel createSeriesChangePane() {
+		JPanel seriesChangePane = new JPanel();
+		seriesChangePane.setLayout(new BoxLayout(seriesChangePane, BoxLayout.PAGE_AXIS));
+		seriesChangePane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+		JPanel seriesPane = new JPanel();
+		seriesPane.setLayout(new BoxLayout(seriesPane, BoxLayout.LINE_AXIS));
+		seriesVisibilityPane = new SeriesVisibilityPane(obsModel);
+		seriesPane.add(seriesVisibilityPane);
+		
+		meanSourcePane = new MeanSourcePane(obsModel);
+		seriesPane.add(meanSourcePane);
+		
+		seriesChangePane.add(new JScrollPane(seriesPane));
+
+		seriesChangePane.add(Box.createRigidArea(new Dimension(10, 10)));
+		
+		return seriesChangePane;
+	}
+	
 	// Returns a listener for the error bar visibility checkbox.
 	private ActionListener createErrorBarCheckBoxListener() {
 		return new ActionListener() {
@@ -274,11 +293,12 @@ public class AbstractPlotControlDialog extends JDialog {
 	}
 
 	protected JPanel createButtonPane() {
-		JPanel panel = new JPanel(new BorderLayout());
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
 		dismissButton = new JButton("Dismiss");
 		dismissButton.addActionListener(createDismissButtonListener());
-		panel.add(dismissButton, BorderLayout.LINE_END);
+		panel.add(dismissButton);
 
 		this.getRootPane().setDefaultButton(dismissButton);
 
@@ -292,55 +312,5 @@ public class AbstractPlotControlDialog extends JDialog {
 				close();
 			}
 		};
-	}
-
-	/**
-	 * Return a listener for the "change series visibility" button.
-	 */
-	protected ActionListener createSeriesChangeButtonListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				int oldMeanSeriesSourceNum = obsModel.getMeanSourceSeriesNum();
-
-				MeanSourceDialog dialog = new MeanSourceDialog(obsModel);
-
-				if (!dialog.isCancelled()) {
-					seriesVisibilityChange(dialog.getVisibilityDeltaMap());
-
-					int newMeanSeriesSourceNum = dialog
-							.getMeanSeriesSourceNum();
-
-					if (newMeanSeriesSourceNum != oldMeanSeriesSourceNum) {
-						// Update mean series based upon changed means
-						// source series.
-						obsModel.changeMeansSeries(obsModel
-								.getTimeElementsInBin());
-					}
-				}
-			}
-		};
-	}
-
-	/**
-	 * Was there a change in the series visibility? Some callers may want to
-	 * invoke this only for its side effects, while others may also want to know
-	 * the result.
-	 * 
-	 * @param deltaMap
-	 *            A mapping from series number to whether or not each series'
-	 *            visibility was changed.
-	 * 
-	 * @return Was there a change in the visibility of any series?
-	 */
-	protected boolean seriesVisibilityChange(Map<Integer, Boolean> deltaMap) {
-		boolean delta = false;
-
-		for (int seriesNum : deltaMap.keySet()) {
-			boolean visibility = deltaMap.get(seriesNum);
-			delta |= obsModel.changeSeriesVisibility(seriesNum, visibility);
-		}
-
-		return delta;
 	}
 }
