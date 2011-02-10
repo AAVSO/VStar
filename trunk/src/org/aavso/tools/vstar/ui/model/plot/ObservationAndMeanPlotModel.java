@@ -105,8 +105,10 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * series index and time-elements-in-bin. It then updates the view and any
 	 * listeners.
 	 */
-	public void setMeanSeries() {
+	public boolean setMeanSeries() {
 
+		boolean changed = true;
+		
 		binningResult = DescStats.createSymmetricBinnedObservations(
 				seriesNumToObSrcListMap.get(meanSourceSeriesNum),
 				timeElementEntity, timeElementsInBin);
@@ -154,12 +156,16 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 			// Notify listeners.
 			this.meansChangeNotifier.notifyListeners(binningResult);
+		} else {
+			changed = false;
 		}
+		
+		return changed;
 	}
 
-	public void changeMeansSeries(double timeElementsInBin) {
+	public boolean changeMeansSeries(double timeElementsInBin) {
 		this.timeElementsInBin = timeElementsInBin;
-		this.setMeanSeries();
+		return this.setMeanSeries();
 	}
 
 	/**

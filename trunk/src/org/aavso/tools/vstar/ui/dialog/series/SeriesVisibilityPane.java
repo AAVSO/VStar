@@ -60,7 +60,7 @@ public class SeriesVisibilityPane extends JPanel {
 		this.visibilityDeltaMap = new HashMap<Integer, Boolean>();
 
 		addSeriesCheckBoxes();
-		addSelectAllButtons();
+		addButtons();
 	}
 
 	// Create a checkbox for each series.
@@ -71,21 +71,17 @@ public class SeriesVisibilityPane extends JPanel {
 		checkBoxes = new ArrayList<JCheckBox>();
 
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
-			if (true/*series != SeriesType.MEANS*/) {
-				String seriesName = series.getDescription();
-				JCheckBox checkBox = new JCheckBox(seriesName);
-				checkBox
-						.addActionListener(createSeriesVisibilityCheckBoxListener());
-				int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
-						series);
-				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(
-						seriesNum);
-				checkBox.setSelected(vis);
-				this.add(checkBox);
-				this.add(Box.createRigidArea(new Dimension(3, 3)));
+			String seriesName = series.getDescription();
+			JCheckBox checkBox = new JCheckBox(seriesName);
+			checkBox
+					.addActionListener(createSeriesVisibilityCheckBoxListener());
+			int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(series);
+			boolean vis = obsPlotModel.getSeriesVisibilityMap().get(seriesNum);
+			checkBox.setSelected(vis);
+			this.add(checkBox);
+			this.add(Box.createRigidArea(new Dimension(3, 3)));
 
-				checkBoxes.add(checkBox);
-			}
+			checkBoxes.add(checkBox);
 		}
 	}
 
@@ -95,14 +91,16 @@ public class SeriesVisibilityPane extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				JCheckBox checkBox = (JCheckBox) e.getSource();
 				updateSeriesVisibilityMap(checkBox);
+				seriesVisibilityChange(getVisibilityDeltaMap());
 			}
 		};
 	}
 
-	// Create a button for en-masse selection/deselection
-	// of visibility checkboxes.
-	private void addSelectAllButtons() {
-		JPanel panel = new JPanel(new BorderLayout());
+	// Create buttons for en-masse selection/deselection
+	// of visibility checkboxes and an apply button.
+	private void addButtons() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
 		JButton selectAllButton = new JButton("Select All");
@@ -115,12 +113,36 @@ public class SeriesVisibilityPane extends JPanel {
 				.addActionListener(createEnMasseSelectionButtonListener(false));
 		panel.add(deSelectAllButton, BorderLayout.LINE_END);
 
-		this.add(panel);
+		this.add(panel, BorderLayout.CENTER);
+	}
+
+	/**
+	 * Was there a change in the series visibility? Some callers may want to
+	 * invoke this only for its side effects, while others may also want to know
+	 * the result.
+	 * 
+	 * @param deltaMap
+	 *            A mapping from series number to whether or not each series'
+	 *            visibility was changed.
+	 * 
+	 * @return Was there a change in the visibility of any series?
+	 */
+	protected boolean seriesVisibilityChange(Map<Integer, Boolean> deltaMap) {
+		boolean delta = false;
+
+		for (int seriesNum : deltaMap.keySet()) {
+			boolean visibility = deltaMap.get(seriesNum);
+			delta |= obsPlotModel.changeSeriesVisibility(seriesNum, visibility);
+		}
+
+		return delta;
 	}
 
 	/**
 	 * Return a listener for the "select/deselect all" checkbox.
-	 * @param target The target check-button state.
+	 * 
+	 * @param target
+	 *            The target check-button state.
 	 * @return The button listener.
 	 */
 	private ActionListener createEnMasseSelectionButtonListener(
@@ -129,17 +151,20 @@ public class SeriesVisibilityPane extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				for (JCheckBox checkBox : checkBoxes) {
 					checkBox.setSelected(target);
-					updateSeriesVisibilityMap(checkBox);					
+					updateSeriesVisibilityMap(checkBox);
 				}
+
+				seriesVisibilityChange(getVisibilityDeltaMap());
 			}
 		};
 	}
 
 	/**
-	 * Update the series visibility map according to the state
-	 * of the checkboxes.
+	 * Update the series visibility map according to the state of the
+	 * checkboxes.
 	 * 
-	 * @param checkBox The checkbox whose state we want to update from.
+	 * @param checkBox
+	 *            The checkbox whose state we want to update from.
 	 */
 	private void updateSeriesVisibilityMap(JCheckBox checkBox) {
 		String seriesName = checkBox.getText();
@@ -147,7 +172,7 @@ public class SeriesVisibilityPane extends JPanel {
 				SeriesType.getSeriesFromDescription(seriesName));
 		visibilityDeltaMap.put(seriesNum, checkBox.isSelected());
 	}
-	
+
 	/**
 	 * @return the visibilityDeltaMap
 	 */

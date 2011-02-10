@@ -29,7 +29,6 @@ import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.dialog.series.MeanSourceDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
@@ -86,17 +85,9 @@ public class ObservationAndMeanPlotPane extends
 
 		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
 
-		// String confIntSubtitle =
-		// "Mean error bars denote 95% Confidence Interval (twice Standard Error)";
-		// List<Title> subtitles = chart.getSubtitles();
-		// subtitles.add(new TextTitle(confIntSubtitle));
-		// chart.setSubtitles(subtitles);
-
 		this.timeElementsInBinSettingPane = timeElementsInBinSettingPane;
 
 		this.joinMeans = true;
-
-		// addToChartControlPanel(this.getChartControlPanel());
 
 		// Set the means series color.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
@@ -146,67 +137,6 @@ public class ObservationAndMeanPlotPane extends
 
 		this(title, subTitle, JD_TITLE, MAG_TITLE, obsAndMeanModel,
 				timeElementsInBinSettingPane, bounds);
-	}
-
-	// Add means-specific widgets to chart control panel.
-	protected void addToChartControlPanel(JPanel chartControlPanel) {
-		// A checkbox to determine whether or not to join mean
-		// series elements.
-		JCheckBox joinMeansCheckBox = new JCheckBox("Join means?");
-		joinMeansCheckBox.setSelected(true);
-		joinMeansCheckBox.addActionListener(createJoinMeansCheckBoxListener());
-		chartControlPanel.add(joinMeansCheckBox);
-
-		chartControlPanel.add(Box.createHorizontalGlue());
-
-		// An update time-elements-in-bin component.
-		chartControlPanel.add(this.timeElementsInBinSettingPane);
-	}
-
-	// Return a listener for the "join means visually" checkbox.
-	private ActionListener createJoinMeansCheckBoxListener() {
-		final ObservationAndMeanPlotPane self = this;
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				self.toggleJoinMeansSetting();
-			}
-		};
-	}
-
-	// Toggle the "join means" setting which dictates whether or
-	// not the means are visually joined (by lines).
-	private void toggleJoinMeansSetting() {
-		this.joinMeans = !this.joinMeans;
-		this.getRenderer().setSeriesLinesVisible(
-				this.obsModel.getMeansSeriesNum(), this.joinMeans);
-	}
-
-	// Return a listener for the "change series visibility" button.
-	protected ActionListener createSeriesChangeButtonListener() {
-		final ObservationAndMeanPlotPane self = this;
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				int oldMeanSeriesSourceNum = self.obsModel
-						.getMeanSourceSeriesNum();
-
-				MeanSourceDialog dialog = new MeanSourceDialog(self.obsModel);
-
-				if (!dialog.isCancelled()) {
-					seriesVisibilityChange(dialog.getVisibilityDeltaMap());
-
-					int newMeanSeriesSourceNum = dialog
-							.getMeanSeriesSourceNum();
-
-					if (newMeanSeriesSourceNum != oldMeanSeriesSourceNum) {
-						// Update mean series based upon changed means
-						// source series.
-						obsModel.changeMeansSeries(obsModel
-								.getTimeElementsInBin());
-					}
-				}
-			}
-		};
 	}
 
 	// Returns an observation selection listener.

@@ -171,7 +171,7 @@ public class ToolBar extends JPanel {
 				.getIconResource("/nico/toolbarIcons/_24_/Details.png");
 
 		plotControlIcon = ResourceAccessor
-				.getIconResource("/nico/toolbarIcons/_24_/Switch.png");
+				.getIconResource("/nico/toolbarIcons/_24_/Switch2.png");
 
 		zoomInIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/ZoomIn.png");
