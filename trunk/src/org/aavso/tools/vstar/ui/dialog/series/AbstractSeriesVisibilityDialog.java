@@ -88,7 +88,7 @@ abstract public class AbstractSeriesVisibilityDialog<T extends JPanel> extends A
 
 		seriesPane = new JPanel();
 		seriesPane.setLayout(new BoxLayout(seriesPane, BoxLayout.LINE_AXIS));
-		seriesVisibilityPane = new SeriesVisibilityPane(obsPlotModel);
+//		seriesVisibilityPane = new SeriesVisibilityPane(obsPlotModel);
 		seriesPane.add(seriesVisibilityPane);
 		
 		if (nextPane != null) {

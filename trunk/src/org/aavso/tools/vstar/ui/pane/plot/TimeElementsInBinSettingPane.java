@@ -30,8 +30,11 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.model.plot.ITimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This component permits the time-elements-in-bin value to be changed which in
@@ -73,14 +76,12 @@ public class TimeElementsInBinSettingPane extends JPanel {
 		this.add(Box.createHorizontalGlue());
 
 		// Given the source-series of the means series, determine the
-		// maximum day range for the time-elements-in-bin spinner.
+		// maximum day/phase range for the time-elements-in-bin spinner.
 		List<ValidObservation> meanSrcObsList = obsAndMeanModel
 				.getSeriesNumToObSrcListMap().get(
 						obsAndMeanModel.getMeanSourceSeriesNum());
 
-		double max = timeElementEntity.getTimeElement(meanSrcObsList,
-				meanSrcObsList.size() - 1)
-				- timeElementEntity.getTimeElement(meanSrcObsList, 0);
+		double max = timeElementEntity.getMaxTimeIncrements(meanSrcObsList);
 
 		// Spinner for time-elements-in-bin with the specified current, min, and
 		// max values, and step size. If the "current time elements in bin"
@@ -99,6 +100,11 @@ public class TimeElementsInBinSettingPane extends JPanel {
 
 		this.add(timeElementsInBinSpinner);
 
+		// The spinner model needs to be updated with the max value
+		// when the mean source series changes!
+		Mediator.getInstance().getMeanSourceSeriesChangeNotifier().addListener(
+				createMeanSourceSeriesChangeListener());
+
 		this.add(Box.createHorizontalGlue());
 
 		// Update button for time-elements-in-bin.
@@ -107,6 +113,34 @@ public class TimeElementsInBinSettingPane extends JPanel {
 		this.add(updateButton);
 
 		this.add(Box.createHorizontalGlue());
+	}
+
+	// Return a listener for mean source series change events so we can update
+	// the spinner model.
+	private Listener<MeanSourceSeriesChangeMessage> createMeanSourceSeriesChangeListener() {
+		return new Listener<MeanSourceSeriesChangeMessage>() {
+			@Override
+			public void update(MeanSourceSeriesChangeMessage msg) {
+				List<ValidObservation> meanSrcObsList = obsAndMeanModel
+						.getSeriesNumToObSrcListMap().get(
+								obsAndMeanModel.getMeanSourceSeriesNum());
+
+				double max = timeElementEntity
+						.getMaxTimeIncrements(meanSrcObsList);
+
+				// Set the new maximum and if the value currently in the spinner
+				// is greater than this, change it to be that maximum value.
+				timeElementsInBinSpinnerModel.setMaximum(max);
+				if ((Double) timeElementsInBinSpinner.getValue() > max) {
+					timeElementsInBinSpinner.setValue(max);
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 
 	// Return a listener for the "update means" button.

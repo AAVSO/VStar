@@ -300,6 +300,8 @@ public class AbstractPlotControlDialog extends JDialog {
 		dismissButton.addActionListener(createDismissButtonListener());
 		panel.add(dismissButton);
 
+		// ******************** revisit this *********************
+		
 		this.getRootPane().setDefaultButton(dismissButton);
 
 		return panel;

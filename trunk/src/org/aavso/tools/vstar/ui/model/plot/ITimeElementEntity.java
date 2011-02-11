@@ -56,6 +56,15 @@ public interface ITimeElementEntity {
 	 * @return The default time increment. 
 	 */
 	abstract public double getDefaultTimeIncrements();
+
+	/**
+	 * Given a list of observations, return the maximum time increments 
+	 * or steps over a time bin range.
+	 * 
+	 * @param meanSourceObs The list of observations that is the mean source.
+	 * @return The maximum time increment.
+	 */
+	abstract public double getMaxTimeIncrements(List<ValidObservation> meanSourceObs);
 	
 	/**
 	 * Get the desired DecimalNumber-style format.

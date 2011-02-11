@@ -47,10 +47,17 @@ public class JDTimeElementEntity implements ITimeElementEntity {
 	public double getDefaultTimeIncrements() {
 		return 1;
 	}
-	
+
+	@Override
+	public double getMaxTimeIncrements(List<ValidObservation> meanSourceObs) {
+		// The number of days in the mean source observation list.
+		return meanSourceObs.get(meanSourceObs.size() - 1).getJD()
+				- meanSourceObs.get(0).getJD();
+	}
+
 	public String getNumberFormat() {
-		// TODO: once we have plot control dialog, not sure we need this		
-//		return "#####.####";
+		// TODO: once we have plot control dialog, not sure we need this
+		// return "#####.####";
 		return NumericPrecisionPrefs.getTimeInputFormat();
 	}
 }

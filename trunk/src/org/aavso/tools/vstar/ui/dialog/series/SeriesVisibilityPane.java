@@ -34,7 +34,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.stats.BinningResult;
 
 /**
  * This class represents a pane with checkboxes showing those series that are
@@ -42,14 +44,15 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
  */
 public class SeriesVisibilityPane extends JPanel {
 
-	private ObservationPlotModel obsPlotModel;
+	private ObservationAndMeanPlotModel obsPlotModel;
 	private Map<Integer, Boolean> visibilityDeltaMap;
 	private List<JCheckBox> checkBoxes;
+	private JCheckBox meanCheckBox;
 
 	/**
 	 * Constructor
 	 */
-	public SeriesVisibilityPane(ObservationPlotModel obsPlotModel) {
+	public SeriesVisibilityPane(ObservationAndMeanPlotModel obsPlotModel) {
 		super();
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder("Visibility"));
@@ -60,7 +63,27 @@ public class SeriesVisibilityPane extends JPanel {
 		this.visibilityDeltaMap = new HashMap<Integer, Boolean>();
 
 		addSeriesCheckBoxes();
+
+		obsPlotModel.getMeansChangeNotifier().addListener(
+				createMeanObsChangeListener());
+
 		addButtons();
+	}
+
+	// Return a mean observation change listener to ensure that the
+	// mean series checkbox is selected if a new binning operation takes place.
+	private Listener<BinningResult> createMeanObsChangeListener() {
+		return new Listener<BinningResult>() {
+			@Override
+			public void update(BinningResult info) {
+				meanCheckBox.setSelected(true);
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 
 	// Create a checkbox for each series.
@@ -73,6 +96,11 @@ public class SeriesVisibilityPane extends JPanel {
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
 			String seriesName = series.getDescription();
 			JCheckBox checkBox = new JCheckBox(seriesName);
+
+			if (series == SeriesType.MEANS) {
+				meanCheckBox = checkBox;
+			}
+
 			checkBox
 					.addActionListener(createSeriesVisibilityCheckBoxListener());
 			int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(series);

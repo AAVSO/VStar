@@ -68,6 +68,12 @@ public class PhaseTimeElementEntity implements ITimeElementEntity {
 		return 0.05;
 	}
 
+	@Override
+	public double getMaxTimeIncrements(List<ValidObservation> meanSourceObs) {
+		// A single phase, irrespective of the observations. 
+		return 1;
+	}
+
 	public String getNumberFormat() {
 		// TODO: once we have plot control dialog, not sure we need this
 //		return "  #.####";

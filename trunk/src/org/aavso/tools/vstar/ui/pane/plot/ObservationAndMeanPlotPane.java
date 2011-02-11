@@ -18,14 +18,8 @@
 package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.util.List;
-
-import javax.swing.Box;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
