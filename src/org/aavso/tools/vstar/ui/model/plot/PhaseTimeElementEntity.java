@@ -65,7 +65,7 @@ public class PhaseTimeElementEntity implements ITimeElementEntity {
 	}
 
 	public double getDefaultTimeIncrements() {
-		return 0.05;
+		return 0.01;
 	}
 
 	@Override
