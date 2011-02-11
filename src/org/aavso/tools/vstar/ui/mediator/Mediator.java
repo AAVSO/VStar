@@ -315,12 +315,8 @@ public class Mediator {
 
 	/**
 	 * Create a mean observation change listener and return it. Whenever the
-	 * mean series source changes, we need to perform a new period analysis. We
-	 * only want to use one of these for raw data mode's obs-and-mean-plot-model
-	 * since that's where period analysis creation currently gets its mean
-	 * source series information from. That may change in future, for example,
-	 * if we make period analysis responsible for determining its own mean
-	 * source series via GUI component of its own.
+	 * mean series source changes, we may want to perform a new period analysis
+	 * or change the max time increments in for means binning.
 	 */
 	private Listener<BinningResult> createMeanObsChangeListener(
 			int initialSeriesNum) {
@@ -334,13 +330,9 @@ public class Mediator {
 			}
 
 			public void update(BinningResult info) {
-				// A new mean series source has been selected, so blow away the
-				// current period analysis dialog so it must be regenerated. It
-				// may be that the mean series source has not changed, just the
-				// mean time bin value, in which case we do not need a new
-				// period analysis next time it is requested.
 				if (this.meanSourceSeriesNum != obsAndMeanPlotModel
 						.getMeanSourceSeriesNum()) {
+					
 					this.meanSourceSeriesNum = obsAndMeanPlotModel
 							.getMeanSourceSeriesNum();
 
@@ -348,15 +340,11 @@ public class Mediator {
 							.getSeriesNumToSrcTypeMap().get(
 									this.meanSourceSeriesNum);
 
+					// Also send out a mean-source series notification.
+					// TODO: why doesn't MeanSourcePane do this instead!!! ***
 					meanSourceSeriesChangeNotifier
 							.notifyListeners(new MeanSourceSeriesChangeMessage(
 									this, meanSourceSeriesType));
-
-					// TODO: need to re-up this listener when model changes due
-					// to
-					// phase plot!
-					// move all of this into plugin even... including
-					// re-registration?
 				}
 			}
 		};
