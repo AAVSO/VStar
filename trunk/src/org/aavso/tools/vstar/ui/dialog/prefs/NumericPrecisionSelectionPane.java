@@ -125,7 +125,7 @@ public class NumericPrecisionSelectionPane extends JPanel implements
 
 	private JSpinner createDecimalPlacesSpinner(int initial, String title) {
 		SpinnerNumberModel decimalPlacesSpinnerModel = new SpinnerNumberModel(
-				initial, 1, 10, 1);
+				initial, 1, 15, 1);
 		JSpinner spinner = new JSpinner(decimalPlacesSpinnerModel);
 		spinner.setBorder(BorderFactory.createTitledBorder(title));
 		return spinner;
