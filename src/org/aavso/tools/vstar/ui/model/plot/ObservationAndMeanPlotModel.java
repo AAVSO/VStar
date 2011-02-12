@@ -108,7 +108,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	public boolean setMeanSeries() {
 
 		boolean changed = true;
-		
+
 		binningResult = DescStats.createSymmetricBinnedObservations(
 				seriesNumToObSrcListMap.get(meanSourceSeriesNum),
 				timeElementEntity, timeElementsInBin);
@@ -159,7 +159,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		} else {
 			changed = false;
 		}
-		
+
 		return changed;
 	}
 
@@ -356,7 +356,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * Listen for valid observation change notification, e.g. an observation's
 	 * discrepant notification is changed. Since a discrepant observation is
 	 * ignored for statistical analysis purposes (see DescStats class), we need
-	 * to re-calculate the means series.
+	 * to re-calculate the means series if the discrepant observation's series
+	 * type is the same as the mean source series type.
 	 */
 	public void update(ObservationChangeMessage info) {
 		super.update(info);
@@ -364,7 +365,10 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		for (ObservationChangeType change : info.getChanges()) {
 			switch (change) {
 			case DISCREPANT:
-				this.setMeanSeries();
+				if (info.getObservation().getBand() == seriesNumToSrcTypeMap
+						.get(meanSourceSeriesNum)) {
+					this.setMeanSeries();
+				}
 				break;
 			}
 		}
