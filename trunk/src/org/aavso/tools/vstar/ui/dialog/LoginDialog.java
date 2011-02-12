@@ -58,8 +58,6 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	public LoginDialog(String intro) {
 		super("Login");
 
-		this.setAlwaysOnTop(true);
-		
 		// Whitespace: \s or just ' '?
 		Pattern commonPattern = Pattern
 				.compile("^[A-Za-z0-9\\!@#\\$%&\\*\\(\\)_\\-\\+=\\?<><>\\.\\,\\s]{2,40}$");

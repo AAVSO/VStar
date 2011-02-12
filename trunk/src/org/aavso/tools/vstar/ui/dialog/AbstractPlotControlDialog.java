@@ -90,6 +90,7 @@ public class AbstractPlotControlDialog extends JDialog {
 			NamedComponent extra) {
 		setTitle(title);
 		setModal(true);
+		setAlwaysOnTop(true);
 
 		this.plotPane = plotPane;
 		this.obsModel = plotPane.getObsModel();

@@ -59,7 +59,9 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	 */
 	public PhaseParameterDialog() {
 		super("Phase Plot");
-
+		this.setModal(true);
+		this.setAlwaysOnTop(true);
+		
 		period = 0;
 		epoch = 0;
 
