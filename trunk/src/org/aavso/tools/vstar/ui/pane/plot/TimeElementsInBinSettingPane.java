@@ -30,11 +30,13 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.model.plot.ITimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This component permits the time-elements-in-bin value to be changed which in
@@ -145,12 +147,23 @@ public class TimeElementsInBinSettingPane extends JPanel {
 
 	// Return a listener for the "update means" button.
 	private ActionListener createUpdateMeansButtonListener() {
+		final JPanel self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// Get the value and change the means series.
 				double timeElementsInBin = timeElementsInBinSpinnerModel
 						.getNumber().doubleValue();
-				obsAndMeanModel.changeMeansSeries(timeElementsInBin);
+				if (timeElementsInBin > 0) {
+					obsAndMeanModel.changeMeansSeries(timeElementsInBin);
+				} else {
+					MessageBox.showErrorDialog(self,
+							"Mean Series Update Request", String.format(
+									"The bin size value ("
+											+ NumericPrecisionPrefs
+													.getTimeOutputFormat()
+											+ ") must be greater than zero.",
+									timeElementsInBin));
+				}
 			}
 		};
 	}
