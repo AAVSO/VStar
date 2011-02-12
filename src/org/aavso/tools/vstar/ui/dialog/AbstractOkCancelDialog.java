@@ -46,6 +46,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 		super();
 		this.setTitle(title);
 		this.setModal(true);
+		this.setAlwaysOnTop(true);
 		this.cancelled = true;
 		this.firstUse = true;
 	}

@@ -52,7 +52,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 	public InfoDialog(NewStarMessage newStarMessage) {
 		super();
 		this.setTitle("Information");
-		this.setModal(false);
+		this.setAlwaysOnTop(true);
 
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));

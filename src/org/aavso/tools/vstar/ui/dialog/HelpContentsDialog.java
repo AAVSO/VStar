@@ -44,6 +44,7 @@ public class HelpContentsDialog extends JDialog {
 	 */
 	public HelpContentsDialog() {
 		super();
+		this.setAlwaysOnTop(true);
 		this.getContentPane().add(createHelpPane());
 	}
 

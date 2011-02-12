@@ -42,21 +42,23 @@ abstract public class PeriodAnalysisDialogBase extends JDialog {
 	 * Constructor.
 	 * 
 	 * @param title The dialog title.
-	 * @param isModal Should the dialog be modal.
+	 * @param isModal Should the dialog be modal?
+	 * @param isAlwaysOnTop Should the dialog always be on top?
 	 */
-	public PeriodAnalysisDialogBase(String title, boolean isModal) {
+	public PeriodAnalysisDialogBase(String title, boolean isModal, boolean isAlwaysOnTop) {
 		super();
 		this.setTitle(title);
-		this.setModal(isModal);		
+		this.setModal(isModal);
+		this.setAlwaysOnTop(isAlwaysOnTop);
 	}
 	
 	/**
-	 * Constructor for a non-modal dialog.
+	 * Constructor for a non-modal dialog that is not always on top.
 	 * 
 	 * @param title The dialog title.
 	 */
 	public PeriodAnalysisDialogBase(String title) {
-		this(title, false);
+		this(title, false, false);
 	}
 	
 	/**

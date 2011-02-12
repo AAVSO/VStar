@@ -66,7 +66,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 			List<PeriodAnalysis2DPlotModel> plotModels,
 			PeriodAnalysisDataTableModel dataTableModel,
 			PeriodAnalysisTopHitsTableModel topHitsTableModel) {
-		super(title);
+		super(title, false, true);
 
 		this.seriesTitle = seriesTitle;
 		this.chartTitle = title;
