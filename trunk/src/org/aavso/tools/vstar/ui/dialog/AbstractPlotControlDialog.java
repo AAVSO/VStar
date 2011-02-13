@@ -172,6 +172,9 @@ public class AbstractPlotControlDialog extends JDialog {
 		showCheckBoxPanel.setLayout(new BoxLayout(showCheckBoxPanel,
 				BoxLayout.PAGE_AXIS));
 
+		JPanel subPanel = new JPanel();
+		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.LINE_AXIS));
+		
 		// A checkbox to show/hide error bars.
 		errorBarCheckBox = new JCheckBox("Error bars?");
 		errorBarCheckBox.setSelected(this.showErrorBars);
@@ -183,9 +186,8 @@ public class AbstractPlotControlDialog extends JDialog {
 		crossHairCheckBox.setSelected(this.showCrossHairs);
 		crossHairCheckBox.addActionListener(createCrossHairCheckBoxListener());
 		showCheckBoxPanel.add(crossHairCheckBox);
-		chartControlPanel.add(showCheckBoxPanel);
-
-		chartControlPanel.add(Box.createRigidArea(new Dimension(75, 10)));
+		
+		subPanel.add(showCheckBoxPanel);
 
 		JPanel meanChangePanel = new JPanel();
 		meanChangePanel.setBorder(BorderFactory
@@ -205,8 +207,10 @@ public class AbstractPlotControlDialog extends JDialog {
 		// Add an update time-elements-in-bin component.
 		meanChangePanel.add(timeElementsInBinSettingPane);
 
-		chartControlPanel.add(meanChangePanel);
+		subPanel.add(meanChangePanel);
 
+		chartControlPanel.add(subPanel);
+		
 		// Add extra component, if there is one.
 		if (extra != null) {
 			JPanel extraPane = new JPanel();
