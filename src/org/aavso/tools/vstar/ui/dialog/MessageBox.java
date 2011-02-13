@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.dialog;
 import java.awt.Component;
 
 import javax.swing.Icon;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import org.aavso.tools.vstar.ui.MainFrame;
@@ -43,8 +44,11 @@ public class MessageBox {
 	 */
 	public static void showMessageDialog(Component parent, String title,
 			String msg, Icon icon) {
-		JOptionPane.showMessageDialog(parent, msg, title,
-				JOptionPane.INFORMATION_MESSAGE, icon);
+		JOptionPane pane = new JOptionPane(msg,
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_OPTION, icon);
+		JDialog dialog = pane.createDialog(parent, title);
+		dialog.setAlwaysOnTop(true);
+		dialog.setVisible(true);
 	}
 
 	/**
@@ -58,8 +62,11 @@ public class MessageBox {
 	 *            The icon to be displayed in the dialog.
 	 */
 	public static void showMessageDialog(String title, String msg, Icon icon) {
-		JOptionPane.showMessageDialog(MainFrame.getInstance(), msg, title,
-				JOptionPane.INFORMATION_MESSAGE, icon);
+		JOptionPane pane = new JOptionPane(msg,
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_OPTION, icon);
+		JDialog dialog = pane.createDialog(MainFrame.getInstance(), title);
+		dialog.setAlwaysOnTop(true);
+		dialog.setVisible(true);
 	}
 
 	/**
@@ -74,8 +81,11 @@ public class MessageBox {
 	 */
 	public static void showMessageDialog(Component parent, String title,
 			String msg) {
-		JOptionPane.showMessageDialog(parent, msg, title,
-				JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane pane = new JOptionPane(msg,
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_OPTION);
+		JDialog dialog = pane.createDialog(parent, title);
+		dialog.setAlwaysOnTop(true);
+		dialog.setVisible(true);
 	}
 
 	/**
@@ -87,8 +97,11 @@ public class MessageBox {
 	 *            The message that is the content of the dialog.
 	 */
 	public static void showMessageDialog(String title, String msg) {
-		JOptionPane.showMessageDialog(MainFrame.getInstance(), msg, title,
-				JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane pane = new JOptionPane(msg,
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_OPTION);
+		JDialog dialog = pane.createDialog(MainFrame.getInstance(), title);
+		dialog.setAlwaysOnTop(true);
+		dialog.setVisible(true);
 	}
 
 	/**
@@ -103,8 +116,11 @@ public class MessageBox {
 	 */
 	public static void showWarningDialog(Component parent, String title,
 			String msg) {
-		JOptionPane.showMessageDialog(parent, msg, title,
-				JOptionPane.WARNING_MESSAGE);
+		JOptionPane pane = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE,
+				JOptionPane.OK_OPTION);
+		JDialog dialog = pane.createDialog(parent, title);
+		dialog.setAlwaysOnTop(true);
+		dialog.setVisible(true);
 	}
 
 	/**
@@ -116,8 +132,11 @@ public class MessageBox {
 	 *            The message that is the content of the dialog.
 	 */
 	public static void showWarningDialog(String title, String msg) {
-		JOptionPane.showMessageDialog(MainFrame.getInstance(), msg, title,
-				JOptionPane.WARNING_MESSAGE);
+		JOptionPane pane = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE,
+				JOptionPane.OK_OPTION);
+		JDialog dialog = pane.createDialog(MainFrame.getInstance(), title);
+		dialog.setAlwaysOnTop(true);
+		dialog.setVisible(true);
 	}
 
 	/**
@@ -132,8 +151,12 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			String msg) {
-		JOptionPane.showMessageDialog(parent, msg, title,
-				JOptionPane.ERROR_MESSAGE);
+		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
+				JOptionPane.OK_OPTION);
+		JDialog dialog = pane.createDialog(parent, title);
+		dialog.setAlwaysOnTop(true);
+		dialog.setVisible(true);
+
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
 	}
@@ -148,8 +171,13 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(String title, String msg) {
 		Component parent = MainFrame.getInstance();
-		JOptionPane.showMessageDialog(parent, msg, title,
-				JOptionPane.ERROR_MESSAGE);
+
+		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
+				JOptionPane.OK_OPTION);
+		JDialog dialog = pane.createDialog(parent, title);
+		dialog.setAlwaysOnTop(true);
+		dialog.setVisible(true);
+
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
 	}
@@ -171,8 +199,12 @@ public class MessageBox {
 			msg = e.getClass().getName();
 		}
 
-		JOptionPane.showMessageDialog(parent, msg, title,
-				JOptionPane.ERROR_MESSAGE);
+		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
+				JOptionPane.OK_OPTION);
+		JDialog dialog = pane.createDialog(parent, title);
+		dialog.setAlwaysOnTop(true);
+		dialog.setVisible(true);
+
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
 	}
@@ -194,8 +226,12 @@ public class MessageBox {
 			msg = e.getClass().getName();
 		}
 
-		JOptionPane.showMessageDialog(parent, msg, title,
-				JOptionPane.ERROR_MESSAGE);
+		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
+				JOptionPane.OK_OPTION);
+		JDialog dialog = pane.createDialog(parent, title);
+		dialog.setAlwaysOnTop(true);
+		dialog.setVisible(true);
+
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
 	}
