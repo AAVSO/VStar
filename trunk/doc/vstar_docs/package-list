@@ -30,6 +30,7 @@ org.aavso.tools.vstar.util.notification
 org.aavso.tools.vstar.util.period
 org.aavso.tools.vstar.util.period.dcdft
 org.aavso.tools.vstar.util.polyfit
+org.aavso.tools.vstar.util.prefs
 org.aavso.tools.vstar.util.property
 org.aavso.tools.vstar.util.stats
 org.aavso.tools.vstar.util.stats.epoch
