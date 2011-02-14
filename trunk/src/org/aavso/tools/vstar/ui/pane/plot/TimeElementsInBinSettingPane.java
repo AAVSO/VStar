@@ -145,7 +145,7 @@ public class TimeElementsInBinSettingPane extends JPanel {
 		};
 	}
 
-	// Return a listener for the "update means" button.
+	// Return a listener for the "update means" (Apply) button.
 	private ActionListener createUpdateMeansButtonListener() {
 		final JPanel self = this;
 		return new ActionListener() {

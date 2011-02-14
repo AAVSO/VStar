@@ -19,7 +19,7 @@ o Bug & Issue tracker entries cited below can be found here:
   These contain more detail about who did what, when, and where (in the 
   codebase).
 o Major contributors are: David Benn, Michael Umbricht, Sara Beck, Adam 
-  Weber, George Weber, and Nico Camargo.
+  Weber, George Weber, Nico Camargo, Bikeman (Heinz Eggenstein).
 
 Known Issues:
 o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies 
@@ -30,6 +30,34 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
+Date: January 14 2011
+Version: 2.11
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-14Jan2011
+Key Changes:
+- Fixed tracker 3108092: Locale specific problem for "New Phase Plot". Thanks to
+  Heinz for reporting and testing this, and for his patience.
+- Created plot control dialog box and removed plot control pane from observation
+  panes to leave more room for what is of primary interest to the VStar user: the 
+  data. See the new section in the help documentation for details.
+- Combined two plot tabs per mode into a single plot tab with mean series 
+  initially not visible.
+- If the bin size (now in plot control dialog) is not greater than zero, an
+  error message box is opened. See tracker 3147505. Thanks to Wolfgang for 
+  raising these and other trackers (3147507, 3147511, 3147512).
+- Fixed a bug in which phase steps per bin of greater than 1 were allowed. 
+  See tracker 3147505.
+- Changed default phase steps to 0.01. See tracker 3147505.
+- Fixed a bug in which setting an observation as discrepant was always 
+  recalculating the mean series irrespective of whether the current mean 
+  source series was the series of the marked observation. 
+- Made all dialogs either modal or always-on-top. Motivated by trackers 
+  3147512 and 3147511.
+- Added preferences for numeric precision and propagated to all output
+  and, where appropriate, some input dialog entry boxes. See trackers 
+  3147507 and 3147509.
+- Fixed tracker 3151183: SuperWASP plug-in magnitude error threshold 
+  increment.
+
 Date: December 22 2010
 Version: 2.10
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-22December2010

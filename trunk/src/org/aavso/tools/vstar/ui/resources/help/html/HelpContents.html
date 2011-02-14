@@ -9,31 +9,28 @@
 
 <br></br><h2>Introduction</h2>
 
-<p>VStar is a multi-platform, easy-to-use variable star data visualization tool.</p>
+<p>VStar is a multi-platform, easy-to-use variable star data visualization and 
+analysis tool.</p>
+
 <p>Its current capabilities are:</p>
 
 <ul>
  <li>Sourcing data from a file or the AAVSO International Database.</li>
  <li>Plotting a Light Curve or Phase Plot from raw observation data, 
  optionally with error bars for each observation.</li>
- <li>Showing a table of the raw observations associated with the light curve.</li>
  <li>Plotting a mean light curve (again, with optional error bars) along with
  the raw light curve.</li>
- <li>Showing a table of mean observations along with the standard error of the
- average for each.</li>
+ <li>Tables of data corresponding to the plots can also be viewed, with mean 
+ data having a table of its own.</li>
  <li>Performing period analysis.</li>
  <li>Filtering observations.</li>
+ <li>Extensibility via plug-ins written by the user community.</li>
 </ul>
 
-<p>The plots mentioned above have magnitude on the Y axis and Julian Day (or 
-phase) on the X axis.</p>
+<p>Plots have magnitude on the Y axis and Julian Day or phase on the X axis.</p>
 
-<p>When the <code>Mean Plot</code> tab is
-selected, the number of days per bin size can be specified. This will change
-both the plot and the means table (see the <code>Mean List</code> tab).</p>
-
-<p>VStar allows data to be loaded from one of two file formats or from the AAVSO
-International Database (AID).</p>
+<p>In its default configuration, VStar allows data to be loaded from one of two 
+file formats or from the AAVSO International Database (AID).</p>
 
 <br></br><h2>Loading Observation Data from a File</h2>
 
@@ -50,7 +47,7 @@ formats can be loaded:</p>
 
 <p>where [] indicates that a field is optional. In each case, a file may contain
 lines of tab or comma-delimited form. The fields of the second simple format
-have the same meaning as in the AAVSO Download Format.  VStar does not support
+have the same meaning as in the AAVSO Download Format. VStar does not support
 the AAVSO Space Delimited download format.</p>
 
 <p>Once loaded, you will notice that when the <code>Observation List</code> tab is 
@@ -77,33 +74,13 @@ the Julian Day range (or all data; take care: this may result in a lot of data b
 retrieved), the data for the star's observations within that range are loaded, and 
 charts and tables for the data, including means, are created.</p>
 
-<br/><br/><h2>Authentication</h2>
-
-<p>Note that as of version 2.10, authentication via login dialog only happens when 
-reporting an observation as discrepant (to validate your AAVSO/Citizen Sky username)
-which is only possible if the currently loaded dataset is from the AID.</p>
-
-<p>For a given run of VStar, you need to enter your Citizen Sky credentials
-only once.</p>
-
 <br/><br/><h2>Observation Details</h2>
 
-<p>By double-clicking an observation datapoint in a plot with the mouse, 
+<p>By selecting an observation datapoint in a plot with the mouse and clicking the 
+<code>Observation Details...</code> toolbar button or View menu item,
 a dialog is opened with details regarding the observation. This dialog also allows 
 an observation to be marked as discrepant and optionally to send a report to AAVSO.
-See the Zapper link below for more information about discrepant observations. The 
-same dialog can also be opened via the <code>Observation Details...</code> 
-<code>View</code> menu item or the equivalent toolbar button assuming an
-observation has been selected from a table row or via cross-hairs on a plot.</p>
-
-<br></br><h2>Phase Plots</h2>
-
-<p>Selecting <code>Phase Plot...</code> from the Analysis menu opens a dialogue
-where you can enter the period and epoch for a star.  Values from the AAVSO
-International Variable Star Index (VSX) are used as the default, if they are
-available.  VStar will then fold the data and display a Phase Plot of magnitude
-versus phase. Click the <code>New Phase Plot</code> button to change the period
-or epoch and generate a new phase plot.</p>
+See the Zapper link below for more information about discrepant observations.</p>
 
 <br></br><h2>Plot Zoom</h2>
 
@@ -112,7 +89,7 @@ pop-up menu items, simple zoom in/out View menu items and toolbar buttons are pr
 In order to use the latter, you must first select a point on the plot with the mouse.
 This point becomes the focus of subsequent zoom operations.</p>
 
-<br></br><h2>Plot Pan</h2>
+<br></br><h2>Plot Panning</h2>
 
 <p>Selecting <code>Pan Left</code>, <code>Pan Right</code>, <code>Pan Up</code>, 
 or <code>Pan Down</code> from the <code>View</code> menu (or more likely, using 
@@ -122,9 +99,39 @@ has been applied to a plot and you want to view surrounding data points.</p>
 
 <p><em>When panning left or right to the limit of the available data, selecting 
 <codePan Left</code> or <code>Pan Right</code>, accordingly, currently has no further 
-effect. In future, the user will be asked whether additional data with a JD less/greater 
-than the lower/upper bound should be read from the AID, if that was the source of the 
-dataset.</em></p>
+effect.</p>
+
+<br></br><h2>Phase Plots</h2>
+
+<p>Selecting <code>Phase Plot...</code> from the Analysis menu or clicking the 
+corresponding button from the toolbar opens a dialog box into which you can enter 
+the period and epoch for a dataset. Period and epoch values from the AAVSO International 
+Variable Star Index (VSX) are used as the default, if the dataset was loaded from the 
+AID. If unknown or the dataset was loaded from a file, the epoch defaults to the mid-point 
+of the dataset's time range. VStar will fold the data over the specified period and display 
+a Phase Plot of magnitude versus phase.</p>
+
+<p>After the first phase plot has been created for a dataset, selecting <code>Phase 
+Plot...</code> will switch from raw data (light curve) mode to phase plot mode, affecting
+both plots and tables. Selecting <code>Raw Data</code> from the Analysis menu will
+switch back to raw data (light curve) mode. To create a new phase plot, see the
+<em>Plot Control</em> section.</p>
+
+<br></br><h2>Plot Control</h2>
+
+<p>Selecting the <code>Plot Control...</code> toolbar button or View menu item opens
+a dialog that permits features of the light curve or phase plots to be changed:</p>
+
+<ul>
+  <li>Selection of series to be displayed.</li>
+  <li>Selection of the series to be used as the source for the mean series.</li>
+  <li>Whether or not to show error bars or cross hairs.</li>
+  <li>Whether or not data points in the mean series should be joined.</li>
+  <li>The number of days or phase steps per bin in the mean curve can be updated.</li>
+</ul>
+
+<p>In phase plot mode, a <code>New Phase Plot</code> button is included in the dialog
+to change the period or epoch and generate a new phase plot.</p>
 
 <br></br><h2>Observation Filtering</h2>
 
@@ -140,8 +147,8 @@ added. <em>This new series can be treated in the same way as any other series,
 including being selected/deselected, and used as the source for a mean curve.</em></p>
 
 <p>If the "Use selected observation?" checkbox is selected, when a matcher is chosen,
-its test value field will be taken from the currently selected observation, if there is
-one.</p>
+its test value field will be taken from the currently selected observation, if one
+has been selected with the cross-hairs.</p>
 
 <p>Selecting <code>No Filter...</code> from the View menu removes the effect of filtering.</p>
 
@@ -163,7 +170,7 @@ table entry or data-point in the other views. You can test different candidate
 periods by creating phase plots with those periods.</p>
 
 <p>Currently implemented: Date Compensated Discrete Fourier Transform (DC DFT). Other 
-possibilities: WWZ, AoV (analysis of variance), ...</p>
+possibilities in future are: WWZ, AoV (analysis of variance), Fast Chi Square.</p>
 
 <p>See also the <em>Create your own plug-in!</em> section.</p>
  
@@ -180,7 +187,7 @@ but not initially made visible. See also the <code>Change Series</code> button i
 light curve pane.</p>
 
 <p><em>A more complete integration of polynomial fit, including the option of saving
-residuals and fit coefficients is planned.</em></p>
+residuals and fit coefficients will be added in future.</em></p>
 
 <br></br><h2>Saving Plots and Tables</h2>
 
@@ -204,6 +211,10 @@ or the equivalent toolbar icon.</p>
 
 <p>Per-band colors can be changed and star groups can be created, deleted, and modified.</p>
 
+<p>The precision of numeric output can also be specified via the preferences dialog.</p>
+
+<p>Other preferences will be added over time.</p>
+
 <br></br><h2>Create your own plug-in!</h2>
 
 <p>VStar's functionality can be extended by developing Java plug-ins for:</p>
@@ -216,6 +227,15 @@ or the equivalent toolbar icon.</p>
 
 among other things. For more information see the Citizen Sky or AAVSO VStar web pages 
 (see <em>Links</em> section below).
+
+<br/><br/><h2>Authentication</h2>
+
+<p>Note that as of version 2.10, authentication via login dialog only happens when 
+reporting an observation as discrepant (to validate your AAVSO/Citizen Sky username)
+which is only possible if the currently loaded dataset is from the AID.</p>
+
+<p>For a given run of VStar, you need to enter your Citizen Sky credentials
+only once.</p>
 
 <br></br><h2>License and Source Code</h2>
 
