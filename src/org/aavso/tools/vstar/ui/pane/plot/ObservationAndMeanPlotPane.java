@@ -35,6 +35,9 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.title.TextTitle;
@@ -47,10 +50,7 @@ import org.jfree.chart.title.Title;
 public class ObservationAndMeanPlotPane extends
 		AbstractObservationPlotPane<ObservationAndMeanPlotModel> {
 
-	private TimeElementsInBinSettingPane timeElementsInBinSettingPane;
-
-	// Should the means series elements be joined visually?
-	private boolean joinMeans;
+	private String xyMsgFormat;
 
 	/**
 	 * Constructor
@@ -79,9 +79,8 @@ public class ObservationAndMeanPlotPane extends
 
 		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
 
-		this.timeElementsInBinSettingPane = timeElementsInBinSettingPane;
-
-		this.joinMeans = true;
+		xyMsgFormat = "JD: " + NumericPrecisionPrefs.getTimeOutputFormat()
+				+ ", Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
 
 		// Set the means series color.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
@@ -131,6 +130,20 @@ public class ObservationAndMeanPlotPane extends
 
 		this(title, subTitle, JD_TITLE, MAG_TITLE, obsAndMeanModel,
 				timeElementsInBinSettingPane, bounds);
+	}
+
+	// From ChartMouseListener interface.
+	// If the mouse is over a data point, set its tool-tip with JD and
+	// magnitude.
+	public void chartMouseMoved(ChartMouseEvent event) {
+		ChartEntity entity = event.getEntity();
+		if (entity instanceof XYItemEntity) {
+			XYItemEntity item = (XYItemEntity) entity;
+			ValidObservation ob = obsModel.getValidObservation(item
+					.getSeriesIndex(), item.getItem());
+			String xyMsg = String.format(xyMsgFormat, ob.getJD(), ob.getMag());
+			item.setToolTipText(xyMsg);
+		}
 	}
 
 	// Returns an observation selection listener.

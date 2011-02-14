@@ -50,7 +50,6 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotOrientation;
@@ -366,7 +365,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			double closestDist = Double.MAX_VALUE;
 			XYItemEntity closestItem = null;
 
-			// Note: This operation is linear in the number of visible observations!
+			// Note: This operation is linear in the number of visible
+			// observations!
 			// Unfortunately, the list of XYItemEntities must always be searched
 			// exhaustively since we don't know which XYItemEntity will turn out
 			// to be closest to the mouse selection. Actually, this may not be
@@ -390,13 +390,13 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 						lastObSelected = obsModel.getValidObservation(item
 								.getSeriesIndex(), item.getItem());
 					}
-					
+
 					// Note: The approach below definitely does not work.
-//					if (item.getArea().contains(lastPointClicked)) {
-//						lastObSelected = obsModel.getValidObservation(item
-//								.getSeriesIndex(), item.getItem());
-//						
-//					}
+					// if (item.getArea().contains(lastPointClicked)) {
+					// lastObSelected = obsModel.getValidObservation(item
+					// .getSeriesIndex(), item.getItem());
+					//						
+					// }
 				}
 			}
 		}
@@ -409,12 +409,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 			Mediator.getInstance().getObservationSelectionNotifier()
 					.notifyListeners(message);
 		}
-	}
-
-	// From ChartMouseListener
-	public void chartMouseMoved(ChartMouseEvent event) {
-		ChartEntity entity = event.getEntity();
-		// TODO: update status pane with JD/phase and mag.
 	}
 
 	/**

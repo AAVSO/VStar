@@ -17,12 +17,15 @@
  */
 package org.aavso.tools.vstar.ui;
 
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -33,6 +36,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -46,7 +50,7 @@ public class StatusPane extends JPanel {
 
 	private Mediator mediator = Mediator.getInstance();
 
-	private JLabel statusLabel;
+	private JLabel statusLabel, xyLabel;
 	private JProgressBar progressBar;
 	private JButton stopButton;
 
@@ -64,7 +68,7 @@ public class StatusPane extends JPanel {
 		statusLabel.setHorizontalAlignment(JLabel.LEFT);
 		this.setMessage(firstMsg);
 		this.add(statusLabel);
-		
+
 		this.add(Box.createHorizontalGlue());
 
 		this.progressBar = new JProgressBar();
@@ -72,12 +76,22 @@ public class StatusPane extends JPanel {
 
 		this.add(Box.createHorizontalGlue());
 
-//		Icon stopIcon = ResourceAccessor
-//				.getIconResource("/toolbarButtonGraphics/media/Stop16.gif");
-		this.stopButton = new JButton("Stop");
+		xyLabel = new JLabel();
+		xyLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+//		xyLabel.setBorder(BorderFactory.createEtchedBorder());
+//		this.add(xyLabel);
+
+//		this.add(Box.createHorizontalGlue());
+
+		Icon stopIcon = ResourceAccessor
+				.getIconResource("/nico/toolbarIcons/_24_/Stop2.png");
+		this.stopButton = new JButton(stopIcon);
 		this.stopButton.setToolTipText("Stop the current operation");
+		this.stopButton.setBorder(BorderFactory.createEmptyBorder());
 		this.stopButton.setEnabled(false);
-		// this.add(this.stopButton);
+//		this.add(this.stopButton);
+
+		this.add(Box.createRigidArea(new Dimension(20, 10)));
 
 		this.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 
@@ -99,6 +113,16 @@ public class StatusPane extends JPanel {
 		this.statusLabel.setText(" " + msg);
 	}
 
+	/**
+	 * Set the XY message (intended to be JD/phase and magnitude).
+	 * 
+	 * @param msg
+	 *            The message to be displayed.
+	 */
+	public void setXYMessage(String msg) {
+		this.xyLabel.setText(msg);
+	}
+	
 	/**
 	 * Set the minimum progress bar value.
 	 * 

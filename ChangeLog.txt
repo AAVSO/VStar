@@ -57,7 +57,9 @@ Key Changes:
   3147507 and 3147509.
 - Fixed tracker 3151183: SuperWASP plug-in magnitude error threshold 
   increment.
-
+- Added tool-tip text to show JD/phase and magnitude when mouse is over 
+  a data point.
+  
 Date: December 22 2010
 Version: 2.10
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-22December2010
