@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.pane.plot;
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
 
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
@@ -32,7 +33,11 @@ import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 
@@ -41,6 +46,8 @@ import org.jfree.chart.plot.XYPlot;
  * observations along with mean-based data.
  */
 public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
+
+	private String xyMsgFormat;
 
 	/**
 	 * Constructor.
@@ -61,6 +68,24 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 				new TimeElementsInBinSettingPane(
 						"Phase Steps per Mean Series Bin", obsAndMeanModel,
 						PhaseTimeElementEntity.instance), bounds);
+
+		xyMsgFormat = "Phase: " + NumericPrecisionPrefs.getTimeOutputFormat()
+				+ ", Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
+	}
+
+	// From ChartMouseListener interface.
+	// If the mouse is over a data point, set its tool-tip with phase and
+	// magnitude.
+	public void chartMouseMoved(ChartMouseEvent event) {
+		ChartEntity entity = event.getEntity();
+		if (entity instanceof XYItemEntity) {
+			XYItemEntity item = (XYItemEntity) entity;
+			ValidObservation ob = obsModel.getValidObservation(item
+					.getSeriesIndex(), item.getItem());
+			String xyMsg = String.format(xyMsgFormat, ob.getStandardPhase(), ob
+					.getMag());
+			item.setToolTipText(xyMsg);
+		}
 	}
 
 	// Returns an observation selection listener.
@@ -76,7 +101,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 							message.getObservation().getStandardPhase());
 					chart.getXYPlot().setRangeCrosshairValue(
 							message.getObservation().getMag());
-					
+
 					updateSelectionFromObservation(message.getObservation());
 				}
 			}
