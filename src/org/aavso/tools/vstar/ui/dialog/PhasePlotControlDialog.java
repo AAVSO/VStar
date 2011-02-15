@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import org.aavso.tools.vstar.ui.NamedComponent;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.ui.pane.plot.NewPhasePlotButtonPane;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
@@ -38,6 +39,7 @@ public class PhasePlotControlDialog extends AbstractPlotControlDialog {
 		super("Phase Plot Control", plotPane, new TimeElementsInBinSettingPane(
 				"Phase Steps per Mean Series Bin", plotPane.getObsModel(),
 				PhaseTimeElementEntity.instance), new NamedComponent(
-				"Phase Plot", new NewPhasePlotButtonPane(plotPane)));
+				"Phase Plot", new NewPhasePlotButtonPane(plotPane)),
+				AnalysisType.PHASE_PLOT);
 	}
 }

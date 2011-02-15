@@ -30,9 +30,9 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
-Date: January 14 2011
+Date: January 15 2011
 Version: 2.11
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-14Jan2011
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-15Jan2011
 Key Changes:
 - Fixed tracker 3108092: Locale specific problem for "New Phase Plot". Thanks to
   Heinz for reporting and testing this, and for his patience.
