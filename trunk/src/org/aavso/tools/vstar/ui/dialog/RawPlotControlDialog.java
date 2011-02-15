@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
@@ -35,6 +36,7 @@ public class RawPlotControlDialog extends AbstractPlotControlDialog {
 	public RawPlotControlDialog(ObservationAndMeanPlotPane plotPane) {
 		super("Light Curve Control", plotPane,
 				new TimeElementsInBinSettingPane("Days per Mean Series Bin",
-						plotPane.getObsModel(), JDTimeElementEntity.instance));
+						plotPane.getObsModel(), JDTimeElementEntity.instance),
+				AnalysisType.RAW_DATA);
 	}
 }

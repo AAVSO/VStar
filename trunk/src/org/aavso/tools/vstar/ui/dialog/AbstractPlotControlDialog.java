@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
-import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -36,6 +35,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.dialog.series.MeanSourcePane;
 import org.aavso.tools.vstar.ui.dialog.series.SeriesVisibilityPane;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
@@ -46,10 +46,12 @@ import org.jfree.chart.JFreeChart;
  */
 public class AbstractPlotControlDialog extends JDialog {
 
-	// Series-related panes. 
+	private AnalysisType analysisType;
+
+	// Series-related panes.
 	protected SeriesVisibilityPane seriesVisibilityPane;
 	protected MeanSourcePane meanSourcePane;
-	
+
 	// Show error bars?
 	protected boolean showErrorBars;
 	protected JCheckBox errorBarCheckBox;
@@ -83,11 +85,16 @@ public class AbstractPlotControlDialog extends JDialog {
 	 *            raw or phase plots).
 	 * @param extra
 	 *            Additional component to be added.
+	 * @param analysisType
+	 *            The analysis type which is the context of creation of this
+	 *            dialog.
 	 */
 	public AbstractPlotControlDialog(String title,
 			ObservationAndMeanPlotPane plotPane,
 			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
-			NamedComponent extra) {
+			NamedComponent extra, AnalysisType analysisType) {
+		this.analysisType = analysisType;
+
 		setTitle(title);
 		setModal(true);
 		setAlwaysOnTop(true);
@@ -115,11 +122,15 @@ public class AbstractPlotControlDialog extends JDialog {
 	 * @param timeElementsInBinSettingPane
 	 *            The component that captures time elements in bin setting (for
 	 *            raw or phase plots).
+	 * @param analysisType
+	 *            The analysis type which is the context of creation of this
+	 *            dialog.
 	 */
 	public AbstractPlotControlDialog(String title,
 			ObservationAndMeanPlotPane plotPane,
-			TimeElementsInBinSettingPane timeElementsInBinSettingPane) {
-		this(title, plotPane, timeElementsInBinSettingPane, null);
+			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
+			AnalysisType analysisType) {
+		this(title, plotPane, timeElementsInBinSettingPane, null, analysisType);
 	}
 
 	/**
@@ -138,7 +149,6 @@ public class AbstractPlotControlDialog extends JDialog {
 
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		topPane.add(createChartControlPanel(extra));
 		topPane.add(Box.createRigidArea(new Dimension(75, 10)));
@@ -166,7 +176,7 @@ public class AbstractPlotControlDialog extends JDialog {
 		chartControlPanel.setBorder(BorderFactory.createEtchedBorder());
 
 		chartControlPanel.add(createSeriesChangePane());
-		
+
 		JPanel showCheckBoxPanel = new JPanel();
 		showCheckBoxPanel.setBorder(BorderFactory.createTitledBorder("Show"));
 		showCheckBoxPanel.setLayout(new BoxLayout(showCheckBoxPanel,
@@ -174,7 +184,7 @@ public class AbstractPlotControlDialog extends JDialog {
 
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.LINE_AXIS));
-		
+
 		// A checkbox to show/hide error bars.
 		errorBarCheckBox = new JCheckBox("Error bars?");
 		errorBarCheckBox.setSelected(this.showErrorBars);
@@ -186,7 +196,7 @@ public class AbstractPlotControlDialog extends JDialog {
 		crossHairCheckBox.setSelected(this.showCrossHairs);
 		crossHairCheckBox.addActionListener(createCrossHairCheckBoxListener());
 		showCheckBoxPanel.add(crossHairCheckBox);
-		
+
 		subPanel.add(showCheckBoxPanel);
 
 		JPanel meanChangePanel = new JPanel();
@@ -210,7 +220,7 @@ public class AbstractPlotControlDialog extends JDialog {
 		subPanel.add(meanChangePanel);
 
 		chartControlPanel.add(subPanel);
-		
+
 		// Add extra component, if there is one.
 		if (extra != null) {
 			JPanel extraPane = new JPanel();
@@ -226,24 +236,25 @@ public class AbstractPlotControlDialog extends JDialog {
 	// Creates and returns the series change (visibility and mean source) pane.
 	private JPanel createSeriesChangePane() {
 		JPanel seriesChangePane = new JPanel();
-		seriesChangePane.setLayout(new BoxLayout(seriesChangePane, BoxLayout.PAGE_AXIS));
+		seriesChangePane.setLayout(new BoxLayout(seriesChangePane,
+				BoxLayout.PAGE_AXIS));
 		seriesChangePane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JPanel seriesPane = new JPanel();
 		seriesPane.setLayout(new BoxLayout(seriesPane, BoxLayout.LINE_AXIS));
-		seriesVisibilityPane = new SeriesVisibilityPane(obsModel);
+		seriesVisibilityPane = new SeriesVisibilityPane(obsModel, analysisType);
 		seriesPane.add(seriesVisibilityPane);
-		
-		meanSourcePane = new MeanSourcePane(obsModel);
+
+		meanSourcePane = new MeanSourcePane(obsModel, analysisType);
 		seriesPane.add(meanSourcePane);
-		
+
 		seriesChangePane.add(new JScrollPane(seriesPane));
 
 		seriesChangePane.add(Box.createRigidArea(new Dimension(10, 10)));
-		
+
 		return seriesChangePane;
 	}
-	
+
 	// Returns a listener for the error bar visibility checkbox.
 	private ActionListener createErrorBarCheckBoxListener() {
 		return new ActionListener() {
@@ -306,7 +317,7 @@ public class AbstractPlotControlDialog extends JDialog {
 		panel.add(dismissButton);
 
 		// ******************** revisit this *********************
-		
+
 		this.getRootPane().setDefaultButton(dismissButton);
 
 		return panel;

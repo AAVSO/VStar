@@ -35,7 +35,7 @@ public class MeanSourceDialog extends AbstractSeriesVisibilityDialog<MeanSourceP
 	 *            The plot model.
 	 */
 	public MeanSourceDialog(ObservationAndMeanPlotModel obsPlotModel) {
-		super(obsPlotModel, "Change Series", new MeanSourcePane(obsPlotModel));
+		super(obsPlotModel, "Change Series", new MeanSourcePane(obsPlotModel, null));
 	}
 	
 	/**

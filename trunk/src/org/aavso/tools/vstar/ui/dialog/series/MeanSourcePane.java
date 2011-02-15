@@ -31,7 +31,12 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This class represents a pane with radio buttons showing which series is to be
@@ -41,17 +46,25 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 public class MeanSourcePane extends JPanel implements ActionListener {
 
 	private ObservationAndMeanPlotModel obsPlotModel;
+	private AnalysisType analysisType;
 
 	private int seriesNum;
 	private int lastSelectedSeriesNum;
 
 	private ButtonGroup seriesGroup;
 
+	private JRadioButton filteredRadioButton;
+	private JRadioButton polynomialFitRadioButton;
+	private JRadioButton residualsRadioButton;
+
 	/**
-	 * Constructor
+	 * Constructor.
 	 */
-	public MeanSourcePane(ObservationAndMeanPlotModel obsPlotModel) {
+	public MeanSourcePane(ObservationAndMeanPlotModel obsPlotModel,
+			AnalysisType analysisType) {
 		super();
+
+		this.analysisType = analysisType;
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder("Mean Series Source"));
@@ -62,13 +75,35 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		this.seriesNum = obsPlotModel.getMeanSourceSeriesNum();
 
 		addSeriesRadioButtons();
+
+		if (analysisType == AnalysisType.RAW_DATA) {
+			Mediator.getInstance().getFilteredObservationNotifier()
+					.addListener(createFilteredObservationListener());
+
+			Mediator.getInstance().getPolynomialFitNofitier().addListener(
+					createPolynomialFitListener());
+		}
 	}
 
 	// Create a radio button for each series, selecting the one
 	// that corresponds to the current mean source series.
 	private void addSeriesRadioButtons() {
-		// Ensure the panel is always wide enough.
-		this.add(Box.createRigidArea(new Dimension(75, 1)));
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+		
+		panel.add(createDataSeriesRadioButtons());
+		
+		if (analysisType == AnalysisType.RAW_DATA) {
+			panel.add(createOtherSeriesRadioButtons());
+		}
+		
+		this.add(panel);
+	}
+
+	private JPanel createDataSeriesRadioButtons() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createTitledBorder("Data"));
 
 		seriesGroup = new ButtonGroup();
 
@@ -84,10 +119,11 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 				JRadioButton seriesRadioButton = new JRadioButton(seriesName);
 				seriesRadioButton.setActionCommand(seriesName);
 				seriesRadioButton.addActionListener(this);
-				this.add(seriesRadioButton);
-				this.add(Box.createRigidArea(new Dimension(3, 3)));
+				panel.add(seriesRadioButton);
+				panel.add(Box.createRigidArea(new Dimension(3, 3)));
 				seriesGroup.add(seriesRadioButton);
 
+				// What is the initial mean source series?
 				if (obsPlotModel.getSrcTypeToSeriesNumMap().get(series) == obsPlotModel
 						.getMeanSourceSeriesNum()) {
 					seriesRadioButton.setSelected(true);
@@ -96,6 +132,59 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 				}
 			}
 		}
+
+		// Ensure the panel is wide enough for textual border.
+		panel.add(Box.createRigidArea(new Dimension(75, 1)));
+		
+		return panel;
+	}
+
+	private JPanel createOtherSeriesRadioButtons() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createTitledBorder("Analysis"));
+
+		// Filtered series.
+		filteredRadioButton = new JRadioButton(SeriesType.Filtered
+				.getDescription());
+		filteredRadioButton.setActionCommand(SeriesType.Filtered
+				.getDescription());
+		filteredRadioButton.addActionListener(this);
+		filteredRadioButton.setEnabled(false);
+		panel.add(filteredRadioButton);
+		panel.add(Box.createRigidArea(new Dimension(3, 3)));
+		seriesGroup.add(filteredRadioButton);
+
+		JPanel subPanel = new JPanel();
+		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.PAGE_AXIS));
+		subPanel.setBorder(BorderFactory.createTitledBorder("Polynomial Fit"));
+		subPanel.add(Box.createRigidArea(new Dimension(75, 1)));
+
+		// Polynomial Fit series.
+		polynomialFitRadioButton = new JRadioButton(SeriesType.PolynomialFit
+				.getDescription());
+		polynomialFitRadioButton.setActionCommand(SeriesType.PolynomialFit
+				.getDescription());
+		polynomialFitRadioButton.addActionListener(this);
+		polynomialFitRadioButton.setEnabled(false);
+		subPanel.add(polynomialFitRadioButton);
+		subPanel.add(Box.createRigidArea(new Dimension(3, 3)));
+		seriesGroup.add(polynomialFitRadioButton);
+
+		// Polynomial residuals series.
+		residualsRadioButton = new JRadioButton(SeriesType.Residuals
+				.getDescription());
+		residualsRadioButton.setActionCommand(SeriesType.Residuals
+				.getDescription());
+		residualsRadioButton.addActionListener(this);
+		residualsRadioButton.setEnabled(false);
+		subPanel.add(residualsRadioButton);
+		subPanel.add(Box.createRigidArea(new Dimension(3, 3)));
+		seriesGroup.add(residualsRadioButton);
+
+		panel.add(subPanel);
+
+		return panel;
 	}
 
 	// This method will be called when a radio button is selected.
@@ -120,7 +209,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 						.getSeriesNumToSrcTypeMap().get(lastSelectedSeriesNum);
 
 				Enumeration<AbstractButton> elts = seriesGroup.getElements();
-				
+
 				while (elts.hasMoreElements()) {
 					AbstractButton radioButton = elts.nextElement();
 					String label = radioButton.getActionCommand();
@@ -139,5 +228,48 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	 */
 	public int getSeriesNum() {
 		return seriesNum;
+	}
+
+	// Returns a filtered observation listener.
+	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
+		return new Listener<FilteredObservationMessage>() {
+
+			@Override
+			public void update(FilteredObservationMessage info) {
+				if (info != FilteredObservationMessage.NO_FILTER) {
+					// Enable radio button upon first series creation.
+					if (!filteredRadioButton.isEnabled()) {
+						filteredRadioButton.setEnabled(true);
+					}
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	// Returns a polynomial fit observation listener.
+	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
+		return new Listener<PolynomialFitMessage>() {
+			@Override
+			public void update(PolynomialFitMessage info) {
+				// Enable radio buttons upon first series creation.
+				if (!polynomialFitRadioButton.isEnabled()) {
+					polynomialFitRadioButton.setEnabled(true);
+				}
+
+				if (!residualsRadioButton.isEnabled()) {
+					residualsRadioButton.setEnabled(true);
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 }

@@ -34,6 +34,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.stats.BinningResult;
@@ -45,15 +49,26 @@ import org.aavso.tools.vstar.util.stats.BinningResult;
 public class SeriesVisibilityPane extends JPanel {
 
 	private ObservationAndMeanPlotModel obsPlotModel;
+	private AnalysisType analysisType;
+
 	private Map<Integer, Boolean> visibilityDeltaMap;
+
 	private List<JCheckBox> checkBoxes;
+
 	private JCheckBox meanCheckBox;
+	private JCheckBox filteredCheckBox;
+	private JCheckBox polynomialFitCheckBox;
+	private JCheckBox residualsCheckBox;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 */
-	public SeriesVisibilityPane(ObservationAndMeanPlotModel obsPlotModel) {
+	public SeriesVisibilityPane(ObservationAndMeanPlotModel obsPlotModel,
+			AnalysisType analysisType) {
 		super();
+
+		this.analysisType = analysisType;
+
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder("Visibility"));
 		this
@@ -62,55 +77,124 @@ public class SeriesVisibilityPane extends JPanel {
 		this.obsPlotModel = obsPlotModel;
 		this.visibilityDeltaMap = new HashMap<Integer, Boolean>();
 
+		this.checkBoxes = new ArrayList<JCheckBox>();
+
+		filteredCheckBox = null;
+		polynomialFitCheckBox = null;
+
 		addSeriesCheckBoxes();
 
 		obsPlotModel.getMeansChangeNotifier().addListener(
 				createMeanObsChangeListener());
 
+		if (analysisType == AnalysisType.RAW_DATA) {
+			Mediator.getInstance().getFilteredObservationNotifier()
+					.addListener(createFilteredObservationListener());
+
+			Mediator.getInstance().getPolynomialFitNofitier().addListener(
+					createPolynomialFitListener());
+		}
+
 		addButtons();
 	}
 
-	// Return a mean observation change listener to ensure that the
-	// mean series checkbox is selected if a new binning operation takes place.
-	private Listener<BinningResult> createMeanObsChangeListener() {
-		return new Listener<BinningResult>() {
-			@Override
-			public void update(BinningResult info) {
-				meanCheckBox.setSelected(true);
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
+	// Create a checkbox for each series, grouped by type.
+	private void addSeriesCheckBoxes() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+		panel.add(createDataSeriesCheckboxes());
+		panel.add(createOtherSeriesCheckboxes());
+		this.add(panel);
 	}
 
-	// Create a checkbox for each series.
-	private void addSeriesCheckBoxes() {
+	private JPanel createDataSeriesCheckboxes() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createTitledBorder("Data"));
+
 		// Ensure the panel is always wide enough.
 		this.add(Box.createRigidArea(new Dimension(75, 1)));
 
-		checkBoxes = new ArrayList<JCheckBox>();
-
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
-			String seriesName = series.getDescription();
-			JCheckBox checkBox = new JCheckBox(seriesName);
+			if (series != SeriesType.MEANS) {
+				String seriesName = series.getDescription();
+				JCheckBox checkBox = new JCheckBox(seriesName);
 
-			if (series == SeriesType.MEANS) {
-				meanCheckBox = checkBox;
+				checkBox
+						.addActionListener(createSeriesVisibilityCheckBoxListener());
+				int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
+						series);
+				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(
+						seriesNum);
+				checkBox.setSelected(vis);
+				panel.add(checkBox);
+				panel.add(Box.createRigidArea(new Dimension(3, 3)));
+
+				checkBoxes.add(checkBox);
 			}
-
-			checkBox
-					.addActionListener(createSeriesVisibilityCheckBoxListener());
-			int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(series);
-			boolean vis = obsPlotModel.getSeriesVisibilityMap().get(seriesNum);
-			checkBox.setSelected(vis);
-			this.add(checkBox);
-			this.add(Box.createRigidArea(new Dimension(3, 3)));
-
-			checkBoxes.add(checkBox);
 		}
+
+		return panel;
+	}
+
+	private JPanel createOtherSeriesCheckboxes() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createTitledBorder("Analysis"));
+
+		// Mean series.
+		meanCheckBox = new JCheckBox(SeriesType.MEANS.getDescription());
+		meanCheckBox
+				.addActionListener(createSeriesVisibilityCheckBoxListener());
+		meanCheckBox.setSelected(false);
+		panel.add(meanCheckBox);
+		panel.add(Box.createRigidArea(new Dimension(3, 3)));
+		checkBoxes.add(meanCheckBox);
+
+		if (analysisType == AnalysisType.RAW_DATA) {
+
+			// Filtered series.
+			filteredCheckBox = new JCheckBox(SeriesType.Filtered
+					.getDescription());
+			filteredCheckBox
+					.addActionListener(createSeriesVisibilityCheckBoxListener());
+			filteredCheckBox.setSelected(false);
+			filteredCheckBox.setEnabled(false);
+			panel.add(filteredCheckBox);
+			panel.add(Box.createRigidArea(new Dimension(3, 3)));
+			checkBoxes.add(filteredCheckBox);
+
+			JPanel subPanel = new JPanel();
+			subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.PAGE_AXIS));
+			subPanel.setBorder(BorderFactory
+					.createTitledBorder("Polynomial Fit"));
+			subPanel.add(Box.createRigidArea(new Dimension(75, 1)));
+
+			// Polynomial Fit series.
+			polynomialFitCheckBox = new JCheckBox(SeriesType.PolynomialFit
+					.getDescription());
+			polynomialFitCheckBox
+					.addActionListener(createSeriesVisibilityCheckBoxListener());
+			polynomialFitCheckBox.setSelected(false);
+			polynomialFitCheckBox.setEnabled(false);
+			subPanel.add(polynomialFitCheckBox);
+			subPanel.add(Box.createRigidArea(new Dimension(3, 3)));
+			checkBoxes.add(polynomialFitCheckBox);
+
+			// Polynomial residuals series.
+			residualsCheckBox = new JCheckBox(SeriesType.Residuals
+					.getDescription());
+			residualsCheckBox
+					.addActionListener(createSeriesVisibilityCheckBoxListener());
+			residualsCheckBox.setSelected(false);
+			residualsCheckBox.setEnabled(false);
+			subPanel.add(residualsCheckBox);
+			checkBoxes.add(residualsCheckBox);
+
+			panel.add(subPanel);
+		}
+
+		return panel;
 	}
 
 	// Return a listener for the series visibility checkboxes.
@@ -178,8 +262,10 @@ public class SeriesVisibilityPane extends JPanel {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				for (JCheckBox checkBox : checkBoxes) {
-					checkBox.setSelected(target);
-					updateSeriesVisibilityMap(checkBox);
+					if (checkBox.isEnabled()) {
+						checkBox.setSelected(target);
+						updateSeriesVisibilityMap(checkBox);
+					}
 				}
 
 				seriesVisibilityChange(getVisibilityDeltaMap());
@@ -206,5 +292,72 @@ public class SeriesVisibilityPane extends JPanel {
 	 */
 	public Map<Integer, Boolean> getVisibilityDeltaMap() {
 		return visibilityDeltaMap;
+	}
+
+	// Return a mean observation change listener to ensure that the
+	// mean series checkbox is selected if a new binning operation takes place.
+	private Listener<BinningResult> createMeanObsChangeListener() {
+		return new Listener<BinningResult>() {
+			@Override
+			public void update(BinningResult info) {
+				meanCheckBox.setSelected(true);
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	// Returns a filtered observation listener.
+	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
+		return new Listener<FilteredObservationMessage>() {
+
+			@Override
+			public void update(FilteredObservationMessage info) {
+				if (info == FilteredObservationMessage.NO_FILTER) {
+					// No filter, so disable the filtered series checkbox.
+					// TODO: really necessary?
+					if (obsPlotModel.seriesExists(SeriesType.Filtered)) {
+						filteredCheckBox.setSelected(false);
+					}
+				} else {
+					// Enable and select checkbox upon first series creation.
+					if (!filteredCheckBox.isEnabled()) {
+						filteredCheckBox.setEnabled(true);
+						filteredCheckBox.setSelected(true);
+					}
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	// Returns a polynomial fit observation listener.
+	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
+		return new Listener<PolynomialFitMessage>() {
+			@Override
+			public void update(PolynomialFitMessage info) {
+				// Enable and select checkboxes upon first series creation.
+				if (!polynomialFitCheckBox.isEnabled()) {
+					polynomialFitCheckBox.setEnabled(true);
+					polynomialFitCheckBox.setSelected(true);
+				}
+
+				if (!residualsCheckBox.isEnabled()) {
+					residualsCheckBox.setEnabled(true);
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 }
