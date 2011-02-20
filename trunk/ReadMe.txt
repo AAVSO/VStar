@@ -65,10 +65,6 @@ Click on one of the files in your web browser, then click the download link
 associated with one of the file's versions (if there is more than one), saving
 as a text file.
  
-Signing up for a free account at http://www.citizensky.org/ will give you
-access to the AAVSO International Database via VStar. This requirement may
-eventually be removed.
-
 Building from source
 ====================
 This section is of interest to developers rather than VStar users. 

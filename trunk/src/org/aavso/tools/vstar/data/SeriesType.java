@@ -231,6 +231,8 @@ public enum SeriesType {
 			// TODO: We can remove this block when we have changed or
 			// downloaded new (or just deleted) files to replace existing
 			// ones in the case where band short-names have changed!
+			// Actually, we still see such names as V and B in formats like
+			// AAVSO extended upload file format.
 			if (shortName.equals("Unknown")) {
 				type = Unknown;
 			} else if (shortName.equals("Visual")) {
