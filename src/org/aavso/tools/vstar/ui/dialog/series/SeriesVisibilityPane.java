@@ -295,12 +295,21 @@ public class SeriesVisibilityPane extends JPanel {
 	}
 
 	// Return a mean observation change listener to ensure that the
-	// mean series checkbox is selected if a new binning operation takes place.
+	// mean series checkbox is selected if a new binning operation takes
+	// place that also set the mean series as visible, assuming it was not
+	// already.
 	private Listener<BinningResult> createMeanObsChangeListener() {
 		return new Listener<BinningResult>() {
 			@Override
 			public void update(BinningResult info) {
-				meanCheckBox.setSelected(true);
+				// Check that the series was actually marked as visible in the
+				// model!
+				int meanSeriesNum = obsPlotModel.getMeansSeriesNum();
+				boolean meanSeriesVisible = obsPlotModel
+						.getSeriesVisibilityMap().get(meanSeriesNum);
+				if (meanSeriesVisible) {
+					meanCheckBox.setSelected(true);
+				}
 			}
 
 			@Override

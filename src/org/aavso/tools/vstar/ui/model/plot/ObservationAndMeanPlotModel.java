@@ -95,7 +95,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 		this.meanSourceSeriesNum = determineMeanSeriesSource();
 
-		this.setMeanSeries();
+		// It doesn't actually matter whether we pass true or false here
+		// since the parameter won't apply to the first mean series created.
+		this.setMeanSeries(false);
 	}
 
 	/**
@@ -104,8 +106,15 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * This method creates a new means series based upon the current mean source
 	 * series index and time-elements-in-bin. It then updates the view and any
 	 * listeners.
+	 * 
+	 * @param updateAfterInitial
+	 *            Should the mean series be made visible after the initial
+	 *            series is replaced by another? Even if this is set to false,
+	 *            if the series is already visible, it will remain so, and any
+	 *            change to the mean curve will be visible more or less
+	 *            immediately.
 	 */
-	public boolean setMeanSeries() {
+	public boolean setMeanSeries(boolean updateAfterInitial) {
 
 		boolean changed = true;
 
@@ -151,7 +160,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 				// The mean series has been changed after the initial one. If it
 				// is not visible, make it so since the user has updated it and
 				// probably wants to see it right away.
-				changeSeriesVisibility(this.meansSeriesNum, true);
+				if (updateAfterInitial) {
+					changeSeriesVisibility(this.meansSeriesNum, true);
+				}
 			}
 
 			// Notify listeners.
@@ -163,9 +174,17 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		return changed;
 	}
 
+	/**
+	 * Attempt to create a new mean series with the specified number of time
+	 * elements per bin.
+	 * 
+	 * @param timeElementsInBin
+	 *            The number of days or phase steps to be created per bin.
+	 * @return Whether or not the series was changed.
+	 */
 	public boolean changeMeansSeries(double timeElementsInBin) {
 		this.timeElementsInBin = timeElementsInBin;
-		return this.setMeanSeries();
+		return this.setMeanSeries(true);
 	}
 
 	/**
@@ -367,7 +386,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			case DISCREPANT:
 				if (info.getObservation().getBand() == seriesNumToSrcTypeMap
 						.get(meanSourceSeriesNum)) {
-					this.setMeanSeries();
+					this.setMeanSeries(false);
 				}
 				break;
 			}
