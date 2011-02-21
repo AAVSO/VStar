@@ -134,22 +134,33 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		for (SeriesType type : obsSourceListMap.keySet()) {
 			this.addObservationSeries(type, obsSourceListMap.get(type));
 		}
-		fireDatasetChanged();
 
 		// We should only make "unspecified" band-based observations visible
-		// by default if one of the visual bands is not present.
+		// by default only if one of the visual bands is *not* present.
 		// See
 		// https://sourceforge.net/tracker/?func=detail&aid=2837957&group_id=263306&atid=1152052
+		//
+		// What if there are no visual bands or "Unspecified" observations? Then
+		// we make all series from the dataset visible.
+		// See
+		// https://sourceforge.net/tracker/?func=detail&aid=3188139&group_id=263306&atid=1152052
 		if (atLeastOneVisualBandPresent) {
 			if (srcTypeToSeriesNumMap.containsKey(SeriesType.Unspecified)) {
 				int unspecifiedSeriesNum = srcTypeToSeriesNumMap
 						.get(SeriesType.Unspecified);
 				if (seriesVisibilityMap.get(unspecifiedSeriesNum) == true) {
 					seriesVisibilityMap.put(unspecifiedSeriesNum, false);
-					fireDatasetChanged();
 				}
 			}
+		} else {
+			// Make all series visible.
+			for (SeriesType type : obsSourceListMap.keySet()) {
+				int seriesNum = srcTypeToSeriesNumMap.get(type);
+				seriesVisibilityMap.put(seriesNum, true);
+			}
 		}
+		
+		fireDatasetChanged();
 	}
 
 	/**
@@ -184,8 +195,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
-	 * Add an observation series, first removing an existing entry for the
-	 * specified series type if one exists.
+	 * Add an observation series.
 	 * 
 	 * @param type
 	 *            The series type to be associated with the series.
@@ -416,7 +426,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	// leave all series join login in the view classes.
 	// In addition, it ought to be possible for *any* series to joined, so we
 	// need to unify this at the series change dialog level (for example).
-	
+
 	/**
 	 * Which series' elements should be joined visually (e.g. with lines)?
 	 * 
