@@ -19,8 +19,6 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -116,7 +114,7 @@ public class AAVSOExtendedFileFormatObservationSource extends
 			uncertaintyValueValidator = new UncertaintyValueValidator(
 					new InclusiveRangePredicate(0, 1));
 			transformedValidator = new TransformedValidator();
-			// What should this be for CCD/PEP?
+			// What should the range be for CCD/PEP?
 			magnitudeValueValidator = new MagnitudeValueValidator(
 					new InclusiveRangePredicate(-10, 25));
 		}
@@ -130,6 +128,7 @@ public class AAVSOExtendedFileFormatObservationSource extends
 
 			String line = null;
 			int lineNum = 1;
+			int obNum = 1;
 
 			try {
 				line = reader.readLine();
@@ -139,7 +138,8 @@ public class AAVSOExtendedFileFormatObservationSource extends
 						if (line.startsWith("#")) {
 							handleDirective(line);
 						} else {
-							collectObservation(readNextObservation(line));
+							collectObservation(readNextObservation(line, obNum));
+							obNum++;
 						}
 					}
 					line = reader.readLine();
@@ -147,9 +147,12 @@ public class AAVSOExtendedFileFormatObservationSource extends
 				}
 			} catch (Exception e) {
 				// Create an invalid observation.
+				// Record the line number rather than observation number for
+				// error reporting purposes, but still increment the latter.
 				String error = e.getLocalizedMessage();
 				InvalidObservation ob = new InvalidObservation(line, error);
 				ob.setRecordNumber(lineNum);
+				obNum++;
 				addInvalidObservation(ob);
 			}
 		}
@@ -175,10 +178,6 @@ public class AAVSOExtendedFileFormatObservationSource extends
 				}
 			} else if ("#DATE".equals(pair[0])) {
 				dateType = pair[1];
-				if (!"JD".equals(dateType)) {
-					throw new ObservationReadError("Unsupported date type: "
-							+ dateType);
-				}
 			} else if ("#OBSTYPE".equals(pair[0])) {
 				obsType = pair[1];
 				if (!"CCD".equals(obsType) && !"PEP".equals(obsType)) {
@@ -188,22 +187,26 @@ public class AAVSOExtendedFileFormatObservationSource extends
 			}
 		}
 
-		private ValidObservation readNextObservation(String line)
+		private ValidObservation readNextObservation(String line, int obNum)
 				throws ObservationValidationError {
 			String[] fields = line.split(delimiter);
 
 			ValidObservation observation = new ValidObservation();
 
-			// TODO: set line number 
-			
 			String name = fields[0];
 
+			observation.setRecordNumber(obNum);
 			observation.setName(name);
 			observation.setObsCode(obscode);
 
 			// TODO: handle calendar date format as well as JD.
-			DateInfo dateInfo = julianDayValidator.validate(fields[1]);
-			observation.setDateInfo(dateInfo);
+			if (!"JD".equals(dateType)) {
+				throw new ObservationValidationError("Unsupported date type: "
+						+ dateType);
+			} else {
+				DateInfo dateInfo = julianDayValidator.validate(fields[1]);
+				observation.setDateInfo(dateInfo);
+			}
 
 			Magnitude magnitude = magnitudeFieldValidator.validate(fields[2]);
 
@@ -228,7 +231,6 @@ public class AAVSOExtendedFileFormatObservationSource extends
 				observation.setTransformed(transformed);
 			}
 
-			// Note: enum doesn't have ABS currently; STEP not in spec. Add it?
 			// ValidObservation defaults to STD.
 			String mtypeStr = fields[6];
 			MTypeType mtype = null;
@@ -236,6 +238,8 @@ public class AAVSOExtendedFileFormatObservationSource extends
 				if ("DIF".equals(mtypeStr)) {
 					mtype = MTypeType.DIFF;
 				} else if ("STD".equals(mtypeStr)) {
+					mtype = MTypeType.STD;
+				} else if ("ABS".equals(mtypeStr)) {
 					mtype = MTypeType.STD;
 				}
 			}
