@@ -17,6 +17,9 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -54,6 +57,54 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final int DISCREPANT_COLUMN = 19;
 	private static final int LINE_NUM_COLUMN = 20;
 
+	private static final String JD_COLUMN_NAME = "Julian Day";
+	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
+	private static final String MAGNITUDE_COLUMN_NAME = "Magnitude";
+	private static final String BAND_COLUMN_NAME = "Band";
+	private static final String OBSERVER_CODE_COLUMN_NAME = "Observer Code";
+	private static final String VALFLAG_COLUMN_NAME = "Validation";
+	private static final String COMP_STAR_1_COLUMN_NAME = "Comp Star 1";
+	private static final String COMP_STAR_2_COLUMN_NAME = "Comp Star 2";
+	private static final String CHARTS_COLUMN_NAME = "Charts";
+	private static final String COMMENT_CODE_COLUMN_NAME = "Comment Type";
+	private static final String COMMENTS_COLUMN_NAME = "Comments";
+	private static final String TRANSFORMED_COLUMN_NAME = "Transformed";
+	private static final String AIRMASS_COLUMN_NAME = "Airmass";
+	private static final String CMAG_COLUMN_NAME = "CMag";
+	private static final String KMAG_COLUMN_NAME = "KMag";
+	private static final String HJD_COLUMN_NAME = "HJD";
+	private static final String NAME_COLUMN_NAME = "Name";
+	private static final String HQ_UNCERTAINTY_COLUMN_NAME = "HQ Uncertainty";
+	private static final String MTYPE_COLUMN_NAME = "MType";
+	private static final String DISCREPANT_COLUMN_NAME = "Discrepant?";
+	private static final String LINE_NUM_COLUMN_NAME = "Line";
+
+	protected static final Map<String, Integer> COLUMN_NAMES = new HashMap<String, Integer>();
+	
+	static {
+		COLUMN_NAMES.put(JD_COLUMN_NAME, JD_COLUMN);
+		COLUMN_NAMES.put(CALENDAR_DATE_COLUMN_NAME, CALENDAR_DATE_COLUMN);
+		COLUMN_NAMES.put(MAGNITUDE_COLUMN_NAME, MAGNITUDE_COLUMN);
+		COLUMN_NAMES.put(BAND_COLUMN_NAME, BAND_COLUMN);
+		COLUMN_NAMES.put(OBSERVER_CODE_COLUMN_NAME, OBSERVER_CODE_COLUMN);
+		COLUMN_NAMES.put(VALFLAG_COLUMN_NAME, VALFLAG_COLUMN);
+		COLUMN_NAMES.put(COMP_STAR_1_COLUMN_NAME, COMP_STAR_1_COLUMN);
+		COLUMN_NAMES.put(COMP_STAR_2_COLUMN_NAME, COMP_STAR_2_COLUMN);
+		COLUMN_NAMES.put(CHARTS_COLUMN_NAME, CHARTS_COLUMN);
+		COLUMN_NAMES.put(COMMENT_CODE_COLUMN_NAME, COMMENT_CODE_COLUMN);
+		COLUMN_NAMES.put(COMMENTS_COLUMN_NAME, COMMENTS_COLUMN);
+		COLUMN_NAMES.put(TRANSFORMED_COLUMN_NAME, TRANSFORMED_COLUMN);
+		COLUMN_NAMES.put(AIRMASS_COLUMN_NAME, AIRMASS_COLUMN);
+		COLUMN_NAMES.put(CMAG_COLUMN_NAME, CMAG_COLUMN);
+		COLUMN_NAMES.put(KMAG_COLUMN_NAME, KMAG_COLUMN);
+		COLUMN_NAMES.put(HJD_COLUMN_NAME, HJD_COLUMN);
+		COLUMN_NAMES.put(NAME_COLUMN_NAME, NAME_COLUMN);
+		COLUMN_NAMES.put(HQ_UNCERTAINTY_COLUMN_NAME, HQ_UNCERTAINTY_COLUMN);
+		COLUMN_NAMES.put(MTYPE_COLUMN_NAME, MTYPE_COLUMN);
+		COLUMN_NAMES.put(DISCREPANT_COLUMN_NAME, DISCREPANT_COLUMN);
+		COLUMN_NAMES.put(LINE_NUM_COLUMN_NAME, LINE_NUM_COLUMN);
+	}
+	
 	protected boolean useLineNumbers;
 
 	/**
@@ -79,67 +130,67 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			columnName = "Julian Day";
+			columnName = JD_COLUMN_NAME;
 			break;
 		case CALENDAR_DATE_COLUMN:
-			columnName = "Calendar Date";
+			columnName = CALENDAR_DATE_COLUMN_NAME;
 			break;
 		case MAGNITUDE_COLUMN:
-			columnName = "Magnitude";
+			columnName = MAGNITUDE_COLUMN_NAME;
 			break;
 		case BAND_COLUMN:
-			columnName = "Band";
+			columnName = BAND_COLUMN_NAME;
 			break;
 		case OBSERVER_CODE_COLUMN:
-			columnName = "Observer Code";
+			columnName = OBSERVER_CODE_COLUMN_NAME;
 			break;
 		case VALFLAG_COLUMN:
-			columnName = "Validation";
+			columnName = VALFLAG_COLUMN_NAME;
 			break;
 		case COMP_STAR_1_COLUMN:
-			columnName = "Comp Star 1";
+			columnName = COMP_STAR_1_COLUMN_NAME;
 			break;
 		case COMP_STAR_2_COLUMN:
-			columnName = "Comp Star 2";
+			columnName = COMP_STAR_2_COLUMN_NAME;
 			break;
 		case CHARTS_COLUMN:
-			columnName = "Charts";
+			columnName = CHARTS_COLUMN_NAME;
 			break;
 		case COMMENT_CODE_COLUMN:
-			columnName = "Comment Type";
+			columnName = COMMENT_CODE_COLUMN_NAME;
 			break;
 		case COMMENTS_COLUMN:
-			columnName = "Comments";
+			columnName = COMMENTS_COLUMN_NAME;
 			break;
 		case TRANSFORMED_COLUMN:
-			columnName = "Transformed";
+			columnName = TRANSFORMED_COLUMN_NAME;
 			break;
 		case AIRMASS_COLUMN:
-			columnName = "Airmass";
+			columnName = AIRMASS_COLUMN_NAME;
 			break;
 		case CMAG_COLUMN:
-			columnName = "CMag";
+			columnName = CMAG_COLUMN_NAME;
 			break;
 		case KMAG_COLUMN:
-			columnName = "KMag";
+			columnName = KMAG_COLUMN_NAME;
 			break;
 		case HJD_COLUMN:
-			columnName = "HJD";
+			columnName = HJD_COLUMN_NAME;
 			break;
 		case NAME_COLUMN:
-			columnName = "Name";
+			columnName = NAME_COLUMN_NAME;
 			break;
 		case HQ_UNCERTAINTY_COLUMN:
-			columnName = "HQ Uncertainty";
+			columnName = HQ_UNCERTAINTY_COLUMN_NAME;
 			break;
 		case MTYPE_COLUMN:
-			columnName = "MType";
+			columnName = MTYPE_COLUMN_NAME;
 			break;
 		case DISCREPANT_COLUMN:
-			columnName = "Discrepant?";
+			columnName = DISCREPANT_COLUMN_NAME;
 			break;
 		case LINE_NUM_COLUMN:
-			columnName = "Line";
+			columnName = LINE_NUM_COLUMN_NAME;
 			break;
 		}
 
@@ -259,8 +310,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case HQ_UNCERTAINTY_COLUMN:
 			Double hqUncertainty = ob.getHqUncertainty();
-			// TODO: why the empty string equality?; the value has type Double!
-			value = null == hqUncertainty || "".equals(hqUncertainty) ? ""
+			value = null == hqUncertainty ? ""
 					: String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
 							.getHqUncertainty());
 			break;
@@ -275,5 +325,14 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		}
 		return value;
+	}
+
+	@Override
+	public int getColumnIndexByName(String name) throws IllegalArgumentException {
+		if (name == null || !COLUMN_NAMES.containsKey(name)) {
+			throw new IllegalArgumentException("No column name: " + name);
+		} else {
+			return COLUMN_NAMES.get(name);
+		}
 	}
 }

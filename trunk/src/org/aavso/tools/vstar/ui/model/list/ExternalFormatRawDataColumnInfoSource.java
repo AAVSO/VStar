@@ -17,6 +17,9 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -38,6 +41,26 @@ public class ExternalFormatRawDataColumnInfoSource implements
 	private static final int RECORD_NUM_COLUMN = 5;
 	private static final int DISCREPANT_COLUMN = 6;
 
+	private static final String JD_COLUMN_NAME = "Julian Day";
+	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
+	private static final String MAGNITUDE_COLUMN_NAME = "Magnitude";
+	private static final String BAND_COLUMN_NAME = "Band";
+	private static final String OBSERVER_CODE_COLUMN_NAME = "Observer Code";
+	private static final String RECORD_NUM_COLUMN_NAME = "Record";
+	private static final String DISCREPANT_COLUMN_NAME = "Discrepant?";
+
+	protected static final Map<String, Integer> COLUMN_NAMES = new HashMap<String, Integer>();
+	
+	static {
+		COLUMN_NAMES.put(JD_COLUMN_NAME, JD_COLUMN);
+		COLUMN_NAMES.put(CALENDAR_DATE_COLUMN_NAME, CALENDAR_DATE_COLUMN);
+		COLUMN_NAMES.put(MAGNITUDE_COLUMN_NAME, MAGNITUDE_COLUMN);
+		COLUMN_NAMES.put(BAND_COLUMN_NAME, BAND_COLUMN);
+		COLUMN_NAMES.put(OBSERVER_CODE_COLUMN_NAME, OBSERVER_CODE_COLUMN);
+		COLUMN_NAMES.put(RECORD_NUM_COLUMN_NAME, RECORD_NUM_COLUMN);
+		COLUMN_NAMES.put(DISCREPANT_COLUMN_NAME, DISCREPANT_COLUMN);
+	}
+
 	public int getColumnCount() {
 		return DISCREPANT_COLUMN + 1;
 	}
@@ -51,25 +74,25 @@ public class ExternalFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			columnName = "Julian Day";
+			columnName = JD_COLUMN_NAME;
 			break;
 		case CALENDAR_DATE_COLUMN:
-			columnName = "Calendar Date";
+			columnName = CALENDAR_DATE_COLUMN_NAME;
 			break;
 		case MAGNITUDE_COLUMN:
-			columnName = "Magnitude";
+			columnName = MAGNITUDE_COLUMN_NAME;
 			break;
 		case BAND_COLUMN:
-			columnName = "Band";
+			columnName = BAND_COLUMN_NAME;
 			break;
 		case OBSERVER_CODE_COLUMN:
-			columnName = "Observer Code";
+			columnName = OBSERVER_CODE_COLUMN_NAME;
 			break;
 		case RECORD_NUM_COLUMN:
-			columnName = "Record";
+			columnName = RECORD_NUM_COLUMN_NAME;
 			break;
 		case DISCREPANT_COLUMN:
-			columnName = "Discrepant?";
+			columnName = DISCREPANT_COLUMN_NAME;
 			break;
 		}
 
@@ -130,5 +153,14 @@ public class ExternalFormatRawDataColumnInfoSource implements
 		}
 
 		return value;
+	}
+
+	@Override
+	public int getColumnIndexByName(String name) throws IllegalArgumentException {
+		if (name == null || !COLUMN_NAMES.containsKey(name)) {
+			throw new IllegalArgumentException("No column name: " + name);
+		} else {
+			return COLUMN_NAMES.get(name);
+		}
 	}
 }

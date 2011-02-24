@@ -17,14 +17,14 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * Simple file format raw data table column information source.
- * 
- * TODO: can we instead inherit from RawData class and specialise each switch
- * function?
  */
 public class SimpleFormatRawDataColumnInfoSource implements
 		ITableColumnInfoSource {
@@ -39,6 +39,24 @@ public class SimpleFormatRawDataColumnInfoSource implements
 	private static final int LINE_NUM_COLUMN = 4;
 	private static final int DISCREPANT_COLUMN = 5;
 
+	private static final String JD_COLUMN_NAME = "Julian Day";
+	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
+	private static final String MAGNITUDE_COLUMN_NAME = "Magnitude";
+	private static final String OBSERVER_CODE_COLUMN_NAME = "Observer Code";
+	private static final String LINE_NUM_COLUMN_NAME = "Line";
+	private static final String DISCREPANT_COLUMN_NAME = "Discrepant?";
+
+	protected static final Map<String, Integer> COLUMN_NAMES = new HashMap<String, Integer>();
+	
+	static {
+		COLUMN_NAMES.put(JD_COLUMN_NAME, JD_COLUMN);
+		COLUMN_NAMES.put(CALENDAR_DATE_COLUMN_NAME, CALENDAR_DATE_COLUMN);
+		COLUMN_NAMES.put(MAGNITUDE_COLUMN_NAME, MAGNITUDE_COLUMN);
+		COLUMN_NAMES.put(OBSERVER_CODE_COLUMN_NAME, OBSERVER_CODE_COLUMN);
+		COLUMN_NAMES.put(LINE_NUM_COLUMN_NAME, LINE_NUM_COLUMN);
+		COLUMN_NAMES.put(DISCREPANT_COLUMN_NAME, DISCREPANT_COLUMN);
+	}
+
 	public int getColumnCount() {
 		return DISCREPANT_COLUMN + 1;
 	}
@@ -52,22 +70,22 @@ public class SimpleFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			columnName = "Julian Day";
+			columnName = JD_COLUMN_NAME;
 			break;
 		case CALENDAR_DATE_COLUMN:
-			columnName = "Calendar Date";
+			columnName = CALENDAR_DATE_COLUMN_NAME;
 			break;
 		case MAGNITUDE_COLUMN:
-			columnName = "Magnitude";
+			columnName = MAGNITUDE_COLUMN_NAME;
 			break;
 		case OBSERVER_CODE_COLUMN:
-			columnName = "Observer Code";
+			columnName = OBSERVER_CODE_COLUMN_NAME;
 			break;
 		case LINE_NUM_COLUMN:
-			columnName = "Line";
+			columnName = LINE_NUM_COLUMN_NAME;
 			break;
 		case DISCREPANT_COLUMN:
-			columnName = "Discrepant?";
+			columnName = DISCREPANT_COLUMN_NAME;
 			break;
 		}
 
@@ -123,5 +141,14 @@ public class SimpleFormatRawDataColumnInfoSource implements
 		}
 
 		return value;
+	}
+	
+	@Override
+	public int getColumnIndexByName(String name) throws IllegalArgumentException {
+		if (name == null || !COLUMN_NAMES.containsKey(name)) {
+			throw new IllegalArgumentException("No column name: " + name);
+		} else {
+			return COLUMN_NAMES.get(name);
+		}
 	}
 }

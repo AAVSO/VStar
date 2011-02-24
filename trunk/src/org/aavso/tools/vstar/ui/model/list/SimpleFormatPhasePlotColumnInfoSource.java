@@ -34,6 +34,11 @@ public class SimpleFormatPhasePlotColumnInfoSource extends
 	public static SimpleFormatPhasePlotColumnInfoSource instance = new SimpleFormatPhasePlotColumnInfoSource();
 
 	private static final int PHASE_COLUMN = 0;
+	private static final String PHASE_COLUMN_NAME = "Phase";
+	
+	static {
+		COLUMN_NAMES.put(PHASE_COLUMN_NAME, PHASE_COLUMN);
+	}
 
 	public int getColumnCount() {
 		return super.getColumnCount() + 1;
@@ -48,7 +53,7 @@ public class SimpleFormatPhasePlotColumnInfoSource extends
 
 		switch (index) {
 		case PHASE_COLUMN:
-			columnName = "Phase";
+			columnName = PHASE_COLUMN_NAME;
 			break;
 		default:
 			columnName = super.getTableColumnTitle(index - 1);
@@ -87,5 +92,14 @@ public class SimpleFormatPhasePlotColumnInfoSource extends
 		}
 
 		return value;
+	}
+	
+	@Override
+	public int getColumnIndexByName(String name) throws IllegalArgumentException {
+		if (PHASE_COLUMN_NAME.equals(name)) {
+			return COLUMN_NAMES.get(name);
+		} else {
+			return super.getColumnIndexByName(name)+1;
+		}
 	}
 }
