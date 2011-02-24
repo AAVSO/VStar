@@ -38,6 +38,7 @@ import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
+import org.aavso.tools.vstar.util.comparator.MagnitudeComparator;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -54,7 +55,7 @@ public class ObservationListPane extends JPanel implements
 	private ValidObservationTableModel validDataModel;
 	private TableRowSorter<ValidObservationTableModel> rowSorter;
 	private ValidObservation lastObSelected = null;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -92,6 +93,9 @@ public class ObservationListPane extends JPanel implements
 			// Enable table sorting by clicking on a column.
 			rowSorter = new TableRowSorter<ValidObservationTableModel>(
 					validDataModel);
+			int magColIndex = validDataModel.getColumnInfoSource()
+					.getColumnIndexByName("Magnitude");
+			rowSorter.setComparator(magColIndex, new MagnitudeComparator());
 			validDataTable.setRowSorter(rowSorter);
 
 			validDataScrollPane = new JScrollPane(validDataTable);
@@ -225,7 +229,7 @@ public class ObservationListPane extends JPanel implements
 									// We ignore this since this is entirely
 									// possible when filtering is enabled.
 								}
-								
+
 								lastObSelected = ob;
 							}
 						} catch (ArrayIndexOutOfBoundsException e) {

@@ -65,4 +65,12 @@ public interface ITableColumnInfoSource {
 	 * @return The column value.
 	 */
 	abstract public Object getTableColumnValue(int index, ValidObservation ob);
+	
+	/**
+	 * Given a column name, return the index.
+	 * 
+	 * @param name The column name.
+	 * @return The index of the specified column.
+	 */
+	abstract public int getColumnIndexByName(String name);
 }

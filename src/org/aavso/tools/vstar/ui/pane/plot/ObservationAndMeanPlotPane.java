@@ -80,7 +80,7 @@ public class ObservationAndMeanPlotPane extends
 		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
 
 		xyMsgFormat = "JD: " + NumericPrecisionPrefs.getTimeOutputFormat()
-				+ ", Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
+				+ " (%s), Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
 
 		// Set the means series color.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
@@ -141,7 +141,8 @@ public class ObservationAndMeanPlotPane extends
 			XYItemEntity item = (XYItemEntity) entity;
 			ValidObservation ob = obsModel.getValidObservation(item
 					.getSeriesIndex(), item.getItem());
-			String xyMsg = String.format(xyMsgFormat, ob.getJD(), ob.getMag());
+			String xyMsg = String.format(xyMsgFormat, ob.getJD(), ob
+					.getDateInfo().getCalendarDate(), ob.getMag());
 			item.setToolTipText(xyMsg);
 		}
 	}
