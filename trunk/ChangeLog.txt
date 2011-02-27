@@ -30,28 +30,28 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
-Date: February 24 2011
+Date: February 28 2011
 Version: 2.12
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-15Jan2011
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-28Feb2011
 Key Changes:
-- First cut of AAVSO extended file format observation source plugin.
 - Fix for tracker 3184726 in which marking a point discrepant causes means 
   series to be displayed.
 - Minor updates to help contents re: authentication.
 - Handled the case where no visual or "unspecified" observations are present:
   all series are now displayed (tracker 3188139).
 - Added plugin jar creation helper script to plugin/script.
-- Extended file format additions: If JD is not the time format specified in
-  a data file (vs calendar date), each observation becomes invalid. An MType 
-  of ABS is now equated with STD. Now recording observation number as record 
-  number (thanks for Ken Mogul for this suggestion/request to help sorting out
-  observation sequences easier).
-- Fix for tracker 3189219 in which the magnitude observation list column was not 
-  sorting when clicked, instead generating an error.
+- Fix for tracker 3189219 in which the magnitude observation list column was 
+  not sorting when clicked, instead generating an error.
+- Now propagating the light curve's series visibility to the first phase plot 
+  and thereafter, preserving the series visibility across phase plots for a 
+  single dataset. See tracker 3004885.
+- First version of AAVSO extended file format observation source plugin.
+  Thanks to Ken Mogul for providing the first impetus for this in the
+  guise of being able to read VPHOT output.
 
 Date: February 15 2011
 Version: 2.11
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-15Jan2011
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-15Feb2011
 Key Changes:
 - Fixed tracker 3108092: Locale specific problem for "New Phase Plot". Thanks to
   Heinz for reporting and testing this, and for his patience.
