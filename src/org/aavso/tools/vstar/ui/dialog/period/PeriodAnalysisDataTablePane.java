@@ -38,6 +38,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		ListSelectionListener, Listener<PeriodAnalysisSelectionMessage> {
 
 	private JTable table;
+//	private TableRowSorter<PeriodAnalysisDataTableModel> rowSorter;
 
 	/**
 	 * Constructor
@@ -62,6 +63,12 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		table.getSelectionModel().addListSelectionListener(this);
 		
 		table.setAutoCreateRowSorter(true);
+//		DoubleComparator comparator = new DoubleComparator();
+//		rowSorter = new TableRowSorter<PeriodAnalysisDataTableModel>(model);
+//		for (int i=0;i<model.getColumnCount();i++) {
+//			rowSorter.setComparator(i, comparator);
+//		}
+//		table.setRowSorter(rowSorter);
 	}
 
 	// We send a row selection event when the value has "settled".

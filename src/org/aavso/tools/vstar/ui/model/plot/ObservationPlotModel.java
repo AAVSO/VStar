@@ -174,10 +174,10 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *            A mapping from source series to lists of observation sources.
 	 * @param coordSrc
 	 *            A coordinate and error source.
-	 * @param seriesVisibilityMap
-	 *            A mapping from series number to visibility status.
 	 * @param obComparator
 	 *            A valid observation comparator (e.g. by JD or phase).
+	 * @param seriesVisibilityMap
+	 *            A mapping from series number to visibility status.
 	 */
 	public ObservationPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
