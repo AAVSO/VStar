@@ -72,17 +72,20 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 *            A mapping from source series to lists of observation sources.
 	 * @param coordSrc
 	 *            coordinate and error source.
-	 * @param timeElementEntity
-	 *            A time element source for observations.
 	 * @param obComparator
 	 *            A valid observation comparator (e.g. by JD or phase).
+	 * @param timeElementEntity
+	 *            A time element source for observations.
+	 * @param seriesVisibilityMap
+	 *            A mapping from series number to visibility status.
 	 */
 	public ObservationAndMeanPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
 			ICoordSource coordSrc, Comparator<ValidObservation> obComparator,
-			ITimeElementEntity timeElementEntity) {
+			ITimeElementEntity timeElementEntity,
+			Map<Integer, Boolean> seriesVisibilityMap) {
 
-		super(obsSourceListMap, coordSrc, obComparator);
+		super(obsSourceListMap, coordSrc, obComparator, seriesVisibilityMap);
 
 		this.meansSeriesNum = NO_MEANS_SERIES;
 

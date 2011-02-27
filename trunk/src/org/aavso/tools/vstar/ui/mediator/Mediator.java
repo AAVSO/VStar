@@ -332,7 +332,7 @@ public class Mediator {
 			public void update(BinningResult info) {
 				if (this.meanSourceSeriesNum != obsAndMeanPlotModel
 						.getMeanSourceSeriesNum()) {
-					
+
 					this.meanSourceSeriesNum = obsAndMeanPlotModel
 							.getMeanSourceSeriesNum();
 
@@ -350,7 +350,8 @@ public class Mediator {
 		};
 	}
 
-	// When the period changes, create a new phase plot.
+	// When the period changes, create a new phase plot passing the pre-existing
+	// series visibility map if a previous phase plot was created.
 	private Listener<PeriodChangeMessage> createPeriodChangeListener() {
 		return new Listener<PeriodChangeMessage>() {
 			public void update(PeriodChangeMessage info) {
@@ -365,10 +366,34 @@ public class Mediator {
 					if (!phaseDialog.isCancelled()) {
 						double period = phaseDialog.getPeriod();
 						double epoch = phaseDialog.getEpoch();
+
 						MainFrame.getInstance().setCursor(
 								Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-						msg = createPhasePlotArtefacts(period, epoch, null);
+
+						AnalysisTypeChangeMessage lastPhasePlotMsg = analysisTypeMap
+								.get(AnalysisType.PHASE_PLOT);
+
+						Map<Integer, Boolean> seriesVisibilityMap = null;
+
+						if (lastPhasePlotMsg != null) {
+							// Use the last phase plot's series visibility map.
+							seriesVisibilityMap = lastPhasePlotMsg
+									.getObsAndMeanChartPane().getObsModel()
+									.getSeriesVisibilityMap();
+						} else {
+							// There has been no phase plot yet, so use the
+							// light curve's series visibility map.
+							AnalysisTypeChangeMessage lightCurveMsg = analysisTypeMap
+									.get(AnalysisType.RAW_DATA);
+							seriesVisibilityMap = lightCurveMsg
+									.getObsAndMeanChartPane().getObsModel()
+									.getSeriesVisibilityMap();
+						}
+
+						msg = createPhasePlotArtefacts(period, epoch,
+								seriesVisibilityMap);
 						analysisType = AnalysisType.PHASE_PLOT;
+
 						analysisTypeChangeNotifier.notifyListeners(msg);
 						MainFrame.getInstance().setCursor(null);
 					}
@@ -474,7 +499,9 @@ public class Mediator {
 					break;
 
 				case PHASE_PLOT:
-					// Create or retrieve phase plots and data tables.
+					// Create or retrieve phase plots and data tables passing
+					// the light curve's series visibility map for the first
+					// phase plot.
 					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
 
 					if (msg == null) {
@@ -489,7 +516,16 @@ public class Mediator {
 									.setCursor(
 											Cursor
 													.getPredefinedCursor(Cursor.WAIT_CURSOR));
-							msg = createPhasePlotArtefacts(period, epoch, null);
+
+							AnalysisTypeChangeMessage rawDataMsg = analysisTypeMap
+									.get(AnalysisType.RAW_DATA);
+
+							Map<Integer, Boolean> seriesVisibilityMap = rawDataMsg
+									.getObsAndMeanChartPane().getObsModel()
+									.getSeriesVisibilityMap();
+
+							msg = createPhasePlotArtefacts(period, epoch,
+									seriesVisibilityMap);
 						}
 					}
 
@@ -676,7 +712,7 @@ public class Mediator {
 			// Observation-and-mean table and plot.
 			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
 					validObservationCategoryMap, JDCoordSource.instance,
-					JDComparator.instance, JDTimeElementEntity.instance);
+					JDComparator.instance, JDTimeElementEntity.instance, null);
 
 			String meanPlotSubtitle = subTitle;
 			if (!"".equals(meanPlotSubtitle)) {
@@ -850,7 +886,7 @@ public class Mediator {
 		ObservationAndMeanPlotModel obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
 				phasedValidObservationCategoryMap, PhaseCoordSource.instance,
 				StandardPhaseComparator.instance,
-				PhaseTimeElementEntity.instance);
+				PhaseTimeElementEntity.instance, seriesVisibilityMap);
 
 		// The mean observation table model must listen to the plot
 		// model to know when the means data has changed. We also pass

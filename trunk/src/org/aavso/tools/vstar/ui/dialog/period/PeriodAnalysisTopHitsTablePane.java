@@ -30,15 +30,16 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
 
 /**
- * This class represents a period analysis top-hits table pane
- * (e.g. ranked by power, depending upon the model).
+ * This class represents a period analysis top-hits table pane (e.g. ranked by
+ * power, depending upon the model).
  */
 public class PeriodAnalysisTopHitsTablePane extends JPanel implements
 		ListSelectionListener {
 
 	private PeriodAnalysisTopHitsTableModel model;
+	// private TableRowSorter<PeriodAnalysisTopHitsTableModel> rowSorter;
 	private JTable table;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -47,9 +48,9 @@ public class PeriodAnalysisTopHitsTablePane extends JPanel implements
 	 */
 	public PeriodAnalysisTopHitsTablePane(PeriodAnalysisTopHitsTableModel model) {
 		super(new GridLayout(1, 1));
-		
+
 		this.model = model;
-		
+
 		table = new JTable(model);
 		table.setColumnSelectionAllowed(false);
 		table.setRowSelectionAllowed(true);
@@ -57,12 +58,24 @@ public class PeriodAnalysisTopHitsTablePane extends JPanel implements
 
 		this.add(scrollPane);
 
-		// We want to be able to generate period analysis selection 
+		// We want to be able to generate period analysis selection
 		// messages when a table row is selected.
 		table.getSelectionModel().addListSelectionListener(this);
-		
+
 		// Enable table sorting by clicking on a column.
 		table.setAutoCreateRowSorter(true);
+		// TODO: It may be that to do this properly, we need the model
+		// to return Double as the type of each row, along with the data of that
+		// type when asked, and have the table cell renderer render it as
+		// formatted text. Or, we need a table row sorter comparator that takes
+		// formatted strings and parses them in a locale-sensitive manner, then
+		// compares the resulting double values.
+		// rowSorter = new
+		// TableRowSorter<PeriodAnalysisTopHitsTableModel>(model);
+		// for (int i=0;i<model.getColumnCount();i++) {
+		// rowSorter.setComparator(i, new DoubleComparator());
+		// }
+		// table.setRowSorter(rowSorter);
 	}
 
 	// We send a row selection event when the value has "settled".
@@ -75,9 +88,10 @@ public class PeriodAnalysisTopHitsTablePane extends JPanel implements
 			if (row >= 0) {
 				row = table.convertRowIndexToModel(row);
 
-				// TODO: rather than a double[][] here, we should probably use a class
-				// since the second element is actuall an integer!
-				int item = (int) this.model.getTopPowerIndexPairs()[row][1]; // 1 = index into data lists
+				// TODO: rather than a double[][] here, we should probably use a
+				// class since the second element is actually an integer!
+				// 1 = index into data lists
+				int item = (int) this.model.getTopPowerIndexPairs()[row][1];
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 						this, item);
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
