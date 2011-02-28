@@ -48,7 +48,9 @@ Key Changes:
 - First version of AAVSO extended file format observation source plugin.
   Thanks to Ken Mogul for providing the first impetus for this in the
   guise of being able to read VPHOT output.
-
+- Since filtering currently has no effect in phase plot mode, the relevant
+  view menu items and toolbar button are now disabled in that mode.
+  
 Date: February 15 2011
 Version: 2.11
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-15Feb2011

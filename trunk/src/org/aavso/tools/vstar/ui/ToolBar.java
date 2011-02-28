@@ -30,6 +30,7 @@ import javax.swing.JToolBar;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
@@ -128,6 +129,9 @@ public class ToolBar extends JPanel {
 		// Add event listeners.
 
 		this.mediator.getNewStarNotifier().addListener(createNewStarListener());
+
+		this.mediator.getAnalysisTypeChangeNotifier().addListener(
+				createAnalysisTypeChangeListener());
 
 		this.mediator.getProgressNotifier().addListener(
 				createProgressListener());
@@ -428,6 +432,26 @@ public class ToolBar extends JPanel {
 		};
 	}
 
+	// Return an analysis type change listener.
+	private Listener<AnalysisTypeChangeMessage> createAnalysisTypeChangeListener() {
+		return new Listener<AnalysisTypeChangeMessage>() {
+			public void update(AnalysisTypeChangeMessage info) {
+				switch (info.getAnalysisType()) {
+				case RAW_DATA:
+					filterButton.setEnabled(true);
+					break;
+				case PHASE_PLOT:
+					filterButton.setEnabled(false);
+					break;
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+	
 	// Returns an observation selection listener that sets enables certain
 	// buttons.
 	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {

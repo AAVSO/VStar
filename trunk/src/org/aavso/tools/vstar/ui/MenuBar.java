@@ -927,12 +927,24 @@ public class MenuBar extends JMenuBar {
 			public void update(AnalysisTypeChangeMessage info) {
 				switch (info.getAnalysisType()) {
 				case RAW_DATA:
+					// Flip raw/phase plot mode checkboxes.
 					setRawDataAnalysisMenuItemState(true);
 					setPhasePlotAnalysisMenuItemState(false);
+					
+					// Enable filtering.
+					viewFilterItem.setEnabled(true);
+					viewNoFilterItem.setEnabled(true);
+					viewCustomFilterMenu.setEnabled(true);
 					break;
 				case PHASE_PLOT:
+					// Flip raw/phase plot mode checkboxes.
 					setRawDataAnalysisMenuItemState(false);
 					setPhasePlotAnalysisMenuItemState(true);
+
+					// Disable filtering.
+					viewFilterItem.setEnabled(false);
+					viewNoFilterItem.setEnabled(false);
+					viewCustomFilterMenu.setEnabled(false);
 					break;
 				}
 			}
