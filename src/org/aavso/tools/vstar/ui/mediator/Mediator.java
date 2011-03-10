@@ -533,8 +533,8 @@ public class Mediator {
 						this.analysisType = analysisType;
 						// TODO: we should only do this if msg != oldMsg
 						// since we do this in createPhasePlotArtefacts();
-						// should
-						// just make this an else clause of above if stmt.
+						// should just make this an else clause of above if
+						// stmt.
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
 						String statusMsg = "Phase plot mode ("
 								+ this.newStarMessage.getStarInfo()
@@ -1261,5 +1261,15 @@ public class Mediator {
 			MessageBox.showWarningDialog("Observation Details",
 					"No observation selected");
 		}
+	}
+
+	/**
+	 * Exit VStar.
+	 */
+	public void quit() {
+		// TODO: do other cleanup, e.g. if file needs saving;
+		// need a document model including undo for this;
+		// defer to Mediator.
+		System.exit(0);
 	}
 }
