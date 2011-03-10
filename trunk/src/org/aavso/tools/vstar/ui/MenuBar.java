@@ -39,6 +39,7 @@ import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
+import org.aavso.tools.vstar.scripting.ScriptRunner;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.FileExtensionFilter;
 import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
@@ -91,6 +92,9 @@ public class MenuBar extends JMenuBar {
 	public static final String RAW_DATA = "Raw Data";
 	public static final String PHASE_PLOT = "Phase Plot...";
 	public static final String POLYNOMIAL_FIT = "Polynomial Fit...";
+
+	// Tool menu item names.
+	public static final String RUN_SCRIPT = "Run Script...";
 
 	// Help menu item names.
 	public static final String HELP_CONTENTS = "Help Contents...";
@@ -146,6 +150,7 @@ public class MenuBar extends JMenuBar {
 
 	// Tool menu.
 	JMenu toolMenu;
+	JMenuItem toolRunScript;
 
 	// Help menu.
 	JMenuItem helpContentsItem;
@@ -279,7 +284,7 @@ public class MenuBar extends JMenuBar {
 		viewPlotControlItem.setEnabled(false);
 		viewPlotControlItem.addActionListener(createPlotControlListener());
 		viewMenu.add(viewPlotControlItem);
-		
+
 		viewMenu.addSeparator();
 
 		viewZoomInItem = new JMenuItem(ZOOM_IN);
@@ -403,6 +408,12 @@ public class MenuBar extends JMenuBar {
 	private void createToolMenu() {
 		toolMenu = new JMenu("Tool");
 		// toolMenu.setEnabled(false);
+
+		toolRunScript = new JMenuItem(RUN_SCRIPT);
+		toolRunScript.addActionListener(createRunScriptListener());
+		toolMenu.add(toolRunScript);
+
+		toolMenu.addSeparator();
 
 		ActionListener obsToolMenuItemListener = createObsToolMenuItemListener();
 
@@ -606,11 +617,8 @@ public class MenuBar extends JMenuBar {
 	 */
 	private ActionListener createQuitListener() {
 		return new ActionListener() {
-			// TODO: do other cleanup, e.g. if file needs saving;
-			// need a document model including undo for this;
-			// defer to Mediator.
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				mediator.quit();
 			}
 		};
 	}
@@ -639,9 +647,9 @@ public class MenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent e) {
 				mediator.showPlotControlDialog();
 			}
-		};		
+		};
 	}
-	
+
 	/**
 	 * Returns the action listener to be invoked for View->Zoom In
 	 */
@@ -825,6 +833,18 @@ public class MenuBar extends JMenuBar {
 	// ** Tool menu listeners **
 
 	/**
+	 * Returns the action listener to be invoked for Tool -> Run Script...
+	 */
+	public ActionListener createRunScriptListener() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ScriptRunner.getInstance().runScript();
+			}
+		};
+	}
+
+	/**
 	 * Returns the action listener to be invoked for Observation Tool menu item
 	 * selections.
 	 */
@@ -930,7 +950,7 @@ public class MenuBar extends JMenuBar {
 					// Flip raw/phase plot mode checkboxes.
 					setRawDataAnalysisMenuItemState(true);
 					setPhasePlotAnalysisMenuItemState(false);
-					
+
 					// Enable filtering.
 					viewFilterItem.setEnabled(true);
 					viewNoFilterItem.setEnabled(true);
@@ -980,7 +1000,7 @@ public class MenuBar extends JMenuBar {
 				viewObDetailsItem.setEnabled(false);
 				viewZoomInItem.setEnabled(false);
 				viewZoomOutItem.setEnabled(false);
-				viewZoomToFitItem.setEnabled(false);				
+				viewZoomToFitItem.setEnabled(false);
 			}
 
 			/**
@@ -1025,11 +1045,11 @@ public class MenuBar extends JMenuBar {
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
 
-//		this.viewObDetailsItem.setEnabled(state);
+		// this.viewObDetailsItem.setEnabled(state);
 		this.viewPlotControlItem.setEnabled(state);
-//		this.viewZoomInItem.setEnabled(state);
-//		this.viewZoomOutItem.setEnabled(state);
-//		this.viewZoomToFitItem.setEnabled(state);				
+		// this.viewZoomInItem.setEnabled(state);
+		// this.viewZoomOutItem.setEnabled(state);
+		// this.viewZoomToFitItem.setEnabled(state);
 
 		this.viewFilterItem.setEnabled(state);
 		this.viewCustomFilterMenu.setEnabled(state);
@@ -1038,7 +1058,6 @@ public class MenuBar extends JMenuBar {
 		}
 		this.viewNoFilterItem.setEnabled(state);
 
-	
 		this.viewPanLeftItem.setEnabled(state);
 		this.viewPanRightItem.setEnabled(state);
 		this.viewPanUpItem.setEnabled(state);
