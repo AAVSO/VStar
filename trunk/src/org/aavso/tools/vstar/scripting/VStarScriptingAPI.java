@@ -29,47 +29,29 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  * This is VStar's scripting Application Programming Interface. An instance of
  * this class will be passed to scripts.
  * 
- * TODO: we will have to determine the best way to synchronise between
- * concurrent tasks corresponding to long running operations and the exit of
- * each of these methods. These methods must be synchronous otherwise we will be
- * trying to perform a phase plot or period analysis before we have loaded a
- * dataset completely, for example.
+ * All methods are synchronised to ensure that only one API is being called 
+ * at a time.
  */
 public class VStarScriptingAPI {
 
-	// private boolean busy;
+	private Mediator mediator = Mediator.getInstance();
 
-	private Mediator mediator;
-
+	private final static VStarScriptingAPI instance = new VStarScriptingAPI();
+	
 	/**
 	 * Constructor.
 	 */
-	public VStarScriptingAPI() {
+	private VStarScriptingAPI() {
 		mediator = Mediator.getInstance();
-		// busy = false;
-
-		// Mediator.getInstance().getProgressNotifier().addListener(
-		// createProgressListener());
 	}
 
-	// private Listener<ProgressInfo> createProgressListener() {
-	// return new Listener<ProgressInfo>() {
-	// @Override
-	// public void update(ProgressInfo info) {
-	// switch (info.getType()) {
-	// case COMPLETE_PROGRESS:
-	// busy = false;
-	// break;
-	// }
-	// }
-	//
-	// @Override
-	// public boolean canBeRemoved() {
-	// return false;
-	// }
-	// };
-	// }
-
+	/**
+	 * Return Singleton.
+	 */
+	public static VStarScriptingAPI getInstance() {
+		return instance;
+	}
+	
 	/**
 	 * Load a dataset from the specified path. This is equivalent to
 	 * "File -> New Star from File..."
@@ -78,14 +60,11 @@ public class VStarScriptingAPI {
 	 *            The path to the file.
 	 * @return Whether or not this operation succeeded.
 	 */
-	public void loadFromFile(String path) {
+	public synchronized void loadFromFile(final String path) {
 		File f = new File(path);
 
 		try {
-			// busy = true;
 			mediator.createObservationArtefactsFromFile(f);
-			// while (!busy);
-			// while (!mediator.isCurrentTaskDone());
 		} catch (IOException e) {
 			MessageBox
 					.showErrorDialog("Load File", "Cannot load file: " + path);
@@ -94,33 +73,42 @@ public class VStarScriptingAPI {
 					"Error reading observations from file: " + path
 							+ " (reason: " + e.getLocalizedMessage() + ")");
 		}
+
+		mediator.waitForJobCompletion();
 	}
 
 	/**
 	 * Switch to phase plot mode. If no phase plot has been created yet, this
 	 * will open the phase parameter dialog.
 	 */
-	public void phasePlotMode() {
-		// busy = true;
+	public synchronized void phasePlotMode() {
 		mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
-		// while (!busy);
-		// while (!mediator.isCurrentTaskDone());
+		mediator.waitForJobCompletion();
 	}
 
 	/**
 	 * Switch to phase raw (light curve) mode.
 	 */
-	public void lightCurveMode() {
-		// busy = true;
+	public synchronized void lightCurveMode() {
 		mediator.changeAnalysisType(AnalysisType.RAW_DATA);
-		// while (!busy);
-		// while (!mediator.isCurrentTaskDone());
+		mediator.waitForJobCompletion();
 	}
 
 	/**
+	 * Pause for the specified number of milliseconds.
+	 * @param millis The time to pause for.
+	 */
+	public synchronized void pause(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+		}
+	}
+	
+	/**
 	 * Exit VStar.
 	 */
-	public void exit() {
+	public synchronized void exit() {
 		mediator.quit();
 	}
 }
