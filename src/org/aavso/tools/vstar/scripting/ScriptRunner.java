@@ -20,7 +20,6 @@ package org.aavso.tools.vstar.scripting;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.LineNumberReader;
 
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
@@ -51,7 +50,7 @@ public class ScriptRunner {
 		manager = new ScriptEngineManager();
 		jsEngine = manager.getEngineByName("JavaScript");
 		context = jsEngine.getContext();
-		context.setAttribute("vstar", new VStarScriptingAPI(), context
+		context.setAttribute("vstar", VStarScriptingAPI.getInstance(), context
 				.getScopes().get(0));
 		scriptFileChooser = new JFileChooser();
 	}

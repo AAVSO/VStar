@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JFileChooser;
 import javax.swing.SwingWorker;
@@ -930,6 +931,20 @@ public class Mediator {
 		this.analysisTypeChangeNotifier.notifyListeners(phasePlotMsg);
 
 		return phasePlotMsg;
+	}
+
+	/**
+	 * Block, waiting for a job to complete. We only want to block if there is a
+	 * concurrent task in progress.
+	 */
+	public void waitForJobCompletion() {
+		if (currTask != null && !currTask.isDone()) {
+			try {
+				currTask.get();
+			} catch (InterruptedException e) {
+			} catch (ExecutionException e) {
+			}
+		}
 	}
 
 	/**
