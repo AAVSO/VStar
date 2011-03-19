@@ -28,29 +28,33 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.ui.MainFrame;
 
 /**
- * This abstract class should be subclassed  by any class that wants
- * to have modal OK-Cancel dialog behaviour. The default result is
- * "cancelled".
+ * This abstract class should be subclassed by any class that wants to have
+ * modal OK-Cancel dialog behaviour. The default result is "cancelled".
  */
 abstract public class AbstractOkCancelDialog extends JDialog {
 
 	// Was this dialog cancelled?
 	protected boolean cancelled;
 
-	// Intended for Singleton subclasses. 
+	// Intended for Singleton subclasses.
 	protected boolean firstUse;
 
 	protected JButton okButton;
-	
-	public AbstractOkCancelDialog(String title) {
+
+	public AbstractOkCancelDialog(String title, boolean isModal,
+			boolean isAlwaysOnType) {
 		super();
 		this.setTitle(title);
-		this.setModal(true);
-		this.setAlwaysOnTop(true);
+		this.setModal(isModal);
+		this.setAlwaysOnTop(isAlwaysOnType);
 		this.cancelled = true;
 		this.firstUse = true;
 	}
-	
+
+	public AbstractOkCancelDialog(String title) {
+		this(title, true, true);
+	}
+
 	protected JPanel createButtonPane() {
 		JPanel panel = new JPanel(new BorderLayout());
 
@@ -63,7 +67,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 		panel.add(okButton, BorderLayout.LINE_END);
 
 		this.getRootPane().setDefaultButton(okButton);
-		
+
 		return panel;
 	}
 
@@ -82,14 +86,13 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				cancelAction();
 				setVisible(false);
-				dispose();				
+				dispose();
 			}
 		};
 	}
-	
+
 	/**
-	 * Show the dialog.
-	 * Intended for Singleton subclasses.
+	 * Show the dialog. Intended for Singleton subclasses.
 	 */
 	public void showDialog() {
 		if (firstUse) {
@@ -101,10 +104,10 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 		this.getRootPane().setDefaultButton(okButton);
 		this.setVisible(true);
 	}
-	
+
 	/**
-	 * Reset this dialog's state so that we don't process old state.
-	 * Intended for Singleton subclasses.
+	 * Reset this dialog's state so that we don't process old state. Intended
+	 * for Singleton subclasses.
 	 */
 	private void localReset() {
 		this.setCancelled(true);
@@ -112,29 +115,29 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	}
 
 	/**
-	 * Subclasses should override this. 
-	 * Intended for Singleton subclasses, hence a default
-	 * do-nothing implementation is provided.
+	 * Subclasses should override this. Intended for Singleton subclasses, hence
+	 * a default do-nothing implementation is provided.
 	 */
 	protected void reset() {
 	}
-	
+
 	/**
 	 * Set the cancelled status of this dialog.
 	 * 
-	 * @param status The status.
+	 * @param status
+	 *            The status.
 	 */
 	protected void setCancelled(boolean status) {
 		cancelled = status;
 	}
-	
+
 	/**
 	 * @return whether this dialog box cancelled
 	 */
 	public boolean isCancelled() {
 		return cancelled;
 	}
-	
+
 	/**
 	 * Implemented this method to execute an OK button action.
 	 */
