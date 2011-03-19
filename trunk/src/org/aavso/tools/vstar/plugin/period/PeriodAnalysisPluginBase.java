@@ -111,6 +111,7 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	 * @param sourceSeriesType
 	 *            The mean source series type to be used on the plot for display
 	 *            purposes.
+	 * @return A dialog to be invoked, or null, if there is no dialog.
 	 */
 	abstract public JDialog getDialog(SeriesType sourceSeriesType);
 
