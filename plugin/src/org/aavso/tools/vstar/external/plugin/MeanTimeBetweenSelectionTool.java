@@ -30,6 +30,7 @@ import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
+import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
@@ -43,16 +44,9 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 
 	private ObservationCollectionDialog obsCollectionDialog;
 
-	public MeanTimeBetweenSelectionTool() {
-		obsCollectionDialog = new ObservationCollectionDialog();
-
-		Mediator.getInstance().getObservationSelectionNotifier().addListener(
-				createObSelectionListener());
-	}
-
 	@Override
 	public void invoke() {
-		obsCollectionDialog.showDialog();
+		new ObservationCollectionDialog();
 	}
 
 	@Override
@@ -65,21 +59,6 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 		return "Mean time between selections";
 	}
 
-	private Listener<ObservationSelectionMessage> createObSelectionListener() {
-		return new Listener<ObservationSelectionMessage>() {
-			@Override
-			public void update(ObservationSelectionMessage info) {
-				// TODO: why do we see multiple update() calls per mouse click?
-				obsCollectionDialog.addObservation(info.getObservation());
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
-	}
-
 	class ObservationCollectionDialog extends AbstractOkCancelDialog {
 
 		private List<ValidObservation> obs;
@@ -88,11 +67,9 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 		private JList obList;
 		private JTextField meanField;
 
-		public ObservationCollectionDialog() {
-			super("Observation Selection");
-			setAlwaysOnTop(true);
-			setModal(false);
-
+		ObservationCollectionDialog() {
+			super("Observation Selection", false, true);
+			
 			obs = new ArrayList<ValidObservation>();
 
 			Container contentPane = this.getContentPane();
@@ -114,21 +91,38 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 			topPane.add(createButtonPane());
 			contentPane.add(topPane);
 
+			Mediator.getInstance().getObservationSelectionNotifier()
+					.addListener(createObSelectionListener());
+
 			this.pack();
+			this
+					.setLocationRelativeTo(MainFrame.getInstance()
+							.getContentPane());
+			this.setVisible(true);
+		}
+		
+		private Listener<ObservationSelectionMessage> createObSelectionListener() {
+			return new Listener<ObservationSelectionMessage>() {
+				@Override
+				public void update(ObservationSelectionMessage info) {
+					// TODO: why do we see multiple update() calls per mouse
+					// click? Raise a tracker re: this.
+					addObservation(info.getObservation());
+				}
+
+				@Override
+				public boolean canBeRemoved() {
+					return false;
+				}
+			};
 		}
 
 		public void addObservation(ValidObservation ob) {
 			if (!obs.contains(ob)) {
 				obModel.addElement(ob.toSimpleFormatString());
 				obs.add(ob);
+				pack();
 			}
-		}
-
-		@Override
-		public void showDialog() {
-			obModel.removeAllElements();
-			obs.clear();
-			super.showDialog();
 		}
 
 		@Override
@@ -149,8 +143,6 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 				double mean = sum / obs.size();
 
 				meanField.setText(String.format("%f days", mean));
-
-				setCancelled(false);
 			}
 		}
 
