@@ -17,13 +17,18 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -31,18 +36,16 @@ import javax.swing.JTextField;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
-import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * This plug-in accumulates observation selections and allows mean time between
- * selections to be calculated.
+ * This plug-in accumulates observation selections (e.g. minima or maxima) and
+ * allows mean time between selections to be calculated.
  */
 public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
-
-	private ObservationCollectionDialog obsCollectionDialog;
 
 	@Override
 	public void invoke() {
@@ -59,17 +62,21 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 		return "Mean time between selections";
 	}
 
-	class ObservationCollectionDialog extends AbstractOkCancelDialog {
+	class ObservationCollectionDialog extends JDialog {
 
 		private List<ValidObservation> obs;
 		private DefaultListModel obModel;
 
 		private JList obList;
-		private JTextField meanField;
+		private JTextField meanJDField;
+		private JTextField meanMagField;
 
 		ObservationCollectionDialog() {
-			super("Observation Selection", false, true);
-			
+			super();
+			setTitle("Observation Selection");
+			setModal(false);
+			setAlwaysOnTop(true);
+
 			obs = new ArrayList<ValidObservation>();
 
 			Container contentPane = this.getContentPane();
@@ -83,10 +90,17 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 			obList.setBorder(BorderFactory.createTitledBorder("Observations"));
 			topPane.add(obList);
 
-			meanField = new JTextField();
-			meanField.setBorder(BorderFactory.createTitledBorder("Mean time"));
-			meanField.setEditable(false);
-			topPane.add(meanField);
+			meanJDField = new JTextField();
+			meanJDField.setBorder(BorderFactory
+					.createTitledBorder("Mean time between selections"));
+			meanJDField.setEditable(false);
+			topPane.add(meanJDField);
+
+			meanMagField = new JTextField();
+			meanMagField.setBorder(BorderFactory
+					.createTitledBorder("Mean magnitude"));
+			meanMagField.setEditable(false);
+			topPane.add(meanMagField);
 
 			topPane.add(createButtonPane());
 			contentPane.add(topPane);
@@ -100,7 +114,46 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 							.getContentPane());
 			this.setVisible(true);
 		}
-		
+
+		protected JPanel createButtonPane() {
+			JPanel panel = new JPanel(new BorderLayout());
+
+			JButton cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(createCancelButtonListener());
+			panel.add(cancelButton, BorderLayout.LINE_START);
+
+			JButton clearButton = new JButton("Clear");
+			clearButton.addActionListener(createClearButtonListener());
+			panel.add(clearButton, BorderLayout.LINE_END);
+
+			this.getRootPane().setDefaultButton(clearButton);
+
+			return panel;
+		}
+
+		// Return a listener for the "Clear" button.
+		protected ActionListener createClearButtonListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					obModel.clear();
+					obs.clear();
+					meanJDField.setText("");
+					meanMagField.setText("");
+					pack();
+				}
+			};
+		}
+
+		// Return a listener for the "cancel" button.
+		protected ActionListener createCancelButtonListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+					dispose();
+				}
+			};
+		}
+
 		private Listener<ObservationSelectionMessage> createObSelectionListener() {
 			return new Listener<ObservationSelectionMessage>() {
 				@Override
@@ -119,14 +172,18 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 
 		public void addObservation(ValidObservation ob) {
 			if (!obs.contains(ob)) {
-				obModel.addElement(ob.toSimpleFormatString());
+				obModel.addElement(String.format("JD: "
+						+ NumericPrecisionPrefs.getTimeOutputFormat() + ", Mag: "
+						+ NumericPrecisionPrefs.getMagOutputFormat(), ob
+						.getJD(), ob.getMag()));
 				obs.add(ob);
+				computeMeanJD();
+				computeMeanMag();
 				pack();
 			}
 		}
 
-		@Override
-		protected void okAction() {
+		private void computeMeanJD() {
 			if (!obs.isEmpty()) {
 				// Get the sum of all JD intervals between observations.
 				double sum = 0;
@@ -139,16 +196,29 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 					lastJD = ob.getJD();
 				}
 
-				// Now take the mean of these JD intervals.
 				double mean = sum / obs.size();
 
-				meanField.setText(String.format("%f days", mean));
+				meanJDField.setText(String.format(NumericPrecisionPrefs
+						.getTimeOutputFormat()
+						+ " days", mean));
 			}
 		}
 
-		@Override
-		protected void cancelAction() {
-			// Nothing to do.
+		private void computeMeanMag() {
+			if (!obs.isEmpty()) {
+				// Get the sum of all observation magnitude values.
+				double sum = 0;
+
+				for (int i = 1; i < obs.size(); i++) {
+					ValidObservation ob = obs.get(i);
+					sum += ob.getMag();
+				}
+
+				double mean = sum / obs.size();
+
+				meanMagField.setText(String.format(NumericPrecisionPrefs
+						.getMagOutputFormat(), mean));
+			}
 		}
 	}
 }
