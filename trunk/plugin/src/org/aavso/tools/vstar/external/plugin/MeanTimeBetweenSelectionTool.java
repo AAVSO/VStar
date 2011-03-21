@@ -173,52 +173,52 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 		public void addObservation(ValidObservation ob) {
 			if (!obs.contains(ob)) {
 				obModel.addElement(String.format("JD: "
-						+ NumericPrecisionPrefs.getTimeOutputFormat() + ", Mag: "
+						+ NumericPrecisionPrefs.getTimeOutputFormat()
+						+ ", Mag: "
 						+ NumericPrecisionPrefs.getMagOutputFormat(), ob
 						.getJD(), ob.getMag()));
 				obs.add(ob);
-				computeMeanJD();
-				computeMeanMag();
+				if (obs.size() > 1) {
+					computeMeanJD();
+					computeMeanMag();
+				}
 				pack();
 			}
 		}
 
 		private void computeMeanJD() {
-			if (!obs.isEmpty()) {
-				// Get the sum of all JD intervals between observations.
-				double sum = 0;
+			// Get the sum of all JD intervals between observations.
+			double sum = 0;
 
-				double lastJD = obs.get(0).getJD();
+			double lastJD = obs.get(0).getJD();
 
-				for (int i = 1; i < obs.size(); i++) {
-					ValidObservation ob = obs.get(i);
-					sum += ob.getJD() - lastJD;
-					lastJD = ob.getJD();
-				}
-
-				double mean = sum / obs.size();
-
-				meanJDField.setText(String.format(NumericPrecisionPrefs
-						.getTimeOutputFormat()
-						+ " days", mean));
+			for (int i = 1; i < obs.size(); i++) {
+				ValidObservation ob = obs.get(i);
+				sum += ob.getJD() - lastJD;
+				lastJD = ob.getJD();
 			}
+
+			// There's N JDs, but only N-1 intervals.
+			double mean = sum / (obs.size()-1);
+
+			meanJDField.setText(String.format(NumericPrecisionPrefs
+					.getTimeOutputFormat()
+					+ " days", mean));
 		}
 
 		private void computeMeanMag() {
-			if (!obs.isEmpty()) {
-				// Get the sum of all observation magnitude values.
-				double sum = 0;
+			// Get the sum of all observation magnitude values.
+			double sum = 0;
 
-				for (int i = 1; i < obs.size(); i++) {
-					ValidObservation ob = obs.get(i);
-					sum += ob.getMag();
-				}
-
-				double mean = sum / obs.size();
-
-				meanMagField.setText(String.format(NumericPrecisionPrefs
-						.getMagOutputFormat(), mean));
+			for (int i = 0; i < obs.size(); i++) {
+				ValidObservation ob = obs.get(i);
+				sum += ob.getMag();
 			}
+
+			double mean = sum / obs.size();
+
+			meanMagField.setText(String.format(NumericPrecisionPrefs
+					.getMagOutputFormat(), mean));
 		}
 	}
 }
