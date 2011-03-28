@@ -148,6 +148,9 @@ public class MenuBar extends JMenuBar {
 
 	JMenuItem analysisPolynomialFitItem;
 
+	// Modelling menu.
+//	poly fit, ...
+	
 	// Tool menu.
 	JMenu toolMenu;
 	JMenuItem toolRunScript;

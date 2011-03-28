@@ -24,11 +24,7 @@ import java.util.Map;
 import javax.swing.JDialog;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.exception.AlgorithmError;
-import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
-import org.aavso.tools.vstar.ui.dialog.PeriodAnalysisParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
@@ -41,7 +37,7 @@ import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTra
 /**
  * Date Compensated Discrete Fourier Transform period analysis plugin.
  */
-public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
+abstract public class DcDftPeriodAnalysisPluginBase extends PeriodAnalysisPluginBase {
 
 	private final static PeriodAnalysisCoordinateType[] COLUMN_TYPES = {
 			PeriodAnalysisCoordinateType.FREQUENCY,
@@ -49,18 +45,18 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 			PeriodAnalysisCoordinateType.POWER,
 			PeriodAnalysisCoordinateType.AMPLITUDE };
 
-	private NewStarMessage newStarMessage;
+	protected NewStarMessage newStarMessage;
 
-	private MeanSourceSeriesChangeMessage meanSourceSeriesChangeMessage;
+	protected MeanSourceSeriesChangeMessage meanSourceSeriesChangeMessage;
 
-	private DateCompensatedDiscreteFourierTransform periodAnalysisAlgorithm;
+	protected DateCompensatedDiscreteFourierTransform periodAnalysisAlgorithm;
 
 	private JDialog dialog;
 
 	/**
 	 * Constructor.
 	 */
-	public DcDftPeriodAnalysisPlugin() {
+	public DcDftPeriodAnalysisPluginBase() {
 		super();
 		newStarMessage = null;
 		meanSourceSeriesChangeMessage = null;
@@ -77,35 +73,7 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 	public String getDescription() {
 		return "Date Compensated Discrete Fourier Transform";
 	}
-
-	public void executeAlgorithm(List<ValidObservation> obs)
-			throws AlgorithmError, CancellationException {
-		assert newStarMessage != null;
-
-		if (periodAnalysisAlgorithm == null) {
-			periodAnalysisAlgorithm = new DateCompensatedDiscreteFourierTransform(
-					obs, true);
-
-			double loFreq = periodAnalysisAlgorithm.getLoFreqValue();
-			double hiFreq = periodAnalysisAlgorithm.getHiFreqValue();
-			double resolution = periodAnalysisAlgorithm.getResolutionValue();
-
-			PeriodAnalysisParameterDialog paramDialog = new PeriodAnalysisParameterDialog(
-					loFreq, hiFreq, resolution);
-
-			if (!paramDialog.isCancelled()) {
-				periodAnalysisAlgorithm.setLoFreqValue(paramDialog.getLoFreq());
-				periodAnalysisAlgorithm.setHiFreqValue(paramDialog.getHiFreq());
-				periodAnalysisAlgorithm.setResolutionValue(paramDialog
-						.getResolution());
-
-				periodAnalysisAlgorithm.execute();
-			} else {
-				throw new CancellationException();
-			}
-		}
-	}
-
+	
 	public JDialog getDialog(SeriesType sourceSeriesType) {
 		assert newStarMessage != null;
 
@@ -115,13 +83,6 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 			Map<PeriodAnalysisCoordinateType, List<Double>> seriesMap = periodAnalysisAlgorithm
 					.getResultSeries();
 
-			// Frequency vs Amplitude
-			models.add(new PeriodAnalysis2DPlotModel(seriesMap
-					.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
-					.get(PeriodAnalysisCoordinateType.AMPLITUDE),
-					PeriodAnalysisCoordinateType.FREQUENCY,
-					PeriodAnalysisCoordinateType.AMPLITUDE));
-
 			// Frequency vs Power
 			models.add(new PeriodAnalysis2DPlotModel(seriesMap
 					.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
@@ -129,12 +90,19 @@ public class DcDftPeriodAnalysisPlugin extends PeriodAnalysisPluginBase {
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.POWER));
 
-			// Period vs Amplitude
+			// Frequency vs Amplitude
 			models.add(new PeriodAnalysis2DPlotModel(seriesMap
-					.get(PeriodAnalysisCoordinateType.PERIOD), seriesMap
+					.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
 					.get(PeriodAnalysisCoordinateType.AMPLITUDE),
-					PeriodAnalysisCoordinateType.PERIOD,
+					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.AMPLITUDE));
+
+//			// Period vs Amplitude
+//			models.add(new PeriodAnalysis2DPlotModel(seriesMap
+//					.get(PeriodAnalysisCoordinateType.PERIOD), seriesMap
+//					.get(PeriodAnalysisCoordinateType.AMPLITUDE),
+//					PeriodAnalysisCoordinateType.PERIOD,
+//					PeriodAnalysisCoordinateType.AMPLITUDE));
 
 			int maxHits = 20;
 

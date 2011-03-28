@@ -17,6 +17,9 @@
  */
 package org.aavso.tools.vstar.ui;
 
+import java.net.URL;
+import java.security.Policy;
+
 import javax.swing.UIManager;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -28,6 +31,11 @@ import org.aavso.tools.vstar.util.property.ApplicationProperties;
 public class VStar {
 
 	public static void main(String[] args) {
+		// Apply VStar Java policy for all code.
+		URL policyUrl = Thread.currentThread().getContextClassLoader()
+				.getResource("/etc/vstar.java.policy");
+		Policy.getPolicy().refresh();
+
 		// For Mac OS X, make it look more native by using the screen
 		// menu bar. Suggested by Adam Weber.
 		try {
@@ -66,10 +74,13 @@ public class VStar {
 	private static void createAndShowGUI() {
 		try {
 			MainFrame frame = MainFrame.getInstance();
-			final ApplicationProperties appProps = new ApplicationProperties(frame);
-			
-			frame.setSize(appProps.getMainWdwWidth(), appProps.getMainWdwHeight());
-			frame.setLocation(appProps.getMainWdwUpperLeftX(), appProps.getMainWdwUpperLeftY());
+			final ApplicationProperties appProps = new ApplicationProperties(
+					frame);
+
+			frame.setSize(appProps.getMainWdwWidth(), appProps
+					.getMainWdwHeight());
+			frame.setLocation(appProps.getMainWdwUpperLeftX(), appProps
+					.getMainWdwUpperLeftY());
 
 			frame.setVisible(true);
 
@@ -87,8 +98,7 @@ public class VStar {
 			};
 
 			Runtime.getRuntime().addShutdownHook(
-					new Thread(shutdownTask,
-							"Application shutdown task"));
+					new Thread(shutdownTask, "Application shutdown task"));
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(), "Error", t);
 		}
