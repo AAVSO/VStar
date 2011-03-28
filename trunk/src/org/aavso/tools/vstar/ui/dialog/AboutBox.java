@@ -82,6 +82,11 @@ public class AboutBox {
 		strBuf.append("Thanks to Michael Umbricht for early testing, bug\n");
 		strBuf.append("reports, advocacy, great conversations, and beer.\n\n");
 
+		strBuf.append("Discussions with Grant Foster and reading his book\n");
+		strBuf.append("'Analyzing Light Curves: A Practical Guide' have given\n");
+		strBuf.append("me knowledge that would have been much harder to obtain.\n");
+		strBuf.append("otherwise.\n\n");
+		
 		strBuf.append("Thanks to the Weber brothers (Adam and George)\n");
 		strBuf.append("for code and bug-fix contributions, Nico Camargo for\n");
 		strBuf.append("the beautiful toolbar icons and to the broader\n");

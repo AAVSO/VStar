@@ -31,7 +31,8 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.PluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
-import org.aavso.tools.vstar.plugin.period.impl.DcDftPeriodAnalysisPlugin;
+import org.aavso.tools.vstar.plugin.period.impl.DcDftFrequencyRangePeriodAnalysisPlugin;
+import org.aavso.tools.vstar.plugin.period.impl.DcDftStandardScanPeriodAnalysisPlugin;
 import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
@@ -56,9 +57,10 @@ public class PluginLoader {
 	public static List<PeriodAnalysisPluginBase> getPeriodAnalysisPlugins() {
 		List<PeriodAnalysisPluginBase> periodAnalysisPlugins = new ArrayList<PeriodAnalysisPluginBase>();
 
-		// First, add in-built DC DFT period analysis as a plugin.
-		periodAnalysisPlugins.add(new DcDftPeriodAnalysisPlugin());
-
+		// First, add in-built DC DFT period analysis algorithms as plugins.
+		periodAnalysisPlugins.add(new DcDftStandardScanPeriodAnalysisPlugin());
+		periodAnalysisPlugins.add(new DcDftFrequencyRangePeriodAnalysisPlugin());
+		
 		// Next, add all external period analysis plugins.
 		for (PluginBase plugin : loadPlugins()) {
 			if (plugin instanceof PeriodAnalysisPluginBase) {

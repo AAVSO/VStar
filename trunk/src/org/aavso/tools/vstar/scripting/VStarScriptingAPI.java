@@ -20,29 +20,38 @@ package org.aavso.tools.vstar.scripting;
 import java.io.File;
 import java.io.IOException;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This is VStar's scripting Application Programming Interface. An instance of
  * this class will be passed to scripts.
  * 
- * All methods are synchronised to ensure that only one API is being called 
- * at a time.
+ * All methods are synchronised to ensure that only one API is being called at a
+ * time.
  */
 public class VStarScriptingAPI {
 
 	private Mediator mediator = Mediator.getInstance();
 
 	private final static VStarScriptingAPI instance = new VStarScriptingAPI();
-	
+
+	private AnalysisTypeChangeMessage analysisTypeMsg;
+
 	/**
 	 * Constructor.
 	 */
 	private VStarScriptingAPI() {
 		mediator = Mediator.getInstance();
+		analysisTypeMsg = null;
+		mediator.getAnalysisTypeChangeNotifier().addListener(
+				createAnalysisTypeChangeListener());
 	}
 
 	/**
@@ -51,7 +60,24 @@ public class VStarScriptingAPI {
 	public static VStarScriptingAPI getInstance() {
 		return instance;
 	}
-	
+
+	/**
+	 * Return an analysis type change listener.
+	 */
+	private Listener<AnalysisTypeChangeMessage> createAnalysisTypeChangeListener() {
+		return new Listener<AnalysisTypeChangeMessage>() {
+			@Override
+			public void update(AnalysisTypeChangeMessage info) {
+				analysisTypeMsg = info;
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
 	/**
 	 * Load a dataset from the specified path. This is equivalent to
 	 * "File -> New Star from File..."
@@ -95,8 +121,28 @@ public class VStarScriptingAPI {
 	}
 
 	/**
+	 * Returns the band names in the current dataset.
+	 * 
+	 * @return An array of band names.
+	 */
+	public synchronized void getBands() {
+		ObservationAndMeanPlotModel model = analysisTypeMsg
+				.getObsAndMeanChartPane().getObsModel();
+
+		String[] names = new String[model.getSeriesCount()];
+		
+		int i = 0;
+		for (SeriesType type : model.getSeriesKeys()) {
+			names[i++] = type.getShortName();
+			System.out.println(type.getShortName());
+		}
+	}
+
+	/**
 	 * Pause for the specified number of milliseconds.
-	 * @param millis The time to pause for.
+	 * 
+	 * @param millis
+	 *            The time to pause for.
 	 */
 	public synchronized void pause(long millis) {
 		try {
@@ -104,7 +150,7 @@ public class VStarScriptingAPI {
 		} catch (InterruptedException e) {
 		}
 	}
-	
+
 	/**
 	 * Exit VStar.
 	 */
