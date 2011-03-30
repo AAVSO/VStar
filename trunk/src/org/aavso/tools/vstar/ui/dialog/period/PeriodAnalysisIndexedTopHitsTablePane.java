@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.ui.dialog.period;
 
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -28,26 +27,29 @@ import javax.swing.event.ListSelectionListener;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
-import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
-import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisIndexedTopHitsTableModel;
 
 /**
- * This class represents a period analysis data table pane.
+ * This class represents a period analysis top-hits table pane (e.g. ranked by
+ * power, depending upon the model).
  */
-public class PeriodAnalysisDataTablePane extends JPanel implements
-		ListSelectionListener, Listener<PeriodAnalysisSelectionMessage> {
+public class PeriodAnalysisIndexedTopHitsTablePane extends JPanel implements
+		ListSelectionListener {
 
-	protected JTable table;
-//	private TableRowSorter<PeriodAnalysisDataTableModel> rowSorter;
+	private PeriodAnalysisIndexedTopHitsTableModel model;
+	// private TableRowSorter<PeriodAnalysisIndexedTopHitsTableModel> rowSorter;
+	private JTable table;
 
 	/**
 	 * Constructor
 	 * 
 	 * @param model
-	 *            The period analysis table model.
+	 *            The period analysis top-hits table model.
 	 */
-	public PeriodAnalysisDataTablePane(PeriodAnalysisDataTableModel model) {
+	public PeriodAnalysisIndexedTopHitsTablePane(PeriodAnalysisIndexedTopHitsTableModel model) {
 		super(new GridLayout(1, 1));
+
+		this.model = model;
 
 		table = new JTable(model);
 		table.setColumnSelectionAllowed(false);
@@ -56,19 +58,24 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 
 		this.add(scrollPane);
 
-		// We listen for and generate period analysis selection messages.
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(this);
-		
+		// We want to be able to generate period analysis selection
+		// messages when a table row is selected.
 		table.getSelectionModel().addListSelectionListener(this);
-		
+
+		// Enable table sorting by clicking on a column.
 		table.setAutoCreateRowSorter(true);
-//		DoubleComparator comparator = new DoubleComparator();
-//		rowSorter = new TableRowSorter<PeriodAnalysisDataTableModel>(model);
-//		for (int i=0;i<model.getColumnCount();i++) {
-//			rowSorter.setComparator(i, comparator);
-//		}
-//		table.setRowSorter(rowSorter);
+		// TODO: It may be that to do this properly, we need the model
+		// to return Double as the type of each row, along with the data of that
+		// type when asked, and have the table cell renderer render it as
+		// formatted text. Or, we need a table row sorter comparator that takes
+		// formatted strings and parses them in a locale-sensitive manner, then
+		// compares the resulting double values.
+		// rowSorter = new
+		// TableRowSorter<PeriodAnalysisIndexedTopHitsTableModel>(model);
+		// for (int i=0;i<model.getColumnCount();i++) {
+		// rowSorter.setComparator(i, new DoubleComparator());
+		// }
+		// table.setRowSorter(rowSorter);
 	}
 
 	// We send a row selection event when the value has "settled".
@@ -77,49 +84,18 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		if (e.getSource() == table.getSelectionModel()
 				&& table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
 			int row = table.getSelectedRow();
-			
+
 			if (row >= 0) {
 				row = table.convertRowIndexToModel(row);
-				
+
+				// TODO: rather than a double[][] here, we should probably use a
+				// class since the second element is actually an integer!
+				// 1 = index into data lists
+				int item = (int) this.model.getTopPowerIndexPairs()[row][1];
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-						this, row);
+						this, item);
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
-			}
-		}
-	}
-
-	// PeriodAnalysisSelectionMessage listener methods.
-
-	public boolean canBeRemoved() {
-		return true;
-	}
-
-	public void update(PeriodAnalysisSelectionMessage info) {
-		if (info.getSource() != this) {
-			// Scroll to an arbitrary column (zeroth) within
-			// the selected row, then select that row.
-			// Assumption: we are specifying the zeroth cell
-			// within row i as an x,y coordinate relative to
-			// the top of the table pane.
-			// Note that we could call this on the scroll
-			// pane, which would then forward the request to
-			// the table pane anyway.
-			try {
-				int row = info.getItem();
-				// Convert to view index!
-				row = table.convertRowIndexToView(row);
-				
-				int colWidth = (int) table.getCellRect(row, 0, true).getWidth();
-				int rowHeight = table.getRowHeight(row);
-				table.scrollRectToVisible(new Rectangle(colWidth, rowHeight
-						* row, colWidth, rowHeight));
-
-				table.setRowSelectionInterval(row, row);
-			} catch (Throwable t) {
-				// TODO: investigate! (e.g. Johnson V band, then click top-most
-				// top hits table row).
-				// t.printStackTrace();
 			}
 		}
 	}

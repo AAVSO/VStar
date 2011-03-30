@@ -29,7 +29,6 @@ import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
-import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransform;
@@ -37,9 +36,10 @@ import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTra
 /**
  * Date Compensated Discrete Fourier Transform period analysis plugin.
  */
-abstract public class DcDftPeriodAnalysisPluginBase extends PeriodAnalysisPluginBase {
+abstract public class DcDftPeriodAnalysisPluginBase extends
+		PeriodAnalysisPluginBase {
 
-	private final static PeriodAnalysisCoordinateType[] COLUMN_TYPES = {
+	private final static PeriodAnalysisCoordinateType[] DATA_COLUMN_TYPES = {
 			PeriodAnalysisCoordinateType.FREQUENCY,
 			PeriodAnalysisCoordinateType.PERIOD,
 			PeriodAnalysisCoordinateType.POWER,
@@ -73,47 +73,37 @@ abstract public class DcDftPeriodAnalysisPluginBase extends PeriodAnalysisPlugin
 	public String getDescription() {
 		return "Date Compensated Discrete Fourier Transform";
 	}
-	
+
 	public JDialog getDialog(SeriesType sourceSeriesType) {
 		assert newStarMessage != null;
 
 		if (dialog == null) {
 			List<PeriodAnalysis2DPlotModel> models = new ArrayList<PeriodAnalysis2DPlotModel>();
 
-			Map<PeriodAnalysisCoordinateType, List<Double>> seriesMap = periodAnalysisAlgorithm
+			Map<PeriodAnalysisCoordinateType, List<Double>> resultDataMap = periodAnalysisAlgorithm
 					.getResultSeries();
 
 			// Frequency vs Power
-			models.add(new PeriodAnalysis2DPlotModel(seriesMap
-					.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
+			models.add(new PeriodAnalysis2DPlotModel(resultDataMap
+					.get(PeriodAnalysisCoordinateType.FREQUENCY), resultDataMap
 					.get(PeriodAnalysisCoordinateType.POWER),
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.POWER));
 
 			// Frequency vs Amplitude
-			models.add(new PeriodAnalysis2DPlotModel(seriesMap
-					.get(PeriodAnalysisCoordinateType.FREQUENCY), seriesMap
+			models.add(new PeriodAnalysis2DPlotModel(resultDataMap
+					.get(PeriodAnalysisCoordinateType.FREQUENCY), resultDataMap
 					.get(PeriodAnalysisCoordinateType.AMPLITUDE),
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.AMPLITUDE));
-
-//			// Period vs Amplitude
-//			models.add(new PeriodAnalysis2DPlotModel(seriesMap
-//					.get(PeriodAnalysisCoordinateType.PERIOD), seriesMap
-//					.get(PeriodAnalysisCoordinateType.AMPLITUDE),
-//					PeriodAnalysisCoordinateType.PERIOD,
-//					PeriodAnalysisCoordinateType.AMPLITUDE));
-
-			int maxHits = 20;
 
 			dialog = new PeriodAnalysis2DResultDialog(
 					"Period Analysis (DC DFT) for "
 							+ newStarMessage.getStarInfo().getDesignation(),
 					"(series: " + sourceSeriesType.getDescription() + ")",
-					models, new PeriodAnalysisDataTableModel(COLUMN_TYPES,
-							seriesMap), new PeriodAnalysisTopHitsTableModel(
-							COLUMN_TYPES, seriesMap, periodAnalysisAlgorithm
-									.getTopNRankedIndices(maxHits), maxHits));
+					models, new PeriodAnalysisDataTableModel(DATA_COLUMN_TYPES,
+							resultDataMap), new PeriodAnalysisDataTableModel(
+							DATA_COLUMN_TYPES, periodAnalysisAlgorithm.getTopHits()));
 		}
 
 		return dialog;

@@ -25,7 +25,13 @@ import org.aavso.tools.vstar.data.ValidObservation;
  * This is the base class for all AAVSO TS-based algorithms translated from the
  * ts1201.f Fortran code.
  */
+
+// TODO: make 51 a named constant
+
 public class TSBase {
+
+	protected final static int MAX_TOP_HITS = 21;
+	
 
 	private List<ValidObservation> observations;
 
@@ -36,15 +42,17 @@ public class TSBase {
 	protected double dcoef[] = new double[51];
 	protected double dfouramp2;
 	protected double dfpow;
-	protected double dfre[] = new double[21];
-	protected double dgnu[] = new double[21];
-	protected double dgper[] = new double[21];
-	protected double dgpower[] = new double[21];
+	protected double dfre[] = new double[MAX_TOP_HITS];
+	protected double dgnu[] = new double[MAX_TOP_HITS];
+	protected double dgper[] = new double[MAX_TOP_HITS];
+	protected double dgpower[] = new double[MAX_TOP_HITS];
+	protected double dgamplitude[] = new double[MAX_TOP_HITS]; // dbenn (semi-amplitude?)
 	protected double dlamp;
 	protected double dllamp;
 	protected double dlnu;
 	protected double dlper;
 	protected double dlpower;
+	protected double dlamplitude; // dbenn (semi-amplitude?)
 	protected double dmat[][] = new double[51][51];
 	protected double dpower;
 	protected double dsig;
