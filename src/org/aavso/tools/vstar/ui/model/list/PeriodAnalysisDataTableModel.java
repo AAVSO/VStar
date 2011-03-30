@@ -50,6 +50,13 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	}
 
 	/**
+	 * @return the data
+	 */
+	public Map<PeriodAnalysisCoordinateType, List<Double>> getData() {
+		return data;
+	}
+
+	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {

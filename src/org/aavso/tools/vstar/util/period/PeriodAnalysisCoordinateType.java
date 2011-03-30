@@ -19,10 +19,6 @@ package org.aavso.tools.vstar.util.period;
 
 /**
  * Period analysis coordinate type.
- * 
- * TODO: using strings rather than these enums and distinguishing frequency (or
- * whatever the x coordinate is) from y coordinates would make the plugin
- * architecture more flexible?
  */
 public enum PeriodAnalysisCoordinateType {
 

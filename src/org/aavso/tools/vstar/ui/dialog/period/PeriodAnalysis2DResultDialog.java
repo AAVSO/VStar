@@ -31,7 +31,6 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
-import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisTopHitsTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -46,7 +45,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 	private List<PeriodAnalysis2DPlotModel> plotModels;
 	private PeriodAnalysisDataTableModel dataTableModel;
-	private PeriodAnalysisTopHitsTableModel topHitsTableModel;
+	private PeriodAnalysisDataTableModel topHitsTableModel;
 
 	private int selectedRow = -1;
 
@@ -65,7 +64,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	public PeriodAnalysis2DResultDialog(String title, String seriesTitle,
 			List<PeriodAnalysis2DPlotModel> plotModels,
 			PeriodAnalysisDataTableModel dataTableModel,
-			PeriodAnalysisTopHitsTableModel topHitsTableModel) {
+			PeriodAnalysisDataTableModel topHitsTableModel) {
 		super(title, false, true);
 
 		this.seriesTitle = seriesTitle;
@@ -107,7 +106,8 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 		// Add top-hits table view.
 		namedComponents.add(new NamedComponent("Top Hits",
-				new PeriodAnalysisTopHitsTablePane(topHitsTableModel)));
+				new PeriodAnalysisTopHitsTablePane(topHitsTableModel,
+						dataTableModel)));
 
 		return PluginComponentFactory.createTabs(namedComponents);
 	}
@@ -117,7 +117,8 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	// so we *know* without having to ask that there is a selected
 	// row in the data table.
 	protected void newPhasePlotButtonAction() {
-		String periodStr = (String) dataTableModel.getPeriodValueInRow(selectedRow);
+		String periodStr = (String) dataTableModel
+				.getPeriodValueInRow(selectedRow);
 		double period = NumberParser.parseDouble(periodStr);
 
 		PeriodChangeMessage message = new PeriodChangeMessage(this, period);

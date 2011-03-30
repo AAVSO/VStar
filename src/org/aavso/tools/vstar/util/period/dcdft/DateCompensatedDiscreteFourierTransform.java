@@ -53,18 +53,11 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
  */
 
 // TODO:
-// - If possible, remove weights array.
 // - If possible, avoid having to copy any data at all, i.e. skip load_raw().
 // - Also be able to retrieve via getters info in header of generated
 // .ts file, e.g.
 // DCDFT File=delcep.vis NUM= 3079 AVE= 3.9213 SDV=0.2235 VAR= 0.0500
 // JD 2450000.2569-2450999.7097 T.AVE=2450446.0000
-// - Double check with Matt that we are doing the date compensation
-// part in dcdft() here.
-// - Is DCDFT primarily intended to solve the aliasing problem? See
-// cataclysmic variable book ref.
-// - How to properly deal with the many large frequencies? Skip, given
-// some user-definable threshold or other criteria? See also requirements.
 
 public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		IPeriodAnalysisAlgorithm {
@@ -96,7 +89,7 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 				.values()) {
 			this.resultSeries.put(type, new ArrayList<Double>());
 		}
-		
+
 		load_raw();
 	}
 
@@ -208,33 +201,35 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	// -------------------------------------------------------------------------------
 
 	/**
-	 * From the resulting data, create an array of rank-index pairs (first and
-	 * second elements respectively) sorted by rank, where rank could be power
-	 * or amplitude.
+	 * Return the "top hits" from the period analysis.
 	 * 
 	 * It is a precondition that results have been generated, i.e. the execute()
 	 * method has been invoked.
 	 */
-	public double[][] getTopNRankedIndices(int topN) {
-		assert !this.resultSeries.keySet().isEmpty();
+	public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits() {
+		Map<PeriodAnalysisCoordinateType, List<Double>> topHits = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
 
-		// Create an array of doubles where the first element is amplitude, and
-		// the second is the common index into all result lists (frequency,
-		// period, power, amplitude).
-		int n = this.resultSeries.get(PeriodAnalysisCoordinateType.AMPLITUDE)
-				.size();
-		double[][] topRankedIndexArray = new double[n][2];
-
-		for (int i = 0; i < n; i++) {
-			topRankedIndexArray[i][0] = this.resultSeries.get(
-					PeriodAnalysisCoordinateType.AMPLITUDE).get(i);
-
-			topRankedIndexArray[i][1] = i;
+		for (PeriodAnalysisCoordinateType type : PeriodAnalysisCoordinateType
+				.values()) {
+			topHits.put(type, new ArrayList<Double>());
 		}
 
-		Arrays.sort(topRankedIndexArray, RankedIndexPairComparator.instance);
+		for (int i = 1; i <= 20; i++) {
+			if (dgnu[i] != 0) {
+				topHits.get(PeriodAnalysisCoordinateType.FREQUENCY)
+						.add(dgnu[i]);
+				topHits.get(PeriodAnalysisCoordinateType.PERIOD).add(dgper[i]);
+				topHits.get(PeriodAnalysisCoordinateType.POWER).add(dgpower[i]);
+				topHits.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
+						dgamplitude[i]);
+			} else {
+				// We've seen a zero frequency which indicates this is the end
+				// of line of top hits.
+				break;
+			}
+		}
 
-		return topRankedIndexArray;
+		return topHits;
 	}
 
 	// -------------------------------------------------------------------------------
@@ -292,7 +287,8 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		if (!specifyParameters) {
 			standard_scan(dcdftCommon());
 		} else {
-			// dcdftCommon() has already been called in determineDefaultParameters() 
+			// dcdftCommon() has already been called in
+			// determineDefaultParameters()
 			// via the specify-parameters form of the constructor.
 			frequency_range(this.resolutionValue);
 		}
@@ -363,7 +359,7 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		}
 
 		// TODO: doesn't appear to be necessary
-//		dfouramp2 = dpolyamp2;
+		// dfouramp2 = dpolyamp2;
 	}
 
 	/**
@@ -390,6 +386,8 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		// dfpow, dd));
 		collect_datapoint(ff, pp, dfpow, dd);
 		// end of bugfix
+		// dbenn Note: without seeing the previous revision, it's
+		// not possible to know what this fix was.
 		if (damp < dlamp && dlamp >= dllamp)
 			tablit();
 		dllamp = dlamp;
@@ -397,11 +395,12 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		dlnu = ff;
 		dlper = pp;
 		dlpower = dfpow;
+		dlamplitude = dd;
 	}
 
 	/**
-	 * Collect a single <frequency, period, power, amplitude> result as a
-	 * data-point and as elements of an array in a series map.
+	 * Collect a single <frequency, period, power, amplitude> tuple result as a
+	 * data-point.
 	 * 
 	 * @param freq
 	 *            The frequency.
@@ -433,10 +432,12 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 					dgpower[nqq + 1] = dgpower[nqq];
 					dgnu[nqq + 1] = dgnu[nqq];
 					dgper[nqq + 1] = dgper[nqq];
+					dgamplitude[nqq + 1] = dgamplitude[nqq];
 				}
 				dgpower[nq] = dlpower;
 				dgnu[nq] = dlnu;
 				dgper[nq] = dlper;
+				dgamplitude[nq] = dlamplitude;
 				return;
 			}
 		}

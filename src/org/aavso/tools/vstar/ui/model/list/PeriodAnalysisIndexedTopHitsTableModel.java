@@ -30,7 +30,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * ranked (e.g. by power or amplitude), depending upon the topRankedIndexPairs
  * array).
  */
-public class PeriodAnalysisTopHitsTableModel extends AbstractTableModel {
+public class PeriodAnalysisIndexedTopHitsTableModel extends AbstractTableModel {
 
 	private PeriodAnalysisCoordinateType[] columnTypes;
 	private Map<PeriodAnalysisCoordinateType, List<Double>> data;
@@ -51,7 +51,7 @@ public class PeriodAnalysisTopHitsTableModel extends AbstractTableModel {
 	 * @param topN
 	 *            The maximum number values to display in the table.
 	 */
-	public PeriodAnalysisTopHitsTableModel(
+	public PeriodAnalysisIndexedTopHitsTableModel(
 			PeriodAnalysisCoordinateType[] columnTypes,
 			Map<PeriodAnalysisCoordinateType, List<Double>> data,
 			double[][] topRankedIndexPairs, int topN) {
