@@ -25,10 +25,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
+import org.aavso.tools.vstar.util.comparator.FormattedDoubleComparator;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -38,7 +40,8 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		ListSelectionListener, Listener<PeriodAnalysisSelectionMessage> {
 
 	protected JTable table;
-//	private TableRowSorter<PeriodAnalysisDataTableModel> rowSorter;
+
+	private TableRowSorter<PeriodAnalysisDataTableModel> rowSorter;
 
 	/**
 	 * Constructor
@@ -50,8 +53,6 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		super(new GridLayout(1, 1));
 
 		table = new JTable(model);
-		table.setColumnSelectionAllowed(false);
-		table.setRowSelectionAllowed(true);
 		JScrollPane scrollPane = new JScrollPane(table);
 
 		this.add(scrollPane);
@@ -59,16 +60,20 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		// We listen for and generate period analysis selection messages.
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.addListener(this);
-		
+
 		table.getSelectionModel().addListSelectionListener(this);
-		
+
+		table.setColumnSelectionAllowed(false);
+		table.setRowSelectionAllowed(true);
+
 		table.setAutoCreateRowSorter(true);
-//		DoubleComparator comparator = new DoubleComparator();
-//		rowSorter = new TableRowSorter<PeriodAnalysisDataTableModel>(model);
-//		for (int i=0;i<model.getColumnCount();i++) {
-//			rowSorter.setComparator(i, comparator);
-//		}
-//		table.setRowSorter(rowSorter);
+		FormattedDoubleComparator comparator = FormattedDoubleComparator
+				.getInstance();
+		rowSorter = new TableRowSorter<PeriodAnalysisDataTableModel>(model);
+		for (int i = 0; i < model.getColumnCount(); i++) {
+			rowSorter.setComparator(i, comparator);
+		}
+		table.setRowSorter(rowSorter);
 	}
 
 	// We send a row selection event when the value has "settled".
@@ -77,10 +82,10 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		if (e.getSource() == table.getSelectionModel()
 				&& table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
 			int row = table.getSelectedRow();
-			
+
 			if (row >= 0) {
 				row = table.convertRowIndexToModel(row);
-				
+
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 						this, row);
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
@@ -109,7 +114,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 				int row = info.getItem();
 				// Convert to view index!
 				row = table.convertRowIndexToView(row);
-				
+
 				int colWidth = (int) table.getCellRect(row, 0, true).getWidth();
 				int rowHeight = table.getRowHeight(row);
 				table.scrollRectToVisible(new Rectangle(colWidth, rowHeight
