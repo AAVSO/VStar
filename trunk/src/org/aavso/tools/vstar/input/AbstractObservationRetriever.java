@@ -126,36 +126,6 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * Here we categorise a valid observation in terms of whether it is a
-	 * fainter-than or discrepant or belongs to a particular band, in that
-	 * order.
-	 * 
-	 * @param validOb
-	 *            A valid observation.
-	 */
-	protected void categoriseValidObservation(ValidObservation validOb) {
-		SeriesType category = null;
-
-		if (validOb.getMagnitude().isFainterThan()) {
-			category = SeriesType.FAINTER_THAN;
-		} else if (validOb.isDiscrepant()) {
-			category = SeriesType.DISCREPANT;
-		} else {
-			category = validOb.getBand();
-		}
-
-		List<ValidObservation> validObsList = validObservationCategoryMap
-				.get(category);
-
-		if (validObsList == null) {
-			validObsList = new ArrayList<ValidObservation>();
-			validObservationCategoryMap.put(category, validObsList);
-		}
-
-		validObsList.add(validOb);
-	}
-
-	/**
 	 * <p>
 	 * Add an observation to the list of valid observations.
 	 * </p>
@@ -187,6 +157,36 @@ public abstract class AbstractObservationRetriever {
 
 		addValidObservation(ob);
 		categoriseValidObservation(ob);
+	}
+
+	/**
+	 * Here we categorise a valid observation in terms of whether it is a
+	 * fainter-than or discrepant or belongs to a particular band, in that
+	 * order.
+	 * 
+	 * @param validOb
+	 *            A valid observation.
+	 */
+	protected void categoriseValidObservation(ValidObservation validOb) {
+		SeriesType category = null;
+
+		if (validOb.getMagnitude().isFainterThan()) {
+			category = SeriesType.FAINTER_THAN;
+		} else if (validOb.isDiscrepant()) {
+			category = SeriesType.DISCREPANT;
+		} else {
+			category = validOb.getBand();
+		}
+
+		List<ValidObservation> validObsList = validObservationCategoryMap
+				.get(category);
+
+		if (validObsList == null) {
+			validObsList = new ArrayList<ValidObservation>();
+			validObservationCategoryMap.put(category, validObsList);
+		}
+
+		validObsList.add(validOb);
 	}
 
 	/**

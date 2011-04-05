@@ -90,6 +90,13 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.POWER));
 
+			// Period vs Power
+//			models.add(new PeriodAnalysis2DPlotModel(resultDataMap
+//					.get(PeriodAnalysisCoordinateType.PERIOD), resultDataMap
+//					.get(PeriodAnalysisCoordinateType.POWER),
+//					PeriodAnalysisCoordinateType.PERIOD,
+//					PeriodAnalysisCoordinateType.POWER));
+
 			// Frequency vs Amplitude
 			models.add(new PeriodAnalysis2DPlotModel(resultDataMap
 					.get(PeriodAnalysisCoordinateType.FREQUENCY), resultDataMap
