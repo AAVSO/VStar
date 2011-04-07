@@ -22,12 +22,12 @@ import org.aavso.tools.vstar.util.TCasData;
 /**
  * DC DFT Standard Scan test case.
  * 
- * This is equivalent to running a standard scan from the AAVSO's TS (t1201.f)
- * Fortran program's Fourier analysis menu on the tcas.dat file supplied with
- * that program.
+ * This is equivalent to running a "1: standard scan" from the AAVSO's TS
+ * (t1201.f) Fortran program's Fourier analysis menu with the tcas.dat file
+ * supplied with that program.
  * 
- * The 20 top-hits results obtained from that program (5. delete from table
- * option in the Fourier analysis menu):
+ * The 20 top-hits results obtained from that program ("5: delete from table"
+ * option in the Fourier analysis menu) are then:
  * 
  * 1 435.7435 144.40 11 254.8688 1.72 <br/>
  * 2 365.0824 7.34 12 146.8266 1.67 <br/>
@@ -58,6 +58,6 @@ public class StdScanTopHitsDcDftTest extends TopHitsDcDftTestBase {
 				2.91, 2.86, 2.54, 1.72, 1.67, 1.49, 1.06, 1.05, 0.80, 0.52,
 				0.43, 0.41, 0.34 };
 
-		super.testDcDftTopHits(expectedPeriods, expectedPowers);
+		testDcDftTopHits(expectedPeriods, expectedPowers);
 	}
 }

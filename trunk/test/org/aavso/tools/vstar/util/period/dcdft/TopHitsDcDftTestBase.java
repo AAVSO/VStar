@@ -55,12 +55,24 @@ public class TopHitsDcDftTestBase extends TestCase {
 		super.tearDown();
 	}
 
-	// TODO: pass freq vals optionally... don't want a dialog!
-
+	public void testDcDftTopHits(double[] expectedPeriods,
+			double[] expectedPowers, double loFreq, double hiFreq,
+			double resolution) {
+		DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
+				obs, loFreq, hiFreq, resolution);
+		commonTest(dcdft, expectedPeriods, expectedPowers);
+	}
+	
 	public void testDcDftTopHits(double[] expectedPeriods,
 			double[] expectedPowers) {
 		DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
 				obs);
+		commonTest(dcdft, expectedPeriods, expectedPowers);
+	}
+	
+	protected void commonTest(DateCompensatedDiscreteFourierTransform dcdft, double[] expectedPeriods,
+			double[] expectedPowers) {
+		
 		dcdft.execute();
 
 		// Check the expected periods and powers against the top hits.
