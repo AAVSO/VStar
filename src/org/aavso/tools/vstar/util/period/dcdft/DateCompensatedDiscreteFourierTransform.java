@@ -53,8 +53,8 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
  */
 
 // TODO:
-// - If possible, avoid having to copy any data at all, i.e. skip load_raw().
-// - Also be able to retrieve via getters info in header of generated
+// - Avoid copying any data at all, i.e. skip load_raw().
+// - Also be able to retrieve (via getters) info in header of generated
 // .ts file, e.g.
 // DCDFT File=delcep.vis NUM= 3079 AVE= 3.9213 SDV=0.2235 VAR= 0.0500
 // JD 2450000.2569-2450999.7097 T.AVE=2450446.0000
@@ -111,6 +111,29 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 			// (frequency range and resolution).
 			determineDefaultParameters();
 		}
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param observations
+	 *            The observations over which to perform a period analysis.
+	 * @param loFreq
+	 *            The low frequency value for the range to be scanned.
+	 * @param hiFreq
+	 *            The high frequency value for the range to be scanned.
+	 * @param resolution
+	 *            The resolution with which to scan over the range.
+	 */
+	public DateCompensatedDiscreteFourierTransform(
+			List<ValidObservation> observations, double loFreq, double hiFreq,
+			double resolution) {
+		this(observations);
+		specifyParameters = true;
+		determineDefaultParameters(); // TODO: should not need to do all in that method
+		setHiFreqValue(hiFreq);
+		setLoFreqValue(loFreq);
+		setResolutionValue(resolution);
 	}
 
 	// -------------------------------------------------------------------------------

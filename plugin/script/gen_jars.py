@@ -18,6 +18,7 @@ plugin_pkg = 'org.aavso.tools.vstar.external.plugin'
 plugin_path = os.path.join(plugin_src_dir, os.path.sep.join(plugin_pkg.split('.')))
 plugin_classes = [
                   'AAVSOExtendedFileFormatObservationSource',
+                  'AAVSOUploadFileFormatObservationSource',
                   'CustomFilterTest',
                   'ExampleObSource',
                   'JDToDateTool',
