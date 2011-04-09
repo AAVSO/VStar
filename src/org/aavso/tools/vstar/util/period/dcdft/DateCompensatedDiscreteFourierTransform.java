@@ -116,6 +116,8 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	/**
 	 * Constructor
 	 * 
+	 * As per last constructor except that we override the
+	 * 
 	 * @param observations
 	 *            The observations over which to perform a period analysis.
 	 * @param loFreq
@@ -128,9 +130,7 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	public DateCompensatedDiscreteFourierTransform(
 			List<ValidObservation> observations, double loFreq, double hiFreq,
 			double resolution) {
-		this(observations);
-		specifyParameters = true;
-		determineDefaultParameters(); // TODO: should not need to do all in that method
+		this(observations, true);
 		setHiFreqValue(hiFreq);
 		setLoFreqValue(loFreq);
 		setResolutionValue(resolution);
@@ -214,16 +214,6 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	// -------------------------------------------------------------------------------
 
 	/**
-	 * Perform a "standard scan", a date compensated discrete Fourier transform.
-	 */
-	public void execute() {
-		dcdft();
-		statcomp();
-	}
-
-	// -------------------------------------------------------------------------------
-
-	/**
 	 * Return the "top hits" from the period analysis.
 	 * 
 	 * It is a precondition that results have been generated, i.e. the execute()
@@ -257,11 +247,23 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 
 	// -------------------------------------------------------------------------------
 
+	/**
+	 * Perform a "standard scan" or "frequency range" based DC DFT, a date
+	 * compensated discrete Fourier transform.
+	 */
+	public void execute() {
+		dcdft();
+		statcomp();
+	}
+
+	// -------------------------------------------------------------------------------
+
 	protected double dcdftCommon() {
 		int magres;
-		double dang0, dang00, damplit, dt, dx;
+		double dpolyamp2, dang0, dang00, damplit, dt, dx;
 		npoly = 0;
 		nbrake = 0;
+		dpolyamp2 = 0.0; // added Apr 7
 		dfouramp2 = 0.0;
 
 		statcomp();
@@ -335,9 +337,12 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	}
 
 	// DC DFT with frequency range and resolution specified.
+	// TODO: dang0 not required here?
 	protected void frequency_range(double dang0) {
 		double xlofre, res, xloper, hiper, dpolyamp2;
 		int iff, ixx, nbest;
+
+		dpolyamp2 = 0.0; // added Apr 7
 
 		nbest = 20;
 
@@ -382,7 +387,7 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		}
 
 		// TODO: doesn't appear to be necessary
-		// dfouramp2 = dpolyamp2;
+		dfouramp2 = dpolyamp2; // added Apr 7
 	}
 
 	/**
@@ -405,7 +410,7 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		na = npoly + 1;
 		nb = na + 1;
 		dd = Math.sqrt(dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb]);
-		// System.out.println(String.format("%14.9f%10.4f%10.4f%10.4f", ff, pp,
+		// System.out.println(String.format("%14.9f%10.4f%10.4f%10.4f", ff, pp,¯
 		// dfpow, dd));
 		collect_datapoint(ff, pp, dfpow, dd);
 		// end of bugfix

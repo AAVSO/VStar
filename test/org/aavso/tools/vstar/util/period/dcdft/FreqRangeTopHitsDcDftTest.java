@@ -49,7 +49,7 @@ public class FreqRangeTopHitsDcDftTest extends TopHitsDcDftTestBase {
 
 	// Valid test cases.
 
-	public void testDcDftTopHits() {
+	public void testDefaultDcDftFrequencyRangeTopHits() {
 		double[] expectedPeriods = { 442.8868, 370.0835, 9005.3655, 529.7274,
 				628.2813, 219.6431, 203.1285, 188.9238, 1421.8998, 303.5516,
 				252.4869, 147.6289, 272.8899, 333.5321, 771.8885, 139.9798,
@@ -59,11 +59,19 @@ public class FreqRangeTopHitsDcDftTest extends TopHitsDcDftTestBase {
 				2.98, 2.82, 2.81, 1.68, 1.58, 1.38, 1.23, 1.05, 0.79, 0.57,
 				0.45, 0.42, 0.33 };
 
-		double loFreq = 0.0001110;
-		double hiFreq = 0.0248000;
-		double resolution = 0.0000740;
+//		double loFreq = 0.0001110;
+//		double hiFreq = 0.0248000;
+//		double resolution = 0.0000740;
 
+		double loFreq = 0.00011104491029346862;
+		double hiFreq = 0.024800029965541325;
+		double resolution = 7.4029940195645749e-05;
+		
 		testDcDftTopHits(expectedPeriods, expectedPowers, loFreq, hiFreq,
 				resolution);
+	}
+	
+	public void testDcDftFrequencyRangeTopHits() {
+
 	}
 }
