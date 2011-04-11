@@ -41,13 +41,13 @@ public class MagnitudeFieldValidator extends AbstractStringValidator<Magnitude> 
 	 */
 	public MagnitudeFieldValidator() {
 		super(KIND);
-		
-		// Optional '<' or '>' prefix, followed by a real number (0.4, -4, 5.56),
-		// and optionally followed by a ':' suffix. Note the use of the
+
+		// Optional '<' or '>' prefix, followed by a real number (0.4, -4, 5.56,
+		// 10.), and optionally followed by a ':' suffix. Note the use of the
 		// non-capturing group (?:...) for the fractional part. We just want
 		// to group this as an optional sub-pattern, not obtain it separately.
 		this.regexValidator = new RegexValidator(
-				"^(<|>)?(\\-?\\d+(?:\\.\\d+)?)(:)?$", KIND);
+				"^(<|>)?(\\-?\\d+(?:\\.\\d*)?)(:)?$", KIND);
 		this.magnitudeValueValidator = new MagnitudeValueValidator(
 				new InclusiveRangePredicate(-5, 25));
 	}
@@ -58,8 +58,8 @@ public class MagnitudeFieldValidator extends AbstractStringValidator<Magnitude> 
 		String[] fields = this.regexValidator.validate(str);
 
 		// Here we determine the parts present in the magnitude field.
-		// The magnitude value itself is non-optional whereas the magnitude 
-		// modifier (fainter/brighter-than) and uncertainty parts are both 
+		// The magnitude value itself is non-optional whereas the magnitude
+		// modifier (fainter/brighter-than) and uncertainty parts are both
 		// optional, so we test for combinations of these two optional parts.
 
 		double magnitude = this.magnitudeValueValidator
@@ -94,7 +94,8 @@ public class MagnitudeFieldValidator extends AbstractStringValidator<Magnitude> 
 
 	// Helpers
 
-	private MagnitudeModifier getMagModValue(String modStr) throws ObservationValidationError {
+	private MagnitudeModifier getMagModValue(String modStr)
+			throws ObservationValidationError {
 		MagnitudeModifier mod = MagnitudeModifier.NO_DELTA;
 
 		if ("<".equals(modStr)) {
@@ -102,8 +103,10 @@ public class MagnitudeFieldValidator extends AbstractStringValidator<Magnitude> 
 		} else if (">".equals(modStr)) {
 			mod = MagnitudeModifier.BRIGHTER_THAN;
 		} else {
-			// This should never happen if we are calling this appropriately above.
-			throw new ObservationValidationError("Expected " + kind + " modifier: < or >");
+			// This should never happen if we are calling this appropriately
+			// above.
+			throw new ObservationValidationError("Expected " + kind
+					+ " modifier: < or >");
 		}
 
 		return mod;
