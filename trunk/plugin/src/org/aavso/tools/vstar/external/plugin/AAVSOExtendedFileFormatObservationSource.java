@@ -44,6 +44,8 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  * 
  * The following was used for reference:
  * http://www.aavso.org/aavso-extended-file-format
+ * 
+ * @deprecated See AAVSOUploadFileFormatObservationSource
  */
 public class AAVSOExtendedFileFormatObservationSource extends
 		ObservationSourcePluginBase {

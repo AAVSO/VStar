@@ -350,7 +350,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 				observation.setCharts(chart);
 			}
 
-			handleComments(fields[14], observation);
+			handleComments(fields[14], group, observation);
 
 			return observation;
 		}
@@ -390,8 +390,8 @@ public class AAVSOUploadFileFormatObservationSource extends
 			if (fields.length == 8) {
 				// The visual format doesn't say that if N/A, "na" must be
 				// used in this field like the Extended format does, so we
-				// allow for the possibility that this field if missing.
-				handleComments(fields[7], observation);
+				// allow for the possibility that this field is missing.
+				handleComments(fields[7], null, observation);
 			}
 
 			return observation;
@@ -424,7 +424,8 @@ public class AAVSOUploadFileFormatObservationSource extends
 			return observation;
 		}
 
-		private void handleComments(String notes, ValidObservation observation) {
+		private void handleComments(String notes, String group,
+				ValidObservation observation) {
 			// Combine some fields as comments.
 			String comments = "";
 
@@ -439,6 +440,13 @@ public class AAVSOUploadFileFormatObservationSource extends
 				comments += "software: " + software;
 			}
 
+			if (!isNA(group)) {
+				if (!isEmpty(comments)) {
+					comments += "; ";
+				}				
+				comments += "group: " + group;
+			}
+			
 			if (!isEmpty(comments)) {
 				observation.setComments(comments);
 			}

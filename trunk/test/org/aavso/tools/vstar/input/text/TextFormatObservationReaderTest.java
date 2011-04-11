@@ -159,20 +159,25 @@ public class TextFormatObservationReaderTest extends TestCase {
 
 			simpleTextFormatReader.retrieveObservations();
 
-			assertEquals(1, simpleTextFormatReader.getValidObservations()
-					.size());
+			List<ValidObservation> obs = simpleTextFormatReader
+					.getValidObservations();
 
-			// assertEquals(8.0, obs.get(0).getMagnitude());
+			assertEquals(1, obs.size());
+
+			assertEquals(8.0, obs.get(0).getMagnitude().getMagValue());
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
 	}
 
-	// Tests of invalid simple text format.
-
+	// No digit after the magnitude decimal point. Although the format spec says
+	// this is not well-formed, some real observations have this, which is odd,
+	// but parseable.
 	public void testSimpleInvalidMagTrailingDecimalPoint() {
-		commonInvalidTest("2450001\t10.\n");
+		commonValidJulianDayAndMagTest("2450001.5\t10.\n", "\t");
 	}
+
+	// Tests of invalid simple text format.
 
 	public void testSimpleInvalidAllButUncertaintyAndValflagTSV() {
 		// There should be another tab between the magnitude and obscode
