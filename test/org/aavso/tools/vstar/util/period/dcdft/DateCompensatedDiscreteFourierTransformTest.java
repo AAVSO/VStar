@@ -3162,10 +3162,10 @@ public class DateCompensatedDiscreteFourierTransformTest extends DelCepTestData 
 
 	/**
 	 * Load raw data test and do a few simple checks.
-	 * {@link org.aavso.tools.vstar.util.period.dcdft.dcdft.DateCompensatedDiscreteFourierTransform#load_raw()}
+	 * {@link org.aavso.tools.vstar.util.period.dcdft.TSDcDft.DateCompensatedDiscreteFourierTransform#load_raw()}
 	 */
 	public void testLoad_raw() {
-		DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
+		TSDcDft dcdft = new TSDcDft(
 				observations);
 
 		double mags[] = dcdft.getMags();
@@ -3183,7 +3183,7 @@ public class DateCompensatedDiscreteFourierTransformTest extends DelCepTestData 
 	 * subset of the results.
 	 */
 	public void testExecute() {
-		DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
+		TSDcDft dcdft = new TSDcDft(
 				observations);
 		dcdft.execute();
 		Map<PeriodAnalysisCoordinateType, List<Double>> results = dcdft

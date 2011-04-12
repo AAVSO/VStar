@@ -31,7 +31,7 @@ import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
-import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransform;
+import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
  * Date Compensated Discrete Fourier Transform period analysis plugin.
@@ -49,7 +49,7 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 
 	protected MeanSourceSeriesChangeMessage meanSourceSeriesChangeMessage;
 
-	protected DateCompensatedDiscreteFourierTransform periodAnalysisAlgorithm;
+	protected TSDcDft periodAnalysisAlgorithm;
 
 	private JDialog dialog;
 

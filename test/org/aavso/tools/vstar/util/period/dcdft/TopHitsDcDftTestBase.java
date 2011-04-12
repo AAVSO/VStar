@@ -58,19 +58,19 @@ public class TopHitsDcDftTestBase extends TestCase {
 	public void testDcDftTopHits(double[] expectedPeriods,
 			double[] expectedPowers, double loFreq, double hiFreq,
 			double resolution) {
-		DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
+		TSDcDft dcdft = new TSDcDft(
 				obs, loFreq, hiFreq, resolution);
 		commonTest(dcdft, expectedPeriods, expectedPowers);
 	}
 	
 	public void testDcDftTopHits(double[] expectedPeriods,
 			double[] expectedPowers) {
-		DateCompensatedDiscreteFourierTransform dcdft = new DateCompensatedDiscreteFourierTransform(
+		TSDcDft dcdft = new TSDcDft(
 				obs);
 		commonTest(dcdft, expectedPeriods, expectedPowers);
 	}
 	
-	protected void commonTest(DateCompensatedDiscreteFourierTransform dcdft, double[] expectedPeriods,
+	protected void commonTest(TSDcDft dcdft, double[] expectedPeriods,
 			double[] expectedPowers) {
 		
 		dcdft.execute();

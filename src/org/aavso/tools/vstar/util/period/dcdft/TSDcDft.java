@@ -18,14 +18,12 @@
 package org.aavso.tools.vstar.util.period.dcdft;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.TSBase;
-import org.aavso.tools.vstar.util.comparator.RankedIndexPairComparator;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
@@ -59,14 +57,15 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 // DCDFT File=delcep.vis NUM= 3079 AVE= 3.9213 SDV=0.2235 VAR= 0.0500
 // JD 2450000.2569-2450999.7097 T.AVE=2450446.0000
 
-public class DateCompensatedDiscreteFourierTransform extends TSBase implements
-		IPeriodAnalysisAlgorithm {
+public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 	private boolean specifyParameters;
 
 	private double loFreqValue;
 	private double hiFreqValue;
 	private double resolutionValue;
+
+	private double dang0;
 
 	private Map<PeriodAnalysisCoordinateType, List<Double>> resultSeries;
 
@@ -78,8 +77,7 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	 * @param observations
 	 *            The observations over which to perform a period analysis.
 	 */
-	public DateCompensatedDiscreteFourierTransform(
-			List<ValidObservation> observations) {
+	public TSDcDft(List<ValidObservation> observations) {
 		super(observations);
 
 		specifyParameters = false;
@@ -102,8 +100,8 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	 *            Does the caller want to specify parameters (frequency range,
 	 *            resolution).
 	 */
-	public DateCompensatedDiscreteFourierTransform(
-			List<ValidObservation> observations, boolean specifyParameters) {
+	public TSDcDft(List<ValidObservation> observations,
+			boolean specifyParameters) {
 		this(observations);
 		this.specifyParameters = specifyParameters;
 		if (specifyParameters) {
@@ -127,9 +125,8 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	 * @param resolution
 	 *            The resolution with which to scan over the range.
 	 */
-	public DateCompensatedDiscreteFourierTransform(
-			List<ValidObservation> observations, double loFreq, double hiFreq,
-			double resolution) {
+	public TSDcDft(List<ValidObservation> observations, double loFreq,
+			double hiFreq, double resolution) {
 		this(observations, true);
 		setHiFreqValue(hiFreq);
 		setLoFreqValue(loFreq);
@@ -258,9 +255,9 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 
 	// -------------------------------------------------------------------------------
 
-	protected double dcdftCommon() {
+	protected void dcdftCommon() {
 		int magres;
-		double dpolyamp2, dang0, dang00, damplit, dt, dx;
+		double dpolyamp2, dang00, damplit, dt, dx;
 		npoly = 0;
 		nbrake = 0;
 		dpolyamp2 = 0.0; // added Apr 7
@@ -276,8 +273,6 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		dt = (tvec[nuplim] - tvec[nlolim]) / (double) numact;
 		if (dt <= 0.0)
 			dt = 1.0; // TODO: this will never be communicated!
-
-		return dang0;
 	}
 
 	// For use in conjunction with frequency_range().
@@ -285,7 +280,7 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		double xlofre, res, xloper, hiper;
 		int iff, ixx, nbest;
 
-		double dang0 = dcdftCommon();
+		dcdftCommon();
 
 		// Initial values.
 		xlofre = 0.0;
@@ -310,19 +305,20 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 
 	protected void dcdft() {
 		if (!specifyParameters) {
-			standard_scan(dcdftCommon());
+			dcdftCommon();
+			standard_scan();
 		} else {
 			// dcdftCommon() has already been called in
 			// determineDefaultParameters()
 			// via the specify-parameters form of the constructor.
-			frequency_range(this.resolutionValue);
+			frequency_range();
 		}
 	}
 
 	// -------------------------------------------------------------------------------
 
 	// DC DFT as standard scan.
-	protected void standard_scan(double dang0) {
+	protected void standard_scan() {
 		nfre = 1;
 		hifre = (double) numact * dang0;
 		for (nj = 1 + npoly; nj <= numact; nj++) {
@@ -337,8 +333,7 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 	}
 
 	// DC DFT with frequency range and resolution specified.
-	// TODO: dang0 not required here?
-	protected void frequency_range(double dang0) {
+	protected void frequency_range() {
 		double xlofre, res, xloper, hiper, dpolyamp2;
 		int iff, ixx, nbest;
 
@@ -446,6 +441,249 @@ public class DateCompensatedDiscreteFourierTransform extends TSBase implements
 		this.resultSeries.get(PeriodAnalysisCoordinateType.POWER).add(power);
 		this.resultSeries.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
 				amplitude);
+	}
+
+	// -------------------------------------------------------------------------------
+
+	/**
+	 * A translation of the Fortran TS CLEANest algorithm.
+	 * 
+	 * @param freqs
+	 *            The frequencies to be included.
+	 */
+	protected void cleanest(List<Double> freqs) {
+		// getfreq();
+
+		// Convert frequencies to be considered to Fortran array index form.
+		// TODO: we should just dispense with this everywhere and use
+		// 0-originated indices.
+		double[] dfre = new double[MAX_TOP_HITS];
+		for (int i = 1; i < MAX_TOP_HITS; i++) {
+			dfre[i] = freqs.get(i - 1);
+		}
+
+		// TODO: add variable and locked freqs to above;
+		// for initial impl and testing, use just freqs. **
+
+		double[] dtest = new double[MAX_TOP_HITS];
+		double[] dres = new double[MAX_TOP_HITS];
+
+		int n;
+
+		for (n = 1; n <= nfre; n++) {
+			dtest[n] = 1.0 / dfre[n];
+			dres[n] = (dang0 * (dtest[n] * dtest[n])) / 10.0;
+			ResolutionResult result = resolve(dres[n], dtest[n]); // TODO: **
+																	// must
+																	// return
+																	// values or
+																	// make
+																	// these
+																	// arrays
+																	// members!!
+																	// **
+			if (result != null) {
+				dres[n] = result.ddr;
+				dtest[n] = result.ddp;
+			} else {
+				// TODO: break? throw exception?
+			}
+
+			// // select variable periods
+			// // write(6,*) 'enter number of variable periods: (0 for none)'
+			//
+			// read*,nvariable
+			// ;
+			// if (nvariable > 0) {
+			// for (int ixx = 1;ixx <= nvariable;ixx++) {
+			// nfre=nfre+1
+			// ;
+			// // write(6,*) 'please enter var. per. #',ixx
+			//
+			// read*,dres[nfre]
+			// ;
+			// }
+			// }
+			int nvary = nfre;
+
+			// // get locked periods
+			// // write(6,*) 'enter number of locked periods: (0 for none)'
+			//
+			// read*,nlocked
+			// ;
+			// if (nlocked > 0) then {
+			// for (ixx = 1;ixx <= nlocked;ixx++) {
+			// nfre=nfre+1
+			// ;
+			// // write(6,*) 'please enter locked per. #',ixx
+			//
+			// read*,dtest[nfre]
+			// ;
+			// dres[nfre] = 0.0
+			// ;
+			// }
+			// }
+			double dbpower = 0.0;
+
+			// perform multi-scan
+			// write(1,*) 'MULTI: '
+
+			// lognow();
+			// multi-period scan
+			// compute base level
+
+			for (n = 1; n <= nfre; n++) {
+				dfre[n] = 1.0 / dtest[n];
+			}
+			project();
+			dbpower = dfpow;
+			if (dbpower == 0.0)
+				dbpower = 1.0;
+			int nsofar = 0;
+			int nv = 0;
+			int nvlast = 0;
+			int nchange = 0;
+
+			// refine the periods
+			// 81 continue
+
+			do {
+				int iswap;
+
+				if (nchange < 0 && nvlast > 0) {
+					iswap = nvlast;
+					nvlast = nv;
+					nv = iswap;
+				} else {
+					if (nchange < 0)
+						nvlast = nv;
+					nv = nv + 1;
+					if (nv > nvary)
+						nv = 1;
+				}
+				nchange = 0;
+
+				// test higher periods
+				// 82 continue
+
+				do {
+					dtest[0] = dtest[nv] + dres[nv];
+					dfre[nv] = 1.0 / dtest[0];
+					project();
+					// write(6,*) dtest(0),dfre(nv),dfpow
+
+					if (dfpow > dbpower) {
+						dbpower = dfpow;
+						dtest[nv] = dtest[0];
+						nchange = -1;
+						nsofar = -1;
+					} else {
+						dfpow = 0.0;
+					}
+				} while (dfpow >= dbpower);
+
+				// if (dfpow>=dbpower) goto 82 ;
+
+				if (nchange == 0) {
+
+					// test lower periods
+					// 83 continue
+
+					do {
+						dtest[0] = dtest[nv] - dres[nv];
+						dfre[nv] = 1.0 / dtest[0];
+						project();
+						// write(6,*) dtest(0),dfre(nv),dfpow
+
+						if (dfpow > dbpower) {
+							dbpower = dfpow;
+							dtest[nv] = dtest[0];
+							nsofar = -1;
+							nchange = -1;
+						} else {
+							dfpow = 0;
+						}
+
+					} while (dfpow >= dbpower);
+
+					// if (dfpow>=dbpower) goto 83;
+
+				}
+
+				dfre[nv] = 1.0 / dtest[nv];
+
+				for (n = 1; n <= nfre; n++) {
+					// write(1,208) dtest(n)
+				}
+				// write(1,208) dbpower
+
+				nsofar = nsofar + 1;
+
+				// write(6,*) dbpower,nsofar
+
+			} while (nsofar < nvary);
+
+			// if (nsofar<nvary) goto 81;
+
+			// save best set to table
+			dlpower = dbpower;
+			for (n = 1; n <= nfre; n++) {
+				dlper = dtest[n];
+				dlnu = 1.0 / dlper;
+				tablit();
+			}
+		}
+	}
+
+	// -------------------------------------------------------------------------------
+
+	protected ResolutionResult resolve(double ddr, double ddp) {
+		// implicit none
+
+		// double ddr,ddp
+		// int nexp
+
+		int nexp = 0;
+		if (ddr == 0.0)
+			return null;
+		// 10 if(ddr<1.0) then
+		if (ddr < 1.0) {
+			while (ddr < 1.0) {
+				ddr = ddr * 10.0;
+				nexp = nexp - 1;
+				// goto 10
+			}
+		} else {
+			// 11 if(ddr>10.0) then
+			while (ddr > 10.0) {
+				ddr = ddr / 10.0;
+				nexp = nexp + 1;
+				// goto 11
+			}
+		}
+
+		if (ddr >= 1.0 && ddr < 2.0)
+			ddr = 1.0;
+		if (ddr >= 2.0 && ddr < 5.0)
+			ddr = 2.0;
+		if (ddr >= 5.0)
+			ddr = 5.0;
+		ddr = ddr * (Math.pow(10.0, nexp));
+		ddp = ddp / ddr;
+		ddp = ddr * ((int) (ddp + 0.5));
+
+		return new ResolutionResult(ddr, ddp);
+	}
+
+	class ResolutionResult {
+		public double ddr;
+		public double ddp;
+
+		public ResolutionResult(double ddr, double ddp) {
+			super();
+			this.ddr = ddr;
+			this.ddp = ddp;
+		}
 	}
 
 	// -------------------------------------------------------------------------------
