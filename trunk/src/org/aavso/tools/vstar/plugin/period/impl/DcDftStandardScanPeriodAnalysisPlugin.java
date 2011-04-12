@@ -22,7 +22,7 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransform;
+import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
  * This class encapsulates the "standard scan" (as per AAVSO TS) form of the DC
@@ -37,7 +37,7 @@ public class DcDftStandardScanPeriodAnalysisPlugin extends
 		assert newStarMessage != null;
 
 		if (periodAnalysisAlgorithm == null) {
-			periodAnalysisAlgorithm = new DateCompensatedDiscreteFourierTransform(
+			periodAnalysisAlgorithm = new TSDcDft(
 					obs);
 		}
 

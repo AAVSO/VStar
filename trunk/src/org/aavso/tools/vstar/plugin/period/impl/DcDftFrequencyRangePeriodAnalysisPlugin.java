@@ -23,7 +23,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.ui.dialog.PeriodAnalysisParameterDialog;
-import org.aavso.tools.vstar.util.period.dcdft.DateCompensatedDiscreteFourierTransform;
+import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
  * This class encapsulates the "frequency range scan" (as per AAVSO TS) form of
@@ -38,7 +38,7 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 		assert newStarMessage != null;
 
 		if (periodAnalysisAlgorithm == null) {
-			periodAnalysisAlgorithm = new DateCompensatedDiscreteFourierTransform(
+			periodAnalysisAlgorithm = new TSDcDft(
 					obs, true);
 
 			double loFreq = periodAnalysisAlgorithm.getLoFreqValue();
