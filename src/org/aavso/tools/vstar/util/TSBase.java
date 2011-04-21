@@ -328,6 +328,8 @@ public class TSBase {
 				dpower = 0.0;
 				return;
 			}
+//			drad[1] is getting the wrong value!
+			// this in turn messes up dcc, dss ...
 			drad[nf] = twopi * dfre[nf] * dtscale;
 			for (nf2 = nf + 1; nf2 <= nfre; nf2++) {
 				if (Math.abs(dfre[nf] - dfre[nf2]) < 1E-8) {
@@ -367,6 +369,9 @@ public class TSBase {
 								+ (dpow[np] * dpow[npoly]);
 					}
 
+					// TODO: dmat screws up somewhere between here...
+					// dependent upon dpow, dcc, and dss arrays
+					
 					dvec[np] = dvec[np] + (dx * dpow[np]);
 					n2 = npoly;
 					// ...and for products of polynomials with trig functions
@@ -378,6 +383,8 @@ public class TSBase {
 					}
 				}
 
+				// ...and here (dbenn)
+				
 				// compute matrix values for products of trig functions
 				n1 = npoly;
 				for (nf = 1; nf <= nfre; nf++) {

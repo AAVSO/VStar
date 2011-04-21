@@ -30,7 +30,7 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 /**
  * Date Compensated Discrete Fourier Transform unit tests.
  */
-public class DateCompensatedDiscreteFourierTransformTest extends DelCepTestData {
+public class DcDftTest extends DelCepTestData {
 
 	// A subset of the expected results (the first >2700, due
 	// to class size constraints. While we need all the observation
@@ -3148,7 +3148,7 @@ public class DateCompensatedDiscreteFourierTransformTest extends DelCepTestData 
 	 * @param name
 	 *            The test name.
 	 */
-	public DateCompensatedDiscreteFourierTransformTest(String name) {
+	public DcDftTest(String name) {
 		super(name);
 	}
 

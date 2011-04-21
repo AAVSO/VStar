@@ -58,24 +58,29 @@ public class TopHitsDcDftTestBase extends TestCase {
 	public void testDcDftTopHits(double[] expectedPeriods,
 			double[] expectedPowers, double loFreq, double hiFreq,
 			double resolution) {
-		TSDcDft dcdft = new TSDcDft(
-				obs, loFreq, hiFreq, resolution);
+		TSDcDft dcdft = new TSDcDft(obs, loFreq, hiFreq, resolution);
 		commonTest(dcdft, expectedPeriods, expectedPowers);
 	}
-	
+
 	public void testDcDftTopHits(double[] expectedPeriods,
 			double[] expectedPowers) {
-		TSDcDft dcdft = new TSDcDft(
-				obs);
+		TSDcDft dcdft = new TSDcDft(obs);
 		commonTest(dcdft, expectedPeriods, expectedPowers);
 	}
-	
+
+	// Perform a DC DFT operation and check the expected periods and powers
+	// against the top hits.
 	protected void commonTest(TSDcDft dcdft, double[] expectedPeriods,
 			double[] expectedPowers) {
-		
-		dcdft.execute();
 
-		// Check the expected periods and powers against the top hits.
+		dcdft.execute();
+		checkTopHitsTable(dcdft, expectedPeriods, expectedPowers);
+	}
+
+	// Check the expected periods and powers against the top hits.
+	protected void checkTopHitsTable(TSDcDft dcdft, double[] expectedPeriods,
+			double[] expectedPowers) {
+
 		Map<PeriodAnalysisCoordinateType, List<Double>> topHits = dcdft
 				.getTopHits();
 		List<Double> topHitPeriods = topHits
