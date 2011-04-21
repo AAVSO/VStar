@@ -250,7 +250,9 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 */
 	public void execute() {
 		dcdft();
-		statcomp();
+		// TODO: why is this here!? 
+		// In TS, it's called only after the Fourier menu has been exited!
+//		statcomp();
 	}
 
 	// -------------------------------------------------------------------------------
@@ -445,6 +447,9 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 	// -------------------------------------------------------------------------------
 
+	// TODO: add a refine() method to period analysis interface that is
+	// implemented here in terms of cleanest.
+
 	/**
 	 * A translation of the Fortran TS CLEANest algorithm.
 	 * 
@@ -454,16 +459,21 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	protected void cleanest(List<Double> freqs) {
 		// getfreq();
 
+		List<Double> dfreList = new ArrayList<Double>();
+		dfreList.addAll(freqs);
+
+		nfre = dfreList.size();
+
 		// Convert frequencies to be considered to Fortran array index form.
 		// TODO: we should just dispense with this everywhere and use
 		// 0-originated indices.
-		double[] dfre = new double[MAX_TOP_HITS];
-		for (int i = 1; i < MAX_TOP_HITS; i++) {
-			dfre[i] = freqs.get(i - 1);
+		dfre = new double[nfre + 1];
+		for (int i = 1; i <= nfre; i++) {
+			dfre[i] = dfreList.get(i - 1);
 		}
 
-		// TODO: add variable and locked freqs to above;
-		// for initial impl and testing, use just freqs. **
+		// TODO: size these according to nfre value which is the sum sizes of
+		// all collection parameters
 
 		double[] dtest = new double[MAX_TOP_HITS];
 		double[] dres = new double[MAX_TOP_HITS];
@@ -473,101 +483,123 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		for (n = 1; n <= nfre; n++) {
 			dtest[n] = 1.0 / dfre[n];
 			dres[n] = (dang0 * (dtest[n] * dtest[n])) / 10.0;
-			ResolutionResult result = resolve(dres[n], dtest[n]); // TODO: **
-																	// must
-																	// return
-																	// values or
-																	// make
-																	// these
-																	// arrays
-																	// members!!
-																	// **
+			ResolutionResult result = resolve(dres[n], dtest[n]);
+
 			if (result != null) {
 				dres[n] = result.ddr;
 				dtest[n] = result.ddp;
 			} else {
-				// TODO: break? throw exception?
+				return;
+				// TODO: throw exception?
 			}
+		}
 
-			// // select variable periods
-			// // write(6,*) 'enter number of variable periods: (0 for none)'
-			//
-			// read*,nvariable
-			// ;
-			// if (nvariable > 0) {
-			// for (int ixx = 1;ixx <= nvariable;ixx++) {
-			// nfre=nfre+1
-			// ;
-			// // write(6,*) 'please enter var. per. #',ixx
-			//
-			// read*,dres[nfre]
-			// ;
-			// }
-			// }
-			int nvary = nfre;
+		// TODO: Add variable and locked freqs to above via additional
+		// parameters; for initial impl and testing, use just freqs parameter **
 
-			// // get locked periods
-			// // write(6,*) 'enter number of locked periods: (0 for none)'
-			//
-			// read*,nlocked
-			// ;
-			// if (nlocked > 0) then {
-			// for (ixx = 1;ixx <= nlocked;ixx++) {
-			// nfre=nfre+1
-			// ;
-			// // write(6,*) 'please enter locked per. #',ixx
-			//
-			// read*,dtest[nfre]
-			// ;
-			// dres[nfre] = 0.0
-			// ;
-			// }
-			// }
-			double dbpower = 0.0;
+		// ** Select variable periods. **
+		// // write(6,*) 'enter number of variable periods: (0 for none)'
+		//
+		// read*,nvariable
+		// ;
+		// if (nvariable > 0) {
+		// for (int ixx = 1;ixx <= nvariable;ixx++) {
+		// nfre=nfre+1
+		// ;
+		// // write(6,*) 'please enter var. per. #',ixx
+		//
+		// read*,dres[nfre]
+		// ;
+		// }
+		// }
+		int nvary = nfre;
 
-			// perform multi-scan
-			// write(1,*) 'MULTI: '
+		// ** Get locked periods. **
+		// // write(6,*) 'enter number of locked periods: (0 for none)'
+		//
+		// read*,nlocked
+		// ;
+		// if (nlocked > 0) then {
+		// for (ixx = 1;ixx <= nlocked;ixx++) {
+		// nfre=nfre+1
+		// ;
+		// // write(6,*) 'please enter locked per. #',ixx
+		//
+		// read*,dtest[nfre]
+		// ;
+		// dres[nfre] = 0.0
+		// ;
+		// }
+		// }
+		double dbpower = 0.0;
 
-			// lognow();
-			// multi-period scan
-			// compute base level
+		// ** Perform multi-scan. **
+		// write(1,*) 'MULTI: '
 
-			for (n = 1; n <= nfre; n++) {
-				dfre[n] = 1.0 / dtest[n];
+		// lognow();
+		// ** Multi-period scan. **
+
+		// Compute base level.
+
+		for (n = 1; n <= nfre; n++) {
+			dfre[n] = 1.0 / dtest[n];
+		}
+		project();
+		dbpower = dfpow;
+		if (dbpower == 0.0)
+			dbpower = 1.0;
+		int nsofar = 0;
+		int nv = 0;
+		int nvlast = 0;
+		int nchange = 0;
+
+		// ** Refine the periods. **
+		// 81 continue
+
+		do {
+			int iswap;
+
+			if (nchange < 0 && nvlast > 0) {
+				iswap = nvlast;
+				nvlast = nv;
+				nv = iswap;
+			} else {
+				if (nchange < 0)
+					nvlast = nv;
+				nv = nv + 1;
+				if (nv > nvary)
+					nv = 1;
 			}
-			project();
-			dbpower = dfpow;
-			if (dbpower == 0.0)
-				dbpower = 1.0;
-			int nsofar = 0;
-			int nv = 0;
-			int nvlast = 0;
-			int nchange = 0;
+			nchange = 0;
 
-			// refine the periods
-			// 81 continue
+			// ** Test higher periods. **
+			// 82 continue
 
 			do {
-				int iswap;
+				dtest[0] = dtest[nv] + dres[nv];
+				dfre[nv] = 1.0 / dtest[0];
+				project();
+				// write(6,*) dtest(0),dfre(nv),dfpow
 
-				if (nchange < 0 && nvlast > 0) {
-					iswap = nvlast;
-					nvlast = nv;
-					nv = iswap;
+				if (dfpow > dbpower) {
+					dbpower = dfpow;
+					dtest[nv] = dtest[0];
+					nchange = -1;
+					nsofar = -1;
 				} else {
-					if (nchange < 0)
-						nvlast = nv;
-					nv = nv + 1;
-					if (nv > nvary)
-						nv = 1;
+					dfpow = 0.0;
 				}
-				nchange = 0;
+			} while (dfpow >= dbpower);
 
-				// test higher periods
-				// 82 continue
+			// if (dfpow>=dbpower) goto 82 ;
+
+			if (nchange == 0) {
+
+				// test lower periods
+				// 83 continue
 
 				do {
-					dtest[0] = dtest[nv] + dres[nv];
+					dtest[0] = dtest[nv] - dres[nv];
 					dfre[nv] = 1.0 / dtest[0];
 					project();
 					// write(6,*) dtest(0),dfre(nv),dfpow
@@ -575,63 +607,38 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 					if (dfpow > dbpower) {
 						dbpower = dfpow;
 						dtest[nv] = dtest[0];
-						nchange = -1;
 						nsofar = -1;
+						nchange = -1;
 					} else {
-						dfpow = 0.0;
+						dfpow = 0;
 					}
+
 				} while (dfpow >= dbpower);
 
-				// if (dfpow>=dbpower) goto 82 ;
-
-				if (nchange == 0) {
-
-					// test lower periods
-					// 83 continue
-
-					do {
-						dtest[0] = dtest[nv] - dres[nv];
-						dfre[nv] = 1.0 / dtest[0];
-						project();
-						// write(6,*) dtest(0),dfre(nv),dfpow
-
-						if (dfpow > dbpower) {
-							dbpower = dfpow;
-							dtest[nv] = dtest[0];
-							nsofar = -1;
-							nchange = -1;
-						} else {
-							dfpow = 0;
-						}
-
-					} while (dfpow >= dbpower);
-
-					// if (dfpow>=dbpower) goto 83;
-
-				}
-
-				dfre[nv] = 1.0 / dtest[nv];
-
-				for (n = 1; n <= nfre; n++) {
-					// write(1,208) dtest(n)
-				}
-				// write(1,208) dbpower
-
-				nsofar = nsofar + 1;
-
-				// write(6,*) dbpower,nsofar
-
-			} while (nsofar < nvary);
-
-			// if (nsofar<nvary) goto 81;
-
-			// save best set to table
-			dlpower = dbpower;
-			for (n = 1; n <= nfre; n++) {
-				dlper = dtest[n];
-				dlnu = 1.0 / dlper;
-				tablit();
+				// if (dfpow>=dbpower) goto 83;
 			}
+
+			dfre[nv] = 1.0 / dtest[nv];
+
+			for (n = 1; n <= nfre; n++) {
+				// write(1,208) dtest(n)
+			}
+			// write(1,208) dbpower
+
+			nsofar = nsofar + 1;
+
+			// write(6,*) dbpower,nsofar
+
+		} while (nsofar < nvary);
+
+		// if (nsofar<nvary) goto 81;
+
+		// ** Save best set to table. **
+		dlpower = dbpower;
+		for (n = 1; n <= nfre; n++) {
+			dlper = dtest[n];
+			dlnu = 1.0 / dlper;
+			tablit();
 		}
 	}
 
