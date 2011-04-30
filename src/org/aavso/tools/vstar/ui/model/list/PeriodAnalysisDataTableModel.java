@@ -34,7 +34,7 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	private Map<PeriodAnalysisCoordinateType, List<Double>> data;
 
 	/**
-	 * Constructor
+	 * Period analysis data model constructor.
 	 * 
 	 * @param columnTypes
 	 *            An array of column types as they are to appear in the table.
@@ -50,17 +50,31 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	}
 
 	/**
-	 * @return the data
+	 * @return a mapping from period analysis coordinate type to a list of
+	 *         values of that type.
 	 */
 	public Map<PeriodAnalysisCoordinateType, List<Double>> getData() {
 		return data;
 	}
 
 	/**
+	 * Set the data and notify listeners that it has changed. All data values
+	 * are deselected.
+	 * 
+	 * @param data
+	 *            The mapping from period analysis coordinate type to a list of
+	 *            values of that type.
+	 */
+	public void setData(Map<PeriodAnalysisCoordinateType, List<Double>> data) {
+		this.data = data;
+		fireTableDataChanged();
+	}
+
+	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
-		// column: coordinate type (freq, period, power, ampl)
+		// column: coordinate type (freq, period, power, ampl[, selected])
 		return data.keySet().size();
 	}
 
@@ -91,7 +105,7 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		// column: coordinate type (freq, period, power, ampl)
+		// column: coordinate type (freq, period, power, ampl[, selected])
 		// row: value within the chosen coordinate's list
 		PeriodAnalysisCoordinateType columnType = columnTypes[columnIndex];
 		double val = data.get(columnType).get(rowIndex);
@@ -116,5 +130,16 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 		}
 
 		return period;
+	}
+
+	/**
+	 * Return the frequency value at the specified row.
+	 * 
+	 * @param rowIndex
+	 *            The specified row.
+	 * @return The frequency value.
+	 */
+	public Double getFrequencyValueInRow(int rowIndex) {
+		return data.get(PeriodAnalysisCoordinateType.FREQUENCY).get(rowIndex);
 	}
 }
