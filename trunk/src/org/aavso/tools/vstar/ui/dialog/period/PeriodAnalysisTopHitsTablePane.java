@@ -17,23 +17,38 @@
  */
 package org.aavso.tools.vstar.ui.dialog.period;
 
+import java.awt.BorderLayout;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
  * Top hits table pane.
- * @deprecated
  */
 public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane {
 
 	private PeriodAnalysisDataTableModel topHitsModel;
 	private PeriodAnalysisDataTableModel fullDataModel;
+
+	private IPeriodAnalysisAlgorithm algorithm;
+
+	private JButton refineButton;
 
 	/**
 	 * Constructor.
@@ -42,13 +57,80 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 	 *            The top hits data model.
 	 * @param fullDataModel
 	 *            The full data data model.
+	 * @param algorithm
+	 *            The period analysis algorithm.
 	 */
 	public PeriodAnalysisTopHitsTablePane(
 			PeriodAnalysisDataTableModel topHitsModel,
-			PeriodAnalysisDataTableModel fullDataModel) {
+			PeriodAnalysisDataTableModel fullDataModel,
+			IPeriodAnalysisAlgorithm algorithm) {
 		super(topHitsModel);
 		this.topHitsModel = topHitsModel;
 		this.fullDataModel = fullDataModel;
+		this.algorithm = algorithm;
+
+		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		add(createButtonPanel());
+
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(this.createPeriodAnalysisListener());
+	}
+
+	protected JPanel createButtonPanel() {
+		JPanel buttonPane = new JPanel();
+
+		refineButton = new JButton(algorithm.getRefineByFrequencyName());
+		refineButton.setEnabled(false);
+		refineButton.addActionListener(createRefineButtonHandler());
+		buttonPane.add(refineButton, BorderLayout.CENTER);
+
+		return buttonPane;
+	}
+
+	// Refine button listener.
+	private ActionListener createRefineButtonHandler() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				List<Double> freqs = new ArrayList<Double>();
+				int[] selectedTableRowIndices = table.getSelectedRows();
+				for (int row : selectedTableRowIndices) {
+					int modelRow = table.convertRowIndexToModel(row);
+					freqs.add(topHitsModel.getFrequencyValueInRow(modelRow));
+				}
+				if (!freqs.isEmpty()) {
+					algorithm.refineByFrequency(freqs);
+
+					// Update the model and tell anyone else who might be
+					// interested.
+					Map<PeriodAnalysisCoordinateType, List<Double>> data = algorithm
+							.getResultSeries();
+					Map<PeriodAnalysisCoordinateType, List<Double>> topHits = algorithm
+							.getTopHits();
+					topHitsModel.setData(topHits);
+					PeriodAnalysisRefinementMessage msg = new PeriodAnalysisRefinementMessage(
+							this, data, topHits);
+					Mediator.getInstance()
+							.getPeriodAnalysisRefinementNotifier()
+							.notifyListeners(msg);
+				}
+			}
+		};
+	}
+
+	// Listen for period analysis selection messages in order to enable the
+	// "refine" button.
+	private Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
+		return new Listener<PeriodAnalysisSelectionMessage>() {
+			@Override
+			public void update(PeriodAnalysisSelectionMessage info) {
+				refineButton.setEnabled(true);
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 
 	/**

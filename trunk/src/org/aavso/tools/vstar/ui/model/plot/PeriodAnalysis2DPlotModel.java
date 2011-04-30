@@ -18,12 +18,14 @@
 package org.aavso.tools.vstar.ui.model.plot;
 
 import java.util.List;
+import java.util.Map;
 
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jfree.data.xy.AbstractXYDataset;
 
 /**
- * This class is the basis of all 2D period analysis plot models.
+ * This class is the basis of all 2D period analysis plot models. It provides
+ * for the raw data plot along with the 
  */
 public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 
@@ -31,6 +33,8 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	private List<Double> rangeValues;
 	private PeriodAnalysisCoordinateType domainType;
 	private PeriodAnalysisCoordinateType rangeType;
+
+	private Map<PeriodAnalysisCoordinateType, List<Double>> topHits;
 
 	/**
 	 * Constructor
@@ -42,7 +46,7 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	 *            (range values).
 	 * @param domainType
 	 *            The type of the domain axis.
-	 * @param rangeType
+	 * @param rangeTypes
 	 *            The type of the range axis.
 	 */
 	public PeriodAnalysis2DPlotModel(List<Double> domainValues,
@@ -54,6 +58,7 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 		this.rangeValues = rangeValues;
 		this.domainType = domainType;
 		this.rangeType = rangeType;
+		topHits = null;
 	}
 
 	/**
@@ -88,34 +93,90 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesCount()
 	 */
 	public int getSeriesCount() {
-		return 1;
+		int count = 1;
+		if (topHits != null)
+			count += 1;
+		return count;
 	}
 
 	/**
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesKey(int)
 	 */
 	public Comparable getSeriesKey(int series) {
-		return rangeType.getDescription() + " vs " + domainType.getDescription();
+		String key = null;
+
+		if (series == 0) {
+			key = rangeType.getDescription() + " vs "
+					+ domainType.getDescription();
+		} else {
+			assert topHits != null;
+			key = "top hit";
+		}
+
+		return key;
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getItemCount(int)
 	 */
 	public int getItemCount(int series) {
-		return domainValues.size();
+		int count;
+
+		if (series == 0) {
+			count = domainValues.size();
+		} else {
+			assert topHits != null;
+			count = topHits.get(PeriodAnalysisCoordinateType.POWER).size();
+		}
+
+		return count;
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
 	public Number getX(int series, int item) {
-		return domainValues.get(item);
+		Double x;
+
+		if (series == 0) {
+			x = domainValues.get(item);
+		} else {
+			assert topHits != null;
+			x = topHits.get(getDomainType()).get(item);
+		}
+
+		return x;
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
 	 */
 	public Number getY(int series, int item) {
-		return rangeValues.get(item);
+		Double y;
+
+		if (series == 0) {
+			y = rangeValues.get(item);
+		} else {
+			assert topHits != null;
+			y = topHits.get(getRangeType()).get(item);
+		}
+
+		return y;
+	}
+
+	/**
+	 * @param topHits
+	 *            the topHits to set
+	 */
+	public void setTopHits(
+			Map<PeriodAnalysisCoordinateType, List<Double>> topHits) {
+		this.topHits = topHits;
+		fireDatasetChanged();
+	}
+	
+	public void  setData(Map<PeriodAnalysisCoordinateType, List<Double>> data) {
+		domainValues = data.get(getDomainType());
+		rangeValues = data.get(getRangeType());
+		fireDatasetChanged();
 	}
 }

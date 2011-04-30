@@ -34,6 +34,7 @@ import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 
 /**
  * This class is used to visualise period analysis results.
@@ -47,10 +48,14 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	private PeriodAnalysisDataTableModel dataTableModel;
 	private PeriodAnalysisDataTableModel topHitsTableModel;
 
+	private IPeriodAnalysisAlgorithm algorithm;
+
+	private PeriodAnalysisTopHitsTablePane topHitsTablePane;
+
 	private int selectedRow = -1;
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 * 
 	 * @param title
 	 *            The title for the chart.
@@ -60,11 +65,14 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	 *            The data plotModels on which to base plots.
 	 * @param dataTableModel
 	 *            A model with which to display all data in a table.
+	 * @param algorithm
+	 *            The period analysis algorithm.
 	 */
 	public PeriodAnalysis2DResultDialog(String title, String seriesTitle,
 			List<PeriodAnalysis2DPlotModel> plotModels,
 			PeriodAnalysisDataTableModel dataTableModel,
-			PeriodAnalysisDataTableModel topHitsTableModel) {
+			PeriodAnalysisDataTableModel topHitsTableModel,
+			IPeriodAnalysisAlgorithm algorithm) {
 		super(title, false, true);
 
 		this.seriesTitle = seriesTitle;
@@ -72,7 +80,8 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		this.plotModels = plotModels;
 		this.dataTableModel = dataTableModel;
 		this.topHitsTableModel = topHitsTableModel;
-
+		this.algorithm = algorithm;
+		
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.addListener(this.createPeriodAnalysisListener());
 
@@ -105,9 +114,9 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 				new PeriodAnalysisDataTablePane(dataTableModel)));
 
 		// Add top-hits table view.
-		namedComponents.add(new NamedComponent("Top Hits",
-				new PeriodAnalysisTopHitsTablePane(topHitsTableModel,
-						dataTableModel)));
+		topHitsTablePane = new PeriodAnalysisTopHitsTablePane(
+				topHitsTableModel, dataTableModel, algorithm);
+		namedComponents.add(new NamedComponent("Top Hits", topHitsTablePane));
 
 		return PluginComponentFactory.createTabs(namedComponents);
 	}

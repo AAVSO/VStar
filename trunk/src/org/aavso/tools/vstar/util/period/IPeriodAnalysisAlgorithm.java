@@ -22,10 +22,9 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.util.IAlgorithm;
 
-
 /**
- * Classes implementing a period analysis algorithm to be executed must
- * realise this interface.
+ * Classes implementing a period analysis algorithm to be executed must realise
+ * this interface.
  */
 public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 
@@ -37,8 +36,31 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	/**
 	 * Return the "top hits" of the period analysis.
 	 * 
-	 * It is a precondition that results have been generated, i.e. the
-	 * execute() method has been invoked.
+	 * It is a precondition that results have been generated, i.e. the execute()
+	 * method has been invoked.
 	 */
 	abstract public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits();
+
+	/**
+	 * <p>
+	 * Refine the period analysis in some way that makes sense for the
+	 * algorithm, e.g. for DC DFT, CLEANest.
+	 * </p>
+	 * 
+	 * <p>
+	 * Note: This method is provisional. There are all kinds of meanings that
+	 * could be applied to "refine", e.g. multi-period analysis (such as
+	 * CLEANest).
+	 * </p>
+	 * 
+	 * @param freqs A list of frequencies on which to refine the results.
+	 */
+	abstract public void refineByFrequency(List<Double> freqs);
+	
+	/**
+	 * Get the refine-by-frequency algorithm name.
+	 * 
+	 * @return The name of the refine-by-frequency algorithm, or null if none.
+	 */
+	abstract public String getRefineByFrequencyName();
 }

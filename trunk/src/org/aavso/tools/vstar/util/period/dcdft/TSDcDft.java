@@ -254,7 +254,17 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		// In TS, it's called only after the Fourier menu has been exited!
 //		statcomp();
 	}
+	
+	@Override
+	public void refineByFrequency(List<Double> freqs) {
+		cleanest(freqs);
+	}
 
+	@Override
+	public String getRefineByFrequencyName() {
+		return "CLEANest";
+	}
+	
 	// -------------------------------------------------------------------------------
 
 	protected void dcdftCommon() {

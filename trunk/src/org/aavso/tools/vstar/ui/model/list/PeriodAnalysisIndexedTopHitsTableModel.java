@@ -29,6 +29,8 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * This class represents a model for a period analysis top-hits table (e.g.
  * ranked (e.g. by power or amplitude), depending upon the topRankedIndexPairs
  * array).
+ * 
+ * @deprecated
  */
 public class PeriodAnalysisIndexedTopHitsTableModel extends AbstractTableModel {
 

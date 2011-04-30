@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.dialog.period;
 import java.awt.Color;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -28,12 +29,19 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.general.DatasetChangeEvent;
+import org.jfree.data.general.DatasetChangeListener;
 
 /**
  * This class represents a chart panel.
  */
 public class PeriodAnalysis2DChartPane extends ChartPanel implements
-		ChartMouseListener, Listener<PeriodAnalysisSelectionMessage> {
+		ChartMouseListener, DatasetChangeListener,
+		Listener<PeriodAnalysisSelectionMessage> {
+
+	private static final int DATA_SERIES = 0;
+	private static final int TOP_HIT_SERIES = 1;
 
 	private JFreeChart chart;
 	private PeriodAnalysis2DPlotModel model;
@@ -54,10 +62,15 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 		configureChart();
 
 		this.addChartMouseListener(this);
+		model.addChangeListener(this);
 		
 		// We listen for and generate period analysis selection messages.
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.addListener(this);
+
+		// We listen for period analysis refinement messages.
+		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
+				.addListener(createRefinementListener());
 	}
 
 	private void configureChart() {
@@ -67,7 +80,7 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 		chart.getXYPlot().setRangeCrosshairValue(0);
 
 		chart.getXYPlot().setDomainCrosshairVisible(true);
-		chart.getXYPlot().setRangeCrosshairVisible(true);		
+		chart.getXYPlot().setRangeCrosshairVisible(true);
 	}
 
 	public void chartMouseClicked(ChartMouseEvent event) {
@@ -83,6 +96,22 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 
 	public void chartMouseMoved(ChartMouseEvent event) {
 		// Nothing to do.
+	}
+
+	@Override
+	public void datasetChanged(DatasetChangeEvent event) {
+		// Set series colors.
+		XYItemRenderer renderer = chart.getXYPlot().getRenderer();
+		for (int seriesNum=0;seriesNum<model.getSeriesCount();seriesNum++) {
+			switch(seriesNum) {
+			case DATA_SERIES:
+//				renderer.setSeriesPaint(seriesNum, Color.PINK);
+				break;
+			case TOP_HIT_SERIES:
+//				renderer.setSeriesPaint(seriesNum, Color.GREEN);
+				break;
+			}
+		}
 	}
 
 	// PeriodAnalysisSelectionMessage listener methods.
@@ -102,8 +131,25 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 			} catch (Throwable t) {
 				// TODO: investigate! (e.g. Johnson V band, then click top-most
 				// top hits table row.
-				//t.printStackTrace();
+				// t.printStackTrace();
 			}
 		}
+	}
+
+	// Create a period analysis refinement listener which sets the top hits
+	// collection on the model.
+	// TODO: why not listen to this in model?
+	private Listener<PeriodAnalysisRefinementMessage> createRefinementListener() {
+		return new Listener<PeriodAnalysisRefinementMessage>() {
+			@Override
+			public void update(PeriodAnalysisRefinementMessage info) {
+//				model.setTopHits(info.getRefinedTopHits());
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 }

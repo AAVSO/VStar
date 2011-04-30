@@ -91,11 +91,11 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 					PeriodAnalysisCoordinateType.POWER));
 
 			// Period vs Power
-//			models.add(new PeriodAnalysis2DPlotModel(resultDataMap
-//					.get(PeriodAnalysisCoordinateType.PERIOD), resultDataMap
-//					.get(PeriodAnalysisCoordinateType.POWER),
-//					PeriodAnalysisCoordinateType.PERIOD,
-//					PeriodAnalysisCoordinateType.POWER));
+			// models.add(new PeriodAnalysis2DPlotModel(resultDataMap
+			// .get(PeriodAnalysisCoordinateType.PERIOD), resultDataMap
+			// .get(PeriodAnalysisCoordinateType.POWER),
+			// PeriodAnalysisCoordinateType.PERIOD,
+			// PeriodAnalysisCoordinateType.POWER));
 
 			// Frequency vs Amplitude
 			models.add(new PeriodAnalysis2DPlotModel(resultDataMap
@@ -110,7 +110,8 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 					"(series: " + sourceSeriesType.getDescription() + ")",
 					models, new PeriodAnalysisDataTableModel(DATA_COLUMN_TYPES,
 							resultDataMap), new PeriodAnalysisDataTableModel(
-							DATA_COLUMN_TYPES, periodAnalysisAlgorithm.getTopHits()));
+							DATA_COLUMN_TYPES, periodAnalysisAlgorithm
+									.getTopHits()), periodAnalysisAlgorithm);
 		}
 
 		return dialog;

@@ -66,6 +66,7 @@ import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
@@ -155,6 +156,7 @@ public class Mediator {
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
 	private Notifier<PeriodChangeMessage> periodChangeMessageNotifier;
+	private Notifier<PeriodAnalysisRefinementMessage> periodAnalysisRefinementNotifier;
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
 	private Notifier<ZoomRequestMessage> zoomRequestNotifier;
 	private Notifier<FilteredObservationMessage> filteredObservationNotifier;
@@ -179,6 +181,7 @@ public class Mediator {
 		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
 		this.periodAnalysisSelectionNotifier = new Notifier<PeriodAnalysisSelectionMessage>();
 		this.periodChangeMessageNotifier = new Notifier<PeriodChangeMessage>();
+		this.periodAnalysisRefinementNotifier = new Notifier<PeriodAnalysisRefinementMessage>();
 		this.meanSourceSeriesChangeNotifier = new Notifier<MeanSourceSeriesChangeMessage>();
 		this.zoomRequestNotifier = new Notifier<ZoomRequestMessage>();
 		this.filteredObservationNotifier = new Notifier<FilteredObservationMessage>();
@@ -277,6 +280,13 @@ public class Mediator {
 	 */
 	public Notifier<PeriodChangeMessage> getPeriodChangeMessageNotifier() {
 		return periodChangeMessageNotifier;
+	}
+
+	/**
+	 * @return the periodAnalysisRefinementNotifier
+	 */
+	public Notifier<PeriodAnalysisRefinementMessage> getPeriodAnalysisRefinementNotifier() {
+		return periodAnalysisRefinementNotifier;
 	}
 
 	/**
