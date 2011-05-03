@@ -1,9 +1,0 @@
-Testsuite: org.aavso.tools.vstar.util.stats.PhaseCalcsTest
-Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0.017 sec
-
-Testcase: testStandardPhase1 took 0.005 sec
-Testcase: testStandardPhase2 took 0 sec
-Testcase: testDetermineEpochAlphaAndOmegaMeanJD took 0.004 sec
-Testcase: testDetermineMinMagJD took 0 sec
-Testcase: testDetermineMaxMagJD took 0 sec
-Testcase: testPhases1 took 0 sec

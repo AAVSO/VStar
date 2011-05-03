@@ -1,9 +1,0 @@
-Testsuite: org.aavso.tools.vstar.data.validation.CommentCodeValidationTest
-Tests run: 2, Failures: 0, Errors: 0, Time elapsed: 0.006 sec
-------------- Standard Output ---------------
-Other comment
-
-------------- ---------------- ---------------
-
-Testcase: testSkyBrightCommentCode took 0.001 sec
-Testcase: testCommentCodes1 took 0.001 sec

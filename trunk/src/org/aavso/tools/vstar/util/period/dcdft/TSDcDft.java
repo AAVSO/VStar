@@ -82,10 +82,10 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 		specifyParameters = false;
 
-		this.resultSeries = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
+		resultSeries = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
 		for (PeriodAnalysisCoordinateType type : PeriodAnalysisCoordinateType
 				.values()) {
-			this.resultSeries.put(type, new ArrayList<Double>());
+			resultSeries.put(type, new ArrayList<Double>());
 		}
 
 		load_raw();
@@ -217,6 +217,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 * method has been invoked.
 	 */
 	public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits() {
+
+		// Create top-hits collection.
 		Map<PeriodAnalysisCoordinateType, List<Double>> topHits = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
 
 		for (PeriodAnalysisCoordinateType type : PeriodAnalysisCoordinateType
@@ -226,12 +228,14 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 		for (int i = 1; i <= 20; i++) {
 			if (dgnu[i] != 0) {
-				topHits.get(PeriodAnalysisCoordinateType.FREQUENCY)
-						.add(dgnu[i]);
-				topHits.get(PeriodAnalysisCoordinateType.PERIOD).add(dgper[i]);
-				topHits.get(PeriodAnalysisCoordinateType.POWER).add(dgpower[i]);
-				topHits.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
-						dgamplitude[i]);
+					topHits.get(PeriodAnalysisCoordinateType.FREQUENCY).add(
+							dgnu[i]);
+					topHits.get(PeriodAnalysisCoordinateType.PERIOD).add(
+							dgper[i]);
+					topHits.get(PeriodAnalysisCoordinateType.POWER).add(
+							dgpower[i]);
+					topHits.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
+							dgamplitude[i]);
 			} else {
 				// We've seen a zero frequency which indicates this is the end
 				// of line of top hits.
@@ -250,11 +254,11 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 */
 	public void execute() {
 		dcdft();
-		// TODO: why is this here!? 
+		// TODO: why is this here!?
 		// In TS, it's called only after the Fourier menu has been exited!
-//		statcomp();
+		// statcomp();
 	}
-	
+
 	@Override
 	public void refineByFrequency(List<Double> freqs) {
 		cleanest(freqs);
@@ -264,7 +268,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	public String getRefineByFrequencyName() {
 		return "CLEANest";
 	}
-	
+
 	// -------------------------------------------------------------------------------
 
 	protected void dcdftCommon() {
@@ -456,9 +460,6 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	}
 
 	// -------------------------------------------------------------------------------
-
-	// TODO: add a refine() method to period analysis interface that is
-	// implemented here in terms of cleanest.
 
 	/**
 	 * A translation of the Fortran TS CLEANest algorithm.

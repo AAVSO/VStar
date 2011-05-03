@@ -1,9 +1,0 @@
-Testsuite: org.aavso.tools.vstar.data.validation.CKMagValidationTest
-Tests run: 6, Failures: 0, Errors: 0, Time elapsed: 0.14 sec
-
-Testcase: testCMagTest1 took 0.004 sec
-Testcase: testKMagTest1 took 0 sec
-Testcase: testCMagTest2 took 0 sec
-Testcase: testCMagTest3 took 0.001 sec
-Testcase: testCMagTest4 took 0.001 sec
-Testcase: testCMagTest5 took 0 sec

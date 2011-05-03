@@ -1,4 +1,0 @@
-Testsuite: org.aavso.tools.vstar.util.comparator.RankedIndexPairComparatorTest
-Tests run: 1, Failures: 0, Errors: 0, Time elapsed: 0.13 sec
-
-Testcase: testPairs1 took 0.004 sec

@@ -45,7 +45,7 @@ public class MessageBox {
 	public static void showMessageDialog(Component parent, String title,
 			String msg, Icon icon) {
 		JOptionPane pane = new JOptionPane(msg,
-				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_OPTION, icon);
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, icon);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -63,7 +63,7 @@ public class MessageBox {
 	 */
 	public static void showMessageDialog(String title, String msg, Icon icon) {
 		JOptionPane pane = new JOptionPane(msg,
-				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_OPTION, icon);
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, icon);
 		JDialog dialog = pane.createDialog(MainFrame.getInstance(), title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -82,7 +82,7 @@ public class MessageBox {
 	public static void showMessageDialog(Component parent, String title,
 			String msg) {
 		JOptionPane pane = new JOptionPane(msg,
-				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_OPTION);
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -98,7 +98,7 @@ public class MessageBox {
 	 */
 	public static void showMessageDialog(String title, String msg) {
 		JOptionPane pane = new JOptionPane(msg,
-				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_OPTION);
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(MainFrame.getInstance(), title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -117,7 +117,7 @@ public class MessageBox {
 	public static void showWarningDialog(Component parent, String title,
 			String msg) {
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE,
-				JOptionPane.OK_OPTION);
+				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -133,7 +133,7 @@ public class MessageBox {
 	 */
 	public static void showWarningDialog(String title, String msg) {
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE,
-				JOptionPane.OK_OPTION);
+				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(MainFrame.getInstance(), title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -152,7 +152,7 @@ public class MessageBox {
 	public static void showErrorDialog(Component parent, String title,
 			String msg) {
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-				JOptionPane.OK_OPTION);
+				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -173,7 +173,7 @@ public class MessageBox {
 		Component parent = MainFrame.getInstance();
 
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-				JOptionPane.OK_OPTION);
+				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -200,7 +200,7 @@ public class MessageBox {
 		}
 
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-				JOptionPane.OK_OPTION);
+				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -227,7 +227,7 @@ public class MessageBox {
 		}
 
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-				JOptionPane.OK_OPTION);
+				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
