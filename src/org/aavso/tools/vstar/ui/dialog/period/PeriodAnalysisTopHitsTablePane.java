@@ -24,12 +24,15 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
@@ -37,6 +40,9 @@ import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
+import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPointComparator;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * Top hits table pane.
@@ -47,6 +53,8 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 	private PeriodAnalysisDataTableModel fullDataModel;
 
 	private IPeriodAnalysisAlgorithm algorithm;
+
+	private Set<PeriodAnalysisDataPoint> refinedDataPoints;
 
 	private JButton refineButton;
 
@@ -69,6 +77,9 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		this.fullDataModel = fullDataModel;
 		this.algorithm = algorithm;
 
+		refinedDataPoints = new TreeSet<PeriodAnalysisDataPoint>(
+				PeriodAnalysisDataPointComparator.instance);
+
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		add(createButtonPanel());
 
@@ -89,14 +100,37 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 	// Refine button listener.
 	private ActionListener createRefineButtonHandler() {
+		final JPanel parent = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// Collect frequencies to be used in refinement, ensuring that
+				// we don't try to use a frequency that has already been used
+				// for refinement.
 				List<Double> freqs = new ArrayList<Double>();
 				int[] selectedTableRowIndices = table.getSelectedRows();
 				for (int row : selectedTableRowIndices) {
 					int modelRow = table.convertRowIndexToModel(row);
-					freqs.add(topHitsModel.getFrequencyValueInRow(modelRow));
+					PeriodAnalysisDataPoint dataPoint = topHitsModel
+							.createDataPointFromRow(modelRow);
+					if (!refinedDataPoints.contains(dataPoint)) {
+						refinedDataPoints.add(dataPoint);
+						freqs
+								.add(topHitsModel
+										.getFrequencyValueInRow(modelRow));
+					} else {
+						String fmt = NumericPrecisionPrefs
+								.getOtherOutputFormat();
+						String msg = String.format("Top Hit with frequency "
+								+ fmt + " and power " + fmt
+								+ " has previously been used.", dataPoint
+								.getFrequency(), dataPoint.getPower());
+						MessageBox.showErrorDialog(parent, algorithm
+								.getRefineByFrequencyName(), msg);
+						freqs.clear();
+						break;
+					}
 				}
+
 				if (!freqs.isEmpty()) {
 					algorithm.refineByFrequency(freqs);
 

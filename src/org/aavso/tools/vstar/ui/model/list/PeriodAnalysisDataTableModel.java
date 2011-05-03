@@ -23,6 +23,7 @@ import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -141,5 +142,21 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 */
 	public Double getFrequencyValueInRow(int rowIndex) {
 		return data.get(PeriodAnalysisCoordinateType.FREQUENCY).get(rowIndex);
+	}
+
+	/**
+	 * Return a period analysis data point from the values at the specified row.
+	 * 
+	 * @param rowIndex
+	 *            The specified row.
+	 * @return The data point.
+	 */
+	public PeriodAnalysisDataPoint createDataPointFromRow(int rowIndex) {
+
+		return new PeriodAnalysisDataPoint(data.get(
+				PeriodAnalysisCoordinateType.FREQUENCY).get(rowIndex), data
+				.get(PeriodAnalysisCoordinateType.PERIOD).get(rowIndex), data
+				.get(PeriodAnalysisCoordinateType.POWER).get(rowIndex), data
+				.get(PeriodAnalysisCoordinateType.AMPLITUDE).get(rowIndex));
 	}
 }

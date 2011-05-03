@@ -18,11 +18,11 @@
 package org.aavso.tools.vstar.util.period.dcdft;
 
 /**
- * This class represents a DC DFT data-point to be plotted on a chart.
+ * This class represents a period analysis data-point to be plotted on a chart.
  */
-public class DcDftDataPoint {
+public class PeriodAnalysisDataPoint {
 	private double frequency, period, power, amplitude;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -31,7 +31,7 @@ public class DcDftDataPoint {
 	 * @param power
 	 * @param amplitude
 	 */
-	public DcDftDataPoint(double frequency, double period, double power,
+	public PeriodAnalysisDataPoint(double frequency, double period, double power,
 			double amplitude) {
 		super();
 		this.frequency = frequency;
@@ -68,7 +68,23 @@ public class DcDftDataPoint {
 		return amplitude;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		boolean equal = false;
+
+		if (obj instanceof PeriodAnalysisDataPoint) {
+			PeriodAnalysisDataPoint other = (PeriodAnalysisDataPoint) obj;
+			equal = other.getFrequency() == frequency
+					&& other.getPeriod() == period && other.getPower() == power
+					&& other.getAmplitude() == amplitude;
+		}
+
+		return equal;
+	}
+
+	@Override
 	public String toString() {
-		return String.format("%14.9f%10.4f%10.4f%10.4f", frequency, period, power, amplitude);
+		return String.format("%14.9f%10.4f%10.4f%10.4f", frequency, period,
+				power, amplitude);
 	}
 }
