@@ -218,6 +218,13 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 */
 	public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits() {
 
+		// TODO: We still need to check for duplicate results here...
+		//       (also still need a UT for this)
+		// As part of this, reconsider the way we create top-hits, e.g.
+		// by inserting into a TreeSet<PeriodAnalysisDataPoint> with the
+		// comparator's compareTo() based upon power, skimming the first N to make it
+		// variable. This should also eliminate duplicates...
+		
 		// Create top-hits collection.
 		Map<PeriodAnalysisCoordinateType, List<Double>> topHits = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
 
@@ -228,14 +235,12 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 		for (int i = 1; i <= 20; i++) {
 			if (dgnu[i] != 0) {
-					topHits.get(PeriodAnalysisCoordinateType.FREQUENCY).add(
-							dgnu[i]);
-					topHits.get(PeriodAnalysisCoordinateType.PERIOD).add(
-							dgper[i]);
-					topHits.get(PeriodAnalysisCoordinateType.POWER).add(
-							dgpower[i]);
-					topHits.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
-							dgamplitude[i]);
+				topHits.get(PeriodAnalysisCoordinateType.FREQUENCY)
+						.add(dgnu[i]);
+				topHits.get(PeriodAnalysisCoordinateType.PERIOD).add(dgper[i]);
+				topHits.get(PeriodAnalysisCoordinateType.POWER).add(dgpower[i]);
+				topHits.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
+						dgamplitude[i]);
 			} else {
 				// We've seen a zero frequency which indicates this is the end
 				// of line of top hits.
