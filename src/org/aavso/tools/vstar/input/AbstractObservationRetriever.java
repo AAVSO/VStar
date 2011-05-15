@@ -37,7 +37,7 @@ public abstract class AbstractObservationRetriever {
 
 	private double minMag;
 	private double maxMag;
-	
+
 	/**
 	 * The list of valid observations retrieved.
 	 */
@@ -63,7 +63,15 @@ public abstract class AbstractObservationRetriever {
 		// time panning; this applies mostly to valid observations.
 		this.validObservations = new ArrayList<ValidObservation>();
 		this.invalidObservations = new ArrayList<InvalidObservation>();
+
+		// Create observation category map and add discrepant and excluded
+		// series list so these are available if needed.
 		this.validObservationCategoryMap = new TreeMap<SeriesType, List<ValidObservation>>();
+		this.validObservationCategoryMap.put(SeriesType.DISCREPANT,
+				new ArrayList<ValidObservation>());
+		this.validObservationCategoryMap.put(SeriesType.Excluded,
+				new ArrayList<ValidObservation>());
+
 		this.minMag = Double.MAX_VALUE;
 		this.maxMag = -Double.MAX_VALUE;
 	}
@@ -76,7 +84,8 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * @param minMag the minimum magnitude to set
+	 * @param minMag
+	 *            the minimum magnitude to set
 	 */
 	public void setMinMag(double minMag) {
 		this.minMag = minMag;
@@ -90,7 +99,8 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * @param maxMag the maximum magnitude to set
+	 * @param maxMag
+	 *            the maximum magnitude to set
 	 */
 	public void setMaxMag(double maxMag) {
 		this.maxMag = maxMag;
@@ -174,6 +184,8 @@ public abstract class AbstractObservationRetriever {
 			category = SeriesType.FAINTER_THAN;
 		} else if (validOb.isDiscrepant()) {
 			category = SeriesType.DISCREPANT;
+		} else if (validOb.isExcluded()) {
+			category = SeriesType.Excluded;
 		} else {
 			category = validOb.getBand();
 		}
@@ -190,15 +202,15 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * Adds an observation to the list of valid observations.
-	 * Also, updates min/max magnitude values for the dataset.
+	 * Adds an observation to the list of valid observations. Also, updates
+	 * min/max magnitude values for the dataset.
 	 * 
 	 * @param ob
 	 *            The valid observation to be added.
 	 */
 	protected void addValidObservation(ValidObservation ob) {
 		validObservations.add(ob);
-		
+
 		double uncert = ob.getMagnitude().getUncertainty();
 		// If uncertainty not given, get HQ uncertainty if present.
 		if (uncert == 0.0 && ob.getHqUncertainty() != null) {

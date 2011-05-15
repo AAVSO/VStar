@@ -90,13 +90,13 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	private void addSeriesRadioButtons() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		
+
 		panel.add(createDataSeriesRadioButtons());
-		
+
 		if (analysisType == AnalysisType.RAW_DATA) {
 			panel.add(createOtherSeriesRadioButtons());
 		}
-		
+
 		this.add(panel);
 	}
 
@@ -109,12 +109,14 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
 			// We want to be able to select from any series except
-			// "means", "fainter-than", and "discrepant".
+			// "means", "fainter-than", "discrepant", or "excluded.
 			// Actually, we may want to be able to select from discrepants, e.g.
 			// consider comments from Aaron re: this.
-			// TODO: we could delegate this filtering to SeriesType
+			// TODO: we could delegate this filtering to SeriesType (e.g.
+			// SeriesType.canBeMeanSource())
 			if (series != SeriesType.MEANS && series != SeriesType.FAINTER_THAN
-					&& series != SeriesType.DISCREPANT) {
+					&& series != SeriesType.DISCREPANT
+					&& series != SeriesType.Excluded) {
 				String seriesName = series.getDescription();
 				JRadioButton seriesRadioButton = new JRadioButton(seriesName);
 				seriesRadioButton.setActionCommand(seriesName);
@@ -135,7 +137,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 
 		// Ensure the panel is wide enough for textual border.
 		panel.add(Box.createRigidArea(new Dimension(75, 1)));
-		
+
 		return panel;
 	}
 

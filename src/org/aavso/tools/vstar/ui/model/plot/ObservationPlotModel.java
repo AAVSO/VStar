@@ -31,8 +31,8 @@ import java.util.TreeMap;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeType;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.data.DomainOrder;
 import org.jfree.data.xy.AbstractIntervalXYDataset;
@@ -41,8 +41,7 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
  * This is the base class for models that represent a series of valid variable
  * star observations, e.g. for different bands (or from different sources).
  */
-public class ObservationPlotModel extends AbstractIntervalXYDataset implements
-		Listener<ObservationChangeMessage> {
+public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 	/**
 	 * Coordinate and error source.
@@ -92,6 +91,16 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	protected Set<Integer> seriesToBeJoinedVisually;
 
 	/**
+	 * Discrepant observation listener.
+	 */
+	protected Listener<DiscrepantObservationMessage> discrepantListener;
+
+	/**
+	 * Excluded observation listener.
+	 */
+	protected Listener<ExcludedObservationMessage> excludedListener;
+
+	/**
 	 * Common constructor.
 	 * 
 	 * @param coordSrc
@@ -108,7 +117,11 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		this.atLeastOneVisualBandPresent = false;
 		this.seriesToBeJoinedVisually = new HashSet<Integer>();
 
-		Mediator.getInstance().getObservationChangeNotifier().addListener(this);
+		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
+				createDiscrepantChangeListener());
+
+		Mediator.getInstance().getExcludedObservationNotifier().addListener(
+				createExcludedChangeListener());
 	}
 
 	/**
@@ -159,7 +172,16 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 				seriesVisibilityMap.put(seriesNum, true);
 			}
 		}
-		
+
+		// If any series is empty initially (e.g. disrepant or excluded), make
+		// the series not visible.
+		for (SeriesType type : obsSourceListMap.keySet()) {
+			int seriesNum = srcTypeToSeriesNumMap.get(type);
+			if (seriesNumToObSrcListMap.get(seriesNum).isEmpty()) {
+				seriesVisibilityMap.put(seriesNum, false);
+			}
+		}
+
 		fireDatasetChanged();
 	}
 
@@ -595,15 +617,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	}
 
 	/**
-	 * Listen for observation change notification, e.g. an observation's
-	 * discrepant status is changed.
+	 * Listen for discrepant observation change notification.
 	 */
-	public void update(ObservationChangeMessage info) {
-		for (ObservationChangeType change : info.getChanges()) {
-			switch (change) {
-			case DISCREPANT:
-				// Did we go to or from being discrepant?
+	protected Listener<DiscrepantObservationMessage> createDiscrepantChangeListener() {
+
+		return new Listener<DiscrepantObservationMessage>() {
+			public void update(DiscrepantObservationMessage info) {
 				ValidObservation ob = info.getObservation();
+
+				// Did we go to or from being discrepant?
 				if (ob.isDiscrepant()) {
 					// Now marked as discrepant so move observation from
 					// its designated band series to the discrepant series.
@@ -617,15 +639,52 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 					addObservationToSeries(ob, ob.getBand());
 				}
 				fireDatasetChanged();
-				break;
 			}
-		}
+
+			/**
+			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+			 */
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+	 * Listen for excluded observation change notification.
 	 */
-	public boolean canBeRemoved() {
-		return true;
+	protected Listener<ExcludedObservationMessage> createExcludedChangeListener() {
+
+		return new Listener<ExcludedObservationMessage>() {
+
+			@Override
+			public void update(ExcludedObservationMessage info) {
+				// TODO: add en-masse addition/removal methods
+				// TODO: for a big list, this is very inefficient!
+				// (need to change observation list type so that
+				// this is not the case; see addObservationToSeries()).
+				for (ValidObservation ob : info.getObservations()) {
+					// Did we go to or from being excluded?
+					if (ob.getBand() == SeriesType.Excluded) {
+						// Now marked as excluded so move observation from
+						// its designated band series to the excluded series.
+						removeObservationFromSeries(ob, ob.getBand());
+						addObservationToSeries(ob, SeriesType.Excluded);
+					} else {
+						// Was marked as excluded, now is not, so move
+						// observation from the excluded series to its
+						// designated band series.
+						removeObservationFromSeries(ob, SeriesType.Excluded);
+						addObservationToSeries(ob, ob.getBand());
+					}
+				}
+				fireDatasetChanged();
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 }

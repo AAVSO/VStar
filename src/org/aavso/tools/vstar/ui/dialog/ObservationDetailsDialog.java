@@ -46,8 +46,7 @@ import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeType;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.discrepant.DiscrepantReport;
 import org.aavso.tools.vstar.util.discrepant.IDiscrepantReporter;
@@ -64,8 +63,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * session. Or just have one per observation. great way to have a memory leak
  * though.
  */
-public class ObservationDetailsDialog extends JDialog implements FocusListener,
-		Listener<ObservationChangeMessage> {
+public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
 	private ValidObservation ob;
 	private JButton okButton;
@@ -114,8 +112,8 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 				checkBoxPane.add(discrepantCheckBox);
 				topPane.add(checkBoxPane, BorderLayout.CENTER);
 
-				Mediator.getInstance().getObservationChangeNotifier()
-						.addListener(this);
+				Mediator.getInstance().getDiscrepantObservationNotifier()
+						.addListener(createDiscrepantChangeListener());
 			}
 		}
 
@@ -168,9 +166,9 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 					// Toggle the observation's discrepant status and
 					// tell anyone who's listening about the change.
 					toggleDiscrepantStatus();
-					ObservationChangeMessage message = new ObservationChangeMessage(
-							ob, ObservationChangeType.DISCREPANT, parent);
-					Mediator.getInstance().getObservationChangeNotifier()
+					DiscrepantObservationMessage message = new DiscrepantObservationMessage(
+							ob, parent);
+					Mediator.getInstance().getDiscrepantObservationNotifier()
 							.notifyListeners(message);
 
 					// If the dataset was loaded from AID and the change was
@@ -250,21 +248,29 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener,
 		// Nothing to do.
 	}
 
-	public boolean canBeRemoved() {
-		return false;
-	}
+	/**
+	 * Listen for discrepant observation change notification.
+	 */
+	protected Listener<DiscrepantObservationMessage> createDiscrepantChangeListener() {
+		final ObservationDetailsDialog dialog = this;
 
-	// If it was not this object that generated a discrepant observation
-	// change message, update the discrepant checkbox.
-	public void update(ObservationChangeMessage info) {
-		for (ObservationChangeType change : info.getChanges()) {
-			if (info.getSource() != this
-					&& change == ObservationChangeType.DISCREPANT
-					&& info.getObservation() == this.ob) {
-				boolean isDiscrepant = !this.discrepantCheckBox.isSelected();
-				this.discrepantCheckBox.setSelected(isDiscrepant);
-				break;
+		return new Listener<DiscrepantObservationMessage>() {
+
+			// If it was not this object that generated a discrepant observation
+			// change message, update the discrepant checkbox.
+			@Override
+			public void update(DiscrepantObservationMessage info) {
+				if (info.getSource() != dialog
+						&& info.getObservation() == dialog.ob) {
+					boolean isDiscrepant = !discrepantCheckBox.isSelected();
+					discrepantCheckBox.setSelected(isDiscrepant);
+				}
 			}
-		}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 }

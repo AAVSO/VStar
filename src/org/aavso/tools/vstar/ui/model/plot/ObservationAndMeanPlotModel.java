@@ -26,8 +26,10 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
+import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.DescStats;
@@ -101,6 +103,12 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// It doesn't actually matter whether we pass true or false here
 		// since the parameter won't apply to the first mean series created.
 		this.setMeanSeries(false);
+
+		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
+				createMeanObsDiscrepantChangeListener());
+
+		Mediator.getInstance().getExcludedObservationNotifier().addListener(
+				createExcludedChangeListener());
 	}
 
 	/**
@@ -375,24 +383,58 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
-	 * Listen for valid observation change notification, e.g. an observation's
-	 * discrepant notification is changed. Since a discrepant observation is
-	 * ignored for statistical analysis purposes (see DescStats class), we need
-	 * to re-calculate the means series if the discrepant observation's series
-	 * type is the same as the mean source series type.
+	 * Listen for discrepant observation change notification. Since a discrepant
+	 * observation is ignored for statistical analysis purposes (see DescStats
+	 * class), we need to re-calculate the means series if the discrepant
+	 * observation's series type is the same as the mean source series type.
 	 */
-	public void update(ObservationChangeMessage info) {
-		super.update(info);
+	protected Listener<DiscrepantObservationMessage> createMeanObsDiscrepantChangeListener() {
+		final ObservationAndMeanPlotModel model = this;
 
-		for (ObservationChangeType change : info.getChanges()) {
-			switch (change) {
-			case DISCREPANT:
+		return new Listener<DiscrepantObservationMessage>() {
+
+			@Override
+			public void update(DiscrepantObservationMessage info) {
+
 				if (info.getObservation().getBand() == seriesNumToSrcTypeMap
 						.get(meanSourceSeriesNum)) {
-					this.setMeanSeries(false);
+					model.setMeanSeries(false);
 				}
-				break;
 			}
-		}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	/**
+	 * Listen for excluded observation change notification. Since an excluded
+	 * observation is ignored for statistical analysis purposes, we need to
+	 * re-calculate the means series if any of the excluded observations' series
+	 * type is the same as the mean source series type.
+	 */
+	protected Listener<ExcludedObservationMessage> createMeanExcludedChangeListener() {
+		final ObservationAndMeanPlotModel model = this;
+
+		return new Listener<ExcludedObservationMessage>() {
+
+			@Override
+			public void update(ExcludedObservationMessage info) {
+				for (ValidObservation ob : info.getObservations()) {
+					if (ob.getBand() == seriesNumToSrcTypeMap
+							.get(meanSourceSeriesNum)) {
+						model.setMeanSeries(false);
+						break;
+					}
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 }

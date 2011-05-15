@@ -34,8 +34,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
@@ -55,10 +58,16 @@ public class SeriesVisibilityPane extends JPanel {
 
 	private List<JCheckBox> checkBoxes;
 
+	private JCheckBox discrepantCheckBox;
+	private JCheckBox excludedCheckBox;
+
 	private JCheckBox meanCheckBox;
 	private JCheckBox filteredCheckBox;
 	private JCheckBox polynomialFitCheckBox;
 	private JCheckBox residualsCheckBox;
+
+	private int discrepantCount;
+	private int excludedCount;
 
 	/**
 	 * Constructor.
@@ -84,6 +93,18 @@ public class SeriesVisibilityPane extends JPanel {
 
 		addSeriesCheckBoxes();
 
+		// Get initial discrepant and excluded counts, if any.
+
+		Integer discrepantSeriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
+				.get(SeriesType.DISCREPANT);
+		discrepantCount = obsPlotModel.getSeriesNumToObSrcListMap().get(
+				discrepantSeriesNum).size();
+
+		Integer excludedSeriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
+				.get(SeriesType.Excluded);
+		excludedCount = obsPlotModel.getSeriesNumToObSrcListMap().get(
+				excludedSeriesNum).size();
+
 		obsPlotModel.getMeansChangeNotifier().addListener(
 				createMeanObsChangeListener());
 
@@ -94,6 +115,9 @@ public class SeriesVisibilityPane extends JPanel {
 			Mediator.getInstance().getPolynomialFitNofitier().addListener(
 					createPolynomialFitListener());
 		}
+
+		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
+				createDiscrepantChangeListener());
 
 		addButtons();
 	}
@@ -122,15 +146,33 @@ public class SeriesVisibilityPane extends JPanel {
 
 				checkBox
 						.addActionListener(createSeriesVisibilityCheckBoxListener());
-				int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
-						series);
+
+				Integer seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
+						.get(series);
+
+				// Enable/disable the series.
 				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(
 						seriesNum);
 				checkBox.setSelected(vis);
+
 				panel.add(checkBox);
 				panel.add(Box.createRigidArea(new Dimension(3, 3)));
 
 				checkBoxes.add(checkBox);
+
+				if (series == SeriesType.DISCREPANT) {
+					discrepantCheckBox = checkBox;
+					if (obsPlotModel.getSeriesNumToObSrcListMap()
+							.get(seriesNum).isEmpty()) {
+						discrepantCheckBox.setEnabled(false);
+					}
+				} else if (series == SeriesType.Excluded) {
+					excludedCheckBox = checkBox;
+					if (obsPlotModel.getSeriesNumToObSrcListMap()
+							.get(seriesNum).isEmpty()) {
+						excludedCheckBox.setEnabled(false);
+					}
+				}
 			}
 		}
 
@@ -292,6 +334,96 @@ public class SeriesVisibilityPane extends JPanel {
 	 */
 	public Map<Integer, Boolean> getVisibilityDeltaMap() {
 		return visibilityDeltaMap;
+	}
+
+	/**
+	 * Listen for discrepant observation change notification.
+	 */
+	protected Listener<DiscrepantObservationMessage> createDiscrepantChangeListener() {
+
+		return new Listener<DiscrepantObservationMessage>() {
+			public void update(DiscrepantObservationMessage info) {
+				ValidObservation ob = info.getObservation();
+
+				// Did we go to or from being discrepant?
+				// We keep a count. Asking the model is not sufficient since
+				// order of delivery of these messages is indeterminant and we
+				// cannot be sure that the model has been updated.
+				if (ob.isDiscrepant()) {
+					discrepantCount++;
+
+					// Now marked as discrepant so, at least one observation is
+					// in the discrepant series. Ensure the discrepant
+					// checkbox is enabled so such observations can be viewed.
+					if (!discrepantCheckBox.isEnabled()) {
+						discrepantCheckBox.setEnabled(true);
+					}
+				} else {
+					// Was marked as discrepant, now is not, so check whether
+					// any discrepant observations remain, and if not, disable
+					// the checkbox.
+					discrepantCount--;
+
+					if (discrepantCount == 0 && discrepantCheckBox.isEnabled()) {
+						discrepantCheckBox.setEnabled(false);
+						discrepantCheckBox.setSelected(false);
+					}
+				}
+			}
+
+			/**
+			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+			 */
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	/**
+	 * Listen for excluded observation change notification.
+	 */
+	protected Listener<ExcludedObservationMessage> createExcludedChangeListener() {
+
+		return new Listener<ExcludedObservationMessage>() {
+			public void update(ExcludedObservationMessage info) {
+				List<ValidObservation> obs = info.getObservations();
+
+				boolean isExcluded = obs.get(0).isExcluded();
+
+				// Did we go to or from being excluded?
+				// We keep a count. Asking the model is not sufficient since
+				// order of delivery of these messages is indeterminant and we
+				// cannot be sure that the model has been updated.
+				if (isExcluded) {
+					excludedCount++;
+
+					// Now marked as excluded so, at least one observation is
+					// in the excluded series. Ensure the excluded
+					// checkbox is enabled so such observations can be viewed.
+					if (!excludedCheckBox.isEnabled()) {
+						excludedCheckBox.setEnabled(true);
+					}
+				} else {
+					// Was marked as excluded, now is not, so check whether
+					// any excluded observations remain, and if not, disable
+					// the checkbox.
+					excludedCount--;
+
+					if (excludedCount == 0 && excludedCheckBox.isEnabled()) {
+						excludedCheckBox.setEnabled(false);
+						excludedCheckBox.setSelected(false);
+					}
+				}
+			}
+
+			/**
+			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+			 */
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
 	}
 
 	// Return a mean observation change listener to ensure that the
