@@ -223,30 +223,6 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		// 292 format(' JD ',f12.4,'-',f12.4,' T.AVE=',f12.4)
 	}
 
-	double smooth(double dtime) {
-		
-		double dmag;
-		double dt, dphase;
-		double twopi;
-		int np, n2, nf;
-
-		twopi = Math.PI * 2;
-
-		dt = (dtime - dtzero) / dtscale;
-		dmag = dcoef[0];
-		for (np = 1; np <= npoly; np++) {
-			dmag = dmag + (dcoef[np] * (Math.pow(dt, np)));
-		}
-		n2 = npoly;
-		for (nf = 1; nf <= nfre; nf++) {
-			n2 = n2 + 2;
-			dphase = twopi * dfre[nf] * dtscale * dt;
-			dmag = dmag + (dcoef[n2 - 1] * Math.cos(dphase));
-			dmag = dmag + (dcoef[n2] * Math.sin(dphase));
-		}
-		return dmag;
-	}
-
 	void polyfit() {
 		double[] dzeta = new double[101];
 		double d1, d2, tspan, tt, dtime, dt;
