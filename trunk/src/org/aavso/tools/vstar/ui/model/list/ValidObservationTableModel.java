@@ -26,15 +26,14 @@ import org.aavso.tools.vstar.data.IOrderedObservationSource;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeType;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * A table model for valid observations.
  */
 public class ValidObservationTableModel extends AbstractTableModel implements
-		Listener<ObservationChangeMessage>, IOrderedObservationSource {
+		IOrderedObservationSource {
 
 	/**
 	 * The list of valid observations retrieved.
@@ -78,7 +77,8 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 		this.columnInfoSource = columnInfoSource;
 		this.columnCount = columnInfoSource.getColumnCount();
 
-		Mediator.getInstance().getObservationChangeNotifier().addListener(this);
+		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
+				createDiscrepantChangeListener());
 	}
 
 	/**
@@ -156,9 +156,9 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 				boolean discrepant = ob.isDiscrepant();
 				ob.setDiscrepant(!discrepant);
 				// Tell anyone who's listening about the change.
-				ObservationChangeMessage message = new ObservationChangeMessage(
-						ob, ObservationChangeType.DISCREPANT, this);
-				Mediator.getInstance().getObservationChangeNotifier()
+				DiscrepantObservationMessage message = new DiscrepantObservationMessage(
+						ob, this);
+				Mediator.getInstance().getDiscrepantObservationNotifier()
 						.notifyListeners(message);
 			}
 		}
@@ -193,25 +193,23 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	}
 
 	/**
-	 * Listen for valid observation change notification, e.g. an observation's
-	 * discrepant notification is changed.
+	 * Listen for discrepant observation change notification.
 	 */
-	public void update(ObservationChangeMessage info) {
-		if (info.getSource() != this) {
-			for (ObservationChangeType change : info.getChanges()) {
-				switch (change) {
-				case DISCREPANT:
-					this.fireTableDataChanged();
-					break;
+	protected Listener<DiscrepantObservationMessage> createDiscrepantChangeListener() {
+
+		return new Listener<DiscrepantObservationMessage>() {
+
+			@Override
+			public void update(DiscrepantObservationMessage info) {
+				if (info.getSource() != this) {
+					fireTableDataChanged();
 				}
 			}
-		}
-	}
 
-	/**
-	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
-	 */
-	public boolean canBeRemoved() {
-		return true;
-	}	
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
 }

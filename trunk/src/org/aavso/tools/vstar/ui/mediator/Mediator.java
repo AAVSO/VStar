@@ -60,10 +60,11 @@ import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
 import org.aavso.tools.vstar.ui.dialog.RawPlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ObservationChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
@@ -152,7 +153,8 @@ public class Mediator {
 	// TODO: This next notifier could be used to mark the "document"
 	// (the current star's dataset) associated with the valid obs
 	// as being in need of saving (optional for now).
-	private Notifier<ObservationChangeMessage> observationChangeNotifier;
+	private Notifier<DiscrepantObservationMessage> discrepantObservationNotifier;
+	private Notifier<ExcludedObservationMessage> excludedObservationNotifier;
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
 	private Notifier<PeriodChangeMessage> periodChangeMessageNotifier;
@@ -177,7 +179,8 @@ public class Mediator {
 		this.analysisTypeChangeNotifier = new Notifier<AnalysisTypeChangeMessage>();
 		this.newStarNotifier = new Notifier<NewStarMessage>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
-		this.observationChangeNotifier = new Notifier<ObservationChangeMessage>();
+		this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
+		this.excludedObservationNotifier = new Notifier<ExcludedObservationMessage>();
 		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
 		this.periodAnalysisSelectionNotifier = new Notifier<PeriodAnalysisSelectionMessage>();
 		this.periodChangeMessageNotifier = new Notifier<PeriodChangeMessage>();
@@ -255,10 +258,17 @@ public class Mediator {
 	}
 
 	/**
-	 * @return the observationChangeNotifier
+	 * @return the discrepantObservationNotifier
 	 */
-	public Notifier<ObservationChangeMessage> getObservationChangeNotifier() {
-		return observationChangeNotifier;
+	public Notifier<DiscrepantObservationMessage> getDiscrepantObservationNotifier() {
+		return discrepantObservationNotifier;
+	}
+
+	/**
+	 * @return the excludedObservationNotifier
+	 */
+	public Notifier<ExcludedObservationMessage> getExcludedObservationNotifier() {
+		return excludedObservationNotifier;
 	}
 
 	/**
@@ -707,7 +717,7 @@ public class Mediator {
 		if (!validObsList.isEmpty()) {
 
 			// This is a specific fix for tracker 3007948.
-			this.observationChangeNotifier = new Notifier<ObservationChangeMessage>();
+			this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
 
 			// Observation table and plot.
 			validObsTableModel = new ValidObservationTableModel(validObsList,

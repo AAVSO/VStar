@@ -101,7 +101,10 @@ public enum SeriesType {
 	Residuals(SeriesType.NO_INDEX, "Residuals", "Residuals", Color.CYAN),
 
 	// This series can be used to mark an observation as being excluded for some
-	// other reason than it being discrepant.
+	// other reason than it being discrepant and all that classification
+	// entails. The key thing is that this provides a category under which an
+	// observation can be grouped in order to remove it from consideration in
+	// analysis.
 	Excluded(SeriesType.NO_INDEX, "Excluded", "Excluded", Color.DARK_GRAY);
 
 	// Static members

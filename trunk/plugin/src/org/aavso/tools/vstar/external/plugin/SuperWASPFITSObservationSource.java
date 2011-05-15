@@ -194,11 +194,12 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 					minMagErr, maxMagErr, magErrIncrement, magErrThreshold);
 
 			magErrThreshold = magErrThresholdDialog.getValue();
-
+			
 			for (ValidObservation ob : obs) {
 				double magErr = ob.getMagnitude().getUncertainty();
 				if (magErr >= magErrThreshold) {
-					ob.setBand(SeriesType.Excluded);
+					ob.setBand(SeriesType.Unspecified);
+					ob.setExcluded(true);
 				}
 
 				collectObservation(ob);

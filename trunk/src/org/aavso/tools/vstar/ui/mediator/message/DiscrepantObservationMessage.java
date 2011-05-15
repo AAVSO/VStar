@@ -17,50 +17,28 @@
  */
 package org.aavso.tools.vstar.ui.mediator.message;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This message will be sent to Listener<ObservationChangeMessage> implementers
- * registered with a Notifier<ObservationChangeMessage> implementer.
+ * This message will be sent to Listener<DiscrepantObservationMessage> implementers
+ * registered with a Notifier<DiscrepantObservationMessage> implementer.
  * 
- * The message signals a specific change in an observation by a source object. 
+ * The message signals that an observation should be marked as "discrepant". 
  */
-public class ObservationChangeMessage extends MessageBase {
+public class DiscrepantObservationMessage extends MessageBase {
 
 	private ValidObservation observation;
-	private Iterable<ObservationChangeType> changes;
 	
 	/**
 	 * Constructor.
 	 * 
 	 * @param observation The observation that has changed.
-	 * @param changes The iterable set of changes to the observation.
 	 * @param source The object that caused the change.
 	 */
-	public ObservationChangeMessage(ValidObservation observation,
-			Iterable<ObservationChangeType> changes, Object source) {
+	public DiscrepantObservationMessage(ValidObservation observation,
+			 Object source) {
 		super(source);
 		this.observation = observation;
-		this.changes = changes;
-	}
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param observation The observation that has changed.
-	 * @param change A single change to the observation.
-	 * @param source The object that caused the change.
-	 */
-	public ObservationChangeMessage(ValidObservation observation,
-			ObservationChangeType change, Object source) {
-		super(source);
-		this.observation = observation;
-		List<ObservationChangeType> changes = new ArrayList<ObservationChangeType>();
-		changes.add(change);
-		this.changes = changes;
 	}
 	
 	/**
@@ -68,12 +46,5 @@ public class ObservationChangeMessage extends MessageBase {
 	 */
 	public ValidObservation getObservation() {
 		return observation;
-	}
-	
-	/**
-	 * @return an iterator over the changes
-	 */
-	public Iterable<ObservationChangeType> getChanges() {
-		return changes;
 	}
 }

@@ -80,6 +80,8 @@ public class ValidObservation extends Observation {
 	private Double standardPhase = null;
 	private Double previousCyclePhase = null;
 
+	private boolean excluded = false;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -414,6 +416,20 @@ public class ValidObservation extends Observation {
 	 */
 	public void setPreviousCyclePhase(Double previousCyclePhase) {
 		this.previousCyclePhase = previousCyclePhase;
+	}
+
+	/**
+	 * @return the excluded
+	 */
+	public boolean isExcluded() {
+		return excluded;
+	}
+
+	/**
+	 * @param excluded the excluded to set
+	 */
+	public void setExcluded(boolean excluded) {
+		this.excluded = excluded;
 	}
 
 	// Output formatting methods.
