@@ -278,6 +278,32 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	}
 
 	/**
+	 * Add a list of observations to a series list, creating the series first if
+	 * necessary.
+	 * 
+	 * @param obs
+	 *            The list of observations to be added.
+	 * @param series
+	 *            The series to which to add the list.
+	 */
+	protected void addObservationsToSeries(List<ValidObservation> obs,
+			SeriesType series) {
+		Integer seriesNum = this.srcTypeToSeriesNumMap.get(series);
+
+		if (seriesNum != null) {
+			List<ValidObservation> obList = this.seriesNumToObSrcListMap
+					.get(seriesNum);
+			obList.addAll(obs);
+			// TODO: use sorted set instead, as above.
+			Collections.sort(obList, obComparator);
+		} else {
+			// The series does not yet exist, so create it with the observation
+			// list.
+			addObservationSeries(series, obs);
+		}
+	}
+
+	/**
 	 * Replace an existing series
 	 * 
 	 * @param type
@@ -344,6 +370,29 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 		if (seriesNum != null) {
 			removed = this.seriesNumToObSrcListMap.get(seriesNum).remove(ob);
+		}
+
+		return removed;
+	}
+
+	/**
+	 * Remove a single observation from a series list.
+	 * 
+	 * @param obs
+	 *            The list of valid observations to be removed.
+	 * @param series
+	 *            The series from which the list is to be removed.
+	 * @return Whether or not the observations were removed.
+	 */
+	protected boolean removeObservationsFromSeries(List<ValidObservation> obs,
+			SeriesType series) {
+		boolean removed = false;
+
+		Integer seriesNum = this.srcTypeToSeriesNumMap.get(series);
+
+		if (seriesNum != null) {
+			removed = this.seriesNumToObSrcListMap.get(seriesNum)
+					.removeAll(obs);
 		}
 
 		return removed;
@@ -659,25 +708,30 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 			@Override
 			public void update(ExcludedObservationMessage info) {
-				// TODO: add en-masse addition/removal methods
-				// TODO: for a big list, this is very inefficient!
-				// (need to change observation list type so that
-				// this is not the case; see addObservationToSeries()).
-				for (ValidObservation ob : info.getObservations()) {
-					// Did we go to or from being excluded?
-					if (ob.getBand() == SeriesType.Excluded) {
+				List<ValidObservation> obs = info.getObservations();
+				boolean excluded = obs.get(0).isExcluded();
+
+				// Did we go to or from being excluded?
+				if (excluded) {
+					for (ValidObservation ob : info.getObservations()) {
 						// Now marked as excluded so move observation from
-						// its designated band series to the excluded series.
+						// its designated band to the excluded series.
 						removeObservationFromSeries(ob, ob.getBand());
-						addObservationToSeries(ob, SeriesType.Excluded);
-					} else {
-						// Was marked as excluded, now is not, so move
-						// observation from the excluded series to its
-						// designated band series.
+					}
+					// All are going to the same series, so we can do this
+					// en-masse. Note that we cannot do the reverse en-masse!
+					addObservationsToSeries(obs, SeriesType.Excluded);
+				} else {
+					// Was previously marked as excluded, now is not, so move
+					// observation from the excluded series to its
+					// designated series. Reversing observation exclusion is
+					// less efficient than the initial exclusion.
+					for (ValidObservation ob : info.getObservations()) {
 						removeObservationFromSeries(ob, SeriesType.Excluded);
 						addObservationToSeries(ob, ob.getBand());
 					}
 				}
+
 				fireDatasetChanged();
 			}
 

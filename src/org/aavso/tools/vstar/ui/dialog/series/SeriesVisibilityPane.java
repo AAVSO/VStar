@@ -119,6 +119,9 @@ public class SeriesVisibilityPane extends JPanel {
 		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
 				createDiscrepantChangeListener());
 
+		Mediator.getInstance().getExcludedObservationNotifier().addListener(
+				createExcludedChangeListener());
+
 		addButtons();
 	}
 

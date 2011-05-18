@@ -56,6 +56,8 @@ import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
@@ -74,6 +76,11 @@ public class MenuBar extends JMenuBar {
 	public static final String INFO = "Info...";
 	public static final String PREFS = "Preferences...";
 	public static final String QUIT = "Quit";
+
+	// Edit menu items.
+	public static final String UNDO = "Undo";
+	public static final String REDO = "Redo";
+	public static final String EXCLUDE_SELECTION = "Exclude Selection";
 
 	// View menu item names.
 	public static final String OB_DETAILS = "Observation Details...";
@@ -125,6 +132,12 @@ public class MenuBar extends JMenuBar {
 	JMenuItem filePrefsItem;
 	JMenuItem fileQuitItem;
 
+	// Edit menu.
+	JMenu editMenu;
+	JMenuItem editUndoItem;
+	JMenuItem editRedoItem;
+	JMenuItem editExcludeSelectionItem;
+
 	// View menu.
 	JMenuItem viewObDetailsItem;
 	JMenuItem viewPlotControlItem;
@@ -149,8 +162,8 @@ public class MenuBar extends JMenuBar {
 	JMenuItem analysisPolynomialFitItem;
 
 	// Modelling menu.
-//	poly fit, ...
-	
+	// poly fit, ...
+
 	// Tool menu.
 	JMenu toolMenu;
 	JMenuItem toolRunScript;
@@ -179,6 +192,7 @@ public class MenuBar extends JMenuBar {
 		this.fileOpenDialog.setFileFilter(new FileExtensionFilter(extensions));
 
 		createFileMenu();
+		createEditMenu();
 		createViewMenu();
 		createAnalysisMenu();
 		createToolMenu();
@@ -198,6 +212,9 @@ public class MenuBar extends JMenuBar {
 
 		this.mediator.getObservationSelectionNotifier().addListener(
 				createObservationSelectionListener());
+
+		this.mediator.getUndoActionNotifier().addListener(
+				createUndoActionListener());
 	}
 
 	private void createFileMenu() {
@@ -273,6 +290,30 @@ public class MenuBar extends JMenuBar {
 		}
 
 		this.add(fileMenu);
+	}
+
+	private void createEditMenu() {
+		editMenu = new JMenu("Edit");
+
+		editUndoItem = new JMenuItem(UNDO);
+		editUndoItem.setEnabled(false);
+		editUndoItem.addActionListener(createUndoListener());
+		editMenu.add(editUndoItem);
+
+		editRedoItem = new JMenuItem(REDO);
+		editRedoItem.setEnabled(false);
+		editRedoItem.addActionListener(createRedoListener());
+		editMenu.add(editRedoItem);
+
+		editMenu.addSeparator();
+
+		editExcludeSelectionItem = new JMenuItem(EXCLUDE_SELECTION);
+		editExcludeSelectionItem.setEnabled(false);
+		editExcludeSelectionItem
+				.addActionListener(createExcludeSelectionListener());
+		editMenu.add(editExcludeSelectionItem);
+
+		this.add(editMenu);
 	}
 
 	private void createViewMenu() {
@@ -622,6 +663,59 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mediator.quit();
+			}
+		};
+	}
+
+	// ** Edit Menu listeners **
+
+	/**
+	 * Returns the action listener to be invoked for Edit->Undo
+	 */
+	public ActionListener createUndoListener() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mediator.getUndoableActionManager().executeUndoAction();
+
+				if (mediator.getUndoableActionManager().isUndoStackEmpty()) {
+					editUndoItem.setText(UNDO);
+					editUndoItem.setEnabled(false);
+				}
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Edit->Redo
+	 */
+	public ActionListener createRedoListener() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mediator.getUndoableActionManager().executeRedoAction();
+
+				if (mediator.getUndoableActionManager().isRedoStackEmpty()) {
+					editRedoItem.setText(REDO);
+					editRedoItem.setEnabled(false);
+				}
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Edit->Exclude Selection
+	 */
+	public ActionListener createExcludeSelectionListener() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Mediator.getInstance().getUndoableActionManager()
+						.excludeCurrentSelection();
+
+				// Once this menu item has been used for a particular selection,
+				// disable the menu item until the next selection is made.
+				editExcludeSelectionItem.setEnabled(false);
 			}
 		};
 	}
@@ -1000,6 +1094,9 @@ public class MenuBar extends JMenuBar {
 			@Override
 			public void update(NewStarMessage msg) {
 				newStarMessage = msg;
+
+				editExcludeSelectionItem.setEnabled(false);
+
 				viewObDetailsItem.setEnabled(false);
 				viewZoomInItem.setEnabled(false);
 				viewZoomOutItem.setEnabled(false);
@@ -1016,8 +1113,11 @@ public class MenuBar extends JMenuBar {
 		};
 	}
 
-	// Returns an observation selection listener that sets enables certain menu
-	// items.
+	// TODO: need a MultipleObservationSelectionMessage and to rename this one
+	// to SingleObservationSelectionMessage
+
+	// Returns an observation selection listener that enables certain menu
+	// items and collects information about the selection.
 	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {
 		return new Listener<ObservationSelectionMessage>() {
 			@Override
@@ -1026,10 +1126,40 @@ public class MenuBar extends JMenuBar {
 				// observation selection (for obs details, filtering) and
 				// point selection (for zooming), and to do this across
 				// plot views for raw and phase plot mode.
+
+				editExcludeSelectionItem.setEnabled(true);
+
 				viewObDetailsItem.setEnabled(true);
 				viewZoomInItem.setEnabled(true);
 				viewZoomOutItem.setEnabled(true);
 				viewZoomToFitItem.setEnabled(true);
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	// Returns an undo/redo action message listener that is used to update the
+	// Edit->Undo/Redo menu item.
+	private Listener<UndoActionMessage> createUndoActionListener() {
+		return new Listener<UndoActionMessage>() {
+			@Override
+			public void update(UndoActionMessage info) {
+				String itemName = info.getType() + " "
+						+ info.getAction().getDisplayString();
+
+				JMenuItem item = null;
+				if (info.getType() == UndoRedoType.UNDO) {
+					item = editUndoItem;
+				} else {
+					item = editRedoItem;
+				}
+
+				item.setText(itemName);
+				item.setEnabled(true);
 			}
 
 			@Override
@@ -1047,6 +1177,8 @@ public class MenuBar extends JMenuBar {
 
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
+
+		this.editMenu.setEnabled(state);
 
 		// this.viewObDetailsItem.setEnabled(state);
 		this.viewPlotControlItem.setEnabled(state);
