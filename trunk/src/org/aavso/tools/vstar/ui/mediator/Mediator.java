@@ -73,6 +73,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
+import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.PhasePlotMeanObservationTableModel;
@@ -88,6 +89,7 @@ import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
+import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -164,6 +166,9 @@ public class Mediator {
 	private Notifier<FilteredObservationMessage> filteredObservationNotifier;
 	private Notifier<PolynomialFitMessage> polynomialFitNofitier;
 	private Notifier<PanRequestMessage> panRequestNotifier;
+	private Notifier<UndoActionMessage> undoActionNotifier;
+	
+	private UndoableActionManager undoableActionManager;
 
 	// Currently active task.
 	private SwingWorker currTask;
@@ -190,7 +195,8 @@ public class Mediator {
 		this.filteredObservationNotifier = new Notifier<FilteredObservationMessage>();
 		this.polynomialFitNofitier = new Notifier<PolynomialFitMessage>();
 		this.panRequestNotifier = new Notifier<PanRequestMessage>();
-
+		this.undoActionNotifier = new Notifier<UndoActionMessage>();
+		
 		this.obsListFileSaveDialog = new JFileChooser();
 
 		// These (among other things) are created for each new star.
@@ -220,6 +226,14 @@ public class Mediator {
 
 		this.periodChangeMessageNotifier
 				.addListener(createPeriodChangeListener());
+
+		// Undoable action manager creation and listener setup.
+		this.undoableActionManager = new UndoableActionManager();
+		this.newStarNotifier.addListener(this.undoableActionManager
+				.createNewStarListener());
+		this.observationSelectionNotifier
+				.addListener(this.undoableActionManager
+						.createObservationSelectionListener());
 	}
 
 	/**
@@ -332,6 +346,20 @@ public class Mediator {
 	 */
 	public Notifier<PanRequestMessage> getPanRequestNotifier() {
 		return panRequestNotifier;
+	}
+
+	/**
+	 * @return the undoActionNotifier
+	 */
+	public Notifier<UndoActionMessage> getUndoActionNotifier() {
+		return undoActionNotifier;
+	}
+
+	/**
+	 * @return the undoableActionManager
+	 */
+	public UndoableActionManager getUndoableActionManager() {
+		return undoableActionManager;
 	}
 
 	/**
