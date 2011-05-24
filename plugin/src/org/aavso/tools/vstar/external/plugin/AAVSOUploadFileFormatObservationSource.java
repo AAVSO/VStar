@@ -19,9 +19,6 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import org.aavso.tools.vstar.data.CommentType;
 import org.aavso.tools.vstar.data.DateInfo;
@@ -42,7 +39,6 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-import org.aavso.tools.vstar.util.comparator.JDComparator;
 
 /**
  * This plug-in class reads AAVSO upload (extended and visual) format files,
@@ -161,16 +157,6 @@ public class AAVSOUploadFileFormatObservationSource extends
 					}
 					line = reader.readLine();
 					lineNum++;
-				}
-
-				// Don't assume the observations are in JD order!
-				List<ValidObservation> obs = getValidObservations();
-				Collections.sort(obs, JDComparator.instance);
-
-				Map<SeriesType, List<ValidObservation>> categoryMap = getValidObservationCategoryMap();
-				for (SeriesType type : categoryMap.keySet()) {
-					List<ValidObservation> categoryObs = categoryMap.get(type);
-					Collections.sort(categoryObs, JDComparator.instance);
 				}
 			} catch (Exception e) {
 				// Create an invalid observation.
