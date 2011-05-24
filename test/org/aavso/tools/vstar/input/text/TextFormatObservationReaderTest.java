@@ -101,10 +101,10 @@ public class TextFormatObservationReaderTest extends TestCase {
 		assertTrue(obs.size() == 2);
 
 		ValidObservation ob0 = obs.get(0);
-		assertEquals(2450001.5, ob0.getDateInfo().getJulianDay());
+		assertEquals(2430002.0, ob0.getDateInfo().getJulianDay());
 
 		ValidObservation ob1 = obs.get(1);
-		assertEquals(2430002.0, ob1.getDateInfo().getJulianDay());
+		assertEquals(2450001.5, ob1.getDateInfo().getJulianDay());
 	}
 
 	// Tests of valid AAVSO Download format.
@@ -169,6 +169,33 @@ public class TextFormatObservationReaderTest extends TestCase {
 			fail(e.getMessage());
 		}
 	}
+
+	// Test that we can turn an out of order observation sequence into an
+	// ordered sequence (by JD).
+	public void testOutOfOrderData() {
+		StringBuffer lines = new StringBuffer();
+		lines.append("2454924.3,4.1\n");
+		lines.append("2454923.3,4.2\n");
+		lines.append("2454921.3,4.3\n");
+		lines.append("2454925.3,4.2\n");
+		lines.append("2454922.3,4.0\n");
+
+		List<ValidObservation> obs = commonValidTest(lines.toString(), ",");
+
+		double[][] expected = { { 2454921.3, 4.3 }, { 2454922.3, 4.0 },
+				{ 2454923.3, 4.2 }, { 2454924.3, 4.1 }, { 2454925.3, 4.2 } };
+
+		int i = 0;
+		for (ValidObservation ob : obs) {
+			// JD
+			assertEquals(expected[i][0], ob.getJD());
+			// Magnitude
+			assertEquals(expected[i][1], ob.getMag());
+			i++;
+		}
+	}
+
+	// Tests with invalid data.
 
 	// No digit after the magnitude decimal point. Although the format spec says
 	// this is not well-formed, some real observations have this, which is odd,
