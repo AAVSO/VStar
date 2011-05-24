@@ -58,9 +58,6 @@ public abstract class AbstractObservationRetriever {
 	 * Constructor.
 	 */
 	public AbstractObservationRetriever() {
-		// TODO: consider making lists LinkedLists to accommodate all
-		// input types, and the possible need to add to head or tail for
-		// time panning; this applies mostly to valid observations.
 		this.validObservations = new ArrayList<ValidObservation>();
 		this.invalidObservations = new ArrayList<InvalidObservation>();
 
@@ -198,7 +195,7 @@ public abstract class AbstractObservationRetriever {
 			validObservationCategoryMap.put(category, validObsList);
 		}
 
-		validObsList.add(validOb);
+		insertObservation(validOb, validObsList);
 	}
 
 	/**
@@ -209,7 +206,7 @@ public abstract class AbstractObservationRetriever {
 	 *            The valid observation to be added.
 	 */
 	protected void addValidObservation(ValidObservation ob) {
-		validObservations.add(ob);
+		insertObservation(ob, validObservations);
 
 		double uncert = ob.getMagnitude().getUncertainty();
 		// If uncertainty not given, get HQ uncertainty if present.
@@ -223,6 +220,49 @@ public abstract class AbstractObservationRetriever {
 
 		if (ob.getMag() + uncert > maxMag) {
 			maxMag = ob.getMag() + uncert;
+		}
+	}
+
+	/**
+	 * <p>
+	 * Insert an observation into the observation list with the post-condition
+	 * that the list remains sorted by JD. This post-condition is valid iff the
+	 * pre-condition that the list is already sorted before the addition is
+	 * true.
+	 * </p>
+	 * 
+	 * <p>
+	 * An observation source plug-in developer may want to completely override
+	 * this method if data is expected to be mostly out of order; in the worst
+	 * case, if all elements are out of order, the cost will be O(n^2) due to
+	 * the O(n) traversal being carried out n times (for the number of
+	 * observations inserted).
+	 * </p>
+	 * 
+	 * @param ob
+	 *            The observation to be inserted.
+	 * @param obs
+	 *            The list into which it is to be inserted.
+	 */
+	protected void insertObservation(ValidObservation ob,
+			List<ValidObservation> obs) {
+		double newJD = ob.getJD();
+		int obListSize = obs.size();
+
+		if (obListSize == 0 || newJD >= obs.get(obListSize - 1).getJD()) {
+			// The list is empty or the observation's JD is at least as
+			// high as that of the last observation in the list.
+			obs.add(ob);
+		} else {
+			// The observation has a JD that is less than that of the
+			// observation at the end of the list. Incur an O(n) cost to
+			// insert the observation into the correct position in order to
+			// satisfy the post-condition.
+			int i = 0;
+			while (i < obListSize && newJD > obs.get(i).getJD()) {
+				i++;
+			}
+			obs.add(i, ob);
 		}
 	}
 
