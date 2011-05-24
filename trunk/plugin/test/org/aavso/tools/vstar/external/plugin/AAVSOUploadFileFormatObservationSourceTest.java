@@ -144,9 +144,6 @@ public class AAVSOUploadFileFormatObservationSourceTest extends TestCase {
 		List<ValidObservation> obs = retriever.getValidObservations();
 		assertEquals(numObs, obs.size());
 
-		assertEquals(numSeries, retriever.getValidObservationCategoryMap()
-				.size());
-
 		return obs;
 	}
 }
