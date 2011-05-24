@@ -45,7 +45,11 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	private ObservationSourceAnalyser analyser;
 
 	/**
-	 * Constructor
+	 * Constructor.
+	 * 
+	 * We pass the number of lines to be read to the base class to ensure a
+	 * large enough observation list capacity in the case where we an read
+	 * out-of-order dataset.
 	 * 
 	 * @param reader
 	 *            A line number buffered reader from which lines of observations
@@ -55,6 +59,7 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	 */
 	public TextFormatObservationReader(LineNumberReader reader,
 			ObservationSourceAnalyser analyser) {
+		super(analyser.getLineCount());
 		this.reader = reader;
 		this.analyser = analyser;
 	}
@@ -87,7 +92,7 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 								line, e.getMessage(), true);
 						invalidOb.setRecordNumber(lineNum);
 						addInvalidObservation(invalidOb);
-						
+
 						addValidObservation(e.getObservation(), lineNum);
 					}
 				}
@@ -102,9 +107,9 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 					"Error when attempting to read observation source.");
 		}
 	}
-	
+
 	// Helpers
-	
+
 	private void addValidObservation(ValidObservation validOb, int lineNum) {
 		if (validOb.getMType() == MTypeType.STD) {
 			validOb.setRecordNumber(lineNum);
