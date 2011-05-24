@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog.period;
 
 import java.awt.Color;
+import java.awt.Font;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
@@ -28,10 +29,13 @@ import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYLineAnnotation;
+import org.jfree.chart.annotations.XYPointerAnnotation;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.DatasetChangeListener;
+import org.jfree.ui.TextAnchor;
 
 /**
  * This class represents a chart panel.
@@ -84,6 +88,20 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 	}
 
 	public void chartMouseClicked(ChartMouseEvent event) {
+		double x = 0.02;
+		double y = 250;
+		
+//		XYPointerAnnotation pointer = new XYPointerAnnotation("Eureka!", x, y, 270);
+//		pointer.setTipRadius(10);
+//		pointer.setBaseRadius(35);
+//		pointer.setFont(new Font("SansSerif", Font.PLAIN, 9));
+//		pointer.setPaint(Color.BLUE);
+//		pointer.setTextAnchor(TextAnchor.HALF_ASCENT_RIGHT);
+//		chart.getXYPlot().addAnnotation(pointer);
+//
+//		XYLineAnnotation line = new XYLineAnnotation(x, 0, x, y);
+//		chart.getXYPlot().addAnnotation(line);
+		
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int item = entity.getItem();

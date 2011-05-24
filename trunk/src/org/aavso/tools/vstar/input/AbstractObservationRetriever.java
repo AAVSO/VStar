@@ -35,13 +35,15 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
  */
 public abstract class AbstractObservationRetriever {
 
+	private final static int DEFAULT = -1;
+
 	private double minMag;
 	private double maxMag;
 
 	/**
 	 * The list of valid observations retrieved.
 	 */
-	protected List<ValidObservation> validObservations;
+	protected ArrayList<ValidObservation> validObservations;
 
 	/**
 	 * The list of invalid observations retrieved.
@@ -56,10 +58,19 @@ public abstract class AbstractObservationRetriever {
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param initialCapacity
+	 *            The initial capacity of the valid observation list.
 	 */
-	public AbstractObservationRetriever() {
+	public AbstractObservationRetriever(int initialCapacity) {
 		this.validObservations = new ArrayList<ValidObservation>();
 		this.invalidObservations = new ArrayList<InvalidObservation>();
+
+		// Optionally set the capacity of the valid observation list to speed up
+		// out-of-order insertion due to the shifting operations required.
+		if (initialCapacity != DEFAULT) {
+			this.validObservations.ensureCapacity(initialCapacity);
+		}
 
 		// Create observation category map and add discrepant and excluded
 		// series list so these are available if needed.
@@ -71,6 +82,13 @@ public abstract class AbstractObservationRetriever {
 
 		this.minMag = Double.MAX_VALUE;
 		this.maxMag = -Double.MAX_VALUE;
+	}
+
+	/**
+	 * Constructor.
+	 */
+	public AbstractObservationRetriever() {
+		this(DEFAULT);
 	}
 
 	/**
