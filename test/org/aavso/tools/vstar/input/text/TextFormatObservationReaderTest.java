@@ -107,6 +107,28 @@ public class TextFormatObservationReaderTest extends TestCase {
 		assertEquals(2450001.5, ob1.getDateInfo().getJulianDay());
 	}
 
+	public void testSimpleValidOutOfOrderSpaceSeparatedMultipleLines() {
+		StringBuffer lines = new StringBuffer();
+		lines.append(" 24550001      3.2  0.2\n");
+		lines.append("  24550000      4.2  0.1\n");
+		lines.append("    24550002      2.2  0.3");
+
+		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t");
+
+		assertTrue(obs.size() == 3);
+
+		double[][] expected = { { 24550000, 4.2, 0.1 }, { 24550001, 3.2, 0.2 },
+				{ 24550002, 2.2, 0.3 } };
+
+		int i=0;
+		for (ValidObservation ob : obs) {
+			assertEquals(expected[i][0], ob.getJD());
+			assertEquals(expected[i][1], ob.getMag());
+			assertEquals(expected[i][2], ob.getMagnitude().getUncertainty());
+			i++;
+		}
+	}
+
 	// Tests of valid AAVSO Download format.
 
 	public void testAAVSODownloadTSV1() {
