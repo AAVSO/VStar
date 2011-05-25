@@ -61,8 +61,13 @@ public class ObservationFieldSplitter {
 	 *                 simplify validation.
 	 */
 	public String[] getFields(String line) throws ObservationValidationError {
-		// Get the fields after removing a possible line-feed character.
-		String[] fields = line.replaceFirst("\n", "").split(this.delimiter);
+		// Get the fields after removing possible line-feed or carriage return
+		// characters and trimming leading and trailing whitespace (e.g. as
+		// sometimes appears in AAVSO TS whitespace delimited data files).
+		line = line.replaceFirst("\n", "");
+		line = line.replaceFirst("\r", "");
+		line = line.trim();
+		String[] fields = line.split(this.delimiter);
 
 		if (fields.length < this.minFields || fields.length > this.maxFields) {
 			StringBuffer strBuf = new StringBuffer();

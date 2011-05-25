@@ -34,6 +34,7 @@ public class ObservationSourceAnalyser {
 
 	public static final String TAB_DELIM = "\t";
 	public static final String COMMA_DELIM = ",";
+	public static final String SPACE_DELIM = " +";
 
 	private LineNumberReader obsSource;
 	private String obsSourceIdentifier;
@@ -76,9 +77,12 @@ public class ObservationSourceAnalyser {
 					if (!gleanedFormat) {
 						gleanedFormat = determinedFormat(line, COMMA_DELIM);
 						if (!gleanedFormat) {
-							throw new ObservationReadError("'"
-									+ obsSourceIdentifier
-									+ "' is in an unknown format.");
+							gleanedFormat = determinedFormat(line, SPACE_DELIM);
+							if (!gleanedFormat) {
+								throw new ObservationReadError("'"
+										+ obsSourceIdentifier
+										+ "' is in an unknown format.");
+							}
 						}
 					}
 				}
@@ -148,7 +152,8 @@ public class ObservationSourceAnalyser {
 	 */
 	public CommonTextFormatValidator getTextFormatValidator() {
 
-		assert (ObservationSourceAnalyser.TAB_DELIM.equals(delimiter) || ObservationSourceAnalyser.COMMA_DELIM
+		assert (ObservationSourceAnalyser.TAB_DELIM.equals(delimiter)
+				|| ObservationSourceAnalyser.COMMA_DELIM.equals(delimiter) || ObservationSourceAnalyser.SPACE_DELIM
 				.equals(delimiter));
 
 		CommonTextFormatValidator validator = null;
