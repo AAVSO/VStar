@@ -69,7 +69,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 				"Performing Period Analysis...");
 		try {
 			// TODO: we should be smarter than just blindly resetting the
-			// plugin; it only needs to be reset if a. the mean source series
+			// plug-in; it only needs to be reset if a. the mean source series
 			// changes, or b. the period analysis parameters change; we
 			// basically need a PeriodAnalysisResetMessage
 			periodAnalysisPlugin.reset();
@@ -81,7 +81,6 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 			MessageBox.showErrorDialog("Period Analysis Error", t);
 		}
 
-		MainFrame.getInstance().getStatusPane().setMessage("");
 		return null;
 	}
 
@@ -89,7 +88,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		if (successful) {
+		if (!isCancelled() && successful) {
 			JDialog dialog = periodAnalysisPlugin.getDialog(sourceSeriesType);
 			dialog.setVisible(true);
 		}
@@ -97,6 +96,9 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 
-		// TODO: how to detect task cancellation?
+		Mediator.getInstance().getProgressNotifier().notifyListeners(
+				ProgressInfo.CLEAR_PROGRESS);
+		
+		MainFrame.getInstance().getStatusPane().setMessage("");
 	}
 }

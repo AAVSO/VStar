@@ -73,6 +73,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
+import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
@@ -167,6 +168,7 @@ public class Mediator {
 	private Notifier<PolynomialFitMessage> polynomialFitNofitier;
 	private Notifier<PanRequestMessage> panRequestNotifier;
 	private Notifier<UndoActionMessage> undoActionNotifier;
+	private Notifier<StopRequestMessage> stopRequestNotifier;
 	
 	private UndoableActionManager undoableActionManager;
 
@@ -196,6 +198,7 @@ public class Mediator {
 		this.polynomialFitNofitier = new Notifier<PolynomialFitMessage>();
 		this.panRequestNotifier = new Notifier<PanRequestMessage>();
 		this.undoActionNotifier = new Notifier<UndoActionMessage>();
+		this.stopRequestNotifier = new Notifier<StopRequestMessage>();
 		
 		this.obsListFileSaveDialog = new JFileChooser();
 
@@ -360,6 +363,13 @@ public class Mediator {
 	 */
 	public UndoableActionManager getUndoableActionManager() {
 		return undoableActionManager;
+	}
+
+	/**
+	 * @return the stopRequestNotifier
+	 */
+	public Notifier<StopRequestMessage> getStopRequestNotifier() {
+		return stopRequestNotifier;
 	}
 
 	/**
@@ -1084,6 +1094,7 @@ public class Mediator {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"Period Analysis", e);
 
+			// TODO: why?
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
 

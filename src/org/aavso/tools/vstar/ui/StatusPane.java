@@ -36,6 +36,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
 
@@ -89,7 +90,8 @@ public class StatusPane extends JPanel {
 		this.stopButton.setToolTipText("Stop the current operation");
 		this.stopButton.setBorder(BorderFactory.createEmptyBorder());
 		this.stopButton.setEnabled(false);
-//		this.add(this.stopButton);
+		this.stopButton.addActionListener(createStopButtonListener());
+		this.add(this.stopButton);
 
 		this.add(Box.createRigidArea(new Dimension(20, 10)));
 
@@ -268,6 +270,8 @@ public class StatusPane extends JPanel {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mediator.stopCurrentTask();
+//				StopRequestMessage msg = new StopRequestMessage(this);
+//				mediator.getStopRequestNotifier().notifyListeners(msg);
 			}
 		};
 	}
