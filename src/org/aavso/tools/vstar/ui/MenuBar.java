@@ -1000,7 +1000,7 @@ public class MenuBar extends JMenuBar {
 	private ActionListener createAboutListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				AboutBox.showAboutBox(parent);
+				new AboutBox();
 			}
 		};
 	}
