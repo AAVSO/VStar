@@ -107,6 +107,8 @@ import org.aavso.tools.vstar.util.stats.PhaseCalcs;
  * 
  * This is a Singleton since only one mediator per application instance should
  * exist.
+ * 
+ * TODO: This is really 2 classes: a task manager and a message broker...
  */
 public class Mediator {
 
@@ -169,7 +171,7 @@ public class Mediator {
 	private Notifier<PanRequestMessage> panRequestNotifier;
 	private Notifier<UndoActionMessage> undoActionNotifier;
 	private Notifier<StopRequestMessage> stopRequestNotifier;
-	
+
 	private UndoableActionManager undoableActionManager;
 
 	// Currently active task.
@@ -199,7 +201,7 @@ public class Mediator {
 		this.panRequestNotifier = new Notifier<PanRequestMessage>();
 		this.undoActionNotifier = new Notifier<UndoActionMessage>();
 		this.stopRequestNotifier = new Notifier<StopRequestMessage>();
-		
+
 		this.obsListFileSaveDialog = new JFileChooser();
 
 		// These (among other things) are created for each new star.

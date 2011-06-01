@@ -27,6 +27,9 @@ import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This is the abstract base class for all observation retrieval classes,
@@ -39,6 +42,8 @@ public abstract class AbstractObservationRetriever {
 
 	private double minMag;
 	private double maxMag;
+
+	protected boolean interrupted;
 
 	/**
 	 * The list of valid observations retrieved.
@@ -82,6 +87,11 @@ public abstract class AbstractObservationRetriever {
 
 		this.minMag = Double.MAX_VALUE;
 		this.maxMag = -Double.MAX_VALUE;
+
+		interrupted = false;
+
+		Mediator.getInstance().getStopRequestNotifier().addListener(
+				createStopRequestListener());
 	}
 
 	/**
@@ -119,6 +129,13 @@ public abstract class AbstractObservationRetriever {
 	 */
 	public void setMaxMag(double maxMag) {
 		this.maxMag = maxMag;
+	}
+
+	/**
+	 * @return was this retriever interrupted?
+	 */
+	public final boolean wasInterrupted() {
+		return interrupted;
 	}
 
 	/**
@@ -292,5 +309,20 @@ public abstract class AbstractObservationRetriever {
 	 */
 	protected void addInvalidObservation(InvalidObservation ob) {
 		invalidObservations.add(ob);
+	}
+
+	// Creates a stop request listener.
+	private Listener<StopRequestMessage> createStopRequestListener() {
+		return new Listener<StopRequestMessage>() {
+			@Override
+			public void update(StopRequestMessage info) {
+				interrupted = true;
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
 	}
 }

@@ -214,7 +214,7 @@ public class AboutBox extends JDialog {
 		strBuf
 				.append("provided a keep-it-real end-user perspective. Doug's and\n");
 		strBuf
-				.append("Aaron's domain knowledge and advice are always appreciated.\n\n");
+				.append("Aaron's knowledge and advice are always appreciated.\n\n");
 
 		strBuf.append("Thanks to the Weber brothers (Adam and George)\n");
 		strBuf.append("for code and bug-fix contributions, Nico Camargo for\n");
