@@ -127,7 +127,8 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 				if (hdu instanceof BinaryTableHDU) {
 					BinaryTableHDU tableHDU = (BinaryTableHDU) hdu;
 
-					for (int row = 0; row < tableHDU.getNRows(); row++) {
+					for (int row = 0; row < tableHDU.getNRows()
+							&& !wasInterrupted(); row++) {
 						try {
 							int tmid = ((int[]) tableHDU.getElement(row, 0))[0];
 							float flux = ((float[]) tableHDU.getElement(row, 1))[0];
@@ -194,7 +195,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 					minMagErr, maxMagErr, magErrIncrement, magErrThreshold);
 
 			magErrThreshold = magErrThresholdDialog.getValue();
-			
+
 			for (ValidObservation ob : obs) {
 				double magErr = ob.getMagnitude().getUncertainty();
 				if (magErr >= magErrThreshold) {

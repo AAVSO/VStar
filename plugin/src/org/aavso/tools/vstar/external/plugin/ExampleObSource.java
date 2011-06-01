@@ -53,7 +53,7 @@ public class ExampleObSource extends ObservationSourcePluginBase {
 
 			double jdBase = 2454000;
 
-			for (int i = 1; i <= 1000; i++) {
+			for (int i = 1; i <= 1000 && !wasInterrupted(); i++) {
 				double mag = Math.cos(Math.PI / 180 * i) * 3 + Math.random()
 						* 2;
 				double uncertainty = 0;

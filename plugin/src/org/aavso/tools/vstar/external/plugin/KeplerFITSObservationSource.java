@@ -93,7 +93,8 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 				if (hdu instanceof BinaryTableHDU) {
 					BinaryTableHDU tableHDU = (BinaryTableHDU) hdu;
 
-					for (int row = 0; row < tableHDU.getNRows(); row++) {
+					for (int row = 0; row < tableHDU.getNRows()
+							&& !wasInterrupted(); row++) {
 						try {
 							double barytime = ((double[]) tableHDU.getElement(
 									row, 0))[0];

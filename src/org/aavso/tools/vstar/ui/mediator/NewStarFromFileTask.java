@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.LineNumberReader;
 
+import javax.swing.SwingWorker;
+
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
@@ -28,8 +30,6 @@ import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
-
-import javax.swing.SwingWorker;
 
 /**
  * A concurrent task in which a new star from file request task is handled.
@@ -41,7 +41,8 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	private File obsFile;
 	private ObservationSourceAnalyser analyser;
 	private int plotTaskPortion;
-	private boolean success;
+
+	private AbstractObservationRetriever textFormatReader;
 
 	/**
 	 * Constructor.
@@ -59,7 +60,6 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 		this.obsFile = obsFile;
 		this.analyser = analyser;
 		this.plotTaskPortion = plotTaskPortion;
-		this.success = false;
 	}
 
 	/**
@@ -82,22 +82,22 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 			ObservationSourceAnalyser analyser) {
 
 		try {
-			AbstractObservationRetriever textFormatReader = new TextFormatObservationReader(
+			textFormatReader = new TextFormatObservationReader(
 					new LineNumberReader(new FileReader(obsFile.getPath())),
 					analyser);
 
 			textFormatReader.retrieveObservations();
 
-			if (textFormatReader.getValidObservations().isEmpty()) {
-				throw new ObservationReadError(
-						"No observations for the specified period or error in observation source.");
+			if (!isCancelled()) {
+				if (textFormatReader.getValidObservations().isEmpty()) {
+					throw new ObservationReadError(
+							"No observations for the specified period or error in observation source.");
+				}
+
+				mediator.createNewStarObservationArtefacts(analyser
+						.getNewStarType(), new StarInfo(obsFile.getName()),
+						textFormatReader, plotTaskPortion);
 			}
-
-			mediator.createNewStarObservationArtefacts(analyser
-					.getNewStarType(), new StarInfo(obsFile.getName()),
-					textFormatReader, plotTaskPortion);
-
-			success = true;
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"New Star From File Read Error", t);
@@ -108,14 +108,10 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		if (success) {
-			mediator.getProgressNotifier().notifyListeners(
-					ProgressInfo.COMPLETE_PROGRESS);
-		}
+		mediator.getProgressNotifier().notifyListeners(
+				ProgressInfo.COMPLETE_PROGRESS);
 
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.CLEAR_PROGRESS);
-
-		// TODO: how to detect task cancellation and clean up map etc
 	}
 }

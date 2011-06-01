@@ -75,7 +75,7 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 		try {
 			String line = reader.readLine();
 
-			while (line != null) {
+			while (line != null && !wasInterrupted()) {
 				// Ignore comment or blank line.
 				if (!line.startsWith("#") && !line.matches("^\\s*$")) {
 					int lineNum = reader.getLineNumber();

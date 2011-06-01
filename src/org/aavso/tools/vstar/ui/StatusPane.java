@@ -270,8 +270,8 @@ public class StatusPane extends JPanel {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mediator.stopCurrentTask();
-//				StopRequestMessage msg = new StopRequestMessage(this);
-//				mediator.getStopRequestNotifier().notifyListeners(msg);
+				StopRequestMessage msg = new StopRequestMessage(this);
+				mediator.getStopRequestNotifier().notifyListeners(msg);
 			}
 		};
 	}
