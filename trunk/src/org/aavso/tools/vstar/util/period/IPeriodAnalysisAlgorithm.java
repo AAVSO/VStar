@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.util.IAlgorithm;
+import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
 /**
  * Classes implementing a period analysis algorithm to be executed must realise
@@ -53,10 +54,13 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	 * CLEANest).
 	 * </p>
 	 * 
-	 * @param freqs A list of frequencies on which to refine the results.
+	 * @param freqs
+	 *            A list of frequencies on which to refine the results.
+	 * @return the new top-hits created by this refinement.
 	 */
-	abstract public void refineByFrequency(List<Double> freqs);
-	
+	abstract public List<PeriodAnalysisDataPoint> refineByFrequency(
+			List<Double> freqs);
+
 	/**
 	 * Get the refine-by-frequency algorithm name.
 	 * 

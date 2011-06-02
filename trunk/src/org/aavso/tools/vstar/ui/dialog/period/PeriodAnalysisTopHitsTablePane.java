@@ -132,7 +132,9 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 				}
 
 				if (!freqs.isEmpty()) {
-					algorithm.refineByFrequency(freqs);
+					// Get just the new top-hits resulting from the refinement.
+					List<PeriodAnalysisDataPoint> newTopHits = algorithm
+							.refineByFrequency(freqs);
 
 					// Update the model and tell anyone else who might be
 					// interested.
@@ -140,9 +142,12 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 							.getResultSeries();
 					Map<PeriodAnalysisCoordinateType, List<Double>> topHits = algorithm
 							.getTopHits();
+
 					topHitsModel.setData(topHits);
+
 					PeriodAnalysisRefinementMessage msg = new PeriodAnalysisRefinementMessage(
-							this, data, topHits);
+							this, data, topHits, newTopHits);
+
 					Mediator.getInstance()
 							.getPeriodAnalysisRefinementNotifier()
 							.notifyListeners(msg);

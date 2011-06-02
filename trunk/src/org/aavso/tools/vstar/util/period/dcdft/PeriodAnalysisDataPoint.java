@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.util.period.dcdft;
 
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+
 /**
  * This class represents a period analysis data-point to be plotted on a chart.
  */
@@ -31,8 +33,8 @@ public class PeriodAnalysisDataPoint {
 	 * @param power
 	 * @param amplitude
 	 */
-	public PeriodAnalysisDataPoint(double frequency, double period, double power,
-			double amplitude) {
+	public PeriodAnalysisDataPoint(double frequency, double period,
+			double power, double amplitude) {
 		super();
 		this.frequency = frequency;
 		this.period = period;
@@ -66,6 +68,36 @@ public class PeriodAnalysisDataPoint {
 	 */
 	public double getAmplitude() {
 		return amplitude;
+	}
+
+	/**
+	 * Retrieve a value by coordinate type.
+	 * 
+	 * @param type
+	 *            The coordinate type.
+	 * @return The value.
+	 */
+	public double getValue(PeriodAnalysisCoordinateType type) {
+		double value;
+
+		switch (type) {
+		case FREQUENCY:
+			value = getFrequency();
+			break;
+		case PERIOD:
+			value = getPeriod();
+			break;
+		case POWER:
+			value = getPower();
+			break;
+		case AMPLITUDE:
+			value = getAmplitude();
+			break;
+		default:
+			throw new IllegalArgumentException();
+		}
+
+		return value;
 	}
 
 	@Override

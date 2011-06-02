@@ -68,6 +68,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	private double dang0;
 
 	private Map<PeriodAnalysisCoordinateType, List<Double>> resultSeries;
+	private Map<PeriodAnalysisCoordinateType, List<Double>> topHits;
+	private List<PeriodAnalysisDataPoint> deltaTopHits;
 
 	// -------------------------------------------------------------------------------
 
@@ -87,6 +89,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 				.values()) {
 			resultSeries.put(type, new ArrayList<Double>());
 		}
+
+		deltaTopHits = new ArrayList<PeriodAnalysisDataPoint>();
 
 		load_raw();
 	}
@@ -219,14 +223,18 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits() {
 
 		// TODO: We still need to check for duplicate results here...
-		//       (also still need a UT for this)
+		// (also still need a UT for this)
 		// As part of this, reconsider the way we create top-hits, e.g.
 		// by inserting into a TreeSet<PeriodAnalysisDataPoint> with the
-		// comparator's compareTo() based upon power, skimming the first N to make it
+		// comparator's compareTo() based upon power, skimming the first N to
+		// make it
 		// variable. This should also eliminate duplicates...
+
+		// Actually, should just be able to check what user selects against
+		// what is in delta top hits from last CLEANest, right?
 		
 		// Create top-hits collection.
-		Map<PeriodAnalysisCoordinateType, List<Double>> topHits = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
+		topHits = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
 
 		for (PeriodAnalysisCoordinateType type : PeriodAnalysisCoordinateType
 				.values()) {
@@ -265,8 +273,13 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	}
 
 	@Override
-	public void refineByFrequency(List<Double> freqs) {
+	public List<PeriodAnalysisDataPoint> refineByFrequency(
+			List<Double> freqs) {
+		
+		deltaTopHits.clear();
 		cleanest(freqs);
+
+		return deltaTopHits;
 	}
 
 	@Override
@@ -711,22 +724,36 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 	// -------------------------------------------------------------------------------
 
+	// TODO: I think we will also want to add as many top hits as requested
+	// straight to the topHits map in a little bit...; the key difference from
+	// deltaTopHits is that topHits isn't cleared between calls to tablit();
+	// may want a list of PeriodAnalysisDataPoints instead.
+
 	protected void tablit() {
 		int nq = 0;
 		int nqq = 0;
 
 		for (nq = 1; nq <= 20; nq++) {
+			// We have found a higher power!
 			if (dlpower > dgpower[nq]) {
+				// Move everything below this down one.
+				// Note that with a list, we'll just be able to insert!
 				for (nqq = 19; nqq >= nq; nqq--) {
 					dgpower[nqq + 1] = dgpower[nqq];
 					dgnu[nqq + 1] = dgnu[nqq];
 					dgper[nqq + 1] = dgper[nqq];
 					dgamplitude[nqq + 1] = dgamplitude[nqq];
 				}
+				// Replace the current element with the new highest.
 				dgpower[nq] = dlpower;
 				dgnu[nq] = dlnu;
 				dgper[nq] = dlper;
 				dgamplitude[nq] = dlamplitude;
+
+				// Capture this new value.
+				deltaTopHits.add(new PeriodAnalysisDataPoint(dlnu, dlper,
+						dlpower, dlamplitude));
+
 				return;
 			}
 		}

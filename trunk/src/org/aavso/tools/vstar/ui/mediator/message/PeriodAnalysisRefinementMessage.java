@@ -21,22 +21,27 @@ import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
 /**
  * This message is sent when a period analysis is refined. It contains the
- * refined top-hits map.
+ * refined data, top-hits, and just the new top-hits resulting from the 
+ * refinement.
  */
 public class PeriodAnalysisRefinementMessage extends MessageBase {
 
 	private Map<PeriodAnalysisCoordinateType, List<Double>> refinedData;
 	private Map<PeriodAnalysisCoordinateType, List<Double>> refinedTopHits;
-
+	private List<PeriodAnalysisDataPoint> newTopHits;
+	
 	public PeriodAnalysisRefinementMessage(Object source,
 			Map<PeriodAnalysisCoordinateType, List<Double>> refinedData,
-			Map<PeriodAnalysisCoordinateType, List<Double>> refinedTopHits) {
+			Map<PeriodAnalysisCoordinateType, List<Double>> refinedTopHits,
+			List<PeriodAnalysisDataPoint> newTopHits) {
 		super(source);
 		this.refinedData = refinedData;
 		this.refinedTopHits = refinedTopHits;
+		this.newTopHits = newTopHits;
 	}
 
 	/**
@@ -51,5 +56,12 @@ public class PeriodAnalysisRefinementMessage extends MessageBase {
 	 */
 	public Map<PeriodAnalysisCoordinateType, List<Double>> getRefinedTopHits() {
 		return refinedTopHits;
+	}
+
+	/**
+	 * @return the newTopHits
+	 */
+	public List<PeriodAnalysisDataPoint> getNewTopHits() {
+		return newTopHits;
 	}
 }
