@@ -221,17 +221,6 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 * method has been invoked.
 	 */
 	public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits() {
-
-		// TODO: We still need to check for duplicate results here...
-		// (also still need a UT for this)
-		// As part of this, reconsider the way we create top-hits, e.g.
-		// by inserting into a TreeSet<PeriodAnalysisDataPoint> with the
-		// comparator's compareTo() based upon power, skimming the first N to
-		// make it
-		// variable. This should also eliminate duplicates...
-
-		// Actually, should just be able to check what user selects against
-		// what is in delta top hits from last CLEANest, right?
 		
 		// Create top-hits collection.
 		topHits = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
