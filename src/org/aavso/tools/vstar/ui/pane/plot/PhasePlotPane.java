@@ -20,12 +20,15 @@ package org.aavso.tools.vstar.ui.pane.plot;
 import java.awt.Dimension;
 import java.util.Map;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.model.plot.IVisibilityMapSource;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 
 /**
  * This class represents a chart pane containing a phase plot for a set of valid
  * observations (magnitude vs standard phase).
+ * 
+ * @deprecated
  */
 abstract public class PhasePlotPane extends ObservationPlotPane implements
 		IVisibilityMapSource {
@@ -49,7 +52,7 @@ abstract public class PhasePlotPane extends ObservationPlotPane implements
 //		this.getChartControlPanel().add(new NewPhasePlotButtonPane(this));
 	}
 
-	public Map<Integer, Boolean> getVisibilityMap() {
+	public Map<SeriesType, Boolean> getVisibilityMap() {
 		return obsModel.getSeriesVisibilityMap();
 	}
 }

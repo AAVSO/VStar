@@ -66,19 +66,19 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	protected Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap;
 
 	/**
-	 * A mapping from series number to source name.
+	 * A mapping from series number to source type.
 	 */
 	protected Map<Integer, SeriesType> seriesNumToSrcTypeMap;
 
 	/**
-	 * A mapping from source name to series number.
+	 * A mapping from source type to series number.
 	 */
 	protected Map<SeriesType, Integer> srcTypeToSeriesNumMap;
 
 	/**
 	 * A mapping from series numbers to whether or not they visible.
 	 */
-	protected Map<Integer, Boolean> seriesVisibilityMap;
+	protected Map<SeriesType, Boolean> seriesVisibilityMap;
 
 	/**
 	 * Is at least one visual band observation present?
@@ -112,7 +112,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		this.seriesNum = 0;
 		this.seriesNumToSrcTypeMap = new HashMap<Integer, SeriesType>();
 		this.srcTypeToSeriesNumMap = new TreeMap<SeriesType, Integer>();
-		this.seriesVisibilityMap = new HashMap<Integer, Boolean>();
+		this.seriesVisibilityMap = new HashMap<SeriesType, Boolean>();
 		this.seriesNumToObSrcListMap = new HashMap<Integer, List<ValidObservation>>();
 		this.atLeastOneVisualBandPresent = false;
 		this.seriesToBeJoinedVisually = new HashSet<Integer>();
@@ -159,26 +159,23 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		// https://sourceforge.net/tracker/?func=detail&aid=3188139&group_id=263306&atid=1152052
 		if (atLeastOneVisualBandPresent) {
 			if (srcTypeToSeriesNumMap.containsKey(SeriesType.Unspecified)) {
-				int unspecifiedSeriesNum = srcTypeToSeriesNumMap
-						.get(SeriesType.Unspecified);
-				if (seriesVisibilityMap.get(unspecifiedSeriesNum) == true) {
-					seriesVisibilityMap.put(unspecifiedSeriesNum, false);
+				if (seriesVisibilityMap.get(SeriesType.Unspecified) == true) {
+					seriesVisibilityMap.put(SeriesType.Unspecified, false);
 				}
 			}
 		} else {
 			// Make all series visible.
 			for (SeriesType type : obsSourceListMap.keySet()) {
-				int seriesNum = srcTypeToSeriesNumMap.get(type);
-				seriesVisibilityMap.put(seriesNum, true);
+				seriesVisibilityMap.put(type, true);
 			}
 		}
 
-		// If any series is empty initially (e.g. disrepant or excluded), make
+		// If any series is empty initially (e.g. discrepant or excluded), make
 		// the series not visible.
 		for (SeriesType type : obsSourceListMap.keySet()) {
-			int seriesNum = srcTypeToSeriesNumMap.get(type);
-			if (seriesNumToObSrcListMap.get(seriesNum).isEmpty()) {
-				seriesVisibilityMap.put(seriesNum, false);
+			int num = srcTypeToSeriesNumMap.get(type);
+			if (seriesNumToObSrcListMap.get(num).isEmpty()) {
+				seriesVisibilityMap.put(type, false);
 			}
 		}
 
@@ -204,14 +201,19 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	public ObservationPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
 			ICoordSource coordSrc, Comparator<ValidObservation> obComparator,
-			Map<Integer, Boolean> seriesVisibilityMap) {
+			Map<SeriesType, Boolean> seriesVisibilityMap) {
 
 		this(obsSourceListMap, coordSrc, obComparator);
 
 		if (seriesVisibilityMap != null) {
-			for (int seriesNum : seriesVisibilityMap.keySet()) {
-				changeSeriesVisibility(seriesNum, seriesVisibilityMap
-						.get(seriesNum));
+			for (SeriesType seriesType : seriesVisibilityMap.keySet()) {
+				Integer seriesNum = srcTypeToSeriesNumMap.get(seriesType);
+				// A series number may not be available yet, specifically for
+				// means series; can't handle that yet.
+				if (seriesNum != null) {
+					changeSeriesVisibility(seriesNum, seriesVisibilityMap
+							.get(seriesType));
+				}
 			}
 		}
 	}
@@ -238,7 +240,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		this.srcTypeToSeriesNumMap.put(type, seriesNum);
 		this.seriesNumToObSrcListMap.put(seriesNum, obs);
 		this.seriesNumToSrcTypeMap.put(seriesNum, type);
-		this.seriesVisibilityMap.put(seriesNum, isSeriesVisibleByDefault(type));
+		this.seriesVisibilityMap.put(type, isSeriesVisibleByDefault(type));
 
 		assert (this.seriesNumToObSrcListMap.size() == this.seriesNumToSrcTypeMap
 				.size());
@@ -345,7 +347,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 			this.srcTypeToSeriesNumMap.remove(type);
 			this.seriesNumToSrcTypeMap.remove(seriesNum);
 			this.seriesNumToObSrcListMap.remove(seriesNum);
-			this.seriesVisibilityMap.remove(seriesNum);
+			this.seriesVisibilityMap.remove(type);
 			this.fireDatasetChanged();
 			found = true;
 		}
@@ -408,12 +410,13 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 * @return Whether or not the visibility of the object changed.
 	 */
 	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
-		Boolean currVis = this.seriesVisibilityMap.get(seriesNum);
+		SeriesType seriesType = seriesNumToSrcTypeMap.get(seriesNum);
+		Boolean currVis = this.seriesVisibilityMap.get(seriesType);
 
 		boolean changed = currVis != null && currVis != visibility;
 
 		if (changed) {
-			this.seriesVisibilityMap.put(seriesNum, visibility);
+			this.seriesVisibilityMap.put(seriesType, visibility);
 			this.fireDatasetChanged();
 		}
 
@@ -625,7 +628,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	/**
 	 * @return the seriesVisibilityMap
 	 */
-	public Map<Integer, Boolean> getSeriesVisibilityMap() {
+	public Map<SeriesType, Boolean> getSeriesVisibilityMap() {
 		return seriesVisibilityMap;
 	}
 

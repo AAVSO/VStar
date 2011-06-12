@@ -97,6 +97,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	public static String PHASE_TITLE = "Phase";
 	public static String MAG_TITLE = "Brightness (magnitude)";
 
+	protected int fitSeriesNum = -1;
+	protected int residualsSeriesNum = -1;
+
 	/**
 	 * Constructor
 	 * 
@@ -297,12 +300,13 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	 * Set the visibility of each series.
 	 */
 	private void setSeriesVisibility() {
-		Map<Integer, Boolean> seriesVisibilityMap = obsModel
+		Map<SeriesType, Boolean> seriesVisibilityMap = obsModel
 				.getSeriesVisibilityMap();
 
-		for (int seriesNum : seriesVisibilityMap.keySet()) {
+		for (SeriesType seriesType : seriesVisibilityMap.keySet()) {
+			int seriesNum = obsModel.getSrcTypeToSeriesNumMap().get(seriesType);
 			renderer.setSeriesVisible(seriesNum, seriesVisibilityMap
-					.get(seriesNum));
+					.get(seriesType));
 		}
 	}
 
@@ -554,55 +558,52 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		};
 	}
 
+	public void updateModelSeries(List<ValidObservation> modelObs,
+			List<ValidObservation> residualObs) {
+		// Add or replace a series for the polynomial fit and make sure
+		// the series is visible.
+		if (obsModel.seriesExists(SeriesType.PolynomialFit)) {
+			assert fitSeriesNum != -1;
+			obsModel.replaceObservationSeries(SeriesType.PolynomialFit,
+					modelObs);
+		} else {
+			fitSeriesNum = obsModel.addObservationSeries(
+					SeriesType.PolynomialFit, modelObs);
+		}
+
+		// Make the polynomial fit series visible either because this
+		// is its first appearance or because it may have been made
+		// invisible via the change series dialog.
+		obsModel.changeSeriesVisibility(fitSeriesNum, true);
+
+		// TODO: do we really need this? if not, revert means join
+		// handling code
+		// obsModel.addSeriesToBeJoinedVisually(fitSeriesNum);
+
+		// Add or replace a series for the residuals.
+		if (obsModel.seriesExists(SeriesType.Residuals)) {
+			assert residualsSeriesNum != -1;
+			obsModel
+					.replaceObservationSeries(SeriesType.Residuals, residualObs);
+		} else {
+			residualsSeriesNum = obsModel.addObservationSeries(
+					SeriesType.Residuals, residualObs);
+		}
+
+		// Hide the residuals series initially. We toggle the series
+		// visibility to achieve this since the default is false. That
+		// shouldn't be necessary; investigate.
+		obsModel.changeSeriesVisibility(residualsSeriesNum, true);
+		obsModel.changeSeriesVisibility(residualsSeriesNum, false);
+	}
+
 	// Returns a polynomial fit listener.
 	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
 		return new Listener<PolynomialFitMessage>() {
-			private int fitSeriesNum = -1;
-			private int residualsSeriesNum = -1;
-
 			@Override
 			public void update(PolynomialFitMessage info) {
-				// Add or replace a series for the polynomial fit and make sure
-				// the series visible.
-				List<ValidObservation> fitObs = info.getPolynomialFitter()
-						.getFit();
-
-				if (obsModel.seriesExists(SeriesType.PolynomialFit)) {
-					assert fitSeriesNum != -1;
-					obsModel.replaceObservationSeries(SeriesType.PolynomialFit,
-							fitObs);
-				} else {
-					fitSeriesNum = obsModel.addObservationSeries(
-							SeriesType.PolynomialFit, fitObs);
-				}
-
-				// Make the polynomial fit series visible either because this
-				// is its first appearance or because it may have been made
-				// invisible via the change series dialog.
-				obsModel.changeSeriesVisibility(fitSeriesNum, true);
-
-				// TODO: do we really need this? if not, revert means join
-				// handling code
-				// obsModel.addSeriesToBeJoinedVisually(fitSeriesNum);
-
-				// Add or replace a series for the residuals.
-				List<ValidObservation> residualObs = info.getPolynomialFitter()
-						.getResiduals();
-
-				if (obsModel.seriesExists(SeriesType.Residuals)) {
-					assert residualsSeriesNum != -1;
-					obsModel.replaceObservationSeries(SeriesType.Residuals,
-							residualObs);
-				} else {
-					residualsSeriesNum = obsModel.addObservationSeries(
-							SeriesType.Residuals, residualObs);
-				}
-
-				// Hide the residuals series initially. We toggle the series
-				// visibility to achieve this since the default is false. That
-				// shouldn't be necessary; investigate.
-				obsModel.changeSeriesVisibility(residualsSeriesNum, true);
-				obsModel.changeSeriesVisibility(residualsSeriesNum, false);
+				updateModelSeries(info.getPolynomialFitter().getFit(), info
+						.getPolynomialFitter().getResiduals());
 			}
 
 			@Override
@@ -651,13 +652,15 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		Map<Integer, List<ValidObservation>> seriesNumToObsMap = obsModel
 				.getSeriesNumToObSrcListMap();
 
-		Map<Integer, Boolean> seriesVisibilityMap = obsModel
+		Map<SeriesType, Boolean> seriesVisibilityMap = obsModel
 				.getSeriesVisibilityMap();
 
-		for (int series : seriesNumToObsMap.keySet()) {
-			if (seriesVisibilityMap.get(series)) {
+		for (int seriesNum : seriesNumToObsMap.keySet()) {
+			SeriesType seriesType = obsModel.getSeriesNumToSrcTypeMap().get(
+					seriesNum);
+			if (seriesVisibilityMap.get(seriesType)) {
 
-				List<ValidObservation> obs = seriesNumToObsMap.get(series);
+				List<ValidObservation> obs = seriesNumToObsMap.get(seriesNum);
 				for (ValidObservation ob : obs) {
 					double mag = ob.getMagnitude().getMagValue();
 					double uncert = ob.getMagnitude().getUncertainty();

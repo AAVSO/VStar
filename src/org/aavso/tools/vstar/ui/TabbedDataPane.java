@@ -91,11 +91,14 @@ public class TabbedDataPane extends JPanel {
 
 		int index = 0;
 		for (ViewModeType type : ViewModeType.values()) {
-			String desc = type.getModeDesc();
-			tabs.addTab(desc, createTextPanel(noSomethingYet(desc)));
-			viewModeToTabIndexMap.put(type, index);
-			tabIndexToViewModeMap.put(index, type);
-			index++;
+			if (type != ViewModeType.MODEL_MODE
+					&& type != ViewModeType.RESIDUALS_MODE) {
+				String desc = type.getModeDesc();
+				tabs.addTab(desc, createTextPanel(noSomethingYet(desc)));
+				viewModeToTabIndexMap.put(type, index);
+				tabIndexToViewModeMap.put(index, type);
+				index++;
+			}
 		}
 
 		tabs.addChangeListener(createTabChangeListener());
@@ -105,6 +108,13 @@ public class TabbedDataPane extends JPanel {
 		this.add(new JScrollPane(topPane), BorderLayout.CENTER);
 	}
 
+	/**
+	 * Create a text pane with a centered string.
+	 * 
+	 * @param text
+	 *            The text to be displayed.
+	 * @return The text pane component.
+	 */
 	private static JComponent createTextPanel(String text) {
 		JLabel label = new JLabel(text);
 		label.setHorizontalAlignment(JLabel.CENTER);
@@ -114,8 +124,16 @@ public class TabbedDataPane extends JPanel {
 		return panel;
 	}
 
+	/**
+	 * Given a string 'something', return a string indicating that there is not
+	 * one of these 'something's yet.
+	 * 
+	 * @param s
+	 *            The 'something' string.
+	 * @return The annotated string.
+	 */
 	private String noSomethingYet(String s) {
-		return "No '" + s.toLowerCase() + "' yet.";
+		return "No " + s.toLowerCase() + " yet.";
 	}
 
 	/**

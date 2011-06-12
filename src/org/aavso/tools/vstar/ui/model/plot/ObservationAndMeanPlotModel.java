@@ -79,13 +79,13 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * @param timeElementEntity
 	 *            A time element source for observations.
 	 * @param seriesVisibilityMap
-	 *            A mapping from series number to visibility status.
+	 *            A mapping from series type to visibility status.
 	 */
 	public ObservationAndMeanPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
 			ICoordSource coordSrc, Comparator<ValidObservation> obComparator,
 			ITimeElementEntity timeElementEntity,
-			Map<Integer, Boolean> seriesVisibilityMap) {
+			Map<SeriesType, Boolean> seriesVisibilityMap) {
 
 		super(obsSourceListMap, coordSrc, obComparator, seriesVisibilityMap);
 
@@ -166,7 +166,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 						meanObsList);
 
 				// Mean series not rendered by default.
-				getSeriesVisibilityMap().put(meansSeriesNum, false);
+				getSeriesVisibilityMap().put(SeriesType.MEANS, false);
 			} else {
 				// The mean series has been changed after the initial one. If it
 				// is not visible, make it so since the user has updated it and

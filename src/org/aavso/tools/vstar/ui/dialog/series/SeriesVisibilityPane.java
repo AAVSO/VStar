@@ -111,10 +111,10 @@ public class SeriesVisibilityPane extends JPanel {
 		if (analysisType == AnalysisType.RAW_DATA) {
 			Mediator.getInstance().getFilteredObservationNotifier()
 					.addListener(createFilteredObservationListener());
-
-			Mediator.getInstance().getPolynomialFitNofitier().addListener(
-					createPolynomialFitListener());
 		}
+
+		Mediator.getInstance().getPolynomialFitNofitier().addListener(
+				createPolynomialFitListener());
 
 		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
 				createDiscrepantChangeListener());
@@ -143,19 +143,17 @@ public class SeriesVisibilityPane extends JPanel {
 		this.add(Box.createRigidArea(new Dimension(75, 1)));
 
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
-			if (series != SeriesType.MEANS) {
+			if (series != SeriesType.MEANS
+					&& series != SeriesType.PolynomialFit
+					&& series != SeriesType.Residuals) {
 				String seriesName = series.getDescription();
 				JCheckBox checkBox = new JCheckBox(seriesName);
 
 				checkBox
 						.addActionListener(createSeriesVisibilityCheckBoxListener());
 
-				Integer seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
-						.get(series);
-
 				// Enable/disable the series.
-				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(
-						seriesNum);
+				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(series);
 				checkBox.setSelected(vis);
 
 				panel.add(checkBox);
@@ -163,17 +161,20 @@ public class SeriesVisibilityPane extends JPanel {
 
 				checkBoxes.add(checkBox);
 
+				Integer seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
+						.get(series);
+
 				if (series == SeriesType.DISCREPANT) {
 					discrepantCheckBox = checkBox;
 					if (obsPlotModel.getSeriesNumToObSrcListMap()
 							.get(seriesNum).isEmpty()) {
-						discrepantCheckBox.setEnabled(false);
+						setInitialCheckBoxState(series, discrepantCheckBox);
 					}
 				} else if (series == SeriesType.Excluded) {
 					excludedCheckBox = checkBox;
 					if (obsPlotModel.getSeriesNumToObSrcListMap()
 							.get(seriesNum).isEmpty()) {
-						excludedCheckBox.setEnabled(false);
+						setInitialCheckBoxState(series, excludedCheckBox);
 					}
 				}
 			}
@@ -196,50 +197,73 @@ public class SeriesVisibilityPane extends JPanel {
 		panel.add(Box.createRigidArea(new Dimension(3, 3)));
 		checkBoxes.add(meanCheckBox);
 
-		if (analysisType == AnalysisType.RAW_DATA) {
+		// Filtered series.
+		filteredCheckBox = new JCheckBox(SeriesType.Filtered.getDescription());
+		filteredCheckBox
+				.addActionListener(createSeriesVisibilityCheckBoxListener());
+		setInitialCheckBoxState(SeriesType.Filtered, filteredCheckBox);
+		panel.add(filteredCheckBox);
+		panel.add(Box.createRigidArea(new Dimension(3, 3)));
+		checkBoxes.add(filteredCheckBox);
 
-			// Filtered series.
-			filteredCheckBox = new JCheckBox(SeriesType.Filtered
-					.getDescription());
-			filteredCheckBox
-					.addActionListener(createSeriesVisibilityCheckBoxListener());
-			filteredCheckBox.setSelected(false);
-			filteredCheckBox.setEnabled(false);
-			panel.add(filteredCheckBox);
-			panel.add(Box.createRigidArea(new Dimension(3, 3)));
-			checkBoxes.add(filteredCheckBox);
+		JPanel subPanel = new JPanel();
+		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.PAGE_AXIS));
+		subPanel.setBorder(BorderFactory.createTitledBorder("Polynomial Fit"));
+		subPanel.add(Box.createRigidArea(new Dimension(75, 1)));
 
-			JPanel subPanel = new JPanel();
-			subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.PAGE_AXIS));
-			subPanel.setBorder(BorderFactory
-					.createTitledBorder("Polynomial Fit"));
-			subPanel.add(Box.createRigidArea(new Dimension(75, 1)));
+		// Polynomial Fit series.
+		polynomialFitCheckBox = new JCheckBox(SeriesType.PolynomialFit
+				.getDescription());
+		polynomialFitCheckBox
+				.addActionListener(createSeriesVisibilityCheckBoxListener());
+		setInitialCheckBoxState(SeriesType.PolynomialFit, polynomialFitCheckBox);
+		subPanel.add(polynomialFitCheckBox);
+		subPanel.add(Box.createRigidArea(new Dimension(3, 3)));
+		checkBoxes.add(polynomialFitCheckBox);
 
-			// Polynomial Fit series.
-			polynomialFitCheckBox = new JCheckBox(SeriesType.PolynomialFit
-					.getDescription());
-			polynomialFitCheckBox
-					.addActionListener(createSeriesVisibilityCheckBoxListener());
-			polynomialFitCheckBox.setSelected(false);
-			polynomialFitCheckBox.setEnabled(false);
-			subPanel.add(polynomialFitCheckBox);
-			subPanel.add(Box.createRigidArea(new Dimension(3, 3)));
-			checkBoxes.add(polynomialFitCheckBox);
+		// Polynomial residuals series.
+		residualsCheckBox = new JCheckBox(SeriesType.Residuals.getDescription());
+		residualsCheckBox
+				.addActionListener(createSeriesVisibilityCheckBoxListener());
+		setInitialCheckBoxState(SeriesType.Residuals, residualsCheckBox);
+		subPanel.add(residualsCheckBox);
+		checkBoxes.add(residualsCheckBox);
 
-			// Polynomial residuals series.
-			residualsCheckBox = new JCheckBox(SeriesType.Residuals
-					.getDescription());
-			residualsCheckBox
-					.addActionListener(createSeriesVisibilityCheckBoxListener());
-			residualsCheckBox.setSelected(false);
-			residualsCheckBox.setEnabled(false);
-			subPanel.add(residualsCheckBox);
-			checkBoxes.add(residualsCheckBox);
-
-			panel.add(subPanel);
-		}
+		panel.add(subPanel);
 
 		return panel;
+	}
+
+	/**
+	 * Set the enabled and selected states of the checkbox corresponding to the
+	 * specified series type according to the plot model's visibility map.
+	 * 
+	 * @param seriesType
+	 *            The series type in question.
+	 * @param checkbox
+	 *            The checkbox whose state is to be set.
+	 */
+	protected void setInitialCheckBoxState(SeriesType seriesType,
+			JCheckBox checkbox) {
+		Integer seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
+				seriesType);
+
+		// This series exists and has obs (or not), so allow it to be selected
+		// (or not).
+		boolean hasObs = obsPlotModel.getSeriesNumToObSrcListMap().containsKey(
+				seriesNum)
+				&& !obsPlotModel.getSeriesNumToObSrcListMap().get(seriesNum)
+						.isEmpty();
+		checkbox.setEnabled(hasObs);
+
+		// The series is (or is not) marked as being visible so also select
+		// (or don't) the checkbox. A series visibility may not have been set in
+		// the map yet, unless it has been selected by default (e.g. visual
+		// bands) or by the user.
+		boolean visible = obsPlotModel.getSeriesVisibilityMap().containsKey(
+				seriesType)
+				&& obsPlotModel.getSeriesVisibilityMap().get(seriesType);
+		checkbox.setSelected(visible);
 	}
 
 	// Return a listener for the series visibility checkboxes.
@@ -439,9 +463,8 @@ public class SeriesVisibilityPane extends JPanel {
 			public void update(BinningResult info) {
 				// Check that the series was actually marked as visible in the
 				// model!
-				int meanSeriesNum = obsPlotModel.getMeansSeriesNum();
 				boolean meanSeriesVisible = obsPlotModel
-						.getSeriesVisibilityMap().get(meanSeriesNum);
+						.getSeriesVisibilityMap().get(SeriesType.MEANS);
 				if (meanSeriesVisible) {
 					meanCheckBox.setSelected(true);
 				}

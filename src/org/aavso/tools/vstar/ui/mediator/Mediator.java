@@ -60,11 +60,11 @@ import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
 import org.aavso.tools.vstar.ui.dialog.RawPlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
@@ -231,6 +231,8 @@ public class Mediator {
 
 		this.periodChangeMessageNotifier
 				.addListener(createPeriodChangeListener());
+
+		this.polynomialFitNofitier.addListener(createPolynomialFitListener());
 
 		// Undoable action manager creation and listener setup.
 		this.undoableActionManager = new UndoableActionManager();
@@ -413,6 +415,10 @@ public class Mediator {
 
 	// When the period changes, create a new phase plot passing the pre-existing
 	// series visibility map if a previous phase plot was created.
+	//
+	// TODO: actually, createPhasePlotArtefacts() should not be necessary; it should
+	// only be necessary to a. set the phases with the new period and epoch (need to
+	// include the epoch in the message), and b. update the plot and table models.
 	private Listener<PeriodChangeMessage> createPeriodChangeListener() {
 		return new Listener<PeriodChangeMessage>() {
 			public void update(PeriodChangeMessage info) {
@@ -434,7 +440,7 @@ public class Mediator {
 						AnalysisTypeChangeMessage lastPhasePlotMsg = analysisTypeMap
 								.get(AnalysisType.PHASE_PLOT);
 
-						Map<Integer, Boolean> seriesVisibilityMap = null;
+						Map<SeriesType, Boolean> seriesVisibilityMap = null;
 
 						if (lastPhasePlotMsg != null) {
 							// Use the last phase plot's series visibility map.
@@ -471,6 +477,29 @@ public class Mediator {
 		};
 	}
 
+	// Returns a polynomial fit listener that updates the observation category
+	// map with model and residuals series.
+	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
+		return new Listener<PolynomialFitMessage>() {
+			@Override
+			public void update(PolynomialFitMessage info) {
+				validObservationCategoryMap.put(SeriesType.PolynomialFit, info
+						.getPolynomialFitter().getFit());
+				
+				validObservationCategoryMap.put(SeriesType.Residuals, info
+						.getPolynomialFitter().getResiduals());
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+//	add a similar listener for filtered obs and set their obs in create phase plot
+//	artefacts... did we have a tracker for this and poly? if so, update
+	
 	/**
 	 * Remove all willing listeners from notifiers. This is essentially a move
 	 * to free up any indirectly referenced objects that may cause a memory leak
@@ -581,7 +610,7 @@ public class Mediator {
 							AnalysisTypeChangeMessage rawDataMsg = analysisTypeMap
 									.get(AnalysisType.RAW_DATA);
 
-							Map<Integer, Boolean> seriesVisibilityMap = rawDataMsg
+							Map<SeriesType, Boolean> seriesVisibilityMap = rawDataMsg
 									.getObsAndMeanChartPane().getObsModel()
 									.getSeriesVisibilityMap();
 
@@ -783,7 +812,7 @@ public class Mediator {
 			meanPlotSubtitle += "Mean error bars denote 95% Confidence Interval (twice Standard Error)";
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					"Light Curve for " + starInfo.getDesignation(),
+					"Raw Plot for " + starInfo.getDesignation(),
 					meanPlotSubtitle, obsAndMeanPlotModel);
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
@@ -817,10 +846,8 @@ public class Mediator {
 
 		// The observation table pane contains valid and potentially
 		// invalid data components. Tell the valid data table to have
-		// a horizontal scrollbar if it the source was a simple-format
-		// file since there won't be many columns. We don't want to do that
-		// when there are many columns (i.e. for AAVSO download format files
-		// and database source).
+		// a horizontal scrollbar if there will be too many columns.
+
 		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
 				|| newStarType == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
 
@@ -899,9 +926,8 @@ public class Mediator {
 	 * @return An analysis type message consisting of phase plot artefacts.
 	 */
 	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period,
-			double epoch, Map<Integer, Boolean> seriesVisibilityMap)
+			double epoch, Map<SeriesType, Boolean> seriesVisibilityMap)
 			throws Exception {
-
 		String objName = newStarMessage.getStarInfo().getDesignation();
 
 		String subTitle = "";
@@ -917,9 +943,14 @@ public class Mediator {
 		}
 
 		// Here we modify the underlying ValidObservation objects which will
-		// affect both validObsList and validObservationCategoryMap.
+		// affect both validObsList and validObservationCategoryMap. Some
+		// series are not in the main observation list, only in the map
+		// (e.g. model, residuals, filtered obs), so we handle those separately.
 		PhaseCalcs.setPhases(validObsList, epoch, period);
-
+		setPhasesForSeries(SeriesType.PolynomialFit, epoch, period);
+		setPhasesForSeries(SeriesType.Residuals, epoch, period);
+		setPhasesForSeries(SeriesType.Filtered, epoch, period);
+		
 		// We duplicate the valid observation category map
 		// so that we have two sets of identical data for the
 		// two cycles of the phase plot. This map will be shared
@@ -968,10 +999,7 @@ public class Mediator {
 		// invalid data components but for phase plot purposes, we only
 		// display valid data, as opposed to the raw data view in which
 		// both are shown. Tell the valid data table to have a horizontal
-		// scrollbar if it the source was a simple-format file since there
-		// won't be many columns. We don't want to do that when there are
-		// many columns (i.e. for AAVSO download format files and database
-		// source).
+		// scrollbar if there will be too many columns.
 		boolean enableColumnAutoResize = newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
 				|| newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
 
@@ -991,6 +1019,24 @@ public class Mediator {
 		this.analysisTypeChangeNotifier.notifyListeners(phasePlotMsg);
 
 		return phasePlotMsg;
+	}
+
+	/**
+	 * Set the phases for a particular series in the observation category map.
+	 * 
+	 * @param type
+	 *            The series type of the observations whose phases are to be
+	 *            set.
+	 * @param epoch
+	 *            The epoch to use for the phase calculation.
+	 * @param period
+	 *            The period to use for the phase calculation.
+	 */
+	private void setPhasesForSeries(SeriesType type, double epoch, double period) {
+		if (validObservationCategoryMap.containsKey(type)) {
+			List<ValidObservation> obs = validObservationCategoryMap.get(type);
+			PhaseCalcs.setPhases(obs, epoch, period);
+		}
 	}
 
 	/**

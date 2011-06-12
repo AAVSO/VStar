@@ -199,6 +199,20 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
 		return new Listener<PolynomialFitMessage>() {
 
+//			TODO:
+//				2. In our case here, we will double the lists and set phase values.
+//				   That should be done in a separate method M local to this class.
+//				   BUT WE DON'T HAVE PHASE AND PERIOD FOR THE LAST PHASE PLOT!
+//                 BUT THIS CLASS OR ITS MODEL SHOULD KNOW ABOUT IT!
+//		           Create a notifier for phase change, perhaps later.
+//		           For now, just make Mediator a listener on polynomial fits and 
+//		           perhaps filtered obs, and just add these to the category map
+//		           so that at time of phase plot creation, they are in the map of
+//		           series to be phased up; later allow update of existing phase plot.
+//				3. In createPhasePlotArtefacts(), we need to call the above method
+//				   or we need to narrowcast to just this listener by adding a notifier
+//				   method that only notifies particular objects (that would also allow
+//			       us to control notification order BTW). Much better to just call M!
 			@Override
 			public void update(PolynomialFitMessage info) {
 				// Do nothing for phase plots currently.
@@ -207,6 +221,12 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 				// if a phase plot has been created, otherwise
 				// we see assertion errors from PhaseCoordSource.getXCoord()
 				// since phase values will be null.
+//				IPolynomialFitter model = info.getPolynomialFitter();
+//				List<ValidObservation> modelObs = new ArrayList<ValidObservation>();
+//				modelObs.addAll(model.getFit()); 
+//				List<ValidObservation> residualObs = new ArrayList<ValidObservation>();
+//				residualObs.addAll(model.getResiduals());
+//				updateModelSeries(modelObs, residualObs);
 			}
 
 			@Override
