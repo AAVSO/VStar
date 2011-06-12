@@ -62,8 +62,22 @@ public class AAVSODatabaseObservationReader extends
 	public void retrieveObservations() throws ObservationReadError,
 			InterruptedException {
 		try {
-			while (source.next()) {
-				ValidObservation validOb = getNextObservation();
+			while (!wasInterrupted() && source.next()) {
+				ValidObservation validOb = null;
+
+				// If there's an error in an SQL row, create an invalid
+				// observation for it.
+				try {
+					validOb = getNextObservation();
+				} catch (SQLException e) {
+					int uniqueId = source.getInt("unique_id");
+					InvalidObservation invalidOb = new InvalidObservation(
+							"Row with unique ID " + uniqueId, e
+									.getLocalizedMessage());
+					invalidOb.setRecordNumber(source.getRow());
+					invalidObservations.add(invalidOb);
+					continue;
+				}
 
 				// TODO: When we do more field validation here,
 				// we should do these checks in getNextObservation()
@@ -94,12 +108,10 @@ public class AAVSODatabaseObservationReader extends
 						categoriseValidObservation(validOb);
 					}
 				}
-				// TODO: why am I not updating progress bar here?
+				// TODO: Why am I not updating progress bar here?
+				// Consider just using continual progress bar.
 			}
-		} catch (Throwable t) {
-			// TODO: note that because of this broad catch, an
-			// InterruptedException will never make it past this method
-			// currently.
+		} catch (SQLException e) {
 			throw new ObservationReadError(
 					"Error when attempting to read observation source.");
 		}
@@ -115,60 +127,53 @@ public class AAVSODatabaseObservationReader extends
 	 * versions for clarity. We can change this to use named constants if it
 	 * proves to be too inefficient.
 	 */
-	private ValidObservation getNextObservation() throws ObservationReadError {
+	private ValidObservation getNextObservation() throws SQLException {
 		ValidObservation ob = new ValidObservation();
 
-		try {
-			int recordNum = source.getInt("unique_id");
-			if (!source.wasNull()) ob.setRecordNumber(recordNum);
-			
-			ob.setDateInfo(new DateInfo(source.getDouble("jd")));
-			ob.setMagnitude(getNextMagnitude());
-			ob.setHqUncertainty(getNextPossiblyNullDouble("hq_uncertainty"));
-			SeriesType band = SeriesType.Unspecified;
-			String bandNum = getNextPossiblyNullString("band");
-			if (bandNum != null && !"".equals(bandNum)) {
-				int num = Integer.parseInt(bandNum);
-				band = SeriesType.getSeriesFromIndex(num);
+		int recordNum = source.getInt("unique_id");
+		if (!source.wasNull())
+			ob.setRecordNumber(recordNum);
+
+		ob.setDateInfo(new DateInfo(source.getDouble("jd")));
+		ob.setMagnitude(getNextMagnitude());
+		ob.setHqUncertainty(getNextPossiblyNullDouble("hq_uncertainty"));
+		SeriesType band = SeriesType.Unspecified;
+		String bandNum = getNextPossiblyNullString("band");
+		if (bandNum != null && !"".equals(bandNum)) {
+			int num = Integer.parseInt(bandNum);
+			band = SeriesType.getSeriesFromIndex(num);
+		}
+		ob.setBand(band);
+		ob.setObsCode(getNextPossiblyNullString("observer_code"));
+		ob.setCommentCode(getNextPossiblyNullString("comment_code"));
+		ob.setCompStar1(getNextPossiblyNullString("comp_star_1"));
+		ob.setCompStar2(getNextPossiblyNullString("comp_star_2"));
+		ob.setCharts(getNextPossiblyNullString("charts"));
+		ob.setComments(getNextPossiblyNullString("comments"));
+
+		ob.setTransformed("yes"
+				.equals(getNextPossiblyNullString("transformed")) ? true
+				: false);
+
+		ob.setAirmass(getNextPossiblyNullString("airmass"));
+		ob.setValidationType(getNextValidationType());
+		ob.setCMag(getNextPossiblyNullString("cmag"));
+		ob.setKMag(getNextPossiblyNullString("kmag"));
+
+		Double hjd = getNextPossiblyNullDouble("hjd");
+		ob.setHJD(hjd != null ? new DateInfo(hjd) : null);
+
+		ob.setName(getNextPossiblyNullString("name"));
+
+		// If mtype is null or 0, we use the ValidObservation's
+		// constructed default (standard magnitude type).
+		Integer mtype = getNextPossiblyNullInteger("mtype");
+		if (mtype != null && mtype != 0) {
+			if (mtype == 1) {
+				ob.setMType(MTypeType.DIFF);
+			} else if (mtype == 2) {
+				ob.setMType(MTypeType.STEP);
 			}
-			ob.setBand(band);
-			ob.setObsCode(getNextPossiblyNullString("observer_code"));
-			ob.setCommentCode(getNextPossiblyNullString("comment_code"));
-			ob.setCompStar1(getNextPossiblyNullString("comp_star_1"));
-			ob.setCompStar2(getNextPossiblyNullString("comp_star_2"));
-			ob.setCharts(getNextPossiblyNullString("charts"));
-			ob.setComments(getNextPossiblyNullString("comments"));
-
-			ob.setTransformed("yes"
-					.equals(getNextPossiblyNullString("transformed")) ? true
-					: false);
-
-			ob.setAirmass(getNextPossiblyNullString("airmass"));
-			ob.setValidationType(getNextValidationType());
-			ob.setCMag(getNextPossiblyNullString("cmag"));
-			ob.setKMag(getNextPossiblyNullString("kmag"));
-
-			Double hjd = getNextPossiblyNullDouble("hjd");
-			ob.setHJD(hjd != null ? new DateInfo(hjd) : null);
-
-			ob.setName(getNextPossiblyNullString("name"));
-
-			// If mtype is null or 0, we use the ValidObservation's
-			// constructed default (standard magnitude type).
-			Integer mtype = getNextPossiblyNullInteger("mtype");
-			if (mtype != null && mtype != 0) {
-				if (mtype == 1) {
-					ob.setMType(MTypeType.DIFF);
-				} else if (mtype == 2) {
-					ob.setMType(MTypeType.STEP);
-				}
-			}
-
-		} catch (SQLException e) {
-			// e.printStackTrace();
-			throw new ObservationReadError(
-					"Error when attempting to read observation source: "
-							+ e.getMessage());
 		}
 
 		return ob;
