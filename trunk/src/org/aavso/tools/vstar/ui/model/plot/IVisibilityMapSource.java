@@ -19,6 +19,8 @@ package org.aavso.tools.vstar.ui.model.plot;
 
 import java.util.Map;
 
+import org.aavso.tools.vstar.data.SeriesType;
+
 /**
  * Implementers of this interface return a mapping from
  * plot series number to visibility. 
@@ -27,5 +29,5 @@ import java.util.Map;
  */
 public interface IVisibilityMapSource {
 
-	public Map<Integer, Boolean> getVisibilityMap();
+	public Map<SeriesType, Boolean> getVisibilityMap();
 }

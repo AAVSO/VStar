@@ -66,7 +66,7 @@ public class PolynomialFitTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		if (!error) {
+		if (!error && !isCancelled()) {
 			PolynomialFitMessage msg = new PolynomialFitMessage(this,
 					polynomialFitter);
 			Mediator.getInstance().getPolynomialFitNofitier().notifyListeners(
@@ -76,6 +76,7 @@ public class PolynomialFitTask extends SwingWorker<Void, Void> {
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 
-		// TODO: how to detect task cancellation?
+		Mediator.getInstance().getProgressNotifier().notifyListeners(
+				ProgressInfo.CLEAR_PROGRESS);
 	}
 }

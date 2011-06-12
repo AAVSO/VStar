@@ -24,11 +24,13 @@ package org.aavso.tools.vstar.ui.mediator;
 public enum ViewModeType {
 
 	// View modes.
-	PLOT_OBS_MODE, LIST_OBS_MODE, LIST_MEANS_MODE;
+	PLOT_OBS_MODE, LIST_OBS_MODE, LIST_MEANS_MODE, MODEL_MODE, RESIDUALS_MODE;
 
-	public final static String PLOT_OBS_MODE_DESC = "Observation Plot";
-	public final static String LIST_OBS_MODE_DESC = "Observation List";
-	public final static String LIST_MEANS_MODE_DESC = "Mean List";
+	public final static String PLOT_OBS_MODE_DESC = "Plot";
+	public final static String LIST_OBS_MODE_DESC = "Observations";
+	public final static String LIST_MEANS_MODE_DESC = "Means";
+	public final static String MODEL_MODE_DESC = "Model";
+	public final static String RESIDUALS_MODE_DESC = "Residuals";
 
 	/**
 	 * Return this mode type's description string.
@@ -61,6 +63,12 @@ public enum ViewModeType {
 		case LIST_MEANS_MODE:
 			mode = LIST_MEANS_MODE_DESC;
 			break;
+		case MODEL_MODE:
+			mode = MODEL_MODE_DESC;
+			break;
+		case RESIDUALS_MODE:
+			mode = RESIDUALS_MODE_DESC;
+			break;
 		}
 
 		return mode;
@@ -77,7 +85,9 @@ public enum ViewModeType {
 		ViewModeType mode = null;
 
 		assert (PLOT_OBS_MODE_DESC.equals(desc)
-				|| LIST_OBS_MODE_DESC.equals(desc) || LIST_MEANS_MODE_DESC
+				|| LIST_OBS_MODE_DESC.equals(desc)
+				|| LIST_MEANS_MODE_DESC.equals(desc)
+				|| MODEL_MODE_DESC.equals(desc) || RESIDUALS_MODE_DESC
 				.equals(desc));
 
 		if (PLOT_OBS_MODE_DESC.equals(desc)) {
@@ -86,6 +96,10 @@ public enum ViewModeType {
 			mode = LIST_OBS_MODE;
 		} else if (LIST_MEANS_MODE_DESC.equals(desc)) {
 			mode = LIST_MEANS_MODE;
+		} else if (MODEL_MODE_DESC.equals(desc)) {
+			mode = MODEL_MODE;
+		} else if (RESIDUALS_MODE_DESC.equals(desc)) {
+			mode = RESIDUALS_MODE;
 		}
 
 		return mode;

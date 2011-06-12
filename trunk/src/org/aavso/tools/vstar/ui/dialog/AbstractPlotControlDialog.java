@@ -43,6 +43,8 @@ import org.jfree.chart.JFreeChart;
 
 /**
  * A dialog that controls the features of plots.
+ * 
+ * TODO: This is not abstract! Change name to *Base!
  */
 public class AbstractPlotControlDialog extends JDialog {
 
