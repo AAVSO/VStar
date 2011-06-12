@@ -68,7 +68,7 @@ public class InvalidObservationTableModel extends AbstractTableModel {
 		
 		switch (column) {
 		case 0:
-			columnName = "Line";
+			columnName = "Record";
 			break;
 		case 1:
 			columnName = "Observation";
