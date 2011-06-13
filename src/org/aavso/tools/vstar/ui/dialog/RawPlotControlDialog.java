@@ -34,7 +34,7 @@ public class RawPlotControlDialog extends AbstractPlotControlDialog {
 	 *            The plot pane.
 	 */
 	public RawPlotControlDialog(ObservationAndMeanPlotPane plotPane) {
-		super("Light Curve Control", plotPane,
+		super("Raw Plot Control", plotPane,
 				new TimeElementsInBinSettingPane("Days per Mean Series Bin",
 						plotPane.getObsModel(), JDTimeElementEntity.instance),
 				AnalysisType.RAW_DATA);
