@@ -1018,7 +1018,8 @@ public class Mediator {
 				meanObsTableModel);
 
 		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
-				"Phase Plot for " + objName, subTitle, obsAndMeanPlotModel);
+				"Phase Plot for " + objName, subTitle, obsAndMeanPlotModel,
+				epoch, period);
 
 		phasePlotControlDialog = new PhasePlotControlDialog(obsAndMeanChartPane);
 
@@ -1059,7 +1060,7 @@ public class Mediator {
 	 * @param period
 	 *            The period to use for the phase calculation.
 	 */
-	private void setPhasesForSeries(SeriesType type, double epoch, double period) {
+	public void setPhasesForSeries(SeriesType type, double epoch, double period) {
 		if (validObservationCategoryMap.containsKey(type)) {
 			List<ValidObservation> obs = validObservationCategoryMap.get(type);
 			PhaseCalcs.setPhases(obs, epoch, period);
@@ -1120,13 +1121,14 @@ public class Mediator {
 	 * valid observations.
 	 */
 	private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(String plotName,
-			String subTitle, ObservationAndMeanPlotModel obsAndMeanPlotModel) {
+			String subTitle, ObservationAndMeanPlotModel obsAndMeanPlotModel,
+			double epoch, double period) {
 
 		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
 				(int) (TabbedDataPane.HEIGHT * 0.9));
 
 		return new PhaseAndMeanPlotPane(plotName, subTitle,
-				obsAndMeanPlotModel, bounds);
+				obsAndMeanPlotModel, bounds, epoch, period);
 	}
 
 	/**
@@ -1314,6 +1316,14 @@ public class Mediator {
 			MessageBox.showMessageDialog(parent, "Save Means",
 					NOT_IMPLEMENTED_YET);
 			break;
+		case MODEL_MODE:
+			MessageBox.showMessageDialog(parent, "Save Model",
+					NOT_IMPLEMENTED_YET);
+			break;
+		case RESIDUALS_MODE:
+			MessageBox.showMessageDialog(parent, "Save Residuals",
+					NOT_IMPLEMENTED_YET);
+			break;
 		}
 	}
 
@@ -1378,6 +1388,14 @@ public class Mediator {
 				MessageBox.showErrorDialog(parent, "Print Means", e
 						.getMessage());
 			}
+			break;
+		case MODEL_MODE:
+			MessageBox.showMessageDialog(parent, "Print Model",
+					NOT_IMPLEMENTED_YET);
+			break;
+		case RESIDUALS_MODE:
+			MessageBox.showMessageDialog(parent, "Print Residuals",
+					NOT_IMPLEMENTED_YET);
 			break;
 		}
 	}

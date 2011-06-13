@@ -438,10 +438,8 @@ public class ToolBar extends JPanel {
 			public void update(AnalysisTypeChangeMessage info) {
 				switch (info.getAnalysisType()) {
 				case RAW_DATA:
-					filterButton.setEnabled(true);
-					break;
 				case PHASE_PLOT:
-					filterButton.setEnabled(false);
+					filterButton.setEnabled(true);
 					break;
 				}
 			}

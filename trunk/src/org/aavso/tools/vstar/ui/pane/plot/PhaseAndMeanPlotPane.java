@@ -19,7 +19,11 @@ package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -32,9 +36,12 @@ import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
+import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.polyfit.IPolynomialFitter;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
+import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
@@ -46,6 +53,9 @@ import org.jfree.chart.plot.XYPlot;
  * observations along with mean-based data.
  */
 public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
+
+	private double epoch;
+	private double period;
 
 	private String xyMsgFormat;
 
@@ -60,17 +70,31 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	 *            The data model to plot.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
+	 * @param epoch
+	 *            The starting JD for the current phase plot.
+	 * @param period
+	 *            The period for the current phase plot.
 	 */
 	public PhaseAndMeanPlotPane(String title, String subTitle,
-			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds) {
+			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds,
+			double epoch, double period) {
 
 		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModel,
 				new TimeElementsInBinSettingPane(
 						"Phase Steps per Mean Series Bin", obsAndMeanModel,
 						PhaseTimeElementEntity.instance), bounds);
 
+		this.epoch = epoch;
+		this.period = period;
+
 		xyMsgFormat = "Phase: " + NumericPrecisionPrefs.getTimeOutputFormat()
 				+ ", Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
+
+		Mediator.getInstance().getFilteredObservationNotifier().addListener(
+				createFilteredObservationListener());
+
+		Mediator.getInstance().getPolynomialFitNofitier().addListener(
+				createPolynomialFitListener());
 	}
 
 	// From ChartMouseListener interface.
@@ -178,41 +202,66 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	}
 
 	// TODO: handle:
-	// 1. New PhaseChangeMessage here and in tables: setPhases(), fire changed.
-	// 2. New polynomial fit.
-	
-	// Returns a polynomial fit listener.
+	// New PhaseChangeMessage here and in tables rather than creating a whole
+	// new set of phase plot artefacts: setPhases(), fire changed.
+
+	// Returns a filtered observation listener that updates the filtered data
+	// series. We don't need to set the phases in the data because the
+	// underlying data in the filter will already have had phases set since we
+	// have an existing (this) phase plot.
+	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
+		return new Listener<FilteredObservationMessage>() {
+			@Override
+			public void update(FilteredObservationMessage info) {
+				if (!handleNoFilter(info)) {
+					// Convert set of filtered observations to list then add
+					// or replace the filter series.
+					List<ValidObservation> obs = new ArrayList<ValidObservation>();
+					for (ValidObservation ob : info.getFilteredObs()) {
+						obs.add(ob);
+					}
+
+					// Double and sort the filtered data.
+					List<ValidObservation> filteredObs = new ArrayList<ValidObservation>();
+					filteredObs.addAll(obs);
+					Collections.sort(filteredObs,
+							StandardPhaseComparator.instance);
+
+					updateFilteredSeries(obs);
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	// Returns a polynomial fit listener that updates the model and residual
+	// series including setting the current phase in the data.
 	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
 		return new Listener<PolynomialFitMessage>() {
 
-//			TODO:
-//				2. In our case here, we will double the lists and set phase values.
-//				   That should be done in a separate method M local to this class.
-//				   BUT WE DON'T HAVE PHASE AND PERIOD FOR THE LAST PHASE PLOT!
-//                 BUT THIS CLASS OR ITS MODEL SHOULD KNOW ABOUT IT!
-//		           Create a notifier for phase change, perhaps later.
-//		           For now, just make Mediator a listener on polynomial fits and 
-//		           perhaps filtered obs, and just add these to the category map
-//		           so that at time of phase plot creation, they are in the map of
-//		           series to be phased up; later allow update of existing phase plot.
-//				3. In createPhasePlotArtefacts(), we need to call the above method
-//				   or we need to narrowcast to just this listener by adding a notifier
-//				   method that only notifies particular objects (that would also allow
-//			       us to control notification order BTW). Much better to just call M!
 			@Override
 			public void update(PolynomialFitMessage info) {
-				// Do nothing for phase plots currently.
-				// When we do eventually enable this,
-				// this method should only do something
-				// if a phase plot has been created, otherwise
-				// we see assertion errors from PhaseCoordSource.getXCoord()
-				// since phase values will be null.
-//				IPolynomialFitter model = info.getPolynomialFitter();
-//				List<ValidObservation> modelObs = new ArrayList<ValidObservation>();
-//				modelObs.addAll(model.getFit()); 
-//				List<ValidObservation> residualObs = new ArrayList<ValidObservation>();
-//				residualObs.addAll(model.getResiduals());
-//				updateModelSeries(modelObs, residualObs);
+				IPolynomialFitter model = info.getPolynomialFitter();
+
+				// Set the phases in the new model and residuals data.
+				PhaseCalcs.setPhases(model.getFit(), epoch, period);
+				PhaseCalcs.setPhases(model.getResiduals(), epoch, period);
+
+				// Double and sort the model data.
+				List<ValidObservation> modelObs = new ArrayList<ValidObservation>();
+				modelObs.addAll(model.getFit());
+				Collections.sort(modelObs, StandardPhaseComparator.instance);
+
+				// Double and sort the residuals data.
+				List<ValidObservation> residualObs = new ArrayList<ValidObservation>();
+				residualObs.addAll(model.getResiduals());
+				Collections.sort(residualObs, StandardPhaseComparator.instance);
+
+				updateModelSeries(modelObs, residualObs);
 			}
 
 			@Override

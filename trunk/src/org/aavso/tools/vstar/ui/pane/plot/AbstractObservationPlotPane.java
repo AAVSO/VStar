@@ -92,13 +92,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	protected Point2D lastPointClicked;
 	protected ValidObservation lastObSelected;
 
+	protected int fitSeriesNum = -1;
+	protected int residualsSeriesNum = -1;
+	protected int filterSeriesNum = -1;
+
 	// Axis titles.
 	public static String JD_TITLE = "Time (JD)";
 	public static String PHASE_TITLE = "Phase";
 	public static String MAG_TITLE = "Brightness (magnitude)";
-
-	protected int fitSeriesNum = -1;
-	protected int residualsSeriesNum = -1;
 
 	/**
 	 * Constructor
@@ -513,21 +514,43 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		}
 	}
 
+	public boolean handleNoFilter(FilteredObservationMessage info) {
+		boolean result = false;
+
+		if (info == FilteredObservationMessage.NO_FILTER) {
+			// No filter, so make the filtered series invisible.
+			if (obsModel.seriesExists(SeriesType.Filtered)) {
+				int num = obsModel.getSrcTypeToSeriesNumMap().get(
+						SeriesType.Filtered);
+				obsModel.changeSeriesVisibility(num, false);
+			}
+			result = true;
+		}
+
+		return result;
+	}
+
+	public void updateFilteredSeries(List<ValidObservation> obs) {
+		if (obsModel.seriesExists(SeriesType.Filtered)) {
+			obsModel.replaceObservationSeries(SeriesType.Filtered, obs);
+		} else {
+			filterSeriesNum = obsModel.addObservationSeries(
+					SeriesType.Filtered, obs);
+		}
+
+		// Make the filter series visible either because this is
+		// its first appearance or because it may have been made
+		// invisible via a NO_FILTER message.
+		obsModel.changeSeriesVisibility(filterSeriesNum, true);
+	}
+
 	// Returns a filtered observation listener.
 	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
 		return new Listener<FilteredObservationMessage>() {
-			private int filterSeriesNum = -1;
 
 			@Override
 			public void update(FilteredObservationMessage info) {
-				if (info == FilteredObservationMessage.NO_FILTER) {
-					// No filter, so make the filtered series invisible.
-					if (obsModel.seriesExists(SeriesType.Filtered)) {
-						int num = obsModel.getSrcTypeToSeriesNumMap().get(
-								SeriesType.Filtered);
-						obsModel.changeSeriesVisibility(num, false);
-					}
-				} else {
+				if (!handleNoFilter(info)) {
 					// Convert set of filtered observations to list then add
 					// or replace the filter series.
 					List<ValidObservation> obs = new ArrayList<ValidObservation>();
@@ -535,19 +558,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 						obs.add(ob);
 					}
 
-					if (obsModel.seriesExists(SeriesType.Filtered)) {
-						assert filterSeriesNum != -1;
-						obsModel.replaceObservationSeries(SeriesType.Filtered,
-								obs);
-					} else {
-						filterSeriesNum = obsModel.addObservationSeries(
-								SeriesType.Filtered, obs);
-					}
-
-					// Make the filter series visible either because this is
-					// its first appearance or because it may have been made
-					// invisible via a NO_FILTER message.
-					obsModel.changeSeriesVisibility(filterSeriesNum, true);
+					updateFilteredSeries(obs);
 				}
 			}
 
@@ -560,10 +571,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	public void updateModelSeries(List<ValidObservation> modelObs,
 			List<ValidObservation> residualObs) {
+
 		// Add or replace a series for the polynomial fit and make sure
 		// the series is visible.
 		if (obsModel.seriesExists(SeriesType.PolynomialFit)) {
-			assert fitSeriesNum != -1;
 			obsModel.replaceObservationSeries(SeriesType.PolynomialFit,
 					modelObs);
 		} else {
@@ -582,7 +593,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		// Add or replace a series for the residuals.
 		if (obsModel.seriesExists(SeriesType.Residuals)) {
-			assert residualsSeriesNum != -1;
 			obsModel
 					.replaceObservationSeries(SeriesType.Residuals, residualObs);
 		} else {
