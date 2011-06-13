@@ -108,10 +108,8 @@ public class SeriesVisibilityPane extends JPanel {
 		obsPlotModel.getMeansChangeNotifier().addListener(
 				createMeanObsChangeListener());
 
-		if (analysisType == AnalysisType.RAW_DATA) {
-			Mediator.getInstance().getFilteredObservationNotifier()
-					.addListener(createFilteredObservationListener());
-		}
+		Mediator.getInstance().getFilteredObservationNotifier().addListener(
+				createFilteredObservationListener());
 
 		Mediator.getInstance().getPolynomialFitNofitier().addListener(
 				createPolynomialFitListener());
@@ -142,10 +140,12 @@ public class SeriesVisibilityPane extends JPanel {
 		// Ensure the panel is always wide enough.
 		this.add(Box.createRigidArea(new Dimension(75, 1)));
 
+		// We treat derived series separately.
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
 			if (series != SeriesType.MEANS
 					&& series != SeriesType.PolynomialFit
-					&& series != SeriesType.Residuals) {
+					&& series != SeriesType.Residuals
+					&& series != SeriesType.Filtered) {
 				String seriesName = series.getDescription();
 				JCheckBox checkBox = new JCheckBox(seriesName);
 
@@ -164,6 +164,9 @@ public class SeriesVisibilityPane extends JPanel {
 				Integer seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
 						.get(series);
 
+				// Listeners need access to discrepant and excluded checkboxes.
+				// We also set the initial state for these checkboxes conditionally,
+				// depending upon whether any observations are present in these series.
 				if (series == SeriesType.DISCREPANT) {
 					discrepantCheckBox = checkBox;
 					if (obsPlotModel.getSeriesNumToObSrcListMap()
@@ -486,9 +489,9 @@ public class SeriesVisibilityPane extends JPanel {
 				if (info == FilteredObservationMessage.NO_FILTER) {
 					// No filter, so disable the filtered series checkbox.
 					// TODO: really necessary?
-					if (obsPlotModel.seriesExists(SeriesType.Filtered)) {
-						filteredCheckBox.setSelected(false);
-					}
+					// if (obsPlotModel.seriesExists(SeriesType.Filtered)) {
+					filteredCheckBox.setSelected(false);
+					// }
 				} else {
 					// Enable and select checkbox upon first series creation.
 					if (!filteredCheckBox.isEnabled()) {

@@ -92,6 +92,8 @@ public class ObservationFilter {
 			List<ValidObservation> obs) {
 		// We use a LinkedHashSet to maintain addition and lookup efficiency
 		// while maintaining insertion order.
+		// Note: this is only necessary of a recipient of filtered observations
+		// needs to perform lookups.
 		Set<ValidObservation> matchingObs = new LinkedHashSet<ValidObservation>();
 
 		for (int i = 0; i < obs.size(); i++) {

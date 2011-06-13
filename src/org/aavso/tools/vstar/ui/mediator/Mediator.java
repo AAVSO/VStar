@@ -233,6 +233,8 @@ public class Mediator {
 				.addListener(createPeriodChangeListener());
 
 		this.polynomialFitNofitier.addListener(createPolynomialFitListener());
+		this.filteredObservationNotifier
+				.addListener(createFilteredObservationListener());
 
 		// Undoable action manager creation and listener setup.
 		this.undoableActionManager = new UndoableActionManager();
@@ -416,9 +418,12 @@ public class Mediator {
 	// When the period changes, create a new phase plot passing the pre-existing
 	// series visibility map if a previous phase plot was created.
 	//
-	// TODO: actually, createPhasePlotArtefacts() should not be necessary; it should
-	// only be necessary to a. set the phases with the new period and epoch (need to
-	// include the epoch in the message), and b. update the plot and table models.
+	// TODO: actually, createPhasePlotArtefacts() should not be necessary; it
+	// should
+	// only be necessary to a. set the phases with the new period and epoch
+	// (need to
+	// include the epoch in the message), and b. update the plot and table
+	// models.
 	private Listener<PeriodChangeMessage> createPeriodChangeListener() {
 		return new Listener<PeriodChangeMessage>() {
 			public void update(PeriodChangeMessage info) {
@@ -485,7 +490,7 @@ public class Mediator {
 			public void update(PolynomialFitMessage info) {
 				validObservationCategoryMap.put(SeriesType.PolynomialFit, info
 						.getPolynomialFitter().getFit());
-				
+
 				validObservationCategoryMap.put(SeriesType.Residuals, info
 						.getPolynomialFitter().getResiduals());
 			}
@@ -497,9 +502,31 @@ public class Mediator {
 		};
 	}
 
-//	add a similar listener for filtered obs and set their obs in create phase plot
-//	artefacts... did we have a tracker for this and poly? if so, update
-	
+	// Returns a filtered observation listener that updates the observation
+	// category map with the filtered series.
+	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
+		return new Listener<FilteredObservationMessage>() {
+			@Override
+			public void update(FilteredObservationMessage info) {
+				if (info == FilteredObservationMessage.NO_FILTER) {
+					validObservationCategoryMap.remove(SeriesType.Filtered);
+				} else {
+					// First, copy the set of filtered observations to a list.
+					List<ValidObservation> obs = new ArrayList<ValidObservation>();
+					for (ValidObservation ob : info.getFilteredObs()) {
+						obs.add(ob);
+					}
+					validObservationCategoryMap.put(SeriesType.Filtered, obs);
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
 	/**
 	 * Remove all willing listeners from notifiers. This is essentially a move
 	 * to free up any indirectly referenced objects that may cause a memory leak
@@ -950,7 +977,7 @@ public class Mediator {
 		setPhasesForSeries(SeriesType.PolynomialFit, epoch, period);
 		setPhasesForSeries(SeriesType.Residuals, epoch, period);
 		setPhasesForSeries(SeriesType.Filtered, epoch, period);
-		
+
 		// We duplicate the valid observation category map
 		// so that we have two sets of identical data for the
 		// two cycles of the phase plot. This map will be shared
