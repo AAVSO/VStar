@@ -23,22 +23,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
-import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
+import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.polyfit.IPolynomialFitter;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
@@ -90,11 +89,11 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 		xyMsgFormat = "Phase: " + NumericPrecisionPrefs.getTimeOutputFormat()
 				+ ", Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
 
-		Mediator.getInstance().getFilteredObservationNotifier().addListener(
-				createFilteredObservationListener());
-
-		Mediator.getInstance().getPolynomialFitNofitier().addListener(
-				createPolynomialFitListener());
+//		Mediator.getInstance().getFilteredObservationNotifier().addListener(
+//				createFilteredObservationListener());
+//
+//		Mediator.getInstance().getPolynomialFitNofitier().addListener(
+//				createModelSelectionListener());
 	}
 
 	// From ChartMouseListener interface.
@@ -238,14 +237,14 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 		};
 	}
 
-	// Returns a polynomial fit listener that updates the model and residual
+	// Returns a model selection listener that updates the model and residual
 	// series including setting the current phase in the data.
-	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
-		return new Listener<PolynomialFitMessage>() {
+	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
+		return new Listener<ModelSelectionMessage>() {
 
 			@Override
-			public void update(PolynomialFitMessage info) {
-				IPolynomialFitter model = info.getPolynomialFitter();
+			public void update(ModelSelectionMessage info) {
+				IModel model = info.getModel();
 
 				// Set the phases in the new model and residuals data.
 				PhaseCalcs.setPhases(model.getFit(), epoch, period);

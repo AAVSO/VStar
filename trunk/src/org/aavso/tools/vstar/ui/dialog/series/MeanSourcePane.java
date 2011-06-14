@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 
@@ -54,7 +54,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	private ButtonGroup seriesGroup;
 
 	private JRadioButton filteredRadioButton;
-	private JRadioButton polynomialFitRadioButton;
+	private JRadioButton modelRadioButton;
 	private JRadioButton residualsRadioButton;
 
 	/**
@@ -80,8 +80,8 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 			Mediator.getInstance().getFilteredObservationNotifier()
 					.addListener(createFilteredObservationListener());
 
-			Mediator.getInstance().getPolynomialFitNofitier().addListener(
-					createPolynomialFitListener());
+			Mediator.getInstance().getModelSelectionNofitier().addListener(
+					createModelListener());
 		}
 	}
 
@@ -159,21 +159,21 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.PAGE_AXIS));
-		subPanel.setBorder(BorderFactory.createTitledBorder("Polynomial Fit"));
+		subPanel.setBorder(BorderFactory.createTitledBorder("Model"));
 		subPanel.add(Box.createRigidArea(new Dimension(75, 1)));
 
-		// Polynomial Fit series.
-		polynomialFitRadioButton = new JRadioButton(SeriesType.PolynomialFit
+		// Model series.
+		modelRadioButton = new JRadioButton(SeriesType.Model
 				.getDescription());
-		polynomialFitRadioButton.setActionCommand(SeriesType.PolynomialFit
+		modelRadioButton.setActionCommand(SeriesType.Model
 				.getDescription());
-		polynomialFitRadioButton.addActionListener(this);
-		polynomialFitRadioButton.setEnabled(false);
-		subPanel.add(polynomialFitRadioButton);
+		modelRadioButton.addActionListener(this);
+		modelRadioButton.setEnabled(false);
+		subPanel.add(modelRadioButton);
 		subPanel.add(Box.createRigidArea(new Dimension(3, 3)));
-		seriesGroup.add(polynomialFitRadioButton);
+		seriesGroup.add(modelRadioButton);
 
-		// Polynomial residuals series.
+		// Residuals series.
 		residualsRadioButton = new JRadioButton(SeriesType.Residuals
 				.getDescription());
 		residualsRadioButton.setActionCommand(SeriesType.Residuals
@@ -253,14 +253,14 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		};
 	}
 
-	// Returns a polynomial fit observation listener.
-	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
-		return new Listener<PolynomialFitMessage>() {
+	// Returns a model listener.
+	protected Listener<ModelSelectionMessage> createModelListener() {
+		return new Listener<ModelSelectionMessage>() {
 			@Override
-			public void update(PolynomialFitMessage info) {
+			public void update(ModelSelectionMessage info) {
 				// Enable radio buttons upon first series creation.
-				if (!polynomialFitRadioButton.isEnabled()) {
-					polynomialFitRadioButton.setEnabled(true);
+				if (!modelRadioButton.isEnabled()) {
+					modelRadioButton.setEnabled(true);
 				}
 
 				if (!residualsRadioButton.isEnabled()) {

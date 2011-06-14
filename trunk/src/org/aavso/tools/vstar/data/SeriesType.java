@@ -93,11 +93,11 @@ public enum SeriesType {
 	Filtered(SeriesType.NO_INDEX, "Filtered", "Filtered",
 			new Color(0, 153, 204)),
 
-	// Polynomial fit series.
-	PolynomialFit(SeriesType.NO_INDEX, "Polynomial Fit", "Polynomial Fit",
+	// Model series.
+	Model(SeriesType.NO_INDEX, "Model", "Model",
 			Color.RED),
 
-	// Polynomial fit residuals series.
+	// Residuals series.
 	Residuals(SeriesType.NO_INDEX, "Residuals", "Residuals", Color.CYAN),
 
 	// This series can be used to mark an observation as being excluded for some

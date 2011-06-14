@@ -40,7 +40,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.stats.BinningResult;
@@ -63,7 +63,7 @@ public class SeriesVisibilityPane extends JPanel {
 
 	private JCheckBox meanCheckBox;
 	private JCheckBox filteredCheckBox;
-	private JCheckBox polynomialFitCheckBox;
+	private JCheckBox modelCheckBox;
 	private JCheckBox residualsCheckBox;
 
 	private int discrepantCount;
@@ -89,7 +89,7 @@ public class SeriesVisibilityPane extends JPanel {
 		this.checkBoxes = new ArrayList<JCheckBox>();
 
 		filteredCheckBox = null;
-		polynomialFitCheckBox = null;
+		modelCheckBox = null;
 
 		addSeriesCheckBoxes();
 
@@ -111,8 +111,8 @@ public class SeriesVisibilityPane extends JPanel {
 		Mediator.getInstance().getFilteredObservationNotifier().addListener(
 				createFilteredObservationListener());
 
-		Mediator.getInstance().getPolynomialFitNofitier().addListener(
-				createPolynomialFitListener());
+		Mediator.getInstance().getModelSelectionNofitier().addListener(
+				createModelListener());
 
 		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
 				createDiscrepantChangeListener());
@@ -143,7 +143,7 @@ public class SeriesVisibilityPane extends JPanel {
 		// We treat derived series separately.
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
 			if (series != SeriesType.MEANS
-					&& series != SeriesType.PolynomialFit
+					&& series != SeriesType.Model
 					&& series != SeriesType.Residuals
 					&& series != SeriesType.Filtered) {
 				String seriesName = series.getDescription();
@@ -211,20 +211,20 @@ public class SeriesVisibilityPane extends JPanel {
 
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.PAGE_AXIS));
-		subPanel.setBorder(BorderFactory.createTitledBorder("Polynomial Fit"));
+		subPanel.setBorder(BorderFactory.createTitledBorder("Model"));
 		subPanel.add(Box.createRigidArea(new Dimension(75, 1)));
 
-		// Polynomial Fit series.
-		polynomialFitCheckBox = new JCheckBox(SeriesType.PolynomialFit
+		// Model series.
+		modelCheckBox = new JCheckBox(SeriesType.Model
 				.getDescription());
-		polynomialFitCheckBox
+		modelCheckBox
 				.addActionListener(createSeriesVisibilityCheckBoxListener());
-		setInitialCheckBoxState(SeriesType.PolynomialFit, polynomialFitCheckBox);
-		subPanel.add(polynomialFitCheckBox);
+		setInitialCheckBoxState(SeriesType.Model, modelCheckBox);
+		subPanel.add(modelCheckBox);
 		subPanel.add(Box.createRigidArea(new Dimension(3, 3)));
-		checkBoxes.add(polynomialFitCheckBox);
+		checkBoxes.add(modelCheckBox);
 
-		// Polynomial residuals series.
+		// Residuals series.
 		residualsCheckBox = new JCheckBox(SeriesType.Residuals.getDescription());
 		residualsCheckBox
 				.addActionListener(createSeriesVisibilityCheckBoxListener());
@@ -508,15 +508,15 @@ public class SeriesVisibilityPane extends JPanel {
 		};
 	}
 
-	// Returns a polynomial fit observation listener.
-	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
-		return new Listener<PolynomialFitMessage>() {
+	// Returns a model listener.
+	protected Listener<ModelSelectionMessage> createModelListener() {
+		return new Listener<ModelSelectionMessage>() {
 			@Override
-			public void update(PolynomialFitMessage info) {
+			public void update(ModelSelectionMessage info) {
 				// Enable and select checkboxes upon first series creation.
-				if (!polynomialFitCheckBox.isEnabled()) {
-					polynomialFitCheckBox.setEnabled(true);
-					polynomialFitCheckBox.setSelected(true);
+				if (!modelCheckBox.isEnabled()) {
+					modelCheckBox.setEnabled(true);
+					modelCheckBox.setSelected(true);
 				}
 
 				if (!residualsCheckBox.isEnabled()) {

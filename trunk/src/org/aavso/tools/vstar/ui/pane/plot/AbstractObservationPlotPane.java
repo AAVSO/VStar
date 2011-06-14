@@ -39,7 +39,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
-import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
@@ -210,8 +210,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		Mediator.getInstance().getFilteredObservationNotifier().addListener(
 				createFilteredObservationListener());
 
-		Mediator.getInstance().getPolynomialFitNofitier().addListener(
-				createPolynomialFitListener());
+		Mediator.getInstance().getModelSelectionNofitier().addListener(
+				createModelSelectionListener());
 
 		Mediator.getInstance().getPanRequestNotifier().addListener(
 				createPanRequestListener());
@@ -572,17 +572,17 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	public void updateModelSeries(List<ValidObservation> modelObs,
 			List<ValidObservation> residualObs) {
 
-		// Add or replace a series for the polynomial fit and make sure
+		// Add or replace a series for the model and make sure
 		// the series is visible.
-		if (obsModel.seriesExists(SeriesType.PolynomialFit)) {
-			obsModel.replaceObservationSeries(SeriesType.PolynomialFit,
+		if (obsModel.seriesExists(SeriesType.Model)) {
+			obsModel.replaceObservationSeries(SeriesType.Model,
 					modelObs);
 		} else {
 			fitSeriesNum = obsModel.addObservationSeries(
-					SeriesType.PolynomialFit, modelObs);
+					SeriesType.Model, modelObs);
 		}
 
-		// Make the polynomial fit series visible either because this
+		// Make the model series visible either because this
 		// is its first appearance or because it may have been made
 		// invisible via the change series dialog.
 		obsModel.changeSeriesVisibility(fitSeriesNum, true);
@@ -607,13 +607,13 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		obsModel.changeSeriesVisibility(residualsSeriesNum, false);
 	}
 
-	// Returns a polynomial fit listener.
-	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
-		return new Listener<PolynomialFitMessage>() {
+	// Returns a model selection listener.
+	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
+		return new Listener<ModelSelectionMessage>() {
 			@Override
-			public void update(PolynomialFitMessage info) {
-				updateModelSeries(info.getPolynomialFitter().getFit(), info
-						.getPolynomialFitter().getResiduals());
+			public void update(ModelSelectionMessage info) {
+				updateModelSeries(info.getModel().getFit(), info.getModel()
+						.getResiduals());
 			}
 
 			@Override
