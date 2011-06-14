@@ -15,34 +15,38 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util.polyfit;
+package org.aavso.tools.vstar.util.model;
 
-import org.aavso.tools.vstar.util.model.IModel;
+import java.util.List;
+
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.IAlgorithm;
 
 /**
- * All polynomial fit implementations must realise this interface.
+ * All model classes must implement this interface, e.g. polynomial fits,
+ * Fourier coefficient based models.
  */
-public interface IPolynomialFitter extends IModel {
+public interface IModel extends IAlgorithm {
 
 	/**
-	 * Returns the minimum degree supported by a concrete polynomial fitter.
+	 * Return the fitted observations, after having executed the algorithm.
 	 * 
-	 * @return The minimum degree.
+	 * @return A list of observations that represent the fit.
 	 */
-	 abstract int getMinDegree();
+	abstract public List<ValidObservation> getFit();
 
 	/**
-	 * Returns the maximum degree supported by a concrete polynomial fitter.
+	 * Return the residuals as observations, after having executed the
+	 * algorithm.
 	 * 
-	 * @return The maximum degree.
+	 * @return A list of observations that represent the residuals.
 	 */
-	abstract int getMaxDegree();
-
+	abstract public List<ValidObservation> getResiduals();
+	
 	/**
-	 * Set the degree of the polynomial for the fitting operation.
+	 * Return a human-readable description of this model.
 	 * 
-	 * @param degree
-	 *            The degree of the polynomial.
+	 * @return The model description.
 	 */
-	abstract void setDegree(int degree);
+	abstract public String getDescription();
 }

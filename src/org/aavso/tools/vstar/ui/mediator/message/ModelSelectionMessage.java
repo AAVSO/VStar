@@ -17,30 +17,30 @@
  */
 package org.aavso.tools.vstar.ui.mediator.message;
 
-import org.aavso.tools.vstar.util.polyfit.IPolynomialFitter;
+import org.aavso.tools.vstar.util.model.IModel;
 
 /**
- * This message is sent when a polynomial fit operation has completed.
+ * This message is sent when a model selection operation has occurred.
  */
-public class PolynomialFitMessage extends MessageBase {
+public class ModelSelectionMessage extends MessageBase {
 
-	private IPolynomialFitter polynomialFitter;
+	private IModel model;
 	
 	/**
 	 * Constructor
 	 * 
 	 * @param source The source of the message.
-	 * @param polynomialFitter The fitter whose operation is complete.
+	 * @param model The model algorithm whose operation is complete.
 	 */
-	public PolynomialFitMessage(Object source, IPolynomialFitter polynomialFitter) {
+	public ModelSelectionMessage(Object source, IModel model) {
 		super(source);
-		this.polynomialFitter = polynomialFitter;
+		this.model = model;
 	}
 
 	/**
 	 * @return the polynomialFitter
 	 */
-	public IPolynomialFitter getPolynomialFitter() {
-		return polynomialFitter;
+	public IModel getModel() {
+		return model;
 	}
 }

@@ -64,13 +64,13 @@ import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
-import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
@@ -167,7 +167,7 @@ public class Mediator {
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
 	private Notifier<ZoomRequestMessage> zoomRequestNotifier;
 	private Notifier<FilteredObservationMessage> filteredObservationNotifier;
-	private Notifier<PolynomialFitMessage> polynomialFitNofitier;
+	private Notifier<ModelSelectionMessage> modelSelectionNofitier;
 	private Notifier<PanRequestMessage> panRequestNotifier;
 	private Notifier<UndoActionMessage> undoActionNotifier;
 	private Notifier<StopRequestMessage> stopRequestNotifier;
@@ -197,7 +197,7 @@ public class Mediator {
 		this.meanSourceSeriesChangeNotifier = new Notifier<MeanSourceSeriesChangeMessage>();
 		this.zoomRequestNotifier = new Notifier<ZoomRequestMessage>();
 		this.filteredObservationNotifier = new Notifier<FilteredObservationMessage>();
-		this.polynomialFitNofitier = new Notifier<PolynomialFitMessage>();
+		this.modelSelectionNofitier = new Notifier<ModelSelectionMessage>();
 		this.panRequestNotifier = new Notifier<PanRequestMessage>();
 		this.undoActionNotifier = new Notifier<UndoActionMessage>();
 		this.stopRequestNotifier = new Notifier<StopRequestMessage>();
@@ -232,7 +232,7 @@ public class Mediator {
 		this.periodChangeMessageNotifier
 				.addListener(createPeriodChangeListener());
 
-		this.polynomialFitNofitier.addListener(createPolynomialFitListener());
+		this.modelSelectionNofitier.addListener(createModelSelectionListener());
 		this.filteredObservationNotifier
 				.addListener(createFilteredObservationListener());
 
@@ -344,10 +344,10 @@ public class Mediator {
 	}
 
 	/**
-	 * @return the polynomialFitNofitier
+	 * @return the modelSelectionNofitier
 	 */
-	public Notifier<PolynomialFitMessage> getPolynomialFitNofitier() {
-		return polynomialFitNofitier;
+	public Notifier<ModelSelectionMessage> getModelSelectionNofitier() {
+		return modelSelectionNofitier;
 	}
 
 	/**
@@ -482,17 +482,17 @@ public class Mediator {
 		};
 	}
 
-	// Returns a polynomial fit listener that updates the observation category
+	// Returns a model selection listener that updates the observation category
 	// map with model and residuals series.
-	protected Listener<PolynomialFitMessage> createPolynomialFitListener() {
-		return new Listener<PolynomialFitMessage>() {
+	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
+		return new Listener<ModelSelectionMessage>() {
 			@Override
-			public void update(PolynomialFitMessage info) {
-				validObservationCategoryMap.put(SeriesType.PolynomialFit, info
-						.getPolynomialFitter().getFit());
+			public void update(ModelSelectionMessage info) {
+				validObservationCategoryMap.put(SeriesType.Model, info
+						.getModel().getFit());
 
 				validObservationCategoryMap.put(SeriesType.Residuals, info
-						.getPolynomialFitter().getResiduals());
+						.getModel().getResiduals());
 			}
 
 			@Override
@@ -974,7 +974,7 @@ public class Mediator {
 		// series are not in the main observation list, only in the map
 		// (e.g. model, residuals, filtered obs), so we handle those separately.
 		PhaseCalcs.setPhases(validObsList, epoch, period);
-		setPhasesForSeries(SeriesType.PolynomialFit, epoch, period);
+		setPhasesForSeries(SeriesType.Model, epoch, period);
 		setPhasesForSeries(SeriesType.Residuals, epoch, period);
 		setPhasesForSeries(SeriesType.Filtered, epoch, period);
 

@@ -266,4 +266,9 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 			dt = (dtime - dtzero) / dtscale;
 		}
 	}
+
+	@Override
+	public String getDescription() {
+		return "Polynomial fit of degree " + degree;
+	}
 }

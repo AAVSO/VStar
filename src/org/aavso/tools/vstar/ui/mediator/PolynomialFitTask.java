@@ -21,7 +21,7 @@ import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.mediator.message.PolynomialFitMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.util.polyfit.IPolynomialFitter;
 
@@ -67,9 +67,9 @@ public class PolynomialFitTask extends SwingWorker<Void, Void> {
 	 */
 	public void done() {
 		if (!error && !isCancelled()) {
-			PolynomialFitMessage msg = new PolynomialFitMessage(this,
+			ModelSelectionMessage msg = new ModelSelectionMessage(this,
 					polynomialFitter);
-			Mediator.getInstance().getPolynomialFitNofitier().notifyListeners(
+			Mediator.getInstance().getModelSelectionNofitier().notifyListeners(
 					msg);
 		}
 
