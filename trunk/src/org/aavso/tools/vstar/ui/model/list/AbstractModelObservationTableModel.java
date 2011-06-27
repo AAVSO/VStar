@@ -20,44 +20,44 @@ package org.aavso.tools.vstar.ui.model.list;
 
 import java.util.List;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.stats.BinningResult;
 
 /**
- * This class is a base table model for derived mean observation data.
+ * This class is a base table model for derived model data.
  * 
- * The model is notified of wholesale mean data change.
+ * The model is notified of model data change.
  */
-public abstract class AbstractMeanObservationTableModel extends
-		AbstractSyntheticObservationTableModel implements Listener<BinningResult> {
+public abstract class AbstractModelObservationTableModel extends
+		AbstractSyntheticObservationTableModel implements
+		Listener<ModelSelectionMessage> {
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param obs
-	 *            The mean initial observation data. The mean data can be 
-	 *            updated later via this class's listener interface.
-	 */
-	public AbstractMeanObservationTableModel(List<ValidObservation> meanObsData) {
-		super(meanObsData);
+	protected SeriesType seriesType;
+
+	public AbstractModelObservationTableModel(List<ValidObservation> obs,
+			SeriesType seriesType) {
+		super(obs);
+		assert seriesType == SeriesType.Model
+				|| seriesType == SeriesType.Residuals;
+		this.seriesType = seriesType;
 	}
 
-	/**
-	 * Listen for updates to the mean data observation list, e.g.
-	 * if the bin size has changed.
-	 */
-	public void update(BinningResult binningResult) {
-		
-		this.obs = binningResult.getMeanObservations();
+	@Override
+	public void update(ModelSelectionMessage info) {
+		if (seriesType == SeriesType.Model) {
+			obs = info.getModel().getFit();
+		} else {
+			obs = info.getModel().getResiduals();
+		}
+
 		populateObsToRowMap();
-		this.fireTableDataChanged();
+		fireTableDataChanged();
 	}
-	
-	/**
-	 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
-	 */
+
+	@Override
 	public boolean canBeRemoved() {
-		return true;
+		return false;
 	}
 }

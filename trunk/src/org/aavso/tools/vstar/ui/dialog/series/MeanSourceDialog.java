@@ -24,9 +24,14 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
  * order to permit selection of the series that is to be the source of the means
  * series. Only one band/series should be used to calculate the mean series.
  * 
+ * TODO: Repurpose this for period analysis: SingleSeriesSelectionDialog Create
+ * once and update with a new message type; such a message could also be used to
+ * update the mean list model instead of making it listen to the plot!
+ * 
  * @deprecated
  */
-public class MeanSourceDialog extends AbstractSeriesVisibilityDialog<MeanSourcePane> {
+public class MeanSourceDialog extends
+		AbstractSeriesVisibilityDialog<MeanSourcePane> {
 
 	/**
 	 * Constructor
@@ -35,11 +40,13 @@ public class MeanSourceDialog extends AbstractSeriesVisibilityDialog<MeanSourceP
 	 *            The plot model.
 	 */
 	public MeanSourceDialog(ObservationAndMeanPlotModel obsPlotModel) {
-		super(obsPlotModel, "Change Series", new MeanSourcePane(obsPlotModel, null));
+		super(obsPlotModel, "Change Series", new MeanSourcePane(obsPlotModel,
+				null));
 	}
-	
+
 	/**
 	 * What is the mean series number?
+	 * 
 	 * @return The mean series source number.
 	 */
 	public int getMeanSeriesSourceNum() {

@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.HashMap;
@@ -26,7 +27,6 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -34,9 +34,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -50,6 +54,10 @@ public class TabbedDataPane extends JPanel {
 	private JTabbedPane tabs;
 	private Map<ViewModeType, Integer> viewModeToTabIndexMap;
 	private Map<Integer, ViewModeType> tabIndexToViewModeMap;
+	private AnalysisType analysisType;
+	private int index;
+
+	private IModel currModel;
 
 	/**
 	 * Constructor.
@@ -59,6 +67,9 @@ public class TabbedDataPane extends JPanel {
 
 		viewModeToTabIndexMap = new HashMap<ViewModeType, Integer>();
 		tabIndexToViewModeMap = new HashMap<Integer, ViewModeType>();
+		analysisType = AnalysisType.RAW_DATA;
+		index = 0;
+		currModel = null;
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -68,6 +79,20 @@ public class TabbedDataPane extends JPanel {
 
 		mediator.getAnalysisTypeChangeNotifier().addListener(
 				createAnalysisTypeChangeListener());
+
+		mediator.getModelSelectionNofitier().addListener(
+				createModelSelectionListener());
+
+		mediator.getNewStarNotifier().addListener(createNewStarListener());
+	}
+
+	/**
+	 * Advance to the next new tab index to be used.
+	 * 
+	 * @return
+	 */
+	private void nextTabIndex() {
+		index++;
 	}
 
 	/**
@@ -89,16 +114,9 @@ public class TabbedDataPane extends JPanel {
 		tabs.setPreferredSize(new Dimension((int) (MainFrame.WIDTH * 0.9),
 				(int) (MainFrame.HEIGHT * 0.95)));
 
-		int index = 0;
 		for (ViewModeType type : ViewModeType.values()) {
-			if (type != ViewModeType.MODEL_MODE
-					&& type != ViewModeType.RESIDUALS_MODE) {
-				String desc = type.getModeDesc();
-				tabs.addTab(desc, createTextPanel(noSomethingYet(desc)));
-				viewModeToTabIndexMap.put(type, index);
-				tabIndexToViewModeMap.put(index, type);
-				index++;
-			}
+			String desc = type.getModeDesc();
+			createTab(type, createTextPanel(noSomethingYet(desc)));
 		}
 
 		tabs.addChangeListener(createTabChangeListener());
@@ -109,13 +127,26 @@ public class TabbedDataPane extends JPanel {
 	}
 
 	/**
+	 * Create a tab with the specified component.
+	 * 
+	 * @param component
+	 *            The component to be comtained in the tab when created.
+	 */
+	private void createTab(ViewModeType type, Component component) {
+		tabs.addTab(type.getModeDesc(), component);
+		viewModeToTabIndexMap.put(type, index);
+		tabIndexToViewModeMap.put(index, type);
+		nextTabIndex();
+	}
+
+	/**
 	 * Create a text pane with a centered string.
 	 * 
 	 * @param text
 	 *            The text to be displayed.
 	 * @return The text pane component.
 	 */
-	private static JComponent createTextPanel(String text) {
+	private static Component createTextPanel(String text) {
 		JLabel label = new JLabel(text);
 		label.setHorizontalAlignment(JLabel.CENTER);
 		JPanel panel = new JPanel(false);
@@ -154,8 +185,12 @@ public class TabbedDataPane extends JPanel {
 	 */
 	private Listener<AnalysisTypeChangeMessage> createAnalysisTypeChangeListener() {
 		return new Listener<AnalysisTypeChangeMessage>() {
-			// Set the tabbed pane components for each model type.
+			// Set the tabbed pane components for each type.
 			public void update(AnalysisTypeChangeMessage msg) {
+				// Update the current analysis type.
+				analysisType = msg.getAnalysisType();
+
+				// Update standard plot and list panes.
 				JPanel obsAndMeanPane = msg.getObsAndMeanChartPane();
 				JPanel obsListPane = msg.getObsListPane();
 				JPanel meansListPane = msg.getMeansListPane();
@@ -169,10 +204,103 @@ public class TabbedDataPane extends JPanel {
 					tabs.setComponentAt(viewModeToTabIndexMap
 							.get(ViewModeType.LIST_MEANS_MODE), meansListPane);
 
+					// If a model has been created, set the appropriate
+					// components.
+					if (currModel != null) {
+						Component modelPane = mediator.getDocumentManager()
+								.getModelListPane(analysisType, currModel);
+
+						tabs.setComponentAt(viewModeToTabIndexMap
+								.get(ViewModeType.MODEL_MODE), modelPane);
+
+						Component residualsPane = mediator.getDocumentManager()
+								.getResidualsListPane(analysisType, currModel);
+
+						tabs.setComponentAt(viewModeToTabIndexMap
+								.get(ViewModeType.RESIDUALS_MODE),
+								residualsPane);
+					}
+
 					tabs.repaint();
 				}
 			}
 
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	/**
+	 * Return a model selection listener that sets model and residual tab
+	 * content for the current analysis mode (raw, phase).
+	 */
+	private Listener<ModelSelectionMessage> createModelSelectionListener() {
+		return new Listener<ModelSelectionMessage>() {
+			@Override
+			public void update(ModelSelectionMessage info) {
+				currModel = info.getModel();
+
+				// Obtain the list components for models and residuals.
+				Component modelPane = mediator.getDocumentManager()
+						.getModelListPane(analysisType, currModel);
+
+				Component residualsPane = mediator.getDocumentManager()
+						.getResidualsListPane(analysisType, currModel);
+
+				// Have the model tabs been created yet?
+				if (!viewModeToTabIndexMap.containsKey(ViewModeType.MODEL_MODE)) {
+					// No, so create tabs with component...
+					createTab(ViewModeType.MODEL_MODE, modelPane);
+					createTab(ViewModeType.RESIDUALS_MODE, residualsPane);
+				} else {
+					// Yes, so, set the components in the existing tabs...
+					// TODO: should be able to instead update models from
+					// info.getModel() getters!
+					tabs.setComponentAt(viewModeToTabIndexMap
+							.get(ViewModeType.MODEL_MODE), modelPane);
+					tabs.setComponentAt(viewModeToTabIndexMap
+							.get(ViewModeType.RESIDUALS_MODE), residualsPane);
+				}
+
+				tabs.repaint();
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	/**
+	 * Return a new star listener that clears the model and residual panes.
+	 */
+	private Listener<NewStarMessage> createNewStarListener() {
+		return new Listener<NewStarMessage>() {
+			@Override
+			public void update(NewStarMessage info) {
+				// Get rid of any previous model.
+				currModel = null;
+				
+				String desc = null;
+
+				// TODO: should be able to instead clear models
+
+				desc = ViewModeType.MODEL_MODE_DESC;
+				tabs.setComponentAt(viewModeToTabIndexMap
+						.get(ViewModeType.MODEL_MODE),
+						createTextPanel(noSomethingYet(desc)));
+
+				desc = ViewModeType.RESIDUALS_MODE_DESC;
+				tabs.setComponentAt(viewModeToTabIndexMap
+						.get(ViewModeType.RESIDUALS_MODE),
+						createTextPanel(noSomethingYet(desc)));
+				
+				tabs.repaint();
+			}
+
+			@Override
 			public boolean canBeRemoved() {
 				return false;
 			}

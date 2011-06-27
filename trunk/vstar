@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+# Run VStar with the same VM configuration as via JNLP.
+#
+# VSTAR_HOME needs to be set to the VStar root directory,
+# e.g. under Linux/Mac OS X: export VSTAR_HOME=/home/david/vstar
+# If not set, the script assumes the current directory is the
+# VStar root directory. If this is not the case, the script will
+# fail.
+
+if [ "$VSTAR_HOME" = "" ]; then
+  VSTAR_HOME=.
+fi
+
+java -Xms25m -Xmx500m -jar $VSTAR_HOME/dist/vstar.jar

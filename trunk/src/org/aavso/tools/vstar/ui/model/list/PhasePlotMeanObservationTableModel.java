@@ -23,8 +23,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * This class is a table model for mean observation data derived from phase plot
- * data.
+ * This class is a table model for mean observation data for a phase plot data
+ * view.
  * 
  * The model is notified of wholesale mean data change.
  */
@@ -40,7 +40,7 @@ public class PhasePlotMeanObservationTableModel extends
 	/**
 	 * Constructor.
 	 * 
-	 * @param meanObsData
+	 * @param obs
 	 *            The mean initial observation data. The mean data can be
 	 *            updated later via this class's listener interface.
 	 */
@@ -59,7 +59,7 @@ public class PhasePlotMeanObservationTableModel extends
 	 * @see javax.swing.table.TableModel#getRowCount()
 	 */
 	public int getRowCount() {
-		return meanObsData.size();
+		return obs.size();
 	}
 
 	/**
@@ -91,29 +91,29 @@ public class PhasePlotMeanObservationTableModel extends
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		assert columnIndex < COLUMN_COUNT;
 
-		ValidObservation ob = meanObsData.get(rowIndex);
+		ValidObservation ob = obs.get(rowIndex);
 
 		Object value = null;
 
 		switch (columnIndex) {
 		case PHASE_COLUMN:
-			if (rowIndex < meanObsData.size() / 2) {
-				value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-						.getPreviousCyclePhase());
+			if (rowIndex < obs.size() / 2) {
+				value = String.format(NumericPrecisionPrefs
+						.getTimeOutputFormat(), ob.getPreviousCyclePhase());
 			} else {
-				value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-						.getStandardPhase());
+				value = String.format(NumericPrecisionPrefs
+						.getTimeOutputFormat(), ob.getStandardPhase());
 			}
 			break;
 		case MEAN_COLUMN:
 			// The mean magnitude.
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
-					.getMagnitude().getMagValue());
+			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
+					ob.getMagnitude().getMagValue());
 			break;
 		case STDERR_COLUMN:
 			// The standard error of the average.
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
-					.getMagnitude().getUncertainty());
+			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
+					ob.getMagnitude().getUncertainty());
 			break;
 		}
 

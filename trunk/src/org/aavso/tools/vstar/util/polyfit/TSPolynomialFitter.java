@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.TSBase;
@@ -167,6 +168,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 			// uncertainty?
 			fitOb.setMagnitude(new Magnitude(xfit[n], 0));
 			fitOb.setComments(fitComment);
+			fitOb.setBand(SeriesType.Model);
 			fit.add(fitOb);
 		}
 
@@ -202,6 +204,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 				residualOb.setDateInfo(new DateInfo(tvec[n] + dt0));
 				residualOb.setMagnitude(new Magnitude(res, 0));
 				residualOb.setComments(residualsComment);
+				residualOb.setBand(SeriesType.Residuals);
 				residuals.add(residualOb);
 			}
 		}

@@ -23,7 +23,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * This class is a table model for mean observation data derived from raw data.
+ * This class is a table model for mean observation data for a raw data view.
  * 
  * The model is notified of wholesale mean data change.
  */
@@ -40,7 +40,7 @@ public class RawDataMeanObservationTableModel extends
 	/**
 	 * Constructor.
 	 * 
-	 * @param meanObsData
+	 * @param obs
 	 *            The mean initial observation data. The mean data can be
 	 *            updated later via this class's listener interface.
 	 */
@@ -59,7 +59,7 @@ public class RawDataMeanObservationTableModel extends
 	 * @see org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel#getRowCount()
 	 */
 	public int getRowCount() {
-		return meanObsData.size();
+		return obs.size();
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class RawDataMeanObservationTableModel extends
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		assert columnIndex < COLUMN_COUNT;
 
-		ValidObservation ob = meanObsData.get(rowIndex);
+		ValidObservation ob = obs.get(rowIndex);
 
 		Object value = null;
 

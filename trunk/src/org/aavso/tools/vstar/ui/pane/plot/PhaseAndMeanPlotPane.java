@@ -88,12 +88,6 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 		xyMsgFormat = "Phase: " + NumericPrecisionPrefs.getTimeOutputFormat()
 				+ ", Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
-
-//		Mediator.getInstance().getFilteredObservationNotifier().addListener(
-//				createFilteredObservationListener());
-//
-//		Mediator.getInstance().getPolynomialFitNofitier().addListener(
-//				createModelSelectionListener());
 	}
 
 	// From ChartMouseListener interface.
@@ -201,8 +195,15 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	}
 
 	// TODO: handle:
-	// New PhaseChangeMessage here and in tables rather than creating a whole
-	// new set of phase plot artefacts: setPhases(), fire changed.
+	// Create a new PhaseChangeMessage, using it here and in tables rather than
+	// creating a whole new set of phase plot artefacts: setPhases(), fire
+	// changed. We will need to think about when to update phases, ideally once
+	// over all obs in the mediator's valid obs map (to include all series)
+	// before message is notified, but because some obs are doubled up, we'll
+	// have to do this in each listener for now. When we eventually switch to
+	// plot models using List<List<ValidObservation>> or
+	// List<ValidObservation>[2], we'll just be able to set phases on the map
+	// once.
 
 	// Returns a filtered observation listener that updates the filtered data
 	// series. We don't need to set the phases in the data because the
@@ -225,8 +226,9 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 					filteredObs.addAll(obs);
 					Collections.sort(filteredObs,
 							StandardPhaseComparator.instance);
-
-					updateFilteredSeries(obs);
+					filteredObs.addAll(filteredObs);
+					
+					updateFilteredSeries(filteredObs);
 				}
 			}
 
@@ -236,7 +238,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 			}
 		};
 	}
-
+	
 	// Returns a model selection listener that updates the model and residual
 	// series including setting the current phase in the data.
 	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
@@ -254,12 +256,14 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 				List<ValidObservation> modelObs = new ArrayList<ValidObservation>();
 				modelObs.addAll(model.getFit());
 				Collections.sort(modelObs, StandardPhaseComparator.instance);
-
+				modelObs.addAll(modelObs);
+				
 				// Double and sort the residuals data.
 				List<ValidObservation> residualObs = new ArrayList<ValidObservation>();
 				residualObs.addAll(model.getResiduals());
 				Collections.sort(residualObs, StandardPhaseComparator.instance);
-
+				residualObs.addAll(residualObs);
+				
 				updateModelSeries(modelObs, residualObs);
 			}
 
