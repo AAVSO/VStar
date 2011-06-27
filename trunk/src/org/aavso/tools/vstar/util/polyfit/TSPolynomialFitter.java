@@ -274,4 +274,9 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	public String getDescription() {
 		return "Polynomial fit of degree " + degree;
 	}
+
+	@Override
+	public String getKind() {
+		return "Polynomial fit";
+	}
 }
