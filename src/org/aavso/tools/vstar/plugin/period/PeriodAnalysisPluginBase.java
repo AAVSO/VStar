@@ -75,7 +75,7 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	 *            the new period (and epoch) before creating a new phase plot.
 	 */
 	public void sendPeriodChangeMessage(double period) {
-		mediator.getPeriodChangeMessageNotifier().notifyListeners(
+		mediator.getPeriodChangeNotifier().notifyListeners(
 				new PeriodChangeMessage(this, period));
 	}
 
@@ -149,7 +149,7 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	 * @return the periodChangeNotifier
 	 */
 	protected Notifier<PeriodChangeMessage> getPeriodChangeNotifier() {
-		return mediator.getPeriodChangeMessageNotifier();
+		return mediator.getPeriodChangeNotifier();
 	}
 
 	/**

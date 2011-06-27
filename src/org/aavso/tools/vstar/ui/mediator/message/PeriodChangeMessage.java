@@ -18,7 +18,7 @@
 package org.aavso.tools.vstar.ui.mediator.message;
 
 /**
- * This message should be sent
+ * This message should be sent when a period change has occurred.
  */
 public class PeriodChangeMessage extends MessageBase {
 

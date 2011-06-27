@@ -64,6 +64,7 @@ import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
@@ -71,11 +72,13 @@ import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
+import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.PhasePlotMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.RawDataMeanObservationTableModel;
@@ -85,8 +88,8 @@ import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
-import org.aavso.tools.vstar.ui.pane.list.MeanObservationListPane;
 import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
+import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
@@ -157,20 +160,24 @@ public class Mediator {
 	private Notifier<ProgressInfo> progressNotifier;
 	// TODO: This next notifier could be used to mark the "document"
 	// (the current star's dataset) associated with the valid obs
-	// as being in need of saving (optional for now).
+	// as being in need of saving (optional for now). See DocumentManager
 	private Notifier<DiscrepantObservationMessage> discrepantObservationNotifier;
 	private Notifier<ExcludedObservationMessage> excludedObservationNotifier;
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
-	private Notifier<PeriodChangeMessage> periodChangeMessageNotifier;
+	private Notifier<PeriodChangeMessage> periodChangeNotifier;
+	private Notifier<PhaseChangeMessage> phaseChangeNotifier;
 	private Notifier<PeriodAnalysisRefinementMessage> periodAnalysisRefinementNotifier;
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
 	private Notifier<ZoomRequestMessage> zoomRequestNotifier;
 	private Notifier<FilteredObservationMessage> filteredObservationNotifier;
 	private Notifier<ModelSelectionMessage> modelSelectionNofitier;
+	private Notifier<ModelCreationMessage> modelCreationNotifier;
 	private Notifier<PanRequestMessage> panRequestNotifier;
 	private Notifier<UndoActionMessage> undoActionNotifier;
 	private Notifier<StopRequestMessage> stopRequestNotifier;
+
+	private DocumentManager documentManager;
 
 	private UndoableActionManager undoableActionManager;
 
@@ -192,12 +199,14 @@ public class Mediator {
 		this.excludedObservationNotifier = new Notifier<ExcludedObservationMessage>();
 		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
 		this.periodAnalysisSelectionNotifier = new Notifier<PeriodAnalysisSelectionMessage>();
-		this.periodChangeMessageNotifier = new Notifier<PeriodChangeMessage>();
+		this.periodChangeNotifier = new Notifier<PeriodChangeMessage>();
+		this.phaseChangeNotifier = new Notifier<PhaseChangeMessage>();
 		this.periodAnalysisRefinementNotifier = new Notifier<PeriodAnalysisRefinementMessage>();
 		this.meanSourceSeriesChangeNotifier = new Notifier<MeanSourceSeriesChangeMessage>();
 		this.zoomRequestNotifier = new Notifier<ZoomRequestMessage>();
 		this.filteredObservationNotifier = new Notifier<FilteredObservationMessage>();
 		this.modelSelectionNofitier = new Notifier<ModelSelectionMessage>();
+		this.modelCreationNotifier = new Notifier<ModelCreationMessage>();
 		this.panRequestNotifier = new Notifier<PanRequestMessage>();
 		this.undoActionNotifier = new Notifier<UndoActionMessage>();
 		this.stopRequestNotifier = new Notifier<StopRequestMessage>();
@@ -229,12 +238,18 @@ public class Mediator {
 		this.rawPlotControlDialog = null;
 		this.phasePlotControlDialog = null;
 
-		this.periodChangeMessageNotifier
-				.addListener(createPeriodChangeListener());
+		this.periodChangeNotifier.addListener(createPeriodChangeListener());
 
 		this.modelSelectionNofitier.addListener(createModelSelectionListener());
 		this.filteredObservationNotifier
 				.addListener(createFilteredObservationListener());
+
+		// Document manager creation and listener setup.
+		this.documentManager = new DocumentManager();
+		this.phaseChangeNotifier.addListener(this.documentManager
+				.createPhaseChangeListener());
+		this.newStarNotifier.addListener(this.documentManager
+				.createNewStarListener());
 
 		// Undoable action manager creation and listener setup.
 		this.undoableActionManager = new UndoableActionManager();
@@ -309,10 +324,17 @@ public class Mediator {
 	}
 
 	/**
-	 * @return the periodChangeMessageNotifier
+	 * @return the periodChangeNotifier
 	 */
-	public Notifier<PeriodChangeMessage> getPeriodChangeMessageNotifier() {
-		return periodChangeMessageNotifier;
+	public Notifier<PeriodChangeMessage> getPeriodChangeNotifier() {
+		return periodChangeNotifier;
+	}
+
+	/**
+	 * @return the phaseChangeNotifier
+	 */
+	public Notifier<PhaseChangeMessage> getPhaseChangeNotifier() {
+		return phaseChangeNotifier;
 	}
 
 	/**
@@ -351,6 +373,13 @@ public class Mediator {
 	}
 
 	/**
+	 * @return the modelCreationNotifier
+	 */
+	public Notifier<ModelCreationMessage> getModelCreationNotifier() {
+		return modelCreationNotifier;
+	}
+
+	/**
 	 * @return the panRequestNotifier
 	 */
 	public Notifier<PanRequestMessage> getPanRequestNotifier() {
@@ -365,6 +394,13 @@ public class Mediator {
 	}
 
 	/**
+	 * @return the stopRequestNotifier
+	 */
+	public Notifier<StopRequestMessage> getStopRequestNotifier() {
+		return stopRequestNotifier;
+	}
+
+	/**
 	 * @return the undoableActionManager
 	 */
 	public UndoableActionManager getUndoableActionManager() {
@@ -372,10 +408,10 @@ public class Mediator {
 	}
 
 	/**
-	 * @return the stopRequestNotifier
+	 * @return the documentManager
 	 */
-	public Notifier<StopRequestMessage> getStopRequestNotifier() {
-		return stopRequestNotifier;
+	public DocumentManager getDocumentManager() {
+		return documentManager;
 	}
 
 	/**
@@ -807,7 +843,7 @@ public class Mediator {
 
 		// GUI table and chart components.
 		ObservationListPane obsListPane = null;
-		MeanObservationListPane meansListPane = null;
+		SyntheticObservationListPane<AbstractMeanObservationTableModel> meansListPane = null;
 		ObservationAndMeanPlotPane obsAndMeanChartPane = null;
 
 		if (!validObsList.isEmpty()) {
@@ -882,7 +918,8 @@ public class Mediator {
 				invalidObsTableModel, enableColumnAutoResize);
 
 		// We also create the means list pane.
-		meansListPane = new MeanObservationListPane(meanObsTableModel);
+		meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(
+				meanObsTableModel);
 
 		// Create a message to notify whoever is listening that a new star
 		// has been loaded.
@@ -1034,8 +1071,14 @@ public class Mediator {
 		ObservationListPane obsListPane = new ObservationListPane(
 				validObsTableModel, null, enableColumnAutoResize);
 
-		MeanObservationListPane meansListPane = new MeanObservationListPane(
+		SyntheticObservationListPane<AbstractMeanObservationTableModel> meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(
 				meanObsTableModel);
+
+		// Create a phase change message so that existing plot and tables can
+		// update their GUI components and/or models accordingly.
+		PhaseChangeMessage phaseChangeMessage = new PhaseChangeMessage(this,
+				epoch, period);
+		phaseChangeNotifier.notifyListeners(phaseChangeMessage);
 
 		// Observation-and-mean table and plot.
 		AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(
@@ -1380,10 +1423,10 @@ public class Mediator {
 
 		case LIST_MEANS_MODE:
 			try {
-				MeanObservationListPane meanObsListPane = this.analysisTypeMap
+				SyntheticObservationListPane<AbstractMeanObservationTableModel> meanObsListPane = this.analysisTypeMap
 						.get(analysisType).getMeansListPane();
 
-				meanObsListPane.getMeanObsTable().print(PrintMode.FIT_WIDTH);
+				meanObsListPane.getObsTable().print(PrintMode.FIT_WIDTH);
 			} catch (PrinterException e) {
 				MessageBox.showErrorDialog(parent, "Print Means", e
 						.getMessage());

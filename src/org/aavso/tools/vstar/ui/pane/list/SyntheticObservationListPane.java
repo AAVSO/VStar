@@ -19,7 +19,6 @@ package org.aavso.tools.vstar.ui.pane.list;
 
 import java.awt.GridLayout;
 import java.awt.Rectangle;
-import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,42 +30,40 @@ import javax.swing.table.TableRowSorter;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
-import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
- * This class is a component that renders observation mean and standard error of
- * the average data.
+ * This class is a component that renders synthetic observations, e.g. mean and
+ * standard error of the average, or model data.
  */
-public class MeanObservationListPane extends JPanel implements
-		ListSelectionListener {
+public class SyntheticObservationListPane<T extends AbstractSyntheticObservationTableModel>
+		extends JPanel implements ListSelectionListener {
 
-	private AbstractMeanObservationTableModel meanObsTableModel;
-	private JTable meanObsTable;
-	private TableRowSorter<AbstractMeanObservationTableModel> rowSorter;
+	private T obsTableModel;
+	private JTable obsTable;
+	private TableRowSorter<T> rowSorter;
 	private ValidObservation lastObSelected = null;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param meanObsTableModel
-	 *            The mean observation table model.
+	 * @param obsTableModel
+	 *            The observation table model.
 	 */
-	public MeanObservationListPane(
-			AbstractMeanObservationTableModel meanObsTableModel) {
+	public SyntheticObservationListPane(T obsTableModel) {
 		super(new GridLayout(1, 1));
 
-		this.meanObsTableModel = meanObsTableModel;
-		this.meanObsTable = new JTable(meanObsTableModel);
+		this.obsTableModel = obsTableModel;
+		this.obsTable = new JTable(obsTableModel);
 
 		// Enable table sorting by clicking on a column.
-		rowSorter = new TableRowSorter<AbstractMeanObservationTableModel>(
-				meanObsTableModel);
-		meanObsTable.setRowSorter(rowSorter);
+		rowSorter = new TableRowSorter<T>(obsTableModel);
+		obsTable.setRowSorter(rowSorter);
 
-		JScrollPane meanObsTableScrollPane = new JScrollPane(meanObsTable);
+		JScrollPane obsTableScrollPane = new JScrollPane(obsTable);
 
-		this.add(meanObsTableScrollPane);
+		this.add(obsTableScrollPane);
 
 		// Listen for observation selection events. Notice that this class
 		// also generates these, but ignores them if sent by itself.
@@ -74,19 +71,26 @@ public class MeanObservationListPane extends JPanel implements
 				createObservationSelectionListener());
 
 		// Listen to filtered observation messages so we can filter what's
-		// displayed in the table.
-//		Mediator.getInstance().getFilteredObservationNotifier().addListener(
-//				createFilteredObservationListener());
+		// displayed in the table. TODO: do we want to do this?
+		// Mediator.getInstance().getFilteredObservationNotifier().addListener(
+		// createFilteredObservationListener());
 
 		// List row selection handling.
-		this.meanObsTable.getSelectionModel().addListSelectionListener(this);
+		this.obsTable.getSelectionModel().addListSelectionListener(this);
 	}
 
 	/**
-	 * @return the meanObsTable
+	 * @return the obsTableModel
 	 */
-	public JTable getMeanObsTable() {
-		return meanObsTable;
+	public T getObsTableModel() {
+		return obsTableModel;
+	}
+
+	/**
+	 * @return the obsTable
+	 */
+	public JTable getObsTable() {
+		return obsTable;
 	}
 
 	/**
@@ -102,15 +106,13 @@ public class MeanObservationListPane extends JPanel implements
 
 			public void update(ObservationSelectionMessage message) {
 				if (message.getSource() != this) {
-					List<ValidObservation> obs = meanObsTableModel
-							.getMeanObsData();
 					ValidObservation ob = message.getObservation();
-					Integer rowIndex = meanObsTableModel
+					Integer rowIndex = obsTableModel
 							.getRowIndexFromObservation(ob);
 					if (rowIndex != null) {
 						// Convert to view index!
-						rowIndex = meanObsTable.convertRowIndexToView(rowIndex);
-						
+						rowIndex = obsTable.convertRowIndexToView(rowIndex);
+
 						// Scroll to an arbitrary column (zeroth) within
 						// the selected row, then select that row.
 						// Assumption: we are specifying the zeroth cell
@@ -119,16 +121,14 @@ public class MeanObservationListPane extends JPanel implements
 						// Note that we could call this on the scroll
 						// pane, which would then forward the request to
 						// the table pane anyway.
-						int colWidth = (int) meanObsTable.getCellRect(rowIndex,
-								0, true).getWidth();
-						int rowHeight = meanObsTable.getRowHeight(rowIndex);
-						meanObsTable.scrollRectToVisible(new Rectangle(
-								colWidth, rowHeight * rowIndex, colWidth,
-								rowHeight));
+						int colWidth = (int) obsTable.getCellRect(rowIndex, 0,
+								true).getWidth();
+						int rowHeight = obsTable.getRowHeight(rowIndex);
+						obsTable.scrollRectToVisible(new Rectangle(colWidth,
+								rowHeight * rowIndex, colWidth, rowHeight));
 
-						meanObsTable
-								.setRowSelectionInterval(rowIndex, rowIndex);
-						
+						obsTable.setRowSelectionInterval(rowIndex, rowIndex);
+
 						lastObSelected = ob;
 					}
 				}
@@ -145,15 +145,14 @@ public class MeanObservationListPane extends JPanel implements
 	// "settled". This event could be consumed by other views such
 	// as plots.
 	public void valueChanged(ListSelectionEvent e) {
-		if (e.getSource() == meanObsTable.getSelectionModel()
-				&& meanObsTable.getRowSelectionAllowed()
+		if (e.getSource() == obsTable.getSelectionModel()
+				&& obsTable.getRowSelectionAllowed()
 				&& !e.getValueIsAdjusting()) {
-			int row = meanObsTable.getSelectedRow();
-			
+			int row = obsTable.getSelectedRow();
+
 			if (row >= 0) {
-				row = meanObsTable.convertRowIndexToModel(row);
-				ValidObservation ob = meanObsTableModel.getMeanObsData().get(
-						row);
+				row = obsTable.convertRowIndexToModel(row);
+				ValidObservation ob = obsTableModel.getObs().get(row);
 				ObservationSelectionMessage message = new ObservationSelectionMessage(
 						ob, this);
 				lastObSelected = ob;

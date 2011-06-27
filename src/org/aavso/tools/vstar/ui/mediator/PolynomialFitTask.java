@@ -71,6 +71,9 @@ public class PolynomialFitTask extends SwingWorker<Void, Void> {
 					polynomialFitter);
 			Mediator.getInstance().getModelSelectionNofitier().notifyListeners(
 					msg);
+			
+//			add model creation msg, then create dialog along lines of phase plot 
+//			params dialog
 		}
 
 		Mediator.getInstance().getProgressNotifier().notifyListeners(

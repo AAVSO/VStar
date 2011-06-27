@@ -17,30 +17,41 @@
  */
 package org.aavso.tools.vstar.ui.mediator.message;
 
-import org.aavso.tools.vstar.util.model.IModel;
-
 /**
- * This message is sent when a model selection operation has occurred.
+ * This message is sent when a phase change (period, epoch) occurs.
  */
-public class ModelSelectionMessage extends MessageBase {
+public class PhaseChangeMessage extends MessageBase {
 
-	private IModel model;
-	
+	private double epoch;
+	private double period;
+
 	/**
-	 * Constructor
+	 * Constructor.
 	 * 
-	 * @param source The source of the message.
-	 * @param model The model algorithm whose operation is complete.
+	 * @param source
+	 *            The source of this message.
+	 * @param epoch
+	 *            The epoch associated with the phase change.
+	 * @param period
+	 *            The period associated with the phase change.
 	 */
-	public ModelSelectionMessage(Object source, IModel model) {
+	public PhaseChangeMessage(Object source, double epoch, double period) {
 		super(source);
-		this.model = model;
+		this.epoch = epoch;
+		this.period = period;
 	}
 
 	/**
-	 * @return the model
+	 * @return the epoch
 	 */
-	public IModel getModel() {
-		return model;
+	public double getEpoch() {
+		return epoch;
+	}
+
+	/**
+	 * @return the period
+	 */
+	public double getPeriod() {
+		return period;
 	}
 }

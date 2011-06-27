@@ -20,9 +20,9 @@ package org.aavso.tools.vstar.ui.mediator.message;
 import org.aavso.tools.vstar.util.model.IModel;
 
 /**
- * This message is sent when a model selection operation has occurred.
+ * This message is sent when a model is created.
  */
-public class ModelSelectionMessage extends MessageBase {
+public class ModelCreationMessage extends MessageBase {
 
 	private IModel model;
 	
@@ -30,9 +30,9 @@ public class ModelSelectionMessage extends MessageBase {
 	 * Constructor
 	 * 
 	 * @param source The source of the message.
-	 * @param model The model algorithm whose operation is complete.
+	 * @param model The model that has been created.
 	 */
-	public ModelSelectionMessage(Object source, IModel model) {
+	public ModelCreationMessage(Object source, IModel model) {
 		super(source);
 		this.model = model;
 	}

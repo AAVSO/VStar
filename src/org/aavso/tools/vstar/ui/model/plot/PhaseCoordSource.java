@@ -28,11 +28,11 @@ import org.aavso.tools.vstar.data.ValidObservation;
 public class PhaseCoordSource implements ICoordSource {
 
 	public static PhaseCoordSource instance = new PhaseCoordSource();
-	
+
 	/**
 	 * Each mapped series list is assumed to be have been duplicated to
-	 * facilitate a Standard Phase Diagram where the phase ranges over 
-	 * -1..1 inclusive.
+	 * facilitate a Standard Phase Diagram where the phase ranges over -1..1
+	 * inclusive.
 	 * 
 	 * @param series
 	 *            The series of interest.
@@ -107,7 +107,7 @@ public class PhaseCoordSource implements ICoordSource {
 	 */
 	public ValidObservation getValidObservation(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
-		
+
 		return seriesNumToObSrcListMap.get(series).get(item);
 	}
 }

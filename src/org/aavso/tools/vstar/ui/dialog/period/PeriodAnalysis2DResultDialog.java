@@ -131,7 +131,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		double period = NumberParser.parseDouble(periodStr);
 
 		PeriodChangeMessage message = new PeriodChangeMessage(this, period);
-		Mediator.getInstance().getPeriodChangeMessageNotifier()
+		Mediator.getInstance().getPeriodChangeNotifier()
 				.notifyListeners(message);
 	}
 
