@@ -21,28 +21,29 @@ import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
-import org.aavso.tools.vstar.util.polyfit.IPolynomialFitter;
+import org.aavso.tools.vstar.util.model.IModel;
 
 /**
- * A concurrent task in which a potentially long-running polynomial fit is
+ * A concurrent task in which a potentially long-running modelling is
  * executed.
  */
-public class PolynomialFitTask extends SwingWorker<Void, Void> {
+public class ModellingTask extends SwingWorker<Void, Void> {
 
 	private boolean error;
-	private IPolynomialFitter polynomialFitter;
+	private IModel model;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param polynomialFitter
-	 *            The polynomial fitter to execute.
+	 * @param model
+	 *            The model algorithm to execute.
 	 */
-	public PolynomialFitTask(IPolynomialFitter polynomialFitter) {
+	public ModellingTask(IModel model) {
 		error = false;
-		this.polynomialFitter = polynomialFitter;
+		this.model = model;
 	}
 
 	/**
@@ -50,12 +51,12 @@ public class PolynomialFitTask extends SwingWorker<Void, Void> {
 	 */
 	protected Void doInBackground() throws Exception {
 		MainFrame.getInstance().getStatusPane().setMessage(
-				"Performing Polynomial Fit...");
+				"Performing " + model.getKind() + "...");
 		try {
-			polynomialFitter.execute();
+			model.execute();
 		} catch (Throwable t) {
 			error = true;
-			MessageBox.showErrorDialog("Polynomial Fit Error", t);
+			MessageBox.showErrorDialog(model.getKind() + " Error", t);
 		}
 
 		MainFrame.getInstance().getStatusPane().setMessage("");
@@ -67,13 +68,15 @@ public class PolynomialFitTask extends SwingWorker<Void, Void> {
 	 */
 	public void done() {
 		if (!error && !isCancelled()) {
-			ModelSelectionMessage msg = new ModelSelectionMessage(this,
-					polynomialFitter);
+			ModelSelectionMessage selectionMsg = new ModelSelectionMessage(
+					this, model);
 			Mediator.getInstance().getModelSelectionNofitier().notifyListeners(
-					msg);
-			
-//			add model creation msg, then create dialog along lines of phase plot 
-//			params dialog
+					selectionMsg);
+
+			ModelCreationMessage creationMsg = new ModelCreationMessage(this,
+					model);
+			Mediator.getInstance().getModelCreationNotifier().notifyListeners(
+					creationMsg);
 		}
 
 		Mediator.getInstance().getProgressNotifier().notifyListeners(

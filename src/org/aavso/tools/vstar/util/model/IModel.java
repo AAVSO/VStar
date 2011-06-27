@@ -42,11 +42,19 @@ public interface IModel extends IAlgorithm {
 	 * @return A list of observations that represent the residuals.
 	 */
 	abstract public List<ValidObservation> getResiduals();
-	
+
 	/**
 	 * Return a human-readable description of this model.
 	 * 
 	 * @return The model description.
 	 */
 	abstract public String getDescription();
+
+	/**
+	 * Return a human-readable 'kind' string (e.g. "Model", "Polynomial Fit")
+	 * indicating what kind of a model this is.
+	 * 
+	 * @return The 'kind' string.
+	 */
+	abstract public String getKind();
 }

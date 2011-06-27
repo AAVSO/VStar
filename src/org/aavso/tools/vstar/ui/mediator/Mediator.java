@@ -1257,7 +1257,7 @@ public class Mediator {
 				if (!dialog.isCancelled()) {
 					polynomialFitter.setDegree(dialog.getDegree());
 
-					PolynomialFitTask task = new PolynomialFitTask(
+					ModellingTask task = new ModellingTask(
 							polynomialFitter);
 
 					this.currTask = task;
