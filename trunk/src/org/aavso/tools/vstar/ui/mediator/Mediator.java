@@ -53,6 +53,7 @@ import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
 import org.aavso.tools.vstar.ui.dialog.AbstractPlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.ModelDialog;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PhasePlotControlDialog;
@@ -154,6 +155,9 @@ public class Mediator {
 	private AbstractPlotControlDialog rawPlotControlDialog;
 	private AbstractPlotControlDialog phasePlotControlDialog;
 
+	// Model dialog.
+	private ModelDialog modelDialog;
+
 	// Notifiers.
 	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
 	private Notifier<NewStarMessage> newStarNotifier;
@@ -226,6 +230,16 @@ public class Mediator {
 		this.analysisType = AnalysisType.RAW_DATA;
 		this.newStarMessage = null;
 
+		this.periodChangeNotifier.addListener(createPeriodChangeListener());
+
+		this.modelSelectionNofitier.addListener(createModelSelectionListener());
+		this.filteredObservationNotifier
+				.addListener(createFilteredObservationListener());
+		
+		// Initialise dialogs.
+		this.rawPlotControlDialog = null;
+		this.phasePlotControlDialog = null;
+
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
 
@@ -235,14 +249,11 @@ public class Mediator {
 		this.observationSelectionNotifier.addListener(this.obsFilterDialog
 				.createObservationSelectionListener());
 
-		this.rawPlotControlDialog = null;
-		this.phasePlotControlDialog = null;
-
-		this.periodChangeNotifier.addListener(createPeriodChangeListener());
-
-		this.modelSelectionNofitier.addListener(createModelSelectionListener());
-		this.filteredObservationNotifier
-				.addListener(createFilteredObservationListener());
+		this.modelDialog = new ModelDialog();
+		this.newStarNotifier.addListener(this.modelDialog
+				.createNewStarListener());
+		this.modelCreationNotifier.addListener(this.modelDialog
+				.createModelCreationListener());
 
 		// Document manager creation and listener setup.
 		this.documentManager = new DocumentManager();
@@ -1234,6 +1245,13 @@ public class Mediator {
 	}
 
 	/**
+	 * Open the model dialog.
+	 */
+	public void showModelDialog() {
+		modelDialog.showDialog();
+	}
+	
+	/**
 	 * Perform a polynomial fit operation.
 	 */
 	public void performPolynomialFit() {
@@ -1257,8 +1275,7 @@ public class Mediator {
 				if (!dialog.isCancelled()) {
 					polynomialFitter.setDegree(dialog.getDegree());
 
-					ModellingTask task = new ModellingTask(
-							polynomialFitter);
+					ModellingTask task = new ModellingTask(polynomialFitter);
 
 					this.currTask = task;
 

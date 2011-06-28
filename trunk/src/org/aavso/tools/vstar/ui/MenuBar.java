@@ -51,6 +51,7 @@ import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
@@ -99,6 +100,7 @@ public class MenuBar extends JMenuBar {
 	public static final String RAW_DATA = "Raw Data";
 	public static final String PHASE_PLOT = "Phase Plot...";
 	public static final String POLYNOMIAL_FIT = "Polynomial Fit...";
+	public static final String MODELS = "Models...";
 
 	// Tool menu item names.
 	public static final String RUN_SCRIPT = "Run Script...";
@@ -160,9 +162,7 @@ public class MenuBar extends JMenuBar {
 	JMenu analysisPeriodSearchMenu;
 
 	JMenuItem analysisPolynomialFitItem;
-
-	// Modelling menu.
-	// poly fit, ...
+	JMenuItem analysisModelsItem;
 
 	// Tool menu.
 	JMenu toolMenu;
@@ -215,6 +215,9 @@ public class MenuBar extends JMenuBar {
 
 		this.mediator.getUndoActionNotifier().addListener(
 				createUndoActionListener());
+
+		this.mediator.getModelCreationNotifier().addListener(
+				createModelCreationListener());
 	}
 
 	private void createFileMenu() {
@@ -445,6 +448,11 @@ public class MenuBar extends JMenuBar {
 		analysisPolynomialFitItem
 				.addActionListener(createPolynomialFitListener());
 		analysisMenu.add(analysisPolynomialFitItem);
+
+		analysisModelsItem = new JMenuItem(MODELS);
+		analysisModelsItem.setEnabled(false);
+		analysisModelsItem.addActionListener(createModelsListener());
+		analysisMenu.add(analysisModelsItem);
 
 		this.add(analysisMenu);
 	}
@@ -917,12 +925,23 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
-	 * Returns the action listener to be invoked for Analysis->Polynomial Fit
+	 * Returns the action listener to be invoked for Analysis->Polynomial Fit...
 	 */
 	public ActionListener createPolynomialFitListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mediator.performPolynomialFit();
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Analysis->Models...
+	 */
+	public ActionListener createModelsListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mediator.showModelDialog();
 			}
 		};
 	}
@@ -1054,7 +1073,7 @@ public class MenuBar extends JMenuBar {
 					setPhasePlotAnalysisMenuItemState(true);
 					break;
 				}
-				
+
 				// Enable filtering.
 				viewFilterItem.setEnabled(true);
 				viewNoFilterItem.setEnabled(true);
@@ -1096,6 +1115,8 @@ public class MenuBar extends JMenuBar {
 				viewZoomInItem.setEnabled(false);
 				viewZoomOutItem.setEnabled(false);
 				viewZoomToFitItem.setEnabled(false);
+
+				analysisModelsItem.setEnabled(false);
 			}
 
 			/**
@@ -1108,7 +1129,8 @@ public class MenuBar extends JMenuBar {
 		};
 	}
 
-	// TODO: need a MultipleObservationSelectionMessage and to rename this one
+	// TODO: also need a MultipleObservationSelectionMessage and to rename this
+	// one
 	// to SingleObservationSelectionMessage
 
 	// Returns an observation selection listener that enables certain menu
@@ -1155,6 +1177,25 @@ public class MenuBar extends JMenuBar {
 
 				item.setText(itemName);
 				item.setEnabled(true);
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	/**
+	 * Return a model creation listener.
+	 */
+	public Listener<ModelCreationMessage> createModelCreationListener() {
+		return new Listener<ModelCreationMessage>() {
+			@Override
+			public void update(ModelCreationMessage info) {
+				if (!analysisModelsItem.isEnabled()) {
+					analysisModelsItem.setEnabled(true);
+				}
 			}
 
 			@Override
