@@ -406,6 +406,7 @@ public class TSBase {
 
 				// compute matrix entries for observer bias functions
 				for (nb = 1; nb <= nbias; nb++) {
+					// TODO: equals() vs '==' ?
 					if (obs[n] == obias[nb]) {
 						n2 = ndim2 + nb;
 						dmat[n2][n2] = dmat[n2][n2] + 1.0;
