@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util.polyfit;
+package org.aavso.tools.vstar.util.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,8 +65,18 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		degree = 0;
 	}
 
+	@Override
+	public String getDescription() {
+		return "Polynomial fit of degree " + degree;
+	}
+
+	@Override
+	public String getKind() {
+		return "Polynomial fit";
+	}
+
 	/**
-	 * @see org.aavso.tools.vstar.util.polyfit.IPolynomialFitter#setDegree(int)
+	 * @see org.aavso.tools.vstar.util.model.IPolynomialFitter#setDegree(int)
 	 */
 	@Override
 	public void setDegree(int degree) {
@@ -95,7 +105,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.util.polyfit.IPolynomialFitter#getFit()
+	 * @see org.aavso.tools.vstar.util.model.IPolynomialFitter#getFit()
 	 */
 	@Override
 	public List<ValidObservation> getFit() {
@@ -103,7 +113,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.util.polyfit.IPolynomialFitter#getResiduals()
+	 * @see org.aavso.tools.vstar.util.model.IPolynomialFitter#getResiduals()
 	 */
 	@Override
 	public List<ValidObservation> getResiduals() {
@@ -268,15 +278,5 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 			xfit[numred] = dx;
 			dt = (dtime - dtzero) / dtscale;
 		}
-	}
-
-	@Override
-	public String getDescription() {
-		return "Polynomial fit of degree " + degree;
-	}
-
-	@Override
-	public String getKind() {
-		return "Polynomial fit";
 	}
 }

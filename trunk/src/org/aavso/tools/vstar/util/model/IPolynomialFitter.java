@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util.polyfit;
+package org.aavso.tools.vstar.util.model;
 
-import org.aavso.tools.vstar.util.model.IModel;
 
 /**
  * All polynomial fit implementations must realise this interface.

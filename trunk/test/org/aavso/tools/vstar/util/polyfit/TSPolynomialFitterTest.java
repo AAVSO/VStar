@@ -25,6 +25,7 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.DelCepTestData;
+import org.aavso.tools.vstar.util.model.TSPolynomialFitter;
 
 public class TSPolynomialFitterTest extends DelCepTestData {
 

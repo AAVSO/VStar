@@ -17,42 +17,18 @@
  */
 package org.aavso.tools.vstar.util.period.dcdft;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
-import org.aavso.tools.vstar.data.DateInfo;
-import org.aavso.tools.vstar.data.Magnitude;
-import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
  * DC DFT top hits unit test.
  */
-public class TopHitsDcDftTestBase extends TestCase {
-
-	protected List<ValidObservation> obs;
+public class TopHitsDcDftTestBase extends DataTestBase {
 
 	public TopHitsDcDftTestBase(String name, double[][] jdAndMagPairs) {
-		super(name);
-		this.obs = new ArrayList<ValidObservation>();
-		for (double[] jdAndMag : jdAndMagPairs) {
-			ValidObservation ob = new ValidObservation();
-			ob.setDateInfo(new DateInfo(jdAndMag[0]));
-			ob.setMagnitude(new Magnitude(jdAndMag[1], 0));
-			obs.add(ob);
-		}
-	}
-
-	protected void setUp() throws Exception {
-		super.setUp();
-		assert !obs.isEmpty();
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
+		super(name, jdAndMagPairs);
 	}
 
 	public void testDcDftTopHits(double[] expectedPeriods,

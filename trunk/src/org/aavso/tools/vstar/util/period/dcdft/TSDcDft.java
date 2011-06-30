@@ -22,8 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.TSBase;
+import org.aavso.tools.vstar.util.model.MultiPeriodicFit;
+import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
@@ -221,7 +226,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 * method has been invoked.
 	 */
 	public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits() {
-		
+
 		// Create top-hits collection.
 		topHits = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
 
@@ -262,9 +267,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	}
 
 	@Override
-	public List<PeriodAnalysisDataPoint> refineByFrequency(
-			List<Double> freqs) {
-		
+	public List<PeriodAnalysisDataPoint> refineByFrequency(List<Double> freqs) {
+
 		deltaTopHits.clear();
 		cleanest(freqs);
 
@@ -658,6 +662,147 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 			dlnu = 1.0 / dlper;
 			tablit();
 		}
+	}
+
+	/**
+	 * Create a multi-periodic fit from the data from a list of periods.
+	 * 
+	 * @param periods
+	 *            The periods to be used to create the fit.
+	 */
+	public MultiPeriodicFit multiPeriodicFit(List<Double> periods) {
+		List<ValidObservation> modelObs = new ArrayList<ValidObservation>();
+		List<ValidObservation> residualObs = new ArrayList<ValidObservation>();
+		List<PeriodFitParameters> parameters = new ArrayList<PeriodFitParameters>();
+
+		MultiPeriodicFit fit = new MultiPeriodicFit(periods, modelObs,
+				residualObs, parameters);
+
+		// CASE F6
+
+		// 60 call getfreq
+		// ;
+
+		// Convert frequencies to be considered to Fortran array index form.
+		// TODO: we should just dispense with this everywhere and use
+		// 0-originated indices.
+		nfre = periods.size();
+		dfre = new double[nfre + 1];
+		for (int i = 1; i <= nfre; i++) {
+			dfre[i] = 1.0 / periods.get(i - 1);
+		}
+
+		// write(6,*) 'save residuals? (y/n)'
+
+		// read*,rfil
+		// ;
+		// if (rfil=='Y'||rfil=='y') then {
+		// if (rfil=='Y') rfil='y';
+		// write(6,*) 'residuals filename:'
+
+		// read*,rname
+		// ;
+		// open[unit=9,file=rname][status='unknown']
+		// ;
+		// }
+		double avemod = 0.0;
+		double varmod = 0.0;
+
+		// compute coefficients
+		// write(6,*) 'Computing...'
+
+		project();
+
+		// write(1,293) dfpow,fprint,numact,dave,dsig,dvar
+
+		// write(1,292) dt0+tvec(nlolim),dt0+tvec(nuplim),dt0+dtzero
+
+		// call lognow
+		for (int np = 1; np <= npoly; np++) {
+			// write(1,204) np,dcoef(np),dtscale
+		}
+		int nb = npoly + (2 * nfre);
+		for (int nn = 1; nn <= nbias; nn++) {
+			// write(1,205) obias(nn),dcoef(nb+nn)
+
+		}
+		// write(1,206)
+
+		nb = npoly;
+		for (int nn = 1; nn <= nfre; nn++) {
+			nb = nb + 2;
+			int na = nb - 1;
+			// nn is not amplitude but an index; we see Fre0n; what is dd & sqrt
+			// thereof?
+			double dd = dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb];
+			parameters
+					.add(new PeriodFitParameters(dfre[nn], periods.get(nn - 1),
+							Math.sqrt(dd), dcoef[na], dcoef[nb], dcoef[0]));
+			// if (nn > 9) {
+			// write(1,207) dfre(nn),1.0/dfre(nn),nn,dsqrt(dd),dcoef(na),
+
+			// 1 dcoef(nb),dcoef(0)
+			// ;
+			// } else {
+			// ;
+			// write(1,277) dfre(nn),1.0/dfre(nn),nn,dsqrt(dd),dcoef(na),
+
+			// 1 dcoef(nb),dcoef(0)
+			// ;
+			// }
+		}
+
+		double ttl = 0.0;
+		double xml = 0.0;
+		double residl = 0.0;
+
+		// compute and plot points
+		for (int n = nlolim; n <= nuplim; n++) {
+			if (nbrake < 0)
+				break;
+			if (wvec[n] > 0.0) {
+				double tt = tvec[n];
+				double dt = tt;
+				double dx = smooth(dt);
+				double xm = dx;
+				double resid = xvec[n] - xm;
+				for (nb = 1; nb <= nbias; nb++) {
+					if (obs[n] == obias[nb])
+						resid = resid - dcoef[ndim2 + nb];
+				}
+				// if (rfil=='y') then {
+				// write(9,250) tt+dt0,resid,obs(n),xvec(n),xm
+
+				// Create model and residual "observations".
+
+				ValidObservation modelOb = new ValidObservation();
+				modelOb.setDateInfo(new DateInfo(tt + dt0));
+				modelOb.setMagnitude(new Magnitude(xm, 0));
+				modelOb.setComments(fit.getDescription());
+				modelOb.setBand(SeriesType.Model);
+				modelObs.add(modelOb);
+
+				ValidObservation residualOb = new ValidObservation();
+				residualOb.setDateInfo(new DateInfo(tt + dt0));
+				residualOb.setMagnitude(new Magnitude(resid, 0));
+				residualOb.setComments(fit.getDescription());
+				residualOb.setBand(SeriesType.Residuals);
+				residualObs.add(residualOb);
+
+				// }
+				ttl = tt;
+				xml = xm;
+				residl = resid;
+				avemod = avemod + resid;
+				varmod = varmod + (resid * resid);
+			}
+		}
+		// close[9]
+		avemod = avemod / (double) numact;
+		varmod = varmod / (double) (numact - 1);
+		double rdev = Math.sqrt(varmod - avemod * avemod);
+
+		return fit;
 	}
 
 	// -------------------------------------------------------------------------------

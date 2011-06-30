@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.util.IAlgorithm;
+import org.aavso.tools.vstar.util.model.MultiPeriodicFit;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
 /**
@@ -67,4 +68,12 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	 * @return The name of the refine-by-frequency algorithm, or null if none.
 	 */
 	abstract public String getRefineByFrequencyName();
+
+	/**
+	 * Create a multi-periodic fit from the data from a list of periods.
+	 * 
+	 * @param freqs
+	 *            The periods to be used to create the fit.
+	 */
+	abstract public MultiPeriodicFit multiPeriodicFit(List<Double> periods);
 }
