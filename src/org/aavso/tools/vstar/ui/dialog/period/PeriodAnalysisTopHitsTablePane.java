@@ -34,9 +34,12 @@ import javax.swing.event.ListSelectionEvent;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
+import org.aavso.tools.vstar.util.model.MultiPeriodicFit;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
@@ -58,7 +61,8 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 	private Set<PeriodAnalysisDataPoint> resultantDataPoints;
 
 	private JButton refineButton;
-
+	private JButton modelButton;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -100,7 +104,12 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		refineButton = new JButton(algorithm.getRefineByFrequencyName());
 		refineButton.setEnabled(false);
 		refineButton.addActionListener(createRefineButtonHandler());
-		buttonPane.add(refineButton, BorderLayout.CENTER);
+		buttonPane.add(refineButton, BorderLayout.LINE_START);
+
+		modelButton = new JButton("Model");
+		modelButton.setEnabled(false);
+		modelButton.addActionListener(createModelButtonHandler());
+		buttonPane.add(modelButton, BorderLayout.LINE_END);
 
 		return buttonPane;
 	}
@@ -178,6 +187,44 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		};
 	}
 
+	// Model button listener.
+	private ActionListener createModelButtonHandler() {
+		final JPanel parent = this;
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				List<Double> periods = new ArrayList<Double>();
+				int[] selectedTableRowIndices = table.getSelectedRows();
+				for (int row : selectedTableRowIndices) {
+					int modelRow = table.convertRowIndexToModel(row);
+					PeriodAnalysisDataPoint dataPoint = topHitsModel
+							.createDataPointFromRow(modelRow);
+					periods.add(dataPoint.getPeriod());
+				}
+
+				if (!periods.isEmpty()) {
+					try {
+						// TODO: wrap this in a ModellingTask!
+						MultiPeriodicFit fit = algorithm
+								.multiPeriodicFit(periods);
+
+						ModelSelectionMessage selectionMsg = new ModelSelectionMessage(
+								this, fit);
+						Mediator.getInstance().getModelSelectionNofitier()
+								.notifyListeners(selectionMsg);
+
+						ModelCreationMessage creationMsg = new ModelCreationMessage(
+								this, fit);
+						Mediator.getInstance().getModelCreationNotifier()
+								.notifyListeners(creationMsg);
+					} catch (Exception ex) {
+						MessageBox.showErrorDialog(parent, "Modelling", ex
+								.getLocalizedMessage());
+					}
+				}
+			}
+		};
+	}
+
 	// Listen for period analysis selection messages in order to enable the
 	// "refine" button.
 	private Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
@@ -185,6 +232,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
 				refineButton.setEnabled(true);
+				modelButton.setEnabled(true);
 			}
 
 			@Override

@@ -21,6 +21,14 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
+// TODO:
+// - multiple period fit UT against TS
+// - PeriodFitParameters.toString() that shows coefficients and display in table panes
+// - Modelling task
+// - work through Grant's BZ Uma example
+// code clean-up
 
 /**
  * This class creates a multi-periodic fit model for the specified observations.
@@ -32,12 +40,13 @@ public class MultiPeriodicFit implements IModel {
 	private List<ValidObservation> fit;
 	private List<ValidObservation> residuals;
 	private List<PeriodFitParameters> parameters;
-	
+
 	/**
 	 * Constructor.
 	 */
 	public MultiPeriodicFit(List<Double> periods, List<ValidObservation> fit,
-			List<ValidObservation> residuals, List<PeriodFitParameters> parameters) {
+			List<ValidObservation> residuals,
+			List<PeriodFitParameters> parameters) {
 		this.periods = periods;
 		this.fit = fit;
 		this.residuals = residuals;
@@ -51,9 +60,11 @@ public class MultiPeriodicFit implements IModel {
 	@Override
 	public String getDescription() {
 		if (desc == null) {
-			desc = "Multi-periodic fit with periods: ";
+			desc = "Fit from periods: ";
 			for (Double period : periods) {
-				desc += period + " ";
+				desc += String.format(NumericPrecisionPrefs
+						.getOtherOutputFormat(), period)
+						+ " ";
 			}
 		}
 
