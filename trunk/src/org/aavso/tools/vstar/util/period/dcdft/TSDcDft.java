@@ -732,8 +732,6 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		for (int nn = 1; nn <= nfre; nn++) {
 			nb = nb + 2;
 			int na = nb - 1;
-			// nn is not amplitude but an index; we see Fre0n; what is dd & sqrt
-			// thereof?
 			double dd = dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb];
 			parameters
 					.add(new PeriodFitParameters(dfre[nn], periods.get(nn - 1),
