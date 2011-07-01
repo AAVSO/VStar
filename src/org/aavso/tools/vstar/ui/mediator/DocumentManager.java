@@ -76,8 +76,9 @@ public class DocumentManager {
 				// not been.
 				RawDataModelObservationTableModel modelTableModel = new RawDataModelObservationTableModel(
 						model.getFit(), SeriesType.Model);
+				String summary = model.toString();
 				SyntheticObservationListPane<AbstractModelObservationTableModel> modelPane = new SyntheticObservationListPane<AbstractModelObservationTableModel>(
-						modelTableModel);
+						modelTableModel, summary);
 
 				rawDataModelComponents.put(key, modelPane);
 			}
@@ -97,8 +98,9 @@ public class DocumentManager {
 				// not been.
 				PhasePlotModelObservationTableModel modelTableModel = new PhasePlotModelObservationTableModel(
 						model.getFit(), SeriesType.Model);
+				String summary = model.toString();
 				SyntheticObservationListPane<AbstractModelObservationTableModel> modelPane = new SyntheticObservationListPane<AbstractModelObservationTableModel>(
-						modelTableModel);
+						modelTableModel, summary);
 
 				phasedModelComponents.put(key, modelPane);
 			}
@@ -119,8 +121,9 @@ public class DocumentManager {
 			if (!rawDataResidualComponents.containsKey(key)) {
 				RawDataModelObservationTableModel residualsTableModel = new RawDataModelObservationTableModel(
 						model.getResiduals(), SeriesType.Residuals);
+				String summary = model.toString();
 				SyntheticObservationListPane<AbstractModelObservationTableModel> residualsPane = new SyntheticObservationListPane<AbstractModelObservationTableModel>(
-						residualsTableModel);
+						residualsTableModel, summary);
 
 				rawDataResidualComponents.put(key, residualsPane);
 			}
@@ -141,8 +144,9 @@ public class DocumentManager {
 				// not been.
 				PhasePlotModelObservationTableModel residualsTableModel = new PhasePlotModelObservationTableModel(
 						model.getResiduals(), SeriesType.Residuals);
+				String summary = model.toString();
 				SyntheticObservationListPane<AbstractModelObservationTableModel> residualsPane = new SyntheticObservationListPane<AbstractModelObservationTableModel>(
-						residualsTableModel);
+						residualsTableModel, summary);
 
 				phasedResidualComponents.put(key, residualsPane);
 			}
@@ -187,7 +191,7 @@ public class DocumentManager {
 			}
 		};
 	}
-	
+
 	/**
 	 * Return a new star listener that clears the maps.
 	 */
@@ -204,7 +208,7 @@ public class DocumentManager {
 			@Override
 			public boolean canBeRemoved() {
 				return false;
-			}			
+			}
 		};
 	}
 }

@@ -235,7 +235,7 @@ public class Mediator {
 		this.modelSelectionNofitier.addListener(createModelSelectionListener());
 		this.filteredObservationNotifier
 				.addListener(createFilteredObservationListener());
-		
+
 		// Initialise dialogs.
 		this.rawPlotControlDialog = null;
 		this.phasePlotControlDialog = null;
@@ -930,7 +930,7 @@ public class Mediator {
 
 		// We also create the means list pane.
 		meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(
-				meanObsTableModel);
+				meanObsTableModel, null);
 
 		// Create a message to notify whoever is listening that a new star
 		// has been loaded.
@@ -1083,7 +1083,7 @@ public class Mediator {
 				validObsTableModel, null, enableColumnAutoResize);
 
 		SyntheticObservationListPane<AbstractMeanObservationTableModel> meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(
-				meanObsTableModel);
+				meanObsTableModel, null);
 
 		// Create a phase change message so that existing plot and tables can
 		// update their GUI components and/or models accordingly.
@@ -1250,7 +1250,7 @@ public class Mediator {
 	public void showModelDialog() {
 		modelDialog.showDialog();
 	}
-	
+
 	/**
 	 * Perform a polynomial fit operation.
 	 */

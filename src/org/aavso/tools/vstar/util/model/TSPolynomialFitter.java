@@ -67,7 +67,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 	@Override
 	public String getDescription() {
-		return "Polynomial fit of degree " + degree;
+		return getKind() + " of degree " + degree;
 	}
 
 	@Override
@@ -91,6 +91,10 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	@Override
 	public int getMaxDegree() {
 		return 20;
+	}
+
+	public String toString() {
+		return getDescription();
 	}
 
 	/**
