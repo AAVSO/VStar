@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.util.model;
 
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
 /**
  * This class represents a single period-based fit parameter.
  * 
@@ -42,8 +44,8 @@ public class PeriodFitParameters {
 	 * @param constantCoefficient
 	 */
 	public PeriodFitParameters(double frequency, double period,
-			double amplitude, double cosineCoefficient,
-			double sineCoefficient, double constantCoefficient) {
+			double amplitude, double cosineCoefficient, double sineCoefficient,
+			double constantCoefficient) {
 		this.frequency = frequency;
 		this.period = period;
 		this.amplitude = amplitude;
@@ -92,5 +94,73 @@ public class PeriodFitParameters {
 	 */
 	public double getConstantCoefficient() {
 		return constantCoefficient;
+	}
+
+	/**
+	 * @see java.lang.Object#equals(java.lang.Object) Equality of parameters to
+	 *      4 decimal places.
+	 */
+	@Override
+	public boolean equals(Object other) {
+		boolean equal = other instanceof PeriodFitParameters;
+
+		if (equal) {
+			PeriodFitParameters params = (PeriodFitParameters) other;
+
+			equal &= String.format("%1.4f", params.getFrequency()).equals(
+					String.format("%1.4f", frequency));
+
+			equal &= String.format("%1.4f", params.getPeriod()).equals(
+					String.format("%1.4f", period));
+
+			equal &= String.format("%1.4f", params.getAmplitude()).equals(
+					String.format("%1.4f", amplitude));
+
+			equal &= String.format("%1.4f", params.getCosineCoefficient())
+					.equals(String.format("%1.4f", cosineCoefficient));
+
+			equal &= String.format("%1.4f", params.getSineCoefficient())
+					.equals(String.format("%1.4f", sineCoefficient));
+
+			equal &= String.format("%1.4f", params.getConstantCoefficient())
+					.equals(String.format("%1.4f", constantCoefficient));
+		}
+
+		return equal;
+	}
+
+	public String toString() {
+		String str = "parameters: ";
+
+		str += "frequency=";
+		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
+				frequency);
+		str += ", ";
+
+		str += "period=";
+		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
+				period);
+		str += ", ";
+
+		str += "amplitude=";
+		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
+				amplitude);
+		str += ", ";
+
+		str += "cosine coefficient=";
+		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
+				cosineCoefficient);
+		str += ", ";
+
+		str += "sine coefficient=";
+		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
+				sineCoefficient);
+		str += ", ";
+
+		str += "constant coefficient=";
+		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
+				constantCoefficient);
+
+		return str;
 	}
 }

@@ -50,8 +50,10 @@ public class SyntheticObservationListPane<T extends AbstractSyntheticObservation
 	 * 
 	 * @param obsTableModel
 	 *            The observation table model.
+	 * @param summary
+	 *            A summary of what the data represents (may be null).
 	 */
-	public SyntheticObservationListPane(T obsTableModel) {
+	public SyntheticObservationListPane(T obsTableModel, String summary) {
 		super(new GridLayout(1, 1));
 
 		this.obsTableModel = obsTableModel;
@@ -62,7 +64,6 @@ public class SyntheticObservationListPane<T extends AbstractSyntheticObservation
 		obsTable.setRowSorter(rowSorter);
 
 		JScrollPane obsTableScrollPane = new JScrollPane(obsTable);
-
 		this.add(obsTableScrollPane);
 
 		// Listen for observation selection events. Notice that this class

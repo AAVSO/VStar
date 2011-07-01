@@ -25,10 +25,9 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 // TODO:
 // - multiple period fit UT against TS
-// - PeriodFitParameters.toString() that shows coefficients and display in table panes
 // - Modelling task
 // - work through Grant's BZ Uma example
-// code clean-up
+// - code clean-up
 
 /**
  * This class creates a multi-periodic fit model for the specified observations.
@@ -37,6 +36,7 @@ public class MultiPeriodicFit implements IModel {
 
 	private List<Double> periods;
 	private String desc;
+	private String strRepr;
 	private List<ValidObservation> fit;
 	private List<ValidObservation> residuals;
 	private List<PeriodFitParameters> parameters;
@@ -52,6 +52,7 @@ public class MultiPeriodicFit implements IModel {
 		this.residuals = residuals;
 		this.parameters = parameters;
 		desc = null;
+		strRepr = null;
 	}
 
 	/**
@@ -60,7 +61,7 @@ public class MultiPeriodicFit implements IModel {
 	@Override
 	public String getDescription() {
 		if (desc == null) {
-			desc = "Fit from periods: ";
+			desc = getKind() + " from periods: ";
 			for (Double period : periods) {
 				desc += String.format(NumericPrecisionPrefs
 						.getOtherOutputFormat(), period)
@@ -108,5 +109,21 @@ public class MultiPeriodicFit implements IModel {
 	@Override
 	public void execute() throws AlgorithmError {
 		// Nothing to do.
+	}
+
+	public String toString() {
+		if (strRepr == null) {
+			String paramStr = "";			
+			for (int i=0;i<parameters.size();i++) {
+				PeriodFitParameters params = parameters.get(i);
+				paramStr += params.toString();
+				if (i < parameters.size()-1) {
+					paramStr += "\n";
+				}
+			}
+
+			strRepr = getDescription() + "\n" + paramStr;
+		}
+		return strRepr;
 	}
 }
