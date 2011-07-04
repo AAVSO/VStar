@@ -25,18 +25,17 @@ import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
- * Multi-periodic model creation test.
+ * Single-period model creation test.
  * 
- * These test cases are equivalent to running a "1: standard scan" from the
- * AAVSO's TS (t1201.f) Fortran program's Fourier analysis menu with the
- * tcas.dat file supplied with that program, followed by model the data (option
- * 6 from the Fourier analysis menu).
+ * This test case is equivalent to running a "1: standard scan" from the AAVSO's
+ * TS (t1201.f) Fortran program's Fourier analysis menu with the tcas.dat file
+ * supplied with that program, followed by a "6: model the data" from the
+ * Fourier analysis menu.
  * 
- * The expected data below is taken directly (via script) from the residuals
- * output file from a TS run.
+ * The expected data below is taken directly (via script: see
+ * script/tsresid2csv.pl) from the residuals output file from a TS run.
  */
-public class MultiPeriodicModelDcDftTest extends
-		MultiPeriodicModelDcDftTestBase {
+public class SinglePeriodModelDcDftTest extends MultiPeriodicModelDcDftTestBase {
 
 	private static final double[][] expectedModelData = {
 			{ 47003.5684, 11.3792 }, { 47010.5407, 11.4203 },
@@ -378,7 +377,7 @@ public class MultiPeriodicModelDcDftTest extends
 			{ 50340.0112, 0.0035 }, { 50348.2881, -0.2179 },
 			{ 50357.0029, -0.5638 } };
 
-	public MultiPeriodicModelDcDftTest(String name) {
+	public SinglePeriodModelDcDftTest(String name) {
 		super(name, TCasData.data);
 	}
 

@@ -27,7 +27,7 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.TSBase;
-import org.aavso.tools.vstar.util.model.MultiPeriodicFit;
+import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
@@ -665,18 +665,21 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	}
 
 	/**
-	 * Create a multi-periodic fit from the data from a list of periods.
+	 * Create a multi-periodic fit to the data from a list of periods.
 	 * 
 	 * @param periods
 	 *            The periods to be used to create the fit.
+	 * @param model
+	 *            A multi-period fit class that takes place in the context of a
+	 *            period analysis. Data members in this parameter are populated
+	 *            as a result of invoking this method.
 	 */
-	public MultiPeriodicFit multiPeriodicFit(List<Double> periods) {
-		List<ValidObservation> modelObs = new ArrayList<ValidObservation>();
-		List<ValidObservation> residualObs = new ArrayList<ValidObservation>();
-		List<PeriodFitParameters> parameters = new ArrayList<PeriodFitParameters>();
-
-		MultiPeriodicFit fit = new MultiPeriodicFit(periods, modelObs,
-				residualObs, parameters);
+	public void multiPeriodicFit(
+			List<Double> periods, PeriodAnalysisDerivedMultiPeriodicModel model) {
+		
+		List<ValidObservation> modelObs = model.getFit();
+		List<ValidObservation> residualObs = model.getResiduals();
+		List<PeriodFitParameters> parameters = model.getParameters();
 
 		// CASE F6
 
@@ -764,6 +767,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 				double dx = smooth(dt);
 				double xm = dx;
 				double resid = xvec[n] - xm;
+				// TODO: permit bias to be added in model creation
 				for (nb = 1; nb <= nbias; nb++) {
 					if (obs[n] == obias[nb])
 						resid = resid - dcoef[ndim2 + nb];
@@ -776,14 +780,14 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 				ValidObservation modelOb = new ValidObservation();
 				modelOb.setDateInfo(new DateInfo(tt + dt0));
 				modelOb.setMagnitude(new Magnitude(xm, 0));
-				modelOb.setComments(fit.getDescription());
+				modelOb.setComments(model.getDescription());
 				modelOb.setBand(SeriesType.Model);
 				modelObs.add(modelOb);
 
 				ValidObservation residualOb = new ValidObservation();
 				residualOb.setDateInfo(new DateInfo(tt + dt0));
 				residualOb.setMagnitude(new Magnitude(resid, 0));
-				residualOb.setComments(fit.getDescription());
+				residualOb.setComments(model.getDescription());
 				residualOb.setBand(SeriesType.Residuals);
 				residualObs.add(residualOb);
 
@@ -799,8 +803,6 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		avemod = avemod / (double) numact;
 		varmod = varmod / (double) (numact - 1);
 		double rdev = Math.sqrt(varmod - avemod * avemod);
-
-		return fit;
 	}
 
 	// -------------------------------------------------------------------------------

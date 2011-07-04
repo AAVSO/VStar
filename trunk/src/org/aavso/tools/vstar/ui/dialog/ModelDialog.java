@@ -203,6 +203,7 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 			@Override
 			public void update(NewStarMessage info) {
 				modelList.removeAll();
+				pack();
 				modelMap.clear();
 				selectButton.setEnabled(false);
 				deleteButton.setEnabled(false);

@@ -549,7 +549,6 @@ public class TSBase {
 	}
 	
 	protected double smooth(double dtime) {
-		
 		double dmag;
 		double dt, dphase;
 		double twopi;
@@ -558,7 +557,7 @@ public class TSBase {
 		twopi = Math.PI * 2;
 
 		dt = (dtime - dtzero) / dtscale;
-		dmag = dcoef[0];
+		dmag = dcoef[0]; // constant coefficient
 		for (np = 1; np <= npoly; np++) {
 			dmag = dmag + (dcoef[np] * (Math.pow(dt, np)));
 		}

@@ -20,8 +20,9 @@ package org.aavso.tools.vstar.util.period.dcdft;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.model.MultiPeriodicFit;
+import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 
 public class MultiPeriodicModelDcDftTestBase extends DataTestBase {
 
@@ -37,26 +38,28 @@ public class MultiPeriodicModelDcDftTestBase extends DataTestBase {
 		super.tearDown();
 	}
 
-	protected void commonTest(TSDcDft dcdft, List<Double> periods,
+	protected void commonTest(IPeriodAnalysisAlgorithm algorithm, List<Double> periods,
 			List<PeriodFitParameters> expectedParamsList,
 			double[][] expectedModelData, double[][] expectedResidualData) {
 
 		// Create a multi-periodic fit model based upon the specified periods.
-		MultiPeriodicFit fit = dcdft.multiPeriodicFit(periods);
-
+		PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
+				periods, algorithm);
+		algorithm.multiPeriodicFit(periods, model);
+		
 		// Check the model parameters.
-		assertEquals(expectedParamsList.size(), fit.getParameters().size());
+		assertEquals(expectedParamsList.size(), model.getParameters().size());
 		
 		for (int i = 0; i < expectedParamsList.size(); i++) {
 			assertTrue(expectedParamsList.get(i).equals(
-					fit.getParameters().get(i)));
+					model.getParameters().get(i)));
 		}
 
 		// Check the model data.
-		checkData(expectedModelData, fit.getFit());
+		checkData(expectedModelData, model.getFit());
 
 		// Check the residual data.
-		checkData(expectedResidualData, fit.getResiduals());
+		checkData(expectedResidualData, model.getResiduals());
 	}
 
 	protected void checkData(double[][] expectedData, List<ValidObservation> obs) {

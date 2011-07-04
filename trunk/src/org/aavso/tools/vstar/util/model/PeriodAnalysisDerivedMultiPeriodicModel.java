@@ -17,40 +17,49 @@
  */
 package org.aavso.tools.vstar.util.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 // TODO:
-// - multiple period fit UT against TS
-// - Modelling task
-// - work through Grant's BZ Uma example
+// - multiple period fit UT against TS: delcep with first 2 freqs
+// - work through Grant's BZ Uma and pre-whitening examples
 // - code clean-up
 
 /**
  * This class creates a multi-periodic fit model for the specified observations.
  */
-public class MultiPeriodicFit implements IModel {
+public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
 	private List<Double> periods;
-	private String desc;
-	private String strRepr;
+	private IPeriodAnalysisAlgorithm algorithm;
+
 	private List<ValidObservation> fit;
 	private List<ValidObservation> residuals;
 	private List<PeriodFitParameters> parameters;
 
+	private String desc;
+	private String strRepr;
+
 	/**
 	 * Constructor.
+	 * 
+	 * @param periods
+	 *            The periods to be used to create the fit.
 	 */
-	public MultiPeriodicFit(List<Double> periods, List<ValidObservation> fit,
-			List<ValidObservation> residuals,
-			List<PeriodFitParameters> parameters) {
+	public PeriodAnalysisDerivedMultiPeriodicModel(List<Double> periods,
+			IPeriodAnalysisAlgorithm algorithm) {
 		this.periods = periods;
-		this.fit = fit;
-		this.residuals = residuals;
-		this.parameters = parameters;
+		this.algorithm = algorithm;
+
+		this.fit = new ArrayList<ValidObservation>();
+		this.residuals = new ArrayList<ValidObservation>();
+		this.parameters = new ArrayList<PeriodFitParameters>();
+
 		desc = null;
 		strRepr = null;
 	}
@@ -81,6 +90,13 @@ public class MultiPeriodicFit implements IModel {
 	}
 
 	/**
+	 * @return the periods
+	 */
+	public List<Double> getPeriods() {
+		return periods;
+	}
+
+	/**
 	 * @see org.aavso.tools.vstar.util.model.IModel#getFit()
 	 */
 	@Override
@@ -108,16 +124,16 @@ public class MultiPeriodicFit implements IModel {
 	 */
 	@Override
 	public void execute() throws AlgorithmError {
-		// Nothing to do.
+		algorithm.multiPeriodicFit(periods, this);
 	}
 
 	public String toString() {
 		if (strRepr == null) {
-			String paramStr = "";			
-			for (int i=0;i<parameters.size();i++) {
+			String paramStr = "";
+			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);
 				paramStr += params.toString();
-				if (i < parameters.size()-1) {
+				if (i < parameters.size() - 1) {
 					paramStr += "\n";
 				}
 			}

@@ -24,13 +24,13 @@ import java.util.Map;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.DelCepTestData;
+import org.aavso.tools.vstar.util.DelCepData;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
  * Date Compensated Discrete Fourier Transform unit tests.
  */
-public class DcDftTest extends DelCepTestData {
+public class DcDftTest extends DelCepData {
 
 	// A subset of the expected results (the first >2700, due
 	// to class size constraints. While we need all the observation
