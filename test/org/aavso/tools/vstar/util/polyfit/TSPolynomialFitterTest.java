@@ -24,10 +24,10 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
-import org.aavso.tools.vstar.util.DelCepTestData;
+import org.aavso.tools.vstar.util.DelCepData;
 import org.aavso.tools.vstar.util.model.TSPolynomialFitter;
 
-public class TSPolynomialFitterTest extends DelCepTestData {
+public class TSPolynomialFitterTest extends DelCepData {
 
 	private List<ValidObservation> obs;
 

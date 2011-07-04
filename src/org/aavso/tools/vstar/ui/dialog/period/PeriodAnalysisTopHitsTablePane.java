@@ -34,12 +34,10 @@ import javax.swing.event.ListSelectionEvent;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
-import org.aavso.tools.vstar.util.model.MultiPeriodicFit;
+import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
@@ -62,7 +60,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 	private JButton refineButton;
 	private JButton modelButton;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -106,7 +104,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		refineButton.addActionListener(createRefineButtonHandler());
 		buttonPane.add(refineButton, BorderLayout.LINE_START);
 
-		modelButton = new JButton("Model");
+		modelButton = new JButton("Create Model");
 		modelButton.setEnabled(false);
 		modelButton.addActionListener(createModelButtonHandler());
 		buttonPane.add(modelButton, BorderLayout.LINE_END);
@@ -203,19 +201,10 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 				if (!periods.isEmpty()) {
 					try {
-						// TODO: wrap this in a ModellingTask!
-						MultiPeriodicFit fit = algorithm
-								.multiPeriodicFit(periods);
-
-						ModelSelectionMessage selectionMsg = new ModelSelectionMessage(
-								this, fit);
-						Mediator.getInstance().getModelSelectionNofitier()
-								.notifyListeners(selectionMsg);
-
-						ModelCreationMessage creationMsg = new ModelCreationMessage(
-								this, fit);
-						Mediator.getInstance().getModelCreationNotifier()
-								.notifyListeners(creationMsg);
+						PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
+								periods, algorithm);
+						
+						Mediator.getInstance().performModellingOperation(model);
 					} catch (Exception ex) {
 						MessageBox.showErrorDialog(parent, "Modelling", ex
 								.getLocalizedMessage());

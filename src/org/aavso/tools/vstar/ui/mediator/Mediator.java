@@ -97,6 +97,7 @@ import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
 import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
+import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.IPolynomialFitter;
 import org.aavso.tools.vstar.util.model.TSPolynomialFitter;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -1261,8 +1262,8 @@ public class Mediator {
 				List<ValidObservation> meanObsSourceList = getMeanSourceObservations();
 
 				// TODO: later, if we want to allow polynomial fit plugins, this
-				// can be created by a plugin impl class just as we do
-				// for DC DFT.
+				// can be created by a plug-in implementation class just as we
+				// do for DC DFT.
 				IPolynomialFitter polynomialFitter = new TSPolynomialFitter(
 						meanObsSourceList);
 
@@ -1290,6 +1291,34 @@ public class Mediator {
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"Polynomial Fit Error", e);
+
+			this.getProgressNotifier().notifyListeners(
+					ProgressInfo.START_PROGRESS);
+
+			MainFrame.getInstance().getStatusPane().setMessage("");
+		}
+	}
+
+	/**
+	 * Perform a modelling operation (other than polynomial fit).
+	 */
+	public void performModellingOperation(IModel model) {
+		// TODO: we may want to introduce another class of plug-in for
+		// modelling.
+		try {
+			ModellingTask task = new ModellingTask(model);
+
+			this.currTask = task;
+
+			this.getProgressNotifier().notifyListeners(
+					ProgressInfo.START_PROGRESS);
+			this.getProgressNotifier().notifyListeners(
+					ProgressInfo.BUSY_PROGRESS);
+
+			task.execute();
+		} catch (Exception e) {
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					"Modelling Error", e);
 
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);

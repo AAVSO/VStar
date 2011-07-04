@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.util.IAlgorithm;
-import org.aavso.tools.vstar.util.model.MultiPeriodicFit;
+import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
 /**
@@ -72,8 +72,13 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	/**
 	 * Create a multi-periodic fit from the data from a list of periods.
 	 * 
-	 * @param freqs
+	 * @param periods
 	 *            The periods to be used to create the fit.
+	 * @param model
+	 *            A multi-period fit class that takes place in the context of a
+	 *            period analysis. Data members in this parameter are populated
+	 *            as a result of invoking this method.
 	 */
-	abstract public MultiPeriodicFit multiPeriodicFit(List<Double> periods);
+	abstract public void multiPeriodicFit(List<Double> periods,
+			PeriodAnalysisDerivedMultiPeriodicModel model);
 }

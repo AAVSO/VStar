@@ -23,17 +23,18 @@ import junit.framework.TestCase;
  * Time Series Del Cep data class for use for period analysis, polynomial fit
  * etc tests.
  */
-public class DelCepTestData extends TestCase {
+public class DelCepData extends TestCase {
 
-	public DelCepTestData(String name) {
+	public DelCepData(String name) {
 		super(name);
 	}
 
 	// This is the same data as is found in the first two columns of
 	// the delcep.vis data file accompanying the ts1201.f AAVSO DCDFT
-	// archive sent to me by Matt Templeton in March 2010.
+	// archive sent to me by Matt Templeton in March 2010. See
+	// vstar/data/delcep.vis.
 
-	protected static double[][] jd_and_mag = { { 2450000.2569, 3.9 },
+	public static double[][] jd_and_mag = { { 2450000.2569, 3.9 },
 			{ 2450000.3528, 4.3 }, { 2450000.4826, 3.7 }, { 2450000.5, 3.8 },
 			{ 2450000.5, 3.5 }, { 2450000.52, 3.7 }, { 2450000.5424, 3.6 },
 			{ 2450000.58, 3.7 }, { 2450000.58, 3.8 }, { 2450000.58, 3.8 },

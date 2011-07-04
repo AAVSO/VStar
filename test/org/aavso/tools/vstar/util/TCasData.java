@@ -19,7 +19,8 @@ package org.aavso.tools.vstar.util;
 
 /**
  * T Cas test data as supplied with the AAVSO's ts1201.f Time Series Fortran
- * code from AAVSO, by Matthew Templeton and Grant Foster.
+ * code from AAVSO, by Matthew Templeton and Grant Foster. See
+ * vstar/data/tcas.dat.
  */
 public class TCasData {
 
