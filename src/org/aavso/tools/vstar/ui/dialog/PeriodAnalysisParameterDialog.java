@@ -28,7 +28,6 @@ import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.util.locale.NumberParser;
-import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This modal dialog class allows period analysis parameters to be entered.

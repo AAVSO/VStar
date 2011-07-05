@@ -1214,7 +1214,7 @@ public class MenuBar extends JMenuBar {
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
 
-		this.editMenu.setEnabled(state);
+//		this.editMenu.setEnabled(state);
 
 		// this.viewObDetailsItem.setEnabled(state);
 		this.viewPlotControlItem.setEnabled(state);

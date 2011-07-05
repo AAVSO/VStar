@@ -167,6 +167,7 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 				String desc = (String) modelListModel
 						.remove(selectedModelIndex);
 				modelMap.remove(desc);
+				pack();
 			}
 		};
 	}
