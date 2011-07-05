@@ -32,8 +32,8 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
  * (containing V and Vis data) sent to me by Matt Templeton (see
  * vstar/data/delcep.vis) in March 2010, followed by a "6: model the data" from
  * the Fourier analysis menu.
- * 
  * The expected data below is taken directly (via script: see
+ * 
  * script/tsresid2csv.pl) from the residuals output file from a TS run.
  */
 public class TwoPeriodModelDcDftTest extends MultiPeriodicModelDcDftTestBase {
