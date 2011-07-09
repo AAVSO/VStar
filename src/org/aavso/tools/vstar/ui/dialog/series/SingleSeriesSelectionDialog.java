@@ -19,7 +19,6 @@ package org.aavso.tools.vstar.ui.dialog.series;
 
 import java.awt.Container;
 import java.awt.Dimension;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -27,72 +26,44 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
-import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 
 /**
- * This dialog permits the visibility of plot series to be changed, and allows
- * subclasses to extend its functionality by adding series-related panes and
- * behavior. Note that this class must be specialised at least by specifying
- * the generic parameter.
- *
- * TODO: change the generic type to permit Void (set of types?)
+ * This class represents a dialog that permits a single series to be selected.
  */
-abstract public class AbstractSeriesVisibilityDialog<T extends JPanel> extends AbstractOkCancelDialog {
+public class SingleSeriesSelectionDialog extends AbstractOkCancelDialog {
 
-	protected JPanel topPane;
 	protected JPanel seriesPane;
 
-	protected ObservationPlotModel obsPlotModel;
-	protected SeriesVisibilityPane seriesVisibilityPane;
-	protected T nextPane;
+	protected ObservationAndMeanPlotModel obsPlotModel;
 
 	/**
 	 * Constructor.
 	 * 
 	 * @param obsPlotModel
-	 *            An observation plot model.
+	 *            An observation plot model including means.
 	 */
-	public AbstractSeriesVisibilityDialog(ObservationPlotModel obsPlotModel) {
-		this(obsPlotModel, "Change Series", null);
-	}
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param obsPlotModel
-	 *            An observation plot model.
-	 * @param title
-	 *            The dialog title.
-	 * @param nextPane
-	 *            An optional (may be null) pane to be added next to the primary
-	 *            pane. This allows us to specialise dialog panes by chaining.
-	 */
-	public AbstractSeriesVisibilityDialog(ObservationPlotModel obsPlotModel,
-			String title, T nextPane) {
-		super(title);
+	public SingleSeriesSelectionDialog(
+			ObservationAndMeanPlotModel obsPlotModel) {
+		super("Select a Series");
 
 		this.obsPlotModel = obsPlotModel;
-		this.nextPane = nextPane;
 
 		Container contentPane = this.getContentPane();
-		
+
 		// This pane contains a series pane and buttons.
 
-		topPane = new JPanel();
+		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		seriesPane = new JPanel();
 		seriesPane.setLayout(new BoxLayout(seriesPane, BoxLayout.LINE_AXIS));
-//		seriesVisibilityPane = new SeriesVisibilityPane(obsPlotModel);
-		seriesPane.add(seriesVisibilityPane);
-		
-		if (nextPane != null) {
-			seriesPane.add(nextPane);
-		}
-		
+		seriesPane.add(new SingleSeriesSelectionPane(obsPlotModel));
+
 		topPane.add(new JScrollPane(seriesPane));
 
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -119,20 +90,13 @@ abstract public class AbstractSeriesVisibilityDialog<T extends JPanel> extends A
 	protected void okAction() {
 		cancelled = false;
 		setVisible(false);
-		dispose();						
+		dispose();
 	}
 
 	/**
-	 * @return the nextPane
+	 * @return The selected series.
 	 */
-	public T getNextPane() {
-		return nextPane;
-	}
-
-	/**
-	 * @return the visibilityDeltaMap
-	 */
-	public Map<Integer, Boolean> getVisibilityDeltaMap() {
-		return seriesVisibilityPane.getVisibilityDeltaMap();
+	public SeriesType getSeries() {
+		return obsPlotModel.getLastSinglySelectedSeries();
 	}
 }

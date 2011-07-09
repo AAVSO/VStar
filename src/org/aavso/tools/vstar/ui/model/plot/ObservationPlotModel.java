@@ -101,6 +101,11 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	protected Listener<ExcludedObservationMessage> excludedListener;
 
 	/**
+	 * What was the most recently singly selected series (e.g. via a dialog).
+	 */
+	protected SeriesType lastSinglySelectedSeries;
+
+	/**
 	 * Common constructor.
 	 * 
 	 * @param coordSrc
@@ -116,6 +121,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		this.seriesNumToObSrcListMap = new HashMap<Integer, List<ValidObservation>>();
 		this.atLeastOneVisualBandPresent = false;
 		this.seriesToBeJoinedVisually = new HashSet<Integer>();
+		this.lastSinglySelectedSeries = null;
 
 		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
 				createDiscrepantChangeListener());
@@ -313,15 +319,16 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 * @param obs
 	 *            A series (list) of observations, in particular, magnitude and
 	 *            Julian Day.
-	 * @return The number of the series added.
+	 * @return The number of the series replaced.
 	 * @precondition The series has already been added to the plot.
 	 */
-	public void replaceObservationSeries(SeriesType type,
+	public int replaceObservationSeries(SeriesType type,
 			List<ValidObservation> obs) {
 		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);
 		assert seriesNum != null;
 		this.seriesNumToObSrcListMap.put(seriesNum, obs);
 		this.fireDatasetChanged();
+		return seriesNum;
 	}
 
 	/**
@@ -630,6 +637,21 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 */
 	public Map<SeriesType, Boolean> getSeriesVisibilityMap() {
 		return seriesVisibilityMap;
+	}
+
+	/**
+	 * @param lastSinglySelectedSeries
+	 *            the lastSinglySelectedSeries to set
+	 */
+	public void setLastSinglySelectedSeries(SeriesType series) {
+		this.lastSinglySelectedSeries = series;
+	}
+
+	/**
+	 * @return the lastSinglySelectedSeries
+	 */
+	public SeriesType getLastSinglySelectedSeries() {
+		return lastSinglySelectedSeries;
 	}
 
 	// Helper methods.

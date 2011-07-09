@@ -92,6 +92,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 	protected Point2D lastPointClicked;
 	protected ValidObservation lastObSelected;
 
+	// Particular series numbers to be used by listener code.
 	protected int fitSeriesNum = -1;
 	protected int residualsSeriesNum = -1;
 	protected int filterSeriesNum = -1;
@@ -514,6 +515,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		}
 	}
 
+	// TODO: why aren't the filtered and model creation listeners in the
+	// observation plot model?
 	public boolean handleNoFilter(FilteredObservationMessage info) {
 		boolean result = false;
 
@@ -532,7 +535,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	public void updateFilteredSeries(List<ValidObservation> obs) {
 		if (obsModel.seriesExists(SeriesType.Filtered)) {
-			obsModel.replaceObservationSeries(SeriesType.Filtered, obs);
+			filterSeriesNum = obsModel.replaceObservationSeries(SeriesType.Filtered, obs);
 		} else {
 			filterSeriesNum = obsModel.addObservationSeries(
 					SeriesType.Filtered, obs);
@@ -575,11 +578,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		// Add or replace a series for the model and make sure
 		// the series is visible.
 		if (obsModel.seriesExists(SeriesType.Model)) {
-			obsModel.replaceObservationSeries(SeriesType.Model,
-					modelObs);
+			fitSeriesNum = obsModel.replaceObservationSeries(SeriesType.Model, modelObs);
 		} else {
-			fitSeriesNum = obsModel.addObservationSeries(
-					SeriesType.Model, modelObs);
+			fitSeriesNum = obsModel.addObservationSeries(SeriesType.Model,
+					modelObs);
 		}
 
 		// Make the model series visible either because this
@@ -603,7 +605,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		// Hide the residuals series initially. We toggle the series
 		// visibility to achieve this since the default is false. That
 		// shouldn't be necessary; investigate.
-		obsModel.changeSeriesVisibility(residualsSeriesNum, true);
+//		obsModel.changeSeriesVisibility(residualsSeriesNum, true);
 		obsModel.changeSeriesVisibility(residualsSeriesNum, false);
 	}
 

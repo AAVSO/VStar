@@ -205,6 +205,8 @@ public class MessageBox {
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
 
+		e.printStackTrace();
+		
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
 	}
