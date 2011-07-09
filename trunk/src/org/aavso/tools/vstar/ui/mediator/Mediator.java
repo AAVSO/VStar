@@ -60,6 +60,7 @@ import org.aavso.tools.vstar.ui.dialog.PhasePlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
 import org.aavso.tools.vstar.ui.dialog.RawPlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
+import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
@@ -1201,26 +1202,29 @@ public class Mediator {
 	public void createPeriodAnalysisDialog(PeriodAnalysisPluginBase plugin) {
 		try {
 			if (this.newStarMessage != null && this.validObsList != null) {
-				// TODO: make each plugin responsible for determining
-				// and tracking source series (see mean source series dialog
-				// which could be invoked from here or from within plugin code).
+				SingleSeriesSelectionDialog dialog = new SingleSeriesSelectionDialog(
+						obsAndMeanPlotModel);
 
-				List<ValidObservation> meanObsSourceList = getMeanSourceObservations();
+				if (!dialog.isCancelled()) {
+					SeriesType type = dialog.getSeries();
 
-				SeriesType meanObsSourceSeriesType = obsAndMeanPlotModel
-						.getSeriesNumToSrcTypeMap().get(
-								obsAndMeanPlotModel.getMeanSourceSeriesNum());
+					int num = obsAndMeanPlotModel.getSrcTypeToSeriesNumMap()
+							.get(type);
 
-				this.getProgressNotifier().notifyListeners(
-						ProgressInfo.START_PROGRESS);
-				this.getProgressNotifier().notifyListeners(
-						ProgressInfo.BUSY_PROGRESS);
+					List<ValidObservation> obs = obsAndMeanPlotModel
+							.getSeriesNumToObSrcListMap().get(num);
 
-				PeriodAnalysisTask task = new PeriodAnalysisTask(plugin,
-						meanObsSourceSeriesType, meanObsSourceList);
+					this.getProgressNotifier().notifyListeners(
+							ProgressInfo.START_PROGRESS);
+					this.getProgressNotifier().notifyListeners(
+							ProgressInfo.BUSY_PROGRESS);
 
-				this.currTask = task;
-				task.execute();
+					PeriodAnalysisTask task = new PeriodAnalysisTask(plugin,
+							type, obs);
+
+					this.currTask = task;
+					task.execute();
+				}
 			}
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
@@ -1258,34 +1262,41 @@ public class Mediator {
 	public void performPolynomialFit() {
 		try {
 			if (this.newStarMessage != null && this.validObsList != null) {
+				SingleSeriesSelectionDialog seriesDialog = new SingleSeriesSelectionDialog(
+						obsAndMeanPlotModel);
 
-				List<ValidObservation> meanObsSourceList = getMeanSourceObservations();
+				if (!seriesDialog.isCancelled()) {
+					SeriesType type = seriesDialog.getSeries();
 
-				// TODO: later, if we want to allow polynomial fit plugins, this
-				// can be created by a plug-in implementation class just as we
-				// do for DC DFT.
-				IPolynomialFitter polynomialFitter = new TSPolynomialFitter(
-						meanObsSourceList);
+					int num = obsAndMeanPlotModel.getSrcTypeToSeriesNumMap()
+							.get(type);
 
-				int minDegree = polynomialFitter.getMinDegree();
-				int maxDegree = polynomialFitter.getMaxDegree();
+					List<ValidObservation> obs = obsAndMeanPlotModel
+							.getSeriesNumToObSrcListMap().get(num);
 
-				PolynomialDegreeDialog dialog = new PolynomialDegreeDialog(
-						minDegree, maxDegree);
+					IPolynomialFitter polynomialFitter = new TSPolynomialFitter(
+							obs);
 
-				if (!dialog.isCancelled()) {
-					polynomialFitter.setDegree(dialog.getDegree());
+					int minDegree = polynomialFitter.getMinDegree();
+					int maxDegree = polynomialFitter.getMaxDegree();
 
-					ModellingTask task = new ModellingTask(polynomialFitter);
+					PolynomialDegreeDialog dialog = new PolynomialDegreeDialog(
+							minDegree, maxDegree);
 
-					this.currTask = task;
+					if (!dialog.isCancelled()) {
+						polynomialFitter.setDegree(dialog.getDegree());
 
-					this.getProgressNotifier().notifyListeners(
-							ProgressInfo.START_PROGRESS);
-					this.getProgressNotifier().notifyListeners(
-							ProgressInfo.BUSY_PROGRESS);
+						ModellingTask task = new ModellingTask(polynomialFitter);
 
-					task.execute();
+						this.currTask = task;
+
+						this.getProgressNotifier().notifyListeners(
+								ProgressInfo.START_PROGRESS);
+						this.getProgressNotifier().notifyListeners(
+								ProgressInfo.BUSY_PROGRESS);
+
+						task.execute();
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -1303,7 +1314,7 @@ public class Mediator {
 	 * Perform a modelling operation (other than polynomial fit).
 	 */
 	public void performModellingOperation(IModel model) {
-		// TODO: we may want to introduce another class of plug-in for
+		// TODO: we may want to introduce another plug-in class for
 		// modelling.
 		try {
 			ModellingTask task = new ModellingTask(model);
@@ -1325,16 +1336,6 @@ public class Mediator {
 
 			MainFrame.getInstance().getStatusPane().setMessage("");
 		}
-	}
-
-	// Returns the observation list corresponding to the series that is the
-	// current means series source (i.e. the source of the mean curve).
-	private List<ValidObservation> getMeanSourceObservations() {
-		int meanObsSourceSeriesNum = obsAndMeanPlotModel
-				.getMeanSourceSeriesNum();
-
-		return obsAndMeanPlotModel.getSeriesNumToObSrcListMap().get(
-				meanObsSourceSeriesNum);
 	}
 
 	/**

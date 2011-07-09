@@ -82,7 +82,7 @@ public enum SeriesType {
 	FAINTER_THAN(SeriesType.NO_INDEX, "Fainter Than", "FainterThan",
 			Color.YELLOW),
 
-	MEANS(SeriesType.NO_INDEX, "Means", "Means", Color.BLUE),
+	MEANS(SeriesType.NO_INDEX, "Means", "Means", Color.BLUE, true),
 
 	// Aaron's suggestion was to make Discrepant points light gray.
 	DISCREPANT(SeriesType.NO_INDEX, "Discrepant", "Discrepant",
@@ -91,14 +91,13 @@ public enum SeriesType {
 	Unspecified(SeriesType.NO_INDEX, "Unspecified", "Unspecified", Color.ORANGE),
 
 	Filtered(SeriesType.NO_INDEX, "Filtered", "Filtered",
-			new Color(0, 153, 204)),
+			new Color(0, 153, 204), true),
 
 	// Model series.
-	Model(SeriesType.NO_INDEX, "Model", "Model",
-			Color.RED),
+	Model(SeriesType.NO_INDEX, "Model", "Model", Color.RED, true),
 
 	// Residuals series.
-	Residuals(SeriesType.NO_INDEX, "Residuals", "Residuals", Color.CYAN),
+	Residuals(SeriesType.NO_INDEX, "Residuals", "Residuals", Color.CYAN, true),
 
 	// This series can be used to mark an observation as being excluded for some
 	// other reason than it being discrepant and all that classification
@@ -154,6 +153,7 @@ public enum SeriesType {
 	private String description;
 	private String shortName;
 	private Color color;
+	private boolean synthetic;
 
 	/**
 	 * Private constructor.
@@ -166,13 +166,36 @@ public enum SeriesType {
 	 *            The series type's short name (AID.bands).
 	 * @param color
 	 *            The series type's color.
+	 * @param synthetic
+	 *            Is this series synthetic (i.e. not associated with data but
+	 *            derived from data)?
 	 */
 	private SeriesType(int index, String description, String shortName,
-			Color color) {
+			Color color, boolean synthetic) {
 		this.index = index;
 		this.description = description;
 		this.shortName = shortName;
 		this.color = color;
+		this.synthetic = synthetic;
+	}
+
+	/**
+	 * Private constructor.
+	 * 
+	 * Non-synthetic series type.
+	 * 
+	 * @param index
+	 *            The series type's index (AID.Code).
+	 * @param description
+	 *            The series type's description.
+	 * @param shortName
+	 *            The series type's short name (AID.bands).
+	 * @param color
+	 *            The series type's color.
+	 */
+	private SeriesType(int index, String description, String shortName,
+			Color color) {
+		this(index, description, shortName, color, false);
 	}
 
 	/**
@@ -201,6 +224,13 @@ public enum SeriesType {
 	 */
 	public Color getColor() {
 		return color;
+	}
+
+	/**
+	 * @return the synthetic
+	 */
+	public boolean isSynthetic() {
+		return synthetic;
 	}
 
 	/**

@@ -79,10 +79,26 @@ public abstract class AbstractObservationRetriever {
 
 		// Create observation category map and add discrepant and excluded
 		// series list so these are available if needed.
+		// In case filtered, model, and residual obs are later created, add
+		// these to the map. Means are created for each data set loaded, so
+		// don't need to add them here. TODO: we *could* add means here
+		// though...
+		// ...that might simplify handling of that series in model code...
 		this.validObservationCategoryMap = new TreeMap<SeriesType, List<ValidObservation>>();
+
 		this.validObservationCategoryMap.put(SeriesType.DISCREPANT,
 				new ArrayList<ValidObservation>());
+
 		this.validObservationCategoryMap.put(SeriesType.Excluded,
+				new ArrayList<ValidObservation>());
+
+		this.validObservationCategoryMap.put(SeriesType.Filtered,
+				new ArrayList<ValidObservation>());
+
+		this.validObservationCategoryMap.put(SeriesType.Model,
+				new ArrayList<ValidObservation>());
+
+		this.validObservationCategoryMap.put(SeriesType.Residuals,
 				new ArrayList<ValidObservation>());
 
 		this.minMag = Double.MAX_VALUE;

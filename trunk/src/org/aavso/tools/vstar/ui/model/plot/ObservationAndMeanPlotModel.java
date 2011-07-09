@@ -327,7 +327,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * 
 	 * @return The series number on which to base the mean series.
 	 */
-	private int determineMeanSeriesSource() {
+	public int determineMeanSeriesSource() {
 		int seriesNum = -1;
 
 		// Look for Visual, then V.
