@@ -49,7 +49,7 @@ public class MagnitudeFieldValidator extends AbstractStringValidator<Magnitude> 
 		this.regexValidator = new RegexValidator(
 				"^(<|>)?(\\-?\\d+(?:\\.\\d*)?)(:)?$", KIND);
 		this.magnitudeValueValidator = new MagnitudeValueValidator(
-				new InclusiveRangePredicate(-5, 25));
+				new InclusiveRangePredicate(-10, 25));
 	}
 
 	public Magnitude validate(String str) throws ObservationValidationError {

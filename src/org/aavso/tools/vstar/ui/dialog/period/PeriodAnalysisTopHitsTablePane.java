@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog.period;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,14 +30,18 @@ import java.util.TreeSet;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 
+import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
+import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
@@ -161,28 +166,77 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 				}
 
 				if (!freqs.isEmpty()) {
-					// Get just the new top-hits resulting from the refinement.
-					List<PeriodAnalysisDataPoint> newTopHits = algorithm
-							.refineByFrequency(freqs);
+					try {
+						// Before going ahead with a refinement operation, ask
+						// for variable and locked periods.
+						List<Double> variablePeriods = requestPeriods(parent,
+								"variable");
+						List<Double> lockedPeriods = requestPeriods(parent,
+								"locked");
 
-					// Update the model and tell anyone else who might be
-					// interested.
-					Map<PeriodAnalysisCoordinateType, List<Double>> data = algorithm
-							.getResultSeries();
-					Map<PeriodAnalysisCoordinateType, List<Double>> topHits = algorithm
-							.getTopHits();
+						// Perform a refinement operation and get the new
+						// top-hits resulting from the refinement.
+						List<PeriodAnalysisDataPoint> newTopHits = algorithm
+								.refineByFrequency(freqs, variablePeriods,
+										lockedPeriods);
 
-					topHitsModel.setData(topHits);
+						// Update the model and tell anyone else who might be
+						// interested.
+						Map<PeriodAnalysisCoordinateType, List<Double>> data = algorithm
+								.getResultSeries();
+						Map<PeriodAnalysisCoordinateType, List<Double>> topHits = algorithm
+								.getTopHits();
 
-					PeriodAnalysisRefinementMessage msg = new PeriodAnalysisRefinementMessage(
-							this, data, topHits, newTopHits);
+						topHitsModel.setData(topHits);
 
-					Mediator.getInstance()
-							.getPeriodAnalysisRefinementNotifier()
-							.notifyListeners(msg);
+						PeriodAnalysisRefinementMessage msg = new PeriodAnalysisRefinementMessage(
+								this, data, topHits, newTopHits);
+
+						Mediator.getInstance()
+								.getPeriodAnalysisRefinementNotifier()
+								.notifyListeners(msg);
+					} catch (AlgorithmError ex) {
+						MessageBox.showErrorDialog(parent, algorithm
+								.getRefineByFrequencyName(), ex
+								.getLocalizedMessage());
+					}
 				}
 			}
 		};
+	}
+
+	// Collect (and return) period values of the specified kind until the user
+	// adds no more.
+	private List<Double> requestPeriods(Component parent, String kind) {
+		List<Double> periods = new ArrayList<Double>();
+
+		String str = null;
+
+		do {
+			JOptionPane pane = new JOptionPane("Add a " + kind + " period?",
+					JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+			pane.setWantsInput(true);
+			pane.setInputValue("");
+			JDialog dialog = pane.createDialog(parent, "Enter Period");
+			dialog.setAlwaysOnTop(true);
+			dialog.setVisible(true);
+			str = (String) pane.getInputValue();
+
+			str = str.trim();
+
+			if (str.length() != 0) {
+				try {
+					double period = NumberParser.parseDouble(str);
+					periods.add(period);
+				} catch (NumberFormatException e) {
+					MessageBox.showErrorDialog(parent, "Period Value Error",
+							String.format("'%s' is not a valid period value.",
+									str));
+				}
+			}
+		} while (str.length() != 0);
+
+		return periods;
 	}
 
 	// Model button listener.
@@ -203,7 +257,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 					try {
 						PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
 								periods, algorithm);
-						
+
 						Mediator.getInstance().performModellingOperation(model);
 					} catch (Exception ex) {
 						MessageBox.showErrorDialog(parent, "Modelling", ex

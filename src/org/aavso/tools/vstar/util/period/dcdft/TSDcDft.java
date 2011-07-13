@@ -26,6 +26,7 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.TSBase;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
@@ -267,10 +268,12 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	}
 
 	@Override
-	public List<PeriodAnalysisDataPoint> refineByFrequency(List<Double> freqs) {
+	public List<PeriodAnalysisDataPoint> refineByFrequency(List<Double> freqs,
+			List<Double> variablePeriods, List<Double> lockedPeriods)
+			throws AlgorithmError {
 
 		deltaTopHits.clear();
-		cleanest(freqs);
+		cleanest(freqs, variablePeriods, lockedPeriods);
 
 		return deltaTopHits;
 	}
@@ -477,32 +480,38 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 * 
 	 * @param freqs
 	 *            The frequencies to be included.
+	 * @param varPeriods
+	 *            The variable periods to be included. May be null.
+	 * @param lockedPeriods
+	 *            The locked periods to be included. May be null.
+	 * 
+	 *            TODO: it would be more consistent to pass freqs as periods...
 	 */
-	protected void cleanest(List<Double> freqs) {
+	protected void cleanest(List<Double> freqs, List<Double> variablePeriods,
+			List<Double> lockedPeriods) throws AlgorithmError {
 		// getfreq();
 
-		List<Double> dfreList = new ArrayList<Double>();
-		dfreList.addAll(freqs);
-
-		nfre = dfreList.size();
+		int varCount = variablePeriods == null ? 0 : variablePeriods.size();
+		int lockedCount = lockedPeriods == null ? 0 : lockedPeriods.size();
+		int totalCount = freqs.size() + varCount + lockedCount;
 
 		// Convert frequencies to be considered to Fortran array index form.
-		// TODO: we should just dispense with this everywhere and use
-		// 0-originated indices.
-		dfre = new double[nfre + 1];
-		for (int i = 1; i <= nfre; i++) {
-			dfre[i] = dfreList.get(i - 1);
+		// TODO: we should just dispense with 1-originated arrays and use
+		// 0-originated arrays.
+		dfre = new double[totalCount + 1];
+		// dfre = new double[MAX_TOP_HITS];
+		for (int i = 1; i <= freqs.size(); i++) {
+			dfre[i] = freqs.get(i - 1);
 		}
 
-		// TODO: size these according to nfre value which is the sum sizes of
-		// all collection parameters
+		double[] dtest = new double[totalCount + 1];
+		// double[] dtest = new double[MAX_TOP_HITS];
+		double[] dres = new double[totalCount + 1];
+		// double[] dres = new double[MAX_TOP_HITS];
 
-		double[] dtest = new double[MAX_TOP_HITS];
-		double[] dres = new double[MAX_TOP_HITS];
-
-		int n;
-
-		for (n = 1; n <= nfre; n++) {
+		// Initialise arrays with user specified frequencies, converting to
+		// periods.
+		for (int n = 1; n <= freqs.size(); n++) {
 			dtest[n] = 1.0 / dfre[n];
 			dres[n] = (dang0 * (dtest[n] * dtest[n])) / 10.0;
 			ResolutionResult result = resolve(dres[n], dtest[n]);
@@ -510,16 +519,24 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 			if (result != null) {
 				dres[n] = result.ddr;
 				dtest[n] = result.ddp;
+//				System.out.println(String.format("After resolve: %1.6f, %1.6f",
+//						dres[n], dtest[n]));
 			} else {
-				return;
-				// TODO: throw exception?
+				throw new AlgorithmError("No resolution result");
 			}
 		}
 
-		// TODO: Add variable and locked freqs to above via additional
-		// parameters; for initial impl and testing, use just freqs parameter **
+		nfre = freqs.size();
 
-		// ** Select variable periods. **
+		// ** Add variable periods. **
+		// TODO: should dtest array elements just be 0?
+		if (variablePeriods != null) {
+			for (double period : variablePeriods) {
+				nfre++;
+				dres[nfre] = period;
+			}
+		}
+
 		// // write(6,*) 'enter number of variable periods: (0 for none)'
 		//
 		// read*,nvariable
@@ -534,9 +551,21 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		// ;
 		// }
 		// }
+
+		// Store the max index of variable periods.
 		int nvary = nfre;
 
 		// ** Get locked periods. **
+		if (lockedPeriods != null) {
+			for (double period : lockedPeriods) {
+				nfre++;
+				dtest[nfre] = period;
+				dres[nfre] = 0;
+			}
+		}
+
+		assert nfre == totalCount;
+
 		// // write(6,*) 'enter number of locked periods: (0 for none)'
 		//
 		// read*,nlocked
@@ -563,8 +592,14 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 		// Compute base level.
 
-		for (n = 1; n <= nfre; n++) {
-			dfre[n] = 1.0 / dtest[n];
+		for (int n = 1; n <= nfre; n++) {
+//			System.out.println(String.format("Before: %1.6f, %1.6f", dfre[n],
+//					dtest[n]));
+			if (dtest[n] != 0) {
+				dfre[n] = 1.0 / dtest[n];
+			}
+//			System.out.println(String.format("After: %1.6f, %1.6f", dfre[n],
+//					dtest[n]));
 		}
 		project();
 		dbpower = dfpow;
@@ -602,6 +637,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 				dfre[nv] = 1.0 / dtest[0];
 				project();
 				// write(6,*) dtest(0),dfre(nv),dfpow
+//				System.out.println(String.format("%1.6f  %1.6f  %1.6f",
+//						dtest[0], dfre[nv], dfpow));
 
 				if (dfpow > dbpower) {
 					dbpower = dfpow;
@@ -625,6 +662,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 					dfre[nv] = 1.0 / dtest[0];
 					project();
 					// write(6,*) dtest(0),dfre(nv),dfpow
+//					System.out.println(String.format("%1.6f  %1.6f  %1.6f",
+//							dtest[0], dfre[nv], dfpow));
 
 					if (dfpow > dbpower) {
 						dbpower = dfpow;
@@ -636,15 +675,14 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 					}
 
 				} while (dfpow >= dbpower);
-
 				// if (dfpow>=dbpower) goto 83;
 			}
 
 			dfre[nv] = 1.0 / dtest[nv];
 
-			for (n = 1; n <= nfre; n++) {
-				// write(1,208) dtest(n)
-			}
+			// for (n = 1; n <= nfre; n++) {
+			// // write(1,208) dtest(n)
+			// }
 			// write(1,208) dbpower
 
 			nsofar = nsofar + 1;
@@ -652,12 +690,11 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 			// write(6,*) dbpower,nsofar
 
 		} while (nsofar < nvary);
-
 		// if (nsofar<nvary) goto 81;
 
 		// ** Save best set to table. **
 		dlpower = dbpower;
-		for (n = 1; n <= nfre; n++) {
+		for (int n = 1; n <= nfre; n++) {
 			dlper = dtest[n];
 			dlnu = 1.0 / dlper;
 			tablit();
@@ -674,9 +711,9 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 *            period analysis. Data members in this parameter are populated
 	 *            as a result of invoking this method.
 	 */
-	public void multiPeriodicFit(
-			List<Double> periods, PeriodAnalysisDerivedMultiPeriodicModel model) {
-		
+	public void multiPeriodicFit(List<Double> periods,
+			PeriodAnalysisDerivedMultiPeriodicModel model) {
+
 		List<ValidObservation> modelObs = model.getFit();
 		List<ValidObservation> residualObs = model.getResiduals();
 		List<PeriodFitParameters> parameters = model.getParameters();
