@@ -314,7 +314,8 @@ public class TSBase {
 		ndim2 = npoly + (2 * nfre);
 		ndim = ndim2 + nbias;
 		dweight = 0.0;
-
+		
+		// TODO: why do we zero dmat and dvec again here? we just did it above!
 		for (n1 = 0; n1 <= ndim; n1++) {
 			dvec[n1] = 0.0;
 			for (n2 = 0; n2 <= ndim; n2++) {

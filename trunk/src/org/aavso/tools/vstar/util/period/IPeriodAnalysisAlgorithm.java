@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.util.period;
 import java.util.List;
 import java.util.Map;
 
+import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.IAlgorithm;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
@@ -57,10 +58,15 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	 * 
 	 * @param freqs
 	 *            A list of frequencies on which to refine the results.
+	 * @param varPeriods
+	 *            The variable periods to be included. May be null.
+	 * @param lockedPeriods
+	 *            The locked periods to be included. May be null.
 	 * @return the new top-hits created by this refinement.
 	 */
 	abstract public List<PeriodAnalysisDataPoint> refineByFrequency(
-			List<Double> freqs);
+			List<Double> freqs, List<Double> variablePeriods,
+			List<Double> lockedPeriod) throws AlgorithmError;
 
 	/**
 	 * Get the refine-by-frequency algorithm name.
@@ -80,5 +86,6 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	 *            as a result of invoking this method.
 	 */
 	abstract public void multiPeriodicFit(List<Double> periods,
-			PeriodAnalysisDerivedMultiPeriodicModel model);
+			PeriodAnalysisDerivedMultiPeriodicModel model)
+			throws AlgorithmError;
 }
