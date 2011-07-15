@@ -28,6 +28,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.AbstractSyntheticObservationTableModel;
@@ -71,11 +73,6 @@ public class SyntheticObservationListPane<T extends AbstractSyntheticObservation
 		Mediator.getInstance().getObservationSelectionNotifier().addListener(
 				createObservationSelectionListener());
 
-		// Listen to filtered observation messages so we can filter what's
-		// displayed in the table. TODO: do we want to do this?
-		// Mediator.getInstance().getFilteredObservationNotifier().addListener(
-		// createFilteredObservationListener());
-
 		// List row selection handling.
 		this.obsTable.getSelectionModel().addListSelectionListener(this);
 	}
@@ -110,27 +107,42 @@ public class SyntheticObservationListPane<T extends AbstractSyntheticObservation
 					ValidObservation ob = message.getObservation();
 					Integer rowIndex = obsTableModel
 							.getRowIndexFromObservation(ob);
-					if (rowIndex != null) {
-						// Convert to view index!
-						rowIndex = obsTable.convertRowIndexToView(rowIndex);
+					if (rowIndex != null && rowIndex >= 0) {
+						try {
+							// Convert to view index!
+							rowIndex = obsTable.convertRowIndexToView(rowIndex);
+							if (rowIndex >= 0
+									&& rowIndex < obsTable.getRowCount()) {
 
-						// Scroll to an arbitrary column (zeroth) within
-						// the selected row, then select that row.
-						// Assumption: we are specifying the zeroth cell
-						// within row i as an x,y coordinate relative to
-						// the top of the table pane.
-						// Note that we could call this on the scroll
-						// pane, which would then forward the request to
-						// the table pane anyway.
-						int colWidth = (int) obsTable.getCellRect(rowIndex, 0,
-								true).getWidth();
-						int rowHeight = obsTable.getRowHeight(rowIndex);
-						obsTable.scrollRectToVisible(new Rectangle(colWidth,
-								rowHeight * rowIndex, colWidth, rowHeight));
+								// Scroll to an arbitrary column (zeroth) within
+								// the selected row, then select that row.
+								// Assumption: we are specifying the zeroth cell
+								// within row i as an x,y coordinate relative to
+								// the top of the table pane.
+								// Note that we could call this on the scroll
+								// pane, which would then forward the request to
+								// the table pane anyway.
+								int colWidth = (int) obsTable.getCellRect(
+										rowIndex, 0, true).getWidth();
+								int rowHeight = obsTable.getRowHeight(rowIndex);
+								obsTable.scrollRectToVisible(new Rectangle(
+										colWidth, rowHeight * rowIndex,
+										colWidth, rowHeight));
 
-						obsTable.setRowSelectionInterval(rowIndex, rowIndex);
+								obsTable.setRowSelectionInterval(rowIndex,
+										rowIndex);
 
-						lastObSelected = ob;
+								lastObSelected = ob;
+							}
+						} catch (ArrayIndexOutOfBoundsException e) {
+							String msg = "Could not select row with index "
+									+ rowIndex + " (table model: "
+									+ obsTableModel.getClass().getSimpleName()
+									+ ")";
+							MessageBox.showMessageDialog(MainFrame
+									.getInstance(),
+									"Observation List Index Error", msg);
+						}
 					}
 				}
 			}

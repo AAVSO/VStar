@@ -194,7 +194,6 @@ public class ObservationListPane extends JPanel implements
 					Integer rowIndex = validDataModel
 							.getRowIndexFromObservation(ob);
 					if (rowIndex != null && rowIndex >= 0) {
-						// System.out.println(">> 1: " + rowIndex);
 						try {
 							// Convert to view index!
 							rowIndex = validDataTable
@@ -202,7 +201,6 @@ public class ObservationListPane extends JPanel implements
 
 							if (rowIndex >= 0
 									&& rowIndex < validDataTable.getRowCount()) {
-								// System.out.println(">> 2: " + rowIndex);
 
 								// Scroll to an arbitrary column (zeroth) within
 								// the selected row, then select that row.
@@ -233,7 +231,6 @@ public class ObservationListPane extends JPanel implements
 								lastObSelected = ob;
 							}
 						} catch (ArrayIndexOutOfBoundsException e) {
-							// This may also happen due to filtering.
 							String msg = "Could not select row with index "
 									+ rowIndex
 									+ " (table model: "
@@ -257,17 +254,11 @@ public class ObservationListPane extends JPanel implements
 	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
 		return new Listener<FilteredObservationMessage>() {
 			public void update(FilteredObservationMessage info) {
-				// Currently, due to the way we render phase plots, filtering
-				// will be disabled for anything but raw analysis mode, and that
-				// includes tables, for consistency.
-				// if (Mediator.getInstance().getAnalysisType() ==
-				// AnalysisType.RAW_DATA) {
 				if (info == FilteredObservationMessage.NO_FILTER) {
 					rowSorter.setRowFilter(null);
 				} else {
 					rowSorter.setRowFilter(new ObservationTableRowFilter(info));
 				}
-				// }
 			}
 
 			public boolean canBeRemoved() {
