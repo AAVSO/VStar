@@ -27,6 +27,7 @@ import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -180,10 +181,13 @@ public class PeriodAnalysisComponentFactory {
 	 * @param dataArrays
 	 *            An array of data arrays, where each data array corresponds to
 	 *            each element in the columnTypes array.
+	 * @param algorithm
+	 *            The period analysis algorithm.
 	 * @return A GUI data table component.
 	 */
 	public static Component createDataTable(
-			PeriodAnalysisCoordinateType[] columnTypes, double[][] dataArrays) {
+			PeriodAnalysisCoordinateType[] columnTypes, double[][] dataArrays,
+			IPeriodAnalysisAlgorithm algorithm) {
 
 		Map<PeriodAnalysisCoordinateType, List<Double>> dataListMap = new HashMap<PeriodAnalysisCoordinateType, List<Double>>();
 		for (int i = 0; i < dataArrays.length; i++) {
@@ -196,7 +200,8 @@ public class PeriodAnalysisComponentFactory {
 		}
 
 		return new PeriodAnalysisDataTablePane(
-				new PeriodAnalysisDataTableModel(columnTypes, dataListMap));
+				new PeriodAnalysisDataTableModel(columnTypes, dataListMap),
+				algorithm);
 	}
 
 	/**
@@ -212,13 +217,17 @@ public class PeriodAnalysisComponentFactory {
 	 *            An array of column types as they are to appear in the table.
 	 * @param dataMap
 	 *            A mapping from coordinate type to lists of data values.
+	 * @param algorithm
+	 *            The period analysis algorithm.
 	 * @return A GUI data table component.
 	 */
 	public static Component createDataTable(
 			PeriodAnalysisCoordinateType[] columnTypes,
-			Map<PeriodAnalysisCoordinateType, List<Double>> dataMap) {
+			Map<PeriodAnalysisCoordinateType, List<Double>> dataMap,
+			IPeriodAnalysisAlgorithm algorithm) {
 
 		return new PeriodAnalysisDataTablePane(
-				new PeriodAnalysisDataTableModel(columnTypes, dataMap));
+				new PeriodAnalysisDataTableModel(columnTypes, dataMap),
+				algorithm);
 	}
 }
