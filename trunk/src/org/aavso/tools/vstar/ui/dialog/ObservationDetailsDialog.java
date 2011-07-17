@@ -100,7 +100,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 		// See
 		// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
 		// for more detail.
-//		if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+		if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
 			// It doesn't make sense to mark a mean observation as discrepant
 			// since it's a derived (computed) observation.
 			if (ob.getBand() != SeriesType.MEANS) {
@@ -115,7 +115,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 				Mediator.getInstance().getDiscrepantObservationNotifier()
 						.addListener(createDiscrepantChangeListener());
 			}
-//		}
+		}
 
 		JPanel buttonPane = new JPanel();
 		okButton = new JButton("OK");
