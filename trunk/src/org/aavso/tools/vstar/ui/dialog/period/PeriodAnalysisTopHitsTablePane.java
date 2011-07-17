@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -42,7 +41,6 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.util.locale.NumberParser;
-import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
@@ -58,13 +56,10 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 	private PeriodAnalysisDataTableModel topHitsModel;
 	private PeriodAnalysisDataTableModel fullDataModel;
 
-	private IPeriodAnalysisAlgorithm algorithm;
-
 	private Set<PeriodAnalysisDataPoint> refinedDataPoints;
 	private Set<PeriodAnalysisDataPoint> resultantDataPoints;
 
 	private JButton refineButton;
-	private JButton modelButton;
 
 	/**
 	 * Constructor.
@@ -80,19 +75,16 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 			PeriodAnalysisDataTableModel topHitsModel,
 			PeriodAnalysisDataTableModel fullDataModel,
 			IPeriodAnalysisAlgorithm algorithm) {
-		super(topHitsModel);
+		super(topHitsModel, algorithm);
+		
 		this.topHitsModel = topHitsModel;
 		this.fullDataModel = fullDataModel;
-		this.algorithm = algorithm;
 
 		refinedDataPoints = new TreeSet<PeriodAnalysisDataPoint>(
 				PeriodAnalysisDataPointComparator.instance);
 
 		resultantDataPoints = new TreeSet<PeriodAnalysisDataPoint>(
 				PeriodAnalysisDataPointComparator.instance);
-
-		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		add(createButtonPanel());
 
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.addListener(this.createPeriodAnalysisListener());
@@ -102,17 +94,12 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 	}
 
 	protected JPanel createButtonPanel() {
-		JPanel buttonPane = new JPanel();
-
+		JPanel buttonPane = super.createButtonPanel();
+		
 		refineButton = new JButton(algorithm.getRefineByFrequencyName());
 		refineButton.setEnabled(false);
 		refineButton.addActionListener(createRefineButtonHandler());
 		buttonPane.add(refineButton, BorderLayout.LINE_START);
-
-		modelButton = new JButton("Create Model");
-		modelButton.setEnabled(false);
-		modelButton.addActionListener(createModelButtonHandler());
-		buttonPane.add(modelButton, BorderLayout.LINE_END);
 
 		return buttonPane;
 	}
@@ -239,35 +226,6 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		return periods;
 	}
 
-	// Model button listener.
-	private ActionListener createModelButtonHandler() {
-		final JPanel parent = this;
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				List<Double> periods = new ArrayList<Double>();
-				int[] selectedTableRowIndices = table.getSelectedRows();
-				for (int row : selectedTableRowIndices) {
-					int modelRow = table.convertRowIndexToModel(row);
-					PeriodAnalysisDataPoint dataPoint = topHitsModel
-							.createDataPointFromRow(modelRow);
-					periods.add(dataPoint.getPeriod());
-				}
-
-				if (!periods.isEmpty()) {
-					try {
-						PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
-								periods, algorithm);
-
-						Mediator.getInstance().performModellingOperation(model);
-					} catch (Exception ex) {
-						MessageBox.showErrorDialog(parent, "Modelling", ex
-								.getLocalizedMessage());
-					}
-				}
-			}
-		};
-	}
-
 	// Listen for period analysis selection messages in order to enable the
 	// "refine" button.
 	private Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
@@ -275,7 +233,6 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
 				refineButton.setEnabled(true);
-				modelButton.setEnabled(true);
 			}
 
 			@Override
@@ -326,8 +283,6 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 			}
 		}
 	}
-
-	// TODO: why do we have two PeriodAnalysisSelectionMessage listeners?
 
 	/**
 	 * We convert from a full data index to the corresponding row in the top

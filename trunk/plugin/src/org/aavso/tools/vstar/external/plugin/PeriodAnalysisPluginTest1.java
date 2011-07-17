@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.external.plugin;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -37,14 +38,17 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
+import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
 /**
  * VStar period analysis plugin test.
  * 
- * This plugin generates random periods and shows them on a line plot, in a  
- * table, with the selected period displayed in a label component. A new phase 
+ * This plugin generates random periods and shows them on a line plot, in a
+ * table, with the selected period displayed in a label component. A new phase
  * plot can be generated with that period.
  */
 public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
@@ -58,15 +62,57 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
 	protected final static String NAME = "Period Analysis Plugin Test 1";
 
-	@Override
-	public void executeAlgorithm(List<ValidObservation> obs) throws AlgorithmError {
-		// Create a set of random values to be plotted. A real plugin would
-		// instead apply some algorithm to the observations to create data
-		// arrays (e.g. a pair of domain and range arrays).
-		for (int i = 0; i < N; i++) {
-			domain[i] = i;
-			range[i] = Math.random();
+	class TestAlgorithm implements IPeriodAnalysisAlgorithm {
+		@Override
+		public String getRefineByFrequencyName() {
+			return "None";
 		}
+
+		@Override
+		public Map<PeriodAnalysisCoordinateType, List<Double>> getResultSeries() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void multiPeriodicFit(List<Double> periods,
+				PeriodAnalysisDerivedMultiPeriodicModel model)
+				throws AlgorithmError {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public List<PeriodAnalysisDataPoint> refineByFrequency(
+				List<Double> freqs, List<Double> variablePeriods,
+				List<Double> lockedPeriod) throws AlgorithmError {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void execute() throws AlgorithmError {
+			// Create a set of random values to be plotted. A real plugin would
+			// instead apply some algorithm to the observations to create data
+			// arrays (e.g. a pair of domain and range arrays).
+			for (int i = 0; i < N; i++) {
+				domain[i] = i;
+				range[i] = Math.random();
+			}
+		}
+	}
+
+	private IPeriodAnalysisAlgorithm algorithm = new TestAlgorithm();
+
+	@Override
+	public void executeAlgorithm(List<ValidObservation> obs)
+			throws AlgorithmError {
+		algorithm.execute();
 	}
 
 	@Override
@@ -115,19 +161,18 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.AMPLITUDE };
 
-			double[][] dataArrays = {domain, range};
-			
+			double[][] dataArrays = { domain, range };
+
 			Component table = PeriodAnalysisComponentFactory.createDataTable(
-					columns, dataArrays);
+					columns, dataArrays, algorithm);
 
 			// Random period label component.
 			JPanel randomPeriod = new RandomPeriodComponent(this);
 
 			// Return tabbed pane of plot and period display component.
-			return PluginComponentFactory.createTabs(
-					new NamedComponent("Plot", plot), new NamedComponent(
-							"Data", table), new NamedComponent("Random Period",
-							randomPeriod));
+			return PluginComponentFactory.createTabs(new NamedComponent("Plot",
+					plot), new NamedComponent("Data", table),
+					new NamedComponent("Random Period", randomPeriod));
 		}
 
 		// Send a period change message when the new-phase-plot button is

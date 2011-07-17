@@ -81,7 +81,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		this.dataTableModel = dataTableModel;
 		this.topHitsTableModel = topHitsTableModel;
 		this.algorithm = algorithm;
-		
+
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.addListener(this.createPeriodAnalysisListener());
 
@@ -111,7 +111,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 		// Add data table view.
 		namedComponents.add(new NamedComponent("Data",
-				new PeriodAnalysisDataTablePane(dataTableModel)));
+				new PeriodAnalysisDataTablePane(dataTableModel, algorithm)));
 
 		// Add top-hits table view.
 		topHitsTablePane = new PeriodAnalysisTopHitsTablePane(
@@ -131,8 +131,8 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		double period = NumberParser.parseDouble(periodStr);
 
 		PeriodChangeMessage message = new PeriodChangeMessage(this, period);
-		Mediator.getInstance().getPeriodChangeNotifier()
-				.notifyListeners(message);
+		Mediator.getInstance().getPeriodChangeNotifier().notifyListeners(
+				message);
 	}
 
 	// Enable the new phase plot button and store the selected
