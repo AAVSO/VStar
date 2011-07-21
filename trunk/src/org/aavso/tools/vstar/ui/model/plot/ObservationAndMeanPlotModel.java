@@ -322,16 +322,22 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 	/**
 	 * Determine which series will be the source of the mean series. Note that
-	 * this may be changed subsequently. Visual bands are highest priority, and
-	 * if not found, the first band will be chosen at random.
+	 * this may be changed subsequently. Visual bands have the highest priority.
+	 * If not found, the Unspecified series is looked at, otherwise the first band
+	 * encountered other than fainter-than, excluded, or discrepant will be
+	 * chosen.
 	 * 
 	 * @return The series number on which to base the mean series.
 	 */
 	public int determineMeanSeriesSource() {
 		int seriesNum = -1;
 
+		// TODO:
+		// - use keySet().contains() below!
+		// - our of V and Visual, choose the series with the most observations
+		// - same for other series if no visuals
+		
 		// Look for Visual, then V.
-
 		for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 			if (series == SeriesType.Visual) {
 				// Visual band
@@ -350,11 +356,24 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			}
 		}
 
-		// No match: choose some series other than fainter-than or discrepant.
+		// No visual bands present. Try 'Unspecified'.
+		if (seriesNum == -1) {
+			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
+				if (series == SeriesType.Unspecified) {
+					// Unspecified
+					seriesNum = srcTypeToSeriesNumMap.get(series);
+					break;
+				}
+			}
+		}
+		
+		// No match: choose some series other than fainter-than, discrepant, or
+		// excluded.
 		if (seriesNum == -1) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				if (series != SeriesType.FAINTER_THAN
-						&& series != SeriesType.DISCREPANT) {
+						&& series != SeriesType.DISCREPANT
+						&& series != SeriesType.Excluded) {
 					seriesNum = srcTypeToSeriesNumMap.get(series);
 					break;
 				}
@@ -367,7 +386,8 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// For this to happen should be very rare, but it could happen
 		// For example, CM Cru as of Sep 2010 contains one data value
 		// since around 1949 and that is a Fainter-than. Note that currently,
-		// determineMeanSeriesSource() will ignore Fainter-thans and discrepants
+		// determineMeanSeriesSource() will ignore Fainter-thans, discrepants,
+		// and excluded observations
 		// with respect to mean curves. We might want to revise this. Of course,
 		// fainter-thans can later be selected as the means-source.
 		if (seriesNum == -1) {

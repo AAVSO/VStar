@@ -33,6 +33,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.data.DomainOrder;
 import org.jfree.data.xy.AbstractIntervalXYDataset;
@@ -423,11 +424,36 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		boolean changed = currVis != null && currVis != visibility;
 
 		if (changed) {
+			// Update the map and views.
 			this.seriesVisibilityMap.put(seriesType, visibility);
 			this.fireDatasetChanged();
+
+			// Generate a series visibility message.
+			SeriesVisibilityChangeMessage message = new SeriesVisibilityChangeMessage(
+					this, getVisibleSeries());
+			Mediator.getInstance().getSeriesVisibilityChangeNotifier()
+					.notifyListeners(message);
 		}
 
 		return changed;
+	}
+
+	/**
+	 * What is the current set of visible series?
+	 * 
+	 * @return The current set of visible series?
+	 */
+	public Set<SeriesType> getVisibleSeries() {
+		Set<SeriesType> visibleSeries = new HashSet<SeriesType>();
+		
+		for (SeriesType series : seriesVisibilityMap.keySet()) {
+			boolean visible = seriesVisibilityMap.get(series);
+			if (visible) {
+				visibleSeries.add(series);
+			}
+		}
+		
+		return visibleSeries;
 	}
 
 	/**

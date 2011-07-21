@@ -20,12 +20,12 @@ package org.aavso.tools.vstar.data.validation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 
 /**
- * This class validates magnitude values (e.g. magnitude, uncertainty). 
+ * This class validates magnitude values (e.g. magnitude, uncertainty).
  */
 public class MagnitudeValueValidator extends AbstractStringValidator<Double> {
 
 	public static final boolean CAN_BE_EMPTY = true;
-	
+
 	private boolean canBeEmpty;
 
 	private static final String KIND = "magnitude";
@@ -37,9 +37,11 @@ public class MagnitudeValueValidator extends AbstractStringValidator<Double> {
 	 * 
 	 * @param rangePredicate
 	 *            A numeric range predicate.
-	 * @param canBeEmpty Can the magnitude field be empty?
+	 * @param canBeEmpty
+	 *            Can the magnitude field be empty?
 	 */
-	public MagnitudeValueValidator(RangePredicate rangePredicate, boolean canBeEmpty) {
+	public MagnitudeValueValidator(RangePredicate rangePredicate,
+			boolean canBeEmpty) {
 		super(KIND);
 		this.rangePredicate = rangePredicate;
 		this.canBeEmpty = canBeEmpty;
@@ -58,23 +60,27 @@ public class MagnitudeValueValidator extends AbstractStringValidator<Double> {
 	}
 
 	public Double validate(String str) throws ObservationValidationError {
-		if (this.isLegallyEmpty(str)) return null;
+		if (this.isLegallyEmpty(str))
+			return null;
 
 		double value = 0;
-		
+
 		try {
 			value = Double.parseDouble(str);
-			if (!rangePredicate.holds(value)) {
-				throw new ObservationValidationError("The " + kind + " '" + str
-						+ "' falls outside of the range " + rangePredicate);
-			}
+			// TODO: disable this for now since we are seeing data outside of
+			// the nominal range; possibly have a preference or file directive
+			// to turn this off rather than always ignoring it.
+			// if (!rangePredicate.holds(value)) {
+			// throw new ObservationValidationError("The " + kind + " '" + str
+			// + "' falls outside of the range " + rangePredicate);
+			// }
 		} catch (NumberFormatException e) {
 			throw new ObservationValidationError("The " + kind + " '" + str
 					+ "' is not a real number.");
 		}
-		
+
 		return value;
-	}	
+	}
 
 	protected boolean canBeEmpty() {
 		return this.canBeEmpty;

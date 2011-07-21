@@ -236,7 +236,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 			topHits.put(type, new ArrayList<Double>());
 		}
 
-		for (int i = 1; i <= 20; i++) {
+		for (int i = 1; i <= MAX_TOP_HITS-1; i++) {
 			if (dgnu[i] != 0) {
 				topHits.get(PeriodAnalysisCoordinateType.FREQUENCY)
 						.add(dgnu[i]);
@@ -369,7 +369,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 		dpolyamp2 = 0.0; // added Apr 7
 
-		nbest = 20;
+		nbest = MAX_TOP_HITS-1;
 
 		// write(6,261) dfloat(ndim+1)*dang0/2.0
 		// read[5][260] xlofre;
@@ -904,12 +904,12 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		int nq = 0;
 		int nqq = 0;
 
-		for (nq = 1; nq <= 20; nq++) {
+		for (nq = 1; nq <= MAX_TOP_HITS-1; nq++) {
 			// We have found a higher power!
 			if (dlpower > dgpower[nq]) {
 				// Move everything below this down one.
 				// Note that with a list, we'll just be able to insert!
-				for (nqq = 19; nqq >= nq; nqq--) {
+				for (nqq = MAX_TOP_HITS-2; nqq >= nq; nqq--) {
 					dgpower[nqq + 1] = dgpower[nqq];
 					dgnu[nqq + 1] = dgnu[nqq];
 					dgper[nqq + 1] = dgper[nqq];

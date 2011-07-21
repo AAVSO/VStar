@@ -36,14 +36,16 @@ public class ExternalFormatRawDataColumnInfoSource implements
 	private static final int JD_COLUMN = 0;
 	private static final int CALENDAR_DATE_COLUMN = 1;
 	private static final int MAGNITUDE_COLUMN = 2;
-	private static final int BAND_COLUMN = 3;
-	private static final int OBSERVER_CODE_COLUMN = 4;
-	private static final int RECORD_NUM_COLUMN = 5;
-	private static final int DISCREPANT_COLUMN = 6;
+	private static final int UNCERTAINTY_COLUMN = 3;
+	private static final int BAND_COLUMN = 4;
+	private static final int OBSERVER_CODE_COLUMN = 5;
+	private static final int RECORD_NUM_COLUMN = 6;
+	private static final int DISCREPANT_COLUMN = 7;
 
 	private static final String JD_COLUMN_NAME = "Julian Day";
 	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
 	private static final String MAGNITUDE_COLUMN_NAME = "Magnitude";
+	private static final String UNCERTAINTY_COLUMN_NAME = "Uncertainty";	
 	private static final String BAND_COLUMN_NAME = "Band";
 	private static final String OBSERVER_CODE_COLUMN_NAME = "Observer Code";
 	private static final String RECORD_NUM_COLUMN_NAME = "Record";
@@ -55,6 +57,7 @@ public class ExternalFormatRawDataColumnInfoSource implements
 		COLUMN_NAMES.put(JD_COLUMN_NAME, JD_COLUMN);
 		COLUMN_NAMES.put(CALENDAR_DATE_COLUMN_NAME, CALENDAR_DATE_COLUMN);
 		COLUMN_NAMES.put(MAGNITUDE_COLUMN_NAME, MAGNITUDE_COLUMN);
+		COLUMN_NAMES.put(UNCERTAINTY_COLUMN_NAME, UNCERTAINTY_COLUMN);		
 		COLUMN_NAMES.put(BAND_COLUMN_NAME, BAND_COLUMN);
 		COLUMN_NAMES.put(OBSERVER_CODE_COLUMN_NAME, OBSERVER_CODE_COLUMN);
 		COLUMN_NAMES.put(RECORD_NUM_COLUMN_NAME, RECORD_NUM_COLUMN);
@@ -82,6 +85,9 @@ public class ExternalFormatRawDataColumnInfoSource implements
 		case MAGNITUDE_COLUMN:
 			columnName = MAGNITUDE_COLUMN_NAME;
 			break;
+		case UNCERTAINTY_COLUMN:
+			columnName = UNCERTAINTY_COLUMN_NAME;
+			break;			
 		case BAND_COLUMN:
 			columnName = BAND_COLUMN_NAME;
 			break;
@@ -108,6 +114,8 @@ public class ExternalFormatRawDataColumnInfoSource implements
 		case CALENDAR_DATE_COLUMN:
 			break;
 		case MAGNITUDE_COLUMN:
+			break;
+		case UNCERTAINTY_COLUMN:
 			break;
 		case BAND_COLUMN:
 			break;
@@ -136,7 +144,12 @@ public class ExternalFormatRawDataColumnInfoSource implements
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MAGNITUDE_COLUMN:
-			value = ob.getMagnitude();
+			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
+					ob.getMagnitude().getMagValue());
+			break;
+		case UNCERTAINTY_COLUMN:
+			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
+					ob.getMagnitude().getUncertainty());
 			break;
 		case BAND_COLUMN:
 			value = ob.getBand() == null ? "" : ob.getBand().getDescription();

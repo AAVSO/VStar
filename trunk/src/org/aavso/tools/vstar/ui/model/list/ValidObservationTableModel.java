@@ -63,7 +63,6 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 * @param validObservations
 	 *            A list of valid observations.
 	 * @param columnInfoSource
-	 *            The source of column information for the table.
 	 */
 	public ValidObservationTableModel(List<ValidObservation> validObservations,
 			ITableColumnInfoSource columnInfoSource) {

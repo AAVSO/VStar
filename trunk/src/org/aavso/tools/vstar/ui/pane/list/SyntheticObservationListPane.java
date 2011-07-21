@@ -100,10 +100,10 @@ public class SyntheticObservationListPane<T extends AbstractSyntheticObservation
 
 	// Returns an observation selection listener.
 	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		final JPanel parent = this;
 		return new Listener<ObservationSelectionMessage>() {
-
 			public void update(ObservationSelectionMessage message) {
-				if (message.getSource() != this) {
+				if (message.getSource() != parent) {
 					ValidObservation ob = message.getObservation();
 					Integer rowIndex = obsTableModel
 							.getRowIndexFromObservation(ob);
