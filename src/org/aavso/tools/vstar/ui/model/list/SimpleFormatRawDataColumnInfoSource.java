@@ -35,23 +35,26 @@ public class SimpleFormatRawDataColumnInfoSource implements
 	private static final int JD_COLUMN = 0;
 	private static final int CALENDAR_DATE_COLUMN = 1;
 	private static final int MAGNITUDE_COLUMN = 2;
-	private static final int OBSERVER_CODE_COLUMN = 3;
-	private static final int LINE_NUM_COLUMN = 4;
-	private static final int DISCREPANT_COLUMN = 5;
+	private static final int UNCERTAINTY_COLUMN = 3;
+	private static final int OBSERVER_CODE_COLUMN = 4;
+	private static final int LINE_NUM_COLUMN = 5;
+	private static final int DISCREPANT_COLUMN = 6;
 
 	private static final String JD_COLUMN_NAME = "Julian Day";
 	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
 	private static final String MAGNITUDE_COLUMN_NAME = "Magnitude";
+	private static final String UNCERTAINTY_COLUMN_NAME = "Uncertainty";
 	private static final String OBSERVER_CODE_COLUMN_NAME = "Observer Code";
 	private static final String LINE_NUM_COLUMN_NAME = "Line";
 	private static final String DISCREPANT_COLUMN_NAME = "Discrepant?";
 
 	protected static final Map<String, Integer> COLUMN_NAMES = new HashMap<String, Integer>();
-	
+
 	static {
 		COLUMN_NAMES.put(JD_COLUMN_NAME, JD_COLUMN);
 		COLUMN_NAMES.put(CALENDAR_DATE_COLUMN_NAME, CALENDAR_DATE_COLUMN);
 		COLUMN_NAMES.put(MAGNITUDE_COLUMN_NAME, MAGNITUDE_COLUMN);
+		COLUMN_NAMES.put(UNCERTAINTY_COLUMN_NAME, UNCERTAINTY_COLUMN);
 		COLUMN_NAMES.put(OBSERVER_CODE_COLUMN_NAME, OBSERVER_CODE_COLUMN);
 		COLUMN_NAMES.put(LINE_NUM_COLUMN_NAME, LINE_NUM_COLUMN);
 		COLUMN_NAMES.put(DISCREPANT_COLUMN_NAME, DISCREPANT_COLUMN);
@@ -78,6 +81,9 @@ public class SimpleFormatRawDataColumnInfoSource implements
 		case MAGNITUDE_COLUMN:
 			columnName = MAGNITUDE_COLUMN_NAME;
 			break;
+		case UNCERTAINTY_COLUMN:
+			columnName = UNCERTAINTY_COLUMN_NAME;
+			break;
 		case OBSERVER_CODE_COLUMN:
 			columnName = OBSERVER_CODE_COLUMN_NAME;
 			break;
@@ -102,6 +108,8 @@ public class SimpleFormatRawDataColumnInfoSource implements
 			break;
 		case MAGNITUDE_COLUMN:
 			break;
+		case UNCERTAINTY_COLUMN:
+			break;
 		case OBSERVER_CODE_COLUMN:
 			break;
 		case LINE_NUM_COLUMN:
@@ -120,14 +128,19 @@ public class SimpleFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-					.getDateInfo().getJulianDay());
+			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
+					ob.getDateInfo().getJulianDay());
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MAGNITUDE_COLUMN:
-			value = ob.getMagnitude();
+			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
+					ob.getMagnitude().getMagValue());
+			break;
+		case UNCERTAINTY_COLUMN:
+			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
+					ob.getMagnitude().getUncertainty());
 			break;
 		case OBSERVER_CODE_COLUMN:
 			value = ob.getObsCode();
@@ -142,9 +155,10 @@ public class SimpleFormatRawDataColumnInfoSource implements
 
 		return value;
 	}
-	
+
 	@Override
-	public int getColumnIndexByName(String name) throws IllegalArgumentException {
+	public int getColumnIndexByName(String name)
+			throws IllegalArgumentException {
 		if (name == null || !COLUMN_NAMES.containsKey(name)) {
 			throw new IllegalArgumentException("No column name: " + name);
 		} else {

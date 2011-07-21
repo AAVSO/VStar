@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -22,13 +22,10 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This message will be sent to Listener<ExcludedObservationMessage>
- * implementers registered with a Notifier<ExludedObservationMessage>.
- * 
- * The message signals that a collection of observations should be considered to
- * be "excluded" or "included" (i.e. moved from being excluded to included).
+ * This message is sent to denote the selection of multiple valid observations 
+ * from a specific source.
  */
-public class ExcludedObservationMessage extends MessageBase {
+public class MultipleObservationSelectionMessage extends MessageBase {
 
 	private List<ValidObservation> observations;
 	
@@ -36,10 +33,12 @@ public class ExcludedObservationMessage extends MessageBase {
 	 * Constructor.
 	 * 
 	 * @param observations
-	 *            The observations that have changed.
-	 * @param source The object that caused the change.
+	 *            The observations.
+	 * @param source
+	 *            The source of the message.
 	 */
-	public ExcludedObservationMessage(List<ValidObservation> observations, Object source) {
+	public MultipleObservationSelectionMessage(List<ValidObservation> observations,
+			Object source) {
 		super(source);
 		this.observations = observations;
 	}

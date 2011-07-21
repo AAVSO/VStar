@@ -17,9 +17,18 @@
  */
 package org.aavso.tools.vstar.ui.pane.list;
 
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -30,15 +39,16 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
-import org.aavso.tools.vstar.util.comparator.MagnitudeComparator;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -54,24 +64,33 @@ public class ObservationListPane extends JPanel implements
 	private JTable invalidDataTable;
 	private ValidObservationTableModel validDataModel;
 	private TableRowSorter<ValidObservationTableModel> rowSorter;
+	private VisibleSeriesRowFilter rowFilter;
 	private ValidObservation lastObSelected = null;
 
 	/**
 	 * Constructor
 	 * 
+	 * @param title
+	 *            The title for the table.
 	 * @param validDataModel
 	 *            A table data model that encapsulates valid observations.
 	 * @param invalidDataModel
 	 *            A table data model that encapsulates invalid observations.
 	 * @param enableAutoResize
 	 *            Enable auto-resize of columns? If true, we won't get a
-	 *            horizontal scrollbar for valid observation table.
+	 *            horizontal scrollbar for valid observation table. The source
+	 *            of column information for the table.
+	 * @param analysisType
+	 *            The analysis type (raw, phase) under which this table was
+	 *            created.
 	 */
-	public ObservationListPane(ValidObservationTableModel validDataModel,
+	public ObservationListPane(String title,
+			ValidObservationTableModel validDataModel,
 			InvalidObservationTableModel invalidDataModel,
-			boolean enableAutoResize) {
+			boolean enableAutoResize, Set<SeriesType> initialVisibleSeries,
+			AnalysisType analysisType) {
 
-		super(new GridLayout(1, 1));
+		super(new BorderLayout());
 
 		JScrollPane validDataScrollPane = null;
 
@@ -93,10 +112,16 @@ public class ObservationListPane extends JPanel implements
 			// Enable table sorting by clicking on a column.
 			rowSorter = new TableRowSorter<ValidObservationTableModel>(
 					validDataModel);
-			int magColIndex = validDataModel.getColumnInfoSource()
-					.getColumnIndexByName("Magnitude");
-			rowSorter.setComparator(magColIndex, new MagnitudeComparator());
+			// int magColIndex = validDataModel.getColumnInfoSource()
+			// .getColumnIndexByName("Magnitude");
+			// rowSorter.setComparator(magColIndex, new MagnitudeComparator());
 			validDataTable.setRowSorter(rowSorter);
+
+			// Add a row filter that shows data from series that are visible in
+			// the main plot.
+			rowFilter = new VisibleSeriesRowFilter(validDataModel,
+					initialVisibleSeries, analysisType);
+			rowSorter.setRowFilter(rowFilter);
 
 			validDataScrollPane = new JScrollPane(validDataTable);
 		}
@@ -134,33 +159,63 @@ public class ObservationListPane extends JPanel implements
 			splitter.setTopComponent(validDataScrollPane);
 			splitter.setBottomComponent(invalidDataScrollPane);
 			splitter.setResizeWeight(0.5);
-			this.add(splitter);
+//			splitter.setBorder(BorderFactory.createTitledBorder(title));
+			this.add(splitter, BorderLayout.CENTER);
 		} else if (validDataScrollPane != null) {
 			// Just valid data.
-			this.add(validDataScrollPane);
+//			validDataScrollPane.setBorder(BorderFactory.createTitledBorder(title));
+			this.add(validDataScrollPane, BorderLayout.CENTER);
 		} else if (invalidDataScrollPane != null) {
 			// Just invalid data.
-			this.add(invalidDataScrollPane);
+//			invalidDataScrollPane.setBorder(BorderFactory.createTitledBorder(title));
+			this.add(invalidDataScrollPane, BorderLayout.CENTER);
 		} else {
 			// We have no data at all. Let's say so.
 			JLabel label = new JLabel("There is no data to be displayed");
 			label.setHorizontalAlignment(JLabel.CENTER);
-			this.setLayout(new GridLayout(1, 1));
-			this.add(label);
+			this.setLayout(new BorderLayout());
+			this.add(label, BorderLayout.CENTER);
 		}
+
+		this.add(createControlPanel(), BorderLayout.NORTH);
 
 		// Listen for observation selection events. Notice that this class
 		// also generates these, but ignores them if sent by itself.
 		Mediator.getInstance().getObservationSelectionNotifier().addListener(
 				createObservationSelectionListener());
 
-		// Listen to filtered observation messages so we can filter what's
-		// displayed in the table.
-		Mediator.getInstance().getFilteredObservationNotifier().addListener(
-				createFilteredObservationListener());
-
 		// List row selection handling.
 		this.validDataTable.getSelectionModel().addListSelectionListener(this);
+	}
+
+	/**
+	 * Create a control panel for the table.
+	 */
+	private JPanel createControlPanel() {
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createEtchedBorder());
+
+		// A checkbox to determine whether to display all the data in the table.
+		JCheckBox allDataCheckBox = new JCheckBox("Show all data?");
+		allDataCheckBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JCheckBox checkBox = (JCheckBox) e.getSource();
+				if (checkBox.isSelected()) {
+					// Show all data, no filtering.
+					rowSorter.setRowFilter(null);
+				} else {
+					// Filter the data displayed.
+					rowSorter.setRowFilter(rowFilter);
+				}
+			}
+		});
+		allDataCheckBox.setSelected(false);
+		panel.add(allDataCheckBox);
+
+		return panel;
 	}
 
 	/**
@@ -186,10 +241,10 @@ public class ObservationListPane extends JPanel implements
 
 	// Returns an observation selection listener.
 	protected Listener<ObservationSelectionMessage> createObservationSelectionListener() {
+		final JPanel parent = this;
 		return new Listener<ObservationSelectionMessage>() {
-
 			public void update(ObservationSelectionMessage message) {
-				if (message.getSource() != this) {
+				if (message.getSource() != parent) {
 					ValidObservation ob = message.getObservation();
 					Integer rowIndex = validDataModel
 							.getRowIndexFromObservation(ob);
@@ -250,26 +305,10 @@ public class ObservationListPane extends JPanel implements
 		};
 	}
 
-	// Returns a filtered observation listener.
-	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
-		return new Listener<FilteredObservationMessage>() {
-			public void update(FilteredObservationMessage info) {
-				if (info == FilteredObservationMessage.NO_FILTER) {
-					rowSorter.setRowFilter(null);
-				} else {
-					rowSorter.setRowFilter(new ObservationTableRowFilter(info));
-				}
-			}
-
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
-	}
-
 	/**
-	 * We send an observation selection event when the value has "settled". This
-	 * event could be consumed by other views such as plots.
+	 * We send an observation selection message when the value or values have
+	 * "settled". This event could be consumed by other views such as plots or
+	 * undo managers.
 	 * 
 	 * @param e
 	 *            The list selection event.
@@ -278,16 +317,38 @@ public class ObservationListPane extends JPanel implements
 		if (e.getSource() == validDataTable.getSelectionModel()
 				&& validDataTable.getRowSelectionAllowed()
 				&& !e.getValueIsAdjusting()) {
-			int row = validDataTable.getSelectedRow();
 
-			if (row >= 0) {
-				row = validDataTable.convertRowIndexToModel(row);
-				ValidObservation ob = validDataModel.getObservations().get(row);
-				lastObSelected = ob;
-				ObservationSelectionMessage message = new ObservationSelectionMessage(
-						ob, this);
-				Mediator.getInstance().getObservationSelectionNotifier()
+			int[] rows = validDataTable.getSelectedRows();
+
+			if (rows.length > 1) {
+				// This is a multiple observation selection.
+				List<ValidObservation> obs = new ArrayList<ValidObservation>();
+				for (int row : rows) {
+					row = validDataTable.convertRowIndexToModel(row);
+					ValidObservation ob = validDataModel.getObservations().get(
+							row);
+					obs.add(ob);
+				}
+				MultipleObservationSelectionMessage message = new MultipleObservationSelectionMessage(
+						obs, this);
+
+				Mediator.getInstance()
+						.getMultipleObservationSelectionNotifier()
 						.notifyListeners(message);
+			} else {
+				// This is a single observation selection.
+				int row = validDataTable.getSelectedRow();
+
+				if (row >= 0) {
+					row = validDataTable.convertRowIndexToModel(row);
+					ValidObservation ob = validDataModel.getObservations().get(
+							row);
+					lastObSelected = ob;
+					ObservationSelectionMessage message = new ObservationSelectionMessage(
+							ob, this);
+					Mediator.getInstance().getObservationSelectionNotifier()
+							.notifyListeners(message);
+				}
 			}
 		}
 	}

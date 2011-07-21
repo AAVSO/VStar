@@ -30,7 +30,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 
 public class TSBase {
 
-	protected final static int MAX_TOP_HITS = 21;
+	protected final static int MAX_TOP_HITS = 101; // was 21
 	
 
 	private List<ValidObservation> observations;

@@ -17,37 +17,34 @@
  */
 package org.aavso.tools.vstar.ui.mediator.message;
 
-import java.util.List;
+import java.util.Set;
 
-import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.SeriesType;
 
 /**
- * This message will be sent to Listener<ExcludedObservationMessage>
- * implementers registered with a Notifier<ExludedObservationMessage>.
- * 
- * The message signals that a collection of observations should be considered to
- * be "excluded" or "included" (i.e. moved from being excluded to included).
+ * This message is sent when the set of visible series has changed.
  */
-public class ExcludedObservationMessage extends MessageBase {
+public class SeriesVisibilityChangeMessage extends MessageBase {
 
-	private List<ValidObservation> observations;
-	
+	private Set<SeriesType> visibleSeries;
+
 	/**
 	 * Constructor.
 	 * 
-	 * @param observations
-	 *            The observations that have changed.
-	 * @param source The object that caused the change.
+	 * @param source
+	 *            The source of the message.
+	 * @param series
 	 */
-	public ExcludedObservationMessage(List<ValidObservation> observations, Object source) {
+	public SeriesVisibilityChangeMessage(Object source,
+			Set<SeriesType> visibleSeries) {
 		super(source);
-		this.observations = observations;
+		this.visibleSeries = visibleSeries;
 	}
 
 	/**
-	 * @return the observations
+	 * @return the visibleSeries
 	 */
-	public List<ValidObservation> getObservations() {
-		return observations;
+	public Set<SeriesType> getVisibleSeries() {
+		return visibleSeries;
 	}
 }

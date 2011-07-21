@@ -68,6 +68,7 @@ import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
@@ -77,6 +78,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
@@ -170,6 +172,7 @@ public class Mediator {
 	private Notifier<DiscrepantObservationMessage> discrepantObservationNotifier;
 	private Notifier<ExcludedObservationMessage> excludedObservationNotifier;
 	private Notifier<ObservationSelectionMessage> observationSelectionNotifier;
+	private Notifier<MultipleObservationSelectionMessage> multipleObservationSelectionNotifier;
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
 	private Notifier<PeriodChangeMessage> periodChangeNotifier;
 	private Notifier<PhaseChangeMessage> phaseChangeNotifier;
@@ -182,6 +185,7 @@ public class Mediator {
 	private Notifier<PanRequestMessage> panRequestNotifier;
 	private Notifier<UndoActionMessage> undoActionNotifier;
 	private Notifier<StopRequestMessage> stopRequestNotifier;
+	private Notifier<SeriesVisibilityChangeMessage> seriesVisibilityChangeNotifier;
 
 	private DocumentManager documentManager;
 
@@ -204,6 +208,7 @@ public class Mediator {
 		this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
 		this.excludedObservationNotifier = new Notifier<ExcludedObservationMessage>();
 		this.observationSelectionNotifier = new Notifier<ObservationSelectionMessage>();
+		this.multipleObservationSelectionNotifier = new Notifier<MultipleObservationSelectionMessage>();
 		this.periodAnalysisSelectionNotifier = new Notifier<PeriodAnalysisSelectionMessage>();
 		this.periodChangeNotifier = new Notifier<PeriodChangeMessage>();
 		this.phaseChangeNotifier = new Notifier<PhaseChangeMessage>();
@@ -216,6 +221,7 @@ public class Mediator {
 		this.panRequestNotifier = new Notifier<PanRequestMessage>();
 		this.undoActionNotifier = new Notifier<UndoActionMessage>();
 		this.stopRequestNotifier = new Notifier<StopRequestMessage>();
+		this.seriesVisibilityChangeNotifier = new Notifier<SeriesVisibilityChangeMessage>();
 
 		this.obsListFileSaveDialog = new JFileChooser();
 
@@ -239,6 +245,7 @@ public class Mediator {
 				.addListener(createFilteredObservationListener());
 
 		// Initialise dialogs.
+		// TODO: move these to a DialogManager or the DocumentManager
 		this.rawPlotControlDialog = null;
 		this.phasePlotControlDialog = null;
 
@@ -271,6 +278,9 @@ public class Mediator {
 		this.observationSelectionNotifier
 				.addListener(this.undoableActionManager
 						.createObservationSelectionListener());
+		this.multipleObservationSelectionNotifier
+				.addListener(this.undoableActionManager
+						.createMultipleObservationSelectionListener());
 	}
 
 	/**
@@ -327,6 +337,13 @@ public class Mediator {
 	 */
 	public Notifier<ObservationSelectionMessage> getObservationSelectionNotifier() {
 		return observationSelectionNotifier;
+	}
+
+	/**
+	 * @return the multipleObservationSelectionNotifier
+	 */
+	public Notifier<MultipleObservationSelectionMessage> getMultipleObservationSelectionNotifier() {
+		return multipleObservationSelectionNotifier;
 	}
 
 	/**
@@ -411,6 +428,13 @@ public class Mediator {
 	 */
 	public Notifier<StopRequestMessage> getStopRequestNotifier() {
 		return stopRequestNotifier;
+	}
+
+	/**
+	 * @return the seriesVisibilityChangeNotifier
+	 */
+	public Notifier<SeriesVisibilityChangeMessage> getSeriesVisibilityChangeNotifier() {
+		return seriesVisibilityChangeNotifier;
 	}
 
 	/**
@@ -927,8 +951,10 @@ public class Mediator {
 		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
 				|| newStarType == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
 
-		obsListPane = new ObservationListPane(validObsTableModel,
-				invalidObsTableModel, enableColumnAutoResize);
+		obsListPane = new ObservationListPane(starInfo.getDesignation(),
+				validObsTableModel, invalidObsTableModel,
+				enableColumnAutoResize, obsAndMeanPlotModel.getVisibleSeries(),
+				AnalysisType.RAW_DATA);
 
 		// We also create the means list pane.
 		meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(
@@ -1081,8 +1107,9 @@ public class Mediator {
 		boolean enableColumnAutoResize = newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
 				|| newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
 
-		ObservationListPane obsListPane = new ObservationListPane(
-				validObsTableModel, null, enableColumnAutoResize);
+		ObservationListPane obsListPane = new ObservationListPane(objName,
+				validObsTableModel, null, enableColumnAutoResize,
+				obsAndMeanPlotModel.getVisibleSeries(), AnalysisType.PHASE_PLOT);
 
 		SyntheticObservationListPane<AbstractMeanObservationTableModel> meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(
 				meanObsTableModel, null);

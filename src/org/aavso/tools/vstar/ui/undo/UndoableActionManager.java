@@ -18,11 +18,14 @@
 package org.aavso.tools.vstar.ui.undo;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
@@ -34,7 +37,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public class UndoableActionManager {
 
-	private List<ValidObservation> selectedObs;
+	private Set<ValidObservation> selectedObs;
 
 	private Stack<IUndoableAction> undoStack;
 	private Stack<IUndoableAction> redoStack;
@@ -43,7 +46,7 @@ public class UndoableActionManager {
 	 * Constructor.
 	 */
 	public UndoableActionManager() {
-		selectedObs = new ArrayList<ValidObservation>();
+		selectedObs = new HashSet<ValidObservation>();
 		undoStack = new Stack<IUndoableAction>();
 		redoStack = new Stack<IUndoableAction>();
 	}
@@ -157,11 +160,24 @@ public class UndoableActionManager {
 		};
 	}
 
-	// TODO: need a MultipleObservationSelectionMessage and to rename this one
-	// to SingleObservationSelectionMessage
+	// Returns a multiple observation selection listener that collects
+	// observations that have been selected.
+	public Listener<MultipleObservationSelectionMessage> createMultipleObservationSelectionListener() {
+		return new Listener<MultipleObservationSelectionMessage>() {
+			@Override
+			public void update(MultipleObservationSelectionMessage info) {
+				selectedObs.addAll(info.getObservations());
+			}
+			
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
 
-	// Returns an observation selection listener that collects information about
-	// the single observation selection.
+	// Returns an observation selection listener that collects
+	// the single observation that has been selected.
 	public Listener<ObservationSelectionMessage> createObservationSelectionListener() {
 		return new Listener<ObservationSelectionMessage>() {
 			@Override
