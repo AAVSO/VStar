@@ -151,7 +151,7 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 *            The specified row.
 	 * @return The data point.
 	 */
-	public PeriodAnalysisDataPoint createDataPointFromRow(int rowIndex) {
+	public PeriodAnalysisDataPoint getDataPointFromRow(int rowIndex) {
 
 		return new PeriodAnalysisDataPoint(data.get(
 				PeriodAnalysisCoordinateType.FREQUENCY).get(rowIndex), data

@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
+import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
 /**
  * This class is used to visualise period analysis results.
@@ -52,7 +53,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 	private PeriodAnalysisTopHitsTablePane topHitsTablePane;
 
-	private int selectedRow = -1;
+	private PeriodAnalysisDataPoint selectedDataPoint;
 
 	/**
 	 * Constructor.
@@ -81,6 +82,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		this.dataTableModel = dataTableModel;
 		this.topHitsTableModel = topHitsTableModel;
 		this.algorithm = algorithm;
+		this.selectedDataPoint = null;
 
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.addListener(this.createPeriodAnalysisListener());
@@ -126,26 +128,19 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	// so we *know* without having to ask that there is a selected
 	// row in the data table.
 	protected void newPhasePlotButtonAction() {
-		String periodStr = (String) dataTableModel
-				.getPeriodValueInRow(selectedRow);
-		double period = NumberParser.parseDouble(periodStr);
-
-		PeriodChangeMessage message = new PeriodChangeMessage(this, period);
+		PeriodChangeMessage message = new PeriodChangeMessage(this,
+				selectedDataPoint.getPeriod());
 		Mediator.getInstance().getPeriodChangeNotifier().notifyListeners(
 				message);
 	}
 
 	// Enable the new phase plot button and store the selected
-	// item number.
-	//
-	// There is a 1:1 correspondence between the item value
-	// in the message and the selected data table row since
-	// the item denotes an index into an observation sequence.
+	// period analysis data point.
 	private Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			public void update(PeriodAnalysisSelectionMessage info) {
 				setNewPhasePlotButtonState(true);
-				selectedRow = info.getItem();
+				selectedDataPoint = info.getDataPoint();
 			}
 
 			public boolean canBeRemoved() {

@@ -53,9 +53,6 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  */
 public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane {
 
-	private PeriodAnalysisDataTableModel topHitsModel;
-	private PeriodAnalysisDataTableModel fullDataModel;
-
 	private Set<PeriodAnalysisDataPoint> refinedDataPoints;
 	private Set<PeriodAnalysisDataPoint> resultantDataPoints;
 
@@ -76,9 +73,6 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 			PeriodAnalysisDataTableModel fullDataModel,
 			IPeriodAnalysisAlgorithm algorithm) {
 		super(topHitsModel, algorithm);
-		
-		this.topHitsModel = topHitsModel;
-		this.fullDataModel = fullDataModel;
 
 		refinedDataPoints = new TreeSet<PeriodAnalysisDataPoint>(
 				PeriodAnalysisDataPointComparator.instance);
@@ -86,16 +80,13 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		resultantDataPoints = new TreeSet<PeriodAnalysisDataPoint>(
 				PeriodAnalysisDataPointComparator.instance);
 
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(this.createPeriodAnalysisListener());
-
 		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
 				.addListener(createRefinementListener());
 	}
 
 	protected JPanel createButtonPanel() {
 		JPanel buttonPane = super.createButtonPanel();
-		
+
 		refineButton = new JButton(algorithm.getRefineByFrequencyName());
 		refineButton.setEnabled(false);
 		refineButton.addActionListener(createRefineButtonHandler());
@@ -117,13 +108,11 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 				int[] selectedTableRowIndices = table.getSelectedRows();
 				for (int row : selectedTableRowIndices) {
 					int modelRow = table.convertRowIndexToModel(row);
-					PeriodAnalysisDataPoint dataPoint = topHitsModel
-							.createDataPointFromRow(modelRow);
+					PeriodAnalysisDataPoint dataPoint = model
+							.getDataPointFromRow(modelRow);
 					if (!refinedDataPoints.contains(dataPoint)) {
 						refinedDataPoints.add(dataPoint);
-						freqs
-								.add(topHitsModel
-										.getFrequencyValueInRow(modelRow));
+						freqs.add(model.getFrequencyValueInRow(modelRow));
 					} else {
 						String fmt = NumericPrecisionPrefs
 								.getOtherOutputFormat();
@@ -174,7 +163,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 						Map<PeriodAnalysisCoordinateType, List<Double>> topHits = algorithm
 								.getTopHits();
 
-						topHitsModel.setData(topHits);
+						model.setData(topHits);
 
 						PeriodAnalysisRefinementMessage msg = new PeriodAnalysisRefinementMessage(
 								this, data, topHits, newTopHits);
@@ -226,13 +215,54 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		return periods;
 	}
 
-	// Listen for period analysis selection messages in order to enable the
-	// "refine" button.
-	private Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
+	/**
+	 * Select the row in the table corresponding to the period analysis
+	 * selection. We also enable the "refine" button.
+	 */
+	protected Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
+		final Component parent = this;
+
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
-				refineButton.setEnabled(true);
+				if (info.getSource() != parent) {
+					// Find data point in top hits table.
+					int row = -1;
+					for (int i = 0; i < model.getRowCount(); i++) {
+						if (model.getDataPointFromRow(i).equals(
+								info.getDataPoint())) {
+							row = i;
+							break;
+						}
+					}
+
+					// Note that the row may not correspond to anything in the
+					// top hits table since there's more data in the full
+					// dataset than there is here!
+					if (row != -1) {
+						// Convert to view index!
+						row = table.convertRowIndexToView(row);
+
+						// Scroll to an arbitrary column (zeroth) within
+						// the selected row, then select that row.
+						// Assumption: we are specifying the zeroth cell
+						// within row i as an x,y coordinate relative to
+						// the top of the table pane.
+						// Note that we could call this on the scroll
+						// pane, which would then forward the request to
+						// the table pane anyway.
+						int colWidth = (int) table.getCellRect(row, 0, true)
+								.getWidth();
+						int rowHeight = table.getRowHeight(row);
+						table.scrollRectToVisible(new Rectangle(colWidth,
+								rowHeight * row, colWidth, rowHeight));
+
+						table.setRowSelectionInterval(row, row);
+						enableButtons();
+					}
+				} else {
+					enableButtons();
+				}
 			}
 
 			@Override
@@ -243,10 +273,18 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 	}
 
 	/**
-	 * We send a row selection event when the table selection value has
-	 * "settled". This event could be consumed by other views such as plots. We
-	 * find a row in the data table given the selected top hits table row and
-	 * send a message with that row.
+	 * @see org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane#enableButtons()
+	 */
+	@Override
+	protected void enableButtons() {
+		super.enableButtons();
+		refineButton.setEnabled(true);
+	}
+
+	/**
+	 * We send a period analysis selection message when the table selection
+	 * value has "settled". This event could be consumed by other views such as
+	 * plots.
 	 */
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
@@ -257,80 +295,10 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 			if (row >= 0) {
 				row = table.convertRowIndexToModel(row);
-
-				// Now, what index (row) does this correspond to in the full
-				// data table model? We arbitrarily compare period values.
-				int fullDataRow = -1;
-				double selectedPeriod = topHitsModel.getData().get(
-						PeriodAnalysisCoordinateType.PERIOD).get(row);
-
-				for (int i = 0; i < fullDataModel.getRowCount(); i++) {
-					if (fullDataModel.getData().get(
-							PeriodAnalysisCoordinateType.PERIOD).get(i) == selectedPeriod) {
-						fullDataRow = i;
-						break;
-					}
-				}
-
-				// If the row was found (no reason it should not have been),
-				// send a period analysis selection message.
-				if (fullDataRow != -1) {
-					PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-							this, fullDataRow);
-					Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-							.notifyListeners(message);
-				}
-			}
-		}
-	}
-
-	/**
-	 * We convert from a full data index to the corresponding row in the top
-	 * hits table before selecting it.
-	 */
-	@Override
-	public void update(PeriodAnalysisSelectionMessage info) {
-		if (info.getSource() != this) {
-			// Scroll to an arbitrary column (zeroth) within
-			// the selected row, then select that row.
-			// Assumption: we are specifying the zeroth cell
-			// within row i as an x,y coordinate relative to
-			// the top of the table pane.
-			// Note that we could call this on the scroll
-			// pane, which would then forward the request to
-			// the table pane anyway.
-			try {
-				// Convert from full data index to top hits table row.
-				double selectedPeriod = fullDataModel.getData().get(
-						PeriodAnalysisCoordinateType.PERIOD)
-						.get(info.getItem());
-				int row = -1;
-				for (int i = 0; i < topHitsModel.getRowCount(); i++) {
-					if (topHitsModel.getData().get(
-							PeriodAnalysisCoordinateType.PERIOD).get(i) == selectedPeriod) {
-						row = i;
-						break;
-					}
-				}
-
-				// Note that it may not be in the top hits table since there's
-				// more data in the full dataset than is here!
-				if (row != -1) {
-					// Convert to view index!
-					row = table.convertRowIndexToView(row);
-
-					int colWidth = (int) table.getCellRect(row, 0, true)
-							.getWidth();
-					int rowHeight = table.getRowHeight(row);
-					table.scrollRectToVisible(new Rectangle(colWidth, rowHeight
-							* row, colWidth, rowHeight));
-
-					table.setRowSelectionInterval(row, row);
-				}
-			} catch (Throwable t) {
-				// TODO: investigate! (e.g. Johnson V band, then click top-most
-				// top hits table row).
-				// t.printStackTrace();
+				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
+						this, model.getDataPointFromRow(row));
+				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+						.notifyListeners(message);
 			}
 		}
 	}

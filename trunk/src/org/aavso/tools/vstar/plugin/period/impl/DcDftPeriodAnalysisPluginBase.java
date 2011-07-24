@@ -84,23 +84,12 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 					.getResultSeries();
 
 			// Frequency vs Power
-			models.add(new PeriodAnalysis2DPlotModel(resultDataMap
-					.get(PeriodAnalysisCoordinateType.FREQUENCY), resultDataMap
-					.get(PeriodAnalysisCoordinateType.POWER),
+			models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.POWER));
 
-			// Period vs Power
-			// models.add(new PeriodAnalysis2DPlotModel(resultDataMap
-			// .get(PeriodAnalysisCoordinateType.PERIOD), resultDataMap
-			// .get(PeriodAnalysisCoordinateType.POWER),
-			// PeriodAnalysisCoordinateType.PERIOD,
-			// PeriodAnalysisCoordinateType.POWER));
-
 			// Frequency vs Amplitude
-			models.add(new PeriodAnalysis2DPlotModel(resultDataMap
-					.get(PeriodAnalysisCoordinateType.FREQUENCY), resultDataMap
-					.get(PeriodAnalysisCoordinateType.AMPLITUDE),
+			models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.AMPLITUDE));
 
@@ -122,12 +111,6 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 	protected void newStarAction(NewStarMessage message) {
 		reset();
 		newStarMessage = message;
-	}
-
-	protected void meanSourceSeriesChangeAction(
-			MeanSourceSeriesChangeMessage message) {
-		reset();
-		meanSourceSeriesChangeMessage = message;
 	}
 
 	// ** Private helper methods **

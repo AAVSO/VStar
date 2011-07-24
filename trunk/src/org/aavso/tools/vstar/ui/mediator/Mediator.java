@@ -1341,8 +1341,6 @@ public class Mediator {
 	 * Perform a modelling operation (other than polynomial fit).
 	 */
 	public void performModellingOperation(IModel model) {
-		// TODO: we may want to introduce another plug-in class for
-		// modelling.
 		try {
 			ModellingTask task = new ModellingTask(model);
 
