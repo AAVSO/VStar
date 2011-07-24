@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.util.period.dcdft;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
- * This class represents a period analysis data-point to be plotted on a chart.
+ * This class represents a period analysis data point.
  */
 public class PeriodAnalysisDataPoint {
 	private double frequency, period, power, amplitude;

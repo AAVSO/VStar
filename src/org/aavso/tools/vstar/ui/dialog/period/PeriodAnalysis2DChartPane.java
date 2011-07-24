@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog.period;
 
 import java.awt.Color;
+import java.awt.Component;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
@@ -40,8 +41,7 @@ import org.jfree.data.general.DatasetChangeListener;
  * This class represents a chart panel.
  */
 public class PeriodAnalysis2DChartPane extends ChartPanel implements
-		ChartMouseListener, DatasetChangeListener,
-		Listener<PeriodAnalysisSelectionMessage> {
+		ChartMouseListener, DatasetChangeListener {
 
 	private static final int DATA_SERIES = 0;
 	private static final int TOP_HIT_SERIES = 1;
@@ -69,7 +69,7 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 
 		// We listen for and generate period analysis selection messages.
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(this);
+				.addListener(createPeriodAnalysisListener());
 
 		// We listen for period analysis refinement messages.
 		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
@@ -87,26 +87,11 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 	}
 
 	public void chartMouseClicked(ChartMouseEvent event) {
-//		double x = 0.02;
-//		double y = 250;
-
-		// XYPointerAnnotation pointer = new XYPointerAnnotation("Eureka!", x,
-		// y, 270);
-		// pointer.setTipRadius(10);
-		// pointer.setBaseRadius(35);
-		// pointer.setFont(new Font("SansSerif", Font.PLAIN, 9));
-		// pointer.setPaint(Color.BLUE);
-		// pointer.setTextAnchor(TextAnchor.HALF_ASCENT_RIGHT);
-		// chart.getXYPlot().addAnnotation(pointer);
-		//
-		// XYLineAnnotation line = new XYLineAnnotation(x, 0, x, y);
-		// chart.getXYPlot().addAnnotation(line);
-
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int item = entity.getItem();
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-					this, item);
+					this, model.getDataPointFromItem(item));
 			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 					.notifyListeners(message);
 		}
@@ -132,26 +117,53 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 		}
 	}
 
-	// PeriodAnalysisSelectionMessage listener methods.
+	/**
+	 * Update the crosshairs according to the selected data point.
+	 */
+	protected Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
+		final Component parent = this;
 
-	public boolean canBeRemoved() {
-		return true;
-	}
+		return new Listener<PeriodAnalysisSelectionMessage>() {
+			@Override
+			public void update(PeriodAnalysisSelectionMessage info) {
+				if (info.getSource() != parent) {
+					double x = Double.NaN;
+					double y = Double.NaN;
 
-	public void update(PeriodAnalysisSelectionMessage info) {
-		if (info.getSource() != this) {
-			try {
-				double x = model.getDomainValues().get(info.getItem());
-				double y = model.getRangeValues().get(info.getItem());
+					switch (model.getDomainType()) {
+					case FREQUENCY:
+						x = info.getDataPoint().getFrequency();
+						break;
+					case PERIOD:
+						x = info.getDataPoint().getPeriod();
+						break;
+					default:
+						assert false;
+						break;
+					}
 
-				chart.getXYPlot().setDomainCrosshairValue(x);
-				chart.getXYPlot().setRangeCrosshairValue(y);
-			} catch (Throwable t) {
-				// TODO: investigate! (e.g. Johnson V band, then click top-most
-				// top hits table row.
-				// t.printStackTrace();
+					switch (model.getRangeType()) {
+					case POWER:
+						y = info.getDataPoint().getPower();
+						break;
+					case AMPLITUDE:
+						y = info.getDataPoint().getAmplitude();
+						break;
+					default:
+						assert false;
+						break;
+					}
+
+					chart.getXYPlot().setDomainCrosshairValue(x);
+					chart.getXYPlot().setRangeCrosshairValue(y);
+				}
 			}
-		}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
 	}
 
 	// Create a period analysis refinement listener which sets annotations on
@@ -161,14 +173,14 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 			@Override
 			public void update(PeriodAnalysisRefinementMessage info) {
 				for (PeriodAnalysisDataPoint dataPoint : info.getNewTopHits()) {
-					// TODO: The amplitude value for CLEANest always seems to be
-					// the same. Why?
 					if (model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
 						double x = dataPoint.getValue(model.getDomainType());
 						double y = dataPoint.getValue(model.getRangeType());
 						XYLineAnnotation line = new XYLineAnnotation(x, 0, x, y);
 						chart.getXYPlot().addAnnotation(line);
 					}
+					
+					model.refresh();
 				}
 			}
 

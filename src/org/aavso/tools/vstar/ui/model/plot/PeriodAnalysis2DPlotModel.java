@@ -21,44 +21,49 @@ import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.data.xy.AbstractXYDataset;
 
 /**
- * This class is the basis of all 2D period analysis plot models. It provides
- * for the raw data plot along with the 
+ * This class is the basis of all 2D period analysis plot models.
  */
 public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 
+	private Map<PeriodAnalysisCoordinateType, List<Double>> analysisValues;
 	private List<Double> domainValues;
 	private List<Double> rangeValues;
 	private PeriodAnalysisCoordinateType domainType;
 	private PeriodAnalysisCoordinateType rangeType;
 
-	private Map<PeriodAnalysisCoordinateType, List<Double>> topHits;
-
 	/**
 	 * Constructor
 	 * 
-	 * @param domainValues
-	 *            A list of domainValues (domain values).
-	 * @param rangeValues
-	 *            A list of values that are dependent upon the domainValues
-	 *            (range values).
+	 * @param analysisValues
+	 *            A mapping from period analysis coordinate type to lists of
+	 *            values.
 	 * @param domainType
 	 *            The type of the domain axis.
 	 * @param rangeTypes
 	 *            The type of the range axis.
 	 */
-	public PeriodAnalysis2DPlotModel(List<Double> domainValues,
-			List<Double> rangeValues, PeriodAnalysisCoordinateType domainType,
+	public PeriodAnalysis2DPlotModel(
+			Map<PeriodAnalysisCoordinateType, List<Double>> analysisValues,
+			PeriodAnalysisCoordinateType domainType,
 			PeriodAnalysisCoordinateType rangeType) {
 		super();
+		this.analysisValues = analysisValues;
+		this.domainValues = analysisValues.get(domainType);
+		this.rangeValues = analysisValues.get(rangeType);
 		assert domainValues.size() == rangeValues.size();
-		this.domainValues = domainValues;
-		this.rangeValues = rangeValues;
 		this.domainType = domainType;
 		this.rangeType = rangeType;
-		topHits = null;
+	}
+
+	/**
+	 * @return the analysisValues
+	 */
+	public Map<PeriodAnalysisCoordinateType, List<Double>> getAnalysisValues() {
+		return analysisValues;
 	}
 
 	/**
@@ -93,90 +98,63 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesCount()
 	 */
 	public int getSeriesCount() {
-		int count = 1;
-		if (topHits != null)
-			count += 1;
-		return count;
+		return 1;
 	}
 
 	/**
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesKey(int)
 	 */
 	public Comparable getSeriesKey(int series) {
-		String key = null;
-
-		if (series == 0) {
-			key = rangeType.getDescription() + " vs "
-					+ domainType.getDescription();
-		} else {
-			assert topHits != null;
-			key = "top hit";
-		}
-
-		return key;
+		return rangeType.getDescription() + " vs "
+				+ domainType.getDescription();
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getItemCount(int)
 	 */
 	public int getItemCount(int series) {
-		int count;
-
-		if (series == 0) {
-			count = domainValues.size();
-		} else {
-			assert topHits != null;
-			count = topHits.get(PeriodAnalysisCoordinateType.POWER).size();
-		}
-
-		return count;
+		return domainValues.size();
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
 	public Number getX(int series, int item) {
-		Double x;
-
-		if (series == 0) {
-			x = domainValues.get(item);
-		} else {
-			assert topHits != null;
-			x = topHits.get(getDomainType()).get(item);
-		}
-
-		return x;
+		return domainValues.get(item);
 	}
 
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
 	 */
 	public Number getY(int series, int item) {
-		Double y;
-
-		if (series == 0) {
-			y = rangeValues.get(item);
-		} else {
-			assert topHits != null;
-			y = topHits.get(getRangeType()).get(item);
-		}
-
-		return y;
+		return rangeValues.get(item);
 	}
 
 	/**
-	 * @param topHits
-	 *            the topHits to set
+	 * Given an item number, return a period analysis data point object
+	 * containing frequency, period, power, and amplitude values.
+	 * 
+	 * @param item
+	 *            The item number in the sequence of data.
+	 * @return A data point object corresponding to that point in the sequence.
 	 */
-	public void setTopHits(
-			Map<PeriodAnalysisCoordinateType, List<Double>> topHits) {
-		this.topHits = topHits;
-		fireDatasetChanged();
+	public PeriodAnalysisDataPoint getDataPointFromItem(int item) {
+		double frequency = analysisValues.get(
+				PeriodAnalysisCoordinateType.FREQUENCY).get(item);
+		double period = analysisValues.get(PeriodAnalysisCoordinateType.PERIOD)
+				.get(item);
+		double power = analysisValues.get(PeriodAnalysisCoordinateType.POWER)
+				.get(item);
+		double amplitude = analysisValues.get(
+				PeriodAnalysisCoordinateType.AMPLITUDE).get(item);
+
+		return new PeriodAnalysisDataPoint(frequency, period, power, amplitude);
 	}
 	
-	public void  setData(Map<PeriodAnalysisCoordinateType, List<Double>> data) {
-		domainValues = data.get(getDomainType());
-		rangeValues = data.get(getRangeType());
+	/**
+	 * Force plot to update.
+	 */
+	public void refresh() {
 		fireDatasetChanged();
 	}
 }

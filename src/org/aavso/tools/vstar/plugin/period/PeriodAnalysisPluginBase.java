@@ -27,7 +27,6 @@ import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.plugin.PluginBase;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
@@ -61,9 +60,6 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	 */
 	public PeriodAnalysisPluginBase() {
 		mediator.getNewStarNotifier().addListener(this.getNewStarListener());
-
-		mediator.getMeanSourceSeriesChangeNotifier().addListener(
-				this.getMeanSourceSeriesChangeListener());
 	}
 
 	/**
@@ -126,19 +122,6 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	abstract protected void newStarAction(NewStarMessage message);
 
 	/**
-	 * When the mean source series changes, a plugin may want to discard
-	 * previous computation results and GUI components, so the plugin will
-	 * listen for such messages. Of course, a plugin will only care about such
-	 * messages if the period analysis computations are based upon the current
-	 * mean series.
-	 * 
-	 * @param message
-	 *            The mean source series change message.
-	 */
-	abstract protected void meanSourceSeriesChangeAction(
-			MeanSourceSeriesChangeMessage message);
-
-	/**
 	 * Reset the plugin, e.g. clear internal algorithm and dialog objects.
 	 */
 	abstract public void reset();
@@ -168,21 +151,6 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 		return new Listener<NewStarMessage>() {
 			public void update(NewStarMessage info) {
 				newStarAction(info);
-			}
-
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
-	}
-
-	/**
-	 * Get the mean observation change listener for this plugin.
-	 */
-	private Listener<MeanSourceSeriesChangeMessage> getMeanSourceSeriesChangeListener() {
-		return new Listener<MeanSourceSeriesChangeMessage>() {
-			public void update(MeanSourceSeriesChangeMessage info) {
-				meanSourceSeriesChangeAction(info);
 			}
 
 			public boolean canBeRemoved() {

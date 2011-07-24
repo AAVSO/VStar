@@ -43,51 +43,6 @@ public class PeriodAnalysisComponentFactory {
 
 	/**
 	 * <p>
-	 * Create a line plot given arrays of domain and range values.
-	 * </p>
-	 * 
-	 * <p>
-	 * The component sends and receives period analysis selection messages.
-	 * </p>
-	 * 
-	 * @see org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage
-	 * 
-	 * @param title
-	 *            The main title of the plot.
-	 * @param subtitle
-	 *            The subtitle of the plot.
-	 * @param domainValues
-	 *            An array of domain values.
-	 * @param rangeValues
-	 *            An array of range values.
-	 * @param domainType
-	 *            The domain coordinate type.
-	 * @param rangeType
-	 *            The range coordinate type.
-	 * @return A GUI line plot component.
-	 */
-	public static Component createLinePlot(String title, String subtitle,
-			double[] domainValues, double[] rangeValues,
-			PeriodAnalysisCoordinateType domainType,
-			PeriodAnalysisCoordinateType rangeType) {
-
-		// Create the plot model from the data.
-		List<Double> domainList = new ArrayList<Double>();
-		for (double x : domainValues) {
-			domainList.add(x);
-		}
-
-		List<Double> rangeList = new ArrayList<Double>();
-		for (double y : rangeValues) {
-			rangeList.add(y);
-		}
-
-		return createLinePlot(title, subtitle, domainList, rangeList,
-				domainType, rangeType);
-	}
-
-	/**
-	 * <p>
 	 * Create a line plot given lists of domain and range values.
 	 * </p>
 	 * 
@@ -101,10 +56,9 @@ public class PeriodAnalysisComponentFactory {
 	 *            The main title of the plot.
 	 * @param subtitle
 	 *            The subtitle of the plot.
-	 * @param domainValues
-	 *            A list of domain values.
-	 * @param rangeValues
-	 *            A list of range values.
+	 * @param analysisValues
+	 *            A mapping from period analysis coordinate type to lists of
+	 *            values.
 	 * @param domainType
 	 *            The domain coordinate type.
 	 * @param rangeType
@@ -112,12 +66,12 @@ public class PeriodAnalysisComponentFactory {
 	 * @return A GUI line plot component.
 	 */
 	public static Component createLinePlot(String title, String subtitle,
-			List<Double> domainValues, List<Double> rangeValues,
+			Map<PeriodAnalysisCoordinateType, List<Double>> analysisValues,
 			PeriodAnalysisCoordinateType domainType,
 			PeriodAnalysisCoordinateType rangeType) {
 
 		PeriodAnalysis2DPlotModel model = new PeriodAnalysis2DPlotModel(
-				domainValues, rangeValues, domainType, rangeType);
+				analysisValues, domainType, rangeType);
 
 		// Create a line chart with legend, tool-tips, and URLs showing
 		// and add it to the panel.

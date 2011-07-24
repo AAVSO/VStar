@@ -19,6 +19,8 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +37,6 @@ import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
@@ -57,8 +58,8 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
 	private double period;
 
-	private double[] domain = new double[N];
-	private double[] range = new double[N];
+	private List<Double> domain;
+	private List<Double> range;
 
 	protected final static String NAME = "Period Analysis Plugin Test 1";
 
@@ -100,9 +101,11 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 			// Create a set of random values to be plotted. A real plugin would
 			// instead apply some algorithm to the observations to create data
 			// arrays (e.g. a pair of domain and range arrays).
+			domain = new ArrayList<Double>();
+			range = new ArrayList<Double>();
 			for (int i = 0; i < N; i++) {
-				domain[i] = i;
-				range[i] = Math.random();
+				domain.add((double) i);
+				range.add(Math.random());
 			}
 		}
 	}
@@ -131,12 +134,6 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 	}
 
 	@Override
-	protected void meanSourceSeriesChangeAction(
-			MeanSourceSeriesChangeMessage msg) {
-		// Nothing to do
-	}
-
-	@Override
 	protected void newStarAction(NewStarMessage msg) {
 		// Nothing to do
 	}
@@ -151,8 +148,11 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 		@Override
 		protected Component createContent() {
 			// Random plot.
+			Map<PeriodAnalysisCoordinateType, List<Double>> values = new HashMap<PeriodAnalysisCoordinateType, List<Double>>();
+			values.put(PeriodAnalysisCoordinateType.FREQUENCY, domain);
+			values.put(PeriodAnalysisCoordinateType.POWER, range);
 			Component plot = PeriodAnalysisComponentFactory.createLinePlot(
-					"Random Periods", "", domain, range,
+					"Random Periods", "", values,
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.POWER);
 
@@ -161,10 +161,10 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.AMPLITUDE };
 
-			double[][] dataArrays = { domain, range };
-
 			Component table = PeriodAnalysisComponentFactory.createDataTable(
-					columns, dataArrays, algorithm);
+					columns,
+					new HashMap<PeriodAnalysisCoordinateType, List<Double>>(),
+					algorithm);
 
 			// Random period label component.
 			JPanel randomPeriod = new RandomPeriodComponent(this);
@@ -209,7 +209,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 		public void update(PeriodAnalysisSelectionMessage msg) {
 			if (msg.getSource() != this) {
 				try {
-					period = range[msg.getItem()];
+					period = msg.getDataPoint().getPeriod();
 					label.setText("Period: " + String.format("%1.4f", period));
 					dialog.setNewPhasePlotButtonState(true);
 				} catch (ArrayIndexOutOfBoundsException e) {

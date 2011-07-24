@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog.period;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -48,7 +49,7 @@ import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
  * This class represents a period analysis data table pane.
  */
 public class PeriodAnalysisDataTablePane extends JPanel implements
-		ListSelectionListener, Listener<PeriodAnalysisSelectionMessage> {
+		ListSelectionListener {
 
 	protected JTable table;
 	protected PeriodAnalysisDataTableModel model;
@@ -77,10 +78,6 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		JScrollPane scrollPane = new JScrollPane(table);
 
 		this.add(scrollPane);
-
-		// We listen for and generate period analysis selection messages.
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(this);
 
 		table.getSelectionModel().addListSelectionListener(this);
 
@@ -114,8 +111,11 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		return buttonPane;
 	}
 
-	// We send a row selection event when the value has "settled".
-	// This event could be consumed by other views such as plots.
+	/**
+	 * We send a period analysis selection message when the table selection
+	 * value has "settled". This event could be consumed by other views such as
+	 * plots.
+	 */
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getSource() == table.getSelectionModel()
 				&& table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
@@ -125,7 +125,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 				row = table.convertRowIndexToModel(row);
 
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-						this, row);
+						this, model.getDataPointFromRow(row));
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
 			}
@@ -142,7 +142,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 				for (int row : selectedTableRowIndices) {
 					int modelRow = table.convertRowIndexToModel(row);
 					PeriodAnalysisDataPoint dataPoint = model
-							.createDataPointFromRow(modelRow);
+							.getDataPointFromRow(modelRow);
 					periods.add(dataPoint.getPeriod());
 				}
 
@@ -161,13 +161,54 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		};
 	}
 
-	// Listen for period analysis selection messages in order to enable the
-	// "model" button.
-	private Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
+	/**
+	 * Select the row in the table corresponding to the period analysis
+	 * selection. We also enable the "refine" button.
+	 */
+	protected Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
+		final Component parent = this;
+
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
-				modelButton.setEnabled(true);
+				if (info.getSource() != parent) {
+					// Find data point in table.
+					int row = -1;
+					for (int i = 0; i < model.getRowCount(); i++) {
+						if (model.getDataPointFromRow(i).equals(
+								info.getDataPoint())) {
+							row = i;
+							break;
+						}
+					}
+
+					// Note that the row may not correspond to anything in the
+					// data table, e.g. in the case of period analysis
+					// refinement.
+					if (row != -1) {
+						// Convert to view index!
+						row = table.convertRowIndexToView(row);
+
+						// Scroll to an arbitrary column (zeroth) within
+						// the selected row, then select that row.
+						// Assumption: we are specifying the zeroth cell
+						// within row i as an x,y coordinate relative to
+						// the top of the table pane.
+						// Note that we could call this on the scroll
+						// pane, which would then forward the request to
+						// the table pane anyway.
+						int colWidth = (int) table.getCellRect(row, 0, true)
+								.getWidth();
+						int rowHeight = table.getRowHeight(row);
+						table.scrollRectToVisible(new Rectangle(colWidth,
+								rowHeight * row, colWidth, rowHeight));
+
+						table.setRowSelectionInterval(row, row);
+						enableButtons();
+					}
+				} else {
+					enableButtons();
+				}
 			}
 
 			@Override
@@ -176,39 +217,11 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 			}
 		};
 	}
-
-	// PeriodAnalysisSelectionMessage listener methods.
-
-	public boolean canBeRemoved() {
-		return true;
-	}
-
-	public void update(PeriodAnalysisSelectionMessage info) {
-		if (info.getSource() != this) {
-			// Scroll to an arbitrary column (zeroth) within
-			// the selected row, then select that row.
-			// Assumption: we are specifying the zeroth cell
-			// within row i as an x,y coordinate relative to
-			// the top of the table pane.
-			// Note that we could call this on the scroll
-			// pane, which would then forward the request to
-			// the table pane anyway.
-			try {
-				int row = info.getItem();
-				// Convert to view index!
-				row = table.convertRowIndexToView(row);
-
-				int colWidth = (int) table.getCellRect(row, 0, true).getWidth();
-				int rowHeight = table.getRowHeight(row);
-				table.scrollRectToVisible(new Rectangle(colWidth, rowHeight
-						* row, colWidth, rowHeight));
-
-				table.setRowSelectionInterval(row, row);
-			} catch (Throwable t) {
-				// TODO: investigate! (e.g. Johnson V band, then click top-most
-				// top hits table row).
-				// t.printStackTrace();
-			}
-		}
+	
+	/**
+	 * Enable the buttons on this pane.
+	 */
+	protected void enableButtons() {
+		modelButton.setEnabled(true);		
 	}
 }
