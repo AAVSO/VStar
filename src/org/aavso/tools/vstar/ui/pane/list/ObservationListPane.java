@@ -18,7 +18,7 @@
 package org.aavso.tools.vstar.ui.pane.list;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -34,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
@@ -65,6 +67,10 @@ public class ObservationListPane extends JPanel implements
 	private ValidObservationTableModel validDataModel;
 	private TableRowSorter<ValidObservationTableModel> rowSorter;
 	private VisibleSeriesRowFilter rowFilter;
+	private RowFilter currFilter;
+
+	private ListSearchPane<ValidObservationTableModel> searchPanel;
+
 	private ValidObservation lastObSelected = null;
 
 	/**
@@ -159,15 +165,15 @@ public class ObservationListPane extends JPanel implements
 			splitter.setTopComponent(validDataScrollPane);
 			splitter.setBottomComponent(invalidDataScrollPane);
 			splitter.setResizeWeight(0.5);
-//			splitter.setBorder(BorderFactory.createTitledBorder(title));
+			// splitter.setBorder(BorderFactory.createTitledBorder(title));
 			this.add(splitter, BorderLayout.CENTER);
 		} else if (validDataScrollPane != null) {
 			// Just valid data.
-//			validDataScrollPane.setBorder(BorderFactory.createTitledBorder(title));
+			// validDataScrollPane.setBorder(BorderFactory.createTitledBorder(title));
 			this.add(validDataScrollPane, BorderLayout.CENTER);
 		} else if (invalidDataScrollPane != null) {
 			// Just invalid data.
-//			invalidDataScrollPane.setBorder(BorderFactory.createTitledBorder(title));
+			// invalidDataScrollPane.setBorder(BorderFactory.createTitledBorder(title));
 			this.add(invalidDataScrollPane, BorderLayout.CENTER);
 		} else {
 			// We have no data at all. Let's say so.
@@ -194,7 +200,7 @@ public class ObservationListPane extends JPanel implements
 	private JPanel createControlPanel() {
 		JPanel panel = new JPanel();
 
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
 		// A checkbox to determine whether to display all the data in the table.
@@ -204,16 +210,25 @@ public class ObservationListPane extends JPanel implements
 			public void actionPerformed(ActionEvent e) {
 				JCheckBox checkBox = (JCheckBox) e.getSource();
 				if (checkBox.isSelected()) {
-					// Show all data, no filtering.
-					rowSorter.setRowFilter(null);
+					// Show all data, no filtering, no search permitted.
+					currFilter = null;
+					searchPanel.disable();
 				} else {
-					// Filter the data displayed.
-					rowSorter.setRowFilter(rowFilter);
+					// Filter the data displayed, permit search.
+					currFilter = rowFilter;
+					searchPanel.enable();
 				}
+				rowSorter.setRowFilter(currFilter);
 			}
 		});
 		allDataCheckBox.setSelected(false);
 		panel.add(allDataCheckBox);
+
+		panel.add(Box.createRigidArea(new Dimension(10, 10)));
+		
+		searchPanel = new ListSearchPane<ValidObservationTableModel>(
+				validDataModel, rowSorter);
+		panel.add(searchPanel);
 
 		return panel;
 	}
