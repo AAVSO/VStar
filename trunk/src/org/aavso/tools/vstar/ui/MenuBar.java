@@ -19,10 +19,15 @@ package org.aavso.tools.vstar.ui;
 
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +67,7 @@ import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -107,6 +113,7 @@ public class MenuBar extends JMenuBar {
 
 	// Help menu item names.
 	public static final String HELP_CONTENTS = "Help Contents...";
+	public static final String VSTAR_ONLINE = "VStar Online...";
 	public static final String ABOUT = "About...";
 
 	private Mediator mediator = Mediator.getInstance();
@@ -170,6 +177,7 @@ public class MenuBar extends JMenuBar {
 
 	// Help menu.
 	JMenuItem helpContentsItem;
+	JMenuItem helpVStarOnlineItem;
 	JMenuItem helpAboutItem;
 
 	// New star message.
@@ -512,6 +520,18 @@ public class MenuBar extends JMenuBar {
 		helpContentsItem = new JMenuItem(HELP_CONTENTS, KeyEvent.VK_H);
 		helpContentsItem.addActionListener(createHelpContentsListener());
 		helpMenu.add(helpContentsItem);
+
+		// If default browser support is available, add an online docs menu
+		// item.
+		if (Desktop.isDesktopSupported()) {
+			Desktop desktop = Desktop.getDesktop();
+			if (desktop.isSupported(Desktop.Action.BROWSE)) {
+				helpVStarOnlineItem = new JMenuItem(VSTAR_ONLINE);
+				helpVStarOnlineItem
+						.addActionListener(createVStarOnlineListener());
+				helpMenu.add(helpVStarOnlineItem);
+			}
+		}
 
 		helpMenu.addSeparator();
 
@@ -1014,6 +1034,52 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
+	 * Returns the action listener to be invoked for Help->VStar Online...
+	 */
+	public ActionListener createVStarOnlineListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				javax.swing.SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						// Try to open the VStar online page in the default web
+						// browser.
+						if (Desktop.isDesktopSupported()) {
+							Desktop desktop = Desktop.getDesktop();
+							URL url = null;
+							try {
+								url = new URL(
+										"http://www.aavso.org/vstar-overview");
+								java.net.URL helpURL = ResourceAccessor
+										.getHelpHTMLResource();
+								if (desktop.isSupported(Desktop.Action.BROWSE)) {
+									try {
+										desktop.browse(url.toURI());
+									} catch (IOException e) {
+										MessageBox.showErrorDialog(
+												"VStar Online",
+												"Error reading from '"
+														+ helpURL.toString()
+														+ "'");
+									} catch (URISyntaxException e) {
+										MessageBox.showErrorDialog(
+												"VStar Online",
+												"Invalid address: '"
+														+ helpURL.toString()
+														+ "'");
+									}
+								}
+							} catch (MalformedURLException e) {
+								MessageBox.showErrorDialog("VStar Online",
+										"Invalid address.");
+							}
+						}
+					}
+				});
+			}
+		};
+	}
+
+	/**
 	 * Returns the action listener to be invoked for Help->About...
 	 */
 	private ActionListener createAboutListener() {
@@ -1214,7 +1280,7 @@ public class MenuBar extends JMenuBar {
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
 
-//		this.editMenu.setEnabled(state);
+		// this.editMenu.setEnabled(state);
 
 		// this.viewObDetailsItem.setEnabled(state);
 		this.viewPlotControlItem.setEnabled(state);
