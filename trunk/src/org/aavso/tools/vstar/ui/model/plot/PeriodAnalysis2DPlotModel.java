@@ -34,6 +34,7 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	private List<Double> rangeValues;
 	private PeriodAnalysisCoordinateType domainType;
 	private PeriodAnalysisCoordinateType rangeType;
+	private boolean isLogarithmic;
 
 	/**
 	 * Constructor
@@ -45,11 +46,13 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	 *            The type of the domain axis.
 	 * @param rangeTypes
 	 *            The type of the range axis.
+	 * @param isLogarithmic
+	 *            Should range values be logarithmic? (e.g. power).
 	 */
 	public PeriodAnalysis2DPlotModel(
 			Map<PeriodAnalysisCoordinateType, List<Double>> analysisValues,
 			PeriodAnalysisCoordinateType domainType,
-			PeriodAnalysisCoordinateType rangeType) {
+			PeriodAnalysisCoordinateType rangeType, boolean isLogarithmic) {
 		super();
 		this.analysisValues = analysisValues;
 		this.domainValues = analysisValues.get(domainType);
@@ -57,6 +60,7 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 		assert domainValues.size() == rangeValues.size();
 		this.domainType = domainType;
 		this.rangeType = rangeType;
+		this.isLogarithmic = isLogarithmic;
 	}
 
 	/**
@@ -95,6 +99,20 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	}
 
 	/**
+	 * @return the isLogarithmic
+	 */
+	public boolean isLogarithmic() {
+		return isLogarithmic;
+	}
+
+	/**
+	 * @param isLogarithmic the isLogarithmic to set
+	 */
+	public void setLogarithmic(boolean isLogarithmic) {
+		this.isLogarithmic = isLogarithmic;
+	}
+
+	/**
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesCount()
 	 */
 	public int getSeriesCount() {
@@ -127,7 +145,11 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	 * @see org.jfree.data.xy.XYDataset#getY(int, int)
 	 */
 	public Number getY(int series, int item) {
-		return rangeValues.get(item);
+		double yValue = rangeValues.get(item);
+		if (isLogarithmic) {
+			yValue = yValue == 0 ? 0 : Math.log10(yValue);
+		}
+		return yValue;
 	}
 
 	/**
@@ -150,7 +172,7 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 
 		return new PeriodAnalysisDataPoint(frequency, period, power, amplitude);
 	}
-	
+
 	/**
 	 * Force plot to update.
 	 */

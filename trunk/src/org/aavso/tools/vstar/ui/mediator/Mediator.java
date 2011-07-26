@@ -904,12 +904,21 @@ public class Mediator {
 					validObservationCategoryMap, JDCoordSource.instance,
 					JDComparator.instance, JDTimeElementEntity.instance, null);
 
+			// Record initial ANOVA information and make the document manager
+			// listen to changes to ANOVA via new binning results.
+			documentManager.updateAnovaInfo(obsAndMeanPlotModel.getBinningResult());
+
+			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
+					documentManager.createBinChangeListener());
+
 			String meanPlotSubtitle = subTitle;
 			if (!"".equals(meanPlotSubtitle)) {
 				meanPlotSubtitle += ", ";
 			}
 
-			meanPlotSubtitle += "Mean error bars denote 95% Confidence Interval (twice Standard Error)";
+			documentManager
+					.addStatsInfo("Confidence Interval",
+							"Mean error bars denote 95% Confidence Interval (twice Standard Error)");
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
 					"Raw Plot for " + starInfo.getDesignation(),

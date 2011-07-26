@@ -30,7 +30,6 @@ import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.TextTitle;
 
@@ -63,23 +62,29 @@ public class PeriodAnalysisComponentFactory {
 	 *            The domain coordinate type.
 	 * @param rangeType
 	 *            The range coordinate type.
+	 * @param permitLogarithmic
+	 *            Should it be possible to toggle the plot between a normal and
+	 *            logarithmic range?
+	 * @param isLogarithmic
+	 *            Should range values be logarithmic by default?
 	 * @return A GUI line plot component.
 	 */
 	public static Component createLinePlot(String title, String subtitle,
 			Map<PeriodAnalysisCoordinateType, List<Double>> analysisValues,
 			PeriodAnalysisCoordinateType domainType,
-			PeriodAnalysisCoordinateType rangeType) {
+			PeriodAnalysisCoordinateType rangeType, boolean permitLogarithmic,
+			boolean isLogarithmic) {
 
 		PeriodAnalysis2DPlotModel model = new PeriodAnalysis2DPlotModel(
-				analysisValues, domainType, rangeType);
+				analysisValues, domainType, rangeType, isLogarithmic);
 
 		// Create a line chart with legend, tool-tips, and URLs showing
 		// and add it to the panel.
-		ChartPanel chartPanel = new PeriodAnalysis2DChartPane(ChartFactory
-				.createXYLineChart(title, model.getDomainType()
+		PeriodAnalysis2DChartPane chartPanel = new PeriodAnalysis2DChartPane(
+				ChartFactory.createXYLineChart(title, model.getDomainType()
 						.getDescription(), model.getRangeType()
 						.getDescription(), model, PlotOrientation.VERTICAL,
-						true, true, true), model);
+						true, true, true), model, permitLogarithmic);
 
 		chartPanel.getChart().addSubtitle(new TextTitle(subtitle));
 
@@ -103,18 +108,21 @@ public class PeriodAnalysisComponentFactory {
 	 *            The subtitle of the plot.
 	 * @param model
 	 *            A 2D plot model.
+	 * @param permitLogarithmic
+	 *            Should it be possible to toggle the plot between a normal and
+	 *            logarithmic range?
 	 * @return A GUI line plot component.
 	 */
 	public static Component createLinePlot(String title, String subtitle,
-			PeriodAnalysis2DPlotModel model) {
+			PeriodAnalysis2DPlotModel model, boolean permitLogarithmic) {
 
 		// Create a line chart with legend, tool-tips, and URLs showing
 		// and add it to the panel.
-		ChartPanel chartPanel = new PeriodAnalysis2DChartPane(ChartFactory
-				.createXYLineChart(title, model.getDomainType()
+		PeriodAnalysis2DChartPane chartPanel = new PeriodAnalysis2DChartPane(
+				ChartFactory.createXYLineChart(title, model.getDomainType()
 						.getDescription(), model.getRangeType()
 						.getDescription(), model, PlotOrientation.VERTICAL,
-						true, true, true), model);
+						true, true, true), model, permitLogarithmic);
 
 		chartPanel.getChart().addSubtitle(new TextTitle(subtitle));
 

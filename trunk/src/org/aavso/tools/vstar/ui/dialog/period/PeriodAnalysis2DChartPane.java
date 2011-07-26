@@ -17,8 +17,16 @@
  */
 package org.aavso.tools.vstar.ui.dialog.period;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
@@ -40,31 +48,48 @@ import org.jfree.data.general.DatasetChangeListener;
 /**
  * This class represents a chart panel.
  */
-public class PeriodAnalysis2DChartPane extends ChartPanel implements
+public class PeriodAnalysis2DChartPane extends JPanel implements
 		ChartMouseListener, DatasetChangeListener {
 
 	private static final int DATA_SERIES = 0;
 	private static final int TOP_HIT_SERIES = 1;
 
+	private ChartPanel chartPanel;
 	private JFreeChart chart;
 	private PeriodAnalysis2DPlotModel model;
+
+	private boolean permitLogarithmic;
 
 	/**
 	 * Constructor
 	 * 
 	 * @param chart
 	 *            The JFreeChart chart.
+	 * @param model
+	 *            The plot model.
+	 * @param permitLogarithmic
+	 *            Should it be possible to toggle the plot between a normal and
+	 *            logarithmic range?
 	 */
 	public PeriodAnalysis2DChartPane(JFreeChart chart,
-			PeriodAnalysis2DPlotModel model) {
-		super(chart);
+			PeriodAnalysis2DPlotModel model, boolean permitLogarithmic) {
+		super();
 
 		this.chart = chart;
 		this.model = model;
+		this.permitLogarithmic = permitLogarithmic;
+
+		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		this.setBorder(BorderFactory.createEtchedBorder());
+
+		chartPanel = new ChartPanel(chart);
+		this.add(chartPanel);
+
+		this.add(createControlPanel());
 
 		configureChart();
 
-		this.addChartMouseListener(this);
+		chartPanel.addChartMouseListener(this);
 		model.addChangeListener(this);
 
 		// We listen for and generate period analysis selection messages.
@@ -74,6 +99,34 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 		// We listen for period analysis refinement messages.
 		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
 				.addListener(createRefinementListener());
+	}
+
+	/**
+	 * @return the chartPanel
+	 */
+	public JFreeChart getChart() {
+		return chart;
+	}
+
+	// Create and return a component that permits the "is logarithmic" property
+	// of the model to be toggled.
+	private JPanel createControlPanel() {
+		JPanel panel = new JPanel();
+
+		if (permitLogarithmic) {
+			final JCheckBox logarithmicCheckBox = new JCheckBox("Logarithmic?");
+			logarithmicCheckBox.setSelected(model.isLogarithmic());
+			logarithmicCheckBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent event) {
+					model.setLogarithmic(logarithmicCheckBox.isSelected());
+					model.refresh();
+				}
+			});
+			panel.add(logarithmicCheckBox, BorderLayout.CENTER);
+		}
+
+		return panel;
 	}
 
 	private void configureChart() {
@@ -179,7 +232,7 @@ public class PeriodAnalysis2DChartPane extends ChartPanel implements
 						XYLineAnnotation line = new XYLineAnnotation(x, 0, x, y);
 						chart.getXYPlot().addAnnotation(line);
 					}
-					
+
 					model.refresh();
 				}
 			}
