@@ -139,8 +139,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 		this.chart = chartPanel.getChart();
 
-		this.chart.addSubtitle(new TextTitle(subTitle));
-
+		if (subTitle != null && "".equals(subTitle.trim())) {
+			this.chart.addSubtitle(new TextTitle(subTitle));
+		}
+		
 		this.renderer = new VStarPlotDataRenderer();
 		this.renderer.setDrawYError(this.showErrorBars);
 
@@ -535,7 +537,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 
 	public void updateFilteredSeries(List<ValidObservation> obs) {
 		if (obsModel.seriesExists(SeriesType.Filtered)) {
-			filterSeriesNum = obsModel.replaceObservationSeries(SeriesType.Filtered, obs);
+			filterSeriesNum = obsModel.replaceObservationSeries(
+					SeriesType.Filtered, obs);
 		} else {
 			filterSeriesNum = obsModel.addObservationSeries(
 					SeriesType.Filtered, obs);
@@ -578,7 +581,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		// Add or replace a series for the model and make sure
 		// the series is visible.
 		if (obsModel.seriesExists(SeriesType.Model)) {
-			fitSeriesNum = obsModel.replaceObservationSeries(SeriesType.Model, modelObs);
+			fitSeriesNum = obsModel.replaceObservationSeries(SeriesType.Model,
+					modelObs);
 		} else {
 			fitSeriesNum = obsModel.addObservationSeries(SeriesType.Model,
 					modelObs);
@@ -605,7 +609,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		// Hide the residuals series initially. We toggle the series
 		// visibility to achieve this since the default is false. That
 		// shouldn't be necessary; investigate.
-//		obsModel.changeSeriesVisibility(residualsSeriesNum, true);
+		// obsModel.changeSeriesVisibility(residualsSeriesNum, true);
 		obsModel.changeSeriesVisibility(residualsSeriesNum, false);
 	}
 
