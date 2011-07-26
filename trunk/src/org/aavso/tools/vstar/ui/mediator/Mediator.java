@@ -894,7 +894,7 @@ public class Mediator {
 
 			String subTitle = "";
 			if (newStarType == NewStarType.NEW_STAR_FROM_DATABASE) {
-				subTitle = new Date().toString() + " (database)";
+				subTitle = ", " + new Date().toString() + " (database)";
 			} else {
 				subTitle = "";
 			}
@@ -906,23 +906,19 @@ public class Mediator {
 
 			// Record initial ANOVA information and make the document manager
 			// listen to changes to ANOVA via new binning results.
-			documentManager.updateAnovaInfo(obsAndMeanPlotModel.getBinningResult());
+			documentManager.updateAnovaInfo(obsAndMeanPlotModel
+					.getBinningResult());
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					documentManager.createBinChangeListener());
-
-			String meanPlotSubtitle = subTitle;
-			if (!"".equals(meanPlotSubtitle)) {
-				meanPlotSubtitle += ", ";
-			}
 
 			documentManager
 					.addStatsInfo("Confidence Interval",
 							"Mean error bars denote 95% Confidence Interval (twice Standard Error)");
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					"Raw Plot for " + starInfo.getDesignation(),
-					meanPlotSubtitle, obsAndMeanPlotModel);
+					"Raw Plot for " + starInfo.getDesignation() + subTitle,
+					null, obsAndMeanPlotModel);
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					createMeanObsChangeListener(obsAndMeanPlotModel
