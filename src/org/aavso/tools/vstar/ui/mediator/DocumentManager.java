@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.mediator;
 import java.awt.Component;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
@@ -30,6 +31,8 @@ import org.aavso.tools.vstar.ui.model.list.RawDataModelObservationTableModel;
 import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 
 /**
@@ -51,6 +54,8 @@ public class DocumentManager {
 	private double epoch;
 	private double period;
 
+	private Map<String, String> statsInfo;
+
 	/**
 	 * Constructor.
 	 */
@@ -63,7 +68,11 @@ public class DocumentManager {
 
 		epoch = 0;
 		period = 0;
+
+		statsInfo = new TreeMap<String, String>();
 	}
+
+	// ** List pane methods **
 
 	public Component getModelListPane(AnalysisType type, IModel model) {
 		Component pane = null;
@@ -157,6 +166,82 @@ public class DocumentManager {
 
 		return pane;
 	}
+
+	// ** Stats info methods **
+
+	/**
+	 * Add a statistics information string.
+	 * 
+	 * @param key
+	 *            The key against which this information is to be stored.
+	 * @param info
+	 *            The information string to be added.
+	 */
+	public void addStatsInfo(String key, String info) {
+		statsInfo.put(key, info);
+	}
+
+	/**
+	 * @return the statsInfo
+	 */
+	public Map<String, String> getStatsInfo() {
+		return statsInfo;
+	}
+
+	// Returns a mean observation change (binning result) listener.
+	protected Listener<BinningResult> createBinChangeListener() {
+		return new Listener<BinningResult>() {
+			public void update(BinningResult info) {
+				addStatsInfo("anova", createAnovaText(info));
+			}
+
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	/**
+	 * Update the anova information from a binning result.
+	 * 
+	 * @param binningResult The binning result to use.
+	 */
+	public void updateAnovaInfo(BinningResult binningResult) {
+		addStatsInfo("anova", createAnovaText(binningResult));
+	}
+	
+	// Returns ANOVA result text suitable for display.
+	// TODO: could move this to stats utils package.
+	private String createAnovaText(BinningResult binningResult) {
+		String msg = null;
+
+		// Example: F-value: 18.22 on 12 and 346 degrees of freedom p-value: <
+		// 0.000001.
+
+		if (binningResult.hasValidAnovaValues()) {
+			String pValueStr;
+			if (binningResult.getPValue() < 0.000001) {
+				pValueStr = "p-value: < 0.000001";
+			} else {
+				pValueStr = String.format("p-value: "
+						+ NumericPrecisionPrefs.getOtherOutputFormat(),
+						binningResult.getPValue());
+			}
+
+			msg = String.format(
+
+			"F-value: " + NumericPrecisionPrefs.getOtherOutputFormat()
+					+ " on %d and %d degrees of freedom, %s", binningResult
+					.getFValue(), binningResult.getBetweenGroupDF(),
+					binningResult.getWithinGroupDF(), pValueStr);
+		} else {
+			msg = "anova: insufficient data";
+		}
+
+		return msg;
+	}
+
+	// Helpers
 
 	/**
 	 * Returns a unique phase model key for a model given the current epoch and

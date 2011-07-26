@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
 /**
@@ -102,8 +103,9 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 		// Add plots.
 		for (PeriodAnalysis2DPlotModel model : plotModels) {
+			boolean permitlogarithmic = model.getRangeType() == PeriodAnalysisCoordinateType.POWER;
 			Component plot = PeriodAnalysisComponentFactory.createLinePlot(
-					chartTitle, seriesTitle, model);
+					chartTitle, seriesTitle, model, permitlogarithmic);
 
 			String tabName = model.getRangeType() + " vs "
 					+ model.getDomainType();

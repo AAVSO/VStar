@@ -36,6 +36,7 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 
@@ -47,7 +48,8 @@ public class InfoDialog extends JDialog implements ActionListener {
 	/**
 	 * Constructor.
 	 * 
-	 * @param newStarMessage A new (loaded) star message.
+	 * @param newStarMessage
+	 *            A new (loaded) star message.
 	 */
 	public InfoDialog(NewStarMessage newStarMessage) {
 		super();
@@ -58,9 +60,10 @@ public class InfoDialog extends JDialog implements ActionListener {
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		JScrollPane scrollPane = new JScrollPane(createInfoPanel(newStarMessage));
+		JScrollPane scrollPane = new JScrollPane(
+				createInfoPanel(newStarMessage));
 		topPane.add(scrollPane);
-		
+
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		JPanel buttonPane = new JPanel();
@@ -68,7 +71,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 		okButton.addActionListener(this);
 		buttonPane.add(okButton, BorderLayout.CENTER);
 		topPane.add(buttonPane);
-		
+
 		this.getContentPane().add(topPane);
 
 		this.getRootPane().setDefaultButton(okButton);
@@ -85,7 +88,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 	private JPanel createInfoPanel(NewStarMessage msg) {
 		JPanel pane = new JPanel();
 		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
-		
+
 		StarInfo starInfo = msg.getStarInfo();
 		List<ValidObservation> obs = msg.getObservations();
 		Map<SeriesType, List<ValidObservation>> obsCategoryMap = msg
@@ -97,7 +100,10 @@ public class InfoDialog extends JDialog implements ActionListener {
 		JTextArea seriesTextArea = new JTextArea();
 		seriesTextArea.setEditable(false);
 		seriesTextArea.setBorder(BorderFactory.createTitledBorder("Series"));
-		
+		JTextArea statsTextArea = new JTextArea();
+		statsTextArea.setEditable(false);
+		statsTextArea.setBorder(BorderFactory.createTitledBorder("Statistics"));
+
 		StringBuffer summaryBuf = new StringBuffer();
 
 		summaryBuf.append("Object: ");
@@ -139,7 +145,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 		summaryBuf.append("\n");
 
 		summaryTextArea.setText(summaryBuf.toString());
-		
+
 		StringBuffer seriesBuf = new StringBuffer();
 
 		for (SeriesType type : obsCategoryMap.keySet()) {
@@ -149,12 +155,27 @@ public class InfoDialog extends JDialog implements ActionListener {
 			seriesBuf.append(obsOfType.size());
 			seriesBuf.append("\n");
 		}
-		
+
 		seriesTextArea.setText(seriesBuf.toString());
+
+		StringBuffer statsBuf = new StringBuffer();
+
+		Map<String, String> statsInfo = Mediator.getInstance()
+				.getDocumentManager().getStatsInfo();
+		for (String key : statsInfo.keySet()) {
+			statsBuf.append(key);
+			statsBuf.append(": ");
+			statsBuf.append(statsInfo.get(key));
+			statsBuf.append("\n");
+		}
+
+		statsTextArea.setText(statsBuf.toString());
 
 		pane.add(summaryTextArea);
 		pane.add(Box.createRigidArea(new Dimension(10, 10)));
 		pane.add(seriesTextArea);
+		pane.add(Box.createRigidArea(new Dimension(10, 10)));
+		pane.add(statsTextArea);
 
 		return pane;
 	}

@@ -154,7 +154,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 			Component plot = PeriodAnalysisComponentFactory.createLinePlot(
 					"Random Periods", "", values,
 					PeriodAnalysisCoordinateType.FREQUENCY,
-					PeriodAnalysisCoordinateType.POWER);
+					PeriodAnalysisCoordinateType.POWER, true, false);
 
 			// Data table.
 			PeriodAnalysisCoordinateType[] columns = {

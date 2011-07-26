@@ -34,14 +34,11 @@ import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
-import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.title.TextTitle;
-import org.jfree.chart.title.Title;
 
 /**
  * This class represents a chart pane containing a plot for a set of valid
@@ -92,13 +89,6 @@ public class ObservationAndMeanPlotPane extends
 		// Update joined series to ensure that the means series is initially
 		// joined since the base class won't include it in its set.
 		setJoinedSeries();
-
-		// Set the initial ANOVA sub-title.
-		this.updateAnovaSubtitle(obsAndMeanModel.getBinningResult());
-
-		// Add mean obs listener for binning ANOVA result chart updates.
-		obsAndMeanModel.getMeansChangeNotifier().addListener(
-				createBinChangeListener());
 	}
 
 	/**
@@ -247,82 +237,5 @@ public class ObservationAndMeanPlotPane extends
 				return false;
 			}
 		};
-	}
-
-	// Returns a mean observation change (binning result) listener.
-	protected Listener<BinningResult> createBinChangeListener() {
-		return new Listener<BinningResult>() {
-			public void update(BinningResult info) {
-				updateAnovaSubtitle(info);
-			}
-
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
-	}
-
-	// Updates the chart sub-title with ANOVA information, if suitable.
-	protected void updateAnovaSubtitle(BinningResult binningResult) {
-		String anovaText = createAnovaText(binningResult);
-
-		List<Title> subtitles = chart.getSubtitles();
-
-		// Remove old ANOVA sub-title.
-		int removalIndex = -1;
-
-		if (subtitles.size() > 1) {
-			for (int i = 0; i < subtitles.size(); i++) {
-				Title subTitle = subtitles.get(i);
-				if (subTitle != null && subTitle instanceof TextTitle) {
-					TextTitle textTitle = (TextTitle) subTitle;
-					String text = textTitle.getText();
-					if (text != null
-							&& text.length() != 0
-							&& (text.contains("anova") || text
-									.contains("p-value"))) {
-						removalIndex = i;
-						break;
-					}
-				}
-			}
-
-			if (removalIndex != -1) {
-				subtitles.remove(removalIndex);
-			}
-		}
-
-		subtitles.add(new TextTitle(anovaText));
-		chart.setSubtitles(subtitles);
-	}
-
-	// Returns ANOVA result text suitable for display.
-	protected String createAnovaText(BinningResult binningResult) {
-		String msg = null;
-
-		// Example: F-value: 18.22 on 12 and 346 degrees of freedom p-value: <
-		// 0.000001.
-
-		if (binningResult.hasValidAnovaValues()) {
-			String pValueStr;
-			if (binningResult.getPValue() < 0.000001) {
-				pValueStr = "p-value: < 0.000001";
-			} else {
-				pValueStr = String.format("p-value: "
-						+ NumericPrecisionPrefs.getOtherOutputFormat(),
-						binningResult.getPValue());
-			}
-
-			msg = String.format(
-
-			"F-value: " + NumericPrecisionPrefs.getOtherOutputFormat()
-					+ " on %d and %d degrees of freedom, %s", binningResult
-					.getFValue(), binningResult.getBetweenGroupDF(),
-					binningResult.getWithinGroupDF(), pValueStr);
-		} else {
-			msg = "anova: insufficient data";
-		}
-
-		return msg;
 	}
 }

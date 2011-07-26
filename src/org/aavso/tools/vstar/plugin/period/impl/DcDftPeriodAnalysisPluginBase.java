@@ -86,12 +86,12 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 			// Frequency vs Power
 			models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
 					PeriodAnalysisCoordinateType.FREQUENCY,
-					PeriodAnalysisCoordinateType.POWER));
+					PeriodAnalysisCoordinateType.POWER, false));
 
 			// Frequency vs Amplitude
 			models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
 					PeriodAnalysisCoordinateType.FREQUENCY,
-					PeriodAnalysisCoordinateType.AMPLITUDE));
+					PeriodAnalysisCoordinateType.AMPLITUDE, false));
 
 			dialog = new PeriodAnalysis2DResultDialog(
 					"Period Analysis (DC DFT) for "
