@@ -25,44 +25,46 @@ import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 
 /**
- * This message is intended to be sent to listeners when VStar's 
- * analysis type changes (raw data, phase plot, period analysis)
- * to provide new artefacts. 
+ * This message is intended to be sent to listeners when VStar's analysis type
+ * changes (raw data, phase plot, period analysis) to provide new artefacts.
  */
 public class AnalysisTypeChangeMessage {
 
 	private AnalysisType analysisType;
-	
+
 	// GUI table and chart components.
 	private ObservationAndMeanPlotPane obsAndMeanChartPane;
 	private ObservationListPane obsListPane;
 	private SyntheticObservationListPane<AbstractMeanObservationTableModel> meansListPane;
-	
+
 	// Include the required viewMode.
 	private ViewModeType viewMode;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param analysisType The new analysis type.
+	 * @param analysisType
+	 *            The new analysis type.
 	 * @param obsWithMeanChartPane
 	 *            The observation-and-mean plot GUI component.
 	 * @param obsListPane
 	 *            The observation table GUI component.
 	 * @param meansTablePane
-	 * 			  The means table GUI component.
-	 * @param viewMode The required viewMode.           
+	 *            The means table GUI component.
+	 * @param viewMode
+	 *            The required viewMode.
 	 */
-	public AnalysisTypeChangeMessage(AnalysisType analysisType,
+	public AnalysisTypeChangeMessage(
+			AnalysisType analysisType,
 			ObservationAndMeanPlotPane obsAndMeanChartPane,
 			ObservationListPane obsListPane,
 			SyntheticObservationListPane<AbstractMeanObservationTableModel> meansListPane,
 			ViewModeType viewMode) {
 		super();
-		
+
 		this.analysisType = analysisType;
 		this.viewMode = viewMode;
-		
+
 		this.obsAndMeanChartPane = obsAndMeanChartPane;
 		this.obsListPane = obsListPane;
 		this.meansListPane = meansListPane;
@@ -92,7 +94,7 @@ public class AnalysisTypeChangeMessage {
 	/**
 	 * @return the meansListPane
 	 */
-	public SyntheticObservationListPane getMeansListPane() {
+	public SyntheticObservationListPane<AbstractMeanObservationTableModel> getMeansListPane() {
 		return meansListPane;
 	}
 

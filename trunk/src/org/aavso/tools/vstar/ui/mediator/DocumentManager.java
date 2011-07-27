@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
-import java.awt.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -45,11 +44,11 @@ import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 public class DocumentManager {
 
 	// Model and residuals maps.
-	private Map<String, Component> rawDataModelComponents;
-	private Map<String, Component> phasedModelComponents;
+	private Map<String, SyntheticObservationListPane<AbstractModelObservationTableModel>> rawDataModelComponents;
+	private Map<String, SyntheticObservationListPane<AbstractModelObservationTableModel>> phasedModelComponents;
 
-	private Map<String, Component> rawDataResidualComponents;
-	private Map<String, Component> phasedResidualComponents;
+	private Map<String, SyntheticObservationListPane<AbstractModelObservationTableModel>> rawDataResidualComponents;
+	private Map<String, SyntheticObservationListPane<AbstractModelObservationTableModel>> phasedResidualComponents;
 
 	private double epoch;
 	private double period;
@@ -60,11 +59,11 @@ public class DocumentManager {
 	 * Constructor.
 	 */
 	public DocumentManager() {
-		rawDataModelComponents = new HashMap<String, Component>();
-		phasedModelComponents = new HashMap<String, Component>();
+		rawDataModelComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
+		phasedModelComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
 
-		rawDataResidualComponents = new HashMap<String, Component>();
-		phasedResidualComponents = new HashMap<String, Component>();
+		rawDataResidualComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
+		phasedResidualComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
 
 		epoch = 0;
 		period = 0;
@@ -74,8 +73,9 @@ public class DocumentManager {
 
 	// ** List pane methods **
 
-	public Component getModelListPane(AnalysisType type, IModel model) {
-		Component pane = null;
+	public SyntheticObservationListPane<AbstractModelObservationTableModel> getModelListPane(
+			AnalysisType type, IModel model) {
+		SyntheticObservationListPane<AbstractModelObservationTableModel> pane = null;
 		String key = model.getDescription();
 
 		switch (type) {
@@ -121,8 +121,9 @@ public class DocumentManager {
 		return pane;
 	}
 
-	public Component getResidualsListPane(AnalysisType type, IModel model) {
-		Component pane = null;
+	public SyntheticObservationListPane<AbstractModelObservationTableModel> getResidualsListPane(
+			AnalysisType type, IModel model) {
+		SyntheticObservationListPane<AbstractModelObservationTableModel> pane = null;
 		String key = model.getDescription();
 
 		switch (type) {
@@ -204,12 +205,13 @@ public class DocumentManager {
 	/**
 	 * Update the anova information from a binning result.
 	 * 
-	 * @param binningResult The binning result to use.
+	 * @param binningResult
+	 *            The binning result to use.
 	 */
 	public void updateAnovaInfo(BinningResult binningResult) {
 		addStatsInfo("anova", createAnovaText(binningResult));
 	}
-	
+
 	// Returns ANOVA result text suitable for display.
 	// TODO: could move this to stats utils package.
 	private String createAnovaText(BinningResult binningResult) {
