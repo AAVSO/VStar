@@ -83,6 +83,7 @@ import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
+import org.aavso.tools.vstar.ui.model.list.AbstractModelObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.PhasePlotMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.RawDataMeanObservationTableModel;
@@ -141,6 +142,9 @@ public class Mediator {
 
 	// The latest new star message created and sent to listeners.
 	private NewStarMessage newStarMessage;
+
+	// The latest model selection message created and sent to listeners.
+	private ModelSelectionMessage modelSelectionMessage;
 
 	// Mapping from analysis type to the latest analysis change
 	// messages created and sent to listeners.
@@ -237,6 +241,7 @@ public class Mediator {
 		this.viewMode = ViewModeType.PLOT_OBS_MODE;
 		this.analysisType = AnalysisType.RAW_DATA;
 		this.newStarMessage = null;
+		this.modelSelectionMessage = null;
 
 		this.periodChangeNotifier.addListener(createPeriodChangeListener());
 
@@ -566,6 +571,8 @@ public class Mediator {
 
 				validObservationCategoryMap.put(SeriesType.Residuals, info
 						.getModel().getResiduals());
+
+				modelSelectionMessage = info;
 			}
 
 			@Override
@@ -1411,13 +1418,15 @@ public class Mediator {
 	 * Save the artefact corresponding to the current viewMode.
 	 * 
 	 * @param parent
-	 *            The parent component to be used by an error dialog.
+	 *            The parent component to be used in dialogs.
 	 */
 	public void saveCurrentMode(Component parent) {
+		List<ValidObservation> obs = null;
+
 		switch (viewMode) {
 		case PLOT_OBS_MODE:
 			try {
-				this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
+				analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
 						.getChartPanel().doSaveAs();
 			} catch (IOException ex) {
 				MessageBox.showErrorDialog(parent,
@@ -1425,47 +1434,115 @@ public class Mediator {
 			}
 			break;
 		case LIST_OBS_MODE:
-			int returnVal = obsListFileSaveDialog.showSaveDialog(parent);
-
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				File outFile = obsListFileSaveDialog.getSelectedFile();
-				saveObsListToFile(outFile);
-			}
+			saveObsListToFile(parent);
 			break;
 		case LIST_MEANS_MODE:
-			MessageBox.showMessageDialog(parent, "Save Means",
-					NOT_IMPLEMENTED_YET);
+			obs = analysisTypeMap.get(analysisType).getMeansListPane()
+					.getObsTableModel().getObs();
+			saveSyntheticObsListToFile(parent, obs);
 			break;
 		case MODEL_MODE:
-			MessageBox.showMessageDialog(parent, "Save Model",
-					NOT_IMPLEMENTED_YET);
+			if (modelSelectionMessage != null) {
+				obs = modelSelectionMessage.getModel().getFit();
+				saveSyntheticObsListToFile(parent, obs);
+			}
 			break;
 		case RESIDUALS_MODE:
-			MessageBox.showMessageDialog(parent, "Save Residuals",
-					NOT_IMPLEMENTED_YET);
+			if (modelSelectionMessage != null) {
+				obs = modelSelectionMessage.getModel().getResiduals();
+				saveSyntheticObsListToFile(parent, obs);
+			}
 			break;
 		}
 	}
 
 	/**
-	 * Save observation list to a file in a separate thread.
+	 * Save observation list to a file in a separate thread. Note that we want
+	 * to save just those observations that are in view in the observation list
+	 * currently.
 	 * 
-	 * @param outFile
-	 *            The output file.
+	 * @param parent
+	 *            The parent component to be used in dialogs.
 	 */
-	private void saveObsListToFile(File outFile) {
-		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
+	private void saveObsListToFile(Component parent) {
+		if (analysisType == AnalysisType.RAW_DATA) {
+			List<ValidObservation> obs = this.analysisTypeMap.get(analysisType)
+					.getObsListPane().getObservationsInView();
 
-		this.getProgressNotifier()
-				.notifyListeners(
-						new ProgressInfo(ProgressType.MAX_PROGRESS,
-								validObsList.size()));
+			if (!obs.isEmpty()) {
+				int returnVal = obsListFileSaveDialog.showSaveDialog(parent);
 
-		ObsListFileSaveTask task = new ObsListFileSaveTask(validObsList,
-				outFile, this.newStarMessage.getNewStarType());
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File outFile = obsListFileSaveDialog.getSelectedFile();
 
-		this.currTask = task;
-		task.execute();
+					this.getProgressNotifier().notifyListeners(
+							ProgressInfo.START_PROGRESS);
+
+					this.getProgressNotifier().notifyListeners(
+							new ProgressInfo(ProgressType.MAX_PROGRESS, obs
+									.size()));
+
+					ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
+							outFile, this.newStarMessage.getNewStarType());
+
+					this.currTask = task;
+					task.execute();
+				}
+			} else {
+				MessageBox.showMessageDialog(parent, "Save Observations",
+						"There are no visible observations to save.");
+			}
+		} else {
+			MessageBox.showMessageDialog(parent, "Save Observations",
+					"Observation data can only be saved in raw mode.");
+		}
+	}
+
+	/**
+	 * Save synthetic observation list (means, model, residuals) to a file in a
+	 * separate thread.
+	 * 
+	 * @param parent
+	 *            The parent component to be used in dialogs.
+	 * @param obs
+	 *            The list of observations to be saved.
+	 */
+	private void saveSyntheticObsListToFile(Component parent,
+			List<ValidObservation> obs) {
+		if (analysisType == AnalysisType.RAW_DATA) {
+
+			if (!obs.isEmpty()) {
+				int returnVal = obsListFileSaveDialog.showSaveDialog(parent);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File outFile = obsListFileSaveDialog.getSelectedFile();
+
+					this.getProgressNotifier().notifyListeners(
+							ProgressInfo.START_PROGRESS);
+
+					this.getProgressNotifier().notifyListeners(
+							new ProgressInfo(ProgressType.MAX_PROGRESS, obs
+									.size()));
+
+					// We re-use the same observation list file save task as
+					// above but specify simple file type to match the fact that
+					// we are only going to save JD, magnitude, and uncertainty
+					// (for
+					// means).
+					ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
+							outFile, NewStarType.NEW_STAR_FROM_SIMPLE_FILE);
+
+					this.currTask = task;
+					task.execute();
+				}
+			} else {
+				MessageBox.showMessageDialog(parent, "Save Observations",
+						"There are no visible observations to save.");
+			}
+		} else {
+			MessageBox.showMessageDialog(parent, "Save Observations",
+					"Observation data can only be saved in raw mode.");
+		}
 	}
 
 	/**
@@ -1505,17 +1582,37 @@ public class Mediator {
 
 				meanObsListPane.getObsTable().print(PrintMode.FIT_WIDTH);
 			} catch (PrinterException e) {
-				MessageBox.showErrorDialog(parent, "Print Means", e
+				MessageBox.showErrorDialog(parent, "Print Mean Values", e
 						.getMessage());
 			}
 			break;
 		case MODEL_MODE:
-			MessageBox.showMessageDialog(parent, "Print Model",
-					NOT_IMPLEMENTED_YET);
+			if (modelSelectionMessage != null) {
+				try {
+					SyntheticObservationListPane<AbstractModelObservationTableModel> modelListPane = documentManager
+							.getModelListPane(analysisType,
+									modelSelectionMessage.getModel());
+
+					modelListPane.getObsTable().print(PrintMode.FIT_WIDTH);
+				} catch (PrinterException e) {
+					MessageBox.showErrorDialog(parent, "Print Model Values", e
+							.getMessage());
+				}
+			}
 			break;
 		case RESIDUALS_MODE:
-			MessageBox.showMessageDialog(parent, "Print Residuals",
-					NOT_IMPLEMENTED_YET);
+			if (modelSelectionMessage != null) {
+				try {
+					SyntheticObservationListPane<AbstractModelObservationTableModel> residualsListPane = documentManager
+							.getResidualsListPane(analysisType,
+									modelSelectionMessage.getModel());
+
+					residualsListPane.getObsTable().print(PrintMode.FIT_WIDTH);
+				} catch (PrinterException e) {
+					MessageBox.showErrorDialog(parent, "Print Residual Values",
+							e.getMessage());
+				}
+			}
 			break;
 		}
 	}
@@ -1539,6 +1636,14 @@ public class Mediator {
 		case LIST_MEANS_MODE:
 			ob = this.analysisTypeMap.get(analysisType).getMeansListPane()
 					.getLastObSelected();
+			break;
+		case MODEL_MODE:
+			ob = documentManager.getModelListPane(analysisType,
+					modelSelectionMessage.getModel()).getLastObSelected();
+			break;
+		case RESIDUALS_MODE:
+			ob = documentManager.getResidualsListPane(analysisType,
+					modelSelectionMessage.getModel()).getLastObSelected();
 			break;
 		}
 

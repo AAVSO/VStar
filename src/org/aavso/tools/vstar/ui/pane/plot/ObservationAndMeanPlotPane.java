@@ -97,7 +97,7 @@ public class ObservationAndMeanPlotPane extends
 	public ObservationAndMeanPlotModel getObsModel() {
 		return obsModel;
 	}
-
+	
 	/**
 	 * Constructor
 	 * 

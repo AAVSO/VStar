@@ -225,7 +225,7 @@ public class ObservationListPane extends JPanel implements
 		panel.add(allDataCheckBox);
 
 		panel.add(Box.createRigidArea(new Dimension(10, 10)));
-		
+
 		searchPanel = new ListSearchPane<ValidObservationTableModel>(
 				validDataModel, rowSorter);
 		panel.add(searchPanel);
@@ -252,6 +252,26 @@ public class ObservationListPane extends JPanel implements
 	 */
 	public ValidObservation getLastObSelected() {
 		return lastObSelected;
+	}
+
+	/**
+	 * Retrieve the valid observations that are currently in the table's view.
+	 * 
+	 * @return The observation list.
+	 */
+	public List<ValidObservation> getObservationsInView() {
+		List<ValidObservation> obs = new ArrayList<ValidObservation>();
+
+		// TODO: Is there some other way of getting the in-view objects? Ask the
+		// rowfilter for or to keep a list of the current indices?
+		validDataTable.selectAll();
+
+		for (int row : validDataTable.getSelectedRows()) {
+			row = validDataTable.convertRowIndexToModel(row);
+			obs.add(validDataModel.getObservations().get(row));
+		}
+		
+		return obs;
 	}
 
 	// Returns an observation selection listener.
