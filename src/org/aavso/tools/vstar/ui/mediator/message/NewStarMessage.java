@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.mediator.message;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import org.aavso.tools.vstar.ui.mediator.StarInfo;
 public class NewStarMessage {
 
 	private NewStarType newStarType;
+	private Date loadDate;
 	private StarInfo starInfo;
 	private List<ValidObservation> obs;
 	private Map<SeriesType, List<ValidObservation>> obsCategoryMap;
@@ -59,6 +61,7 @@ public class NewStarMessage {
 			Map<SeriesType, List<ValidObservation>> obsCategoryMap,
 			double minMag, double maxMag) {
 		this.newStarType = newStarType;
+		this.loadDate = new Date();
 		this.starInfo = info;
 		this.obs = obs;
 		this.obsCategoryMap = obsCategoryMap;
@@ -71,6 +74,13 @@ public class NewStarMessage {
 	 */
 	public NewStarType getNewStarType() {
 		return newStarType;
+	}
+
+	/**
+	 * @return the loadDate
+	 */
+	public Date getLoadDate() {
+		return loadDate;
 	}
 
 	/**
