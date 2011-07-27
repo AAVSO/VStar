@@ -899,13 +899,6 @@ public class Mediator {
 			validObsTableModel = new ValidObservationTableModel(validObsList,
 					newStarType.getRawDataTableColumnInfoSource());
 
-			String subTitle = "";
-			if (newStarType == NewStarType.NEW_STAR_FROM_DATABASE) {
-				subTitle = ", " + new Date().toString() + " (database)";
-			} else {
-				subTitle = "";
-			}
-
 			// Observation-and-mean table and plot.
 			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
 					validObservationCategoryMap, JDCoordSource.instance,
@@ -924,7 +917,7 @@ public class Mediator {
 							"Mean error bars denote 95% Confidence Interval (twice Standard Error)");
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					"Raw Plot for " + starInfo.getDesignation() + subTitle,
+					"Raw Plot for " + starInfo.getDesignation(),
 					null, obsAndMeanPlotModel);
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
