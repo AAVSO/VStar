@@ -81,7 +81,7 @@ public class ValidObservation extends Observation {
 	private Double previousCyclePhase = null;
 
 	private boolean excluded = false;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -426,7 +426,8 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param excluded the excluded to set
+	 * @param excluded
+	 *            the excluded to set
 	 */
 	public void setExcluded(boolean excluded) {
 		this.excluded = excluded;
@@ -565,18 +566,21 @@ public class ValidObservation extends Observation {
 	 * are optional):
 	 * 
 	 * JD,MAGNITUDE,[UNCERTAINTY],[OBSERVER_CODE],[VALFLAG]
+	 * 
+	 * @param delimiter
+	 *            The field delimiter to use.
 	 */
-	public String toSimpleFormatString() {
+	public String toSimpleFormatString(String delimiter) {
 		StringBuffer buf = new StringBuffer();
 
 		buf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
 				this.getDateInfo().getJulianDay()));
-		buf.append("\t");
+		buf.append(delimiter);
 
 		buf.append(this.getMagnitude().isFainterThan() ? "<" : "");
 		buf.append(String.format(NumericPrecisionPrefs.getMagOutputFormat(),
 				this.getMagnitude().getMagValue()));
-		buf.append("\t");
+		buf.append(delimiter);
 
 		double uncertainty = this.getMagnitude().getUncertainty();
 		// TODO: why != here and > in next method?
@@ -584,12 +588,12 @@ public class ValidObservation extends Observation {
 			buf.append(String.format(
 					NumericPrecisionPrefs.getMagOutputFormat(), uncertainty));
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.obsCode != null) {
 			buf.append(this.obsCode);
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.validationType != null) {
 			buf.append(this.validationType.getValflag());
@@ -601,25 +605,28 @@ public class ValidObservation extends Observation {
 
 	/**
 	 * Returns a line in TSV AAVSO download format.
+	 * 
+	 * @param delimiter
+	 *            The field delimiter to use.
 	 */
-	public String toAAVSOFormatString() {
+	public String toAAVSOFormatString(String delimiter) {
 		StringBuffer buf = new StringBuffer();
 
 		buf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
 				this.getDateInfo().getJulianDay()));
-		buf.append("\t");
+		buf.append(delimiter);
 
 		buf.append(this.getMagnitude().isFainterThan() ? "<" : "");
 		buf.append(String.format(NumericPrecisionPrefs.getMagOutputFormat(),
 				this.getMagnitude().getMagValue()));
-		buf.append("\t");
+		buf.append(delimiter);
 
 		double uncertainty = this.getMagnitude().getUncertainty();
 		if (uncertainty > 0.0) {
 			buf.append(String.format(
 					NumericPrecisionPrefs.getMagOutputFormat(), uncertainty));
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.getHqUncertainty() != null) {
 			double hqUncertainty = this.getHqUncertainty();
@@ -628,82 +635,82 @@ public class ValidObservation extends Observation {
 						.getMagOutputFormat(), hqUncertainty));
 			}
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		buf.append(this.getBand().getShortName());
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.obsCode != null) {
 			buf.append(this.obsCode);
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.getCommentCode() != null) {
 			buf.append(this.getCommentCode().getOrigString());
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.getCompStar1() != null) {
 			buf.append(this.getCompStar1());
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.getCompStar2() != null) {
 			buf.append(this.getCompStar2());
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.getCharts() != null) {
 			buf.append(this.getCharts());
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.getComments() != null) {
 			buf.append(this.getComments());
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		buf.append(this.isTransformed() ? "Yes" : "No");
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.getAirmass() != null) {
 			buf.append(this.getAirmass());
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.validationType != null) {
 			buf.append(this.validationType.getValflag());
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.getCMag() != null) {
 			buf.append(this.getCMag());
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.getKMag() != null) {
 			buf.append(this.getKMag());
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		if (this.getHJD() != null) {
 			buf.append(String.format(NumericPrecisionPrefs
 					.getTimeOutputFormat(), hJD.getJulianDay()));
 		}
-		buf.append("\t");
+		buf.append(delimiter);
 
 		buf.append(this.getName());
-		buf.append("\t");
+		buf.append(delimiter);
 
 		// Affiliation
-		buf.append("\t");
+		buf.append(delimiter);
 
 		buf.append(this.getMType() != null ? this.getMType().getShortName()
 				: MTypeType.STD.getShortName());
-		buf.append("\t");
+		buf.append(delimiter);
 
 		// Group
-		buf.append("\t");
+		buf.append(delimiter);
 
 		buf.append("\n");
 

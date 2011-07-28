@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.dialog;
+package org.aavso.tools.vstar.ui.dialog.period;
 
 import java.awt.Container;
 import java.awt.Dimension;
@@ -27,7 +27,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.util.locale.NumberParser;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This modal dialog class allows period analysis parameters to be entered.
@@ -45,6 +47,10 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 	public PeriodAnalysisParameterDialog(double loFreq, double hiFreq,
 			double resolution) {
 		super("Parameters");
+
+		// TODO: Get these from a model or better yet:
+		// - store them locally and reset them upon receipt of a NewStarMessage
+		// or more likely in the DC DFT plugin object
 		this.loFreq = loFreq;
 		this.hiFreq = hiFreq;
 		this.resolution = resolution;
@@ -71,26 +77,29 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-//		loFreqField = new JTextField(String.format(NumericPrecisionPrefs.getOtherOutputFormat(), loFreq));
-		loFreqField = new JTextField(loFreq + "");
+		loFreqField = new JTextField(String.format(NumericPrecisionPrefs
+				.getOtherOutputFormat(), loFreq));
+		// loFreqField = new JTextField(loFreq + "");
 		loFreqField
 				.setBorder(BorderFactory.createTitledBorder("Low Frequency"));
 		loFreqField.setToolTipText("Enter low frequency for scan");
 		panel.add(loFreqField);
-		
+
 		panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
-//		hiFreqField = new JTextField(String.format(NumericPrecisionPrefs.getOtherOutputFormat(), hiFreq));
-		hiFreqField = new JTextField(hiFreq + "");
+		hiFreqField = new JTextField(String.format(NumericPrecisionPrefs
+				.getOtherOutputFormat(), hiFreq));
+		// hiFreqField = new JTextField(hiFreq + "");
 		hiFreqField.setBorder(BorderFactory
 				.createTitledBorder("High Frequency"));
 		hiFreqField.setToolTipText("Enter high frequency for scan");
 		panel.add(hiFreqField);
-		
+
 		panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
-//		resolutionField = new JTextField(String.format(NumericPrecisionPrefs.getOtherOutputFormat(), resolution));
-		resolutionField = new JTextField(resolution + "");
+		resolutionField = new JTextField(String.format(NumericPrecisionPrefs
+				.getOtherOutputFormat(), resolution));
+		// resolutionField = new JTextField(resolution + "");
 		resolutionField.setBorder(BorderFactory
 				.createTitledBorder("Resolution"));
 		resolutionField.setToolTipText("Enter resolution for scan");
@@ -140,7 +149,8 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 			hiFreq = NumberParser.parseDouble(hiFreqField.getText());
 			resolution = NumberParser.parseDouble(resolutionField.getText());
 
-			// If we got to here without a parse error, we can dismiss the dialog.
+			// If we got to here without a parse error, we can dismiss the
+			// dialog.
 			cancelled = false;
 			setVisible(false);
 			dispose();

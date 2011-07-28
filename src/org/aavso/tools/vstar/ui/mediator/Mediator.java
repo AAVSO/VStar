@@ -52,6 +52,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
 import org.aavso.tools.vstar.ui.dialog.AbstractPlotControlDialog;
+import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveAsChooser;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.ModelDialog;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
@@ -151,7 +152,7 @@ public class Mediator {
 	private Map<AnalysisType, AnalysisTypeChangeMessage> analysisTypeMap;
 
 	// A file dialog for saving any kind of observation list.
-	private JFileChooser obsListFileSaveDialog;
+	private DelimitedFieldFileSaveAsChooser obsListFileSaveDialog;
 
 	// Persistent phase parameter dialog.
 	private PhaseParameterDialog phaseParameterDialog;
@@ -227,7 +228,7 @@ public class Mediator {
 		this.stopRequestNotifier = new Notifier<StopRequestMessage>();
 		this.seriesVisibilityChangeNotifier = new Notifier<SeriesVisibilityChangeMessage>();
 
-		this.obsListFileSaveDialog = new JFileChooser();
+		this.obsListFileSaveDialog = new DelimitedFieldFileSaveAsChooser();
 
 		// These (among other things) are created for each new star.
 		this.validObsList = null;
@@ -917,8 +918,8 @@ public class Mediator {
 							"Mean error bars denote 95% Confidence Interval (twice Standard Error)");
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					"Raw Plot for " + starInfo.getDesignation(),
-					null, obsAndMeanPlotModel);
+					"Raw Plot for " + starInfo.getDesignation(), null,
+					obsAndMeanPlotModel);
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					createMeanObsChangeListener(obsAndMeanPlotModel
@@ -1463,9 +1464,7 @@ public class Mediator {
 					.getObsListPane().getObservationsInView();
 
 			if (!obs.isEmpty()) {
-				int returnVal = obsListFileSaveDialog.showSaveDialog(parent);
-
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
+				if (obsListFileSaveDialog.showDialog(parent)) {
 					File outFile = obsListFileSaveDialog.getSelectedFile();
 
 					this.getProgressNotifier().notifyListeners(
@@ -1476,7 +1475,8 @@ public class Mediator {
 									.size()));
 
 					ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
-							outFile, this.newStarMessage.getNewStarType());
+							outFile, this.newStarMessage.getNewStarType(),
+							obsListFileSaveDialog.getDelimiter());
 
 					this.currTask = task;
 					task.execute();
@@ -1505,9 +1505,7 @@ public class Mediator {
 		if (analysisType == AnalysisType.RAW_DATA) {
 
 			if (!obs.isEmpty()) {
-				int returnVal = obsListFileSaveDialog.showSaveDialog(parent);
-
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
+				if (obsListFileSaveDialog.showDialog(parent)) {
 					File outFile = obsListFileSaveDialog.getSelectedFile();
 
 					this.getProgressNotifier().notifyListeners(
@@ -1523,7 +1521,8 @@ public class Mediator {
 					// (for
 					// means).
 					ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
-							outFile, NewStarType.NEW_STAR_FROM_SIMPLE_FILE);
+							outFile, NewStarType.NEW_STAR_FROM_SIMPLE_FILE,
+							obsListFileSaveDialog.getDelimiter());
 
 					this.currTask = task;
 					task.execute();

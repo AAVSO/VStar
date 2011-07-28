@@ -38,6 +38,7 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	private List<ValidObservation> observations;
 	private File outFile;
 	private NewStarType newStarType;
+	private String delimiter;
 
 	/**
 	 * Constructor.
@@ -48,13 +49,17 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	 *            Output file.
 	 * @param newStarType
 	 *            The originating new-star type.
+	 * 
+	 * @param delimiter
+	 *            The field delimiter to use.
 	 */
 	public ObsListFileSaveTask(List<ValidObservation> observations,
-			File outFile, NewStarType newStarType) {
+			File outFile, NewStarType newStarType, String delimiter) {
 		super();
 		this.observations = observations;
 		this.outFile = outFile;
 		this.newStarType = newStarType;
+		this.delimiter = delimiter;
 	}
 
 	/**
@@ -91,7 +96,7 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	private void saveObsToFileInSimpleFormat(BufferedOutputStream ostream)
 			throws IOException {
 		for (ValidObservation ob : this.observations) {
-			ostream.write(ob.toSimpleFormatString().getBytes());
+			ostream.write(ob.toSimpleFormatString(delimiter).getBytes());
 
 			Mediator.getInstance().getProgressNotifier().notifyListeners(
 					ProgressInfo.INCREMENT_PROGRESS);
@@ -108,7 +113,7 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	private void saveObsToFileInAAVSOFormat(BufferedOutputStream ostream)
 			throws IOException {
 		for (ValidObservation ob : this.observations) {
-			ostream.write(ob.toAAVSOFormatString().getBytes());
+			ostream.write(ob.toAAVSOFormatString(delimiter).getBytes());
 			Mediator.getInstance().getProgressNotifier().notifyListeners(
 					ProgressInfo.INCREMENT_PROGRESS);
 		}
