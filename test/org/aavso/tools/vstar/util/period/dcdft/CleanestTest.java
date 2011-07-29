@@ -82,7 +82,7 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 		freqs.add(topFreq);
 
 		try {
-			dcdft.cleanest(freqs, null, null);
+			dcdft.cleanest(freqs, null, null, null);
 
 			// Now check the new top-hit period and power.
 			double newTopPeriod = dcdft.getTopHits().get(
@@ -130,8 +130,8 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 		freqs.add(topFreq);
 
 		try {
-			dcdft.cleanest(freqs, new ArrayList<Double>(),
-					new ArrayList<Double>());
+			dcdft.cleanest(freqs, new ArrayList<Integer>(),
+					new ArrayList<Double>(), new ArrayList<Double>());
 
 			// Now check the new top-hit period and power.
 			double newTopPeriod = dcdft.getTopHits().get(
@@ -199,7 +199,7 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 		freqs.add(topFreq2);
 
 		try {
-			dcdft.cleanest(freqs, null, null);
+			dcdft.cleanest(freqs, null, null, null);
 
 			// Now check the new first few top-hits (period and power).
 
@@ -261,7 +261,7 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 		varPeriods.add(123.5);
 
 		try {
-			dcdft.cleanest(freqs, varPeriods, null);
+			dcdft.cleanest(freqs, null, varPeriods, null);
 
 			// Now check the new first few top-hits (period and power).
 
@@ -323,7 +323,7 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 		lockedPeriods.add(123.5);
 
 		try {
-			dcdft.cleanest(freqs, null, lockedPeriods);
+			dcdft.cleanest(freqs, null, null, lockedPeriods);
 
 			// Now check the new first few top-hits (period and power).
 

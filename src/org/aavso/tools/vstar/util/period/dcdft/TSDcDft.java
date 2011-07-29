@@ -236,7 +236,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 			topHits.put(type, new ArrayList<Double>());
 		}
 
-		for (int i = 1; i <= MAX_TOP_HITS-1; i++) {
+		for (int i = 1; i <= MAX_TOP_HITS - 1; i++) {
 			if (dgnu[i] != 0) {
 				topHits.get(PeriodAnalysisCoordinateType.FREQUENCY)
 						.add(dgnu[i]);
@@ -262,18 +262,18 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 */
 	public void execute() {
 		dcdft();
-		// TODO: why is this here!?
+		// TODO: why is this statcomp() here!?
 		// In TS, it's called only after the Fourier menu has been exited!
 		// statcomp();
 	}
 
 	@Override
 	public List<PeriodAnalysisDataPoint> refineByFrequency(List<Double> freqs,
-			List<Double> variablePeriods, List<Double> lockedPeriods)
-			throws AlgorithmError {
+			List<Integer> harmonics, List<Double> variablePeriods,
+			List<Double> lockedPeriods) throws AlgorithmError {
 
 		deltaTopHits.clear();
-		cleanest(freqs, variablePeriods, lockedPeriods);
+		cleanest(freqs, harmonics, variablePeriods, lockedPeriods);
 
 		return deltaTopHits;
 	}
@@ -369,7 +369,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 		dpolyamp2 = 0.0; // added Apr 7
 
-		nbest = MAX_TOP_HITS-1;
+		nbest = MAX_TOP_HITS - 1;
 
 		// write(6,261) dfloat(ndim+1)*dang0/2.0
 		// read[5][260] xlofre;
@@ -479,16 +479,21 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 * A translation of the Fortran TS CLEANest algorithm.
 	 * 
 	 * @param freqs
-	 *            The frequencies to be included.
+	 *            The user-specified frequencies to be included.
+	 * @param harmonics
+	 *            The maximum number of harmonics per user-specified frequency
+	 *            to be found and included in the analysis. May be null or
+	 *            empty.
 	 * @param varPeriods
-	 *            The variable periods to be included. May be null.
+	 *            The variable periods to be included. May be null or empty.
 	 * @param lockedPeriods
-	 *            The locked periods to be included. May be null.
+	 *            The locked periods to be included. May be null or empty.
 	 * 
-	 *            TODO: it would be more consistent to pass freqs as periods...
+	 *            TODO: it would be more consistent to pass freqs as periods!
 	 */
-	protected void cleanest(List<Double> freqs, List<Double> variablePeriods,
-			List<Double> lockedPeriods) throws AlgorithmError {
+	protected void cleanest(List<Double> freqs, List<Integer> harmonics,
+			List<Double> variablePeriods, List<Double> lockedPeriods)
+			throws AlgorithmError {
 		// getfreq();
 
 		int varCount = variablePeriods == null ? 0 : variablePeriods.size();
@@ -519,8 +524,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 			if (result != null) {
 				dres[n] = result.ddr;
 				dtest[n] = result.ddp;
-//				System.out.println(String.format("After resolve: %1.6f, %1.6f",
-//						dres[n], dtest[n]));
+				// System.out.println(String.format("After resolve: %1.6f, %1.6f",
+				// dres[n], dtest[n]));
 			} else {
 				throw new AlgorithmError("No resolution result");
 			}
@@ -593,13 +598,13 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		// Compute base level.
 
 		for (int n = 1; n <= nfre; n++) {
-//			System.out.println(String.format("Before: %1.6f, %1.6f", dfre[n],
-//					dtest[n]));
+			// System.out.println(String.format("Before: %1.6f, %1.6f", dfre[n],
+			// dtest[n]));
 			if (dtest[n] != 0) {
 				dfre[n] = 1.0 / dtest[n];
 			}
-//			System.out.println(String.format("After: %1.6f, %1.6f", dfre[n],
-//					dtest[n]));
+			// System.out.println(String.format("After: %1.6f, %1.6f", dfre[n],
+			// dtest[n]));
 		}
 		project();
 		dbpower = dfpow;
@@ -637,8 +642,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 				dfre[nv] = 1.0 / dtest[0];
 				project();
 				// write(6,*) dtest(0),dfre(nv),dfpow
-//				System.out.println(String.format("%1.6f  %1.6f  %1.6f",
-//						dtest[0], dfre[nv], dfpow));
+				// System.out.println(String.format("%1.6f  %1.6f  %1.6f",
+				// dtest[0], dfre[nv], dfpow));
 
 				if (dfpow > dbpower) {
 					dbpower = dfpow;
@@ -662,8 +667,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 					dfre[nv] = 1.0 / dtest[0];
 					project();
 					// write(6,*) dtest(0),dfre(nv),dfpow
-//					System.out.println(String.format("%1.6f  %1.6f  %1.6f",
-//							dtest[0], dfre[nv], dfpow));
+					// System.out.println(String.format("%1.6f  %1.6f  %1.6f",
+					// dtest[0], dfre[nv], dfpow));
 
 					if (dfpow > dbpower) {
 						dbpower = dfpow;
@@ -904,12 +909,12 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		int nq = 0;
 		int nqq = 0;
 
-		for (nq = 1; nq <= MAX_TOP_HITS-1; nq++) {
+		for (nq = 1; nq <= MAX_TOP_HITS - 1; nq++) {
 			// We have found a higher power!
 			if (dlpower > dgpower[nq]) {
 				// Move everything below this down one.
 				// Note that with a list, we'll just be able to insert!
-				for (nqq = MAX_TOP_HITS-2; nqq >= nq; nqq--) {
+				for (nqq = MAX_TOP_HITS - 2; nqq >= nq; nqq--) {
 					dgpower[nqq + 1] = dgpower[nqq];
 					dgnu[nqq + 1] = dgnu[nqq];
 					dgper[nqq + 1] = dgper[nqq];

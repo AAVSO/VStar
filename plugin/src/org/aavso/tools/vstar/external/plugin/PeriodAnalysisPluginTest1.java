@@ -90,8 +90,9 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
 		@Override
 		public List<PeriodAnalysisDataPoint> refineByFrequency(
-				List<Double> freqs, List<Double> variablePeriods,
-				List<Double> lockedPeriod) throws AlgorithmError {
+				List<Double> freqs, List<Integer> harmonics,
+				List<Double> variablePeriods, List<Double> lockedPeriod)
+				throws AlgorithmError {
 			// TODO Auto-generated method stub
 			return null;
 		}

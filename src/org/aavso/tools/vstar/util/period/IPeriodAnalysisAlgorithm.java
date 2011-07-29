@@ -58,6 +58,9 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	 * 
 	 * @param freqs
 	 *            A list of frequencies on which to refine the results.
+	 * @param harmonics
+	 *            The maximum number of harmonics per user-specified frequency
+	 *            to be found and included in the analysis.
 	 * @param varPeriods
 	 *            The variable periods to be included. May be null.
 	 * @param lockedPeriods
@@ -65,8 +68,9 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	 * @return the new top-hits created by this refinement.
 	 */
 	abstract public List<PeriodAnalysisDataPoint> refineByFrequency(
-			List<Double> freqs, List<Double> variablePeriods,
-			List<Double> lockedPeriod) throws AlgorithmError;
+			List<Double> freqs, List<Integer> harmonics,
+			List<Double> variablePeriods, List<Double> lockedPeriod)
+			throws AlgorithmError;
 
 	/**
 	 * Get the refine-by-frequency algorithm name.
