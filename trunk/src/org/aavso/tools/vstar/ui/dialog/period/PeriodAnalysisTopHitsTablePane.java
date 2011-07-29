@@ -34,7 +34,7 @@ import javax.swing.event.ListSelectionEvent;
 
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.dialog.period.cleanest.CLEANestDialog;
+import org.aavso.tools.vstar.ui.dialog.period.refinement.RefinementParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
@@ -141,10 +141,18 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 				if (!freqs.isEmpty()) {
 					try {
-						CLEANestDialog dialog = new CLEANestDialog(parent,
-								freqs, 6);
+						RefinementParameterDialog dialog = new RefinementParameterDialog(
+								parent, freqs, 6);
 						if (!dialog.isCancelled()) {
 							List<Integer> harmonics = dialog.getHarmonics();
+
+							// Find harmomics for each user frequency.
+							for (int i = 0; i < harmonics.size(); i++) {
+								if (harmonics.get(i) > 0) {
+									findHarmonics(freqs.get(i), harmonics
+											.get(i));
+								}
+							}
 
 							List<Double> variablePeriods = dialog
 									.getVariablePeriods();
@@ -154,8 +162,8 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 							// Perform a refinement operation and get the new
 							// top-hits resulting from the refinement.
 							List<PeriodAnalysisDataPoint> newTopHits = algorithm
-									.refineByFrequency(freqs, harmonics, variablePeriods,
-											lockedPeriods);
+									.refineByFrequency(freqs, harmonics,
+											variablePeriods, lockedPeriods);
 
 							// Update the model and tell anyone else who might
 							// be interested.
@@ -181,6 +189,23 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 				}
 			}
 		};
+	}
+
+	// Find up to maxHarmonics harmonics of the specified frequency in the data.
+	private void findHarmonics(double freq, int maxHarmonics) {
+		List<Double> data = algorithm.getResultSeries().get(
+				PeriodAnalysisCoordinateType.FREQUENCY);
+		System.out.println("Frequency " + freq + ": ");
+		int harmonic = 1;
+		int n = 2; // first harmonic is twice the fundamental, right?
+		for (int i = 0; i < data.size() && harmonic < maxHarmonics; i++) {
+			// TODO: need tolerance, specify precision, use string comparison as in UTs?
+			if (data.get(i) == freq * n) {
+				System.out.println("  >> " + data.get(i));
+				n++;
+				harmonic++;
+			}
+		}
 	}
 
 	/**
