@@ -137,4 +137,25 @@ public enum NewStarType {
 	public IFieldInfoSource getFieldInfoSource() {
 		return this.fieldInfoSource;
 	}
+	
+	public String toString() {
+		String str = "";
+		
+		switch (this) {
+		case NEW_STAR_FROM_DATABASE:
+			str = "AAVSO International Database";
+			break;
+		case NEW_STAR_FROM_DOWNLOAD_FILE:
+			str = "AAVSO Download Format File";
+			break;
+		case NEW_STAR_FROM_SIMPLE_FILE:
+			str = "Simple Format File";
+			break;
+		case NEW_STAR_FROM_EXTERNAL_SOURCE:
+			str = "External Source";
+			break;
+		}
+		
+		return str;
+	}
 }

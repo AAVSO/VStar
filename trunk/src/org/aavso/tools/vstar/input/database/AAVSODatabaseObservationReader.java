@@ -31,6 +31,7 @@ import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.data.validation.InclusiveRangePredicate;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
 
 /**
  * This class reads variable star observations from an AAVSO database and yields
@@ -115,6 +116,11 @@ public class AAVSODatabaseObservationReader extends
 			throw new ObservationReadError(
 					"Error when attempting to read observation source.");
 		}
+	}
+
+	@Override
+	public String getSourceName() {
+		return NewStarType.NEW_STAR_FROM_DATABASE.toString();
 	}
 
 	// Helpers

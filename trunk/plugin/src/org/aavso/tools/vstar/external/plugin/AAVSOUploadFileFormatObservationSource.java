@@ -437,6 +437,11 @@ public class AAVSOUploadFileFormatObservationSource extends
 				observation.setComments(comments);
 			}
 		}
+
+		@Override
+		public String getSourceName() {
+			return "AAVSO Upload Format File";
+		}
 	}
 
 	private boolean isEmpty(String str) {

@@ -108,6 +108,11 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 		}
 	}
 
+	@Override
+	public String getSourceName() {
+		return analyser.getNewStarType().toString();
+	}
+
 	// Helpers
 
 	private void addValidObservation(ValidObservation validOb, int lineNum) {

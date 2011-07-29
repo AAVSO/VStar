@@ -68,5 +68,10 @@ public class ExampleObSource extends ObservationSourcePluginBase {
 				collectObservation(ob);
 			}
 		}
+
+		@Override
+		public String getSourceName() {
+			return "Example Observation Source";
+		}
 	}
 }

@@ -38,6 +38,7 @@ public class NewStarMessage {
 	private Map<SeriesType, List<ValidObservation>> obsCategoryMap;
 	private double minMag;
 	private double maxMag;
+	private String source;
 
 	/**
 	 * Constructor.
@@ -55,11 +56,13 @@ public class NewStarMessage {
 	 *            The minimum magnitude value for the dataset.
 	 * @param maxMag
 	 *            The maximum magnitude value for the dataset.
+	 * @param source
+	 *            The source of the dataset (may be null).
 	 */
 	public NewStarMessage(NewStarType newStarType, StarInfo info,
 			List<ValidObservation> obs,
 			Map<SeriesType, List<ValidObservation>> obsCategoryMap,
-			double minMag, double maxMag) {
+			double minMag, double maxMag, String source) {
 		this.newStarType = newStarType;
 		this.loadDate = new Date();
 		this.starInfo = info;
@@ -67,6 +70,7 @@ public class NewStarMessage {
 		this.obsCategoryMap = obsCategoryMap;
 		this.minMag = minMag;
 		this.maxMag = maxMag;
+		this.source = source;
 	}
 
 	/**
@@ -132,5 +136,19 @@ public class NewStarMessage {
 	 */
 	public void setMaxMag(double maxMag) {
 		this.maxMag = maxMag;
+	}
+
+	/**
+	 * @return the source
+	 */
+	public String getSource() {
+		return source;
+	}
+
+	/**
+	 * @param source the source to set
+	 */
+	public void setSource(String source) {
+		this.source = source;
 	}
 }
