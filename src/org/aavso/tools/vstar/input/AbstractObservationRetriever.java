@@ -163,6 +163,13 @@ public abstract class AbstractObservationRetriever {
 			InterruptedException;
 
 	/**
+	 * Retrieve the name of the source of the observations.
+	 * 
+	 * @return The source name.
+	 */
+	public abstract String getSourceName();
+
+	/**
 	 * @return the validObservations
 	 */
 	public List<ValidObservation> getValidObservations() {

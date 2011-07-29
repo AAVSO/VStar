@@ -970,7 +970,8 @@ public class Mediator {
 		// has been loaded.
 		newStarMessage = new NewStarMessage(newStarType, starInfo,
 				validObsList, validObservationCategoryMap, obsRetriever
-						.getMinMag(), obsRetriever.getMaxMag());
+						.getMinMag(), obsRetriever.getMaxMag(), obsRetriever
+						.getSourceName());
 
 		// Create a message to notify whoever is listening that the analysis
 		// type has changed (we could have been viewing a phase plot for a

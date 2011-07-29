@@ -110,24 +110,8 @@ public class InfoDialog extends JDialog implements ActionListener {
 		summaryBuf.append(starInfo.getDesignation());
 		summaryBuf.append("\n");
 
-		String source = null;
-		switch (msg.getNewStarType()) {
-		case NEW_STAR_FROM_DATABASE:
-			source = "AAVSO International Database";
-			break;
-		case NEW_STAR_FROM_DOWNLOAD_FILE:
-			source = "AAVSO Download Format File";
-			break;
-		case NEW_STAR_FROM_SIMPLE_FILE:
-			source = "Simple Format File";
-			break;
-		case NEW_STAR_FROM_EXTERNAL_SOURCE:
-			source = "External Source";
-			break;
-		}
-
 		summaryBuf.append("Source: ");
-		summaryBuf.append(source);
+		summaryBuf.append(msg.getSource());
 		summaryBuf.append("; loaded: ");
 		summaryBuf.append(msg.getLoadDate().toString());
 		summaryBuf.append("\n");
@@ -172,10 +156,12 @@ public class InfoDialog extends JDialog implements ActionListener {
 
 		for (SeriesType type : obsCategoryMap.keySet()) {
 			List<ValidObservation> obsOfType = obsCategoryMap.get(type);
-			seriesBuf.append(type.getDescription());
-			seriesBuf.append(": ");
-			seriesBuf.append(obsOfType.size());
-			seriesBuf.append("\n");
+			if (!obsOfType.isEmpty()) {
+				seriesBuf.append(type.getDescription());
+				seriesBuf.append(": ");
+				seriesBuf.append(obsOfType.size());
+				seriesBuf.append("\n");
+			}
 		}
 
 		seriesTextArea.setText(seriesBuf.toString());

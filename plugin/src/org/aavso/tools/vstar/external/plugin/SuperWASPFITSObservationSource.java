@@ -206,6 +206,11 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 				collectObservation(ob);
 			}
 		}
+
+		@Override
+		public String getSourceName() {
+			return "SuperWASP FITS File";
+		}
 	}
 
 	class MagErrorSelectionDialog extends JDialog {
