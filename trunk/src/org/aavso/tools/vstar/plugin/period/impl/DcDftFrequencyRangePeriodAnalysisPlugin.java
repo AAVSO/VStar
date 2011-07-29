@@ -22,7 +22,7 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.ui.dialog.PeriodAnalysisParameterDialog;
+import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisParameterDialog;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
