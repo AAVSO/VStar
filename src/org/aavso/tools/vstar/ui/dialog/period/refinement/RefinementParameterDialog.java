@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.dialog.period.cleanest;
+package org.aavso.tools.vstar.ui.dialog.period.refinement;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -37,7 +37,7 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 /**
  * This dialog unifies the collection of information required for CLEANest.
  */
-public class CLEANestDialog extends AbstractOkCancelDialog {
+public class RefinementParameterDialog extends AbstractOkCancelDialog {
 
 	private int numHarmonics;
 	private List<Integer> harmonicsPerSelectedPeriod;
@@ -59,9 +59,9 @@ public class CLEANestDialog extends AbstractOkCancelDialog {
 	 *            The maximum number of harmonics that can be selected from per
 	 *            user specified frequency/period.
 	 */
-	public CLEANestDialog(Component parent, List<Double> userSelectedFreqs,
+	public RefinementParameterDialog(Component parent, List<Double> userSelectedFreqs,
 			int maxHarmonics) {
-		super("CLEANest Parameters");
+		super("Refinement Parameters");
 
 		this.numHarmonics = maxHarmonics;
 		harmonicsPerSelectedPeriod = new ArrayList<Integer>();
