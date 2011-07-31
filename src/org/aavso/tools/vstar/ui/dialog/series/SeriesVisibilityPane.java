@@ -142,6 +142,7 @@ public class SeriesVisibilityPane extends JPanel {
 
 		// We treat derived series separately.
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
+			// TODO: use SeriesType.isDerived()?
 			if (series != SeriesType.MEANS
 					&& series != SeriesType.Model
 					&& series != SeriesType.Residuals
@@ -195,7 +196,8 @@ public class SeriesVisibilityPane extends JPanel {
 		meanCheckBox = new JCheckBox(SeriesType.MEANS.getDescription());
 		meanCheckBox
 				.addActionListener(createSeriesVisibilityCheckBoxListener());
-		meanCheckBox.setSelected(false);
+//		meanCheckBox.setSelected(false);
+		setInitialCheckBoxState(SeriesType.MEANS, meanCheckBox);
 		panel.add(meanCheckBox);
 		panel.add(Box.createRigidArea(new Dimension(3, 3)));
 		checkBoxes.add(meanCheckBox);

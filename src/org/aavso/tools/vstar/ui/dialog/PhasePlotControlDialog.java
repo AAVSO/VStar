@@ -27,7 +27,7 @@ import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
 /**
  * The phase plot control dialog.
  */
-public class PhasePlotControlDialog extends AbstractPlotControlDialog {
+public class PhasePlotControlDialog extends PlotControlDialogBase {
 
 	/**
 	 * Constructor.

@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.JFileChooser;
 import javax.swing.SwingWorker;
 import javax.swing.JTable.PrintMode;
 
@@ -51,13 +50,13 @@ import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
-import org.aavso.tools.vstar.ui.dialog.AbstractPlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveAsChooser;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.ModelDialog;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PhasePlotControlDialog;
+import org.aavso.tools.vstar.ui.dialog.PlotControlDialogBase;
 import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
 import org.aavso.tools.vstar.ui.dialog.RawPlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
@@ -161,8 +160,8 @@ public class Mediator {
 	private ObservationFilterDialog obsFilterDialog;
 
 	// Plot control dialogs.
-	private AbstractPlotControlDialog rawPlotControlDialog;
-	private AbstractPlotControlDialog phasePlotControlDialog;
+	private PlotControlDialogBase rawPlotControlDialog;
+	private PlotControlDialogBase phasePlotControlDialog;
 
 	// Model dialog.
 	private ModelDialog modelDialog;
@@ -251,7 +250,6 @@ public class Mediator {
 				.addListener(createFilteredObservationListener());
 
 		// Initialise dialogs.
-		// TODO: move these to a DialogManager or the DocumentManager
 		this.rawPlotControlDialog = null;
 		this.phasePlotControlDialog = null;
 
@@ -935,7 +933,7 @@ public class Mediator {
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					meanObsTableModel);
 
-			rawPlotControlDialog = new RawPlotControlDialog(obsAndMeanChartPane);
+//			rawPlotControlDialog = new RawPlotControlDialog(obsAndMeanChartPane);
 
 			if (obsArtefactProgressAmount > 0) {
 				// Update progress.
@@ -1104,7 +1102,7 @@ public class Mediator {
 				"Phase Plot for " + objName, subTitle, obsAndMeanPlotModel,
 				epoch, period);
 
-		phasePlotControlDialog = new PhasePlotControlDialog(obsAndMeanChartPane);
+//		phasePlotControlDialog = new PhasePlotControlDialog(obsAndMeanChartPane);
 
 		// The observation table pane contains valid and potentially
 		// invalid data components but for phase plot purposes, we only
@@ -1273,12 +1271,19 @@ public class Mediator {
 	}
 
 	/**
-	 * Open the plot control dialog relevant to the current analysis mode.
+	 * Open the plot control dialog relevant to the current analysis mode. TODO:
+	 * move to DocumentManager
 	 */
 	public void showPlotControlDialog() {
 		if (analysisType == AnalysisType.RAW_DATA) {
+			rawPlotControlDialog = new RawPlotControlDialog(analysisTypeMap
+					.get(AnalysisType.RAW_DATA).getObsAndMeanChartPane());
 			rawPlotControlDialog.setVisible(true);
 		} else if (analysisType == AnalysisType.PHASE_PLOT) {
+			// TODO: remove the need for a cast!
+			phasePlotControlDialog = new PhasePlotControlDialog(
+					(PhaseAndMeanPlotPane) analysisTypeMap.get(
+							AnalysisType.PHASE_PLOT).getObsAndMeanChartPane());
 			phasePlotControlDialog.setVisible(true);
 		}
 	}

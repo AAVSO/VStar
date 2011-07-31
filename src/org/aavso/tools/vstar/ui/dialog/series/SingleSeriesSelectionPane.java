@@ -91,6 +91,7 @@ public class SingleSeriesSelectionPane extends JPanel implements ActionListener 
 				JRadioButton seriesRadioButton = new JRadioButton(seriesName);
 				seriesRadioButton.setActionCommand(seriesName);
 				seriesRadioButton.addActionListener(this);
+				seriesRadioButton.setEnabled(isSeriesNonEmpty(series));
 				panel.add(seriesRadioButton);
 				panel.add(Box.createRigidArea(new Dimension(3, 3)));
 				seriesGroup.add(seriesRadioButton);
@@ -122,6 +123,7 @@ public class SingleSeriesSelectionPane extends JPanel implements ActionListener 
 				JRadioButton seriesRadioButton = new JRadioButton(seriesName);
 				seriesRadioButton.setActionCommand(seriesName);
 				seriesRadioButton.addActionListener(this);
+				seriesRadioButton.setEnabled(isSeriesNonEmpty(series));
 				panel.add(seriesRadioButton);
 				panel.add(Box.createRigidArea(new Dimension(3, 3)));
 				seriesGroup.add(seriesRadioButton);
@@ -134,6 +136,26 @@ public class SingleSeriesSelectionPane extends JPanel implements ActionListener 
 		}
 
 		return panel;
+	}
+
+	/**
+	 * Does the specified series have corresponding observations?
+	 * 
+	 * @param type
+	 *            The series type in question.
+	 * @return Whether or not there are observations for this series type.
+	 */
+	private boolean isSeriesNonEmpty(SeriesType type) {
+		Integer num = obsPlotModel.getSrcTypeToSeriesNumMap().get(type);
+
+		// This series exists and has obs (or not), so allow it to be selected
+		// (or not).
+		boolean hasObs = obsPlotModel.getSeriesNumToObSrcListMap().containsKey(
+				num)
+				&& !obsPlotModel.getSeriesNumToObSrcListMap().get(num)
+						.isEmpty();
+
+		return hasObs;
 	}
 
 	// This method will be called when a radio button is selected.
