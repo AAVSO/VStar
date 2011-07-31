@@ -43,10 +43,8 @@ import org.jfree.chart.JFreeChart;
 
 /**
  * A dialog that controls the features of plots.
- * 
- * TODO: This is not abstract! Change name to *Base!
  */
-public class AbstractPlotControlDialog extends JDialog {
+public class PlotControlDialogBase extends JDialog {
 
 	private AnalysisType analysisType;
 
@@ -91,7 +89,7 @@ public class AbstractPlotControlDialog extends JDialog {
 	 *            The analysis type which is the context of creation of this
 	 *            dialog.
 	 */
-	public AbstractPlotControlDialog(String title,
+	public PlotControlDialogBase(String title,
 			ObservationAndMeanPlotPane plotPane,
 			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
 			NamedComponent extra, AnalysisType analysisType) {
@@ -105,9 +103,12 @@ public class AbstractPlotControlDialog extends JDialog {
 		this.obsModel = plotPane.getObsModel();
 		this.extra = extra;
 
-		showErrorBars = true;
-		showCrossHairs = true;
-		joinMeans = true;
+		// Get initial checkbox values.
+		showErrorBars = plotPane.getRenderer().getDrawYError();
+		showCrossHairs = plotPane.getChartPanel().getChart().getXYPlot()
+				.isDomainCrosshairVisible(); // ask for domain or range value
+		joinMeans = plotPane.getRenderer().getSeriesLinesVisible(
+				obsModel.getMeansSeriesNum());
 
 		this.timeElementsInBinSettingPane = timeElementsInBinSettingPane;
 
@@ -128,7 +129,7 @@ public class AbstractPlotControlDialog extends JDialog {
 	 *            The analysis type which is the context of creation of this
 	 *            dialog.
 	 */
-	public AbstractPlotControlDialog(String title,
+	public PlotControlDialogBase(String title,
 			ObservationAndMeanPlotPane plotPane,
 			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
 			AnalysisType analysisType) {
@@ -189,13 +190,13 @@ public class AbstractPlotControlDialog extends JDialog {
 
 		// A checkbox to show/hide error bars.
 		errorBarCheckBox = new JCheckBox("Error bars?");
-		errorBarCheckBox.setSelected(this.showErrorBars);
+		errorBarCheckBox.setSelected(showErrorBars);
 		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());
 		showCheckBoxPanel.add(errorBarCheckBox);
 
 		// A checkbox to show/hide cross hairs.
 		crossHairCheckBox = new JCheckBox("Cross-hairs?");
-		crossHairCheckBox.setSelected(this.showCrossHairs);
+		crossHairCheckBox.setSelected(showCrossHairs);
 		crossHairCheckBox.addActionListener(createCrossHairCheckBoxListener());
 		showCheckBoxPanel.add(crossHairCheckBox);
 
@@ -210,7 +211,7 @@ public class AbstractPlotControlDialog extends JDialog {
 		// A checkbox to determine whether or not to join mean
 		// series elements.
 		joinMeansCheckBox = new JCheckBox("Join means?");
-		joinMeansCheckBox.setSelected(true);
+		joinMeansCheckBox.setSelected(joinMeans);
 		joinMeansCheckBox.addActionListener(createJoinMeansCheckBoxListener());
 		meanChangePanel.add(joinMeansCheckBox);
 
@@ -224,6 +225,7 @@ public class AbstractPlotControlDialog extends JDialog {
 		chartControlPanel.add(subPanel);
 
 		// Add extra component, if there is one.
+		// TODO: still necessary?
 		if (extra != null) {
 			JPanel extraPane = new JPanel();
 			extraPane.setBorder(BorderFactory.createTitledBorder(extra
@@ -317,8 +319,6 @@ public class AbstractPlotControlDialog extends JDialog {
 		dismissButton = new JButton("Dismiss");
 		dismissButton.addActionListener(createDismissButtonListener());
 		panel.add(dismissButton);
-
-		// ******************** revisit this *********************
 
 		this.getRootPane().setDefaultButton(dismissButton);
 

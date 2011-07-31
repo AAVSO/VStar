@@ -25,7 +25,7 @@ import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
 /**
  * The raw plot control dialog.
  */
-public class RawPlotControlDialog extends AbstractPlotControlDialog {
+public class RawPlotControlDialog extends PlotControlDialogBase {
 
 	/**
 	 * Constructor.
