@@ -32,11 +32,7 @@ import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
-import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This class represents a pane with radio buttons showing which series is to be
@@ -72,12 +68,6 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		this.seriesNum = obsPlotModel.getMeanSourceSeriesNum();
 
 		addSeriesRadioButtons();
-
-		Mediator.getInstance().getFilteredObservationNotifier().addListener(
-				createFilteredObservationListener());
-
-		Mediator.getInstance().getModelSelectionNofitier().addListener(
-				createModelListener());
 	}
 
 	// Create a radio button for each series, selecting the one
@@ -100,16 +90,6 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		seriesGroup = new ButtonGroup();
 
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
-			// We want to be able to select from any series except
-			// "means", "fainter-than", "discrepant", or "excluded.
-			// Actually, we may want to be able to select from discrepants, e.g.
-			// consider comments from Aaron re: this.
-			// TODO: we could delegate this filtering to SeriesType (e.g.
-			// SeriesType.canBeMeanSource())
-			// if (series != SeriesType.MEANS && series !=
-			// SeriesType.FAINTER_THAN
-			// && series != SeriesType.DISCREPANT
-			// && series != SeriesType.Excluded) {
 			if (!series.isSynthetic()) {
 				String seriesName = series.getDescription();
 				JRadioButton seriesRadioButton = new JRadioButton(seriesName);
@@ -128,7 +108,6 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 							.getMeanSourceSeriesNum();
 				}
 			}
-			// }
 		}
 
 		// Ensure the panel is wide enough for textual border.
@@ -208,9 +187,6 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	// mean source series number (in the model), set the model's mean
 	// source series number.
 
-	// TODO: revert but take a similar approach to SingleSeriesSelectionPane
-	// later
-
 	public void actionPerformed(ActionEvent e) {
 		String seriesName = e.getActionCommand();
 		this.seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
@@ -248,50 +224,5 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	 */
 	public int getSeriesNum() {
 		return seriesNum;
-	}
-
-	// TODO: remove these!
-
-	// Returns a filtered observation listener.
-	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
-		return new Listener<FilteredObservationMessage>() {
-
-			@Override
-			public void update(FilteredObservationMessage info) {
-				if (info != FilteredObservationMessage.NO_FILTER) {
-					// Enable radio button upon first series creation.
-					if (!filteredRadioButton.isEnabled()) {
-						filteredRadioButton.setEnabled(true);
-					}
-				}
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
-	// Returns a model listener.
-	protected Listener<ModelSelectionMessage> createModelListener() {
-		return new Listener<ModelSelectionMessage>() {
-			@Override
-			public void update(ModelSelectionMessage info) {
-				// Enable radio buttons upon first series creation.
-				if (!modelRadioButton.isEnabled()) {
-					modelRadioButton.setEnabled(true);
-				}
-
-				if (!residualsRadioButton.isEnabled()) {
-					residualsRadioButton.setEnabled(true);
-				}
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
 	}
 }
