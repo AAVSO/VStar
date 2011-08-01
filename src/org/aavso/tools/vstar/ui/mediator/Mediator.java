@@ -49,16 +49,15 @@ import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
+import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
 import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveAsChooser;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.ModelDialog;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
-import org.aavso.tools.vstar.ui.dialog.PhasePlotControlDialog;
-import org.aavso.tools.vstar.ui.dialog.PlotControlDialogBase;
+import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
-import org.aavso.tools.vstar.ui.dialog.RawPlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
@@ -95,6 +94,7 @@ import org.aavso.tools.vstar.ui.model.plot.PhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
 import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
+import org.aavso.tools.vstar.ui.pane.plot.NewPhasePlotButtonPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
@@ -158,10 +158,6 @@ public class Mediator {
 
 	// Persistent observation filter dialog.
 	private ObservationFilterDialog obsFilterDialog;
-
-	// Plot control dialogs.
-	private PlotControlDialogBase rawPlotControlDialog;
-	private PlotControlDialogBase phasePlotControlDialog;
 
 	// Model dialog.
 	private ModelDialog modelDialog;
@@ -248,10 +244,6 @@ public class Mediator {
 		this.modelSelectionNofitier.addListener(createModelSelectionListener());
 		this.filteredObservationNotifier
 				.addListener(createFilteredObservationListener());
-
-		// Initialise dialogs.
-		this.rawPlotControlDialog = null;
-		this.phasePlotControlDialog = null;
 
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
@@ -933,8 +925,6 @@ public class Mediator {
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					meanObsTableModel);
 
-//			rawPlotControlDialog = new RawPlotControlDialog(obsAndMeanChartPane);
-
 			if (obsArtefactProgressAmount > 0) {
 				// Update progress.
 				getProgressNotifier().notifyListeners(
@@ -1101,8 +1091,6 @@ public class Mediator {
 		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
 				"Phase Plot for " + objName, subTitle, obsAndMeanPlotModel,
 				epoch, period);
-
-//		phasePlotControlDialog = new PhasePlotControlDialog(obsAndMeanChartPane);
 
 		// The observation table pane contains valid and potentially
 		// invalid data components but for phase plot purposes, we only
@@ -1275,17 +1263,30 @@ public class Mediator {
 	 * move to DocumentManager
 	 */
 	public void showPlotControlDialog() {
+		String title = null;
+		ObservationAndMeanPlotPane plotPane = analysisTypeMap.get(analysisType)
+				.getObsAndMeanChartPane();
+		TimeElementsInBinSettingPane binSettingPane = null;
+		NamedComponent extra = null;
+		
 		if (analysisType == AnalysisType.RAW_DATA) {
-			rawPlotControlDialog = new RawPlotControlDialog(analysisTypeMap
-					.get(AnalysisType.RAW_DATA).getObsAndMeanChartPane());
-			rawPlotControlDialog.setVisible(true);
+			title = "Raw Plot Control";
+			binSettingPane = new TimeElementsInBinSettingPane(
+					"Days per Mean Series Bin", plotPane.getObsModel(),
+					JDTimeElementEntity.instance);
 		} else if (analysisType == AnalysisType.PHASE_PLOT) {
+			title = "Phase Plot Control";
+			binSettingPane = new TimeElementsInBinSettingPane(
+					"Phase Steps per Mean Series Bin", plotPane.getObsModel(),
+					PhaseTimeElementEntity.instance);
 			// TODO: remove the need for a cast!
-			phasePlotControlDialog = new PhasePlotControlDialog(
-					(PhaseAndMeanPlotPane) analysisTypeMap.get(
-							AnalysisType.PHASE_PLOT).getObsAndMeanChartPane());
-			phasePlotControlDialog.setVisible(true);
+			extra = new NamedComponent("Phase Plot",
+					new NewPhasePlotButtonPane((PhaseAndMeanPlotPane) plotPane));
 		}
+
+		PlotControlDialog dialog = new PlotControlDialog(title, plotPane,
+				binSettingPane, extra, analysisType);
+		dialog.setVisible(true);
 	}
 
 	/**

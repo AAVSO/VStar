@@ -44,7 +44,7 @@ import org.jfree.chart.JFreeChart;
 /**
  * A dialog that controls the features of plots.
  */
-public class PlotControlDialogBase extends JDialog {
+public class PlotControlDialog extends JDialog {
 
 	private AnalysisType analysisType;
 
@@ -89,7 +89,7 @@ public class PlotControlDialogBase extends JDialog {
 	 *            The analysis type which is the context of creation of this
 	 *            dialog.
 	 */
-	public PlotControlDialogBase(String title,
+	public PlotControlDialog(String title,
 			ObservationAndMeanPlotPane plotPane,
 			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
 			NamedComponent extra, AnalysisType analysisType) {
@@ -113,27 +113,6 @@ public class PlotControlDialogBase extends JDialog {
 		this.timeElementsInBinSettingPane = timeElementsInBinSettingPane;
 
 		createContent();
-	}
-
-	/**
-	 * Constructor.
-	 * 
-	 * @param title
-	 *            The dialog title.
-	 * @param plotPane
-	 *            The plot pane.
-	 * @param timeElementsInBinSettingPane
-	 *            The component that captures time elements in bin setting (for
-	 *            raw or phase plots).
-	 * @param analysisType
-	 *            The analysis type which is the context of creation of this
-	 *            dialog.
-	 */
-	public PlotControlDialogBase(String title,
-			ObservationAndMeanPlotPane plotPane,
-			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
-			AnalysisType analysisType) {
-		this(title, plotPane, timeElementsInBinSettingPane, null, analysisType);
 	}
 
 	/**
@@ -225,7 +204,6 @@ public class PlotControlDialogBase extends JDialog {
 		chartControlPanel.add(subPanel);
 
 		// Add extra component, if there is one.
-		// TODO: still necessary?
 		if (extra != null) {
 			JPanel extraPane = new JPanel();
 			extraPane.setBorder(BorderFactory.createTitledBorder(extra

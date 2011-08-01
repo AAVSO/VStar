@@ -34,13 +34,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.stats.BinningResult;
@@ -108,18 +102,6 @@ public class SeriesVisibilityPane extends JPanel {
 		obsPlotModel.getMeansChangeNotifier().addListener(
 				createMeanObsChangeListener());
 
-		Mediator.getInstance().getFilteredObservationNotifier().addListener(
-				createFilteredObservationListener());
-
-		Mediator.getInstance().getModelSelectionNofitier().addListener(
-				createModelListener());
-
-		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
-				createDiscrepantChangeListener());
-
-		Mediator.getInstance().getExcludedObservationNotifier().addListener(
-				createExcludedChangeListener());
-
 		addButtons();
 	}
 
@@ -142,11 +124,7 @@ public class SeriesVisibilityPane extends JPanel {
 
 		// We treat derived series separately.
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
-			// TODO: use SeriesType.isDerived()?
-			if (series != SeriesType.MEANS
-					&& series != SeriesType.Model
-					&& series != SeriesType.Residuals
-					&& series != SeriesType.Filtered) {
+			if (!series.isSynthetic()) {
 				String seriesName = series.getDescription();
 				JCheckBox checkBox = new JCheckBox(seriesName);
 
@@ -196,7 +174,6 @@ public class SeriesVisibilityPane extends JPanel {
 		meanCheckBox = new JCheckBox(SeriesType.MEANS.getDescription());
 		meanCheckBox
 				.addActionListener(createSeriesVisibilityCheckBoxListener());
-//		meanCheckBox.setSelected(false);
 		setInitialCheckBoxState(SeriesType.MEANS, meanCheckBox);
 		panel.add(meanCheckBox);
 		panel.add(Box.createRigidArea(new Dimension(3, 3)));
@@ -368,96 +345,6 @@ public class SeriesVisibilityPane extends JPanel {
 		return visibilityDeltaMap;
 	}
 
-	/**
-	 * Listen for discrepant observation change notification.
-	 */
-	protected Listener<DiscrepantObservationMessage> createDiscrepantChangeListener() {
-
-		return new Listener<DiscrepantObservationMessage>() {
-			public void update(DiscrepantObservationMessage info) {
-				ValidObservation ob = info.getObservation();
-
-				// Did we go to or from being discrepant?
-				// We keep a count. Asking the model is not sufficient since
-				// order of delivery of these messages is indeterminant and we
-				// cannot be sure that the model has been updated.
-				if (ob.isDiscrepant()) {
-					discrepantCount++;
-
-					// Now marked as discrepant so, at least one observation is
-					// in the discrepant series. Ensure the discrepant
-					// checkbox is enabled so such observations can be viewed.
-					if (!discrepantCheckBox.isEnabled()) {
-						discrepantCheckBox.setEnabled(true);
-					}
-				} else {
-					// Was marked as discrepant, now is not, so check whether
-					// any discrepant observations remain, and if not, disable
-					// the checkbox.
-					discrepantCount--;
-
-					if (discrepantCount == 0 && discrepantCheckBox.isEnabled()) {
-						discrepantCheckBox.setEnabled(false);
-						discrepantCheckBox.setSelected(false);
-					}
-				}
-			}
-
-			/**
-			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
-			 */
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
-	/**
-	 * Listen for excluded observation change notification.
-	 */
-	protected Listener<ExcludedObservationMessage> createExcludedChangeListener() {
-
-		return new Listener<ExcludedObservationMessage>() {
-			public void update(ExcludedObservationMessage info) {
-				List<ValidObservation> obs = info.getObservations();
-
-				boolean isExcluded = obs.get(0).isExcluded();
-
-				// Did we go to or from being excluded?
-				// We keep a count. Asking the model is not sufficient since
-				// order of delivery of these messages is indeterminant and we
-				// cannot be sure that the model has been updated.
-				if (isExcluded) {
-					excludedCount++;
-
-					// Now marked as excluded so, at least one observation is
-					// in the excluded series. Ensure the excluded
-					// checkbox is enabled so such observations can be viewed.
-					if (!excludedCheckBox.isEnabled()) {
-						excludedCheckBox.setEnabled(true);
-					}
-				} else {
-					// Was marked as excluded, now is not, so check whether
-					// any excluded observations remain, and if not, disable
-					// the checkbox.
-					excludedCount--;
-
-					if (excludedCount == 0 && excludedCheckBox.isEnabled()) {
-						excludedCheckBox.setEnabled(false);
-						excludedCheckBox.setSelected(false);
-					}
-				}
-			}
-
-			/**
-			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
-			 */
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
 	// Return a mean observation change listener to ensure that the
 	// mean series checkbox is selected if a new binning operation takes
 	// place that also set the mean series as visible, assuming it was not
@@ -472,57 +359,6 @@ public class SeriesVisibilityPane extends JPanel {
 						.getSeriesVisibilityMap().get(SeriesType.MEANS);
 				if (meanSeriesVisible) {
 					meanCheckBox.setSelected(true);
-				}
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
-	}
-
-	// Returns a filtered observation listener.
-	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
-		return new Listener<FilteredObservationMessage>() {
-
-			@Override
-			public void update(FilteredObservationMessage info) {
-				if (info == FilteredObservationMessage.NO_FILTER) {
-					// No filter, so disable the filtered series checkbox.
-					// TODO: really necessary?
-					// if (obsPlotModel.seriesExists(SeriesType.Filtered)) {
-					filteredCheckBox.setSelected(false);
-					// }
-				} else {
-					// Enable and select checkbox upon first series creation.
-					if (!filteredCheckBox.isEnabled()) {
-						filteredCheckBox.setEnabled(true);
-						filteredCheckBox.setSelected(true);
-					}
-				}
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
-	// Returns a model listener.
-	protected Listener<ModelSelectionMessage> createModelListener() {
-		return new Listener<ModelSelectionMessage>() {
-			@Override
-			public void update(ModelSelectionMessage info) {
-				// Enable and select checkboxes upon first series creation.
-				if (!modelCheckBox.isEnabled()) {
-					modelCheckBox.setEnabled(true);
-					modelCheckBox.setSelected(true);
-				}
-
-				if (!residualsCheckBox.isEnabled()) {
-					residualsCheckBox.setEnabled(true);
 				}
 			}
 

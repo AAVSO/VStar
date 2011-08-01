@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Partial Fortran to Java translator.
+# Partial Fortran 77 to Java translator.
 
 require 5;
 use strict;
@@ -41,10 +41,10 @@ sub process_line {
 	push @java_lines, "// $1";
     } elsif ($line =~ /^C(\-+)\s*/) {
 	push @java_lines, "// $1";
+    } elsif ($line =~ /format|write|read|print|implicit/) {
+	push @java_lines, "// $line";	
     } elsif ($line =~ /^\s*enddo|endif|end\s*/) {
 	push @java_lines, "}";
-    } elsif ($line =~ /format|write|print|implicit/) {
-	push @java_lines, "// $line";
     } elsif ($line =~ /^\s*(float|double|int|String)\s*([^\d\:\(\)]+)/) {
 	process_vars($1, $2);
 	push @java_lines, "// $line;";
