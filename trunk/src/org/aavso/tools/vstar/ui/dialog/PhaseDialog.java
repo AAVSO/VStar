@@ -37,24 +37,24 @@ import javax.swing.event.ListSelectionListener;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PhaseSelectionMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
- * This dialog collects created models and permits their selection and deletion.
- * Selecting a model causes that model and its residuals to become current.
+ * This dialog collects phase plot information, permitting their selection and
+ * deletion, and most importantly, permitting previously created phase plots to
+ * be recreated.
  */
-public class ModelDialog extends JDialog implements ListSelectionListener {
+public class PhaseDialog extends JDialog implements ListSelectionListener {
 
 	private boolean firstUse;
 
-	private JList modelList;
-	private DefaultListModel modelListModel;
+	private JList phaselList;
+	private DefaultListModel phaseListModel;
 
-	private Map<String, IModel> modelMap;
+	private Map<String, PhaseChangeMessage> phaseMap;
 
 	private JButton selectButton;
 	private JButton deleteButton;
@@ -62,14 +62,14 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 	/**
 	 * Constructor.
 	 */
-	public ModelDialog() {
+	public PhaseDialog() {
 		super();
-		this.setTitle("Models");
+		this.setTitle("Phase Plots");
 		this.setModal(true);
 		this.setAlwaysOnTop(true);
 
 		this.firstUse = true;
-		this.modelMap = new TreeMap<String, IModel>();
+		this.phaseMap = new TreeMap<String, PhaseChangeMessage>();
 
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
@@ -99,12 +99,12 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		modelListModel = new DefaultListModel();
-		modelList = new JList(modelListModel);
-		modelList
+		phaseListModel = new DefaultListModel();
+		phaselList = new JList(phaseListModel);
+		phaselList
 				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		modelList.addListSelectionListener(this);
-		JScrollPane modelListScroller = new JScrollPane(modelList);
+		phaselList.addListSelectionListener(this);
+		JScrollPane modelListScroller = new JScrollPane(phaselList);
 
 		panel.add(modelListScroller);
 
@@ -134,7 +134,7 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting() == false) {
 
-			if (modelList.getSelectedIndex() == -1) {
+			if (phaselList.getSelectedIndex() == -1) {
 				selectButton.setEnabled(false);
 				deleteButton.setEnabled(false);
 			} else {
@@ -146,15 +146,19 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 
 	// Return a listener for the "Select" button.
 	private ActionListener createSelectButtonListener() {
+		final PhaseDialog me = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedModelIndex = modelList.getSelectedIndex();
-				String desc = (String) modelListModel.get(selectedModelIndex);
-				IModel model = modelMap.get(desc);
-				ModelSelectionMessage msg = new ModelSelectionMessage(this,
-						model);
-				Mediator.getInstance().getModelSelectionNofitier()
-						.notifyListeners(msg);
+				int selectedModelIndex = phaselList.getSelectedIndex();
+				String desc = (String) phaseListModel.get(selectedModelIndex);
+				PhaseChangeMessage changeMsg = phaseMap.get(desc);
+
+				PhaseSelectionMessage selectionMsg = new PhaseSelectionMessage(
+						me, changeMsg.getPeriod(), changeMsg.getEpoch(),
+						changeMsg.getSeriesVisibilityMap());
+
+				Mediator.getInstance().getPhaseSelectionNotifier()
+						.notifyListeners(selectionMsg);
 			}
 		};
 	}
@@ -163,30 +167,35 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 	private ActionListener createDeleteButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedModelIndex = modelList.getSelectedIndex();
+				int selectedModelIndex = phaselList.getSelectedIndex();
 
-				String desc = (String) modelListModel
+				String desc = (String) phaseListModel
 						.remove(selectedModelIndex);
-				modelMap.remove(desc);
+				phaseMap.remove(desc);
 				pack();
 			}
 		};
 	}
 
 	/**
-	 * Return a model creation listener.
+	 * Return a phase change listener.
 	 */
-	public Listener<ModelCreationMessage> createModelCreationListener() {
-		return new Listener<ModelCreationMessage>() {
+	public Listener<PhaseChangeMessage> createPhaseChangeListener() {
+		final PhaseDialog me = this;
+		return new Listener<PhaseChangeMessage>() {
 			@Override
-			public void update(ModelCreationMessage info) {
-				String desc = info.getModel().getDescription();
+			public void update(PhaseChangeMessage info) {
+				if (info.getSource() != me) {
+					// Create a new message owned by us using 'info' as a
+					// prototype.
+					String desc = info.toString();
 
-				if (!modelMap.containsKey(desc)) {
-					modelMap.put(desc, info.getModel());
+					if (!phaseMap.containsKey(desc)) {
+						phaseMap.put(desc, info);
 
-					modelListModel.addElement(desc);
-					pack();
+						phaseListModel.addElement(desc);
+						pack();
+					}
 				}
 			}
 
@@ -204,9 +213,9 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 		return new Listener<NewStarMessage>() {
 			@Override
 			public void update(NewStarMessage info) {
-				modelListModel.clear();
+				phaseListModel.clear();
 				pack();
-				modelMap.clear();
+				phaseMap.clear();
 				selectButton.setEnabled(false);
 				deleteButton.setEnabled(false);
 			}

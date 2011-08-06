@@ -20,12 +20,14 @@ package org.aavso.tools.vstar.ui.mediator.message;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * This message is sent when a phase change (period, epoch) occurs.
+ * This message is sent when a set of phase plot parameters (period, epoch,
+ * visible series) is selected to be used as the current phase plot. Note that
+ * this is used to distinguish between a phase plot creation
+ * (PhaseChangeMessage) and the selection of a previously created phase plot.
  */
-public class PhaseChangeMessage extends MessageBase {
+public class PhaseSelectionMessage extends MessageBase {
 
 	private double period;
 	private double epoch;
@@ -44,7 +46,7 @@ public class PhaseChangeMessage extends MessageBase {
 	 *            A mapping from series type to series visibility. This records
 	 *            the series that were visible at the time of the phase change.
 	 */
-	public PhaseChangeMessage(Object source, double period, double epoch,
+	public PhaseSelectionMessage(Object source, double period, double epoch,
 			Map<SeriesType, Boolean> seriesVisibilityMap) {
 		super(source);
 		this.period = period;
@@ -60,7 +62,7 @@ public class PhaseChangeMessage extends MessageBase {
 	}
 
 	/**
-	 * @rturn the epoch
+	 * @return the epoch
 	 */
 	public double getEpoch() {
 		return epoch;
@@ -71,23 +73,5 @@ public class PhaseChangeMessage extends MessageBase {
 	 */
 	public Map<SeriesType, Boolean> getSeriesVisibilityMap() {
 		return seriesVisibilityMap;
-	}
-
-	public String toString() {
-		StringBuffer buf = new StringBuffer();
-
-		buf.append(String.format("period: "
-				+ NumericPrecisionPrefs.getOtherOutputFormat(), period));
-		buf.append(String.format(", epoch: "
-				+ NumericPrecisionPrefs.getOtherOutputFormat(), epoch));
-		buf.append(", series: ");
-		for (SeriesType series : seriesVisibilityMap.keySet()) {
-			if (seriesVisibilityMap.containsKey(series) && seriesVisibilityMap.get(series)) {
-				buf.append(series.getShortName());
-				buf.append(" ");
-			}
-		}
-
-		return buf.toString();
 	}
 }

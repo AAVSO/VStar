@@ -39,6 +39,8 @@ import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.title.Title;
 
 /**
  * This class represents a chart pane containing a plot for a set of valid
@@ -55,7 +57,7 @@ public class ObservationAndMeanPlotPane extends
 	 * @param title
 	 *            The title for the chart.
 	 * @param subTitle
-	 *            The sub-title for the chart.
+	 *            The sub-title for the chart (may be null).
 	 * @param domainTitle
 	 *            The domain title (e.g. Julian Date, phase).
 	 * @param rangeTitle
@@ -76,6 +78,14 @@ public class ObservationAndMeanPlotPane extends
 
 		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
 
+		// Add sub-title, if any.
+		if (subTitle != null && !"".equals(subTitle.trim())) {
+			List<Title> subTitles = chart.getSubtitles();
+			subTitles.add(new TextTitle(subTitle));
+			chart.setSubtitles(subTitles);
+		}
+
+		// Format for observation tool-tip.
 		xyMsgFormat = "JD: " + NumericPrecisionPrefs.getTimeOutputFormat()
 				+ " (%s), Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
 
@@ -97,7 +107,7 @@ public class ObservationAndMeanPlotPane extends
 	public ObservationAndMeanPlotModel getObsModel() {
 		return obsModel;
 	}
-	
+
 	/**
 	 * Constructor
 	 * 
