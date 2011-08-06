@@ -226,12 +226,12 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 			@Override
 			public void update(PeriodAnalysisRefinementMessage info) {
 				for (PeriodAnalysisDataPoint dataPoint : info.getNewTopHits()) {
-					if (model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
+//					if (model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
 						double x = dataPoint.getValue(model.getDomainType());
 						double y = dataPoint.getValue(model.getRangeType());
 						XYLineAnnotation line = new XYLineAnnotation(x, 0, x, y);
 						chart.getXYPlot().addAnnotation(line);
-					}
+					// }
 
 					model.refresh();
 				}

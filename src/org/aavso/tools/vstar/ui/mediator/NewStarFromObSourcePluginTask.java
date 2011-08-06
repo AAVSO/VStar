@@ -140,7 +140,5 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.CLEAR_PROGRESS);
-
-		// TODO: how to detect task cancellation and clean up map etc
 	}
 }

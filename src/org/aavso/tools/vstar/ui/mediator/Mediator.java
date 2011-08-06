@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.print.PrinterException;
 import java.io.File;
@@ -55,6 +54,7 @@ import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveAsChooser;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.ModelDialog;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
+import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
@@ -75,6 +75,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.PhaseSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
 import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
@@ -162,6 +163,9 @@ public class Mediator {
 	// Model dialog.
 	private ModelDialog modelDialog;
 
+	// A dialog to manage phase plots.
+	private PhaseDialog phaseDialog;
+
 	// Notifiers.
 	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
 	private Notifier<NewStarMessage> newStarNotifier;
@@ -176,6 +180,7 @@ public class Mediator {
 	private Notifier<PeriodAnalysisSelectionMessage> periodAnalysisSelectionNotifier;
 	private Notifier<PeriodChangeMessage> periodChangeNotifier;
 	private Notifier<PhaseChangeMessage> phaseChangeNotifier;
+	private Notifier<PhaseSelectionMessage> phaseSelectionNotifier;
 	private Notifier<PeriodAnalysisRefinementMessage> periodAnalysisRefinementNotifier;
 	private Notifier<MeanSourceSeriesChangeMessage> meanSourceSeriesChangeNotifier;
 	private Notifier<ZoomRequestMessage> zoomRequestNotifier;
@@ -212,6 +217,7 @@ public class Mediator {
 		this.periodAnalysisSelectionNotifier = new Notifier<PeriodAnalysisSelectionMessage>();
 		this.periodChangeNotifier = new Notifier<PeriodChangeMessage>();
 		this.phaseChangeNotifier = new Notifier<PhaseChangeMessage>();
+		this.phaseSelectionNotifier = new Notifier<PhaseSelectionMessage>();
 		this.periodAnalysisRefinementNotifier = new Notifier<PeriodAnalysisRefinementMessage>();
 		this.meanSourceSeriesChangeNotifier = new Notifier<MeanSourceSeriesChangeMessage>();
 		this.zoomRequestNotifier = new Notifier<ZoomRequestMessage>();
@@ -241,6 +247,8 @@ public class Mediator {
 
 		this.periodChangeNotifier.addListener(createPeriodChangeListener());
 
+		this.phaseSelectionNotifier.addListener(createPhaseSelectionListener());
+
 		this.modelSelectionNofitier.addListener(createModelSelectionListener());
 		this.filteredObservationNotifier
 				.addListener(createFilteredObservationListener());
@@ -259,6 +267,12 @@ public class Mediator {
 				.createNewStarListener());
 		this.modelCreationNotifier.addListener(this.modelDialog
 				.createModelCreationListener());
+
+		this.phaseDialog = new PhaseDialog();
+		this.newStarNotifier.addListener(this.phaseDialog
+				.createNewStarListener());
+		this.phaseChangeNotifier.addListener(this.phaseDialog
+				.createPhaseChangeListener());
 
 		// Document manager creation and listener setup.
 		this.documentManager = new DocumentManager();
@@ -298,6 +312,14 @@ public class Mediator {
 	 */
 	public Notifier<AnalysisTypeChangeMessage> getAnalysisTypeChangeNotifier() {
 		return analysisTypeChangeNotifier;
+	}
+
+	/**
+	 * @param analysisType
+	 *            the analysisType to set
+	 */
+	public void setAnalysisType(AnalysisType analysisType) {
+		this.analysisType = analysisType;
 	}
 
 	/**
@@ -361,6 +383,13 @@ public class Mediator {
 	 */
 	public Notifier<PhaseChangeMessage> getPhaseChangeNotifier() {
 		return phaseChangeNotifier;
+	}
+
+	/**
+	 * @return the phaseSelectionNotifier
+	 */
+	public Notifier<PhaseSelectionMessage> getPhaseSelectionNotifier() {
+		return phaseSelectionNotifier;
 	}
 
 	/**
@@ -487,61 +516,42 @@ public class Mediator {
 	// When the period changes, create a new phase plot passing the pre-existing
 	// series visibility map if a previous phase plot was created.
 	//
-	// TODO: actually, createPhasePlotArtefacts() should not be necessary; it
-	// should
-	// only be necessary to a. set the phases with the new period and epoch
-	// (need to
-	// include the epoch in the message), and b. update the plot and table
-	// models.
+	// TODO: actually, it should only be necessary to a. set the phases with the
+	// new period and epoch (need to include the epoch in the message), and b.
+	// update the plot and table models.
 	private Listener<PeriodChangeMessage> createPeriodChangeListener() {
 		return new Listener<PeriodChangeMessage>() {
 			public void update(PeriodChangeMessage info) {
-				try {
-					AnalysisTypeChangeMessage msg = null;
+				PhaseParameterDialog phaseDialog = Mediator.getInstance()
+						.getPhaseParameterDialog();
+				phaseDialog.setPeriodField(info.getPeriod());
+				phaseDialog.showDialog();
 
-					PhaseParameterDialog phaseDialog = Mediator.getInstance()
-							.getPhaseParameterDialog();
-					phaseDialog.setPeriodField(info.getPeriod());
-					phaseDialog.showDialog();
+				if (!phaseDialog.isCancelled()) {
+					double period = phaseDialog.getPeriod();
+					double epoch = phaseDialog.getEpoch();
 
-					if (!phaseDialog.isCancelled()) {
-						double period = phaseDialog.getPeriod();
-						double epoch = phaseDialog.getEpoch();
+					AnalysisTypeChangeMessage lastPhasePlotMsg = analysisTypeMap
+							.get(AnalysisType.PHASE_PLOT);
 
-						MainFrame.getInstance().setCursor(
-								Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					Map<SeriesType, Boolean> seriesVisibilityMap = null;
 
-						AnalysisTypeChangeMessage lastPhasePlotMsg = analysisTypeMap
-								.get(AnalysisType.PHASE_PLOT);
-
-						Map<SeriesType, Boolean> seriesVisibilityMap = null;
-
-						if (lastPhasePlotMsg != null) {
-							// Use the last phase plot's series visibility map.
-							seriesVisibilityMap = lastPhasePlotMsg
-									.getObsAndMeanChartPane().getObsModel()
-									.getSeriesVisibilityMap();
-						} else {
-							// There has been no phase plot yet, so use the
-							// light curve's series visibility map.
-							AnalysisTypeChangeMessage lightCurveMsg = analysisTypeMap
-									.get(AnalysisType.RAW_DATA);
-							seriesVisibilityMap = lightCurveMsg
-									.getObsAndMeanChartPane().getObsModel()
-									.getSeriesVisibilityMap();
-						}
-
-						msg = createPhasePlotArtefacts(period, epoch,
-								seriesVisibilityMap);
-						analysisType = AnalysisType.PHASE_PLOT;
-
-						analysisTypeChangeNotifier.notifyListeners(msg);
-						MainFrame.getInstance().setCursor(null);
+					if (lastPhasePlotMsg != null) {
+						// Use the last phase plot's series visibility map.
+						seriesVisibilityMap = lastPhasePlotMsg
+								.getObsAndMeanChartPane().getObsModel()
+								.getSeriesVisibilityMap();
+					} else {
+						// There has been no phase plot yet, so use the
+						// light curve's series visibility map.
+						AnalysisTypeChangeMessage lightCurveMsg = analysisTypeMap
+								.get(AnalysisType.RAW_DATA);
+						seriesVisibilityMap = lightCurveMsg
+								.getObsAndMeanChartPane().getObsModel()
+								.getSeriesVisibilityMap();
 					}
-				} catch (Exception e) {
-					MainFrame.getInstance().setCursor(null);
-					MessageBox.showErrorDialog(MainFrame.getInstance(),
-							"New Phase Plot", e);
+
+					performPhasePlot(period, epoch, seriesVisibilityMap);
 				}
 			}
 
@@ -551,9 +561,55 @@ public class Mediator {
 		};
 	}
 
-	// Returns a model selection listener that updates the observation category
-	// map with model and residuals series.
-	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
+	// Returns a phase selection message listener, the purpose of which is to
+	// recreate a previous phase plot.
+	protected Listener<PhaseSelectionMessage> createPhaseSelectionListener() {
+		final Mediator me = this;
+		return new Listener<PhaseSelectionMessage>() {
+			@Override
+			public void update(PhaseSelectionMessage info) {
+				if (info.getSource() != me) {
+					performPhasePlot(info.getPeriod(), info.getEpoch(), info
+							.getSeriesVisibilityMap());
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	/**
+	 * Common phase plot handler.
+	 * 
+	 * @param period
+	 *            The requested period of the phase plot.
+	 * @param epoch
+	 *            The epoch (first Julian Date) for the phase plot.
+	 * @param seriesVisibilityMap
+	 *            A mapping from series number to visibility status.
+	 */
+	private void performPhasePlot(double period, double epoch,
+			Map<SeriesType, Boolean> seriesVisibilityMap) {
+
+		PhasePlotTask task = new PhasePlotTask(period, epoch,
+				seriesVisibilityMap);
+
+		try {
+			currTask = task;
+			task.execute();
+		} catch (Exception e) {
+			MainFrame.getInstance().setCursor(null);
+			MessageBox.showErrorDialog(MainFrame.getInstance(),
+					"New Phase Plot", e);
+		}
+	}
+
+	// Returns a model selection listener that updates the observation
+	// category map with model and residuals series.
+	private Listener<ModelSelectionMessage> createModelSelectionListener() {
 		return new Listener<ModelSelectionMessage>() {
 			@Override
 			public void update(ModelSelectionMessage info) {
@@ -699,42 +755,28 @@ public class Mediator {
 						if (!phaseDialog.isCancelled()) {
 							double period = phaseDialog.getPeriod();
 							double epoch = phaseDialog.getEpoch();
-							MainFrame
-									.getInstance()
-									.setCursor(
-											Cursor
-													.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
 							AnalysisTypeChangeMessage rawDataMsg = analysisTypeMap
 									.get(AnalysisType.RAW_DATA);
 
 							Map<SeriesType, Boolean> seriesVisibilityMap = rawDataMsg
 									.getObsAndMeanChartPane().getObsModel()
 									.getSeriesVisibilityMap();
-
-							msg = createPhasePlotArtefacts(period, epoch,
-									seriesVisibilityMap);
+							performPhasePlot(period, epoch, seriesVisibilityMap);
 						}
+					} else {
+						// Change to the existing phase plot.
+						this.analysisType = analysisType;
+						this.analysisTypeChangeNotifier.notifyListeners(msg);
 					}
 
-					if (msg != null) {
-						this.analysisType = analysisType;
-						// TODO: we should only do this if msg != oldMsg
-						// since we do this in createPhasePlotArtefacts();
-						// should just make this an else clause of above if
-						// stmt.
-						this.analysisTypeChangeNotifier.notifyListeners(msg);
-						String statusMsg = "Phase plot mode ("
-								+ this.newStarMessage.getStarInfo()
-										.getDesignation() + ")";
-						MainFrame.getInstance().getStatusPane().setMessage(
-								statusMsg);
-						MainFrame.getInstance().setCursor(null);
-					}
+					String statusMsg = "Phase plot mode ("
+							+ this.newStarMessage.getStarInfo()
+									.getDesignation() + ")";
+					MainFrame.getInstance().getStatusPane().setMessage(
+							statusMsg);
 					break;
 				}
 			} catch (Exception e) {
-				MainFrame.getInstance().setCursor(null);
 				MessageBox.showErrorDialog(MainFrame.getInstance(),
 						"Analysis Type Change", e);
 			}
@@ -1007,8 +1049,8 @@ public class Mediator {
 		this.validObservationCategoryMap = validObservationCategoryMap;
 
 		// Notify listeners of new star and analysis type.
-		getNewStarNotifier().notifyListeners(newStarMessage);
-		getAnalysisTypeChangeNotifier().notifyListeners(analysisTypeMsg);
+		newStarNotifier.notifyListeners(newStarMessage);
+		analysisTypeChangeNotifier.notifyListeners(analysisTypeMsg);
 	}
 
 	/**
@@ -1108,9 +1150,12 @@ public class Mediator {
 				meanObsTableModel, null);
 
 		// Create a phase change message so that existing plot and tables can
-		// update their GUI components and/or models accordingly.
+		// update their GUI components and/or models accordingly. Also,
+		// recording the series visibility map permits the existence of a phase
+		// change creation listener that collects phase change messages for the
+		// purpose of later being able to re-create the same phase plot.
 		PhaseChangeMessage phaseChangeMessage = new PhaseChangeMessage(this,
-				epoch, period);
+				period, epoch, seriesVisibilityMap);
 		phaseChangeNotifier.notifyListeners(phaseChangeMessage);
 
 		// Observation-and-mean table and plot.
@@ -1120,7 +1165,7 @@ public class Mediator {
 
 		analysisTypeMap.put(AnalysisType.PHASE_PLOT, phasePlotMsg);
 
-		this.analysisTypeChangeNotifier.notifyListeners(phasePlotMsg);
+		analysisTypeChangeNotifier.notifyListeners(phasePlotMsg);
 
 		return phasePlotMsg;
 	}
@@ -1268,7 +1313,7 @@ public class Mediator {
 				.getObsAndMeanChartPane();
 		TimeElementsInBinSettingPane binSettingPane = null;
 		NamedComponent extra = null;
-		
+
 		if (analysisType == AnalysisType.RAW_DATA) {
 			title = "Raw Plot Control";
 			binSettingPane = new TimeElementsInBinSettingPane(
@@ -1294,6 +1339,13 @@ public class Mediator {
 	 */
 	public void showModelDialog() {
 		modelDialog.showDialog();
+	}
+
+	/**
+	 * Open the phase plots dialog.
+	 */
+	public void showPhaseDialog() {
+		phaseDialog.showDialog();
 	}
 
 	/**

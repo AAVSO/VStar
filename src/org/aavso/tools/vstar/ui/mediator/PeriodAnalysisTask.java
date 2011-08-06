@@ -68,10 +68,6 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		MainFrame.getInstance().getStatusPane().setMessage(
 				"Performing Period Analysis...");
 		try {
-			// TODO: we should be smarter than just blindly resetting the
-			// plug-in; it only needs to be reset if a. the series
-			// changes, or b. the period analysis parameters change; we
-			// basically need a PeriodAnalysisResetMessage
 			periodAnalysisPlugin.reset();
 			periodAnalysisPlugin.executeAlgorithm(obs);
 		} catch (CancellationException e) {

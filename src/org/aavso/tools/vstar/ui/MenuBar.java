@@ -61,6 +61,7 @@ import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanType;
+import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
@@ -107,6 +108,7 @@ public class MenuBar extends JMenuBar {
 	public static final String PHASE_PLOT = "Phase Plot...";
 	public static final String POLYNOMIAL_FIT = "Polynomial Fit...";
 	public static final String MODELS = "Models...";
+	public static final String PHASE_PLOTS = "Phase Plots...";
 
 	// Tool menu item names.
 	public static final String RUN_SCRIPT = "Run Script...";
@@ -170,6 +172,7 @@ public class MenuBar extends JMenuBar {
 
 	JMenuItem analysisPolynomialFitItem;
 	JMenuItem analysisModelsItem;
+	JMenuItem analysisPhasePlotsItem;
 
 	// Tool menu.
 	JMenu toolMenu;
@@ -226,6 +229,9 @@ public class MenuBar extends JMenuBar {
 
 		this.mediator.getModelCreationNotifier().addListener(
 				createModelCreationListener());
+
+		this.mediator.getPhaseChangeNotifier().addListener(
+				createPhaseChangeListener());
 	}
 
 	private void createFileMenu() {
@@ -462,6 +468,11 @@ public class MenuBar extends JMenuBar {
 		analysisModelsItem.addActionListener(createModelsListener());
 		analysisMenu.add(analysisModelsItem);
 
+		analysisPhasePlotsItem = new JMenuItem(PHASE_PLOTS);
+		analysisPhasePlotsItem.setEnabled(false);
+		analysisPhasePlotsItem.addActionListener(createPhasePlotsListener());
+		analysisMenu.add(analysisPhasePlotsItem);
+		
 		this.add(analysisMenu);
 	}
 
@@ -960,12 +971,25 @@ public class MenuBar extends JMenuBar {
 	 */
 	public ActionListener createModelsListener() {
 		return new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				mediator.showModelDialog();
 			}
 		};
 	}
 
+	/**
+	 * Returns the action listener to be invoked for Analysis->Phase Plots...
+	 */
+	public ActionListener createPhasePlotsListener() {
+		return new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mediator.showPhaseDialog();
+			}
+		};
+	}
+	
 	// ** Tool menu listeners **
 
 	/**
@@ -1183,6 +1207,7 @@ public class MenuBar extends JMenuBar {
 				viewZoomToFitItem.setEnabled(false);
 
 				analysisModelsItem.setEnabled(false);
+				analysisPhasePlotsItem.setEnabled(false);
 			}
 
 			/**
@@ -1261,6 +1286,25 @@ public class MenuBar extends JMenuBar {
 			public void update(ModelCreationMessage info) {
 				if (!analysisModelsItem.isEnabled()) {
 					analysisModelsItem.setEnabled(true);
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	/**
+	 * Return a phase change listener.
+	 */
+	public Listener<PhaseChangeMessage> createPhaseChangeListener() {
+		return new Listener<PhaseChangeMessage>() {
+			@Override
+			public void update(PhaseChangeMessage info) {
+				if (!analysisPhasePlotsItem.isEnabled()) {
+					analysisPhasePlotsItem.setEnabled(true);
 				}
 			}
 
