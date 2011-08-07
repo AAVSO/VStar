@@ -174,7 +174,8 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 	}
 
 	/**
-	 * Return a model creation listener.
+	 * Return a model creation listener, the purpose of which is to store new
+	 * model information.
 	 */
 	public Listener<ModelCreationMessage> createModelCreationListener() {
 		return new Listener<ModelCreationMessage>() {
@@ -198,7 +199,8 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 	}
 
 	/**
-	 * Return a new star listener.
+	 * Return a new star listener, the purpose of which is to clear the
+	 * collections and disable the buttons.
 	 */
 	public Listener<NewStarMessage> createNewStarListener() {
 		return new Listener<NewStarMessage>() {
