@@ -178,7 +178,8 @@ public class PhaseDialog extends JDialog implements ListSelectionListener {
 	}
 
 	/**
-	 * Return a phase change listener.
+	 * Return a phase change listener, the purpose of which is to store new
+	 * phase plot information.
 	 */
 	public Listener<PhaseChangeMessage> createPhaseChangeListener() {
 		final PhaseDialog me = this;
@@ -186,8 +187,6 @@ public class PhaseDialog extends JDialog implements ListSelectionListener {
 			@Override
 			public void update(PhaseChangeMessage info) {
 				if (info.getSource() != me) {
-					// Create a new message owned by us using 'info' as a
-					// prototype.
 					String desc = info.toString();
 
 					if (!phaseMap.containsKey(desc)) {
@@ -207,7 +206,8 @@ public class PhaseDialog extends JDialog implements ListSelectionListener {
 	}
 
 	/**
-	 * Return a new star listener.
+	 * Return a new star listener, the purpose of which is to clear the
+	 * collections and disable the buttons.
 	 */
 	public Listener<NewStarMessage> createNewStarListener() {
 		return new Listener<NewStarMessage>() {

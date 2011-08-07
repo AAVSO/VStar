@@ -71,6 +71,8 @@ public class PhasePlotTask extends SwingWorker<Void, Void> {
 	 */
 	public void done() {
 		Mediator.getInstance().setAnalysisType(AnalysisType.PHASE_PLOT);
+		
+		Mediator.getInstance().setPhasePlotStatusMessage();
 
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);

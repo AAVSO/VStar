@@ -522,8 +522,7 @@ public class Mediator {
 	private Listener<PeriodChangeMessage> createPeriodChangeListener() {
 		return new Listener<PeriodChangeMessage>() {
 			public void update(PeriodChangeMessage info) {
-				PhaseParameterDialog phaseDialog = Mediator.getInstance()
-						.getPhaseParameterDialog();
+				PhaseParameterDialog phaseDialog = getPhaseParameterDialog();
 				phaseDialog.setPeriodField(info.getPeriod());
 				phaseDialog.showDialog();
 
@@ -582,6 +581,27 @@ public class Mediator {
 	}
 
 	/**
+	 * Create a phase plot, first asking for period and epoch.
+	 * 
+	 * The series visibility map for the phase plot is taken from the currently
+	 * visible plot (raw data or phase plot).
+	 */
+	public void createPhasePlot() {
+		PhaseParameterDialog phaseDialog = getPhaseParameterDialog();
+		phaseDialog.showDialog();
+		if (!phaseDialog.isCancelled()) {
+			double period = phaseDialog.getPeriod();
+			double epoch = phaseDialog.getEpoch();
+
+			Map<SeriesType, Boolean> seriesVisibilityMap = analysisTypeMap.get(
+					analysisType).getObsAndMeanChartPane().getObsModel()
+					.getSeriesVisibilityMap();
+
+			performPhasePlot(period, epoch, seriesVisibilityMap);
+		}
+	}
+
+	/**
 	 * Common phase plot handler.
 	 * 
 	 * @param period
@@ -596,7 +616,7 @@ public class Mediator {
 
 		PhasePlotTask task = new PhasePlotTask(period, epoch,
 				seriesVisibilityMap);
-
+		
 		try {
 			currTask = task;
 			task.execute();
@@ -749,31 +769,29 @@ public class Mediator {
 					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
 
 					if (msg == null) {
-						PhaseParameterDialog phaseDialog = Mediator
-								.getInstance().getPhaseParameterDialog();
-						phaseDialog.showDialog();
-						if (!phaseDialog.isCancelled()) {
-							double period = phaseDialog.getPeriod();
-							double epoch = phaseDialog.getEpoch();
-							AnalysisTypeChangeMessage rawDataMsg = analysisTypeMap
-									.get(AnalysisType.RAW_DATA);
-
-							Map<SeriesType, Boolean> seriesVisibilityMap = rawDataMsg
-									.getObsAndMeanChartPane().getObsModel()
-									.getSeriesVisibilityMap();
-							performPhasePlot(period, epoch, seriesVisibilityMap);
-						}
+						// PhaseParameterDialog phaseDialog = Mediator
+						// .getInstance().getPhaseParameterDialog();
+						// phaseDialog.showDialog();
+						// if (!phaseDialog.isCancelled()) {
+						// double period = phaseDialog.getPeriod();
+						// double epoch = phaseDialog.getEpoch();
+						// AnalysisTypeChangeMessage rawDataMsg =
+						// analysisTypeMap
+						// .get(AnalysisType.RAW_DATA);
+						//
+						// Map<SeriesType, Boolean> seriesVisibilityMap =
+						// rawDataMsg
+						// .getObsAndMeanChartPane().getObsModel()
+						// .getSeriesVisibilityMap();
+						// performPhasePlot(period, epoch, seriesVisibilityMap);
+						// }
+						createPhasePlot();
 					} else {
 						// Change to the existing phase plot.
 						this.analysisType = analysisType;
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
+						setPhasePlotStatusMessage();
 					}
-
-					String statusMsg = "Phase plot mode ("
-							+ this.newStarMessage.getStarInfo()
-									.getDesignation() + ")";
-					MainFrame.getInstance().getStatusPane().setMessage(
-							statusMsg);
 					break;
 				}
 			} catch (Exception e) {
@@ -783,6 +801,15 @@ public class Mediator {
 		}
 
 		return this.analysisType;
+	}
+
+	/**
+	 * Set the status bar to display phase plot information.
+	 */
+	public void setPhasePlotStatusMessage() {
+		String statusMsg = "Phase plot mode ("
+				+ this.newStarMessage.getStarInfo().getDesignation() + ")";
+		MainFrame.getInstance().getStatusPane().setMessage(statusMsg);
 	}
 
 	/**
@@ -1324,9 +1351,8 @@ public class Mediator {
 			binSettingPane = new TimeElementsInBinSettingPane(
 					"Phase Steps per Mean Series Bin", plotPane.getObsModel(),
 					PhaseTimeElementEntity.instance);
-			// TODO: remove the need for a cast!
-			extra = new NamedComponent("Phase Plot",
-					new NewPhasePlotButtonPane((PhaseAndMeanPlotPane) plotPane));
+			// extra = new NamedComponent("Phase Plot",
+			// new NewPhasePlotButtonPane((PhaseAndMeanPlotPane) plotPane));
 		}
 
 		PlotControlDialog dialog = new PlotControlDialog(title, plotPane,

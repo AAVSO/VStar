@@ -91,6 +91,8 @@ public class MenuBar extends JMenuBar {
 	public static final String EXCLUDE_SELECTION = "Exclude Selection";
 
 	// View menu item names.
+	public static final String RAW_DATA_MODE = "Raw Data";
+	public static final String PHASE_PLOT_MODE = "Phase Plot";
 	public static final String OB_DETAILS = "Observation Details...";
 	public static final String PLOT_CONTROL = "Plot Control...";
 	public static final String ZOOM_IN = "Zoom In";
@@ -104,11 +106,10 @@ public class MenuBar extends JMenuBar {
 	public static final String NO_FILTER = "No Filter";
 
 	// Analysis menu item names.
-	public static final String RAW_DATA = "Raw Data";
 	public static final String PHASE_PLOT = "Phase Plot...";
+	public static final String PHASE_PLOTS = "Previous Phase Plots...";
 	public static final String POLYNOMIAL_FIT = "Polynomial Fit...";
 	public static final String MODELS = "Models...";
-	public static final String PHASE_PLOTS = "Phase Plots...";
 
 	// Tool menu item names.
 	public static final String RUN_SCRIPT = "Run Script...";
@@ -150,6 +151,8 @@ public class MenuBar extends JMenuBar {
 	JMenuItem editExcludeSelectionItem;
 
 	// View menu.
+	JCheckBoxMenuItem viewRawDataItem;
+	JCheckBoxMenuItem viewPhasePlotItem;
 	JMenuItem viewObDetailsItem;
 	JMenuItem viewPlotControlItem;
 	JMenuItem viewZoomInItem;
@@ -164,9 +167,8 @@ public class MenuBar extends JMenuBar {
 
 	JMenu viewCustomFilterMenu;
 
-	// Analysis menu.
-	JCheckBoxMenuItem analysisRawDataItem;
-	JCheckBoxMenuItem analysisPhasePlotItem;
+	// Analysis menu.	
+	JMenuItem analysisPhasePlotItem;
 
 	JMenu analysisPeriodSearchMenu;
 
@@ -336,6 +338,18 @@ public class MenuBar extends JMenuBar {
 	private void createViewMenu() {
 		JMenu viewMenu = new JMenu("View");
 
+		viewRawDataItem = new JCheckBoxMenuItem(RAW_DATA_MODE);
+		viewRawDataItem.setEnabled(false);
+		viewRawDataItem.addActionListener(createRawDataListener());
+		viewMenu.add(viewRawDataItem);
+
+		viewPhasePlotItem = new JCheckBoxMenuItem(PHASE_PLOT_MODE);
+		viewPhasePlotItem.setEnabled(false);
+		viewPhasePlotItem.addActionListener(createPhasePlotListener());
+		viewMenu.add(viewPhasePlotItem);
+
+		viewMenu.addSeparator();
+
 		viewObDetailsItem = new JMenuItem(OB_DETAILS);
 		viewObDetailsItem.setEnabled(false);
 		viewObDetailsItem.addActionListener(createObDetailsListener());
@@ -423,16 +437,16 @@ public class MenuBar extends JMenuBar {
 	private void createAnalysisMenu() {
 		JMenu analysisMenu = new JMenu("Analysis");
 
-		analysisRawDataItem = new JCheckBoxMenuItem(RAW_DATA);
-		analysisRawDataItem.setEnabled(false);
-		analysisRawDataItem.addActionListener(createRawDataListener());
-		analysisMenu.add(analysisRawDataItem);
-
-		analysisPhasePlotItem = new JCheckBoxMenuItem(PHASE_PLOT);
+		analysisPhasePlotItem = new JMenuItem(PHASE_PLOT);
 		analysisPhasePlotItem.setEnabled(false);
-		analysisPhasePlotItem.addActionListener(createPhasePlotListener());
+		analysisPhasePlotItem.addActionListener(createCreatePhasePlotListener());
 		analysisMenu.add(analysisPhasePlotItem);
 
+		analysisPhasePlotsItem = new JMenuItem(PHASE_PLOTS);
+		analysisPhasePlotsItem.setEnabled(false);
+		analysisPhasePlotsItem.addActionListener(createPhasePlotsListener());
+		analysisMenu.add(analysisPhasePlotsItem);
+		
 		analysisMenu.addSeparator();
 
 		analysisPeriodSearchMenu = new JMenu("Period Search");
@@ -468,11 +482,6 @@ public class MenuBar extends JMenuBar {
 		analysisModelsItem.addActionListener(createModelsListener());
 		analysisMenu.add(analysisModelsItem);
 
-		analysisPhasePlotsItem = new JMenuItem(PHASE_PLOTS);
-		analysisPhasePlotsItem.setEnabled(false);
-		analysisPhasePlotsItem.addActionListener(createPhasePlotsListener());
-		analysisMenu.add(analysisPhasePlotsItem);
-		
 		this.add(analysisMenu);
 	}
 
@@ -762,6 +771,30 @@ public class MenuBar extends JMenuBar {
 	// ** View Menu listeners **
 
 	/**
+	 * Returns the action listener to be invoked for View->Raw Data
+	 */
+	public ActionListener createRawDataListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setRawDataViewMenuItemState(true); // ensure selected
+				mediator.changeAnalysisType(AnalysisType.RAW_DATA);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for View->Phase Plot
+	 */
+	public ActionListener createPhasePlotListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setPhasePlotViewMenuItemState(true); // ensure selected
+				mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
+			}
+		};
+	}
+
+	/**
 	 * Returns the action listener to be invoked for View->Observation
 	 * Details...
 	 */
@@ -918,25 +951,12 @@ public class MenuBar extends JMenuBar {
 	// ** Analysis Menu listeners **
 
 	/**
-	 * Returns the action listener to be invoked for Analysis->Raw Data
-	 */
-	public ActionListener createRawDataListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setRawDataAnalysisMenuItemState(true); // ensure selected
-				mediator.changeAnalysisType(AnalysisType.RAW_DATA);
-			}
-		};
-	}
-
-	/**
 	 * Returns the action listener to be invoked for Analysis->Phase Plot
 	 */
-	public ActionListener createPhasePlotListener() {
+	public ActionListener createCreatePhasePlotListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setPhasePlotAnalysisMenuItemState(true); // ensure selected
-				mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
+				mediator.createPhasePlot();
 			}
 		};
 	}
@@ -1154,13 +1174,13 @@ public class MenuBar extends JMenuBar {
 				switch (info.getAnalysisType()) {
 				case RAW_DATA:
 					// Flip raw/phase plot mode checkboxes.
-					setRawDataAnalysisMenuItemState(true);
-					setPhasePlotAnalysisMenuItemState(false);
+					setRawDataViewMenuItemState(true);
+					setPhasePlotViewMenuItemState(false);
 					break;
 				case PHASE_PLOT:
 					// Flip raw/phase plot mode checkboxes.
-					setRawDataAnalysisMenuItemState(false);
-					setPhasePlotAnalysisMenuItemState(true);
+					setRawDataViewMenuItemState(false);
+					setPhasePlotViewMenuItemState(true);
 					break;
 				}
 
@@ -1192,22 +1212,21 @@ public class MenuBar extends JMenuBar {
 	private Listener<NewStarMessage> createNewStarListener() {
 		return new Listener<NewStarMessage>() {
 
-			/**
-			 * New star listener update method.
-			 */
 			@Override
 			public void update(NewStarMessage msg) {
 				newStarMessage = msg;
 
 				editExcludeSelectionItem.setEnabled(false);
 
+				viewPhasePlotItem.setEnabled(false);
 				viewObDetailsItem.setEnabled(false);
 				viewZoomInItem.setEnabled(false);
 				viewZoomOutItem.setEnabled(false);
 				viewZoomToFitItem.setEnabled(false);
 
+				analysisPhasePlotItem.setEnabled(true);
 				analysisModelsItem.setEnabled(false);
-				analysisPhasePlotsItem.setEnabled(false);
+				analysisPhasePlotsItem.setEnabled(false);				
 			}
 
 			/**
@@ -1220,21 +1239,12 @@ public class MenuBar extends JMenuBar {
 		};
 	}
 
-	// TODO: also need a MultipleObservationSelectionMessage and to rename this
-	// one
-	// to SingleObservationSelectionMessage
-
 	// Returns an observation selection listener that enables certain menu
 	// items and collects information about the selection.
 	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {
 		return new Listener<ObservationSelectionMessage>() {
 			@Override
 			public void update(ObservationSelectionMessage info) {
-				// TODO: really need to distinguish between:
-				// observation selection (for obs details, filtering) and
-				// point selection (for zooming), and to do this across
-				// plot views for raw and phase plot mode.
-
 				editExcludeSelectionItem.setEnabled(true);
 
 				viewObDetailsItem.setEnabled(true);
@@ -1303,6 +1313,10 @@ public class MenuBar extends JMenuBar {
 		return new Listener<PhaseChangeMessage>() {
 			@Override
 			public void update(PhaseChangeMessage info) {
+				if (!viewPhasePlotItem.isEnabled()) {
+					viewPhasePlotItem.setEnabled(true);
+				}
+
 				if (!analysisPhasePlotsItem.isEnabled()) {
 					analysisPhasePlotsItem.setEnabled(true);
 				}
@@ -1344,8 +1358,8 @@ public class MenuBar extends JMenuBar {
 		this.viewPanUpItem.setEnabled(state);
 		this.viewPanDownItem.setEnabled(state);
 
-		this.analysisRawDataItem.setEnabled(state);
-		this.analysisPhasePlotItem.setEnabled(state);
+		this.viewRawDataItem.setEnabled(state);
+		
 		this.analysisPeriodSearchMenu.setEnabled(state);
 		for (int i = 0; i < this.analysisPeriodSearchMenu.getItemCount(); i++) {
 			this.analysisPeriodSearchMenu.getItem(i).setEnabled(state);
@@ -1356,21 +1370,21 @@ public class MenuBar extends JMenuBar {
 
 		switch (type) {
 		case RAW_DATA:
-			setRawDataAnalysisMenuItemState(true);
-			setPhasePlotAnalysisMenuItemState(false);
+			setRawDataViewMenuItemState(true);
+			setPhasePlotViewMenuItemState(false);
 			break;
 		case PHASE_PLOT:
-			setRawDataAnalysisMenuItemState(false);
-			setPhasePlotAnalysisMenuItemState(true);
+			setRawDataViewMenuItemState(false);
+			setPhasePlotViewMenuItemState(true);
 			break;
 		}
 	}
 
-	private void setRawDataAnalysisMenuItemState(boolean state) {
-		this.analysisRawDataItem.setState(state);
+	private void setRawDataViewMenuItemState(boolean state) {
+		this.viewRawDataItem.setState(state);
 	}
 
-	private void setPhasePlotAnalysisMenuItemState(boolean state) {
-		this.analysisPhasePlotItem.setState(state);
+	private void setPhasePlotViewMenuItemState(boolean state) {
+		this.viewPhasePlotItem.setState(state);
 	}
 }

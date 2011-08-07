@@ -34,6 +34,8 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * This class represents a widget containing a button that when pressed
  * will result in a new phase plot for the current dataset being generated 
  * after suitable parameter entry via a dialog.
+ * 
+ * @deprecated See View and Analysis menus for phase plot items.
  */
 public class NewPhasePlotButtonPane extends JButton {
 

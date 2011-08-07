@@ -280,14 +280,14 @@ public class ToolBar extends JPanel {
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
 		rawDataButton = new JButton(rawDataIcon);
-		rawDataButton.setToolTipText(MenuBar.RAW_DATA);
+		rawDataButton.setToolTipText(MenuBar.RAW_DATA_MODE);
 		rawDataButton.addActionListener(menuBar.createRawDataListener());
 		rawDataButton.setEnabled(false);
 		rawDataButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(rawDataButton);
 
 		phasePlotButton = new JButton(phasePlotIcon);
-		phasePlotButton.setToolTipText(MenuBar.PHASE_PLOT);
+		phasePlotButton.setToolTipText(MenuBar.PHASE_PLOT_MODE);
 		phasePlotButton.addActionListener(menuBar.createPhasePlotListener());
 		phasePlotButton.setEnabled(false);
 		phasePlotButton.setBorder(BorderFactory.createEmptyBorder());
