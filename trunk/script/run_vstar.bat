@@ -8,4 +8,4 @@ if not "%VSTAR_HOME%" == "" GOTO RUN
 set VSTAR_HOME=%~dp0
 
 :RUN 
-java -Xms25m -Xmx500m -jar "%VSTAR_HOME%\dist\vstar.jar"
+java -Xms25m -Xmx500m -jar "%VSTAR_HOME%\..\dist\vstar.jar"
