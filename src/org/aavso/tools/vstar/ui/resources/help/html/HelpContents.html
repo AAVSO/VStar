@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
  <head>
   <title>VStar Help</title>
@@ -7,7 +7,7 @@
  <body>
   <h1>VStar Help</h1>
 
-<br></br><h2>Introduction</h2>
+<h2>Introduction</h2>
 
 <p>VStar is a multi-platform, easy-to-use variable star data visualization and 
 analysis tool.</p>
@@ -32,7 +32,7 @@ analysis tool.</p>
 <p>In its default configuration, VStar allows data to be loaded from one of two 
 file formats or from the AAVSO International Database (AID).</p>
 
-<br></br><h2>Loading Observation Data from a File</h2>
+<h2>Loading Observation Data from a File</h2>
 
 <p>Selecting <code>New Star from File...</code> from the File menu or clicking
 the equivalent toolbar icon opens a file dialog from which a file of one of two
@@ -56,7 +56,7 @@ in a separate split pane. Such invalid observations will not appear on any plot.
 
 <p>VStar detects the file's format from its content.</p>
 
-<br></br><h2>Loading Observation Data from AID</h2>
+<h2>Loading Observation Data from AID</h2>
 
 <p>In order to load observations from the AID, you will first need to have a
 Citizen Sky account which may be obtained for free from
@@ -74,7 +74,7 @@ the Julian Day range (or all data; take care: this may result in a lot of data b
 retrieved), the data for the star's observations within that range are loaded, and 
 charts and tables for the data, including means, are created.</p>
 
-<br/><br/><h2>Observation Details</h2>
+<h2>Observation Details</h2>
 
 <p>By selecting an observation datapoint in a plot with the mouse and clicking the 
 <code>Observation Details...</code> toolbar button or View menu item,
@@ -82,14 +82,14 @@ a dialog is opened with details regarding the observation. This dialog also allo
 an observation to be marked as discrepant and optionally to send a report to AAVSO.
 See the Zapper link below for more information about discrepant observations.</p>
 
-<br></br><h2>Plot Zoom</h2>
+<h2>Plot Zoom</h2>
 
 <p>Apart from zooming by selecting a bounding box in a plot, or via a chart's 
 pop-up menu items, simple zoom in/out View menu items and toolbar buttons are provided.
 In order to use the latter, you must first select a point on the plot with the mouse.
 This point becomes the focus of subsequent zoom operations.</p>
 
-<br></br><h2>Plot Panning</h2>
+<h2>Plot Panning</h2>
 
 <p>Selecting <code>Pan Left</code>, <code>Pan Right</code>, <code>Pan Up</code>, 
 or <code>Pan Down</code> from the <code>View</code> menu (or more likely, using 
@@ -98,10 +98,10 @@ the corresponding toolbar buttons) will cause the domain (JD, phase) or range
 has been applied to a plot and you want to view surrounding data points.</p>
 
 <p><em>When panning left or right to the limit of the available data, selecting 
-<codePan Left</code> or <code>Pan Right</code>, accordingly, currently has no further 
-effect.</p>
+</em><code>Pan Left</code><em> or </em><code>Pan Right</code><em>, accordingly, 
+currently has no further effect.</em></p>
 
-<br></br><h2>Phase Plots</h2>
+<h2>Phase Plots</h2>
 
 <p>Selecting <code>Phase Plot...</code> from the Analysis menu or clicking the 
 corresponding button from the toolbar opens a dialog box into which you can enter 
@@ -117,7 +117,7 @@ both plots and tables. Selecting <code>Raw Data</code> from the Analysis menu wi
 switch back to raw data (light curve) mode. To create a new phase plot, see the
 <em>Plot Control</em> section.</p>
 
-<br></br><h2>Plot Control</h2>
+<h2>Plot Control</h2>
 
 <p>Selecting the <code>Plot Control...</code> toolbar button or View menu item opens
 a dialog that permits features of the light curve or phase plots to be changed:</p>
@@ -133,7 +133,7 @@ a dialog that permits features of the light curve or phase plots to be changed:<
 <p>In phase plot mode, a <code>New Phase Plot</code> button is included in the dialog
 to change the period or epoch and generate a new phase plot.</p>
 
-<br></br><h2>Observation Filtering</h2>
+<h2>Observation Filtering</h2>
 
 <p>Selecting the View menu's <code>Filter...</code> item or the corresponding toolbar 
 button opens an observation filter dialog that permits one or more "matchers" to be
@@ -154,7 +154,7 @@ has been selected with the cross-hairs.</p>
 
 <p>See also the <em>Create your own plug-in!</em> section.</p>
 
-<br></br><h2>Period Search</h2>
+<h2>Period Search</h2>
 
 <p>Selecting an item from the <code>Analysis->Period Search</code> sub-menu 
 performs a period analysis on the loaded dataset. This uses the current mean source 
@@ -174,7 +174,7 @@ possibilities in future are: WWZ, AoV (analysis of variance), Fast Chi Square.</
 
 <p>See also the <em>Create your own plug-in!</em> section.</p>
  
-<br></br><h2>Polynomial Fit</h2>
+<h2>Polynomial Fit</h2>
 
 <p>By selecting <code>Analysis->Polynomial Fit</code>, a polynomial of a particular 
 degree will be created in an attempt to fit (i.e. model) the currently loaded 
@@ -189,7 +189,7 @@ light curve pane.</p>
 <p><em>A more complete integration of polynomial fit, including the option of saving
 residuals and fit coefficients will be added in future.</em></p>
 
-<br></br><h2>Saving Plots and Tables</h2>
+<h2>Saving Plots and Tables</h2>
 
 <p>Any chart can be saved as a PNG file via the File menu's <code>Save...</code>
 item or the equivalent toolbar icon.</p>
@@ -199,12 +199,12 @@ item or the equivalent toolbar icon.</p>
 may also be needed is to save not just the data, but also the parameters that lead 
 to it.</i></p>
 
-<br></br><h2>Printing Plots and Tables</h2>
+<h2>Printing Plots and Tables</h2>
 
 <p>Any chart or data table can be printed via the File menu's <code>Print...</code>
 item or the equivalent toolbar icon.</p>
 
-<br></br><h2>Setting Preferences</h2>
+<h2>Setting Preferences</h2>
 
 <p>Preferences can be set via the File menu's <code>Preferences...</code> item
 or the equivalent toolbar icon.</p>
@@ -215,7 +215,7 @@ or the equivalent toolbar icon.</p>
 
 <p>Other preferences will be added over time.</p>
 
-<br></br><h2>Create your own plug-in!</h2>
+<h2>Create your own plug-in!</h2>
 
 <p>VStar's functionality can be extended by developing Java plug-ins for:</p>
 
@@ -228,7 +228,7 @@ or the equivalent toolbar icon.</p>
 among other things. For more information see the Citizen Sky or AAVSO VStar web pages 
 (see <em>Links</em> section below).
 
-<br/><br/><h2>Authentication</h2>
+<h2>Authentication</h2>
 
 <p>Note that as of version 2.10, authentication via login dialog only happens when 
 reporting an observation as discrepant (to validate your AAVSO or Citizen Sky 
@@ -238,7 +238,7 @@ is from the AID.</p>
 <p>For a given run of VStar, you need to enter your Citizen Sky credentials
 only once.</p>
 
-<br></br><h2>License and Source Code</h2>
+<h2>License and Source Code</h2>
 
 <p>VStar is licensed under the
 <a href="http://www.gnu.org/licenses/agpl-3.0-standalone.html">GNU Affero
@@ -250,7 +250,7 @@ VStar SourceForge repository at:
 source code and licensing.</p>
 
 <ul>
-    <li>Commons Math</li>
+    <li>Commons Math<br>
     <a href="http://commons.apache.org/math/">
     http://commons.apache.org/math/</a><br>
     <a href="http://commons.apache.org/license.html">
@@ -274,12 +274,12 @@ source code and licensing.</p>
     <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt">GNU General
     Public License, version 2</a></li>
     
-    <li>Toolbar Icons<br/>
-    nico-camargo-toolbar-icons-3.0.jar<br/>
+    <li>Toolbar Icons<br>
+    nico-camargo-toolbar-icons-3.0.jar<br>
     Toolbar icons created by Citizen Sky participant, Nico Camargo.</li>
 </ul>
 
-<br></br><h2>Links</h2>
+<h2>Links</h2>
   <ul>
    <li><a href="http://www.citizensky.org/content/vstar">Citizen Sky VStar Page</a></li>
    <li><a href="http://www.aavso.org/vstar-overview/">AAVSO VStar overview Page</a></li>
