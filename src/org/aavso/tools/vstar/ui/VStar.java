@@ -23,12 +23,15 @@ import java.security.Policy;
 import javax.swing.UIManager;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.property.ApplicationProperties;
 
 /**
  * The VStar GUI.
  */
 public class VStar {
+
+	private static boolean loadPlugins = true;
 
 	public static void main(String[] args) {
 		// Apply VStar Java policy for all code.
@@ -57,6 +60,13 @@ public class VStar {
 		} catch (Exception e) {
 			System.err.println("Unable to set native look & feel. Exiting.");
 			System.exit(1);
+		}
+
+		processCmdLineArgs(args);
+		
+		if (loadPlugins) {
+			// Load plugins, if any exist and plugin loading is enabled.
+			PluginLoader.loadPlugins();
 		}
 
 		// Schedule a job for the event-dispatching thread:
@@ -101,6 +111,21 @@ public class VStar {
 					new Thread(shutdownTask, "Application shutdown task"));
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(), "Error", t);
+		}
+	}
+
+	/**
+	 * Process the command-line arguments. Note: If we do anything more complex
+	 * than this, consideration should be given to using a library such as:
+	 * http://commons.apache.org/cli/
+	 * 
+	 * @param args The command-line arguments; may be empty.
+	 */
+	private static void processCmdLineArgs(String[] args) {
+		for (String arg : args) {
+			if ("--noplugins".equals(arg)) {
+				loadPlugins = false;
+			}
 		}
 	}
 }
