@@ -41,6 +41,9 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
  */
 public class PluginLoader {
 
+	// List to store plugins, if any exist.
+	private static List<PluginBase> plugins = new ArrayList<PluginBase>();
+
 	// The full path to the plugin directory.
 	private final static String PLUGIN_DIR_PATH = System
 			.getProperty("user.home")
@@ -62,7 +65,7 @@ public class PluginLoader {
 		periodAnalysisPlugins.add(new DcDftFrequencyRangePeriodAnalysisPlugin());
 		
 		// Next, add all external period analysis plugins.
-		for (PluginBase plugin : loadPlugins()) {
+		for (PluginBase plugin : plugins) {
 			if (plugin instanceof PeriodAnalysisPluginBase) {
 				periodAnalysisPlugins.add((PeriodAnalysisPluginBase) plugin);
 			}
@@ -77,7 +80,7 @@ public class PluginLoader {
 	public static List<ObservationToolPluginBase> getObservationToolPlugins() {
 		List<ObservationToolPluginBase> toolPlugins = new ArrayList<ObservationToolPluginBase>();
 
-		for (PluginBase plugin : loadPlugins()) {
+		for (PluginBase plugin : plugins) {
 			if (plugin instanceof ObservationToolPluginBase) {
 				toolPlugins.add((ObservationToolPluginBase) plugin);
 			}
@@ -92,7 +95,7 @@ public class PluginLoader {
 	public static List<GeneralToolPluginBase> getGeneralToolPlugins() {
 		List<GeneralToolPluginBase> toolPlugins = new ArrayList<GeneralToolPluginBase>();
 
-		for (PluginBase plugin : loadPlugins()) {
+		for (PluginBase plugin : plugins) {
 			if (plugin instanceof GeneralToolPluginBase) {
 				toolPlugins.add((GeneralToolPluginBase) plugin);
 			}
@@ -107,7 +110,7 @@ public class PluginLoader {
 	public static List<CustomFilterPluginBase> getCustomFilterPlugins() {
 		List<CustomFilterPluginBase> customFilterPlugins = new ArrayList<CustomFilterPluginBase>();
 
-		for (PluginBase plugin : loadPlugins()) {
+		for (PluginBase plugin : plugins) {
 			if (plugin instanceof CustomFilterPluginBase) {
 				customFilterPlugins.add((CustomFilterPluginBase) plugin);
 			}
@@ -122,7 +125,7 @@ public class PluginLoader {
 	public static List<ObservationSourcePluginBase> getObservationSourcePlugins() {
 		List<ObservationSourcePluginBase> obSourcePlugins = new ArrayList<ObservationSourcePluginBase>();
 
-		for (PluginBase plugin : loadPlugins()) {
+		for (PluginBase plugin : plugins) {
 			if (plugin instanceof ObservationSourcePluginBase) {
 				obSourcePlugins.add((ObservationSourcePluginBase) plugin);
 			}
@@ -132,9 +135,9 @@ public class PluginLoader {
 	}
 
 	/**
-	 * Load and return all VStar plugins and create an instance of each.
+	 * Load all VStar plugins and create an instance of each.
 	 */
-	private static List<PluginBase> loadPlugins() {
+	public static void loadPlugins() {
 
 		FilenameFilter jarFilter = new FilenameFilter() {
 			public boolean accept(File dir, String name) {
@@ -159,8 +162,7 @@ public class PluginLoader {
 			}
 		}
 
-		// Locate plugins, if any exist.
-		List<PluginBase> plugins = new ArrayList<PluginBase>();
+		// Locate and store plugins, if any exist.
 
 		File pluginPath = new File(PLUGIN_DIR_PATH);
 		if (pluginPath.exists() && pluginPath.isDirectory()) {
@@ -195,7 +197,7 @@ public class PluginLoader {
 									null,
 									"Plugin Loader",
 									qualifiedClassName
-											+ " is not an instance of PeriodAnalysisPluginBase");
+											+ " is not an instance of PluginBase");
 				} catch (NoClassDefFoundError e) {
 					MessageBox.showErrorDialog(null, "Plugin Loader",
 							"A class required by " + qualifiedClassName
@@ -207,8 +209,6 @@ public class PluginLoader {
 				}
 			}
 		}
-
-		return plugins;
 	}
 
 	/**
