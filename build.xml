@@ -47,7 +47,7 @@
 	<!-- Build targets -->
 
 	<target name="compile_src" depends="init" description="Compile the source">
-		<!-- Update svn revision -->
+                <!-- Update svn revision -->
 		<exec outputproperty="svn_revision" executable="svnversion">
 			<arg value="-n" />
 		</exec>
@@ -118,6 +118,8 @@
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
 			<zipfileset file="FAQ.txt" prefix="vstar" />
 			<zipfileset file="ChangeLog.txt" prefix="vstar" />
+                        <zipfileset file="vstar" prefix="vstar" />
+			<zipfileset file="vstar.bat" prefix="vstar" />
 		</zip>
 	</target>
 
