@@ -26,7 +26,7 @@ package org.aavso.tools.vstar.util.period.wwz;
  * 
  * @see org.aavso.tools.vstar.util.period.wwz.WeightedWaveletTransform
  */
-public class WWZDataPoint {
+public class WWZStatistic {
 
 	/** The time being examined, in time units. */
 	private double tau;
@@ -76,7 +76,7 @@ public class WWZDataPoint {
 	 * @param neff
 	 *            The effective number of data for the given time and frequency.
 	 */
-	public WWZDataPoint(double tau, double freq, double wwz, double amp,
+	public WWZStatistic(double tau, double freq, double wwz, double amp,
 			double mave, double neff) {
 		this.tau = tau;
 		this.freq = freq;
@@ -139,8 +139,8 @@ public class WWZDataPoint {
 	public boolean equals(Object other) {
 		boolean isEqual = false;
 
-		if (other instanceof WWZDataPoint) {
-			WWZDataPoint that = (WWZDataPoint) other;
+		if (other instanceof WWZStatistic) {
+			WWZStatistic that = (WWZStatistic) other;
 			isEqual = this.tau == that.tau && this.freq == that.freq
 					&& this.wwz == that.wwz && this.amp == that.amp
 					&& this.mave == that.mave && this.neff == that.neff;

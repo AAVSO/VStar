@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.util.period.wwz;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -52,8 +53,12 @@ import org.aavso.tools.vstar.util.IAlgorithm;
  */
 public class WeightedWaveletTransform implements IAlgorithm {
 	// TODO: ultimately, we should be able to lift this limit, but
-	// on the other hand, we are unlikely to be able load that much data anyway.
+	// on the other hand, we are unlikely to be able load that much data anyway;
+	// at least adjust according to data set!
 	private final static int MAX_DATA_POINTS = 100000;
+
+	private List<WWZStatistic> stats;
+	private List<WWZStatistic> maximalStats;
 
 	// private String choice;
 	// private double damp;
@@ -154,6 +159,9 @@ public class WeightedWaveletTransform implements IAlgorithm {
 		df = deltaFreq;
 		dcon = decay;
 
+		stats = new ArrayList<WWZStatistic>();
+		maximalStats = new ArrayList<WWZStatistic>();
+
 		maketau();
 		makefreq();
 	}
@@ -197,6 +205,20 @@ public class WeightedWaveletTransform implements IAlgorithm {
 		// writehead();
 		wwt();
 		// write(6,*) "Program complete!"
+	}
+
+	/**
+	 * @return the stats
+	 */
+	public List<WWZStatistic> getStats() {
+		return stats;
+	}
+
+	/**
+	 * @return the maximalStats
+	 */
+	public List<WWZStatistic> getMaximalStats() {
+		return maximalStats;
 	}
 
 	// subroutine dataread
@@ -351,6 +373,9 @@ public class WeightedWaveletTransform implements IAlgorithm {
 		// print*,'delta f'
 
 		// read*,df
+
+		// TODO: guard against 0 frequency, initially throw exception, but later
+		// in UI
 
 		nfreq = (int) ((fhi - flo) / df) + 1;
 
@@ -561,6 +586,8 @@ public class WeightedWaveletTransform implements IAlgorithm {
 
 		boolean dzIsGreaterThantZero = false;
 
+		WWZStatistic maximalStat = null;
+		
 		for (itau = itau1; itau <= itau2 && !dzIsGreaterThantZero; itau++) {
 			nstart = 1;
 			dtau = tau[itau];
@@ -659,6 +686,7 @@ public class WeightedWaveletTransform implements IAlgorithm {
 					dpower = 0.0;
 					damp = 0.0;
 					if (dneff < 1.0e-9)
+						// TODO: this looks like a bug! should be dneff
 						dnefff = 0.0;
 				}
 				if (damp < 1.0e-9)
@@ -671,8 +699,12 @@ public class WeightedWaveletTransform implements IAlgorithm {
 				// now, write everything out -- one write per frequency per
 				// tau...
 				// write(2,205) dtau,dfre,dpowz,damp,dcoef(0),dneff
-
 				// 205 format(f12.4,2x,f10.7,4(2x,f11.4))
+				
+				WWZStatistic stat = new WWZStatistic(dtau, dfre, dpowz, damp, dcoef[0],
+						dneff); 
+				
+				stats.add(stat);
 
 				if (dpowz > dmz) {
 					dmz = dpowz;
@@ -682,11 +714,15 @@ public class WeightedWaveletTransform implements IAlgorithm {
 					dmamp = damp;
 					dmcon = dcoef[0];
 					dmneff = dneff;
+					maximalStat = stat;
 				}
 			}
-			// TODO: may just want to store indices of these maximal data points
 			// write(3,206) dtau,dmper,dmamp,dmcon,dmfre,dmz,dmneff
 			// 206 format(f13.4,f11.4,f14.4,f11.4,f11.7,2(f11.4))
+			
+			if (maximalStat != null) {
+				maximalStats.add(maximalStat);
+			}
 		}
 	}
 }
