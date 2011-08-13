@@ -24,6 +24,7 @@ import java.util.Map;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.DelCepData;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
@@ -3182,7 +3183,7 @@ public class DcDftTest extends DelCepData {
 	 * Test the execute method which performs a "standard scan" DC DFT on the data. We test a
 	 * subset of the results.
 	 */
-	public void testExecute() {
+	public void testExecute() throws AlgorithmError {
 		TSDcDft dcdft = new TSDcDft(
 				observations);
 		dcdft.execute();

@@ -70,18 +70,18 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 	public void testRefineFirstFreq() {
 		// Perform a standard scan.
 		TSDcDft dcdft = new TSDcDft(obs);
-		dcdft.execute();
-
-		// Apply CLEANest to top-hit frequency.
-		double topFreq = dcdft.getTopHits().get(
-				PeriodAnalysisCoordinateType.FREQUENCY).get(0);
-
-		assertEquals("0.002295", String.format("%1.6f", topFreq));
-
-		List<Double> freqs = new ArrayList<Double>();
-		freqs.add(topFreq);
-
 		try {
+			dcdft.execute();
+
+			// Apply CLEANest to top-hit frequency.
+			double topFreq = dcdft.getTopHits().get(
+					PeriodAnalysisCoordinateType.FREQUENCY).get(0);
+
+			assertEquals("0.002295", String.format("%1.6f", topFreq));
+
+			List<Double> freqs = new ArrayList<Double>();
+			freqs.add(topFreq);
+
 			dcdft.cleanest(freqs, null, null, null);
 
 			// Now check the new top-hit period and power.
@@ -118,18 +118,18 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 	public void testRefineFirstFreqWithEmptyVarAndLockedPeriods() {
 		// Perform a standard scan.
 		TSDcDft dcdft = new TSDcDft(obs);
-		dcdft.execute();
-
-		// Apply CLEANest to top-hit frequency.
-		double topFreq = dcdft.getTopHits().get(
-				PeriodAnalysisCoordinateType.FREQUENCY).get(0);
-
-		assertEquals("0.002295", String.format("%1.6f", topFreq));
-
-		List<Double> freqs = new ArrayList<Double>();
-		freqs.add(topFreq);
-
 		try {
+			dcdft.execute();
+
+			// Apply CLEANest to top-hit frequency.
+			double topFreq = dcdft.getTopHits().get(
+					PeriodAnalysisCoordinateType.FREQUENCY).get(0);
+
+			assertEquals("0.002295", String.format("%1.6f", topFreq));
+
+			List<Double> freqs = new ArrayList<Double>();
+			freqs.add(topFreq);
+
 			dcdft.cleanest(freqs, new ArrayList<Integer>(),
 					new ArrayList<Double>(), new ArrayList<Double>());
 
@@ -183,22 +183,22 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 	public void testRefineTwoFreqs() {
 		// Perform a standard scan.
 		TSDcDft dcdft = new TSDcDft(obs);
-		dcdft.execute();
-
-		// Apply CLEANest to topmost two top-hit frequencies.
-		double topFreq1 = dcdft.getTopHits().get(
-				PeriodAnalysisCoordinateType.FREQUENCY).get(0);
-		assertEquals("0.002295", String.format("%1.6f", topFreq1));
-
-		double topFreq2 = dcdft.getTopHits().get(
-				PeriodAnalysisCoordinateType.FREQUENCY).get(1);
-		assertEquals("0.002739", String.format("%1.6f", topFreq2));
-
-		List<Double> freqs = new ArrayList<Double>();
-		freqs.add(topFreq1);
-		freqs.add(topFreq2);
-
 		try {
+			dcdft.execute();
+
+			// Apply CLEANest to topmost two top-hit frequencies.
+			double topFreq1 = dcdft.getTopHits().get(
+					PeriodAnalysisCoordinateType.FREQUENCY).get(0);
+			assertEquals("0.002295", String.format("%1.6f", topFreq1));
+
+			double topFreq2 = dcdft.getTopHits().get(
+					PeriodAnalysisCoordinateType.FREQUENCY).get(1);
+			assertEquals("0.002739", String.format("%1.6f", topFreq2));
+
+			List<Double> freqs = new ArrayList<Double>();
+			freqs.add(topFreq1);
+			freqs.add(topFreq2);
+
 			dcdft.cleanest(freqs, null, null, null);
 
 			// Now check the new first few top-hits (period and power).
@@ -247,20 +247,20 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 	public void testRefineOneFreqAndOneVariablePeriod() {
 		// Perform a standard scan.
 		TSDcDft dcdft = new TSDcDft(obs);
-		dcdft.execute();
-
-		// Apply CLEANest to topmost two top-hit frequencies.
-		double topFreq1 = dcdft.getTopHits().get(
-				PeriodAnalysisCoordinateType.FREQUENCY).get(0);
-		assertEquals("0.002295", String.format("%1.6f", topFreq1));
-
-		List<Double> freqs = new ArrayList<Double>();
-		freqs.add(topFreq1);
-
-		List<Double> varPeriods = new ArrayList<Double>();
-		varPeriods.add(123.5);
-
 		try {
+			dcdft.execute();
+
+			// Apply CLEANest to topmost two top-hit frequencies.
+			double topFreq1 = dcdft.getTopHits().get(
+					PeriodAnalysisCoordinateType.FREQUENCY).get(0);
+			assertEquals("0.002295", String.format("%1.6f", topFreq1));
+
+			List<Double> freqs = new ArrayList<Double>();
+			freqs.add(topFreq1);
+
+			List<Double> varPeriods = new ArrayList<Double>();
+			varPeriods.add(123.5);
+
 			dcdft.cleanest(freqs, null, varPeriods, null);
 
 			// Now check the new first few top-hits (period and power).
@@ -309,20 +309,20 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 	public void testRefineOneFreqAndOneLockedPeriod() {
 		// Perform a standard scan.
 		TSDcDft dcdft = new TSDcDft(obs);
-		dcdft.execute();
-
-		// Apply CLEANest to topmost two top-hit frequencies.
-		double topFreq1 = dcdft.getTopHits().get(
-				PeriodAnalysisCoordinateType.FREQUENCY).get(0);
-		assertEquals("0.002295", String.format("%1.6f", topFreq1));
-
-		List<Double> freqs = new ArrayList<Double>();
-		freqs.add(topFreq1);
-
-		List<Double> lockedPeriods = new ArrayList<Double>();
-		lockedPeriods.add(123.5);
-
 		try {
+			dcdft.execute();
+
+			// Apply CLEANest to topmost two top-hit frequencies.
+			double topFreq1 = dcdft.getTopHits().get(
+					PeriodAnalysisCoordinateType.FREQUENCY).get(0);
+			assertEquals("0.002295", String.format("%1.6f", topFreq1));
+
+			List<Double> freqs = new ArrayList<Double>();
+			freqs.add(topFreq1);
+
+			List<Double> lockedPeriods = new ArrayList<Double>();
+			lockedPeriods.add(123.5);
+
 			dcdft.cleanest(freqs, null, null, lockedPeriods);
 
 			// Now check the new first few top-hits (period and power).

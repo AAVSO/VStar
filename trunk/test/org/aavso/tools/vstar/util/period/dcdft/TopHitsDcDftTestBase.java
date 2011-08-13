@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.util.period.dcdft;
 import java.util.List;
 import java.util.Map;
 
+import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
@@ -49,8 +50,12 @@ public class TopHitsDcDftTestBase extends DataTestBase {
 	protected void commonTest(TSDcDft dcdft, double[] expectedPeriods,
 			double[] expectedPowers) {
 
-		dcdft.execute();
-		checkTopHitsTable(dcdft, expectedPeriods, expectedPowers);
+		try {
+			dcdft.execute();
+			checkTopHitsTable(dcdft, expectedPeriods, expectedPowers);
+		} catch (AlgorithmError e) {
+			fail();
+		}
 	}
 
 	// Check the expected periods and powers against the top hits.

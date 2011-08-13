@@ -260,7 +260,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 * Perform a "standard scan" or "frequency range" based DC DFT, a date
 	 * compensated discrete Fourier transform.
 	 */
-	public void execute() {
+	@Override
+	public void execute() throws AlgorithmError {
 		dcdft();
 		// TODO: why is this statcomp() here!?
 		// In TS, it's called only after the Fourier menu has been exited!
