@@ -111,15 +111,14 @@
 				<exclude name="slides/**" />
 			</zipfileset>
 			<zipfileset dir="${plugin}" prefix="vstar/plugin" />
-			<zipfileset dir="${script}" includes="run_vstar.*" prefix="vstar/script" filemode="755"/>
 			<zipfileset dir="data" prefix="vstar/data" />
+            <zipfileset file="vstar" prefix="vstar" filemode="755" />
+			<zipfileset file="vstar.bat" prefix="vstar" />
 			<zipfileset file="vstar.jnlp" prefix="vstar" />
 			<zipfileset file="vstar.jnlp.txt" prefix="vstar" />			
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
 			<zipfileset file="FAQ.txt" prefix="vstar" />
 			<zipfileset file="ChangeLog.txt" prefix="vstar" />
-            <zipfileset file="vstar" prefix="vstar" />
-			<zipfileset file="vstar.bat" prefix="vstar" />
 		</zip>
 	</target>
 

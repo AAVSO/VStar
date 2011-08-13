@@ -29,21 +29,24 @@ VStar can be launched by:
 
 o Double-clicking the vstar.jar file icon (dist/vstar.jar)
 o Typing: java -jar dist/vstar.jar (Unix) or java -jar dist\vstar.jar (DOS)
-o Typing: ./script/run_vstar.sh (Unix) or script\run_vstar.bat (DOS)
+o Typing: ./vstar (Unix) or vstar.bat (or vstar) (DOS)
   See those script/batch files for more details. The main benefit of the
   scripts is that they run VStar with the same memory allocation parameters
   as for WebStart (see below), permitting bigger/more datasets to be loaded.
-  They require the VSTAR_HOME environment to be set.
+  Your operating system may also allow you to double-click the icons for these
+  script files.
 o Typing: ant run
   This option is intended for developers. Type ant -p for more details.
+  See also "Building from source" below for more details.
 
-The easiest way to run VStar is by clicking on the Java WebStart (TM) link
-on the Citizen Sky or VStar SourceForge web sites:
+The easiest way to obtain and run the latest version of VStar is by clicking on
+the Java WebStart (TM) link on the Citizen Sky or VStar SourceForge web sites:
 
 o Go to http://www.citizensky.org/teams/vstar-software-development
 o Click on the "Download VStar Now" button
+o Alternatively, see http://www.aavso.org/vstar-overview
 
-Directions for using the WebStart version of VStar are on the same web page. 
+Directions for using the WebStart version of VStar are on these web pages. 
 Launching VStar via WebStart means that you will always have the most up-to-
 date version of VStar.
 
@@ -57,7 +60,7 @@ data file in VStar:
    and plot views.
 
 If you started VStar via WebStart rather than obtaining the distribution
-via SourceForge, this sample data file and others are available here:
+via SourceForge, the latest example data files are available here:
 
   http://vstar.svn.sourceforge.net/viewvc/vstar/trunk/data/
   
