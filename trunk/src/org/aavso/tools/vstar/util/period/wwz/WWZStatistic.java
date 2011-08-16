@@ -24,7 +24,7 @@ package org.aavso.tools.vstar.util.period.wwz;
  * The comments for each data member below are taken from the WWZ
  * documemntation, (C) AAVSO.
  * 
- * @see org.aavso.tools.vstar.util.period.wwz.WeightedWaveletTransform
+ * @see org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform
  */
 public class WWZStatistic {
 
