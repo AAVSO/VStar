@@ -51,7 +51,7 @@ import org.aavso.tools.vstar.util.IAlgorithm;
  * Observers; all rights reserved.
  * </p>
  */
-public class WeightedWaveletTransform implements IAlgorithm {
+public class WeightedWaveletZTransform implements IAlgorithm {
 	// TODO: ultimately, we should be able to lift this limit, but
 	// on the other hand, we are unlikely to be able load that much data anyway;
 	// at least adjust according to data set!
@@ -149,7 +149,7 @@ public class WeightedWaveletTransform implements IAlgorithm {
 	 *            The decay constant of the wavelet window. This determines how
 	 *            wide the window is. Smaller values yield wider windows.
 	 */
-	public WeightedWaveletTransform(List<ValidObservation> observations,
+	public WeightedWaveletZTransform(List<ValidObservation> observations,
 			double minFreq, double maxFreq, double deltaFreq, double decay) {
 
 		dataread(observations);
@@ -176,7 +176,7 @@ public class WeightedWaveletTransform implements IAlgorithm {
 	 * @param maxFreq
 	 *            The maximum frequency to test.
 	 */
-	public WeightedWaveletTransform(List<ValidObservation> observations,
+	public WeightedWaveletZTransform(List<ValidObservation> observations,
 			double minFreq, double maxFreq, double deltaFreq) {
 		this(observations, minFreq, maxFreq, deltaFreq, 0.001);
 	}
@@ -250,7 +250,7 @@ public class WeightedWaveletTransform implements IAlgorithm {
 
 		// open[unit=1,file=filen][status='old']
 		numdat = 0;
-		for (int i = 1; i <= MAX_DATA_POINTS; i++) {
+		for (int i = 1; i <= observations.size(); i++) {
 			// read(1,*,end=999)dt(i),dx(i)
 			ValidObservation ob = observations.get(i - 1);
 			dt[i] = ob.getJD();
@@ -375,7 +375,7 @@ public class WeightedWaveletTransform implements IAlgorithm {
 		// read*,df
 
 		// TODO: guard against 0 frequency, initially throw exception, but later
-		// in UI
+		// in UI; then assert non-zero here; we'll get NaNs with 0.
 
 		nfreq = (int) ((fhi - flo) / df) + 1;
 
@@ -584,16 +584,18 @@ public class WeightedWaveletTransform implements IAlgorithm {
 		int ifreq2 = nfreq;
 		int nstart = 1;
 
-		boolean dzIsGreaterThantZero = false;
-
-		WWZStatistic maximalStat = null;
-		
-		for (itau = itau1; itau <= itau2 && !dzIsGreaterThantZero; itau++) {
+		for (itau = itau1; itau <= itau2; itau++) {
 			nstart = 1;
 			dtau = tau[itau];
 
-			dmz = 0.0;
-			for (ifreq = ifreq1; ifreq <= ifreq2 && !dzIsGreaterThantZero; ifreq++) {
+			// Initialise maximal stat values at the start of each tau.
+			dmfre = 0.0;
+			dmamp = 0.0;
+			dmcon = 0.0;
+			dmneff = 0.0;
+			dmz = -1.0; // less than the smallest WWZ
+
+			for (ifreq = ifreq1; ifreq <= ifreq2; ifreq++) {
 				dfre = freq[ifreq];
 				domega = dfre * twopi;
 				for (int i = 0; i <= ndim; i++) {
@@ -603,6 +605,8 @@ public class WeightedWaveletTransform implements IAlgorithm {
 					}
 				}
 				dweight2 = 0.0;
+
+				boolean dzIsGreaterThantZero = false;
 
 				for (idat = nstart; idat <= numdat && !dzIsGreaterThantZero; idat++) {
 					dz = domega * (dt[idat] - dtau);
@@ -687,7 +691,8 @@ public class WeightedWaveletTransform implements IAlgorithm {
 					damp = 0.0;
 					if (dneff < 1.0e-9)
 						// TODO: this looks like a bug! should be dneff
-						dnefff = 0.0;
+//						dnefff = 0.0;
+						dneff = 0.0;
 				}
 				if (damp < 1.0e-9)
 					damp = 0.0;
@@ -700,10 +705,10 @@ public class WeightedWaveletTransform implements IAlgorithm {
 				// tau...
 				// write(2,205) dtau,dfre,dpowz,damp,dcoef(0),dneff
 				// 205 format(f12.4,2x,f10.7,4(2x,f11.4))
-				
-				WWZStatistic stat = new WWZStatistic(dtau, dfre, dpowz, damp, dcoef[0],
-						dneff); 
-				
+
+				WWZStatistic stat = new WWZStatistic(dtau, dfre, dpowz, damp,
+						dcoef[0], dneff);
+
 				stats.add(stat);
 
 				if (dpowz > dmz) {
@@ -714,15 +719,15 @@ public class WeightedWaveletTransform implements IAlgorithm {
 					dmamp = damp;
 					dmcon = dcoef[0];
 					dmneff = dneff;
-					maximalStat = stat;
 				}
 			}
 			// write(3,206) dtau,dmper,dmamp,dmcon,dmfre,dmz,dmneff
 			// 206 format(f13.4,f11.4,f14.4,f11.4,f11.7,2(f11.4))
+
+			WWZStatistic maximalStat = new WWZStatistic(dtau, dmfre, dmz,
+					dmamp, dmcon, dmneff);
 			
-			if (maximalStat != null) {
-				maximalStats.add(maximalStat);
-			}
+			maximalStats.add(maximalStat);
 		}
 	}
 }
