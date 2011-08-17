@@ -43,7 +43,7 @@ import java.util.List;
  * </p>
  */
 public class TUmi2420000To2425000ExpectedWWZ {
-	
+
 	/**
 	 * Return the data as a list of WWZ stats.
 	 */
