@@ -616,7 +616,7 @@ public class Mediator {
 
 		PhasePlotTask task = new PhasePlotTask(period, epoch,
 				seriesVisibilityMap);
-		
+
 		try {
 			currTask = task;
 			task.execute();
@@ -1280,18 +1280,17 @@ public class Mediator {
 	}
 
 	/**
-	 * Create a period analysis dialog after the analysis is done. We apply the
-	 * analysis to the series that is currently selected as being the mean
-	 * series source. It only makes sense to apply the observations to a single
-	 * band as per this Q & A between Matt Templeton and I: DB: Like mean curve
-	 * creation in VStar, should we only apply DC DFT to a single band, e.g.
-	 * visual? MT: Yes, because of two things: 1) The different bands will have
-	 * different mean values, and 2) The different bands will have different
-	 * amplitudes or frequencies depending on what is physically causing the
-	 * variation. Variability caused by temperature changes can have wildly
-	 * different amplitudes in U or B versus Rc or Ic.
+	 * Create a period analysis dialog after the analysis is done. It only makes
+	 * sense to apply the observations to a single band as per this Q & A
+	 * between Matt Templeton and I:<br/>
+	 * DB: Like mean curve creation in VStar, should we only apply DC DFT to a
+	 * single band, e.g. visual? MT: Yes, because of two things: 1) The
+	 * different bands will have different mean values, and 2) The different
+	 * bands will have different amplitudes or frequencies depending on what is
+	 * physically causing the variation. Variability caused by temperature
+	 * changes can have wildly different amplitudes in U or B versus Rc or Ic.
 	 */
-	public void createPeriodAnalysisDialog(PeriodAnalysisPluginBase plugin) {
+	public void performPeriodAnalysis(PeriodAnalysisPluginBase plugin) {
 		try {
 			if (this.newStarMessage != null && this.validObsList != null) {
 				SingleSeriesSelectionDialog dialog = new SingleSeriesSelectionDialog(
@@ -1322,7 +1321,6 @@ public class Mediator {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"Period Analysis", e);
 
-			// TODO: why?
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
 
@@ -1351,8 +1349,6 @@ public class Mediator {
 			binSettingPane = new TimeElementsInBinSettingPane(
 					"Phase Steps per Mean Series Bin", plotPane.getObsModel(),
 					PhaseTimeElementEntity.instance);
-			// extra = new NamedComponent("Phase Plot",
-			// new NewPhasePlotButtonPane((PhaseAndMeanPlotPane) plotPane));
 		}
 
 		PlotControlDialog dialog = new PlotControlDialog(title, plotPane,

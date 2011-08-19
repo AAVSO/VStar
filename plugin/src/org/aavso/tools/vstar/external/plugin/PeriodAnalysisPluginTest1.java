@@ -63,6 +63,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
 	protected final static String NAME = "Period Analysis Plugin Test 1";
 
+	// TODO: fix!
 	class TestAlgorithm implements IPeriodAnalysisAlgorithm {
 		@Override
 		public String getRefineByFrequencyName() {
