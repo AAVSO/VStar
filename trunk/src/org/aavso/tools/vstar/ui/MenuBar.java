@@ -198,6 +198,7 @@ public class MenuBar extends JMenuBar {
 
 		List<String> extensions = new ArrayList<String>();
 		extensions.add("csv");
+		extensions.add("dat");
 		extensions.add("tsv");
 		extensions.add("txt");
 
@@ -449,7 +450,8 @@ public class MenuBar extends JMenuBar {
 		
 		analysisMenu.addSeparator();
 
-		analysisPeriodSearchMenu = new JMenu("Period Search");
+		// TODO: consider just putting these inline in the menu
+		analysisPeriodSearchMenu = new JMenu("Period Analysis");
 		analysisPeriodSearchMenu.setEnabled(false);
 
 		ActionListener periodSearchListener = createPeriodSearchListener();
@@ -970,7 +972,7 @@ public class MenuBar extends JMenuBar {
 				String item = e.getActionCommand();
 				PeriodAnalysisPluginBase plugin = menuItemNameToPeriodAnalysisPlugin
 						.get(item);
-				Mediator.getInstance().createPeriodAnalysisDialog(plugin);
+				Mediator.getInstance().performPeriodAnalysis(plugin);
 			}
 		};
 	}

@@ -33,7 +33,6 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -102,7 +101,7 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	}
 
 	/**
-	 * @return the chartPanel
+	 * @return the chart
 	 */
 	public JFreeChart getChart() {
 		return chart;

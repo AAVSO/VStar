@@ -58,6 +58,7 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 	 */
 	public DcDftPeriodAnalysisPluginBase() {
 		super();
+		// TODO: probably don't care about the next two now...
 		newStarMessage = null;
 		meanSourceSeriesChangeMessage = null;
 		periodAnalysisAlgorithm = null;
@@ -115,6 +116,11 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 
 	// ** Private helper methods **
 
+	// TODO: see PeriodAnalysisTask: this is being reset after each successful
+	// invocation of the plugin, so we should just recreate the algorithm and
+	// dialog each time anyway! (i.e. the dialog == null above is useless,
+	// unless we cancel a period analysis task, in which case it may even be
+	// harmful; ditto for algorithm!)
 	public void reset() {
 		periodAnalysisAlgorithm = null;
 		dialog = null;

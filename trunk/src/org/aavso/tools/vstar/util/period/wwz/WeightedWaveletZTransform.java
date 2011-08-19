@@ -54,6 +54,7 @@ import org.aavso.tools.vstar.util.IAlgorithm;
  * </p>
  */
 public class WeightedWaveletZTransform implements IAlgorithm {
+
 	private List<WWZStatistic> stats;
 	private List<WWZStatistic> maximalStats;
 
@@ -153,9 +154,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	 * Reads data from the specified observation list.
 	 * 
 	 * TODO: We may want to consider saving memory by simply reading from the
-	 * observation list directly. How much would this slow things down? At the
-	 * very least, we should size the arrays according to the size of the obs
-	 * list!
+	 * observation list directly. How much would this slow things down?
 	 * 
 	 * <p>
 	 * This method also computes the number of data points (numdat) the average
@@ -247,7 +246,8 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 
 	private void makefreq() {
 		// TODO: guard against 0 frequency, initially throw exception, but later
-		// in UI; then assert non-zero here; we'll get NaNs with 0.
+		// in UI; then assert non-zero here; we'll get NaNs with 0. Or, for
+		// frequency of zero, just ignore results?
 
 		nfreq = (int) ((fhi - flo) / df) + 1;
 
@@ -259,8 +259,8 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			// TODO: throw exception for now; instead, do this check in WWZ
 			// parameter dialog, opening a JOptionPane to ask whether this is
 			// okay
-			throw new IllegalArgumentException(
-					"Number of frequencies is greater than 1000.");
+			// throw new IllegalArgumentException(
+			// "Number of frequencies is greater than 1000.");
 		}
 
 		freq[1] = flo;

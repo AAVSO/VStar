@@ -31,8 +31,8 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
 /**
- * A concurrent task in which a potentially long-running periodAnalysisPlugin is
- * executed.
+ * A concurrent task in which a potentially long-running period analysis plugin
+ * is executed.
  */
 public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 
@@ -94,7 +94,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.CLEAR_PROGRESS);
-		
+
 		MainFrame.getInstance().getStatusPane().setMessage("");
 	}
 }

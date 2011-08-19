@@ -32,14 +32,13 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
-import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
 /**
- * This class is used to visualise period analysis results.
+ * This dialog class is used to visualise period analysis results.
  */
 public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
@@ -61,7 +60,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	 * 
 	 * @param title
 	 *            The title for the chart.
-	 * @param subTitle
+	 * @param seriesTitle
 	 *            The source series sub-title for the chart.
 	 * @param plotModels
 	 *            The data plotModels on which to base plots.
