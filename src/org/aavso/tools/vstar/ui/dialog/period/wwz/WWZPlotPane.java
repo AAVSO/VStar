@@ -23,47 +23,69 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
-import org.aavso.tools.vstar.ui.model.plot.WWZLinePlotModel;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.DatasetChangeListener;
+import org.jfree.data.xy.XYDataset;
 
 /**
- * This is a pane that contains a WWZ line plot chart.
+ * This is a pane that contains a WWZ plot chart.
  */
-public class WWZLinePlotPane extends JPanel implements
+public class WWZPlotPane<M extends XYDataset> extends JPanel implements
 		ChartMouseListener, DatasetChangeListener {
 
 	private JFreeChart chart;
-	private WWZLinePlotModel model;
-	
+	private M model;
+
 	/**
 	 * Constructor
 	 * 
 	 */
-	public WWZLinePlotPane(JFreeChart chart,
-			WWZLinePlotModel model) {
+	public WWZPlotPane(JFreeChart chart, M model) {
 		super();
 
 		this.chart = chart;
 		this.model = model;
-		
+
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createEtchedBorder());
 
 		ChartPanel chartPanel = new ChartPanel(chart);
 		this.add(chartPanel);
-		
+
 		configureChart();
-		
+
 		chartPanel.addChartMouseListener(this);
 		model.addChangeListener(this);
 	}
 
-	private void configureChart() {
+	/**
+	 * @return the chart
+	 */
+	public JFreeChart getChart() {
+		return chart;
+	}
+
+	/**
+	 * @return the model
+	 */
+	public M getModel() {
+		return model;
+	}
+
+	/**
+	 * Set the renderer for the plot.
+	 * @param renderer The XYItemRenderer subclass instance to set.
+	 */
+	public void setRenderer(XYItemRenderer renderer) {
+		chart.getXYPlot().setRenderer(renderer);
+	}
+	
+	protected void configureChart() {
 		chart.getXYPlot().setBackgroundPaint(Color.WHITE);
 
 		chart.getXYPlot().setDomainCrosshairValue(0);

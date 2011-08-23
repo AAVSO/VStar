@@ -141,7 +141,7 @@ public class WeightedWaveletZTransformPlugin extends PeriodAnalysisPluginBase {
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
 		return new WeightedWaveletZTransformResultDialog(getDisplayName(),
-				"series: " + sourceSeriesType.toString(), wwt.getMaximalStats());
+				"series: " + sourceSeriesType.toString(), wwt);
 	}
 
 	/**

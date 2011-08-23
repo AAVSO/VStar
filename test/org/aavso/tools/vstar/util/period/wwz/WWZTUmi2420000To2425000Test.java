@@ -82,14 +82,14 @@ public class WWZTUmi2420000To2425000Test extends DataTestBase {
 			assertEquals(String.format("%1.4f", expected.getTau()), String
 					.format("%1.4f", actual.getTau()));
 
-			assertEquals(String.format("%1.4f", expected.getFreq()), String
-					.format("%1.4f", actual.getFreq()));
+			assertEquals(String.format("%1.4f", expected.getFrequency()), String
+					.format("%1.4f", actual.getFrequency()));
 
 			assertEquals(String.format("%1.4f", expected.getWwz()), String
 					.format("%1.4f", actual.getWwz()));
 
-			assertEquals(String.format("%1.4f", expected.getAmp()), String
-					.format("%1.4f", actual.getAmp()));
+			assertEquals(String.format("%1.4f", expected.getAmplitude()), String
+					.format("%1.4f", actual.getAmplitude()));
 
 			assertEquals(String.format("%1.4f", expected.getMave()), String
 					.format("%1.4f", actual.getMave()));

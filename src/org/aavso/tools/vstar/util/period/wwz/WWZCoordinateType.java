@@ -45,7 +45,7 @@ public enum WWZCoordinateType {
 	 *            The index.
 	 * @return The corresponding type.
 	 */
-	public WWZCoordinateType getTypeFromId(int id) {
+	public static WWZCoordinateType getTypeFromId(int id) {
 		WWZCoordinateType type = null;
 		switch (id) {
 		case 0:

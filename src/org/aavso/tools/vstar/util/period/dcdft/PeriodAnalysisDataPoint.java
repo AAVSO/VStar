@@ -17,12 +17,13 @@
  */
 package org.aavso.tools.vstar.util.period.dcdft;
 
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
  * This class represents a period analysis data point.
  */
-public class PeriodAnalysisDataPoint {
+public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	private double frequency, period, power, amplitude;
 
 	/**
