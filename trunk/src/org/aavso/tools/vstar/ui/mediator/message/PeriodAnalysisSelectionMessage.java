@@ -17,7 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.mediator.message;
 
-import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 
 /**
  * Instances of this message class can be sent when a period analysis chart
@@ -25,7 +25,7 @@ import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
  */
 public class PeriodAnalysisSelectionMessage extends MessageBase {
 
-	private PeriodAnalysisDataPoint dataPoint;
+	private IPeriodAnalysisDatum dataPoint;
 
 	/**
 	 * Constructor
@@ -33,11 +33,10 @@ public class PeriodAnalysisSelectionMessage extends MessageBase {
 	 * @param source
 	 *            The source of this message.
 	 * @param dataPoint
-	 *            The selected period analysis data point containing period,
-	 *            frequency, power, amplitude.
+	 *            The selected period analysis data point.
 	 */
 	public PeriodAnalysisSelectionMessage(Object source,
-			PeriodAnalysisDataPoint dataPoint) {
+			IPeriodAnalysisDatum dataPoint) {
 		super(source);
 		this.dataPoint = dataPoint;
 	}
@@ -45,7 +44,7 @@ public class PeriodAnalysisSelectionMessage extends MessageBase {
 	/**
 	 * @return the selected period analysis data point
 	 */
-	public PeriodAnalysisDataPoint getDataPoint() {
+	public IPeriodAnalysisDatum getDataPoint() {
 		return dataPoint;
 	}
 }

@@ -55,6 +55,8 @@ import org.aavso.tools.vstar.util.IAlgorithm;
  */
 public class WeightedWaveletZTransform implements IAlgorithm {
 
+	private List<ValidObservation> obs;
+	
 	private List<WWZStatistic> stats;
 	private List<WWZStatistic> maximalStats;
 
@@ -98,8 +100,10 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	public WeightedWaveletZTransform(List<ValidObservation> observations,
 			double minFreq, double maxFreq, double deltaFreq, double decay) {
 
-		dataread(observations);
+		obs = observations;
 
+		dataread(observations);		
+		
 		flo = minFreq;
 		fhi = maxFreq;
 		df = deltaFreq;
@@ -125,6 +129,41 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	public WeightedWaveletZTransform(List<ValidObservation> observations,
 			double minFreq, double maxFreq, double deltaFreq) {
 		this(observations, minFreq, maxFreq, deltaFreq, 0.001);
+	}
+
+	/**
+	 * @return the decay
+	 */
+	public double getDecay() {
+		return dcon;
+	}
+
+	/**
+	 * @return the delta frequency step
+	 */
+	public double getDeltaFreqStep() {
+		return df;
+	}
+
+	/**
+	 * @return the maximum frequency
+	 */
+	public double getMaxFreq() {
+		return fhi;
+	}
+
+	/**
+	 * @return the minimum frequency
+	 */
+	public double getMinFreq() {
+		return flo;
+	}
+
+	/**
+	 * @return the obs
+	 */
+	public List<ValidObservation> getObs() {
+		return obs;
 	}
 
 	/**

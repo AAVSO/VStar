@@ -25,11 +25,6 @@ import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
-// TODO:
-// - multiple period fit UT against TS: delcep with first 2 freqs
-// - work through Grant's BZ Uma and pre-whitening examples
-// - code clean-up
-
 /**
  * This class creates a multi-periodic fit model for the specified observations.
  */
@@ -50,6 +45,8 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	 * 
 	 * @param periods
 	 *            The periods to be used to create the fit.
+	 * @param algorithm
+	 *            The algorithm to be executed to generate a fit.
 	 */
 	public PeriodAnalysisDerivedMultiPeriodicModel(List<Double> periods,
 			IPeriodAnalysisAlgorithm algorithm) {

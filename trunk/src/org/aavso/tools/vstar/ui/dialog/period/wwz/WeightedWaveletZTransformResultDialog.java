@@ -17,7 +17,9 @@
  */
 package org.aavso.tools.vstar.ui.dialog.period.wwz;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,14 +31,28 @@ import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
-import org.aavso.tools.vstar.ui.model.plot.WWZLinePlotModel;
+import org.aavso.tools.vstar.ui.model.list.WWZDataTableModel;
+import org.aavso.tools.vstar.ui.model.plot.WWZ2DPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.WWZ3DPlotModel2;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
-import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
+import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisLocation;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.GrayPaintScale;
+import org.jfree.chart.renderer.PaintScale;
+import org.jfree.chart.renderer.xy.XYBlockRenderer;
+import org.jfree.chart.title.PaintScaleLegend;
+import org.jfree.data.Range;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.RectangleInsets;
 
 /**
  * This dialog class is used to visualise WWZ algorithm results.
@@ -45,8 +61,8 @@ public class WeightedWaveletZTransformResultDialog extends
 		PeriodAnalysisDialogBase {
 
 	private String chartTitle;
-	private PeriodAnalysisDataPoint selectedDataPoint;
-	private List<WWZStatistic> stats;
+	private IPeriodAnalysisDatum selectedDataPoint;
+	private WeightedWaveletZTransform wwt;
 
 	/**
 	 * Constructor.
@@ -57,11 +73,11 @@ public class WeightedWaveletZTransformResultDialog extends
 	 *            The title for the chart.
 	 */
 	public WeightedWaveletZTransformResultDialog(String title,
-			String chartTitle, List<WWZStatistic> stats) {
+			String chartTitle, WeightedWaveletZTransform wwt) {
 		super(title, false, true);
 
 		this.chartTitle = chartTitle;
-		this.stats = stats;
+		this.wwt = wwt;
 
 		selectedDataPoint = null;
 
@@ -82,24 +98,28 @@ public class WeightedWaveletZTransformResultDialog extends
 	private JTabbedPane createTabs() {
 		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 
+		// Frequency vs time vs wwz statistic contour plot.
+		// namedComponents.add(createChart2(new WWZ3DPlotModel2(wwt
+		// .getMaximalStats(), WWZCoordinateType.TAU,
+		// WWZCoordinateType.FREQUENCY, WWZCoordinateType.WWZ)));
+
 		// Period vs time plot.
-		namedComponents.add(createChart(new WWZLinePlotModel(stats,
-				WWZCoordinateType.TAU, WWZCoordinateType.PERIOD)));
+		namedComponents.add(createChart(new WWZ2DPlotModel(wwt
+				.getMaximalStats(), WWZCoordinateType.TAU,
+				WWZCoordinateType.PERIOD)));
 
 		// Semi-amplitude vs time plot.
-		namedComponents.add(createChart(new WWZLinePlotModel(stats,
-				WWZCoordinateType.TAU, WWZCoordinateType.SEMI_AMPLITUDE)));
+		namedComponents.add(createChart(new WWZ2DPlotModel(wwt
+				.getMaximalStats(), WWZCoordinateType.TAU,
+				WWZCoordinateType.SEMI_AMPLITUDE)));
 
-		// TODO: tables x 2
-		
-		// TODO: note that we could extract a best fit sinusoid (i.e. model)
-		// from
-		// mave for some tau/frequency combination; residuals could be created
-		// for
-		// those datapoints from the observed data.
-		// => make this available via a Create Model button on the data tabs?
-		// (should that button be pushed down to the base dialog class rather
-		// than being embedded in a table pane?)
+		// Tables for all and maximal statistics.
+		namedComponents.add(new NamedComponent("WWZ Results",
+				new WWZDataTablePane(new WWZDataTableModel(wwt.getStats()))));
+
+		namedComponents.add(new NamedComponent("Maximal WWZ Results",
+				new WWZDataTablePane(new WWZDataTableModel(wwt
+						.getMaximalStats()))));
 
 		return PluginComponentFactory.createTabs(namedComponents);
 	}
@@ -134,7 +154,7 @@ public class WeightedWaveletZTransformResultDialog extends
 
 	// Helpers
 
-	private NamedComponent createChart(WWZLinePlotModel model) {
+	private NamedComponent createChart(WWZ2DPlotModel model) {
 		JFreeChart chart = ChartFactory.createXYLineChart(chartTitle, model
 				.getDomainType().toString(), model.getRangeType().toString(),
 				model, PlotOrientation.VERTICAL, true, true, false);
@@ -142,6 +162,91 @@ public class WeightedWaveletZTransformResultDialog extends
 		String tabName = model.getRangeType().toString() + " vs "
 				+ model.getDomainType().toString();
 
-		return new NamedComponent(tabName, new WWZLinePlotPane(chart, model));
+		return new NamedComponent(tabName, new WWZPlotPane<WWZ2DPlotModel>(
+				chart, model));
+	}
+
+	private NamedComponent createChart(WWZ3DPlotModel2 model) {
+		JFreeChart chart = ChartFactory.createXYLineChart(chartTitle, model
+				.getDomainType().toString(), model.getRangeType().toString(),
+				model, PlotOrientation.VERTICAL, true, true, false);
+
+		String tabName = model.getRangeType().toString() + " vs "
+				+ model.getDomainType().toString() + " vs " + model.getZType();
+
+		WWZPlotPane<WWZ3DPlotModel2> pane = new WWZPlotPane<WWZ3DPlotModel2>(
+				chart, model);
+		XYBlockRenderer renderer = new XYBlockRenderer();
+		renderer.setPlot(chart.getXYPlot());
+		pane.setRenderer(renderer);
+
+		return new NamedComponent(tabName, pane);
+	}
+
+	private NamedComponent createChart2(WWZ3DPlotModel2 model) {
+		NumberAxis xAxis = new NumberAxis(model.getDomainType().toString());
+		xAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		// xAxis.setLowerMargin(wwt.getObs().get(0).getJD());
+		// xAxis.setUpperMargin(wwt.getObs().get(wwt.getObs().size() -
+		// 1).getJD());
+		xAxis.setRange(new Range(wwt.getObs().get(0).getJD(), wwt.getObs().get(
+				wwt.getObs().size() - 1).getJD()));
+		xAxis.setAxisLinePaint(Color.white);
+		xAxis.setTickMarkPaint(Color.white);
+
+		NumberAxis yAxis = new NumberAxis(model.getRangeType().toString());
+		yAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+		// yAxis.setLowerMargin(wwt.getMinFreq());
+		// yAxis.setUpperMargin(wwt.getMaxFreq());
+		yAxis.setAxisLinePaint(Color.white);
+		// double minY = 1.0 / wwt.getMaxFreq();
+		// double maxY = 1.0 / wwt.getMinFreq();
+		double minY = wwt.getMinFreq();
+		double maxY = wwt.getMaxFreq();
+		yAxis.setRange(new Range(minY, maxY));
+		yAxis.setTickMarkPaint(Color.white);
+		XYBlockRenderer renderer = new XYBlockRenderer();
+		// PaintScale scale = new GrayPaintScale(-2.0, 1.0);
+		PaintScale scale = new GrayPaintScale();
+		renderer.setPaintScale(scale);
+		// renderer.setPaintScale(new LookupPaintScale());
+		XYPlot plot = new XYPlot(model, xAxis, yAxis, renderer);
+		plot.setBackgroundPaint(Color.lightGray);
+		plot.setDomainGridlinesVisible(false);
+		plot.setRangeGridlinePaint(Color.white);
+		plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
+		plot.setOutlinePaint(Color.blue);
+		JFreeChart chart = new JFreeChart(chartTitle, plot);
+		chart.removeLegend();
+		NumberAxis scaleAxis = new NumberAxis(model.getZType().toString());
+		scaleAxis.setAxisLinePaint(Color.white);
+		scaleAxis.setTickMarkPaint(Color.white);
+		scaleAxis.setTickLabelFont(new Font("Dialog", Font.PLAIN, 7));
+		PaintScaleLegend legend = new PaintScaleLegend(new GrayPaintScale(),
+				scaleAxis);
+		// PaintScaleLegend legend = new PaintScaleLegend(new
+		// LookupPaintScale(),
+		// scaleAxis);
+		legend.setStripOutlineVisible(false);
+		legend.setSubdivisionCount(20);
+		legend.setAxisLocation(AxisLocation.TOP_OR_RIGHT);
+		legend.setAxisOffset(5.0);
+		legend.setMargin(new RectangleInsets(5, 5, 5, 5));
+		legend.setFrame(new BlockBorder(Color.red));
+		legend.setPadding(new RectangleInsets(10, 10, 10, 10));
+		legend.setStripWidth(10);
+		legend.setPosition(RectangleEdge.LEFT);
+		// legend.setBackgroundPaint(new Color(120, 120, 180));
+		chart.addSubtitle(legend);
+		// chart.setBackgroundPaint(new Color(180, 180, 250));
+		ChartUtilities.applyCurrentTheme(chart);
+
+		String tabName = model.getRangeType().toString() + " vs "
+				+ model.getDomainType().toString() + " vs " + model.getZType();
+
+		WWZPlotPane<WWZ3DPlotModel2> pane = new WWZPlotPane<WWZ3DPlotModel2>(
+				chart, model);
+
+		return new NamedComponent(tabName, pane);
 	}
 }

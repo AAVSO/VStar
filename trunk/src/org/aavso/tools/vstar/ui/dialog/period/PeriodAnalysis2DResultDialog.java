@@ -34,8 +34,8 @@ import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
-import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
 /**
  * This dialog class is used to visualise period analysis results.
@@ -53,7 +53,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 	private PeriodAnalysisTopHitsTablePane topHitsTablePane;
 
-	private PeriodAnalysisDataPoint selectedDataPoint;
+	private IPeriodAnalysisDatum selectedDataPoint;
 
 	/**
 	 * Constructor.

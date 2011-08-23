@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.util.period.wwz;
 
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 
 /**
  * A single Weighted Wavelet Transform datapoint.
@@ -26,7 +27,7 @@ package org.aavso.tools.vstar.util.period.wwz;
  * 
  * @see org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform
  */
-public class WWZStatistic {
+public class WWZStatistic implements IPeriodAnalysisDatum {
 
 	/** The time being examined, in time units. */
 	private double tau;
@@ -96,7 +97,7 @@ public class WWZStatistic {
 	/**
 	 * @return the freq
 	 */
-	public double getFreq() {
+	public double getFrequency() {
 		return freq;
 	}
 
@@ -117,7 +118,7 @@ public class WWZStatistic {
 	/**
 	 * @return the amp
 	 */
-	public double getAmp() {
+	public double getAmplitude() {
 		return amp;
 	}
 
@@ -133,6 +134,13 @@ public class WWZStatistic {
 	 */
 	public double getNeff() {
 		return neff;
+	}
+
+	// Remaining methods from IPeriodAnalysisDatum
+	
+	@Override
+	public double getPower() {
+		return getWwz();
 	}
 
 	@Override
@@ -155,5 +163,43 @@ public class WWZStatistic {
 				.format(
 						"tau=%1.4f, freq=%1.4f, wwz=%1.4f, amp=%1.4f, mave=%1.4f, neff=%1.4f",
 						tau, freq, wwz, amp, mave, neff);
+	}
+
+	/**
+	 * Given a coordinate type, return the corresponding value from this
+	 * statistic object.
+	 * 
+	 * @param type
+	 *            The coordinate type.
+	 * @return The value of that coordinate for this instance.
+	 */
+	public final double getValue(WWZCoordinateType type) {
+		double value = 0;
+
+		switch (type) {
+		case TAU:
+			value = getTau();
+			break;
+		case FREQUENCY:
+			value = getFrequency();
+			break;
+		case PERIOD:
+			value = getPeriod();
+			break;
+		case WWZ:
+			value = getWwz();
+			break;
+		case SEMI_AMPLITUDE:
+			value = getAmplitude();
+			break;
+		case MEAN_MAG:
+			value = getMave();
+			break;
+		case EFFECTIVE_NUM_DATA:
+			value = getNeff();
+			break;
+		}
+
+		return value;
 	}
 }

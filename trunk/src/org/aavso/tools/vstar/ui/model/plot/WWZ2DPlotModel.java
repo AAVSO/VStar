@@ -27,11 +27,11 @@ import org.jfree.data.xy.AbstractXYDataset;
  * This class represents a line plot model for two coordinates of Weighted
  * Wavelet Z-Transform statistics, e.g. Tau vs Frequency or Period or Amplitude.
  */
-public class WWZLinePlotModel extends AbstractXYDataset {
+public class WWZ2DPlotModel extends AbstractXYDataset {
 
-	private List<WWZStatistic> stats;
-	private WWZCoordinateType domainType; // e.g. Tau
-	private WWZCoordinateType rangeType; // e.g. Period
+	protected List<WWZStatistic> stats;
+	protected WWZCoordinateType domainType; // e.g. tau
+	protected WWZCoordinateType rangeType; // e.g. period, frequency
 
 	/**
 	 * Constructor
@@ -43,7 +43,7 @@ public class WWZLinePlotModel extends AbstractXYDataset {
 	 * @param rangeType
 	 *            The range (Y) WWZ statistic coordinate type (e.g. Period).
 	 */
-	public WWZLinePlotModel(List<WWZStatistic> stats,
+	public WWZ2DPlotModel(List<WWZStatistic> stats,
 			WWZCoordinateType domainType, WWZCoordinateType rangeType) {
 		super();
 		this.stats = stats;
@@ -105,7 +105,7 @@ public class WWZLinePlotModel extends AbstractXYDataset {
 	 */
 	@Override
 	public Number getX(int series, int item) {
-		return getValue(item, domainType);
+		return stats.get(item).getValue(domainType);
 	}
 
 	/**
@@ -113,40 +113,22 @@ public class WWZLinePlotModel extends AbstractXYDataset {
 	 */
 	@Override
 	public Number getY(int series, int item) {
-		return getValue(item, rangeType);
+		return stats.get(item).getValue(rangeType);
 	}
 
-	// Helpers
+	/**
+	 * @see org.jfree.data.xy.AbstractXYDataset#getXValue(int, int)
+	 */
+	@Override
+	public double getXValue(int series, int item) {
+		return stats.get(item).getValue(domainType);
+	}
 
-	private double getValue(int index, WWZCoordinateType type) {
-		double value = 0;
-
-		WWZStatistic stat = stats.get(index);
-
-		switch (type) {
-		case TAU:
-			value = stat.getTau();
-			break;
-		case FREQUENCY:
-			value = stat.getFreq();
-			break;
-		case PERIOD:
-			value = stat.getPeriod();
-			break;
-		case WWZ:
-			value = stat.getWwz();
-			break;
-		case SEMI_AMPLITUDE:
-			value = stat.getAmp();
-			break;
-		case MEAN_MAG:
-			value = stat.getMave();
-			break;
-		case EFFECTIVE_NUM_DATA:
-			value = stat.getNeff();
-			break;
-		}
-
-		return value;
+	/**
+	 * @see org.jfree.data.xy.AbstractXYDataset#getYValue(int, int)
+	 */
+	@Override
+	public double getYValue(int series, int item) {
+		return stats.get(item).getValue(rangeType);
 	}
 }
