@@ -35,12 +35,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.WWZDataTableModel;
 import org.aavso.tools.vstar.util.comparator.FormattedDoubleComparator;
 import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.model.WWZMultiperiodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
 
@@ -49,21 +51,26 @@ import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
  */
 public class WWZDataTablePane extends JPanel implements ListSelectionListener {
 
-	protected JTable table;
-	protected WWZDataTableModel model;
-	protected TableRowSorter<WWZDataTableModel> rowSorter;
+	private List<ValidObservation> obs;
+	
+	private JTable table;
+	private WWZDataTableModel model;
+	private TableRowSorter<WWZDataTableModel> rowSorter;
 
 	protected JButton modelButton;
 
 	/**
 	 * Constructor
 	 * 
+	 * @param obs
+	 *            The observations on which the WWZ was carried out.
 	 * @param model
 	 *            The WWZ table model.
 	 */
-	public WWZDataTablePane(WWZDataTableModel model) {
+	public WWZDataTablePane(List<ValidObservation> obs, WWZDataTableModel model) {
 		super(new GridLayout(1, 1));
 
+		this.obs = obs;
 		this.model = model;
 
 		table = new JTable(model);
@@ -140,19 +147,8 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener {
 
 				if (!periods.isEmpty()) {
 					try {
-						// TODO: note that we could extract a best fit sinusoid (i.e. model)
-						// from
-						// mave for some time-frequency combination; residuals could be created
-						// for
-						// those datapoints from the observed data.
-						// => make this available via a Create Model button on the data tabs?
-						// (should that button be pushed down to the base dialog class rather
-						// than being embedded in a table pane?)
-						
-//						PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
-//								periods, algorithm);
-						IModel model = null; // TODO
-						Mediator.getInstance().performModellingOperation(model);
+						IModel periodModel = new WWZMultiperiodicModel(obs, model.getStats(), periods);
+						Mediator.getInstance().performModellingOperation(periodModel);
 					} catch (Exception ex) {
 						MessageBox.showErrorDialog(parent, "Modelling", ex
 								.getLocalizedMessage());

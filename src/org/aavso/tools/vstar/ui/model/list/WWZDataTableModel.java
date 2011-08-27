@@ -46,6 +46,13 @@ public class WWZDataTableModel extends AbstractTableModel {
 	}
 
 	/**
+	 * @return the stats
+	 */
+	public List<WWZStatistic> getStats() {
+		return stats;
+	}
+
+	/**
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
