@@ -23,6 +23,7 @@ import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
 import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
+import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -31,6 +32,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class WWZDataTableModel extends AbstractTableModel {
 
 	private List<WWZStatistic> stats;
+	private WeightedWaveletZTransform wwt;
 
 	/**
 	 * Period analysis data model constructor.
@@ -40,9 +42,13 @@ public class WWZDataTableModel extends AbstractTableModel {
 	 * @param data
 	 *            The result data mapping from coordinate type to list of
 	 *            values.
+	 * @param wwt
+	 *            The WWZ algorithm object.
 	 */
-	public WWZDataTableModel(List<WWZStatistic> stats) {
+	public WWZDataTableModel(List<WWZStatistic> stats,
+			WeightedWaveletZTransform wwt) {
 		this.stats = stats;
+		this.wwt = wwt;
 	}
 
 	/**
@@ -50,6 +56,13 @@ public class WWZDataTableModel extends AbstractTableModel {
 	 */
 	public List<WWZStatistic> getStats() {
 		return stats;
+	}
+
+	/**
+	 * @return the wwt
+	 */
+	public WeightedWaveletZTransform getWwt() {
+		return wwt;
 	}
 
 	/**
