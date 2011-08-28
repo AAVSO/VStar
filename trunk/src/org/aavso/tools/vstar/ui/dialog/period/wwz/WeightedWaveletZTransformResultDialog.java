@@ -115,12 +115,12 @@ public class WeightedWaveletZTransformResultDialog extends
 
 		// Tables for all and maximal statistics.
 		namedComponents.add(new NamedComponent("WWZ Results",
-				new WWZDataTablePane(wwt.getObs(), new WWZDataTableModel(wwt
-						.getStats()))));
+				new WWZDataTablePane(new WWZDataTableModel(wwt
+						.getStats(), wwt))));
 
 		namedComponents.add(new NamedComponent("Maximal WWZ Results",
-				new WWZDataTablePane(wwt.getObs(), new WWZDataTableModel(wwt
-						.getMaximalStats()))));
+				new WWZDataTablePane(new WWZDataTableModel(wwt
+						.getMaximalStats(), wwt))));
 
 		return PluginComponentFactory.createTabs(namedComponents);
 	}

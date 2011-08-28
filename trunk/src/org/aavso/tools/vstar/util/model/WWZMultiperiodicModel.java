@@ -27,6 +27,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
+import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -34,10 +35,10 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  */
 public class WWZMultiperiodicModel implements IModel {
 
-	private List<ValidObservation> obs;
-	private List<WWZStatistic> stats;
+	private WeightedWaveletZTransform wwt;
 	private List<Double> periods;
-
+	private List<ValidObservation> obs;
+	
 	private List<ValidObservation> fit;
 	private List<ValidObservation> residuals;
 
@@ -46,19 +47,19 @@ public class WWZMultiperiodicModel implements IModel {
 	/**
 	 * Constructor
 	 * 
-	 * @param stats
-	 *            A list of WWZ statistics.
+	 * @param wwt
+	 *            The WWZ algorithm object.
 	 * @param periods
 	 *            A list of periods from which to extract (from the stats) the
 	 *            best-fit sinusoid values.
 	 */
-	public WWZMultiperiodicModel(List<ValidObservation> obs,
-			List<WWZStatistic> stats, List<Double> periods) {
+	public WWZMultiperiodicModel(WeightedWaveletZTransform wwt,
+			List<Double> periods) {
 		super();
-		this.obs = obs;
-		this.stats = stats;
+		this.wwt = wwt;
 		this.periods = periods;
-
+		obs = wwt.getObs();
+		
 		fit = new ArrayList<ValidObservation>();
 		residuals = new ArrayList<ValidObservation>();
 	}
@@ -68,6 +69,12 @@ public class WWZMultiperiodicModel implements IModel {
 	 */
 	@Override
 	public void execute() throws AlgorithmError {
+		// TODO: For multiple periods, do we need instead to average the
+		// best-fit and residual values?
+
+		// TODO: pass in wwt object so we can always use the full stats list and
+		// get observations
+
 		for (double period : periods) {
 			// Iterate over each statistic, looking for entries for which the
 			// period is the same as our target. When one is found, create a fit
@@ -75,7 +82,9 @@ public class WWZMultiperiodicModel implements IModel {
 			// found, create residuals from the observations in that range.
 			int i = 0;
 
-			for (WWZStatistic stat : stats) {
+			// Always use all statistcs vs maximal statistics to create model.
+			// TODO: sanity check that!
+			for (WWZStatistic stat : wwt.getStats()) {
 				if (stat.getPeriod() == period) {
 					// Create a fit observation from the average magnitude for
 					// this time-frequency/period combination.
@@ -85,8 +94,12 @@ public class WWZMultiperiodicModel implements IModel {
 					fit.add(fitOb);
 
 					// Create a residual observation for each observation since
-					// the previous period. TODO: sanity check this approach!
-					while (i < obs.size() && obs.get(i).getJD() <= stat.getTau()) {
+					// the previous period. TODO: sanity check this approach,
+					// i.e. does it actually make sense for a tau value to
+					// represent a range of observation time values for the
+					// purpose of residual creation?
+					while (i < obs.size()
+							&& obs.get(i).getJD() <= stat.getTau()) {
 						double residual = obs.get(i).getMag() - stat.getMave();
 						ValidObservation residualOb = new ValidObservation();
 						residualOb

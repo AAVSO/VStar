@@ -52,7 +52,7 @@ import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
 public class WWZDataTablePane extends JPanel implements ListSelectionListener {
 
 	private List<ValidObservation> obs;
-	
+
 	private JTable table;
 	private WWZDataTableModel model;
 	private TableRowSorter<WWZDataTableModel> rowSorter;
@@ -67,10 +67,10 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener {
 	 * @param model
 	 *            The WWZ table model.
 	 */
-	public WWZDataTablePane(List<ValidObservation> obs, WWZDataTableModel model) {
+	public WWZDataTablePane(WWZDataTableModel model) {
 		super(new GridLayout(1, 1));
 
-		this.obs = obs;
+		this.obs = model.getWwt().getObs();
 		this.model = model;
 
 		table = new JTable(model);
@@ -147,8 +147,10 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener {
 
 				if (!periods.isEmpty()) {
 					try {
-						IModel periodModel = new WWZMultiperiodicModel(obs, model.getStats(), periods);
-						Mediator.getInstance().performModellingOperation(periodModel);
+						IModel periodModel = new WWZMultiperiodicModel(model
+								.getWwt(), periods);
+						Mediator.getInstance().performModellingOperation(
+								periodModel);
 					} catch (Exception ex) {
 						MessageBox.showErrorDialog(parent, "Modelling", ex
 								.getLocalizedMessage());
