@@ -141,33 +141,36 @@ public class AAVSOUploadFileFormatObservationSource extends
 			int lineNum = 1;
 			int obNum = 1;
 
-			try {
-				line = reader.readLine();
-				while (line != null) {
-					line = line.replaceFirst("\n", "").replaceFirst("\r", "");
-					if (!isEmpty(line)) {
-						if (line.startsWith("#")) {
-							handleDirective(line);
-						} else {
-							String[] fields = line.split(delimiter);
-							collectObservation(readNextObservation(fields,
-									obNum));
-							obNum++;
-						}
-					}
+			do {
+				try {
 					line = reader.readLine();
-					lineNum++;
+					if (line != null) {
+						line = line.replaceFirst("\n", "").replaceFirst("\r",
+								"");
+						if (!isEmpty(line)) {
+							if (line.startsWith("#")) {
+								handleDirective(line);
+							} else {
+								String[] fields = line.split(delimiter);
+								collectObservation(readNextObservation(fields,
+										obNum));
+								obNum++;
+							}
+						}
+						line = reader.readLine();
+						lineNum++;
+					}
+				} catch (Exception e) {
+					// Create an invalid observation.
+					// Record the line number rather than observation number for
+					// error reporting purposes, but still increment the latter.
+					String error = e.getLocalizedMessage();
+					InvalidObservation ob = new InvalidObservation(line, error);
+					ob.setRecordNumber(lineNum);
+					obNum++;
+					addInvalidObservation(ob);
 				}
-			} catch (Exception e) {
-				// Create an invalid observation.
-				// Record the line number rather than observation number for
-				// error reporting purposes, but still increment the latter.
-				String error = e.getLocalizedMessage();
-				InvalidObservation ob = new InvalidObservation(line, error);
-				ob.setRecordNumber(lineNum);
-				obNum++;
-				addInvalidObservation(ob);
-			}
+			} while (line != null);
 		}
 
 		// If a line starts with #, it's either a directive or a comment.
@@ -303,6 +306,9 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 			String cmagStr = fields[8];
 			if (!isNA(cmagStr)) {
+				// Note: Could CKMagValidator here, but its max field width
+				// seems not to represent the reality of some instrumental
+				// magnitudes, for example.
 				double cmag = magnitudeValueValidator.validate(cmagStr);
 				observation.setCMag(cname + cmag);
 			}
@@ -316,6 +322,9 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 			String kmagStr = fields[10];
 			if (!isNA(kmagStr)) {
+				// Note: Could CKMagValidator here, but its max field width
+				// seems not to represent the reality of some instrumental
+				// magnitudes, for example.
 				double kmag = magnitudeValueValidator.validate(kmagStr);
 				observation.setKMag(kname + kmag);
 			}
@@ -429,10 +438,10 @@ public class AAVSOUploadFileFormatObservationSource extends
 			if (!isNA(group)) {
 				if (!isEmpty(comments)) {
 					comments += "; ";
-				}				
+				}
 				comments += "group: " + group;
 			}
-			
+
 			if (!isEmpty(comments)) {
 				observation.setComments(comments);
 			}

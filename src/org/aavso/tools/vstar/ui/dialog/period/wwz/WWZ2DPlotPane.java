@@ -23,33 +23,44 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
+import org.aavso.tools.vstar.ui.model.plot.WWZ2DPlotModel;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.Range;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.DatasetChangeListener;
-import org.jfree.data.xy.XYDataset;
 
 /**
- * This is a pane that contains a WWZ plot chart.
+ * This is a pane that contains a WWZ 2D plot chart.
  */
-public class WWZPlotPane<M extends XYDataset> extends JPanel implements
-		ChartMouseListener, DatasetChangeListener {
+public class WWZ2DPlotPane extends JPanel implements ChartMouseListener,
+		DatasetChangeListener {
 
 	private JFreeChart chart;
-	private M model;
+	private WWZ2DPlotModel model;
+
+	private double minRange;
+	private double maxRange;
 
 	/**
 	 * Constructor
 	 * 
 	 */
-	public WWZPlotPane(JFreeChart chart, M model) {
+	public WWZ2DPlotPane(JFreeChart chart, WWZ2DPlotModel model, double minRange,
+			double maxRange) {
 		super();
 
 		this.chart = chart;
 		this.model = model;
+
+		this.minRange = minRange;
+		this.maxRange = maxRange;
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createEtchedBorder());
@@ -73,18 +84,20 @@ public class WWZPlotPane<M extends XYDataset> extends JPanel implements
 	/**
 	 * @return the model
 	 */
-	public M getModel() {
+	public WWZ2DPlotModel getModel() {
 		return model;
 	}
 
 	/**
 	 * Set the renderer for the plot.
-	 * @param renderer The XYItemRenderer subclass instance to set.
+	 * 
+	 * @param renderer
+	 *            The XYItemRenderer subclass instance to set.
 	 */
 	public void setRenderer(XYItemRenderer renderer) {
 		chart.getXYPlot().setRenderer(renderer);
 	}
-	
+
 	protected void configureChart() {
 		chart.getXYPlot().setBackgroundPaint(Color.WHITE);
 
@@ -93,11 +106,21 @@ public class WWZPlotPane<M extends XYDataset> extends JPanel implements
 
 		chart.getXYPlot().setDomainCrosshairVisible(true);
 		chart.getXYPlot().setRangeCrosshairVisible(true);
+
+		chart.getXYPlot().getRangeAxis()
+				.setRange(new Range(minRange, maxRange));
 	}
 
 	@Override
 	public void chartMouseClicked(ChartMouseEvent event) {
-		// Nothing to do: see period analysis 2D plot pane
+		if (event.getEntity() instanceof XYItemEntity) {
+			XYItemEntity entity = (XYItemEntity) event.getEntity();
+			int item = entity.getItem();
+			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
+					this, model.getStats().get(item));
+			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+					.notifyListeners(message);
+		}
 	}
 
 	@Override
