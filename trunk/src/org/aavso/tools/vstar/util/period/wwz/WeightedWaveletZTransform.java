@@ -55,10 +55,18 @@ import org.aavso.tools.vstar.util.IAlgorithm;
  */
 public class WeightedWaveletZTransform implements IAlgorithm {
 
+	// Observations to be analysed.
 	private List<ValidObservation> obs;
-	
+
+	// Full stats and maximal stats (results).
 	private List<WWZStatistic> stats;
 	private List<WWZStatistic> maximalStats;
+
+	// Selected min/max maximal frequency and amplitude values.
+	private double minPeriod;
+	private double maxPeriod;
+	private double minAmp;
+	private double maxAmp;
 
 	private double dave;
 	private double dcc;
@@ -102,8 +110,8 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 
 		obs = observations;
 
-		dataread(observations);		
-		
+		dataread(observations);
+
 		flo = minFreq;
 		fhi = maxFreq;
 		df = deltaFreq;
@@ -173,6 +181,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	@Override
 	public void execute() throws AlgorithmError {
 		wwt();
+		computeMinAndMaxValues();
 	}
 
 	/**
@@ -187,6 +196,59 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	 */
 	public List<WWZStatistic> getMaximalStats() {
 		return maximalStats;
+	}
+
+	/**
+	 * @return the minPeriod
+	 */
+	public double getMinPeriod() {
+		return minPeriod;
+	}
+
+	/**
+	 * @return the maxPeriod
+	 */
+	public double getMaxPeriod() {
+		return maxPeriod;
+	}
+
+	/**
+	 * @return the minAmp
+	 */
+	public double getMinAmp() {
+		return minAmp;
+	}
+
+	/**
+	 * @return the maxAmp
+	 */
+	public double getMaxAmp() {
+		return maxAmp;
+	}
+
+	/**
+	 * Calculate the minimum and maximum value of each stat in the maximal stats
+	 * list.
+	 */
+	private void computeMinAndMaxValues() {
+		minPeriod = Double.MAX_VALUE;
+		maxPeriod = -Double.MAX_VALUE;
+		minAmp = Double.MAX_VALUE;
+		maxAmp = -Double.MAX_VALUE;
+
+		for (WWZStatistic stat : maximalStats) {
+			if (stat.getPeriod() < minPeriod) {
+				minPeriod = stat.getPeriod();
+			} else if (stat.getPeriod() > maxPeriod) {
+				maxPeriod = stat.getPeriod();
+			}
+			
+			if (stat.getAmplitude() < minAmp) {
+				minAmp = stat.getAmplitude();
+			} else if (stat.getAmplitude() > maxAmp) {
+				maxAmp = stat.getAmplitude();
+			}
+		}		
 	}
 
 	/**

@@ -18,12 +18,15 @@ code.
   o mysql-connector-java-5.1.10-bin.jar
     http://dev.mysql.com/downloads/connector/j/5.1.html
 
+  o jmathplot.jar
+    http://code.google.com/p/jmathplot/
+     
   o nico-camargo-toolbar-icons-3.0.jar
     Toolbar icons created by Citizen Sky participant, Nico Camargo.
     
-The libraries are covered under the following licenses, and plain text copies
-of the licenses are included in the ./extlib directory. See the URL for the
-web page of each project for more information.
+The libraries are covered under the following licenses and plain text 
+copies of the licenses are included in the ./extlib directory. See the 
+URL for the web page of each project for more information.
 
   o Apache License
     ./extlib/apache-LICENSE.txt
@@ -44,7 +47,10 @@ web page of each project for more information.
     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
     * MySQL Connector/J  http://dev.mysql.com/downloads/connector/j/
-
+    
+  o New BSD License
+    http://www.opensource.org/licenses/bsd-license.php
+    
 This section categorises the libraries in terms of function:
 
  - Math (statistics):
@@ -54,6 +60,9 @@ This section categorises the libraries in terms of function:
      jcommon-1.0.16.jar
      jfreechart-1.0.13.jar
      
+ - 3D plots:
+     jmathplot.jar
+   
  - MySQL JDBC:
      mysql-connector-java-5.1.10-bin.jar
      

@@ -91,7 +91,7 @@ public enum WWZCoordinateType {
 			str = "Period";
 			break;
 		case WWZ:
-			str = "Weighted Wavelet Z statistic";
+			str = "WWZ";
 			break;
 		case SEMI_AMPLITUDE:
 			str = "Semi-amplitude";

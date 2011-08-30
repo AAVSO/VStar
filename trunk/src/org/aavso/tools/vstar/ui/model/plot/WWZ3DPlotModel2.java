@@ -31,6 +31,8 @@ import org.jfree.data.xy.XYZDataset;
  * Z-Transform statistics, e.g. Tau vs Frequency vs WWZ. The result may be a
  * "contour plot" where the 3rd dimension is represented by a colour, or it may
  * be a 3D plot, i.e. one with three axes.
+ * 
+ * @deprecated
  */
 public class WWZ3DPlotModel2 implements XYZDataset {
 

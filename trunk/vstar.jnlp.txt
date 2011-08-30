@@ -41,5 +41,8 @@ source code and licensing:
       http://dev.mysql.com/downloads/connector/j/
       GNU General Public License, version 2
 
+    * jmathplot
+      New BSD License
+    
     * Toolbar icons created by Citizen Sky participant, Nico Camargo.
       (nico-camargo-toolbar-icons-3.0.jar)
