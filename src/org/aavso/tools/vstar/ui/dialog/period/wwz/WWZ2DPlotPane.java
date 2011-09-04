@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog.period.wwz;
 
 import java.awt.Color;
+import java.awt.Component;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -26,6 +27,7 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.WWZ2DPlotModel;
+import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
@@ -52,8 +54,8 @@ public class WWZ2DPlotPane extends JPanel implements ChartMouseListener,
 	 * Constructor
 	 * 
 	 */
-	public WWZ2DPlotPane(JFreeChart chart, WWZ2DPlotModel model, double minRange,
-			double maxRange) {
+	public WWZ2DPlotPane(JFreeChart chart, WWZ2DPlotModel model,
+			double minRange, double maxRange) {
 		super();
 
 		this.chart = chart;
@@ -72,6 +74,9 @@ public class WWZ2DPlotPane extends JPanel implements ChartMouseListener,
 
 		chartPanel.addChartMouseListener(this);
 		model.addChangeListener(this);
+
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(createPeriodAnalysisListener());
 	}
 
 	/**
@@ -117,7 +122,7 @@ public class WWZ2DPlotPane extends JPanel implements ChartMouseListener,
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int item = entity.getItem();
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-					this, model.getStats().get(item));
+					this, model.getStats().get(item), item);
 			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 					.notifyListeners(message);
 		}
@@ -131,5 +136,33 @@ public class WWZ2DPlotPane extends JPanel implements ChartMouseListener,
 	@Override
 	public void datasetChanged(DatasetChangeEvent event) {
 		// Nothing to do: see period analysis 2D plot pane
+	}
+
+	/**
+	 * Update the crosshairs according to the selected data point.
+	 */
+	protected Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
+		final Component parent = this;
+
+		return new Listener<PeriodAnalysisSelectionMessage>() {
+			@Override
+			public void update(PeriodAnalysisSelectionMessage info) {
+				if (info.getSource() != parent) {
+					double x = model.getStats().get(info.getIndex()).getValue(
+							model.getDomainType());
+
+					double y = model.getStats().get(info.getIndex()).getValue(
+							model.getRangeType());
+
+					chart.getXYPlot().setDomainCrosshairValue(x);
+					chart.getXYPlot().setRangeCrosshairValue(y);
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
 	}
 }
