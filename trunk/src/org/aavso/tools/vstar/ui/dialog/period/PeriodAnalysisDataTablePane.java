@@ -125,7 +125,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 				row = table.convertRowIndexToModel(row);
 
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-						this, model.getDataPointFromRow(row));
+						this, model.getDataPointFromRow(row), row);
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
 			}
@@ -217,11 +217,11 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 			}
 		};
 	}
-	
+
 	/**
 	 * Enable the buttons on this pane.
 	 */
 	protected void enableButtons() {
-		modelButton.setEnabled(true);		
+		modelButton.setEnabled(true);
 	}
 }

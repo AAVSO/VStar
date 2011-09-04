@@ -199,7 +199,8 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		int harmonic = 1;
 		int n = 2; // first harmonic is twice the fundamental, right?
 		for (int i = 0; i < data.size() && harmonic < maxHarmonics; i++) {
-			// TODO: need tolerance, specify precision, use string comparison as in UTs?
+			// TODO: need tolerance, specify precision, use string comparison as
+			// in UTs?
 			if (data.get(i) == freq * n) {
 				System.out.println("  >> " + data.get(i));
 				n++;
@@ -289,7 +290,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 			if (row >= 0) {
 				row = table.convertRowIndexToModel(row);
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-						this, model.getDataPointFromRow(row));
+						this, model.getDataPointFromRow(row), row);
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
 			}

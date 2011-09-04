@@ -20,13 +20,14 @@ package org.aavso.tools.vstar.ui.mediator.message;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 
 /**
- * Instances of this message class can be sent when a period analysis chart
- * data point selection occurs.
+ * Instances of this message class can be sent when a period analysis chart data
+ * point selection occurs.
  */
 public class PeriodAnalysisSelectionMessage extends MessageBase {
 
 	private IPeriodAnalysisDatum dataPoint;
-
+	private int index;
+	
 	/**
 	 * Constructor
 	 * 
@@ -34,11 +35,14 @@ public class PeriodAnalysisSelectionMessage extends MessageBase {
 	 *            The source of this message.
 	 * @param dataPoint
 	 *            The selected period analysis data point.
+	 * @param index
+	 *            An index into the underlying dataset.
 	 */
 	public PeriodAnalysisSelectionMessage(Object source,
-			IPeriodAnalysisDatum dataPoint) {
+			IPeriodAnalysisDatum dataPoint, int index) {
 		super(source);
 		this.dataPoint = dataPoint;
+		this.index = index;
 	}
 
 	/**
@@ -46,5 +50,12 @@ public class PeriodAnalysisSelectionMessage extends MessageBase {
 	 */
 	public IPeriodAnalysisDatum getDataPoint() {
 		return dataPoint;
+	}
+
+	/**
+	 * @return the index
+	 */
+	public int getIndex() {
+		return index;
 	}
 }

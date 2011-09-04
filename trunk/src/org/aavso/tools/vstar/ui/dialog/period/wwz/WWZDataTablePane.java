@@ -124,7 +124,7 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener {
 				row = table.convertRowIndexToModel(row);
 
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-						this, model.getDataPointFromRow(row));
+						this, model.getDataPointFromRow(row), row);
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
 			}
