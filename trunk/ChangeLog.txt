@@ -18,8 +18,6 @@ o Bug & Issue tracker entries cited below can be found here:
   https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
   These contain more detail about who did what, when, and where (in the 
   codebase).
-o Major contributors are: David Benn, Michael Umbricht, Sara Beck and other 
-  AAVSO staff, Adam Weber, George Weber, Nico Camargo, Bikeman (Heinz Eggenstein).
 
 Known Issues:
 o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies 
