@@ -18,16 +18,15 @@ o Bug & Issue tracker entries cited below can be found here:
   https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
   These contain more detail about who did what, when, and where (in the 
   codebase).
-o Major contributors are: David Benn, Michael Umbricht, Sara Beck, Adam 
-  Weber, George Weber, Nico Camargo, Bikeman (Heinz Eggenstein).
+o Major contributors are: David Benn, Michael Umbricht, Sara Beck and other 
+  AAVSO staff, Adam Weber, George Weber, Nico Camargo, Bikeman (Heinz Eggenstein).
 
 Known Issues:
 o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies 
-  a larger-than-default heap, which helps significantly, but does not 
-  solve the problem, merely pushes its effects further out into the future.
-  Currently, the best course of action is to exit and restart VStar if it 
-  becomes unresponsive. This problem will be addressed in forthcoming 
-  releases. See trackers 2924511, 2909500, and 3011104 for more details.
+  a larger-than-default heap, which helps significantly. For now, if VStar becomes 
+  unresponsive, restart it. This problem will be addressed in forthcoming releases. 
+  See trackers 2924511, 2909500, and 3011104 for more 
+  details.
   
 ----------------------
 Date: September ?? 2011
