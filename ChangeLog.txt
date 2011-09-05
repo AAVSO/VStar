@@ -30,6 +30,87 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   releases. See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
+Date: September ?? 2011
+Version: 2.13
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??Sep2011
+Key Changes:
+- Added online docs link to Help menu where platform supports the Java 1.6 Desktop 
+  API. See tracker 2960025.
+- Added a default security policy to be applied at run-time such that all 
+  code, including plug-in code will have the same permissions as core VStar 
+  code when VStar is WebStarted.
+- Implemented CLEANest period analysis refinement algorithm; translated from AAVSO 
+  TS Fortran code by Grant Foster and Matthew Templeton.
+- Implemented WWZ time-frequency analysis algorithm; translated from AAVSO Fortran
+  code by Grant Foster and Matthew Templeton.
+- Added model creation capability from period analysis results. Polynomial fit
+  is treated as a special case of model creation. See See tracker 3205278.
+- Series selection dialog added for period analysis and polynomial fit instead of 
+  relying upon mean source series. See tracker 3205278. 
+  Previously created models can be selected/deleted via a dialog.  
+- Implemented regular expression pattern based search in observation list. See
+  tracker 3377202.
+- Now only saving observations in view in observation list. See tracker 3043078. 
+- Implemented saving and printing for synthetic lists (means, model, residuals).
+  See tracker 2859260. In all cases, the resulting TSV file can be opened as a
+  dataset of unspecified band. CSV vs TSV should be a preference. 
+- Observation table now reflects visible plot series unless "all data" checkbox
+  is selected or pattern search is in effect.
+- Extended file save-as dialog to permit column delimiter to be selected. See 
+  tracker 2859260. 
+- Enabled observation detail dialog for model and residuals list row selection.
+- VStar DC DFT top hits table values and ordering differed from the AAVSO's 
+  TS Fortran code on which it is based. This has been fixed. See tracker 3252674. 
+- Selection of top hits rows and notification of top hit row selections is now 
+  being handled consistently.
+- Fixed period analysis table column sorting. See tracker 3144140.
+- Added back DC DFT standard scan in addition to existing frequency scan.
+- Fix for discrepant reporting locale bug. See tracker 3260287.
+- Implemented a plugin to determine time between maxima/other events of interest, 
+  e.g. outbursts. See tracker 3028947. Thanks to Mike Simonsen for requesting this.
+- Implemented an upload file format observation source plugin to handle both visual 
+  and extended formats. A few people requested this, including Ken Mogul and Alan 
+  Plummer.
+- Changed text format observation validation to permit magnitudes with no digits 
+  after the decimal point. See tracker 2915572.
+- Lifted range checking of magnitude values given the diversity of observation 
+  sources.
+- Busy progress bar and wait cursor now indicate threaded phase plot creation.
+- Added a phase plots dialog that permits earlier plots to be re-created. 
+- Implemented undoable/redoable edits mechanism, initially to support observation 
+  observation exclusion (useful for noisy datasets, e.g. SuperWASP).
+- Moved "uncertainty" into a separate sortable observation table column, making it
+  easier to perform en masse observation exclusions.
+- Multiple observation table rows can now be selected and used to exclude observations 
+  via Edit menu.
+- Moved confidence interval and ANOVA info from plot to Info dialog and reduced plot
+  title clutter generally. See tracker 3304592.
+- Added support for making period analysis plot ranges axis logarithmic and enabled
+  for DC DFT power spectrum (log10(power)) and example plug-in. Requested by Doug 
+  Welch.
+- Ensuring observations are sorted, given out of order sources encountered. See
+  tracker 3274046.
+- Permitting files with rows delimited by whitespace to be loaded. See tracker 
+  3304602.
+- Implemented stop button in GUI; works for file-based observation source and 
+  period analysis tasks, but not yet for database observation loads.
+- Initial implementation of VStar scripting (JavaScript only currently).
+- Fixed a bug in which malformed non-string database rows (JD, mag) aborted 
+  observation reads. See tracker 3315363.
+- Fixes and refactorings to propagate polynomial fit visibility from raw to 
+  phase plot modes. See tracker 3315433.
+- Fixed handling of filtered series in phase plot view. See tracker 3315433. 
+- Re-designed and updated About Box.
+- Added top-level DOS and shell scripts to invoke VStar with the same Java 
+  VM parameters as JNLP (Web Start). These can be run from anywhere. Thanks
+  to Mike Umbricht for helping to improve the DOS batch file. 
+- Added --noplugins command-line switch to disable loading of plugins. Suggested
+  by Mike Umbricht.
+- Small documentation improvements (mostly by Mike Umbricht).
+- Additional unit tests, especially for new modelling, CLEANest, WWZ 
+  functionality.
+- Other small bug fixes.
+
 Date: February 28 2011
 Version: 2.12
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-28Feb2011
