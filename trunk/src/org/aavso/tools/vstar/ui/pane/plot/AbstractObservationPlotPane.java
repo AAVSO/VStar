@@ -37,9 +37,9 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
@@ -142,7 +142,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		if (subTitle != null && "".equals(subTitle.trim())) {
 			this.chart.addSubtitle(new TextTitle(subTitle));
 		}
-		
+
 		this.renderer = new VStarPlotDataRenderer();
 		this.renderer.setDrawYError(this.showErrorBars);
 
@@ -434,7 +434,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		// Note: This operation is linear in the number of observations!
 		// However, the loop will on average terminate before exhaustively
 		// searching all entries, i.e. when the observation is matched up
-		// with the corresponding XYItemEntity.
+		// with the corresponding XYItemEntity. It's still O(n) though.
+		// TODO: Use RendererUtilities method to return a list of entity indices
+		// that lie in a given x (JD) range; that should just be
+		// ob.getJD()..ob.getJD(); this would reduce n.
 		Iterator it = entities.iterator();
 		while (it.hasNext()) {
 			Object o = it.next();

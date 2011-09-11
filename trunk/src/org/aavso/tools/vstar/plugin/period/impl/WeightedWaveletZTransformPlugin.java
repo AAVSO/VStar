@@ -88,27 +88,12 @@ public class WeightedWaveletZTransformPlugin extends PeriodAnalysisPluginBase {
 		if (!paramDialog.isCancelled()) {
 			double minFreq, maxFreq, deltaFreq, decay;
 
-			// minFreq = 0.01;
-			// maxFreq = 0.02;
-			// deltaFreq = 0.001;
-			// decay = 0.01;
-
-			// minFreq = 0.0025;
-			// maxFreq = 0.005;
-			// deltaFreq = 0.01;
-			// decay = 0.001;
-
-			// minFreq = 0.00001;
-			// maxFreq = 0.02;
-			// deltaFreq = 0.00001;
-			// decay = 0.001;
-
 			currMinFreq = minFreq = minFreqField.getValue();
 			currMaxFreq = maxFreq = maxFreqField.getValue();
 			currDeltaFreq = deltaFreq = deltaFreqField.getValue();
 			currDecay = decay = decayField.getValue();
 			
-			// TODO: check for number of frequencies > 1000, with dialog?
+			// TODO: ask about number of frequencies > 1000, with dialog?
 			
 			wwt = new WeightedWaveletZTransform(obs, minFreq, maxFreq,
 					deltaFreq, decay);
@@ -141,7 +126,7 @@ public class WeightedWaveletZTransformPlugin extends PeriodAnalysisPluginBase {
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
 		return new WeightedWaveletZTransformResultDialog(getDisplayName(),
-				"series: " + sourceSeriesType.toString(), wwt);
+				"WWZ (series: " + sourceSeriesType.toString() + ")", wwt);
 	}
 
 	/**

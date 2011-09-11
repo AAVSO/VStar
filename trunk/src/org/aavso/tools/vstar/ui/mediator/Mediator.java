@@ -95,7 +95,6 @@ import org.aavso.tools.vstar.ui.model.plot.PhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
 import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
-import org.aavso.tools.vstar.ui.pane.plot.NewPhasePlotButtonPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
@@ -769,22 +768,6 @@ public class Mediator {
 					msg = this.analysisTypeMap.get(AnalysisType.PHASE_PLOT);
 
 					if (msg == null) {
-						// PhaseParameterDialog phaseDialog = Mediator
-						// .getInstance().getPhaseParameterDialog();
-						// phaseDialog.showDialog();
-						// if (!phaseDialog.isCancelled()) {
-						// double period = phaseDialog.getPeriod();
-						// double epoch = phaseDialog.getEpoch();
-						// AnalysisTypeChangeMessage rawDataMsg =
-						// analysisTypeMap
-						// .get(AnalysisType.RAW_DATA);
-						//
-						// Map<SeriesType, Boolean> seriesVisibilityMap =
-						// rawDataMsg
-						// .getObsAndMeanChartPane().getObsModel()
-						// .getSeriesVisibilityMap();
-						// performPhasePlot(period, epoch, seriesVisibilityMap);
-						// }
 						createPhasePlot();
 					} else {
 						// Change to the existing phase plot.

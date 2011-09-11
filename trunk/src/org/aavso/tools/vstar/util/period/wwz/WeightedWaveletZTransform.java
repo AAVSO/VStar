@@ -61,17 +61,20 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	// Full stats and maximal stats (results).
 	private List<WWZStatistic> stats;
 	private List<WWZStatistic> maximalStats;
-
+	
 	// Selected min/max maximal frequency and amplitude values.
 	private double minPeriod;
 	private double maxPeriod;
 	private double minAmp;
 	private double maxAmp;
-
+	private double minWWZ;
+	private double maxWWZ;
+	
 	private double dave;
 	private double dcc;
 	private double dcon;
 	private double dcw;
+	private double dtstep;
 	private double df;
 	private double dmat[][] = new double[3][3];
 	private double dsig;
@@ -168,6 +171,22 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	}
 
 	/**
+	 * @return the number of frequencies
+	 */
+	public int getNfreq() {
+		return nfreq;
+	}
+
+	/**
+	 * Get the delta tau (time step) factor.
+	 * 
+	 * @return
+	 */
+	public double getTauStep() {
+		return dtstep;
+	}
+
+	/**
 	 * @return the obs
 	 */
 	public List<ValidObservation> getObs() {
@@ -227,14 +246,32 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	}
 
 	/**
-	 * Calculate the minimum and maximum value of each stat in the maximal stats
-	 * list.
+	 * @return the minWWZ
+	 */
+	public double getMinWWZ() {
+		return minWWZ;
+	}
+
+	/**
+	 * @return the maxWWZ
+	 */
+	public double getMaxWWZ() {
+		return maxWWZ;
+	}
+
+	/**
+	 * Calculate the minimum and maximum value of some coordinates in the
+	 * maximal stats list.
 	 */
 	private void computeMinAndMaxValues() {
 		minPeriod = Double.MAX_VALUE;
 		maxPeriod = -Double.MAX_VALUE;
+		
 		minAmp = Double.MAX_VALUE;
 		maxAmp = -Double.MAX_VALUE;
+
+		minWWZ = Double.MAX_VALUE;
+		maxWWZ = -Double.MAX_VALUE;
 
 		for (WWZStatistic stat : maximalStats) {
 			if (stat.getPeriod() < minPeriod) {
@@ -242,13 +279,19 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			} else if (stat.getPeriod() > maxPeriod) {
 				maxPeriod = stat.getPeriod();
 			}
-			
+
 			if (stat.getAmplitude() < minAmp) {
 				minAmp = stat.getAmplitude();
 			} else if (stat.getAmplitude() > maxAmp) {
 				maxAmp = stat.getAmplitude();
 			}
-		}		
+			
+			if (stat.getWwz() < minWWZ) {
+				minWWZ = stat.getWwz();
+			} else if (stat.getWwz() > maxWWZ) {
+				maxWWZ = stat.getWwz();
+			}
+		}
 	}
 
 	/**
@@ -268,9 +311,6 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 
 		dt = new double[numdat + 1];
 		dx = new double[numdat + 1];
-
-		freq = new double[numdat + 1];
-		tau = new double[numdat + 1];
 
 		for (int i = 1; i <= observations.size(); i++) {
 			ValidObservation ob = observations.get(i - 1);
@@ -296,7 +336,9 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	 * here.
 	 */
 	private void maketau() {
-		double dtspan, dtstep, dtaulo, dtauhi;
+		double dtspan, dtaulo, dtauhi;
+
+		tau = new double[numdat + 1];
 
 		dtspan = dt[numdat] - dt[1];
 		dtstep = round(dtspan / 50.0);
@@ -351,6 +393,8 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 		// frequency of zero, just ignore results?
 
 		nfreq = (int) ((fhi - flo) / df) + 1;
+
+		freq = new double[nfreq + 1];
 
 		// depending upon the user inputs, you may wind up with a lot of
 		// frequencies.
@@ -564,11 +608,15 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 					dpowz = 0.0;
 
 				// Record one WWZ statistic per frequency per tau.
+				//
+				// Also record one WWZ statistic per tau-frequency pair for
+				// efficient retrieval in some scenarios.
+				
 				WWZStatistic stat = new WWZStatistic(dtau, dfre, dpowz, damp,
 						dcoef[0], dneff);
 
 				stats.add(stat);
-
+				
 				if (dpowz > dmz) {
 					dmz = dpowz;
 					dmfre = dfre;
