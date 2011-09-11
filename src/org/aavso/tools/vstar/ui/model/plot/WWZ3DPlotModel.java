@@ -67,17 +67,12 @@ public class WWZ3DPlotModel extends WWZ2DPlotModel implements XYZDataset {
 				+ zType.toString();
 	}
 
-	// AbstractXYZDataset implements getZValue() in terms of getZ() but since we
-	// have to implement both here (since they're both on the XYZDataset
-	// interface), we have both call straight to the base class getValue()
-	// method for efficiency.
-
 	/**
 	 * @see org.jfree.data.xy.XYZDataset#getZ(int, int)
 	 */
 	@Override
 	public Number getZ(int series, int item) {
-		return stats.get(item).getValue(zType);
+		return (Double)getZValue(series, item);
 	}
 
 	@Override

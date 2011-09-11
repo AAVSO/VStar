@@ -39,9 +39,9 @@ import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.DatasetChangeListener;
 
 /**
- * This is a pane that contains a WWZ 2D plot chart.
+ * This is a pane that contains a WWZ plot chart.
  */
-public class WWZ2DPlotPane extends JPanel implements ChartMouseListener,
+public class WWZPlotPane extends JPanel implements ChartMouseListener,
 		DatasetChangeListener {
 
 	private JFreeChart chart;
@@ -54,7 +54,7 @@ public class WWZ2DPlotPane extends JPanel implements ChartMouseListener,
 	 * Constructor
 	 * 
 	 */
-	public WWZ2DPlotPane(JFreeChart chart, WWZ2DPlotModel model,
+	public WWZPlotPane(JFreeChart chart, WWZ2DPlotModel model,
 			double minRange, double maxRange) {
 		super();
 

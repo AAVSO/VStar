@@ -45,7 +45,8 @@ public class MessageBox {
 	public static void showMessageDialog(Component parent, String title,
 			String msg, Icon icon) {
 		JOptionPane pane = new JOptionPane(msg,
-				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, icon);
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION,
+				icon);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -63,7 +64,8 @@ public class MessageBox {
 	 */
 	public static void showMessageDialog(String title, String msg, Icon icon) {
 		JOptionPane pane = new JOptionPane(msg,
-				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, icon);
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION,
+				icon);
 		JDialog dialog = pane.createDialog(MainFrame.getInstance(), title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
@@ -194,10 +196,7 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			Throwable e) {
-		String msg = e.getMessage();
-		if (msg == null || msg.length() == 0) {
-			msg = e.getClass().getName();
-		}
+		String msg = e.getClass().getName() + ": " + e.getLocalizedMessage();
 
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
 				JOptionPane.OK_CANCEL_OPTION);
@@ -206,7 +205,7 @@ public class MessageBox {
 		dialog.setVisible(true);
 
 		e.printStackTrace();
-		
+
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
 	}
@@ -223,16 +222,15 @@ public class MessageBox {
 	public static void showErrorDialog(String title, Throwable e) {
 		Component parent = MainFrame.getInstance();
 
-		String msg = e.getMessage();
-		if (msg == null || msg.length() == 0) {
-			msg = e.getClass().getName();
-		}
+		String msg = e.getClass().getName() + ": " + e.getLocalizedMessage();
 
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
 				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
+
+		e.printStackTrace();
 
 		// Turn off the wait cursor, in case it's enabled.
 		parent.setCursor(null);
