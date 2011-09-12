@@ -64,6 +64,7 @@ public class WeightedWaveletZTransformResultDialog extends
 	private String chartTitle;
 	private IPeriodAnalysisDatum selectedDataPoint;
 	private WeightedWaveletZTransform wwt;
+	private WWZCoordinateType rangeType;
 
 	/**
 	 * Constructor.
@@ -72,13 +73,17 @@ public class WeightedWaveletZTransformResultDialog extends
 	 *            The title for the dialog.
 	 * @param chartTitle
 	 *            The title for the chart.
+	 * @param rangeType
+	 *            The type of the range coordinate.
 	 */
 	public WeightedWaveletZTransformResultDialog(String title,
-			String chartTitle, WeightedWaveletZTransform wwt) {
+			String chartTitle, WeightedWaveletZTransform wwt,
+			WWZCoordinateType rangeType) {
 		super(title, false, true);
 
 		this.chartTitle = chartTitle;
 		this.wwt = wwt;
+		this.rangeType = rangeType;
 
 		selectedDataPoint = null;
 
@@ -102,14 +107,16 @@ public class WeightedWaveletZTransformResultDialog extends
 		// Maximal period vs time plot.
 		namedComponents.add(createChart("", new WWZ2DPlotModel(wwt
 				.getMaximalStats(), WWZCoordinateType.TAU,
-				WWZCoordinateType.PERIOD), wwt.getMinPeriod(), wwt
-				.getMaxPeriod()));
-		
-		// TODO
-		// add WWZ period input mode
-		// add dc dft period input mode (look at TS)
-		// move PA menu items into main part of Analysis menu
-		// tau granularity should be selectable in dialog
+				WWZCoordinateType.PERIOD),
+				getMinValue(WWZCoordinateType.PERIOD),
+				getMaxValue(WWZCoordinateType.PERIOD)));
+
+		// Maximal frequency vs time plot.
+		namedComponents.add(createChart("", new WWZ2DPlotModel(wwt
+				.getMaximalStats(), WWZCoordinateType.TAU,
+				WWZCoordinateType.FREQUENCY),
+				getMinValue(WWZCoordinateType.FREQUENCY),
+				getMaxValue(WWZCoordinateType.FREQUENCY)));
 
 		// Maximal semi-amplitude vs time plot.
 		namedComponents.add(createChart("", new WWZ2DPlotModel(wwt
@@ -121,14 +128,15 @@ public class WeightedWaveletZTransformResultDialog extends
 		namedComponents.add(createContourChart("", new WWZ3DPlotModel(wwt
 				.getStats(), WWZCoordinateType.TAU, WWZCoordinateType.PERIOD,
 				WWZCoordinateType.WWZ), wwt.getStats().get(0).getTau(), wwt
-				.getStats().get(wwt.getStats().size() - 1).getTau(), wwt
-				.getMinPeriod(), wwt.getMaxPeriod(), wwt.getMinWWZ(), wwt
-				.getMaxWWZ()));
+				.getStats().get(wwt.getStats().size() - 1).getTau(),
+				getMinValue(WWZCoordinateType.PERIOD),
+				getMaxValue(WWZCoordinateType.PERIOD), wwt.getMinWWZ(), wwt
+						.getMaxWWZ()));
 
 		// 3D plot from maximal stats.
 		namedComponents.add(create3DStatsPlot("Maximal ",
-				WWZCoordinateType.TAU, WWZCoordinateType.PERIOD,
-				WWZCoordinateType.WWZ, wwt.getMaximalStats()));
+				WWZCoordinateType.TAU, rangeType, WWZCoordinateType.WWZ, wwt
+						.getMaximalStats()));
 
 		// Tables for all and maximal statistics.
 		namedComponents
@@ -184,21 +192,21 @@ public class WeightedWaveletZTransformResultDialog extends
 		String name = prefix + model.getRangeType().toString() + " vs "
 				+ model.getDomainType().toString();
 
-		return new NamedComponent(name, new WWZPlotPane(chart, model,
-				minRange, maxRange));
+		return new NamedComponent(name, new WWZPlotPane(chart, model, minRange,
+				maxRange));
 	}
 
-	private NamedComponent createContourChart(String prefix, WWZ3DPlotModel model,
-			double minDomain, double maxDomain, double minRange,
-			double maxRange, double minZ, double maxZ) {
+	private NamedComponent createContourChart(String prefix,
+			WWZ3DPlotModel model, double minDomain, double maxDomain,
+			double minRange, double maxRange, double minZ, double maxZ) {
 
 		XYBlockRenderer renderer = new XYBlockRenderer();
 		renderer.setBlockWidth(10);
-//		renderer.setBlockHeight(100);
+		// renderer.setBlockHeight(100);
 
 		double increments = (maxZ - minZ) / 6;
 		LookupPaintScale scale = new LookupPaintScale(minZ, maxZ, Color.white);
-//		PaintScale scale = new GrayPaintScale(minZ, maxZ);
+		// PaintScale scale = new GrayPaintScale(minZ, maxZ);
 		scale.add(minZ, Color.MAGENTA);
 		scale.add(minZ + increments, Color.BLUE);
 		scale.add(minZ + increments * 2, Color.GREEN);
@@ -206,7 +214,7 @@ public class WeightedWaveletZTransformResultDialog extends
 		scale.add(minZ + increments * 4, Color.ORANGE);
 		scale.add(minZ + increments * 5, Color.RED);
 		renderer.setPaintScale(scale);
-		
+
 		NumberAxis xAxis = new NumberAxis(model.getDomainType().toString());
 		xAxis.setLowerBound(minDomain);
 		xAxis.setUpperBound(maxDomain);
@@ -217,17 +225,17 @@ public class WeightedWaveletZTransformResultDialog extends
 		plot.setRangeGridlinePaint(Color.white);
 		plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
 		plot.setOutlinePaint(Color.blue);
-		
+
 		JFreeChart chart = new JFreeChart(plot);
-		
+
 		NumberAxis scaleAxis = new NumberAxis(model.getZType().toString());
 		scaleAxis.setAxisLinePaint(Color.white);
 		scaleAxis.setTickMarkPaint(Color.white);
 		scaleAxis.setTickLabelFont(new Font("Dialog", Font.PLAIN, 7));
 
 		PaintScaleLegend legend = new PaintScaleLegend(scale, scaleAxis);
-//		PaintScaleLegend legend = new PaintScaleLegend(new GrayPaintScale(),
-//		scaleAxis);
+		// PaintScaleLegend legend = new PaintScaleLegend(new GrayPaintScale(),
+		// scaleAxis);
 		legend.setStripOutlineVisible(false);
 		legend.setSubdivisionCount(20);
 		legend.setAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
@@ -251,8 +259,8 @@ public class WeightedWaveletZTransformResultDialog extends
 				+ model.getDomainType().toString() + " vs "
 				+ model.getZType().toString() + " (contour)";
 
-		return new NamedComponent(name, new WWZPlotPane(chart, model,
-				minRange, maxRange));
+		return new NamedComponent(name, new WWZPlotPane(chart, model, minRange,
+				maxRange));
 	}
 
 	/**
@@ -285,5 +293,53 @@ public class WeightedWaveletZTransformResultDialog extends
 				+ zType.toString() + " (3D)";
 
 		return new NamedComponent(name, plot);
+	}
+
+	private double getMaxValue(WWZCoordinateType type) {
+		double value = 0;
+
+		switch (type) {
+		case PERIOD:
+			value = wwt.getMaxPeriod();
+			break;
+		case FREQUENCY:
+			value = wwt.getMaxFreq();
+			break;
+		case SEMI_AMPLITUDE:
+			value = wwt.getMaxAmp();
+			break;
+		case WWZ:
+			value = wwt.getMaxWWZ();
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid type: "
+					+ type.toString());
+		}
+
+		return value;
+	}
+
+	private double getMinValue(WWZCoordinateType type) {
+		double value = 0;
+
+		switch (type) {
+		case PERIOD:
+			value = wwt.getMinPeriod();
+			break;
+		case FREQUENCY:
+			value = wwt.getMinFreq();
+			break;
+		case SEMI_AMPLITUDE:
+			value = wwt.getMinAmp();
+			break;
+		case WWZ:
+			value = wwt.getMinWWZ();
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid type: "
+					+ type.toString());
+		}
+
+		return value;
 	}
 }

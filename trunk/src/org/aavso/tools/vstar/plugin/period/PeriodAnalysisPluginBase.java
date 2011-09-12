@@ -83,6 +83,14 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	abstract public String getDescription();
 
 	/**
+	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+		return null;
+	}
+
+	/**
 	 * Execute a period analysis algorithm instance for this plugin to be
 	 * applied to the specified observations.
 	 * 

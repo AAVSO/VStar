@@ -45,4 +45,12 @@ abstract public class ObservationToolPluginBase implements PluginBase {
 	 *            A list of currently loaded observations.
 	 */
 	abstract public void invoke(List<ValidObservation> obs);
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+		return null;
+	}
 }

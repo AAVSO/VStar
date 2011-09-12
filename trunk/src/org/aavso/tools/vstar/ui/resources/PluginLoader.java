@@ -33,7 +33,8 @@ import org.aavso.tools.vstar.plugin.PluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftFrequencyRangePeriodAnalysisPlugin;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftStandardScanPeriodAnalysisPlugin;
-import org.aavso.tools.vstar.plugin.period.impl.WeightedWaveletZTransformPlugin;
+import org.aavso.tools.vstar.plugin.period.impl.WeightedWaveletZTransformWithFrequencyRangePlugin;
+import org.aavso.tools.vstar.plugin.period.impl.WeightedWaveletZTransformWithPeriodRangePlugin;
 import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
@@ -64,7 +65,8 @@ public class PluginLoader {
 		// First, add in-built DC DFT and WWZ plugins.
 		periodAnalysisPlugins.add(new DcDftStandardScanPeriodAnalysisPlugin());
 		periodAnalysisPlugins.add(new DcDftFrequencyRangePeriodAnalysisPlugin());
-		periodAnalysisPlugins.add(new WeightedWaveletZTransformPlugin());
+		periodAnalysisPlugins.add(new WeightedWaveletZTransformWithFrequencyRangePlugin());
+		periodAnalysisPlugins.add(new WeightedWaveletZTransformWithPeriodRangePlugin());
 		
 		// Next, add all external period analysis plugins.
 		for (PluginBase plugin : plugins) {

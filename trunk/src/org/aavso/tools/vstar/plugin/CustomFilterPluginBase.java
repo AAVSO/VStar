@@ -65,6 +65,14 @@ abstract public class CustomFilterPluginBase implements PluginBase {
 	abstract protected void filter(List<ValidObservation> obs);
 
 	/**
+	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+		return null;
+	}
+
+	/**
 	 * Adds an observation to the filtered subset.
 	 * 
 	 * @param ob

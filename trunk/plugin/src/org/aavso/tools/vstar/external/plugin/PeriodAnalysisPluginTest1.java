@@ -125,6 +125,15 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 		return "Period Analysis Plugin Test: generates random periods.";
 	}
 
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+		return "Test";
+	}
+
 	@Override
 	public JDialog getDialog(SeriesType seriesType) {
 		return new PeriodAnalysisDialog();

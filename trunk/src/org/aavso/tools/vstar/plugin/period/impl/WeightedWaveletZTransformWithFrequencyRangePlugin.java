@@ -31,12 +31,14 @@ import org.aavso.tools.vstar.ui.dialog.MultiNumberEntryDialog;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
 import org.aavso.tools.vstar.ui.dialog.period.wwz.WeightedWaveletZTransformResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
 import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 
 /**
- * Weighted Wavelet Z Transform plugin.
+ * Weighted Wavelet Z Transform (frequency range) plugin.
  */
-public class WeightedWaveletZTransformPlugin extends PeriodAnalysisPluginBase {
+public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
+		PeriodAnalysisPluginBase {
 
 	private WeightedWaveletZTransform wwt;
 
@@ -48,7 +50,7 @@ public class WeightedWaveletZTransformPlugin extends PeriodAnalysisPluginBase {
 	/**
 	 * Constructor
 	 */
-	public WeightedWaveletZTransformPlugin() {
+	public WeightedWaveletZTransformWithFrequencyRangePlugin() {
 		super();
 		wwt = null;
 
@@ -71,14 +73,14 @@ public class WeightedWaveletZTransformPlugin extends PeriodAnalysisPluginBase {
 				null, currMinFreq);
 		fields.add(minFreqField);
 
-		NumberField maxFreqField = new NumberField("Maximum Frequency", null,
+		NumberField maxFreqField = new NumberField("Maximum Frequency", 0.0,
 				null, currMaxFreq);
 		fields.add(maxFreqField);
 
 		NumberField deltaFreqField = new NumberField("Frequency Step", null,
 				null, currDeltaFreq);
 		fields.add(deltaFreqField);
-		
+
 		NumberField decayField = new NumberField("Decay", null, null, currDecay);
 		fields.add(decayField);
 
@@ -92,11 +94,14 @@ public class WeightedWaveletZTransformPlugin extends PeriodAnalysisPluginBase {
 			currMaxFreq = maxFreq = maxFreqField.getValue();
 			currDeltaFreq = deltaFreq = deltaFreqField.getValue();
 			currDecay = decay = decayField.getValue();
-			
+
 			// TODO: ask about number of frequencies > 1000, with dialog?
-			
-			wwt = new WeightedWaveletZTransform(obs, minFreq, maxFreq,
-					deltaFreq, decay);
+
+			double freq1 = minFreq;
+			double freq2 = maxFreq;
+
+			wwt = new WeightedWaveletZTransform(obs, Math.min(freq1, freq2),
+					Math.max(freq1, freq2), deltaFreq, decay);
 
 			wwt.execute();
 		} else {
@@ -117,7 +122,15 @@ public class WeightedWaveletZTransformPlugin extends PeriodAnalysisPluginBase {
 	 */
 	@Override
 	public String getDisplayName() {
-		return "Weighted Wavelet Z-Transform";
+		return "WWZ with Frequency Range";
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+		return "WWZ";
 	}
 
 	/**
@@ -126,7 +139,8 @@ public class WeightedWaveletZTransformPlugin extends PeriodAnalysisPluginBase {
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
 		return new WeightedWaveletZTransformResultDialog(getDisplayName(),
-				"WWZ (series: " + sourceSeriesType.toString() + ")", wwt);
+				"WWZ (series: " + sourceSeriesType.toString() + ")", wwt,
+				WWZCoordinateType.FREQUENCY);
 	}
 
 	/**

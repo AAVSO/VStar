@@ -60,6 +60,14 @@ public abstract class ObservationSourcePluginBase implements PluginBase {
 	public abstract InputType getInputType();
 	
 	/**
+	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+		return null;
+	}
+
+	/**
 	 * Sets the input stream and name.
 	 *  
 	 * @param inputStream The input stream.
