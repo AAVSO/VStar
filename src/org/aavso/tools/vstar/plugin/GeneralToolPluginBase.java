@@ -37,4 +37,12 @@ abstract public class GeneralToolPluginBase implements PluginBase {
 	 * Invokes this tool plugin.
 	 */
 	abstract public void invoke();
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+		return null;
+	}
 }

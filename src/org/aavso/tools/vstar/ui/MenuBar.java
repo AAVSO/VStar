@@ -130,6 +130,9 @@ public class MenuBar extends JMenuBar {
 	private Map<String, ObservationToolPluginBase> menuItemNameToObsToolPlugin;
 	private Map<String, GeneralToolPluginBase> menuItemNameToGenToolPlugin;
 
+	// Keep track of period analysis menu items for enabling/disabling.
+	private List<JMenuItem> periodAnalysisMenuItems;
+
 	// The parent window.
 	private MainFrame parent;
 
@@ -167,10 +170,8 @@ public class MenuBar extends JMenuBar {
 
 	JMenu viewCustomFilterMenu;
 
-	// Analysis menu.	
+	// Analysis menu.
 	JMenuItem analysisPhasePlotItem;
-
-	JMenu analysisPeriodSearchMenu;
 
 	JMenuItem analysisPolynomialFitItem;
 	JMenuItem analysisModelsItem;
@@ -440,36 +441,40 @@ public class MenuBar extends JMenuBar {
 
 		analysisPhasePlotItem = new JMenuItem(PHASE_PLOT);
 		analysisPhasePlotItem.setEnabled(false);
-		analysisPhasePlotItem.addActionListener(createCreatePhasePlotListener());
+		analysisPhasePlotItem
+				.addActionListener(createCreatePhasePlotListener());
 		analysisMenu.add(analysisPhasePlotItem);
 
 		analysisPhasePlotsItem = new JMenuItem(PHASE_PLOTS);
 		analysisPhasePlotsItem.setEnabled(false);
 		analysisPhasePlotsItem.addActionListener(createPhasePlotsListener());
 		analysisMenu.add(analysisPhasePlotsItem);
-		
-		analysisMenu.addSeparator();
-
-		// TODO: consider just putting these inline in the menu
-		analysisPeriodSearchMenu = new JMenu("Period Analysis");
-		analysisPeriodSearchMenu.setEnabled(false);
 
 		ActionListener periodSearchListener = createPeriodSearchListener();
 
 		menuItemNameToPeriodAnalysisPlugin = new TreeMap<String, PeriodAnalysisPluginBase>();
+		periodAnalysisMenuItems = new ArrayList<JMenuItem>();
 
+		String lastGroup = null;
 		for (PeriodAnalysisPluginBase plugin : PluginLoader
 				.getPeriodAnalysisPlugins()) {
+			
+			if (plugin.getGroup() != null
+					&& !plugin.getGroup().equals(lastGroup)) {
+				lastGroup = plugin.getGroup();
+				analysisMenu.addSeparator();
+			}
+			
 			String itemName = plugin.getDisplayName() + "...";
 
 			JMenuItem analysisPeriodSearchItem = new JMenuItem(itemName);
 			analysisPeriodSearchItem.addActionListener(periodSearchListener);
-			analysisPeriodSearchMenu.add(analysisPeriodSearchItem);
+			analysisMenu.add(analysisPeriodSearchItem);
+			analysisPeriodSearchItem.setEnabled(false);
 
 			menuItemNameToPeriodAnalysisPlugin.put(itemName, plugin);
+			periodAnalysisMenuItems.add(analysisPeriodSearchItem);
 		}
-
-		analysisMenu.add(analysisPeriodSearchMenu);
 
 		analysisMenu.addSeparator();
 
@@ -1004,14 +1009,14 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for Analysis->Phase Plots...
 	 */
 	public ActionListener createPhasePlotsListener() {
-		return new ActionListener() {			
+		return new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				mediator.showPhaseDialog();
 			}
 		};
 	}
-	
+
 	// ** Tool menu listeners **
 
 	/**
@@ -1228,7 +1233,7 @@ public class MenuBar extends JMenuBar {
 
 				analysisPhasePlotItem.setEnabled(true);
 				analysisModelsItem.setEnabled(false);
-				analysisPhasePlotsItem.setEnabled(false);				
+				analysisPhasePlotsItem.setEnabled(false);
 			}
 
 			/**
@@ -1361,11 +1366,11 @@ public class MenuBar extends JMenuBar {
 		this.viewPanDownItem.setEnabled(state);
 
 		this.viewRawDataItem.setEnabled(state);
-		
-		this.analysisPeriodSearchMenu.setEnabled(state);
-		for (int i = 0; i < this.analysisPeriodSearchMenu.getItemCount(); i++) {
-			this.analysisPeriodSearchMenu.getItem(i).setEnabled(state);
+
+		for (JMenuItem item : periodAnalysisMenuItems) {
+			item.setEnabled(state);
 		}
+
 		this.analysisPolynomialFitItem.setEnabled(state);
 
 		AnalysisType type = mediator.getAnalysisType();

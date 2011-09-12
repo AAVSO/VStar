@@ -41,4 +41,9 @@ public interface PluginBase {
 	 * Get a description of this plugin.
 	 */
 	abstract public String getDescription();
+	
+	/**
+	 * Get the group to which this plugin belongs (may be null).
+	 */
+	abstract public String getGroup();
 }

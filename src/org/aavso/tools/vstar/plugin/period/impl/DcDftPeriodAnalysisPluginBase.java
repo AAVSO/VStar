@@ -33,6 +33,10 @@ import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
+// TODO
+// o add DC DFT period input mode (look at TS); ditto for coord type
+// o persist DC DFT parameter dialog values
+
 /**
  * Date Compensated Discrete Fourier Transform period analysis plugin.
  */
@@ -73,6 +77,14 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 
 	public String getDescription() {
 		return "Date Compensated Discrete Fourier Transform";
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 */
+	@Override
+	public String getGroup() {
+		return "DC DFT";
 	}
 
 	public JDialog getDialog(SeriesType sourceSeriesType) {
