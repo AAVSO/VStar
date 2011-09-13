@@ -68,7 +68,6 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		MainFrame.getInstance().getStatusPane().setMessage(
 				"Performing Period Analysis...");
 		try {
-			periodAnalysisPlugin.reset();
 			periodAnalysisPlugin.executeAlgorithm(obs);
 		} catch (CancellationException e) {
 			successful = false;

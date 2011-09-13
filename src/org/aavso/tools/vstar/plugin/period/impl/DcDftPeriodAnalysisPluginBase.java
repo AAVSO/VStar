@@ -26,16 +26,11 @@ import javax.swing.JDialog;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
-import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
-
-// TODO
-// o add DC DFT period input mode (look at TS); ditto for coord type
-// o persist DC DFT parameter dialog values
 
 /**
  * Date Compensated Discrete Fourier Transform period analysis plugin.
@@ -43,38 +38,30 @@ import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 abstract public class DcDftPeriodAnalysisPluginBase extends
 		PeriodAnalysisPluginBase {
 
+	protected NewStarMessage newStarMessage;
+	protected TSDcDft periodAnalysisAlgorithm;
+	
 	private final static PeriodAnalysisCoordinateType[] DATA_COLUMN_TYPES = {
 			PeriodAnalysisCoordinateType.FREQUENCY,
 			PeriodAnalysisCoordinateType.PERIOD,
 			PeriodAnalysisCoordinateType.POWER,
 			PeriodAnalysisCoordinateType.AMPLITUDE };
 
-	protected NewStarMessage newStarMessage;
-
-	protected MeanSourceSeriesChangeMessage meanSourceSeriesChangeMessage;
-
-	protected TSDcDft periodAnalysisAlgorithm;
-
-	private JDialog dialog;
-
 	/**
 	 * Constructor.
 	 */
 	public DcDftPeriodAnalysisPluginBase() {
 		super();
-		// TODO: probably don't care about the next two now...
-		newStarMessage = null;
-		meanSourceSeriesChangeMessage = null;
-		periodAnalysisAlgorithm = null;
-		dialog = null;
 	}
 
 	// ** Mandatory interface methods **
 
+	@Override
 	public String getDisplayName() {
 		return "Date Compensated DFT";
 	}
 
+	@Override
 	public String getDescription() {
 		return "Date Compensated Discrete Fourier Transform";
 	}
@@ -87,10 +74,8 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 		return "DC DFT";
 	}
 
+	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
-		assert newStarMessage != null;
-
-		if (dialog == null) {
 			List<PeriodAnalysis2DPlotModel> models = new ArrayList<PeriodAnalysis2DPlotModel>();
 
 			Map<PeriodAnalysisCoordinateType, List<Double>> resultDataMap = periodAnalysisAlgorithm
@@ -106,7 +91,17 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.AMPLITUDE, false));
 
-			dialog = new PeriodAnalysis2DResultDialog(
+			// Period vs Power
+//			models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+//					PeriodAnalysisCoordinateType.PERIOD,
+//					PeriodAnalysisCoordinateType.POWER, false));
+
+			// Period vs Amplitude
+//			models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+//					PeriodAnalysisCoordinateType.PERIOD,
+//					PeriodAnalysisCoordinateType.AMPLITUDE, false));
+
+			return new PeriodAnalysis2DResultDialog(
 					"Period Analysis (DC DFT) for "
 							+ newStarMessage.getStarInfo().getDesignation(),
 					"(series: " + sourceSeriesType.getDescription() + ")",
@@ -114,27 +109,13 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 							resultDataMap), new PeriodAnalysisDataTableModel(
 							DATA_COLUMN_TYPES, periodAnalysisAlgorithm
 									.getTopHits()), periodAnalysisAlgorithm);
-		}
-
-		return dialog;
 	}
 
 	// ** Mandatory message listeners. **
 
+	@Override
 	protected void newStarAction(NewStarMessage message) {
+		newStarMessage = message; 
 		reset();
-		newStarMessage = message;
-	}
-
-	// ** Private helper methods **
-
-	// TODO: see PeriodAnalysisTask: this is being reset after each successful
-	// invocation of the plugin, so we should just recreate the algorithm and
-	// dialog each time anyway! (i.e. the dialog == null above is useless,
-	// unless we cancel a period analysis task, in which case it may even be
-	// harmful; ditto for algorithm!)
-	public void reset() {
-		periodAnalysisAlgorithm = null;
-		dialog = null;
 	}
 }

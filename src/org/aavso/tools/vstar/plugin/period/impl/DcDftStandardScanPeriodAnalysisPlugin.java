@@ -36,10 +36,7 @@ public class DcDftStandardScanPeriodAnalysisPlugin extends
 			throws AlgorithmError, CancellationException {
 		assert newStarMessage != null;
 
-		if (periodAnalysisAlgorithm == null) {
-			periodAnalysisAlgorithm = new TSDcDft(
-					obs);
-		}
+		periodAnalysisAlgorithm = new TSDcDft(obs);
 
 		periodAnalysisAlgorithm.execute();
 	}
@@ -52,5 +49,10 @@ public class DcDftStandardScanPeriodAnalysisPlugin extends
 	@Override
 	public String getDisplayName() {
 		return "DC DFT Standard Scan";
+	}
+
+	@Override
+	public void reset() {
+		// Nothing to do.
 	}
 }
