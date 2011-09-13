@@ -65,13 +65,18 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
-	private boolean specifyParameters;
+	private DcDftAnalysisType analysisType;
 
+	// Parameter values (by frequency or period).
 	private double loFreqValue;
 	private double hiFreqValue;
+	private double loPeriodValue;
+	private double hiPeriodValue;
 	private double resolutionValue;
 
 	private double dang0;
+
+	private int nbest;
 
 	private Map<PeriodAnalysisCoordinateType, List<Double>> resultSeries;
 	private Map<PeriodAnalysisCoordinateType, List<Double>> topHits;
@@ -88,7 +93,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	public TSDcDft(List<ValidObservation> observations) {
 		super(observations);
 
-		specifyParameters = false;
+		this.analysisType = DcDftAnalysisType.STANDARD_SCAN;
 
 		resultSeries = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
 		for (PeriodAnalysisCoordinateType type : PeriodAnalysisCoordinateType
@@ -104,17 +109,21 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	/**
 	 * Constructor
 	 * 
+	 * The analysis type is specified.
+	 * 
 	 * @param observations
 	 *            The observations over which to perform a period analysis.
-	 * @param specifyParameters
-	 *            Does the caller want to specify parameters (frequency range,
-	 *            resolution).
+	 * @param analysisType
+	 *            The type of analysis to be carried out: standard scan,
+	 *            frequency range, period range.
 	 */
 	public TSDcDft(List<ValidObservation> observations,
-			boolean specifyParameters) {
+			DcDftAnalysisType analysisType) {
 		this(observations);
-		this.specifyParameters = specifyParameters;
-		if (specifyParameters) {
+
+		this.analysisType = analysisType;
+
+		if (analysisType == DcDftAnalysisType.FREQUENCY_RANGE) {
 			// Set the default parameters for the specified dataset
 			// (frequency range and resolution).
 			determineDefaultParameters();
@@ -124,7 +133,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	/**
 	 * Constructor
 	 * 
-	 * As per last constructor except that we override the
+	 * As per last constructor except that we override the parameter values and
+	 * request a frequency range analysis type.
 	 * 
 	 * @param observations
 	 *            The observations over which to perform a period analysis.
@@ -137,7 +147,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 */
 	public TSDcDft(List<ValidObservation> observations, double loFreq,
 			double hiFreq, double resolution) {
-		this(observations, true);
+		this(observations, DcDftAnalysisType.FREQUENCY_RANGE);
 		setHiFreqValue(hiFreq);
 		setLoFreqValue(loFreq);
 		setResolutionValue(resolution);
@@ -173,6 +183,36 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 */
 	public void setHiFreqValue(double hiFreqValue) {
 		this.hiFreqValue = hiFreqValue;
+	}
+
+	/**
+	 * @return the loPeriodValue
+	 */
+	public double getLoPeriodValue() {
+		return loPeriodValue;
+	}
+
+	/**
+	 * @param loPeriodValue
+	 *            the loPeriodValue to set
+	 */
+	public void setLoPeriodValue(double loPeriodValue) {
+		this.loPeriodValue = loPeriodValue;
+	}
+
+	/**
+	 * @return the hiPeriodValue
+	 */
+	public double getHiPeriodValue() {
+		return hiPeriodValue;
+	}
+
+	/**
+	 * @param hiPeriodValue
+	 *            the hiPeriodValue to set
+	 */
+	public void setHiPeriodValue(double hiPeriodValue) {
+		this.hiPeriodValue = hiPeriodValue;
 	}
 
 	/**
@@ -290,6 +330,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		int magres;
 		double dpolyamp2, dang00, damplit, dt, dx;
 		npoly = 0;
+		nbest = MAX_TOP_HITS - 1;
 		nbrake = 0;
 		dpolyamp2 = 0.0; // added Apr 7
 		dfouramp2 = 0.0;
@@ -309,7 +350,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	// For use in conjunction with frequency_range().
 	public void determineDefaultParameters() {
 		double xlofre, res, xloper, hiper;
-		int iff, ixx, nbest;
+		int iff, ixx;
 
 		dcdftCommon();
 
@@ -335,14 +376,21 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	}
 
 	protected void dcdft() {
-		if (!specifyParameters) {
+		switch (analysisType) {
+		case STANDARD_SCAN:
 			dcdftCommon();
 			standard_scan();
-		} else {
+			break;
+		case FREQUENCY_RANGE:
 			// dcdftCommon() has already been called in
 			// determineDefaultParameters()
 			// via the specify-parameters form of the constructor.
 			frequency_range();
+			break;
+		case PERIOD_RANGE:
+			dcdftCommon();
+			period_range();
+			break;
 		}
 	}
 
@@ -366,11 +414,9 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	// DC DFT with frequency range and resolution specified.
 	protected void frequency_range() {
 		double xlofre, res, xloper, hiper, dpolyamp2;
-		int iff, ixx, nbest;
+		int iff, ixx;
 
 		dpolyamp2 = 0.0; // added Apr 7
-
-		nbest = MAX_TOP_HITS - 1;
 
 		// write(6,261) dfloat(ndim+1)*dang0/2.0
 		// read[5][260] xlofre;
@@ -384,7 +430,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		// read[5][260] res;
 		res = this.resolutionValue;
 
-		hiper = 0.0;
+		hiper = 0.0; // hiper not used!
 		if (xlofre != 0.0)
 			hiper = 1.0 / xlofre;
 		xloper = 0.0;
@@ -414,6 +460,65 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 		// TODO: doesn't appear to be necessary
 		dfouramp2 = dpolyamp2; // added Apr 7
+	}
+
+	// DC DFT with period range and resolution specified.
+	protected void period_range() {
+		double xlofre, res, xloper, hiper, pper;
+		int ipp, ixx;
+
+		nfre = 1;
+
+		xloper = getLoPeriodValue();
+		hiper = getHiPeriodValue();
+
+		// Question: why "< 0.0"?
+		if (hiper < 0.0) {
+			hiper = xloper;
+			res = 1.0;
+		} else {
+			res = getResolutionValue();
+		}
+		
+		hifre = 0.0;
+
+		if (xloper != 0.0) {
+			hifre = 1.0 / xloper;
+		}
+
+		xlofre = 0.0;
+
+		if (hiper != 0.0) {
+			xlofre = 1.0 / hiper;
+		}
+		
+		// write(1,290) fprint,numact,dave,dsig,dvar
+		// write(1,292) dt0+tvec(nlolim),dt0+tvec(nuplim),dt0+dtzero
+		// call lognow
+		// write(1,201)
+
+		if (hiper >= (xloper + res)) {
+			ipp = (int) ((hiper - xloper) / res) + 1;
+			for (ixx = 1; ixx <= ipp; ixx++) {
+				pper = xloper + ((double) (ixx - 1) * res);
+
+				if (pper != 0.0) {
+					ff = 1.0 / pper;
+				}
+				
+				fft(ff);
+				
+				if (nbrake < 0) {
+					statcomp();
+					break;
+				}
+			}
+		} else {
+			ff = 1.0 / xloper;
+			fft(ff);
+			dgpower[nbest] = 0.0;
+			tablit();
+		}
 	}
 
 	/**

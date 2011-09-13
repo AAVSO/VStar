@@ -29,26 +29,26 @@ import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
- * This class encapsulates the "frequency range" (as per AAVSO TS) form of
+ * This class encapsulates the "period range" (as per AAVSO TS) form of
  * the DC DFT period analysis algorithm.
  */
-public class DcDftFrequencyRangePeriodAnalysisPlugin extends
+public class DcDftPeriodRangePeriodAnalysisPlugin extends
 		DcDftPeriodAnalysisPluginBase {
 
-	private Double currLoFreq;
-	private Double currHiFreq;
+	private Double currLoPeriod;
+	private Double currHiPeriod;
 	private Double currResolution;
 
-	NumberField loFreqField;
-	NumberField hiFreqField;
+	NumberField loPeriodField;
+	NumberField hiPeriodField;
 	NumberField resolutionField;
 
 	/**
 	 * Constructor
 	 */
-	public DcDftFrequencyRangePeriodAnalysisPlugin() {
-		currLoFreq = null;
-		currHiFreq = null;
+	public DcDftPeriodRangePeriodAnalysisPlugin() {
+		currLoPeriod = null;
+		currHiPeriod = null;
 		currResolution = null;
 	}
 
@@ -57,25 +57,17 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 			throws AlgorithmError, CancellationException {
 		assert newStarMessage != null;
 
-		periodAnalysisAlgorithm = new TSDcDft(obs, DcDftAnalysisType.FREQUENCY_RANGE);
-
-		if (currLoFreq == null) {
-			// Get these default values only once per dataset. See also reset()
-			// which is called by newStarAtion()
-			currLoFreq = periodAnalysisAlgorithm.getLoFreqValue();
-			currHiFreq = periodAnalysisAlgorithm.getHiFreqValue();
-			currResolution = periodAnalysisAlgorithm.getResolutionValue();
-		}
+		periodAnalysisAlgorithm = new TSDcDft(obs, DcDftAnalysisType.PERIOD_RANGE);
 
 		MultiNumberEntryDialog paramDialog = createParamDialog();
 
 		if (!paramDialog.isCancelled()) {
-			currLoFreq = loFreqField.getValue();
-			currHiFreq = hiFreqField.getValue();
+			currLoPeriod = loPeriodField.getValue();
+			currHiPeriod = hiPeriodField.getValue();
 			currResolution = resolutionField.getValue();
 
-			periodAnalysisAlgorithm.setLoFreqValue(currLoFreq);
-			periodAnalysisAlgorithm.setHiFreqValue(currHiFreq);
+			periodAnalysisAlgorithm.setLoPeriodValue(currLoPeriod);
+			periodAnalysisAlgorithm.setHiPeriodValue(currHiPeriod);
 			periodAnalysisAlgorithm.setResolutionValue(currResolution);
 
 			periodAnalysisAlgorithm.execute();
@@ -87,11 +79,11 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 	private MultiNumberEntryDialog createParamDialog() {
 		List<NumberField> fields = new ArrayList<NumberField>();
 
-		loFreqField = new NumberField("Low Frequency", 0.0, null, currLoFreq);
-		fields.add(loFreqField);
+		loPeriodField = new NumberField("Low Period", 0.0, null, currLoPeriod);
+		fields.add(loPeriodField);
 
-		hiFreqField = new NumberField("High Frequency", 0.0, null, currHiFreq);
-		fields.add(hiFreqField);
+		hiPeriodField = new NumberField("High Period", 0.0, null, currHiPeriod);
+		fields.add(hiPeriodField);
 
 		resolutionField = new NumberField("Resolution", 0.0, null,
 				currResolution);
@@ -102,17 +94,17 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 
 	@Override
 	public String getDescription() {
-		return "Date Compensated Discrete Fourier Transform with Frequency Range";
+		return "Date Compensated Discrete Fourier Transform with Period Range";
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "DC DFT with Frequency Range";
+		return "DC DFT with Period Range";
 	}
 
 	public void reset() {
-		currLoFreq = null;
-		currHiFreq = null;
+		currLoPeriod = null;
+		currHiPeriod = null;
 		currResolution = null;
 	}
 }

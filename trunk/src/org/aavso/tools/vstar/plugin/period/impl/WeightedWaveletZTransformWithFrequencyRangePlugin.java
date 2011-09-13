@@ -148,10 +148,7 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 	 */
 	@Override
 	protected void newStarAction(NewStarMessage message) {
-		currMinFreq = null;
-		currMaxFreq = null;
-		currDeltaFreq = null;
-		currDecay = null;
+		reset();
 	}
 
 	/**
@@ -159,6 +156,9 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 	 */
 	@Override
 	public void reset() {
-		// Nothing to do yet.
+		currMinFreq = null;
+		currMaxFreq = null;
+		currDeltaFreq = null;
+		currDecay = null;
 	}
 }

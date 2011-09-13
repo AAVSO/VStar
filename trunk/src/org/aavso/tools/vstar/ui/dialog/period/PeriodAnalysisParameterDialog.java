@@ -33,6 +33,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This modal dialog class allows period analysis parameters to be entered.
+ * @deprecated Use MultiNumberEntryDialog instead
  */
 public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 
@@ -79,7 +80,7 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 
 		loFreqField = new JTextField(String.format(NumericPrecisionPrefs
 				.getOtherOutputFormat(), loFreq));
-		// loFreqField = new JTextField(loFreq + "");
+		// loPeriodField = new JTextField(loFreq + "");
 		loFreqField
 				.setBorder(BorderFactory.createTitledBorder("Low Frequency"));
 		loFreqField.setToolTipText("Enter low frequency for scan");
@@ -89,7 +90,7 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 
 		hiFreqField = new JTextField(String.format(NumericPrecisionPrefs
 				.getOtherOutputFormat(), hiFreq));
-		// hiFreqField = new JTextField(hiFreq + "");
+		// hiPeriodField = new JTextField(hiFreq + "");
 		hiFreqField.setBorder(BorderFactory
 				.createTitledBorder("High Frequency"));
 		hiFreqField.setToolTipText("Enter high frequency for scan");
