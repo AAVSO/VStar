@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.plugin.period.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JDialog;
@@ -26,7 +25,6 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.MultiNumberEntryDialog;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
 import org.aavso.tools.vstar.ui.dialog.period.wwz.WeightedWaveletZTransformResultDialog;
@@ -38,26 +36,20 @@ import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
  * Weighted Wavelet Z Transform (period range) plugin.
  */
 public class WeightedWaveletZTransformWithPeriodRangePlugin extends
-		PeriodAnalysisPluginBase {
-
-	private WeightedWaveletZTransform wwt;
+		WeightedWaveletZTransformPluginBase {
 
 	private Double currMinPeriod;
 	private Double currMaxPeriod;
 	private Double currDeltaPeriod;
-	private Double currDecay;
 
 	/**
 	 * Constructor
 	 */
 	public WeightedWaveletZTransformWithPeriodRangePlugin() {
 		super();
-		wwt = null;
-
 		currMinPeriod = null;
 		currMaxPeriod = null;
 		currDeltaPeriod = null;
-		currDecay = null;
 	}
 
 	/**
@@ -67,42 +59,35 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException {
 
-		List<NumberField> fields = new ArrayList<NumberField>();
-
 		NumberField minPeriodField = new NumberField("Minimum Period", 0.0,
 				null, currMinPeriod);
-		fields.add(minPeriodField);
 
 		NumberField maxPeriodField = new NumberField("Maximum Period", 0.0,
 				null, currMaxPeriod);
-		fields.add(maxPeriodField);
 
 		NumberField deltaPeriodField = new NumberField("Period Step", null,
 				null, currDeltaPeriod);
-		fields.add(deltaPeriodField);
 
-		NumberField decayField = new NumberField("Decay", null, null, currDecay);
-		fields.add(decayField);
+		List<NumberField> fields = createNumberFields(minPeriodField,
+				maxPeriodField, deltaPeriodField);
 
 		MultiNumberEntryDialog paramDialog = new MultiNumberEntryDialog(
 				"WWZ Parameters", fields);
 
 		if (!paramDialog.isCancelled()) {
-			double minPeriod, maxPeriod, deltaPeriod, decay;
+			double minPeriod, maxPeriod, deltaPeriod, decay, timeDivisions;
 
 			currMinPeriod = minPeriod = minPeriodField.getValue();
 			currMaxPeriod = maxPeriod = maxPeriodField.getValue();
 			currDeltaPeriod = deltaPeriod = deltaPeriodField.getValue();
 			currDecay = decay = decayField.getValue();
+			currTimeDivisions = timeDivisions = timeDivisionsField.getValue();
 
-			// TODO: ask about number of periods > 1000, with dialog?
+			// TODO: ask about number of periods > 1000 via dialog?
 
-			double freq1 = 1.0 / minPeriod;
-			double freq2 = 1.0 / maxPeriod;
-
-			wwt = new WeightedWaveletZTransform(obs, Math.min(freq1, freq2),
-					Math.max(freq1, freq2), deltaPeriod, decay);
-
+			wwt = new WeightedWaveletZTransform(obs, decay, timeDivisions);
+			wwt.make_freqs_from_period_range(Math.min(minPeriod, maxPeriod),
+					Math.max(minPeriod, maxPeriod), deltaPeriod);
 			wwt.execute();
 		} else {
 			throw new CancellationException("WWZ cancelled");
@@ -126,14 +111,6 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
-	 */
-	@Override
-	public String getGroup() {
-		return "WWZ";
-	}
-
-	/**
 	 * @see org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase#getDialog(org.aavso.tools.vstar.data.SeriesType)
 	 */
 	@Override
@@ -148,10 +125,7 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 	 */
 	@Override
 	protected void newStarAction(NewStarMessage message) {
-		currMinPeriod = null;
-		currMaxPeriod = null;
-		currDeltaPeriod = null;
-		currDecay = null;
+		reset();
 	}
 
 	/**
@@ -159,6 +133,9 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 	 */
 	@Override
 	public void reset() {
-		// Nothing to do yet.
+		super.reset();
+		currMinPeriod = null;
+		currMaxPeriod = null;
+		currDeltaPeriod = null;
 	}
 }

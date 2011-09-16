@@ -50,7 +50,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	private Container contentPane;
 
-	private StarGroupSelectionPane starGroupSelectionPane;	
+	private StarGroupSelectionPane starGroupSelectionPane;
 	private JTextField starField;
 	private JTextField minJDField;
 	private JTextField maxJDField;
@@ -143,7 +143,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		panel.setBorder(BorderFactory.createTitledBorder("Minimum JD"));
 
 		double jd = dateUtil.calendarToJD(year - 2, month, day);
-		minJDField = new JTextField(String.format(NumericPrecisionPrefs.getTimeOutputFormat(), jd));
+		minJDField = new JTextField(String.format(NumericPrecisionPrefs
+				.getTimeOutputFormat(), jd));
 		minJDField.addActionListener(createMinJDFieldActionListener());
 		minJDField.addFocusListener(createMinJDFieldFocusListener());
 		minJDField.setToolTipText(dateUtil.jdToCalendar(jd));
@@ -158,7 +159,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		panel.setBorder(BorderFactory.createTitledBorder("Maximum JD"));
 
 		double jd = dateUtil.calendarToJD(year, month, day);
-		maxJDField = new JTextField(String.format(NumericPrecisionPrefs.getTimeOutputFormat(), jd));
+		maxJDField = new JTextField(String.format(NumericPrecisionPrefs
+				.getTimeOutputFormat(), jd));
 		maxJDField.addActionListener(createMaxJDFieldActionListener());
 		maxJDField.addFocusListener(createMaxJDFieldFocusListener());
 		maxJDField.setToolTipText(dateUtil.jdToCalendar(jd));
@@ -303,16 +305,14 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 				String minJDText = minJDField.getText();
 				minDate = new DateInfo(NumberParser.parseDouble(minJDText));
 			} catch (NumberFormatException e) {
-				MessageBox.showErrorDialog(MainFrame.getInstance(),
-						"Minimum Julian Day", e);
+				MessageBox.showErrorDialog(this, "Minimum Julian Day", e);
 			}
 
 			try {
 				String maxJDText = maxJDField.getText();
 				maxDate = new DateInfo(NumberParser.parseDouble(maxJDText));
 			} catch (NumberFormatException e) {
-				MessageBox.showErrorDialog(MainFrame.getInstance(),
-						"Maximum Julian Day", e);
+				MessageBox.showErrorDialog(this, "Maximum Julian Day", e);
 			}
 		}
 
@@ -398,7 +398,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		this.minDate = null;
 		this.maxDate = null;
 		this.wantAllData = false;
-		
+
 		starGroupSelectionPane.refreshGroups();
 	}
 

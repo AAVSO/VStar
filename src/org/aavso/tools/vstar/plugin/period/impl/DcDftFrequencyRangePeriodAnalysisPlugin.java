@@ -61,7 +61,7 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 
 		if (currLoFreq == null) {
 			// Get these default values only once per dataset. See also reset()
-			// which is called by newStarAtion()
+			// which is called by newStarAtion().
 			currLoFreq = periodAnalysisAlgorithm.getLoFreqValue();
 			currHiFreq = periodAnalysisAlgorithm.getHiFreqValue();
 			currResolution = periodAnalysisAlgorithm.getResolutionValue();

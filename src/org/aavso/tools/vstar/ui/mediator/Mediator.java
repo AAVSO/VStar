@@ -960,7 +960,7 @@ public class Mediator {
 							"Mean error bars denote 95% Confidence Interval (twice Standard Error)");
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					"Raw Plot for " + starInfo.getDesignation(), null,
+					"Light Curve for " + starInfo.getDesignation(), null,
 					obsAndMeanPlotModel);
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
@@ -1323,7 +1323,7 @@ public class Mediator {
 		NamedComponent extra = null;
 
 		if (analysisType == AnalysisType.RAW_DATA) {
-			title = "Raw Plot Control";
+			title = "Light Curve Control";
 			binSettingPane = new TimeElementsInBinSettingPane(
 					"Days per Mean Series Bin", plotPane.getObsModel(),
 					JDTimeElementEntity.instance);

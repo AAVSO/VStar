@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.plugin.period.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JDialog;
@@ -26,7 +25,6 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.MultiNumberEntryDialog;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
 import org.aavso.tools.vstar.ui.dialog.period.wwz.WeightedWaveletZTransformResultDialog;
@@ -38,26 +36,20 @@ import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
  * Weighted Wavelet Z Transform (frequency range) plugin.
  */
 public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
-		PeriodAnalysisPluginBase {
-
-	private WeightedWaveletZTransform wwt;
+		WeightedWaveletZTransformPluginBase {
 
 	private Double currMinFreq;
 	private Double currMaxFreq;
 	private Double currDeltaFreq;
-	private Double currDecay;
 
 	/**
 	 * Constructor
 	 */
 	public WeightedWaveletZTransformWithFrequencyRangePlugin() {
 		super();
-		wwt = null;
-
 		currMinFreq = null;
 		currMaxFreq = null;
 		currDeltaFreq = null;
-		currDecay = null;
 	}
 
 	/**
@@ -67,42 +59,35 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException {
 
-		List<NumberField> fields = new ArrayList<NumberField>();
-
 		NumberField minFreqField = new NumberField("Minimum Frequency", 0.0,
 				null, currMinFreq);
-		fields.add(minFreqField);
 
 		NumberField maxFreqField = new NumberField("Maximum Frequency", 0.0,
 				null, currMaxFreq);
-		fields.add(maxFreqField);
 
 		NumberField deltaFreqField = new NumberField("Frequency Step", null,
 				null, currDeltaFreq);
-		fields.add(deltaFreqField);
 
-		NumberField decayField = new NumberField("Decay", null, null, currDecay);
-		fields.add(decayField);
+		List<NumberField> fields = createNumberFields(minFreqField,
+				maxFreqField, deltaFreqField);
 
 		MultiNumberEntryDialog paramDialog = new MultiNumberEntryDialog(
 				"WWZ Parameters", fields);
 
 		if (!paramDialog.isCancelled()) {
-			double minFreq, maxFreq, deltaFreq, decay;
+			double minFreq, maxFreq, deltaFreq, decay, timeDivisions;
 
 			currMinFreq = minFreq = minFreqField.getValue();
 			currMaxFreq = maxFreq = maxFreqField.getValue();
 			currDeltaFreq = deltaFreq = deltaFreqField.getValue();
 			currDecay = decay = decayField.getValue();
+			currTimeDivisions = timeDivisions = timeDivisionsField.getValue();
 
-			// TODO: ask about number of frequencies > 1000, with dialog?
+			// TODO: ask about number of frequencies > 1000 via dialog?
 
-			double freq1 = minFreq;
-			double freq2 = maxFreq;
-
-			wwt = new WeightedWaveletZTransform(obs, Math.min(freq1, freq2),
-					Math.max(freq1, freq2), deltaFreq, decay);
-
+			wwt = new WeightedWaveletZTransform(obs, decay, timeDivisions);
+			wwt.make_freqs_from_freq_range(Math.min(minFreq, maxFreq), Math
+					.max(minFreq, maxFreq), deltaFreq);
 			wwt.execute();
 		} else {
 			throw new CancellationException("WWZ cancelled");
@@ -123,14 +108,6 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 	@Override
 	public String getDisplayName() {
 		return "WWZ with Frequency Range";
-	}
-
-	/**
-	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
-	 */
-	@Override
-	public String getGroup() {
-		return "WWZ";
 	}
 
 	/**
@@ -156,9 +133,9 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 	 */
 	@Override
 	public void reset() {
+		super.reset();
 		currMinFreq = null;
 		currMaxFreq = null;
 		currDeltaFreq = null;
-		currDecay = null;
 	}
 }
