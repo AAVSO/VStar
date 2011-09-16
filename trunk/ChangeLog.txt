@@ -27,9 +27,9 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   details.
   
 ----------------------
-Date: September ?? 2011
-Version: 2.13
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??Sep2011
+Date: September 16 2011
+Version: 2.13 (internal Citizen Sky testing release)
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-16Sep2011
 Key Changes:
 - Added online docs link to Help menu where platform supports the Java 1.6 Desktop 
   API. See tracker 2960025.
@@ -85,6 +85,10 @@ Key Changes:
 - Added support for making period analysis plot ranges axis logarithmic and enabled
   for DC DFT power spectrum (log10(power)) and example plug-in. Requested by Doug 
   Welch.
+- Added period range GUI specification for DC DFT and WWZ.
+- Added getGroup() method to plug-in base class; may return null, but otherwise can be 
+  used to keep separation between different groups of plug-ins (e.g. DC DFT or WWZ 
+  related).
 - Ensuring observations are sorted, given out of order sources encountered. See
   tracker 3274046.
 - Permitting files with rows delimited by whitespace to be loaded. See tracker 

@@ -178,13 +178,11 @@ public class AboutBox extends JDialog {
 		strBuf.append("developed for:\n\n");
 		strBuf.append("  The American Association of Variable Star\n");
 		strBuf.append("  Observers: http://www.aavso.org/\n\n");
-		strBuf.append("as part of:\n\n");
-		strBuf
-				.append("  The Citizen Sky Project: http://www.citizensky.org/\n\n");
+		strBuf.append("as part of the Citizen Sky Project:\n\n");
+		strBuf.append(" http://www.citizensky.org/\n\n");
 
-		strBuf
-				.append("This project was funded in part by grant No. 000379097\n");
-		strBuf.append("from the National Science Foundation.\n\n");
+		strBuf.append("This project was funded in part by grant No.\n");
+		strBuf.append("000379097 from the National Science Foundation.\n\n");
 
 		strBuf.append("Lead Developer: David Benn\n");
 		strBuf.append("Contact: aavso@aavso.org\n");
@@ -194,39 +192,36 @@ public class AboutBox extends JDialog {
 		strBuf.append("participants Nico Camargo and Brian Thieme.\n\n");
 
 		strBuf.append("Thanks to the staff of AAVSO for their support and\n");
-		strBuf.append("ongoing encouragement, in particular:\n\n");
-		strBuf.append(" Sara Beck, Arne Henden, Doc Kinne, Aaron Price,\n");
-		strBuf
-				.append(" Matt Templeton, Rebecca Turner, and Elizabeth Waagen\n\n");
-
-		strBuf.append("As guide, domain expert, AAVSO liason, and advocate,\n");
-		strBuf.append("Sara has been indispensible.\n\n");
+		strBuf.append("ongoing encouragement, in particular: Sara Beck,\n");
+		strBuf.append("Arne Henden, Doc Kinne, Aaron Price, Matt\n");
+		strBuf.append("Templeton, Rebecca Turner and Elizabeth Waagen.\n");
+		strBuf.append("As guide, domain expert, AAVSO liason, and\n");
+		strBuf.append("advocate, Sara Beck has been indispensible.\n\n");
 
 		strBuf.append("Thanks to Michael Umbricht for early testing, bug\n");
 		strBuf.append("reports, advocacy, great conversations, and beer.\n\n");
 
-		strBuf.append("Discussions with Grant Foster, the original VStar developer,\n");
-		strBuf.append("and reading his book:\n");
-		strBuf.append("  \"Analyzing Light Curves: A Practical Guide\" provided\n");
-		strBuf.append("knowledge that would have been much harder to\n");
-		strBuf.append("obtain otherwise.\n\n");
+		strBuf.append("Conversations with Grant Foster, the original VStar\n");
+		strBuf.append("developer, and his book:\n");
+		strBuf.append("\"Analyzing Light Curves: A Practical Guide\"\n");
+		strBuf.append("have allowed me to gain knowledge that would have\n");
+		strBuf.append("been harder to come by otherwise.\n\n");
 
-		strBuf.append("Doug Welch, Ken Mogul, and Alan Plummer have\n");
-		strBuf
-				.append("provided a keep-it-real end-user perspective. Doug's\n");
-		strBuf
-				.append("and Aaron's knowledge and advice are always appreciated.\n\n");
+		strBuf.append("Doug Welch, Ken Mogul, Alan Plummer and Mike\n");
+		strBuf.append("Simonsen have provided a keep-it-real end-user\n");
+		strBuf.append("perspective. Doug's and Aaron's knowledge\n");
+		strBuf.append("and advice are always appreciated.\n\n");
 
 		strBuf.append("Thanks to the Weber brothers (Adam and George)\n");
-		strBuf.append("for code and bug-fix contributions, Nico Camargo for\n");
-		strBuf.append("the beautiful toolbar icons and to the broader\n");
-		strBuf.append("Citizen Sky VStar Software Development for testing,\n");
-		strBuf.append("advice, discussions, and encouragement.\n\n");
+		strBuf.append("for code and bug-fix contributions, Nico Camargo\n");
+		strBuf.append("for his beautiful toolbar icons and to the broader\n");
+		strBuf.append("Citizen Sky VStar Software Development team for\n");
+		strBuf.append("testing, advice, discussions, and encouragement.\n\n");
 
 		strBuf.append("Finally, thanks Arne, for the conversation at NACAA\n");
-		strBuf.append("2008 that got the ball rolling, and for the 2011 Director's\n");
-		strBuf.append("Award.");
-		
+		strBuf.append("2008 that got the ball rolling, ongoing interest,\n");
+		strBuf.append("and the 2011 AAVSO Director's Award.");
+
 		return strBuf.toString();
 	}
 }
