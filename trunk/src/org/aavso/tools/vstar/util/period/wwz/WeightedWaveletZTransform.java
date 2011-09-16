@@ -29,10 +29,11 @@ import org.aavso.tools.vstar.util.IAlgorithm;
  * This is a Java translation of the Fortran version of Grant Foster's WWZ
  * algorithm. The original (C) notice from the Fortran code is included below.
  * As per the documentation accompanying the program, written (email) permission
- * was sought from the AAVSO Director to use the Fortran code in this way, and
- * granted. Note that the comment about maximum data points below does not apply
- * here, since we dynamically allocate the arrays based upon the number of
- * observations.
+ * was sought, and granted, from the AAVSO Director to use the Fortran code in
+ * this way. Note that the comment about maximum data points below does not
+ * apply here, since we dynamically allocate the arrays based upon the number of
+ * observations. The original Fortran program's header comment is included
+ * below.
  * </p>
  * 
  * <p>
@@ -61,7 +62,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	// Full stats and maximal stats (results).
 	private List<WWZStatistic> stats;
 	private List<WWZStatistic> maximalStats;
-	
+
 	// Selected min/max maximal frequency and amplitude values.
 	private double minPeriod;
 	private double maxPeriod;
@@ -69,13 +70,12 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	private double maxAmp;
 	private double minWWZ;
 	private double maxWWZ;
-	
+
 	private double dave;
 	private double dcc;
 	private double dcon;
 	private double dcw;
 	private double dtstep;
-	private double df;
 	private double dmat[][] = new double[3][3];
 	private double dsig;
 	private double dss;
@@ -107,24 +107,22 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	 * @param decay
 	 *            The decay constant of the wavelet window. This determines how
 	 *            wide the window is. Smaller values yield wider windows.
+	 * @param timeDivisions
+	 *            The number of time divisions.
 	 */
 	public WeightedWaveletZTransform(List<ValidObservation> observations,
-			double minFreq, double maxFreq, double deltaFreq, double decay) {
+			double decay, double timeDivisions) {
 
 		obs = observations;
 
 		dataread(observations);
 
-		flo = minFreq;
-		fhi = maxFreq;
-		df = deltaFreq;
 		dcon = decay;
 
 		stats = new ArrayList<WWZStatistic>();
 		maximalStats = new ArrayList<WWZStatistic>();
 
-		maketau();
-		makefreq();
+		maketau(timeDivisions);
 	}
 
 	/**
@@ -132,58 +130,12 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	 * 
 	 * @param observations
 	 *            The observations over which to perform a period analysis.
-	 * @param minFreq
-	 *            The minimum frequency to test.
-	 * @param maxFreq
-	 *            The maximum frequency to test.
+	 * @param timeDivisions
+	 *            The number of time divisions.
 	 */
 	public WeightedWaveletZTransform(List<ValidObservation> observations,
-			double minFreq, double maxFreq, double deltaFreq) {
-		this(observations, minFreq, maxFreq, deltaFreq, 0.001);
-	}
-
-	/**
-	 * @return the decay
-	 */
-	public double getDecay() {
-		return dcon;
-	}
-
-	/**
-	 * @return the delta frequency step
-	 */
-	public double getDeltaFreqStep() {
-		return df;
-	}
-
-	/**
-	 * @return the maximum frequency
-	 */
-	public double getMaxFreq() {
-		return fhi;
-	}
-
-	/**
-	 * @return the minimum frequency
-	 */
-	public double getMinFreq() {
-		return flo;
-	}
-
-	/**
-	 * @return the number of frequencies
-	 */
-	public int getNfreq() {
-		return nfreq;
-	}
-
-	/**
-	 * Get the delta tau (time step) factor.
-	 * 
-	 * @return
-	 */
-	public double getTauStep() {
-		return dtstep;
+			double timeDivisions) {
+		this(observations, 0.001, 50);
 	}
 
 	/**
@@ -215,6 +167,20 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	 */
 	public List<WWZStatistic> getMaximalStats() {
 		return maximalStats;
+	}
+
+	/**
+	 * @return the maximum frequency
+	 */
+	public double getMaxFreq() {
+		return fhi;
+	}
+
+	/**
+	 * @return the minimum frequency
+	 */
+	public double getMinFreq() {
+		return flo;
 	}
 
 	/**
@@ -266,7 +232,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	private void computeMinAndMaxValues() {
 		minPeriod = Double.MAX_VALUE;
 		maxPeriod = -Double.MAX_VALUE;
-		
+
 		minAmp = Double.MAX_VALUE;
 		maxAmp = -Double.MAX_VALUE;
 
@@ -285,7 +251,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			} else if (stat.getAmplitude() > maxAmp) {
 				maxAmp = stat.getAmplitude();
 			}
-			
+
 			if (stat.getWwz() < minWWZ) {
 				minWWZ = stat.getWwz();
 			} else if (stat.getWwz() > maxWWZ) {
@@ -335,13 +301,13 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	 * of time. TODO: notice that we could have done this the Basic for-step way
 	 * here.
 	 */
-	private void maketau() {
+	private void maketau(double timeDivisions) {
 		double dtspan, dtaulo, dtauhi;
 
 		tau = new double[numdat + 1];
 
 		dtspan = dt[numdat] - dt[1];
-		dtstep = round(dtspan / 50.0);
+		dtstep = round(dtspan / timeDivisions);
 		dtaulo = dt[1];
 		dtauhi = dt[numdat];
 		dtaulo = dtstep * (double) ((int) ((dtaulo / dtstep) + 0.5));
@@ -359,10 +325,6 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 
 	/**
 	 * Rounds the taus... from G. Foster's code.
-	 * 
-	 * TODO: we may be able to replace this with a Math class function, but
-	 * possibly not, since this seems to be categorising its arguments into
-	 * ranges >2..5, >1..2, <=1
 	 * 
 	 * @param darg
 	 *            The argument to be rounded.
@@ -387,30 +349,59 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 		return darg;
 	}
 
-	private void makefreq() {
-		// TODO: guard against 0 frequency, initially throw exception, but later
-		// in UI; then assert non-zero here; we'll get NaNs with 0. Or, for
-		// frequency of zero, just ignore results?
+	/**
+	 * Create the array of frequencies to test per time period given a frequency
+	 * range and frequency step.
+	 * 
+	 * @param minFreq
+	 *            The minimum frequency to test.
+	 * @param maxFreq
+	 *            The maximum frequency to test.
+	 * @param deltaFreq
+	 *            The frequency step with respect to the range.
+	 */
+	public void make_freqs_from_freq_range(double minFreq, double maxFreq,
+			double deltaFreq) {
 
-		nfreq = (int) ((fhi - flo) / df) + 1;
+		flo = minFreq;
+		fhi = maxFreq;
+
+		nfreq = (int) ((fhi - flo) / deltaFreq) + 1;
 
 		freq = new double[nfreq + 1];
 
-		// depending upon the user inputs, you may wind up with a lot of
-		// frequencies.
-		// this will query in case nfreq>1000 (nfreq=1000 is a reasonable
-		// number)
-		if (nfreq > 1000) {
-			// TODO: throw exception for now; instead, do this check in WWZ
-			// parameter dialog, opening a JOptionPane to ask whether this is
-			// okay
-			// throw new IllegalArgumentException(
-			// "Number of frequencies is greater than 1000.");
+		for (int i = 1; i <= nfreq; i++) {
+			freq[i] = flo + (double) (i - 1) * deltaFreq;
 		}
+	}
 
-		freq[1] = flo;
-		for (int i = 2; i <= nfreq; i++) {
-			freq[i] = freq[1] + (double) (i - 1) * df;
+	/**
+	 * Create the array of frequencies to test per time period given a period
+	 * range and period step.
+	 * 
+	 * @param minPer
+	 *            The minimum period to test.
+	 * @param maxPer
+	 *            The maximum period to test.
+	 * @param deltaPeriod
+	 *            The period step with respect to the range.
+	 */
+	public void make_freqs_from_period_range(double minPer, double maxPer,
+			double deltaPeriod) {
+
+		minPeriod = minPer;
+		maxPeriod = maxPer;
+		
+		flo = 1/maxPeriod;
+		fhi = 1/minPeriod;
+
+		nfreq = (int) ((maxPeriod - minPeriod) / deltaPeriod) + 1;
+
+		freq = new double[nfreq + 1];
+
+		for (int i = 1; i <= nfreq; i++) {
+			double period = minPeriod + (double) (i - 1) * deltaPeriod;  
+			freq[i] = 1/period;
 		}
 	}
 
@@ -611,12 +602,12 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 				//
 				// Also record one WWZ statistic per tau-frequency pair for
 				// efficient retrieval in some scenarios.
-				
+
 				WWZStatistic stat = new WWZStatistic(dtau, dfre, dpowz, damp,
 						dcoef[0], dneff);
 
 				stats.add(stat);
-				
+
 				if (dpowz > dmz) {
 					dmz = dpowz;
 					dmfre = dfre;

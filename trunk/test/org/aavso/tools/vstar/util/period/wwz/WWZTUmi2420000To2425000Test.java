@@ -51,11 +51,12 @@ public class WWZTUmi2420000To2425000Test extends DataTestBase {
 		double maxFreq = 0.02;
 		double deltaFreq = 0.001;
 		double decay = 0.01;
-
+		double timeDivisions = 50.0;
+		
 		try {
 			WeightedWaveletZTransform wwt = new WeightedWaveletZTransform(obs,
-					minFreq, maxFreq, deltaFreq, decay);
-
+					 decay, timeDivisions);
+			wwt.make_freqs_from_freq_range(minFreq, maxFreq, deltaFreq);
 			wwt.execute();
 
 			List<WWZStatistic> stats = wwt.getStats();
