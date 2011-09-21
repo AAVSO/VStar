@@ -34,8 +34,12 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 
 /**
- * A Kepler FITS file observation source plug-inputStream that uses the Topcat
+ * A Kepler FITS file v2.0 observation source plug-inputStream that uses the Topcat
  * FITS library.
+ * 
+ * See also:
+ * o http://archive.stsci.edu/mast_news.php?out=html&desc=t&id=392
+ * o http://archive.stsci.edu/kepler/manuals/ArchiveManualNewFormat.pdf
  */
 public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
@@ -59,12 +63,12 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		return "A Kepler FITS file observation source plug-inputStream that uses the Topcat FITS library.";
+		return "A Kepler FITS file v2.0 observation source plug-inputStream that uses the Topcat FITS library.";
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "New Star from Kepler FITS File...";
+		return "New Star from Kepler FITS File v2.0...";
 	}
 
 	class KeplerFITSObservationRetriever extends AbstractObservationRetriever {
@@ -98,42 +102,10 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 						try {
 							double barytime = ((double[]) tableHDU.getElement(
 									row, 0))[0];
-							float timcorr = ((float[]) tableHDU.getElement(row,
-									1))[0];
-							int cadence_number = ((int[]) tableHDU.getElement(
-									row, 2))[0];
-							double ap_cent_row = ((double[]) tableHDU
-									.getElement(row, 3))[0];
-							float ap_cent_r_err = ((float[]) tableHDU
-									.getElement(row, 4))[0];
-							double ap_cent_col = ((double[]) tableHDU
-									.getElement(row, 5))[0];
-							float ap_cent_c_err = ((float[]) tableHDU
-									.getElement(row, 6))[0];
-							float ap_raw_flux = ((float[]) tableHDU.getElement(
-									row, 7))[0];
-							float ap_raw_err = ((float[]) tableHDU.getElement(
-									row, 8))[0];
 							float ap_corr_flux = ((float[]) tableHDU
-									.getElement(row, 9))[0];
+									.getElement(row, 7))[0];
 							float ap_corr_err = ((float[]) tableHDU.getElement(
-									row, 10))[0];
-							float ap_ins_flux = ((float[]) tableHDU.getElement(
-									row, 11))[0];
-							float ap_ins_err = ((float[]) tableHDU.getElement(
-									row, 12))[0];
-							float dia_raw_flux = ((float[]) tableHDU
-									.getElement(row, 13))[0];
-							float dia_raw_err = ((float[]) tableHDU.getElement(
-									row, 14))[0];
-							float dia_corr_flux = ((float[]) tableHDU
-									.getElement(row, 15))[0];
-							float dia_corr_err = ((float[]) tableHDU
-									.getElement(row, 16))[0];
-							float dia_ins_flux = ((float[]) tableHDU
-									.getElement(row, 17))[0];
-							float dia_ins_err = ((float[]) tableHDU.getElement(
-									row, 18))[0];
+									row, 8))[0];
 
 							// For non-infinite magnitude fluxes...
 							if (!Float.isInfinite(ap_corr_flux)
