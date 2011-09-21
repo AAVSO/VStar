@@ -157,7 +157,6 @@ public class AAVSOUploadFileFormatObservationSource extends
 								obNum++;
 							}
 						}
-						line = reader.readLine();
 						lineNum++;
 					}
 				} catch (Exception e) {

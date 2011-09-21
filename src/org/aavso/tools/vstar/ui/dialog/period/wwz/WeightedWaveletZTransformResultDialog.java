@@ -205,6 +205,7 @@ public class WeightedWaveletZTransformResultDialog extends
 		// renderer.setBlockHeight(100);
 
 		double increments = (maxZ - minZ) / 6;
+		if (minZ == maxZ) maxZ++; // make sure the scale is valid
 		LookupPaintScale scale = new LookupPaintScale(minZ, maxZ, Color.white);
 		// PaintScale scale = new GrayPaintScale(minZ, maxZ);
 		scale.add(minZ, Color.MAGENTA);

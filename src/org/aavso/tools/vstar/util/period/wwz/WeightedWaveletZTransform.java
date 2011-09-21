@@ -242,19 +242,25 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 		for (WWZStatistic stat : maximalStats) {
 			if (stat.getPeriod() < minPeriod) {
 				minPeriod = stat.getPeriod();
-			} else if (stat.getPeriod() > maxPeriod) {
+			}
+			
+			if (stat.getPeriod() > maxPeriod) {
 				maxPeriod = stat.getPeriod();
 			}
 
 			if (stat.getAmplitude() < minAmp) {
 				minAmp = stat.getAmplitude();
-			} else if (stat.getAmplitude() > maxAmp) {
+			}
+			
+			if (stat.getAmplitude() > maxAmp) {
 				maxAmp = stat.getAmplitude();
 			}
 
 			if (stat.getWwz() < minWWZ) {
 				minWWZ = stat.getWwz();
-			} else if (stat.getWwz() > maxWWZ) {
+			}
+			
+			if (stat.getWwz() > maxWWZ) {
 				maxWWZ = stat.getWwz();
 			}
 		}
