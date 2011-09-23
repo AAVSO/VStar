@@ -34,12 +34,23 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 
 /**
- * A Kepler FITS file v2.0 observation source plug-inputStream that uses the Topcat
- * FITS library.
+ * A Kepler FITS file v2.0 observation source plug-inputStream that uses the
+ * Topcat FITS library.
  * 
- * See also:
- * o http://archive.stsci.edu/mast_news.php?out=html&desc=t&id=392
- * o http://archive.stsci.edu/kepler/manuals/ArchiveManualNewFormat.pdf
+ * See also:<br/>
+ * o http://archive.stsci.edu/mast_news.php?out=html&desc=t&id=392<br/>
+ * o http://archive.stsci.edu/kepler/manuals/ArchiveManualNewFormat.pdf<br/>
+ * o http://archive.stsci.edu/kepler/manuals/KDMC-10008-001_Archive_Manual.pdf<br/>
+ * 
+ * In section 2.1.2 of the archive manual ("Kepler Time System"), we have:
+ * <p>
+ *"Time is specified in the data files with an offset from BJD, either
+ * BJD-2400000.0 (light curve files) or BJD-2454833.0 (target pixel files)."
+ * </p>
+ * This is at odds with the header comments in v2.0 light curve files. The
+ * correct time base for light curve data appears to be 2454833.0. Thanks to
+ * Doug Welch for helping me tracking this down who also suggests that the
+ * BJD-2400000.0 reference was probably intended to be MJD and 2400000.5.
  */
 public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
@@ -107,14 +118,19 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 							float ap_corr_err = ((float[]) tableHDU.getElement(
 									row, 8))[0];
 
-							// For non-infinite magnitude fluxes...
+							// Include only valid magnitude fluxes.
+							// Question: why do we see such values in Kepler
+							// data sets?
 							if (!Float.isInfinite(ap_corr_flux)
-									&& !Float.isInfinite(ap_corr_err)) {
+									&& !Float.isInfinite(ap_corr_err)
+									&& !Float.isNaN(ap_corr_flux)
+									&& !Float.isNaN(ap_corr_err)) {
 
-								double hjd = barytime + 2400000.5;
+								double hjd = barytime + 2454833.0;
 								double mag = 15.0 - 2.5
 										* Math.log(ap_corr_flux)
 										/ Math.log(10.0);
+
 								double magErr = 1.086 * ap_corr_err
 										/ ap_corr_flux;
 
