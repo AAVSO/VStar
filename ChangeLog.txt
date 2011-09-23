@@ -27,8 +27,20 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   details.
   
 ----------------------
+Date: September 23 2011
+Version: 2.13 (testing release 2)
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-23Sep2011
+Key Changes:
+- Fixed multiple-line read bug in AAVSO upload format plugin.
+- Fixed min/max value determination method in WWZ.
+- Fixed WWZ contour plot scale bug when WWZ value min and max are equal.
+- Added window-always-on-top permission to security policy to permit 
+  plugins to call setAlwaysOnTop() in dialog code.
+- Converted Kepler observation source plugin to use v2.0 Kepler FITS file 
+  format. Thanks to Doug Welch for pointing out the need to do this.
+
 Date: September 16 2011
-Version: 2.13 (internal Citizen Sky testing release)
+Version: 2.13 (testing release 1)
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-16Sep2011
 Key Changes:
 - Added online docs link to Help menu where platform supports the Java 1.6 Desktop 
