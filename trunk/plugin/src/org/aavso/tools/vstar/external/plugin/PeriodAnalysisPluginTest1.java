@@ -39,6 +39,7 @@ import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
+import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
@@ -83,7 +84,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 		}
 
 		@Override
-		public void multiPeriodicFit(List<Double> periods,
+		public void multiPeriodicFit(List<Harmonic> harmonics,
 				PeriodAnalysisDerivedMultiPeriodicModel model)
 				throws AlgorithmError {
 			// TODO Auto-generated method stub
@@ -125,7 +126,6 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 		return "Period Analysis Plugin Test: generates random periods.";
 	}
 
-	
 	/**
 	 * @see org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase#getGroup()
 	 */

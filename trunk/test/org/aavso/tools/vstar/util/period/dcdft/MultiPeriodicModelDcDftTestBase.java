@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
@@ -40,20 +41,23 @@ public class MultiPeriodicModelDcDftTestBase extends DataTestBase {
 	}
 
 	protected void commonTest(IPeriodAnalysisAlgorithm algorithm,
-			List<Double> periods, List<PeriodFitParameters> expectedParamsList,
+			List<Harmonic> harmonics,
+			List<PeriodFitParameters> expectedParamsList,
 			double[][] expectedModelData, double[][] expectedResidualData) {
 
 		// Create a multi-periodic fit model based upon the specified periods.
 		PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
-				periods, algorithm);
+				harmonics, algorithm);
 		try {
-			algorithm.multiPeriodicFit(periods, model);
+			algorithm.multiPeriodicFit(harmonics, model);
 
 			// Check the model parameters.
 			assertEquals(expectedParamsList.size(), model.getParameters()
 					.size());
 
 			for (int i = 0; i < expectedParamsList.size(); i++) {
+				PeriodFitParameters exp = expectedParamsList.get(i);
+				PeriodFitParameters actual = model.getParameters().get(i);
 				assertTrue(expectedParamsList.get(i).equals(
 						model.getParameters().get(i)));
 			}

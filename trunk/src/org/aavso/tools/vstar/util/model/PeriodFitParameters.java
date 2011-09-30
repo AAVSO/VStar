@@ -20,52 +20,63 @@ package org.aavso.tools.vstar.util.model;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * This class represents a single period-based fit parameter.
- * 
- * Such a parameter could be used to re-create a model fit.
+ * This class represents a single period-based fit coefficient/parameter set
+ * that could be be used to re-create a model fit.
  */
+
 public class PeriodFitParameters {
 
-	private double frequency;
-	private double period;
+	private Harmonic harmonic;
 	private double amplitude;
 	private double sineCoefficient;
 	private double cosineCoefficient;
 	private double constantCoefficient;
+	private String str;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param frequency
-	 * @param period
+	 * @param harmonic
+	 *            The harmonic, from which can be obtained period and frequency.
 	 * @param amplitude
+	 *            The amplitude parameter.
 	 * @param sineCoefficient
+	 *            The sine Fourier coefficient.
 	 * @param cosineCoefficient
+	 *            The cosine Fourier coefficient.
 	 * @param constantCoefficient
+	 *            The constant (Y intercept?; check) coefficient.
 	 */
-	public PeriodFitParameters(double frequency, double period,
-			double amplitude, double cosineCoefficient, double sineCoefficient,
+	public PeriodFitParameters(Harmonic harmonic, double amplitude,
+			double cosineCoefficient, double sineCoefficient,
 			double constantCoefficient) {
-		this.frequency = frequency;
-		this.period = period;
+		this.harmonic = harmonic;
 		this.amplitude = amplitude;
 		this.cosineCoefficient = cosineCoefficient;
 		this.sineCoefficient = sineCoefficient;
 		this.constantCoefficient = constantCoefficient;
+		this.str = null;
 	}
 
 	/**
 	 * @return the frequency
 	 */
 	public double getFrequency() {
-		return frequency;
+		return harmonic.getFrequency();
+	}
+
+	/**
+	 * @return the harmonic number of the corresponding frequency
+	 */
+	public int getHarmonicNumber() {
+		return harmonic.getHarmonic();
 	}
 
 	/**
 	 * @return the period
 	 */
 	public double getPeriod() {
-		return period;
+		return harmonic.getPeriod();
 	}
 
 	/**
@@ -108,10 +119,10 @@ public class PeriodFitParameters {
 			PeriodFitParameters params = (PeriodFitParameters) other;
 
 			equal &= String.format("%1.4f", params.getFrequency()).equals(
-					String.format("%1.4f", frequency));
+					String.format("%1.4f", getFrequency()));
 
 			equal &= String.format("%1.4f", params.getPeriod()).equals(
-					String.format("%1.4f", period));
+					String.format("%1.4f", getPeriod()));
 
 			equal &= String.format("%1.4f", params.getAmplitude()).equals(
 					String.format("%1.4f", amplitude));
@@ -129,17 +140,17 @@ public class PeriodFitParameters {
 		return equal;
 	}
 
-	public String toString() {
+	public String toProsaicString() {
 		String str = "parameters: ";
 
 		str += "frequency=";
 		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-				frequency);
+				getFrequency());
 		str += ", ";
 
 		str += "period=";
 		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-				period);
+				getPeriod());
 		str += ", ";
 
 		str += "amplitude=";
@@ -161,6 +172,29 @@ public class PeriodFitParameters {
 		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
 				constantCoefficient);
 
+		return str;
+	}
+
+	public String toString() {
+		if (str == null) {
+			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
+			
+			str = String.format(fmt, constantCoefficient);
+			str += cosineCoefficient >= 0 ? "+" : "";
+			
+			String sincosParam = "2\u03C0" + harmonic + "t";
+
+			str += String.format(fmt, cosineCoefficient) + " \u00D7 cos(";
+			str += sincosParam;
+			str += ")";
+
+			str += sineCoefficient >= 0 ? "+" : "";
+
+			str += String.format(fmt, sineCoefficient) + " \u00D7 sin(";
+			str += sincosParam;
+			str += ")";
+		}
+		
 		return str;
 	}
 }

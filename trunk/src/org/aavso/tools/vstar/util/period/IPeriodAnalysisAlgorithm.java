@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.IAlgorithm;
+import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
@@ -80,16 +81,16 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	abstract public String getRefineByFrequencyName();
 
 	/**
-	 * Create a multi-periodic fit from the data from a list of periods.
+	 * Create a multi-periodic fit from the data from a list of harmonics.
 	 * 
-	 * @param periods
-	 *            The periods to be used to create the fit.
+	 * @param harmonics
+	 *            The harmonics to be used to create the fit.
 	 * @param model
 	 *            A multi-period fit class that takes place in the context of a
 	 *            period analysis. Data members in this parameter are populated
 	 *            as a result of invoking this method.
 	 */
-	abstract public void multiPeriodicFit(List<Double> periods,
+	abstract public void multiPeriodicFit(List<Harmonic> harmonics,
 			PeriodAnalysisDerivedMultiPeriodicModel model)
 			throws AlgorithmError;
 }

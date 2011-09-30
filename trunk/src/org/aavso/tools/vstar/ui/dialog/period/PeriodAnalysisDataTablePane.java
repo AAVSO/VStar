@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.util.comparator.FormattedDoubleComparator;
+import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
@@ -137,19 +138,19 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		final JPanel parent = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				List<Double> periods = new ArrayList<Double>();
+				List<Harmonic> harmonics = new ArrayList<Harmonic>();
 				int[] selectedTableRowIndices = table.getSelectedRows();
 				for (int row : selectedTableRowIndices) {
 					int modelRow = table.convertRowIndexToModel(row);
 					PeriodAnalysisDataPoint dataPoint = model
 							.getDataPointFromRow(modelRow);
-					periods.add(dataPoint.getPeriod());
+					harmonics.add(new Harmonic(dataPoint.getFrequency()));
 				}
 
-				if (!periods.isEmpty()) {
+				if (!harmonics.isEmpty()) {
 					try {
 						PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
-								periods, algorithm);
+								harmonics, algorithm);
 
 						Mediator.getInstance().performModellingOperation(model);
 					} catch (Exception ex) {

@@ -30,7 +30,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  */
 public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
-	private List<Double> periods;
+	private List<Harmonic> harmonics;
 	private IPeriodAnalysisAlgorithm algorithm;
 
 	private List<ValidObservation> fit;
@@ -43,14 +43,14 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	/**
 	 * Constructor.
 	 * 
-	 * @param periods
-	 *            The periods to be used to create the fit.
+	 * @param harmonics
+	 *            A list of harmonics used as input to the fit algorithm.
 	 * @param algorithm
-	 *            The algorithm to be executed to generate a fit.
+	 *            The algorithm to be executed to generate the fit.
 	 */
-	public PeriodAnalysisDerivedMultiPeriodicModel(List<Double> periods,
+	public PeriodAnalysisDerivedMultiPeriodicModel(List<Harmonic> harmonics,
 			IPeriodAnalysisAlgorithm algorithm) {
-		this.periods = periods;
+		this.harmonics = harmonics;
 		this.algorithm = algorithm;
 
 		this.fit = new ArrayList<ValidObservation>();
@@ -68,9 +68,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	public String getDescription() {
 		if (desc == null) {
 			desc = getKind() + " from periods: ";
-			for (Double period : periods) {
+			for (Harmonic harmonic : harmonics) {
 				desc += String.format(NumericPrecisionPrefs
-						.getOtherOutputFormat(), period)
+						.getOtherOutputFormat(), harmonic.getPeriod())
 						+ " ";
 			}
 		}
@@ -83,14 +83,14 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	 */
 	@Override
 	public String getKind() {
-		return "Multi-periodic fit";
+		return "Fit";
 	}
 
 	/**
-	 * @return the periods
+	 * @return the harmonics
 	 */
-	public List<Double> getPeriods() {
-		return periods;
+	public List<Harmonic> getHarmonics() {
+		return harmonics;
 	}
 
 	/**
@@ -110,8 +110,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	}
 
 	/**
-	 * @return the parameters
+	 * @see org.aavso.tools.vstar.util.model.IModel#getParameters()
 	 */
+	@Override
 	public List<PeriodFitParameters> getParameters() {
 		return parameters;
 	}
@@ -121,22 +122,23 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	 */
 	@Override
 	public void execute() throws AlgorithmError {
-		algorithm.multiPeriodicFit(periods, this);
+
+		algorithm.multiPeriodicFit(harmonics, this);
 	}
 
 	public String toString() {
 		if (strRepr == null) {
-			String paramStr = "";
+			strRepr = "f(t) = ";
+		
 			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);
-				paramStr += params.toString();
+				strRepr += params.toString();
 				if (i < parameters.size() - 1) {
-					paramStr += "\n";
+					strRepr += " +\n";
 				}
 			}
-
-			strRepr = getDescription() + "\n" + paramStr;
 		}
+		
 		return strRepr;
 	}
 }

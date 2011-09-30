@@ -283,4 +283,10 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 			dt = (dtime - dtzero) / dtscale;
 		}
 	}
+
+	@Override
+	public List<PeriodFitParameters> getParameters() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

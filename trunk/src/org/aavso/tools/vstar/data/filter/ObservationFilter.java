@@ -45,13 +45,13 @@ public class ObservationFilter {
 
 		IObservationFieldMatcher magnitudeMatcher = new MagnitudeFieldMatcher();
 		MATCHERS.put(magnitudeMatcher.getDisplayName(), magnitudeMatcher);
-		
+
 		IObservationFieldMatcher jdMatcher = new JDFieldMatcher();
 		MATCHERS.put(jdMatcher.getDisplayName(), jdMatcher);
 
 		IObservationFieldMatcher transformedMatcher = new TransformedFieldMatcher();
 		MATCHERS.put(transformedMatcher.getDisplayName(), transformedMatcher);
-		
+
 		IObservationFieldMatcher seriesTypeMatcher = new SeriesTypeFieldMatcher();
 		MATCHERS.put(seriesTypeMatcher.getDisplayName(), seriesTypeMatcher);
 	}
@@ -86,10 +86,17 @@ public class ObservationFilter {
 	 * 
 	 * @param obs
 	 *            The observation list to be filtered.
+	 * @param includeFainterThan
+	 *            Should fainter-than observations be included?
+	 * @param includeDiscrepant
+	 *            Should discrepant observations be included?
+	 * @param includeExcluded
+	 *            Should excluded observations be included?
 	 * @return The ordered (by insertion) set of filtered observations.
 	 */
 	public Set<ValidObservation> getFilteredObservations(
-			List<ValidObservation> obs) {
+			List<ValidObservation> obs, boolean includeFainterThan,
+			boolean includeDiscrepant, boolean includeExcluded) {
 		// We use a LinkedHashSet to maintain addition and lookup efficiency
 		// while maintaining insertion order.
 		// Note: this is only necessary of a recipient of filtered observations
@@ -98,8 +105,30 @@ public class ObservationFilter {
 
 		for (int i = 0; i < obs.size(); i++) {
 			ValidObservation ob = obs.get(i);
-			if (matches(ob)) {
-				matchingObs.add(ob);
+
+			boolean does_match = matches(ob);
+
+			if (does_match) {
+				// Use logical implication (p => q which is the same as !p or q,
+				// where p is the observation's property and q is the inclusion
+				// property relating to p) to check that our inclusion criteria
+				// still permit a match for this observation. For example, taking
+				// fainter-thans we have this truth table:
+				//
+				// observation is-fainter-than | include is-fainter-thans | result
+				// ----------------------------+--------------------------+--------
+				//                       False |                    False | True
+				//                       False |                    True  | True
+				//                       True  |                    False | False
+				//                       True  |                    True  | True
+				does_match &= !ob.getMagnitude().isFainterThan()
+						|| includeFainterThan;
+				does_match &= !ob.isDiscrepant() || includeDiscrepant;
+				does_match &= !ob.isExcluded() || includeExcluded;
+
+				if (does_match) {
+					matchingObs.add(ob);
+				}
 			}
 		}
 
