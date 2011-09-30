@@ -44,6 +44,14 @@ public interface IModel extends IAlgorithm {
 	abstract public List<ValidObservation> getResiduals();
 
 	/**
+	 * Return the list of coefficients that gives rise to the model.
+	 * May return null.
+	 * 
+	 * @return A list of fit coefficients or null if none available.
+	 */
+	abstract public List<PeriodFitParameters> getParameters();
+
+	/**
 	 * Return a human-readable description of this model.
 	 * 
 	 * @return The model description.

@@ -162,4 +162,10 @@ public class WWZMultiperiodicModel implements IModel {
 	public String toString() {
 		return getDescription();
 	}
+
+	@Override
+	public List<PeriodFitParameters> getParameters() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

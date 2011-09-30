@@ -17,7 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
-import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
@@ -57,6 +57,7 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 	private Map<String, IModel> modelMap;
 
 	private JButton selectButton;
+	private JButton showModelButton;
 	private JButton deleteButton;
 
 	/**
@@ -112,18 +113,23 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 	}
 
 	private JPanel createButtonPane() {
-		JPanel panel = new JPanel(new BorderLayout());
+		JPanel panel = new JPanel(new FlowLayout());
 
 		deleteButton = new JButton("Delete");
 		deleteButton.addActionListener(createDeleteButtonListener());
 		deleteButton.setEnabled(false);
+		panel.add(deleteButton);
 
-		panel.add(deleteButton, BorderLayout.LINE_START);
+		showModelButton = new JButton("Show Model");
+		showModelButton
+				.addActionListener(createShowModelButtonListener());
+		showModelButton.setEnabled(false);
+		panel.add(showModelButton);
 
 		selectButton = new JButton("Select");
 		selectButton.addActionListener(createSelectButtonListener());
 		selectButton.setEnabled(false);
-		panel.add(selectButton, BorderLayout.LINE_END);
+		panel.add(selectButton);
 
 		this.getRootPane().setDefaultButton(selectButton);
 
@@ -133,13 +139,20 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 	// List selection listener to update button states.
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting() == false) {
-
-			if (modelList.getSelectedIndex() == -1) {
+			int index = modelList.getSelectedIndex();
+			if (index == -1) {
 				selectButton.setEnabled(false);
 				deleteButton.setEnabled(false);
+				showModelButton.setEnabled(false);
 			} else {
+				// If a list item is selected, enable select and delete buttons.
 				selectButton.setEnabled(true);
 				deleteButton.setEnabled(true);
+
+				// Does the model support displaying coefficients?
+				String desc = (String) modelListModel.get(index);
+				IModel model = modelMap.get(desc);
+				showModelButton.setEnabled(model.getParameters() != null);
 			}
 		}
 	}
@@ -155,6 +168,19 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 						model);
 				Mediator.getInstance().getModelSelectionNofitier()
 						.notifyListeners(msg);
+			}
+		};
+	}
+
+	// Return a listener for the "Show Model" button.
+	private ActionListener createShowModelButtonListener() {
+		final JDialog parent = this;
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int selectedModelIndex = modelList.getSelectedIndex();
+				String desc = (String) modelListModel.get(selectedModelIndex);
+				IModel model = modelMap.get(desc);
+				new ModelInfoDialog(parent, model);
 			}
 		};
 	}

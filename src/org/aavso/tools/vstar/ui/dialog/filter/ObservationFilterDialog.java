@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.dialog.filter;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
@@ -63,6 +64,9 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 	private List<ObservationFilterPane> filterPanes;
 
 	private JCheckBox useSelectedObservationCheckbox;
+	private JCheckBox includeFainterThanObservationCheckbox;
+	private JCheckBox includeDiscrepantObservationCheckbox;
+	private JCheckBox includeExcludedObservationCheckbox;
 
 	/**
 	 * Constructor.
@@ -94,15 +98,26 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 	@Override
 	protected JPanel createButtonPane() {
-		JPanel extraButtonPanel = new JPanel(new BorderLayout());
+		JPanel extraButtonPanel = new JPanel(new FlowLayout());
 
 		useSelectedObservationCheckbox = new JCheckBox(
 				"Use selected observation");
 		useSelectedObservationCheckbox
 				.addActionListener(createUseSelectedObservationCheckBoxHandler());
 		useSelectedObservationCheckbox.setEnabled(false);
-		extraButtonPanel.add(useSelectedObservationCheckbox,
-				BorderLayout.LINE_START);
+		extraButtonPanel.add(useSelectedObservationCheckbox);
+
+		JPanel includePanel = new JPanel(new FlowLayout());
+		includePanel.setBorder(BorderFactory.createTitledBorder("Include"));
+
+		includeFainterThanObservationCheckbox = new JCheckBox("Fainter Than?");
+		includePanel.add(includeFainterThanObservationCheckbox);
+		includeDiscrepantObservationCheckbox = new JCheckBox("Discrepant?");
+		includePanel.add(includeDiscrepantObservationCheckbox);
+		includeExcludedObservationCheckbox = new JCheckBox("Excluded?");
+		includePanel.add(includeExcludedObservationCheckbox);
+
+		extraButtonPanel.add(includePanel);
 
 		JButton resetButton = new JButton("Reset");
 		resetButton.addActionListener(createResetButtonListener());
@@ -249,14 +264,17 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 				setVisible(false);
 
-				// MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
 				// Apply the filter (and all its matchers) to the full set
 				// of observations.
 				List<ValidObservation> obs = newStarMessage.getObservations();
 
 				Set<ValidObservation> filteredObs = filter
-						.getFilteredObservations(obs);
+						.getFilteredObservations(obs,
+								includeFainterThanObservationCheckbox
+										.isSelected(),
+								includeDiscrepantObservationCheckbox
+										.isSelected(),
+								includeExcludedObservationCheckbox.isSelected());
 
 				if (filteredObs.size() != 0) {
 					// Send a message containing the observation subset.

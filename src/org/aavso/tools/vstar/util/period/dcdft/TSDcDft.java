@@ -28,6 +28,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.TSBase;
+import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
@@ -479,7 +480,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		} else {
 			res = getResolutionValue();
 		}
-		
+
 		hifre = 0.0;
 
 		if (xloper != 0.0) {
@@ -491,7 +492,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		if (hiper != 0.0) {
 			xlofre = 1.0 / hiper;
 		}
-		
+
 		// write(1,290) fprint,numact,dave,dsig,dvar
 		// write(1,292) dt0+tvec(nlolim),dt0+tvec(nuplim),dt0+dtzero
 		// call lognow
@@ -505,9 +506,9 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 				if (pper != 0.0) {
 					ff = 1.0 / pper;
 				}
-				
+
 				fft(ff);
-				
+
 				if (nbrake < 0) {
 					statcomp();
 					break;
@@ -815,14 +816,14 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	/**
 	 * Create a multi-periodic fit to the data from a list of periods.
 	 * 
-	 * @param periods
-	 *            The periods to be used to create the fit.
+	 * @param harmonics
+	 *            The harmonics to be used to create the fit.
 	 * @param model
 	 *            A multi-period fit class that takes place in the context of a
 	 *            period analysis. Data members in this parameter are populated
 	 *            as a result of invoking this method.
 	 */
-	public void multiPeriodicFit(List<Double> periods,
+	public void multiPeriodicFit(List<Harmonic> harmonics,
 			PeriodAnalysisDerivedMultiPeriodicModel model) {
 
 		List<ValidObservation> modelObs = model.getFit();
@@ -837,10 +838,10 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		// Convert frequencies to be considered to Fortran array index form.
 		// TODO: we should just dispense with this everywhere and use
 		// 0-originated indices.
-		nfre = periods.size();
+		nfre = harmonics.size();
 		dfre = new double[nfre + 1];
 		for (int i = 1; i <= nfre; i++) {
-			dfre[i] = 1.0 / periods.get(i - 1);
+			dfre[i] = harmonics.get(i - 1).getFrequency();
 		}
 
 		// write(6,*) 'save residuals? (y/n)'
@@ -884,9 +885,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 			nb = nb + 2;
 			int na = nb - 1;
 			double dd = dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb];
-			parameters
-					.add(new PeriodFitParameters(dfre[nn], periods.get(nn - 1),
-							Math.sqrt(dd), dcoef[na], dcoef[nb], dcoef[0]));
+			parameters.add(new PeriodFitParameters(harmonics.get(nn - 1), Math
+					.sqrt(dd), dcoef[na], dcoef[nb], dcoef[0]));
 			// if (nn > 9) {
 			// write(1,207) dfre(nn),1.0/dfre(nn),nn,dsqrt(dd),dcoef(na),
 
