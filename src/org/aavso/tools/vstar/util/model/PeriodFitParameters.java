@@ -69,7 +69,7 @@ public class PeriodFitParameters {
 	 * @return the harmonic number of the corresponding frequency
 	 */
 	public int getHarmonicNumber() {
-		return harmonic.getHarmonic();
+		return harmonic.getHarmonicNumber();
 	}
 
 	/**
@@ -179,8 +179,7 @@ public class PeriodFitParameters {
 		if (str == null) {
 			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
 			
-			str = String.format(fmt, constantCoefficient);
-			str += cosineCoefficient >= 0 ? "+" : "";
+			str = cosineCoefficient >= 0 ? "+" : "";
 			
 			String sincosParam = "2\u03C0" + harmonic + "t";
 

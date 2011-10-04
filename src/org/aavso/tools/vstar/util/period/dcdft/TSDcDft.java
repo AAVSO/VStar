@@ -311,11 +311,11 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 	@Override
 	public List<PeriodAnalysisDataPoint> refineByFrequency(List<Double> freqs,
-			List<Integer> harmonics, List<Double> variablePeriods,
-			List<Double> lockedPeriods) throws AlgorithmError {
+			List<Double> variablePeriods, List<Double> lockedPeriods)
+			throws AlgorithmError {
 
 		deltaTopHits.clear();
-		cleanest(freqs, harmonics, variablePeriods, lockedPeriods);
+		cleanest(freqs, variablePeriods, lockedPeriods);
 
 		return deltaTopHits;
 	}
@@ -587,20 +587,13 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 * 
 	 * @param freqs
 	 *            The user-specified frequencies to be included.
-	 * @param harmonics
-	 *            The maximum number of harmonics per user-specified frequency
-	 *            to be found and included in the analysis. May be null or
-	 *            empty.
 	 * @param varPeriods
 	 *            The variable periods to be included. May be null or empty.
 	 * @param lockedPeriods
 	 *            The locked periods to be included. May be null or empty.
-	 * 
-	 *            TODO: it would be more consistent to pass freqs as periods!
 	 */
-	protected void cleanest(List<Double> freqs, List<Integer> harmonics,
-			List<Double> variablePeriods, List<Double> lockedPeriods)
-			throws AlgorithmError {
+	protected void cleanest(List<Double> freqs, List<Double> variablePeriods,
+			List<Double> lockedPeriods) throws AlgorithmError {
 		// getfreq();
 
 		int varCount = variablePeriods == null ? 0 : variablePeriods.size();

@@ -104,13 +104,16 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 				// previous refinement.
 				List<Double> freqs = new ArrayList<Double>();
 				int[] selectedTableRowIndices = table.getSelectedRows();
+				List<PeriodAnalysisDataPoint> inputDataPoints = new ArrayList<PeriodAnalysisDataPoint>();
+
 				for (int row : selectedTableRowIndices) {
 					int modelRow = table.convertRowIndexToModel(row);
 					PeriodAnalysisDataPoint dataPoint = model
 							.getDataPointFromRow(modelRow);
+					
 					if (!refinedDataPoints.contains(dataPoint)) {
-						refinedDataPoints.add(dataPoint);
-						freqs.add(model.getFrequencyValueInRow(modelRow));
+						inputDataPoints.add(dataPoint);						
+						freqs.add(dataPoint.getFrequency());
 					} else {
 						String fmt = NumericPrecisionPrefs
 								.getOtherOutputFormat();
@@ -144,16 +147,6 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 						RefinementParameterDialog dialog = new RefinementParameterDialog(
 								parent, freqs, 6);
 						if (!dialog.isCancelled()) {
-							List<Integer> harmonics = dialog.getHarmonics();
-
-							// Find harmomics for each user frequency.
-							for (int i = 0; i < harmonics.size(); i++) {
-								if (harmonics.get(i) > 0) {
-									findHarmonics(freqs.get(i), harmonics
-											.get(i));
-								}
-							}
-
 							List<Double> variablePeriods = dialog
 									.getVariablePeriods();
 							List<Double> lockedPeriods = dialog
@@ -162,8 +155,12 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 							// Perform a refinement operation and get the new
 							// top-hits resulting from the refinement.
 							List<PeriodAnalysisDataPoint> newTopHits = algorithm
-									.refineByFrequency(freqs, harmonics,
-											variablePeriods, lockedPeriods);
+									.refineByFrequency(freqs, variablePeriods,
+											lockedPeriods);
+
+							// Mark input frequencies as refined so we don't
+							// try to refine them again.
+							refinedDataPoints.addAll(inputDataPoints);
 
 							// Update the model and tell anyone else who might
 							// be interested.
