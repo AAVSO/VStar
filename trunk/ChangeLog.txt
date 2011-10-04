@@ -27,6 +27,18 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   details.
   
 ----------------------
+Date: October 4 2011
+Version: 2.13 (testing release 3)
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-04Oct2011
+Key Changes:
+- Added ability to show model function (if model supports it, e.g. from DCDFT).
+  See tracker 3415901. 
+- Fixed a problem with filtering (reported by Bikeman) in the presence of 
+  fainter-than, discrepant, or excluded observations. See tracker 3416010.
+- Added harmonics-per-period input dialog for modeling.
+- Changed refinement parameter dialog to show user selected frequencies but 
+  not to request harmonics for each period. See tracker 3416010.
+
 Date: September 23 2011
 Version: 2.13 (testing release 2)
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-23Sep2011
