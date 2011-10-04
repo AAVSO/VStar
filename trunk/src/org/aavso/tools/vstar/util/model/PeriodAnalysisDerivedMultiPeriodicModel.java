@@ -129,16 +129,18 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	public String toString() {
 		if (strRepr == null) {
 			strRepr = "f(t) = ";
-		
+
+			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
+			double constantCoefficient = parameters.get(0)
+					.getConstantCoefficient();
+			strRepr = String.format(fmt, constantCoefficient);
+
 			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);
 				strRepr += params.toString();
-				if (i < parameters.size() - 1) {
-					strRepr += " +\n";
-				}
 			}
 		}
-		
+
 		return strRepr;
 	}
 }

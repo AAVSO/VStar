@@ -36,6 +36,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.model.HarmonicInputDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
@@ -138,24 +139,33 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		final JPanel parent = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				List<Harmonic> harmonics = new ArrayList<Harmonic>();
+				List<Double> userSelectedFreqs = new ArrayList<Double>();
 				int[] selectedTableRowIndices = table.getSelectedRows();
 				for (int row : selectedTableRowIndices) {
 					int modelRow = table.convertRowIndexToModel(row);
 					PeriodAnalysisDataPoint dataPoint = model
 							.getDataPointFromRow(modelRow);
-					harmonics.add(new Harmonic(dataPoint.getFrequency()));
+					userSelectedFreqs.add(dataPoint.getFrequency());
 				}
 
-				if (!harmonics.isEmpty()) {
-					try {
-						PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
-								harmonics, algorithm);
+				int maxHarmonics = 12; // TODO: make a preference/per-model settable?
 
-						Mediator.getInstance().performModellingOperation(model);
-					} catch (Exception ex) {
-						MessageBox.showErrorDialog(parent, "Modelling", ex
-								.getLocalizedMessage());
+				HarmonicInputDialog dialog = new HarmonicInputDialog(parent,
+						userSelectedFreqs, maxHarmonics);
+
+				if (!dialog.isCancelled()) {
+					List<Harmonic> harmonics = dialog.getHarmonics();
+					if (!harmonics.isEmpty()) {
+						try {
+							PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
+									harmonics, algorithm);
+
+							Mediator.getInstance().performModellingOperation(
+									model);
+						} catch (Exception ex) {
+							MessageBox.showErrorDialog(parent, "Modelling", ex
+									.getLocalizedMessage());
+						}
 					}
 				}
 			}

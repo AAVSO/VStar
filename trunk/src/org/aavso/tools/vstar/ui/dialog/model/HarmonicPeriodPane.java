@@ -15,9 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.dialog.period.refinement;
+package org.aavso.tools.vstar.ui.dialog.model;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -25,6 +27,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -36,6 +39,7 @@ public class HarmonicPeriodPane extends JPanel {
 
 	private double frequency;
 	private double period;
+	private int defaultNumHarmonics;
 
 	private JTextField periodField;
 	private JComboBox harmonicSelector;
@@ -47,26 +51,46 @@ public class HarmonicPeriodPane extends JPanel {
 	 *            The frequency to be displayed as a period.
 	 * @param numHarmonics
 	 *            The maximum number of harmonics that can be selected from.
+	 * @param numDefaultNumHarmonics
+	 *            The default number of harmonics for the frequency.
 	 */
-	public HarmonicPeriodPane(double frequency, int numHarmonics) {
+	public HarmonicPeriodPane(double frequency, int numHarmonics,
+			int defaultNumHarmonics) {
 		this.frequency = frequency;
 		period = 1.0 / frequency;
+		this.defaultNumHarmonics = defaultNumHarmonics;
 
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
 		periodField = new JTextField(String.format(NumericPrecisionPrefs
 				.getOtherOutputFormat(), period));
 		periodField.setEditable(false);
+		periodField.setToolTipText(String.format("frequency="
+				+ NumericPrecisionPrefs.getOtherDecimalPlaces(), frequency));
 		add(periodField);
 
 		add(Box.createRigidArea(new Dimension(10, 10)));
 
-		String[] harmonicNumbers = new String[numHarmonics+1];
-		for (int i = 0; i <= numHarmonics; i++) {
-			harmonicNumbers[i] = i + "";
+		String[] harmonicNumbers = new String[numHarmonics];
+		for (int i = 0; i < numHarmonics; i++) {
+			harmonicNumbers[i] = i+1 + "";
 		}
 		harmonicSelector = new JComboBox(harmonicNumbers);
 		add(harmonicSelector);
+	}
+
+	/**
+	 * @return the frequency
+	 */
+	public double getFrequency() {
+		return frequency;
+	}
+
+	/**
+	 * @return the period
+	 */
+	public double getPeriod() {
+		return period;
 	}
 
 	/**
@@ -76,5 +100,31 @@ public class HarmonicPeriodPane extends JPanel {
 	 */
 	public int getNumberOfHarmonics() {
 		return Integer.parseInt((String) harmonicSelector.getSelectedItem());
+	}
+
+	/**
+	 * Create and return a harmonic object for this period and harmonic count
+	 * selection.
+	 * 
+	 * @return A harmonic object corresponding to the frequency and harmonic
+	 *         count selection.
+	 */
+	public Harmonic getHarmonic() {
+		return new Harmonic(frequency, getNumberOfHarmonics());
+	}
+
+	/**
+	 * A list of Harmonic objects, each representing a frequency and harmonic
+	 * number (up to user selection) with respect to some fundamental frequency.
+	 * 
+	 * @return A list of Harmonic objects.
+	 */
+	public List<Harmonic> getHarmonicListForPeriod() {
+		List<Harmonic> harmonics = new ArrayList<Harmonic>();
+		for (int i=1;i<=getNumberOfHarmonics();i++) {
+			harmonics.add(new Harmonic(frequency*i, i));
+		}
+		
+		return harmonics;
 	}
 }

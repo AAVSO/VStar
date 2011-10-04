@@ -45,7 +45,7 @@ public class Harmonic {
 					+ frequency);
 		}
 
-		if (harmonic <= 0) {
+		if (harmonic < FUNDAMENTAL) {
 			throw new IllegalArgumentException("Invalid harmonic: " + harmonic);
 		}
 
@@ -74,7 +74,7 @@ public class Harmonic {
 	/**
 	 * @return the harmonic
 	 */
-	public int getHarmonic() {
+	public int getHarmonicNumber() {
 		return harmonic;
 	}
 
@@ -97,7 +97,6 @@ public class Harmonic {
 
 	public String toString() {
 		if (str == null) {
-			// TODO: needs to be harmmonic*frequency if harmonic > 1
 			str = String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
 					frequency);
 		}

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.dialog.period.refinement;
+package org.aavso.tools.vstar.ui.dialog.model;
 
 import java.awt.Component;
 import java.awt.Container;
@@ -29,24 +29,22 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
-import org.aavso.tools.vstar.ui.dialog.model.HarmonicPeriodPane;
+import org.aavso.tools.vstar.ui.dialog.period.refinement.PeriodGatheringPane;
+import org.aavso.tools.vstar.util.model.Harmonic;
 
 /**
- * This dialog unifies the collection of information required for CLEANest.
+ * This dialog gathers the harmonics to be used as input to model creation.
  */
-public class RefinementParameterDialog extends AbstractOkCancelDialog {
+public class HarmonicInputDialog extends AbstractOkCancelDialog {
 
-	private int numHarmonics;
-	private List<Integer> harmonicsPerSelectedPeriod;
+	private int maxHarmonics;
+	private List<Harmonic> harmonicsPerSelectedPeriod;
 
 	private List<HarmonicPeriodPane> harmonicPeriodPanes;
-
-	private PeriodGatheringPane lockedPeriodPane;
-	private PeriodGatheringPane variablePeriodPane;
 
 	/**
 	 * Constructor
@@ -60,27 +58,22 @@ public class RefinementParameterDialog extends AbstractOkCancelDialog {
 	 *            The maximum number of harmonics that can be selected from per
 	 *            user specified frequency/period.
 	 */
-	public RefinementParameterDialog(Component parent, List<Double> userSelectedFreqs,
-			int maxHarmonics) {
-		super("Refinement Parameters");
+	public HarmonicInputDialog(Component parent,
+			List<Double> userSelectedFreqs, int maxHarmonics) {
+		super("Harmonics");
 
-		this.numHarmonics = maxHarmonics;
-		harmonicsPerSelectedPeriod = new ArrayList<Integer>();
+		this.maxHarmonics = maxHarmonics;
+		harmonicsPerSelectedPeriod = new ArrayList<Harmonic>();
 
 		Container contentPane = this.getContentPane();
 
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 
-		// User-selected period pane.
-		topPane.add(createUserPeriodPane(userSelectedFreqs));
-		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		
-		// Locked and variable period collection panes.
-		lockedPeriodPane = new PeriodGatheringPane("Locked Periods");
-		topPane.add(lockedPeriodPane);
-		variablePeriodPane = new PeriodGatheringPane("Variable Periods");
-		topPane.add(variablePeriodPane);
+		// Number-of-harmonics per user-specified frequency/period pane.
+		JScrollPane harmonicPerUserPeriodScroller = new JScrollPane(
+				createHarmonicPerUserPeriodPane(userSelectedFreqs));
+		topPane.add(harmonicPerUserPeriodScroller);
 
 		// OK, Cancel
 		topPane.add(createButtonPane());
@@ -92,48 +85,42 @@ public class RefinementParameterDialog extends AbstractOkCancelDialog {
 		this.setVisible(true);
 	}
 
-	private JPanel createUserPeriodPane(
+	private JPanel createHarmonicPerUserPeriodPane(
 			List<Double> userSelectedFreqs) {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory
-				.createTitledBorder("Selected Periods"));
+				.createTitledBorder("Harmonics per period"));
 
-		JTextArea userPeriodTextArea = new JTextArea();
-		String periods = "";
+		harmonicPeriodPanes = new ArrayList<HarmonicPeriodPane>();
+
 		for (double freq : userSelectedFreqs) {
-			periods += 1.0/freq;
-			periods += "\n";
+			// TODO: use harmonic search to notify default value: currently 1
+			// below; could use half way between 1 and maxHarmonics; it should
+			// also be possible to override this max, e.g. via notification
+			HarmonicPeriodPane harmonicPeriodPane = new HarmonicPeriodPane(
+					freq, maxHarmonics, Harmonic.FUNDAMENTAL);
+			harmonicPeriodPanes.add(harmonicPeriodPane);
+			panel.add(harmonicPeriodPane);
+			panel.add(Box.createRigidArea(new Dimension(10, 10)));
 		}
-		userPeriodTextArea.setText(periods);
-		userPeriodTextArea.setEditable(false);		
-		panel.add(userPeriodTextArea);
 
 		return panel;
 	}
 
 	/**
-	 * @return the lockedPeriods
+	 * Return all harmonics per user-specified period and harmonic number.
+	 * 
+	 * @return A list of harmonics for each user-specified frequency/period that
+	 *         includes the frequency itself and the number of harmonics of that
+	 *         frequency (e.g. to be modelled).
 	 */
-	public List<Double> getLockedPeriods() {
-		return lockedPeriodPane.getPeriods();
-	}
+	public List<Harmonic> getHarmonics() {
+		for (HarmonicPeriodPane pane : harmonicPeriodPanes) {
+			harmonicsPerSelectedPeriod.addAll(pane.getHarmonicListForPeriod());
+		}
 
-	/**
-	 * @return the variablePeriods
-	 */
-	public List<Double> getVariablePeriods() {
-		return variablePeriodPane.getPeriods();
-	}
-
-	// Returns a subordinate component listener.
-	private ActionListener createSubordinateChangeListener() {
-		return new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				pack();
-			}
-		};
+		return harmonicsPerSelectedPeriod;
 	}
 
 	/**
@@ -149,12 +136,8 @@ public class RefinementParameterDialog extends AbstractOkCancelDialog {
 	 */
 	@Override
 	protected void okAction() {
-		try {
-			cancelled = false;
-			setVisible(false);
-			dispose();
-		} catch (NumberFormatException e) {
-			// Nothing to do. The dialog stays open.
-		}
+		cancelled = false;
+		setVisible(false);
+		dispose();
 	}
 }
