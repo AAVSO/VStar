@@ -153,6 +153,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 			super(NAME);
 			prepareDialog();
 			this.setNewPhasePlotButtonState(false);
+			this.setFindHarmonicsButtonState(false);
 		}
 
 		@Override
@@ -191,6 +192,21 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 		protected void newPhasePlotButtonAction() {
 			sendPeriodChangeMessage(period);
 		}
+		
+		@Override
+		protected void findHarmonicsButtonAction() {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+		public void startup() {
+			// TODO Auto-generated method stub			
+		}
+
+		@Override
+		public void cleanup() {
+			// TODO Auto-generated method stub
+		}
 	}
 
 	/**
@@ -222,6 +238,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 					period = msg.getDataPoint().getPeriod();
 					label.setText("Period: " + String.format("%1.4f", period));
 					dialog.setNewPhasePlotButtonState(true);
+					dialog.setFindHarmonicsButtonState(true);
 				} catch (ArrayIndexOutOfBoundsException e) {
 				}
 			}

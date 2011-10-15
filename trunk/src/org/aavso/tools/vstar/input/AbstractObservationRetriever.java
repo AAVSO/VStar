@@ -344,7 +344,7 @@ public abstract class AbstractObservationRetriever {
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}

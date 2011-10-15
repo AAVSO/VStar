@@ -56,6 +56,8 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 	private JButton refineButton;
 
+	private Listener<PeriodAnalysisRefinementMessage> periodAnalysisRefinementListener;
+
 	/**
 	 * Constructor.
 	 * 
@@ -77,9 +79,6 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 		resultantDataPoints = new TreeSet<PeriodAnalysisDataPoint>(
 				PeriodAnalysisDataPointComparator.instance);
-
-		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
-				.addListener(createRefinementListener());
 	}
 
 	protected JPanel createButtonPanel() {
@@ -110,9 +109,9 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 					int modelRow = table.convertRowIndexToModel(row);
 					PeriodAnalysisDataPoint dataPoint = model
 							.getDataPointFromRow(modelRow);
-					
+
 					if (!refinedDataPoints.contains(dataPoint)) {
-						inputDataPoints.add(dataPoint);						
+						inputDataPoints.add(dataPoint);
 						freqs.add(dataPoint.getFrequency());
 					} else {
 						String fmt = NumericPrecisionPrefs
@@ -188,24 +187,6 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		};
 	}
 
-	// Find up to maxHarmonics harmonics of the specified frequency in the data.
-	private void findHarmonics(double freq, int maxHarmonics) {
-		List<Double> data = algorithm.getResultSeries().get(
-				PeriodAnalysisCoordinateType.FREQUENCY);
-		System.out.println("Frequency " + freq + ": ");
-		int harmonic = 1;
-		int n = 2; // first harmonic is twice the fundamental, right?
-		for (int i = 0; i < data.size() && harmonic < maxHarmonics; i++) {
-			// TODO: need tolerance, specify precision, use string comparison as
-			// in UTs?
-			if (data.get(i) == freq * n) {
-				System.out.println("  >> " + data.get(i));
-				n++;
-				harmonic++;
-			}
-		}
-	}
-
 	/**
 	 * Select the row in the table corresponding to the period analysis
 	 * selection. We also enable the "refine" button.
@@ -258,7 +239,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
@@ -306,8 +287,31 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane#startup()
+	 */
+	@Override
+	public void startup() {
+		super.startup();
+
+		periodAnalysisRefinementListener = createRefinementListener();
+		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
+				.addListener(periodAnalysisRefinementListener);
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane#cleanup()
+	 */
+	@Override
+	public void cleanup() {
+		super.cleanup();
+
+		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
+				.removeListenerIfWilling(periodAnalysisRefinementListener);
 	}
 }

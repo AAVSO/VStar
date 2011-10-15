@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.WWZ2DPlotModel;
+import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -42,7 +43,7 @@ import org.jfree.data.general.DatasetChangeListener;
  * This is a pane that contains a WWZ plot chart.
  */
 public class WWZPlotPane extends JPanel implements ChartMouseListener,
-		DatasetChangeListener {
+		DatasetChangeListener, IStartAndCleanup {
 
 	private JFreeChart chart;
 	private WWZ2DPlotModel model;
@@ -50,12 +51,14 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 	private double minRange;
 	private double maxRange;
 
+	private Listener<PeriodAnalysisSelectionMessage> periodAnalysisSelectionListener;
+
 	/**
 	 * Constructor
 	 * 
 	 */
-	public WWZPlotPane(JFreeChart chart, WWZ2DPlotModel model,
-			double minRange, double maxRange) {
+	public WWZPlotPane(JFreeChart chart, WWZ2DPlotModel model, double minRange,
+			double maxRange) {
 		super();
 
 		this.chart = chart;
@@ -74,9 +77,6 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 
 		chartPanel.addChartMouseListener(this);
 		model.addChangeListener(this);
-
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(createPeriodAnalysisListener());
 	}
 
 	/**
@@ -164,5 +164,19 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 				return true;
 			}
 		};
+	}
+
+	@Override
+	public void startup() {
+		periodAnalysisSelectionListener = createPeriodAnalysisListener();
+
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(periodAnalysisSelectionListener);
+	}
+
+	@Override
+	public void cleanup() {
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.removeListenerIfWilling(periodAnalysisSelectionListener);
 	}
 }

@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.WWZDataTableModel;
+import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.comparator.FormattedDoubleComparator;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.WWZMultiperiodicModel;
@@ -49,13 +50,16 @@ import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
 /**
  * This class represents a WWZ data table pane.
  */
-public class WWZDataTablePane extends JPanel implements ListSelectionListener {
+public class WWZDataTablePane extends JPanel implements ListSelectionListener,
+		IStartAndCleanup {
 
 	private List<ValidObservation> obs;
 
 	private JTable table;
 	private WWZDataTableModel model;
 	private TableRowSorter<WWZDataTableModel> rowSorter;
+
+	private Listener<PeriodAnalysisSelectionMessage> periodAnalysisSelectionListener;
 
 	protected JButton modelButton;
 
@@ -94,9 +98,6 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener {
 
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		add(createButtonPanel());
-
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(this.createPeriodAnalysisListener());
 	}
 
 	protected JPanel createButtonPanel() {
@@ -212,7 +213,7 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener {
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
@@ -222,5 +223,18 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener {
 	 */
 	protected void enableButtons() {
 		modelButton.setEnabled(true);
+	}
+
+	@Override
+	public void startup() {
+		periodAnalysisSelectionListener = createPeriodAnalysisListener();
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(periodAnalysisSelectionListener);
+	}
+
+	@Override
+	public void cleanup() {
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.removeListenerIfWilling(periodAnalysisSelectionListener);
 	}
 }

@@ -69,7 +69,7 @@ public class PeriodAnalysisComponentFactory {
 	 *            Should range values be logarithmic by default?
 	 * @return A GUI line plot component.
 	 */
-	public static Component createLinePlot(String title, String subtitle,
+	public static PeriodAnalysis2DChartPane createLinePlot(String title, String subtitle,
 			Map<PeriodAnalysisCoordinateType, List<Double>> analysisValues,
 			PeriodAnalysisCoordinateType domainType,
 			PeriodAnalysisCoordinateType rangeType, boolean permitLogarithmic,
@@ -113,7 +113,7 @@ public class PeriodAnalysisComponentFactory {
 	 *            logarithmic range?
 	 * @return A GUI line plot component.
 	 */
-	public static Component createLinePlot(String title, String subtitle,
+	public static PeriodAnalysis2DChartPane createLinePlot(String title, String subtitle,
 			PeriodAnalysis2DPlotModel model, boolean permitLogarithmic) {
 
 		// Create a line chart with legend, tool-tips, and URLs showing
@@ -147,7 +147,7 @@ public class PeriodAnalysisComponentFactory {
 	 *            The period analysis algorithm.
 	 * @return A GUI data table component.
 	 */
-	public static Component createDataTable(
+	public static PeriodAnalysisDataTablePane createDataTable(
 			PeriodAnalysisCoordinateType[] columnTypes, double[][] dataArrays,
 			IPeriodAnalysisAlgorithm algorithm) {
 
@@ -183,7 +183,7 @@ public class PeriodAnalysisComponentFactory {
 	 *            The period analysis algorithm.
 	 * @return A GUI data table component.
 	 */
-	public static Component createDataTable(
+	public static PeriodAnalysisDataTablePane createDataTable(
 			PeriodAnalysisCoordinateType[] columnTypes,
 			Map<PeriodAnalysisCoordinateType, List<Double>> dataMap,
 			IPeriodAnalysisAlgorithm algorithm) {

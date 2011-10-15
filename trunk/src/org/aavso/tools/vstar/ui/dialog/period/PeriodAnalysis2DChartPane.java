@@ -28,11 +28,15 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.dialog.model.HarmonicInfoDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
+import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -48,7 +52,7 @@ import org.jfree.data.general.DatasetChangeListener;
  * This class represents a chart panel.
  */
 public class PeriodAnalysis2DChartPane extends JPanel implements
-		ChartMouseListener, DatasetChangeListener {
+		ChartMouseListener, DatasetChangeListener, IStartAndCleanup {
 
 	private static final int DATA_SERIES = 0;
 	private static final int TOP_HIT_SERIES = 1;
@@ -58,6 +62,10 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	private PeriodAnalysis2DPlotModel model;
 
 	private boolean permitLogarithmic;
+
+	private Listener<PeriodAnalysisSelectionMessage> periodAnalysisSelectionListener;
+	private Listener<PeriodAnalysisRefinementMessage> periodAnalysisRefinementListener;
+	private Listener<HarmonicSearchResultMessage> harmonicSearchListener;
 
 	/**
 	 * Constructor
@@ -90,14 +98,6 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 
 		chartPanel.addChartMouseListener(this);
 		model.addChangeListener(this);
-
-		// We listen for and generate period analysis selection messages.
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(createPeriodAnalysisListener());
-
-		// We listen for period analysis refinement messages.
-		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
-				.addListener(createRefinementListener());
 	}
 
 	/**
@@ -105,6 +105,13 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	 */
 	public JFreeChart getChart() {
 		return chart;
+	}
+
+	/**
+	 * @return the model
+	 */
+	public PeriodAnalysis2DPlotModel getModel() {
+		return model;
 	}
 
 	// Create and return a component that permits the "is logarithmic" property
@@ -147,6 +154,19 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 					.notifyListeners(message);
 		}
+	}
+
+	/**
+	 * Set the cross hair to the specified x,y coordinate.
+	 * 
+	 * @param x
+	 *            The x coordinate.
+	 * @param y
+	 *            The y coordinate.
+	 */
+	public void setCrossHair(double x, double y) {
+		chart.getXYPlot().setDomainCrosshairValue(x);
+		chart.getXYPlot().setRangeCrosshairValue(y);
 	}
 
 	public void chartMouseMoved(ChartMouseEvent event) {
@@ -224,12 +244,14 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		return new Listener<PeriodAnalysisRefinementMessage>() {
 			@Override
 			public void update(PeriodAnalysisRefinementMessage info) {
+				chart.getXYPlot().clearAnnotations();
 				for (PeriodAnalysisDataPoint dataPoint : info.getNewTopHits()) {
-//					if (model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
-						double x = dataPoint.getValue(model.getDomainType());
-						double y = dataPoint.getValue(model.getRangeType());
-						XYLineAnnotation line = new XYLineAnnotation(x, 0, x, y);
-						chart.getXYPlot().addAnnotation(line);
+					// if (model.getRangeType() ==
+					// PeriodAnalysisCoordinateType.POWER) {
+					double x = dataPoint.getValue(model.getDomainType());
+					double y = dataPoint.getValue(model.getRangeType());
+					XYLineAnnotation line = new XYLineAnnotation(x, 0, x, y);
+					chart.getXYPlot().addAnnotation(line);
 					// }
 
 					model.refresh();
@@ -238,8 +260,75 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
+	}
+
+	private Listener<HarmonicSearchResultMessage> createHarmonicSearchListener() {
+		final PeriodAnalysis2DChartPane pane = this;
+		return new Listener<HarmonicSearchResultMessage>() {
+			@Override
+			public void update(HarmonicSearchResultMessage info) {
+				new HarmonicInfoDialog(info, pane);
+				// chart.getXYPlot().clearAnnotations();
+				// for (Harmonic harmonic : info.getHarmonics()) {
+				// String label = harmonic.getHarmonicNumber() + "f";
+				// double frequency = harmonic.getFrequency();
+				// double rangeValue = 100; // TODO: get from model
+				// double angle = Math.PI; // TODO: determine correct angle
+				// XYPointerAnnotation pointer = new XYPointerAnnotation(
+				// label, frequency, rangeValue, angle);
+				// pointer.setTipRadius(10.0);
+				// pointer.setBaseRadius(35.0);
+				// pointer.setFont(new Font("SansSerif", Font.PLAIN, 9));
+				// pointer.setPaint(Color.blue);
+				// pointer.setTextAnchor(TextAnchor.HALF_ASCENT_RIGHT);
+				// chart.getXYPlot().addAnnotation(pointer);
+				// }
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	@Override
+	public void startup() {
+		// We listen for and generate period analysis selection messages.
+		periodAnalysisSelectionListener = createPeriodAnalysisListener();
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(periodAnalysisSelectionListener);
+
+		// We listen for period analysis refinement messages.
+		periodAnalysisRefinementListener = createRefinementListener();
+		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
+				.addListener(periodAnalysisRefinementListener);
+
+		if (model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
+			// We listen for harmonic search result messages if this is a power
+			// spectrum.
+			harmonicSearchListener = createHarmonicSearchListener();
+			Mediator.getInstance().getHarmonicSearchNotifier().addListener(
+					harmonicSearchListener);
+		} else {
+			harmonicSearchListener = null;
+		}
+	}
+
+	@Override
+	public void cleanup() {
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.removeListenerIfWilling(periodAnalysisSelectionListener);
+
+		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
+				.removeListenerIfWilling(periodAnalysisRefinementListener);
+
+		if (harmonicSearchListener != null) {
+			Mediator.getInstance().getHarmonicSearchNotifier()
+					.removeListenerIfWilling(harmonicSearchListener);
+		}
 	}
 }

@@ -24,7 +24,9 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -38,8 +40,10 @@ import javax.swing.table.TableRowSorter;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.model.HarmonicInputDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
+import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.comparator.FormattedDoubleComparator;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
@@ -51,7 +55,7 @@ import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
  * This class represents a period analysis data table pane.
  */
 public class PeriodAnalysisDataTablePane extends JPanel implements
-		ListSelectionListener {
+		ListSelectionListener, IStartAndCleanup {
 
 	protected JTable table;
 	protected PeriodAnalysisDataTableModel model;
@@ -60,6 +64,11 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 	protected JButton modelButton;
 
 	protected IPeriodAnalysisAlgorithm algorithm;
+
+	protected Map<Double, List<Harmonic>> freqToHarmonicsMap;
+
+	protected Listener<HarmonicSearchResultMessage> harmonicSearchResultListener;
+	protected Listener<PeriodAnalysisSelectionMessage> periodAnalysisSelectionListener;
 
 	/**
 	 * Constructor
@@ -75,6 +84,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 
 		this.model = model;
 		this.algorithm = algorithm;
+		freqToHarmonicsMap = new HashMap<Double, List<Harmonic>>();
 
 		table = new JTable(model);
 		JScrollPane scrollPane = new JScrollPane(table);
@@ -97,9 +107,6 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		add(createButtonPanel());
-
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(this.createPeriodAnalysisListener());
 	}
 
 	protected JPanel createButtonPanel() {
@@ -135,7 +142,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 	}
 
 	// Model button listener.
-	private ActionListener createModelButtonHandler() {
+	protected ActionListener createModelButtonHandler() {
 		final JPanel parent = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -148,10 +155,8 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 					userSelectedFreqs.add(dataPoint.getFrequency());
 				}
 
-				int maxHarmonics = 12; // TODO: make a preference/per-model settable?
-
 				HarmonicInputDialog dialog = new HarmonicInputDialog(parent,
-						userSelectedFreqs, maxHarmonics);
+						userSelectedFreqs, freqToHarmonicsMap);
 
 				if (!dialog.isCancelled()) {
 					List<Harmonic> harmonics = dialog.getHarmonics();
@@ -168,6 +173,25 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 						}
 					}
 				}
+			}
+		};
+	}
+
+	/**
+	 * A listener to store the latest harmonic search result in a mapping from
+	 * (fundamental) frequency to harmonics.
+	 */
+	protected Listener<HarmonicSearchResultMessage> createHarmonicSearchResultListener() {
+		return new Listener<HarmonicSearchResultMessage>() {
+			@Override
+			public void update(HarmonicSearchResultMessage info) {
+				freqToHarmonicsMap.put(info.getDataPoint().getFrequency(), info
+						.getHarmonics());
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
 			}
 		};
 	}
@@ -224,7 +248,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
@@ -234,5 +258,24 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 	 */
 	protected void enableButtons() {
 		modelButton.setEnabled(true);
+	}
+
+	@Override
+	public void startup() {		
+		harmonicSearchResultListener = createHarmonicSearchResultListener();
+		Mediator.getInstance().getHarmonicSearchNotifier().addListener(
+				harmonicSearchResultListener);
+
+		periodAnalysisSelectionListener = createPeriodAnalysisListener();
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(periodAnalysisSelectionListener);
+	}
+
+	@Override
+	public void cleanup() {
+		Mediator.getInstance().getHarmonicSearchNotifier()
+				.removeListenerIfWilling(harmonicSearchResultListener);
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.removeListenerIfWilling(periodAnalysisSelectionListener);
 	}
 }
