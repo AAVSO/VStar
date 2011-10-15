@@ -28,10 +28,12 @@ import org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
+import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
@@ -51,9 +53,14 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 	private IPeriodAnalysisAlgorithm algorithm;
 
+	private PeriodAnalysisDataTablePane dataTablePane;
 	private PeriodAnalysisTopHitsTablePane topHitsTablePane;
 
+	private List<PeriodAnalysis2DChartPane> plotPanes;
+
 	private IPeriodAnalysisDatum selectedDataPoint;
+
+	private Listener<PeriodAnalysisSelectionMessage> periodAnalysisListener;
 
 	/**
 	 * Constructor.
@@ -84,10 +91,11 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		this.algorithm = algorithm;
 		this.selectedDataPoint = null;
 
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(this.createPeriodAnalysisListener());
+		plotPanes = new ArrayList<PeriodAnalysis2DChartPane>();
 
 		prepareDialog();
+		
+		startup();
 	}
 
 	protected Component createContent() {
@@ -103,18 +111,21 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		// Add plots.
 		for (PeriodAnalysis2DPlotModel model : plotModels) {
 			boolean permitlogarithmic = model.getRangeType() == PeriodAnalysisCoordinateType.POWER;
-			Component plot = PeriodAnalysisComponentFactory.createLinePlot(
-					chartTitle, seriesTitle, model, permitlogarithmic);
+			PeriodAnalysis2DChartPane plot = PeriodAnalysisComponentFactory
+					.createLinePlot(chartTitle, seriesTitle, model,
+							permitlogarithmic);
 
 			String tabName = model.getRangeType() + " vs "
 					+ model.getDomainType();
 
 			namedComponents.add(new NamedComponent(tabName, plot));
+			plotPanes.add(plot);
 		}
 
 		// Add data table view.
-		namedComponents.add(new NamedComponent("Data",
-				new PeriodAnalysisDataTablePane(dataTableModel, algorithm)));
+		dataTablePane = new PeriodAnalysisDataTablePane(dataTableModel,
+				algorithm);
+		namedComponents.add(new NamedComponent("Data", dataTablePane));
 
 		// Add top-hits table view.
 		topHitsTablePane = new PeriodAnalysisTopHitsTablePane(
@@ -128,11 +139,23 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	// analysis selection message has been received by this class,
 	// so we *know* without having to ask that there is a selected
 	// row in the data table.
+	@Override
 	protected void newPhasePlotButtonAction() {
 		PeriodChangeMessage message = new PeriodChangeMessage(this,
 				selectedDataPoint.getPeriod());
 		Mediator.getInstance().getPeriodChangeNotifier().notifyListeners(
 				message);
+	}
+
+	@Override
+	protected void findHarmonicsButtonAction() {
+		List<Double> data = algorithm.getResultSeries().get(
+				PeriodAnalysisCoordinateType.FREQUENCY);
+		List<Harmonic> harmonics = findHarmonics(selectedDataPoint
+				.getFrequency(), data);
+		HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
+				harmonics, selectedDataPoint);
+		Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
 	}
 
 	// Enable the new phase plot button and store the selected
@@ -141,12 +164,40 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			public void update(PeriodAnalysisSelectionMessage info) {
 				setNewPhasePlotButtonState(true);
+				setFindHarmonicsButtonState(true);
 				selectedDataPoint = info.getDataPoint();
 			}
 
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
+	}
+
+	@Override
+	public void startup() {
+		periodAnalysisListener = createPeriodAnalysisListener();
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(periodAnalysisListener);
+
+		dataTablePane.startup();
+		topHitsTablePane.startup();
+
+		for (PeriodAnalysis2DChartPane plotPane : plotPanes) {
+			plotPane.startup();
+		}
+	}
+
+	@Override
+	public void cleanup() {
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.removeListenerIfWilling(periodAnalysisListener);
+
+		dataTablePane.cleanup();
+		topHitsTablePane.cleanup();
+
+		for (PeriodAnalysis2DChartPane plotPane : plotPanes) {
+			plotPane.cleanup();
+		}
 	}
 }

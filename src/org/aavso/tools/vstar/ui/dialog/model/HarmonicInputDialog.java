@@ -20,10 +20,9 @@ package org.aavso.tools.vstar.ui.dialog.model;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -33,7 +32,6 @@ import javax.swing.JScrollPane;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
-import org.aavso.tools.vstar.ui.dialog.period.refinement.PeriodGatheringPane;
 import org.aavso.tools.vstar.util.model.Harmonic;
 
 /**
@@ -41,7 +39,8 @@ import org.aavso.tools.vstar.util.model.Harmonic;
  */
 public class HarmonicInputDialog extends AbstractOkCancelDialog {
 
-	private int maxHarmonics;
+	private Map<Double, List<Harmonic>> freqToHarmonics;
+
 	private List<Harmonic> harmonicsPerSelectedPeriod;
 
 	private List<HarmonicPeriodPane> harmonicPeriodPanes;
@@ -54,15 +53,16 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 	 *            displayed.
 	 * @param userSelectedFreqs
 	 *            The user selected frequencies.
-	 * @param maxHarmonics
-	 *            The maximum number of harmonics that can be selected from per
-	 *            user specified frequency/period.
+	 * @param lastHarmonicSearchResult
+	 *            The most recent harmonic search result.
 	 */
 	public HarmonicInputDialog(Component parent,
-			List<Double> userSelectedFreqs, int maxHarmonics) {
+			List<Double> userSelectedFreqs,
+			Map<Double, List<Harmonic>> freqToHarmonicsMap) {
 		super("Harmonics");
 
-		this.maxHarmonics = maxHarmonics;
+		this.freqToHarmonics = freqToHarmonicsMap;
+
 		harmonicsPerSelectedPeriod = new ArrayList<Harmonic>();
 
 		Container contentPane = this.getContentPane();
@@ -95,9 +95,7 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 		harmonicPeriodPanes = new ArrayList<HarmonicPeriodPane>();
 
 		for (double freq : userSelectedFreqs) {
-			// TODO: use harmonic search to notify default value: currently 1
-			// below; could use half way between 1 and maxHarmonics; it should
-			// also be possible to override this max, e.g. via notification
+			int maxHarmonics = getMaxHarmonicsForFreq(freq);
 			HarmonicPeriodPane harmonicPeriodPane = new HarmonicPeriodPane(
 					freq, maxHarmonics, Harmonic.FUNDAMENTAL);
 			harmonicPeriodPanes.add(harmonicPeriodPane);
@@ -106,6 +104,22 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 		}
 
 		return panel;
+	}
+
+	// Get an appropriate max-number-of-harmonics value for the specified
+	// frequency, based upon the last harmonic search result if one exists.
+	private int getMaxHarmonicsForFreq(double freq) {
+		int maxHarmonics = 12; // TODO: make this a preference
+
+		// If there are less harmonics for the frequency than the default, use
+		// this. Allowing this to have no reasonable bound just doesn't make sense
+		// from a computational feasibility viewpoint anyway.
+		if (freqToHarmonics.containsKey(freq)
+				&& freqToHarmonics.get(freq).size() < maxHarmonics) {
+			maxHarmonics = freqToHarmonics.get(freq).size();
+		}
+
+		return maxHarmonics;
 	}
 
 	/**

@@ -116,7 +116,7 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
 		return new WeightedWaveletZTransformResultDialog(getDisplayName(),
-				"WWZ (series: " + sourceSeriesType.toString() + ")", wwt,
+				"WWZ (" + sourceSeriesType.toString() + ")", wwt,
 				WWZCoordinateType.FREQUENCY);
 	}
 

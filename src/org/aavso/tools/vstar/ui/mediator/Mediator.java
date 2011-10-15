@@ -64,6 +64,7 @@ import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
@@ -190,7 +191,8 @@ public class Mediator {
 	private Notifier<UndoActionMessage> undoActionNotifier;
 	private Notifier<StopRequestMessage> stopRequestNotifier;
 	private Notifier<SeriesVisibilityChangeMessage> seriesVisibilityChangeNotifier;
-
+	private Notifier<HarmonicSearchResultMessage> harmonicSearchNotifier;
+	
 	private DocumentManager documentManager;
 
 	private UndoableActionManager undoableActionManager;
@@ -227,7 +229,8 @@ public class Mediator {
 		this.undoActionNotifier = new Notifier<UndoActionMessage>();
 		this.stopRequestNotifier = new Notifier<StopRequestMessage>();
 		this.seriesVisibilityChangeNotifier = new Notifier<SeriesVisibilityChangeMessage>();
-
+		this.harmonicSearchNotifier = new Notifier<HarmonicSearchResultMessage>();
+		
 		this.obsListFileSaveDialog = new DelimitedFieldFileSaveAsChooser();
 
 		// These (among other things) are created for each new star.
@@ -459,6 +462,13 @@ public class Mediator {
 	 */
 	public Notifier<SeriesVisibilityChangeMessage> getSeriesVisibilityChangeNotifier() {
 		return seriesVisibilityChangeNotifier;
+	}
+
+	/**
+	 * @return the harmonicSearchNotifier
+	 */
+	public Notifier<HarmonicSearchResultMessage> getHarmonicSearchNotifier() {
+		return harmonicSearchNotifier;
 	}
 
 	/**

@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.WWZDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.WWZ2DPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.WWZ3DPlotModel;
+import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
@@ -66,6 +67,10 @@ public class WeightedWaveletZTransformResultDialog extends
 	private WeightedWaveletZTransform wwt;
 	private WWZCoordinateType rangeType;
 
+	List<IStartAndCleanup> startupAndCleanupComponents;
+
+	private Listener<PeriodAnalysisSelectionMessage> periodAnalysisListener;
+
 	/**
 	 * Constructor.
 	 * 
@@ -87,10 +92,11 @@ public class WeightedWaveletZTransformResultDialog extends
 
 		selectedDataPoint = null;
 
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(this.createPeriodAnalysisListener());
+		startupAndCleanupComponents = new ArrayList<IStartAndCleanup>();
 
 		prepareDialog();
+
+		startup();
 	}
 
 	/**
@@ -105,21 +111,21 @@ public class WeightedWaveletZTransformResultDialog extends
 		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 
 		// Maximal period vs time plot.
-		namedComponents.add(createChart("", new WWZ2DPlotModel(wwt
+		namedComponents.add(createChart("(maximal WWZ)", new WWZ2DPlotModel(wwt
 				.getMaximalStats(), WWZCoordinateType.TAU,
 				WWZCoordinateType.PERIOD),
 				getMinValue(WWZCoordinateType.PERIOD),
 				getMaxValue(WWZCoordinateType.PERIOD)));
 
 		// Maximal frequency vs time plot.
-		namedComponents.add(createChart("", new WWZ2DPlotModel(wwt
+		namedComponents.add(createChart("(maximal WWZ)", new WWZ2DPlotModel(wwt
 				.getMaximalStats(), WWZCoordinateType.TAU,
 				WWZCoordinateType.FREQUENCY),
 				getMinValue(WWZCoordinateType.FREQUENCY),
 				getMaxValue(WWZCoordinateType.FREQUENCY)));
 
 		// Maximal semi-amplitude vs time plot.
-		namedComponents.add(createChart("", new WWZ2DPlotModel(wwt
+		namedComponents.add(createChart("(maximal WWZ)", new WWZ2DPlotModel(wwt
 				.getMaximalStats(), WWZCoordinateType.TAU,
 				WWZCoordinateType.SEMI_AMPLITUDE), wwt.getMinAmp(), wwt
 				.getMaxAmp()));
@@ -134,26 +140,29 @@ public class WeightedWaveletZTransformResultDialog extends
 						.getMaxWWZ()));
 
 		// 3D plot from maximal stats.
-		namedComponents.add(create3DStatsPlot("Maximal ",
+		namedComponents.add(create3DStatsPlot("(maximal WWZ)",
 				WWZCoordinateType.TAU, rangeType, WWZCoordinateType.WWZ, wwt
 						.getMaximalStats()));
 
 		// Tables for all and maximal statistics.
-		namedComponents
-				.add(new NamedComponent("WWZ Results", new WWZDataTablePane(
-						new WWZDataTableModel(wwt.getStats(), wwt))));
+		WWZDataTablePane dataPane = new WWZDataTablePane(new WWZDataTableModel(
+				wwt.getStats(), wwt));
+		startupAndCleanupComponents.add(dataPane);
+		namedComponents.add(new NamedComponent("WWZ Results", dataPane));
 
+		WWZDataTablePane maximalPane = new WWZDataTablePane(
+				new WWZDataTableModel(wwt.getMaximalStats(), wwt));
+		startupAndCleanupComponents.add(maximalPane);
 		namedComponents.add(new NamedComponent("Maximal WWZ Results",
-				new WWZDataTablePane(new WWZDataTableModel(wwt
-						.getMaximalStats(), wwt))));
+				maximalPane));
 
 		return PluginComponentFactory.createTabs(namedComponents);
 	}
 
 	/**
 	 * The new phase plot button will only be enabled when a period analysis
-	 * selection message has been received by this class, so we *know* without
-	 * having to ask that there is a selected row in the data table.
+	 * selection message has been received, so we *know* without having to ask
+	 * that there is a selected row in the data table.
 	 */
 	@Override
 	protected void newPhasePlotButtonAction() {
@@ -163,37 +172,49 @@ public class WeightedWaveletZTransformResultDialog extends
 				message);
 	}
 
+	@Override
+	protected void findHarmonicsButtonAction() {
+		// TODO Auto-generated method stub
+	}
+
 	// Enable the new phase plot button and store the selected
 	// period analysis data point.
 	private Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			public void update(PeriodAnalysisSelectionMessage info) {
 				setNewPhasePlotButtonState(true);
+				setFindHarmonicsButtonState(true);
 				selectedDataPoint = info.getDataPoint();
 			}
 
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
 
 	// Helpers
 
-	private NamedComponent createChart(String prefix, WWZ2DPlotModel model,
+	private NamedComponent createChart(String suffix, WWZ2DPlotModel model,
 			double minRange, double maxRange) {
-		JFreeChart chart = ChartFactory.createXYLineChart(chartTitle, model
-				.getDomainType().toString(), model.getRangeType().toString(),
-				model, PlotOrientation.VERTICAL, true, true, false);
+
+		String name = model.getRangeType().toString() + " vs "
+				+ model.getDomainType().toString() + " " + suffix;
+
+		JFreeChart chart = ChartFactory
+				.createXYLineChart(chartTitle + ": " + name, model
+						.getDomainType().toString(), model.getRangeType()
+						.toString(), model, PlotOrientation.VERTICAL, true,
+						true, false);
 
 		double rangeMargin = ((maxRange - minRange) / 100) * 10;
 		minRange -= rangeMargin;
 		maxRange += rangeMargin;
-		String name = prefix + model.getRangeType().toString() + " vs "
-				+ model.getDomainType().toString();
 
-		return new NamedComponent(name, new WWZPlotPane(chart, model, minRange,
-				maxRange));
+		WWZPlotPane pane = new WWZPlotPane(chart, model, minRange, maxRange);
+		startupAndCleanupComponents.add(pane);
+
+		return new NamedComponent(name, pane);
 	}
 
 	private NamedComponent createContourChart(String prefix,
@@ -205,7 +226,8 @@ public class WeightedWaveletZTransformResultDialog extends
 		// renderer.setBlockHeight(100);
 
 		double increments = (maxZ - minZ) / 6;
-		if (minZ == maxZ) maxZ++; // make sure the scale is valid
+		if (minZ == maxZ)
+			maxZ++; // make sure the scale is valid
 		LookupPaintScale scale = new LookupPaintScale(minZ, maxZ, Color.white);
 		// PaintScale scale = new GrayPaintScale(minZ, maxZ);
 		scale.add(minZ, Color.MAGENTA);
@@ -258,10 +280,12 @@ public class WeightedWaveletZTransformResultDialog extends
 
 		String name = prefix + model.getRangeType().toString() + " vs "
 				+ model.getDomainType().toString() + " vs "
-				+ model.getZType().toString() + " (contour)";
+				+ model.getZType().toString() + " contour";
 
-		return new NamedComponent(name, new WWZPlotPane(chart, model, minRange,
-				maxRange));
+		WWZPlotPane pane = new WWZPlotPane(chart, model, minRange, maxRange);
+		startupAndCleanupComponents.add(pane);
+
+		return new NamedComponent(name, pane);
 	}
 
 	/**
@@ -270,7 +294,7 @@ public class WeightedWaveletZTransformResultDialog extends
 	 * 
 	 * @return A named component suitable for adding to dialog.
 	 */
-	private NamedComponent create3DStatsPlot(String prefix,
+	private NamedComponent create3DStatsPlot(String suffix,
 			WWZCoordinateType xType, WWZCoordinateType yType,
 			WWZCoordinateType zType, List<WWZStatistic> stats) {
 		Plot3DPanel plot = new Plot3DPanel();
@@ -288,10 +312,10 @@ public class WeightedWaveletZTransformResultDialog extends
 			xyz[2][i] = stat.getValue(zType);
 		}
 
-		plot.addBarPlot(prefix + "WWZ Statistics 3D plot", Color.GREEN, xyz);
+		plot.addBarPlot("WWZ Statistics 3D plot", Color.GREEN, xyz);
 
 		String name = yType.toString() + " vs " + xType.toString() + " vs "
-				+ zType.toString() + " (3D)";
+				+ zType.toString() + " 3D " + suffix;
 
 		return new NamedComponent(name, plot);
 	}
@@ -342,5 +366,27 @@ public class WeightedWaveletZTransformResultDialog extends
 		}
 
 		return value;
+	}
+
+	@Override
+	public void startup() {
+		periodAnalysisListener = this.createPeriodAnalysisListener();
+
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.addListener(periodAnalysisListener);
+
+		for (IStartAndCleanup component : startupAndCleanupComponents) {
+			component.startup();
+		}
+	}
+
+	@Override
+	public void cleanup() {
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+				.removeListenerIfWilling(periodAnalysisListener);
+
+		for (IStartAndCleanup component : startupAndCleanupComponents) {
+			component.cleanup();
+		}
 	}
 }
