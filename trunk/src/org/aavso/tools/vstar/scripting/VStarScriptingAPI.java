@@ -22,6 +22,7 @@ import java.io.IOException;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -104,6 +105,41 @@ public class VStarScriptingAPI {
 	}
 
 	/**
+	 * Load a dataset from the AAVSO international database.
+	 * 
+	 * @param name
+	 *            The name of the object.
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 */
+	public synchronized void loadFromAID(final String name, double minJD,
+			double maxJD) {
+
+		String auid = null;
+		mediator.createObservationArtefactsFromDatabase(name, auid, minJD,
+				maxJD);
+		mediator.waitForJobCompletion();
+	}
+
+	/**
+	 * Save the current dataset (shown on light curve and observation list) to a
+	 * file.
+	 * 
+	 * @param path
+	 *            The path to the file to save to (as a string).
+	 * @param delimiter
+	 *            The delimiter between data items.
+	 */
+	public synchronized void saveCurrentData(final String path, String delimiter) {
+		lightCurveMode(); // save raw data not phase plot data
+		mediator.saveObsListToFile(MainFrame.getInstance(), new File(path),
+				delimiter);
+		mediator.waitForJobCompletion();
+	}
+
+	/**
 	 * Switch to phase plot mode. If no phase plot has been created yet, this
 	 * will open the phase parameter dialog.
 	 */
@@ -130,7 +166,7 @@ public class VStarScriptingAPI {
 				.getObsAndMeanChartPane().getObsModel();
 
 		String[] names = new String[model.getSeriesCount()];
-		
+
 		int i = 0;
 		for (SeriesType type : model.getSeriesKeys()) {
 			names[i++] = type.getShortName();
