@@ -54,6 +54,11 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 
 	private boolean firstUse;
 
+	// TODO: so we can re-create this dialog each time from scratch, use
+	// createPhasePlot() in Mediator to store the last phase and epoch and use
+	// it here if present. The new star notifier would then clear it in the
+	// Mediator. See also other TODO below.
+
 	/**
 	 * Constructor.
 	 */
@@ -61,7 +66,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 		super("Phase Plot");
 		this.setModal(true);
 		this.setAlwaysOnTop(true);
-		
+
 		period = 0;
 		epoch = 0;
 

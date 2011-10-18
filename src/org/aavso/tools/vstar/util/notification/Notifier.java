@@ -17,49 +17,49 @@
  */
 package org.aavso.tools.vstar.util.notification;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * A notifier class genericised on the class of object
- * that will be sent to Listeners. This is a simpler,
- * more flexible, and more type-safe form of the Observer 
- * pattern than the one provided via the standard Java
- * Observer/Observable framework. A good candidate for T 
- * is an enum. Notice that both notifier and listener must
- * share the same type T. 
+ * A notifier class genericised on the class of object that will be sent to
+ * Listeners. This is a simpler, more flexible, and more type-safe form of the
+ * Observer pattern than the one provided via the standard Java
+ * Observer/Observable framework. A good candidate for T is an enum. Notice that
+ * both notifier and listener must share the same type T.
  */
 public class Notifier<T> {
 
-	// The list of objects with an interest in the 
+	// The list of objects with an interest in the
 	// notifier's activities.
-	private List<Listener<T>> listeners;
+	private CopyOnWriteArrayList<Listener<T>> listeners;
 
 	/**
 	 * Constructor.
 	 */
 	public Notifier() {
-		this.listeners = new ArrayList<Listener<T>>();
+		this.listeners = new CopyOnWriteArrayList<Listener<T>>();
 	}
-	
+
 	/**
 	 * Add a listener with no immediate notification message.
 	 * 
-	 * @param listener The listener to add.
+	 * @param listener
+	 *            The listener to add.
 	 */
 	public void addListener(Listener<T> listener) {
 		this.addListener(listener, null);
 	}
-	
+
 	/**
 	 * Add a listener, and specify whether to notify it immediately.
 	 * 
-	 * @param listener The listener to add.
-	 * @param immediateMessage The initial notification message, or null.
+	 * @param listener
+	 *            The listener to add.
+	 * @param immediateMessage
+	 *            The initial notification message, or null.
 	 */
 	public void addListener(Listener<T> listener, T message) {
-		listeners.add(listener);
-		
+		listeners.addIfAbsent(listener);
+
 		if (message != null) {
 			this.notifyListeners(message);
 		}
@@ -68,7 +68,8 @@ public class Notifier<T> {
 	/**
 	 * Remove a listener, if it says it is willing to be removed.
 	 * 
-	 * @param listener The listener to remove.
+	 * @param listener
+	 *            The listener to remove.
 	 */
 	public void removeListenerIfWilling(Listener<T> listener) {
 		if (listener.canBeRemoved()) {
@@ -84,11 +85,12 @@ public class Notifier<T> {
 			removeListenerIfWilling(listener);
 		}
 	}
-	
+
 	/**
 	 * Notify all listeners of an activity update.
 	 * 
-	 * @param message The message to pass to each listener.
+	 * @param message
+	 *            The message to pass to each listener.
 	 */
 	public void notifyListeners(T message) {
 		for (Listener<T> listener : listeners) {

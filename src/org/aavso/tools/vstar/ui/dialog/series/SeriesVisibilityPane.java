@@ -364,7 +364,7 @@ public class SeriesVisibilityPane extends JPanel {
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}

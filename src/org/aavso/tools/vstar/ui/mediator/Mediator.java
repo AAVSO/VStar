@@ -99,6 +99,13 @@ import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
+import org.aavso.tools.vstar.ui.task.ModellingTask;
+import org.aavso.tools.vstar.ui.task.NewStarFromDatabaseTask;
+import org.aavso.tools.vstar.ui.task.NewStarFromFileTask;
+import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginTask;
+import org.aavso.tools.vstar.ui.task.ObsListFileSaveTask;
+import org.aavso.tools.vstar.ui.task.PeriodAnalysisTask;
+import org.aavso.tools.vstar.ui.task.PhasePlotTask;
 import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
@@ -192,7 +199,7 @@ public class Mediator {
 	private Notifier<StopRequestMessage> stopRequestNotifier;
 	private Notifier<SeriesVisibilityChangeMessage> seriesVisibilityChangeNotifier;
 	private Notifier<HarmonicSearchResultMessage> harmonicSearchNotifier;
-	
+
 	private DocumentManager documentManager;
 
 	private UndoableActionManager undoableActionManager;
@@ -230,7 +237,7 @@ public class Mediator {
 		this.stopRequestNotifier = new Notifier<StopRequestMessage>();
 		this.seriesVisibilityChangeNotifier = new Notifier<SeriesVisibilityChangeMessage>();
 		this.harmonicSearchNotifier = new Notifier<HarmonicSearchResultMessage>();
-		
+
 		this.obsListFileSaveDialog = new DelimitedFieldFileSaveAsChooser();
 
 		// These (among other things) are created for each new star.
@@ -498,7 +505,7 @@ public class Mediator {
 			private int meanSourceSeriesNum = initialSeriesNumFinal;
 
 			public boolean canBeRemoved() {
-				return true;
+				return false;
 			}
 
 			public void update(BinningResult info) {
@@ -513,7 +520,6 @@ public class Mediator {
 									this.meanSourceSeriesNum);
 
 					// Also send out a mean-source series notification.
-					// TODO: why doesn't MeanSourcePane do this instead!!! ***
 					meanSourceSeriesChangeNotifier
 							.notifyListeners(new MeanSourceSeriesChangeMessage(
 									this, meanSourceSeriesType));
@@ -684,30 +690,6 @@ public class Mediator {
 	}
 
 	/**
-	 * Remove all willing listeners from notifiers. This is essentially a move
-	 * to free up any indirectly referenced objects that may cause a memory leak
-	 * if left unchecked from new-star to new-star, e.g. mean observations.
-	 * 
-	 * @param obsAndMeanPlotModel
-	 *            A raw observation and mean plot model from which to remove
-	 *            willing listeners. This will change between stars.
-	 */
-	// private void removeWillingListeners(
-	// ObservationAndMeanPlotModel obsAndMeanPlotModel) {
-	// this.analysisTypeChangeNotifier.removeAllWillingListeners();
-	// this.newStarNotifier.removeAllWillingListeners();
-	// this.progressNotifier.removeAllWillingListeners();
-	// this.observationChangeNotifier.removeAllWillingListeners();
-	// this.observationSelectionNotifier.removeAllWillingListeners();
-	// this.periodAnalysisSelectionNotifier.removeAllWillingListeners();
-	//
-	// obsAndMeanPlotModel.getMeansChangeNotifier()
-	// .removeAllWillingListeners();
-	//
-	// SeriesType.getSeriesColorChangeNotifier().removeAllWillingListeners();
-	// }
-
-	/**
 	 * Change the mode of VStar's focus (i.e what is to be presented to the
 	 * user).
 	 * 
@@ -813,6 +795,39 @@ public class Mediator {
 	}
 
 	/**
+	 * Remove all listeners that are willing, from all notifiers, to ensure that
+	 * no old, unnecessary listeners remain from one new-star load to another.
+	 * Such listeners could receive notifications that make no sense (e.g.
+	 * location of an observation within a dataset) and guard against memory
+	 * leaks.
+	 */
+	private void freeListeners() {
+		analysisTypeChangeNotifier.removeAllWillingListeners();
+		newStarNotifier.removeAllWillingListeners();
+		progressNotifier.removeAllWillingListeners();
+		discrepantObservationNotifier.removeAllWillingListeners();
+		excludedObservationNotifier.removeAllWillingListeners();
+		observationSelectionNotifier.removeAllWillingListeners();
+		multipleObservationSelectionNotifier.removeAllWillingListeners();
+		periodAnalysisSelectionNotifier.removeAllWillingListeners();
+		periodChangeNotifier.removeAllWillingListeners();
+		phaseChangeNotifier.removeAllWillingListeners();
+		phaseSelectionNotifier.removeAllWillingListeners();
+		periodAnalysisRefinementNotifier.removeAllWillingListeners();
+		meanSourceSeriesChangeNotifier.removeAllWillingListeners();
+		zoomRequestNotifier.removeAllWillingListeners();
+		filteredObservationNotifier.removeAllWillingListeners();
+		modelSelectionNofitier.removeAllWillingListeners();
+		modelCreationNotifier.removeAllWillingListeners();
+		panRequestNotifier.removeAllWillingListeners();
+		undoActionNotifier.removeAllWillingListeners();
+		stopRequestNotifier.removeAllWillingListeners();
+		seriesVisibilityChangeNotifier.removeAllWillingListeners();
+		harmonicSearchNotifier.removeAllWillingListeners();
+		observationSelectionNotifier.removeAllWillingListeners();
+	}
+
+	/**
 	 * Creates and executes a background task to handle new-star-from-file.
 	 * 
 	 * @param obsFile
@@ -822,7 +837,7 @@ public class Mediator {
 	 */
 	public void createObservationArtefactsFromFile(File obsFile)
 			throws IOException, ObservationReadError {
-
+		
 		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
 		// Analyse the observation file.
@@ -914,7 +929,7 @@ public class Mediator {
 	 *            corresponding to a portion of the overall task of which this
 	 *            is just a part.
 	 */
-	protected void createNewStarObservationArtefacts(NewStarType newStarType,
+	public void createNewStarObservationArtefacts(NewStarType newStarType,
 			StarInfo starInfo, AbstractObservationRetriever obsRetriever,
 			int obsArtefactProgressAmount) {
 
@@ -945,6 +960,8 @@ public class Mediator {
 
 		if (!validObsList.isEmpty()) {
 
+			freeListeners();
+			
 			// This is a specific fix for tracker 3007948.
 			this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
 
@@ -1252,9 +1269,7 @@ public class Mediator {
 				(int) (TabbedDataPane.HEIGHT * 0.9));
 
 		return new ObservationAndMeanPlotPane(plotName, subTitle,
-				obsAndMeanPlotModel, new TimeElementsInBinSettingPane(
-						"Days per Mean Series Bin", obsAndMeanPlotModel,
-						JDTimeElementEntity.instance), bounds);
+				obsAndMeanPlotModel, bounds);
 	}
 
 	/**
@@ -1528,6 +1543,47 @@ public class Mediator {
 	 * Save observation list to a file in a separate thread. Note that we want
 	 * to save just those observations that are in view in the observation list
 	 * currently.
+	 * 
+	 * @param parent
+	 *            The parent component to be used in dialogs.
+	 * @param path
+	 *            The path of the file to save to.
+	 * @param delimiter
+	 *            The delimiter between data items.
+	 */
+	public void saveObsListToFile(Component parent, File path, String delimiter) {
+		if (analysisType == AnalysisType.RAW_DATA) {
+			List<ValidObservation> obs = this.analysisTypeMap.get(analysisType)
+					.getObsListPane().getObservationsInView();
+
+			if (!obs.isEmpty()) {
+				this.getProgressNotifier().notifyListeners(
+						ProgressInfo.START_PROGRESS);
+
+				this.getProgressNotifier()
+						.notifyListeners(
+								new ProgressInfo(ProgressType.MAX_PROGRESS, obs
+										.size()));
+
+				ObsListFileSaveTask task = new ObsListFileSaveTask(obs, path,
+						this.newStarMessage.getNewStarType(), delimiter);
+
+				this.currTask = task;
+				task.execute();
+			} else {
+				MessageBox.showMessageDialog(parent, "Save Observations",
+						"There are no visible observations to save.");
+			}
+		} else {
+			MessageBox.showMessageDialog(parent, "Save Observations",
+					"Observation data can only be saved in raw mode.");
+		}
+	}
+
+	/**
+	 * Save observation list to a file in a separate thread. Note that we want
+	 * to save just those observations that are in view in the observation list
+	 * currently. The file is requested from the user via a dialog.
 	 * 
 	 * @param parent
 	 *            The parent component to be used in dialogs.

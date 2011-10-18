@@ -140,7 +140,7 @@ public class TimeElementsInBinSettingPane extends JPanel {
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}

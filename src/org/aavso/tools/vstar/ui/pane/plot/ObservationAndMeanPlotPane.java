@@ -64,16 +64,12 @@ public class ObservationAndMeanPlotPane extends
 	 *            The range title (e.g. magnitude).
 	 * @param obsModel
 	 *            The data model to plot.
-	 * @param timeElementsInBinSettingPane
-	 *            The time-elements-in-mean-pane used by this observation and
-	 *            mean plot pane.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
 	public ObservationAndMeanPlotPane(String title, String subTitle,
 			String domainTitle, String rangeTitle,
 			ObservationAndMeanPlotModel obsAndMeanModel,
-			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
 			Dimension bounds) {
 
 		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
@@ -117,19 +113,15 @@ public class ObservationAndMeanPlotPane extends
 	 *            The sub-title for the chart.
 	 * @param obsModel
 	 *            The data model to plot.
-	 * @param timeElementsInBinSettingPane
-	 *            The time-elements-in-mean-pane used by this observation and
 	 *            mean plot pane.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 */
 	public ObservationAndMeanPlotPane(String title, String subTitle,
 			ObservationAndMeanPlotModel obsAndMeanModel,
-			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
 			Dimension bounds) {
 
-		this(title, subTitle, JD_TITLE, MAG_TITLE, obsAndMeanModel,
-				timeElementsInBinSettingPane, bounds);
+		this(title, subTitle, JD_TITLE, MAG_TITLE, obsAndMeanModel, bounds);
 	}
 
 	// From ChartMouseListener interface.
@@ -244,7 +236,7 @@ public class ObservationAndMeanPlotPane extends
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}

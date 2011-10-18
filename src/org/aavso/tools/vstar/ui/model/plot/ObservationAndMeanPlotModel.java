@@ -424,7 +424,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
@@ -453,7 +453,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}

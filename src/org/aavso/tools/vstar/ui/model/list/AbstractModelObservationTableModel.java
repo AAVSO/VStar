@@ -58,6 +58,6 @@ public abstract class AbstractModelObservationTableModel extends
 
 	@Override
 	public boolean canBeRemoved() {
-		return false;
+		return true;
 	}
 }
