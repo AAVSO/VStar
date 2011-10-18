@@ -90,7 +90,7 @@ public class NewPhasePlotButtonPane extends JButton {
 			
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}

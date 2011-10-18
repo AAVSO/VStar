@@ -268,7 +268,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}

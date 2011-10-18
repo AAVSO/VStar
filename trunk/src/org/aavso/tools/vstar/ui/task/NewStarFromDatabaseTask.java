@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.mediator;
+package org.aavso.tools.vstar.ui.task;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,6 +33,9 @@ import org.aavso.tools.vstar.input.database.AAVSODatabaseObservationReader;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
 
@@ -73,7 +76,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	/**
 	 * Main task. Executed in background thread.
 	 */
-	// TODO: parameterise with Boolean return type
+	// TODO: parameterise with Boolean return type?
 	public Void doInBackground() {
 		createDatabaseBasedObservationArtefacts();
 		return null;

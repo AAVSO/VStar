@@ -24,6 +24,8 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 /**
  * This class represents a chart pane containing a raw plot for a set of valid
  * observations (magnitude vs Julian Day).
+ * 
+ * @deprecated
  */
 abstract public class ObservationPlotPane extends
 		AbstractObservationPlotPane<ObservationPlotModel> {

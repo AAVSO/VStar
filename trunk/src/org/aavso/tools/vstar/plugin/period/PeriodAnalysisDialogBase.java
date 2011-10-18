@@ -157,6 +157,7 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 		String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
 
 		for (int i = 0; i < data.size(); i++) {
+//			if (data.get(i) == freq*n) {
 			if (String.format(fmt, data.get(i)).equals(
 					String.format(fmt, freq * n))) {
 				harmonics.add(new Harmonic(freq * n, n));

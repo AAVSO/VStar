@@ -121,7 +121,7 @@ public class VisibleSeriesRowFilter extends
 			}
 
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
@@ -142,7 +142,7 @@ public class VisibleSeriesRowFilter extends
 			}
 
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
@@ -160,7 +160,7 @@ public class VisibleSeriesRowFilter extends
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
@@ -178,7 +178,7 @@ public class VisibleSeriesRowFilter extends
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}

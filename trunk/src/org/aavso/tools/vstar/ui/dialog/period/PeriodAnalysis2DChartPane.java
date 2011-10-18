@@ -271,21 +271,6 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 			@Override
 			public void update(HarmonicSearchResultMessage info) {
 				new HarmonicInfoDialog(info, pane);
-				// chart.getXYPlot().clearAnnotations();
-				// for (Harmonic harmonic : info.getHarmonics()) {
-				// String label = harmonic.getHarmonicNumber() + "f";
-				// double frequency = harmonic.getFrequency();
-				// double rangeValue = 100; // TODO: get from model
-				// double angle = Math.PI; // TODO: determine correct angle
-				// XYPointerAnnotation pointer = new XYPointerAnnotation(
-				// label, frequency, rangeValue, angle);
-				// pointer.setTipRadius(10.0);
-				// pointer.setBaseRadius(35.0);
-				// pointer.setFont(new Font("SansSerif", Font.PLAIN, 9));
-				// pointer.setPaint(Color.blue);
-				// pointer.setTextAnchor(TextAnchor.HALF_ASCENT_RIGHT);
-				// chart.getXYPlot().addAnnotation(pointer);
-				// }
 			}
 
 			@Override

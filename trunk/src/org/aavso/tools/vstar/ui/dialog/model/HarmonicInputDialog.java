@@ -114,10 +114,10 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 		// If there are less harmonics for the frequency than the default, use
 		// this. Allowing this to have no reasonable bound just doesn't make sense
 		// from a computational feasibility viewpoint anyway.
-		if (freqToHarmonics.containsKey(freq)
-				&& freqToHarmonics.get(freq).size() < maxHarmonics) {
-			maxHarmonics = freqToHarmonics.get(freq).size();
-		}
+//		if (freqToHarmonics.containsKey(freq)
+//				&& freqToHarmonics.get(freq).size() < maxHarmonics) {
+//			maxHarmonics = freqToHarmonics.get(freq).size();
+//		}
 
 		return maxHarmonics;
 	}

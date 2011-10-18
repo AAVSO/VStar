@@ -788,7 +788,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}

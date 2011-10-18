@@ -78,10 +78,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds,
 			double epoch, double period) {
 
-		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModel,
-				new TimeElementsInBinSettingPane(
-						"Phase Steps per Mean Series Bin", obsAndMeanModel,
-						PhaseTimeElementEntity.instance), bounds);
+		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModel, bounds);
 
 		this.epoch = epoch;
 		this.period = period;
@@ -189,7 +186,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
@@ -227,18 +224,18 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 					Collections.sort(filteredObs,
 							StandardPhaseComparator.instance);
 					filteredObs.addAll(filteredObs);
-					
+
 					updateFilteredSeries(filteredObs);
 				}
 			}
 
 			@Override
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
-	
+
 	// Returns a model selection listener that updates the model and residual
 	// series including setting the current phase in the data.
 	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
@@ -257,13 +254,13 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 				modelObs.addAll(model.getFit());
 				Collections.sort(modelObs, StandardPhaseComparator.instance);
 				modelObs.addAll(modelObs);
-				
+
 				// Double and sort the residuals data.
 				List<ValidObservation> residualObs = new ArrayList<ValidObservation>();
 				residualObs.addAll(model.getResiduals());
 				Collections.sort(residualObs, StandardPhaseComparator.instance);
 				residualObs.addAll(residualObs);
-				
+
 				updateModelSeries(modelObs, residualObs);
 			}
 
@@ -284,7 +281,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 			}
 
 			public boolean canBeRemoved() {
-				return false;
+				return true;
 			}
 		};
 	}
