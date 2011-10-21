@@ -26,23 +26,33 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
-Date: October 19 2011
+Date: October 21 2011
 Version: 2.13 (testing release 4)
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-19Oct2011
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-21Oct2011
 Key Changes:
-- Added startup()/cleanup() methods via IStartAndCleanup interface, specifically 
-  for registration and de-registration of listeners.
 - Freeing listeners at new-star and dialog dismissal to avoid memory leaks and
-  prevent messages being received by old (not yet garbage collected) objects.
+  to prevent messages being received by old (not yet garbage collected) objects
+  along with the attendant index-out-of-range and other errors.
 - Added loadFromAID() and saveCurrentData() in scripting API. See tracker 3205296.
-- Implemented cross-hair setting on power spectrum when harmonic selected 
+- Implemented cross-hair setting on DCDFT power spectrum when harmonic selected 
   in list dialog. To use: Select a frequency (e.g. in top-hits table), switch to 
   frequency vs power plot, click "Find Harmonics". Selecting entries in list will 
   change the cross-hairs on the plot. The number of harmonics found could be used 
   to set the maximum number of harmonics per frequency in the modelling dialog, but 
-  this is not currently the case because sometimes this number is too high to be of 
-  practical use and sometimes too low, e.g. if no harmonics are found but the user 
-  suspects that they exist and wants to model them anyway. See also 3416010.
+  this is not currently the case because sometimes this number is too high to be 
+  of practical use and sometimes too low, e.g. if no harmonics are found but the 
+  user suspects that they exist and wants to model them anyway. See also 3416010.
+- WWZ 2D plots are now combined scatter plots and line plots, making points of 
+  interest more easily selectable. This may also be used in DCDFT in future for
+  the same reason.
+- A discrepant observation may now be reported to AAVSO when the discrepant 
+  checkbox at the end of an observation list row is selected, as well as via
+  an observation detail dialog. It's still the case that such a report may be
+  lodged only when the dataset was loaded directly from the AID.
+- Fixed a bug in which the JD of mean phase data items was being accessed, 
+  but not available.
+- Fixed index-out-of-bounds error in WWZ plot period analysis selection 
+  handler.
 
 Date: October 4 2011
 Version: 2.13 (testing release 3)
