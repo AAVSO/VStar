@@ -184,7 +184,9 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener,
 
 					// Note that the row may not correspond to anything in the
 					// data table, e.g. in the case of period analysis
-					// refinement.
+					// refinement or if a datapoint was selected from the full
+					// set of data and this update method is being called in
+					// the context of a maximal WWZ data set.
 					if (row != -1) {
 						// Convert to view index!
 						row = table.convertRowIndexToView(row);

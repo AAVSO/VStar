@@ -8,12 +8,12 @@ o The "Version" field should be considered to be an arbitrary unique label that
   See Help->About in VStar.
 o The tag for each revision is applied to the VStar SourceForge Subversion 
   repository. By navigating to that URL, the files that made up that release
-  will be viewable.
+  can be viewed.
 o The Subversion log will reveal the full details of what went into each release 
   and who contributed what. The Key Changes sections below merely summarise key
   changes and features for each release, but are based directly upon Subversion
   log entries. For the detailed svn commit log comments see:
-  http://vstar.svn.sourceforge.net/viewvc/vstar/trunk/?view=log
+    http://vstar.svn.sourceforge.net/viewvc/vstar/trunk/?view=log
 o Bug & Issue tracker entries cited below can be found here:
   https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
   These contain more detail about who did what, when, and where (in the 
@@ -23,10 +23,27 @@ Known Issues:
 o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies 
   a larger-than-default heap, which helps significantly. For now, if VStar becomes 
   unresponsive, restart it. This problem will be addressed in forthcoming releases. 
-  See trackers 2924511, 2909500, and 3011104 for more 
-  details.
+  See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
+Date: October 19 2011
+Version: 2.13 (testing release 4)
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-19Oct2011
+Key Changes:
+- Added startup()/cleanup() methods via IStartAndCleanup interface, specifically 
+  for registration and de-registration of listeners.
+- Freeing listeners at new-star and dialog dismissal to avoid memory leaks and
+  prevent messages being received by old (not yet garbage collected) objects.
+- Added loadFromAID() and saveCurrentData() in scripting API. See tracker 3205296.
+- Implemented cross-hair setting on power spectrum when harmonic selected 
+  in list dialog. To use: Select a frequency (e.g. in top-hits table), switch to 
+  frequency vs power plot, click "Find Harmonics". Selecting entries in list will 
+  change the cross-hairs on the plot. The number of harmonics found could be used 
+  to set the maximum number of harmonics per frequency in the modelling dialog, but 
+  this is not currently the case because sometimes this number is too high to be of 
+  practical use and sometimes too low, e.g. if no harmonics are found but the user 
+  suspects that they exist and wants to model them anyway. See also 3416010.
+
 Date: October 4 2011
 Version: 2.13 (testing release 3)
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-04Oct2011

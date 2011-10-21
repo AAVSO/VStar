@@ -37,7 +37,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This class is a component that renders synthetic observations, e.g. mean and
- * standard error of the average, or model data.
+ * standard error of the average, model, or residual data.
  */
 public class SyntheticObservationListPane<T extends AbstractSyntheticObservationTableModel>
 		extends JPanel implements ListSelectionListener {

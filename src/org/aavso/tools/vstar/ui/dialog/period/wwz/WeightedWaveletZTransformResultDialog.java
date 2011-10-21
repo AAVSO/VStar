@@ -30,12 +30,14 @@ import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.WWZDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.WWZ2DPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.WWZ3DPlotModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
+import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
@@ -47,6 +49,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
@@ -174,7 +177,34 @@ public class WeightedWaveletZTransformResultDialog extends
 
 	@Override
 	protected void findHarmonicsButtonAction() {
-		// TODO Auto-generated method stub
+		List<Harmonic> harmonics = findHarmonicsFromWWZStats(selectedDataPoint
+				.getFrequency());
+		HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
+				harmonics, selectedDataPoint);
+		Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
+	}
+
+	// TODO: Refactor so that the base class method takes an interface
+	// with a method that returns a frequency from a sequence. Then
+	// List<Double> or List<WWZStatistic> can be wrapped in an object
+	// that implements that interface. Then this method can go away.
+	protected List<Harmonic> findHarmonicsFromWWZStats(double freq) {
+		List<Harmonic> harmonics = new ArrayList<Harmonic>();
+		harmonics.add(new Harmonic(freq, Harmonic.FUNDAMENTAL));
+		int n = Harmonic.FUNDAMENTAL + 1;
+
+		List<WWZStatistic> data = wwt.getStats();
+
+		for (int i = 0; i < data.size(); i++) {
+			double candidateFreq = data.get(i).getFrequency();
+			// Try it both ways in case of round-off errors.
+			if (candidateFreq / n == freq || candidateFreq == freq * n) {
+				harmonics.add(new Harmonic(freq * n, n));
+				n++;
+			}
+		}
+
+		return harmonics;
 	}
 
 	// Enable the new phase plot button and store the selected
@@ -201,17 +231,27 @@ public class WeightedWaveletZTransformResultDialog extends
 		String name = model.getRangeType().toString() + " vs "
 				+ model.getDomainType().toString() + " " + suffix;
 
-		JFreeChart chart = ChartFactory
+		JFreeChart chart1 = ChartFactory
 				.createXYLineChart(chartTitle + ": " + name, model
 						.getDomainType().toString(), model.getRangeType()
 						.toString(), model, PlotOrientation.VERTICAL, true,
 						true, false);
 
+		JFreeChart chart2 = ChartFactory.createScatterPlot(chartTitle
+				+ ": " + name, model.getDomainType().toString(), model
+				.getRangeType().toString(), model, PlotOrientation.VERTICAL,
+				true, true, false);
+
+		// Make a combined chart.
+		chart2.getXYPlot().setDataset(1, model);
+		chart2.getXYPlot().setRenderer(1, chart1.getXYPlot().getRenderer());
+		chart2.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+		
 		double rangeMargin = ((maxRange - minRange) / 100) * 10;
 		minRange -= rangeMargin;
 		maxRange += rangeMargin;
 
-		WWZPlotPane pane = new WWZPlotPane(chart, model, minRange, maxRange);
+		WWZPlotPane pane = new WWZPlotPane(chart2, model, minRange, maxRange);
 		startupAndCleanupComponents.add(pane);
 
 		return new NamedComponent(name, pane);
@@ -245,7 +285,15 @@ public class WeightedWaveletZTransformResultDialog extends
 		XYPlot plot = new XYPlot(model, xAxis, yAxis, renderer);
 		plot.setBackgroundPaint(Color.white);
 		plot.setDomainGridlinesVisible(false);
+		
 		plot.setRangeGridlinePaint(Color.white);
+		plot.setRangeGridlinesVisible(false);
+		
+		plot.setDomainCrosshairVisible(true);
+		plot.setRangeCrosshairVisible(true);
+		plot.setDomainCrosshairValue(0);
+		plot.setRangeCrosshairValue(0);
+		
 		plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
 		plot.setOutlinePaint(Color.blue);
 
@@ -257,8 +305,6 @@ public class WeightedWaveletZTransformResultDialog extends
 		scaleAxis.setTickLabelFont(new Font("Dialog", Font.PLAIN, 7));
 
 		PaintScaleLegend legend = new PaintScaleLegend(scale, scaleAxis);
-		// PaintScaleLegend legend = new PaintScaleLegend(new GrayPaintScale(),
-		// scaleAxis);
 		legend.setStripOutlineVisible(false);
 		legend.setSubdivisionCount(20);
 		legend.setAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
