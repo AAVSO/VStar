@@ -41,8 +41,8 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 abstract public class PeriodAnalysisDialogBase extends JDialog implements
 		IStartAndCleanup {
 
-	private JButton newPhasePlotButton;
-	private JButton findHarmonicsButton;
+	protected JButton newPhasePlotButton;
+	protected JButton findHarmonicsButton;
 	private JPanel topPane;
 
 	/**
@@ -113,24 +113,34 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 	protected JPanel createButtonPanel() {
 		JPanel buttonPane = new JPanel(new FlowLayout());
 
+		addNewPhasePlotButton(buttonPane);
+		addFindHarmomicsButton(buttonPane);
+		addDismissButton(buttonPane);
+		
+		return buttonPane;
+	}
+
+	protected void addNewPhasePlotButton(JPanel buttonPane) {
 		newPhasePlotButton = new JButton("New Phase Plot");
 		newPhasePlotButton.addActionListener(createNewPhasePlotButtonHandler());
 		newPhasePlotButton.setEnabled(false);
-		buttonPane.add(newPhasePlotButton);
+		buttonPane.add(newPhasePlotButton);		
+	}
 
+	protected void addFindHarmomicsButton(JPanel buttonPane) {
 		findHarmonicsButton = new JButton("Find Harmonics");
 		findHarmonicsButton
 				.addActionListener(createFindHarmonicsButtonHandler());
 		findHarmonicsButton.setEnabled(false);
 		buttonPane.add(findHarmonicsButton);
-
-		JButton dismissButton = new JButton("Dismiss");
-		dismissButton.addActionListener(createDismissButtonHandler());
-		buttonPane.add(dismissButton);
-
-		return buttonPane;
 	}
 
+	protected void addDismissButton(JPanel buttonPane) {
+		JButton dismissButton = new JButton("Dismiss");
+		dismissButton.addActionListener(createDismissButtonHandler());
+		buttonPane.add(dismissButton);		
+	}
+	
 	/**
 	 * Find all harmonics of the specified frequency in the data and return
 	 * them, including the fundamental itself.
