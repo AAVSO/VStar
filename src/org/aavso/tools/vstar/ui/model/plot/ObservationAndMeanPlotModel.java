@@ -112,6 +112,13 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
+	 * @return the timeElementEntity
+	 */
+	public ITimeElementEntity getTimeElementEntity() {
+		return timeElementEntity;
+	}
+
+	/**
 	 * Set the mean-based series.
 	 * 
 	 * This method creates a new means series based upon the current mean source
