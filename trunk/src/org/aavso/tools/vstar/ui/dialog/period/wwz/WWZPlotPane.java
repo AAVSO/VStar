@@ -29,6 +29,8 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.WWZ2DPlotModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
+import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
@@ -148,14 +150,24 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
 				if (info.getSource() != parent) {
-					double x = model.getStats().get(info.getIndex()).getValue(
-							model.getDomainType());
+					// Find the datapoint in the model (could be minimal or full
+					// stats).
+					IPeriodAnalysisDatum datum = info.getDataPoint();
+					WWZStatistic foundStat = null;
+					for (WWZStatistic stat : model.getStats()) {
+						if (stat.equals(datum)) {
+							foundStat = stat;
+							break;
+						}
+					}
 
-					double y = model.getStats().get(info.getIndex()).getValue(
-							model.getRangeType());
+					if (foundStat != null) {
+						double x = foundStat.getValue(model.getDomainType());
+						double y = foundStat.getValue(model.getRangeType());
 
-					chart.getXYPlot().setDomainCrosshairValue(x);
-					chart.getXYPlot().setRangeCrosshairValue(y);
+						chart.getXYPlot().setDomainCrosshairValue(x);
+						chart.getXYPlot().setRangeCrosshairValue(y);
+					}
 				}
 			}
 
