@@ -159,6 +159,8 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 						ob, this);
 				Mediator.getInstance().getDiscrepantObservationNotifier()
 						.notifyListeners(message);
+				
+				Mediator.getInstance().reportDiscrepantObservation(ob, null);
 			}
 		}
 	}

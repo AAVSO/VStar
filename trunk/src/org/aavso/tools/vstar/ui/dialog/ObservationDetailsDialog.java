@@ -170,68 +170,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 					Mediator.getInstance().getDiscrepantObservationNotifier()
 							.notifyListeners(message);
 
-					// If the dataset was loaded from AID and the change was
-					// to mark this observation as discrepant, we ask the user
-					// whether to report this to AAVSO.
-					NewStarMessage newStarMessage = Mediator.getInstance()
-							.getNewStarMessage();
-
-					if (ob.isDiscrepant()
-							&& newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-
-						String auid = newStarMessage.getStarInfo().getAuid();
-						String name = ob.getName();
-						int uniqueId = ob.getRecordNumber();
-
-						DiscrepantReportDialog reportDialog = new DiscrepantReportDialog(
-								auid, ob);
-
-						if (!reportDialog.isCancelled()) {
-							try {
-								MainFrame
-										.getInstance()
-										.setCursor(
-												Cursor
-														.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-								Authenticator.getInstance().authenticate();
-
-								String userName = ResourceAccessor
-										.getLoginInfo().getUserName();
-
-								String editor = "vstar:" + userName;
-
-								setVisible(false);
-
-								// Create and submit the discrepant report.
-								DiscrepantReport report = new DiscrepantReport(
-										auid, name, uniqueId, editor,
-										reportDialog.getComments());
-
-								IDiscrepantReporter reporter = ZapperLogger
-										.getInstance();
-
-								reporter.lodge(report);
-
-								MainFrame.getInstance().setCursor(null);
-
-								dispose();
-							} catch (CancellationException ex) {
-								// Nothing to do; dialog cancelled.
-							} catch (ConnectionException ex) {
-								MessageBox.showErrorDialog(
-										"Authentication Source Error", ex);
-							} catch (AuthenticationError ex) {
-								MessageBox.showErrorDialog(
-										"Authentication Error", ex);
-							} catch (Exception ex) {
-								MessageBox.showErrorDialog(
-										"Discrepant Reporting Error", ex);
-							} finally {
-								MainFrame.getInstance().setCursor(null);
-							}
-						}
-					}
+					Mediator.getInstance().reportDiscrepantObservation(ob, parent);
 				}
 			}
 		};
