@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.BorderLayout;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,20 +35,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.exception.AuthenticationError;
-import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
-import org.aavso.tools.vstar.util.discrepant.DiscrepantReport;
-import org.aavso.tools.vstar.util.discrepant.IDiscrepantReporter;
-import org.aavso.tools.vstar.util.discrepant.ZapperLogger;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**

@@ -53,6 +53,7 @@ Key Changes:
   but not available.
 - Fixed index-out-of-bounds error in WWZ plot period analysis selection 
   handler.
+- Fixed missing band information in WWZ-derived model and residual datapoints.
 
 Date: October 4 2011
 Version: 2.13 (testing release 3)

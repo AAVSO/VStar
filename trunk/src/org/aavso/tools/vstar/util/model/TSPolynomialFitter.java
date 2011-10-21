@@ -142,10 +142,10 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		if (ds9 < 0.0)
 			ds9 = 0.0;
 		ds9 = Math.sqrt(ds9);
-		
+
 		// write(1,230) npoly,dpower,ds9,fprint,numact,dave,dsig,dvar
 		// write(1,292) dt0+tvec(nlolim),dt0+tvec(nuplim),dt0+dtzero
-		
+
 		// Note: save constants
 
 		// write(1,290) fprint,numact,dave,dsig,dvar
@@ -172,7 +172,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		// "fit observations".
 		fit = new ArrayList<ValidObservation>();
 
-		String fitComment = "From a polynomial fit of degree " + degree;
+		String comment = "From polynomial fit of degree " + degree;
 
 		for (n = 1; n <= numred; n++) {
 			// write(1,222)tfit(n)+dt0,xfit(n),ds9*sfit(n)
@@ -181,7 +181,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 			// double uncertainty = ds9*sfit[n]; // TODO: ask Matt about this;
 			// uncertainty?
 			fitOb.setMagnitude(new Magnitude(xfit[n], 0));
-			fitOb.setComments(fitComment);
+			fitOb.setComments(comment);
 			fitOb.setBand(SeriesType.Model);
 			fit.add(fitOb);
 		}
@@ -201,9 +201,6 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		// "residual observations".
 		residuals = new ArrayList<ValidObservation>();
 
-		String residualsComment = "Residual from polynomial fit of degree "
-				+ degree;
-
 		for (n = nlolim; n <= nuplim; n++) {
 			if (wvec[n] > 0.0) {
 				dtime = tvec[n];
@@ -217,7 +214,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 				ValidObservation residualOb = new ValidObservation();
 				residualOb.setDateInfo(new DateInfo(tvec[n] + dt0));
 				residualOb.setMagnitude(new Magnitude(res, 0));
-				residualOb.setComments(residualsComment);
+				residualOb.setComments(comment);
 				residualOb.setBand(SeriesType.Residuals);
 				residuals.add(residualOb);
 			}
@@ -271,8 +268,8 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 		ntt = (int) ((xx - x) / tt) + 1;
 
-		tfit = new double[ntt+1];
-		xfit = new double[ntt+1];
+		tfit = new double[ntt + 1];
+		xfit = new double[ntt + 1];
 
 		for (idtime = 1; idtime <= ntt; idtime++) {
 			dtime = x + (double) (idtime - 1) * tt;
