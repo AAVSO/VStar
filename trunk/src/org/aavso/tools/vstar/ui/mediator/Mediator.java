@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.print.PrinterException;
 import java.io.File;
@@ -33,14 +34,19 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.JDialog;
 import javax.swing.SwingWorker;
 import javax.swing.JTable.PrintMode;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
@@ -51,6 +57,7 @@ import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
 import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveAsChooser;
+import org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
@@ -99,6 +106,7 @@ import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.ui.task.ModellingTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromDatabaseTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromFileTask;
@@ -109,6 +117,9 @@ import org.aavso.tools.vstar.ui.task.PhasePlotTask;
 import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
+import org.aavso.tools.vstar.util.discrepant.DiscrepantReport;
+import org.aavso.tools.vstar.util.discrepant.IDiscrepantReporter;
+import org.aavso.tools.vstar.util.discrepant.ZapperLogger;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.IPolynomialFitter;
 import org.aavso.tools.vstar.util.model.TSPolynomialFitter;
@@ -837,7 +848,7 @@ public class Mediator {
 	 */
 	public void createObservationArtefactsFromFile(File obsFile)
 			throws IOException, ObservationReadError {
-		
+
 		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
 		// Analyse the observation file.
@@ -961,7 +972,7 @@ public class Mediator {
 		if (!validObsList.isEmpty()) {
 
 			freeListeners();
-			
+
 			// This is a specific fix for tracker 3007948.
 			this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
 
@@ -1774,6 +1785,78 @@ public class Mediator {
 		} else {
 			MessageBox.showWarningDialog("Observation Details",
 					"No observation selected");
+		}
+	}
+
+	/**
+	 * Report a discrepant observation to AAVSO (if the dataset was
+	 * AID-downloaded).
+	 * 
+	 * @param ob
+	 *            The observation to be reported.
+	 * @param dialog
+	 *            A parent dialog to set non-visible and dispose. May be null.
+	 */
+	public void reportDiscrepantObservation(ValidObservation ob, JDialog dialog) {
+		// If the dataset was loaded from AID and the change was
+		// to mark this observation as discrepant, we ask the user
+		// whether to report this to AAVSO.
+		NewStarMessage newStarMessage = Mediator.getInstance()
+				.getNewStarMessage();
+
+		if (ob.isDiscrepant()
+				&& newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+
+			String auid = newStarMessage.getStarInfo().getAuid();
+			String name = ob.getName();
+			int uniqueId = ob.getRecordNumber();
+
+			DiscrepantReportDialog reportDialog = new DiscrepantReportDialog(
+					auid, ob);
+
+			if (!reportDialog.isCancelled()) {
+				try {
+					MainFrame.getInstance().setCursor(
+							Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+					Authenticator.getInstance().authenticate();
+
+					String userName = ResourceAccessor.getLoginInfo()
+							.getUserName();
+
+					String editor = "vstar:" + userName;
+
+					if (dialog != null) {
+						dialog.setVisible(false);
+					}
+
+					// Create and submit the discrepant report.
+					DiscrepantReport report = new DiscrepantReport(auid, name,
+							uniqueId, editor, reportDialog.getComments());
+
+					IDiscrepantReporter reporter = ZapperLogger.getInstance();
+
+					reporter.lodge(report);
+
+					MainFrame.getInstance().setCursor(null);
+
+					if (dialog != null) {
+						dialog.dispose();
+					}
+				} catch (CancellationException ex) {
+					// Nothing to do; dialog cancelled.
+				} catch (ConnectionException ex) {
+					MessageBox.showErrorDialog("Authentication Source Error",
+							ex);
+				} catch (AuthenticationError ex) {
+					MessageBox.showErrorDialog("Authentication Error", ex);
+				} catch (Exception ex) {
+					MessageBox
+							.showErrorDialog("Discrepant Reporting Error", ex);
+				} finally {
+					MainFrame.getInstance().setCursor(null);
+				}
+			}
 		}
 	}
 
