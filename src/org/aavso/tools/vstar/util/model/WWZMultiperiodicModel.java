@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
@@ -38,7 +39,7 @@ public class WWZMultiperiodicModel implements IModel {
 	private WeightedWaveletZTransform wwt;
 	private List<Double> periods;
 	private List<ValidObservation> obs;
-	
+
 	private List<ValidObservation> fit;
 	private List<ValidObservation> residuals;
 
@@ -59,7 +60,7 @@ public class WWZMultiperiodicModel implements IModel {
 		this.wwt = wwt;
 		this.periods = periods;
 		obs = wwt.getObs();
-		
+
 		fit = new ArrayList<ValidObservation>();
 		residuals = new ArrayList<ValidObservation>();
 	}
@@ -85,12 +86,20 @@ public class WWZMultiperiodicModel implements IModel {
 			// Always use all statistcs vs maximal statistics to create model.
 			// TODO: sanity check that!
 			for (WWZStatistic stat : wwt.getStats()) {
+				
 				if (stat.getPeriod() == period) {
+					
+					String comment = "From WWZ, period "
+							+ String.format(NumericPrecisionPrefs
+									.getOtherOutputFormat(), period);
+
 					// Create a fit observation from the average magnitude for
 					// this time-frequency/period combination.
 					ValidObservation fitOb = new ValidObservation();
 					fitOb.setDateInfo(new DateInfo(stat.getTau()));
 					fitOb.setMagnitude(new Magnitude(stat.getMave(), 0));
+					fitOb.setBand(SeriesType.Model);
+					fitOb.setComments(comment);
 					fit.add(fitOb);
 
 					// Create a residual observation for each observation since
@@ -105,6 +114,8 @@ public class WWZMultiperiodicModel implements IModel {
 						residualOb
 								.setDateInfo(new DateInfo(obs.get(i).getJD()));
 						residualOb.setMagnitude(new Magnitude(residual, 0));
+						residualOb.setBand(SeriesType.Residuals);
+						residualOb.setComments(comment);
 						residuals.add(residualOb);
 						i++;
 					}
