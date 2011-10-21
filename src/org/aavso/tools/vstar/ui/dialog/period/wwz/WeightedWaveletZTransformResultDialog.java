@@ -24,6 +24,7 @@ import java.awt.GradientPaint;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.aavso.tools.vstar.plugin.PluginComponentFactory;
@@ -162,6 +163,12 @@ public class WeightedWaveletZTransformResultDialog extends
 		return PluginComponentFactory.createTabs(namedComponents);
 	}
 
+	protected JPanel createButtonPanel() {
+		JPanel buttonPane = super.createButtonPanel();
+		findHarmonicsButton.setVisible(false);
+		return buttonPane;
+	}
+	
 	/**
 	 * The new phase plot button will only be enabled when a period analysis
 	 * selection message has been received, so we *know* without having to ask
@@ -175,6 +182,10 @@ public class WeightedWaveletZTransformResultDialog extends
 				message);
 	}
 
+	// Note: The harmonics finder methods are not currently used here.
+	// Need to assess the validity or suitability of that functionality
+	// in the WWZ context.
+	
 	@Override
 	protected void findHarmonicsButtonAction() {
 		List<Harmonic> harmonics = findHarmonicsFromWWZStats(selectedDataPoint
