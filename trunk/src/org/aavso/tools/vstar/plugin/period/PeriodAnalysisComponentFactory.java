@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.plugin.period;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +29,8 @@ import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.TextTitle;
 
@@ -69,7 +70,8 @@ public class PeriodAnalysisComponentFactory {
 	 *            Should range values be logarithmic by default?
 	 * @return A GUI line plot component.
 	 */
-	public static PeriodAnalysis2DChartPane createLinePlot(String title, String subtitle,
+	public static PeriodAnalysis2DChartPane createLinePlot(String title,
+			String subtitle,
 			Map<PeriodAnalysisCoordinateType, List<Double>> analysisValues,
 			PeriodAnalysisCoordinateType domainType,
 			PeriodAnalysisCoordinateType rangeType, boolean permitLogarithmic,
@@ -93,7 +95,7 @@ public class PeriodAnalysisComponentFactory {
 
 	/**
 	 * <p>
-	 * Create a line plot given a 2D plot model.
+	 * Create a scatter plot given a 2D plot model.
 	 * </p>
 	 * 
 	 * <p>
@@ -113,8 +115,99 @@ public class PeriodAnalysisComponentFactory {
 	 *            logarithmic range?
 	 * @return A GUI line plot component.
 	 */
-	public static PeriodAnalysis2DChartPane createLinePlot(String title, String subtitle,
-			PeriodAnalysis2DPlotModel model, boolean permitLogarithmic) {
+	public static PeriodAnalysis2DChartPane createScatterPlot(String title,
+			String subtitle, PeriodAnalysis2DPlotModel model,
+			boolean permitLogarithmic) {
+
+		// Create a scatter plot with legend, tool-tips, and URLs showing
+		// and add it to the panel.
+		PeriodAnalysis2DChartPane chartPanel = new PeriodAnalysis2DChartPane(
+				ChartFactory.createScatterPlot(title, model.getDomainType()
+						.getDescription(), model.getRangeType()
+						.getDescription(), model, PlotOrientation.VERTICAL,
+						true, true, true), model, permitLogarithmic);
+
+		chartPanel.getChart().addSubtitle(new TextTitle(subtitle));
+
+		return chartPanel;
+	}
+
+	/**
+	 * <p>
+	 * Create a combined line and scatter plot given a 2D plot model.
+	 * </p>
+	 * 
+	 * <p>
+	 * The component sends and receives period analysis selection messages.
+	 * </p>
+	 * 
+	 * @see org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage
+	 * 
+	 * @param title
+	 *            The main title of the plot.
+	 * @param subtitle
+	 *            The subtitle of the plot.
+	 * @param model
+	 *            A 2D plot model.
+	 * @param permitLogarithmic
+	 *            Should it be possible to toggle the plot between a normal and
+	 *            logarithmic range?
+	 * @return A GUI line plot component.
+	 */
+	public static PeriodAnalysis2DChartPane createLineAndScatterPlot(
+			String title, String subtitle, PeriodAnalysis2DPlotModel model,
+			boolean permitLogarithmic) {
+
+		// Create a line chart with legend, tool-tips, and URLs showing
+		// and add it to the panel.
+		JFreeChart chart1 = ChartFactory.createXYLineChart(title, model
+				.getDomainType().getDescription(), model.getRangeType()
+				.getDescription(), model, PlotOrientation.VERTICAL, true, true,
+				true);
+
+		JFreeChart chart2 = ChartFactory.createScatterPlot(title, model
+				.getDomainType().getDescription(), model.getRangeType()
+				.getDescription(), model, PlotOrientation.VERTICAL, true, true,
+				true);
+
+		// Make a combined chart.
+		chart2.getXYPlot().setDataset(1, model);
+		chart2.getXYPlot().setRenderer(1, chart1.getXYPlot().getRenderer());
+		chart2.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+
+		PeriodAnalysis2DChartPane chartPanel = new PeriodAnalysis2DChartPane(
+				chart2, model, permitLogarithmic);
+
+		chartPanel.getChart().addSubtitle(new TextTitle(subtitle));
+
+		return chartPanel;
+	}
+
+	/**
+	 * <p>
+	 * Create a combined line and scatter plot given a 2D plot model.
+	 * </p>
+	 * 
+	 * <p>
+	 * The component sends and receives period analysis selection messages.
+	 * </p>
+	 * 
+	 * @see org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage
+	 * 
+	 * @param title
+	 *            The main title of the plot.
+	 * @param subtitle
+	 *            The subtitle of the plot.
+	 * @param model
+	 *            A 2D plot model.
+	 * @param permitLogarithmic
+	 *            Should it be possible to toggle the plot between a normal and
+	 *            logarithmic range?
+	 * @return A GUI line plot component.
+	 */
+	public static PeriodAnalysis2DChartPane createLinePlot(String title,
+			String subtitle, PeriodAnalysis2DPlotModel model,
+			boolean permitLogarithmic) {
 
 		// Create a line chart with legend, tool-tips, and URLs showing
 		// and add it to the panel.
