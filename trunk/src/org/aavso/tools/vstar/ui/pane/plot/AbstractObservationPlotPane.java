@@ -42,7 +42,7 @@ import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
-import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -65,7 +65,7 @@ import org.jfree.data.general.DatasetChangeListener;
  * This class is the base class for chart panes containing a plot of a set of
  * valid observations. It is genericised on observation model.
  */
-abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel>
+abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPlotModel>
 		extends JPanel implements ChartMouseListener, DatasetChangeListener {
 
 	protected T obsModel;
@@ -436,21 +436,25 @@ abstract public class AbstractObservationPlotPane<T extends ObservationPlotModel
 		// searching all entries, i.e. when the observation is matched up
 		// with the corresponding XYItemEntity. It's still O(n) though.
 		// TODO: Use RendererUtilities method to return a list of entity indices
-		// that lie in a given x (JD) range; that should just be
-		// ob.getJD()..ob.getJD(); this would reduce n.
+		// that lie in a given x (JD/phase) range; this would reduce n.
 		Iterator it = entities.iterator();
 		while (it.hasNext()) {
 			Object o = it.next();
 			if (o instanceof XYItemEntity) {
 				XYItemEntity item = (XYItemEntity) o;
-				double jd = obsModel.getXValue(item.getSeriesIndex(), item
-						.getItem());
+				double domainValue = obsModel.getXValue(item.getSeriesIndex(),
+						item.getItem());
 				double mag = obsModel.getYValue(item.getSeriesIndex(), item
 						.getItem());
 
 				// Since the data in the observations and in the XYItemEntities
 				// should be the same, using equality here ought to be safe.
-				if (ob.getJD() == jd && ob.getMag() == mag) {
+				List<ValidObservation> obs = obsModel
+						.getSeriesNumToObSrcListMap()
+						.get(item.getSeriesIndex());
+				if (obsModel.getTimeElementEntity().getTimeElement(obs,
+						item.getItem()) == domainValue
+						&& ob.getMag() == mag) {
 					Rectangle2D itemBounds = item.getArea().getBounds2D();
 					Point2D centerPt = new Point2D.Double(itemBounds
 							.getCenterX(), itemBounds.getCenterY());

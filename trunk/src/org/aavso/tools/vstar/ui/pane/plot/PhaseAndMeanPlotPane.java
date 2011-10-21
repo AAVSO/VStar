@@ -34,7 +34,6 @@ import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
-import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
