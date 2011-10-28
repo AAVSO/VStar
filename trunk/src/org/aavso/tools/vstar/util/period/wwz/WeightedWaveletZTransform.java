@@ -32,8 +32,7 @@ import org.aavso.tools.vstar.util.IAlgorithm;
  * was sought, and granted, from the AAVSO Director to use the Fortran code in
  * this way. Note that the comment about maximum data points below does not
  * apply here, since we dynamically allocate the arrays based upon the number of
- * observations. The original Fortran program's header comment is included
- * below.
+ * observations.
  * </p>
  * 
  * <p>
@@ -71,19 +70,10 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	private double minWWZ;
 	private double maxWWZ;
 
-	private double dave;
-	private double dcc;
 	private double dcon;
-	private double dcw;
-	private double dtstep;
 	private double dmat[][] = new double[3][3];
-	private double dsig;
-	private double dss;
-	private double dsw;
 	private double dt[];
-	private double dvar;
 	private double dx[];
-	private double dxw;
 	private double fhi;
 	private double flo;
 	private double freq[];
@@ -91,7 +81,6 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	private int ntau;
 	private int numdat;
 	private double tau[];
-	private double taucheck;
 
 	/**
 	 * Constructor
@@ -243,7 +232,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			if (stat.getPeriod() < minPeriod) {
 				minPeriod = stat.getPeriod();
 			}
-			
+
 			if (stat.getPeriod() > maxPeriod) {
 				maxPeriod = stat.getPeriod();
 			}
@@ -251,7 +240,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			if (stat.getAmplitude() < minAmp) {
 				minAmp = stat.getAmplitude();
 			}
-			
+
 			if (stat.getAmplitude() > maxAmp) {
 				maxAmp = stat.getAmplitude();
 			}
@@ -259,7 +248,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			if (stat.getWwz() < minWWZ) {
 				minWWZ = stat.getWwz();
 			}
-			
+
 			if (stat.getWwz() > maxWWZ) {
 				maxWWZ = stat.getWwz();
 			}
@@ -288,45 +277,30 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			ValidObservation ob = observations.get(i - 1);
 			dt[i] = ob.getJD();
 			dx[i] = ob.getMag();
-
-			dave = dave + dx[i];
-			dvar = dvar + (dx[i] * dx[i]);
 		}
-
-		// Note: unlikely to make use of these in VStar, since we do these kinds
-		// of computations elsewhere.
-		dave = dave / ((double) numdat);
-		dvar = (dvar / ((double) numdat)) - (dave * dave);
-		dsig = Math.sqrt(dvar * ((double) (numdat)) / (double) (numdat - 1));
 	}
 
 	/**
-	 * make your array of time lags, tau, here. In BASIC, you could just step
-	 * from whatever taus you choose, like "FOR DTAU = DTAU1 TO DTAU2 STEP DT",
-	 * but FORTRAN only lets you loop over ints. So we determine the taus ahead
-	 * of time. TODO: notice that we could have done this the Basic for-step way
-	 * here.
+	 * Make an array of time lags, tau, here.
 	 */
 	private void maketau(double timeDivisions) {
-		double dtspan, dtaulo, dtauhi;
-
-		tau = new double[numdat + 1];
-
-		dtspan = dt[numdat] - dt[1];
-		dtstep = round(dtspan / timeDivisions);
-		dtaulo = dt[1];
-		dtauhi = dt[numdat];
+		double dtaulo = dt[1];
+		double dtauhi = dt[numdat];
+		
+		double dtspan = dtauhi - dtaulo;
+		double dtstep = round(dtspan / timeDivisions);
+		
 		dtaulo = dtstep * (double) ((int) ((dtaulo / dtstep) + 0.5));
 		dtauhi = dtstep * (double) ((int) ((dtauhi / dtstep) + 0.5));
-		tau[1] = dtaulo;
-		ntau = 1;
-		for (int i = 2; i <= numdat; i++) {
-			taucheck = tau[1] + (double) (i - 1) * dtstep;
-			if (taucheck > dtauhi)
-				break;
-			tau[i] = taucheck;
+
+		tau = new double[(int)((dtauhi-dtaulo)/dtstep)+2];
+
+		ntau = 0;
+		
+		for (double dtau = dtaulo; dtau <= dtauhi; dtau += dtstep) {
+			tau[ntau+1] = dtau;
 			ntau++;
-		}
+		}		
 	}
 
 	/**
@@ -397,17 +371,17 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 
 		minPeriod = minPer;
 		maxPeriod = maxPer;
-		
-		flo = 1/maxPeriod;
-		fhi = 1/minPeriod;
+
+		flo = 1 / maxPeriod;
+		fhi = 1 / minPeriod;
 
 		nfreq = (int) ((maxPeriod - minPeriod) / deltaPeriod) + 1;
 
 		freq = new double[nfreq + 1];
 
 		for (int i = 1; i <= nfreq; i++) {
-			double period = minPeriod + (double) (i - 1) * deltaPeriod;  
-			freq[i] = 1/period;
+			double period = minPeriod + (double) (i - 1) * deltaPeriod;
+			freq[i] = 1 / period;
 		}
 	}
 
