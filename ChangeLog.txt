@@ -37,11 +37,7 @@ Key Changes:
 - Implemented cross-hair setting on DCDFT power spectrum when harmonic selected 
   in list dialog. To use: Select a frequency (e.g. in top-hits table), switch to 
   frequency vs power plot, click "Find Harmonics". Selecting entries in list will 
-  change the cross-hairs on the plot. The number of harmonics found could be used 
-  to set the maximum number of harmonics per frequency in the modelling dialog, but 
-  this is not currently the case because sometimes this number is too high to be 
-  of practical use and sometimes too low, e.g. if no harmonics are found but the 
-  user suspects that they exist and wants to model them anyway. See also 3416010.
+  change the cross-hairs on the plot. See also 3416010.
 - WWZ 2D plots are now combined scatter plots and line plots, making points of 
   interest more easily selectable. This may also be used in DCDFT in future for
   the same reason.
