@@ -26,9 +26,9 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
-Date: November ?? 2011
+Date: November 4 2011
 Version: 2.13 (testing release 5)
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-??Nov2011
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-04Nov2011
 Key Changes:
 - Fixed a bug reported by Brian Kloppenborg in WWZ in which for some values 
   of number-of-time-divisions, the number of time values was being cut well 
@@ -122,9 +122,9 @@ Key Changes:
 - Fix for discrepant reporting locale bug. See tracker 3260287.
 - Implemented a plugin to determine time between maxima/other events of interest, 
   e.g. outbursts. See tracker 3028947. Thanks to Mike Simonsen for requesting this.
-- Implemented an upload file format observation source plugin to handle both visual 
-  and extended formats. A few people requested this, including Ken Mogul and Alan 
-  Plummer.
+- Additional work on upload file format observation source plugin to handle both 
+  visual and extended formats. A few people requested this, including Ken Mogul 
+  and Alan Plummer.
 - Changed text format observation validation to permit magnitudes with no digits 
   after the decimal point. See tracker 2915572.
 - Lifted range checking of magnitude values given the diversity of observation 
