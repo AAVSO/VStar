@@ -26,6 +26,14 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
+Date: November 28 2011
+Version: 2.13 (testing release 6)
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-28Nov2011
+Key Changes:
+- Implemented relative amplitudes and phases. See tracker 3416010. 
+- The File->Info dialog now contains more information about the dataset's 
+  source (e.g. AID, AAVSO download format file) and designation.
+
 Date: November 4 2011
 Version: 2.13 (testing release 5)
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-04Nov2011
