@@ -71,6 +71,11 @@ public class ExampleObSource extends ObservationSourcePluginBase {
 
 		@Override
 		public String getSourceName() {
+			return getInputName();
+		}
+
+		@Override
+		public String getSourceType() {
 			return "Example Observation Source";
 		}
 	}

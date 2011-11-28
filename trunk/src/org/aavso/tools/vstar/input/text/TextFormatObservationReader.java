@@ -17,6 +17,9 @@
  */
 package org.aavso.tools.vstar.input.text;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.LineNumberReader;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -51,14 +54,13 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	 * large enough observation list capacity in the case where we an read
 	 * out-of-order dataset.
 	 * 
-	 * @param reader
-	 *            A line number buffered reader from which lines of observations
-	 *            can be read.
+	 * @param obsFile
+	 *            The file that is the source of the observation.
 	 * @param analyser
 	 *            An observation file analyser.
 	 */
 	public TextFormatObservationReader(LineNumberReader reader,
-			ObservationSourceAnalyser analyser) {
+			ObservationSourceAnalyser analyser) throws IOException {
 		super(analyser.getLineCount());
 		this.reader = reader;
 		this.analyser = analyser;
@@ -109,8 +111,13 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	}
 
 	@Override
-	public String getSourceName() {
+	public String getSourceType() {
 		return analyser.getNewStarType().toString();
+	}
+
+	@Override
+	public String getSourceName() {
+		return analyser.getObsSourceIdentifier();
 	}
 
 	// Helpers

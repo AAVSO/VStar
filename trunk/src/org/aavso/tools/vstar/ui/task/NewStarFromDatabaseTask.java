@@ -87,6 +87,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	 */
 	protected void createDatabaseBasedObservationArtefacts() {
 
+		// TODO: revisit all of this; see tracker 2913571, align with whatever
+		// becomes the web services interface.
 		ResultSet results = null;
 
 		try {
@@ -98,7 +100,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
 			Connection vsxConnection = vsxConnector.createConnection();
 
-			// TODO: do we really need to create this default?
+			// TODO: this should always be populated by VSX methods below!!
+			// (e.g. to get period, epoch, variable/spectral type, discoverer).
 			StarInfo starInfo = new StarInfo(starName, auid);
 
 			// Do we need to ask for the AUID from the database before
@@ -170,6 +173,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 					results);
 
 			databaseObsReader.retrieveObservations();
+			starInfo.setRetriever(databaseObsReader);
+
 			updateProgress(2);
 
 			if (databaseObsReader.getValidObservations().isEmpty()) {
@@ -184,8 +189,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 
 			// Create table/plot models and GUI elements.
 			mediator.createNewStarObservationArtefacts(
-					NewStarType.NEW_STAR_FROM_DATABASE, starInfo,
-					databaseObsReader, 2);
+					NewStarType.NEW_STAR_FROM_DATABASE, starInfo, 2);
 
 			success = true;
 

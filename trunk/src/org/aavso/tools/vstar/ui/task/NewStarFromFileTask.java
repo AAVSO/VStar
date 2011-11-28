@@ -96,9 +96,18 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 							"No observations for the specified period or error in observation source.");
 				}
 
+				// Try to get the name of the object from one of the
+				// observations, otherwise just use the file name.
+				// TODO: push down to concrete retriever				
+				String name = textFormatReader.getValidObservations().get(0)
+						.getName();
+				if (name == null) {
+					name = obsFile.getName();
+				}
+
 				mediator.createNewStarObservationArtefacts(analyser
-						.getNewStarType(), new StarInfo(obsFile.getName()),
-						textFormatReader, plotTaskPortion);
+						.getNewStarType(),
+						new StarInfo(textFormatReader, name), plotTaskPortion);
 			}
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),

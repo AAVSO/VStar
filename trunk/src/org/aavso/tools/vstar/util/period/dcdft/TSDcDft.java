@@ -877,6 +877,9 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		for (int nn = 1; nn <= nfre; nn++) {
 			nb = nb + 2;
 			int na = nb - 1;
+			// Note: dcoef[na] is cos_coeff, dcoeff[nb] is sin_coeff,
+			// dcoeff[0] is const_coeff, and dd is amplitude 
+			// [sqrt(cos_coeff^2+sin_coeff^2)].
 			double dd = dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb];
 			parameters.add(new PeriodFitParameters(harmonics.get(nn - 1), Math
 					.sqrt(dd), dcoef[na], dcoef[nb], dcoef[0]));

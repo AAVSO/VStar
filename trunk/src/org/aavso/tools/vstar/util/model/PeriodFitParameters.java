@@ -23,11 +23,13 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * This class represents a single period-based fit coefficient/parameter set
  * that could be be used to re-create a model fit.
  */
+public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 
-public class PeriodFitParameters {
+	private final static double TWOPI = 2 * Math.PI;
 
 	private Harmonic harmonic;
 	private double amplitude;
+	private double phase;
 	private double sineCoefficient;
 	private double cosineCoefficient;
 	private double constantCoefficient;
@@ -35,6 +37,8 @@ public class PeriodFitParameters {
 
 	/**
 	 * Constructor.
+	 * 
+	 * TODO: consider computing amplitude locally rather than passing it in!
 	 * 
 	 * @param harmonic
 	 *            The harmonic, from which can be obtained period and frequency.
@@ -52,10 +56,18 @@ public class PeriodFitParameters {
 			double constantCoefficient) {
 		this.harmonic = harmonic;
 		this.amplitude = amplitude;
+		this.phase = Math.atan2(-sineCoefficient, cosineCoefficient);
 		this.cosineCoefficient = cosineCoefficient;
 		this.sineCoefficient = sineCoefficient;
 		this.constantCoefficient = constantCoefficient;
 		this.str = null;
+	}
+
+	/**
+	 * @return the harmonic
+	 */
+	public Harmonic getHarmonic() {
+		return harmonic;
 	}
 
 	/**
@@ -84,6 +96,63 @@ public class PeriodFitParameters {
 	 */
 	public double getAmplitude() {
 		return amplitude;
+	}
+
+	/**
+	 * Get the relative amplitude given the first amplitude to which the current
+	 * amplitude is relative.
+	 * 
+	 * @param firstAmplitude
+	 *            The amplitude to which the current parameter's amplitude
+	 *            should be taken to be relative.
+	 * @return The relative amplitude.
+	 */
+	public double getRelativeAmplitude(double firstAmplitude) {
+		return amplitude / firstAmplitude;
+	}
+
+	/**
+	 * @return the phase in radians
+	 */
+	public double getPhase() {
+		return phase;
+	}
+
+	/**
+	 * Get the relative phase in radians given the first phase to which the
+	 * current phase is relative. The result is adjusted to be in the range
+	 * 0..2PI.
+	 * 
+	 * @param firstPhase
+	 *            The phase to which the current parameter's phase should be
+	 *            taken to be relative.
+	 * @return The relative phase in radians.
+	 */
+	public double getRelativePhase(double firstPhase) {
+		double result = phase - harmonic.getHarmonicNumber() * firstPhase;
+
+		while (result < 0) {
+			result += TWOPI;
+		}
+
+		while (result > TWOPI) {
+			result -= TWOPI;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Get the relative phase in cycles (radians/2PI) given the first phase to
+	 * which the current phase is relative.
+	 * 
+	 * @param firstPhase
+	 *            The phase to which the current parameter's phase should be
+	 *            taken to be relative.
+	 * @return The relative phase in cycles.
+	 */
+	public double getRelativePhaseInCycles(double firstPhase) {
+		return getRelativePhase(firstPhase) / TWOPI;
 	}
 
 	/**
@@ -178,9 +247,9 @@ public class PeriodFitParameters {
 	public String toString() {
 		if (str == null) {
 			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
-			
+
 			str = cosineCoefficient >= 0 ? "+" : "";
-			
+
 			String sincosParam = "2\u03C0" + harmonic + "t";
 
 			str += String.format(fmt, cosineCoefficient) + " \u00D7 cos(";
@@ -193,7 +262,12 @@ public class PeriodFitParameters {
 			str += sincosParam;
 			str += ")";
 		}
-		
+
 		return str;
+	}
+
+	@Override
+	public int compareTo(PeriodFitParameters other) {
+		return getHarmonic().compareTo(other.getHarmonic());
 	}
 }

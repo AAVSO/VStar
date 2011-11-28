@@ -448,7 +448,12 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 		@Override
 		public String getSourceName() {
-			return "AAVSO Upload Format File";
+			return getInputName();
+		}
+
+		@Override
+		public String getSourceType() {
+			return "AAVSO Upload Format File (" + fileType.toLowerCase() + ")" ;
 		}
 	}
 

@@ -162,6 +162,11 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 		@Override
 		public String getSourceName() {
+			return getInputName();
+		}
+
+		@Override
+		public String getSourceType() {
 			return "Kepler FITS File";
 		}
 	}

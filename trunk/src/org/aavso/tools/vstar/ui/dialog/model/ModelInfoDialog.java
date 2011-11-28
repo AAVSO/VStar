@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.ui.dialog.model;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,20 +26,38 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.model.RelativeAmplitudesAndPhaseCreator;
 
 /**
  * This dialog displays information about a model.
  */
 public class ModelInfoDialog extends JDialog {
 
+	// TODO: make precision (4) a preference.
+	private final static int precision = 4;
+
 	private IModel model;
+
+	private JTextArea relAmplAndPhaseTextArea;
+	private JCheckBox useCyclesCheckBox;
+
+	private RelativeAmplitudesAndPhaseCreator creator;
+
+	private String starName;
+	private double startTime;
+	private double endTime;
+	private double averageTime;
 
 	/**
 	 * Constructor
@@ -53,6 +70,20 @@ public class ModelInfoDialog extends JDialog {
 	public ModelInfoDialog(JDialog parent, IModel model) {
 		super(parent);
 		this.model = model;
+
+		starName = Mediator.getInstance().getNewStarMessage().getStarInfo()
+				.getDesignation();
+
+		// TODO: should these times be from the original input series JDs rather
+		// than from the model.
+		startTime = model.getFit().get(0).getJD();
+		endTime = model.getFit().get(model.getFit().size() - 1).getJD();
+
+		averageTime = 0;
+		for (ValidObservation ob : model.getFit()) {
+			averageTime += ob.getJD();
+		}
+		averageTime /= model.getFit().size();
 
 		this.setTitle("Model Information");
 		this.setModal(true);
@@ -68,9 +99,12 @@ public class ModelInfoDialog extends JDialog {
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		topPane.add(scrollPane);
 
-		// TODO: add text areas for:
-		// - info about each frequency, its harmonic number and fundamental
-		// - relative parameters if model contains harmonics
+		creator = new RelativeAmplitudesAndPhaseCreator(model.getParameters());
+
+		if (creator.hasHarmonics()) {
+			topPane.add(Box.createRigidArea(new Dimension(10, 10)));
+			topPane.add(createRelAmplAndPhasePanel());
+		}
 
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
@@ -90,6 +124,64 @@ public class ModelInfoDialog extends JDialog {
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
 		this.setAlwaysOnTop(true);
 		this.setVisible(true);
+	}
+
+	private JPanel createRelAmplAndPhasePanel() {
+		JPanel pane = new JPanel();
+		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
+		String title = "Relative Amplitudes & Phases by fundamental frequency";
+		pane.setBorder(BorderFactory.createTitledBorder(title));
+
+		relAmplAndPhaseTextArea = new JTextArea();
+		relAmplAndPhaseTextArea.setEditable(false);
+		JScrollPane scrollPane = new JScrollPane(relAmplAndPhaseTextArea);
+		pane.add(scrollPane);
+
+		JPanel cyclesPane = new JPanel(); 
+		useCyclesCheckBox = new JCheckBox("Show as cycles?");
+		useCyclesCheckBox.setSelected(false);
+		useCyclesCheckBox.addActionListener(createUseCyclesCheckbox());
+		cyclesPane.add(useCyclesCheckBox, BorderLayout.CENTER);
+		pane.add(cyclesPane);
+		
+//		1. ask Grant for R script
+		
+		setRelAmplAndPhaseText(useCyclesCheckBox.isSelected());
+
+		return pane;
+	}
+
+	private void setRelAmplAndPhaseText(boolean cycles) {
+		// fundamental: star-name start-time end-time average-time rel-ampl-1
+		// rel-phase-1 ... rel-ampl-n rel-phase-n
+		String fmt = "%1." + precision + "f: %s %1." + precision + "f %1."
+				+ precision + "f %1." + precision + "f ";
+
+		String relStr = "";
+
+		for (Double fundamental : creator.getFundamentals()) {
+			
+			String relSeqStr = creator.getRelativeSequenceString(fundamental,
+					precision, cycles);
+
+			if (!"".equals(relSeqStr)) {
+				relStr += String.format(fmt, fundamental, starName, startTime,
+						endTime, averageTime)
+						+ relSeqStr + "\n";
+			}
+
+		}
+
+		relAmplAndPhaseTextArea.setText(relStr);
+	}
+
+	private ActionListener createUseCyclesCheckbox() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setRelAmplAndPhaseText(useCyclesCheckBox.isSelected());
+			}
+		};
 	}
 
 	private ActionListener createOKButtonHandler() {

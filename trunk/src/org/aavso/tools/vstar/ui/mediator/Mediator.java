@@ -932,29 +932,26 @@ public class Mediator {
 	 *            The new star enum type.
 	 * @param starInfo
 	 *            Information about the star, e.g. name (designation), AUID (for
-	 *            AID), period, epoch.
-	 * @param obsRetriever
-	 *            The observation source.
+	 *            AID), period, epoch, including observation retriever.
 	 * @param obsArtefactProgressAmount
 	 *            The amount the progress bar should be incremented by, a value
 	 *            corresponding to a portion of the overall task of which this
 	 *            is just a part.
 	 */
 	public void createNewStarObservationArtefacts(NewStarType newStarType,
-			StarInfo starInfo, AbstractObservationRetriever obsRetriever,
-			int obsArtefactProgressAmount) {
+			StarInfo starInfo, int obsArtefactProgressAmount) {
 
 		// Given raw valid and invalid observation data, create observation
 		// table and plot models, along with corresponding GUI components.
 
-		List<ValidObservation> validObsList = obsRetriever
+		List<ValidObservation> validObsList = starInfo.getRetriever()
 				.getValidObservations();
 
-		List<InvalidObservation> invalidObsList = obsRetriever
+		List<InvalidObservation> invalidObsList = starInfo.getRetriever()
 				.getInvalidObservations();
 
-		Map<SeriesType, List<ValidObservation>> validObservationCategoryMap = obsRetriever
-				.getValidObservationCategoryMap();
+		Map<SeriesType, List<ValidObservation>> validObservationCategoryMap = starInfo
+				.getRetriever().getValidObservationCategoryMap();
 
 		// Table models.
 		ValidObservationTableModel validObsTableModel = null;
@@ -1047,9 +1044,9 @@ public class Mediator {
 		// Create a message to notify whoever is listening that a new star
 		// has been loaded.
 		newStarMessage = new NewStarMessage(newStarType, starInfo,
-				validObsList, validObservationCategoryMap, obsRetriever
-						.getMinMag(), obsRetriever.getMaxMag(), obsRetriever
-						.getSourceName());
+				validObsList, validObservationCategoryMap, starInfo
+						.getRetriever().getMinMag(), starInfo.getRetriever()
+						.getMaxMag(), starInfo.getRetriever().getSourceName());
 
 		// Create a message to notify whoever is listening that the analysis
 		// type has changed (we could have been viewing a phase plot for a
