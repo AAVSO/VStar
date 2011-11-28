@@ -111,10 +111,18 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						"No observations for the specified period or error in observation source.");
 			}
 
+			// Try to get the name of the object from one of the observations,
+			// otherwise just use the current star name from the plug-in.
+			// TODO: push down to concrete retriever
+			String name = retriever.getValidObservations().get(0).getName();
+			if (name == null) {
+				name = retriever.getSourceName();
+			}
+
 			// Create plots, tables.
 			NewStarType type = NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
-			mediator.createNewStarObservationArtefacts(type, new StarInfo(
-					obSourcePlugin.getCurrentStarName()), retriever, 0);
+			mediator.createNewStarObservationArtefacts(type,
+					new StarInfo(retriever, name), 0);
 
 		} catch (CancellationException e) {
 			mediator.getProgressNotifier().notifyListeners(

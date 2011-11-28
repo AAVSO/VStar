@@ -119,6 +119,11 @@ public class AAVSODatabaseObservationReader extends
 	}
 
 	@Override
+	public String getSourceType() {
+		return NewStarType.NEW_STAR_FROM_DATABASE.toString();
+	}
+
+	@Override
 	public String getSourceName() {
 		return NewStarType.NEW_STAR_FROM_DATABASE.toString();
 	}

@@ -163,6 +163,13 @@ public abstract class AbstractObservationRetriever {
 			InterruptedException;
 
 	/**
+	 * Retrieve the type of the source of the observations.
+	 * 
+	 * @return The source type.
+	 */
+	public abstract String getSourceType();
+
+	/**
 	 * Retrieve the name of the source of the observations.
 	 * 
 	 * @return The source name.

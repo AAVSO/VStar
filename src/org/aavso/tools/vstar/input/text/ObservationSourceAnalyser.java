@@ -144,6 +144,13 @@ public class ObservationSourceAnalyser {
 	}
 
 	/**
+	 * @return the obsSourceIdentifier
+	 */
+	public String getObsSourceIdentifier() {
+		return obsSourceIdentifier;
+	}
+
+	/**
 	 * Return an instance of the text format validator class to be used for
 	 * creating observation objects from a sequence of lines containing comma or
 	 * tab delimited fields (CSV, TSV).

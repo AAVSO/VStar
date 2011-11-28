@@ -55,7 +55,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final int HQ_UNCERTAINTY_COLUMN = 17;
 	private static final int MTYPE_COLUMN = 18;
 	private static final int DISCREPANT_COLUMN = 19;
-	private static final int LINE_NUM_COLUMN = 20;
+	private static final int NAME_COLUMN = 20;	
+	private static final int LINE_NUM_COLUMN = 21;
 
 	private static final String JD_COLUMN_NAME = "Julian Day";
 	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
@@ -77,6 +78,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final String HQ_UNCERTAINTY_COLUMN_NAME = "HQ Uncertainty";
 	private static final String MTYPE_COLUMN_NAME = "MType";
 	private static final String DISCREPANT_COLUMN_NAME = "Discrepant?";
+	private static final String NAME_COLUMN_NAME = "Name";	
 	private static final String LINE_NUM_COLUMN_NAME = "Line";
 
 	protected static final Map<String, Integer> COLUMN_NAMES = new HashMap<String, Integer>();
@@ -102,6 +104,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		COLUMN_NAMES.put(HQ_UNCERTAINTY_COLUMN_NAME, HQ_UNCERTAINTY_COLUMN);
 		COLUMN_NAMES.put(MTYPE_COLUMN_NAME, MTYPE_COLUMN);
 		COLUMN_NAMES.put(DISCREPANT_COLUMN_NAME, DISCREPANT_COLUMN);
+		COLUMN_NAMES.put(NAME_COLUMN_NAME, NAME_COLUMN);
 		COLUMN_NAMES.put(LINE_NUM_COLUMN_NAME, LINE_NUM_COLUMN);
 	}
 	
@@ -189,6 +192,9 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case DISCREPANT_COLUMN:
 			columnName = DISCREPANT_COLUMN_NAME;
 			break;
+		case NAME_COLUMN:
+			columnName = NAME_COLUMN_NAME;
+			break;			
 		case LINE_NUM_COLUMN:
 			columnName = LINE_NUM_COLUMN_NAME;
 			break;
@@ -242,6 +248,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case DISCREPANT_COLUMN:
 			clazz = Boolean.class;
 			break;
+		case NAME_COLUMN:
+			break;			
 		case LINE_NUM_COLUMN:
 			clazz = Integer.class;
 			break;
@@ -322,6 +330,9 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case DISCREPANT_COLUMN:
 			value = ob.isDiscrepant();
 			break;
+		case NAME_COLUMN:
+			value = ob.getName();
+			break;			
 		case LINE_NUM_COLUMN:
 			value = ob.getRecordNumber();
 			break;

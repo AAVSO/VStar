@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+
 /**
  * This class contains information about a star.
  * 
@@ -24,17 +26,22 @@ package org.aavso.tools.vstar.ui.mediator;
  */
 public class StarInfo {
 
-	String designation = null;
-	String auid = null;
-	Double period = null;
-	Double epoch = null;
-	String varType = null;
-	String spectralType = null;
-	String discoverer = null;
+	private AbstractObservationRetriever retriever;
+	private String designation = null;
+	private String auid = null;
+	private Double period = null;
+	private Double epoch = null;
+	private String varType = null;
+	private String spectralType = null;
+	private String discoverer = null;
 
 	/**
 	 * Constructor.
 	 * 
+	 * @param retriever
+	 *            The observation retriever that knows about the source of
+	 *            observations. May be null! setRetriever() can be called after
+	 *            construction.
 	 * @param designation
 	 *            A name or designation for the star.
 	 * @param auid
@@ -44,11 +51,17 @@ public class StarInfo {
 	 * @param epoch
 	 *            The star's (corresponding to period for phase plot purposes)
 	 *            epoch, if known, as a Heliocentric Julian Date.
+	 * @param varType
+	 *            The variable's type, if known.
+	 * @param spectralType
+	 *            The spectral type, if known.
 	 * @param discoverer
 	 *            The discoverer of the star, if known.
 	 */
-	public StarInfo(String designation, String auid, Double period,
-			Double epoch, String varType, String spectralType, String discoverer) {
+	public StarInfo(AbstractObservationRetriever retriever, String designation,
+			String auid, Double period, Double epoch, String varType,
+			String spectralType, String discoverer) {
+		this.retriever = retriever;
 		this.designation = designation;
 		this.auid = auid;
 		this.period = period;
@@ -63,13 +76,18 @@ public class StarInfo {
 	 * 
 	 * All but designation and AUID are null.
 	 * 
+	 * @param retriever
+	 *            The observation retriever that knows about the source of
+	 *            observations. May be null! setRetriever() can be called after
+	 *            construction.
 	 * @param designation
 	 *            A name or designation for the star.
 	 * @param auid
 	 *            The star's unique identifier (AAVSO unique ID).
 	 */
-	public StarInfo(String designation, String auid) {
-		this(designation, auid, null, null, null, null, null);
+	public StarInfo(AbstractObservationRetriever retriever, String designation,
+			String auid) {
+		this(retriever, designation, auid, null, null, null, null, null);
 	}
 
 	/**
@@ -77,11 +95,69 @@ public class StarInfo {
 	 * 
 	 * All but designation is null.
 	 * 
+	 * @param retriever
+	 *            The observation retriever that knows about the source of
+	 *            observations. May be null! setRetriever() can be called after
+	 *            construction.
 	 * @param designation
 	 *            A name or designation for the star.
 	 */
-	public StarInfo(String designation) {
-		this(designation, null);
+	public StarInfo(AbstractObservationRetriever retriever, String designation) {
+		this(retriever, designation, null);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param designation
+	 *            A name or designation for the star.
+	 * @param auid
+	 *            The star's unique identifier (AAVSO unique ID).
+	 * @param period
+	 *            The star's period, if known.
+	 * @param epoch
+	 *            The star's (corresponding to period for phase plot purposes)
+	 *            epoch, if known, as a Heliocentric Julian Date.
+	 * @param varType
+	 *            The variable's type, if known.
+	 * @param spectralType
+	 *            The spectral type, if known.
+	 * @param discoverer
+	 *            The discoverer of the star, if known.
+	 */
+	public StarInfo(String designation, String auid, Double period,
+			Double epoch, String varType, String spectralType, String discoverer) {
+		this(null, designation, auid, period, epoch, varType, spectralType,
+				discoverer);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * All but designation and AUID are null.
+	 * 
+	 * @param designation
+	 *            A name or designation for the star.
+	 * @param auid
+	 *            The star's unique identifier (AAVSO unique ID).
+	 */
+	public StarInfo(String designation, String auid) {
+		this(null, designation, auid);
+	}
+
+	/**
+	 * @param retriever
+	 *            the retriever to set
+	 */
+	public void setRetriever(AbstractObservationRetriever retriever) {
+		this.retriever = retriever;
+	}
+
+	/**
+	 * @return the retriever
+	 */
+	public AbstractObservationRetriever getRetriever() {
+		return retriever;
 	}
 
 	/**

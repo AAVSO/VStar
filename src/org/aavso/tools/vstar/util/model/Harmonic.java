@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2011  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -23,7 +23,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * This class represents an Nth harmonic. Conversion between frequency and
  * period is permitted.
  */
-public class Harmonic {
+public class Harmonic implements Comparable<Harmonic> {
 
 	public final static int FUNDAMENTAL = 1;
 
@@ -79,6 +79,15 @@ public class Harmonic {
 	}
 
 	/**
+	 * Does this represent a fundamental frequency?
+	 * 
+	 * @return Is this a fundamental frequency?
+	 */
+	public boolean isFundamental() {
+		return harmonic == FUNDAMENTAL;
+	}
+
+	/**
 	 * @return The period (reciprocal of frequency).
 	 */
 	public double getPeriod() {
@@ -95,12 +104,39 @@ public class Harmonic {
 		return frequency / harmonic;
 	}
 
+	/**
+	 * Is the specified harmonic a multiple of this one and the current one is a
+	 * fundamental.
+	 * 
+	 * @param other
+	 *            The other harmonic to check.
+	 * @return Whether the specified harmonic is a multiple of this one.
+	 */
+	public boolean isHarmonic(Harmonic other) {
+		return isFundamental()
+				&& frequency * other.getHarmonicNumber() == other
+						.getFrequency();
+	}
+
 	public String toString() {
 		if (str == null) {
 			str = String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
 					frequency);
 		}
-		
+
 		return str;
+	}
+
+	@Override
+	public int compareTo(Harmonic other) {
+		int result = 0;
+
+		if (frequency < other.getFrequency()) {
+			result = -1;
+		} else if (frequency > other.getFrequency()) {
+			result = 1;
+		}
+
+		return result;
 	}
 }

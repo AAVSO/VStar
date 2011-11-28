@@ -27,7 +27,7 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
  * </p>
  */
 public abstract class ObservationSourcePluginBase implements PluginBase {
-	
+
 	protected InputStream inputStream;
 	protected String inputName;
 
@@ -50,15 +50,19 @@ public abstract class ObservationSourcePluginBase implements PluginBase {
 	 * Get the name of the star associated with the current observation dataset.
 	 * 
 	 * @return The current star name.
+	 * @deprecated Use getInputName() or getObservationRetriever() for more
+	 *             specific information about source name, type, and
+	 *             observations possibly containing object name.
 	 */
 	public abstract String getCurrentStarName();
-	
+
 	/**
 	 * What is the input type for this plug-in?
+	 * 
 	 * @return The input type.
 	 */
 	public abstract InputType getInputType();
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
 	 */
@@ -69,9 +73,11 @@ public abstract class ObservationSourcePluginBase implements PluginBase {
 
 	/**
 	 * Sets the input stream and name.
-	 *  
-	 * @param inputStream The input stream.
-	 * @param inputName A name associated with the input (e.g. file, URL).
+	 * 
+	 * @param inputStream
+	 *            The input stream.
+	 * @param inputName
+	 *            A name associated with the input (e.g. file, URL).
 	 */
 	public void setInputInfo(InputStream inputStream, String inputName) {
 		this.inputStream = inputStream;

@@ -110,8 +110,12 @@ public class InfoDialog extends JDialog implements ActionListener {
 		summaryBuf.append(starInfo.getDesignation());
 		summaryBuf.append("\n");
 
-		summaryBuf.append("Source: ");
-		summaryBuf.append(msg.getSource());
+		summaryBuf.append("Source Type: ");
+		summaryBuf.append(msg.getStarInfo().getRetriever().getSourceType());
+		summaryBuf.append("\n");
+
+		summaryBuf.append("Source Name: ");
+		summaryBuf.append(msg.getStarInfo().getRetriever().getSourceName());
 		summaryBuf.append("; loaded: ");
 		summaryBuf.append(msg.getLoadDate().toString());
 		summaryBuf.append("\n");

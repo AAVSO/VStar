@@ -32,7 +32,7 @@ import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * 
+ * This class represents a WWZ derived multi-period fit model.
  */
 public class WWZMultiperiodicModel implements IModel {
 

@@ -209,6 +209,11 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 
 		@Override
 		public String getSourceName() {
+			return getInputName();
+		}
+
+		@Override
+		public String getSourceType() {
 			return "SuperWASP FITS File";
 		}
 	}
