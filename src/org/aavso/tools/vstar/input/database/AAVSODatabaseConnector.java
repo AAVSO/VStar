@@ -64,7 +64,7 @@ public class AAVSODatabaseConnector {
 	public static AAVSODatabaseConnector vsxDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.VSX);
 
-	protected static AAVSODatabaseConnector utDBConnector = new AAVSODatabaseConnector(
+	public static AAVSODatabaseConnector utDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.UT);
 
 	// Star name and AUID retrievers.
@@ -133,8 +133,8 @@ public class AAVSODatabaseConnector {
 	}
 
 	/**
-	 * @return the connection
-	 * TODO: build connection loss/timeout logic into here
+	 * @return the connection TODO: build connection loss/timeout logic into
+	 *         here
 	 */
 	public Connection getConnection() throws ConnectionException {
 		createConnection();

@@ -35,9 +35,8 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.IModel;
-import org.aavso.tools.vstar.util.model.RelativeAmplitudesAndPhaseCreator;
+import org.aavso.tools.vstar.util.model.RelativeAmplitudeAndPhaseCreator;
 
 /**
  * This dialog displays information about a model.
@@ -52,7 +51,7 @@ public class ModelInfoDialog extends JDialog {
 	private JTextArea relAmplAndPhaseTextArea;
 	private JCheckBox useCyclesCheckBox;
 
-	private RelativeAmplitudesAndPhaseCreator creator;
+	private RelativeAmplitudeAndPhaseCreator creator;
 
 	private String starName;
 	private double startTime;
@@ -99,7 +98,7 @@ public class ModelInfoDialog extends JDialog {
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		topPane.add(scrollPane);
 
-		creator = new RelativeAmplitudesAndPhaseCreator(model.getParameters());
+		creator = new RelativeAmplitudeAndPhaseCreator(model.getParameters());
 
 		if (creator.hasHarmonics()) {
 			topPane.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -143,9 +142,7 @@ public class ModelInfoDialog extends JDialog {
 		useCyclesCheckBox.addActionListener(createUseCyclesCheckbox());
 		cyclesPane.add(useCyclesCheckBox, BorderLayout.CENTER);
 		pane.add(cyclesPane);
-		
-//		1. ask Grant for R script
-		
+				
 		setRelAmplAndPhaseText(useCyclesCheckBox.isSelected());
 
 		return pane;

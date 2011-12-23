@@ -36,6 +36,12 @@ public class StarInfo {
 	private String discoverer = null;
 
 	/**
+	 * Parameterless constructor for web service.
+	 */
+	public StarInfo() {	
+	}
+	
+	/**
 	 * Constructor.
 	 * 
 	 * @param retriever
@@ -207,5 +213,54 @@ public class StarInfo {
 	 */
 	public String getDiscoverer() {
 		return discoverer;
+	}
+
+	/**
+	 * @param designation the designation to set
+	 */
+	public void setDesignation(String designation) {
+		this.designation = designation;
+	}
+
+	/**
+	 * @param auid the auid to set
+	 */
+	public void setAuid(String auid) {
+		this.auid = auid;
+	}
+
+	/**
+	 * @param period the period to set
+	 */
+	public void setPeriod(Double period) {
+		this.period = period;
+	}
+
+	/**
+	 * @param epoch the epoch to set
+	 */
+	public void setEpoch(Double epoch) {
+		this.epoch = epoch;
+	}
+
+	/**
+	 * @param varType the varType to set
+	 */
+	public void setVarType(String varType) {
+		this.varType = varType;
+	}
+
+	/**
+	 * @param spectralType the spectralType to set
+	 */
+	public void setSpectralType(String spectralType) {
+		this.spectralType = spectralType;
+	}
+
+	/**
+	 * @param discoverer the discoverer to set
+	 */
+	public void setDiscoverer(String discoverer) {
+		this.discoverer = discoverer;
 	}
 }
