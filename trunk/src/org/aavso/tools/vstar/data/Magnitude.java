@@ -33,6 +33,12 @@ public class Magnitude {
 	private double uncertainty;
 
 	/**
+	 * Parameterless constructor for web service.
+	 */
+	public Magnitude() {	
+	}
+
+	/**
 	 * Constructor.
 	 * 
 	 * @param magnitude

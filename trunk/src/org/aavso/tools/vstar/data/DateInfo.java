@@ -31,6 +31,12 @@ public class DateInfo {
 	private double julianDay;
 
 	/**
+	 * Parameterless constructor for web service.
+	 */
+	public DateInfo() {
+	}
+	
+	/**
 	 * Constructor.
 	 * 
 	 * @param julianDay A Julian Day.

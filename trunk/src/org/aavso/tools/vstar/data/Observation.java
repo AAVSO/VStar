@@ -26,6 +26,12 @@ public abstract class Observation {
 	private int recordNumber;	
 
 	/**
+	 * Parameterless constructor for web service.
+	 */
+	public Observation() {
+	}
+
+	/**
 	 * @param recordNumber
 	 */
 	public Observation(int recordNumber) {
