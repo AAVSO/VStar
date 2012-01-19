@@ -106,7 +106,8 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	}
 
 	/**
-	 * @param isLogarithmic the isLogarithmic to set
+	 * @param isLogarithmic
+	 *            the isLogarithmic to set
 	 */
 	public void setLogarithmic(boolean isLogarithmic) {
 		this.isLogarithmic = isLogarithmic;
@@ -159,18 +160,28 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	 * @param item
 	 *            The item number in the sequence of data.
 	 * @return A data point object corresponding to that point in the sequence.
+	 *         May return null if item is out of range.
 	 */
 	public PeriodAnalysisDataPoint getDataPointFromItem(int item) {
-		double frequency = analysisValues.get(
-				PeriodAnalysisCoordinateType.FREQUENCY).get(item);
-		double period = analysisValues.get(PeriodAnalysisCoordinateType.PERIOD)
-				.get(item);
-		double power = analysisValues.get(PeriodAnalysisCoordinateType.POWER)
-				.get(item);
-		double amplitude = analysisValues.get(
-				PeriodAnalysisCoordinateType.AMPLITUDE).get(item);
+		PeriodAnalysisDataPoint dataPoint = null;
 
-		return new PeriodAnalysisDataPoint(frequency, period, power, amplitude);
+		// This may be a top-hits model and the item may be selected from the
+		// full data-set. If so, ignore.
+		if (item < domainValues.size()) {
+			double frequency = analysisValues.get(
+					PeriodAnalysisCoordinateType.FREQUENCY).get(item);
+			double period = analysisValues.get(
+					PeriodAnalysisCoordinateType.PERIOD).get(item);
+			double power = analysisValues.get(
+					PeriodAnalysisCoordinateType.POWER).get(item);
+			double amplitude = analysisValues.get(
+					PeriodAnalysisCoordinateType.AMPLITUDE).get(item);
+
+			dataPoint = new PeriodAnalysisDataPoint(frequency, period, power,
+					amplitude);
+		}
+
+		return dataPoint;
 	}
 
 	/**

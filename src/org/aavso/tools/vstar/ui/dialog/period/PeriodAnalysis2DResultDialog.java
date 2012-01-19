@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.dialog.period;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JTabbedPane;
 
@@ -38,20 +39,29 @@ import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 
 /**
  * This dialog class is used to visualise period analysis results.
  */
 public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
+	private final static PeriodAnalysisCoordinateType[] DATA_COLUMN_TYPES = {
+			PeriodAnalysisCoordinateType.FREQUENCY,
+			PeriodAnalysisCoordinateType.PERIOD,
+			PeriodAnalysisCoordinateType.POWER,
+			PeriodAnalysisCoordinateType.AMPLITUDE };
+
 	private String seriesTitle;
 	private String chartTitle;
+
+	private IPeriodAnalysisAlgorithm algorithm;
+	private Map<PeriodAnalysisCoordinateType, List<Double>> resultDataMap;
 
 	private List<PeriodAnalysis2DPlotModel> plotModels;
 	private PeriodAnalysisDataTableModel dataTableModel;
 	private PeriodAnalysisDataTableModel topHitsTableModel;
-
-	private IPeriodAnalysisAlgorithm algorithm;
 
 	private PeriodAnalysisDataTablePane dataTablePane;
 	private PeriodAnalysisTopHitsTablePane topHitsTablePane;
@@ -69,32 +79,51 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	 *            The title for the chart.
 	 * @param seriesTitle
 	 *            The source series sub-title for the chart.
-	 * @param plotModels
-	 *            The data plotModels on which to base plots.
-	 * @param dataTableModel
-	 *            A model with which to display all data in a table.
 	 * @param algorithm
 	 *            The period analysis algorithm.
 	 */
 	public PeriodAnalysis2DResultDialog(String title, String seriesTitle,
-			List<PeriodAnalysis2DPlotModel> plotModels,
-			PeriodAnalysisDataTableModel dataTableModel,
-			PeriodAnalysisDataTableModel topHitsTableModel,
 			IPeriodAnalysisAlgorithm algorithm) {
 		super(title, false, true);
 
+		selectedDataPoint = null;
+
+		resultDataMap = algorithm.getResultSeries();
+
 		this.seriesTitle = seriesTitle;
 		this.chartTitle = title;
-		this.plotModels = plotModels;
-		this.dataTableModel = dataTableModel;
-		this.topHitsTableModel = topHitsTableModel;
-		this.algorithm = algorithm;
-		this.selectedDataPoint = null;
 
-		plotPanes = new ArrayList<PeriodAnalysis2DChartPane>();
+		this.algorithm = algorithm;
+
+		dataTableModel = new PeriodAnalysisDataTableModel(DATA_COLUMN_TYPES,
+				resultDataMap);
+		topHitsTableModel = new PeriodAnalysisDataTableModel(DATA_COLUMN_TYPES,
+				algorithm.getTopHits());
+
+		plotModels = new ArrayList<PeriodAnalysis2DPlotModel>();
+
+		// Frequency vs Power
+		plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+				PeriodAnalysisCoordinateType.FREQUENCY,
+				PeriodAnalysisCoordinateType.POWER, false));
+
+		// Frequency vs Amplitude
+		plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+				PeriodAnalysisCoordinateType.FREQUENCY,
+				PeriodAnalysisCoordinateType.AMPLITUDE, false));
+
+		// Period vs Power
+		// models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+		// PeriodAnalysisCoordinateType.PERIOD,
+		// PeriodAnalysisCoordinateType.POWER, false));
+
+		// Period vs Amplitude
+		// models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+		// PeriodAnalysisCoordinateType.PERIOD,
+		// PeriodAnalysisCoordinateType.AMPLITUDE, false));
 
 		prepareDialog();
-		
+
 		startup();
 	}
 
@@ -108,12 +137,43 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	private JTabbedPane createTabs() {
 		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 
+		plotPanes = new ArrayList<PeriodAnalysis2DChartPane>();
+
 		// Add plots.
 		for (PeriodAnalysis2DPlotModel model : plotModels) {
 			boolean permitlogarithmic = model.getRangeType() == PeriodAnalysisCoordinateType.POWER;
+
 			PeriodAnalysis2DChartPane plot = PeriodAnalysisComponentFactory
 					.createLinePlot(chartTitle, seriesTitle, model,
 							permitlogarithmic);
+
+			// For a model with a domain type of frequency and a range type of
+			// power, create a second chart that is a scatter plot of top hits
+			// to plot on the same axes as the line plot above, providing easily
+			// selectable points on the peaks of the spectrum.
+//			if (model.getDomainType() == PeriodAnalysisCoordinateType.FREQUENCY
+//					&& model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
+
+				PeriodAnalysis2DChartPane topHitsPlot = PeriodAnalysisComponentFactory
+						.createScatterPlot(chartTitle, seriesTitle,
+								new PeriodAnalysis2DPlotModel(algorithm
+										.getTopHits(), model.getDomainType(),
+										model.getRangeType(), model
+												.isLogarithmic()),
+								permitlogarithmic);
+
+				// Add the above line plot's model to the scatter plot.
+				// Render the scatter plot last so the "handles" will be
+				// the first items selected by the mouse.
+				JFreeChart chart = topHitsPlot.getChart();
+				chart.getXYPlot().setDataset(1, model);
+				chart.getXYPlot().setRenderer(1,
+						plot.getChart().getXYPlot().getRenderer());
+				chart.getXYPlot().setDatasetRenderingOrder(
+						DatasetRenderingOrder.REVERSE);
+
+				plot = topHitsPlot;
+//			}
 
 			String tabName = model.getRangeType() + " vs "
 					+ model.getDomainType();

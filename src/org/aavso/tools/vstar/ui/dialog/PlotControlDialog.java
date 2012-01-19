@@ -227,7 +227,7 @@ public class PlotControlDialog extends JDialog {
 		seriesVisibilityPane = new SeriesVisibilityPane(obsModel, analysisType);
 		seriesPane.add(seriesVisibilityPane);
 
-		meanSourcePane = new MeanSourcePane(obsModel, analysisType);
+		meanSourcePane = new MeanSourcePane(plotPane);
 		seriesPane.add(meanSourcePane);
 
 		seriesChangePane.add(new JScrollPane(seriesPane));

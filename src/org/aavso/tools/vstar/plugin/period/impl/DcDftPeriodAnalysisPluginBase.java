@@ -40,12 +40,6 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 
 	protected NewStarMessage newStarMessage;
 	protected TSDcDft periodAnalysisAlgorithm;
-	
-	private final static PeriodAnalysisCoordinateType[] DATA_COLUMN_TYPES = {
-			PeriodAnalysisCoordinateType.FREQUENCY,
-			PeriodAnalysisCoordinateType.PERIOD,
-			PeriodAnalysisCoordinateType.POWER,
-			PeriodAnalysisCoordinateType.AMPLITUDE };
 
 	/**
 	 * Constructor.
@@ -76,46 +70,18 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
-			List<PeriodAnalysis2DPlotModel> models = new ArrayList<PeriodAnalysis2DPlotModel>();
-
-			Map<PeriodAnalysisCoordinateType, List<Double>> resultDataMap = periodAnalysisAlgorithm
-					.getResultSeries();
-
-			// Frequency vs Power
-			models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
-					PeriodAnalysisCoordinateType.FREQUENCY,
-					PeriodAnalysisCoordinateType.POWER, false));
-
-			// Frequency vs Amplitude
-			models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
-					PeriodAnalysisCoordinateType.FREQUENCY,
-					PeriodAnalysisCoordinateType.AMPLITUDE, false));
-
-			// Period vs Power
-//			models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
-//					PeriodAnalysisCoordinateType.PERIOD,
-//					PeriodAnalysisCoordinateType.POWER, false));
-
-			// Period vs Amplitude
-//			models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
-//					PeriodAnalysisCoordinateType.PERIOD,
-//					PeriodAnalysisCoordinateType.AMPLITUDE, false));
-
-			return new PeriodAnalysis2DResultDialog(
-					"Period Analysis (DC DFT) for "
-							+ newStarMessage.getStarInfo().getDesignation(),
-					"(series: " + sourceSeriesType.getDescription() + ")",
-					models, new PeriodAnalysisDataTableModel(DATA_COLUMN_TYPES,
-							resultDataMap), new PeriodAnalysisDataTableModel(
-							DATA_COLUMN_TYPES, periodAnalysisAlgorithm
-									.getTopHits()), periodAnalysisAlgorithm);
+		
+		return new PeriodAnalysis2DResultDialog("Period Analysis (DC DFT) for "
+				+ newStarMessage.getStarInfo().getDesignation(), "(series: "
+				+ sourceSeriesType.getDescription() + ")",
+				periodAnalysisAlgorithm);
 	}
 
 	// ** Mandatory message listeners. **
 
 	@Override
 	protected void newStarAction(NewStarMessage message) {
-		newStarMessage = message; 
+		newStarMessage = message;
 		reset();
 	}
 }

@@ -105,6 +105,26 @@ public class ObservationAndMeanPlotPane extends
 	}
 
 	/**
+	 * @param meanSourceSeriesNum
+	 *            the meanSourceSeriesNum to set
+	 */
+	public void setMeanSourceSeriesNum(int meanSourceSeriesNum) {
+		obsModel.setMeanSourceSeriesNum(meanSourceSeriesNum);
+	}
+	
+	/**
+	 * Attempt to create a new mean series with the specified number of time
+	 * elements per bin.
+	 * 
+	 * @param timeElementsInBin
+	 *            The number of days or phase steps to be created per bin.
+	 * @return Whether or not the series was changed.
+	 */
+	public boolean changeMeansSeries(double timeElementsInBin) {
+		return obsModel.changeMeansSeries(timeElementsInBin);
+	}
+
+	/**
 	 * Constructor
 	 * 
 	 * @param title

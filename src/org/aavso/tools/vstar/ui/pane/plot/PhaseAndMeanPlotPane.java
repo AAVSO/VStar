@@ -51,7 +51,7 @@ import org.jfree.chart.plot.XYPlot;
  * observations along with mean-based data.
  */
 public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
-
+	
 	private double epoch;
 	private double period;
 

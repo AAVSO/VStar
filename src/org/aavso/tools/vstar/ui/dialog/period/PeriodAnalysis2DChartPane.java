@@ -149,10 +149,13 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int item = entity.getItem();
+			PeriodAnalysisDataPoint dataPoint = model.getDataPointFromItem(item);
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-					this, model.getDataPointFromItem(item), item);
-			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-					.notifyListeners(message);
+					this, dataPoint, item);
+			if (message != null) {
+				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
+						.notifyListeners(message);
+			}
 		}
 	}
 
