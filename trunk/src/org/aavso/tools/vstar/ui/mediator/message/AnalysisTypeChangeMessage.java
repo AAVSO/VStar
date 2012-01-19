@@ -20,8 +20,8 @@ package org.aavso.tools.vstar.ui.mediator.message;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
-import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
 import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
+import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 
 /**

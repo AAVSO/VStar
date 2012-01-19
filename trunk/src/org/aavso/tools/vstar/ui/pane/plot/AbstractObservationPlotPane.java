@@ -70,6 +70,13 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 
 	protected T obsModel;
 
+	protected Dimension bounds;
+
+	protected String title;
+	protected String subTitle;
+	protected String domainTitle;
+	protected String rangeTitle;
+	
 	protected JFreeChart chart;
 
 	protected ChartPanel chartPanel;
@@ -122,8 +129,15 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 			String domainTitle, String rangeTitle, T obsModel, Dimension bounds) {
 		super();
 
+		this.title = title;
+		this.subTitle = subTitle;
+		this.domainTitle = domainTitle;
+		this.rangeTitle = rangeTitle;
+		
 		this.obsModel = obsModel;
 
+		this.bounds = bounds;
+		
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
 		this.showErrorBars = true;
@@ -303,7 +317,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	/**
 	 * Set the visibility of each series.
 	 */
-	private void setSeriesVisibility() {
+	protected void setSeriesVisibility() {
 		Map<SeriesType, Boolean> seriesVisibilityMap = obsModel
 				.getSeriesVisibilityMap();
 

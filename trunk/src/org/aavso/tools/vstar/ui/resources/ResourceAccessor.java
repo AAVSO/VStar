@@ -99,7 +99,7 @@ public class ResourceAccessor {
 	// ** Version info. **
 
 	public static String getVersionString() {
-		return "version 2.13 (testing release 6)";
+		return "version 2.13 (testing release 7)";
 	}
 
 	public static String getRevNum() {

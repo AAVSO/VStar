@@ -33,6 +33,7 @@ import javax.swing.JRadioButton;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 
 /**
  * This class represents a pane with radio buttons showing which series is to be
@@ -41,7 +42,7 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
  */
 public class MeanSourcePane extends JPanel implements ActionListener {
 
-	private ObservationAndMeanPlotModel obsPlotModel;
+	private ObservationAndMeanPlotPane obsPlotPane;
 
 	private int seriesNum;
 	private int lastSelectedSeriesNum;
@@ -54,9 +55,11 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param plotPane
+	 *            An observation and mean plot pane.
 	 */
-	public MeanSourcePane(ObservationAndMeanPlotModel obsPlotModel,
-			AnalysisType analysisType) {
+	public MeanSourcePane(ObservationAndMeanPlotPane plotPane) {
 		super();
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -64,8 +67,8 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		this
 				.setToolTipText("Select series that will be the source of the means series.");
 
-		this.obsPlotModel = obsPlotModel;
-		this.seriesNum = obsPlotModel.getMeanSourceSeriesNum();
+		this.obsPlotPane = plotPane;
+		this.seriesNum = obsPlotPane.getObsModel().getMeanSourceSeriesNum();
 
 		addSeriesRadioButtons();
 	}
@@ -89,7 +92,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 
 		seriesGroup = new ButtonGroup();
 
-		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
+		for (SeriesType series : this.obsPlotPane.getObsModel().getSeriesKeys()) {
 			if (!series.isSynthetic()) {
 				String seriesName = series.getDescription();
 				JRadioButton seriesRadioButton = new JRadioButton(seriesName);
@@ -101,10 +104,11 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 				seriesGroup.add(seriesRadioButton);
 
 				// What is the initial mean source series?
-				if (obsPlotModel.getSrcTypeToSeriesNumMap().get(series) == obsPlotModel
+				if (obsPlotPane.getObsModel().getSrcTypeToSeriesNumMap().get(
+						series) == obsPlotPane.getObsModel()
 						.getMeanSourceSeriesNum()) {
 					seriesRadioButton.setSelected(true);
-					lastSelectedSeriesNum = obsPlotModel
+					lastSelectedSeriesNum = obsPlotPane.getObsModel()
 							.getMeanSourceSeriesNum();
 				}
 			}
@@ -170,14 +174,15 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	 * @return Whether or not there are observations for this series type.
 	 */
 	private boolean isSeriesNonEmpty(SeriesType type) {
-		Integer num = obsPlotModel.getSrcTypeToSeriesNumMap().get(type);
+		Integer num = obsPlotPane.getObsModel().getSrcTypeToSeriesNumMap().get(
+				type);
 
 		// This series exists and has obs (or not), so allow it to be selected
 		// (or not).
-		boolean hasObs = obsPlotModel.getSeriesNumToObSrcListMap().containsKey(
-				num)
-				&& !obsPlotModel.getSeriesNumToObSrcListMap().get(num)
-						.isEmpty();
+		boolean hasObs = obsPlotPane.getObsModel().getSeriesNumToObSrcListMap()
+				.containsKey(num)
+				&& !obsPlotPane.getObsModel().getSeriesNumToObSrcListMap().get(
+						num).isEmpty();
 
 		return hasObs;
 	}
@@ -189,19 +194,21 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		String seriesName = e.getActionCommand();
-		this.seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
-				SeriesType.getSeriesFromDescription(seriesName));
+		this.seriesNum = obsPlotPane.getObsModel().getSrcTypeToSeriesNumMap()
+				.get(SeriesType.getSeriesFromDescription(seriesName));
 
-		if (this.seriesNum != obsPlotModel.getMeanSourceSeriesNum()) {
-			obsPlotModel.setMeanSourceSeriesNum(this.seriesNum);
-			boolean changed = obsPlotModel.changeMeansSeries(obsPlotModel
+		if (this.seriesNum != obsPlotPane.getObsModel()
+				.getMeanSourceSeriesNum()) {
+			obsPlotPane.setMeanSourceSeriesNum(this.seriesNum);
+			boolean changed = obsPlotPane.changeMeansSeries(obsPlotPane.getObsModel()
 					.getTimeElementsInBin());
 			if (changed) {
-				lastSelectedSeriesNum = obsPlotModel.getMeanSourceSeriesNum();
+				lastSelectedSeriesNum = obsPlotPane.getObsModel()
+						.getMeanSourceSeriesNum();
 			} else {
 				// Means not changed (e.g. too few data points in selected
 				// series), so restore radio buttons to last selected.
-				SeriesType seriesToRevertTo = obsPlotModel
+				SeriesType seriesToRevertTo = obsPlotPane.getObsModel()
 						.getSeriesNumToSrcTypeMap().get(lastSelectedSeriesNum);
 
 				Enumeration<AbstractButton> elts = seriesGroup.getElements();
@@ -211,7 +218,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 					String label = radioButton.getActionCommand();
 					if (SeriesType.getSeriesFromDescription(label) == seriesToRevertTo) {
 						radioButton.setSelected(true);
-						obsPlotModel
+						obsPlotPane
 								.setMeanSourceSeriesNum(lastSelectedSeriesNum);
 					}
 				}

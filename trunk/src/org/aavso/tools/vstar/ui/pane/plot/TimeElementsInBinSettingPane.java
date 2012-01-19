@@ -45,7 +45,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  */
 public class TimeElementsInBinSettingPane extends JPanel {
 
-	private ObservationAndMeanPlotModel obsAndMeanModel;
+	private ObservationAndMeanPlotPane plotPane;
 	private ITimeElementEntity timeElementEntity;
 
 	private JSpinner timeElementsInBinSpinner;
@@ -56,19 +56,19 @@ public class TimeElementsInBinSettingPane extends JPanel {
 	 * 
 	 * @param spinnerTitle
 	 *            A title for the spinner.
-	 * @param obsAndMeanModel
-	 *            An observation and mean model.
+	 * @param plotPane
+	 *            An observation and mean plot pane.
 	 * @param timeElementEntity
 	 *            A time element source for observations.
 	 */
 	public TimeElementsInBinSettingPane(String spinnerTitle,
-			ObservationAndMeanPlotModel obsAndMeanModel,
+			ObservationAndMeanPlotPane plotPane,
 			ITimeElementEntity timeElementEntity) {
 
 		super();
 
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-		this.obsAndMeanModel = obsAndMeanModel;
+		this.plotPane = plotPane;
 		this.timeElementEntity = timeElementEntity;
 
 		this.setBorder(BorderFactory.createTitledBorder(spinnerTitle));
@@ -79,19 +79,22 @@ public class TimeElementsInBinSettingPane extends JPanel {
 
 		// Given the source-series of the means series, determine the
 		// maximum day/phase range for the time-elements-in-bin spinner.
-		List<ValidObservation> meanSrcObsList = obsAndMeanModel
+		// We arbitrarily choose one model.
+		List<ValidObservation> meanSrcObsList = plotPane.getObsModel()
 				.getSeriesNumToObSrcListMap().get(
-						obsAndMeanModel.getMeanSourceSeriesNum());
+						plotPane.getObsModel().getMeanSourceSeriesNum());
 
 		double max = timeElementEntity.getMaxTimeIncrements(meanSrcObsList);
 
 		// Spinner for time-elements-in-bin with the specified current, min, and
 		// max values, and step size. If the "current time elements in bin"
 		// value is larger than the calculated max value, correct that.
-		double currTimeElementsInBin = obsAndMeanModel.getTimeElementsInBin();
+		// We arbitrarily choose one model.
+		double currTimeElementsInBin = plotPane.getObsModel()
+				.getTimeElementsInBin();
 		currTimeElementsInBin = currTimeElementsInBin <= max ? currTimeElementsInBin
 				: max;
-		obsAndMeanModel.setTimeElementsInBin(currTimeElementsInBin);
+		plotPane.getObsModel().setTimeElementsInBin(currTimeElementsInBin);
 
 		timeElementsInBinSpinnerModel = new SpinnerNumberModel(
 				currTimeElementsInBin, 0, max, timeElementEntity
@@ -122,10 +125,11 @@ public class TimeElementsInBinSettingPane extends JPanel {
 	private Listener<MeanSourceSeriesChangeMessage> createMeanSourceSeriesChangeListener() {
 		return new Listener<MeanSourceSeriesChangeMessage>() {
 			@Override
+			// We arbitrarily choose one model.
 			public void update(MeanSourceSeriesChangeMessage msg) {
-				List<ValidObservation> meanSrcObsList = obsAndMeanModel
-						.getSeriesNumToObSrcListMap().get(
-								obsAndMeanModel.getMeanSourceSeriesNum());
+				List<ValidObservation> meanSrcObsList = plotPane.getObsModel()
+						.getSeriesNumToObSrcListMap()
+						.get(plotPane.getObsModel().getMeanSourceSeriesNum());
 
 				double max = timeElementEntity
 						.getMaxTimeIncrements(meanSrcObsList);
@@ -154,7 +158,7 @@ public class TimeElementsInBinSettingPane extends JPanel {
 				double timeElementsInBin = timeElementsInBinSpinnerModel
 						.getNumber().doubleValue();
 				if (timeElementsInBin > 0) {
-					obsAndMeanModel.changeMeansSeries(timeElementsInBin);
+					plotPane.changeMeansSeries(timeElementsInBin);
 				} else {
 					MessageBox.showErrorDialog(self,
 							"Mean Series Update Request", String.format(
