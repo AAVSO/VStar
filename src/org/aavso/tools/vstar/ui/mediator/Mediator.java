@@ -98,7 +98,6 @@ import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
-import org.aavso.tools.vstar.ui.model.plot.PhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.PreviousCyclePhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
@@ -106,7 +105,6 @@ import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
 import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
-import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane2;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.ui.task.ModellingTask;
@@ -508,8 +506,8 @@ public class Mediator {
 
 	/**
 	 * Create a mean observation change listener and return it. Whenever the
-	 * mean series source changes, we may want to perform a new period analysis
-	 * or change the max time increments in for means binning.
+	 * mean series source changes, listeners may want to perform a new period
+	 * analysis or change the max time increments for means binning.
 	 */
 	private Listener<BinningResult> createMeanObsChangeListener(
 			int initialSeriesNum) {
@@ -523,6 +521,9 @@ public class Mediator {
 			}
 
 			public void update(BinningResult info) {
+				// TODO: would removing this guard permit listeners
+				// to do other things, e.g. compare old and new binning results,
+				// e.g. for change to days-in-bin?
 				if (this.meanSourceSeriesNum != obsAndMeanPlotModel
 						.getMeanSourceSeriesNum()) {
 
@@ -533,7 +534,6 @@ public class Mediator {
 							.getSeriesNumToSrcTypeMap().get(
 									this.meanSourceSeriesNum);
 
-					// Also send out a mean-source series notification.
 					meanSourceSeriesChangeNotifier
 							.notifyListeners(new MeanSourceSeriesChangeMessage(
 									this, meanSourceSeriesType));
@@ -1113,123 +1113,6 @@ public class Mediator {
 	 *            A mapping from series number to visibility status.
 	 * @return An analysis type message consisting of phase plot artefacts.
 	 */
-	public AnalysisTypeChangeMessage createPhasePlotArtefacts1(double period,
-			double epoch, Map<SeriesType, Boolean> seriesVisibilityMap)
-			throws Exception {
-		String objName = newStarMessage.getStarInfo().getDesignation();
-
-		String subTitle = "";
-		String periodAndEpochStr = String.format("period: "
-				+ NumericPrecisionPrefs.getOtherOutputFormat() + ", epoch: "
-				+ NumericPrecisionPrefs.getTimeOutputFormat(), period, epoch);
-
-		if (this.newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-			subTitle = new Date().toString() + " (database), "
-					+ periodAndEpochStr;
-		} else {
-			subTitle = periodAndEpochStr;
-		}
-
-		// Here we modify the underlying ValidObservation objects which will
-		// affect both validObsList and validObservationCategoryMap. Some
-		// series are not in the main observation list, only in the map
-		// (e.g. model, residuals, filtered obs), so we handle those separately.
-		PhaseCalcs.setPhases(validObsList, epoch, period);
-		setPhasesForSeries(SeriesType.Model, epoch, period);
-		setPhasesForSeries(SeriesType.Residuals, epoch, period);
-		setPhasesForSeries(SeriesType.Filtered, epoch, period);
-
-		// We duplicate the valid observation category map
-		// so that we have two sets of identical data for the
-		// two cycles of the phase plot. This map will be shared
-		// by ordinary plot and mean plot models.
-		Map<SeriesType, List<ValidObservation>> phasedValidObservationCategoryMap = new TreeMap<SeriesType, List<ValidObservation>>();
-
-		for (SeriesType series : validObservationCategoryMap.keySet()) {
-			List<ValidObservation> obs = validObservationCategoryMap
-					.get(series);
-
-			List<ValidObservation> doubledObs = new ArrayList<ValidObservation>();
-			doubledObs.addAll(obs);
-			Collections.sort(doubledObs, StandardPhaseComparator.instance);
-			doubledObs.addAll(doubledObs);
-
-			phasedValidObservationCategoryMap.put(series, doubledObs);
-		}
-
-		// Table and plot models.
-		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(
-				validObsList, newStarMessage.getNewStarType()
-						.getPhasePlotTableColumnInfoSource());
-
-		// Observation-and-mean table and plot.
-		ObservationAndMeanPlotModel obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
-				phasedValidObservationCategoryMap, PhaseCoordSource.instance,
-				StandardPhaseComparator.instance,
-				PhaseTimeElementEntity.instance, seriesVisibilityMap);
-
-		// The mean observation table model must listen to the plot
-		// model to know when the means data has changed. We also pass
-		// the initial means data obtained from the plot model to
-		// the mean observation table model.
-		PhasePlotMeanObservationTableModel meanObsTableModel = new PhasePlotMeanObservationTableModel(
-				obsAndMeanPlotModel.getMeanObsList());
-
-		obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
-				meanObsTableModel);
-
-		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
-				"Phase Plot for " + objName, subTitle, obsAndMeanPlotModel,
-				epoch, period);
-
-		// The observation table pane contains valid and potentially
-		// invalid data components but for phase plot purposes, we only
-		// display valid data, as opposed to the raw data view in which
-		// both are shown. Tell the valid data table to have a horizontal
-		// scrollbar if there will be too many columns.
-		boolean enableColumnAutoResize = newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
-				|| newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
-
-		ObservationListPane obsListPane = new ObservationListPane(objName,
-				validObsTableModel, null, enableColumnAutoResize,
-				obsAndMeanPlotModel.getVisibleSeries(), AnalysisType.PHASE_PLOT);
-
-		SyntheticObservationListPane<AbstractMeanObservationTableModel> meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(
-				meanObsTableModel, null);
-
-		// Create a phase change message so that existing plot and tables can
-		// update their GUI components and/or models accordingly. Also,
-		// recording the series visibility map permits the existence of a phase
-		// change creation listener that collects phase change messages for the
-		// purpose of later being able to re-create the same phase plot.
-		PhaseChangeMessage phaseChangeMessage = new PhaseChangeMessage(this,
-				period, epoch, seriesVisibilityMap);
-		phaseChangeNotifier.notifyListeners(phaseChangeMessage);
-
-		// Observation-and-mean table and plot.
-		AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(
-				AnalysisType.PHASE_PLOT, obsAndMeanChartPane, obsListPane,
-				meansListPane, ViewModeType.PLOT_OBS_MODE);
-
-		analysisTypeMap.put(AnalysisType.PHASE_PLOT, phasePlotMsg);
-
-		analysisTypeChangeNotifier.notifyListeners(phasePlotMsg);
-
-		return phasePlotMsg;
-	}
-
-	/**
-	 * Create phase plot artefacts, adding them to the analysis type map and
-	 * returning this message.
-	 * 
-	 * @param period
-	 *            The requested period of the phase plot.
-	 * @param epoch
-	 *            The epoch (first Julian Date) for the phase plot.
-	 * @param seriesVisibilityMap
-	 *            A mapping from series number to visibility status.
-	 * @return An analysis type message consisting of phase plot artefacts.
-	 */
 	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period,
 			double epoch, Map<SeriesType, Boolean> seriesVisibilityMap)
 			throws Exception {
@@ -1294,8 +1177,8 @@ public class Mediator {
 				StandardPhaseComparator.instance,
 				PhaseTimeElementEntity.instance, seriesVisibilityMap);
 
-		// TODO: remove?
-		// obsAndMeanPlotModel = obsAndMeanPlotModel1;
+		// Select an arbitrary model for mean 
+		obsAndMeanPlotModel = obsAndMeanPlotModel1;
 
 		// The mean observation table model must listen to the plot
 		// model to know when the means data has changed. We also pass
@@ -1310,7 +1193,7 @@ public class Mediator {
 		obsAndMeanPlotModel2.getMeansChangeNotifier().addListener(
 				meanObsTableModel);
 
-		PhaseAndMeanPlotPane2 obsAndMeanChartPane = createPhaseAndMeanPlotPane2(
+		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
 				"Phase Plot for " + objName, subTitle, obsAndMeanPlotModel1,
 				obsAndMeanPlotModel2, epoch, period);
 
@@ -1420,7 +1303,7 @@ public class Mediator {
 	 * Create the observation-and-mean phase plot pane for the current list of
 	 * valid observations.
 	 */
-	private PhaseAndMeanPlotPane2 createPhaseAndMeanPlotPane2(String plotName,
+	private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(String plotName,
 			String subTitle, ObservationAndMeanPlotModel obsAndMeanPlotModel1,
 			ObservationAndMeanPlotModel obsAndMeanPlotModel2, double epoch,
 			double period) {
@@ -1428,23 +1311,8 @@ public class Mediator {
 		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
 				(int) (TabbedDataPane.HEIGHT * 0.9));
 
-		return new PhaseAndMeanPlotPane2(plotName, subTitle, bounds, epoch,
+		return new PhaseAndMeanPlotPane(plotName, subTitle, bounds, epoch,
 				period, obsAndMeanPlotModel1, obsAndMeanPlotModel2);
-	}
-
-	/**
-	 * Create the observation-and-mean phase plot pane for the current list of
-	 * valid observations.
-	 */
-	private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(String plotName,
-			String subTitle, ObservationAndMeanPlotModel obsAndMeanPlotModel,
-			double epoch, double period) {
-
-		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
-				(int) (TabbedDataPane.HEIGHT * 0.9));
-
-		return new PhaseAndMeanPlotPane(plotName, subTitle,
-				obsAndMeanPlotModel, bounds, epoch, period);
 	}
 
 	/**

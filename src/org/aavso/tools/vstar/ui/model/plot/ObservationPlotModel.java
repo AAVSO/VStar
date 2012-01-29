@@ -33,6 +33,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.data.DomainOrder;
@@ -106,6 +108,11 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 */
 	protected SeriesType lastSinglySelectedSeries;
 
+	// Particular series numbers to be used by listener code.
+	protected int fitSeriesNum = -1;
+	protected int residualsSeriesNum = -1;
+	protected int filterSeriesNum = -1;
+
 	/**
 	 * Common constructor.
 	 * 
@@ -129,6 +136,12 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 		Mediator.getInstance().getExcludedObservationNotifier().addListener(
 				createExcludedChangeListener());
+		
+		Mediator.getInstance().getModelSelectionNofitier().addListener(
+				createModelSelectionListener());
+
+		Mediator.getInstance().getFilteredObservationNotifier().addListener(
+				createFilteredObservationListener());
 	}
 
 	/**
@@ -784,6 +797,116 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 				}
 
 				fireDatasetChanged();
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+	
+	public void updateModelSeries(List<ValidObservation> modelObs,
+			List<ValidObservation> residualObs) {
+
+		// Add or replace a series for the model and make sure
+		// the series is visible.
+		if (this.seriesExists(SeriesType.Model)) {
+			fitSeriesNum = this.replaceObservationSeries(SeriesType.Model,
+					modelObs);
+		} else {
+			fitSeriesNum = this.addObservationSeries(SeriesType.Model,
+					modelObs);
+		}
+
+		// Make the model series visible either because this
+		// is its first appearance or because it may have been made
+		// invisible via the change series dialog.
+		this.changeSeriesVisibility(fitSeriesNum, true);
+
+		// TODO: do we really need this? if not, revert means join
+		// handling code
+		// this.addSeriesToBeJoinedVisually(fitSeriesNum);
+
+		// Add or replace a series for the residuals.
+		if (this.seriesExists(SeriesType.Residuals)) {
+			this
+					.replaceObservationSeries(SeriesType.Residuals, residualObs);
+		} else {
+			residualsSeriesNum = this.addObservationSeries(
+					SeriesType.Residuals, residualObs);
+		}
+
+		// Hide the residuals series initially. We toggle the series
+		// visibility to achieve this since the default is false. That
+		// shouldn't be necessary; investigate.
+		// this.changeSeriesVisibility(residualsSeriesNum, true);
+		this.changeSeriesVisibility(residualsSeriesNum, false);
+	}
+
+	// Returns a model selection listener.
+	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
+		return new Listener<ModelSelectionMessage>() {
+			@Override
+			public void update(ModelSelectionMessage info) {
+				updateModelSeries(info.getModel().getFit(), info.getModel()
+						.getResiduals());
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+	
+	public boolean handleNoFilter(FilteredObservationMessage info) {
+		boolean result = false;
+
+		if (info == FilteredObservationMessage.NO_FILTER) {
+			// No filter, so make the filtered series invisible.
+			if (this.seriesExists(SeriesType.Filtered)) {
+				int num = this.getSrcTypeToSeriesNumMap().get(
+						SeriesType.Filtered);
+				this.changeSeriesVisibility(num, false);
+			}
+			result = true;
+		}
+
+		return result;
+	}
+
+	public void updateFilteredSeries(List<ValidObservation> obs) {
+		if (this.seriesExists(SeriesType.Filtered)) {
+			filterSeriesNum = this.replaceObservationSeries(
+					SeriesType.Filtered, obs);
+		} else {
+			filterSeriesNum = this.addObservationSeries(
+					SeriesType.Filtered, obs);
+		}
+
+		// Make the filter series visible either because this is
+		// its first appearance or because it may have been made
+		// invisible via a NO_FILTER message.
+		this.changeSeriesVisibility(filterSeriesNum, true);
+	}
+
+	// Returns a filtered observation listener.
+	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
+		return new Listener<FilteredObservationMessage>() {
+
+			@Override
+			public void update(FilteredObservationMessage info) {
+				if (!handleNoFilter(info)) {
+					// Convert set of filtered observations to list then add
+					// or replace the filter series.
+					List<ValidObservation> obs = new ArrayList<ValidObservation>();
+					for (ValidObservation ob : info.getFilteredObs()) {
+						obs.add(ob);
+					}
+
+					updateFilteredSeries(obs);
+				}
 			}
 
 			@Override

@@ -19,27 +19,19 @@ package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
-import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
-import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
-import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
-import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
@@ -51,11 +43,13 @@ import org.jfree.chart.plot.XYPlot;
  * observations along with mean-based data.
  */
 public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
-	
+
 	private double epoch;
 	private double period;
 
 	private String xyMsgFormat;
+
+	private ObservationAndMeanPlotModel[] obsAndMeanModels;
 
 	/**
 	 * Constructor.
@@ -64,26 +58,80 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	 *            The title for the chart.
 	 * @param subTitle
 	 *            The sub-title for the chart.
-	 * @param obsAndMeanModel
-	 *            The data model to plot.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
 	 * @param epoch
 	 *            The starting JD for the current phase plot.
 	 * @param period
 	 *            The period for the current phase plot.
+	 * @param obsAndMeanModels
+	 *            The data models to plot.
 	 */
 	public PhaseAndMeanPlotPane(String title, String subTitle,
-			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds,
-			double epoch, double period) {
+			Dimension bounds, double epoch, double period,
+			ObservationAndMeanPlotModel... obsAndMeanModels) {
 
-		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModel, bounds);
+		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModels[0],
+				bounds);
 
 		this.epoch = epoch;
 		this.period = period;
 
+		this.obsAndMeanModels = obsAndMeanModels;
+
 		xyMsgFormat = "Phase: " + NumericPrecisionPrefs.getTimeOutputFormat()
 				+ ", Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
+
+		this.chart.getXYPlot().setDataset(1, obsAndMeanModels[1]);
+	}
+
+	/**
+	 * @return the epoch
+	 */
+	public double getEpoch() {
+		return epoch;
+	}
+
+	/**
+	 * @return the period
+	 */
+	public double getPeriod() {
+		return period;
+	}
+
+	/**
+	 * @return the obsAndMeanModels
+	 */
+	public ObservationAndMeanPlotModel[] getObsModels() {
+		return obsAndMeanModels;
+	}
+
+	/**
+	 * @param meanSourceSeriesNum
+	 *            the meanSourceSeriesNum to set
+	 */
+	public void setMeanSourceSeriesNum(int meanSourceSeriesNum) {
+		for (ObservationAndMeanPlotModel obsModel : obsAndMeanModels) {
+			obsModel.setMeanSourceSeriesNum(meanSourceSeriesNum);
+		}
+	}
+
+	/**
+	 * Attempt to create a new mean series with the specified number of time
+	 * elements per bin.
+	 * 
+	 * @param timeElementsInBin
+	 *            The number of days or phase steps to be created per bin.
+	 * @return Whether or not the series was changed.
+	 */
+	public boolean changeMeansSeries(double timeElementsInBin) {
+		boolean changed = false;
+
+		for (ObservationAndMeanPlotModel obsModel : obsAndMeanModels) {
+			changed |= obsModel.changeMeansSeries(timeElementsInBin);
+		}
+
+		return changed;
 	}
 
 	// From ChartMouseListener interface.
@@ -181,86 +229,6 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 					}
 					break;
 				}
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
-	// TODO: handle:
-	// Create a new PhaseChangeMessage, using it here and in tables rather than
-	// creating a whole new set of phase plot artefacts: setPhases(), fire
-	// changed. We will need to think about when to update phases, ideally once
-	// over all obs in the mediator's valid obs map (to include all series)
-	// before message is notified, but because some obs are doubled up, we'll
-	// have to do this in each listener for now. When we eventually switch to
-	// plot models using List<List<ValidObservation>> or
-	// List<ValidObservation>[2], we'll just be able to set phases on the map
-	// once.
-
-	// Returns a filtered observation listener that updates the filtered data
-	// series. We don't need to set the phases in the data because the
-	// underlying data in the filter will already have had phases set since we
-	// have an existing (this) phase plot.
-	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
-		return new Listener<FilteredObservationMessage>() {
-			@Override
-			public void update(FilteredObservationMessage info) {
-				if (!handleNoFilter(info)) {
-					// Convert set of filtered observations to list then add
-					// or replace the filter series.
-					List<ValidObservation> obs = new ArrayList<ValidObservation>();
-					for (ValidObservation ob : info.getFilteredObs()) {
-						obs.add(ob);
-					}
-
-					// Double and sort the filtered data.
-					List<ValidObservation> filteredObs = new ArrayList<ValidObservation>();
-					filteredObs.addAll(obs);
-					Collections.sort(filteredObs,
-							StandardPhaseComparator.instance);
-					filteredObs.addAll(filteredObs);
-
-					updateFilteredSeries(filteredObs);
-				}
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
-	// Returns a model selection listener that updates the model and residual
-	// series including setting the current phase in the data.
-	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
-		return new Listener<ModelSelectionMessage>() {
-
-			@Override
-			public void update(ModelSelectionMessage info) {
-				IModel model = info.getModel();
-
-				// Set the phases in the new model and residuals data.
-				PhaseCalcs.setPhases(model.getFit(), epoch, period);
-				PhaseCalcs.setPhases(model.getResiduals(), epoch, period);
-
-				// Double and sort the model data.
-				List<ValidObservation> modelObs = new ArrayList<ValidObservation>();
-				modelObs.addAll(model.getFit());
-				Collections.sort(modelObs, StandardPhaseComparator.instance);
-				modelObs.addAll(modelObs);
-
-				// Double and sort the residuals data.
-				List<ValidObservation> residualObs = new ArrayList<ValidObservation>();
-				residualObs.addAll(model.getResiduals());
-				Collections.sort(residualObs, StandardPhaseComparator.instance);
-				residualObs.addAll(residualObs);
-
-				updateModelSeries(modelObs, residualObs);
 			}
 
 			@Override
