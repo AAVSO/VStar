@@ -31,7 +31,6 @@ import org.aavso.tools.vstar.data.ValidObservation;
 public class TSBase {
 
 	protected final static int MAX_TOP_HITS = 101; // was 21
-	
 
 	private List<ValidObservation> observations;
 
@@ -46,7 +45,8 @@ public class TSBase {
 	protected double dgnu[] = new double[MAX_TOP_HITS];
 	protected double dgper[] = new double[MAX_TOP_HITS];
 	protected double dgpower[] = new double[MAX_TOP_HITS];
-	protected double dgamplitude[] = new double[MAX_TOP_HITS]; // dbenn (semi-amplitude?)
+	protected double dgamplitude[] = new double[MAX_TOP_HITS]; // dbenn
+	// (semi-amplitude?)
 	protected double dlamp;
 	protected double dllamp;
 	protected double dlnu;
@@ -94,7 +94,7 @@ public class TSBase {
 	protected double tvec[];
 	protected double wvec[];
 	protected double xvec[];
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -103,7 +103,7 @@ public class TSBase {
 	 */
 	public TSBase(List<ValidObservation> observations) {
 		this.observations = observations;
-		
+
 		// Create input arrays.
 
 		// TODO: change to zero index start to get rid of +1!
@@ -113,7 +113,7 @@ public class TSBase {
 		this.xvec = new double[sz];
 		this.wvec = new double[sz];
 	}
-	
+
 	// -------------------------------------------------------------------------------
 
 	public void load_raw() {
@@ -290,7 +290,7 @@ public class TSBase {
 
 		nuplim = n - 1;
 	}
-	
+
 	protected void project() {
 		double dpow[] = new double[51]; // TODO just 50 (0:50); same for others
 		// below?
@@ -314,7 +314,7 @@ public class TSBase {
 		ndim2 = npoly + (2 * nfre);
 		ndim = ndim2 + nbias;
 		dweight = 0.0;
-		
+
 		// TODO: why do we zero dmat and dvec again here? we just did it above!
 		for (n1 = 0; n1 <= ndim; n1++) {
 			dvec[n1] = 0.0;
@@ -329,8 +329,7 @@ public class TSBase {
 				dpower = 0.0;
 				return;
 			}
-//			drad[1] is getting the wrong value!
-			// this in turn messes up dcc, dss ...
+
 			drad[nf] = twopi * dfre[nf] * dtscale;
 			for (nf2 = nf + 1; nf2 <= nfre; nf2++) {
 				if (Math.abs(dfre[nf] - dfre[nf2]) < 1E-8) {
@@ -372,7 +371,7 @@ public class TSBase {
 
 					// TODO: dmat screws up somewhere between here...
 					// dependent upon dpow, dcc, and dss arrays
-					
+
 					dvec[np] = dvec[np] + (dx * dpow[np]);
 					n2 = npoly;
 					// ...and for products of polynomials with trig functions
@@ -384,8 +383,6 @@ public class TSBase {
 					}
 				}
 
-				// ...and here (dbenn)
-				
 				// compute matrix values for products of trig functions
 				n1 = npoly;
 				for (nf = 1; nf <= nfre; nf++) {
@@ -487,7 +484,7 @@ public class TSBase {
 			damp = 0.0;
 		damp = Math.sqrt(damp);
 	}
-	
+
 	// -------------------------------------------------------------------------------
 
 	protected void matinv() {
@@ -548,7 +545,15 @@ public class TSBase {
 			}
 		}
 	}
-	
+
+	/**
+	 * Applies a function defined by polynomial or Fourier coefficients to the
+	 * specified time parameter.
+	 * 
+	 * @param dtime
+	 *            The time parameter to which the function is to be applied.
+	 * @return The resulting of applying the function to the parameter.
+	 */
 	protected double smooth(double dtime) {
 		double dmag;
 		double dt, dphase;

@@ -35,6 +35,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
 	private List<ValidObservation> fit;
 	private List<ValidObservation> residuals;
+
+	// TODO: PeriodFitParameters could be a generic parameter per concrete
+	// model since this will differ for each model type.
 	private List<PeriodFitParameters> parameters;
 
 	private String desc;
@@ -126,7 +129,12 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		algorithm.multiPeriodicFit(harmonics, this);
 	}
 
-	public String toString() {
+	@Override
+	public boolean hasFuncDesc() {
+		return true;
+	}
+	
+	public String toString() { 
 		if (strRepr == null) {
 			strRepr = "f(t) = ";
 
