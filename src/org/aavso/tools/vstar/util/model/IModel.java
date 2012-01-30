@@ -52,6 +52,13 @@ public interface IModel extends IAlgorithm {
 	abstract public List<PeriodFitParameters> getParameters();
 
 	/**
+	 * Does this model have a function-based description?
+	 * 
+	 * @return True or false.
+	 */
+	abstract public boolean hasFuncDesc();
+	
+	/**
 	 * Return a human-readable description of this model.
 	 * 
 	 * @return The model description.

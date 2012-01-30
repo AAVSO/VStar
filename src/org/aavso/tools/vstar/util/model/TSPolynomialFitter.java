@@ -26,6 +26,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.TSBase;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * <p>
@@ -53,6 +54,8 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	private List<ValidObservation> fit;
 	private List<ValidObservation> residuals;
 
+	private String strRepr;
+	
 	/**
 	 * Constructor
 	 * 
@@ -62,6 +65,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	 */
 	public TSPolynomialFitter(List<ValidObservation> observations) {
 		super(observations);
+		strRepr = null;
 		degree = 0;
 	}
 
@@ -90,11 +94,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 	@Override
 	public int getMaxDegree() {
-		return 20;
-	}
-
-	public String toString() {
-		return getDescription();
+		return 30;
 	}
 
 	/**
@@ -283,7 +283,31 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 	@Override
 	public List<PeriodFitParameters> getParameters() {
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public boolean hasFuncDesc() {
+		return true;
+	}
+
+	public String toString() { 
+		if (strRepr == null) {
+			strRepr = "sum(";
+
+			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
+			
+			// sum(a[i]t^n), where n >= 1
+			for (int i = npoly; i >= 1; i--) {
+				strRepr += String.format(fmt, dcoef[i]) + "t^" + i + ",\n";
+			}
+			
+			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
+			strRepr += String.format(fmt, dcoef[0]);
+			
+			strRepr += ")";
+		}
+
+		return strRepr;
 	}
 }

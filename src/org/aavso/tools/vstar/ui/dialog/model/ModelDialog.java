@@ -152,7 +152,7 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 				// Does the model support displaying coefficients?
 				String desc = (String) modelListModel.get(index);
 				IModel model = modelMap.get(desc);
-				showModelButton.setEnabled(model.getParameters() != null);
+				showModelButton.setEnabled(model.hasFuncDesc());
 			}
 		}
 	}

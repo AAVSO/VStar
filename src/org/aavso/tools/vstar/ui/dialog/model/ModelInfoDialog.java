@@ -98,11 +98,14 @@ public class ModelInfoDialog extends JDialog {
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		topPane.add(scrollPane);
 
-		creator = new RelativeAmplitudeAndPhaseCreator(model.getParameters());
+		if (model.getParameters() != null) {
+			creator = new RelativeAmplitudeAndPhaseCreator(model
+					.getParameters());
 
-		if (creator.hasHarmonics()) {
-			topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-			topPane.add(createRelAmplAndPhasePanel());
+			if (creator.hasHarmonics()) {
+				topPane.add(Box.createRigidArea(new Dimension(10, 10)));
+				topPane.add(createRelAmplAndPhasePanel());
+			}
 		}
 
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -136,13 +139,13 @@ public class ModelInfoDialog extends JDialog {
 		JScrollPane scrollPane = new JScrollPane(relAmplAndPhaseTextArea);
 		pane.add(scrollPane);
 
-		JPanel cyclesPane = new JPanel(); 
+		JPanel cyclesPane = new JPanel();
 		useCyclesCheckBox = new JCheckBox("Show as cycles?");
 		useCyclesCheckBox.setSelected(false);
 		useCyclesCheckBox.addActionListener(createUseCyclesCheckbox());
 		cyclesPane.add(useCyclesCheckBox, BorderLayout.CENTER);
 		pane.add(cyclesPane);
-				
+
 		setRelAmplAndPhaseText(useCyclesCheckBox.isSelected());
 
 		return pane;
@@ -157,7 +160,7 @@ public class ModelInfoDialog extends JDialog {
 		String relStr = "";
 
 		for (Double fundamental : creator.getFundamentals()) {
-			
+
 			String relSeqStr = creator.getRelativeSequenceString(fundamental,
 					precision, cycles);
 

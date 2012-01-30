@@ -170,13 +170,17 @@ public class WWZMultiperiodicModel implements IModel {
 		return residuals;
 	}
 
-	public String toString() {
-		return getDescription();
+	@Override
+	public List<PeriodFitParameters> getParameters() {
+		return null;
 	}
 
 	@Override
-	public List<PeriodFitParameters> getParameters() {
-		// TODO Auto-generated method stub
-		return null;
+	public boolean hasFuncDesc() {
+		return false;
+	}
+	
+	public String toString() {
+		return getDescription();
 	}
 }
