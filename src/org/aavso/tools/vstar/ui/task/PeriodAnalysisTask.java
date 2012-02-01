@@ -30,6 +30,8 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * A concurrent task in which a potentially long-running period analysis plugin
@@ -40,6 +42,8 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	private PeriodAnalysisPluginBase periodAnalysisPlugin;
 	private SeriesType sourceSeriesType;
 	private List<ValidObservation> obs;
+
+	private Listener<StopRequestMessage> stopListener;
 
 	private boolean successful;
 
@@ -60,12 +64,18 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		this.sourceSeriesType = sourceSeriesType;
 		this.obs = obs;
 		this.successful = true;
+
+		stopListener = createStopRequestListener();
 	}
 
 	/**
 	 * @see javax.swing.SwingWorker#doInBackground()
 	 */
 	protected Void doInBackground() throws Exception {
+
+		Mediator.getInstance().getStopRequestNotifier().addListener(
+				stopListener);
+
 		MainFrame.getInstance().getStatusPane().setMessage(
 				"Performing Period Analysis...");
 		try {
@@ -75,6 +85,9 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		} catch (Throwable t) {
 			successful = false;
 			MessageBox.showErrorDialog("Period Analysis Error", t);
+		} finally {
+			Mediator.getInstance().getStopRequestNotifier()
+					.removeListenerIfWilling(stopListener);
 		}
 
 		return null;
@@ -96,5 +109,20 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 				ProgressInfo.CLEAR_PROGRESS);
 
 		MainFrame.getInstance().getStatusPane().setMessage("");
+	}
+
+	// Creates a stop request listener to interrupt the period analysis.
+	private Listener<StopRequestMessage> createStopRequestListener() {
+		return new Listener<StopRequestMessage>() {
+			@Override
+			public void update(StopRequestMessage info) {
+				periodAnalysisPlugin.interrupt();
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
 	}
 }

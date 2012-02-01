@@ -82,6 +82,8 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	private int numdat;
 	private double tau[];
 
+	private boolean interrupted;
+
 	/**
 	 * Constructor
 	 * 
@@ -112,6 +114,8 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 		maximalStats = new ArrayList<WWZStatistic>();
 
 		maketau(timeDivisions);
+
+		interrupted = false;
 	}
 
 	/**
@@ -140,8 +144,17 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	 */
 	@Override
 	public void execute() throws AlgorithmError {
-		wwt();
-		computeMinAndMaxValues();
+		interrupted = false;
+		try {
+			wwt();
+			computeMinAndMaxValues();
+		} catch (InterruptedException e) {
+			// Do nothing; just return.
+		}
+	}
+
+	public void interrupt() {
+		interrupted = true;
 	}
 
 	/**
@@ -286,21 +299,21 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	private void maketau(double timeDivisions) {
 		double dtaulo = dt[1];
 		double dtauhi = dt[numdat];
-		
+
 		double dtspan = dtauhi - dtaulo;
 		double dtstep = round(dtspan / timeDivisions);
-		
+
 		dtaulo = dtstep * (double) ((int) ((dtaulo / dtstep) + 0.5));
 		dtauhi = dtstep * (double) ((int) ((dtauhi / dtstep) + 0.5));
 
-		tau = new double[(int)((dtauhi-dtaulo)/dtstep)+2];
+		tau = new double[(int) ((dtauhi - dtaulo) / dtstep) + 2];
 
 		ntau = 0;
-		
+
 		for (double dtau = dtaulo; dtau <= dtauhi; dtau += dtstep) {
-			tau[ntau+1] = dtau;
+			tau[ntau + 1] = dtau;
 			ntau++;
-		}		
+		}
 	}
 
 	/**
@@ -388,7 +401,7 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 	/**
 	 * Invert the matrix of the wwz equations...
 	 */
-	private void matinv() {
+	private void matinv() throws InterruptedException {
 		double dsol[][] = new double[3][3];// (0:2,0:2);
 		double dfac;
 
@@ -399,6 +412,10 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 				dsol[i][j] = 0.0;
 			}
 			dsol[i][i] = 1.0;
+			
+			if (interrupted) {
+				throw new InterruptedException();
+			}
 		}
 
 		for (int i = 0; i <= ndim; i++) {
@@ -413,7 +430,12 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						}
 					}
 				}
+				
+				if (interrupted) {
+					throw new InterruptedException();
+				}
 			}
+			
 			dfac = dmat[i][i];
 			for (int j = 0; j <= ndim; j++) {
 				dmat[i][j] = dmat[i][j] / dfac;
@@ -426,6 +448,10 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						dmat[j][k] = dmat[j][k] - (dmat[i][k] * dfac);
 						dsol[j][k] = dsol[j][k] - (dsol[i][k] * dfac);
 					}
+					
+					if (interrupted) {
+						throw new InterruptedException();
+					}
 				}
 			}
 		}
@@ -433,10 +459,14 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 			for (int j = 0; j <= ndim; j++) {
 				dmat[i][j] = dsol[i][j];
 			}
+			
+			if (interrupted) {
+				throw new InterruptedException();
+			}
 		}
 	}
 
-	private void wwt() {
+	private void wwt() throws InterruptedException {
 		double dvec[] = new double[3];
 		double dcoef[] = new double[3];
 		int itau, ifreq, idat;
@@ -487,6 +517,10 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 					for (int j = 0; j <= ndim; j++) {
 						dmat[i][j] = 0.0;
 					}
+
+					if (interrupted) {
+						throw new InterruptedException();
+					}
 				}
 				dweight2 = 0.0;
 
@@ -517,6 +551,10 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 					}
 				}
 
+				if (interrupted) {
+					throw new InterruptedException();
+				}
+
 				dpower = 0.0;
 				damp = 0.0;
 				for (n1 = 0; n1 <= ndim; n1++) {
@@ -533,6 +571,10 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						for (n2 = 1; n2 <= ndim; n2++) {
 							dmat[n1][n2] = dmat[n1][n2] / dmat[0][0];
 						}
+
+						if (interrupted) {
+							throw new InterruptedException();
+						}
 					}
 					if (dmat[0][0] > 0.0) {
 						dvarw = dvarw / dmat[0][0];
@@ -548,6 +590,10 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						for (n2 = 0; n2 <= n1 - 1; n2++) {
 							dmat[n1][n2] = dmat[n2][n1];
 						}
+
+						if (interrupted) {
+							throw new InterruptedException();
+						}
 					}
 
 					matinv();
@@ -557,6 +603,10 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 							dcoef[n1] = dcoef[n1] + dmat[n1][n2] * dvec[n2];
 						}
 						dpower = dpower + (dcoef[n1] * dvec[n1]);
+
+						if (interrupted) {
+							throw new InterruptedException();
+						}
 					}
 					dpower = dpower - (davew * davew);
 					dpowz = (dneff - 3.0) * dpower / (dvarw - dpower) / 2.0;
@@ -571,6 +621,11 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 						// dnefff = 0.0;
 						dneff = 0.0;
 				}
+
+				if (interrupted) {
+					throw new InterruptedException();
+				}
+
 				if (damp < 1.0e-9)
 					damp = 0.0;
 				if (dpower < 1.0e-9)

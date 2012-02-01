@@ -25,16 +25,19 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.util.model.IModel;
+import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
- * A concurrent task in which a potentially long-running modelling is
- * executed.
+ * A concurrent task in which a potentially long-running modelling is executed.
  */
 public class ModellingTask extends SwingWorker<Void, Void> {
 
 	private boolean error;
 	private IModel model;
+
+	private Listener<StopRequestMessage> stopListener;
 
 	/**
 	 * Constructor
@@ -45,12 +48,18 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 	public ModellingTask(IModel model) {
 		error = false;
 		this.model = model;
+
+		stopListener = createStopRequestListener();
 	}
 
 	/**
 	 * @see javax.swing.SwingWorker#doInBackground()
 	 */
 	protected Void doInBackground() throws Exception {
+
+		Mediator.getInstance().getStopRequestNotifier().addListener(
+				stopListener);
+
 		MainFrame.getInstance().getStatusPane().setMessage(
 				"Performing " + model.getKind() + "...");
 		try {
@@ -58,9 +67,13 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 		} catch (Throwable t) {
 			error = true;
 			MessageBox.showErrorDialog(model.getKind() + " Error", t);
+		} finally {
+			Mediator.getInstance().getStopRequestNotifier()
+					.removeListenerIfWilling(stopListener);
 		}
 
 		MainFrame.getInstance().getStatusPane().setMessage("");
+
 		return null;
 	}
 
@@ -85,5 +98,20 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.CLEAR_PROGRESS);
+	}
+
+	// Creates a stop request listener to interrupt the model creation.
+	private Listener<StopRequestMessage> createStopRequestListener() {
+		return new Listener<StopRequestMessage>() {
+			@Override
+			public void update(StopRequestMessage info) {
+				model.interrupt();
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
 	}
 }

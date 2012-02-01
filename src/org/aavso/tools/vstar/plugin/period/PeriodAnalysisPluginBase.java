@@ -103,6 +103,11 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	 */
 	abstract public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException;
+	
+	/**
+	 * Interrupt the execution of the algorithm.
+	 */
+	abstract public void interrupt();
 
 	/**
 	 * Get the period analysis dialog for this plugin.

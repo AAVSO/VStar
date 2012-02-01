@@ -17,19 +17,12 @@
  */
 package org.aavso.tools.vstar.plugin.period.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import javax.swing.JDialog;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
-import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
-import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
@@ -70,11 +63,21 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
-		
+
 		return new PeriodAnalysis2DResultDialog("Period Analysis (DC DFT) for "
 				+ newStarMessage.getStarInfo().getDesignation(), "(series: "
 				+ sourceSeriesType.getDescription() + ")",
 				periodAnalysisAlgorithm);
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase#interrupt()
+	 */
+	@Override
+	public void interrupt() {
+		if (periodAnalysisAlgorithm != null) {
+			periodAnalysisAlgorithm.interrupt();
+		}
 	}
 
 	// ** Mandatory message listeners. **

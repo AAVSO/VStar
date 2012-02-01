@@ -110,6 +110,11 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 				range.add(Math.random());
 			}
 		}
+
+		@Override
+		public void interrupt() {
+			// TODO Auto-generated method stub
+		}
 	}
 
 	private IPeriodAnalysisAlgorithm algorithm = new TestAlgorithm();
@@ -251,5 +256,10 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
 	@Override
 	public void reset() {
+	}
+
+	@Override
+	public void interrupt() {
+		algorithm.interrupt();
 	}
 }

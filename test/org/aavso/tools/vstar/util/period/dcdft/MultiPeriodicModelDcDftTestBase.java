@@ -49,7 +49,13 @@ public class MultiPeriodicModelDcDftTestBase extends DataTestBase {
 		PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
 				harmonics, algorithm);
 		try {
-			algorithm.multiPeriodicFit(harmonics, model);
+			try {
+				algorithm.multiPeriodicFit(harmonics, model);
+			} catch (InterruptedException e) {
+				// We should never end up here in the course of this unit test
+				// (no user in the loop).
+				fail();
+			}
 
 			// Check the model parameters.
 			assertEquals(expectedParamsList.size(), model.getParameters()

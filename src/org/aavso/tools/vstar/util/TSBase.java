@@ -95,6 +95,8 @@ public class TSBase {
 	protected double wvec[];
 	protected double xvec[];
 
+	protected boolean interrupted;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -112,6 +114,8 @@ public class TSBase {
 		this.tvec = new double[sz];
 		this.xvec = new double[sz];
 		this.wvec = new double[sz];
+		
+		interrupted = false;
 	}
 
 	// -------------------------------------------------------------------------------
@@ -290,8 +294,8 @@ public class TSBase {
 
 		nuplim = n - 1;
 	}
-
-	protected void project() {
+	
+	protected void project() throws InterruptedException {
 		double dpow[] = new double[51]; // TODO just 50 (0:50); same for others
 		// below?
 		double drad[] = new double[51];
@@ -309,8 +313,12 @@ public class TSBase {
 				dmat[ii][jj] = 0.0;
 			}
 			dvec[ii] = 0.0;
+			
+			if (interrupted) {
+				throw new InterruptedException();
+			}
 		}
-
+		
 		ndim2 = npoly + (2 * nfre);
 		ndim = ndim2 + nbias;
 		dweight = 0.0;
@@ -320,6 +328,10 @@ public class TSBase {
 			dvec[n1] = 0.0;
 			for (n2 = 0; n2 <= ndim; n2++) {
 				dmat[n1][n2] = 0.0;
+			}
+
+			if (interrupted) {
+				throw new InterruptedException();
 			}
 		}
 
@@ -336,6 +348,10 @@ public class TSBase {
 					dpower = 0.0;
 					return;
 				}
+			}
+			
+			if (interrupted) {
+				throw new InterruptedException();
 			}
 		}
 
@@ -354,11 +370,19 @@ public class TSBase {
 					dpow[np] = dpow[np - 1] * dt;
 				}
 
+				if (interrupted) {
+					throw new InterruptedException();
+				}
+
 				// compute trig functions
 				for (nf = 1; nf <= nfre; nf++) {
 					dphase = drad[nf] * dt;
 					dcc[nf] = Math.cos(dphase);
 					dss[nf] = Math.sin(dphase);
+				}
+
+				if (interrupted) {
+					throw new InterruptedException();
 				}
 
 				// compute matrix coefficients for polynomials...
@@ -381,6 +405,10 @@ public class TSBase {
 								+ (dpow[np] * dcc[nf]);
 						dmat[np][n2] = dmat[np][n2] + (dpow[np] * dss[nf]);
 					}
+					
+					if (interrupted) {
+						throw new InterruptedException();
+					}
 				}
 
 				// compute matrix values for products of trig functions
@@ -399,6 +427,10 @@ public class TSBase {
 						dmat[n1][n2 - 1] = dmat[n1][n2 - 1]
 								+ (dss[nf] * dcc[nf2]);
 						dmat[n1][n2] = dmat[n1][n2] + (dss[nf] * dss[nf2]);
+					}
+
+					if (interrupted) {
+						throw new InterruptedException();
 					}
 				}
 
@@ -419,9 +451,12 @@ public class TSBase {
 							dmat[n1][n2] = dmat[n1][n2] + dss[nf];
 						}
 					}
+					
+					if (interrupted) {
+						throw new InterruptedException();
+					}
 				}
 			}
-
 		}
 		// end of summation loop
 
@@ -435,9 +470,17 @@ public class TSBase {
 			}
 		}
 
+		if (interrupted) {
+			throw new InterruptedException();
+		}
+
 		for (n1 = 1; n1 <= npoly - 1; n1++) {
 			for (n2 = n1; n2 <= npoly - 1; n2++) {
 				dmat[n1][n2] = dmat[n1 - 1][n2 + 1];
+			}
+			
+			if (interrupted) {
+				throw new InterruptedException();
 			}
 		}
 
@@ -446,12 +489,20 @@ public class TSBase {
 			for (n2 = n1; n2 <= ndim; n2++) {
 				dmat[n1][n2] = dmat[n1][n2] / dweight;
 			}
+			
+			if (interrupted) {
+				throw new InterruptedException();
+			}
 		}
 
 		dmat[0][0] = 1.0;
 		for (n1 = 1; n1 <= ndim; n1++) {
 			for (n2 = 0; n2 <= n1 - 1; n2++) {
 				dmat[n1][n2] = dmat[n2][n1];
+			}
+			
+			if (interrupted) {
+				throw new InterruptedException();
 			}
 		}
 
@@ -464,6 +515,10 @@ public class TSBase {
 				dcoef[n1] = dcoef[n1] + (dmat[n1][n2] * dvec[n2]);
 			}
 			damp2 = damp2 + (dcoef[n1] * dvec[n1]);
+			
+			if (interrupted) {
+				throw new InterruptedException();
+			}
 		}
 
 		damp2 = damp2 - (dave * dave);

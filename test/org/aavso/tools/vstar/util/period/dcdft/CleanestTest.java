@@ -82,7 +82,13 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 			List<Double> freqs = new ArrayList<Double>();
 			freqs.add(topFreq);
 
-			dcdft.cleanest(freqs, null, null);
+			try {
+				dcdft.cleanest(freqs, null, null);
+			} catch (InterruptedException e) {
+				// We should never end up here in the course of this unit test
+				// (no user in the loop).
+				fail();
+			}
 
 			// Now check the new top-hit period and power.
 			double newTopPeriod = dcdft.getTopHits().get(
@@ -130,8 +136,14 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 			List<Double> freqs = new ArrayList<Double>();
 			freqs.add(topFreq);
 
-			dcdft.cleanest(freqs, new ArrayList<Double>(),
-					new ArrayList<Double>());
+			try {
+				dcdft.cleanest(freqs, new ArrayList<Double>(),
+						new ArrayList<Double>());
+			} catch (InterruptedException e) {
+				// We should never end up here in the course of this unit test
+				// (no user in the loop).
+				fail();
+			}
 
 			// Now check the new top-hit period and power.
 			double newTopPeriod = dcdft.getTopHits().get(
@@ -199,7 +211,13 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 			freqs.add(topFreq1);
 			freqs.add(topFreq2);
 
-			dcdft.cleanest(freqs, null, null);
+			try {
+				dcdft.cleanest(freqs, null, null);
+			} catch (InterruptedException e) {
+				// We should never end up here in the course of this unit test
+				// (no user in the loop).
+				fail();
+			}
 
 			// Now check the new first few top-hits (period and power).
 
@@ -261,7 +279,13 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 			List<Double> varPeriods = new ArrayList<Double>();
 			varPeriods.add(123.5);
 
-			dcdft.cleanest(freqs, varPeriods, null);
+			try {
+				dcdft.cleanest(freqs, varPeriods, null);
+			} catch (InterruptedException e) {
+				// We should never end up here in the course of this unit test
+				// (no user in the loop).
+				fail();
+			}
 
 			// Now check the new first few top-hits (period and power).
 
@@ -323,7 +347,13 @@ public class CleanestTest extends TopHitsDcDftTestBase {
 			List<Double> lockedPeriods = new ArrayList<Double>();
 			lockedPeriods.add(123.5);
 
-			dcdft.cleanest(freqs, null, lockedPeriods);
+			try {
+				dcdft.cleanest(freqs, null, lockedPeriods);
+			} catch (InterruptedException e) {
+				// We should never end up here in the course of this unit test
+				// (no user in the loop).
+				fail();
+			}
 
 			// Now check the new first few top-hits (period and power).
 

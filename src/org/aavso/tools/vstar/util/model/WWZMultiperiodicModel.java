@@ -45,6 +45,8 @@ public class WWZMultiperiodicModel implements IModel {
 
 	private String desc;
 
+	private boolean interrupted;
+	
 	/**
 	 * Constructor
 	 * 
@@ -63,6 +65,8 @@ public class WWZMultiperiodicModel implements IModel {
 
 		fit = new ArrayList<ValidObservation>();
 		residuals = new ArrayList<ValidObservation>();
+		
+		interrupted = false;
 	}
 
 	/**
@@ -70,6 +74,8 @@ public class WWZMultiperiodicModel implements IModel {
 	 */
 	@Override
 	public void execute() throws AlgorithmError {
+		interrupted = false;
+
 		// TODO: For multiple periods, do we need instead to average the
 		// best-fit and residual values?
 
@@ -119,6 +125,10 @@ public class WWZMultiperiodicModel implements IModel {
 						residuals.add(residualOb);
 						i++;
 					}
+				}
+				
+				if (interrupted) {
+					return;
 				}
 			}
 		}
@@ -182,5 +192,10 @@ public class WWZMultiperiodicModel implements IModel {
 	
 	public String toString() {
 		return getDescription();
+	}
+
+	@Override
+	public void interrupt() {
+		interrupted = true;
 	}
 }

@@ -31,4 +31,9 @@ public interface IAlgorithm {
 	 *             in case of an algorithm error.
 	 */
 	abstract public void execute() throws AlgorithmError;
+	
+	/**
+	 * Interrupts the algorithm.
+	 */
+	abstract public void interrupt();
 }

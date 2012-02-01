@@ -156,7 +156,6 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 							List<PeriodAnalysisDataPoint> newTopHits = algorithm
 									.refineByFrequency(freqs, variablePeriods,
 											lockedPeriods);
-
 							// Mark input frequencies as refined so we don't
 							// try to refine them again.
 							refinedDataPoints.addAll(inputDataPoints);
@@ -181,6 +180,8 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 						MessageBox.showErrorDialog(parent, algorithm
 								.getRefineByFrequencyName(), ex
 								.getLocalizedMessage());
+					} catch (InterruptedException ex) {
+						// Do nothing; just return.
 					}
 				}
 			}
