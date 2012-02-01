@@ -126,15 +126,19 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	@Override
 	public void execute() throws AlgorithmError {
 
-		algorithm.multiPeriodicFit(harmonics, this);
+		try {
+			algorithm.multiPeriodicFit(harmonics, this);
+		} catch (InterruptedException e) {
+			// Do nothing; just return.
+		}
 	}
 
 	@Override
 	public boolean hasFuncDesc() {
 		return true;
 	}
-	
-	public String toString() { 
+
+	public String toString() {
 		if (strRepr == null) {
 			strRepr = "f(t) = ";
 
@@ -150,5 +154,10 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		}
 
 		return strRepr;
+	}
+
+	@Override
+	public void interrupt() {
+		algorithm.interrupt();
 	}
 }

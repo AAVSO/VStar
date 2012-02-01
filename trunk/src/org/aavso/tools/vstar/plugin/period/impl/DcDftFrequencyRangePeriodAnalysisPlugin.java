@@ -29,8 +29,8 @@ import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
- * This class encapsulates the "frequency range" (as per AAVSO TS) form of
- * the DC DFT period analysis algorithm.
+ * This class encapsulates the "frequency range" (as per AAVSO TS) form of the
+ * DC DFT period analysis algorithm.
  */
 public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 		DcDftPeriodAnalysisPluginBase {
@@ -57,7 +57,8 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 			throws AlgorithmError, CancellationException {
 		assert newStarMessage != null;
 
-		periodAnalysisAlgorithm = new TSDcDft(obs, DcDftAnalysisType.FREQUENCY_RANGE);
+		periodAnalysisAlgorithm = new TSDcDft(obs,
+				DcDftAnalysisType.FREQUENCY_RANGE);
 
 		if (currLoFreq == null) {
 			// Get these default values only once per dataset. See also reset()

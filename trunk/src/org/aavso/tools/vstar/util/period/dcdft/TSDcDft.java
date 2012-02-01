@@ -156,6 +156,12 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 	// -------------------------------------------------------------------------------
 
+	public void interrupt() {
+		interrupted = true;
+	}
+	
+	// -------------------------------------------------------------------------------
+
 	/**
 	 * @return the loFreqValue
 	 */
@@ -303,16 +309,22 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 */
 	@Override
 	public void execute() throws AlgorithmError {
-		dcdft();
-		// TODO: why is this statcomp() here!?
-		// In TS, it's called only after the Fourier menu has been exited!
-		// statcomp();
+		interrupted = false;
+		try {
+			dcdft();
+
+			// TODO: why is this statcomp() here!?
+			// In TS, it's called only after the Fourier menu has been exited!
+			// statcomp();
+		} catch (InterruptedException e) {
+			// Do nothing; just return.
+		}
 	}
 
 	@Override
 	public List<PeriodAnalysisDataPoint> refineByFrequency(List<Double> freqs,
 			List<Double> variablePeriods, List<Double> lockedPeriods)
-			throws AlgorithmError {
+			throws AlgorithmError, InterruptedException {
 
 		deltaTopHits.clear();
 		cleanest(freqs, variablePeriods, lockedPeriods);
@@ -376,7 +388,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		this.resolutionValue = dang0;
 	}
 
-	protected void dcdft() {
+	protected void dcdft() throws InterruptedException {
 		switch (analysisType) {
 		case STANDARD_SCAN:
 			dcdftCommon();
@@ -398,7 +410,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	// -------------------------------------------------------------------------------
 
 	// DC DFT as standard scan.
-	protected void standard_scan() {
+	protected void standard_scan() throws InterruptedException {
 		nfre = 1;
 		hifre = (double) numact * dang0;
 		for (nj = 1 + npoly; nj <= numact; nj++) {
@@ -413,7 +425,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	}
 
 	// DC DFT with frequency range and resolution specified.
-	protected void frequency_range() {
+	protected void frequency_range() throws InterruptedException {
 		double xlofre, res, xloper, hiper, dpolyamp2;
 		int iff, ixx;
 
@@ -464,7 +476,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	}
 
 	// DC DFT with period range and resolution specified.
-	protected void period_range() {
+	protected void period_range() throws InterruptedException {
 		double xlofre, res, xloper, hiper, pper;
 		int ipp, ixx;
 
@@ -528,7 +540,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 * @param ff
 	 *            The frequency.
 	 */
-	protected void fft(double ff) {
+	protected void fft(double ff) throws InterruptedException {
 		double pp = 0;
 
 		int na, nb;
@@ -593,7 +605,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 *            The locked periods to be included. May be null or empty.
 	 */
 	protected void cleanest(List<Double> freqs, List<Double> variablePeriods,
-			List<Double> lockedPeriods) throws AlgorithmError {
+			List<Double> lockedPeriods) throws AlgorithmError, InterruptedException {
 		// getfreq();
 
 		int varCount = variablePeriods == null ? 0 : variablePeriods.size();
@@ -817,7 +829,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 *            as a result of invoking this method.
 	 */
 	public void multiPeriodicFit(List<Harmonic> harmonics,
-			PeriodAnalysisDerivedMultiPeriodicModel model) {
+			PeriodAnalysisDerivedMultiPeriodicModel model) throws InterruptedException {
 
 		List<ValidObservation> modelObs = model.getFit();
 		List<ValidObservation> residualObs = model.getResiduals();
@@ -878,7 +890,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 			nb = nb + 2;
 			int na = nb - 1;
 			// Note: dcoef[na] is cos_coeff, dcoeff[nb] is sin_coeff,
-			// dcoeff[0] is const_coeff, and dd is amplitude 
+			// dcoeff[0] is const_coeff, and dd is amplitude
 			// [sqrt(cos_coeff^2+sin_coeff^2)].
 			double dd = dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb];
 			parameters.add(new PeriodFitParameters(harmonics.get(nn - 1), Math

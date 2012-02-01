@@ -55,7 +55,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	private List<ValidObservation> residuals;
 
 	private String strRepr;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -94,6 +94,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 	@Override
 	public int getMaxDegree() {
+		// TODO: make this a preference
 		return 30;
 	}
 
@@ -105,7 +106,16 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		// Load the observation data and perform a polynomial fitting operation
 		// of the specified degree.
 		load_raw();
-		polymast(degree);
+		interrupted = false;
+		try {
+			polymast(degree);
+		} catch (InterruptedException e) {
+			// Do nothing; just return.
+		}
+	}
+
+	public void interrupt() {
+		interrupted = true;
 	}
 
 	/**
@@ -124,7 +134,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		return residuals;
 	}
 
-	void polymast(int polyDeg) throws AlgorithmError {
+	void polymast(int polyDeg) throws AlgorithmError, InterruptedException {
 
 		double ds9, dcc, res, dtime, dx;
 		int n, nb;
@@ -237,7 +247,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		// 292 format(' JD ',f12.4,'-',f12.4,' T.AVE=',f12.4)
 	}
 
-	void polyfit() {
+	void polyfit() throws InterruptedException {
 		double[] dzeta = new double[101];
 		double d1, d2, tspan, tt, dtime, dt;
 		int n1, n2, nt;
@@ -291,20 +301,20 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		return true;
 	}
 
-	public String toString() { 
+	public String toString() {
 		if (strRepr == null) {
 			strRepr = "sum(";
 
 			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
-			
+
 			// sum(a[i]t^n), where n >= 1
 			for (int i = npoly; i >= 1; i--) {
 				strRepr += String.format(fmt, dcoef[i]) + "t^" + i + ",\n";
 			}
-			
+
 			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
 			strRepr += String.format(fmt, dcoef[0]);
-			
+
 			strRepr += ")";
 		}
 

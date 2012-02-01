@@ -67,7 +67,7 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	 */
 	abstract public List<PeriodAnalysisDataPoint> refineByFrequency(
 			List<Double> freqs, List<Double> variablePeriods,
-			List<Double> lockedPeriod) throws AlgorithmError;
+			List<Double> lockedPeriod) throws AlgorithmError, InterruptedException;
 
 	/**
 	 * Get the refine-by-frequency algorithm name.
@@ -88,5 +88,5 @@ public interface IPeriodAnalysisAlgorithm extends IAlgorithm {
 	 */
 	abstract public void multiPeriodicFit(List<Harmonic> harmonics,
 			PeriodAnalysisDerivedMultiPeriodicModel model)
-			throws AlgorithmError;
+			throws AlgorithmError, InterruptedException;
 }

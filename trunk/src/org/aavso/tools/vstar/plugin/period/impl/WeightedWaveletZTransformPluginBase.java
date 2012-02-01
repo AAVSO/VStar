@@ -81,4 +81,12 @@ abstract public class WeightedWaveletZTransformPluginBase extends
 		currDecay = 0.001;
 		currTimeDivisions = 50.0;
 	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase#interrupt()
+	 */
+	@Override
+	public void interrupt() {
+		wwt.interrupt();
+	}
 }
