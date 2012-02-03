@@ -36,6 +36,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
@@ -64,10 +65,9 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 	 * Constructor.
 	 */
 	public ModelDialog() {
-		super();
+		super(DocumentManager.findActiveWindow());
 		this.setTitle("Models");
 		this.setModal(true);
-		this.setAlwaysOnTop(true);
 
 		this.firstUse = true;
 		this.modelMap = new TreeMap<String, IModel>();

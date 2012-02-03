@@ -26,6 +26,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 
 /**
  * This abstract class should be subclassed by any class that wants to have
@@ -43,10 +44,9 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 
 	public AbstractOkCancelDialog(String title, boolean isModal,
 			boolean isAlwaysOnType) {
-		super();
+		super(DocumentManager.findActiveWindow());
 		this.setTitle(title);
 		this.setModal(isModal);
-		this.setAlwaysOnTop(isAlwaysOnType);
 		this.cancelled = true;
 		this.firstUse = true;
 	}

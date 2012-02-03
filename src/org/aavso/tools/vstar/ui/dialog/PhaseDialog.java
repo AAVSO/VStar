@@ -36,6 +36,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
@@ -63,10 +64,9 @@ public class PhaseDialog extends JDialog implements ListSelectionListener {
 	 * Constructor.
 	 */
 	public PhaseDialog() {
-		super();
+		super(DocumentManager.findActiveWindow());
 		this.setTitle("Phase Plots");
 		this.setModal(true);
-		this.setAlwaysOnTop(true);
 
 		this.firstUse = true;
 		this.phaseMap = new TreeMap<String, PhaseChangeMessage>();

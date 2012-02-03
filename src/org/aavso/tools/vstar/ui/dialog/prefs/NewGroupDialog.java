@@ -35,8 +35,6 @@ public class NewGroupDialog extends AbstractOkCancelDialog {
 	
 	public NewGroupDialog() {
 		super("Add group");
-
-		setAlwaysOnTop(true);
 		
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));

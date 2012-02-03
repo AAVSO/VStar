@@ -36,6 +36,7 @@ import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.dialog.series.MeanSourcePane;
 import org.aavso.tools.vstar.ui.dialog.series.SeriesVisibilityPane;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
@@ -93,11 +94,11 @@ public class PlotControlDialog extends JDialog {
 			ObservationAndMeanPlotPane plotPane,
 			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
 			NamedComponent extra, AnalysisType analysisType) {
+		super(DocumentManager.findActiveWindow());
 		this.analysisType = analysisType;
 
 		setTitle(title);
 		setModal(true);
-		setAlwaysOnTop(true);
 
 		this.plotPane = plotPane;
 		this.obsModel = plotPane.getObsModel();

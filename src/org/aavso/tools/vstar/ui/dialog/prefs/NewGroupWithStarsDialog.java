@@ -40,8 +40,6 @@ public class NewGroupWithStarsDialog extends AbstractOkCancelDialog {
 	 */
 	public NewGroupWithStarsDialog() {
 		super("New Group & Stars");
-
-		setAlwaysOnTop(true);
 		
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));

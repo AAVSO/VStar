@@ -31,6 +31,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -57,10 +58,9 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 	 */
 	public PeriodAnalysisDialogBase(String title, boolean isModal,
 			boolean isAlwaysOnTop) {
-		super();
+		super(DocumentManager.findActiveWindow());
 		this.setTitle(title);
 		this.setModal(isModal);
-		this.setAlwaysOnTop(isAlwaysOnTop);
 	}
 
 	/**

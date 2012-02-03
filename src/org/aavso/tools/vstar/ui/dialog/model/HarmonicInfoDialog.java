@@ -38,6 +38,7 @@ import javax.swing.event.ListSelectionListener;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -72,11 +73,10 @@ public class HarmonicInfoDialog extends JDialog implements
 	 */
 	public HarmonicInfoDialog(HarmonicSearchResultMessage msg,
 			PeriodAnalysis2DChartPane plotPane) {
-		super();
+		super(DocumentManager.findActiveWindow());
 
 		this.setTitle("Harmonics");
 		this.setModal(true);
-		this.setAlwaysOnTop(true);
 
 		this.msg = msg;
 		this.plotPane = plotPane;

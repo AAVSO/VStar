@@ -36,6 +36,7 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
@@ -52,9 +53,8 @@ public class InfoDialog extends JDialog implements ActionListener {
 	 *            A new (loaded) star message.
 	 */
 	public InfoDialog(NewStarMessage newStarMessage) {
-		super();
+		super(DocumentManager.findActiveWindow());
 		this.setTitle("Information");
-		this.setAlwaysOnTop(true);
 
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
@@ -78,7 +78,6 @@ public class InfoDialog extends JDialog implements ActionListener {
 
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
-		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 	}
 

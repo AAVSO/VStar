@@ -62,8 +62,6 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 		this.jd = ob.getJD();
 		this.magnitude = ob.getMag();
 		
-		this.setAlwaysOnTop(true);
-
 		Container contentPane = this.getContentPane();
 
 		JPanel topPane = new JPanel();
