@@ -26,6 +26,23 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
+Date: February 4 2012
+Version: 2.13 (testing release 7)
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-04Feb2012
+Key Changes:
+- Removed duplication of mean series in phase plot that wasted memory and
+  lead to asymmetry in mean curves. This also avoids the need to duplicate 
+  other synthetic series (e.g. Model, Residuals).
+- Added ability to show polynomial fit coefficients via the Models dialog; 
+- Increased maximum polynomial degree from 20 to 30.
+- Fixed stop request handling in algorithm and modelling code. See tracker 
+  3429612.
+- Removed use of set-always-on-top method for dialogs, instead obtaining 
+  current active window and using that as the parent of a dialog to be opened. 
+  See tracker  d3418412.
+- Added DCDFT top-hits handles on power spectrum and other plots to make it
+  easier to select points of interest on plots.
+
 Date: November 28 2011
 Version: 2.13 (testing release 6)
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-28Nov2011
