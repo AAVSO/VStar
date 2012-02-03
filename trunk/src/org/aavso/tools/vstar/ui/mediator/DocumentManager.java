@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
+import java.awt.Window;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -297,5 +298,23 @@ public class DocumentManager {
 				return false;
 			}
 		};
+	}
+	
+	/**
+	 * Find and return the active window or null if one does not exist.
+	 */
+	public static Window findActiveWindow() {
+		Window wdw = null;
+
+		if (Window.getWindows().length > 0) {
+			for (Window window : Window.getWindows()) {
+				if (window.isActive()) {
+					wdw = window;
+					break;
+				}
+			}
+		}
+
+		return wdw;
 	}
 }

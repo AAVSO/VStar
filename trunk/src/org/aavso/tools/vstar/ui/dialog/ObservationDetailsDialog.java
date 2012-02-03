@@ -37,6 +37,7 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -58,9 +59,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 	private JCheckBox discrepantCheckBox;
 
 	public ObservationDetailsDialog(ValidObservation ob) {
-		super();
-
-		this.setAlwaysOnTop(true);
+		super(DocumentManager.findActiveWindow());
 
 		this.ob = ob;
 
@@ -119,7 +118,6 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
-		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 	}
 

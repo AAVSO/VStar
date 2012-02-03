@@ -30,6 +30,7 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
@@ -43,8 +44,7 @@ public class HelpContentsDialog extends JDialog {
 	 * Constructor.
 	 */
 	public HelpContentsDialog() {
-		super();
-		this.setAlwaysOnTop(true);
+		super(DocumentManager.findActiveWindow());
 		this.getContentPane().add(createHelpPane());
 	}
 

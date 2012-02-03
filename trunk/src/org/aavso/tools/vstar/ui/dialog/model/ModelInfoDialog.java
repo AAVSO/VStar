@@ -124,7 +124,6 @@ public class ModelInfoDialog extends JDialog {
 
 		this.pack();
 		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
-		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 	}
 

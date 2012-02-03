@@ -24,6 +24,7 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 
 /**
  * Message dialog box utility class.
@@ -48,12 +49,11 @@ public class MessageBox {
 				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION,
 				icon);
 		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
 	}
 
 	/**
-	 * Pop-up an informational message dialog box relative to the main window.
+	 * Pop-up an informational message dialog box relative to the top-most window.
 	 * 
 	 * @param title
 	 *            The title of the dialog.
@@ -66,8 +66,7 @@ public class MessageBox {
 		JOptionPane pane = new JOptionPane(msg,
 				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION,
 				icon);
-		JDialog dialog = pane.createDialog(MainFrame.getInstance(), title);
-		dialog.setAlwaysOnTop(true);
+		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(), title);
 		dialog.setVisible(true);
 	}
 
@@ -86,12 +85,11 @@ public class MessageBox {
 		JOptionPane pane = new JOptionPane(msg,
 				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
 	}
 
 	/**
-	 * Pop-up an informational message dialog box relative to the main window.
+	 * Pop-up an informational message dialog box relative to the top-most window.
 	 * 
 	 * @param title
 	 *            The title of the dialog.
@@ -101,8 +99,7 @@ public class MessageBox {
 	public static void showMessageDialog(String title, String msg) {
 		JOptionPane pane = new JOptionPane(msg,
 				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(MainFrame.getInstance(), title);
-		dialog.setAlwaysOnTop(true);
+		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(), title);
 		dialog.setVisible(true);
 	}
 
@@ -121,12 +118,11 @@ public class MessageBox {
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE,
 				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
 	}
 
 	/**
-	 * Pop-up a warning message dialog box relative to the main window.
+	 * Pop-up a warning message dialog box relative to the top-most window.
 	 * 
 	 * @param title
 	 *            The title of the dialog.
@@ -136,8 +132,7 @@ public class MessageBox {
 	public static void showWarningDialog(String title, String msg) {
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE,
 				JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(MainFrame.getInstance(), title);
-		dialog.setAlwaysOnTop(true);
+		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(), title);
 		dialog.setVisible(true);
 	}
 
@@ -156,7 +151,6 @@ public class MessageBox {
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
 				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
 
 		// Turn off the wait cursor, in case it's enabled.
@@ -164,7 +158,7 @@ public class MessageBox {
 	}
 
 	/**
-	 * Pop-up an error message dialog box relative to the main window.
+	 * Pop-up an error message dialog box relative to the top-most window.
 	 * 
 	 * @param title
 	 *            The title of the dialog.
@@ -177,7 +171,6 @@ public class MessageBox {
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
 				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
 
 		// Turn off the wait cursor, in case it's enabled.
@@ -201,7 +194,6 @@ public class MessageBox {
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
 				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
 
 		e.printStackTrace();
@@ -212,7 +204,7 @@ public class MessageBox {
 
 	/**
 	 * Pop-up an error message dialog box given an exception relative to the
-	 * main window.
+	 * top-most window.
 	 * 
 	 * @param title
 	 *            The title of the dialog.
@@ -220,14 +212,13 @@ public class MessageBox {
 	 *            The exception whose content will be the content of the dialog.
 	 */
 	public static void showErrorDialog(String title, Throwable e) {
-		Component parent = MainFrame.getInstance();
+		Component parent = DocumentManager.findActiveWindow();
 
 		String msg = e.getClass().getName() + ": " + e.getLocalizedMessage();
 
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
 				JOptionPane.OK_CANCEL_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setAlwaysOnTop(true);
 		dialog.setVisible(true);
 
 		e.printStackTrace();

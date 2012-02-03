@@ -36,6 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
@@ -48,10 +49,9 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 public class AboutBox extends JDialog {
 
 	public AboutBox() {
-		super();
+		super(DocumentManager.findActiveWindow());
 		this.setTitle("About VStar");
 		this.setModal(true);
-		this.setAlwaysOnTop(true);
 
 		Container contentPane = this.getContentPane();
 

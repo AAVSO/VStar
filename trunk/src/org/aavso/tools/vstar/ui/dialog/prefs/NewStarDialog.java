@@ -36,8 +36,6 @@ public class NewStarDialog extends AbstractOkCancelDialog {
 	public NewStarDialog() {
 		super("Add star");
 
-		setAlwaysOnTop(true);
-
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

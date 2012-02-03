@@ -36,6 +36,7 @@ import javax.swing.JTextField;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -72,10 +73,9 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 		private JTextField meanMagField;
 
 		ObservationCollectionDialog() {
-			super();
+			super(DocumentManager.findActiveWindow());
 			setTitle("Observation Selection");
 			setModal(false);
-			setAlwaysOnTop(true);
 
 			obs = new ArrayList<ValidObservation>();
 
