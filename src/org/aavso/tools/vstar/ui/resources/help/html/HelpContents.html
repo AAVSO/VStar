@@ -153,20 +153,19 @@ has been selected with the cross-hairs.</p>
 <h2>Period Search</h2>
 
 <p>Selecting an item from the <code>Analysis->Period Search</code> sub-menu 
-performs a period analysis on the loaded dataset. This uses the current mean source 
-series (e.g. Visual, Johnson V) as the series on which to perform the analysis. This 
-can be changed via the <code>Change Series</code> button (and the ensuing dialog) in 
-the <code>Mean Plot</code> tab.</p>
+performs a period analysis on the loaded dataset. The series on which to perform the 
+analysis must be selected for each.</p>
 
 <p>The period analysis dialog that opens after a delay contains plots of
-amplitude against frequency and period, a table of all results, and a table of the
-top 20 hits ranked by amplitude. The latter is a good starting point for testing
+amplitude against frequency and period, a table of all results, and a table of
+top hits ranked by amplitude. The latter is a good starting point for testing
 candidate periods. Clicking an entry in this table highlights the corresponding
 table entry or data-point in the other views. You can test different candidate 
 periods by creating phase plots with those periods.</p>
 
-<p>Currently implemented: Date Compensated Discrete Fourier Transform (DC DFT). Other 
-possibilities in future are: WWZ, AoV (analysis of variance), Fast Chi Square.</p>
+<p>Currently implemented: Date Compensated Discrete Fourier Transform (DCDFT) and 
+Weighted Wavelet Z-Transform (WWZ). Other possibilities in future are: AoV (analysis 
+of variance), Fast Chi Square.</p>
 
 <p>See also the <em>Create your own plug-in!</em> section.</p>
  
@@ -174,8 +173,7 @@ possibilities in future are: WWZ, AoV (analysis of variance), Fast Chi Square.</
 
 <p>By selecting <code>Analysis->Polynomial Fit</code>, a polynomial of a particular 
 degree will be created in an attempt to fit (i.e. model) the currently loaded 
-observation data. The current mean source series will be used as the basis for the 
-fit.</p>
+observation data. The series on which to perform the analysis must be selected.</p>
 
 <p>A polynomial fit series will be added to the light curve plot and made visible.
 In addition, a <em>Residuals</em> series (dataset with polynomial removed) is added 
