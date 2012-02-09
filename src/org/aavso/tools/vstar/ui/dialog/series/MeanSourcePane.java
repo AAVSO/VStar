@@ -31,8 +31,6 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.ui.mediator.AnalysisType;
-import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 
 /**
@@ -102,15 +100,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 				panel.add(seriesRadioButton);
 				panel.add(Box.createRigidArea(new Dimension(3, 3)));
 				seriesGroup.add(seriesRadioButton);
-
-				// What is the initial mean source series?
-				if (obsPlotPane.getObsModel().getSrcTypeToSeriesNumMap().get(
-						series) == obsPlotPane.getObsModel()
-						.getMeanSourceSeriesNum()) {
-					seriesRadioButton.setSelected(true);
-					lastSelectedSeriesNum = obsPlotPane.getObsModel()
-							.getMeanSourceSeriesNum();
-				}
+				checkInitialMeanSourceSeries(series, seriesRadioButton);
 			}
 		}
 
@@ -135,6 +125,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		panel.add(filteredRadioButton);
 		panel.add(Box.createRigidArea(new Dimension(3, 3)));
 		seriesGroup.add(filteredRadioButton);
+		checkInitialMeanSourceSeries(SeriesType.Filtered, filteredRadioButton);
 
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.PAGE_AXIS));
@@ -149,6 +140,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		subPanel.add(modelRadioButton);
 		subPanel.add(Box.createRigidArea(new Dimension(3, 3)));
 		seriesGroup.add(modelRadioButton);
+		checkInitialMeanSourceSeries(SeriesType.Model, modelRadioButton);
 
 		// Residuals series.
 		residualsRadioButton = new JRadioButton(SeriesType.Residuals
@@ -160,10 +152,32 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		subPanel.add(residualsRadioButton);
 		subPanel.add(Box.createRigidArea(new Dimension(3, 3)));
 		seriesGroup.add(residualsRadioButton);
+		checkInitialMeanSourceSeries(SeriesType.Residuals, residualsRadioButton);
 
 		panel.add(subPanel);
 
 		return panel;
+	}
+
+	/**
+	 * Determine whether the specified series is the current mean source series,
+	 * i.e. the series from which the means series is derived. If it is, the
+	 * radio button is selected and the series is recorded for this session as
+	 * the last mean source series.
+	 * 
+	 * @param series
+	 *            The series type.
+	 * @param seriesRadioButton
+	 *            The series radio button.
+	 */
+	private void checkInitialMeanSourceSeries(SeriesType series,
+			JRadioButton seriesRadioButton) {
+		if (obsPlotPane.getObsModel().getSrcTypeToSeriesNumMap().get(series) == obsPlotPane
+				.getObsModel().getMeanSourceSeriesNum()) {
+			seriesRadioButton.setSelected(true);
+			lastSelectedSeriesNum = obsPlotPane.getObsModel()
+					.getMeanSourceSeriesNum();
+		}
 	}
 
 	/**
@@ -200,8 +214,8 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		if (this.seriesNum != obsPlotPane.getObsModel()
 				.getMeanSourceSeriesNum()) {
 			obsPlotPane.setMeanSourceSeriesNum(this.seriesNum);
-			boolean changed = obsPlotPane.changeMeansSeries(obsPlotPane.getObsModel()
-					.getTimeElementsInBin());
+			boolean changed = obsPlotPane.changeMeansSeries(obsPlotPane
+					.getObsModel().getTimeElementsInBin());
 			if (changed) {
 				lastSelectedSeriesNum = obsPlotPane.getObsModel()
 						.getMeanSourceSeriesNum();
