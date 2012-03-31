@@ -90,8 +90,7 @@ public class PlotControlDialog extends JDialog {
 	 *            The analysis type which is the context of creation of this
 	 *            dialog.
 	 */
-	public PlotControlDialog(String title,
-			ObservationAndMeanPlotPane plotPane,
+	public PlotControlDialog(String title, ObservationAndMeanPlotPane plotPane,
 			TimeElementsInBinSettingPane timeElementsInBinSettingPane,
 			NamedComponent extra, AnalysisType analysisType) {
 		super(DocumentManager.findActiveWindow());
@@ -108,8 +107,10 @@ public class PlotControlDialog extends JDialog {
 		showErrorBars = plotPane.getRenderer().getDrawYError();
 		showCrossHairs = plotPane.getChartPanel().getChart().getXYPlot()
 				.isDomainCrosshairVisible(); // ask for domain or range value
-		joinMeans = plotPane.getRenderer().getSeriesLinesVisible(
-				obsModel.getMeansSeriesNum());
+		joinMeans = obsModel.getMeansSeriesNum() != ObservationAndMeanPlotModel.NO_MEANS_SERIES ? plotPane
+				.getRenderer().getSeriesLinesVisible(
+						obsModel.getMeansSeriesNum())
+				: false;
 
 		this.timeElementsInBinSettingPane = timeElementsInBinSettingPane;
 

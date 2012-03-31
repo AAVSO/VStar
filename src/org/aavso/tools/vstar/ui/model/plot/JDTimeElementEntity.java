@@ -51,8 +51,9 @@ public class JDTimeElementEntity implements ITimeElementEntity {
 	@Override
 	public double getMaxTimeIncrements(List<ValidObservation> meanSourceObs) {
 		// The number of days in the mean source observation list.
-		return meanSourceObs.get(meanSourceObs.size() - 1).getJD()
-				- meanSourceObs.get(0).getJD();
+		return !meanSourceObs.isEmpty() ? meanSourceObs.get(
+				meanSourceObs.size() - 1).getJD()
+				- meanSourceObs.get(0).getJD() : 0;
 	}
 
 	public String getNumberFormat() {
