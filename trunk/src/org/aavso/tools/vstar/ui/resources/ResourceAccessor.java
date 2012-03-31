@@ -99,7 +99,7 @@ public class ResourceAccessor {
 	// ** Version info. **
 
 	public static String getVersionString() {
-		return "version 2.13 (testing release 7)";
+		return "version 2.13";
 	}
 
 	public static String getRevNum() {
@@ -118,8 +118,8 @@ public class ResourceAccessor {
 	}
 
 	// 0
-	private static int[] hdata = { 8802, 9169, 7498, 8477, 8869, 10808, 9062,
-			9751, 10972, 12488, 10442, 13279, 15789, 15455 };
+	private static int[] hdata = { 16300, 16954, 7498, 16781, 17557, 22774,
+			22655, 22089, 9706, 24753, 25878, 27913 };
 
 	// 1
 	private static int[] d0data = { 15811, 18165, 16300 };
@@ -128,7 +128,8 @@ public class ResourceAccessor {
 	private static int[] d1data = { 16300, 19722, 19071, 19376, 17557, 20844 };
 
 	// 3
-	private static int[] d2data = { 15811, 16781, 19234, 19895, 20091, 18335, 21276, 20895, 24898, 22523 };
+	private static int[] d2data = { 15811, 16781, 19234, 19895, 20091, 18335,
+			21276, 20895, 24898, 22523 };
 
 	// 4
 	private static int[] d3data = { 19234, 19895, 19560 };
@@ -154,6 +155,6 @@ public class ResourceAccessor {
 			587, 617, 619, 631, 643, 647, 653, 661, 701, 709, 743, 751, 757,
 			761, 769, 839, 853, 857, 859 };
 
-	private static int[][] data = { hdata, d0data, d1data, d2data, d3data, d4data,
-			udata, sdata, d5data };
+	private static int[][] data = { hdata, d0data, d1data, d2data, d3data,
+			d4data, udata, sdata, d5data };
 }

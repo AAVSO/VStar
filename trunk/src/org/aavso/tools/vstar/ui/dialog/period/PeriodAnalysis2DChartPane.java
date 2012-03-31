@@ -47,6 +47,7 @@ import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.DatasetChangeListener;
+import org.jfree.data.xy.XYDataset;
 
 /**
  * This class represents a chart panel.
@@ -54,8 +55,8 @@ import org.jfree.data.general.DatasetChangeListener;
 public class PeriodAnalysis2DChartPane extends JPanel implements
 		ChartMouseListener, DatasetChangeListener, IStartAndCleanup {
 
-	private static final int DATA_SERIES = 0;
-	private static final int TOP_HIT_SERIES = 1;
+	public static final int TOP_HIT_SERIES = 0;
+	public static final int DATA_SERIES = 1;
 
 	private ChartPanel chartPanel;
 	private JFreeChart chart;
@@ -114,8 +115,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		return model;
 	}
 
-	// Create and return a component that permits the "is logarithmic" property
-	// of the model to be toggled.
+	// Create and return a component that permits the "is logarithmic" and
+	// "show top hits" properties of the model to be toggled.
 	private JPanel createControlPanel() {
 		JPanel panel = new JPanel();
 
@@ -125,12 +126,38 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 			logarithmicCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
-					model.setLogarithmic(logarithmicCheckBox.isSelected());
-					model.refresh();
+					for (int datasetNum = 0; datasetNum < chart.getXYPlot()
+							.getDatasetCount(); datasetNum++) {
+						XYDataset dataset = chart.getXYPlot().getDataset(
+								datasetNum);
+						PeriodAnalysis2DPlotModel plotModel = (PeriodAnalysis2DPlotModel) dataset;
+						plotModel.setLogarithmic(logarithmicCheckBox
+								.isSelected());
+						plotModel.refresh();
+					}
 				}
 			});
 			panel.add(logarithmicCheckBox, BorderLayout.CENTER);
 		}
+
+		// Add a checkbox to toggle top hits series visibility.
+		final JCheckBox showTopHitsCheckBox = new JCheckBox("Show top hits?");
+		showTopHitsCheckBox.setSelected(true);
+		final XYItemRenderer renderer = chart.getXYPlot().getRenderer();
+		renderer.setSeriesVisible(TOP_HIT_SERIES, true);
+		showTopHitsCheckBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				for (int modelNum = 0; modelNum < chart.getXYPlot()
+						.getDatasetCount(); modelNum++) {
+					if (modelNum == TOP_HIT_SERIES) {
+						boolean enabled = showTopHitsCheckBox.isSelected();
+						renderer.setSeriesVisible(TOP_HIT_SERIES, enabled);
+					}
+				}
+			}
+		});
+		panel.add(showTopHitsCheckBox);
 
 		return panel;
 	}
@@ -149,7 +176,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int item = entity.getItem();
-			PeriodAnalysisDataPoint dataPoint = model.getDataPointFromItem(item);
+			PeriodAnalysisDataPoint dataPoint = model
+					.getDataPointFromItem(item);
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 					this, dataPoint, item);
 			if (message != null) {
@@ -178,7 +206,7 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 
 	@Override
 	public void datasetChanged(DatasetChangeEvent event) {
-		// Set series colors.
+		// Set series colors if dataset changes.
 		XYItemRenderer renderer = chart.getXYPlot().getRenderer();
 		for (int seriesNum = 0; seriesNum < model.getSeriesCount(); seriesNum++) {
 			switch (seriesNum) {

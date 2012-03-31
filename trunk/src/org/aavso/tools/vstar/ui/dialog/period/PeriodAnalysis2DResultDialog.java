@@ -147,33 +147,26 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 					.createLinePlot(chartTitle, seriesTitle, model,
 							permitlogarithmic);
 
-			// For a model with a domain type of frequency and a range type of
-			// power, create a second chart that is a scatter plot of top hits
-			// to plot on the same axes as the line plot above, providing easily
-			// selectable points on the peaks of the spectrum.
-//			if (model.getDomainType() == PeriodAnalysisCoordinateType.FREQUENCY
-//					&& model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
+			PeriodAnalysis2DChartPane topHitsPlot = PeriodAnalysisComponentFactory
+					.createScatterPlot(chartTitle, seriesTitle,
+							new PeriodAnalysis2DPlotModel(algorithm
+									.getTopHits(), model.getDomainType(), model
+									.getRangeType(), model.isLogarithmic()),
+							permitlogarithmic);
 
-				PeriodAnalysis2DChartPane topHitsPlot = PeriodAnalysisComponentFactory
-						.createScatterPlot(chartTitle, seriesTitle,
-								new PeriodAnalysis2DPlotModel(algorithm
-										.getTopHits(), model.getDomainType(),
-										model.getRangeType(), model
-												.isLogarithmic()),
-								permitlogarithmic);
+			// Add the above line plot's model to the scatter plot.
+			// Render the scatter plot last so the "handles" will be
+			// the first items selected by the mouse.
+			JFreeChart chart = topHitsPlot.getChart();
+			chart.getXYPlot().setDataset(PeriodAnalysis2DChartPane.DATA_SERIES,
+					model);
+			chart.getXYPlot().setRenderer(
+					PeriodAnalysis2DChartPane.DATA_SERIES,
+					plot.getChart().getXYPlot().getRenderer());
+			chart.getXYPlot().setDatasetRenderingOrder(
+					DatasetRenderingOrder.REVERSE);
 
-				// Add the above line plot's model to the scatter plot.
-				// Render the scatter plot last so the "handles" will be
-				// the first items selected by the mouse.
-				JFreeChart chart = topHitsPlot.getChart();
-				chart.getXYPlot().setDataset(1, model);
-				chart.getXYPlot().setRenderer(1,
-						plot.getChart().getXYPlot().getRenderer());
-				chart.getXYPlot().setDatasetRenderingOrder(
-						DatasetRenderingOrder.REVERSE);
-
-				plot = topHitsPlot;
-//			}
+			plot = topHitsPlot;
 
 			String tabName = model.getRangeType() + " vs "
 					+ model.getDomainType();
