@@ -175,11 +175,10 @@ public class AboutBox extends JDialog {
 		strBuf.append(")\n\n");
 
 		strBuf.append("A variable star observation data analysis tool\n");
-		strBuf.append("developed for:\n\n");
-		strBuf.append("  The American Association of Variable Star\n");
-		strBuf.append("  Observers: http://www.aavso.org/\n\n");
-		strBuf.append("as part of the Citizen Sky Project:\n\n");
-		strBuf.append(" http://www.citizensky.org/\n\n");
+		strBuf.append("developed for the American Association of Variable\n");
+		strBuf.append("Star Observers (http://www.aavso.org)\n");
+		strBuf.append("as part of the Citizen Sky Project\n");
+		strBuf.append("(http://www.citizensky.org)\n\n");
 
 		strBuf.append("This project was funded in part by grant No.\n");
 		strBuf.append("000379097 from the National Science Foundation.\n\n");
@@ -202,9 +201,9 @@ public class AboutBox extends JDialog {
 		strBuf.append("reports, advocacy, great conversations, and beer.\n\n");
 
 		strBuf.append("Conversations with Grant Foster, the original VStar\n");
-		strBuf.append("developer, and his book:\n");
+		strBuf.append("developer, and reading his book:\n");
 		strBuf.append("\"Analyzing Light Curves: A Practical Guide\"\n");
-		strBuf.append("have allowed me to gain knowledge that would have\n");
+		strBuf.append("have given me understanding that would have\n");
 		strBuf.append("been harder to come by otherwise.\n\n");
 
 		strBuf.append("Doug Welch, Ken Mogul, Alan Plummer and Mike\n");
@@ -212,7 +211,7 @@ public class AboutBox extends JDialog {
 		strBuf.append("perspective. Doug's and Aaron's knowledge\n");
 		strBuf.append("and advice are always appreciated.\n\n");
 
-		strBuf.append("Thanks to the Weber brothers (Adam and George)\n");
+		strBuf.append("Thanks to numerous others including Adam Weber\n");
 		strBuf.append("for code and bug-fix contributions, Nico Camargo\n");
 		strBuf.append("for his beautiful toolbar icons and to the broader\n");
 		strBuf.append("Citizen Sky VStar Software Development team for\n");
