@@ -17,8 +17,6 @@
  */
 package org.aavso.tools.vstar.input.text;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
 
@@ -78,9 +76,13 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 			String line = reader.readLine();
 
 			while (line != null && !wasInterrupted()) {
-				// Ignore comment or blank line.
-				if (!line.startsWith("#") && !line.matches("^\\s*$")) {
+				// Ignore comment, blank line or column header line
+				// (e.g. JD,Magnitude,...).
+				if (!line.startsWith("#") && !line.matches("^\\s*$")
+						&& !isColumnHeaderLine(line)) {
+
 					int lineNum = reader.getLineNumber();
+
 					try {
 						ValidObservation validOb = validator.validate(line);
 						addValidObservation(validOb, lineNum);
@@ -128,5 +130,11 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 			addValidObservation(validOb);
 			categoriseValidObservation(validOb);
 		}
+	}
+
+	// Is the specified line a column header? 
+	private boolean isColumnHeaderLine(String line) {
+		return validObservations.isEmpty() && invalidObservations.isEmpty()
+				&& line.matches("^[A-Za-z].+$");
 	}
 }
