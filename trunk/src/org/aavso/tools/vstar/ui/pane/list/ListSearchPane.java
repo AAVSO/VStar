@@ -100,7 +100,7 @@ public class ListSearchPane<S extends TableModel> extends JPanel {
 		searchField.setToolTipText("Enter a regular expression...");
 		this.add(searchField);
 
-		searchButton = new JButton("Search");
+		searchButton = new JButton("Apply");
 		searchButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -113,7 +113,7 @@ public class ListSearchPane<S extends TableModel> extends JPanel {
 								searchColumnIndex));
 					}
 				} catch (PatternSyntaxException ex) {
-					MessageBox.showErrorDialog("Search",
+					MessageBox.showErrorDialog("Apply",
 							"Invalid regular expression: '" + text + "'");
 				}
 			}
