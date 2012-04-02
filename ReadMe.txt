@@ -42,9 +42,9 @@ alternative to accessing VStar via the web site.
 
 VStar can also be launched by one of the following methods:
 
-o Mac OS X: double-clicking the "vstar" application.
-o Windows: double-clicking "vstar.exe".
-o Linux (or other Unix variants): running the "vstar.sh" shell script.
+o Mac OS X: double-clicking the "VStar" application.
+o Windows: double-clicking "VStar.exe".
+o Linux (or other Unix variants): running the "VStar.sh" shell script.
 
   Each of the foregoing options runs VStar with the same memory allocation 
   parameters as for WebStart, permitting, for example, larger or more datasets 
