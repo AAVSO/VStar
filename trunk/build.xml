@@ -47,7 +47,7 @@
 	<!-- Build targets -->
 
 	<target name="compile_src" depends="init" description="Compile the source">
-        <!-- Update svn revision -->
+		<!-- Update svn revision -->
 		<exec outputproperty="svn_revision" executable="svnversion">
 			<arg value="-n" />
 		</exec>
@@ -102,9 +102,9 @@
 		<zip destfile="vstar.zip">
 			<zipfileset dir="${dist}" prefix="vstar/dist" />
 			<zipfileset dir="${extlib}" prefix="vstar/extlib">
-				<exclude name="cobertura*"/>
-				<exclude name="cobertura*/**"/>
-				<exclude name="junit*"/>
+				<exclude name="cobertura*" />
+				<exclude name="cobertura*/**" />
+				<exclude name="junit*" />
 			</zipfileset>
 			<zipfileset dir="${doc}" prefix="vstar/doc">
 				<exclude name="plan/**" />
@@ -112,11 +112,13 @@
 			</zipfileset>
 			<zipfileset dir="${plugin}" prefix="vstar/plugin" />
 			<zipfileset dir="data" prefix="vstar/data" />
-            <zipfileset dir="VStar.app" prefix="vstar" filemode="755" />
-            <zipfileset file="VStar.sh" prefix="vstar" filemode="755" />
+			<zipfileset dir="VStar.app" prefix="vstar/VStar.app" dirmode="755" filemode="755">
+				<include name="**/*" />
+			</zipfileset>
+			<zipfileset file="VStar.sh" prefix="vstar" filemode="755" />
 			<zipfileset file="VStar.bat" prefix="vstar" />
 			<zipfileset file="vstar.jnlp" prefix="vstar" />
-			<zipfileset file="vstar.jnlp.txt" prefix="vstar" />			
+			<zipfileset file="vstar.jnlp.txt" prefix="vstar" />
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
 			<zipfileset file="FAQ.txt" prefix="vstar" />
 			<zipfileset file="ChangeLog.txt" prefix="vstar" />
