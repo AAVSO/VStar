@@ -1,14 +1,16 @@
 Introduction
 ============
-VStar is a statistical analysis tool for variable star observation data
-developed for the American Association of Variable Star Observers 
-(http://www.aavso.org/) and the Citizen Sky project 
+VStar is a visualisation and analysis tool for variable star observation data
+developed in collaboration with the American Association of Variable Star 
+Observers (http://www.aavso.org/) and the Citizen Sky project 
 (http://www.citizensky.org/).
 
 VStar can load observational data from files or the AAVSO International 
 Database, display interactive light curves and phase plots, and perform period 
 analysis.
- 
+
+Plug-ins allow VStar's functionality to be extended.
+
 Installation
 ============
 In order to run VStar, you need to have version 1.6 or higher of the Java 
@@ -21,53 +23,71 @@ The file extlib/ReadMe.txt details additional free Java libraries that are
 required (and should already be present as part of this distribution) to run
 VStar.
 
-The data directory contains sample variable star data files.
+The data directory contains sample variable star data files mostly taken
+from the AAVSO International Database.
 
-Running VStar
+Running VStar 
 =============
-VStar can be launched by:
+The easiest way to run the latest version of VStar is by clicking on the
+Java WebStart (TM) download button on the AAVSO web page Data tab (Data -> 
+Data Analysis) or the VStar SourceForge web site or the Citizen Sky VStar 
+team page: 
 
-o Double-clicking the vstar.jar file icon (dist/vstar.jar)
+ o http://www.aavso.org/vstar-overview
+ o https://sourceforge.net/projects/vstar
+ o http://www.citizensky.org/teams/vstar-software-development
+
+The WebStart vstar.jnlp file can be saved (e.g. to the desktop) and used as an
+alternative to accessing VStar via the web site.
+
+VStar can also be launched by one of the following methods:
+
+o Mac OS X: double-clicking the "vstar" application.
+o Windows: double-clicking "vstar.exe".
+o Linux (or other Unix variants): running the "vstar.sh" shell script.
+
+  Each of the foregoing options runs VStar with the same memory allocation 
+  parameters as for WebStart, permitting, for example, larger or more datasets 
+  to be loaded. For running VStar locally, this is the best method.
+
+OR
+
+o Double-click the vstar.jar file icon (dist/vstar.jar)
+
+  While simple, this provides none of the benefits of the launch methods above.
+ 
+OR
+
 o Typing: java -jar dist/vstar.jar (Unix) or java -jar dist\vstar.jar (DOS)
-o Typing: ./vstar (Unix) or vstar.bat (or vstar) (DOS)
-  See those script/batch files for more details. The main benefit of the
-  scripts is that they run VStar with the same memory allocation parameters
-  as for WebStart (see below), permitting bigger/more datasets to be loaded.
-  Your operating system may also allow you to double-click the icons for these
-  script files.
+
+  This is equivalent to double-clicking the jar file, but must be done from
+  a command prompt.
+
+OR
+
 o Typing: ant run
+
   This option is intended for developers. Type ant -p for more details.
   See also "Building from source" below for more details.
 
-The easiest way to obtain and run the latest version of VStar is by clicking on
-the Java WebStart (TM) link on the Citizen Sky or VStar SourceForge web sites:
-
-o Go to http://www.citizensky.org/teams/vstar-software-development
-o Click on the "Download VStar Now" button
-o Alternatively, see http://www.aavso.org/vstar-overview
-
-Directions for using the WebStart version of VStar are on these web pages. 
-Launching VStar via WebStart means that you will always have the most up-to-
-date version of VStar.
-
-If you obtained the VStar distribution via SourceForge, try opening a sample
-data file in VStar:
-
-1. Select "New Star from File..." from the File menu.
-2. Navigate to the data directory via the file dialog.
-3. Choose the file "eps_aur_2445000.csv".
-4. Click each Mode radio button in turn to see the different data 
-   and plot views.
+Opening a data file in VStar
+============================
+If you obtained the VStar distribution via SourceForge, you will find a data
+folder containing sample datasets.
 
 If you started VStar via WebStart rather than obtaining the distribution
 via SourceForge, the latest example data files are available here:
 
-  http://vstar.svn.sourceforge.net/viewvc/vstar/trunk/data/
+   https://sourceforge.net/projects/vstar/files/
+or http://vstar.svn.sourceforge.net/viewvc/vstar/trunk/data
+
+To open a data file in VStar:
+
+1. Select "New Star from File..." from the File menu.
+2. Navigate to the data directory via the file dialog.
+3. Choose a file, e.g. "eps_aur_2445000.csv".
+   and plot views.
   
-Click on one of the files in your web browser, then click the download link
-associated with one of the file's versions (if there is more than one), saving
-as a text file.
- 
 Building from source
 ====================
 This section is of interest to developers rather than VStar users. 

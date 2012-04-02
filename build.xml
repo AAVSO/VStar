@@ -112,8 +112,9 @@
 			</zipfileset>
 			<zipfileset dir="${plugin}" prefix="vstar/plugin" />
 			<zipfileset dir="data" prefix="vstar/data" />
-            <zipfileset file="vstar" prefix="vstar" filemode="755" />
-			<zipfileset file="vstar.bat" prefix="vstar" />
+            <zipfileset dir="VStar.app" prefix="vstar" filemode="755" />
+            <zipfileset file="VStar.sh" prefix="vstar" filemode="755" />
+			<zipfileset file="VStar.bat" prefix="vstar" />
 			<zipfileset file="vstar.jnlp" prefix="vstar" />
 			<zipfileset file="vstar.jnlp.txt" prefix="vstar" />			
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
