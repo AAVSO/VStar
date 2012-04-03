@@ -55,13 +55,13 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final int HQ_UNCERTAINTY_COLUMN = 17;
 	private static final int MTYPE_COLUMN = 18;
 	private static final int DISCREPANT_COLUMN = 19;
-	private static final int NAME_COLUMN = 20;	
+	private static final int NAME_COLUMN = 20;
 	private static final int LINE_NUM_COLUMN = 21;
 
 	private static final String JD_COLUMN_NAME = "Julian Day";
 	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
 	private static final String MAGNITUDE_COLUMN_NAME = "Magnitude";
-	private static final String UNCERTAINTY_COLUMN_NAME = "Uncertainty";	
+	private static final String UNCERTAINTY_COLUMN_NAME = "Uncertainty";
 	private static final String BAND_COLUMN_NAME = "Band";
 	private static final String OBSERVER_CODE_COLUMN_NAME = "Observer Code";
 	private static final String VALFLAG_COLUMN_NAME = "Validation";
@@ -78,16 +78,16 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final String HQ_UNCERTAINTY_COLUMN_NAME = "HQ Uncertainty";
 	private static final String MTYPE_COLUMN_NAME = "MType";
 	private static final String DISCREPANT_COLUMN_NAME = "Discrepant?";
-	private static final String NAME_COLUMN_NAME = "Name";	
+	private static final String NAME_COLUMN_NAME = "Name";
 	private static final String LINE_NUM_COLUMN_NAME = "Line";
 
 	protected static final Map<String, Integer> COLUMN_NAMES = new HashMap<String, Integer>();
-	
+
 	static {
 		COLUMN_NAMES.put(JD_COLUMN_NAME, JD_COLUMN);
 		COLUMN_NAMES.put(CALENDAR_DATE_COLUMN_NAME, CALENDAR_DATE_COLUMN);
 		COLUMN_NAMES.put(MAGNITUDE_COLUMN_NAME, MAGNITUDE_COLUMN);
-		COLUMN_NAMES.put(UNCERTAINTY_COLUMN_NAME, UNCERTAINTY_COLUMN);		
+		COLUMN_NAMES.put(UNCERTAINTY_COLUMN_NAME, UNCERTAINTY_COLUMN);
 		COLUMN_NAMES.put(BAND_COLUMN_NAME, BAND_COLUMN);
 		COLUMN_NAMES.put(OBSERVER_CODE_COLUMN_NAME, OBSERVER_CODE_COLUMN);
 		COLUMN_NAMES.put(VALFLAG_COLUMN_NAME, VALFLAG_COLUMN);
@@ -107,7 +107,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		COLUMN_NAMES.put(NAME_COLUMN_NAME, NAME_COLUMN);
 		COLUMN_NAMES.put(LINE_NUM_COLUMN_NAME, LINE_NUM_COLUMN);
 	}
-	
+
 	protected boolean useLineNumbers;
 
 	/**
@@ -194,7 +194,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case NAME_COLUMN:
 			columnName = NAME_COLUMN_NAME;
-			break;			
+			break;
 		case LINE_NUM_COLUMN:
 			columnName = LINE_NUM_COLUMN_NAME;
 			break;
@@ -214,7 +214,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case MAGNITUDE_COLUMN:
 			break;
 		case UNCERTAINTY_COLUMN:
-			break;			
+			break;
 		case BAND_COLUMN:
 			break;
 		case OBSERVER_CODE_COLUMN:
@@ -249,7 +249,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			clazz = Boolean.class;
 			break;
 		case NAME_COLUMN:
-			break;			
+			break;
 		case LINE_NUM_COLUMN:
 			clazz = Integer.class;
 			break;
@@ -263,8 +263,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-					.getDateInfo().getJulianDay());
+			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
+					ob.getDateInfo().getJulianDay());
 			;
 			break;
 		case CALENDAR_DATE_COLUMN:
@@ -277,7 +277,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case UNCERTAINTY_COLUMN:
 			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
 					ob.getMagnitude().getUncertainty());
-			break;			
+			break;
 		case BAND_COLUMN:
 			value = ob.getBand().getDescription();
 			break;
@@ -285,7 +285,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getObsCode();
 			break;
 		case VALFLAG_COLUMN:
-			value = ob.getValidationType().toString();
+			value = ob.getValidationType() == null ? "" : ob
+					.getValidationType().toString();
 			break;
 		case COMP_STAR_1_COLUMN:
 			value = ob.getCompStar1();
@@ -297,7 +298,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getCharts();
 			break;
 		case COMMENT_CODE_COLUMN:
-			value = ob.getCommentCode().getOrigString();
+			value = ob.getCommentCode() == null ? "" : ob.getCommentCode()
+					.getOrigString();
 			break;
 		case COMMENTS_COLUMN:
 			value = ob.getComments();
@@ -315,24 +317,25 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getKMag();
 			break;
 		case HJD_COLUMN:
-			value = ob.getHJD() == null ? "" : String.format(NumericPrecisionPrefs
-					.getTimeOutputFormat(), ob.getHJD().getJulianDay());
+			value = ob.getHJD() == null ? "" : String.format(
+					NumericPrecisionPrefs.getTimeOutputFormat(), ob.getHJD()
+							.getJulianDay());
 			break;
 		case HQ_UNCERTAINTY_COLUMN:
 			Double hqUncertainty = ob.getHqUncertainty();
-			value = null == hqUncertainty ? ""
-					: String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
+			value = null == hqUncertainty ? "" : String.format(
+					NumericPrecisionPrefs.getMagOutputFormat(), ob
 							.getHqUncertainty());
 			break;
 		case MTYPE_COLUMN:
-			value = ob.getMType().toString();
+			value = ob.getMType() == null ? "" : ob.getMType().toString();
 			break;
 		case DISCREPANT_COLUMN:
 			value = ob.isDiscrepant();
 			break;
 		case NAME_COLUMN:
 			value = ob.getName();
-			break;			
+			break;
 		case LINE_NUM_COLUMN:
 			value = ob.getRecordNumber();
 			break;
@@ -341,7 +344,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	}
 
 	@Override
-	public int getColumnIndexByName(String name) throws IllegalArgumentException {
+	public int getColumnIndexByName(String name)
+			throws IllegalArgumentException {
 		if (name == null || !COLUMN_NAMES.containsKey(name)) {
 			throw new IllegalArgumentException("No column name: " + name);
 		} else {

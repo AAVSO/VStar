@@ -23,12 +23,14 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -47,6 +49,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
@@ -68,8 +71,11 @@ public class ObservationListPane extends JPanel implements
 	private TableRowSorter<ValidObservationTableModel> rowSorter;
 	private VisibleSeriesRowFilter rowFilter;
 	private RowFilter currFilter;
+	private JButton createFilterButton;
 
 	private ListSearchPane<ValidObservationTableModel> searchPanel;
+
+	private Set<ValidObservation> selectedObs;
 
 	private ValidObservation lastObSelected = null;
 
@@ -97,6 +103,8 @@ public class ObservationListPane extends JPanel implements
 			AnalysisType analysisType) {
 
 		super(new BorderLayout());
+
+		selectedObs = new LinkedHashSet<ValidObservation>();
 
 		JScrollPane validDataScrollPane = null;
 
@@ -230,6 +238,21 @@ public class ObservationListPane extends JPanel implements
 				validDataModel, rowSorter);
 		panel.add(searchPanel);
 
+		createFilterButton = new JButton("Create Selection Filter");
+		createFilterButton.setEnabled(false);
+		final JPanel parent = this;
+		createFilterButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Create an observation filter message and notify listeners.
+				FilteredObservationMessage message = new FilteredObservationMessage(
+						parent, selectedObs);
+				Mediator.getInstance().getFilteredObservationNotifier()
+						.notifyListeners(message);
+			}
+		});
+		panel.add(createFilterButton);
+
 		return panel;
 	}
 
@@ -270,7 +293,7 @@ public class ObservationListPane extends JPanel implements
 			row = validDataTable.convertRowIndexToModel(row);
 			obs.add(validDataModel.getObservations().get(row));
 		}
-		
+
 		return obs;
 	}
 
@@ -355,6 +378,8 @@ public class ObservationListPane extends JPanel implements
 
 			int[] rows = validDataTable.getSelectedRows();
 
+			selectedObs.clear();
+
 			if (rows.length > 1) {
 				// This is a multiple observation selection.
 				List<ValidObservation> obs = new ArrayList<ValidObservation>();
@@ -370,6 +395,8 @@ public class ObservationListPane extends JPanel implements
 				Mediator.getInstance()
 						.getMultipleObservationSelectionNotifier()
 						.notifyListeners(message);
+
+				selectedObs.addAll(obs);
 			} else {
 				// This is a single observation selection.
 				int row = validDataTable.getSelectedRow();
@@ -383,8 +410,13 @@ public class ObservationListPane extends JPanel implements
 							ob, this);
 					Mediator.getInstance().getObservationSelectionNotifier()
 							.notifyListeners(message);
+
+					selectedObs.add(ob);
 				}
 			}
+
+			// At least one observation has been selected.
+			createFilterButton.setEnabled(true);
 		}
 	}
 }
