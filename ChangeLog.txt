@@ -45,11 +45,29 @@ Key Changes:
 - Changed "Search" button to "Apply" in observation list pane. 
 - Added Mac OS X and DOS launcher applications and Linux launcher shell script.
   Thanks to Nico Caramgo for additional icons and my son Nicholas (aka NSDBPro)
-  for help with the DOS launcher.
+  for help with the DOS launcher. This is intended for use when running locally 
+  to provide the same JVM startup parameters as for WebStart.
 - Fixed null pointer exceptions for some AAVSO download format columns in 
   observation list. 
 - Added ability to generate a Filter series from an observation list selection.
-- 
+- This is the first formal release since February 2011, but there have been 
+  seven testing releases since that time. The change log entries for these below
+  should be consulted for details, but here is a brief summary of the most 
+  important additions in version 2.2:
+  o Additional modes of invoking DC DFT (standard scan and by frequency or period).
+  o Weighted Wavelet Z-Transform for time-frequency analysis.
+  o Ability to create multiple-period models, including harmonics, from period 
+    analysis (DC DFT) and to obtain Fourier series equation representing model.
+  o Addition of search/filtering capability in observation list pane.  
+  o Improvements to user interface and memory usage.
+  o Numerous bug fixes.
+  o Initial implementation of VStar scripting (JavaScript only currently) and API.
+  o Improvements to plug-in infrastructure, fixes to some plug-ins, additional 
+    plug-ins.
+  o The ability to exclude observations as an alternative to mark-as-discrepant.
+    Multiple observations can be selected in the observation list and excluded 
+    together. The Edit menu supports undo of this.
+    
 Date: February 4 2012
 Version: 2.13 (testing release 7)
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-04Feb2012
@@ -63,7 +81,7 @@ Key Changes:
   3429612.
 - Removed use of set-always-on-top method for dialogs, instead obtaining 
   current active window and using that as the parent of a dialog to be opened. 
-  See tracker  d3418412.
+  See tracker 3418412.
 - Added DCDFT top-hits handles on power spectrum and other plots to make it
   easier to select points of interest on plots.
 
