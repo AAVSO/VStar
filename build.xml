@@ -117,6 +117,7 @@
 			</zipfileset>
 			<zipfileset file="VStar.sh" prefix="vstar" filemode="755" />
 			<zipfileset file="VStar.bat" prefix="vstar" />
+			<zipfileset file="VStar.exe" prefix="vstar" />
 			<zipfileset file="vstar.jnlp" prefix="vstar" />
 			<zipfileset file="vstar.jnlp.txt" prefix="vstar" />
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
