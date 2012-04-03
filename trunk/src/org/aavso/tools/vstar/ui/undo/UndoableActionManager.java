@@ -166,6 +166,7 @@ public class UndoableActionManager {
 		return new Listener<MultipleObservationSelectionMessage>() {
 			@Override
 			public void update(MultipleObservationSelectionMessage info) {
+				selectedObs.clear();
 				selectedObs.addAll(info.getObservations());
 			}
 			
