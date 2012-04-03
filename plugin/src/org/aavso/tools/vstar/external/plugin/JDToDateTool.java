@@ -40,6 +40,6 @@ public class JDToDateTool extends GeneralToolPluginBase {
 
 	@Override
 	public String getDisplayName() {
-		return "JD to Calendar Date...";
+		return "JD to Calendar Date";
 	}
 }
