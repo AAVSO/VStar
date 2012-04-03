@@ -26,6 +26,30 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
+Date: April 3 2012
+Version: 2.2
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-03Apr2012
+Key Changes:
+- Fixed a bug in which a mean source series selection (in plot control dialog) 
+  of filtered, model, or residuals was not being reflected in the dialog across 
+  invocations.
+- Fixed a bug in which the plot control dialog failed to open for fainter-than-only 
+  dataset.
+- Renamed AID host to generic name in response to a request from AAVSO.
+- Applied logarithmic checkbox state to all series in DCDFT result dialog.
+- Added a show-top-hits checkbox in DCDFT result dialog.
+- Fixed bug in which AAVSO text input was not ignoring column header comments.
+- Changes to about box and ReadMe text.
+- Removed incorrect Help comment about needing a login for AID download and
+  incorrect statements in period search section.
+- Changed "Search" button to "Apply" in observation list pane. 
+- Added Mac OS X and DOS launcher applications and Linux launcher shell script.
+  Thanks to Nico Caramgo for additional icons and my son Nicholas (aka NSDBPro)
+  for help with the DOS launcher.
+- Fixed null pointer exceptions for some AAVSO download format columns in 
+  observation list. 
+- Added ability to generate a Filter series from an observation list selection.
+- 
 Date: February 4 2012
 Version: 2.13 (testing release 7)
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-CS-04Feb2012

@@ -378,8 +378,6 @@ public class ObservationListPane extends JPanel implements
 
 			int[] rows = validDataTable.getSelectedRows();
 
-			selectedObs.clear();
-
 			if (rows.length > 1) {
 				// This is a multiple observation selection.
 				List<ValidObservation> obs = new ArrayList<ValidObservation>();
@@ -396,7 +394,9 @@ public class ObservationListPane extends JPanel implements
 						.getMultipleObservationSelectionNotifier()
 						.notifyListeners(message);
 
+				selectedObs.clear();
 				selectedObs.addAll(obs);
+				createFilterButton.setEnabled(true);
 			} else {
 				// This is a single observation selection.
 				int row = validDataTable.getSelectedRow();
@@ -411,12 +411,13 @@ public class ObservationListPane extends JPanel implements
 					Mediator.getInstance().getObservationSelectionNotifier()
 							.notifyListeners(message);
 
+					selectedObs.clear();
 					selectedObs.add(ob);
+					createFilterButton.setEnabled(true);
+				} else {
+					createFilterButton.setEnabled(false);
 				}
 			}
-
-			// At least one observation has been selected.
-			createFilterButton.setEnabled(true);
 		}
 	}
 }
