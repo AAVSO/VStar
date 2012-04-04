@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.pane.list;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.RowFilter;
@@ -133,9 +134,10 @@ public class VisibleSeriesRowFilter extends
 			public void update(FilteredObservationMessage info) {
 				if (Mediator.getInstance().getAnalysisType() == analysisType) {
 					if (info == FilteredObservationMessage.NO_FILTER) {
-						filteredObs = null;
+						// Do nothing. We want to keep the filtered observations
+						// in case the Filter series is selected again.
 					} else {
-						filteredObs = info.getFilteredObs();
+						filteredObs = new HashSet<ValidObservation>(info.getFilteredObs());
 					}
 					tableModel.fireTableDataChanged();
 				}
