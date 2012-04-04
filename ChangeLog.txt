@@ -26,9 +26,9 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies
   See trackers 2924511, 2909500, and 3011104 for more details.
   
 ----------------------
-Date: April 3 2012
+Date: April 4 2012
 Version: 2.2
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-03Apr2012
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-04Apr2012
 Key Changes:
 - Fixed a bug in which a mean source series selection (in plot control dialog) 
   of filtered, model, or residuals was not being reflected in the dialog across 
