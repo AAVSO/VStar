@@ -458,13 +458,13 @@ public class MenuBar extends JMenuBar {
 		String lastGroup = null;
 		for (PeriodAnalysisPluginBase plugin : PluginLoader
 				.getPeriodAnalysisPlugins()) {
-			
+
 			if (plugin.getGroup() != null
 					&& !plugin.getGroup().equals(lastGroup)) {
 				lastGroup = plugin.getGroup();
 				analysisMenu.addSeparator();
 			}
-			
+
 			String itemName = plugin.getDisplayName() + "...";
 
 			JMenuItem analysisPeriodSearchItem = new JMenuItem(itemName);
@@ -783,8 +783,8 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createRawDataListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setRawDataViewMenuItemState(true); // ensure selected
 				mediator.changeAnalysisType(AnalysisType.RAW_DATA);
+				setRawDataViewMenuItemState(true);
 			}
 		};
 	}
@@ -795,8 +795,13 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createPhasePlotListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setPhasePlotViewMenuItemState(true); // ensure selected
-				mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
+				AnalysisType type = mediator
+						.changeAnalysisType(AnalysisType.PHASE_PLOT);
+				if (type == AnalysisType.PHASE_PLOT) {
+					// It may be that no phase plot has been created because the
+					// phase plot dialog was cancelled.
+					setPhasePlotViewMenuItemState(true);
+				}
 			}
 		};
 	}
