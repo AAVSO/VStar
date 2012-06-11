@@ -554,7 +554,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		na = npoly + 1;
 		nb = na + 1;
 		dd = Math.sqrt(dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb]);
-		// System.out.println(String.format("%14.9f%10.4f%10.4f%10.4f", ff, pp,¯
+		// System.out.println(String.format("%14.9f%10.4f%10.4f%10.4f", ff, pp,
 		// dfpow, dd));
 		collect_datapoint(ff, pp, dfpow, dd);
 		// end of bugfix
