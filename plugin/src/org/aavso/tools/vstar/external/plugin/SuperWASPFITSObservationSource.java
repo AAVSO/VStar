@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -54,7 +55,10 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  */
 public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase {
 
+	private SeriesType superWaspSeries;
+	
 	public SuperWASPFITSObservationSource() {
+		superWaspSeries = SeriesType.create("SuperWASP", "SuperWASP", Color.RED, false);
 	}
 
 	@Override
@@ -161,7 +165,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 								ValidObservation ob = new ValidObservation();
 								ob.setDateInfo(new DateInfo(hjd));
 								ob.setMagnitude(new Magnitude(mag, magErr));
-								ob.setBand(SeriesType.Unspecified);
+								ob.setBand(superWaspSeries);
 								ob.setRecordNumber(row);
 
 								obs.add(ob);
@@ -199,7 +203,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 			for (ValidObservation ob : obs) {
 				double magErr = ob.getMagnitude().getUncertainty();
 				if (magErr >= magErrThreshold) {
-					ob.setBand(SeriesType.Unspecified);
+					ob.setBand(superWaspSeries); // TODO: why do this here as well?
 					ob.setExcluded(true);
 				}
 

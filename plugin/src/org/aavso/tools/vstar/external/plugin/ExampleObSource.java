@@ -59,6 +59,7 @@ public class ExampleObSource extends ObservationSourcePluginBase {
 				double uncertainty = 0;
 
 				ValidObservation ob = new ValidObservation();
+				ob.setName("Cosine plus Noise");
 				ob.setDateInfo(new DateInfo(jdBase + i));
 				ob.setMagnitude(new Magnitude(mag, uncertainty));
 				ob.setBand(Math.random() < 0.5 ? SeriesType.Visual

@@ -18,6 +18,8 @@ package org.aavso.tools.vstar.external.plugin;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
+import java.awt.Color;
+
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.BinaryTableHDU;
 import nom.tam.fits.Fits;
@@ -54,7 +56,10 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  */
 public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
+	private final SeriesType keplerSeries;
+
 	public KeplerFITSObservationSource() {
+		keplerSeries = SeriesType.create("Kepler", "Kepler", Color.GREEN, false);
 	}
 
 	@Override
@@ -143,7 +148,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 								ValidObservation ob = new ValidObservation();
 								ob.setDateInfo(new DateInfo(hjd));
 								ob.setMagnitude(new Magnitude(mag, magErr));
-								ob.setBand(SeriesType.Unspecified);
+								ob.setBand(keplerSeries);
 								ob.setRecordNumber(row);
 								collectObservation(ob);
 							}
