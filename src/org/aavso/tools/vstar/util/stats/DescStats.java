@@ -133,8 +133,8 @@ public class DescStats {
 	}
 
 	/**
-	 * Calculates the mean magnitude and the Standard Error of the Average for 
-	 * a sample of magnitudes for observations in a specified inclusive range.
+	 * Calculates the mean magnitude and the Standard Error of the Average for a
+	 * sample of magnitudes for observations in a specified inclusive range.
 	 * 
 	 * We use the sample standard deviation formula as per
 	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
@@ -149,9 +149,9 @@ public class DescStats {
 	 * @param maxIndex
 	 *            The last observation index in the inclusive range.
 	 * @return A Bin object containing magnitude bin data and a ValidObservation
-	 *         instance whose time parameter (JD or phase) is the mean of the 
-	 *         indexed observations, and whose magnitude captures the mean of 
-	 *         magnitude values in that range, and the Standard Error of the 
+	 *         instance whose time parameter (JD or phase) is the mean of the
+	 *         indexed observations, and whose magnitude captures the mean of
+	 *         magnitude values in that range, and the Standard Error of the
 	 *         Average for that mean magnitude value. The binned magnitude data
 	 *         can be used for further analysis such as ANOVA.
 	 */
@@ -213,9 +213,9 @@ public class DescStats {
 		// the ANOVA result in any way?
 		if (binData.length == 1) {
 			double datum = binData[0];
-			binData = new double[]{datum, datum};
+			binData = new double[] { datum, datum };
 		}
-		
+
 		return new Bin(observation, binData);
 	}
 
@@ -312,7 +312,9 @@ public class DescStats {
 	 * of the range index..index+binSize-1
 	 * 
 	 * Observation bins are populated from center to left, then from center to
-	 * right of the time domain.
+	 * right of the time domain to ensure symmetric bins.
+	 * 
+	 * The final result also includes a one-way anova statistic. 
 	 * 
 	 * @param observations
 	 *            The observations to which binning will be applied.
@@ -329,15 +331,16 @@ public class DescStats {
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
+		SeriesType series = SeriesType.Unknown;
 		List<ValidObservation> binnedObs = Collections.EMPTY_LIST;
 		List<double[]> magnitudeBins = Collections.EMPTY_LIST;
-		
+
 		// Are there sufficient (size > 1) observations to create
 		// binned mean observations?
 		if (observations.size() > 1) {
 			binnedObs = new LinkedList<ValidObservation>();
 			magnitudeBins = new LinkedList<double[]>();
-			
+
 			createLeftmostBinnedObservations(observations,
 					observations.size() / 2 - 1, timeElementEntity,
 					timeElementsInBin, binnedObs, magnitudeBins);
@@ -345,9 +348,12 @@ public class DescStats {
 			createRightmostBinnedObservations(observations,
 					observations.size() / 2, timeElementEntity,
 					timeElementsInBin, binnedObs, magnitudeBins);
+
+			series = observations.get(0).getBand();
 		}
 
-		return new BinningResult(observations.size(), binnedObs, magnitudeBins);
+		return new BinningResult(series, observations.size(), binnedObs,
+				magnitudeBins);
 	}
 
 	// Helpers
@@ -402,8 +408,8 @@ public class DescStats {
 				// Otherwise, we have found the bottom of the current range,
 				// so add a ValidObservation containing mean and error value
 				// to the list.
-				Bin bin = createMeanObservationForRange(
-						observations, timeElementEntity, i + 1, maxIndex);
+				Bin bin = createMeanObservationForRange(observations,
+						timeElementEntity, i + 1, maxIndex);
 
 				ValidObservation ob = bin.getMeanObservation();
 
@@ -415,7 +421,7 @@ public class DescStats {
 					// to avoid having to reverse the list since we
 					// are moving from right to left along the original
 					// list.
-					binnedObs.add(0, ob);			
+					binnedObs.add(0, ob);
 					bins.add(0, bin.getMagnitudes());
 				}
 
