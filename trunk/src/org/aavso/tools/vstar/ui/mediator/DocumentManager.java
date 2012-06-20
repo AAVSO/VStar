@@ -194,7 +194,7 @@ public class DocumentManager {
 	protected Listener<BinningResult> createBinChangeListener() {
 		return new Listener<BinningResult>() {
 			public void update(BinningResult info) {
-				addStatsInfo("anova", createAnovaText(info));
+				updateAnovaInfo(info);
 			}
 
 			public boolean canBeRemoved() {
@@ -210,6 +210,8 @@ public class DocumentManager {
 	 *            The binning result to use.
 	 */
 	public void updateAnovaInfo(BinningResult binningResult) {
+		addStatsInfo("Mean Source Series", binningResult.getSeries()
+				.getDescription());
 		addStatsInfo("anova", createAnovaText(binningResult));
 	}
 
@@ -233,10 +235,11 @@ public class DocumentManager {
 
 			msg = String.format(
 
-			"F-value: " + NumericPrecisionPrefs.getOtherOutputFormat()
+			"%s, F-value: " + NumericPrecisionPrefs.getOtherOutputFormat()
 					+ " on %d and %d degrees of freedom, %s", binningResult
-					.getFValue(), binningResult.getBetweenGroupDF(),
-					binningResult.getWithinGroupDF(), pValueStr);
+					.getSeries(), binningResult.getFValue(), binningResult
+					.getBetweenGroupDF(), binningResult.getWithinGroupDF(),
+					pValueStr);
 		} else {
 			msg = "anova: insufficient data";
 		}
@@ -299,7 +302,7 @@ public class DocumentManager {
 			}
 		};
 	}
-	
+
 	/**
 	 * Find and return the active window or null if one does not exist.
 	 */
