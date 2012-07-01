@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.resources.StarGroups;
 /**
  * This is a preferences pane for managing star groups.
  */
+@SuppressWarnings("serial")
 public class StarGroupManagementPane extends JPanel implements
 		IPreferenceComponent {
 

@@ -74,6 +74,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 /**
  * VStar's menu bar.
  */
+@SuppressWarnings("serial")
 public class MenuBar extends JMenuBar {
 
 	// File menu item names.
