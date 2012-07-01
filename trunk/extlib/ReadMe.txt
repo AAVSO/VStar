@@ -23,6 +23,10 @@ code.
      
   o nico-camargo-toolbar-icons-3.0.jar
     Toolbar icons created by Citizen Sky participant, Nico Camargo.
+  
+  o vstaricon.png
+    This image was also created by Nico Camargo and is used for the
+    splash screen and desktop icon.
     
 The libraries are covered under the following licenses and plain text 
 copies of the licenses are included in the ./extlib directory. See the 

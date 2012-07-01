@@ -19,35 +19,30 @@ package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.RectangularShape;
 
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 
 /**
  * This is VStar's plot data-point renderer.
  * 
- * We subclass XYErrorRenderer in order to be able to plot error bars.
- * TODO: Should we instead use StatisticalLineAndShapeRenderer
- *  (at least for means plot)?
- * 
- * We override DATAPOINT_SHAPE rendering methods.
+ * We subclass XYErrorRenderer in order to be able to plot error bars.<br/>
+ * TODO: Should we instead use StatisticalLineAndShapeRenderer (at least for
+ * means plot)?
  */
+@SuppressWarnings("serial")
 public class VStarPlotDataRenderer extends XYErrorRenderer {
 
-//	private final static RectangularShape DATAPOINT_SHAPE = new Ellipse2D.Double(-2.5, -2.5, 5, 5);		
-	private final static RectangularShape DATAPOINT_SHAPE = new Ellipse2D.Double(-2, -2, 4, 4);		
-
 	/**
-	 * @see org.jfree.chart.renderer.AbstractRenderer#getItemShape(int, int)
+	 * Set the size of the series.
+	 * 
+	 * @param seriesNum
+	 *            The series number.
+	 * @param size
+	 *            The size to set each plot point to for this series.
 	 */
-	public Shape getItemShape(int row, int column) {
-		return DATAPOINT_SHAPE;
-	}
-
-	/**
-	 * @see org.jfree.chart.renderer.AbstractRenderer#getLegendShape(int)
-	 */
-	public Shape getLegendShape(int series) {
-		return DATAPOINT_SHAPE;
+	public void setSeriesSize(int seriesNum, int size) {
+		Shape datapointShape = new Ellipse2D.Double(-size / 2, -size / 2, size,
+				size);
+		setSeriesShape(seriesNum, datapointShape);
 	}
 }

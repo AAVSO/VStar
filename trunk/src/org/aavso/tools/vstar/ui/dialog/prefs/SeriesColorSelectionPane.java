@@ -42,6 +42,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 /**
  * Series color selection panel.
  */
+@SuppressWarnings("serial")
 public class SeriesColorSelectionPane extends JPanel implements
 		IPreferenceComponent {
 
@@ -78,8 +79,8 @@ public class SeriesColorSelectionPane extends JPanel implements
 
 		seriesColorPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
-		// Add a JColorChooser pane with the chooser set to the
-		// initially selected series.
+		// Add a JColorChooser pane with the chooser set to the color of the
+		// initially selected series
 		String seriesDesc = (String) seriesSelector.getItemAt(0);
 		currentSeries = SeriesType.getSeriesFromDescription(seriesDesc);
 		Color initialColor = SeriesType.getColorFromSeries(currentSeries);
@@ -172,7 +173,6 @@ public class SeriesColorSelectionPane extends JPanel implements
 		if (!changedSeriesColorMap.isEmpty()) {
 			// Apply the changed color map to SeriesType and notify
 			// listeners.
-			// TODO: update colors in prefs (see key info above)
 			SeriesType.updateSeriesColorMap(changedSeriesColorMap);
 		}
 	}
@@ -183,7 +183,7 @@ public class SeriesColorSelectionPane extends JPanel implements
 	@Override
 	public void reset() {
 		// Ensure that the selected color matches SeriesType. This is
-		// important if the last time the parent dialog was dismissed
+		// important if the last time the parent dialog was dismissed,
 		// it was cancelled.
 		Color color = SeriesType.getColorFromSeries(currentSeries);
 		colorChooser.setColor(color);

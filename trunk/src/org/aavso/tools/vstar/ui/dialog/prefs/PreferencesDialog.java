@@ -30,9 +30,11 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 /**
  * Preferences Dialog.
  */
+@SuppressWarnings("serial")
 public class PreferencesDialog extends AbstractOkCancelDialog {
 
 	private SeriesColorSelectionPane seriesColorPane;
+	private SeriesSizeSelectionPane seriesSizePane;
 	private NumericPrecisionSelectionPane numericPrecisionPane;
 	private StarGroupManagementPane starGroupManagementPane;
 	
@@ -62,7 +64,9 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 
 		seriesColorPane = new SeriesColorSelectionPane();
 		tabs.addTab("Series Colors", seriesColorPane);
-		//tabs.setToolTipText("Change Series Colors");
+
+		seriesSizePane = new SeriesSizeSelectionPane();
+		tabs.addTab("Series Size", seriesSizePane);
 		
 		numericPrecisionPane = new NumericPrecisionSelectionPane();
 		tabs.addTab("Numeric Precision", numericPrecisionPane);
@@ -85,6 +89,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	 */
 	protected void okAction() {
 		seriesColorPane.update();
+		seriesSizePane.update();
 		numericPrecisionPane.update();
 		starGroupManagementPane.update();
 		
@@ -96,7 +101,9 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	 */
 	protected void reset() {
 		seriesColorPane.reset();
+		seriesSizePane.reset();
 		numericPrecisionPane.reset();
+		starGroupManagementPane.reset();
 	}
 
 	/**
