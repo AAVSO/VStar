@@ -43,6 +43,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
+import org.aavso.tools.vstar.data.IOrderedObservationSource;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
@@ -62,6 +63,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * data. If both are present, they are rendered as tables in a vertical split
  * pane. Otherwise, a single table will appear.
  */
+@SuppressWarnings("serial")
 public class ObservationListPane extends JPanel implements
 		ListSelectionListener {
 
@@ -70,7 +72,7 @@ public class ObservationListPane extends JPanel implements
 	private ValidObservationTableModel validDataModel;
 	private TableRowSorter<ValidObservationTableModel> rowSorter;
 	private VisibleSeriesRowFilter rowFilter;
-	private RowFilter currFilter;
+	private RowFilter<IOrderedObservationSource, Integer> currFilter;
 	private JButton createFilterButton;
 
 	private ListSearchPane<ValidObservationTableModel> searchPanel;

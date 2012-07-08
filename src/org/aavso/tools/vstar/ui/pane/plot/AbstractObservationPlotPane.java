@@ -55,6 +55,7 @@ import org.jfree.chart.plot.SeriesRenderingOrder;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.data.Range;
+import org.jfree.data.general.Dataset;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.DatasetChangeListener;
 
@@ -62,6 +63,7 @@ import org.jfree.data.general.DatasetChangeListener;
  * This class is the base class for chart panes containing a plot of a set of
  * valid observations. It is genericised on observation model.
  */
+@SuppressWarnings("serial")
 abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPlotModel>
 		extends JPanel implements ChartMouseListener, DatasetChangeListener {
 
@@ -73,7 +75,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	protected String subTitle;
 	protected String domainTitle;
 	protected String rangeTitle;
-	
+
 	protected JFreeChart chart;
 
 	protected ChartPanel chartPanel;
@@ -82,7 +84,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 
 	protected JTextArea obsInfo;
 
-	protected XYErrorRenderer renderer;
+	protected VStarPlotDataRenderer renderer;
 
 	// Show error bars?
 	protected boolean showErrorBars;
@@ -95,6 +97,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	// Last selected point and observation.
 	protected Point2D lastPointClicked;
 	protected ValidObservation lastObSelected;
+	protected Dataset lastDatasetSelected;
 
 	// Axis titles.
 	public static String JD_TITLE = "Time (JD)";
@@ -125,11 +128,11 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		this.subTitle = subTitle;
 		this.domainTitle = domainTitle;
 		this.rangeTitle = rangeTitle;
-		
+
 		this.obsModel = obsModel;
 
 		this.bounds = bounds;
-		
+
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
 		this.showErrorBars = true;
@@ -153,6 +156,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		this.renderer.setDrawYError(this.showErrorBars);
 
 		this.lastPointClicked = null;
+		this.lastObSelected = null;
+		this.lastDatasetSelected = null;
 
 		// Should reduce number of Java2D draw operations.
 		// this.renderer.setDrawSeriesLineAsPath(true);
@@ -165,18 +170,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		setJoinedSeries();
 		setSeriesVisibility();
 
-		/*
-		 * The motivation for this is that when a means series is added, it will
-		 * be last in sequence and we want it to be rendered last. We could just
-		 * do this in subclasses dealing with such a means series, but then this
-		 * would make all other series renderings look different compared with
-		 * other plots without means series. So, in short, we're doing this for
-		 * consistency and with the knowledge of the use cases for plot pane
-		 * classes.
-		 */
+		// this.chart.getXYPlot().setSeriesRenderingOrder(
+		// SeriesRenderingOrder.FORWARD);
 		this.chart.getXYPlot().setSeriesRenderingOrder(
-				SeriesRenderingOrder.FORWARD);
-		// this.chart.getXYPlot().setSeriesRenderingOrder(SeriesRenderingOrder.REVERSE);
+				SeriesRenderingOrder.REVERSE);
 
 		this.chart.getXYPlot().setDomainCrosshairLockedOnData(true);
 		this.chart.getXYPlot().setRangeCrosshairLockedOnData(true);
@@ -186,15 +183,19 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		chart.getXYPlot().setRangePannable(true);
 
 		chart.getXYPlot().setRenderer(renderer);
-
+		
 		this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
 
 		setupCrossHairs();
 
 		setSeriesColors();
+		setSeriesSizes();
 
 		SeriesType.getSeriesColorChangeNotifier().addListener(
 				createSeriesColorChangeListener());
+
+		SeriesType.getSeriesSizeChangeNotifier().addListener(
+				createSeriesSizeChangeListener());
 
 		// We want the magnitude scale to go from high to low as we ascend the
 		// Y axis since as magnitude values get smaller, brightness increases.
@@ -263,6 +264,13 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	}
 
 	/**
+	 * @return the lastDatasetSelected
+	 */
+	public Dataset getLastDatasetSelected() {
+		return lastDatasetSelected;
+	}
+
+	/**
 	 * Returns a series color change listener.
 	 */
 	private Listener<Map<SeriesType, Color>> createSeriesColorChangeListener() {
@@ -270,6 +278,22 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 			// Update the series colors.
 			public void update(Map<SeriesType, Color> info) {
 				setSeriesColors();
+			}
+
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	/**
+	 * Returns a series size change listener.
+	 */
+	private Listener<Map<SeriesType, Integer>> createSeriesSizeChangeListener() {
+		return new Listener<Map<SeriesType, Integer>>() {
+			// Update the series sizes.
+			public void update(Map<SeriesType, Integer> info) {
+				setSeriesSizes();
 			}
 
 			public boolean canBeRemoved() {
@@ -328,6 +352,20 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		}
 	}
 
+	/**
+	 * Set the size of each series.
+	 */
+	private void setSeriesSizes() {
+		Map<Integer, SeriesType> seriesNumToTypeMap = obsModel
+				.getSeriesNumToSrcTypeMap();
+
+		for (int seriesNum : seriesNumToTypeMap.keySet()) {
+			int size = SeriesType.getSizeFromSeries(seriesNumToTypeMap
+					.get(seriesNum));
+			renderer.setSeriesSize(seriesNum, size);
+		}
+	}
+
 	// Cross hair handling methods.
 
 	private void setupCrossHairs() {
@@ -352,6 +390,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 			lastPointClicked = event.getTrigger().getPoint();
 
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
+			lastDatasetSelected = entity.getDataset();
 			int series = entity.getSeriesIndex();
 			int item = entity.getItem();
 			lastObSelected = obsModel.getValidObservation(series, item);
@@ -371,7 +410,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 					.getEntityCollection();
 
 			double closestDist = Double.MAX_VALUE;
-			XYItemEntity closestItem = null;
 
 			// Note: This operation is linear in the number of visible
 			// observations!
@@ -382,21 +420,22 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 			// (X). If so, once itemBounds.getCenterX() is greater than
 			// lastPointClicked.getX(), we could terminate the loop. But I don't
 			// know if we can make that assumption.
+			@SuppressWarnings("unchecked")
 			Iterator it = entities.iterator();
 			while (it.hasNext()) {
 				Object o = it.next();
 				if (o instanceof XYItemEntity) {
-					XYItemEntity item = (XYItemEntity) o;
-					Rectangle2D itemBounds = item.getArea().getBounds2D();
+					XYItemEntity entity = (XYItemEntity) o;
+					Rectangle2D itemBounds = entity.getArea().getBounds2D();
 					Point2D centerPt = new Point2D.Double(itemBounds
 							.getCenterX(), itemBounds.getCenterY());
 
 					double dist = centerPt.distance(lastPointClicked);
 					if (dist < closestDist) {
 						closestDist = dist;
-						closestItem = item;
-						lastObSelected = obsModel.getValidObservation(item
-								.getSeriesIndex(), item.getItem());
+						lastDatasetSelected = entity.getDataset();
+						lastObSelected = obsModel.getValidObservation(entity
+								.getSeriesIndex(), entity.getItem());
 					}
 
 					// Note: The approach below definitely does not work.
@@ -437,6 +476,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		// with the corresponding XYItemEntity. It's still O(n) though.
 		// TODO: Use RendererUtilities method to return a list of entity indices
 		// that lie in a given x (JD/phase) range; this would reduce n.
+		@SuppressWarnings("unchecked")
 		Iterator it = entities.iterator();
 		while (it.hasNext()) {
 			Object o = it.next();
@@ -534,6 +574,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	public void datasetChanged(DatasetChangeEvent event) {
 		setSeriesVisibility();
 		setSeriesColors();
+		setSeriesSizes();
 		setMagScale();
 	}
 
@@ -611,4 +652,10 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 			magAxis.setRange(new Range(min, max));
 		}
 	}
+
+	// TODO: see also
+	// chart.getXYPlot().get{Domain,Range}Axis().setAutoRangeMinimumSize()
+	// as a way to fix the zoom-out-auto-range bug! Same as Range(min, max)
+	// above?
+
 }

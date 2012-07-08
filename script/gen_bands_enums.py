@@ -24,8 +24,9 @@ def gen_bands(lines):
         if False:
             print (code, desc, short_name, r, g, b)
         else:
-            print "%s(%s, \"%s\", \"%s\", new Color(%s, %s, %s))," % \
-                (make_band_enum_name(desc), code, desc, short_name, r, g, b)
+            print "public static final SeriesType %s = new SeriesType" \
+                    "(%s, \"%s\", \"%s\", new Color(%s, %s, %s));" % \
+                    (make_band_enum_name(desc), code, desc, short_name, r, g, b)
 
 def make_band_enum_name(band):
     band = band.replace(' ', '_')

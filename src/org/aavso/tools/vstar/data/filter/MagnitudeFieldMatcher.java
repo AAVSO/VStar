@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.data.filter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.locale.NumberParser;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * A magnitude field matcher.
@@ -66,6 +67,7 @@ public class MagnitudeFieldMatcher extends DoubleFieldMatcher {
 
 	@Override
 	public String getTestValueFromObservation(ValidObservation ob) {
-		return ob.getMag() + "";
+		return String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
+				.getMag());
 	}
 }

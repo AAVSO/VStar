@@ -22,22 +22,16 @@ import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * A Julian Day field matcher.
+ * A magnitude error field matcher.
  */
-public class JDFieldMatcher extends DoubleFieldMatcher {
+public class ErrorFieldMatcher extends DoubleFieldMatcher {
 
-	public JDFieldMatcher(Double testValue, ObservationMatcherOp op) {
+	public ErrorFieldMatcher(Double testValue, ObservationMatcherOp op) {
 		super(testValue, op);
 	}
 
-	public JDFieldMatcher() {
+	public ErrorFieldMatcher() {
 		super();
-	}
-
-	@Override
-	protected Double getValueUnderTest(ValidObservation ob) {
-		// JD is mandatory; it cannot be null.
-		return ob.getJD();
 	}
 
 	@Override
@@ -47,7 +41,7 @@ public class JDFieldMatcher extends DoubleFieldMatcher {
 
 		try {
 			Double value = NumberParser.parseDouble(fieldValue);
-			matcher = new JDFieldMatcher(value, op);
+			matcher = new ErrorFieldMatcher(value, op);
 		} catch (NumberFormatException e) {
 			// Nothing to do but return null.
 		}
@@ -56,8 +50,14 @@ public class JDFieldMatcher extends DoubleFieldMatcher {
 	}
 
 	@Override
+	protected Double getValueUnderTest(ValidObservation ob) {
+		// Magnitude error is mandatory; it cannot be null.
+		return ob.getMagnitude().getUncertainty();
+	}
+
+	@Override
 	public String getDisplayName() {
-		return "Julian Day";
+		return "Error";
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class JDFieldMatcher extends DoubleFieldMatcher {
 
 	@Override
 	public String getTestValueFromObservation(ValidObservation ob) {
-		return String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-				.getJD());
+		return String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
+				.getMagnitude().getUncertainty());
 	}
 }

@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 /**
  * A table model for valid observations.
  */
+@SuppressWarnings("serial")
 public class ValidObservationTableModel extends AbstractTableModel implements
 		IOrderedObservationSource {
 

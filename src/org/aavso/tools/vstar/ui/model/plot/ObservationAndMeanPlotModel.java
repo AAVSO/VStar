@@ -328,11 +328,11 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	// Helper methods.
 
 	/**
-	 * Determine which series will be the source of the mean series. Note that
-	 * this may be changed subsequently. Visual bands have the highest priority.
-	 * If not found, the Unspecified series is looked at, otherwise the first band
-	 * encountered other than fainter-than, excluded, or discrepant will be
-	 * chosen.
+	 * Determine which series will initially be the source of the mean series.
+	 * Note that this may be changed subsequently. Visual bands have the highest
+	 * priority. If not found, the Unspecified series is looked at, otherwise
+	 * the first band encountered other than fainter-than, excluded, or
+	 * discrepant will be chosen.
 	 * 
 	 * @return The series number on which to base the mean series.
 	 */
@@ -341,9 +341,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 		// TODO:
 		// - use keySet().contains() below!
-		// - our of V and Visual, choose the series with the most observations
+		// - out of V and Visual, choose the series with the most observations
 		// - same for other series if no visuals
-		
+
 		// Look for Visual, then V.
 		for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 			if (series == SeriesType.Visual) {
@@ -373,14 +373,19 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 				}
 			}
 		}
-		
-		// No match: choose some series other than fainter-than, discrepant, or
-		// excluded.
+
+		// No match: choose some non-empty series other than fainter-than,
+		// discrepant, or excluded. TODO: It would be better to choose the
+		// series with the greatest number of observations. The same rule should
+		// apply to the selection of visible-by-default series.
 		if (seriesNum == -1) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				if (series != SeriesType.FAINTER_THAN
 						&& series != SeriesType.DISCREPANT
-						&& series != SeriesType.Excluded) {
+						&& series != SeriesType.Excluded
+						&& !series.isSynthetic()
+						&& !seriesNumToObSrcListMap.get(
+								srcTypeToSeriesNumMap.get(series)).isEmpty()) {
 					seriesNum = srcTypeToSeriesNumMap.get(series);
 					break;
 				}

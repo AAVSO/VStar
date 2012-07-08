@@ -19,6 +19,8 @@ package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
@@ -33,15 +35,19 @@ import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.LegendItem;
+import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.general.Dataset;
 
 /**
  * This class represents a chart pane containing a phase plot for a set of valid
  * observations along with mean-based data.
  */
+@SuppressWarnings("serial")
 public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 	private double epoch;
@@ -50,6 +56,13 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	private String xyMsgFormat;
 
 	private ObservationAndMeanPlotModel[] obsAndMeanModels;
+
+	// Did the last selection correspond to a standard phase domain value?
+	// The alternative is a previous cycle phase selection, or null, meaning
+	// no selection.
+	private Dataset previousCyclePhaseModel;
+	private Dataset standardPhaseModel;
+	private Boolean wasLastSelectionStdPhase;
 
 	/**
 	 * Constructor.
@@ -79,10 +92,17 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 		this.obsAndMeanModels = obsAndMeanModels;
 
+		this.wasLastSelectionStdPhase = null;
+
 		xyMsgFormat = "Phase: " + NumericPrecisionPrefs.getTimeOutputFormat()
 				+ ", Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
 
 		this.chart.getXYPlot().setDataset(1, obsAndMeanModels[1]);
+
+		previousCyclePhaseModel = this.chart.getXYPlot().getDataset(0);
+		standardPhaseModel = this.chart.getXYPlot().getDataset(1);
+
+		uniquifyLegendItems();
 	}
 
 	/**
@@ -104,6 +124,13 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	 */
 	public ObservationAndMeanPlotModel[] getObsModels() {
 		return obsAndMeanModels;
+	}
+
+	/**
+	 * @return the wasLastSelectionStdPhase
+	 */
+	public Boolean wasLastSelectionStdPhase() {
+		return wasLastSelectionStdPhase;
 	}
 
 	/**
@@ -171,6 +198,17 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 				return true;
 			}
 		};
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.pane.plot.AbstractObservationPlotPane#updateSelectionFromObservation(org.aavso.tools.vstar.data.ValidObservation)
+	 */
+	@Override
+	protected void updateSelectionFromObservation(ValidObservation ob) {
+		super.updateSelectionFromObservation(ob);
+		// We assume that the last selected dataset has been set before the
+		// observation selection message was sent.
+		wasLastSelectionStdPhase = getLastDatasetSelected() == standardPhaseModel;
 	}
 
 	// Returns a zoom request listener.
@@ -255,5 +293,30 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 	protected void updateAnovaSubtitle(BinningResult binningResult) {
 		// Do nothing. See createBinChangeListener().
+	}
+
+	/**
+	 * Make the legend items of the two combined plots of the phase plot chart
+	 * unique so we don't have duplicate series.
+	 */
+	private void uniquifyLegendItems() {
+		LegendItemCollection legendItems = chart.getXYPlot().getLegendItems();
+
+		// Collect the unique legend items from the chart.
+		Map<String, LegendItem> uniqueItems = new LinkedHashMap<String, LegendItem>();
+		for (int i = 0; i < legendItems.getItemCount(); i++) {
+			LegendItem item = legendItems.get(i);
+			if (!uniqueItems.containsKey(item.getDescription())) {
+				uniqueItems.put(item.getDescription(), item);
+			}
+		}
+
+		// Set the legend to have only these unique items.
+		LegendItemCollection uniqueLegendItems = new LegendItemCollection();
+		for (LegendItem item : uniqueItems.values()) {
+			uniqueLegendItems.add(item);
+		}
+
+		chart.getXYPlot().setFixedLegendItems(uniqueLegendItems);
 	}
 }

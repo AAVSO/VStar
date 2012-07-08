@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2012  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -18,26 +18,37 @@
 package org.aavso.tools.vstar.data.filter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * A Julian Day field matcher.
+ * A phase field matcher.
  */
-public class JDFieldMatcher extends DoubleFieldMatcher {
+public class PhaseFieldMatcher extends DoubleFieldMatcher {
 
-	public JDFieldMatcher(Double testValue, ObservationMatcherOp op) {
+	public PhaseFieldMatcher(Double testValue, ObservationMatcherOp op) {
 		super(testValue, op);
 	}
 
-	public JDFieldMatcher() {
+	public PhaseFieldMatcher() {
 		super();
 	}
 
 	@Override
+	public void setSelectedObservationMessage(ObservationSelectionMessage msg) {
+		// We only want an observation selection message if it is from a phase
+		// plot or if it is null.
+		if (msg == null || msg.getSource() instanceof PhaseAndMeanPlotPane) {
+			observationSelectionMessage = msg;
+		}
+	}
+
+	@Override
 	protected Double getValueUnderTest(ValidObservation ob) {
-		// JD is mandatory; it cannot be null.
-		return ob.getJD();
+		// Phase is mandatory; it cannot be null.
+		return ob.getStandardPhase();
 	}
 
 	@Override
@@ -47,7 +58,11 @@ public class JDFieldMatcher extends DoubleFieldMatcher {
 
 		try {
 			Double value = NumberParser.parseDouble(fieldValue);
-			matcher = new JDFieldMatcher(value, op);
+			if (value < 0.0) {
+				// Convert to standard phase.
+				value += 1;
+			}
+			matcher = new PhaseFieldMatcher(value, op);
 		} catch (NumberFormatException e) {
 			// Nothing to do but return null.
 		}
@@ -57,7 +72,7 @@ public class JDFieldMatcher extends DoubleFieldMatcher {
 
 	@Override
 	public String getDisplayName() {
-		return "Julian Day";
+		return "Phase";
 	}
 
 	@Override
@@ -67,7 +82,23 @@ public class JDFieldMatcher extends DoubleFieldMatcher {
 
 	@Override
 	public String getTestValueFromObservation(ValidObservation ob) {
-		return String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-				.getJD());
+		Double phase = null;
+
+		if (observationSelectionMessage == null) {
+			phase = ob.getStandardPhase();
+		} else {
+			Object obj = observationSelectionMessage.getSource();
+			if (obj instanceof PhaseAndMeanPlotPane) {
+				PhaseAndMeanPlotPane pane = (PhaseAndMeanPlotPane) obj;
+				if (pane.wasLastSelectionStdPhase()) {
+					phase = ob.getStandardPhase();
+				} else {
+					phase = ob.getPreviousCyclePhase();
+				}
+			}
+		}
+
+		return String
+				.format(NumericPrecisionPrefs.getTimeOutputFormat(), phase);
 	}
 }

@@ -20,104 +20,42 @@ package org.aavso.tools.vstar.data;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.prefs.Preferences;
 
 import org.aavso.tools.vstar.util.notification.Notifier;
 
 // TODO:
-// - Note that this enum-based approach won't necessarily work once we
-//   try to extend VStar to accept other sources, so...
-// - Eventually change this enum so that it starts out with a default set
-//   of series enum values but when connected to AID, it "refreshes" that
-//   Set<SeriesType> dynamically. Or just live with periodic code-generated
-//   updates to this class's enums. Other possibilities? Use a class with a
-//   Singleton Registry of instances of the class.
-// - Review all places where null or default type is permitted and
-//   eliminate.
+// - Eventually change this class so that it starts out with a default set
+//   of static series values but when connected to AID, it "refreshes" that
+//   Set<SeriesType> dynamically.
 
 /**
  * A type for bands and other series types, e.g. fainter-thans, means.
  */
-public enum SeriesType {
-
-	// ** Auto-generated bands from aid.bands start here **
-
-	Visual(0, "Visual", "Vis.", new Color(0, 0, 0)), Unknown(1, "Unknown",
-			"N/A", new Color(255, 255, 0)), Johnson_R(10, "Johnson R", "RJ",
-			new Color(192, 0, 64)), Johnson_I(11, "Johnson I", "IJ", new Color(
-			192, 64, 128)), Johnson_V(2, "Johnson V", "V", new Color(0, 255, 0)), Blue(
-			21, "Blue", "Blue-Vis.", new Color(0, 0, 128)), Green(22, "Green",
-			"Green-Vis.", new Color(0, 128, 0)), Red(23, "Red", "Red-Vis.",
-			new Color(128, 0, 0)), Yellow(24, "Yellow", "Yellow-Vis.",
-			new Color(255, 255, 128)), K_NIR_2pt2micron(26, "K NIR 2.2micron",
-			"K", new Color(255, 128, 255)), H_NIR_1pt6micron(27,
-			"H NIR 1.6micron", "H", new Color(128, 128, 128)), J_NIR_1pt2micron(
-			28, "J NIR 1.2micron", "J", new Color(255, 0, 255)), Sloan_z(29,
-			"Sloan z", "SZ", new Color(255, 192, 0)), Johnson_B(3, "Johnson B",
-			"B", new Color(0, 0, 255)), Stromgren_u(30, "Stromgren u", "STU",
-			new Color(0, 192, 255)), Stromgren_v(31, "Stromgren v", "STV",
-			new Color(0, 255, 192)), Stromgren_b(32, "Stromgren b", "STB",
-			new Color(0, 0, 192)), Stromgren_y(33, "Stromgren y", "STY",
-			new Color(192, 255, 0)), Stromgren_Hbw(34, "Stromgren Hbw",
-			"STHBW", new Color(0, 128, 255)), Stromgren_Hbn(35,
-			"Stromgren Hbn", "STHBN", new Color(0, 128, 192)), Cousins_R(4,
-			"Cousins R", "R", new Color(255, 0, 0)), Sloan_u(40, "Sloan u",
-			"SU", new Color(192, 192, 0)), Sloan_g(41, "Sloan g", "SG",
-			new Color(0, 64, 64)), Sloan_r(42, "Sloan r", "SR", new Color(128,
-			64, 0)), Sloan_i(43, "Sloan i", "SI", new Color(192, 64, 0)), Cousins_I(
-			5, "Cousins I", "I", new Color(255, 64, 0)), Tri_Color_Blue(50,
-			"Tri-Color Blue", "TB", new Color(0, 0, 64)), Tri_Color_Green(51,
-			"Tri-Color Green", "TG", new Color(0, 64, 0)), Tri_Color_Red(52,
-			"Tri-Color Red", "TR", new Color(64, 0, 0)), Optec_Wing_A(55,
-			"Optec Wing A", "MA", new Color(128, 64, 255)), Optec_Wing_B(56,
-			"Optec Wing B", "MB", new Color(128, 64, 128)), Optec_Wing_C(57,
-			"Optec Wing C", "MI", new Color(128, 0, 192)), Orange_Liller(6,
-			"Orange (Liller)", "Orange", new Color(255, 128, 0)), Johnson_U(7,
-			"Johnson U", "U", new Color(0, 255, 255)), Unfiltered_with_V_Zeropoint(
-			8, "Unfiltered with V Zeropoint", "CV", new Color(0, 192, 0)), Unfiltered_with_Red_Zeropoint(
-			9, "Unfiltered with Red Zeropoint", "CR", new Color(192, 0, 0)),
-
-	// ** Auto-generated bands from aid.bands end here **
-
-	FAINTER_THAN(SeriesType.NO_INDEX, "Fainter Than", "FainterThan",
-			Color.YELLOW),
-
-	MEANS(SeriesType.NO_INDEX, "Means", "Means", Color.BLUE, true),
-
-	// Aaron's suggestion was to make Discrepant points light gray.
-	DISCREPANT(SeriesType.NO_INDEX, "Discrepant", "Discrepant",
-			Color.LIGHT_GRAY),
-
-	Unspecified(SeriesType.NO_INDEX, "Unspecified", "Unspecified", Color.ORANGE),
-
-	Filtered(SeriesType.NO_INDEX, "Filtered", "Filtered",
-			new Color(0, 153, 204), true),
-
-	// Model series.
-	Model(SeriesType.NO_INDEX, "Model", "Model", Color.RED, true),
-
-	// Residuals series.
-	Residuals(SeriesType.NO_INDEX, "Residuals", "Residuals", Color.CYAN, true),
-
-	// This series can be used to mark an observation as being excluded for some
-	// other reason than it being discrepant and all that classification
-	// entails. The key thing is that this provides a category under which an
-	// observation can be grouped in order to remove it from consideration in
-	// analysis.
-	Excluded(SeriesType.NO_INDEX, "Excluded", "Excluded", Color.DARK_GRAY);
+public class SeriesType implements Comparable<SeriesType> {
 
 	// Static members
 
 	private final static int NO_INDEX = -1;
 
-	private final static String PREFS_PREFIX = "SERIES_COLOR_";
+	// Plot point size.
+	public final static int DEFAULT_SIZE = 4;
+
+	private final static String COLOR_PREFS_PREFIX = "SERIES_COLOR_";
+	private final static String SIZE_PREFS_PREFIX = "SERIES_SIZE_";
 
 	private static Map<Integer, SeriesType> index2SeriesMap = new HashMap<Integer, SeriesType>();
 	private static Map<String, SeriesType> shortName2SeriesMap = new HashMap<String, SeriesType>();
 	private static Map<String, SeriesType> description2SeriesMap = new HashMap<String, SeriesType>();
 	private static Map<SeriesType, Color> series2ColorMap = new HashMap<SeriesType, Color>();
+	private static Map<SeriesType, Integer> series2SizeMap = new HashMap<SeriesType, Integer>();
 
 	private static Notifier<Map<SeriesType, Color>> seriesColorChangeNotifier = new Notifier<Map<SeriesType, Color>>();
+	private static Notifier<Map<SeriesType, Integer>> seriesSizeChangeNotifier = new Notifier<Map<SeriesType, Integer>>();
+
+	private static Set<SeriesType> values = new TreeSet<SeriesType>();
 
 	private static Preferences prefs;
 
@@ -128,18 +66,150 @@ public enum SeriesType {
 		} catch (Throwable t) {
 			// We need VStar to function in the absence of prefs.
 		}
-
-		// Populate mappings from index & name to type, and type to color.
-		for (SeriesType type : values()) {
-			index2SeriesMap.put(type.getIndex(), type);
-			shortName2SeriesMap.put(type.getShortName(), type);
-			description2SeriesMap.put(type.getDescription(), type);
-
-			Color colorPref = getColorPref(type);
-			series2ColorMap.put(type, colorPref == null ? type.getColor()
-					: colorPref);
-		}
 	}
+
+	// ** Auto-generated bands from aid.bands start here **
+
+	public static final SeriesType Visual = new SeriesType(0, "Visual", "Vis.",
+			new Color(0, 0, 0));
+	public static final SeriesType Unknown = new SeriesType(1, "Unknown",
+			"N/A", new Color(255, 255, 0));
+	public static final SeriesType Johnson_R = new SeriesType(10, "Johnson R",
+			"RJ", new Color(192, 0, 64));
+
+	public static final SeriesType Johnson_I = new SeriesType(11, "Johnson I",
+			"IJ", new Color(192, 64, 128));
+
+	public static final SeriesType Johnson_V = new SeriesType(2, "Johnson V",
+			"V", new Color(0, 255, 0));
+
+	public static final SeriesType Blue = new SeriesType(21, "Blue",
+			"Blue-Vis.", new Color(0, 0, 128));
+
+	public static final SeriesType Green = new SeriesType(22, "Green",
+			"Green-Vis.", new Color(0, 128, 0));
+
+	public static final SeriesType Red = new SeriesType(23, "Red", "Red-Vis.",
+			new Color(128, 0, 0));
+
+	public static final SeriesType Yellow = new SeriesType(24, "Yellow",
+			"Yellow-Vis.", new Color(255, 255, 128));
+
+	public static final SeriesType K_NIR_2pt2micron = new SeriesType(26,
+			"K NIR 2.2micron", "K", new Color(255, 128, 255));
+
+	public static final SeriesType H_NIR_1pt6micron = new SeriesType(27,
+			"H NIR 1.6micron", "H", new Color(128, 128, 128));
+
+	public static final SeriesType J_NIR_1pt2micron = new SeriesType(28,
+			"J NIR 1.2micron", "J", new Color(255, 0, 255));
+
+	public static final SeriesType Sloan_z = new SeriesType(29, "Sloan z",
+			"SZ", new Color(255, 192, 0));
+
+	public static final SeriesType Johnson_B = new SeriesType(3, "Johnson B",
+			"B", new Color(0, 0, 255));
+
+	public static final SeriesType Stromgren_u = new SeriesType(30,
+			"Stromgren u", "STU", new Color(0, 192, 255));
+
+	public static final SeriesType Stromgren_v = new SeriesType(31,
+			"Stromgren v", "STV", new Color(0, 255, 192));
+
+	public static final SeriesType Stromgren_b = new SeriesType(32,
+			"Stromgren b", "STB", new Color(0, 0, 192));
+
+	public static final SeriesType Stromgren_y = new SeriesType(33,
+			"Stromgren y", "STY", new Color(192, 255, 0));
+
+	public static final SeriesType Stromgren_Hbw = new SeriesType(34,
+			"Stromgren Hbw", "STHBW", new Color(0, 128, 255));
+
+	public static final SeriesType Stromgren_Hbn = new SeriesType(35,
+			"Stromgren Hbn", "STHBN", new Color(0, 128, 192));
+
+	public static final SeriesType Cousins_R = new SeriesType(4, "Cousins R",
+			"R", new Color(255, 0, 0));
+
+	public static final SeriesType Sloan_u = new SeriesType(40, "Sloan u",
+			"SU", new Color(192, 192, 0));
+
+	public static final SeriesType Sloan_g = new SeriesType(41, "Sloan g",
+			"SG", new Color(0, 64, 64));
+
+	public static final SeriesType Sloan_r = new SeriesType(42, "Sloan r",
+			"SR", new Color(128, 64, 0));
+
+	public static final SeriesType Sloan_i = new SeriesType(43, "Sloan i",
+			"SI", new Color(192, 64, 0));
+
+	public static final SeriesType Cousins_I = new SeriesType(5, "Cousins I",
+			"I", new Color(255, 64, 0));
+
+	public static final SeriesType Tri_Color_Blue = new SeriesType(50,
+			"Tri-Color Blue", "TB", new Color(0, 0, 64));
+
+	public static final SeriesType Tri_Color_Green = new SeriesType(51,
+			"Tri-Color Green", "TG", new Color(0, 64, 0));
+
+	public static final SeriesType Tri_Color_Red = new SeriesType(52,
+			"Tri-Color Red", "TR", new Color(64, 0, 0));
+
+	public static final SeriesType Optec_Wing_A = new SeriesType(55,
+			"Optec Wing A", "MA", new Color(128, 64, 255));
+
+	public static final SeriesType Optec_Wing_B = new SeriesType(56,
+			"Optec Wing B", "MB", new Color(128, 64, 128));
+
+	public static final SeriesType Optec_Wing_C = new SeriesType(57,
+			"Optec Wing C", "MI", new Color(128, 0, 192));
+
+	public static final SeriesType Orange_Liller = new SeriesType(6,
+			"Orange (Liller)", "Orange", new Color(255, 128, 0));
+
+	public static final SeriesType Johnson_U = new SeriesType(7, "Johnson U",
+			"U", new Color(0, 255, 255));
+
+	public static final SeriesType Unfiltered_with_V_Zeropoint = new SeriesType(
+			8, "Unfiltered with V Zeropoint", "CV", new Color(0, 192, 0));
+
+	public static final SeriesType Unfiltered_with_Red_Zeropoint = new SeriesType(
+			9, "Unfiltered with Red Zeropoint", "CR", new Color(192, 0, 0));
+
+	// ** Auto-generated bands from aid.bands end here **
+
+	public static final SeriesType FAINTER_THAN = new SeriesType(
+			SeriesType.NO_INDEX, "Fainter Than", "FainterThan", Color.YELLOW);
+
+	public static final SeriesType MEANS = new SeriesType(SeriesType.NO_INDEX,
+			"Means", "Means", Color.BLUE, true);
+
+	// Aaron's suggestion was to make Discrepant points light gray.
+	public static final SeriesType DISCREPANT = new SeriesType(
+			SeriesType.NO_INDEX, "Discrepant", "Discrepant", Color.LIGHT_GRAY);
+
+	public static final SeriesType Unspecified = new SeriesType(
+			SeriesType.NO_INDEX, "Unspecified", "Unspecified", Color.ORANGE);
+
+	public static final SeriesType Filtered = new SeriesType(
+			SeriesType.NO_INDEX, "Filtered", "Filtered",
+			new Color(0, 153, 204), true);
+
+	// Model series.
+	public static final SeriesType Model = new SeriesType(SeriesType.NO_INDEX,
+			"Model", "Model", Color.RED, true);
+
+	// Residuals series.
+	public static final SeriesType Residuals = new SeriesType(
+			SeriesType.NO_INDEX, "Residuals", "Residuals", Color.CYAN, true);
+
+	// This series can be used to mark an observation as being excluded for some
+	// other reason than it being discrepant and all that classification
+	// entails. The key thing is that this provides a category under which an
+	// observation can be grouped in order to remove it from consideration in
+	// analysis.
+	public static final SeriesType Excluded = new SeriesType(
+			SeriesType.NO_INDEX, "Excluded", "Excluded", Color.DARK_GRAY);
 
 	/**
 	 * @return The series color change notifier.
@@ -148,15 +218,79 @@ public enum SeriesType {
 		return seriesColorChangeNotifier;
 	}
 
+	/**
+	 * @return The series size change notifier.
+	 */
+	public static Notifier<Map<SeriesType, Integer>> getSeriesSizeChangeNotifier() {
+		return seriesSizeChangeNotifier;
+	}
+
+	/**
+	 * Adds a series type instance to the appropriate collections if it does not
+	 * already exist.
+	 * 
+	 * @param type
+	 *            The series type to be added.
+	 */
+	private static void updateStaticCollections(SeriesType type) {
+		if (!values.contains(type)) {
+			values.add(type);
+			index2SeriesMap.put(type.getIndex(), type);
+			shortName2SeriesMap.put(type.getShortName(), type);
+			description2SeriesMap.put(type.getDescription(), type);
+
+			Color colorPref = getColorPref(type);
+			series2ColorMap.put(type, colorPref == null ? type.getColor()
+					: colorPref);
+
+			series2SizeMap.put(type, getSizePref(type));
+		}
+	}
+
 	// Instance members per SeriesType value.
 	private int index;
 	private String description;
 	private String shortName;
 	private Color color;
+	private int size;
 	private boolean synthetic;
 
 	/**
-	 * Private constructor.
+	 * Create a new series type or return an existing one.
+	 * 
+	 * @param description
+	 *            The series type's description.
+	 * @param shortName
+	 *            The series type's short name (AID.bands).
+	 * @param color
+	 *            The series type's color.
+	 * @param synthetic
+	 *            Is this series synthetic (i.e. not associated with data but
+	 *            derived from data)?
+	 * @return the new or pre-existing SeriesType instance.
+	 */
+	public static SeriesType create(String description, String shortName,
+			Color color, boolean synthetic) {
+		// Create the series type of interest.
+		SeriesType newSeries = new SeriesType(NO_INDEX, description, shortName,
+				color, synthetic);
+
+		// Find which ever one now exists in the values set. That may be the
+		// new instance or a previously created instance.
+		for (SeriesType series : values()) {
+			// One series type is equal to another if their descriptions are the
+			// same.
+			if (series.equals(newSeries)) {
+				newSeries = series;
+				break;
+			}
+		}
+
+		return newSeries;
+	}
+
+	/**
+	 * Constructor
 	 * 
 	 * @param index
 	 *            The series type's index (AID.Code).
@@ -176,11 +310,13 @@ public enum SeriesType {
 		this.description = description;
 		this.shortName = shortName;
 		this.color = color;
+		this.size = DEFAULT_SIZE;
 		this.synthetic = synthetic;
+		updateStaticCollections(this);
 	}
 
 	/**
-	 * Private constructor.
+	 * Constructor
 	 * 
 	 * Non-synthetic series type.
 	 * 
@@ -196,6 +332,22 @@ public enum SeriesType {
 	private SeriesType(int index, String description, String shortName,
 			Color color) {
 		this(index, description, shortName, color, false);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * Non-synthetic series type with no index.
+	 * 
+	 * @param description
+	 *            The series type's description.
+	 * @param shortName
+	 *            The series type's short name (AID.bands).
+	 * @param color
+	 *            The series type's color.
+	 */
+	private SeriesType(String description, String shortName, Color color) {
+		this(SeriesType.NO_INDEX, description, shortName, color, false);
 	}
 
 	/**
@@ -220,10 +372,17 @@ public enum SeriesType {
 	}
 
 	/**
-	 * @return the color
+	 * @return the default color
 	 */
 	public Color getColor() {
 		return color;
+	}
+
+	/**
+	 * @return the default size
+	 */
+	public int getSize() {
+		return size;
 	}
 
 	/**
@@ -309,7 +468,7 @@ public enum SeriesType {
 		Color color = null;
 
 		if (series != null) {
-			String colorPrefName = PREFS_PREFIX + series.getDescription();
+			String colorPrefName = COLOR_PREFS_PREFIX + series.getDescription();
 			try {
 				String colorPrefValue = prefs.get(colorPrefName, null);
 				if (colorPrefValue != null) {
@@ -330,9 +489,35 @@ public enum SeriesType {
 
 	private static void setColorPref(SeriesType series, Color color) {
 		if (series != null && color != null) {
-			String colorPrefName = PREFS_PREFIX + series.getDescription();
+			String colorPrefName = COLOR_PREFS_PREFIX + series.getDescription();
 			try {
 				prefs.put(colorPrefName, color.getRGB() + "");
+			} catch (Throwable t) {
+				// We need VStar to function in the absence of prefs.
+			}
+		}
+	}
+
+	private static Integer getSizePref(SeriesType series) {
+		int size = DEFAULT_SIZE;
+
+		if (series != null) {
+			String sizePrefName = SIZE_PREFS_PREFIX + series.getDescription();
+			try {
+				size = prefs.getInt(sizePrefName, DEFAULT_SIZE);
+			} catch (Throwable t) {
+				// We need VStar to function in the absence of prefs.
+			}
+		}
+
+		return size;
+	}
+
+	private static void setSizePref(SeriesType series, int size) {
+		if (series != null) {
+			String sizePrefName = SIZE_PREFS_PREFIX + series.getDescription();
+			try {
+				prefs.putInt(sizePrefName, size);
 			} catch (Throwable t) {
 				// We need VStar to function in the absence of prefs.
 			}
@@ -354,6 +539,23 @@ public enum SeriesType {
 		}
 
 		return color;
+	}
+
+	/**
+	 * Given a series, retrieve its size.
+	 * 
+	 * @param series
+	 *            The series in question.
+	 * @return The corresponding size.
+	 */
+	public static int getSizeFromSeries(SeriesType series) {
+		Integer size = series2SizeMap.get(series);
+
+		if (size == null) {
+			size = getDefault().getSize();
+		}
+
+		return size;
 	}
 
 	/**
@@ -387,6 +589,36 @@ public enum SeriesType {
 	}
 
 	/**
+	 * Updates the series to size mapping according to the pairs in the supplied
+	 * map. Note that this may be a subset of all series-size pairs, so it may
+	 * not completely replace the existing map, just overwrite some pairs. It
+	 * also updates the series size preference and notifies listeners of the
+	 * change.
+	 * 
+	 * @param newSeries2SizeMap
+	 *            The map with which to update the series-size map.
+	 */
+	public static void updateSeriesSizeMap(
+			Map<SeriesType, Integer> newSeries2SizeMap) {
+
+		if (!newSeries2SizeMap.isEmpty()) {
+			for (SeriesType series : newSeries2SizeMap.keySet()) {
+				int size = newSeries2SizeMap.get(series);
+				series2SizeMap.put(series, size);
+				setSizePref(series, size);
+			}
+
+			try {
+				prefs.flush();
+			} catch (Throwable t) {
+				// We need VStar to function in the absence of prefs.
+			}
+
+			seriesSizeChangeNotifier.notifyListeners(newSeries2SizeMap);
+		}
+	}
+
+	/**
 	 * Restore the default series colors and notifies listeners.
 	 */
 	public static void setDefaultSeriesColors() {
@@ -412,6 +644,32 @@ public enum SeriesType {
 
 		seriesColorChangeNotifier.notifyListeners(series2ColorMap);
 	}
+	/**
+	 * Restore the default series sizes and notifies listeners.
+	 */
+	public static void setDefaultSeriesSizes() {
+		series2SizeMap.clear();
+
+		try {
+			prefs.clear();
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+
+		for (SeriesType type : values()) {
+			int size = type.getSize();
+			series2SizeMap.put(type, size);
+			setSizePref(type, size);
+		}
+
+		try {
+			prefs.flush();
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+
+		seriesSizeChangeNotifier.notifyListeners(series2SizeMap);
+	}
 
 	/**
 	 * Returns the default series type. This is like the equivalent of null for
@@ -428,5 +686,70 @@ public enum SeriesType {
 	 */
 	public String toString() {
 		return this.getDescription();
+	}
+
+	@Override
+	public int compareTo(SeriesType other) {
+		int result = 0;
+
+		// Full field equality otherwise relational value defined in terms of
+		// description.
+		if (index == other.index && description.equals(other.description)
+				&& shortName.equals(other.shortName)
+				&& color.equals(other.color) && synthetic == other.synthetic) {
+			result = 0;
+		} else {
+			result = description.compareTo(other.description);
+		}
+
+		return result;
+	}
+
+	/**
+	 * @return the set of all series type values.
+	 */
+	public static Set<SeriesType> values() {
+		return values;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((description == null) ? 0 : description.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof SeriesType)) {
+			return false;
+		}
+		SeriesType other = (SeriesType) obj;
+		if (description == null) {
+			if (other.description != null) {
+				return false;
+			}
+		} else if (!description.equals(other.description)) {
+			return false;
+		}
+		return true;
 	}
 }

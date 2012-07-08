@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.data.filter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 
 /**
  * The interface for all observation field matchers.
@@ -28,7 +29,8 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	protected T testValue;
 	protected ObservationMatcherOp op;
 	protected ObservationMatcherOp[] ops;
-
+	protected ObservationSelectionMessage observationSelectionMessage;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -44,6 +46,7 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 		this.testValue = testValue;
 		this.op = op;
 		this.ops = ops;
+		this.observationSelectionMessage = null;
 		
 		// Is the operator legal with respect to supplied legal operators?
 		if (op != null) {
@@ -89,4 +92,19 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	 * @return The value to be matched against.
 	 */
 	protected abstract T getValueUnderTest(ValidObservation ob);
+
+	/**
+	 * @see org.aavso.tools.vstar.data.filter.IObservationFieldMatcher#setSelectedObservationMessage(org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage)
+	 */
+	@Override
+	public void setSelectedObservationMessage(ObservationSelectionMessage msg) {
+		this.observationSelectionMessage = msg;
+	}
+
+	/**
+	 * @return the observationSelectionMessage
+	 */
+	public ObservationSelectionMessage getObservationSelectionMessage() {
+		return observationSelectionMessage;
+	}
 }
