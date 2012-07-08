@@ -32,10 +32,12 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.filter.IObservationFieldMatcher;
 import org.aavso.tools.vstar.data.filter.ObservationFilter;
 import org.aavso.tools.vstar.data.filter.ObservationMatcherOp;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 
 /**
  * This class represents a single filter pane.
  */
+@SuppressWarnings("serial")
 public class ObservationFilterPane extends JPanel {
 
 	private final static String NONE = "                                       ";
@@ -139,18 +141,26 @@ public class ObservationFilterPane extends JPanel {
 
 	/**
 	 * Tell this filter pane to set its field value now, or when a filter has
-	 * been selected, using the specified observation. If null is passed and
-	 * a current filter is selected, the value field is cleared.
+	 * been selected, using the specified observation. If null is passed and a
+	 * current filter is selected, the value field is cleared.
 	 * 
-	 * @param ob
-	 *            The observation from which to extract the value, or null.
+	 * @param msg
+	 *            The observation selection message from which to extract the
+	 *            observation; may be null.
 	 */
-	public void useObservation(ValidObservation ob) {
-		this.observation = ob;
+	public void useObservation(ObservationSelectionMessage msg) {
+		if (msg != null) {
+			this.observation = msg.getObservation();
+		} else {
+			this.observation = null;
+		}
 
 		if (currFilter != null) {
-			if (ob != null) {
-				valueField.setText(currFilter.getTestValueFromObservation(ob));
+			currFilter.setSelectedObservationMessage(msg);
+			
+			if (this.observation != null) {
+				valueField.setText(currFilter
+						.getTestValueFromObservation(this.observation));
 			} else {
 				valueField.setText("");
 			}

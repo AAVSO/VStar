@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.data.filter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 
 /**
  * The interface for all observation field matchers.
@@ -43,7 +44,7 @@ public interface IObservationFieldMatcher {
 	// TODO: should be able to genericise this class with T and use T
 	// fieldValue instead of string; the onus for conversion of the
 	// field-value would then be on the caller (e.g. filter dialog code)
-	// and things would be more type-safe and in particular, null would 
+	// and things would be more type-safe and in particular, null would
 	// not need to be returned for non-comforming field values.
 	public abstract IObservationFieldMatcher create(String fieldValue,
 			ObservationMatcherOp op);
@@ -75,21 +76,32 @@ public interface IObservationFieldMatcher {
 	public abstract Class<?> getType();
 
 	/**
-	 * Return a default test value for this matcher, or null 
-	 * if there isn't one. TODO: this should return a T! All
-	 * the more reason this interface should be replaced by
-	 * AbstractObservationFieldMatcher, or this interface or
+	 * Return a default test value for this matcher, or null if there isn't one.
+	 * TODO: this should return a T! All the more reason this interface should
+	 * be replaced by AbstractObservationFieldMatcher, or this interface or
 	 * method parameterised with T.
 	 * 
 	 * @return The default test value, or null.
 	 */
 	public abstract String getDefaultTestValue();
-	
+
 	/**
 	 * Return a test value for this matcher given an observation.
 	 * 
-	 * @param ob The observation from which to extract the test value.
+	 * @param ob
+	 *            The observation from which to extract the test value.
 	 * @return The test value.
 	 */
 	public abstract String getTestValueFromObservation(ValidObservation ob);
+
+	/**
+	 * Set the observation selection message for concrete field matchers that
+	 * may require additional context re: the origin of the selected
+	 * observation, if any.
+	 * 
+	 * @param msg
+	 *            The observation selection message.
+	 */
+	public abstract void setSelectedObservationMessage(
+			ObservationSelectionMessage msg);
 }

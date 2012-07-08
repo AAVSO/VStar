@@ -53,11 +53,12 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * that some subset of the current observations will be captured in a collection
  * and a message sent.
  */
+@SuppressWarnings("serial")
 public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 	private NewStarMessage newStarMessage;
 
-	private ValidObservation selectedObservation;
+	private ObservationSelectionMessage observationSelectionMessage;
 
 	private ObservationFilter filter;
 
@@ -76,7 +77,7 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 		newStarMessage = null;
 
-		selectedObservation = null;
+		observationSelectionMessage = null;
 
 		filter = new ObservationFilter();
 
@@ -186,14 +187,23 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 			@Override
 			public void update(ObservationSelectionMessage msg) {
-				selectedObservation = msg.getObservation();
-				useSelectedObservationCheckbox.setEnabled(true);
+				// Check whether we already have this message's observation from
+				// another source before proceeding.
+				if (observationSelectionMessage == null
+						|| msg.getObservation() != observationSelectionMessage
+								.getObservation()) {
+					// Record the observation selection and enable the
+					// use-selected-observation-checkbox so that it can be
+					// selected.
+					observationSelectionMessage = msg;
+					useSelectedObservationCheckbox.setEnabled(true);
 
-				// Pass the selected observation to each filter
-				// pane if the checkbox was already selected.
-				if (useSelectedObservationCheckbox.isSelected()) {
-					for (ObservationFilterPane pane : filterPanes) {
-						pane.useObservation(selectedObservation);
+					// Pass the selected observation to each filter
+					// pane if the checkbox was already selected.
+					if (useSelectedObservationCheckbox.isSelected()) {
+						for (ObservationFilterPane pane : filterPanes) {
+							pane.useObservation(msg);
+						}
 					}
 				}
 			}
@@ -210,7 +220,7 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 		return new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ValidObservation ob = null;
+				ObservationSelectionMessage selMsg = null;
 
 				// If the checkbox is selected, retrieve the last selected
 				// observation from the current view. This of course could be
@@ -218,13 +228,14 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 				// observation *has* been selected, so it really *can't* be null
 				// at this point. :)
 				if (useSelectedObservationCheckbox.isSelected()) {
-					ob = selectedObservation;
+					selMsg = observationSelectionMessage;
 				}
 
 				// Pass the last selected observation or null to each filter
 				// pane.
 				for (ObservationFilterPane pane : filterPanes) {
-					pane.useObservation(ob);
+					pane.useObservation(selMsg);
+					pack();
 				}
 			}
 		};

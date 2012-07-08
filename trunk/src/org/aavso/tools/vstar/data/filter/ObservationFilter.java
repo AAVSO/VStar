@@ -46,8 +46,14 @@ public class ObservationFilter {
 		IObservationFieldMatcher magnitudeMatcher = new MagnitudeFieldMatcher();
 		MATCHERS.put(magnitudeMatcher.getDisplayName(), magnitudeMatcher);
 
+		IObservationFieldMatcher uncertaintyMatcher = new ErrorFieldMatcher();
+		MATCHERS.put(uncertaintyMatcher.getDisplayName(), uncertaintyMatcher);
+
 		IObservationFieldMatcher jdMatcher = new JDFieldMatcher();
 		MATCHERS.put(jdMatcher.getDisplayName(), jdMatcher);
+
+		IObservationFieldMatcher phaseMatcher = new PhaseFieldMatcher();
+		MATCHERS.put(phaseMatcher.getDisplayName(), phaseMatcher);
 
 		IObservationFieldMatcher transformedMatcher = new TransformedFieldMatcher();
 		MATCHERS.put(transformedMatcher.getDisplayName(), transformedMatcher);

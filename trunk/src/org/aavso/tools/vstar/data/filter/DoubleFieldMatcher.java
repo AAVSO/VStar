@@ -25,10 +25,9 @@ import org.aavso.tools.vstar.data.ValidObservation;
 public abstract class DoubleFieldMatcher extends
 		AbstractObservationFieldMatcher<Double> {
 
-	private final static ObservationMatcherOp[] ops = {
+	protected final static ObservationMatcherOp[] ops = {
 			ObservationMatcherOp.EQUALS, ObservationMatcherOp.NOT_EQUALS,
-			ObservationMatcherOp.LESS_THAN,
-			ObservationMatcherOp.GREATER_THAN,
+			ObservationMatcherOp.LESS_THAN, ObservationMatcherOp.GREATER_THAN,
 			ObservationMatcherOp.GREATER_THAN_OR_EQUAL,
 			ObservationMatcherOp.LESS_THAN_OR_EQUAL };
 
@@ -44,37 +43,38 @@ public abstract class DoubleFieldMatcher extends
 	public DoubleFieldMatcher() {
 		super(ops);
 	}
-	
+
 	@Override
 	public boolean matches(ValidObservation ob) {
-		boolean result = false;
+		boolean success = false;
 
 		int comparison = getValueUnderTest(ob).compareTo(testValue);
 
 		switch (op) {
 		case EQUALS:
-			result = comparison == 0;
+			// Equality and inequality are inexact for double values.
+			success = comparison == 0;
 			break;
 		case NOT_EQUALS:
-			result = comparison != 0;
+			success = comparison != 0;
 			break;
 		case LESS_THAN:
-			result = comparison < 0;
+			success = comparison < 0;
 			break;
 		case GREATER_THAN:
-			result = comparison > 0;
+			success = comparison > 0;
 			break;
 		case LESS_THAN_OR_EQUAL:
-			result = comparison <= 0;
+			success = comparison <= 0;
 			break;
 		case GREATER_THAN_OR_EQUAL:
-			result = comparison >= 0;
+			success = comparison >= 0;
 			break;
 		}
 
-		return result;
+		return success;
 	}
-	
+
 	@Override
 	public Class<?> getType() {
 		return Double.class;

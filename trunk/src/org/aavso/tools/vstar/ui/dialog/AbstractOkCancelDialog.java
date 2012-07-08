@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.ui.mediator.DocumentManager;
  * This abstract class should be subclassed by any class that wants to have
  * modal OK-Cancel dialog behaviour. The default result is "cancelled".
  */
+@SuppressWarnings("serial")
 abstract public class AbstractOkCancelDialog extends JDialog {
 
 	// Was this dialog cancelled?
