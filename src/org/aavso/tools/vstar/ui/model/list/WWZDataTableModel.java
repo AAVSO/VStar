@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 /**
  * This class represents a model for a WWZ time-frequency series table.
  */
+@SuppressWarnings("serial")
 public class WWZDataTableModel extends AbstractTableModel {
 
 	private List<WWZStatistic> stats;
