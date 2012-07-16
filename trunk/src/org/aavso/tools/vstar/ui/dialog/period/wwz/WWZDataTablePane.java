@@ -50,6 +50,7 @@ import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
 /**
  * This class represents a WWZ data table pane.
  */
+@SuppressWarnings("serial")
 public class WWZDataTablePane extends JPanel implements ListSelectionListener,
 		IStartAndCleanup {
 
