@@ -69,6 +69,7 @@ import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -78,47 +79,58 @@ import org.aavso.tools.vstar.util.notification.Listener;
 public class MenuBar extends JMenuBar {
 
 	// File menu item names.
-	public static final String NEW_STAR_FROM_DATABASE = "New Star from AAVSO Database...";
-	public static final String NEW_STAR_FROM_FILE = "New Star from File...";
-	public static final String SAVE = "Save...";
-	public static final String PRINT = "Print...";
-	public static final String INFO = "Info...";
-	public static final String PREFS = "Preferences...";
-	public static final String QUIT = "Quit";
+	public static final String NEW_STAR_FROM_DATABASE = LocaleProps
+			.getString("NEW_STAR_FROM_DATABASE");
+	public static final String NEW_STAR_FROM_FILE = LocaleProps
+			.getString("NEW_STAR_FROM_FILE");
+	public static final String SAVE = LocaleProps.getString("SAVE");
+	public static final String PRINT = LocaleProps.getString("PRINT");
+	public static final String INFO = LocaleProps.getString("INFO");
+	public static final String PREFS = LocaleProps.getString("PREFS");
+	public static final String QUIT = LocaleProps.getString("QUIT");
 
 	// Edit menu items.
-	public static final String UNDO = "Undo";
-	public static final String REDO = "Redo";
-	public static final String EXCLUDE_SELECTION = "Exclude Selection";
+	public static final String UNDO = LocaleProps.getString("UNDO");
+	public static final String REDO = LocaleProps.getString("REDO");
+	public static final String EXCLUDE_SELECTION = LocaleProps
+			.getString("EXCLUDE_SELECTION");
 
 	// View menu item names.
-	public static final String RAW_DATA_MODE = "Raw Data";
-	public static final String PHASE_PLOT_MODE = "Phase Plot";
-	public static final String OB_DETAILS = "Observation Details...";
-	public static final String PLOT_CONTROL = "Plot Control...";
-	public static final String ZOOM_IN = "Zoom In";
-	public static final String ZOOM_OUT = "Zoom Out";
-	public static final String ZOOM_TO_FIT = "Zoom To Fit";
-	public static final String PAN_LEFT = "Pan Left";
-	public static final String PAN_RIGHT = "Pan Right";
-	public static final String PAN_UP = "Pan Up";
-	public static final String PAN_DOWN = "Pan Down";
-	public static final String FILTER = "Filter...";
-	public static final String NO_FILTER = "No Filter";
+	public static final String RAW_DATA_MODE = LocaleProps
+			.getString("RAW_DATA_MODE");
+	public static final String PHASE_PLOT_MODE = LocaleProps
+			.getString("PHASE_PLOT_MODE");
+	public static final String OB_DETAILS = LocaleProps.getString("OB_DETAILS");
+	public static final String PLOT_CONTROL = LocaleProps
+			.getString("PLOT_CONTROL");
+	public static final String ZOOM_IN = LocaleProps.getString("ZOOM_IN");
+	public static final String ZOOM_OUT = LocaleProps.getString("ZOOM_OUT");
+	public static final String ZOOM_TO_FIT = LocaleProps
+			.getString("ZOOM_TO_FIT");
+	public static final String PAN_LEFT = LocaleProps.getString("PAN_LEFT");
+	public static final String PAN_RIGHT = LocaleProps.getString("PAN_RIGHT");
+	public static final String PAN_UP = LocaleProps.getString("PAN_UP");
+	public static final String PAN_DOWN = LocaleProps.getString("PAN_DOWN");
+	public static final String FILTER = LocaleProps.getString("FILTER");
+	public static final String NO_FILTER = LocaleProps.getString("NO_FILTER");
 
 	// Analysis menu item names.
-	public static final String PHASE_PLOT = "Phase Plot...";
-	public static final String PHASE_PLOTS = "Previous Phase Plots...";
-	public static final String POLYNOMIAL_FIT = "Polynomial Fit...";
-	public static final String MODELS = "Models...";
+	public static final String PHASE_PLOT = LocaleProps.getString("PHASE_PLOT");
+	public static final String PHASE_PLOTS = LocaleProps
+			.getString("PHASE_PLOTS");
+	public static final String POLYNOMIAL_FIT = LocaleProps
+			.getString("POLYNOMIAL_FIT");
+	public static final String MODELS = LocaleProps.getString("MODELS");
 
 	// Tool menu item names.
-	public static final String RUN_SCRIPT = "Run Script...";
+	public static final String RUN_SCRIPT = LocaleProps.getString("RUN_SCRIPT");
 
 	// Help menu item names.
-	public static final String HELP_CONTENTS = "Help Contents...";
-	public static final String VSTAR_ONLINE = "VStar Online...";
-	public static final String ABOUT = "About...";
+	public static final String HELP_CONTENTS = LocaleProps
+			.getString("HELP_CONTENTS");
+	public static final String VSTAR_ONLINE = LocaleProps
+			.getString("VSTAR_ONLINE");
+	public static final String ABOUT = LocaleProps.getString("ABOUT");
 
 	private Mediator mediator = Mediator.getInstance();
 
