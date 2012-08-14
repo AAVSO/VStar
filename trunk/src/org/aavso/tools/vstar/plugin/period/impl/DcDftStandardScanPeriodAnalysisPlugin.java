@@ -22,6 +22,7 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
@@ -43,12 +44,12 @@ public class DcDftStandardScanPeriodAnalysisPlugin extends
 
 	@Override
 	public String getDescription() {
-		return "Date Compensated Discrete Fourier Transform Standard Scan";
+		return LocaleProps.get("DCDFT_STANDARD_SCAN_DESC");
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "DC DFT Standard Scan";
+		return LocaleProps.get("DCDFT_STANDARD_SCAN_NAME");
 	}
 
 	@Override

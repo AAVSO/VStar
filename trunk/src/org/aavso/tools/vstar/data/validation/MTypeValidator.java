@@ -19,13 +19,15 @@ package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * A magnitude type (mtype) field validator.
  */
 public class MTypeValidator extends AbstractStringValidator<MTypeType> {
 
-	private static final String KIND = "magnitude type";
+	private static final String KIND = LocaleProps
+			.get("MAGNITUDE_TYPE_VALIDATOR_KIND");
 
 	private final RegexValidator regexValidator;
 
@@ -38,12 +40,13 @@ public class MTypeValidator extends AbstractStringValidator<MTypeType> {
 	}
 
 	public MTypeType validate(String str) throws ObservationValidationError {
-		if (this.isLegallyEmpty(str)) return null;
-		
+		if (this.isLegallyEmpty(str))
+			return null;
+
 		String validatedStr = this.regexValidator.validate(str)[0];
-		
+
 		MTypeType type = null;
-		
+
 		if ("STD".equals(validatedStr)) {
 			type = MTypeType.STD;
 		} else if ("DIFF".equals(validatedStr)) {
@@ -51,12 +54,12 @@ public class MTypeValidator extends AbstractStringValidator<MTypeType> {
 		} else if ("STEP".equals(validatedStr)) {
 			type = MTypeType.STEP;
 		}
-				
-		assert(type != null);
-		
+
+		assert (type != null);
+
 		return type;
 	}
-	
+
 	protected boolean canBeEmpty() {
 		return true;
 	}

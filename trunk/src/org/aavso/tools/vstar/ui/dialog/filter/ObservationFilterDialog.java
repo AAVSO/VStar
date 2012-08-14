@@ -44,6 +44,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -265,7 +266,8 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 				}
 			} catch (IllegalArgumentException e) {
 				filterError = true;
-				MessageBox.showErrorDialog(this, "Observation Filter", e
+				MessageBox.showErrorDialog(this, LocaleProps
+						.get("OBSERVATION_FILTER_DLG_TITLE"), e
 						.getMessage());
 			}
 		}
@@ -295,16 +297,23 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 					Mediator.getInstance().getFilteredObservationNotifier()
 							.notifyListeners(msg);
 				} else {
-					String msg = "No observations matched.";
-					MessageBox.showWarningDialog(MainFrame.getInstance(),
-							"Observation Filter", msg);
+					String msg = LocaleProps
+							.get("NO_OBSERVATIONS_MATCHED_ERR_MSG");
+					MessageBox
+							.showWarningDialog(
+									MainFrame.getInstance(),
+									LocaleProps
+											.get("OBSERVATION_FILTER_DLG_TITLE"),
+									msg);
 				}
 
 				// MainFrame.getInstance().setCursor(null);
 			} else {
-				String msg = "No filter selected.";
+				String msg = LocaleProps.get("NO_FILTER_SELECTED_ERR_MSG");
 				MessageBox.showWarningDialog(MainFrame.getInstance(),
-						"Observation Filter", msg);
+						LocaleProps
+								.get("OBSERVATION_FILTER_DLG_TITLE"),
+						msg);
 			}
 
 			// Clear state for next use of this dialog.

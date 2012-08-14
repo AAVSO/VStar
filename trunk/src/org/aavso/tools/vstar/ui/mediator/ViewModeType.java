@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.ui.mediator;
 
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+
 /**
  * View mode type enum and methods for transforming enum values into other
  * values of interest.
@@ -26,11 +28,16 @@ public enum ViewModeType {
 	// View modes.
 	PLOT_OBS_MODE, LIST_OBS_MODE, LIST_MEANS_MODE, MODEL_MODE, RESIDUALS_MODE;
 
-	public final static String PLOT_OBS_MODE_DESC = "Plot";
-	public final static String LIST_OBS_MODE_DESC = "Observations";
-	public final static String LIST_MEANS_MODE_DESC = "Means";
-	public final static String MODEL_MODE_DESC = "Model";
-	public final static String RESIDUALS_MODE_DESC = "Residuals";
+	public final static String PLOT_OBS_MODE_DESC = LocaleProps
+			.get("PLOT_TAB");
+	public final static String LIST_OBS_MODE_DESC = LocaleProps
+			.get("OBSERVATIONS_TAB");
+	public final static String LIST_MEANS_MODE_DESC = LocaleProps
+			.get("MEANS_TAB");
+	public final static String MODEL_MODE_DESC = LocaleProps
+			.get("MODEL_TAB");
+	public final static String RESIDUALS_MODE_DESC = LocaleProps
+			.get("RESIDUALS_TAB");
 
 	/**
 	 * Return this mode type's description string.

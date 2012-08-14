@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.ui.dialog.MultiNumberEntryDialog;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
 import org.aavso.tools.vstar.ui.dialog.period.wwz.WeightedWaveletZTransformResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
 import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 
@@ -41,7 +42,7 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 	private Double currMinPeriod;
 	private Double currMaxPeriod;
 	private Double currDeltaPeriod;
-
+	
 	/**
 	 * Constructor
 	 */
@@ -59,20 +60,20 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException {
 
-		NumberField minPeriodField = new NumberField("Minimum Period", 0.0,
-				null, currMinPeriod);
+		NumberField minPeriodField = new NumberField(LocaleProps
+				.get("WWZ_PARAMETERS_MINIMUM_PERIOD"), 0.0, null, currMinPeriod);
 
-		NumberField maxPeriodField = new NumberField("Maximum Period", 0.0,
-				null, currMaxPeriod);
+		NumberField maxPeriodField = new NumberField(LocaleProps
+				.get("WWZ_PARAMETERS_MAXIMUM_PERIOD"), 0.0, null, currMaxPeriod);
 
-		NumberField deltaPeriodField = new NumberField("Period Step", null,
-				null, currDeltaPeriod);
+		NumberField deltaPeriodField = new NumberField(LocaleProps
+				.get("WWZ_PARAMETERS_PERIOD_STEP"), null, null, currDeltaPeriod);
 
 		List<NumberField> fields = createNumberFields(minPeriodField,
 				maxPeriodField, deltaPeriodField);
 
 		MultiNumberEntryDialog paramDialog = new MultiNumberEntryDialog(
-				"WWZ Parameters", fields);
+				LocaleProps.get("WWZ_PARAMETERS_DLG_TITLE"), fields);
 
 		if (!paramDialog.isCancelled()) {
 			double minPeriod, maxPeriod, deltaPeriod, decay, timeDivisions;
@@ -90,7 +91,8 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 					Math.max(minPeriod, maxPeriod), deltaPeriod);
 			wwt.execute();
 		} else {
-			throw new CancellationException("WWZ cancelled");
+			throw new CancellationException("WWZ "
+					+ LocaleProps.get("CANCELLED"));
 		}
 	}
 
@@ -99,7 +101,7 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 	 */
 	@Override
 	public String getDescription() {
-		return "Weighted Wavelet Z-Transform time-period analysis";
+		return LocaleProps.get("WWZ_WITH_PERIOD_RANGE_DESC"); 
 	}
 
 	/**
@@ -107,7 +109,7 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 	 */
 	@Override
 	public String getDisplayName() {
-		return "WWZ with Period Range";
+		return LocaleProps.get("WWZ_WITH_PERIOD_RANGE_NAME");
 	}
 
 	/**

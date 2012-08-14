@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.resources.StarGroups;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This class represents a widget that permits a star group to be selected from
@@ -51,12 +52,13 @@ public class StarGroupSelectionPane extends JPanel {
 	private String selectedAUID;
 
 	private boolean clearStarField;
-	
+
 	/**
 	 * Constructor
 	 * 
 	 * @param starField
-	 *            An optional star field to be cleared when a group star is selected.
+	 *            An optional star field to be cleared when a group star is
+	 *            selected.
 	 */
 	public StarGroupSelectionPane(JTextField starField) {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -70,19 +72,22 @@ public class StarGroupSelectionPane extends JPanel {
 		selectedAUID = null;
 
 		clearStarField = true;
-		
+
 		starGroups = StarGroups.getInstance();
 		Set<String> starGroupMapKeys = starGroups.getGroupNames();
 
 		starGroupSelector = new JComboBox(starGroupMapKeys
 				.toArray(new String[0]));
 		selectedStarGroup = (String) starGroupSelector.getItemAt(0);
-		starGroupSelector.setBorder(BorderFactory.createTitledBorder("Group"));
+		starGroupSelector.setBorder(BorderFactory
+				.createTitledBorder(LocaleProps
+						.get("NEW_STAR_FROM_AID_DLG_GROUP")));
 		starGroupSelector.addActionListener(createStarGroupSelectorListener());
 
 		starSelector = new JComboBox();
 		populateStarListForSelectedGroup();
-		starSelector.setBorder(BorderFactory.createTitledBorder("Star"));
+		starSelector.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("NEW_STAR_FROM_AID_DLG_STAR")));
 		starSelectorListener = createStarSelectorListener();
 		starSelector.addActionListener(starSelectorListener);
 
@@ -119,7 +124,7 @@ public class StarGroupSelectionPane extends JPanel {
 					selectedStarName = starName;
 					selectedAUID = starGroups.getAUID(selectedStarGroup,
 							selectedStarName);
-					
+
 					if (starField != null && clearStarField) {
 						starField.setText("");
 					}
@@ -231,7 +236,7 @@ public class StarGroupSelectionPane extends JPanel {
 	 */
 	public void refreshGroups() {
 		clearStarField = false;
-		
+
 		starGroupSelector.removeAllItems();
 
 		for (String groupName : starGroups.getGroupNames()) {
@@ -246,7 +251,7 @@ public class StarGroupSelectionPane extends JPanel {
 		} else {
 			selectAndRefreshStarsInGroup(starGroups.getDefaultStarListTitle());
 		}
-		
+
 		clearStarField = true;
 	}
 

@@ -45,6 +45,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.comparator.FormattedDoubleComparator;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -54,6 +55,7 @@ import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 /**
  * This class represents a period analysis data table pane.
  */
+@SuppressWarnings("serial")
 public class PeriodAnalysisDataTablePane extends JPanel implements
 		ListSelectionListener, IStartAndCleanup {
 
@@ -112,7 +114,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 	protected JPanel createButtonPanel() {
 		JPanel buttonPane = new JPanel();
 
-		modelButton = new JButton("Create Model");
+		modelButton = new JButton(LocaleProps.get("CREATE_MODEL_BUTTON"));
 		modelButton.setEnabled(false);
 		modelButton.addActionListener(createModelButtonHandler());
 		buttonPane.add(modelButton, BorderLayout.LINE_END);
@@ -261,7 +263,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 	}
 
 	@Override
-	public void startup() {		
+	public void startup() {
 		harmonicSearchResultListener = createHarmonicSearchResultListener();
 		Mediator.getInstance().getHarmonicSearchNotifier().addListener(
 				harmonicSearchResultListener);

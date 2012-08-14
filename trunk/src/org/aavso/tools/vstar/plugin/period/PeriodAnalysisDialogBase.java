@@ -33,12 +33,14 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This can be used as the base class for period analysis dialogs.
  */
+@SuppressWarnings("serial")
 abstract public class PeriodAnalysisDialogBase extends JDialog implements
 		IStartAndCleanup {
 
@@ -121,14 +123,14 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 	}
 
 	protected void addNewPhasePlotButton(JPanel buttonPane) {
-		newPhasePlotButton = new JButton("New Phase Plot");
+		newPhasePlotButton = new JButton(LocaleProps.get("NEW_PHASE_PLOT_BUTTON"));
 		newPhasePlotButton.addActionListener(createNewPhasePlotButtonHandler());
 		newPhasePlotButton.setEnabled(false);
 		buttonPane.add(newPhasePlotButton);		
 	}
 
 	protected void addFindHarmomicsButton(JPanel buttonPane) {
-		findHarmonicsButton = new JButton("Find Harmonics");
+		findHarmonicsButton = new JButton(LocaleProps.get("FIND_HARMONICS_BUTTON"));
 		findHarmonicsButton
 				.addActionListener(createFindHarmonicsButtonHandler());
 		findHarmonicsButton.setEnabled(false);
@@ -136,7 +138,7 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 	}
 
 	protected void addDismissButton(JPanel buttonPane) {
-		JButton dismissButton = new JButton("Dismiss");
+		JButton dismissButton = new JButton(LocaleProps.get("DISMISS_BUTTON"));
 		dismissButton.addActionListener(createDismissButtonHandler());
 		buttonPane.add(dismissButton);		
 	}

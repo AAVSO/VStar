@@ -36,6 +36,7 @@ import org.aavso.tools.vstar.ui.dialog.StarGroupSelectionPane;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.resources.PropertiesAccessor;
 import org.aavso.tools.vstar.ui.resources.StarGroups;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This is a preferences pane for managing star groups.
@@ -141,7 +142,7 @@ public class StarGroupManagementPane extends JPanel implements
 	private JPanel createApplyButtonPane() {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		JButton applyButton = new JButton("Apply");
+		JButton applyButton = new JButton(LocaleProps.get("APPLY_BUTTON"));
 		applyButton.addActionListener(createApplyButtonActionListener());
 		panel.add(applyButton, BorderLayout.CENTER);
 

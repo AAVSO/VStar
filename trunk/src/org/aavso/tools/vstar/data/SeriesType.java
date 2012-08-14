@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.prefs.Preferences;
 
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Notifier;
 
 // TODO:
@@ -70,10 +71,10 @@ public class SeriesType implements Comparable<SeriesType> {
 
 	// ** Auto-generated bands from aid.bands start here **
 
-	public static final SeriesType Visual = new SeriesType(0, "Visual", "Vis.",
-			new Color(0, 0, 0));
-	public static final SeriesType Unknown = new SeriesType(1, "Unknown",
-			"N/A", new Color(255, 255, 0));
+	public static final SeriesType Visual = new SeriesType(0, LocaleProps
+			.get("VISUAL_SERIES"), "Vis.", new Color(0, 0, 0));
+	public static final SeriesType Unknown = new SeriesType(1, LocaleProps
+			.get("UNKNOWN_SERIES"), "N/A", new Color(255, 255, 0));
 	public static final SeriesType Johnson_R = new SeriesType(10, "Johnson R",
 			"RJ", new Color(192, 0, 64));
 
@@ -83,17 +84,21 @@ public class SeriesType implements Comparable<SeriesType> {
 	public static final SeriesType Johnson_V = new SeriesType(2, "Johnson V",
 			"V", new Color(0, 255, 0));
 
-	public static final SeriesType Blue = new SeriesType(21, "Blue",
-			"Blue-Vis.", new Color(0, 0, 128));
+	public static final SeriesType Blue = new SeriesType(21, LocaleProps
+			.get("BLUE_SERIES"), LocaleProps.get("BLUE_SERIES") + "-Vis.",
+			new Color(0, 0, 128));
 
-	public static final SeriesType Green = new SeriesType(22, "Green",
-			"Green-Vis.", new Color(0, 128, 0));
+	public static final SeriesType Green = new SeriesType(22, LocaleProps
+			.get("GREEN_SERIES"), LocaleProps.get("GREEN_SERIES") + "-Vis.",
+			new Color(0, 128, 0));
 
-	public static final SeriesType Red = new SeriesType(23, "Red", "Red-Vis.",
+	public static final SeriesType Red = new SeriesType(23, LocaleProps
+			.get("RED_SERIES"), LocaleProps.get("RED_SERIES") + "-Vis.",
 			new Color(128, 0, 0));
 
-	public static final SeriesType Yellow = new SeriesType(24, "Yellow",
-			"Yellow-Vis.", new Color(255, 255, 128));
+	public static final SeriesType Yellow = new SeriesType(24, LocaleProps
+			.get("YELLOW_SERIES"), LocaleProps.get("YELLOW_SERIES") + "-Vis.",
+			new Color(255, 255, 128));
 
 	public static final SeriesType K_NIR_2pt2micron = new SeriesType(26,
 			"K NIR 2.2micron", "K", new Color(255, 128, 255));
@@ -165,7 +170,8 @@ public class SeriesType implements Comparable<SeriesType> {
 			"Optec Wing C", "MI", new Color(128, 0, 192));
 
 	public static final SeriesType Orange_Liller = new SeriesType(6,
-			"Orange (Liller)", "Orange", new Color(255, 128, 0));
+			LocaleProps.get("ORANGE_SERIES") + " (Liller)", LocaleProps
+					.get("ORANGE_SERIES"), new Color(255, 128, 0));
 
 	public static final SeriesType Johnson_U = new SeriesType(7, "Johnson U",
 			"U", new Color(0, 255, 255));
@@ -179,29 +185,35 @@ public class SeriesType implements Comparable<SeriesType> {
 	// ** Auto-generated bands from aid.bands end here **
 
 	public static final SeriesType FAINTER_THAN = new SeriesType(
-			SeriesType.NO_INDEX, "Fainter Than", "FainterThan", Color.YELLOW);
+			SeriesType.NO_INDEX, LocaleProps.get("FAINTER_THAN_SERIES"),
+			"FainterThan", Color.YELLOW);
 
 	public static final SeriesType MEANS = new SeriesType(SeriesType.NO_INDEX,
-			"Means", "Means", Color.BLUE, true);
+			LocaleProps.get("MEANS_SERIES"), LocaleProps.get("MEANS_SERIES"),
+			Color.BLUE, true);
 
 	// Aaron's suggestion was to make Discrepant points light gray.
 	public static final SeriesType DISCREPANT = new SeriesType(
-			SeriesType.NO_INDEX, "Discrepant", "Discrepant", Color.LIGHT_GRAY);
+			SeriesType.NO_INDEX, LocaleProps.get("DISCREPANT_SERIES"),
+			LocaleProps.get("DISCREPANT_SERIES"), Color.LIGHT_GRAY);
 
 	public static final SeriesType Unspecified = new SeriesType(
-			SeriesType.NO_INDEX, "Unspecified", "Unspecified", Color.ORANGE);
+			SeriesType.NO_INDEX, LocaleProps.get("UNSPECIFIED_SERIES"),
+			LocaleProps.get("UNSPECIFIED_SERIES"), Color.ORANGE);
 
 	public static final SeriesType Filtered = new SeriesType(
-			SeriesType.NO_INDEX, "Filtered", "Filtered",
-			new Color(0, 153, 204), true);
+			SeriesType.NO_INDEX, LocaleProps.get("FILTERED_SERIES"),
+			LocaleProps.get("FILTERED_SERIES"), new Color(0, 153, 204), true);
 
 	// Model series.
 	public static final SeriesType Model = new SeriesType(SeriesType.NO_INDEX,
-			"Model", "Model", Color.RED, true);
+			LocaleProps.get("MODEL_SERIES"), LocaleProps.get("MODEL_SERIES"),
+			Color.RED, true);
 
 	// Residuals series.
 	public static final SeriesType Residuals = new SeriesType(
-			SeriesType.NO_INDEX, "Residuals", "Residuals", Color.CYAN, true);
+			SeriesType.NO_INDEX, LocaleProps.get("RESIDUALS_SERIES"),
+			LocaleProps.get("RESIDUALS_SERIES"), Color.CYAN, true);
 
 	// This series can be used to mark an observation as being excluded for some
 	// other reason than it being discrepant and all that classification
@@ -209,7 +221,8 @@ public class SeriesType implements Comparable<SeriesType> {
 	// observation can be grouped in order to remove it from consideration in
 	// analysis.
 	public static final SeriesType Excluded = new SeriesType(
-			SeriesType.NO_INDEX, "Excluded", "Excluded", Color.DARK_GRAY);
+			SeriesType.NO_INDEX, LocaleProps.get("EXCLUDED_SERIES"),
+			LocaleProps.get("EXCLUDED_SERIES"), Color.DARK_GRAY);
 
 	/**
 	 * @return The series color change notifier.
@@ -644,6 +657,7 @@ public class SeriesType implements Comparable<SeriesType> {
 
 		seriesColorChangeNotifier.notifyListeners(series2ColorMap);
 	}
+
 	/**
 	 * Restore the default series sizes and notifies listeners.
 	 */

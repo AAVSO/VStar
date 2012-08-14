@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.data.filter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * The interface for all observation field matchers.
@@ -30,7 +31,7 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	protected ObservationMatcherOp op;
 	protected ObservationMatcherOp[] ops;
 	protected ObservationSelectionMessage observationSelectionMessage;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -47,20 +48,21 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 		this.op = op;
 		this.ops = ops;
 		this.observationSelectionMessage = null;
-		
+
 		// Is the operator legal with respect to supplied legal operators?
 		if (op != null) {
 			boolean found = false;
-			
+
 			for (ObservationMatcherOp possibleOp : ops) {
 				if (op == possibleOp) {
 					found = true;
 					break;
 				}
 			}
-			
+
 			if (!found) {
-				String msg = "Observation field matcher operation '" + op + "'";
+				String msg = LocaleProps.get("FIELD_MATCHER_OP_ERR_MSG")
+						+ " '" + op + "'";
 				throw new IllegalArgumentException(msg);
 			}
 		}
@@ -75,17 +77,17 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	protected AbstractObservationFieldMatcher(ObservationMatcherOp[] ops) {
 		this(null, null, ops);
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.data.filter.IObservationFieldMatcher#getMatcherOps()
 	 */
 	public ObservationMatcherOp[] getMatcherOps() {
 		return ops;
 	}
-	
+
 	/**
-	 * Get the value under test. If any conversion must first be done, 
-	 * e.g. from string, this method must handle that.
+	 * Get the value under test. If any conversion must first be done, e.g. from
+	 * string, this method must handle that.
 	 * 
 	 * @param ob
 	 *            An observation containing the value.

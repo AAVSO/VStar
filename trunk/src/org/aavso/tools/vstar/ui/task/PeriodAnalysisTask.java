@@ -31,6 +31,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -77,7 +78,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 				stopListener);
 
 		MainFrame.getInstance().getStatusPane().setMessage(
-				"Performing Period Analysis...");
+				LocaleProps.get("STATUS_PANE_PERFORMING_PERIOD_ANALYSIS"));
 		try {
 			periodAnalysisPlugin.executeAlgorithm(obs);
 		} catch (CancellationException e) {

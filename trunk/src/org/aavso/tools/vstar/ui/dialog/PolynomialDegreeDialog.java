@@ -29,17 +29,19 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This dialog allows the user to select the polynomial degree to be used for a
  * polynomial fit operation.
  */
+@SuppressWarnings("serial")
 public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 		ChangeListener {
 
 	private int degree;
 	private JLabel degreeLabel;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -49,10 +51,10 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 	 *            The maximum degree value.
 	 */
 	public PolynomialDegreeDialog(int minDegree, int maxDegree) {
-		super("Polynomial Degree");
+		super(LocaleProps.get("POLYNOMIAL_DEGREE_DLG_TITLE"));
 
-		degree = (maxDegree-minDegree)/2;
-		
+		degree = (maxDegree - minDegree) / 2;
+
 		Container contentPane = this.getContentPane();
 
 		JPanel topPane = new JPanel();
@@ -81,10 +83,11 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 	}
 
 	private Component createPolynomialDegreePane(int minDegree, int maxDegree) {
-		JPanel panel = new JPanel();		
-		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));		
-		panel.setBorder(BorderFactory.createTitledBorder("Select Polynomial Degree"));
-		
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("SELECT_POLYNOMIAL_DEGREE_TITLE")));
+
 		JSlider degreeSlider = new JSlider(JSlider.HORIZONTAL, minDegree,
 				maxDegree, degree);
 
@@ -96,11 +99,11 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 		degreeSlider.addChangeListener(this);
 
 		panel.add(degreeSlider);
-		
-		degreeLabel = new JLabel(degree+"");
+
+		degreeLabel = new JLabel(degree + "");
 		degreeLabel.setBorder(BorderFactory.createEtchedBorder());
 		panel.add(degreeLabel);
-		
+
 		return panel;
 	}
 
@@ -109,9 +112,9 @@ public class PolynomialDegreeDialog extends AbstractOkCancelDialog implements
 		JSlider slider = (JSlider) e.getSource();
 		if (!slider.getValueIsAdjusting()) {
 			degree = slider.getValue();
-			degreeLabel.setText(degree+"");
+			degreeLabel.setText(degree + "");
 		} else {
-			degreeLabel.setText(slider.getValue()+"");			
+			degreeLabel.setText(slider.getValue() + "");
 		}
 	}
 

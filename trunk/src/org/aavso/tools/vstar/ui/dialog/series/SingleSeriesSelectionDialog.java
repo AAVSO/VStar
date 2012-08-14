@@ -30,10 +30,12 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This class represents a dialog that permits a single series to be selected.
  */
+@SuppressWarnings("serial")
 public class SingleSeriesSelectionDialog extends AbstractOkCancelDialog {
 
 	protected JPanel seriesPane;
@@ -48,7 +50,7 @@ public class SingleSeriesSelectionDialog extends AbstractOkCancelDialog {
 	 */
 	public SingleSeriesSelectionDialog(
 			ObservationAndMeanPlotModel obsPlotModel) {
-		super("Select a Series");
+		super(LocaleProps.get("SELECT_SINGLE_SERIES_DLG_TITLE"));
 
 		this.obsPlotModel = obsPlotModel;
 

@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.external.plugin;
  */
 
 import java.awt.Color;
+import java.util.Locale;
 
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.BinaryTableHDU;
@@ -58,8 +59,12 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	private final SeriesType keplerSeries;
 
+	private Locale locale;
+
 	public KeplerFITSObservationSource() {
-		keplerSeries = SeriesType.create("Kepler", "Kepler", Color.GREEN, false);
+		keplerSeries = SeriesType
+				.create("Kepler", "Kepler", Color.GREEN, false);
+		locale = Locale.getDefault();
 	}
 
 	@Override
@@ -79,12 +84,24 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		return "A Kepler FITS file v2.0 observation source plug-inputStream that uses the Topcat FITS library.";
+		String str = "A Kepler FITS file v2.0 observation source plug-inputStream that uses the Topcat FITS library.";
+
+		if (locale.equals("es")) {
+			str = "Observaciones de archivo FITS de Kepler v2.0 del plug-inputStream que usa la biblioteca Topcat FITS.";
+		}
+
+		return str;
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "New Star from Kepler FITS File v2.0...";
+		String str = "New Star from Kepler FITS File v2.0...";
+
+		if (locale.equals("es")) {
+			str = "Nueva estrella de archivo FITS de Kepler...";
+		}
+
+		return str;
 	}
 
 	class KeplerFITSObservationRetriever extends AbstractObservationRetriever {
@@ -172,7 +189,13 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 		@Override
 		public String getSourceType() {
-			return "Kepler FITS File";
+			String str = "Kepler FITS File";
+			
+			if (locale.equals("es")) {
+				str = "De archivo FITS de Kepler";
+			}
+
+			return str;
 		}
 	}
 }

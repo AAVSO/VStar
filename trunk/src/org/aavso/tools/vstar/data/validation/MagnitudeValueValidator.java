@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This class validates magnitude values (e.g. magnitude, uncertainty).
@@ -28,7 +29,8 @@ public class MagnitudeValueValidator extends AbstractStringValidator<Double> {
 
 	private boolean canBeEmpty;
 
-	private static final String KIND = "magnitude";
+	private static final String KIND = LocaleProps
+			.get("MAGNITUDE_VALIDATOR_KIND");
 
 	private final RangePredicate rangePredicate;
 
@@ -67,16 +69,9 @@ public class MagnitudeValueValidator extends AbstractStringValidator<Double> {
 
 		try {
 			value = Double.parseDouble(str);
-			// TODO: disable this for now since we are seeing data outside of
-			// the nominal range; possibly have a preference or file directive
-			// to turn this off rather than always ignoring it.
-			// if (!rangePredicate.holds(value)) {
-			// throw new ObservationValidationError("The " + kind + " '" + str
-			// + "' falls outside of the range " + rangePredicate);
-			// }
 		} catch (NumberFormatException e) {
-			throw new ObservationValidationError("The " + kind + " '" + str
-					+ "' is not a real number.");
+			throw new ObservationValidationError(String.format(LocaleProps
+					.get("REAL_NUMBER_VALIDATOR_KIND_ERR_MSG"), kind, str));
 		}
 
 		return value;

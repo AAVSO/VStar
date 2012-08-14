@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisRefinementMessage
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
@@ -52,6 +53,7 @@ import org.jfree.data.xy.XYDataset;
 /**
  * This class represents a chart panel.
  */
+@SuppressWarnings("serial")
 public class PeriodAnalysis2DChartPane extends JPanel implements
 		ChartMouseListener, DatasetChangeListener, IStartAndCleanup {
 
@@ -121,7 +123,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		JPanel panel = new JPanel();
 
 		if (permitLogarithmic) {
-			final JCheckBox logarithmicCheckBox = new JCheckBox("Logarithmic?");
+			final JCheckBox logarithmicCheckBox = new JCheckBox(LocaleProps
+					.get("LOGARITHMIC_CHECKBOX"));
 			logarithmicCheckBox.setSelected(model.isLogarithmic());
 			logarithmicCheckBox.addActionListener(new ActionListener() {
 				@Override
@@ -141,7 +144,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		}
 
 		// Add a checkbox to toggle top hits series visibility.
-		final JCheckBox showTopHitsCheckBox = new JCheckBox("Show top hits?");
+		final JCheckBox showTopHitsCheckBox = new JCheckBox(LocaleProps
+				.get("SHOW_TOP_HITS_CHECKBOX"));
 		showTopHitsCheckBox.setSelected(true);
 		final XYItemRenderer renderer = chart.getXYPlot().getRenderer();
 		renderer.setSeriesVisible(TOP_HIT_SERIES, true);

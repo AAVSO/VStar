@@ -38,6 +38,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * Series color selection panel.
@@ -108,7 +109,7 @@ public class SeriesColorSelectionPane extends JPanel implements
 				.addActionListener(createSetDefaultsButtonActionListener());
 		panel.add(setDefaultsButton, BorderLayout.LINE_START);
 
-		JButton applyButton = new JButton("Apply");
+		JButton applyButton = new JButton(LocaleProps.get("APPLY_BUTTON"));
 		applyButton.addActionListener(createApplyButtonActionListener());
 		panel.add(applyButton, BorderLayout.LINE_END);
 

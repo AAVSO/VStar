@@ -38,6 +38,7 @@ import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -47,6 +48,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * 
  * This class will also listen to various events.
  */
+@SuppressWarnings("serial")
 public class StatusPane extends JPanel {
 
 	private Mediator mediator = Mediator.getInstance();
@@ -79,10 +81,10 @@ public class StatusPane extends JPanel {
 
 		xyLabel = new JLabel();
 		xyLabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
-//		xyLabel.setBorder(BorderFactory.createEtchedBorder());
-//		this.add(xyLabel);
+		// xyLabel.setBorder(BorderFactory.createEtchedBorder());
+		// this.add(xyLabel);
 
-//		this.add(Box.createHorizontalGlue());
+		// this.add(Box.createHorizontalGlue());
 
 		Icon stopIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/Stop2.png");
@@ -124,7 +126,7 @@ public class StatusPane extends JPanel {
 	public void setXYMessage(String msg) {
 		this.xyLabel.setText(msg);
 	}
-	
+
 	/**
 	 * Set the minimum progress bar value.
 	 * 
@@ -195,13 +197,15 @@ public class StatusPane extends JPanel {
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
 					strBuf.append(msg.getStarInfo().getDesignation());
-					strBuf.append("' loaded.");
+					strBuf.append("' " + LocaleProps.get("LOADED") + ".");
 					setMessage(strBuf.toString());
 				} else if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
 					strBuf.append(msg.getStarInfo().getDesignation());
-					strBuf.append("' loaded from database.");
+					strBuf.append("' " + LocaleProps.get("LOADED") + " "
+							+ LocaleProps.get("FROM") + " "
+							+ LocaleProps.get("DATABASE") + ".");
 					setMessage(strBuf.toString());
 				}
 			}
@@ -231,7 +235,7 @@ public class StatusPane extends JPanel {
 				case START_PROGRESS:
 					// Ensure the main window now has focus so we see
 					// the progress bar and busy cursor as enabled.
-//					self.requestFocusInWindow(); // TODO: doesn't work;
+					// self.requestFocusInWindow(); // TODO: doesn't work;
 					// remove?
 					self.resetProgressBar();
 					self.setMessage("");

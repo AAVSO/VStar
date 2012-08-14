@@ -25,6 +25,7 @@ import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.ui.dialog.MultiNumberEntryDialog;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
@@ -88,27 +89,30 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 	private MultiNumberEntryDialog createParamDialog() {
 		List<NumberField> fields = new ArrayList<NumberField>();
 
-		loFreqField = new NumberField("Low Frequency", 0.0, null, currLoFreq);
+		loFreqField = new NumberField(LocaleProps
+				.get("PERIOD_ANALYSIS_PARAMETERS_LOW_FREQUENCY_TITLE"), 0.0, null, currLoFreq);
 		fields.add(loFreqField);
 
-		hiFreqField = new NumberField("High Frequency", 0.0, null, currHiFreq);
+		hiFreqField = new NumberField(LocaleProps
+				.get("PERIOD_ANALYSIS_PARAMETERS_HIGH_FREQUENCY_TITLE"), 0.0, null, currHiFreq);
 		fields.add(hiFreqField);
 
-		resolutionField = new NumberField("Resolution", 0.0, null,
-				currResolution);
+		resolutionField = new NumberField(LocaleProps
+				.get("PERIOD_ANALYSIS_PARAMETERS_RESOLUTION_TITLE"), 0.0, null, currResolution);
 		fields.add(resolutionField);
 
-		return new MultiNumberEntryDialog("Parameters", fields);
+		return new MultiNumberEntryDialog(LocaleProps
+				.get("PERIOD_ANALYSIS_PARAMETERS_DLG_TITLE"), fields);
 	}
 
 	@Override
 	public String getDescription() {
-		return "Date Compensated Discrete Fourier Transform with Frequency Range";
+		return LocaleProps.get("DCDFT_WITH_FREQ_DESC");
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "DC DFT with Frequency Range";
+		return LocaleProps.get("DCDFT_WITH_FREQ_DISPLAY_NAME");
 	}
 
 	public void reset() {

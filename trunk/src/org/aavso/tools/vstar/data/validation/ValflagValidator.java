@@ -19,13 +19,15 @@ package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This class validates a valflag.
  */
 public class ValflagValidator extends AbstractStringValidator<ValidationType> {
 
-	private static final String KIND = "validation flag";
+	private static final String KIND = LocaleProps
+			.get("VALIDATION_FLAG_VALIDATOR_KIND");
 
 	private final RegexValidator regexValidator;
 

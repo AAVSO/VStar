@@ -42,6 +42,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.WWZDataTableModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.comparator.FormattedDoubleComparator;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.WWZMultiperiodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -104,7 +105,7 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener,
 	protected JPanel createButtonPanel() {
 		JPanel buttonPane = new JPanel();
 
-		modelButton = new JButton("Create Model");
+		modelButton = new JButton(LocaleProps.get("CREATE_MODEL_BUTTON"));
 		modelButton.setEnabled(false);
 		modelButton.addActionListener(createModelButtonHandler());
 		buttonPane.add(modelButton, BorderLayout.LINE_END);

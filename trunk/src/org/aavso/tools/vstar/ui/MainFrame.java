@@ -25,10 +25,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * The main VStar window.
  */
+@SuppressWarnings("serial")
 public class MainFrame extends JFrame {
 
 	public final static int WIDTH = 800;
@@ -89,7 +91,7 @@ public class MainFrame extends JFrame {
 
 		// Add status pane with an initial message.
 		statusPane = new StatusPane(
-				"Select a 'New Star' item from the File menu.");
+				LocaleProps.get("STATUS_PANE_SELECT_NEW_STAR_FROM_FILE"));
 		topPane.add(statusPane, BorderLayout.PAGE_END);
 
 		return topPane;

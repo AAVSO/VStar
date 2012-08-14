@@ -33,6 +33,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -40,6 +41,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * as it relates to the number of decimal places in output, and in some cases,
  * input).
  */
+@SuppressWarnings("serial")
 public class NumericPrecisionSelectionPane extends JPanel implements
 		IPreferenceComponent {
 
@@ -139,7 +141,7 @@ public class NumericPrecisionSelectionPane extends JPanel implements
 				.addActionListener(createSetDefaultsButtonActionListener());
 		panel.add(setDefaultsButton, BorderLayout.LINE_START);
 
-		JButton applyButton = new JButton("Apply");
+		JButton applyButton = new JButton(LocaleProps.get("APPLY_BUTTON"));
 		applyButton.addActionListener(createApplyButtonActionListener());
 		panel.add(applyButton, BorderLayout.LINE_END);
 

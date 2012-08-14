@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.data.filter;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -72,7 +73,7 @@ public class PhaseFieldMatcher extends DoubleFieldMatcher {
 
 	@Override
 	public String getDisplayName() {
-		return "Phase";
+		return LocaleProps.get("PHASE");
 	}
 
 	@Override

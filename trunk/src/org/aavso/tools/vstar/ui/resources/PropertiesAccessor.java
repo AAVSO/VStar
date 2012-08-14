@@ -21,76 +21,80 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-
 /**
- * The purpose of this class is to provide access to non-class properties such as
- * the star list.
+ * The purpose of this class is to provide access to non-class properties such
+ * as the star list.
  */
 public class PropertiesAccessor {
 
 	/**
-	  * TODO: Pull the accessing of the URL out to a class that does that in the constructor
-	  */
-	//build some constants here for the starlists
-	public static Star [] getStarList(){
-		//based on constant passed in use the resource accessor to get the appropriate properties file path
+	 * Build some constants for the starlists.
+	 */
+	public static Star[] getStarList() {
+		// based on constant passed in use the resource accessor to get the
+		// appropriate properties file path
 		Star starlist[] = null;
 		String list[];
 
 		try {
 
-			URL url = PropertiesAccessor.class.getResource("/etc/StarList.properties");
+			URL url = PropertiesAccessor.class
+					.getResource("/etc/StarList.properties");
 			if (url == null) {
 				// Otherwise, look in resources dir under ui (e.g. if running
 				// from Eclipse, not from a distribution of vstar.jar).
-				url = PropertiesAccessor.class.getResource("etc/StarList.properties");
+				url = PropertiesAccessor.class
+						.getResource("etc/StarList.properties");
 			}
 			Properties props = new Properties();
 			props.load(url.openStream());
 
 			list = props.getProperty("starlist").split(",");
 
-			starlist = new Star[list.length/2];
+			starlist = new Star[list.length / 2];
 
-			for(int i = 0, j = 0; i < list.length; j++, i+=2){
+			for (int i = 0, j = 0; i < list.length; j++, i += 2) {
 				Star S = new Star();
 				S.setName(list[i]);
-				S.setIdentifier(list[i+1]);
+				S.setIdentifier(list[i + 1]);
 				starlist[j] = S;
-			}   
-			//Process star list and make a hashmap or whatever the drop down needs
+			}
+			// Process star list and make a hashmap or whatever the drop down
+			// needs
 
-		}catch(IOException e){ 
+		} catch (IOException e) {
 			e.printStackTrace();
-		}   
+		}
 
 		return starlist;
 
 	}
 
-	public static String getStarListTitle(){
-		//based on constant passed in use the resource accessor to get the appropriate properties file path
+	public static String getStarListTitle() {
+		// based on constant passed in use the resource accessor to get the
+		// appropriate properties file path
 		String value = null;
 
 		try {
 
-			URL url = PropertiesAccessor.class.getResource("/etc/StarList.properties");
+			URL url = PropertiesAccessor.class
+					.getResource("/etc/StarList.properties");
 			if (url == null) {
 				// Otherwise, look in resources dir under ui (e.g. if running
 				// from Eclipse, not from a distribution of vstar.jar).
-				url = PropertiesAccessor.class.getResource("etc/StarList.properties");
+				url = PropertiesAccessor.class
+						.getResource("etc/StarList.properties");
 			}
 			Properties props = new Properties();
 			props.load(url.openStream());
 
 			value = props.getProperty("starlisttitle");
 
-		}catch(IOException e){ 
+		} catch (IOException e) {
 			e.printStackTrace();
-		}   
+		}
 
 		return value;
 
 	}
-
 }

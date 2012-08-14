@@ -23,6 +23,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
@@ -45,12 +46,12 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 
 	@Override
 	public String getDisplayName() {
-		return "Date Compensated DFT";
+		return LocaleProps.get("DCDFT_DISPLAY_NAME");
 	}
 
 	@Override
 	public String getDescription() {
-		return "Date Compensated Discrete Fourier Transform";
+		return LocaleProps.get("DCDFT_DESC");
 	}
 
 	/**
@@ -64,8 +65,10 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
 
-		return new PeriodAnalysis2DResultDialog("Period Analysis (DC DFT) for "
-				+ newStarMessage.getStarInfo().getDesignation(), "(series: "
+		return new PeriodAnalysis2DResultDialog(LocaleProps
+				.get("DCDFT_RESULT_TITLE")
+				+ " " + newStarMessage.getStarInfo().getDesignation(), "("
+				+ LocaleProps.get("SERIES") + ": "
 				+ sourceSeriesType.getDescription() + ")",
 				periodAnalysisAlgorithm);
 	}

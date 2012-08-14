@@ -34,11 +34,13 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * A list search pane component, supporting regular expressions on all columns
  * or a single column.
  */
+@SuppressWarnings("serial")
 public class ListSearchPane<S extends TableModel> extends JPanel {
 
 	private final static int ALL_COLUMNS = -1;
@@ -113,7 +115,7 @@ public class ListSearchPane<S extends TableModel> extends JPanel {
 								searchColumnIndex));
 					}
 				} catch (PatternSyntaxException ex) {
-					MessageBox.showErrorDialog("Apply",
+					MessageBox.showErrorDialog(LocaleProps.get("APPLY_BUTTON"),
 							"Invalid regular expression: '" + text + "'");
 				}
 			}

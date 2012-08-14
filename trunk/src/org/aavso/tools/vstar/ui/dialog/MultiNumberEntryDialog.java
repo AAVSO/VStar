@@ -34,6 +34,7 @@ import org.aavso.tools.vstar.ui.MainFrame;
  * present in each text field. The number fields passed in will contain these
  * values.
  */
+@SuppressWarnings("serial")
 public class MultiNumberEntryDialog extends AbstractOkCancelDialog {
 
 	private List<NumberField> fields;

@@ -19,8 +19,6 @@ package org.aavso.tools.vstar.ui.pane.plot;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
@@ -29,14 +27,13 @@ import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.jfree.chart.ChartMouseEvent;
-import org.jfree.chart.LegendItem;
-import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYItemEntity;
 import org.jfree.chart.plot.PlotRenderingInfo;
@@ -101,8 +98,6 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 		previousCyclePhaseModel = this.chart.getXYPlot().getDataset(0);
 		standardPhaseModel = this.chart.getXYPlot().getDataset(1);
-
-		uniquifyLegendItems();
 	}
 
 	/**
@@ -174,6 +169,22 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 					.getMag());
 			item.setToolTipText(xyMsg);
 		}
+	}
+	
+	// Returns a series visibility change listener to update the chart legends when
+	// the set of visible series changes.
+	protected Listener<SeriesVisibilityChangeMessage> createSeriesVisibilityChangeListener() {
+		return new Listener<SeriesVisibilityChangeMessage>() {
+			@Override
+			public void update(SeriesVisibilityChangeMessage info) {
+				
+			}
+			
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
 	}
 
 	// Returns an observation selection listener.
@@ -293,30 +304,5 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 	protected void updateAnovaSubtitle(BinningResult binningResult) {
 		// Do nothing. See createBinChangeListener().
-	}
-
-	/**
-	 * Make the legend items of the two combined plots of the phase plot chart
-	 * unique so we don't have duplicate series.
-	 */
-	private void uniquifyLegendItems() {
-		LegendItemCollection legendItems = chart.getXYPlot().getLegendItems();
-
-		// Collect the unique legend items from the chart.
-		Map<String, LegendItem> uniqueItems = new LinkedHashMap<String, LegendItem>();
-		for (int i = 0; i < legendItems.getItemCount(); i++) {
-			LegendItem item = legendItems.get(i);
-			if (!uniqueItems.containsKey(item.getDescription())) {
-				uniqueItems.put(item.getDescription(), item);
-			}
-		}
-
-		// Set the legend to have only these unique items.
-		LegendItemCollection uniqueLegendItems = new LegendItemCollection();
-		for (LegendItem item : uniqueItems.values()) {
-			uniqueLegendItems.add(item);
-		}
-
-		chart.getXYPlot().setFixedLegendItems(uniqueLegendItems);
 	}
 }

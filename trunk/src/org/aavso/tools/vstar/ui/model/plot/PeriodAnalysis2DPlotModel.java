@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.model.plot;
 import java.util.List;
 import java.util.Map;
 
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.data.xy.AbstractXYDataset;
@@ -27,6 +28,7 @@ import org.jfree.data.xy.AbstractXYDataset;
 /**
  * This class is the basis of all 2D period analysis plot models.
  */
+@SuppressWarnings("serial")
 public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 
 	private Map<PeriodAnalysisCoordinateType, List<Double>> analysisValues;
@@ -123,9 +125,9 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 	/**
 	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesKey(int)
 	 */
-	public Comparable getSeriesKey(int series) {
-		return rangeType.getDescription() + " vs "
-				+ domainType.getDescription();
+	public Comparable<String> getSeriesKey(int series) {
+		return rangeType.getDescription() + " " + LocaleProps.get("VERSUS")
+				+ " " + domainType.getDescription();
 	}
 
 	/**

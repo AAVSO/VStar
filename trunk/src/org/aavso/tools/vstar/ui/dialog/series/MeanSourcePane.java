@@ -32,12 +32,14 @@ import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This class represents a pane with radio buttons showing which series is to be
  * used as the source to create the means series. The source series can be
  * modified.
  */
+@SuppressWarnings("serial")
 public class MeanSourcePane extends JPanel implements ActionListener {
 
 	private ObservationAndMeanPlotPane obsPlotPane;
@@ -61,7 +63,8 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		super();
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		this.setBorder(BorderFactory.createTitledBorder("Mean Series Source"));
+		this.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("MEAN_SERIES_SOURCE")));
 		this
 				.setToolTipText("Select series that will be the source of the means series.");
 
@@ -86,7 +89,8 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	private JPanel createDataSeriesRadioButtons() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Data"));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("DATA_TITLE")));
 
 		seriesGroup = new ButtonGroup();
 
@@ -113,7 +117,8 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	private JPanel createOtherSeriesRadioButtons() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Analysis"));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("ANALYSIS_TITLE")));
 
 		// Filtered series.
 		filteredRadioButton = new JRadioButton(SeriesType.Filtered
@@ -129,7 +134,8 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.PAGE_AXIS));
-		subPanel.setBorder(BorderFactory.createTitledBorder("Model"));
+		subPanel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("MODEL_TITLE")));
 		subPanel.add(Box.createRigidArea(new Dimension(75, 1)));
 
 		// Model series.

@@ -46,6 +46,7 @@ import org.jfree.chart.title.Title;
  * This class represents a chart pane containing a plot for a set of valid
  * observations along with mean-based data.
  */
+@SuppressWarnings("serial")
 public class ObservationAndMeanPlotPane extends
 		AbstractObservationPlotPane<ObservationAndMeanPlotModel> {
 

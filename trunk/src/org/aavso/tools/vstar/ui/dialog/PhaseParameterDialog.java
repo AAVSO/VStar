@@ -42,6 +42,7 @@ import org.aavso.tools.vstar.util.stats.epoch.IEpochStrategy;
  * This class represents a dialog to obtain parameters for phase plot
  * calculation: period, epoch.
  */
+@SuppressWarnings("serial")
 public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 		Listener<NewStarMessage>, PropertyChangeListener {
 

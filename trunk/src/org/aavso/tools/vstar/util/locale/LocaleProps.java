@@ -33,7 +33,7 @@ public class LocaleProps {
 	 *            The ID of the localised string.
 	 * @return The localised string.
 	 */
-	public static String getString(String id) {
+	public static String get(String id) {
 		try {
 			if (localeResourceBundle == null) {
 				// For normal running from distribution jar.
@@ -41,11 +41,15 @@ public class LocaleProps {
 						.getBundle("locale.strings");
 			}
 		} catch (Exception e) {
+			try {
 			// For Eclipse run or other scenario in which bundle is to be taken
 			// from normal classpath. Note: Probably should unify these two cases by
 			// constructing the distribution jar to use full package below.
 			localeResourceBundle = ResourceBundle
 					.getBundle("org.aavso.tools.vstar.ui.resources.locale.strings");
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		}
 		return localeResourceBundle.getString(id);
 	}

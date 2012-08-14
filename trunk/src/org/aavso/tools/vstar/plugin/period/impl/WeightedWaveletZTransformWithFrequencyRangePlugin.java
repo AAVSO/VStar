@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.ui.dialog.MultiNumberEntryDialog;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
 import org.aavso.tools.vstar.ui.dialog.period.wwz.WeightedWaveletZTransformResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
 import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 
@@ -59,20 +60,23 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException {
 
-		NumberField minFreqField = new NumberField("Minimum Frequency", 0.0,
-				null, currMinFreq);
+		NumberField minFreqField = new NumberField(LocaleProps
+				.get("WWZ_PARAMETERS_MINIMUM_FREQUENCY"), 0.0, null,
+				currMinFreq);
 
-		NumberField maxFreqField = new NumberField("Maximum Frequency", 0.0,
-				null, currMaxFreq);
+		NumberField maxFreqField = new NumberField(LocaleProps
+				.get("WWZ_PARAMETERS_MAXIMUM_FREQUENCY"), 0.0, null,
+				currMaxFreq);
 
-		NumberField deltaFreqField = new NumberField("Frequency Step", null,
-				null, currDeltaFreq);
+		NumberField deltaFreqField = new NumberField(LocaleProps
+				.get("WWZ_PARAMETERS_FREQUENCY_STEP"), null, null,
+				currDeltaFreq);
 
 		List<NumberField> fields = createNumberFields(minFreqField,
 				maxFreqField, deltaFreqField);
 
 		MultiNumberEntryDialog paramDialog = new MultiNumberEntryDialog(
-				"WWZ Parameters", fields);
+				LocaleProps.get("WWZ_PARAMETERS_DLG_TITLE"), fields);
 
 		if (!paramDialog.isCancelled()) {
 			double minFreq, maxFreq, deltaFreq, decay, timeDivisions;
@@ -90,7 +94,8 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 					.max(minFreq, maxFreq), deltaFreq);
 			wwt.execute();
 		} else {
-			throw new CancellationException("WWZ cancelled");
+			throw new CancellationException("WWZ "
+					+ LocaleProps.get("CANCELLED"));
 		}
 	}
 
@@ -99,7 +104,7 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 	 */
 	@Override
 	public String getDescription() {
-		return "Weighted Wavelet Z-Transform time-frequency analysis";
+		return LocaleProps.get("WWZ_WITH_FREQ_RANGE_DESC");
 	}
 
 	/**
@@ -107,7 +112,7 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 	 */
 	@Override
 	public String getDisplayName() {
-		return "WWZ with Frequency Range";
+		return LocaleProps.get("WWZ_WITH_FREQ_RANGE_NAME");
 	}
 
 	/**

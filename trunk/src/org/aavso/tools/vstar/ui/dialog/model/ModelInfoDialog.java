@@ -35,12 +35,14 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.RelativeAmplitudeAndPhaseCreator;
 
 /**
  * This dialog displays information about a model.
  */
+@SuppressWarnings("serial")
 public class ModelInfoDialog extends JDialog {
 
 	// TODO: make precision (4) a preference.
@@ -84,7 +86,7 @@ public class ModelInfoDialog extends JDialog {
 		}
 		averageTime /= model.getFit().size();
 
-		this.setTitle("Model Information");
+		this.setTitle(LocaleProps.get("MODEL_INFO_DLG_TITLE"));
 		this.setModal(true);
 		this.setSize(200, 200);
 
@@ -93,7 +95,8 @@ public class ModelInfoDialog extends JDialog {
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JTextArea textArea = new JTextArea(model.toString());
-		textArea.setBorder(BorderFactory.createTitledBorder("Function"));
+		textArea.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("MODEL_INFO_FUNCTION_TITLE")));
 		textArea.setEditable(false);
 		JScrollPane scrollPane = new JScrollPane(textArea);
 		topPane.add(scrollPane);
@@ -111,7 +114,7 @@ public class ModelInfoDialog extends JDialog {
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		JPanel buttonPane = new JPanel();
-		JButton okButton = new JButton("OK");
+		JButton okButton = new JButton(LocaleProps.get("OK_BUTTON"));
 		okButton.addActionListener(createOKButtonHandler());
 		buttonPane.add(okButton, BorderLayout.CENTER);
 		topPane.add(buttonPane);
@@ -130,7 +133,8 @@ public class ModelInfoDialog extends JDialog {
 	private JPanel createRelAmplAndPhasePanel() {
 		JPanel pane = new JPanel();
 		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
-		String title = "Relative Amplitudes & Phases by fundamental frequency";
+		String title = LocaleProps
+				.get("RELATIVE_AMPLITUDE_AND_PHASE_PANE_TITLE");
 		pane.setBorder(BorderFactory.createTitledBorder(title));
 
 		relAmplAndPhaseTextArea = new JTextArea();

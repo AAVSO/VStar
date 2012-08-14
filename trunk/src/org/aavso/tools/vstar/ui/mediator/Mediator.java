@@ -25,7 +25,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -121,6 +123,7 @@ import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.discrepant.DiscrepantReport;
 import org.aavso.tools.vstar.util.discrepant.IDiscrepantReporter;
 import org.aavso.tools.vstar.util.discrepant.ZapperLogger;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.IPolynomialFitter;
 import org.aavso.tools.vstar.util.model.TSPolynomialFitter;
@@ -129,6 +132,8 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 
 /**
  * This class manages the creation of models and views and sends notifications
@@ -631,6 +636,25 @@ public class Mediator {
 	}
 
 	/**
+	 * Create a phase plot, given the period and epoch.
+	 * 
+	 * The series visibility map for the phase plot is taken from the currently
+	 * visible plot (raw data or phase plot).
+	 * 
+	 * @param period
+	 *            The requested period of the phase plot.
+	 * @param epoch
+	 *            The epoch (first Julian Date) for the phase plot.
+	 */
+	public void createPhasePlot(double period, double epoch) {
+		Map<SeriesType, Boolean> seriesVisibilityMap = analysisTypeMap.get(
+				analysisType).getObsAndMeanChartPane().getObsModel()
+				.getSeriesVisibilityMap();
+
+		performPhasePlot(period, epoch, seriesVisibilityMap);
+	}
+
+	/**
 	 * Common phase plot handler.
 	 * 
 	 * @param period
@@ -640,7 +664,7 @@ public class Mediator {
 	 * @param seriesVisibilityMap
 	 *            A mapping from series number to visibility status.
 	 */
-	private void performPhasePlot(double period, double epoch,
+	public void performPhasePlot(double period, double epoch,
 			Map<SeriesType, Boolean> seriesVisibilityMap) {
 
 		PhasePlotTask task = new PhasePlotTask(period, epoch,
@@ -940,9 +964,12 @@ public class Mediator {
 	 *            The amount the progress bar should be incremented by, a value
 	 *            corresponding to a portion of the overall task of which this
 	 *            is just a part.
+	 * @param addObs
+	 *            Should the observations be added to the existing loaded
+	 *            dataset?
 	 */
 	public void createNewStarObservationArtefacts(NewStarType newStarType,
-			StarInfo starInfo, int obsArtefactProgressAmount) {
+			StarInfo starInfo, int obsArtefactProgressAmount, boolean addObs) {
 
 		// Given raw valid and invalid observation data, create observation
 		// table and plot models, along with corresponding GUI components.
@@ -997,9 +1024,12 @@ public class Mediator {
 					.addStatsInfo("Confidence Interval",
 							"Mean error bars denote 95% Confidence Interval (twice Standard Error)");
 
-			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					"Light Curve for " + starInfo.getDesignation(), null,
-					obsAndMeanPlotModel);
+			obsAndMeanChartPane = createObservationAndMeanPlotPane(LocaleProps
+					.get("LIGHT_CURVE")
+					+ " "
+					+ LocaleProps.get("FOR")
+					+ " "
+					+ starInfo.getDesignation(), null, obsAndMeanPlotModel);
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					createMeanObsChangeListener(obsAndMeanPlotModel
@@ -1119,13 +1149,16 @@ public class Mediator {
 		String objName = newStarMessage.getStarInfo().getDesignation();
 
 		String subTitle = "";
-		String periodAndEpochStr = String.format("period: "
-				+ NumericPrecisionPrefs.getOtherOutputFormat() + ", epoch: "
+		String periodAndEpochStr = String.format(LocaleProps.get("PERIOD")
+				+ ": " + NumericPrecisionPrefs.getOtherOutputFormat() + ", "
+				+ LocaleProps.get("EPOCH") + ": "
 				+ NumericPrecisionPrefs.getTimeOutputFormat(), period, epoch);
 
 		if (this.newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
-			subTitle = new Date().toString() + " (database), "
-					+ periodAndEpochStr;
+			Date now = Calendar.getInstance().getTime();
+			String formattedDate = DateFormat.getDateInstance().format(now);
+			subTitle = formattedDate + " (" + LocaleProps.get("DATABASE")
+					+ "), " + periodAndEpochStr;
 		} else {
 			subTitle = periodAndEpochStr;
 		}
@@ -1147,17 +1180,24 @@ public class Mediator {
 			List<ValidObservation> obs = validObservationCategoryMap
 					.get(series);
 
-			// TODO: only duplicate list if mean series?
-			List<ValidObservation> phasedObs = new ArrayList<ValidObservation>(
-					obs);
+			// Note: only duplicate and sort list if mean series
+			// since that is the only one that can be joined!
+			// this will reduce the memory footprint of a phase plot!
+			List<ValidObservation> phasedObs;
 
-			Collections.sort(phasedObs, StandardPhaseComparator.instance);
+			if (series == SeriesType.MEANS) {
+				phasedObs = new ArrayList<ValidObservation>(obs);
+				Collections.sort(phasedObs, StandardPhaseComparator.instance);
+			} else {
+				phasedObs = obs;
+			}
 
 			phasedValidObservationCategoryMap.put(series, phasedObs);
 		}
 
 		// TODO:
 		// o fix occurrences of obs doubling and just copy and sort
+		// o indeed: is this needed now anyway? see plot model/pane code
 
 		// Table and plot models.
 		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(
@@ -1177,7 +1217,7 @@ public class Mediator {
 				StandardPhaseComparator.instance,
 				PhaseTimeElementEntity.instance, seriesVisibilityMap);
 
-		// Select an arbitrary model for mean 
+		// Select an arbitrary model for mean
 		obsAndMeanPlotModel = obsAndMeanPlotModel1;
 
 		// The mean observation table model must listen to the plot
@@ -1194,7 +1234,8 @@ public class Mediator {
 				meanObsTableModel);
 
 		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
-				"Phase Plot for " + objName, subTitle, obsAndMeanPlotModel1,
+				LocaleProps.get("PHASE_PLOT") + " " + LocaleProps.get("FOR")
+						+ " " + objName, subTitle, obsAndMeanPlotModel1,
 				obsAndMeanPlotModel2, epoch, period);
 
 		// The observation table pane contains valid and potentially
@@ -1335,12 +1376,24 @@ public class Mediator {
 				if (!dialog.isCancelled()) {
 					SeriesType type = dialog.getSeries();
 
-					int num = obsAndMeanPlotModel.getSrcTypeToSeriesNumMap()
+//					int num = obsAndMeanPlotModel.getSrcTypeToSeriesNumMap()
+//							.get(type);
+
+//					 List<ValidObservation> obs = obsAndMeanPlotModel
+//					 .getSeriesNumToObSrcListMap().get(num);
+
+					// Note that this will work so long as we have a single
+					// retriever. For additive loads we will either have to
+					// use an aggregated retriever or add file-loaded obs
+					// to the AID retriever.
+					//
+					// Question: do we want to do the same thing for polynomial
+					// fit? Or do we need to allow a polynomial fit of a phase
+					// plot?
+					List<ValidObservation> obs = newStarMessage.getStarInfo()
+							.getRetriever().getValidObservationCategoryMap()
 							.get(type);
-
-					List<ValidObservation> obs = obsAndMeanPlotModel
-							.getSeriesNumToObSrcListMap().get(num);
-
+					
 					this.getProgressNotifier().notifyListeners(
 							ProgressInfo.START_PROGRESS);
 					this.getProgressNotifier().notifyListeners(
@@ -1354,8 +1407,8 @@ public class Mediator {
 				}
 			}
 		} catch (Exception e) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					"Period Analysis", e);
+			MessageBox.showErrorDialog(MainFrame.getInstance(), LocaleProps
+					.get("PERIOD_ANALYSIS"), e);
 
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
@@ -1376,14 +1429,14 @@ public class Mediator {
 		NamedComponent extra = null;
 
 		if (analysisType == AnalysisType.RAW_DATA) {
-			title = "Light Curve Control";
-			binSettingPane = new TimeElementsInBinSettingPane(
-					"Days per Mean Series Bin", plotPane,
+			title = LocaleProps.get("LIGHT_CURVE_CONTROL_DLG_TITLE");
+			binSettingPane = new TimeElementsInBinSettingPane(LocaleProps
+					.get("DAYS_PER_MEAN_SERIES_BIN"), plotPane,
 					JDTimeElementEntity.instance);
 		} else if (analysisType == AnalysisType.PHASE_PLOT) {
-			title = "Phase Plot Control";
-			binSettingPane = new TimeElementsInBinSettingPane(
-					"Phase Steps per Mean Series Bin", plotPane,
+			title = LocaleProps.get("PHASE_PLOT_CONTROL_DLG_TITLE");
+			binSettingPane = new TimeElementsInBinSettingPane(LocaleProps
+					.get("PHASE_STEPS_PER_MEAN_SERIES_BIN"), plotPane,
 					PhaseTimeElementEntity.instance);
 		}
 
@@ -1564,6 +1617,29 @@ public class Mediator {
 				saveSyntheticObsListToFile(parent, obs);
 			}
 			break;
+		}
+	}
+
+	/**
+	 * Save the current plot (as a PNG) to the specified file.
+	 * 
+	 * @param path
+	 *            The file to write the PNG image to.
+	 * @param width
+	 *            The desired width of the image.
+	 * @param height
+	 *            The desired height of the image.
+	 */
+	public void saveCurrentPlotToFile(File file, int width, int height) {
+		ChartPanel chart = analysisTypeMap.get(analysisType)
+				.getObsAndMeanChartPane().getChartPanel();
+
+		try {
+			ChartUtilities
+					.saveChartAsPNG(file, chart.getChart(), width, height);
+		} catch (IOException e) {
+			MessageBox.showErrorDialog("Save plot to file",
+					"Cannot save plot to " + "'" + file.getPath() + "'.");
 		}
 	}
 

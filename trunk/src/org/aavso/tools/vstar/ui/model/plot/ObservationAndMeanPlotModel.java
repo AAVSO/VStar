@@ -39,6 +39,7 @@ import org.aavso.tools.vstar.util.stats.DescStats;
  * observations, e.g. for different bands (or from different sources) along with
  * a means series that can change over time.
  */
+@SuppressWarnings("serial")
 public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 	public static final int NO_MEANS_SERIES = -1;
