@@ -255,18 +255,18 @@ public class AAVSOUploadFileFormatObservationSource extends
 			ValidObservation observation = commonReadNextObservation(fields,
 					obNum);
 
-			String uncertaintyStr = fields[3];
+			String uncertaintyStr = fields[3].trim();
 			if (!isNA(uncertaintyStr)) {
 				double uncertainty = uncertaintyValueValidator
-						.validate(fields[3]);
+						.validate(uncertaintyStr);
 				observation.getMagnitude().setUncertainty(uncertainty);
 			}
 
-			String filter = fields[4];
+			String filter = fields[4].trim();
 			SeriesType band = SeriesType.getSeriesFromShortName(filter);
 			observation.setBand(band);
 
-			String transformedStr = fields[5];
+			String transformedStr = fields[5].trim();
 			if (!isNA(transformedStr)) {
 				boolean transformed = transformedValidator
 						.validate(transformedStr);
@@ -275,7 +275,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 			}
 
 			// ValidObservation defaults to STD.
-			String mtypeStr = fields[6];
+			String mtypeStr = fields[6].trim();
 			MTypeType mtype = null;
 			if (!isNA(mtypeStr)) {
 				if ("DIF".equals(mtypeStr)) {
@@ -291,7 +291,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 			}
 
-			String cname = fields[7];
+			String cname = fields[7].trim();
 			if (isNA(cname)) {
 				if (mtype == MTypeType.DIFF) {
 					throw new ObservationValidationError(
@@ -303,7 +303,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 				cname += ": ";
 			}
 
-			String cmagStr = fields[8];
+			String cmagStr = fields[8].trim();
 			if (!isNA(cmagStr)) {
 				// Note: Could CKMagValidator here, but its max field width
 				// seems not to represent the reality of some instrumental
@@ -312,14 +312,14 @@ public class AAVSOUploadFileFormatObservationSource extends
 				observation.setCMag(cname + cmag);
 			}
 
-			String kname = fields[9];
+			String kname = fields[9].trim();
 			if (isNA(kname)) {
 				kname = "";
 			} else {
 				kname += ": ";
 			}
 
-			String kmagStr = fields[10];
+			String kmagStr = fields[10].trim();
 			if (!isNA(kmagStr)) {
 				// Note: Could CKMagValidator here, but its max field width
 				// seems not to represent the reality of some instrumental
@@ -328,23 +328,23 @@ public class AAVSOUploadFileFormatObservationSource extends
 				observation.setKMag(kname + kmag);
 			}
 
-			String airmass = fields[11];
+			String airmass = fields[11].trim();
 			if (!isNA(airmass)) {
 				observation.setAirmass(airmass);
 			}
 
-			String group = fields[12];
+			String group = fields[12].trim();
 			if (group.length() > 5) {
 				throw new ObservationValidationError(
 						"GROUP has more than 5 characters.");
 			}
 
-			String chart = fields[13];
+			String chart = fields[13].trim();
 			if (!isNA(chart)) {
 				observation.setCharts(chart);
 			}
 
-			handleComments(fields[14], group, observation);
+			handleComments(fields[14].trim(), group, observation);
 
 			return observation;
 		}
@@ -358,7 +358,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 			observation.setBand(SeriesType.Visual);
 
-			String commentCode = fields[3];
+			String commentCode = fields[3].trim();
 			if (!isNA(commentCode)) {
 				commentCode = commentCodeValidator.validate(commentCode);
 				if (commentCode != null) {
@@ -366,17 +366,17 @@ public class AAVSOUploadFileFormatObservationSource extends
 				}
 			}
 
-			String comp1 = fields[4];
+			String comp1 = fields[4].trim();
 			if (!isNA(comp1)) {
 				observation.setCompStar1(comp1);
 			}
 
-			String comp2 = fields[5];
+			String comp2 = fields[5].trim();
 			if (!isNA(comp2)) {
 				observation.setCompStar2(comp2);
 			}
 
-			String chart = fields[6];
+			String chart = fields[6].trim();
 			if (!isNA(chart)) {
 				observation.setCharts(chart);
 			}
@@ -385,7 +385,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 				// The visual format doesn't say that if N/A, "na" must be
 				// used in this field like the Extended format does, so we
 				// allow for the possibility that this field is missing.
-				handleComments(fields[7], null, observation);
+				handleComments(fields[7].trim(), null, observation);
 			}
 
 			return observation;
@@ -397,22 +397,22 @@ public class AAVSOUploadFileFormatObservationSource extends
 				int obNum) throws ObservationValidationError {
 			ValidObservation observation = new ValidObservation();
 
-			String name = fields[0];
+			String name = fields[0].trim();
 
 			observation.setRecordNumber(obNum);
 			observation.setName(name);
 			observation.setObsCode(obscode);
 
-			// TODO: handle calendar date format as well as JD.
-			if (!"JD".equals(dateType)) {
+			// TODO: handle calendar date format.
+			if (!"JD".equals(dateType) && !"HJD".equals(dateType)) {
 				throw new ObservationValidationError("Unsupported date type: "
 						+ dateType);
 			} else {
-				DateInfo dateInfo = julianDayValidator.validate(fields[1]);
+				DateInfo dateInfo = julianDayValidator.validate(fields[1].trim());
 				observation.setDateInfo(dateInfo);
 			}
 
-			Magnitude magnitude = magnitudeFieldValidator.validate(fields[2]);
+			Magnitude magnitude = magnitudeFieldValidator.validate(fields[2].trim());
 			observation.setMagnitude(magnitude);
 
 			return observation;
