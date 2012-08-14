@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This abstract class should be subclassed by any class that wants to have
@@ -59,11 +60,11 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	protected JPanel createButtonPane() {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		JButton cancelButton = new JButton("Cancel");
+		JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
 		cancelButton.addActionListener(createCancelButtonListener());
 		panel.add(cancelButton, BorderLayout.LINE_START);
 
-		okButton = new JButton("OK");
+		okButton = new JButton(LocaleProps.get("OK_BUTTON"));
 		okButton.addActionListener(createOKButtonListener());
 		panel.add(okButton, BorderLayout.LINE_END);
 

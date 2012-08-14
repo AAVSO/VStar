@@ -18,13 +18,15 @@
 package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This class validates an observer code.
  */
 public class ObserverCodeValidator extends AbstractStringValidator<String> {
 
-	private static final String KIND = "observer code";
+	private static final String KIND = LocaleProps
+			.get("OBSERVER_CODE_VALIDATOR_KIND");
 
 	private final RegexValidator regexValidator;
 
@@ -35,11 +37,12 @@ public class ObserverCodeValidator extends AbstractStringValidator<String> {
 	}
 
 	public String validate(String str) throws ObservationValidationError {
-		if (this.isLegallyEmpty(str)) return null;
-		
+		if (this.isLegallyEmpty(str))
+			return null;
+
 		return this.regexValidator.validate(str)[0];
 	}
-	
+
 	protected boolean canBeEmpty() {
 		return true;
 	}

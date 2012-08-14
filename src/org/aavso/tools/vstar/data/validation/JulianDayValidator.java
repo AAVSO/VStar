@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This class validates provided text as a Julian Day.
@@ -31,19 +32,21 @@ public class JulianDayValidator extends AbstractStringValidator<DateInfo> {
 
 	private boolean canBeEmpty;
 
-	private static final String KIND = "Julian Day";
-	
+	private static final String KIND = LocaleProps
+			.get("JULIAN_DAY_VALIDATOR_KIND");
+
 	private final RegexValidator regexValidator;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param canBeEmpty Can the magnitude field be empty?
+	 * @param canBeEmpty
+	 *            Can the magnitude field be empty?
 	 */
 	public JulianDayValidator(boolean canBeEmpty) {
 		super(KIND);
-		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$",
-				KIND, "Only decimal digits and a single '.' are permitted.");
+		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$", KIND,
+				LocaleProps.get("JULIAN_DAY_VALIDATOR_ERR_MSG"));
 		this.canBeEmpty = canBeEmpty;
 	}
 
@@ -52,8 +55,8 @@ public class JulianDayValidator extends AbstractStringValidator<DateInfo> {
 	 */
 	public JulianDayValidator() {
 		super(KIND);
-		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$",
-				KIND, "Only decimal digits and a single '.' are permitted.");
+		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$", KIND,
+				LocaleProps.get("JULIAN_DAY_VALIDATOR_ERR_MSG"));
 		this.canBeEmpty = false;
 	}
 
@@ -67,17 +70,18 @@ public class JulianDayValidator extends AbstractStringValidator<DateInfo> {
 	 *             if validation is unsuccessful.
 	 */
 	public DateInfo validate(String str) throws ObservationValidationError {
-		if (this.isLegallyEmpty(str)) return null;
+		if (this.isLegallyEmpty(str))
+			return null;
 
 		String[] fields = this.regexValidator.validate(str);
 
 		// By virtue of the regex pattern above,
 		// this must parse as a double.
 		double value = Double.parseDouble(fields[0]);
-		
+
 		return new DateInfo(value);
 	}
-	
+
 	protected boolean canBeEmpty() {
 		return this.canBeEmpty;
 	}

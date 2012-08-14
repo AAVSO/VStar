@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 
@@ -43,6 +44,7 @@ import org.aavso.tools.vstar.util.stats.BinningResult;
  * This class represents a pane with checkboxes showing those series that are
  * rendered. The series to be displayed can be changed.
  */
+@SuppressWarnings("serial")
 public class SeriesVisibilityPane extends JPanel {
 
 	private ObservationAndMeanPlotModel obsPlotModel;
@@ -73,7 +75,8 @@ public class SeriesVisibilityPane extends JPanel {
 		this.analysisType = analysisType;
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		this.setBorder(BorderFactory.createTitledBorder("Visibility"));
+		this.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("VISIBILITY_TITLE")));
 		this
 				.setToolTipText("Select or deselect series for desired visibility.");
 
@@ -117,7 +120,8 @@ public class SeriesVisibilityPane extends JPanel {
 	private JPanel createDataSeriesCheckboxes() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Data"));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("DATA_TITLE")));
 
 		// Ensure the panel is always wide enough.
 		this.add(Box.createRigidArea(new Dimension(75, 1)));
@@ -144,8 +148,10 @@ public class SeriesVisibilityPane extends JPanel {
 						.get(series);
 
 				// Listeners need access to discrepant and excluded checkboxes.
-				// We also set the initial state for these checkboxes conditionally,
-				// depending upon whether any observations are present in these series.
+				// We also set the initial state for these checkboxes
+				// conditionally,
+				// depending upon whether any observations are present in these
+				// series.
 				if (series == SeriesType.DISCREPANT) {
 					discrepantCheckBox = checkBox;
 					if (obsPlotModel.getSeriesNumToObSrcListMap()
@@ -168,7 +174,8 @@ public class SeriesVisibilityPane extends JPanel {
 	private JPanel createOtherSeriesCheckboxes() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Analysis"));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("ANALYSIS_TITLE")));
 
 		// Mean series.
 		meanCheckBox = new JCheckBox(SeriesType.MEANS.getDescription());
@@ -190,12 +197,13 @@ public class SeriesVisibilityPane extends JPanel {
 
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.PAGE_AXIS));
-		subPanel.setBorder(BorderFactory.createTitledBorder("Model"));
+		// TODO: why bother with this panel? Just use parent Analysis pane!
+		subPanel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("MODEL_TITLE")));
 		subPanel.add(Box.createRigidArea(new Dimension(75, 1)));
 
 		// Model series.
-		modelCheckBox = new JCheckBox(SeriesType.Model
-				.getDescription());
+		modelCheckBox = new JCheckBox(SeriesType.Model.getDescription());
 		modelCheckBox
 				.addActionListener(createSeriesVisibilityCheckBoxListener());
 		setInitialCheckBoxState(SeriesType.Model, modelCheckBox);
@@ -266,12 +274,14 @@ public class SeriesVisibilityPane extends JPanel {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
-		JButton selectAllButton = new JButton("Select All");
+		JButton selectAllButton = new JButton(LocaleProps
+				.get("SELECT_ALL_BUTTON"));
 		selectAllButton
 				.addActionListener(createEnMasseSelectionButtonListener(true));
 		panel.add(selectAllButton, BorderLayout.LINE_START);
 
-		JButton deSelectAllButton = new JButton("Deselect All");
+		JButton deSelectAllButton = new JButton(LocaleProps
+				.get("DESELECT_ALL_BUTTON"));
 		deSelectAllButton
 				.addActionListener(createEnMasseSelectionButtonListener(false));
 		panel.add(deSelectAllButton, BorderLayout.LINE_END);

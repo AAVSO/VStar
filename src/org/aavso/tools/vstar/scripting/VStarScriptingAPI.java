@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.scripting;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 import org.aavso.tools.vstar.data.SeriesType;
@@ -116,7 +117,6 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void loadFromAID(final String name, double minJD,
 			double maxJD) {
-
 		String auid = null;
 		mediator.createObservationArtefactsFromDatabase(name, auid, minJD,
 				maxJD);
@@ -124,21 +124,52 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Save the current dataset (shown on light curve and observation list) to a
-	 * file.
+	 * Save the raw dataset (light curve) to a file.
 	 * 
 	 * @param path
 	 *            The path to the file to save to (as a string).
 	 * @param delimiter
 	 *            The delimiter between data items.
 	 */
-	public synchronized void saveCurrentData(final String path, String delimiter) {
+	public synchronized void saveRawData(final String path, String delimiter) {
 		lightCurveMode(); // save raw data not phase plot data
 		mediator.saveObsListToFile(MainFrame.getInstance(), new File(path),
 				delimiter);
 		mediator.waitForJobCompletion();
 	}
 
+	// TODO: save means, model, residuals methods...
+
+	/**
+	 * Save the light curve to a file.
+	 * 
+	 * @param path
+	 *            The path to the file to save to (as a string).
+	 * @param width
+	 *            The desired width of the image.
+	 * @param height
+	 *            The desired height of the image.
+	 */
+	public synchronized void saveLightCurve(final String path, int width, int height) {
+		lightCurveMode();
+		mediator.saveCurrentPlotToFile(new File(path), width, height);
+	}
+
+	/**
+	 * Save the phase plot to a file.
+	 * 
+	 * @param path
+	 *            The path to the file to save to (as a string).
+	 * @param width
+	 *            The desired width of the image.
+	 * @param height
+	 *            The desired height of the image.
+	 */
+	public synchronized void savePhasePlot(final String path, int width, int height) {
+		phasePlotMode();
+		mediator.saveCurrentPlotToFile(new File(path), width, height);
+	}
+	
 	/**
 	 * Switch to phase plot mode. If no phase plot has been created yet, this
 	 * will open the phase parameter dialog.
@@ -157,11 +188,22 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Returns the band names in the current dataset.
+	 * Create a phase plot given period and epoch.
+	 * 
+	 * @param period The period on which to fold the data.
+	 * @param epoch The epoch (first Julian Date) for the phase plot.
+	 */
+	public synchronized void phasePlot(double period, double epoch) {
+		mediator.createPhasePlot(period, epoch);
+		mediator.waitForJobCompletion();		
+	}
+	
+	/**
+	 * Shows the band names in the current dataset.
 	 * 
 	 * @return An array of band names.
 	 */
-	public synchronized void getBands() {
+	public synchronized void showBands() {
 		ObservationAndMeanPlotModel model = analysisTypeMsg
 				.getObsAndMeanChartPane().getObsModel();
 

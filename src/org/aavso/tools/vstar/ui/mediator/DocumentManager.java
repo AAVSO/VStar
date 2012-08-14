@@ -51,6 +51,7 @@ public class DocumentManager {
 	private Map<String, SyntheticObservationListPane<AbstractModelObservationTableModel>> rawDataResidualComponents;
 	private Map<String, SyntheticObservationListPane<AbstractModelObservationTableModel>> phasedResidualComponents;
 
+	private boolean phasePlotExists;
 	private double epoch;
 	private double period;
 
@@ -66,10 +67,32 @@ public class DocumentManager {
 		rawDataResidualComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
 		phasedResidualComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
 
+		phasePlotExists = false;
 		epoch = 0;
 		period = 0;
 
 		statsInfo = new TreeMap<String, String>();
+	}
+
+	/**
+	 * @return the phasePlotExists
+	 */
+	public boolean phasePlotExists() {
+		return phasePlotExists;
+	}
+
+	/**
+	 * @return the epoch
+	 */
+	public double getEpoch() {
+		return epoch;
+	}
+
+	/**
+	 * @return the period
+	 */
+	public double getPeriod() {
+		return period;
 	}
 
 	// ** List pane methods **
@@ -264,14 +287,16 @@ public class DocumentManager {
 
 	/**
 	 * Return a phase change listener that updates epoch and period information
-	 * in preparation for creating or retrieving phase plot components. TODO:
-	 * when we have finally unified observations as a single list across all
-	 * models, a listener for this message can call setPhases() on that list.
+	 * in preparation for creating or retrieving phase plot components.<br/>
+	 * TODO: when we have finally unified observations as a single list across
+	 * all models, a listener for this message can call setPhases() on that
+	 * list.
 	 */
 	public Listener<PhaseChangeMessage> createPhaseChangeListener() {
 		return new Listener<PhaseChangeMessage>() {
 			@Override
 			public void update(PhaseChangeMessage info) {
+				phasePlotExists = true;
 				epoch = info.getEpoch();
 				period = info.getPeriod();
 			}

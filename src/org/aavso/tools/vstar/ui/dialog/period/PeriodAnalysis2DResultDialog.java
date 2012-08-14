@@ -34,6 +34,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
@@ -45,6 +46,7 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 /**
  * This dialog class is used to visualise period analysis results.
  */
+@SuppressWarnings("serial")
 public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 	private final static PeriodAnalysisCoordinateType[] DATA_COLUMN_TYPES = {
@@ -178,12 +180,14 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		// Add data table view.
 		dataTablePane = new PeriodAnalysisDataTablePane(dataTableModel,
 				algorithm);
-		namedComponents.add(new NamedComponent("Data", dataTablePane));
+		namedComponents.add(new NamedComponent(LocaleProps.get("DATA_TAB"),
+				dataTablePane));
 
 		// Add top-hits table view.
 		topHitsTablePane = new PeriodAnalysisTopHitsTablePane(
 				topHitsTableModel, dataTableModel, algorithm);
-		namedComponents.add(new NamedComponent("Top Hits", topHitsTablePane));
+		namedComponents.add(new NamedComponent(LocaleProps.get("TOP_HITS_TAB"),
+				topHitsTablePane));
 
 		return PluginComponentFactory.createTabs(namedComponents);
 	}

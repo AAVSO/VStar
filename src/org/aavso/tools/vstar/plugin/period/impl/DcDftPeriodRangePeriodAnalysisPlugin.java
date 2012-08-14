@@ -25,12 +25,13 @@ import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.ui.dialog.MultiNumberEntryDialog;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
- * This class encapsulates the "period range" (as per AAVSO TS) form of
- * the DC DFT period analysis algorithm.
+ * This class encapsulates the "period range" (as per AAVSO TS) form of the DC
+ * DFT period analysis algorithm.
  */
 public class DcDftPeriodRangePeriodAnalysisPlugin extends
 		DcDftPeriodAnalysisPluginBase {
@@ -57,7 +58,8 @@ public class DcDftPeriodRangePeriodAnalysisPlugin extends
 			throws AlgorithmError, CancellationException {
 		assert newStarMessage != null;
 
-		periodAnalysisAlgorithm = new TSDcDft(obs, DcDftAnalysisType.PERIOD_RANGE);
+		periodAnalysisAlgorithm = new TSDcDft(obs,
+				DcDftAnalysisType.PERIOD_RANGE);
 
 		MultiNumberEntryDialog paramDialog = createParamDialog();
 
@@ -79,27 +81,30 @@ public class DcDftPeriodRangePeriodAnalysisPlugin extends
 	private MultiNumberEntryDialog createParamDialog() {
 		List<NumberField> fields = new ArrayList<NumberField>();
 
-		loPeriodField = new NumberField("Low Period", 0.0, null, currLoPeriod);
+		loPeriodField = new NumberField(LocaleProps
+				.get("PERIOD_ANALYSIS_PARAMETERS_LOW_PERIOD_TITLE"), 0.0, null, currLoPeriod);
 		fields.add(loPeriodField);
 
-		hiPeriodField = new NumberField("High Period", 0.0, null, currHiPeriod);
+		hiPeriodField = new NumberField(LocaleProps
+				.get("PERIOD_ANALYSIS_PARAMETERS_HIGH_PERIOD_TITLE"), 0.0, null, currHiPeriod);
 		fields.add(hiPeriodField);
 
-		resolutionField = new NumberField("Resolution", 0.0, null,
-				currResolution);
+		resolutionField = new NumberField(LocaleProps
+				.get("PERIOD_ANALYSIS_PARAMETERS_RESOLUTION_TITLE"), 0.0, null, currResolution);
 		fields.add(resolutionField);
 
-		return new MultiNumberEntryDialog("Parameters", fields);
+		return new MultiNumberEntryDialog(LocaleProps
+				.get("PERIOD_ANALYSIS_PARAMETERS_DLG_TITLE"), fields);
 	}
 
 	@Override
 	public String getDescription() {
-		return "Date Compensated Discrete Fourier Transform with Period Range";
+		return LocaleProps.get("DCDFT_WITH_PERIOD_DESC");
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "DC DFT with Period Range";
+		return LocaleProps.get("DCDFT_WITH_PERIOD_DISPLAY_NAME");
 	}
 
 	public void reset() {

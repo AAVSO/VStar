@@ -17,13 +17,16 @@
  */
 package org.aavso.tools.vstar.util.period;
 
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+
 /**
  * Period analysis coordinate type.
  */
 public enum PeriodAnalysisCoordinateType {
 
-	FREQUENCY("Frequency"), AMPLITUDE("Amplitude"), POWER("Power"), PERIOD(
-			"Period");
+	FREQUENCY(LocaleProps.get("FREQUENCY_COORD")), AMPLITUDE(LocaleProps
+			.get("AMPLITUDE_COORD")), POWER(LocaleProps.get("POWER_COORD")), PERIOD(
+			LocaleProps.get("PERIOD_COORD"));
 
 	private String description;
 

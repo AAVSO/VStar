@@ -28,6 +28,7 @@ import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 
 /**
  * A concurrent task in which a potentially long-running modelling is executed.
@@ -64,6 +65,14 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 				"Performing " + model.getKind() + "...");
 		try {
 			model.execute();
+			// Is there a phase plot in effect?
+			// If so, set the model's phase values accordingly.
+			if (Mediator.getInstance().getDocumentManager().phasePlotExists()) {
+				double epoch = Mediator.getInstance().getDocumentManager().getEpoch();
+				double period = Mediator.getInstance().getDocumentManager().getPeriod();
+				PhaseCalcs.setPhases(model.getFit(), epoch, period);
+				PhaseCalcs.setPhases(model.getResiduals(), epoch, period);
+			}
 		} catch (Throwable t) {
 			error = true;
 			MessageBox.showErrorDialog(model.getKind() + " Error", t);

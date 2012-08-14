@@ -63,6 +63,7 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 		return "Mean time between selections";
 	}
 
+	@SuppressWarnings("serial")
 	class ObservationCollectionDialog extends JDialog {
 
 		private List<ValidObservation> obs;

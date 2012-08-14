@@ -123,7 +123,10 @@ public class VStar {
 	 */
 	private static void processCmdLineArgs(String[] args) {
 		for (String arg : args) {
-			if ("--noplugins".equals(arg)) {
+			if ("--help".equals(arg)) {
+				System.out.println("usage: vstar [--noplugins]");
+				System.exit(0);
+			} else if ("--noplugins".equals(arg)) {
 				loadPlugins = false;
 			}
 		}

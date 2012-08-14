@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.util.period.wwz;
 
+import org.aavso.tools.vstar.util.locale.LocaleProps;
+
 /**
  * Period analysis coordinate type.
  */
@@ -82,25 +84,25 @@ public enum WWZCoordinateType {
 
 		switch (this) {
 		case TAU:
-			str = "Time";
+			str = LocaleProps.get("TIME_COORD");
 			break;
 		case FREQUENCY:
-			str = "Frequency";
+			str = LocaleProps.get("FREQUENCY_COORD");
 			break;
 		case PERIOD:
-			str = "Period";
+			str = LocaleProps.get("PERIOD_COORD");
 			break;
 		case WWZ:
 			str = "WWZ";
 			break;
 		case SEMI_AMPLITUDE:
-			str = "Semi-amplitude";
+			str = LocaleProps.get("SEMI_AMPLITUDE_COORD");
 			break;
 		case MEAN_MAG:
-			str = "Mean Magnitude";
+			str = LocaleProps.get("MEAN_MAG_COORD");
 			break;
 		case EFFECTIVE_NUM_DATA:
-			str = "Effective number of data";
+			str = LocaleProps.get("EFFECTIVE_NUM_DATA_COORD");
 			break;
 		}
 

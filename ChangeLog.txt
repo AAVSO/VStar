@@ -20,10 +20,12 @@ o Bug & Issue tracker entries cited below can be found here:
   codebase).
 
 Known Issues:
-o VStar "leaks" memory with ongoing use. The WebStart JNLP file specifies 
-  a larger-than-default heap, which helps significantly. For now, if VStar becomes 
-  unresponsive, restart it. This problem will be addressed in forthcoming releases. 
-  See trackers 2924511, 2909500, and 3011104 for more details.
+o VStar "leaks" memory with ongoing use. The WebStart JNLP file and VStar.{sh,bat}
+  files specify a larger-than-default heap, which helps significantly. For now, 
+  if VStar becomes unresponsive, restart it, or increase the maximum heap memory 
+  (currently -Xmx500m) when running via the local VStar.{sh,bat} file. This problem 
+  will be addressed in forthcoming releases. See trackers 2924511, 2909500, and 
+  3011104 for more details.
   
 ----------------------
 Date: April 4 2012

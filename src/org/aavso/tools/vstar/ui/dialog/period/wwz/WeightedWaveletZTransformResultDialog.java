@@ -38,6 +38,7 @@ import org.aavso.tools.vstar.ui.model.list.WWZDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.WWZ2DPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.WWZ3DPlotModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
@@ -63,6 +64,7 @@ import org.math.plot.Plot3DPanel;
 /**
  * This dialog class is used to visualise WWZ algorithm results.
  */
+@SuppressWarnings("serial")
 public class WeightedWaveletZTransformResultDialog extends
 		PeriodAnalysisDialogBase {
 
@@ -114,22 +116,24 @@ public class WeightedWaveletZTransformResultDialog extends
 	private JTabbedPane createTabs() {
 		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 
+		final String MAXIMAL_WWZ = "(" + LocaleProps.get("MAXIMAL") + " WWZ)";
+
 		// Maximal period vs time plot.
-		namedComponents.add(createChart("(maximal WWZ)", new WWZ2DPlotModel(wwt
+		namedComponents.add(createChart(MAXIMAL_WWZ, new WWZ2DPlotModel(wwt
 				.getMaximalStats(), WWZCoordinateType.TAU,
 				WWZCoordinateType.PERIOD),
 				getMinValue(WWZCoordinateType.PERIOD),
 				getMaxValue(WWZCoordinateType.PERIOD)));
 
 		// Maximal frequency vs time plot.
-		namedComponents.add(createChart("(maximal WWZ)", new WWZ2DPlotModel(wwt
+		namedComponents.add(createChart(MAXIMAL_WWZ, new WWZ2DPlotModel(wwt
 				.getMaximalStats(), WWZCoordinateType.TAU,
 				WWZCoordinateType.FREQUENCY),
 				getMinValue(WWZCoordinateType.FREQUENCY),
 				getMaxValue(WWZCoordinateType.FREQUENCY)));
 
 		// Maximal semi-amplitude vs time plot.
-		namedComponents.add(createChart("(maximal WWZ)", new WWZ2DPlotModel(wwt
+		namedComponents.add(createChart(MAXIMAL_WWZ, new WWZ2DPlotModel(wwt
 				.getMaximalStats(), WWZCoordinateType.TAU,
 				WWZCoordinateType.SEMI_AMPLITUDE), wwt.getMinAmp(), wwt
 				.getMaxAmp()));
@@ -144,7 +148,7 @@ public class WeightedWaveletZTransformResultDialog extends
 						.getMaxWWZ()));
 
 		// 3D plot from maximal stats.
-		namedComponents.add(create3DStatsPlot("(maximal WWZ)",
+		namedComponents.add(create3DStatsPlot(MAXIMAL_WWZ,
 				WWZCoordinateType.TAU, rangeType, WWZCoordinateType.WWZ, wwt
 						.getMaximalStats()));
 
@@ -152,13 +156,14 @@ public class WeightedWaveletZTransformResultDialog extends
 		WWZDataTablePane dataPane = new WWZDataTablePane(new WWZDataTableModel(
 				wwt.getStats(), wwt));
 		startupAndCleanupComponents.add(dataPane);
-		namedComponents.add(new NamedComponent("WWZ Results", dataPane));
+		namedComponents.add(new NamedComponent(LocaleProps.get("WWZ_RESULTS"),
+				dataPane));
 
 		WWZDataTablePane maximalPane = new WWZDataTablePane(
 				new WWZDataTableModel(wwt.getMaximalStats(), wwt));
 		startupAndCleanupComponents.add(maximalPane);
-		namedComponents.add(new NamedComponent("Maximal WWZ Results",
-				maximalPane));
+		namedComponents.add(new NamedComponent(LocaleProps
+				.get("MAXIMAL_WWZ_RESULTS"), maximalPane));
 
 		return PluginComponentFactory.createTabs(namedComponents);
 	}
@@ -168,7 +173,7 @@ public class WeightedWaveletZTransformResultDialog extends
 		findHarmonicsButton.setVisible(false);
 		return buttonPane;
 	}
-	
+
 	/**
 	 * The new phase plot button will only be enabled when a period analysis
 	 * selection message has been received, so we *know* without having to ask
@@ -185,7 +190,7 @@ public class WeightedWaveletZTransformResultDialog extends
 	// Note: The harmonics finder methods are not currently used here.
 	// Need to assess the validity or suitability of that functionality
 	// in the WWZ context.
-	
+
 	@Override
 	protected void findHarmonicsButtonAction() {
 		List<Harmonic> harmonics = findHarmonicsFromWWZStats(selectedDataPoint
@@ -239,7 +244,8 @@ public class WeightedWaveletZTransformResultDialog extends
 	private NamedComponent createChart(String suffix, WWZ2DPlotModel model,
 			double minRange, double maxRange) {
 
-		String name = model.getRangeType().toString() + " vs "
+		String name = model.getRangeType().toString() + " "
+				+ LocaleProps.get("VERSUS") + " "
 				+ model.getDomainType().toString() + " " + suffix;
 
 		JFreeChart chart1 = ChartFactory
@@ -248,16 +254,18 @@ public class WeightedWaveletZTransformResultDialog extends
 						.toString(), model, PlotOrientation.VERTICAL, true,
 						true, false);
 
-		JFreeChart chart2 = ChartFactory.createScatterPlot(chartTitle
-				+ ": " + name, model.getDomainType().toString(), model
-				.getRangeType().toString(), model, PlotOrientation.VERTICAL,
-				true, true, false);
+		JFreeChart chart2 = ChartFactory
+				.createScatterPlot(chartTitle + ": " + name, model
+						.getDomainType().toString(), model.getRangeType()
+						.toString(), model, PlotOrientation.VERTICAL, true,
+						true, false);
 
 		// Make a combined chart.
 		chart2.getXYPlot().setDataset(1, model);
 		chart2.getXYPlot().setRenderer(1, chart1.getXYPlot().getRenderer());
-		chart2.getXYPlot().setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
-		
+		chart2.getXYPlot().setDatasetRenderingOrder(
+				DatasetRenderingOrder.FORWARD);
+
 		double rangeMargin = ((maxRange - minRange) / 100) * 10;
 		minRange -= rangeMargin;
 		maxRange += rangeMargin;
@@ -296,15 +304,15 @@ public class WeightedWaveletZTransformResultDialog extends
 		XYPlot plot = new XYPlot(model, xAxis, yAxis, renderer);
 		plot.setBackgroundPaint(Color.white);
 		plot.setDomainGridlinesVisible(false);
-		
+
 		plot.setRangeGridlinePaint(Color.white);
 		plot.setRangeGridlinesVisible(false);
-		
+
 		plot.setDomainCrosshairVisible(true);
 		plot.setRangeCrosshairVisible(true);
 		plot.setDomainCrosshairValue(0);
 		plot.setRangeCrosshairValue(0);
-		
+
 		plot.setAxisOffset(new RectangleInsets(5, 5, 5, 5));
 		plot.setOutlinePaint(Color.blue);
 
@@ -335,9 +343,11 @@ public class WeightedWaveletZTransformResultDialog extends
 		minRange -= rangeMargin;
 		maxRange += rangeMargin;
 
-		String name = prefix + model.getRangeType().toString() + " vs "
-				+ model.getDomainType().toString() + " vs "
-				+ model.getZType().toString() + " contour";
+		String name = prefix + model.getRangeType().toString() + " "
+				+ LocaleProps.get("VERSUS") + " "
+				+ model.getDomainType().toString() + " "
+				+ LocaleProps.get("VERSUS") + " " + model.getZType().toString()
+				+ " " + LocaleProps.get("CONTOUR");
 
 		WWZPlotPane pane = new WWZPlotPane(chart, model, minRange, maxRange);
 		startupAndCleanupComponents.add(pane);
@@ -369,9 +379,11 @@ public class WeightedWaveletZTransformResultDialog extends
 			xyz[2][i] = stat.getValue(zType);
 		}
 
-		plot.addBarPlot("WWZ Statistics 3D plot", Color.GREEN, xyz);
+		plot.addBarPlot(LocaleProps.get("WWZ_STATISTICS_3D_PLOT"), Color.GREEN,
+				xyz);
 
-		String name = yType.toString() + " vs " + xType.toString() + " vs "
+		String name = yType.toString() + " " + LocaleProps.get("VERSUS") + " "
+				+ xType.toString() + " " + LocaleProps.get("VERSUS") + " "
 				+ zType.toString() + " 3D " + suffix;
 
 		return new NamedComponent(name, plot);

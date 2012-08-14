@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 
 /**
@@ -44,21 +45,22 @@ abstract public class WeightedWaveletZTransformPluginBase extends
 	public WeightedWaveletZTransformPluginBase() {
 		super();
 		wwt = null;
-		currDecay = 0.01;
-		currTimeDivisions = 50.0;
+		reset();
 	}
 
-	protected List<NumberField> createNumberFields(NumberField ... moreFields) {
+	protected List<NumberField> createNumberFields(NumberField... moreFields) {
 		List<NumberField> fields = new ArrayList<NumberField>();
 
 		for (NumberField field : moreFields) {
 			fields.add(field);
 		}
-		
-		decayField = new NumberField("Decay", null, null, currDecay);
+
+		decayField = new NumberField(LocaleProps.get("WWZ_PARAMETERS_DECAY"),
+				null, null, currDecay);
 		fields.add(decayField);
 
-		timeDivisionsField = new NumberField("Time Divisions", null, null,
+		timeDivisionsField = new NumberField(LocaleProps
+				.get("WWZ_PARAMETERS_TIME_DIVISIONS"), null, null,
 				currTimeDivisions);
 		fields.add(timeDivisionsField);
 

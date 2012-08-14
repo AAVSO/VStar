@@ -18,13 +18,15 @@
 package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * A comment code field validator.
  */
 public class CommentCodeValidator extends AbstractStringValidator<String> {
 
-	private static final String KIND = "comment code";
+	private static final String KIND = LocaleProps
+			.get("COMMENT_CODE_VALIDATOR_KIND");
 
 	private final RegexValidator regexValidator;
 
@@ -39,23 +41,23 @@ public class CommentCodeValidator extends AbstractStringValidator<String> {
 	 */
 	public CommentCodeValidator(String commentCodePatternStr) {
 		super(KIND);
-		//FIXME: AW I'm putting in what is probably a god awful hack.  This is so
-		//       the generic regex engine will return the entire group of comment codes
-		//       in one swoop, otherwise it returns just the last character it finds
+		// FIXME: AW I'm putting in what is probably a god awful hack. This is so
+		// the generic regex engine will return the entire group of comment codes
+		// in one swoop, otherwise it returns just the last character it finds
 		this.regexValidator = new RegexValidator("^((" + commentCodePatternStr
 				+ "|\\s)+)$", KIND);
 	}
 
-	public String validate(String str)
-			throws ObservationValidationError {
-		if (this.isLegallyEmpty(str)) return null;
+	public String validate(String str) throws ObservationValidationError {
+		if (this.isLegallyEmpty(str))
+			return null;
 
 		// TODO: note, we should indeed do what we say below
 		// leaving much work for CommentCodes to do. We would
 		// need to genericise this class on CommentType not String.
 		// Indeed, we could probably return a CommentCodes instance
 		// from here.
-		
+
 		// We could return an enum value of some kind,
 		// but VStar doesn't currently need to make
 		// decisions based upon comment code as it does

@@ -122,7 +122,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// Create plots, tables.
 			NewStarType type = NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
 			mediator.createNewStarObservationArtefacts(type,
-					new StarInfo(retriever, name), 0);
+					new StarInfo(retriever, name), 0, false);
 
 		} catch (CancellationException e) {
 			mediator.getProgressNotifier().notifyListeners(

@@ -40,6 +40,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * Series size selection panel.
@@ -167,7 +168,7 @@ public class SeriesSizeSelectionPane extends JPanel implements
 				.addActionListener(createSetDefaultsButtonActionListener());
 		panel.add(setDefaultsButton, BorderLayout.LINE_START);
 
-		JButton applyButton = new JButton("Apply");
+		JButton applyButton = new JButton(LocaleProps.get("APPLY_BUTTON"));
 		applyButton.addActionListener(createApplyButtonActionListener());
 		panel.add(applyButton, BorderLayout.LINE_END);
 

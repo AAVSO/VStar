@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.pane.plot;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 
+import org.jfree.chart.LegendItem;
 import org.jfree.chart.renderer.xy.XYErrorRenderer;
 
 /**
@@ -44,5 +45,22 @@ public class VStarPlotDataRenderer extends XYErrorRenderer {
 		Shape datapointShape = new Ellipse2D.Double(-size / 2, -size / 2, size,
 				size);
 		setSeriesShape(seriesNum, datapointShape);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jfree.chart.renderer.xy.XYLineAndShapeRenderer#getLegendItem(int, int)
+	 */
+	@Override
+	public LegendItem getLegendItem(int dataSetIndex, int seriesNum) {
+		// Only show a legend item for a series for one dataset.
+		// In the case of the light curve plot, there is only one,
+		// whereas in the case of the phase plot there are two.
+		LegendItem item = null;
+
+		if (dataSetIndex == 0) {
+			item = super.getLegendItem(dataSetIndex, seriesNum);
+		}
+		
+		return item;
 	}
 }

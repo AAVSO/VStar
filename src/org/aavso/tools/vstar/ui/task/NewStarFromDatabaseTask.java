@@ -38,6 +38,7 @@ import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * A concurrent task in which a new star from file request task is handled.
@@ -95,7 +96,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// Connect to the observation database if we haven't already
 			// done so.
 			MainFrame.getInstance().getStatusPane().setMessage(
-					"Connecting to AAVSO database...");
+					LocaleProps.get("STATUS_PANE_CONNECTING_TO_DATABASE"));
 
 			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
 			Connection vsxConnection = vsxConnector.createConnection();
@@ -165,7 +166,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			}
 
 			MainFrame.getInstance().getStatusPane().setMessage(
-					"Retrieving observations...");
+					LocaleProps.get("STATUS_PANE_RETRIEVING_OBS"));
 			results = obsStmt.executeQuery();
 			updateProgress(2);
 
@@ -189,7 +190,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 
 			// Create table/plot models and GUI elements.
 			mediator.createNewStarObservationArtefacts(
-					NewStarType.NEW_STAR_FROM_DATABASE, starInfo, 2);
+					NewStarType.NEW_STAR_FROM_DATABASE, starInfo, 2, false);
 
 			success = true;
 

@@ -28,6 +28,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * 
  * The model is notified of wholesale mean data change.
  */
+@SuppressWarnings("serial")
 public class PhasePlotMeanObservationTableModel extends
 		AbstractMeanObservationTableModel {
 

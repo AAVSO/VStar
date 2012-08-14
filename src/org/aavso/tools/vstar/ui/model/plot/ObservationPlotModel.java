@@ -44,6 +44,7 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
  * This is the base class for models that represent a series of valid variable
  * star observations, e.g. for different bands (or from different sources).
  */
+@SuppressWarnings("serial")
 public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 	/**
@@ -806,6 +807,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		};
 	}
 	
+	// Update the model and residuals series.
 	public void updateModelSeries(List<ValidObservation> modelObs,
 			List<ValidObservation> residualObs) {
 

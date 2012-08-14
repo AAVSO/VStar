@@ -80,57 +80,51 @@ public class MenuBar extends JMenuBar {
 
 	// File menu item names.
 	public static final String NEW_STAR_FROM_DATABASE = LocaleProps
-			.getString("NEW_STAR_FROM_DATABASE");
+			.get("NEW_STAR_FROM_DATABASE");
 	public static final String NEW_STAR_FROM_FILE = LocaleProps
-			.getString("NEW_STAR_FROM_FILE");
-	public static final String SAVE = LocaleProps.getString("SAVE");
-	public static final String PRINT = LocaleProps.getString("PRINT");
-	public static final String INFO = LocaleProps.getString("INFO");
-	public static final String PREFS = LocaleProps.getString("PREFS");
-	public static final String QUIT = LocaleProps.getString("QUIT");
+			.get("NEW_STAR_FROM_FILE");
+	public static final String SAVE = LocaleProps.get("SAVE");
+	public static final String PRINT = LocaleProps.get("PRINT");
+	public static final String INFO = LocaleProps.get("INFO");
+	public static final String PREFS = LocaleProps.get("PREFS");
+	public static final String QUIT = LocaleProps.get("QUIT");
 
 	// Edit menu items.
-	public static final String UNDO = LocaleProps.getString("UNDO");
-	public static final String REDO = LocaleProps.getString("REDO");
+	public static final String UNDO = LocaleProps.get("UNDO");
+	public static final String REDO = LocaleProps.get("REDO");
 	public static final String EXCLUDE_SELECTION = LocaleProps
-			.getString("EXCLUDE_SELECTION");
+			.get("EXCLUDE_SELECTION");
 
 	// View menu item names.
-	public static final String RAW_DATA_MODE = LocaleProps
-			.getString("RAW_DATA_MODE");
+	public static final String RAW_DATA_MODE = LocaleProps.get("RAW_DATA_MODE");
 	public static final String PHASE_PLOT_MODE = LocaleProps
-			.getString("PHASE_PLOT_MODE");
-	public static final String OB_DETAILS = LocaleProps.getString("OB_DETAILS");
-	public static final String PLOT_CONTROL = LocaleProps
-			.getString("PLOT_CONTROL");
-	public static final String ZOOM_IN = LocaleProps.getString("ZOOM_IN");
-	public static final String ZOOM_OUT = LocaleProps.getString("ZOOM_OUT");
-	public static final String ZOOM_TO_FIT = LocaleProps
-			.getString("ZOOM_TO_FIT");
-	public static final String PAN_LEFT = LocaleProps.getString("PAN_LEFT");
-	public static final String PAN_RIGHT = LocaleProps.getString("PAN_RIGHT");
-	public static final String PAN_UP = LocaleProps.getString("PAN_UP");
-	public static final String PAN_DOWN = LocaleProps.getString("PAN_DOWN");
-	public static final String FILTER = LocaleProps.getString("FILTER");
-	public static final String NO_FILTER = LocaleProps.getString("NO_FILTER");
+			.get("PHASE_PLOT_MODE");
+	public static final String OB_DETAILS = LocaleProps.get("OB_DETAILS");
+	public static final String PLOT_CONTROL = LocaleProps.get("PLOT_CONTROL");
+	public static final String ZOOM_IN = LocaleProps.get("ZOOM_IN");
+	public static final String ZOOM_OUT = LocaleProps.get("ZOOM_OUT");
+	public static final String ZOOM_TO_FIT = LocaleProps.get("ZOOM_TO_FIT");
+	public static final String PAN_LEFT = LocaleProps.get("PAN_LEFT");
+	public static final String PAN_RIGHT = LocaleProps.get("PAN_RIGHT");
+	public static final String PAN_UP = LocaleProps.get("PAN_UP");
+	public static final String PAN_DOWN = LocaleProps.get("PAN_DOWN");
+	public static final String FILTER = LocaleProps.get("FILTER");
+	public static final String NO_FILTER = LocaleProps.get("NO_FILTER");
 
 	// Analysis menu item names.
-	public static final String PHASE_PLOT = LocaleProps.getString("PHASE_PLOT");
-	public static final String PHASE_PLOTS = LocaleProps
-			.getString("PHASE_PLOTS");
+	public static final String PHASE_PLOT = LocaleProps.get("PHASE_PLOT");
+	public static final String PHASE_PLOTS = LocaleProps.get("PHASE_PLOTS");
 	public static final String POLYNOMIAL_FIT = LocaleProps
-			.getString("POLYNOMIAL_FIT");
-	public static final String MODELS = LocaleProps.getString("MODELS");
+			.get("POLYNOMIAL_FIT");
+	public static final String MODELS = LocaleProps.get("MODELS");
 
 	// Tool menu item names.
-	public static final String RUN_SCRIPT = LocaleProps.getString("RUN_SCRIPT");
+	public static final String RUN_SCRIPT = LocaleProps.get("RUN_SCRIPT");
 
 	// Help menu item names.
-	public static final String HELP_CONTENTS = LocaleProps
-			.getString("HELP_CONTENTS");
-	public static final String VSTAR_ONLINE = LocaleProps
-			.getString("VSTAR_ONLINE");
-	public static final String ABOUT = LocaleProps.getString("ABOUT");
+	public static final String HELP_CONTENTS = LocaleProps.get("HELP_CONTENTS");
+	public static final String VSTAR_ONLINE = LocaleProps.get("VSTAR_ONLINE");
+	public static final String ABOUT = LocaleProps.get("ABOUT");
 
 	private Mediator mediator = Mediator.getInstance();
 
@@ -252,7 +246,7 @@ public class MenuBar extends JMenuBar {
 	}
 
 	private void createFileMenu() {
-		JMenu fileMenu = new JMenu("File");
+		JMenu fileMenu = new JMenu(LocaleProps.get("FILE_MENU"));
 
 		fileNewStarFromDatabaseItem = new JMenuItem(NEW_STAR_FROM_DATABASE);
 		fileNewStarFromDatabaseItem
@@ -327,7 +321,7 @@ public class MenuBar extends JMenuBar {
 	}
 
 	private void createEditMenu() {
-		editMenu = new JMenu("Edit");
+		editMenu = new JMenu(LocaleProps.get("EDIT_MENU"));
 
 		editUndoItem = new JMenuItem(UNDO);
 		editUndoItem.setEnabled(false);
@@ -351,7 +345,7 @@ public class MenuBar extends JMenuBar {
 	}
 
 	private void createViewMenu() {
-		JMenu viewMenu = new JMenu("View");
+		JMenu viewMenu = new JMenu(LocaleProps.get("VIEW_MENU"));
 
 		viewRawDataItem = new JCheckBoxMenuItem(RAW_DATA_MODE);
 		viewRawDataItem.setEnabled(false);
@@ -450,7 +444,7 @@ public class MenuBar extends JMenuBar {
 	}
 
 	private void createAnalysisMenu() {
-		JMenu analysisMenu = new JMenu("Analysis");
+		JMenu analysisMenu = new JMenu(LocaleProps.get("ANALYSIS_MENU"));
 
 		analysisPhasePlotItem = new JMenuItem(PHASE_PLOT);
 		analysisPhasePlotItem.setEnabled(false);
@@ -506,7 +500,7 @@ public class MenuBar extends JMenuBar {
 	}
 
 	private void createToolMenu() {
-		toolMenu = new JMenu("Tool");
+		toolMenu = new JMenu(LocaleProps.get("TOOL_MENU"));
 		// toolMenu.setEnabled(false);
 
 		toolRunScript = new JMenuItem(RUN_SCRIPT);
@@ -555,7 +549,7 @@ public class MenuBar extends JMenuBar {
 	}
 
 	private void createHelpMenu() {
-		JMenu helpMenu = new JMenu("Help");
+		JMenu helpMenu = new JMenu(LocaleProps.get("HELP_MENU"));
 
 		helpContentsItem = new JMenuItem(HELP_CONTENTS, KeyEvent.VK_H);
 		helpContentsItem.addActionListener(createHelpContentsListener());
@@ -598,7 +592,7 @@ public class MenuBar extends JMenuBar {
 				try {
 					// Prompt user for star and JD range selection.
 					MainFrame.getInstance().getStatusPane().setMessage(
-							"Select a star...");
+							LocaleProps.get("STATUS_PANE_SELECT_STAR"));
 					StarSelectorDialog starSelectorDialog = StarSelectorDialog
 							.getInstance();
 					starSelectorDialog.showDialog();

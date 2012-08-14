@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
@@ -100,9 +101,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	protected Dataset lastDatasetSelected;
 
 	// Axis titles.
-	public static String JD_TITLE = "Time (JD)";
-	public static String PHASE_TITLE = "Phase";
-	public static String MAG_TITLE = "Brightness (magnitude)";
+	public static String JD_TITLE = LocaleProps.get("TIME_AXIS");
+	public static String PHASE_TITLE = LocaleProps.get("PHASE_AXIS");
+	public static String MAG_TITLE = LocaleProps.get("BRIGHTNESS_AXIS");
 
 	/**
 	 * Constructor
@@ -183,7 +184,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		chart.getXYPlot().setRangePannable(true);
 
 		chart.getXYPlot().setRenderer(renderer);
-		
+
 		this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
 
 		setupCrossHairs();
@@ -601,6 +602,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		double min = Double.MAX_VALUE;
 		double max = -Double.MAX_VALUE;
 
+		double minTimeElement = Double.MAX_VALUE;
+
 		Map<Integer, List<ValidObservation>> seriesNumToObsMap = obsModel
 				.getSeriesNumToObSrcListMap();
 
@@ -613,6 +616,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 			if (seriesVisibilityMap.get(seriesType)) {
 
 				List<ValidObservation> obs = seriesNumToObsMap.get(seriesNum);
+				int index = 0;
 				for (ValidObservation ob : obs) {
 					double mag = ob.getMagnitude().getMagValue();
 					double uncert = ob.getMagnitude().getUncertainty();
@@ -628,6 +632,16 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 					if (mag + uncert > max) {
 						max = mag + uncert;
 					}
+
+					// Get JD or phase.
+					double timeElement = obsModel.getTimeElementEntity()
+							.getTimeElement(obs, index);
+					
+					if (timeElement < minTimeElement) {
+						minTimeElement = timeElement;
+					}
+					
+					index++;
 				}
 			}
 		}
@@ -650,6 +664,12 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 
 			NumberAxis magAxis = (NumberAxis) chart.getXYPlot().getRangeAxis();
 			magAxis.setRange(new Range(min, max));
+
+			// chart.getXYPlot().getDomainAxis().setAutoRange(false);
+			// chart.getXYPlot().getRangeAxis().setAutoRange(false);
+
+			// chart.getXYPlot().getDomainAxis().setAutoRangeMinimumSize(minJD);
+			// chart.getXYPlot().getRangeAxis().setAutoRangeMinimumSize(min);
 		}
 	}
 
@@ -657,5 +677,4 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	// chart.getXYPlot().get{Domain,Range}Axis().setAutoRangeMinimumSize()
 	// as a way to fix the zoom-out-auto-range bug! Same as Range(min, max)
 	// above?
-
 }

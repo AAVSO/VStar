@@ -40,11 +40,13 @@ import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.jfree.chart.JFreeChart;
 
 /**
  * A dialog that controls the features of plots.
  */
+@SuppressWarnings("serial")
 public class PlotControlDialog extends JDialog {
 
 	private AnalysisType analysisType;
@@ -162,7 +164,8 @@ public class PlotControlDialog extends JDialog {
 		chartControlPanel.add(createSeriesChangePane());
 
 		JPanel showCheckBoxPanel = new JPanel();
-		showCheckBoxPanel.setBorder(BorderFactory.createTitledBorder("Show"));
+		showCheckBoxPanel.setBorder(BorderFactory
+				.createTitledBorder(LocaleProps.get("SHOW_TITLE")));
 		showCheckBoxPanel.setLayout(new BoxLayout(showCheckBoxPanel,
 				BoxLayout.PAGE_AXIS));
 
@@ -170,13 +173,13 @@ public class PlotControlDialog extends JDialog {
 		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.LINE_AXIS));
 
 		// A checkbox to show/hide error bars.
-		errorBarCheckBox = new JCheckBox("Error bars?");
+		errorBarCheckBox = new JCheckBox(LocaleProps.get("ERROR_BARS_CHECKBOX"));
 		errorBarCheckBox.setSelected(showErrorBars);
 		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());
 		showCheckBoxPanel.add(errorBarCheckBox);
 
 		// A checkbox to show/hide cross hairs.
-		crossHairCheckBox = new JCheckBox("Cross-hairs?");
+		crossHairCheckBox = new JCheckBox(LocaleProps.get("CROSSHAIRS_CHECKBOX"));
 		crossHairCheckBox.setSelected(showCrossHairs);
 		crossHairCheckBox.addActionListener(createCrossHairCheckBoxListener());
 		showCheckBoxPanel.add(crossHairCheckBox);
@@ -185,13 +188,13 @@ public class PlotControlDialog extends JDialog {
 
 		JPanel meanChangePanel = new JPanel();
 		meanChangePanel.setBorder(BorderFactory
-				.createTitledBorder("Mean Series Update"));
+				.createTitledBorder(LocaleProps.get("MEAN_SERIES_UPDATE_TITLE")));
 		meanChangePanel.setLayout(new BoxLayout(meanChangePanel,
 				BoxLayout.PAGE_AXIS));
 
 		// A checkbox to determine whether or not to join mean
 		// series elements.
-		joinMeansCheckBox = new JCheckBox("Join means?");
+		joinMeansCheckBox = new JCheckBox(LocaleProps.get("JOIN_MEANS_CHECKBOX"));
 		joinMeansCheckBox.setSelected(joinMeans);
 		joinMeansCheckBox.addActionListener(createJoinMeansCheckBoxListener());
 		meanChangePanel.add(joinMeansCheckBox);
@@ -296,7 +299,7 @@ public class PlotControlDialog extends JDialog {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
-		dismissButton = new JButton("Dismiss");
+		dismissButton = new JButton(LocaleProps.get("DISMISS_BUTTON"));
 		dismissButton.addActionListener(createDismissButtonListener());
 		panel.add(dismissButton);
 

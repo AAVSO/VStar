@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
 import org.aavso.tools.vstar.ui.model.plot.ITimeElementEntity;
-import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -43,6 +43,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * turn can be used to modify the means series in an observations and means
  * plot.
  */
+@SuppressWarnings("serial")
 public class TimeElementsInBinSettingPane extends JPanel {
 
 	private ObservationAndMeanPlotPane plotPane;
@@ -113,7 +114,7 @@ public class TimeElementsInBinSettingPane extends JPanel {
 		this.add(Box.createHorizontalGlue());
 
 		// Update button for time-elements-in-bin.
-		JButton updateButton = new JButton("Apply");
+		JButton updateButton = new JButton(LocaleProps.get("APPLY_BUTTON"));
 		updateButton.addActionListener(createUpdateMeansButtonListener());
 		this.add(updateButton);
 

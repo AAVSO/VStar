@@ -47,6 +47,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * A panel for rendering data lists, plots and other observation-related views.
  * A tabbed pane is used for each view.
  */
+@SuppressWarnings("serial")
 public class TabbedDataPane extends JPanel {
 
 	private Mediator mediator = Mediator.getInstance();
@@ -164,6 +165,8 @@ public class TabbedDataPane extends JPanel {
 	 * @return The annotated string.
 	 */
 	private String noSomethingYet(String s) {
+		// TODO: need to map to full text replacements in terms of LocaleProps.get()
+		// mapped by s.
 		return "No " + s.toLowerCase() + " yet.";
 	}
 

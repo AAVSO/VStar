@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.data.validation;
 
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This is the base class for all string-based validators.
@@ -77,8 +78,11 @@ public abstract class AbstractStringValidator<T> {
 				return true;
 			} else {
 				if (kind != null) {
-					throw new ObservationValidationError("The " + kind
-							+ " field cannot be empty.");
+					String msg = LocaleProps.get("THE") + " " + kind
+							+ " "
+							+ LocaleProps.get("FIELD_CANNOT_BE_EMPTY")
+							+ ".";
+					throw new ObservationValidationError(msg);
 				} else {
 					throw new ObservationValidationError();
 				}

@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.data.validation;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This class represents a magnitude value including uncertainty and
@@ -27,7 +28,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class MagnitudeFieldValidator extends AbstractStringValidator<Magnitude> {
 
-	private static final String KIND = "magnitude";
+	private static final String KIND = LocaleProps
+			.get("MAGNITUDE_VALIDATOR_KIND");
 
 	private final int MAG_MODIFIER_INDEX = 0;
 	private final int MAG_INDEX = 1;

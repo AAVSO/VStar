@@ -37,12 +37,14 @@ import javax.swing.JTextField;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This dialog allows the user to select a star.
  */
+@SuppressWarnings("serial")
 public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	private static AbstractDateUtil dateUtil = AbstractDateUtil.getInstance();
@@ -76,7 +78,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	 * Constructor (singleton)
 	 */
 	private StarSelectorDialog() {
-		super("Select a Star");
+		super(LocaleProps.get("NEW_STAR_FROM_AID_DLG_TITLE"));
 
 		this.starName = null;
 		this.auid = null;
@@ -126,7 +128,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JPanel createStarFieldPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Other Star"));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("NEW_STAR_FROM_AID_DLG_OTHER_STAR")));
 
 		starField = new JTextField();
 		starField.addActionListener(createStarFieldActionListener());
@@ -139,7 +142,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JPanel createMinJDFieldPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Minimum JD"));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("NEW_STAR_FROM_AID_DLG_MINIMUM_JD")));
 
 		double jd = dateUtil.calendarToJD(year - 2, month, day);
 		minJDField = new JTextField(String.format(NumericPrecisionPrefs
@@ -155,7 +159,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JPanel createMaxJDFieldPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Maximum JD"));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("NEW_STAR_FROM_AID_DLG_MAXIMUM_JD")));
 
 		double jd = dateUtil.calendarToJD(year, month, day);
 		maxJDField = new JTextField(String.format(NumericPrecisionPrefs
@@ -171,7 +176,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JPanel createAllDataCheckBoxPane() {
 		JPanel panel = new JPanel();
 
-		allDataCheckBox = new JCheckBox("All Data?");
+		allDataCheckBox = new JCheckBox(LocaleProps
+				.get("NEW_STAR_FROM_AID_DLG_ALL_DATA"));
 		allDataCheckBox
 				.addActionListener(createAllDataCheckBoxActionListener());
 		panel.add(allDataCheckBox, BorderLayout.CENTER);
