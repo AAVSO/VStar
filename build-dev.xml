@@ -16,6 +16,8 @@
 
 	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
 
+	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
+		
 	<!-- Set global properties for this build -->
 
 	<property name="src" location="src" />
@@ -35,6 +37,7 @@
 	<property name="coverage_report" location="coverage_report" />
 	<property name="jdepend_report" location="jdepend-report.txt" />
 	<property name="doc" location="doc" />
+	<property name="findbugs.home" value="/Users/david/java/lib/findbugs-2.0.1" />
 	<property name="javadoc" location="doc/vstar_docs" />
 
 	<!-- Classpaths -->
@@ -282,7 +285,16 @@
 		</jdepend>
 	</target>
 -->
-	
+
+	  <target name="findbugs" depends="dist">
+	    <findbugs home="${findbugs.home}"
+	              output="html"
+	              outputFile="vstar-fb.html" >
+	      <sourcePath path="${basedir}/src" />
+	      <class location="${basedir}/dist/vstar.jar" />
+	    </findbugs>
+	  </target>
+
 	<!-- Documentation targets -->
 	
 	<target name="javadoc" description="Javadoc generation">

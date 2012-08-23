@@ -1376,12 +1376,6 @@ public class Mediator {
 				if (!dialog.isCancelled()) {
 					SeriesType type = dialog.getSeries();
 
-//					int num = obsAndMeanPlotModel.getSrcTypeToSeriesNumMap()
-//							.get(type);
-
-//					 List<ValidObservation> obs = obsAndMeanPlotModel
-//					 .getSeriesNumToObSrcListMap().get(num);
-
 					// Note that this will work so long as we have a single
 					// retriever. For additive loads we will either have to
 					// use an aggregated retriever or add file-loaded obs
