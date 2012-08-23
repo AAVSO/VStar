@@ -77,54 +77,54 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 @SuppressWarnings("serial")
 public class MenuBar extends JMenuBar {
-
+	
 	// File menu item names.
 	public static final String NEW_STAR_FROM_DATABASE = LocaleProps
-			.get("NEW_STAR_FROM_DATABASE");
+			.get("FILE_MENU_NEW_STAR_FROM_DATABASE");
 	public static final String NEW_STAR_FROM_FILE = LocaleProps
-			.get("NEW_STAR_FROM_FILE");
-	public static final String SAVE = LocaleProps.get("SAVE");
-	public static final String PRINT = LocaleProps.get("PRINT");
-	public static final String INFO = LocaleProps.get("INFO");
-	public static final String PREFS = LocaleProps.get("PREFS");
-	public static final String QUIT = LocaleProps.get("QUIT");
+			.get("FILE_MENU_NEW_STAR_FROM_FILE");
+	public static final String SAVE = LocaleProps.get("FILE_MENU_SAVE");
+	public static final String PRINT = LocaleProps.get("FILE_MENU_PRINT");
+	public static final String INFO = LocaleProps.get("FILE_MENU_INFO");
+	public static final String PREFS = LocaleProps.get("FILE_MENU_PREFS");
+	public static final String QUIT = LocaleProps.get("FILE_MENU_QUIT");
 
 	// Edit menu items.
-	public static final String UNDO = LocaleProps.get("UNDO");
-	public static final String REDO = LocaleProps.get("REDO");
+	public static final String UNDO = LocaleProps.get("EDIT_MENU_UNDO");
+	public static final String REDO = LocaleProps.get("EDIT_MENU_REDO");
 	public static final String EXCLUDE_SELECTION = LocaleProps
-			.get("EXCLUDE_SELECTION");
+			.get("EDIT_MENU_EXCLUDE_SELECTION");
 
 	// View menu item names.
-	public static final String RAW_DATA_MODE = LocaleProps.get("RAW_DATA_MODE");
+	public static final String RAW_DATA_MODE = LocaleProps.get("VIEW_MENU_RAW_DATA_MODE");
 	public static final String PHASE_PLOT_MODE = LocaleProps
-			.get("PHASE_PLOT_MODE");
-	public static final String OB_DETAILS = LocaleProps.get("OB_DETAILS");
-	public static final String PLOT_CONTROL = LocaleProps.get("PLOT_CONTROL");
-	public static final String ZOOM_IN = LocaleProps.get("ZOOM_IN");
-	public static final String ZOOM_OUT = LocaleProps.get("ZOOM_OUT");
-	public static final String ZOOM_TO_FIT = LocaleProps.get("ZOOM_TO_FIT");
-	public static final String PAN_LEFT = LocaleProps.get("PAN_LEFT");
-	public static final String PAN_RIGHT = LocaleProps.get("PAN_RIGHT");
-	public static final String PAN_UP = LocaleProps.get("PAN_UP");
-	public static final String PAN_DOWN = LocaleProps.get("PAN_DOWN");
-	public static final String FILTER = LocaleProps.get("FILTER");
-	public static final String NO_FILTER = LocaleProps.get("NO_FILTER");
+			.get("VIEW_MENU_PHASE_PLOT_MODE");
+	public static final String OB_DETAILS = LocaleProps.get("VIEW_MENU_OB_DETAILS");
+	public static final String PLOT_CONTROL = LocaleProps.get("VIEW_MENU_PLOT_CONTROL");
+	public static final String ZOOM_IN = LocaleProps.get("VIEW_MENU_ZOOM_IN");
+	public static final String ZOOM_OUT = LocaleProps.get("VIEW_MENU_ZOOM_OUT");
+	public static final String ZOOM_TO_FIT = LocaleProps.get("VIEW_MENU_ZOOM_TO_FIT");
+	public static final String PAN_LEFT = LocaleProps.get("VIEW_MENU_PAN_LEFT");
+	public static final String PAN_RIGHT = LocaleProps.get("VIEW_MENU_PAN_RIGHT");
+	public static final String PAN_UP = LocaleProps.get("VIEW_MENU_PAN_UP");
+	public static final String PAN_DOWN = LocaleProps.get("VIEW_MENU_PAN_DOWN");
+	public static final String FILTER = LocaleProps.get("VIEW_MENU_FILTER");
+	public static final String NO_FILTER = LocaleProps.get("VIEW_MENU_NO_FILTER");
 
 	// Analysis menu item names.
-	public static final String PHASE_PLOT = LocaleProps.get("PHASE_PLOT");
-	public static final String PHASE_PLOTS = LocaleProps.get("PHASE_PLOTS");
+	public static final String PHASE_PLOT = LocaleProps.get("ANALYSIS_MENU_PHASE_PLOT");
+	public static final String PHASE_PLOTS = LocaleProps.get("ANALYSIS_MENU_PHASE_PLOTS");
 	public static final String POLYNOMIAL_FIT = LocaleProps
-			.get("POLYNOMIAL_FIT");
-	public static final String MODELS = LocaleProps.get("MODELS");
+			.get("ANALYSIS_MENU_POLYNOMIAL_FIT");
+	public static final String MODELS = LocaleProps.get("ANALYSIS_MENU_MODELS");
 
 	// Tool menu item names.
-	public static final String RUN_SCRIPT = LocaleProps.get("RUN_SCRIPT");
+	public static final String RUN_SCRIPT = LocaleProps.get("TOOL_MENU_RUN_SCRIPT");
 
 	// Help menu item names.
-	public static final String HELP_CONTENTS = LocaleProps.get("HELP_CONTENTS");
-	public static final String VSTAR_ONLINE = LocaleProps.get("VSTAR_ONLINE");
-	public static final String ABOUT = LocaleProps.get("ABOUT");
+	public static final String HELP_CONTENTS = LocaleProps.get("HELP_MENU_HELP_CONTENTS");
+	public static final String VSTAR_ONLINE = LocaleProps.get("HELP_MENU_VSTAR_ONLINE");
+	public static final String ABOUT = LocaleProps.get("HELP_MENU_ABOUT");
 
 	private Mediator mediator = Mediator.getInstance();
 
