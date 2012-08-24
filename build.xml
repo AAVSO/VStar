@@ -60,7 +60,7 @@
 		</javac>
 	</target>
 
-	<target name="debug" depends="init, manifest" description="Compile the source">
+	<target name="debug" depends="init, manifest" description="Compile the source for debug">
 		<!-- Compile source. -->
 		<javac compiler="modern" source="1.6" target="1.6" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
 			<classpath refid="build.classpath" />
@@ -98,7 +98,7 @@
 		<delete file="${manifest_file}" />
 	</target>
 
-	<target name="zip" depends="dist" description="Create a Zip archive suitable for deploying a standalone distribution.">
+	<target name="zip" depends="dist" description="Create a standalone distribution archive">
 		<zip destfile="vstar.zip">
 			<zipfileset dir="${dist}" prefix="vstar/dist" />
 			<zipfileset dir="${extlib}" prefix="vstar/extlib">
@@ -214,6 +214,8 @@
 			<fileset dir="${dist}" includes="**/*" />
 			<fileset dir="${dist_debug}" includes="**/*" />
 			<fileset dir="${test_report}" includes="**/*" />
+			<fileset dir="${javadoc}" includes="**/*" />
+			<fileset file="${javadoc}.zip" />
 			<fileset file="vstar.zip" />
 		</delete>
 	</target>
