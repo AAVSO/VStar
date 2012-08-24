@@ -44,6 +44,7 @@ import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 /**
  * Information dialog for the currently loaded document.
  */
+@SuppressWarnings("serial")
 public class InfoDialog extends JDialog implements ActionListener {
 
 	/**
