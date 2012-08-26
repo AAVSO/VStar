@@ -129,10 +129,10 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 			logarithmicCheckBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
-					for (int datasetNum = 0; datasetNum < chart.getXYPlot()
-							.getDatasetCount(); datasetNum++) {
+					for (int modelNum = 0; modelNum < chart.getXYPlot()
+							.getDatasetCount(); modelNum++) {
 						XYDataset dataset = chart.getXYPlot().getDataset(
-								datasetNum);
+								modelNum);
 						PeriodAnalysis2DPlotModel plotModel = (PeriodAnalysis2DPlotModel) dataset;
 						plotModel.setLogarithmic(logarithmicCheckBox
 								.isSelected());
@@ -180,8 +180,17 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int item = entity.getItem();
-			PeriodAnalysisDataPoint dataPoint = model
-					.getDataPointFromItem(item);
+			PeriodAnalysisDataPoint dataPoint = null;
+
+			for (int modelNum = 0; modelNum < chart.getXYPlot()
+					.getDatasetCount(); modelNum++) {
+				if (dataPoint == null) {
+					XYDataset dataset = chart.getXYPlot().getDataset(modelNum);
+					PeriodAnalysis2DPlotModel plotModel = (PeriodAnalysis2DPlotModel) dataset;
+					dataPoint = plotModel.getDataPointFromItem(item);
+				}
+			}
+
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 					this, dataPoint, item);
 			if (message != null) {
@@ -211,7 +220,7 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	@Override
 	public void datasetChanged(DatasetChangeEvent event) {
 		// Set series colors if dataset changes.
-		XYItemRenderer renderer = chart.getXYPlot().getRenderer();
+		// XYItemRenderer renderer = chart.getXYPlot().getRenderer();
 		for (int seriesNum = 0; seriesNum < model.getSeriesCount(); seriesNum++) {
 			switch (seriesNum) {
 			case DATA_SERIES:
