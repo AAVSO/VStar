@@ -68,7 +68,7 @@ abstract public class WeightedWaveletZTransformPluginBase extends
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */
 	@Override
 	public String getGroup() {

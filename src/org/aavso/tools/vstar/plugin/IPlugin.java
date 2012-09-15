@@ -29,7 +29,7 @@ package org.aavso.tools.vstar.plugin;
  * <p>Note: plugins will have to be licensed under AGPL because they will use some
  * VStar classes!</p>
  */
-public interface PluginBase {
+public interface IPlugin {
 
 	/**
 	 * Get the human-readable display name for this plugin, e.g. for a period

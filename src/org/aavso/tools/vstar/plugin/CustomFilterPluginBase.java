@@ -33,13 +33,13 @@ import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
  * </p>
  * 
  * <p>
- * Custom Filter plugins will appear in VStar's View -> Custom Filters sub-menu
+ * A Custom Filter plugin will appear in VStar's View -> Custom Filters sub-menu
  * when its jar file is placed into the vstar_plugins directory.
  * </p>
  * 
- * @see org.aavso.tools.vstar.plugin.PluginBase
+ * @see org.aavso.tools.vstar.plugin.IPlugin
  */
-abstract public class CustomFilterPluginBase implements PluginBase {
+abstract public class CustomFilterPluginBase implements IPlugin {
 
 	// Subset of observations.
 	// We use a LinkedHashSet to maintain addition and lookup efficiency
@@ -65,7 +65,7 @@ abstract public class CustomFilterPluginBase implements PluginBase {
 	abstract protected void filter(List<ValidObservation> obs);
 
 	/**
-	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */
 	@Override
 	public String getGroup() {

@@ -79,7 +79,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.plugin.PluginBase#getDescription()
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDescription()
 	 */
 	@Override
 	public String getDescription() {
@@ -87,7 +87,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.plugin.PluginBase#getDisplayName()
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDisplayName()
 	 */
 	@Override
 	public String getDisplayName() {

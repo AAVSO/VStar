@@ -62,6 +62,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 	private Locale locale;
 
 	public KeplerFITSObservationSource() {
+		super();
 		keplerSeries = SeriesType
 				.create("Kepler", "Kepler", Color.GREEN, false);
 		locale = Locale.getDefault();

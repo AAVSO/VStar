@@ -50,6 +50,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
+import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
@@ -64,7 +65,6 @@ import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
-import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.dialog.model.ModelDialog;
 import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
@@ -125,8 +125,6 @@ import org.aavso.tools.vstar.util.discrepant.IDiscrepantReporter;
 import org.aavso.tools.vstar.util.discrepant.ZapperLogger;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
-import org.aavso.tools.vstar.util.model.IPolynomialFitter;
-import org.aavso.tools.vstar.util.model.TSPolynomialFitter;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -1180,17 +1178,10 @@ public class Mediator {
 			List<ValidObservation> obs = validObservationCategoryMap
 					.get(series);
 
-			// Note: only duplicate and sort list if mean series
-			// since that is the only one that can be joined!
-			// this will reduce the memory footprint of a phase plot!
-			List<ValidObservation> phasedObs;
+			List<ValidObservation> phasedObs = new ArrayList<ValidObservation>(
+					obs);
 
-			if (series == SeriesType.MEANS) {
-				phasedObs = new ArrayList<ValidObservation>(obs);
-				Collections.sort(phasedObs, StandardPhaseComparator.instance);
-			} else {
-				phasedObs = obs;
-			}
+			Collections.sort(phasedObs, StandardPhaseComparator.instance);
 
 			phasedValidObservationCategoryMap.put(series, phasedObs);
 		}
@@ -1369,7 +1360,7 @@ public class Mediator {
 	 */
 	public void performPeriodAnalysis(PeriodAnalysisPluginBase plugin) {
 		try {
-			if (this.newStarMessage != null && this.validObsList != null) {
+			if (newStarMessage != null && validObsList != null) {
 				SingleSeriesSelectionDialog dialog = new SingleSeriesSelectionDialog(
 						obsAndMeanPlotModel);
 
@@ -1380,14 +1371,10 @@ public class Mediator {
 					// retriever. For additive loads we will either have to
 					// use an aggregated retriever or add file-loaded obs
 					// to the AID retriever.
-					//
-					// Question: do we want to do the same thing for polynomial
-					// fit? Or do we need to allow a polynomial fit of a phase
-					// plot?
 					List<ValidObservation> obs = newStarMessage.getStarInfo()
 							.getRetriever().getValidObservationCategoryMap()
 							.get(type);
-					
+
 					this.getProgressNotifier().notifyListeners(
 							ProgressInfo.START_PROGRESS);
 					this.getProgressNotifier().notifyListeners(
@@ -1454,11 +1441,11 @@ public class Mediator {
 	}
 
 	/**
-	 * Perform a polynomial fit operation.
+	 * Perform a plugin based modeling operation.
 	 */
-	public void performPolynomialFit() {
+	public void performModellingOperation(ModelCreatorPluginBase plugin) {
 		try {
-			if (this.newStarMessage != null && this.validObsList != null) {
+			if (newStarMessage != null && validObsList != null) {
 				SingleSeriesSelectionDialog seriesDialog = new SingleSeriesSelectionDialog(
 						obsAndMeanPlotModel);
 
@@ -1471,19 +1458,10 @@ public class Mediator {
 					List<ValidObservation> obs = obsAndMeanPlotModel
 							.getSeriesNumToObSrcListMap().get(num);
 
-					IPolynomialFitter polynomialFitter = new TSPolynomialFitter(
-							obs);
+					IModel model = plugin.getModel(obs);
 
-					int minDegree = polynomialFitter.getMinDegree();
-					int maxDegree = polynomialFitter.getMaxDegree();
-
-					PolynomialDegreeDialog dialog = new PolynomialDegreeDialog(
-							minDegree, maxDegree);
-
-					if (!dialog.isCancelled()) {
-						polynomialFitter.setDegree(dialog.getDegree());
-
-						ModellingTask task = new ModellingTask(polynomialFitter);
+					if (model != null) {
+						ModellingTask task = new ModellingTask(model);
 
 						this.currTask = task;
 
@@ -1498,7 +1476,7 @@ public class Mediator {
 			}
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
-					"Polynomial Fit Error", e);
+					"Modelling Error", e);
 
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
@@ -1508,7 +1486,11 @@ public class Mediator {
 	}
 
 	/**
-	 * Perform a modelling operation (other than polynomial fit).
+	 * Perform a non-plugin based modeling operation.
+	 * 
+	 * @param model
+	 *            The model object for this plugin whose execute() method can be
+	 *            invoked to create the model artifacts.
 	 */
 	public void performModellingOperation(IModel model) {
 		try {
@@ -1534,15 +1516,15 @@ public class Mediator {
 	}
 
 	/**
-	 * Invokes a tool plugin with the currently loaded observation set.
+	 * Invokes a tool plugin with the currently loaded observations.
 	 * 
 	 * @param plugin
 	 *            The tool plugin to be invoked.
 	 */
 	public void invokeTool(ObservationToolPluginBase plugin) {
-		if (validObsList != null) {
+		if (validObservationCategoryMap != null) {
 			try {
-				plugin.invoke(validObsList);
+				plugin.invoke(validObservationCategoryMap);
 			} catch (Throwable t) {
 				MessageBox.showErrorDialog("Tool Error", t);
 			}

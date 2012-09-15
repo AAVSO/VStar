@@ -382,6 +382,15 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		return cancelled;
 	}
 
+	/**
+	 * Set the star field text.
+	 * 
+	 * @param text The text to be set in the star field.
+	 */
+	public void setStarField(String text) {
+		starField.setText(text);
+	}
+	
 	protected void cancelAction() {
 		// Nothing to do.
 	}
