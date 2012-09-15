@@ -24,14 +24,14 @@ package org.aavso.tools.vstar.plugin;
  * </p>
  * 
  * <p>
- * Tool plugins will appear in VStar's Tools menu when its jar file is placed
+ * A tool plugin will appear in VStar's Tools menu when its jar file is placed
  * into the vstar_plugins directory.
  * </p>
  * 
- * @see org.aavso.tools.vstar.plugin.PluginBase
+ * @see org.aavso.tools.vstar.plugin.IPlugin
  * @see org.aavso.tools.vstar.ui.mediator.Mediator#invokeTool(org.aavso.tools.vstar.plugin.ObservationToolPluginBase)
  */
-abstract public class GeneralToolPluginBase implements PluginBase {
+abstract public class GeneralToolPluginBase implements IPlugin {
 
 	/**
 	 * Invokes this tool plugin.
@@ -39,7 +39,7 @@ abstract public class GeneralToolPluginBase implements PluginBase {
 	abstract public void invoke();
 	
 	/**
-	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */
 	@Override
 	public String getGroup() {

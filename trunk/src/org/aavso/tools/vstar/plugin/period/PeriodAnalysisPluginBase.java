@@ -25,7 +25,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.plugin.PluginBase;
+import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
@@ -39,14 +39,14 @@ import org.aavso.tools.vstar.util.notification.Notifier;
  * </p>
  * 
  * <p>
- * Period analysis plugins will appear in VStar's Analysis -> Period Search menu
+ * Period analysis plugins will appear in VStar's Analysis menu
  * when its jar file is placed into the vstar_plugins directory.
  * </p>
  * 
- * @see org.aavso.tools.vstar.plugin.PluginBase
+ * @see org.aavso.tools.vstar.plugin.IPlugin
  */
 
-abstract public class PeriodAnalysisPluginBase implements PluginBase {
+abstract public class PeriodAnalysisPluginBase implements IPlugin {
 
 	protected Mediator mediator = Mediator.getInstance();
 
@@ -73,21 +73,23 @@ abstract public class PeriodAnalysisPluginBase implements PluginBase {
 	// ** Methods that must be implemented by concrete plugin subclasses. **
 
 	/**
-	 * @see org.aavso.tools.vstar.plugin.PluginBase#getDisplayName()
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDisplayName()
 	 */
+	@Override
 	abstract public String getDisplayName();
 
 	/**
-	 * @see org.aavso.tools.vstar.plugin.PluginBase#getDescription()
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDescription()
 	 */
+	@Override
 	abstract public String getDescription();
 
 	/**
-	 * @see org.aavso.tools.vstar.plugin.PluginBase#getGroup()
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */
 	@Override
 	public String getGroup() {
-		return null;
+		return "Period Analysis";
 	}
 
 	/**

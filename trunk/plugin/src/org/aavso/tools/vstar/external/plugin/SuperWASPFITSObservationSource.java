@@ -58,6 +58,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 	private SeriesType superWaspSeries;
 	
 	public SuperWASPFITSObservationSource() {
+		super();
 		superWaspSeries = SeriesType.create("SuperWASP", "SuperWASP", Color.RED, false);
 	}
 

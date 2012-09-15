@@ -1,21 +1,34 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.util.List;
+import java.util.Map;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
 /**
- * This is a simple observation counting VStar tool plug-in.
+ * This simple VStar plug-in counts the number of loaded observations.
  */
 public class ObservationCounter extends ObservationToolPluginBase {
 
 	@Override
-	public void invoke(List<ValidObservation> obs) {
-		int count = obs.size();
+	public void invoke(Map<SeriesType, List<ValidObservation>> obsMap) {
+		int count = 0;
+
+		StringBuilder buf = new StringBuilder();
+
+		for (SeriesType series : obsMap.keySet()) {
+			int n = obsMap.get(series).size();
+			buf.append(series.getDescription() + ": " + n);
+			buf.append("\n");
+			count += n;
+		}
+
 		MessageBox.showMessageDialog("Observation Count", String.format(
-				"There are %d observations in the loaded dataset.", count));
+				"There are %d observations in the dataset.\n\n%s", count, buf
+						.toString()));
 	}
 
 	@Override

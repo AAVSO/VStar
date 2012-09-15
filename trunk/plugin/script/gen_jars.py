@@ -23,9 +23,11 @@ plugin_classes = [
                   'JDToDateTool',
                   'KeplerFITSObservationSource',
                   'ObservationCounter',
-                  'PeriodAnalysisPluginTest1',
+#                  'PeriodAnalysisPluginTest1',
                   'SuperWASPFITSObservationSource',
-                  'MeanTimeBetweenSelectionTool'
+                  'MeanTimeBetweenSelectionTool',
+                  'ApacheCommonsPolynomialFitter',
+                  'ApacheCommonsLowessFitter'
                  ]
    
 libs = "%s:%s" % (vstar_dist_jar, tamfits_jar)

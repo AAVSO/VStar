@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 /**
  * The application's toolbar.
  */
+@SuppressWarnings("serial")
 public class ToolBar extends JPanel {
 
 	private Mediator mediator = Mediator.getInstance();
@@ -296,9 +297,10 @@ public class ToolBar extends JPanel {
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
 		polynomialFitButton = new JButton(polynomialFitIcon);
-		polynomialFitButton.setToolTipText(MenuBar.POLYNOMIAL_FIT);
+		String polyFitItemName = MenuBar.POLYNOMIAL_FIT + "...";
+		polynomialFitButton.setToolTipText(polyFitItemName);
 		polynomialFitButton.addActionListener(menuBar
-				.createPolynomialFitListener());
+				.createPolynomialFitListener(polyFitItemName));
 		polynomialFitButton.setEnabled(false);
 		polynomialFitButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(polynomialFitButton);

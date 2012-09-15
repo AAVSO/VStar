@@ -26,6 +26,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.TSBase;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -71,14 +72,17 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 	@Override
 	public String getDescription() {
+		// TODO: fix wrt locale
 		return getKind() + " of degree " + degree;
 	}
 
 	@Override
 	public String getKind() {
-		return "Polynomial fit";
+		return LocaleProps.get("ANALYSIS_MENU_POLYNOMIAL_FIT");
 	}
 
+	// TODO: move to plugin for persistence!
+	
 	/**
 	 * @see org.aavso.tools.vstar.util.model.IPolynomialFitter#setDegree(int)
 	 */
@@ -182,6 +186,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		// "fit observations".
 		fit = new ArrayList<ValidObservation>();
 
+		// TODO: fix wrt locale
 		String comment = "From polynomial fit of degree " + degree;
 
 		for (n = 1; n <= numred; n++) {

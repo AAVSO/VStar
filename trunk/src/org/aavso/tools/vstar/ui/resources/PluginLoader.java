@@ -27,9 +27,11 @@ import java.util.List;
 
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
+import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
-import org.aavso.tools.vstar.plugin.PluginBase;
+import org.aavso.tools.vstar.plugin.IPlugin;
+import org.aavso.tools.vstar.plugin.model.impl.TSPolynomialFitCreatorPlugin;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftFrequencyRangePeriodAnalysisPlugin;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftPeriodRangePeriodAnalysisPlugin;
@@ -45,7 +47,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 public class PluginLoader {
 
 	// List to store plugins, if any exist.
-	private static List<PluginBase> plugins = new ArrayList<PluginBase>();
+	private static List<IPlugin> plugins = new ArrayList<IPlugin>();
 
 	// The full path to the plugin directory.
 	private final static String PLUGIN_DIR_PATH = System
@@ -72,7 +74,7 @@ public class PluginLoader {
 		periodAnalysisPlugins.add(new WeightedWaveletZTransformWithPeriodRangePlugin());
 		
 		// Next, add all external period analysis plugins.
-		for (PluginBase plugin : plugins) {
+		for (IPlugin plugin : plugins) {
 			if (plugin instanceof PeriodAnalysisPluginBase) {
 				periodAnalysisPlugins.add((PeriodAnalysisPluginBase) plugin);
 			}
@@ -82,12 +84,32 @@ public class PluginLoader {
 	}
 
 	/**
+	 * Return a list of Model Creator plugins, whether internal to VStar or
+	 * dynamically loaded.
+	 */
+	public static List<ModelCreatorPluginBase> getModelCreatorPlugins() {
+		List<ModelCreatorPluginBase> modelCreatorPlugins = new ArrayList<ModelCreatorPluginBase>();
+
+		// First, add in-built polynomial fit plugins.
+		modelCreatorPlugins.add(new TSPolynomialFitCreatorPlugin());
+		
+		// Next, add all external model creator plugins.
+		for (IPlugin plugin : plugins) {
+			if (plugin instanceof ModelCreatorPluginBase) {
+				modelCreatorPlugins.add((ModelCreatorPluginBase) plugin);
+			}
+		}
+
+		return modelCreatorPlugins;
+	}
+
+	/**
 	 * Return a list of VStar Observation Tool plugins.
 	 */
 	public static List<ObservationToolPluginBase> getObservationToolPlugins() {
 		List<ObservationToolPluginBase> toolPlugins = new ArrayList<ObservationToolPluginBase>();
 
-		for (PluginBase plugin : plugins) {
+		for (IPlugin plugin : plugins) {
 			if (plugin instanceof ObservationToolPluginBase) {
 				toolPlugins.add((ObservationToolPluginBase) plugin);
 			}
@@ -102,7 +124,7 @@ public class PluginLoader {
 	public static List<GeneralToolPluginBase> getGeneralToolPlugins() {
 		List<GeneralToolPluginBase> toolPlugins = new ArrayList<GeneralToolPluginBase>();
 
-		for (PluginBase plugin : plugins) {
+		for (IPlugin plugin : plugins) {
 			if (plugin instanceof GeneralToolPluginBase) {
 				toolPlugins.add((GeneralToolPluginBase) plugin);
 			}
@@ -117,7 +139,7 @@ public class PluginLoader {
 	public static List<CustomFilterPluginBase> getCustomFilterPlugins() {
 		List<CustomFilterPluginBase> customFilterPlugins = new ArrayList<CustomFilterPluginBase>();
 
-		for (PluginBase plugin : plugins) {
+		for (IPlugin plugin : plugins) {
 			if (plugin instanceof CustomFilterPluginBase) {
 				customFilterPlugins.add((CustomFilterPluginBase) plugin);
 			}
@@ -132,7 +154,7 @@ public class PluginLoader {
 	public static List<ObservationSourcePluginBase> getObservationSourcePlugins() {
 		List<ObservationSourcePluginBase> obSourcePlugins = new ArrayList<ObservationSourcePluginBase>();
 
-		for (PluginBase plugin : plugins) {
+		for (IPlugin plugin : plugins) {
 			if (plugin instanceof ObservationSourcePluginBase) {
 				obSourcePlugins.add((ObservationSourcePluginBase) plugin);
 			}
@@ -177,12 +199,12 @@ public class PluginLoader {
 				// Note: Currently assume the jar file name is the same
 				// as the qualified class to be loaded. Instead, we could
 				// use reflection to find the class implementing one or more
-				// PluginBase methods.
+				// IPlugin methods.
 				String qualifiedClassName = file.getName().replace(".jar", "");
 				try {
 					Class clazz = loadClass(file, qualifiedClassName, depLibs);
 					Object plugin = clazz.newInstance();
-					plugins.add((PluginBase) plugin);
+					plugins.add((IPlugin) plugin);
 				} catch (MalformedURLException e) {
 					MessageBox.showErrorDialog(null, "Plugin Loader",
 							"Invalid plugin jar file: "
@@ -204,7 +226,7 @@ public class PluginLoader {
 									null,
 									"Plugin Loader",
 									qualifiedClassName
-											+ " is not an instance of PluginBase");
+											+ " is not an instance of IPlugin");
 				} catch (NoClassDefFoundError e) {
 					MessageBox.showErrorDialog(null, "Plugin Loader",
 							"A class required by " + qualifiedClassName

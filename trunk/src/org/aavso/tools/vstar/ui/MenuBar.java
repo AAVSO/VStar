@@ -41,6 +41,8 @@ import javax.swing.JMenuItem;
 
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
+import org.aavso.tools.vstar.plugin.IPlugin;
+import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
@@ -77,7 +79,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 @SuppressWarnings("serial")
 public class MenuBar extends JMenuBar {
-	
+
 	// File menu item names.
 	public static final String NEW_STAR_FROM_DATABASE = LocaleProps
 			.get("FILE_MENU_NEW_STAR_FROM_DATABASE");
@@ -96,34 +98,45 @@ public class MenuBar extends JMenuBar {
 			.get("EDIT_MENU_EXCLUDE_SELECTION");
 
 	// View menu item names.
-	public static final String RAW_DATA_MODE = LocaleProps.get("VIEW_MENU_RAW_DATA_MODE");
+	public static final String RAW_DATA_MODE = LocaleProps
+			.get("VIEW_MENU_RAW_DATA_MODE");
 	public static final String PHASE_PLOT_MODE = LocaleProps
 			.get("VIEW_MENU_PHASE_PLOT_MODE");
-	public static final String OB_DETAILS = LocaleProps.get("VIEW_MENU_OB_DETAILS");
-	public static final String PLOT_CONTROL = LocaleProps.get("VIEW_MENU_PLOT_CONTROL");
+	public static final String OB_DETAILS = LocaleProps
+			.get("VIEW_MENU_OB_DETAILS");
+	public static final String PLOT_CONTROL = LocaleProps
+			.get("VIEW_MENU_PLOT_CONTROL");
 	public static final String ZOOM_IN = LocaleProps.get("VIEW_MENU_ZOOM_IN");
 	public static final String ZOOM_OUT = LocaleProps.get("VIEW_MENU_ZOOM_OUT");
-	public static final String ZOOM_TO_FIT = LocaleProps.get("VIEW_MENU_ZOOM_TO_FIT");
+	public static final String ZOOM_TO_FIT = LocaleProps
+			.get("VIEW_MENU_ZOOM_TO_FIT");
 	public static final String PAN_LEFT = LocaleProps.get("VIEW_MENU_PAN_LEFT");
-	public static final String PAN_RIGHT = LocaleProps.get("VIEW_MENU_PAN_RIGHT");
+	public static final String PAN_RIGHT = LocaleProps
+			.get("VIEW_MENU_PAN_RIGHT");
 	public static final String PAN_UP = LocaleProps.get("VIEW_MENU_PAN_UP");
 	public static final String PAN_DOWN = LocaleProps.get("VIEW_MENU_PAN_DOWN");
 	public static final String FILTER = LocaleProps.get("VIEW_MENU_FILTER");
-	public static final String NO_FILTER = LocaleProps.get("VIEW_MENU_NO_FILTER");
+	public static final String NO_FILTER = LocaleProps
+			.get("VIEW_MENU_NO_FILTER");
 
 	// Analysis menu item names.
-	public static final String PHASE_PLOT = LocaleProps.get("ANALYSIS_MENU_PHASE_PLOT");
-	public static final String PHASE_PLOTS = LocaleProps.get("ANALYSIS_MENU_PHASE_PLOTS");
+	public static final String PHASE_PLOT = LocaleProps
+			.get("ANALYSIS_MENU_PHASE_PLOT");
+	public static final String PHASE_PLOTS = LocaleProps
+			.get("ANALYSIS_MENU_PHASE_PLOTS");
 	public static final String POLYNOMIAL_FIT = LocaleProps
 			.get("ANALYSIS_MENU_POLYNOMIAL_FIT");
 	public static final String MODELS = LocaleProps.get("ANALYSIS_MENU_MODELS");
 
 	// Tool menu item names.
-	public static final String RUN_SCRIPT = LocaleProps.get("TOOL_MENU_RUN_SCRIPT");
+	public static final String RUN_SCRIPT = LocaleProps
+			.get("TOOL_MENU_RUN_SCRIPT");
 
 	// Help menu item names.
-	public static final String HELP_CONTENTS = LocaleProps.get("HELP_MENU_HELP_CONTENTS");
-	public static final String VSTAR_ONLINE = LocaleProps.get("HELP_MENU_VSTAR_ONLINE");
+	public static final String HELP_CONTENTS = LocaleProps
+			.get("HELP_MENU_HELP_CONTENTS");
+	public static final String VSTAR_ONLINE = LocaleProps
+			.get("HELP_MENU_VSTAR_ONLINE");
 	public static final String ABOUT = LocaleProps.get("HELP_MENU_ABOUT");
 
 	private Mediator mediator = Mediator.getInstance();
@@ -134,11 +147,12 @@ public class MenuBar extends JMenuBar {
 	private Map<String, ObservationSourcePluginBase> menuItemNameToObSourcePlugin;
 	private Map<String, CustomFilterPluginBase> menuItemNameToCustomFilterPlugin;
 	private Map<String, PeriodAnalysisPluginBase> menuItemNameToPeriodAnalysisPlugin;
+	private Map<String, ModelCreatorPluginBase> menuItemNameToModelCreatorPlugin;
 	private Map<String, ObservationToolPluginBase> menuItemNameToObsToolPlugin;
 	private Map<String, GeneralToolPluginBase> menuItemNameToGenToolPlugin;
 
-	// Keep track of period analysis menu items for enabling/disabling.
-	private List<JMenuItem> periodAnalysisMenuItems;
+	// Keep track of analysis menu items for enabling/disabling.
+	private List<JMenuItem> analysisMenuItems;
 
 	// The parent window.
 	private MainFrame parent;
@@ -180,7 +194,6 @@ public class MenuBar extends JMenuBar {
 	// Analysis menu.
 	JMenuItem analysisPhasePlotItem;
 
-	JMenuItem analysisPolynomialFitItem;
 	JMenuItem analysisModelsItem;
 	JMenuItem analysisPhasePlotsItem;
 
@@ -457,14 +470,35 @@ public class MenuBar extends JMenuBar {
 		analysisPhasePlotsItem.addActionListener(createPhasePlotsListener());
 		analysisMenu.add(analysisPhasePlotsItem);
 
-		ActionListener periodSearchListener = createPeriodSearchListener();
+		analysisModelsItem = new JMenuItem(MODELS);
+		analysisModelsItem.setEnabled(false);
+		analysisModelsItem.addActionListener(createModelsListener());
+		analysisMenu.add(analysisModelsItem);
+
+		// Add period analysis and model creator plugins.
+		analysisMenuItems = new ArrayList<JMenuItem>();
+		String lastGroup = null;
 
 		menuItemNameToPeriodAnalysisPlugin = new TreeMap<String, PeriodAnalysisPluginBase>();
-		periodAnalysisMenuItems = new ArrayList<JMenuItem>();
+		lastGroup = addAnalysisPlugins(analysisMenu,
+				createPeriodSearchListener(), PluginLoader
+						.getPeriodAnalysisPlugins(),
+				menuItemNameToPeriodAnalysisPlugin, lastGroup);
 
-		String lastGroup = null;
-		for (PeriodAnalysisPluginBase plugin : PluginLoader
-				.getPeriodAnalysisPlugins()) {
+		menuItemNameToModelCreatorPlugin = new TreeMap<String, ModelCreatorPluginBase>();
+		lastGroup = addAnalysisPlugins(analysisMenu,
+				createModelCreatorListener(), PluginLoader
+						.getModelCreatorPlugins(),
+				menuItemNameToModelCreatorPlugin, lastGroup);
+
+		this.add(analysisMenu);
+	}
+
+	// Add items for analysis plugins of type P to the analysis menu.
+	private <P extends IPlugin> String addAnalysisPlugins(JMenu analysisMenu,
+			ActionListener listener, List<P> plugins,
+			Map<String, P> menuItemToPluginMap, String lastGroup) {
+		for (P plugin : plugins) {
 
 			if (plugin.getGroup() != null
 					&& !plugin.getGroup().equals(lastGroup)) {
@@ -474,29 +508,16 @@ public class MenuBar extends JMenuBar {
 
 			String itemName = plugin.getDisplayName() + "...";
 
-			JMenuItem analysisPeriodSearchItem = new JMenuItem(itemName);
-			analysisPeriodSearchItem.addActionListener(periodSearchListener);
-			analysisMenu.add(analysisPeriodSearchItem);
-			analysisPeriodSearchItem.setEnabled(false);
+			JMenuItem analysisMenuItem = new JMenuItem(itemName);
+			analysisMenuItem.addActionListener(listener);
+			analysisMenu.add(analysisMenuItem);
+			analysisMenuItem.setEnabled(false);
 
-			menuItemNameToPeriodAnalysisPlugin.put(itemName, plugin);
-			periodAnalysisMenuItems.add(analysisPeriodSearchItem);
+			menuItemToPluginMap.put(itemName, plugin);
+			analysisMenuItems.add(analysisMenuItem);
 		}
 
-		analysisMenu.addSeparator();
-
-		analysisPolynomialFitItem = new JMenuItem(POLYNOMIAL_FIT);
-		analysisPolynomialFitItem.setEnabled(false);
-		analysisPolynomialFitItem
-				.addActionListener(createPolynomialFitListener());
-		analysisMenu.add(analysisPolynomialFitItem);
-
-		analysisModelsItem = new JMenuItem(MODELS);
-		analysisModelsItem.setEnabled(false);
-		analysisModelsItem.addActionListener(createModelsListener());
-		analysisMenu.add(analysisModelsItem);
-
-		this.add(analysisMenu);
+		return lastGroup;
 	}
 
 	private void createToolMenu() {
@@ -981,7 +1002,8 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
-	 * Returns the action listener to be invoked for Analysis->Period Search
+	 * Returns the action listener to be invoked for Analysis menu Period Search
+	 * items.
 	 */
 	public ActionListener createPeriodSearchListener() {
 		return new ActionListener() {
@@ -995,12 +1017,31 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
-	 * Returns the action listener to be invoked for Analysis->Polynomial Fit...
+	 * Returns the action listener to be invoked for Analysis menu model creator
+	 * items.
 	 */
-	public ActionListener createPolynomialFitListener() {
+	public ActionListener createModelCreatorListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mediator.performPolynomialFit();
+				String item = e.getActionCommand();
+				ModelCreatorPluginBase plugin = menuItemNameToModelCreatorPlugin
+						.get(item);
+				Mediator.getInstance().performModellingOperation(plugin);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Analysis polynomial fit
+	 * item.<br/>
+	 * TODO: interim solution until we have toolbar buttons with lists of items!
+	 */
+	public ActionListener createPolynomialFitListener(final String polyFitItemName) {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ModelCreatorPluginBase plugin = menuItemNameToModelCreatorPlugin
+						.get(polyFitItemName);
+				Mediator.getInstance().performModellingOperation(plugin);
 			}
 		};
 	}
@@ -1379,11 +1420,9 @@ public class MenuBar extends JMenuBar {
 
 		this.viewRawDataItem.setEnabled(state);
 
-		for (JMenuItem item : periodAnalysisMenuItems) {
+		for (JMenuItem item : analysisMenuItems) {
 			item.setEnabled(state);
 		}
-
-		this.analysisPolynomialFitItem.setEnabled(state);
 
 		AnalysisType type = mediator.getAnalysisType();
 
