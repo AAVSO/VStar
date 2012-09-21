@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.data.filter;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * String code field matcher.
+ * String field matcher.
  */
 public abstract class StringFieldMatcher extends
 		AbstractObservationFieldMatcher<String> {

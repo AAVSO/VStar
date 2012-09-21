@@ -40,6 +40,9 @@ public class ObservationFilter {
 	static {
 		MATCHERS = new TreeMap<String, IObservationFieldMatcher>();
 
+		IObservationFieldMatcher objNameMatcher = new ObjectNameFieldMatcher();
+		MATCHERS.put(objNameMatcher.getDisplayName(), objNameMatcher);
+
 		IObservationFieldMatcher obsCodeMatcher = new ObsCodeFieldMatcher();
 		MATCHERS.put(obsCodeMatcher.getDisplayName(), obsCodeMatcher);
 
