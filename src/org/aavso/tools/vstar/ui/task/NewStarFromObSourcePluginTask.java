@@ -19,7 +19,10 @@ package org.aavso.tools.vstar.ui.task;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
@@ -71,27 +74,53 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	protected void createObservationArtefacts() {
 
 		try {
-			// Set input stream and name, if any is requested by the plug-in.
+			// Set input streams and name, if requested by the plug-in.
+			List<InputStream> streams = new ArrayList<InputStream>();
+
 			switch (obSourcePlugin.getInputType()) {
 			case FILE:
-				File file = PluginComponentFactory
-						.chooseFileForReading(obSourcePlugin.getDisplayName());
-				if (file != null) {
-					obSourcePlugin.setInputInfo(new FileInputStream(file), file
-							.getName());
+				List<File> files = obSourcePlugin.getFiles();
+				if (files != null) {
+					String fileNames = "";
+					for (File file : files) {
+						streams.add(new FileInputStream(file));
+						fileNames += file.getName() + ", ";
+					}
+					fileNames = fileNames.substring(0, fileNames.lastIndexOf(", "));
+					obSourcePlugin.setInputInfo(streams, fileNames);
 				} else {
-					throw new CancellationException();
+					File file = PluginComponentFactory
+							.chooseFileForReading(obSourcePlugin
+									.getDisplayName());
+					if (file != null) {
+						streams.add(new FileInputStream(file));
+						obSourcePlugin.setInputInfo(streams, file.getName());
+					} else {
+						throw new CancellationException();
+					}
 				}
 				break;
 
 			case URL:
-				String urlStr = JOptionPane
-						.showInputDialog("Enter Observation Source URL");
-				if (urlStr != null && urlStr.trim().length() != 0) {
-					URL url = new URL(urlStr);
-					obSourcePlugin.setInputInfo(url.openStream(), urlStr);
+				List<URL> urls = obSourcePlugin.getURLs();
+				if (urls != null) {
+					String urlStrs = "";
+					for (URL url : urls) {
+						streams.add(url.openStream());
+						urlStrs += url.getPath() + ", ";
+					}
+					urlStrs = urlStrs.substring(0, urlStrs.lastIndexOf(", "));
+					obSourcePlugin.setInputInfo(streams, urlStrs);
 				} else {
-					throw new CancellationException();
+					String urlStr = JOptionPane
+							.showInputDialog("Enter Observation Source URL");
+					if (urlStr != null && urlStr.trim().length() != 0) {
+						URL url = new URL(urlStr);
+						streams.add(url.openStream());
+						obSourcePlugin.setInputInfo(streams, urlStr);
+					} else {
+						throw new CancellationException();
+					}
 				}
 				break;
 
@@ -111,9 +140,10 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						"No observations for the specified period or error in observation source.");
 			}
 
-			// Try to get the name of the object from one of the observations,
-			// otherwise just use the current star name from the plug-in.
-			// TODO: push down to concrete retriever
+			// Try to get the name of the object from one of the
+			// observations, otherwise just use the current star
+			// name from the plug-in.
+			// TODO: move down to concrete retriever
 			String name = retriever.getValidObservations().get(0).getName();
 			if (name == null) {
 				name = retriever.getSourceName();
@@ -121,9 +151,15 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
 			// Create plots, tables.
 			NewStarType type = NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
-			mediator.createNewStarObservationArtefacts(type,
-					new StarInfo(retriever, name), 0, false);
+			mediator.createNewStarObservationArtefacts(type, new StarInfo(
+					retriever, name), 0, false);
 
+		} catch (InterruptedException e) {
+			mediator.getProgressNotifier().notifyListeners(
+					ProgressInfo.COMPLETE_PROGRESS);
+
+			mediator.getProgressNotifier().notifyListeners(
+					ProgressInfo.CLEAR_PROGRESS);
 		} catch (CancellationException e) {
 			mediator.getProgressNotifier().notifyListeners(
 					ProgressInfo.COMPLETE_PROGRESS);

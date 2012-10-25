@@ -17,8 +17,13 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.io.File;
 import java.io.InputStream;
+import java.net.URL;
+import java.util.List;
+import java.util.Set;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 
 /**
@@ -26,13 +31,13 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
  * This is the base class for all observation source plug-in classes.
  * </p>
  * <p>
- * An observation source plugin will appear in VStar's File menu when its jar file
- * is placed into the vstar_plugins directory.
+ * An observation source plugin will appear in VStar's File menu when its jar
+ * file is placed into the vstar_plugins directory.
  * </p>
  */
 public abstract class ObservationSourcePluginBase implements IPlugin {
 
-	protected InputStream inputStream;
+	protected List<InputStream> inputStreams;
 	protected String inputName;
 
 	/**
@@ -58,7 +63,9 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 *             specific information about source name, type, and
 	 *             observations possibly containing object name.
 	 */
-	public abstract String getCurrentStarName();
+	public String getCurrentStarName() {
+		return null;
+	}
 
 	/**
 	 * What is the input type for this plug-in?
@@ -76,23 +83,65 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	}
 
 	/**
-	 * Sets the input stream and name.
+	 * Sets the input streams and a representative name for these.
 	 * 
-	 * @param inputStream
-	 *            The input stream.
+	 * @param inputStreams
+	 *            The input streams. Multiple streams may be required, e.g. one
+	 *            per filter or one to access data and another to access catalog
+	 *            information.
 	 * @param inputName
 	 *            A name associated with the input (e.g. file, URL).
 	 */
-	public void setInputInfo(InputStream inputStream, String inputName) {
-		this.inputStream = inputStream;
+	public void setInputInfo(List<InputStream> inputStreams, String inputName) {
+		this.inputStreams = inputStreams;
 		this.inputName = inputName;
 	}
 
 	/**
-	 * @return the input stream
+	 * @return the input streams
 	 */
-	public InputStream getInputStream() {
-		return inputStream;
+	public List<InputStream> getInputStreams() {
+		return inputStreams;
+	}
+
+	/**
+	 * <p>
+	 * Return a list of File objects; defaults to null.
+	 * </p>
+	 * 
+	 * NewStarFromObsSourcePlugin invokes this when the input type is FILE. If
+	 * null is returned, a dialog is opened requesting a single File be
+	 * selected. The purpose of this is so that when executed from a WebStart
+	 * context, a plugin cannot create input streams. It can however create File
+	 * objects, so if it wants to construct Files on the fly, this will be OK
+	 * from a security policy perspective.
+	 * 
+	 * @return a list of URLs or null.
+	 * @throws Exception
+	 *             if a problem occurs during URL creation.
+	 */
+	public List<File> getFiles() throws Exception {
+		return null;
+	}
+
+	/**
+	 * <p>
+	 * Return a list of URL objects; defaults to null.
+	 * </p>
+	 * 
+	 * NewStarFromObsSourcePlugin invokes this when the input type is URL. If
+	 * null is returned, a dialog is opened requesting a single URL be entered.
+	 * The purpose of this is so that when executed from a WebStart context, a
+	 * plugin cannot create input streams. It can however create URL objects, so
+	 * if it wants to construct URLs on the fly, this will be OK from a security
+	 * policy perspective.
+	 * 
+	 * @return a list of URLs or null.
+	 * @throws Exception
+	 *             if a problem occurs during URL creation.
+	 */
+	public List<URL> getURLs() throws Exception {
+		return null;
 	}
 
 	/**
@@ -100,5 +149,16 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	public String getInputName() {
 		return inputName;
+	}
+
+	/**
+	 * If a non-null value is return by this method, once all observations are
+	 * loaded, a series visibility change message will be sent to ensure that
+	 * all observations are visible.
+	 * 
+	 * @return The set of visible series or null.
+	 */
+	public Set<SeriesType> getVisibleSeriesTypes() {
+		return null;
 	}
 }

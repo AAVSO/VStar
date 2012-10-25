@@ -37,7 +37,7 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 
 /**
- * A Kepler FITS file v2.0 observation source plug-inputStream that uses the
+ * A Kepler FITS file v2.0 observation source plug-in that uses the
  * Topcat FITS library.
  * 
  * See also:<br/>
@@ -85,10 +85,10 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		String str = "A Kepler FITS file v2.0 observation source plug-inputStream that uses the Topcat FITS library.";
+		String str = "A Kepler FITS file v2.0 observation source plug-in that uses the Topcat FITS library.";
 
 		if (locale.equals("es")) {
-			str = "Observaciones de archivo FITS de Kepler v2.0 del plug-inputStream que usa la biblioteca Topcat FITS.";
+			str = "Observaciones de archivo FITS de Kepler v2.0 del plug-in que usa la biblioteca Topcat FITS.";
 		}
 
 		return str;
@@ -111,7 +111,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 				InterruptedException {
 
 			try {
-				Fits fits = new Fits(getInputStream());
+				Fits fits = new Fits(getInputStreams().get(0));
 				BasicHDU[] hdus = fits.read();
 				retrieveKeplerObservations(hdus);
 			} catch (FitsException e) {

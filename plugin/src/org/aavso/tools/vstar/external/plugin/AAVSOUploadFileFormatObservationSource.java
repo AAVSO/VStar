@@ -135,7 +135,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 				InterruptedException {
 
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					getInputStream()));
+					getInputStreams().get(0)));
 
 			String line = null;
 			int lineNum = 1;

@@ -93,7 +93,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 				InterruptedException {
 
 			try {
-				Fits fits = new Fits(getInputStream());
+				Fits fits = new Fits(getInputStreams().get(0));
 				BasicHDU[] hdus = fits.read();
 				double jdRef = retrieveJDReference(hdus);
 				retrieveObservations(hdus, jdRef);
