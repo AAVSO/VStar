@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -131,7 +132,9 @@ public class AAVSOUploadFileFormatObservationSourceTest extends TestCase {
 		}
 
 		InputStream in = new ByteArrayInputStream(content.toString().getBytes());
-		source.setInputInfo(in, inputName);
+		List<InputStream> streams = new ArrayList<InputStream>();
+		streams.add(in);
+		source.setInputInfo(streams, inputName);
 
 		AbstractObservationRetriever retriever = source
 				.getObservationRetriever();

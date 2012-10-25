@@ -31,10 +31,12 @@ import java.util.TreeMap;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.data.DomainOrder;
@@ -137,7 +139,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 		Mediator.getInstance().getExcludedObservationNotifier().addListener(
 				createExcludedChangeListener());
-		
+
 		Mediator.getInstance().getModelSelectionNofitier().addListener(
 				createModelSelectionListener());
 
@@ -459,14 +461,14 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	 */
 	public Set<SeriesType> getVisibleSeries() {
 		Set<SeriesType> visibleSeries = new HashSet<SeriesType>();
-		
+
 		for (SeriesType series : seriesVisibilityMap.keySet()) {
 			boolean visible = seriesVisibilityMap.get(series);
 			if (visible) {
 				visibleSeries.add(series);
 			}
 		}
-		
+
 		return visibleSeries;
 	}
 
@@ -706,26 +708,28 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	protected boolean isSeriesVisibleByDefault(SeriesType series) {
 		boolean visible = false;
 
-		// Look for Visual, then V.
-
 		// TODO: We could delegate "is visible" to SeriesType which
 		// could also be used by means plot model code.
 
-		visible |= series == SeriesType.Visual;
+		if (series != SeriesType.Excluded) {
+			// Visual bands.
+			visible |= series == SeriesType.Visual;
+			visible |= series == SeriesType.Johnson_V;
 
-		visible |= series == SeriesType.Johnson_V;
+			if (!atLeastOneVisualBandPresent && visible) {
+				atLeastOneVisualBandPresent = true;
+			}
 
-		if (!atLeastOneVisualBandPresent && visible) {
-			atLeastOneVisualBandPresent = true;
+			// We also allow for unspecified series type, e.g. since the
+			// source could be from a simple observation file where no band
+			// is specified.
+			visible |= series == SeriesType.Unspecified;
+
+			// Finally, if observations come from an external source (via a
+			// plugin), make a series visible by default.
+			NewStarMessage msg = Mediator.getInstance().getNewStarMessage();
+			visible |= msg.getNewStarType() == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
 		}
-
-		// We also allow for unspecified series type, e.g. since the source
-		// could be from a simple observation file where no band is
-		// specified.
-		//
-		// People could use this for visual, CCD/DSLR photometry observation
-		// etc.
-		visible |= series == SeriesType.Unspecified;
 
 		return visible;
 	}
@@ -806,7 +810,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 			}
 		};
 	}
-	
+
 	// Update the model and residuals series.
 	public void updateModelSeries(List<ValidObservation> modelObs,
 			List<ValidObservation> residualObs) {
@@ -817,8 +821,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 			fitSeriesNum = this.replaceObservationSeries(SeriesType.Model,
 					modelObs);
 		} else {
-			fitSeriesNum = this.addObservationSeries(SeriesType.Model,
-					modelObs);
+			fitSeriesNum = this
+					.addObservationSeries(SeriesType.Model, modelObs);
 		}
 
 		// Make the model series visible either because this
@@ -832,8 +836,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 		// Add or replace a series for the residuals.
 		if (this.seriesExists(SeriesType.Residuals)) {
-			this
-					.replaceObservationSeries(SeriesType.Residuals, residualObs);
+			this.replaceObservationSeries(SeriesType.Residuals, residualObs);
 		} else {
 			residualsSeriesNum = this.addObservationSeries(
 					SeriesType.Residuals, residualObs);
@@ -861,7 +864,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 			}
 		};
 	}
-	
+
 	public boolean handleNoFilter(FilteredObservationMessage info) {
 		boolean result = false;
 
@@ -883,8 +886,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 			filterSeriesNum = this.replaceObservationSeries(
 					SeriesType.Filtered, obs);
 		} else {
-			filterSeriesNum = this.addObservationSeries(
-					SeriesType.Filtered, obs);
+			filterSeriesNum = this.addObservationSeries(SeriesType.Filtered,
+					obs);
 		}
 
 		// Make the filter series visible either because this is

@@ -25,6 +25,8 @@ plugin_classes = [
                   'ObservationCounter',
 #                  'PeriodAnalysisPluginTest1',
                   'SuperWASPFITSObservationSource',
+                  'APASSEpochPhotometryObservationSource',
+                  'BSMPhotometryObservationSource',
                   'MeanTimeBetweenSelectionTool',
                   'ApacheCommonsPolynomialFitter',
                   'ApacheCommonsLowessFitter'

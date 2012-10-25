@@ -998,6 +998,13 @@ public class Mediator {
 
 			freeListeners();
 
+			// Create a message to notify whoever is listening that a new star
+			// has been loaded.
+			newStarMessage = new NewStarMessage(newStarType, starInfo,
+					validObsList, validObservationCategoryMap, starInfo
+							.getRetriever().getMinMag(), starInfo.getRetriever()
+							.getMaxMag(), starInfo.getRetriever().getSourceName());
+
 			// This is a specific fix for tracker 3007948.
 			this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
 
@@ -1071,13 +1078,6 @@ public class Mediator {
 		// We also create the means list pane.
 		meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(
 				meanObsTableModel, null);
-
-		// Create a message to notify whoever is listening that a new star
-		// has been loaded.
-		newStarMessage = new NewStarMessage(newStarType, starInfo,
-				validObsList, validObservationCategoryMap, starInfo
-						.getRetriever().getMinMag(), starInfo.getRetriever()
-						.getMaxMag(), starInfo.getRetriever().getSourceName());
 
 		// Create a message to notify whoever is listening that the analysis
 		// type has changed (we could have been viewing a phase plot for a
