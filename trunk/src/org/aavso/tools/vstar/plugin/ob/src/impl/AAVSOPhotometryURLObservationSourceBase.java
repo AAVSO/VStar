@@ -30,12 +30,13 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -95,7 +96,8 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			String user, String password) {
 		this.kind = kind;
 		this.baseURL = baseURL;
-		this.seriesNameToTypeMap = new TreeMap<String, SeriesType>();
+		this.seriesNameToTypeMap = new LinkedHashMap<String, SeriesType>();
+		this.seriesNames = new HashSet<String>();
 
 		locale = Locale.getDefault();
 
@@ -150,12 +152,14 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			String params = String.format("radeg=%f&decdeg=%f&raddeg=%f",
 					raDegs, decDegs, radiusDegs);
 
-			for (String seriesName : paramDialog.getSeriesNames()) {
+			for (String seriesName : seriesNameToTypeMap.keySet()) {
 				try {
-					URL url = new URL(baseURL + params + "&filter="
-							+ seriesName);
-					urls.add(url);
-					seriesList.add(seriesNameToTypeMap.get(seriesName));
+					if (seriesNames.contains(seriesName)) {
+						URL url = new URL(baseURL + params + "&filter="
+								+ seriesName);
+						urls.add(url);
+						seriesList.add(seriesNameToTypeMap.get(seriesName));
+					}
 				} catch (MalformedURLException e) {
 					throw new ObservationReadError("Cannot construct " + kind
 							+ " URL (reason: " + e.getLocalizedMessage() + ")");
@@ -172,8 +176,10 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 	public String getInputName() {
 		String desc = String.format(": RA=%f, Dec=%f, radius=%f, filter=",
 				raDegs, decDegs, radiusDegs);
-		for (String seriesName : seriesNames) {
-			desc += seriesName + ", ";
+		for (String seriesName : seriesNameToTypeMap.keySet()) {
+			if (seriesNames.contains(seriesName)) {
+				desc += seriesName + ", ";
+			}
 		}
 		desc = desc.substring(0, desc.lastIndexOf(", "));
 		return kind + desc;
@@ -406,10 +412,6 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			String[] fields = ((String) radiusDegSelector.getSelectedItem())
 					.split("\\s+");
 			return Double.parseDouble(fields[0]);
-		}
-
-		public Set<String> getSeriesNames() {
-			return seriesNames;
 		}
 
 		/**

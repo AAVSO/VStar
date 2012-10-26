@@ -176,6 +176,9 @@ public class AAVSOUploadFileFormatObservationSource extends
 		private void handleDirective(String line) throws ObservationReadError {
 			String[] pair = line.toUpperCase().split("=");
 
+			pair[0] = pair[0].trim();
+			pair[1] = pair[1].trim();
+			
 			if ("#TYPE".equals(pair[0])) {
 				fileType = pair[1];
 				if (!"EXTENDED".equals(fileType) && !"VISUAL".equals(fileType)) {

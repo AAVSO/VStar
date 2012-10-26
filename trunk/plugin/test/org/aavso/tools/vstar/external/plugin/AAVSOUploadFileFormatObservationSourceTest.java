@@ -122,6 +122,26 @@ public class AAVSOUploadFileFormatObservationSourceTest extends TestCase {
 		assertEquals("070613", ob4.getCharts());
 	}
 
+	public void testWhitespace() {
+		// Whitespace in DELIM directive and data fields.
+		
+		String[] lines = { "#TYPE=VISUAL\n", "#OBSCODE=TST01\n",
+				"#SOFTWARE=WORD\n", "#DELIM = ,\n", "#DATE=JD\n",
+				"#NAME,DATE,MAG,COMMENTCODE,COMP1,COMP2,CHART,NOTES\n",
+				"SS CYG, 2450702.1234 , <11.1, na , 110 ,113, 070613, This is a test\n" };
+
+		List<ValidObservation> obs = commonTest(lines, "Visual example 2 (WS)", 1, 1);
+
+		ValidObservation ob = obs.get(0);
+		assertEquals("SS CYG", ob.getName());
+		assertEquals(2450702.1234, ob.getJD());
+		assertEquals(11.1, ob.getMag());
+		assertTrue(ob.getMagnitude().isFainterThan());
+		assertEquals("110", ob.getCompStar1());
+		assertEquals("113", ob.getCompStar2());
+		assertEquals("070613", ob.getCharts());
+	}
+
 	// Helpers.
 
 	private List<ValidObservation> commonTest(String[] lines, String inputName,
