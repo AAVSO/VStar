@@ -17,8 +17,6 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
-import java.util.TreeSet;
-
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.plugin.ob.src.impl.AAVSOPhotometryURLObservationSourceBase;
 
@@ -44,7 +42,6 @@ public class BSMPhotometryObservationSource extends
 		raDegs = 57.8155;
 		decDegs = -0.26506;
 		radiusDegs = 0.005;
-		seriesNames = new TreeSet<String>();
 		seriesNames.add("B");
 	}
 }
