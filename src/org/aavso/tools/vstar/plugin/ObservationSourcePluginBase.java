@@ -37,9 +37,32 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
  */
 public abstract class ObservationSourcePluginBase implements IPlugin {
 
+	protected String userName;
+	protected String password;
+
 	protected List<InputStream> inputStreams;
 	protected String inputName;
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param userName
+	 *            The user name to pass to the authenticator.
+	 * @param password
+	 *            The password to pass to the authenticator.
+	 */
+	protected ObservationSourcePluginBase(String username, String password) {
+		this.userName = username;
+		this.password = password;
+	}
 
+	/**
+	 * Constructor
+	 */
+	protected ObservationSourcePluginBase() {
+		this(null, null);
+	}
+	
 	/**
 	 * <p>
 	 * Get an observation retriever for this plug-in.
@@ -151,6 +174,20 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 		return inputName;
 	}
 
+	/**
+	 * @return the userName, e.g. for a URL based source; may be null
+	 */
+	public String getUsername() {
+		return userName;
+	}
+	
+	/**
+	 * @return the password, e.g. for a URL based source; may be null
+	 */
+	public String getPassword() {
+		return password;
+	}
+	
 	/**
 	 * If a non-null value is return by this method, once all observations are
 	 * loaded, a series visibility change message will be sent to ensure that

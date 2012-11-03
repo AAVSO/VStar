@@ -110,7 +110,12 @@
 				<exclude name="plan/**" />
 				<exclude name="slides/**" />
 			</zipfileset>
-			<zipfileset dir="${plugin}" prefix="vstar/plugin" />
+			<zipfileset dir="${plugin}" prefix="vstar/plugin">
+				<exclude name="lib*/**" />
+				<exclude name="script*/**" />
+				<exclude name="src*/**" />
+				<exclude name="test*/**" />
+			</zipfileset>
 			<zipfileset dir="data" prefix="vstar/data" />
 			<zipfileset dir="VStar.app" prefix="vstar/VStar.app" dirmode="755" filemode="755">
 				<include name="**/*" />

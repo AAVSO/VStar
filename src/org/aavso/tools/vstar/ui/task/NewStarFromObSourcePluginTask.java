@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.task;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.Authenticator;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.util.plugin.URLAuthenticator;
 
 /**
  * A concurrent task in which a new star from observation source plug-in request
@@ -86,7 +88,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						streams.add(new FileInputStream(file));
 						fileNames += file.getName() + ", ";
 					}
-					fileNames = fileNames.substring(0, fileNames.lastIndexOf(", "));
+					fileNames = fileNames.substring(0, fileNames
+							.lastIndexOf(", "));
 					obSourcePlugin.setInputInfo(streams, fileNames);
 				} else {
 					File file = PluginComponentFactory
@@ -101,7 +104,18 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				}
 				break;
 
-			case URL:
+			case URL:				
+				// If the plugin specifies a username and password, create and set
+				// an authenticator.
+				String userName = obSourcePlugin.getUsername();
+				String password = obSourcePlugin.getPassword();
+
+				if (userName != null && password != null) {
+					Authenticator.setDefault(new URLAuthenticator(
+							userName, password));
+				}
+				
+				// Obtain the plugin's URLs and create input streams.
 				List<URL> urls = obSourcePlugin.getURLs();
 				if (urls != null) {
 					String urlStrs = "";
@@ -122,6 +136,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						throw new CancellationException();
 					}
 				}
+
 				break;
 
 			case NONE:
