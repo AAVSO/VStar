@@ -109,6 +109,7 @@
 			<zipfileset dir="${doc}" prefix="vstar/doc">
 				<exclude name="plan/**" />
 				<exclude name="slides/**" />
+				<exclude name="vstar_docs/**" />
 			</zipfileset>
 			<zipfileset dir="${plugin}" prefix="vstar/plugin">
 				<exclude name="lib*/**" />

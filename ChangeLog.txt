@@ -29,6 +29,14 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and VStar.{sh,ba
 o WWZ is brittle in the presence of gaps in the data. See tracker 3542032.
   
 ---------------------
+Date: November 3 2012
+Version: 2.14.1
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-03Nov2012
+Key Changes:
+- Fixed http authentication handling in observation source plug-in and model 
+  creator plug-in object construction in a WebStart context.
+- Improvements to Ant build script.
+ 
 Date: October 26 2012
 Version: 2.14.0
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-26Oct2012
