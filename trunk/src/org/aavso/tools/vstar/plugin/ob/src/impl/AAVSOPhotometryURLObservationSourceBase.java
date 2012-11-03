@@ -25,9 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
-import java.net.Authenticator;
 import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -94,15 +92,13 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 	 */
 	public AAVSOPhotometryURLObservationSourceBase(String kind, String baseURL,
 			String user, String password) {
+		super(user, password);
 		this.kind = kind;
 		this.baseURL = baseURL;
 		this.seriesNameToTypeMap = new LinkedHashMap<String, SeriesType>();
 		this.seriesNames = new HashSet<String>();
 
 		locale = Locale.getDefault();
-
-		Authenticator.setDefault(new AAVSOPhotometryURLAuthenticator(user,
-				password));
 	}
 
 	@Override
@@ -282,19 +278,6 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 		}
 	}
 
-	class AAVSOPhotometryURLAuthenticator extends Authenticator {
-		private String username, password;
-
-		public AAVSOPhotometryURLAuthenticator(String user, String pass) {
-			username = user;
-			password = pass;
-		}
-
-		protected PasswordAuthentication getPasswordAuthentication() {
-			return new PasswordAuthentication(username, password.toCharArray());
-		}
-	}
-
 	@SuppressWarnings("serial")
 	class AAVSOPhotometryURLSearchParameterDialog extends
 			AbstractOkCancelDialog {
@@ -332,7 +315,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-			raDegField = new NumberField("RA (degrees)", 0.0, 180.0, raDegs);
+			raDegField = new NumberField("RA (degrees)", 0.0, 360.0, raDegs);
 			panel.add(raDegField.getTextField());
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 

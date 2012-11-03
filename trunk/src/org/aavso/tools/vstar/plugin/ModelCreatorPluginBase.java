@@ -20,7 +20,6 @@ package org.aavso.tools.vstar.plugin;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.model.IModel;
 
 /**
@@ -36,8 +35,6 @@ import org.aavso.tools.vstar.util.model.IModel;
  * @see org.aavso.tools.vstar.plugin.IPlugin
  */
 abstract public class ModelCreatorPluginBase implements IPlugin {
-
-	protected Mediator mediator = Mediator.getInstance();
 
 	/**
 	 * Returns the model object for this plugin whose execute() method can be
