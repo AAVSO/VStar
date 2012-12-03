@@ -24,6 +24,7 @@ import java.sql.SQLException;
 
 import javax.swing.SwingWorker;
 
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.UnknownAUIDError;
@@ -195,12 +196,16 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			success = true;
 
 		} catch (ConnectionException ex) {
+			ValidObservation.restore();
+
 			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE,
 					"Cannot connect to database.");
 			MainFrame.getInstance().getStatusPane().setMessage("");
 		} catch (Throwable ex) {
+			ValidObservation.restore();
+
 			success = false;
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
@@ -211,6 +216,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 					results.close();
 				}
 			} catch (SQLException e) {
+				ValidObservation.restore();
+
 				MessageBox.showErrorDialog(MainFrame.getInstance(),
 						MenuBar.NEW_STAR_FROM_DATABASE, e);
 			}

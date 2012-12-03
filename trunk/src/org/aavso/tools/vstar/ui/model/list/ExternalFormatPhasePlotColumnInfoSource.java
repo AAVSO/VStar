@@ -31,8 +31,6 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class ExternalFormatPhasePlotColumnInfoSource extends
 		ExternalFormatRawDataColumnInfoSource {
 
-	public static ExternalFormatPhasePlotColumnInfoSource instance = new ExternalFormatPhasePlotColumnInfoSource();
-
 	private static final int PHASE_COLUMN = 0;
 	private static final String PHASE_COLUMN_NAME = "Phase";
 	

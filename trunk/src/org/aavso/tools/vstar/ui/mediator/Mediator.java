@@ -894,6 +894,7 @@ public class Mediator {
 		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
 				plotPortion);
 		this.currTask = task;
+		ValidObservation.reset();
 		task.execute();
 	}
 
@@ -922,8 +923,11 @@ public class Mediator {
 			NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(
 					starName, auid, minJD, maxJD);
 			this.currTask = task;
+			ValidObservation.reset();
 			task.execute();
 		} catch (Exception ex) {
+			ValidObservation.restore();
+			
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
 			MainFrame.getInstance().getStatusPane().setMessage("");
@@ -939,13 +943,14 @@ public class Mediator {
 	 */
 	public void createObservationArtefactsFromObSourcePlugin(
 			ObservationSourcePluginBase obSourcePlugin) {
-
+		
 		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 		this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
 
 		NewStarFromObSourcePluginTask task = new NewStarFromObSourcePluginTask(
 				obSourcePlugin);
 		this.currTask = task;
+		ValidObservation.reset();
 		task.execute();
 	}
 

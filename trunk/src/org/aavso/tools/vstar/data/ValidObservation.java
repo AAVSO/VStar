@@ -17,6 +17,13 @@
  */
 package org.aavso.tools.vstar.data;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
+
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -50,27 +57,36 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  */
 public class ValidObservation extends Observation {
 
-	private DateInfo dateInfo = null; // Julian Day, calendar date
-	private Magnitude magnitude = null; // magnitude, uncertainty,
-	// fainter/brighter-than
+	// Julian Day, calendar date, and cache.
+	private DateInfo dateInfo = null;
+	private final static WeakHashMap<DateInfo, DateInfo> dateInfoCache;
+	static {
+		dateInfoCache = new WeakHashMap<DateInfo, DateInfo>();
+	}
+
+	// Magnitude, uncertainty, fainter/brighter-than, and cache.
+	private Magnitude magnitude = null;
+	private final static WeakHashMap<Magnitude, Magnitude> magnitudeCache;
+	static {
+		magnitudeCache = new WeakHashMap<Magnitude, Magnitude>();
+	}
+
 	private Double hqUncertainty = null;
 	private SeriesType band = null;
-	private String obsCode = null;
-	private CommentCodes commentCode = null; // TODONE: made into an enum
-	private String compStar1 = null;
-	private String compStar2 = null;
-	private String charts = null;
-	private String comments = null;
+
+	// Comment codes and cache.
+	private CommentCodes commentCode = null;
+	private final static WeakHashMap<CommentCodes, CommentCodes> commentCodeCache;
+	static {
+		commentCodeCache = new WeakHashMap<CommentCodes, CommentCodes>();
+	}
+
 	private boolean transformed = false;
-	private String airmass = null;
 	private ValidationType validationType = null;
-	// Note: these next two should be double, but some values
-	// in the database are non-numeric. VStar doesn't use these
-	// fields anyway except for display purposes.
-	private String cMag = null;
-	private String kMag = null;
-	private DateInfo hJD = null; // Heliocentric vs Geocentric Julian Date
-	private String name = null;
+
+	// Heliocentric vs Geocentric Julian Date; uses dateInfo cache.
+	private DateInfo hJD = null;
+
 	private MTypeType mType = MTypeType.STD;
 
 	// Phase values will be computed later, if a phase plot is requested.
@@ -82,6 +98,64 @@ public class ValidObservation extends Observation {
 
 	private boolean excluded = false;
 
+	// Optional string-based observation details.
+	private Map<String, String> details;
+
+	// Optional string-based observation detail titles, and shadow save
+	// collection.
+	private static Map<String, String> detailTitles = new LinkedHashMap<String, String>();
+	private static Map<String, String> savedDetailTitles = null;
+
+	private final static String nameKey = "NAME";
+	private final static String nameTitle = "Name";
+
+	private final static String obsCodeKey = "OBS_CODE";
+	private final static String obsCodeTitle = "Observer Code";
+
+	private final static String compStar1Key = "COMP_STAR1";
+	private final static String compStar1Title = "Comparison Star 1";
+
+	private final static String compStar2Key = "COMP_STAR2";
+	private final static String compStar2Title = "Comparison Star 2";
+
+	private final static String chartsKey = "CHARTS";
+	private final static String chartsTitle = "Charts";
+
+	private final static String commentsKey = "COMMENTS";
+	private final static String commentsTitle = "Comments";
+
+	private final static String airmassKey = "AIRMASS";
+	private final static String airmassTitle = "Airmass";
+
+	private final static String cMagKey = "CMAG";
+	private final static String cMagTitle = "CMag";
+
+	private final static String kMagKey = "KMAG";
+	private final static String kMagTitle = "KMag";
+
+	// The set of standard detail keys.
+	private final static Set<String> standardDetailKeys;
+
+	static {
+		standardDetailKeys = new HashSet<String>();
+		standardDetailKeys.add(nameKey);
+		standardDetailKeys.add(obsCodeKey);
+		standardDetailKeys.add(compStar1Key);
+		standardDetailKeys.add(compStar2Key);
+		standardDetailKeys.add(chartsKey);
+		standardDetailKeys.add(commentsKey);
+		standardDetailKeys.add(airmassKey);
+		standardDetailKeys.add(cMagKey);
+		standardDetailKeys.add(kMagKey);
+	}
+
+	// A cache of detail values.
+	private static final WeakHashMap<String, String> detailValueCache;
+
+	static {
+		detailValueCache = new WeakHashMap<String, String>();
+	}
+
 	/**
 	 * Constructor.
 	 * 
@@ -89,9 +163,134 @@ public class ValidObservation extends Observation {
 	 */
 	public ValidObservation() {
 		super(0);
+		details = new HashMap<String, String>();
+	}
+
+	/**
+	 * Reset static non-cache maps in readiness for a new dataset.
+	 */
+	public static void reset() {
+		savedDetailTitles = new LinkedHashMap<String, String>(detailTitles);
+		detailTitles.clear();
+	}
+
+	/**
+	 * Restore static non-cache maps when a new dataset load failure occurs.
+	 */
+	public static void restore() {
+		detailTitles = savedDetailTitles;
 	}
 
 	// Getters and Setters
+
+	/**
+	 * Generic cached value getter.
+	 * 
+	 * @param <T>
+	 *            The type of the cached value.
+	 * @param cache
+	 *            The cache in which to look for the value.
+	 * @param value
+	 *            The value to look up.
+	 * @return The present or future cached value.
+	 */
+	private static <T> T getCachedValue(WeakHashMap<T, T> cache, T value) {
+		if (cache.containsKey(value)) {
+			value = cache.get(value);
+		} else {
+			cache.put(value, value);
+		}
+
+		return value;
+	}
+
+	/**
+	 * @return details map
+	 */
+	public Map<String, String> getDetailsMap() {
+		return details;
+	}
+
+	/**
+	 * @return the detailTitles
+	 */
+	public static Map<String, String> getDetailTitles() {
+		return detailTitles;
+	}
+
+	/**
+	 * Add an observation detail, if the value is not null.
+	 * 
+	 * @param key
+	 *            The detail key.
+	 * @param value
+	 *            The string detail value.
+	 * @param title
+	 *            The detail title, e.g. for use in table column, observation
+	 *            details.
+	 */
+	public void addDetail(String key, String value, String title) {
+		if (value != null) {
+			value = getCachedValue(detailValueCache, value);
+			details.put(key, value);
+			detailTitles.put(key, title);
+		}
+	}
+
+	/**
+	 * @return details map value given a key, if it exists, otherwise the empty
+	 *         string.
+	 */
+	public String getDetail(String key) {
+		return detailExists(key) ? details.get(key) : "";
+	}
+
+	/**
+	 * @return detail titles map value given a key
+	 */
+	public String getDetailTitle(String key) {
+		return detailTitles.get(key);
+	}
+
+	/**
+	 * Does the specified detail key exist?
+	 * 
+	 * @param key
+	 *            The detail key.
+	 * @return Whether or not detail exists.
+	 */
+	public boolean detailExists(String key) {
+		return details.keySet().contains(key);
+	}
+
+	/**
+	 * Does the specified detail title key exist?
+	 * 
+	 * @param key
+	 *            The detail key.
+	 * @return Whether or not the detail title exists.
+	 */
+	public boolean detailTitleExists(String key) {
+		return detailTitles.keySet().contains(key);
+	}
+
+	/**
+	 * Does the specified detail key correspond to a standard detail key?
+	 * 
+	 * @param key
+	 *            The detail key.
+	 * @return Whether or not the detail key is standard.
+	 */
+	public boolean isStandardDetailKey(String key) {
+		return standardDetailKeys.contains(key);
+	}
+
+	/**
+	 * @return the standarddetailkeys
+	 */
+	public static Set<String> getStandarddetailKeys() {
+		return standardDetailKeys;
+	}
 
 	/**
 	 * @return the dateInfo
@@ -105,7 +304,7 @@ public class ValidObservation extends Observation {
 	 *            the dateInfo to set
 	 */
 	public void setDateInfo(DateInfo dateInfo) {
-		this.dateInfo = dateInfo;
+		this.dateInfo = getCachedValue(dateInfoCache, dateInfo);
 	}
 
 	/**
@@ -120,14 +319,14 @@ public class ValidObservation extends Observation {
 	 *            the magnitude to set
 	 */
 	public void setMagnitude(Magnitude magnitude) {
-		this.magnitude = magnitude;
+		this.magnitude = getCachedValue(magnitudeCache, magnitude);
 	}
 
 	/**
 	 * @return the obsCode
 	 */
 	public String getObsCode() {
-		return obsCode;
+		return getDetail(obsCodeKey);
 	}
 
 	/**
@@ -135,7 +334,7 @@ public class ValidObservation extends Observation {
 	 *            the obsCode to set
 	 */
 	public void setObsCode(String obsCode) {
-		this.obsCode = obsCode;
+		addDetail(obsCodeKey, obsCode, obsCodeTitle);
 	}
 
 	/**
@@ -163,7 +362,7 @@ public class ValidObservation extends Observation {
 	 * @return the name
 	 */
 	public String getName() {
-		return name;
+		return getDetail(nameKey);
 	}
 
 	/**
@@ -171,7 +370,7 @@ public class ValidObservation extends Observation {
 	 *            the name to set
 	 */
 	public void setName(String name) {
-		this.name = name;
+		addDetail(nameKey, name, nameTitle);
 	}
 
 	/**
@@ -231,14 +430,15 @@ public class ValidObservation extends Observation {
 	 *            the commentCode to set
 	 */
 	public void setCommentCode(String commentCode) {
-		this.commentCode = new CommentCodes(commentCode);
+		this.commentCode = getCachedValue(commentCodeCache, new CommentCodes(
+				commentCode));
 	}
 
 	/**
 	 * @return the compStar1
 	 */
 	public String getCompStar1() {
-		return compStar1;
+		return getDetail(compStar1Key);
 	}
 
 	/**
@@ -246,14 +446,14 @@ public class ValidObservation extends Observation {
 	 *            the compStar1 to set
 	 */
 	public void setCompStar1(String compStar1) {
-		this.compStar1 = compStar1;
+		addDetail(compStar1Key, compStar1, compStar1Title);
 	}
 
 	/**
 	 * @return the compStar2
 	 */
 	public String getCompStar2() {
-		return compStar2;
+		return getDetail(compStar2Key);
 	}
 
 	/**
@@ -261,14 +461,14 @@ public class ValidObservation extends Observation {
 	 *            the compStar2 to set
 	 */
 	public void setCompStar2(String compStar2) {
-		this.compStar2 = compStar2;
+		addDetail(compStar2Key, compStar2, compStar2Title);
 	}
 
 	/**
 	 * @return the charts
 	 */
 	public String getCharts() {
-		return charts;
+		return getDetail(chartsKey);
 	}
 
 	/**
@@ -276,14 +476,14 @@ public class ValidObservation extends Observation {
 	 *            the charts to set
 	 */
 	public void setCharts(String charts) {
-		this.charts = charts;
+		addDetail(chartsKey, charts, chartsTitle);
 	}
 
 	/**
 	 * @return the comments
 	 */
 	public String getComments() {
-		return comments;
+		return getDetail(commentsKey);
 	}
 
 	/**
@@ -291,7 +491,7 @@ public class ValidObservation extends Observation {
 	 *            the comments to set
 	 */
 	public void setComments(String comments) {
-		this.comments = comments;
+		addDetail(commentsKey, comments, commentsTitle);
 	}
 
 	/**
@@ -313,7 +513,7 @@ public class ValidObservation extends Observation {
 	 * @return the airmass
 	 */
 	public String getAirmass() {
-		return airmass;
+		return getDetail(airmassKey);
 	}
 
 	/**
@@ -321,14 +521,14 @@ public class ValidObservation extends Observation {
 	 *            the airmass to set
 	 */
 	public void setAirmass(String airmass) {
-		this.airmass = airmass;
+		addDetail(airmassKey, airmass, airmassTitle);
 	}
 
 	/**
 	 * @return the cMag
 	 */
 	public String getCMag() {
-		return cMag;
+		return getDetail(cMagKey);
 	}
 
 	/**
@@ -337,17 +537,16 @@ public class ValidObservation extends Observation {
 	 */
 	public void setCMag(String cMag) {
 		if ("0.ensemb".equals(cMag)) {
-			this.cMag = "Ensemble";
-		} else {
-			this.cMag = cMag;
+			cMag = "Ensemble";
 		}
+		addDetail(cMagKey, cMag, cMagTitle);
 	}
 
 	/**
 	 * @return the kMag
 	 */
 	public String getKMag() {
-		return kMag;
+		return getDetail(kMagKey);
 	}
 
 	/**
@@ -355,7 +554,7 @@ public class ValidObservation extends Observation {
 	 *            the kMag to set
 	 */
 	public void setKMag(String kMag) {
-		this.kMag = kMag;
+		addDetail(kMagKey, kMag, kMagTitle);
 	}
 
 	/**
@@ -370,7 +569,7 @@ public class ValidObservation extends Observation {
 	 *            the hJD to set
 	 */
 	public void setHJD(DateInfo hJD) {
-		this.hJD = hJD;
+		this.hJD = getCachedValue(dateInfoCache, hJD);
 	}
 
 	/**
@@ -438,8 +637,8 @@ public class ValidObservation extends Observation {
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 
-		if (name != null) {
-			strBuf.append(name);
+		if (detailExists(nameKey)) {
+			strBuf.append(details.get(nameKey));
 			strBuf.append("\n");
 		}
 
@@ -495,9 +694,9 @@ public class ValidObservation extends Observation {
 			strBuf.append("\n");
 		}
 
-		if (obsCode != null) {
-			strBuf.append("Observer Code: ");
-			strBuf.append(obsCode);
+		if (detailExists(obsCodeKey)) {
+			strBuf.append(detailTitles.get(obsCodeKey) + ": ");
+			strBuf.append(details.get(obsCodeKey));
 			strBuf.append("\n");
 		}
 
@@ -506,26 +705,27 @@ public class ValidObservation extends Observation {
 			strBuf.append(commentCode.toString());
 		}
 
-		if (compStar1 != null) {
-			strBuf.append("Comparison Star 1: ");
-			strBuf.append(compStar1);
+		if (detailExists(compStar1Key)) {
+			strBuf.append(detailTitles.get(compStar1Key) + ": ");
+			strBuf.append(details.get(compStar1Key));
 			strBuf.append("\n");
 		}
 
-		if (compStar2 != null) {
-			strBuf.append("Comparison Star 2: ");
-			strBuf.append(compStar2);
+		if (detailExists(compStar2Key)) {
+			strBuf.append(detailTitles.get(compStar2Key) + ": ");
+			strBuf.append(details.get(compStar2Key));
 			strBuf.append("\n");
 		}
 
-		if (charts != null) {
-			strBuf.append("Charts: ");
-			strBuf.append(charts);
+		if (detailExists(chartsKey)) {
+			strBuf.append(detailTitles.get(chartsKey) + ": ");
+			strBuf.append(details.get(chartsKey));
 			strBuf.append("\n");
 		}
-		if (comments != null) {
-			strBuf.append("Comments: ");
-			strBuf.append(comments);
+
+		if (detailExists(commentsKey)) {
+			strBuf.append(detailTitles.get(commentsKey) + ": ");
+			strBuf.append(details.get(commentsKey));
 			strBuf.append("\n");
 		}
 
@@ -533,21 +733,21 @@ public class ValidObservation extends Observation {
 			strBuf.append("Transformed: yes\n");
 		}
 
-		if (airmass != null) {
-			strBuf.append("Airmass: ");
-			strBuf.append(airmass);
+		if (detailExists(airmassKey)) {
+			strBuf.append(detailTitles.get(airmassKey) + ": ");
+			strBuf.append(details.get(airmassKey));
 			strBuf.append("\n");
 		}
 
-		if (cMag != null) {
-			strBuf.append("CMag: ");
-			strBuf.append(cMag);
+		if (detailExists(cMagKey)) {
+			strBuf.append(detailTitles.get(cMagKey) + ": ");
+			strBuf.append(details.get(cMagKey));
 			strBuf.append("\n");
 		}
 
-		if (kMag != null) {
-			strBuf.append("KMag: ");
-			strBuf.append(kMag);
+		if (detailExists(kMagKey)) {
+			strBuf.append(detailTitles.get(kMagKey) + ": ");
+			strBuf.append(details.get(kMagKey));
 			strBuf.append("\n");
 		}
 
@@ -556,6 +756,15 @@ public class ValidObservation extends Observation {
 			strBuf.append(String.format(NumericPrecisionPrefs
 					.getTimeOutputFormat(), hJD.getJulianDay()));
 			strBuf.append("\n");
+		}
+
+		// Add any remaining non-AAVSO details, e.g. for a plugin.
+		for (String key : details.keySet()) {
+			if (!standardDetailKeys.contains(key)) {
+				strBuf.append(detailTitles.get(key) + ": ");
+				strBuf.append(details.get(key));
+				strBuf.append("\n");
+			}
 		}
 
 		return strBuf.toString();
@@ -590,8 +799,8 @@ public class ValidObservation extends Observation {
 		}
 		buf.append(delimiter);
 
-		if (this.obsCode != null) {
-			buf.append(this.obsCode);
+		if (details.keySet().contains(obsCodeKey)) {
+			buf.append(details.get(obsCodeKey));
 		}
 		buf.append(delimiter);
 
@@ -604,7 +813,8 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * Returns a line in TSV AAVSO download format.
+	 * Returns a line in delimiter-separator (TSV, CSV, ...) AAVSO download
+	 * format.
 	 * 
 	 * @param delimiter
 	 *            The field delimiter to use.
@@ -640,8 +850,8 @@ public class ValidObservation extends Observation {
 		buf.append(this.getBand().getShortName());
 		buf.append(delimiter);
 
-		if (this.obsCode != null) {
-			buf.append(this.obsCode);
+		if (detailExists(obsCodeKey)) {
+			buf.append(details.get(obsCodeKey));
 		}
 		buf.append(delimiter);
 

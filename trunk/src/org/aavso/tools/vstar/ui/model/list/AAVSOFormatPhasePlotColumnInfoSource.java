@@ -31,11 +31,6 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class AAVSOFormatPhasePlotColumnInfoSource extends
 		AAVSOFormatRawDataColumnInfoSource {
 
-	public static final AAVSOFormatPhasePlotColumnInfoSource fileInstance = new AAVSOFormatPhasePlotColumnInfoSource(
-			true);
-	public static final AAVSOFormatPhasePlotColumnInfoSource databaseInstance = new AAVSOFormatPhasePlotColumnInfoSource(
-			false);
-
 	private static final int PHASE_COLUMN = 0;
 	private static final String PHASE_COLUMN_NAME = "Phase";
 	
@@ -49,7 +44,7 @@ public class AAVSOFormatPhasePlotColumnInfoSource extends
 	 * @param useLineNumbers
 	 *            Should line numbers be used?
 	 */
-	private AAVSOFormatPhasePlotColumnInfoSource(boolean useLineNumbers) {
+	public AAVSOFormatPhasePlotColumnInfoSource(boolean useLineNumbers) {
 		super(useLineNumbers);
 	}
 

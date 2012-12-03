@@ -17,7 +17,9 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -30,42 +32,38 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class ExternalFormatRawDataColumnInfoSource implements
 		ITableColumnInfoSource {
 
-	public static ExternalFormatRawDataColumnInfoSource instance = new ExternalFormatRawDataColumnInfoSource();
-
 	// Table columns.
 	private static final int JD_COLUMN = 0;
 	private static final int CALENDAR_DATE_COLUMN = 1;
 	private static final int MAGNITUDE_COLUMN = 2;
 	private static final int UNCERTAINTY_COLUMN = 3;
 	private static final int BAND_COLUMN = 4;
-	private static final int OBSERVER_CODE_COLUMN = 5;
-	private static final int RECORD_NUM_COLUMN = 6;
-	private static final int DISCREPANT_COLUMN = 7;
+	private static final int RECORD_NUM_COLUMN = 5;
+	private static final int DISCREPANT_COLUMN = 6;
 
 	private static final String JD_COLUMN_NAME = "Julian Day";
 	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
 	private static final String MAGNITUDE_COLUMN_NAME = "Magnitude";
-	private static final String UNCERTAINTY_COLUMN_NAME = "Uncertainty";	
+	private static final String UNCERTAINTY_COLUMN_NAME = "Uncertainty";
 	private static final String BAND_COLUMN_NAME = "Band";
-	private static final String OBSERVER_CODE_COLUMN_NAME = "Observer Code";
 	private static final String RECORD_NUM_COLUMN_NAME = "Record";
 	private static final String DISCREPANT_COLUMN_NAME = "Discrepant?";
 
 	protected static final Map<String, Integer> COLUMN_NAMES = new HashMap<String, Integer>();
-	
+
 	static {
 		COLUMN_NAMES.put(JD_COLUMN_NAME, JD_COLUMN);
 		COLUMN_NAMES.put(CALENDAR_DATE_COLUMN_NAME, CALENDAR_DATE_COLUMN);
 		COLUMN_NAMES.put(MAGNITUDE_COLUMN_NAME, MAGNITUDE_COLUMN);
-		COLUMN_NAMES.put(UNCERTAINTY_COLUMN_NAME, UNCERTAINTY_COLUMN);		
+		COLUMN_NAMES.put(UNCERTAINTY_COLUMN_NAME, UNCERTAINTY_COLUMN);
 		COLUMN_NAMES.put(BAND_COLUMN_NAME, BAND_COLUMN);
-		COLUMN_NAMES.put(OBSERVER_CODE_COLUMN_NAME, OBSERVER_CODE_COLUMN);
 		COLUMN_NAMES.put(RECORD_NUM_COLUMN_NAME, RECORD_NUM_COLUMN);
 		COLUMN_NAMES.put(DISCREPANT_COLUMN_NAME, DISCREPANT_COLUMN);
 	}
 
 	public int getColumnCount() {
-		return DISCREPANT_COLUMN + 1;
+		int detailCount = ValidObservation.getDetailTitles().size();
+		return DISCREPANT_COLUMN + detailCount + 1;
 	}
 
 	public int getDiscrepantColumnIndex() {
@@ -87,18 +85,22 @@ public class ExternalFormatRawDataColumnInfoSource implements
 			break;
 		case UNCERTAINTY_COLUMN:
 			columnName = UNCERTAINTY_COLUMN_NAME;
-			break;			
+			break;
 		case BAND_COLUMN:
 			columnName = BAND_COLUMN_NAME;
-			break;
-		case OBSERVER_CODE_COLUMN:
-			columnName = OBSERVER_CODE_COLUMN_NAME;
 			break;
 		case RECORD_NUM_COLUMN:
 			columnName = RECORD_NUM_COLUMN_NAME;
 			break;
 		case DISCREPANT_COLUMN:
 			columnName = DISCREPANT_COLUMN_NAME;
+			break;
+		default:
+			// Assumes an ordering on underlying collection and that this is
+			// consistent with detail values ordering.
+			List<String> titles = new ArrayList<String>(ValidObservation
+					.getDetailTitles().values());
+			columnName = titles.get(index-DISCREPANT_COLUMN-1);
 			break;
 		}
 
@@ -119,8 +121,6 @@ public class ExternalFormatRawDataColumnInfoSource implements
 			break;
 		case BAND_COLUMN:
 			break;
-		case OBSERVER_CODE_COLUMN:
-			break;
 		case RECORD_NUM_COLUMN:
 			clazz = Integer.class;
 			break;
@@ -131,14 +131,14 @@ public class ExternalFormatRawDataColumnInfoSource implements
 
 		return clazz;
 	}
-
+	
 	public Object getTableColumnValue(int index, ValidObservation ob) {
 		Object value = null;
 
 		switch (index) {
 		case JD_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-					.getDateInfo().getJulianDay());
+			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
+					ob.getDateInfo().getJulianDay());
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
@@ -154,14 +154,18 @@ public class ExternalFormatRawDataColumnInfoSource implements
 		case BAND_COLUMN:
 			value = ob.getBand() == null ? "" : ob.getBand().getDescription();
 			break;
-		case OBSERVER_CODE_COLUMN:
-			value = ob.getObsCode();
-			break;
 		case RECORD_NUM_COLUMN:
 			value = ob.getRecordNumber();
 			break;
 		case DISCREPANT_COLUMN:
 			value = ob.isDiscrepant();
+			break;
+		default:
+			// Assumes an ordering on underlying collection and that this is
+			// consistent with detail titles ordering.
+			List<String> values = new ArrayList<String>(ob.getDetailsMap()
+					.values());
+			value = values.get(index-DISCREPANT_COLUMN-1);
 			break;
 		}
 
@@ -169,11 +173,25 @@ public class ExternalFormatRawDataColumnInfoSource implements
 	}
 
 	@Override
-	public int getColumnIndexByName(String name) throws IllegalArgumentException {
-		if (name == null || !COLUMN_NAMES.containsKey(name)) {
-			throw new IllegalArgumentException("No column name: " + name);
+	public int getColumnIndexByName(String name)
+			throws IllegalArgumentException {
+		int index = 0;
+		
+		if (name == null) {
+			throw new IllegalArgumentException("Null column name");
+		} else if (COLUMN_NAMES.containsKey(name)) {
+			index = COLUMN_NAMES.get(name);
+		} else if (ValidObservation
+				.getDetailTitles().containsKey(name)) {
+			// Assumes an ordering on underlying collection.
+			List<String> titles = new ArrayList<String>(ValidObservation
+					.getDetailTitles().values());
+
+			index = titles.indexOf(name)+DISCREPANT_COLUMN+1;
 		} else {
-			return COLUMN_NAMES.get(name);
+			throw new IllegalArgumentException("No column name: " + name);
 		}
+		
+		return index;
 	}
 }

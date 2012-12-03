@@ -23,6 +23,7 @@ import java.io.LineNumberReader;
 
 import javax.swing.SwingWorker;
 
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
@@ -110,6 +111,8 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 						new StarInfo(textFormatReader, name), plotTaskPortion, false);
 			}
 		} catch (Throwable t) {
+			ValidObservation.restore();
+
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					"New Star From File Read Error", t);
 		}

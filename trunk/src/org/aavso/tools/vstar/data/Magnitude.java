@@ -183,4 +183,58 @@ public class Magnitude {
 
 		return strBuf.toString();
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (isUncertain ? 1231 : 1237);
+		result = prime * result
+				+ ((magModifier == null) ? 0 : magModifier.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(magValue);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(uncertainty);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof Magnitude)) {
+			return false;
+		}
+		Magnitude other = (Magnitude) obj;
+		if (isUncertain != other.isUncertain) {
+			return false;
+		}
+		if (magModifier == null) {
+			if (other.magModifier != null) {
+				return false;
+			}
+		} else if (!magModifier.equals(other.magModifier)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(magValue) != Double
+				.doubleToLongBits(other.magValue)) {
+			return false;
+		}
+		if (Double.doubleToLongBits(uncertainty) != Double
+				.doubleToLongBits(other.uncertainty)) {
+			return false;
+		}
+		return true;
+	}
 }

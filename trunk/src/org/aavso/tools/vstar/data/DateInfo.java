@@ -69,4 +69,39 @@ public class DateInfo {
 		
 		return strBuf.toString();
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(julianDay);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof DateInfo)) {
+			return false;
+		}
+		DateInfo other = (DateInfo) obj;
+		if (Double.doubleToLongBits(julianDay) != Double
+				.doubleToLongBits(other.julianDay)) {
+			return false;
+		}
+		return true;
+	}
 }
