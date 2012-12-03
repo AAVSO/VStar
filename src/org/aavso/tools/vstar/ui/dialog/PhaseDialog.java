@@ -48,6 +48,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * deletion, and most importantly, permitting previously created phase plots to
  * be recreated.
  */
+@SuppressWarnings("serial")
 public class PhaseDialog extends JDialog implements ListSelectionListener {
 
 	private boolean firstUse;

@@ -85,4 +85,50 @@ public class CommentCodes {
 	public String getOrigString() {
 		return origString;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((commentcodes == null) ? 0 : commentcodes.hashCode());
+		result = prime * result
+				+ ((origString == null) ? 0 : origString.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof CommentCodes)) {
+			return false;
+		}
+		CommentCodes other = (CommentCodes) obj;
+		if (commentcodes == null) {
+			if (other.commentcodes != null) {
+				return false;
+			}
+		} else if (!commentcodes.equals(other.commentcodes)) {
+			return false;
+		}
+		if (origString == null) {
+			if (other.origString != null) {
+				return false;
+			}
+		} else if (!origString.equals(other.origString)) {
+			return false;
+		}
+		return true;
+	}
 }

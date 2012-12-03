@@ -48,6 +48,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * This dialog collects created models and permits their selection and deletion.
  * Selecting a model causes that model and its residuals to become current.
  */
+@SuppressWarnings("serial")
 public class ModelDialog extends JDialog implements ListSelectionListener {
 
 	private boolean firstUse;

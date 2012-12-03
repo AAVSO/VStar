@@ -29,11 +29,6 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class AAVSOFormatRawDataColumnInfoSource implements
 		ITableColumnInfoSource {
 
-	public static final AAVSOFormatRawDataColumnInfoSource fileInstance = new AAVSOFormatRawDataColumnInfoSource(
-			true);
-	public static final AAVSOFormatRawDataColumnInfoSource databaseInstance = new AAVSOFormatRawDataColumnInfoSource(
-			false);
-
 	// Table columns.
 	private static final int JD_COLUMN = 0;
 	private static final int CALENDAR_DATE_COLUMN = 1;
@@ -116,7 +111,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	 * @param useLineNumbers
 	 *            Should line numbers be used?
 	 */
-	protected AAVSOFormatRawDataColumnInfoSource(boolean useLineNumbers) {
+	public AAVSOFormatRawDataColumnInfoSource(boolean useLineNumbers) {
 		this.useLineNumbers = useLineNumbers;
 	}
 

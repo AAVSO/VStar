@@ -168,6 +168,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 								ob.setMagnitude(new Magnitude(mag, magErr));
 								ob.setBand(superWaspSeries);
 								ob.setRecordNumber(row);
+								ob.addDetail("IMAGE_ID", imageId, "Image ID");
 
 								obs.add(ob);
 							}
@@ -223,6 +224,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 		}
 	}
 
+	@SuppressWarnings("serial")
 	class MagErrorSelectionDialog extends JDialog {
 
 		private NumberSelectionPane magErrorSelector;

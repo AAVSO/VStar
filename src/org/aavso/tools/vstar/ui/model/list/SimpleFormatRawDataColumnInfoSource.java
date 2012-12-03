@@ -29,8 +29,6 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class SimpleFormatRawDataColumnInfoSource implements
 		ITableColumnInfoSource {
 
-	public static SimpleFormatRawDataColumnInfoSource instance = new SimpleFormatRawDataColumnInfoSource();
-
 	// Table columns.
 	private static final int JD_COLUMN = 0;
 	private static final int CALENDAR_DATE_COLUMN = 1;

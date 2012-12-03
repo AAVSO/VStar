@@ -28,6 +28,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
@@ -170,18 +171,24 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 					retriever, name), 0, false);
 
 		} catch (InterruptedException e) {
+			ValidObservation.restore();
+
 			mediator.getProgressNotifier().notifyListeners(
 					ProgressInfo.COMPLETE_PROGRESS);
 
 			mediator.getProgressNotifier().notifyListeners(
 					ProgressInfo.CLEAR_PROGRESS);
 		} catch (CancellationException e) {
+			ValidObservation.restore();
+
 			mediator.getProgressNotifier().notifyListeners(
 					ProgressInfo.COMPLETE_PROGRESS);
 
 			mediator.getProgressNotifier().notifyListeners(
 					ProgressInfo.CLEAR_PROGRESS);
 		} catch (Throwable t) {
+			ValidObservation.restore();
+
 			MessageBox.showErrorDialog(
 					"New Star From Observation Source Read Error", t);
 
