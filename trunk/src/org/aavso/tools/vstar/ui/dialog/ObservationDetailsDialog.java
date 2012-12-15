@@ -52,6 +52,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * session. Or just have one per observation. great way to have a memory leak
  * though.
  */
+@SuppressWarnings("serial")
 public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
 	private ValidObservation ob;

@@ -64,7 +64,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 	public KeplerFITSObservationSource() {
 		super();
 		keplerSeries = SeriesType
-				.create("Kepler", "Kepler", Color.GREEN, false);
+				.create("Kepler", "Kepler", Color.GREEN, false, false);
 		locale = Locale.getDefault();
 	}
 

@@ -190,7 +190,7 @@ public class SeriesType implements Comparable<SeriesType> {
 
 	public static final SeriesType MEANS = new SeriesType(SeriesType.NO_INDEX,
 			LocaleProps.get("MEANS_SERIES"), LocaleProps.get("MEANS_SERIES"),
-			Color.BLUE, true);
+			Color.BLUE, true, false);
 
 	// Aaron's suggestion was to make Discrepant points light gray.
 	public static final SeriesType DISCREPANT = new SeriesType(
@@ -203,17 +203,17 @@ public class SeriesType implements Comparable<SeriesType> {
 
 	public static final SeriesType Filtered = new SeriesType(
 			SeriesType.NO_INDEX, LocaleProps.get("FILTERED_SERIES"),
-			LocaleProps.get("FILTERED_SERIES"), new Color(0, 153, 204), true);
+			LocaleProps.get("FILTERED_SERIES"), new Color(0, 153, 204), true, false);
 
 	// Model series.
 	public static final SeriesType Model = new SeriesType(SeriesType.NO_INDEX,
 			LocaleProps.get("MODEL_SERIES"), LocaleProps.get("MODEL_SERIES"),
-			Color.RED, true);
+			Color.RED, true, false);
 
 	// Residuals series.
 	public static final SeriesType Residuals = new SeriesType(
 			SeriesType.NO_INDEX, LocaleProps.get("RESIDUALS_SERIES"),
-			LocaleProps.get("RESIDUALS_SERIES"), Color.CYAN, true);
+			LocaleProps.get("RESIDUALS_SERIES"), Color.CYAN, true, false);
 
 	// This series can be used to mark an observation as being excluded for some
 	// other reason than it being discrepant and all that classification
@@ -267,6 +267,7 @@ public class SeriesType implements Comparable<SeriesType> {
 	private Color color;
 	private int size;
 	private boolean synthetic;
+	private boolean userDefined;
 
 	/**
 	 * Create a new series type or return an existing one.
@@ -280,13 +281,15 @@ public class SeriesType implements Comparable<SeriesType> {
 	 * @param synthetic
 	 *            Is this series synthetic (i.e. not associated with data but
 	 *            derived from data)?
+	 * @param userDefined
+	 *            Is this series user-defined?
 	 * @return the new or pre-existing SeriesType instance.
 	 */
 	public static SeriesType create(String description, String shortName,
-			Color color, boolean synthetic) {
+			Color color, boolean synthetic, boolean userDefined) {
 		// Create the series type of interest.
 		SeriesType newSeries = new SeriesType(NO_INDEX, description, shortName,
-				color, synthetic);
+				color, synthetic, userDefined);
 
 		// Find which ever one now exists in the values set. That may be the
 		// new instance or a previously created instance.
@@ -303,6 +306,29 @@ public class SeriesType implements Comparable<SeriesType> {
 	}
 
 	/**
+	 * Delete the specified series type.
+	 * 
+	 * @param type
+	 *            The series type to delete.
+	 */
+	public static void delete(SeriesType type) {
+		// We don't want to delete in-built series!
+		assert type.isUserDefined();
+		
+		if (values.contains(type)) {
+			values.remove(type);
+			
+			index2SeriesMap.remove(type.getIndex());
+			shortName2SeriesMap.remove(type.getShortName());
+			description2SeriesMap.remove(type.getDescription());
+
+			series2ColorMap.remove(type);
+
+			series2SizeMap.remove(type);
+		}
+	}
+
+	/**
 	 * Constructor
 	 * 
 	 * @param index
@@ -316,15 +342,18 @@ public class SeriesType implements Comparable<SeriesType> {
 	 * @param synthetic
 	 *            Is this series synthetic (i.e. not associated with data but
 	 *            derived from data)?
+	 * @param userDefined
+	 *            Is this series user-defined?
 	 */
 	private SeriesType(int index, String description, String shortName,
-			Color color, boolean synthetic) {
+			Color color, boolean synthetic, boolean userDefined) {
 		this.index = index;
 		this.description = description;
 		this.shortName = shortName;
 		this.color = color;
 		this.size = DEFAULT_SIZE;
 		this.synthetic = synthetic;
+		this.userDefined = userDefined;
 		updateStaticCollections(this);
 	}
 
@@ -344,7 +373,7 @@ public class SeriesType implements Comparable<SeriesType> {
 	 */
 	private SeriesType(int index, String description, String shortName,
 			Color color) {
-		this(index, description, shortName, color, false);
+		this(index, description, shortName, color, false, false);
 	}
 
 	/**
@@ -360,7 +389,7 @@ public class SeriesType implements Comparable<SeriesType> {
 	 *            The series type's color.
 	 */
 	private SeriesType(String description, String shortName, Color color) {
-		this(SeriesType.NO_INDEX, description, shortName, color, false);
+		this(SeriesType.NO_INDEX, description, shortName, color, false, false);
 	}
 
 	/**
@@ -403,6 +432,13 @@ public class SeriesType implements Comparable<SeriesType> {
 	 */
 	public boolean isSynthetic() {
 		return synthetic;
+	}
+
+	/**
+	 * @return the userDefined
+	 */
+	public boolean isUserDefined() {
+		return userDefined;
 	}
 
 	/**
@@ -475,6 +511,17 @@ public class SeriesType implements Comparable<SeriesType> {
 		}
 
 		return type;
+	}
+
+	/**
+	 * Does the series, specified by description, exist?
+	 * 
+	 * @param description
+	 *            The description, as passed to create().
+	 * @return Whether or not the series already exists.
+	 */
+	public static boolean exists(String description) {
+		return description2SeriesMap.keySet().contains(description);
 	}
 
 	private static Color getColorPref(SeriesType series) {

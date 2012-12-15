@@ -56,10 +56,11 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase {
 
 	private SeriesType superWaspSeries;
-	
+
 	public SuperWASPFITSObservationSource() {
 		super();
-		superWaspSeries = SeriesType.create("SuperWASP", "SuperWASP", Color.RED, false);
+		superWaspSeries = SeriesType.create("SuperWASP", "SuperWASP",
+				Color.RED, false, false);
 	}
 
 	@Override
@@ -205,7 +206,8 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 			for (ValidObservation ob : obs) {
 				double magErr = ob.getMagnitude().getUncertainty();
 				if (magErr >= magErrThreshold) {
-					ob.setBand(superWaspSeries); // TODO: why do this here as well?
+					ob.setBand(superWaspSeries); // TODO: why do this here as
+													// well?
 					ob.setExcluded(true);
 				}
 

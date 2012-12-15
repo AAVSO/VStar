@@ -61,8 +61,8 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 			}
 
 			if (!found) {
-				String msg = LocaleProps.get("FIELD_MATCHER_OP_ERR_MSG")
-						+ " '" + op + "'";
+				String msg = LocaleProps.get("FIELD_MATCHER_OP_ERR_MSG") + " '"
+						+ op + "'";
 				throw new IllegalArgumentException(msg);
 			}
 		}
@@ -109,4 +109,12 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	public ObservationSelectionMessage getObservationSelectionMessage() {
 		return observationSelectionMessage;
 	}
+
+	/**
+	 * @see org.aavso.tools.vstar.data.filter.IObservationFieldMatcher#getParsableDescription()
+	 */
+	@Override
+	public String getParsableDescription() {
+		return getDisplayName() + " " + op.toParsableString() + " " + testValue;
+	}	
 }

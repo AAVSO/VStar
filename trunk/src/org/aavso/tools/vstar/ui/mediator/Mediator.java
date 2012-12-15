@@ -60,6 +60,7 @@ import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
 import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveAsChooser;
 import org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialog;
+import org.aavso.tools.vstar.ui.dialog.ObservationFiltersDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
@@ -87,6 +88,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PhaseSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
@@ -188,6 +190,9 @@ public class Mediator {
 	// A dialog to manage phase plots.
 	private PhaseDialog phaseDialog;
 
+	// A dialog to manage filters.
+	private ObservationFiltersDialog observationFiltersDialog;
+
 	// Notifiers.
 	private Notifier<AnalysisTypeChangeMessage> analysisTypeChangeNotifier;
 	private Notifier<NewStarMessage> newStarNotifier;
@@ -214,6 +219,7 @@ public class Mediator {
 	private Notifier<StopRequestMessage> stopRequestNotifier;
 	private Notifier<SeriesVisibilityChangeMessage> seriesVisibilityChangeNotifier;
 	private Notifier<HarmonicSearchResultMessage> harmonicSearchNotifier;
+	private Notifier<SeriesCreationMessage> seriesCreationNotifier;
 
 	private DocumentManager documentManager;
 
@@ -252,6 +258,7 @@ public class Mediator {
 		this.stopRequestNotifier = new Notifier<StopRequestMessage>();
 		this.seriesVisibilityChangeNotifier = new Notifier<SeriesVisibilityChangeMessage>();
 		this.harmonicSearchNotifier = new Notifier<HarmonicSearchResultMessage>();
+		this.seriesCreationNotifier = new Notifier<SeriesCreationMessage>();
 
 		this.obsListFileSaveDialog = new DelimitedFieldFileSaveAsChooser();
 
@@ -277,6 +284,8 @@ public class Mediator {
 		this.filteredObservationNotifier
 				.addListener(createFilteredObservationListener());
 
+		this.seriesCreationNotifier.addListener(createSeriesCreationListener());
+		
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
 
@@ -297,6 +306,12 @@ public class Mediator {
 				.createNewStarListener());
 		this.phaseChangeNotifier.addListener(this.phaseDialog
 				.createPhaseChangeListener());
+
+		this.observationFiltersDialog = new ObservationFiltersDialog();
+		this.newStarNotifier.addListener(this.observationFiltersDialog
+				.createNewStarListener());
+		this.filteredObservationNotifier.addListener(observationFiltersDialog
+				.createFilterListener());
 
 		// Document manager creation and listener setup.
 		this.documentManager = new DocumentManager();
@@ -491,6 +506,13 @@ public class Mediator {
 	 */
 	public Notifier<HarmonicSearchResultMessage> getHarmonicSearchNotifier() {
 		return harmonicSearchNotifier;
+	}
+
+	/**
+	 * @return the seriesCreationNotifier
+	 */
+	public Notifier<SeriesCreationMessage> getSeriesCreationNotifier() {
+		return seriesCreationNotifier;
 	}
 
 	/**
@@ -725,6 +747,22 @@ public class Mediator {
 		};
 	}
 
+	// Returns a series creation listener that updates the observation
+	// category map with the series.
+	protected Listener<SeriesCreationMessage> createSeriesCreationListener() {
+		return new Listener<SeriesCreationMessage>() {
+			@Override
+			public void update(SeriesCreationMessage info) {
+				validObservationCategoryMap.put(info.getType(), info.getObs());
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
 	/**
 	 * Change the mode of VStar's focus (i.e what is to be presented to the
 	 * user).
@@ -927,7 +965,7 @@ public class Mediator {
 			task.execute();
 		} catch (Exception ex) {
 			ValidObservation.restore();
-			
+
 			MessageBox.showErrorDialog(MainFrame.getInstance(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
 			MainFrame.getInstance().getStatusPane().setMessage("");
@@ -943,7 +981,7 @@ public class Mediator {
 	 */
 	public void createObservationArtefactsFromObSourcePlugin(
 			ObservationSourcePluginBase obSourcePlugin) {
-		
+
 		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 		this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
 
@@ -1007,8 +1045,9 @@ public class Mediator {
 			// has been loaded.
 			newStarMessage = new NewStarMessage(newStarType, starInfo,
 					validObsList, validObservationCategoryMap, starInfo
-							.getRetriever().getMinMag(), starInfo.getRetriever()
-							.getMaxMag(), starInfo.getRetriever().getSourceName());
+							.getRetriever().getMinMag(), starInfo
+							.getRetriever().getMaxMag(), starInfo
+							.getRetriever().getSourceName());
 
 			// This is a specific fix for tracker 3007948.
 			this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
@@ -1443,6 +1482,13 @@ public class Mediator {
 	 */
 	public void showPhaseDialog() {
 		phaseDialog.showDialog();
+	}
+
+	/**
+	 * Opens the filters dialog.
+	 */
+	public void showFiltersDialog() {
+		observationFiltersDialog.showDialog();
 	}
 
 	/**

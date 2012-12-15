@@ -104,4 +104,12 @@ public interface IObservationFieldMatcher {
 	 */
 	public abstract void setSelectedObservationMessage(
 			ObservationSelectionMessage msg);
+	
+	/**
+	 * Return a parsable description of this matcher; defaults to the empty
+	 * string.
+	 * 
+	 * @return The description string.
+	 */
+	public abstract String getParsableDescription();
 }

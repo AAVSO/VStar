@@ -67,11 +67,17 @@ public class SeriesVisibilityPane extends JPanel {
 
 	/**
 	 * Constructor.
+	 * 
+	 * @param obsPlotModel
+	 *            The plot model.
+	 * @param analysisType
+	 *            The analysis type.
 	 */
 	public SeriesVisibilityPane(ObservationAndMeanPlotModel obsPlotModel,
 			AnalysisType analysisType) {
 		super();
 
+		this.obsPlotModel = obsPlotModel;
 		this.analysisType = analysisType;
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -80,7 +86,6 @@ public class SeriesVisibilityPane extends JPanel {
 		this
 				.setToolTipText("Select or deselect series for desired visibility.");
 
-		this.obsPlotModel = obsPlotModel;
 		this.visibilityDeltaMap = new HashMap<Integer, Boolean>();
 
 		this.checkBoxes = new ArrayList<JCheckBox>();
@@ -113,7 +118,11 @@ public class SeriesVisibilityPane extends JPanel {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.add(createDataSeriesCheckboxes());
-		panel.add(createOtherSeriesCheckboxes());
+		panel.add(createDerivedSeriesCheckboxes());
+		JPanel userPanel = createUserDefinedSeriesCheckboxes();
+		if (userPanel != null) {
+			panel.add(userPanel);
+		}
 		this.add(panel);
 	}
 
@@ -126,9 +135,10 @@ public class SeriesVisibilityPane extends JPanel {
 		// Ensure the panel is always wide enough.
 		this.add(Box.createRigidArea(new Dimension(75, 1)));
 
-		// We treat derived series separately.
 		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
-			if (!series.isSynthetic()) {
+			// We treat derived and user-defined series separately from data
+			// series.
+			if (!series.isSynthetic() && !series.isUserDefined()) {
 				String seriesName = series.getDescription();
 				JCheckBox checkBox = new JCheckBox(seriesName);
 
@@ -171,7 +181,7 @@ public class SeriesVisibilityPane extends JPanel {
 		return panel;
 	}
 
-	private JPanel createOtherSeriesCheckboxes() {
+	private JPanel createDerivedSeriesCheckboxes() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
@@ -220,6 +230,58 @@ public class SeriesVisibilityPane extends JPanel {
 		checkBoxes.add(residualsCheckBox);
 
 		panel.add(subPanel);
+
+		return panel;
+	}
+
+	private JPanel createUserDefinedSeriesCheckboxes() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("USER_DEFINED_TITLE")));
+
+		// Ensure the panel is always wide enough.
+		this.add(Box.createRigidArea(new Dimension(75, 1)));
+
+		boolean anyObs = false;
+
+		for (SeriesType series : this.obsPlotModel.getSeriesKeys()) {
+
+			if (series.isUserDefined()) {
+				// Ignore user-defined series with no corresponding data in the
+				// current dataset.
+				Integer seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
+						.get(series);
+
+				if (obsPlotModel.getSeriesNumToObSrcListMap().get(seriesNum)
+						.isEmpty()) {
+					continue;
+				} else {
+					if (!anyObs) {
+						anyObs = true;
+					}
+				}
+
+				String seriesName = series.getDescription();
+				JCheckBox checkBox = new JCheckBox(seriesName);
+
+				checkBox
+						.addActionListener(createSeriesVisibilityCheckBoxListener());
+
+				// Enable/disable the series.
+				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(series);
+				checkBox.setSelected(vis);
+
+				panel.add(checkBox);
+				panel.add(Box.createRigidArea(new Dimension(3, 3)));
+
+				checkBoxes.add(checkBox);
+			}
+		}
+
+		if (!anyObs) {
+			panel = null;
+		}
 
 		return panel;
 	}

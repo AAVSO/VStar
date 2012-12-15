@@ -33,8 +33,10 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.filter.IFilterDescription;
 import org.aavso.tools.vstar.data.filter.IObservationFieldMatcher;
 import org.aavso.tools.vstar.data.filter.ObservationFilter;
 import org.aavso.tools.vstar.ui.MainFrame;
@@ -63,6 +65,8 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 	private ObservationFilter filter;
 
+	private JTextField nameField;
+
 	private List<ObservationFilterPane> filterPanes;
 
 	private JCheckBox useSelectedObservationCheckbox;
@@ -90,12 +94,51 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+		topPane.add(createNamePane());
 		topPane.add(createFiltersPane());
 		topPane.add(createButtonPane());
 
 		contentPane.add(topPane);
 
 		this.pack();
+	}
+
+	@Override
+	public void showDialog() {
+		String defaultName = Mediator.getInstance().getDocumentManager()
+				.getNextUntitledFilterName();
+		nameField.setText(defaultName);
+		super.showDialog();
+	}
+
+	private JPanel createNamePane() {
+		JPanel panel = new JPanel();
+
+		// panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+		nameField = new JTextField();
+		nameField.setBorder(BorderFactory.createTitledBorder("Filter Name"));
+		panel.add(nameField);
+
+		return panel;
+	}
+
+	private JPanel createFiltersPane() {
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+		// Create filter panes for each unique filter.
+		for (int i = 0; i < ObservationFilter.MATCHERS.size(); i++) {
+			ObservationFilterPane filterPane = new ObservationFilterPane();
+			filterPanes.add(filterPane);
+			panel.add(filterPane);
+			panel.add(Box.createRigidArea(new Dimension(75, 10)));
+		}
+
+		return panel;
 	}
 
 	@Override
@@ -141,23 +184,6 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 				resetFilters();
 			}
 		};
-	}
-
-	private JPanel createFiltersPane() {
-		JPanel panel = new JPanel();
-
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-		// Create filter panes for each unique filter.
-		for (int i = 0; i < ObservationFilter.MATCHERS.size(); i++) {
-			ObservationFilterPane filterPane = new ObservationFilterPane();
-			filterPanes.add(filterPane);
-			panel.add(filterPane);
-			panel.add(Box.createRigidArea(new Dimension(75, 10)));
-		}
-
-		return panel;
 	}
 
 	/**
@@ -267,8 +293,7 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 			} catch (IllegalArgumentException e) {
 				filterError = true;
 				MessageBox.showErrorDialog(this, LocaleProps
-						.get("OBSERVATION_FILTER_DLG_TITLE"), e
-						.getMessage());
+						.get("OBSERVATION_FILTER_DLG_TITLE"), e.getMessage());
 			}
 		}
 
@@ -291,29 +316,71 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 				if (filteredObs.size() != 0) {
 					// Send a message containing the observation subset.
+					IFilterDescription desc = new IFilterDescription() {
+
+						@Override
+						public boolean isParsable() {
+							return false;
+						}
+
+						@Override
+						public String getFilterName() {
+							return nameField.getText();
+						}
+
+						@Override
+						public String getFilterDescription() {
+							// Return a machine-readable (able to be parsed)
+							// representation.
+							StringBuffer buf = new StringBuffer();
+
+							int activeFilterCount = 0;
+							for (ObservationFilterPane filterPane : filterPanes) {
+								IObservationFieldMatcher matcher = filterPane
+										.getFieldMatcher();
+
+								if (matcher != null) {
+									activeFilterCount++;
+								}
+							}
+
+							for (ObservationFilterPane filterPane : filterPanes) {
+								IObservationFieldMatcher matcher = filterPane
+										.getFieldMatcher();
+
+								if (matcher != null) {
+									String desc = matcher
+											.getParsableDescription();
+									buf.append(desc);
+									activeFilterCount--;
+									if (activeFilterCount > 0) {
+										buf.append(" AND\n");
+									}
+								}
+							}
+
+							return buf.toString();
+						}
+					};
+
 					FilteredObservationMessage msg = new FilteredObservationMessage(
-							this, filteredObs);
+							this, desc, filteredObs);
 
 					Mediator.getInstance().getFilteredObservationNotifier()
 							.notifyListeners(msg);
 				} else {
 					String msg = LocaleProps
 							.get("NO_OBSERVATIONS_MATCHED_ERR_MSG");
-					MessageBox
-							.showWarningDialog(
-									MainFrame.getInstance(),
-									LocaleProps
-											.get("OBSERVATION_FILTER_DLG_TITLE"),
-									msg);
+					MessageBox.showWarningDialog(MainFrame.getInstance(),
+							LocaleProps.get("OBSERVATION_FILTER_DLG_TITLE"),
+							msg);
 				}
 
 				// MainFrame.getInstance().setCursor(null);
 			} else {
 				String msg = LocaleProps.get("NO_FILTER_SELECTED_ERR_MSG");
 				MessageBox.showWarningDialog(MainFrame.getInstance(),
-						LocaleProps
-								.get("OBSERVATION_FILTER_DLG_TITLE"),
-						msg);
+						LocaleProps.get("OBSERVATION_FILTER_DLG_TITLE"), msg);
 			}
 
 			// Clear state for next use of this dialog.

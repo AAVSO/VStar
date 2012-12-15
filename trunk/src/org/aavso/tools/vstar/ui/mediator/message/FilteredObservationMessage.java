@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.mediator.message;
 import java.util.Set;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.filter.IFilterDescription;
 
 /**
  * Instances of this message should be sent when an observation filtering
@@ -29,6 +30,7 @@ public class FilteredObservationMessage extends MessageBase {
 
 	public static final FilteredObservationMessage NO_FILTER = null;
 
+	private IFilterDescription filterDesc;
 	private Set<ValidObservation> filteredObs;
 
 	/**
@@ -36,13 +38,23 @@ public class FilteredObservationMessage extends MessageBase {
 	 * 
 	 * @param source
 	 *            The source of the message.
+	 * @param filterDesc
+	 *            A description of the filter.
 	 * @param filteredObsMap
 	 *            A sorted subset of valid observations.
 	 */
-	public FilteredObservationMessage(Object source,
+	public FilteredObservationMessage(Object source, IFilterDescription filterDesc,
 			Set<ValidObservation> filteredObs) {
 		super(source);
+		this.filterDesc = filterDesc;
 		this.filteredObs = filteredObs;
+	}
+
+	/**
+	 * @return the filterDesc
+	 */
+	public IFilterDescription getDescription() {
+		return filterDesc;
 	}
 
 	/**

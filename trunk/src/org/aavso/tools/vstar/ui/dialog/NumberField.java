@@ -25,7 +25,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This class encapsulates the name, range, and value of a numeric textField
- * along with a GUI text textField and methods to operate upon it.
+ * along with a GUI textField and methods to operate upon it.
  */
 public class NumberField {
 

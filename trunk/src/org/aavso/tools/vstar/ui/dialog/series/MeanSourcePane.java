@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
@@ -42,6 +43,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 @SuppressWarnings("serial")
 public class MeanSourcePane extends JPanel implements ActionListener {
 
+	private ObservationAndMeanPlotModel obsPlotModel;
 	private ObservationAndMeanPlotPane obsPlotPane;
 
 	private int seriesNum;
@@ -56,11 +58,17 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 	/**
 	 * Constructor.
 	 * 
+	 * @param obsPlotModel
+	 *            The plot model.
 	 * @param plotPane
 	 *            An observation and mean plot pane.
 	 */
-	public MeanSourcePane(ObservationAndMeanPlotPane plotPane) {
+	public MeanSourcePane(ObservationAndMeanPlotModel obsPlotModel,
+			ObservationAndMeanPlotPane plotPane) {
 		super();
+
+		this.obsPlotModel = obsPlotModel;
+		this.obsPlotPane = plotPane;
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder(LocaleProps
@@ -68,7 +76,6 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		this
 				.setToolTipText("Select series that will be the source of the means series.");
 
-		this.obsPlotPane = plotPane;
 		this.seriesNum = obsPlotPane.getObsModel().getMeanSourceSeriesNum();
 
 		addSeriesRadioButtons();
@@ -81,8 +88,11 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
 		panel.add(createDataSeriesRadioButtons());
-		panel.add(createOtherSeriesRadioButtons());
-
+		panel.add(createDerivedSeriesRadioButtons());
+		JPanel userPanel = createUserDefinedSeriesRadioButtons();
+		if (userPanel != null) {
+			panel.add(userPanel);
+		}
 		this.add(panel);
 	}
 
@@ -95,7 +105,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		seriesGroup = new ButtonGroup();
 
 		for (SeriesType series : this.obsPlotPane.getObsModel().getSeriesKeys()) {
-			if (!series.isSynthetic()) {
+			if (!series.isSynthetic() && !series.isUserDefined()) {
 				String seriesName = series.getDescription();
 				JRadioButton seriesRadioButton = new JRadioButton(seriesName);
 				seriesRadioButton.setActionCommand(seriesName);
@@ -114,7 +124,7 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		return panel;
 	}
 
-	private JPanel createOtherSeriesRadioButtons() {
+	private JPanel createDerivedSeriesRadioButtons() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
@@ -162,6 +172,54 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 
 		panel.add(subPanel);
 
+		return panel;
+	}
+
+	private JPanel createUserDefinedSeriesRadioButtons() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("USER_DEFINED_TITLE")));
+
+		seriesGroup = new ButtonGroup();
+
+		boolean anyObs = false;
+
+		for (SeriesType series : this.obsPlotPane.getObsModel().getSeriesKeys()) {
+			if (series.isUserDefined()) {
+				// Ignore user-defined series with no corresponding data in the
+				// current dataset.
+				Integer seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
+						.get(series);
+
+				if (obsPlotModel.getSeriesNumToObSrcListMap().get(seriesNum)
+						.isEmpty()) {
+					continue;
+				} else {
+					if (!anyObs) {
+						anyObs = true;
+					}
+				}
+
+				String seriesName = series.getDescription();
+				JRadioButton seriesRadioButton = new JRadioButton(seriesName);
+				seriesRadioButton.setActionCommand(seriesName);
+				seriesRadioButton.addActionListener(this);
+				seriesRadioButton.setEnabled(isSeriesNonEmpty(series));
+				panel.add(seriesRadioButton);
+				panel.add(Box.createRigidArea(new Dimension(3, 3)));
+				seriesGroup.add(seriesRadioButton);
+				checkInitialMeanSourceSeries(series, seriesRadioButton);
+			}
+		}
+
+		if (!anyObs) {
+			panel = null;
+		} else {
+			// Ensure the panel is wide enough for textual border.
+			panel.add(Box.createRigidArea(new Dimension(75, 1)));
+		}
+		
 		return panel;
 	}
 

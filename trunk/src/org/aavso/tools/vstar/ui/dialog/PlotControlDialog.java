@@ -179,7 +179,8 @@ public class PlotControlDialog extends JDialog {
 		showCheckBoxPanel.add(errorBarCheckBox);
 
 		// A checkbox to show/hide cross hairs.
-		crossHairCheckBox = new JCheckBox(LocaleProps.get("CROSSHAIRS_CHECKBOX"));
+		crossHairCheckBox = new JCheckBox(LocaleProps
+				.get("CROSSHAIRS_CHECKBOX"));
 		crossHairCheckBox.setSelected(showCrossHairs);
 		crossHairCheckBox.addActionListener(createCrossHairCheckBoxListener());
 		showCheckBoxPanel.add(crossHairCheckBox);
@@ -187,14 +188,15 @@ public class PlotControlDialog extends JDialog {
 		subPanel.add(showCheckBoxPanel);
 
 		JPanel meanChangePanel = new JPanel();
-		meanChangePanel.setBorder(BorderFactory
-				.createTitledBorder(LocaleProps.get("MEAN_SERIES_UPDATE_TITLE")));
+		meanChangePanel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("MEAN_SERIES_UPDATE_TITLE")));
 		meanChangePanel.setLayout(new BoxLayout(meanChangePanel,
 				BoxLayout.PAGE_AXIS));
 
 		// A checkbox to determine whether or not to join mean
 		// series elements.
-		joinMeansCheckBox = new JCheckBox(LocaleProps.get("JOIN_MEANS_CHECKBOX"));
+		joinMeansCheckBox = new JCheckBox(LocaleProps
+				.get("JOIN_MEANS_CHECKBOX"));
 		joinMeansCheckBox.setSelected(joinMeans);
 		joinMeansCheckBox.addActionListener(createJoinMeansCheckBoxListener());
 		meanChangePanel.add(joinMeansCheckBox);
@@ -232,7 +234,7 @@ public class PlotControlDialog extends JDialog {
 		seriesVisibilityPane = new SeriesVisibilityPane(obsModel, analysisType);
 		seriesPane.add(seriesVisibilityPane);
 
-		meanSourcePane = new MeanSourcePane(plotPane);
+		meanSourcePane = new MeanSourcePane(obsModel, plotPane);
 		seriesPane.add(meanSourcePane);
 
 		seriesChangePane.add(new JScrollPane(seriesPane));
