@@ -24,8 +24,6 @@ public enum ObservationMatcherOp {
 
 	EQUALS, NOT_EQUALS, CONTAINS, LESS_THAN, GREATER_THAN, LESS_THAN_OR_EQUAL, GREATER_THAN_OR_EQUAL;
 	
-//	o filtering: curr obscode, don't ask for auth, prefs for auth showing obscode
-//	o Need an operator like: SAME_AS_SELECTED_OBSERVATION
 //	o AbstractObservationFieldMatcher or perhaps something central like Mediator should
 //	  be a listener (so each filter class) for ObservationSelectionMessages. If no observation 
 //	  is selected, the user should be informed via a dialog when this op is selected, or the op 
@@ -92,5 +90,38 @@ public enum ObservationMatcherOp {
 		}
 
 		return s;
+	}
+	
+	/**
+	 * Return a machine-readable (parsable) string for this operator.
+	 */
+	public String toParsableString() {
+		String s = null;
+
+		switch (this) {
+		case EQUALS:
+			s = "=";
+			break;
+		case NOT_EQUALS:
+			s = "<>";
+			break;
+		case CONTAINS:
+			s = "contains";
+			break;
+		case LESS_THAN:
+			s = "<";
+			break;
+		case GREATER_THAN:
+			s = ">";
+			break;
+		case LESS_THAN_OR_EQUAL:
+			s = "<=";
+			break;
+		case GREATER_THAN_OR_EQUAL:
+			s = ">=";
+			break;
+		}
+
+		return s;		
 	}
 }

@@ -46,8 +46,11 @@ import javax.swing.table.TableRowSorter;
 import org.aavso.tools.vstar.data.IOrderedObservationSource;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.filter.IFilterDescription;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.TextDialog;
+import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
@@ -56,6 +59,7 @@ import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This class represents a GUI component that renders information about
@@ -246,9 +250,54 @@ public class ObservationListPane extends JPanel implements
 		createFilterButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// Request a name for the filter.
+				String defaultName = Mediator.getInstance()
+						.getDocumentManager().getNextUntitledFilterName();
+
+				final TextDialog nameDlg = new TextDialog("Filter Name",
+						new TextField[] { new TextField("Name", defaultName,
+								false, false, TextField.Kind.LINE) });
+
+				nameDlg.showDialog();
+
 				// Create an observation filter message and notify listeners.
+				IFilterDescription desc = new IFilterDescription() {
+
+					@Override
+					public boolean isParsable() {
+						return false;
+					}
+
+					@Override
+					public String getFilterName() {
+						return nameDlg.getTextStrings().get(0);
+					}
+
+					@Override
+					public String getFilterDescription() {
+						// Return a machine-readable (able to be parsed)
+						// representation.
+						StringBuffer buf = new StringBuffer();
+
+						int i = 0;
+						for (ValidObservation ob : selectedObs) {
+							String jdStr = String.format(NumericPrecisionPrefs
+									.getTimeOutputFormat(), ob.getJD());
+							buf.append("JD = " + jdStr);
+							if (i < selectedObs.size() - 1) {
+								buf.append(" AND\n");
+								i++;
+							}
+						}
+
+						return buf.toString();
+					}
+				};
+
 				FilteredObservationMessage message = new FilteredObservationMessage(
-						parent, selectedObs);
+						parent, desc, new LinkedHashSet<ValidObservation>(
+								selectedObs));
+
 				Mediator.getInstance().getFilteredObservationNotifier()
 						.notifyListeners(message);
 			}

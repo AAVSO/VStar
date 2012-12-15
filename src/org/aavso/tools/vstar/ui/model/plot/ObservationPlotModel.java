@@ -37,6 +37,7 @@ import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.jfree.data.DomainOrder;
@@ -48,6 +49,8 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
  */
 @SuppressWarnings("serial")
 public class ObservationPlotModel extends AbstractIntervalXYDataset {
+
+	private static final int NO_SERIES = -1;
 
 	/**
 	 * Coordinate and error source.
@@ -112,9 +115,9 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 	protected SeriesType lastSinglySelectedSeries;
 
 	// Particular series numbers to be used by listener code.
-	protected int fitSeriesNum = -1;
-	protected int residualsSeriesNum = -1;
-	protected int filterSeriesNum = -1;
+	protected int fitSeriesNum = NO_SERIES;
+	protected int residualsSeriesNum = NO_SERIES;
+	protected int filterSeriesNum = NO_SERIES;
 
 	/**
 	 * Common constructor.
@@ -145,6 +148,9 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 		Mediator.getInstance().getFilteredObservationNotifier().addListener(
 				createFilteredObservationListener());
+
+		Mediator.getInstance().getSeriesCreationNotifier().addListener(
+				createSeriesCreationListener());
 	}
 
 	/**
@@ -892,7 +898,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 		// Make the filter series visible either because this is
 		// its first appearance or because it may have been made
-		// invisible via a NO_FILTER message.
+		// invisible via a previous NO_FILTER message.
 		this.changeSeriesVisibility(filterSeriesNum, true);
 	}
 
@@ -905,6 +911,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 				if (!handleNoFilter(info)) {
 					// Convert set of filtered observations to list then add
 					// or replace the filter series.
+					// TODO: why not just pass set to ctor?
 					List<ValidObservation> obs = new ArrayList<ValidObservation>();
 					for (ValidObservation ob : info.getFilteredObs()) {
 						obs.add(ob);
@@ -912,6 +919,33 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 					updateFilteredSeries(obs);
 				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	// Returns a series creation listener, adding a new observation series to
+	// the plot, and making it visible.
+	protected Listener<SeriesCreationMessage> createSeriesCreationListener() {
+		return new Listener<SeriesCreationMessage>() {
+
+			@Override
+			public void update(SeriesCreationMessage info) {
+				int seriesNum = NO_SERIES;
+
+				if (seriesExists(info.getType())) {
+					seriesNum = replaceObservationSeries(info.getType(), info
+							.getObs());
+				} else {
+					seriesNum = addObservationSeries(info.getType(), info
+							.getObs());
+				}
+
+				changeSeriesVisibility(seriesNum, true);
 			}
 
 			@Override

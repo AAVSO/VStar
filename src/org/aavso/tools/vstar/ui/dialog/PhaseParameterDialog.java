@@ -53,7 +53,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	private double epoch;
 	private IEpochStrategy epochStrategy;
 
-	private boolean firstUse;
+	private boolean firstUse; // TODO: also in base class!
 
 	// TODO: so we can re-create this dialog each time from scratch, use
 	// createPhasePlot() in Mediator to store the last phase and epoch and use
@@ -65,7 +65,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	 */
 	public PhaseParameterDialog() {
 		super("Phase Plot");
-		this.setModal(true);
+		this.setModal(true); // TODO: base class defaults to this!
 
 		period = 0;
 		epoch = 0;

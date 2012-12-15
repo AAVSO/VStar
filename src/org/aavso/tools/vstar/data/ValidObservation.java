@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.data;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -53,6 +52,12 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * 
  * <p>
  * JD MAGNITUDE [UNCERTAINTY] [OBSERVER_CODE] [VALFLAG]
+ * </p>
+ * 
+ * <p>
+ * When VStar was first developed, observation source plugins were not
+ * anticipated, but should have been. The additional details members permit
+ * other string-based information to be stored for an observation.
  * </p>
  */
 public class ValidObservation extends Observation {
@@ -163,7 +168,7 @@ public class ValidObservation extends Observation {
 	 */
 	public ValidObservation() {
 		super(0);
-		details = new HashMap<String, String>();
+		details = new LinkedHashMap<String, String>();
 	}
 
 	/**

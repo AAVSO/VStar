@@ -57,6 +57,8 @@ public class DocumentManager {
 
 	private Map<String, String> statsInfo;
 
+	private static int filterNum = 0;
+	
 	/**
 	 * Constructor.
 	 */
@@ -268,6 +270,18 @@ public class DocumentManager {
 		}
 
 		return msg;
+	}
+
+	// ** Filter-related methods **
+	
+	/**
+	 * Return the name of the next untitled filter.
+	 * 
+	 * @return the next untitled filter name
+	 */
+	public String getNextUntitledFilterName() {
+		filterNum++;
+		return "Untitled Filter " + filterNum;
 	}
 
 	// Helpers

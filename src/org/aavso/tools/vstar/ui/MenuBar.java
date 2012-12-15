@@ -116,6 +116,7 @@ public class MenuBar extends JMenuBar {
 	public static final String PAN_UP = LocaleProps.get("VIEW_MENU_PAN_UP");
 	public static final String PAN_DOWN = LocaleProps.get("VIEW_MENU_PAN_DOWN");
 	public static final String FILTER = LocaleProps.get("VIEW_MENU_FILTER");
+	public static final String FILTERS = LocaleProps.get("VIEW_MENU_FILTERS");
 	public static final String NO_FILTER = LocaleProps
 			.get("VIEW_MENU_NO_FILTER");
 
@@ -187,6 +188,7 @@ public class MenuBar extends JMenuBar {
 	JMenuItem viewPanUpItem;
 	JMenuItem viewPanDownItem;
 	JMenuItem viewFilterItem;
+	JMenuItem viewFiltersItem;
 	JMenuItem viewNoFilterItem;
 
 	JMenu viewCustomFilterMenu;
@@ -256,6 +258,9 @@ public class MenuBar extends JMenuBar {
 
 		this.mediator.getPhaseChangeNotifier().addListener(
 				createPhaseChangeListener());
+
+		this.mediator.getFilteredObservationNotifier().addListener(
+				createObsFilterListener());
 	}
 
 	private void createFileMenu() {
@@ -427,6 +432,11 @@ public class MenuBar extends JMenuBar {
 		viewFilterItem.setEnabled(false);
 		viewFilterItem.addActionListener(createFilterListener());
 		viewMenu.add(viewFilterItem);
+
+		viewFiltersItem = new JMenuItem(FILTERS);
+		viewFiltersItem.setEnabled(false);
+		viewFiltersItem.addActionListener(createFiltersListener());
+		viewMenu.add(viewFiltersItem);
 
 		viewCustomFilterMenu = new JMenu("Custom Filters");
 		viewCustomFilterMenu.setEnabled(false);
@@ -910,6 +920,17 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
+	 * Returns the action listener to be invoked for View->Filters...
+	 */
+	public ActionListener createFiltersListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mediator.showFiltersDialog();
+			}
+		};
+	}
+
+	/**
 	 * Returns the action listener to be invoked for Custom Filter menu item
 	 * selections.
 	 */
@@ -1036,7 +1057,8 @@ public class MenuBar extends JMenuBar {
 	 * item.<br/>
 	 * TODO: interim solution until we have toolbar buttons with lists of items!
 	 */
-	public ActionListener createPolynomialFitListener(final String polyFitItemName) {
+	public ActionListener createPolynomialFitListener(
+			final String polyFitItemName) {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ModelCreatorPluginBase plugin = menuItemNameToModelCreatorPlugin
@@ -1283,6 +1305,7 @@ public class MenuBar extends JMenuBar {
 				viewZoomInItem.setEnabled(false);
 				viewZoomOutItem.setEnabled(false);
 				viewZoomToFitItem.setEnabled(false);
+				viewFiltersItem.setEnabled(false);
 
 				analysisPhasePlotItem.setEnabled(true);
 				analysisModelsItem.setEnabled(false);
@@ -1380,6 +1403,23 @@ public class MenuBar extends JMenuBar {
 				if (!analysisPhasePlotsItem.isEnabled()) {
 					analysisPhasePlotsItem.setEnabled(true);
 				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	/**
+	 * Return an observation filter listener.
+	 */
+	public Listener<FilteredObservationMessage> createObsFilterListener() {
+		return new Listener<FilteredObservationMessage>() {
+			@Override
+			public void update(FilteredObservationMessage info) {
+				viewFiltersItem.setEnabled(true);
 			}
 
 			@Override

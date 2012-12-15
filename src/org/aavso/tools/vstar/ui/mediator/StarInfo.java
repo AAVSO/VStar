@@ -38,9 +38,9 @@ public class StarInfo {
 	/**
 	 * Parameterless constructor for web service.
 	 */
-	public StarInfo() {	
+	public StarInfo() {
 	}
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -49,7 +49,7 @@ public class StarInfo {
 	 *            observations. May be null! setRetriever() can be called after
 	 *            construction.
 	 * @param designation
-	 *            A name or designation for the star.
+	 *            A name or designation for the star; may be null.
 	 * @param auid
 	 *            The star's unique identifier (AAVSO unique ID).
 	 * @param period
@@ -68,7 +68,9 @@ public class StarInfo {
 			String auid, Double period, Double epoch, String varType,
 			String spectralType, String discoverer) {
 		this.retriever = retriever;
-		this.designation = designation;
+		this.designation = designation != null
+				&& designation.trim().length() != 0 ? designation
+				: "Unknown Object";
 		this.auid = auid;
 		this.period = period;
 		this.epoch = epoch;
@@ -216,49 +218,56 @@ public class StarInfo {
 	}
 
 	/**
-	 * @param designation the designation to set
+	 * @param designation
+	 *            the designation to set
 	 */
 	public void setDesignation(String designation) {
 		this.designation = designation;
 	}
 
 	/**
-	 * @param auid the auid to set
+	 * @param auid
+	 *            the auid to set
 	 */
 	public void setAuid(String auid) {
 		this.auid = auid;
 	}
 
 	/**
-	 * @param period the period to set
+	 * @param period
+	 *            the period to set
 	 */
 	public void setPeriod(Double period) {
 		this.period = period;
 	}
 
 	/**
-	 * @param epoch the epoch to set
+	 * @param epoch
+	 *            the epoch to set
 	 */
 	public void setEpoch(Double epoch) {
 		this.epoch = epoch;
 	}
 
 	/**
-	 * @param varType the varType to set
+	 * @param varType
+	 *            the varType to set
 	 */
 	public void setVarType(String varType) {
 		this.varType = varType;
 	}
 
 	/**
-	 * @param spectralType the spectralType to set
+	 * @param spectralType
+	 *            the spectralType to set
 	 */
 	public void setSpectralType(String spectralType) {
 		this.spectralType = spectralType;
 	}
 
 	/**
-	 * @param discoverer the discoverer to set
+	 * @param discoverer
+	 *            the discoverer to set
 	 */
 	public void setDiscoverer(String discoverer) {
 		this.discoverer = discoverer;

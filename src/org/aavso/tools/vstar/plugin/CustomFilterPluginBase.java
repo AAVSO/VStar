@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.filter.IFilterDescription;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -95,8 +96,27 @@ abstract public class CustomFilterPluginBase implements IPlugin {
 		filter(obs);
 
 		if (filteredObs.size() != 0) {
+			
+			IFilterDescription desc = new IFilterDescription() {
+				
+				@Override
+				public boolean isParsable() {
+					return false;
+				}
+				
+				@Override
+				public String getFilterName() {
+					return getDisplayName();
+				}
+				
+				@Override
+				public String getFilterDescription() {
+					return getDescription();
+				}
+			};
+			
 			FilteredObservationMessage msg = new FilteredObservationMessage(
-					this, filteredObs);
+					this, desc, filteredObs);
 
 			Mediator.getInstance().getFilteredObservationNotifier()
 					.notifyListeners(msg);

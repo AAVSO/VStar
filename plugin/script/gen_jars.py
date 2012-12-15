@@ -29,7 +29,8 @@ plugin_classes = [
                   'BSMPhotometryObservationSource',
                   'MeanTimeBetweenSelectionTool',
                   'ApacheCommonsPolynomialFitter',
-                  'ApacheCommonsLowessFitter'
+                  'ApacheCommonsLowessFitter',
+                  'CatalinaSkySurveyObservationSource'
                  ]
    
 libs = "%s:%s" % (vstar_dist_jar, tamfits_jar)
