@@ -96,11 +96,8 @@ public class ExternalFormatRawDataColumnInfoSource implements
 			columnName = DISCREPANT_COLUMN_NAME;
 			break;
 		default:
-			// Assumes an ordering on underlying collection and that this is
-			// consistent with detail values ordering.
-			List<String> titles = new ArrayList<String>(ValidObservation
-					.getDetailTitles().values());
-			columnName = titles.get(index-DISCREPANT_COLUMN-1);
+			columnName = ValidObservation.getDetailKey(index
+					- DISCREPANT_COLUMN - 1);
 			break;
 		}
 
@@ -131,7 +128,7 @@ public class ExternalFormatRawDataColumnInfoSource implements
 
 		return clazz;
 	}
-	
+
 	public Object getTableColumnValue(int index, ValidObservation ob) {
 		Object value = null;
 
@@ -161,11 +158,9 @@ public class ExternalFormatRawDataColumnInfoSource implements
 			value = ob.isDiscrepant();
 			break;
 		default:
-			// Assumes an ordering on underlying collection and that this is
-			// consistent with detail titles ordering.
-			List<String> values = new ArrayList<String>(ob.getDetailsMap()
-					.values());
-			value = values.get(index-DISCREPANT_COLUMN-1);
+			String key = ValidObservation.getDetailKey(index
+					- DISCREPANT_COLUMN - 1);
+			value = ob.getDetailsMap().get(key);
 			break;
 		}
 
@@ -176,22 +171,18 @@ public class ExternalFormatRawDataColumnInfoSource implements
 	public int getColumnIndexByName(String name)
 			throws IllegalArgumentException {
 		int index = 0;
-		
+
 		if (name == null) {
 			throw new IllegalArgumentException("Null column name");
 		} else if (COLUMN_NAMES.containsKey(name)) {
 			index = COLUMN_NAMES.get(name);
-		} else if (ValidObservation
-				.getDetailTitles().containsKey(name)) {
-			// Assumes an ordering on underlying collection.
-			List<String> titles = new ArrayList<String>(ValidObservation
-					.getDetailTitles().values());
-
-			index = titles.indexOf(name)+DISCREPANT_COLUMN+1;
+		} else if (ValidObservation.getDetailTitles().containsKey(name)) {
+			index = ValidObservation.getDetailIndex(name) + DISCREPANT_COLUMN
+					+ 1;
 		} else {
 			throw new IllegalArgumentException("No column name: " + name);
 		}
-		
+
 		return index;
 	}
 }
