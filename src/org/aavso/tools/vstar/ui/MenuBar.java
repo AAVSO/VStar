@@ -1038,6 +1038,21 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
+	 * Returns the action listener to be invoked for a particular Analysis menu 
+	 * Period Search item.
+	 * TODO: interim solution until we have toolbar buttons with lists of items!
+	 */
+	public ActionListener createPeriodSearchListener(final String periodSearchItemName) {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PeriodAnalysisPluginBase plugin = menuItemNameToPeriodAnalysisPlugin
+						.get(periodSearchItemName);
+				Mediator.getInstance().performPeriodAnalysis(plugin);
+			}
+		};
+	}
+
+	/**
 	 * Returns the action listener to be invoked for Analysis menu model creator
 	 * items.
 	 */

@@ -17,9 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;

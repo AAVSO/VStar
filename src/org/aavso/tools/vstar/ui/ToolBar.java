@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -56,6 +57,8 @@ public class ToolBar extends JPanel {
 	private Icon rawDataIcon;
 	private Icon phasePlotIcon;
 
+	private Icon periodSearchIcon;
+	private Icon timeFrequencyIcon;
 	private Icon polynomialFitIcon;
 
 	private Icon obDetailsIcon;
@@ -86,6 +89,8 @@ public class ToolBar extends JPanel {
 	private JButton rawDataButton;
 	private JButton phasePlotButton;
 
+	private JButton periodSearchButton;
+	private JButton timeFrequencyButton;
 	private JButton polynomialFitButton;
 
 	private JButton obDetailsButton;
@@ -169,6 +174,12 @@ public class ToolBar extends JPanel {
 		phasePlotIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/PhasePlotView.png");
 
+		periodSearchIcon = ResourceAccessor
+				.getIconResource("/nico/toolbarIcons/_24_/PeriodSearch.png");
+
+		timeFrequencyIcon = ResourceAccessor
+				.getIconResource("/nico/toolbarIcons/_24_/TimeFreq.png");
+
 		polynomialFitIcon = ResourceAccessor
 				.getIconResource("/nico/toolbarIcons/_24_/PolynomialFit.png");
 
@@ -205,6 +216,7 @@ public class ToolBar extends JPanel {
 		if (newStarFromDatabaseIcon == null || newStarFromDatabaseIcon == null
 				|| infoIcon == null || saveIcon == null || printIcon == null
 				|| rawDataIcon == null || phasePlotIcon == null
+				|| periodSearchIcon == null || timeFrequencyIcon == null
 				|| polynomialFitIcon == null || zoomInIcon == null
 				|| obDetailsIcon == null || plotControlIcon == null
 				|| zoomOutIcon == null || panLeftIcon == null
@@ -273,11 +285,12 @@ public class ToolBar extends JPanel {
 
 		plotControlButton = new JButton(plotControlIcon);
 		plotControlButton.setToolTipText(MenuBar.PLOT_CONTROL);
-		plotControlButton.addActionListener(menuBar.createPlotControlListener());
+		plotControlButton
+				.addActionListener(menuBar.createPlotControlListener());
 		plotControlButton.setEnabled(false);
 		plotControlButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(plotControlButton);
-		
+
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
 		rawDataButton = new JButton(rawDataIcon);
@@ -295,6 +308,28 @@ public class ToolBar extends JPanel {
 		buttonPanel.add(phasePlotButton);
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
+
+		periodSearchButton = new JButton(periodSearchIcon);
+		String periodSearchItemName = LocaleProps
+				.get("DCDFT_WITH_PERIOD_DISPLAY_NAME")
+				+ "...";
+		periodSearchButton.setToolTipText(periodSearchItemName);
+		periodSearchButton.addActionListener(menuBar
+				.createPeriodSearchListener(periodSearchItemName));
+		periodSearchButton.setEnabled(false);
+		periodSearchButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(periodSearchButton);
+
+		timeFrequencyButton = new JButton(timeFrequencyIcon);
+		String timeFrequencyItemName = LocaleProps
+				.get("WWZ_WITH_PERIOD_RANGE_NAME")
+				+ "...";
+		timeFrequencyButton.setToolTipText(timeFrequencyItemName);
+		timeFrequencyButton.addActionListener(menuBar
+				.createPeriodSearchListener(timeFrequencyItemName));
+		timeFrequencyButton.setEnabled(false);
+		timeFrequencyButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(timeFrequencyButton);
 
 		polynomialFitButton = new JButton(polynomialFitIcon);
 		String polyFitItemName = MenuBar.POLYNOMIAL_FIT + "...";
@@ -451,7 +486,7 @@ public class ToolBar extends JPanel {
 			}
 		};
 	}
-	
+
 	// Returns an observation selection listener that sets enables certain
 	// buttons.
 	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {
@@ -481,13 +516,15 @@ public class ToolBar extends JPanel {
 
 		infoButton.setEnabled(state);
 		plotControlButton.setEnabled(state);
-		
+
 		saveButton.setEnabled(state);
 		printButton.setEnabled(state);
 
 		rawDataButton.setEnabled(state);
 		phasePlotButton.setEnabled(state);
 
+		periodSearchButton.setEnabled(state);
+		timeFrequencyButton.setEnabled(state);
 		polynomialFitButton.setEnabled(state);
 
 		panLeftButton.setEnabled(state);
