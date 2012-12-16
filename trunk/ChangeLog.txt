@@ -45,6 +45,7 @@ Key Changes:
 - Added the ability to create user defined series from previous filters dialog.
 - Updated plug-in development document re: model creator plug-ins, additional build
   information, and plug-in implementation examples and details.
+- Exposed DCDFT and WWZ via toolbar buttons.
   
 Date: November 3 2012
 Version: 2.14.1

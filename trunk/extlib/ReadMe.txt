@@ -21,7 +21,7 @@ code.
   o jmathplot.jar
     http://code.google.com/p/jmathplot/
      
-  o nico-camargo-toolbar-icons-3.0.jar
+  o nico-camargo-toolbar-icons-4.0.jar
     Toolbar icons created by Citizen Sky participant, Nico Camargo.
   
   o vstaricon.png
