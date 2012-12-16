@@ -17,8 +17,8 @@
  */
 package org.aavso.tools.vstar.data;
 
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -108,9 +108,16 @@ public class ValidObservation extends Observation {
 
 	// Optional string-based observation detail titles, and shadow save
 	// collection.
-	private static Map<String, String> detailTitles = new LinkedHashMap<String, String>();
+	private static Map<String, String> detailTitles = new HashMap<String, String>();
 	private static Map<String, String> savedDetailTitles = null;
 
+	// Ordering of keys via an index of insertion to titles table.
+	private static int detailIndex = 0;
+	private static Map<Integer, String> indexToDetailKey = new HashMap<Integer, String>();
+	private static Map<Integer, String> savedIndexToDetailKey = null;
+	private static Map<String, Integer> detailKeyToIndex = new HashMap<String, Integer>();
+	private static Map<String, Integer> savedDetailKeyToIndex = null;
+	
 	private final static String nameKey = "NAME";
 	private final static String nameTitle = "Name";
 
@@ -168,22 +175,28 @@ public class ValidObservation extends Observation {
 	 */
 	public ValidObservation() {
 		super(0);
-		details = new LinkedHashMap<String, String>();
+		details = new HashMap<String, String>();
 	}
 
 	/**
 	 * Reset static non-cache maps in readiness for a new dataset.
 	 */
 	public static void reset() {
-		savedDetailTitles = new LinkedHashMap<String, String>(detailTitles);
+		savedDetailTitles = new HashMap<String, String>(detailTitles);
 		detailTitles.clear();
+		savedIndexToDetailKey = new HashMap<Integer, String>(indexToDetailKey);
+		indexToDetailKey.clear();
+		savedDetailKeyToIndex = new HashMap<String, Integer>(detailKeyToIndex);
+		detailKeyToIndex.clear();
 	}
 
 	/**
-	 * Restore static non-cache maps when a new dataset load failure occurs.
+	 * Restore static non-cache maps when a dataset load failure occurs.
 	 */
 	public static void restore() {
 		detailTitles = savedDetailTitles;
+		indexToDetailKey = savedIndexToDetailKey;
+		detailKeyToIndex = savedDetailKeyToIndex;
 	}
 
 	// Getters and Setters
@@ -224,6 +237,26 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
+	 * Return the detail key given the detail ordering index.
+	 * 
+	 * @param the detail index
+	 * @return the detail key
+	 */
+	public static String getDetailKey(int index) {
+		return indexToDetailKey.get(index);
+	}
+
+	/**
+	 * Return the detail index given the key.
+	 * 
+	 * @param the detail key
+	 * @return the detail index
+	 */
+	public static int getDetailIndex(String key) {
+		return detailKeyToIndex.get(key);
+	}
+
+	/**
 	 * Add an observation detail, if the value is not null.
 	 * 
 	 * @param key
@@ -238,7 +271,12 @@ public class ValidObservation extends Observation {
 		if (value != null) {
 			value = getCachedValue(detailValueCache, value);
 			details.put(key, value);
-			detailTitles.put(key, title);
+			if (!detailTitles.containsKey(key)) {
+				detailTitles.put(key, title);
+				indexToDetailKey.put(detailIndex, key);
+				detailKeyToIndex.put(key, detailIndex);
+				detailIndex++;
+			}
 		}
 	}
 

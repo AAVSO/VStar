@@ -1,5 +1,6 @@
+==========
 Change Log
-----------
+==========
 
 Notes:
 o Entries appear in reverse chronological order.
@@ -24,11 +25,27 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and VStar.{sh,ba
   files specify a larger-than-default heap, which helps significantly. For now, 
   if VStar becomes unresponsive, restart it, or increase the maximum heap memory 
   (currently -Xmx500m) when running via the local VStar.{sh,bat} file. This problem 
-  will be addressed in forthcoming releases. See trackers 2924511, 2909500, and 
-  3011104 for more details.
+  is being addressed over time. See tracker 2924511 for more.
 o WWZ is brittle in the presence of gaps in the data. See tracker 3542032.
+
+===============
+Release History
+===============
   
 ---------------------
+Date: December 17 2012
+Version: 2.14.2
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-17Dec2012
+Key Changes:
+- Implemented Catalina Sky Survey (CSS) observation source plug-in.
+- Reduced the memory footprint of each observation by around 10%.
+- Made it possible to add arbitrary detail strings for observation source plug-ins 
+  and used this extend the detail captured by SuperWASP, Kepler, and CSS plug-ins.
+- Added the ability to manage and recall previous filters from View menu.
+- Added the ability to create user defined series from previous filters dialog.
+- Updated plug-in development document re: model creator plug-ins, additional build
+  information, and plug-in implementation examples and details.
+  
 Date: November 3 2012
 Version: 2.14.1
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-03Nov2012
