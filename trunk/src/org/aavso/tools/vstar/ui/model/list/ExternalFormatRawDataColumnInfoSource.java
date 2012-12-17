@@ -94,8 +94,9 @@ public class ExternalFormatRawDataColumnInfoSource implements
 			columnName = DISCREPANT_COLUMN_NAME;
 			break;
 		default:
-			columnName = ValidObservation.getDetailKey(index
+			String key = ValidObservation.getDetailKey(index
 					- DISCREPANT_COLUMN - 1);
+			columnName = ValidObservation.getDetailTitles().get(key);
 			break;
 		}
 
@@ -158,7 +159,7 @@ public class ExternalFormatRawDataColumnInfoSource implements
 		default:
 			String key = ValidObservation.getDetailKey(index
 					- DISCREPANT_COLUMN - 1);
-			value = ob.getDetailsMap().get(key);
+			value = ob.getDetails().get(key);
 			break;
 		}
 

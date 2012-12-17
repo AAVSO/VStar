@@ -106,6 +106,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 	}
 
 	class KeplerFITSObservationRetriever extends AbstractObservationRetriever {
+				
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {

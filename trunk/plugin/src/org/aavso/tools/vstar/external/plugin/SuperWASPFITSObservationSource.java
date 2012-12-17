@@ -89,6 +89,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 	}
 
 	class FITSObservationRetriever extends AbstractObservationRetriever {
+		
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
@@ -141,7 +142,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 							float fluxErr = ((float[]) tableHDU.getElement(row,
 									2))[0];
 
-							// TODO: make use of the additional fields...
+							// TODO: make use of the additional fields?
 							float tamFlux = ((float[]) tableHDU.getElement(row,
 									3))[0];
 							float tamFluxErr = ((float[]) tableHDU.getElement(

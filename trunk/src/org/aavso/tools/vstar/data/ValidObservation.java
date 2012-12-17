@@ -113,6 +113,7 @@ public class ValidObservation extends Observation {
 
 	// Ordering of keys via an index of insertion to titles table.
 	private static int detailIndex = 0;
+	private static int savedDetailIndex = 0;
 	private static Map<Integer, String> indexToDetailKey = new HashMap<Integer, String>();
 	private static Map<Integer, String> savedIndexToDetailKey = null;
 	private static Map<String, Integer> detailKeyToIndex = new HashMap<String, Integer>();
@@ -179,24 +180,30 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * Reset static non-cache maps in readiness for a new dataset.
+	 * Reset static non-cache maps and detail index in readiness for a new dataset.
 	 */
 	public static void reset() {
 		savedDetailTitles = new HashMap<String, String>(detailTitles);
 		detailTitles.clear();
+		
 		savedIndexToDetailKey = new HashMap<Integer, String>(indexToDetailKey);
 		indexToDetailKey.clear();
+		
 		savedDetailKeyToIndex = new HashMap<String, Integer>(detailKeyToIndex);
 		detailKeyToIndex.clear();
+		
+		savedDetailIndex = detailIndex;
+		detailIndex = 0;
 	}
 
 	/**
-	 * Restore static non-cache maps when a dataset load failure occurs.
+	 * Restore static non-cache maps and detail index when a dataset load failure occurs.
 	 */
 	public static void restore() {
 		detailTitles = savedDetailTitles;
 		indexToDetailKey = savedIndexToDetailKey;
 		detailKeyToIndex = savedDetailKeyToIndex;
+		detailIndex = savedDetailIndex;
 	}
 
 	// Getters and Setters
@@ -225,7 +232,7 @@ public class ValidObservation extends Observation {
 	/**
 	 * @return details map
 	 */
-	public Map<String, String> getDetailsMap() {
+	public Map<String, String> getDetails() {
 		return details;
 	}
 

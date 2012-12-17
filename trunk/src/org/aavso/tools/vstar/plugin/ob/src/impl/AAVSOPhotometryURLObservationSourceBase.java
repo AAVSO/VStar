@@ -188,6 +188,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 
 	class AAVSOPhotometryURLObservationRetriever extends
 			AbstractObservationRetriever {
+
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {

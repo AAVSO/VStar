@@ -89,6 +89,8 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 					new LineNumberReader(new FileReader(obsFile.getPath())),
 					analyser);
 
+			ValidObservation.reset();
+
 			textFormatReader.retrieveObservations();
 
 			if (!isCancelled()) {
