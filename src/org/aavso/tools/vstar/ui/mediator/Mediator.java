@@ -932,7 +932,6 @@ public class Mediator {
 		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
 				plotPortion);
 		this.currTask = task;
-		ValidObservation.reset();
 		task.execute();
 	}
 
@@ -961,7 +960,6 @@ public class Mediator {
 			NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(
 					starName, auid, minJD, maxJD);
 			this.currTask = task;
-			ValidObservation.reset();
 			task.execute();
 		} catch (Exception ex) {
 			ValidObservation.restore();
@@ -988,7 +986,6 @@ public class Mediator {
 		NewStarFromObSourcePluginTask task = new NewStarFromObSourcePluginTask(
 				obSourcePlugin);
 		this.currTask = task;
-		ValidObservation.reset();
 		task.execute();
 	}
 

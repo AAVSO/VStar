@@ -96,7 +96,7 @@ public class CatalinaSkySurveyObservationSource extends
 	}
 
 	class CatalinaSkySurveyFileReader extends AbstractObservationRetriever {
-
+		
 		private JulianDayValidator julianDayValidator;
 		private MagnitudeFieldValidator magnitudeFieldValidator;
 		private UncertaintyValueValidator uncertaintyValueValidator;

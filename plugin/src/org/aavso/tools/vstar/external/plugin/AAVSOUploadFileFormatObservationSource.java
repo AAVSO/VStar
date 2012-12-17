@@ -465,6 +465,6 @@ public class AAVSOUploadFileFormatObservationSource extends
 	}
 
 	private boolean isNA(String str) {
-		return "NA".equalsIgnoreCase(str);
+		return str == null || "NA".equalsIgnoreCase(str);
 	}
 }

@@ -174,6 +174,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			AAVSODatabaseObservationReader databaseObsReader = new AAVSODatabaseObservationReader(
 					results);
 
+			ValidObservation.reset();
+
 			databaseObsReader.retrieveObservations();
 			starInfo.setRetriever(databaseObsReader);
 

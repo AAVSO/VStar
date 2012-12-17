@@ -105,17 +105,17 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				}
 				break;
 
-			case URL:				
-				// If the plugin specifies a username and password, create and set
-				// an authenticator.
+			case URL:
+				// If the plugin specifies a username and password, create and
+				// set an authenticator.
 				String userName = obSourcePlugin.getUsername();
 				String password = obSourcePlugin.getPassword();
 
 				if (userName != null && password != null) {
-					Authenticator.setDefault(new URLAuthenticator(
-							userName, password));
+					Authenticator.setDefault(new URLAuthenticator(userName,
+							password));
 				}
-				
+
 				// Obtain the plugin's URLs and create input streams.
 				List<URL> urls = obSourcePlugin.getURLs();
 				if (urls != null) {
@@ -149,6 +149,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			AbstractObservationRetriever retriever = obSourcePlugin
 					.getObservationRetriever();
 
+			ValidObservation.reset();
+
 			retriever.retrieveObservations();
 
 			if (retriever.getValidObservations().isEmpty()) {
@@ -160,10 +162,10 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// observations, otherwise just use the current star
 			// name from the plug-in.
 			// TODO: move down to concrete retriever
-			String name = retriever.getValidObservations().get(0).getName();
-			if (name == null) {
-				name = retriever.getSourceName();
-			}
+			// String name = retriever.getValidObservations().get(0).getName();
+			// if (name == null) {
+			String name = retriever.getSourceName();
+			// }
 
 			// Create plots, tables.
 			NewStarType type = NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
