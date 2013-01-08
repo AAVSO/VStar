@@ -126,4 +126,12 @@ abstract public class CustomFilterPluginBase implements IPlugin {
 					"Observation Filter", errMsg);
 		}
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
+	 */
+	@Override
+	public boolean requiresAuthentication() {
+		return false;
+	}
 }

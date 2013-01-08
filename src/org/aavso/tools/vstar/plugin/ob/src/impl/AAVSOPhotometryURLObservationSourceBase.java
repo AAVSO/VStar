@@ -424,4 +424,6 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			}
 		}
 	}
+	
+	
 }

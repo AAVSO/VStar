@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * This class authenticates with respect to a Citizen Sky source.
+ * @deprecated Citizen Sky authentication is no longer required.
  */
 public class CitizenSkyAuthenticationSource implements IAuthenticationSource {
 

@@ -56,4 +56,12 @@ abstract public class ObservationToolPluginBase implements IPlugin {
 	public String getGroup() {
 		return null;
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
+	 */
+	@Override
+	public boolean requiresAuthentication() {
+		return false;
+	}
 }
