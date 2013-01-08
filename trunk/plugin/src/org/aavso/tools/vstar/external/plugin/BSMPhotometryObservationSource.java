@@ -44,4 +44,12 @@ public class BSMPhotometryObservationSource extends
 		radiusDegs = 0.005;
 		seriesNames.add("B");
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#requiresAuthentication()
+	 */
+	@Override
+	public boolean requiresAuthentication() {
+		return true;
+	}
 }

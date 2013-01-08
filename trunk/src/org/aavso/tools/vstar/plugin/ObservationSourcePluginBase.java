@@ -198,4 +198,12 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	public Set<SeriesType> getVisibleSeriesTypes() {
 		return null;
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
+	 */
+	@Override
+	public boolean requiresAuthentication() {
+		return false;
+	}
 }

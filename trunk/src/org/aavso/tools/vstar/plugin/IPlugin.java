@@ -46,4 +46,10 @@ public interface IPlugin {
 	 * Get the group to which this plugin belongs (may be null).
 	 */
 	abstract public String getGroup();
+	
+	/**
+	 * Does this plugin require authentication?
+	 * @return Whether or not the plugin requires authentication.
+	 */
+	abstract public boolean requiresAuthentication(); 
 }

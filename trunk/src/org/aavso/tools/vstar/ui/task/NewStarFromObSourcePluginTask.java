@@ -17,10 +17,10 @@
  */
 package org.aavso.tools.vstar.ui.task;
 
+import java.awt.Cursor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.Authenticator;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +29,15 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.PluginComponentFactory;
+import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
@@ -66,7 +70,28 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	 * Main task. Executed in background thread.
 	 */
 	public Void doInBackground() {
-		createObservationArtefacts();
+		try {
+			if (obSourcePlugin.requiresAuthentication()) {
+				MainFrame.getInstance().setCursor(
+						Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+				Authenticator.getInstance().authenticate();
+			}
+			
+			createObservationArtefacts();
+
+		} catch (CancellationException ex) {
+			// Nothing to do; dialog cancelled.
+		} catch (ConnectionException ex) {
+			MessageBox.showErrorDialog("Authentication Source Error", ex);
+		} catch (AuthenticationError ex) {
+			MessageBox.showErrorDialog("Authentication Error", ex);
+		} catch (Exception ex) {
+			MessageBox.showErrorDialog("Discrepant Reporting Error", ex);
+		} finally {
+			MainFrame.getInstance().setCursor(null);
+		}
+
 		return null;
 	}
 
@@ -112,8 +137,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				String password = obSourcePlugin.getPassword();
 
 				if (userName != null && password != null) {
-					Authenticator.setDefault(new URLAuthenticator(userName,
-							password));
+					java.net.Authenticator.setDefault(new URLAuthenticator(
+							userName, password));
 				}
 
 				// Obtain the plugin's URLs and create input streams.

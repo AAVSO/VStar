@@ -27,8 +27,6 @@ import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.ui.resources.LoginType;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
-// TODO: refactor with CS class
-
 /**
  * This class authenticates with respect to an AAVSO source.
  */

@@ -17,9 +17,7 @@
  */
 package org.aavso.tools.vstar.input.database;
 
-import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.event.MouseAdapter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -32,8 +30,6 @@ import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.LoginDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
 /**
  * This class is responsible for authenticating against one or more
@@ -64,7 +60,6 @@ public class Authenticator {
 		this.authenticated = false;
 
 		this.authenticators = new ArrayList<IAuthenticationSource>();
-		this.authenticators.add(new CitizenSkyAuthenticationSource());
 		this.authenticators.add(new AAVSOAuthenticationSource());
 	}
 
@@ -86,7 +81,7 @@ public class Authenticator {
 					"Authenticating...");
 
 			LoginDialog loginDialog = new LoginDialog(
-					"AAVSO or Citizen Sky Login");
+					"AAVSO Web Login");
 
 			cancelled = loginDialog.isCancelled();
 

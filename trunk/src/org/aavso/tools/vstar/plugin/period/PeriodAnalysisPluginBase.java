@@ -168,4 +168,12 @@ abstract public class PeriodAnalysisPluginBase implements IPlugin {
 			}
 		};
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
+	 */
+	@Override
+	public boolean requiresAuthentication() {
+		return false;
+	}
 }

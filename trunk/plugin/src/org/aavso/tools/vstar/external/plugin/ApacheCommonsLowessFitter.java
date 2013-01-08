@@ -18,11 +18,9 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.DateInfo;
