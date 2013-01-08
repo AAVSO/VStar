@@ -4,9 +4,8 @@ Change Log
 
 Notes:
 o Entries appear in reverse chronological order.
-o The "Version" field should be considered to be an arbitrary unique label that 
-  may change over time (e.g. from a Subversion revision to a build number).
-  See Help->About in VStar.
+o The version is composed of the form x.y.z where x is the major version number, y
+  indicates an intermediate change, z indicates a minor change.
 o The tag for each revision is applied to the VStar SourceForge Subversion 
   repository. By navigating to that URL, the files that made up that release
   can be viewed.
