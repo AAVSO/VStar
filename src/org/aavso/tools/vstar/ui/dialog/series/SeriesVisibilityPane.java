@@ -159,19 +159,22 @@ public class SeriesVisibilityPane extends JPanel {
 
 				// Listeners need access to discrepant and excluded checkboxes.
 				// We also set the initial state for these checkboxes
-				// conditionally,
-				// depending upon whether any observations are present in these
-				// series.
+				// conditionally, depending upon whether any observations are
+				// present in these series. If they are already selected, it is
+				// not disabled, e.g. cateringh for the case where a single
+				// discrepant or excluded observation is undone.
 				if (series == SeriesType.DISCREPANT) {
 					discrepantCheckBox = checkBox;
-					if (obsPlotModel.getSeriesNumToObSrcListMap()
-							.get(seriesNum).isEmpty()) {
+					if (!discrepantCheckBox.isSelected()
+							&& obsPlotModel.getSeriesNumToObSrcListMap().get(
+									seriesNum).isEmpty()) {
 						setInitialCheckBoxState(series, discrepantCheckBox);
 					}
 				} else if (series == SeriesType.Excluded) {
 					excludedCheckBox = checkBox;
-					if (obsPlotModel.getSeriesNumToObSrcListMap()
-							.get(seriesNum).isEmpty()) {
+					if (!excludedCheckBox.isSelected()
+							&& obsPlotModel.getSeriesNumToObSrcListMap().get(
+									seriesNum).isEmpty()) {
 						setInitialCheckBoxState(series, excludedCheckBox);
 					}
 				}
@@ -207,7 +210,7 @@ public class SeriesVisibilityPane extends JPanel {
 
 		JPanel subPanel = new JPanel();
 		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.PAGE_AXIS));
-		// TODO: why bother with this panel? Just use parent Analysis pane!
+		// TODO: why bother with this panel? Just use parent Analysis panel!
 		subPanel.setBorder(BorderFactory.createTitledBorder(LocaleProps
 				.get("MODEL_TITLE")));
 		subPanel.add(Box.createRigidArea(new Dimension(75, 1)));
