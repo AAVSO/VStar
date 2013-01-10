@@ -38,17 +38,25 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 
 /**
  * <p>
- * Catalina Sky Survey data file observation source plugin.
+ * Catalina Sky Survey data file observation source plugin available from:<br/>
+ * http://nesssi.cacr.caltech.edu/cgi-bin/getcssconedb_release.cgi
  * </p>
  * <p>
- * Takes files of the form:
+ * See http://nesssi.cacr.caltech.edu/DataRelease/usage_cone.html
+ * </p>
+ * <p>
+ * This plugin currently handles "short format" CSV files, as defined on the
+ * usage page above, of the following form:
  * </p>
  * MasterID Mag Magerr RA Dec MJD Blend<br/>
- * 1140046004742 13.05 0.05 164.84942 39.73488 53712.41388 0<br/>
- * 1140046004742 13.04 0.05 164.84938 39.73486 53712.42062 0<br/>
- * 1140046004742 13.07 0.05 164.84940 39.73488 53712.42735 0<br/>
- * 1140046004742 13.03 0.05 164.84940 39.73488 53712.43415 0<br/>
+ * 1140046004742,13.05,0.05,164.84942,39.73488,53712.41388,0<br/>
+ * 1140046004742,13.04,0.05,164.84938,39.73486,53712.42062,0<br/>
+ * 1140046004742,13.07,0.05,164.84940,39.73488,53712.42735,0<br/>
+ * 1140046004742,13.03,0.05,164.84940,39.73488,53712.43415,0<br/>
  * ...<br/>
+ * 
+ * Long format is not currently handled. Neither is HTML or VOTable output. See
+ * the "Advanced parameters" link on the cone search page referred to above.
  */
 public class CatalinaSkySurveyObservationSource extends
 		ObservationSourcePluginBase {
@@ -59,8 +67,8 @@ public class CatalinaSkySurveyObservationSource extends
 	 * Constructor.
 	 */
 	public CatalinaSkySurveyObservationSource() {
-		catalinaSeries = SeriesType.create("CSS", "CSS",
-				Color.MAGENTA, false, false);
+		catalinaSeries = SeriesType.create("CSS", "CSS", Color.MAGENTA, false,
+				false);
 	}
 
 	/**
@@ -96,7 +104,7 @@ public class CatalinaSkySurveyObservationSource extends
 	}
 
 	class CatalinaSkySurveyFileReader extends AbstractObservationRetriever {
-		
+
 		private JulianDayValidator julianDayValidator;
 		private MagnitudeFieldValidator magnitudeFieldValidator;
 		private UncertaintyValueValidator uncertaintyValueValidator;
@@ -136,7 +144,7 @@ public class CatalinaSkySurveyObservationSource extends
 								"").trim();
 						if (!isEmpty(line)) {
 							if (!line.startsWith("MasterID")) {
-								String[] fields = line.split(" ");
+								String[] fields = line.split(",");
 								collectObservation(readNextObservation(fields,
 										obNum));
 								obNum++;
