@@ -176,37 +176,44 @@ public class AAVSOUploadFileFormatObservationSource extends
 		private void handleDirective(String line) throws ObservationReadError {
 			String[] pair = line.toUpperCase().split("=");
 
-			pair[0] = pair[0].trim();
-			pair[1] = pair[1].trim();
-			
-			if ("#TYPE".equals(pair[0])) {
-				fileType = pair[1];
-				if (!"EXTENDED".equals(fileType) && !"VISUAL".equals(fileType)) {
-					throw new ObservationReadError("Invalid file type: "
-							+ fileType);
-				}
-			} else if ("#OBSCODE".equals(pair[0])) {
-				obscode = pair[1].toUpperCase();
-			} else if ("#SOFTWARE".equals(pair[0])) {
-				software = pair[1];
-			} else if ("#DELIM".equals(pair[0])) {
-				delimiter = translateDelimiter(pair[1]);
-				if (isEmpty(delimiter)) {
-					throw new ObservationReadError("No delimiter specified.");
-				}
-			} else if ("#DATE".equals(pair[0])) {
-				dateType = pair[1];
-			} else if ("#OBSTYPE".equals(pair[0])) {
-				obsType = pair[1];
-				if ("EXTENDED".equals(fileType)) {
-					if (!"CCD".equals(obsType) && !"PEP".equals(obsType)) {
-						throw new ObservationReadError(
-								"Unknown observation type: " + obsType);
+			// If a name-value pair, process as a directive, otherwise assume a
+			// comment and ignore.
+			if (pair.length == 2) {
+				pair[0] = pair[0].trim();
+				pair[1] = pair[1].trim();
+
+				if ("#TYPE".equals(pair[0])) {
+					fileType = pair[1];
+					if (!"EXTENDED".equals(fileType)
+							&& !"VISUAL".equals(fileType)) {
+						throw new ObservationReadError("Invalid file type: "
+								+ fileType);
 					}
-				} else if ("VISUAL".equals(fileType)) {
-					if (!"VISUAL".equals(obsType) && !"PTG".equals(obsType)) {
+				} else if ("#OBSCODE".equals(pair[0])) {
+					obscode = pair[1].toUpperCase();
+				} else if ("#SOFTWARE".equals(pair[0])) {
+					software = pair[1];
+				} else if ("#DELIM".equals(pair[0])) {
+					delimiter = translateDelimiter(pair[1]);
+					if (isEmpty(delimiter)) {
 						throw new ObservationReadError(
-								"Unknown observation type: " + obsType);
+								"No delimiter specified.");
+					}
+				} else if ("#DATE".equals(pair[0])) {
+					dateType = pair[1];
+					setHeliocentric("HJD".equals(dateType));
+				} else if ("#OBSTYPE".equals(pair[0])) {
+					obsType = pair[1];
+					if ("EXTENDED".equals(fileType)) {
+						if (!"CCD".equals(obsType) && !"PEP".equals(obsType)) {
+							throw new ObservationReadError(
+									"Unknown observation type: " + obsType);
+						}
+					} else if ("VISUAL".equals(fileType)) {
+						if (!"VISUAL".equals(obsType) && !"PTG".equals(obsType)) {
+							throw new ObservationReadError(
+									"Unknown observation type: " + obsType);
+						}
 					}
 				}
 			}
@@ -411,11 +418,13 @@ public class AAVSOUploadFileFormatObservationSource extends
 				throw new ObservationValidationError("Unsupported date type: "
 						+ dateType);
 			} else {
-				DateInfo dateInfo = julianDayValidator.validate(fields[1].trim());
+				DateInfo dateInfo = julianDayValidator.validate(fields[1]
+						.trim());
 				observation.setDateInfo(dateInfo);
 			}
 
-			Magnitude magnitude = magnitudeFieldValidator.validate(fields[2].trim());
+			Magnitude magnitude = magnitudeFieldValidator.validate(fields[2]
+					.trim());
 			observation.setMagnitude(magnitude);
 
 			return observation;
@@ -456,7 +465,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 		@Override
 		public String getSourceType() {
-			return "AAVSO Upload Format File (" + fileType.toLowerCase() + ")" ;
+			return "AAVSO Upload Format File (" + fileType.toLowerCase() + ")";
 		}
 	}
 

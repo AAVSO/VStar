@@ -27,13 +27,14 @@ import javax.swing.JTabbedPane;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.NamedComponent;
+import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
 
 /**
  * This factory class creates components and returns values for use by plug-ins.
  */
 public class PluginComponentFactory {
 
-	final private static Map<String, JFileChooser> fileChoosers = new HashMap<String, JFileChooser>();
+	final private static Map<String, AdditiveLoadFileSelectionChooser> fileChoosers = new HashMap<String, AdditiveLoadFileSelectionChooser>();
 
 	/**
 	 * Create a tabbed pane component from a list of named components.
@@ -78,28 +79,22 @@ public class PluginComponentFactory {
 	 *            An identifier for the file chooser. If null, a new file
 	 *            chooser will be created otherwise the file chooser first
 	 *            created with this identifier will be used.
-	 * @return The selected file or null if none was selected.
+	 * @return The file chooser or null if no file was selected.
 	 */
-	public static File chooseFileForReading(String id) {
-		File file = null;
-
-		JFileChooser fileChooser = null;
+	public static AdditiveLoadFileSelectionChooser chooseFileForReading(String id) {
+		AdditiveLoadFileSelectionChooser fileChooser = null;
 
 		if (id != null) {
 			if (!fileChoosers.containsKey(id)) {
-				fileChoosers.put(id, new JFileChooser());
+				fileChoosers.put(id, new AdditiveLoadFileSelectionChooser());
 			}
 			fileChooser = fileChoosers.get(id);
 		} else {
-			fileChooser = new JFileChooser();
+			fileChooser = new AdditiveLoadFileSelectionChooser();
 		}
 
-		int result = fileChooser.showOpenDialog(MainFrame.getInstance());
+		boolean approved = fileChooser.showDialog(MainFrame.getInstance());
 
-		if (result == JFileChooser.APPROVE_OPTION) {
-			file = fileChooser.getSelectedFile();
-		}
-
-		return file;
+		return approved ? fileChooser : null;
 	}
 }

@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.jfree.chart.ChartMouseEvent;
@@ -67,11 +68,13 @@ public class ObservationAndMeanPlotPane extends
 	 *            The data model to plot.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
+	 * @param isHeliocentric
+	 *            Is the data heliocentric?
 	 */
 	public ObservationAndMeanPlotPane(String title, String subTitle,
 			String domainTitle, String rangeTitle,
-			ObservationAndMeanPlotModel obsAndMeanModel,
-			Dimension bounds) {
+			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds,
+			boolean isHeliocentric) {
 
 		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
 
@@ -83,8 +86,12 @@ public class ObservationAndMeanPlotPane extends
 		}
 
 		// Format for observation tool-tip.
-		xyMsgFormat = "JD: " + NumericPrecisionPrefs.getTimeOutputFormat()
-				+ " (%s), Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
+		String timePrefix = isHeliocentric ? LocaleProps.get("HJD")
+				: LocaleProps.get("JD");
+
+		xyMsgFormat = timePrefix + ": "
+				+ NumericPrecisionPrefs.getTimeOutputFormat() + " (%s), Mag: "
+				+ NumericPrecisionPrefs.getMagOutputFormat();
 
 		// Set the means series color.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
@@ -96,6 +103,28 @@ public class ObservationAndMeanPlotPane extends
 		// Update joined series to ensure that the means series is initially
 		// joined since the base class won't include it in its set.
 		setJoinedSeries();
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param title
+	 *            The title for the chart.
+	 * @param subTitle
+	 *            The sub-title for the chart.
+	 * @param obsModel
+	 *            The data model to plot. mean plot pane.
+	 * @param bounds
+	 *            The bounding box to which to set the chart's preferred size.
+	 * @param isHeliocentric
+	 *            Is the data heliocentric?
+	 */
+	public ObservationAndMeanPlotPane(String title, String subTitle,
+			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds,
+			boolean isHeliocentric) {
+
+		this(title, subTitle, isHeliocentric ? HJD_TITLE : JD_TITLE, MAG_TITLE,
+				obsAndMeanModel, bounds, isHeliocentric);
 	}
 
 	/**
@@ -112,7 +141,7 @@ public class ObservationAndMeanPlotPane extends
 	public void setMeanSourceSeriesNum(int meanSourceSeriesNum) {
 		obsModel.setMeanSourceSeriesNum(meanSourceSeriesNum);
 	}
-	
+
 	/**
 	 * Attempt to create a new mean series with the specified number of time
 	 * elements per bin.
@@ -123,26 +152,6 @@ public class ObservationAndMeanPlotPane extends
 	 */
 	public boolean changeMeansSeries(double timeElementsInBin) {
 		return obsModel.changeMeansSeries(timeElementsInBin);
-	}
-
-	/**
-	 * Constructor
-	 * 
-	 * @param title
-	 *            The title for the chart.
-	 * @param subTitle
-	 *            The sub-title for the chart.
-	 * @param obsModel
-	 *            The data model to plot.
-	 *            mean plot pane.
-	 * @param bounds
-	 *            The bounding box to which to set the chart's preferred size.
-	 */
-	public ObservationAndMeanPlotPane(String title, String subTitle,
-			ObservationAndMeanPlotModel obsAndMeanModel,
-			Dimension bounds) {
-
-		this(title, subTitle, JD_TITLE, MAG_TITLE, obsAndMeanModel, bounds);
 	}
 
 	// From ChartMouseListener interface.
@@ -214,7 +223,7 @@ public class ObservationAndMeanPlotPane extends
 
 				XYPlot plot = chart.getXYPlot();
 				NewStarMessage newStarMsg = Mediator.getInstance()
-						.getNewStarMessage();
+						.getLatestNewStarMessage();
 				List<ValidObservation> obs = newStarMsg.getObservations();
 
 				switch (msg.getPanType()) {

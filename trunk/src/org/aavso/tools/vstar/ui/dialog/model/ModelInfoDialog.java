@@ -72,7 +72,7 @@ public class ModelInfoDialog extends JDialog {
 		super(parent);
 		this.model = model;
 
-		starName = Mediator.getInstance().getNewStarMessage().getStarInfo()
+		starName = Mediator.getInstance().getLatestNewStarMessage().getStarInfo()
 				.getDesignation();
 
 		// TODO: should these times be from the original input series JDs rather

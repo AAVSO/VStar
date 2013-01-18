@@ -18,6 +18,8 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.RAInfo;
 
 /**
  * This class contains information about a star.
@@ -34,6 +36,8 @@ public class StarInfo {
 	private String varType = null;
 	private String spectralType = null;
 	private String discoverer = null;
+	private RAInfo ra = null;
+	private DecInfo dec = null;
 
 	/**
 	 * Parameterless constructor for web service.
@@ -63,10 +67,15 @@ public class StarInfo {
 	 *            The spectral type, if known.
 	 * @param discoverer
 	 *            The discoverer of the star, if known.
+	 * @param ra
+	 *            The object's Right Acscension.
+	 * @param dec
+	 *            The object's Declination.
 	 */
 	public StarInfo(AbstractObservationRetriever retriever, String designation,
 			String auid, Double period, Double epoch, String varType,
-			String spectralType, String discoverer) {
+			String spectralType, String discoverer, RAInfo ra,
+			DecInfo dec) {
 		this.retriever = retriever;
 		this.designation = designation != null
 				&& designation.trim().length() != 0 ? designation
@@ -77,6 +86,8 @@ public class StarInfo {
 		this.varType = varType;
 		this.spectralType = spectralType;
 		this.discoverer = discoverer;
+		this.ra = ra;
+		this.dec = dec;
 	}
 
 	/**
@@ -95,7 +106,7 @@ public class StarInfo {
 	 */
 	public StarInfo(AbstractObservationRetriever retriever, String designation,
 			String auid) {
-		this(retriever, designation, auid, null, null, null, null, null);
+		this(retriever, designation, auid, null, null, null, null, null, null, null);
 	}
 
 	/**
@@ -132,11 +143,16 @@ public class StarInfo {
 	 *            The spectral type, if known.
 	 * @param discoverer
 	 *            The discoverer of the star, if known.
+	 * @param ra
+	 *            The object's Right Acscension.
+	 * @param dec
+	 *            The object's Declination.
 	 */
 	public StarInfo(String designation, String auid, Double period,
-			Double epoch, String varType, String spectralType, String discoverer) {
+			Double epoch, String varType, String spectralType, String discoverer, RAInfo ra,
+			DecInfo dec) {
 		this(null, designation, auid, period, epoch, varType, spectralType,
-				discoverer);
+				discoverer, ra, dec);
 	}
 
 	/**
@@ -217,6 +233,21 @@ public class StarInfo {
 		return discoverer;
 	}
 
+
+	/**
+	 * @return the ra
+	 */
+	public RAInfo getRA() {
+		return ra;
+	}
+
+	/**
+	 * @return the dec
+	 */
+	public DecInfo getDec() {
+		return dec;
+	}
+	
 	/**
 	 * @param designation
 	 *            the designation to set
@@ -271,5 +302,19 @@ public class StarInfo {
 	 */
 	public void setDiscoverer(String discoverer) {
 		this.discoverer = discoverer;
+	}
+
+	/**
+	 * @param ra the ra to set
+	 */
+	public void setRa(RAInfo ra) {
+		this.ra = ra;
+	}
+
+	/**
+	 * @param dec the dec to set
+	 */
+	public void setDec(DecInfo dec) {
+		this.dec = dec;
 	}
 }

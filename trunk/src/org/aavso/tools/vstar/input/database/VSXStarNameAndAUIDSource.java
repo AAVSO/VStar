@@ -23,21 +23,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.RAInfo;
 
 /**
  * This class obtains star name and AUID information from the VSX database.
  */
 public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 
-	private static String STARTABLE = "vsx_objects";
-	private static String ALIASTABLE = "vsx_crossids";
+	private static final String STARTABLE = "vsx_objects";
+	private static final String ALIASTABLE = "vsx_crossids";
+
+	private static final int RADEC_EPOCH = 1950;
 
 	private PreparedStatement findAUIDFromNameStatement;
 	private PreparedStatement findAUIDFromAliasStatement;
 	private PreparedStatement findStarNameFromAUID;
 
 	// TODO: connection should be retrieved not passed
-	
+
 	/**
 	 * Return the AUID of the named star.
 	 * 
@@ -82,7 +86,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		}
 
 		return new StarInfo(name, auid, period, epoch, varType, spectralType,
-				discoverer);
+				discoverer, getRA(rs), getDec(rs));
 	}
 
 	/**
@@ -116,12 +120,46 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		}
 
 		return new StarInfo(starName, auid, period, epoch, varType,
-				spectralType, discoverer);
+				spectralType, discoverer, getRA(rs), getDec(rs));
 	}
 
 	// Helpers
 
-	// Possibly null period and epoch getters.
+	private RAInfo getRA(ResultSet rs) throws SQLException {
+		Integer raH = null;
+		Integer raM = null;
+		Double raS = null;
+
+		raH = getPossiblyNullIntegerValue(rs, "o_rah1950");
+		raM = getPossiblyNullIntegerValue(rs, "o_ram1950");
+		raS = getPossiblyNullDoubleValue(rs, "o_ras1950");
+
+		RAInfo ra = null;
+		if (raH != null && raM != null && raS != null) {
+			ra = new RAInfo(RADEC_EPOCH, raH, raM, raS);
+		}
+
+		return ra;
+	}
+
+	private DecInfo getDec(ResultSet rs) throws SQLException {
+		Integer decD = null;
+		Integer decM = null;
+		Double decS = null;
+		Integer decSign = null;
+
+		decD = getPossiblyNullIntegerValue(rs, "o_ded1950");
+		decM = getPossiblyNullIntegerValue(rs, "o_dem1950");
+		decS = getPossiblyNullDoubleValue(rs, "o_des1950");
+		decSign = getDecSign(rs);
+
+		DecInfo dec = null;
+		if (decD != null && decM != null && decS != null && decSign != null) {
+			dec = new DecInfo(RADEC_EPOCH, decSign * decD, decM, decS);
+		}
+
+		return dec;
+	}
 
 	private Double getPossiblyNullPeriod(ResultSet rs) throws SQLException {
 		Double period = null;
@@ -150,6 +188,44 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		return epoch;
 	}
 
+	private Integer getDecSign(ResultSet rs) throws SQLException {
+		String sign = null;
+
+		sign = getPossiblyNullStringValue(rs, "o_deSign1950");
+
+		Integer signVal = null;
+
+		if (sign != null) {
+			signVal = sign.equals("-") ? signVal = -1 : 1;
+		}
+
+		return signVal;
+	}
+
+	private Double getPossiblyNullDoubleValue(ResultSet rs, String colName)
+			throws SQLException {
+		Double val = null;
+
+		val = rs.getDouble(colName);
+		if (rs.wasNull()) {
+			val = null; // TODO: necessary?
+		}
+
+		return val;
+	}
+
+	private Integer getPossiblyNullIntegerValue(ResultSet rs, String colName)
+			throws SQLException {
+		Integer val = null;
+
+		val = rs.getInt(colName);
+		if (rs.wasNull()) {
+			val = null; // TODO: necessary?
+		}
+
+		return val;
+	}
+
 	private String getPossiblyNullStringValue(ResultSet rs, String colName)
 			throws SQLException {
 		String value = rs.getString(colName);
@@ -172,7 +248,9 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		if (findAUIDFromNameStatement == null) {
 			findAUIDFromNameStatement = connect
 					.prepareStatement("SELECT o_auid, o_designation, "
-							+ "o_period, o_epoch, o_varType, o_specType, o_discoverer FROM "
+							+ "o_period, o_epoch, o_varType, o_specType, o_discoverer, "
+							+ "o_rah1950, o_ram1950, o_ras1950, o_ded1950, o_dem1950, o_des1950, o_deSign1950"
+							+ " FROM "
 							+ STARTABLE
 							+ " WHERE (o_auid = ? OR o_designation = ? OR REPLACE(o_designation, \"V0\", \"V\") = ?) "
 							+ "AND o_auid is not null");
@@ -185,7 +263,9 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		if (findAUIDFromAliasStatement == null) {
 			findAUIDFromAliasStatement = connect
 					.prepareStatement("SELECT o_auid, o_designation, "
-							+ "o_period, o_epoch, o_varType, o_specType, o_discoverer FROM "
+							+ "o_period, o_epoch, o_varType, o_specType, o_discoverer, "
+							+ "o_rah1950, o_ram1950, o_ras1950, o_ded1950, o_dem1950, o_des1950, o_deSign1950"
+							+ " FROM "
 							+ STARTABLE
 							+ ", "
 							+ ALIASTABLE
@@ -207,8 +287,9 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		if (findStarNameFromAUID == null) {
 			findStarNameFromAUID = connect
 					.prepareStatement("SELECT o_designation, o_period, o_epoch, "
-							+ "o_varType, o_specType, o_discoverer FROM "
-							+ STARTABLE + " WHERE o_auid = ?");
+							+ "o_varType, o_specType, o_discoverer, "
+							+ "o_rah1950, o_ram1950, o_ras1950, o_ded1950, o_dem1950, o_des1950, o_deSign1950"
+							+ " FROM " + STARTABLE + " WHERE o_auid = ?");
 		}
 
 		return findStarNameFromAUID;

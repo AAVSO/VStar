@@ -733,8 +733,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 			// Finally, if observations come from an external source (via a
 			// plugin), make a series visible by default.
-			NewStarMessage msg = Mediator.getInstance().getNewStarMessage();
-			visible |= msg.getNewStarType() == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
+			NewStarMessage msg = Mediator.getInstance().getLatestNewStarMessage();
+			visible |= msg.getNewStarType() == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
 		}
 
 		return visible;

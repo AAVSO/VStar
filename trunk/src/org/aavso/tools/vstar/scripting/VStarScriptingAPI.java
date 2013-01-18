@@ -87,10 +87,33 @@ public class VStarScriptingAPI {
 	 *            The path to the file.
 	 */
 	public synchronized void loadFromFile(final String path) {
+		commonLoadFromFile(path, false);
+	}
+
+	/**
+	 * Load a dataset from the specified path, adding it to the existing
+	 * dataset. This is equivalent to "File -> New Star from File..." with the
+	 * additive checkbox selected.
+	 * 
+	 * @param path
+	 *            The path to the file.
+	 */
+	public synchronized void additiveLoadFromFile(final String path) {
+		commonLoadFromFile(path, true);
+	}
+
+	/**
+	 * Common dataset file load method. 
+	 * @param path
+	 *            The path to the file.
+	 * @param isAdditive
+	 *            Is this load additive?
+	 */
+	private void commonLoadFromFile(final String path, boolean isAdditive) {
 		File f = new File(path);
 
 		try {
-			mediator.createObservationArtefactsFromFile(f);
+			mediator.createObservationArtefactsFromFile(f, isAdditive);
 		} catch (IOException e) {
 			MessageBox
 					.showErrorDialog("Load File", "Cannot load file: " + path);

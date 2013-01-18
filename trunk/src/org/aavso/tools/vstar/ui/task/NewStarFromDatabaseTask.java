@@ -53,6 +53,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	private double minJD;
 	private double maxJD;
 	private boolean success;
+	private boolean isAdditiveLoad;
 
 	/**
 	 * Constructor.
@@ -65,14 +66,19 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 	 *            The minimum Julian Day of the requested range.
 	 * @param maxJD
 	 *            The maximum Julian Day of the requested range.
+	 * @param isAdditiveLoad
+	 *            Is the load additive?
 	 */
+	// TODO: pass isLoadAdditive boolean parameter; StarSelectorDialog will
+	// require a checkbox; just start with file based load first
 	public NewStarFromDatabaseTask(String starName, String auid, double minJD,
-			double maxJD) {
+			double maxJD, boolean isAdditiveLoad) {
 		this.starName = starName;
 		this.auid = auid;
 		this.minJD = minJD;
 		this.maxJD = maxJD;
 		this.success = false;
+		this.isAdditiveLoad = isAdditiveLoad;
 	}
 
 	/**

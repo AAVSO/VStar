@@ -26,7 +26,7 @@ import org.aavso.tools.vstar.util.date.MeeusDateUtil;
  */
 public class DateInfo {
 	
-	private static AbstractDateUtil jdCalc = new MeeusDateUtil();
+	private static final AbstractDateUtil jdCalc = new MeeusDateUtil();
 	
 	private double julianDay;
 
@@ -50,6 +50,13 @@ public class DateInfo {
 	 */
 	public double getJulianDay() {
 		return julianDay;
+	}
+
+	/**
+	 * @param julianDay the julianDay to set
+	 */
+	public void setJulianDay(double julianDay) {
+		this.julianDay = julianDay;
 	}
 
 	/**

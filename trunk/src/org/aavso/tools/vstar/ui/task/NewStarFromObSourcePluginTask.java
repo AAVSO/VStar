@@ -38,6 +38,7 @@ import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
@@ -77,7 +78,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
 				Authenticator.getInstance().authenticate();
 			}
-			
+
 			createObservationArtefacts();
 
 		} catch (CancellationException ex) {
@@ -105,6 +106,11 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// Set input streams and name, if requested by the plug-in.
 			List<InputStream> streams = new ArrayList<InputStream>();
 
+			// TODO: ask plugin once whether load is additive; may be overriden
+			// by file, URL, or other dialog
+
+			boolean isAdditive = false;
+			
 			switch (obSourcePlugin.getInputType()) {
 			case FILE:
 				List<File> files = obSourcePlugin.getFiles();
@@ -118,10 +124,12 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 							.lastIndexOf(", "));
 					obSourcePlugin.setInputInfo(streams, fileNames);
 				} else {
-					File file = PluginComponentFactory
+					AdditiveLoadFileSelectionChooser fileChooser = PluginComponentFactory
 							.chooseFileForReading(obSourcePlugin
 									.getDisplayName());
-					if (file != null) {
+					if (fileChooser != null) {
+						File file = fileChooser.getSelectedFile();
+						isAdditive = fileChooser.isLoadAdditive();
 						streams.add(new FileInputStream(file));
 						obSourcePlugin.setInputInfo(streams, file.getName());
 					} else {
@@ -152,6 +160,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 					urlStrs = urlStrs.substring(0, urlStrs.lastIndexOf(", "));
 					obSourcePlugin.setInputInfo(streams, urlStrs);
 				} else {
+					// TODO: use a custom dialog based upon TextDialog class
+					// that includes a isLoadAdditive() method
 					String urlStr = JOptionPane
 							.showInputDialog("Enter Observation Source URL");
 					if (urlStr != null && urlStr.trim().length() != 0) {
@@ -193,9 +203,9 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// }
 
 			// Create plots, tables.
-			NewStarType type = NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
+			NewStarType type = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
 			mediator.createNewStarObservationArtefacts(type, new StarInfo(
-					retriever, name), 0, false);
+					retriever, name), 0, isAdditive);
 
 		} catch (InterruptedException e) {
 			ValidObservation.restore();

@@ -118,7 +118,7 @@ public class ValidObservation extends Observation {
 	private static Map<Integer, String> savedIndexToDetailKey = null;
 	private static Map<String, Integer> detailKeyToIndex = new HashMap<String, Integer>();
 	private static Map<String, Integer> savedDetailKeyToIndex = null;
-	
+
 	private final static String nameKey = "NAME";
 	private final static String nameTitle = "Name";
 
@@ -180,24 +180,26 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * Reset static non-cache maps and detail index in readiness for a new dataset.
+	 * Reset static non-cache maps and detail index in readiness for a new
+	 * dataset.
 	 */
 	public static void reset() {
 		savedDetailTitles = new HashMap<String, String>(detailTitles);
 		detailTitles.clear();
-		
+
 		savedIndexToDetailKey = new HashMap<Integer, String>(indexToDetailKey);
 		indexToDetailKey.clear();
-		
+
 		savedDetailKeyToIndex = new HashMap<String, Integer>(detailKeyToIndex);
 		detailKeyToIndex.clear();
-		
+
 		savedDetailIndex = detailIndex;
 		detailIndex = 0;
 	}
 
 	/**
-	 * Restore static non-cache maps and detail index when a dataset load failure occurs.
+	 * Restore static non-cache maps and detail index when a dataset load
+	 * failure occurs.
 	 */
 	public static void restore() {
 		detailTitles = savedDetailTitles;
@@ -246,7 +248,8 @@ public class ValidObservation extends Observation {
 	/**
 	 * Return the detail key given the detail ordering index.
 	 * 
-	 * @param the detail index
+	 * @param the
+	 *            detail index
 	 * @return the detail key
 	 */
 	public static String getDetailKey(int index) {
@@ -256,7 +259,8 @@ public class ValidObservation extends Observation {
 	/**
 	 * Return the detail index given the key.
 	 * 
-	 * @param the detail key
+	 * @param the
+	 *            detail key
 	 * @return the detail index
 	 */
 	public static int getDetailIndex(String key) {
@@ -275,7 +279,7 @@ public class ValidObservation extends Observation {
 	 *            details.
 	 */
 	public void addDetail(String key, String value, String title) {
-		if (value != null) {
+		if (key != null && value != null) {
 			value = getCachedValue(detailValueCache, value);
 			details.put(key, value);
 			if (!detailTitles.containsKey(key)) {
@@ -693,6 +697,11 @@ public class ValidObservation extends Observation {
 		}
 
 		if (dateInfo != null) {
+			boolean isHeliocentric = Mediator.getInstance().getLatestNewStarMessage()
+					.getStarInfo().getRetriever().isHeliocentric();
+			if (isHeliocentric) {
+				strBuf.append("Heliocentric ");
+			}
 			strBuf.append("Julian Date: ");
 			strBuf.append(String.format(NumericPrecisionPrefs
 					.getTimeOutputFormat(), dateInfo.getJulianDay()));
@@ -981,6 +990,10 @@ public class ValidObservation extends Observation {
 
 	public double getJD() {
 		return this.dateInfo.getJulianDay();
+	}
+
+	public void setJD(double jd) {
+		this.dateInfo.setJulianDay(jd);
 	}
 
 	public double getMag() {
