@@ -21,15 +21,15 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * External format phase plot table column information source, associated with
+ * Arbitrary format phase plot table column information source, associated with
  * observation source plugins.
  * 
  * This class exploits the knowledge that its base class's column indices are
  * offset by one compared to its. Yes, this breaks encapsulation but promotes
  * reuse and easier maintainability in a controlled manner.
  */
-public class ExternalFormatPhasePlotColumnInfoSource extends
-		ExternalFormatRawDataColumnInfoSource {
+public class ArbitraryFormatPhasePlotColumnInfoSource extends
+		ArbitraryFormatRawDataColumnInfoSource {
 
 	private static final int PHASE_COLUMN = 0;
 	private static final String PHASE_COLUMN_NAME = "Phase";

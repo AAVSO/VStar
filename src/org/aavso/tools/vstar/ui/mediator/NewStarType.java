@@ -22,8 +22,8 @@ import org.aavso.tools.vstar.data.validation.IFieldInfoSource;
 import org.aavso.tools.vstar.data.validation.SimpleFormatFieldInfoSource;
 import org.aavso.tools.vstar.ui.model.list.AAVSOFormatPhasePlotColumnInfoSource;
 import org.aavso.tools.vstar.ui.model.list.AAVSOFormatRawDataColumnInfoSource;
-import org.aavso.tools.vstar.ui.model.list.ExternalFormatPhasePlotColumnInfoSource;
-import org.aavso.tools.vstar.ui.model.list.ExternalFormatRawDataColumnInfoSource;
+import org.aavso.tools.vstar.ui.model.list.ArbitraryFormatPhasePlotColumnInfoSource;
+import org.aavso.tools.vstar.ui.model.list.ArbitraryFormatRawDataColumnInfoSource;
 import org.aavso.tools.vstar.ui.model.list.ITableColumnInfoSource;
 import org.aavso.tools.vstar.ui.model.list.SimpleFormatPhasePlotColumnInfoSource;
 import org.aavso.tools.vstar.ui.model.list.SimpleFormatRawDataColumnInfoSource;
@@ -45,7 +45,7 @@ public enum NewStarType {
 
 	NEW_STAR_FROM_DATABASE,
 
-	NEW_STAR_FROM_EXTERNAL_SOURCE;
+	NEW_STAR_FROM_ARBITRARY_SOURCE;
 
 	private final int minFields;
 	private final int maxFields;
@@ -108,8 +108,8 @@ public enum NewStarType {
 		case NEW_STAR_FROM_SIMPLE_FILE:
 			source = new SimpleFormatRawDataColumnInfoSource();
 			break;
-		case NEW_STAR_FROM_EXTERNAL_SOURCE:
-			source = new ExternalFormatRawDataColumnInfoSource();   
+		case NEW_STAR_FROM_ARBITRARY_SOURCE:
+			source = new ArbitraryFormatRawDataColumnInfoSource();   
 			break;
 		}
 		
@@ -132,8 +132,8 @@ public enum NewStarType {
 		case NEW_STAR_FROM_SIMPLE_FILE:
 			source = new SimpleFormatPhasePlotColumnInfoSource();
 			break;
-		case NEW_STAR_FROM_EXTERNAL_SOURCE:
-			source = new ExternalFormatPhasePlotColumnInfoSource();   
+		case NEW_STAR_FROM_ARBITRARY_SOURCE:
+			source = new ArbitraryFormatPhasePlotColumnInfoSource();   
 			break;
 		}
 		
@@ -157,8 +157,8 @@ public enum NewStarType {
 		case NEW_STAR_FROM_SIMPLE_FILE:
 			str = "Simple Format File";
 			break;
-		case NEW_STAR_FROM_EXTERNAL_SOURCE:
-			str = "External Source";
+		case NEW_STAR_FROM_ARBITRARY_SOURCE:
+			str = "Arbitrary Source";
 			break;
 		}
 		

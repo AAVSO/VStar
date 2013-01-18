@@ -45,6 +45,8 @@ public abstract class AbstractObservationRetriever {
 
 	protected boolean interrupted;
 
+	protected boolean isHeliocentric;
+
 	/**
 	 * The list of valid observations retrieved.
 	 */
@@ -105,6 +107,8 @@ public abstract class AbstractObservationRetriever {
 		this.maxMag = -Double.MAX_VALUE;
 
 		interrupted = false;
+		
+		isHeliocentric = false;
 
 		Mediator.getInstance().getStopRequestNotifier().addListener(
 				createStopRequestListener());
@@ -191,10 +195,65 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
+	 * Has this observation retriever pulled in observations that correspond to
+	 * heliocentric JD values.
+	 * 
+	 * @return whether this observation retriever pulled in observations that
+	 *         correspond to heliocentric JD values.
+	 */
+	public boolean isHeliocentric() {
+		return isHeliocentric;
+	}
+
+	/**
+	 * @param isHeliocentric the isHeliocentric to set
+	 */
+	public void setHeliocentric(boolean isHeliocentric) {
+		this.isHeliocentric = isHeliocentric;
+	}
+
+	/**
 	 * @return the validObservationCategoryMap
 	 */
 	public Map<SeriesType, List<ValidObservation>> getValidObservationCategoryMap() {
 		return validObservationCategoryMap;
+	}
+
+	/**
+	 * Adds all of the specified observations to the current observations,
+	 * including classifying them by series. This can be used for additive load
+	 * operations.
+	 * 
+	 * @param obs
+	 *            The list of previously existing valid observations to be
+	 *            added.
+	 * @param newSourceName
+	 *            The name of the source for new obs (in this retriever).
+	 */
+	public void collectAllObservations(List<ValidObservation> obs,
+			String newSourceName) throws ObservationReadError {
+		// Set source name for new obs (those in this retriever).
+		for (ValidObservation ob : validObservations) {
+			ob.addDetail("SOURCE", newSourceName, "Source");
+		}
+
+		// Add previously existing obs (those passed to this method).
+		for (ValidObservation ob : obs) {
+			collectObservation(ob);
+		}
+	}
+
+	/**
+	 * Adds all the specified invalid observations to the existing invalid
+	 * observations. This can be used for additive load operations.
+	 * 
+	 * @param obs
+	 *            The list of previously existing invalid observations.
+	 */
+	public void addAllInvalidObservations(List<InvalidObservation> obs) {
+		for (InvalidObservation ob : obs) {
+			addInvalidObservation(ob);
+		}
 	}
 
 	/**
@@ -214,6 +273,9 @@ public abstract class AbstractObservationRetriever {
 	 * 
 	 * @param ob
 	 *            The valid observation to be added to collections.
+	 * 
+	 * @throws ObservationReadError
+	 *             if the observation has no date or magnitude.
 	 */
 	protected void collectObservation(ValidObservation ob)
 			throws ObservationReadError {

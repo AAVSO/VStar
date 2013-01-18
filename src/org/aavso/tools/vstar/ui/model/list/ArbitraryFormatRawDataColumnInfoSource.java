@@ -24,10 +24,10 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
- * External raw data format table column information source, associated with
+ * Arbitrary raw data format table column information source, associated with
  * observation source plugins.
  */
-public class ExternalFormatRawDataColumnInfoSource implements
+public class ArbitraryFormatRawDataColumnInfoSource implements
 		ITableColumnInfoSource {
 
 	// Table columns.

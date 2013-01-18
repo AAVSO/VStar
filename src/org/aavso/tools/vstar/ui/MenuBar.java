@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -48,6 +47,7 @@ import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.scripting.ScriptRunner;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
+import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
 import org.aavso.tools.vstar.ui.dialog.FileExtensionFilter;
 import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
 import org.aavso.tools.vstar.ui.dialog.InfoDialog;
@@ -142,7 +142,7 @@ public class MenuBar extends JMenuBar {
 
 	private Mediator mediator = Mediator.getInstance();
 
-	private JFileChooser fileOpenDialog;
+	private AdditiveLoadFileSelectionChooser fileOpenDialog;
 
 	// Plug-in menu name to plug-in object maps.
 	private Map<String, ObservationSourcePluginBase> menuItemNameToObSourcePlugin;
@@ -225,7 +225,7 @@ public class MenuBar extends JMenuBar {
 		extensions.add("tsv");
 		extensions.add("txt");
 
-		this.fileOpenDialog = new JFileChooser();
+		this.fileOpenDialog = new AdditiveLoadFileSelectionChooser();
 		this.fileOpenDialog.setFileFilter(new FileExtensionFilter(extensions));
 
 		createFileMenu();
@@ -665,18 +665,19 @@ public class MenuBar extends JMenuBar {
 	 * file.
 	 */
 	public ActionListener createNewStarFromFileListener() {
-		final JFileChooser fileOpenDialog = this.fileOpenDialog;
+		final AdditiveLoadFileSelectionChooser fileOpenDialog = this.fileOpenDialog;
 		final MainFrame parent = this.parent;
 
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int returnVal = fileOpenDialog.showOpenDialog(parent);
+				boolean approved = fileOpenDialog.showDialog(parent);
 
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
+				if (approved) {
 					File f = fileOpenDialog.getSelectedFile();
 
 					try {
-						mediator.createObservationArtefactsFromFile(f);
+						mediator.createObservationArtefactsFromFile(f,
+								fileOpenDialog.isLoadAdditive());
 					} catch (Exception ex) {
 						MessageBox.showErrorDialog(parent, NEW_STAR_FROM_FILE,
 								ex);
@@ -729,10 +730,9 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for File->Info...
 	 */
 	public ActionListener createInfoListener() {
-		final MenuBar self = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new InfoDialog(self.newStarMessage);
+				new InfoDialog(Mediator.getInstance().getNewStarMessageList());
 			}
 		};
 	}
@@ -1038,11 +1038,12 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
-	 * Returns the action listener to be invoked for a particular Analysis menu 
-	 * Period Search item.
-	 * TODO: interim solution until we have toolbar buttons with lists of items!
+	 * Returns the action listener to be invoked for a particular Analysis menu
+	 * Period Search item. TODO: interim solution until we have toolbar buttons
+	 * with lists of items!
 	 */
-	public ActionListener createPeriodSearchListener(final String periodSearchItemName) {
+	public ActionListener createPeriodSearchListener(
+			final String periodSearchItemName) {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				PeriodAnalysisPluginBase plugin = menuItemNameToPeriodAnalysisPlugin

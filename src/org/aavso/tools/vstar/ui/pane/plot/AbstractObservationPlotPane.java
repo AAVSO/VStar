@@ -101,7 +101,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	protected Dataset lastDatasetSelected;
 
 	// Axis titles.
-	public static String JD_TITLE = LocaleProps.get("TIME_AXIS");
+	public static String JD_TITLE = LocaleProps.get("TIME_AXIS_JD");
+	public static String HJD_TITLE = LocaleProps.get("TIME_AXIS_HJD");
 	public static String PHASE_TITLE = LocaleProps.get("PHASE_AXIS");
 	public static String MAG_TITLE = LocaleProps.get("BRIGHTNESS_AXIS");
 

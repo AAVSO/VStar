@@ -60,9 +60,9 @@ import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
 import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveAsChooser;
 import org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialog;
-import org.aavso.tools.vstar.ui.dialog.ObservationFiltersDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
+import org.aavso.tools.vstar.ui.dialog.ObservationFiltersDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
@@ -122,6 +122,9 @@ import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.PreviousCyclePhaseComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
+import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.RAInfo;
+import org.aavso.tools.vstar.util.date.HJDConverter;
 import org.aavso.tools.vstar.util.discrepant.DiscrepantReport;
 import org.aavso.tools.vstar.util.discrepant.IDiscrepantReporter;
 import org.aavso.tools.vstar.util.discrepant.ZapperLogger;
@@ -165,8 +168,10 @@ public class Mediator {
 	// Current analysis type.
 	private AnalysisType analysisType;
 
-	// The latest new star message created and sent to listeners.
-	private NewStarMessage newStarMessage;
+	// The new star messages created and sent to listeners, most recent at
+	// the highest index.
+	private List<NewStarMessage> newStarMessageList;
+	// private NewStarMessage newStarMessage;
 
 	// The latest model selection message created and sent to listeners.
 	private ModelSelectionMessage modelSelectionMessage;
@@ -273,7 +278,8 @@ public class Mediator {
 
 		this.viewMode = ViewModeType.PLOT_OBS_MODE;
 		this.analysisType = AnalysisType.RAW_DATA;
-		this.newStarMessage = null;
+
+		this.newStarMessageList = new ArrayList<NewStarMessage>();
 		this.modelSelectionMessage = null;
 
 		this.periodChangeNotifier.addListener(createPeriodChangeListener());
@@ -285,7 +291,7 @@ public class Mediator {
 				.addListener(createFilteredObservationListener());
 
 		this.seriesCreationNotifier.addListener(createSeriesCreationListener());
-		
+
 		this.phaseParameterDialog = new PhaseParameterDialog();
 		this.newStarNotifier.addListener(this.phaseParameterDialog);
 
@@ -340,10 +346,23 @@ public class Mediator {
 	}
 
 	/**
-	 * @return the newStarMessage
+	 * @return the latest newStarMessage, or null if none present.
 	 */
-	public NewStarMessage getNewStarMessage() {
-		return newStarMessage;
+	public NewStarMessage getLatestNewStarMessage() {
+		NewStarMessage msg = null;
+
+		if (!newStarMessageList.isEmpty()) {
+			msg = newStarMessageList.get(newStarMessageList.size() - 1);
+		}
+
+		return msg;
+	}
+
+	/**
+	 * @return the newStarMessageList
+	 */
+	public List<NewStarMessage> getNewStarMessageList() {
+		return newStarMessageList;
 	}
 
 	/**
@@ -820,7 +839,7 @@ public class Mediator {
 						this.analysisType = analysisType;
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
 						String statusMsg = "Raw data mode ("
-								+ this.newStarMessage.getStarInfo()
+								+ this.getLatestNewStarMessage().getStarInfo()
 										.getDesignation() + ")";
 						MainFrame.getInstance().getStatusPane().setMessage(
 								statusMsg);
@@ -857,7 +876,8 @@ public class Mediator {
 	 */
 	public void setPhasePlotStatusMessage() {
 		String statusMsg = "Phase plot mode ("
-				+ this.newStarMessage.getStarInfo().getDesignation() + ")";
+				+ this.getLatestNewStarMessage().getStarInfo().getDesignation()
+				+ ")";
 		MainFrame.getInstance().getStatusPane().setMessage(statusMsg);
 	}
 
@@ -908,9 +928,11 @@ public class Mediator {
 	 *            The file from which to load the star observations.
 	 * @param parent
 	 *            The GUI component that can be used to display.
+	 * @param isAdditiveLoad
+	 *            Is the load additive?
 	 */
-	public void createObservationArtefactsFromFile(File obsFile)
-			throws IOException, ObservationReadError {
+	public void createObservationArtefactsFromFile(File obsFile,
+			boolean isAdditiveLoad) throws IOException, ObservationReadError {
 
 		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
@@ -930,7 +952,7 @@ public class Mediator {
 						+ plotPortion));
 
 		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
-				plotPortion);
+				plotPortion, isAdditiveLoad);
 		this.currTask = task;
 		task.execute();
 	}
@@ -958,7 +980,7 @@ public class Mediator {
 					new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
 
 			NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(
-					starName, auid, minJD, maxJD);
+					starName, auid, minJD, maxJD, false);
 			this.currTask = task;
 			task.execute();
 		} catch (Exception ex) {
@@ -1007,10 +1029,22 @@ public class Mediator {
 	 *            dataset?
 	 */
 	public void createNewStarObservationArtefacts(NewStarType newStarType,
-			StarInfo starInfo, int obsArtefactProgressAmount, boolean addObs) {
+			StarInfo starInfo, int obsArtefactProgressAmount, boolean addObs)
+			throws ObservationReadError {
 
 		// Given raw valid and invalid observation data, create observation
 		// table and plot models, along with corresponding GUI components.
+
+		if (addObs) {
+			convertObsToHJD(starInfo);
+
+			starInfo.getRetriever().collectAllObservations(validObsList,
+					starInfo.getRetriever().getSourceName());
+
+			starInfo.getRetriever().addAllInvalidObservations(invalidObsList);
+
+			newStarType = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
+		}
 
 		List<ValidObservation> validObsList = starInfo.getRetriever()
 				.getValidObservations();
@@ -1040,11 +1074,17 @@ public class Mediator {
 
 			// Create a message to notify whoever is listening that a new star
 			// has been loaded.
-			newStarMessage = new NewStarMessage(newStarType, starInfo,
-					validObsList, validObservationCategoryMap, starInfo
-							.getRetriever().getMinMag(), starInfo
+			NewStarMessage newStarMsg = new NewStarMessage(newStarType,
+					starInfo, validObsList, validObservationCategoryMap,
+					starInfo.getRetriever().getMinMag(), starInfo
 							.getRetriever().getMaxMag(), starInfo
 							.getRetriever().getSourceName());
+
+			if (!addObs) {
+				newStarMessageList.clear();
+			}
+
+			newStarMessageList.add(newStarMsg);
 
 			// This is a specific fix for tracker 3007948.
 			this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
@@ -1075,7 +1115,8 @@ public class Mediator {
 					+ " "
 					+ LocaleProps.get("FOR")
 					+ " "
-					+ starInfo.getDesignation(), null, obsAndMeanPlotModel);
+					+ starInfo.getDesignation(), null, obsAndMeanPlotModel,
+					starInfo.getRetriever().isHeliocentric());
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					createMeanObsChangeListener(obsAndMeanPlotModel
@@ -1109,7 +1150,7 @@ public class Mediator {
 		// a horizontal scrollbar if there will be too many columns.
 
 		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
-				|| newStarType == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
+				|| (newStarType == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE && !addObs);
 
 		obsListPane = new ObservationListPane(starInfo.getDesignation(),
 				validObsTableModel, invalidObsTableModel,
@@ -1166,8 +1207,87 @@ public class Mediator {
 		this.validObservationCategoryMap = validObservationCategoryMap;
 
 		// Notify listeners of new star and analysis type.
-		newStarNotifier.notifyListeners(newStarMessage);
+		newStarNotifier.notifyListeners(getLatestNewStarMessage());
 		analysisTypeChangeNotifier.notifyListeners(analysisTypeMsg);
+	}
+
+	/**
+	 * Do the new or old observations need to be converted to HJD? Note that we
+	 * can only convert to HJD if we have RA/Dec for the object, e.g. from AID;
+	 * perhaps later an RA/Dec dialog can be opened. The existing (old)
+	 * newStarMessage.starInfo.retriever will be replaced with this new HJD
+	 * retriever, permitting it to be consulted the next time this method is
+	 * invoked.
+	 * 
+	 * @param newStarInfo
+	 *            Info about the new star who's observations are to be added.
+	 */
+	private void convertObsToHJD(StarInfo newStarInfo) {
+		// Try to get RA and Dec information from any of our loaded datasets.
+		// We are making the simplifying assumption that all datasets correspond
+		// to the same object!
+		
+		RAInfo ra = null;
+		DecInfo dec = null;
+
+		for (NewStarMessage msg : newStarMessageList) {
+			ra = msg.getStarInfo().getRA();
+			dec = msg.getStarInfo().getDec();
+
+			if (ra != null && dec != null) {
+				break;
+			}
+		}
+		
+		if (ra == null || dec == null) {
+			// TODO: open dialog asking for RA/DEC and if that is cancelled,
+			// open another dialog indicating that HJD conversion cannot
+			// take place. For now, just do the latter.
+			MessageBox.showWarningDialog("HJD Conversion",
+					"Unable to convert observations to HJD.");
+			return;			
+		}
+		
+		if (newStarInfo.getRetriever().isHeliocentric()
+				&& !getLatestNewStarMessage().getStarInfo().getRetriever()
+						.isHeliocentric()) {
+			/*
+			 * The new observations use HJD but the existing observations do
+			 * not, so convert the existing observations.
+			 */
+			convertObsToHJD(validObsList, ra, dec);
+		} else if (!newStarInfo.getRetriever().isHeliocentric()
+				&& getLatestNewStarMessage().getStarInfo().getRetriever()
+						.isHeliocentric()) {
+			/*
+			 * The new observations do not use HJD but the existing observations
+			 * do, so convert the new observations. Note that the new retriever
+			 * needs to have its HJD flag set once the observations are
+			 * converted. We do not need to do this for the case above, because
+			 * the new StarInfo will replace the existing one, so the question
+			 * about "existing HJD" will ask this new object's retriever.
+			 */
+			convertObsToHJD(newStarInfo.getRetriever().getValidObservations(),
+					ra, dec);
+			newStarInfo.getRetriever().setHeliocentric(true);
+		}
+	}
+
+	/**
+	 * Convert the specified observations to use HJD rather than JD.
+	 * 
+	 * @param obs
+	 *            The list of observations to be converted.
+	 * @param ra
+	 *            The RA for the object.
+	 * @param dec
+	 *            The Dec for the object.
+	 */
+	private void convertObsToHJD(List<ValidObservation> obs, RAInfo ra,
+			DecInfo dec) {
+		for (ValidObservation ob : obs) {
+			ob.setJD(HJDConverter.convert(ob.getJD(), ra, dec));
+		}
 	}
 
 	/**
@@ -1185,7 +1305,8 @@ public class Mediator {
 	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period,
 			double epoch, Map<SeriesType, Boolean> seriesVisibilityMap)
 			throws Exception {
-		String objName = newStarMessage.getStarInfo().getDesignation();
+		String objName = getLatestNewStarMessage().getStarInfo()
+				.getDesignation();
 
 		String subTitle = "";
 		String periodAndEpochStr = String.format(LocaleProps.get("PERIOD")
@@ -1193,7 +1314,7 @@ public class Mediator {
 				+ LocaleProps.get("EPOCH") + ": "
 				+ NumericPrecisionPrefs.getTimeOutputFormat(), period, epoch);
 
-		if (this.newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+		if (this.getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 			Date now = Calendar.getInstance().getTime();
 			String formattedDate = DateFormat.getDateInstance().format(now);
 			subTitle = formattedDate + " (" + LocaleProps.get("DATABASE")
@@ -1233,7 +1354,7 @@ public class Mediator {
 
 		// Table and plot models.
 		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(
-				validObsList, newStarMessage.getNewStarType()
+				validObsList, getLatestNewStarMessage().getNewStarType()
 						.getPhasePlotTableColumnInfoSource());
 
 		// Observation-and-mean table and plot.
@@ -1275,8 +1396,9 @@ public class Mediator {
 		// display valid data, as opposed to the raw data view in which
 		// both are shown. Tell the valid data table to have a horizontal
 		// scrollbar if there will be too many columns.
-		boolean enableColumnAutoResize = newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
-				|| newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_EXTERNAL_SOURCE;
+		boolean enableColumnAutoResize = getLatestNewStarMessage()
+				.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
+				|| getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
 
 		ObservationListPane obsListPane = new ObservationListPane(objName,
 				validObsTableModel, null, enableColumnAutoResize,
@@ -1363,13 +1485,14 @@ public class Mediator {
 	 */
 	private ObservationAndMeanPlotPane createObservationAndMeanPlotPane(
 			String plotName, String subTitle,
-			ObservationAndMeanPlotModel obsAndMeanPlotModel) {
+			ObservationAndMeanPlotModel obsAndMeanPlotModel,
+			boolean isHeliocentric) {
 
 		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
 				(int) (TabbedDataPane.HEIGHT * 0.9));
 
 		return new ObservationAndMeanPlotPane(plotName, subTitle,
-				obsAndMeanPlotModel, bounds);
+				obsAndMeanPlotModel, bounds, isHeliocentric);
 	}
 
 	/**
@@ -1401,7 +1524,7 @@ public class Mediator {
 	 */
 	public void performPeriodAnalysis(PeriodAnalysisPluginBase plugin) {
 		try {
-			if (newStarMessage != null && validObsList != null) {
+			if (getLatestNewStarMessage() != null && validObsList != null) {
 				SingleSeriesSelectionDialog dialog = new SingleSeriesSelectionDialog(
 						obsAndMeanPlotModel);
 
@@ -1412,9 +1535,9 @@ public class Mediator {
 					// retriever. For additive loads we will either have to
 					// use an aggregated retriever or add file-loaded obs
 					// to the AID retriever.
-					List<ValidObservation> obs = newStarMessage.getStarInfo()
-							.getRetriever().getValidObservationCategoryMap()
-							.get(type);
+					List<ValidObservation> obs = getLatestNewStarMessage()
+							.getStarInfo().getRetriever()
+							.getValidObservationCategoryMap().get(type);
 
 					this.getProgressNotifier().notifyListeners(
 							ProgressInfo.START_PROGRESS);
@@ -1493,7 +1616,7 @@ public class Mediator {
 	 */
 	public void performModellingOperation(ModelCreatorPluginBase plugin) {
 		try {
-			if (newStarMessage != null && validObsList != null) {
+			if (getLatestNewStarMessage() != null && validObsList != null) {
 				SingleSeriesSelectionDialog seriesDialog = new SingleSeriesSelectionDialog(
 						obsAndMeanPlotModel);
 
@@ -1694,7 +1817,8 @@ public class Mediator {
 										.size()));
 
 				ObsListFileSaveTask task = new ObsListFileSaveTask(obs, path,
-						this.newStarMessage.getNewStarType(), delimiter);
+						this.getLatestNewStarMessage().getNewStarType(),
+						delimiter);
 
 				this.currTask = task;
 				task.execute();
@@ -1733,8 +1857,9 @@ public class Mediator {
 									.size()));
 
 					ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
-							outFile, this.newStarMessage.getNewStarType(),
-							obsListFileSaveDialog.getDelimiter());
+							outFile, this.getLatestNewStarMessage()
+									.getNewStarType(), obsListFileSaveDialog
+									.getDelimiter());
 
 					this.currTask = task;
 					task.execute();
@@ -1918,13 +2043,10 @@ public class Mediator {
 		// If the dataset was loaded from AID and the change was
 		// to mark this observation as discrepant, we ask the user
 		// whether to report this to AAVSO.
-		NewStarMessage newStarMessage = Mediator.getInstance()
-				.getNewStarMessage();
-
 		if (ob.isDiscrepant()
-				&& newStarMessage.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+				&& getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 
-			String auid = newStarMessage.getStarInfo().getAuid();
+			String auid = getLatestNewStarMessage().getStarInfo().getAuid();
 			String name = ob.getName();
 			int uniqueId = ob.getRecordNumber();
 

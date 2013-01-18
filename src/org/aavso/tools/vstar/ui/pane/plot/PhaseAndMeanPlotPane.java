@@ -82,7 +82,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 			ObservationAndMeanPlotModel... obsAndMeanModels) {
 
 		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModels[0],
-				bounds);
+				bounds, false);
 
 		this.epoch = epoch;
 		this.period = period;
@@ -252,7 +252,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 				XYPlot plot = chart.getXYPlot();
 				NewStarMessage newStarMsg = Mediator.getInstance()
-						.getNewStarMessage();
+						.getLatestNewStarMessage();
 
 				switch (msg.getPanType()) {
 				case LEFT:

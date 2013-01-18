@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -53,7 +54,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 	 * @param newStarMessage
 	 *            A new (loaded) star message.
 	 */
-	public InfoDialog(NewStarMessage newStarMessage) {
+	public InfoDialog(List<NewStarMessage> newStarMessage) {
 		super(DocumentManager.findActiveWindow());
 		this.setTitle("Information");
 
@@ -85,30 +86,90 @@ public class InfoDialog extends JDialog implements ActionListener {
 	/**
 	 * Create the info pane given a new star message.
 	 */
-	private JPanel createInfoPanel(NewStarMessage msg) {
+	private JPanel createInfoPanel(List<NewStarMessage> msgs) {
 		JPanel pane = new JPanel();
 		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
 
-		StarInfo starInfo = msg.getStarInfo();
-		List<ValidObservation> obs = msg.getObservations();
-		Map<SeriesType, List<ValidObservation>> obsCategoryMap = msg
-				.getObsCategoryMap();
-
-		JTextArea summaryTextArea = new JTextArea();
-		summaryTextArea.setEditable(false);
-		summaryTextArea.setBorder(BorderFactory.createTitledBorder("Summary"));
+		// Series information.
 		JTextArea seriesTextArea = new JTextArea();
 		seriesTextArea.setEditable(false);
 		seriesTextArea.setBorder(BorderFactory.createTitledBorder("Series"));
+
+		StringBuffer seriesBuf = new StringBuffer();
+
+		// The most recent new star message will have all obs and series
+		// (whether a single or additive dataset).
+		NewStarMessage latestMsg = msgs.get(msgs.size() - 1);
+		List<ValidObservation> obs = latestMsg.getObservations();
+
+		seriesBuf.append("Loaded Observations: ");
+		seriesBuf.append(obs.size());
+		seriesBuf.append("\n");
+
+		Map<SeriesType, List<ValidObservation>> obsCategoryMap = latestMsg
+				.getObsCategoryMap();
+
+		for (SeriesType type : obsCategoryMap.keySet()) {
+			List<ValidObservation> obsOfType = obsCategoryMap.get(type);
+			if (!obsOfType.isEmpty()) {
+				seriesBuf.append(type.getDescription());
+				seriesBuf.append(": ");
+				seriesBuf.append(obsOfType.size());
+				seriesBuf.append("\n");
+			}
+		}
+
+		seriesTextArea.setText(seriesBuf.toString());
+
+		// Statistics.
 		JTextArea statsTextArea = new JTextArea();
 		statsTextArea.setEditable(false);
 		statsTextArea.setBorder(BorderFactory.createTitledBorder("Statistics"));
 
-		StringBuffer summaryBuf = new StringBuffer();
+		StringBuffer statsBuf = new StringBuffer();
 
-		summaryBuf.append("Object: ");
-		summaryBuf.append(starInfo.getDesignation());
-		summaryBuf.append("\n");
+		Map<String, String> statsInfo = Mediator.getInstance()
+				.getDocumentManager().getStatsInfo();
+
+		for (String key : statsInfo.keySet()) {
+			statsBuf.append(key);
+			statsBuf.append(": ");
+			statsBuf.append(statsInfo.get(key));
+			statsBuf.append("\n");
+		}
+
+		statsTextArea.setText(statsBuf.toString());
+
+		// Add dataset summaries, series info, stats.
+		for (NewStarMessage msg : msgs) {
+			pane.add(createSummary(msg));
+			pane.add(Box.createRigidArea(new Dimension(10, 10)));
+		}
+
+		pane.add(seriesTextArea);
+		pane.add(Box.createRigidArea(new Dimension(10, 10)));
+		pane.add(statsTextArea);
+
+		return pane;
+	}
+
+	/**
+	 * Create summary UI component for a single star.
+	 * 
+	 * @param msg
+	 *            New star message for a single star.
+	 * @return The summary component for this star.
+	 */
+	private Component createSummary(NewStarMessage msg) {
+		StarInfo starInfo = msg.getStarInfo();
+
+		JTextArea summaryTextArea = new JTextArea();
+		summaryTextArea.setEditable(false);
+		summaryTextArea
+				.setBorder(BorderFactory.createTitledBorder("Summary for "
+						+ starInfo.getDesignation()));
+
+		StringBuffer summaryBuf = new StringBuffer();
 
 		summaryBuf.append("Source Type: ");
 		summaryBuf.append(msg.getStarInfo().getRetriever().getSourceType());
@@ -150,46 +211,19 @@ public class InfoDialog extends JDialog implements ActionListener {
 			summaryBuf.append("\n");
 		}
 
-		summaryBuf.append("Loaded Observations: ");
-		summaryBuf.append(obs.size());
-		summaryBuf.append("\n");
+		if (starInfo.getRA() != null) {
+			summaryBuf.append(starInfo.getRA());
+			summaryBuf.append("\n");
+		}
+
+		if (starInfo.getDec() != null) {
+			summaryBuf.append(starInfo.getDec());
+			summaryBuf.append("\n");
+		}
 
 		summaryTextArea.setText(summaryBuf.toString());
 
-		StringBuffer seriesBuf = new StringBuffer();
-
-		for (SeriesType type : obsCategoryMap.keySet()) {
-			List<ValidObservation> obsOfType = obsCategoryMap.get(type);
-			if (!obsOfType.isEmpty()) {
-				seriesBuf.append(type.getDescription());
-				seriesBuf.append(": ");
-				seriesBuf.append(obsOfType.size());
-				seriesBuf.append("\n");
-			}
-		}
-
-		seriesTextArea.setText(seriesBuf.toString());
-
-		StringBuffer statsBuf = new StringBuffer();
-
-		Map<String, String> statsInfo = Mediator.getInstance()
-				.getDocumentManager().getStatsInfo();
-		for (String key : statsInfo.keySet()) {
-			statsBuf.append(key);
-			statsBuf.append(": ");
-			statsBuf.append(statsInfo.get(key));
-			statsBuf.append("\n");
-		}
-
-		statsTextArea.setText(statsBuf.toString());
-
-		pane.add(summaryTextArea);
-		pane.add(Box.createRigidArea(new Dimension(10, 10)));
-		pane.add(seriesTextArea);
-		pane.add(Box.createRigidArea(new Dimension(10, 10)));
-		pane.add(statsTextArea);
-
-		return pane;
+		return summaryTextArea;
 	}
 
 	/**

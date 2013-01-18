@@ -44,6 +44,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	private File obsFile;
 	private ObservationSourceAnalyser analyser;
 	private int plotTaskPortion;
+	private boolean isAdditiveLoad;
 
 	private AbstractObservationRetriever textFormatReader;
 
@@ -57,12 +58,16 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 	 * @param plotTaskPortion
 	 *            The portion of the total task that involves the light curve
 	 *            plot.
+	 * @param isAdditiveLoad
+	 *            Is the load additive?
 	 */
 	public NewStarFromFileTask(File obsFile,
-			ObservationSourceAnalyser analyser, int plotTaskPortion) {
+			ObservationSourceAnalyser analyser, int plotTaskPortion,
+			boolean isAdditiveLoad) {
 		this.obsFile = obsFile;
 		this.analyser = analyser;
 		this.plotTaskPortion = plotTaskPortion;
+		this.isAdditiveLoad = isAdditiveLoad;
 	}
 
 	/**
@@ -101,7 +106,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 
 				// Try to get the name of the object from one of the
 				// observations, otherwise just use the file name.
-				// TODO: push down to concrete retriever				
+				// TODO: push down to concrete retriever
 				String name = textFormatReader.getValidObservations().get(0)
 						.getName();
 				if (name == null) {
@@ -110,7 +115,8 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 
 				mediator.createNewStarObservationArtefacts(analyser
 						.getNewStarType(),
-						new StarInfo(textFormatReader, name), plotTaskPortion, false);
+						new StarInfo(textFormatReader, name), plotTaskPortion,
+						isAdditiveLoad);
 			}
 		} catch (Throwable t) {
 			ValidObservation.restore();
