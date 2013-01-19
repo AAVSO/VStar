@@ -32,7 +32,7 @@ Release History
 ===============
   
 ---------------------
-Date: December 21 2013
+Date: December 19 2013
 Version: 2.15.0
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-19Jan2013
 Key Changes:
