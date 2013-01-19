@@ -32,6 +32,22 @@ Release History
 ===============
   
 ---------------------
+Date: December 21 2013
+Version: 2.15.0
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-19Jan2013
+Key Changes:
+- Implemented authentication framework for plugins, enabling for obseravtion source 
+  plugins and requiring for APASS and BSM plugins. Citizen Sky authentication is not 
+  used for this, or anywhere else in VStar now, only AAVSO web credentials.
+- First working cut of additive dataset loading with HJD conversion. Currently, 
+  file-based datasets can be added to an already loaded dataset. 
+- Fixed Catalina Sky Survey plugin to use comma not space as the field delimiter.
+- Fixed bug in AAVSO upload plugin in which the column headers comment line was 
+  treated as an invalid observation rather than being ignored.
+- Fixed series visibility checkboxes so as to not be disabled if selected and the 
+  series observation count goes to zero (e.g. discrepant), permitting the checkbox 
+  to be deselected.
+
 Date: December 17 2012
 Version: 2.14.2
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-17Dec2012
