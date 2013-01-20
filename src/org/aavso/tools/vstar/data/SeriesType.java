@@ -203,7 +203,8 @@ public class SeriesType implements Comparable<SeriesType> {
 
 	public static final SeriesType Filtered = new SeriesType(
 			SeriesType.NO_INDEX, LocaleProps.get("FILTERED_SERIES"),
-			LocaleProps.get("FILTERED_SERIES"), new Color(0, 153, 204), true, false);
+			LocaleProps.get("FILTERED_SERIES"), new Color(0, 153, 204), true,
+			false);
 
 	// Model series.
 	public static final SeriesType Model = new SeriesType(SeriesType.NO_INDEX,
@@ -295,7 +296,7 @@ public class SeriesType implements Comparable<SeriesType> {
 		// new instance or a previously created instance.
 		for (SeriesType series : values()) {
 			// One series type is equal to another if their descriptions are the
-			// same.
+			// same. We can't have 2 series with the same name!
 			if (series.equals(newSeries)) {
 				newSeries = series;
 				break;
@@ -314,10 +315,10 @@ public class SeriesType implements Comparable<SeriesType> {
 	public static void delete(SeriesType type) {
 		// We don't want to delete in-built series!
 		assert type.isUserDefined();
-		
+
 		if (values.contains(type)) {
 			values.remove(type);
-			
+
 			index2SeriesMap.remove(type.getIndex());
 			shortName2SeriesMap.remove(type.getShortName());
 			description2SeriesMap.remove(type.getDescription());
