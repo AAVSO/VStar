@@ -87,6 +87,8 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
+		seriesGroup = new ButtonGroup();
+
 		panel.add(createDataSeriesRadioButtons());
 		panel.add(createDerivedSeriesRadioButtons());
 		JPanel userPanel = createUserDefinedSeriesRadioButtons();
@@ -101,8 +103,6 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
 				.get("DATA_TITLE")));
-
-		seriesGroup = new ButtonGroup();
 
 		for (SeriesType series : this.obsPlotPane.getObsModel().getSeriesKeys()) {
 			if (!series.isSynthetic() && !series.isUserDefined()) {
@@ -180,8 +180,6 @@ public class MeanSourcePane extends JPanel implements ActionListener {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
 				.get("USER_DEFINED_TITLE")));
-
-		seriesGroup = new ButtonGroup();
 
 		boolean anyObs = false;
 

@@ -121,27 +121,30 @@ public class SeriesTypeCreationDialog extends AbstractOkCancelDialog {
 		String description = nameField.getText().trim();
 
 		if (description.length() != 0) {
-			if (!SeriesType.exists(description)) {
-				SeriesType type = null;
-				Color color = colorChooser.getColor();
+			// If the series type previously existed, delete it first.
+			// Note: does not appear to make any difference to the outcome.
+			// if (SeriesType.exists(description)) {
+			// SeriesType.delete(SeriesType
+			// .getSeriesFromDescription(description));
+			// }
 
-				type = SeriesType.create(description, description, color,
-						false, true);
+			// Create the series type and send out a notification.
+			SeriesType type = null;
+			Color color = colorChooser.getColor();
 
-				SeriesCreationMessage msg = new SeriesCreationMessage(this,
-						type, obs);
+			type = SeriesType.create(description, description, color, false,
+					true);
 
-				Mediator.getInstance().getSeriesCreationNotifier()
-						.notifyListeners(msg);
+			SeriesCreationMessage msg = new SeriesCreationMessage(this, type,
+					obs);
 
-				// Dismiss the dialog.
-				cancelled = false;
-				setVisible(false);
-				dispose();
-			} else {
-				MessageBox.showErrorDialog("Series Creation",
-						"A series with that name already exists.");
-			}
+			Mediator.getInstance().getSeriesCreationNotifier().notifyListeners(
+					msg);
+
+			// Dismiss the dialog.
+			cancelled = false;
+			setVisible(false);
+			dispose();
 		}
 	}
 }
