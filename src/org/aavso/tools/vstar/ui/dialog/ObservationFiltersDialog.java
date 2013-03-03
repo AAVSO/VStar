@@ -191,15 +191,13 @@ public class ObservationFiltersDialog extends JDialog implements
 				int selectedFilterIndex = filterList.getSelectedIndex();
 				String desc = (String) filterListModel.get(selectedFilterIndex);
 				FilteredObservationMessage filterMsg = filterMap.get(desc);
-				TextDialog descDlg = new TextDialog("Description",
-						new TextField[] {
-								new TextField("Name", filterMsg
-										.getDescription().getFilterName()),
-								new TextField("Description", filterMsg
-										.getDescription()
-										.getFilterDescription(),
-										TextField.Kind.AREA) });
-				descDlg.showDialog();
+				List<ITextComponent> fields = new ArrayList<ITextComponent>();
+				fields.add(new TextField("Name", filterMsg.getDescription()
+						.getFilterName()));
+				fields.add(new TextField("Description", filterMsg
+						.getDescription().getFilterDescription(),
+						TextField.Kind.AREA));
+				new TextDialog("Description", fields);
 			}
 		};
 	}
@@ -250,7 +248,7 @@ public class ObservationFiltersDialog extends JDialog implements
 						filterMap.remove(desc);
 						filterListModel.removeElement(desc);
 					}
-					
+
 					filterMap.put(desc, info);
 					filterListModel.addElement(desc);
 					pack();

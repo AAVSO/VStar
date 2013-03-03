@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.JTextField;
 
@@ -94,7 +96,7 @@ public class NumberField {
 	/**
 	 * @return the textField
 	 */
-	public JTextField getTextField() {
+	public JTextField getUIComponent() {
 		return textField;
 	}
 
@@ -122,5 +124,9 @@ public class NumberField {
 		}
 
 		return value;
+	}
+	
+	public void addActionListener(ActionListener l) {
+		textField.addActionListener(l);
 	}
 }

@@ -31,25 +31,30 @@ import org.aavso.tools.vstar.ui.MainFrame;
 /**
  * This dialog class permits multiple named, ranged, numeric (double) values to
  * be entered and returned. The dialog can be dismissed when legal values are
- * present in each text field. The number fields passed in will contain these
- * values.
+ * present in each text field. The number numberFields passed in will contain
+ * these values.
  */
 @SuppressWarnings("serial")
-public class MultiNumberEntryDialog extends AbstractOkCancelDialog {
+public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 
-	private List<NumberField> fields;
+	private List<ITextComponent> textFields;
+	private List<NumberField> numberFields;
 
 	/**
 	 * Constructor
 	 * 
 	 * @param title
 	 *            Title for the dialog.
-	 * @param fields
-	 *            The list of fields.
+	 * @param textFields
+	 *            The list of text fields.
+	 * @param numberFields
+	 *            The list of number fields.
 	 */
-	public MultiNumberEntryDialog(String title, List<NumberField> fields) {
+	public MultiEntryComponentDialog(String title,
+			List<ITextComponent> textFields, List<NumberField> numberFields) {
 		super(title);
-		this.fields = fields;
+		this.textFields = textFields;
+		this.numberFields = numberFields;
 
 		Container contentPane = this.getContentPane();
 
@@ -69,14 +74,39 @@ public class MultiNumberEntryDialog extends AbstractOkCancelDialog {
 		this.setVisible(true);
 	}
 
-	// Add the text fields.
+	/**
+	 * Construct a dialog with no text fields.
+	 * 
+	 * @param title
+	 *            Title for the dialog.
+	 * @param numberFields
+	 *            The list of number fields.
+	 */
+	public MultiEntryComponentDialog(String title,
+			List<NumberField> numberFields) {
+		this(title, null, numberFields);
+	}
+
+	// Add the fields.
 	private JPanel createParameterPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-		for (NumberField field : fields) {
-			panel.add(field.getTextField());
-			panel.add(Box.createRigidArea(new Dimension(75, 10)));
+		// TODO: consolidate field types with generics
+
+		if (textFields != null) {
+			for (ITextComponent field : textFields) {
+				field.setEditable(!field.isReadOnly());
+				panel.add(field.getUIComponent());
+				panel.add(Box.createRigidArea(new Dimension(75, 10)));
+			}
+		}
+
+		if (numberFields != null) {
+			for (NumberField field : numberFields) {
+				panel.add(field.getUIComponent());
+				panel.add(Box.createRigidArea(new Dimension(75, 10)));
+			}
 		}
 
 		return panel;
@@ -97,10 +127,28 @@ public class MultiNumberEntryDialog extends AbstractOkCancelDialog {
 	protected void okAction() {
 		boolean ok = true;
 
-		for (NumberField field : fields) {
-			if (field.getValue() == null) {
-				ok = false;
-				break;
+		// TODO: consolidate field types via an interface and validate()
+		// methood.
+
+		// If there is a field that cannot be empty, but is, we cannot dismiss
+		// the dialog.
+		if (textFields != null) {
+			for (ITextComponent field : textFields) {
+				if (!field.canBeEmpty()
+						&& field.getValue().trim().length() == 0) {
+					ok = false;
+				}
+			}
+		}
+		
+		if (ok) {
+			// If there are any empty number fields, we cannot dismiss the
+			// dialog.
+			for (NumberField field : numberFields) {
+				if (field.getValue() == null) {
+					ok = false;
+					break;
+				}
 			}
 		}
 

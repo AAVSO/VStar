@@ -23,7 +23,7 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.ui.dialog.MultiNumberEntryDialog;
+import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
@@ -69,7 +69,7 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 			currResolution = periodAnalysisAlgorithm.getResolutionValue();
 		}
 
-		MultiNumberEntryDialog paramDialog = createParamDialog();
+		MultiEntryComponentDialog paramDialog = createParamDialog();
 
 		if (!paramDialog.isCancelled()) {
 			currLoFreq = loFreqField.getValue();
@@ -86,7 +86,7 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 		}
 	}
 
-	private MultiNumberEntryDialog createParamDialog() {
+	private MultiEntryComponentDialog createParamDialog() {
 		List<NumberField> fields = new ArrayList<NumberField>();
 
 		loFreqField = new NumberField(LocaleProps
@@ -101,7 +101,7 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 				.get("PERIOD_ANALYSIS_PARAMETERS_RESOLUTION_TITLE"), 0.0, null, currResolution);
 		fields.add(resolutionField);
 
-		return new MultiNumberEntryDialog(LocaleProps
+		return new MultiEntryComponentDialog(LocaleProps
 				.get("PERIOD_ANALYSIS_PARAMETERS_DLG_TITLE"), fields);
 	}
 

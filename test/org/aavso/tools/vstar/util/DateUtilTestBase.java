@@ -229,6 +229,16 @@ public class DateUtilTestBase extends TestCase {
 		commonCaltoJDTest(2009, 9, 5, 2455079.5);
 	}
 
+	// Other
+	
+	public void testCaltoJDDec252003() {
+		commonCaltoJDTest(2003, 12, 25, 2452998.5);
+	}
+
+	public void testCaltoJDOct262007() {
+		commonCaltoJDTest(2007, 10, 26, 2454399.5);
+	}
+
 	// Helper
 	private void commonCaltoJDTest(int year, int month, double day, double expectedJD) {
 		double jd = this.dateUtil.calendarToJD(year, month, day);

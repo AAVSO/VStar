@@ -33,7 +33,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This modal dialog class allows period analysis parameters to be entered.
- * @deprecated Use MultiNumberEntryDialog instead
+ * @deprecated Use MultiEntryComponentDialog instead
  */
 public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 

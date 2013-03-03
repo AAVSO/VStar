@@ -317,11 +317,11 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
 			raDegField = new NumberField("RA (degrees)", 0.0, 360.0, raDegs);
-			panel.add(raDegField.getTextField());
+			panel.add(raDegField.getUIComponent());
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
 			decDegField = new NumberField("Dec (degrees)", -90.0, 90.0, decDegs);
-			panel.add(decDegField.getTextField());
+			panel.add(decDegField.getUIComponent());
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
 			String[] radii = new String[] { "0.001 deg = 3.6 arcsec",

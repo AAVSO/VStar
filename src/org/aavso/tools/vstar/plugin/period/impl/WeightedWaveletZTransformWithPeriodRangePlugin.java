@@ -25,7 +25,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.ui.dialog.MultiNumberEntryDialog;
+import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
 import org.aavso.tools.vstar.ui.dialog.period.wwz.WeightedWaveletZTransformResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
@@ -72,7 +72,7 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 		List<NumberField> fields = createNumberFields(minPeriodField,
 				maxPeriodField, deltaPeriodField);
 
-		MultiNumberEntryDialog paramDialog = new MultiNumberEntryDialog(
+		MultiEntryComponentDialog paramDialog = new MultiEntryComponentDialog(
 				LocaleProps.get("WWZ_PARAMETERS_DLG_TITLE"), fields);
 
 		if (!paramDialog.isCancelled()) {
