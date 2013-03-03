@@ -30,7 +30,8 @@ plugin_classes = [
                   'MeanTimeBetweenSelectionTool',
                   'ApacheCommonsPolynomialFitter',
                   'ApacheCommonsLowessFitter',
-                  'CatalinaSkySurveyObservationSource'
+                  'CatalinaSkySurveyObservationSource',
+                  'PeriodLuminosityDistanceCalculator'
                  ]
    
 libs = "%s:%s" % (vstar_dist_jar, tamfits_jar)

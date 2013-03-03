@@ -18,6 +18,8 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
@@ -26,13 +28,14 @@ import javax.swing.text.JTextComponent;
  * This class encapsulates the name and value of a text field along with a GUI
  * textComponent and methods to operate upon it.
  */
-public class TextField {
+public class TextField implements ITextComponent {
 
 	public enum Kind {
 		LINE, AREA;
 	}
 
 	private String name;
+	private Kind kind;
 	private boolean canBeEmpty;
 	private boolean readOnly;
 
@@ -55,6 +58,7 @@ public class TextField {
 	public TextField(String name, String initialValue, boolean readOnly,
 			boolean canBeEmpty, Kind kind) {
 		this.name = name;
+		this.kind = kind;
 		this.readOnly = readOnly;
 		this.canBeEmpty = canBeEmpty;
 
@@ -67,7 +71,9 @@ public class TextField {
 		}
 
 		textComponent.setBorder(BorderFactory.createTitledBorder(name));
-		textComponent.setToolTipText("Enter " + name);
+		if (!isReadOnly()) {
+			textComponent.setToolTipText("Enter " + name);
+		}
 	}
 
 	/**
@@ -124,38 +130,41 @@ public class TextField {
 		this(name, initialValue, true, true, Kind.LINE);
 	}
 
-	/**
-	 * @return the name
-	 */
+	@Override
 	public String getName() {
 		return name;
 	}
 
-	/**
-	 * @return the canBeEmpty
-	 */
+	@Override
 	public boolean canBeEmpty() {
 		return canBeEmpty;
 	}
 
-	/**
-	 * @return the readOnly
-	 */
+	@Override
 	public boolean isReadOnly() {
 		return readOnly;
 	}
 
-	/**
-	 * @return the textComponent
-	 */
-	public JTextComponent getTextField() {
-		return textComponent;
-	}
-
-	/**
-	 * @return the value
-	 */
+	@Override
 	public String getValue() {
 		return textComponent.getText();
+	}
+
+	@Override
+	public JComponent getUIComponent() {
+		JComponent comp = textComponent;
+		
+		// Make text areas scrollable since we don't know how much content
+		// one will have.
+		if (kind == Kind.AREA) {
+			comp = new JScrollPane(textComponent);
+		}
+		
+		return comp;
+	}
+
+	@Override
+	public void setEditable(boolean state) {
+		textComponent.setEditable(state);
 	}
 }

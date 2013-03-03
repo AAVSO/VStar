@@ -48,6 +48,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.filter.IFilterDescription;
 import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
@@ -253,12 +254,10 @@ public class ObservationListPane extends JPanel implements
 				// Request a name for the filter.
 				String defaultName = Mediator.getInstance()
 						.getDocumentManager().getNextUntitledFilterName();
-
-				final TextDialog nameDlg = new TextDialog("Filter Name",
-						new TextField[] { new TextField("Name", defaultName,
-								false, false, TextField.Kind.LINE) });
-
-				nameDlg.showDialog();
+				List<ITextComponent> fields = new ArrayList<ITextComponent>();
+				fields.add(new TextField("Name", defaultName, false, false,
+						TextField.Kind.LINE));
+				final TextDialog nameDlg = new TextDialog("Filter Name", fields);
 
 				// Create an observation filter message and notify listeners.
 				IFilterDescription desc = new IFilterDescription() {

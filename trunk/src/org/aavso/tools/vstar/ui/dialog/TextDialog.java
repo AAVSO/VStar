@@ -26,9 +26,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.text.JTextComponent;
 
 /**
  * This class implements a dialog to obtain one or more string values from text
@@ -37,7 +34,7 @@ import javax.swing.text.JTextComponent;
 @SuppressWarnings("serial")
 public class TextDialog extends AbstractOkCancelDialog {
 
-	private List<TextField> textFields;
+	private List<ITextComponent> textFields;
 
 	/**
 	 * Constructor.
@@ -45,9 +42,9 @@ public class TextDialog extends AbstractOkCancelDialog {
 	 * @param title
 	 *            The title to be used for the dialog.
 	 * @param fields
-	 *            An array of fields.
+	 *            A list of fields.
 	 */
-	public TextDialog(String title, TextField[] fields) {
+	public TextDialog(String title, List<ITextComponent> fields) {
 		super(title);
 		this.setModal(true);
 
@@ -57,9 +54,9 @@ public class TextDialog extends AbstractOkCancelDialog {
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		textFields = new ArrayList<TextField>();
+		textFields = new ArrayList<ITextComponent>();
 
-		for (TextField field : fields) {
+		for (ITextComponent field : fields) {
 			textFields.add(field);
 			topPane.add(createTextFieldPane(field));
 			topPane.add(Box.createRigidArea(new Dimension(75, 10)));
@@ -71,6 +68,8 @@ public class TextDialog extends AbstractOkCancelDialog {
 		contentPane.add(topPane);
 
 		this.pack();
+		
+		showDialog();
 	}
 
 	/**
@@ -81,27 +80,20 @@ public class TextDialog extends AbstractOkCancelDialog {
 	public List<String> getTextStrings() {
 		List<String> strings = new ArrayList<String>();
 
-		for (TextField field : textFields) {
+		for (ITextComponent field : textFields) {
 			strings.add(field.getValue());
 		}
 
 		return strings;
 	}
 
-	private JPanel createTextFieldPane(TextField field) {
+	private JPanel createTextFieldPane(ITextComponent field) {
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
-		JTextComponent textField = field.getTextField();
-		textField.setEditable(!field.isReadOnly());
-		if (textField instanceof JTextArea) {
-			// Make text areas scrollable since we don't know how much content
-			// one will have.
-			panel.add(new JScrollPane(textField));
-		} else {
-			panel.add(textField);
-		}
+		field.setEditable(!field.isReadOnly());
+		panel.add(field.getUIComponent());
 
 		return panel;
 	}
@@ -119,7 +111,7 @@ public class TextDialog extends AbstractOkCancelDialog {
 	protected void okAction() {
 		// If there is a field that cannot be empty, but is, we cannot dismiss
 		// the dialog.
-		for (TextField field : textFields) {
+		for (ITextComponent field : textFields) {
 			if (!field.canBeEmpty() && field.getValue().trim().length() == 0) {
 				return;
 			}

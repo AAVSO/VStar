@@ -26,6 +26,9 @@ import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 
+/**
+ * Base class for multi-period model creation unit tests.
+ */
 public class MultiPeriodicModelDcDftTestBase extends DataTestBase {
 
 	public MultiPeriodicModelDcDftTestBase(String name, double[][] jdAndMagPairs) {
@@ -53,7 +56,7 @@ public class MultiPeriodicModelDcDftTestBase extends DataTestBase {
 				algorithm.multiPeriodicFit(harmonics, model);
 			} catch (InterruptedException e) {
 				// We should never end up here in the course of this unit test
-				// (no user in the loop).
+				// since there's no user in the loop to cause an interruption.
 				fail();
 			}
 
@@ -62,16 +65,12 @@ public class MultiPeriodicModelDcDftTestBase extends DataTestBase {
 					.size());
 
 			for (int i = 0; i < expectedParamsList.size(); i++) {
-				PeriodFitParameters exp = expectedParamsList.get(i);
-				PeriodFitParameters actual = model.getParameters().get(i);
 				assertTrue(expectedParamsList.get(i).equals(
 						model.getParameters().get(i)));
 			}
 
-			// Check the model data.
+			// Check the model and residual data.
 			checkData(expectedModelData, model.getFit());
-
-			// Check the residual data.
 			checkData(expectedResidualData, model.getResiduals());
 		} catch (AlgorithmError e) {
 			fail();
