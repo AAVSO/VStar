@@ -26,7 +26,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
-import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This dialog class permits multiple named, ranged, numeric (double) values to
@@ -70,7 +70,7 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 		contentPane.add(topPane);
 
 		this.pack();
-		setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.setVisible(true);
 	}
 

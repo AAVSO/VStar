@@ -31,14 +31,9 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 /**
  * This class creates, reads, and updates VStar properties, e.g. Window location
  * and size. Although there can be more than one instance of this class, it
- * makes most sense for one class to have control over just one
- * instance.
+ * makes most sense for one class to have control over just one instance.
  */
 public class ApplicationProperties {
-
-	// The full path to the user properties file.
-	private final static String PROPS_PATH = System.getProperty("user.home")
-			+ File.separator + ".vstar";
 
 	private final static String ERROR_DIALOG_TITLE = "User properties error";
 	private final static String PROPS_FILE_COMMENT = "VStar user properties. Read on startup, written on exit.";
@@ -69,19 +64,20 @@ public class ApplicationProperties {
 	 *            properties.
 	 */
 	public ApplicationProperties(MainFrame frame) {
-		propsFile = new File(PROPS_PATH);
+		propsFile = new File(System.getProperty("user.home") + File.separator
+				+ ".vstar");
 		props = new Properties();
 
 		this.frame = frame;
 
 		try {
 			// We've seen one instance of the props file being empty,
-			// so if it is, delete it, and re-create it, because it 
+			// so if it is, delete it, and re-create it, because it
 			// won't load.
 			if (propsFile.length() == 0) {
 				propsFile.delete();
-			}			
-			
+			}
+
 			if (!propsFile.exists()) {
 				propsFile.createNewFile();
 				init();
@@ -121,9 +117,8 @@ public class ApplicationProperties {
 	}
 
 	/**
-	 * Return an integer from the specified string, or null.
-	 * We may actually be dealing with a double value, but we
-	 * convert to integer in that case.
+	 * Return an integer from the specified string, or null. We may actually be
+	 * dealing with a double value, but we convert to integer in that case.
 	 * 
 	 * @param s
 	 *            The string to be parsed.
@@ -153,11 +148,13 @@ public class ApplicationProperties {
 		Dimension screenSize = toolkit.getScreenSize();
 		double height = screenSize.getHeight();
 		double width = screenSize.getWidth();
-		
+
 		props.setProperty(MAIN_WDW_HEIGHT, height + "");
 		props.setProperty(MAIN_WDW_WIDTH, width + "");
-		props.setProperty(MAIN_WDW_UPPER_LEFT_X, DEFAULT_MAIN_WDW_UPPER_LEFT_X + "");
-		props.setProperty(MAIN_WDW_UPPER_LEFT_Y, DEFAULT_MAIN_WDW_UPPER_LEFT_Y + "");
+		props.setProperty(MAIN_WDW_UPPER_LEFT_X, DEFAULT_MAIN_WDW_UPPER_LEFT_X
+				+ "");
+		props.setProperty(MAIN_WDW_UPPER_LEFT_Y, DEFAULT_MAIN_WDW_UPPER_LEFT_Y
+				+ "");
 		store();
 	}
 

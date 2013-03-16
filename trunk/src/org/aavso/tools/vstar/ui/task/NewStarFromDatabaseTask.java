@@ -31,7 +31,6 @@ import org.aavso.tools.vstar.exception.UnknownAUIDError;
 import org.aavso.tools.vstar.exception.UnknownStarError;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.input.database.AAVSODatabaseObservationReader;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -102,7 +101,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 		try {
 			// Connect to the observation database if we haven't already
 			// done so.
-			MainFrame.getInstance().getStatusPane().setMessage(
+			Mediator.getUI().getStatusPane().setMessage(
 					LocaleProps.get("STATUS_PANE_CONNECTING_TO_DATABASE"));
 
 			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
@@ -172,7 +171,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 						auid, minJD, maxJD);
 			}
 
-			MainFrame.getInstance().getStatusPane().setMessage(
+			Mediator.getUI().getStatusPane().setMessage(
 					LocaleProps.get("STATUS_PANE_RETRIEVING_OBS"));
 			results = obsStmt.executeQuery();
 			updateProgress(2);
@@ -192,7 +191,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 						"No observations for the specified period.");
 			}
 
-			MainFrame.getInstance().getStatusPane().setMessage(
+			Mediator.getUI().getStatusPane().setMessage(
 					"Creating charts and tables...");
 
 			updateProgress(2);
@@ -207,17 +206,17 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			ValidObservation.restore();
 
 			success = false;
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					MenuBar.NEW_STAR_FROM_DATABASE,
 					"Cannot connect to database.");
-			MainFrame.getInstance().getStatusPane().setMessage("");
+			Mediator.getUI().getStatusPane().setMessage("");
 		} catch (Throwable ex) {
 			ValidObservation.restore();
 
 			success = false;
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
-			MainFrame.getInstance().getStatusPane().setMessage("");
+			Mediator.getUI().getStatusPane().setMessage("");
 		} finally {
 			try {
 				if (results != null) {
@@ -226,7 +225,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			} catch (SQLException e) {
 				ValidObservation.restore();
 
-				MessageBox.showErrorDialog(MainFrame.getInstance(),
+				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 						MenuBar.NEW_STAR_FROM_DATABASE, e);
 			}
 		}

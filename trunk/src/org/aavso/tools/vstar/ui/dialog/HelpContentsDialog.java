@@ -31,6 +31,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLFrameHyperlinkEvent;
 
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
@@ -38,8 +39,9 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  * 
  * Adapted from the JDK Sun API docs.
  */
+@SuppressWarnings("serial")
 public class HelpContentsDialog extends JDialog {
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -55,20 +57,20 @@ public class HelpContentsDialog extends JDialog {
 		JEditorPane editorPane = new JEditorPane();
 		editorPane.setEditable(false);
 		editorPane.addHyperlinkListener(createHyperlinkListener());
-        setTitle("VStar Help");
+		setTitle("VStar Help");
 
 		java.net.URL helpURL = ResourceAccessor.getHelpHTMLResource();
-		
+
 		if (helpURL != null) {
 			try {
 				editorPane.setPage(helpURL);
 			} catch (IOException e) {
-				MessageBox.showErrorDialog(this, "Help Contents...",
-						"Unable to read URL: " + helpURL);
+				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+						"Help Contents...", "Unable to read URL: " + helpURL);
 			}
 		} else {
-			MessageBox.showErrorDialog(this, "Help Contents...",
-					"Unable to find HelpContents.html");
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+					"Help Contents...", "Unable to find HelpContents.html");
 		}
 
 		// Put the editor pane in a scroll pane.
@@ -91,8 +93,10 @@ public class HelpContentsDialog extends JDialog {
 				if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 					JEditorPane pane = (JEditorPane) e.getSource();
 					if (e instanceof HTMLFrameHyperlinkEvent) {
-						// TODO: cursor change doesn't seem to work; need JFrame vs JDialog?
-						parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+						// TODO: cursor change doesn't seem to work; need JFrame
+						// vs JDialog?
+						parent.setCursor(Cursor
+								.getPredefinedCursor(Cursor.WAIT_CURSOR));
 						HTMLFrameHyperlinkEvent evt = (HTMLFrameHyperlinkEvent) e;
 						HTMLDocument doc = (HTMLDocument) pane.getDocument();
 						doc.processHTMLFrameHyperlinkEvent(evt);
@@ -102,8 +106,8 @@ public class HelpContentsDialog extends JDialog {
 							parent.setCursor(null);
 						} catch (IOException ex) {
 							parent.setCursor(null);
-							MessageBox.showErrorDialog(parent,
-									"Help Contents...", ex);
+							MessageBox.showErrorDialog(Mediator.getUI()
+									.getComponent(), "Help Contents...", ex);
 						}
 					}
 				}

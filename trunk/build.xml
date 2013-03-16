@@ -126,6 +126,8 @@
 			<zipfileset file="VStar.exe" prefix="vstar" />
 			<zipfileset file="vstar.jnlp" prefix="vstar" />
 			<zipfileset file="vstar.jnlp.txt" prefix="vstar" />
+			<zipfileset file="vstar-applet.jnlp" prefix="vstar" />
+			<zipfileset file="vstar-applet.html" prefix="vstar" />
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
 			<zipfileset file="ChangeLog.txt" prefix="vstar" />
 			<zipfileset file="src/org/aavso/tools/vstar/ui/resources/icons/vstaricon.png" prefix="vstar/doc" />

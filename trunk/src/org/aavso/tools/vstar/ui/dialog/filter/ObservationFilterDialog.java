@@ -39,7 +39,6 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.filter.IFilterDescription;
 import org.aavso.tools.vstar.data.filter.IObservationFieldMatcher;
 import org.aavso.tools.vstar.data.filter.ObservationFilter;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -292,8 +291,9 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 				}
 			} catch (IllegalArgumentException e) {
 				filterError = true;
-				MessageBox.showErrorDialog(this, LocaleProps
-						.get("OBSERVATION_FILTER_DLG_TITLE"), e.getMessage());
+				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+						LocaleProps.get("OBSERVATION_FILTER_DLG_TITLE"), e
+								.getMessage());
 			}
 		}
 
@@ -371,15 +371,15 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 				} else {
 					String msg = LocaleProps
 							.get("NO_OBSERVATIONS_MATCHED_ERR_MSG");
-					MessageBox.showWarningDialog(MainFrame.getInstance(),
-							LocaleProps.get("OBSERVATION_FILTER_DLG_TITLE"),
-							msg);
+					MessageBox.showWarningDialog(Mediator.getUI()
+							.getComponent(), LocaleProps
+							.get("OBSERVATION_FILTER_DLG_TITLE"), msg);
 				}
 
 				// MainFrame.getInstance().setCursor(null);
 			} else {
 				String msg = LocaleProps.get("NO_FILTER_SELECTED_ERR_MSG");
-				MessageBox.showWarningDialog(MainFrame.getInstance(),
+				MessageBox.showWarningDialog(Mediator.getUI().getComponent(),
 						LocaleProps.get("OBSERVATION_FILTER_DLG_TITLE"), msg);
 			}
 

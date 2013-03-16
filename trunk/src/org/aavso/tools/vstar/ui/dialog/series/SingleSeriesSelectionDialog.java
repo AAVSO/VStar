@@ -27,8 +27,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
@@ -74,7 +74,7 @@ public class SingleSeriesSelectionDialog extends AbstractOkCancelDialog {
 		contentPane.add(topPane);
 
 		this.pack();
-		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.setVisible(true);
 	}
 

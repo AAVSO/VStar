@@ -36,6 +36,7 @@ import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.locale.NumberParser;
@@ -310,14 +311,16 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 				String minJDText = minJDField.getText();
 				minDate = new DateInfo(NumberParser.parseDouble(minJDText));
 			} catch (NumberFormatException e) {
-				MessageBox.showErrorDialog(this, "Minimum Julian Day", e);
+				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+						"Minimum Julian Day", e);
 			}
 
 			try {
 				String maxJDText = maxJDField.getText();
 				maxDate = new DateInfo(NumberParser.parseDouble(maxJDText));
 			} catch (NumberFormatException e) {
-				MessageBox.showErrorDialog(this, "Maximum Julian Day", e);
+				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+						"Maximum Julian Day", e);
 			}
 		}
 
@@ -385,12 +388,13 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	/**
 	 * Set the star field text.
 	 * 
-	 * @param text The text to be set in the star field.
+	 * @param text
+	 *            The text to be set in the star field.
 	 */
 	public void setStarField(String text) {
 		starField.setText(text);
 	}
-	
+
 	protected void cancelAction() {
 		// Nothing to do.
 	}

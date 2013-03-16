@@ -24,8 +24,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
@@ -76,7 +76,7 @@ public class AAVSODatabaseConnector {
 			Class.forName("com.mysql.jdbc.Driver", true,
 					AAVSODatabaseConnector.class.getClassLoader());
 		} catch (ClassNotFoundException e) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"Read from database", e);
 		}
 	}

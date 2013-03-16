@@ -26,8 +26,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -70,7 +70,7 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 		contentPane.add(topPane);
 
 		this.pack();
-		setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.setVisible(true);
 	}
 

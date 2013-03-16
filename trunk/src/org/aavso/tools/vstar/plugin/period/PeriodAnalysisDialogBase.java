@@ -30,8 +30,8 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.Harmonic;
@@ -90,7 +90,7 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 
 		this.getContentPane().add(topPane);
 		this.pack();
-		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
 	}
 
 	// Methods that must be overridden by subclasses.

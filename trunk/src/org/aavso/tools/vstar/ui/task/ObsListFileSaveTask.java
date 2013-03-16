@@ -26,7 +26,6 @@ import java.util.List;
 import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
@@ -128,7 +127,7 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.COMPLETE_PROGRESS);
 
-		MainFrame.getInstance().getStatusPane().setMessage(
+		Mediator.getUI().getStatusPane().setMessage(
 				"Saved '" + outFile.getAbsolutePath() + "'");
 
 		Mediator.getInstance().getProgressNotifier().notifyListeners(

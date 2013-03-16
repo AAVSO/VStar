@@ -27,9 +27,9 @@ import java.util.concurrent.ExecutionException;
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.LoginDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This class is responsible for authenticating against one or more
@@ -77,11 +77,9 @@ public class Authenticator {
 		boolean cancelled = false;
 
 		while (!cancelled && !authenticated && retries > 0) {
-			MainFrame.getInstance().getStatusPane().setMessage(
-					"Authenticating...");
+			Mediator.getUI().getStatusPane().setMessage("Authenticating...");
 
-			LoginDialog loginDialog = new LoginDialog(
-					"AAVSO Web Login");
+			LoginDialog loginDialog = new LoginDialog("AAVSO Web Login");
 
 			cancelled = loginDialog.isCancelled();
 
@@ -90,7 +88,7 @@ public class Authenticator {
 				String password = new String(loginDialog.getPassword());
 
 				try {
-					MainFrame.getInstance().setCursor(
+					Mediator.getUI().setCursor(
 							Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 					AuthenticationTask task = new AuthenticationTask(
@@ -103,7 +101,7 @@ public class Authenticator {
 				} catch (InterruptedException e) {
 					// Nothing to do.
 				} finally {
-					MainFrame.getInstance().setCursor(null);
+					Mediator.getUI().setCursor(null);
 				}
 
 				if (!authenticated) {
@@ -112,7 +110,7 @@ public class Authenticator {
 			}
 		}
 
-		MainFrame.getInstance().getStatusPane().setMessage("");
+		Mediator.getUI().getStatusPane().setMessage("");
 
 		if (cancelled) {
 			throw new CancellationException();
@@ -145,7 +143,7 @@ public class Authenticator {
 			}
 			digest = hexString.toString();
 		} catch (NoSuchAlgorithmException e) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"Error generating digest", e);
 		}
 

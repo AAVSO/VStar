@@ -31,12 +31,12 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.dialog.series.MeanSourcePane;
 import org.aavso.tools.vstar.ui.dialog.series.SeriesVisibilityPane;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
@@ -144,7 +144,7 @@ public class PlotControlDialog extends JDialog {
 		contentPane.add(topPane);
 		this.pack();
 
-		setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.getRootPane().setDefaultButton(dismissButton);
 	}
 

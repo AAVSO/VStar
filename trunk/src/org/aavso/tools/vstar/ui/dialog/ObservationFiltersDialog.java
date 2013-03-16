@@ -38,7 +38,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
@@ -93,7 +92,7 @@ public class ObservationFiltersDialog extends JDialog implements
 	 */
 	public void showDialog() {
 		if (firstUse) {
-			setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
 			firstUse = false;
 		}
 

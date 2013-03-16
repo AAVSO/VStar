@@ -24,8 +24,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * Preferences Dialog.
@@ -56,7 +56,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		contentPane.add(topPane);
 
 		this.pack();
-		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
 	}
 
 	private JTabbedPane createTabs() {

@@ -23,6 +23,7 @@ import java.security.Policy;
 import javax.swing.UIManager;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.property.ApplicationProperties;
 
@@ -83,7 +84,7 @@ public class VStar {
 	 */
 	private static void createAndShowGUI() {
 		try {
-			MainFrame frame = MainFrame.getInstance();
+			MainFrame frame = new MainFrame();
 			final ApplicationProperties appProps = new ApplicationProperties(
 					frame);
 
@@ -110,7 +111,7 @@ public class VStar {
 			Runtime.getRuntime().addShutdownHook(
 					new Thread(shutdownTask, "Application shutdown task"));
 		} catch (Throwable t) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(), "Error", t);
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "Error", t);
 		}
 	}
 

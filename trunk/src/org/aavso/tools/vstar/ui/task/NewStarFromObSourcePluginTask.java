@@ -37,7 +37,6 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.PluginComponentFactory;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -73,7 +72,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	public Void doInBackground() {
 		try {
 			if (obSourcePlugin.requiresAuthentication()) {
-				MainFrame.getInstance().setCursor(
+				Mediator.getUI().setCursor(
 						Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 				Authenticator.getInstance().authenticate();
@@ -90,7 +89,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog("Discrepant Reporting Error", ex);
 		} finally {
-			MainFrame.getInstance().setCursor(null);
+			Mediator.getUI().setCursor(null);
 		}
 
 		return null;

@@ -27,8 +27,8 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.JFileChooser;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 
 /**
  * This class runs a VStar script.
@@ -69,8 +69,8 @@ public class ScriptRunner {
 		File scriptFile = null;
 
 		try {
-			int returnVal = scriptFileChooser.showOpenDialog(MainFrame
-					.getInstance());
+			int returnVal = scriptFileChooser.showOpenDialog(DocumentManager
+					.findActiveWindow());
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				scriptFile = scriptFileChooser.getSelectedFile();
 				FileReader reader = new FileReader(scriptFile);

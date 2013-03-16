@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.exception.ObservationReadError;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -103,7 +102,8 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Common dataset file load method. 
+	 * Common dataset file load method.
+	 * 
 	 * @param path
 	 *            The path to the file.
 	 * @param isAdditive
@@ -155,8 +155,8 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void saveRawData(final String path, String delimiter) {
 		lightCurveMode(); // save raw data not phase plot data
-		mediator.saveObsListToFile(MainFrame.getInstance(), new File(path),
-				delimiter);
+		mediator.saveObsListToFile(Mediator.getUI().getComponent(), new File(
+				path), delimiter);
 		mediator.waitForJobCompletion();
 	}
 

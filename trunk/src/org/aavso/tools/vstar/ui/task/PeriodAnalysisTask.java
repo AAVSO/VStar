@@ -26,7 +26,6 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
@@ -77,7 +76,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		Mediator.getInstance().getStopRequestNotifier().addListener(
 				stopListener);
 
-		MainFrame.getInstance().getStatusPane().setMessage(
+		Mediator.getUI().getStatusPane().setMessage(
 				LocaleProps.get("STATUS_PANE_PERFORMING_PERIOD_ANALYSIS"));
 		try {
 			periodAnalysisPlugin.executeAlgorithm(obs);
@@ -109,7 +108,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
 				ProgressInfo.CLEAR_PROGRESS);
 
-		MainFrame.getInstance().getStatusPane().setMessage("");
+		Mediator.getUI().getStatusPane().setMessage("");
 	}
 
 	// Creates a stop request listener to interrupt the period analysis.

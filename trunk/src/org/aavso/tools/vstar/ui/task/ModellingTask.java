@@ -19,7 +19,6 @@ package org.aavso.tools.vstar.ui.task;
 
 import javax.swing.SwingWorker;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
@@ -61,7 +60,7 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 		Mediator.getInstance().getStopRequestNotifier().addListener(
 				stopListener);
 
-		MainFrame.getInstance().getStatusPane().setMessage(
+		Mediator.getUI().getStatusPane().setMessage(
 				"Performing " + model.getKind() + "...");
 		try {
 			model.execute();
@@ -81,7 +80,7 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 					.removeListenerIfWilling(stopListener);
 		}
 
-		MainFrame.getInstance().getStatusPane().setMessage("");
+		Mediator.getUI().getStatusPane().setMessage("");
 
 		return null;
 	}

@@ -36,9 +36,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -95,7 +95,7 @@ public class HarmonicInfoDialog extends JDialog implements
 
 		getContentPane().add(topPane);
 		pack();
-		setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		setLocationRelativeTo(Mediator.getUI().getContentPane());
 		setVisible(true);
 	}
 

@@ -30,7 +30,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This dialog is used to display information about a star that has been marked
@@ -80,7 +80,7 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 		contentPane.add(topPane);
 
 		this.pack();
-		setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.setVisible(true);
 	}
 

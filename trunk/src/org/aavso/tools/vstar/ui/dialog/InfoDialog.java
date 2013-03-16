@@ -36,7 +36,6 @@ import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
@@ -79,7 +78,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 		this.getRootPane().setDefaultButton(okButton);
 
 		this.pack();
-		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.setVisible(true);
 	}
 

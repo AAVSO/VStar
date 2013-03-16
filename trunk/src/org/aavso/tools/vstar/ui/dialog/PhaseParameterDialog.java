@@ -28,7 +28,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
@@ -101,7 +101,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	 */
 	public void showDialog() {
 		if (firstUse) {
-			setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
 			firstUse = false;
 		}
 

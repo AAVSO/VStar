@@ -54,7 +54,7 @@ import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
-import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.IMainUI;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
@@ -151,6 +151,8 @@ public class Mediator {
 
 	public static final String NOT_IMPLEMENTED_YET = "This feature is not implemented yet.";
 
+	private static IMainUI ui;
+
 	// Valid and invalid observation lists and series category map.
 	private List<ValidObservation> validObsList;
 	private List<InvalidObservation> invalidObsList;
@@ -241,6 +243,8 @@ public class Mediator {
 	 * Private constructor.
 	 */
 	private Mediator() {
+		ui = null;
+
 		this.analysisTypeChangeNotifier = new Notifier<AnalysisTypeChangeMessage>();
 		this.newStarNotifier = new Notifier<NewStarMessage>();
 		this.progressNotifier = new Notifier<ProgressInfo>();
@@ -343,6 +347,19 @@ public class Mediator {
 	 */
 	public static Mediator getInstance() {
 		return mediator;
+	}
+
+	/**
+	 * @param ui
+	 *            the ui to set
+	 */
+	public void setUI(IMainUI ui) {
+		this.ui = ui;
+	}
+
+
+	public static IMainUI getUI() {
+		return ui;	
 	}
 
 	/**
@@ -713,8 +730,8 @@ public class Mediator {
 			currTask = task;
 			task.execute();
 		} catch (Exception e) {
-			MainFrame.getInstance().setCursor(null);
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			Mediator.getUI().setCursor(null);
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"New Phase Plot", e);
 		}
 	}
@@ -841,8 +858,7 @@ public class Mediator {
 						String statusMsg = "Raw data mode ("
 								+ this.getLatestNewStarMessage().getStarInfo()
 										.getDesignation() + ")";
-						MainFrame.getInstance().getStatusPane().setMessage(
-								statusMsg);
+						Mediator.getUI().getStatusPane().setMessage(statusMsg);
 					}
 					break;
 
@@ -863,7 +879,7 @@ public class Mediator {
 					break;
 				}
 			} catch (Exception e) {
-				MessageBox.showErrorDialog(MainFrame.getInstance(),
+				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 						"Analysis Type Change", e);
 			}
 		}
@@ -878,7 +894,7 @@ public class Mediator {
 		String statusMsg = "Phase plot mode ("
 				+ this.getLatestNewStarMessage().getStarInfo().getDesignation()
 				+ ")";
-		MainFrame.getInstance().getStatusPane().setMessage(statusMsg);
+		Mediator.getUI().getStatusPane().setMessage(statusMsg);
 	}
 
 	/**
@@ -986,9 +1002,9 @@ public class Mediator {
 		} catch (Exception ex) {
 			ValidObservation.restore();
 
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					MenuBar.NEW_STAR_FROM_DATABASE, ex);
-			MainFrame.getInstance().getStatusPane().setMessage("");
+			Mediator.getUI().getStatusPane().setMessage("");
 		}
 	}
 
@@ -1226,7 +1242,7 @@ public class Mediator {
 		// Try to get RA and Dec information from any of our loaded datasets.
 		// We are making the simplifying assumption that all datasets correspond
 		// to the same object!
-		
+
 		RAInfo ra = null;
 		DecInfo dec = null;
 
@@ -1238,16 +1254,16 @@ public class Mediator {
 				break;
 			}
 		}
-		
+
 		if (ra == null || dec == null) {
 			// TODO: open dialog asking for RA/DEC and if that is cancelled,
 			// open another dialog indicating that HJD conversion cannot
 			// take place. For now, just do the latter.
 			MessageBox.showWarningDialog("HJD Conversion",
 					"Unable to convert observations to HJD.");
-			return;			
+			return;
 		}
-		
+
 		if (newStarInfo.getRetriever().isHeliocentric()
 				&& !getLatestNewStarMessage().getStarInfo().getRetriever()
 						.isHeliocentric()) {
@@ -1552,13 +1568,13 @@ public class Mediator {
 				}
 			}
 		} catch (Exception e) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(), LocaleProps
-					.get("PERIOD_ANALYSIS"), e);
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+					LocaleProps.get("PERIOD_ANALYSIS"), e);
 
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
 
-			MainFrame.getInstance().getStatusPane().setMessage("");
+			Mediator.getUI().getStatusPane().setMessage("");
 		}
 	}
 
@@ -1646,13 +1662,13 @@ public class Mediator {
 				}
 			}
 		} catch (Exception e) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"Modelling Error", e);
 
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
 
-			MainFrame.getInstance().getStatusPane().setMessage("");
+			Mediator.getUI().getStatusPane().setMessage("");
 		}
 	}
 
@@ -1676,13 +1692,13 @@ public class Mediator {
 
 			task.execute();
 		} catch (Exception e) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"Modelling Error", e);
 
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
 
-			MainFrame.getInstance().getStatusPane().setMessage("");
+			Mediator.getUI().getStatusPane().setMessage("");
 		}
 	}
 
@@ -1700,8 +1716,8 @@ public class Mediator {
 				MessageBox.showErrorDialog("Tool Error", t);
 			}
 		} else {
-			MessageBox.showMessageDialog(MainFrame.getInstance(), "Tool Error",
-					"There are no observations loaded.");
+			MessageBox.showMessageDialog(Mediator.getUI().getComponent(),
+					"Tool Error", "There are no observations loaded.");
 		}
 	}
 
@@ -1720,7 +1736,7 @@ public class Mediator {
 				MessageBox.showErrorDialog("Custom Filter Error", t);
 			}
 		} else {
-			MessageBox.showMessageDialog(MainFrame.getInstance(),
+			MessageBox.showMessageDialog(Mediator.getUI().getComponent(),
 					"Custom Filter", "There are no observations loaded.");
 		}
 	}
@@ -2055,7 +2071,7 @@ public class Mediator {
 
 			if (!reportDialog.isCancelled()) {
 				try {
-					MainFrame.getInstance().setCursor(
+					Mediator.getUI().setCursor(
 							Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 					Authenticator.getInstance().authenticate();
@@ -2077,7 +2093,7 @@ public class Mediator {
 
 					reporter.lodge(report);
 
-					MainFrame.getInstance().setCursor(null);
+					getUI().setCursor(null);
 
 					if (dialog != null) {
 						dialog.dispose();
@@ -2093,7 +2109,7 @@ public class Mediator {
 					MessageBox
 							.showErrorDialog("Discrepant Reporting Error", ex);
 				} finally {
-					MainFrame.getInstance().setCursor(null);
+					Mediator.getUI().setCursor(null);
 				}
 			}
 		}
