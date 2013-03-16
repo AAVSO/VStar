@@ -35,7 +35,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -118,7 +117,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
 		this.pack();
-		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.setVisible(true);
 	}
 

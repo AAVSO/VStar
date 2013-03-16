@@ -28,7 +28,6 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
@@ -121,7 +120,7 @@ public class NewStarFromFileTask extends SwingWorker<Void, Void> {
 		} catch (Throwable t) {
 			ValidObservation.restore();
 
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"New Star From File Read Error", t);
 		}
 	}

@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.ui;
 
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
@@ -29,8 +28,10 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -140,6 +141,19 @@ public class MenuBar extends JMenuBar {
 			.get("HELP_MENU_VSTAR_ONLINE");
 	public static final String ABOUT = LocaleProps.get("HELP_MENU_ABOUT");
 
+	// Set of menu items NOT to be rendered in a minimal UI such as for an
+	// applet.
+	public static final Set<String> minimalUIExclusions;
+
+	static {
+		minimalUIExclusions = new HashSet<String>();
+		minimalUIExclusions.add(NEW_STAR_FROM_FILE);
+		minimalUIExclusions.add(SAVE);
+		minimalUIExclusions.add(PRINT);
+		minimalUIExclusions.add(QUIT);
+		minimalUIExclusions.add(RUN_SCRIPT);
+	}
+
 	private Mediator mediator = Mediator.getInstance();
 
 	private AdditiveLoadFileSelectionChooser fileOpenDialog;
@@ -156,7 +170,10 @@ public class MenuBar extends JMenuBar {
 	private List<JMenuItem> analysisMenuItems;
 
 	// The parent window.
-	private MainFrame parent;
+	private IMainUI parent;
+
+	// The user interface type.
+	private UIType uiType;
 
 	// Menu items.
 
@@ -213,11 +230,17 @@ public class MenuBar extends JMenuBar {
 
 	/**
 	 * Constructor
+	 * 
+	 * @param parent
+	 *            The frame's parent.
+	 * @param uiType
+	 *            The type of UI.
 	 */
-	public MenuBar(MainFrame parent) {
+	public MenuBar(IMainUI parent, UIType uiType) {
 		super();
 
 		this.parent = parent;
+		this.uiType = uiType;
 
 		List<String> extensions = new ArrayList<String>();
 		extensions.add("csv");
@@ -263,6 +286,13 @@ public class MenuBar extends JMenuBar {
 				createObsFilterListener());
 	}
 
+	/**
+	 * @return the uiType
+	 */
+	public UIType getUiType() {
+		return uiType;
+	}
+
 	private void createFileMenu() {
 		JMenu fileMenu = new JMenu(LocaleProps.get("FILE_MENU"));
 
@@ -271,10 +301,12 @@ public class MenuBar extends JMenuBar {
 				.addActionListener(createNewStarFromDatabaseListener());
 		fileMenu.add(fileNewStarFromDatabaseItem);
 
-		fileNewStarFromFileItem = new JMenuItem(NEW_STAR_FROM_FILE);
-		fileNewStarFromFileItem
-				.addActionListener(createNewStarFromFileListener());
-		fileMenu.add(fileNewStarFromFileItem);
+//		if (uiType != UIType.APPLET) {
+			fileNewStarFromFileItem = new JMenuItem(NEW_STAR_FROM_FILE);
+			fileNewStarFromFileItem
+					.addActionListener(createNewStarFromFileListener());
+			fileMenu.add(fileNewStarFromFileItem);
+//		}
 
 		fileMenu.addSeparator();
 
@@ -299,17 +331,21 @@ public class MenuBar extends JMenuBar {
 			fileMenu.addSeparator();
 		}
 
-		fileSaveItem = new JMenuItem(SAVE);
-		fileSaveItem.addActionListener(this.createSaveListener());
-		fileSaveItem.setEnabled(false);
-		fileMenu.add(fileSaveItem);
+//		if (uiType != UIType.APPLET) {
+			fileSaveItem = new JMenuItem(SAVE);
+			fileSaveItem.addActionListener(this.createSaveListener());
+			fileSaveItem.setEnabled(false);
+			fileMenu.add(fileSaveItem);
+//		}
 
-		filePrintItem = new JMenuItem(PRINT);
-		filePrintItem.addActionListener(this.createPrintListener());
-		filePrintItem.setEnabled(false);
-		fileMenu.add(filePrintItem);
+//		if (uiType != UIType.APPLET) {
+			filePrintItem = new JMenuItem(PRINT);
+			filePrintItem.addActionListener(this.createPrintListener());
+			filePrintItem.setEnabled(false);
+			fileMenu.add(filePrintItem);
 
-		fileMenu.addSeparator();
+			fileMenu.addSeparator();
+//		}
 
 		fileInfoItem = new JMenuItem(INFO);
 		fileInfoItem.addActionListener(this.createInfoListener());
@@ -326,13 +362,15 @@ public class MenuBar extends JMenuBar {
 		// but in application (VStar) menu. See also VStar.java.
 		String os_name = System.getProperty("os.name");
 		if (!os_name.startsWith("Mac OS X")) {
-			fileMenu.addSeparator();
+			if (uiType != UIType.APPLET) {
+				fileMenu.addSeparator();
 
-			fileQuitItem = new JMenuItem(QUIT, KeyEvent.VK_Q);
-			// fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
-			// ActionEvent.META_MASK));
-			fileQuitItem.addActionListener(createQuitListener());
-			fileMenu.add(fileQuitItem);
+				fileQuitItem = new JMenuItem(QUIT, KeyEvent.VK_Q);
+				// fileQuitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q,
+				// ActionEvent.META_MASK));
+				fileQuitItem.addActionListener(createQuitListener());
+				fileMenu.add(fileQuitItem);
+			}
 		}
 
 		this.add(fileMenu);
@@ -534,11 +572,13 @@ public class MenuBar extends JMenuBar {
 		toolMenu = new JMenu(LocaleProps.get("TOOL_MENU"));
 		// toolMenu.setEnabled(false);
 
-		toolRunScript = new JMenuItem(RUN_SCRIPT);
-		toolRunScript.addActionListener(createRunScriptListener());
-		toolMenu.add(toolRunScript);
+//		if (uiType != UIType.APPLET) {
+			toolRunScript = new JMenuItem(RUN_SCRIPT);
+			toolRunScript.addActionListener(createRunScriptListener());
+			toolMenu.add(toolRunScript);
 
-		toolMenu.addSeparator();
+			toolMenu.addSeparator();
+//		}
 
 		ActionListener obsToolMenuItemListener = createObsToolMenuItemListener();
 
@@ -622,7 +662,7 @@ public class MenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					// Prompt user for star and JD range selection.
-					MainFrame.getInstance().getStatusPane().setMessage(
+					Mediator.getUI().getStatusPane().setMessage(
 							LocaleProps.get("STATUS_PANE_SELECT_STAR"));
 					StarSelectorDialog starSelectorDialog = StarSelectorDialog
 							.getInstance();
@@ -647,11 +687,11 @@ public class MenuBar extends JMenuBar {
 						mediator.createObservationArtefactsFromDatabase(
 								starName, auid, minJD, maxJD);
 					} else {
-						MainFrame.getInstance().getStatusPane().setMessage("");
+						Mediator.getUI().getStatusPane().setMessage("");
 					}
 				} catch (Exception ex) {
 					completeProgress();
-					MessageBox.showErrorDialog(MainFrame.getInstance(),
+					MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 							"Star Selection", ex);
 				}
 			}
@@ -666,11 +706,12 @@ public class MenuBar extends JMenuBar {
 	 */
 	public ActionListener createNewStarFromFileListener() {
 		final AdditiveLoadFileSelectionChooser fileOpenDialog = this.fileOpenDialog;
-		final MainFrame parent = this.parent;
+		final IMainUI parent = this.parent;
 
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				boolean approved = fileOpenDialog.showDialog(parent);
+				boolean approved = fileOpenDialog.showDialog(parent
+						.getComponent());
 
 				if (approved) {
 					File f = fileOpenDialog.getSelectedFile();
@@ -679,8 +720,8 @@ public class MenuBar extends JMenuBar {
 						mediator.createObservationArtefactsFromFile(f,
 								fileOpenDialog.isLoadAdditive());
 					} catch (Exception ex) {
-						MessageBox.showErrorDialog(parent, NEW_STAR_FROM_FILE,
-								ex);
+						MessageBox.showErrorDialog(parent.getComponent(),
+								NEW_STAR_FROM_FILE, ex);
 					}
 				}
 			}
@@ -706,10 +747,9 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for File->Save...
 	 */
 	public ActionListener createSaveListener() {
-		final Component parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mediator.saveCurrentMode(parent);
+				mediator.saveCurrentMode(Mediator.getUI().getComponent());
 			}
 		};
 	}
@@ -718,10 +758,9 @@ public class MenuBar extends JMenuBar {
 	 * Returns the action listener to be invoked for File->Print...
 	 */
 	public ActionListener createPrintListener() {
-		final Component parent = this.parent;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mediator.printCurrentMode(parent);
+				mediator.printCurrentMode(Mediator.getUI().getComponent());
 			}
 		};
 	}
@@ -1236,7 +1275,7 @@ public class MenuBar extends JMenuBar {
 	 * Return a progress listener.
 	 */
 	private Listener<ProgressInfo> createProgressListener() {
-		final MainFrame parent = this.parent;
+		final IMainUI parent = this.parent;
 		return new Listener<ProgressInfo>() {
 			public void update(ProgressInfo info) {
 				switch (info.getType()) {
@@ -1294,7 +1333,7 @@ public class MenuBar extends JMenuBar {
 		};
 	}
 
-	private void resetProgress(MainFrame parent) {
+	private void resetProgress(IMainUI parent) {
 		// TODO: why not set cursor in MainFrame or StatusPane?
 		parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		changeKeyMenuItemEnableState(false);
@@ -1454,12 +1493,12 @@ public class MenuBar extends JMenuBar {
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
 
-		// this.editMenu.setEnabled(state);
+		//this.editMenu.setEnabled(state);
 
-		// this.viewObDetailsItem.setEnabled(state);
+		this.viewObDetailsItem.setEnabled(state);
 		this.viewPlotControlItem.setEnabled(state);
-		// this.viewZoomInItem.setEnabled(state);
-		// this.viewZoomOutItem.setEnabled(state);
+		this.viewZoomInItem.setEnabled(state);
+		this.viewZoomOutItem.setEnabled(state);
 		// this.viewZoomToFitItem.setEnabled(state);
 
 		this.viewFilterItem.setEnabled(state);

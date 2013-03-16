@@ -27,10 +27,10 @@ import java.util.List;
 
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
+import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
-import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.plugin.model.impl.TSPolynomialFitCreatorPlugin;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftFrequencyRangePeriodAnalysisPlugin;
@@ -49,15 +49,6 @@ public class PluginLoader {
 	// List to store plugins, if any exist.
 	private static List<IPlugin> plugins = new ArrayList<IPlugin>();
 
-	// The full path to the plugin directory.
-	private final static String PLUGIN_DIR_PATH = System
-			.getProperty("user.home")
-			+ File.separator + "vstar_plugins";
-
-	private final static String PLUGIN_LIB_DIR_PATH = System
-			.getProperty("user.home")
-			+ File.separator + "vstar_plugin_libs";
-
 	/**
 	 * Return a list of Period Analysis plugins, whether internal to VStar or
 	 * dynamically loaded.
@@ -67,12 +58,15 @@ public class PluginLoader {
 
 		// First, add in-built DC DFT and WWZ plugins.
 		periodAnalysisPlugins.add(new DcDftStandardScanPeriodAnalysisPlugin());
-		periodAnalysisPlugins.add(new DcDftFrequencyRangePeriodAnalysisPlugin());
+		periodAnalysisPlugins
+				.add(new DcDftFrequencyRangePeriodAnalysisPlugin());
 		periodAnalysisPlugins.add(new DcDftPeriodRangePeriodAnalysisPlugin());
-		
-		periodAnalysisPlugins.add(new WeightedWaveletZTransformWithFrequencyRangePlugin());
-		periodAnalysisPlugins.add(new WeightedWaveletZTransformWithPeriodRangePlugin());
-		
+
+		periodAnalysisPlugins
+				.add(new WeightedWaveletZTransformWithFrequencyRangePlugin());
+		periodAnalysisPlugins
+				.add(new WeightedWaveletZTransformWithPeriodRangePlugin());
+
 		// Next, add all external period analysis plugins.
 		for (IPlugin plugin : plugins) {
 			if (plugin instanceof PeriodAnalysisPluginBase) {
@@ -92,7 +86,7 @@ public class PluginLoader {
 
 		// First, add in-built polynomial fit plugins.
 		modelCreatorPlugins.add(new TSPolynomialFitCreatorPlugin());
-		
+
 		// Next, add all external model creator plugins.
 		for (IPlugin plugin : plugins) {
 			if (plugin instanceof ModelCreatorPluginBase) {
@@ -178,7 +172,9 @@ public class PluginLoader {
 		// dependent.
 		List<URL> depLibs = new ArrayList<URL>();
 
-		File pluginLibPath = new File(PLUGIN_LIB_DIR_PATH);
+		File pluginLibPath = new File(System.getProperty("user.home")
+				+ File.separator + "vstar_plugin_libs");
+
 		if (pluginLibPath.exists() && pluginLibPath.isDirectory()) {
 			for (File file : pluginLibPath.listFiles(jarFilter)) {
 				try {
@@ -193,7 +189,9 @@ public class PluginLoader {
 
 		// Locate and store plugins, if any exist.
 
-		File pluginPath = new File(PLUGIN_DIR_PATH);
+		File pluginPath = new File(System.getProperty("user.home")
+				+ File.separator + "vstar_plugins");
+
 		if (pluginPath.exists() && pluginPath.isDirectory()) {
 			for (File file : pluginPath.listFiles(jarFilter)) {
 				// Note: Currently assume the jar file name is the same
@@ -221,16 +219,14 @@ public class PluginLoader {
 							"Cannot create an instance of: "
 									+ qualifiedClassName);
 				} catch (ClassCastException e) {
-					MessageBox
-							.showErrorDialog(
-									null,
-									"Plugin Loader",
-									qualifiedClassName
-											+ " is not an instance of IPlugin");
+					MessageBox.showErrorDialog(null, "Plugin Loader",
+							qualifiedClassName
+									+ " is not an instance of IPlugin");
 				} catch (NoClassDefFoundError e) {
 					MessageBox.showErrorDialog(null, "Plugin Loader",
 							"A class required by " + qualifiedClassName
-									+ " was not found: " + e.getLocalizedMessage());
+									+ " was not found: "
+									+ e.getLocalizedMessage());
 				} catch (Throwable t) {
 					MessageBox.showErrorDialog(null, "Plugin Loader",
 							"An error occurred during plugin loading: "

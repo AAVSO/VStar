@@ -25,8 +25,8 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
@@ -98,7 +98,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	 */
 	public void showDialog() {
 		if (firstUse) {
-			setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
 			firstUse = false;
 		}
 

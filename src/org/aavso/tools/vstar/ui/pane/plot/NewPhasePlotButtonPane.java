@@ -23,7 +23,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -37,6 +36,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * 
  * @deprecated See View and Analysis menus for phase plot items.
  */
+@SuppressWarnings("serial")
 public class NewPhasePlotButtonPane extends JButton {
 
 	private ObservationAndMeanPlotPane plotPane;
@@ -64,16 +64,16 @@ public class NewPhasePlotButtonPane extends JButton {
 					if (!phaseDialog.isCancelled()) {
 						double period = phaseDialog.getPeriod();
 						double epoch = phaseDialog.getEpoch();
-						MainFrame.getInstance().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+						Mediator.getUI().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 						
 						Mediator.getInstance().createPhasePlotArtefacts(period,
 								epoch, plotPane.getObsModel().getSeriesVisibilityMap());
 						
-						MainFrame.getInstance().setCursor(null);
+						Mediator.getUI().setCursor(null);
 					}
 				} catch (Exception ex) {
-					MainFrame.getInstance().setCursor(null);
-					MessageBox.showErrorDialog(MainFrame.getInstance(),
+					Mediator.getUI().setCursor(null);
+					MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 							"New Phase Plot", ex);
 				}
 			}

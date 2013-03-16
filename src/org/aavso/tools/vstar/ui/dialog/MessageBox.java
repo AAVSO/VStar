@@ -23,8 +23,8 @@ import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * Message dialog box utility class.
@@ -166,7 +166,7 @@ public class MessageBox {
 	 *            The message that is the content of the dialog.
 	 */
 	public static void showErrorDialog(String title, String msg) {
-		Component parent = MainFrame.getInstance();
+		Component parent = Mediator.getUI().getComponent();
 
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
 				JOptionPane.OK_CANCEL_OPTION);

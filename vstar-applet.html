@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>VStar 2.15.0</title>
+     <script type="text/javascript">
+     	// Ensure that the applet pane maintains focus.     
+        // See http://meeg.elvenrealms.net/tech/code/?i=javafocus
+     	function startFocus(id) {
+			window.onfocus = function() {
+				document.getElementById(id).requestFocus();
+			};
+			window.onclick = function() {
+				document.getElementById(id).requestFocus();
+			};
+		}
+      </script>
+  </head>
+  <body>
+    <script src="http://www.java.com/js/deployJava.js" /></script>
+    <center>
+    <table border="1" cellspacing="1" cellpadding="0">
+    <tr><td align="center">VStar 2.15.0</tr></td>
+     <tr><td>
+      <script>	
+        var attributes = {
+            id:'vstarApplet',
+            code:'org.aavso.tools.vstar.ui.VStarApplet',
+            width:900, height:700} ; 
+        var parameters = {jnlp_href: 'vstar-applet.jnlp'} ; 
+        deployJava.runApplet(attributes, parameters, '1.6');
+        startFocus('vstarApplet'); 
+      </script>
+     </td></tr>
+    </table>
+    </center>
+  </body>
+</html>

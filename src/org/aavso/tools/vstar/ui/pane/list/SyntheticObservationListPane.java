@@ -28,7 +28,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
@@ -39,6 +38,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * This class is a component that renders synthetic observations, e.g. mean and
  * standard error of the average, model, or residual data.
  */
+@SuppressWarnings("serial")
 public class SyntheticObservationListPane<T extends AbstractSyntheticObservationTableModel>
 		extends JPanel implements ListSelectionListener {
 
@@ -139,8 +139,8 @@ public class SyntheticObservationListPane<T extends AbstractSyntheticObservation
 									+ rowIndex + " (table model: "
 									+ obsTableModel.getClass().getSimpleName()
 									+ ")";
-							MessageBox.showMessageDialog(MainFrame
-									.getInstance(),
+							MessageBox.showMessageDialog(Mediator.getUI()
+									.getComponent(),
 									"Observation List Index Error", msg);
 						}
 					}

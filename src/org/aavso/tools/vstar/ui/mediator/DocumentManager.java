@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.ui.IMainUI;
+import org.aavso.tools.vstar.ui.UIType;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.AbstractModelObservationTableModel;
@@ -58,7 +60,7 @@ public class DocumentManager {
 	private Map<String, String> statsInfo;
 
 	private static int filterNum = 0;
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -273,7 +275,7 @@ public class DocumentManager {
 	}
 
 	// ** Filter-related methods **
-	
+
 	/**
 	 * Return the name of the next untitled filter.
 	 * 
@@ -343,16 +345,23 @@ public class DocumentManager {
 	}
 
 	/**
-	 * Find and return the active window or null if one does not exist.
+	 * Find and return the active window or null if one does not exist, e.g. the
+	 * case where the UI is that of an applet.
 	 */
 	public static Window findActiveWindow() {
 		Window wdw = null;
 
-		if (Window.getWindows().length > 0) {
-			for (Window window : Window.getWindows()) {
-				if (window.isActive()) {
-					wdw = window;
-					break;
+		IMainUI ui = Mediator.getUI();
+
+		if (ui != null) {
+			if (ui.getUiType() == UIType.DESKTOP) {
+				if (Window.getWindows().length > 0) {
+					for (Window window : Window.getWindows()) {
+						if (window.isActive()) {
+							wdw = window;
+							break;
+						}
+					}
 				}
 			}
 		}

@@ -22,8 +22,8 @@ import java.net.URL;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * The purpose of this class is to provide access to non-class resources such as
@@ -66,7 +66,7 @@ public class ResourceAccessor {
 			if (url != null) {
 				icon = new ImageIcon(url);
 			} else {
-				MessageBox.showErrorDialog(MainFrame.getInstance(),
+				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 						"VStar About Box", "Can't locate icon: " + urlStr);
 			}
 		}

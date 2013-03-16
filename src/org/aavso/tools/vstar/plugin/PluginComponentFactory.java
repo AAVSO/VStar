@@ -25,9 +25,9 @@ import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This factory class creates components and returns values for use by plug-ins.
@@ -93,7 +93,7 @@ public class PluginComponentFactory {
 			fileChooser = new AdditiveLoadFileSelectionChooser();
 		}
 
-		boolean approved = fileChooser.showDialog(MainFrame.getInstance());
+		boolean approved = fileChooser.showDialog(Mediator.getUI().getComponent());
 
 		return approved ? fileChooser : null;
 	}

@@ -23,7 +23,6 @@ import java.util.Set;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.filter.IFilterDescription;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
@@ -122,7 +121,7 @@ abstract public class CustomFilterPluginBase implements IPlugin {
 					.notifyListeners(msg);
 		} else {
 			String errMsg = "No observations matched.";
-			MessageBox.showWarningDialog(MainFrame.getInstance(),
+			MessageBox.showWarningDialog(Mediator.getUI().getComponent(),
 					"Observation Filter", errMsg);
 		}
 	}

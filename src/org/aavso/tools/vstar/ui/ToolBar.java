@@ -224,7 +224,7 @@ public class ToolBar extends JPanel {
 				|| panDownIcon == null || filterIcon == null
 				|| prefsIcon == null || helpContentsIcon == null) {
 
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"Resource Error",
 					"Some icon resources are not available. Exiting.");
 
@@ -244,28 +244,34 @@ public class ToolBar extends JPanel {
 		newStarFromDatabaseButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(newStarFromDatabaseButton);
 
-		newStarFromFileButton = new JButton(newStarFromFileIcon);
-		newStarFromFileButton.setToolTipText(MenuBar.NEW_STAR_FROM_FILE);
-		newStarFromFileButton.addActionListener(menuBar
-				.createNewStarFromFileListener());
-		newStarFromFileButton.setBorder(BorderFactory.createEmptyBorder());
-		buttonPanel.add(newStarFromFileButton);
+//		if (menuBar.getUiType() != UIType.APPLET) {
+			newStarFromFileButton = new JButton(newStarFromFileIcon);
+			newStarFromFileButton.setToolTipText(MenuBar.NEW_STAR_FROM_FILE);
+			newStarFromFileButton.addActionListener(menuBar
+					.createNewStarFromFileListener());
+			newStarFromFileButton.setBorder(BorderFactory.createEmptyBorder());
+			buttonPanel.add(newStarFromFileButton);
+//		}
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
-		saveButton = new JButton(saveIcon);
-		saveButton.setToolTipText(MenuBar.SAVE);
-		saveButton.addActionListener(menuBar.createSaveListener());
-		saveButton.setEnabled(false);
-		saveButton.setBorder(BorderFactory.createEmptyBorder());
-		buttonPanel.add(saveButton);
+//		if (menuBar.getUiType() != UIType.APPLET) {
+			saveButton = new JButton(saveIcon);
+			saveButton.setToolTipText(MenuBar.SAVE);
+			saveButton.addActionListener(menuBar.createSaveListener());
+			saveButton.setEnabled(false);
+			saveButton.setBorder(BorderFactory.createEmptyBorder());
+			buttonPanel.add(saveButton);
+//		}
 
-		printButton = new JButton(printIcon);
-		printButton.setToolTipText(MenuBar.PRINT);
-		printButton.addActionListener(menuBar.createPrintListener());
-		printButton.setEnabled(false);
-		printButton.setBorder(BorderFactory.createEmptyBorder());
-		buttonPanel.add(printButton);
+//		if (menuBar.getUiType() != UIType.APPLET) {
+			printButton = new JButton(printIcon);
+			printButton.setToolTipText(MenuBar.PRINT);
+			printButton.addActionListener(menuBar.createPrintListener());
+			printButton.setEnabled(false);
+			printButton.setBorder(BorderFactory.createEmptyBorder());
+			buttonPanel.add(printButton);
+//		}
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
@@ -510,9 +516,9 @@ public class ToolBar extends JPanel {
 	}
 
 	private void setEnabledToolbarItems(boolean state) {
-		// obDetailsButton.setEnabled(state);
-		// zoomInButton.setEnabled(state);
-		// zoomOutButton.setEnabled(state);
+		obDetailsButton.setEnabled(state);
+		zoomInButton.setEnabled(state);
+		zoomOutButton.setEnabled(state);
 
 		infoButton.setEnabled(state);
 		plotControlButton.setEnabled(state);

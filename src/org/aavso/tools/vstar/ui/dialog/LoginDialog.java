@@ -30,7 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.aavso.tools.vstar.ui.MainFrame;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This class encapsulates the behaviour of a generic modal login dialog box.
@@ -79,7 +79,7 @@ public class LoginDialog extends AbstractOkCancelDialog {
 
 		this.pack();
 		usernameField.requestFocusInWindow();
-		this.setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.setVisible(true);
 	}
 
@@ -132,7 +132,7 @@ public class LoginDialog extends AbstractOkCancelDialog {
 		if (!usernamePattern.matcher(usernameField.getText()).matches()
 				|| !passwordPattern.matcher(
 						new String(passwordField.getPassword())).matches()) {
-			MessageBox.showErrorDialog(MainFrame.getInstance(),
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"Login Details Error", "Invalid username or password.");
 			usernameField.setText("");
 			passwordField.setText("");

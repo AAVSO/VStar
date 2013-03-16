@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2013  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -19,49 +19,82 @@ package org.aavso.tools.vstar.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.net.URL;
+import java.security.Policy;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JFrame;
+import javax.swing.JApplet;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
- * The main VStar window.
+ * The VStar applet.
  */
 @SuppressWarnings("serial")
-public class MainFrame extends JFrame implements IMainUI {
+public class VStarApplet extends JApplet implements IMainUI {
 
-	public final static int WIDTH = 800;
-	public final static int HEIGHT = 600;
+	private static boolean loadPlugins = true;
 
 	// The user interface type.
 	private UIType uiType;
-	
+
 	// The application's menu bar.
 	private MenuBar menuBar;
 
 	// The status bar which includes text and progress bar components.
 	private StatusPane statusPane;
 
-	public MainFrame() {
-		super("VStar " + ResourceAccessor.getVersionString());
+	public void init() {
+		// Apply VStar Java policy for all code.
+		URL policyUrl = Thread.currentThread().getContextClassLoader()
+				.getResource("/etc/vstar.java.policy");
+		Policy.getPolicy().refresh();
 
-		this.uiType = UIType.DESKTOP;
-		
+		this.uiType = UIType.APPLET;
+
 		Mediator.getInstance().setUI(this);
 
-		this.menuBar = new MenuBar(this, uiType);
-		this.setJMenuBar(menuBar);
+		if (loadPlugins) {
+			// Load plugins, if any exist and plugin loading is enabled.
+			PluginLoader.loadPlugins();
+		}
 
-		this.setContentPane(createContent());
+		// Schedule a job for the event-dispatching thread:
+		// creating and showing this application's GUI.
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				createAndShowGUI();
+			}
+		});
+	}
 
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		this.pack();
+	/**
+	 * @see javax.swing.JApplet#remove(java.awt.Component)
+	 */
+	@Override
+	public void remove(Component component) {
+		// Nothing to do.
+	}
+
+	/**
+	 * Create and display the applet UI.
+	 */
+	private void createAndShowGUI() {
+		try {
+			this.menuBar = new MenuBar(this, uiType);
+
+			this.setJMenuBar(menuBar);
+
+			this.setContentPane(createContent());
+		} catch (Throwable t) {
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+					"Error", t);
+		}
 	}
 
 	// Create everything inside the main GUI view except for
@@ -72,10 +105,12 @@ public class MainFrame extends JFrame implements IMainUI {
 		// Top-level content pane to include status pane.
 		JPanel topPane = new JPanel(new BorderLayout());
 
-		// Add the tool-bar.
+		// topPane.add(new JLabel("VStar " +
+		// ResourceAccessor.getVersionString()),
+		// BorderLayout.CENTER);
+
 		topPane.add(new ToolBar(this.menuBar), BorderLayout.PAGE_START);
 
-		// Major pane with left to right layout and an empty border.
 		JPanel majorPane = new JPanel();
 		majorPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		majorPane.setLayout(new BoxLayout(majorPane, BoxLayout.LINE_AXIS));
@@ -85,27 +120,25 @@ public class MainFrame extends JFrame implements IMainUI {
 		topPane.add(majorPane, BorderLayout.CENTER);
 
 		// Add status pane with an initial message.
-		statusPane = new StatusPane(
-				LocaleProps.get("STATUS_PANE_SELECT_NEW_STAR_FROM_FILE"));
+		statusPane = new StatusPane(LocaleProps
+				.get("STATUS_PANE_SELECT_NEW_STAR_FROM_FILE"));
 		topPane.add(statusPane, BorderLayout.PAGE_END);
 
 		return topPane;
 	}
-	
-	/**
-	 * @return the statusPane
-	 */
+
+	@Override
+	public Component getComponent() {
+		return this;
+	}
+
+	@Override
 	public StatusPane getStatusPane() {
 		return statusPane;
 	}
 
 	@Override
 	public UIType getUiType() {
-		return uiType;
-	}
-
-	@Override
-	public Component getComponent() {
-		return this;
+		return UIType.APPLET;
 	}
 }

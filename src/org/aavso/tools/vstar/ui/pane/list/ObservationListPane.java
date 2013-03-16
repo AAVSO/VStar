@@ -47,7 +47,6 @@ import org.aavso.tools.vstar.data.IOrderedObservationSource;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.filter.IFilterDescription;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
@@ -399,8 +398,8 @@ public class ObservationListPane extends JPanel implements
 									+ " (table model: "
 									+ validDataModel.getColumnInfoSource()
 											.getClass().getSimpleName() + ")";
-							MessageBox.showMessageDialog(MainFrame
-									.getInstance(),
+							MessageBox.showMessageDialog(Mediator.getUI()
+									.getComponent(),
 									"Observation List Index Error", msg);
 						}
 					}

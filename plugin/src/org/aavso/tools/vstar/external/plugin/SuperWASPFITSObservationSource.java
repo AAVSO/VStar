@@ -46,8 +46,8 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.NumberSelectionPane;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -257,7 +257,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 			contentPane.add(topPane);
 
 			this.pack();
-			setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
 			this.setVisible(true);
 		}
 

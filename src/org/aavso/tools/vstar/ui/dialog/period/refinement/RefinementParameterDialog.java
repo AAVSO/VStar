@@ -31,9 +31,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.model.HarmonicPeriodPane;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This dialog unifies the collection of information required for CLEANest.
@@ -88,7 +88,7 @@ public class RefinementParameterDialog extends AbstractOkCancelDialog {
 		contentPane.add(topPane);
 
 		this.pack();
-		setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+		setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.setVisible(true);
 	}
 

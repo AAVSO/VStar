@@ -52,9 +52,9 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * The base class for URL based AAVSO photometry observation source plugins.
@@ -308,7 +308,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			contentPane.add(topPane);
 
 			this.pack();
-			setLocationRelativeTo(MainFrame.getInstance().getContentPane());
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
 			this.setVisible(true);
 		}
 
