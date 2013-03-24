@@ -15,9 +15,9 @@
 	</path>
 
 	<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
-
+<!--
 	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"/>
-		
+-->		
 	<!-- Set global properties for this build -->
 
 	<property name="src" location="src" />
