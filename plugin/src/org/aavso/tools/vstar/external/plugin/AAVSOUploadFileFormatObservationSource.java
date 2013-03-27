@@ -224,6 +224,8 @@ public class AAVSOUploadFileFormatObservationSource extends
 				throws ObservationReadError {
 			if ("tab".equalsIgnoreCase(delim)) {
 				delim = "\t";
+			} else if ("comma".equalsIgnoreCase(delim)) {
+				delim = ",";
 			} else if ("space".equalsIgnoreCase(delim)) {
 				delim = " ";
 			} else if (delim != null) {
@@ -249,9 +251,12 @@ public class AAVSOUploadFileFormatObservationSource extends
 				throws ObservationValidationError {
 			ValidObservation observation = null;
 
-			if ("VISUAL".equals(fileType)) {
+			if ("VISUAL".equalsIgnoreCase(fileType)) {
 				observation = readNextVisualObservation(fields, obNum);
 			} else {
+				// Assume extended.
+				// TODO: Should anything other than VISUAL or EXTENDED
+				// be considered an error?
 				observation = readNextExtendedObservation(fields, obNum);
 			}
 
@@ -413,7 +418,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 			observation.setName(name);
 			observation.setObsCode(obscode);
 
-			// TODO: handle calendar date format.
+			// TODO: handle "calendar" date format.
 			if (!"JD".equals(dateType) && !"HJD".equals(dateType)) {
 				throw new ObservationValidationError("Unsupported date type: "
 						+ dateType);
