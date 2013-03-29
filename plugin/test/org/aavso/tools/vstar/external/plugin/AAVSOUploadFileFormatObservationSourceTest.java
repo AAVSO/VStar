@@ -75,51 +75,12 @@ public class AAVSOUploadFileFormatObservationSourceTest extends TestCase {
 	// Extended format.
 	// Test cases from http://www.aavso.org/aavso-extended-file-format
 
-	public void testExtendedExample2() {
-		String[] lines = {
-				"#TYPE=EXTENDED\n",
-				"#OBSCODE=TST01\n",
-				"#SOFTWARE=GCX 2.0\n",
-				"#DELIM=,\n",
-				"#DATE=JD\n",
-				"#OBSTYPE=CCD\n",
-				"#NAME,DATE,MAG,MERR,FILT,TRANS,MTYPE,CNAME,CMAG,KNAME,KMAG,AMASS,GROUP,CHART,NOTES\n",
-				"SS CYG,2450702.1234,11.235,0.003,B,NO,STD,105,10.593,110,11.090,1.561,1,070613,na\n",
-				"SS CYG,2450702.1254,11.135,0.003,V,NO,STD,105,10.594,110,10.994,1.563,1,070613,na\n",
-				"SS CYG,2450702.1274,11.035,0.003,R,NO,STD,105,10.594,110,10.896,1.564,1,070613,na\n",
-				"SS CYG,2450702.1294,10.935,0.003,I,NO,STD,105,10.592,110,10.793,1.567,1,070613,na\n" };
+	public void testExtendedExample2a() {
+		commonExtendedExample2Test(",");
+	}
 
-		List<ValidObservation> obs = commonTest(lines, "Extended example 2", 4, 4);
-
-		assertEquals(4, obs.size());
-
-		// Check first and last observations.
-
-		ValidObservation ob1 = obs.get(0);
-		assertEquals("SS CYG", ob1.getName());
-		assertEquals(2450702.1234, ob1.getJD());
-		assertEquals(11.235, ob1.getMag());
-		assertEquals(0.003, ob1.getMagnitude().getUncertainty());
-		assertEquals(SeriesType.Johnson_B, ob1.getBand());
-		assertFalse(ob1.isTransformed());
-		assertEquals(MTypeType.STD, ob1.getMType());
-		assertEquals("105: 10.593", ob1.getCMag());
-		assertEquals("110: 11.09", ob1.getKMag());
-		assertEquals("1.561", ob1.getAirmass());
-		assertEquals("070613", ob1.getCharts());
-
-		ValidObservation ob4 = obs.get(3);
-		assertEquals("SS CYG", ob4.getName());
-		assertEquals(2450702.1294, ob4.getJD());
-		assertEquals(10.935, ob4.getMag());
-		assertEquals(0.003, ob4.getMagnitude().getUncertainty());
-		assertEquals(SeriesType.Cousins_I, ob4.getBand());
-		assertFalse(ob4.isTransformed());
-		assertEquals(MTypeType.STD, ob4.getMType());
-		assertEquals("105: 10.592", ob4.getCMag());
-		assertEquals("110: 10.793", ob4.getKMag());
-		assertEquals("1.567", ob4.getAirmass());
-		assertEquals("070613", ob4.getCharts());
+	public void testExtendedExample2b() {
+		commonExtendedExample2Test("comma");
 	}
 
 	public void testWhitespace() {
@@ -168,5 +129,52 @@ public class AAVSOUploadFileFormatObservationSourceTest extends TestCase {
 		assertEquals(numObs, obs.size());
 
 		return obs;
+	}
+	
+	private void commonExtendedExample2Test(String delim) {
+		String[] lines = {
+				"#TYPE=EXTENDED\n",
+				"#OBSCODE=TST01\n",
+				"#SOFTWARE=GCX 2.0\n",
+				"#DELIM="+delim+"\n",
+				"#DATE=JD\n",
+				"#OBSTYPE=CCD\n",
+				"#NAME,DATE,MAG,MERR,FILT,TRANS,MTYPE,CNAME,CMAG,KNAME,KMAG,AMASS,GROUP,CHART,NOTES\n",
+				"SS CYG,2450702.1234,11.235,0.003,B,NO,STD,105,10.593,110,11.090,1.561,1,070613,na\n",
+				"SS CYG,2450702.1254,11.135,0.003,V,NO,STD,105,10.594,110,10.994,1.563,1,070613,na\n",
+				"SS CYG,2450702.1274,11.035,0.003,R,NO,STD,105,10.594,110,10.896,1.564,1,070613,na\n",
+				"SS CYG,2450702.1294,10.935,0.003,I,NO,STD,105,10.592,110,10.793,1.567,1,070613,na\n" };
+
+		List<ValidObservation> obs = commonTest(lines, "Extended example 2", 4, 4);
+
+		assertEquals(4, obs.size());
+
+		// Check first and last observations.
+
+		ValidObservation ob1 = obs.get(0);
+		assertEquals("SS CYG", ob1.getName());
+		assertEquals(2450702.1234, ob1.getJD());
+		assertEquals(11.235, ob1.getMag());
+		assertEquals(0.003, ob1.getMagnitude().getUncertainty());
+		assertEquals(SeriesType.Johnson_B, ob1.getBand());
+		assertFalse(ob1.isTransformed());
+		assertEquals(MTypeType.STD, ob1.getMType());
+		assertEquals("105: 10.593", ob1.getCMag());
+		assertEquals("110: 11.09", ob1.getKMag());
+		assertEquals("1.561", ob1.getAirmass());
+		assertEquals("070613", ob1.getCharts());
+
+		ValidObservation ob4 = obs.get(3);
+		assertEquals("SS CYG", ob4.getName());
+		assertEquals(2450702.1294, ob4.getJD());
+		assertEquals(10.935, ob4.getMag());
+		assertEquals(0.003, ob4.getMagnitude().getUncertainty());
+		assertEquals(SeriesType.Cousins_I, ob4.getBand());
+		assertFalse(ob4.isTransformed());
+		assertEquals(MTypeType.STD, ob4.getMType());
+		assertEquals("105: 10.592", ob4.getCMag());
+		assertEquals("110: 10.793", ob4.getKMag());
+		assertEquals("1.567", ob4.getAirmass());
+		assertEquals("070613", ob4.getCharts());
 	}
 }
