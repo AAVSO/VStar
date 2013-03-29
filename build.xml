@@ -48,7 +48,7 @@
 
 	<target name="compile_src" depends="init" description="Compile the source">
 		<!-- Update svn revision -->
-		<exec outputproperty="svn_revision" executable="svnversion">
+		<exec outputproperty="svn_revision" executable="svnversion" failonerror="true" logError="true">
 			<arg value="-n" />
 		</exec>
 		<copy file="${ui_resources}/RevisionAccessor.java.template" tofile="${ui_resources}/RevisionAccessor.java" overwrite="true" />
