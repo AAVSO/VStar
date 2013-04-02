@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -93,7 +94,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 				List<ValidObservation> fit;
 				List<ValidObservation> residuals;
 				PolynomialSplineFunction function;
-				String strRepr;
+				Map<String, String> functionStrMap = new LinkedHashMap<String, String>();
 				double aic = Double.NaN;
 				double bic = Double.NaN;
 
@@ -137,6 +138,8 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 				}
 
 				public String toString() {
+					String strRepr = functionStrMap.get("Function");
+
 					if (strRepr == null) {
 						strRepr = "sum(";
 
@@ -146,7 +149,6 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 						double constCoeff = 0;
 
 						// TODO: need a mapping from term number and exponent
-
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
@@ -168,25 +170,80 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 					return strRepr;
 				}
 
+				public String toExcelString() {
+					String strRepr = functionStrMap.get("Excel");
+
+					if (strRepr == null) {
+						strRepr = "=SUM(";
+
+						String fmt = NumericPrecisionPrefs
+								.getOtherOutputFormat();
+
+						double constCoeff = 0;
+
+						for (PolynomialFunction f : function.getPolynomials()) {
+							double[] coeffs = f.getCoefficients();
+							for (int i = coeffs.length - 1; i >= 1; i--) {
+								strRepr += String.format(fmt, coeffs[i]);
+								strRepr += "*A1^" + i + ",\n";
+							}
+							constCoeff += coeffs[0];
+						}
+
+						strRepr += String.format(fmt, constCoeff) + ")";
+					}
+
+					return strRepr;
+				}
+
+				// Note: There is already a lowess fit function in R, so it
+				// would be interesting to compare the results of that and this
+				// plugin.
+				public String toRString() {
+					String strRepr = functionStrMap.get("R");
+
+					if (strRepr == null) {
+						strRepr = "model <- function(t) ";
+
+						String fmt = NumericPrecisionPrefs
+								.getOtherOutputFormat();
+
+						double constCoeff = 0;
+
+						for (PolynomialFunction f : function.getPolynomials()) {
+							double[] coeffs = f.getCoefficients();
+							for (int i = coeffs.length - 1; i >= 1; i--) {
+								strRepr += String.format(fmt, coeffs[i]);
+								strRepr += "*t^" + i + "+\n+";
+							}
+							constCoeff += coeffs[0];
+						}
+
+						strRepr += String.format(fmt, constCoeff);
+					}
+
+					return strRepr;
+				}
+
 				@Override
 				public void execute() throws AlgorithmError {
 
 					// The Lowess fitter requires a strictly increasing sequence
 					// on the domain (i.e. JD values), i.e. no duplicates.
 					Map<Double, Double> jdToMagMap = new TreeMap<Double, Double>();
-					
+
 					for (int i = 0; i < obs.size(); i++) {
 						ValidObservation ob = obs.get(i);
 						// This means that the last magnitude for a JD wins!
 						jdToMagMap.put(ob.getJD(), ob.getMag());
 					}
-					
+
 					double[] xvals = new double[jdToMagMap.size()];
 					double[] yvals = new double[jdToMagMap.size()];
-					
+
 					int index = 0;
 					for (Double jd : jdToMagMap.keySet()) {
-						xvals[index] = jd;						
+						xvals[index] = jd;
 						yvals[index++] = jdToMagMap.get(jd);
 					}
 
@@ -207,7 +264,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 						for (int i = 0; i < xvals.length && !interrupted; i++) {
 							double jd = xvals[i];
 							double mag = yvals[i];
-							
+
 							double y = function.value(jd);
 
 							ValidObservation fitOb = new ValidObservation();
@@ -241,6 +298,11 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 							aic = commonIC + 2 * degree;
 							bic = commonIC + degree * Math.log(n);
 						}
+
+						functionStrMap.put("Function", toString());
+						functionStrMap.put("Excel", toExcelString());
+						functionStrMap.put("R", toRString());
+
 					} catch (MathException e) {
 						throw new AlgorithmError(e.getLocalizedMessage());
 					}
@@ -249,6 +311,11 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 				@Override
 				public void interrupt() {
 					interrupted = true;
+				}
+
+				@Override
+				public Map<String, String> getFunctionStrings() {
+					return functionStrMap;
 				}
 			};
 		}

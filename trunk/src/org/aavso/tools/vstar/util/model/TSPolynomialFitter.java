@@ -18,7 +18,9 @@
 package org.aavso.tools.vstar.util.model;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -55,7 +57,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	private List<ValidObservation> fit;
 	private List<ValidObservation> residuals;
 
-	private String strRepr;
+	private Map<String, String> functionStrMap;
 
 	/**
 	 * Constructor
@@ -66,7 +68,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	 */
 	public TSPolynomialFitter(List<ValidObservation> observations) {
 		super(observations);
-		strRepr = null;
+		functionStrMap = new LinkedHashMap<String, String>();
 		degree = 0;
 	}
 
@@ -82,7 +84,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	}
 
 	// TODO: move to plugin for persistence!
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.util.model.IPolynomialFitter#setDegree(int)
 	 */
@@ -113,6 +115,15 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		interrupted = false;
 		try {
 			polymast(degree);
+
+			functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"),
+					toString());
+
+			functionStrMap.put(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"),
+					toExcelString());
+
+			functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"),
+					toRString());
 		} catch (InterruptedException e) {
 			// Do nothing; just return.
 		}
@@ -307,14 +318,38 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	}
 
 	public String toString() {
+		String strRepr = functionStrMap.get(LocaleProps
+				.get("MODEL_INFO_FUNCTION_TITLE"));
+
 		if (strRepr == null) {
-			strRepr = "sum(";
+			strRepr = "f(t) = ";
 
 			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
 
 			// sum(a[i]t^n), where n >= 1
 			for (int i = npoly; i >= 1; i--) {
-				strRepr += String.format(fmt, dcoef[i]) + "t^" + i + ",\n";
+				strRepr += String.format(fmt, dcoef[i]) + "t^" + i + " + \n";
+			}
+
+			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
+			strRepr += String.format(fmt, dcoef[0]);
+		}
+
+		return strRepr;
+	}
+
+	private String toExcelString() {
+		String strRepr = functionStrMap.get(LocaleProps
+				.get("MODEL_INFO_EXCEL_TITLE"));
+
+		if (strRepr == null) {
+			strRepr = "=SUM(";
+
+			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
+
+			// sum(a[i]t^n), where n >= 1
+			for (int i = npoly; i >= 1; i--) {
+				strRepr += String.format(fmt, dcoef[i]) + "*A1^" + i + ",\n";
 			}
 
 			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
@@ -324,5 +359,35 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		}
 
 		return strRepr;
+	}
+
+	public String toRString() {
+		String strRepr = functionStrMap.get(LocaleProps
+				.get("MODEL_INFO_R_TITLE"));
+
+		if (strRepr == null) {
+			strRepr = "model <- function(t) ";
+
+			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
+
+			// sum(a[i]t^n), where n >= 1
+			for (int i = npoly; i >= 1; i--) {
+				if (i < npoly) {
+					// Line continuation.
+					strRepr += "+ ";
+				}
+				strRepr += String.format(fmt, dcoef[i]) + "*t^" + i + " + \n";
+			}
+
+			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
+			strRepr += String.format(fmt, dcoef[0]);
+		}
+
+		return strRepr;
+	}
+
+	@Override
+	public Map<String, String> getFunctionStrings() {
+		return functionStrMap;
 	}
 }

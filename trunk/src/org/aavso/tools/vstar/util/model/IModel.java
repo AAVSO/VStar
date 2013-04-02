@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.util.model;
 
 import java.util.List;
+import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.IAlgorithm;
@@ -72,4 +73,11 @@ public interface IModel extends IAlgorithm {
 	 * @return The 'kind' string.
 	 */
 	abstract public String getKind();
+	
+	/**
+	 * Return a mapping from names to strings representing model functions.
+	 * 
+	 * @return The model function string map.
+	 */
+	public Map<String, String> getFunctionStrings();
 }
