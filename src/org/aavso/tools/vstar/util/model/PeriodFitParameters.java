@@ -33,7 +33,6 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	private double sineCoefficient;
 	private double cosineCoefficient;
 	private double constantCoefficient;
-	private String str;
 
 	/**
 	 * Constructor.
@@ -60,7 +59,6 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 		this.cosineCoefficient = cosineCoefficient;
 		this.sineCoefficient = sineCoefficient;
 		this.constantCoefficient = constantCoefficient;
-		this.str = null;
 	}
 
 	/**
@@ -245,23 +243,63 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	}
 
 	public String toString() {
-		if (str == null) {
-			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
+		String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
 
-			str = cosineCoefficient >= 0 ? "+" : "";
+		String str = cosineCoefficient >= 0 ? "+" : "";
 
-			String sincosParam = "2\u03C0" + harmonic + "t";
+		String sincosParam = "2\u03C0" + harmonic + "t";
 
-			str += String.format(fmt, cosineCoefficient) + " \u00D7 cos(";
-			str += sincosParam;
-			str += ")";
+		str += String.format(fmt, cosineCoefficient) + " \u00D7 cos(";
+		str += sincosParam;
+		str += ")";
 
-			str += sineCoefficient >= 0 ? "+" : "";
+		str += sineCoefficient >= 0 ? "+" : "";
 
-			str += String.format(fmt, sineCoefficient) + " \u00D7 sin(";
-			str += sincosParam;
-			str += ")";
-		}
+		str += String.format(fmt, sineCoefficient) + " \u00D7 sin(";
+		str += sincosParam;
+		str += ")";
+
+		return str;
+	}
+
+	public String toExcelString() {
+		String str = null;
+
+		String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
+
+		str = cosineCoefficient >= 0 ? ",\n" : "\n";
+
+		String sincosParam = "2*PI()*" + harmonic + "*A1";
+
+		str += String.format(fmt, cosineCoefficient) + " * COS(";
+		str += sincosParam;
+		str += ")";
+
+		str += sineCoefficient >= 0 ? ", " : "";
+
+		str += String.format(fmt, sineCoefficient) + " * SIN(";
+		str += sincosParam;
+		str += ")";
+
+		return str;
+	}
+
+	public String toRString() {
+		String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
+
+		String str = "+\n+ "; // line continuation
+
+		String sincosParam = "2*pi*" + harmonic + "*t";
+
+		str += String.format(fmt, cosineCoefficient) + " * cos(";
+		str += sincosParam;
+		str += ")";
+
+		str += sineCoefficient >= 0 ? "+" : "";
+
+		str += String.format(fmt, sineCoefficient) + " * sin(";
+		str += sincosParam;
+		str += ")";
 
 		return str;
 	}

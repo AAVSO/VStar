@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.util.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -197,5 +198,10 @@ public class WWZMultiperiodicModel implements IModel {
 	@Override
 	public void interrupt() {
 		interrupted = true;
+	}
+
+	@Override
+	public Map<String, String> getFunctionStrings() {
+		return null;
 	}
 }

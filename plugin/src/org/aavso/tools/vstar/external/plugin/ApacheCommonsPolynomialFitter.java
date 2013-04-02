@@ -18,8 +18,10 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -141,7 +143,7 @@ public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {
 					List<ValidObservation> fit;
 					List<ValidObservation> residuals;
 					PolynomialFunction function;
-					String strRepr;
+					Map<String, String> functionStrMap = new LinkedHashMap<String, String>();
 					double aic = Double.NaN;
 					double bic = Double.NaN;
 
@@ -184,6 +186,8 @@ public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {
 					}
 
 					public String toString() {
+						String strRepr = functionStrMap.get("Function");
+
 						if (strRepr == null) {
 							strRepr = "sum(";
 
@@ -202,6 +206,46 @@ public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {
 								strRepr += String.format("\n\nAIC=" + fmt, aic);
 								strRepr += String.format("\nBIC=" + fmt, bic);
 							}
+						}
+
+						return strRepr;
+					}
+
+					public String toExcelString() {
+						String strRepr = functionStrMap.get("Excel");
+
+						if (strRepr == null) {
+							strRepr = "=SUM(";
+
+							String fmt = NumericPrecisionPrefs
+									.getOtherOutputFormat();
+
+							double[] coeffs = function.getCoefficients();
+							for (int i = coeffs.length - 1; i >= 1; i--) {
+								strRepr += String.format(fmt, coeffs[i]);
+								strRepr += "*A1^" + i + ",\n";
+							}
+							strRepr += String.format(fmt, coeffs[0]) + ")";
+						}
+
+						return strRepr;
+					}
+
+					public String toRString() {
+						String strRepr = functionStrMap.get("R");
+
+						if (strRepr == null) {
+							strRepr = "model <- function(t) ";
+
+							String fmt = NumericPrecisionPrefs
+									.getOtherOutputFormat();
+
+							double[] coeffs = function.getCoefficients();
+							for (int i = coeffs.length - 1; i >= 1; i--) {
+								strRepr += String.format(fmt, coeffs[i]);
+								strRepr += "*t^" + i + " +\n+ ";
+							}
+							strRepr += String.format(fmt, coeffs[0]);
 						}
 
 						return strRepr;
@@ -263,6 +307,11 @@ public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {
 									aic = commonIC + 2 * degree;
 									bic = commonIC + degree * Math.log(n);
 								}
+
+								functionStrMap.put("Function", toString());
+								functionStrMap.put("Excel", toExcelString());
+								functionStrMap.put("R", toRString());
+
 							} catch (OptimizationException e) {
 								throw new AlgorithmError(e
 										.getLocalizedMessage());
@@ -274,9 +323,14 @@ public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {
 					public void interrupt() {
 						interrupted = true;
 					}
+
+					@Override
+					public Map<String, String> getFunctionStrings() {
+						return functionStrMap;
+					}
 				};
 			}
-			
+
 			return model;
 		}
 	}

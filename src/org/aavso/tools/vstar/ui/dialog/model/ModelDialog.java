@@ -92,6 +92,10 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 			firstUse = false;
 		}
 
+		if (modelList.getSelectedIndex() == -1) {
+			modelList.setSelectedIndex(0);
+		}
+
 		this.getRootPane().setDefaultButton(selectButton);
 		this.setVisible(true);
 	}
@@ -121,8 +125,7 @@ public class ModelDialog extends JDialog implements ListSelectionListener {
 		panel.add(deleteButton);
 
 		showModelButton = new JButton("Show Model");
-		showModelButton
-				.addActionListener(createShowModelButtonListener());
+		showModelButton.addActionListener(createShowModelButtonListener());
 		showModelButton.setEnabled(false);
 		panel.add(showModelButton);
 

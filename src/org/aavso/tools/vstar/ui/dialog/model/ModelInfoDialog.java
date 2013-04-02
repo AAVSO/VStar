@@ -71,8 +71,8 @@ public class ModelInfoDialog extends JDialog {
 		super(parent);
 		this.model = model;
 
-		starName = Mediator.getInstance().getLatestNewStarMessage().getStarInfo()
-				.getDesignation();
+		starName = Mediator.getInstance().getLatestNewStarMessage()
+				.getStarInfo().getDesignation();
 
 		// TODO: should these times be from the original input series JDs rather
 		// than from the model.
@@ -93,13 +93,19 @@ public class ModelInfoDialog extends JDialog {
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		JTextArea textArea = new JTextArea(model.toString());
-		textArea.setBorder(BorderFactory.createTitledBorder(LocaleProps
-				.get("MODEL_INFO_FUNCTION_TITLE")));
-		textArea.setEditable(false);
-		JScrollPane scrollPane = new JScrollPane(textArea);
-		topPane.add(scrollPane);
+		// Add function strings.
+		if (model.getFunctionStrings() != null) {
+			for (String funcKey : model.getFunctionStrings().keySet()) {
+				JTextArea textArea = new JTextArea(model.getFunctionStrings()
+						.get(funcKey));
+				textArea.setBorder(BorderFactory.createTitledBorder(funcKey));
+				textArea.setEditable(false);
+				JScrollPane scrollPane = new JScrollPane(textArea);
+				topPane.add(scrollPane);
+			}
+		}
 
+		// Add relative amplitude and phase information if it exists.
 		if (model.getParameters() != null) {
 			creator = new RelativeAmplitudeAndPhaseCreator(model
 					.getParameters());

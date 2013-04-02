@@ -18,10 +18,13 @@
 package org.aavso.tools.vstar.util.model;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -41,7 +44,8 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	private List<PeriodFitParameters> parameters;
 
 	private String desc;
-	private String strRepr;
+
+	private Map<String, String> functionStrMap;
 
 	/**
 	 * Constructor.
@@ -59,9 +63,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		this.fit = new ArrayList<ValidObservation>();
 		this.residuals = new ArrayList<ValidObservation>();
 		this.parameters = new ArrayList<PeriodFitParameters>();
+		this.functionStrMap = new LinkedHashMap<String, String>();
 
 		desc = null;
-		strRepr = null;
 	}
 
 	/**
@@ -128,6 +132,16 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
 		try {
 			algorithm.multiPeriodicFit(harmonics, this);
+
+			functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"),
+					toString());
+
+			functionStrMap.put(LocaleProps.get("MODEL_INFO_EXCEL_TITLE"),
+					toExcelString());
+
+			functionStrMap.put(LocaleProps.get("MODEL_INFO_R_TITLE"),
+					toRString());
+
 		} catch (InterruptedException e) {
 			// Do nothing; just return.
 		}
@@ -139,6 +153,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	}
 
 	public String toString() {
+		String strRepr = functionStrMap.get(LocaleProps
+				.get("MODEL_INFO_FUNCTION_TITLE"));
+
 		if (strRepr == null) {
 			strRepr = "f(t) = ";
 
@@ -151,6 +168,54 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 				PeriodFitParameters params = parameters.get(i);
 				strRepr += params.toString() + "\n";
 			}
+
+			strRepr = strRepr.trim();
+		}
+
+		return strRepr;
+	}
+
+	private String toExcelString() { 
+		String strRepr = functionStrMap.get(LocaleProps
+				.get("MODEL_INFO_EXCEL_TITLE"));
+
+		if (strRepr == null) {
+			strRepr = "=SUM(";
+
+			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
+			double constantCoefficient = parameters.get(0)
+					.getConstantCoefficient();
+			strRepr += String.format(fmt, constantCoefficient);
+
+			for (int i = 0; i < parameters.size(); i++) {
+				PeriodFitParameters params = parameters.get(i);
+				strRepr += params.toExcelString();
+			}
+
+			strRepr += ")";
+		}
+
+		return strRepr;
+	}
+
+	public String toRString() {
+		String strRepr = functionStrMap.get(LocaleProps
+				.get("MODEL_INFO_R_TITLE"));
+
+		if (strRepr == null) {
+			strRepr = "model <- function(t) ";
+
+			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
+			double constantCoefficient = parameters.get(0)
+					.getConstantCoefficient();
+			strRepr += String.format(fmt, constantCoefficient);
+
+			for (int i = 0; i < parameters.size(); i++) {
+				PeriodFitParameters params = parameters.get(i);
+				strRepr += params.toRString();
+			}
+
+			strRepr = strRepr.trim();
 		}
 
 		return strRepr;
@@ -159,5 +224,10 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	@Override
 	public void interrupt() {
 		algorithm.interrupt();
+	}
+
+	@Override
+	public Map<String, String> getFunctionStrings() {
+		return functionStrMap;
 	}
 }
