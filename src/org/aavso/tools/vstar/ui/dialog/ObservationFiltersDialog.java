@@ -96,6 +96,10 @@ public class ObservationFiltersDialog extends JDialog implements
 			firstUse = false;
 		}
 
+		if (filterList.getSelectedIndex() == -1) {
+			filterList.setSelectedIndex(0);
+		}
+
 		this.getRootPane().setDefaultButton(selectButton);
 		this.setVisible(true);
 	}
@@ -239,7 +243,7 @@ public class ObservationFiltersDialog extends JDialog implements
 		return new Listener<FilteredObservationMessage>() {
 			@Override
 			public void update(FilteredObservationMessage info) {
-				if (info.getSource() != me) {
+				if (info != null && info.getSource() != me) {
 					String desc = info.getDescription().getFilterName();
 
 					// Remove an existing filter.
