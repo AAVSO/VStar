@@ -57,6 +57,8 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		String varType = null;
 		String spectralType = null;
 		String discoverer = null;
+		RAInfo ra = null;
+		DecInfo dec = null;
 
 		createFindAUIDFromNameStatement(connection);
 		findAUIDFromNameStatement.setString(1, name);
@@ -75,6 +77,8 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 				varType = getPossiblyNullStringValue(rs, "o_varType");
 				spectralType = getPossiblyNullStringValue(rs, "o_specType");
 				discoverer = getPossiblyNullStringValue(rs, "o_discoverer");
+				ra = getRA(rs);
+				dec = getDec(rs);
 			}
 		} else {
 			auid = rs.getString("o_auid");
@@ -83,10 +87,12 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 			varType = getPossiblyNullStringValue(rs, "o_varType");
 			spectralType = getPossiblyNullStringValue(rs, "o_specType");
 			discoverer = getPossiblyNullStringValue(rs, "o_discoverer");
+			ra = getRA(rs);
+			dec = getDec(rs);
 		}
 
 		return new StarInfo(name, auid, period, epoch, varType, spectralType,
-				discoverer, getRA(rs), getDec(rs));
+				discoverer, ra, dec);
 	}
 
 	/**
@@ -104,7 +110,9 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 		String varType = null;
 		String spectralType = null;
 		String discoverer = null;
-
+		RAInfo ra = null;
+		DecInfo dec = null;
+		
 		createFindStarNameFromAUIDStatement(connection);
 		findStarNameFromAUID.setString(1, auid);
 
@@ -117,10 +125,12 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 			varType = getPossiblyNullStringValue(rs, "o_varType");
 			spectralType = getPossiblyNullStringValue(rs, "o_specType");
 			discoverer = getPossiblyNullStringValue(rs, "o_discoverer");
+			ra = getRA(rs);
+			dec = getDec(rs);
 		}
 
 		return new StarInfo(starName, auid, period, epoch, varType,
-				spectralType, discoverer, getRA(rs), getDec(rs));
+				spectralType, discoverer, ra, dec);
 	}
 
 	// Helpers
@@ -241,7 +251,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 
 	// TODO: Look more closely at CONCAT and REPLACE function usage in next
 	// two queries (REPLACE: substitution of 'V0' with 'V'). Can we use LIKE
-	// or REGEX instead? Would that be more or less performant.
+	// or REGEX instead? Would that be more or less performant?
 
 	protected PreparedStatement createFindAUIDFromNameStatement(
 			Connection connect) throws SQLException {
