@@ -79,9 +79,9 @@ public class TwoPeriodModelDcDftTest extends MultiPeriodicModelDcDftTestBase {
 			// creation process).
 			List<PeriodFitParameters> expectedParams = new ArrayList<PeriodFitParameters>();
 			expectedParams.add(new PeriodFitParameters(new Harmonic(freq1),
-					0.1998, -0.1018, -0.1720, 3.9249));
+					0.1998, -0.1018, -0.1720, 3.9249, 2450446.0));
 			expectedParams.add(new PeriodFitParameters(new Harmonic(freq2),
-					0.0767, -0.0484, -0.0595, 3.9249));
+					0.0767, -0.0484, -0.0595, 3.9249, 2450446.0));
 
 			// Drum roll please...
 			commonTest(dcdft, harmonics, expectedParams,

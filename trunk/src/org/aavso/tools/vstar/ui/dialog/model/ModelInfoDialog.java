@@ -44,7 +44,8 @@ import org.aavso.tools.vstar.util.model.RelativeAmplitudeAndPhaseCreator;
 @SuppressWarnings("serial")
 public class ModelInfoDialog extends JDialog {
 
-	// TODO: make precision (4) a preference.
+	// TODO: make precision (4) a preference (or just use "other" in
+	// NumericPrecisionPrefs).
 	private final static int precision = 4;
 
 	private IModel model;

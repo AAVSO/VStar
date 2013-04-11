@@ -96,7 +96,7 @@ public class TSBase {
 	protected double xvec[];
 
 	protected boolean interrupted;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -114,7 +114,7 @@ public class TSBase {
 		this.tvec = new double[sz];
 		this.xvec = new double[sz];
 		this.wvec = new double[sz];
-		
+
 		interrupted = false;
 	}
 
@@ -294,7 +294,7 @@ public class TSBase {
 
 		nuplim = n - 1;
 	}
-	
+
 	protected void project() throws InterruptedException {
 		double dpow[] = new double[51]; // TODO just 50 (0:50); same for others
 		// below?
@@ -313,12 +313,12 @@ public class TSBase {
 				dmat[ii][jj] = 0.0;
 			}
 			dvec[ii] = 0.0;
-			
+
 			if (interrupted) {
 				throw new InterruptedException();
 			}
 		}
-		
+
 		ndim2 = npoly + (2 * nfre);
 		ndim = ndim2 + nbias;
 		dweight = 0.0;
@@ -349,7 +349,7 @@ public class TSBase {
 					return;
 				}
 			}
-			
+
 			if (interrupted) {
 				throw new InterruptedException();
 			}
@@ -405,7 +405,7 @@ public class TSBase {
 								+ (dpow[np] * dcc[nf]);
 						dmat[np][n2] = dmat[np][n2] + (dpow[np] * dss[nf]);
 					}
-					
+
 					if (interrupted) {
 						throw new InterruptedException();
 					}
@@ -451,7 +451,7 @@ public class TSBase {
 							dmat[n1][n2] = dmat[n1][n2] + dss[nf];
 						}
 					}
-					
+
 					if (interrupted) {
 						throw new InterruptedException();
 					}
@@ -478,7 +478,7 @@ public class TSBase {
 			for (n2 = n1; n2 <= npoly - 1; n2++) {
 				dmat[n1][n2] = dmat[n1 - 1][n2 + 1];
 			}
-			
+
 			if (interrupted) {
 				throw new InterruptedException();
 			}
@@ -489,7 +489,7 @@ public class TSBase {
 			for (n2 = n1; n2 <= ndim; n2++) {
 				dmat[n1][n2] = dmat[n1][n2] / dweight;
 			}
-			
+
 			if (interrupted) {
 				throw new InterruptedException();
 			}
@@ -500,7 +500,7 @@ public class TSBase {
 			for (n2 = 0; n2 <= n1 - 1; n2++) {
 				dmat[n1][n2] = dmat[n2][n1];
 			}
-			
+
 			if (interrupted) {
 				throw new InterruptedException();
 			}
@@ -515,7 +515,7 @@ public class TSBase {
 				dcoef[n1] = dcoef[n1] + (dmat[n1][n2] * dvec[n2]);
 			}
 			damp2 = damp2 + (dcoef[n1] * dvec[n1]);
-			
+
 			if (interrupted) {
 				throw new InterruptedException();
 			}
@@ -625,10 +625,23 @@ public class TSBase {
 		n2 = npoly;
 		for (nf = 1; nf <= nfre; nf++) {
 			n2 = n2 + 2;
-			dphase = twopi * dfre[nf] * dtscale * dt;
+			dphase = twopi * dfre[nf] * dtscale * dt; // TODO: why divide by
+			// dtscale above at all?
 			dmag = dmag + (dcoef[n2 - 1] * Math.cos(dphase));
 			dmag = dmag + (dcoef[n2] * Math.sin(dphase));
 		}
 		return dmag;
+	}
+
+	/**
+	 * Return the zero-point offset that must be subtracted from each time step
+	 * when creating a model equation or performing a model fit operation.
+	 * Obviously, the point in time at which this is called matters. It must not
+	 * be called until after load_raw(), and so also statcomp(), has been invoked.
+	 * 
+	 * @return The zero-point offset/term/subrahend.
+	 */
+	protected double getZeroPointOffset() {
+		return dt0 + dtzero;
 	}
 }
