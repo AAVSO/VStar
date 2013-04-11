@@ -192,6 +192,12 @@ public class InfoDialog extends JDialog implements ActionListener {
 			summaryBuf.append(" days\n");
 		}
 
+		if (starInfo.getEpoch() != null) {
+			summaryBuf.append("Epoch: ");
+			summaryBuf.append(starInfo.getEpoch());
+			summaryBuf.append("\n");
+		}
+
 		if (starInfo.getVarType() != null) {
 			summaryBuf.append("Variable Type: ");
 			summaryBuf.append(starInfo.getVarType());
