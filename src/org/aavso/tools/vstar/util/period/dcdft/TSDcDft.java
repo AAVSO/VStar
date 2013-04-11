@@ -159,7 +159,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	public void interrupt() {
 		interrupted = true;
 	}
-	
+
 	// -------------------------------------------------------------------------------
 
 	/**
@@ -605,7 +605,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 *            The locked periods to be included. May be null or empty.
 	 */
 	protected void cleanest(List<Double> freqs, List<Double> variablePeriods,
-			List<Double> lockedPeriods) throws AlgorithmError, InterruptedException {
+			List<Double> lockedPeriods) throws AlgorithmError,
+			InterruptedException {
 		// getfreq();
 
 		int varCount = variablePeriods == null ? 0 : variablePeriods.size();
@@ -829,7 +830,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	 *            as a result of invoking this method.
 	 */
 	public void multiPeriodicFit(List<Harmonic> harmonics,
-			PeriodAnalysisDerivedMultiPeriodicModel model) throws InterruptedException {
+			PeriodAnalysisDerivedMultiPeriodicModel model)
+			throws InterruptedException {
 
 		List<ValidObservation> modelObs = model.getFit();
 		List<ValidObservation> residualObs = model.getResiduals();
@@ -893,8 +895,10 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 			// dcoeff[0] is const_coeff, and dd is amplitude
 			// [sqrt(cos_coeff^2+sin_coeff^2)].
 			double dd = dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb];
-			parameters.add(new PeriodFitParameters(harmonics.get(nn - 1), Math
-					.sqrt(dd), dcoef[na], dcoef[nb], dcoef[0]));
+			parameters
+					.add(new PeriodFitParameters(harmonics.get(nn - 1), Math
+							.sqrt(dd), dcoef[na], dcoef[nb], dcoef[0],
+							getZeroPointOffset()));
 			// if (nn > 9) {
 			// write(1,207) dfre(nn),1.0/dfre(nn),nn,dsqrt(dd),dcoef(na),
 

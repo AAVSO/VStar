@@ -328,7 +328,8 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 			// sum(a[i]t^n), where n >= 1
 			for (int i = npoly; i >= 1; i--) {
-				strRepr += String.format(fmt, dcoef[i]) + "t^" + i + " + \n";
+				strRepr += String.format(fmt, dcoef[i]) + "(t-"
+						+ getZeroPointOffset() + ")^" + i + " + \n";
 			}
 
 			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
@@ -349,7 +350,8 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 			// sum(a[i]t^n), where n >= 1
 			for (int i = npoly; i >= 1; i--) {
-				strRepr += String.format(fmt, dcoef[i]) + "*A1^" + i + ",\n";
+				strRepr += String.format(fmt, dcoef[i]) + "*(A1-"
+						+ getZeroPointOffset() + ")^" + i + ",\n";
 			}
 
 			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
@@ -376,7 +378,8 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 					// Line continuation.
 					strRepr += "+ ";
 				}
-				strRepr += String.format(fmt, dcoef[i]) + "*t^" + i + " + \n";
+				strRepr += String.format(fmt, dcoef[i]) + "*(t-"
+						+ getZeroPointOffset() + ")^" + i + " + \n";
 			}
 
 			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.

@@ -33,6 +33,7 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	private double sineCoefficient;
 	private double cosineCoefficient;
 	private double constantCoefficient;
+	private double zeroPointOffset;
 
 	/**
 	 * Constructor.
@@ -49,16 +50,20 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	 *            The cosine Fourier coefficient.
 	 * @param constantCoefficient
 	 *            The constant (Y intercept?; check) coefficient.
+	 * @param zeroPointOffset
+	 *            The zero point offset/term/subrahend to be subtracted from
+	 *            each time step for which the model is computed.
 	 */
 	public PeriodFitParameters(Harmonic harmonic, double amplitude,
 			double cosineCoefficient, double sineCoefficient,
-			double constantCoefficient) {
+			double constantCoefficient, double zeroPointOffset) {
 		this.harmonic = harmonic;
 		this.amplitude = amplitude;
 		this.phase = Math.atan2(-sineCoefficient, cosineCoefficient);
 		this.cosineCoefficient = cosineCoefficient;
 		this.sineCoefficient = sineCoefficient;
 		this.constantCoefficient = constantCoefficient;
+		this.zeroPointOffset = zeroPointOffset;
 	}
 
 	/**
@@ -175,6 +180,13 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	}
 
 	/**
+	 * @return the zeroPointOffset
+	 */
+	public double getZeroPointOffset() {
+		return zeroPointOffset;
+	}
+
+	/**
 	 * @see java.lang.Object#equals(java.lang.Object) Equality of parameters to
 	 *      4 decimal places.
 	 */
@@ -202,6 +214,9 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 
 			equal &= String.format("%1.4f", params.getConstantCoefficient())
 					.equals(String.format("%1.4f", constantCoefficient));
+
+			equal &= String.format("%1.4f", params.getZeroPointOffset())
+					.equals(String.format("%1.4f", zeroPointOffset));
 		}
 
 		return equal;
@@ -239,6 +254,10 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
 				constantCoefficient);
 
+		str += "zero point offset=";
+		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
+				zeroPointOffset);
+
 		return str;
 	}
 
@@ -247,7 +266,8 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 
 		String str = cosineCoefficient >= 0 ? "+" : "";
 
-		String sincosParam = "2\u03C0" + harmonic + "t";
+		String sincosParam = "2\u03C0" + harmonic + "(t-" + zeroPointOffset
+				+ ")";
 
 		str += String.format(fmt, cosineCoefficient) + " \u00D7 cos(";
 		str += sincosParam;
@@ -269,7 +289,8 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 
 		str = cosineCoefficient >= 0 ? ",\n" : "\n";
 
-		String sincosParam = "2*PI()*" + harmonic + "*A1";
+		String sincosParam = "2*PI()*" + harmonic + "*(A1-" + zeroPointOffset
+				+ ")";
 
 		str += String.format(fmt, cosineCoefficient) + " * COS(";
 		str += sincosParam;
@@ -289,7 +310,8 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 
 		String str = "+\n+ "; // line continuation
 
-		String sincosParam = "2*pi*" + harmonic + "*t";
+		String sincosParam = "2*pi*" + harmonic + "*(t-" + zeroPointOffset
+				+ ")";
 
 		str += String.format(fmt, cosineCoefficient) + " * cos(";
 		str += sincosParam;

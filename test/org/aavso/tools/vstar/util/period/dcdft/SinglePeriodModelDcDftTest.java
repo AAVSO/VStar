@@ -410,7 +410,7 @@ public class SinglePeriodModelDcDftTest extends MultiPeriodicModelDcDftTestBase 
 			// creation process).
 			List<PeriodFitParameters> expectedParams = new ArrayList<PeriodFitParameters>();
 			expectedParams.add(new PeriodFitParameters(new Harmonic(topFreq), 1.7075,
-					0.5359, 1.6213, 9.7440));
+					0.5359, 1.6213, 9.7440, 48680.0));
 
 			// Drum roll please...
 			commonTest(dcdft, harmonics, expectedParams, expectedModelData,
