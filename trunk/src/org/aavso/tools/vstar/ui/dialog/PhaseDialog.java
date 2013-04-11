@@ -52,7 +52,7 @@ public class PhaseDialog extends JDialog implements ListSelectionListener {
 
 	private boolean firstUse;
 
-	private JList phaselList;
+	private JList phaseList;
 	private DefaultListModel phaseListModel;
 
 	private Map<String, PhaseChangeMessage> phaseMap;
@@ -91,6 +91,10 @@ public class PhaseDialog extends JDialog implements ListSelectionListener {
 			firstUse = false;
 		}
 
+		if (phaseList.getSelectedIndex() == -1) {
+			phaseList.setSelectedIndex(0);
+		}
+
 		this.getRootPane().setDefaultButton(selectButton);
 		this.setVisible(true);
 	}
@@ -100,11 +104,11 @@ public class PhaseDialog extends JDialog implements ListSelectionListener {
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		phaseListModel = new DefaultListModel();
-		phaselList = new JList(phaseListModel);
-		phaselList
+		phaseList = new JList(phaseListModel);
+		phaseList
 				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		phaselList.addListSelectionListener(this);
-		JScrollPane modelListScroller = new JScrollPane(phaselList);
+		phaseList.addListSelectionListener(this);
+		JScrollPane modelListScroller = new JScrollPane(phaseList);
 
 		panel.add(modelListScroller);
 
@@ -134,7 +138,7 @@ public class PhaseDialog extends JDialog implements ListSelectionListener {
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting() == false) {
 
-			if (phaselList.getSelectedIndex() == -1) {
+			if (phaseList.getSelectedIndex() == -1) {
 				selectButton.setEnabled(false);
 				deleteButton.setEnabled(false);
 			} else {
@@ -149,7 +153,7 @@ public class PhaseDialog extends JDialog implements ListSelectionListener {
 		final PhaseDialog me = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedModelIndex = phaselList.getSelectedIndex();
+				int selectedModelIndex = phaseList.getSelectedIndex();
 				String desc = (String) phaseListModel.get(selectedModelIndex);
 				PhaseChangeMessage changeMsg = phaseMap.get(desc);
 
@@ -167,7 +171,7 @@ public class PhaseDialog extends JDialog implements ListSelectionListener {
 	private ActionListener createDeleteButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int selectedModelIndex = phaselList.getSelectedIndex();
+				int selectedModelIndex = phaseList.getSelectedIndex();
 
 				String desc = (String) phaseListModel
 						.remove(selectedModelIndex);
