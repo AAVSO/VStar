@@ -48,7 +48,8 @@ import org.jfree.data.xy.AbstractIntervalXYDataset;
  * star observations, e.g. for different bands (or from different sources).
  */
 @SuppressWarnings("serial")
-public class ObservationPlotModel extends AbstractIntervalXYDataset {
+public class ObservationPlotModel extends AbstractIntervalXYDataset implements
+		ISeriesInfoProvider {
 
 	private static final int NO_SERIES = -1;
 
@@ -174,7 +175,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		this.obComparator = obComparator;
 
 		for (SeriesType type : obsSourceListMap.keySet()) {
-			this.addObservationSeries(type, obsSourceListMap.get(type));
+			addObservationSeries(type, obsSourceListMap.get(type));
 		}
 
 		// We should only make "unspecified" band-based observations visible
@@ -460,10 +461,12 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		return changed;
 	}
 
-	/**
-	 * What is the current set of visible series?
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @return The current set of visible series?
+	 * @see
+	 * org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getVisibleSeries
+	 * ()
 	 */
 	public Set<SeriesType> getVisibleSeries() {
 		Set<SeriesType> visibleSeries = new HashSet<SeriesType>();
@@ -478,10 +481,11 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		return visibleSeries;
 	}
 
-	/**
-	 * @see org.jfree.data.general.AbstractSeriesDataset#getSeriesCount()
-	 * @param Return
-	 *            the number of observation series that exist on the plot.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getSeriesCount()
 	 */
 	public int getSeriesCount() {
 		return this.seriesNumToObSrcListMap.size();
@@ -499,24 +503,27 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		return this.seriesNumToSrcTypeMap.get(series);
 	}
 
-	/**
-	 * Get an array of series keys.
-	 * 
-	 * @return The array of series keys.
+	/** 
+	 * @see
+	 * org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getSeriesKeys()
 	 */
-	public SeriesType[] getSeriesKeys() {
-		return this.srcTypeToSeriesNumMap.keySet().toArray(new SeriesType[0]);
+	public Set<SeriesType> getSeriesKeys() {
+		return srcTypeToSeriesNumMap.keySet();
 	}
 
 	/**
-	 * Does the specified series type exist, i.e. has it been added to the plot?
-	 * 
-	 * @param type
-	 *            The series type in question.
-	 * @return Whether the series has been added to the plot.
+	 * @see
+	 * org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#seriesExists(
+	 * org.aavso.tools.vstar.data.SeriesType)
 	 */
 	public boolean seriesExists(SeriesType type) {
 		return this.srcTypeToSeriesNumMap.containsKey(type);
+	}
+
+	@Override
+	public List<ValidObservation> getObservations(SeriesType type) {
+		int num = getSrcTypeToSeriesNumMap().get(type);
+		return getSeriesNumToObSrcListMap().get(num);
 	}
 
 	/**
@@ -825,11 +832,9 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		// Add or replace a series for the model and make sure
 		// the series is visible.
 		if (this.seriesExists(SeriesType.Model)) {
-			fitSeriesNum = this.replaceObservationSeries(SeriesType.Model,
-					modelObs);
+			fitSeriesNum = replaceObservationSeries(SeriesType.Model, modelObs);
 		} else {
-			fitSeriesNum = this
-					.addObservationSeries(SeriesType.Model, modelObs);
+			fitSeriesNum = addObservationSeries(SeriesType.Model, modelObs);
 		}
 
 		// Make the model series visible either because this
@@ -845,15 +850,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 		if (this.seriesExists(SeriesType.Residuals)) {
 			this.replaceObservationSeries(SeriesType.Residuals, residualObs);
 		} else {
-			residualsSeriesNum = this.addObservationSeries(
-					SeriesType.Residuals, residualObs);
+			residualsSeriesNum = addObservationSeries(SeriesType.Residuals,
+					residualObs);
 		}
 
 		// Hide the residuals series initially. We toggle the series
 		// visibility to achieve this since the default is false. That
 		// shouldn't be necessary; investigate.
 		// this.changeSeriesVisibility(residualsSeriesNum, true);
-		this.changeSeriesVisibility(residualsSeriesNum, false);
+		changeSeriesVisibility(residualsSeriesNum, false);
 	}
 
 	// Returns a model selection listener.
@@ -880,7 +885,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 			if (this.seriesExists(SeriesType.Filtered)) {
 				int num = this.getSrcTypeToSeriesNumMap().get(
 						SeriesType.Filtered);
-				this.changeSeriesVisibility(num, false);
+				changeSeriesVisibility(num, false);
 			}
 			result = true;
 		}
@@ -890,17 +895,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset {
 
 	public void updateFilteredSeries(List<ValidObservation> obs) {
 		if (this.seriesExists(SeriesType.Filtered)) {
-			filterSeriesNum = this.replaceObservationSeries(
-					SeriesType.Filtered, obs);
+			filterSeriesNum = replaceObservationSeries(SeriesType.Filtered, obs);
 		} else {
-			filterSeriesNum = this.addObservationSeries(SeriesType.Filtered,
-					obs);
+			filterSeriesNum = addObservationSeries(SeriesType.Filtered, obs);
 		}
 
 		// Make the filter series visible either because this is
 		// its first appearance or because it may have been made
 		// invisible via a previous NO_FILTER message.
-		this.changeSeriesVisibility(filterSeriesNum, true);
+		changeSeriesVisibility(filterSeriesNum, true);
 	}
 
 	// Returns a filtered observation listener.

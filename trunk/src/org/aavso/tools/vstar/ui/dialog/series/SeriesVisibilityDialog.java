@@ -19,7 +19,7 @@ package org.aavso.tools.vstar.ui.dialog.series;
 
 import javax.swing.JPanel;
 
-import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 
 /**
  * This dialog permits the visibility of plot series to be changed.
@@ -28,7 +28,7 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
  */
 public class SeriesVisibilityDialog extends AbstractSeriesVisibilityDialog<JPanel> {
 
-	public SeriesVisibilityDialog(ObservationPlotModel obsPlotModel) {
+	public SeriesVisibilityDialog(ISeriesInfoProvider obsPlotModel) {
 		super(obsPlotModel);
 	}
 }

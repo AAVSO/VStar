@@ -17,11 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin;
 
-import java.util.List;
-import java.util.Map;
-
-import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 
 /**
  * <p>
@@ -40,14 +36,14 @@ import org.aavso.tools.vstar.data.ValidObservation;
 abstract public class ObservationToolPluginBase implements IPlugin {
 
 	/**
-	 * Given a mapping from series type to lists of valid observations, perform
-	 * some arbitrary processing on a subset of the observations.
+	 * Given information about observations per series, perform some arbitrary
+	 * processing on a subset of the observations.
 	 * 
-	 * @param obsMap
+	 * @param seriesInfo
 	 *            A mapping from series type to lists of currently loaded
 	 *            observations.
 	 */
-	abstract public void invoke(Map<SeriesType, List<ValidObservation>> obsMap);
+	abstract public void invoke(ISeriesInfoProvider seriesInfo);
 
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
@@ -56,7 +52,7 @@ abstract public class ObservationToolPluginBase implements IPlugin {
 	public String getGroup() {
 		return null;
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
 	 */

@@ -19,6 +19,8 @@ package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.Component;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -40,6 +42,15 @@ public class AdditiveLoadFileSelectionChooser {
 	 */
 	public AdditiveLoadFileSelectionChooser() {
 		fileChooser = new JFileChooser();
+		
+		List<String> extensions = new ArrayList<String>();
+		extensions.add("csv");
+		extensions.add("dat");
+		extensions.add("tsv");
+		extensions.add("txt");
+
+		fileChooser.setFileFilter(new FileExtensionFilter(extensions));
+
 		fileChooser.setAccessory(createAdditiveLoadCheckboxPane());
 	}
 
