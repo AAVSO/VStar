@@ -33,7 +33,7 @@ import javax.swing.JRadioButton;
  * This class aggregates a JFileChooser and a field delimiter selection
  * component.
  */
-public class DelimitedFieldFileSaveAsChooser {
+public class DelimitedFieldFileSaveChooser {
 
 	private String delimiter;
 	private JFileChooser fileChooser;
@@ -41,7 +41,7 @@ public class DelimitedFieldFileSaveAsChooser {
 	/**
 	 * Constructor
 	 */
-	public DelimitedFieldFileSaveAsChooser() {
+	public DelimitedFieldFileSaveChooser() {
 		delimiter = "\t";
 		fileChooser = new JFileChooser();
 		fileChooser.setAccessory(createDelimiterSelectionPane());

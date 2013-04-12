@@ -29,7 +29,7 @@ import javax.swing.JScrollPane;
 
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 
 /**
  * This dialog permits the visibility of plot series to be changed, and allows
@@ -44,7 +44,7 @@ abstract public class AbstractSeriesVisibilityDialog<T extends JPanel> extends A
 	protected JPanel topPane;
 	protected JPanel seriesPane;
 
-	protected ObservationPlotModel obsPlotModel;
+	protected ISeriesInfoProvider obsPlotModel;
 	protected SeriesVisibilityPane seriesVisibilityPane;
 	protected T nextPane;
 
@@ -54,7 +54,7 @@ abstract public class AbstractSeriesVisibilityDialog<T extends JPanel> extends A
 	 * @param obsPlotModel
 	 *            An observation plot model.
 	 */
-	public AbstractSeriesVisibilityDialog(ObservationPlotModel obsPlotModel) {
+	public AbstractSeriesVisibilityDialog(ISeriesInfoProvider obsPlotModel) {
 		this(obsPlotModel, "Change Series", null);
 	}
 
@@ -69,7 +69,7 @@ abstract public class AbstractSeriesVisibilityDialog<T extends JPanel> extends A
 	 *            An optional (may be null) pane to be added next to the primary
 	 *            pane. This allows us to specialise dialog panes by chaining.
 	 */
-	public AbstractSeriesVisibilityDialog(ObservationPlotModel obsPlotModel,
+	public AbstractSeriesVisibilityDialog(ISeriesInfoProvider obsPlotModel,
 			String title, T nextPane) {
 		super(title);
 

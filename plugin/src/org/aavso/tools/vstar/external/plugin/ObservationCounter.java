@@ -1,12 +1,9 @@
 package org.aavso.tools.vstar.external.plugin;
 
-import java.util.List;
-import java.util.Map;
-
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 
 /**
  * This simple VStar plug-in counts the number of loaded observations.
@@ -14,13 +11,13 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 public class ObservationCounter extends ObservationToolPluginBase {
 
 	@Override
-	public void invoke(Map<SeriesType, List<ValidObservation>> obsMap) {
+	public void invoke(ISeriesInfoProvider seriesInfo) {
 		int count = 0;
 
 		StringBuilder buf = new StringBuilder();
 
-		for (SeriesType series : obsMap.keySet()) {
-			int n = obsMap.get(series).size();
+		for (SeriesType series : seriesInfo.getSeriesKeys()) {
+			int n = seriesInfo.getObservations(series).size();
 			buf.append(series.getDescription() + ": " + n);
 			buf.append("\n");
 			count += n;

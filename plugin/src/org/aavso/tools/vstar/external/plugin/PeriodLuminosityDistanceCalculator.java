@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
+import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -89,7 +90,7 @@ public class PeriodLuminosityDistanceCalculator extends
 	}
 
 	@Override
-	public void invoke(Map<SeriesType, List<ValidObservation>> obsMap) {
+	public void invoke(ISeriesInfoProvider seriesInfo) {
 		// Get default period, if there is one.
 		StarInfo starInfo = Mediator.getInstance().getLatestNewStarMessage()
 				.getStarInfo();
@@ -101,7 +102,7 @@ public class PeriodLuminosityDistanceCalculator extends
 		if (!seriesDlg.isCancelled()) {
 			// Get the mean magnitude.
 			SeriesType series = seriesDlg.getSeries();
-			List<ValidObservation> obs = obsMap.get(series);
+			List<ValidObservation> obs = seriesInfo.getObservations(series);
 			// TODO: how should this be computed? B-V or arithmetic mean as
 			// below?
 			magnitude = DescStats.calcMagMeanInRange(obs,

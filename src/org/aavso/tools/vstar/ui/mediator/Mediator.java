@@ -58,11 +58,12 @@ import org.aavso.tools.vstar.ui.IMainUI;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
-import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveAsChooser;
+import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser;
 import org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.dialog.ObservationFiltersDialog;
+import org.aavso.tools.vstar.ui.dialog.PNGImageFileSaveChooser;
 import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
@@ -99,6 +100,7 @@ import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.PhasePlotMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.RawDataMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
+import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
@@ -137,6 +139,7 @@ import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
 
 /**
  * This class manages the creation of models and views and sends notifications
@@ -156,12 +159,16 @@ public class Mediator {
 	// Valid and invalid observation lists and series category map.
 	private List<ValidObservation> validObsList;
 	private List<InvalidObservation> invalidObsList;
+
+	// Note: it would be useful to update these with mean obs, excluded obs etc
+	// so they could be used in places where currently the model must be
+	// consulted instead; especially the first map, e.g. for period analysis.
 	private Map<SeriesType, List<ValidObservation>> validObservationCategoryMap;
 	private Map<SeriesType, List<ValidObservation>> phasedValidObservationCategoryMap;
 
 	// Current observation and mean plot model.
-	// Period search needs access to this to determine
-	// the current mean source band.
+	// Period search (TODO: did mean ANOVA vs period search?) needs access to
+	// this to determine the current mean source band.
 	private ObservationAndMeanPlotModel obsAndMeanPlotModel;
 
 	// Current view viewMode.
@@ -183,7 +190,10 @@ public class Mediator {
 	private Map<AnalysisType, AnalysisTypeChangeMessage> analysisTypeMap;
 
 	// A file dialog for saving any kind of observation list.
-	private DelimitedFieldFileSaveAsChooser obsListFileSaveDialog;
+	private DelimitedFieldFileSaveChooser obsListFileSaveDialog;
+
+	// A file dialog for saving an image, e.g. a plot.
+	private PNGImageFileSaveChooser imageSaveDialog;
 
 	// Persistent phase parameter dialog.
 	private PhaseParameterDialog phaseParameterDialog;
@@ -269,7 +279,8 @@ public class Mediator {
 		this.harmonicSearchNotifier = new Notifier<HarmonicSearchResultMessage>();
 		this.seriesCreationNotifier = new Notifier<SeriesCreationMessage>();
 
-		this.obsListFileSaveDialog = new DelimitedFieldFileSaveAsChooser();
+		this.obsListFileSaveDialog = new DelimitedFieldFileSaveChooser();
+		this.imageSaveDialog = new PNGImageFileSaveChooser();
 
 		// These (among other things) are created for each new star.
 		this.validObsList = null;
@@ -357,9 +368,8 @@ public class Mediator {
 		this.ui = ui;
 	}
 
-
 	public static IMainUI getUI() {
-		return ui;	
+		return ui;
 	}
 
 	/**
@@ -736,6 +746,14 @@ public class Mediator {
 		}
 	}
 
+	// ************************************************************************
+	// The following listener methods ensure that the obs category map is kept
+	// up to date with models, filters, new series. We handle means separately,
+	// although it would be more consistent if we did not. For example, perhaps
+	// we should just reconstruct this map each time it is required, from the
+	// obs model.
+	// ************************************************************************
+
 	// Returns a model selection listener that updates the observation
 	// category map with model and residuals series.
 	private Listener<ModelSelectionMessage> createModelSelectionListener() {
@@ -831,6 +849,17 @@ public class Mediator {
 	 */
 	public ObservationFilterDialog getObsFilterDialog() {
 		return obsFilterDialog;
+	}
+
+	/**
+	 * Get the object that has information about available series and
+	 * observations pertaining thereto.
+	 * 
+	 * @return The series information provider.
+	 */
+	public ISeriesInfoProvider getSeriesInfoProvider() {
+		return analysisTypeMap.get(AnalysisType.RAW_DATA)
+				.getObsAndMeanChartPane().getObsModel();
 	}
 
 	/**
@@ -1547,13 +1576,8 @@ public class Mediator {
 				if (!dialog.isCancelled()) {
 					SeriesType type = dialog.getSeries();
 
-					// Note that this will work so long as we have a single
-					// retriever. For additive loads we will either have to
-					// use an aggregated retriever or add file-loaded obs
-					// to the AID retriever.
-					List<ValidObservation> obs = getLatestNewStarMessage()
-							.getStarInfo().getRetriever()
-							.getValidObservationCategoryMap().get(type);
+					List<ValidObservation> obs = getSeriesInfoProvider()
+							.getObservations(type);
 
 					this.getProgressNotifier().notifyListeners(
 							ProgressInfo.START_PROGRESS);
@@ -1639,11 +1663,8 @@ public class Mediator {
 				if (!seriesDialog.isCancelled()) {
 					SeriesType type = seriesDialog.getSeries();
 
-					int num = obsAndMeanPlotModel.getSrcTypeToSeriesNumMap()
-							.get(type);
-
-					List<ValidObservation> obs = obsAndMeanPlotModel
-							.getSeriesNumToObSrcListMap().get(num);
+					List<ValidObservation> obs = getSeriesInfoProvider()
+							.getObservations(type);
 
 					IModel model = plugin.getModel(obs);
 
@@ -1711,7 +1732,7 @@ public class Mediator {
 	public void invokeTool(ObservationToolPluginBase plugin) {
 		if (validObservationCategoryMap != null) {
 			try {
-				plugin.invoke(validObservationCategoryMap);
+				plugin.invoke(getSeriesInfoProvider());
 			} catch (Throwable t) {
 				MessageBox.showErrorDialog("Tool Error", t);
 			}
@@ -1752,13 +1773,7 @@ public class Mediator {
 
 		switch (viewMode) {
 		case PLOT_OBS_MODE:
-			try {
-				analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
-						.getChartPanel().doSaveAs();
-			} catch (IOException ex) {
-				MessageBox.showErrorDialog(parent,
-						"Save Observation and Means Plot", ex.getMessage());
-			}
+			savePlotToFile(parent);
 			break;
 		case LIST_OBS_MODE:
 			saveObsListToFile(parent);
@@ -1845,6 +1860,32 @@ public class Mediator {
 		} else {
 			MessageBox.showMessageDialog(parent, "Save Observations",
 					"Observation data can only be saved in raw mode.");
+		}
+	}
+
+	/**
+	 * Save the currently visible mode's plot. The file is requested from the
+	 * user via a dialog.
+	 * 
+	 * @param parent
+	 *            The parent component of the file dialog.
+	 */
+	private void savePlotToFile(Component parent) {
+		try {
+			ChartPanel chartPanel = analysisTypeMap.get(analysisType)
+					.getObsAndMeanChartPane().getChartPanel();
+
+			if (imageSaveDialog.showDialog(parent)) {
+				File path = imageSaveDialog.getSelectedFile();
+				JFreeChart chart = chartPanel.getChart();
+				int width = chartPanel.getWidth();
+				int height = chartPanel.getHeight();
+
+				ChartUtilities.saveChartAsJPEG(path, chart, width, height);
+			}
+		} catch (IOException ex) {
+			MessageBox.showErrorDialog(parent,
+					"Save Observation and Means Plot", ex.getMessage());
 		}
 	}
 

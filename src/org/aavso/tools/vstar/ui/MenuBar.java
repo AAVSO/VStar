@@ -242,14 +242,7 @@ public class MenuBar extends JMenuBar {
 		this.parent = parent;
 		this.uiType = uiType;
 
-		List<String> extensions = new ArrayList<String>();
-		extensions.add("csv");
-		extensions.add("dat");
-		extensions.add("tsv");
-		extensions.add("txt");
-
 		this.fileOpenDialog = new AdditiveLoadFileSelectionChooser();
-		this.fileOpenDialog.setFileFilter(new FileExtensionFilter(extensions));
 
 		createFileMenu();
 		createEditMenu();

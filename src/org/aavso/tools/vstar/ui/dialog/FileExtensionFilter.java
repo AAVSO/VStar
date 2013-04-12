@@ -52,7 +52,7 @@ public class FileExtensionFilter extends FileFilter {
 			acceptable = true;
 		} else {
 			for (String extension : extensions) {
-				if (name.endsWith(extension)) {
+				if (name.toLowerCase().endsWith(extension)) {
 					acceptable = true;
 					break;
 				}

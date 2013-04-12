@@ -184,14 +184,22 @@ public class ValidObservation extends Observation {
 	 * dataset.
 	 */
 	public static void reset() {
-		savedDetailTitles = new HashMap<String, String>(detailTitles);
-		detailTitles.clear();
+		if (detailTitles != null) {
+			savedDetailTitles = new HashMap<String, String>(detailTitles);
+			detailTitles.clear();
+		}
 
-		savedIndexToDetailKey = new HashMap<Integer, String>(indexToDetailKey);
-		indexToDetailKey.clear();
+		if (indexToDetailKey != null) {
+			savedIndexToDetailKey = new HashMap<Integer, String>(
+					indexToDetailKey);
+			indexToDetailKey.clear();
+		}
 
-		savedDetailKeyToIndex = new HashMap<String, Integer>(detailKeyToIndex);
-		detailKeyToIndex.clear();
+		if (detailKeyToIndex != null) {
+			savedDetailKeyToIndex = new HashMap<String, Integer>(
+					detailKeyToIndex);
+			detailKeyToIndex.clear();
+		}
 
 		savedDetailIndex = detailIndex;
 		detailIndex = 0;
@@ -202,9 +210,22 @@ public class ValidObservation extends Observation {
 	 * failure occurs.
 	 */
 	public static void restore() {
-		detailTitles = savedDetailTitles;
-		indexToDetailKey = savedIndexToDetailKey;
-		detailKeyToIndex = savedDetailKeyToIndex;
+		// Don't restore to null values, e.g. in the case of a first observation
+		// load failure, the saved map values may still be at their default of
+		// null.
+
+		if (savedDetailTitles != null) {
+			detailTitles = savedDetailTitles;
+		}
+
+		if (savedIndexToDetailKey != null) {
+			indexToDetailKey = savedIndexToDetailKey;
+		}
+
+		if (savedDetailKeyToIndex != null) {
+			detailKeyToIndex = savedDetailKeyToIndex;
+		}
+
 		detailIndex = savedDetailIndex;
 	}
 
@@ -697,8 +718,9 @@ public class ValidObservation extends Observation {
 		}
 
 		if (dateInfo != null) {
-			boolean isHeliocentric = Mediator.getInstance().getLatestNewStarMessage()
-					.getStarInfo().getRetriever().isHeliocentric();
+			boolean isHeliocentric = Mediator.getInstance()
+					.getLatestNewStarMessage().getStarInfo().getRetriever()
+					.isHeliocentric();
 			if (isHeliocentric) {
 				strBuf.append("Heliocentric ");
 			}
