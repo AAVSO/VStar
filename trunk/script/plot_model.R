@@ -36,4 +36,4 @@ points(modelX, modelY, col="red")
 modelJDs = seq(modelX[1], modelX[length(modelX)], 0.1)
 jds = modelJDs
 
-lines(jds, model(jds), col="blue") # original
+lines(jds, model(jds), col="blue")
