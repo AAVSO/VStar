@@ -46,8 +46,6 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 
 	private Locale locale;
 
-	// private int degree;
-
 	public ApacheCommonsLowessFitter() {
 		super();
 		locale = Locale.getDefault();
@@ -57,7 +55,6 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 	public String getDescription() {
 		String str = "Lowess Fit (Apache Commons Math)";
 
-		// TODO: fix
 		if (locale.equals("es")) {
 			str = "Ajuste polin\u00F3mico (Apache Commons Math)";
 		}
@@ -123,7 +120,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 
 				@Override
 				public List<PeriodFitParameters> getParameters() {
-					// None for a polynomial fit.
+					// None for a Lowess fit.
 					return null;
 				}
 
@@ -148,7 +145,6 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 
 						double constCoeff = 0;
 
-						// TODO: need a mapping from term number and exponent
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
