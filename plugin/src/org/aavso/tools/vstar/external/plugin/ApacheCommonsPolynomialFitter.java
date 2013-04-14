@@ -40,7 +40,7 @@ import org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimize
 import org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer;
 
 /**
- * A polynomial fitter model creator plugin that is uses an Apache Commons
+ * A polynomial fitter model creator plugin that uses an Apache Commons
  * polynomial fitter.
  */
 public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {

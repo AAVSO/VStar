@@ -39,7 +39,7 @@ import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;
 
 /**
- * A Loess (Lowess) fitter model creator plugin that is uses an Apache Commons
+ * A Loess (Lowess) fitter model creator plugin that uses an Apache Commons
  * Loess fitter.
  */
 public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
