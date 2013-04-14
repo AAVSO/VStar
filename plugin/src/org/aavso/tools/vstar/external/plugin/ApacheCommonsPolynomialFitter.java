@@ -113,27 +113,7 @@ public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {
 			if (!polyDegreeDialog.isCancelled()) {
 				setDegree(polyDegreeDialog.getDegree());
 
-				// final Map<String, AbstractLeastSquaresOptimizer> optimizerMap
-				// = new TreeMap<String, AbstractLeastSquaresOptimizer>();
-				//
-				// optimizerMap.put("Levenberg Marquardt Optimizer",
-				// new LevenbergMarquardtOptimizer());
-				//
-				// optimizerMap.put(
-				// "Gauss-Newton Optimizer with LU decomposition",
-				// new GaussNewtonOptimizer(true));
-				//
-				// optimizerMap.put(
-				// "Gauss-Newton Optimizer with QR decomposition",
-				// new GaussNewtonOptimizer(false));
-
-				// RadioButtonDialog optimizerDialog = new RadioButtonDialog(
-				// "Select Optimizer", optimizerMap.keySet(),
-				// "Levenberg Marquardt Optimizer");
-
 				AbstractLeastSquaresOptimizer optimizer = new LevenbergMarquardtOptimizer();
-
-				// optimizer.setMaxIterations(1000);
 
 				final PolynomialFitter fitter = new PolynomialFitter(
 						getDegree(), optimizer);
