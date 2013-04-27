@@ -32,13 +32,15 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class AAVSOAuthenticationSource implements IAuthenticationSource {
 
-	private AAVSODatabaseConnector connector;
+	private AAVSODatabaseConnector userConnector;
+	private AAVSODatabaseConnector memberConnector;
 	private PreparedStatement authStmt;
 	private PreparedStatement obsCodeStmt;
 	private boolean authenticated;
 
 	public AAVSOAuthenticationSource() {
-		this.connector = AAVSODatabaseConnector.aavsoUserDBConnector;
+		this.userConnector = AAVSODatabaseConnector.aavsoUserDBConnector;
+		this.memberConnector = AAVSODatabaseConnector.memberDBConnector;
 		this.authenticated = false;
 	}
 
@@ -50,7 +52,7 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 				// Get a prepared statement to read a user's details
 				// from the database, setting the parameters for user
 				// who is authenticating.
-				PreparedStatement userStmt = createLoginQuery(connector
+				PreparedStatement userStmt = createLoginQuery(userConnector
 						.getConnection());
 				userStmt.setString(1, username);
 
@@ -94,13 +96,14 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 
 		if (authenticated) {
 			try {
-				PreparedStatement obsCodeStmt = createObserverCodeQuery(connector
+				PreparedStatement obsCodeStmt = createObserverCodeQuery(memberConnector
 						.getConnection());
 				obsCodeStmt.setString(1, username);
 				ResultSet obsCodeResults = obsCodeStmt.executeQuery();
 
 				if (obsCodeResults.next()) {
-					obsCode = obsCodeResults.getString("value");
+					obsCode = obsCodeResults.getString("obscode");
+					// If we have an observer code, record it.
 					if (!obsCodeResults.wasNull()) {
 						ResourceAccessor.getLoginInfo()
 								.setObserverCode(obsCode);
@@ -138,8 +141,8 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 	}
 
 	/**
-	 * Return a prepared statement to obtain the observer code given the AAVSO
-	 * user's user ID.
+	 * Return a prepared statement to obtain the observer code from the members
+	 * table given the AAVSO user's user ID.
 	 * 
 	 * This is a once-only-created prepared statement with parameters set for
 	 * each query execution.
@@ -151,10 +154,16 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 	private PreparedStatement createObserverCodeQuery(Connection connection)
 			throws SQLException {
 		if (obsCodeStmt == null) {
-			obsCodeStmt = connection
-					.prepareStatement("SELECT value from users, profile_values "
-							+ "WHERE profile_values.fid = 21 AND "
-							+ "profile_values.uid = users.uid AND users.name = ?;");
+			String member = ResourceAccessor.getParam(DatabaseType.MEMBER
+					.getDBNum());
+			String live = ResourceAccessor.getParam(DatabaseType.AAVSO_USER
+					.getDBNum());
+
+			obsCodeStmt = connection.prepareStatement("SELECT obscode from "
+					+ member + ".view_member_info WHERE id = "
+					+ "(SELECT value from " + live + ".users as u, " + live
+					+ ".profile_values as v "
+					+ "WHERE v.uid = u.uid and v.fid = 19 and u.name = ?);");
 		}
 
 		return obsCodeStmt;
