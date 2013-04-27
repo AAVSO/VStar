@@ -67,6 +67,9 @@ public class AAVSODatabaseConnector {
 	public static AAVSODatabaseConnector utDBConnector = new AAVSODatabaseConnector(
 			DatabaseType.UT);
 
+	public static AAVSODatabaseConnector memberDBConnector = new AAVSODatabaseConnector(
+			DatabaseType.MEMBER);
+
 	// Star name and AUID retrievers.
 
 	private static IStarNameAndAUIDSource starNameAndAUIDRetriever = new VSXStarNameAndAUIDSource();

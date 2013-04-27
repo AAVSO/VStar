@@ -149,6 +149,10 @@ public class ResourceAccessor {
 	// 8
 	private static int[] d5data = { 19886, 16781, 18256, 19376, 18281, 22002 };
 
+	// 9
+	private static int[] d6data = { 19397, 17473, 15974, 16435, 18100, 20458,
+			19109, 21890, 21733, 24753 };
+
 	private static int[] pdata = { 163, 173, 163, 173, 181, 193, 197, 199, 211,
 			223, 227, 271, 277, 281, 283, 293, 307, 383, 389, 401, 409, 419,
 			431, 433, 479, 487, 491, 499, 503, 509, 521, 557, 563, 569, 571,
@@ -156,5 +160,5 @@ public class ResourceAccessor {
 			761, 769, 839, 853, 857, 859 };
 
 	private static int[][] data = { hdata, d0data, d1data, d2data, d3data,
-			d4data, udata, sdata, d5data };
+			d4data, udata, sdata, d5data, d6data };
 }

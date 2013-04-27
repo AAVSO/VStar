@@ -105,6 +105,7 @@ import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
+import org.aavso.tools.vstar.ui.model.plot.PhasedObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PreviousCyclePhaseCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.ui.pane.list.ObservationListPane;
@@ -1080,7 +1081,9 @@ public class Mediator {
 		// Given raw valid and invalid observation data, create observation
 		// table and plot models, along with corresponding GUI components.
 
-		if (addObs) {
+		// Handle additive load if requested and observations are already
+		// loaded.
+		if (addObs && getLatestNewStarMessage() != null) {
 			convertObsToHJD(starInfo);
 
 			starInfo.getRetriever().collectAllObservations(validObsList,
@@ -1288,8 +1291,6 @@ public class Mediator {
 			// TODO: open dialog asking for RA/DEC and if that is cancelled,
 			// open another dialog indicating that HJD conversion cannot
 			// take place. For now, just do the latter.
-			MessageBox.showWarningDialog("HJD Conversion",
-					"Unable to convert observations to HJD.");
 			return;
 		}
 
@@ -1301,6 +1302,9 @@ public class Mediator {
 			 * not, so convert the existing observations.
 			 */
 			convertObsToHJD(validObsList, ra, dec);
+
+			MessageBox.showWarningDialog("HJD Conversion",
+					"The previously loaded observations were converted to HJD.");
 		} else if (!newStarInfo.getRetriever().isHeliocentric()
 				&& getLatestNewStarMessage().getStarInfo().getRetriever()
 						.isHeliocentric()) {
@@ -1315,6 +1319,9 @@ public class Mediator {
 			convertObsToHJD(newStarInfo.getRetriever().getValidObservations(),
 					ra, dec);
 			newStarInfo.getRetriever().setHeliocentric(true);
+
+			MessageBox.showWarningDialog("HJD Conversion",
+					"The newly loaded observations were converted to HJD.");
 		}
 	}
 
@@ -1379,6 +1386,8 @@ public class Mediator {
 
 		// We duplicate the valid observation category map
 		// so that it can vary from the main plot's over time.
+		// TODO: but is it ever mutated in the plot models? is it enough to
+		// duplicate and sort means?
 		Map<SeriesType, List<ValidObservation>> phasedValidObservationCategoryMap = new TreeMap<SeriesType, List<ValidObservation>>();
 
 		for (SeriesType series : validObservationCategoryMap.keySet()) {
@@ -1403,13 +1412,13 @@ public class Mediator {
 						.getPhasePlotTableColumnInfoSource());
 
 		// Observation-and-mean table and plot.
-		ObservationAndMeanPlotModel obsAndMeanPlotModel1 = new ObservationAndMeanPlotModel(
+		PhasedObservationAndMeanPlotModel obsAndMeanPlotModel1 = new PhasedObservationAndMeanPlotModel(
 				phasedValidObservationCategoryMap,
 				PreviousCyclePhaseCoordSource.instance,
 				PreviousCyclePhaseComparator.instance,
 				PhaseTimeElementEntity.instance, seriesVisibilityMap);
 
-		ObservationAndMeanPlotModel obsAndMeanPlotModel2 = new ObservationAndMeanPlotModel(
+		PhasedObservationAndMeanPlotModel obsAndMeanPlotModel2 = new PhasedObservationAndMeanPlotModel(
 				phasedValidObservationCategoryMap,
 				StandardPhaseCoordSource.instance,
 				StandardPhaseComparator.instance,
@@ -1545,9 +1554,10 @@ public class Mediator {
 	 * valid observations.
 	 */
 	private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(String plotName,
-			String subTitle, ObservationAndMeanPlotModel obsAndMeanPlotModel1,
-			ObservationAndMeanPlotModel obsAndMeanPlotModel2, double epoch,
-			double period) {
+			String subTitle,
+			PhasedObservationAndMeanPlotModel obsAndMeanPlotModel1,
+			PhasedObservationAndMeanPlotModel obsAndMeanPlotModel2,
+			double epoch, double period) {
 
 		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
 				(int) (TabbedDataPane.HEIGHT * 0.9));
