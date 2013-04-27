@@ -44,30 +44,33 @@ import org.jfree.data.DomainOrder;
 import org.jfree.data.xy.AbstractIntervalXYDataset;
 
 /**
- * This is the base class for models that represent a series of valid variable
- * star observations, e.g. for different bands (or from different sources).
+ * This is the abstract base class for models that represent a series of valid
+ * variable star observations, e.g. for different bands (or from different
+ * sources). In practice, this class is only intended to be used as a the base
+ * class for ObservationAndMeanPlot. The two could be merged with the latter
+ * assuming the current class's name.
  */
 @SuppressWarnings("serial")
-public class ObservationPlotModel extends AbstractIntervalXYDataset implements
-		ISeriesInfoProvider {
+abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
+		implements ISeriesInfoProvider {
 
-	private static final int NO_SERIES = -1;
+	protected static final int NO_SERIES = -1;
 
 	/**
 	 * Coordinate and error source.
 	 */
-	private ICoordSource coordSrc;
+	protected ICoordSource coordSrc;
 
 	/**
 	 * An observation comparator (e.g. to provide an ordering over time: JD or
 	 * phase).
 	 */
-	private Comparator<ValidObservation> obComparator;
+	protected Comparator<ValidObservation> obComparator;
 
 	/**
 	 * A unique next series number for this model.
 	 */
-	private int seriesNum;
+	protected int seriesNum;
 
 	/**
 	 * A mapping from series number to a list of observations where each such
@@ -138,18 +141,6 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		this.seriesToBeJoinedVisually = new HashSet<Integer>();
 		this.lastSinglySelectedSeries = null;
 
-		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
-				createDiscrepantChangeListener());
-
-		Mediator.getInstance().getExcludedObservationNotifier().addListener(
-				createExcludedChangeListener());
-
-		Mediator.getInstance().getModelSelectionNofitier().addListener(
-				createModelSelectionListener());
-
-		Mediator.getInstance().getFilteredObservationNotifier().addListener(
-				createFilteredObservationListener());
-
 		Mediator.getInstance().getSeriesCreationNotifier().addListener(
 				createSeriesCreationListener());
 	}
@@ -166,7 +157,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @param obComparator
 	 *            A valid observation comparator (e.g. by JD or phase).
 	 */
-	public ObservationPlotModel(
+	private ObservationPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
 			ICoordSource coordSrc, Comparator<ValidObservation> obComparator) {
 
@@ -228,7 +219,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @param seriesVisibilityMap
 	 *            A mapping from series number to visibility status.
 	 */
-	public ObservationPlotModel(
+	protected ObservationPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
 			ICoordSource coordSrc, Comparator<ValidObservation> obComparator,
 			Map<SeriesType, Boolean> seriesVisibilityMap) {
@@ -346,7 +337,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 * @return The number of the series replaced.
 	 * @precondition The series has already been added to the plot.
 	 */
-	public int replaceObservationSeries(SeriesType type,
+	protected int replaceObservationSeries(SeriesType type,
 			List<ValidObservation> obs) {
 		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);
 		assert seriesNum != null;
@@ -369,7 +360,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *            The series type.
 	 * @return Whether or not the series was removed.
 	 */
-	public boolean removeObservationSeries(SeriesType type) {
+	protected boolean removeObservationSeries(SeriesType type) {
 		boolean found = false;
 
 		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);
@@ -440,7 +431,7 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 	 *            Whether this series should be visible.
 	 * @return Whether or not the visibility of the object changed.
 	 */
-	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
+	protected boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
 		SeriesType seriesType = seriesNumToSrcTypeMap.get(seriesNum);
 		Boolean currVis = this.seriesVisibilityMap.get(seriesType);
 
@@ -461,12 +452,9 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		return changed;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getVisibleSeries
-	 * ()
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getVisibleSeries
+	 *      ()
 	 */
 	public Set<SeriesType> getVisibleSeries() {
 		Set<SeriesType> visibleSeries = new HashSet<SeriesType>();
@@ -481,11 +469,8 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		return visibleSeries;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getSeriesCount()
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getSeriesCount()
 	 */
 	public int getSeriesCount() {
 		return this.seriesNumToObSrcListMap.size();
@@ -503,18 +488,15 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		return this.seriesNumToSrcTypeMap.get(series);
 	}
 
-	/** 
-	 * @see
-	 * org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getSeriesKeys()
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#getSeriesKeys()
 	 */
 	public Set<SeriesType> getSeriesKeys() {
 		return srcTypeToSeriesNumMap.keySet();
 	}
 
 	/**
-	 * @see
-	 * org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#seriesExists(
-	 * org.aavso.tools.vstar.data.SeriesType)
+	 * @see org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider#seriesExists(org.aavso.tools.vstar.data.SeriesType)
 	 */
 	public boolean seriesExists(SeriesType type) {
 		return this.srcTypeToSeriesNumMap.containsKey(type);
@@ -748,190 +730,6 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 		return visible;
 	}
 
-	/**
-	 * Listen for discrepant observation change notification.
-	 */
-	protected Listener<DiscrepantObservationMessage> createDiscrepantChangeListener() {
-
-		return new Listener<DiscrepantObservationMessage>() {
-			public void update(DiscrepantObservationMessage info) {
-				ValidObservation ob = info.getObservation();
-
-				// Did we go to or from being discrepant?
-				if (ob.isDiscrepant()) {
-					// Now marked as discrepant so move observation from
-					// its designated band series to the discrepant series.
-					removeObservationFromSeries(ob, ob.getBand());
-					addObservationToSeries(ob, SeriesType.DISCREPANT);
-				} else {
-					// Was marked as discrepant, now is not, so move
-					// observation from the discrepant series to its
-					// designated band series.
-					removeObservationFromSeries(ob, SeriesType.DISCREPANT);
-					addObservationToSeries(ob, ob.getBand());
-				}
-				fireDatasetChanged();
-			}
-
-			/**
-			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
-			 */
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
-	/**
-	 * Listen for excluded observation change notification.
-	 */
-	protected Listener<ExcludedObservationMessage> createExcludedChangeListener() {
-
-		return new Listener<ExcludedObservationMessage>() {
-
-			@Override
-			public void update(ExcludedObservationMessage info) {
-				List<ValidObservation> obs = info.getObservations();
-				boolean excluded = obs.get(0).isExcluded();
-
-				// Did we go to or from being excluded?
-				if (excluded) {
-					for (ValidObservation ob : info.getObservations()) {
-						// Now marked as excluded so move observation from
-						// its designated band to the excluded series.
-						removeObservationFromSeries(ob, ob.getBand());
-					}
-					// All are going to the same series, so we can do this
-					// en-masse. Note that we cannot do the reverse en-masse!
-					addObservationsToSeries(obs, SeriesType.Excluded);
-				} else {
-					// Was previously marked as excluded, now is not, so move
-					// observation from the excluded series to its
-					// designated series. Reversing observation exclusion is
-					// less efficient than the initial exclusion.
-					for (ValidObservation ob : info.getObservations()) {
-						removeObservationFromSeries(ob, SeriesType.Excluded);
-						addObservationToSeries(ob, ob.getBand());
-					}
-				}
-
-				fireDatasetChanged();
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
-	// Update the model and residuals series.
-	public void updateModelSeries(List<ValidObservation> modelObs,
-			List<ValidObservation> residualObs) {
-
-		// Add or replace a series for the model and make sure
-		// the series is visible.
-		if (this.seriesExists(SeriesType.Model)) {
-			fitSeriesNum = replaceObservationSeries(SeriesType.Model, modelObs);
-		} else {
-			fitSeriesNum = addObservationSeries(SeriesType.Model, modelObs);
-		}
-
-		// Make the model series visible either because this
-		// is its first appearance or because it may have been made
-		// invisible via the change series dialog.
-		this.changeSeriesVisibility(fitSeriesNum, true);
-
-		// TODO: do we really need this? if not, revert means join
-		// handling code
-		// this.addSeriesToBeJoinedVisually(fitSeriesNum);
-
-		// Add or replace a series for the residuals.
-		if (this.seriesExists(SeriesType.Residuals)) {
-			this.replaceObservationSeries(SeriesType.Residuals, residualObs);
-		} else {
-			residualsSeriesNum = addObservationSeries(SeriesType.Residuals,
-					residualObs);
-		}
-
-		// Hide the residuals series initially. We toggle the series
-		// visibility to achieve this since the default is false. That
-		// shouldn't be necessary; investigate.
-		// this.changeSeriesVisibility(residualsSeriesNum, true);
-		changeSeriesVisibility(residualsSeriesNum, false);
-	}
-
-	// Returns a model selection listener.
-	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
-		return new Listener<ModelSelectionMessage>() {
-			@Override
-			public void update(ModelSelectionMessage info) {
-				updateModelSeries(info.getModel().getFit(), info.getModel()
-						.getResiduals());
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
-	public boolean handleNoFilter(FilteredObservationMessage info) {
-		boolean result = false;
-
-		if (info == FilteredObservationMessage.NO_FILTER) {
-			// No filter, so make the filtered series invisible.
-			if (this.seriesExists(SeriesType.Filtered)) {
-				int num = this.getSrcTypeToSeriesNumMap().get(
-						SeriesType.Filtered);
-				changeSeriesVisibility(num, false);
-			}
-			result = true;
-		}
-
-		return result;
-	}
-
-	public void updateFilteredSeries(List<ValidObservation> obs) {
-		if (this.seriesExists(SeriesType.Filtered)) {
-			filterSeriesNum = replaceObservationSeries(SeriesType.Filtered, obs);
-		} else {
-			filterSeriesNum = addObservationSeries(SeriesType.Filtered, obs);
-		}
-
-		// Make the filter series visible either because this is
-		// its first appearance or because it may have been made
-		// invisible via a previous NO_FILTER message.
-		changeSeriesVisibility(filterSeriesNum, true);
-	}
-
-	// Returns a filtered observation listener.
-	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
-		return new Listener<FilteredObservationMessage>() {
-
-			@Override
-			public void update(FilteredObservationMessage info) {
-				if (!handleNoFilter(info)) {
-					// Convert set of filtered observations to list then add
-					// or replace the filter series.
-					// TODO: why not just pass set to ctor?
-					List<ValidObservation> obs = new ArrayList<ValidObservation>();
-					for (ValidObservation ob : info.getFilteredObs()) {
-						obs.add(ob);
-					}
-
-					updateFilteredSeries(obs);
-				}
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
-
 	// Returns a series creation listener, adding a new observation series to
 	// the plot, and making it visible.
 	protected Listener<SeriesCreationMessage> createSeriesCreationListener() {
@@ -961,4 +759,21 @@ public class ObservationPlotModel extends AbstractIntervalXYDataset implements
 			}
 		};
 	}
+
+	/**
+	 * Listen for a model series selection and add/remove its fit and residual
+	 * observations from the relevant collections. We need to re-calculate the
+	 * means series if any of the model observations' series type is the same as
+	 * the mean source series type.
+	 */
+	abstract protected Listener<ModelSelectionMessage> createModelSelectionListener();
+
+	/**
+	 * Listen for a filtered observation and add/remove its observations from
+	 * the relevant collections. We need to re-calculate the means series if any
+	 * of the model observations' series type is the same as the mean source
+	 * series type.
+	 */
+	abstract protected Listener<FilteredObservationMessage> createFilteredObservationListener();
+
 }

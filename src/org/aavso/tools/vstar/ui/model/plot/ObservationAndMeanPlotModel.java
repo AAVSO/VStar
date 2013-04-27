@@ -29,6 +29,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.BinningResult;
@@ -106,10 +108,16 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		this.setMeanSeries(false);
 
 		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
-				createMeanObsDiscrepantChangeListener());
+				createDiscrepantChangeListener());
 
 		Mediator.getInstance().getExcludedObservationNotifier().addListener(
 				createExcludedChangeListener());
+
+		Mediator.getInstance().getModelSelectionNofitier().addListener(
+				createModelSelectionListener());
+
+		Mediator.getInstance().getFilteredObservationNotifier().addListener(
+				createFilteredObservationListener());
 	}
 
 	/**
@@ -137,6 +145,11 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 		boolean changed = true;
 
+		// Does this rely upon mean source series being sorted to determine time
+		// range?
+		// Perhaps the difference between when mean is selected via plot control
+		// dialog vs model listener below?
+
 		binningResult = DescStats.createSymmetricBinnedObservations(
 				seriesNumToObSrcListMap.get(meanSourceSeriesNum),
 				timeElementEntity, timeElementsInBin);
@@ -148,15 +161,28 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			// to make a "means" series, we do so.
 			boolean found = false;
 
-			// TODO: instead of this, why not just ask:
-			// if (this.meansSeriesNum != NO_MEANS_SERIES) {
-			// ...
-			// } else {
-			// ...do the if (!found) code below...
-			// }
-			//
-			// or even:
-			// if (this.srcTypeToSeriesNumMap.get(type) != null) ...
+			// TODO: do something like this instead of what follows below.
+			// Is this the first time the means series has been added?
+//			if (this.meansSeriesNum != NO_MEANS_SERIES) {
+//				// Replace the means series with the new one.
+//				this.seriesNumToObSrcListMap.put(this.meanSourceSeriesNum, meanObsList);
+//				this.fireDatasetChanged();
+//				
+//				// The mean series has been changed after the initial one. If it
+//				// is not visible, make it so since the user has updated it and
+//				// probably wants to see it right away.
+//				if (updateAfterInitial) {
+//					changeSeriesVisibility(this.meansSeriesNum, true);
+//				}
+//			} else {
+//				// Create the means series.
+//				this.meansSeriesNum = addObservationSeries(SeriesType.MEANS,
+//						meanObsList);
+//
+//				// Mean series not rendered by default.
+//				getSeriesVisibilityMap().put(SeriesType.MEANS, false);				
+//			}
+			
 			for (Map.Entry<Integer, SeriesType> entry : this.seriesNumToSrcTypeMap
 					.entrySet()) {
 				if (SeriesType.MEANS.equals(entry.getValue())) {
@@ -416,22 +442,101 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
-	 * Listen for discrepant observation change notification. Since a discrepant
-	 * observation is ignored for statistical analysis purposes (see DescStats
-	 * class), we need to re-calculate the means series if the discrepant
-	 * observation's series type is the same as the mean source series type.
+	 * Listen for discrepant observation change notification and add/remove it
+	 * from the relevant collections. Since a discrepant observation is ignored
+	 * for statistical analysis purposes (see DescStats class), we need to
+	 * re-calculate the means series if the discrepant observation's series type
+	 * is the same as the mean source series type.
 	 */
-	protected Listener<DiscrepantObservationMessage> createMeanObsDiscrepantChangeListener() {
+	protected Listener<DiscrepantObservationMessage> createDiscrepantChangeListener() {
+
 		final ObservationAndMeanPlotModel model = this;
 
 		return new Listener<DiscrepantObservationMessage>() {
-
-			@Override
 			public void update(DiscrepantObservationMessage info) {
+				ValidObservation ob = info.getObservation();
 
+				// Did we go to or from being discrepant?
+				if (ob.isDiscrepant()) {
+					// Now marked as discrepant so move observation from
+					// its designated band series to the discrepant series.
+					removeObservationFromSeries(ob, ob.getBand());
+					addObservationToSeries(ob, SeriesType.DISCREPANT);
+				} else {
+					// Was marked as discrepant, now is not, so move
+					// observation from the discrepant series to its
+					// designated band series.
+					removeObservationFromSeries(ob, SeriesType.DISCREPANT);
+					addObservationToSeries(ob, ob.getBand());
+				}
+
+				fireDatasetChanged();
+
+				// If the discrepant observation's band is the source of the
+				// means series, re-compute the means series.
 				if (info.getObservation().getBand() == seriesNumToSrcTypeMap
 						.get(meanSourceSeriesNum)) {
 					model.setMeanSeries(false);
+				}
+			}
+
+			/**
+			 * @see org.aavso.tools.vstar.util.notification.Listener#canBeRemoved()
+			 */
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	/**
+	 * Listen for excluded observation change notification and add/remove it
+	 * from the relevant collections. We need to re-calculate the means series
+	 * if any of the excluded observations' series type is the same as the mean
+	 * source series type.
+	 */
+	protected Listener<ExcludedObservationMessage> createExcludedChangeListener() {
+
+		final ObservationAndMeanPlotModel model = this;
+
+		return new Listener<ExcludedObservationMessage>() {
+
+			@Override
+			public void update(ExcludedObservationMessage info) {
+				List<ValidObservation> obs = info.getObservations();
+				boolean excluded = obs.get(0).isExcluded();
+
+				// Did we go to or from being excluded?
+				if (excluded) {
+					for (ValidObservation ob : info.getObservations()) {
+						// Now marked as excluded so move observation from
+						// its designated band to the excluded series.
+						removeObservationFromSeries(ob, ob.getBand());
+					}
+					// All are going to the same series, so we can do this
+					// en-masse. Note that we cannot do the reverse en-masse!
+					addObservationsToSeries(obs, SeriesType.Excluded);
+				} else {
+					// Was previously marked as excluded, now is not, so move
+					// observation from the excluded series to its
+					// designated series. Reversing observation exclusion is
+					// less efficient than the initial exclusion.
+					for (ValidObservation ob : info.getObservations()) {
+						removeObservationFromSeries(ob, SeriesType.Excluded);
+						addObservationToSeries(ob, ob.getBand());
+					}
+				}
+
+				fireDatasetChanged();
+
+				// If any of the excluded observations bands is the source of
+				// the means series, re-compute the means series.
+				for (ValidObservation ob : info.getObservations()) {
+					if (ob.getBand() == seriesNumToSrcTypeMap
+							.get(meanSourceSeriesNum)) {
+						model.setMeanSeries(false);
+						break;
+					}
 				}
 			}
 
@@ -443,23 +548,126 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
-	 * Listen for excluded observation change notification. Since an excluded
-	 * observation is ignored for statistical analysis purposes, we need to
-	 * re-calculate the means series if any of the excluded observations' series
-	 * type is the same as the mean source series type.
+	 * Update the model's fit and residual observation collections.
 	 */
-	protected Listener<ExcludedObservationMessage> createMeanExcludedChangeListener() {
+	protected void updateModelSeries(List<ValidObservation> modelObs,
+			List<ValidObservation> residualObs) {
+
+		// Add or replace a series for the model and make sure
+		// the series is visible.
+		if (this.seriesExists(SeriesType.Model)) {
+			fitSeriesNum = replaceObservationSeries(SeriesType.Model, modelObs);
+		} else {
+			fitSeriesNum = addObservationSeries(SeriesType.Model, modelObs);
+		}
+
+		// Make the model series visible either because this
+		// is its first appearance or because it may have been made
+		// invisible via the change series dialog.
+		this.changeSeriesVisibility(fitSeriesNum, true);
+
+		// TODO: do we really need this? if not, revert means join
+		// handling code
+		// this.addSeriesToBeJoinedVisually(fitSeriesNum);
+
+		// Add or replace a series for the residuals.
+		if (this.seriesExists(SeriesType.Residuals)) {
+			this.replaceObservationSeries(SeriesType.Residuals, residualObs);
+		} else {
+			residualsSeriesNum = addObservationSeries(SeriesType.Residuals,
+					residualObs);
+		}
+
+		// Hide the residuals series initially. We toggle the series
+		// visibility to achieve this since the default is false. That
+		// shouldn't be necessary; investigate.
+		// this.changeSeriesVisibility(residualsSeriesNum, true);
+		changeSeriesVisibility(residualsSeriesNum, false);
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel#createModelSelectionListener()
+	 */
+	@Override
+	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
+
 		final ObservationAndMeanPlotModel model = this;
 
-		return new Listener<ExcludedObservationMessage>() {
+		return new Listener<ModelSelectionMessage>() {
+			@Override
+			public void update(ModelSelectionMessage info) {
+				updateModelSeries(info.getModel().getFit(), info.getModel()
+						.getResiduals());
+
+				// If the means sources series is model or residuals (from
+				// previous modelling operation), re-compute the means series.
+				if (seriesNumToSrcTypeMap.get(meanSourceSeriesNum) == SeriesType.Model
+						|| seriesNumToSrcTypeMap.get(meanSourceSeriesNum) == SeriesType.Residuals) {
+					model.setMeanSeries(false);
+				}
+			}
 
 			@Override
-			public void update(ExcludedObservationMessage info) {
-				for (ValidObservation ob : info.getObservations()) {
-					if (ob.getBand() == seriesNumToSrcTypeMap
-							.get(meanSourceSeriesNum)) {
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	protected boolean handleNoFilter(FilteredObservationMessage info) {
+		boolean result = false;
+
+		if (info == FilteredObservationMessage.NO_FILTER) {
+			// No filter, so make the filtered series invisible.
+			if (this.seriesExists(SeriesType.Filtered)) {
+				int num = this.getSrcTypeToSeriesNumMap().get(
+						SeriesType.Filtered);
+				changeSeriesVisibility(num, false);
+			}
+			result = true;
+		}
+
+		return result;
+	}
+
+	protected void updateFilteredSeries(List<ValidObservation> obs) {
+		if (this.seriesExists(SeriesType.Filtered)) {
+			filterSeriesNum = replaceObservationSeries(SeriesType.Filtered, obs);
+		} else {
+			filterSeriesNum = addObservationSeries(SeriesType.Filtered, obs);
+		}
+
+		// Make the filter series visible either because this is
+		// its first appearance or because it may have been made
+		// invisible via a previous NO_FILTER message.
+		changeSeriesVisibility(filterSeriesNum, true);
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel#createFilteredObservationListener()
+	 */
+	@Override
+	protected Listener<FilteredObservationMessage> createFilteredObservationListener() {
+
+		final ObservationAndMeanPlotModel model = this;
+
+		return new Listener<FilteredObservationMessage>() {
+
+			@Override
+			public void update(FilteredObservationMessage info) {
+				if (!handleNoFilter(info)) {
+					// Convert set of filtered observations to list then add
+					// or replace the filter series.
+					List<ValidObservation> obs = new ArrayList<ValidObservation>(
+							info.getFilteredObs());
+
+					updateFilteredSeries(obs);
+
+					// If the means sources series is filtered (from
+					// previous filtering operation), re-compute the means
+					// series.
+					if (seriesNumToSrcTypeMap.get(meanSourceSeriesNum) == SeriesType.Filtered) {
 						model.setMeanSeries(false);
-						break;
 					}
 				}
 			}

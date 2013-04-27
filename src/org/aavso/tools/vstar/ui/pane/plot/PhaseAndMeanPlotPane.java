@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.model.plot.PhasedObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
@@ -79,7 +80,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	 */
 	public PhaseAndMeanPlotPane(String title, String subTitle,
 			Dimension bounds, double epoch, double period,
-			ObservationAndMeanPlotModel... obsAndMeanModels) {
+			PhasedObservationAndMeanPlotModel... obsAndMeanModels) {
 
 		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModels[0],
 				bounds, false);
