@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Image;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -40,7 +41,7 @@ public class MainFrame extends JFrame implements IMainUI {
 
 	// The user interface type.
 	private UIType uiType;
-	
+
 	// The application's menu bar.
 	private MenuBar menuBar;
 
@@ -51,8 +52,14 @@ public class MainFrame extends JFrame implements IMainUI {
 		super("VStar " + ResourceAccessor.getVersionString());
 
 		this.uiType = UIType.DESKTOP;
-		
+
 		Mediator.getInstance().setUI(this);
+
+		// Set the application's main window icon.
+		Image image = ResourceAccessor.getImageResource("/icons/vstaricon.png");
+		if (image != null) {
+			this.setIconImage(image);
+		}
 
 		this.menuBar = new MenuBar(this, uiType);
 		this.setJMenuBar(menuBar);
@@ -60,7 +67,7 @@ public class MainFrame extends JFrame implements IMainUI {
 		this.setContentPane(createContent());
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+
 		this.pack();
 	}
 
@@ -85,13 +92,13 @@ public class MainFrame extends JFrame implements IMainUI {
 		topPane.add(majorPane, BorderLayout.CENTER);
 
 		// Add status pane with an initial message.
-		statusPane = new StatusPane(
-				LocaleProps.get("STATUS_PANE_SELECT_NEW_STAR_FROM_FILE"));
+		statusPane = new StatusPane(LocaleProps
+				.get("STATUS_PANE_SELECT_NEW_STAR_FROM_FILE"));
 		topPane.add(statusPane, BorderLayout.PAGE_END);
 
 		return topPane;
 	}
-	
+
 	/**
 	 * @return the statusPane
 	 */
