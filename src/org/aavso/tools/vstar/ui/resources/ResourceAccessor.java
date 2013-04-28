@@ -17,8 +17,11 @@
  */
 package org.aavso.tools.vstar.ui.resources;
 
+import java.awt.Image;
+import java.io.IOException;
 import java.net.URL;
 
+import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
@@ -67,11 +70,40 @@ public class ResourceAccessor {
 				icon = new ImageIcon(url);
 			} else {
 				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-						"VStar About Box", "Can't locate icon: " + urlStr);
+						"VStar", "Can't locate icon: " + urlStr);
 			}
 		}
 
 		return icon;
+	}
+
+	/**
+	 * Returns an image given a resource URL string.
+	 * 
+	 * @param urlStr
+	 *            The URL string.
+	 * @return The image, or null if the resource was not found.
+	 */
+	public static Image getImageResource(String urlStr) {
+		Image image = null;
+
+		if (urlStr != null) {
+			URL url = ResourceAccessor.class.getResource(urlStr);
+
+			if (url != null) {
+				try {
+					image = ImageIO.read(url);
+				} catch (IOException e) {
+					MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+							"VStar", "Can't locate image: " + urlStr);
+				}
+			} else {
+				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+						"VStar", "Can't locate image: " + urlStr);
+			}
+		}
+
+		return image;
 	}
 
 	// ** HTML help URL resource accessor. ***

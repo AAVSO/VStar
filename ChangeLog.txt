@@ -32,6 +32,30 @@ Release History
 ===============
   
 ---------------------
+Date: April 28 2013
+Version: 2.15.1
+Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-28Apr2013
+Key Changes:
+- Created a period-Luminosity relationship plugin (DCEP). See AAVSO plugin library.
+- Ticket 344: Remember previous image save location.
+- Fixed ticket 360: AAVSO upload format plugin does not handle DELIM=comma.
+- Fixed ticket 338: model zero-point was not being included in the model displayed
+  in the Models dialog. Thanks to Avon for pointing out the bug and to he and Matt
+  for assistance.
+- Ticket 354: Excel and R model equation representations in Models dialog.
+- Created R script to plot observations and model data against a model function 
+  line plot (see script/plot_model.R).
+- Fixed ticket 345: epoch not displayed in Info dialog.
+- Fixed ticket 343: View -> No Filter stopped working.
+- Null Pointer Exception fixes for tickets 353 and 358. Thanks to Adam Weber for 
+  analysis.
+- Fixed ticket 367 in which the mean series was not correctly updating when 
+  synthetic series (model, residuals, filtered) changed and one of those series 
+  was the means source. 
+- Explicit selection of first item in previous model, phase plot, filters dialogs.
+- Added main window VStar icon (ticket 322).
+- Code clean-up, refactoring, comment fixes.
+
 Date: January 20 2013
 Version: 2.15.0
 Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-20Jan2013
