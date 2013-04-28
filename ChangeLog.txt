@@ -34,7 +34,7 @@ Release History
 ---------------------
 Date: April 28 2013
 Version: 2.15.1
-Tag: http://vstar.svn.sourceforge.net/viewvc/vstar/tags/DEV-AAVSO-28Apr2013
+Tag: DEV-AAVSO-28Apr2013
 Key Changes:
 - Created a period-Luminosity relationship plugin (DCEP). See AAVSO plugin library.
 - Ticket 344: Remember previous image save location.
