@@ -24,17 +24,17 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and VStar.{sh,ba
   files specify a larger-than-default heap, which helps significantly. For now, 
   if VStar becomes unresponsive, restart it, or increase the maximum heap memory 
   (currently -Xmx500m) when running via the local VStar.{sh,bat} file. This problem 
-  is being addressed over time. See tracker 2924511 for more.
-o WWZ is brittle in the presence of gaps in the data. See tracker 3542032.
+  is being addressed over time. See ticket 108 for more.
+o WWZ is brittle in the presence of gaps in the data. See ticket 328.
 
 ===============
 Release History
 ===============
   
 ---------------------
-Date: April 28 2013
+Date: April 30 2013
 Version: 2.15.1
-Tag: DEV-AAVSO-28Apr2013
+Tag: DEV-AAVSO-30Apr2013
 Key Changes:
 - Created a period-Luminosity relationship plugin (DCEP). See AAVSO plugin library.
 - Ticket 344: Remember previous image save location.

@@ -37,13 +37,12 @@ import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.dialog.TextField.Kind;
 import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
-import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
-import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.DescStats;
 
@@ -77,7 +76,6 @@ public class PeriodLuminosityDistanceCalculator extends
 		absMagEqns.put(DCEP, "-1.29 - 2.78 * log10(period)");
 	}
 
-	private ObservationAndMeanPlotModel model;
 	private Double period;
 	private Double magnitude;
 
@@ -85,8 +83,6 @@ public class PeriodLuminosityDistanceCalculator extends
 		super();
 		this.period = null;
 		this.magnitude = null;
-		Mediator.getInstance().getAnalysisTypeChangeNotifier().addListener(
-				createAnalysisTypeChangeListener());
 	}
 
 	@Override
@@ -95,6 +91,10 @@ public class PeriodLuminosityDistanceCalculator extends
 		StarInfo starInfo = Mediator.getInstance().getLatestNewStarMessage()
 				.getStarInfo();
 		period = starInfo.getPeriod();
+
+		// Request the series to be used.
+		ObservationAndMeanPlotModel model = Mediator.getInstance()
+				.getObservationPlotModel(AnalysisType.RAW_DATA);
 
 		SingleSeriesSelectionDialog seriesDlg = new SingleSeriesSelectionDialog(
 				model);
@@ -204,7 +204,7 @@ public class PeriodLuminosityDistanceCalculator extends
 		resultFields.add(new TextField("Distance (parsecs)", String.format(
 				otherFmt, distance), true, false, TextField.Kind.LINE));
 		resultFields.add(new TextField("Distance (light years)", String.format(
-				otherFmt, distance / 3.26), true, false, TextField.Kind.LINE));
+				otherFmt, distance * 3.26), true, false, TextField.Kind.LINE));
 		resultFields.add(new TextField("Distance Modulus",
 				"10 ^ ((apparent mag - absolute mag + 5) / 5)", true, false,
 				TextField.Kind.LINE));
@@ -252,19 +252,5 @@ public class PeriodLuminosityDistanceCalculator extends
 	@Override
 	public String getDisplayName() {
 		return "Distance from Period-Luminosity Relationship";
-	}
-
-	private Listener<AnalysisTypeChangeMessage> createAnalysisTypeChangeListener() {
-		return new Listener<AnalysisTypeChangeMessage>() {
-			@Override
-			public void update(AnalysisTypeChangeMessage msg) {
-				model = msg.getObsAndMeanChartPane().getObsModel();
-			}
-
-			@Override
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
 	}
 }
