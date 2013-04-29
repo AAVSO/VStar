@@ -6,7 +6,7 @@
 
     <title>VStar</title>
     <vendor>American Association of Variable Star Observers</vendor>
-    <homepage href="http://www.citizensky.org/teams/vstar-software-development"/>
+    <homepage href="http://www.aavso.org/vstar-overview"/>
     <description>
       VStar is a multi-platform, easy-to-use variable star data visualization tool. 
       Data can be read from a file or the AAVSO database and plotted as a light curve 

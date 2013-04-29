@@ -864,6 +864,15 @@ public class Mediator {
 	}
 
 	/**
+	 * Get the observation plot model for the specified analysis type.
+	 * 
+	 * @return The observation plot model.
+	 */
+	public ObservationAndMeanPlotModel getObservationPlotModel(AnalysisType type) {
+		return analysisTypeMap.get(type).getObsAndMeanChartPane().getObsModel();
+	}
+
+	/**
 	 * Change the analysis type. If the old and new types are the same, there
 	 * will be no effect.
 	 * 
@@ -1303,8 +1312,9 @@ public class Mediator {
 			 */
 			convertObsToHJD(validObsList, ra, dec);
 
-			MessageBox.showWarningDialog("HJD Conversion",
-					"The previously loaded observations were converted to HJD.");
+			MessageBox
+					.showWarningDialog("HJD Conversion",
+							"The previously loaded observations were converted to HJD.");
 		} else if (!newStarInfo.getRetriever().isHeliocentric()
 				&& getLatestNewStarMessage().getStarInfo().getRetriever()
 						.isHeliocentric()) {
