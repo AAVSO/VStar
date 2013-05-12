@@ -31,7 +31,8 @@ plugin_classes = [
                   'ApacheCommonsPolynomialFitter',
                   'ApacheCommonsLowessFitter',
                   'CatalinaSkySurveyObservationSource',
-                  'PeriodLuminosityDistanceCalculator'
+                  'PeriodLuminosityDistanceCalculator',
+                  'ASASObservationSource'
                  ]
    
 libs = "%s:%s" % (vstar_dist_jar, tamfits_jar)
