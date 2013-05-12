@@ -145,8 +145,11 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			decDegs = paramDialog.getDecDeg();
 			radiusDegs = paramDialog.getRadiusDeg();
 
-			String params = String.format("radeg=%f&decdeg=%f&raddeg=%f",
-					raDegs, decDegs, radiusDegs);
+			// We want numbers in the the URL to correspond to the server's
+			// locale!
+			String params = String
+					.format(Locale.ENGLISH, "radeg=%f&decdeg=%f&raddeg=%f",
+							raDegs, decDegs, radiusDegs);
 
 			for (String seriesName : seriesNameToTypeMap.keySet()) {
 				try {
@@ -424,6 +427,5 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			}
 		}
 	}
-	
-	
+
 }

@@ -203,7 +203,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 				// Reject class C or D data.
 				String dataClass = fields[11];
 				if (!"C".equals(dataClass) && !"D".equals(dataClass)) {
-					double hjd = Double.parseDouble(fields[0]) + 245000;
+					double hjd = Double.parseDouble(fields[0]) + 2450000;
 					double mag = Double.parseDouble(fields[1]);
 					double magErr = Double.parseDouble(fields[6]);
 
