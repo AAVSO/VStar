@@ -27,6 +27,7 @@ public class AllTests {
 				"Test for org.aavso.tools.vstar.external.plugin");
 		//$JUnit-BEGIN$
 		suite.addTestSuite(AAVSOUploadFileFormatObservationSourceTest.class);
+		suite.addTestSuite(ASASObservationSourceTest.class);
 		//$JUnit-END$
 		return suite;
 	}
