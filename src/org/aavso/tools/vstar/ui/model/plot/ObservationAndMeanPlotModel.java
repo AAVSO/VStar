@@ -163,26 +163,27 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 			// TODO: do something like this instead of what follows below.
 			// Is this the first time the means series has been added?
-//			if (this.meansSeriesNum != NO_MEANS_SERIES) {
-//				// Replace the means series with the new one.
-//				this.seriesNumToObSrcListMap.put(this.meanSourceSeriesNum, meanObsList);
-//				this.fireDatasetChanged();
-//				
-//				// The mean series has been changed after the initial one. If it
-//				// is not visible, make it so since the user has updated it and
-//				// probably wants to see it right away.
-//				if (updateAfterInitial) {
-//					changeSeriesVisibility(this.meansSeriesNum, true);
-//				}
-//			} else {
-//				// Create the means series.
-//				this.meansSeriesNum = addObservationSeries(SeriesType.MEANS,
-//						meanObsList);
-//
-//				// Mean series not rendered by default.
-//				getSeriesVisibilityMap().put(SeriesType.MEANS, false);				
-//			}
-			
+			// if (this.meansSeriesNum != NO_MEANS_SERIES) {
+			// // Replace the means series with the new one.
+			// this.seriesNumToObSrcListMap.put(this.meanSourceSeriesNum,
+			// meanObsList);
+			// this.fireDatasetChanged();
+			//				
+			// // The mean series has been changed after the initial one. If it
+			// // is not visible, make it so since the user has updated it and
+			// // probably wants to see it right away.
+			// if (updateAfterInitial) {
+			// changeSeriesVisibility(this.meansSeriesNum, true);
+			// }
+			// } else {
+			// // Create the means series.
+			// this.meansSeriesNum = addObservationSeries(SeriesType.MEANS,
+			// meanObsList);
+			//
+			// // Mean series not rendered by default.
+			// getSeriesVisibilityMap().put(SeriesType.MEANS, false);
+			// }
+
 			for (Map.Entry<Integer, SeriesType> entry : this.seriesNumToSrcTypeMap
 					.entrySet()) {
 				if (SeriesType.MEANS.equals(entry.getValue())) {
@@ -364,7 +365,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * @return The series number on which to base the mean series.
 	 */
 	public int determineMeanSeriesSource() {
-		int seriesNum = -1;
+		int seriesNum = NO_MEANS_SERIES;
 
 		// TODO:
 		// - use keySet().contains() below!
@@ -380,7 +381,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			}
 		}
 
-		if (seriesNum == -1) {
+		if (seriesNum == NO_MEANS_SERIES) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				if (series == SeriesType.Johnson_V) {
 					// Johnson V band
@@ -391,7 +392,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		}
 
 		// No visual bands present. Try 'Unspecified'.
-		if (seriesNum == -1) {
+		if (seriesNum == NO_MEANS_SERIES) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				if (series == SeriesType.Unspecified) {
 					// Unspecified
@@ -401,11 +402,12 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			}
 		}
 
-		// No match: choose some non-empty series other than fainter-than,
-		// discrepant, or excluded. TODO: It would be better to choose the
-		// series with the greatest number of observations. The same rule should
-		// apply to the selection of visible-by-default series.
-		if (seriesNum == -1) {
+		// No match: choose a non-empty series other than fainter-than,
+		// discrepant, or excluded. More specifically, choose the series with
+		// the greatest number of observations.
+		int maxObsSeriesNum = NO_MEANS_SERIES;
+		int maxObs = Integer.MIN_VALUE;
+		if (seriesNum == NO_MEANS_SERIES) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				if (series != SeriesType.FAINTER_THAN
 						&& series != SeriesType.DISCREPANT
@@ -413,10 +415,17 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 						&& !series.isSynthetic()
 						&& !seriesNumToObSrcListMap.get(
 								srcTypeToSeriesNumMap.get(series)).isEmpty()) {
+					// 
 					seriesNum = srcTypeToSeriesNumMap.get(series);
-					break;
+					int numObs = seriesNumToObSrcListMap.get(seriesNum).size();
+					if (numObs > maxObs) {
+						maxObsSeriesNum = seriesNum;
+						maxObs = numObs;
+					}
+
 				}
 			}
+			seriesNum = maxObsSeriesNum;
 		}
 
 		// Still nothing? Okay, now we just choose the first series we come to,
@@ -429,7 +438,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// and excluded observations
 		// with respect to mean curves. We might want to revise this. Of course,
 		// fainter-thans can later be selected as the means-source.
-		if (seriesNum == -1) {
+		if (seriesNum == NO_MEANS_SERIES) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				seriesNum = srcTypeToSeriesNumMap.get(series);
 				break;
