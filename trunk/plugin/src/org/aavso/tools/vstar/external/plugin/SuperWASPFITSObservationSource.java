@@ -89,7 +89,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 	}
 
 	class FITSObservationRetriever extends AbstractObservationRetriever {
-		
+
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
@@ -142,7 +142,6 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 							float fluxErr = ((float[]) tableHDU.getElement(row,
 									2))[0];
 
-							// TODO: make use of the additional fields?
 							float tamFlux = ((float[]) tableHDU.getElement(row,
 									3))[0];
 							float tamFluxErr = ((float[]) tableHDU.getElement(
@@ -151,7 +150,8 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 									5);
 							short ccdX = ((short[]) tableHDU.getElement(row, 6))[0];
 							short ccdY = ((short[]) tableHDU.getElement(row, 7))[0];
-							short flag = ((short[]) tableHDU.getElement(row, 8))[0];
+							// short flag = ((short[]) tableHDU.getElement(row,
+							// 8))[0];
 
 							if (flux > 1 && flux - fluxErr > 0) {
 								double hjd = tmid / 86400.0 + jdRef;
@@ -171,7 +171,12 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 								ob.setBand(superWaspSeries);
 								ob.setRecordNumber(row);
 								ob.addDetail("IMAGE_ID", imageId, "Image ID");
-
+								ob.addDetail("CCDX", ccdX + "", "CCD X");
+								ob.addDetail("CCDY", ccdY + "", "CCD Y");
+								ob.addDetail("FLUX", tamFlux + "", "Flux");
+								ob.addDetail("FLUXERR", tamFluxErr + "",
+										"Flux Error");
+//								ob.addDetail("FLAG", flag + "", "Flag");
 								obs.add(ob);
 							}
 						} catch (Exception e) {
@@ -207,8 +212,6 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 			for (ValidObservation ob : obs) {
 				double magErr = ob.getMagnitude().getUncertainty();
 				if (magErr >= magErrThreshold) {
-					ob.setBand(superWaspSeries); // TODO: why do this here as
-													// well?
 					ob.setExcluded(true);
 				}
 
