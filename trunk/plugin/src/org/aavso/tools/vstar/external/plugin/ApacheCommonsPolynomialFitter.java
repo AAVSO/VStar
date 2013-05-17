@@ -168,6 +168,8 @@ public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {
 					public String toString() {
 						String strRepr = functionStrMap.get("Function");
 
+						// List<Double> derivs = new ArrayList<Double>();
+
 						if (strRepr == null) {
 							strRepr = "sum(";
 
@@ -186,6 +188,17 @@ public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {
 								strRepr += String.format("\n\nAIC=" + fmt, aic);
 								strRepr += String.format("\nBIC=" + fmt, bic);
 							}
+							
+//							// Extrema.							
+//							strRepr += "\n\nExtrema:\n";
+//							for (ValidObservation ob : obs) {
+//								double jd = ob.getJD();
+//								double deriv = function.polynomialDerivative().value(jd);
+//								derivs.add(deriv);
+//								if (deriv == 0.0) {
+//									strRepr += String.format(fmt+"\n", ob.getMag());
+//								}
+//							}
 						}
 
 						return strRepr;
@@ -205,7 +218,7 @@ public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {
 								strRepr += String.format(fmt, coeffs[i]);
 								strRepr += "*A1^" + i + ",\n";
 							}
-							strRepr += String.format(fmt, coeffs[0]) + ")";
+							strRepr += String.format(fmt, coeffs[0]) + ")";							
 						}
 
 						return strRepr;
@@ -223,7 +236,7 @@ public class ApacheCommonsPolynomialFitter extends ModelCreatorPluginBase {
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += String.format(fmt, coeffs[i]);
-								strRepr += "*t^" + i + " +\n+ ";
+								strRepr += "*t^" + i + " +\n";
 							}
 							strRepr += String.format(fmt, coeffs[0]);
 						}
