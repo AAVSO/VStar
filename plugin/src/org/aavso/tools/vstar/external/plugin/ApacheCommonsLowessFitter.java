@@ -210,7 +210,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += String.format(fmt, coeffs[i]);
-								strRepr += "*t^" + i + "+\n+";
+								strRepr += "*t^" + i + "+\n";
 							}
 							constCoeff += coeffs[0];
 						}
