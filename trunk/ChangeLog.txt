@@ -32,6 +32,21 @@ Release History
 ===============
   
 ---------------------
+Date: May 18 2013
+Version: 2.15.2
+Tag: DEV-AAVSO-18May2013
+Key Changes:
+- Fixed ticket 373: BSM/APASS URL creation was not always using the locale 
+  of the server. Thanks to Pierre Hallsten for reporting this and testing 
+  the fix.
+- ASAS observation source plugin (ticket 324). Thanks to Mark Blackford for
+  his help in deciphering the ASAS format and providing advice and testing.
+- Fixed ticket 369: Except for visual and V, the mean series source should 
+  be the one with the most observations.
+- Added flux and ccd X,Y fields to obs in SuperWASP obs source plugin. See 
+  ticket 242.
+- Simplified R model equation output format.
+
 Date: April 30 2013
 Version: 2.15.1
 Tag: DEV-AAVSO-30Apr2013
