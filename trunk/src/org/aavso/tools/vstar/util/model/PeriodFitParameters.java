@@ -308,7 +308,7 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	public String toRString() {
 		String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
 
-		String str = "+\n+ "; // line continuation
+		String str = "+\n";
 
 		String sincosParam = "2*pi*" + harmonic + "*(t-" + zeroPointOffset
 				+ ")";
