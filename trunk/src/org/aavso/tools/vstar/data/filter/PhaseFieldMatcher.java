@@ -73,7 +73,7 @@ public class PhaseFieldMatcher extends DoubleFieldMatcher {
 
 	@Override
 	public String getDisplayName() {
-		return LocaleProps.get("PHASE");
+		return LocaleProps.get("PHASE_FILTER_TYPE");
 	}
 
 	@Override
