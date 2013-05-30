@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -64,8 +65,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 	 * Constructor.
 	 */
 	public PhaseParameterDialog() {
-		super("Phase Plot");
-		this.setModal(true); // TODO: base class defaults to this!
+		super(LocaleProps.get("PHASE_PARAMETER_DLG_PHASE_TITLE"));
 
 		period = 0;
 		epoch = 0;
@@ -113,10 +113,12 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Period (days)"));
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("PHASE_PARAMETER_DLG_PERIOD")
+				+ " (" + LocaleProps.get("PHASE_PARAMETER_DLG_DAYS") + ")"));
 
 		periodField = new JTextField();
-		periodField.setToolTipText("Enter period in days");
+		// periodField.setToolTipText("Enter period in days");
 		// periodField.addPropertyChangeListener(this);
 		panel.add(periodField);
 
@@ -127,10 +129,13 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Epoch (JD)"));
+		// TODO: show "(JD/HJD)"?
+		panel.setBorder(BorderFactory.createTitledBorder(LocaleProps
+				.get("PHASE_PARAMETER_DLG_EPOCH")
+				+ " (" + LocaleProps.get("JD") + ")"));
 
 		epochField = new JTextField();
-		epochField.setToolTipText("Enter epoch as JD");
+		// epochField.setToolTipText("Enter epoch as JD");
 		// epochField.addPropertyChangeListener(this);
 		panel.add(epochField);
 
@@ -147,11 +152,11 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 
 		if (source == this.periodField) {
 			if ("".equals(this.periodField.getText())) {
-				this.periodField.setToolTipText("Enter period in days");
+				// this.periodField.setToolTipText("Enter period in days");
 			}
 		} else if (source == this.epochField) {
 			if ("".equals(this.epochField.getText())) {
-				this.epochField.setToolTipText("Enter epoch as JD");
+				// this.epochField.setToolTipText("Enter epoch as JD");
 			}
 		}
 	}
@@ -246,7 +251,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 				// Use the supplied period to set the period field.
 				this.periodField.setText(String.format(NumericPrecisionPrefs
 						.getOtherOutputFormat(), period));
-				this.periodField.setToolTipText("Period in days");
+				// this.periodField.setToolTipText("Period in days");
 				this.period = period;
 			}
 
@@ -257,18 +262,18 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 						.getObservations());
 				this.epochField.setText(String.format(NumericPrecisionPrefs
 						.getTimeOutputFormat(), this.epoch));
-				this.epochField.setToolTipText(epochStrategy.getDescription());
+				// this.epochField.setToolTipText(epochStrategy.getDescription());
 			} else {
 				// Use the supplied epoch to set the epoch field.
 				this.epochField.setText(String.format(NumericPrecisionPrefs
 						.getTimeOutputFormat(), epoch));
-				this.epochField.setToolTipText("Epoch as HJD");
+				// this.epochField.setToolTipText("Epoch as HJD");
 				this.epoch = epoch;
 			}
 		} else {
 			// No period available, so just clear the field.
 			this.periodField.setText("");
-			this.periodField.setToolTipText("Enter period in days");
+			// this.periodField.setToolTipText("Enter period in days");
 			this.period = 0;
 
 			// Use the epoch strategy to set the epoch field.
@@ -276,7 +281,7 @@ public class PhaseParameterDialog extends AbstractOkCancelDialog implements
 					.getObservations());
 			this.epochField.setText(String.format(NumericPrecisionPrefs
 					.getTimeOutputFormat(), this.epoch));
-			this.epochField.setToolTipText(epochStrategy.getDescription());
+			// this.epochField.setToolTipText(epochStrategy.getDescription());
 		}
 	}
 
