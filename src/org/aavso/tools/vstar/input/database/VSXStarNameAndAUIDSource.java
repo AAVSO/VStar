@@ -43,7 +43,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	// TODO: connection should be retrieved not passed
 
 	/**
-	 * Return the AUID of the named star.
+	 * Return the AUID and other information about the named star.
 	 * 
 	 * @param name
 	 *            The star name or alias.
@@ -96,7 +96,7 @@ public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
 	}
 
 	/**
-	 * Return the name of the star given an AUID.
+	 * Return the name and other information about a star given an AUID.
 	 * 
 	 * @param name
 	 *            The AUID.
