@@ -49,7 +49,6 @@ import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.scripting.ScriptRunner;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
-import org.aavso.tools.vstar.ui.dialog.FileExtensionFilter;
 import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
 import org.aavso.tools.vstar.ui.dialog.InfoDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -294,12 +293,12 @@ public class MenuBar extends JMenuBar {
 				.addActionListener(createNewStarFromDatabaseListener());
 		fileMenu.add(fileNewStarFromDatabaseItem);
 
-//		if (uiType != UIType.APPLET) {
-			fileNewStarFromFileItem = new JMenuItem(NEW_STAR_FROM_FILE);
-			fileNewStarFromFileItem
-					.addActionListener(createNewStarFromFileListener());
-			fileMenu.add(fileNewStarFromFileItem);
-//		}
+		// if (uiType != UIType.APPLET) {
+		fileNewStarFromFileItem = new JMenuItem(NEW_STAR_FROM_FILE);
+		fileNewStarFromFileItem
+				.addActionListener(createNewStarFromFileListener());
+		fileMenu.add(fileNewStarFromFileItem);
+		// }
 
 		fileMenu.addSeparator();
 
@@ -324,21 +323,21 @@ public class MenuBar extends JMenuBar {
 			fileMenu.addSeparator();
 		}
 
-//		if (uiType != UIType.APPLET) {
-			fileSaveItem = new JMenuItem(SAVE);
-			fileSaveItem.addActionListener(this.createSaveListener());
-			fileSaveItem.setEnabled(false);
-			fileMenu.add(fileSaveItem);
-//		}
+		// if (uiType != UIType.APPLET) {
+		fileSaveItem = new JMenuItem(SAVE);
+		fileSaveItem.addActionListener(this.createSaveListener());
+		fileSaveItem.setEnabled(false);
+		fileMenu.add(fileSaveItem);
+		// }
 
-//		if (uiType != UIType.APPLET) {
-			filePrintItem = new JMenuItem(PRINT);
-			filePrintItem.addActionListener(this.createPrintListener());
-			filePrintItem.setEnabled(false);
-			fileMenu.add(filePrintItem);
+		// if (uiType != UIType.APPLET) {
+		filePrintItem = new JMenuItem(PRINT);
+		filePrintItem.addActionListener(this.createPrintListener());
+		filePrintItem.setEnabled(false);
+		fileMenu.add(filePrintItem);
 
-			fileMenu.addSeparator();
-//		}
+		fileMenu.addSeparator();
+		// }
 
 		fileInfoItem = new JMenuItem(INFO);
 		fileInfoItem.addActionListener(this.createInfoListener());
@@ -469,7 +468,8 @@ public class MenuBar extends JMenuBar {
 		viewFiltersItem.addActionListener(createFiltersListener());
 		viewMenu.add(viewFiltersItem);
 
-		viewCustomFilterMenu = new JMenu("Custom Filters");
+		viewCustomFilterMenu = new JMenu(LocaleProps
+				.get("VIEW_MENU_CUSTOM_FILTERS"));
 		viewCustomFilterMenu.setEnabled(false);
 
 		ActionListener customFilterListener = createCustomFilterListener();
@@ -565,13 +565,13 @@ public class MenuBar extends JMenuBar {
 		toolMenu = new JMenu(LocaleProps.get("TOOL_MENU"));
 		// toolMenu.setEnabled(false);
 
-//		if (uiType != UIType.APPLET) {
-			toolRunScript = new JMenuItem(RUN_SCRIPT);
-			toolRunScript.addActionListener(createRunScriptListener());
-			toolMenu.add(toolRunScript);
+		// if (uiType != UIType.APPLET) {
+		toolRunScript = new JMenuItem(RUN_SCRIPT);
+		toolRunScript.addActionListener(createRunScriptListener());
+		toolMenu.add(toolRunScript);
 
-			toolMenu.addSeparator();
-//		}
+		toolMenu.addSeparator();
+		// }
 
 		ActionListener obsToolMenuItemListener = createObsToolMenuItemListener();
 
@@ -1486,7 +1486,7 @@ public class MenuBar extends JMenuBar {
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
 
-		//this.editMenu.setEnabled(state);
+		// this.editMenu.setEnabled(state);
 
 		this.viewObDetailsItem.setEnabled(state);
 		this.viewPlotControlItem.setEnabled(state);

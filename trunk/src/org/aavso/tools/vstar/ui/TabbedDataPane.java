@@ -167,7 +167,8 @@ public class TabbedDataPane extends JPanel {
 	private String noSomethingYet(String s) {
 		// TODO: need to map to full text replacements in terms of LocaleProps.get()
 		// mapped by s.
-		return "No " + s.toLowerCase() + " yet.";
+//		return "No " + s.toLowerCase() + " yet.";
+		return "";
 	}
 
 	/**
