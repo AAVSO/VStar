@@ -374,7 +374,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 			// sum(a[i]t^n), where n >= 1
 			for (int i = npoly; i >= 1; i--) {
-				strRepr += String.format(fmt, dcoef[i]) + "*(t-"
+				strRepr += String.format("%1.20f", dcoef[i]) + "*(t-"
 						+ getZeroPointOffset() + ")^" + i + " + \n";
 			}
 

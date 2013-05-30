@@ -351,7 +351,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		statcomp();
 
 		dang0 = 1.0 / Math.sqrt(12.0 * dtvar) / 4.0;
-		dang00 = dang0;
+		dang00 = dang0; // unused
 		magres = 1;
 		dangcut = 0.95 * dang0;
 		damplit = (int) ((double) (mb - ma) / 2.0) + 1.0;
