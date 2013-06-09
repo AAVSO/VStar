@@ -1,0 +1,67 @@
+<project name="plugin" default="dist" basedir=".">
+  <description>Generic build file to make plugin building easier.</description>
+
+  <property name="src" location="src/org/aavso/tools/vstar/external/plugin"/>
+  <property name="pkg" value="org.aavso.tools.vstar.external.plugin"/>
+  <property name="plugin_dir" value="vstar_plugins"/>
+  <property name="plugin_lib_dir" value="vstar_plugins_lib"/>
+  <property name="build" location="build"/>
+  <property name="build.classes" location="./build/org/aavso/tools/vstar/external/plugin/"/>
+  <property name="dist" location="dist/"/>
+
+  <target name="compile" description="compile the source ">
+    <path id="libs">
+      <fileset dir="../">
+	<include name="dist/vstar.jar"/>
+	<include name="plugin/lib/tamfits.jar"/>
+      </fileset>
+    </path>
+    <mkdir dir="${build}"/>
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" classpathref="libs"/>
+  </target>
+
+  <target name="dist" depends="compile" description="generate the distribution" >
+
+    <mkdir dir="${dist}"/>
+
+    <!-- I don't like the idea of forcing people to install and use ant.contrib 
+         so right now this is just a huge list of targets add your new plugin here
+	 as another jar task line -->
+    <jar jarfile="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" basedir="${build.classes}" includes="AAVSOUploadFileFormatObservationSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="APASSEpochPhotometryObservationSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.ASASObservationSource.jar" basedir="${build.classes}" includes="ASASObservationSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" basedir="${build.classes}" includes="ApacheCommonsLowessFitter**.class"/>
+    <jar jarfile="${dist}/${pkg}.ApacheCommonsPolynomialFitter.jar" basedir="${build.classes}" includes="ApacheCommonsPolynomialFitter**.class"/>
+    <jar jarfile="${dist}/${pkg}.BSMPhotometryObservationSource.jar" basedir="${build.classes}" includes="BSMPhotometryObservationSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" basedir="${build.classes}" includes="CatalinaSkySurveyObservationSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="CustomFilterTest**.class"/>
+    <jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="ExampleObSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="JDToDateTool**.class"/>
+    <jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="KeplerFITSObservationSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="MeanTimeBetweenSelectionTool**.class"/>
+    <jar jarfile="${dist}/${pkg}.ObservationCounter.jar" basedir="${build.classes}" includes="ObservationCounter**.class"/>
+    <jar jarfile="${dist}/${pkg}.PeriodAnalysisPluginTest1.jar" basedir="${build.classes}" includes="PeriodAnalysisPluginTest1**.class"/>
+    <jar jarfile="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" basedir="${build.classes}" includes="PeriodLuminosityDistanceCalculator**.class"/>
+    <jar jarfile="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" basedir="${build.classes}" includes="SuperWASPFITSObservationSource**.class"/>
+
+  </target>
+
+  <target name="install" description="Install the libs into the users home directory">
+    <mkdir dir="${user.home}/${plugin_dir}"/>
+    <mkdir dir="${user.home}/${plugin_lib_dir}"/>
+
+    <!-- copy all those plugins to our plugin dir -->
+    <copy todir="${user.home}/${plugin_dir}">
+      <fileset dir="${dist}" includes="**/*.jar"/>
+    </copy>
+    <copy todir="${user.home}/${plugin_lib_dir}" file="lib/tamfits.jar"/>
+  </target>
+
+  <target name="clean" description="Clean up">
+		  <!-- Delete the build, dist directories -->
+		  <delete dir="build"/>
+		  <delete dir="dist"/>
+  </target>
+
+</project>
