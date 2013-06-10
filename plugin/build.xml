@@ -4,7 +4,7 @@
   <property name="src" location="src/org/aavso/tools/vstar/external/plugin"/>
   <property name="pkg" value="org.aavso.tools.vstar.external.plugin"/>
   <property name="plugin_dir" value="vstar_plugins"/>
-  <property name="plugin_lib_dir" value="vstar_plugins_lib"/>
+  <property name="plugin_lib_dir" value="vstar_plugin_libs"/>
   <property name="build" location="build"/>
   <property name="build.classes" location="./build/org/aavso/tools/vstar/external/plugin/"/>
   <property name="dist" location="dist/"/>
