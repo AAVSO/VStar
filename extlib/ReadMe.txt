@@ -6,7 +6,7 @@ current directory (./extlib) for VStar to function. The list of jar files
 is given below, along with the web address from which to obtain the source 
 code.
 
-  o commons-math-2.1.jar
+  o commons-math-2.2.jar
     http://commons.apache.org/math/
     
   o jcommon-1.0.16.jar

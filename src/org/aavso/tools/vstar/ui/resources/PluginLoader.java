@@ -31,7 +31,7 @@ import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
-import org.aavso.tools.vstar.plugin.model.impl.TSPolynomialFitCreatorPlugin;
+import org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftFrequencyRangePeriodAnalysisPlugin;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftPeriodRangePeriodAnalysisPlugin;
@@ -85,7 +85,7 @@ public class PluginLoader {
 		List<ModelCreatorPluginBase> modelCreatorPlugins = new ArrayList<ModelCreatorPluginBase>();
 
 		// First, add in-built polynomial fit plugins.
-		modelCreatorPlugins.add(new TSPolynomialFitCreatorPlugin());
+		modelCreatorPlugins.add(new ApacheCommonsPolynomialFitCreatorPlugin());
 
 		// Next, add all external model creator plugins.
 		for (IPlugin plugin : plugins) {

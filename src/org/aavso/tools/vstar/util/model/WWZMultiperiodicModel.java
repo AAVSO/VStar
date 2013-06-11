@@ -31,6 +31,7 @@ import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
 import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * This class represents a WWZ derived multi-period fit model.
@@ -202,6 +203,11 @@ public class WWZMultiperiodicModel implements IModel {
 
 	@Override
 	public Map<String, String> getFunctionStrings() {
+		return null;
+	}
+	
+	@Override
+	public UnivariateRealFunction getModelFunction() {
 		return null;
 	}
 }

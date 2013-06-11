@@ -69,29 +69,28 @@ public class PhasedObservationAndMeanPlotModel extends
 	 */
 	@Override
 	protected Listener<ModelSelectionMessage> createModelSelectionListener() {
-		final ObservationAndMeanPlotModel model = this;
+		final ObservationAndMeanPlotModel plotModel = this;
 
 		return new Listener<ModelSelectionMessage>() {
 			@Override
 			public void update(ModelSelectionMessage info) {
 				// Copy and sort fit and residual observations to ensure correct
 				// mean handling.
-				List<ValidObservation> fit = new ArrayList<ValidObservation>(
+				List<ValidObservation> modelObs = new ArrayList<ValidObservation>(
 						info.getModel().getFit());
-				Collections.sort(fit, obComparator);
+				Collections.sort(modelObs, obComparator);
 
 				List<ValidObservation> residuals = new ArrayList<ValidObservation>(
 						info.getModel().getResiduals());
 				Collections.sort(residuals, obComparator);
 
-				updateModelSeries(fit, residuals);
+				updateModelSeries(modelObs, residuals, info.getModel());
 
 				// If the means sources series is model or residuals (from
-				// previous
-				// modelling operation), re-compute the means series.
+				// previous modelling operation), re-compute the means series.
 				if (seriesNumToSrcTypeMap.get(meanSourceSeriesNum) == SeriesType.Model
 						|| seriesNumToSrcTypeMap.get(meanSourceSeriesNum) == SeriesType.Residuals) {
-					model.setMeanSeries(false);
+					plotModel.setMeanSeries(false);
 				}
 			}
 
@@ -120,7 +119,7 @@ public class PhasedObservationAndMeanPlotModel extends
 					List<ValidObservation> obs = new ArrayList<ValidObservation>(
 							info.getFilteredObs());
 					Collections.sort(obs, obComparator);
-					
+
 					updateFilteredSeries(obs);
 
 					// If the means sources series is filtered (from

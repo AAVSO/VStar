@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.TSBase;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * <p>
@@ -74,8 +75,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 
 	@Override
 	public String getDescription() {
-		// TODO: fix wrt locale
-		return getKind() + " of degree " + degree;
+		return LocaleProps.get("MODEL_INFO_POLYNOMIAL_DEGREE_DESC") + degree;
 	}
 
 	@Override
@@ -388,5 +388,10 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	@Override
 	public Map<String, String> getFunctionStrings() {
 		return functionStrMap;
+	}
+	
+	@Override
+	public UnivariateRealFunction getModelFunction() {
+		return null;
 	}
 }

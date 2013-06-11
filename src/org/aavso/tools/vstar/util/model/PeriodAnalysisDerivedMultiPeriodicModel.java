@@ -27,6 +27,7 @@ import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * This class creates a multi-periodic fit model for the specified observations.
@@ -219,6 +220,11 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		}
 
 		return strRepr;
+	}
+
+	@Override
+	public UnivariateRealFunction getModelFunction() {
+		return null;
 	}
 
 	@Override

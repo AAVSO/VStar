@@ -46,7 +46,7 @@ public class DescStats {
 	 * observations in a specified inclusive range.
 	 * 
 	 * @param observations
-	 *            A valid observation.
+	 *            A list of valid observations.
 	 * @param timeElementEntity
 	 *            A time element source for observations.
 	 * @param minIndex
@@ -61,6 +61,7 @@ public class DescStats {
 			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex) {
 
 		// Pre-conditions.
+		assert (!observations.isEmpty());
 		assert (maxIndex >= minIndex);
 		assert (maxIndex < observations.size());
 
@@ -82,6 +83,31 @@ public class DescStats {
 		meanPair[MEAN_TIME_INDEX] = totalTimeElement / included;
 
 		return meanPair;
+	}
+
+	/**
+	 * Calculate the mean time element from a list of observations.
+	 * 
+	 * @param observations
+	 *            A list of valid observations.
+	 * @param timeElementEntity
+	 *            A time element source for observations.
+	 * @return The mean of time elements.
+	 */
+	public static double calcTimeElementMean(
+			List<ValidObservation> observations,
+			ITimeElementEntity timeElementEntity) {
+		
+		// Pre-conditions.
+		assert (!observations.isEmpty());
+
+		double sum = 0;
+
+		for (int i = 0; i < observations.size(); i++) {
+			sum += timeElementEntity.getTimeElement(observations, i);
+		}
+
+		return sum / observations.size();
 	}
 
 	/**
@@ -108,6 +134,7 @@ public class DescStats {
 			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex) {
 
 		// Pre-conditions.
+		assert (!observations.isEmpty());
 		assert (maxIndex >= minIndex);
 		assert (maxIndex < observations.size());
 
@@ -159,7 +186,8 @@ public class DescStats {
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex) {
 
-		// Pre-conditions
+		// Pre-conditions.
+		assert (!observations.isEmpty());
 		assert (maxIndex >= minIndex);
 		assert (maxIndex < observations.size());
 
@@ -241,6 +269,9 @@ public class DescStats {
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
+		// Pre-conditions.
+		assert (!observations.isEmpty());
+
 		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
 
 		double minTimeElement = timeElementEntity.getTimeElement(observations,
@@ -314,7 +345,7 @@ public class DescStats {
 	 * Observation bins are populated from center to left, then from center to
 	 * right of the time domain to ensure symmetric bins.
 	 * 
-	 * The final result also includes a one-way anova statistic. 
+	 * The final result also includes a one-way anova statistic.
 	 * 
 	 * @param observations
 	 *            The observations to which binning will be applied.
@@ -330,6 +361,9 @@ public class DescStats {
 	public static BinningResult createSymmetricBinnedObservations(
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
+
+		// Pre-conditions.
+		assert (!observations.isEmpty());
 
 		SeriesType series = SeriesType.Unknown;
 		List<ValidObservation> binnedObs = Collections.EMPTY_LIST;

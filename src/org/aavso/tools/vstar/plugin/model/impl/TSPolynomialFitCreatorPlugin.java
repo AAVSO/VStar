@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.util.model.TSPolynomialFitter;
 /**
  * A polynomial fitter model creator plugin that is logically equivalent to the
  * AAVSO TS Fortran program's polynomial fitter algorithm.
+ * @deprecated Use ApacheCommonsPolynomialFitCreatorPlugin instead.
  */
 public class TSPolynomialFitCreatorPlugin extends ModelCreatorPluginBase {
 
