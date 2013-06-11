@@ -31,10 +31,12 @@ import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
+import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.DescStats;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * This class is a model that represents a series of valid variable star
@@ -560,24 +562,30 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * Update the model's fit and residual observation collections.
 	 */
 	protected void updateModelSeries(List<ValidObservation> modelObs,
-			List<ValidObservation> residualObs) {
+			List<ValidObservation> residualObs, IModel model) {
+
+		UnivariateRealFunction func = model.getModelFunction();
+
+		// TODO: add/replace non-null IModel in a map, add series num,
+		// change visibility
 
 		// Add or replace a series for the model and make sure
 		// the series is visible.
 		if (this.seriesExists(SeriesType.Model)) {
-			fitSeriesNum = replaceObservationSeries(SeriesType.Model, modelObs);
+			modelSeriesNum = replaceObservationSeries(SeriesType.Model,
+					modelObs);
 		} else {
-			fitSeriesNum = addObservationSeries(SeriesType.Model, modelObs);
+			modelSeriesNum = addObservationSeries(SeriesType.Model, modelObs);
 		}
 
 		// Make the model series visible either because this
 		// is its first appearance or because it may have been made
 		// invisible via the change series dialog.
-		this.changeSeriesVisibility(fitSeriesNum, true);
+		this.changeSeriesVisibility(modelSeriesNum, true);
 
 		// TODO: do we really need this? if not, revert means join
 		// handling code
-		// this.addSeriesToBeJoinedVisually(fitSeriesNum);
+		// this.addSeriesToBeJoinedVisually(modelSeriesNum);
 
 		// Add or replace a series for the residuals.
 		if (this.seriesExists(SeriesType.Residuals)) {
@@ -606,7 +614,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			@Override
 			public void update(ModelSelectionMessage info) {
 				updateModelSeries(info.getModel().getFit(), info.getModel()
-						.getResiduals());
+						.getResiduals(), info.getModel());
 
 				// If the means sources series is model or residuals (from
 				// previous modelling operation), re-compute the means series.

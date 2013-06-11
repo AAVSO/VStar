@@ -211,6 +211,11 @@ public class SeriesType implements Comparable<SeriesType> {
 			LocaleProps.get("MODEL_SERIES"), LocaleProps.get("MODEL_SERIES"),
 			Color.RED, true, false);
 
+	// Model function series.
+	public static final SeriesType ModelFunction = new SeriesType(SeriesType.NO_INDEX,
+			LocaleProps.get("MODEL_SERIES"), LocaleProps.get("MODEL_SERIES"),
+			Color.RED, true, false);
+
 	// Residuals series.
 	public static final SeriesType Residuals = new SeriesType(
 			SeriesType.NO_INDEX, LocaleProps.get("RESIDUALS_SERIES"),

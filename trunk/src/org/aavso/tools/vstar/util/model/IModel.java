@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.IAlgorithm;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * All model classes must implement this interface, e.g. polynomial fits,
@@ -79,5 +80,16 @@ public interface IModel extends IAlgorithm {
 	 * 
 	 * @return The model function string map.
 	 */
-	public Map<String, String> getFunctionStrings();
+	abstract public Map<String, String> getFunctionStrings();
+	
+	/**
+	 * Returns the model function as an Apache Commons Math univariate real
+	 * function. This is required for creating a line plot to show the model as
+	 * a continuous function. If a model creator cannot sensibly return such a
+	 * function, it may return null and no such plot will be possible.
+	 * 
+	 * @return The function.
+	 * TODO: consider hiding UnivariateRealFunction behind another interface.
+	 */
+	abstract public UnivariateRealFunction getModelFunction();
 }

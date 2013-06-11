@@ -140,7 +140,7 @@ public class ModelInfoDialog extends JDialog {
 		JPanel pane = new JPanel();
 		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
 		String title = LocaleProps
-				.get("RELATIVE_AMPLITUDE_AND_PHASE_PANE_TITLE");
+				.get("MODEL_INFO_RELATIVE_AMPLITUDE_AND_PHASE_PANE_TITLE");
 		pane.setBorder(BorderFactory.createTitledBorder(title));
 
 		relAmplAndPhaseTextArea = new JTextArea();

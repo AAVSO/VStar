@@ -119,7 +119,8 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	protected SeriesType lastSinglySelectedSeries;
 
 	// Particular series numbers to be used by listener code.
-	protected int fitSeriesNum = NO_SERIES;
+	protected int modelSeriesNum = NO_SERIES;
+	protected int modelFunctionSeriesNum = NO_SERIES;
 	protected int residualsSeriesNum = NO_SERIES;
 	protected int filterSeriesNum = NO_SERIES;
 

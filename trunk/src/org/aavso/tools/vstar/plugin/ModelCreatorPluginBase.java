@@ -40,7 +40,8 @@ abstract public class ModelCreatorPluginBase implements IPlugin {
 	 * Returns the model object for this plugin whose execute() method can be
 	 * invoked to create the model artifacts.
 	 * 
-	 * @param obs The list of observations to create a model of.
+	 * @param obs
+	 *            The list of observations to create a model of.
 	 * @return The model object or null if no model was created.
 	 */
 	abstract public IModel getModel(List<ValidObservation> obs);
@@ -64,7 +65,7 @@ abstract public class ModelCreatorPluginBase implements IPlugin {
 	public String getGroup() {
 		return "Model Creator";
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
 	 */

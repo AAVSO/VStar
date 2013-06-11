@@ -34,6 +34,7 @@ import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.MathException;
+import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.interpolation.LoessInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;
@@ -221,6 +222,11 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 					return strRepr;
 				}
 
+				@Override
+				public UnivariateRealFunction getModelFunction() {
+					return null;
+				}
+				
 				@Override
 				public void execute() throws AlgorithmError {
 
