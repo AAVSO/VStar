@@ -20,7 +20,6 @@ package org.aavso.tools.vstar.external.plugin;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -45,22 +44,13 @@ import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;
  */
 public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 
-	private Locale locale;
-
 	public ApacheCommonsLowessFitter() {
 		super();
-		locale = Locale.getDefault();
 	}
 
 	@Override
 	public String getDescription() {
-		String str = "Lowess Fit (Apache Commons Math)";
-
-		if (locale.equals("es")) {
-			str = "Ajuste polin\u00F3mico (Apache Commons Math)";
-		}
-
-		return str;
+		return "Lowess Fit";
 	}
 
 	@Override
@@ -98,7 +88,6 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 
 				@Override
 				public String getDescription() {
-					// TODO: fix wrt locale
 					return getKind();
 				}
 
@@ -109,14 +98,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 
 				@Override
 				public String getKind() {
-					String str = "Lowess Fit (Apache Commons Math)";
-
-					// TODO: fix
-					if (locale.equals("es")) {
-						str = "Lowess Fit (Apache Commons Math)";
-					}
-
-					return str;
+					return "Lowess Fit";
 				}
 
 				@Override
@@ -141,24 +123,23 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 					if (strRepr == null) {
 						strRepr = "sum(";
 
-						String fmt = NumericPrecisionPrefs
-								.getOtherOutputFormat();
-
 						double constCoeff = 0;
 
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += String.format(fmt, coeffs[i]);
+								strRepr += coeffs[i];
 								strRepr += "t^" + i + ",\n";
 							}
 							constCoeff += coeffs[0];
 						}
 
-						strRepr += String.format(fmt, constCoeff) + ")";
+						strRepr += constCoeff + ")";
 
 						// Akaike and Bayesean Information Criteria.
 						if (aic != Double.NaN && bic != Double.NaN) {
+							String fmt = NumericPrecisionPrefs
+									.getOtherOutputFormat();
 							strRepr += String.format("\n\nAIC=" + fmt, aic);
 							strRepr += String.format("\nBIC=" + fmt, bic);
 						}
@@ -173,21 +154,18 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 					if (strRepr == null) {
 						strRepr = "=SUM(";
 
-						String fmt = NumericPrecisionPrefs
-								.getOtherOutputFormat();
-
 						double constCoeff = 0;
 
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += String.format(fmt, coeffs[i]);
+								strRepr += coeffs[i];
 								strRepr += "*A1^" + i + ",\n";
 							}
 							constCoeff += coeffs[0];
 						}
 
-						strRepr += String.format(fmt, constCoeff) + ")";
+						strRepr += constCoeff + ")";
 					}
 
 					return strRepr;
@@ -202,21 +180,18 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 					if (strRepr == null) {
 						strRepr = "model <- function(t) ";
 
-						String fmt = NumericPrecisionPrefs
-								.getOtherOutputFormat();
-
 						double constCoeff = 0;
 
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += String.format(fmt, coeffs[i]);
+								strRepr += coeffs[i];
 								strRepr += "*t^" + i + "+\n";
 							}
 							constCoeff += coeffs[0];
 						}
 
-						strRepr += String.format(fmt, constCoeff);
+						strRepr += constCoeff;
 					}
 
 					return strRepr;
@@ -226,7 +201,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 				public UnivariateRealFunction getModelFunction() {
 					return null;
 				}
-				
+
 				@Override
 				public void execute() throws AlgorithmError {
 
@@ -257,7 +232,6 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 						residuals = new ArrayList<ValidObservation>();
 						double sumSqResiduals = 0;
 
-						// TODO: fix wrt locale
 						String comment = "From Lowess fit";
 
 						// Create fit and residual observations and
