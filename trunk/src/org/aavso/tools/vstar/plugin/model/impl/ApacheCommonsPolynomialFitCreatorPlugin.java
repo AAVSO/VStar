@@ -29,6 +29,9 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
+import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
+import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
@@ -47,8 +50,8 @@ import org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer;
 import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 
 /**
- * A polynomial fitter model creator plugin that uses an Apache Commons
- * polynomial fitter.
+ * A polynomial model creator plugin that uses an Apache Commons polynomial
+ * fitter.
  */
 public class ApacheCommonsPolynomialFitCreatorPlugin extends
 		ModelCreatorPluginBase {
@@ -127,6 +130,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 					List<ValidObservation> fit;
 					List<ValidObservation> residuals;
 					PolynomialFunction function;
+					ICoordSource coordSrc = JDCoordSource.instance;
 					Map<String, String> functionStrMap = new LinkedHashMap<String, String>();
 					double aic = Double.NaN;
 					double bic = Double.NaN;
@@ -144,6 +148,11 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 					}
 
 					@Override
+					public List<ValidObservation> getResiduals() {
+						return residuals;
+					}
+
+					@Override
 					public String getKind() {
 						return LocaleProps.get("ANALYSIS_MENU_POLYNOMIAL_FIT");
 					}
@@ -152,11 +161,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 					public List<PeriodFitParameters> getParameters() {
 						// None for a polynomial fit.
 						return null;
-					}
-
-					@Override
-					public List<ValidObservation> getResiduals() {
-						return residuals;
 					}
 
 					@Override
@@ -183,41 +187,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 								strRepr += String.format("\nAIC: " + fmt, aic);
 								strRepr += String.format("\nBIC: " + fmt, bic);
 							}
-
-							// Extrema.
-							// TODO: use derivative() instead of polyDeriv()?
-							// strRepr += "\n\nExtrema:\n";
-							// for (ValidObservation ob : obs) {
-							// double jd = ob.getJD();
-							// double deriv = function.polynomialDerivative()
-							// .value(jd);
-							// derivs.add(deriv);
-							// if (deriv == 0.0) {
-							// strRepr += String.format(fmt + "\n", ob
-							// .getMag());
-							// }
-							// Collections.sort(derivs);
-							// }
-							//
-							// try {
-							// strRepr += "\n\nExtrema:\n";
-							// derivs.clear();
-							// UnivariateRealFunction derivative = function
-							// .derivative();
-							// for (ValidObservation ob : obs) {
-							// double jd = ob.getJD();
-							// double deriv = derivative.value(jd);
-							// derivs.add(deriv);
-							// if (deriv == 0.0) {
-							// strRepr += String.format(fmt + "\n", ob
-							// .getMag());
-							// }
-							// Collections.sort(derivs);
-							// }
-							// } catch (FunctionEvaluationException e) {
-							// throw new AlgorithmError(e
-							// .getLocalizedMessage());
-							// }
 						}
 
 						return strRepr;
@@ -278,16 +247,13 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 						if (strRepr == null) {
 							strRepr = "=SUM(";
 
-							String fmt = NumericPrecisionPrefs
-									.getOtherOutputFormat();
-
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += coeffs[i];
 								strRepr += "*(A1-" + zeroPoint + ")^" + i
 										+ ",\n";
 							}
-							strRepr += String.format(fmt, coeffs[0]) + ")";
+							strRepr += coeffs[0] + ")";
 						}
 
 						return strRepr;
@@ -300,25 +266,41 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 						if (strRepr == null) {
 							strRepr = "model <- function(t) ";
 
-							String fmt = NumericPrecisionPrefs
-									.getOtherOutputFormat();
-
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += coeffs[i];
 								strRepr += "*(t-" + zeroPoint + ")^" + i
 										+ " +\n";
 							}
-							strRepr += String.format(fmt, coeffs[0]);
+							strRepr += coeffs[0];
 						}
 
 						return strRepr;
 					}
 
 					@Override
-					public UnivariateRealFunction getModelFunction() {
-						UnivariateRealFunction func = new UnivariateRealFunction() {
+					public ContinuousModelFunction getModelFunction() {
+//						UnivariateRealFunction func = new UnivariateRealFunction() {
+//							@Override
+//							public double value(double x)
+//									throws FunctionEvaluationException {
+//								double y = 0;
+//								double[] coeffs = function.getCoefficients();
+//								for (int i = coeffs.length - 1; i >= 1; i--) {
+//									y += coeffs[i] * Math.pow(x, i);
+//								}
+//								y += coeffs[0];
+//								return y;
+//							}
+//						};
 
+						return new ContinuousModelFunction(function, fit, zeroPoint);
+					}
+
+					// An alternative implementation for getModelFunction() that
+					// uses Horner's method to avoid exponentiation.
+					public UnivariateRealFunction getModelFunctionHorner() {
+						UnivariateRealFunction func = new UnivariateRealFunction() {
 							@Override
 							public double value(double x)
 									throws FunctionEvaluationException {
@@ -327,7 +309,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 								double y = 0;
 								double[] coeffs = function.getCoefficients();
 								for (double coeff : coeffs) {
-									y = y * (x - zeroPoint) + coeff;
+									y = y * x + coeff;
 								}
 								return y;
 							}

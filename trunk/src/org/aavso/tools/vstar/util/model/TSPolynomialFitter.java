@@ -27,10 +27,10 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.util.TSBase;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
-import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * <p>
@@ -391,7 +391,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 	}
 	
 	@Override
-	public UnivariateRealFunction getModelFunction() {
+	public ContinuousModelFunction getModelFunction() {
 		return null;
 	}
 }
