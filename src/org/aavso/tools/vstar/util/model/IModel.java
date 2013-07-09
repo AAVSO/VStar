@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.util.IAlgorithm;
-import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * All model classes must implement this interface, e.g. polynomial fits,
@@ -46,8 +46,8 @@ public interface IModel extends IAlgorithm {
 	abstract public List<ValidObservation> getResiduals();
 
 	/**
-	 * Return the list of coefficients that gives rise to the model.
-	 * May return null.
+	 * Return the list of coefficients that gives rise to the model. May return
+	 * null.
 	 * 
 	 * @return A list of fit coefficients or null if none available.
 	 */
@@ -59,7 +59,7 @@ public interface IModel extends IAlgorithm {
 	 * @return True or false.
 	 */
 	abstract public boolean hasFuncDesc();
-	
+
 	/**
 	 * Return a human-readable description of this model.
 	 * 
@@ -74,22 +74,21 @@ public interface IModel extends IAlgorithm {
 	 * @return The 'kind' string.
 	 */
 	abstract public String getKind();
-	
+
 	/**
 	 * Return a mapping from names to strings representing model functions.
 	 * 
 	 * @return The model function string map.
 	 */
 	abstract public Map<String, String> getFunctionStrings();
-	
+
 	/**
-	 * Returns the model function as an Apache Commons Math univariate real
-	 * function. This is required for creating a line plot to show the model as
-	 * a continuous function. If a model creator cannot sensibly return such a
-	 * function, it may return null and no such plot will be possible.
+	 * Returns the model function and context. This is required for creating a
+	 * line plot to show the model as a continuous function. If a model creator
+	 * cannot sensibly return such a function, it may return null and no such
+	 * plot will be possible.<br/>
 	 * 
-	 * @return The function.
-	 * TODO: consider hiding UnivariateRealFunction behind another interface.
+	 * @return The function object.
 	 */
-	abstract public UnivariateRealFunction getModelFunction();
+	abstract public ContinuousModelFunction getModelFunction();
 }

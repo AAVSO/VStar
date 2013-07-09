@@ -29,18 +29,18 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.MathException;
-import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.interpolation.LoessInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;
 
 /**
- * A Loess (Lowess) fitter model creator plugin that uses an Apache Commons
- * Loess fitter.
+ * A Loess or Lowess (Local Regression algorithm) model creator plugin
+ * that uses an Apache Commons Loess interpolator.
  */
 public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 
@@ -198,8 +198,8 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 				}
 
 				@Override
-				public UnivariateRealFunction getModelFunction() {
-					return null;
+				public ContinuousModelFunction getModelFunction() {
+					return new ContinuousModelFunction(function, fit);
 				}
 
 				@Override

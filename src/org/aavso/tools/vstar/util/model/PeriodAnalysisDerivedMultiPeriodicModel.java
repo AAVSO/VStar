@@ -24,9 +24,11 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
@@ -49,7 +51,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	private Map<String, String> functionStrMap;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * @param harmonics
 	 *            A list of harmonics used as input to the fit algorithm.
@@ -176,7 +178,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		return strRepr;
 	}
 
-	private String toExcelString() { 
+	private String toExcelString() {
 		String strRepr = functionStrMap.get(LocaleProps
 				.get("MODEL_INFO_EXCEL_TITLE"));
 
@@ -223,8 +225,20 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	}
 
 	@Override
-	public UnivariateRealFunction getModelFunction() {
-		return null;
+	public ContinuousModelFunction getModelFunction() {
+		UnivariateRealFunction func = new UnivariateRealFunction() {
+			@Override
+			public double value(double t) throws FunctionEvaluationException {
+				double y = parameters.get(0).getConstantCoefficient();
+				
+				for (int i = 0; i < parameters.size(); i++) {
+					PeriodFitParameters params = parameters.get(i);
+					y += params.toValue(t);
+				}
+				return y;
+			}
+		};
+		return new ContinuousModelFunction(func, fit);
 	}
 
 	@Override

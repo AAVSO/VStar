@@ -27,11 +27,11 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
 import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
-import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * This class represents a WWZ derived multi-period fit model.
@@ -207,7 +207,7 @@ public class WWZMultiperiodicModel implements IModel {
 	}
 	
 	@Override
-	public UnivariateRealFunction getModelFunction() {
+	public ContinuousModelFunction getModelFunction() {
 		return null;
 	}
 }

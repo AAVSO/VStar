@@ -326,6 +326,13 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 		return str;
 	}
 
+	public double toValue(double t) {
+		double sincosParam = 2 * Math.PI * harmonic.getFrequency()
+				* (t - zeroPointOffset);
+		return cosineCoefficient * Math.cos(sincosParam) + sineCoefficient
+				* Math.sin(sincosParam);
+	}
+
 	@Override
 	public int compareTo(PeriodFitParameters other) {
 		return getHarmonic().compareTo(other.getHarmonic());
