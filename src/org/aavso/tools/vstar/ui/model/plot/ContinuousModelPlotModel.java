@@ -17,7 +17,13 @@
  */
 package org.aavso.tools.vstar.ui.model.plot;
 
-import org.aavso.tools.vstar.util.model.IModel;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.apache.commons.math.FunctionEvaluationException;
 import org.jfree.data.xy.AbstractXYDataset;
 
 /**
@@ -26,44 +32,78 @@ import org.jfree.data.xy.AbstractXYDataset;
 @SuppressWarnings("serial")
 public class ContinuousModelPlotModel extends AbstractXYDataset {
 
-	private ICoordSource coordSrc;
-	private IModel model;
-	
-	// TODO:
-	// 1. May be able to pass this to ObservationPlotPane and PhasePlotPane to create a
-	// model overlay in a similar way to how we already do this in PhasePlotPane for
-	// prev and curr cycle.
-	// 2. In obs plot model, may need to pre-allocate or share 2 model series for use
-	//    in same chart.
-	// 3. Need to set line renderer.
-	
+	private Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap;
+	private ContinuousModelFunction modelFunction;
+	private double step;
+	private double nextX;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param coordSrc
+	 *            The coordinate source.
+	 * @param model
+	 *            The model.
+	 */
+	public ContinuousModelPlotModel(ContinuousModelFunction modelFunction) {
+		super();
+		seriesNumToObSrcListMap = new HashMap<Integer, List<ValidObservation>>();
+		seriesNumToObSrcListMap.put(0, modelFunction.getFit());
+		this.modelFunction = modelFunction;
+		step = modelFunction.getFit().size() / 100;
+		nextX = modelFunction.getFit().get(0).getJD();
+	}
+
 	@Override
 	public int getSeriesCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 1;
 	}
 
 	@Override
-	public Comparable getSeriesKey(int arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public Comparable getSeriesKey(int series) {
+		return SeriesType.ModelFunction;
 	}
 
 	@Override
-	public int getItemCount(int arg0) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getItemCount(int series) {
+		return modelFunction.getFit().size();
+		// return (int) (model.getFit().size() / step);
 	}
 
 	@Override
-	public Number getX(int arg0, int arg1) {
-		// TODO Auto-generated method stub
-		return null;
+	public Number getX(int series, int item) {
+		return modelFunction.getCoordSrc().getXCoord(series, item,
+				seriesNumToObSrcListMap);
 	}
 
 	@Override
-	public Number getY(int arg0, int arg1) {
-		// TODO Auto-generated method stub
-		return null;
+	public Number getY(int series, int item) {
+		double y = 0;
+
+		if (this.modelFunction.getCoordSrc() == StandardPhaseCoordSource.instance) {
+			// System.out.println("***");
+		}
+
+		if (this.modelFunction.getCoordSrc() == PreviousCyclePhaseCoordSource.instance) {
+			// System.out.println("***");
+		}
+
+		try {
+			// double x = modelFunction.getCoordSrc().getXCoord(series, item,
+			// seriesNumToObSrcListMap);
+
+			// Note: The function must be computed with JD not phase since
+			// that's what was used initially.
+			double x = modelFunction.getFit().get(item).getJD()
+					- modelFunction.getZeroPoint();
+
+			y = modelFunction.getFunction().value(x);
+		} catch (FunctionEvaluationException e) {
+			// TODO
+		}
+
+		// nextX += step;
+
+		return y;
 	}
 }
