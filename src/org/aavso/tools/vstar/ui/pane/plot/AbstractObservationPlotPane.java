@@ -484,25 +484,30 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 			Object o = it.next();
 			if (o instanceof XYItemEntity) {
 				XYItemEntity item = (XYItemEntity) o;
-				double domainValue = obsModel.getXValue(item.getSeriesIndex(),
-						item.getItem());
-				double mag = obsModel.getYValue(item.getSeriesIndex(), item
-						.getItem());
+				// Dataset may not be same as primary observation model, e.g.
+				// could be model function dataset (continuous model).
+				if (item.getDataset() == obsModel) {
+					double domainValue = obsModel.getXValue(item
+							.getSeriesIndex(), item.getItem());
+					double mag = obsModel.getYValue(item.getSeriesIndex(), item
+							.getItem());
 
-				// Since the data in the observations and in the XYItemEntities
-				// should be the same, using equality here ought to be safe.
-				List<ValidObservation> obs = obsModel
-						.getSeriesNumToObSrcListMap()
-						.get(item.getSeriesIndex());
-				if (obsModel.getTimeElementEntity().getTimeElement(obs,
-						item.getItem()) == domainValue
-						&& ob.getMag() == mag) {
-					Rectangle2D itemBounds = item.getArea().getBounds2D();
-					Point2D centerPt = new Point2D.Double(itemBounds
-							.getCenterX(), itemBounds.getCenterY());
+					// Since the data in the observations and in the
+					// XYItemEntities
+					// should be the same, using equality here ought to be safe.
+					List<ValidObservation> obs = obsModel
+							.getSeriesNumToObSrcListMap().get(
+									item.getSeriesIndex());
+					if (obsModel.getTimeElementEntity().getTimeElement(obs,
+							item.getItem()) == domainValue
+							&& ob.getMag() == mag) {
+						Rectangle2D itemBounds = item.getArea().getBounds2D();
+						Point2D centerPt = new Point2D.Double(itemBounds
+								.getCenterX(), itemBounds.getCenterY());
 
-					lastPointClicked = centerPt;
-					break;
+						lastPointClicked = centerPt;
+						break;
+					}
 				}
 			}
 		}
@@ -637,11 +642,11 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 					// Get JD or phase.
 					double timeElement = obsModel.getTimeElementEntity()
 							.getTimeElement(obs, index);
-					
+
 					if (timeElement < minTimeElement) {
 						minTimeElement = timeElement;
 					}
-					
+
 					index++;
 				}
 			}
