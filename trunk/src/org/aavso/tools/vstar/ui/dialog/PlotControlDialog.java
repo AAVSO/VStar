@@ -109,7 +109,7 @@ public class PlotControlDialog extends JDialog {
 		showErrorBars = plotPane.getRenderer().getDrawYError();
 		showCrossHairs = plotPane.getChartPanel().getChart().getXYPlot()
 				.isDomainCrosshairVisible(); // ask for domain or range value
-		joinMeans = obsModel.getMeansSeriesNum() != ObservationAndMeanPlotModel.NO_MEANS_SERIES ? plotPane
+		joinMeans = obsModel.getMeansSeriesNum() != ObservationAndMeanPlotModel.NO_SERIES ? plotPane
 				.getRenderer().getSeriesLinesVisible(
 						obsModel.getMeansSeriesNum())
 				: false;
