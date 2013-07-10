@@ -583,7 +583,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 
 	// Helpers
 
-	private int getNextSeriesNum() {
+	protected int getNextSeriesNum() {
 		return seriesNum++;
 	}
 
