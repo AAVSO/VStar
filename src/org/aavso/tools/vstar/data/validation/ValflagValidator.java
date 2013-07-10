@@ -34,20 +34,23 @@ public class ValflagValidator extends AbstractStringValidator<ValidationType> {
 	/**
 	 * Constructor.
 	 * 
-	 * @param valflagPatternStr A regex pattern representing the
-	 * alternations of permission valflags for this validator instance,
-	 * e.g. "D" (simple format) or "G|V|D|P|Z" (AAVSO download format).
-	 * This pattern string will be wrapped in a ^(...)$ to ensure that nothing
-	 * else exists in the string, and that there is one capturing group.
+	 * @param valflagPatternStr
+	 *            A regex pattern representing the alternations of permission
+	 *            valflags for this validator instance, e.g. "D" (simple format)
+	 *            or "G|D|T|P|V|Z" (AAVSO download format). This pattern string
+	 *            will be wrapped in a ^(...)$ to ensure that nothing else
+	 *            exists in the string, and that there is one capturing group.
 	 */
 	public ValflagValidator(String valflagPatternStr) {
 		super(KIND);
-		this.regexValidator = new RegexValidator("^(" + valflagPatternStr + ")$",
-				KIND);
+		this.regexValidator = new RegexValidator("^(" + valflagPatternStr
+				+ ")$", KIND);
 	}
 
-	public ValidationType validate(String str) throws ObservationValidationError {
-		if (this.isLegallyEmpty(str)) return null;
+	public ValidationType validate(String str)
+			throws ObservationValidationError {
+		if (this.isLegallyEmpty(str))
+			return null;
 
 		String field = this.regexValidator.validate(str)[0];
 		return ValidationType.getTypeFromFlag(field);
