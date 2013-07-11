@@ -36,7 +36,6 @@ import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.DescStats;
-import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * This class is a model that represents a series of valid variable star
@@ -46,7 +45,7 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
 @SuppressWarnings("serial")
 public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
-	public static final int NO_MEANS_SERIES = -1;
+	public static final int NO_SERIES = -1;
 
 	// The series number of the series that is the source of the
 	// means series.
@@ -68,6 +67,13 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	protected BinningResult binningResult;
 
 	protected Notifier<BinningResult> meansChangeNotifier;
+
+	// The current model function series number; may be NO_SERIES.
+	protected int modelFunctionSeriesNum;
+
+	// The current model function (polynomial fit, DCDFT, ...); may be
+	// null.
+	protected ContinuousModelFunction modelFunction;
 
 	/**
 	 * Constructor
@@ -94,7 +100,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 		super(obsSourceListMap, coordSrc, obComparator, seriesVisibilityMap);
 
-		this.meansSeriesNum = NO_MEANS_SERIES;
+		this.meansSeriesNum = NO_SERIES;
 
 		this.timeElementEntity = timeElementEntity;
 
@@ -104,6 +110,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		this.meansChangeNotifier = new Notifier<BinningResult>();
 
 		this.meanSourceSeriesNum = determineMeanSeriesSource();
+
+		this.modelFunctionSeriesNum = NO_SERIES;
+		this.modelFunction = null;
 
 		// It doesn't actually matter whether we pass true or false here
 		// since the parameter won't apply to the first mean series created.
@@ -165,7 +174,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 
 			// TODO: do something like this instead of what follows below.
 			// Is this the first time the means series has been added?
-			// if (this.meansSeriesNum != NO_MEANS_SERIES) {
+			// if (this.meansSeriesNum != NO_SERIES) {
 			// // Replace the means series with the new one.
 			// this.seriesNumToObSrcListMap.put(this.meanSourceSeriesNum,
 			// meanObsList);
@@ -355,6 +364,20 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		return meansChangeNotifier;
 	}
 
+	/**
+	 * @return the modelFunctionSeriesNum
+	 */
+	public int getModelFunctionSeriesNum() {
+		return modelFunctionSeriesNum;
+	}
+
+	/**
+	 * @return the model
+	 */
+	public ContinuousModelFunction getModelFunction() {
+		return modelFunction;
+	}
+
 	// Helper methods.
 
 	/**
@@ -367,12 +390,11 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 * @return The series number on which to base the mean series.
 	 */
 	public int determineMeanSeriesSource() {
-		int seriesNum = NO_MEANS_SERIES;
+		int seriesNum = NO_SERIES;
 
 		// TODO:
 		// - use keySet().contains() below!
 		// - out of V and Visual, choose the series with the most observations
-		// - same for other series if no visuals
 
 		// Look for Visual, then V.
 		for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
@@ -383,7 +405,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			}
 		}
 
-		if (seriesNum == NO_MEANS_SERIES) {
+		if (seriesNum == NO_SERIES) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				if (series == SeriesType.Johnson_V) {
 					// Johnson V band
@@ -394,7 +416,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		}
 
 		// No visual bands present. Try 'Unspecified'.
-		if (seriesNum == NO_MEANS_SERIES) {
+		if (seriesNum == NO_SERIES) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				if (series == SeriesType.Unspecified) {
 					// Unspecified
@@ -407,9 +429,9 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// No match: choose a non-empty series other than fainter-than,
 		// discrepant, or excluded. More specifically, choose the series with
 		// the greatest number of observations.
-		int maxObsSeriesNum = NO_MEANS_SERIES;
+		int maxObsSeriesNum = NO_SERIES;
 		int maxObs = Integer.MIN_VALUE;
-		if (seriesNum == NO_MEANS_SERIES) {
+		if (seriesNum == NO_SERIES) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				if (series != SeriesType.FAINTER_THAN
 						&& series != SeriesType.DISCREPANT
@@ -440,7 +462,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// and excluded observations
 		// with respect to mean curves. We might want to revise this. Of course,
 		// fainter-thans can later be selected as the means-source.
-		if (seriesNum == NO_MEANS_SERIES) {
+		if (seriesNum == NO_SERIES) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				seriesNum = srcTypeToSeriesNumMap.get(series);
 				break;
@@ -564,10 +586,27 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	protected void updateModelSeries(List<ValidObservation> modelObs,
 			List<ValidObservation> residualObs, IModel model) {
 
-		UnivariateRealFunction func = model.getModelFunction();
-
-		// TODO: add/replace non-null IModel in a map, add series num,
-		// change visibility
+		// Add or replace model pointing to continuous function.
+//		if (this.seriesExists(SeriesType.ModelFunction)) {
+//			// Replace it.
+//			this.modelFunction = model.getModelFunction();
+//		} else {
+//			// Add it.
+//			// TODO: create up front like we do with some other series, e.g. in
+//			// obs retriever?
+//			modelFunctionSeriesNum = getNextSeriesNum();
+//
+//			this.srcTypeToSeriesNumMap.put(SeriesType.ModelFunction,
+//					modelFunctionSeriesNum);
+//
+//			this.seriesNumToSrcTypeMap.put(modelFunctionSeriesNum,
+//					SeriesType.ModelFunction);
+//
+//			this.seriesVisibilityMap.put(SeriesType.ModelFunction,
+//					isSeriesVisibleByDefault(SeriesType.ModelFunction));
+//
+//			this.modelFunction = model.getModelFunction();
+//		}
 
 		// Add or replace a series for the model and make sure
 		// the series is visible.
@@ -582,6 +621,11 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// is its first appearance or because it may have been made
 		// invisible via the change series dialog.
 		this.changeSeriesVisibility(modelSeriesNum, true);
+
+		// Make the model function series visible either because this
+		// is its first appearance or because it may have been made
+		// invisible via the change series dialog.
+//		this.changeSeriesVisibility(modelFunctionSeriesNum, true);
 
 		// TODO: do we really need this? if not, revert means join
 		// handling code

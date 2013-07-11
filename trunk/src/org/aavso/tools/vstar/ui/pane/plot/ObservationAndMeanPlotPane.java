@@ -95,7 +95,7 @@ public class ObservationAndMeanPlotPane extends
 
 		// Set the means series color.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
-		if (meanSeriesNum != ObservationAndMeanPlotModel.NO_MEANS_SERIES) {
+		if (meanSeriesNum != ObservationAndMeanPlotModel.NO_SERIES) {
 			this.getRenderer().setSeriesPaint(meanSeriesNum,
 					SeriesType.getColorFromSeries(SeriesType.MEANS));
 		}
@@ -154,6 +154,40 @@ public class ObservationAndMeanPlotPane extends
 		return obsModel.changeMeansSeries(timeElementsInBin);
 	}
 
+//	@Override
+//	protected void setSeriesVisibility() {
+//
+//		super.setSeriesVisibility();
+//
+//		Map<SeriesType, Boolean> seriesVisibilityMap = obsModel
+//				.getSeriesVisibilityMap();
+//
+//		boolean isModelFuncVisible = seriesVisibilityMap
+//				.get(SeriesType.ModelFunction);
+//
+//		if (isModelFuncVisible && obsModel.getModelFunction() != null) {
+//			ContinuousModelPlotModel modelFuncModel = new ContinuousModelPlotModel(
+//					obsModel.getModelFunction());
+//
+//			JFreeChart modelFuncPlot = ChartFactory.createXYLineChart("", "",
+//					"", modelFuncModel, PlotOrientation.VERTICAL, false, false,
+//					false);
+//
+//			int modelFuncSeriesNum = obsModel.getSrcTypeToSeriesNumMap().get(
+//					SeriesType.ModelFunction);
+//
+//			chart.getXYPlot().setDataset(modelFuncSeriesNum, modelFuncModel);
+//			chart.getXYPlot().setRenderer(modelFuncSeriesNum,
+//					modelFuncPlot.getXYPlot().getRenderer());
+//			Color color = SeriesType
+//					.getColorFromSeries(SeriesType.ModelFunction);
+//			chart.getXYPlot().getRenderer(modelFuncSeriesNum).setSeriesPaint(
+//					modelFuncSeriesNum, color);
+//			chart.getXYPlot().getRenderer(modelFuncSeriesNum).setSeriesVisible(
+//					modelFuncSeriesNum, true);
+//		}
+//	}
+
 	// From ChartMouseListener interface.
 	// If the mouse is over a data point, set its tool-tip with JD and
 	// magnitude.
@@ -161,11 +195,15 @@ public class ObservationAndMeanPlotPane extends
 		ChartEntity entity = event.getEntity();
 		if (entity instanceof XYItemEntity) {
 			XYItemEntity item = (XYItemEntity) entity;
-			ValidObservation ob = obsModel.getValidObservation(item
-					.getSeriesIndex(), item.getItem());
-			String xyMsg = String.format(xyMsgFormat, ob.getJD(), ob
-					.getDateInfo().getCalendarDate(), ob.getMag());
-			item.setToolTipText(xyMsg);
+			// Dataset may not be same as primary observation model, e.g.
+			// could be model function dataset (continuous model).
+			if (item.getDataset() == obsModel) {
+				ValidObservation ob = obsModel.getValidObservation(item
+						.getSeriesIndex(), item.getItem());
+				String xyMsg = String.format(xyMsgFormat, ob.getJD(), ob
+						.getDateInfo().getCalendarDate(), ob.getMag());
+				item.setToolTipText(xyMsg);
+			}
 		}
 	}
 

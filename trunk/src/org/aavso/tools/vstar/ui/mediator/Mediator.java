@@ -100,6 +100,7 @@ import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.PhasePlotMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.RawDataMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
+import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
@@ -1421,20 +1422,57 @@ public class Mediator {
 				validObsList, getLatestNewStarMessage().getNewStarType()
 						.getPhasePlotTableColumnInfoSource());
 
-		// Observation-and-mean table and plot.
+		// Observation-and-mean plot and table.
+		ContinuousModelFunction rawModelFuncModel = obsAndMeanPlotModel
+				.getModelFunction();
+
+		ContinuousModelFunction prevCyclePhaseModelFuncModel = null;
+		ContinuousModelFunction stdPhaseModelFuncModel = null;
+		int modelFuncSeriesNum = ObservationAndMeanPlotModel.NO_SERIES;
+
+		if (rawModelFuncModel != null) {
+			// Use sorted fit from category map; this will also be compatible,
+			// order-wise, with previous cycle phase.
+			List<ValidObservation> phasedFit = phasedValidObservationCategoryMap
+					.get(SeriesType.Model);
+
+			prevCyclePhaseModelFuncModel = new ContinuousModelFunction(
+					rawModelFuncModel.getFunction(), phasedFit,
+					rawModelFuncModel.getZeroPoint(),
+					PreviousCyclePhaseCoordSource.instance);
+
+			stdPhaseModelFuncModel = new ContinuousModelFunction(
+					rawModelFuncModel.getFunction(), phasedFit,
+					rawModelFuncModel.getZeroPoint(),
+					StandardPhaseCoordSource.instance);
+
+			modelFuncSeriesNum = obsAndMeanPlotModel
+					.getModelFunctionSeriesNum();
+		}
+
 		PhasedObservationAndMeanPlotModel obsAndMeanPlotModel1 = new PhasedObservationAndMeanPlotModel(
 				phasedValidObservationCategoryMap,
 				PreviousCyclePhaseCoordSource.instance,
 				PreviousCyclePhaseComparator.instance,
-				PhaseTimeElementEntity.instance, seriesVisibilityMap);
+				PhaseTimeElementEntity.instance, seriesVisibilityMap,
+				prevCyclePhaseModelFuncModel, modelFuncSeriesNum);
+
+		if (prevCyclePhaseModelFuncModel != null) {
+			prevCyclePhaseModelFuncModel.setPpModel(obsAndMeanPlotModel1);
+		}
 
 		PhasedObservationAndMeanPlotModel obsAndMeanPlotModel2 = new PhasedObservationAndMeanPlotModel(
 				phasedValidObservationCategoryMap,
 				StandardPhaseCoordSource.instance,
 				StandardPhaseComparator.instance,
-				PhaseTimeElementEntity.instance, seriesVisibilityMap);
+				PhaseTimeElementEntity.instance, seriesVisibilityMap,
+				stdPhaseModelFuncModel, modelFuncSeriesNum);
 
-		// Select an arbitrary model for mean
+		if (stdPhaseModelFuncModel != null) {
+			stdPhaseModelFuncModel.setPpModel(obsAndMeanPlotModel2);
+		}
+
+		// Select an arbitrary model for mean.
 		obsAndMeanPlotModel = obsAndMeanPlotModel1;
 
 		// The mean observation table model must listen to the plot
