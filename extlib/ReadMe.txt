@@ -58,7 +58,7 @@ URL for the web page of each project for more information.
 This section categorises the libraries in terms of function:
 
  - Math (statistics):
-     commons-math-2.1.jar
+     commons-math-2.2.jar
       
  - JFreeChart related:
      jcommon-1.0.16.jar

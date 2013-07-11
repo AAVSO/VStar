@@ -31,7 +31,21 @@ o WWZ is brittle in the presence of gaps in the data. See ticket 328.
 Release History
 ===============
   
----------------------
+------------------
+Date: July 11 2013
+Version: 2.15.3
+Tag: DEV-AAVSO-11July2013
+Key Changes:
+- Initial French localisation. Thanks to Dominique Naillon for the translations 
+  and to Sara Beck for liasing with him. Any remaining problems should be attributed 
+  to me.
+- Fixed #378 in which some polynomial fits produced incorrect equations; replaced
+  TS polynomial fitter with Apache Commons Math for this purpose but also for its 
+  additional features (e.g. for goodness of fit criteria, extrema finding). Updated 
+  Apache Commons Math library to gain additional functionality in the process.
+- Added Ant build script for "official" plugins. Thanks to Adam Weber for this.
+  This will be further adapted in future for use by other plugin developers.
+
 Date: May 19 2013
 Version: 2.15.2
 Tag: DEV-AAVSO-19May2013

@@ -54,14 +54,22 @@ public class PhasedObservationAndMeanPlotModel extends
 	 *            A time element source for observations.
 	 * @param seriesVisibilityMap
 	 *            A mapping from series type to visibility status.
+	 * @param modelFunction
+	 *            A model containing a function; may be null.
+	 * @param modelFunctionSeriesNum
+	 *            The corresponding model function series number; may be
+	 *            NO_SERIES.
 	 */
 	public PhasedObservationAndMeanPlotModel(
 			Map<SeriesType, List<ValidObservation>> obsSourceListMap,
 			ICoordSource coordSrc, Comparator<ValidObservation> obComparator,
 			ITimeElementEntity timeElementEntity,
-			Map<SeriesType, Boolean> seriesVisibilityMap) {
+			Map<SeriesType, Boolean> seriesVisibilityMap,
+			ContinuousModelFunction modelFunction, int modelFunctionSeriesNum) {
 		super(obsSourceListMap, coordSrc, obComparator, timeElementEntity,
 				seriesVisibilityMap);
+		this.modelFunction = modelFunction;
+		this.modelFunctionSeriesNum = modelFunctionSeriesNum;
 	}
 
 	/**

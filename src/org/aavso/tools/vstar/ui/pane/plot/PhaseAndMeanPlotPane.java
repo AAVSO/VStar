@@ -99,6 +99,8 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 		previousCyclePhaseModel = this.chart.getXYPlot().getDataset(0);
 		standardPhaseModel = this.chart.getXYPlot().getDataset(1);
+
+//		setSeriesVisibility();
 	}
 
 	/**
@@ -157,6 +159,54 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 		return changed;
 	}
 
+//	@Override
+//	protected void setSeriesVisibility() {
+//
+//		// super.setSeriesVisibility();
+//
+//		if (obsAndMeanModels != null) {
+//			for (ObservationAndMeanPlotModel obsModel : obsAndMeanModels) {
+//				Map<SeriesType, Boolean> seriesVisibilityMap = obsModel
+//						.getSeriesVisibilityMap();
+//
+//				// taken from abstract plot pane... necessary?
+//				for (SeriesType seriesType : seriesVisibilityMap.keySet()) {
+//					int seriesNum = obsModel.getSrcTypeToSeriesNumMap().get(
+//							seriesType);
+//					renderer.setSeriesVisible(seriesNum, seriesVisibilityMap
+//							.get(seriesType));
+//				}
+//
+//				boolean isModelFuncVisible = seriesVisibilityMap
+//						.get(SeriesType.ModelFunction);
+//
+//				if (isModelFuncVisible && obsModel.getModelFunction() != null) {
+//					ContinuousModelPlotModel modelFuncModel = new ContinuousModelPlotModel(
+//							obsModel.getModelFunction());
+//
+//					JFreeChart modelFuncPlot = ChartFactory.createXYLineChart(
+//							"", "", "", modelFuncModel,
+//							PlotOrientation.VERTICAL, false, false, false);
+//
+//					int modelFuncSeriesNum = obsModel
+//							.getSrcTypeToSeriesNumMap().get(
+//									SeriesType.ModelFunction);
+//
+//					chart.getXYPlot().setDataset(modelFuncSeriesNum,
+//							modelFuncModel);
+//					chart.getXYPlot().setRenderer(modelFuncSeriesNum,
+//							modelFuncPlot.getXYPlot().getRenderer());
+//					Color color = SeriesType
+//							.getColorFromSeries(SeriesType.ModelFunction);
+//					chart.getXYPlot().getRenderer(modelFuncSeriesNum)
+//							.setSeriesPaint(modelFuncSeriesNum, color);
+//					chart.getXYPlot().getRenderer(modelFuncSeriesNum)
+//							.setSeriesVisible(modelFuncSeriesNum, true);
+//				}
+//			}
+//		}
+//	}
+
 	// From ChartMouseListener interface.
 	// If the mouse is over a data point, set its tool-tip with phase and
 	// magnitude.
@@ -171,16 +221,16 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 			item.setToolTipText(xyMsg);
 		}
 	}
-	
-	// Returns a series visibility change listener to update the chart legends when
-	// the set of visible series changes.
+
+	// Returns a series visibility change listener to update the chart legends
+	// when the set of visible series changes.
 	protected Listener<SeriesVisibilityChangeMessage> createSeriesVisibilityChangeListener() {
 		return new Listener<SeriesVisibilityChangeMessage>() {
 			@Override
 			public void update(SeriesVisibilityChangeMessage info) {
-				
+				// Nothing to do apparently.
 			}
-			
+
 			@Override
 			public boolean canBeRemoved() {
 				return true;
