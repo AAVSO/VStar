@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.util.date;
 
-
 /**
  * This class implements AbstractDateUtil methods using Jean Meeus's
  * Astronomical Algorithms 1991, 1st edition, chapter 7.
@@ -60,15 +59,15 @@ public class MeeusDateUtil extends AbstractDateUtil {
 			throw new IllegalArgumentException("Unable to convert Julian Day '"
 					+ jd + "'");
 		}
-		
+
 		int year;
 		if (month > 2) {
-			year = c-4716;
+			year = c - 4716;
 		} else if (month == 1 || month == 2) {
-			year = c-4715;
+			year = c - 4715;
 		} else {
 			throw new IllegalArgumentException("Unable to convert Julian Day '"
-					+ jd + "'");			
+					+ jd + "'");
 		}
 
 		return (year + " " + getMonthName(month) + " " + (int) day);
@@ -79,8 +78,8 @@ public class MeeusDateUtil extends AbstractDateUtil {
 	 * to the start of the Gregorian Calendar. It is not valid for negative
 	 * Julian Day results (but is valid for negative years).
 	 * 
-	 * @see org.aavso.tools.vstar.util.date.AbstractDateUtil#calendarToJD(int, int,
-	 *      double)
+	 * @see org.aavso.tools.vstar.util.date.AbstractDateUtil#calendarToJD(int,
+	 *      int, double)
 	 */
 	public double calendarToJD(int year, int month, double day)
 			throws IllegalArgumentException {
