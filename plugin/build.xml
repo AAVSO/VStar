@@ -34,6 +34,7 @@
     <jar jarfile="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" basedir="${build.classes}" includes="**/ApacheCommonsLowessFitter**.class"/>
     <jar jarfile="${dist}/${pkg}.BSMPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/BSMPhotometryObservationSource**.class"/>
     <jar jarfile="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" basedir="${build.classes}" includes="**/CatalinaSkySurveyObservationSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.VSOLJObservationSource.jar" basedir="${build.classes}" includes="**/VSOLJObservationSource**.class"/>
     <jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="**/CustomFilterTest**.class"/>
     <jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="**/ExampleObSource**.class"/>
     <jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class"/>
