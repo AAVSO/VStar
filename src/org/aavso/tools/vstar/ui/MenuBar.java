@@ -615,15 +615,18 @@ public class MenuBar extends JMenuBar {
 	private void createHelpMenu() {
 		JMenu helpMenu = new JMenu(LocaleProps.get("HELP_MENU"));
 
-		helpContentsItem = new JMenuItem(HELP_CONTENTS, KeyEvent.VK_H);
-		helpContentsItem.addActionListener(createHelpContentsListener());
-		helpMenu.add(helpContentsItem);
-
 		// If default browser support is available, add an online docs menu
-		// item.
+		// items.
 		if (Desktop.isDesktopSupported()) {
 			Desktop desktop = Desktop.getDesktop();
 			if (desktop.isSupported(Desktop.Action.BROWSE)) {
+				// User manual.
+				helpContentsItem = new JMenuItem(HELP_CONTENTS, KeyEvent.VK_H);
+				helpContentsItem
+						.addActionListener(createHelpContentsListener());
+				helpMenu.add(helpContentsItem);
+
+				// VStar online.
 				helpVStarOnlineItem = new JMenuItem(VSTAR_ONLINE);
 				helpVStarOnlineItem
 						.addActionListener(createVStarOnlineListener());
@@ -1191,18 +1194,12 @@ public class MenuBar extends JMenuBar {
 	// ** Help Menu listeners **
 
 	/**
-	 * Returns the action listener to be invoked for Help->Help Contents...
+	 * Returns the action listener to be invoked for Help->User Manual Online...
 	 */
 	public ActionListener createHelpContentsListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				javax.swing.SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						HelpContentsDialog helpContentsDialog = new HelpContentsDialog();
-						helpContentsDialog.pack();
-						helpContentsDialog.setVisible(true);
-					}
-				});
+				openHelpURLInWebBrowser("http://www.aavso.org/files/vstar/VStarUserManual.pdf");
 			}
 		};
 	}
@@ -1213,44 +1210,43 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createVStarOnlineListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				javax.swing.SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						// Try to open the VStar online page in the default web
-						// browser.
-						if (Desktop.isDesktopSupported()) {
-							Desktop desktop = Desktop.getDesktop();
-							URL url = null;
-							try {
-								url = new URL(
-										"http://www.aavso.org/vstar-overview");
-								java.net.URL helpURL = ResourceAccessor
-										.getHelpHTMLResource();
-								if (desktop.isSupported(Desktop.Action.BROWSE)) {
-									try {
-										desktop.browse(url.toURI());
-									} catch (IOException e) {
-										MessageBox.showErrorDialog(
-												"VStar Online",
-												"Error reading from '"
-														+ helpURL.toString()
-														+ "'");
-									} catch (URISyntaxException e) {
-										MessageBox.showErrorDialog(
-												"VStar Online",
-												"Invalid address: '"
-														+ helpURL.toString()
-														+ "'");
-									}
-								}
-							} catch (MalformedURLException e) {
-								MessageBox.showErrorDialog("VStar Online",
-										"Invalid address.");
-							}
-						}
-					}
-				});
+				openHelpURLInWebBrowser("http://www.aavso.org/vstar-overview");
 			}
 		};
+	}
+
+	private void openHelpURLInWebBrowser(final String urlStr) {
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				// Try to open the VStar online page in the default web
+				// browser.
+				if (Desktop.isDesktopSupported()) {
+					Desktop desktop = Desktop.getDesktop();
+					URL url = null;
+					try {
+						url = new URL(urlStr);
+						java.net.URL helpURL = ResourceAccessor
+								.getHelpHTMLResource();
+						if (desktop.isSupported(Desktop.Action.BROWSE)) {
+							try {
+								desktop.browse(url.toURI());
+							} catch (IOException e) {
+								MessageBox.showErrorDialog("VStar Help",
+										"Error reading from '"
+												+ helpURL.toString() + "'");
+							} catch (URISyntaxException e) {
+								MessageBox.showErrorDialog("VStar Help",
+										"Invalid address: '"
+												+ helpURL.toString() + "'");
+							}
+						}
+					} catch (MalformedURLException e) {
+						MessageBox.showErrorDialog("VStar Help",
+								"Invalid address.");
+					}
+				}
+			}
+		});
 	}
 
 	/**
