@@ -33,8 +33,8 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * This is VStar's scripting Application Programming Interface. An instance of
  * this class will be passed to scripts.
  * 
- * All methods are synchronised to ensure that only one API is being called at a
- * time.
+ * All methods are synchronised to ensure that only one API method is being
+ * called at a time.
  */
 public class VStarScriptingAPI {
 
