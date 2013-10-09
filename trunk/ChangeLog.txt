@@ -34,7 +34,7 @@ Release History
 --------------------
 Date: October 9 2013
 Version: 2.15.4
-Tag: DEV-AAVSO-9October2013
+Tag: DEV-AAVSO-09Oct2013
 Key Changes:
 - First release of user manual.
 - Changed Help menu item and toolbar button to point to user manual online.
