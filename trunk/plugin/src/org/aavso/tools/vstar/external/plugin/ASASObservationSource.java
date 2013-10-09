@@ -62,7 +62,8 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 		DATA
 	};
 
-	private final static int INIT_COLOR = 0xff0000;
+	private final static Color[] COLORS = { Color.RED, Color.GREEN, Color.BLUE,
+			Color.ORANGE };
 
 	/**
 	 * Constructor
@@ -105,7 +106,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 			numObs = null;
 			seriesType = null;
 			designation = null;
-			seriesColor = INIT_COLOR;
+			seriesColor = 0;
 			this.setHeliocentric(true);
 		}
 
@@ -179,10 +180,9 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 						.parseInt(dataset.split("\\s*;\\s*")[0]);
 				String seriesName = "ASAS-" + datasetNum;
 				seriesType = SeriesType.create(seriesName, seriesName,
-						new Color(seriesColor), false, false);
-				seriesColor >>= 8;
-				if (seriesColor == 0) {
-					seriesColor = INIT_COLOR;
+						COLORS[seriesColor++], false, false);
+				if (seriesColor == COLORS.length) {
+					seriesColor = 0;
 				}
 			} else if (line.startsWith("#desig")) {
 				designation = getStringFromNameValuePair(line);
