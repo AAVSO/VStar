@@ -1939,7 +1939,7 @@ public class Mediator {
 				int width = chartPanel.getWidth();
 				int height = chartPanel.getHeight();
 
-				ChartUtilities.saveChartAsJPEG(path, chart, width, height);
+				ChartUtilities.saveChartAsPNG(path, chart, width, height);
 			}
 		} catch (IOException ex) {
 			MessageBox.showErrorDialog(parent,
