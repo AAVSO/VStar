@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
@@ -26,9 +25,12 @@ import java.util.regex.Pattern;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
@@ -39,41 +41,18 @@ import org.aavso.tools.vstar.util.date.AbstractDateUtil;
  * VSOLJ observation source plugin.
  * </p>
  * <p>
- * Looking for:
+ * Looking for a line ending in "VSOLJ" followed by data lines, e.g.
  * </p>
- * <p>
- * 2006 Feb. VSOLJ
- * </p>
- * <p>=
- * =======================================================================
- * </p>
- * <p>
- * AQLeta 190607130500 3.90 xyz
- * </p>
- * <p>
- * AQLeta 190607180327 4.25 abc
- * </p>
- * <p>
- * AQLeta 190607240624 4.86 xyz
- * </p>
+ * 2006 Feb. VSOLJ<br/>
+ * =======================================================================<br/>
+ * AQLeta 190607130500 3.90 xyz<br/>
+ * AQLeta 190607180327 4.25 abc<br/>
+ * AQLeta 190607240624 4.86 xyz<br/>
  * ...</br>
- * <p>=
- * =======================================================================
- * </p>
- * <p>
+ * =======================================================================<br/>
  * Total: N obs.</br>
- * </p>
  * <p>
  * See http://vsolj.cetus-net.org/cgi-bin/obs_search.cgi<br/>
- * We assume the UT radio button as been selected.
- * </p>
- * <p>
- * TODO:
- * <ul>
- * <li>Divide by 10 for mags > N?</li>
- * <li>Handle bands</li>
- * <li>Check against final num obs line?</li>
- * </ul>
  * </p>
  */
 public class VSOLJObservationSource extends ObservationSourcePluginBase {
@@ -81,14 +60,19 @@ public class VSOLJObservationSource extends ObservationSourcePluginBase {
 	enum State {
 		// Seek the start of the data.
 		SEEK,
+		// Data start.
+		DATA_START,
 		// Read data.
 		DATA,
-		// Count line reached.
-		COUNT
+		// Data end.
+		DATA_END
 	};
 
 	final Pattern VSOLJ_TIME = Pattern
 			.compile("(\\d{4})(\\d{2})(\\d{2})(\\d{4,6})");
+
+	final Pattern VSOLJ_MAG = Pattern
+			.compile("((<|>)?\\d+(\\.\\d+)?\\:?)(\\w*)");
 
 	@Override
 	public InputType getInputType() {
@@ -113,14 +97,11 @@ public class VSOLJObservationSource extends ObservationSourcePluginBase {
 	class VSOLJObservationRetriever extends AbstractObservationRetriever {
 
 		private State state;
-
-		private Integer numObs;
-		private SeriesType seriesType;
+		private MagnitudeFieldValidator magValidator;
 
 		public VSOLJObservationRetriever() {
 			state = State.SEEK;
-			numObs = 0;
-			seriesType = null;
+			magValidator = new MagnitudeFieldValidator();
 		}
 
 		@Override
@@ -159,20 +140,29 @@ public class VSOLJObservationSource extends ObservationSourcePluginBase {
 								// e.g. "2006 Feb. VSOLJ", followed by data
 								// lines.
 								if (line.endsWith("VSOLJ")) {
-									String seriesName = "VSOLJ";
-									seriesType = SeriesType.create(seriesName,
-											seriesName, Color.GREEN, false,
-											false);
-									state = State.DATA;
+									state = State.DATA_START;
 								}
 								break;
 
+							case DATA_START:
+								// Skip "=====..." before data.
+								state = State.DATA;
+								break;
+
 							case DATA:
-								handleData(line);
+								if (line.startsWith("=")) {
+									state = State.DATA_END;
+								} else {
+									handleData(line);
+								}
+								break;
+
+							case DATA_END:
+								// Ignore everything else.
 								break;
 							}
 						}
-						
+
 						lineNum++;
 					}
 				} catch (Exception e) {
@@ -188,48 +178,104 @@ public class VSOLJObservationSource extends ObservationSourcePluginBase {
 		}
 
 		private void handleData(String line) throws ObservationReadError {
-			if (line.startsWith("Total:")) {
-				state = State.COUNT;
-			} else {
-				// e.g. "AQLeta 190607130500 3.90 xyz"
-				String[] fields = line.split(" ");
-				String name = fields[0];
-				Matcher match = VSOLJ_TIME.matcher(fields[1]);
-				if (match.matches()) {
-					int year = Integer.parseInt(match.group(1));
-					int month = Integer.parseInt(match.group(2));
-					int dd = Integer.parseInt(match.group(3));
-					String time = match.group(4);
-					int hour = Integer.parseInt(time.substring(0, 2));
-					int min = Integer.parseInt(time.substring(2, 4));
-					int sec = 0;
-					if (time.length() == 6) {
-						sec = Integer.parseInt(time.substring(4, 6));
+			// e.g. "AQLeta 190607130500 3.90 xyz"
+			String[] fields = line.split(" ");
+			String name = fields[0];
+			Matcher timeMatcher = VSOLJ_TIME.matcher(fields[1]);
+			if (timeMatcher.matches()) {
+				double jd = getJD(timeMatcher);
+
+				try {
+					String magStr = fields[2];
+
+					Matcher magMatcher = VSOLJ_MAG.matcher(magStr);
+					if (magMatcher.matches()) {
+						ValidObservation ob = new ValidObservation();
+						ob.setName(name);
+						ob.setDateInfo(new DateInfo(jd));
+						ob.setMagnitude(getMag(magMatcher));
+						ob.setBand(getBand(magMatcher));
+						ob.setObsCode(fields[3]);
+						ob.addDetail("SOURCE", "VSOLJ", "Source");
+
+						collectObservation(ob);
+					} else {
+						throw new ObservationReadError("Invalid magnitude");
 					}
-					double day = dd + (hour + min / 60 + sec / 3600) / 24;
-					double jd = AbstractDateUtil.getInstance().calendarToJD(
-							year, month, day);
-
-					double mag = Double.parseDouble(fields[2]);
-					double magErr = 0;
-					String obsCode = fields[3];
-
-					ValidObservation ob = new ValidObservation();
-					ob.setName(name);
-					ob.setDateInfo(new DateInfo(jd));
-					ob.setMagnitude(new Magnitude(mag, magErr));
-					ob.setBand(seriesType);
-					ob.setObsCode(obsCode);
-					collectObservation(ob);
-
-					numObs++;
-				} else {
-					throw new ObservationReadError("Invalid observation line.");
+				} catch (ObservationValidationError e) {
+					throw new ObservationReadError(e.getLocalizedMessage());
 				}
+			} else {
+				throw new ObservationReadError("Invalid observation time");
 			}
 		}
 
-		// ** String processing helper methods. **
+		private double getJD(Matcher timeMatcher) {
+			int year = Integer.parseInt(timeMatcher.group(1));
+			int month = Integer.parseInt(timeMatcher.group(2));
+			int dd = Integer.parseInt(timeMatcher.group(3));
+			String time = timeMatcher.group(4);
+			int hour = Integer.parseInt(time.substring(0, 2));
+			int min = Integer.parseInt(time.substring(2, 4));
+			int sec = 0;
+			if (time.length() == 6) {
+				sec = Integer.parseInt(time.substring(4, 6));
+			}
+			double day = dd + (hour + min / 60 + sec / 3600) / 24;
+			return AbstractDateUtil.getInstance()
+					.calendarToJD(year, month, day);
+		}
+
+		private Magnitude getMag(Matcher magMatcher)
+				throws ObservationValidationError {
+			String magStr = magMatcher.group(1);
+			Magnitude mag = magValidator.validate(magStr);
+
+			// For magnitudes without a decimal point, divide by 10.
+			if (!magStr.contains(".")) {
+				MagnitudeModifier modifier = null;
+
+				// Note: This shows that we need to be able to set all fields of
+				// a Magnitude object for convenience and to reduce the number
+				// of objects created.
+				if (mag.isFainterThan()) {
+					modifier = MagnitudeModifier.FAINTER_THAN;
+				} else if (mag.isBrighterThan()) {
+					modifier = MagnitudeModifier.BRIGHTER_THAN;
+				} else {
+					modifier = MagnitudeModifier.NO_DELTA;
+				}
+
+				mag = new Magnitude(mag.getMagValue() / 10, modifier, mag
+						.isUncertain(), mag.getUncertainty());
+			}
+
+			return mag;
+		}
+
+		private SeriesType getBand(Matcher magMatcher) {
+			SeriesType seriesType = null;
+
+			String bandStr = magMatcher.group(4);
+
+			if (bandStr.equals("C")) {
+				return SeriesType.Unknown;
+			}
+
+			if (bandStr.toUpperCase().equals("RC")) {
+				// Cousins R
+				bandStr = "R";
+			}
+
+			seriesType = SeriesType.getSeriesFromShortName(bandStr);
+
+			// If we don't know what the band is, assume it's visual.
+			if (seriesType == SeriesType.getDefault()) {
+				seriesType = SeriesType.Visual;
+			}
+
+			return seriesType;
+		}
 
 		private boolean isEmpty(String str) {
 			return str != null && "".equals(str.trim());
