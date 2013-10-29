@@ -78,7 +78,7 @@ public class Magnitude {
 	}
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * Creates a Magnitude with magnitude and uncertainty values.
 	 * 
@@ -113,6 +113,13 @@ public class Magnitude {
 	}
 
 	/**
+	 * @return the magModifier
+	 */
+	public MagnitudeModifier getMagModifier() {
+		return magModifier;
+	}
+
+	/**
 	 * @return whether this magValue is uncertain
 	 */
 	public boolean isUncertain() {
@@ -125,13 +132,34 @@ public class Magnitude {
 	public double getUncertainty() {
 		return uncertainty;
 	}
-
+	
 	/**
 	 * @param uncertainty
 	 *            The quantitative uncertainty value to set
 	 */
 	public void setUncertainty(double uncertainty) {
 		this.uncertainty = uncertainty;
+	}
+
+	/**
+	 * @param magModifier the magModifier to set
+	 */
+	public void setMagModifier(MagnitudeModifier magModifier) {
+		this.magModifier = magModifier;
+	}
+
+	/**
+	 * @param magValue the magValue to set
+	 */
+	public void setMagValue(double magValue) {
+		this.magValue = magValue;
+	}
+
+	/**
+	 * @param isUncertain the isUncertain to set
+	 */
+	public void setUncertain(boolean isUncertain) {
+		this.isUncertain = isUncertain;
 	}
 
 	public String toString() {
