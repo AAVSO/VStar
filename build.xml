@@ -85,6 +85,7 @@
 			<attribute name="Created-By" value="${user.name}" />
 			<attribute name="Main-Class" value="org.aavso.tools.vstar.ui.VStar" />
 			<attribute name="Class-Path" value="${jar.classpath}" />
+			<attribute name="Permissions" value="all-permissions" />
 		</manifest>
 	</target>
 
