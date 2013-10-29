@@ -19,33 +19,51 @@ package org.aavso.tools.vstar.plugin;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * This class manages plug-in installation, deletion, and update.
  */
 public class PluginManager {
 
-	public final String DEFAULT_PLUGIN_URL_STR = "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-2.15.2/";
+	public final static String DEFAULT_PLUGIN_BASE_URL_STR = "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
+			+ ResourceAccessor.getVersionString();
+
+	public final static String PLUGINS_LIST_FILE = ".plugin.lst"; // TODO:
+	// .plugins.lst!
+
+	public final static String PLUGINS_DIR = "vstar_plugins";
+
+	public final static String PLUGIN_LIBS_DIR = "vstar_plugin_libs";
 
 	/**
-	 * A mapping from plugin descriptions to plugin files available to be
+	 * A mapping from plugin display name to plugin files available to be
 	 * installed for the current version of VStar.
 	 */
 	private Map<String, URL> plugins;
 
 	/**
-	 * A mapping from plugin descriptions to dependent library files available
+	 * A mapping from plugin display name to dependent library files available
 	 * to be installed for the current version of VStar.
-	 * */
+	 */
 	private Map<String, URL> libs;
+
+	/**
+	 * A mapping from plugin display name to description.
+	 */
+	private Map<String, String> descriptions;
 
 	/**
 	 * Constructor
@@ -55,29 +73,94 @@ public class PluginManager {
 	}
 
 	/**
+	 * @return the plugins
+	 */
+	public Map<String, URL> getPlugins() {
+		return plugins;
+	}
+
+	/**
+	 * @return the libs
+	 */
+	public Map<String, URL> getLibs() {
+		return libs;
+	}
+
+	/**
+	 * @return the descriptions
+	 */
+	public Map<String, String> getDescriptions() {
+		return descriptions;
+	}
+
+	/**
 	 * Retrieve information about the available plugins for this version of
 	 * VStar.
 	 * 
-	 * @param urlStr
+	 * @param baseUrlStr
 	 *            The base URL string from where to obtain plugins.
 	 * @return Was the plugin information successfully obtained?
 	 */
-	public boolean retrievePluginInfo(String urlStr) {
+	public boolean retrievePluginInfo(String baseUrlStr) {
 
 		boolean success = true;
 
 		plugins = new TreeMap<String, URL>();
+		libs = new TreeMap<String, URL>();
+		descriptions = new TreeMap<String, String>();
 
 		try {
-			URL url = new URL(urlStr);
+			URL infoUrl = new URL(baseUrlStr + "/" + PLUGINS_LIST_FILE);
 
-			URLConnection stream = url.openConnection();
+			URLConnection stream = infoUrl.openConnection();
 			BufferedInputStream buf = new BufferedInputStream(stream
 					.getInputStream());
 
 			String[] lines = readLines(buf);
-			
-			
+
+			String pluginBaseURLStr = baseUrlStr + "/" + PLUGINS_DIR;
+			String libBaseURLStr = baseUrlStr + "/" + PLUGIN_LIBS_DIR;
+
+			for (String line : lines) {
+				if (line.trim().length() == 0)
+					continue;
+				
+				// TODO: doesn't load when java source in jar
+				if (line.startsWith("my"))
+					continue;
+
+				// Separate jar file name from dependent libraries, if any
+				// exist.
+				String[] fields = line.split("\\s*=>\\s*");
+
+				if (fields.length != 0) {
+					// Load plugin, store mappings from display name to plugin URL,
+					// lib URL, and description.
+					String pluginJarFileName = fields[0];
+					URL pluginUrl = new URL(pluginBaseURLStr + "/"
+							+ pluginJarFileName);
+					String className = pluginJarFileName.replace(".jar", "");
+					IPlugin plugin = createObjectFromJarURL(pluginUrl,
+							className);
+					String pluginKey = plugin.getDisplayName();
+					descriptions.put(pluginKey, plugin.getDescription());
+					plugins.put(pluginKey, pluginUrl);
+
+					// Store dependent libs, if any exist, by plugin key.
+					if (fields.length == 2) {
+						for (String libFileStr : fields[1].split("\\s*,\\s*")) {
+							String libJarFileName = libFileStr;
+							URL libUrl = new URL(libBaseURLStr + "/"
+									+ libJarFileName);
+							libs.put(pluginKey, libUrl);
+						}
+					}
+				} else {
+					MessageBox.showErrorDialog("Plug-in Manager",
+							"Error in plug-in information format.");
+				}
+			}
+
 		} catch (MalformedURLException e) {
 			success = false;
 			MessageBox.showErrorDialog("Plug-in Manager",
@@ -85,7 +168,19 @@ public class PluginManager {
 		} catch (IOException e) {
 			success = false;
 			MessageBox.showErrorDialog("Plug-in Manager",
-					"Error reading plugin information.");
+					"Error reading plug-in information.");
+		} catch (ClassNotFoundException e) {
+			success = false;
+			MessageBox.showErrorDialog("Plug-in Manager",
+					"Error reading plug-in information.");
+		} catch (IllegalAccessException e) {
+			success = false;
+			MessageBox.showErrorDialog("Plug-in Manager",
+					"Error reading plug-in information.");
+		} catch (InstantiationException e) {
+			success = false;
+			MessageBox.showErrorDialog("Plug-in Manager",
+					"Error reading plug-in information.");
 		}
 
 		return success;
@@ -100,15 +195,14 @@ public class PluginManager {
 	 */
 	public void installPlugins(Set<String> pluginDescs) {
 		for (String desc : pluginDescs) {
-			// TODO: get plugins, libs
 			URL pluginURL = plugins.get(desc);
 		}
 	}
-	
+
 	// Helpers
-	
+
 	private String[] readLines(BufferedInputStream stream) throws IOException {
-		
+
 		StringBuffer strBuf = new StringBuffer();
 		int len = stream.available();
 		while (len > 0) {
@@ -117,7 +211,44 @@ public class PluginManager {
 			strBuf.append(new String(bytes));
 			len = stream.available();
 		}
-		
+
 		return strBuf.toString().split("\n");
+	}
+
+	private byte[] readBytes(InputStream stream) throws IOException {
+
+		List<byte[]> byteList = new ArrayList<byte[]>();
+		int len = stream.available();
+		while (len > 0) {
+			byte[] bytes = new byte[len];
+			stream.read(bytes, 0, len);
+			byteList.add(bytes);
+			len = stream.available();
+		}
+
+		int numBytes = 0;
+		for (byte[] bytes : byteList) {
+			numBytes += bytes.length;
+		}
+
+		// Note: Inefficient! Fix
+
+		byte[] allBytes = new byte[numBytes];
+		int i = 0;
+		for (byte[] bytes : byteList) {
+			for (byte b : bytes) {
+				allBytes[i++] = b;
+			}
+		}
+
+		return allBytes;
+	}
+
+	private IPlugin createObjectFromJarURL(URL url, String className)
+			throws ClassNotFoundException, IllegalAccessException,
+			InstantiationException {
+		URLClassLoader loader = URLClassLoader.newInstance(new URL[] { url });
+		Class<?> clazz = loader.loadClass(className);
+		return (IPlugin) clazz.newInstance();
 	}
 }
