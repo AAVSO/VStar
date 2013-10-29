@@ -23,12 +23,8 @@ package org.aavso.tools.vstar.util.coords;
 public class RAInfo {
 
 	private int epoch;
-	private int hours;
-	private int minutes;
-	private double seconds;
-
 	private double degs;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -42,11 +38,18 @@ public class RAInfo {
 	 *            The seconds component of the RA coord.
 	 */
 	public RAInfo(int epoch, int hours, int minutes, double seconds) {
-		this.epoch = epoch;
-		this.hours = hours;
-		this.minutes = minutes;
-		this.seconds = seconds;
 		degs = 15 * (hours + minutes / 60.0 + seconds / 3600.0);
+	}
+
+	/**
+	 * Construct an RAInfo instance from hours as decimal degrees.
+	 * 
+	 * @param ra
+	 *            The RA in decimal degrees.
+	 */
+	public RAInfo(int epoch, double ra) {
+		this.epoch = epoch;
+		degs = ra;
 	}
 
 	/**
@@ -56,30 +59,8 @@ public class RAInfo {
 		return epoch;
 	}
 
-	/**
-	 * @return the hours
-	 */
-	public int getHours() {
-		return hours;
-	}
-
-	/**
-	 * @return the minutes
-	 */
-	public int getMinutes() {
-		return minutes;
-	}
-
-	/**
-	 * @return the seconds
-	 */
-	public double getSeconds() {
-		return seconds;
-	}
-
 	public String toString() {
-		return String.format("RA (%d): %dh %dm %fs", epoch, hours, minutes,
-				seconds);
+		return String.format("RA (%d): %f degrees", epoch, degs);
 	}
 
 	public double toDegrees() {

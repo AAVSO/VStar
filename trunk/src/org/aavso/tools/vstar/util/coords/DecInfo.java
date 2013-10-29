@@ -23,10 +23,6 @@ package org.aavso.tools.vstar.util.coords;
 public class DecInfo {
 
 	private int epoch;
-	private int degrees;
-	private int minutes;
-	private double seconds;
-
 	private double degs;
 
 	/**
@@ -43,11 +39,19 @@ public class DecInfo {
 	 */
 	public DecInfo(int epoch, int degrees, int minutes, double seconds) {
 		this.epoch = epoch;
-		this.degrees = degrees;
-		this.minutes = minutes;
-		this.seconds = seconds;
 		degs = Math.signum(degrees)
 				* (Math.abs(degrees) + minutes / 60.0 + seconds / 3600.0);
+	}
+
+	/**
+	 * Construct a DecInfo instance from decimal degrees.
+	 * 
+	 * @param dec
+	 *            The Dec in decimal degrees.
+	 */
+	public DecInfo(int epoch, double dec) {
+		this.epoch = epoch;
+		degs = dec;
 	}
 
 	/**
@@ -57,30 +61,8 @@ public class DecInfo {
 		return epoch;
 	}
 
-	/**
-	 * @return the degrees
-	 */
-	public int getDegrees() {
-		return degrees;
-	}
-
-	/**
-	 * @return the minutes
-	 */
-	public int getMinutes() {
-		return minutes;
-	}
-
-	/**
-	 * @return the seconds
-	 */
-	public double getSeconds() {
-		return seconds;
-	}
-
 	public String toString() {
-		return String.format("Dec (%d): %dd %dm %fs", epoch, degrees, minutes,
-				seconds);
+		return String.format("Dec (%d): %f degrees", epoch, degs);
 	}
 
 	public double toDegrees() {
