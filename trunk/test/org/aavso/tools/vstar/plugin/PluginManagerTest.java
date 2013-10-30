@@ -17,8 +17,11 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -47,7 +50,6 @@ public class PluginManagerTest extends TestCase {
 	 */
 	public void testRetrievePluginInfo() {
 		pluginManager.retrievePluginInfo(PluginManager.DEFAULT_PLUGIN_BASE_URL_STR);
-//		pluginManager.retrievePluginInfo("file:///Users/david/vsp");
 		Map<String, URL> plugins = pluginManager.getPlugins();
 		assertEquals(9, plugins.size());
 		Map<String, URL> libs = pluginManager.getLibs();
@@ -57,7 +59,10 @@ public class PluginManagerTest extends TestCase {
 	/**
 	 * Test method for {@link org.aavso.tools.vstar.plugin.PluginManager#installPlugins(java.util.Set)}.
 	 */
-	public void testInstallPlugins() {
-		fail("Not yet implemented");
+	public void testInstallPlugins() throws IOException {
+		pluginManager.retrievePluginInfo(PluginManager.DEFAULT_PLUGIN_BASE_URL_STR);
+		Set<String> descs = new HashSet<String>();
+		descs.addAll(pluginManager.getDescriptions().keySet());
+		assertTrue(pluginManager.installPlugins(descs));
 	}
 }

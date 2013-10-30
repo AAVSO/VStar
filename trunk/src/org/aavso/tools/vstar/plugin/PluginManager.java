@@ -18,8 +18,11 @@
 package org.aavso.tools.vstar.plugin;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -41,8 +44,7 @@ public class PluginManager {
 	public final static String DEFAULT_PLUGIN_BASE_URL_STR = "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
 			+ ResourceAccessor.getVersionString();
 
-	public final static String PLUGINS_LIST_FILE = ".plugin.lst"; // TODO:
-	// .plugins.lst!
+	public final static String PLUGINS_LIST_FILE = ".plugins.lst";
 
 	public final static String PLUGINS_DIR = "vstar_plugins";
 
@@ -124,7 +126,7 @@ public class PluginManager {
 			for (String line : lines) {
 				if (line.trim().length() == 0)
 					continue;
-				
+
 				// TODO: doesn't load when java source in jar
 				if (line.startsWith("my"))
 					continue;
@@ -134,7 +136,8 @@ public class PluginManager {
 				String[] fields = line.split("\\s*=>\\s*");
 
 				if (fields.length != 0) {
-					// Load plugin, store mappings from display name to plugin URL,
+					// Load plugin, store mappings from display name to plugin
+					// URL,
 					// lib URL, and description.
 					String pluginJarFileName = fields[0];
 					URL pluginUrl = new URL(pluginBaseURLStr + "/"
@@ -193,10 +196,51 @@ public class PluginManager {
 	 *            The set of plugin descriptions corresponding to the plugins
 	 *            and dependent libraries to be installed.
 	 */
-	public void installPlugins(Set<String> pluginDescs) {
-		for (String desc : pluginDescs) {
-			URL pluginURL = plugins.get(desc);
+	public boolean installPlugins(Set<String> pluginDescs) {
+		boolean success = true;
+
+		try {
+			// Install plugin jars.
+			File pluginDirPath = new File(System.getProperty("user.home")
+					+ File.separator + "vstar_plugins");
+
+			if (!pluginDirPath.exists()) {
+				pluginDirPath.mkdir();
+			}
+
+			for (String desc : pluginDescs) {
+				URL pluginURL = plugins.get(desc);
+				String pluginJarName = pluginURL.getPath().substring(
+						pluginURL.getPath().lastIndexOf("/") + 1);
+				File outputFile = new File(pluginDirPath, pluginJarName);
+				copy(pluginURL.openStream(), outputFile);
+			}
+
+			// Install dependent jars.
+			File pluginLibDirPath = new File(System.getProperty("user.home")
+					+ File.separator + "vstar_plugin_libs");
+
+			if (!pluginLibDirPath.exists()) {
+				pluginLibDirPath.mkdir();
+			}
+
+			for (String desc : pluginDescs) {
+				URL libURL = libs.get(desc);
+				if (libURL != null) {
+					String libJarName = libURL.getPath().substring(
+							libURL.getPath().lastIndexOf("/") + 1);
+					File outputFile = new File(pluginLibDirPath, libJarName);
+					copy(libURL.openStream(), outputFile);
+				}
+			}
+		} catch (IOException e) {
+			success = false;
+			MessageBox.showErrorDialog("Plug-in Manager",
+					"An error occurred while installing plugins.");
+
 		}
+
+		return success;
 	}
 
 	// Helpers
@@ -213,6 +257,17 @@ public class PluginManager {
 		}
 
 		return strBuf.toString().split("\n");
+	}
+
+	private void copy(InputStream in, File file) throws IOException {
+		OutputStream out = new FileOutputStream(file);
+		byte[] buf = new byte[4096];
+		int len;
+		while ((len = in.read(buf)) > 0) {
+			out.write(buf, 0, len);
+		}
+		out.close();
+		in.close();
 	}
 
 	private byte[] readBytes(InputStream stream) throws IOException {
