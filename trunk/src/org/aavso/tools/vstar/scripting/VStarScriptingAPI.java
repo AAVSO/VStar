@@ -19,14 +19,18 @@ package org.aavso.tools.vstar.scripting;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.plugin.InputType;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -121,6 +125,115 @@ public class VStarScriptingAPI {
 			MessageBox.showErrorDialog("Load File",
 					"Error reading observations from file: " + path
 							+ " (reason: " + e.getLocalizedMessage() + ")");
+		}
+
+		mediator.waitForJobCompletion();
+	}
+
+	/**
+	 * Load a dataset from the specified path. This is equivalent to
+	 * "File -> New Star from <obs-source-type>..."
+	 * 
+	 * @param pluginPattern
+	 *            The sub-string with which to match the plugin name.
+	 * @param path
+	 *            The path to the file.
+	 */
+	public synchronized void loadFromFile(final String pluginPattern,
+			final String path) {
+		commonLoadFromFilePlugin(pluginPattern, InputType.FILE, path, false);
+	}
+
+	/**
+	 * Load a dataset from the specified path, adding it to the existing
+	 * dataset. This is equivalent to
+	 * "File -> New Star from <obs-source-type>..." with the additive checkbox
+	 * selected.
+	 * 
+	 * @param pluginPattern
+	 *            The sub-string with which to match the plugin name.
+	 * @param path
+	 *            The path to the file.
+	 */
+	public synchronized void additiveLoadFromFile(final String pluginPattern,
+			final String path) {
+		commonLoadFromFilePlugin(pluginPattern, InputType.FILE, path, true);
+	}
+
+	/**
+	 * Load a dataset from the specified URL.
+	 * 
+	 * @param pluginPattern
+	 *            The sub-string with which to match the plugin name.
+	 * @param url
+	 *            The URL.
+	 */
+	public synchronized void loadFromURL(final String pluginPattern,
+			final String url) {
+		commonLoadFromFilePlugin(pluginPattern, InputType.URL, url, false);
+	}
+
+	/**
+	 * Load a dataset from the specified URL, adding it to the existing
+	 * dataset.
+	 * 
+	 * @param pluginPattern
+	 *            The sub-string with which to match the plugin name.
+	 * @param url
+	 *            The URL.
+	 */
+	public synchronized void additiveLoadFromURL(final String pluginPattern,
+			final String url) {
+		commonLoadFromFilePlugin(pluginPattern, InputType.URL, url, true);
+	}
+
+	/**
+	 * Common dataset plugin load method.
+	 * 
+	 * @param pluginPattern
+	 *            The sub-string with which to match the plugin name.
+	 * @param inputType
+	 *            The input type (e.g. file, URL).
+	 * @param location
+	 *            The path to the file or the URL.
+	 * @param isAdditive
+	 *            Is this load additive?
+	 */
+	private void commonLoadFromFilePlugin(final String pluginPattern,
+			InputType inputType, final String location, boolean isAdditive) {
+		ObservationSourcePluginBase obSourcePlugin = null;
+
+		for (ObservationSourcePluginBase plugin : PluginLoader
+				.getObservationSourcePlugins()) {
+			if (plugin.getDisplayName().matches("^.*" + pluginPattern + ".*$")
+					&& plugin.getInputType() == inputType) {
+				obSourcePlugin = plugin;
+				break;
+			}
+		}
+
+		if (obSourcePlugin != null) {
+			try {
+				if (inputType == InputType.FILE) {
+					mediator.createObservationArtefactsFromObSourcePlugin(
+							obSourcePlugin, new File(location), isAdditive);
+				} else if (inputType == InputType.URL) {
+					mediator.createObservationArtefactsFromObSourcePlugin(
+							obSourcePlugin, new URL(location), isAdditive);
+
+				}
+			} catch (IOException e) {
+				MessageBox.showErrorDialog("Load File", "Cannot load file: "
+						+ location);
+			} catch (ObservationReadError e) {
+				MessageBox.showErrorDialog("Load File",
+						"Error reading observations from file: " + location
+								+ " (reason: " + e.getLocalizedMessage() + ")");
+			}
+		} else {
+			MessageBox.showErrorDialog("Load File",
+					"No matching observation plugin found '" + pluginPattern
+							+ "'");
 		}
 
 		mediator.waitForJobCompletion();

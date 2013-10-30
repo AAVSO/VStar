@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
+import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -119,6 +120,8 @@ import org.aavso.tools.vstar.ui.task.ModellingTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromDatabaseTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromFileTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginTask;
+import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedFileTask;
+import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedURLTask;
 import org.aavso.tools.vstar.ui.task.ObsListFileSaveTask;
 import org.aavso.tools.vstar.ui.task.PeriodAnalysisTask;
 import org.aavso.tools.vstar.ui.task.PhasePlotTask;
@@ -1063,6 +1066,54 @@ public class Mediator {
 
 		NewStarFromObSourcePluginTask task = new NewStarFromObSourcePluginTask(
 				obSourcePlugin);
+		this.currTask = task;
+		task.execute();
+	}
+
+	/**
+	 * Creates and executes a background task to handle
+	 * new-star-from-external-source-plugin when a file is supplied.
+	 * 
+	 * @param obSourcePlugin
+	 *            The plugin that will be used to obtain observations.
+	 * @param file
+	 *            The file to used as input.
+	 * @param isAdditive
+	 *            Is this an additive load?
+	 */
+	public void createObservationArtefactsFromObSourcePlugin(
+			ObservationSourcePluginBase obSourcePlugin, File file,
+			boolean isAdditive) throws IOException, ObservationReadError {
+
+		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
+		this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
+
+		NewStarFromObSourcePluginWithSuppliedFileTask task = new NewStarFromObSourcePluginWithSuppliedFileTask(
+				obSourcePlugin, file, isAdditive);
+		this.currTask = task;
+		task.execute();
+	}
+
+	/**
+	 * Creates and executes a background task to handle
+	 * new-star-from-external-source-plugin when a URL is supplied.
+	 * 
+	 * @param obSourcePlugin
+	 *            The plugin that will be used to obtain observations.
+	 * @param url
+	 *            The URL to used as input.
+	 * @param isAdditive
+	 *            Is this an additive load?
+	 */
+	public void createObservationArtefactsFromObSourcePlugin(
+			ObservationSourcePluginBase obSourcePlugin, URL url,
+			boolean isAdditive) throws IOException, ObservationReadError {
+
+		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
+		this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
+
+		NewStarFromObSourcePluginWithSuppliedURLTask task = new NewStarFromObSourcePluginWithSuppliedURLTask(
+				obSourcePlugin, url, isAdditive);
 		this.currTask = task;
 		task.execute();
 	}
