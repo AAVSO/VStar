@@ -19,11 +19,14 @@ package org.aavso.tools.vstar.plugin;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import junit.framework.TestCase;
+
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagerException;
 
 /**
  * PluginManager test cases.
@@ -31,7 +34,7 @@ import junit.framework.TestCase;
 public class PluginManagerTest extends TestCase {
 
 	private PluginManager pluginManager;
-	
+
 	public PluginManagerTest(String name) {
 		super(name);
 	}
@@ -45,24 +48,34 @@ public class PluginManagerTest extends TestCase {
 		super.tearDown();
 	}
 
-	/**
-	 * Test method for {@link org.aavso.tools.vstar.plugin.PluginManager#retrievePluginInfo(java.lang.String)}.
-	 */
 	public void testRetrievePluginInfo() {
-		pluginManager.retrievePluginInfo(PluginManager.DEFAULT_PLUGIN_BASE_URL_STR);
-		Map<String, URL> plugins = pluginManager.getPlugins();
-		assertEquals(9, plugins.size());
-		Map<String, URL> libs = pluginManager.getLibs();
+		pluginManager.retrieveRemotePluginInfo();
+		Map<String, URL> plugins = pluginManager.getRemotePluginsByJarName();
+		assertEquals(10, plugins.size());
+		Map<String, List<URL>> libs = pluginManager.getLibs();
 		assertEquals(2, libs.size());
 	}
 
-	/**
-	 * Test method for {@link org.aavso.tools.vstar.plugin.PluginManager#installPlugins(java.util.Set)}.
-	 */
+	public void testRetrieveLocalPluginJarInfo() throws Exception {
+		try {
+			pluginManager.retrieveLocalPluginInfo();
+			assertTrue(pluginManager.getLocalDescriptionsToJarName().size() > 0);
+		} catch (PluginManagerException e) {
+			fail();
+		}
+	}
+
 	public void testInstallPlugins() throws IOException {
-		pluginManager.retrievePluginInfo(PluginManager.DEFAULT_PLUGIN_BASE_URL_STR);
-		Set<String> descs = new HashSet<String>();
-		descs.addAll(pluginManager.getDescriptions().keySet());
-		assertTrue(pluginManager.installPlugins(descs));
+		pluginManager
+				.retrieveRemotePluginInfo(PluginManager.DEFAULT_PLUGIN_BASE_URL_STR);
+		Collection<String> jarNames = pluginManager.getRemotePluginsByJarName()
+				.keySet();
+		try {
+			for (String jarName : jarNames) {
+				pluginManager.installPlugin(jarName, PluginManager.Operation.INSTALL);
+			}
+		} catch (PluginManagerException e) {
+			fail();
+		}
 	}
 }

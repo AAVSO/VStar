@@ -68,14 +68,14 @@ public class InfoDialog extends JDialog implements ActionListener {
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		JPanel buttonPane = new JPanel();
-		JButton okButton = new JButton("OK");
-		okButton.addActionListener(this);
-		buttonPane.add(okButton, BorderLayout.CENTER);
+		JButton dismissButton = new JButton("Dismiss");
+		dismissButton.addActionListener(this);
+		buttonPane.add(dismissButton, BorderLayout.CENTER);
 		topPane.add(buttonPane);
 
 		this.getContentPane().add(topPane);
 
-		this.getRootPane().setDefaultButton(okButton);
+		this.getRootPane().setDefaultButton(dismissButton);
 
 		this.pack();
 		this.setLocationRelativeTo(Mediator.getUI().getContentPane());
@@ -232,8 +232,9 @@ public class InfoDialog extends JDialog implements ActionListener {
 	}
 
 	/**
-	 * OK button handler.
+	 * Dismiss button handler.
 	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		this.setVisible(false);
 		dispose();

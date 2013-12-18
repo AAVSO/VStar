@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * 
  * @deprecated
  */
+@SuppressWarnings("serial")
 public class PeriodAnalysisIndexedTopHitsTableModel extends AbstractTableModel {
 
 	private PeriodAnalysisCoordinateType[] columnTypes;

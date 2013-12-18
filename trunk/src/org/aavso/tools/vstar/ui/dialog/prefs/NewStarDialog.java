@@ -25,7 +25,7 @@ import javax.swing.JTextField;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 
 /**
- * This dialog allows the use to enter the name of a new star for a group.
+ * This dialog allows the user to enter the name of a new star for a group.
  */
 @SuppressWarnings("serial")
 public class NewStarDialog extends AbstractOkCancelDialog {

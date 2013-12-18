@@ -11,6 +11,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
  * This class is a base table model for synthetic observation data (e.g. mean,
  * model, residual).
  */
+@SuppressWarnings("serial")
 public abstract class AbstractSyntheticObservationTableModel extends
 		AbstractTableModel {
 

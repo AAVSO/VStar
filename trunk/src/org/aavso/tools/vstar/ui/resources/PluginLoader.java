@@ -46,6 +46,9 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
  */
 public class PluginLoader {
 
+	public final static String VSTAR_PLUGINS_DIR_NAME = "vstar_plugins";
+	public final static String VSTAR_PLUGIN_LIBS_DIR_NAME = "vstar_plugin_libs";
+	
 	// List to store plugins, if any exist.
 	private static List<IPlugin> plugins = new ArrayList<IPlugin>();
 
@@ -173,7 +176,7 @@ public class PluginLoader {
 		List<URL> depLibs = new ArrayList<URL>();
 
 		File pluginLibPath = new File(System.getProperty("user.home")
-				+ File.separator + "vstar_plugin_libs");
+				+ File.separator + VSTAR_PLUGIN_LIBS_DIR_NAME);
 
 		if (pluginLibPath.exists() && pluginLibPath.isDirectory()) {
 			for (File file : pluginLibPath.listFiles(jarFilter)) {
@@ -190,7 +193,7 @@ public class PluginLoader {
 		// Locate and store plugins, if any exist.
 
 		File pluginPath = new File(System.getProperty("user.home")
-				+ File.separator + "vstar_plugins");
+				+ File.separator + VSTAR_PLUGINS_DIR_NAME);
 
 		if (pluginPath.exists() && pluginPath.isDirectory()) {
 			for (File file : pluginPath.listFiles(jarFilter)) {
@@ -200,7 +203,7 @@ public class PluginLoader {
 				// IPlugin methods.
 				String qualifiedClassName = file.getName().replace(".jar", "");
 				try {
-					Class clazz = loadClass(file, qualifiedClassName, depLibs);
+					Class<?> clazz = loadClass(file, qualifiedClassName, depLibs);
 					Object plugin = clazz.newInstance();
 					plugins.add((IPlugin) plugin);
 				} catch (MalformedURLException e) {

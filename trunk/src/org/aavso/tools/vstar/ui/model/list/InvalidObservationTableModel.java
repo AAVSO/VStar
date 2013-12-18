@@ -26,6 +26,7 @@ import org.aavso.tools.vstar.data.InvalidObservation;
 /**
  * A table model for invalid observations.
  */
+@SuppressWarnings("serial")
 public class InvalidObservationTableModel extends AbstractTableModel {
 
 	private final static int COLUMNS = 3;

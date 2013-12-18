@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * The model is notified of model selection in order to update its data. The
  * data is updated according to the type specified in the constructor.
  */
+@SuppressWarnings("serial")
 public class RawDataModelObservationTableModel extends
 		AbstractModelObservationTableModel  {
 
