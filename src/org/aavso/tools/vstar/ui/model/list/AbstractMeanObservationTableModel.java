@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.util.stats.BinningResult;
  * 
  * The model is notified of wholesale mean data change.
  */
+@SuppressWarnings("serial")
 public abstract class AbstractMeanObservationTableModel extends
 		AbstractSyntheticObservationTableModel implements Listener<BinningResult> {
 

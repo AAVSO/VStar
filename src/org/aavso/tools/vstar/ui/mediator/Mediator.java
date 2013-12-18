@@ -70,6 +70,7 @@ import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.dialog.model.ModelDialog;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
 import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
@@ -125,6 +126,7 @@ import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedURLTas
 import org.aavso.tools.vstar.ui.task.ObsListFileSaveTask;
 import org.aavso.tools.vstar.ui.task.PeriodAnalysisTask;
 import org.aavso.tools.vstar.ui.task.PhasePlotTask;
+import org.aavso.tools.vstar.ui.task.PluginManagerOperationTask;
 import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.PreviousCyclePhaseComparator;
@@ -748,6 +750,22 @@ public class Mediator {
 			Mediator.getUI().setCursor(null);
 			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"New Phase Plot", e);
+		}
+	}
+
+	/**
+	 * Perform plugin manager operation.
+	 */
+	public void performPluginManagerOperation(PluginManagementOperation op) {
+		PluginManagerOperationTask task = new PluginManagerOperationTask(op);
+
+		try {
+			currTask = task;
+			task.execute();
+		} catch (Exception e) {
+			Mediator.getUI().setCursor(null);
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+					"Plugin Manager", e.getLocalizedMessage());
 		}
 	}
 

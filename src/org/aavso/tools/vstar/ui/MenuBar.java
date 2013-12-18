@@ -49,10 +49,12 @@ import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.scripting.ScriptRunner;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
-import org.aavso.tools.vstar.ui.dialog.HelpContentsDialog;
 import org.aavso.tools.vstar.ui.dialog.InfoDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementDialog;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -130,6 +132,8 @@ public class MenuBar extends JMenuBar {
 	public static final String MODELS = LocaleProps.get("ANALYSIS_MENU_MODELS");
 
 	// Tool menu item names.
+	public static final String PLUGIN_MANAGER = LocaleProps
+			.get("TOOL_MENU_PLUGIN_MANAGER");
 	public static final String RUN_SCRIPT = LocaleProps
 			.get("TOOL_MENU_RUN_SCRIPT");
 
@@ -217,6 +221,7 @@ public class MenuBar extends JMenuBar {
 
 	// Tool menu.
 	JMenu toolMenu;
+	JMenuItem toolPluginManager;
 	JMenuItem toolRunScript;
 
 	// Help menu.
@@ -565,6 +570,10 @@ public class MenuBar extends JMenuBar {
 		toolMenu = new JMenu(LocaleProps.get("TOOL_MENU"));
 		// toolMenu.setEnabled(false);
 
+		toolPluginManager = new JMenuItem(PLUGIN_MANAGER);
+		toolPluginManager.addActionListener(createPluginManagerListener());
+		toolMenu.add(toolPluginManager);
+		
 		// if (uiType != UIType.APPLET) {
 		toolRunScript = new JMenuItem(RUN_SCRIPT);
 		toolRunScript.addActionListener(createRunScriptListener());
@@ -1144,6 +1153,28 @@ public class MenuBar extends JMenuBar {
 	}
 
 	// ** Tool menu listeners **
+
+	/**
+	 * Returns the action listener to be invoked for Tool -> Plug-in Manager...
+	 */
+	public ActionListener createPluginManagerListener() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final PluginManager manager = new PluginManager();
+				PluginManagementOperation op = new PluginManagementOperation(
+						manager, "Initialising Plug-in Manager") {
+					@Override
+					public void execute() {
+						manager.retrieveRemotePluginInfo();
+						manager.retrieveLocalPluginInfo();
+						new PluginManagementDialog(manager);
+					}
+				};
+				mediator.performPluginManagerOperation(op);
+			}
+		};
+	}
 
 	/**
 	 * Returns the action listener to be invoked for Tool -> Run Script...

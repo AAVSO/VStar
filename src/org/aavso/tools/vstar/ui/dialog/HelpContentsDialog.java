@@ -38,6 +38,8 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  * This class represents a help content frame.
  * 
  * Adapted from the JDK Sun API docs.
+ * 
+ * @deprecated The user manual has replaced this.
  */
 @SuppressWarnings("serial")
 public class HelpContentsDialog extends JDialog {

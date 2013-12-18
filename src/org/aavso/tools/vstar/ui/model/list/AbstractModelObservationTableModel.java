@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * 
  * The model is notified of model data change.
  */
+@SuppressWarnings("serial")
 public abstract class AbstractModelObservationTableModel extends
 		AbstractSyntheticObservationTableModel implements
 		Listener<ModelSelectionMessage> {

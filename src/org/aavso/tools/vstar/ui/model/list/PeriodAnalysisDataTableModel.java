@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 /**
  * This class represents a model for a period analysis table.
  */
+@SuppressWarnings("serial")
 public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 
 	private PeriodAnalysisCoordinateType[] columnTypes;
