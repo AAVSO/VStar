@@ -153,7 +153,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 								break;
 
 							case DATA:
-								handleData(line);
+								handleData(line, lineNum);
 								break;
 							}
 						}
@@ -192,7 +192,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 			}
 		}
 
-		private void handleData(String line) throws ObservationReadError {
+		private void handleData(String line, int lineNum) throws ObservationReadError {
 			if (line.startsWith("#dataset")) {
 				// We've found the next part of a split
 				// dataset and need to get the designation
@@ -211,6 +211,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 					ob.setDateInfo(new DateInfo(hjd));
 					ob.setMagnitude(new Magnitude(mag, magErr));
 					ob.setBand(seriesType);
+					ob.setRecordNumber(lineNum);
 					ob.addDetail("DESIGNATION", designation, "Designation");
 					ob.addDetail("CLASS", dataClass, "Class");
 					ob.addDetail("FRAME", fields[12], "Frame");
