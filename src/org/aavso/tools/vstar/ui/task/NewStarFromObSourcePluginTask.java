@@ -41,7 +41,6 @@ import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
-import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.util.plugin.URLAuthenticator;
 
@@ -109,7 +108,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// by file, URL, or other dialog
 
 			boolean isAdditive = false;
-			
+
 			switch (obSourcePlugin.getInputType()) {
 			case FILE:
 				List<File> files = obSourcePlugin.getFiles();
@@ -192,19 +191,10 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						"No observations for the specified period or error in observation source.");
 			}
 
-			// Try to get the name of the object from one of the
-			// observations, otherwise just use the current star
-			// name from the plug-in.
-			// TODO: move down to concrete retriever
-			// String name = retriever.getValidObservations().get(0).getName();
-			// if (name == null) {
-			String name = retriever.getSourceName();
-			// }
-
 			// Create plots, tables.
 			NewStarType type = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
-			mediator.createNewStarObservationArtefacts(type, new StarInfo(
-					retriever, name), 0, isAdditive);
+			mediator.createNewStarObservationArtefacts(type, retriever
+					.getStarInfo(), 0, isAdditive);
 
 		} catch (InterruptedException e) {
 			ValidObservation.restore();

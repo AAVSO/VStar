@@ -28,6 +28,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 
@@ -107,7 +108,7 @@ public abstract class AbstractObservationRetriever {
 		this.maxMag = -Double.MAX_VALUE;
 
 		interrupted = false;
-		
+
 		isHeliocentric = false;
 
 		Mediator.getInstance().getStopRequestNotifier().addListener(
@@ -206,7 +207,8 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * @param isHeliocentric the isHeliocentric to set
+	 * @param isHeliocentric
+	 *            the isHeliocentric to set
 	 */
 	public void setHeliocentric(boolean isHeliocentric) {
 		this.isHeliocentric = isHeliocentric;
@@ -401,6 +403,16 @@ public abstract class AbstractObservationRetriever {
 	 */
 	protected void addInvalidObservation(InvalidObservation ob) {
 		invalidObservations.add(ob);
+	}
+
+	/**
+	 * Returns a StarInfo instance for the object whose observations are being
+	 * loaded. Concrete subclasses may want to specialise this to add more detail.
+	 * 
+	 * @return The StarInfo object.
+	 */
+	public StarInfo getStarInfo() {
+		return new StarInfo(this, getSourceName());
 	}
 
 	// Creates a stop request listener.
