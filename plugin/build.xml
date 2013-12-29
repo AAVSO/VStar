@@ -21,6 +21,8 @@
     <javac srcdir="${src}" destdir="${build}" classpathref="libs"/>
   </target>
 
+  <!-- TODO: need a zip target that includes libs -->
+	
   <target name="dist" depends="compile" description="generate the distribution" >
 
     <mkdir dir="${dist}"/>
@@ -29,23 +31,27 @@
          so right now this is just a huge list of targets add your new plugin here
 	     as another jar task line -->
     <jar jarfile="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOUploadFileFormatObservationSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.AAVSOWebServiceObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOWebServiceObservationSource**.class"/>
+  	<jar jarfile="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" basedir="${build.classes}" includes="**/ApacheCommonsLowessFitter**.class"/>
     <jar jarfile="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/APASSEpochPhotometryObservationSource**.class"/>
     <jar jarfile="${dist}/${pkg}.ASASObservationSource.jar" basedir="${build.classes}" includes="**/ASASObservationSource**.class"/>
-    <jar jarfile="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" basedir="${build.classes}" includes="**/ApacheCommonsLowessFitter**.class"/>
     <jar jarfile="${dist}/${pkg}.BSMPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/BSMPhotometryObservationSource**.class"/>
     <jar jarfile="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" basedir="${build.classes}" includes="**/CatalinaSkySurveyObservationSource**.class"/>
-    <jar jarfile="${dist}/${pkg}.VSOLJObservationSource.jar" basedir="${build.classes}" includes="**/VSOLJObservationSource**.class"/>
     <jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="**/CustomFilterTest**.class"/>
     <jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="**/ExampleObSource**.class"/>
     <jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class"/>
     <jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="**/KeplerFITSObservationSource**.class"/>
-    <jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class"/>
+   	<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class"/>
+  	<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class"/>
+  	<!--
     <jar jarfile="${dist}/${pkg}.ObservationCounter.jar" basedir="${build.classes}" includes="**/ObservationCounter**.class"/>
+    -->
 	<!--    
 	<jar jarfile="${dist}/${pkg}.PeriodAnalysisPluginTest1.jar" basedir="${build.classes}" includes="**/PeriodAnalysisPluginTest1**.class"/>
 	-->
     <jar jarfile="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" basedir="${build.classes}" includes="**/PeriodLuminosityDistanceCalculator**.class"/>
     <jar jarfile="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" basedir="${build.classes}" includes="**/SuperWASPFITSObservationSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.VSOLJObservationSource.jar" basedir="${build.classes}" includes="**/VSOLJObservationSource**.class"/>
 
   </target>
 
