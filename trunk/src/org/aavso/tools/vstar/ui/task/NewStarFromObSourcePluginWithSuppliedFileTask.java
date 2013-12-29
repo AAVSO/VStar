@@ -37,7 +37,6 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
-import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
 /**
@@ -125,12 +124,10 @@ public class NewStarFromObSourcePluginWithSuppliedFileTask extends
 						"No observations for the specified period or error in observation source.");
 			}
 
-			String name = retriever.getSourceName();
-
 			// Create plots, tables.
 			NewStarType type = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
-			mediator.createNewStarObservationArtefacts(type, new StarInfo(
-					retriever, name), 0, isAdditive);
+			mediator.createNewStarObservationArtefacts(type, retriever
+					.getStarInfo(), 0, isAdditive);
 
 		} catch (InterruptedException e) {
 			ValidObservation.restore();
