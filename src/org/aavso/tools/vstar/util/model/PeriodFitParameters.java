@@ -287,7 +287,7 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 
 		String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
 
-		str = cosineCoefficient >= 0 ? ",\n" : "\n";
+		str = cosineCoefficient != 0 ? ",\n" : "\n";
 
 		String sincosParam = "2*PI()*" + harmonic + "*(A1-" + zeroPointOffset
 				+ ")";
@@ -296,7 +296,7 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 		str += sincosParam;
 		str += ")";
 
-		str += sineCoefficient >= 0 ? ", " : "";
+		str += sineCoefficient != 0 ? ",\n" : "\n";
 
 		str += String.format(fmt, sineCoefficient) + " * SIN(";
 		str += sincosParam;

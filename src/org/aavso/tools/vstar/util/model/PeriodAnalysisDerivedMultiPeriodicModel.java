@@ -189,7 +189,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			double constantCoefficient = parameters.get(0)
 					.getConstantCoefficient();
 			strRepr += String.format(fmt, constantCoefficient);
-
+			
 			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);
 				strRepr += params.toExcelString();
@@ -201,7 +201,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		return strRepr;
 	}
 
-	public String toRString() {
+	private String toRString() {
 		String strRepr = functionStrMap.get(LocaleProps
 				.get("MODEL_INFO_R_TITLE"));
 
