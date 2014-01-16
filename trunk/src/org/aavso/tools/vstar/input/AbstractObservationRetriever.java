@@ -259,6 +259,15 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
+	 * Does this observation retriever support progress (e.g. per line)?
+	 * 
+	 * @return True if it supports progress, false otherwise.
+	 */
+	public boolean supportsProgress() {
+		return false;
+	}
+
+	/**
 	 * <p>
 	 * Add an observation to the list of valid observations.
 	 * </p>
@@ -407,7 +416,8 @@ public abstract class AbstractObservationRetriever {
 
 	/**
 	 * Returns a StarInfo instance for the object whose observations are being
-	 * loaded. Concrete subclasses may want to specialise this to add more detail.
+	 * loaded. Concrete subclasses may want to specialise this to add more
+	 * detail.
 	 * 
 	 * @return The StarInfo object.
 	 */
