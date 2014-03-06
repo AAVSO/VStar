@@ -1,4 +1,4 @@
-<project name="plugin" default="dist" basedir=".">
+<project name="plugin" default="install" basedir=".">
   <description>Generic build file to make plugin building easier.</description>
 
   <property name="src" location="src/org/aavso/tools/vstar/external/plugin"/>
