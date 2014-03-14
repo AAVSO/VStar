@@ -94,6 +94,8 @@ public class ValidObservation extends Observation {
 
 	private MTypeType mType = MTypeType.STD;
 
+	private ObsType obsType = null;
+
 	// Phase values will be computed later, if a phase plot is requested.
 	// They may change over the lifetime of a ValidObservation instance
 	// since different epoch determination methods will result in different
@@ -146,6 +148,12 @@ public class ValidObservation extends Observation {
 	private final static String kMagKey = "KMAG";
 	private final static String kMagTitle = "KMag";
 
+	private final static String pubrefKey = "PUBREF";
+	private final static String pubrefTitle = "ADS Reference";
+
+	private final static String digitizerKey = "DIGTIZER";
+	private final static String digitizerTitle = "Digitizer";
+
 	// The set of standard detail keys.
 	private final static Set<String> standardDetailKeys;
 
@@ -160,6 +168,8 @@ public class ValidObservation extends Observation {
 		standardDetailKeys.add(airmassKey);
 		standardDetailKeys.add(cMagKey);
 		standardDetailKeys.add(kMagKey);
+		standardDetailKeys.add(pubrefKey);
+		standardDetailKeys.add(digitizerKey);
 	}
 
 	// A cache of detail values.
@@ -663,6 +673,51 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
+	 * @return the obsType
+	 */
+	public ObsType getObsType() {
+		return obsType;
+	}
+
+	/**
+	 * @param obsType
+	 *            the obsType to set
+	 */
+	public void setObsType(ObsType obsType) {
+		this.obsType = obsType;
+	}
+
+	/**
+	 * @return the ADS Reference
+	 */
+	public String getADSRef() {
+		return getDetail(pubrefKey);
+	}
+
+	/**
+	 * @param ADS Reference
+	 *            the ADS Reference to set
+	 */
+	public void setADSRef(String adsRef) {
+		addDetail(pubrefKey, adsRef, pubrefTitle);
+	}
+
+	/**
+	 * @return the digitizer
+	 */
+	public String getDigitizer() {
+		return getDetail(pubrefKey);
+	}
+
+	/**
+	 * @param digitizer
+	 *            the digitizer to set
+	 */
+	public void setDigitizer(String digitizer) {
+		addDetail(digitizerKey, digitizer, digitizerTitle);
+	}
+
+	/**
 	 * @return the standardPhase
 	 */
 	public Double getStandardPhase() {
@@ -756,19 +811,25 @@ public class ValidObservation extends Observation {
 		strBuf.append(magnitude.toString());
 		strBuf.append("\n");
 
-		if (validationType != null) {
-			strBuf.append("Validation: ");
-			strBuf.append(validationType.toString());
-			strBuf.append("\n");
-		}
-
 		if (hqUncertainty != null) {
 			strBuf.append("HQ Uncertainty: ");
 			strBuf.append(String.format(NumericPrecisionPrefs
 					.getMagOutputFormat(), hqUncertainty));
 			strBuf.append("\n");
 		}
+		
+		if (validationType != null) {
+			strBuf.append("Validation: ");
+			strBuf.append(validationType.toString());
+			strBuf.append("\n");
+		}
 
+		if (obsType != null) {
+			strBuf.append("Observation Type: ");
+			strBuf.append(obsType.getDescription());
+			strBuf.append("\n");
+		}
+		
 		if (band != null) {
 			strBuf.append("Band: ");
 			strBuf.append(band.getDescription());
@@ -836,6 +897,18 @@ public class ValidObservation extends Observation {
 			strBuf.append("Heliocentric Julian Day: ");
 			strBuf.append(String.format(NumericPrecisionPrefs
 					.getTimeOutputFormat(), hJD.getJulianDay()));
+			strBuf.append("\n");
+		}
+
+		if (detailExists(pubrefKey)) {
+			strBuf.append(detailTitles.get(pubrefKey) + ": ");
+			strBuf.append(details.get(pubrefKey));
+			strBuf.append("\n");
+		}
+
+		if (detailExists(digitizerKey)) {
+			strBuf.append(detailTitles.get(digitizerKey) + ": ");
+			strBuf.append(details.get(digitizerKey));
 			strBuf.append("\n");
 		}
 
@@ -1001,7 +1074,26 @@ public class ValidObservation extends Observation {
 		buf.append(delimiter);
 
 		// Group
+		// TODO: handle
 		buf.append(delimiter);
+
+		// ADS Reference
+		if (getADSRef() != null)  {
+			buf.append(getADSRef());
+		}
+		buf.append(delimiter);
+
+		// Digitizer
+		if (getDigitizer() != null)  {
+			buf.append(getDigitizer());
+		}
+		buf.append(delimiter);
+
+		// ObsType
+		// TODO: in AID but not yet AAVSO download format
+		//buf.append(delimiter);
+
+		// TODO: handle reading in aavso text and aid obs readers
 
 		buf.append("\n");
 
