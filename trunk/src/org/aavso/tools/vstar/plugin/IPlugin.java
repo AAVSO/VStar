@@ -17,17 +17,27 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import org.aavso.tools.vstar.ui.resources.LoginInfo;
+
 /**
- * <p>All VStar plugins must implement this interface.</p>
- *
- * <p>Plugin jars must be placed into the vstar_plugins directory in your home directory 
- * (for Mac or *nix that's $HOME or ~, "C:\Documents and Settings\<em>user</em>" under Windows).</p> 
+ * <p>
+ * All VStar plugins must implement this interface.
+ * </p>
  * 
- * <p>Any dependent jar files not already known to VStar (in the extlib directory) must go into 
- * the vstar_plugin_libs directory.</p>
+ * <p>
+ * Plugin jars must be placed into the vstar_plugins directory in your home
+ * directory.
+ * </p>
  * 
- * <p>Note: plugins will have to be licensed under AGPL because they will use some
- * VStar classes!</p>
+ * <p>
+ * Any dependent jar files not already known to VStar (in the extlib directory)
+ * are expected to reside in the vstar_plugin_libs directory.
+ * </p>
+ * 
+ * <p>
+ * Note: plugins will have to be licensed under AGPL because they will use some
+ * VStar classes!
+ * </p>
  */
 public interface IPlugin {
 
@@ -41,15 +51,25 @@ public interface IPlugin {
 	 * Get a description of this plugin.
 	 */
 	abstract public String getDescription();
-	
+
 	/**
 	 * Get the group to which this plugin belongs (may be null).
 	 */
 	abstract public String getGroup();
-	
+
 	/**
 	 * Does this plugin require authentication?
+	 * 
 	 * @return Whether or not the plugin requires authentication.
 	 */
-	abstract public boolean requiresAuthentication(); 
+	abstract public boolean requiresAuthentication();
+
+	/**
+	 * This method will be called after requiresAuthentication() in case any
+	 * additional authentication is required.
+	 * 
+	 * @param loginInfo The current session's login information.
+	 * @return Whether or not any additional authentication has satisfied.
+	 */
+	abstract public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo);
 }
