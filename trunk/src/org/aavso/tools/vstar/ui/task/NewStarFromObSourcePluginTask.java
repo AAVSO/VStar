@@ -42,6 +42,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.plugin.URLAuthenticator;
 
 /**
@@ -75,6 +76,12 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 				Authenticator.getInstance().authenticate();
+				if (!obSourcePlugin
+						.additionalAuthenticationSatisfied(ResourceAccessor
+								.getLoginInfo())) {
+					throw new AuthenticationError(
+							"Plug-in authentication failed");
+				}
 			}
 
 			createObservationArtefacts();
@@ -104,7 +111,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// Set input streams and name, if requested by the plug-in.
 			List<InputStream> streams = new ArrayList<InputStream>();
 
-			// TODO: ask plugin once whether load is additive; may be overriden
+			// TODO: ask plugin once whether load is additive; may be overridden
 			// by file, URL, or other dialog
 
 			boolean isAdditive = false;
