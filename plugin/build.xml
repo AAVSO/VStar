@@ -43,6 +43,7 @@
     <jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="**/KeplerFITSObservationSource**.class"/>
    	<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class"/>
   	<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class"/>
+    <jar jarfile="${dist}/${pkg}.ObserverListFilter.jar" basedir="${build.classes}" includes="**/ObserverListFilter**.class"/>
   	<!--
     <jar jarfile="${dist}/${pkg}.ObservationCounter.jar" basedir="${build.classes}" includes="**/ObservationCounter**.class"/>
     -->
