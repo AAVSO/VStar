@@ -36,14 +36,17 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  * This dialog is used to display information about a star that has been marked
  * as discrepant in order to optionally add commentsField and submit to AAVSO.
  */
+@SuppressWarnings("serial")
 public class DiscrepantReportDialog extends AbstractOkCancelDialog {
+
+	private final static int MAX_COMMENT_LENGTH = 100;
 
 	private String auid;
 	private String name;
 	private int uniqueId;
-	private double jd; 
+	private double jd;
 	private double magnitude;
-	
+
 	private JTextField commentsField;
 
 	/**
@@ -61,7 +64,7 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 		this.uniqueId = ob.getRecordNumber();
 		this.jd = ob.getJD();
 		this.magnitude = ob.getMag();
-		
+
 		Container contentPane = this.getContentPane();
 
 		JPanel topPane = new JPanel();
@@ -109,7 +112,7 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 		text += "AUID: " + auid;
 		text += "\nName: " + name;
 		text += "\nJD: " + jd;
-		text += "\nMag: " + magnitude; 
+		text += "\nMag: " + magnitude;
 
 		details.setText(text);
 
@@ -120,7 +123,9 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 
 	private JPanel createCommentsPane() {
 		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder("Comments (optional)"));
+		panel
+				.setBorder(BorderFactory
+						.createTitledBorder("Comments (optional)"));
 
 		commentsField = new JTextField(20);
 		commentsField
@@ -137,9 +142,16 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 
 	@Override
 	protected void okAction() {
-		// TODO: this should be the base class implementation of okAction().
-		cancelled = false;
-		setVisible(false);
-		dispose();
+		if (getComments().length() > MAX_COMMENT_LENGTH) {
+			MessageBox.showErrorDialog("Comment",
+					"Discrepant observation comment length exceeds "
+							+ MAX_COMMENT_LENGTH + " characters ("
+							+ getComments().length() + ").");
+		} else {
+			// TODO: this should be the base class implementation of okAction().
+			cancelled = false;
+			setVisible(false);
+			dispose();
+		}
 	}
 }

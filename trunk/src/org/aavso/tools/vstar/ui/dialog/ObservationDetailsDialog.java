@@ -88,8 +88,8 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 		// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
 		// for more detail.
 		if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
-			// It doesn't make sense to mark a mean observation as discrepant
-			// since it's a derived (computed) observation.
+			// It doesn't make sense to mark a mean (etc) observation as
+			// discrepant since it's a derived (computed) observation.
 			if (!ob.getBand().isSynthetic()) {
 				JPanel checkBoxPane = new JPanel();
 				discrepantCheckBox = new JCheckBox("Discrepant?");
@@ -157,7 +157,10 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 					Mediator.getInstance().getDiscrepantObservationNotifier()
 							.notifyListeners(message);
 
-					Mediator.getInstance().reportDiscrepantObservation(ob, parent);
+					// If the loaded dataset comes from AID, open report-to-HQ
+					// dialog.
+					Mediator.getInstance().reportDiscrepantObservation(ob,
+							parent);
 				}
 			}
 		};
