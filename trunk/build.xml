@@ -81,11 +81,15 @@
 		</manifestclasspath>
 
 		<manifest file="${manifest_file}">
-			<attribute name="Manifest-Version" value="1.0" />
-			<attribute name="Created-By" value="${user.name}" />
-			<attribute name="Main-Class" value="org.aavso.tools.vstar.ui.VStar" />
-			<attribute name="Class-Path" value="${jar.classpath}" />
-			<attribute name="Permissions" value="all-permissions" />
+                       <attribute name="Application-Name" value="VStar" />
+                       <attribute name="Manifest-Version" value="1.0" />
+                       <attribute name="Created-By" value="${user.name}" />
+                       <attribute name="Main-Class" value="org.aavso.tools.vstar.ui.VStar" />
+                       <attribute name="Class-Path" value="${jar.classpath}" />
+                       <attribute name="Permissions" value="all-permissions" />
+<!--
+                       <attribute name="Codebase" value="http://www.aavso.org/files/vstar/" />
+-->
 		</manifest>
 	</target>
 
