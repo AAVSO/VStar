@@ -80,7 +80,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 
 	@Override
 	public String getDescription() {
-		return "A FITS file observation source plug-in that uses the Topcat FITS library.";
+		return "SuperWASP file observation reader";
 	}
 
 	@Override

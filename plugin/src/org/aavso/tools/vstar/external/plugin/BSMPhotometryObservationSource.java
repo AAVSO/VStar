@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.external.plugin;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.plugin.ob.src.impl.AAVSOPhotometryURLObservationSourceBase;
+import org.aavso.tools.vstar.ui.resources.LoginInfo;
 
 /**
  * A BSM (Bright Star Monitor) photometry database observation source plugin.
@@ -51,5 +52,13 @@ public class BSMPhotometryObservationSource extends
 	@Override
 	public boolean requiresAuthentication() {
 		return true;
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#additionalAuthenticationSatisfied(org.aavso.tools.vstar.ui.resources.LoginInfo)
+	 */
+	@Override
+	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
+		return loginInfo.isMember();
 	}
 }

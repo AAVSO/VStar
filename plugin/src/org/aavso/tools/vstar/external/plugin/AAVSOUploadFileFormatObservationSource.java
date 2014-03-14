@@ -83,7 +83,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 	 */
 	@Override
 	public String getDescription() {
-		return "An AAVSO Upload File (Visual and Extended) Format reader.";
+		return "AAVSO Upload File (Visual and Extended) Format reader.";
 	}
 
 	/**
