@@ -39,6 +39,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.plugin.IPlugin;
@@ -570,10 +574,10 @@ public class MenuBar extends JMenuBar {
 		toolMenu = new JMenu(LocaleProps.get("TOOL_MENU"));
 		// toolMenu.setEnabled(false);
 
-		toolPluginManager = new JMenuItem(PLUGIN_MANAGER);
-		toolPluginManager.addActionListener(createPluginManagerListener());
-		toolMenu.add(toolPluginManager);
-		
+//		toolPluginManager = new JMenuItem(PLUGIN_MANAGER);
+//		toolPluginManager.addActionListener(createPluginManagerListener());
+//		toolMenu.add(toolPluginManager);
+
 		// if (uiType != UIType.APPLET) {
 		toolRunScript = new JMenuItem(RUN_SCRIPT);
 		toolRunScript.addActionListener(createRunScriptListener());
@@ -1166,9 +1170,19 @@ public class MenuBar extends JMenuBar {
 						manager, "Initialising Plug-in Manager") {
 					@Override
 					public void execute() {
-						manager.retrieveRemotePluginInfo();
-						manager.retrieveLocalPluginInfo();
-						new PluginManagementDialog(manager);
+						try {
+							Authenticator.getInstance().authenticate();
+							manager.init();
+							new PluginManagementDialog(manager);
+						} catch (ConnectionException ex) {
+							MessageBox.showErrorDialog(
+									"Authentication Source Error", ex);
+						} catch (AuthenticationError ex) {
+							MessageBox.showErrorDialog("Authentication Error",
+									ex);
+						} catch (CancellationException e) {
+							// Nothing to do.
+						}
 					}
 				};
 				mediator.performPluginManagerOperation(op);
