@@ -61,7 +61,7 @@ public class PluginManagementDialog extends JDialog implements
 	public PluginManagementDialog(PluginManager manager) {
 		super(DocumentManager.findActiveWindow());
 		// TODO: localise
-		this.setTitle("Plugin Manager");
+		this.setTitle("Plug-in Manager");
 
 		this.manager = manager;
 

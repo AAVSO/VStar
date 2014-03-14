@@ -97,6 +97,12 @@ public class PluginManager {
 	private Map<String, Integer> libRefs;
 
 	/**
+	 * A mapping from description to equality of local and remote plugins
+	 * corresponding to the same description.
+	 */
+	private Map<String, Boolean> remoteAndLocalPluginEquality;
+
+	/**
 	 * Has the current operation been interrupted?
 	 */
 	private boolean interrupted;
@@ -108,16 +114,20 @@ public class PluginManager {
 		// Nothing to do.
 	}
 
-	public void updatePluginInfo() {
-		retrieveRemotePluginInfo();
-		retrieveLocalPluginInfo();
-	}
-
 	/**
 	 * @return the remote plugins map
 	 */
 	public Map<String, URL> getRemotePluginsByJarName() {
 		return remotePlugins;
+	}
+
+	/**
+	 * Initialise manager.
+	 */
+	public void init() {
+		retrieveRemotePluginInfo();
+		retrieveLocalPluginInfo();
+		determinePluginEquality();
 	}
 
 	/**
@@ -196,36 +206,62 @@ public class PluginManager {
 	}
 
 	/**
+	 * Determine whether plugins that are both local and remote refer to the
+	 * same jar and cache this information.
+	 */
+	public void determinePluginEquality() {
+		// First, create a common set consisting of the intersection of remote
+		// and local plugins...
+		Set<String> remoteDescSet = new HashSet<String>(remoteDescriptions
+				.keySet());
+		Set<String> localDescSet = new HashSet<String>(localDescriptions
+				.keySet());
+		Set<String> commonDescSet = new HashSet<String>();
+
+		for (String desc : remoteDescSet) {
+			if (isRemoteAndLocal(desc)) {
+				commonDescSet.add(desc);
+			}
+		}
+
+		for (String desc : localDescSet) {
+			if (isRemoteAndLocal(desc)) {
+				commonDescSet.add(desc);
+			}
+		}
+
+		// ...then populate the remote+local plugin equality map.
+		remoteAndLocalPluginEquality = new HashMap<String, Boolean>();
+		
+		for (String desc : commonDescSet) {
+			String localJarName = null;
+			String remoteJarName = null;
+			try {
+				localJarName = localDescriptions.get(desc);
+				remoteJarName = remoteDescriptions.get(desc);
+				URL localUrl = localPlugins.get(localJarName).toURI().toURL();
+				URL remoteUrl = remotePlugins.get(remoteJarName);
+				remoteAndLocalPluginEquality.put(desc, areURLReferentsEqual(
+						localUrl, remoteUrl));
+			} catch (IOException e) {
+				String msg = String.format(
+						"Error comparing remote and local plugins: %s and %s",
+						remoteJarName, localJarName);
+				throw new PluginManagerException(msg);
+			}
+		}
+	}
+
+	/**
 	 * Does the plugin description for a remote and local plugin refer to the
 	 * same jar?
 	 * 
 	 * @param description
 	 *            The description.
-	 * @return True if the equal (or only local or remote but not both), false
-	 *         if not.
+	 * @return True iff the equal, false if not.
 	 */
 	public boolean arePluginsEqual(String description) {
-		boolean equal = true;
-
-		if (isRemote(description)) {
-			String localJarName = null;
-			String remoteJarName = null;
-
-			try {
-				localJarName = localDescriptions.get(description);
-				remoteJarName = remoteDescriptions.get(description);
-				URL localUrl = localPlugins.get(localJarName).toURI().toURL();
-				URL remoteUrl = remotePlugins.get(remoteJarName);
-				equal = areURLReferentsEqual(localUrl, remoteUrl);
-			} catch (IOException e) {
-				equal = false;
-				throw new PluginManagerException(String.format(
-						"Error comparing remote and local plugins: %s and %s",
-						remoteJarName, localJarName));
-			}
-		}
-
-		return equal;
+		return remoteAndLocalPluginEquality.get(description);
 	}
 
 	/**
@@ -275,6 +311,16 @@ public class PluginManager {
 					// Load plugin, store mappings from jar name to plugin
 					// URL, lib URL, and description.
 					String pluginJarFileName = fields[0];
+					if (pluginJarFileName.startsWith(":")) {
+						if (!ResourceAccessor.getLoginInfo().isMember()) {
+							// Member-only accessible plug-ins should be skipped
+							// if not appropriately authenticated.
+							continue;
+						} else {
+							// Remove leading colon.
+							pluginJarFileName = pluginJarFileName.substring(1);
+						}
+					}
 					URL pluginUrl = new URL(pluginBaseURLStr + "/"
 							+ pluginJarFileName);
 					String className = pluginJarFileName.replace(".jar", "");
@@ -341,16 +387,16 @@ public class PluginManager {
 			throw new PluginManagerException("Invalid remote plug-in location.");
 		} catch (IOException e) {
 			throw new PluginManagerException(
-					"Error remote reading plug-in information.");
+					"Error reading remote plug-in information.");
 		} catch (ClassNotFoundException e) {
 			throw new PluginManagerException(
-					"Error remote reading plug-in information.");
+					"Error reading remote plug-in information.");
 		} catch (IllegalAccessException e) {
 			throw new PluginManagerException(
-					"Error remote reading plug-in information.");
+					"Error reading remote plug-in information.");
 		} catch (InstantiationException e) {
 			throw new PluginManagerException(
-					"Error remote reading plug-in information.");
+					"Error reading remote plug-in information.");
 		}
 	}
 
@@ -529,11 +575,13 @@ public class PluginManager {
 				+ File.separator + PLUGIN_LIBS_DIR);
 
 		for (String desc : libDescriptions.keySet()) {
-			if (interrupted) break;
+			if (interrupted)
+				break;
 
 			Set<String> libJarNames = libDescriptions.get(desc);
 			for (String libJarName : libJarNames) {
-				if (interrupted) break;
+				if (interrupted)
+					break;
 
 				assert libRefs.containsKey(libJarName);
 
