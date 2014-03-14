@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.ui.resources.LoginInfo;
 
 /**
  * <p>
@@ -205,5 +206,13 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	@Override
 	public boolean requiresAuthentication() {
 		return false;
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#additionalAuthenticationSatisfied(org.aavso.tools.vstar.ui.resources.LoginInfo)
+	 */
+	@Override
+	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
+		return true;
 	}
 }

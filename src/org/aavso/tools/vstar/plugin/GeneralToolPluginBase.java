@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import org.aavso.tools.vstar.ui.resources.LoginInfo;
+
 /**
  * <p>
  * This is the base class for all general VStar "tool" plugins. Such tools may
@@ -52,5 +54,13 @@ abstract public class GeneralToolPluginBase implements IPlugin {
 	@Override
 	public boolean requiresAuthentication() {
 		return false;
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#additionalAuthenticationSatisfied(org.aavso.tools.vstar.ui.resources.LoginInfo)
+	 */
+	@Override
+	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
+		return true;
 	}
 }

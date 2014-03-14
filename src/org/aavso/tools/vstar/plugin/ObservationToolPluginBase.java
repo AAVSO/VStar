@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.plugin;
 
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
+import org.aavso.tools.vstar.ui.resources.LoginInfo;
 
 /**
  * <p>
@@ -59,5 +60,13 @@ abstract public class ObservationToolPluginBase implements IPlugin {
 	@Override
 	public boolean requiresAuthentication() {
 		return false;
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#additionalAuthenticationSatisfied(org.aavso.tools.vstar.ui.resources.LoginInfo)
+	 */
+	@Override
+	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
+		return true;
 	}
 }

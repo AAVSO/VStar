@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.plugin;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.resources.LoginInfo;
 import org.aavso.tools.vstar.util.model.IModel;
 
 /**
@@ -72,5 +73,13 @@ abstract public class ModelCreatorPluginBase implements IPlugin {
 	@Override
 	public boolean requiresAuthentication() {
 		return false;
+	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#additionalAuthenticationSatisfied(org.aavso.tools.vstar.ui.resources.LoginInfo)
+	 */
+	@Override
+	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
+		return true;
 	}
 }

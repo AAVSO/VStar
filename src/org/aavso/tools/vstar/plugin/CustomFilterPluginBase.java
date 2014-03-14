@@ -26,6 +26,7 @@ import org.aavso.tools.vstar.data.filter.IFilterDescription;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.resources.LoginInfo;
 
 /**
  * <p>
@@ -132,5 +133,13 @@ abstract public class CustomFilterPluginBase implements IPlugin {
 	@Override
 	public boolean requiresAuthentication() {
 		return false;
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#additionalAuthenticationSatisfied(org.aavso.tools.vstar.ui.resources.LoginInfo)
+	 */
+	@Override
+	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
+		return true;
 	}
 }
