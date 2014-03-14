@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
+import org.aavso.tools.vstar.ui.resources.LoginInfo;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.notification.Notifier;
 
@@ -39,8 +40,8 @@ import org.aavso.tools.vstar.util.notification.Notifier;
  * </p>
  * 
  * <p>
- * Period analysis plugins will appear in VStar's Analysis menu
- * when its jar file is placed into the vstar_plugins directory.
+ * Period analysis plugins will appear in VStar's Analysis menu when its jar
+ * file is placed into the vstar_plugins directory.
  * </p>
  * 
  * @see org.aavso.tools.vstar.plugin.IPlugin
@@ -105,7 +106,7 @@ abstract public class PeriodAnalysisPluginBase implements IPlugin {
 	 */
 	abstract public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException;
-	
+
 	/**
 	 * Interrupt the execution of the algorithm.
 	 */
@@ -168,12 +169,20 @@ abstract public class PeriodAnalysisPluginBase implements IPlugin {
 			}
 		};
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
 	 */
 	@Override
 	public boolean requiresAuthentication() {
 		return false;
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#additionalAuthenticationSatisfied(org.aavso.tools.vstar.ui.resources.LoginInfo)
+	 */
+	@Override
+	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
+		return true;
 	}
 }
