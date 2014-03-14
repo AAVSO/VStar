@@ -111,6 +111,7 @@ public class AAVSODatabaseConnector {
 			props.put("user", ResourceAccessor.getParam(6));
 			props.put("password", ResourceAccessor.getParam(7));
 			props.put("connectTimeout", MAX_CONN_TIME + "");
+//			props.put("autoReconnect", "true");
 
 			try {
 				// First try with port 3307...
@@ -166,8 +167,9 @@ public class AAVSODatabaseConnector {
 							+ "observations.magnitude AS magnitude,\n"
 							+ "observations.fainterthan AS fainterthan,\n"
 							+ "observations.uncertain AS uncertain,\n"
-							+ "observations.uncertainty AS uncertainty,\n"
+							+ "IF (observations.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
 							+ "observations.uncertaintyhq AS hq_uncertainty,\n"
+							+ "observations.obstype AS obstype,\n"
 							+ "observations.band AS band,\n"
 							+ "observations.obscode AS observer_code,\n"
 							+ "observations.commentcode AS comment_code,\n"
@@ -182,6 +184,8 @@ public class AAVSODatabaseConnector {
 							+ "observations.KMag AS kmag,\n"
 							+ "observations.HJD AS hjd,\n"
 							+ "observations.name AS name,\n"
+							+ "observations.pubref AS pubref,\n"
+							+ "observations.digitizer AS digitizer,\n"
 							+ "observations.mtype AS mtype\n" + "FROM\n"
 							+ "observations\n" + "WHERE\n"
 							+ "observations.AUID = ? AND\n"
@@ -237,6 +241,7 @@ public class AAVSODatabaseConnector {
 							+ "observations.uncertain AS uncertain,\n"
 							+ "IF (observations.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
 							+ "observations.uncertaintyhq AS hq_uncertainty,\n"
+							+ "observations.obstype AS obstype,\n"
 							+ "observations.band AS band,\n"
 							+ "observations.obscode AS observer_code,\n"
 							+ "observations.commentcode AS comment_code,\n"
@@ -251,6 +256,8 @@ public class AAVSODatabaseConnector {
 							+ "observations.KMag AS kmag,\n"
 							+ "observations.HJD AS hjd,\n"
 							+ "observations.name AS name,\n"
+							+ "observations.pubref AS pubref,\n"
+							+ "observations.digitizer AS digitizer,\n"
 							+ "observations.mtype AS mtype\n" + "FROM\n"
 							+ "observations\n" + "WHERE\n"
 							+ "observations.AUID = ?\n" + "ORDER BY\n"

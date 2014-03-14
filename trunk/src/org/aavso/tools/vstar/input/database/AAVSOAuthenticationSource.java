@@ -65,13 +65,13 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 					String actualPassword = userResults.getString("pass");
 					if (passwordDigest.equals(actualPassword)) {
 						// We're authenticated, so update login info and
-						// retrieve observer code if the user has one.
+						// retrieve user information, e.g. observer code.
 						authenticated = true;
 
 						ResourceAccessor.getLoginInfo().setType(getLoginType());
 						ResourceAccessor.getLoginInfo().setUserName(username);
 
-						retrieveObserverCode(username);
+						retrieveUserInfo(username);
 					}
 				}
 			} catch (SQLException e) {
@@ -88,25 +88,29 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 	}
 
 	/**
-	 * Retrieve the observer code given the user name, if we are authenticated,
-	 * otherwise return null.
+	 * Retrieve user information such as observer code given the user name, if
+	 * we are authenticated, otherwise return null.
 	 */
-	private String retrieveObserverCode(String username) {
-		String obsCode = null;
-
+	private void retrieveUserInfo(String username) {
 		if (authenticated) {
 			try {
-				PreparedStatement obsCodeStmt = createObserverCodeQuery(memberConnector
+				PreparedStatement userInfoStmt = createObserverCodeQuery(memberConnector
 						.getConnection());
-				obsCodeStmt.setString(1, username);
-				ResultSet obsCodeResults = obsCodeStmt.executeQuery();
+				userInfoStmt.setString(1, username);
+				ResultSet userInfoResults = userInfoStmt.executeQuery();
 
-				if (obsCodeResults.next()) {
-					obsCode = obsCodeResults.getString("obscode");
-					// If we have an observer code, record it.
-					if (!obsCodeResults.wasNull()) {
+				if (userInfoResults.next()) {
+					String obsCode = userInfoResults.getString("obscode");
+					if (!userInfoResults.wasNull()) {
 						ResourceAccessor.getLoginInfo()
 								.setObserverCode(obsCode);
+					}
+
+					Integer memberBenefits = userInfoResults
+							.getInt("member_benefits");
+					if (!userInfoResults.wasNull()) {
+						ResourceAccessor.getLoginInfo().setMember(
+								memberBenefits == 1);
 					}
 				}
 			} catch (SQLException e) {
@@ -115,8 +119,6 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 				// Nothing to do: just return null.
 			}
 		}
-
-		return obsCode;
 	}
 
 	/**
@@ -159,11 +161,16 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 			String live = ResourceAccessor.getParam(DatabaseType.AAVSO_USER
 					.getDBNum());
 
-			obsCodeStmt = connection.prepareStatement("SELECT obscode from "
-					+ member + ".view_member_info WHERE id = "
-					+ "(SELECT value from " + live + ".users as u, " + live
-					+ ".profile_values as v "
-					+ "WHERE v.uid = u.uid and v.fid = 19 and u.name = ?);");
+			obsCodeStmt = connection
+					.prepareStatement("SELECT obscode, member_benefits "
+							+ "from "
+							+ member
+							+ ".view_member_info WHERE id = (SELECT value from "
+							+ live
+							+ ".users as u, "
+							+ live
+							+ ".profile_values as v "
+							+ "WHERE v.uid = u.uid and v.fid = 19 and u.name = ?);");
 		}
 
 		return obsCodeStmt;
