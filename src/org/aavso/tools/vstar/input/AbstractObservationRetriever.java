@@ -258,10 +258,13 @@ public abstract class AbstractObservationRetriever {
 		}
 	}
 
+	// TODO: Instead of supportsProgress(): getNumberOfLines() => null or >= 0
+	
 	/**
 	 * Does this observation retriever support progress (e.g. per line)?
 	 * 
 	 * @return True if it supports progress, false otherwise.
+	 * TODO: also needs to return file line number count if exists
 	 */
 	public boolean supportsProgress() {
 		return false;

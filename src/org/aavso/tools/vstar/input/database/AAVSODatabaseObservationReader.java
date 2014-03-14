@@ -25,6 +25,7 @@ import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
+import org.aavso.tools.vstar.data.ObsType;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
@@ -109,7 +110,7 @@ public class AAVSODatabaseObservationReader extends
 						categoriseValidObservation(validOb);
 					}
 				}
-				// TODO: Why am I not updating progress bar here?
+				// TODO: Why am I not updating progress bar here? Need count(*).
 				// Consider just using continual progress bar.
 			}
 		} catch (SQLException e) {
@@ -185,6 +186,19 @@ public class AAVSODatabaseObservationReader extends
 			} else if (mtype == 2) {
 				ob.setMType(MTypeType.STEP);
 			}
+		}
+
+		ob.setObsType(ObsType
+				.getObsTypeFromAIDIndex(getNextPossiblyNullInteger("obstype")));
+
+		String pubref = getNextPossiblyNullString("pubref");
+		if (pubref != null) {
+			ob.setADSRef(pubref);
+		}
+
+		String digitizer = getNextPossiblyNullString("digitizer");
+		if (digitizer != null) {
+			ob.setDigitizer(digitizer);
 		}
 
 		return ob;
