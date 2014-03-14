@@ -84,7 +84,7 @@ public class CatalinaSkySurveyObservationSource extends
 	 */
 	@Override
 	public String getDescription() {
-		return "A Catalina Sky Survey file reader.";
+		return "Catalina Sky Survey file reader.";
 	}
 
 	/**

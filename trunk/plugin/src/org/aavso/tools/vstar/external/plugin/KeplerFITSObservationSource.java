@@ -85,7 +85,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		String str = "A Kepler FITS file v2.0 observation source plug-in that uses the Topcat FITS library.";
+		String str = "Kepler FITS file v2.0 observation source";
 
 		if (locale.equals("es")) {
 			str = "Observaciones de archivo FITS de Kepler v2.0 del plug-in que usa la biblioteca Topcat FITS.";

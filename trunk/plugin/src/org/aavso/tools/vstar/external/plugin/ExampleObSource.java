@@ -32,7 +32,7 @@ public class ExampleObSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		return "Get a set of observations from a cosine function plus noise.";
+		return "Set of observations from a cosine function plus noise";
 	}
 
 	@Override
