@@ -35,6 +35,14 @@ Release History
 ===============
   
 --------------------
+Date: March 16 2014
+Version: 2.15.6
+Tag: DEV-AAVSO-16Mar2014
+Key Changes:
+- Fixed ticket 408: Uncertainty values from AID dataset reads were being
+  converted to zero. This bug was inadvertently introduced in the 2.15.5
+  release.
+
 Date: March 15 2014
 Version: 2.15.5
 Tag: DEV-AAVSO-15Mar2014
