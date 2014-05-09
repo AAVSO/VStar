@@ -42,8 +42,8 @@ public class TransformedValidator extends AbstractStringValidator<Boolean> {
 		// Legal values: yes, no, 0, 1, empty, null
 		//
 		// In fact, I think 1 and 0 will only ever appear in the database, but
-		// we check for them anyway but don't advertise the fact. Ditto re: empty
-		// field.
+		// we check for them anyway but don't advertise the fact. Ditto re:
+		// empty field.
 		//
 		// See tracker
 		// https://sourceforge.net/tracker/index.php?func=detail&aid=2915572&group_id=263306&atid=1152052
@@ -52,9 +52,11 @@ public class TransformedValidator extends AbstractStringValidator<Boolean> {
 		if (transformed != null) {
 			transformed = transformed.toLowerCase();
 			if (!"".equals(transformed)) {
-				if ("yes".equals(transformed) || "1".equals(transformed)) {
+				if ("yes".equalsIgnoreCase(transformed)
+						|| "1".equals(transformed)) {
 					isTransformed = true;
-				} else if ("no".equals(transformed) || "0".equals(transformed)) {
+				} else if ("no".equalsIgnoreCase(transformed)
+						|| "0".equals(transformed)) {
 					isTransformed = false;
 				} else {
 					throw new ObservationValidationError(

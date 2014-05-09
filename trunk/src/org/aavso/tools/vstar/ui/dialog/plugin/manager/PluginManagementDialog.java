@@ -44,7 +44,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 @SuppressWarnings("serial")
 public class PluginManagementDialog extends JDialog implements
 		ListSelectionListener {
-
+	
 	private PluginManager manager;
 
 	private JList pluginList;
@@ -62,7 +62,7 @@ public class PluginManagementDialog extends JDialog implements
 		super(DocumentManager.findActiveWindow());
 		// TODO: localise
 		this.setTitle("Plug-in Manager");
-
+		
 		this.manager = manager;
 
 		JPanel topPane = new JPanel();
@@ -200,11 +200,10 @@ public class PluginManagementDialog extends JDialog implements
 					@Override
 					public void execute() {
 						manager.installPlugin(desc, PluginManager.Operation.INSTALL);
-						new PluginManagementDialog(manager);
+						setButtonStates(desc);
 					}
 				};
 				Mediator.getInstance().performPluginManagerOperation(op);
-				setButtonStates(desc);
 			}
 		};
 	}
@@ -220,11 +219,10 @@ public class PluginManagementDialog extends JDialog implements
 					@Override
 					public void execute() {
 						manager.installPlugin(desc, PluginManager.Operation.UPDATE);
-						new PluginManagementDialog(manager);
+						setButtonStates(desc);
 					}
 				};
 				Mediator.getInstance().performPluginManagerOperation(op);
-				setButtonStates(desc);
 			}
 		};
 	}
@@ -240,11 +238,15 @@ public class PluginManagementDialog extends JDialog implements
 					@Override
 					public void execute() {
 						manager.deletePlugin(desc);
-						new PluginManagementDialog(manager);
+						setButtonStates(desc);
 					}
 				};
 				Mediator.getInstance().performPluginManagerOperation(op);
-				setButtonStates(desc);
+				
+				// If not also remote, remove from list.
+				if (!manager.isRemote(desc)) {
+					pluginListModel.remove(index);
+				}
 			}
 		};
 	}

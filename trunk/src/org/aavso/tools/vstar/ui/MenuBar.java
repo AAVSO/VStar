@@ -574,9 +574,9 @@ public class MenuBar extends JMenuBar {
 		toolMenu = new JMenu(LocaleProps.get("TOOL_MENU"));
 		// toolMenu.setEnabled(false);
 
-//		toolPluginManager = new JMenuItem(PLUGIN_MANAGER);
-//		toolPluginManager.addActionListener(createPluginManagerListener());
-//		toolMenu.add(toolPluginManager);
+		toolPluginManager = new JMenuItem(PLUGIN_MANAGER);
+		toolPluginManager.addActionListener(createPluginManagerListener());
+		toolMenu.add(toolPluginManager);
 
 		// if (uiType != UIType.APPLET) {
 		toolRunScript = new JMenuItem(RUN_SCRIPT);
@@ -1172,7 +1172,10 @@ public class MenuBar extends JMenuBar {
 					public void execute() {
 						try {
 							Authenticator.getInstance().authenticate();
+							Mediator.getUI().getStatusPane().setMessage(
+									"Initialising Plug-in Manager...");
 							manager.init();
+							Mediator.getUI().getStatusPane().setMessage("");
 							new PluginManagementDialog(manager);
 						} catch (ConnectionException ex) {
 							MessageBox.showErrorDialog(

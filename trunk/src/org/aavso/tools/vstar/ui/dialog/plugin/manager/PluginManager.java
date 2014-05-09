@@ -45,8 +45,12 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class PluginManager {
 
-	public final static String DEFAULT_PLUGIN_BASE_URL_STR = "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
-			+ ResourceAccessor.getVersionString();
+	 public final static String DEFAULT_PLUGIN_BASE_URL_STR =
+	 "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
+	 + ResourceAccessor.getVersionString();
+
+//	public final static String DEFAULT_PLUGIN_BASE_URL_STR = "file:///Users/david/tmp/vstar-plugins/vstar-plugins-"
+//			+ ResourceAccessor.getVersionString();
 
 	public final static String PLUGINS_LIST_FILE = ".plugins.lst";
 
@@ -232,7 +236,7 @@ public class PluginManager {
 
 		// ...then populate the remote+local plugin equality map.
 		remoteAndLocalPluginEquality = new HashMap<String, Boolean>();
-		
+
 		for (String desc : commonDescSet) {
 			String localJarName = null;
 			String remoteJarName = null;
@@ -261,7 +265,8 @@ public class PluginManager {
 	 * @return True iff the equal, false if not.
 	 */
 	public boolean arePluginsEqual(String description) {
-		return remoteAndLocalPluginEquality.get(description);
+		return remoteAndLocalPluginEquality.containsKey(description)
+				&& remoteAndLocalPluginEquality.get(description);
 	}
 
 	/**
@@ -488,11 +493,17 @@ public class PluginManager {
 				pluginDirPath.mkdir();
 			}
 
-			String name = remoteDescriptions.get(description);
-			URL pluginURL = remotePlugins.get(name);
+			String jarName = remoteDescriptions.get(description);
+			URL pluginURL = remotePlugins.get(jarName);
 			String pluginJarName = pluginURL.getPath().substring(
 					pluginURL.getPath().lastIndexOf("/") + 1);
-			copy(pluginURL.openStream(), new File(pluginDirPath, pluginJarName));
+			File pluginJarFile = new File(pluginDirPath, pluginJarName);
+			copy(pluginURL.openStream(), pluginJarFile);
+
+			// Update maps after copy.
+			localDescriptions.put(description, jarName);
+			localPlugins.put(jarName, pluginJarFile);
+			remoteAndLocalPluginEquality.put(description, true);
 
 			// Install dependent jars.
 			File pluginLibDirPath = new File(System.getProperty("user.home")
@@ -502,36 +513,38 @@ public class PluginManager {
 				pluginLibDirPath.mkdir();
 			}
 
-			List<URL> libUrls = libs.get(name);
-			for (URL libURL : libUrls) {
-				if (interrupted)
-					break;
-
-				if (libURL != null) {
-					String libJarName = libURL.getPath().substring(
-							libURL.getPath().lastIndexOf("/") + 1);
-					File targetPath = new File(pluginLibDirPath, libJarName);
-					copy(libURL.openStream(), targetPath);
-
-					// Library reference counting.
-					switch (op) {
-					case INSTALL:
-						// Implies a new dependency on any library file.
-						if (!libRefs.keySet().contains(libJarName)) {
-							libRefs.put(libJarName, 1);
-						} else {
-							int count = libRefs.get(libJarName) + 1;
-							libRefs.put(libJarName, count);
-						}
+			List<URL> libUrls = libs.get(jarName);
+			if (libUrls != null) {
+				for (URL libURL : libUrls) {
+					if (interrupted)
 						break;
-					case UPDATE:
-						// The only dependency is upon libraries that are
-						// additional to the current update of the plugin
-						// compared to previous plugin version.
-						if (!libRefs.keySet().contains(libJarName)) {
-							libRefs.put(libJarName, 1);
+
+					if (libURL != null) {
+						String libJarName = libURL.getPath().substring(
+								libURL.getPath().lastIndexOf("/") + 1);
+						File targetPath = new File(pluginLibDirPath, libJarName);
+						copy(libURL.openStream(), targetPath);
+
+						// Library reference counting.
+						switch (op) {
+						case INSTALL:
+							// Implies a new dependency on any library file.
+							if (!libRefs.keySet().contains(libJarName)) {
+								libRefs.put(libJarName, 1);
+							} else {
+								int count = libRefs.get(libJarName) + 1;
+								libRefs.put(libJarName, count);
+							}
+							break;
+						case UPDATE:
+							// The only dependency is upon libraries that are
+							// additional to the current update of the plugin
+							// compared to previous plugin version.
+							if (!libRefs.keySet().contains(libJarName)) {
+								libRefs.put(libJarName, 1);
+							}
+							break;
 						}
-						break;
 					}
 				}
 			}
@@ -564,21 +577,23 @@ public class PluginManager {
 			if (!pluginJarPath.delete()) {
 				throw new PluginManagerException("Unable to delete plug-in "
 						+ jarName);
+			} else {
+				// Update maps after delete.
+				localDescriptions.remove(description);
+				localPlugins.remove(jarName);
+				remoteAndLocalPluginEquality.remove(description);
 			}
 		} else {
 			throw new PluginManagerException("Plug-in " + jarName
 					+ " does not exist so unable to delete");
 		}
 
-		// Delete dependent jars.
+		// Delete dependent jars for this plug-in.
 		File pluginLibDirPath = new File(System.getProperty("user.home")
 				+ File.separator + PLUGIN_LIBS_DIR);
 
-		for (String desc : libDescriptions.keySet()) {
-			if (interrupted)
-				break;
-
-			Set<String> libJarNames = libDescriptions.get(desc);
+		Set<String> libJarNames = libDescriptions.get(description);
+		if (libJarNames != null) {
 			for (String libJarName : libJarNames) {
 				if (interrupted)
 					break;
@@ -586,21 +601,21 @@ public class PluginManager {
 				assert libRefs.containsKey(libJarName);
 
 				libRefs.put(libJarName, libRefs.get(libJarName) - 1);
-				// If the reference count for a library jar has fallen to zero,
-				// delete the file.
+				// If the reference count for a library jar has fallen to
+				// zero, delete the file.
 				if (libRefs.get(libJarName) == 0) {
 					File libJarPath = new File(pluginLibDirPath, libJarName);
-					// This should be true but may not be, given the vagaries
-					// of file systems or the possibility of concurrent
-					// deletion.
+					// This should be true but may not be, given the
+					// vagaries of file systems or the possibility of
+					// concurrent deletion.
 					if (libJarPath.exists()) {
-						if (libJarPath.delete()) {
-							String errMsg = String.format(
-									"Unable to delete dependent library %s "
-											+ "for plug-in %s", libJarName,
-									jarName);
-							throw new PluginManagerException(errMsg);
-						}
+//						if (libJarPath.delete()) {
+//							String errMsg = String.format(
+//									"Unable to delete dependent library %s "
+//											+ "for plug-in %s", libJarName,
+//									jarName);
+//							throw new PluginManagerException(errMsg);
+//						}
 					} else {
 						String errMsg = String.format(
 								"The dependent library %s "
@@ -614,7 +629,7 @@ public class PluginManager {
 		}
 
 		// Note that to avoid future lib jar clashes,
-		// we may need to consider: a. plugin subdirs in plugin libs dir and a
+		// we may need to consider: plugin subdirs in plugin libs dir and a
 		// separate class loader per plugin! => SF tracker
 	}
 

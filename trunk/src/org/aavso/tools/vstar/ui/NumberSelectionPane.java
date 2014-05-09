@@ -29,6 +29,7 @@ import javax.swing.event.ChangeListener;
  * This class provides a way to select a floating point number from a range with
  * a specified increment between values in the range.
  */
+@SuppressWarnings("serial")
 public class NumberSelectionPane extends JPanel {
 
 	private JSpinner spinner;
