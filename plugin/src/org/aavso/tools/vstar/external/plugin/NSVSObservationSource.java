@@ -55,7 +55,7 @@ public class NSVSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		return "NSVS file reader.";
+		return "NSVS file reader";
 	}
 
 	@Override

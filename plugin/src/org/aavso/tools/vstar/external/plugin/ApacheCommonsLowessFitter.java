@@ -53,7 +53,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 
 	@Override
 	public String getDescription() {
-		return "Lowess Fit";
+		return "Lowess fit creator";
 	}
 
 	@Override

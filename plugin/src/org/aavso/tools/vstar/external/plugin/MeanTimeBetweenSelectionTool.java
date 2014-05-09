@@ -54,7 +54,7 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 
 	@Override
 	public String getDescription() {
-		return "Accumulates selected observations and calculates mean time between selections.";
+		return "Accumulates selected observations and calculates mean time between selections";
 	}
 
 	@Override

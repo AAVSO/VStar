@@ -78,7 +78,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		return "ASAS file reader.";
+		return "ASAS file reader";
 	}
 
 	@Override
