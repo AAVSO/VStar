@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.plugin.IPlugin;
+import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
@@ -49,8 +50,9 @@ public class PluginManager {
 	 "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
 	 + ResourceAccessor.getVersionString();
 
-//	public final static String DEFAULT_PLUGIN_BASE_URL_STR = "file:///Users/david/tmp/vstar-plugins/vstar-plugins-"
-//			+ ResourceAccessor.getVersionString();
+	// public final static String DEFAULT_PLUGIN_BASE_URL_STR =
+	// "file:///Users/david/tmp/vstar-plugins/vstar-plugins-"
+	// + ResourceAccessor.getVersionString();
 
 	public final static String PLUGINS_LIST_FILE = ".plugins.lst";
 
@@ -326,11 +328,14 @@ public class PluginManager {
 							pluginJarFileName = pluginJarFileName.substring(1);
 						}
 					}
+
 					URL pluginUrl = new URL(pluginBaseURLStr + "/"
 							+ pluginJarFileName);
 					String className = pluginJarFileName.replace(".jar", "");
+
 					IPlugin plugin = createObjectFromJarURL(pluginUrl,
 							className);
+
 					remoteDescriptions.put(plugin.getDescription(),
 							pluginJarFileName);
 					remotePlugins.put(pluginJarFileName, pluginUrl);
@@ -437,7 +442,9 @@ public class PluginManager {
 				+ File.separator + PLUGINS_DIR);
 
 		if (pluginPath.exists() && pluginPath.isDirectory()) {
+
 			for (File file : pluginPath.listFiles(jarFilter)) {
+
 				if (interrupted)
 					break;
 
@@ -447,8 +454,10 @@ public class PluginManager {
 					String pluginJarFileName = file.getName();
 					localPlugins.put(pluginJarFileName, file);
 					String className = pluginJarFileName.replace(".jar", "");
+
 					IPlugin plugin = createObjectFromJarURL(file.toURI()
 							.toURL(), className);
+
 					localDescriptions.put(plugin.getDescription(),
 							pluginJarFileName);
 				} catch (MalformedURLException e) {
@@ -609,13 +618,13 @@ public class PluginManager {
 					// vagaries of file systems or the possibility of
 					// concurrent deletion.
 					if (libJarPath.exists()) {
-//						if (libJarPath.delete()) {
-//							String errMsg = String.format(
-//									"Unable to delete dependent library %s "
-//											+ "for plug-in %s", libJarName,
-//									jarName);
-//							throw new PluginManagerException(errMsg);
-//						}
+						// if (libJarPath.delete()) {
+						// String errMsg = String.format(
+						// "Unable to delete dependent library %s "
+						// + "for plug-in %s", libJarName,
+						// jarName);
+						// throw new PluginManagerException(errMsg);
+						// }
 					} else {
 						String errMsg = String.format(
 								"The dependent library %s "
@@ -670,7 +679,8 @@ public class PluginManager {
 	private IPlugin createObjectFromJarURL(URL url, String className)
 			throws ClassNotFoundException, IllegalAccessException,
 			InstantiationException {
-		URLClassLoader loader = URLClassLoader.newInstance(new URL[] { url });
+		URLClassLoader loader = new URLClassLoader(new URL[] { url },
+				VStar.class.getClassLoader());
 		Class<?> clazz = loader.loadClass(className);
 		return (IPlugin) clazz.newInstance();
 	}
