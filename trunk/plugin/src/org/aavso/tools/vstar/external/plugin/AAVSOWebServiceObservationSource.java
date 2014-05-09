@@ -53,7 +53,7 @@ public class AAVSOWebServiceObservationSource extends
 
 	@Override
 	public String getDescription() {
-		return "AAVSO Web Service observation file reader.";
+		return "AAVSO Web Service observation file reader";
 	}
 
 	@Override

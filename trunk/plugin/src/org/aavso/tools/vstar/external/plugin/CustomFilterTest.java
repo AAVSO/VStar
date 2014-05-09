@@ -44,7 +44,7 @@ public class CustomFilterTest extends CustomFilterPluginBase {
 
 	@Override
 	public String getDescription() {
-		return "Includes an observation if some condition holds for the current and previous one.";
+		return "Includes an observation if some condition holds for the current and previous one";
 	}
 
 	@Override

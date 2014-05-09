@@ -81,7 +81,7 @@ public class VSOLJObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		return "VSOLJ observation file reader.";
+		return "VSOLJ observation file reader";
 	}
 
 	@Override
