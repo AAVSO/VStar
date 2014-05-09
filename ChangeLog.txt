@@ -35,6 +35,13 @@ Release History
 ===============
   
 --------------------
+Date: May 9 2014
+Version: 2.16.0
+Tag: DEV-AAVSO-09May2014
+Key Changes:
+- Added the first implementation of a plug-in manager.
+- Fixed ticket 414: Ignore case of transformed field in AAVSO upload format files.
+
 Date: March 16 2014
 Version: 2.15.6
 Tag: DEV-AAVSO-16Mar2014

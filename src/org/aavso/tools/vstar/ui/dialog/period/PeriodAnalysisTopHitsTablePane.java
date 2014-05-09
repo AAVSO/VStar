@@ -49,6 +49,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 /**
  * Top hits table pane.
  */
+@SuppressWarnings("serial")
 public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane {
 
 	private Set<PeriodAnalysisDataPoint> refinedDataPoints;
