@@ -25,18 +25,18 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 
 /**
-* This VStar plugin can be used to create a filter for a group
-* of observers. 
-*
-* @author Sara J. Beck (with lots of help from D. Benn!)
-* @version 1.0 - 21 Feb 2011
-*/
+ * This VStar plugin can be used to create a filter for a group of observers.
+ * 
+ * @author Sara J. Beck (with lots of help from D. Benn!)
+ * @version 1.0 - 21 Feb 2011
+ * @version 1.1 - 21 May 2014: fixed null-pointer exception
+ */
 
 public class ObserverListFilter extends CustomFilterPluginBase {
 
 	@Override
 	protected void filter(List<ValidObservation> obs) {
-		String [] observer = getObserverList();
+		String[] observer = getObserverList();
 		for (ValidObservation curr : obs) {
 			for (int i = 0; i < observer.length; i++) {
 				if (observer[i].equals(curr.getObsCode())) {
@@ -57,7 +57,15 @@ public class ObserverListFilter extends CustomFilterPluginBase {
 	}
 
 	public String[] getObserverList() {
-		String str = JOptionPane.showInputDialog("Enter observer codes separated by spaces:");
-		return str.split("\\s+");
+		String str = JOptionPane
+				.showInputDialog("Enter observer codes separated by spaces:");
+		
+		String[] obsList = {};
+
+		if (str != null) {
+			obsList = str.split("\\s+");
+		}
+
+		return obsList;
 	}
 }
