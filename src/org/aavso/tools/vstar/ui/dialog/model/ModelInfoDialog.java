@@ -21,6 +21,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -30,9 +32,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
+import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
@@ -94,7 +99,8 @@ public class ModelInfoDialog extends JDialog {
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		// Add function strings.
+		// Add tabs for function strings.
+		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
 		if (model.getFunctionStrings() != null) {
 			for (String funcKey : model.getFunctionStrings().keySet()) {
 				JTextArea textArea = new JTextArea(model.getFunctionStrings()
@@ -102,10 +108,13 @@ public class ModelInfoDialog extends JDialog {
 				textArea.setBorder(BorderFactory.createTitledBorder(funcKey));
 				textArea.setEditable(false);
 				JScrollPane scrollPane = new JScrollPane(textArea);
-				topPane.add(scrollPane);
+				namedComponents.add(new NamedComponent(funcKey, scrollPane));
 			}
 		}
 
+		JTabbedPane tabs = PluginComponentFactory.createTabs(namedComponents);
+		topPane.add(tabs);
+		
 		// Add relative amplitude and phase information if it exists.
 		if (model.getParameters() != null) {
 			creator = new RelativeAmplitudeAndPhaseCreator(model
