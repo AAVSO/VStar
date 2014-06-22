@@ -51,7 +51,7 @@ public class PluginManagerTest extends TestCase {
 	public void testRetrievePluginInfo() {
 		pluginManager.retrieveRemotePluginInfo();
 		Map<String, URL> plugins = pluginManager.getRemotePluginsByJarName();
-		assertEquals(10, plugins.size());
+		assertTrue(plugins.size() > 10);
 		Map<String, List<URL>> libs = pluginManager.getLibs();
 		assertEquals(2, libs.size());
 	}
