@@ -38,6 +38,7 @@ public class RAInfo {
 	 *            The seconds component of the RA coord.
 	 */
 	public RAInfo(int epoch, int hours, int minutes, double seconds) {
+		this.epoch = epoch;
 		degs = 15 * (hours + minutes / 60.0 + seconds / 3600.0);
 	}
 
