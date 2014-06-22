@@ -17,12 +17,10 @@
  */
 package org.aavso.tools.vstar.plugin;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
 
 import org.aavso.tools.vstar.ui.NamedComponent;
