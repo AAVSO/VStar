@@ -115,12 +115,12 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 				PeriodAnalysisCoordinateType.AMPLITUDE, false));
 
 		// Period vs Power
-		// models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+		// plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
 		// PeriodAnalysisCoordinateType.PERIOD,
 		// PeriodAnalysisCoordinateType.POWER, false));
 
 		// Period vs Amplitude
-		// models.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+		// plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
 		// PeriodAnalysisCoordinateType.PERIOD,
 		// PeriodAnalysisCoordinateType.AMPLITUDE, false));
 

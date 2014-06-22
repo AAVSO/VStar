@@ -19,8 +19,6 @@ package org.aavso.tools.vstar.ui.dialog.period;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -39,9 +37,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
-import org.aavso.tools.vstar.ui.IMainUI;
-import org.aavso.tools.vstar.ui.StatusPane;
-import org.aavso.tools.vstar.ui.UIType;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.model.HarmonicInputDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
