@@ -187,14 +187,14 @@ public class ObservationFiltersDialog extends JDialog implements
 		};
 	}
 
-	// Return a listener for the "Show Filter" button.
+	// Return a listener for the "Show Description" button.
 	private ActionListener createShowDescriptionButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int selectedFilterIndex = filterList.getSelectedIndex();
 				String desc = (String) filterListModel.get(selectedFilterIndex);
 				FilteredObservationMessage filterMsg = filterMap.get(desc);
-				List<ITextComponent> fields = new ArrayList<ITextComponent>();
+				List<ITextComponent<String>> fields = new ArrayList<ITextComponent<String>>();
 				fields.add(new TextField("Name", filterMsg.getDescription()
 						.getFilterName()));
 				fields.add(new TextField("Description", filterMsg
