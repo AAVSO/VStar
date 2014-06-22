@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This dialog is used to display information about a star that has been marked
- * as discrepant in order to optionally add commentsField and submit to AAVSO.
+ * as discrepant in order to optionally add comments and submit to AAVSO.
  */
 @SuppressWarnings("serial")
 public class DiscrepantReportDialog extends AbstractOkCancelDialog {
@@ -48,6 +48,7 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 	private double magnitude;
 
 	private JTextField commentsField;
+	private JTextField userIdField;
 
 	/**
 	 * Constructor
@@ -76,6 +77,8 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 		topPane.add(createDicrepantInfoPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createCommentsPane());
+		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		topPane.add(createUserIdPane());
 
 		// OK, Cancel
 		topPane.add(createButtonPane());
@@ -89,6 +92,10 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 
 	public String getComments() {
 		return commentsField.getText();
+	}
+
+	public String getUserId() {
+		return userIdField.getText();
 	}
 
 	private JPanel createQuestionPane() {
@@ -135,6 +142,18 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 		return panel;
 	}
 
+	private JPanel createUserIdPane() {
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder("Identification"));
+
+		userIdField = new JTextField(20);
+		userIdField
+				.setToolTipText("Enter your observer code or name to be included in discrepant report.");
+		panel.add(userIdField);
+
+		return panel;
+	}
+
 	@Override
 	protected void cancelAction() {
 		// Nothing to do.
@@ -147,7 +166,7 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 					"Discrepant observation comment length exceeds "
 							+ MAX_COMMENT_LENGTH + " characters ("
 							+ getComments().length() + ").");
-		} else {
+		} else if (!getUserId().isEmpty() && !getUserId().matches("^\\s+$")) {
 			// TODO: this should be the base class implementation of okAction().
 			cancelled = false;
 			setVisible(false);
