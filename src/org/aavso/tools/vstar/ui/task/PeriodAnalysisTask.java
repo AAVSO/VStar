@@ -99,7 +99,9 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	public void done() {
 		if (!isCancelled() && successful) {
 			JDialog dialog = periodAnalysisPlugin.getDialog(sourceSeriesType);
-			dialog.setVisible(true);
+			if (dialog != null) {
+				dialog.setVisible(true);
+			}
 		}
 
 		Mediator.getInstance().getProgressNotifier().notifyListeners(
