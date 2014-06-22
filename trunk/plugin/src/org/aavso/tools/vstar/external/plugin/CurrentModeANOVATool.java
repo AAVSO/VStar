@@ -78,7 +78,7 @@ public class CurrentModeANOVATool extends GeneralToolPluginBase {
 				msg = "Insufficient data for ANOVA";
 			}
 
-			List<ITextComponent> fields = new ArrayList<ITextComponent>();
+			List<ITextComponent<String>> fields = new ArrayList<ITextComponent<String>>();
 			fields.add(new TextField("ANOVA", msg, TextField.Kind.AREA));
 			new TextDialog(
 					"ANOVA for " + binningResult.getSeries() + " series",
