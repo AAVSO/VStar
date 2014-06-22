@@ -32,11 +32,13 @@
 	     as another jar task line -->
     <jar jarfile="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOUploadFileFormatObservationSource**.class"/>
     <jar jarfile="${dist}/${pkg}.AAVSOWebServiceObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOWebServiceObservationSource**.class"/>
+  	<jar jarfile="${dist}/${pkg}.AoVPeriodSearch.jar" basedir="${build.classes}" includes="**/AoVPeriodSearch**.class"/>
   	<jar jarfile="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" basedir="${build.classes}" includes="**/ApacheCommonsLowessFitter**.class"/>
     <jar jarfile="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/APASSEpochPhotometryObservationSource**.class"/>
     <jar jarfile="${dist}/${pkg}.ASASObservationSource.jar" basedir="${build.classes}" includes="**/ASASObservationSource**.class"/>
     <jar jarfile="${dist}/${pkg}.BSMPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/BSMPhotometryObservationSource**.class"/>
     <jar jarfile="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" basedir="${build.classes}" includes="**/CatalinaSkySurveyObservationSource**.class"/>
+  	<jar jarfile="${dist}/${pkg}.CurrentModeANOVATool.jar" basedir="${build.classes}" includes="**/CurrentModeANOVATool**.class"/>
     <jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="**/CustomFilterTest**.class"/>
     <jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="**/ExampleObSource**.class"/>
     <jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class"/>
