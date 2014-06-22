@@ -25,8 +25,9 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
+import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
-import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -51,20 +52,20 @@ public class MagnitudeShiftTool extends ObservationToolPluginBase {
 
 		if (!seriesSelector.isCancelled()) {
 			// Get magnitude shift.
-			List<NumberField> inputFields = new ArrayList<NumberField>();
-			NumberField magDeltaField = new NumberField("Magnitude Change",
+			List<ITextComponent<?>> inputFields = new ArrayList<ITextComponent<?>>();
+			DoubleField magDeltaField = new DoubleField("Magnitude Change",
 					null, null, magDelta);
 			inputFields.add(magDeltaField);
 			MultiEntryComponentDialog magDeltaDlg = new MultiEntryComponentDialog(
-					"Magnitude Change Input", null, inputFields);
+					"Magnitude Change Input", inputFields);
 
 			// Create a new series with the adjusted magnitude.
 			if (!magDeltaDlg.isCancelled()) {
 				magDelta = magDeltaField.getValue();
-				
+
 				SeriesType type = seriesSelector.getSeries();
 				List<ValidObservation> obs = seriesInfo.getObservations(type);
-				
+
 				String description = String.format("%s shifted by "
 						+ NumericPrecisionPrefs.getMagOutputFormat(), type
 						.getDescription(), magDelta);
@@ -72,22 +73,23 @@ public class MagnitudeShiftTool extends ObservationToolPluginBase {
 						+ NumericPrecisionPrefs.getMagOutputFormat(), type
 						.getShortName(), magDelta);
 				Color color = type.getColor();
-				
-//				SeriesType newType = SeriesType.create(description, shortName,
-//						color, true, true);
+
+				// SeriesType newType = SeriesType.create(description,
+				// shortName,
+				// color, true, true);
 
 				// TODO: why does plot zoom cause a shift series to disappear?
-				
+
 				SeriesType newType = type;
-				
+
 				List<ValidObservation> newObs = new ArrayList<ValidObservation>(
 						obs);
 				for (ValidObservation newOb : newObs) {
-					Magnitude newMag = new Magnitude(newOb.getMag() + magDelta, newOb
-							.getMagnitude().getUncertainty());
+					Magnitude newMag = new Magnitude(newOb.getMag() + magDelta,
+							newOb.getMagnitude().getUncertainty());
 					newOb.setMagnitude(newMag);
 				}
-				
+
 				SeriesCreationMessage msg = new SeriesCreationMessage(this,
 						newType, newObs);
 

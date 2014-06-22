@@ -39,11 +39,11 @@ import org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.NamedComponent;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
+import org.aavso.tools.vstar.ui.dialog.IntegerField;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
-import org.aavso.tools.vstar.ui.dialog.NumberField;
-import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisTopHitsTablePane;
@@ -81,15 +81,15 @@ import org.aavso.tools.vstar.util.stats.PhaseCalcs;
  * http://iopscience.iop.org/1538-4357/460/2/L107/pdf/1538-4357_460_2_L107.pdf
  * 
  * o Get top-hits displaying in plot.<br/>
- * o Create a model? See Foster => disable Model button<br/>
- * o Fix cancellation handling in caller.<br/>
- * o Improve parameter dialog.<br/>
+ * o Permit different period analysis value keys such as F-value, p-value<br/>
+ * o Create a model. See Foster => disable Model button<br/>
  * o Parallelise!<br/>
  */
 public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 	private final static int MAX_TOP_HITS = 20;
 
+	private boolean firstInvocation;
 	private boolean interrupted;
 	private boolean cancelled;
 	private boolean legalParams;
@@ -103,6 +103,9 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 	 * Constructor
 	 */
 	public AoVPeriodSearch() {
+		super();
+		firstInvocation = true;
+		reset();
 		// periods = new ArrayList<Double>();
 		// pValues = new ArrayList<Double>();
 		// fValues = new ArrayList<Double>();
@@ -123,13 +126,20 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException {
 
+		if (firstInvocation) {
+			Mediator.getInstance().getNewStarNotifier().addListener(
+					getNewStarListener());
+			firstInvocation = false;
+		}
+
 		algorithm = new AoVAlgorithm(obs);
 		algorithm.execute();
 	}
 
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
-		return new PeriodAnalysisDialog(sourceSeriesType);
+		return interrupted || cancelled ? null : new PeriodAnalysisDialog(
+				sourceSeriesType);
 	}
 
 	@SuppressWarnings("serial")
@@ -175,7 +185,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 					algorithm.getResultSeries(),
 					PeriodAnalysisCoordinateType.PERIOD,
 					PeriodAnalysisCoordinateType.POWER, false, false);
-			
+
 			// Full results table
 			PeriodAnalysisCoordinateType[] columns = {
 					PeriodAnalysisCoordinateType.FREQUENCY,
@@ -268,7 +278,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			period = info.getDataPoint().getPeriod();
 			selectedDataPoint = info.getDataPoint();
 			setNewPhasePlotButtonState(true);
-			setFindHarmonicsButtonState(true);
+			// setFindHarmonicsButtonState(true);
 		}
 
 		// ** No model result and top-hit panes **
@@ -441,6 +451,12 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 				// Iterate over the periods in the range at the specified
 				// resolution.
+
+				// TODO: multi-core approach => iterate over a subset of the
+				// period range but over all observations, where the full set is
+				// copied for each core (set phases, sort mutate obs and
+				// list...)
+
 				for (double period = minPeriod; period <= maxPeriod; period += resolution) {
 					if (interrupted)
 						break;
@@ -473,7 +489,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		}
 
 		// Collect the ordered top-hits
-		// TODO: improve efficiency!
+		// TODO: improve efficiency! O(n) so not bad...
 		private void collectTopHits() {
 			orderedFrequencies.add(frequencies.get(smallestValueIndex));
 			orderedPeriods.add(periods.get(smallestValueIndex));
@@ -500,14 +516,14 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			}
 
 			// Remove all but MAX_TOP_HITS
-//			if (periods.size() > MAX_TOP_HITS) {
-//				for (int i = MAX_TOP_HITS; i < periods.size(); i++) {
-//					orderedFrequencies.remove(i);
-//					orderedPeriods.remove(i);
-//					orderedFValues.remove(i);
-//					orderedPValues.remove(i);
-//				}
-//			}
+			// if (periods.size() > MAX_TOP_HITS) {
+			// for (int i = MAX_TOP_HITS; i < periods.size(); i++) {
+			// orderedFrequencies.remove(i);
+			// orderedPeriods.remove(i);
+			// orderedFValues.remove(i);
+			// orderedPValues.remove(i);
+			// }
+			// }
 		}
 
 		@Override
@@ -520,38 +536,45 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 	private boolean areParametersLegal(List<ValidObservation> obs) {
 		legalParams = true;
 
-		List<ITextComponent> textFields = new ArrayList<ITextComponent>();
-		TextField binsField = new TextField("Bins", bins + "", false, false,
-				TextField.Kind.LINE);
-		textFields.add(binsField);
-
-		List<NumberField> numFields = new ArrayList<NumberField>();
+		List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
 
 		double days = obs.get(obs.size() - 1).getJD() - obs.get(0).getJD();
-		NumberField minPeriodField = new NumberField("Minimum Period", 0.01,
+		DoubleField minPeriodField = new DoubleField("Minimum Period", 0.01,
 				days, minPeriod);
-		numFields.add(minPeriodField);
+		fields.add(minPeriodField);
+		fields.add(minPeriodField);
 
-		NumberField maxPeriodField = new NumberField("Maximum Period", 0.0,
+		DoubleField maxPeriodField = new DoubleField("Maximum Period", 0.0,
 				days, maxPeriod == 0.0 ? days : maxPeriod);
-		numFields.add(maxPeriodField);
+		fields.add(maxPeriodField);
 
-		NumberField resolutionField = new NumberField("Resolution", 0.0, 1.0,
+		DoubleField resolutionField = new DoubleField("Resolution", 0.0, 1.0,
 				resolution);
-		numFields.add(resolutionField);
+		fields.add(resolutionField);
+
+		// Set<String> binSet = new TreeSet<String>();
+		// binSet.add("4");
+		// binSet.add("10");
+		// binSet.add("20");
+		// binSet.add("50");
+		// SelectableTextField binsField = new SelectableTextField("Bins",
+		// binSet);
+
+		IntegerField binsField = new IntegerField("Bins", 0, 50, bins);
+		fields.add(binsField);
 
 		MultiEntryComponentDialog dlg = new MultiEntryComponentDialog(
-				"AoV Parameters", textFields, numFields);
+				"AoV Parameters", fields);
 
 		cancelled = dlg.isCancelled();
 
 		if (!cancelled) {
 
 			try {
-				bins = Integer.parseInt(binsField.getValue());
+				bins = binsField.getValue();
 				if (bins <= 0) {
 					MessageBox.showErrorDialog("AoV Parameters",
-							"Number of bins must be more than zero");
+							"Number of bins must be greater than zero");
 					legalParams = false;
 				}
 			} catch (Exception e) {
@@ -594,7 +617,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		cancelled = false;
 		legalParams = false;
 		interrupted = false;
-		minPeriod = 0.1;
+		minPeriod = 0.0;
 		maxPeriod = 0.0;
 		resolution = 0.1;
 		bins = 10;

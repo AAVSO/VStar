@@ -31,7 +31,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
-import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.SelectableTextField;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
@@ -116,7 +116,9 @@ public class PeriodLuminosityDistanceCalculator extends
 			if (type == null || !types.contains(type)) {
 				initialType = DCEP;
 			}
-			List<ITextComponent> textFields = new ArrayList<ITextComponent>();
+
+			List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
+
 			final TextField absMagEqn = new TextField(
 					"Absolute Mag Relationship",
 					initialType != null ? absMagEqns.get(initialType) : "",
@@ -132,18 +134,17 @@ public class PeriodLuminosityDistanceCalculator extends
 					absMagEqns.get(typesField.getValue());
 				}
 			});
-			textFields.add(typesField);
-			textFields.add(absMagEqn);
+			fields.add(typesField);
+			fields.add(absMagEqn);
 
-			List<NumberField> inputFields = new ArrayList<NumberField>();
-			NumberField periodField = new NumberField("Period", null, null,
+			DoubleField periodField = new DoubleField("Period", null, null,
 					period);
-			inputFields.add(periodField);
-			NumberField magField = new NumberField("Mean Apparent Mag", null,
+			fields.add(periodField);
+			DoubleField magField = new DoubleField("Mean Apparent Mag", null,
 					null, magnitude);
-			inputFields.add(magField);
+			fields.add(magField);
 			MultiEntryComponentDialog inputDlg = new MultiEntryComponentDialog(
-					"Inputs", textFields, inputFields);
+					"Inputs", fields);
 
 			if (!inputDlg.isCancelled()) {
 				period = periodField.getValue();
@@ -195,7 +196,7 @@ public class PeriodLuminosityDistanceCalculator extends
 		String magFmt = NumericPrecisionPrefs.getMagOutputFormat();
 		String otherFmt = NumericPrecisionPrefs.getOtherOutputFormat();
 
-		List<ITextComponent> resultFields = new ArrayList<ITextComponent>();
+		List<ITextComponent<String>> resultFields = new ArrayList<ITextComponent<String>>();
 
 		// resultFields.add(new TextField("Absolute Magnitude Calculation",
 		// absMagEqns.get(varType), true, false, TextField.Kind.LINE));
