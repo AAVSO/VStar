@@ -53,7 +53,7 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
-import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
@@ -286,8 +286,8 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 	class AAVSOPhotometryURLSearchParameterDialog extends
 			AbstractOkCancelDialog {
 
-		private NumberField raDegField;
-		private NumberField decDegField;
+		private DoubleField raDegField;
+		private DoubleField decDegField;
 		private JComboBox radiusDegSelector;
 		private List<JCheckBox> checkBoxes;
 
@@ -319,11 +319,11 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-			raDegField = new NumberField("RA (degrees)", 0.0, 360.0, raDegs);
+			raDegField = new DoubleField("RA (degrees)", 0.0, 360.0, raDegs);
 			panel.add(raDegField.getUIComponent());
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
-			decDegField = new NumberField("Dec (degrees)", -90.0, 90.0, decDegs);
+			decDegField = new DoubleField("Dec (degrees)", -90.0, 90.0, decDegs);
 			panel.add(decDegField.getUIComponent());
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
