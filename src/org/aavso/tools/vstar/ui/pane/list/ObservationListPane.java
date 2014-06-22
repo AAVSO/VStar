@@ -253,7 +253,7 @@ public class ObservationListPane extends JPanel implements
 				// Request a name for the filter.
 				String defaultName = Mediator.getInstance()
 						.getDocumentManager().getNextUntitledFilterName();
-				List<ITextComponent> fields = new ArrayList<ITextComponent>();
+				List<ITextComponent<String>> fields = new ArrayList<ITextComponent<String>>();
 				fields.add(new TextField("Name", defaultName, false, false,
 						TextField.Kind.LINE));
 				final TextDialog nameDlg = new TextDialog("Filter Name", fields);
