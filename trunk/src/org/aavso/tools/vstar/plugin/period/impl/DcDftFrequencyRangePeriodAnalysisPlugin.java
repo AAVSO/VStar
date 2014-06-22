@@ -23,8 +23,9 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
-import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
@@ -40,9 +41,9 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 	private Double currHiFreq;
 	private Double currResolution;
 
-	NumberField loFreqField;
-	NumberField hiFreqField;
-	NumberField resolutionField;
+	DoubleField loFreqField;
+	DoubleField hiFreqField;
+	DoubleField resolutionField;
 
 	/**
 	 * Constructor
@@ -87,17 +88,17 @@ public class DcDftFrequencyRangePeriodAnalysisPlugin extends
 	}
 
 	private MultiEntryComponentDialog createParamDialog() {
-		List<NumberField> fields = new ArrayList<NumberField>();
+		List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
 
-		loFreqField = new NumberField(LocaleProps
+		loFreqField = new DoubleField(LocaleProps
 				.get("PERIOD_ANALYSIS_PARAMETERS_LOW_FREQUENCY_TITLE"), 0.0, null, currLoFreq);
 		fields.add(loFreqField);
 
-		hiFreqField = new NumberField(LocaleProps
+		hiFreqField = new DoubleField(LocaleProps
 				.get("PERIOD_ANALYSIS_PARAMETERS_HIGH_FREQUENCY_TITLE"), 0.0, null, currHiFreq);
 		fields.add(hiFreqField);
 
-		resolutionField = new NumberField(LocaleProps
+		resolutionField = new DoubleField(LocaleProps
 				.get("PERIOD_ANALYSIS_PARAMETERS_RESOLUTION_TITLE"), 0.0, null, currResolution);
 		fields.add(resolutionField);
 

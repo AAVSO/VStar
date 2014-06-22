@@ -22,6 +22,7 @@ import javax.swing.JDialog;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
@@ -40,6 +41,7 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 	 */
 	public DcDftPeriodAnalysisPluginBase() {
 		super();
+		Mediator.getInstance().getNewStarNotifier().addListener(getNewStarListener());
 	}
 
 	// ** Mandatory interface methods **

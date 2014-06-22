@@ -25,8 +25,9 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
-import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.period.wwz.WeightedWaveletZTransformResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -60,19 +61,19 @@ public class WeightedWaveletZTransformWithFrequencyRangePlugin extends
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException {
 
-		NumberField minFreqField = new NumberField(LocaleProps
+		DoubleField minFreqField = new DoubleField(LocaleProps
 				.get("WWZ_PARAMETERS_MINIMUM_FREQUENCY"), 0.0, null,
 				currMinFreq);
 
-		NumberField maxFreqField = new NumberField(LocaleProps
+		DoubleField maxFreqField = new DoubleField(LocaleProps
 				.get("WWZ_PARAMETERS_MAXIMUM_FREQUENCY"), 0.0, null,
 				currMaxFreq);
 
-		NumberField deltaFreqField = new NumberField(LocaleProps
+		DoubleField deltaFreqField = new DoubleField(LocaleProps
 				.get("WWZ_PARAMETERS_FREQUENCY_STEP"), null, null,
 				currDeltaFreq);
 
-		List<NumberField> fields = createNumberFields(minFreqField,
+		List<ITextComponent<?>> fields = createNumberFields(minFreqField,
 				maxFreqField, deltaFreqField);
 
 		MultiEntryComponentDialog paramDialog = new MultiEntryComponentDialog(

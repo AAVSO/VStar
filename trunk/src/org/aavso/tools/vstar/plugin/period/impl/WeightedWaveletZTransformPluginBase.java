@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
-import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.ui.dialog.ITextComponent;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 
@@ -36,30 +38,31 @@ abstract public class WeightedWaveletZTransformPluginBase extends
 	protected Double currDecay;
 	protected Double currTimeDivisions;
 
-	protected NumberField decayField;
-	protected NumberField timeDivisionsField;
+	protected DoubleField decayField;
+	protected DoubleField timeDivisionsField;
 
 	/**
 	 * Constructor
 	 */
 	public WeightedWaveletZTransformPluginBase() {
 		super();
+		Mediator.getInstance().getNewStarNotifier().addListener(getNewStarListener());
 		wwt = null;
 		reset();
 	}
 
-	protected List<NumberField> createNumberFields(NumberField... moreFields) {
-		List<NumberField> fields = new ArrayList<NumberField>();
+	protected List<ITextComponent<?>> createNumberFields(DoubleField... moreFields) {
+		List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
 
-		for (NumberField field : moreFields) {
+		for (DoubleField field : moreFields) {
 			fields.add(field);
 		}
 
-		decayField = new NumberField(LocaleProps.get("WWZ_PARAMETERS_DECAY"),
+		decayField = new DoubleField(LocaleProps.get("WWZ_PARAMETERS_DECAY"),
 				null, null, currDecay);
 		fields.add(decayField);
 
-		timeDivisionsField = new NumberField(LocaleProps
+		timeDivisionsField = new DoubleField(LocaleProps
 				.get("WWZ_PARAMETERS_TIME_DIVISIONS"), null, null,
 				currTimeDivisions);
 		fields.add(timeDivisionsField);

@@ -25,8 +25,9 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
-import org.aavso.tools.vstar.ui.dialog.NumberField;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.period.wwz.WeightedWaveletZTransformResultDialog;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -60,16 +61,16 @@ public class WeightedWaveletZTransformWithPeriodRangePlugin extends
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException {
 
-		NumberField minPeriodField = new NumberField(LocaleProps
+		DoubleField minPeriodField = new DoubleField(LocaleProps
 				.get("WWZ_PARAMETERS_MINIMUM_PERIOD"), 0.0, null, currMinPeriod);
 
-		NumberField maxPeriodField = new NumberField(LocaleProps
+		DoubleField maxPeriodField = new DoubleField(LocaleProps
 				.get("WWZ_PARAMETERS_MAXIMUM_PERIOD"), 0.0, null, currMaxPeriod);
 
-		NumberField deltaPeriodField = new NumberField(LocaleProps
+		DoubleField deltaPeriodField = new DoubleField(LocaleProps
 				.get("WWZ_PARAMETERS_PERIOD_STEP"), null, null, currDeltaPeriod);
 
-		List<NumberField> fields = createNumberFields(minPeriodField,
+		List<ITextComponent<?>> fields = createNumberFields(minPeriodField,
 				maxPeriodField, deltaPeriodField);
 
 		MultiEntryComponentDialog paramDialog = new MultiEntryComponentDialog(
