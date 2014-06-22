@@ -27,7 +27,7 @@ import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
- * A message class containing new star type and GUI component information.
+ * A message class containing new star type and information.
  */
 public class NewStarMessage {
 
