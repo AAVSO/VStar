@@ -28,7 +28,7 @@ import javax.swing.text.JTextComponent;
  * This class encapsulates the name and value of a text field along with a GUI
  * textComponent and methods to operate upon it.
  */
-public class TextField implements ITextComponent {
+public class TextField implements ITextComponent<String> {
 
 	public enum Kind {
 		LINE, AREA;
@@ -150,6 +150,11 @@ public class TextField implements ITextComponent {
 		return textComponent.getText();
 	}
 
+	@Override
+	public String getStringValue() {
+		return getValue();
+	}
+	
 	@Override
 	public JComponent getUIComponent() {
 		JComponent comp = textComponent;

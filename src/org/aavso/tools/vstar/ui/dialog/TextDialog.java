@@ -34,7 +34,7 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public class TextDialog extends AbstractOkCancelDialog {
 
-	private List<ITextComponent> textFields;
+	private List<ITextComponent<String>> textFields;
 
 	/**
 	 * Constructor.
@@ -44,7 +44,7 @@ public class TextDialog extends AbstractOkCancelDialog {
 	 * @param fields
 	 *            A list of fields.
 	 */
-	public TextDialog(String title, List<ITextComponent> fields) {
+	public TextDialog(String title, List<ITextComponent<String>> fields) {
 		super(title);
 		this.setModal(true);
 
@@ -54,9 +54,9 @@ public class TextDialog extends AbstractOkCancelDialog {
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		textFields = new ArrayList<ITextComponent>();
+		textFields = new ArrayList<ITextComponent<String>>();
 
-		for (ITextComponent field : fields) {
+		for (ITextComponent<String> field : fields) {
 			textFields.add(field);
 			topPane.add(createTextFieldPane(field));
 			topPane.add(Box.createRigidArea(new Dimension(75, 10)));
@@ -80,14 +80,14 @@ public class TextDialog extends AbstractOkCancelDialog {
 	public List<String> getTextStrings() {
 		List<String> strings = new ArrayList<String>();
 
-		for (ITextComponent field : textFields) {
+		for (ITextComponent<String> field : textFields) {
 			strings.add(field.getValue());
 		}
 
 		return strings;
 	}
 
-	private JPanel createTextFieldPane(ITextComponent field) {
+	private JPanel createTextFieldPane(ITextComponent<String> field) {
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
@@ -111,7 +111,7 @@ public class TextDialog extends AbstractOkCancelDialog {
 	protected void okAction() {
 		// If there is a field that cannot be empty, but is, we cannot dismiss
 		// the dialog.
-		for (ITextComponent field : textFields) {
+		for (ITextComponent<String> field : textFields) {
 			if (!field.canBeEmpty() && field.getValue().trim().length() == 0) {
 				return;
 			}

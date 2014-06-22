@@ -28,7 +28,7 @@ import javax.swing.JComponent;
  * This GUI component permits one of a number of strings to be selected via a
  * combo-box and the result retrieved.
  */
-public class SelectableTextField implements ITextComponent {
+public class SelectableTextField implements ITextComponent<String> {
 
 	private String name;
 	private boolean canBeEmpty;
@@ -112,6 +112,11 @@ public class SelectableTextField implements ITextComponent {
 	@Override
 	public String getValue() {
 		return (String) textChooser.getSelectedItem();
+	}
+
+	@Override
+	public String getStringValue() {
+		return getValue();
 	}
 
 	@Override

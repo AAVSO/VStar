@@ -37,8 +37,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 @SuppressWarnings("serial")
 public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 
-	private List<ITextComponent> textFields;
-	private List<NumberField> numberFields;
+	private List<ITextComponent<?>> fields;
 
 	/**
 	 * Constructor
@@ -51,10 +50,9 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	 *            The list of number fields.
 	 */
 	public MultiEntryComponentDialog(String title,
-			List<ITextComponent> textFields, List<NumberField> numberFields) {
+			List<ITextComponent<?>> fields) {
 		super(title);
-		this.textFields = textFields;
-		this.numberFields = numberFields;
+		this.fields = fields;
 
 		Container contentPane = this.getContentPane();
 
@@ -74,39 +72,15 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 		this.setVisible(true);
 	}
 
-	/**
-	 * Construct a dialog with no text fields.
-	 * 
-	 * @param title
-	 *            Title for the dialog.
-	 * @param numberFields
-	 *            The list of number fields.
-	 */
-	public MultiEntryComponentDialog(String title,
-			List<NumberField> numberFields) {
-		this(title, null, numberFields);
-	}
-
 	// Add the fields.
 	private JPanel createParameterPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-		// TODO: consolidate field types with generics
-
-		if (textFields != null) {
-			for (ITextComponent field : textFields) {
-				field.setEditable(!field.isReadOnly());
-				panel.add(field.getUIComponent());
-				panel.add(Box.createRigidArea(new Dimension(75, 10)));
-			}
-		}
-
-		if (numberFields != null) {
-			for (NumberField field : numberFields) {
-				panel.add(field.getUIComponent());
-				panel.add(Box.createRigidArea(new Dimension(75, 10)));
-			}
+		for (ITextComponent<?> field : fields) {
+			field.setEditable(!field.isReadOnly());
+			panel.add(field.getUIComponent());
+			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 		}
 
 		return panel;
@@ -127,28 +101,15 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	protected void okAction() {
 		boolean ok = true;
 
-		// TODO: consolidate field types via an interface and validate()
-		// methood.
-
-		// If there is a field that cannot be empty, but is, we cannot dismiss
-		// the dialog.
-		if (textFields != null) {
-			for (ITextComponent field : textFields) {
-				if (!field.canBeEmpty()
-						&& field.getValue().trim().length() == 0) {
-					ok = false;
-				}
-			}
-		}
-		
-		if (ok) {
-			// If there are any empty number fields, we cannot dismiss the
-			// dialog.
-			for (NumberField field : numberFields) {
-				if (field.getValue() == null) {
-					ok = false;
-					break;
-				}
+		// If there is a field that is returning a null value or a field that
+		// cannot be empty, but is, we cannot dismiss the dialog. Asking whether
+		// a field value is null is OK because if it's a string, that can never
+		// be the case and if it's a numeric field, it can be.
+		for (ITextComponent<?> field : fields) {
+			if (field.getValue() == null || !field.canBeEmpty()
+					&& field.getStringValue().trim().length() == 0) {
+				ok = false;
+				break;
 			}
 		}
 
