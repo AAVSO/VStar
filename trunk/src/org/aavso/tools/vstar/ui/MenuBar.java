@@ -39,10 +39,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-import org.aavso.tools.vstar.exception.AuthenticationError;
-import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.plugin.IPlugin;
@@ -1170,22 +1166,22 @@ public class MenuBar extends JMenuBar {
 						manager, "Initialising Plug-in Manager") {
 					@Override
 					public void execute() {
-						try {
-							Authenticator.getInstance().authenticate();
+//						try {
+//							Authenticator.getInstance().authenticate();
 							Mediator.getUI().getStatusPane().setMessage(
 									"Initialising Plug-in Manager...");
 							manager.init();
 							Mediator.getUI().getStatusPane().setMessage("");
 							new PluginManagementDialog(manager);
-						} catch (ConnectionException ex) {
-							MessageBox.showErrorDialog(
-									"Authentication Source Error", ex);
-						} catch (AuthenticationError ex) {
-							MessageBox.showErrorDialog("Authentication Error",
-									ex);
-						} catch (CancellationException e) {
+//						} catch (ConnectionException ex) {
+//							MessageBox.showErrorDialog(
+//									"Authentication Source Error", ex);
+//						} catch (AuthenticationError ex) {
+//							MessageBox.showErrorDialog("Authentication Error",
+//									ex);
+//						} catch (CancellationException e) {
 							// Nothing to do.
-						}
+//						}
 					}
 				};
 				mediator.performPluginManagerOperation(op);
