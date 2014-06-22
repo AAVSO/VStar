@@ -72,16 +72,24 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	public Void doInBackground() {
 		try {
 			if (obSourcePlugin.requiresAuthentication()) {
-				Mediator.getUI().setCursor(
-						Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				MessageBox.showErrorDialog("Observation Source Plug-in Error",
+						"Authenticated plug-ins are temporarily disabled.");
+				
+				if (false) {
+					// TODO: Re-enable when authentication capability is restored.
+					Mediator.getUI().setCursor(
+							Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-				Authenticator.getInstance().authenticate();
-				if (!obSourcePlugin
-						.additionalAuthenticationSatisfied(ResourceAccessor
-								.getLoginInfo())) {
-					throw new AuthenticationError(
-							"Plug-in authentication failed");
+					Authenticator.getInstance().authenticate();
+					if (!obSourcePlugin
+							.additionalAuthenticationSatisfied(ResourceAccessor
+									.getLoginInfo())) {
+						throw new AuthenticationError(
+								"Plug-in authentication failed");
+					}
 				}
+				
+				return null; // TODO: remove
 			}
 
 			createObservationArtefacts();
@@ -89,11 +97,14 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 		} catch (CancellationException ex) {
 			// Nothing to do; dialog cancelled.
 		} catch (ConnectionException ex) {
-			MessageBox.showErrorDialog("Authentication Source Error", ex);
+			MessageBox.showErrorDialog("Authentication Source Error", ex
+					.getLocalizedMessage());
 		} catch (AuthenticationError ex) {
-			MessageBox.showErrorDialog("Authentication Error", ex);
+			MessageBox.showErrorDialog("Authentication Error", ex
+					.getLocalizedMessage());
 		} catch (Exception ex) {
-			MessageBox.showErrorDialog("Discrepant Reporting Error", ex);
+			MessageBox.showErrorDialog("Observation Source Plug-in Error", ex
+					.getLocalizedMessage());
 		} finally {
 			Mediator.getUI().setCursor(null);
 		}
