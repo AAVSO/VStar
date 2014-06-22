@@ -48,16 +48,7 @@ import org.aavso.tools.vstar.util.notification.Notifier;
  */
 
 abstract public class PeriodAnalysisPluginBase implements IPlugin {
-
-	protected Mediator mediator = Mediator.getInstance();
-
-	/**
-	 * Parameterless constructor for creation within Mediator.
-	 */
-	public PeriodAnalysisPluginBase() {
-		mediator.getNewStarNotifier().addListener(this.getNewStarListener());
-	}
-
+	
 	/**
 	 * Send a period change message.
 	 * 
@@ -67,7 +58,7 @@ abstract public class PeriodAnalysisPluginBase implements IPlugin {
 	 *            the new period (and epoch) before creating a new phase plot.
 	 */
 	public void sendPeriodChangeMessage(double period) {
-		mediator.getPeriodChangeNotifier().notifyListeners(
+		Mediator.getInstance().getPeriodChangeNotifier().notifyListeners(
 				new PeriodChangeMessage(this, period));
 	}
 
@@ -143,14 +134,14 @@ abstract public class PeriodAnalysisPluginBase implements IPlugin {
 	 * @return the periodChangeNotifier
 	 */
 	protected Notifier<PeriodChangeMessage> getPeriodChangeNotifier() {
-		return mediator.getPeriodChangeNotifier();
+		return Mediator.getInstance().getPeriodChangeNotifier();
 	}
 
 	/**
 	 * @return the periodAnalysisSelectionNotifier
 	 */
 	protected Notifier<PeriodAnalysisSelectionMessage> getPeriodAnalysisSelectionNotifier() {
-		return mediator.getPeriodAnalysisSelectionNotifier();
+		return Mediator.getInstance().getPeriodAnalysisSelectionNotifier();
 	}
 
 	// ** Internal helper methods. **
@@ -158,7 +149,7 @@ abstract public class PeriodAnalysisPluginBase implements IPlugin {
 	/**
 	 * Get the new star listener for this plugin.
 	 */
-	private Listener<NewStarMessage> getNewStarListener() {
+	protected Listener<NewStarMessage> getNewStarListener() {
 		return new Listener<NewStarMessage>() {
 			public void update(NewStarMessage info) {
 				newStarAction(info);
