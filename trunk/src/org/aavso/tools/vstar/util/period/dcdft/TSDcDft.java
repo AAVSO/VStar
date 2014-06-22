@@ -1022,6 +1022,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	// straight to the topHits map in a little bit...; the key difference from
 	// deltaTopHits is that topHits isn't cleared between calls to tablit();
 	// may want a list of PeriodAnalysisDataPoints instead.
+	
+	// Note: this introduces O(N^2) operation each time tablit() is called!!
 
 	protected void tablit() {
 		int nq = 0;
