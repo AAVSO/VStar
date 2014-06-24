@@ -87,6 +87,7 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 
 			if (conn.getResponseCode() == 200) {
 				authenticated = true;
+				ResourceAccessor.getLoginInfo().setUserName(username);
 			} else {
 				String message = "Authentication failed";
 				throw new AuthenticationError(message);
