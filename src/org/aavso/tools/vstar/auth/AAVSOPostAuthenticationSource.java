@@ -17,17 +17,11 @@
  */
 package org.aavso.tools.vstar.auth;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -49,8 +43,6 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 
 	private String endPoint;
 	private boolean authenticated;
-	private final static Pattern authResponsePattern = Pattern
-			.compile("^\\s*\\{\"token\": \"(NO TOKEN AVAILABLE)\", \"id\": (.+)\\}\\s*$");
 
 	public AAVSOPostAuthenticationSource(String endPoint) {
 		this.endPoint = endPoint;
@@ -70,18 +62,17 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 			conn.setUseCaches(false);
 			conn.setRequestMethod("POST");
 
-			// See
+			// Note: despite this XML content type, JSON is returned without the
+			// Accept property below. See:
 			// http://en.wikipedia.org/wiki/POST_(HTTP)#Use_for_submitting_web_forms
-			// Note: despite this XML type, JSON is returned!
-			// String type = "application/x-www-form-urlencoded";
+			String type = "application/x-www-form-urlencoded";
+			conn.setRequestProperty("Content-Type", type);
 
-			// conn.setRequestProperty("Content-Type", type);
-//			conn.setRequestProperty("Content-Type",
-//					"application/x-www-form-urlencoded; charset=utf-8");
-			
-			// TODO: use this to get XML
+			// This is required to get an XML response! Indeed, "Content-Type"
+			// can be omitted with no ill-effect.
 			conn.setRequestProperty("Accept", "application/xml");
 
+			// Create the POST message data.
 			String data = String.format("%s=%s&%s=%s", "username", username,
 					"password", password);
 
@@ -90,7 +81,6 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 
 			// Send the POST request.
 			OutputStream os = conn.getOutputStream();
-			String encodedData = URLEncoder.encode(data, "utf-8");
 			os.write(data.getBytes());
 			os.flush();
 			os.close();
@@ -102,17 +92,8 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 				throw new AuthenticationError(message);
 			}
 
-			// String response = getResponse(conn);
 			processResponse(conn);
 
-			// Matcher authResponseMatcher =
-			// authResponsePattern.matcher(response);
-			// if (authResponseMatcher.matches()) {
-			// String token = authResponseMatcher.group(1);
-			// String id = authResponseMatcher.group(2);
-			// // TODO: get obscode if exists and add to login info object
-			// ResourceAccessor.getLoginInfo().setMember(!"null".equals(id));
-			// }
 		} catch (MalformedURLException e) {
 			throw new ConnectionException(e.getLocalizedMessage());
 		} catch (IOException e) {
@@ -131,33 +112,12 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 		return LoginType.AAVSO;
 	}
 
-	// Helpers
-
-	// Get the response string from the POST method.
-	private String getResponse(HttpURLConnection conn) throws IOException {
-		InputStream is = conn.getInputStream();
-		BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-		String line;
-		StringBuffer buf = new StringBuffer();
-		while ((line = rd.readLine()) != null) {
-			buf.append(line);
-			buf.append('\r');
-		}
-		rd.close();
-		return URLDecoder.decode(buf.toString(), "utf-8");
-	}
-
-	// Process the POST response, extracting ID, auth token, observer code.
+	// Process the POST response, extracting ID, authentication token.
 	private void processResponse(HttpURLConnection conn) throws IOException,
 			ParserConfigurationException, SAXException {
 
-		//String response = getResponse(conn);
-		//System.out.println(response);
-
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
-//		InputSource source = new InputSource(conn.getInputStream());
-//		source.setEncoding("utf-8");
 		Document document = builder.parse(conn.getInputStream());
 
 		document.getDocumentElement().normalize();
@@ -173,12 +133,5 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 			String token = tokenNodes.item(0).getTextContent();
 			ResourceAccessor.getLoginInfo().setToken(token);
 		}
-
-//		NodeList obscodeNodes = document.getElementsByTagName("obscode");
-//		if (obscodeNodes.getLength() == 1) {
-//			String obscode = obscodeNodes.item(0).getFirstChild()
-//					.getTextContent();
-//			ResourceAccessor.getLoginInfo().setObserverCode(obscode);
-//		}
 	}
 }
