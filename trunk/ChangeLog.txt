@@ -40,10 +40,18 @@ Version: 2.16.1
 Tag: DEV-AAVSO-26Jun2014
 Key Changes:
 - Re-enabled Plug-in Manager, discrepant reporting post-security breach.
+- Removed authorisation calls for plug-in manager and discrepant reporting
+  and changed the discrepant report dialog to request explicit name or
+  observer code.
 - Member-only plug-ins (APASS, BSM) will not be visible in Plug-in Manager,
   nor work again, until an alternative authentication mechanism (in 
   development) is established (since they require run-time authentication).
 - Fixed ticket 448: Star info: show RA epoch in Info dialog for AID loads.
+- Added star naming section to user manual, thanks to Mike Simonsen.
+- Incorporated feedback for improvement and corrections from May/June 2014 
+  CHOICE course participants. Thanks to Paul York and Brad Walter.
+- Fixed null pointer exception in ObserverListFilter reported by Bruno in 
+  VStar course.  
 - Changed model description dialog to use tabs for functions, metrics, 
   extrema, permitting growth in such descriptive information and more 
   suitable for equations with many terms (e.g. polynomial or Fourier).
@@ -52,22 +60,11 @@ Key Changes:
 - Fixed ticket 441: Plug-ins: PeriodAnalysisPluginBase constructor calls
   mediator. This prevented period analysis plug-ins being used with
   WebStart launched VStar.
-- Added star naming section to user manual, thanks to Mike Simonsen.
-- Incorporated feedback for improvement and corrections from May/June 2014 
-  CHOICE course participants. Thanks to Paul York and Brad Walter.
-- Fixed null pointer exception in ObserverListFilter reported by Bruno in 
-  VStar course.
 - Current mode ANOVA plug-in: shows ANOVA for current plot's mean, raw or 
-  phase plot. 
+  phase plot. Written during VStar CHOICE course.
 - Internal improvements to make possible more flexible period analysis
   and other plug-in types, e.g. for forthcoming AoV period analysis plug-in.
 - Improvements to field UI widgets/dialogs.
-- Removed authorisation calls for plug-in manager and discrepant reporting
-  and changed the discrepant report dialog to request explicit name or
-  observer code.
-- Changed model description dialog to use tabs for functions, metrics, 
-  extrema, permitting growth in such descriptive information and more 
-  suitable for large polynomial or Fourier equations.
 - Added plug-ins build script "aavso" target to generate plug-in zip and 
   list file for AAVSO distribution.
 
