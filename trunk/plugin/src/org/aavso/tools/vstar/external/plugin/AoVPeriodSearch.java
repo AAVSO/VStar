@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.external.plugin;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -69,9 +69,7 @@ import org.aavso.tools.vstar.util.stats.PhaseCalcs;
  * This plug-in implements the Analysis of Variance period search algorithm that
  * applies an ANOVA test to phased bins over a period range.
  * 
- * TODO:<br/>
- * o Add papers<br/>
- * 
+ * References:<br/>
  * http://articles.adsabs.harvard.edu/cgi-bin/nph-iarticle_query?1989MNRAS.241.
  * .153
  * S&amp;data_type=PDF_HIGH&amp;whole_paper=YES&amp;type=PRINTER&amp;filetype
@@ -80,9 +78,10 @@ import org.aavso.tools.vstar.util.stats.PhaseCalcs;
  * 
  * http://iopscience.iop.org/1538-4357/460/2/L107/pdf/1538-4357_460_2_L107.pdf
  * 
+ * o Fix range-check bug after N uses.<br/>
+ * o Take a close look at parameter range; 0 gives error for example; start blank?<br/>
  * o Get top-hits displaying in plot.<br/>
- * o Permit different period analysis value keys such as F-value, p-value<br/>
- * o Create a model. See Foster => disable Model button<br/>
+ * o Create a model. See Foster<br/>
  * o Parallelise!<br/>
  */
 public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
@@ -98,6 +97,9 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 	private Double minPeriod, maxPeriod, resolution;
 
 	private IPeriodAnalysisAlgorithm algorithm;
+
+	private PeriodAnalysisCoordinateType F_STATISTIC;
+	private PeriodAnalysisCoordinateType P_VALUE;
 
 	/**
 	 * Constructor
@@ -129,6 +131,10 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		if (firstInvocation) {
 			Mediator.getInstance().getNewStarNotifier().addListener(
 					getNewStarListener());
+
+			F_STATISTIC = PeriodAnalysisCoordinateType.create("F-statistic");
+			P_VALUE = PeriodAnalysisCoordinateType.create("p-value");
+
 			firstInvocation = false;
 		}
 
@@ -183,15 +189,13 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			plotPane = PeriodAnalysisComponentFactory.createLinePlot(
 					"AoV Periodogram", sourceSeriesType.getDescription(),
 					algorithm.getResultSeries(),
-					PeriodAnalysisCoordinateType.PERIOD,
-					PeriodAnalysisCoordinateType.POWER, false, false);
+					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC, false,
+					false);
 
 			// Full results table
 			PeriodAnalysisCoordinateType[] columns = {
 					PeriodAnalysisCoordinateType.FREQUENCY,
-					PeriodAnalysisCoordinateType.PERIOD,
-					PeriodAnalysisCoordinateType.POWER,
-					PeriodAnalysisCoordinateType.AMPLITUDE };
+					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC, P_VALUE };
 
 			// Note: algorithm won't be used (?) in this case but we must pass
 			// it along.
@@ -371,29 +375,29 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 		@Override
 		public Map<PeriodAnalysisCoordinateType, List<Double>> getResultSeries() {
-			Map<PeriodAnalysisCoordinateType, List<Double>> results = new HashMap<PeriodAnalysisCoordinateType, List<Double>>();
+			Map<PeriodAnalysisCoordinateType, List<Double>> results = new LinkedHashMap<PeriodAnalysisCoordinateType, List<Double>>();
 
 			results.put(PeriodAnalysisCoordinateType.FREQUENCY, frequencies);
 			results.put(PeriodAnalysisCoordinateType.PERIOD, periods);
-			results.put(PeriodAnalysisCoordinateType.POWER, fValues);
-			results.put(PeriodAnalysisCoordinateType.AMPLITUDE, pValues);
+			results.put(F_STATISTIC, fValues);
+			results.put(P_VALUE, pValues);
 
 			return results;
 		}
 
 		@Override
 		public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits() {
-			// todo: create top hits by sorting doubles in descending order
+			// TODO: create top hits by sorting doubles in descending order
 			// pairs of doubles;
 			// limit to MAX_TOP_HITS = 100
 
-			Map<PeriodAnalysisCoordinateType, List<Double>> topHits = new HashMap<PeriodAnalysisCoordinateType, List<Double>>();
+			Map<PeriodAnalysisCoordinateType, List<Double>> topHits = new LinkedHashMap<PeriodAnalysisCoordinateType, List<Double>>();
 
 			topHits.put(PeriodAnalysisCoordinateType.FREQUENCY,
 					orderedFrequencies);
 			topHits.put(PeriodAnalysisCoordinateType.PERIOD, orderedPeriods);
-			topHits.put(PeriodAnalysisCoordinateType.POWER, orderedFValues);
-			topHits.put(PeriodAnalysisCoordinateType.AMPLITUDE, orderedPValues);
+			topHits.put(F_STATISTIC, orderedFValues);
+			topHits.put(P_VALUE, orderedPValues);
 
 			return topHits;
 		}
@@ -481,7 +485,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 						smallestValueIndex = fValues.size() - 1;
 					}
 
-					pValues.add(1 - binningResult.getPValue());
+					pValues.add(binningResult.getPValue());
 				}
 
 				collectTopHits();
