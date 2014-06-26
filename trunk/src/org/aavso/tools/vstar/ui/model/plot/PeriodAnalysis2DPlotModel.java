@@ -32,6 +32,7 @@ import org.jfree.data.xy.AbstractXYDataset;
 public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 
 	private Map<PeriodAnalysisCoordinateType, List<Double>> analysisValues;
+	private PeriodAnalysisCoordinateType[] coordTypes;
 	private List<Double> domainValues;
 	private List<Double> rangeValues;
 	private PeriodAnalysisCoordinateType domainType;
@@ -57,6 +58,8 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 			PeriodAnalysisCoordinateType rangeType, boolean isLogarithmic) {
 		super();
 		this.analysisValues = analysisValues;
+		this.coordTypes = analysisValues.keySet().toArray(
+				new PeriodAnalysisCoordinateType[0]);
 		this.domainValues = analysisValues.get(domainType);
 		this.rangeValues = analysisValues.get(rangeType);
 		assert domainValues.size() == rangeValues.size();
@@ -157,7 +160,7 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 
 	/**
 	 * Given an item number, return a period analysis data point object
-	 * containing frequency, period, power, and amplitude values.
+	 * containing period analysis result data values.
 	 * 
 	 * @param item
 	 *            The item number in the sequence of data.
@@ -170,17 +173,15 @@ public class PeriodAnalysis2DPlotModel extends AbstractXYDataset {
 		// This may be a top-hits model and the item may be selected from the
 		// full data-set. If so, ignore.
 		if (item < domainValues.size()) {
-			double frequency = analysisValues.get(
-					PeriodAnalysisCoordinateType.FREQUENCY).get(item);
-			double period = analysisValues.get(
-					PeriodAnalysisCoordinateType.PERIOD).get(item);
-			double power = analysisValues.get(
-					PeriodAnalysisCoordinateType.POWER).get(item);
-			double amplitude = analysisValues.get(
-					PeriodAnalysisCoordinateType.AMPLITUDE).get(item);
-
-			dataPoint = new PeriodAnalysisDataPoint(frequency, period, power,
-					amplitude);
+			
+			// TODO: why not just use a map rather than PeriodAnalysisDataPoint?
+			
+			double[] values = new double[coordTypes.length];
+			for (int i=0;i<coordTypes.length;i++) {
+				values[i] = analysisValues.get(coordTypes[i]).get(item);
+			}
+					
+			dataPoint = new PeriodAnalysisDataPoint(coordTypes, values);
 		}
 
 		return dataPoint;

@@ -246,28 +246,24 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 					double x = Double.NaN;
 					double y = Double.NaN;
 
-					switch (model.getDomainType()) {
-					case FREQUENCY:
+					// TODO: convert to calls into map
+					
+					if (model.getDomainType() == PeriodAnalysisCoordinateType.FREQUENCY) {
 						x = info.getDataPoint().getFrequency();
-						break;
-					case PERIOD:
+					} else if (model.getDomainType() == PeriodAnalysisCoordinateType.PERIOD) {
 						x = info.getDataPoint().getPeriod();
-						break;
-					default:
+					} else {
 						assert false;
-						break;
 					}
 
-					switch (model.getRangeType()) {
-					case POWER:
+					// TODO: convert to calls into map
+
+					if (model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
 						y = info.getDataPoint().getPower();
-						break;
-					case AMPLITUDE:
+					} else if (model.getRangeType() == PeriodAnalysisCoordinateType.AMPLITUDE) {
 						y = info.getDataPoint().getAmplitude();
-						break;
-					default:
+					} else {
 						assert false;
-						break;
 					}
 
 					chart.getXYPlot().setDomainCrosshairValue(x);

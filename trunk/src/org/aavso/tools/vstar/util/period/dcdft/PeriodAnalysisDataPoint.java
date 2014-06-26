@@ -17,6 +17,9 @@
  */
 package org.aavso.tools.vstar.util.period.dcdft;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
@@ -24,51 +27,74 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
  * This class represents a period analysis data point.
  */
 public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
-	private double frequency, period, power, amplitude;
+
+	private final static PeriodAnalysisCoordinateType[] DCDFT_COORD_TYPES = new PeriodAnalysisCoordinateType[] {
+			PeriodAnalysisCoordinateType.FREQUENCY,
+			PeriodAnalysisCoordinateType.PERIOD,
+			PeriodAnalysisCoordinateType.POWER,
+			PeriodAnalysisCoordinateType.AMPLITUDE };
+
+	private PeriodAnalysisCoordinateType[] coordTypes;
+	private Map<PeriodAnalysisCoordinateType, Double> coords;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param frequency
-	 * @param period
-	 * @param power
-	 * @param amplitude
+	 * @param coordTypes
+	 *            The array of coordinate types for this data point.
+	 * @param coordVals
+	 *            ... Coordinate values corresponding to each coordinate in
+	 *            sequence.
 	 */
-	public PeriodAnalysisDataPoint(double frequency, double period,
-			double power, double amplitude) {
-		super();
-		this.frequency = frequency;
-		this.period = period;
-		this.power = power;
-		this.amplitude = amplitude;
+	public PeriodAnalysisDataPoint(PeriodAnalysisCoordinateType[] coordTypes,
+			double... coordVals) {
+		this.coordTypes = coordTypes;
+		coords = new LinkedHashMap<PeriodAnalysisCoordinateType, Double>();
+		
+		int i=0;
+		for (Double val : coordVals) {
+			assert (i < coordTypes.length);
+			coords.put(coordTypes[i++], val);
+		}
 	}
+
+	public PeriodAnalysisDataPoint(double... coordVals) {
+
+		this(DCDFT_COORD_TYPES, coordVals);
+	}
+
+	// ultimately remove these getters
 
 	/**
 	 * @return the frequency
 	 */
 	public double getFrequency() {
-		return frequency;
+		assert coordTypes == DCDFT_COORD_TYPES;
+		return coords.get(PeriodAnalysisCoordinateType.FREQUENCY);
 	}
 
 	/**
 	 * @return the period
 	 */
 	public double getPeriod() {
-		return period;
+		assert coordTypes == DCDFT_COORD_TYPES;
+		return coords.get(PeriodAnalysisCoordinateType.PERIOD);
 	}
 
 	/**
 	 * @return the power
 	 */
 	public double getPower() {
-		return power;
+		assert coordTypes == DCDFT_COORD_TYPES;
+		return coords.get(PeriodAnalysisCoordinateType.POWER);
 	}
 
 	/**
 	 * @return the amplitude
 	 */
 	public double getAmplitude() {
-		return amplitude;
+		assert coordTypes == DCDFT_COORD_TYPES;
+		return coords.get(PeriodAnalysisCoordinateType.AMPLITUDE);
 	}
 
 	/**
@@ -81,20 +107,9 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	public double getValue(PeriodAnalysisCoordinateType type) {
 		double value;
 
-		switch (type) {
-		case FREQUENCY:
-			value = getFrequency();
-			break;
-		case PERIOD:
-			value = getPeriod();
-			break;
-		case POWER:
-			value = getPower();
-			break;
-		case AMPLITUDE:
-			value = getAmplitude();
-			break;
-		default:
+		if (coords.containsKey(type)) {
+			value = coords.get(type);
+		} else {
 			throw new IllegalArgumentException();
 		}
 
@@ -107,9 +122,9 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 
 		if (obj instanceof PeriodAnalysisDataPoint) {
 			PeriodAnalysisDataPoint other = (PeriodAnalysisDataPoint) obj;
-			equal = other.getFrequency() == frequency
-					&& other.getPeriod() == period && other.getPower() == power
-					&& other.getAmplitude() == amplitude;
+//			boolean b = coordTypes.equals(other.coordTypes);
+			equal = /*coordTypes.equals(other.coordTypes)
+					&& */ coords.equals(other.coords);
 		}
 
 		return equal;
@@ -117,7 +132,12 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 
 	@Override
 	public String toString() {
-		return String.format("%14.9f%10.4f%10.4f%10.4f", frequency, period,
-				power, amplitude);
+		StringBuffer buf = new StringBuffer();
+
+		for (PeriodAnalysisCoordinateType type : coords.keySet()) {
+			buf.append(String.format("%s: %10.4f ", type, coords.get(type)));
+		}
+
+		return buf.toString();
 	}
 }
