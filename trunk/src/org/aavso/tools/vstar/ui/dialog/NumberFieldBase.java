@@ -23,8 +23,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
-import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
-
 /**
  * This abstract base class encapsulates the name, range, and value of a numeric
  * textField along with a GUI text field and methods to operate upon it.
@@ -43,6 +41,8 @@ public abstract class NumberFieldBase<T extends Number> implements
 	/**
 	 * Constructor
 	 * 
+	 * @param numberFormat
+	 *            The numeric format to be used to display the initial value.
 	 * @param name
 	 *            The name of the textField.
 	 * @param min
@@ -54,14 +54,15 @@ public abstract class NumberFieldBase<T extends Number> implements
 	 * @param initial
 	 *            The initial value.
 	 */
-	public NumberFieldBase(String name, T min, T max, T initial) {
+	public NumberFieldBase(String numberFormat, String name, T min, T max,
+			T initial) {
 		this.name = name;
 		this.min = min;
 		this.max = max;
 		this.initial = initial;
 
-		String initialStr = initial == null ? "" : String.format(
-				NumericPrecisionPrefs.getOtherOutputFormat(), initial);
+		String initialStr = initial == null ? "" : String.format(numberFormat,
+				initial);
 		textField = new JTextField(initialStr);
 		textField.setBorder(BorderFactory.createTitledBorder(name));
 		textField.setToolTipText("Enter " + name);
