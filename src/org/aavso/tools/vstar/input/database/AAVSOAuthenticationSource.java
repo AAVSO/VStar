@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * This class authenticates with respect to an AAVSO source.
+ * @deprecated @see AAVSOPostAuthenticationSource
  */
 public class AAVSOAuthenticationSource implements IAuthenticationSource {
 
