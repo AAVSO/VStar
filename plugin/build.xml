@@ -1,81 +1,125 @@
 <project name="plugin" default="install" basedir=".">
-  <description>Generic build file to make plugin building easier.</description>
+	<description>Generic build file to make plugin building easier.</description>
 
-  <property name="src" location="src/org/aavso/tools/vstar/external/plugin"/>
-  <property name="pkg" value="org.aavso.tools.vstar.external.plugin"/>
-  <property name="plugin_dir" value="vstar_plugins"/>
-  <property name="plugin_lib_dir" value="vstar_plugin_libs"/>
-  <property name="build" location="build"/>
-  <property name="build.classes" location="./build"/>
-  <property name="dist" location="dist/"/>
-
-  <target name="compile" description="compile the source ">
-    <path id="libs">
-      <fileset dir="../">
-	<include name="dist/vstar.jar"/>
-	<include name="plugin/lib/tamfits.jar"/>
-      </fileset>
-    </path>
-    <mkdir dir="${build}"/>
-    <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" classpathref="libs"/>
-  </target>
-
-  <!-- TODO: need a zip target that includes libs -->
+	<property name="src" location="src/org/aavso/tools/vstar/external/plugin" />
+	<property name="pkg" value="org.aavso.tools.vstar.external.plugin" />
+	<property name="plugin_dir" value="vstar_plugins" />
+	<property name="plugin_lib_dir" value="vstar_plugin_libs" />
+	<property name="build" location="build" />
+	<property name="build.classes" location="./build" />
+	<property name="dist" location="dist/" />
+	<property name="vstar_plugins_zip_dir" location="vstar-plugins" />
+	<property name="plugins_list_file" value=".plugins.lst" />
 	
-  <target name="dist" depends="compile" description="generate the distribution" >
+	<target name="compile" description="compile the source ">
+		<path id="libs">
+			<fileset dir="../">
+				<include name="dist/vstar.jar" />
+				<include name="plugin/lib/tamfits.jar" />
+			</fileset>
+		</path>
+		<mkdir dir="${build}" />
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}" classpathref="libs" />
+	</target>
 
-    <mkdir dir="${dist}"/>
+	<target name="dist" depends="compile" description="generate the distribution">
 
-    <!-- I don't like the idea of forcing people to install and use ant.contrib 
+		<mkdir dir="${dist}" />
+
+		<!-- I don't like the idea of forcing people to install and use ant.contrib 
          so right now this is just a huge list of targets add your new plugin here
 	     as another jar task line -->
-    <jar jarfile="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOUploadFileFormatObservationSource**.class"/>
-    <jar jarfile="${dist}/${pkg}.AAVSOWebServiceObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOWebServiceObservationSource**.class"/>
-  	<jar jarfile="${dist}/${pkg}.AoVPeriodSearch.jar" basedir="${build.classes}" includes="**/AoVPeriodSearch**.class"/>
-  	<jar jarfile="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" basedir="${build.classes}" includes="**/ApacheCommonsLowessFitter**.class"/>
-    <jar jarfile="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/APASSEpochPhotometryObservationSource**.class"/>
-    <jar jarfile="${dist}/${pkg}.ASASObservationSource.jar" basedir="${build.classes}" includes="**/ASASObservationSource**.class"/>
-    <jar jarfile="${dist}/${pkg}.BSMPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/BSMPhotometryObservationSource**.class"/>
-    <jar jarfile="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" basedir="${build.classes}" includes="**/CatalinaSkySurveyObservationSource**.class"/>
-  	<jar jarfile="${dist}/${pkg}.CurrentModeANOVATool.jar" basedir="${build.classes}" includes="**/CurrentModeANOVATool**.class"/>
-    <jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="**/CustomFilterTest**.class"/>
-    <jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="**/ExampleObSource**.class"/>
-    <jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class"/>
-    <jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="**/KeplerFITSObservationSource**.class"/>
-   	<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class"/>
+		<jar jarfile="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOUploadFileFormatObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.AAVSOWebServiceObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOWebServiceObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.AoVPeriodSearch.jar" basedir="${build.classes}" includes="**/AoVPeriodSearch**.class" />
+		<jar jarfile="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" basedir="${build.classes}" includes="**/ApacheCommonsLowessFitter**.class" />
+		<jar jarfile="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/APASSEpochPhotometryObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.ASASObservationSource.jar" basedir="${build.classes}" includes="**/ASASObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.BSMPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/BSMPhotometryObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" basedir="${build.classes}" includes="**/CatalinaSkySurveyObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.CurrentModeANOVATool.jar" basedir="${build.classes}" includes="**/CurrentModeANOVATool**.class" />
+		<jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="**/CustomFilterTest**.class" />
+		<jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="**/ExampleObSource**.class" />
+		<jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class" />
+		<jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="**/KeplerFITSObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class" />
 <!--
-   	<jar jarfile="${dist}/${pkg}.MagnitudeShiftTool.jar" basedir="${build.classes}" includes="**/MagnitudeShiftTool**.class"/>
+   		<jar jarfile="${dist}/${pkg}.MagnitudeShiftTool.jar" basedir="${build.classes}" includes="**/MagnitudeShiftTool**.class"/>
 -->
-  	<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class"/>
-    <jar jarfile="${dist}/${pkg}.ObserverListFilter.jar" basedir="${build.classes}" includes="**/ObserverListFilter**.class"/>
-  	<!--
-    <jar jarfile="${dist}/${pkg}.ObservationCounter.jar" basedir="${build.classes}" includes="**/ObservationCounter**.class"/>
-    -->
-	<!--    
-	<jar jarfile="${dist}/${pkg}.PeriodAnalysisPluginTest1.jar" basedir="${build.classes}" includes="**/PeriodAnalysisPluginTest1**.class"/>
-	-->
-    <jar jarfile="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" basedir="${build.classes}" includes="**/PeriodLuminosityDistanceCalculator**.class"/>
-    <jar jarfile="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" basedir="${build.classes}" includes="**/SuperWASPFITSObservationSource**.class"/>
-    <jar jarfile="${dist}/${pkg}.VSOLJObservationSource.jar" basedir="${build.classes}" includes="**/VSOLJObservationSource**.class"/>
+		<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.ObserverListFilter.jar" basedir="${build.classes}" includes="**/ObserverListFilter**.class" />
+<!--
+    	<jar jarfile="${dist}/${pkg}.ObservationCounter.jar" basedir="${build.classes}" includes="**/ObservationCounter**.class"/>
+-->
+<!--    
+		<jar jarfile="${dist}/${pkg}.PeriodAnalysisPluginTest1.jar" basedir="${build.classes}" includes="**/PeriodAnalysisPluginTest1**.class"/>
+-->
+		<jar jarfile="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" basedir="${build.classes}" includes="**/PeriodLuminosityDistanceCalculator**.class" />
+		<jar jarfile="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" basedir="${build.classes}" includes="**/SuperWASPFITSObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.VSOLJObservationSource.jar" basedir="${build.classes}" includes="**/VSOLJObservationSource**.class" />
+	</target>
 
-  </target>
+	<target name="install" depends="dist" description="Install the libs into the users home directory">
+		<mkdir dir="${user.home}/${plugin_dir}" />
+		<mkdir dir="${user.home}/${plugin_lib_dir}" />
 
-  <target name="install" depends="dist" description="Install the libs into the users home directory">
-    <mkdir dir="${user.home}/${plugin_dir}"/>
-    <mkdir dir="${user.home}/${plugin_lib_dir}"/>
+		<!-- copy all those plugins to our plugin dir -->
+		<copy todir="${user.home}/${plugin_dir}">
+			<fileset dir="${dist}" includes="**/*.jar" />
+		</copy>
+		<copy todir="${user.home}/${plugin_lib_dir}" file="lib/tamfits.jar" />
+	</target>
 
-    <!-- copy all those plugins to our plugin dir -->
-    <copy todir="${user.home}/${plugin_dir}">
-      <fileset dir="${dist}" includes="**/*.jar"/>
-    </copy>
-    <copy todir="${user.home}/${plugin_lib_dir}" file="lib/tamfits.jar"/>
-  </target>
+	<target name="aavso" depends="dist" description="Create a .plugins.lst and zip file containing the plug-ins for AAVSO">
+		<mkdir dir="${vstar_plugins_zip_dir}/${plugin_dir}" />
+		<mkdir dir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
 
-  <target name="clean" description="Clean up">
-		  <!-- Delete the build, dist directories -->
-		  <delete dir="build"/>
-		  <delete dir="dist"/>
-  </target>
+		<copy file="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.BSMPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.CurrentModeANOVATool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.JDToDateTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.KeplerFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.NSVSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.ObserverListFilter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+
+		<copy file="lib/tamfits.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
+
+		<zip destfile="${vstar_plugins_zip_dir}.zip">
+			<zipfileset dir="${vstar_plugins_zip_dir}" />
+		</zip>
+
+		<delete dir="${vstar_plugins_zip_dir}" />
+		
+		<echo file="${plugins_list_file}" message="${pkg}.AAVSOUploadFileFormatObservationSource.jar${line.separator}" append="false" />
+		<echo file="${plugins_list_file}" message="${pkg}.ApacheCommonsLowessFitter.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message=":${pkg}.APASSEpochPhotometryObservationSource.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message=":${pkg}.BSMPhotometryObservationSource.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.CatalinaSkySurveyObservationSource.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.CurrentModeANOVATool.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.JDToDateTool.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.KeplerFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.ObserverListFilter.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.PeriodLuminosityDistanceCalculator.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.SuperWASPFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
+	</target>
+
+	<target name="clean" description="Clean up">
+		<!-- Delete the build, dist directories, AAVSO zip file, .plugins.lst -->
+		<delete dir="build" />
+		<delete dir="dist" />
+   	 	<delete dir="src/**/*.class" />
+		<delete dir="src/build" />
+		<delete file="${vstar_plugins_zip_dir}.zip" />
+		<delete file="${plugins_list_file}" />
+	</target>
 
 </project>
