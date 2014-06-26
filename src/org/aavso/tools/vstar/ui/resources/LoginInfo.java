@@ -26,6 +26,7 @@ public class LoginInfo {
 	private String userName;
 	private String observerCode;
 	private boolean isMember;
+	private String token;
 
 	/**
 	 * Constructor.
@@ -37,6 +38,7 @@ public class LoginInfo {
 		// Sensible default for when login fails or not logged in.
 		this.observerCode = "";
 		isMember = false;
+		this.token = null;
 	}
 
 	/**
@@ -96,5 +98,19 @@ public class LoginInfo {
 	 */
 	public void setMember(boolean isMember) {
 		this.isMember = isMember;
+	}
+
+	/**
+	 * @return the token
+	 */
+	public String getToken() {
+		return token;
+	}
+
+	/**
+	 * @param token the token to set
+	 */
+	public void setToken(String token) {
+		this.token = token;
 	}
 }

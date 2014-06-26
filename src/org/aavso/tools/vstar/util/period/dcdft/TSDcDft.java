@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.util.period.dcdft;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -68,6 +69,8 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 	private DcDftAnalysisType analysisType;
 
+	private PeriodAnalysisCoordinateType[] coordTypes;
+
 	// Parameter values (by frequency or period).
 	private double loFreqValue;
 	private double hiFreqValue;
@@ -96,9 +99,14 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 
 		this.analysisType = DcDftAnalysisType.STANDARD_SCAN;
 
-		resultSeries = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
-		for (PeriodAnalysisCoordinateType type : PeriodAnalysisCoordinateType
-				.values()) {
+		coordTypes = new PeriodAnalysisCoordinateType[] {
+				PeriodAnalysisCoordinateType.FREQUENCY,
+				PeriodAnalysisCoordinateType.PERIOD,
+				PeriodAnalysisCoordinateType.POWER,
+				PeriodAnalysisCoordinateType.AMPLITUDE };
+
+		resultSeries = new LinkedHashMap<PeriodAnalysisCoordinateType, List<Double>>();
+		for (PeriodAnalysisCoordinateType type : coordTypes) {
 			resultSeries.put(type, new ArrayList<Double>());
 		}
 
@@ -276,10 +284,9 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	public Map<PeriodAnalysisCoordinateType, List<Double>> getTopHits() {
 
 		// Create top-hits collection.
-		topHits = new TreeMap<PeriodAnalysisCoordinateType, List<Double>>();
+		topHits = new LinkedHashMap<PeriodAnalysisCoordinateType, List<Double>>();
 
-		for (PeriodAnalysisCoordinateType type : PeriodAnalysisCoordinateType
-				.values()) {
+		for (PeriodAnalysisCoordinateType type : coordTypes) {
 			topHits.put(type, new ArrayList<Double>());
 		}
 
@@ -310,6 +317,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	@Override
 	public void execute() throws AlgorithmError {
 		interrupted = false;
+
 		try {
 			dcdft();
 
@@ -895,10 +903,9 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 			// dcoeff[0] is const_coeff, and dd is amplitude
 			// [sqrt(cos_coeff^2+sin_coeff^2)].
 			double dd = dcoef[na] * dcoef[na] + dcoef[nb] * dcoef[nb];
-			parameters
-					.add(new PeriodFitParameters(harmonics.get(nn - 1), Math
-							.sqrt(dd), dcoef[na], dcoef[nb], dcoef[0],
-							getZeroPointOffset()));
+			parameters.add(new PeriodFitParameters(harmonics.get(nn - 1), Math
+					.sqrt(dd), dcoef[na], dcoef[nb], dcoef[0],
+					getZeroPointOffset()));
 			// if (nn > 9) {
 			// write(1,207) dfre(nn),1.0/dfre(nn),nn,dsqrt(dd),dcoef(na),
 
@@ -1022,7 +1029,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 	// straight to the topHits map in a little bit...; the key difference from
 	// deltaTopHits is that topHits isn't cleared between calls to tablit();
 	// may want a list of PeriodAnalysisDataPoints instead.
-	
+
 	// Note: this introduces O(N^2) operation each time tablit() is called!!
 
 	protected void tablit() {

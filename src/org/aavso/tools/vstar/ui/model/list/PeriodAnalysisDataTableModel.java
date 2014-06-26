@@ -154,10 +154,13 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 	 */
 	public PeriodAnalysisDataPoint getDataPointFromRow(int rowIndex) {
 
-		return new PeriodAnalysisDataPoint(data.get(
-				PeriodAnalysisCoordinateType.FREQUENCY).get(rowIndex), data
-				.get(PeriodAnalysisCoordinateType.PERIOD).get(rowIndex), data
-				.get(PeriodAnalysisCoordinateType.POWER).get(rowIndex), data
-				.get(PeriodAnalysisCoordinateType.AMPLITUDE).get(rowIndex));
+		// TODO: why not just use a map rather than PeriodAnalysisDataPoint?
+		
+		double[] values = new double[columnTypes.length];
+		for (int i=0;i<columnTypes.length;i++) {
+			values[i] = data.get(columnTypes[i]).get(rowIndex);
+		}
+				
+		return new PeriodAnalysisDataPoint(columnTypes, values);
 	}
 }
