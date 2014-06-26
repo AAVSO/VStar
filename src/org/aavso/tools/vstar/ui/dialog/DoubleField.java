@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import org.aavso.tools.vstar.util.locale.NumberParser;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * This class encapsulates the name, range, and value of a numeric text field
@@ -40,7 +41,8 @@ public class DoubleField extends NumberFieldBase<Double> {
 	 *            The initial value.
 	 */
 	public DoubleField(String name, Double min, Double max, Double initial) {
-		super(name, min, max, initial);
+		super(NumericPrecisionPrefs.getOtherOutputFormat(), name, min, max,
+				initial);
 	}
 
 	/**
