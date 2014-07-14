@@ -20,6 +20,9 @@ code.
 
   o jmathplot.jar
     http://code.google.com/p/jmathplot/
+  
+  o javacsv
+    https://sourceforge.net/projects/javacsv/
      
   o nico-camargo-toolbar-icons-4.0.jar
     Toolbar icons created by Citizen Sky participant, Nico Camargo.
@@ -33,21 +36,27 @@ copies of the licenses are included in the ./extlib directory. See the
 URL for the web page of each project for more information.
 
   o Apache License
-    ./extlib/apache-LICENSE.txt
+    apache-LICENSE.txt
     http://commons.apache.org/license.html
     See also http://www.apache.org/licenses/GPL-compatibility.html
         
     * Commons Math  http://commons.apache.org/math/
         
   o GNU Lesser General Public License, version 2.1
-    ./extlib/lgpl-2.1.txt
+    lgpl-2.1.txt
     http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
 
     * JCommon  http://sourceforge.net/projects/jfreechart/
     * JFreeChart  http://sourceforge.net/projects/jfreechart/
 
+  o GNU Lesser General Public License, version 2.0
+    lgpl-2.0.txt
+    http://www.gnu.org/licenses/old-licenses/lgpl-2.0.html
+
+    * javacsv  https://sourceforge.net/projects/javacsv/
+    
   o GNU General Public License, version 2
-    ./extlib/gpl-2.0.txt
+    gpl-2.0.txt
     http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
     * MySQL Connector/J  http://dev.mysql.com/downloads/connector/j/
@@ -55,20 +64,7 @@ URL for the web page of each project for more information.
   o New BSD License
     http://www.opensource.org/licenses/bsd-license.php
     
-This section categorises the libraries in terms of function:
-
- - Math (statistics):
-     commons-math-2.2.jar
-      
- - JFreeChart related:
-     jcommon-1.0.16.jar
-     jfreechart-1.0.13.jar
-     
- - 3D plots:
-     jmathplot.jar
-   
- - MySQL JDBC:
-     mysql-connector-java-5.1.10-bin.jar
+    * jmathplot  http://code.google.com/p/jmathplot/
      
 If you are a developer who wishes to contribute toward coding or 
 testing VStar, the following libraries must be downloaded for unit 
