@@ -49,6 +49,7 @@
 -->
 		<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.ObserverListFilter.jar" basedir="${build.classes}" includes="**/ObserverListFilter**.class" />
+		<jar jarfile="${dist}/${pkg}.ObserversBySeries.jar" basedir="${build.classes}" includes="**/ObserversBySeries**.class" />
 <!--
     	<jar jarfile="${dist}/${pkg}.ObservationCounter.jar" basedir="${build.classes}" includes="**/ObservationCounter**.class"/>
 -->
@@ -86,6 +87,7 @@
 		<copy file="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.NSVSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ObserverListFilter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.ObserversBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 
@@ -108,6 +110,7 @@
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ObserverListFilter.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.ObserversBySeries.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.PeriodLuminosityDistanceCalculator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.SuperWASPFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
 	</target>
