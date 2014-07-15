@@ -23,7 +23,7 @@ import java.io.LineNumberReader;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.data.validation.AbstractStringValidator;
+import org.aavso.tools.vstar.data.validation.CommonTextFormatValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
@@ -52,8 +52,8 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	 * large enough observation list capacity in the case where we an read
 	 * out-of-order dataset.
 	 * 
-	 * @param obsFile
-	 *            The file that is the source of the observation.
+	 * @param reader
+	 *            The reader that is the source of the observation.
 	 * @param analyser
 	 *            An observation file analyser.
 	 */
@@ -69,31 +69,34 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	 */
 	public void retrieveObservations() throws ObservationReadError {
 
-		AbstractStringValidator<ValidObservation> validator = this.analyser
-				.getTextFormatValidator();
-
 		try {
-			String line = reader.readLine();
+			CommonTextFormatValidator validator = this.analyser
+					.getTextFormatValidator(reader);
 
-			while (line != null && !wasInterrupted()) {
+			int lineNum = 0;
+
+			while (validator.next() && !wasInterrupted()) {
 				// Ignore comment, blank line or column header line
 				// (e.g. JD,Magnitude,...).
+				String line = validator.getRawRecord();
+				lineNum++;
+
 				if (!line.startsWith("#") && !line.matches("^\\s*$")
 						&& !isColumnHeaderLine(line)) {
 
-					int lineNum = reader.getLineNumber();
-
 					try {
-						ValidObservation validOb = validator.validate(line);
-						addValidObservation(validOb, lineNum);
+						ValidObservation validOb = validator.validate();
+						if (validOb != null) {
+							addValidObservation(validOb, lineNum);
+						}
 					} catch (ObservationValidationError e) {
 						InvalidObservation invalidOb = new InvalidObservation(
-								line, e.getMessage());
+								validator.getRawRecord(), e.getMessage());
 						invalidOb.setRecordNumber(lineNum);
 						addInvalidObservation(invalidOb);
 					} catch (ObservationValidationWarning e) {
 						InvalidObservation invalidOb = new InvalidObservation(
-								line, e.getMessage(), true);
+								validator.getRawRecord(), e.getMessage(), true);
 						invalidOb.setRecordNumber(lineNum);
 						addInvalidObservation(invalidOb);
 
@@ -103,8 +106,6 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 
 				mediator.getProgressNotifier().notifyListeners(
 						ProgressInfo.INCREMENT_PROGRESS);
-
-				line = reader.readLine();
 			}
 		} catch (Throwable t) {
 			throw new ObservationReadError(
@@ -132,7 +133,7 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 		}
 	}
 
-	// Is the specified line a column header? 
+	// Is the specified line a column header?
 	private boolean isColumnHeaderLine(String line) {
 		return validObservations.isEmpty() && invalidObservations.isEmpty()
 				&& line.matches("^[A-Za-z].+$");

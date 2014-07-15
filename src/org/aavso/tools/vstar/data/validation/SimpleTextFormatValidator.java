@@ -17,9 +17,13 @@
  */
 package org.aavso.tools.vstar.data.validation;
 
+import java.io.IOException;
+
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
+
+import com.csvreader.CsvReader;
 
 /**
  * This class accepts a line of text for tokenising, validation, and
@@ -34,8 +38,9 @@ public class SimpleTextFormatValidator extends CommonTextFormatValidator {
 	/**
 	 * Constructor.
 	 * 
-	 * @param delimiter
-	 *            The field delimiter to use.
+	 * @param lineReader
+	 *            The CsvReader that will be used to return fields, created with
+	 *            the appropriate delimiter and data source.
 	 * @param minFields
 	 *            The minimum number of fields permitted in an observation line.
 	 * @param maxFields
@@ -44,9 +49,9 @@ public class SimpleTextFormatValidator extends CommonTextFormatValidator {
 	 *            A mapping from field name to field index that makes sense for
 	 *            the source.
 	 */
-	public SimpleTextFormatValidator(String delimiter, int minFields,
-			int maxFields, IFieldInfoSource fieldInfoSource) {
-		super("simple text format observation line", delimiter, minFields,
+	public SimpleTextFormatValidator(CsvReader lineReader, int minFields,
+			int maxFields, IFieldInfoSource fieldInfoSource) throws IOException {
+		super("simple text format observation line", lineReader, minFields,
 				maxFields, "D", fieldInfoSource);
 	}
 
@@ -60,9 +65,9 @@ public class SimpleTextFormatValidator extends CommonTextFormatValidator {
 	 * @throws ObservationValidationError
 	 */
 	public ValidObservation validate(String line)
-			throws ObservationValidationError, ObservationValidationWarning {
+			throws IOException, ObservationValidationError, ObservationValidationWarning {
 
-		ValidObservation observation = super.validate(line);
+		ValidObservation observation = super.validate();
 		
 		// TODO: assert which fields should not be null
 

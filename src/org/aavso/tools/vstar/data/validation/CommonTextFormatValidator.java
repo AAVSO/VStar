@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.data.validation;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.DateInfo;
@@ -27,6 +28,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
 
+import com.csvreader.CsvReader;
+
 /**
  * This class accepts a line of text for tokenising, validation, and
  * ValidObservation instance creation that is common to all text format sources.
@@ -35,10 +38,11 @@ import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
  * does what counts as a legal valflag field value, but the fieldIndexMap and
  * valflagPatternStr constructor arguments cater for the differences.
  */
-public class CommonTextFormatValidator extends
-		AbstractStringValidator<ValidObservation> {
+public class CommonTextFormatValidator {
 
-	private final ObservationFieldSplitter fieldSplitter;
+	protected final ObservationFieldSplitter fieldSplitter;
+
+	protected CsvReader lineReader;
 
 	protected final JulianDayValidator julianDayValidator;
 	protected final MagnitudeFieldValidator magnitudeFieldValidator;
@@ -55,8 +59,9 @@ public class CommonTextFormatValidator extends
 	 * 
 	 * @param desc
 	 *            A description of the kind of line we are validating.
-	 * @param delimiter
-	 *            The field delimiter to use.
+	 * @param lineReader
+	 *            The CsvReader that will be used to return fields, created with
+	 *            the appropriate delimiter and data source.
 	 * @param minFields
 	 *            The minimum number of fields permitted in an observation line.
 	 * @param maxFields
@@ -69,12 +74,14 @@ public class CommonTextFormatValidator extends
 	 *            A mapping from field name to field index that makes sense for
 	 *            the source.
 	 */
-	public CommonTextFormatValidator(String desc, String delimiter,
+	public CommonTextFormatValidator(String desc, CsvReader lineReader,
 			int minFields, int maxFields, String valflagPatternStr,
-			IFieldInfoSource fieldInfoSource) {
+			IFieldInfoSource fieldInfoSource) throws IOException {
 
-		this.fieldSplitter = new ObservationFieldSplitter(delimiter, minFields,
-				maxFields);
+		this.lineReader = lineReader;
+
+		this.fieldSplitter = new ObservationFieldSplitter(lineReader,
+				minFields, maxFields);
 
 		this.fieldIndexMap = fieldInfoSource.getFieldIndexMap();
 
@@ -89,6 +96,26 @@ public class CommonTextFormatValidator extends
 	}
 
 	/**
+	 * Attempt to read the next record, returning whether it was.
+	 * 
+	 * @return Whether the next record was read.
+	 * @throws IOException
+	 *             If a read error occurred.
+	 */
+	public boolean next() throws IOException {
+		return lineReader.readRecord();
+	}
+
+	/**
+	 * Return the current raw record.
+	 * 
+	 * @return The current raw record.
+	 */
+	public String getRawRecord() {
+		return lineReader.getRawRecord();
+	}
+
+	/**
 	 * Validate an observation line and either return a ValidObservation
 	 * instance, or throw an exception indicating the error.
 	 * 
@@ -98,52 +125,56 @@ public class CommonTextFormatValidator extends
 	 * 
 	 * @param line
 	 *            The line of text to be tokenised and validated.
-	 * @return The validated ValidObservation object.
-	 * @throws ObservationValidationError
+	 * @return The validated ValidObservation object or null if one could not be
+	 *         created from the current record's fields.
 	 */
-	public ValidObservation validate(String line)
-			throws ObservationValidationError, ObservationValidationWarning {
+	public ValidObservation validate() throws IOException,
+			ObservationValidationError, ObservationValidationWarning {
 
 		ValidObservation observation = null;
 
-		// Create a new valid observation, making the assumption
-		// that validation will pass.
-		observation = new ValidObservation();
-
 		// Get an array of fields split on the expected delimiter.
-		fields = fieldSplitter.getFields(line);
+		fields = fieldSplitter.getFields();
 
-		// Validate the fields.
-		DateInfo dateInfo = julianDayValidator.validate(fields[fieldIndexMap
-				.get("JD_FIELD")]);
-		observation.setDateInfo(dateInfo);
+		if (fields.length != 0) {
+			// Create a new valid observation, making the assumption
+			// that validation will pass.
+			observation = new ValidObservation();
 
-		Magnitude magnitude = magnitudeFieldValidator
-				.validate(fields[fieldIndexMap.get("MAGNITUDE_FIELD")]);
+			// Validate the fields.
+			DateInfo dateInfo = julianDayValidator
+					.validate(fields[fieldIndexMap.get("JD_FIELD")]);
+			observation.setDateInfo(dateInfo);
 
-		Double uncertaintyMag = uncertaintyValueValidator
-				.validate(fields[fieldIndexMap.get("UNCERTAINTY_FIELD")]);
+			Magnitude magnitude = magnitudeFieldValidator
+					.validate(fields[fieldIndexMap.get("MAGNITUDE_FIELD")]);
 
-		if (uncertaintyMag != null) {
-			magnitude.setUncertainty(uncertaintyMag);
+			Double uncertaintyMag = uncertaintyValueValidator
+					.validate(fields[fieldIndexMap.get("UNCERTAINTY_FIELD")]);
+
+			if (uncertaintyMag != null) {
+				magnitude.setUncertainty(uncertaintyMag);
+			}
+
+			if (magnitude.isBrighterThan()) {
+				throw new ObservationValidationError(
+						"Was '>' intended (brighter than) or '<'?");
+			}
+
+			observation.setMagnitude(magnitude);
+
+			if (observation.getBand() == null) {
+				observation.setBand(SeriesType.Unspecified);
+			}
+
+			observation
+					.setObsCode(observerCodeValidator
+							.validate(fields[fieldIndexMap
+									.get("OBSERVER_CODE_FIELD")]));
+
+			String valflag = fields[fieldIndexMap.get("VALFLAG_FIELD")];
+			observation.setValidationType(valflagValidator.validate(valflag));
 		}
-
-		if (magnitude.isBrighterThan()) {
-			throw new ObservationValidationError(
-					"Was '>' intended (brighter than) or '<'?");
-		}
-
-		observation.setMagnitude(magnitude);
-
-		if (observation.getBand() == null) {
-			observation.setBand(SeriesType.Unspecified);
-		}
-
-		observation.setObsCode(observerCodeValidator
-				.validate(fields[fieldIndexMap.get("OBSERVER_CODE_FIELD")]));
-
-		String valflag = fields[fieldIndexMap.get("VALFLAG_FIELD")];
-		observation.setValidationType(valflagValidator.validate(valflag));
 
 		return observation;
 	}

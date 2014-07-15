@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.data.validation;
 
+import java.io.IOException;
+
 import org.aavso.tools.vstar.data.CommentType;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.MTypeType;
@@ -25,6 +27,8 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 
+import com.csvreader.CsvReader;
+
 /**
  * This class accepts a line of text for tokenising, validation, and
  * ValidObservation instance creation given an AAVSO Download text format
@@ -32,8 +36,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationWarning;
  * 
  * JD(0), MAGNITUDE(1), UNCERTAINTY(2), HQ_UNCERTAINTY(3), BAND(4),
  * OBSERVER_CODE(5), COMMENT_CODE(6), COMP_STAR_1(7), COMP_STAR_2(8), CHARTS(9),
- * COMMENTS(10), TRANSFORMED(11), AIRMASS(12), VALFLAG(13), CMAG(14),
- * KMAG(15), HJD(16), NAME(17), MTYPE(18)
+ * COMMENTS(10), TRANSFORMED(11), AIRMASS(12), VALFLAG(13), CMAG(14), KMAG(15),
+ * HJD(16), NAME(17), MTYPE(18)
  * 
  * REQ_VSTAR_AAVSO_DATA_DOWNLOAD_FILE_READ
  * 
@@ -47,7 +51,7 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 
 	private final OptionalityFieldValidator optionalFieldValidator;
 	private final OptionalityFieldValidator nonOptionalFieldValidator;
-	private final CompStarValidator compStarValidator; 	
+	private final CompStarValidator compStarValidator;
 	private final JulianDayValidator hjdValidator;
 	private final CommentCodeValidator commentCodeValidator;
 	private final TransformedValidator transformedValidator;
@@ -59,8 +63,9 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 	/**
 	 * Constructor.
 	 * 
-	 * @param delimiter
-	 *            The field delimiter to use.
+	 * @param lineReader
+	 *            The CsvReader that will be used to return fields, created with
+	 *            the appropriate delimiter and data source.
 	 * @param minFields
 	 *            The minimum number of fields permitted in an observation line.
 	 * @param maxFields
@@ -69,10 +74,10 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 	 *            A mapping from field name to field index that makes sense for
 	 *            the source.
 	 */
-	public AAVSODownloadFormatValidator(String delimiter, int minFields,
-			int maxFields, IFieldInfoSource fieldInfoSource) {
-		super("AAVSO format observation line", delimiter, minFields, maxFields,
-				"G|D|T|P|V|Z", fieldInfoSource);
+	public AAVSODownloadFormatValidator(CsvReader lineReader, int minFields,
+			int maxFields, IFieldInfoSource fieldInfoSource) throws IOException {
+		super("AAVSO format observation line", lineReader, minFields,
+				maxFields, "G|D|T|P|V|Z", fieldInfoSource);
 
 		this.optionalFieldValidator = new OptionalityFieldValidator(
 				OptionalityFieldValidator.CAN_BE_EMPTY);
@@ -93,7 +98,7 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 				.getRegex());
 
 		this.compStarValidator = new CompStarValidator();
-		
+
 		this.transformedValidator = new TransformedValidator();
 
 		this.cMagValidator = new CKMagValidator(CKMagValidator.CMAG_KIND);
@@ -112,15 +117,12 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 	 * below are unvalidated (or sometimes just checked for optionality) however
 	 * for the reason just stated.
 	 * 
-	 * @param line
-	 *            The line of text to be tokenised and validated.
 	 * @return The validated ValidObservation object.
-	 * @throws ObservationValidationError
 	 */
-	public ValidObservation validate(String line)
-			throws ObservationValidationError, ObservationValidationWarning {
+	public ValidObservation validate() throws IOException,
+			ObservationValidationError, ObservationValidationWarning {
 
-		ValidObservation observation = super.validate(line);
+		ValidObservation observation = super.validate();
 
 		// Validate the fields.
 

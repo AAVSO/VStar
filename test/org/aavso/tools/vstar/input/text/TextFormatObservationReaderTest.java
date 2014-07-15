@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.input.text;
 
+import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.util.List;
@@ -30,6 +31,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
+
+import com.csvreader.CsvReader;
 
 /**
  * This is a unit test for TextFormatObservationReader.
@@ -107,13 +110,13 @@ public class TextFormatObservationReaderTest extends TestCase {
 		assertEquals(2450001.5, ob1.getDateInfo().getJulianDay());
 	}
 
-	public void testSimpleValidOutOfOrderSpaceSeparatedMultipleLines() {
+	public void testSimpleValidOutOfOrderTabSeparatedMultipleLines() {
 		StringBuffer lines = new StringBuffer();
-		lines.append(" 24550001      3.2  0.2\n");
-		lines.append("  24550000      4.2  0.1\n");
-		lines.append("    24550002      2.2  0.3");
+		lines.append("24550001 3.2 0.2\n");
+		lines.append("24550000 4.2 0.1\n");
+		lines.append("24550002 2.2 0.3");
 
-		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t");
+		List<ValidObservation> obs = commonValidTest(lines.toString(), " ");
 
 		assertTrue(obs.size() == 3);
 
@@ -228,7 +231,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 
 	// Tests of invalid simple text format.
 
-	public void testSimpleInvalidAllButUncertaintyAndValflagTSV() {
+	public void testSimpleInvalidAllButUncertaintyAndValflagTSV() throws IOException {
 		// There should be another tab between the magnitude and obscode
 		// to account for the missing uncertainty value field.
 		commonInvalidTest("2450001.5\t10.0\tDJB\n");
@@ -271,12 +274,15 @@ public class TextFormatObservationReaderTest extends TestCase {
 		return obs;
 	}
 
-	private void commonInvalidTest(String str) {
+	private void commonInvalidTest(String str) throws IOException {
 		try {
+			CsvReader reader = new CsvReader(new StringReader(str));
+			reader.setDelimiter('\t');
+			assertTrue(reader.readRecord());
 			SimpleTextFormatValidator validator = new SimpleTextFormatValidator(
-					"\t", 2, 5, NewStarType.NEW_STAR_FROM_SIMPLE_FILE
+					reader, 2, 5, NewStarType.NEW_STAR_FROM_SIMPLE_FILE
 							.getFieldInfoSource());
-			validator.validate(str);
+			validator.validate();
 			// We should have thrown a ObservationValidationError...
 			fail();
 		} catch (ObservationValidationError e) {
