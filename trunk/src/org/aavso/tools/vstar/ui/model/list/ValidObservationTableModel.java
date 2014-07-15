@@ -144,8 +144,9 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	public void setValueAt(Object value, int rowIndex, int columnIndex) {
 		if (columnIndex == columnInfoSource.getDiscrepantColumnIndex()) {
 			// We disable discrepant toggling here for now, in case this dialog
-			// was opened
-			// in raw data mode, but we have since switched to phase plot mode.
+			// was opened in raw data mode, but we have since switched to phase
+			// plot mode.
+			//
 			// See
 			// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
 			// for more detail.
@@ -160,7 +161,7 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 						ob, this);
 				Mediator.getInstance().getDiscrepantObservationNotifier()
 						.notifyListeners(message);
-				
+
 				Mediator.getInstance().reportDiscrepantObservation(ob, null);
 			}
 		}

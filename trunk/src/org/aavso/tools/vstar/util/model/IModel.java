@@ -86,7 +86,8 @@ public interface IModel extends IAlgorithm {
 	 * Returns the model function and context. This is required for creating a
 	 * line plot to show the model as a continuous function. If a model creator
 	 * cannot sensibly return such a function, it may return null and no such
-	 * plot will be possible.<br/>
+	 * plot will be possible. It could also be useful for analysis purposes,
+	 * e.g. analytic extrema finding.<br/>
 	 * 
 	 * @return The function object.
 	 */
