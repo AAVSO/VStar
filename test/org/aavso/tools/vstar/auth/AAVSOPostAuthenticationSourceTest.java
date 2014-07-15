@@ -19,10 +19,8 @@ package org.aavso.tools.vstar.auth;
 
 import junit.framework.TestCase;
 
-import org.aavso.tools.vstar.auth.AAVSOPostAuthenticationSource;
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 public class AAVSOPostAuthenticationSourceTest extends TestCase {
 
@@ -34,31 +32,20 @@ public class AAVSOPostAuthenticationSourceTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		authenticator = new AAVSOPostAuthenticationSource(
-				"http://dev.aavso.org/apps/api-auth/");
+		authenticator = new AAVSOPostAuthenticationSource();
 	}
 
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
 
-	public void testAuthenticateNonMember() throws AuthenticationError,
+	public void testAuthenticateSuccess() throws AuthenticationError,
 			ConnectionException {
 
-		boolean authenticated = authenticator
-				.authenticate("admin", "adminpass");
+		boolean authenticated = authenticator.authenticate("will_test",
+				"+r+w+xstarapro");
 
 		assertTrue(authenticated);
-		assertFalse(ResourceAccessor.getLoginInfo().isMember());
-	}
-
-	public void testAuthenticateMember() throws AuthenticationError,
-			ConnectionException {
-
-		boolean authenticated = authenticator.authenticate("will", "foobar");
-
-		assertTrue(authenticated);
-		assertTrue(ResourceAccessor.getLoginInfo().isMember());
 	}
 
 	public void testAuthenticateFailure() throws ConnectionException {

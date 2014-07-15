@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ import java.util.Map;
 import javax.swing.JTabbedPane;
 
 import org.aavso.tools.vstar.ui.NamedComponent;
-import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
+import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
@@ -32,7 +33,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  */
 public class PluginComponentFactory {
 
-	final private static Map<String, AdditiveLoadFileSelectionChooser> fileChoosers = new HashMap<String, AdditiveLoadFileSelectionChooser>();
+	final private static Map<String, AdditiveLoadFileOrUrlChooser> fileChoosers = new HashMap<String, AdditiveLoadFileOrUrlChooser>();
 
 	/**
 	 * Create a tabbed pane component from a list of named components.
@@ -77,21 +78,39 @@ public class PluginComponentFactory {
 	 *            An identifier for the file chooser. If null, a new file
 	 *            chooser will be created otherwise the file chooser first
 	 *            created with this identifier will be used.
+	 * @param additionalFileExtensions
+	 *            The list of file extensions to be added to the file chooser,
+	 *            or null if none.
+	 * @param allowURL
+	 *            Should a URL entry be allowed?
+	 * 
 	 * @return The file chooser or null if no file was selected.
 	 */
-	public static AdditiveLoadFileSelectionChooser chooseFileForReading(String id) {
-		AdditiveLoadFileSelectionChooser fileChooser = null;
+	public static AdditiveLoadFileOrUrlChooser chooseFileForReading(
+			String id, List<String> additionalFileExtensions, boolean allowURL) {
+		AdditiveLoadFileOrUrlChooser fileChooser = null;
 
 		if (id != null) {
 			if (!fileChoosers.containsKey(id)) {
-				fileChoosers.put(id, new AdditiveLoadFileSelectionChooser());
+				fileChoosers.put(id, new AdditiveLoadFileOrUrlChooser(allowURL));
+
+				if (additionalFileExtensions != null) {
+					List<String> newFileExtensions = new ArrayList<String>();
+					newFileExtensions.addAll(additionalFileExtensions);
+					newFileExtensions.addAll(fileChoosers.get(id)
+							.getDefaultFileExtensions());
+					fileChoosers.get(id).setFileExtensions(newFileExtensions);
+				}
 			}
 			fileChooser = fileChoosers.get(id);
+			fileChooser.reset();
 		} else {
-			fileChooser = new AdditiveLoadFileSelectionChooser();
+			fileChooser = new AdditiveLoadFileOrUrlChooser(allowURL);
 		}
 
-		boolean approved = fileChooser.showDialog(Mediator.getUI().getComponent());
+		// Was a file chosen or a URL string accepted?
+		boolean approved = fileChooser.showDialog(Mediator.getUI()
+				.getComponent()) || fileChooser.isUrlProvided();
 
 		return approved ? fileChooser : null;
 	}

@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -43,10 +44,23 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 
 	private String endPoint;
 	private boolean authenticated;
-
+	private String userID;
+	
 	public AAVSOPostAuthenticationSource(String endPoint) {
 		this.endPoint = endPoint;
 		authenticated = false;
+	}
+
+	public AAVSOPostAuthenticationSource() {
+		this("http://www.aavso.org/apps/api-auth/");
+	}
+	
+	/**
+	 * Return the authentiated user ID.
+	 * @return the user ID
+	 */
+	public String getUserID() {
+		return userID;
 	}
 
 	@Override
@@ -73,8 +87,10 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 			conn.setRequestProperty("Accept", "application/xml");
 
 			// Create the POST message data.
-			String data = String.format("%s=%s&%s=%s", "username", username,
-					"password", password);
+			String usernameEncoded = URLEncoder.encode(username, "UTF-8");
+			String passwordEncoded = URLEncoder.encode(password, "UTF-8");
+			String data = String.format("%s=%s&%s=%s", "username", usernameEncoded,
+					"password", passwordEncoded);
 
 			conn.setRequestProperty("Content-Length", String.valueOf(data
 					.length()));
@@ -88,6 +104,7 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 			if (conn.getResponseCode() == 200) {
 				authenticated = true;
 				ResourceAccessor.getLoginInfo().setUserName(username);
+				ResourceAccessor.getLoginInfo().setType(getLoginType());
 			} else {
 				String message = "Authentication failed";
 				throw new AuthenticationError(message);
@@ -125,8 +142,7 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 
 		NodeList idNodes = document.getElementsByTagName("id");
 		if (idNodes.getLength() == 1) {
-			String id = idNodes.item(0).getTextContent();
-			ResourceAccessor.getLoginInfo().setMember(!"".equals(id));
+			userID = idNodes.item(0).getTextContent();
 		}
 
 		NodeList tokenNodes = document.getElementsByTagName("token");

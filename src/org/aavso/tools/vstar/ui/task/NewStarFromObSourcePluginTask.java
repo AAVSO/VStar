@@ -25,7 +25,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -35,10 +34,14 @@ import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.Authenticator;
+import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.PluginComponentFactory;
-import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
+import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser;
+import org.aavso.tools.vstar.ui.dialog.Checkbox;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
+import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
@@ -72,24 +75,17 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	public Void doInBackground() {
 		try {
 			if (obSourcePlugin.requiresAuthentication()) {
-				MessageBox.showErrorDialog("Observation Source Plug-in Error",
-						"Authenticated plug-ins are temporarily disabled.");
-				
-				if (false) {
-					// TODO: Re-enable when authentication capability is restored.
-					Mediator.getUI().setCursor(
-							Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				Mediator.getUI().setCursor(
+						Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-					Authenticator.getInstance().authenticate();
-					if (!obSourcePlugin
-							.additionalAuthenticationSatisfied(ResourceAccessor
-									.getLoginInfo())) {
-						throw new AuthenticationError(
-								"Plug-in authentication failed");
-					}
+				Authenticator.getInstance().authenticate();
+
+				if (!obSourcePlugin
+						.additionalAuthenticationSatisfied(ResourceAccessor
+								.getLoginInfo())) {
+					throw new AuthenticationError(
+							"Plug-in authentication failed");
 				}
-				
-				return null; // TODO: remove
 			}
 
 			createObservationArtefacts();
@@ -129,6 +125,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
 			switch (obSourcePlugin.getInputType()) {
 			case FILE:
+			case FILE_OR_URL:
 				List<File> files = obSourcePlugin.getFiles();
 				if (files != null) {
 					String fileNames = "";
@@ -140,14 +137,28 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 							.lastIndexOf(", "));
 					obSourcePlugin.setInputInfo(streams, fileNames);
 				} else {
-					AdditiveLoadFileSelectionChooser fileChooser = PluginComponentFactory
-							.chooseFileForReading(obSourcePlugin
-									.getDisplayName());
+					// Request a file or URL from the user.
+					AdditiveLoadFileOrUrlChooser fileChooser = PluginComponentFactory
+							.chooseFileForReading(
+									obSourcePlugin.getDisplayName(),
+									obSourcePlugin
+											.getAdditionalFileExtensions(),
+									obSourcePlugin.getInputType() == InputType.FILE_OR_URL);
 					if (fileChooser != null) {
-						File file = fileChooser.getSelectedFile();
+						// If a file was chosen or a URL obtained, use as input. 
 						isAdditive = fileChooser.isLoadAdditive();
-						streams.add(new FileInputStream(file));
-						obSourcePlugin.setInputInfo(streams, file.getName());
+
+						if (fileChooser.isUrlProvided()) {
+							String urlStr = fileChooser.getUrlString();
+							URL url = new URL(urlStr);
+							streams.add(url.openStream());
+							obSourcePlugin.setInputInfo(streams, urlStr);
+						} else {
+							File file = fileChooser.getSelectedFile();
+							streams.add(new FileInputStream(file));
+							obSourcePlugin
+									.setInputInfo(streams, file.getName());
+						}
 					} else {
 						throw new CancellationException();
 					}
@@ -155,7 +166,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				break;
 
 			case URL:
-				// If the plugin specifies a username and password, create and
+				// If the plug-in specifies a username and password, create and
 				// set an authenticator.
 				String userName = obSourcePlugin.getUsername();
 				String password = obSourcePlugin.getPassword();
@@ -176,11 +187,16 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 					urlStrs = urlStrs.substring(0, urlStrs.lastIndexOf(", "));
 					obSourcePlugin.setInputInfo(streams, urlStrs);
 				} else {
-					// TODO: use a custom dialog based upon TextDialog class
-					// that includes a isLoadAdditive() method
-					String urlStr = JOptionPane
-							.showInputDialog("Enter Observation Source URL");
-					if (urlStr != null && urlStr.trim().length() != 0) {
+					// Request a URL from the user.
+					TextField urlField = new TextField("URL");
+					Checkbox additiveLoadCheckbox = new Checkbox(
+							"Add to current?", false);
+					MultiEntryComponentDialog urlDialog = new MultiEntryComponentDialog(
+							"Enter URL", urlField, additiveLoadCheckbox);
+					if (!urlDialog.isCancelled()
+							&& !urlField.getValue().matches("^\\s*$")) {
+						String urlStr = urlField.getValue();
+						isAdditive = additiveLoadCheckbox.getValue();
 						URL url = new URL(urlStr);
 						streams.add(url.openStream());
 						obSourcePlugin.setInputInfo(streams, urlStr);
