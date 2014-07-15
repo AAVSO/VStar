@@ -21,6 +21,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import org.aavso.tools.vstar.util.model.Harmonic;
 /**
  * This dialog gathers the harmonics to be used as input to model creation.
  */
+@SuppressWarnings("serial")
 public class HarmonicInputDialog extends AbstractOkCancelDialog {
 
 	private Map<Double, List<Harmonic>> freqToHarmonics;
@@ -112,12 +114,13 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 		int maxHarmonics = 12; // TODO: make this a preference
 
 		// If there are less harmonics for the frequency than the default, use
-		// this. Allowing this to have no reasonable bound just doesn't make sense
+		// this. Allowing this to have no reasonable bound just doesn't make
+		// sense
 		// from a computational feasibility viewpoint anyway.
-//		if (freqToHarmonics.containsKey(freq)
-//				&& freqToHarmonics.get(freq).size() < maxHarmonics) {
-//			maxHarmonics = freqToHarmonics.get(freq).size();
-//		}
+		// if (freqToHarmonics.containsKey(freq)
+		// && freqToHarmonics.get(freq).size() < maxHarmonics) {
+		// maxHarmonics = freqToHarmonics.get(freq).size();
+		// }
 
 		return maxHarmonics;
 	}
@@ -131,7 +134,12 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 	 */
 	public List<Harmonic> getHarmonics() {
 		for (HarmonicPeriodPane pane : harmonicPeriodPanes) {
-			harmonicsPerSelectedPeriod.addAll(pane.getHarmonicListForPeriod());
+			List<Harmonic> harmonicsForPeriod = pane.getHarmonicListForPeriod();
+			if (!harmonicsForPeriod.isEmpty()) {
+				harmonicsPerSelectedPeriod.addAll(harmonicsForPeriod);
+			} else {
+				return Collections.EMPTY_LIST;
+			}
 		}
 
 		return harmonicsPerSelectedPeriod;

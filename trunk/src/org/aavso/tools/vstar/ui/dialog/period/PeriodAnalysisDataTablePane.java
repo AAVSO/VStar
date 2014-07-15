@@ -146,7 +146,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 	// Model button listener.
 	protected ActionListener createModelButtonHandler() {
 		final JPanel parent = this;
-		
+
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				List<Double> userSelectedFreqs = new ArrayList<Double>();
@@ -174,6 +174,9 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 							MessageBox.showErrorDialog(parent, "Modelling", ex
 									.getLocalizedMessage());
 						}
+					} else {
+						MessageBox.showErrorDialog("Create Model",
+								"Period list error");
 					}
 				}
 			}
