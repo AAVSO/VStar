@@ -244,7 +244,7 @@ public class DocumentManager {
 
 	// Returns ANOVA result text suitable for display.
 	// TODO: could move this to stats utils package.
-	private String createAnovaText(BinningResult binningResult) {
+	public String createAnovaText(BinningResult binningResult) {
 		String msg = null;
 
 		// Example: F-value: 18.22 on 12 and 346 degrees of freedom p-value: <
