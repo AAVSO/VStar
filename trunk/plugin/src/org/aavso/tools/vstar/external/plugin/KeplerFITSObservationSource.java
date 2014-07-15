@@ -1,5 +1,3 @@
-package org.aavso.tools.vstar.external.plugin;
-
 /**
  * VStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
@@ -17,8 +15,11 @@ package org.aavso.tools.vstar.external.plugin;
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
+package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import nom.tam.fits.BasicHDU;
@@ -79,11 +80,6 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 	}
 
 	@Override
-	public AbstractObservationRetriever getObservationRetriever() {
-		return new KeplerFITSObservationRetriever();
-	}
-
-	@Override
 	public String getDescription() {
 		String str = "Kepler FITS file v2.0 observation source";
 
@@ -103,6 +99,18 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 		}
 
 		return str;
+	}
+
+	@Override
+	public List<String> getAdditionalFileExtensions() {
+		List<String> extensions = new ArrayList<String>();
+		extensions.add(".fits");
+		return extensions;
+	}
+
+	@Override
+	public AbstractObservationRetriever getObservationRetriever() {
+		return new KeplerFITSObservationRetriever();
 	}
 
 	class KeplerFITSObservationRetriever extends AbstractObservationRetriever {
