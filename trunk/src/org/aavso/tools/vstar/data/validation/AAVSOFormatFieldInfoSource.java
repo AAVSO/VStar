@@ -48,12 +48,14 @@ public class AAVSOFormatFieldInfoSource implements IFieldInfoSource {
 	private static final int KMAG_FIELD = 15;
 	private static final int HJD_FIELD = 16;
 	private static final int NAME_FIELD = 17;
-	// These last 3 won't be present in older AAVSO download format files.
+	// These last 5 won't be present in older AAVSO download format files.
 	private static final int AFFILIATION_FIELD = 18;
 	private static final int MTYPE_FIELD = 19;
 	private static final int GROUP_FIELD = 20;
-	
-	public static final int FIELD_COUNT = GROUP_FIELD + 1;
+	private static final int ADS_REFERENCE = 21;
+	private static final int DIGITIZER = 22;
+
+	public static final int FIELD_COUNT = DIGITIZER + 1;
 
 	private Map<String, Integer> fieldIndexMap;
 
@@ -83,6 +85,8 @@ public class AAVSOFormatFieldInfoSource implements IFieldInfoSource {
 		this.fieldIndexMap.put("AFFILIATION_FIELD", AFFILIATION_FIELD);
 		this.fieldIndexMap.put("MTYPE_FIELD", MTYPE_FIELD);
 		this.fieldIndexMap.put("GROUP_FIELD", GROUP_FIELD);
+		this.fieldIndexMap.put("ADS_REFERENCE", ADS_REFERENCE);
+		this.fieldIndexMap.put("DIGITIZER", DIGITIZER);
 	}
 
 	/**

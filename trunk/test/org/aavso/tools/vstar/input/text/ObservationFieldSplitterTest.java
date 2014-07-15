@@ -17,10 +17,14 @@
  */
 package org.aavso.tools.vstar.input.text;
 
+import java.io.IOException;
+import java.io.StringReader;
+
 import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.exception.ObservationValidationError;
-import org.aavso.tools.vstar.input.text.ObservationFieldSplitter;
+
+import com.csvreader.CsvReader;
 
 /**
  * Unit test for ObservationFieldSplitter class.
@@ -32,53 +36,100 @@ public class ObservationFieldSplitterTest extends TestCase {
 
 	// Valid
 
-	public void testRightNumberOfFields2To5() {
+	public void testRightNumberOfFields2To5() throws IOException {
 		String line = "2450001.5\t10.0\n";
 
 		try {
+			CsvReader reader = new CsvReader(new StringReader(line));
+			reader.setDelimiter('\t');
+			assertTrue(reader.readRecord());
 			ObservationFieldSplitter splitter = new ObservationFieldSplitter(
-					"\t", 2, 5);
-			String[] fields = splitter.getFields(line);
+					reader, 2, 5);
+			String[] fields = splitter.getFields();
+			assertEquals(5, fields.length);
+
+		} catch (ObservationValidationError e) {
+			fail();
+		}
+	}
+
+	public void testRightNumberOfFields5() throws IOException {
+		String line = "2450001.5\t10.0\n";
+
+		try {
+			CsvReader reader = new CsvReader(new StringReader(line));
+			reader.setDelimiter('\t');
+			assertTrue(reader.readRecord());
+			ObservationFieldSplitter splitter = new ObservationFieldSplitter(
+					reader, 2, 5);
+			String[] fields = splitter.getFields();
 			assertEquals(5, fields.length);
 		} catch (ObservationValidationError e) {
 			fail();
 		}
 	}
 
-	public void testRightNumberOfFields5() {
-		String line = "2450001.5\t10.0\n";
-
-		try {
-			ObservationFieldSplitter splitter = new ObservationFieldSplitter(
-					"\t", 2, 5);
-			String[] fields = splitter.getFields(line);
-			assertEquals(5, fields.length);
-		} catch (ObservationValidationError e) {
-			fail();
-		}
-	}
-
-	public void testRightNumberOfFields5AllPresent() {
+	public void testRightNumberOfFields5AllPresent() throws IOException {
 		String line = "2450001.5\t10.0\t0.1\tDJB\tD\n";
 
 		try {
+			CsvReader reader = new CsvReader(new StringReader(line));
+			reader.setDelimiter('\t');
+			assertTrue(reader.readRecord());
 			ObservationFieldSplitter splitter = new ObservationFieldSplitter(
-					"\t", 5, 5);
-			String[] fields = splitter.getFields(line);
+					reader, 5, 5);
+			String[] fields = splitter.getFields();
 			assertEquals(5, fields.length);
 		} catch (ObservationValidationError e) {
 			fail();
 		}
 	}
 
-	public void testRightNumberOfFields5NoObsCode() {
+	public void testRightNumberOfFields5NoObsCode() throws IOException {
 		String line = "2450001.5\t10.0\t0.1\t\tD\n";
 
 		try {
+			CsvReader reader = new CsvReader(new StringReader(line));
+			reader.setDelimiter('\t');
+			assertTrue(reader.readRecord());
 			ObservationFieldSplitter splitter = new ObservationFieldSplitter(
-					"\t", 5, 5);
-			String[] fields = splitter.getFields(line);
+					reader, 5, 5);
+			String[] fields = splitter.getFields();
 			assertEquals(5, fields.length);
+		} catch (ObservationValidationError e) {
+			fail();
+		}
+	}
+
+	public void testTabDelimitedFieldsWithSingleQuotedField()
+			throws IOException {
+		String line = "2456362.04142\t8.2\t\t\tVis.\tBDJB\tBU\t82\t76\t10 star\t\"\"\"8\\\"\" SCT, 24.5mm eyepiece\"\"\"\t\t\tZ\t\t\t\tR CAR\t\tSTD\t\t\t";
+
+		try {
+			CsvReader reader = new CsvReader(new StringReader(line));
+			reader.setDelimiter('\t');
+			assertTrue(reader.readRecord());
+			ObservationFieldSplitter splitter = new ObservationFieldSplitter(
+					reader, 23, 23);
+			String[] fields = splitter.getFields();
+			assertEquals(23, fields.length);
+		} catch (ObservationValidationError e) {
+			fail();
+		}
+	}
+
+	public void testCommaDelimitedFieldsWithSingleQuotedField()
+			throws IOException {
+		String line = "2456362.04142,8.2,,,Vis.,BDJB,BU,82,76,10 star,\"\"\"8\\\"\" SCT, 24.5mm eyepiece\"\"\",,,Z,,,,R CAR,,STD,,,";
+
+		try {
+			CsvReader reader = new CsvReader(new StringReader(line));
+			reader.setDelimiter(',');
+			assertTrue(reader.readRecord());
+			ObservationFieldSplitter splitter = new ObservationFieldSplitter(
+					reader, 23, 23);
+			String[] fields = splitter.getFields();
+			assertEquals(23, fields.length);
 		} catch (ObservationValidationError e) {
 			fail();
 		}
@@ -86,13 +137,16 @@ public class ObservationFieldSplitterTest extends TestCase {
 
 	// Invalid
 
-	public void testTooManyFields() {
+	public void testTooManyFields() throws IOException {
 		String line = "2450001.5\t10.0\t0.1\tXYZ\tD\t42\n";
 
 		try {
+			CsvReader reader = new CsvReader(new StringReader(line));
+			reader.setDelimiter('\t');
+			assertTrue(reader.readRecord());
 			ObservationFieldSplitter splitter = new ObservationFieldSplitter(
-					"\t", 5, 5);
-			splitter.getFields(line);
+					reader, 5, 5);
+			splitter.getFields();
 			fail();
 		} catch (ObservationValidationError e) {
 			// We should get to here.

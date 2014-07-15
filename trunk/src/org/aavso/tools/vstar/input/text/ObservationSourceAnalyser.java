@@ -26,6 +26,8 @@ import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 
+import com.csvreader.CsvReader;
+
 /**
  * This class analyses an observation file (simple or download formats) and
  * makes information about the file available for use by consumers.
@@ -155,9 +157,15 @@ public class ObservationSourceAnalyser {
 	 * creating observation objects from a sequence of lines containing comma or
 	 * tab delimited fields (CSV, TSV).
 	 * 
+	 * @param obsSource
+	 *            The observation source to be analysed. Passing this in here
+	 *            allows us to ensure we pass in an observation source that is
+	 *            reset to the start, not the case for the one passed into the
+	 *            constructor after analyse() has been invoked.
 	 * @return The validator object corresponding to this "new star" type.
 	 */
-	public CommonTextFormatValidator getTextFormatValidator() {
+	public CommonTextFormatValidator getTextFormatValidator(
+			LineNumberReader obsSource) throws IOException {
 
 		assert (ObservationSourceAnalyser.TAB_DELIM.equals(delimiter)
 				|| ObservationSourceAnalyser.COMMA_DELIM.equals(delimiter) || ObservationSourceAnalyser.SPACE_DELIM
@@ -165,14 +173,17 @@ public class ObservationSourceAnalyser {
 
 		CommonTextFormatValidator validator = null;
 
+		CsvReader lineReader = new CsvReader(obsSource);
+		lineReader.setDelimiter(delimiter.charAt(0));
+
 		if (NewStarType.NEW_STAR_FROM_SIMPLE_FILE.equals(newStarType)) {
-			validator = new SimpleTextFormatValidator(delimiter, newStarType
+			validator = new SimpleTextFormatValidator(lineReader, newStarType
 					.getMinFields(), newStarType.getMaxFields(), newStarType
 					.getFieldInfoSource());
 		} else if (NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE.equals(newStarType)) {
-			validator = new AAVSODownloadFormatValidator(delimiter, newStarType
-					.getMinFields(), newStarType.getMaxFields(), newStarType
-					.getFieldInfoSource());
+			validator = new AAVSODownloadFormatValidator(lineReader,
+					newStarType.getMinFields(), newStarType.getMaxFields(),
+					newStarType.getFieldInfoSource());
 		}
 
 		assert (validator != null);

@@ -17,7 +17,13 @@
  */
 package org.aavso.tools.vstar.input.text;
 
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.aavso.tools.vstar.exception.ObservationValidationError;
+
+import com.csvreader.CsvReader;
 
 /**
  * This class splits an observation line given a delimiter. If the result of the
@@ -26,48 +32,45 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
  */
 public class ObservationFieldSplitter {
 
-	private final String delimiter;
+	private final static Pattern quoted = Pattern.compile("^\"(.+)\"$");
+
 	private final int minFields;
 	private final int maxFields;
+	private CsvReader lineReader;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param delimiter
-	 *            The delimiter to use to split the fields.
+	 * @param lineReader
+	 *            The CsvReader that will be used to return fields, created with
+	 *            the appropriate delimiter and data source.
 	 * @param minFields
 	 *            The minimum allowed number of fields to be returned.
 	 * @param maxFields
 	 *            The maximum allowed number of fields to be returned.
 	 */
-	public ObservationFieldSplitter(String delimiter, int minFields,
+	public ObservationFieldSplitter(CsvReader lineReader, int minFields,
 			int maxFields) {
-		this.delimiter = delimiter;
+		this.lineReader = lineReader;
 		this.minFields = minFields;
 		this.maxFields = maxFields;
 	}
 
 	/**
-	 * Given a line, return the required number of fields, appending with nulls
-	 * if too few fields are present in the line.
+	 * Return the required number of fields for the next line, appending with
+	 * nulls if too few fields are present in the line.
 	 * 
-	 * @param line
-	 *            The line to be split.
-	 * @return The fields in the line.
+	 * @return The fields in the next line.
+	 * @throws IOException
+	 *             if there is an error reading the line.
 	 * @throws ObservationValidationError
 	 *             If the number of fields does not fall into the required
 	 *             range.
 	 * @postcondition: The returned field array's length must be maxFields to
 	 *                 simplify validation.
 	 */
-	public String[] getFields(String line) throws ObservationValidationError {
-		// Get the fields after removing possible line-feed or carriage return
-		// characters and trimming leading and trailing whitespace (e.g. as
-		// sometimes appears in AAVSO TS whitespace delimited data files).
-		line = line.replaceFirst("\n", "");
-		line = line.replaceFirst("\r", "");
-		line = line.trim();
-		String[] fields = line.split(this.delimiter);
+	public String[] getFields() throws IOException, ObservationValidationError {
+		String[] fields = lineReader.getValues();
 
 		if (fields.length < this.minFields || fields.length > this.maxFields) {
 			StringBuffer strBuf = new StringBuffer();
@@ -82,6 +85,15 @@ public class ObservationFieldSplitter {
 			throw new ObservationValidationError(strBuf.toString());
 		}
 
+		// Remove leading and trailing quotes from quoted fields.
+		for (int i = 0; i < fields.length; i++) {
+			Matcher matcher = quoted.matcher(fields[i]);
+			if (matcher.matches()) {
+				fields[i] = matcher.group(1);
+			}
+		}
+
+		// TODO: or convert trailing (or all?) "" files to nulls?
 		if (fields.length < this.maxFields) {
 			int howManyMoreRequired = maxFields - fields.length;
 			int total = fields.length + howManyMoreRequired;
@@ -92,13 +104,6 @@ public class ObservationFieldSplitter {
 				moreFields[i] = fields[i];
 			}
 			fields = moreFields;
-		}
-
-		// Remove trailing and leading whitespace from each field.
-		for (int i = 0; i < fields.length; i++) {
-			if (fields[i] != null) {
-				fields[i] = fields[i].trim();
-			}
 		}
 
 		return fields;
