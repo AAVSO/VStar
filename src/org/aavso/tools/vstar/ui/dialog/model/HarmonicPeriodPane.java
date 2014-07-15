@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.dialog.model;
 
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Box;
@@ -27,6 +28,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -35,10 +37,9 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * the number of harmonics (e.g. to be found and tested in some algorithm such
  * as CLEANest) for that period.
  */
+@SuppressWarnings("serial")
 public class HarmonicPeriodPane extends JPanel {
 
-	private double frequency;
-	private double period;
 	private int defaultNumHarmonics;
 
 	private JTextField periodField;
@@ -56,15 +57,16 @@ public class HarmonicPeriodPane extends JPanel {
 	 */
 	public HarmonicPeriodPane(double frequency, int numHarmonics,
 			int defaultNumHarmonics) {
-		this.frequency = frequency;
-		period = 1.0 / frequency;
+
+		double period = 1.0 / frequency;
+
 		this.defaultNumHarmonics = defaultNumHarmonics;
 
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
 		periodField = new JTextField(String.format(NumericPrecisionPrefs
 				.getOtherOutputFormat(), period));
-		periodField.setEditable(false);
+		periodField.setEditable(true);
 		periodField.setToolTipText(String.format("frequency="
 				+ NumericPrecisionPrefs.getOtherDecimalPlaces(), frequency));
 		add(periodField);
@@ -73,23 +75,37 @@ public class HarmonicPeriodPane extends JPanel {
 
 		String[] harmonicNumbers = new String[numHarmonics];
 		for (int i = 0; i < numHarmonics; i++) {
-			harmonicNumbers[i] = i+1 + "";
+			harmonicNumbers[i] = i + 1 + "";
 		}
 		harmonicSelector = new JComboBox(harmonicNumbers);
 		add(harmonicSelector);
 	}
 
 	/**
+	 * Return the frequency or null if the field text is malformed.
+	 * 
 	 * @return the frequency
 	 */
-	public double getFrequency() {
-		return frequency;
+	public Double getFrequency() {
+		Double period = getPeriod();
+		return period != null ? 1.0 / period : null;
 	}
 
 	/**
+	 * Return the period or null if the field text is malformed.
+	 * 
 	 * @return the period
 	 */
-	public double getPeriod() {
+	public Double getPeriod() {
+		String periodText = periodField.getText();
+		Double period = null;
+
+		try {
+			period = NumberParser.parseDouble(periodText);
+		} catch (NumberFormatException e) {
+			// Nothing to do; return null.
+		}
+
 		return period;
 	}
 
@@ -107,24 +123,30 @@ public class HarmonicPeriodPane extends JPanel {
 	 * selection.
 	 * 
 	 * @return A harmonic object corresponding to the frequency and harmonic
-	 *         count selection.
+	 *         count selection, or null if the frequency is null.
 	 */
 	public Harmonic getHarmonic() {
-		return new Harmonic(frequency, getNumberOfHarmonics());
+		Double frequency = getFrequency();
+		return frequency != null ? new Harmonic(frequency,
+				getNumberOfHarmonics()) : null;
 	}
 
 	/**
 	 * A list of Harmonic objects, each representing a frequency and harmonic
 	 * number (up to user selection) with respect to some fundamental frequency.
 	 * 
-	 * @return A list of Harmonic objects.
+	 * @return A list of Harmonic objects or null if any frequency is null.
 	 */
 	public List<Harmonic> getHarmonicListForPeriod() {
 		List<Harmonic> harmonics = new ArrayList<Harmonic>();
-		for (int i=1;i<=getNumberOfHarmonics();i++) {
-			harmonics.add(new Harmonic(frequency*i, i));
+		for (int i = 1; i <= getNumberOfHarmonics(); i++) {
+			Double frequency = getFrequency();
+			if (frequency == null) {
+				return Collections.EMPTY_LIST;
+			}
+			harmonics.add(new Harmonic(frequency * i, i));
 		}
-		
+
 		return harmonics;
 	}
 }
