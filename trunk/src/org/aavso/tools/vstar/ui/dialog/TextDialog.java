@@ -20,12 +20,14 @@ package org.aavso.tools.vstar.ui.dialog;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 /**
  * This class implements a dialog to obtain one or more string values from text
@@ -42,7 +44,7 @@ public class TextDialog extends AbstractOkCancelDialog {
 	 * @param title
 	 *            The title to be used for the dialog.
 	 * @param fields
-	 *            A list of fields.
+	 *            A list of text fields.
 	 */
 	public TextDialog(String title, List<ITextComponent<String>> fields) {
 		super(title);
@@ -65,13 +67,25 @@ public class TextDialog extends AbstractOkCancelDialog {
 		// OK, Cancel
 		topPane.add(createButtonPane());
 
-		contentPane.add(topPane);
+		contentPane.add(new JScrollPane(topPane));
 
 		this.pack();
 		
 		showDialog();
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param title
+	 *            The title to be used for the dialog.
+	 * @param fields
+	 *            A variable number of text fields.
+	 */
+	public TextDialog(String title, ITextComponent<String> ... fields) {
+		this(title, Arrays.asList(fields));
+	}
+	
 	/**
 	 * Get a list of strings from the text fields.
 	 * 
