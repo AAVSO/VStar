@@ -78,7 +78,6 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createCommentsPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		topPane.add(createUserIdPane());
 
 		// OK, Cancel
 		topPane.add(createButtonPane());
@@ -138,18 +137,6 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 		commentsField
 				.setToolTipText("Enter comments to be included in discrepant report.");
 		panel.add(commentsField);
-
-		return panel;
-	}
-
-	private JPanel createUserIdPane() {
-		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder("Identification"));
-
-		userIdField = new JTextField(20);
-		userIdField
-				.setToolTipText("Enter your observer code or name to be included in discrepant report.");
-		panel.add(userIdField);
 
 		return panel;
 	}

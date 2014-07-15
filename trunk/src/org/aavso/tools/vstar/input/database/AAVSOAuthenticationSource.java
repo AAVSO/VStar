@@ -29,7 +29,6 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
 /**
  * This class authenticates with respect to an AAVSO source.
- * @deprecated @see AAVSOPostAuthenticationSource
  */
 public class AAVSOAuthenticationSource implements IAuthenticationSource {
 
@@ -83,6 +82,14 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 		return authenticated;
 	}
 
+	/**
+	 * @param authenticated
+	 *            the authenticated to set
+	 */
+	public void setAuthenticated(boolean authenticated) {
+		this.authenticated = authenticated;
+	}
+
 	@Override
 	public LoginType getLoginType() {
 		return LoginType.AAVSO;
@@ -92,12 +99,12 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 	 * Retrieve user information such as observer code given the user name, if
 	 * we are authenticated, otherwise return null.
 	 */
-	private void retrieveUserInfo(String username) {
+	public void retrieveUserInfo(String userID) {
 		if (authenticated) {
 			try {
 				PreparedStatement userInfoStmt = createObserverCodeQuery(memberConnector
 						.getConnection());
-				userInfoStmt.setString(1, username);
+				userInfoStmt.setString(1, userID);
 				ResultSet userInfoResults = userInfoStmt.executeQuery();
 
 				if (userInfoResults.next()) {
@@ -115,9 +122,9 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 					}
 				}
 			} catch (SQLException e) {
-				// Nothing to do: just return null.
+				// Nothing to do; no member info set
 			} catch (ConnectionException e) {
-				// Nothing to do: just return null.
+				// Nothing to do; no member info set
 			}
 		}
 	}
@@ -159,19 +166,11 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 		if (obsCodeStmt == null) {
 			String member = ResourceAccessor.getParam(DatabaseType.MEMBER
 					.getDBNum());
-			String live = ResourceAccessor.getParam(DatabaseType.AAVSO_USER
-					.getDBNum());
 
 			obsCodeStmt = connection
 					.prepareStatement("SELECT obscode, member_benefits "
-							+ "from "
-							+ member
-							+ ".view_member_info WHERE id = (SELECT value from "
-							+ live
-							+ ".users as u, "
-							+ live
-							+ ".profile_values as v "
-							+ "WHERE v.uid = u.uid and v.fid = 19 and u.name = ?);");
+							+ "from " + member
+							+ ".view_member_info WHERE id = ?");
 		}
 
 		return obsCodeStmt;

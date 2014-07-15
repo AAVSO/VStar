@@ -39,6 +39,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.plugin.IPlugin;
@@ -48,7 +52,7 @@ import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.scripting.ScriptRunner;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
-import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileSelectionChooser;
+import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser;
 import org.aavso.tools.vstar.ui.dialog.InfoDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
@@ -159,7 +163,7 @@ public class MenuBar extends JMenuBar {
 
 	private Mediator mediator = Mediator.getInstance();
 
-	private AdditiveLoadFileSelectionChooser fileOpenDialog;
+	private AdditiveLoadFileOrUrlChooser fileOpenDialog;
 
 	// Plug-in menu name to plug-in object maps.
 	private Map<String, ObservationSourcePluginBase> menuItemNameToObSourcePlugin;
@@ -246,7 +250,7 @@ public class MenuBar extends JMenuBar {
 		this.parent = parent;
 		this.uiType = uiType;
 
-		this.fileOpenDialog = new AdditiveLoadFileSelectionChooser();
+		this.fileOpenDialog = new AdditiveLoadFileOrUrlChooser(false);
 
 		createFileMenu();
 		createEditMenu();
@@ -710,7 +714,9 @@ public class MenuBar extends JMenuBar {
 	 * file.
 	 */
 	public ActionListener createNewStarFromFileListener() {
-		final AdditiveLoadFileSelectionChooser fileOpenDialog = this.fileOpenDialog;
+		final AdditiveLoadFileOrUrlChooser fileOpenDialog = this.fileOpenDialog;
+		fileOpenDialog.reset();
+		
 		final IMainUI parent = this.parent;
 
 		return new ActionListener() {
@@ -1166,22 +1172,22 @@ public class MenuBar extends JMenuBar {
 						manager, "Initialising Plug-in Manager") {
 					@Override
 					public void execute() {
-//						try {
-//							Authenticator.getInstance().authenticate();
+						try {
+							Authenticator.getInstance().authenticate();
 							Mediator.getUI().getStatusPane().setMessage(
 									"Initialising Plug-in Manager...");
 							manager.init();
-							Mediator.getUI().getStatusPane().setMessage("");
 							new PluginManagementDialog(manager);
-//						} catch (ConnectionException ex) {
-//							MessageBox.showErrorDialog(
-//									"Authentication Source Error", ex);
-//						} catch (AuthenticationError ex) {
-//							MessageBox.showErrorDialog("Authentication Error",
-//									ex);
-//						} catch (CancellationException e) {
+							Mediator.getUI().getStatusPane().setMessage("");
+						} catch (ConnectionException ex) {
+							MessageBox.showErrorDialog(
+									"Authentication Source Error", ex);
+						} catch (AuthenticationError ex) {
+							MessageBox.showErrorDialog("Authentication Error",
+									ex);
+						} catch (CancellationException e) {
 							// Nothing to do.
-//						}
+						}
 					}
 				};
 				mediator.performPluginManagerOperation(op);
