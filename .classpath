@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="extlib/mysql-connector-java-5.1.10-bin.jar"/>
 	<classpathentry kind="lib" path="extlib/nico-camargo-toolbar-icons-4.0.jar"/>
 	<classpathentry kind="lib" path="extlib/commons-math-2.2.jar"/>
+	<classpathentry kind="lib" path="extlib/javacsv.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
