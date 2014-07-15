@@ -74,6 +74,13 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 	}
 
 	@Override
+	public List<String> getAdditionalFileExtensions() {
+		List<String> extensions = new ArrayList<String>();
+		extensions.add(".fits");
+		return extensions;
+	}
+
+	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
 		return new FITSObservationRetriever();
 	}
