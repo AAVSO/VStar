@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.mediator;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.print.PrinterException;
 import java.io.File;
@@ -43,7 +44,11 @@ import javax.swing.JTable.PrintMode;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
@@ -111,6 +116,7 @@ import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
 import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
+import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.ui.task.ModellingTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromDatabaseTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromFileTask;
@@ -248,6 +254,7 @@ public class Mediator {
 
 	// Singleton fields, constructor, getter.
 
+	// TODO: create this in static getter!
 	private static Mediator mediator = new Mediator();
 
 	/**
@@ -391,6 +398,13 @@ public class Mediator {
 	 */
 	public List<NewStarMessage> getNewStarMessageList() {
 		return newStarMessageList;
+	}
+
+	/**
+	 * @return the modelSelectionMessage
+	 */
+	public ModelSelectionMessage getModelSelectionMessage() {
+		return modelSelectionMessage;
 	}
 
 	/**
@@ -2233,18 +2247,13 @@ public class Mediator {
 
 			if (!reportDialog.isCancelled()) {
 				try {
-					// TODO: re-enable next 3 lines...
+					 Mediator.getUI().setCursor(
+					 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-					// Mediator.getUI().setCursor(
-					// Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					 Authenticator.getInstance().authenticate();
 
-					// Authenticator.getInstance().authenticate();
-
-					// String userName = ResourceAccessor.getLoginInfo()
-					// .getUserName();
-
-					// TODO: remove next line...
-					String userName = reportDialog.getUserId();
+					 String userName = ResourceAccessor.getLoginInfo()
+					 .getUserName();
 
 					String editor = "vstar:" + userName;
 
@@ -2265,21 +2274,18 @@ public class Mediator {
 					if (dialog != null) {
 						dialog.dispose();
 					}
-
-					// TODO: re-enable catch lines...
-
-					// } catch (CancellationException ex) {
-					// // Nothing to do; dialog cancelled.
-					// } catch (ConnectionException ex) {
-					// MessageBox.showErrorDialog("Authentication Source Error",
-					// ex);
-					// } catch (AuthenticationError ex) {
-					// MessageBox.showErrorDialog("Authentication Error", ex);
+				} catch (CancellationException ex) {
+					// Nothing to do; dialog cancelled.
+				} catch (ConnectionException ex) {
+					MessageBox.showErrorDialog("Authentication Source Error",
+							ex);
+				} catch (AuthenticationError ex) {
+					MessageBox.showErrorDialog("Authentication Error", ex);
 				} catch (Exception ex) {
 					MessageBox.showErrorDialog("Discrepant Reporting Error", ex
 							.getLocalizedMessage());
-					// } finally {
-					// Mediator.getUI().setCursor(null);
+					 } finally {
+					 Mediator.getUI().setCursor(null);
 				}
 			}
 		}
