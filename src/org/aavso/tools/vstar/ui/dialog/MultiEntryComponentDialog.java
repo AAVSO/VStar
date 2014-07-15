@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -44,10 +45,8 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	 * 
 	 * @param title
 	 *            Title for the dialog.
-	 * @param textFields
-	 *            The list of text fields.
-	 * @param numberFields
-	 *            The list of number fields.
+	 * @param fields
+	 *            The list of fields.
 	 */
 	public MultiEntryComponentDialog(String title,
 			List<ITextComponent<?>> fields) {
@@ -72,6 +71,19 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 		this.setVisible(true);
 	}
 
+	/**
+	 * Constructor
+	 * 
+	 * @param title
+	 *            Title for the dialog.
+	 * @param fields
+	 *            The variable list of text fields.
+	 */
+	public MultiEntryComponentDialog(String title,
+			ITextComponent<?> ... fields) {
+		this(title, Arrays.asList(fields));
+	}
+	
 	// Add the fields.
 	private JPanel createParameterPane() {
 		JPanel panel = new JPanel();
