@@ -43,7 +43,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 
 	protected List<InputStream> inputStreams;
 	protected String inputName;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -63,7 +63,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	protected ObservationSourcePluginBase() {
 		this(null, null);
 	}
-	
+
 	/**
 	 * <p>
 	 * Get an observation retriever for this plug-in.
@@ -119,6 +119,16 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	public void setInputInfo(List<InputStream> inputStreams, String inputName) {
 		this.inputStreams = inputStreams;
 		this.inputName = inputName;
+	}
+
+	/**
+	 * Return a list of file extension strings to be added to the default file
+	 * extensions in the file chooser, or null if none are to be added (the default).
+	 * 
+	 * @return The list of file extension strings to be added to the file chooser.
+	 */
+	public List<String> getAdditionalFileExtensions() {
+		return null;
 	}
 
 	/**
@@ -181,14 +191,14 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	public String getUsername() {
 		return userName;
 	}
-	
+
 	/**
 	 * @return the password, e.g. for a URL based source; may be null
 	 */
 	public String getPassword() {
 		return password;
 	}
-	
+
 	/**
 	 * If a non-null value is return by this method, once all observations are
 	 * loaded, a series visibility change message will be sent to ensure that
@@ -199,7 +209,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	public Set<SeriesType> getVisibleSeriesTypes() {
 		return null;
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
 	 */

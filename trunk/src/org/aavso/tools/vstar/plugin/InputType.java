@@ -23,5 +23,6 @@ package org.aavso.tools.vstar.plugin;
 public enum InputType {
 	FILE,
 	URL,
+	FILE_OR_URL,
 	NONE
 }
