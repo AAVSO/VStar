@@ -76,7 +76,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public InputType getInputType() {
-		return InputType.FILE;
+		return InputType.FILE_OR_URL;
 	}
 
 	@Override
