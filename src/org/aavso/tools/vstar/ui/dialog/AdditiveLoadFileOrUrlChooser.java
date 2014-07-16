@@ -113,8 +113,7 @@ public class AdditiveLoadFileOrUrlChooser {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				urlField = new TextField("URL");
-				TextDialog urlDialog = new TextDialog(
-						"Enter URL", urlField);
+				TextDialog urlDialog = new TextDialog("Enter URL", urlField);
 				if (!urlDialog.isCancelled()
 						&& !urlField.getValue().matches("^\\s*$")) {
 					urlProvided = true;

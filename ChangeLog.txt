@@ -35,6 +35,28 @@ Release History
 ===============
   
 --------------------
+Date: July 17 2014
+Version: 2.16.2
+Tag: DEV-AAVSO-17Jul2014
+Key Changes:
+- Re-implemented authorization (using Will's new API) for member plug-ins,
+  discrepant reporting, plug-in manager.
+- Added support for additional file extensions in observation source 
+  plug-ins.
+- Added support for file-or-URL input method for observation source plug-ins
+  and converted ASAS, Kepler, and Catalina Sky Survey plug-ins to use this. 
+- Fixed ticket 151: Fields containing commas in CSV Download format files.
+- Made DCDFT harmonic dialog period fields editable so user can modify them
+  if so desired, e.g. to try doubling/halving a period. Thanks to Mark 
+  Blackford for the suggestion.
+- Observers-by-series plug-in by Paul York, an enthusiastic May/June 
+  VStar CHOICE course participant.
+- Changed Period-Luminosity Relationship Distance calculator to refer to 
+  Leavitt's Law as per George Sjšberg's suggestion during the May/June CHOICE
+  course. I also recall seeing this suggestion on an AAVSO forum and, like so 
+  many others, admire the work of Henrietta Swan Leavitt.
+- Various internal utility code enhancements.
+
 Date: June 26 2014
 Version: 2.16.1
 Tag: DEV-AAVSO-26Jun2014
