@@ -145,7 +145,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 											.getAdditionalFileExtensions(),
 									obSourcePlugin.getInputType() == InputType.FILE_OR_URL);
 					if (fileChooser != null) {
-						// If a file was chosen or a URL obtained, use as input. 
+						// If a file was chosen or a URL obtained, use as input.
 						isAdditive = fileChooser.isLoadAdditive();
 
 						if (fileChooser.isUrlProvided()) {
