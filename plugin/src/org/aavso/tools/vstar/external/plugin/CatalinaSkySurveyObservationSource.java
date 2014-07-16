@@ -76,7 +76,7 @@ public class CatalinaSkySurveyObservationSource extends
 	 */
 	@Override
 	public InputType getInputType() {
-		return InputType.FILE;
+		return InputType.FILE_OR_URL;
 	}
 
 	/**
