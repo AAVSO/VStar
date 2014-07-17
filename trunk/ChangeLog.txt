@@ -49,13 +49,17 @@ Key Changes:
 - Made DCDFT harmonic dialog period fields editable so user can modify them
   if so desired, e.g. to try doubling/halving a period. Thanks to Mark 
   Blackford for the suggestion.
-- Observers-by-series plug-in by Paul York, an enthusiastic May/June 
-  VStar CHOICE course participant.
+- Observers-by-series plug-in by Paul York, a May/June VStar CHOICE course
+  participant, now trying his hand at plug-in development. Thanks Paul.
 - Changed Period-Luminosity Relationship Distance calculator to refer to 
   Leavitt's Law as per George Sjšberg's suggestion during the May/June CHOICE
   course. I also recall seeing this suggestion on an AAVSO forum and, like so 
   many others, admire the work of Henrietta Swan Leavitt.
-- Various internal utility code enhancements.
+- Ticket 376: for file-based additive load with no AID dataset involved, 
+  RA and Dec dialogs are now opened to enable the HJD conversion to occur.
+  Thanks to Sebastian Otero for asking a forum question about this that
+  made me raise its priority.
+- User manual updates and various internal utility code enhancements.
 
 Date: June 26 2014
 Version: 2.16.1
