@@ -61,7 +61,10 @@ import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
 import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser;
 import org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialog;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.dialog.IntegerField;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.dialog.ObservationFiltersDialog;
 import org.aavso.tools.vstar.ui.dialog.PNGImageFileSaveChooser;
@@ -1374,16 +1377,23 @@ public class Mediator {
 			}
 		}
 
-		if (ra == null || dec == null) {
-			// TODO: open dialog asking for RA/DEC and if that is cancelled,
-			// open another dialog indicating that HJD conversion cannot
-			// take place. For now, just do the latter.
-			return;
-		}
-
 		if (newStarInfo.getRetriever().isHeliocentric()
 				&& !getLatestNewStarMessage().getStarInfo().getRetriever()
 						.isHeliocentric()) {
+
+			if (ra == null || dec == null) {
+				// Asking the user for B1950 RA/DEC and if that is cancelled,
+				// indicate that HJD conversion cannot take place.
+				ra = requestRA();
+				dec = requestDec();
+				if (ra == null || dec == null) {
+					MessageBox
+							.showWarningDialog("HJD Conversion",
+									"The previously loaded observations have NOT been converted to HJD.");
+					return;
+				}
+			}
+
 			/*
 			 * The new observations use HJD but the existing observations do
 			 * not, so convert the existing observations.
@@ -1396,6 +1406,20 @@ public class Mediator {
 		} else if (!newStarInfo.getRetriever().isHeliocentric()
 				&& getLatestNewStarMessage().getStarInfo().getRetriever()
 						.isHeliocentric()) {
+			
+			if (ra == null || dec == null) {
+				// Asking the user for B1950 RA/DEC and if that is cancelled,
+				// indicate that HJD conversion cannot take place.
+				ra = requestRA();
+				dec = requestDec();
+				if (ra == null || dec == null) {
+					MessageBox
+							.showWarningDialog("HJD Conversion",
+									"The previously loaded observations have NOT been converted to HJD.");
+					return;
+				}
+			}
+
 			/*
 			 * The new observations do not use HJD but the existing observations
 			 * do, so convert the new observations. Note that the new retriever
@@ -1411,6 +1435,40 @@ public class Mediator {
 			MessageBox.showWarningDialog("HJD Conversion",
 					"The newly loaded observations were converted to HJD.");
 		}
+	}
+
+	// Request the B1950.0 RA in HH:MM:SS.n
+	private RAInfo requestRA() {
+		IntegerField raHours = new IntegerField("Hours", 0, 60, 0);
+		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, 0);
+		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, 0.0);
+		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
+				"RA (B1950.0)", raHours, raMinutes, raSeconds);
+
+		RAInfo raInfo = null;
+		if (!dialog.isCancelled()) {
+			raInfo = new RAInfo(1950, raHours.getValue(), raMinutes.getValue(),
+					raSeconds.getValue());
+		}
+
+		return raInfo;
+	}
+
+	// Request the B1950.0 Dec in DD:MM:SS.n
+	private DecInfo requestDec() {
+		IntegerField raHours = new IntegerField("Degrees", -90, 90, 0);
+		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, 0);
+		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, 0.0);
+		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
+				"Dec (B1950.0)", raHours, raMinutes, raSeconds);
+
+		DecInfo decInfo = null;
+		if (!dialog.isCancelled()) {
+			decInfo = new DecInfo(1950, raHours.getValue(), raMinutes
+					.getValue(), raSeconds.getValue());
+		}
+
+		return decInfo;
 	}
 
 	/**
@@ -2247,13 +2305,13 @@ public class Mediator {
 
 			if (!reportDialog.isCancelled()) {
 				try {
-					 Mediator.getUI().setCursor(
-					 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					Mediator.getUI().setCursor(
+							Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-					 Authenticator.getInstance().authenticate();
+					Authenticator.getInstance().authenticate();
 
-					 String userName = ResourceAccessor.getLoginInfo()
-					 .getUserName();
+					String userName = ResourceAccessor.getLoginInfo()
+							.getUserName();
 
 					String editor = "vstar:" + userName;
 
@@ -2284,8 +2342,8 @@ public class Mediator {
 				} catch (Exception ex) {
 					MessageBox.showErrorDialog("Discrepant Reporting Error", ex
 							.getLocalizedMessage());
-					 } finally {
-					 Mediator.getUI().setCursor(null);
+				} finally {
+					Mediator.getUI().setCursor(null);
 				}
 			}
 		}
