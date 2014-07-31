@@ -1360,7 +1360,7 @@ public class Mediator {
 	 * @param newStarInfo
 	 *            Info about the new star who's observations are to be added.
 	 */
-	private void convertObsToHJD(StarInfo newStarInfo) {
+	public void convertObsToHJD(StarInfo newStarInfo) {
 		// Try to get RA and Dec information from any of our loaded datasets.
 		// We are making the simplifying assumption that all datasets correspond
 		// to the same object!
@@ -1438,7 +1438,7 @@ public class Mediator {
 	}
 
 	// Request the B1950.0 RA in HH:MM:SS.n
-	private RAInfo requestRA() {
+	public RAInfo requestRA() {
 		IntegerField raHours = new IntegerField("Hours", 0, 60, 0);
 		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, 0);
 		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, 0.0);
@@ -1455,7 +1455,7 @@ public class Mediator {
 	}
 
 	// Request the B1950.0 Dec in DD:MM:SS.n
-	private DecInfo requestDec() {
+	public DecInfo requestDec() {
 		IntegerField raHours = new IntegerField("Degrees", -90, 90, 0);
 		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, 0);
 		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, 0.0);
@@ -1481,7 +1481,7 @@ public class Mediator {
 	 * @param dec
 	 *            The Dec for the object.
 	 */
-	private void convertObsToHJD(List<ValidObservation> obs, RAInfo ra,
+	public void convertObsToHJD(List<ValidObservation> obs, RAInfo ra,
 			DecInfo dec) {
 		for (ValidObservation ob : obs) {
 			ob.setJD(HJDConverter.convert(ob.getJD(), ra, dec));
