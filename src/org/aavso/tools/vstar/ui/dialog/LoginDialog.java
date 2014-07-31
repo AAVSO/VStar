@@ -39,6 +39,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  * when a valid username/password combination is entered or the dialog is
  * dismissed.
  */
+@SuppressWarnings("serial")
 public class LoginDialog extends AbstractOkCancelDialog {
 
 	private Container contentPane;
@@ -46,8 +47,7 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	private JTextField usernameField;
 	private JPasswordField passwordField;
 
-	private Pattern usernamePattern;
-	private Pattern passwordPattern;
+	private Pattern whitespacePattern = Pattern.compile("^\\s*$");
 
 	/**
 	 * Constructor
@@ -57,13 +57,6 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	 */
 	public LoginDialog(String intro) {
 		super("Login");
-
-		// Whitespace: \s or just ' '?
-		Pattern commonPattern = Pattern
-				.compile("^[A-Za-z0-9\\!@#\\$%&\\*\\(\\)_\\-\\+=\\?<><>\\.\\,\\s]{2,40}$");
-
-		this.usernamePattern = commonPattern;
-		this.passwordPattern = commonPattern;
 
 		contentPane = this.getContentPane();
 
@@ -129,11 +122,9 @@ public class LoginDialog extends AbstractOkCancelDialog {
 	// fields, and start again, otherwise we tell the dialog
 	// to go away.
 	private void checkInput() {
-		if (!usernamePattern.matcher(usernameField.getText()).matches()
-				|| !passwordPattern.matcher(
+		if (whitespacePattern.matcher(usernameField.getText()).matches()
+				|| whitespacePattern.matcher(
 						new String(passwordField.getPassword())).matches()) {
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Login Details Error", "Invalid username or password.");
 			usernameField.setText("");
 			passwordField.setText("");
 			setVisible(true);
