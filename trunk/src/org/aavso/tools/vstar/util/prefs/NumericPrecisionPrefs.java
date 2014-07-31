@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
-import org.aavso.tools.vstar.data.SeriesType;
-
 /**
  * Numeric input/output format preferences.
  */
@@ -206,7 +204,7 @@ public class NumericPrecisionPrefs {
 	private static Preferences prefs;
 
 	static {
-		// Create preferences node for series colors.
+		// Create preferences node for numeric precision.
 		try {
 			prefs = Preferences.userNodeForPackage(NumericPrecisionPrefs.class);
 			retrieveDecimalPlacesPrefs();
