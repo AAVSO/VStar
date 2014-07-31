@@ -72,15 +72,15 @@ public class ObservationFieldSplitter {
 	public String[] getFields() throws IOException, ObservationValidationError {
 		String[] fields = lineReader.getValues();
 
-		if (fields.length < this.minFields || fields.length > this.maxFields) {
+		if (fields.length < this.minFields/* || fields.length > this.maxFields*/) {
 			StringBuffer strBuf = new StringBuffer();
 			strBuf.append("The number of fields (");
 			strBuf.append(fields.length);
 			strBuf.append(") ");
-			strBuf.append("falls outside of the range ");
+			strBuf.append("is less than expected: ");
 			strBuf.append(minFields);
-			strBuf.append("..");
-			strBuf.append(maxFields);
+//			strBuf.append("..");
+//			strBuf.append(maxFields);
 
 			throw new ObservationValidationError(strBuf.toString());
 		}
