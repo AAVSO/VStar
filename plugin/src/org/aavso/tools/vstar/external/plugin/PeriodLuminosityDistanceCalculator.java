@@ -247,11 +247,11 @@ public class PeriodLuminosityDistanceCalculator extends
 
 	@Override
 	public String getDescription() {
-		return "Leavitt's Law distance calculator";
+		return "Leavitt's Law (Period-Luminosity Relationship) distance calculator";
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "Distance from Leavitt's Period-Luminosity Relationship";
+		return "Leavitt's Law distance calculator";
 	}
 }
