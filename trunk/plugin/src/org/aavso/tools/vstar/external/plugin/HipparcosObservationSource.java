@@ -161,7 +161,7 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 					2400000.0;
 			double mag = Double.parseDouble(fields[1].trim());
 			double magErr = Double.parseDouble(fields[2].trim());
-			String flags = fields[3];
+			String flags = fields[3].trim();
 
 			ValidObservation ob = new ValidObservation();
 			ob.setDateInfo(new DateInfo(bjd));
