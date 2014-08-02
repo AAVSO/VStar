@@ -50,7 +50,12 @@ public class NumberParser {
 			throw new NumberFormatException("String was null");
 		} else {
 			try {
-				return FORMAT.parse(str.trim()).doubleValue();
+				str = str.trim();
+				if (str.startsWith("+")) {
+					// Leading "+" causes an exception to be thrown.
+					str = str.substring(1);
+				}
+				return FORMAT.parse(str).doubleValue();
 			} catch (ParseException e) {
 				throw new NumberFormatException(e.getLocalizedMessage());
 			}
