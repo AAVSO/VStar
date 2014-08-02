@@ -695,8 +695,8 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param ADS Reference
-	 *            the ADS Reference to set
+	 * @param ADS
+	 *            Reference the ADS Reference to set
 	 */
 	public void setADSRef(String adsRef) {
 		addDetail(pubrefKey, adsRef, pubrefTitle);
@@ -817,7 +817,7 @@ public class ValidObservation extends Observation {
 					.getMagOutputFormat(), hqUncertainty));
 			strBuf.append("\n");
 		}
-		
+
 		if (validationType != null) {
 			strBuf.append("Validation: ");
 			strBuf.append(validationType.toString());
@@ -829,7 +829,7 @@ public class ValidObservation extends Observation {
 			strBuf.append(obsType.getDescription());
 			strBuf.append("\n");
 		}
-		
+
 		if (band != null) {
 			strBuf.append("Band: ");
 			strBuf.append(band.getDescription());
@@ -936,20 +936,17 @@ public class ValidObservation extends Observation {
 	public String toSimpleFormatString(String delimiter) {
 		StringBuffer buf = new StringBuffer();
 
-		buf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
-				this.getDateInfo().getJulianDay()));
+		buf.append(this.getDateInfo().getJulianDay());
 		buf.append(delimiter);
 
 		buf.append(this.getMagnitude().isFainterThan() ? "<" : "");
-		buf.append(String.format(NumericPrecisionPrefs.getMagOutputFormat(),
-				this.getMagnitude().getMagValue()));
+		buf.append(this.getMagnitude().getMagValue());
 		buf.append(delimiter);
 
 		double uncertainty = this.getMagnitude().getUncertainty();
 		// TODO: why != here and > in next method?
 		if (uncertainty != 0.0) {
-			buf.append(String.format(
-					NumericPrecisionPrefs.getMagOutputFormat(), uncertainty));
+			buf.append(uncertainty);
 		}
 		buf.append(delimiter);
 
@@ -976,27 +973,23 @@ public class ValidObservation extends Observation {
 	public String toAAVSOFormatString(String delimiter) {
 		StringBuffer buf = new StringBuffer();
 
-		buf.append(String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
-				this.getDateInfo().getJulianDay()));
+		buf.append(this.getDateInfo().getJulianDay());
 		buf.append(delimiter);
 
 		buf.append(this.getMagnitude().isFainterThan() ? "<" : "");
-		buf.append(String.format(NumericPrecisionPrefs.getMagOutputFormat(),
-				this.getMagnitude().getMagValue()));
+		buf.append(this.getMagnitude().getMagValue());
 		buf.append(delimiter);
 
 		double uncertainty = this.getMagnitude().getUncertainty();
 		if (uncertainty > 0.0) {
-			buf.append(String.format(
-					NumericPrecisionPrefs.getMagOutputFormat(), uncertainty));
+			buf.append(uncertainty);
 		}
 		buf.append(delimiter);
 
 		if (this.getHqUncertainty() != null) {
 			double hqUncertainty = this.getHqUncertainty();
 			if (hqUncertainty > 0.0) {
-				buf.append(String.format(NumericPrecisionPrefs
-						.getMagOutputFormat(), hqUncertainty));
+				buf.append(hqUncertainty);
 			}
 		}
 		buf.append(delimiter);
@@ -1058,8 +1051,7 @@ public class ValidObservation extends Observation {
 		buf.append(delimiter);
 
 		if (this.getHJD() != null) {
-			buf.append(String.format(NumericPrecisionPrefs
-					.getTimeOutputFormat(), hJD.getJulianDay()));
+			buf.append(hJD.getJulianDay());
 		}
 		buf.append(delimiter);
 
@@ -1078,20 +1070,20 @@ public class ValidObservation extends Observation {
 		buf.append(delimiter);
 
 		// ADS Reference
-		if (getADSRef() != null)  {
+		if (getADSRef() != null) {
 			buf.append(getADSRef());
 		}
 		buf.append(delimiter);
 
 		// Digitizer
-		if (getDigitizer() != null)  {
+		if (getDigitizer() != null) {
 			buf.append(getDigitizer());
 		}
 		buf.append(delimiter);
 
 		// ObsType
 		// TODO: in AID but not yet AAVSO download format
-		//buf.append(delimiter);
+		// buf.append(delimiter);
 
 		// TODO: handle reading in aavso text and aid obs readers
 
