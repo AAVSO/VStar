@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.stat.inference.OneWayAnova;
 import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
 
@@ -147,5 +148,33 @@ public class BinningResult {
 	 */
 	public boolean hasValidAnovaValues() {
 		return !error;
+	}
+
+	// Returns ANOVA result text suitable for display.
+	public String createAnovaText() {
+		String msg = null;
+
+		// Example: F-value: 18.22 on 12 and 346 degrees of freedom p-value: <
+		// 0.000001.
+
+		if (hasValidAnovaValues()) {
+			String pValueStr;
+			if (getPValue() < 0.000001) {
+				pValueStr = "p-value: < 0.000001";
+			} else {
+				pValueStr = "p-value: "
+						+ NumericPrecisionPrefs.formatOther(getPValue());
+			}
+
+			msg = String.format(
+
+			"%s, F-value: %s on %d and %d degrees of freedom, %s", getSeries(),
+					NumericPrecisionPrefs.formatOther(getFValue()),
+					getBetweenGroupDF(), getWithinGroupDF(), pValueStr);
+		} else {
+			msg = "anova: insufficient data";
+		}
+
+		return msg;
 	}
 }

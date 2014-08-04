@@ -27,7 +27,6 @@ import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
-import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 
 /**
@@ -54,30 +53,8 @@ public class CurrentModeANOVATool extends GeneralToolPluginBase {
 
 			BinningResult binningResult = model.getBinningResult();
 
-			// TODO: refactor this and DocumentManager code
-			String pValueStr;
-			if (binningResult.getPValue() < 0.000001) {
-				pValueStr = "p-value: < 0.000001";
-			} else {
-				pValueStr = String.format("p-value: "
-						+ NumericPrecisionPrefs.getOtherOutputFormat(),
-						binningResult.getPValue());
-			}
-
-			String msg;
-
-			if (binningResult.hasValidAnovaValues()) {
-				msg = String.format(
-
-				"%s, F-value: " + NumericPrecisionPrefs.getOtherOutputFormat()
-						+ " on %d and %d degrees of freedom, %s", binningResult
-						.getSeries(), binningResult.getFValue(), binningResult
-						.getBetweenGroupDF(), binningResult.getWithinGroupDF(),
-						pValueStr);
-			} else {
-				msg = "Insufficient data for ANOVA";
-			}
-
+			String msg = binningResult.createAnovaText();
+			
 			List<ITextComponent<String>> fields = new ArrayList<ITextComponent<String>>();
 			fields.add(new TextField("ANOVA", msg, TextField.Kind.AREA));
 			new TextDialog(
