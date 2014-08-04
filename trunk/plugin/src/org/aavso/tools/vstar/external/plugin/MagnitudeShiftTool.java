@@ -66,12 +66,12 @@ public class MagnitudeShiftTool extends ObservationToolPluginBase {
 				SeriesType type = seriesSelector.getSeries();
 				List<ValidObservation> obs = seriesInfo.getObservations(type);
 
-				String description = String.format("%s shifted by "
-						+ NumericPrecisionPrefs.getMagOutputFormat(), type
-						.getDescription(), magDelta);
-				String shortName = String.format("%s + "
-						+ NumericPrecisionPrefs.getMagOutputFormat(), type
-						.getShortName(), magDelta);
+				String description = String.format("%s shifted by %s", type
+						.getDescription(), NumericPrecisionPrefs
+						.formatMag(magDelta));
+				String shortName = String.format("%s + %s",
+						type.getShortName(), NumericPrecisionPrefs
+								.formatMag(magDelta));
 				Color color = type.getColor();
 
 				// SeriesType newType = SeriesType.create(description,
