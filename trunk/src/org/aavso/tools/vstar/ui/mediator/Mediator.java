@@ -48,6 +48,7 @@ import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
@@ -1254,7 +1255,7 @@ public class Mediator {
 					+ LocaleProps.get("FOR")
 					+ " "
 					+ starInfo.getDesignation(), null, obsAndMeanPlotModel,
-					starInfo.getRetriever().isHeliocentric());
+					starInfo.getRetriever());
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					createMeanObsChangeListener(obsAndMeanPlotModel
@@ -1406,7 +1407,7 @@ public class Mediator {
 		} else if (!newStarInfo.getRetriever().isHeliocentric()
 				&& getLatestNewStarMessage().getStarInfo().getRetriever()
 						.isHeliocentric()) {
-			
+
 			if (ra == null || dec == null) {
 				// Asking the user for B1950 RA/DEC and if that is cancelled,
 				// indicate that HJD conversion cannot take place.
@@ -1508,9 +1509,9 @@ public class Mediator {
 
 		String subTitle = "";
 		String periodAndEpochStr = String.format(LocaleProps.get("PERIOD")
-				+ ": " + NumericPrecisionPrefs.getOtherOutputFormat() + ", "
-				+ LocaleProps.get("EPOCH") + ": "
-				+ NumericPrecisionPrefs.getTimeOutputFormat(), period, epoch);
+				+ ": %s, " + LocaleProps.get("EPOCH") + ": %s",
+				NumericPrecisionPrefs.formatOther(period),
+				NumericPrecisionPrefs.formatTime(epoch));
 
 		if (this.getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 			Date now = Calendar.getInstance().getTime();
@@ -1626,7 +1627,8 @@ public class Mediator {
 		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
 				LocaleProps.get("PHASE_PLOT") + " " + LocaleProps.get("FOR")
 						+ " " + objName, subTitle, obsAndMeanPlotModel1,
-				obsAndMeanPlotModel2, epoch, period);
+				obsAndMeanPlotModel2, epoch, period, getLatestNewStarMessage()
+						.getStarInfo().getRetriever());
 
 		// The observation table pane contains valid and potentially
 		// invalid data components but for phase plot purposes, we only
@@ -1723,13 +1725,13 @@ public class Mediator {
 	private ObservationAndMeanPlotPane createObservationAndMeanPlotPane(
 			String plotName, String subTitle,
 			ObservationAndMeanPlotModel obsAndMeanPlotModel,
-			boolean isHeliocentric) {
+			AbstractObservationRetriever retriever) {
 
 		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
 				(int) (TabbedDataPane.HEIGHT * 0.9));
 
 		return new ObservationAndMeanPlotPane(plotName, subTitle,
-				obsAndMeanPlotModel, bounds, isHeliocentric);
+				obsAndMeanPlotModel, bounds, retriever);
 	}
 
 	/**
@@ -1740,13 +1742,13 @@ public class Mediator {
 			String subTitle,
 			PhasedObservationAndMeanPlotModel obsAndMeanPlotModel1,
 			PhasedObservationAndMeanPlotModel obsAndMeanPlotModel2,
-			double epoch, double period) {
+			double epoch, double period, AbstractObservationRetriever retriever) {
 
 		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
 				(int) (TabbedDataPane.HEIGHT * 0.9));
 
 		return new PhaseAndMeanPlotPane(plotName, subTitle, bounds, epoch,
-				period, obsAndMeanPlotModel1, obsAndMeanPlotModel2);
+				period, retriever, obsAndMeanPlotModel1, obsAndMeanPlotModel2);
 	}
 
 	/**

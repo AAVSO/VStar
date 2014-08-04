@@ -163,11 +163,10 @@ public class TimeElementsInBinSettingPane extends JPanel {
 				} else {
 					MessageBox.showErrorDialog(self,
 							"Mean Series Update Request", String.format(
-									"The bin size value ("
-											+ NumericPrecisionPrefs
-													.getTimeOutputFormat()
-											+ ") must be greater than zero.",
-									timeElementsInBin));
+									"The bin size value (%s)"
+											+ " must be greater than zero.",
+									NumericPrecisionPrefs
+											.formatTime(timeElementsInBin)));
 				}
 			}
 		};

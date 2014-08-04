@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.geom.Point2D;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
@@ -31,6 +32,7 @@ import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhasedObservationAndMeanPlotModel;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
@@ -47,6 +49,8 @@ import org.jfree.data.general.Dataset;
  */
 @SuppressWarnings("serial")
 public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
+
+	public static String PHASE = LocaleProps.get("PHASE");
 
 	private double epoch;
 	private double period;
@@ -75,15 +79,18 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 	 *            The starting JD for the current phase plot.
 	 * @param period
 	 *            The period for the current phase plot.
+	 * @param retriever
+	 *            The observation retriever for observations in this plot.
 	 * @param obsAndMeanModels
 	 *            The data models to plot.
 	 */
 	public PhaseAndMeanPlotPane(String title, String subTitle,
 			Dimension bounds, double epoch, double period,
+			AbstractObservationRetriever retriever,
 			PhasedObservationAndMeanPlotModel... obsAndMeanModels) {
 
-		super(title, subTitle, PHASE_TITLE, MAG_TITLE, obsAndMeanModels[0],
-				bounds, false);
+		super(title, subTitle, PHASE, getBrightnessAxisLabel(retriever
+				.getBrightnessUnits()), obsAndMeanModels[0], bounds, retriever);
 
 		this.epoch = epoch;
 		this.period = period;
@@ -92,15 +99,14 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 
 		this.wasLastSelectionStdPhase = null;
 
-		xyMsgFormat = "Phase: " + NumericPrecisionPrefs.getTimeOutputFormat()
-				+ ", Mag: " + NumericPrecisionPrefs.getMagOutputFormat();
+		xyMsgFormat = "%s, %s";
 
 		this.chart.getXYPlot().setDataset(1, obsAndMeanModels[1]);
 
 		previousCyclePhaseModel = this.chart.getXYPlot().getDataset(0);
 		standardPhaseModel = this.chart.getXYPlot().getDataset(1);
 
-//		setSeriesVisibility();
+		// setSeriesVisibility();
 	}
 
 	/**
@@ -159,53 +165,53 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 		return changed;
 	}
 
-//	@Override
-//	protected void setSeriesVisibility() {
-//
-//		// super.setSeriesVisibility();
-//
-//		if (obsAndMeanModels != null) {
-//			for (ObservationAndMeanPlotModel obsModel : obsAndMeanModels) {
-//				Map<SeriesType, Boolean> seriesVisibilityMap = obsModel
-//						.getSeriesVisibilityMap();
-//
-//				// taken from abstract plot pane... necessary?
-//				for (SeriesType seriesType : seriesVisibilityMap.keySet()) {
-//					int seriesNum = obsModel.getSrcTypeToSeriesNumMap().get(
-//							seriesType);
-//					renderer.setSeriesVisible(seriesNum, seriesVisibilityMap
-//							.get(seriesType));
-//				}
-//
-//				boolean isModelFuncVisible = seriesVisibilityMap
-//						.get(SeriesType.ModelFunction);
-//
-//				if (isModelFuncVisible && obsModel.getModelFunction() != null) {
-//					ContinuousModelPlotModel modelFuncModel = new ContinuousModelPlotModel(
-//							obsModel.getModelFunction());
-//
-//					JFreeChart modelFuncPlot = ChartFactory.createXYLineChart(
-//							"", "", "", modelFuncModel,
-//							PlotOrientation.VERTICAL, false, false, false);
-//
-//					int modelFuncSeriesNum = obsModel
-//							.getSrcTypeToSeriesNumMap().get(
-//									SeriesType.ModelFunction);
-//
-//					chart.getXYPlot().setDataset(modelFuncSeriesNum,
-//							modelFuncModel);
-//					chart.getXYPlot().setRenderer(modelFuncSeriesNum,
-//							modelFuncPlot.getXYPlot().getRenderer());
-//					Color color = SeriesType
-//							.getColorFromSeries(SeriesType.ModelFunction);
-//					chart.getXYPlot().getRenderer(modelFuncSeriesNum)
-//							.setSeriesPaint(modelFuncSeriesNum, color);
-//					chart.getXYPlot().getRenderer(modelFuncSeriesNum)
-//							.setSeriesVisible(modelFuncSeriesNum, true);
-//				}
-//			}
-//		}
-//	}
+	// @Override
+	// protected void setSeriesVisibility() {
+	//
+	// // super.setSeriesVisibility();
+	//
+	// if (obsAndMeanModels != null) {
+	// for (ObservationAndMeanPlotModel obsModel : obsAndMeanModels) {
+	// Map<SeriesType, Boolean> seriesVisibilityMap = obsModel
+	// .getSeriesVisibilityMap();
+	//
+	// // taken from abstract plot pane... necessary?
+	// for (SeriesType seriesType : seriesVisibilityMap.keySet()) {
+	// int seriesNum = obsModel.getSrcTypeToSeriesNumMap().get(
+	// seriesType);
+	// renderer.setSeriesVisible(seriesNum, seriesVisibilityMap
+	// .get(seriesType));
+	// }
+	//
+	// boolean isModelFuncVisible = seriesVisibilityMap
+	// .get(SeriesType.ModelFunction);
+	//
+	// if (isModelFuncVisible && obsModel.getModelFunction() != null) {
+	// ContinuousModelPlotModel modelFuncModel = new ContinuousModelPlotModel(
+	// obsModel.getModelFunction());
+	//
+	// JFreeChart modelFuncPlot = ChartFactory.createXYLineChart(
+	// "", "", "", modelFuncModel,
+	// PlotOrientation.VERTICAL, false, false, false);
+	//
+	// int modelFuncSeriesNum = obsModel
+	// .getSrcTypeToSeriesNumMap().get(
+	// SeriesType.ModelFunction);
+	//
+	// chart.getXYPlot().setDataset(modelFuncSeriesNum,
+	// modelFuncModel);
+	// chart.getXYPlot().setRenderer(modelFuncSeriesNum,
+	// modelFuncPlot.getXYPlot().getRenderer());
+	// Color color = SeriesType
+	// .getColorFromSeries(SeriesType.ModelFunction);
+	// chart.getXYPlot().getRenderer(modelFuncSeriesNum)
+	// .setSeriesPaint(modelFuncSeriesNum, color);
+	// chart.getXYPlot().getRenderer(modelFuncSeriesNum)
+	// .setSeriesVisible(modelFuncSeriesNum, true);
+	// }
+	// }
+	// }
+	// }
 
 	// From ChartMouseListener interface.
 	// If the mouse is over a data point, set its tool-tip with phase and
@@ -216,8 +222,9 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 			XYItemEntity item = (XYItemEntity) entity;
 			ValidObservation ob = obsModel.getValidObservation(item
 					.getSeriesIndex(), item.getItem());
-			String xyMsg = String.format(xyMsgFormat, ob.getStandardPhase(), ob
-					.getMag());
+			String xyMsg = String.format(xyMsgFormat, NumericPrecisionPrefs
+					.formatTime(ob.getStandardPhase()), NumericPrecisionPrefs
+					.formatMag(ob.getMag()));
 			item.setToolTipText(xyMsg);
 		}
 	}

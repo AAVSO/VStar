@@ -33,6 +33,7 @@ import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
@@ -77,6 +78,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	protected String domainTitle;
 	protected String rangeTitle;
 
+	protected AbstractObservationRetriever retriever;
+
 	protected JFreeChart chart;
 
 	protected ChartPanel chartPanel;
@@ -100,12 +103,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	protected ValidObservation lastObSelected;
 	protected Dataset lastDatasetSelected;
 
-	// Axis titles.
-	public static String JD_TITLE = LocaleProps.get("TIME_AXIS_JD");
-	public static String HJD_TITLE = LocaleProps.get("TIME_AXIS_HJD");
-	public static String PHASE_TITLE = LocaleProps.get("PHASE_AXIS");
-	public static String MAG_TITLE = LocaleProps.get("BRIGHTNESS_AXIS");
-
 	/**
 	 * Constructor
 	 * 
@@ -121,9 +118,12 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	 *            The data model to plot.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
+	 * @param retriever
+	 *            The observation retriever for observations in this plot.
 	 */
 	public AbstractObservationPlotPane(String title, String subTitle,
-			String domainTitle, String rangeTitle, T obsModel, Dimension bounds) {
+			String domainTitle, String rangeTitle, T obsModel,
+			Dimension bounds, AbstractObservationRetriever retriever) {
 		super();
 
 		this.title = title;
@@ -134,6 +134,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		this.obsModel = obsModel;
 
 		this.bounds = bounds;
+
+		this.retriever = retriever;
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
@@ -458,6 +460,20 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 			Mediator.getInstance().getObservationSelectionNotifier()
 					.notifyListeners(message);
 		}
+	}
+
+	/**
+	 * @return The time axis label.
+	 */
+	protected static String getTimeAxisLabel(String units) {
+		return String.format("%s (%s)", LocaleProps.get("TIME"), units);
+	}
+
+	/**
+	 * @return The brightness axis label.
+	 */
+	protected static String getBrightnessAxisLabel(String units) {
+		return String.format("%s (%s)", LocaleProps.get("BRIGHTNESS"), units);
 	}
 
 	/**
