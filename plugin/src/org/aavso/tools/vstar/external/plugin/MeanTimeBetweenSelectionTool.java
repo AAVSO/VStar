@@ -109,9 +109,7 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 					.addListener(createObSelectionListener());
 
 			this.pack();
-			this
-					.setLocationRelativeTo(Mediator.getUI()
-							.getContentPane());
+			this.setLocationRelativeTo(Mediator.getUI().getContentPane());
 			this.setVisible(true);
 		}
 
@@ -172,11 +170,9 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 
 		public void addObservation(ValidObservation ob) {
 			if (!obs.contains(ob)) {
-				obModel.addElement(String.format("JD: "
-						+ NumericPrecisionPrefs.getTimeOutputFormat()
-						+ ", Mag: "
-						+ NumericPrecisionPrefs.getMagOutputFormat(), ob
-						.getJD(), ob.getMag()));
+				obModel.addElement(String.format("JD: %s, Mag: %s",
+						NumericPrecisionPrefs.formatTime(ob.getJD()),
+						NumericPrecisionPrefs.formatMag(ob.getMag())));
 				obs.add(ob);
 				if (obs.size() > 1) {
 					computeMeanJD();
@@ -199,11 +195,10 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 			}
 
 			// There's N JDs, but only N-1 intervals.
-			double mean = sum / (obs.size()-1);
+			double mean = sum / (obs.size() - 1);
 
-			meanJDField.setText(String.format(NumericPrecisionPrefs
-					.getTimeOutputFormat()
-					+ " days", mean));
+			meanJDField.setText(NumericPrecisionPrefs.formatTime(mean)
+					+ " days");
 		}
 
 		private void computeMeanMag() {
@@ -217,8 +212,7 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 
 			double mean = sum / obs.size();
 
-			meanMagField.setText(String.format(NumericPrecisionPrefs
-					.getMagOutputFormat(), mean));
+			meanMagField.setText(NumericPrecisionPrefs.formatMag(mean));
 		}
 	}
 }

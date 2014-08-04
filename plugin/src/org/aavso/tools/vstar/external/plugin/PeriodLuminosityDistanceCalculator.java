@@ -193,19 +193,19 @@ public class PeriodLuminosityDistanceCalculator extends
 	 */
 	private void showDistance(String varType, double absMagnitude,
 			double distance) {
-		String magFmt = NumericPrecisionPrefs.getMagOutputFormat();
-		String otherFmt = NumericPrecisionPrefs.getOtherOutputFormat();
-
 		List<ITextComponent<String>> resultFields = new ArrayList<ITextComponent<String>>();
 
 		// resultFields.add(new TextField("Absolute Magnitude Calculation",
 		// absMagEqns.get(varType), true, false, TextField.Kind.LINE));
-		resultFields.add(new TextField("Absolute Magnitude", String.format(
-				magFmt, absMagnitude), true, false, TextField.Kind.LINE));
-		resultFields.add(new TextField("Distance (parsecs)", String.format(
-				otherFmt, distance), true, false, TextField.Kind.LINE));
-		resultFields.add(new TextField("Distance (light years)", String.format(
-				otherFmt, distance * 3.26), true, false, TextField.Kind.LINE));
+		resultFields.add(new TextField("Absolute Magnitude",
+				NumericPrecisionPrefs.formatMag(absMagnitude), true, false,
+				TextField.Kind.LINE));
+		resultFields.add(new TextField("Distance (parsecs)",
+				NumericPrecisionPrefs.formatOther(distance), true, false,
+				TextField.Kind.LINE));
+		resultFields.add(new TextField("Distance (light years)",
+				NumericPrecisionPrefs.formatOther(distance * 3.26), true,
+				false, TextField.Kind.LINE));
 		resultFields.add(new TextField("Distance Modulus",
 				"10 ^ ((apparent mag - absolute mag + 5) / 5)", true, false,
 				TextField.Kind.LINE));
