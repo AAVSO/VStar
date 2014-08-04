@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
@@ -32,7 +33,6 @@ import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
-import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.jfree.chart.ChartMouseEvent;
@@ -68,15 +68,16 @@ public class ObservationAndMeanPlotPane extends
 	 *            The data model to plot.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
-	 * @param isHeliocentric
-	 *            Is the data heliocentric?
+	 * @param retriever
+	 *            The observation retriever for observations in this plot.
 	 */
 	public ObservationAndMeanPlotPane(String title, String subTitle,
 			String domainTitle, String rangeTitle,
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds,
-			boolean isHeliocentric) {
+			AbstractObservationRetriever retriever) {
 
-		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel, bounds);
+		super(title, subTitle, domainTitle, rangeTitle, obsAndMeanModel,
+				bounds, retriever);
 
 		// Add sub-title, if any.
 		if (subTitle != null && !"".equals(subTitle.trim())) {
@@ -86,12 +87,7 @@ public class ObservationAndMeanPlotPane extends
 		}
 
 		// Format for observation tool-tip.
-		String timePrefix = isHeliocentric ? LocaleProps.get("HJD")
-				: LocaleProps.get("JD");
-
-		xyMsgFormat = timePrefix + ": "
-				+ NumericPrecisionPrefs.getTimeOutputFormat() + " (%s), Mag: "
-				+ NumericPrecisionPrefs.getMagOutputFormat();
+		xyMsgFormat = "%s (%s), %s";
 
 		// Set the means series color.
 		int meanSeriesNum = obsAndMeanModel.getMeansSeriesNum();
@@ -116,15 +112,16 @@ public class ObservationAndMeanPlotPane extends
 	 *            The data model to plot. mean plot pane.
 	 * @param bounds
 	 *            The bounding box to which to set the chart's preferred size.
-	 * @param isHeliocentric
-	 *            Is the data heliocentric?
+	 * @param retriever
+	 *            The observation retriever for observations in this plot.
 	 */
 	public ObservationAndMeanPlotPane(String title, String subTitle,
 			ObservationAndMeanPlotModel obsAndMeanModel, Dimension bounds,
-			boolean isHeliocentric) {
+			AbstractObservationRetriever retriever) {
 
-		this(title, subTitle, isHeliocentric ? HJD_TITLE : JD_TITLE, MAG_TITLE,
-				obsAndMeanModel, bounds, isHeliocentric);
+		this(title, subTitle, getTimeAxisLabel(retriever.getTimeUnits()),
+				getBrightnessAxisLabel(retriever.getBrightnessUnits()),
+				obsAndMeanModel, bounds, retriever);
 	}
 
 	/**
@@ -154,39 +151,39 @@ public class ObservationAndMeanPlotPane extends
 		return obsModel.changeMeansSeries(timeElementsInBin);
 	}
 
-//	@Override
-//	protected void setSeriesVisibility() {
-//
-//		super.setSeriesVisibility();
-//
-//		Map<SeriesType, Boolean> seriesVisibilityMap = obsModel
-//				.getSeriesVisibilityMap();
-//
-//		boolean isModelFuncVisible = seriesVisibilityMap
-//				.get(SeriesType.ModelFunction);
-//
-//		if (isModelFuncVisible && obsModel.getModelFunction() != null) {
-//			ContinuousModelPlotModel modelFuncModel = new ContinuousModelPlotModel(
-//					obsModel.getModelFunction());
-//
-//			JFreeChart modelFuncPlot = ChartFactory.createXYLineChart("", "",
-//					"", modelFuncModel, PlotOrientation.VERTICAL, false, false,
-//					false);
-//
-//			int modelFuncSeriesNum = obsModel.getSrcTypeToSeriesNumMap().get(
-//					SeriesType.ModelFunction);
-//
-//			chart.getXYPlot().setDataset(modelFuncSeriesNum, modelFuncModel);
-//			chart.getXYPlot().setRenderer(modelFuncSeriesNum,
-//					modelFuncPlot.getXYPlot().getRenderer());
-//			Color color = SeriesType
-//					.getColorFromSeries(SeriesType.ModelFunction);
-//			chart.getXYPlot().getRenderer(modelFuncSeriesNum).setSeriesPaint(
-//					modelFuncSeriesNum, color);
-//			chart.getXYPlot().getRenderer(modelFuncSeriesNum).setSeriesVisible(
-//					modelFuncSeriesNum, true);
-//		}
-//	}
+	// @Override
+	// protected void setSeriesVisibility() {
+	//
+	// super.setSeriesVisibility();
+	//
+	// Map<SeriesType, Boolean> seriesVisibilityMap = obsModel
+	// .getSeriesVisibilityMap();
+	//
+	// boolean isModelFuncVisible = seriesVisibilityMap
+	// .get(SeriesType.ModelFunction);
+	//
+	// if (isModelFuncVisible && obsModel.getModelFunction() != null) {
+	// ContinuousModelPlotModel modelFuncModel = new ContinuousModelPlotModel(
+	// obsModel.getModelFunction());
+	//
+	// JFreeChart modelFuncPlot = ChartFactory.createXYLineChart("", "",
+	// "", modelFuncModel, PlotOrientation.VERTICAL, false, false,
+	// false);
+	//
+	// int modelFuncSeriesNum = obsModel.getSrcTypeToSeriesNumMap().get(
+	// SeriesType.ModelFunction);
+	//
+	// chart.getXYPlot().setDataset(modelFuncSeriesNum, modelFuncModel);
+	// chart.getXYPlot().setRenderer(modelFuncSeriesNum,
+	// modelFuncPlot.getXYPlot().getRenderer());
+	// Color color = SeriesType
+	// .getColorFromSeries(SeriesType.ModelFunction);
+	// chart.getXYPlot().getRenderer(modelFuncSeriesNum).setSeriesPaint(
+	// modelFuncSeriesNum, color);
+	// chart.getXYPlot().getRenderer(modelFuncSeriesNum).setSeriesVisible(
+	// modelFuncSeriesNum, true);
+	// }
+	// }
 
 	// From ChartMouseListener interface.
 	// If the mouse is over a data point, set its tool-tip with JD and
@@ -200,8 +197,11 @@ public class ObservationAndMeanPlotPane extends
 			if (item.getDataset() == obsModel) {
 				ValidObservation ob = obsModel.getValidObservation(item
 						.getSeriesIndex(), item.getItem());
-				String xyMsg = String.format(xyMsgFormat, ob.getJD(), ob
-						.getDateInfo().getCalendarDate(), ob.getMag());
+
+				String xyMsg = String.format(xyMsgFormat, NumericPrecisionPrefs
+						.formatTime(ob.getJD()), ob.getDateInfo()
+						.getCalendarDate(), NumericPrecisionPrefs.formatMag(ob
+						.getMag()));
 				item.setToolTipText(xyMsg);
 			}
 		}
