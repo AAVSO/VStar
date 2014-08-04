@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -39,6 +40,11 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public abstract class AbstractObservationRetriever {
 
+	public final String JD = LocaleProps.get("JD");
+	public final String HJD = LocaleProps.get("HJD");
+	public final String BJD = LocaleProps.get("BJD");
+	public final String MAGNITUDE = LocaleProps.get("MAGNITUDE");
+
 	private final static int DEFAULT = -1;
 
 	private double minMag;
@@ -47,6 +53,7 @@ public abstract class AbstractObservationRetriever {
 	protected boolean interrupted;
 
 	protected boolean isHeliocentric;
+	protected boolean isBarycentric;
 
 	/**
 	 * The list of valid observations retrieved.
@@ -110,7 +117,8 @@ public abstract class AbstractObservationRetriever {
 		interrupted = false;
 
 		isHeliocentric = false;
-
+		isBarycentric = false;
+		
 		Mediator.getInstance().getStopRequestNotifier().addListener(
 				createStopRequestListener());
 	}
@@ -215,6 +223,57 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
+	 * @return the isBarycentric
+	 */
+	public boolean isBarycentric() {
+		return isBarycentric;
+	}
+
+	/**
+	 * @param isBarycentric the isBarycentric to set
+	 */
+	public void setBarycentric(boolean isBarycentric) {
+		this.isBarycentric = isBarycentric;
+	}
+
+	/**
+	 * Returns a StarInfo instance for the object whose observations are being
+	 * loaded. Concrete subclasses may want to specialise this to add more
+	 * detail.
+	 * 
+	 * @return The StarInfo object.
+	 */
+	public StarInfo getStarInfo() {
+		return new StarInfo(this, getSourceName());
+	}
+
+	/**
+	 * Returns the time units string (e.g. JD, HJD, BJD, ...).
+	 * 
+	 * @return The time units string.
+	 */
+	public String getTimeUnits() {
+		String timeUnits = JD;
+		
+		if (isHeliocentric) {
+			timeUnits = HJD;
+		} else if (isBarycentric) {
+			timeUnits = BJD;
+		}
+		
+		return timeUnits;
+	}
+
+	/**
+	 * Returns the brightness units string (e.g. Magnitude, Flux, ...).
+	 * 
+	 * @return The brightness units string.
+	 */
+	public String getBrightnessUnits() {
+		return MAGNITUDE;
+	}
+
+	/**
 	 * @return the validObservationCategoryMap
 	 */
 	public Map<SeriesType, List<ValidObservation>> getValidObservationCategoryMap() {
@@ -259,12 +318,12 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	// TODO: Instead of supportsProgress(): getNumberOfLines() => null or >= 0
-	
+
 	/**
 	 * Does this observation retriever support progress (e.g. per line)?
 	 * 
-	 * @return True if it supports progress, false otherwise.
-	 * TODO: also needs to return file line number count if exists
+	 * @return True if it supports progress, false otherwise. TODO: also needs
+	 *         to return file line number count if exists
 	 */
 	public boolean supportsProgress() {
 		return false;
@@ -415,17 +474,6 @@ public abstract class AbstractObservationRetriever {
 	 */
 	protected void addInvalidObservation(InvalidObservation ob) {
 		invalidObservations.add(ob);
-	}
-
-	/**
-	 * Returns a StarInfo instance for the object whose observations are being
-	 * loaded. Concrete subclasses may want to specialise this to add more
-	 * detail.
-	 * 
-	 * @return The StarInfo object.
-	 */
-	public StarInfo getStarInfo() {
-		return new StarInfo(this, getSourceName());
 	}
 
 	// Creates a stop request listener.
