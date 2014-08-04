@@ -79,7 +79,8 @@ import org.aavso.tools.vstar.util.stats.PhaseCalcs;
  * http://iopscience.iop.org/1538-4357/460/2/L107/pdf/1538-4357_460_2_L107.pdf
  * 
  * o Fix range-check bug after N uses.<br/>
- * o Take a close look at parameter range; 0 gives error for example; start blank?<br/>
+ * o Take a close look at parameter range; 0 gives error for example; start
+ * blank?<br/>
  * o Get top-hits displaying in plot.<br/>
  * o Create a model. See Foster<br/>
  * o Parallelise!<br/>
@@ -520,6 +521,9 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			}
 
 			// Remove all but MAX_TOP_HITS
+			orderedFrequencies = new LinkedList<Double>(orderedFrequencies
+					.subList(0, MAX_TOP_HITS));
+			// TODO: ...
 			// if (periods.size() > MAX_TOP_HITS) {
 			// for (int i = MAX_TOP_HITS; i < periods.size(); i++) {
 			// orderedFrequencies.remove(i);
