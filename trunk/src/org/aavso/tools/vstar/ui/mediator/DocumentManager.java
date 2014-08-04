@@ -33,7 +33,6 @@ import org.aavso.tools.vstar.ui.model.list.RawDataModelObservationTableModel;
 import org.aavso.tools.vstar.ui.pane.list.SyntheticObservationListPane;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 
@@ -243,35 +242,8 @@ public class DocumentManager {
 	}
 
 	// Returns ANOVA result text suitable for display.
-	// TODO: could move this to stats utils package.
 	public String createAnovaText(BinningResult binningResult) {
-		String msg = null;
-
-		// Example: F-value: 18.22 on 12 and 346 degrees of freedom p-value: <
-		// 0.000001.
-
-		if (binningResult.hasValidAnovaValues()) {
-			String pValueStr;
-			if (binningResult.getPValue() < 0.000001) {
-				pValueStr = "p-value: < 0.000001";
-			} else {
-				pValueStr = String.format("p-value: "
-						+ NumericPrecisionPrefs.getOtherOutputFormat(),
-						binningResult.getPValue());
-			}
-
-			msg = String.format(
-
-			"%s, F-value: " + NumericPrecisionPrefs.getOtherOutputFormat()
-					+ " on %d and %d degrees of freedom, %s", binningResult
-					.getSeries(), binningResult.getFValue(), binningResult
-					.getBetweenGroupDF(), binningResult.getWithinGroupDF(),
-					pValueStr);
-		} else {
-			msg = "anova: insufficient data";
-		}
-
-		return msg;
+		return binningResult.createAnovaText();
 	}
 
 	// ** Filter-related methods **
