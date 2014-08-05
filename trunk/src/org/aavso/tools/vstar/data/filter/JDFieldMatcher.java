@@ -67,7 +67,6 @@ public class JDFieldMatcher extends DoubleFieldMatcher {
 
 	@Override
 	public String getTestValueFromObservation(ValidObservation ob) {
-		return String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-				.getJD());
+		return NumericPrecisionPrefs.formatTime(ob.getJD());
 	}
 }

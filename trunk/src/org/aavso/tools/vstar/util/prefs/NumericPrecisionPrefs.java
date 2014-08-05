@@ -17,7 +17,10 @@
  */
 package org.aavso.tools.vstar.util.prefs;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -54,9 +57,9 @@ public class NumericPrecisionPrefs {
 
 	// Output decimal place maps.
 
-	private static Map<Integer, String> timeOutputFormats = new HashMap<Integer, String>();
-	private static Map<Integer, String> magOutputFormats = new HashMap<Integer, String>();
-	private static Map<Integer, String> otherOutputFormats = new HashMap<Integer, String>();
+	private static Map<Integer, DecimalFormat> timeOutputFormats = new HashMap<Integer, DecimalFormat>();
+	private static Map<Integer, DecimalFormat> magOutputFormats = new HashMap<Integer, DecimalFormat>();
+	private static Map<Integer, DecimalFormat> otherOutputFormats = new HashMap<Integer, DecimalFormat>();
 
 	// Default decimal place values.
 
@@ -78,7 +81,8 @@ public class NumericPrecisionPrefs {
 	}
 
 	/**
-	 * @param timeDecimalPlaces the timeDecimalPlaces to set
+	 * @param timeDecimalPlaces
+	 *            the timeDecimalPlaces to set
 	 */
 	public static void setTimeDecimalPlaces(int timeDecimalPlaces) {
 		NumericPrecisionPrefs.timeDecimalPlaces = timeDecimalPlaces;
@@ -92,7 +96,8 @@ public class NumericPrecisionPrefs {
 	}
 
 	/**
-	 * @param magDecimalPlaces the magDecimalPlaces to set
+	 * @param magDecimalPlaces
+	 *            the magDecimalPlaces to set
 	 */
 	public static void setMagDecimalPlaces(int magDecimalPlaces) {
 		NumericPrecisionPrefs.magDecimalPlaces = magDecimalPlaces;
@@ -106,16 +111,21 @@ public class NumericPrecisionPrefs {
 	}
 
 	/**
-	 * @param otherDecimalPlaces the otherDecimalPlaces to set
+	 * @param otherDecimalPlaces
+	 *            the otherDecimalPlaces to set
 	 */
 	public static void setOtherDecimalPlaces(int otherDecimalPlaces) {
 		NumericPrecisionPrefs.otherDecimalPlaces = otherDecimalPlaces;
 	}
-	
+
 	// Time (JD, phase)
 
-	public static String getTimeOutputFormat() {
-		return getOutputFormatString(timeDecimalPlaces, Type.TIME);
+	public static String formatTime(double num) {
+		return getTimeOutputFormat().format(num);
+	}
+
+	public static DecimalFormat getTimeOutputFormat() {
+		return getOutputFormat(timeDecimalPlaces, Type.TIME);
 	}
 
 	public static String getTimeInputFormat() {
@@ -124,8 +134,12 @@ public class NumericPrecisionPrefs {
 
 	// Magnitude
 
-	public static String getMagOutputFormat() {
-		return getOutputFormatString(magDecimalPlaces, Type.MAG);
+	public static String formatMag(double num) {
+		return getMagOutputFormat().format(num);
+	}
+
+	public static DecimalFormat getMagOutputFormat() {
+		return getOutputFormat(magDecimalPlaces, Type.MAG);
 	}
 
 	public static String getMagInputFormat() {
@@ -134,8 +148,12 @@ public class NumericPrecisionPrefs {
 
 	// Other
 
-	public static String getOtherOutputFormat() {
-		return getOutputFormatString(otherDecimalPlaces, Type.OTHER);
+	public static String formatOther(double num) {
+		return getOtherOutputFormat().format(num);
+	}
+
+	public static DecimalFormat getOtherOutputFormat() {
+		return getOutputFormat(otherDecimalPlaces, Type.OTHER);
 	}
 
 	public static String getOtherInputFormat() {
@@ -144,9 +162,9 @@ public class NumericPrecisionPrefs {
 
 	// Helpers
 
-	// Construct a printf-style format string for formatted numeric output.
-	private static String getOutputFormatString(int decimalPlaces, Type type) {
-		Map<Integer, String> formats = null;
+	// Construct a formatter for numeric output.
+	private static DecimalFormat getOutputFormat(int decimalPlaces, Type type) {
+		Map<Integer, DecimalFormat> formats = null;
 
 		switch (type) {
 		case MAG:
@@ -161,8 +179,7 @@ public class NumericPrecisionPrefs {
 		}
 
 		if (!formats.containsKey(decimalPlaces)) {
-			formats.put(decimalPlaces, "%1."
-					+ String.format("%df", decimalPlaces));
+			formats.put(decimalPlaces, getOutputFormat(decimalPlaces));
 		}
 
 		return formats.get(decimalPlaces);
@@ -187,14 +204,26 @@ public class NumericPrecisionPrefs {
 		}
 
 		if (!formats.containsKey(decimalPlaces)) {
-			String s = "";
-			for (int i = 1; i <= decimalPlaces; i++) {
-				s += "#";
-			}
-			formats.put(decimalPlaces, "#." + s);
+			formats.put(decimalPlaces, getFormatString(decimalPlaces));
 		}
 
 		return formats.get(decimalPlaces);
+	}
+
+	private static DecimalFormat getOutputFormat(int decimalPlaces) {
+		DecimalFormat decFormatter = new DecimalFormat(
+				getFormatString(decimalPlaces), new DecimalFormatSymbols(Locale
+						.getDefault()));
+
+		return decFormatter;
+	}
+
+	private static String getFormatString(int decimalPlaces) {
+		String s = "";
+		for (int i = 1; i <= decimalPlaces; i++) {
+			s += "#";
+		}
+		return "#." + s;
 	}
 
 	// Preferences members.

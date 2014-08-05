@@ -780,8 +780,7 @@ public class ValidObservation extends Observation {
 				strBuf.append("Heliocentric ");
 			}
 			strBuf.append("Julian Date: ");
-			strBuf.append(String.format(NumericPrecisionPrefs
-					.getTimeOutputFormat(), dateInfo.getJulianDay()));
+			strBuf.append(NumericPrecisionPrefs.formatTime(dateInfo.getJulianDay()));
 			strBuf.append("\n");
 
 			strBuf.append("Calendar Date: ");
@@ -794,15 +793,13 @@ public class ValidObservation extends Observation {
 		if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
 			if (standardPhase != null) {
 				strBuf.append("Standard Phase: ");
-				strBuf.append(String.format(NumericPrecisionPrefs
-						.getTimeOutputFormat(), standardPhase));
+				strBuf.append(NumericPrecisionPrefs.formatTime(standardPhase));
 				strBuf.append("\n");
 			}
 
 			if (previousCyclePhase != null) {
 				strBuf.append("Previous Cycle Phase: ");
-				strBuf.append(String.format(NumericPrecisionPrefs
-						.getTimeOutputFormat(), previousCyclePhase));
+				strBuf.append(NumericPrecisionPrefs.formatTime(previousCyclePhase));
 				strBuf.append("\n");
 			}
 		}
@@ -813,8 +810,7 @@ public class ValidObservation extends Observation {
 
 		if (hqUncertainty != null) {
 			strBuf.append("HQ Uncertainty: ");
-			strBuf.append(String.format(NumericPrecisionPrefs
-					.getMagOutputFormat(), hqUncertainty));
+			strBuf.append(NumericPrecisionPrefs.formatMag(hqUncertainty));
 			strBuf.append("\n");
 		}
 
@@ -895,8 +891,7 @@ public class ValidObservation extends Observation {
 
 		if (hJD != null) {
 			strBuf.append("Heliocentric Julian Day: ");
-			strBuf.append(String.format(NumericPrecisionPrefs
-					.getTimeOutputFormat(), hJD.getJulianDay()));
+			strBuf.append(NumericPrecisionPrefs.formatTime(hJD.getJulianDay()));
 			strBuf.append("\n");
 		}
 

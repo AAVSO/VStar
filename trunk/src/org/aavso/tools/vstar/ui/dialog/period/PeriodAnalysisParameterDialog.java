@@ -78,8 +78,7 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-		loFreqField = new JTextField(String.format(NumericPrecisionPrefs
-				.getOtherOutputFormat(), loFreq));
+		loFreqField = new JTextField(NumericPrecisionPrefs.formatOther(loFreq));
 		// loPeriodField = new JTextField(loFreq + "");
 		loFreqField
 				.setBorder(BorderFactory.createTitledBorder("Low Frequency"));
@@ -88,8 +87,7 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 
 		panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
-		hiFreqField = new JTextField(String.format(NumericPrecisionPrefs
-				.getOtherOutputFormat(), hiFreq));
+		hiFreqField = new JTextField(NumericPrecisionPrefs.formatOther(hiFreq));
 		// hiPeriodField = new JTextField(hiFreq + "");
 		hiFreqField.setBorder(BorderFactory
 				.createTitledBorder("High Frequency"));
@@ -98,8 +96,7 @@ public class PeriodAnalysisParameterDialog extends AbstractOkCancelDialog {
 
 		panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
-		resolutionField = new JTextField(String.format(NumericPrecisionPrefs
-				.getOtherOutputFormat(), resolution));
+		resolutionField = new JTextField(NumericPrecisionPrefs.formatOther(resolution));
 		// resolutionField = new JTextField(resolution + "");
 		resolutionField.setBorder(BorderFactory
 				.createTitledBorder("Resolution"));

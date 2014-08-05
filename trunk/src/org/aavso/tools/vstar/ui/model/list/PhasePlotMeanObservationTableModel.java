@@ -99,22 +99,21 @@ public class PhasePlotMeanObservationTableModel extends
 		switch (columnIndex) {
 		case PHASE_COLUMN:
 			if (rowIndex < obs.size() / 2) {
-				value = String.format(NumericPrecisionPrefs
-						.getTimeOutputFormat(), ob.getPreviousCyclePhase());
+				value = NumericPrecisionPrefs.formatTime(ob
+						.getPreviousCyclePhase());
 			} else {
-				value = String.format(NumericPrecisionPrefs
-						.getTimeOutputFormat(), ob.getStandardPhase());
+				value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());
 			}
 			break;
 		case MEAN_COLUMN:
 			// The mean magnitude.
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
-					ob.getMagnitude().getMagValue());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()
+					.getMagValue());
 			break;
 		case STDERR_COLUMN:
 			// The standard error of the average.
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
-					ob.getMagnitude().getUncertainty());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()
+					.getUncertainty());
 			break;
 		}
 

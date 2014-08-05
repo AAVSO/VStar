@@ -79,8 +79,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		if (desc == null) {
 			desc = getKind() + " from periods: ";
 			for (Harmonic harmonic : harmonics) {
-				desc += String.format(NumericPrecisionPrefs
-						.getOtherOutputFormat(), harmonic.getPeriod())
+				desc += NumericPrecisionPrefs.formatOther(harmonic.getPeriod())
 						+ " ";
 			}
 		}
@@ -162,10 +161,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		if (strRepr == null) {
 			strRepr = "f(t) = ";
 
-			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
 			double constantCoefficient = parameters.get(0)
 					.getConstantCoefficient();
-			strRepr += String.format(fmt, constantCoefficient) + "\n";
+			strRepr += NumericPrecisionPrefs.formatOther(constantCoefficient) + "\n";
 
 			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);
@@ -185,10 +183,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		if (strRepr == null) {
 			strRepr = "=SUM(";
 
-			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
 			double constantCoefficient = parameters.get(0)
 					.getConstantCoefficient();
-			strRepr += String.format(fmt, constantCoefficient);
+			strRepr += NumericPrecisionPrefs.formatOther(constantCoefficient);
 			
 			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);
@@ -208,10 +205,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		if (strRepr == null) {
 			strRepr = "model <- function(t) ";
 
-			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
 			double constantCoefficient = parameters.get(0)
 					.getConstantCoefficient();
-			strRepr += String.format(fmt, constantCoefficient);
+			strRepr += NumericPrecisionPrefs.formatOther(constantCoefficient);
 
 			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);

@@ -99,7 +99,6 @@ public class PhaseFieldMatcher extends DoubleFieldMatcher {
 			}
 		}
 
-		return String
-				.format(NumericPrecisionPrefs.getTimeOutputFormat(), phase);
+		return NumericPrecisionPrefs.formatTime(phase);
 	}
 }

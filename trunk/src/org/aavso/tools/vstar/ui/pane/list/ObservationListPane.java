@@ -279,8 +279,7 @@ public class ObservationListPane extends JPanel implements
 
 						int i = 0;
 						for (ValidObservation ob : selectedObs) {
-							String jdStr = String.format(NumericPrecisionPrefs
-									.getTimeOutputFormat(), ob.getJD());
+							String jdStr = NumericPrecisionPrefs.formatTime(ob.getJD());
 							buf.append("JD = " + jdStr);
 							if (i < selectedObs.size() - 1) {
 								buf.append(" AND\n");

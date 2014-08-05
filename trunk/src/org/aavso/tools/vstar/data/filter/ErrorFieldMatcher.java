@@ -67,7 +67,7 @@ public class ErrorFieldMatcher extends DoubleFieldMatcher {
 
 	@Override
 	public String getTestValueFromObservation(ValidObservation ob) {
-		return String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
-				.getMagnitude().getUncertainty());
+		return NumericPrecisionPrefs.formatMag(ob.getMagnitude()
+				.getUncertainty());
 	}
 }

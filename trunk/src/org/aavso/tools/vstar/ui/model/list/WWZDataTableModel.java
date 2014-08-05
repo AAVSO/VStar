@@ -100,8 +100,7 @@ public class WWZDataTableModel extends AbstractTableModel {
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		double value = stats.get(rowIndex).getValue(
 				WWZCoordinateType.getTypeFromId(columnIndex));
-		return String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-				value);
+		return NumericPrecisionPrefs.formatOther(value);
 	}
 
 	/**
