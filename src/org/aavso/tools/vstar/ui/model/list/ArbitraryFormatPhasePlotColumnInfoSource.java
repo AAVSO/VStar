@@ -81,7 +81,7 @@ public class ArbitraryFormatPhasePlotColumnInfoSource extends
 
 		switch (index) {
 		case PHASE_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob.getStandardPhase());
+			value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());
 			break;
 		default:
 			value = super.getTableColumnValue(index - 1, ob);

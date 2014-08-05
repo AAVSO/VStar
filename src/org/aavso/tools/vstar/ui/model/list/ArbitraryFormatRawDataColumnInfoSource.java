@@ -133,19 +133,16 @@ public class ArbitraryFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
-					ob.getDateInfo().getJulianDay());
+			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo().getJulianDay());
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MAGNITUDE_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
-					ob.getMagnitude().getMagValue());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude().getMagValue());
 			break;
 		case UNCERTAINTY_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
-					ob.getMagnitude().getUncertainty());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude().getUncertainty());
 			break;
 		case BAND_COLUMN:
 			value = ob.getBand() == null ? "" : ob.getBand().getDescription();

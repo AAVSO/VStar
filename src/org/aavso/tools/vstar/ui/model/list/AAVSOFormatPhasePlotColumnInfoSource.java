@@ -33,11 +33,11 @@ public class AAVSOFormatPhasePlotColumnInfoSource extends
 
 	private static final int PHASE_COLUMN = 0;
 	private static final String PHASE_COLUMN_NAME = "Phase";
-	
+
 	static {
 		COLUMN_NAMES.put(PHASE_COLUMN_NAME, PHASE_COLUMN);
 	}
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -91,8 +91,7 @@ public class AAVSOFormatPhasePlotColumnInfoSource extends
 
 		switch (index) {
 		case PHASE_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-					.getStandardPhase());
+			value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());
 			break;
 		default:
 			value = super.getTableColumnValue(index - 1, ob);
@@ -101,13 +100,14 @@ public class AAVSOFormatPhasePlotColumnInfoSource extends
 
 		return value;
 	}
-	
+
 	@Override
-	public int getColumnIndexByName(String name) throws IllegalArgumentException {
+	public int getColumnIndexByName(String name)
+			throws IllegalArgumentException {
 		if (PHASE_COLUMN_NAME.equals(name)) {
 			return COLUMN_NAMES.get(name);
 		} else {
-			return super.getColumnIndexByName(name)+1;
+			return super.getColumnIndexByName(name) + 1;
 		}
 	}
 }

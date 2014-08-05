@@ -17,12 +17,16 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
+import java.text.NumberFormat;
+
 /**
  * This class encapsulates the name, range, and value of an integer text field
  * along with a GUI textField and methods to operate upon it.
  */
 public class IntegerField extends NumberFieldBase<Integer> {
 
+	private final static NumberFormat NUM_FORMAT = NumberFormat.getInstance();
+	
 	/**
 	 * Constructor
 	 * 
@@ -38,7 +42,7 @@ public class IntegerField extends NumberFieldBase<Integer> {
 	 *            The initial value.
 	 */
 	public IntegerField(String name, Integer min, Integer max, Integer initial) {
-		super("%d", name, min, max, initial);
+		super(NUM_FORMAT, name, min, max, initial);
 	}
 
 	/**

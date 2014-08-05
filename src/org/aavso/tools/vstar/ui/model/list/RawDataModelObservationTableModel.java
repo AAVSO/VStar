@@ -31,7 +31,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  */
 @SuppressWarnings("serial")
 public class RawDataModelObservationTableModel extends
-		AbstractModelObservationTableModel  {
+		AbstractModelObservationTableModel {
 
 	private static final int JD_COLUMN = 0;
 	private static final int CALDATE_COLUMN = 1;
@@ -105,7 +105,7 @@ public class RawDataModelObservationTableModel extends
 			columnName = "Magnitude";
 			break;
 		}
-		
+
 		return columnName;
 	}
 
@@ -132,18 +132,18 @@ public class RawDataModelObservationTableModel extends
 
 		switch (columnIndex) {
 		case JD_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-					.getDateInfo().getJulianDay());
+			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo()
+					.getJulianDay());
 			break;
 		case CALDATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MAG_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
-					.getMagnitude().getMagValue());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()
+					.getMagValue());
 			break;
 		}
-		
+
 		return value;
 	}
 }

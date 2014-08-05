@@ -31,7 +31,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  */
 @SuppressWarnings("serial")
 public class PhasePlotModelObservationTableModel extends
-		AbstractModelObservationTableModel  {
+		AbstractModelObservationTableModel {
 
 	private static final int PHASE_COLUMN = 0;
 	private static final int MAG_COLUMN = 1;
@@ -98,7 +98,7 @@ public class PhasePlotModelObservationTableModel extends
 			columnName = "Magnitude";
 			break;
 		}
-		
+
 		return columnName;
 	}
 
@@ -126,19 +126,18 @@ public class PhasePlotModelObservationTableModel extends
 		switch (columnIndex) {
 		case PHASE_COLUMN:
 			if (rowIndex < obs.size() / 2) {
-				value = String.format(NumericPrecisionPrefs
-						.getTimeOutputFormat(), ob.getPreviousCyclePhase());
+				value = NumericPrecisionPrefs.formatTime(ob
+						.getPreviousCyclePhase());
 			} else {
-				value = String.format(NumericPrecisionPrefs
-						.getTimeOutputFormat(), ob.getStandardPhase());
+				value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());
 			}
 			break;
 		case MAG_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
-					.getMagnitude().getMagValue());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()
+					.getMagValue());
 			break;
 		}
-		
+
 		return value;
 	}
 }

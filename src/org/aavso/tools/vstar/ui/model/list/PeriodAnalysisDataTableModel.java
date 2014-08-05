@@ -112,7 +112,7 @@ public class PeriodAnalysisDataTableModel extends AbstractTableModel {
 		PeriodAnalysisCoordinateType columnType = columnTypes[columnIndex];
 		double val = data.get(columnType).get(rowIndex);
 
-		return String.format(NumericPrecisionPrefs.getOtherOutputFormat(), val);
+		return NumericPrecisionPrefs.formatOther(val);
 	}
 
 	/**

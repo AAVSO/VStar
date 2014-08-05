@@ -173,20 +173,25 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 						String strRepr = functionStrMap
 								.get("MODEL_INFO_FIT_METRICS_TITLE");
 
-						String fmt = NumericPrecisionPrefs
-								.getOtherOutputFormat();
+						// DecimalFormat fmt = NumericPrecisionPrefs
+						// .getOtherOutputFormat();
 
 						// List<Double> derivs = new ArrayList<Double>();
 
 						if (strRepr == null) {
 							// Goodness of fit.
-							strRepr = String.format("RMS: " + fmt, optimizer
-									.getRMS());
+							strRepr = "RMS: "
+									+ NumericPrecisionPrefs
+											.formatOther(optimizer.getRMS());
 
 							// Akaike and Bayesean Information Criteria.
 							if (aic != Double.NaN && bic != Double.NaN) {
-								strRepr += String.format("\nAIC: " + fmt, aic);
-								strRepr += String.format("\nBIC: " + fmt, bic);
+								strRepr += "\nAIC: "
+										+ NumericPrecisionPrefs
+												.formatOther(aic);
+								strRepr += "\nBIC: "
+										+ NumericPrecisionPrefs
+												.formatOther(bic);
 							}
 						}
 
@@ -209,13 +214,12 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 								function, goal, min, max, zeroPoint);
 						finder.execute();
 
-						String fmt = NumericPrecisionPrefs
-								.getTimeOutputFormat();
-
 						double extremeMag = finder.getExtremeMag();
 
-						String strRepr = String.format("JD: " + fmt + ", Mag: "
-								+ fmt, finder.getExtremeTime(), extremeMag);
+						String strRepr = String.format("JD: %s, Mag: %s",
+								NumericPrecisionPrefs.formatTime(finder
+										.getExtremeTime()),
+								NumericPrecisionPrefs.formatMag(extremeMag));
 
 						// Is the extremum within a reasonable range? If not,
 						// set it to null.

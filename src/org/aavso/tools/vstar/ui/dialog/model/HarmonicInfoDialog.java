@@ -106,13 +106,9 @@ public class HarmonicInfoDialog extends JDialog implements
 		harmonicListModel = new DefaultListModel();
 
 		for (Harmonic harmonic : msg.getHarmonics()) {
-			String label = "Frequency: "
-					+ harmonic.toString()
-					+ " ("
-					+ harmonic.getHarmonicNumber()
-					+ "f), Period: "
-					+ String.format(NumericPrecisionPrefs
-							.getOtherOutputFormat(), harmonic.getPeriod());
+			String label = "Frequency: " + harmonic.toString() + " ("
+					+ harmonic.getHarmonicNumber() + "f), Period: "
+					+ NumericPrecisionPrefs.formatOther(harmonic.getPeriod());
 			harmonicListModel.addElement(label);
 			harmonicMap.put(label, harmonic);
 		}

@@ -64,8 +64,7 @@ public class HarmonicPeriodPane extends JPanel {
 
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-		periodField = new JTextField(String.format(NumericPrecisionPrefs
-				.getOtherOutputFormat(), period));
+		periodField = new JTextField(NumericPrecisionPrefs.formatOther(period));
 		periodField.setEditable(true);
 		periodField.setToolTipText(String.format("frequency="
 				+ NumericPrecisionPrefs.getOtherDecimalPlaces(), frequency));

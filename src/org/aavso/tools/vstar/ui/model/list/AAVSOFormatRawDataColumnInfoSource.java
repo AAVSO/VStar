@@ -258,20 +258,20 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 
 		switch (index) {
 		case JD_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(),
-					ob.getDateInfo().getJulianDay());
+			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo()
+					.getJulianDay());
 			;
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MAGNITUDE_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
-					ob.getMagnitude().getMagValue());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()
+					.getMagValue());
 			break;
 		case UNCERTAINTY_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(),
-					ob.getMagnitude().getUncertainty());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()
+					.getUncertainty());
 			break;
 		case BAND_COLUMN:
 			value = ob.getBand().getDescription();
@@ -312,15 +312,13 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getKMag();
 			break;
 		case HJD_COLUMN:
-			value = ob.getHJD() == null ? "" : String.format(
-					NumericPrecisionPrefs.getTimeOutputFormat(), ob.getHJD()
-							.getJulianDay());
+			value = ob.getHJD() == null ? "" : NumericPrecisionPrefs
+					.formatTime(ob.getHJD().getJulianDay());
 			break;
 		case HQ_UNCERTAINTY_COLUMN:
 			Double hqUncertainty = ob.getHqUncertainty();
-			value = null == hqUncertainty ? "" : String.format(
-					NumericPrecisionPrefs.getMagOutputFormat(), ob
-							.getHqUncertainty());
+			value = null == hqUncertainty ? "" : NumericPrecisionPrefs
+					.formatMag(ob.getHqUncertainty());
 			break;
 		case MTYPE_COLUMN:
 			value = ob.getMType() == null ? "" : ob.getMType().toString();

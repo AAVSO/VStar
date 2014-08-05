@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.event.ActionListener;
+import java.text.NumberFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -54,15 +55,14 @@ public abstract class NumberFieldBase<T extends Number> implements
 	 * @param initial
 	 *            The initial value.
 	 */
-	public NumberFieldBase(String numberFormat, String name, T min, T max,
-			T initial) {
+	public NumberFieldBase(NumberFormat numberFormat, String name, T min,
+			T max, T initial) {
 		this.name = name;
 		this.min = min;
 		this.max = max;
 		this.initial = initial;
 
-		String initialStr = initial == null ? "" : String.format(numberFormat,
-				initial);
+		String initialStr = initial == null ? "" : numberFormat.format(initial);
 		textField = new JTextField(initialStr);
 		textField.setBorder(BorderFactory.createTitledBorder(name));
 		textField.setToolTipText("Enter " + name);

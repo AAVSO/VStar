@@ -324,16 +324,14 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		if (strRepr == null) {
 			strRepr = "f(t) = ";
 
-			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
-
 			// sum(a[i]t^n), where n >= 1
 			for (int i = npoly; i >= 1; i--) {
-				strRepr += String.format(fmt, dcoef[i]) + "(t-"
+				strRepr += NumericPrecisionPrefs.formatOther(dcoef[i]) + "(t-"
 						+ getZeroPointOffset() + ")^" + i + " + \n";
 			}
 
 			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
-			strRepr += String.format(fmt, dcoef[0]);
+			strRepr += NumericPrecisionPrefs.formatOther(dcoef[0]);
 		}
 
 		return strRepr;
@@ -346,16 +344,14 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		if (strRepr == null) {
 			strRepr = "=SUM(";
 
-			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
-
 			// sum(a[i]t^n), where n >= 1
 			for (int i = npoly; i >= 1; i--) {
-				strRepr += String.format(fmt, dcoef[i]) + "*(A1-"
+				strRepr += NumericPrecisionPrefs.formatOther(dcoef[i]) + "*(A1-"
 						+ getZeroPointOffset() + ")^" + i + ",\n";
 			}
 
 			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
-			strRepr += String.format(fmt, dcoef[0]);
+			strRepr += NumericPrecisionPrefs.formatOther(dcoef[0]);
 
 			strRepr += ")";
 		}
@@ -370,8 +366,6 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 		if (strRepr == null) {
 			strRepr = "model <- function(t) ";
 
-			String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
-
 			// sum(a[i]t^n), where n >= 1
 			for (int i = npoly; i >= 1; i--) {
 				strRepr += String.format("%1.20f", dcoef[i]) + "*(t-"
@@ -379,7 +373,7 @@ public class TSPolynomialFitter extends TSBase implements IPolynomialFitter {
 			}
 
 			// The zeroth (constant) coefficient, where n = 0 since t^0 = 1.
-			strRepr += String.format(fmt, dcoef[0]);
+			strRepr += NumericPrecisionPrefs.formatOther(dcoef[0]);
 		}
 
 		return strRepr;

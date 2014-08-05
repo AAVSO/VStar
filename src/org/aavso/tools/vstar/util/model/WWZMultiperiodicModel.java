@@ -48,7 +48,7 @@ public class WWZMultiperiodicModel implements IModel {
 	private String desc;
 
 	private boolean interrupted;
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -67,7 +67,7 @@ public class WWZMultiperiodicModel implements IModel {
 
 		fit = new ArrayList<ValidObservation>();
 		residuals = new ArrayList<ValidObservation>();
-		
+
 		interrupted = false;
 	}
 
@@ -94,12 +94,11 @@ public class WWZMultiperiodicModel implements IModel {
 			// Always use all statistcs vs maximal statistics to create model.
 			// TODO: sanity check that!
 			for (WWZStatistic stat : wwt.getStats()) {
-				
+
 				if (stat.getPeriod() == period) {
-					
+
 					String comment = "From WWZ, period "
-							+ String.format(NumericPrecisionPrefs
-									.getOtherOutputFormat(), period);
+							+ NumericPrecisionPrefs.formatOther(period);
 
 					// Create a fit observation from the average magnitude for
 					// this time-frequency/period combination.
@@ -128,7 +127,7 @@ public class WWZMultiperiodicModel implements IModel {
 						i++;
 					}
 				}
-				
+
 				if (interrupted) {
 					return;
 				}
@@ -149,9 +148,7 @@ public class WWZMultiperiodicModel implements IModel {
 		if (desc == null) {
 			desc = getKind() + " from periods: ";
 			for (Double period : periods) {
-				desc += String.format(NumericPrecisionPrefs
-						.getOtherOutputFormat(), period)
-						+ " ";
+				desc += NumericPrecisionPrefs.formatOther(period) + " ";
 			}
 		}
 
@@ -191,7 +188,7 @@ public class WWZMultiperiodicModel implements IModel {
 	public boolean hasFuncDesc() {
 		return false;
 	}
-	
+
 	public String toString() {
 		return getDescription();
 	}
@@ -205,7 +202,7 @@ public class WWZMultiperiodicModel implements IModel {
 	public Map<String, String> getFunctionStrings() {
 		return null;
 	}
-	
+
 	@Override
 	public ContinuousModelFunction getModelFunction() {
 		return null;

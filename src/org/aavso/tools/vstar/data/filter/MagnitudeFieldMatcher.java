@@ -67,7 +67,6 @@ public class MagnitudeFieldMatcher extends DoubleFieldMatcher {
 
 	@Override
 	public String getTestValueFromObservation(ValidObservation ob) {
-		return String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
-				.getMag());
+		return NumericPrecisionPrefs.formatMag(ob.getMag());
 	}
 }

@@ -120,8 +120,7 @@ public class Harmonic implements Comparable<Harmonic> {
 
 	public String toString() {
 		if (str == null) {
-			str = String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-					frequency);
+			str = NumericPrecisionPrefs.formatOther(frequency);
 		}
 
 		return str;

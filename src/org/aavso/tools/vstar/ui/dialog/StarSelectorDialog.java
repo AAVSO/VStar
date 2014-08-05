@@ -147,8 +147,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 				.get("NEW_STAR_FROM_AID_DLG_MINIMUM_JD")));
 
 		double jd = dateUtil.calendarToJD(year - 2, month, day);
-		minJDField = new JTextField(String.format(NumericPrecisionPrefs
-				.getTimeOutputFormat(), jd));
+		minJDField = new JTextField(NumericPrecisionPrefs.formatTime(jd));
 		minJDField.addActionListener(createMinJDFieldActionListener());
 		minJDField.addFocusListener(createMinJDFieldFocusListener());
 		minJDField.setToolTipText(dateUtil.jdToCalendar(jd));
@@ -164,8 +163,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 				.get("NEW_STAR_FROM_AID_DLG_MAXIMUM_JD")));
 
 		double jd = dateUtil.calendarToJD(year, month, day);
-		maxJDField = new JTextField(String.format(NumericPrecisionPrefs
-				.getTimeOutputFormat(), jd));
+		maxJDField = new JTextField(NumericPrecisionPrefs.formatTime(jd));
 		maxJDField.addActionListener(createMaxJDFieldActionListener());
 		maxJDField.addFocusListener(createMaxJDFieldFocusListener());
 		maxJDField.setToolTipText(dateUtil.jdToCalendar(jd));

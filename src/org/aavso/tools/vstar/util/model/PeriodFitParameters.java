@@ -226,56 +226,49 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 		String str = "parameters: ";
 
 		str += "frequency=";
-		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-				getFrequency());
+		str += NumericPrecisionPrefs.formatOther(getFrequency());
 		str += ", ";
 
 		str += "period=";
-		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-				getPeriod());
+		str += NumericPrecisionPrefs.formatOther(getPeriod());
 		str += ", ";
 
 		str += "amplitude=";
-		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-				amplitude);
+		str += NumericPrecisionPrefs.formatOther(amplitude);
 		str += ", ";
 
 		str += "cosine coefficient=";
-		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-				cosineCoefficient);
+		str += NumericPrecisionPrefs.formatOther(cosineCoefficient);
 		str += ", ";
 
 		str += "sine coefficient=";
-		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-				sineCoefficient);
+		str += NumericPrecisionPrefs.formatOther(sineCoefficient);
 		str += ", ";
 
 		str += "constant coefficient=";
-		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-				constantCoefficient);
+		str += NumericPrecisionPrefs.formatOther(constantCoefficient);
 
 		str += "zero point offset=";
-		str += String.format(NumericPrecisionPrefs.getOtherOutputFormat(),
-				zeroPointOffset);
+		str += NumericPrecisionPrefs.formatOther(zeroPointOffset);
 
 		return str;
 	}
 
 	public String toString() {
-		String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
-
 		String str = cosineCoefficient >= 0 ? "+" : "";
 
 		String sincosParam = "2\u03C0" + harmonic + "(t-" + zeroPointOffset
 				+ ")";
 
-		str += String.format(fmt, cosineCoefficient) + " \u00D7 cos(";
+		str += NumericPrecisionPrefs.formatOther(cosineCoefficient)
+				+ " \u00D7 cos(";
 		str += sincosParam;
 		str += ")";
 
 		str += sineCoefficient >= 0 ? "+" : "";
 
-		str += String.format(fmt, sineCoefficient) + " \u00D7 sin(";
+		str += NumericPrecisionPrefs.formatOther(sineCoefficient)
+				+ " \u00D7 sin(";
 		str += sincosParam;
 		str += ")";
 
@@ -285,20 +278,18 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	public String toExcelString() {
 		String str = null;
 
-		String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
-
 		str = cosineCoefficient != 0 ? ",\n" : "\n";
 
 		String sincosParam = "2*PI()*" + harmonic + "*(A1-" + zeroPointOffset
 				+ ")";
 
-		str += String.format(fmt, cosineCoefficient) + " * COS(";
+		str += NumericPrecisionPrefs.formatOther(cosineCoefficient) + " * COS(";
 		str += sincosParam;
 		str += ")";
 
 		str += sineCoefficient != 0 ? ",\n" : "\n";
 
-		str += String.format(fmt, sineCoefficient) + " * SIN(";
+		str += NumericPrecisionPrefs.formatOther(sineCoefficient) + " * SIN(";
 		str += sincosParam;
 		str += ")";
 
@@ -306,20 +297,18 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	}
 
 	public String toRString() {
-		String fmt = NumericPrecisionPrefs.getOtherOutputFormat();
-
 		String str = "+\n";
 
 		String sincosParam = "2*pi*" + harmonic + "*(t-" + zeroPointOffset
 				+ ")";
 
-		str += String.format(fmt, cosineCoefficient) + " * cos(";
+		str += NumericPrecisionPrefs.formatOther(cosineCoefficient) + " * cos(";
 		str += sincosParam;
 		str += ")";
 
 		str += sineCoefficient >= 0 ? "+" : "";
 
-		str += String.format(fmt, sineCoefficient) + " * sin(";
+		str += NumericPrecisionPrefs.formatOther(sineCoefficient) + " * sin(";
 		str += sincosParam;
 		str += ")";
 

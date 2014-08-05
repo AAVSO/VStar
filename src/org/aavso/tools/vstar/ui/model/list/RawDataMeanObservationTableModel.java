@@ -102,21 +102,20 @@ public class RawDataMeanObservationTableModel extends
 
 		switch (columnIndex) {
 		case JD_COLUMN:
-			value = String.format(NumericPrecisionPrefs.getTimeOutputFormat(), ob
-					.getDateInfo().getJulianDay());
+			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo()
+					.getJulianDay());
 			break;
 		case CALDATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MEAN_COLUMN:
 			// The mean magnitude.
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
-					.getMagnitude().getMagValue());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()
+					.getMagValue());
 			break;
 		case STDERR_COLUMN:
 			// The standard error of the average.
-			value = String.format(NumericPrecisionPrefs.getMagOutputFormat(), ob
-					.getMagnitude().getUncertainty());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude().getUncertainty());
 			break;
 		}
 
