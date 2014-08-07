@@ -174,8 +174,7 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Load a dataset from the specified URL, adding it to the existing
-	 * dataset.
+	 * Load a dataset from the specified URL, adding it to the existing dataset.
 	 * 
 	 * @param pluginPattern
 	 *            The sub-string with which to match the plugin name.
@@ -253,7 +252,26 @@ public class VStarScriptingAPI {
 			double maxJD) {
 		String auid = null;
 		mediator.createObservationArtefactsFromDatabase(name, auid, minJD,
-				maxJD);
+				maxJD, false);
+		mediator.waitForJobCompletion();
+	}
+
+	/**
+	 * Load a dataset from the AAVSO international database, adding it to the
+	 * existing dataset.
+	 * 
+	 * @param name
+	 *            The name of the object.
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 */
+	public synchronized void additiveLoadFromAID(final String name,
+			double minJD, double maxJD) {
+		String auid = null;
+		mediator.createObservationArtefactsFromDatabase(name, auid, minJD,
+				maxJD, true);
 		mediator.waitForJobCompletion();
 	}
 

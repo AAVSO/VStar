@@ -57,6 +57,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JTextField minJDField;
 	private JTextField maxJDField;
 	private JCheckBox allDataCheckBox;
+	private JCheckBox additiveLoadCheckbox;
 
 	private JulianDayValidator jdValidator;
 
@@ -111,6 +112,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		topPane.add(createMinJDFieldPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createMaxJDFieldPane());
+		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		topPane.add(createAdditiveLoadCheckboxPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(createAllDataCheckBoxPane());
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -185,6 +188,16 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		return panel;
 	}
 
+	private JPanel createAdditiveLoadCheckboxPane() {
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder("Additive Load"));
+
+		additiveLoadCheckbox = new JCheckBox("Add to current?");
+		panel.add(additiveLoadCheckbox);
+
+		return panel;
+	}
+	
 	// Event handlers
 
 	// Return a listener for the star field.
@@ -374,6 +387,15 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	 */
 	public boolean wantAllData() {
 		return wantAllData;
+	}
+
+	/**
+	 * Return whether or not the load is additive.
+	 * 
+	 * @return Whether or not the load is additive.
+	 */
+	public boolean isLoadAdditive() {
+		return additiveLoadCheckbox.isSelected();
 	}
 
 	/**

@@ -44,6 +44,8 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	protected List<InputStream> inputStreams;
 	protected String inputName;
 
+	protected boolean isAdditive;
+
 	/**
 	 * Constructor
 	 * 
@@ -55,6 +57,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	protected ObservationSourcePluginBase(String username, String password) {
 		this.userName = username;
 		this.password = password;
+		isAdditive = false;
 	}
 
 	/**
@@ -224,5 +227,19 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	@Override
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
 		return true;
+	}
+	
+	/**
+	 * @return the isAdditive
+	 */
+	public boolean isAdditive() {
+		return isAdditive;
+	}
+
+	/**
+	 * @param isAdditive the isAdditive to set
+	 */
+	public void setAdditive(boolean isAdditive) {
+		this.isAdditive = isAdditive;
 	}
 }
