@@ -198,7 +198,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 
 			// Create table/plot models and GUI elements.
 			mediator.createNewStarObservationArtefacts(
-					NewStarType.NEW_STAR_FROM_DATABASE, starInfo, 2, false);
+					NewStarType.NEW_STAR_FROM_DATABASE, starInfo, 2, isAdditiveLoad);
 
 			success = true;
 

@@ -1057,9 +1057,11 @@ public class Mediator {
 	 *            The minimum Julian Day of the requested range.
 	 * @param maxJD
 	 *            The maximum Julian Day of the requested range.
+	 * @param isAdditiveLoad
+	 *            Is the load additive?
 	 */
 	public void createObservationArtefactsFromDatabase(String starName,
-			String auid, double minJD, double maxJD) {
+			String auid, double minJD, double maxJD, boolean isAdditiveLoad) {
 
 		try {
 			this.getProgressNotifier().notifyListeners(
@@ -1069,7 +1071,7 @@ public class Mediator {
 					new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
 
 			NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(
-					starName, auid, minJD, maxJD, false);
+					starName, auid, minJD, maxJD, isAdditiveLoad);
 			this.currTask = task;
 			task.execute();
 		} catch (Exception ex) {
@@ -1182,7 +1184,16 @@ public class Mediator {
 
 			starInfo.getRetriever().addAllInvalidObservations(invalidObsList);
 
-			newStarType = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
+			// If any loaded data source type is different from the current data
+			// source type, use arbitrary data source type that accommodates any
+			// data source type. We should change this so that all data sources
+			// have the same type!
+			for (NewStarMessage msg : getNewStarMessageList()) {
+				if (msg.getNewStarType() != newStarType) {
+					newStarType = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
+					break;
+				}
+			}
 		}
 
 		List<ValidObservation> validObsList = starInfo.getRetriever()
@@ -1378,6 +1389,12 @@ public class Mediator {
 			}
 		}
 
+		// Perhaps our new retriever has RA and Dec we can use?
+		if (ra == null || dec == null) {
+			ra = newStarInfo.getRA();
+			dec = newStarInfo.getDec();
+		}
+		
 		if (newStarInfo.getRetriever().isHeliocentric()
 				&& !getLatestNewStarMessage().getStarInfo().getRetriever()
 						.isHeliocentric()) {
@@ -1440,9 +1457,9 @@ public class Mediator {
 
 	// Request the B1950.0 RA in HH:MM:SS.n
 	public RAInfo requestRA() {
-		IntegerField raHours = new IntegerField("Hours", 0, 60, 0);
-		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, 0);
-		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, 0.0);
+		IntegerField raHours = new IntegerField("Hours", 0, 60, null);
+		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, null);
+		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, null);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
 				"RA (B1950.0)", raHours, raMinutes, raSeconds);
 
@@ -1457,9 +1474,9 @@ public class Mediator {
 
 	// Request the B1950.0 Dec in DD:MM:SS.n
 	public DecInfo requestDec() {
-		IntegerField raHours = new IntegerField("Degrees", -90, 90, 0);
-		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, 0);
-		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, 0.0);
+		IntegerField raHours = new IntegerField("Degrees", -90, 90, null);
+		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, null);
+		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, null);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
 				"Dec (B1950.0)", raHours, raMinutes, raSeconds);
 

@@ -115,7 +115,7 @@ public abstract class AbstractObservationRetriever {
 		this.maxMag = -Double.MAX_VALUE;
 
 		interrupted = false;
-
+		
 		isHeliocentric = false;
 		isBarycentric = false;
 		

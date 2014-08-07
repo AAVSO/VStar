@@ -118,14 +118,11 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// Set input streams and name, if requested by the plug-in.
 			List<InputStream> streams = new ArrayList<InputStream>();
 
-			// TODO: ask plugin once whether load is additive; may be overridden
-			// by file, URL, or other dialog
-
-			boolean isAdditive = false;
-
 			switch (obSourcePlugin.getInputType()) {
 			case FILE:
 			case FILE_OR_URL:
+				// Does the plug-in supply files? Or do we have to ask the user
+				// for a file?
 				List<File> files = obSourcePlugin.getFiles();
 				if (files != null) {
 					String fileNames = "";
@@ -146,7 +143,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 									obSourcePlugin.getInputType() == InputType.FILE_OR_URL);
 					if (fileChooser != null) {
 						// If a file was chosen or a URL obtained, use as input.
-						isAdditive = fileChooser.isLoadAdditive();
+						obSourcePlugin
+								.setAdditive(fileChooser.isLoadAdditive());
 
 						if (fileChooser.isUrlProvided()) {
 							String urlStr = fileChooser.getUrlString();
@@ -176,7 +174,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 							userName, password));
 				}
 
-				// Obtain the plugin's URLs and create input streams.
+				// Does the plug-in supply URLs? Or do we have to ask the user
+				// for a URL?
 				List<URL> urls = obSourcePlugin.getURLs();
 				if (urls != null) {
 					String urlStrs = "";
@@ -196,7 +195,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 					if (!urlDialog.isCancelled()
 							&& !urlField.getValue().matches("^\\s*$")) {
 						String urlStr = urlField.getValue();
-						isAdditive = additiveLoadCheckbox.getValue();
+						obSourcePlugin.setAdditive(additiveLoadCheckbox.getValue());
 						URL url = new URL(urlStr);
 						streams.add(url.openStream());
 						obSourcePlugin.setInputInfo(streams, urlStr);
@@ -228,7 +227,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// Create plots, tables.
 			NewStarType type = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
 			mediator.createNewStarObservationArtefacts(type, retriever
-					.getStarInfo(), 0, isAdditive);
+					.getStarInfo(), 0, obSourcePlugin.isAdditive());
 
 		} catch (InterruptedException e) {
 			ValidObservation.restore();

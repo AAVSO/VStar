@@ -74,7 +74,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 	protected double decDegs;
 	protected double radiusDegs;
 	protected Set<String> seriesNames;
-
+	
 	// Ordered list of series.
 	protected List<SeriesType> seriesList;
 
@@ -144,7 +144,8 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			raDegs = paramDialog.getRADeg();
 			decDegs = paramDialog.getDecDeg();
 			radiusDegs = paramDialog.getRadiusDeg();
-
+			setAdditive(paramDialog.isLoadAdditive());
+			
 			// We want numbers in the the URL to correspond to the server's
 			// locale!
 			String params = String
@@ -191,7 +192,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 
 	class AAVSOPhotometryURLObservationRetriever extends
 			AbstractObservationRetriever {
-
+		
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
@@ -290,7 +291,8 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 		private DoubleField decDegField;
 		private JComboBox radiusDegSelector;
 		private List<JCheckBox> checkBoxes;
-
+		private JCheckBox additiveLoadCheckbox;
+		
 		/**
 		 * Constructor
 		 */
@@ -305,6 +307,8 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 
 			topPane.add(createParameterPane());
 
+			topPane.add(createAdditiveLoadCheckboxPane());
+
 			// OK, Cancel
 			topPane.add(createButtonPane());
 
@@ -318,7 +322,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 		private JPanel createParameterPane() {
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-
+			
 			raDegField = new DoubleField("RA (degrees)", 0.0, 360.0, raDegs);
 			panel.add(raDegField.getUIComponent());
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
@@ -337,6 +341,17 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 
 			panel.add(createDataSeriesCheckboxes());
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
+
+			return panel;
+		}
+
+
+		private JPanel createAdditiveLoadCheckboxPane() {
+			JPanel panel = new JPanel();
+			panel.setBorder(BorderFactory.createTitledBorder("Additive Load"));
+
+			additiveLoadCheckbox = new JCheckBox("Add to current?");
+			panel.add(additiveLoadCheckbox);
 
 			return panel;
 		}
@@ -399,6 +414,15 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			String[] fields = ((String) radiusDegSelector.getSelectedItem())
 					.split("\\s+");
 			return Double.parseDouble(fields[0]);
+		}
+
+		/**
+		 * Return whether or not the load is additive.
+		 * 
+		 * @return Whether or not the load is additive.
+		 */
+		public boolean isLoadAdditive() {
+			return additiveLoadCheckbox.isSelected();
 		}
 
 		/**

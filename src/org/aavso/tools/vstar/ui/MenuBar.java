@@ -694,7 +694,8 @@ public class MenuBar extends JMenuBar {
 						}
 
 						mediator.createObservationArtefactsFromDatabase(
-								starName, auid, minJD, maxJD);
+								starName, auid, minJD, maxJD,
+								starSelectorDialog.isLoadAdditive());
 					} else {
 						Mediator.getUI().getStatusPane().setMessage("");
 					}
@@ -716,7 +717,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createNewStarFromFileListener() {
 		final AdditiveLoadFileOrUrlChooser fileOpenDialog = this.fileOpenDialog;
 		fileOpenDialog.reset();
-		
+
 		final IMainUI parent = this.parent;
 
 		return new ActionListener() {

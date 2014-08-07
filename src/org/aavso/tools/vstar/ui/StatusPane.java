@@ -193,20 +193,26 @@ public class StatusPane extends JPanel {
 
 			public void update(NewStarMessage msg) {
 				if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
-						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE) {
+						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DOWNLOAD_FILE
+						|| msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
 					strBuf.append(msg.getStarInfo().getDesignation());
-					strBuf.append("' " + LocaleProps.get("LOADED") + ".");
+					strBuf.append("' " + LocaleProps.get("LOADED"));
 					setMessage(strBuf.toString());
-				} else if (msg.getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+				} else {
+					// Arbitrary data sources.
 					StringBuffer strBuf = new StringBuffer();
 					strBuf.append("'");
 					strBuf.append(msg.getStarInfo().getDesignation());
-					strBuf.append("' " + LocaleProps.get("LOADED") + " "
-							+ LocaleProps.get("FROM") + " "
-							+ LocaleProps.get("DATABASE") + ".");
-					setMessage(strBuf.toString());
+					strBuf.append("' " + LocaleProps.get("LOADED"));
+					String str = strBuf.toString();
+					if (str.length() > 20) {
+						// We don't want to have a message that is so long (e.g.
+						// a URL) that it takes over the status pane!
+						str = "";
+					}
+					setMessage(str);
 				}
 			}
 
