@@ -32,7 +32,7 @@ public class APASSEpochPhotometryObservationSource extends
 		super(
 				"APASS",
 				"http://tombstone.physics.mcmaster.ca/APASS/conesearch_filter_cr.php?",
-				"apass", "Its_full_of_stars");
+				"apass", "Its_full_of_stars", true);
 
 		seriesNameToTypeMap.put("B", SeriesType.Johnson_B);
 		seriesNameToTypeMap.put("V", SeriesType.Johnson_V);

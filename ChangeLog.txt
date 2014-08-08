@@ -35,6 +35,28 @@ Release History
 ===============
   
 --------------------
+Date: August 8 2014
+Version: 2.16.3
+Tag: DEV-AAVSO-08Aug2014
+Key Changes:
+- Fixed ticket 458: Authentication error post 2.16.2.
+- Fixed ticket 457: Commas in numbers when decimal point expected 
+  in tailored non-English locale.
+- Fixed ticket 460: Files saved as CSV/TSV from in non-Enlish locale
+  generate commas.
+- Fixed ticket 416: APASS/BSM input dialog won't validate when Dec 
+  field has a leading "+".
+- APASS/BSM plug-ins set as HJD observation sources.
+- Fixed ticket 459: AAVSO download format files with more than 23 
+  columns not loading.
+- Added ability to set Barycentric flag in observation sources.
+- Observation retriever can now specify time units for plot axis 
+  labels (ticket 26: X,Y axis units should be configurable per 
+  dataset).
+- Ticket 454: Additive load checkbox for AID, BSM, APASS dialogs.
+- Changed period-luminosity distance calculator menu item name and
+  description.
+
 Date: July 17 2014
 Version: 2.16.2
 Tag: DEV-AAVSO-17Jul2014

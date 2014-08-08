@@ -32,7 +32,7 @@ public class BSMPhotometryObservationSource extends
 		super(
 				"BSM",
 				"http://tombstone.physics.mcmaster.ca/BSM/conesearch_filter_cr.php?",
-				"apass", "Its_full_of_stars");
+				"apass", "Its_full_of_stars", true);
 
 		seriesNameToTypeMap.put("B", SeriesType.Johnson_B);
 		seriesNameToTypeMap.put("V", SeriesType.Johnson_V);
