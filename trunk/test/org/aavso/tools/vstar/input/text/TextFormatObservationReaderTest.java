@@ -123,7 +123,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 		double[][] expected = { { 24550000, 4.2, 0.1 }, { 24550001, 3.2, 0.2 },
 				{ 24550002, 2.2, 0.3 } };
 
-		int i=0;
+		int i = 0;
 		for (ValidObservation ob : obs) {
 			assertEquals(expected[i][0], ob.getJD());
 			assertEquals(expected[i][1], ob.getMag());
@@ -134,10 +134,14 @@ public class TextFormatObservationReaderTest extends TestCase {
 
 	// Tests of valid AAVSO Download format.
 
+	// Note: This test currently fails (2.16.3) yet loading a TSV file with the
+	// same lines works as expected. Why?
 	public void testAAVSODownloadTSV1() {
 		StringBuffer lines = new StringBuffer();
-		lines.append("2400020	3.86			Visual	AFW	K					No		G				miu Cep	NULL\n");
-		lines.append("2400038	4			Visual	WAI	K					No		G				miu Cep	0\n");
+		lines
+				.append("2454531.66261	8.441			V	FOO		89	92	80320		No	1.143	G	8.936			W UMA		STD			\n");
+		lines
+				.append("2454531.66346	9.283			B	FOO		89	92	80320		No	1.143	G	9.958			W UMA		STD			\n");
 
 		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t");
 
@@ -145,29 +149,29 @@ public class TextFormatObservationReaderTest extends TestCase {
 
 		// A few checks.
 		ValidObservation ob0 = obs.get(0);
-		assertEquals(2400020.0, ob0.getDateInfo().getJulianDay());
-		assertEquals(SeriesType.Visual, ob0.getBand());
-		assertEquals("miu Cep", ob0.getName());
+		assertEquals(2454531.66261, ob0.getDateInfo().getJulianDay());
+		assertEquals(SeriesType.Johnson_V, ob0.getBand());
+		assertEquals("W UMA", ob0.getName());
 	}
 
+	// Note: This test currently fails (2.16.3) yet loading a CSV file with the
+	// same lines works as expected. Why?
 	public void testAAVSODownloadCSV1() {
 		StringBuffer lines = new StringBuffer();
 		lines
-				.append("2454924.60694,3.95,,,Visual,SSW,,34,45,1036bbr,,No,,G,,,,000-BCT-763\n");
+				.append("2454531.66261,8.441,,,V,FOO,,89,92,80320,,No,1.143,P,8.936,,,W UMA,,STD,,\n");
 		lines
-				.append("2454931.86042,3.6,,,Visual,MDP,B,37,34,Star Tutorial,MOON,No,,G,,,,000-BCT-763\n");
-		lines
-				.append("2454933.89861,4.0,,,Visual,MDP,B,37,44,Star Tutorial,MOON AND TWILIGHT,No,,G,,,,000-BCT-763\n");
+				.append("2454531.66346,9.283,,,B,FOO,,89,92,80320,,No,1.143,P,9.958,,,W UMA,,STD,,\n");
 
 		List<ValidObservation> obs = commonValidTest(lines.toString(), ",");
 
-		assertTrue(obs.size() == 3);
+		assertTrue(obs.size() == 2);
 
 		// A few checks.
 		ValidObservation ob0 = obs.get(0);
-		assertEquals(2454924.60694, ob0.getDateInfo().getJulianDay());
-		assertEquals(SeriesType.Visual, ob0.getBand());
-		assertEquals("000-BCT-763", ob0.getName());
+		assertEquals(2454531.66261, ob0.getDateInfo().getJulianDay());
+		assertEquals(SeriesType.Johnson_V, ob0.getBand());
+		assertEquals("W UMA", ob0.getName());
 	}
 
 	public void testLineWithValidationFlagV() {
@@ -231,7 +235,8 @@ public class TextFormatObservationReaderTest extends TestCase {
 
 	// Tests of invalid simple text format.
 
-	public void testSimpleInvalidAllButUncertaintyAndValflagTSV() throws IOException {
+	public void testSimpleInvalidAllButUncertaintyAndValflagTSV()
+			throws IOException {
 		// There should be another tab between the magnitude and obscode
 		// to account for the missing uncertainty value field.
 		commonInvalidTest("2450001.5\t10.0\tDJB\n");

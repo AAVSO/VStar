@@ -137,6 +137,9 @@ public class ObservationFieldSplitterTest extends TestCase {
 
 	// Invalid
 
+	// Note: This test currently fails (2.16.3) because we no longer take into
+	// account maximum number of fields, only discriminating on file type by
+	// minimum number of fields.
 	public void testTooManyFields() throws IOException {
 		String line = "2450001.5\t10.0\t0.1\tXYZ\tD\t42\n";
 
