@@ -43,6 +43,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  * 
  * @author Paul F. York
  * @version 1.0 - 22 Jul 2014
+ * @version 1.1 - 08 Aug 2014: refactored the code
  */
 
 public class HipparcosObservationSource extends ObservationSourcePluginBase {
@@ -83,6 +84,7 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 			state = State.HEADER; // Start out assuming a header ...
 			series = SeriesType.create("Hipparcos", "Hipparcos", Color.ORANGE,
 					false, false);
+			this.setBarycentric(true);
 		}
 
 		@Override
@@ -96,58 +98,47 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 		}
 
 		@Override
+		public String getTimeUnits() {
+			return "BJD(TT)";
+		}
+			
+		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					getInputStreams().get(0)));
-
 			String line = null;
+			
 			int lineNum = 1;
-
-			do {
-				try {
-					line = reader.readLine();
-					
-					if (line != null) {
-						if (!isEmpty(line)) {
-							
-							// State machine cases ...
-							switch (state) {
-							case HEADER:
-								if (line.startsWith("HT1")) {
-									state = State.DATA;
-								} else if (Character.isDigit(line.charAt(0))) {
-									state = State.DATA;
-									handleData(line, lineNum);
-								}
-								break;
-
-							case DATA:
-								handleData(line, lineNum);
-								break;
-							}
-						}
-						lineNum++;
+			line = getNextLine(reader, lineNum);  // Fetch the first line
+			
+			while (line != null) {
+				// State machine cases ...
+				switch (state) {
+				case HEADER:
+					if (line.startsWith("HT1")) {
+						state = State.DATA;
+					} 
+					else if (Character.isDigit(line.charAt(0))) {
+						state = State.DATA;
+						handleData(line, lineNum);
 					}
+					break;
 
-				} catch (Exception e) {
-					// Create an invalid observation. Record the line number
-					// rather than the observation number for error reporting
-					// purposes, but still increment the latter.
-					String error = e.getLocalizedMessage();
-					InvalidObservation ob = new InvalidObservation(line, error);
-					ob.setRecordNumber(lineNum);
-					addInvalidObservation(ob);
+				case DATA:
+					handleData(line, lineNum);
+					break;
 				}
-			} while (line != null);
+				lineNum++;
+				line = getNextLine(reader, lineNum);  // Fetch next line
+			}
 		}
 
-		// ** Helper methods. **
+		// ** Helper methods **
 
 		private void handleData(String line, int lineNum)
 				throws ObservationReadError {
-			String[] fields = line.split("\\|");
-
+			
 			// Hipparcos makes use of the Barycentric Julian Date (BJD), as
 			// follows -
 			// Observation epochs (the JDs in field HT1) are given in
@@ -157,8 +148,9 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 			// propogation time to the solar system barycentre, and are
 			// therefore referred to as BJD(TT).
 
-			double bjd = Double.parseDouble(fields[0].trim()) + 40000 + 
-					2400000.0;
+			String[] fields = line.split("\\|");
+			
+			double bjd = Double.parseDouble(fields[0].trim()) + 40000 + 2400000.0;
 			double mag = Double.parseDouble(fields[1].trim());
 			double magErr = Double.parseDouble(fields[2].trim());
 			String flags = fields[3].trim();
@@ -171,9 +163,24 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 			ob.addDetail("FLAGS", flags, "Flags");
 			collectObservation(ob);
 		}
+		private String getNextLine(BufferedReader reader, int lineNum) {
+			
+			// Reads the next line from the input file ...
+			
+			String line = null;
+			try {
+				line = reader.readLine();
 
-		private boolean isEmpty(String str) {
-			return str != null && "".equals(str.trim());
+			} catch (Exception e) {
+				// Create an invalid observation. Record the line number
+				// rather than the observation number for error reporting
+				// purposes, but still increment the latter.
+				String error = e.getLocalizedMessage();
+				InvalidObservation ob = new InvalidObservation(line, error);
+				ob.setRecordNumber(lineNum);
+				addInvalidObservation(ob);
+			}
+			return line;
 		}
 	}
 }
