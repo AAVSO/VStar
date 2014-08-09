@@ -423,6 +423,9 @@ public class PluginManager {
 
 	/**
 	 * Retrieve information about locally installed plugins.
+	 * 
+	 * @throws PluginManagerException
+	 *             If the plugin information was not successfully obtained.
 	 */
 	public void retrieveLocalPluginInfo() throws PluginManagerException {
 
