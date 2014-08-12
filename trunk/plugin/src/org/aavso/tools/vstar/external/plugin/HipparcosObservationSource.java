@@ -101,36 +101,34 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 		public String getTimeUnits() {
 			return "BJD(TT)";
 		}
-			
+
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					getInputStreams().get(0)));
 			String line = null;
-			
-			int lineNum = 1;
-			line = getNextLine(reader, lineNum);  // Fetch the first line
-			
-			while (line != null) {
-				// State machine cases ...
-				switch (state) {
-				case HEADER:
-					if (line.startsWith("HT1")) {
-						state = State.DATA;
-					} 
-					else if (Character.isDigit(line.charAt(0))) {
-						state = State.DATA;
-						handleData(line, lineNum);
-					}
-					break;
 
-				case DATA:
-					handleData(line, lineNum);
-					break;
+			int lineNum = 1;
+			line = getNextLine(reader, lineNum); // Fetch the first line
+
+			while (line != null) {
+				if (!isEmpty(line)) {
+					// State machine cases ...
+					switch (state) {
+					case HEADER:
+						if (line.startsWith("HT1")) {
+							state = State.DATA;
+						}
+						break;
+
+					case DATA:
+						handleData(line, lineNum);
+						break;
+					}
 				}
 				lineNum++;
-				line = getNextLine(reader, lineNum);  // Fetch next line
+				line = getNextLine(reader, lineNum); // Fetch next line
 			}
 		}
 
@@ -138,7 +136,7 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 
 		private void handleData(String line, int lineNum)
 				throws ObservationReadError {
-			
+
 			// Hipparcos makes use of the Barycentric Julian Date (BJD), as
 			// follows -
 			// Observation epochs (the JDs in field HT1) are given in
@@ -149,7 +147,7 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 			// therefore referred to as BJD(TT).
 
 			String[] fields = line.split("\\|");
-			
+
 			double bjd = Double.parseDouble(fields[0].trim()) + 40000 + 2400000.0;
 			double mag = Double.parseDouble(fields[1].trim());
 			double magErr = Double.parseDouble(fields[2].trim());
@@ -163,10 +161,11 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 			ob.addDetail("FLAGS", flags, "Flags");
 			collectObservation(ob);
 		}
+
 		private String getNextLine(BufferedReader reader, int lineNum) {
-			
+
 			// Reads the next line from the input file ...
-			
+
 			String line = null;
 			try {
 				line = reader.readLine();
@@ -181,6 +180,10 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 				addInvalidObservation(ob);
 			}
 			return line;
+		}
+
+		private boolean isEmpty(String str) {
+			return str != null && "".equals(str.trim());
 		}
 	}
 }
