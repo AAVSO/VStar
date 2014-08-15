@@ -17,15 +17,23 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
-import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
+import org.aavso.tools.vstar.ui.dialog.IntegerField;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
+import org.aavso.tools.vstar.ui.dialog.model.HarmonicInputDialog;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.IModel;
-import org.aavso.tools.vstar.util.model.PeriodFitParameters;
+import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
+import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
  * This plug-in creates a Fourier model from a number of periods and one or more
@@ -35,82 +43,50 @@ public class FourierModelCreator extends ModelCreatorPluginBase {
 
 	@Override
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Fourier model creator";
 	}
 
 	@Override
 	public String getDisplayName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Fourier model creator";
 	}
 
 	@Override
 	public IModel getModel(List<ValidObservation> obs) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	class FourierModel implements IModel {
-
-		@Override
-		public String getDescription() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public List<ValidObservation> getFit() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public Map<String, String> getFunctionStrings() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getKind() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public ContinuousModelFunction getModelFunction() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public List<PeriodFitParameters> getParameters() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public List<ValidObservation> getResiduals() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public boolean hasFuncDesc() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public void execute() throws AlgorithmError {
-			// TODO Auto-generated method stub
+		IntegerField numPeriodField = new IntegerField("Number of Periods", 0, null, 1);
+		MultiEntryComponentDialog numPeriodsDialog = new MultiEntryComponentDialog(
+				"Period Count", numPeriodField);
+		
+		PeriodAnalysisDerivedMultiPeriodicModel model = null;
 			
+		if (!numPeriodsDialog.isCancelled()) {
+			int numPeriods = numPeriodField.getValue();
+
+			List<Double> userSelectedFreqs = new ArrayList<Double>();
+			for (int i = 0; i < numPeriods; i++) {
+				userSelectedFreqs.add(1.0);
+			}
+
+			Map<Double, List<Harmonic>> freqToHarmonicsMap = new HashMap<Double, List<Harmonic>>();
+
+			HarmonicInputDialog dialog = new HarmonicInputDialog(
+					DocumentManager.findActiveWindow(), userSelectedFreqs,
+					freqToHarmonicsMap);
+
+			if (!dialog.isCancelled()) {
+				List<Harmonic> harmonics = dialog.getHarmonics();
+				if (!harmonics.isEmpty()) {
+					IPeriodAnalysisAlgorithm algorithm = new TSDcDft(obs);
+					model = new PeriodAnalysisDerivedMultiPeriodicModel(
+							harmonics, algorithm);
+
+				} else {
+					MessageBox.showErrorDialog("Fourier Model Creator",
+							"Period list error");
+				}
+			}
 		}
 
-		@Override
-		public void interrupt() {
-			// TODO Auto-generated method stub
-			
-		}
+		return model;
 	}
 }

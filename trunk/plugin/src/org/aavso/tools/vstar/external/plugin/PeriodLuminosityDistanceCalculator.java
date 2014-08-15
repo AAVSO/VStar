@@ -52,8 +52,8 @@ import org.aavso.tools.vstar.util.stats.DescStats;
  * Period-Luminosity relationship for specific variable star types.
  * <p/>
  * <p>
- * I was inspired to write this while participating in the "Choice  Variable
- * Star Classification and Light Curves III:" course in Jan & Feb 2013.
+ * I was inspired to write this while participating in the "CHOICE Variable
+ * Star Classification and Light Curves III:" course in Jan & Feb 2013.
  * </p>
  * <p>
  * References:<br>
