@@ -42,8 +42,9 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  * CATALOGUE_VOL1/sect2_05.pdf (page 220).
  * 
  * @author Paul F. York
- * @version 1.0 - 22 Jul 2014
- * @version 1.1 - 08 Aug 2014: refactored the code
+ * @version 1.0 - 22 Jul 2014: Original
+ * @version 1.1 - 08 Aug 2014: Refactored the code
+ * @version 1.2 - 17 Aug 2014: Removed unnecessary .isEmpty method and call
  */
 
 public class HipparcosObservationSource extends ObservationSourcePluginBase {
@@ -113,19 +114,17 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 			line = getNextLine(reader, lineNum); // Fetch the first line
 
 			while (line != null) {
-				if (!isEmpty(line)) {
-					// State machine cases ...
-					switch (state) {
-					case HEADER:
-						if (line.startsWith("HT1")) {
-							state = State.DATA;
-						}
-						break;
-
-					case DATA:
-						handleData(line, lineNum);
-						break;
+				// State machine cases ...
+				switch (state) {
+				case HEADER:
+					if (line.startsWith("HT1")) {
+						state = State.DATA;
 					}
+					break;
+
+				case DATA:
+					handleData(line, lineNum);
+					break;
 				}
 				lineNum++;
 				line = getNextLine(reader, lineNum); // Fetch next line
@@ -180,10 +179,6 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 				addInvalidObservation(ob);
 			}
 			return line;
-		}
-
-		private boolean isEmpty(String str) {
-			return str != null && "".equals(str.trim());
 		}
 	}
 }
