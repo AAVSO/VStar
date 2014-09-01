@@ -162,7 +162,7 @@
 	<!-- Unit test targets -->
 
 	<target name="compile_ut" depends="dist" description="Compile the test code">
-		<javac srcdir="${test}" destdir="${test_build}">
+		<javac compiler="modern" source="1.6" target="1.6" srcdir="${test}" destdir="${test_build}">
 			<classpath refid="test.classpath" />
 		</javac>
 	</target>
