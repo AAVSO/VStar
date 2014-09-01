@@ -46,9 +46,8 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class PluginManager {
 
-	 public final static String DEFAULT_PLUGIN_BASE_URL_STR =
-	 "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
-	 + ResourceAccessor.getVersionString();
+	public final static String DEFAULT_PLUGIN_BASE_URL_STR = "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
+			+ ResourceAccessor.getVersionString();
 
 	// public final static String DEFAULT_PLUGIN_BASE_URL_STR =
 	// "file:///Users/david/tmp/vstar-plugins/vstar-plugins-"
@@ -218,10 +217,10 @@ public class PluginManager {
 	public void determinePluginEquality() {
 		// First, create a common set consisting of the intersection of remote
 		// and local plugins...
-		Set<String> remoteDescSet = new HashSet<String>(remoteDescriptions
-				.keySet());
-		Set<String> localDescSet = new HashSet<String>(localDescriptions
-				.keySet());
+		Set<String> remoteDescSet = new HashSet<String>(
+				remoteDescriptions.keySet());
+		Set<String> localDescSet = new HashSet<String>(
+				localDescriptions.keySet());
 		Set<String> commonDescSet = new HashSet<String>();
 
 		for (String desc : remoteDescSet) {
@@ -247,8 +246,8 @@ public class PluginManager {
 				remoteJarName = remoteDescriptions.get(desc);
 				URL localUrl = localPlugins.get(localJarName).toURI().toURL();
 				URL remoteUrl = remotePlugins.get(remoteJarName);
-				remoteAndLocalPluginEquality.put(desc, areURLReferentsEqual(
-						localUrl, remoteUrl));
+				remoteAndLocalPluginEquality.put(desc,
+						areURLReferentsEqual(localUrl, remoteUrl));
 			} catch (IOException e) {
 				String msg = String.format(
 						"Error comparing remote and local plugins: %s and %s",
@@ -277,8 +276,6 @@ public class PluginManager {
 	 * 
 	 * @param baseUrlStr
 	 *            The base URL string from where to obtain remotePlugins.
-	 * @throws PluginManagerException
-	 *             If the plugin information was not successfully obtained.
 	 */
 	public void retrieveRemotePluginInfo(String baseUrlStr) {
 
@@ -290,19 +287,29 @@ public class PluginManager {
 		libDescriptions = new TreeMap<String, Set<String>>();
 		libRefs = new HashMap<String, Integer>();
 
+		String[] lines = null;
+
 		try {
 			URL infoUrl = new URL(baseUrlStr + "/" + PLUGINS_LIST_FILE);
 
 			URLConnection stream = infoUrl.openConnection();
-			BufferedInputStream buf = new BufferedInputStream(stream
-					.getInputStream());
+			BufferedInputStream buf = new BufferedInputStream(
+					stream.getInputStream());
 
-			String[] lines = readLines(buf);
+			lines = readLines(buf);
+		} catch (MalformedURLException e) {
+			MessageBox.showErrorDialog("Plug-in Manager",
+					"Invalid remote plug-in location.");
+		} catch (IOException e) {
+			MessageBox.showErrorDialog("Plug-in Manager",
+					"Error reading remote plug-in information.");
+		}
 
-			String pluginBaseURLStr = baseUrlStr + "/" + PLUGINS_DIR;
-			String libBaseURLStr = baseUrlStr + "/" + PLUGIN_LIBS_DIR;
+		String pluginBaseURLStr = baseUrlStr + "/" + PLUGINS_DIR;
+		String libBaseURLStr = baseUrlStr + "/" + PLUGIN_LIBS_DIR;
 
-			for (String line : lines) {
+		for (String line : lines) {
+			try {
 				if (interrupted)
 					break;
 
@@ -345,9 +352,9 @@ public class PluginManager {
 						if (interrupted)
 							break;
 
-						File pluginLibDirPath = new File(System
-								.getProperty("user.home")
-								+ File.separator + PLUGIN_LIBS_DIR);
+						File pluginLibDirPath = new File(
+								System.getProperty("user.home")
+										+ File.separator + PLUGIN_LIBS_DIR);
 
 						for (String libFileStr : fields[1].split("\\s*,\\s*")) {
 							String libJarFileName = libFileStr;
@@ -392,42 +399,34 @@ public class PluginManager {
 					MessageBox.showErrorDialog("Plug-in Manager",
 							"Error in plug-in information format.");
 				}
+			} catch (MalformedURLException e) {
+				MessageBox.showErrorDialog("Plug-in Manager",
+						"Invalid remote plug-in location.");
+			} catch (ClassNotFoundException e) {
+				MessageBox.showErrorDialog("Plug-in Manager",
+						"Error reading remote plug-in information.");
+			} catch (IllegalAccessException e) {
+				MessageBox.showErrorDialog("Plug-in Manager",
+						"Error reading remote plug-in information.");
+			} catch (InstantiationException e) {
+				MessageBox.showErrorDialog("Plug-in Manager",
+						"Error reading remote plug-in information.");
 			}
-		} catch (MalformedURLException e) {
-			throw new PluginManagerException("Invalid remote plug-in location.");
-		} catch (IOException e) {
-			throw new PluginManagerException(
-					"Error reading remote plug-in information.");
-		} catch (ClassNotFoundException e) {
-			throw new PluginManagerException(
-					"Error reading remote plug-in information.");
-		} catch (IllegalAccessException e) {
-			throw new PluginManagerException(
-					"Error reading remote plug-in information.");
-		} catch (InstantiationException e) {
-			throw new PluginManagerException(
-					"Error reading remote plug-in information.");
 		}
 	}
 
 	/**
 	 * Retrieve information about the available remotePlugins for this version
 	 * of VStar.
-	 * 
-	 * @throws PluginManagerException
-	 *             If the plugin information was not successfully obtained.
 	 */
-	public void retrieveRemotePluginInfo() throws PluginManagerException {
+	public void retrieveRemotePluginInfo() {
 		retrieveRemotePluginInfo(DEFAULT_PLUGIN_BASE_URL_STR);
 	}
 
 	/**
 	 * Retrieve information about locally installed plugins.
-	 * 
-	 * @throws PluginManagerException
-	 *             If the plugin information was not successfully obtained.
 	 */
-	public void retrieveLocalPluginInfo() throws PluginManagerException {
+	public void retrieveLocalPluginInfo() {
 
 		interrupted = false;
 
@@ -464,16 +463,16 @@ public class PluginManager {
 					localDescriptions.put(plugin.getDescription(),
 							pluginJarFileName);
 				} catch (MalformedURLException e) {
-					throw new PluginManagerException(
+					MessageBox.showErrorDialog("Plug-in Manager",
 							"Invalid local plug-in location.");
 				} catch (ClassNotFoundException e) {
-					throw new PluginManagerException(
+					MessageBox.showErrorDialog("Plug-in Manager",
 							"Error reading local plug-in information.");
 				} catch (IllegalAccessException e) {
-					throw new PluginManagerException(
+					MessageBox.showErrorDialog("Plug-in Manager",
 							"Error reading local plug-in information.");
 				} catch (InstantiationException e) {
-					throw new PluginManagerException(
+					MessageBox.showErrorDialog("Plug-in Manager",
 							"Error reading local plug-in information.");
 				}
 			}
@@ -488,9 +487,6 @@ public class PluginManager {
 	 *            dependent libraries to be installed.
 	 * @param op
 	 *            The operation (install or update).
-	 * 
-	 * @throws PluginManagerException
-	 *             If the plugin or libraries were not successfully obtained.
 	 */
 	public void installPlugin(String description, Operation op) {
 
@@ -561,7 +557,7 @@ public class PluginManager {
 				}
 			}
 		} catch (IOException e) {
-			throw new PluginManagerException(
+			MessageBox.showErrorDialog("Plug-in Manager",
 					"An error occurred while installing remotePlugins.");
 		}
 	}
@@ -572,8 +568,6 @@ public class PluginManager {
 	 * @param description
 	 *            The plugin description corresponding to the local plugin and
 	 *            dependent libraries to be deleted.
-	 * @throws PluginManagerException
-	 *             If the plugin or dependent libraries could not be deleted.
 	 */
 	public void deletePlugin(String description) {
 
@@ -587,7 +581,7 @@ public class PluginManager {
 		File pluginJarPath = new File(pluginDirPath, jarName);
 		if (pluginJarPath.exists()) {
 			if (!pluginJarPath.delete()) {
-				throw new PluginManagerException("Unable to delete plug-in "
+				MessageBox.showErrorDialog("Plug-in Manager","Unable to delete plug-in "
 						+ jarName);
 			} else {
 				// Update maps after delete.
@@ -596,7 +590,7 @@ public class PluginManager {
 				remoteAndLocalPluginEquality.remove(description);
 			}
 		} else {
-			throw new PluginManagerException("Plug-in " + jarName
+			MessageBox.showErrorDialog("Plug-in Manager","Plug-in " + jarName
 					+ " does not exist so unable to delete");
 		}
 
@@ -634,7 +628,7 @@ public class PluginManager {
 										+ "for the plug-in %s cannot be "
 										+ "found so cannot be deleted.",
 								libJarName, jarName);
-						throw new PluginManagerException(errMsg);
+						MessageBox.showErrorDialog("Plug-in Manager",errMsg);
 					}
 				}
 			}
