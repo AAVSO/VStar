@@ -255,7 +255,7 @@ public class PluginLoader {
 	 * @throws ClassNotFoundException
 	 *             If the class cannot be loaded.
 	 */
-	private static Class loadClass(File jarFile, String qualifiedClassName,
+	private static Class<?> loadClass(File jarFile, String qualifiedClassName,
 			List<URL> depLibs) throws MalformedURLException,
 			ClassNotFoundException {
 		URL url = jarFile.toURI().toURL();
