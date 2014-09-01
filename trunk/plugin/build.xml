@@ -20,7 +20,7 @@
 		</path>
 		<mkdir dir="${build}" />
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac srcdir="${src}" destdir="${build}" classpathref="libs" />
+		<javac compiler="modern" source="1.6" target="1.6" srcdir="${src}" destdir="${build}" classpathref="libs" />
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">
@@ -31,7 +31,6 @@
          so right now this is just a huge list of targets add your new plugin here
 	     as another jar task line -->
 		<jar jarfile="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOUploadFileFormatObservationSource**.class" />
-		<jar jarfile="${dist}/${pkg}.AAVSOWebServiceObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOWebServiceObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.AoVPeriodSearch.jar" basedir="${build.classes}" includes="**/AoVPeriodSearch**.class" />
 		<jar jarfile="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" basedir="${build.classes}" includes="**/ApacheCommonsLowessFitter**.class" />
 		<jar jarfile="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/APASSEpochPhotometryObservationSource**.class" />
@@ -43,6 +42,7 @@
 		<jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="**/CustomFilterTest**.class" />
 		<jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="**/ExampleObSource**.class" />
 -->
+		<jar jarfile="${dist}/${pkg}.FourierModelCreator.jar" basedir="${build.classes}" includes="**/FourierModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.HipparcosObservationSource.jar" basedir="${build.classes}" includes="**/HipparcosObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class" />
 		<jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="**/KeplerFITSObservationSource**.class" />
@@ -79,7 +79,6 @@
 	<target name="aavso" depends="dist" description="Create a .plugins.lst and zip file containing the plug-ins for AAVSO">
 		<mkdir dir="${vstar_plugins_zip_dir}/${plugin_dir}" />
 		<mkdir dir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
-
 		<copy file="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -87,6 +86,7 @@
 		<copy file="${dist}/${pkg}.BSMPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.CurrentModeANOVATool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.FourierModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.HipparcosObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.JDToDateTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.KeplerFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -112,6 +112,7 @@
 		<echo file="${plugins_list_file}" message=":${pkg}.BSMPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.CatalinaSkySurveyObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.CurrentModeANOVATool.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.FourierModelCreator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HipparcosObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JDToDateTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.KeplerFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
