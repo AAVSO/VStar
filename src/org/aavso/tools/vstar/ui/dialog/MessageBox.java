@@ -53,7 +53,8 @@ public class MessageBox {
 	}
 
 	/**
-	 * Pop-up an informational message dialog box relative to the top-most window.
+	 * Pop-up an informational message dialog box relative to the top-most
+	 * window.
 	 * 
 	 * @param title
 	 *            The title of the dialog.
@@ -66,7 +67,8 @@ public class MessageBox {
 		JOptionPane pane = new JOptionPane(msg,
 				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION,
 				icon);
-		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(), title);
+		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(),
+				title);
 		dialog.setVisible(true);
 	}
 
@@ -89,7 +91,8 @@ public class MessageBox {
 	}
 
 	/**
-	 * Pop-up an informational message dialog box relative to the top-most window.
+	 * Pop-up an informational message dialog box relative to the top-most
+	 * window.
 	 * 
 	 * @param title
 	 *            The title of the dialog.
@@ -99,7 +102,8 @@ public class MessageBox {
 	public static void showMessageDialog(String title, String msg) {
 		JOptionPane pane = new JOptionPane(msg,
 				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(), title);
+		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(),
+				title);
 		dialog.setVisible(true);
 	}
 
@@ -132,7 +136,8 @@ public class MessageBox {
 	public static void showWarningDialog(String title, String msg) {
 		JOptionPane pane = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE,
 				JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(), title);
+		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(),
+				title);
 		dialog.setVisible(true);
 	}
 
@@ -140,7 +145,7 @@ public class MessageBox {
 	 * Pop-up an error message dialog box.
 	 * 
 	 * @param parent
-	 *            The component to appear with respect to.
+	 *            The component to appear with respect to; may be null
 	 * @param title
 	 *            The title of the dialog.
 	 * @param msg
@@ -154,7 +159,9 @@ public class MessageBox {
 		dialog.setVisible(true);
 
 		// Turn off the wait cursor, in case it's enabled.
-		parent.setCursor(null);
+		if (parent != null) {
+			parent.setCursor(null);
+		}
 	}
 
 	/**
@@ -181,7 +188,7 @@ public class MessageBox {
 	 * Pop-up an error message dialog box given an exception.
 	 * 
 	 * @param parent
-	 *            The component to appear with respect to.
+	 *            The component to appear with respect to; may be null
 	 * @param title
 	 *            The title of the dialog.
 	 * @param e
@@ -199,7 +206,9 @@ public class MessageBox {
 		e.printStackTrace();
 
 		// Turn off the wait cursor, in case it's enabled.
-		parent.setCursor(null);
+		if (parent != null) {
+			parent.setCursor(null);
+		}
 	}
 
 	/**
