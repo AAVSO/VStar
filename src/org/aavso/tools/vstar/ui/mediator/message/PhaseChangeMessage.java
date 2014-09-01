@@ -76,8 +76,8 @@ public class PhaseChangeMessage extends MessageBase {
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
 
-		buf.append("period: %s" + NumericPrecisionPrefs.formatOther(period));
-		buf.append(", epoch: %s" + NumericPrecisionPrefs.formatTime(epoch));
+		buf.append("period: " + NumericPrecisionPrefs.formatOther(period));
+		buf.append(", epoch: " + NumericPrecisionPrefs.formatTime(epoch));
 		buf.append(", series: ");
 		for (SeriesType series : seriesVisibilityMap.keySet()) {
 			if (seriesVisibilityMap.containsKey(series)
