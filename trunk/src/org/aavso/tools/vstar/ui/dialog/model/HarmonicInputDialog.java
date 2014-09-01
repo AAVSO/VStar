@@ -61,7 +61,7 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 	public HarmonicInputDialog(Component parent,
 			List<Double> userSelectedFreqs,
 			Map<Double, List<Harmonic>> freqToHarmonicsMap) {
-		super("Harmonics");
+		super("Periods (days)");
 
 		this.freqToHarmonics = freqToHarmonicsMap;
 
