@@ -125,6 +125,7 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 			// DASCH makes use of the Heliocentric Julian Date (HJD)
 
 			String[] fields = line.split("\\t");
+			Double magErrThreshold = 99.0;  // Obs with magErr of 99 to be excluded
 			
 			if (lineNum == 1) {
 				starName = fields[0];  // Get star designation from data line 1 ...
@@ -133,15 +134,32 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 			double hjd = Double.parseDouble(fields[1].trim());
 			double mag = Double.parseDouble(fields[3].trim());
 			double magErr = Double.parseDouble(fields[4].trim());
+			
+			String limitingMag = fields[5].trim();
+			String RA = fields[6].trim();
+			String Dec = fields[7].trim();
+			String thetaJ2000 = fields[8].trim();
+			String ellipticity = fields[9].trim();
 			String plateNum = fields[10];
+			String versionID = fields[11];
 			String flags = fields[12].trim();
 
 			ValidObservation ob = new ValidObservation();
 			ob.setDateInfo(new DateInfo(hjd));
 			ob.setMagnitude(new Magnitude(mag, magErr));
+			if (magErr >= magErrThreshold) {
+				ob.setExcluded(true);
+			}
 			ob.setBand(series);
 			ob.setRecordNumber(lineNum);
+			
+			ob.addDetail("LIMITING MAG", limitingMag, "LImiting Mag");
+			ob.addDetail("RA", RA, "RA");
+			ob.addDetail("DEC", Dec, "Dec");
+			ob.addDetail("THETA J2000", thetaJ2000, "Theta J2000");
+			ob.addDetail("ELLIPTICITY", ellipticity, "Ellipticity");
 			ob.addDetail("PLATE", plateNum, "Plate");
+			ob.addDetail("VERSION ID", versionID, "Version ID");
 			ob.addDetail("FLAGS", flags, "Flags");
 			collectObservation(ob);
 		}
