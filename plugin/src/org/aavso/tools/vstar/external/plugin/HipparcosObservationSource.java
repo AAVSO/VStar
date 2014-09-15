@@ -45,6 +45,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  * @version 1.0 - 22 Jul 2014: Original
  * @version 1.1 - 08 Aug 2014: Refactored the code
  * @version 1.2 - 17 Aug 2014: Removed unnecessary .isEmpty method and call
+ * @version 1.3 - 15 Sep 2014: Fixed incorrect record count
  */
 
 public class HipparcosObservationSource extends ObservationSourcePluginBase {
@@ -124,9 +125,9 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 
 				case DATA:
 					handleData(line, lineNum);
+					lineNum++;
 					break;
 				}
-				lineNum++;
 				line = getNextLine(reader, lineNum); // Fetch next line
 			}
 		}
