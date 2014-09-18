@@ -32,16 +32,21 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 
 /**
- * DASCHObservationSource is a VStar observation source plug-in tool which reads
- * DASCH (Digital Access to a Sky Century @ Harvard) data as described at URL
- * http://....., from a supplied input file in tab-separated .txt format.
+ * DASCHObservationSource is a VStar observation source plug-in tool which
+ * reads DASCH (Digital Access to a Sky Century @ Harvard) data from a 
+ * supplied input file in tab-delimited "Starbase table" (.txt) format.
+ * See bugs-and-features #439 on SourceForge for VStar.
  * 
- * The input file for a particular star must first be extracted by ... 
- * 2-line header ...
- * Something
- * about the differences in ID (eg. SV* HV 873 versus APASS_J045423.3-705406)
- * Does DASCH make use of the Heliocentric Julian Date (HJD)? For more
- * information see: http://www.
+ * More information is available at http://dasch.rc.fas.harvard.edu/lightcurve.php. 
+ * 
+ * As an example, if you enter "SV* HV 873" into the search form at that url
+ * it will eventually produce a search result window containing three frames.
+ * In the top left hand frame, three sets of results are shown. If you choose 
+ * the option “Download all points in table form”, the resultant page lists
+ * several file options (A - F) for each of the three result sets. 
+
+ * This plugin is designed to read files of type A, such as 
+ * "short_SV*_HV_873_APASS_J045423.3-705406_0002.db".
  * 
  * @author Paul F. York
  * @version 1.0 - 06 Sep 2014: Original
@@ -153,7 +158,7 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 			ob.setBand(series);
 			ob.setRecordNumber(lineNum);
 			
-			ob.addDetail("LIMITING MAG", limitingMag, "LImiting Mag");
+			ob.addDetail("LIMITING MAG", limitingMag, "Limiting Mag");
 			ob.addDetail("RA", RA, "RA");
 			ob.addDetail("DEC", Dec, "Dec");
 			ob.addDetail("THETA J2000", thetaJ2000, "Theta J2000");
