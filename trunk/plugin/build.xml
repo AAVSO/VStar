@@ -22,7 +22,7 @@
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac compiler="modern" source="1.6" target="1.6" srcdir="${src}" destdir="${build}" classpathref="libs" />
 	</target>
-
+	
 	<target name="dist" depends="compile" description="generate the distribution">
 
 		<mkdir dir="${dist}" />
@@ -40,7 +40,10 @@
 		<jar jarfile="${dist}/${pkg}.CurrentModeANOVATool.jar" basedir="${build.classes}" includes="**/CurrentModeANOVATool**.class" />
 <!--
 		<jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="**/CustomFilterTest**.class" />
-		<jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="**/ExampleObSource**.class" />
+-->
+		<jar jarfile="${dist}/${pkg}.DASCHObservationSource.jar" basedir="${build.classes}" includes="**/DASCHObservationSource**.class" />
+<!--		
+ 		<jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="**/ExampleObSource**.class" />
 -->
 		<jar jarfile="${dist}/${pkg}.FourierModelCreator.jar" basedir="${build.classes}" includes="**/FourierModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.HipparcosObservationSource.jar" basedir="${build.classes}" includes="**/HipparcosObservationSource**.class" />
@@ -75,7 +78,7 @@
 		</copy>
 		<copy todir="${user.home}/${plugin_lib_dir}" file="lib/tamfits.jar" />
 	</target>
-
+	
 	<target name="aavso" depends="dist" description="Create a .plugins.lst and zip file containing the plug-ins for AAVSO">
 		<mkdir dir="${vstar_plugins_zip_dir}/${plugin_dir}" />
 		<mkdir dir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
@@ -86,6 +89,7 @@
 		<copy file="${dist}/${pkg}.BSMPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.CurrentModeANOVATool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.DASCHObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.FourierModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.HipparcosObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.JDToDateTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -112,6 +116,7 @@
 		<echo file="${plugins_list_file}" message=":${pkg}.BSMPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.CatalinaSkySurveyObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.CurrentModeANOVATool.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.DASCHObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FourierModelCreator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HipparcosObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JDToDateTool.jar${line.separator}" append="true" />
