@@ -33,20 +33,22 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 
 /**
  * DASCHObservationSource is a VStar observation source plug-in tool which
- * reads DASCH (Digital Access to a Sky Century @ Harvard) data from a 
- * supplied input file in tab-delimited "Starbase table" (.txt) format.
+ * reads DASCH (Digital Access to a Sky Century @ Harvard) data from an 
+ * input file in tab-delimited "Starbase table" (.txt) format.
  * See bugs-and-features #439 on SourceForge for VStar.
  * 
  * More information is available at http://dasch.rc.fas.harvard.edu/lightcurve.php. 
  * 
- * As an example, if you enter "SV* HV 873" into the search form at that url
+ * As an example, if you enter "SV* HV 873" into the search form at the above url
  * it will eventually produce a search result window containing three frames.
  * In the top left hand frame, three sets of results are shown. If you choose 
  * the option “Download all points in table form”, the resultant page lists
  * several file options (A - F) for each of the three result sets. 
-
- * This plugin is designed to read files of type A, such as 
- * "short_SV*_HV_873_APASS_J045423.3-705406_0002.db".
+ * 
+ * This plug-in is designed to read files of type A, such as 
+ * "short_SV*_HV_873_APASS_J045423.3-705406_0002.db". The plug-in can read this either as a local file 
+ * on your PC or Mac, or as the appropriate url, which in this case is -
+ * http://dasch.rc.fas.harvard.edu/tmp/HyDcJo/short_SV*_HV_873_APASS_J045423.3-705406_0002.db
  * 
  * @author Paul F. York
  * @version 1.0 - 06 Sep 2014: Original
@@ -56,7 +58,7 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public InputType getInputType() {
-		return InputType.FILE;
+		return InputType.FILE_OR_URL;
 	}
 
 	@Override
