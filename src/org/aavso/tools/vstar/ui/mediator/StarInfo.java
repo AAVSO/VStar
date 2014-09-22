@@ -40,12 +40,6 @@ public class StarInfo {
 	private DecInfo dec = null;
 
 	/**
-	 * Parameterless constructor for web service.
-	 */
-	public StarInfo() {
-	}
-
-	/**
 	 * Constructor.
 	 * 
 	 * @param retriever

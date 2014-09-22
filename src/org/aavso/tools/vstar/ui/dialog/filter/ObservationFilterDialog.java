@@ -292,8 +292,8 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 			} catch (IllegalArgumentException e) {
 				filterError = true;
 				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-						LocaleProps.get("OBSERVATION_FILTER_DLG_TITLE"), e
-								.getMessage());
+						LocaleProps.get("OBSERVATION_FILTER_DLG_TITLE"),
+						e.getMessage());
 			}
 		}
 
@@ -317,6 +317,8 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 				if (filteredObs.size() != 0) {
 					// Send a message containing the observation subset.
 					IFilterDescription desc = new IFilterDescription() {
+						private final String filterName = nameField.getText();
+						private final String filterRepresentation = createFilterRepresentation();
 
 						@Override
 						public boolean isParsable() {
@@ -325,41 +327,12 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 						@Override
 						public String getFilterName() {
-							return nameField.getText();
+							return filterName;
 						}
 
 						@Override
 						public String getFilterDescription() {
-							// Return a machine-readable (able to be parsed)
-							// representation.
-							StringBuffer buf = new StringBuffer();
-
-							int activeFilterCount = 0;
-							for (ObservationFilterPane filterPane : filterPanes) {
-								IObservationFieldMatcher matcher = filterPane
-										.getFieldMatcher();
-
-								if (matcher != null) {
-									activeFilterCount++;
-								}
-							}
-
-							for (ObservationFilterPane filterPane : filterPanes) {
-								IObservationFieldMatcher matcher = filterPane
-										.getFieldMatcher();
-
-								if (matcher != null) {
-									String desc = matcher
-											.getParsableDescription();
-									buf.append(desc);
-									activeFilterCount--;
-									if (activeFilterCount > 0) {
-										buf.append(" AND\n");
-									}
-								}
-							}
-
-							return buf.toString();
+							return filterRepresentation;
 						}
 					};
 
@@ -386,6 +359,35 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 			// Clear state for next use of this dialog.
 			filter.reset();
 		}
+	}
+
+	// Return a machine-readable (able to be parsed) representation.
+	private String createFilterRepresentation() {
+		StringBuffer buf = new StringBuffer();
+
+		int activeFilterCount = 0;
+		for (ObservationFilterPane filterPane : filterPanes) {
+			IObservationFieldMatcher matcher = filterPane.getFieldMatcher();
+
+			if (matcher != null) {
+				activeFilterCount++;
+			}
+		}
+
+		for (ObservationFilterPane filterPane : filterPanes) {
+			IObservationFieldMatcher matcher = filterPane.getFieldMatcher();
+
+			if (matcher != null) {
+				String desc = matcher.getParsableDescription();
+				buf.append(desc);
+				activeFilterCount--;
+				if (activeFilterCount > 0) {
+					buf.append(" AND\n");
+				}
+			}
+		}
+
+		return buf.toString();
 	}
 
 	private void resetFilters() {
