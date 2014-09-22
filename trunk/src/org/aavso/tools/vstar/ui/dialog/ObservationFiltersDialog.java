@@ -178,8 +178,8 @@ public class ObservationFiltersDialog extends JDialog implements
 				FilteredObservationMessage filterMsg = filterMap.get(desc);
 
 				FilteredObservationMessage newFilterMsg = new FilteredObservationMessage(
-						me, filterMsg.getDescription(), filterMsg
-								.getFilteredObs());
+						me, filterMsg.getDescription(),
+						filterMsg.getFilteredObs());
 
 				Mediator.getInstance().getFilteredObservationNotifier()
 						.notifyListeners(newFilterMsg);
