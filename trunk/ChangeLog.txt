@@ -39,9 +39,11 @@ Date: September 25 2014
 Version: 2.16.4
 Tag: DEV-AAVSO-25Sep2014
 Key Changes:
-- Fixed ticket #464: Plug-in instantiation errors should not cause VStar to exit!
+- Fixed ticket #464: Plug-in instantiation errors should not cause 
+  VStar to exit!
 - Fixed ticket #465: Previous phase plots dialog entry format error
-- Fixed ticket #383: Previous Filter -> Show Description: all share text from last filter
+- Fixed ticket #383: Previous Filter -> Show Description: all share 
+  text from last filter
 - Fixed comment in Leavitt Law distance calculator plug-in
 - Hipparcos observation source plug-in by Paul York
 
