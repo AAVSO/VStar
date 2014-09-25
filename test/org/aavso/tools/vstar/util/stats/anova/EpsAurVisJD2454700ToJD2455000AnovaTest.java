@@ -55,7 +55,6 @@ import org.apache.commons.math.stat.inference.OneWayAnovaImpl;
  * bin 28 1.1433 0.040830 2.8675 1.306e-06 ***<br/>
  * Residuals 910 12.9576 0.014239<br/>
  * ---<br/>
- * Signif. codes: 0 Ô***Õ 0.001 Ô**Õ 0.01 Ô*Õ 0.05 Ô.Õ 0.1 Ô Õ 1<br/>
  * 
  * Using Grant Foster's anova1 function:<br/>
  * 
