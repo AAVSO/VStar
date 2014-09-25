@@ -35,6 +35,16 @@ Release History
 ===============
   
 --------------------
+Date: September 25 2014
+Version: 2.16.4
+Tag: DEV-AAVSO-25Sep2014
+Key Changes:
+- Fixed ticket #464: Plug-in instantiation errors should not cause VStar to exit!
+- Fixed ticket #465: Previous phase plots dialog entry format error
+- Fixed ticket #383: Previous Filter -> Show Description: all share text from last filter
+- Fixed comment in Leavitt Law distance calculator plug-in
+- Hipparcos observation source plug-in by Paul York
+
 Date: August 8 2014
 Version: 2.16.3
 Tag: DEV-AAVSO-08Aug2014
@@ -74,7 +84,7 @@ Key Changes:
 - Observers-by-series plug-in by Paul York, a May/June VStar CHOICE course
   participant, now trying his hand at plug-in development. Thanks Paul.
 - Changed Period-Luminosity Relationship Distance calculator to refer to 
-  Leavitt's Law as per George Sjšberg's suggestion during the May/June CHOICE
+  Leavitt's Law as per George Sjoberg's suggestion during the May/June CHOICE
   course. I also recall seeing this suggestion on an AAVSO forum and, like so 
   many others, admire the work of Henrietta Swan Leavitt.
 - Ticket 376: for file-based additive load with no AID dataset involved, 
