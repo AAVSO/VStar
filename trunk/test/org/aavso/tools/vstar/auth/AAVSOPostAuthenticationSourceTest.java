@@ -39,14 +39,14 @@ public class AAVSOPostAuthenticationSourceTest extends TestCase {
 		super.tearDown();
 	}
 
-	public void testAuthenticateSuccess() throws AuthenticationError,
-			ConnectionException {
-
-		boolean authenticated = authenticator.authenticate("will_test",
-				"+r+w+xstarapro");
-
-		assertTrue(authenticated);
-	}
+//	public void testAuthenticateSuccess() throws AuthenticationError,
+//			ConnectionException {
+//
+//		boolean authenticated = authenticator.authenticate("will_test",
+//				"+r+w+xstarapro");
+//
+//		assertTrue(authenticated);
+//	}
 
 	public void testAuthenticateFailure() throws ConnectionException {
 

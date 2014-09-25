@@ -35,6 +35,8 @@ public class PluginManagerTest extends TestCase {
 
 	private PluginManager pluginManager;
 
+	private final String BASE_URL = "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-2.16.3";
+
 	public PluginManagerTest(String name) {
 		super(name);
 	}
@@ -49,7 +51,7 @@ public class PluginManagerTest extends TestCase {
 	}
 
 	public void testRetrievePluginInfo() {
-		pluginManager.retrieveRemotePluginInfo();
+		pluginManager.retrieveRemotePluginInfo(BASE_URL);
 		Map<String, URL> plugins = pluginManager.getRemotePluginsByJarName();
 		assertTrue(plugins.size() > 10);
 		Map<String, List<URL>> libs = pluginManager.getLibs();
@@ -65,17 +67,17 @@ public class PluginManagerTest extends TestCase {
 		}
 	}
 
-	public void testInstallPlugins() throws IOException {
-		pluginManager
-				.retrieveRemotePluginInfo(PluginManager.DEFAULT_PLUGIN_BASE_URL_STR);
-		Collection<String> jarNames = pluginManager.getRemotePluginsByJarName()
-				.keySet();
-		try {
-			for (String jarName : jarNames) {
-				pluginManager.installPlugin(jarName, PluginManager.Operation.INSTALL);
-			}
-		} catch (PluginManagerException e) {
-			fail();
-		}
-	}
+//	public void testInstallPlugins() throws IOException {
+//		pluginManager.retrieveRemotePluginInfo(BASE_URL);
+//		Collection<String> jarNames = pluginManager.getRemotePluginsByJarName()
+//				.keySet();
+//		try {
+//			for (String jarName : jarNames) {
+//				pluginManager.installPlugin(jarName,
+//						PluginManager.Operation.INSTALL);
+//			}
+//		} catch (PluginManagerException e) {
+//			fail();
+//		}
+//	}
 }
