@@ -43,12 +43,12 @@ public class FourierModelCreator extends ModelCreatorPluginBase {
 
 	@Override
 	public String getDescription() {
-		return "Fourier model creator";
+		return "Create a Fourier model independent of period search";
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "Fourier model creator";
+		return "Fourier Model";
 	}
 
 	@Override
