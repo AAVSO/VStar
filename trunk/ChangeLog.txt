@@ -40,8 +40,11 @@ Version: 2.16.5
 Tag: DEV-AAVSO-06Oct2014
 Key Changes:
 - Fixed #468: Discrepant reporting dialog does not close: can't submit report.
-- DASCH observation source plug-in by Paul York. Thanks Paul!
-- Fourier Model creator plug-in.
+  This slipped through testing after changes leading up to the previous release.
+- Implemented #439: Observation Source: DASCH; a plug-in by Paul York. Thanks 
+  Paul and thanks to Doug Welch for the suggestion.
+- Implemented #451: Permit Fourier model creation with arbitrary periods.
+  Thanks to Mark Blackford for providing the motivation for this.
 
 Date: September 25 2014
 Version: 2.16.4
