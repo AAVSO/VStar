@@ -35,6 +35,14 @@ Release History
 ===============
   
 --------------------
+Date: October 6 2014
+Version: 2.16.5
+Tag: DEV-AAVSO-06Oct2014
+Key Changes:
+- Fixed #468: Discrepant reporting dialog does not close: can't submit report.
+- DASCH observation source plug-in by Paul York. Thanks Paul!
+- Fourier Model creator plug-in.
+
 Date: September 25 2014
 Version: 2.16.4
 Tag: DEV-AAVSO-25Sep2014
