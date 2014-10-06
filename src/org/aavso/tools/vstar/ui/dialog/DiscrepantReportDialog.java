@@ -48,7 +48,6 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 	private double magnitude;
 
 	private JTextField commentsField;
-	private JTextField userIdField;
 
 	/**
 	 * Constructor
@@ -91,10 +90,6 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 
 	public String getComments() {
 		return commentsField.getText();
-	}
-
-	public String getUserId() {
-		return userIdField.getText();
 	}
 
 	private JPanel createQuestionPane() {
@@ -153,7 +148,7 @@ public class DiscrepantReportDialog extends AbstractOkCancelDialog {
 					"Discrepant observation comment length exceeds "
 							+ MAX_COMMENT_LENGTH + " characters ("
 							+ getComments().length() + ").");
-		} else if (!getUserId().isEmpty() && !getUserId().matches("^\\s+$")) {
+		} else {
 			// TODO: this should be the base class implementation of okAction().
 			cancelled = false;
 			setVisible(false);
