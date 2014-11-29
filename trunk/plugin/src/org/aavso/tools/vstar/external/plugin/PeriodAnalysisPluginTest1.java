@@ -47,11 +47,11 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 
 /**
- * VStar period analysis plugin test.
+ * VStar period analysis plug-in test.
  * 
- * This plugin generates random periods and shows them on a line plot, in a
- * table, with the selected period displayed in a label component. A new phase
- * plot can be generated with that period.
+ * This plug-in generates random periods/powers and shows them on a line plot,
+ * in a table, with the selected period displayed in a label component. A new
+ * phase plot can be generated with that period.
  */
 public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
@@ -59,13 +59,12 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
 	private double period;
 
-	private List<Double> domain;
-	private List<Double> range;
-
 	protected final static String NAME = "Period Analysis Plugin Test 1";
 
-	// TODO: fix!
 	class TestAlgorithm implements IPeriodAnalysisAlgorithm {
+		private List<Double> domain;
+		private List<Double> range;
+
 		@Override
 		public String getRefineByFrequencyName() {
 			return "None";
@@ -73,8 +72,12 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
 		@Override
 		public Map<PeriodAnalysisCoordinateType, List<Double>> getResultSeries() {
-			// TODO Auto-generated method stub
-			return null;
+
+			Map<PeriodAnalysisCoordinateType, List<Double>> values = new HashMap<PeriodAnalysisCoordinateType, List<Double>>();
+			values.put(PeriodAnalysisCoordinateType.PERIOD, domain);
+			values.put(PeriodAnalysisCoordinateType.POWER, range);
+
+			return values;
 		}
 
 		@Override
@@ -100,9 +103,8 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
 		@Override
 		public void execute() throws AlgorithmError {
-			// Create a set of random values to be plotted. A real plugin would
-			// instead apply some algorithm to the observations to create data
-			// arrays (e.g. a pair of domain and range arrays).
+			// Create a set of random values to be plotted. A real plug-in would
+			// instead apply some algorithm to the observations.
 			domain = new ArrayList<Double>();
 			range = new ArrayList<Double>();
 			for (int i = 0; i < N; i++) {
@@ -113,21 +115,24 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
 		@Override
 		public void interrupt() {
-			// TODO Auto-generated method stub
+			// Here you would normally set a flag that the execute method checks
+			// to determine whether to exit a potentially long-running loop.
 		}
 	}
 
-	private IPeriodAnalysisAlgorithm algorithm = new TestAlgorithm();
+	private IPeriodAnalysisAlgorithm algorithm;
 
 	@Override
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError {
+
+		algorithm = new TestAlgorithm();
 		algorithm.execute();
 	}
 
 	@Override
 	public String getDescription() {
-		return "Period Analysis Plugin Test: generates random periods.";
+		return "Period Analysis Plugin Test: generates random powers for periods.";
 	}
 
 	/**
@@ -153,6 +158,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 		// Nothing to do
 	}
 
+	@SuppressWarnings("serial")
 	class PeriodAnalysisDialog extends PeriodAnalysisDialogBase {
 		PeriodAnalysisDialog() {
 			super(NAME);
@@ -164,23 +170,18 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 		@Override
 		protected Component createContent() {
 			// Random plot.
-			Map<PeriodAnalysisCoordinateType, List<Double>> values = new HashMap<PeriodAnalysisCoordinateType, List<Double>>();
-			values.put(PeriodAnalysisCoordinateType.FREQUENCY, domain);
-			values.put(PeriodAnalysisCoordinateType.POWER, range);
 			Component plot = PeriodAnalysisComponentFactory.createLinePlot(
-					"Random Periods", "", values,
-					PeriodAnalysisCoordinateType.FREQUENCY,
+					"Random Periods", "", algorithm.getResultSeries(),
+					PeriodAnalysisCoordinateType.PERIOD,
 					PeriodAnalysisCoordinateType.POWER, true, false);
 
 			// Data table.
 			PeriodAnalysisCoordinateType[] columns = {
-					PeriodAnalysisCoordinateType.FREQUENCY,
-					PeriodAnalysisCoordinateType.AMPLITUDE };
+					PeriodAnalysisCoordinateType.PERIOD,
+					PeriodAnalysisCoordinateType.POWER };
 
 			Component table = PeriodAnalysisComponentFactory.createDataTable(
-					columns,
-					new HashMap<PeriodAnalysisCoordinateType, List<Double>>(),
-					algorithm);
+					columns, algorithm.getResultSeries(), algorithm);
 
 			// Random period label component.
 			JPanel randomPeriod = new RandomPeriodComponent(this);
@@ -191,13 +192,13 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 					new NamedComponent("Random Period", randomPeriod));
 		}
 
-		// Send a period change message when the new-phase-plot button is
-		// clicked.
+		// Send a period change message when the new-phase-plot button
+		// is clicked.
 		@Override
 		protected void newPhasePlotButtonAction() {
 			sendPeriodChangeMessage(period);
 		}
-		
+
 		@Override
 		protected void findHarmonicsButtonAction() {
 			// TODO Auto-generated method stub
@@ -205,7 +206,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 
 		@Override
 		public void startup() {
-			// TODO Auto-generated method stub			
+			// TODO Auto-generated method stub
 		}
 
 		@Override
@@ -219,6 +220,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 	 * updates the period member to be used when the new-phase-plot button is
 	 * clicked. It's not really necessary, just shows a custom GUI component.
 	 */
+	@SuppressWarnings("serial")
 	class RandomPeriodComponent extends JPanel implements
 			Listener<PeriodAnalysisSelectionMessage> {
 
@@ -228,8 +230,7 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 		public RandomPeriodComponent(PeriodAnalysisDialog dialog) {
 			super();
 			this.dialog = dialog;
-			label = new JLabel("Period: None selected"
-					+ String.format("%1.4f", period));
+			label = new JLabel("Period: None selected");
 			this.add(label, BorderLayout.CENTER);
 
 			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
