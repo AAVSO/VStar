@@ -43,7 +43,8 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * JD(0), MAGNITUDE(1), UNCERTAINTY(2), HQ_UNCERTAINTY(3), BAND(4),
  * OBSERVER_CODE(5), COMMENT_CODE(6), COMP_STAR_1(7), COMP_STAR_2(8), CHARTS(9),
  * COMMENTS(10), TRANSFORMED(11), AIRMASS(12), VALFLAG(13), CMAG(14), KMAG(15),
- * HJD(16), NAME(17), AFFILIATION(18), MTYPE(19), GROUP(20)
+ * HJD(16), NAME(17), AFFILIATION(18), MTYPE(19), GROUP(20), ADS_REFERENCE(21),
+ * DIGITIZER(22), CREDIT(23)
  * </p>
  * 
  * <p>
@@ -148,11 +149,20 @@ public class ValidObservation extends Observation {
 	private final static String kMagKey = "KMAG";
 	private final static String kMagTitle = "KMag";
 
+	private final static String affiliationKey = "AFFILIATION";
+	private final static String affiliationTitle = "Affiliation";
+
+	private final static String groupKey = "GROUP";
+	private final static String groupTitle = "Group";
+
 	private final static String pubrefKey = "PUBREF";
 	private final static String pubrefTitle = "ADS Reference";
 
 	private final static String digitizerKey = "DIGTIZER";
 	private final static String digitizerTitle = "Digitizer";
+
+	private final static String creditKey = "CREDIT";
+	private final static String creditTitle = "Credit";
 
 	// The set of standard detail keys.
 	private final static Set<String> standardDetailKeys;
@@ -168,8 +178,11 @@ public class ValidObservation extends Observation {
 		standardDetailKeys.add(airmassKey);
 		standardDetailKeys.add(cMagKey);
 		standardDetailKeys.add(kMagKey);
+		standardDetailKeys.add(affiliationKey);
+		standardDetailKeys.add(groupKey);
 		standardDetailKeys.add(pubrefKey);
 		standardDetailKeys.add(digitizerKey);
+		standardDetailKeys.add(creditKey);
 	}
 
 	// A cache of detail values.
@@ -346,6 +359,17 @@ public class ValidObservation extends Observation {
 	 */
 	public boolean detailExists(String key) {
 		return details.keySet().contains(key);
+	}
+
+	/**
+	 * Does the specified detail key exist and is it non-empty?
+	 * 
+	 * @param key
+	 *            The detail key.
+	 * @return Whether or not non-empty detail exists.
+	 */
+	public boolean nonEmptyDetailExists(String key) {
+		return detailExists(key) && !isEmpty(key);
 	}
 
 	/**
@@ -658,6 +682,21 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
+	 * @return the affiliation
+	 */
+	public String getAffiliation() {
+		return getDetail(affiliationKey);
+	}
+
+	/**
+	 * @param affiliation
+	 *            the affiliation to set
+	 */
+	public void setAffiliation(String affiliation) {
+		addDetail(affiliationKey, affiliation, affiliationTitle);
+	}
+
+	/**
 	 * @return the mType
 	 */
 	public MTypeType getMType() {
@@ -670,6 +709,21 @@ public class ValidObservation extends Observation {
 	 */
 	public void setMType(MTypeType mType) {
 		this.mType = mType;
+	}
+
+	/**
+	 * @return the group
+	 */
+	public String getGroup() {
+		return getDetail(groupKey);
+	}
+
+	/**
+	 * @param group
+	 *            the group of filters used for this observation
+	 */
+	public void setGroup(String group) {
+		addDetail(groupKey, group, groupTitle);
 	}
 
 	/**
@@ -706,7 +760,7 @@ public class ValidObservation extends Observation {
 	 * @return the digitizer
 	 */
 	public String getDigitizer() {
-		return getDetail(pubrefKey);
+		return getDetail(digitizerKey);
 	}
 
 	/**
@@ -715,6 +769,21 @@ public class ValidObservation extends Observation {
 	 */
 	public void setDigitizer(String digitizer) {
 		addDetail(digitizerKey, digitizer, digitizerTitle);
+	}
+
+	/**
+	 * @return the credit
+	 */
+	public String getCredit() {
+		return getDetail(creditKey);
+	}
+
+	/**
+	 * @param credit
+	 *            the organization to be credited for the observation
+	 */
+	public void setCredit(String credit) {
+		addDetail(creditKey, credit, creditTitle);
 	}
 
 	/**
@@ -767,7 +836,7 @@ public class ValidObservation extends Observation {
 	public String toString() {
 		StringBuffer strBuf = new StringBuffer();
 
-		if (detailExists(nameKey)) {
+		if (nonEmptyDetailExists(nameKey)) {
 			strBuf.append(details.get(nameKey));
 			strBuf.append("\n");
 		}
@@ -780,7 +849,8 @@ public class ValidObservation extends Observation {
 				strBuf.append("Heliocentric ");
 			}
 			strBuf.append("Julian Date: ");
-			strBuf.append(NumericPrecisionPrefs.formatTime(dateInfo.getJulianDay()));
+			strBuf.append(NumericPrecisionPrefs.formatTime(dateInfo
+					.getJulianDay()));
 			strBuf.append("\n");
 
 			strBuf.append("Calendar Date: ");
@@ -799,7 +869,8 @@ public class ValidObservation extends Observation {
 
 			if (previousCyclePhase != null) {
 				strBuf.append("Previous Cycle Phase: ");
-				strBuf.append(NumericPrecisionPrefs.formatTime(previousCyclePhase));
+				strBuf.append(NumericPrecisionPrefs
+						.formatTime(previousCyclePhase));
 				strBuf.append("\n");
 			}
 		}
@@ -832,7 +903,7 @@ public class ValidObservation extends Observation {
 			strBuf.append("\n");
 		}
 
-		if (detailExists(obsCodeKey)) {
+		if (nonEmptyDetailExists(obsCodeKey)) {
 			strBuf.append(detailTitles.get(obsCodeKey) + ": ");
 			strBuf.append(details.get(obsCodeKey));
 			strBuf.append("\n");
@@ -843,25 +914,25 @@ public class ValidObservation extends Observation {
 			strBuf.append(commentCode.toString());
 		}
 
-		if (detailExists(compStar1Key)) {
+		if (nonEmptyDetailExists(compStar1Key)) {
 			strBuf.append(detailTitles.get(compStar1Key) + ": ");
 			strBuf.append(details.get(compStar1Key));
 			strBuf.append("\n");
 		}
 
-		if (detailExists(compStar2Key)) {
+		if (nonEmptyDetailExists(compStar2Key)) {
 			strBuf.append(detailTitles.get(compStar2Key) + ": ");
 			strBuf.append(details.get(compStar2Key));
 			strBuf.append("\n");
 		}
 
-		if (detailExists(chartsKey)) {
+		if (nonEmptyDetailExists(chartsKey)) {
 			strBuf.append(detailTitles.get(chartsKey) + ": ");
 			strBuf.append(details.get(chartsKey));
 			strBuf.append("\n");
 		}
 
-		if (detailExists(commentsKey)) {
+		if (nonEmptyDetailExists(commentsKey)) {
 			strBuf.append(detailTitles.get(commentsKey) + ": ");
 			strBuf.append(details.get(commentsKey));
 			strBuf.append("\n");
@@ -871,19 +942,19 @@ public class ValidObservation extends Observation {
 			strBuf.append("Transformed: yes\n");
 		}
 
-		if (detailExists(airmassKey)) {
+		if (nonEmptyDetailExists(airmassKey)) {
 			strBuf.append(detailTitles.get(airmassKey) + ": ");
 			strBuf.append(details.get(airmassKey));
 			strBuf.append("\n");
 		}
 
-		if (detailExists(cMagKey)) {
+		if (nonEmptyDetailExists(cMagKey)) {
 			strBuf.append(detailTitles.get(cMagKey) + ": ");
 			strBuf.append(details.get(cMagKey));
 			strBuf.append("\n");
 		}
 
-		if (detailExists(kMagKey)) {
+		if (nonEmptyDetailExists(kMagKey)) {
 			strBuf.append(detailTitles.get(kMagKey) + ": ");
 			strBuf.append(details.get(kMagKey));
 			strBuf.append("\n");
@@ -895,15 +966,27 @@ public class ValidObservation extends Observation {
 			strBuf.append("\n");
 		}
 
-		if (detailExists(pubrefKey)) {
+		if (nonEmptyDetailExists(groupKey)) {
+			strBuf.append(detailTitles.get(groupKey) + ": ");
+			strBuf.append(details.get(groupKey));
+			strBuf.append("\n");
+		}
+
+		if (nonEmptyDetailExists(pubrefKey)) {
 			strBuf.append(detailTitles.get(pubrefKey) + ": ");
 			strBuf.append(details.get(pubrefKey));
 			strBuf.append("\n");
 		}
 
-		if (detailExists(digitizerKey)) {
+		if (nonEmptyDetailExists(digitizerKey)) {
 			strBuf.append(detailTitles.get(digitizerKey) + ": ");
 			strBuf.append(details.get(digitizerKey));
+			strBuf.append("\n");
+		}
+
+		if (nonEmptyDetailExists(creditKey)) {
+			strBuf.append(detailTitles.get(creditKey) + ": ");
+			strBuf.append(details.get(creditKey));
 			strBuf.append("\n");
 		}
 
@@ -992,7 +1075,7 @@ public class ValidObservation extends Observation {
 		buf.append(this.getBand().getShortName());
 		buf.append(delimiter);
 
-		if (detailExists(obsCodeKey)) {
+		if (nonEmptyDetailExists(obsCodeKey)) {
 			buf.append(details.get(obsCodeKey));
 		}
 		buf.append(delimiter);
@@ -1054,6 +1137,9 @@ public class ValidObservation extends Observation {
 		buf.append(delimiter);
 
 		// Affiliation
+		if (getAffiliation() != null) {
+			buf.append(getAffiliation());
+		}
 		buf.append(delimiter);
 
 		buf.append(this.getMType() != null ? this.getMType().getShortName()
@@ -1061,7 +1147,9 @@ public class ValidObservation extends Observation {
 		buf.append(delimiter);
 
 		// Group
-		// TODO: handle
+		if (getGroup() != null) {
+			buf.append(getGroup());
+		}
 		buf.append(delimiter);
 
 		// ADS Reference
@@ -1076,8 +1164,14 @@ public class ValidObservation extends Observation {
 		}
 		buf.append(delimiter);
 
+		// Credit
+		if (getCredit() != null) {
+			buf.append(getCredit());
+		}
+		buf.append(delimiter);
+
 		// ObsType
-		// TODO: in AID but not yet AAVSO download format
+		// TODO: in AID but not yet AAVSO download format!
 		// buf.append(delimiter);
 
 		// TODO: handle reading in aavso text and aid obs readers
@@ -1099,5 +1193,11 @@ public class ValidObservation extends Observation {
 
 	public double getMag() {
 		return this.magnitude.getMagValue();
+	}
+
+	// Helpers
+
+	private boolean isEmpty(String s) {
+		return s == null || s.trim().length() == 0;
 	}
 }

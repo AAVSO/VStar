@@ -20,8 +20,11 @@ package org.aavso.tools.vstar.input.database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -50,6 +53,9 @@ public class AAVSODatabaseConnector {
 	// Observation retrieval statements.
 	private PreparedStatement obsWithJDRangeStmt;
 	private PreparedStatement obsWithNoJDRangeStmt;
+
+	// Credit index to name map.
+	private Map<Integer, String> creditMap = null;
 
 	// Database connectors.
 	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(
@@ -111,7 +117,7 @@ public class AAVSODatabaseConnector {
 			props.put("user", ResourceAccessor.getParam(6));
 			props.put("password", ResourceAccessor.getParam(7));
 			props.put("connectTimeout", MAX_CONN_TIME + "");
-//			props.put("autoReconnect", "true");
+			// props.put("autoReconnect", "true");
 
 			try {
 				// First try with port 3307...
@@ -121,10 +127,11 @@ public class AAVSODatabaseConnector {
 				try {
 					// ...and then with 3306.
 					connection = DriverManager
-							.getConnection(CONN_URL
-									+ ":3306/"
-									+ ResourceAccessor
-											.getParam(type.getDBNum()), props);
+							.getConnection(
+									CONN_URL
+											+ ":3306/"
+											+ ResourceAccessor.getParam(type
+													.getDBNum()), props);
 				} catch (Exception e) {
 					throw new ConnectionException(e.getMessage());
 				}
@@ -168,7 +175,8 @@ public class AAVSODatabaseConnector {
 							+ "observations.fainterthan AS fainterthan,\n"
 							+ "observations.uncertain AS uncertain,\n"
 							+ "observations.uncertainty AS uncertainty,\n"
-//							+ "IF (observations.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
+							// +
+							// "IF (observations.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
 							+ "observations.uncertaintyhq AS hq_uncertainty,\n"
 							+ "observations.obstype AS obstype,\n"
 							+ "observations.band AS band,\n"
@@ -185,9 +193,11 @@ public class AAVSODatabaseConnector {
 							+ "observations.KMag AS kmag,\n"
 							+ "observations.HJD AS hjd,\n"
 							+ "observations.name AS name,\n"
+							+ "observations.group AS 'group',\n"
 							+ "observations.pubref AS pubref,\n"
 							+ "observations.digitizer AS digitizer,\n"
-							+ "observations.mtype AS mtype\n" + "FROM\n"
+							+ "observations.mtype AS mtype,\n"
+							+ "observations.credit AS credit\n" + "FROM\n"
 							+ "observations\n" + "WHERE\n"
 							+ "observations.AUID = ? AND\n"
 							+ "observations.JD >= ? AND\n"
@@ -241,7 +251,8 @@ public class AAVSODatabaseConnector {
 							+ "observations.fainterthan AS fainterthan,\n"
 							+ "observations.uncertain AS uncertain,\n"
 							+ "observations.uncertainty AS uncertainty,\n"
-//							+ "IF (observations.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
+							// +
+							// "IF (observations.uncertain, observations.uncertainty, 0) AS uncertainty,\n"
 							+ "observations.uncertaintyhq AS hq_uncertainty,\n"
 							+ "observations.obstype AS obstype,\n"
 							+ "observations.band AS band,\n"
@@ -258,9 +269,11 @@ public class AAVSODatabaseConnector {
 							+ "observations.KMag AS kmag,\n"
 							+ "observations.HJD AS hjd,\n"
 							+ "observations.name AS name,\n"
+							+ "observations.group AS 'group',\n"
 							+ "observations.pubref AS pubref,\n"
 							+ "observations.digitizer AS digitizer,\n"
-							+ "observations.mtype AS mtype\n" + "FROM\n"
+							+ "observations.mtype AS mtype,\n"
+							+ "observations.credit AS credit\n" + "FROM\n"
 							+ "observations\n" + "WHERE\n"
 							+ "observations.AUID = ?\n" + "ORDER BY\n"
 							+ "observations.JD;");
@@ -281,6 +294,39 @@ public class AAVSODatabaseConnector {
 	public void setObservationWithNoJDRangeQueryParams(PreparedStatement stmt,
 			String auid) throws SQLException {
 		stmt.setString(1, auid);
+	}
+
+	/**
+	 * Retrieve a map of credit indices (used in AID credit field) to credit
+	 * names.
+	 * 
+	 * @return The mapping of indices to names.
+	 */
+	public synchronized Map<Integer, String> retrieveCreditMap() {
+		if (creditMap == null) {
+			creditMap = new TreeMap<Integer, String>();
+
+			try {
+				final PreparedStatement stmt = getConnection()
+						.prepareStatement("select * from aid.credits;");
+
+				ResultSet source = stmt.executeQuery();
+
+				while (source.next()) {
+					Integer id = source.getInt("id");
+					String abbr = source.getString("abbr");
+					creditMap.put(id, abbr);
+				}
+			} catch (SQLException e) {
+				MessageBox.showWarningDialog("Credits",
+						"Cannot retrieve credits");
+			} catch (ConnectionException e) {
+				MessageBox.showWarningDialog("Credits",
+						"Cannot retrieve credits; no connection");
+			}
+		}
+
+		return creditMap;
 	}
 
 	/**

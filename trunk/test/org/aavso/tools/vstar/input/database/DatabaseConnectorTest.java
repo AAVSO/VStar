@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.input.database;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -259,5 +260,11 @@ public class DatabaseConnectorTest extends TestCase {
 		} catch (Exception e) {
 			fail();			
 		}
+	}
+	
+	public void testRetrieveCreditMap() throws Exception {
+		AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
+		Map<Integer, String> creditMap = connector.retrieveCreditMap();
+		assertEquals(4, creditMap.size());
 	}
 }
