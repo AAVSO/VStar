@@ -94,8 +94,8 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 		// TODONE: AW updated this list with the list from
 		// CommentType.getRegex()
 		// keeps all the comment codes in one place
-		this.commentCodeValidator = new CommentCodeValidator(CommentType
-				.getRegex());
+		this.commentCodeValidator = new CommentCodeValidator(
+				CommentType.getRegex());
 
 		this.compStarValidator = new CompStarValidator();
 
@@ -179,13 +179,31 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 				.get("NAME_FIELD")]);
 		observation.setName(name);
 
+		String affiliation = optionalFieldValidator
+				.validate(fields[fieldIndexMap.get("AFFILIATION_FIELD")]);
+		observation.setAffiliation(affiliation);
+
 		MTypeType mType = magTypeValidator.validate(fields[fieldIndexMap
 				.get("MTYPE_FIELD")]);
 		if (mType != null) {
 			observation.setMType(mType);
 		}
 
-		// TODO: add group and affiliation fields and getters
+		String group = optionalFieldValidator
+				.validate(fields[fieldIndexMap.get("GROUP_FIELD")]);
+		observation.setGroup(group);
+
+		String ads_reference = optionalFieldValidator
+				.validate(fields[fieldIndexMap.get("ADS_REFERENCE_FIELD")]);
+		observation.setADSRef(ads_reference);
+
+		String digitizer = optionalFieldValidator.validate(fields[fieldIndexMap
+				.get("DIGITIZER_FIELD")]);
+		observation.setDigitizer(digitizer);
+
+		String credit = optionalFieldValidator.validate(fields[fieldIndexMap
+				.get("CREDIT_FIELD")]);
+		observation.setCredit(credit);
 
 		return observation;
 	}

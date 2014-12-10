@@ -52,10 +52,11 @@ public class AAVSOFormatFieldInfoSource implements IFieldInfoSource {
 	private static final int AFFILIATION_FIELD = 18;
 	private static final int MTYPE_FIELD = 19;
 	private static final int GROUP_FIELD = 20;
-	private static final int ADS_REFERENCE = 21;
-	private static final int DIGITIZER = 22;
+	private static final int ADS_REFERENCE_FIELD = 21;
+	private static final int DIGITIZER_FIELD = 22;
+	private static final int CREDIT_FIELD = 23;
 
-	public static final int FIELD_COUNT = DIGITIZER + 1;
+	public static final int FIELD_COUNT = CREDIT_FIELD + 1;
 
 	private Map<String, Integer> fieldIndexMap;
 
@@ -85,8 +86,9 @@ public class AAVSOFormatFieldInfoSource implements IFieldInfoSource {
 		this.fieldIndexMap.put("AFFILIATION_FIELD", AFFILIATION_FIELD);
 		this.fieldIndexMap.put("MTYPE_FIELD", MTYPE_FIELD);
 		this.fieldIndexMap.put("GROUP_FIELD", GROUP_FIELD);
-		this.fieldIndexMap.put("ADS_REFERENCE", ADS_REFERENCE);
-		this.fieldIndexMap.put("DIGITIZER", DIGITIZER);
+		this.fieldIndexMap.put("ADS_REFERENCE_FIELD", ADS_REFERENCE_FIELD);
+		this.fieldIndexMap.put("DIGITIZER_FIELD", DIGITIZER_FIELD);
+		this.fieldIndexMap.put("CREDIT_FIELD", CREDIT_FIELD);
 	}
 
 	/**

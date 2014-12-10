@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.input.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -74,8 +75,8 @@ public class AAVSODatabaseObservationReader extends
 				} catch (SQLException e) {
 					int uniqueId = source.getInt("unique_id");
 					InvalidObservation invalidOb = new InvalidObservation(
-							"Row with unique ID " + uniqueId, e
-									.getLocalizedMessage());
+							"Row with unique ID " + uniqueId,
+							e.getLocalizedMessage());
 					invalidOb.setRecordNumber(source.getRow());
 					invalidObservations.add(invalidOb);
 					continue;
@@ -177,6 +178,8 @@ public class AAVSODatabaseObservationReader extends
 
 		ob.setName(getNextPossiblyNullString("name"));
 
+		// TODO set affiliation; need ID => name map (as for credit)
+		
 		// If mtype is null or 0, we use the ValidObservation's
 		// constructed default (standard magnitude type).
 		Integer mtype = getNextPossiblyNullInteger("mtype");
@@ -188,18 +191,25 @@ public class AAVSODatabaseObservationReader extends
 			}
 		}
 
+		ob.setGroup(getNextPossiblyNullString("group"));
+
+		// Add a credit abbreviation if credit column is non-null.
+		Integer credit = getNextPossiblyNullInteger("credit");
+		if (credit != null) {
+			Map<Integer, String> creditMap = AAVSODatabaseConnector.observationDBConnector
+					.retrieveCreditMap();
+			if (creditMap.containsKey(credit)) {
+				String abbr = creditMap.get(credit);
+				ob.setCredit(abbr);
+			}
+		}
+
 		ob.setObsType(ObsType
 				.getObsTypeFromAIDIndex(getNextPossiblyNullInteger("obstype")));
 
-		String pubref = getNextPossiblyNullString("pubref");
-		if (pubref != null) {
-			ob.setADSRef(pubref);
-		}
+		ob.setADSRef(getNextPossiblyNullString("pubref"));
 
-		String digitizer = getNextPossiblyNullString("digitizer");
-		if (digitizer != null) {
-			ob.setDigitizer(digitizer);
-		}
+		ob.setDigitizer(getNextPossiblyNullString("digitizer"));
 
 		return ob;
 	}

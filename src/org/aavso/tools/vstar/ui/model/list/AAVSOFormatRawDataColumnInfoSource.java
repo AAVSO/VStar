@@ -49,9 +49,14 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final int HJD_COLUMN = 16;
 	private static final int HQ_UNCERTAINTY_COLUMN = 17;
 	private static final int MTYPE_COLUMN = 18;
-	private static final int DISCREPANT_COLUMN = 19;
-	private static final int NAME_COLUMN = 20;
-	private static final int LINE_NUM_COLUMN = 21;
+	private static final int GROUP_COLUMN = 19;
+	private static final int AFFILIATION_COLUMN = 20;
+	private static final int ADS_REFERENCE_COLUMN = 21;
+	private static final int DIGITIZER_COLUMN = 22;
+	private static final int CREDIT_COLUMN = 23;
+	private static final int DISCREPANT_COLUMN = 24;
+	private static final int NAME_COLUMN = 25;
+	private static final int LINE_NUM_COLUMN = 26;
 
 	private static final String JD_COLUMN_NAME = "Julian Day";
 	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
@@ -72,10 +77,15 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final String HJD_COLUMN_NAME = "HJD";
 	private static final String HQ_UNCERTAINTY_COLUMN_NAME = "HQ Uncertainty";
 	private static final String MTYPE_COLUMN_NAME = "MType";
+	private static final String GROUP_COLUMN_NAME = "Group";
+	private static final String AFFILIATION_COLUMN_NAME = "Affiliation";
+	private static final String ADS_REFERENCE_COLUMN_NAME = "ADS Reference";
+	private static final String DIGITIZER_COLUMN_NAME = "Digitizer";
+	private static final String CREDIT_COLUMN_NAME = "Credit";
 	private static final String DISCREPANT_COLUMN_NAME = "Discrepant?";
 	private static final String NAME_COLUMN_NAME = "Name";
 	private static final String LINE_NUM_COLUMN_NAME = "Line";
-
+	
 	protected static final Map<String, Integer> COLUMN_NAMES = new HashMap<String, Integer>();
 
 	static {
@@ -97,6 +107,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		COLUMN_NAMES.put(KMAG_COLUMN_NAME, KMAG_COLUMN);
 		COLUMN_NAMES.put(HJD_COLUMN_NAME, HJD_COLUMN);
 		COLUMN_NAMES.put(HQ_UNCERTAINTY_COLUMN_NAME, HQ_UNCERTAINTY_COLUMN);
+		COLUMN_NAMES.put(AFFILIATION_COLUMN_NAME, AFFILIATION_COLUMN);
 		COLUMN_NAMES.put(MTYPE_COLUMN_NAME, MTYPE_COLUMN);
 		COLUMN_NAMES.put(DISCREPANT_COLUMN_NAME, DISCREPANT_COLUMN);
 		COLUMN_NAMES.put(NAME_COLUMN_NAME, NAME_COLUMN);
@@ -126,6 +137,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	public String getTableColumnTitle(int index) {
 		String columnName = null;
 
+		// TODO: programmatically create a reverse map!
+		
 		switch (index) {
 		case JD_COLUMN:
 			columnName = JD_COLUMN_NAME;
@@ -184,6 +197,21 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case MTYPE_COLUMN:
 			columnName = MTYPE_COLUMN_NAME;
 			break;
+		case AFFILIATION_COLUMN:
+			columnName = AFFILIATION_COLUMN_NAME;
+			break;
+		case GROUP_COLUMN:
+			columnName = GROUP_COLUMN_NAME;
+			break;
+		case ADS_REFERENCE_COLUMN:
+			columnName = ADS_REFERENCE_COLUMN_NAME;
+			break;
+		case DIGITIZER_COLUMN:
+			columnName = DIGITIZER_COLUMN_NAME;
+			break;
+		case CREDIT_COLUMN:
+			columnName = CREDIT_COLUMN_NAME;
+			break;
 		case DISCREPANT_COLUMN:
 			columnName = DISCREPANT_COLUMN_NAME;
 			break;
@@ -239,6 +267,16 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case HQ_UNCERTAINTY_COLUMN:
 			break;
 		case MTYPE_COLUMN:
+			break;
+		case GROUP_COLUMN:
+			break;
+		case AFFILIATION_COLUMN:
+			break;
+		case ADS_REFERENCE_COLUMN:
+			break;
+		case DIGITIZER_COLUMN:
+			break;
+		case CREDIT_COLUMN:
 			break;
 		case DISCREPANT_COLUMN:
 			clazz = Boolean.class;
@@ -322,6 +360,21 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case MTYPE_COLUMN:
 			value = ob.getMType() == null ? "" : ob.getMType().toString();
+			break;
+		case GROUP_COLUMN:
+			value = ob.getGroup() == null ? "" : ob.getGroup();
+			break;
+		case AFFILIATION_COLUMN:
+			value = ob.getAffiliation() == null ? "" : ob.getAffiliation();
+			break;
+		case ADS_REFERENCE_COLUMN:
+			value = ob.getADSRef() == null ? "" : ob.getADSRef();
+			break;
+		case DIGITIZER_COLUMN:
+			value = ob.getDigitizer() == null ? "" : ob.getDigitizer();
+			break;
+		case CREDIT_COLUMN:
+			value = ob.getCredit() == null ? "" : ob.getCredit();
 			break;
 		case DISCREPANT_COLUMN:
 			value = ob.isDiscrepant();
