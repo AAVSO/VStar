@@ -49,6 +49,9 @@ public class VStarApplet extends JApplet implements IMainUI {
 	// The status bar which includes text and progress bar components.
 	private StatusPane statusPane;
 
+	// Are we in scripting mode?
+	private boolean scriptingMode;
+
 	public void init() {
 		// Apply VStar Java policy for all code.
 		URL policyUrl = Thread.currentThread().getContextClassLoader()
@@ -140,5 +143,15 @@ public class VStarApplet extends JApplet implements IMainUI {
 	@Override
 	public UIType getUiType() {
 		return UIType.APPLET;
+	}
+	
+	@Override
+	public void setScriptingStatus(boolean status) {
+		scriptingMode = status;
+	}
+
+	@Override
+	public boolean isScriptingMode() {
+		return scriptingMode;
 	}
 }

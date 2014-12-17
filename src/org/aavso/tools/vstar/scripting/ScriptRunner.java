@@ -20,7 +20,11 @@ package org.aavso.tools.vstar.scripting;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
+import javax.script.Bindings;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -29,6 +33,7 @@ import javax.swing.JFileChooser;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This class runs a VStar script.
@@ -39,7 +44,10 @@ public class ScriptRunner {
 
 	private ScriptEngineManager manager;
 	private ScriptEngine jsEngine;
-	private ScriptContext context;
+	private Compilable compilable;
+	private Bindings bindings;
+	private String error;
+	private String warning;
 
 	private JFileChooser scriptFileChooser;
 
@@ -48,10 +56,10 @@ public class ScriptRunner {
 	 */
 	protected ScriptRunner() {
 		manager = new ScriptEngineManager();
-		jsEngine = manager.getEngineByName("JavaScript");
-		context = jsEngine.getContext();
-		context.setAttribute("vstar", VStarScriptingAPI.getInstance(), context
-				.getScopes().get(0));
+		jsEngine = manager.getEngineByName("javascript");
+		compilable = (Compilable) jsEngine;
+		bindings = jsEngine.getBindings(ScriptContext.GLOBAL_SCOPE);
+		bindings.put("vstar", VStarScriptingAPI.getInstance());
 		scriptFileChooser = new JFileChooser();
 	}
 
@@ -67,22 +75,75 @@ public class ScriptRunner {
 	 */
 	public void runScript() {
 		File scriptFile = null;
+		FileReader reader = null;
 
 		try {
+			setError(null);
+			setWarning(null);
+
+			Mediator.getUI().setScriptingStatus(true);
+
 			int returnVal = scriptFileChooser.showOpenDialog(DocumentManager
 					.findActiveWindow());
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				scriptFile = scriptFileChooser.getSelectedFile();
-				FileReader reader = new FileReader(scriptFile);
-				jsEngine.eval(reader, context);
+				reader = new FileReader(scriptFile);
+				jsEngine.put(ScriptEngine.FILENAME, scriptFile.toString());
+				CompiledScript script = compilable.compile(reader);
+				script.eval();
 			}
 		} catch (FileNotFoundException ex) {
+			Mediator.getUI().setScriptingStatus(false);
 			MessageBox.showErrorDialog("Script Error", "Cannot load script '"
 					+ scriptFile.getAbsolutePath() + "'");
 		} catch (ScriptException ex) {
-			MessageBox.showErrorDialog("Script Error", String.format(
-					"Error in '%s' on line %d.", ex.getFileName(), ex
-							.getLineNumber()));
+			Mediator.getUI().setScriptingStatus(false);
+			MessageBox
+					.showErrorDialog("Script Error", ex.getLocalizedMessage());
+		} catch (Throwable ex) {
+			Mediator.getUI().setScriptingStatus(false);
+			MessageBox.showErrorDialog("Script Error",
+					String.format("Error: " + ex.getLocalizedMessage()));
+
+		} finally {
+			Mediator.getUI().setScriptingStatus(false);
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					// Nothing to be done
+				}
+			}
 		}
+	}
+
+	/**
+	 * @return the error
+	 */
+	public String getError() {
+		return error;
+	}
+
+	/**
+	 * @param error
+	 *            the error to set
+	 */
+	public void setError(String error) {
+		this.error = error;
+	}
+
+	/**
+	 * @return the warning
+	 */
+	public String getWarning() {
+		return warning;
+	}
+
+	/**
+	 * @param warning
+	 *            the warning to set
+	 */
+	public void setWarning(String warning) {
+		this.warning = warning;
 	}
 }
