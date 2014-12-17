@@ -95,7 +95,7 @@ public class ResourceAccessor {
 				// from Eclipse, not from a distribution of vstar.jar).
 				url = ResourceAccessor.class.getResource("resources/" + urlStr);
 			}
-			
+
 			if (url != null) {
 				try {
 					image = ImageIO.read(url);
@@ -137,7 +137,7 @@ public class ResourceAccessor {
 	// ** Version info. **
 
 	public static String getVersionString() {
-		return "2.16.5";
+		return "2.16.6";
 	}
 
 	public static String getRevNum() {

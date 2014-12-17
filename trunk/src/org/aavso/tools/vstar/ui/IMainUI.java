@@ -54,4 +54,19 @@ public interface IMainUI {
 	 *            The cursor to set.
 	 */
 	public void setCursor(Cursor cursor);
+
+	/**
+	 * Set the status of scripting mode.
+	 * 
+	 * @param status
+	 *            true or false to indicate whether we are in scripting mode.
+	 */
+	public void setScriptingStatus(boolean status);
+	
+	/**
+	 * Are we in scripting mode?
+	 * 
+	 * @return true or false
+	 */
+	public boolean isScriptingMode();
 }

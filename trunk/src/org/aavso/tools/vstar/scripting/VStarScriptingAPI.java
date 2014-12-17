@@ -114,6 +114,8 @@ public class VStarScriptingAPI {
 	 *            Is this load additive?
 	 */
 	private void commonLoadFromFile(final String path, boolean isAdditive) {
+		init();
+
 		File f = new File(path);
 
 		try {
@@ -131,8 +133,9 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Load a dataset from the specified path. This is equivalent to
-	 * "File -> New Star from <obs-source-type>..."
+	 * Load a dataset from the specified path using the regular expression
+	 * pattern to identify the observation source plug-in to use. This is
+	 * equivalent to "File -> New Star from <obs-source-type>..."
 	 * 
 	 * @param pluginPattern
 	 *            The sub-string with which to match the plugin name.
@@ -145,8 +148,9 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Load a dataset from the specified path, adding it to the existing
-	 * dataset. This is equivalent to
+	 * Load a dataset from the specified path, adding it to the existing dataset
+	 * using the regular expression pattern to identify the observation source
+	 * plug-in to use. This is equivalent to
 	 * "File -> New Star from <obs-source-type>..." with the additive checkbox
 	 * selected.
 	 * 
@@ -161,7 +165,8 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Load a dataset from the specified URL.
+	 * Load a dataset from the specified URL using the regular expression
+	 * pattern to identify the observation source plug-in to use.
 	 * 
 	 * @param pluginPattern
 	 *            The sub-string with which to match the plugin name.
@@ -174,7 +179,9 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Load a dataset from the specified URL, adding it to the existing dataset.
+	 * Load a dataset from the specified URL, adding it to the existing dataset,
+	 * using the regular expression pattern to identify the observation source
+	 * plug-in to use.
 	 * 
 	 * @param pluginPattern
 	 *            The sub-string with which to match the plugin name.
@@ -200,12 +207,15 @@ public class VStarScriptingAPI {
 	 */
 	private void commonLoadFromFilePlugin(final String pluginPattern,
 			InputType inputType, final String location, boolean isAdditive) {
+		init();
+
 		ObservationSourcePluginBase obSourcePlugin = null;
 
 		for (ObservationSourcePluginBase plugin : PluginLoader
 				.getObservationSourcePlugins()) {
-			if (plugin.getDisplayName().matches("^.*" + pluginPattern + ".*$")
-					&& plugin.getInputType() == inputType) {
+			if (plugin.getDisplayName().contains(pluginPattern)
+					&& (plugin.getInputType() == inputType || plugin
+							.getInputType() == InputType.FILE_OR_URL)) {
 				obSourcePlugin = plugin;
 				break;
 			}
@@ -250,6 +260,7 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void loadFromAID(final String name, double minJD,
 			double maxJD) {
+		init();
 		String auid = null;
 		mediator.createObservationArtefactsFromDatabase(name, auid, minJD,
 				maxJD, false);
@@ -269,6 +280,7 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void additiveLoadFromAID(final String name,
 			double minJD, double maxJD) {
+		init();
 		String auid = null;
 		mediator.createObservationArtefactsFromDatabase(name, auid, minJD,
 				maxJD, true);
@@ -285,6 +297,7 @@ public class VStarScriptingAPI {
 	 *            The delimiter between data items.
 	 */
 	public synchronized void saveRawData(final String path, String delimiter) {
+		init();
 		lightCurveMode(); // save raw data not phase plot data
 		mediator.saveObsListToFile(Mediator.getUI().getComponent(), new File(
 				path), delimiter);
@@ -305,6 +318,7 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void saveLightCurve(final String path, int width,
 			int height) {
+		init();
 		lightCurveMode();
 		mediator.saveCurrentPlotToFile(new File(path), width, height);
 	}
@@ -321,6 +335,7 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void savePhasePlot(final String path, int width,
 			int height) {
+		init();
 		phasePlotMode();
 		mediator.saveCurrentPlotToFile(new File(path), width, height);
 	}
@@ -330,6 +345,7 @@ public class VStarScriptingAPI {
 	 * will open the phase parameter dialog.
 	 */
 	public synchronized void phasePlotMode() {
+		init();
 		mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
 		mediator.waitForJobCompletion();
 	}
@@ -338,6 +354,7 @@ public class VStarScriptingAPI {
 	 * Switch to phase raw (light curve) mode.
 	 */
 	public synchronized void lightCurveMode() {
+		init();
 		mediator.changeAnalysisType(AnalysisType.RAW_DATA);
 		mediator.waitForJobCompletion();
 	}
@@ -351,14 +368,36 @@ public class VStarScriptingAPI {
 	 *            The epoch (first Julian Date) for the phase plot.
 	 */
 	public synchronized void phasePlot(double period, double epoch) {
+		init();
 		mediator.createPhasePlot(period, epoch);
 		mediator.waitForJobCompletion();
 	}
 
 	/**
+	 * Return the last error.
+	 * 
+	 * @return The error string; may be null.
+	 */
+	public synchronized String getError() {
+		return ScriptRunner.getInstance().getError();
+	}
+
+	/**
+	 * Return the last warning.
+	 * 
+	 * @return The warning string; may be null.
+	 */
+	public synchronized String getWarning() {
+		return ScriptRunner.getInstance().getWarning();
+	}
+
+	/**
 	 * Shows the band names in the current dataset.
+	 * 
+	 * @deprecated return a string or array or strings instead!
 	 */
 	public synchronized void showBands() {
+		init();
 		ObservationAndMeanPlotModel model = analysisTypeMsg
 				.getObsAndMeanChartPane().getObsModel();
 
@@ -370,6 +409,62 @@ public class VStarScriptingAPI {
 			System.out.println(type.getShortName());
 		}
 	}
+
+	/**
+	 * Returns a comma-separated string of series names for the current dataset,
+	 * including bands and synthetic series such as means, model, residuals.
+	 * 
+	 * @return a comma-separated series names
+	 */
+	public synchronized String getSeries() {
+		init();
+		ObservationAndMeanPlotModel model = analysisTypeMsg
+				.getObsAndMeanChartPane().getObsModel();
+
+		String nameStr = "";
+
+		for (SeriesType type : model.getSeriesKeys()) {
+			nameStr += type.getShortName() + ",";
+		}
+
+		return nameStr.substring(0, nameStr.lastIndexOf(",") - 1);
+	}
+
+	/**
+	 * Makes the specified series in the current dataset visible. Calling this
+	 * method more than one consecutive time with the same visibility value has
+	 * no effect on the current visibility status of a series.
+	 * 
+	 * @param seriesName
+	 *            The long name (e.g. "Johnson V" not "V") of the series to make
+	 *            visible.
+	 */
+	public synchronized void makeVisible(final String seriesName) {
+		init();
+		ObservationAndMeanPlotModel obsPlotModel = analysisTypeMsg
+				.getObsAndMeanChartPane().getObsModel();
+
+		if (SeriesType.exists(seriesName)) {
+			SeriesType series = SeriesType.getSeriesFromDescription(seriesName);
+
+			if (obsPlotModel.getSeriesKeys().contains(series)) {
+				int seriesNum = obsPlotModel.getSrcTypeToSeriesNumMap().get(
+						series);
+				obsPlotModel.changeSeriesVisibility(seriesNum, true);
+			} else {
+				ScriptRunner.getInstance().setError(
+						"Series does not exist in loaded dataset: "
+								+ seriesName);
+			}
+		} else {
+			ScriptRunner.getInstance().setError(
+					"Unknown series type: " + seriesName);
+		}
+
+		mediator.waitForJobCompletion();
+	}
+
+	// TODO: makeInvisible() or hideSeries() and showSeries()
 
 	/**
 	 * Pause for the specified number of milliseconds.
@@ -385,9 +480,19 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Exit VStar.
+	 * Exit VStar
 	 */
 	public synchronized void exit() {
 		mediator.quit();
+	}
+
+	// Helpers
+
+	private void init() {
+		clearError();
+	}
+
+	private void clearError() {
+		ScriptRunner.getInstance().setError(null);
 	}
 }

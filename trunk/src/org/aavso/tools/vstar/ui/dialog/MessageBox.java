@@ -23,6 +23,7 @@ import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
+import org.aavso.tools.vstar.scripting.ScriptRunner;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
@@ -119,10 +120,14 @@ public class MessageBox {
 	 */
 	public static void showWarningDialog(Component parent, String title,
 			String msg) {
-		JOptionPane pane = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE,
-				JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setVisible(true);
+		if (!Mediator.getUI().isScriptingMode()) {
+			JOptionPane pane = new JOptionPane(msg,
+					JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+			JDialog dialog = pane.createDialog(parent, title);
+			dialog.setVisible(true);
+		} else {
+			ScriptRunner.getInstance().setWarning(msg);
+		}
 	}
 
 	/**
@@ -134,11 +139,16 @@ public class MessageBox {
 	 *            The message that is the content of the dialog.
 	 */
 	public static void showWarningDialog(String title, String msg) {
-		JOptionPane pane = new JOptionPane(msg, JOptionPane.WARNING_MESSAGE,
-				JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(),
-				title);
-		dialog.setVisible(true);
+		if (!Mediator.getUI().isScriptingMode()) {
+
+			JOptionPane pane = new JOptionPane(msg,
+					JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+			JDialog dialog = pane.createDialog(
+					DocumentManager.findActiveWindow(), title);
+			dialog.setVisible(true);
+		} else {
+			ScriptRunner.getInstance().setWarning(msg);
+		}
 	}
 
 	/**
@@ -153,14 +163,18 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			String msg) {
-		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-				JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setVisible(true);
+		if (!Mediator.getUI().isScriptingMode()) {
+			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
+					JOptionPane.OK_CANCEL_OPTION);
+			JDialog dialog = pane.createDialog(parent, title);
+			dialog.setVisible(true);
 
-		// Turn off the wait cursor, in case it's enabled.
-		if (parent != null) {
-			parent.setCursor(null);
+			// Turn off the wait cursor, in case it's enabled.
+			if (parent != null) {
+				parent.setCursor(null);
+			}
+		} else {
+			ScriptRunner.getInstance().setError(msg);
 		}
 	}
 
@@ -173,15 +187,19 @@ public class MessageBox {
 	 *            The message that is the content of the dialog.
 	 */
 	public static void showErrorDialog(String title, String msg) {
-		Component parent = Mediator.getUI().getComponent();
+		if (!Mediator.getUI().isScriptingMode()) {
+			Component parent = Mediator.getUI().getComponent();
 
-		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-				JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setVisible(true);
+			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
+					JOptionPane.OK_CANCEL_OPTION);
+			JDialog dialog = pane.createDialog(parent, title);
+			dialog.setVisible(true);
 
-		// Turn off the wait cursor, in case it's enabled.
-		parent.setCursor(null);
+			// Turn off the wait cursor, in case it's enabled.
+			parent.setCursor(null);
+		} else {
+			ScriptRunner.getInstance().setError(msg);
+		}
 	}
 
 	/**
@@ -196,18 +214,23 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			Throwable e) {
-		String msg = e.getClass().getName() + ": " + e.getLocalizedMessage();
+		if (!Mediator.getUI().isScriptingMode()) {
+			String msg = e.getClass().getName() + ": "
+					+ e.getLocalizedMessage();
 
-		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-				JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setVisible(true);
+			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
+					JOptionPane.OK_CANCEL_OPTION);
+			JDialog dialog = pane.createDialog(parent, title);
+			dialog.setVisible(true);
 
-		e.printStackTrace();
+			e.printStackTrace();
 
-		// Turn off the wait cursor, in case it's enabled.
-		if (parent != null) {
-			parent.setCursor(null);
+			// Turn off the wait cursor, in case it's enabled.
+			if (parent != null) {
+				parent.setCursor(null);
+			}
+		} else {
+			ScriptRunner.getInstance().setError(e.getLocalizedMessage());
 		}
 	}
 
@@ -221,18 +244,23 @@ public class MessageBox {
 	 *            The exception whose content will be the content of the dialog.
 	 */
 	public static void showErrorDialog(String title, Throwable e) {
-		Component parent = DocumentManager.findActiveWindow();
+		if (!Mediator.getUI().isScriptingMode()) {
+			Component parent = DocumentManager.findActiveWindow();
 
-		String msg = e.getClass().getName() + ": " + e.getLocalizedMessage();
+			String msg = e.getClass().getName() + ": "
+					+ e.getLocalizedMessage();
 
-		JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-				JOptionPane.OK_CANCEL_OPTION);
-		JDialog dialog = pane.createDialog(parent, title);
-		dialog.setVisible(true);
+			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
+					JOptionPane.OK_CANCEL_OPTION);
+			JDialog dialog = pane.createDialog(parent, title);
+			dialog.setVisible(true);
 
-		e.printStackTrace();
+			e.printStackTrace();
 
-		// Turn off the wait cursor, in case it's enabled.
-		parent.setCursor(null);
+			// Turn off the wait cursor, in case it's enabled.
+			parent.setCursor(null);
+		} else {
+			ScriptRunner.getInstance().setError(e.getLocalizedMessage());
+		}
 	}
 }

@@ -48,6 +48,9 @@ public class MainFrame extends JFrame implements IMainUI {
 	// The status bar which includes text and progress bar components.
 	private StatusPane statusPane;
 
+	// Are we in scripting mode?
+	private boolean scriptingMode;
+	
 	public MainFrame() {
 		super("VStar " + ResourceAccessor.getVersionString());
 
@@ -114,5 +117,15 @@ public class MainFrame extends JFrame implements IMainUI {
 	@Override
 	public Component getComponent() {
 		return this;
+	}
+
+	@Override
+	public void setScriptingStatus(boolean status) {
+		scriptingMode = status;
+	}
+
+	@Override
+	public boolean isScriptingMode() {
+		return scriptingMode;
 	}
 }
