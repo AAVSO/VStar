@@ -133,71 +133,71 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Load a dataset from the specified path using the regular expression
-	 * pattern to identify the observation source plug-in to use. This is
+	 * Load a dataset from the specified path using the (possibly partial)
+	 * plug-in name to identify the observation source plug-in to use. This is
 	 * equivalent to "File -> New Star from <obs-source-type>..."
 	 * 
-	 * @param pluginPattern
-	 *            The sub-string with which to match the plugin name.
+	 * @param pluginName
+	 *            The sub-string with which to match the plug-in name.
 	 * @param path
 	 *            The path to the file.
 	 */
-	public synchronized void loadFromFile(final String pluginPattern,
+	public synchronized void loadFromFile(final String pluginName,
 			final String path) {
-		commonLoadFromFilePlugin(pluginPattern, InputType.FILE, path, false);
+		commonLoadFromFilePlugin(pluginName, InputType.FILE, path, false);
 	}
 
 	/**
 	 * Load a dataset from the specified path, adding it to the existing dataset
-	 * using the regular expression pattern to identify the observation source
-	 * plug-in to use. This is equivalent to
+	 * using the (possibly partial) plug-in name to identify the observation
+	 * source plug-in to use. This is equivalent to
 	 * "File -> New Star from <obs-source-type>..." with the additive checkbox
 	 * selected.
 	 * 
-	 * @param pluginPattern
-	 *            The sub-string with which to match the plugin name.
+	 * @param pluginName
+	 *            The sub-string with which to match the plug-in name.
 	 * @param path
 	 *            The path to the file.
 	 */
-	public synchronized void additiveLoadFromFile(final String pluginPattern,
+	public synchronized void additiveLoadFromFile(final String pluginName,
 			final String path) {
-		commonLoadFromFilePlugin(pluginPattern, InputType.FILE, path, true);
+		commonLoadFromFilePlugin(pluginName, InputType.FILE, path, true);
 	}
 
 	/**
-	 * Load a dataset from the specified URL using the regular expression
-	 * pattern to identify the observation source plug-in to use.
+	 * Load a dataset from the specified URL using the (possibly partial)
+	 * plug-in name to identify the observation source plug-in to use.
 	 * 
-	 * @param pluginPattern
-	 *            The sub-string with which to match the plugin name.
+	 * @param pluginName
+	 *            The sub-string with which to match the plug-in name.
 	 * @param url
 	 *            The URL.
 	 */
-	public synchronized void loadFromURL(final String pluginPattern,
+	public synchronized void loadFromURL(final String pluginName,
 			final String url) {
-		commonLoadFromFilePlugin(pluginPattern, InputType.URL, url, false);
+		commonLoadFromFilePlugin(pluginName, InputType.URL, url, false);
 	}
 
 	/**
 	 * Load a dataset from the specified URL, adding it to the existing dataset,
-	 * using the regular expression pattern to identify the observation source
-	 * plug-in to use.
+	 * using the (possibly partial) plug-in name to identify the observation
+	 * source plug-in to use.
 	 * 
-	 * @param pluginPattern
-	 *            The sub-string with which to match the plugin name.
+	 * @param pluginName
+	 *            The sub-string with which to match the plug-in name.
 	 * @param url
 	 *            The URL.
 	 */
-	public synchronized void additiveLoadFromURL(final String pluginPattern,
+	public synchronized void additiveLoadFromURL(final String pluginName,
 			final String url) {
-		commonLoadFromFilePlugin(pluginPattern, InputType.URL, url, true);
+		commonLoadFromFilePlugin(pluginName, InputType.URL, url, true);
 	}
 
 	/**
-	 * Common dataset plugin load method.
+	 * Common dataset plug-in load method.
 	 * 
-	 * @param pluginPattern
-	 *            The sub-string with which to match the plugin name.
+	 * @param pluginName
+	 *            The sub-string with which to match the plug-in name.
 	 * @param inputType
 	 *            The input type (e.g. file, URL).
 	 * @param location
@@ -205,7 +205,7 @@ public class VStarScriptingAPI {
 	 * @param isAdditive
 	 *            Is this load additive?
 	 */
-	private void commonLoadFromFilePlugin(final String pluginPattern,
+	private void commonLoadFromFilePlugin(final String pluginName,
 			InputType inputType, final String location, boolean isAdditive) {
 		init();
 
@@ -213,7 +213,7 @@ public class VStarScriptingAPI {
 
 		for (ObservationSourcePluginBase plugin : PluginLoader
 				.getObservationSourcePlugins()) {
-			if (plugin.getDisplayName().contains(pluginPattern)
+			if (plugin.getDisplayName().contains(pluginName)
 					&& (plugin.getInputType() == inputType || plugin
 							.getInputType() == InputType.FILE_OR_URL)) {
 				obSourcePlugin = plugin;
@@ -241,7 +241,7 @@ public class VStarScriptingAPI {
 			}
 		} else {
 			MessageBox.showErrorDialog("Load File",
-					"No matching observation plugin found '" + pluginPattern
+					"No matching observation plugin found '" + pluginName
 							+ "'");
 		}
 
