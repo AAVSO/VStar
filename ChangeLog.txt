@@ -35,6 +35,24 @@ Release History
 ===============
   
 --------------------
+
+Date: December 18 2014
+Version: 2.16.6
+Tag: DEV-AAVSO-18Dec2014
+Key Changes:
+- Ticket #359: Added support for group, digitizer, observation type and pubref 
+  fields from AID.
+- Ticket #472: Added support for credit field.
+- In both cases, support was added for AID loads and AAVSO download file loads 
+  (except for observation type which is only currently supported in AID) in addition 
+  to being included in output when a file is saved (as AAVSO download format) via the 
+  observation list. The observation list and observation details dialog also include 
+  these fields.
+- Improvements to scripting: getError(), getWarning(), makeVisible() (for series) 
+  functions, better script run error reporting.
+- Fixed a bug in which some observation source plug-ins were not identified in 
+  loadFrom{File,URL) scripting API functions.
+
 Date: October 6 2014
 Version: 2.16.5
 Tag: DEV-AAVSO-06Oct2014
