@@ -124,7 +124,7 @@
 				<exclude name="test*/**" />
 				<exclude name="build*/**" />
 				<exclude name="dist*/**" />
-				<exclude name="doc/*.odt" />
+				<include name="doc/*.pdf" />
 			</zipfileset>
 			<zipfileset dir="data" prefix="vstar/data" />
 			<zipfileset dir="VStar.app" prefix="vstar/VStar.app" dirmode="755" filemode="755">

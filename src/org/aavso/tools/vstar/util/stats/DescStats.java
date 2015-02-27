@@ -26,6 +26,7 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.model.plot.ITimeElementEntity;
+import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 
 /**
  * Descriptive statistics functions for observations.
@@ -97,7 +98,7 @@ public class DescStats {
 	public static double calcTimeElementMean(
 			List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity) {
-		
+
 		// Pre-conditions.
 		assert (!observations.isEmpty());
 
@@ -119,6 +120,54 @@ public class DescStats {
 	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
 	 * 
 	 * @param observations
+	 *            The observations for which the standard deviation will be
+	 *            computed.
+	 * @param minIndex
+	 *            The first observation index in the inclusive range.
+	 * @param maxIndex
+	 *            The last observation index in the inclusive range.
+	 * @return The sample standard deviation of the magnitudes in the range.
+	 */
+	public static double calcMagSampleStdDevInRange(
+			List<ValidObservation> observations, int minIndex, int maxIndex) {
+
+		return calcMagCommonStdDevInRange(observations,
+				JDTimeElementEntity.instance, minIndex, maxIndex, true);
+	}
+
+	/**
+	 * Calculates the standard deviation of a population of magnitudes for
+	 * observations in a specified inclusive range.
+	 * 
+	 * We use the sample standard deviation formula as per
+	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
+	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
+	 * 
+	 * @param observations
+	 *            The observations for which the standard deviation will be
+	 *            computed.
+	 * @param minIndex
+	 *            The first observation index in the inclusive range.
+	 * @param maxIndex
+	 *            The last observation index in the inclusive range.
+	 * @return The population standard deviation of the magnitudes in the range.
+	 */
+	public static double calcMagPopulationStdDevInRange(
+			List<ValidObservation> observations, int minIndex, int maxIndex) {
+
+		return calcMagCommonStdDevInRange(observations,
+				JDTimeElementEntity.instance, minIndex, maxIndex, false);
+	}
+
+	/**
+	 * Calculates the standard deviation of magnitudes for observations in a
+	 * specified inclusive range.
+	 * 
+	 * We use the sample standard deviation formula as per
+	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
+	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
+	 * 
+	 * @param observations
 	 *            The observations to which binning will be applied.
 	 * @param timeElementEntity
 	 *            A time element source for observations.
@@ -126,12 +175,15 @@ public class DescStats {
 	 *            The first observation index in the inclusive range.
 	 * @param maxIndex
 	 *            The last observation index in the inclusive range.
+	 * @param isSample
+	 *            True if a sample standard deviation is required, false if a
+	 *            population standard deviation is required.
 	 * @return The sample standard deviation of the magnitudes in the range.
-	 * @deprecated Only used in tests.
 	 */
-	public static double calcMagSampleStdDevInRange(
+	public static double calcMagCommonStdDevInRange(
 			List<ValidObservation> observations,
-			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex) {
+			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex,
+			boolean isSample) {
 
 		// Pre-conditions.
 		assert (!observations.isEmpty());
@@ -154,7 +206,7 @@ public class DescStats {
 
 		// Standard sample variance.
 		// The sample standard deviation requires total-1 as denominator.
-		double variance = total / (included - 1);
+		double variance = total / (included - (isSample ? 1 : 0));
 
 		return Math.sqrt(variance);
 	}

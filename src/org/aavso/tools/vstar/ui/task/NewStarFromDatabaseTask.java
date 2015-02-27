@@ -98,14 +98,19 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 		// becomes the web services interface.
 		ResultSet results = null;
 
+		Connection obsConnection = null;
+
 		try {
 			// Connect to the observation database if we haven't already
 			// done so.
-			Mediator.getUI().getStatusPane().setMessage(
-					LocaleProps.get("STATUS_PANE_CONNECTING_TO_DATABASE"));
+			Mediator.getUI()
+					.getStatusPane()
+					.setMessage(
+							LocaleProps
+									.get("STATUS_PANE_CONNECTING_TO_DATABASE"));
 
 			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
-			Connection vsxConnection = vsxConnector.createConnection();
+			Connection vsxConnection = vsxConnector.getConnection();
 
 			// TODO: this should always be populated by VSX methods below!!
 			// (e.g. to get period, epoch, variable/spectral type, discoverer).
@@ -146,7 +151,7 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 			// or remove stmt parameter from parameter setting method.
 
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.observationDBConnector;
-			Connection obsConnection = obsConnector.createConnection();
+			obsConnection = obsConnector.getConnection();
 
 			PreparedStatement obsStmt = null;
 
@@ -171,8 +176,8 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 						auid, minJD, maxJD);
 			}
 
-			Mediator.getUI().getStatusPane().setMessage(
-					LocaleProps.get("STATUS_PANE_RETRIEVING_OBS"));
+			Mediator.getUI().getStatusPane()
+					.setMessage(LocaleProps.get("STATUS_PANE_RETRIEVING_OBS"));
 			results = obsStmt.executeQuery();
 			updateProgress(2);
 
@@ -191,14 +196,15 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 						"No observations for the specified period.");
 			}
 
-			Mediator.getUI().getStatusPane().setMessage(
-					"Creating charts and tables...");
+			Mediator.getUI().getStatusPane()
+					.setMessage("Creating charts and tables...");
 
 			updateProgress(2);
 
 			// Create table/plot models and GUI elements.
 			mediator.createNewStarObservationArtefacts(
-					NewStarType.NEW_STAR_FROM_DATABASE, starInfo, 2, isAdditiveLoad);
+					NewStarType.NEW_STAR_FROM_DATABASE, starInfo, 2,
+					isAdditiveLoad);
 
 			success = true;
 
@@ -222,6 +228,11 @@ public class NewStarFromDatabaseTask extends SwingWorker<Void, Void> {
 				if (results != null) {
 					results.close();
 				}
+				
+//				if (obsConnection != null) {
+//					obsConnection.close();
+//				}
+
 			} catch (SQLException e) {
 				ValidObservation.restore();
 

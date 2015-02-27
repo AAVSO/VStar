@@ -60,7 +60,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void testGetEpsilonAurAUIDViaAID() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = obsConnector.createConnection();
+			Connection connection = obsConnector.getConnection();
 			StarInfo info = aidStarNameAndAUIDRetriever.getStarByName(connection, "epsilon aur");
 			assertEquals("000-BCT-905", info.getAuid());
 		} catch (Exception e) {
@@ -75,7 +75,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void testGetEpsAurAUIDViaAID() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = obsConnector.createConnection();
+			Connection connection = obsConnector.getConnection();
 			StarInfo info = aidStarNameAndAUIDRetriever.getStarByName(connection, "eps aur");
 			assertEquals("000-BCT-905", info.getAuid());
 		} catch (Exception e) {
@@ -88,7 +88,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void testGetEpsAurFromAUIDViaAID() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = obsConnector.createConnection();
+			Connection connection = obsConnector.getConnection();
 			StarInfo info = aidStarNameAndAUIDRetriever.getStarByAUID(connection,
 					"000-BCT-905");
 			// Test for equality, trimming and ignoring case.
@@ -108,7 +108,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void testGetEpsilonAurAUIDViaVSX() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = obsConnector.createConnection();
+			Connection connection = obsConnector.getConnection();
 			StarInfo info = vsxStarNameAndAUIDRetriever.getStarByName(connection, "epsilon aur");
 			assertEquals("000-BCT-905", info.getAuid());
 		} catch (Exception e) {
@@ -120,7 +120,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void testGetEpsAurAUIDViaVSX() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = obsConnector.createConnection();
+			Connection connection = obsConnector.getConnection();
 			StarInfo info = vsxStarNameAndAUIDRetriever.getStarByName(connection, "eps aur");
 			assertEquals("000-BCT-905", info.getAuid());
 		} catch (Exception e) {
@@ -132,7 +132,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void testGetEpsAurFromAUIDViaVSX() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = obsConnector.createConnection();
+			Connection connection = obsConnector.getConnection();
 			StarInfo info = vsxStarNameAndAUIDRetriever.getStarByAUID(connection,
 					"000-BCT-905");
 			// Test for equality, trimming and ignoring case.
@@ -146,7 +146,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void testGetNEridaniAUIDViaVSX() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = obsConnector.createConnection();
+			Connection connection = obsConnector.getConnection();
 			StarInfo info = vsxStarNameAndAUIDRetriever.getStarByName(connection, "N Eri 2009");
 			assertEquals("000-BJR-847", info.getAuid());
 		} catch (Exception e) {
@@ -158,7 +158,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void testGetKTEridaniAUIDViaVSX() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = obsConnector.createConnection();
+			Connection connection = obsConnector.getConnection();
 			StarInfo info = vsxStarNameAndAUIDRetriever.getStarByName(connection, "KT Eri");
 			assertEquals("000-BJR-847", info.getAuid());
 		} catch (Exception e) {
@@ -170,7 +170,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void testGetNovaEridani2009FromAUIDViaVSX() {
 		try {
 			AAVSODatabaseConnector obsConnector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = obsConnector.createConnection();
+			Connection connection = obsConnector.getConnection();
 			StarInfo info = vsxStarNameAndAUIDRetriever.getStarByAUID(connection,
 					"000-BJR-847");
 			// Test for equality, trimming and ignoring case.
@@ -189,7 +189,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void noTestSampleRead1() {
 		try {
 			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = connector.createConnection();
+			Connection connection = connector.getConnection();
 			assertNotNull(connection);
 
 			PreparedStatement stmt = connector
@@ -228,7 +228,7 @@ public class DatabaseConnectorTest extends TestCase {
 	public void noTestSampleRead2() {
 		try {
 			AAVSODatabaseConnector connector = AAVSODatabaseConnector.utDBConnector;
-			Connection connection = connector.createConnection();
+			Connection connection = connector.getConnection();
 			assertNotNull(connection);
 
 			PreparedStatement stmt = connector

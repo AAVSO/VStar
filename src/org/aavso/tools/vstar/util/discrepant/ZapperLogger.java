@@ -46,9 +46,9 @@ public class ZapperLogger implements IDiscrepantReporter {
 	 * Singleton getter.
 	 */
 	public static ZapperLogger getInstance() {
-		if (instance == null) {
+//		if (instance == null) {
 			instance = new ZapperLogger();
-		}
+//		}
 
 		return instance;
 	}
@@ -60,7 +60,7 @@ public class ZapperLogger implements IDiscrepantReporter {
 		updateLogStatement = null;
 		try {
 			connection = AAVSODatabaseConnector.observationDBConnector
-					.createConnection();
+					.getConnection();
 		} catch (ConnectionException e) {
 			MessageBox.showErrorDialog("Zapper Logger Creation Error", e);
 		}

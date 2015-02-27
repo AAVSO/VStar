@@ -22,6 +22,7 @@ import java.security.Policy;
 
 import javax.swing.UIManager;
 
+import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
@@ -105,6 +106,7 @@ public class VStar {
 			Runnable shutdownTask = new Runnable() {
 				public void run() {
 					appProps.update();
+					AAVSODatabaseConnector.cleanup();
 				}
 			};
 

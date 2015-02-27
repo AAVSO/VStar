@@ -20,9 +20,6 @@ o Bug & Issue tracker entries cited below can be found here:
   codebase).
 
 Known Issues:
-o After a prolonged idle period after a dataset is first loaded from the AAVSO
-  International Database (AID), VStar will need to be restarted to be able to load
-  data from AID again. See ticket 132.
 o WWZ is brittle in the presence of gaps in the data. See ticket 328.
 o VStar "leaks" memory with ongoing use. The WebStart JNLP file and VStar.{sh,bat}
   files specify a larger-than-default heap, which helps significantly. If VStar 
@@ -35,6 +32,14 @@ Release History
 ===============
   
 --------------------
+
+Date: February 28 2015
+Version: 2.16.7
+Tag: DEV-AAVSO-28Dec2015
+Key Changes:
+- Ticket #132 Database connection won't re-establish if VStar idle too long.
+  Improvements to connection robustness via a connection pool.
+ - Ticket #483 French locale additions/enhancements
 
 Date: December 18 2014
 Version: 2.16.6

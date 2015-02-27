@@ -90,7 +90,7 @@ public class DescStatsTest extends TestCase {
 		double[] mags = { 1, 2, 3, 4, 5, 6, 7 };
 
 		List<ValidObservation> obs = populateTimeMagObs(times, mags);
-		
+
 		double[] meanPair = DescStats.calcMagMeanInRange(obs,
 				JDTimeElementEntity.instance, 0, mags.length - 1);
 
@@ -100,29 +100,49 @@ public class DescStatsTest extends TestCase {
 
 	public void testStdDevSample1() {
 		double magStdDev = DescStats.calcMagSampleStdDevInRange(
-				this.observations1, JDTimeElementEntity.instance, 0, mags1.length - 1);
+				this.observations1, 0, mags1.length - 1);
 		String magStdDevStr = String.format("%1.1f", magStdDev);
 		assertEquals("1.6", magStdDevStr);
 	}
 
 	public void testStdDevSample2() {
 		double magStdDev = DescStats.calcMagSampleStdDevInRange(
-				this.observations2, JDTimeElementEntity.instance, 0, mags2.length - 1);
+				this.observations2, 0, mags2.length - 1);
 		String magStdDevStr = String.format("%1.2f", magStdDev);
 		assertEquals("0.71", magStdDevStr);
 	}
 
 	public void testStdDevSample3() {
 		double magStdDev = DescStats.calcMagSampleStdDevInRange(
-				this.observations3, JDTimeElementEntity.instance, 0, mags3.length - 1);
+				this.observations3, 0, mags3.length - 1);
 		String magStdDevStr = String.format("%1.2f", magStdDev);
 		assertEquals("0.12", magStdDevStr);
 	}
 
+	public void testStdDevPopulation1() {
+		double magStdDev = DescStats.calcMagPopulationStdDevInRange(
+				this.observations1, 0, mags1.length - 1);
+		String magStdDevStr = String.format("%1.1f", magStdDev);
+		assertEquals("1.4", magStdDevStr);
+	}
+
+	public void testStdDevPopulation2() {
+		double magStdDev = DescStats.calcMagPopulationStdDevInRange(
+				this.observations2, 0, mags2.length - 1);
+		String magStdDevStr = String.format("%1.2f", magStdDev);
+		assertEquals("0.63", magStdDevStr);
+	}
+
+	public void testStdDevPopulation3() {
+		double magStdDev = DescStats.calcMagPopulationStdDevInRange(
+				this.observations3, 0, mags3.length - 1);
+		String magStdDevStr = String.format("%1.2f", magStdDev);
+		assertEquals("0.11", magStdDevStr);
+	}
+
 	public void testMeanObservationSample3() {
-		Bin bin = DescStats.createMeanObservationForRange(
-				this.observations3, JDTimeElementEntity.instance, 0,
-				mags3.length - 1);
+		Bin bin = DescStats.createMeanObservationForRange(this.observations3,
+				JDTimeElementEntity.instance, 0, mags3.length - 1);
 
 		ValidObservation observation = bin.getMeanObservation();
 
@@ -257,7 +277,7 @@ public class DescStatsTest extends TestCase {
 
 		List<ValidObservation> binnedObs = new LinkedList<ValidObservation>();
 		List<double[]> magBins = new LinkedList<double[]>();
-		
+
 		DescStats.createLeftmostBinnedObservations(obs, times.length - 1,
 				JDTimeElementEntity.instance, 4, binnedObs, magBins);
 
@@ -326,12 +346,11 @@ public class DescStatsTest extends TestCase {
 
 		List<ValidObservation> obs = populateTimeMagObs(times, mags);
 
-		BinningResult binSeq = DescStats
-				.createSymmetricBinnedObservations(obs,
-						JDTimeElementEntity.instance, 4);
+		BinningResult binSeq = DescStats.createSymmetricBinnedObservations(obs,
+				JDTimeElementEntity.instance, 4);
 
 		List<ValidObservation> binnedObs = binSeq.getMeanObservations();
-		
+
 		assertEquals(4, binnedObs.size());
 		assertEquals(1.5, binnedObs.get(0).getMag());
 		assertEquals(4.5, binnedObs.get(1).getMag());
@@ -343,37 +362,39 @@ public class DescStatsTest extends TestCase {
 	// // Use a bin that is greater than the number of days in the observation
 	// // set to ensure we don't exclude some values at the upper end of the
 	// // range.
-	 public void testObservationSymmetricBinning1() {
-	// List<ValidObservation> observations = DescStats
-	// .createSymmetricBinnedObservations(this.observations1,
-	// JDTimeElementEntity.instance, 3);
-	//
-	// assertTrue(observations.size() == 1);
-	//
-	// double magMean = observations.get(0).getMagnitude().getMagValue();
-	// String magMeanStr = String.format("%1.1f", magMean);
-	// assertEquals("3.0", magMeanStr);
-	//
-	// double magStdErr = observations.get(0).getMagnitude().getUncertainty();
-	// String magStdErrStr = String.format("%1.3f", magStdErr);
-	// assertEquals("0.707", magStdErrStr);
-	// }
+	public void testObservationSymmetricBinning1() {
+		// List<ValidObservation> observations = DescStats
+		// .createSymmetricBinnedObservations(this.observations1,
+		// JDTimeElementEntity.instance, 3);
+		//
+		// assertTrue(observations.size() == 1);
+		//
+		// double magMean = observations.get(0).getMagnitude().getMagValue();
+		// String magMeanStr = String.format("%1.1f", magMean);
+		// assertEquals("3.0", magMeanStr);
+		//
+		// double magStdErr =
+		// observations.get(0).getMagnitude().getUncertainty();
+		// String magStdErrStr = String.format("%1.3f", magStdErr);
+		// assertEquals("0.707", magStdErrStr);
+		// }
 
-	// public void testObservationSymmetricBinning2() {
-	// List<ValidObservation> observations = DescStats
-	// .createSymmetricBinnedObservations(this.observations2,
-	// JDTimeElementEntity.instance, this.observations2.size());
-	//
-	// assertTrue(observations.size() == 1);
-	//
-	// double magMean = observations.get(0).getMagnitude().getMagValue();
-	// String magMeanStr = String.format("%1.1f", magMean);
-	// assertEquals("3.0", magMeanStr);
-	//
-	// double magStdErr = observations.get(0).getMagnitude().getUncertainty();
-	// String magStdErrStr = String.format("%1.3f", magStdErr);
-	// assertEquals("0.316", magStdErrStr);
-	 }
+		// public void testObservationSymmetricBinning2() {
+		// List<ValidObservation> observations = DescStats
+		// .createSymmetricBinnedObservations(this.observations2,
+		// JDTimeElementEntity.instance, this.observations2.size());
+		//
+		// assertTrue(observations.size() == 1);
+		//
+		// double magMean = observations.get(0).getMagnitude().getMagValue();
+		// String magMeanStr = String.format("%1.1f", magMean);
+		// assertEquals("3.0", magMeanStr);
+		//
+		// double magStdErr =
+		// observations.get(0).getMagnitude().getUncertainty();
+		// String magStdErrStr = String.format("%1.3f", magStdErr);
+		// assertEquals("0.316", magStdErrStr);
+	}
 
 	// If we choose a bin that is too large, we will get
 	// two observations, one from each half. Note that
@@ -381,9 +402,9 @@ public class DescStatsTest extends TestCase {
 	// createLeftToRightBinnedObservations() which treats
 	// the observation sequence as a whole.
 	public void testObservationSymmetricBinning3() {
-		BinningResult binSeq = DescStats
-				.createSymmetricBinnedObservations(this.observations3,
-						JDTimeElementEntity.instance, this.observations3.size());
+		BinningResult binSeq = DescStats.createSymmetricBinnedObservations(
+				this.observations3, JDTimeElementEntity.instance,
+				this.observations3.size());
 
 		List<ValidObservation> observations = binSeq.getMeanObservations();
 
@@ -401,36 +422,38 @@ public class DescStatsTest extends TestCase {
 	// A bin size of 2.5 JDs for observations3 should give us
 	// a list of two ValidObservations.
 	// TODO: Fix this test!
-	 public void testObservationSymmetricBinning4() {
-//		double binSize = 2.5;
-//	
-//	 List<ValidObservation> observations = DescStats
-//	 .createSymmetricBinnedObservations(this.observations3,
-//	 JDTimeElementEntity.instance, binSize);
-//	
-//	 // Two ValidObservation elements?
-//	 assertTrue(observations.size() == 2);
-//	
-//	 // Check the magnitude mean and standard error of the average
-//	 // for the first element.
-//	 double magMean1 = observations.get(0).getMagnitude().getMagValue();
-//	 String magMean1Str = String.format("%1.2f", magMean1);
-//	 assertEquals("4.04", magMean1Str);
-//	 //
-//	 double magStdErr1 = observations.get(0).getMagnitude().getUncertainty();
-//	 String magStdErr1Str = String.format("%1.3f", magStdErr1);
-//	 assertEquals("0.051", magStdErr1Str);
-//	 //
-//	 // Check the magnitude mean and standard error of the average
-//	 // for the second element.
-//	 double magMean2 = observations.get(1).getMagnitude().getMagValue();
-//	 String magMean2Str = String.format("%1.2f", magMean2);
-//	 assertEquals("3.94", magMean2Str);
-//	 //
-//	 double magStdErr2 = observations.get(1).getMagnitude().getUncertainty();
-//	 String magStdErr2Str = String.format("%1.3f", magStdErr2);
-//	 assertEquals("0.051", magStdErr2Str);
-	 }
+	public void testObservationSymmetricBinning4() {
+		// double binSize = 2.5;
+		//
+		// List<ValidObservation> observations = DescStats
+		// .createSymmetricBinnedObservations(this.observations3,
+		// JDTimeElementEntity.instance, binSize);
+		//
+		// // Two ValidObservation elements?
+		// assertTrue(observations.size() == 2);
+		//
+		// // Check the magnitude mean and standard error of the average
+		// // for the first element.
+		// double magMean1 = observations.get(0).getMagnitude().getMagValue();
+		// String magMean1Str = String.format("%1.2f", magMean1);
+		// assertEquals("4.04", magMean1Str);
+		// //
+		// double magStdErr1 =
+		// observations.get(0).getMagnitude().getUncertainty();
+		// String magStdErr1Str = String.format("%1.3f", magStdErr1);
+		// assertEquals("0.051", magStdErr1Str);
+		// //
+		// // Check the magnitude mean and standard error of the average
+		// // for the second element.
+		// double magMean2 = observations.get(1).getMagnitude().getMagValue();
+		// String magMean2Str = String.format("%1.2f", magMean2);
+		// assertEquals("3.94", magMean2Str);
+		// //
+		// double magStdErr2 =
+		// observations.get(1).getMagnitude().getUncertainty();
+		// String magStdErr2Str = String.format("%1.3f", magStdErr2);
+		// assertEquals("0.051", magStdErr2Str);
+	}
 
 	// Helpers
 
