@@ -50,7 +50,7 @@ public class DatabaseObservationReaderTest extends TestCase {
 	public void testReadValidObservationEpsAur() {
 		try {
 			AAVSODatabaseConnector connector = AAVSODatabaseConnector.observationDBConnector;
-			Connection connection = connector.createConnection();
+			Connection connection = connector.getConnection();
 			assertNotNull(connection);
 
 			PreparedStatement stmt = connector

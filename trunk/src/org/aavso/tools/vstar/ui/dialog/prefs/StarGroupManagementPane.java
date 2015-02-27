@@ -305,12 +305,13 @@ public class StarGroupManagementPane extends JPanel implements
 	public String retrieveAUID(String starName) {
 		String auid = null;
 
+		Connection vsxConnection = null;
 		try {
 			getParent().setCursor(
 					Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
-			Connection vsxConnection = vsxConnector.createConnection();
+			vsxConnection = vsxConnector.getConnection();
 
 			StarInfo starInfo = vsxConnector.getAUID(vsxConnection, starName);
 			auid = starInfo.getAuid();
@@ -319,6 +320,15 @@ public class StarGroupManagementPane extends JPanel implements
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(this,
 					"Star Information Retrieval Error", e);
+		} finally {
+//			try {
+//				if (vsxConnection != null) {
+//					vsxConnection.close();
+//				}
+//			} catch (SQLException e) {
+//				MessageBox.showErrorDialog(this,
+//						"Star Information Retrieval Error", e);
+//			}
 		}
 
 		return auid;

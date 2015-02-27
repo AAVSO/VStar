@@ -17,8 +17,8 @@
  */
 package org.aavso.tools.vstar.input.database;
 
+import java.beans.PropertyVetoException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,6 +32,8 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 /**
  * This class handles the details of connecting to the MySQL AAVSO observation
  * database, a data accessor. This is a Singleton.
@@ -41,14 +43,30 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class AAVSODatabaseConnector {
 
-	// 30 seconds connection timeout.
-	private final static int MAX_CONN_TIME = 15 * 1000;
+	private final static int IDLE_TIMEOUT_HRS = 2 * 60 * 60; // 2 hours
+	private final static int IDLE_EXCESS_CONN_TIMEOUT_MINS = 15 * 60; // 15
+																		// minutes
+
+	private final static int CONNECTION_RETRY_INTERVAL_MSECS = 500; // 500
+																	// millisecs
+	private final static int CONNECTION_RETRY_ATTEMPTS = 5;
+
+	private final static int IDLE_CONNECTION_TEST_PERIOD_SECS = 120; // 2
+																		// minutes
+
+	private final static String PREFERRED_TEST_SQL = "SELECT 1";
+
+	private final static int MAX_PREP_STATEMENTS = 180;
+
+	private final static int INITIAL_CONNECTIONS = 5;
 
 	private final static String CONN_URL = "jdbc:mysql://"
 			+ ResourceAccessor.getParam(0);
 
 	private DatabaseType type;
-	private Connection connection;
+	ComboPooledDataSource connectionPool3306;
+	ComboPooledDataSource connectionPool3307;
+	// private Connection connection;
 
 	// Observation retrieval statements.
 	private PreparedStatement obsWithJDRangeStmt;
@@ -58,23 +76,17 @@ public class AAVSODatabaseConnector {
 	private Map<Integer, String> creditMap = null;
 
 	// Database connectors.
-	public static AAVSODatabaseConnector observationDBConnector = new AAVSODatabaseConnector(
-			DatabaseType.OBSERVATION);
+	public static AAVSODatabaseConnector observationDBConnector;
 
-	public static AAVSODatabaseConnector csUserDBConnector = new AAVSODatabaseConnector(
-			DatabaseType.CS_USER);
+	public static AAVSODatabaseConnector csUserDBConnector;
 
-	public static AAVSODatabaseConnector aavsoUserDBConnector = new AAVSODatabaseConnector(
-			DatabaseType.AAVSO_USER);
+	public static AAVSODatabaseConnector aavsoUserDBConnector;
 
-	public static AAVSODatabaseConnector vsxDBConnector = new AAVSODatabaseConnector(
-			DatabaseType.VSX);
+	public static AAVSODatabaseConnector vsxDBConnector;
 
-	public static AAVSODatabaseConnector utDBConnector = new AAVSODatabaseConnector(
-			DatabaseType.UT);
+	public static AAVSODatabaseConnector utDBConnector;
 
-	public static AAVSODatabaseConnector memberDBConnector = new AAVSODatabaseConnector(
-			DatabaseType.MEMBER);
+	public static AAVSODatabaseConnector memberDBConnector;
 
 	// Star name and AUID retrievers.
 
@@ -82,74 +94,103 @@ public class AAVSODatabaseConnector {
 
 	static {
 		try {
-			Class.forName("com.mysql.jdbc.Driver", true,
-					AAVSODatabaseConnector.class.getClassLoader());
-		} catch (ClassNotFoundException e) {
+			observationDBConnector = new AAVSODatabaseConnector(
+					DatabaseType.OBSERVATION);
+
+			csUserDBConnector = new AAVSODatabaseConnector(DatabaseType.CS_USER);
+
+			aavsoUserDBConnector = new AAVSODatabaseConnector(
+					DatabaseType.AAVSO_USER);
+
+			vsxDBConnector = new AAVSODatabaseConnector(DatabaseType.VSX);
+
+			utDBConnector = new AAVSODatabaseConnector(DatabaseType.UT);
+
+			memberDBConnector = new AAVSODatabaseConnector(DatabaseType.MEMBER);
+
+		} catch (Exception e) {
 			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Read from database", e);
+					"Database configuration", e);
 		}
 	}
 
 	/**
 	 * Constructor
 	 */
-	private AAVSODatabaseConnector(DatabaseType type) {
+	private AAVSODatabaseConnector(DatabaseType type) throws SQLException,
+			PropertyVetoException {
 		this.type = type;
-		this.connection = null;
 
+		// TODO: are we running the risk of incorrectly caching these?
 		this.obsWithJDRangeStmt = null;
 		this.obsWithNoJDRangeStmt = null;
+
+		Properties p = new Properties(System.getProperties());
+		p.put("com.mchange.v2.log.MLog", "com.mchange.v2.log.FallbackMLog");
+		p.put("com.mchange.v2.log.FallbackMLog.DEFAULT_CUTOFF_LEVEL", "SEVERE");
+		System.setProperties(p);
+		
+		connectionPool3306 = new ComboPooledDataSource();
+		initPool(connectionPool3306, 3306);
+		connectionPool3307 = new ComboPooledDataSource();
+		initPool(connectionPool3307, 3307);
+	}
+
+	public void initPool(ComboPooledDataSource connectionPool, int port)
+			throws SQLException, PropertyVetoException {
+		connectionPool.setDriverClass("com.mysql.jdbc.Driver");
+		connectionPool.setJdbcUrl(CONN_URL + ":" + port + "/"
+				+ ResourceAccessor.getParam(type.getDBNum()));
+
+		connectionPool.setUser(ResourceAccessor.getParam(6));
+		connectionPool.setPassword(ResourceAccessor.getParam(7));
+
+		connectionPool.setMaxStatements(MAX_PREP_STATEMENTS);
+		connectionPool.setPreferredTestQuery(PREFERRED_TEST_SQL);
+		connectionPool.setTestConnectionOnCheckout(true);
+
+		// connectionPool.setAcquireRetryDelay(CONNECTION_RETRY_INTERVAL_MSECS);
+		// connectionPool.setAcquireRetryAttempts(CONNECTION_RETRY_ATTEMPTS);
+		// connectionPool.setMaxIdleTime(IDLE_TIMEOUT_HRS);
+		// connectionPool.setInitialPoolSize(INITIAL_CONNECTIONS);
+		// connectionPool.setMaxIdleTimeExcessConnections(IDLE_EXCESS_CONN_TIMEOUT_MINS);
+		// connectionPool.setIdleConnectionTestPeriod(IDLE_CONNECTION_TEST_PERIOD_SECS);
+	}
+
+	public void cleanupPools() {
+		connectionPool3306.close();
+		connectionPool3307.close();
+	}
+
+	public static void cleanup() {
+		observationDBConnector.cleanupPools();
+		csUserDBConnector.cleanupPools();
+		aavsoUserDBConnector.cleanupPools();
+		vsxDBConnector.cleanupPools();
+		utDBConnector.cleanupPools();
+		memberDBConnector.cleanupPools();
 	}
 
 	/**
-	 * Create a connection to the database if it has not already been created.
+	 * Obtain a connection to the database from the connection pool.
 	 * 
 	 * @throws ConnectionException
-	 *             if there was an error creating the connection.
-	 */
-	public Connection createConnection() throws ConnectionException {
-		int retries = 3;
-
-		while (connection == null && retries > 0) {
-			// TODO: provide status message updates re: retries
-			Properties props = new Properties();
-
-			props.put("user", ResourceAccessor.getParam(6));
-			props.put("password", ResourceAccessor.getParam(7));
-			props.put("connectTimeout", MAX_CONN_TIME + "");
-			// props.put("autoReconnect", "true");
-
-			try {
-				// First try with port 3307...
-				connection = DriverManager.getConnection(CONN_URL + ":3307/"
-						+ ResourceAccessor.getParam(type.getDBNum()), props);
-			} catch (Exception e1) {
-				try {
-					// ...and then with 3306.
-					connection = DriverManager
-							.getConnection(
-									CONN_URL
-											+ ":3306/"
-											+ ResourceAccessor.getParam(type
-													.getDBNum()), props);
-				} catch (Exception e) {
-					throw new ConnectionException(e.getMessage());
-				}
-			}
-
-			retries--;
-		}
-
-		return connection;
-	}
-
-	/**
-	 * @return the connection TODO: build connection loss/timeout logic into
-	 *         here
+	 *             if there was an error obtaining the connection.
 	 */
 	public Connection getConnection() throws ConnectionException {
-		createConnection();
-		return connection;
+		// TODO: have prep statements ask for connections so it's all internal!
+
+		try {
+			// First try with port 3306...
+			return connectionPool3306.getConnection();
+		} catch (Exception e1) {
+			try {
+				// ...and then with 3307.
+				return connectionPool3307.getConnection();
+			} catch (Exception e2) {
+				throw new ConnectionException(e2.getMessage());
+			}
+		}
 	}
 
 	/**
@@ -306,8 +347,10 @@ public class AAVSODatabaseConnector {
 		if (creditMap == null) {
 			creditMap = new TreeMap<Integer, String>();
 
+			Connection conn = null;
 			try {
-				final PreparedStatement stmt = getConnection()
+				conn = getConnection();
+				final PreparedStatement stmt = conn
 						.prepareStatement("select * from aid.credits;");
 
 				ResultSet source = stmt.executeQuery();
@@ -323,6 +366,15 @@ public class AAVSODatabaseConnector {
 			} catch (ConnectionException e) {
 				MessageBox.showWarningDialog("Credits",
 						"Cannot retrieve credits; no connection");
+			} finally {
+				// try {
+				// if (conn != null) {
+				// conn.close();
+				// }
+				// } catch (SQLException e) {
+				// MessageBox.showWarningDialog("Credits",
+				// "Cannot retrieve credits");
+				// }
 			}
 		}
 

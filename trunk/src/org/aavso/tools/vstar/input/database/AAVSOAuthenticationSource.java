@@ -48,12 +48,13 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 	public boolean authenticate(String username, String password)
 			throws AuthenticationError, ConnectionException {
 		if (!authenticated) {
+			Connection conn = null;
 			try {
 				// Get a prepared statement to read a user's details
 				// from the database, setting the parameters for user
 				// who is authenticating.
-				PreparedStatement userStmt = createLoginQuery(userConnector
-						.getConnection());
+				conn = userConnector.getConnection();
+				PreparedStatement userStmt = createLoginQuery(conn);
 				userStmt.setString(1, username);
 
 				String passwordDigest = Authenticator
@@ -76,6 +77,14 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 				}
 			} catch (SQLException e) {
 				throw new AuthenticationError(e.getLocalizedMessage());
+			} finally {
+//				try {
+//					if (conn != null) {
+//						conn.close();
+//					}
+//				} catch (SQLException e) {
+//					throw new AuthenticationError(e.getLocalizedMessage());
+//				}
 			}
 		}
 
@@ -101,9 +110,10 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 	 */
 	public void retrieveUserInfo(String userID) {
 		if (authenticated) {
+			Connection conn = null;
 			try {
-				PreparedStatement userInfoStmt = createObserverCodeQuery(memberConnector
-						.getConnection());
+				conn = memberConnector.getConnection();
+				PreparedStatement userInfoStmt = createObserverCodeQuery(conn);
 				userInfoStmt.setString(1, userID);
 				ResultSet userInfoResults = userInfoStmt.executeQuery();
 
@@ -125,6 +135,14 @@ public class AAVSOAuthenticationSource implements IAuthenticationSource {
 				// Nothing to do; no member info set
 			} catch (ConnectionException e) {
 				// Nothing to do; no member info set
+			} finally {
+//				try {
+//					if (conn != null) {
+//						conn.close();
+//					}
+//				} catch (SQLException e) {
+//					// Nothing to do; no member info set
+//				}
 			}
 		}
 	}

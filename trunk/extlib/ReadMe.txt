@@ -23,6 +23,13 @@ code.
   
   o javacsv
     https://sourceforge.net/projects/javacsv/
+    
+  o c3p0
+    https://sourceforge.net/projects/c3p0/
+
+  o mchange-commons-java
+    c3p0 is dependent upon this.
+    https://sourceforge.net/projects/c3p0/
      
   o nico-camargo-toolbar-icons-4.0.jar
     Toolbar icons created by Citizen Sky participant, Nico Camargo.
@@ -48,6 +55,8 @@ URL for the web page of each project for more information.
 
     * JCommon  http://sourceforge.net/projects/jfreechart/
     * JFreeChart  http://sourceforge.net/projects/jfreechart/
+    * c3p0  https://sourceforge.net/projects/c3p0/
+    * mchange-commons-java  https://sourceforge.net/projects/c3p0/
 
   o GNU Lesser General Public License, version 2.0
     lgpl-2.0.txt
