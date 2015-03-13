@@ -56,19 +56,19 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 				double stdev = DescStats.calcMagSampleStdDevInRange(obs, 0,
 						obs.size() - 1);
 
-				String jdMeanStr = NumericPrecisionPrefs.formatOther(means[1]);
-				String magMeanStr = NumericPrecisionPrefs.formatOther(means[0]);
-				String magStdevStr = NumericPrecisionPrefs.formatOther(stdev);
+				String jdMeanStr = NumericPrecisionPrefs.formatTime(means[1]);
+				String magMeanStr = NumericPrecisionPrefs.formatMag(means[0]);
+				String magStdevStr = NumericPrecisionPrefs.formatMag(stdev);
 
 				String statsStr = String.format("%s: %s (%s)", jdMeanStr,
 						magMeanStr, magStdevStr);
-
+						
 				seriesFields.add(new TextField(type.getDescription(), statsStr,
 						Kind.LINE));
 			}
 		}
 
-		new TextDialog("JD/Mag mean, mag stdev", seriesFields);
+		new TextDialog("JD mean, mag mean & stdev", seriesFields);
 	}
 
 	@Override

@@ -34,6 +34,8 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
+import org.aavso.tools.vstar.util.stats.DescStats;
 
 /**
  * Observation source for IRIS Automatic Photometry file format.
@@ -47,13 +49,14 @@ public class IRISAutomaticPhotometryObservationSource extends
 
 	enum State {
 		// Reading a line from the header ...
-		// HEADER,
+		HEADER,
 		// Reading a line of data ...
 		DATA
 	};
 
-	private final static Color[] COLORS = { Color.RED, Color.GREEN, Color.BLUE,
-		Color.ORANGE, Color.MAGENTA, Color.LIGHT_GRAY, Color.CYAN, Color.BLACK };
+	private final static Color[] COLORS = { Color.RED, Color.ORANGE,
+			Color.GREEN, Color.BLUE, Color.MAGENTA, Color.LIGHT_GRAY,
+			Color.CYAN, Color.YELLOW, Color.BLACK };
 
 	@Override
 	public InputType getInputType() {
@@ -80,11 +83,13 @@ public class IRISAutomaticPhotometryObservationSource extends
 
 		private State state;
 		private Map<Integer, SeriesType> seriesMap;
+		private Map<SeriesType, List<ValidObservation>> seriesToObsMap;
 		private int seriesColor;
 
 		public IRISAutomaticPhotometryFileReader() {
-			state = State.DATA;
+			state = State.HEADER;
 			seriesMap = new HashMap<Integer, SeriesType>();
+			seriesToObsMap = new HashMap<SeriesType, List<ValidObservation>>();
 			seriesColor = 0;
 		}
 
@@ -111,8 +116,10 @@ public class IRISAutomaticPhotometryObservationSource extends
 			while (line != null) {
 				// State machine cases ...
 				switch (state) {
-				// case HEADER:
-				// break;
+				case HEADER:
+					handleHeader(line);
+					state = State.DATA;
+					break;
 
 				case DATA:
 					handleData(line, lineNum);
@@ -121,14 +128,48 @@ public class IRISAutomaticPhotometryObservationSource extends
 				}
 				line = getNextLine(reader, lineNum); // Fetch next line
 			}
+
+			// Iterate over series, add magnitude error, collect observations.
+			for (SeriesType type : seriesToObsMap.keySet()) {
+				List<ValidObservation> obs = seriesToObsMap.get(type);
+				double[] means = DescStats.calcMagMeanInRange(obs,
+						JDTimeElementEntity.instance, 0, obs.size() - 1);
+				for (ValidObservation ob : obs) {
+					double err = Math.abs(ob.getMag()
+							- means[DescStats.MEAN_MAG_INDEX]);
+					ob.setMagnitude(new Magnitude(ob.getMag(), err));
+					collectObservation(ob);
+				}
+
+			}
 		}
 
 		// ** Helper methods **
 
+		private void handleHeader(String line) {
+			// Assume: # series-name-1, series-name-2, ..., series-name-N
+			if (line.startsWith("#")) {
+				line = line.substring(1);
+				String[] fields = line.split(",");
+				for (int i = 0; i < fields.length; i++) {
+					String name = fields[i];
+					SeriesType seriesType = SeriesType.create(name, name,
+							COLORS[seriesColor++], false, false);
+					if (seriesColor == COLORS.length) {
+						seriesColor = 0;
+					}
+
+					// Use same index start value as shown in handleData().
+					seriesMap.put(i + 1, seriesType);
+				}
+			}
+		}
+
 		private void handleData(String line, int lineNum)
 				throws ObservationReadError {
 
-			// A single line may contain many observations of the form:
+			// A single line may contain observations from N targets of the
+			// form:
 			//
 			// JD val1 val2 .. valN
 			//
@@ -140,14 +181,30 @@ public class IRISAutomaticPhotometryObservationSource extends
 			String[] fields = line.split("\\s+");
 
 			double jd = Double.parseDouble(fields[0].trim());
+
+			// Add to map of observations for each series, deferring computation
+			// of error (standard deviation) until we have all observations.
 			for (int i = 1; i < fields.length; i++) {
+				List<ValidObservation> obsForSeries = null;
+
+				SeriesType type = getSeries(i);
+
+				if (seriesToObsMap.containsKey(type)) {
+					obsForSeries = seriesToObsMap.get(type);
+				} else {
+					obsForSeries = new ArrayList<ValidObservation>();
+					seriesToObsMap.put(type, obsForSeries);
+
+				}
+
 				double mag = Double.parseDouble(fields[i].trim());
 				ValidObservation ob = new ValidObservation();
 				ob.setDateInfo(new DateInfo(jd));
 				ob.setMagnitude(new Magnitude(mag, 0));
-				ob.setBand(getSeries(i));
 				ob.setRecordNumber(lineNum);
-				collectObservation(ob);
+				ob.setBand(getSeries(i));
+
+				obsForSeries.add(ob);
 			}
 		}
 
@@ -163,8 +220,9 @@ public class IRISAutomaticPhotometryObservationSource extends
 				if (seriesColor == COLORS.length) {
 					seriesColor = 0;
 				}
+				seriesMap.put(index, seriesType);
 			}
-			
+
 			return seriesType;
 		}
 
@@ -189,15 +247,18 @@ public class IRISAutomaticPhotometryObservationSource extends
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#getAdditionalFileExtensions()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#
+	 * getAdditionalFileExtensions()
 	 */
 	@Override
 	public List<String> getAdditionalFileExtensions() {
 		List<String> xtns = new ArrayList<String>();
-		
+
 		xtns.add(".lst");
-		
+
 		return xtns;
 	}
 }
