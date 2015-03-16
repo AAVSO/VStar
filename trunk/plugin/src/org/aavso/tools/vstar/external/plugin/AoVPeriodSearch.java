@@ -52,6 +52,7 @@ import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
+import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.PhaseTimeElementEntity;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.model.Harmonic;
@@ -64,6 +65,8 @@ import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.DescStats;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.DatasetRenderingOrder;
 
 /**
  * This plug-in implements the Analysis of Variance period search algorithm that
@@ -109,9 +112,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		super();
 		firstInvocation = true;
 		reset();
-		// periods = new ArrayList<Double>();
-		// pValues = new ArrayList<Double>();
-		// fValues = new ArrayList<Double>();
 	}
 
 	@Override
@@ -130,8 +130,8 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			throws AlgorithmError, CancellationException {
 
 		if (firstInvocation) {
-			Mediator.getInstance().getNewStarNotifier().addListener(
-					getNewStarListener());
+			Mediator.getInstance().getNewStarNotifier()
+					.addListener(getNewStarListener());
 
 			F_STATISTIC = PeriodAnalysisCoordinateType.create("F-statistic");
 			P_VALUE = PeriodAnalysisCoordinateType.create("p-value");
@@ -160,6 +160,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		private PeriodAnalysisDataTablePane resultsTablePane;
 		private PeriodAnalysisTopHitsTablePane topHitsTablePane;
 		private PeriodAnalysis2DChartPane plotPane;
+		private PeriodAnalysis2DChartPane topHitsPlotPane;
 
 		public PeriodAnalysisDialog(SeriesType sourceSeriesType) {
 			super("AoV");
@@ -187,11 +188,45 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			// plotPane = createPeriodogramPlot("AoV Periodogram",
 			// sourceSeriesType.getDescription(), plotModel);
 
-			plotPane = PeriodAnalysisComponentFactory.createLinePlot(
-					"AoV Periodogram", sourceSeriesType.getDescription(),
-					algorithm.getResultSeries(),
-					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC, false,
+			String title = "AoV Periodogram";
+
+			PeriodAnalysis2DPlotModel dataPlotModel = new PeriodAnalysis2DPlotModel(algorithm.getResultSeries(),
+					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC,
 					false);
+			
+			plotPane = PeriodAnalysisComponentFactory
+					.createLinePlot(title, sourceSeriesType.getDescription(), dataPlotModel,
+							false);
+
+//			plotPane = PeriodAnalysisComponentFactory.createLinePlot(title,
+//					sourceSeriesType.getDescription(),
+//					algorithm.getResultSeries(),
+//					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC, false,
+//					false);
+
+			PeriodAnalysis2DPlotModel topHitsPlotModel = new PeriodAnalysis2DPlotModel(algorithm.getTopHits(),
+					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC,
+					false);
+			
+			topHitsPlotPane = PeriodAnalysisComponentFactory.createScatterPlot(
+					title, sourceSeriesType.getDescription(),
+					topHitsPlotModel, false);
+
+			// Add the above line plot's model to the scatter plot.
+			// Render the scatter plot last so the "handles" will be
+			// the first items selected by the mouse.
+			JFreeChart chart = topHitsPlotPane.getChart();
+			chart.getXYPlot().setDataset(PeriodAnalysis2DChartPane.DATA_SERIES,
+					dataPlotModel);
+			chart.getXYPlot().setDataset(PeriodAnalysis2DChartPane.TOP_HIT_SERIES,
+					topHitsPlotModel);
+			chart.getXYPlot().setRenderer(
+					PeriodAnalysis2DChartPane.DATA_SERIES,
+					plotPane.getChart().getXYPlot().getRenderer());
+			chart.getXYPlot().setDatasetRenderingOrder(
+					DatasetRenderingOrder.REVERSE);
+
+			plotPane = topHitsPlotPane;
 
 			// Full results table
 			PeriodAnalysisCoordinateType[] columns = {
@@ -206,10 +241,10 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			// PeriodAnalysisComponentFactory.createDataTable(
 			// columns, algorithm.getResultSeries(), algorithm);
 
-			PeriodAnalysisDataTableModel resultsModel = new PeriodAnalysisDataTableModel(
+			PeriodAnalysisDataTableModel dataTableModel = new PeriodAnalysisDataTableModel(
 					columns, algorithm.getResultSeries());
 			resultsTablePane = new NoModelPeriodAnalysisDataTablePane(
-					resultsModel, algorithm);
+					dataTableModel, algorithm);
 
 			// Note: algorithm won't be used (?) in this case but we must pass
 			// it along. TODO: how do we get top hit squares? See what DCDFT
@@ -223,7 +258,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			PeriodAnalysisDataTableModel topHitsModel = new PeriodAnalysisDataTableModel(
 					columns, algorithm.getTopHits());
 			topHitsTablePane = new NoModelPeriodAnalysisTopHitsTablePane(
-					topHitsModel, resultsModel, algorithm);
+					topHitsModel, dataTableModel, algorithm);
 
 			// Return tabbed pane of plot and period display component.
 			return PluginComponentFactory.createTabs(new NamedComponent(
@@ -243,12 +278,12 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		protected void findHarmonicsButtonAction() {
 			List<Double> data = algorithm.getResultSeries().get(
 					PeriodAnalysisCoordinateType.FREQUENCY);
-			List<Harmonic> harmonics = findHarmonics(selectedDataPoint
-					.getFrequency(), data);
+			List<Harmonic> harmonics = findHarmonics(
+					selectedDataPoint.getFrequency(), data);
 			HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(
 					this, harmonics, selectedDataPoint);
-			Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(
-					msg);
+			Mediator.getInstance().getHarmonicSearchNotifier()
+					.notifyListeners(msg);
 		}
 
 		@Override
@@ -521,8 +556,18 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			}
 
 			// Remove all but MAX_TOP_HITS
-			orderedFrequencies = new LinkedList<Double>(orderedFrequencies
-					.subList(0, MAX_TOP_HITS));
+			orderedFrequencies = new LinkedList<Double>(
+					orderedFrequencies.subList(0, MAX_TOP_HITS));
+
+			orderedPeriods = new LinkedList<Double>(
+					orderedPeriods.subList(0, MAX_TOP_HITS));
+
+			orderedFValues = new LinkedList<Double>(
+					orderedFValues.subList(0, MAX_TOP_HITS));
+
+			orderedPValues = new LinkedList<Double>(
+					orderedPValues.subList(0, MAX_TOP_HITS));
+
 			// TODO: ...
 			// if (periods.size() > MAX_TOP_HITS) {
 			// for (int i = MAX_TOP_HITS; i < periods.size(); i++) {
@@ -546,14 +591,13 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 		List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
 
-		double days = obs.get(obs.size() - 1).getJD() - obs.get(0).getJD();
-		DoubleField minPeriodField = new DoubleField("Minimum Period", 0.01,
-				days, minPeriod);
-		fields.add(minPeriodField);
+		// / double days = obs.get(obs.size() - 1).getJD() - obs.get(0).getJD();
+		DoubleField minPeriodField = new DoubleField("Minimum Period", 0.0,
+				null, minPeriod);
 		fields.add(minPeriodField);
 
 		DoubleField maxPeriodField = new DoubleField("Maximum Period", 0.0,
-				days, maxPeriod == 0.0 ? days : maxPeriod);
+				null, maxPeriod);
 		fields.add(maxPeriodField);
 
 		DoubleField resolutionField = new DoubleField("Resolution", 0.0, 1.0,
@@ -593,14 +637,14 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			maxPeriod = maxPeriodField.getValue();
 			resolution = resolutionField.getValue();
 
-			if (minPeriod > maxPeriod) {
+			if (minPeriod >= maxPeriod) {
 				MessageBox
 						.showErrorDialog("AoV Parameters",
 								"Minimum period must be less than or equal to maximum period");
 				legalParams = false;
 			}
 
-			if (resolution <= 0) {
+			if (resolution <= 0.0) {
 				MessageBox.showErrorDialog("AoV Parameters",
 						"Resolution must be between 0 and 1");
 				legalParams = false;
