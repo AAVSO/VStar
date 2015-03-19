@@ -369,16 +369,16 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		private List<ValidObservation> obs;
 
 		private List<Double> frequencies;
-		private LinkedList<Double> orderedFrequencies;
+		private ArrayList<Double> orderedFrequencies;
 
 		private List<Double> periods;
-		private LinkedList<Double> orderedPeriods;
+		private ArrayList<Double> orderedPeriods;
 
 		private List<Double> fValues;
-		private LinkedList<Double> orderedFValues;
+		private ArrayList<Double> orderedFValues;
 
 		private List<Double> pValues;
-		private LinkedList<Double> orderedPValues;
+		private ArrayList<Double> orderedPValues;
 
 //		private double smallestFValue;
 //		private int smallestValueIndex;
@@ -387,16 +387,16 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			this.obs = obs;
 
 			frequencies = new ArrayList<Double>();
-			orderedFrequencies = new LinkedList<Double>();
+			orderedFrequencies = new ArrayList<Double>();
 
 			periods = new ArrayList<Double>();
-			orderedPeriods = new LinkedList<Double>();
+			orderedPeriods = new ArrayList<Double>();
 
 			fValues = new ArrayList<Double>();
-			orderedFValues = new LinkedList<Double>();
+			orderedFValues = new ArrayList<Double>();
 
 			pValues = new ArrayList<Double>();
-			orderedPValues = new LinkedList<Double>();
+			orderedPValues = new ArrayList<Double>();
 
 //			smallestFValue = Double.MAX_VALUE;
 //			smallestValueIndex = 0;
@@ -563,16 +563,16 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		
 		private void pruneTopHits() {
 			if (periods.size() > MAX_TOP_HITS) {
-				orderedFrequencies = new LinkedList<Double>(
+				orderedFrequencies = new ArrayList<Double>(
 						orderedFrequencies.subList(0, MAX_TOP_HITS));
 
-				orderedPeriods = new LinkedList<Double>(orderedPeriods.subList(
+				orderedPeriods = new ArrayList<Double>(orderedPeriods.subList(
 						0, MAX_TOP_HITS));
 
-				orderedFValues = new LinkedList<Double>(orderedFValues.subList(
+				orderedFValues = new ArrayList<Double>(orderedFValues.subList(
 						0, MAX_TOP_HITS));
 
-				orderedPValues = new LinkedList<Double>(orderedPValues.subList(
+				orderedPValues = new ArrayList<Double>(orderedPValues.subList(
 						0, MAX_TOP_HITS));
 			}			
 		}
@@ -626,16 +626,16 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 			// Include only MAX_TOP_HITS.
 			if (periods.size() > MAX_TOP_HITS) {
-				orderedFrequencies = new LinkedList<Double>(
+				orderedFrequencies = new ArrayList<Double>(
 						orderedFrequencies.subList(0, MAX_TOP_HITS));
 
-				orderedPeriods = new LinkedList<Double>(orderedPeriods.subList(
+				orderedPeriods = new ArrayList<Double>(orderedPeriods.subList(
 						0, MAX_TOP_HITS));
 
-				orderedFValues = new LinkedList<Double>(orderedFValues.subList(
+				orderedFValues = new ArrayList<Double>(orderedFValues.subList(
 						0, MAX_TOP_HITS));
 
-				orderedPValues = new LinkedList<Double>(orderedPValues.subList(
+				orderedPValues = new ArrayList<Double>(orderedPValues.subList(
 						0, MAX_TOP_HITS));
 			}
 
