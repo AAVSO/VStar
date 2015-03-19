@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.external.plugin;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -82,8 +83,6 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
  * http://iopscience.iop.org/1538-4357/460/2/L107/pdf/1538-4357_460_2_L107.pdf
  * 
  * o Fix range-check bug after N uses.<br/>
- * o Take a close look at parameter range; 0 gives error for example; start
- * blank?<br/>
  * o Get top-hits displaying in plot.<br/>
  * o Create a model. See Foster<br/>
  * o Parallelise!<br/>
@@ -190,27 +189,26 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 			String title = "AoV Periodogram";
 
-			PeriodAnalysis2DPlotModel dataPlotModel = new PeriodAnalysis2DPlotModel(algorithm.getResultSeries(),
-					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC,
-					false);
-			
-			plotPane = PeriodAnalysisComponentFactory
-					.createLinePlot(title, sourceSeriesType.getDescription(), dataPlotModel,
-							false);
+			PeriodAnalysis2DPlotModel dataPlotModel = new PeriodAnalysis2DPlotModel(
+					algorithm.getResultSeries(),
+					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC, false);
 
-//			plotPane = PeriodAnalysisComponentFactory.createLinePlot(title,
-//					sourceSeriesType.getDescription(),
-//					algorithm.getResultSeries(),
-//					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC, false,
-//					false);
+			plotPane = PeriodAnalysisComponentFactory.createLinePlot(title,
+					sourceSeriesType.getDescription(), dataPlotModel, false);
 
-			PeriodAnalysis2DPlotModel topHitsPlotModel = new PeriodAnalysis2DPlotModel(algorithm.getTopHits(),
-					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC,
-					false);
-			
+			// plotPane = PeriodAnalysisComponentFactory.createLinePlot(title,
+			// sourceSeriesType.getDescription(),
+			// algorithm.getResultSeries(),
+			// PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC, false,
+			// false);
+
+			PeriodAnalysis2DPlotModel topHitsPlotModel = new PeriodAnalysis2DPlotModel(
+					algorithm.getTopHits(),
+					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC, false);
+
 			topHitsPlotPane = PeriodAnalysisComponentFactory.createScatterPlot(
-					title, sourceSeriesType.getDescription(),
-					topHitsPlotModel, false);
+					title, sourceSeriesType.getDescription(), topHitsPlotModel,
+					false);
 
 			// Add the above line plot's model to the scatter plot.
 			// Render the scatter plot last so the "handles" will be
@@ -218,8 +216,8 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			JFreeChart chart = topHitsPlotPane.getChart();
 			chart.getXYPlot().setDataset(PeriodAnalysis2DChartPane.DATA_SERIES,
 					dataPlotModel);
-			chart.getXYPlot().setDataset(PeriodAnalysis2DChartPane.TOP_HIT_SERIES,
-					topHitsPlotModel);
+			chart.getXYPlot().setDataset(
+					PeriodAnalysis2DChartPane.TOP_HIT_SERIES, topHitsPlotModel);
 			chart.getXYPlot().setRenderer(
 					PeriodAnalysis2DChartPane.DATA_SERIES,
 					plotPane.getChart().getXYPlot().getRenderer());
@@ -382,8 +380,8 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		private List<Double> pValues;
 		private LinkedList<Double> orderedPValues;
 
-		private double smallestFValue;
-		private int smallestValueIndex;
+//		private double smallestFValue;
+//		private int smallestValueIndex;
 
 		public AoVAlgorithm(List<ValidObservation> obs) {
 			this.obs = obs;
@@ -400,8 +398,8 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			pValues = new ArrayList<Double>();
 			orderedPValues = new LinkedList<Double>();
 
-			smallestFValue = Double.MAX_VALUE;
-			smallestValueIndex = 0;
+//			smallestFValue = Double.MAX_VALUE;
+//			smallestValueIndex = 0;
 		}
 
 		@Override
@@ -454,7 +452,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		}
 
 		@Override
-		public void execute() throws AlgorithmError {
+		public void execute() throws AlgorithmError {			
 			// Request parameters
 			// TODO: move this to top-level execute method and just pass actual
 			// parameters to this class?
@@ -468,6 +466,8 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 				List<ValidObservation> phObs = new ArrayList<ValidObservation>();
 
 				// TODO: cache these by JD range between new star resets...
+				
+				interrupted = false;
 
 				for (ValidObservation ob : obs) {
 					if (interrupted)
@@ -516,57 +516,133 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 					double fValue = binningResult.getFValue();
 					fValues.add(fValue);
-					if (fValue < smallestFValue) {
-						smallestFValue = fValue;
-						smallestValueIndex = fValues.size() - 1;
-					}
+//					if (fValue < smallestFValue) {
+//						smallestFValue = fValue;
+//						smallestValueIndex = fValues.size() - 1;
+//					}
 
 					pValues.add(binningResult.getPValue());
+					
+					updateOrderedValues();
 				}
-
-				collectTopHits();
+				
+				pruneTopHits();
 			}
 		}
 
-		// Collect the ordered top-hits
-		// TODO: improve efficiency! O(n) so not bad...
-		private void collectTopHits() {
-			orderedFrequencies.add(frequencies.get(smallestValueIndex));
-			orderedPeriods.add(periods.get(smallestValueIndex));
-			orderedFValues.add(fValues.get(smallestValueIndex));
-			orderedPValues.add(pValues.get(smallestValueIndex));
-
-			for (int i = 0; i < periods.size(); i++) {
+		private void updateOrderedValues() {			
+			if (orderedFrequencies.isEmpty()) {
+				orderedFrequencies.add(frequencies.get(0));
+				orderedPeriods.add(periods.get(0));
+				orderedFValues.add(fValues.get(0));
+				orderedPValues.add(pValues.get(0));
+			} else {
+				int i = periods.size()-1;
+				
 				double frequency = frequencies.get(i);
 				double period = periods.get(i);
 				double fValue = fValues.get(i);
 				double pValue = pValues.get(i);
 
-				if (fValue > orderedFValues.get(0)) {
-					orderedFrequencies.addFirst(frequency);
-					orderedPeriods.addFirst(period);
-					orderedFValues.addFirst(fValue);
-					orderedPValues.addFirst(pValue);
-				} else {
-					orderedFrequencies.add(frequency);
-					orderedPeriods.add(period);
-					orderedFValues.add(fValue);
-					orderedPValues.add(pValue);
+				// Find index to insert value and...
+				int index = 0;
+				for (int j=0;j < orderedFValues.size();j++) {
+					if (fValue > orderedFValues.get(j)) {
+						index = j;
+						break;
+					}
 				}
+				
+				// ...apply to all ordered collections.
+				orderedFrequencies.add(index, frequency);
+				orderedPeriods.add(index, period);
+				orderedFValues.add(index, fValue);
+				orderedPValues.add(index, pValue);
+			}
+		}
+		
+		private void pruneTopHits() {
+			if (periods.size() > MAX_TOP_HITS) {
+				orderedFrequencies = new LinkedList<Double>(
+						orderedFrequencies.subList(0, MAX_TOP_HITS));
+
+				orderedPeriods = new LinkedList<Double>(orderedPeriods.subList(
+						0, MAX_TOP_HITS));
+
+				orderedFValues = new LinkedList<Double>(orderedFValues.subList(
+						0, MAX_TOP_HITS));
+
+				orderedPValues = new LinkedList<Double>(orderedPValues.subList(
+						0, MAX_TOP_HITS));
+			}			
+		}
+		
+		// Order the top-hits by fValue
+		// TODO: improve efficiency! O(n^2)
+		private void collectTopHits() {
+//			orderedFrequencies.add(frequencies.get(smallestValueIndex));
+//			orderedPeriods.add(periods.get(smallestValueIndex));
+//			orderedFValues.add(fValues.get(smallestValueIndex));
+//			orderedPValues.add(pValues.get(smallestValueIndex));
+
+			orderedFrequencies.add(frequencies.get(0));
+			orderedPeriods.add(periods.get(0));
+			orderedFValues.add(fValues.get(0));
+			orderedPValues.add(pValues.get(0));
+
+			for (int i = 1; i < periods.size(); i++) {
+				double frequency = frequencies.get(i);
+				double period = periods.get(i);
+				double fValue = fValues.get(i);
+				double pValue = pValues.get(i);
+
+				// Find index to insert value and...
+				int index = 0;
+				for (int j=0;j < orderedFValues.size();j++) {
+					if (fValue > orderedFValues.get(j)) {
+						index = j;
+						break;
+					}
+				}
+				
+				// ...apply to all collections.
+				orderedFrequencies.add(index, frequency);
+				orderedPeriods.add(index, period);
+				orderedFValues.add(index, fValue);
+				orderedPValues.add(index, pValue);
+
+//				if (fValue > orderedFValues.get(0)) {
+//					orderedFrequencies.addFirst(frequency);
+//					orderedPeriods.addFirst(period);
+//					orderedFValues.addFirst(fValue);
+//					orderedPValues.addFirst(pValue);
+//				} else {
+//					orderedFrequencies.add(frequency);
+//					orderedPeriods.add(period);
+//					orderedFValues.add(fValue);
+//					orderedPValues.add(pValue);
+//				}
 			}
 
-			// Remove all but MAX_TOP_HITS
-			orderedFrequencies = new LinkedList<Double>(
-					orderedFrequencies.subList(0, MAX_TOP_HITS));
+			// Include only MAX_TOP_HITS.
+			if (periods.size() > MAX_TOP_HITS) {
+				orderedFrequencies = new LinkedList<Double>(
+						orderedFrequencies.subList(0, MAX_TOP_HITS));
 
-			orderedPeriods = new LinkedList<Double>(
-					orderedPeriods.subList(0, MAX_TOP_HITS));
+				orderedPeriods = new LinkedList<Double>(orderedPeriods.subList(
+						0, MAX_TOP_HITS));
 
-			orderedFValues = new LinkedList<Double>(
-					orderedFValues.subList(0, MAX_TOP_HITS));
+				orderedFValues = new LinkedList<Double>(orderedFValues.subList(
+						0, MAX_TOP_HITS));
 
-			orderedPValues = new LinkedList<Double>(
-					orderedPValues.subList(0, MAX_TOP_HITS));
+				orderedPValues = new LinkedList<Double>(orderedPValues.subList(
+						0, MAX_TOP_HITS));
+			}
+
+			// orderedFrequencies = removeAllButMaxTopHits(frequencies);
+			// orderedPeriods = removeAllButMaxTopHits(periods);
+			// orderedFValues = removeAllButMaxTopHits(fValues);
+			// orderedPValues = removeAllButMaxTopHits(pValues);
 
 			// TODO: ...
 			// if (periods.size() > MAX_TOP_HITS) {
@@ -583,6 +659,26 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		public void interrupt() {
 			interrupted = true;
 		}
+	}
+
+	private List<Double> removeAllButMaxTopHits(List<Double> values) {
+		List<Double> sortedValues = new ArrayList<Double>(values);
+
+		// Reverse numerical order sort.
+		Collections.sort(sortedValues, new Comparator<Double>() {
+			@Override
+			public int compare(Double x, Double y) {
+				return -Double.compare(x, y);
+			}
+		});
+
+		List<Double> topHitValues = sortedValues;
+
+		if (values.size() > MAX_TOP_HITS) {
+			topHitValues = sortedValues.subList(0, MAX_TOP_HITS);
+		}
+
+		return topHitValues;
 	}
 
 	// Ask user for period min, max, resolution and number of bins.
