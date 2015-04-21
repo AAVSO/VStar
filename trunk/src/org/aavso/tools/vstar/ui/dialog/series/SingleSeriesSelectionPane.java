@@ -36,6 +36,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
  * This class defines a pane with radio buttons for all series permitting a
  * single series to be selected.
  */
+@SuppressWarnings("serial")
 public class SingleSeriesSelectionPane extends JPanel implements ActionListener {
 
 	private ObservationAndMeanPlotModel obsPlotModel;
