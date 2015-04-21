@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -82,8 +81,7 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
  * 
  * http://iopscience.iop.org/1538-4357/460/2/L107/pdf/1538-4357_460_2_L107.pdf
  * 
- * o Fix range-check bug after N uses.<br/>
- * o Get top-hits displaying in plot.<br/>
+ * o Top hits performance!<br/>
  * o Create a model. See Foster<br/>
  * o Parallelise!<br/>
  */
