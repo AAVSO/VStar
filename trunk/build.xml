@@ -220,13 +220,9 @@
 			<arg value="attach" />
 			<arg value="${dmg_template}" />
 		</exec>
-
 		<echo message="create disk image: preparing" />
 		<delete dir="${vstar_volume}/Extras" />
-		<!--
-		TODO: perhaps just delete Contents/Java?
-		<delete dir="${vstar_volume}/VStar.app" />
-		-->
+		
 		<echo message="create disk image: copying files" />
 		<copy todir="${vstar_volume}">
 			<fileset file="${dist_mac}/VStar.app" />
@@ -361,7 +357,8 @@
 			<fileset dir="${test_report}" includes="**/*" />
 			<fileset dir="${javadoc}" includes="**/*" />
 			<fileset file="${javadoc}.zip" />
-			<fileset file="vstar.zip" />
+			<fileset file="vstar*.zip" />
+			<fileset file="*.app" />
 			<fileset file="*.dmg" />
 			<fileset file="*.exe" />
 		</delete>
