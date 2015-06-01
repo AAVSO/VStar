@@ -15,11 +15,24 @@
 	<property name="manifest_file" location="MANIFEST.MF" />
 	<property name="dist" location="dist" />
 	<property name="dist_debug" location="dist_debug" />
+	<property name="dist_mac" location="." />
+	<property name="dist_win32" location="." />
+	<property name="install_files" location="install-files" />
+	<property name="dmg_template" location="${install_files}/vstar-template.dmg" />
+	<property name="launch4j_dir" location="/Applications/Development/launch4j" />
+	<property name="vstar_volume" location="/Volumes/VStar" />
 	<property name="extlib" location="extlib" />
 	<property name="ui_resources" location="src/org/aavso/tools/vstar/ui/resources" />
 	<property name="test_report" location="test_report" />
 	<property name="doc" location="doc" />
 	<property name="javadoc" location="doc/vstar_docs" />
+
+	<!-- Task definitions -->
+
+	<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${extlib}/appbundler-1.0.jar" />
+
+	<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j_dir}/launch4j.jar
+	        :${launch4j_dir}/lib/xstream.jar" />
 
 	<!-- Classpaths -->
 
@@ -42,6 +55,8 @@
 		<mkdir dir="${src_build_debug}" />
 		<mkdir dir="${test_build}" />
 		<mkdir dir="${test_report}" />
+		<mkdir dir="${dist_mac}" />
+		<mkdir dir="${dist_win32}" />
 	</target>
 
 	<!-- Build targets -->
@@ -81,15 +96,15 @@
 		</manifestclasspath>
 
 		<manifest file="${manifest_file}">
-                       <attribute name="Application-Name" value="VStar" />
-                       <attribute name="Manifest-Version" value="1.0" />
-                       <attribute name="Created-By" value="${user.name}" />
-                       <attribute name="Main-Class" value="org.aavso.tools.vstar.ui.VStar" />
-                       <attribute name="Class-Path" value="${jar.classpath}" />
-                       <attribute name="Permissions" value="all-permissions" />
-<!--
-                       <attribute name="Codebase" value="http://www.aavso.org/files/vstar/" />
--->
+			<attribute name="Application-Name" value="VStar" />
+			<attribute name="Manifest-Version" value="1.0" />
+			<attribute name="Created-By" value="${user.name}" />
+			<attribute name="Main-Class" value="org.aavso.tools.vstar.ui.VStar" />
+			<attribute name="Class-Path" value="${jar.classpath}" />
+			<attribute name="Permissions" value="all-permissions" />
+			<!--
+            <attribute name="Codebase" value="http://www.aavso.org/files/vstar/" />
+            -->
 		</manifest>
 	</target>
 
@@ -103,44 +118,158 @@
 		<delete file="${manifest_file}" />
 	</target>
 
-	<target name="zip" depends="dist" description="Create a standalone distribution archive">
-		<zip destfile="vstar.zip">
+	<target name="bash" depends="dist" description="Create a standalone distribution archive for bash">
+		<zip destfile="vstar-bash.zip">
 			<zipfileset dir="${dist}" prefix="vstar/dist" />
 			<zipfileset dir="${extlib}" prefix="vstar/extlib">
+				<exclude name="appbundler*" />
 				<exclude name="cobertura*" />
 				<exclude name="cobertura*/**" />
 				<exclude name="junit*" />
 			</zipfileset>
-			<zipfileset dir="${doc}" prefix="vstar/doc">
-				<exclude name="plan/**" />
-				<exclude name="slides/**" />
-				<exclude name="vstar_docs/**" />
-				<exclude name="user_manual/*.od*" />
-			</zipfileset>
-			<zipfileset dir="${plugin}" prefix="vstar/plugin">
-				<exclude name="lib*/**" />
-				<exclude name="script*/**" />
-				<exclude name="src*/**" />
-				<exclude name="test*/**" />
-				<exclude name="build*/**" />
-				<exclude name="dist*/**" />
-				<include name="doc/*.pdf" />
-			</zipfileset>
-			<zipfileset dir="data" prefix="vstar/data" />
-			<zipfileset dir="VStar.app" prefix="vstar/VStar.app" dirmode="755" filemode="755">
-				<include name="**/*" />
-			</zipfileset>
 			<zipfileset file="VStar.sh" prefix="vstar" filemode="755" />
-			<zipfileset file="VStar.bat" prefix="vstar" />
-			<zipfileset file="VStar.exe" prefix="vstar" />
-			<zipfileset file="vstar.jnlp" prefix="vstar" />
-			<zipfileset file="vstar.jnlp.txt" prefix="vstar" />
-			<zipfileset file="vstar-applet.jnlp" prefix="vstar" />
-			<zipfileset file="vstar-applet.html" prefix="vstar" />
+			<zipfileset dir="data" prefix="vstar/data" />
+			<zipfileset dir="${doc}" prefix="vstar/doc">
+				<include name="license/*" />
+			</zipfileset>
+			<zipfileset dir="${doc}" prefix="vstar/doc">
+				<include name="vstar_docs/*" />
+			</zipfileset>
+			<zipfileset file="${doc}/user_manual/VStarUserManual.pdf" prefix="vstar/doc" />
+			<zipfileset file="${plugin}/doc/vstar_plugin_dev.pdf" prefix="vstar/doc"/>
+			<zipfileset file="src/org/aavso/tools/vstar/ui/resources/icons/vstaricon.png" prefix="vstar/doc" />
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
 			<zipfileset file="ChangeLog.txt" prefix="vstar" />
-			<zipfileset file="src/org/aavso/tools/vstar/ui/resources/icons/vstaricon.png" prefix="vstar/doc" />
 		</zip>
+	</target>
+	
+	<target name="win32" depends="dist" description="Create a standalone distribution archive for Win32">
+		<launch4j configFile="${install_files}/vstar-launch4j.xml" />
+		
+		<zip destfile="vstar-win32.zip">
+			<zipfileset dir="${dist}" prefix="vstar/dist" />
+			<zipfileset dir="${extlib}" prefix="vstar/extlib">
+				<exclude name="appbundler*" />
+				<exclude name="cobertura*" />
+				<exclude name="cobertura*/**" />
+				<exclude name="junit*" />
+			</zipfileset>
+			<zipfileset file="VStar.exe" prefix="vstar" />
+			<zipfileset dir="data" prefix="vstar/data" />
+			<zipfileset dir="${doc}" prefix="vstar/doc">
+				<include name="license/*" />
+			</zipfileset>
+			<zipfileset dir="${doc}" prefix="vstar/doc">
+				<include name="vstar_docs/*" />
+			</zipfileset>
+			<zipfileset file="${doc}/user_manual/VStarUserManual.pdf" prefix="vstar/doc" />
+			<zipfileset file="${plugin}/doc/vstar_plugin_dev.pdf" prefix="vstar/doc"/>
+			<zipfileset file="src/org/aavso/tools/vstar/ui/resources/icons/vstaricon.png" prefix="vstar/doc" />
+			<zipfileset file="ReadMe.txt" prefix="vstar" />
+			<zipfileset file="ChangeLog.txt" prefix="vstar" />
+		</zip>
+	</target>
+
+	<target name="mac" depends="dist" description="Create a standalone distribution archive for Mac">
+		<echo message="bundling" />
+		<bundleapp outputdirectory="${dist_mac}" name="VStar" displayname="VStar" identifier="org.aavso.tools.vstar.ui.VStar" mainclassname="org.aavso.tools.vstar.ui.VStar" icon="${install_files}/vstaricon.icns">
+			<classpath file="${dist}/vstar.jar" />
+			<classpath file="${extlib}/c3p0-0.9.5.jar" />
+			<classpath file="${extlib}/commons-math-2.2.jar" />
+			<classpath file="${extlib}/javacsv.jar" />
+			<classpath file="${extlib}/jcommon-1.0.16.jar" />
+			<classpath file="${extlib}/jfreechart-1.0.13.jar" />
+			<classpath file="${extlib}/jmathplot.jar" />
+			<classpath file="${extlib}/mchange-commons-java-0.2.9.jar" />
+			<classpath file="${extlib}/mysql-connector-java-5.1.10-bin.jar" />
+			<classpath file="${extlib}/nico-camargo-toolbar-icons-4.0.jar" />
+			<classpath file="${extlib}/vstaricon.png" />
+			<option value="-Xms25m" />
+			<option value="-Xmx500m" />
+			<!-- APP_ROOT will be replaced by absolute path to app bundle. -->
+			<option value="-splash:$APP_ROOT/Contents/Java/vstaricon.png" />
+			<!-- I suspect this won't have any effect unless a Mac app can
+			     also be run via the command-line. -->
+			<argument value="$*" />
+		</bundleapp>
+
+		<echo message="codesign: signing" />
+		<exec executable="codesign">
+			<arg value="-s" />
+			<arg value="Developer ID Application: David Benn" />
+			<arg value="${dist_mac}/VStar.app" />
+		</exec>
+
+		<echo message="codesign: verifying" />
+		<exec executable="codesign">
+			<arg value="-d" />
+			<arg value="--verbose=4" />
+			<arg value="${dist_mac}/VStar.app" />
+		</exec>
+
+		<echo message="spctl" />
+		<exec executable="spctl">
+			<arg value="--assess" />
+			<arg value="--verbose=4" />
+			<arg value="--type" />
+			<arg value="execute" />
+			<arg value="${dist_mac}/VStar.app" />
+		</exec>
+		<echo message="create disk image: attaching" />
+		<exec executable="hdiutil">
+			<arg value="attach" />
+			<arg value="${dmg_template}" />
+		</exec>
+
+		<echo message="create disk image: preparing" />
+		<delete dir="${vstar_volume}/Extras" />
+		<!--
+		TODO: perhaps just delete Contents/Java?
+		<delete dir="${vstar_volume}/VStar.app" />
+		-->
+		<echo message="create disk image: copying files" />
+		<copy todir="${vstar_volume}">
+			<fileset file="${dist_mac}/VStar.app" />
+		</copy>
+		<mkdir dir="${vstar_volume}/Extras" />
+		<copy todir="${vstar_volume}/Extras">
+			<fileset file="ReadMe.txt" />
+			<fileset file="ChangeLog.txt" />
+		</copy>
+		<mkdir dir="${vstar_volume}/Extras/doc" />
+		<copy todir="${vstar_volume}/Extras/doc">
+			<fileset dir="${doc}">
+				<include name="license/*" />
+			</fileset>
+			<fileset dir="${doc}">
+				<include name="vstar_docs/*" />
+			</fileset>
+			<fileset file="${doc}/user_manual/VStarUserManual.pdf" />
+			<fileset file="${plugin}/doc/vstar_plugin_dev.pdf" />
+		</copy>
+		<mkdir dir="${vstar_volume}/Extras/data" />
+		<copy todir="${vstar_volume}/Extras/data">
+			<fileset dir="data" />
+		</copy>
+
+		<echo message="create disk image: detaching" />
+		<exec executable="hdiutil">
+			<arg value="detach" />
+			<arg value="${vstar_volume}" />
+		</exec>
+
+		<echo message="create disk image: compressing" />
+		<exec executable="hdiutil">
+			<arg value="convert" />
+			<arg value="${dmg_template}" />
+			<arg value="-quiet" />
+			<arg value="-format" />
+			<arg value="UDZO" />
+			<arg value="-imagekey" />
+			<arg value="zlib-level=9" />
+			<arg value="-o" />
+			<arg value="${dist_mac}/vstar-mac.dmg" />
+		</exec>
 	</target>
 
 	<!-- Run targets -->
@@ -229,11 +358,12 @@
 			<fileset dir="${src_build_debug}" includes="**/*" />
 			<fileset dir="${test_build}" includes="**/*" />
 			<fileset dir="${dist}" includes="**/*" />
-			<fileset dir="${dist_debug}" includes="**/*" />
 			<fileset dir="${test_report}" includes="**/*" />
 			<fileset dir="${javadoc}" includes="**/*" />
 			<fileset file="${javadoc}.zip" />
 			<fileset file="vstar.zip" />
+			<fileset file="*.dmg" />
+			<fileset file="*.exe" />
 		</delete>
 	</target>
 </project>
