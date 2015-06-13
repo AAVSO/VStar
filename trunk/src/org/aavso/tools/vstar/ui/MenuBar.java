@@ -123,6 +123,7 @@ public class MenuBar extends JMenuBar {
 	public static final String PAN_DOWN = LocaleProps.get("VIEW_MENU_PAN_DOWN");
 	public static final String FILTER = LocaleProps.get("VIEW_MENU_FILTER");
 	public static final String FILTERS = LocaleProps.get("VIEW_MENU_FILTERS");
+	public static final String FILTER_FROM_PLOT = LocaleProps.get("VIEW_MENU_FILTER_FROM_PLOT");
 	public static final String NO_FILTER = LocaleProps
 			.get("VIEW_MENU_NO_FILTER");
 
@@ -213,6 +214,7 @@ public class MenuBar extends JMenuBar {
 	JMenuItem viewPanDownItem;
 	JMenuItem viewFilterItem;
 	JMenuItem viewFiltersItem;
+	JMenuItem viewFilterFromPlotItem;
 	JMenuItem viewNoFilterItem;
 
 	JMenu viewCustomFilterMenu;
@@ -477,6 +479,11 @@ public class MenuBar extends JMenuBar {
 		viewFiltersItem.addActionListener(createFiltersListener());
 		viewMenu.add(viewFiltersItem);
 
+		viewFilterFromPlotItem = new JMenuItem(FILTER_FROM_PLOT);
+		viewFilterFromPlotItem.setEnabled(false);
+		viewFilterFromPlotItem.addActionListener(createFilterFromPlotListener());
+		viewMenu.add(viewFilterFromPlotItem);		
+		
 		viewCustomFilterMenu = new JMenu(LocaleProps
 				.get("VIEW_MENU_CUSTOM_FILTERS"));
 		viewCustomFilterMenu.setEnabled(false);
@@ -982,6 +989,17 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
+	 * Returns the action listener to be invoked for View->Filter From Plot
+	 */
+	public ActionListener createFilterFromPlotListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mediator.createFilterFromPlot();
+			}			
+		};
+	}
+	
+	/**
 	 * Returns the action listener to be invoked for Custom Filter menu item
 	 * selections.
 	 */
@@ -1401,7 +1419,7 @@ public class MenuBar extends JMenuBar {
 				viewZoomOutItem.setEnabled(false);
 				viewZoomToFitItem.setEnabled(false);
 				viewFiltersItem.setEnabled(false);
-
+				
 				analysisPhasePlotItem.setEnabled(true);
 				analysisModelsItem.setEnabled(false);
 				analysisPhasePlotsItem.setEnabled(false);
@@ -1542,6 +1560,7 @@ public class MenuBar extends JMenuBar {
 		// this.viewZoomToFitItem.setEnabled(state);
 
 		this.viewFilterItem.setEnabled(state);
+		this.viewFilterFromPlotItem.setEnabled(state);
 		this.viewCustomFilterMenu.setEnabled(state);
 		for (int i = 0; i < this.viewCustomFilterMenu.getItemCount(); i++) {
 			this.viewCustomFilterMenu.getItem(i).setEnabled(state);

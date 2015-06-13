@@ -38,8 +38,8 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JDialog;
-import javax.swing.SwingWorker;
 import javax.swing.JTable.PrintMode;
+import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.SeriesType;
@@ -108,6 +108,7 @@ import org.aavso.tools.vstar.ui.model.list.RawDataMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
+import org.aavso.tools.vstar.ui.model.plot.InViewObservationFilter;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
@@ -395,6 +396,31 @@ public class Mediator {
 		}
 
 		return msg;
+	}
+
+	/**
+	 * Given an analysis type, the plot pane for the specified analysis type.
+	 * 
+	 * @param type
+	 *            The analysis type.
+	 * 
+	 * @return The plot pane.
+	 */
+	public ObservationAndMeanPlotPane getPlotPane(AnalysisType type) {
+		return analysisTypeMap.get(type).getObsAndMeanChartPane();
+	}
+
+	/**
+	 * Given an analysis type, the observation list pane for the specified
+	 * analysis type.
+	 * 
+	 * @param type
+	 *            The analysis type.
+	 * 
+	 * @return The observation list pane.
+	 */
+	public ObservationListPane getObservationListPane(AnalysisType type) {
+		return analysisTypeMap.get(type).getObsListPane();
 	}
 
 	/**
@@ -687,8 +713,8 @@ public class Mediator {
 			@Override
 			public void update(PhaseSelectionMessage info) {
 				if (info.getSource() != me) {
-					performPhasePlot(info.getPeriod(), info.getEpoch(), info
-							.getSeriesVisibilityMap());
+					performPhasePlot(info.getPeriod(), info.getEpoch(),
+							info.getSeriesVisibilityMap());
 				}
 			}
 
@@ -712,8 +738,8 @@ public class Mediator {
 			double period = phaseDialog.getPeriod();
 			double epoch = phaseDialog.getEpoch();
 
-			Map<SeriesType, Boolean> seriesVisibilityMap = analysisTypeMap.get(
-					analysisType).getObsAndMeanChartPane().getObsModel()
+			Map<SeriesType, Boolean> seriesVisibilityMap = analysisTypeMap
+					.get(analysisType).getObsAndMeanChartPane().getObsModel()
 					.getSeriesVisibilityMap();
 
 			performPhasePlot(period, epoch, seriesVisibilityMap);
@@ -732,8 +758,8 @@ public class Mediator {
 	 *            The epoch (first Julian Date) for the phase plot.
 	 */
 	public void createPhasePlot(double period, double epoch) {
-		Map<SeriesType, Boolean> seriesVisibilityMap = analysisTypeMap.get(
-				analysisType).getObsAndMeanChartPane().getObsModel()
+		Map<SeriesType, Boolean> seriesVisibilityMap = analysisTypeMap
+				.get(analysisType).getObsAndMeanChartPane().getObsModel()
 				.getSeriesVisibilityMap();
 
 		performPhasePlot(period, epoch, seriesVisibilityMap);
@@ -1027,8 +1053,8 @@ public class Mediator {
 
 		// Analyse the observation file.
 		ObservationSourceAnalyser analyser = new ObservationSourceAnalyser(
-				new LineNumberReader(new FileReader(obsFile)), obsFile
-						.getName());
+				new LineNumberReader(new FileReader(obsFile)),
+				obsFile.getName());
 		analyser.analyse();
 
 		// Task begins: Number of lines in file and a portion for the light
@@ -1037,8 +1063,7 @@ public class Mediator {
 
 		this.getProgressNotifier().notifyListeners(
 				new ProgressInfo(ProgressType.MAX_PROGRESS, analyser
-						.getLineCount()
-						+ plotPortion));
+						.getLineCount() + plotPortion));
 
 		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
 				plotPortion, isAdditiveLoad);
@@ -1260,13 +1285,11 @@ public class Mediator {
 					.addStatsInfo("Confidence Interval",
 							"Mean error bars denote 95% Confidence Interval (twice Standard Error)");
 
-			obsAndMeanChartPane = createObservationAndMeanPlotPane(LocaleProps
-					.get("LIGHT_CURVE")
-					+ " "
-					+ LocaleProps.get("FOR")
-					+ " "
-					+ starInfo.getDesignation(), null, obsAndMeanPlotModel,
-					starInfo.getRetriever());
+			obsAndMeanChartPane = createObservationAndMeanPlotPane(
+					LocaleProps.get("LIGHT_CURVE") + " "
+							+ LocaleProps.get("FOR") + " "
+							+ starInfo.getDesignation(), null,
+					obsAndMeanPlotModel, starInfo.getRetriever());
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					createMeanObsChangeListener(obsAndMeanPlotModel
@@ -1394,7 +1417,7 @@ public class Mediator {
 			ra = newStarInfo.getRA();
 			dec = newStarInfo.getDec();
 		}
-		
+
 		if (newStarInfo.getRetriever().isHeliocentric()
 				&& !getLatestNewStarMessage().getStarInfo().getRetriever()
 						.isHeliocentric()) {
@@ -1482,8 +1505,8 @@ public class Mediator {
 
 		DecInfo decInfo = null;
 		if (!dialog.isCancelled()) {
-			decInfo = new DecInfo(1950, raHours.getValue(), raMinutes
-					.getValue(), raSeconds.getValue());
+			decInfo = new DecInfo(1950, raHours.getValue(),
+					raMinutes.getValue(), raSeconds.getValue());
 		}
 
 		return decInfo;
@@ -1827,14 +1850,14 @@ public class Mediator {
 
 		if (analysisType == AnalysisType.RAW_DATA) {
 			title = LocaleProps.get("LIGHT_CURVE_CONTROL_DLG_TITLE");
-			binSettingPane = new TimeElementsInBinSettingPane(LocaleProps
-					.get("DAYS_PER_MEAN_SERIES_BIN"), plotPane,
+			binSettingPane = new TimeElementsInBinSettingPane(
+					LocaleProps.get("DAYS_PER_MEAN_SERIES_BIN"), plotPane,
 					JDTimeElementEntity.instance);
 		} else if (analysisType == AnalysisType.PHASE_PLOT) {
 			title = LocaleProps.get("PHASE_PLOT_CONTROL_DLG_TITLE");
-			binSettingPane = new TimeElementsInBinSettingPane(LocaleProps
-					.get("PHASE_STEPS_PER_MEAN_SERIES_BIN"), plotPane,
-					PhaseTimeElementEntity.instance);
+			binSettingPane = new TimeElementsInBinSettingPane(
+					LocaleProps.get("PHASE_STEPS_PER_MEAN_SERIES_BIN"),
+					plotPane, PhaseTimeElementEntity.instance);
 		}
 
 		PlotControlDialog dialog = new PlotControlDialog(title, plotPane,
@@ -1955,10 +1978,10 @@ public class Mediator {
 	}
 
 	/**
-	 * Applies the custom filter plugin to the currently loaded observation set.
+	 * Apply the custom filter plug-in to the currently loaded observation set.
 	 * 
 	 * @param plugin
-	 *            The tool plugin to be invoked.
+	 *            The tool plug-in to be invoked.
 	 */
 	public void applyCustomFilterToCurrentObservations(
 			CustomFilterPluginBase plugin) {
@@ -1974,6 +1997,14 @@ public class Mediator {
 		}
 	}
 
+	/**
+	 * Create a filter from the current plot view.
+	 */
+	public void createFilterFromPlot() {
+		InViewObservationFilter filter = new InViewObservationFilter();
+		filter.execute();
+	}
+	
 	/**
 	 * Save the artefact corresponding to the current viewMode.
 	 * 
@@ -2127,8 +2158,8 @@ public class Mediator {
 
 					ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
 							outFile, this.getLatestNewStarMessage()
-									.getNewStarType(), obsListFileSaveDialog
-									.getDelimiter());
+									.getNewStarType(),
+							obsListFileSaveDialog.getDelimiter());
 
 					this.currTask = task;
 					task.execute();
@@ -2214,8 +2245,8 @@ public class Mediator {
 							.print(PrintMode.FIT_WIDTH);
 				}
 			} catch (PrinterException e) {
-				MessageBox.showErrorDialog(parent, "Print Observations", e
-						.getMessage());
+				MessageBox.showErrorDialog(parent, "Print Observations",
+						e.getMessage());
 			}
 			break;
 
@@ -2226,8 +2257,8 @@ public class Mediator {
 
 				meanObsListPane.getObsTable().print(PrintMode.FIT_WIDTH);
 			} catch (PrinterException e) {
-				MessageBox.showErrorDialog(parent, "Print Mean Values", e
-						.getMessage());
+				MessageBox.showErrorDialog(parent, "Print Mean Values",
+						e.getMessage());
 			}
 			break;
 		case MODEL_MODE:
@@ -2239,8 +2270,8 @@ public class Mediator {
 
 					modelListPane.getObsTable().print(PrintMode.FIT_WIDTH);
 				} catch (PrinterException e) {
-					MessageBox.showErrorDialog(parent, "Print Model Values", e
-							.getMessage());
+					MessageBox.showErrorDialog(parent, "Print Model Values",
+							e.getMessage());
 				}
 			}
 			break;
@@ -2359,8 +2390,8 @@ public class Mediator {
 				} catch (AuthenticationError ex) {
 					MessageBox.showErrorDialog("Authentication Error", ex);
 				} catch (Exception ex) {
-					MessageBox.showErrorDialog("Discrepant Reporting Error", ex
-							.getLocalizedMessage());
+					MessageBox.showErrorDialog("Discrepant Reporting Error",
+							ex.getLocalizedMessage());
 				} finally {
 					Mediator.getUI().setCursor(null);
 				}
