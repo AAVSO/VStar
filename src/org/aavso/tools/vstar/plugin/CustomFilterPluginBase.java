@@ -49,19 +49,12 @@ abstract public class CustomFilterPluginBase implements IPlugin {
 
 	/**
 	 * <p>
-	 * Given a list of observations, return a sorted subset as the result of a
+	 * Given a list of observations, return an ordered subset as the result of a
 	 * custom filtering operation.
-	 * </p>
-	 * 
-	 * <p>
-	 * Note that the ordered subset should preserve the original order of the
-	 * observations or the results may be surprising, especially with respect to
-	 * the ordering of data in table rows.
 	 * </p>
 	 * 
 	 * @param obs
 	 *            A list of currently loaded observations.
-	 * @return A sorted subset of the observations.
 	 */
 	abstract protected void filter(List<ValidObservation> obs);
 

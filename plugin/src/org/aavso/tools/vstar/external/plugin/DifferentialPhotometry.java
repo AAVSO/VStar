@@ -435,20 +435,27 @@ public class DifferentialPhotometry extends ObservationToolPluginBase {
 				String infoStr = null;
 
 				// For each comparison star, show the computed magnitude for the
-				// check (if provided) and target stars. For the check and
-				// target star, show the instrumental magnitude.
+				// check (if provided, along with difference from catalog value)
+				// and target stars. For the check and target star, just show
+				// the instrumental magnitude.
 				if (series != targetSeries && series != checkSeries) {
 					infoStr = String.format("%s: %s (%s)", jdMeanStr,
 							magMeanStr, magStdevStr);
 
-					double checkMag = diffMag(checkMagMean, magMean,
-							refMags.get(series));
-					String checkMagStr = NumericPrecisionPrefs
-							.formatMag(checkMag);
-
 					if (checkSeries != null) {
-						infoStr += String.format("\n  %s: %s",
-								checkSeries.getDescription(), checkMagStr);
+						double checkMag = diffMag(checkMagMean, magMean,
+								refMags.get(series));
+						double checkMagDelta = Math.abs(refMags
+								.get(checkSeries) - checkMag);
+
+						String checkMagStr = NumericPrecisionPrefs
+								.formatMag(checkMag);
+						String checkMagDeltaStr = NumericPrecisionPrefs
+								.formatMag(checkMagDelta);
+
+						infoStr += String.format("\n  %s: %s (%s)",
+								checkSeries.getDescription(), checkMagStr,
+								checkMagDeltaStr);
 					}
 
 					double targetMag = diffMag(targetMagMean, magMean,
@@ -481,7 +488,7 @@ public class DifferentialPhotometry extends ObservationToolPluginBase {
 	 *            The target star instrumental magnitude.
 	 * @param refIMag
 	 *            The reference star instrumental magnitude.
-	 * @param refIMag
+	 * @param refCatMag
 	 *            The reference star catalog magnitude.
 	 * @return The differential target magnitude.
 	 */
