@@ -19,16 +19,14 @@ package org.aavso.tools.vstar.util.comparator;
 
 import java.util.Comparator;
 
-import org.aavso.tools.vstar.data.Magnitude;
-
 /**
- * This class compares magnitudes. Uncertainty is not included in the
- * comparison.
+ * This class compares double values encoded as strings.
  */
-public class MagnitudeComparator implements Comparator<Magnitude> {
+public class DoubleAsStringComparator implements Comparator<String> {
 
 	@Override
-	public int compare(Magnitude mag1, Magnitude mag2) {
-		return Double.compare(mag1.getMagValue(), mag2.getMagValue());
+	public int compare(String mag1, String mag2) {
+		return Double.compare(Double.parseDouble(mag1),
+				Double.parseDouble(mag2));
 	}
 }
