@@ -48,7 +48,6 @@ import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DChartPane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisDataTablePane;
 import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysisTopHitsTablePane;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
@@ -113,7 +112,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 	@Override
 	public String getDescription() {
-		// TODO: AoV "phased bin" period search?
 		return "AoV period search";
 	}
 
@@ -167,7 +165,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			prepareDialog();
 
 			this.setNewPhasePlotButtonState(false);
-//			this.setFindHarmonicsButtonState(false);
 
 			startup(); // Note: why does base class not call this in
 			// prepareDialog()?
@@ -175,16 +172,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 		@Override
 		protected Component createContent() {
-			// Random plot
-			// PeriodAnalysis2DPlotModel plotModel = new
-			// PeriodAnalysis2DPlotModel(
-			// algorithm.getTopHits(),
-			// PeriodAnalysisCoordinateType.PERIOD,
-			// PeriodAnalysisCoordinateType.POWER, false);
-
-			// plotPane = createPeriodogramPlot("AoV Periodogram",
-			// sourceSeriesType.getDescription(), plotModel);
-
 			String title = "AoV Periodogram";
 
 			PeriodAnalysis2DPlotModel dataPlotModel = new PeriodAnalysis2DPlotModel(
@@ -193,12 +180,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 			plotPane = PeriodAnalysisComponentFactory.createLinePlot(title,
 					sourceSeriesType.getDescription(), dataPlotModel, false);
-
-			// plotPane = PeriodAnalysisComponentFactory.createLinePlot(title,
-			// sourceSeriesType.getDescription(),
-			// algorithm.getResultSeries(),
-			// PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC, false,
-			// false);
 
 			PeriodAnalysis2DPlotModel topHitsPlotModel = new PeriodAnalysis2DPlotModel(
 					algorithm.getTopHits(),
@@ -233,9 +214,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			// it along.
 			// TODO: subclass PeriodAnalysisDataTablePane to have no model
 			// button
-			// resultsTablePane =
-			// PeriodAnalysisComponentFactory.createDataTable(
-			// columns, algorithm.getResultSeries(), algorithm);
 
 			PeriodAnalysisDataTableModel dataTableModel = new PeriodAnalysisDataTableModel(
 					columns, algorithm.getResultSeries());
@@ -247,9 +225,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			// does.
 			// TODO: subclass PeriodAnalysisTopHitsTablePane to have no model
 			// button
-			// topHitsTablePane =
-			// PeriodAnalysisComponentFactory.createDataTable(
-			// columns, algorithm.getTopHits(), algorithm);
 
 			PeriodAnalysisDataTableModel topHitsModel = new PeriodAnalysisDataTableModel(
 					columns, algorithm.getTopHits());
@@ -268,18 +243,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		@Override
 		protected void newPhasePlotButtonAction() {
 			sendPeriodChangeMessage(period);
-		}
-
-		@Override
-		protected void findHarmonicsButtonAction() {
-			List<Double> data = algorithm.getResultSeries().get(
-					PeriodAnalysisCoordinateType.FREQUENCY);
-			List<Harmonic> harmonics = findHarmonics(
-					selectedDataPoint.getFrequency(), data);
-			HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(
-					this, harmonics, selectedDataPoint);
-			Mediator.getInstance().getHarmonicSearchNotifier()
-					.notifyListeners(msg);
 		}
 
 		@Override
@@ -314,7 +277,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			period = info.getDataPoint().getPeriod();
 			selectedDataPoint = info.getDataPoint();
 			setNewPhasePlotButtonState(true);
-//			setFindHarmonicsButtonState(true);
 		}
 
 		// ** No model result and top-hit panes **
@@ -359,6 +321,12 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 				// Do nothing
 			}
 		}
+
+		@Override
+		protected void findHarmonicsButtonAction() {
+			// Do nothing since we don't include a find-harmonics button for
+			// AoV.
+		}
 	}
 
 	// The AoV algorithm implementation.
@@ -378,8 +346,8 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		private List<Double> pValues;
 		private ArrayList<Double> orderedPValues;
 
-//		private double smallestFValue;
-//		private int smallestValueIndex;
+		// private double smallestFValue;
+		// private int smallestValueIndex;
 
 		public AoVAlgorithm(List<ValidObservation> obs) {
 			this.obs = obs;
@@ -396,8 +364,8 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			pValues = new ArrayList<Double>();
 			orderedPValues = new ArrayList<Double>();
 
-//			smallestFValue = Double.MAX_VALUE;
-//			smallestValueIndex = 0;
+			// smallestFValue = Double.MAX_VALUE;
+			// smallestValueIndex = 0;
 		}
 
 		@Override
@@ -450,7 +418,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		}
 
 		@Override
-		public void execute() throws AlgorithmError {			
+		public void execute() throws AlgorithmError {
 			// Request parameters
 			// TODO: move this to top-level execute method and just pass actual
 			// parameters to this class?
@@ -464,7 +432,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 				List<ValidObservation> phObs = new ArrayList<ValidObservation>();
 
 				// TODO: cache these by JD range between new star resets...
-				
+
 				interrupted = false;
 
 				for (ValidObservation ob : obs) {
@@ -514,29 +482,29 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 					double fValue = binningResult.getFValue();
 					fValues.add(fValue);
-//					if (fValue < smallestFValue) {
-//						smallestFValue = fValue;
-//						smallestValueIndex = fValues.size() - 1;
-//					}
+					// if (fValue < smallestFValue) {
+					// smallestFValue = fValue;
+					// smallestValueIndex = fValues.size() - 1;
+					// }
 
 					pValues.add(binningResult.getPValue());
-					
+
 					updateOrderedValues();
 				}
-				
+
 				pruneTopHits();
 			}
 		}
 
-		private void updateOrderedValues() {			
+		private void updateOrderedValues() {
 			if (orderedFrequencies.isEmpty()) {
 				orderedFrequencies.add(frequencies.get(0));
 				orderedPeriods.add(periods.get(0));
 				orderedFValues.add(fValues.get(0));
 				orderedPValues.add(pValues.get(0));
 			} else {
-				int i = periods.size()-1;
-				
+				int i = periods.size() - 1;
+
 				double frequency = frequencies.get(i);
 				double period = periods.get(i);
 				double fValue = fValues.get(i);
@@ -544,13 +512,13 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 				// Find index to insert value and...
 				int index = 0;
-				for (int j=0;j < orderedFValues.size();j++) {
+				for (int j = 0; j < orderedFValues.size(); j++) {
 					if (fValue > orderedFValues.get(j)) {
 						index = j;
 						break;
 					}
 				}
-				
+
 				// ...apply to all ordered collections.
 				orderedFrequencies.add(index, frequency);
 				orderedPeriods.add(index, period);
@@ -558,7 +526,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 				orderedPValues.add(index, pValue);
 			}
 		}
-		
+
 		private void pruneTopHits() {
 			if (periods.size() > MAX_TOP_HITS) {
 				orderedFrequencies = new ArrayList<Double>(
@@ -572,16 +540,16 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 				orderedPValues = new ArrayList<Double>(orderedPValues.subList(
 						0, MAX_TOP_HITS));
-			}			
+			}
 		}
-		
+
 		// Order the top-hits by fValue
 		// TODO: improve efficiency! O(n^2)
 		private void collectTopHits() {
-//			orderedFrequencies.add(frequencies.get(smallestValueIndex));
-//			orderedPeriods.add(periods.get(smallestValueIndex));
-//			orderedFValues.add(fValues.get(smallestValueIndex));
-//			orderedPValues.add(pValues.get(smallestValueIndex));
+			// orderedFrequencies.add(frequencies.get(smallestValueIndex));
+			// orderedPeriods.add(periods.get(smallestValueIndex));
+			// orderedFValues.add(fValues.get(smallestValueIndex));
+			// orderedPValues.add(pValues.get(smallestValueIndex));
 
 			orderedFrequencies.add(frequencies.get(0));
 			orderedPeriods.add(periods.get(0));
@@ -596,30 +564,30 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 				// Find index to insert value and...
 				int index = 0;
-				for (int j=0;j < orderedFValues.size();j++) {
+				for (int j = 0; j < orderedFValues.size(); j++) {
 					if (fValue > orderedFValues.get(j)) {
 						index = j;
 						break;
 					}
 				}
-				
+
 				// ...apply to all collections.
 				orderedFrequencies.add(index, frequency);
 				orderedPeriods.add(index, period);
 				orderedFValues.add(index, fValue);
 				orderedPValues.add(index, pValue);
 
-//				if (fValue > orderedFValues.get(0)) {
-//					orderedFrequencies.addFirst(frequency);
-//					orderedPeriods.addFirst(period);
-//					orderedFValues.addFirst(fValue);
-//					orderedPValues.addFirst(pValue);
-//				} else {
-//					orderedFrequencies.add(frequency);
-//					orderedPeriods.add(period);
-//					orderedFValues.add(fValue);
-//					orderedPValues.add(pValue);
-//				}
+				// if (fValue > orderedFValues.get(0)) {
+				// orderedFrequencies.addFirst(frequency);
+				// orderedPeriods.addFirst(period);
+				// orderedFValues.addFirst(fValue);
+				// orderedPValues.addFirst(pValue);
+				// } else {
+				// orderedFrequencies.add(frequency);
+				// orderedPeriods.add(period);
+				// orderedFValues.add(fValue);
+				// orderedPValues.add(pValue);
+				// }
 			}
 
 			// Include only MAX_TOP_HITS.
