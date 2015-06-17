@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2015  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -82,7 +82,7 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
  * http://iopscience.iop.org/1538-4357/460/2/L107/pdf/1538-4357_460_2_L107.pdf
  * 
  * o Top hits performance!<br/>
- * o Create a model. See Foster<br/>
+ * o Create a model. See Foster. A piecewise model from means?<br/>
  * o Parallelise!<br/>
  */
 public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
@@ -160,14 +160,14 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		private PeriodAnalysis2DChartPane topHitsPlotPane;
 
 		public PeriodAnalysisDialog(SeriesType sourceSeriesType) {
-			super("AoV");
+			super("AoV", false, true, false);
 
 			this.sourceSeriesType = sourceSeriesType;
 
 			prepareDialog();
 
 			this.setNewPhasePlotButtonState(false);
-			this.setFindHarmonicsButtonState(false);
+//			this.setFindHarmonicsButtonState(false);
 
 			startup(); // Note: why does base class not call this in
 			// prepareDialog()?
@@ -314,7 +314,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			period = info.getDataPoint().getPeriod();
 			selectedDataPoint = info.getDataPoint();
 			setNewPhasePlotButtonState(true);
-			// setFindHarmonicsButtonState(true);
+//			setFindHarmonicsButtonState(true);
 		}
 
 		// ** No model result and top-hit panes **
