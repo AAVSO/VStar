@@ -25,6 +25,7 @@ import org.aavso.tools.vstar.ui.dialog.period.PeriodAnalysis2DResultDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
@@ -33,15 +34,24 @@ import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 abstract public class DcDftPeriodAnalysisPluginBase extends
 		PeriodAnalysisPluginBase {
 
+	private PeriodAnalysisCoordinateType[] dataCoordTypes = {
+			PeriodAnalysisCoordinateType.FREQUENCY,
+			PeriodAnalysisCoordinateType.PERIOD,
+			PeriodAnalysisCoordinateType.POWER,
+			PeriodAnalysisCoordinateType.AMPLITUDE };
+
 	protected NewStarMessage newStarMessage;
 	protected TSDcDft periodAnalysisAlgorithm;
+	protected PeriodAnalysisCoordinateType searchType;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 */
-	public DcDftPeriodAnalysisPluginBase() {
+	public DcDftPeriodAnalysisPluginBase(PeriodAnalysisCoordinateType searchType) {
 		super();
-		Mediator.getInstance().getNewStarNotifier().addListener(getNewStarListener());
+		this.searchType = searchType;
+		Mediator.getInstance().getNewStarNotifier()
+				.addListener(getNewStarListener());
 	}
 
 	// ** Mandatory interface methods **
@@ -67,12 +77,12 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 	@Override
 	public JDialog getDialog(SeriesType sourceSeriesType) {
 
-		return new PeriodAnalysis2DResultDialog(LocaleProps
-				.get("DCDFT_RESULT_TITLE")
-				+ " " + newStarMessage.getStarInfo().getDesignation(), "("
-				+ LocaleProps.get("SERIES") + ": "
-				+ sourceSeriesType.getDescription() + ")",
-				periodAnalysisAlgorithm);
+		return new PeriodAnalysis2DResultDialog(
+				LocaleProps.get("DCDFT_RESULT_TITLE") + " "
+						+ newStarMessage.getStarInfo().getDesignation(), "("
+						+ LocaleProps.get("SERIES") + ": "
+						+ sourceSeriesType.getDescription() + ")",
+				periodAnalysisAlgorithm, dataCoordTypes, searchType);
 	}
 
 	/**

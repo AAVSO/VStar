@@ -18,12 +18,13 @@
 package org.aavso.tools.vstar.util.period.wwz;
 
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 
 /**
  * A single Weighted Wavelet Transform datapoint.
  * 
  * The comments for each data member below are taken from the WWZ
- * documemntation, (C) AAVSO.
+ * documentation, (C) AAVSO.
  * 
  * @see org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform
  */
@@ -137,7 +138,7 @@ public class WWZStatistic implements IPeriodAnalysisDatum {
 	}
 
 	// Remaining methods from IPeriodAnalysisDatum
-	
+
 	@Override
 	public double getPower() {
 		return getWwz();
@@ -160,8 +161,7 @@ public class WWZStatistic implements IPeriodAnalysisDatum {
 	@Override
 	public String toString() {
 		return String
-				.format(
-						"tau=%1.4f, freq=%1.4f, wwz=%1.4f, amp=%1.4f, mave=%1.4f, neff=%1.4f",
+				.format("tau=%1.4f, freq=%1.4f, wwz=%1.4f, amp=%1.4f, mave=%1.4f, neff=%1.4f",
 						tau, freq, wwz, amp, mave, neff);
 	}
 
@@ -198,6 +198,27 @@ public class WWZStatistic implements IPeriodAnalysisDatum {
 		case EFFECTIVE_NUM_DATA:
 			value = getNeff();
 			break;
+		}
+
+		return value;
+	}
+
+	@Override
+	// Required by IPeriodAnalysisDatum implement clause; probably unused by
+	// caller.
+	// TODO: use additional PeriodAnalysisCoordinateType, abolishing the need
+	// for WWZCoordinateType.
+	public double getValue(PeriodAnalysisCoordinateType type) {
+		double value = 0;
+
+		if (type == PeriodAnalysisCoordinateType.FREQUENCY) {
+			value = getFrequency();
+		} else if (type == PeriodAnalysisCoordinateType.PERIOD) {
+			value = getPeriod();
+		} else if (type == PeriodAnalysisCoordinateType.AMPLITUDE) {
+			value = getAmplitude();
+		} else if (type == PeriodAnalysisCoordinateType.POWER) {
+			value = getPower();
 		}
 
 		return value;

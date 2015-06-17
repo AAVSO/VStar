@@ -45,6 +45,9 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 
 	protected JButton newPhasePlotButton;
 	protected JButton findHarmonicsButton;
+	protected boolean wantPhasePlotButton;
+	protected boolean wantHarmonicsButton;
+
 	private JPanel topPane;
 
 	/**
@@ -54,12 +57,14 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 	 *            The dialog title.
 	 * @param isModal
 	 *            Should the dialog be modal?
-	 * @param isAlwaysOnTop
-	 *            Should the dialog always be on top?
+	 * @param wantPhasePlotButton
+	 *            Do we want a phase plot button?
 	 */
 	public PeriodAnalysisDialogBase(String title, boolean isModal,
-			boolean isAlwaysOnTop) {
+			boolean wantPhasePlotButton, boolean wantHarmonicsButton) {
 		super(DocumentManager.findActiveWindow());
+		this.wantPhasePlotButton = wantPhasePlotButton;
+		this.wantHarmonicsButton = wantHarmonicsButton;
 		this.setTitle(title);
 		this.setModal(isModal);
 	}
@@ -71,7 +76,7 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 	 *            The dialog title.
 	 */
 	public PeriodAnalysisDialogBase(String title) {
-		this(title, false, false);
+		this(title, false, true, true);
 	}
 
 	/**
@@ -117,31 +122,38 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 		addNewPhasePlotButton(buttonPane);
 		addFindHarmomicsButton(buttonPane);
 		addDismissButton(buttonPane);
-		
+
 		return buttonPane;
 	}
 
 	protected void addNewPhasePlotButton(JPanel buttonPane) {
-		newPhasePlotButton = new JButton(LocaleProps.get("NEW_PHASE_PLOT_BUTTON"));
-		newPhasePlotButton.addActionListener(createNewPhasePlotButtonHandler());
-		newPhasePlotButton.setEnabled(false);
-		buttonPane.add(newPhasePlotButton);		
+		if (wantPhasePlotButton) {
+			newPhasePlotButton = new JButton(
+					LocaleProps.get("NEW_PHASE_PLOT_BUTTON"));
+			newPhasePlotButton
+					.addActionListener(createNewPhasePlotButtonHandler());
+			newPhasePlotButton.setEnabled(false);
+			buttonPane.add(newPhasePlotButton);
+		}
 	}
 
 	protected void addFindHarmomicsButton(JPanel buttonPane) {
-		findHarmonicsButton = new JButton(LocaleProps.get("FIND_HARMONICS_BUTTON"));
-		findHarmonicsButton
-				.addActionListener(createFindHarmonicsButtonHandler());
-		findHarmonicsButton.setEnabled(false);
-		buttonPane.add(findHarmonicsButton);
+		if (wantHarmonicsButton) {
+			findHarmonicsButton = new JButton(
+					LocaleProps.get("FIND_HARMONICS_BUTTON"));
+			findHarmonicsButton
+					.addActionListener(createFindHarmonicsButtonHandler());
+			findHarmonicsButton.setEnabled(false);
+			buttonPane.add(findHarmonicsButton);
+		}
 	}
 
 	protected void addDismissButton(JPanel buttonPane) {
 		JButton dismissButton = new JButton(LocaleProps.get("DISMISS_BUTTON"));
 		dismissButton.addActionListener(createDismissButtonHandler());
-		buttonPane.add(dismissButton);		
+		buttonPane.add(dismissButton);
 	}
-	
+
 	/**
 	 * Find all harmonics of the specified frequency in the data and return
 	 * them, including the fundamental itself.

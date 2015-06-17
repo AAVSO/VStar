@@ -90,7 +90,7 @@ public class WeightedWaveletZTransformResultDialog extends
 	public WeightedWaveletZTransformResultDialog(String title,
 			String chartTitle, WeightedWaveletZTransform wwt,
 			WWZCoordinateType rangeType) {
-		super(title, false, true);
+		super(title, false, true, false);
 
 		this.chartTitle = chartTitle;
 		this.wwt = wwt;
@@ -170,7 +170,6 @@ public class WeightedWaveletZTransformResultDialog extends
 
 	protected JPanel createButtonPanel() {
 		JPanel buttonPane = super.createButtonPanel();
-		findHarmonicsButton.setVisible(false);
 		return buttonPane;
 	}
 
@@ -229,7 +228,6 @@ public class WeightedWaveletZTransformResultDialog extends
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			public void update(PeriodAnalysisSelectionMessage info) {
 				setNewPhasePlotButtonState(true);
-				setFindHarmonicsButtonState(true);
 				selectedDataPoint = info.getDataPoint();
 			}
 
