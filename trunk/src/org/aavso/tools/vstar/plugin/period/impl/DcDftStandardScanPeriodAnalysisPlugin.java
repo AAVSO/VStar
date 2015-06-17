@@ -23,6 +23,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
@@ -32,6 +33,13 @@ import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 public class DcDftStandardScanPeriodAnalysisPlugin extends
 		DcDftPeriodAnalysisPluginBase {
 
+	/**
+	 * Constructor
+	 */
+	public DcDftStandardScanPeriodAnalysisPlugin() {
+		super(PeriodAnalysisCoordinateType.PERIOD);
+	}
+	
 	@Override
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException {

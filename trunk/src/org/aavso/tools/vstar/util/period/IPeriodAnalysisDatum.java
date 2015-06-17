@@ -45,4 +45,13 @@ public interface IPeriodAnalysisDatum {
 	 * @return the amplitude
 	 */
 	public double getAmplitude();
+	
+	/**
+	 * Retrieve a value by coordinate type.
+	 * 
+	 * @param type
+	 *            The coordinate type.
+	 * @return The value.
+	 */
+	public double getValue(PeriodAnalysisCoordinateType type);
 }

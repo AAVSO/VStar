@@ -27,6 +27,7 @@ import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
@@ -49,6 +50,7 @@ public class DcDftPeriodRangePeriodAnalysisPlugin extends
 	 * Constructor
 	 */
 	public DcDftPeriodRangePeriodAnalysisPlugin() {
+		super(PeriodAnalysisCoordinateType.PERIOD);
 		currLoPeriod = null;
 		currHiPeriod = null;
 		currResolution = null;

@@ -48,6 +48,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * frequency. When an entry is selected, the cross-hair of the corresponding
  * plot is moved to pin-point the frequency.
  */
+@SuppressWarnings("serial")
 public class HarmonicInfoDialog extends JDialog implements
 		ListSelectionListener {
 

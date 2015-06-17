@@ -246,24 +246,24 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 					double x = Double.NaN;
 					double y = Double.NaN;
 
-					// TODO: convert to calls into map
+					// TODO: generalise to simply use domain type
 					
 					if (model.getDomainType() == PeriodAnalysisCoordinateType.FREQUENCY) {
 						x = info.getDataPoint().getFrequency();
 					} else if (model.getDomainType() == PeriodAnalysisCoordinateType.PERIOD) {
 						x = info.getDataPoint().getPeriod();
 					} else {
-						assert false;
+						x = info.getDataPoint().getValue(model.getDomainType());
 					}
 
-					// TODO: convert to calls into map
+					// TODO: generalise to simply use range type
 
 					if (model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
 						y = info.getDataPoint().getPower();
 					} else if (model.getRangeType() == PeriodAnalysisCoordinateType.AMPLITUDE) {
 						y = info.getDataPoint().getAmplitude();
 					} else {
-						assert false;
+						y = info.getDataPoint().getValue(model.getRangeType());
 					}
 
 					chart.getXYPlot().setDomainCrosshairValue(x);
@@ -331,16 +331,16 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		periodAnalysisRefinementListener = createRefinementListener();
 		Mediator.getInstance().getPeriodAnalysisRefinementNotifier()
 				.addListener(periodAnalysisRefinementListener);
-
-		if (model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
+		
+//		if (model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
 			// We listen for harmonic search result messages if this is a power
 			// spectrum.
 			harmonicSearchListener = createHarmonicSearchListener();
 			Mediator.getInstance().getHarmonicSearchNotifier().addListener(
 					harmonicSearchListener);
-		} else {
-			harmonicSearchListener = null;
-		}
+//		} else {
+//			harmonicSearchListener = null;
+//		}
 	}
 
 	@Override

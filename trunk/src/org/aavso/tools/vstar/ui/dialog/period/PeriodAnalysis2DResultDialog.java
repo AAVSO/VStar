@@ -49,12 +49,6 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
 @SuppressWarnings("serial")
 public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
-	private final static PeriodAnalysisCoordinateType[] DATA_COLUMN_TYPES = {
-			PeriodAnalysisCoordinateType.FREQUENCY,
-			PeriodAnalysisCoordinateType.PERIOD,
-			PeriodAnalysisCoordinateType.POWER,
-			PeriodAnalysisCoordinateType.AMPLITUDE };
-
 	private String seriesTitle;
 	private String chartTitle;
 
@@ -75,7 +69,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	private Listener<PeriodAnalysisSelectionMessage> periodAnalysisListener;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * @param title
 	 *            The title for the chart.
@@ -83,10 +77,21 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	 *            The source series sub-title for the chart.
 	 * @param algorithm
 	 *            The period analysis algorithm.
+	 * @param dataCoordTypes
+	 *            The period analysis coordinate types to be used in this
+	 *            dialog.
+	 * @param searchType
+	 *            The coordinate associated with the type of the search:
+	 *            frequency or period.
 	 */
 	public PeriodAnalysis2DResultDialog(String title, String seriesTitle,
-			IPeriodAnalysisAlgorithm algorithm) {
-		super(title, false, true);
+			IPeriodAnalysisAlgorithm algorithm,
+			PeriodAnalysisCoordinateType[] dataCoordTypes,
+			PeriodAnalysisCoordinateType searchType) {
+		super(title, false, true, true);
+
+		assert searchType == PeriodAnalysisCoordinateType.PERIOD
+				|| searchType == PeriodAnalysisCoordinateType.FREQUENCY;
 
 		selectedDataPoint = null;
 
@@ -97,32 +102,34 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 		this.algorithm = algorithm;
 
-		dataTableModel = new PeriodAnalysisDataTableModel(DATA_COLUMN_TYPES,
+		dataTableModel = new PeriodAnalysisDataTableModel(dataCoordTypes,
 				resultDataMap);
-		topHitsTableModel = new PeriodAnalysisDataTableModel(DATA_COLUMN_TYPES,
+		topHitsTableModel = new PeriodAnalysisDataTableModel(dataCoordTypes,
 				algorithm.getTopHits());
 
 		plotModels = new ArrayList<PeriodAnalysis2DPlotModel>();
 
-		// Frequency vs Power
-		plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
-				PeriodAnalysisCoordinateType.FREQUENCY,
-				PeriodAnalysisCoordinateType.POWER, false));
+		if (searchType == PeriodAnalysisCoordinateType.PERIOD) {
+			// Period vs Power
+			plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+					PeriodAnalysisCoordinateType.PERIOD,
+					PeriodAnalysisCoordinateType.POWER, false));
 
-		// Frequency vs Amplitude
-		plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
-				PeriodAnalysisCoordinateType.FREQUENCY,
-				PeriodAnalysisCoordinateType.AMPLITUDE, false));
+			// Period vs Amplitude
+			plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+					PeriodAnalysisCoordinateType.PERIOD,
+					PeriodAnalysisCoordinateType.AMPLITUDE, false));
+		} else if (searchType == PeriodAnalysisCoordinateType.FREQUENCY) {
+			// Frequency vs Power
+			plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+					PeriodAnalysisCoordinateType.FREQUENCY,
+					PeriodAnalysisCoordinateType.POWER, false));
 
-		// Period vs Power
-		// plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
-		// PeriodAnalysisCoordinateType.PERIOD,
-		// PeriodAnalysisCoordinateType.POWER, false));
-
-		// Period vs Amplitude
-		// plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
-		// PeriodAnalysisCoordinateType.PERIOD,
-		// PeriodAnalysisCoordinateType.AMPLITUDE, false));
+			// Frequency vs Amplitude
+			plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
+					PeriodAnalysisCoordinateType.FREQUENCY,
+					PeriodAnalysisCoordinateType.AMPLITUDE, false));
+		}
 
 		prepareDialog();
 
@@ -150,7 +157,9 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 							permitlogarithmic);
 
 			PeriodAnalysis2DChartPane topHitsPlot = PeriodAnalysisComponentFactory
-					.createScatterPlot(chartTitle, seriesTitle,
+					.createScatterPlot(
+							chartTitle,
+							seriesTitle,
 							new PeriodAnalysis2DPlotModel(algorithm
 									.getTopHits(), model.getDomainType(), model
 									.getRangeType(), model.isLogarithmic()),
@@ -193,23 +202,23 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	}
 
 	// The new phase plot button will only be enabled when a period
-	// analysis selection message has been received by this class,
+	// analysis selection messOage has been received by this class,
 	// so we *know* without having to ask that there is a selected
 	// row in the data table.
 	@Override
 	protected void newPhasePlotButtonAction() {
 		PeriodChangeMessage message = new PeriodChangeMessage(this,
 				selectedDataPoint.getPeriod());
-		Mediator.getInstance().getPeriodChangeNotifier().notifyListeners(
-				message);
+		Mediator.getInstance().getPeriodChangeNotifier()
+				.notifyListeners(message);
 	}
 
 	@Override
 	protected void findHarmonicsButtonAction() {
 		List<Double> data = algorithm.getResultSeries().get(
 				PeriodAnalysisCoordinateType.FREQUENCY);
-		List<Harmonic> harmonics = findHarmonics(selectedDataPoint
-				.getFrequency(), data);
+		List<Harmonic> harmonics = findHarmonics(
+				selectedDataPoint.getFrequency(), data);
 		HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
 				harmonics, selectedDataPoint);
 		Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
