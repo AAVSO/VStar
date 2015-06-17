@@ -161,10 +161,9 @@ public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
 	@SuppressWarnings("serial")
 	class PeriodAnalysisDialog extends PeriodAnalysisDialogBase {
 		PeriodAnalysisDialog() {
-			super(NAME);
+			super(NAME, false, true, false);
 			prepareDialog();
 			this.setNewPhasePlotButtonState(false);
-			this.setFindHarmonicsButtonState(false);
 		}
 
 		@Override
