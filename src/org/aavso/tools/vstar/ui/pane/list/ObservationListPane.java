@@ -58,6 +58,8 @@ import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMes
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.InvalidObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
+import org.aavso.tools.vstar.util.comparator.DoubleAsStringComparator;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -77,6 +79,7 @@ public class ObservationListPane extends JPanel implements
 	private TableRowSorter<ValidObservationTableModel> rowSorter;
 	private VisibleSeriesRowFilter rowFilter;
 	private RowFilter<IOrderedObservationSource, Integer> currFilter;
+	private JButton selectAllButton;
 	private JButton createFilterButton;
 
 	private ListSearchPane<ValidObservationTableModel> searchPanel;
@@ -130,11 +133,20 @@ public class ObservationListPane extends JPanel implements
 			validDataTable.setRowSelectionAllowed(true);
 
 			// Enable table sorting by clicking on a column.
+			// We need to treat JD, magnitude, and uncertainty as doubles.
 			rowSorter = new TableRowSorter<ValidObservationTableModel>(
 					validDataModel);
-			// int magColIndex = validDataModel.getColumnInfoSource()
-			// .getColumnIndexByName("Magnitude");
-			// rowSorter.setComparator(magColIndex, new MagnitudeComparator());
+			int jdColIndex = validDataModel.getColumnInfoSource()
+					.getColumnIndexByName("Julian Day");
+			rowSorter.setComparator(jdColIndex, new DoubleAsStringComparator());
+			int magColIndex = validDataModel.getColumnInfoSource()
+					.getColumnIndexByName("Magnitude");
+			rowSorter
+					.setComparator(magColIndex, new DoubleAsStringComparator());
+			int uncertaintyColIndex = validDataModel.getColumnInfoSource()
+					.getColumnIndexByName("Uncertainty");
+			rowSorter.setComparator(uncertaintyColIndex,
+					new DoubleAsStringComparator());
 			validDataTable.setRowSorter(rowSorter);
 
 			// Add a row filter that shows data from series that are visible in
@@ -201,8 +213,8 @@ public class ObservationListPane extends JPanel implements
 
 		// Listen for observation selection events. Notice that this class
 		// also generates these, but ignores them if sent by itself.
-		Mediator.getInstance().getObservationSelectionNotifier().addListener(
-				createObservationSelectionListener());
+		Mediator.getInstance().getObservationSelectionNotifier()
+				.addListener(createObservationSelectionListener());
 
 		// List row selection handling.
 		this.validDataTable.getSelectionModel().addListSelectionListener(this);
@@ -244,9 +256,21 @@ public class ObservationListPane extends JPanel implements
 				validDataModel, rowSorter);
 		panel.add(searchPanel);
 
-		createFilterButton = new JButton("Create Selection Filter");
-		createFilterButton.setEnabled(false);
 		final JPanel parent = this;
+
+		selectAllButton = new JButton(
+				LocaleProps.get("SELECT_ALL"));
+		selectAllButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				validDataTable.selectAll();
+			}
+		});
+		panel.add(selectAllButton);
+		
+		createFilterButton = new JButton(
+				LocaleProps.get("CREATE_SELECTION_FILTER"));
+		createFilterButton.setEnabled(false);
 		createFilterButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -279,7 +303,8 @@ public class ObservationListPane extends JPanel implements
 
 						int i = 0;
 						for (ValidObservation ob : selectedObs) {
-							String jdStr = NumericPrecisionPrefs.formatTime(ob.getJD());
+							String jdStr = NumericPrecisionPrefs.formatTime(ob
+									.getJD());
 							buf.append("JD = " + jdStr);
 							if (i < selectedObs.size() - 1) {
 								buf.append(" AND\n");
