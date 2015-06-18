@@ -1423,6 +1423,12 @@ public class MenuBar extends JMenuBar {
 			public void update(NewStarMessage msg) {
 				newStarMessage = msg;
 
+				editUndoItem.setText(UNDO);
+				editUndoItem.setEnabled(false);
+
+				editRedoItem.setText(REDO);
+				editRedoItem.setEnabled(false);
+
 				editExcludeSelectionItem.setEnabled(false);
 
 				viewPhasePlotItem.setEnabled(false);

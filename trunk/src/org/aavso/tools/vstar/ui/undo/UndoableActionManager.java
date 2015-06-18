@@ -151,6 +151,8 @@ public class UndoableActionManager {
 			@Override
 			public void update(NewStarMessage info) {
 				selectedObs.clear();
+				undoStack.clear();
+				redoStack.clear();
 			}
 
 			@Override
@@ -169,7 +171,7 @@ public class UndoableActionManager {
 				selectedObs.clear();
 				selectedObs.addAll(info.getObservations());
 			}
-			
+
 			@Override
 			public boolean canBeRemoved() {
 				return false;
