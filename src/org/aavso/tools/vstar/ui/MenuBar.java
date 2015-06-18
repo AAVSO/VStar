@@ -65,6 +65,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PanRequestMessage;
@@ -123,7 +124,8 @@ public class MenuBar extends JMenuBar {
 	public static final String PAN_DOWN = LocaleProps.get("VIEW_MENU_PAN_DOWN");
 	public static final String FILTER = LocaleProps.get("VIEW_MENU_FILTER");
 	public static final String FILTERS = LocaleProps.get("VIEW_MENU_FILTERS");
-	public static final String FILTER_FROM_PLOT = LocaleProps.get("VIEW_MENU_FILTER_FROM_PLOT");
+	public static final String FILTER_FROM_PLOT = LocaleProps
+			.get("VIEW_MENU_FILTER_FROM_PLOT");
 	public static final String NO_FILTER = LocaleProps
 			.get("VIEW_MENU_NO_FILTER");
 
@@ -275,6 +277,9 @@ public class MenuBar extends JMenuBar {
 
 		this.mediator.getObservationSelectionNotifier().addListener(
 				createObservationSelectionListener());
+
+		this.mediator.getMultipleObservationSelectionNotifier().addListener(
+				createMultipleObservationSelectionListener());
 
 		this.mediator.getUndoActionNotifier().addListener(
 				createUndoActionListener());
@@ -481,11 +486,12 @@ public class MenuBar extends JMenuBar {
 
 		viewFilterFromPlotItem = new JMenuItem(FILTER_FROM_PLOT);
 		viewFilterFromPlotItem.setEnabled(false);
-		viewFilterFromPlotItem.addActionListener(createFilterFromPlotListener());
-		viewMenu.add(viewFilterFromPlotItem);		
-		
-		viewCustomFilterMenu = new JMenu(LocaleProps
-				.get("VIEW_MENU_CUSTOM_FILTERS"));
+		viewFilterFromPlotItem
+				.addActionListener(createFilterFromPlotListener());
+		viewMenu.add(viewFilterFromPlotItem);
+
+		viewCustomFilterMenu = new JMenu(
+				LocaleProps.get("VIEW_MENU_CUSTOM_FILTERS"));
 		viewCustomFilterMenu.setEnabled(false);
 
 		ActionListener customFilterListener = createCustomFilterListener();
@@ -538,14 +544,14 @@ public class MenuBar extends JMenuBar {
 
 		menuItemNameToPeriodAnalysisPlugin = new TreeMap<String, PeriodAnalysisPluginBase>();
 		lastGroup = addAnalysisPlugins(analysisMenu,
-				createPeriodSearchListener(), PluginLoader
-						.getPeriodAnalysisPlugins(),
+				createPeriodSearchListener(),
+				PluginLoader.getPeriodAnalysisPlugins(),
 				menuItemNameToPeriodAnalysisPlugin, lastGroup);
 
 		menuItemNameToModelCreatorPlugin = new TreeMap<String, ModelCreatorPluginBase>();
 		lastGroup = addAnalysisPlugins(analysisMenu,
-				createModelCreatorListener(), PluginLoader
-						.getModelCreatorPlugins(),
+				createModelCreatorListener(),
+				PluginLoader.getModelCreatorPlugins(),
 				menuItemNameToModelCreatorPlugin, lastGroup);
 
 		this.add(analysisMenu);
@@ -678,8 +684,10 @@ public class MenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					// Prompt user for star and JD range selection.
-					Mediator.getUI().getStatusPane().setMessage(
-							LocaleProps.get("STATUS_PANE_SELECT_STAR"));
+					Mediator.getUI()
+							.getStatusPane()
+							.setMessage(
+									LocaleProps.get("STATUS_PANE_SELECT_STAR"));
 					StarSelectorDialog starSelectorDialog = StarSelectorDialog
 							.getInstance();
 					starSelectorDialog.showDialog();
@@ -995,10 +1003,10 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mediator.createFilterFromPlot();
-			}			
+			}
 		};
 	}
-	
+
 	/**
 	 * Returns the action listener to be invoked for Custom Filter menu item
 	 * selections.
@@ -1193,8 +1201,10 @@ public class MenuBar extends JMenuBar {
 					public void execute() {
 						try {
 							Authenticator.getInstance().authenticate();
-							Mediator.getUI().getStatusPane().setMessage(
-									"Initialising Plug-in Manager...");
+							Mediator.getUI()
+									.getStatusPane()
+									.setMessage(
+											"Initialising Plug-in Manager...");
 							manager.init();
 							new PluginManagementDialog(manager);
 							Mediator.getUI().getStatusPane().setMessage("");
@@ -1300,11 +1310,13 @@ public class MenuBar extends JMenuBar {
 							try {
 								desktop.browse(url.toURI());
 							} catch (IOException e) {
-								MessageBox.showErrorDialog("VStar Help",
+								MessageBox.showErrorDialog(
+										"VStar Help",
 										"Error reading from '"
 												+ helpURL.toString() + "'");
 							} catch (URISyntaxException e) {
-								MessageBox.showErrorDialog("VStar Help",
+								MessageBox.showErrorDialog(
+										"VStar Help",
 										"Invalid address: '"
 												+ helpURL.toString() + "'");
 							}
@@ -1419,7 +1431,7 @@ public class MenuBar extends JMenuBar {
 				viewZoomOutItem.setEnabled(false);
 				viewZoomToFitItem.setEnabled(false);
 				viewFiltersItem.setEnabled(false);
-				
+
 				analysisPhasePlotItem.setEnabled(true);
 				analysisModelsItem.setEnabled(false);
 				analysisPhasePlotsItem.setEnabled(false);
@@ -1435,18 +1447,13 @@ public class MenuBar extends JMenuBar {
 		};
 	}
 
-	// Returns an observation selection listener that enables certain menu
-	// items and collects information about the selection.
+	// Returns a single observation selection listener that enables certain menu
+	// items.
 	private Listener<ObservationSelectionMessage> createObservationSelectionListener() {
 		return new Listener<ObservationSelectionMessage>() {
 			@Override
 			public void update(ObservationSelectionMessage info) {
-				editExcludeSelectionItem.setEnabled(true);
-
-				viewObDetailsItem.setEnabled(true);
-				viewZoomInItem.setEnabled(true);
-				viewZoomOutItem.setEnabled(true);
-				viewZoomToFitItem.setEnabled(true);
+				commonObservationSelectionActions();
 			}
 
 			@Override
@@ -1454,6 +1461,31 @@ public class MenuBar extends JMenuBar {
 				return false;
 			}
 		};
+	}
+
+	// Returns a multiple observation selection listener that enables certain
+	// menu items.
+	private Listener<MultipleObservationSelectionMessage> createMultipleObservationSelectionListener() {
+		return new Listener<MultipleObservationSelectionMessage>() {
+			@Override
+			public void update(MultipleObservationSelectionMessage info) {
+				commonObservationSelectionActions();
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	private void commonObservationSelectionActions() {
+		editExcludeSelectionItem.setEnabled(true);
+
+		viewObDetailsItem.setEnabled(true);
+		viewZoomInItem.setEnabled(true);
+		viewZoomOutItem.setEnabled(true);
+		viewZoomToFitItem.setEnabled(true);
 	}
 
 	// Returns an undo/redo action message listener that is used to update the
