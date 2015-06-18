@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -258,16 +259,20 @@ public class ObservationListPane extends JPanel implements
 
 		final JPanel parent = this;
 
-		selectAllButton = new JButton(
-				LocaleProps.get("SELECT_ALL"));
+		selectAllButton = new JButton(LocaleProps.get("SELECT_ALL"));
 		selectAllButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				validDataTable.selectAll();
+				ListSelectionModel selModel = validDataTable
+						.getSelectionModel();
+				valueChanged(new ListSelectionEvent(selModel, selModel
+						.getMinSelectionIndex(), selModel
+						.getMaxSelectionIndex(), false));
 			}
 		});
 		panel.add(selectAllButton);
-		
+
 		createFilterButton = new JButton(
 				LocaleProps.get("CREATE_SELECTION_FILTER"));
 		createFilterButton.setEnabled(false);
