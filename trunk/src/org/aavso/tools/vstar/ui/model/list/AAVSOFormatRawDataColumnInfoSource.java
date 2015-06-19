@@ -49,14 +49,15 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final int HJD_COLUMN = 16;
 	private static final int HQ_UNCERTAINTY_COLUMN = 17;
 	private static final int MTYPE_COLUMN = 18;
-	private static final int GROUP_COLUMN = 19;
-	private static final int AFFILIATION_COLUMN = 20;
-	private static final int ADS_REFERENCE_COLUMN = 21;
-	private static final int DIGITIZER_COLUMN = 22;
-	private static final int CREDIT_COLUMN = 23;
-	private static final int DISCREPANT_COLUMN = 24;
-	private static final int NAME_COLUMN = 25;
-	private static final int LINE_NUM_COLUMN = 26;
+	private static final int OBSTYPE_COLUMN = 19;
+	private static final int GROUP_COLUMN = 20;
+	private static final int AFFILIATION_COLUMN = 21;
+	private static final int ADS_REFERENCE_COLUMN = 22;
+	private static final int DIGITIZER_COLUMN = 23;
+	private static final int CREDIT_COLUMN = 24;
+	private static final int DISCREPANT_COLUMN = 25;
+	private static final int NAME_COLUMN = 26;
+	private static final int LINE_NUM_COLUMN = 27;
 
 	private static final String JD_COLUMN_NAME = "Julian Day";
 	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
@@ -77,6 +78,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final String HJD_COLUMN_NAME = "HJD";
 	private static final String HQ_UNCERTAINTY_COLUMN_NAME = "HQ Uncertainty";
 	private static final String MTYPE_COLUMN_NAME = "MType";
+	private static final String OBSTYPE_COLUMN_NAME = "Obs Type";
 	private static final String GROUP_COLUMN_NAME = "Group";
 	private static final String AFFILIATION_COLUMN_NAME = "Affiliation";
 	private static final String ADS_REFERENCE_COLUMN_NAME = "ADS Reference";
@@ -109,6 +111,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		COLUMN_NAMES.put(HQ_UNCERTAINTY_COLUMN_NAME, HQ_UNCERTAINTY_COLUMN);
 		COLUMN_NAMES.put(AFFILIATION_COLUMN_NAME, AFFILIATION_COLUMN);
 		COLUMN_NAMES.put(MTYPE_COLUMN_NAME, MTYPE_COLUMN);
+		COLUMN_NAMES.put(OBSTYPE_COLUMN_NAME, OBSTYPE_COLUMN);
 		COLUMN_NAMES.put(DISCREPANT_COLUMN_NAME, DISCREPANT_COLUMN);
 		COLUMN_NAMES.put(NAME_COLUMN_NAME, NAME_COLUMN);
 		COLUMN_NAMES.put(LINE_NUM_COLUMN_NAME, LINE_NUM_COLUMN);
@@ -197,6 +200,9 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case MTYPE_COLUMN:
 			columnName = MTYPE_COLUMN_NAME;
 			break;
+		case OBSTYPE_COLUMN:
+			columnName = OBSTYPE_COLUMN_NAME;
+			break;
 		case AFFILIATION_COLUMN:
 			columnName = AFFILIATION_COLUMN_NAME;
 			break;
@@ -267,6 +273,8 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		case HQ_UNCERTAINTY_COLUMN:
 			break;
 		case MTYPE_COLUMN:
+			break;
+		case OBSTYPE_COLUMN:
 			break;
 		case GROUP_COLUMN:
 			break;
@@ -360,6 +368,9 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			break;
 		case MTYPE_COLUMN:
 			value = ob.getMType() == null ? "" : ob.getMType().toString();
+			break;
+		case OBSTYPE_COLUMN:
+			value = ob.getObsType() == null ? "" : ob.getObsType().toString();
 			break;
 		case GROUP_COLUMN:
 			value = ob.getGroup() == null ? "" : ob.getGroup();

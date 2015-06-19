@@ -95,7 +95,7 @@ public class ValidObservation extends Observation {
 
 	private MTypeType mType = MTypeType.STD;
 
-	private ObsType obsType = null;
+	private ObsType obsType = ObsType.UNKNOWN;
 
 	// Phase values will be computed later, if a phase plot is requested.
 	// They may change over the lifetime of a ValidObservation instance
