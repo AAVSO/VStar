@@ -36,8 +36,10 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  */
 public class InViewObservationFilter {
 
-	private double lowerBound;
-	private double upperBound;
+	private double lowerTimeBound;
+	private double upperTimeBound;
+	private double lowerMagBound;
+	private double upperMagBound;
 
 	private ObservationPlotModel model;
 
@@ -54,18 +56,24 @@ public class InViewObservationFilter {
 		ObservationAndMeanPlotPane plotPane = Mediator.getInstance()
 				.getPlotPane(analysisType);
 
-		lowerBound = plotPane.getChartPanel().getChart().getXYPlot()
+		lowerTimeBound = plotPane.getChartPanel().getChart().getXYPlot()
 				.getDomainAxis().getRange().getLowerBound();
 
-		upperBound = plotPane.getChartPanel().getChart().getXYPlot()
+		upperTimeBound = plotPane.getChartPanel().getChart().getXYPlot()
 				.getDomainAxis().getRange().getUpperBound();
 
-		seriesListStr = "";		
+		lowerMagBound = plotPane.getChartPanel().getChart().getXYPlot()
+				.getRangeAxis().getRange().getLowerBound();
+
+		upperMagBound = plotPane.getChartPanel().getChart().getXYPlot()
+				.getRangeAxis().getRange().getUpperBound();
+
+		seriesListStr = "";
 	}
-	
+
 	/**
-	 * Creates a filter of observations visible in the range and sends a filtered
-	 * observation message to be consumed by listeners (plots, tables).
+	 * Creates a filter of observations visible in the range and sends a
+	 * filtered observation message to be consumed by listeners (plots, tables).
 	 */
 	public void execute() {
 		filter();
@@ -75,15 +83,20 @@ public class InViewObservationFilter {
 			seriesListStr = seriesListStr.substring(0,
 					seriesListStr.length() - 2);
 		}
-		
+
 		if (filteredObs.size() != 0) {
 
 			IFilterDescription desc = new IFilterDescription() {
 
-				private String lowerBoundStr = NumericPrecisionPrefs
-						.formatTime(lowerBound);
-				private String upperBoundStr = NumericPrecisionPrefs
-						.formatTime(upperBound);
+				private String lowerTimeBoundStr = NumericPrecisionPrefs
+						.formatTime(lowerTimeBound);
+				private String upperTimeBoundStr = NumericPrecisionPrefs
+						.formatTime(upperTimeBound);
+
+				private String lowerMagBoundStr = NumericPrecisionPrefs
+						.formatMag(lowerMagBound);
+				private String upperMagBoundStr = NumericPrecisionPrefs
+						.formatMag(upperMagBound);
 
 				@Override
 				public boolean isParsable() {
@@ -92,15 +105,18 @@ public class InViewObservationFilter {
 
 				@Override
 				public String getFilterName() {
-					return String.format(
-							"Observations in range %s..%s in [%s]",
-							lowerBoundStr, upperBoundStr, seriesListStr);
+					return String.format("Observations in time range %s..%s "
+							+ "and magnitude range %s..%s in [%s]",
+							lowerTimeBoundStr, upperTimeBoundStr,
+							lowerMagBoundStr, upperMagBoundStr, seriesListStr);
 				}
 
 				@Override
 				public String getFilterDescription() {
-					return "JD >= " + lowerBoundStr + " AND JD <= "
-							+ upperBoundStr + " AND series in ["
+					return "Time >= " + lowerTimeBoundStr + " AND Time <= "
+							+ upperTimeBoundStr + " AND Mag >= "
+							+ lowerMagBoundStr + " AND Mag <= "
+							+ upperMagBoundStr + " AND series in ["
 							+ seriesListStr + "]";
 				}
 			};
@@ -129,12 +145,19 @@ public class InViewObservationFilter {
 			seriesListStr += series.getShortName() + ", ";
 
 			for (ValidObservation ob : model.getObservations(series)) {
-				if (ob.getJD() < lowerBound) {
+				// Skip to the start of the time range and stop when we exceed
+				// the upper bound of the time range.
+				if (ob.getJD() < lowerTimeBound) {
 					continue;
-				} else if (ob.getJD() > upperBound) {
+				} else if (ob.getJD() > upperTimeBound) {
 					break;
 				} else {
-					filteredObs.add(ob);
+					// Include observation in filtered subset if in the
+					// view's magnitude range.
+					if (ob.getMag() >= lowerMagBound
+							&& ob.getMag() <= upperMagBound) {
+						filteredObs.add(ob);
+					}
 				}
 			}
 		}
