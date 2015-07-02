@@ -596,22 +596,28 @@ public class MenuBar extends JMenuBar {
 		toolRunScript.addActionListener(createRunScriptListener());
 		toolMenu.add(toolRunScript);
 
-		toolMenu.addSeparator();
+		// toolMenu.addSeparator();
 		// }
 
-		ActionListener obsToolMenuItemListener = createObsToolMenuItemListener();
+		List<ObservationToolPluginBase> obsToolPlugins = PluginLoader
+				.getObservationToolPlugins();
 
-		menuItemNameToObsToolPlugin = new TreeMap<String, ObservationToolPluginBase>();
+		if (!obsToolPlugins.isEmpty()) {
+			toolMenu.addSeparator();
 
-		for (ObservationToolPluginBase plugin : PluginLoader
-				.getObservationToolPlugins()) {
-			String itemName = plugin.getDisplayName() + "...";
+			ActionListener obsToolMenuItemListener = createObsToolMenuItemListener();
 
-			JMenuItem toolMenuItem = new JMenuItem(itemName);
-			toolMenuItem.addActionListener(obsToolMenuItemListener);
-			toolMenu.add(toolMenuItem);
+			menuItemNameToObsToolPlugin = new TreeMap<String, ObservationToolPluginBase>();
 
-			menuItemNameToObsToolPlugin.put(itemName, plugin);
+			for (ObservationToolPluginBase plugin : obsToolPlugins) {
+				String itemName = plugin.getDisplayName() + "...";
+
+				JMenuItem toolMenuItem = new JMenuItem(itemName);
+				toolMenuItem.addActionListener(obsToolMenuItemListener);
+				toolMenu.add(toolMenuItem);
+
+				menuItemNameToObsToolPlugin.put(itemName, plugin);
+			}
 		}
 
 		List<GeneralToolPluginBase> genToolPlugins = PluginLoader
