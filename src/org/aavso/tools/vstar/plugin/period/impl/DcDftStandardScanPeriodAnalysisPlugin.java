@@ -37,7 +37,7 @@ public class DcDftStandardScanPeriodAnalysisPlugin extends
 	 * Constructor
 	 */
 	public DcDftStandardScanPeriodAnalysisPlugin() {
-		super(PeriodAnalysisCoordinateType.PERIOD);
+		super(PeriodAnalysisCoordinateType.FREQUENCY);
 	}
 	
 	@Override
