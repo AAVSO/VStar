@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.dialog.plugin.manager;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -44,7 +45,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 @SuppressWarnings("serial")
 public class PluginManagementDialog extends JDialog implements
 		ListSelectionListener {
-	
+
 	private PluginManager manager;
 
 	private JList pluginList;
@@ -54,6 +55,7 @@ public class PluginManagementDialog extends JDialog implements
 	private JButton installButton;
 	private JButton updateButton;
 	private JButton deleteButton;
+	private JButton deleteAllButton;
 
 	/**
 	 * Constructor
@@ -62,7 +64,7 @@ public class PluginManagementDialog extends JDialog implements
 		super(DocumentManager.findActiveWindow());
 		// TODO: localise
 		this.setTitle("Plug-in Manager");
-		
+
 		this.manager = manager;
 
 		JPanel topPane = new JPanel();
@@ -142,6 +144,11 @@ public class PluginManagementDialog extends JDialog implements
 		deleteButton.setEnabled(false);
 		panel.add(deleteButton);
 
+		deleteAllButton = new JButton("Delete All");
+		deleteAllButton.addActionListener(createDeleteAllButtonListener());
+		deleteAllButton.setEnabled(false);
+		panel.add(deleteAllButton);
+
 		this.getRootPane().setDefaultButton(dismissButton);
 
 		return panel;
@@ -153,17 +160,21 @@ public class PluginManagementDialog extends JDialog implements
 		installButton.setEnabled(false);
 		updateButton.setEnabled(false);
 		deleteButton.setEnabled(false);
+		deleteAllButton.setEnabled(false);
 
 		if (manager.isLocal(desc) && !manager.isRemote(desc)) {
 			deleteButton.setEnabled(true);
+			deleteAllButton.setEnabled(true);
 		} else if (!manager.isLocal(desc) && manager.isRemote(desc)) {
 			installButton.setEnabled(true);
 		} else if (manager.isLocal(desc) && manager.isRemote(desc)) {
 			if (manager.arePluginsEqual(desc)) {
 				deleteButton.setEnabled(true);
+				deleteAllButton.setEnabled(true);
 			} else {
 				updateButton.setEnabled(true);
 				deleteButton.setEnabled(true);
+				deleteAllButton.setEnabled(true);
 			}
 		}
 	}
@@ -199,7 +210,8 @@ public class PluginManagementDialog extends JDialog implements
 						manager, "Performing Plug-in Install Operation") {
 					@Override
 					public void execute() {
-						manager.installPlugin(desc, PluginManager.Operation.INSTALL);
+						manager.installPlugin(desc,
+								PluginManager.Operation.INSTALL);
 						setButtonStates(desc);
 					}
 				};
@@ -218,7 +230,8 @@ public class PluginManagementDialog extends JDialog implements
 						manager, "Performing Plug-in Update Operation") {
 					@Override
 					public void execute() {
-						manager.installPlugin(desc, PluginManager.Operation.UPDATE);
+						manager.installPlugin(desc,
+								PluginManager.Operation.UPDATE);
 						setButtonStates(desc);
 					}
 				};
@@ -242,7 +255,7 @@ public class PluginManagementDialog extends JDialog implements
 					}
 				};
 				Mediator.getInstance().performPluginManagerOperation(op);
-				
+
 				// If not also remote, remove from list.
 				if (!manager.isRemote(desc)) {
 					pluginListModel.remove(index);
@@ -250,4 +263,34 @@ public class PluginManagementDialog extends JDialog implements
 			}
 		};
 	}
+
+	// Return a listener for the "Delete All" button.
+	private ActionListener createDeleteAllButtonListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				final Set<String> descs = new HashSet<String>(
+						manager.getLocalDescriptions());
+
+				PluginManagementOperation op = new PluginManagementOperation(
+						manager, "Performing Plug-in Delete All Operation") {
+					@Override
+					public void execute() {
+						manager.deleteAllPlugins();
+						for (String desc : descs) {
+							setButtonStates(desc);
+						}
+					}
+				};
+				Mediator.getInstance().performPluginManagerOperation(op);
+
+				// If not also remote, remove from list.
+				for (String desc : descs) {
+					if (!manager.isRemote(desc)) {
+						pluginListModel.remove(pluginListModel.indexOf(desc));
+					}
+				}
+			}
+		};
+	}
+
 }

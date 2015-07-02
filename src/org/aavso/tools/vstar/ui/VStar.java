@@ -24,6 +24,7 @@ import javax.swing.UIManager;
 
 import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.property.ApplicationProperties;
@@ -65,9 +66,12 @@ public class VStar {
 		}
 
 		processCmdLineArgs(args);
-		
-		if (loadPlugins) {
-			// Load plugins, if any exist and plugin loading is enabled.
+
+		// If there's no command-line option that says we shouldn't load
+		// plug-ins and the plug-in manager says it's okay to load them, then go
+		// ahead.
+		if (loadPlugins && PluginManager.shouldLoadPlugins()) {
+			// Load plug-ins, if any exist and plug-in loading is enabled.
 			PluginLoader.loadPlugins();
 		}
 
@@ -89,10 +93,10 @@ public class VStar {
 			final ApplicationProperties appProps = new ApplicationProperties(
 					frame);
 
-			frame.setSize(appProps.getMainWdwWidth(), appProps
-					.getMainWdwHeight());
-			frame.setLocation(appProps.getMainWdwUpperLeftX(), appProps
-					.getMainWdwUpperLeftY());
+			frame.setSize(appProps.getMainWdwWidth(),
+					appProps.getMainWdwHeight());
+			frame.setLocation(appProps.getMainWdwUpperLeftX(),
+					appProps.getMainWdwUpperLeftY());
 
 			frame.setVisible(true);
 
@@ -113,7 +117,8 @@ public class VStar {
 			Runtime.getRuntime().addShutdownHook(
 					new Thread(shutdownTask, "Application shutdown task"));
 		} catch (Throwable t) {
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "Error", t);
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+					"Error", t);
 		}
 	}
 
@@ -122,7 +127,8 @@ public class VStar {
 	 * than this, consideration should be given to using a library such as:
 	 * http://commons.apache.org/cli/
 	 * 
-	 * @param args The command-line arguments; may be empty.
+	 * @param args
+	 *            The command-line arguments; may be empty.
 	 */
 	private static void processCmdLineArgs(String[] args) {
 		for (String arg : args) {

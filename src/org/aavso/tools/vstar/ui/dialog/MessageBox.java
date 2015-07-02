@@ -263,4 +263,22 @@ public class MessageBox {
 			ScriptRunner.getInstance().setError(e.getLocalizedMessage());
 		}
 	}
+
+	/**
+	 * Pop-up a confirmation message dialog box and return the selection result.
+	 * 
+	 * @param title
+	 *            The title of the dialog.
+	 * @param msg
+	 *            The message that is the content of the dialog.
+	 * 
+	 * @return True if "yes" was selected, false if "no" was selected.
+	 */
+	public static boolean showConfirmDialog(String title, String msg) {
+		int result = JOptionPane.showConfirmDialog(
+				DocumentManager.findActiveWindow(), msg, title,
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+		return result == JOptionPane.YES_OPTION;
+	}
 }

@@ -37,6 +37,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	private SeriesSizeSelectionPane seriesSizePane;
 	private NumericPrecisionSelectionPane numericPrecisionPane;
 	private StarGroupManagementPane starGroupManagementPane;
+	private PluginSettingsPane pluginSettingsPane;
 	
 	/**
 	 * Constructor.
@@ -72,7 +73,10 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		tabs.addTab("Numeric Precision", numericPrecisionPane);
 		
 		starGroupManagementPane = new StarGroupManagementPane();
-		tabs.addTab("Star Groups", starGroupManagementPane);		
+		tabs.addTab("Star Groups", starGroupManagementPane);
+		
+		pluginSettingsPane = new PluginSettingsPane();
+		tabs.addTab("Plug-in Settings", pluginSettingsPane);
 
 		return tabs;
 	}
@@ -92,6 +96,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		seriesSizePane.update();
 		numericPrecisionPane.update();
 		starGroupManagementPane.update();
+		pluginSettingsPane.update();
 		
 		this.setVisible(false);
 	}

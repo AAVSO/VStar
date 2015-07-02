@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.prefs.Preferences;
 
 import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.ui.VStar;
@@ -59,8 +60,23 @@ public class PluginManager {
 
 	public final static String PLUGIN_LIBS_DIR = "vstar_plugin_libs";
 
+	private final static String PLUGIN_PREFS_PREFIX = "PLUGIN_";
+
 	public enum Operation {
 		INSTALL, UPDATE;
+	}
+
+	private String pluginBaseUrl;
+
+	private static Preferences prefs;
+
+	static {
+		// Create preferences node for plug-in management.
+		try {
+			prefs = Preferences.userNodeForPackage(PluginManager.class);
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
 	}
 
 	/**
@@ -116,7 +132,7 @@ public class PluginManager {
 	 * Constructor
 	 */
 	public PluginManager() {
-		// Nothing to do.
+		pluginBaseUrl = getPluginsBaseUrl();
 	}
 
 	/**
@@ -133,6 +149,66 @@ public class PluginManager {
 		retrieveRemotePluginInfo();
 		retrieveLocalPluginInfo();
 		determinePluginEquality();
+	}
+
+	/**
+	 * Should plug-ins be loaded according to preferences?
+	 */
+	public static boolean shouldLoadPlugins() {
+		boolean loadPlugins = true;
+
+		try {
+			loadPlugins = prefs.getBoolean(
+					PLUGIN_PREFS_PREFIX + "LOAD_PLUGINS", true);
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+
+		return loadPlugins;
+	}
+
+	/**
+	 * Set the load plug-ins preference.
+	 * 
+	 * @param state
+	 *            The true/false state to set.
+	 */
+	public static void setLoadPlugins(boolean state) {
+		try {
+			prefs.putBoolean(PLUGIN_PREFS_PREFIX + "LOAD_PLUGINS", state);
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+	}
+
+	/**
+	 * Return the plug-ins base URL according to preferences.
+	 */
+	public static String getPluginsBaseUrl() {
+		String baseUrl = DEFAULT_PLUGIN_BASE_URL_STR;
+
+		try {
+			baseUrl = prefs.get(PLUGIN_PREFS_PREFIX + "BASE_URL",
+					DEFAULT_PLUGIN_BASE_URL_STR);
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+
+		return baseUrl;
+	}
+
+	/**
+	 * Set the plug-ins base URL preference.
+	 * 
+	 * @param url
+	 *            The URL to set.
+	 */
+	public static void setPluginsBaseUrl(String url) {
+		try {
+			prefs.put(PLUGIN_PREFS_PREFIX + "BASE_URL", url);
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
 	}
 
 	/**
@@ -420,7 +496,7 @@ public class PluginManager {
 	 * of VStar.
 	 */
 	public void retrieveRemotePluginInfo() {
-		retrieveRemotePluginInfo(DEFAULT_PLUGIN_BASE_URL_STR);
+		retrieveRemotePluginInfo(pluginBaseUrl);
 	}
 
 	/**
@@ -581,8 +657,8 @@ public class PluginManager {
 		File pluginJarPath = new File(pluginDirPath, jarName);
 		if (pluginJarPath.exists()) {
 			if (!pluginJarPath.delete()) {
-				MessageBox.showErrorDialog("Plug-in Manager","Unable to delete plug-in "
-						+ jarName);
+				MessageBox.showErrorDialog("Plug-in Manager",
+						"Unable to delete plug-in " + jarName);
 			} else {
 				// Update maps after delete.
 				localDescriptions.remove(description);
@@ -590,7 +666,7 @@ public class PluginManager {
 				remoteAndLocalPluginEquality.remove(description);
 			}
 		} else {
-			MessageBox.showErrorDialog("Plug-in Manager","Plug-in " + jarName
+			MessageBox.showErrorDialog("Plug-in Manager", "Plug-in " + jarName
 					+ " does not exist so unable to delete");
 		}
 
@@ -628,7 +704,7 @@ public class PluginManager {
 										+ "for the plug-in %s cannot be "
 										+ "found so cannot be deleted.",
 								libJarName, jarName);
-						MessageBox.showErrorDialog("Plug-in Manager",errMsg);
+						MessageBox.showErrorDialog("Plug-in Manager", errMsg);
 					}
 				}
 			}
@@ -637,6 +713,70 @@ public class PluginManager {
 		// Note that to avoid future lib jar clashes,
 		// we may need to consider: plugin subdirs in plugin libs dir and a
 		// separate class loader per plugin! => SF tracker
+	}
+
+	/**
+	 * Delete all locally installed plug-ins.
+	 */
+	public void deleteAllPlugins() {
+		interrupted = false;
+
+		if (MessageBox.showConfirmDialog("Plug-in Manager",
+				"Delete all plug-ins?")) {
+			try {
+				File pluginDirPath = new File(System.getProperty("user.home")
+						+ File.separator + PLUGINS_DIR);
+
+				File pluginLibDirPath = new File(
+						System.getProperty("user.home") + File.separator
+								+ PLUGIN_LIBS_DIR);
+
+				if (pluginDirPath.isDirectory()
+						&& pluginLibDirPath.isDirectory()) {
+					File[] jarFiles = pluginDirPath.listFiles();
+					for (File jarFile : jarFiles) {
+						if (interrupted)
+							break;
+						// Check existence, to avoid an insanely unlikely race
+						// condition.
+						if (jarFile.exists()) {
+							jarFile.delete();
+						}
+					}
+
+					File[] libJarFiles = pluginLibDirPath.listFiles();
+					for (File libJarFile : libJarFiles) {
+						if (interrupted)
+							break;
+						// Check existence, to avoid an insanely unlikely race
+						// condition.
+						if (libJarFile.exists()) {
+							libJarFile.delete();
+						}
+					}
+
+					// Don't clear collections if null (e.g. as will be the
+					// case when invoking this method from prefs pane).
+					if (localDescriptions != null) {
+						localDescriptions.clear();
+
+						localPlugins.clear();
+
+						libs.clear();
+						libDescriptions.clear();
+						libRefs.clear();
+
+						remoteAndLocalPluginEquality.clear();
+					}
+
+					MessageBox.showMessageDialog("Plug-in Manager",
+							"All installed plug-ins have been deleted.");
+				}
+
+			} catch (Throwable t) {
+				MessageBox.showErrorDialog("Plug-in Manager", "Deletion error");
+			}
+		}
 	}
 
 	/**
