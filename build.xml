@@ -144,8 +144,9 @@
 	</target>
 	
 	<target name="win32" depends="dist" description="Create a standalone distribution archive for Win32">
+		<!--
 		<launch4j configFile="${install_files}/vstar-launch4j.xml" />
-		
+		-->
 		<zip destfile="vstar-win32.zip">
 			<zipfileset dir="${dist}" prefix="vstar/dist" />
 			<zipfileset dir="${extlib}" prefix="vstar/extlib">
@@ -154,7 +155,8 @@
 				<exclude name="cobertura*/**" />
 				<exclude name="junit*" />
 			</zipfileset>
-			<zipfileset file="VStar.exe" prefix="vstar" />
+			<zipfileset file="${install_files}/VStar.exe" prefix="vstar" />
+			<zipfileset file="${install_files}/VStar.bat" prefix="vstar" />
 			<zipfileset dir="data" prefix="vstar/data" />
 			<zipfileset dir="${doc}" prefix="vstar/doc">
 				<include name="license/*" />
@@ -349,7 +351,6 @@
 
 	<target name="clean" description="Clean up">
 		<delete failonerror="false" includeemptydirs="true">
-			<!-- Delete the build, dist, UT, coverage directory trees -->
 			<fileset dir="${src_build}" includes="**/*" />
 			<fileset dir="${src_build_debug}" includes="**/*" />
 			<fileset dir="${test_build}" includes="**/*" />
@@ -358,9 +359,11 @@
 			<fileset dir="${javadoc}" includes="**/*" />
 			<fileset file="${javadoc}.zip" />
 			<fileset file="vstar*.zip" />
-			<fileset file="*.app" />
+			<fileset dir="VStar.app" includes="**/*" />
+			<dirset dir="VStar.app" />
 			<fileset file="*.dmg" />
 			<fileset file="*.exe" />
+			<fileset file="*.bat" />
 		</delete>
 	</target>
 </project>

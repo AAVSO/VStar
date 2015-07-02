@@ -44,34 +44,12 @@ VStar can also be launched by one of the following methods:
 
 o Mac OS X: double-clicking the "VStar" launcher application.
 o Windows: double-clicking "VStar.exe" launcher application.
-o Linux (or other Unix variants): running the "VStar.sh" shell script.
+o Linux (or other Unix variants or bash users): running the "VStar.sh" shell script.
 
   Each of the foregoing options runs VStar with the same memory allocation 
   parameters as for WebStart, permitting, for example, larger datasets 
   to be loaded. For running VStar locally, this is the best method.
-
-  See also "Mac OS X application icon" section below.
   
-OR
-
-o Double-click the vstar.jar file icon (dist/vstar.jar)
-
-  While simple, this provides none of the benefits of the launch methods above.
- 
-OR
-
-o Typing: java -jar dist/vstar.jar (Unix) or java -jar dist\vstar.jar (DOS)
-
-  This is equivalent to double-clicking the jar file, but must be done from
-  a command prompt.
-
-OR
-
-o Typing: ant run
-
-  This option is intended for developers. Type ant -p for more details.
-  See also "Building from source" below for more details.
-
 Opening a data file in VStar
 ============================
 If you obtained the VStar distribution via SourceForge, you will find a data
@@ -89,21 +67,6 @@ To open a data file in VStar:
 2. Navigate to the data directory via the file dialog.
 3. Choose a file, e.g. "eps_aur_2445000.csv".
    and plot views.
-  
-Mac OS X application icon
-=========================
-The VStar launcher application at the top-level currently has no icon due to
-a problem during creation of the distribution zip file. Until this is fixed, 
-an icon can (if desired) be assigned to the application by doing the following:
-
-1. Double-click vstaricon.png in the doc folder to open it in Preview.
-2. Choose "Select All" then "Copy" from the Preview "Edit" menu.
-3. Select the VStar application at the top-level.
-4. Choose "Get Info" from the Finder "File" menu.
-5. Single-click the icon square at top-left of the Info window.
-6. Choose "Paste" from the Finder Edit menu.
-
-The VStar launcher application should now have an icon.
   
 Building from source
 ====================
