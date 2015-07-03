@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>/Users/david/vstar/dist/vstar.jar</jar>
+  <outfile>/Users/david/vstar/VStar.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>true</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>/Users/david/vstar/install-files/vstaricon.ico</icon>
+  <classPath>
+    <mainClass>org.aavso.tools.vstar.ui.VStar</mainClass>
+    <cp>extlib/c3p0-0.9.5.jar</cp>
+    <cp>extlib/commons-math-2.2.jar</cp>
+    <cp>extlib/javacsv.jar</cp>
+    <cp>extlib/jcommon-1.0.16.jar</cp>
+    <cp>extlib/jfreechart-1.0.13.jar</cp>
+    <cp>extlib/jmathplot.jar</cp>
+    <cp>extlib/mchange-commons-java-0.2.9.jar</cp>
+    <cp>extlib/mysql-connector-java-5.1.10-bin.jar</cp>
+    <cp>dist/vstar.jar</cp>
+  </classPath>
+  <jre>
+    <path></path>
+    <bundledJre64Bit>false</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <minVersion>1.6.0</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+    <initialHeapSize>25</initialHeapSize>
+    <maxHeapSize>500</maxHeapSize>
+  </jre>
+  <splash>
+    <file>/Users/david/vstar/install-files/vstaricon.bmp</file>
+    <waitForWindow>true</waitForWindow>
+    <timeout>60</timeout>
+    <timeoutErr>true</timeoutErr>
+  </splash>
+</launch4jConfig>
