@@ -461,7 +461,8 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 				// TODO: multi-core approach => iterate over a subset of the
 				// period range but over all observations, where the full set is
 				// copied for each core (set phases, sort mutate obs and
-				// list...)
+				// list...); top-hits will have to b combined and ordered once
+				// at end as part of or before prune operation
 
 				for (double period = minPeriod; period <= maxPeriod; period += resolution) {
 					if (interrupted)
