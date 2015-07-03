@@ -230,7 +230,7 @@ public class DocumentManager {
 	}
 
 	/**
-	 * Update the mean information from a binning result.
+	 * Update the anova information from a binning result.
 	 * 
 	 * @param binningResult
 	 *            The binning result to use.
@@ -238,6 +238,13 @@ public class DocumentManager {
 	public void updateAnovaInfo(BinningResult binningResult) {
 		addStatsInfo("Mean Source Series", binningResult.getSeries()
 				.getDescription());
+		
+		addStatsInfo("anova", createAnovaText(binningResult));
+	}
+
+	// Returns ANOVA result text suitable for display.
+	public String createAnovaText(BinningResult binningResult) {
+		return binningResult.createAnovaText();
 	}
 
 	// ** Filter-related methods **
