@@ -136,13 +136,13 @@
 				<include name="vstar_docs/*" />
 			</zipfileset>
 			<zipfileset file="${doc}/user_manual/VStarUserManual.pdf" prefix="vstar/doc" />
-			<zipfileset file="${plugin}/doc/vstar_plugin_dev.pdf" prefix="vstar/doc"/>
+			<zipfileset file="${plugin}/doc/vstar_plugin_dev.pdf" prefix="vstar/doc" />
 			<zipfileset file="src/org/aavso/tools/vstar/ui/resources/icons/vstaricon.png" prefix="vstar/doc" />
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
 			<zipfileset file="ChangeLog.txt" prefix="vstar" />
 		</zip>
 	</target>
-	
+
 	<target name="win32" depends="dist" description="Create a standalone distribution archive for Win32">
 		<!--
 		<launch4j configFile="${install_files}/vstar-launch4j.xml" />
@@ -165,7 +165,7 @@
 				<include name="vstar_docs/*" />
 			</zipfileset>
 			<zipfileset file="${doc}/user_manual/VStarUserManual.pdf" prefix="vstar/doc" />
-			<zipfileset file="${plugin}/doc/vstar_plugin_dev.pdf" prefix="vstar/doc"/>
+			<zipfileset file="${plugin}/doc/vstar_plugin_dev.pdf" prefix="vstar/doc" />
 			<zipfileset file="src/org/aavso/tools/vstar/ui/resources/icons/vstaricon.png" prefix="vstar/doc" />
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
 			<zipfileset file="ChangeLog.txt" prefix="vstar" />
@@ -224,11 +224,14 @@
 		</exec>
 		<echo message="create disk image: preparing" />
 		<delete dir="${vstar_volume}/Extras" />
-		
+
 		<echo message="create disk image: copying files" />
-		<copy todir="${vstar_volume}">
-			<fileset file="${dist_mac}/VStar.app" />
-		</copy>
+		<delete dir="${vstar_volume}/VStar.app" />
+		<exec executable="cp">
+			<arg value="-r" />
+			<arg value="${dist_mac}/VStar.app" />
+			<arg value="${vstar_volume}" />
+		</exec>
 		<mkdir dir="${vstar_volume}/Extras" />
 		<copy todir="${vstar_volume}/Extras">
 			<fileset file="ReadMe.txt" />
