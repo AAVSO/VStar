@@ -31,7 +31,22 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and VStar.{sh,ba
 Release History
 ===============
   
---------------------
+Date: July 3 2015
+Version: 2.16.8
+Tag: DEV-AAVSO-03Jul2015
+Key Changes:
+- Ticket #210: AoV period analysis plug-in fixes for first formal release
+- Ticket #350: Create filter from plot view
+- Ticket #351: Select All button in observation list pane
+- Ticket #352: Separate download archives for Mac, Windows, and 
+  Linux (bash), including a signed Mac application
+- Ticket #438: Observation lists: magnitude sorting fix (when column selected)
+- Ticket #473: Plug-in Manager: permit all plug-ins to be cleared via a
+  "Delete All" button in Plug-in Manager
+- Added a plug-in setting Preferences pane
+- DCDFT result dialog plots now use frequency or period according to what 
+  was requested, rather than always frequency
+- Some Spanish and French localisation additions and improvements 
 
 Date: February 28 2015
 Version: 2.16.7
@@ -39,7 +54,7 @@ Tag: DEV-AAVSO-28Dec2015
 Key Changes:
 - Ticket #132 Database connection won't re-establish if VStar idle too long.
   Improvements to connection robustness via a connection pool.
- - Ticket #483 French locale additions/enhancements
+- Ticket #483 French locale additions/enhancements
 
 Date: December 18 2014
 Version: 2.16.6
