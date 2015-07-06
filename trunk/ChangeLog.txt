@@ -21,11 +21,12 @@ o Bug & Issue tracker entries cited below can be found here:
 
 Known Issues:
 o WWZ is brittle in the presence of gaps in the data. See ticket 328.
-o VStar "leaks" memory with ongoing use. The WebStart JNLP file and VStar.{sh,bat}
-  files specify a larger-than-default heap, which helps significantly. If VStar 
-  becomes unresponsive, restart it, or increase the maximum heap memory (currently 
-  -Xmx500m) when running via the local VStar.{sh,bat} file. This problem is being 
-  addressed over time. See ticket 108.
+o VStar "leaks" memory with ongoing use. The WebStart JNLP file and 
+  VStar.{sh,exe,app} files specify a larger-than-default heap, which 
+  helps significantly. If VStar becomes unresponsive, restart it, or 
+  increase the maximum heap memory (currently -Xmx500m) when running 
+  via the local VStar.{sh,bat} file. This problem is being addressed 
+  over time. See ticket 108.
 
 ===============
 Release History
@@ -43,6 +44,8 @@ Key Changes:
 - Ticket #438: Observation lists: magnitude sorting fix (when column selected)
 - Ticket #473: Plug-in Manager: permit all plug-ins to be cleared via a
   "Delete All" button in Plug-in Manager
+- Ticket #479 Add Observation Type to obs list
+- Ticket #484: Undo/redo retains observations across dataset loads
 - Added a plug-in setting Preferences pane
 - DCDFT result dialog plots now use frequency or period according to what 
   was requested, rather than always frequency
@@ -64,14 +67,14 @@ Key Changes:
   fields from AID.
 - Ticket #472: Added support for credit field.
 - In both cases, support was added for AID loads and AAVSO download file loads 
-  (except for observation type which is only currently supported in AID) in addition 
-  to being included in output when a file is saved (as AAVSO download format) via the 
-  observation list. The observation list and observation details dialog also include 
-  these fields.
-- Improvements to scripting: getError(), getWarning(), makeVisible() (for series) 
-  functions, better script run error reporting.
-- Fixed a bug in which some observation source plug-ins were not identified in 
-  loadFrom{File,URL) scripting API functions.
+  (except for observation type which is only currently supported in AID) in 
+  addition to being included in output when a file is saved (as AAVSO download 
+  format) via the observation list. The observation list and observation 
+  details dialog also include these fields.
+- Improvements to scripting: getError(), getWarning(), makeVisible() (for 
+  series) functions, better script run error reporting.
+- Fixed a bug in which some observation source plug-ins were not identified 
+  in loadFrom{File,URL) scripting API functions.
 
 Date: October 6 2014
 Version: 2.16.5
