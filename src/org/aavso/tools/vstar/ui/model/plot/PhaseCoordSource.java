@@ -76,6 +76,30 @@ public class PhaseCoordSource implements ICoordSource {
 	}
 
 	/**
+	 * Get the phase coordinate value associated with the specified item.
+	 * 
+	 * @param item
+	 *            The target item.
+	 * @param obs
+	 *            A list of observations.
+	 * @return The standard or previous cycle phase.
+	 */
+	@Override
+	public double getXCoord(int item, List<ValidObservation> obs) {
+		Double phase = null;
+
+		if (item < obs.size() / 2) {
+			phase = obs.get(item).getPreviousCyclePhase();
+		} else {
+			phase = obs.get(item).getStandardPhase();
+		}
+
+		assert phase != null;
+		
+		return phase;
+	}
+
+	/**
 	 * The actual item number for the Y coordinate is in fact, just item in this
 	 * case.
 	 * 
@@ -109,5 +133,10 @@ public class PhaseCoordSource implements ICoordSource {
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 
 		return seriesNumToObSrcListMap.get(series).get(item);
+	}
+	
+	@Override
+	public String getUnit() {
+		return "Phase";
 	}
 }

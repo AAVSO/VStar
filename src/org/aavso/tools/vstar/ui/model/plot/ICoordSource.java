@@ -60,6 +60,17 @@ public interface ICoordSource {
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap);
 
 	/**
+	 * Get the X coordinate value associated with the specified item.
+	 * 
+	 * @param item
+	 *            The target item.
+	 * @param obs
+	 *            A list of observations.
+	 * @return The X coordinate.
+	 */
+	public double getXCoord(int item, List<ValidObservation> obs);
+
+	/**
 	 * Get the actual item number for the Y coordinate value associated with the
 	 * specified series and item.
 	 * 
@@ -92,4 +103,11 @@ public interface ICoordSource {
 	 */
 	public ValidObservation getValidObservation(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap);
+	
+	/**
+	 * Return the time unit.
+	 * 
+	 * @return the time unit string.
+	 */
+	public String getUnit();
 }

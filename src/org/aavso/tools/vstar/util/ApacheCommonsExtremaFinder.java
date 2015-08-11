@@ -28,6 +28,8 @@ import org.apache.commons.math.optimization.univariate.BrentOptimizer;
 /**
  * This class permits minima/maxima of Apache Commons Math continuous functions
  * to be found.
+ * 
+ * TODO: consider analytic approach
  */
 public class ApacheCommonsExtremaFinder implements IExtremaFinder {
 
