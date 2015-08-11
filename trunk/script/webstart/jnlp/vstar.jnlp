@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<jnlp spec="1.0+" codebase="http://www.aavso.org/files/vstar" href="vstar.jnlp">
+<jnlp spec="1.0+" codebase="https://www.aavso.org/files/vstar" href="vstar.jnlp">
 
   <information>
 
     <title>VStar</title>
     <vendor>American Association of Variable Star Observers</vendor>
-    <homepage href="http://www.aavso.org/vstar-overview"/>
+    <homepage href="https://www.aavso.org/vstar-overview"/>
     <description>
       VStar is a multi-platform, easy-to-use variable star data visualization tool. 
       Data can be read from a file or the AAVSO database and plotted as a light curve 
@@ -30,7 +30,7 @@
 
   <resources>
 
-    <j2se version="1.6+" java-vm-args="-Xms25m -Xmx500m"/> 
+    <j2se version="1.7+" java-vm-args="-Xms25m -Xmx500m"/> 
 
     <jar href="dist/vstar.jar"/>
     
@@ -39,9 +39,9 @@
     <jar href="extlib/jfreechart-1.0.13.jar"/>
     <jar href="extlib/mysql-connector-java-5.1.10-bin.jar"/>
     <jar href="extlib/nico-camargo-toolbar-icons-4.0.jar"/>
-	<jar href="extlib/jmathplot.jar"/>
-	<jar href="extlib/javacsv.jar"/>
-	<jar href="extlib/mchange-commons-java-0.2.9.jar"/>
+    <jar href="extlib/jmathplot.jar"/>
+    <jar href="extlib/javacsv.jar"/>
+    <jar href="extlib/mchange-commons-java-0.2.9.jar"/>
     <jar href="extlib/c3p0-0.9.5.jar"/>
 	
   </resources>
