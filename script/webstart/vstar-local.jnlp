@@ -6,7 +6,7 @@
 
     <title>VStar</title>
     <vendor>American Association of Variable Star Observers</vendor>
-    <homepage href="http://www.aavso.org/vstar-overview"/>
+    <homepage href="https://www.aavso.org/vstar-overview"/>
     <description>
       VStar is a multi-platform, easy-to-use variable star data visualization tool. 
       Data can be read from a file or the AAVSO database and plotted as a light curve 
@@ -30,7 +30,7 @@
 
   <resources>
 
-    <j2se version="1.6+" java-vm-args="-Xms25m -Xmx500m"/> 
+    <j2se version="1.7+" java-vm-args="-Xms25m -Xmx500m"/> 
 
     <jar href="dist/vstar.jar"/>
     
