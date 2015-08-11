@@ -17,17 +17,18 @@
  */
 package org.aavso.tools.vstar.ui.dialog.plugin.manager;
 
-import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,7 +48,7 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  */
 public class PluginManager {
 
-	public final static String DEFAULT_PLUGIN_BASE_URL_STR = "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
+	public final static String DEFAULT_PLUGIN_BASE_URL_STR = "https://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-"
 			+ ResourceAccessor.getVersionString();
 
 	// public final static String DEFAULT_PLUGIN_BASE_URL_STR =
@@ -367,12 +368,22 @@ public class PluginManager {
 
 		try {
 			URL infoUrl = new URL(baseUrlStr + "/" + PLUGINS_LIST_FILE);
+				
+			HttpURLConnection conn = (HttpURLConnection) infoUrl.openConnection();
+						
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(conn.getInputStream()));
 
-			URLConnection stream = infoUrl.openConnection();
-			BufferedInputStream buf = new BufferedInputStream(
-					stream.getInputStream());
+			List<String> lineList = new ArrayList<String>();
+			
+			String line;
+			
+			while ((line = reader.readLine()) != null) {
+				lineList.add(line);
+			}
 
-			lines = readLines(buf);
+			lines = lineList.toArray(new String[0]);
+			
 		} catch (MalformedURLException e) {
 			MessageBox.showErrorDialog("Plug-in Manager",
 					"Invalid remote plug-in location.");
@@ -787,20 +798,6 @@ public class PluginManager {
 	}
 
 	// Helpers
-
-	private String[] readLines(BufferedInputStream stream) throws IOException {
-
-		StringBuffer strBuf = new StringBuffer();
-		int len = stream.available();
-		while (len > 0) {
-			byte[] bytes = new byte[len];
-			stream.read(bytes, 0, len);
-			strBuf.append(new String(bytes));
-			len = stream.available();
-		}
-
-		return strBuf.toString().split("\n");
-	}
 
 	private void copy(InputStream in, File file) throws IOException {
 		OutputStream out = new FileOutputStream(file);

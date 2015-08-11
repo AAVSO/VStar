@@ -17,9 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin;
 
-import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +33,7 @@ public class PluginManagerTest extends TestCase {
 
 	private PluginManager pluginManager;
 
-	private final String BASE_URL = "http://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-2.16.3";
+	private final String BASE_URL = "https://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-2.16.8";
 
 	public PluginManagerTest(String name) {
 		super(name);

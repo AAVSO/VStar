@@ -67,7 +67,7 @@ public class VSXWebServiceVOTableStarNameAndAUIDSource implements
 	}
 
 	public VSXWebServiceVOTableStarNameAndAUIDSource() {
-		baseVsxUrlString = "http://www.aavso.org/vsx/index.php?view=query.votable";
+		baseVsxUrlString = "https://www.aavso.org/vsx/index.php?view=query.votable";
 		fieldId2DataIndexMap = new HashMap<String, Integer>();
 		data = new ArrayList<String>();
 	}
