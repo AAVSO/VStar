@@ -19,11 +19,11 @@ package org.aavso.tools.vstar.auth;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,21 +42,24 @@ import org.xml.sax.SAXException;
  */
 public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 
+	private static final String AUTH_URL = "https://www.aavso.org/apps/api-auth/";
+
 	private String endPoint;
 	private boolean authenticated;
 	private String userID;
-	
+
 	public AAVSOPostAuthenticationSource(String endPoint) {
 		this.endPoint = endPoint;
 		authenticated = false;
 	}
 
 	public AAVSOPostAuthenticationSource() {
-		this("http://www.aavso.org/apps/api-auth/");
+		this(AUTH_URL);
 	}
-	
+
 	/**
 	 * Return the authentiated user ID.
+	 * 
 	 * @return the user ID
 	 */
 	public String getUserID() {
@@ -70,10 +73,12 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 		try {
 			// Create a POST request for the authentication end point.
 			URL url = new URL(endPoint);
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 			conn.setDoOutput(true);
 			conn.setDoInput(true);
 			conn.setUseCaches(false);
+			conn.setDoInput(true); // TODO: why twice!?
+			// conn.setRequestProperty("Authorization", "Basic " + encode);
 			conn.setRequestMethod("POST");
 
 			// Note: despite this XML content type, JSON is returned without the
@@ -89,11 +94,11 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 			// Create the POST message data.
 			String usernameEncoded = URLEncoder.encode(username, "UTF-8");
 			String passwordEncoded = URLEncoder.encode(password, "UTF-8");
-			String data = String.format("%s=%s&%s=%s", "username", usernameEncoded,
-					"password", passwordEncoded);
+			String data = String.format("%s=%s&%s=%s", "username",
+					usernameEncoded, "password", passwordEncoded);
 
-			conn.setRequestProperty("Content-Length", String.valueOf(data
-					.length()));
+			conn.setRequestProperty("Content-Length",
+					String.valueOf(data.length()));
 
 			// Send the POST request.
 			OutputStream os = conn.getOutputStream();
@@ -131,7 +136,7 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 	}
 
 	// Process the POST response, extracting ID, authentication token.
-	private void processResponse(HttpURLConnection conn) throws IOException,
+	private void processResponse(HttpsURLConnection conn) throws IOException,
 			ParserConfigurationException, SAXException {
 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
