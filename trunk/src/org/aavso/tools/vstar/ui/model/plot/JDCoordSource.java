@@ -61,6 +61,20 @@ public class JDCoordSource implements ICoordSource {
 	}
 
 	/**
+	 * Get the JD coordinate value associated with the specified item.
+	 * 
+	 * @param item
+	 *            The target item.
+	 * @param obs
+	 *            A list of observations.
+	 * @return The JD.
+	 */	
+	@Override
+	public double getXCoord(int item, List<ValidObservation> obs) {
+		return obs.get(item).getJD();
+	}
+
+	/**
 	 * The actual item number for the Y coordinate is in fact, just item in this
 	 * case.
 	 * 
@@ -94,5 +108,10 @@ public class JDCoordSource implements ICoordSource {
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 		
 		return seriesNumToObSrcListMap.get(series).get(item);
+	}
+
+	@Override
+	public String getUnit() {
+		return "JD";
 	}
 }
