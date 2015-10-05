@@ -18,7 +18,10 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.aavso.tools.vstar.data.CommentType;
 import org.aavso.tools.vstar.data.DateInfo;
@@ -66,7 +69,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 	 */
 	@Override
 	public InputType getInputType() {
-		return InputType.FILE;
+		return InputType.FILE_OR_URL;
 	}
 
 	/**
@@ -101,6 +104,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 		private String delimiter;
 		private String dateType;
 		private String obsType;
+		private List<String> lines;
 
 		private JulianDayValidator julianDayValidator;
 		private MagnitudeFieldValidator magnitudeFieldValidator;
@@ -110,7 +114,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 		private CommentCodeValidator commentCodeValidator;
 
 		/**
-		 * Constructor.
+		 * Constructor
 		 */
 		public AAVSOUploadFileFormatRetriever() {
 			julianDayValidator = new JulianDayValidator();
@@ -126,24 +130,21 @@ public class AAVSOUploadFileFormatObservationSource extends
 			magnitudeValueValidator = new MagnitudeValueValidator(
 					new InclusiveRangePredicate(-10, 25));
 
-			this.commentCodeValidator = new CommentCodeValidator(CommentType
-					.getRegex());
+			this.commentCodeValidator = new CommentCodeValidator(
+					CommentType.getRegex());
 		}
 
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					getInputStreams().get(0)));
-
-			String line = null;
+			getNumberOfRecords();
+			
 			int lineNum = 1;
 			int obNum = 1;
 
-			do {
+			for (String line : lines) {
 				try {
-					line = reader.readLine();
 					if (line != null) {
 						line = line.replaceFirst("\n", "").replaceFirst("\r",
 								"");
@@ -158,6 +159,8 @@ public class AAVSOUploadFileFormatObservationSource extends
 							}
 						}
 						lineNum++;
+						
+						incrementProgress();
 					}
 				} catch (Exception e) {
 					// Create an invalid observation.
@@ -169,7 +172,34 @@ public class AAVSOUploadFileFormatObservationSource extends
 					obNum++;
 					addInvalidObservation(ob);
 				}
-			} while (line != null);
+			}
+		}
+
+		@Override
+		public Integer getNumberOfRecords() throws ObservationReadError {
+			if (lines == null) {
+				try {
+					readLines();
+				} catch (IOException e) {
+					throw new ObservationReadError("Error reading lines");
+				}
+			}
+
+			return lines.size();
+		}
+
+		// Read all lines from the source.
+		private void readLines() throws IOException {
+			lines = new ArrayList<String>();
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					getInputStreams().get(0)));
+
+			String line = null;
+
+			while ((line = reader.readLine()) != null) {
+				lines.add(line);
+			}
 		}
 
 		// If a line starts with #, it's either a directive or a comment.
@@ -233,8 +263,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 					int ordVal = Integer.parseInt(delim);
 					if (ordVal < 32 || ordVal > 126) {
 						throw new ObservationReadError(
-								String
-										.format("Ordinal delimiter value '%d' out of range 32..126"));
+								String.format("Ordinal delimiter value '%d' out of range 32..126"));
 					}
 					// Escape it in case it's a regex meta-character.
 					delim = "\\" + String.valueOf((char) ordVal);
