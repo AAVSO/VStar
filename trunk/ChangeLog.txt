@@ -31,7 +31,16 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 ===============
 Release History
 ===============
-  
+
+Date: August 11 2015
+Version: 2.16.9
+Tag: DEV-AAVSO-11Aug2015
+Key Changes:
+- Ticket #501 Switch to https from http for aavso.org I/O
+- Ticket #412 Polynomial fit in phase plot not just raw mode
+- Added information about use of commas to user manual observation sources 
+  section.
+
 Date: July 3 2015
 Version: 2.16.8
 Tag: DEV-AAVSO-03Jul2015
