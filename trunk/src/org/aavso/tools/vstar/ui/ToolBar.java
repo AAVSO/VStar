@@ -244,34 +244,34 @@ public class ToolBar extends JPanel {
 		newStarFromDatabaseButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(newStarFromDatabaseButton);
 
-//		if (menuBar.getUiType() != UIType.APPLET) {
-			newStarFromFileButton = new JButton(newStarFromFileIcon);
-			newStarFromFileButton.setToolTipText(MenuBar.NEW_STAR_FROM_FILE);
-			newStarFromFileButton.addActionListener(menuBar
-					.createNewStarFromFileListener());
-			newStarFromFileButton.setBorder(BorderFactory.createEmptyBorder());
-			buttonPanel.add(newStarFromFileButton);
-//		}
+		// if (menuBar.getUiType() != UIType.APPLET) {
+		newStarFromFileButton = new JButton(newStarFromFileIcon);
+		newStarFromFileButton.setToolTipText(MenuBar.NEW_STAR_FROM_FILE);
+		newStarFromFileButton.addActionListener(menuBar
+				.createObservationSourceListener(MenuBar.NEW_STAR_FROM_FILE));
+		newStarFromFileButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(newStarFromFileButton);
+		// }
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
-//		if (menuBar.getUiType() != UIType.APPLET) {
-			saveButton = new JButton(saveIcon);
-			saveButton.setToolTipText(MenuBar.SAVE);
-			saveButton.addActionListener(menuBar.createSaveListener());
-			saveButton.setEnabled(false);
-			saveButton.setBorder(BorderFactory.createEmptyBorder());
-			buttonPanel.add(saveButton);
-//		}
+		// if (menuBar.getUiType() != UIType.APPLET) {
+		saveButton = new JButton(saveIcon);
+		saveButton.setToolTipText(MenuBar.SAVE);
+		saveButton.addActionListener(menuBar.createSaveListener());
+		saveButton.setEnabled(false);
+		saveButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(saveButton);
+		// }
 
-//		if (menuBar.getUiType() != UIType.APPLET) {
-			printButton = new JButton(printIcon);
-			printButton.setToolTipText(MenuBar.PRINT);
-			printButton.addActionListener(menuBar.createPrintListener());
-			printButton.setEnabled(false);
-			printButton.setBorder(BorderFactory.createEmptyBorder());
-			buttonPanel.add(printButton);
-//		}
+		// if (menuBar.getUiType() != UIType.APPLET) {
+		printButton = new JButton(printIcon);
+		printButton.setToolTipText(MenuBar.PRINT);
+		printButton.addActionListener(menuBar.createPrintListener());
+		printButton.setEnabled(false);
+		printButton.setBorder(BorderFactory.createEmptyBorder());
+		buttonPanel.add(printButton);
+		// }
 
 		buttonPanel.add(Box.createHorizontalStrut(10));
 
@@ -317,8 +317,7 @@ public class ToolBar extends JPanel {
 
 		periodSearchButton = new JButton(periodSearchIcon);
 		String periodSearchItemName = LocaleProps
-				.get("DCDFT_WITH_PERIOD_DISPLAY_NAME")
-				+ "...";
+				.get("DCDFT_WITH_PERIOD_DISPLAY_NAME") + "...";
 		periodSearchButton.setToolTipText(periodSearchItemName);
 		periodSearchButton.addActionListener(menuBar
 				.createPeriodSearchListener(periodSearchItemName));
@@ -328,8 +327,7 @@ public class ToolBar extends JPanel {
 
 		timeFrequencyButton = new JButton(timeFrequencyIcon);
 		String timeFrequencyItemName = LocaleProps
-				.get("WWZ_WITH_PERIOD_RANGE_NAME")
-				+ "...";
+				.get("WWZ_WITH_PERIOD_RANGE_NAME") + "...";
 		timeFrequencyButton.setToolTipText(timeFrequencyItemName);
 		timeFrequencyButton.addActionListener(menuBar
 				.createPeriodSearchListener(timeFrequencyItemName));

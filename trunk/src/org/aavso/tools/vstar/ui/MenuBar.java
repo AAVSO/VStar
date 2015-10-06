@@ -310,13 +310,12 @@ public class MenuBar extends JMenuBar {
 		fileMenu.add(fileNewStarFromDatabaseItem);
 
 		// if (uiType != UIType.APPLET) {
-		fileNewStarFromFileItem = new JMenuItem(NEW_STAR_FROM_FILE);
-		fileNewStarFromFileItem
-				.addActionListener(createNewStarFromFileListener());
-		fileMenu.add(fileNewStarFromFileItem);
-		// }
-
-		fileMenu.addSeparator();
+		// TODO: remove after testing
+//		 fileNewStarFromFileItem = new JMenuItem(NEW_STAR_FROM_FILE);
+//		 fileNewStarFromFileItem
+//		 .addActionListener(createNewStarFromFileListener());
+//		 fileMenu.add(fileNewStarFromFileItem);
+		//}
 
 		List<ObservationSourcePluginBase> obSourcePlugins = PluginLoader
 				.getObservationSourcePlugins();
@@ -332,6 +331,11 @@ public class MenuBar extends JMenuBar {
 				JMenuItem obSourceMenuItem = new JMenuItem(itemName);
 				obSourceMenuItem.addActionListener(obSourceListener);
 				fileMenu.add(obSourceMenuItem);
+
+				// New star from file plugin.
+				if ("Internal".equals(plugin.getGroup())) {
+					fileMenu.addSeparator();
+				}
 
 				menuItemNameToObSourcePlugin.put(itemName, plugin);
 			}
@@ -557,10 +561,11 @@ public class MenuBar extends JMenuBar {
 		this.add(analysisMenu);
 	}
 
-	// Add items for analysis plugins of type P to the analysis menu.
+	// Add items for analysis plug-ins of type P to the analysis menu.
 	private <P extends IPlugin> String addAnalysisPlugins(JMenu analysisMenu,
 			ActionListener listener, List<P> plugins,
 			Map<String, P> menuItemToPluginMap, String lastGroup) {
+
 		for (P plugin : plugins) {
 
 			if (plugin.getGroup() != null
@@ -771,6 +776,23 @@ public class MenuBar extends JMenuBar {
 				String item = e.getActionCommand();
 				ObservationSourcePluginBase plugin = menuItemNameToObSourcePlugin
 						.get(item);
+				mediator.createObservationArtefactsFromObSourcePlugin(plugin);
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for a particular observation
+	 * source menu item. TODO: interim solution until we have toolbar buttons
+	 * with lists of items!
+	 */
+	public ActionListener createObservationSourceListener(
+			final String obsSourceItemName) {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				ObservationSourcePluginBase plugin = menuItemNameToObSourcePlugin
+						.get(obsSourceItemName);
 				mediator.createObservationArtefactsFromObSourcePlugin(plugin);
 			}
 		};

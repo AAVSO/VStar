@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.resources.LoginInfo;
 
 /**
@@ -126,9 +127,11 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 
 	/**
 	 * Return a list of file extension strings to be added to the default file
-	 * extensions in the file chooser, or null if none are to be added (the default).
+	 * extensions in the file chooser, or null if none are to be added (the
+	 * default).
 	 * 
-	 * @return The list of file extension strings to be added to the file chooser.
+	 * @return The list of file extension strings to be added to the file
+	 *         chooser.
 	 */
 	public List<String> getAdditionalFileExtensions() {
 		return null;
@@ -228,7 +231,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
 		return true;
 	}
-	
+
 	/**
 	 * @return the isAdditive
 	 */
@@ -237,9 +240,20 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	}
 
 	/**
-	 * @param isAdditive the isAdditive to set
+	 * @param isAdditive
+	 *            the isAdditive to set
 	 */
 	public void setAdditive(boolean isAdditive) {
 		this.isAdditive = isAdditive;
+	}
+
+	/**
+	 * This method returns the NewStarType enumerated value. Most observation
+	 * sources will use the default implementation, a few may override it.
+	 * 
+	 * @return The NewStarType enumerated value
+	 */
+	public NewStarType getNewStarType() {
+		return NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
 	}
 }

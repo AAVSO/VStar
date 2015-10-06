@@ -79,7 +79,7 @@ public class CommonTextFormatValidator {
 			IFieldInfoSource fieldInfoSource) throws IOException {
 
 		this.lineReader = lineReader;
-
+		
 		this.fieldSplitter = new ObservationFieldSplitter(lineReader,
 				minFields, maxFields);
 

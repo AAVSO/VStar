@@ -1830,6 +1830,8 @@ public class Mediator {
 			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					LocaleProps.get("PERIOD_ANALYSIS"), e);
 
+			// TODO: why not ProgressInfo.COMPLETE_PROGRESS then 
+			//       ProgressInfo.CLEAR_PROGRESS?
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
 
