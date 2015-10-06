@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -115,12 +116,12 @@ public abstract class AbstractObservationRetriever {
 		this.maxMag = -Double.MAX_VALUE;
 
 		interrupted = false;
-		
+
 		isHeliocentric = false;
 		isBarycentric = false;
-		
-		Mediator.getInstance().getStopRequestNotifier().addListener(
-				createStopRequestListener());
+
+		Mediator.getInstance().getStopRequestNotifier()
+				.addListener(createStopRequestListener());
 	}
 
 	/**
@@ -230,7 +231,8 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * @param isBarycentric the isBarycentric to set
+	 * @param isBarycentric
+	 *            the isBarycentric to set
 	 */
 	public void setBarycentric(boolean isBarycentric) {
 		this.isBarycentric = isBarycentric;
@@ -254,13 +256,13 @@ public abstract class AbstractObservationRetriever {
 	 */
 	public String getTimeUnits() {
 		String timeUnits = JD;
-		
+
 		if (isHeliocentric) {
 			timeUnits = HJD;
 		} else if (isBarycentric) {
 			timeUnits = BJD;
 		}
-		
+
 		return timeUnits;
 	}
 
@@ -317,16 +319,25 @@ public abstract class AbstractObservationRetriever {
 		}
 	}
 
-	// TODO: Instead of supportsProgress(): getNumberOfLines() => null or >= 0
+	/**
+	 * Return number of records to be read if this observation retriever
+	 * supports progress tracking (e.g. per line) or null if not.
+	 * 
+	 * @return The number of records to be read or null if this cannot be
+	 *         determined.
+	 * @throws ObservationReadError
+	 *             If an error occurs while determining the number of records.
+	 */
+	public Integer getNumberOfRecords() throws ObservationReadError {
+		return null;
+	}
 
 	/**
-	 * Does this observation retriever support progress (e.g. per line)?
-	 * 
-	 * @return True if it supports progress, false otherwise. TODO: also needs
-	 *         to return file line number count if exists
+	 * Increment observation retrieval progress.
 	 */
-	public boolean supportsProgress() {
-		return false;
+	public void incrementProgress() {
+		Mediator.getInstance().getProgressNotifier()
+				.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);
 	}
 
 	/**

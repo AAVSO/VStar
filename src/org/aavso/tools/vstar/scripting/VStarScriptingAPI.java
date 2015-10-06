@@ -25,6 +25,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -109,27 +110,53 @@ public class VStarScriptingAPI {
 	 * Common dataset file load method.
 	 * 
 	 * @param path
-	 *            The path to the file.
+	 *            The path to the file or URL.
 	 * @param isAdditive
 	 *            Is this load additive?
 	 */
 	private void commonLoadFromFile(final String path, boolean isAdditive) {
 		init();
 
-		File f = new File(path);
+		commonLoadFromFileOrURLViaPlugin(MenuBar.NEW_STAR_FROM_FILE,
+				InputType.FILE, path, isAdditive);
+	}
 
-		try {
-			mediator.createObservationArtefactsFromFile(f, isAdditive);
-		} catch (IOException e) {
-			MessageBox
-					.showErrorDialog("Load File", "Cannot load file: " + path);
-		} catch (ObservationReadError e) {
-			MessageBox.showErrorDialog("Load File",
-					"Error reading observations from file: " + path
-							+ " (reason: " + e.getLocalizedMessage() + ")");
-		}
+	/**
+	 * Load a dataset from the specified path. This is equivalent to
+	 * "File -> New Star from File..." with URL requested.
+	 * 
+	 * @param url
+	 *            The URL of the file.
+	 */
+	public synchronized void loadFromURL(final String path) {
+		commonLoadFromURL(path, false);
+	}
 
-		mediator.waitForJobCompletion();
+	/**
+	 * Load a dataset from the specified path, adding it to the existing
+	 * dataset. This is equivalent to "File -> New Star from File..." with the
+	 * additive checkbox selected and URL requested.
+	 * 
+	 * @param url
+	 *            The URL of the file.
+	 */
+	public synchronized void additiveLoadFromURL(final String path) {
+		commonLoadFromURL(path, true);
+	}
+
+	/**
+	 * Common dataset URL load method.
+	 * 
+	 * @param url
+	 *            The URL of the file.
+	 * @param isAdditive
+	 *            Is this load additive?
+	 */
+	private void commonLoadFromURL(final String path, boolean isAdditive) {
+		init();
+
+		commonLoadFromFileOrURLViaPlugin(MenuBar.NEW_STAR_FROM_FILE,
+				InputType.URL, path, isAdditive);
 	}
 
 	/**
@@ -144,7 +171,7 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void loadFromFile(final String pluginName,
 			final String path) {
-		commonLoadFromFilePlugin(pluginName, InputType.FILE, path, false);
+		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.FILE, path, false);
 	}
 
 	/**
@@ -161,7 +188,7 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void additiveLoadFromFile(final String pluginName,
 			final String path) {
-		commonLoadFromFilePlugin(pluginName, InputType.FILE, path, true);
+		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.FILE, path, true);
 	}
 
 	/**
@@ -175,7 +202,7 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void loadFromURL(final String pluginName,
 			final String url) {
-		commonLoadFromFilePlugin(pluginName, InputType.URL, url, false);
+		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.URL, url, false);
 	}
 
 	/**
@@ -190,7 +217,7 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void additiveLoadFromURL(final String pluginName,
 			final String url) {
-		commonLoadFromFilePlugin(pluginName, InputType.URL, url, true);
+		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.URL, url, true);
 	}
 
 	/**
@@ -201,11 +228,11 @@ public class VStarScriptingAPI {
 	 * @param inputType
 	 *            The input type (e.g. file, URL).
 	 * @param location
-	 *            The path to the file or the URL.
+	 *            The path or URL to the file.
 	 * @param isAdditive
 	 *            Is this load additive?
 	 */
-	private void commonLoadFromFilePlugin(final String pluginName,
+	private void commonLoadFromFileOrURLViaPlugin(final String pluginName,
 			InputType inputType, final String location, boolean isAdditive) {
 		init();
 
@@ -240,9 +267,10 @@ public class VStarScriptingAPI {
 								+ " (reason: " + e.getLocalizedMessage() + ")");
 			}
 		} else {
-			MessageBox.showErrorDialog("Load File",
-					"No matching observation plugin found '" + pluginName
-							+ "'");
+			MessageBox
+					.showErrorDialog("Load File",
+							"No matching observation plugin found '"
+									+ pluginName + "'");
 		}
 
 		mediator.waitForJobCompletion();

@@ -43,8 +43,8 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.plugin.URLAuthenticator;
 
@@ -93,14 +93,14 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 		} catch (CancellationException ex) {
 			// Nothing to do; dialog cancelled.
 		} catch (ConnectionException ex) {
-			MessageBox.showErrorDialog("Authentication Source Error", ex
-					.getLocalizedMessage());
+			MessageBox.showErrorDialog("Authentication Source Error",
+					ex.getLocalizedMessage());
 		} catch (AuthenticationError ex) {
-			MessageBox.showErrorDialog("Authentication Error", ex
-					.getLocalizedMessage());
+			MessageBox.showErrorDialog("Authentication Error",
+					ex.getLocalizedMessage());
 		} catch (Exception ex) {
-			MessageBox.showErrorDialog("Observation Source Plug-in Error", ex
-					.getLocalizedMessage());
+			MessageBox.showErrorDialog("Observation Source Plug-in Error",
+					ex.getLocalizedMessage());
 		} finally {
 			Mediator.getUI().setCursor(null);
 		}
@@ -130,8 +130,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						streams.add(new FileInputStream(file));
 						fileNames += file.getName() + ", ";
 					}
-					fileNames = fileNames.substring(0, fileNames
-							.lastIndexOf(", "));
+					fileNames = fileNames.substring(0,
+							fileNames.lastIndexOf(", "));
 					obSourcePlugin.setInputInfo(streams, fileNames);
 				} else {
 					// Request a file or URL from the user.
@@ -149,7 +149,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						if (fileChooser.isUrlProvided()) {
 							String urlStr = fileChooser.getUrlString();
 							URL url = new URL(urlStr);
-							streams.add(url.openStream());
+							streams.add(url.openConnection().getInputStream());
 							obSourcePlugin.setInputInfo(streams, urlStr);
 						} else {
 							File file = fileChooser.getSelectedFile();
@@ -195,7 +195,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 					if (!urlDialog.isCancelled()
 							&& !urlField.getValue().matches("^\\s*$")) {
 						String urlStr = urlField.getValue();
-						obSourcePlugin.setAdditive(additiveLoadCheckbox.getValue());
+						obSourcePlugin.setAdditive(additiveLoadCheckbox
+								.getValue());
 						URL url = new URL(urlStr);
 						streams.add(url.openStream());
 						obSourcePlugin.setInputInfo(streams, urlStr);
@@ -211,51 +212,52 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				break;
 			}
 
-			// Retrieve the observations.
+			// Retrieve the observations. If the retriever can return
+			// the number of records, we can show updated progress,
+			// otherwise just show busy state.
 			AbstractObservationRetriever retriever = obSourcePlugin
 					.getObservationRetriever();
+
+			int plotPortion = 0;
+			Integer numRecords = retriever.getNumberOfRecords();
+			if (numRecords == null) {
+				// Show busy.
+				mediator.getProgressNotifier().notifyListeners(
+						ProgressInfo.BUSY_PROGRESS);
+			} else {
+				// Start progress tracking.
+				plotPortion = (int) (numRecords * 0.2);
+
+				mediator.getProgressNotifier().notifyListeners(
+						new ProgressInfo(ProgressType.MAX_PROGRESS, numRecords
+								+ plotPortion));
+			}
 
 			ValidObservation.reset();
 
 			retriever.retrieveObservations();
-
+			
 			if (retriever.getValidObservations().isEmpty()) {
 				throw new ObservationReadError(
 						"No observations for the specified period or error in observation source.");
 			}
 
 			// Create plots, tables.
-			NewStarType type = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
-			mediator.createNewStarObservationArtefacts(type, retriever
-					.getStarInfo(), 0, obSourcePlugin.isAdditive());
+			mediator.createNewStarObservationArtefacts(
+					obSourcePlugin.getNewStarType(), retriever.getStarInfo(),
+					plotPortion, obSourcePlugin.isAdditive());
 
 		} catch (InterruptedException e) {
 			ValidObservation.restore();
-
-			mediator.getProgressNotifier().notifyListeners(
-					ProgressInfo.COMPLETE_PROGRESS);
-
-			mediator.getProgressNotifier().notifyListeners(
-					ProgressInfo.CLEAR_PROGRESS);
+			done();
 		} catch (CancellationException e) {
 			ValidObservation.restore();
-
-			mediator.getProgressNotifier().notifyListeners(
-					ProgressInfo.COMPLETE_PROGRESS);
-
-			mediator.getProgressNotifier().notifyListeners(
-					ProgressInfo.CLEAR_PROGRESS);
+			done();
 		} catch (Throwable t) {
 			ValidObservation.restore();
-
+			done();
 			MessageBox.showErrorDialog(
 					"New Star From Observation Source Read Error", t);
-
-			mediator.getProgressNotifier().notifyListeners(
-					ProgressInfo.COMPLETE_PROGRESS);
-
-			mediator.getProgressNotifier().notifyListeners(
-					ProgressInfo.CLEAR_PROGRESS);
 		}
 	}
 
