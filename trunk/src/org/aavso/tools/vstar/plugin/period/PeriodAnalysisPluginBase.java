@@ -143,7 +143,7 @@ abstract public class PeriodAnalysisPluginBase implements IPlugin {
 	protected Notifier<PeriodAnalysisSelectionMessage> getPeriodAnalysisSelectionNotifier() {
 		return Mediator.getInstance().getPeriodAnalysisSelectionNotifier();
 	}
-
+	
 	// ** Internal helper methods. **
 
 	/**
