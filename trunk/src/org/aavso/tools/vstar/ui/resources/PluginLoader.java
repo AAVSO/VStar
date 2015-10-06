@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin;
+import org.aavso.tools.vstar.plugin.ob.src.impl.TextFormatObservationSourcePlugin;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftFrequencyRangePeriodAnalysisPlugin;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftPeriodRangePeriodAnalysisPlugin;
@@ -87,7 +88,7 @@ public class PluginLoader {
 	public static List<ModelCreatorPluginBase> getModelCreatorPlugins() {
 		List<ModelCreatorPluginBase> modelCreatorPlugins = new ArrayList<ModelCreatorPluginBase>();
 
-		// First, add in-built polynomial fit plugins.
+		// First, add in-built polynomial fit plugin.
 		modelCreatorPlugins.add(new ApacheCommonsPolynomialFitCreatorPlugin());
 
 		// Next, add all external model creator plugins.
@@ -151,6 +152,10 @@ public class PluginLoader {
 	public static List<ObservationSourcePluginBase> getObservationSourcePlugins() {
 		List<ObservationSourcePluginBase> obSourcePlugins = new ArrayList<ObservationSourcePluginBase>();
 
+		// First, add AAVSO Download/simple format reader plug-in.
+		obSourcePlugins.add(new TextFormatObservationSourcePlugin());
+		
+		// Next, add all external observation source plug-ins.
 		for (IPlugin plugin : plugins) {
 			if (plugin instanceof ObservationSourcePluginBase) {
 				obSourcePlugins.add((ObservationSourcePluginBase) plugin);
