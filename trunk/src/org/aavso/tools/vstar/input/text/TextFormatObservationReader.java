@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.input.text;
 
-import java.io.IOException;
 import java.io.LineNumberReader;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -29,7 +28,7 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
  * This class reads a variable star data file format containing lines of text or
@@ -58,7 +57,7 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	 *            An observation file analyser.
 	 */
 	public TextFormatObservationReader(LineNumberReader reader,
-			ObservationSourceAnalyser analyser) throws IOException {
+			ObservationSourceAnalyser analyser) {
 		super(analyser.getLineCount());
 		this.reader = reader;
 		this.analyser = analyser;
@@ -104,13 +103,20 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 					}
 				}
 
-				mediator.getProgressNotifier().notifyListeners(
-						ProgressInfo.INCREMENT_PROGRESS);
+				incrementProgress();
 			}
 		} catch (Throwable t) {
 			throw new ObservationReadError(
 					"Error when attempting to read observation source.");
+		} finally {
+			// TODO: once analyser moved into here
+//			lines.clear();
 		}
+	}
+
+	@Override
+	public Integer getNumberOfRecords() throws ObservationReadError {
+		return analyser.getLineCount();
 	}
 
 	@Override
@@ -121,6 +127,20 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	@Override
 	public String getSourceName() {
 		return analyser.getObsSourceIdentifier();
+	}
+
+	@Override
+	public StarInfo getStarInfo() {
+		// Try to get the name of the object from one of the observations,
+		// otherwise just use the source name (file name or URL).
+
+		String name = getValidObservations().get(0).getName();
+
+		if (name == null) {
+			name = getSourceName();
+		}
+
+		return new StarInfo(this, name);
 	}
 
 	// Helpers
