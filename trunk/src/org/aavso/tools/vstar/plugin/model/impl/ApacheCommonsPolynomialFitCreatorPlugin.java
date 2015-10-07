@@ -31,6 +31,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.ui.dialog.PolynomialDegreeDialog;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
@@ -154,7 +155,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 					List<ValidObservation> fit;
 					List<ValidObservation> residuals;
 					PolynomialFunction function;
-					// ICoordSource coordSrc = JDCoordSource.instance;
 					Map<String, String> functionStrMap = new LinkedHashMap<String, String>();
 					double aic = Double.NaN;
 					double bic = Double.NaN;
@@ -199,11 +199,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 						String strRepr = functionStrMap
 								.get("MODEL_INFO_FIT_METRICS_TITLE");
 
-						// DecimalFormat fmt = NumericPrecisionPrefs
-						// .getOtherOutputFormat();
-
-						// List<Double> derivs = new ArrayList<Double>();
-
 						if (strRepr == null) {
 							// Goodness of fit.
 							strRepr = "RMS: "
@@ -242,7 +237,8 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 						double extremeMag = finder.getExtremeMag();
 
 						String strRepr = String.format("%s: %s, Mag: %s",
-								timeCoordSource.getUnit(), NumericPrecisionPrefs.formatTime(finder
+								timeCoordSource.getUnit(),
+								NumericPrecisionPrefs.formatTime(finder
 										.getExtremeTime()),
 								NumericPrecisionPrefs.formatMag(extremeMag));
 
@@ -394,9 +390,8 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 
 						for (int i = 0; i < obs.size() && !interrupted; i++) {
 							fitter.addObservedPoint(1.0,
-							// timeElt.getTimeElement(obs, i) - zeroPoint,
-									obs.get(i).getStandardPhase(), obs.get(i)
-											.getMag());
+									timeCoordSource.getXCoord(i, obs)
+											- zeroPoint, obs.get(i).getMag());
 						}
 
 						if (!interrupted) {
@@ -417,17 +412,20 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 								for (int i = 0; i < obs.size() && !interrupted; i++) {
 									ValidObservation ob = obs.get(i);
 
-									double x = ob.getStandardPhase();
-									// timeElt.getTimeElement(obs, i);
-									double zeroedX = x;// x - zeroPoint;
+									double x = timeCoordSource
+											.getXCoord(i, obs);
+									double zeroedX = x - zeroPoint;
 									double y = function.value(zeroedX);
 
 									ValidObservation fitOb = new ValidObservation();
 									fitOb.setDateInfo(new DateInfo(ob.getJD()));
-									fitOb.setPreviousCyclePhase(ob
-											.getPreviousCyclePhase());
-									fitOb.setStandardPhase(ob
-											.getStandardPhase());
+									if (Mediator.getInstance()
+											.getAnalysisType() == AnalysisType.PHASE_PLOT) {
+										fitOb.setPreviousCyclePhase(ob
+												.getPreviousCyclePhase());
+										fitOb.setStandardPhase(ob
+												.getStandardPhase());
+									}
 									fitOb.setMagnitude(new Magnitude(y, 0));
 									fitOb.setBand(SeriesType.Model);
 									fitOb.setComments(comment);
@@ -435,10 +433,13 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 
 									ValidObservation resOb = new ValidObservation();
 									resOb.setDateInfo(new DateInfo(ob.getJD()));
-									resOb.setPreviousCyclePhase(ob
-											.getPreviousCyclePhase());
-									resOb.setStandardPhase(ob
-											.getStandardPhase());
+									if (Mediator.getInstance()
+											.getAnalysisType() == AnalysisType.PHASE_PLOT) {
+										resOb.setPreviousCyclePhase(ob
+												.getPreviousCyclePhase());
+										resOb.setStandardPhase(ob
+												.getStandardPhase());
+									}
 									double residual = ob.getMag() - y;
 									resOb.setMagnitude(new Magnitude(residual,
 											0));
