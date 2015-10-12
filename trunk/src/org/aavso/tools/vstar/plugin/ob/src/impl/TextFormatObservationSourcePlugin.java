@@ -82,20 +82,15 @@ public class TextFormatObservationSourcePlugin extends
 
 			BufferedReader streamReader = new BufferedReader(
 					new InputStreamReader(stream));
-					
-			// Obtain stream bytes in order to re-use in analyser and reader.
-			// TODO: Ultimately, pass lines to analyser and retriever
+
+			// Obtain bytes from stream in order to re-use in analyser and
+			// reader.
 			String line;
-			List<String> lines = new ArrayList<String>();
-			StringBuffer buf = new StringBuffer();
 			while ((line = streamReader.readLine()) != null) {
-				
+
 				byte[] bytes = line.getBytes();
-				lines.add(line);
-				buf.append(line);
-				int actual = bytes.length + 1;
 				byteArrayList.add(bytes);
-				total += actual;
+				total += bytes.length + 1;
 			}
 
 			int i = 0;
@@ -107,23 +102,20 @@ public class TextFormatObservationSourcePlugin extends
 				allBytes[i++] = '\n';
 			}
 
-			// Analyse the observation file and create an observation reader.
+			// Analyse the observation file and create an observation retriever.
 			analyser = new ObservationSourceAnalyser(new LineNumberReader(
 					new InputStreamReader(new ByteArrayInputStream(allBytes))),
 					getInputName());
 			analyser.analyse();
 
-			LineNumberReader reader = new LineNumberReader(
-					new InputStreamReader(new ByteArrayInputStream(allBytes)));
-
 			retriever = new TextFormatObservationReader(new LineNumberReader(
-					new InputStreamReader(new ByteArrayInputStream(allBytes))), analyser);
+					new InputStreamReader(new ByteArrayInputStream(allBytes))),
+					analyser);
 
 		} catch (Exception e) {
-			// TODO: move analyser creation into reader class so we can handle this more
-			// efficiently,
-			// passing stream not reader...or perhaps pass lines, avoiding much
-			// of the nonsense above...
+			// TODO: move analyser creation into reader class so we can handle
+			// this more efficiently, passing top-level stream not reader...or perhaps
+			// pass lines, handling exception there
 		}
 
 		return retriever;
