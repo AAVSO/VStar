@@ -27,7 +27,6 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
@@ -37,8 +36,6 @@ import org.aavso.tools.vstar.ui.mediator.StarInfo;
  * REQ_VSTAR_SIMPLE_TEXT_FILE_READ REQ_VSTAR_AAVSO_DATA_DOWNLOAD_FILE_READ
  */
 public class TextFormatObservationReader extends AbstractObservationRetriever {
-
-	private Mediator mediator = Mediator.getInstance();
 
 	private LineNumberReader reader;
 
