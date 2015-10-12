@@ -43,7 +43,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 	public BMinusVObservationSource() {
 		super();
 		isAdditive = true;
-		bvSeries = SeriesType.create("B-V", "B-V", Color.MAGENTA, true, false);
+		bvSeries = SeriesType.create("B-V", "B-V", Color.MAGENTA, false, false);
 	}
 
 	@Override
@@ -94,9 +94,11 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 			if (records > 0) {
 				for (int i = 0; i < records; i++) {
 					// Note: simplifying assumption: B and V elements correspond
-					// in time!
-					double deltaMag = bObs.get(i).getMag() - vObs.get(i).getMag();
-					double meanJD = (bObs.get(i).getJD() + vObs.get(i).getJD()) / 2;
+					// somewhat in time!
+					double meanMag = (bObs.get(i).getMag() + vObs.get(i).getMag()) /2;
+					double deltaMag = bObs.get(i).getMag() - vObs.get(i).getMag() + meanMag;
+//					double meanJD = (bObs.get(i).getJD() + vObs.get(i).getJD()) / 2;
+					double meanJD = bObs.get(i).getJD();
 					ValidObservation bvOb = new ValidObservation();
 					bvOb.setDateInfo(new DateInfo(meanJD));
 					bvOb.setMagnitude(new Magnitude(deltaMag, 0));
