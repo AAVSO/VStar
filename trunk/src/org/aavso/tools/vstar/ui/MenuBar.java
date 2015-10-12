@@ -1227,8 +1227,8 @@ public class MenuBar extends JMenuBar {
 						manager, "Initialising Plug-in Manager") {
 					@Override
 					public void execute() {
-						try {
-							Authenticator.getInstance().authenticate();
+//						try {
+//							Authenticator.getInstance().authenticate();
 							Mediator.getUI()
 									.getStatusPane()
 									.setMessage(
@@ -1236,15 +1236,15 @@ public class MenuBar extends JMenuBar {
 							manager.init();
 							new PluginManagementDialog(manager);
 							Mediator.getUI().getStatusPane().setMessage("");
-						} catch (ConnectionException ex) {
-							MessageBox.showErrorDialog(
-									"Authentication Source Error", ex);
-						} catch (AuthenticationError ex) {
-							MessageBox.showErrorDialog("Authentication Error",
-									ex);
-						} catch (CancellationException e) {
-							// Nothing to do.
-						}
+//						} catch (ConnectionException ex) {
+//							MessageBox.showErrorDialog(
+//									"Authentication Source Error", ex);
+//						} catch (AuthenticationError ex) {
+//							MessageBox.showErrorDialog("Authentication Error",
+//									ex);
+//						} catch (CancellationException e) {
+//							// Nothing to do.
+//						}
 					}
 				};
 				mediator.performPluginManagerOperation(op);

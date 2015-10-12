@@ -412,15 +412,17 @@ public class PluginManager {
 					// Load plugin, store mappings from jar name to plugin
 					// URL, lib URL, and description.
 					String pluginJarFileName = fields[0];
+					// TODO: remove this after 2.6.10 after which no potential
+					// for colon-prefixed jar names will exist
 					if (pluginJarFileName.startsWith(":")) {
-						if (!ResourceAccessor.getLoginInfo().isMember()) {
-							// Member-only accessible plug-ins should be skipped
-							// if not appropriately authenticated.
-							continue;
-						} else {
+//						if (!ResourceAccessor.getLoginInfo().isMember()) {
+//							// Member-only accessible plug-ins should be skipped
+//							// if not appropriately authenticated.
+//							continue;
+//						} else {
 							// Remove leading colon.
 							pluginJarFileName = pluginJarFileName.substring(1);
-						}
+//						}
 					}
 
 					URL pluginUrl = new URL(pluginBaseURLStr + "/"
