@@ -35,6 +35,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -149,18 +152,43 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 				// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
 				// for more detail.
 				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
-					// Toggle the observation's discrepant status and
-					// tell anyone who's listening about the change.
-					toggleDiscrepantStatus();
-					DiscrepantObservationMessage message = new DiscrepantObservationMessage(
-							ob, parent);
-					Mediator.getInstance().getDiscrepantObservationNotifier()
-							.notifyListeners(message);
+					try {
+						toggleDiscrepantStatus();
 
-					// If the loaded dataset comes from AID, open report-to-HQ
-					// dialog.
-					Mediator.getInstance().reportDiscrepantObservation(ob,
-							parent);
+						// If the loaded dataset comes from AID, open
+						// report-to-HQ dialog.
+						Mediator.getInstance().reportDiscrepantObservation(ob,
+								parent);
+
+						// Toggle the observation's discrepant status and
+						// tell anyone who's listening about the change.
+						DiscrepantObservationMessage message = new DiscrepantObservationMessage(
+								ob, parent);
+
+						Mediator.getInstance()
+								.getDiscrepantObservationNotifier()
+								.notifyListeners(message);
+
+					} catch (CancellationException ex) {
+						toggleDiscrepantStatus();
+					} catch (ConnectionException ex) {
+						toggleDiscrepantStatus();
+
+						MessageBox.showErrorDialog(
+								"Authentication Source Error", ex);
+					} catch (AuthenticationError ex) {
+						toggleDiscrepantStatus();
+
+						MessageBox.showErrorDialog("Authentication Error",
+								"Login failed.");
+					} catch (Exception ex) {
+						toggleDiscrepantStatus();
+
+						MessageBox.showErrorDialog(
+								"Discrepant Reporting Error",
+								ex.getLocalizedMessage());
+
+					}
 				}
 			}
 		};

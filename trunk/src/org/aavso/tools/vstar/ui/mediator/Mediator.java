@@ -1830,8 +1830,8 @@ public class Mediator {
 			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					LocaleProps.get("PERIOD_ANALYSIS"), e);
 
-			// TODO: why not ProgressInfo.COMPLETE_PROGRESS then 
-			//       ProgressInfo.CLEAR_PROGRESS?
+			// TODO: why not ProgressInfo.COMPLETE_PROGRESS then
+			// ProgressInfo.CLEAR_PROGRESS?
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);
 
@@ -2006,7 +2006,7 @@ public class Mediator {
 		InViewObservationFilter filter = new InViewObservationFilter();
 		filter.execute();
 	}
-	
+
 	/**
 	 * Save the artefact corresponding to the current viewMode.
 	 * 
@@ -2044,7 +2044,8 @@ public class Mediator {
 	}
 
 	/**
-	 * Save the current plot (as a PNG) to the specified file.
+	 * Save the current plot (as a PNG) to the specified file. Used by VStar
+	 * scripting API.
 	 * 
 	 * @param path
 	 *            The file to write the PNG image to.
@@ -2070,6 +2071,8 @@ public class Mediator {
 	 * Save observation list to a file in a separate thread. Note that we want
 	 * to save just those observations that are in view in the observation list
 	 * currently.
+	 * 
+	 * Used by the VStar Scripting API.
 	 * 
 	 * @param parent
 	 *            The parent component to be used in dialogs.
@@ -2122,6 +2125,13 @@ public class Mediator {
 
 			if (imageSaveDialog.showDialog(parent)) {
 				File path = imageSaveDialog.getSelectedFile();
+				if (path.exists()
+						&& path.isFile()
+						&& !MessageBox.showConfirmDialog(
+								LocaleProps.get("FILE_MENU_SAVE"),
+								LocaleProps.get("SAVE_OVERWRITE"))) {
+					return;
+				}
 				JFreeChart chart = chartPanel.getChart();
 				int width = chartPanel.getWidth();
 				int height = chartPanel.getHeight();
@@ -2150,6 +2160,14 @@ public class Mediator {
 			if (!obs.isEmpty()) {
 				if (obsListFileSaveDialog.showDialog(parent)) {
 					File outFile = obsListFileSaveDialog.getSelectedFile();
+
+					if (outFile.exists()
+							&& outFile.isFile()
+							&& !MessageBox.showConfirmDialog(
+									LocaleProps.get("FILE_MENU_SAVE"),
+									LocaleProps.get("SAVE_OVERWRITE"))) {
+						return;
+					}
 
 					this.getProgressNotifier().notifyListeners(
 							ProgressInfo.START_PROGRESS);
@@ -2193,6 +2211,14 @@ public class Mediator {
 				if (obsListFileSaveDialog.showDialog(parent)) {
 					File outFile = obsListFileSaveDialog.getSelectedFile();
 
+					if (outFile.exists()
+							&& outFile.isFile()
+							&& !MessageBox.showConfirmDialog(
+									LocaleProps.get("FILE_MENU_SAVE"),
+									LocaleProps.get("SAVE_OVERWRITE"))) {
+						return;
+					}
+
 					this.getProgressNotifier().notifyListeners(
 							ProgressInfo.START_PROGRESS);
 
@@ -2203,8 +2229,7 @@ public class Mediator {
 					// We re-use the same observation list file save task as
 					// above but specify simple file type to match the fact that
 					// we are only going to save JD, magnitude, and uncertainty
-					// (for
-					// means).
+					// (for means).
 					ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
 							outFile, NewStarType.NEW_STAR_FROM_SIMPLE_FILE,
 							obsListFileSaveDialog.getDelimiter());
@@ -2341,7 +2366,9 @@ public class Mediator {
 	 * @param dialog
 	 *            A parent dialog to set non-visible and dispose. May be null.
 	 */
-	public void reportDiscrepantObservation(ValidObservation ob, JDialog dialog) {
+	public void reportDiscrepantObservation(ValidObservation ob, JDialog dialog)
+			throws AuthenticationError, CancellationException,
+			ConnectionException {
 		// If the dataset was loaded from AID and the change was
 		// to mark this observation as discrepant, we ask the user
 		// whether to report this to AAVSO.
@@ -2384,18 +2411,9 @@ public class Mediator {
 					if (dialog != null) {
 						dialog.dispose();
 					}
-				} catch (CancellationException ex) {
-					// Nothing to do; dialog cancelled.
-				} catch (ConnectionException ex) {
-					MessageBox.showErrorDialog("Authentication Source Error",
-							ex);
-				} catch (AuthenticationError ex) {
-					MessageBox.showErrorDialog("Authentication Error", ex);
-				} catch (Exception ex) {
-					MessageBox.showErrorDialog("Discrepant Reporting Error",
-							ex.getLocalizedMessage());
 				} finally {
 					Mediator.getUI().setCursor(null);
+
 				}
 			}
 		}

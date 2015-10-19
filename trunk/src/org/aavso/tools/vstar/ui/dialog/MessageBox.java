@@ -275,10 +275,14 @@ public class MessageBox {
 	 * @return True if "yes" was selected, false if "no" was selected.
 	 */
 	public static boolean showConfirmDialog(String title, String msg) {
-		int result = JOptionPane.showConfirmDialog(
-				DocumentManager.findActiveWindow(), msg, title,
-				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (!Mediator.getUI().isScriptingMode()) {
+			int result = JOptionPane.showConfirmDialog(
+					DocumentManager.findActiveWindow(), msg, title,
+					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
-		return result == JOptionPane.YES_OPTION;
+			return result == JOptionPane.YES_OPTION;
+		} else {
+			return true;
+		}
 	}
 }
