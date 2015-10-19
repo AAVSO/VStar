@@ -34,6 +34,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
  * This class represents a widget that permits a star group to be selected from
  * a pop-up list and a star in that group from another pop-up list.
  */
+@SuppressWarnings("serial")
 public class StarGroupSelectionPane extends JPanel {
 
 	private final static String NO_STARS = "No stars";
@@ -76,8 +77,8 @@ public class StarGroupSelectionPane extends JPanel {
 		starGroups = StarGroups.getInstance();
 		Set<String> starGroupMapKeys = starGroups.getGroupNames();
 
-		starGroupSelector = new JComboBox(starGroupMapKeys
-				.toArray(new String[0]));
+		starGroupSelector = new JComboBox(
+				starGroupMapKeys.toArray(new String[0]));
 		selectedStarGroup = (String) starGroupSelector.getItemAt(0);
 		starGroupSelector.setBorder(BorderFactory
 				.createTitledBorder(LocaleProps
@@ -177,10 +178,13 @@ public class StarGroupSelectionPane extends JPanel {
 	 */
 	public void removeGroup(String groupName) {
 		if (starGroups.doesGroupExist(groupName)) {
-			starGroups.removeStarGroup(groupName);
-			starGroupSelector.removeItem(groupName);
-			selectAndRefreshStarsInGroup((String) starGroupSelector
-					.getItemAt(0));
+			if (MessageBox.showConfirmDialog("Remove Group",
+					LocaleProps.get("REALLY_DELETE"))) {
+				starGroups.removeStarGroup(groupName);
+				starGroupSelector.removeItem(groupName);
+				selectAndRefreshStarsInGroup((String) starGroupSelector
+						.getItemAt(0));
+			}
 		}
 	}
 
@@ -210,8 +214,11 @@ public class StarGroupSelectionPane extends JPanel {
 	 */
 	public void removeStar(String groupName, String starName) {
 		if (starGroups.doesGroupExist(groupName)) {
-			starGroups.removeStar(groupName, starName);
-			selectAndRefreshStarsInGroup(groupName);
+			if (MessageBox.showConfirmDialog("Remove Star",
+					LocaleProps.get("REALLY_DELETE"))) {
+				starGroups.removeStar(groupName, starName);
+				selectAndRefreshStarsInGroup(groupName);
+			}
 		}
 	}
 

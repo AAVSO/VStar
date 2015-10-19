@@ -24,6 +24,10 @@ import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.IOrderedObservationSource;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AuthenticationError;
+import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
@@ -77,8 +81,8 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 		this.columnInfoSource = columnInfoSource;
 		this.columnCount = columnInfoSource.getColumnCount();
 
-		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
-				createDiscrepantChangeListener());
+		Mediator.getInstance().getDiscrepantObservationNotifier()
+				.addListener(createDiscrepantChangeListener());
 	}
 
 	/**
@@ -152,19 +156,47 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 			// for more detail.
 			if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
 
-				// Toggle "is-discrepant" checkbox and value.
 				ValidObservation ob = this.validObservations.get(rowIndex);
-				boolean discrepant = ob.isDiscrepant();
-				ob.setDiscrepant(!discrepant);
-				// Tell anyone who's listening about the change.
-				DiscrepantObservationMessage message = new DiscrepantObservationMessage(
-						ob, this);
-				Mediator.getInstance().getDiscrepantObservationNotifier()
-						.notifyListeners(message);
 
-				Mediator.getInstance().reportDiscrepantObservation(ob, null);
+				try {
+					toggleDiscrepantStatus(ob);
+
+					// If the loaded dataset comes from AID, open
+					// report-to-HQ dialog.
+					Mediator.getInstance()
+							.reportDiscrepantObservation(ob, null);
+
+					// Tell anyone who's listening about the change.
+					DiscrepantObservationMessage message = new DiscrepantObservationMessage(
+							ob, this);
+
+					Mediator.getInstance().getDiscrepantObservationNotifier()
+							.notifyListeners(message);
+
+				} catch (CancellationException ex) {
+					toggleDiscrepantStatus(ob);
+				} catch (ConnectionException ex) {
+					toggleDiscrepantStatus(ob);
+
+					MessageBox.showErrorDialog("Authentication Source Error",
+							ex);
+				} catch (AuthenticationError ex) {
+					toggleDiscrepantStatus(ob);
+
+					MessageBox.showErrorDialog("Authentication Error",
+							"Login failed.");
+				} catch (Exception ex) {
+					toggleDiscrepantStatus(ob);
+
+					MessageBox.showErrorDialog("Discrepant Reporting Error",
+							ex.getLocalizedMessage());
+				}
 			}
 		}
+	}
+
+	private void toggleDiscrepantStatus(ValidObservation ob) {
+		ob.setDiscrepant(!ob.isDiscrepant());
 	}
 
 	/**
