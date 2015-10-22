@@ -262,12 +262,17 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 					double jd = Double.parseDouble(fields[0]);
 					double mag = Double.parseDouble(fields[1]);
 					double error = Double.parseDouble(fields[2]);
-
+					
 					ValidObservation ob = new ValidObservation();
 					ob.setDateInfo(new DateInfo(jd));
 					ob.setMagnitude(new Magnitude(mag, error));
 					ob.setBand(series);
 					ob.setRecordNumber(reader.getLineNumber());
+					
+					if (fields.length == 4) {
+						ob.addDetail("SOURCE", fields[3], "Source");
+					}
+
 					collectObservation(ob);
 				}
 
