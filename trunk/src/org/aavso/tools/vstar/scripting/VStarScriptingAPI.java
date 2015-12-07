@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
@@ -171,7 +172,8 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void loadFromFile(final String pluginName,
 			final String path) {
-		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.FILE, path, false);
+		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.FILE, path,
+				false);
 	}
 
 	/**
@@ -316,26 +318,73 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Save the raw dataset (light curve observation list) to a file of rows of
-	 * values separated by the specified delimiter.
+	 * Save the raw or phase plot dataset (according to current mode) to a file
+	 * of rows of values separated by the specified delimiter.
 	 * 
 	 * @param path
 	 *            The path to the file to save to (as a string).
 	 * @param delimiter
 	 *            The delimiter between data items.
 	 */
-	public synchronized void saveRawData(final String path, String delimiter) {
+	public synchronized void saveObsList(final String path, String delimiter) {
 		init();
-		lightCurveMode(); // save raw data not phase plot data
 		mediator.saveObsListToFile(Mediator.getUI().getComponent(), new File(
 				path), delimiter);
 		mediator.waitForJobCompletion();
 	}
 
-	// TODO: save means, model, residuals methods...
+	/**
+	 * Save the raw or phase plot mean list (according to current mode) to a
+	 * file of rows of values separated by the specified delimiter.
+	 * 
+	 * @param path
+	 *            The path to the file to save to (as a string).
+	 * @param delimiter
+	 *            The delimiter between data items.
+	 */
+	public synchronized void saveMeanList(final String path, String delimiter) {
+		init();
+		mediator.saveSyntheticObsListToFile(Mediator.getUI().getComponent(),
+				ViewModeType.LIST_MEANS_MODE, new File(path), delimiter);
+		mediator.waitForJobCompletion();
+	}
 
 	/**
-	 * Save the light curve to a PNG image file.
+	 * Save the raw or phase plot model list (according to current mode) to a
+	 * file of rows of values separated by the specified delimiter.
+	 * 
+	 * @param path
+	 *            The path to the file to save to (as a string).
+	 * @param delimiter
+	 *            The delimiter between data items.
+	 */
+	public synchronized void saveModelList(final String path, String delimiter) {
+		init();
+		mediator.saveSyntheticObsListToFile(Mediator.getUI().getComponent(),
+				ViewModeType.MODEL_MODE, new File(path), delimiter);
+		mediator.waitForJobCompletion();
+	}
+
+	/**
+	 * Save the raw or phase plot residual list (according to current mode) to a
+	 * file of rows of values separated by the specified delimiter.
+	 * 
+	 * @param path
+	 *            The path to the file to save to (as a string).
+	 * @param delimiter
+	 *            The delimiter between data items.
+	 */
+	public synchronized void saveResidualList(final String path,
+			String delimiter) {
+		init();
+		mediator.saveSyntheticObsListToFile(Mediator.getUI().getComponent(),
+				ViewModeType.RESIDUALS_MODE, new File(path), delimiter);
+		mediator.waitForJobCompletion();
+	}
+
+	/**
+	 * Save the light curve for the current view mode (raw or phase plot) to a
+	 * PNG image file.
 	 * 
 	 * @param path
 	 *            The path to the file to save to (as a string).
@@ -347,24 +396,6 @@ public class VStarScriptingAPI {
 	public synchronized void saveLightCurve(final String path, int width,
 			int height) {
 		init();
-		lightCurveMode();
-		mediator.saveCurrentPlotToFile(new File(path), width, height);
-	}
-
-	/**
-	 * Save the phase plot to a PNG image file.
-	 * 
-	 * @param path
-	 *            The path to the file to save to (as a string).
-	 * @param width
-	 *            The desired width of the image.
-	 * @param height
-	 *            The desired height of the image.
-	 */
-	public synchronized void savePhasePlot(final String path, int width,
-			int height) {
-		init();
-		phasePlotMode();
 		mediator.saveCurrentPlotToFile(new File(path), width, height);
 	}
 

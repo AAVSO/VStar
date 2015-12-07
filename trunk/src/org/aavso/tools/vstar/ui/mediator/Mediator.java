@@ -1840,8 +1840,8 @@ public class Mediator {
 	}
 
 	/**
-	 * Open the plot control dialog relevant to the current analysis mode. TODO:
-	 * move to DocumentManager
+	 * Open the plot control dialog relevant to the current analysis mode.<br/>
+	 * TODO: move to DocumentManager
 	 */
 	public void showPlotControlDialog() {
 		String title = null;
@@ -2044,8 +2044,8 @@ public class Mediator {
 	}
 
 	/**
-	 * Save the current plot (as a PNG) to the specified file. Used by VStar
-	 * scripting API.
+	 * Save the current plot (as a PNG) to the specified file.<br/>
+	 * Used by VStar scripting API.
 	 * 
 	 * @param path
 	 *            The file to write the PNG image to.
@@ -2082,32 +2082,97 @@ public class Mediator {
 	 *            The delimiter between data items.
 	 */
 	public void saveObsListToFile(Component parent, File path, String delimiter) {
-		if (analysisType == AnalysisType.RAW_DATA) {
-			List<ValidObservation> obs = this.analysisTypeMap.get(analysisType)
-					.getObsListPane().getObservationsInView();
+		List<ValidObservation> obs = this.analysisTypeMap.get(analysisType)
+				.getObsListPane().getObservationsInView();
 
-			if (!obs.isEmpty()) {
-				this.getProgressNotifier().notifyListeners(
-						ProgressInfo.START_PROGRESS);
+		if (!obs.isEmpty()) {
+			this.getProgressNotifier().notifyListeners(
+					ProgressInfo.START_PROGRESS);
 
-				this.getProgressNotifier()
-						.notifyListeners(
-								new ProgressInfo(ProgressType.MAX_PROGRESS, obs
-										.size()));
+			this.getProgressNotifier().notifyListeners(
+					new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));
 
-				ObsListFileSaveTask task = new ObsListFileSaveTask(obs, path,
-						this.getLatestNewStarMessage().getNewStarType(),
-						delimiter);
+			ObsListFileSaveTask task = new ObsListFileSaveTask(obs, path, this
+					.getLatestNewStarMessage().getNewStarType(), delimiter);
 
-				this.currTask = task;
-				task.execute();
-			} else {
-				MessageBox.showMessageDialog(parent, "Save Observations",
-						"There are no visible observations to save.");
-			}
+			this.currTask = task;
+			task.execute();
 		} else {
 			MessageBox.showMessageDialog(parent, "Save Observations",
-					"Observation data can only be saved in raw mode.");
+					"There are no visible observations to save.");
+		}
+	}
+
+	/**
+	 * Save synthetic observation list (means, model, residuals) to a file in a
+	 * separate thread.<br/>
+	 * 
+	 * Used by VStar scripting API.
+	 * 
+	 * @param parent
+	 *            The parent component to be used in dialogs.
+	 * @param mode
+	 *            The current synthetic view mode.
+	 * @param path
+	 *            The path of the file to save to.
+	 * @param delimiter
+	 *            The delimiter between data items.
+	 */
+	public void saveSyntheticObsListToFile(Component parent, ViewModeType mode,
+			File path, String delimiter) {
+
+		List<ValidObservation> obs = null;
+
+		switch (mode) {
+		case LIST_MEANS_MODE:
+			obs = analysisTypeMap.get(analysisType).getMeansListPane()
+					.getObsTableModel().getObs();
+			break;
+		case MODEL_MODE:
+			if (modelSelectionMessage != null) {
+				obs = modelSelectionMessage.getModel().getFit();
+			} else {
+				MessageBox.showMessageDialog(parent, "Save Observations",
+						"There are no observations to save.");
+			}
+			break;
+		case RESIDUALS_MODE:
+			if (modelSelectionMessage != null) {
+				obs = modelSelectionMessage.getModel().getResiduals();
+			} else {
+				MessageBox.showMessageDialog(parent, "Save Observations",
+						"There are no observations to save.");
+			}
+			// Note: we include these for completeness otherwise the type
+			// checker will complain. We assert that we should never arrive
+			// here. We could of course merge this method and
+			// saveObsListToFile().
+		case LIST_OBS_MODE:
+		case PLOT_OBS_MODE:
+			assert (false);
+			break;
+		}
+
+		if (!obs.isEmpty()) {
+			this.getProgressNotifier().notifyListeners(
+					ProgressInfo.START_PROGRESS);
+
+			this.getProgressNotifier().notifyListeners(
+					new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));
+
+			// We re-use the same observation list file save task as
+			// elsewhere but specify simple file type to match the fact that
+			// we are only going to save JD, magnitude, and uncertainty
+			// (for means).
+			ObsListFileSaveTask task = new ObsListFileSaveTask(obs, path,
+					NewStarType.NEW_STAR_FROM_SIMPLE_FILE,
+					obsListFileSaveDialog.getDelimiter());
+
+			this.currTask = task;
+			task.execute();
+		} else {
+			MessageBox.showMessageDialog(parent, "Save Observations",
+					"There are no observations to save.");
 		}
 	}
 
@@ -2153,44 +2218,40 @@ public class Mediator {
 	 *            The parent component to be used in dialogs.
 	 */
 	private void saveObsListToFile(Component parent) {
-		if (analysisType == AnalysisType.RAW_DATA) {
-			List<ValidObservation> obs = this.analysisTypeMap.get(analysisType)
-					.getObsListPane().getObservationsInView();
+		List<ValidObservation> obs = this.analysisTypeMap.get(analysisType)
+				.getObsListPane().getObservationsInView();
 
-			if (!obs.isEmpty()) {
-				if (obsListFileSaveDialog.showDialog(parent)) {
-					File outFile = obsListFileSaveDialog.getSelectedFile();
+		if (!obs.isEmpty()) {
+			if (obsListFileSaveDialog.showDialog(parent)) {
+				File outFile = obsListFileSaveDialog.getSelectedFile();
 
-					if (outFile.exists()
-							&& outFile.isFile()
-							&& !MessageBox.showConfirmDialog(
-									LocaleProps.get("FILE_MENU_SAVE"),
-									LocaleProps.get("SAVE_OVERWRITE"))) {
-						return;
-					}
-
-					this.getProgressNotifier().notifyListeners(
-							ProgressInfo.START_PROGRESS);
-
-					this.getProgressNotifier().notifyListeners(
-							new ProgressInfo(ProgressType.MAX_PROGRESS, obs
-									.size()));
-
-					ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
-							outFile, this.getLatestNewStarMessage()
-									.getNewStarType(),
-							obsListFileSaveDialog.getDelimiter());
-
-					this.currTask = task;
-					task.execute();
+				if (outFile.exists()
+						&& outFile.isFile()
+						&& !MessageBox.showConfirmDialog(
+								LocaleProps.get("FILE_MENU_SAVE"),
+								LocaleProps.get("SAVE_OVERWRITE"))) {
+					return;
 				}
-			} else {
-				MessageBox.showMessageDialog(parent, "Save Observations",
-						"There are no visible observations to save.");
+
+				this.getProgressNotifier().notifyListeners(
+						ProgressInfo.START_PROGRESS);
+
+				this.getProgressNotifier()
+						.notifyListeners(
+								new ProgressInfo(ProgressType.MAX_PROGRESS, obs
+										.size()));
+
+				ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
+						outFile, this.getLatestNewStarMessage()
+								.getNewStarType(),
+						obsListFileSaveDialog.getDelimiter());
+
+				this.currTask = task;
+				task.execute();
 			}
 		} else {
 			MessageBox.showMessageDialog(parent, "Save Observations",
-					"Observation data can only be saved in raw mode.");
+					"There are no visible observations to save.");
 		}
 	}
 
@@ -2205,45 +2266,41 @@ public class Mediator {
 	 */
 	private void saveSyntheticObsListToFile(Component parent,
 			List<ValidObservation> obs) {
-		if (analysisType == AnalysisType.RAW_DATA) {
 
-			if (!obs.isEmpty()) {
-				if (obsListFileSaveDialog.showDialog(parent)) {
-					File outFile = obsListFileSaveDialog.getSelectedFile();
+		if (!obs.isEmpty()) {
+			if (obsListFileSaveDialog.showDialog(parent)) {
+				File outFile = obsListFileSaveDialog.getSelectedFile();
 
-					if (outFile.exists()
-							&& outFile.isFile()
-							&& !MessageBox.showConfirmDialog(
-									LocaleProps.get("FILE_MENU_SAVE"),
-									LocaleProps.get("SAVE_OVERWRITE"))) {
-						return;
-					}
-
-					this.getProgressNotifier().notifyListeners(
-							ProgressInfo.START_PROGRESS);
-
-					this.getProgressNotifier().notifyListeners(
-							new ProgressInfo(ProgressType.MAX_PROGRESS, obs
-									.size()));
-
-					// We re-use the same observation list file save task as
-					// above but specify simple file type to match the fact that
-					// we are only going to save JD, magnitude, and uncertainty
-					// (for means).
-					ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
-							outFile, NewStarType.NEW_STAR_FROM_SIMPLE_FILE,
-							obsListFileSaveDialog.getDelimiter());
-
-					this.currTask = task;
-					task.execute();
+				if (outFile.exists()
+						&& outFile.isFile()
+						&& !MessageBox.showConfirmDialog(
+								LocaleProps.get("FILE_MENU_SAVE"),
+								LocaleProps.get("SAVE_OVERWRITE"))) {
+					return;
 				}
-			} else {
-				MessageBox.showMessageDialog(parent, "Save Observations",
-						"There are no visible observations to save.");
+
+				this.getProgressNotifier().notifyListeners(
+						ProgressInfo.START_PROGRESS);
+
+				this.getProgressNotifier()
+						.notifyListeners(
+								new ProgressInfo(ProgressType.MAX_PROGRESS, obs
+										.size()));
+
+				// We re-use the same observation list file save task as
+				// above but specify simple file type to match the fact that
+				// we are only going to save JD, magnitude, and uncertainty
+				// (for means).
+				ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
+						outFile, NewStarType.NEW_STAR_FROM_SIMPLE_FILE,
+						obsListFileSaveDialog.getDelimiter());
+
+				this.currTask = task;
+				task.execute();
 			}
 		} else {
 			MessageBox.showMessageDialog(parent, "Save Observations",
-					"Observation data can only be saved in raw mode.");
+					"There are no observations to save.");
 		}
 	}
 
