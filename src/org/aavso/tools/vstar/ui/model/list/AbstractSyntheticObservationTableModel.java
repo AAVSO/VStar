@@ -25,7 +25,7 @@ public abstract class AbstractSyntheticObservationTableModel extends
 	protected final WeakHashMap<ValidObservation, Integer> observationToRowIndexMap;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * @param obs
 	 *            The initial observation data. The data can be updated later

@@ -125,12 +125,7 @@ public class PhasePlotModelObservationTableModel extends
 
 		switch (columnIndex) {
 		case PHASE_COLUMN:
-			if (rowIndex < obs.size() / 2) {
-				value = NumericPrecisionPrefs.formatTime(ob
-						.getPreviousCyclePhase());
-			} else {
-				value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());
-			}
+			value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());
 			break;
 		case MAG_COLUMN:
 			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()

@@ -98,12 +98,7 @@ public class PhasePlotMeanObservationTableModel extends
 
 		switch (columnIndex) {
 		case PHASE_COLUMN:
-			if (rowIndex < obs.size() / 2) {
-				value = NumericPrecisionPrefs.formatTime(ob
-						.getPreviousCyclePhase());
-			} else {
-				value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());
-			}
+			value = NumericPrecisionPrefs.formatTime(ob.getStandardPhase());
 			break;
 		case MEAN_COLUMN:
 			// The mean magnitude.
