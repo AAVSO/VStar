@@ -22,27 +22,31 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * Plug-in management preferences panel.
  */
 @SuppressWarnings("serial")
-public class PluginSettingsPane extends JPanel implements
-		IPreferenceComponent {
+public class PluginSettingsPane extends JPanel implements IPreferenceComponent {
 
 	private JCheckBox loadPluginsCheckbox;
 	private JTextField baseUrlField;
+	private JFileChooser localDirChooser;
 
 	/**
 	 * Constructor.
@@ -66,17 +70,31 @@ public class PluginSettingsPane extends JPanel implements
 
 		pluginManagementPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
+		JPanel urlPanel = new JPanel();
+		urlPanel.setLayout(new BoxLayout(urlPanel, BoxLayout.LINE_AXIS));
+
 		baseUrlField = new JTextField(PluginManager.getPluginsBaseUrl());
 		baseUrlField.setToolTipText("Set plug-in location base URL");
 		baseUrlField.setBorder(BorderFactory
 				.createTitledBorder("Plug-in location base URL"));
-		pluginManagementPane.add(baseUrlField);
+		urlPanel.add(baseUrlField);
+
+		JButton selectLocalDirButton = new JButton("Select Local Directory");
+		selectLocalDirButton
+				.addActionListener(createSelectLocalDirButtonActionListener());
+		urlPanel.add(selectLocalDirButton);
+
+		pluginManagementPane.add(urlPanel);
+
+		localDirChooser = new JFileChooser();
+		localDirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
 		pluginManagementPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		
+
 		JButton deleteAllButton = new JButton("Delete Installed Plug-ins");
 		deleteAllButton.setToolTipText("Delete all plug-ins");
-		deleteAllButton.addActionListener(createDeleteAllPluginsButtonActionListener());
+		deleteAllButton
+				.addActionListener(createDeleteAllPluginsButtonActionListener());
 		pluginManagementPane.add(deleteAllButton);
 
 		// Add a local context button pane.
@@ -108,13 +126,36 @@ public class PluginSettingsPane extends JPanel implements
 			}
 		};
 	}
-	
+
 	// Set defaults action button listener creator.
 	private ActionListener createSetDefaultsButtonActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				loadPluginsCheckbox.setSelected(true);
 				baseUrlField.setText(PluginManager.DEFAULT_PLUGIN_BASE_URL_STR);
+			}
+		};
+	}
+
+	// Set select local directory button listener creator.
+	private ActionListener createSelectLocalDirButtonActionListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int retVal = localDirChooser.showOpenDialog(DocumentManager
+						.findActiveWindow());
+
+				if (retVal == JFileChooser.APPROVE_OPTION) {
+					File file = localDirChooser.getSelectedFile();
+
+					if (file.isDirectory()) {
+						baseUrlField.setText("file://" + file.getAbsolutePath());
+					} else {
+						MessageBox.showErrorDialog(
+								"Plug-in Preferences",
+								String.format("'%s' is not a directory",
+										file.getAbsolutePath()));
+					}
+				}
 			}
 		};
 	}
