@@ -108,12 +108,6 @@
 		-->		
 		<copy file="lib/tamfits.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
 
-		<zip destfile="${vstar_plugins_zip_dir}.zip">
-			<zipfileset dir="${vstar_plugins_zip_dir}" />
-		</zip>
-
-		<delete dir="${vstar_plugins_zip_dir}" />
-		
 		<echo file="${plugins_list_file}" message="${pkg}.AAVSOUploadFileFormatObservationSource.jar${line.separator}" append="false" />
 		<echo file="${plugins_list_file}" message="${pkg}.AoVPeriodSearch.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ApacheCommonsLowessFitter.jar${line.separator}" append="true" />
@@ -141,6 +135,14 @@
 		<echo file="${plugins_list_file}" message="${pkg}.IRISAutomaticPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.PeriodAnalysisPluginTest1.jar${line.separator}" append="true" />
 		-->
+		
+		<copy file="${plugins_list_file}" todir="${vstar_plugins_zip_dir}" overwrite="true"/>
+
+		<zip destfile="${vstar_plugins_zip_dir}.zip">
+			<zipfileset dir="${vstar_plugins_zip_dir}" />
+		</zip>
+
+		<delete dir="${vstar_plugins_zip_dir}" />
 	</target>
 
 	<target name="clean" description="Clean up">
