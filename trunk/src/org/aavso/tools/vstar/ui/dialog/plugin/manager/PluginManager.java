@@ -25,10 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -369,7 +369,7 @@ public class PluginManager {
 		try {
 			URL infoUrl = new URL(baseUrlStr + "/" + PLUGINS_LIST_FILE);
 				
-			HttpURLConnection conn = (HttpURLConnection) infoUrl.openConnection();
+			URLConnection conn = infoUrl.openConnection();
 						
 			BufferedReader reader = new BufferedReader(
 					new InputStreamReader(conn.getInputStream()));
