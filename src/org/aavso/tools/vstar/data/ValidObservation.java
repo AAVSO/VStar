@@ -1006,16 +1006,38 @@ public class ValidObservation extends Observation {
 	 * Returns a line in TSV format of the following fields (bracketed fields
 	 * are optional):
 	 * 
-	 * JD,MAGNITUDE,[UNCERTAINTY],[OBSERVER_CODE],[VALFLAG]
+	 * [Phase,]JD,MAGNITUDE,[UNCERTAINTY],[OBSERVER_CODE],[VALFLAG]
 	 * 
 	 * @param delimiter
 	 *            The field delimiter to use.
 	 */
 	public String toSimpleFormatString(String delimiter) {
+		return toSimpleFormatString(delimiter, true);
+	}
+
+	/**
+	 * Returns a line in TSV format of the following fields (bracketed fields
+	 * are optional):
+	 * 
+	 * [Phase,][JD,]MAGNITUDE,[UNCERTAINTY],[OBSERVER_CODE],[VALFLAG]
+	 * 
+	 * @param delimiter
+	 *            The field delimiter to use.
+	 * @param includeJD
+	 *            Should the JD be included in the output?
+	 */
+	public String toSimpleFormatString(String delimiter, boolean includeJD) {
 		StringBuffer buf = new StringBuffer();
 
-		buf.append(this.getDateInfo().getJulianDay());
-		buf.append(delimiter);
+		if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
+			buf.append(this.getStandardPhase());
+			buf.append(delimiter);
+		}
+
+		if (includeJD && this.getDateInfo() != null) {
+			buf.append(this.getDateInfo().getJulianDay());
+			buf.append(delimiter);
+		}
 
 		buf.append(this.getMagnitude().isFainterThan() ? "<" : "");
 		buf.append(this.getMagnitude().getMagValue());
@@ -1049,10 +1071,30 @@ public class ValidObservation extends Observation {
 	 *            The field delimiter to use.
 	 */
 	public String toAAVSOFormatString(String delimiter) {
+		return toAAVSOFormatString(delimiter, true);
+	}
+	
+	/**
+	 * Returns a line in delimiter-separator (TSV, CSV, ...) AAVSO download
+	 * format.
+	 * 
+	 * @param delimiter
+	 *            The field delimiter to use.
+	 * @param includeJD
+	 *            Should the JD be included in the output?
+	 */
+	public String toAAVSOFormatString(String delimiter, boolean includeJD) {
 		StringBuffer buf = new StringBuffer();
 
-		buf.append(this.getDateInfo().getJulianDay());
-		buf.append(delimiter);
+		if (Mediator.getInstance().getAnalysisType() == AnalysisType.PHASE_PLOT) {
+			buf.append(this.getStandardPhase());
+			buf.append(delimiter);
+		}
+
+		if (includeJD && this.getDateInfo() != null) {
+			buf.append(this.getDateInfo().getJulianDay());
+			buf.append(delimiter);
+		}
 
 		buf.append(this.getMagnitude().isFainterThan() ? "<" : "");
 		buf.append(this.getMagnitude().getMagValue());

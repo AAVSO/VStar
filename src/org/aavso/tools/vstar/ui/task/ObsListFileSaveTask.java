@@ -26,8 +26,10 @@ import java.util.List;
 import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
 /**
@@ -97,10 +99,13 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	private void saveObsToFileInSimpleFormat(BufferedOutputStream ostream)
 			throws IOException {
 		for (ValidObservation ob : this.observations) {
-			ostream.write(ob.toSimpleFormatString(delimiter).getBytes());
+			boolean includeJD = Mediator.getInstance().getViewMode() == ViewModeType.LIST_OBS_MODE
+					|| Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA;
+			ostream.write(ob.toSimpleFormatString(delimiter, includeJD)
+					.getBytes());
 
-			Mediator.getInstance().getProgressNotifier().notifyListeners(
-					ProgressInfo.INCREMENT_PROGRESS);
+			Mediator.getInstance().getProgressNotifier()
+					.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);
 		}
 	}
 
@@ -114,9 +119,12 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	private void saveObsToFileInAAVSOFormat(BufferedOutputStream ostream)
 			throws IOException {
 		for (ValidObservation ob : this.observations) {
-			ostream.write(ob.toAAVSOFormatString(delimiter).getBytes());
-			Mediator.getInstance().getProgressNotifier().notifyListeners(
-					ProgressInfo.INCREMENT_PROGRESS);
+			boolean includeJD = Mediator.getInstance().getViewMode() == ViewModeType.LIST_OBS_MODE
+					|| Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA;
+			ostream.write(ob.toAAVSOFormatString(delimiter, includeJD)
+					.getBytes());
+			Mediator.getInstance().getProgressNotifier()
+					.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);
 		}
 	}
 
@@ -124,14 +132,14 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		Mediator.getInstance().getProgressNotifier().notifyListeners(
-				ProgressInfo.COMPLETE_PROGRESS);
+		Mediator.getInstance().getProgressNotifier()
+				.notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
 
-		Mediator.getUI().getStatusPane().setMessage(
-				"Saved '" + outFile.getAbsolutePath() + "'");
+		Mediator.getUI().getStatusPane()
+				.setMessage("Saved '" + outFile.getAbsolutePath() + "'");
 
-		Mediator.getInstance().getProgressNotifier().notifyListeners(
-				ProgressInfo.CLEAR_PROGRESS);
+		Mediator.getInstance().getProgressNotifier()
+				.notifyListeners(ProgressInfo.CLEAR_PROGRESS);
 
 		// TODO: how to detect task cancellation and clean up map etc
 	}
