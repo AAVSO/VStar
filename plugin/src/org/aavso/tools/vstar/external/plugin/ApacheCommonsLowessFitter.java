@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
-import org.aavso.tools.vstar.util.ApacheCommonsExtremaFinder;
+import org.aavso.tools.vstar.util.ApacheCommonsBrentOptimiserExtremaFinder;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
@@ -268,7 +268,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 						}
 
 						// Minimum/maximum.
-//						ApacheCommonsExtremaFinder finder = new ApacheCommonsExtremaFinder(
+//						ApacheCommonsBrentOptimiserExtremaFinder finder = new ApacheCommonsBrentOptimiserExtremaFinder(
 //								fit, function, timeCoordSource, 0);
 //
 //						String extremaStr = finder.toString();
