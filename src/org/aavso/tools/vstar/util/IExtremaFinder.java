@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.util;
 
 /**
  * This interface should be implemented by all extrema (minima/maxima) finders.
+ * @deprecated
  */
 public interface IExtremaFinder extends IAlgorithm {
 
