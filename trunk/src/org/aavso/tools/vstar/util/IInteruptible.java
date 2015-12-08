@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -17,18 +17,13 @@
  */
 package org.aavso.tools.vstar.util;
 
-import org.aavso.tools.vstar.exception.AlgorithmError;
-
 /**
- * Classes implementing an algorithm to be executed must realise this interface.
+ * Interruptible interface.
  */
-public interface IAlgorithm extends IInteruptible {
+public interface IInteruptible {
 
 	/**
-	 * Executes the algorithm.
-	 * 
-	 * @throws AlgorithmError
-	 *             in case of an algorithm error.
+	 * Interrupts the algorithm.
 	 */
-	abstract public void execute() throws AlgorithmError;
+	abstract public void interrupt();
 }
