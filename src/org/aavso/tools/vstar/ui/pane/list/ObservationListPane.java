@@ -263,12 +263,7 @@ public class ObservationListPane extends JPanel implements
 		selectAllButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				validDataTable.selectAll();
-				ListSelectionModel selModel = validDataTable
-						.getSelectionModel();
-				valueChanged(new ListSelectionEvent(selModel, selModel
-						.getMinSelectionIndex(), selModel
-						.getMaxSelectionIndex(), false));
+				selectAll();
 			}
 		});
 		panel.add(selectAllButton);
@@ -334,6 +329,18 @@ public class ObservationListPane extends JPanel implements
 		return panel;
 	}
 
+	/**
+	 * Select all observations visible in the list.
+	 */
+	public void selectAll() {
+		validDataTable.selectAll();
+		ListSelectionModel selModel = validDataTable
+				.getSelectionModel();
+		valueChanged(new ListSelectionEvent(selModel, selModel
+				.getMinSelectionIndex(), selModel
+				.getMaxSelectionIndex(), false));
+	}
+	
 	/**
 	 * @return the validDataTable
 	 */
