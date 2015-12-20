@@ -39,10 +39,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
-import org.aavso.tools.vstar.exception.AuthenticationError;
-import org.aavso.tools.vstar.exception.CancellationException;
-import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.plugin.IPlugin;
@@ -101,6 +97,7 @@ public class MenuBar extends JMenuBar {
 	// Edit menu items.
 	public static final String UNDO = LocaleProps.get("EDIT_MENU_UNDO");
 	public static final String REDO = LocaleProps.get("EDIT_MENU_REDO");
+	public static final String SELECT_ALL = LocaleProps.get("SELECT_ALL");
 	public static final String EXCLUDE_SELECTION = LocaleProps
 			.get("EDIT_MENU_EXCLUDE_SELECTION");
 
@@ -200,6 +197,7 @@ public class MenuBar extends JMenuBar {
 	JMenu editMenu;
 	JMenuItem editUndoItem;
 	JMenuItem editRedoItem;
+	JMenuItem editSelectAllItem;
 	JMenuItem editExcludeSelectionItem;
 
 	// View menu.
@@ -400,6 +398,14 @@ public class MenuBar extends JMenuBar {
 		editRedoItem.setEnabled(false);
 		editRedoItem.addActionListener(createRedoListener());
 		editMenu.add(editRedoItem);
+
+		editMenu.addSeparator();
+
+		editSelectAllItem = new JMenuItem(SELECT_ALL);
+		editSelectAllItem.setEnabled(false);
+		editSelectAllItem
+				.addActionListener(createSelectAllListener());
+		editMenu.add(editSelectAllItem);
 
 		editMenu.addSeparator();
 
@@ -886,6 +892,19 @@ public class MenuBar extends JMenuBar {
 					editRedoItem.setText(REDO);
 					editRedoItem.setEnabled(false);
 				}
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Edit->Select All
+	 */
+	public ActionListener createSelectAllListener() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				AnalysisType type = Mediator.getInstance().getAnalysisType();
+				Mediator.getInstance().getObservationListPane(type).selectAll();
 			}
 		};
 	}
@@ -1457,6 +1476,7 @@ public class MenuBar extends JMenuBar {
 				editRedoItem.setText(REDO);
 				editRedoItem.setEnabled(false);
 
+				editSelectAllItem.setEnabled(true);
 				editExcludeSelectionItem.setEnabled(false);
 
 				viewPhasePlotItem.setEnabled(false);
