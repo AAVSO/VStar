@@ -148,7 +148,16 @@ public class PluginSettingsPane extends JPanel implements IPreferenceComponent {
 					File file = localDirChooser.getSelectedFile();
 
 					if (file.isDirectory()) {
-						baseUrlField.setText("file://" + file.getAbsolutePath());
+						String filePrefix = "file://";
+						if (System.getProperty("os.name").toLowerCase()
+								.indexOf("win") >= 0) {
+							// Mac and *nix will always have an absolute path
+							// that begins with "/". A Windows path must have
+							// this added explicitly.
+							filePrefix += "/";
+						}
+						baseUrlField.setText(filePrefix
+								+ file.getAbsolutePath());
 					} else {
 						MessageBox.showErrorDialog(
 								"Plug-in Preferences",
