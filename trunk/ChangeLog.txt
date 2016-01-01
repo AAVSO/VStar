@@ -32,16 +32,16 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
-Date: December 8 2015
-Version: 2.16.10-RC1
-Tag: DEV-AAVSO-08Dec2015
+Date: January 1 2016
+Version: 2.16.10-RC2
+Tag: DEV-AAVSO-01Jan2016
 Key Changes:
 - Fixed bug in which raw mode polynomial fits gave errors; introduced after 
   adding phase plot mode polynomial fit feature in 2.16.9
 - Removed need for authentication or giving special treatment to member plug-ins 
   from plugin-manager; note that member-only plug-ins still require authentication 
   at run-time.
-- Disabled extrema finder functionaliy until a reliable approach is implemented.
+- Disabled extrema finder functionality until a reliable approach is implemented.
 - Ticket #400: Made all "New Star from File..." menu items plug-in based
   and changed AAVSO upload obs src to show line-based progress
 - Ticket #161: Permit URL instead of file as data source for AAVSO download 
@@ -54,14 +54,16 @@ Key Changes:
   2015 data release.
 - Ticket #436: Plug-in Manager: install from local: added local directory
   selection button in preferences pane and internal changes to allow http
-  and file streams.
+  or file streams for plug-ins.
 - Ticket #430: Observation list: Save: Allow phase phase plot list to be saved
   Also, model, mean, residuals lists can also now be saved in phase plot mode.
-  Scripting API modified to allow mean, model, residuals to be saved; light 
+- Scripting API modified to allow mean, model, residuals to be saved; light 
   curve vs phase plot mode must be explicitly requested before calling these 
-  now, a change in behaviour! 
-- Ticket #506: Synthetic obs list in phase mode should always use standard phase.
-  
+  now, a change in behaviour!
+- Added DCDFT to scripting API.
+- Ticket #506: Synthetic obs list in phase mode should always use standard 
+  phase.
+
 Date: August 11 2015
 Version: 2.16.9
 Tag: DEV-AAVSO-11Aug2015
