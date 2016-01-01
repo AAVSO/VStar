@@ -246,8 +246,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			String line = reader.readLine();
 
 			while (line != null) {
-				if (line
-						.contains("An error occured while trying to connect to database")) {
+				if (line.contains("An error occured while trying to connect to database")) {
 					throw new ObservationReadError("Cannot access " + kind
 							+ " database.");
 				} else if (line.contains("No rows were returned by query")) {
@@ -262,15 +261,24 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 					double jd = Double.parseDouble(fields[0]);
 					double mag = Double.parseDouble(fields[1]);
 					double error = Double.parseDouble(fields[2]);
-					
+
 					ValidObservation ob = new ValidObservation();
 					ob.setDateInfo(new DateInfo(jd));
 					ob.setMagnitude(new Magnitude(mag, error));
 					ob.setBand(series);
 					ob.setRecordNumber(reader.getLineNumber());
-					
+
 					if (fields.length == 4) {
-						ob.addDetail("SOURCE", fields[3], "Source");
+						// Source field.
+						int id = 0;
+						try {
+							id = Integer.parseInt(fields[3]);
+						} catch (NumberFormatException e) {
+							// Nothing to do.
+						}
+						String source = AAVSOPhotometrySource.fromID(id)
+								.toString();
+						ob.addDetail("SOURCE", source, "Source");
 					}
 
 					collectObservation(ob);
@@ -382,8 +390,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			for (String seriesName : seriesNameToTypeMap.keySet()) {
 				JCheckBox checkBox = new JCheckBox(seriesName);
 
-				checkBox
-						.addActionListener(createSeriesVisibilityCheckBoxListener());
+				checkBox.addActionListener(createSeriesVisibilityCheckBoxListener());
 
 				checkBox.setSelected(seriesNames.contains(seriesName));
 
