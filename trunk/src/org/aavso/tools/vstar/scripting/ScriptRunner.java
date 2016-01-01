@@ -146,4 +146,14 @@ public class ScriptRunner {
 	public void setWarning(String warning) {
 		this.warning = warning;
 	}
+	
+	/**
+	 * Bind a name to a value in the scripting context.
+	 * 
+	 * @param name The name of the value to bind to.
+	 * @param value The value to which to bind.
+	 */
+	public void bind(String name, Object value) {
+		bindings.put(name, value);
+	}
 }
