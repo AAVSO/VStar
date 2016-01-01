@@ -60,7 +60,7 @@ public class PhaseChangeMessage extends MessageBase {
 	}
 
 	/**
-	 * @rturn the epoch
+	 * @return the epoch
 	 */
 	public double getEpoch() {
 		return epoch;
