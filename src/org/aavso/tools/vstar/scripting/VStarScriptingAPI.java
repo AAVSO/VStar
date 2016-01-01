@@ -20,8 +20,12 @@ package org.aavso.tools.vstar.scripting;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
@@ -34,6 +38,9 @@ import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
+import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 
 /**
  * This is VStar's scripting Application Programming Interface. An instance of
@@ -51,7 +58,7 @@ public class VStarScriptingAPI {
 	private AnalysisTypeChangeMessage analysisTypeMsg;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 */
 	private VStarScriptingAPI() {
 		mediator = Mediator.getInstance();
@@ -83,6 +90,10 @@ public class VStarScriptingAPI {
 			}
 		};
 	}
+	
+	// ***************************************
+	// ** VStar scripting API methods start **
+	// ***************************************
 
 	/**
 	 * Load a dataset from the specified path. This is equivalent to
@@ -108,21 +119,6 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Common dataset file load method.
-	 * 
-	 * @param path
-	 *            The path to the file or URL.
-	 * @param isAdditive
-	 *            Is this load additive?
-	 */
-	private void commonLoadFromFile(final String path, boolean isAdditive) {
-		init();
-
-		commonLoadFromFileOrURLViaPlugin(MenuBar.NEW_STAR_FROM_FILE,
-				InputType.FILE, path, isAdditive);
-	}
-
-	/**
 	 * Load a dataset from the specified path. This is equivalent to
 	 * "File -> New Star from File..." with URL requested.
 	 * 
@@ -143,21 +139,6 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void additiveLoadFromURL(final String path) {
 		commonLoadFromURL(path, true);
-	}
-
-	/**
-	 * Common dataset URL load method.
-	 * 
-	 * @param url
-	 *            The URL of the file.
-	 * @param isAdditive
-	 *            Is this load additive?
-	 */
-	private void commonLoadFromURL(final String path, boolean isAdditive) {
-		init();
-
-		commonLoadFromFileOrURLViaPlugin(MenuBar.NEW_STAR_FROM_FILE,
-				InputType.URL, path, isAdditive);
 	}
 
 	/**
@@ -221,63 +202,6 @@ public class VStarScriptingAPI {
 			final String url) {
 		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.URL, url, true);
 	}
-
-	/**
-	 * Common dataset plug-in load method.
-	 * 
-	 * @param pluginName
-	 *            The sub-string with which to match the plug-in name.
-	 * @param inputType
-	 *            The input type (e.g. file, URL).
-	 * @param location
-	 *            The path or URL to the file.
-	 * @param isAdditive
-	 *            Is this load additive?
-	 */
-	private void commonLoadFromFileOrURLViaPlugin(final String pluginName,
-			InputType inputType, final String location, boolean isAdditive) {
-		init();
-
-		ObservationSourcePluginBase obSourcePlugin = null;
-
-		for (ObservationSourcePluginBase plugin : PluginLoader
-				.getObservationSourcePlugins()) {
-			if (plugin.getDisplayName().contains(pluginName)
-					&& (plugin.getInputType() == inputType || plugin
-							.getInputType() == InputType.FILE_OR_URL)) {
-				obSourcePlugin = plugin;
-				break;
-			}
-		}
-
-		if (obSourcePlugin != null) {
-			try {
-				if (inputType == InputType.FILE) {
-					mediator.createObservationArtefactsFromObSourcePlugin(
-							obSourcePlugin, new File(location), isAdditive);
-				} else if (inputType == InputType.URL) {
-					mediator.createObservationArtefactsFromObSourcePlugin(
-							obSourcePlugin, new URL(location), isAdditive);
-
-				}
-			} catch (IOException e) {
-				MessageBox.showErrorDialog("Load File", "Cannot load file: "
-						+ location);
-			} catch (ObservationReadError e) {
-				MessageBox.showErrorDialog("Load File",
-						"Error reading observations from file: " + location
-								+ " (reason: " + e.getLocalizedMessage() + ")");
-			}
-		} else {
-			MessageBox
-					.showErrorDialog("Load File",
-							"No matching observation plugin found '"
-									+ pluginName + "'");
-		}
-
-		mediator.waitForJobCompletion();
-	}
-
 	/**
 	 * Load a dataset from the AAVSO international database.
 	 * 
@@ -433,6 +357,61 @@ public class VStarScriptingAPI {
 	}
 
 	/**
+	 * Perform DCDFT period analysis with period range.
+	 * 
+	 * @param seriesName
+	 *            The short or long form of the series name, e.g. V or Johnson
+	 *            V.
+	 * @param lowPeriod
+	 *            The low value of the period range to search in.
+	 * @param highPeriod
+	 *            The high value of the period range to search in.
+	 * @param resolution
+	 *            The resolution of the search over the range.
+	 * @return An array of top-hits periods.
+	 */
+	public synchronized Double[] dcdftPeriod(String seriesName,
+			double lowPeriod, double highPeriod, double resolution) {
+
+		return dcdftCommon(seriesName, DcDftAnalysisType.PERIOD_RANGE,
+				lowPeriod, highPeriod, resolution);
+	}
+
+	/**
+	 * Perform DCDFT period analysis with frequency range.
+	 * 
+	 * @param seriesName
+	 *            The short or long form of the series name, e.g. V or Johnson
+	 *            V.
+	 * @param lowFrequency
+	 *            The low value of the frequency range to search in.
+	 * @param highPeriod
+	 *            The high value of the frequency range to search in.
+	 * @param resolution
+	 *            The resolution of the search over the range.
+	 * @return An array of top-hits frequencies.
+	 */
+	public synchronized Double[] dcdftFrequency(String seriesName,
+			double lowFrequency, double highFrequency, double resolution) {
+
+		return dcdftCommon(seriesName, DcDftAnalysisType.FREQUENCY_RANGE,
+				lowFrequency, highFrequency, resolution);
+	}
+
+	/**
+	 * Perform DCDFT period analysis with standard scan.
+	 * 
+	 * @param seriesName
+	 *            The short or long form of the series name, e.g. V or Johnson
+	 *            V.
+	 * @return An array of top-hits frequencies.
+	 */
+	public synchronized Double[] dcdftStandardScan(String seriesName) {
+
+		return dcdftCommon(seriesName, DcDftAnalysisType.STANDARD_SCAN, 0, 0, 0);
+	}
+
+	/**
 	 * Return the last error.
 	 * 
 	 * @return The error string; may be null.
@@ -448,25 +427,6 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized String getWarning() {
 		return ScriptRunner.getInstance().getWarning();
-	}
-
-	/**
-	 * Shows the band names in the current dataset.
-	 * 
-	 * @deprecated return a string or array or strings instead!
-	 */
-	public synchronized void showBands() {
-		init();
-		ObservationAndMeanPlotModel model = analysisTypeMsg
-				.getObsAndMeanChartPane().getObsModel();
-
-		String[] names = new String[model.getSeriesCount()];
-
-		int i = 0;
-		for (SeriesType type : model.getSeriesKeys()) {
-			names[i++] = type.getShortName();
-			System.out.println(type.getShortName());
-		}
 	}
 
 	/**
@@ -523,8 +483,6 @@ public class VStarScriptingAPI {
 		mediator.waitForJobCompletion();
 	}
 
-	// TODO: makeInvisible() or hideSeries() and showSeries()
-
 	/**
 	 * Pause for the specified number of milliseconds.
 	 * 
@@ -545,6 +503,194 @@ public class VStarScriptingAPI {
 		mediator.quit();
 	}
 
+	// *************************************
+	// ** VStar scripting API methods end **
+	// *************************************
+
+	// TODO:
+	// - makeInvisible() or hideSeries() and showSeries()
+	// - allow AoV: see commonLoadFromFileOrURLViaPlugin()
+
+	// Common methods
+	
+	/**
+	 * Common dataset file load method.
+	 * 
+	 * @param path
+	 *            The path to the file or URL.
+	 * @param isAdditive
+	 *            Is this load additive?
+	 */
+	private void commonLoadFromFile(final String path, boolean isAdditive) {
+		init();
+
+		commonLoadFromFileOrURLViaPlugin(MenuBar.NEW_STAR_FROM_FILE,
+				InputType.FILE, path, isAdditive);
+	}
+
+	/**
+	 * Common dataset URL load method.
+	 * 
+	 * @param url
+	 *            The URL of the file.
+	 * @param isAdditive
+	 *            Is this load additive?
+	 */
+	private void commonLoadFromURL(final String path, boolean isAdditive) {
+		init();
+
+		commonLoadFromFileOrURLViaPlugin(MenuBar.NEW_STAR_FROM_FILE,
+				InputType.URL, path, isAdditive);
+	}
+
+
+	/**
+	 * Common dataset plug-in load method.
+	 * 
+	 * @param pluginName
+	 *            The sub-string with which to match the plug-in name.
+	 * @param inputType
+	 *            The input type (e.g. file, URL).
+	 * @param location
+	 *            The path or URL to the file.
+	 * @param isAdditive
+	 *            Is this load additive?
+	 */
+	private void commonLoadFromFileOrURLViaPlugin(final String pluginName,
+			InputType inputType, final String location, boolean isAdditive) {
+		init();
+
+		ObservationSourcePluginBase obSourcePlugin = null;
+
+		for (ObservationSourcePluginBase plugin : PluginLoader
+				.getObservationSourcePlugins()) {
+			if (plugin.getDisplayName().contains(pluginName)
+					&& (plugin.getInputType() == inputType || plugin
+							.getInputType() == InputType.FILE_OR_URL)) {
+				obSourcePlugin = plugin;
+				break;
+			}
+		}
+
+		if (obSourcePlugin != null) {
+			try {
+				if (inputType == InputType.FILE) {
+					mediator.createObservationArtefactsFromObSourcePlugin(
+							obSourcePlugin, new File(location), isAdditive);
+				} else if (inputType == InputType.URL) {
+					mediator.createObservationArtefactsFromObSourcePlugin(
+							obSourcePlugin, new URL(location), isAdditive);
+
+				}
+			} catch (IOException e) {
+				MessageBox.showErrorDialog("Load File", "Cannot load file: "
+						+ location);
+			} catch (ObservationReadError e) {
+				MessageBox.showErrorDialog("Load File",
+						"Error reading observations from file: " + location
+								+ " (reason: " + e.getLocalizedMessage() + ")");
+			}
+		} else {
+			MessageBox
+					.showErrorDialog("Load File",
+							"No matching observation plugin found '"
+									+ pluginName + "'");
+		}
+
+		mediator.waitForJobCompletion();
+	}
+
+	/**
+	 * Perform DCDFT period analysis.
+	 * 
+	 * @param seriesName
+	 *            The short or long form of the series name, e.g. V or Johnson
+	 *            V.
+	 * @param analysisType
+	 *            Period range, frequency range, standard scan?
+	 * @param lowPeriod
+	 *            The low value of the period range to search in.
+	 * @param highPeriod
+	 *            The high value of the period range to search in.
+	 * @param resolution
+	 *            The resolution of the search over the range.
+	 * @return An array of top-hits periods or frequencies.
+	 */
+	private synchronized Double[] dcdftCommon(String seriesName,
+			DcDftAnalysisType analysisType, double low, double high,
+			double resolution) {
+
+		init();
+
+		Double[] topHitPeriods = null;
+
+		// Find the requested series...
+		SeriesType series = SeriesType.getSeriesFromShortName(seriesName);
+
+		if (series == SeriesType.getDefault()) {
+			series = SeriesType.getSeriesFromDescription(seriesName);
+		}
+
+		// ...if the user wasn't really asking for the default series name but
+		// we got it anyway, we treat this as an error.
+		if (series == SeriesType.getDefault()
+				&& !SeriesType.getDefault().getDescription()
+						.equals(seriesName.toLowerCase())) {
+			ScriptRunner.getInstance().setError("Unknown series " + seriesName);
+		} else {
+			List<ValidObservation> obs = Mediator.getInstance()
+					.getLatestNewStarMessage().getObsCategoryMap().get(series);
+
+			if (obs.size() > 0) {
+				TSDcDft dcdft = null;
+
+				switch (analysisType) {
+				case PERIOD_RANGE:
+					dcdft = new TSDcDft(obs, DcDftAnalysisType.PERIOD_RANGE);
+					dcdft.setLoPeriodValue(low);
+					dcdft.setHiPeriodValue(high);
+					dcdft.setResolutionValue(resolution);
+					break;
+
+				case FREQUENCY_RANGE:
+					dcdft = new TSDcDft(obs, low, high, resolution);
+					break;
+
+				case STANDARD_SCAN:
+					dcdft = new TSDcDft(obs);
+					break;
+				}
+
+				try {
+					dcdft.execute();
+
+					Map<PeriodAnalysisCoordinateType, List<Double>> topHits = dcdft
+							.getTopHits();
+
+					PeriodAnalysisCoordinateType coordType = null;
+
+					if (analysisType == DcDftAnalysisType.PERIOD_RANGE) {
+						coordType = PeriodAnalysisCoordinateType.PERIOD;
+					} else {
+						coordType = PeriodAnalysisCoordinateType.FREQUENCY;
+					}
+
+					// Get array of top-hit periods or frequencies.
+					topHitPeriods = topHits.get(coordType).toArray(
+							new Double[0]);
+
+				} catch (AlgorithmError e) {
+					ScriptRunner.getInstance().setError(e.getMessage());
+				}
+			} else {
+				ScriptRunner.getInstance().setError(
+						"No observations in series " + seriesName);
+			}
+		}
+
+		return topHitPeriods;
+	}
+	
 	// Helpers
 
 	private void init() {
