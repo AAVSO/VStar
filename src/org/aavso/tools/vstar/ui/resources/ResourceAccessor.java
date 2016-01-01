@@ -137,7 +137,7 @@ public class ResourceAccessor {
 	// ** Version info. **
 
 	public static String getVersionString() {
-		return "2.16.10-RC1";
+		return "2.16.10-RC2";
 	}
 
 	public static String getRevNum() {
