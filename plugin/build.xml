@@ -35,7 +35,6 @@
 		<jar jarfile="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" basedir="${build.classes}" includes="**/ApacheCommonsLowessFitter**.class" />
 		<jar jarfile="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/APASSEpochPhotometryObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.ASASObservationSource.jar" basedir="${build.classes}" includes="**/ASASObservationSource**.class" />
-		<jar jarfile="${dist}/${pkg}.BMinusVObservationSource.jar" basedir="${build.classes}" includes="**/BMinusVObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.BSMPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/BSMPhotometryObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" basedir="${build.classes}" includes="**/CatalinaSkySurveyObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.CurrentModeANOVATool.jar" basedir="${build.classes}" includes="**/CurrentModeANOVATool**.class" />
@@ -43,7 +42,6 @@
 		<jar jarfile="${dist}/${pkg}.DescStatsBySeries.jar" basedir="${build.classes}" includes="**/DescStatsBySeries**.class" />
 		<jar jarfile="${dist}/${pkg}.FourierModelCreator.jar" basedir="${build.classes}" includes="**/FourierModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.HipparcosObservationSource.jar" basedir="${build.classes}" includes="**/HipparcosObservationSource**.class" />
-		<jar jarfile="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/IRISAutomaticPhotometryObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class" />
 		<jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="**/KeplerFITSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class" />
@@ -52,15 +50,17 @@
 		<jar jarfile="${dist}/${pkg}.ObserversBySeries.jar" basedir="${build.classes}" includes="**/ObserversBySeries**.class" />
 		<jar jarfile="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" basedir="${build.classes}" includes="**/PeriodLuminosityDistanceCalculator**.class" />
 		<jar jarfile="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" basedir="${build.classes}" includes="**/SuperWASPFITSObservationSource**.class" />
-		<jar jarfile="${dist}/${pkg}.VSPChartInfoRetriever.jar" basedir="${build.classes}" includes="**/VSPChartInfoRetriever**.class" />
 		<!--
+		<jar jarfile="${dist}/${pkg}.BMinusVObservationSource.jar" basedir="${build.classes}" includes="**/BMinusVObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="**/CustomFilterTest**.class" />
 		<jar jarfile="${dist}/${pkg}.DifferentialPhotometry.jar" basedir="${build.classes}" includes="**/DifferentialPhotometry**.class" />
  		<jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="**/ExampleObSource**.class" />
+		<jar jarfile="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/IRISAutomaticPhotometryObservationSource**.class" />
    		<jar jarfile="${dist}/${pkg}.MagnitudeShiftTool.jar" basedir="${build.classes}" includes="**/MagnitudeShiftTool**.class"/>
     	<jar jarfile="${dist}/${pkg}.ObservationCounter.jar" basedir="${build.classes}" includes="**/ObservationCounter**.class"/>
 		<jar jarfile="${dist}/${pkg}.PeriodAnalysisPluginTest1.jar" basedir="${build.classes}" includes="**/PeriodAnalysisPluginTest1**.class"/>
 		<jar jarfile="${dist}/${pkg}.VSOLJObservationSource.jar" basedir="${build.classes}" includes="**/VSOLJObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.VSPChartInfoRetriever.jar" basedir="${build.classes}" includes="**/VSPChartInfoRetriever**.class" />
 		-->
 	</target>
 
@@ -84,7 +84,6 @@
 		<copy file="${dist}/${pkg}.ApacheCommonsLowessFitter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ASASObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.BMinusVObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.BSMPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.CurrentModeANOVATool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -100,11 +99,12 @@
 		<copy file="${dist}/${pkg}.ObserversBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.VSPChartInfoRetriever.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<!--
+		<copy file="${dist}/${pkg}.BMinusVObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.DifferentialPhotometry.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.PeriodAnalysisPluginTest1.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.VSPChartInfoRetriever.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		-->		
 		<copy file="lib/tamfits.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
 
@@ -113,7 +113,6 @@
 		<echo file="${plugins_list_file}" message="${pkg}.ApacheCommonsLowessFitter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.APASSEpochPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ASASObservationSource.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.BMinusVObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.BSMPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.CatalinaSkySurveyObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.CurrentModeANOVATool.jar${line.separator}" append="true" />
@@ -129,11 +128,12 @@
 		<echo file="${plugins_list_file}" message="${pkg}.ObserversBySeries.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.PeriodLuminosityDistanceCalculator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.SuperWASPFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.VSPChartInfoRetriever.jar${line.separator}" append="true" />
 		<!--
+		<echo file="${plugins_list_file}" message="${pkg}.BMinusVObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.DifferentialPhotometry.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.IRISAutomaticPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.PeriodAnalysisPluginTest1.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.VSPChartInfoRetriever.jar${line.separator}" append="true" />
 		-->
 		
 		<copy file="${plugins_list_file}" todir="${vstar_plugins_zip_dir}" overwrite="true"/>
