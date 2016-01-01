@@ -32,7 +32,7 @@ for (i=0;i<objs.length;i++) {
 
        // Create a phase plot with the top-hit.
        // Uncomment the desired frequency or period top-hit phase plot call.
-       //vstar.phasePlot(1.0/periods[0], epoch)
+       //vstar.phasePlot(periods[0], epoch)
        vstar.phasePlot(1.0/freqs[0], epoch)
 
        // Save the phase plot as a PNG file.
