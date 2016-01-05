@@ -210,6 +210,8 @@ abstract public class AbstractExtremaFinder implements IInteruptible {
 			UnivariateRealFunction function, int[] bracketRange)
 			throws AlgorithmError {
 
+		// Note: won't extremeMag/Time be overwritten? probably doesn't matter
+		// because of the way we sequentially construct a string here...
 		find(goal, bracketRange);
 
 		double extremeMag = getExtremeMag();
@@ -219,16 +221,19 @@ abstract public class AbstractExtremaFinder implements IInteruptible {
 				NumericPrecisionPrefs.formatTime(getExtremeTime()),
 				NumericPrecisionPrefs.formatMag(extremeMag),
 				LocaleProps.get(titleKey));
-
+		
+		// use Math.abs and look for minimum...
+		// take a tolerance based approach to the same as the resolution
+		
 		// Is the extremum within a reasonable range? If not,
 		// set it to null.
 		if (strRepr != null) {
 			if (goal == GoalType.MAXIMIZE) {
-				if (extremeMag > numericallyMaxMagIndex) {
+				if (extremeMag > obs.get(numericallyMaxMagIndex).getMag()) {
 					strRepr = null;
 				}
 			} else if (goal == GoalType.MINIMIZE) {
-				if (extremeMag < numericallyMinMagIndex) {
+				if (extremeMag < obs.get(numericallyMinMagIndex).getMag()) {
 					strRepr = null;
 				}
 			}
