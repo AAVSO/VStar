@@ -22,6 +22,8 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
+import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.optimization.GoalType;
 
@@ -34,44 +36,112 @@ import org.apache.commons.math.optimization.GoalType;
 public class ApacheCommonsDerivativeBasedExtremaFinder extends
 		AbstractExtremaFinder {
 
-	private UnivariateRealFunction secondDerivative;
-
 	/**
 	 * Constructor
 	 * 
 	 * @param obs
 	 *            The list of observations modeled by the function.
 	 * @param function
-	 *            An Apache Commons Math univariate function corresponding to
-	 *            the first derivative of some function for which the extrema
+	 *            An Apache Commons Math univariate function for which extrema
 	 *            are required.
-	 * @param secondDerivative
-	 *            An Apache Commons Math univariate function corresponding to
-	 *            the second derivative of some function for which the extrema
-	 *            are required. This function allows us to determine whether the
-	 *            extremum is a minimum or maximum.
 	 * @param timeCoordSource
 	 *            Time coordinate source.
 	 * @param zeroPoint
 	 *            The zeroPoint to be added to the extreme time result.
 	 */
 	public ApacheCommonsDerivativeBasedExtremaFinder(
-			List<ValidObservation> obs, UnivariateRealFunction function,
-			UnivariateRealFunction secondDerivative,
+			List<ValidObservation> obs,
+			DifferentiableUnivariateRealFunction function,
 			ICoordSource timeCoordSource, double zeroPoint) {
 		super(obs, function, timeCoordSource, zeroPoint);
-		this.secondDerivative = secondDerivative;
 	}
 
 	@Override
 	public void find(GoalType goal, int[] bracketRange) throws AlgorithmError {
-		// TODO
-		// - Iterate over whole series (all obs in series), looking for where
-		// the function (1st derivative) goes to zero or in particular, where it
+		// Iterate over whole series (all obs in series), looking for where the
+		// function (1st derivative) goes to zero or in particular, where it
 		// goes from -ve to +ve (minimum) or +ve to -ve (maximum).
-		// - Find the obs immediately before and after the transition and use
-		// this as the bracket range.
-		// - Choose a suitable resolution (e.g. 1 sec, 1 min) settable in prefs
+		UnivariateRealFunction firstDerivative = ((DifferentiableUnivariateRealFunction) function)
+				.derivative();
+
+		UnivariateRealFunction secondDerivative = ((DifferentiableUnivariateRealFunction) firstDerivative)
+				.derivative();
+
+		double jd = 0;
+
+		try {
+			int maxDerivIndex = 0;
+			double maxDeriv = Double.NEGATIVE_INFINITY;
+
+			// Find the obs immediately before and after the transition and use
+			// this as the bracket range.
+			for (int i = 0; i < obs.size(); i++) {
+				jd = obs.get(i).getJD();
+
+				double deriv = firstDerivative.value(jd - zeroPoint);
+
+				if (deriv <= 0) {
+					double mag = function.value(jd - zeroPoint);
+					double deriv2 = secondDerivative.value(jd - zeroPoint);
+
+					// Note: first one that goes negative seems to be close; go
+					// back one ob and start searching...
+
+					System.out.printf("%d => %f: %f (f': %f, f'': %f)\n", i,
+							jd, mag, deriv, deriv2);
+
+					if (deriv > maxDeriv) {
+						maxDeriv = deriv;
+						maxDerivIndex = i;
+					}
+				}
+			}
+
+			int firstIndex = maxDerivIndex > 0 ? maxDerivIndex - 1
+					: maxDerivIndex;
+			int lastIndex = maxDerivIndex < obs.size() ? maxDerivIndex + 1
+					: maxDerivIndex;
+
+			// TODO: make resolution dependent upon JD range of series under
+			// analysis;
+			// we are trying to get the first derivative to be as close to zero
+			// as possible.
+			double firstJD = obs.get(firstIndex).getJD();
+			double lastJD = obs.get(lastIndex).getJD();
+			double maxDerivJD = firstJD;
+			
+			for (jd = firstJD; jd <= lastJD; jd += 0.0001) {
+
+				double deriv = firstDerivative.value(jd - zeroPoint);
+
+				// TODO: don't need to check for zero here; remove if.
+				if (deriv <= 0) {
+					double mag = function.value(jd - zeroPoint);
+					double deriv2 = secondDerivative.value(jd - zeroPoint);
+
+					// Note: first one that goes negative seems to be close; go
+					// back one ob and start searching...
+
+					System.out.printf("%f: %f (f': %f, f'': %f)\n", jd, mag,
+							deriv, deriv2);
+					
+					if (deriv > maxDeriv) {
+						maxDeriv = deriv;
+						maxDerivJD = jd;
+					}
+				}
+			}
+
+			extremeTime = maxDerivJD;
+			extremeMag = function.value(maxDerivJD - zeroPoint);
+			
+		} catch (FunctionEvaluationException e) {
+			throw new AlgorithmError(String.format(
+					"Error obtaining derivative value for JD %f", jd));
+		}
+
+		// TODO
+		// - Choose a suitable resolution/tolerance (e.g. 1 sec, 1 min) settable in prefs
 		// to iterate over the 1st derivative to find where it goes to zero or
 		// as close to zero as possible. Time values must include zeroPoint
 		// addition.
