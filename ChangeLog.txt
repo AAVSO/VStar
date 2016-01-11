@@ -32,16 +32,19 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
-Date: January 1 2016
-Version: 2.16.10-RC2
-Tag: DEV-AAVSO-01Jan2016
+Date: January 11 2016
+Version: 2.16.10
+Tag: DEV-AAVSO-11Jan2016
 Key Changes:
 - Fixed bug in which raw mode polynomial fits gave errors; introduced after 
   adding phase plot mode polynomial fit feature in 2.16.9
 - Removed need for authentication or giving special treatment to member plug-ins 
   from plugin-manager; note that member-only plug-ins still require authentication 
   at run-time.
-- Disabled extrema finder functionality until a reliable approach is implemented.
+- Ticket #304 Find minima/maxima of a model: first implementation of a
+  derivative-based extrema finder to replace the previous optimiser 
+  implementation; works best when a suitably uncomplicated light curve 
+  section is selected.
 - Ticket #400: Made all "New Star from File..." menu items plug-in based
   and changed AAVSO upload obs src to show line-based progress
 - Ticket #161: Permit URL instead of file as data source for AAVSO download 
@@ -63,6 +66,8 @@ Key Changes:
 - Added DCDFT to scripting API.
 - Ticket #506: Synthetic obs list in phase mode should always use standard 
   phase.
+- Ticket #509 Make default JD range slightly into future for AID loads.
+  Thanks to Ken for the suggestion which has crossed my mind also.
 
 Date: August 11 2015
 Version: 2.16.9
