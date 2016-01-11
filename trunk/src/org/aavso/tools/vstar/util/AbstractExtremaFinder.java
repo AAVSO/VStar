@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -210,32 +212,27 @@ abstract public class AbstractExtremaFinder implements IInteruptible {
 			UnivariateRealFunction function, int[] bracketRange)
 			throws AlgorithmError {
 
-		// Note: won't extremeMag/Time be overwritten? probably doesn't matter
-		// because of the way we sequentially construct a string here...
-		find(goal, bracketRange);
+		String strRepr = null;
 
-		double extremeMag = getExtremeMag();
+		// TODO: at some stage, allow this (JD vs phase)
+		if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+			// Note: won't extremeMag/Time be overwritten? probably doesn't
+			// matter
+			// because of the way we sequentially construct a string here...
+			find(goal, bracketRange);
 
-		String strRepr = String.format("%s: %s, Mag: %s [%s]",
-				timeCoordSource.getUnit(),
-				NumericPrecisionPrefs.formatTime(getExtremeTime()),
-				NumericPrecisionPrefs.formatMag(extremeMag),
-				LocaleProps.get(titleKey));
-		
-		// use Math.abs and look for minimum...
-		// take a tolerance based approach to the same as the resolution
-		
-		// Is the extremum within a reasonable range? If not,
-		// set it to null.
-		if (strRepr != null) {
-			if (goal == GoalType.MAXIMIZE) {
-				if (extremeMag > obs.get(numericallyMaxMagIndex).getMag()) {
-					strRepr = null;
-				}
-			} else if (goal == GoalType.MINIMIZE) {
-				if (extremeMag < obs.get(numericallyMinMagIndex).getMag()) {
-					strRepr = null;
-				}
+			double extremeMag = getExtremeMag();
+
+			strRepr = String.format("%s: %s, Mag: %s [%s]",
+					timeCoordSource.getUnit(),
+					NumericPrecisionPrefs.formatTime(getExtremeTime()),
+					NumericPrecisionPrefs.formatMag(extremeMag),
+					LocaleProps.get(titleKey));
+
+			// Is the extremum within a reasonable range? If not,
+			// set it to null.
+			if (strRepr != null && extremeTime == Double.POSITIVE_INFINITY) {
+				strRepr = null;
 			}
 		}
 
