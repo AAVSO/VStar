@@ -91,6 +91,12 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		this.jdValidator = new JulianDayValidator();
 
 		cal = Calendar.getInstance();
+		// Ensure the JD is well past today by adding one day, so that recently
+		// added observations in AID will fall into the JD range. See ticket
+		// #509 Make
+		// default JD range slightly into future for AID loads:
+		// https://sourceforge.net/p/vstar/bugs-and-features/509/
+		cal.add(Calendar.DAY_OF_MONTH, 1);
 		year = cal.get(Calendar.YEAR);
 		month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
 		day = cal.get(Calendar.DAY_OF_MONTH);
@@ -100,8 +106,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		topPane
-				.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
+		topPane.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
 
 		JPanel starFieldPane = createStarFieldPane();
 		starGroupSelectionPane = new StarGroupSelectionPane(starField);
@@ -178,8 +183,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JPanel createAllDataCheckBoxPane() {
 		JPanel panel = new JPanel();
 
-		allDataCheckBox = new JCheckBox(LocaleProps
-				.get("NEW_STAR_FROM_AID_DLG_ALL_DATA"));
+		allDataCheckBox = new JCheckBox(
+				LocaleProps.get("NEW_STAR_FROM_AID_DLG_ALL_DATA"));
 		allDataCheckBox
 				.addActionListener(createAllDataCheckBoxActionListener());
 		panel.add(allDataCheckBox, BorderLayout.CENTER);
@@ -197,7 +202,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 		return panel;
 	}
-	
+
 	// Event handlers
 
 	// Return a listener for the star field.
