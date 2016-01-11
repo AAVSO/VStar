@@ -23,7 +23,7 @@ package org.aavso.tools.vstar.util;
 public interface IInteruptible {
 
 	/**
-	 * Interrupts the algorithm.
+	 * Signals that a task has been interrupted.
 	 */
 	abstract public void interrupt();
 }

@@ -39,6 +39,7 @@ import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.ApacheCommonsBrentOptimiserExtremaFinder;
+import org.aavso.tools.vstar.util.ApacheCommonsDerivativeBasedExtremaFinder;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -48,6 +49,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.DescStats;
 import org.apache.commons.math.ConvergenceException;
 import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math.optimization.fitting.PolynomialFitter;
@@ -375,19 +377,35 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 										.get("MODEL_INFO_FIT_METRICS_TITLE"),
 										toFitMetricsString());
 
+								ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
+										fit,
+										(DifferentiableUnivariateRealFunction) function,
+										timeCoordSource, zeroPoint);
+
+								String extremaStr = finder.toString();
+
+								if (extremaStr != null) {
+									String title = LocaleProps
+											.get("MODEL_INFO_EXTREMA_TITLE");
+
+									functionStrMap.put(title, extremaStr);
+								}
+								
 								// Minimum/maximum.
-//								ApacheCommonsBrentOptimiserExtremaFinder finder = new ApacheCommonsBrentOptimiserExtremaFinder(
-//										fit, function, timeCoordSource,
-//										zeroPoint);
-//
-//								String extremaStr = finder.toString();
-//
-//								if (extremaStr != null) {
-//									String title = LocaleProps
-//											.get("MODEL_INFO_EXTREMA_TITLE");
-//
-//									functionStrMap.put(title, extremaStr);
-//								}
+								// ApacheCommonsBrentOptimiserExtremaFinder
+								// finder = new
+								// ApacheCommonsBrentOptimiserExtremaFinder(
+								// fit, function, timeCoordSource,
+								// zeroPoint);
+								//
+								// String extremaStr = finder.toString();
+								//
+								// if (extremaStr != null) {
+								// String title = LocaleProps
+								// .get("MODEL_INFO_EXTREMA_TITLE");
+								//
+								// functionStrMap.put(title, extremaStr);
+								// }
 
 								// Excel, R equations.
 								// TODO: consider Python, e.g. for use with
