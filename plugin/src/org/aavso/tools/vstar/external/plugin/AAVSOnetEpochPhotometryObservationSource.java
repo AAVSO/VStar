@@ -22,15 +22,15 @@ import org.aavso.tools.vstar.plugin.ob.src.impl.AAVSOPhotometryURLObservationSou
 import org.aavso.tools.vstar.ui.resources.LoginInfo;
 
 /**
- * A BSM (Bright Star Monitor) photometry database observation source plugin.
+ * An AAVSOnet epoch photometry database observation source plug-in.
  */
-public class BSMPhotometryObservationSource extends
+public class AAVSOnetEpochPhotometryObservationSource extends
 		AAVSOPhotometryURLObservationSourceBase {
 
-	public BSMPhotometryObservationSource() {
+	public AAVSOnetEpochPhotometryObservationSource() {
 
 		super(
-				"BSM",
+				"AAVSOnet",
 				"http://tombstone.physics.mcmaster.ca/BSM2015/conesearch_filter_cr.php?",
 				"apass", "Its_full_of_stars", true);
 
