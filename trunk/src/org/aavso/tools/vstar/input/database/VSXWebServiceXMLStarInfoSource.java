@@ -67,7 +67,9 @@ public class VSXWebServiceXMLStarInfoSource implements IStarInfoSource {
 	 */
 	@Override
 	public StarInfo getStarByName(Connection connection, String name) {
-		return retrieveData("ident=" + name.replace(" ", "+"), name);
+		// Replace "+" with %2B (thanks Patrick) and spaces with "+".
+		return retrieveData(
+				"ident=" + name.replace("+", "%2B").replace(" ", "+"), name);
 	}
 
 	/**
@@ -86,6 +88,7 @@ public class VSXWebServiceXMLStarInfoSource implements IStarInfoSource {
 		StarInfo info = null;
 
 		try {
+			// Get the XML document.
 			URL vsxUrl = new URL(baseVsxUrlString + "&" + queryParam);
 
 			DocumentBuilderFactory factory = DocumentBuilderFactory
@@ -104,6 +107,7 @@ public class VSXWebServiceXMLStarInfoSource implements IStarInfoSource {
 				data.put(elt.getNodeName(), elt.getTextContent());
 			}
 
+			// Create a StarInfo object.
 			if (!data.isEmpty()) {
 				String name = data.get("Name");
 				String auid = data.get("AUID");
