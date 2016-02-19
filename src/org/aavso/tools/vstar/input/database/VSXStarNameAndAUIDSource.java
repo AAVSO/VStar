@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.aavso.tools.vstar.input.IStarInfoSource;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.RAInfo;
@@ -29,7 +30,7 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
 /**
  * This class obtains star name and AUID information from the VSX database.
  */
-public class VSXStarNameAndAUIDSource implements IStarNameAndAUIDSource {
+public class VSXStarNameAndAUIDSource implements IStarInfoSource {
 
 	private static final String STARTABLE = "vsx_objects";
 	private static final String ALIASTABLE = "vsx_crossids";

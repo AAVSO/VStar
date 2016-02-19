@@ -15,21 +15,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.input.database;
+package org.aavso.tools.vstar.input;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
- * This interface must be implemented by any class wishing to retrieve
- * star name or AUID from a database.
- * 
- * TODO: refactor this so as to abstract the source, e.g. database vs 
- * web service. We'd need a different package then also.
+ * This interface must be implemented by any class wishing to retrieve star name
+ * or AUID from a database.
  */
-public interface IStarNameAndAUIDSource {
+public interface IStarInfoSource {
 
 	/**
 	 * Return the AUID of the named star.
@@ -38,7 +34,8 @@ public interface IStarNameAndAUIDSource {
 	 *            The star name or alias.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getStarByName(Connection connection, String name) throws SQLException;
+	public StarInfo getStarByName(Connection connection, String name)
+			throws Exception;
 
 	/**
 	 * Return the name of the star given an AUID.
@@ -47,5 +44,6 @@ public interface IStarNameAndAUIDSource {
 	 *            The AUID.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getStarByAUID(Connection connection, String auid) throws SQLException;
+	public StarInfo getStarByAUID(Connection connection, String auid)
+			throws Exception;
 }

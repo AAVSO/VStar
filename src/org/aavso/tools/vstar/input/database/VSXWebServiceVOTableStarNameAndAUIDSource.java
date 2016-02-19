@@ -31,6 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.aavso.tools.vstar.input.IStarInfoSource;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.RAInfo;
@@ -45,7 +46,7 @@ import org.xml.sax.SAXException;
  * for each new star.
  */
 public class VSXWebServiceVOTableStarNameAndAUIDSource implements
-		IStarNameAndAUIDSource {
+		IStarInfoSource {
 
 	private String baseVsxUrlString;
 
@@ -73,7 +74,7 @@ public class VSXWebServiceVOTableStarNameAndAUIDSource implements
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.input.database.IStarNameAndAUIDSource#getStarByAUID
+	 * @see org.aavso.tools.vstar.input.IStarInfoSource#getStarByAUID
 	 *      (java.sql.Connection, java.lang.String)
 	 */
 	@Override
@@ -83,7 +84,7 @@ public class VSXWebServiceVOTableStarNameAndAUIDSource implements
 	}
 
 	/**
-	 * @see org.aavso.tools.vstar.input.database.IStarNameAndAUIDSource#getStarByName
+	 * @see org.aavso.tools.vstar.input.IStarInfoSource#getStarByName
 	 *      (java.sql.Connection, java.lang.String)
 	 */
 	@Override

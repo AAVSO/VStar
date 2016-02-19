@@ -27,6 +27,7 @@ import java.util.Properties;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.input.IStarInfoSource;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
@@ -90,7 +91,7 @@ public class AAVSODatabaseConnector {
 
 	// Star name and AUID retrievers.
 
-	private static IStarNameAndAUIDSource starNameAndAUIDRetriever = new VSXStarNameAndAUIDSource();
+	private static IStarInfoSource starNameAndAUIDRetriever = new VSXStarNameAndAUIDSource();
 
 	static {
 		try {
@@ -391,7 +392,7 @@ public class AAVSODatabaseConnector {
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
 	public StarInfo getAUID(Connection connection, String name)
-			throws SQLException {
+			throws Exception {
 		return starNameAndAUIDRetriever.getStarByName(connection, name);
 	}
 
@@ -405,7 +406,7 @@ public class AAVSODatabaseConnector {
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
 	public StarInfo getStarName(Connection connection, String auid)
-			throws SQLException {
+			throws Exception {
 		return starNameAndAUIDRetriever.getStarByAUID(connection, auid);
 	}
 }
