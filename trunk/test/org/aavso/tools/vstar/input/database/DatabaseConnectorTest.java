@@ -24,6 +24,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.aavso.tools.vstar.input.IStarInfoSource;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
@@ -31,8 +32,8 @@ import org.aavso.tools.vstar.ui.mediator.StarInfo;
  */
 public class DatabaseConnectorTest extends TestCase {
 
-	private static IStarNameAndAUIDSource aidStarNameAndAUIDRetriever = new AIDStarNameAndAUIDSource();
-	private static IStarNameAndAUIDSource vsxStarNameAndAUIDRetriever = new VSXStarNameAndAUIDSource();
+	private static IStarInfoSource aidStarNameAndAUIDRetriever = new AIDStarNameAndAUIDSource();
+	private static IStarInfoSource vsxStarNameAndAUIDRetriever = new VSXStarNameAndAUIDSource();
 	
 	/**
 	 * Constructor

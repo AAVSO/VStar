@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.aavso.tools.vstar.input.IStarInfoSource;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
@@ -29,7 +30,7 @@ import org.aavso.tools.vstar.ui.mediator.StarInfo;
  * International Database (AID).
  * @deprecated Use VSXStarNameAndAUIDSource instead.
  */
-public class AIDStarNameAndAUIDSource implements IStarNameAndAUIDSource {
+public class AIDStarNameAndAUIDSource implements IStarInfoSource {
 	
 	private PreparedStatement auidFromValidationStmt;
 	private PreparedStatement auidFromAliasStmt;

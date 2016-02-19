@@ -20,16 +20,17 @@ package org.aavso.tools.vstar.input.database;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.aavso.tools.vstar.input.IStarInfoSource;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
  * 
  */
 public class VSXWebServiceStarNameAndAUIDSource implements
-		IStarNameAndAUIDSource {
+		IStarInfoSource {
 
 	/* (non-Javadoc)
-	 * @see org.aavso.tools.vstar.input.database.IStarNameAndAUIDSource#getStarByName(java.sql.Connection, java.lang.String)
+	 * @see org.aavso.tools.vstar.input.database.IStarInfoSource#getStarByName(java.sql.Connection, java.lang.String)
 	 */
 	@Override
 	public StarInfo getStarByName(Connection connection, String name)
@@ -39,7 +40,7 @@ public class VSXWebServiceStarNameAndAUIDSource implements
 	}
 
 	/* (non-Javadoc)
-	 * @see org.aavso.tools.vstar.input.database.IStarNameAndAUIDSource#getStarByAUID(java.sql.Connection, java.lang.String)
+	 * @see org.aavso.tools.vstar.input.database.IStarInfoSource#getStarByAUID(java.sql.Connection, java.lang.String)
 	 */
 	@Override
 	public StarInfo getStarByAUID(Connection connection, String auid)
