@@ -41,6 +41,8 @@ public class VSXWebServiceXMLStarInfoSourceTest extends TestCase {
 		super.tearDown();
 	}
 
+	// By AUID
+	
 	public void testGetStarByAUIDRCar() throws Exception {
 		StarInfo info = source.getStarByAUID(null, "000-BBQ-500");
 		assertEquals("R Car", info.getDesignation());
@@ -51,6 +53,8 @@ public class VSXWebServiceXMLStarInfoSourceTest extends TestCase {
 		assertEquals("eps Aur", info.getDesignation());
 	}
 
+	// By name
+	
 	public void testGetStarByNameRCar() throws Exception {
 		StarInfo info = source.getStarByName(null, "R Car");
 		assertEquals("000-BBQ-500", info.getAuid());
@@ -59,5 +63,10 @@ public class VSXWebServiceXMLStarInfoSourceTest extends TestCase {
 	public void testGetStarByNameEpsAur() throws Exception {
 		StarInfo info = source.getStarByName(null, "eps Aur");
 		assertEquals("000-BCT-905", info.getAuid());
+	}
+	
+	public void testGetStarByNameMasterOT() throws Exception {
+		StarInfo info = source.getStarByName(null, "MASTER OT J131320.24+692649.1");
+		assertEquals("000-BKZ-417", info.getAuid());
 	}
 }
