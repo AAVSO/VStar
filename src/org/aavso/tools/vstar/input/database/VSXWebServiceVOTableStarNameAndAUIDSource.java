@@ -44,6 +44,7 @@ import org.xml.sax.SAXException;
  * This class obtains star name and AUID information from the VSX web service
  * via the get.votable method. A new instance of this class should be created
  * for each new star.
+ * @deprecated
  */
 public class VSXWebServiceVOTableStarNameAndAUIDSource implements
 		IStarInfoSource {

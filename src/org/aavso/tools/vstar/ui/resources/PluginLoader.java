@@ -33,6 +33,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin;
 import org.aavso.tools.vstar.plugin.ob.src.impl.TextFormatObservationSourcePlugin;
+import org.aavso.tools.vstar.plugin.ob.src.impl.VSXWebServiceAIDObservationSourcePlugin;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftFrequencyRangePeriodAnalysisPlugin;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftPeriodRangePeriodAnalysisPlugin;
@@ -152,8 +153,9 @@ public class PluginLoader {
 	public static List<ObservationSourcePluginBase> getObservationSourcePlugins() {
 		List<ObservationSourcePluginBase> obSourcePlugins = new ArrayList<ObservationSourcePluginBase>();
 
-		// First, add AAVSO Download/simple format reader plug-in.
+		// First, add AAVSO reader plug-ins.
 		obSourcePlugins.add(new TextFormatObservationSourcePlugin());
+		obSourcePlugins.add(new VSXWebServiceAIDObservationSourcePlugin());
 		
 		// Next, add all external observation source plug-ins.
 		for (IPlugin plugin : plugins) {
