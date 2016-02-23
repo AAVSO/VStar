@@ -20,16 +20,22 @@ package org.aavso.tools.vstar.plugin.ob.src.impl;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.MagnitudeModifier;
+import org.aavso.tools.vstar.data.ObsType;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
+import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.VSXWebServiceXMLStarInfoSource;
@@ -51,6 +57,17 @@ import org.xml.sax.SAXException;
 public class VSXWebServiceAIDObservationSourcePlugin extends
 		ObservationSourcePluginBase {
 
+	private final static int MAX_OBS_AT_ONCE = 500;
+
+	private String baseVsxUrlString;
+	private String urlStr;
+	private StarInfo info;
+
+	public VSXWebServiceAIDObservationSourcePlugin() {
+		baseVsxUrlString = "https://www.aavso.org/vsx/index.php?view=api.object";
+		info = null;
+	}
+
 	@Override
 	public String getDisplayName() {
 		return LocaleProps.get("FILE_MENU_NEW_STAR_FROM_DATABASE") + " (VSX)";
@@ -64,12 +81,66 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 	@Override
 	public InputType getInputType() {
-		return InputType.NONE;
+		return InputType.URL;
+	}
+
+	@Override
+	public List<URL> getURLs() throws Exception {
+		List<URL> urls = new ArrayList<URL>();
+
+		StarSelectorDialog starSelector = StarSelectorDialog.getInstance();
+
+		// Ask for object information.
+		starSelector.showDialog();
+
+		if (!starSelector.isCancelled()) {
+			String auid = starSelector.getAuid();
+			String starName = starSelector.getStarName();
+
+			// Get the star name if we don't have it.
+			// TODO: incorporate this class's code inline to avoid
+			// multiple calls.
+			// As an alternative, add Count value to StarInfo!
+			VSXWebServiceXMLStarInfoSource infoSrc = new VSXWebServiceXMLStarInfoSource();
+
+			if (starName == null) {
+				info = infoSrc.getStarByAUID(null, auid);
+				starName = info.getDesignation();
+			} else {
+				info = infoSrc.getStarByName(null, starName);
+				auid = info.getAuid();
+			}
+
+			int numObs = MAX_OBS_AT_ONCE;
+
+			String name = starName.replace("+", "%2B").replace(" ", "+");
+
+			urlStr = baseVsxUrlString + "&ident=" + name + "&data=" + numObs;
+
+			if (!starSelector.wantAllData()) {
+				urlStr += "&fromjd=" + starSelector.getMinDate().getJulianDay();
+				urlStr += "&tojd=" + starSelector.getMaxDate().getJulianDay();
+			}
+
+			urls.add(new URL(urlStr));
+		} else {
+			throw new CancellationException();
+		}
+
+		// To satisfy logic in new star from obs source plug-in task. We are
+		// actually interested in just the partial URL string we constructed.
+		return urls;
 	}
 
 	@Override
 	public NewStarType getNewStarType() {
 		return NewStarType.NEW_STAR_FROM_DATABASE;
+	}
+
+	@Override
+	public String getInputName() {
+		// TODO Auto-generated method stub
+		return super.getInputName();
 	}
 
 	@Override
@@ -84,116 +155,15 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 	class VSXAIDObservationRetriever extends AbstractObservationRetriever {
 
-		private String baseVsxUrlString;
-
-		private StarSelectorDialog starSelector;
-
-		public VSXAIDObservationRetriever() {
-			baseVsxUrlString = "https://www.aavso.org/vsx/index.php?view=api.object";
-			starSelector = StarSelectorDialog.getInstance();
-		}
-
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
-			// Ask for object information.
-			starSelector.showDialog();
 
-			if (!starSelector.isCancelled()) {
-				String auid = starSelector.getAuid();
-				String starName = starSelector.getStarName();
-				// setInputInfo(null, starSelector.getStarName());
+			Integer pageNum = 1;
 
-				try {
-					// Get the star name if we don't have it.
-					VSXWebServiceXMLStarInfoSource infoSrc = new VSXWebServiceXMLStarInfoSource();
-
-					if (starName == null) {
-						StarInfo info = infoSrc.getStarByAUID(null, auid);
-						starName = info.getDesignation();
-					}
-
-					// Get the XML document.
-					int numObs = 100; // TODO: need a web service call to get
-										// this and divide into a number of obs
-										// get calls
-
-					// TODO: limit the max number you can get back to N (e.g.
-					// 1000) and use a continuation token of some kind to ask
-					// "are there more observations remaining?"
-
-					String name = starName.replace("+", "%2B")
-							.replace(" ", "+");
-					
-					URL vsxUrl = new URL(baseVsxUrlString + "&ident=" + name
-							+ "&data=" + numObs);
-
-					DocumentBuilderFactory factory = DocumentBuilderFactory
-							.newInstance();
-					DocumentBuilder builder = factory.newDocumentBuilder();
-					Document document = builder.parse(vsxUrl.openStream());
-
-					document.getDocumentElement().normalize();
-
-					// Collect all the child element text of the VSXObject
-					// element.
-					NodeList obsNodes = document
-							.getElementsByTagName("Observation");
-					for (int i = 0; i < obsNodes.getLength(); i++) {
-						NodeList obsDetails = obsNodes.item(i).getChildNodes();
-
-						double jd = Double.POSITIVE_INFINITY;
-						double mag = Double.POSITIVE_INFINITY;
-						SeriesType band = null;
-						String obscode = null;
-						ValidationType valType = null;
-
-						for (int j = 0; j < obsDetails.getLength(); j++) {
-							Element detailElt = (Element) obsDetails.item(j);
-							String nodeName = detailElt.getNodeName();
-							String nodeValue = detailElt.getTextContent();
-
-							if ("JD".equalsIgnoreCase(nodeName)) {
-								jd = Double.parseDouble(nodeValue);
-							} else if ("magnitude".equalsIgnoreCase(nodeName)) {
-								mag = Double.parseDouble(nodeValue);
-							} else if ("obscode".equalsIgnoreCase(nodeName)) {
-								obscode = nodeValue;
-							} else if ("valflag".equalsIgnoreCase(nodeName)) {
-								valType = getValidationType(nodeValue);
-							} else if ("band".equalsIgnoreCase(nodeName)) {
-								int bandIndex = Integer.parseInt(nodeValue);
-								band = SeriesType.getSeriesFromIndex(bandIndex);
-							}
-						}
-
-						if (jd != Double.POSITIVE_INFINITY
-								&& mag != Double.POSITIVE_INFINITY) {
-							ValidObservation ob = new ValidObservation();
-							ob.setDateInfo(new DateInfo(jd));
-							ob.setMagnitude(new Magnitude(mag, 0));
-							ob.setBand(band);
-							ob.setObsCode(obscode);
-							ob.setValidationType(valType);
-							ob.setName(starName);
-							
-							collectObservation(ob);
-						}
-					}
-				} catch (MalformedURLException e) {
-					throw new ObservationReadError(
-							"Unable to obtain information for " + auid);
-				} catch (ParserConfigurationException e) {
-					throw new ObservationReadError(
-							"Unable to obtain information for " + auid);
-				} catch (SAXException e) {
-					throw new ObservationReadError(
-							"Unable to obtain information for " + auid);
-				} catch (IOException e) {
-					throw new ObservationReadError(
-							"Unable to obtain information for " + auid);
-				}
-			}
+			do {
+				pageNum = requestObservations(pageNum);
+			} while (pageNum != null);
 		}
 
 		@Override
@@ -208,6 +178,204 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		}
 
 		// Helpers
+
+		private Integer requestObservations(Integer pageNum)
+				throws ObservationReadError {
+
+			try {
+				String currUrlStr = urlStr;
+				if (pageNum != null) {
+					currUrlStr += "&page=" + pageNum;
+				}
+
+				URL vsxUrl = new URL(currUrlStr);
+
+				DocumentBuilderFactory factory = DocumentBuilderFactory
+						.newInstance();
+				DocumentBuilder builder = factory.newDocumentBuilder();
+				Document document = builder.parse(vsxUrl.openStream());
+
+				document.getDocumentElement().normalize();
+
+				// Has an observation count element been supplied?
+				Integer obsCount = null;
+				NodeList obsCountNodes = document.getElementsByTagName("Count");
+				if (obsCountNodes.getLength() != 0) {
+					Element obsCountElt = (Element) obsCountNodes.item(0);
+					obsCount = Integer.parseInt(obsCountElt.getTextContent());
+				}
+
+				if (obsCount == null) {
+					pageNum = null;
+				}
+
+				NodeList obsNodes = document
+						.getElementsByTagName("Observation");
+				for (int i = 0; i < obsNodes.getLength(); i++) {
+					NodeList obsDetails = obsNodes.item(i).getChildNodes();
+
+					Integer id = null;
+					double jd = Double.POSITIVE_INFINITY;
+					double mag = Double.POSITIVE_INFINITY;
+					double error = 0;
+					SeriesType band = null;
+					String obscode = null;
+					ObsType obsType = null;
+					ValidationType valType = null;
+					String comp1 = null;
+					String comp2 = null;
+					String kMag = null;
+					String charts = null;
+					String commentCode = null;
+					String comments = null;
+					boolean transformed = false;
+					boolean fainterThan = false;
+					boolean isUncertain = false;
+					DateInfo hJD = null;
+					String airmass = null;
+					String group = null;
+					MTypeType mType = null;
+					String credit = null;
+					String pubref = null;
+					String digitizer = null;
+					String name = info.getDesignation();
+
+					for (int j = 0; j < obsDetails.getLength(); j++) {
+						Element detailElt = (Element) obsDetails.item(j);
+						String nodeName = detailElt.getNodeName();
+						String nodeValue = detailElt.getTextContent();
+
+						if ("Id".equalsIgnoreCase(nodeName)) {
+							id = Integer.parseInt(nodeValue);
+						} else if ("JD".equalsIgnoreCase(nodeName)) {
+							jd = Double.parseDouble(nodeValue);
+						} else if ("Mag".equalsIgnoreCase(nodeName)) {
+							mag = Double.parseDouble(nodeValue);
+						} else if ("uncertainty".equalsIgnoreCase(nodeName)) {
+							error = Double.parseDouble(nodeValue);
+						} else if ("uncertain".equalsIgnoreCase(nodeName)) {
+							isUncertain = Boolean.parseBoolean(nodeValue);
+						} else if ("fainterthan".equalsIgnoreCase(nodeName)) {
+							// TODO: what about brighter-than?
+							fainterThan = Boolean.parseBoolean(nodeValue);
+						} else if ("band".equalsIgnoreCase(nodeName)) {
+							band = SeriesType.getSeriesFromShortName(nodeValue);
+						} else if ("transformed".equalsIgnoreCase(nodeName)) {
+							transformed = "yes".equals(nodeValue);
+						} else if ("airmass".equalsIgnoreCase(nodeName)) {
+							airmass = nodeValue;
+						} else if ("comp1".equalsIgnoreCase(nodeName)) {
+							comp1 = nodeValue;
+						} else if ("comp2".equalsIgnoreCase(nodeName)) {
+							comp2 = nodeValue;
+						} else if ("KMag".equalsIgnoreCase(nodeName)) {
+							kMag = nodeValue;
+						} else if ("hjd".equalsIgnoreCase(nodeName)) {
+							hJD = new DateInfo(Double.parseDouble(nodeValue));
+						} else if ("group".equalsIgnoreCase(nodeName)) {
+							group = nodeValue;
+						} else if ("obscode".equalsIgnoreCase(nodeName)) {
+							obscode = nodeValue;
+						} else if ("obstype".equalsIgnoreCase(nodeName)) {
+							// TODO: index or text?
+							int index = Integer.parseInt(nodeValue);
+							obsType = ObsType.getObsTypeFromAIDIndex(index);
+						} else if ("charts".equalsIgnoreCase(nodeName)) {
+							charts = nodeValue;
+						} else if ("commentcode".equalsIgnoreCase(nodeName)) {
+							commentCode = nodeValue;
+						} else if ("comments".equalsIgnoreCase(nodeName)) {
+							comments = nodeValue;
+						} else if ("valflag".equalsIgnoreCase(nodeName)) {
+							valType = getValidationType(nodeValue);
+						} else if ("mtype".equalsIgnoreCase(nodeName)) {
+							mType = getMType(nodeValue);
+						} else if ("credit".equalsIgnoreCase(nodeName)) {
+							// TODO: need to look up another map?
+							credit = nodeValue;
+						} else if ("pubref".equalsIgnoreCase(nodeName)) {
+							pubref = nodeValue;
+						} else if ("digitizer".equalsIgnoreCase(nodeName)) {
+							digitizer = nodeValue;
+						} else if ("name".equalsIgnoreCase(nodeName)) {
+							name = nodeValue;
+						}
+					}
+
+					if (jd != Double.POSITIVE_INFINITY
+							&& mag != Double.POSITIVE_INFINITY) {
+						
+						ValidObservation ob = new ValidObservation();
+						
+						if (id != null) {
+							ob.setRecordNumber(id);
+						}
+						
+						ob.setDateInfo(new DateInfo(jd));
+						ob.setMagnitude(getMagnitude(mag, error, fainterThan,
+								isUncertain));
+						ob.setBand(band);
+						ob.setObsCode(obscode);
+						ob.setObsType(obsType);
+						ob.setValidationType(valType);
+						ob.setCompStar1(comp1);
+						ob.setCompStar2(comp2);
+						ob.setKMag(kMag);
+						ob.setHJD(hJD);
+						ob.setCharts(charts);
+						ob.setCommentCode(commentCode);
+						ob.setComments(comments);
+						ob.setTransformed(transformed);
+						ob.setAirmass(airmass);
+						ob.setGroup(group);
+						ob.setMType(mType);
+						ob.setCredit(credit);
+						ob.setADSRef(pubref);
+						ob.setDigitizer(digitizer);
+						// TODO: necessary?
+						ob.setName(name);
+
+						collectObservation(ob);
+					}
+				}
+			} catch (MalformedURLException e) {
+				throw new ObservationReadError(
+						"Unable to obtain information for " + info.getAuid());
+			} catch (ParserConfigurationException e) {
+				throw new ObservationReadError(
+						"Unable to obtain information for " + info.getAuid());
+			} catch (SAXException e) {
+				throw new ObservationReadError(
+						"Unable to obtain information for " + info.getAuid());
+			} catch (IOException e) {
+				throw new ObservationReadError(
+						"Unable to obtain information for " + info.getAuid());
+			}
+
+			if (pageNum != null) {
+				pageNum++;
+			}
+
+			return pageNum;
+		}
+
+		private Magnitude getMagnitude(double mag, double error,
+				boolean fainterThan, boolean isUncertain) {
+
+			MagnitudeModifier modifier = fainterThan ? MagnitudeModifier.FAINTER_THAN
+					: MagnitudeModifier.NO_DELTA;
+			
+			// if (fainterThan == 1) {
+			// modifier = MagnitudeModifier.FAINTER_THAN;
+			// } else if (fainterThan == 2) {
+			// modifier = MagnitudeModifier.BRIGHTER_THAN;
+			// } else {
+			// modifier = MagnitudeModifier.NO_DELTA;
+			// }
+
+			// TODO: handle NAN in error
+			return new Magnitude(mag, modifier, isUncertain, error);
+		}
 
 		/*
 		 * According to:
@@ -232,6 +400,24 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 			}
 
 			return type;
+		}
+
+		private MTypeType getMType(String mtypeStr) {
+			Integer mtype = Integer.parseInt(mtypeStr);
+			MTypeType result = null;
+
+			// If mtype is null or 0, we use the ValidObservation's
+			// constructed default (standard magnitude type).
+
+			if (mtype != null && mtype != 0) {
+				if (mtype == 1) {
+					result = MTypeType.DIFF;
+				} else if (mtype == 2) {
+					result = MTypeType.STEP;
+				}
+			}
+
+			return result;
 		}
 	}
 }

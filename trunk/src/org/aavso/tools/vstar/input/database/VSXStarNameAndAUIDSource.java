@@ -93,7 +93,7 @@ public class VSXStarNameAndAUIDSource implements IStarInfoSource {
 		}
 
 		return new StarInfo(name, auid, period, epoch, varType, spectralType,
-				discoverer, ra, dec);
+				discoverer, ra, dec, null);
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class VSXStarNameAndAUIDSource implements IStarInfoSource {
 		}
 
 		return new StarInfo(starName, auid, period, epoch, varType,
-				spectralType, discoverer, ra, dec);
+				spectralType, discoverer, ra, dec, null);
 	}
 
 	// Helpers

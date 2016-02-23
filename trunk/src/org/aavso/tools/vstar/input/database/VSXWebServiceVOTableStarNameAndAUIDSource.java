@@ -147,7 +147,7 @@ public class VSXWebServiceVOTableStarNameAndAUIDSource implements
 				DecInfo dec = new DecInfo(2000, getCoord(Coord.Dec));
 
 				info = new StarInfo(name, auid, period, epoch, varType,
-						spectralType, discoverer, ra, dec);
+						spectralType, discoverer, ra, dec, null);
 			} else {
 				throw new SQLException("Unable to obtain information for " + id);
 			}

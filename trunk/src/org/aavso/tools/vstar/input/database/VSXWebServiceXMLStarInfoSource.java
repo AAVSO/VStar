@@ -89,7 +89,7 @@ public class VSXWebServiceXMLStarInfoSource implements IStarInfoSource {
 
 		try {
 			// Get the XML document.
-			URL vsxUrl = new URL(baseVsxUrlString + "&" + queryParam);
+			URL vsxUrl = new URL(baseVsxUrlString + "&" + queryParam + "&data=1");
 
 			DocumentBuilderFactory factory = DocumentBuilderFactory
 					.newInstance();
@@ -121,8 +121,17 @@ public class VSXWebServiceXMLStarInfoSource implements IStarInfoSource {
 				DecInfo dec = new DecInfo(2000, Double.parseDouble(data
 						.get("Declination2000")));
 
+				// Is there an observation count?
+				Integer obsCount = null;
+				NodeList obsCountNodes = document
+						.getElementsByTagName("Count");
+				if (obsCountNodes.getLength() != 0) {
+					Element obsCountElt = (Element) obsCountNodes.item(0);
+					obsCount = Integer.parseInt(obsCountElt.getTextContent());
+				}
+
 				info = new StarInfo(name, auid, period, epoch, varType,
-						spectralType, discoverer, ra, dec);
+						spectralType, discoverer, ra, dec, obsCount);
 			} else {
 				throw new IllegalArgumentException(
 						"Unable to obtain information for " + id);
