@@ -38,6 +38,7 @@ public class StarInfo {
 	private String discoverer = null;
 	private RAInfo ra = null;
 	private DecInfo dec = null;
+	private Integer obsCount = null;
 
 	/**
 	 * Constructor.
@@ -65,11 +66,13 @@ public class StarInfo {
 	 *            The object's Right Acscension.
 	 * @param dec
 	 *            The object's Declination.
+	 * @param obsCount
+	 *            The count of observations for this object.
 	 */
 	public StarInfo(AbstractObservationRetriever retriever, String designation,
 			String auid, Double period, Double epoch, String varType,
-			String spectralType, String discoverer, RAInfo ra,
-			DecInfo dec) {
+			String spectralType, String discoverer, RAInfo ra, DecInfo dec,
+			Integer obsCount) {
 		this.retriever = retriever;
 		this.designation = designation != null
 				&& designation.trim().length() != 0 ? designation
@@ -82,6 +85,7 @@ public class StarInfo {
 		this.discoverer = discoverer;
 		this.ra = ra;
 		this.dec = dec;
+		this.obsCount = obsCount;
 	}
 
 	/**
@@ -100,7 +104,8 @@ public class StarInfo {
 	 */
 	public StarInfo(AbstractObservationRetriever retriever, String designation,
 			String auid) {
-		this(retriever, designation, auid, null, null, null, null, null, null, null);
+		this(retriever, designation, auid, null, null, null, null, null, null,
+				null, null);
 	}
 
 	/**
@@ -141,12 +146,14 @@ public class StarInfo {
 	 *            The object's Right Acscension.
 	 * @param dec
 	 *            The object's Declination.
+	 * @param obsCount
+	 *            The count of observations for this object.
 	 */
 	public StarInfo(String designation, String auid, Double period,
-			Double epoch, String varType, String spectralType, String discoverer, RAInfo ra,
-			DecInfo dec) {
+			Double epoch, String varType, String spectralType,
+			String discoverer, RAInfo ra, DecInfo dec, Integer obsCount) {
 		this(null, designation, auid, period, epoch, varType, spectralType,
-				discoverer, ra, dec);
+				discoverer, ra, dec, obsCount);
 	}
 
 	/**
@@ -227,7 +234,6 @@ public class StarInfo {
 		return discoverer;
 	}
 
-
 	/**
 	 * @return the ra
 	 */
@@ -241,7 +247,14 @@ public class StarInfo {
 	public DecInfo getDec() {
 		return dec;
 	}
-	
+
+	/**
+	 * @return the obsCount
+	 */
+	public Integer getObsCount() {
+		return obsCount;
+	}
+
 	/**
 	 * @param designation
 	 *            the designation to set
@@ -299,16 +312,25 @@ public class StarInfo {
 	}
 
 	/**
-	 * @param ra the ra to set
+	 * @param ra
+	 *            the ra to set
 	 */
 	public void setRa(RAInfo ra) {
 		this.ra = ra;
 	}
 
 	/**
-	 * @param dec the dec to set
+	 * @param dec
+	 *            the dec to set
 	 */
 	public void setDec(DecInfo dec) {
 		this.dec = dec;
+	}
+
+	/**
+	 * @param obsCount the obsCount to set
+	 */
+	public void setObsCount(Integer obsCount) {
+		this.obsCount = obsCount;
 	}
 }
