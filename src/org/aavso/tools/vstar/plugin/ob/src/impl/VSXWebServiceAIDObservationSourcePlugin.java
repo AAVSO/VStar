@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.data.ObsType;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
+import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
@@ -53,6 +54,10 @@ import org.xml.sax.SAXException;
 /**
  * This intrinsic observation source plug-in retrieves AID observations via the
  * VSX web service.
+ * 
+ * TODO:<br/>
+ * - handle uncertain flag<br/>
+ * - try on ~10,000 obs
  */
 public class VSXWebServiceAIDObservationSourcePlugin extends
 		ObservationSourcePluginBase {
@@ -156,12 +161,19 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 	class VSXAIDObservationRetriever extends AbstractObservationRetriever {
 
 		@Override
+		public Integer getNumberOfRecords() throws ObservationReadError {
+			return info.getObsCount();
+		}
+
+		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
 
 			Integer pageNum = 1;
 
 			do {
+				if (interrupted)
+					break;
 				pageNum = requestObservations(pageNum);
 			} while (pageNum != null);
 		}
@@ -181,6 +193,8 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 		private Integer requestObservations(Integer pageNum)
 				throws ObservationReadError {
+
+			Integer id = null;
 
 			try {
 				String currUrlStr = urlStr;
@@ -209,12 +223,17 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 					pageNum = null;
 				}
 
+				MagnitudeFieldValidator magValidator = new MagnitudeFieldValidator();
+
 				NodeList obsNodes = document
 						.getElementsByTagName("Observation");
 				for (int i = 0; i < obsNodes.getLength(); i++) {
+
+					if (interrupted)
+						break;
+
 					NodeList obsDetails = obsNodes.item(i).getChildNodes();
 
-					Integer id = null;
 					double jd = Double.POSITIVE_INFINITY;
 					double mag = Double.POSITIVE_INFINITY;
 					double error = 0;
@@ -241,6 +260,10 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 					String name = info.getDesignation();
 
 					for (int j = 0; j < obsDetails.getLength(); j++) {
+
+						if (interrupted)
+							break;
+
 						Element detailElt = (Element) obsDetails.item(j);
 						String nodeName = detailElt.getNodeName();
 						String nodeValue = detailElt.getTextContent();
@@ -252,11 +275,13 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 						} else if ("Mag".equalsIgnoreCase(nodeName)) {
 							mag = Double.parseDouble(nodeValue);
 						} else if ("uncertainty".equalsIgnoreCase(nodeName)) {
-							error = Double.parseDouble(nodeValue);
+							if (!nodeValue.startsWith("NA")) {
+								// We've seen NA, NAN
+								error = Double.parseDouble(nodeValue);
+							}
 						} else if ("uncertain".equalsIgnoreCase(nodeName)) {
 							isUncertain = Boolean.parseBoolean(nodeValue);
 						} else if ("fainterthan".equalsIgnoreCase(nodeName)) {
-							// TODO: what about brighter-than?
 							fainterThan = Boolean.parseBoolean(nodeValue);
 						} else if ("band".equalsIgnoreCase(nodeName)) {
 							band = SeriesType.getSeriesFromShortName(nodeValue);
@@ -277,9 +302,12 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 						} else if ("obscode".equalsIgnoreCase(nodeName)) {
 							obscode = nodeValue;
 						} else if ("obstype".equalsIgnoreCase(nodeName)) {
-							// TODO: index or text?
-							int index = Integer.parseInt(nodeValue);
-							obsType = ObsType.getObsTypeFromAIDIndex(index);
+							// TODO: change type from ObsType in
+							// ValidObservation to String or make ObsType a
+							// pseudo-enum like SeriesType so we can add new
+							// ones; we're getting this string from the
+							// database, so best to just use the AID's value
+							obsType = ObsType.getObsTypeFromName(nodeValue);
 						} else if ("charts".equalsIgnoreCase(nodeName)) {
 							charts = nodeValue;
 						} else if ("commentcode".equalsIgnoreCase(nodeName)) {
@@ -291,7 +319,6 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 						} else if ("mtype".equalsIgnoreCase(nodeName)) {
 							mType = getMType(nodeValue);
 						} else if ("credit".equalsIgnoreCase(nodeName)) {
-							// TODO: need to look up another map?
 							credit = nodeValue;
 						} else if ("pubref".equalsIgnoreCase(nodeName)) {
 							pubref = nodeValue;
@@ -304,13 +331,13 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 					if (jd != Double.POSITIVE_INFINITY
 							&& mag != Double.POSITIVE_INFINITY) {
-						
+
 						ValidObservation ob = new ValidObservation();
-						
+
 						if (id != null) {
 							ob.setRecordNumber(id);
 						}
-						
+
 						ob.setDateInfo(new DateInfo(jd));
 						ob.setMagnitude(getMagnitude(mag, error, fainterThan,
 								isUncertain));
@@ -332,10 +359,11 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 						ob.setCredit(credit);
 						ob.setADSRef(pubref);
 						ob.setDigitizer(digitizer);
-						// TODO: necessary?
 						ob.setName(name);
 
 						collectObservation(ob);
+
+						incrementProgress();
 					}
 				}
 			} catch (MalformedURLException e) {
@@ -364,16 +392,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 			MagnitudeModifier modifier = fainterThan ? MagnitudeModifier.FAINTER_THAN
 					: MagnitudeModifier.NO_DELTA;
-			
-			// if (fainterThan == 1) {
-			// modifier = MagnitudeModifier.FAINTER_THAN;
-			// } else if (fainterThan == 2) {
-			// modifier = MagnitudeModifier.BRIGHTER_THAN;
-			// } else {
-			// modifier = MagnitudeModifier.NO_DELTA;
-			// }
 
-			// TODO: handle NAN in error
 			return new Magnitude(mag, modifier, isUncertain, error);
 		}
 
@@ -403,16 +422,15 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		}
 
 		private MTypeType getMType(String mtypeStr) {
-			Integer mtype = Integer.parseInt(mtypeStr);
 			MTypeType result = null;
 
-			// If mtype is null or 0, we use the ValidObservation's
+			// If mtypeStr is null, we use the ValidObservation's
 			// constructed default (standard magnitude type).
 
-			if (mtype != null && mtype != 0) {
-				if (mtype == 1) {
+			if (mtypeStr != null) {
+				if (mtypeStr == "DIFF") {
 					result = MTypeType.DIFF;
-				} else if (mtype == 2) {
+				} else if (mtypeStr == "STEP") {
 					result = MTypeType.STEP;
 				}
 			}
