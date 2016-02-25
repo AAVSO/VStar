@@ -17,6 +17,9 @@
  */
 package org.aavso.tools.vstar.data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Observation type, used in AAVSO sources.
  */
@@ -32,6 +35,14 @@ public enum ObsType {
 	UNKNOWN(8);
 	
 	private int index;
+	
+	private static Map<String, Integer> name2index = new HashMap<String, Integer>();
+	
+	static{
+		for (ObsType type : values()) {
+			name2index.put(type.getDescription(), type.getIndex());
+		}
+	}
 	
 	public static ObsType getObsTypeFromAIDIndex(int index) {
 		ObsType type = null;
@@ -68,11 +79,22 @@ public enum ObsType {
 		
 		return type;
 	}
+
+	public static ObsType getObsTypeFromName(String name) {
+		ObsType type = UNKNOWN;
+		
+		if (name2index.containsKey(name)) {
+			type = getObsTypeFromAIDIndex(name2index.get(name));
+		}
+		
+		return type;
+	}
 	
 	private ObsType(int index) {
 		this.index = index;
 	}
 
+	
 	/**
 	 * @return the index
 	 */
