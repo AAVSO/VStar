@@ -35,7 +35,6 @@ import org.aavso.tools.vstar.data.ObsType;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
-import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
@@ -56,8 +55,7 @@ import org.xml.sax.SAXException;
  * VSX web service.
  * 
  * TODO:<br/>
- * - handle uncertain flag<br/>
- * - try on ~10,000 obs
+ * - try on ~10,000 obs to see whether N in data=N (MAX_OBS_AT_ONCE) is OK. 
  */
 public class VSXWebServiceAIDObservationSourcePlugin extends
 		ObservationSourcePluginBase {
@@ -103,9 +101,6 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 			String starName = starSelector.getStarName();
 
 			// Get the star name if we don't have it.
-			// TODO: incorporate this class's code inline to avoid
-			// multiple calls.
-			// As an alternative, add Count value to StarInfo!
 			VSXWebServiceXMLStarInfoSource infoSrc = new VSXWebServiceXMLStarInfoSource();
 
 			if (starName == null) {
@@ -118,9 +113,9 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 			int numObs = MAX_OBS_AT_ONCE;
 
-			String name = starName.replace("+", "%2B").replace(" ", "+");
+			// String name = starName.replace("+", "%2B").replace(" ", "+");
 
-			urlStr = baseVsxUrlString + "&ident=" + name + "&data=" + numObs;
+			urlStr = baseVsxUrlString + "&ident=" + auid + "&data=" + numObs;
 
 			if (!starSelector.wantAllData()) {
 				urlStr += "&fromjd=" + starSelector.getMinDate().getJulianDay();
@@ -222,8 +217,6 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 				if (obsCount == null) {
 					pageNum = null;
 				}
-
-				MagnitudeFieldValidator magValidator = new MagnitudeFieldValidator();
 
 				NodeList obsNodes = document
 						.getElementsByTagName("Observation");
