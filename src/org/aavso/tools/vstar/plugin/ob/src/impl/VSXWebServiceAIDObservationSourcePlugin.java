@@ -28,6 +28,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
@@ -55,7 +56,8 @@ import org.xml.sax.SAXException;
  * VSX web service.
  * 
  * TODO:<br/>
- * - try on ~10,000 obs to see whether N in data=N (MAX_OBS_AT_ONCE) is OK. 
+ * - try on ~10,000 obs to see whether N in data=N (MAX_OBS_AT_ONCE) is OK. -
+ * fix progress "numbering"
  */
 public class VSXWebServiceAIDObservationSourcePlugin extends
 		ObservationSourcePluginBase {
@@ -355,22 +357,26 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 						ob.setName(name);
 
 						collectObservation(ob);
-
-						incrementProgress();
+					} else {
+						invalidObservations.add(new InvalidObservation(id + "",
+								"Invalid"));
 					}
 				}
+				
+				incrementProgress();
+
 			} catch (MalformedURLException e) {
 				throw new ObservationReadError(
-						"Unable to obtain information for " + info.getAuid());
+						"Unable to obtain information for " + info.getDesignation());
 			} catch (ParserConfigurationException e) {
 				throw new ObservationReadError(
-						"Unable to obtain information for " + info.getAuid());
+						"Unable to obtain information for " + info.getDesignation());
 			} catch (SAXException e) {
 				throw new ObservationReadError(
-						"Unable to obtain information for " + info.getAuid());
+						"Unable to obtain information for " + info.getDesignation());
 			} catch (IOException e) {
 				throw new ObservationReadError(
-						"Unable to obtain information for " + info.getAuid());
+						"Unable to obtain information for " + info.getDesignation());
 			}
 
 			if (pageNum != null) {
