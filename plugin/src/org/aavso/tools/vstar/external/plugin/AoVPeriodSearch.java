@@ -81,7 +81,7 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
  * http://iopscience.iop.org/1538-4357/460/2/L107/pdf/1538-4357_460_2_L107.pdf
  * 
  * o Top hits performance!<br/>
- * o Create a model. See Foster. A piecewise model from means?<br/>
+ * o Create a piecewise model from means (see Foster)? Polynomial? Spline?<br/>
  * o Parallelise!<br/>
  */
 public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
