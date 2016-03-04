@@ -45,6 +45,7 @@ import org.xml.sax.SAXException;
 
 /**
  * AAVSO Web Service Observation Source plug-in.
+ * @deprecated
  */
 public class AAVSOWebServiceObservationSource extends
 		ObservationSourcePluginBase {
@@ -53,7 +54,7 @@ public class AAVSOWebServiceObservationSource extends
 
 	@Override
 	public String getDescription() {
-		return "AAVSO Web Service observation file reader";
+		return "AAVSO Web Service observation reader";
 	}
 
 	@Override
