@@ -95,7 +95,7 @@ public class ValidObservation extends Observation {
 
 	private MTypeType mType = MTypeType.STD;
 
-	private ObsType obsType = ObsType.UNKNOWN;
+	private String obsType = ObsType.UNKNOWN.getDescription();
 
 	// Phase values will be computed later, if a phase plot is requested.
 	// They may change over the lifetime of a ValidObservation instance
@@ -729,7 +729,7 @@ public class ValidObservation extends Observation {
 	/**
 	 * @return the obsType
 	 */
-	public ObsType getObsType() {
+	public String getObsType() {
 		return obsType;
 	}
 
@@ -737,7 +737,7 @@ public class ValidObservation extends Observation {
 	 * @param obsType
 	 *            the obsType to set
 	 */
-	public void setObsType(ObsType obsType) {
+	public void setObsType(String obsType) {
 		this.obsType = obsType;
 	}
 
@@ -893,7 +893,7 @@ public class ValidObservation extends Observation {
 
 		if (obsType != null) {
 			strBuf.append("Observation Type: ");
-			strBuf.append(obsType.getDescription());
+			strBuf.append(obsType);
 			strBuf.append("\n");
 		}
 

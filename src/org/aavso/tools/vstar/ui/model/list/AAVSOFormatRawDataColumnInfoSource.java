@@ -370,7 +370,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getMType() == null ? "" : ob.getMType().toString();
 			break;
 		case OBSTYPE_COLUMN:
-			value = ob.getObsType() == null ? "" : ob.getObsType().toString();
+			value = ob.getObsType() == null ? "" : ob.getObsType();
 			break;
 		case GROUP_COLUMN:
 			value = ob.getGroup() == null ? "" : ob.getGroup();

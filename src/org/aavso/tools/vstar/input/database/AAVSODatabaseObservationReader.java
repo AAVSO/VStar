@@ -179,7 +179,7 @@ public class AAVSODatabaseObservationReader extends
 		ob.setName(getNextPossiblyNullString("name"));
 
 		// TODO set affiliation; need ID => name map (as for credit)
-		
+
 		// If mtype is null or 0, we use the ValidObservation's
 		// constructed default (standard magnitude type).
 		Integer mtype = getNextPossiblyNullInteger("mtype");
@@ -204,8 +204,8 @@ public class AAVSODatabaseObservationReader extends
 			}
 		}
 
-		ob.setObsType(ObsType
-				.getObsTypeFromAIDIndex(getNextPossiblyNullInteger("obstype")));
+		ob.setObsType(ObsType.getObsTypeFromAIDIndex(
+				getNextPossiblyNullInteger("obstype")).getDescription());
 
 		ob.setADSRef(getNextPossiblyNullString("pubref"));
 
