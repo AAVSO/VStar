@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -338,6 +339,20 @@ public abstract class AbstractObservationRetriever {
 	public void incrementProgress() {
 		Mediator.getInstance().getProgressNotifier()
 				.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);
+	}
+
+	/**
+	 * Increment observation retrieval progress by the specified number of
+	 * steps.
+	 * 
+	 * @param steps
+	 *            The numnber of steps.
+	 */
+	public void incrementProgress(int steps) {
+		Mediator.getInstance()
+				.getProgressNotifier()
+				.notifyListeners(
+						new ProgressInfo(ProgressType.INCREMENT_PROGRESS, 2));
 	}
 
 	/**

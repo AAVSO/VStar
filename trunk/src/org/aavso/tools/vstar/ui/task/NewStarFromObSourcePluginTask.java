@@ -231,12 +231,17 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				mediator.getProgressNotifier().notifyListeners(
 						new ProgressInfo(ProgressType.MAX_PROGRESS, numRecords
 								+ plotPortion));
+
+				mediator.getProgressNotifier().notifyListeners(
+						ProgressInfo.START_PROGRESS);
 			}
 
+			// Note: This may cause problems if isAdditive() is true; make
+			// conditional?
 			ValidObservation.reset();
 
 			retriever.retrieveObservations();
-			
+
 			if (retriever.getValidObservations().isEmpty()) {
 				throw new ObservationReadError(
 						"No observations for the specified period or error in observation source.");

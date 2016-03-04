@@ -32,7 +32,6 @@ import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
-import org.aavso.tools.vstar.data.ObsType;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
@@ -54,15 +53,11 @@ import org.xml.sax.SAXException;
 /**
  * This intrinsic observation source plug-in retrieves AID observations via the
  * VSX web service.
- * 
- * TODO:<br/>
- * - try on ~10,000 obs to see whether N in data=N (MAX_OBS_AT_ONCE) is OK. -
- * fix progress "numbering"
  */
 public class VSXWebServiceAIDObservationSourcePlugin extends
 		ObservationSourcePluginBase {
 
-	private final static int MAX_OBS_AT_ONCE = 500;
+	private final static int MAX_OBS_AT_ONCE = 1000;
 
 	private String baseVsxUrlString;
 	private String urlStr;
@@ -75,13 +70,12 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 	@Override
 	public String getDisplayName() {
-		return LocaleProps.get("FILE_MENU_NEW_STAR_FROM_DATABASE") + " (VSX)";
+		return LocaleProps.get("FILE_MENU_NEW_STAR_FROM_DATABASE");
 	}
 
 	@Override
 	public String getDescription() {
-		// TODO: localise
-		return "AAVSO International Database observation source";
+		return LocaleProps.get("DATABASE_OBS_SOURCE");
 	}
 
 	@Override
@@ -115,8 +109,6 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 			int numObs = MAX_OBS_AT_ONCE;
 
-			// String name = starName.replace("+", "%2B").replace(" ", "+");
-
 			urlStr = baseVsxUrlString + "&ident=" + auid + "&data=" + numObs;
 
 			if (!starSelector.wantAllData()) {
@@ -130,7 +122,8 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		}
 
 		// To satisfy logic in new star from obs source plug-in task. We are
-		// actually interested in just the partial URL string we constructed.
+		// actually interested in just the partial URL string we constructed,
+		// which will be used in requestObservations().
 		return urls;
 	}
 
@@ -234,7 +227,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 					double error = 0;
 					SeriesType band = null;
 					String obscode = null;
-					ObsType obsType = null;
+					String obsType = null;
 					ValidationType valType = null;
 					String comp1 = null;
 					String comp2 = null;
@@ -297,12 +290,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 						} else if ("obscode".equalsIgnoreCase(nodeName)) {
 							obscode = nodeValue;
 						} else if ("obstype".equalsIgnoreCase(nodeName)) {
-							// TODO: change type from ObsType in
-							// ValidObservation to String or make ObsType a
-							// pseudo-enum like SeriesType so we can add new
-							// ones; we're getting this string from the
-							// database, so best to just use the AID's value
-							obsType = ObsType.getObsTypeFromName(nodeValue);
+							obsType = nodeValue;
 						} else if ("charts".equalsIgnoreCase(nodeName)) {
 							charts = nodeValue;
 						} else if ("commentcode".equalsIgnoreCase(nodeName)) {
@@ -361,22 +349,26 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 						invalidObservations.add(new InvalidObservation(id + "",
 								"Invalid"));
 					}
+
+					incrementProgress(2);
 				}
-				
-				incrementProgress();
 
 			} catch (MalformedURLException e) {
 				throw new ObservationReadError(
-						"Unable to obtain information for " + info.getDesignation());
+						"Unable to obtain information for "
+								+ info.getDesignation());
 			} catch (ParserConfigurationException e) {
 				throw new ObservationReadError(
-						"Unable to obtain information for " + info.getDesignation());
+						"Unable to obtain information for "
+								+ info.getDesignation());
 			} catch (SAXException e) {
 				throw new ObservationReadError(
-						"Unable to obtain information for " + info.getDesignation());
+						"Unable to obtain information for "
+								+ info.getDesignation());
 			} catch (IOException e) {
 				throw new ObservationReadError(
-						"Unable to obtain information for " + info.getDesignation());
+						"Unable to obtain information for "
+								+ info.getDesignation());
 			}
 
 			if (pageNum != null) {

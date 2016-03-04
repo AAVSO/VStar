@@ -1410,6 +1410,8 @@ public class MenuBar extends JMenuBar {
 					break;
 				case INCREMENT_PROGRESS:
 					break;
+				case BUSY_PROGRESS:
+					break;
 				}
 			}
 
