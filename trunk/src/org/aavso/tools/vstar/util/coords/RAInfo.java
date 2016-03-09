@@ -21,8 +21,8 @@ package org.aavso.tools.vstar.util.coords;
  * This class represents a Right Ascension coordinate.
  */
 public class RAInfo {
-
-	private int epoch;
+	
+	private EpochType epoch;
 	private double degs;
 
 	/**
@@ -37,7 +37,7 @@ public class RAInfo {
 	 * @param seconds
 	 *            The seconds component of the RA coord.
 	 */
-	public RAInfo(int epoch, int hours, int minutes, double seconds) {
+	public RAInfo(EpochType epoch, int hours, int minutes, double seconds) {
 		this.epoch = epoch;
 		degs = 15 * (hours + minutes / 60.0 + seconds / 3600.0);
 	}
@@ -45,10 +45,12 @@ public class RAInfo {
 	/**
 	 * Construct an RAInfo instance from hours as decimal degrees.
 	 * 
+	 * @param epoch
+	 *            The epoch of the RA coord.
 	 * @param ra
 	 *            The RA in decimal degrees.
 	 */
-	public RAInfo(int epoch, double ra) {
+	public RAInfo(EpochType epoch, double ra) {
 		this.epoch = epoch;
 		degs = ra;
 	}
@@ -56,12 +58,12 @@ public class RAInfo {
 	/**
 	 * @return the epoch
 	 */
-	public int getEpoch() {
+	public EpochType getEpoch() {
 		return epoch;
 	}
 
 	public String toString() {
-		return String.format("RA (%d): %f degrees", epoch, degs);
+		return String.format("RA (%s): %f degrees", epoch, degs);
 	}
 
 	public double toDegrees() {

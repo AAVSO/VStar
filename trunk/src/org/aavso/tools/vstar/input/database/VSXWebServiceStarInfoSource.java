@@ -31,6 +31,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.aavso.tools.vstar.input.IStarInfoSource;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -41,13 +42,13 @@ import org.xml.sax.SAXException;
  * This class obtains star name and AUID information from the VSX web service. A
  * new instance of this class should be created for each new star.
  */
-public class VSXWebServiceXMLStarInfoSource implements IStarInfoSource {
+public class VSXWebServiceStarInfoSource implements IStarInfoSource {
 
 	private String baseVsxUrlString;
 
 	private Map<String, String> data;
 
-	public VSXWebServiceXMLStarInfoSource() {
+	public VSXWebServiceStarInfoSource() {
 		baseVsxUrlString = "https://www.aavso.org/vsx/index.php?view=api.object";
 		data = new HashMap<String, String>();
 	}
@@ -116,9 +117,9 @@ public class VSXWebServiceXMLStarInfoSource implements IStarInfoSource {
 				String varType = data.get("VariabilityType");
 				String spectralType = data.get("SpectralType");
 				String discoverer = data.get("Discoverer");
-				RAInfo ra = new RAInfo(2000, Double.parseDouble(data
+				RAInfo ra = new RAInfo(EpochType.J2000, Double.parseDouble(data
 						.get("RA2000")));
-				DecInfo dec = new DecInfo(2000, Double.parseDouble(data
+				DecInfo dec = new DecInfo(EpochType.J2000, Double.parseDouble(data
 						.get("Declination2000")));
 
 				// Is there an observation count?

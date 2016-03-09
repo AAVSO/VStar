@@ -25,6 +25,7 @@ import java.sql.SQLException;
 import org.aavso.tools.vstar.input.IStarInfoSource;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 
 /**
@@ -35,7 +36,7 @@ public class VSXStarNameAndAUIDSource implements IStarInfoSource {
 	private static final String STARTABLE = "vsx_objects";
 	private static final String ALIASTABLE = "vsx_crossids";
 
-	private static final int RADEC_EPOCH = 1950;
+	private static final EpochType RADEC_EPOCH = EpochType.B1950;
 
 	private PreparedStatement findAUIDFromNameStatement;
 	private PreparedStatement findAUIDFromAliasStatement;

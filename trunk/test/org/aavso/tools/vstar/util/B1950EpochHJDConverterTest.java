@@ -20,18 +20,19 @@ package org.aavso.tools.vstar.util;
 import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 import org.aavso.tools.vstar.util.date.HJDConverter;
 
 /**
  * HJDConverter unit tests.
  */
-public class HJDConverterTest extends TestCase {
+public class B1950EpochHJDConverterTest extends TestCase {
 
 	private static final double JD = 2445239.4;
 	private static final int PRECISION = 8;
 
-	public HJDConverterTest(String name) {
+	public B1950EpochHJDConverterTest(String name) {
 		super(name);
 	}
 
@@ -46,24 +47,24 @@ public class HJDConverterTest extends TestCase {
 	// Test cases
 
 	public void testConversion1() {
-		RAInfo ra = new RAInfo(1950, 0, 0, 0);
-		DecInfo dec = new DecInfo(1950, 0, 0, 0);
+		RAInfo ra = new RAInfo(EpochType.B1950, 0, 0, 0);
+		DecInfo dec = new DecInfo(EpochType.B1950, 0, 0, 0);
 		double hjd = HJDConverter.convert(JD, ra, dec);
 		String hjdStr = getNumToPrecision(hjd, PRECISION);
 		assertEquals(getNumToPrecision(2445239.40578294, PRECISION), hjdStr);
 	}
 
 	public void testConversion2() {
-		RAInfo ra = new RAInfo(1950, 15, 2, 3.6);
-		DecInfo dec = new DecInfo(1950, -25, 45, 3);
+		RAInfo ra = new RAInfo(EpochType.B1950, 15, 2, 3.6);
+		DecInfo dec = new DecInfo(EpochType.B1950, -25, 45, 3);
 		double hjd = HJDConverter.convert(JD, ra, dec);
 		String hjdStr = getNumToPrecision(hjd, PRECISION);
 		assertEquals(getNumToPrecision(2445239.39611801, PRECISION), hjdStr);
 	}
 
 	public void testConversion3() {
-		RAInfo ra = new RAInfo(1950, 12, 0, 0);
-		DecInfo dec = new DecInfo(1950, 2, 0, 0);
+		RAInfo ra = new RAInfo(EpochType.B1950, 12, 0, 0);
+		DecInfo dec = new DecInfo(EpochType.B1950, 2, 0, 0);
 		double hjd = HJDConverter.convert(JD, ra, dec);
 		String hjdStr = getNumToPrecision(hjd, PRECISION);
 		assertEquals(getNumToPrecision(2445239.39422482, PRECISION), hjdStr);

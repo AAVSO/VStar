@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.util;
 
 import junit.framework.TestCase;
 
+import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 
 /**
@@ -26,7 +27,7 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
  */
 public class RAInfoTest extends TestCase {
 
-	private final int EPOCH = 1950;
+	private final EpochType EPOCH = EpochType.B1950;
 	
 	public RAInfoTest(String name) {
 		super(name);

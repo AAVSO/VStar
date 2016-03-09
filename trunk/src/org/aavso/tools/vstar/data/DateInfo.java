@@ -22,7 +22,7 @@ import org.aavso.tools.vstar.util.date.MeeusDateUtil;
 
 
 /**
- * This class store Julian Day and corresponding calendar date information.
+ * This class stores Julian Day and corresponding calendar date information.
  */
 public class DateInfo {
 	

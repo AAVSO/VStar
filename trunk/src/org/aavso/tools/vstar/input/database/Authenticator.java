@@ -37,7 +37,6 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  * authentication sources, caching results such as whether authentication has
  * happened, user name, observer code.
  * 
- * 
  * generateHexDigest() was adapted from Zapper's UserInfo.encryptPassword()
  */
 public class Authenticator {

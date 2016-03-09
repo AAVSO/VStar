@@ -34,6 +34,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.aavso.tools.vstar.input.IStarInfoSource;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -44,6 +45,7 @@ import org.xml.sax.SAXException;
  * This class obtains star name and AUID information from the VSX web service
  * via the get.votable method. A new instance of this class should be created
  * for each new star.
+ * 
  * @deprecated
  */
 public class VSXWebServiceVOTableStarNameAndAUIDSource implements
@@ -105,7 +107,8 @@ public class VSXWebServiceVOTableStarNameAndAUIDSource implements
 	 *            An identifier for the object, e.g. R Car, that can be used in
 	 *            error messages.
 	 * @return The StarInfo instance.
-	 * @throws SQLException If an exception occurred.
+	 * @throws SQLException
+	 *             If an exception occurred.
 	 */
 	public StarInfo retrieveData(String queryParam, String id)
 			throws SQLException {
@@ -113,7 +116,8 @@ public class VSXWebServiceVOTableStarNameAndAUIDSource implements
 		StarInfo info = null;
 
 		try {
-			URL vsxUrl = new URL(baseVsxUrlString + "&" + queryParam + "&format=d");
+			URL vsxUrl = new URL(baseVsxUrlString + "&" + queryParam
+					+ "&format=d");
 
 			DocumentBuilderFactory factory = DocumentBuilderFactory
 					.newInstance();
@@ -143,8 +147,8 @@ public class VSXWebServiceVOTableStarNameAndAUIDSource implements
 				String spectralType = data.get(fieldId2DataIndexMap
 						.get("specType"));
 				String discoverer = data.get(fieldId2DataIndexMap.get("disc"));
-				RAInfo ra = new RAInfo(2000, getCoord(Coord.RA));
-				DecInfo dec = new DecInfo(2000, getCoord(Coord.Dec));
+				RAInfo ra = new RAInfo(EpochType.J2000, getCoord(Coord.RA));
+				DecInfo dec = new DecInfo(EpochType.J2000, getCoord(Coord.Dec));
 
 				info = new StarInfo(name, auid, period, epoch, varType,
 						spectralType, discoverer, ra, dec, null);
