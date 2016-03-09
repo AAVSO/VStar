@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.mediator.NewStarType;
  * a collection of observations for one star.
  * 
  * REQ_VSTAR_AAVSO_DATABASE_READ REQ_VSTAR_DATABASE_READ_ONLY
+ * @deprecated
  */
 public class AAVSODatabaseObservationReader extends
 		AbstractObservationRetriever {

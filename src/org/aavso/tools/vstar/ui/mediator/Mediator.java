@@ -137,6 +137,7 @@ import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.PreviousCyclePhaseComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 import org.aavso.tools.vstar.util.date.HJDConverter;
 import org.aavso.tools.vstar.util.discrepant.DiscrepantReport;
@@ -1488,8 +1489,8 @@ public class Mediator {
 
 		RAInfo raInfo = null;
 		if (!dialog.isCancelled()) {
-			raInfo = new RAInfo(1950, raHours.getValue(), raMinutes.getValue(),
-					raSeconds.getValue());
+			raInfo = new RAInfo(EpochType.B1950, raHours.getValue(),
+					raMinutes.getValue(), raSeconds.getValue());
 		}
 
 		return raInfo;
@@ -1501,11 +1502,11 @@ public class Mediator {
 		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, null);
 		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, null);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
-				"Dec (B1950.0)", raHours, raMinutes, raSeconds);
+				"Dec (" + EpochType.B1950 + ")", raHours, raMinutes, raSeconds);
 
 		DecInfo decInfo = null;
 		if (!dialog.isCancelled()) {
-			decInfo = new DecInfo(1950, raHours.getValue(),
+			decInfo = new DecInfo(EpochType.B1950, raHours.getValue(),
 					raMinutes.getValue(), raSeconds.getValue());
 		}
 

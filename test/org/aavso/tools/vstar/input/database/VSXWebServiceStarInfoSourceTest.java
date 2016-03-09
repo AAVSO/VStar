@@ -24,17 +24,17 @@ import org.aavso.tools.vstar.ui.mediator.StarInfo;
 /**
  * VSX web service unit tests.
  */
-public class VSXWebServiceXMLStarInfoSourceTest extends TestCase {
+public class VSXWebServiceStarInfoSourceTest extends TestCase {
 
-	private VSXWebServiceXMLStarInfoSource source;
+	private VSXWebServiceStarInfoSource source;
 	
-	public VSXWebServiceXMLStarInfoSourceTest(String name) {
+	public VSXWebServiceStarInfoSourceTest(String name) {
 		super(name);
 	}
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		source = new VSXWebServiceXMLStarInfoSource();
+		source = new VSXWebServiceStarInfoSource();
 	}
 
 	protected void tearDown() throws Exception {

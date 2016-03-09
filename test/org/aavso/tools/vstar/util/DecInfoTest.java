@@ -20,13 +20,14 @@ package org.aavso.tools.vstar.util;
 import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.EpochType;
 
 /**
  * DecInfo unit tests.
  */
 public class DecInfoTest extends TestCase {
 
-	private final int EPOCH = 1950;
+	private final EpochType EPOCH = EpochType.B1950;
 	private static final int PRECISION = 8;
 
 	public DecInfoTest(String name) {

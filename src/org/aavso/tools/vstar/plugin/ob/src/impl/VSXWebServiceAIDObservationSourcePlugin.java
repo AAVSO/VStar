@@ -38,7 +38,7 @@ import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
-import org.aavso.tools.vstar.input.database.VSXWebServiceXMLStarInfoSource;
+import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
@@ -97,7 +97,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 			String starName = starSelector.getStarName();
 
 			// Get the star name if we don't have it.
-			VSXWebServiceXMLStarInfoSource infoSrc = new VSXWebServiceXMLStarInfoSource();
+			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
 
 			if (starName == null) {
 				info = infoSrc.getStarByAUID(null, auid);
@@ -134,7 +134,6 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 	@Override
 	public String getInputName() {
-		// TODO Auto-generated method stub
 		return super.getInputName();
 	}
 
@@ -150,6 +149,15 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 	class VSXAIDObservationRetriever extends AbstractObservationRetriever {
 
+		public VSXAIDObservationRetriever() {
+			info.setRetriever(this);
+		}
+		
+		@Override
+		public StarInfo getStarInfo() {
+			return info;
+		}
+
 		@Override
 		public Integer getNumberOfRecords() throws ObservationReadError {
 			return info.getObsCount();
@@ -162,16 +170,13 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 			Integer pageNum = 1;
 
 			do {
-				if (interrupted)
-					break;
 				pageNum = requestObservations(pageNum);
-			} while (pageNum != null);
+			} while (pageNum != null && !interrupted);
 		}
 
 		@Override
 		public String getSourceType() {
-			// TODO: localise
-			return "AAVSO International Database";
+			return LocaleProps.get("DATABASE_OBS_SOURCE");
 		}
 
 		@Override

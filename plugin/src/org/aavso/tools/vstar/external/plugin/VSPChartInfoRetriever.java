@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -199,7 +200,7 @@ public class VSPChartInfoRetriever extends GeneralToolPluginBase {
 		int h = Integer.parseInt(raFields[0]);
 		int m = Integer.parseInt(raFields[1]);
 		double s = Double.parseDouble(raFields[2]);
-		return new RAInfo(1950, h, m, s);
+		return new RAInfo(EpochType.B1950, h, m, s);
 	}
 
 	private DecInfo decimalDec(String decStr) throws NumberFormatException {
@@ -207,7 +208,7 @@ public class VSPChartInfoRetriever extends GeneralToolPluginBase {
 		int d = Integer.parseInt(decFields[0]);
 		int m = Integer.parseInt(decFields[1]);
 		double s = Double.parseDouble(decFields[2]);
-		return new DecInfo(1950, d, m, s);
+		return new DecInfo(EpochType.B1950, d, m, s);
 	}
 
 	// <photometry>
