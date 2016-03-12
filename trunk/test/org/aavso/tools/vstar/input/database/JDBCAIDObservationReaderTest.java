@@ -28,19 +28,11 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * This is a unit test for reading observations from a text file. This is really
- * more of an integration test than a unit test since we are asking for data
- * from an AAVSO database.
+ * Unit (or integration) test that reads AID observations via database connection.
  */
-public class DatabaseObservationReaderTest extends TestCase {
+public class JDBCAIDObservationReaderTest extends TestCase {
 
-	/**
-	 * Constructor
-	 * 
-	 * @param name
-	 *            The test case name.
-	 */
-	public DatabaseObservationReaderTest(String name) {
+	public JDBCAIDObservationReaderTest(String name) {
 		super(name);
 	}
 

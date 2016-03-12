@@ -147,12 +147,33 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		return new VSXAIDObservationRetriever();
 	}
 
+	/**
+	 * Set the star information object. This is primarily so we can test
+	 * requestObservations() independent of the rest of the plug-in code.
+	 * 
+	 * @param info
+	 *            the info to set
+	 */
+	public void setInfo(StarInfo info) {
+		this.info = info;
+	}
+
+	/**
+	 * Set the URL. This is primarily so we can test requestObservations()
+	 * independent of the rest of the plug-in code.
+	 * 
+	 * @param url
+	 */
+	public void setUrl(String urlStr) {
+		this.urlStr = urlStr;
+	}
+
 	class VSXAIDObservationRetriever extends AbstractObservationRetriever {
 
 		public VSXAIDObservationRetriever() {
 			info.setRetriever(this);
 		}
-		
+
 		@Override
 		public StarInfo getStarInfo() {
 			return info;
