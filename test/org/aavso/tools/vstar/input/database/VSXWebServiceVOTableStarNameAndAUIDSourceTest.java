@@ -23,6 +23,7 @@ import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
  * VSX web service unit tests.
+ * @deprecated
  */
 public class VSXWebServiceVOTableStarNameAndAUIDSourceTest extends TestCase {
 
