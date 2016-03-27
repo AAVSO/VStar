@@ -51,6 +51,7 @@ import org.aavso.tools.vstar.util.IAlgorithm;
  * <p>
  * (C) Copyright 1996, 2002 by the American Association of Variable Star
  * Observers; all rights reserved.
+ * @deprecated
  * </p>
  */
 public class WeightedWaveletZTransformWithMods implements IAlgorithm {
