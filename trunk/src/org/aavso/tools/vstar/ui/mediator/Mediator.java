@@ -139,7 +139,7 @@ import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
-import org.aavso.tools.vstar.util.date.HJDConverter;
+import org.aavso.tools.vstar.util.date.AbstractHJDConverter;
 import org.aavso.tools.vstar.util.discrepant.DiscrepantReport;
 import org.aavso.tools.vstar.util.discrepant.IDiscrepantReporter;
 import org.aavso.tools.vstar.util.discrepant.ZapperLogger;
@@ -1525,8 +1525,10 @@ public class Mediator {
 	 */
 	public void convertObsToHJD(List<ValidObservation> obs, RAInfo ra,
 			DecInfo dec) {
+		AbstractHJDConverter converter = AbstractHJDConverter.getInstance(ra
+				.getEpoch());
 		for (ValidObservation ob : obs) {
-			ob.setJD(HJDConverter.convert(ob.getJD(), ra, dec));
+			ob.setJD(converter.convert(ob.getJD(), ra, dec));
 		}
 	}
 
