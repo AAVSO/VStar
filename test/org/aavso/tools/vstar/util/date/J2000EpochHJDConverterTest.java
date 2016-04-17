@@ -32,7 +32,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 	private static final int PRECISION = 8;
 
 	// Singleton HJD converter instance.
-	private AbstractHJDConverter converter;
+	private J2000LowAccuracyHJDConverter converter;
 
 	public J2000EpochHJDConverterTest(String name) {
 		super(name);
@@ -40,7 +40,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		converter = AbstractHJDConverter.getInstance(EpochType.J2000);
+		converter = (J2000LowAccuracyHJDConverter) AbstractHJDConverter.getInstance(EpochType.J2000);
 	}
 
 	protected void tearDown() throws Exception {
@@ -49,11 +49,29 @@ public class J2000EpochHJDConverterTest extends TestCase {
 
 	// Test cases
 	
-	public void test() {
-		RAInfo ra = new RAInfo(EpochType.J2000, 0, 0, 0);
-		DecInfo dec = new DecInfo(EpochType.J2000, 0, 0, 0);
-		double hjd = converter.convert(JD, ra, dec);
-		assertEquals(0, hjd);
+	public void testSecsToRadsPos1() {
+		// From p 135 of Meeus
+		double secs = 9.20;
+		double rads = converter.secsToRads(secs);
+		assertEquals("0.000044603", getNumToPrecision(rads, 9));
+	}
+
+	public void testSecsToRadsNeg1() {
+		double secs = -9.20;
+		double rads = converter.secsToRads(secs);
+		assertEquals("-0.000044603", getNumToPrecision(rads, 9));
+	}
+
+	public void testDMSToDegsPos1() {
+		// From p 135 of Meeus
+		double n = converter.dmsToDegs(23, 26, 21.448);
+		assertEquals("23.439291", getNumToPrecision(n, 6));
+	}
+
+	public void testDMSToDegsNeg1() {
+		// From p 135 of Meeus
+		double n = converter.dmsToDegs(-23, 26, 21.448);
+		assertEquals("-23.439291", getNumToPrecision(n, 6));
 	}
 
 //	public void testConversion1() {
