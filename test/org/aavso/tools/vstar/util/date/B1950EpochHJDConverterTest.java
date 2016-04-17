@@ -15,22 +15,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util;
+package org.aavso.tools.vstar.util.date;
 
 import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
-import org.aavso.tools.vstar.util.date.HJDConverter;
 
 /**
- * HJDConverter unit tests.
+ * B1950HJDConverter unit tests.
  */
 public class B1950EpochHJDConverterTest extends TestCase {
 
 	private static final double JD = 2445239.4;
 	private static final int PRECISION = 8;
+
+	// Singleton HJD converter instance.
+	private AbstractHJDConverter converter;
 
 	public B1950EpochHJDConverterTest(String name) {
 		super(name);
@@ -38,6 +40,7 @@ public class B1950EpochHJDConverterTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
+		converter = AbstractHJDConverter.getInstance(EpochType.B1950);
 	}
 
 	protected void tearDown() throws Exception {
@@ -49,7 +52,7 @@ public class B1950EpochHJDConverterTest extends TestCase {
 	public void testConversion1() {
 		RAInfo ra = new RAInfo(EpochType.B1950, 0, 0, 0);
 		DecInfo dec = new DecInfo(EpochType.B1950, 0, 0, 0);
-		double hjd = HJDConverter.convert(JD, ra, dec);
+		double hjd = converter.convert(JD, ra, dec);
 		String hjdStr = getNumToPrecision(hjd, PRECISION);
 		assertEquals(getNumToPrecision(2445239.40578294, PRECISION), hjdStr);
 	}
@@ -57,7 +60,7 @@ public class B1950EpochHJDConverterTest extends TestCase {
 	public void testConversion2() {
 		RAInfo ra = new RAInfo(EpochType.B1950, 15, 2, 3.6);
 		DecInfo dec = new DecInfo(EpochType.B1950, -25, 45, 3);
-		double hjd = HJDConverter.convert(JD, ra, dec);
+		double hjd = converter.convert(JD, ra, dec);
 		String hjdStr = getNumToPrecision(hjd, PRECISION);
 		assertEquals(getNumToPrecision(2445239.39611801, PRECISION), hjdStr);
 	}
@@ -65,7 +68,7 @@ public class B1950EpochHJDConverterTest extends TestCase {
 	public void testConversion3() {
 		RAInfo ra = new RAInfo(EpochType.B1950, 12, 0, 0);
 		DecInfo dec = new DecInfo(EpochType.B1950, 2, 0, 0);
-		double hjd = HJDConverter.convert(JD, ra, dec);
+		double hjd = converter.convert(JD, ra, dec);
 		String hjdStr = getNumToPrecision(hjd, PRECISION);
 		assertEquals(getNumToPrecision(2445239.39422482, PRECISION), hjdStr);
 	}

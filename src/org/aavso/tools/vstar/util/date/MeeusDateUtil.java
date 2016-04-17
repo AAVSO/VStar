@@ -24,13 +24,34 @@ package org.aavso.tools.vstar.util.date;
 public class MeeusDateUtil extends AbstractDateUtil {
 
 	/**
+	 * Method to convert the integer part of a JD into a calendar date.
+	 * 
 	 * This method determines the Calendar day given the Julian Day. It is not
 	 * valid for negative Julian Days (but is valid for negative year results).
 	 * 
-	 * @see org.aavso.tools.vstar.util.date.AbstractDateUtil#jdToCalendar(double)
+	 * @param jd
+	 *            Julian Day (double)
+	 * @return calendar date string of the form "YEAR MON DAY"
 	 */
 	public String jdToCalendar(double jd) throws IllegalArgumentException {
 
+		YMD ymd = jdToYMD(jd);
+
+		return (ymd.getYear() + " " + getMonthName(ymd.getMonth()) + " " + (int) ymd
+				.getDay());
+	}
+
+	/**
+	 * Method to convert the integer part of a JD into a calendar date.
+	 *
+	 * This method determines the Calendar day given the Julian Day. It is not
+	 * valid for negative Julian Days (but is valid for negative year results).
+	 * 
+	 * @param jd
+	 *            Julian Day (double)
+	 * @return structure of the form year, month, day
+	 */
+	public YMD jdToYMD(double jd) throws IllegalArgumentException {
 		jd += 0.5;
 		int z = (int) jd;
 		double f = jd - z;
@@ -70,16 +91,24 @@ public class MeeusDateUtil extends AbstractDateUtil {
 					+ jd + "'");
 		}
 
-		return (year + " " + getMonthName(month) + " " + (int) day);
+		return new YMD(year, month, day);
 	}
 
 	/**
+	 * Method to convert the Julian Day corresponding to the specified year,
+	 * month, and day.
+	 * 
 	 * The method determines the Julian Day for any year, including dates prior
 	 * to the start of the Gregorian Calendar. It is not valid for negative
 	 * Julian Day results (but is valid for negative years).
 	 * 
-	 * @see org.aavso.tools.vstar.util.date.AbstractDateUtil#calendarToJD(int,
-	 *      int, double)
+	 * @param year
+	 *            The year.
+	 * @param month
+	 *            The month (1..12).
+	 * @param day
+	 *            The day which may contain a fractional component.
+	 * @return The Julian Day (double)
 	 */
 	public double calendarToJD(int year, int month, double day)
 			throws IllegalArgumentException {

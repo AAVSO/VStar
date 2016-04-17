@@ -18,7 +18,6 @@
 
 package org.aavso.tools.vstar.util.date;
 
-
 /**
  * This abstract class is the base for classes that need to convert between
  * Julian Day and Calendar Date.
@@ -46,6 +45,16 @@ public abstract class AbstractDateUtil {
 	 */
 
 	public abstract String jdToCalendar(double jd)
+			throws IllegalArgumentException;
+
+	/**
+	 * Method to convert the integer part of a JD into a calendar date.
+	 * 
+	 * @param jd
+	 *            Julian Day (double)
+	 * @return structure of the form year, month, day
+	 */
+	public abstract YMD jdToYMD(double jd)
 			throws IllegalArgumentException;
 
 	/**
