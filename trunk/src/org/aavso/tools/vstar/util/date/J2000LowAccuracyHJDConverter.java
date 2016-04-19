@@ -46,14 +46,14 @@ public class J2000LowAccuracyHJDConverter extends AbstractHJDConverter {
 	public double convert(double jd, RAInfo ra, DecInfo dec) {
 
 		// Values are computed as degrees and converted to radians when
-		// necessary. Where a variable name is not qualified with a "Degs"
+		// necessary (when passing to a trigonometric function). Where a
+		// variable name is not qualified with a "Degs"
 		// suffix, it can be assumed to be in radians or to be a
 		// non-trigonometric value.
 
 		// Meeus 24.1
-		// Time measured in Julian centuries of 36525 ephemeris days from epoch
-		// J2000.0 (2000 January 21.5 TD).
-		double T = (jd - 2451545.0) / 36525.0;
+		// Time measured in Julian centuries.
+		double T = julianCenturies(jd);
 
 		// Meeus 24.3
 		// Geometric mean longitude of the Sun.
@@ -101,7 +101,6 @@ public class J2000LowAccuracyHJDConverter extends AbstractHJDConverter {
 				* (year - 2000);
 		double trueSolarLong2000Degs = Math.toDegrees(trueSolarLong2000);
 
-		// Meeus (21.2)
 		// Obliquity of the ecliptic.
 		double obliq = obliquity(T);
 		double obliqDegs = Math.toDegrees(obliq);
@@ -133,6 +132,20 @@ public class J2000LowAccuracyHJDConverter extends AbstractHJDConverter {
 						* Math.cos(solarDec) * Math.cos(raRads - solarRA));
 
 		return hjd;
+	}
+
+	/**
+	 * Time measured in Julian centuries of 36525 ephemeris days from epoch
+	 * J2000.0 (2000 January 21.5 TD).<br/>
+	 * 
+	 * TODO: do we need to doing anything else for this to be in JDE?
+	 * 
+	 * @param jd The Julian Date.
+	 * @return The time in Julian centuries.
+	 */
+	protected double julianCenturies(double jd) {
+		// Meeus 24.1
+		return (jd - 2451545.0) / 36525.0;
 	}
 
 	/**
