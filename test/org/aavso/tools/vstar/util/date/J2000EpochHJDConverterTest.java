@@ -69,11 +69,24 @@ public class J2000EpochHJDConverterTest extends TestCase {
 	}
 
 	public void testDMSToDegsNeg1() {
-		// From p 135 of Meeus
 		double n = converter.dmsToDegs(-23, 26, 21.448);
 		assertEquals("-23.439291", getNumToPrecision(n, 6));
 	}
-
+	
+	public void testJulianCenturies1() {
+		double jd = 2457498.04396;
+		double T = converter.julianCenturies(jd);
+		assertEquals("0.16298546091718", getNumToPrecision(T, 14));
+	}
+	
+	public void testobliquity1() {
+		// From p ??? of Meeus
+		double jd = 0;
+		double T = converter.julianCenturies(jd);
+		// TODO
+		assertEquals(true, false);
+	}
+	
 //	public void testConversion1() {
 //		RAInfo ra = new RAInfo(EpochType.J2000, 0, 0, 0);
 //		DecInfo dec = new DecInfo(EpochType.J2000, 0, 0, 0);
