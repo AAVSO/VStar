@@ -1,6 +1,6 @@
 /**
  * VStar: a statistical analysis tool for variable star data.
- * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ * Copyright (C) 2016  AAVSO (http://www.aavso.org/)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -28,11 +28,17 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
  * See also:<br/>
  * - Meeus, ch 21, 24<br/>
  * - https://en.wikipedia.org/wiki/Heliocentric_Julian_Day
+ * 
+ * Values are computed as degrees and converted to radians when necessary (when
+ * passing to a trigonometric function). Where a variable name is not qualified
+ * with a "Degs" suffix, it can be assumed to be in radians or to be a
+ * non-trigonometric value.
  */
-public class J2000LowAccuracyHJDConverter extends AbstractHJDConverter {
+public class J2000HJDConverter extends AbstractHJDConverter {
 
 	/**
-	 * Given a JD, RA, and Dec, return HJD.
+	 * Given a JD and a target's RA and Dec, return the Heliocentric Julian
+	 * Date.
 	 * 
 	 * @param jd
 	 *            The Julian Date to be converted.
@@ -45,15 +51,33 @@ public class J2000LowAccuracyHJDConverter extends AbstractHJDConverter {
 	@Override
 	public double convert(double jd, RAInfo ra, DecInfo dec) {
 
-		// Values are computed as degrees and converted to radians when
-		// necessary (when passing to a trigonometric function). Where a
-		// variable name is not qualified with a "Degs"
-		// suffix, it can be assumed to be in radians or to be a
-		// non-trigonometric value.
-
 		// Meeus 24.1
 		// Time measured in Julian centuries.
 		double T = julianCenturies(jd);
+
+		// Meeus (p 152)
+		// Sun's longitude with respect to J2000.0 epoch.
+		int year = AbstractDateUtil.getInstance().jdToYMD(jd).getYear();
+
+		SolarCoords coords = solarCoords(T, year);
+
+		double R = radiusVector(T, coords.getTrueAnomaly(),
+				coords.getEquationOfCenter());
+
+		return hjd(jd, R, coords.getDec(), coords.getRA(), dec, ra);
+	}
+
+	/**
+	 * Given the year and time in Julian centuries, return the Sun's
+	 * coordinates.
+	 * 
+	 * @param T
+	 *            The time in Julian centuries.
+	 * @param year
+	 *            The year.
+	 * @return The solar coordinates for the specified date.
+	 */
+	protected SolarCoords solarCoords(double T, int year) {
 
 		// Meeus 24.3
 		// Geometric mean longitude of the Sun.
@@ -61,41 +85,19 @@ public class J2000LowAccuracyHJDConverter extends AbstractHJDConverter {
 
 		// Meeus 24.3
 		// Mean anomaly of the Sun.
-		double MDegs = 357.52910 + 35999.05030 * T - 0.0001559 * (T * T)
-				- 0.00000048 * (T * T * T);
-
-		// Meeus 24.4
-		// Eccentricity of Earth's orbit.
-		double eDegs = 0.016708617 - 0.000042037 * T - 0.0000001236 * (T * T);
-		double e = Math.toRadians(eDegs);
+		double M = Math.toRadians(357.52910 + 35999.05030 * T - 0.0001559
+				* (T * T) - 0.00000048 * (T * T * T));
 
 		// Meeus (p 152)
 		// Sun's equation of center.
 		double C = Math.toRadians(1.914600 - 0.004817 * T - 0.000014 * (T * T))
-				* Math.sin(Math.toRadians(MDegs))
-				+ Math.toRadians(0.019993 - 0.000101 * T)
-				* Math.sin(Math.toRadians(2 * MDegs))
-				+ Math.toRadians(0.000290)
-				* Math.sin(Math.toRadians(3 * MDegs));
-		double CDegs = Math.toDegrees(C);
+				* Math.sin(M) + Math.toRadians(0.019993 - 0.000101 * T)
+				* Math.sin(2 * M) + Math.toRadians(0.000290) * Math.sin(3 * M);
 
 		// Meeus (p 152)
 		// True solar longitude.
 		double trueSolarLong = Math.toRadians(LoDegs) + C;
 		double trueSolarLongDegs = Math.toDegrees(trueSolarLong);
-
-		// Meeus (p 152)
-		// True solar anomaly.
-		double v = Math.toRadians(MDegs) + C;
-		double vDegs = Math.toDegrees(v);
-
-		// Meeus (24.5)
-		// The Sun's radius vector (Earth-Sun distance) in AU.
-		double R = (1.000001018 * (1 - e * e)) / (1 + e * Math.cos(e));
-
-		// Meeus (p 152)
-		// Sun's longitude with respect to J2000.0 epoch.
-		int year = AbstractDateUtil.getInstance().jdToYMD(jd).getYear();
 
 		double trueSolarLong2000 = trueSolarLong - Math.toRadians(0.01397)
 				* (year - 2000);
@@ -103,7 +105,6 @@ public class J2000LowAccuracyHJDConverter extends AbstractHJDConverter {
 
 		// Obliquity of the ecliptic.
 		double obliq = obliquity(T);
-		double obliqDegs = Math.toDegrees(obliq);
 
 		// Meeus (24.6)
 		// Right ascension of the Sun.
@@ -113,38 +114,101 @@ public class J2000LowAccuracyHJDConverter extends AbstractHJDConverter {
 
 		// Meeus (24.7)
 		// Declination of the Sun.
+		// TODO: use this or trueSolarLong?
 		double solarDec = Math.asin(Math.sin(obliq)
 				* Math.sin(trueSolarLong2000));
 		double solarDecDegs = Math.toDegrees(solarDec);
 
-		// Heliocentric JD of the target.
+		return new SolarCoords(solarRADegs, solarDecDegs, M, C);
+	}
+
+	/**
+	 * Given the time in Julian centuries, return radius vector (Earth-Sun
+	 * distance) in AU.
+	 * 
+	 * @param T
+	 *            The time in Julian centuries.
+	 * @param C
+	 *            The Sun's equation of center.
+	 * @param M
+	 *            The true solar anomaly.
+	 * @return The Sun's radius vector in AU.
+	 */
+	protected double radiusVector(double T, double M, double C) {
+
+		double e = eccentricity(T);
+
+		// Meeus (p 152)
+		// True solar anomaly.
+		double v = M + C;
+
+		// Meeus (24.5)
+		// The Sun's radius vector (Earth-Sun distance) in AU.
+		double vDegs = Math.toDegrees(v);
+
+		return (1.000001018 * (1.0 - e * e)) / (1.0 + e * Math.cos(v));
+	}
+
+	/**
+	 * Given the time in Julian centuries, return eccentricity of Earth's orbit.
+	 * 
+	 * @param T
+	 *            The time in Julian centuries.
+	 * @return The eccentricity in radians.
+	 */
+	protected double eccentricity(double T) {
+
+		// Meeus (24.4)
+		// Eccentricity of Earth's orbit.
+		double eDegs = 0.016708617 - 0.000042037 * T - 0.0000001236 * (T * T);
+		return Math.toRadians(eDegs);
+	}
+
+	/**
+	 * Compute and return the Heliocentric JD of the target.
+	 * 
+	 * @param jd
+	 *            The Julian Date to be converted.
+	 * @param R
+	 *            The Sun's radius vector (Earth-Sun distance) in AU.
+	 * @param solarDec
+	 *            The Sun's declination.
+	 * @param solarRA
+	 *            The Sun's RA.
+	 * @param dec
+	 *            The target's declination info.
+	 * @param ra
+	 *            The target's RA info.
+	 * @return The corresponding Heliocentric Julian Date.
+	 */
+	protected double hjd(double jd, double R, double solarDec, double solarRA,
+			DecInfo dec, RAInfo ra) {
+
 		// See https://en.wikipedia.org/wiki/Heliocentric_Julian_Day
 		// c is speed of light, expressed in AU per day, since R is measured in
 		// AU and we are correcting JD to give HJD (see
 		// https://en.wikipedia.org/wiki/Astronomical_unit)
-		// raRads and decRads are target RA and declination in radians.
 		double c = 173.144632674240;
 		double raRads = Math.toRadians(ra.toDegrees());
 		double decRads = Math.toRadians(dec.toDegrees());
-		double hjd = jd
+		return jd
 				- (R / c)
 				* (Math.sin(decRads) * Math.sin(solarDec) + Math.cos(decRads)
 						* Math.cos(solarDec) * Math.cos(raRads - solarRA));
-
-		return hjd;
 	}
 
 	/**
 	 * Time measured in Julian centuries of 36525 ephemeris days from epoch
 	 * J2000.0 (2000 January 21.5 TD).<br/>
 	 * 
-	 * TODO: do we need to doing anything else for this to be in JDE?
+	 * TODO: do we need to doing anything else for this to be in JDE/TD?
 	 * 
 	 * @param jd
 	 *            The Julian Date.
 	 * @return The time in Julian centuries.
 	 */
 	protected double julianCenturies(double jd) {
+
 		// Meeus 24.1
 		return (jd - 2451545.0) / 36525.0;
 	}

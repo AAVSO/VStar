@@ -27,7 +27,7 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
  */
 public abstract class AbstractHJDConverter {
 
-	private static AbstractHJDConverter J2000Converter = new J2000LowAccuracyHJDConverter();
+	private static AbstractHJDConverter J2000Converter = new J2000HJDConverter();
 	private static AbstractHJDConverter B1950Converter = new B1950HJDConverter();
 
 	/**

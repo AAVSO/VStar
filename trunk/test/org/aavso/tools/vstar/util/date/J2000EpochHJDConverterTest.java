@@ -24,15 +24,14 @@ import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 
 /**
- * J2000LowAccuracyHJDConverter unit tests.
+ * J2000HJDConverter unit tests.
  */
 public class J2000EpochHJDConverterTest extends TestCase {
 
-	private static final double JD = 2445239.4;
-	private static final int PRECISION = 8;
+	private final static double MEEUS_EX24a_JD = 2448908.5;
 
 	// Singleton HJD converter instance.
-	private J2000LowAccuracyHJDConverter converter;
+	private J2000HJDConverter converter;
 
 	public J2000EpochHJDConverterTest(String name) {
 		super(name);
@@ -40,7 +39,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		converter = (J2000LowAccuracyHJDConverter) AbstractHJDConverter
+		converter = (J2000HJDConverter) AbstractHJDConverter
 				.getInstance(EpochType.J2000);
 	}
 
@@ -110,14 +109,62 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		assertEquals("23.443576286439995", getNumToPrecision(obliqDegs, 15));
 	}
 
-	// public void testConversion1() {
-	// RAInfo ra = new RAInfo(EpochType.J2000, 0, 0, 0);
-	// DecInfo dec = new DecInfo(EpochType.J2000, 0, 0, 0);
-	// double hjd = converter.convert(JD, ra, dec);
-	// String hjdStr = getNumToPrecision(hjd, PRECISION);
-	// assertEquals(getNumToPrecision(2445239.40578294, PRECISION), hjdStr);
-	// }
-	//
+	// Meeus scenario, Example 24.a, p 153 (BEGIN).
+
+	public void testJulianCenturiesEx24a() {
+		double T = julianCenturiesEx24a();
+		assertEquals("-0.072183436", getNumToPrecision(T, 9));
+	}
+
+	public void testEccentricityEx24a() {
+		double T = julianCenturiesEx24a();
+		double eDegs = Math.toDegrees(converter.eccentricity(T));
+		assertEquals("0.016711651", getNumToPrecision(eDegs, 9));
+	}
+
+	public void testSolarCoordsEx24a() {
+		double jd = MEEUS_EX24a_JD;
+		double T = converter.julianCenturies(jd);
+		int year = AbstractDateUtil.getInstance().jdToYMD(jd).getYear();
+
+		SolarCoords coords = converter.solarCoords(T, year);
+
+		double MDegs = Math.toDegrees(coords.getTrueAnomaly());
+		assertEquals("278.99396", getNumToPrecision(MDegs, 5));
+
+		double CDegs = Math.toDegrees(coords.getEquationOfCenter());
+		assertEquals("-1.89732", getNumToPrecision(CDegs, 5));
+
+	}
+
+	public void testRadiusVectorEx24a() {
+		double jd = MEEUS_EX24a_JD;
+		double T = converter.julianCenturies(jd);
+		int year = AbstractDateUtil.getInstance().jdToYMD(jd).getYear();
+
+		SolarCoords coords = converter.solarCoords(T, year);
+
+		double R = converter.radiusVector(T, coords.getEquationOfCenter(),
+				coords.getTrueAnomaly());
+		assertEquals("0.99766", getNumToPrecision(R, 5));
+	}
+
+	private double julianCenturiesEx24a() {
+		double jd = MEEUS_EX24a_JD;
+		return converter.julianCenturies(jd);
+	}
+
+	// Meeus scenario, Example 24.a, p 153 (END).
+
+	public void testConversion1() {
+		// RAInfo ra = new RAInfo(EpochType.J2000, 0, 0, 0);
+		// DecInfo dec = new DecInfo(EpochType.J2000, 0, 0, 0);
+		// double jd = 2448908.5;
+		// double hjd = converter.convert(jd, ra, dec);
+		// String hjdStr = getNumToPrecision(hjd, 8);
+		// assertEquals(getNumToPrecision(2448908.5, 8), hjdStr);
+	}
+
 	// public void testConversion2() {
 	// RAInfo ra = new RAInfo(EpochType.J2000, 15, 2, 3.6);
 	// DecInfo dec = new DecInfo(EpochType.J2000, -25, 45, 3);
