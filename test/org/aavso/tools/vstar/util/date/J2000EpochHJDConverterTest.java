@@ -40,7 +40,8 @@ public class J2000EpochHJDConverterTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		converter = (J2000LowAccuracyHJDConverter) AbstractHJDConverter.getInstance(EpochType.J2000);
+		converter = (J2000LowAccuracyHJDConverter) AbstractHJDConverter
+				.getInstance(EpochType.J2000);
 	}
 
 	protected void tearDown() throws Exception {
@@ -48,7 +49,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 	}
 
 	// Test cases
-	
+
 	public void testSecsToRadsPos1() {
 		// From p 135 of Meeus
 		double secs = 9.20;
@@ -72,44 +73,66 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		double n = converter.dmsToDegs(-23, 26, 21.448);
 		assertEquals("-23.439291", getNumToPrecision(n, 6));
 	}
-	
+
 	public void testJulianCenturies1() {
 		double jd = 2457498.04396;
 		double T = converter.julianCenturies(jd);
 		assertEquals("0.16298546091718", getNumToPrecision(T, 14));
 	}
-	
-	public void testobliquity1() {
-		// From p ??? of Meeus
-		double jd = 0;
+
+	public void testMeanObliquityLowPrecision1() {
+		// From test case on p 136 of Meeus.
+		double jd = 2446895.5;
 		double T = converter.julianCenturies(jd);
-		// TODO
-		assertEquals(true, false);
+		double meanObliq = converter.meanObliquityLowPrecision(T);
+		double meanObliqDegs = Math.toDegrees(meanObliq);
+		// In good agreement with Meeus.
+		assertEquals("23.440946490658636", getNumToPrecision(meanObliqDegs, 15));
 	}
-	
-//	public void testConversion1() {
-//		RAInfo ra = new RAInfo(EpochType.J2000, 0, 0, 0);
-//		DecInfo dec = new DecInfo(EpochType.J2000, 0, 0, 0);
-//		double hjd = converter.convert(JD, ra, dec);
-//		String hjdStr = getNumToPrecision(hjd, PRECISION);
-//		assertEquals(getNumToPrecision(2445239.40578294, PRECISION), hjdStr);
-//	}
-//
-//	public void testConversion2() {
-//		RAInfo ra = new RAInfo(EpochType.J2000, 15, 2, 3.6);
-//		DecInfo dec = new DecInfo(EpochType.J2000, -25, 45, 3);
-//		double hjd = converter.convert(JD, ra, dec);
-//		String hjdStr = getNumToPrecision(hjd, PRECISION);
-//		assertEquals(getNumToPrecision(2445239.39611801, PRECISION), hjdStr);
-//	}
-//
-//	public void testConversion3() {
-//		RAInfo ra = new RAInfo(EpochType.J2000, 12, 0, 0);
-//		DecInfo dec = new DecInfo(EpochType.J2000, 2, 0, 0);
-//		double hjd = converter.convert(JD, ra, dec);
-//		String hjdStr = getNumToPrecision(hjd, PRECISION);
-//		assertEquals(getNumToPrecision(2445239.39422482, PRECISION), hjdStr);
-//	}
+
+	public void testMeanObliquityHighPrecision1() {
+		// From test case on p 136 of Meeus.
+		double jd = 2446895.5;
+		double T = converter.julianCenturies(jd);
+		double meanObliq = converter.meanObliquityHighPrecision(T);
+		double meanObliqDegs = Math.toDegrees(meanObliq);
+		// In good agreement with Meeus.
+		assertEquals("23.440946290957320", getNumToPrecision(meanObliqDegs, 15));
+	}
+
+	public void testObliquity1() {
+		// From test case on p 136 of Meeus.
+		double jd = 2446895.5;
+		double T = converter.julianCenturies(jd);
+		double obliq = converter.obliquity(T);
+		double obliqDegs = Math.toDegrees(obliq);
+		// Approximately 0.025 degrees larger than in Meeus.
+		assertEquals("23.443576286439995", getNumToPrecision(obliqDegs, 15));
+	}
+
+	// public void testConversion1() {
+	// RAInfo ra = new RAInfo(EpochType.J2000, 0, 0, 0);
+	// DecInfo dec = new DecInfo(EpochType.J2000, 0, 0, 0);
+	// double hjd = converter.convert(JD, ra, dec);
+	// String hjdStr = getNumToPrecision(hjd, PRECISION);
+	// assertEquals(getNumToPrecision(2445239.40578294, PRECISION), hjdStr);
+	// }
+	//
+	// public void testConversion2() {
+	// RAInfo ra = new RAInfo(EpochType.J2000, 15, 2, 3.6);
+	// DecInfo dec = new DecInfo(EpochType.J2000, -25, 45, 3);
+	// double hjd = converter.convert(JD, ra, dec);
+	// String hjdStr = getNumToPrecision(hjd, PRECISION);
+	// assertEquals(getNumToPrecision(2445239.39611801, PRECISION), hjdStr);
+	// }
+	//
+	// public void testConversion3() {
+	// RAInfo ra = new RAInfo(EpochType.J2000, 12, 0, 0);
+	// DecInfo dec = new DecInfo(EpochType.J2000, 2, 0, 0);
+	// double hjd = converter.convert(JD, ra, dec);
+	// String hjdStr = getNumToPrecision(hjd, PRECISION);
+	// assertEquals(getNumToPrecision(2445239.39422482, PRECISION), hjdStr);
+	// }
 
 	// Helpers
 

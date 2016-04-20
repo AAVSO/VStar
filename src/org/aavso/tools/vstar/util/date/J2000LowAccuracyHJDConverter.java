@@ -140,7 +140,8 @@ public class J2000LowAccuracyHJDConverter extends AbstractHJDConverter {
 	 * 
 	 * TODO: do we need to doing anything else for this to be in JDE?
 	 * 
-	 * @param jd The Julian Date.
+	 * @param jd
+	 *            The Julian Date.
 	 * @return The time in Julian centuries.
 	 */
 	protected double julianCenturies(double jd) {
@@ -181,17 +182,50 @@ public class J2000LowAccuracyHJDConverter extends AbstractHJDConverter {
 				+ secsToRads(0.57) * Math.cos(2 * LRads) + secsToRads(0.1)
 				* Math.cos(2 * LprimeRads) - secsToRads(0.09)
 				* Math.cos(2 * omegaRads);
-		double deltaEpsDegs = Math.toDegrees(deltaEps);
-
-		// Meeus (21.2)
-		// Obliquity of the ecliptic.
-		double obliq = Math.toRadians(dmsToDegs(23, 26, 21.448))
-				- secsToRads(46.8150 * T) - secsToRads(0.00059 * T * T)
-				+ secsToRads(0.001813 * T * T * T);
 
 		// Meeus (p135)
 		// True obliquity of ecliptic.
-		return obliq + deltaEps;
+		return meanObliquityHighPrecision(T) + deltaEps;
+	}
+
+	/**
+	 * Given the time in Julian Centuries from epoch J2000.0, return the mean
+	 * obliquity of the ecliptic in radians.
+	 * 
+	 * @param T
+	 *            Time measured in Julian centuries from epoch J2000.0.
+	 * @return The mean obliquity in radians.
+	 */
+	protected double meanObliquityLowPrecision(double T) {
+		// Meeus (21.2)
+		// Obliquity of the ecliptic.
+		return Math.toRadians(dmsToDegs(23, 26, 21.448))
+				- secsToRads(46.8150 * T) - secsToRads(0.00059 * (T * T))
+				+ secsToRads(0.001813 * (T * T * T));
+	}
+
+	/**
+	 * Given the time in Julian Centuries from epoch J2000.0, return the mean
+	 * obliquity of the ecliptic in radians.
+	 * 
+	 * @param T
+	 *            Time measured in Julian centuries from epoch J2000.0.
+	 * @return The mean obliquity in radians.
+	 */
+	protected double meanObliquityHighPrecision(double T) {
+		// Meeus (21.3)
+		// Obliquity of the ecliptic.
+		double U = T / 100.0;
+		return Math.toRadians(dmsToDegs(23, 26, 21.448))
+				- secsToRads(4680.93 * U) - secsToRads(1.55 * (U * U))
+				+ secsToRads(1999.25 * (U * U * U))
+				- secsToRads(51.38 * Math.pow(U, 4))
+				- secsToRads(249.67 * Math.pow(U, 5))
+				- secsToRads(39.05 * Math.pow(U, 6))
+				+ secsToRads(7.12 * Math.pow(U, 7))
+				+ secsToRads(27.87 * Math.pow(U, 8))
+				+ secsToRads(5.79 * Math.pow(U, 9))
+				+ secsToRads(2.45 * Math.pow(U, 10));
 	}
 
 	/**
