@@ -73,6 +73,41 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		assertEquals("-23.439291", getNumToPrecision(n, 6));
 	}
 
+	public void testDegsInRangeNeg1() {
+		// See http://www.purplemath.com/modules/radians2.htm
+		double degs = -3742;
+		double degsInRange = converter.degsInRange(degs);
+		assertEquals(218.0, degsInRange);
+	}
+
+	public void testDegsInRangePos1() {
+		// See http://www.purplemath.com/modules/radians2.htm
+		double degs = 15736;
+		double degsInRange = converter.degsInRange(degs);
+		assertEquals("256.0", getNumToPrecision(degsInRange, 1));
+	}
+
+	public void testRadsInRangeNeg1() {
+		// See http://www.purplemath.com/modules/radians2.htm
+		double rads = Math.toRadians(-3742);
+		double radsInRange = converter.radsInRange(rads);
+		assertEquals("218.0", getNumToPrecision(Math.toDegrees(radsInRange), 1));
+	}
+
+	public void testRadsInRangeNeg2() {
+		// See http://www.purplemath.com/modules/radians2.htm
+		double rads = -Math.PI / 4.0;
+		double radsInRange = converter.radsInRange(rads);
+		assertEquals(7.0 * Math.PI / 4.0, radsInRange);
+	}
+
+	public void testRadsInRangePos1() {
+		// See http://www.purplemath.com/modules/radians2.htm
+		double rads = Math.toRadians(15736);
+		double radsInRange = converter.radsInRange(rads);
+		assertEquals("256.0", getNumToPrecision(Math.toDegrees(radsInRange), 1));
+	}
+
 	public void testJulianCenturies1() {
 		double jd = 2457498.04396;
 		double T = converter.julianCenturies(jd);
@@ -85,7 +120,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		double T = converter.julianCenturies(jd);
 		double meanObliq = converter.meanObliquityLowPrecision(T);
 		double meanObliqDegs = Math.toDegrees(meanObliq);
-		// In good agreement with Meeus.
+		// In agreement with Meeus.
 		assertEquals("23.440946490658636", getNumToPrecision(meanObliqDegs, 15));
 	}
 
@@ -95,7 +130,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		double T = converter.julianCenturies(jd);
 		double meanObliq = converter.meanObliquityHighPrecision(T);
 		double meanObliqDegs = Math.toDegrees(meanObliq);
-		// In good agreement with Meeus.
+		// In agreement with Meeus.
 		assertEquals("23.440946290957320", getNumToPrecision(meanObliqDegs, 15));
 	}
 
@@ -129,12 +164,34 @@ public class J2000EpochHJDConverterTest extends TestCase {
 
 		SolarCoords coords = converter.solarCoords(T, year);
 
+		double LoDegs = Math.toDegrees(coords.getGeometricMeanLongitude());
+		assertEquals("201.80719", getNumToPrecision(LoDegs, 5));
+
 		double MDegs = Math.toDegrees(coords.getTrueAnomaly());
 		assertEquals("278.99396", getNumToPrecision(MDegs, 5));
 
 		double CDegs = Math.toDegrees(coords.getEquationOfCenter());
 		assertEquals("-1.89732", getNumToPrecision(CDegs, 5));
 
+		// Meeus gives 198.38082, so we differ by 0.00001
+		assertEquals("198.38083", getNumToPrecision(coords.getApparentRA(), 5));
+
+		// Meeus gives -7.78507, so we differ by 0.00003
+		assertEquals("-7.78504", getNumToPrecision(coords.getApparentDec(), 5));
+
+		// Not provided in Meeus, but not wildly at odds with apparent RA.
+		double ra = coords.getRA();
+		assertEquals("198.38167", getNumToPrecision(ra, 5));
+		// When Sun's longitude is referred to standard equinox of J2000.0
+		// (trueSolarLong2000).
+		// assertEquals("198.48617", getNumToPrecision(ra, 5));
+
+		// Not provided in Meeus, but not wildly at odds with apparent Dec.
+		double dec = coords.getDec();
+		assertEquals("-7.78546", getNumToPrecision(dec, 5));
+		// When Sun's longitude is referred to standard equinox of J2000.0
+		// (trueSolarLong2000).
+		// assertEquals("-7.82756", getNumToPrecision(dec, 5));
 	}
 
 	public void testRadiusVectorEx24a() {
@@ -144,8 +201,10 @@ public class J2000EpochHJDConverterTest extends TestCase {
 
 		SolarCoords coords = converter.solarCoords(T, year);
 
-		double R = converter.radiusVector(T, coords.getEquationOfCenter(),
-				coords.getTrueAnomaly());
+		double R = converter.radiusVector(T, coords.getTrueAnomaly(),
+				coords.getEquationOfCenter());
+		// Meeus Ex 24.a gives R = 0.99766, whereas we have R = 0.99996.
+		// Is this an error in Meeus or in our computation?
 		assertEquals("0.99766", getNumToPrecision(R, 5));
 	}
 
@@ -156,30 +215,41 @@ public class J2000EpochHJDConverterTest extends TestCase {
 
 	// Meeus scenario, Example 24.a, p 153 (END).
 
-	public void testConversion1() {
-		// RAInfo ra = new RAInfo(EpochType.J2000, 0, 0, 0);
-		// DecInfo dec = new DecInfo(EpochType.J2000, 0, 0, 0);
-		// double jd = 2448908.5;
-		// double hjd = converter.convert(jd, ra, dec);
-		// String hjdStr = getNumToPrecision(hjd, 8);
-		// assertEquals(getNumToPrecision(2448908.5, 8), hjdStr);
+	// R Car with Meeus's Ex24.a JD.
+	public void testHJD1() {
+		RAInfo ra = new RAInfo(EpochType.J2000, 143.06083);
+		DecInfo dec = new DecInfo(EpochType.J2000, -62.78889);
+
+		double hjd = converter.convert(MEEUS_EX24a_JD, ra, dec);
+
+		// The correction to JD here amounts to around 3.14 minutes (0.00218
+		// days). The maximum correction is 8.3 minutes, corresponding to the
+		// light-time across Earth's orbital radius.
+		// This was tested using the BAA HJD calculator with RA and Dec from VSX
+		// entry for R Car. That gave the result 2448908.4978207937, shortened
+		// to 2448908.49782, whereas the convert() method gives
+		// 2448908.497815484, the same to 5 decimal places (~1/100th of a
+		// second).
+		assertEquals("2448908.49782", getNumToPrecision(hjd, 5));
 	}
 
-	// public void testConversion2() {
-	// RAInfo ra = new RAInfo(EpochType.J2000, 15, 2, 3.6);
-	// DecInfo dec = new DecInfo(EpochType.J2000, -25, 45, 3);
-	// double hjd = converter.convert(JD, ra, dec);
-	// String hjdStr = getNumToPrecision(hjd, PRECISION);
-	// assertEquals(getNumToPrecision(2445239.39611801, PRECISION), hjdStr);
-	// }
-	//
-	// public void testConversion3() {
-	// RAInfo ra = new RAInfo(EpochType.J2000, 12, 0, 0);
-	// DecInfo dec = new DecInfo(EpochType.J2000, 2, 0, 0);
-	// double hjd = converter.convert(JD, ra, dec);
-	// String hjdStr = getNumToPrecision(hjd, PRECISION);
-	// assertEquals(getNumToPrecision(2445239.39422482, PRECISION), hjdStr);
-	// }
+	// R Car with JD 2457501.86733.
+	public void testHJD2() {
+		RAInfo ra = new RAInfo(EpochType.J2000, 143.06083);
+		DecInfo dec = new DecInfo(EpochType.J2000, -62.78889);
+
+		double hjd = converter.convert(2457501.86733, ra, dec);
+
+		// The correction to JD here amounts to around 3.14 minutes (0.00218
+		// days). The maximum correction is 8.3 minutes, corresponding to the
+		// light-time across Earth's orbital radius.
+		// This was tested using the BAA HJD calculator with RA and Dec from VSX
+		// entry for R Car. That gave the result 2457501.869426729, shortened
+		// to 2457501.86943, whereas the convert() method gives
+		// 2457501.8694125116, the same to 4 decimal places (~1/10th of a
+		// second).
+		assertEquals("2457501.86941", getNumToPrecision(hjd, 5));
+	}
 
 	// Helpers
 
