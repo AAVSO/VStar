@@ -29,7 +29,8 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
 public class J2000EpochHJDConverterTest extends TestCase {
 
 	private final static double MEEUS_EX24a_JD = 2448908.5;
-
+	private final static double JD2 = 2457501.86733;
+	
 	// Singleton HJD converter instance.
 	private J2000HJDConverter converter;
 
@@ -215,8 +216,10 @@ public class J2000EpochHJDConverterTest extends TestCase {
 
 	// Meeus scenario, Example 24.a, p 153 (END).
 
+	// HJD test cases using 3 stars at various declinations for two JDs.
+	
 	// R Car with Meeus's Ex24.a JD.
-	public void testHJD1() {
+	public void testHJDRCar1() {
 		RAInfo ra = new RAInfo(EpochType.J2000, 143.06083);
 		DecInfo dec = new DecInfo(EpochType.J2000, -62.78889);
 
@@ -233,12 +236,12 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		assertEquals("2448908.49782", getNumToPrecision(hjd, 5));
 	}
 
-	// R Car with JD 2457501.86733.
-	public void testHJD2() {
+	// R Car with JD2.
+	public void testHJDRCar2() {
 		RAInfo ra = new RAInfo(EpochType.J2000, 143.06083);
 		DecInfo dec = new DecInfo(EpochType.J2000, -62.78889);
 
-		double hjd = converter.convert(2457501.86733, ra, dec);
+		double hjd = converter.convert(JD2, ra, dec);
 
 		// The correction to JD here amounts to around 3.14 minutes (0.00218
 		// days). The maximum correction is 8.3 minutes, corresponding to the
@@ -251,6 +254,74 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		assertEquals("2457501.86941", getNumToPrecision(hjd, 5));
 	}
 
+	// X Sgr with Meeus's Ex24.a JD.
+	public void testHJDXSgr1() {
+		RAInfo ra = new RAInfo(EpochType.J2000, 266.89013);
+		DecInfo dec = new DecInfo(EpochType.J2000, -27.83081);
+
+		double hjd = converter.convert(MEEUS_EX24a_JD, ra, dec);
+
+		// The correction to JD here amounts to around 3.14 minutes (0.00218
+		// days). The maximum correction is 8.3 minutes, corresponding to the
+		// light-time across Earth's orbital radius.
+		// This was tested using the BAA HJD calculator with RA and Dec from VSX
+		// entry for R Car. That gave the result 2448908.4977766555, shortened
+		// to 2448908.49778, whereas the convert() method gives
+		// 2448908.497780874.
+		assertEquals("2448908.49778", getNumToPrecision(hjd, 5));
+	}
+
+	// X Sgr with JD2.
+	public void testHJDXSgr2() {
+		RAInfo ra = new RAInfo(EpochType.J2000, 266.89013);
+		DecInfo dec = new DecInfo(EpochType.J2000, -27.83081);
+
+		double hjd = converter.convert(JD2, ra, dec);
+
+		// The correction to JD here amounts to around 3.14 minutes (0.00218
+		// days). The maximum correction is 8.3 minutes, corresponding to the
+		// light-time across Earth's orbital radius.
+		// This was tested using the BAA HJD calculator with RA and Dec from VSX
+		// entry for R Car. That gave the result 2457501.8707473096, shortened
+		// to 2457501.87075, whereas the convert() method gives
+		// 2457501.870747149.
+		assertEquals("2457501.87075", getNumToPrecision(hjd, 5));
+	}
+
+	// Sig Oct with Meeus's Ex24.a JD.
+	public void testHJDSigOct1() {
+		RAInfo ra = new RAInfo(EpochType.J2000, 21, 8, 46.84);
+		DecInfo dec = new DecInfo(EpochType.J2000, -88, 57, 23.40);
+
+		double hjd = converter.convert(MEEUS_EX24a_JD, ra, dec);
+
+		// The correction to JD here amounts to around 3.14 minutes (0.00218
+		// days). The maximum correction is 8.3 minutes, corresponding to the
+		// light-time across Earth's orbital radius.
+		// This was tested using the BAA HJD calculator with RA and Dec from VSX
+		// entry for R Car. That gave the result 2448908.4992657346, shortened
+		// to 2448908.49927, whereas the convert() method gives
+		// 2448908.499268005.
+		assertEquals("2448908.49927", getNumToPrecision(hjd, 5));
+	}
+
+	// Sig Oct with JD2.
+	public void testHJDSigOct2() {
+		RAInfo ra = new RAInfo(EpochType.J2000, 21, 8, 46.84);
+		DecInfo dec = new DecInfo(EpochType.J2000, -88, 57, 23.40);
+
+		double hjd = converter.convert(JD2, ra, dec);
+
+		// The correction to JD here amounts to around 3.14 minutes (0.00218
+		// days). The maximum correction is 8.3 minutes, corresponding to the
+		// light-time across Earth's orbital radius.
+		// This was tested using the BAA HJD calculator with RA and Dec from VSX
+		// entry for R Car. That gave the result 2457501.8685732614, shortened
+		// to 2457501.86857, whereas the convert() method gives
+		// 2457501.868574388.
+		assertEquals("2457501.86857", getNumToPrecision(hjd, 5));
+	}
+	
 	// Helpers
 
 	private String getNumToPrecision(double n, int precision) {
