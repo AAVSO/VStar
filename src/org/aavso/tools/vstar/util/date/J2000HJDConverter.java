@@ -187,11 +187,12 @@ public class J2000HJDConverter extends AbstractHJDConverter {
 		// Note: we can use trueSolarLong or trueSolarLong2000 for
 		// RA and Dec calculations below; which is most appropriate? The delta
 		// for HJD correction purposes appears to be is sub-second.
+		// trueSolarLong2000 is, according to Meeus, used for meteor work, but
+		// it's not clear that it should be used for variable star work.
 
 		// Meeus 24.6
 		// Right ascension of the Sun.
-		double solarRA = Math.atan2(
-				Math.cos(obliq) * Math.sin(trueSolarLong),
+		double solarRA = Math.atan2(Math.cos(obliq) * Math.sin(trueSolarLong),
 				Math.cos(trueSolarLong));
 
 		double apparentSolarRA = Math.atan2(
@@ -199,8 +200,7 @@ public class J2000HJDConverter extends AbstractHJDConverter {
 
 		// Meeus (24.7)
 		// Declination of the Sun.
-		double solarDec = Math.asin(Math.sin(obliq)
-				* Math.sin(trueSolarLong));
+		double solarDec = Math.asin(Math.sin(obliq) * Math.sin(trueSolarLong));
 
 		double apparentSolarDec = Math.asin(Math.sin(apparentObliq)
 				* Math.sin(lambda));
@@ -225,6 +225,8 @@ public class J2000HJDConverter extends AbstractHJDConverter {
 		// Meeus (p 132)
 		// Longitude of ascending node of Moon's mean orbit on ecliptic,
 		// measured from mean equinox of date.
+		// TODO: compare overall result against using less precise version of
+		// this
 		double omegaDegs = 125.04452 - 1934.136261 * T + 0.0020708 * (T * T)
 				+ (T * T * T) / 450000.0;
 
