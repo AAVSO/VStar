@@ -153,9 +153,9 @@ public class PluginLoader {
 	public static List<ObservationSourcePluginBase> getObservationSourcePlugins() {
 		List<ObservationSourcePluginBase> obSourcePlugins = new ArrayList<ObservationSourcePluginBase>();
 
-		// First, add AAVSO reader plug-ins.
-		obSourcePlugins.add(new TextFormatObservationSourcePlugin());
+		// First, add AAVSO observation reader plug-ins.
 		obSourcePlugins.add(new VSXWebServiceAIDObservationSourcePlugin());
+		obSourcePlugins.add(new TextFormatObservationSourcePlugin());
 		
 		// Next, add all external observation source plug-ins.
 		for (IPlugin plugin : plugins) {
