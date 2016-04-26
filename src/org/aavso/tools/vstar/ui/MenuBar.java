@@ -302,19 +302,6 @@ public class MenuBar extends JMenuBar {
 	private void createFileMenu() {
 		JMenu fileMenu = new JMenu(LocaleProps.get("FILE_MENU"));
 
-		fileNewStarFromDatabaseItem = new JMenuItem(NEW_STAR_FROM_DATABASE);
-		fileNewStarFromDatabaseItem
-				.addActionListener(createNewStarFromDatabaseListener());
-		fileMenu.add(fileNewStarFromDatabaseItem);
-
-		// if (uiType != UIType.APPLET) {
-		// TODO: remove after testing
-//		 fileNewStarFromFileItem = new JMenuItem(NEW_STAR_FROM_FILE);
-//		 fileNewStarFromFileItem
-//		 .addActionListener(createNewStarFromFileListener());
-//		 fileMenu.add(fileNewStarFromFileItem);
-		//}
-
 		List<ObservationSourcePluginBase> obSourcePlugins = PluginLoader
 				.getObservationSourcePlugins();
 
@@ -323,6 +310,14 @@ public class MenuBar extends JMenuBar {
 
 			ActionListener obSourceListener = createObservationSourceListener();
 
+			int internalPluginCount = 0;
+			for (ObservationSourcePluginBase plugin : obSourcePlugins) {
+				if ("Internal".equals(plugin.getGroup())) {
+					internalPluginCount++;
+				}
+			}
+
+			int internalPluginIndex = 1;
 			for (ObservationSourcePluginBase plugin : obSourcePlugins) {
 				String itemName = plugin.getDisplayName();
 
@@ -330,9 +325,11 @@ public class MenuBar extends JMenuBar {
 				obSourceMenuItem.addActionListener(obSourceListener);
 				fileMenu.add(obSourceMenuItem);
 
-				// New star from file plugin.
-				if ("Internal".equals(plugin.getGroup())) {
+				if ("Internal".equals(plugin.getGroup())
+						&& internalPluginIndex == internalPluginCount) {
 					fileMenu.addSeparator();
+				} else {
+					internalPluginIndex++;
 				}
 
 				menuItemNameToObSourcePlugin.put(itemName, plugin);
@@ -403,8 +400,7 @@ public class MenuBar extends JMenuBar {
 
 		editSelectAllItem = new JMenuItem(SELECT_ALL);
 		editSelectAllItem.setEnabled(false);
-		editSelectAllItem
-				.addActionListener(createSelectAllListener());
+		editSelectAllItem.addActionListener(createSelectAllListener());
 		editMenu.add(editSelectAllItem);
 
 		editMenu.addSeparator();
@@ -1246,24 +1242,22 @@ public class MenuBar extends JMenuBar {
 						manager, "Initialising Plug-in Manager") {
 					@Override
 					public void execute() {
-//						try {
-//							Authenticator.getInstance().authenticate();
-							Mediator.getUI()
-									.getStatusPane()
-									.setMessage(
-											"Initialising Plug-in Manager...");
-							manager.init();
-							new PluginManagementDialog(manager);
-							Mediator.getUI().getStatusPane().setMessage("");
-//						} catch (ConnectionException ex) {
-//							MessageBox.showErrorDialog(
-//									"Authentication Source Error", ex);
-//						} catch (AuthenticationError ex) {
-//							MessageBox.showErrorDialog("Authentication Error",
-//									ex);
-//						} catch (CancellationException e) {
-//							// Nothing to do.
-//						}
+						// try {
+						// Authenticator.getInstance().authenticate();
+						Mediator.getUI().getStatusPane()
+								.setMessage("Initialising Plug-in Manager...");
+						manager.init();
+						new PluginManagementDialog(manager);
+						Mediator.getUI().getStatusPane().setMessage("");
+						// } catch (ConnectionException ex) {
+						// MessageBox.showErrorDialog(
+						// "Authentication Source Error", ex);
+						// } catch (AuthenticationError ex) {
+						// MessageBox.showErrorDialog("Authentication Error",
+						// ex);
+						// } catch (CancellationException e) {
+						// // Nothing to do.
+						// }
 					}
 				};
 				mediator.performPluginManagerOperation(op);

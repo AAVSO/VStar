@@ -240,7 +240,7 @@ public class ToolBar extends JPanel {
 		newStarFromDatabaseButton
 				.setToolTipText(MenuBar.NEW_STAR_FROM_DATABASE);
 		newStarFromDatabaseButton.addActionListener(menuBar
-				.createNewStarFromDatabaseListener());
+				.createObservationSourceListener(MenuBar.NEW_STAR_FROM_DATABASE));
 		newStarFromDatabaseButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(newStarFromDatabaseButton);
 

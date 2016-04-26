@@ -18,8 +18,6 @@
 package org.aavso.tools.vstar.plugin.ob.src.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -241,24 +239,24 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		}
 
 		// TODO: replace above with this or delete
-		public void retrieveObservations2() throws ObservationReadError,
-				InterruptedException {
-
-			try {
-				URL vsxUrl = new URL(urlStr);
-
-				InputStream stream = vsxUrl.openStream();
-				InputStreamReader reader = new InputStreamReader(stream);
-				// TODO: create CSV reader, read lines, create obs list.
-			} catch (Throwable t) {
-				throw new ObservationReadError(
-						"Error when attempting to read observation source.");				
+//		public void retrieveObservations2() throws ObservationReadError,
+//				InterruptedException {
+//
+//			try {
+//				URL vsxUrl = new URL(urlStr);
+//
+//				InputStream stream = vsxUrl.openStream();
+//				InputStreamReader reader = new InputStreamReader(stream);
+//				// TODO: create CSV reader, read lines, create obs list.
+//			} catch (Throwable t) {
+//				throw new ObservationReadError(
+//						"Error when attempting to read observation source.");				
 //			} catch (IOException e) {
 //				throw new ObservationReadError(
 //						"Unable to obtain information for "
 //								+ info.getDesignation());
-			}
-		}
+//			}
+//		}
 
 		@Override
 		public String getSourceType() {
@@ -267,12 +265,11 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 		@Override
 		public String getSourceName() {
-			return getValidObservations().get(0).getName();
+			return info.getDesignation();
 		}
 
 		// Helpers
 
-		// TODO: refactor, creating a base class with 2 implementations, or remove?
 		private Integer requestObservationDetailsAsElements(Document document,
 				Integer pageNum) throws ObservationReadError {
 
