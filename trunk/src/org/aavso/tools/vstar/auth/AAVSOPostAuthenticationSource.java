@@ -116,7 +116,10 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 			}
 
 			processResponse(conn);
-
+			
+			VSXWebServiceMemberInfo memberInfo = new VSXWebServiceMemberInfo();
+			memberInfo.retrieveUserInfo(userID, ResourceAccessor.getLoginInfo());
+			
 		} catch (MalformedURLException e) {
 			throw new ConnectionException(e.getLocalizedMessage());
 		} catch (IOException e) {
