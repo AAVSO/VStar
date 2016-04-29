@@ -236,9 +236,11 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						ProgressInfo.START_PROGRESS);
 			}
 
-			// Note: This may cause problems if isAdditive() is true; make
-			// conditional?
-			ValidObservation.reset();
+			// Note: This may cause problems if isAdditive() is true, so make
+			// conditional.
+			if (!obSourcePlugin.isAdditive()) {
+				ValidObservation.reset();
+			}
 
 			retriever.retrieveObservations();
 

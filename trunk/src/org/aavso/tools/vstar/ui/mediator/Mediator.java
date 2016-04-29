@@ -142,7 +142,7 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
 import org.aavso.tools.vstar.util.date.AbstractHJDConverter;
 import org.aavso.tools.vstar.util.discrepant.DiscrepantReport;
 import org.aavso.tools.vstar.util.discrepant.IDiscrepantReporter;
-import org.aavso.tools.vstar.util.discrepant.ZapperLogger;
+import org.aavso.tools.vstar.util.discrepant.VSXWebServiceZapperLogger;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -2462,7 +2462,7 @@ public class Mediator {
 					DiscrepantReport report = new DiscrepantReport(auid, name,
 							uniqueId, editor, reportDialog.getComments());
 
-					IDiscrepantReporter reporter = ZapperLogger.getInstance();
+					IDiscrepantReporter reporter = new VSXWebServiceZapperLogger();
 
 					reporter.lodge(report);
 
