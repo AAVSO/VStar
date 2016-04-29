@@ -34,10 +34,11 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  * be good to query the zapperlog to check that the discrepant has not already
  * been reported; which combination of fields makes sense to be checked (e.g.
  * unique_id & editor)?
+ * @deprecated
  */
-public class ZapperLogger implements IDiscrepantReporter {
+public class JDBCZapperLogger implements IDiscrepantReporter {
 
-	private static ZapperLogger instance = null;
+	private static JDBCZapperLogger instance = null;
 
 	private PreparedStatement updateLogStatement;
 	private Connection connection;
@@ -45,9 +46,9 @@ public class ZapperLogger implements IDiscrepantReporter {
 	/**
 	 * Singleton getter.
 	 */
-	public static ZapperLogger getInstance() {
+	public static JDBCZapperLogger getInstance() {
 //		if (instance == null) {
-			instance = new ZapperLogger();
+			instance = new JDBCZapperLogger();
 //		}
 
 		return instance;
@@ -56,7 +57,7 @@ public class ZapperLogger implements IDiscrepantReporter {
 	/**
 	 * Singleton constructor.
 	 */
-	private ZapperLogger() {
+	private JDBCZapperLogger() {
 		updateLogStatement = null;
 		try {
 			connection = AAVSODatabaseConnector.observationDBConnector

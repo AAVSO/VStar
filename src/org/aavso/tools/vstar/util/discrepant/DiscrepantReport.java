@@ -105,7 +105,7 @@ public class DiscrepantReport {
 	public double getJd() {
 		return jd;
 	}
-
+	
 	public String toString() {
 		String report = "";
 
