@@ -19,23 +19,24 @@ package org.aavso.tools.vstar.auth;
 
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.input.database.AAVSOAuthenticationSource;
 import org.aavso.tools.vstar.input.database.IAuthenticationSource;
 import org.aavso.tools.vstar.ui.resources.LoginType;
 
 /**
  * This authentication source uses two other authenticators to authenticate
  * against AAVSO.
+ * @deprecated
  */
 public class AAVSOCompositeAuthenticationSource implements
 		IAuthenticationSource {
 
 	private AAVSOPostAuthenticationSource aavsoPostAuthSource;
-	private AAVSOAuthenticationSource aavsoDatabaseAuthSource;
+//	private AAVSOAuthenticationSource aavsoDatabaseAuthSource;
 	
 	public AAVSOCompositeAuthenticationSource() {
 		aavsoPostAuthSource = new AAVSOPostAuthenticationSource();
-		aavsoDatabaseAuthSource = new AAVSOAuthenticationSource();
+		// TODO: remove this, relying only on AAVSOPostAuthenticationSource
+//		aavsoDatabaseAuthSource = new AAVSOAuthenticationSource();
 	}
 
 	@Override
@@ -44,10 +45,11 @@ public class AAVSOCompositeAuthenticationSource implements
 		
 		boolean authenticated = aavsoPostAuthSource.authenticate(username, password);
 		
-		if (authenticated) {
-			aavsoDatabaseAuthSource.setAuthenticated(true);
-			aavsoDatabaseAuthSource.retrieveUserInfo(aavsoPostAuthSource.getUserID());
-		}
+		// TODO: remove this, relying only on AAVSOPostAuthenticationSource
+//		if (authenticated) {
+//			aavsoDatabaseAuthSource.setAuthenticated(true);
+//			aavsoDatabaseAuthSource.retrieveUserInfo(aavsoPostAuthSource.getUserID());
+//		}
 		
 		return authenticated;
 	}
