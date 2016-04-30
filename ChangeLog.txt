@@ -32,6 +32,22 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: April 30 2016
+Version: 2.17.0
+Tag: DEV-AAVSO-30Apr2016
+Key Changes:
+- Ticket #510 VSX StarInfo and AID access: web service now used 
+  instead of database access; enhanced AID load progress tracking, 
+  task interruption, reliability (no timeouts) and performance; all
+  observation sources are now treated as plug-ins.
+- Ticket #421 Use J2000 epoch coordinates for HJD conversion: instead 
+  of B1950; my appreciation as always to "Astronomical Algorithms" by 
+  Jean Meeus.
+- Ticket #386 Use web service for discrepant reporting.
+- Thanks to Patrick Wills for web service development, Sara 
+  Beck and Francis Hemsher for discussions, and Sara for help
+  with testing the new discrepant reporting implementation. 
+  
 Date: January 11 2016
 Version: 2.16.10
 Tag: DEV-AAVSO-11Jan2016
