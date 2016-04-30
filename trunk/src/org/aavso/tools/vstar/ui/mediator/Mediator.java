@@ -1424,7 +1424,7 @@ public class Mediator {
 						.isHeliocentric()) {
 
 			if (ra == null || dec == null) {
-				// Asking the user for B1950 RA/DEC and if that is cancelled,
+				// Asking the user for J2000.0 RA/DEC and if that is cancelled,
 				// indicate that HJD conversion cannot take place.
 				ra = requestRA();
 				dec = requestDec();
@@ -1450,7 +1450,7 @@ public class Mediator {
 						.isHeliocentric()) {
 
 			if (ra == null || dec == null) {
-				// Asking the user for B1950 RA/DEC and if that is cancelled,
+				// Asking the user for J2000.0 RA/DEC and if that is cancelled,
 				// indicate that HJD conversion cannot take place.
 				ra = requestRA();
 				dec = requestDec();
@@ -1479,34 +1479,34 @@ public class Mediator {
 		}
 	}
 
-	// Request the B1950.0 RA in HH:MM:SS.n
+	// Request the J2000.0 RA in HH:MM:SS.n
 	public RAInfo requestRA() {
 		IntegerField raHours = new IntegerField("Hours", 0, 60, null);
 		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, null);
 		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, null);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
-				"RA (B1950.0)", raHours, raMinutes, raSeconds);
+				"RA (" + EpochType.J2000 + ")", raHours, raMinutes, raSeconds);
 
 		RAInfo raInfo = null;
 		if (!dialog.isCancelled()) {
-			raInfo = new RAInfo(EpochType.B1950, raHours.getValue(),
+			raInfo = new RAInfo(EpochType.J2000, raHours.getValue(),
 					raMinutes.getValue(), raSeconds.getValue());
 		}
 
 		return raInfo;
 	}
 
-	// Request the B1950.0 Dec in DD:MM:SS.n
+	// Request the J2000.0 Dec in DD:MM:SS.n
 	public DecInfo requestDec() {
 		IntegerField raHours = new IntegerField("Degrees", -90, 90, null);
 		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, null);
 		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, null);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
-				"Dec (" + EpochType.B1950 + ")", raHours, raMinutes, raSeconds);
+				"Dec (" + EpochType.J2000 + ")", raHours, raMinutes, raSeconds);
 
 		DecInfo decInfo = null;
 		if (!dialog.isCancelled()) {
-			decInfo = new DecInfo(EpochType.B1950, raHours.getValue(),
+			decInfo = new DecInfo(EpochType.J2000, raHours.getValue(),
 					raMinutes.getValue(), raSeconds.getValue());
 		}
 
