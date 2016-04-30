@@ -51,7 +51,7 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 			obsSource
 					.setUrl("https://www.aavso.org/vsx/index.php?view=api.object"
 							+ "&ident=000-BCT-905&data=1000"
-							+ "&fromjd=2454000.5&tojd=2454939.56597");
+							+ "&fromjd=2454000.5&tojd=2454939.56597&att");
 
 			AbstractObservationRetriever reader = obsSource
 					.getObservationRetriever();
