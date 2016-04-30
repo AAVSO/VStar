@@ -102,8 +102,8 @@
 		<!--
 		<copy file="${dist}/${pkg}.BMinusVObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.DifferentialPhotometry.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.PeriodAnalysisPluginTest1.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.PeriodAnalysisPluginTest1.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VSPChartInfoRetriever.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		-->		
 		<copy file="lib/tamfits.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
