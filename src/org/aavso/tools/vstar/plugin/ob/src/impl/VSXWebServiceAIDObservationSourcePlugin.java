@@ -98,6 +98,8 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		starSelector.showDialog();
 
 		if (!starSelector.isCancelled()) {
+			setAdditive(starSelector.isLoadAdditive());
+			
 			String auid = starSelector.getAuid();
 			String starName = starSelector.getStarName();
 
