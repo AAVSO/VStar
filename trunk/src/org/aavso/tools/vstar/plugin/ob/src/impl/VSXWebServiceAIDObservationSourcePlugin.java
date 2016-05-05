@@ -123,7 +123,11 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 				urlStr += "&tojd=" + starSelector.getMaxDate().getJulianDay();
 			}
 
+			// Ask for obs as attributes instead of elements.
 			urlStr += "&att";
+			
+			// Only want STD MType obs.
+			urlStr += "&where=mtype%3D0+or+mtype+is+null";
 
 			urls.add(new URL(urlStr));
 		} else {
@@ -540,12 +544,14 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		}
 
 		private MTypeType getMType(String mtypeStr) {
-			MTypeType result = null;
+			MTypeType result = MTypeType.STD;
 
 			// If mtypeStr is null, we use the ValidObservation's
 			// constructed default (standard magnitude type).
+			//
+			// Note that we should only ever see STD here anyway!
 
-			if (mtypeStr != null) {
+			if (mtypeStr != null || "".equals(mtypeStr)) {
 				if (mtypeStr == "DIFF") {
 					result = MTypeType.DIFF;
 				} else if (mtypeStr == "STEP") {
