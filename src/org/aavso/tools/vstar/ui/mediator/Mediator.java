@@ -1046,6 +1046,7 @@ public class Mediator {
 	 *            The GUI component that can be used to display.
 	 * @param isAdditiveLoad
 	 *            Is the load additive?
+	 * @deprecated           
 	 */
 	public void createObservationArtefactsFromFile(File obsFile,
 			boolean isAdditiveLoad) throws IOException, ObservationReadError {
@@ -1085,6 +1086,7 @@ public class Mediator {
 	 *            The maximum Julian Day of the requested range.
 	 * @param isAdditiveLoad
 	 *            Is the load additive?
+	 * @deprecated
 	 */
 	public void createObservationArtefactsFromDatabase(String starName,
 			String auid, double minJD, double maxJD, boolean isAdditiveLoad) {
