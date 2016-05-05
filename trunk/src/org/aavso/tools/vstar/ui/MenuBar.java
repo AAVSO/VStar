@@ -691,6 +691,7 @@ public class MenuBar extends JMenuBar {
 	 * The action is to: a. ask the user for star and date range details; b.
 	 * open a database connection and get the data for star in that range; c.
 	 * create the corresponding observation models and GUI elements.
+	 * @deprecated
 	 */
 	public ActionListener createNewStarFromDatabaseListener() {
 		return new ActionListener() {
@@ -741,6 +742,7 @@ public class MenuBar extends JMenuBar {
 	 * 
 	 * The action is to open a file dialog to allow the user to select a single
 	 * file.
+	 * @deprecated
 	 */
 	public ActionListener createNewStarFromFileListener() {
 		final AdditiveLoadFileOrUrlChooser fileOpenDialog = this.fileOpenDialog;
@@ -756,13 +758,13 @@ public class MenuBar extends JMenuBar {
 				if (approved) {
 					File f = fileOpenDialog.getSelectedFile();
 
-					try {
-						mediator.createObservationArtefactsFromFile(f,
-								fileOpenDialog.isLoadAdditive());
-					} catch (Exception ex) {
-						MessageBox.showErrorDialog(parent.getComponent(),
-								NEW_STAR_FROM_FILE, ex);
-					}
+//					try {
+//						mediator.createObservationArtefactsFromFile(f,
+//								fileOpenDialog.isLoadAdditive());
+//					} catch (Exception ex) {
+//						MessageBox.showErrorDialog(parent.getComponent(),
+//								NEW_STAR_FROM_FILE, ex);
+//					}
 				}
 			}
 		};
