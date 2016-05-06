@@ -27,12 +27,15 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.plugin.ob.src.impl.VSXWebServiceAIDObservationSourcePlugin;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
@@ -90,7 +93,7 @@ public class VStarScriptingAPI {
 			}
 		};
 	}
-	
+
 	// ***************************************
 	// ** VStar scripting API methods start **
 	// ***************************************
@@ -202,11 +205,12 @@ public class VStarScriptingAPI {
 			final String url) {
 		commonLoadFromFileOrURLViaPlugin(pluginName, InputType.URL, url, true);
 	}
+
 	/**
 	 * Load a dataset from the AAVSO international database.
 	 * 
 	 * @param name
-	 *            The name of the object.
+	 *            The name (not AUID) of the object.
 	 * @param minJD
 	 *            The minimum JD of the range to be loaded.
 	 * @param maxJD
@@ -214,11 +218,8 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void loadFromAID(final String name, double minJD,
 			double maxJD) {
-		init();
-		String auid = null;
-		mediator.createObservationArtefactsFromDatabase(name, auid, minJD,
-				maxJD, false);
-		mediator.waitForJobCompletion();
+
+		commonLoadFromAID(name, minJD, maxJD, false);
 	}
 
 	/**
@@ -226,7 +227,7 @@ public class VStarScriptingAPI {
 	 * existing dataset.
 	 * 
 	 * @param name
-	 *            The name of the object.
+	 *            The name (not AUID) of the object.
 	 * @param minJD
 	 *            The minimum JD of the range to be loaded.
 	 * @param maxJD
@@ -234,11 +235,8 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void additiveLoadFromAID(final String name,
 			double minJD, double maxJD) {
-		init();
-		String auid = null;
-		mediator.createObservationArtefactsFromDatabase(name, auid, minJD,
-				maxJD, true);
-		mediator.waitForJobCompletion();
+
+		commonLoadFromAID(name, minJD, maxJD, true);
 	}
 
 	/**
@@ -509,10 +507,10 @@ public class VStarScriptingAPI {
 
 	// TODO:
 	// - makeInvisible() or hideSeries() and showSeries()
-	// - allow AoV: see commonLoadFromFileOrURLViaPlugin()
+	// - allow AoV, WWZ: see commonLoadFromFileOrURLViaPlugin()
 
 	// Common methods
-	
+
 	/**
 	 * Common dataset file load method.
 	 * 
@@ -536,13 +534,12 @@ public class VStarScriptingAPI {
 	 * @param isAdditive
 	 *            Is this load additive?
 	 */
-	private void commonLoadFromURL(final String path, boolean isAdditive) {
+	private void commonLoadFromURL(final String url, boolean isAdditive) {
 		init();
 
 		commonLoadFromFileOrURLViaPlugin(MenuBar.NEW_STAR_FROM_FILE,
-				InputType.URL, path, isAdditive);
+				InputType.URL, url, isAdditive);
 	}
-
 
 	/**
 	 * Common dataset plug-in load method.
@@ -595,6 +592,63 @@ public class VStarScriptingAPI {
 					.showErrorDialog("Load File",
 							"No matching observation plugin found '"
 									+ pluginName + "'");
+		}
+
+		mediator.waitForJobCompletion();
+	}
+
+	/**
+	 * Common AID dataset load method.
+	 * 
+	 * @param name
+	 *            The target name (not AUID).
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 * @param isAdditive
+	 *            Is this load additive?
+	 */
+	private void commonLoadFromAID(final String name, double minJD,
+			double maxJD, boolean isAdditive) {
+		init();
+
+		ObservationSourcePluginBase obSourcePlugin = null;
+
+		for (ObservationSourcePluginBase plugin : PluginLoader
+				.getObservationSourcePlugins()) {
+			if (plugin.getDisplayName()
+					.contains(MenuBar.NEW_STAR_FROM_DATABASE)) {
+				obSourcePlugin = plugin;
+				break;
+			}
+		}
+
+		if (obSourcePlugin != null) {
+			try {
+				VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
+				StarInfo info = infoSrc.getStarByName(null, name);
+
+				String url = VSXWebServiceAIDObservationSourcePlugin
+						.createAIDUrlForAUID(info.getAuid(), minJD, maxJD);
+
+				VSXWebServiceAIDObservationSourcePlugin aidPlugin = (VSXWebServiceAIDObservationSourcePlugin) obSourcePlugin;
+				aidPlugin.setUrl(url);
+				aidPlugin.setInfo(info);
+
+				mediator.createObservationArtefactsFromObSourcePlugin(
+						aidPlugin, (URL) null, isAdditive);
+			} catch (IOException e) {
+				MessageBox.showErrorDialog("Load from AID",
+						"Cannot load from AID:  " + name);
+			} catch (ObservationReadError e) {
+				MessageBox.showErrorDialog("Load from AID",
+						"Error reading observations from AID: " + name
+								+ " (reason: " + e.getLocalizedMessage() + ")");
+			}
+		} else {
+			MessageBox.showErrorDialog("Load from AID",
+					"Error initialising load from AID plug-in");
 		}
 
 		mediator.waitForJobCompletion();
@@ -690,7 +744,7 @@ public class VStarScriptingAPI {
 
 		return topHitPeriods;
 	}
-	
+
 	// Helpers
 
 	private void init() {

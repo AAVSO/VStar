@@ -48,10 +48,10 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
 
 			obsSource.setInfo(info);
-			obsSource
-					.setUrl("https://www.aavso.org/vsx/index.php?view=api.object"
-							+ "&ident=000-BCT-905&data=1000"
-							+ "&fromjd=2454000.5&tojd=2454939.56597&att");
+			
+			obsSource.setUrl(VSXWebServiceAIDObservationSourcePlugin
+					.createAIDUrlForAUID(info.getAuid(), 2454000.5,
+							2454939.56597));
 
 			AbstractObservationRetriever reader = obsSource
 					.getObservationRetriever();
@@ -76,6 +76,31 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 			}
 
 			assertTrue(found);
+		} catch (Exception e) {
+			fail();
+		}
+	}
+
+	// Read all data for TT Cen and check the number.
+	public void testReadValidObservationTTCen() {
+		try {
+			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
+			StarInfo info = infoSrc.getStarByName(null, "TT Cen");
+
+			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
+
+			obsSource.setInfo(info);
+			
+			obsSource.setUrl(VSXWebServiceAIDObservationSourcePlugin
+					.createAIDUrlForAUID(info.getAuid()));
+
+			AbstractObservationRetriever reader = obsSource
+					.getObservationRetriever();
+			reader.retrieveObservations();
+			List<ValidObservation> obs = reader.getValidObservations();
+
+			assertEquals(1192, obs.size());
+			
 		} catch (Exception e) {
 			fail();
 		}
