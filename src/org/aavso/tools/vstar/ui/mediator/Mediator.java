@@ -1046,7 +1046,7 @@ public class Mediator {
 	 *            The GUI component that can be used to display.
 	 * @param isAdditiveLoad
 	 *            Is the load additive?
-	 * @deprecated           
+	 * @deprecated
 	 */
 	public void createObservationArtefactsFromFile(File obsFile,
 			boolean isAdditiveLoad) throws IOException, ObservationReadError {
@@ -1486,8 +1486,8 @@ public class Mediator {
 		IntegerField raHours = new IntegerField("Hours", 0, 60, null);
 		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, null);
 		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, null);
-		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
-				"RA (" + EpochType.J2000 + ")", raHours, raMinutes, raSeconds);
+		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("RA ("
+				+ EpochType.J2000 + ")", raHours, raMinutes, raSeconds);
 
 		RAInfo raInfo = null;
 		if (!dialog.isCancelled()) {

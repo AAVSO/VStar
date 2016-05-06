@@ -57,7 +57,8 @@ public class NewStarFromObSourcePluginWithSuppliedURLTask extends
 	 * @param obSourcePlugin
 	 *            The plugin that will be used to obtain observations.
 	 * @param inputURL
-	 *            The file to used as input.
+	 *            The URL to use as input; can be null, in which case the
+	 *            plug-in must obtain the URL in some other way.
 	 * @param isAdditive
 	 *            Is this an additive load?
 	 */
@@ -105,10 +106,12 @@ public class NewStarFromObSourcePluginWithSuppliedURLTask extends
 	protected void createObservationArtefacts() {
 
 		try {
-			// Set input streams and name, if requested by the plug-in.
-			List<InputStream> streams = new ArrayList<InputStream>();
-			streams.add(inputURL.openStream());
-			obSourcePlugin.setInputInfo(streams, inputURL.getPath());
+			if (inputURL != null) {
+				// Set input streams and name, if requested by the plug-in.
+				List<InputStream> streams = new ArrayList<InputStream>();
+				streams.add(inputURL.openStream());
+				obSourcePlugin.setInputInfo(streams, inputURL.getPath());
+			}
 
 			// Retrieve the observations.
 			AbstractObservationRetriever retriever = obSourcePlugin
@@ -125,8 +128,8 @@ public class NewStarFromObSourcePluginWithSuppliedURLTask extends
 
 			// Create plots, tables.
 			NewStarType type = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
-			mediator.createNewStarObservationArtefacts(type, retriever
-					.getStarInfo(), 0, isAdditive);
+			mediator.createNewStarObservationArtefacts(type,
+					retriever.getStarInfo(), 0, isAdditive);
 
 		} catch (InterruptedException e) {
 			ValidObservation.restore();

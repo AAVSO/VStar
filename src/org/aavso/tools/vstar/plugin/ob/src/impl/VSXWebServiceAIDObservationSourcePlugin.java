@@ -60,14 +60,65 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		ObservationSourcePluginBase {
 
 	private final static int MAX_OBS_AT_ONCE = 1000;
+	private final static String BASE_URL = "https://www.aavso.org/vsx/index.php?view=api.object";
 
-	private String baseVsxUrlString;
 	private String urlStr;
 	private StarInfo info;
 
+	/**
+	 * Given an AUID, min and max JD, return a web service URL.
+	 * 
+	 * @param auid
+	 *            The AUID of the target.
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 * @return The URL string necessary to load data for the target and JD
+	 *         range.
+	 */
+	public static String createAIDUrlForAUID(String auid, double minJD,
+			double maxJD) {
+
+		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
+
+		urlStrBuf.append("&ident=");
+		urlStrBuf.append(auid);
+		urlStrBuf.append("&data=");
+		urlStrBuf.append(MAX_OBS_AT_ONCE);
+		urlStrBuf.append("&fromjd=");
+		urlStrBuf.append(minJD);
+		urlStrBuf.append("&tojd=");
+		urlStrBuf.append(maxJD);
+		urlStrBuf.append("&att");
+		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
+
+		return urlStrBuf.toString();
+	}
+
+	/**
+	 * Given an AUID return a web service URL for all data for the target.
+	 * 
+	 * @param auid
+	 *            The AUID of the target.
+	 * @return The URL string necessary to load data for the target and JD
+	 *         range.
+	 */
+	public static String createAIDUrlForAUID(String auid) {
+
+		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
+
+		urlStrBuf.append("&ident=");
+		urlStrBuf.append(auid);
+		urlStrBuf.append("&data=");
+		urlStrBuf.append(MAX_OBS_AT_ONCE);
+		urlStrBuf.append("&att");
+		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
+
+		return urlStrBuf.toString();
+	}
+
 	public VSXWebServiceAIDObservationSourcePlugin() {
-		 baseVsxUrlString =
-		 "https://www.aavso.org/vsx/index.php?view=api.object";
 		// baseVsxUrlString =
 		// "https://www.aavso.org/vsx/index.php?view=api.csv";
 		info = null;
@@ -99,7 +150,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 		if (!starSelector.isCancelled()) {
 			setAdditive(starSelector.isLoadAdditive());
-			
+
 			String auid = starSelector.getAuid();
 			String starName = starSelector.getStarName();
 
@@ -114,20 +165,13 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 				auid = info.getAuid();
 			}
 
-			int numObs = MAX_OBS_AT_ONCE;
-
-			urlStr = baseVsxUrlString + "&ident=" + auid + "&data=" + numObs;
-
-			if (!starSelector.wantAllData()) {
-				urlStr += "&fromjd=" + starSelector.getMinDate().getJulianDay();
-				urlStr += "&tojd=" + starSelector.getMaxDate().getJulianDay();
+			if (starSelector.wantAllData()) {
+				urlStr = createAIDUrlForAUID(auid);
+			} else {
+				urlStr = createAIDUrlForAUID(auid, starSelector.getMinDate()
+						.getJulianDay(), starSelector.getMaxDate()
+						.getJulianDay());
 			}
-
-			// Ask for obs as attributes instead of elements.
-			urlStr += "&att";
-			
-			// Only want STD MType obs.
-			urlStr += "&where=mtype%3D0+or+mtype+is+null";
 
 			urls.add(new URL(urlStr));
 		} else {
@@ -245,24 +289,24 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		}
 
 		// TODO: replace above with this or delete
-//		public void retrieveObservations2() throws ObservationReadError,
-//				InterruptedException {
-//
-//			try {
-//				URL vsxUrl = new URL(urlStr);
-//
-//				InputStream stream = vsxUrl.openStream();
-//				InputStreamReader reader = new InputStreamReader(stream);
-//				// TODO: create CSV reader, read lines, create obs list.
-//			} catch (Throwable t) {
-//				throw new ObservationReadError(
-//						"Error when attempting to read observation source.");				
-//			} catch (IOException e) {
-//				throw new ObservationReadError(
-//						"Unable to obtain information for "
-//								+ info.getDesignation());
-//			}
-//		}
+		// public void retrieveObservations2() throws ObservationReadError,
+		// InterruptedException {
+		//
+		// try {
+		// URL vsxUrl = new URL(urlStr);
+		//
+		// InputStream stream = vsxUrl.openStream();
+		// InputStreamReader reader = new InputStreamReader(stream);
+		// // TODO: create CSV reader, read lines, create obs list.
+		// } catch (Throwable t) {
+		// throw new ObservationReadError(
+		// "Error when attempting to read observation source.");
+		// } catch (IOException e) {
+		// throw new ObservationReadError(
+		// "Unable to obtain information for "
+		// + info.getDesignation());
+		// }
+		// }
 
 		@Override
 		public String getSourceType() {
