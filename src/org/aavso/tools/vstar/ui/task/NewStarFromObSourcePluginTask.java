@@ -112,7 +112,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	 * Create observation table and plot models from an observation source
 	 * plug-in.
 	 */
-	protected void createObservationArtefacts() {
+	protected synchronized void createObservationArtefacts() {
 
 		try {
 			// Set input streams and name, if requested by the plug-in.
