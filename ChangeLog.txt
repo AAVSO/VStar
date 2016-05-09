@@ -32,6 +32,17 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: May ? 2016
+Version: 2.17.1
+Tag: DEV-AAVSO-??May2016
+Key Changes:
+- Ticket #515 Load from AID: additive load being ignored.
+- Ticket #518 Load from AID: DIFF and STEP MTypes not being ignored.
+- Ticket #516 Scripting API: load from AID needs to invoke plug-in method. 
+- Ticket #519 File dialog based observation source UI freeze.
+- Ticket #520 Non-XML 1.0 compliant Unicode chars in AID load causes parse 
+  failure.
+  
 Date: April 30 2016
 Version: 2.17.0
 Tag: DEV-AAVSO-30Apr2016
