@@ -23,12 +23,13 @@ import java.io.InputStream;
 /**
  * This class filters another input stream, returning any bytes whose ordinal
  * value is less than 0x20 (space) except for tab (0x9), CR (0xd), LF (0xa) as
- * 0x20. This ensures that the stream is UTF-8 compliant for XML 1.0.
+ * 0x20. This ensures that the stream is UTF-8 compliant for XML 1.0. Note that
+ * -1 denotes EOF so this must also be passed through untouched.
  */
 public class UTF8FilteringInputStream extends InputStream {
 
 	private InputStream stream;
-	
+
 	public UTF8FilteringInputStream(InputStream stream) {
 		this.stream = stream;
 	}
@@ -36,6 +37,21 @@ public class UTF8FilteringInputStream extends InputStream {
 	@Override
 	public int read() throws IOException {
 		int b = stream.read();
-		return b >= 0x20 || b == -1 ? b : 0x20;
+
+		if (b < 0x20) {
+			switch (b) {
+			case 0x9:
+			case 0xa:
+			case 0xd:
+			case -1:
+				break;
+
+			default:
+				b = 0x20;
+				break;
+			}
+		}
+
+		return b;
 	}
 }
