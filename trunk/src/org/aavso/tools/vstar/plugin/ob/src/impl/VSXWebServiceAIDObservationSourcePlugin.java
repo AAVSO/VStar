@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.plugin.ob.src.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -259,7 +260,10 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 					DocumentBuilderFactory factory = DocumentBuilderFactory
 							.newInstance();
 					DocumentBuilder builder = factory.newDocumentBuilder();
-					Document document = builder.parse(vsxUrl.openStream());
+					
+					InputStream stream = new UTF8FilteringInputStream(
+							vsxUrl.openStream());
+					Document document = builder.parse(stream);
 
 					document.getDocumentElement().normalize();
 
