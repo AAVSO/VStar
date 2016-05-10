@@ -260,7 +260,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 					DocumentBuilderFactory factory = DocumentBuilderFactory
 							.newInstance();
 					DocumentBuilder builder = factory.newDocumentBuilder();
-					
+
 					InputStream stream = new UTF8FilteringInputStream(
 							vsxUrl.openStream());
 					Document document = builder.parse(stream);
@@ -519,7 +519,8 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 			ValidObservation ob = null;
 
 			if (jd != Double.POSITIVE_INFINITY
-					&& mag != Double.POSITIVE_INFINITY) {
+					&& mag != Double.POSITIVE_INFINITY
+					&& valType != ValidationType.BAD) {
 
 				ob = new ValidObservation();
 
@@ -566,26 +567,29 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 			return new Magnitude(mag, modifier, isUncertain, error);
 		}
 
-		/*
-		 * According to:
-		 * https://sourceforge.net/apps/mediawiki/vstar/index.php?title
-		 * =AAVSO_International_Database_Schema
-		 * (https://sourceforge.net/apps/mediawiki
-		 * /vstar/index.php?title=Valflag:) we have: Z = Prevalidated, P =
-		 * Published observation, T = Discrepant, V = Good, Y = Deleted
-		 * (filtered out via SQL). Our query converts any occurrence of 'T' to
-		 * 'D'. Currently we convert everything to Good (V,G), Discrepant (D),
-		 * or Prevalidated (Z) below.
-		 */
 		private ValidationType getValidationType(String valflag) {
 			ValidationType type;
 
-			if ("Z".equals(valflag)) {
-				type = ValidationType.PREVALIDATION;
-			} else if ("D".equals(valflag)) {
-				type = ValidationType.DISCREPANT;
-			} else {
+			// - V,Z,U => Good
+			// - T,N => discrepant
+			// - Y(,Q) filtered out server side
+
+			switch (valflag.charAt(0)) {
+			case 'V':
+			case 'Z':
+			case 'U':
 				type = ValidationType.GOOD;
+				break;
+
+			case 'T':
+			case 'N':
+				type = ValidationType.DISCREPANT;
+				break;
+
+			default:
+				// In case anything else slips through, e.g. Y,Q.
+				type = ValidationType.BAD;
+				break;
 			}
 
 			return type;

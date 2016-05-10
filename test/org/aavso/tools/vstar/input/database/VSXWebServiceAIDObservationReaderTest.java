@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.ob.src.impl.UTF8FilteringInputStream;
 import org.aavso.tools.vstar.plugin.ob.src.impl.VSXWebServiceAIDObservationSourcePlugin;
@@ -83,7 +84,7 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 		}
 	}
 
-	// Read all data for TT Cen and check the number.
+	// Read data for TT Cen and check the number.
 	public void testReadValidObservationTTCen() {
 		try {
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
@@ -132,5 +133,32 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 
 		assertEquals(559, count);
 		assertFalse(foundNotUTF);
+	}
+	
+	// Read data for SS Cyg and check valflags.
+	public void testReadValidObservationAndCheckValFlagsSSCyg() {
+		try {
+			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
+			StarInfo info = infoSrc.getStarByName(null, "SS Cyg");
+
+			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
+
+			obsSource.setInfo(info);
+
+			obsSource.setUrl(VSXWebServiceAIDObservationSourcePlugin
+					.createAIDUrlForAUID(info.getAuid(), 2457301.2, 2457301.3));
+
+			AbstractObservationRetriever reader = obsSource
+					.getObservationRetriever();
+			reader.retrieveObservations();
+			List<ValidObservation> obs = reader.getValidObservations();
+
+			assertEquals(2, obs.size());
+			assertEquals(ValidationType.GOOD, obs.get(0).getValidationType());
+			assertEquals(ValidationType.DISCREPANT, obs.get(1).getValidationType());
+			
+		} catch (Exception e) {
+			fail();
+		}
 	}
 }
