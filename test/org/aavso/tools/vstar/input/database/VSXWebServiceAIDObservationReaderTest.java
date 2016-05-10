@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.input.database;
 
+import java.net.URL;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -24,6 +25,7 @@ import junit.framework.TestCase;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.plugin.ob.src.impl.UTF8FilteringInputStream;
 import org.aavso.tools.vstar.plugin.ob.src.impl.VSXWebServiceAIDObservationSourcePlugin;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
@@ -48,7 +50,7 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
 
 			obsSource.setInfo(info);
-			
+
 			obsSource.setUrl(VSXWebServiceAIDObservationSourcePlugin
 					.createAIDUrlForAUID(info.getAuid(), 2454000.5,
 							2454939.56597));
@@ -90,19 +92,45 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
 
 			obsSource.setInfo(info);
-			
+
 			obsSource.setUrl(VSXWebServiceAIDObservationSourcePlugin
-					.createAIDUrlForAUID(info.getAuid()));
+					.createAIDUrlForAUID(info.getAuid(), 2454000, 2454100));
 
 			AbstractObservationRetriever reader = obsSource
 					.getObservationRetriever();
 			reader.retrieveObservations();
 			List<ValidObservation> obs = reader.getValidObservations();
 
-			assertEquals(1192, obs.size());
-			
+			assertEquals(12, obs.size());
+
 		} catch (Exception e) {
 			fail();
 		}
+	}
+
+	// Check that a file containing a non UTF-8 character (so not XML 1.0
+	// compliant) can be filtered out.
+	public void testNonUTF8Char() throws Exception {
+		URL url = VSXWebServiceAIDObservationReaderTest.class
+				.getResource("xcrb.xml");
+		UTF8FilteringInputStream reader = new UTF8FilteringInputStream(
+				url.openStream());
+
+		int b;
+		int count = 0;
+		boolean foundNotUTF = false;
+
+		while ((b = reader.read()) != -1) {
+			count++;
+			if (b == 0x1a) {
+				foundNotUTF = true;
+				break;
+			}
+		}
+
+		reader.close();
+
+		assertEquals(559, count);
+		assertFalse(foundNotUTF);
 	}
 }

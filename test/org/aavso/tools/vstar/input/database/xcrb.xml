@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VSXObject Name="X CrB" AUID="000-BBW-584" RA2000="237.22304" Declination2000="36.24794" VariabilityType="M" Period="241.17" Epoch="24043719" MaxMag="8.5 V" MinMag="14.2 V" SpectralType="M5e-M7e" Category="Variable"><Data><Observation Id="1270475056" JD="2450000.0" Mag="7.0" Uncertainty="0.003" ObsType="CCD" Band="V" ObsCode="BSJ" Comp1="105" Charts="070613" Comments="THIS IS A TEST" ValFlag="Z" Name="X CRB" MType="STD" Software="TEXTMATE" ObsAffil="AAVSO" ObsName="Beck, Sara" ObsCountry="US"/></Data></VSXObject>
