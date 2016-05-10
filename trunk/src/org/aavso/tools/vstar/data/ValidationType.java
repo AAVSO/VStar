@@ -42,14 +42,15 @@ public enum ValidationType {
 	
 	GOOD,
 	DISCREPANT,
-	PREVALIDATION;	
+	PREVALIDATION,
+	BAD;	
 		
 	/**
 	 * Given a valflag from an input file or database, return
 	 * the corresponding validation type.
 	 */
 	public static ValidationType getTypeFromFlag(String valflag) {
-		ValidationType valtype = null;
+		ValidationType valtype = BAD;
 		
 		if ("G".equals(valflag)) {
 			valtype = GOOD;
@@ -87,6 +88,9 @@ public enum ValidationType {
 		case PREVALIDATION:
 			str = "P";
 			break;			
+		case BAD:
+			str = "B";
+			break;
 		}
 		
 		assert(str != null);
@@ -110,6 +114,9 @@ public enum ValidationType {
 		case PREVALIDATION:
 			str = "Prevalidated";
 			break;			
+		case BAD:
+			str = "Bad";
+			break;
 		}
 		
 		assert(str != null);
