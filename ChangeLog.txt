@@ -42,6 +42,7 @@ Key Changes:
 - Ticket #519 File dialog based observation source UI freeze.
 - Ticket #520 Non-XML 1.0 compliant Unicode chars in AID load causes parse 
   failure.
+- Ticket #521 Discrepant observation shown as "good".
   
 Date: April 30 2016
 Version: 2.17.0
