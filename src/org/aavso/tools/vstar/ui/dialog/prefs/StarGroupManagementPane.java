@@ -22,7 +22,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -30,7 +29,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import org.aavso.tools.vstar.input.database.AAVSODatabaseConnector;
+import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.StarGroupSelectionPane;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
@@ -305,30 +304,18 @@ public class StarGroupManagementPane extends JPanel implements
 	public String retrieveAUID(String starName) {
 		String auid = null;
 
-		Connection vsxConnection = null;
 		try {
 			getParent().setCursor(
 					Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-			AAVSODatabaseConnector vsxConnector = AAVSODatabaseConnector.vsxDBConnector;
-			vsxConnection = vsxConnector.getConnection();
-
-			StarInfo starInfo = vsxConnector.getAUID(vsxConnection, starName);
+			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
+			StarInfo starInfo = infoSrc.getStarByName(null, starName);
 			auid = starInfo.getAuid();
 
 			getParent().setCursor(null);
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(this,
 					"Star Information Retrieval Error", e);
-		} finally {
-//			try {
-//				if (vsxConnection != null) {
-//					vsxConnection.close();
-//				}
-//			} catch (SQLException e) {
-//				MessageBox.showErrorDialog(this,
-//						"Star Information Retrieval Error", e);
-//			}
 		}
 
 		return auid;
