@@ -426,8 +426,8 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 				throws ObservationReadError {
 
 			Integer id = null;
-			double jd = Double.POSITIVE_INFINITY;
-			double mag = Double.POSITIVE_INFINITY;
+			Double jd = null;
+			Double mag = null;
 			double error = 0;
 			SeriesType band = null;
 			String obscode = null;
@@ -463,14 +463,11 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 				if ("Id".equalsIgnoreCase(nodeName)) {
 					id = Integer.parseInt(nodeValue);
 				} else if ("JD".equalsIgnoreCase(nodeName)) {
-					jd = Double.parseDouble(nodeValue);
+					jd = getPossiblyNullDouble(nodeValue);
 				} else if ("Mag".equalsIgnoreCase(nodeName)) {
-					mag = Double.parseDouble(nodeValue);
+					mag = getPossiblyNullDouble(nodeValue);
 				} else if ("uncertainty".equalsIgnoreCase(nodeName)) {
-					if (!nodeValue.startsWith("NA")) {
-						// We've seen NA, NAN
-						error = Double.parseDouble(nodeValue);
-					}
+					error = getPossiblyNullDouble(nodeValue);
 				} else if ("uncertain".equalsIgnoreCase(nodeName)) {
 					isUncertain = Boolean.parseBoolean(nodeValue);
 				} else if ("fainterthan".equalsIgnoreCase(nodeName)) {
@@ -488,7 +485,10 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 				} else if ("KMag".equalsIgnoreCase(nodeName)) {
 					kMag = nodeValue;
 				} else if ("hjd".equalsIgnoreCase(nodeName)) {
-					hJD = new DateInfo(Double.parseDouble(nodeValue));
+					Double hjd = getPossiblyNullDouble(nodeValue);
+					if (hjd != null) {
+						hJD = new DateInfo(hjd);
+					}
 				} else if ("group".equalsIgnoreCase(nodeName)) {
 					group = nodeValue;
 				} else if ("obscode".equalsIgnoreCase(nodeName)) {
@@ -518,8 +518,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 			ValidObservation ob = null;
 
-			if (jd != Double.POSITIVE_INFINITY
-					&& mag != Double.POSITIVE_INFINITY
+			if (id != null && jd != null && mag != null
 					&& valType != ValidationType.BAD) {
 
 				ob = new ValidObservation();
@@ -614,4 +613,19 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 			return result;
 		}
 	}
+
+	private Double getPossiblyNullDouble(String valStr) {
+		Double num = null;
+
+		try {
+			if (valStr != null) {
+				num = Double.parseDouble(valStr);
+			}
+		} catch (NumberFormatException e) {
+			// The value will default to null.
+		}
+
+		return num;
+	}
+
 }
