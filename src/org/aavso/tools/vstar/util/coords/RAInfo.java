@@ -17,11 +17,13 @@
  */
 package org.aavso.tools.vstar.util.coords;
 
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
 /**
  * This class represents a Right Ascension coordinate.
  */
 public class RAInfo {
-	
+
 	private EpochType epoch;
 	private double degs;
 
@@ -63,7 +65,8 @@ public class RAInfo {
 	}
 
 	public String toString() {
-		return String.format("RA (%s): %f degrees", epoch, degs);
+		return String.format("RA (%s): %s degrees", epoch,
+				NumericPrecisionPrefs.formatOther(degs));
 	}
 
 	public double toDegrees() {

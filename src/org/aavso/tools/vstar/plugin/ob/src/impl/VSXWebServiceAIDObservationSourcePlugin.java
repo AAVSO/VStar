@@ -475,7 +475,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 				} else if ("band".equalsIgnoreCase(nodeName)) {
 					band = SeriesType.getSeriesFromShortName(nodeValue);
 				} else if ("transformed".equalsIgnoreCase(nodeName)) {
-					transformed = "yes".equals(nodeValue);
+					transformed = "true".equalsIgnoreCase(nodeValue);
 				} else if ("airmass".equalsIgnoreCase(nodeName)) {
 					airmass = nodeValue;
 				} else if ("comp1".equalsIgnoreCase(nodeName)) {

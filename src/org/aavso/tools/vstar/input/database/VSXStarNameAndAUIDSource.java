@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
 
 /**
  * This class obtains star name and AUID information from the VSX database.
+ * @deprecated
  */
 public class VSXStarNameAndAUIDSource implements IStarInfoSource {
 

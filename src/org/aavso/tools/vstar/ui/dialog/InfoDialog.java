@@ -40,6 +40,7 @@ import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * Information dialog for the currently loaded document.
@@ -188,13 +189,13 @@ public class InfoDialog extends JDialog implements ActionListener {
 
 		if (starInfo.getPeriod() != null) {
 			summaryBuf.append("Period: ");
-			summaryBuf.append(starInfo.getPeriod());
+			summaryBuf.append(NumericPrecisionPrefs.formatOther(starInfo.getPeriod()));
 			summaryBuf.append(" days\n");
 		}
 
 		if (starInfo.getEpoch() != null) {
 			summaryBuf.append("Epoch: ");
-			summaryBuf.append(starInfo.getEpoch());
+			summaryBuf.append(NumericPrecisionPrefs.formatTime(starInfo.getEpoch()));
 			summaryBuf.append("\n");
 		}
 
