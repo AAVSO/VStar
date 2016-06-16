@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.util.coords;
 
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
 /**
  * This class represents a Declination coordinate.
  */
@@ -64,7 +66,8 @@ public class DecInfo {
 	}
 
 	public String toString() {
-		return String.format("Dec (%s): %f degrees", epoch, degs);
+		return String.format("Dec (%s): %s degrees", epoch,
+				NumericPrecisionPrefs.formatOther(degs));
 	}
 
 	public double toDegrees() {
