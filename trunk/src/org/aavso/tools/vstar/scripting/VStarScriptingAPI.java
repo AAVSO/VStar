@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.scripting;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,9 @@ import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
 import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
+import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
+import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
+import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 
 /**
  * This is VStar's scripting Application Programming Interface. An instance of
@@ -239,6 +243,21 @@ public class VStarScriptingAPI {
 		commonLoadFromAID(name, minJD, maxJD, true);
 	}
 
+	// TODO: add loadFromAID(name) => all
+
+	/**
+	 * Return a StarInfo object for named object.
+	 * 
+	 * @param name
+	 *            The name (not AUID) of the object.
+	 * @return The StarInfo object.
+	 */
+	public synchronized StarInfo getStarInfo(String name) {
+		init();
+		VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
+		return infoSrc.getStarByName(null, name);
+	}
+
 	/**
 	 * Save the raw or phase plot dataset (according to current mode) to a file
 	 * of rows of values separated by the specified delimiter.
@@ -410,6 +429,84 @@ public class VStarScriptingAPI {
 	}
 
 	/**
+	 * Perform WWZ time-frequency analysis with period range.
+	 * 
+	 * @param seriesName
+	 *            The short or long form of the series name, e.g. V or Johnson
+	 *            V.
+	 * @param minPeriod
+	 *            The low value of the period range to search in.
+	 * @param maxPeriod
+	 *            The high value of the period range to search in.
+	 * @param periodStep
+	 *            The resolution of the search over the range.
+	 * @param decay
+	 *            The wavelet decay constant to use.
+	 * @param timeDivisions
+	 *            The number of time divisions to use.
+	 * @return An array of top-hits periods; may be empty.
+	 */
+	public synchronized Double[][] wwzPeriod(String seriesName,
+			double minPeriod, double maxPeriod, double periodStep,
+			double decay, double timeDivisions) {
+
+		List<ValidObservation> obs = getObsForSeries(seriesName);
+
+		Double[][] results = {};
+
+		if (obs.size() > 0) {
+			WeightedWaveletZTransform wwz = new WeightedWaveletZTransform(obs,
+					decay, timeDivisions);
+
+			wwz.make_freqs_from_period_range(Math.min(minPeriod, maxPeriod),
+					Math.max(minPeriod, maxPeriod), periodStep);
+
+			results = wwzCommon(wwz, WWZCoordinateType.PERIOD);
+		}
+
+		return results;
+	}
+
+	/**
+	 * Perform WWZ time-frequency analysis with period range.
+	 * 
+	 * @param seriesName
+	 *            The short or long form of the series name, e.g. V or Johnson
+	 *            V.
+	 * @param minFreq
+	 *            The low value of the frequency range to search in.
+	 * @param maxFreq
+	 *            The high value of the frequency range to search in.
+	 * @param freqStep
+	 *            The resolution of the search over the range.
+	 * @param decay
+	 *            The wavelet decay constant to use.
+	 * @param timeDivisions
+	 *            The number of time divisions to use.
+	 * @return An array of top-hits frequencies; may be empty.
+	 */
+	public synchronized Double[][] wwzFrequency(String seriesName,
+			double minFreq, double maxFreq, double freqStep, double decay,
+			double timeDivisions) {
+
+		List<ValidObservation> obs = getObsForSeries(seriesName);
+
+		Double[][] results = {};
+
+		if (obs.size() > 0) {
+			WeightedWaveletZTransform wwz = new WeightedWaveletZTransform(obs,
+					decay, timeDivisions);
+
+			wwz.make_freqs_from_freq_range(Math.min(minFreq, maxFreq),
+					Math.max(minFreq, maxFreq), freqStep);
+
+			results = wwzCommon(wwz, WWZCoordinateType.FREQUENCY);
+		}
+
+		return results;
+	}
+
+	/**
 	 * Return the last error.
 	 * 
 	 * @return The error string; may be null.
@@ -481,6 +578,13 @@ public class VStarScriptingAPI {
 		mediator.waitForJobCompletion();
 	}
 
+	// TODO:
+	// - makeInvisible()
+	// - allow AoV, other period search plugins: see
+	// commonLoadFromFileOrURLViaPlugin() re: pattern;
+	// API may need to change to accommodate this, e.g.
+	// a generic way to get results as a collection
+
 	/**
 	 * Pause for the specified number of milliseconds.
 	 * 
@@ -504,10 +608,6 @@ public class VStarScriptingAPI {
 	// *************************************
 	// ** VStar scripting API methods end **
 	// *************************************
-
-	// TODO:
-	// - makeInvisible() or hideSeries() and showSeries()
-	// - allow AoV, WWZ: see commonLoadFromFileOrURLViaPlugin()
 
 	// Common methods
 
@@ -678,6 +778,117 @@ public class VStarScriptingAPI {
 
 		Double[] topHitPeriods = null;
 
+		List<ValidObservation> obs = getObsForSeries(seriesName);
+
+		if (obs.size() > 0) {
+			TSDcDft dcdft = null;
+
+			switch (analysisType) {
+			case PERIOD_RANGE:
+				dcdft = new TSDcDft(obs, DcDftAnalysisType.PERIOD_RANGE);
+				dcdft.setLoPeriodValue(low);
+				dcdft.setHiPeriodValue(high);
+				dcdft.setResolutionValue(resolution);
+				break;
+
+			case FREQUENCY_RANGE:
+				dcdft = new TSDcDft(obs, low, high, resolution);
+				break;
+
+			case STANDARD_SCAN:
+				dcdft = new TSDcDft(obs);
+				break;
+			}
+
+			try {
+				dcdft.execute();
+
+				Map<PeriodAnalysisCoordinateType, List<Double>> topHits = dcdft
+						.getTopHits();
+
+				PeriodAnalysisCoordinateType coordType = null;
+
+				if (analysisType == DcDftAnalysisType.PERIOD_RANGE) {
+					coordType = PeriodAnalysisCoordinateType.PERIOD;
+				} else {
+					coordType = PeriodAnalysisCoordinateType.FREQUENCY;
+				}
+
+				// Get array of top-hit periods or frequencies.
+				topHitPeriods = topHits.get(coordType).toArray(new Double[0]);
+
+			} catch (AlgorithmError e) {
+				ScriptRunner.getInstance().setError(e.getMessage());
+			}
+		} else {
+			ScriptRunner.getInstance().setError(
+					"No observations in series " + seriesName);
+		}
+
+		return topHitPeriods;
+	}
+
+	/**
+	 * Perform WWZ period analysis.
+	 * 
+	 * @param wwz
+	 *            The initialised (WWZ transform object.
+	 * @param coordType
+	 *            The coordinate type: period or frequency.
+	 * @return An array of top-hits times and periods or frequencies.
+	 */
+	private synchronized Double[][] wwzCommon(WeightedWaveletZTransform wwz,
+			WWZCoordinateType coordType) {
+
+		init();
+
+		Double[][] maximalStats = null;
+
+		try {
+			wwz.execute();
+
+			List<WWZStatistic> maximalStatsList = wwz.getMaximalStats();
+
+			maximalStats = new Double[maximalStatsList.size()][2];
+
+			int i = 0;
+			for (WWZStatistic stat : maximalStatsList) {
+				Double[] pair = new Double[2];
+				pair[0] = stat.getTau();
+
+				switch (coordType) {
+				case FREQUENCY:
+					pair[1] = stat.getFrequency();
+					break;
+				case PERIOD:
+					pair[1] = stat.getPeriod();
+					break;
+				default:
+					throw new IllegalArgumentException(
+							"WWZ: only period or frequency allowed in output");
+				}
+
+				maximalStats[i++] = pair;
+			}
+		} catch (AlgorithmError e) {
+			ScriptRunner.getInstance().setError(e.getMessage());
+		}
+
+		return maximalStats;
+	}
+
+	/**
+	 * Given a series name, return a list of observations for the series.
+	 * 
+	 * @param seriesName
+	 *            The short or long form of the series name, e.g. V or Johnson
+	 *            V.
+	 * @return A list of valid observations for the series; may be empty.
+	 */
+	private List<ValidObservation> getObsForSeries(String seriesName) {
+
+		List<ValidObservation> obs = Collections.emptyList();
+
 		// Find the requested series...
 		SeriesType series = SeriesType.getSeriesFromShortName(seriesName);
 
@@ -692,57 +903,15 @@ public class VStarScriptingAPI {
 						.equals(seriesName.toLowerCase())) {
 			ScriptRunner.getInstance().setError("Unknown series " + seriesName);
 		} else {
-			List<ValidObservation> obs = Mediator.getInstance()
-					.getLatestNewStarMessage().getObsCategoryMap().get(series);
-
-			if (obs.size() > 0) {
-				TSDcDft dcdft = null;
-
-				switch (analysisType) {
-				case PERIOD_RANGE:
-					dcdft = new TSDcDft(obs, DcDftAnalysisType.PERIOD_RANGE);
-					dcdft.setLoPeriodValue(low);
-					dcdft.setHiPeriodValue(high);
-					dcdft.setResolutionValue(resolution);
-					break;
-
-				case FREQUENCY_RANGE:
-					dcdft = new TSDcDft(obs, low, high, resolution);
-					break;
-
-				case STANDARD_SCAN:
-					dcdft = new TSDcDft(obs);
-					break;
-				}
-
-				try {
-					dcdft.execute();
-
-					Map<PeriodAnalysisCoordinateType, List<Double>> topHits = dcdft
-							.getTopHits();
-
-					PeriodAnalysisCoordinateType coordType = null;
-
-					if (analysisType == DcDftAnalysisType.PERIOD_RANGE) {
-						coordType = PeriodAnalysisCoordinateType.PERIOD;
-					} else {
-						coordType = PeriodAnalysisCoordinateType.FREQUENCY;
-					}
-
-					// Get array of top-hit periods or frequencies.
-					topHitPeriods = topHits.get(coordType).toArray(
-							new Double[0]);
-
-				} catch (AlgorithmError e) {
-					ScriptRunner.getInstance().setError(e.getMessage());
-				}
-			} else {
+			obs = Mediator.getInstance().getLatestNewStarMessage()
+					.getObsCategoryMap().get(series);
+			if (obs.size() == 0) {
 				ScriptRunner.getInstance().setError(
 						"No observations in series " + seriesName);
 			}
 		}
 
-		return topHitPeriods;
+		return obs;
 	}
 
 	// Helpers
