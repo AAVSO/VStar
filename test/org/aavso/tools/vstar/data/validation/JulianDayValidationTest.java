@@ -31,7 +31,7 @@ public class JulianDayValidationTest extends TestCase {
 		super(name);
 	}
 
-	public void testJDTestEmpty() {
+	public void testJDEmpty() {
 		JulianDayValidator validator = new JulianDayValidator();
 
 		try {
@@ -41,7 +41,7 @@ public class JulianDayValidationTest extends TestCase {
 		}
 	}
 
-	public void testJDTestInt() {
+	public void testJDInt() {
 		JulianDayValidator validator = new JulianDayValidator();
 
 		try {
@@ -51,7 +51,7 @@ public class JulianDayValidationTest extends TestCase {
 		}
 	}
 
-	public void testJDTestReal() {
+	public void testJDReal1() {
 		JulianDayValidator validator = new JulianDayValidator();
 
 		try {
@@ -61,7 +61,17 @@ public class JulianDayValidationTest extends TestCase {
 		}
 	}
 
-	public void testJDTestExp() {
+	public void testJDReal2() {
+		JulianDayValidator validator = new JulianDayValidator();
+
+		try {
+			assertEquals(new DateInfo(24.5), validator.validate("24.5"));
+		} catch (Exception e) {
+			fail();
+		}
+	}
+
+	public void testJDExp() {
 		JulianDayValidator validator = new JulianDayValidator();
 
 		try {
