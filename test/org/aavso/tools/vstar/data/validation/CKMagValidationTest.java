@@ -74,6 +74,7 @@ public class CKMagValidationTest extends TestCase {
 
 		try {
 			// Weird, but we're allowing it.
+			// Note: having since done DSLR photometry I now understand that instrumental magnitudes may be negative!
 			assertEquals("-123", validator.validate("-123"));
 		} catch (Exception e) {
 			fail();

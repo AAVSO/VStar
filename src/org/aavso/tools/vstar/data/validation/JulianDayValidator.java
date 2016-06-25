@@ -28,6 +28,11 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
  */
 public class JulianDayValidator extends AbstractStringValidator<DateInfo> {
 
+	// Integer or real time stamp value.
+	// Note that we also allow the real format to be exponential in case
+	// some (non AAVSO) observation sources require that.
+	private final String pattern = "^(\\d+(\\.\\d+)?(?:(?:e|E)(?:\\-|\\+)\\d+)?)$";
+
 	public static final boolean CAN_BE_EMPTY = true;
 
 	private boolean canBeEmpty;
@@ -41,11 +46,11 @@ public class JulianDayValidator extends AbstractStringValidator<DateInfo> {
 	 * Constructor.
 	 * 
 	 * @param canBeEmpty
-	 *            Can the magnitude field be empty?
+	 *            Can the Julian Day field be empty?
 	 */
 	public JulianDayValidator(boolean canBeEmpty) {
 		super(KIND);
-		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$", KIND,
+		this.regexValidator = new RegexValidator(pattern, KIND,
 				LocaleProps.get("JULIAN_DAY_VALIDATOR_ERR_MSG"));
 		this.canBeEmpty = canBeEmpty;
 	}
@@ -55,7 +60,7 @@ public class JulianDayValidator extends AbstractStringValidator<DateInfo> {
 	 */
 	public JulianDayValidator() {
 		super(KIND);
-		this.regexValidator = new RegexValidator("^(\\d+(\\.\\d+)?)$", KIND,
+		this.regexValidator = new RegexValidator(pattern, KIND,
 				LocaleProps.get("JULIAN_DAY_VALIDATOR_ERR_MSG"));
 		this.canBeEmpty = false;
 	}

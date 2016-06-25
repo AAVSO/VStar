@@ -48,8 +48,10 @@ public class MagnitudeFieldValidator extends AbstractStringValidator<Magnitude> 
 		// 10.), and optionally followed by a ':' suffix. Note the use of the
 		// non-capturing group (?:...) for the fractional part. We just want
 		// to group this as an optional sub-pattern, not obtain it separately.
+		// Note that we also allow the real format to be exponential in case 
+		// some (non AAVSO) observation sources require that.
 		this.regexValidator = new RegexValidator(
-				"^(<|>)?(\\-?\\d+(?:\\.\\d*)?)(:)?$", KIND);
+				"^(<|>)?(\\-?\\d+(?:\\.\\d*)?(?:(?:e|E)(?:\\-|\\+)\\d+)?)(:)?$", KIND);
 		this.magnitudeValueValidator = new MagnitudeValueValidator(
 				new InclusiveRangePredicate(-10, 25));
 	}
