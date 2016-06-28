@@ -309,7 +309,7 @@ public class StarGroupManagementPane extends JPanel implements
 					Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
-			StarInfo starInfo = infoSrc.getStarByName(null, starName);
+			StarInfo starInfo = infoSrc.getStarByName(starName);
 			auid = starInfo.getAuid();
 
 			getParent().setCursor(null);

@@ -22,7 +22,6 @@ import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -51,7 +50,6 @@ import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser;
 import org.aavso.tools.vstar.ui.dialog.InfoDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementDialog;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
@@ -683,92 +681,6 @@ public class MenuBar extends JMenuBar {
 	}
 
 	// ** File Menu listeners **
-
-	/**
-	 * Returns the action listener to be invoked for File->New Star from AAVSO
-	 * Database...
-	 * 
-	 * The action is to: a. ask the user for star and date range details; b.
-	 * open a database connection and get the data for star in that range; c.
-	 * create the corresponding observation models and GUI elements.
-	 * @deprecated
-	 */
-	public ActionListener createNewStarFromDatabaseListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					// Prompt user for star and JD range selection.
-					Mediator.getUI()
-							.getStatusPane()
-							.setMessage(
-									LocaleProps.get("STATUS_PANE_SELECT_STAR"));
-					StarSelectorDialog starSelectorDialog = StarSelectorDialog
-							.getInstance();
-					starSelectorDialog.showDialog();
-
-					if (!starSelectorDialog.isCancelled()) {
-						String starName = starSelectorDialog.getStarName();
-						String auid = starSelectorDialog.getAuid();
-						double minJD, maxJD;
-						// TODO: consider doing these value mods in the dialog
-						// getters to make this code more declarative.
-						if (!starSelectorDialog.wantAllData()) {
-							minJD = starSelectorDialog.getMinDate()
-									.getJulianDay();
-							maxJD = starSelectorDialog.getMaxDate()
-									.getJulianDay();
-						} else {
-							minJD = 0;
-							maxJD = Double.MAX_VALUE;
-						}
-
-						mediator.createObservationArtefactsFromDatabase(
-								starName, auid, minJD, maxJD,
-								starSelectorDialog.isLoadAdditive());
-					} else {
-						Mediator.getUI().getStatusPane().setMessage("");
-					}
-				} catch (Exception ex) {
-					completeProgress();
-					MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-							"Star Selection", ex);
-				}
-			}
-		};
-	}
-
-	/**
-	 * Returns the action listener to be invoked for File->New Star from File...
-	 * 
-	 * The action is to open a file dialog to allow the user to select a single
-	 * file.
-	 * @deprecated
-	 */
-	public ActionListener createNewStarFromFileListener() {
-		final AdditiveLoadFileOrUrlChooser fileOpenDialog = this.fileOpenDialog;
-		fileOpenDialog.reset();
-
-		final IMainUI parent = this.parent;
-
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				boolean approved = fileOpenDialog.showDialog(parent
-						.getComponent());
-
-				if (approved) {
-					File f = fileOpenDialog.getSelectedFile();
-
-//					try {
-//						mediator.createObservationArtefactsFromFile(f,
-//								fileOpenDialog.isLoadAdditive());
-//					} catch (Exception ex) {
-//						MessageBox.showErrorDialog(parent.getComponent(),
-//								NEW_STAR_FROM_FILE, ex);
-//					}
-				}
-			}
-		};
-	}
 
 	/**
 	 * Returns the action listener to be invoked for observation source menu

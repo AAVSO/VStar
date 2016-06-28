@@ -255,7 +255,7 @@ public class VStarScriptingAPI {
 	public synchronized StarInfo getStarInfo(String name) {
 		init();
 		VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
-		return infoSrc.getStarByName(null, name);
+		return infoSrc.getStarByName(name);
 	}
 
 	/**
@@ -727,7 +727,7 @@ public class VStarScriptingAPI {
 		if (obSourcePlugin != null) {
 			try {
 				VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
-				StarInfo info = infoSrc.getStarByName(null, name);
+				StarInfo info = infoSrc.getStarByName(name);
 
 				String url = VSXWebServiceAIDObservationSourcePlugin
 						.createAIDUrlForAUID(info.getAuid(), minJD, maxJD);
