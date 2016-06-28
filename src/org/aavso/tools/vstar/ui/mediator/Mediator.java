@@ -22,9 +22,7 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.print.PrinterException;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -50,14 +48,12 @@ import org.aavso.tools.vstar.exception.ConnectionException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.Authenticator;
-import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.IMainUI;
-import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.TabbedDataPane;
 import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser;
@@ -123,8 +119,6 @@ import org.aavso.tools.vstar.ui.pane.plot.PhaseAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.ui.task.ModellingTask;
-import org.aavso.tools.vstar.ui.task.NewStarFromDatabaseTask;
-import org.aavso.tools.vstar.ui.task.NewStarFromFileTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedFileTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedURLTask;
@@ -1035,80 +1029,6 @@ public class Mediator {
 		seriesVisibilityChangeNotifier.removeAllWillingListeners();
 		harmonicSearchNotifier.removeAllWillingListeners();
 		observationSelectionNotifier.removeAllWillingListeners();
-	}
-
-	/**
-	 * Creates and executes a background task to handle new-star-from-file.
-	 * 
-	 * @param obsFile
-	 *            The file from which to load the star observations.
-	 * @param parent
-	 *            The GUI component that can be used to display.
-	 * @param isAdditiveLoad
-	 *            Is the load additive?
-	 * @deprecated
-	 */
-	public void createObservationArtefactsFromFile(File obsFile,
-			boolean isAdditiveLoad) throws IOException, ObservationReadError {
-
-		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
-
-		// Analyse the observation file.
-		ObservationSourceAnalyser analyser = new ObservationSourceAnalyser(
-				new LineNumberReader(new FileReader(obsFile)),
-				obsFile.getName());
-		analyser.analyse();
-
-		// Task begins: Number of lines in file and a portion for the light
-		// curve plot.
-		int plotPortion = (int) (analyser.getLineCount() * 0.2);
-
-		this.getProgressNotifier().notifyListeners(
-				new ProgressInfo(ProgressType.MAX_PROGRESS, analyser
-						.getLineCount() + plotPortion));
-
-		NewStarFromFileTask task = new NewStarFromFileTask(obsFile, analyser,
-				plotPortion, isAdditiveLoad);
-		this.currTask = task;
-		task.execute();
-	}
-
-	/**
-	 * Creates and executes a background task to handle new-star-from-database.
-	 * 
-	 * @param starName
-	 *            The name of the star.
-	 * @param auid
-	 *            AAVSO unique ID for the star.
-	 * @param minJD
-	 *            The minimum Julian Day of the requested range.
-	 * @param maxJD
-	 *            The maximum Julian Day of the requested range.
-	 * @param isAdditiveLoad
-	 *            Is the load additive?
-	 * @deprecated
-	 */
-	public void createObservationArtefactsFromDatabase(String starName,
-			String auid, double minJD, double maxJD, boolean isAdditiveLoad) {
-
-		try {
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.START_PROGRESS);
-
-			this.getProgressNotifier().notifyListeners(
-					new ProgressInfo(ProgressType.MAX_PROGRESS, 10));
-
-			NewStarFromDatabaseTask task = new NewStarFromDatabaseTask(
-					starName, auid, minJD, maxJD, isAdditiveLoad);
-			this.currTask = task;
-			task.execute();
-		} catch (Exception ex) {
-			ValidObservation.restore();
-
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					MenuBar.NEW_STAR_FROM_DATABASE, ex);
-			Mediator.getUI().getStatusPane().setMessage("");
-		}
 	}
 
 	/**

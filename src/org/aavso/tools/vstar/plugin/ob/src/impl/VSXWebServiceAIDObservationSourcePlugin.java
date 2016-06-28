@@ -159,10 +159,10 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
 
 			if (starName == null) {
-				info = infoSrc.getStarByAUID(null, auid);
+				info = infoSrc.getStarByAUID(auid);
 				starName = info.getDesignation();
 			} else {
-				info = infoSrc.getStarByName(null, starName);
+				info = infoSrc.getStarByName(starName);
 				auid = info.getAuid();
 			}
 

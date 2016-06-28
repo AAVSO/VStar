@@ -20,7 +20,6 @@ package org.aavso.tools.vstar.input.database;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,21 +52,13 @@ public class VSXWebServiceStarInfoSource implements IStarInfoSource {
 		data = new HashMap<String, String>();
 	}
 
-	/**
-	 * @see org.aavso.tools.vstar.input.IStarInfoSource#getStarByAUID
-	 *      (java.sql.Connection, java.lang.String)
-	 */
 	@Override
-	public StarInfo getStarByAUID(Connection connection, String auid) {
+	public StarInfo getStarByAUID(String auid) {
 		return retrieveData("ident=" + auid, auid);
 	}
 
-	/**
-	 * @see org.aavso.tools.vstar.input.IStarInfoSource#getStarByName
-	 *      (java.sql.Connection, java.lang.String)
-	 */
 	@Override
-	public StarInfo getStarByName(Connection connection, String name) {
+	public StarInfo getStarByName(String name) {
 		// Replace "+" with %2B (thanks Patrick) and spaces with "+".
 		return retrieveData(
 				"ident=" + name.replace("+", "%2B").replace(" ", "+"), name);

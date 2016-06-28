@@ -46,7 +46,7 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 	public void testReadValidObservationEpsAur() {
 		try {
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
-			StarInfo info = infoSrc.getStarByName(null, "eps Aur");
+			StarInfo info = infoSrc.getStarByName("eps Aur");
 
 			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
 
@@ -88,7 +88,7 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 	public void testReadValidObservationTTCen() {
 		try {
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
-			StarInfo info = infoSrc.getStarByName(null, "TT Cen");
+			StarInfo info = infoSrc.getStarByName("TT Cen");
 
 			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
 
@@ -139,7 +139,7 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 	public void testReadValidObservationAndCheckValFlagsSSCyg() {
 		try {
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
-			StarInfo info = infoSrc.getStarByName(null, "SS Cyg");
+			StarInfo info = infoSrc.getStarByName("SS Cyg");
 
 			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
 

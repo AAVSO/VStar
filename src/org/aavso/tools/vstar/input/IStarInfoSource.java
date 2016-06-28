@@ -17,8 +17,6 @@
  */
 package org.aavso.tools.vstar.input;
 
-import java.sql.Connection;
-
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
@@ -34,7 +32,7 @@ public interface IStarInfoSource {
 	 *            The star name or alias.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getStarByName(Connection connection, String name)
+	public StarInfo getStarByName(String name)
 			throws Exception;
 
 	/**
@@ -44,6 +42,6 @@ public interface IStarInfoSource {
 	 *            The AUID.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getStarByAUID(Connection connection, String auid)
+	public StarInfo getStarByAUID(String auid)
 			throws Exception;
 }

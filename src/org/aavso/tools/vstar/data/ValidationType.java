@@ -22,14 +22,6 @@ package org.aavso.tools.vstar.data;
  */
 public enum ValidationType {
 	
-	// Note: from database we can have:
-	// 
-	//	P = Published observation (should be treated as Good)
-	//	T = Discrepant (mapped to 'D' in SQL query, but may be present in text files)
-	//	V = Good (passed AAVSO validation tests)
-	//	Y = Deleted
-	//	Z = Prevalidated 
-	//
 	// See https://sourceforge.net/apps/mediawiki/vstar/index.php?title=Valflag
 	//
 	// In older AAVSO download format files we see 'G' for "Good" instead of 'V'.
