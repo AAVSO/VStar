@@ -11,7 +11,7 @@
       VStar is a multi-platform, easy-to-use variable star data visualization tool. 
       Data can be read from a file or the AAVSO database and plotted as a light curve 
       or phase plot along with mean data and error bars. Other features include period 
-      analysis and data filtering.
+      analysis, polynomial fitting, and data filtering.
     </description>
     <description kind="short">VStar</description>
     <description kind="one-line">VStar: a variable star data visualization and analysis tool.</description>
@@ -37,12 +37,9 @@
     <jar href="extlib/commons-math-2.2.jar"/>
     <jar href="extlib/jcommon-1.0.16.jar"/>
     <jar href="extlib/jfreechart-1.0.13.jar"/>
-    <jar href="extlib/mysql-connector-java-5.1.10-bin.jar"/>
     <jar href="extlib/nico-camargo-toolbar-icons-4.0.jar"/>
     <jar href="extlib/jmathplot.jar"/>
     <jar href="extlib/javacsv.jar"/>
-    <jar href="extlib/mchange-commons-java-0.2.9.jar"/>
-    <jar href="extlib/c3p0-0.9.5.jar"/>
 	
   </resources>
 
