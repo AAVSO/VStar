@@ -15,22 +15,12 @@ code.
   o jfreechart-1.0.13.jar
     http://sourceforge.net/projects/jfreechart/files/
 
-  o mysql-connector-java-5.1.10-bin.jar
-    http://dev.mysql.com/downloads/connector/j/5.1.html
-
   o jmathplot.jar
     http://code.google.com/p/jmathplot/
   
   o javacsv
     https://sourceforge.net/projects/javacsv/
-    
-  o c3p0
-    https://sourceforge.net/projects/c3p0/
-
-  o mchange-commons-java
-    c3p0 is dependent upon this.
-    https://sourceforge.net/projects/c3p0/
-     
+         
   o nico-camargo-toolbar-icons-4.0.jar
     Toolbar icons created by Citizen Sky participant, Nico Camargo.
   
@@ -55,21 +45,13 @@ URL for the web page of each project for more information.
 
     * JCommon  http://sourceforge.net/projects/jfreechart/
     * JFreeChart  http://sourceforge.net/projects/jfreechart/
-    * c3p0  https://sourceforge.net/projects/c3p0/
-    * mchange-commons-java  https://sourceforge.net/projects/c3p0/
 
   o GNU Lesser General Public License, version 2.0
     lgpl-2.0.txt
     http://www.gnu.org/licenses/old-licenses/lgpl-2.0.html
 
     * javacsv  https://sourceforge.net/projects/javacsv/
-    
-  o GNU General Public License, version 2
-    gpl-2.0.txt
-    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-
-    * MySQL Connector/J  http://dev.mysql.com/downloads/connector/j/
-    
+        
   o New BSD License
     http://www.opensource.org/licenses/bsd-license.php
     
