@@ -10,11 +10,8 @@
 	<classpathentry kind="lib" path="extlib/jcommon-1.0.16.jar"/>
 	<classpathentry kind="lib" path="extlib/jfreechart-1.0.13.jar"/>
 	<classpathentry kind="lib" path="extlib/jmathplot.jar"/>
-	<classpathentry kind="lib" path="extlib/mysql-connector-java-5.1.10-bin.jar"/>
 	<classpathentry kind="lib" path="extlib/nico-camargo-toolbar-icons-4.0.jar"/>
 	<classpathentry kind="lib" path="extlib/commons-math-2.2.jar"/>
 	<classpathentry kind="lib" path="extlib/javacsv.jar"/>
-	<classpathentry kind="lib" path="/Users/david/Projects/working_copy/vstar/extlib/c3p0-0.9.5.jar"/>
-	<classpathentry kind="lib" path="/Users/david/Projects/working_copy/vstar/extlib/mchange-commons-java-0.2.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
