@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.aavso.tools.vstar.data.DateInfo;
@@ -31,6 +32,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
+import org.aavso.tools.vstar.util.comparator.JDComparator;
 
 /**
  * This plug-in is an additive source of B-V observations if such bands exist in
@@ -39,7 +41,7 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 public class BMinusVObservationSource extends ObservationSourcePluginBase {
 
 	private SeriesType bvSeries;
-	
+
 	public BMinusVObservationSource() {
 		super();
 		isAdditive = true;
@@ -68,21 +70,18 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 
 	class BMinusVRetriever extends AbstractObservationRetriever {
 
-		private List<ValidObservation> bObs, vObs;
+		private List<ValidObservation> b;
+		private List<ValidObservation> v;
+
 		private int records;
 
-		//@Override
+		@Override
 		public Integer getNumberOfRecords() throws ObservationReadError {
-			Mediator mediator = Mediator.getInstance();
 
-			ObservationPlotModel model = mediator
-					.getObservationPlotModel(AnalysisType.RAW_DATA);
+			findBandVObsPairs();
 
-			bObs = model.getObservations(SeriesType.Johnson_B);
-			vObs = model.getObservations(SeriesType.Johnson_V);
-
-			records = bObs != null && vObs != null ? Math.min(bObs.size(),
-					vObs.size()) : 0;
+			records = b != null && v != null && b.size() != 0 && v.size() != 0 ? Math
+					.min(b.size(), v.size()) : 0;
 
 			return records;
 		}
@@ -95,10 +94,8 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 				for (int i = 0; i < records; i++) {
 					// Note: simplifying assumption: B and V elements correspond
 					// somewhat in time!
-					double meanMag = (bObs.get(i).getMag() + vObs.get(i).getMag()) /2;
-					double deltaMag = bObs.get(i).getMag() - vObs.get(i).getMag() + meanMag;
-//					double meanJD = (bObs.get(i).getJD() + vObs.get(i).getJD()) / 2;
-					double meanJD = bObs.get(i).getJD();
+					double deltaMag = b.get(i).getMag() - v.get(i).getMag();
+					double meanJD = b.get(i).getJD();
 					ValidObservation bvOb = new ValidObservation();
 					bvOb.setDateInfo(new DateInfo(meanJD));
 					bvOb.setMagnitude(new Magnitude(deltaMag, 0));
@@ -116,6 +113,63 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		@Override
 		public String getSourceName() {
 			return "B-V";
+		}
+
+		// Helpers
+
+		private void findBandVObsPairs() {
+
+			// TODO: add a time tolerance within which each member of a pair
+			// must fall?
+			Mediator mediator = Mediator.getInstance();
+
+			ObservationPlotModel model = mediator
+					.getObservationPlotModel(AnalysisType.RAW_DATA);
+
+			// Get all B and V observations into a sorted sequence.
+			List<ValidObservation> bObs = model
+					.getObservations(SeriesType.Johnson_B);
+
+			List<ValidObservation> vObs = model
+					.getObservations(SeriesType.Johnson_V);
+
+			List<ValidObservation> bAndVObs = new ArrayList<ValidObservation>();
+
+			bAndVObs.addAll(bObs);
+			bAndVObs.addAll(vObs);
+			bAndVObs.sort(JDComparator.instance);
+
+			// Look for B and V pairs and select that subset, e.g.
+			// V,V,V,B,B,V,B,V,V,V,B,B,V has the pairs: V,B, B,V, V,B, B,V
+			List<ValidObservation> bAndVObsSubset = new ArrayList<ValidObservation>();
+
+			for (int i = 0; i < bAndVObs.size() - 1; i += 2) {
+				if (bAndVObs.get(i).getBand() == SeriesType.Johnson_B
+						&& bAndVObs.get(i + 1).getBand() == SeriesType.Johnson_V) {
+					// ..B,V..
+					bAndVObsSubset.add(bAndVObs.get(i));
+					bAndVObsSubset.add(bAndVObs.get(i + 1));
+				} else if (bAndVObs.get(i).getBand() == SeriesType.Johnson_V
+						&& bAndVObs.get(i + 1).getBand() == SeriesType.Johnson_B) {
+					// ..V,B..
+					bAndVObsSubset.add(bAndVObs.get(i));
+					bAndVObsSubset.add(bAndVObs.get(i + 1));
+				}
+			}
+
+			// Separate B and V pairs.
+			b = new ArrayList<ValidObservation>();
+			v = new ArrayList<ValidObservation>();
+
+			for (int i = 0; i < bAndVObsSubset.size(); i++) {
+				ValidObservation ob = bAndVObsSubset.get(i);
+
+				if (ob.getBand() == SeriesType.Johnson_B) {
+					b.add(ob);
+				} else {
+					v.add(ob);
+				}
+			}
 		}
 	}
 }
