@@ -22,7 +22,6 @@ import java.util.Stack;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealExpressionContext;
-import org.antlr.v4.runtime.tree.ErrorNode;
 
 /**
  * VeLa: VStar expression Language interpreter
@@ -38,41 +37,41 @@ public class RealExpressionListener extends VeLaBaseListener {
 	}
 
 	@Override
-	public void enterRealExpression(RealExpressionContext ctx) {
-		String str = ctx.getText();
-		System.out.println(str);
-	}
-
-	@Override
-	public void enterMultiplicativeExpression(
-			MultiplicativeExpressionContext ctx) {
-		String str = ctx.getText();
-		System.out.println(str);
-	}
-
-
-	@Override
 	public void exitRealExpression(RealExpressionContext ctx) {
-		String str = ctx.getText();
-		// TODO: if 3 children, 2nd child should be +,-
-		System.out.println(str);
+		if (ctx.getChildCount() == 3) {
+			String op = ctx.getChild(1).getText();
+			double n2 = stack.pop();
+			double n1 = stack.pop();
+			switch(op.charAt(0)) {
+			case '+':
+				stack.push(n1+n2);
+				break;
+			case '-':
+				stack.push(n1-n2);
+				break;				
+			}
+		}
 	}
 
 	@Override
 	public void exitMultiplicativeExpression(MultiplicativeExpressionContext ctx) {
-		String str = ctx.getText();
-		System.out.println(str);
+		if (ctx.getChildCount() == 3) {
+			String op = ctx.getChild(1).getText();
+			double n2 = stack.pop();
+			double n1 = stack.pop();
+			switch(op.charAt(0)) {
+			case '*':
+				stack.push(n1*n2);
+				break;
+			case '/':
+				stack.push(n1/n2);
+				break;				
+			}
+		}
 	}
 
 	@Override
 	public void exitReal(RealContext ctx) {
-		String str = ctx.getText();
-		stack.push(VeLaInterpreter.parseDouble(str));
-	}
-	
-	@Override
-	public void visitErrorNode(ErrorNode node) {
-		// TODO Auto-generated method stub
-		super.visitErrorNode(node);
+		stack.push(VeLaInterpreter.parseDouble(ctx.getText()));
 	}
 }
