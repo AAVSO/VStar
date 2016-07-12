@@ -17,9 +17,7 @@
  */
 package org.aavso.tools.vstar.util.locale;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.Locale;
+import org.aavso.tools.vstar.vela.VeLaInterpreter;
 
 /**
  * This class contains static methods that parse numbers in a locale-independent
@@ -28,14 +26,10 @@ import java.util.Locale;
  */
 public class NumberParser {
 
-	// The number format for the locale with which the JVM was started.
-	private static final NumberFormat FORMAT = NumberFormat.getNumberInstance(Locale
-			.getDefault());
-
 	/**
 	 * Parse a string, returning a double primitive value, or if no valid double
-	 * value is present, throw a NumberFormatException. The string is first trimmed
-	 * of leading and trailing whitespace.
+	 * value is present, throw a NumberFormatException. The string is first
+	 * trimmed of leading and trailing whitespace.
 	 * 
 	 * @param str
 	 *            The string that (hopefully) contains a number.
@@ -43,22 +37,9 @@ public class NumberParser {
 	 *         of the string.
 	 * @throws NumberFormatException
 	 *             If no valid double value is present.
-	 * 
 	 */
 	public static double parseDouble(String str) throws NumberFormatException {
-		if (str == null) {
-			throw new NumberFormatException("String was null");
-		} else {
-			try {
-				str = str.trim();
-				if (str.startsWith("+")) {
-					// Leading "+" causes an exception to be thrown.
-					str = str.substring(1);
-				}
-				return FORMAT.parse(str).doubleValue();
-			} catch (ParseException e) {
-				throw new NumberFormatException(e.getLocalizedMessage());
-			}
-		}
+		VeLaInterpreter vela = new VeLaInterpreter();
+		return vela.realExpression(str);
 	}
 }

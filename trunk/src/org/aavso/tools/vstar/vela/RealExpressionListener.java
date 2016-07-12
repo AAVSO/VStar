@@ -19,25 +19,60 @@ package org.aavso.tools.vstar.vela;
 
 import java.util.Stack;
 
+import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
+import org.aavso.tools.vstar.vela.VeLaParser.RealExpressionContext;
+import org.antlr.v4.runtime.tree.ErrorNode;
 
 /**
  * VeLa: VStar expression Language interpreter
  * 
- * Real number listener.
- * @deprecated
+ * Real expression listener.
  */
-public class RealListener extends VeLaBaseListener {
+public class RealExpressionListener extends VeLaBaseListener {
 
 	private Stack<Double> stack;
-	
-	public RealListener(Stack<Double> stack) {
+
+	public RealExpressionListener(Stack<Double> stack) {
 		this.stack = stack;
+	}
+
+	@Override
+	public void enterRealExpression(RealExpressionContext ctx) {
+		String str = ctx.getText();
+		System.out.println(str);
+	}
+
+	@Override
+	public void enterMultiplicativeExpression(
+			MultiplicativeExpressionContext ctx) {
+		String str = ctx.getText();
+		System.out.println(str);
+	}
+
+
+	@Override
+	public void exitRealExpression(RealExpressionContext ctx) {
+		String str = ctx.getText();
+		// TODO: if 3 children, 2nd child should be +,-
+		System.out.println(str);
+	}
+
+	@Override
+	public void exitMultiplicativeExpression(MultiplicativeExpressionContext ctx) {
+		String str = ctx.getText();
+		System.out.println(str);
 	}
 
 	@Override
 	public void exitReal(RealContext ctx) {
 		String str = ctx.getText();
 		stack.push(VeLaInterpreter.parseDouble(str));
+	}
+	
+	@Override
+	public void visitErrorNode(ErrorNode node) {
+		// TODO Auto-generated method stub
+		super.visitErrorNode(node);
 	}
 }

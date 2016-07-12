@@ -28,9 +28,43 @@ public class VeLaTest extends TestCase {
 		super(name);
 	}
 
+	// Valid test cases
+
 	public void testPositiveReal1() {
-		VeLaInterpreter vela = new VeLaInterpreter();		
-		double result = vela.real("12.25");
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("12.25");
 		assertEquals(12.25, result);
+	}
+
+	public void testParsePositiveRealNoLeadingZero() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression(".25");
+		assertEquals(.25, result);
+	}
+
+	public void testParseNegativeRealNoLeadingZero() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("-.25");
+		assertEquals(-.25, result);
+	}
+
+	public void testParseAddition() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("2457580.25+1004");
+		assertEquals(2458584.25, result);
+	}
+
+	// Invalid test cases
+
+	public void testParseAmpersand() {
+		try {
+			VeLaInterpreter vela = new VeLaInterpreter();
+			vela.realExpression("2457580.25&1004");
+			fail();
+		} catch (VeLaParseError e) {
+			assertEquals("token recognition error at: '&'", e.getMessage());
+			assertEquals(1, e.getLineNum());
+			assertEquals(10, e.getCharPos());
+		}
 	}
 }
