@@ -54,6 +54,24 @@ public class VeLaTest extends TestCase {
 		assertEquals(2458584.25, result);
 	}
 
+	public void testParseSubtraction() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("2457580.25-1004");
+		assertEquals(2456576.25, result);
+	}
+
+	public void testParseMultiplication() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("2457580.25*10");
+		assertEquals(24575802.5, result);
+	}
+
+	public void testParseDivision() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("2457580.25/10");
+		assertEquals(245758.025, result);
+	}
+
 	// Invalid test cases
 
 	public void testParseAmpersand() {
