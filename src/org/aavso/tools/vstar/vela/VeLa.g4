@@ -2,15 +2,26 @@ grammar VeLa;
 
 // VeLa: VStar expression Language
 
-expression
-	: real
+realExpression
+	: multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*
+	;
+	
+multiplicativeExpression
+	: numericFactor ((MULT | DIV) numericFactor)*
+	;
+	
+numericFactor
+	: LPAREN realExpression RPAREN
+	| real
 	;
 	
 real
-	: SIGN? DIGIT+ (POINT DIGIT+)? (EXPONENT_INDICATOR SIGN? DIGIT+)?
+	: sign? DIGIT+ (POINT DIGIT+)? (EXPONENT_INDICATOR MINUS? DIGIT+)?
+	| sign? POINT DIGIT+? (EXPONENT_INDICATOR MINUS? DIGIT+)?
+	
 	;
 
-SIGN
+sign
 	: MINUS | PLUS
 	;
 		
@@ -22,6 +33,22 @@ PLUS
 	: '+'
 	;
 
+MULT
+	: '*'
+	;
+
+DIV
+	: '/'
+	;
+
+LPAREN
+	: '('
+	;
+
+RPAREN
+	: ')'
+	;
+	
 POINT
 	// Locale-inclusive
 	: '.' | ','

@@ -17,27 +17,53 @@
  */
 package org.aavso.tools.vstar.vela;
 
-import java.util.Stack;
-
-import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
-
 /**
  * VeLa: VStar expression Language interpreter
  * 
- * Real number listener.
- * @deprecated
+ * This class propagates parse error information.
  */
-public class RealListener extends VeLaBaseListener {
+@SuppressWarnings("serial")
+public class VeLaParseError extends RuntimeException {
 
-	private Stack<Double> stack;
-	
-	public RealListener(Stack<Double> stack) {
-		this.stack = stack;
+	private String message;
+	private int lineNum, charPos;
+
+	/**
+	 * Construct a VeLa parse exception.
+	 * 
+	 * @param message
+	 *            The error message.
+	 * @param lineNum
+	 *            The line number on which the error occurred.
+	 * @param charPos
+	 *            The character position within the line where the error
+	 *            occurred.
+	 */
+	public VeLaParseError(String message, int lineNum, int charPos) {
+		super();
+		this.message = message;
+		this.lineNum = lineNum;
+		this.charPos = charPos;
 	}
 
-	@Override
-	public void exitReal(RealContext ctx) {
-		String str = ctx.getText();
-		stack.push(VeLaInterpreter.parseDouble(str));
+	/**
+	 * @return the message
+	 */
+	public String getMessage() {
+		return message;
+	}
+
+	/**
+	 * @return the lineNum
+	 */
+	public int getLineNum() {
+		return lineNum;
+	}
+
+	/**
+	 * @return the charPos
+	 */
+	public int getCharPos() {
+		return charPos;
 	}
 }
