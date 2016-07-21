@@ -29,52 +29,68 @@ public class VeLaTest extends TestCase {
 	}
 
 	// Valid test cases
-
+/*
 	public void testPositiveReal1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("12.25");
 		assertEquals(12.25, result);
 	}
 
-	public void testParsePositiveRealNoLeadingZero() {
+	public void testPositiveRealNoLeadingZero() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression(".25");
 		assertEquals(.25, result);
 	}
 
-	public void testParseNegativeRealNoLeadingZero() {
+	public void testNegativeRealNoLeadingZero() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("-.25");
 		assertEquals(-.25, result);
 	}
 
-	public void testParseAddition() {
+	public void testAddition() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("2457580.25+1004");
 		assertEquals(2458584.25, result);
 	}
 
-	public void testParseSubtraction() {
+	public void testSubtraction() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("2457580.25-1004");
 		assertEquals(2456576.25, result);
 	}
 
-	public void testParseMultiplication() {
+	public void testMultiplication() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("2457580.25*10");
 		assertEquals(24575802.5, result);
 	}
 
-	public void testParseDivision() {
+	public void testDivision() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("2457580.25/10");
 		assertEquals(245758.025, result);
 	}
+*/
+	public void testAddSubMulDiv1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		// The net effect of this expression is to add 1000 to 2457580.25.
+//		double result = vela.realExpression("2457580.25+1004*2-1");
+//		assertEquals(2459587.25, result);
+		double result = vela.realExpression("2+3-5*6");
+		assertEquals(-25, result);
+	}
+/*
+	public void testParens1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		// The net effect of this expression is to add 1000 to 2457580.25.
+		double result = vela.realExpression("(2457580.25+1004-2)*10");
+		assertEquals(24585822.50, result);
+	}
 
 	// Invalid test cases
 
-	public void testParseAmpersand() {
+	public void testAmpersand() {
 		try {
 			VeLaInterpreter vela = new VeLaInterpreter();
 			vela.realExpression("2457580.25&1004");
@@ -85,4 +101,5 @@ public class VeLaTest extends TestCase {
 			assertEquals(10, e.getCharPos());
 		}
 	}
+	*/
 }

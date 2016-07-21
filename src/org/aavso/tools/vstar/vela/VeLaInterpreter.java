@@ -57,14 +57,24 @@ public class VeLaInterpreter {
 		lexer.addErrorListener(errorListener);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-		VeLaParser parser = new VeLaParser(tokens);
+		VeLaParser parser = new VeLaParser(tokens);		
 		parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
 		parser.addErrorListener(errorListener);
-		VeLaParser.RealExpressionContext tree = parser.realExpression();
+		
+		// TODO: above is common code that should go into the ctor
 
+		VeLaParser.RealExpressionContext tree = parser.realExpression();
 		RealExpressionListener listener = new RealExpressionListener(stack);
 		ParseTreeWalker.DEFAULT.walk(listener, tree);
+		System.out.println(listener.getAST());
+		listener.interpret();
 
+//		RealExpressionVisitor visitor = new RealExpressionVisitor(stack);
+		//parser.realExpression().accept(visitor);
+		//visitor.visitChildren(parser.realExpression());
+//		visitor.visitChildren(parser.realExpression());
+//		parser.realExpression().accept(visitor);
+		
 		return stack.pop();
 	}
 

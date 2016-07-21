@@ -20,9 +20,9 @@ package org.aavso.tools.vstar.util.locale;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
 
 /**
- * This class contains static methods that parse numbers in a locale-independent
- * way. They are intended to be replacements for Number-subclass methods of the
- * same names.
+ * This class contains a static methods that parses numeric expressions in a
+ * locale-independent way, intended as replacements for Number-subclass methods
+ * of the same names.
  */
 public class NumberParser {
 
