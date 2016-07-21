@@ -2,7 +2,7 @@ grammar VeLa;
 
 // VeLa: VStar expression Language
 
-// TODO: next: unary negation, functions (start with now)
+// TODO: next: unary negation, functions (start with "now")
 
 realExpression
 	: multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*
