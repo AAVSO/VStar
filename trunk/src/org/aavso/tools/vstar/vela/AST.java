@@ -28,22 +28,30 @@ import java.util.List;
 public class AST {
 
 	private String token;
+	private Operation op;
 	private List<AST> children;
 	
 	public AST() {
 		token = null;
+		op = null;
 		children = null;
 	}
 	
 	public AST(String token) {
 		this.token = token;
+		op = null;
 		children = null;
 	}
 
 	public AST(String token, AST left, AST right) {
 		this.token = token;
+		this.op = Operation.getOp(token);
 		addChild(left);
 		addChild(right);
+	}
+
+	public Operation getOp() {
+		return op;
 	}
 
 	public String getToken() {
@@ -60,6 +68,16 @@ public class AST {
 		}
 		
 		children.add(child);
+	}
+
+	public AST left() {
+		assert !isLeaf();
+		return children.get(0);				
+	}
+	
+	public AST right() {
+		assert !isLeaf();
+		return children.get(1);				
 	}
 
 	public boolean isLeaf() {

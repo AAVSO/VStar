@@ -37,7 +37,9 @@ public class VeLaInterpreter {
 	private static final NumberFormat FORMAT = NumberFormat
 			.getNumberInstance(Locale.getDefault());
 
-	// TODO: change to stack of Operand, templated on type vs Double?
+	// TODO:
+	// - change to stack of Operand, templated on type vs Double?
+	// - use a Deque implementation
 	private Stack<Double> stack;
 
 	public VeLaInterpreter() {
@@ -47,8 +49,8 @@ public class VeLaInterpreter {
 	public double realExpression(String expr) throws VeLaParseError {
 
 		// TODO: probably want a Flyweight pattern here:
-		//       expression => double
-		
+		// expression => double
+
 		VeLaErrorListener errorListener = new VeLaErrorListener();
 
 		CharStream stream = new ANTLRInputStream(expr);
@@ -57,24 +59,24 @@ public class VeLaInterpreter {
 		lexer.addErrorListener(errorListener);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-		VeLaParser parser = new VeLaParser(tokens);		
+		VeLaParser parser = new VeLaParser(tokens);
 		parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
 		parser.addErrorListener(errorListener);
-		
+
 		// TODO: above is common code that should go into the ctor
 
 		VeLaParser.RealExpressionContext tree = parser.realExpression();
 		RealExpressionListener listener = new RealExpressionListener(stack);
 		ParseTreeWalker.DEFAULT.walk(listener, tree);
 		System.out.println(listener.getAST());
-		listener.interpret();
+		evalRealExpression(listener.getAST());
 
-//		RealExpressionVisitor visitor = new RealExpressionVisitor(stack);
-		//parser.realExpression().accept(visitor);
-		//visitor.visitChildren(parser.realExpression());
-//		visitor.visitChildren(parser.realExpression());
-//		parser.realExpression().accept(visitor);
-		
+		// RealExpressionVisitor visitor = new RealExpressionVisitor(stack);
+		// parser.realExpression().accept(visitor);
+		// visitor.visitChildren(parser.realExpression());
+		// visitor.visitChildren(parser.realExpression());
+		// parser.realExpression().accept(visitor);
+
 		return stack.pop();
 	}
 
@@ -111,6 +113,46 @@ public class VeLaInterpreter {
 				return FORMAT.parse(str).doubleValue();
 			} catch (ParseException e) {
 				throw new NumberFormatException(e.getLocalizedMessage());
+			}
+		}
+	}
+
+	/**
+	 * <p>
+	 * Given an AST representing a real expression, interpret this via a depth
+	 * first traversal on the stack and deposit the result of evaluation on the
+	 * stack.
+	 * </p>
+	 * <p>
+	 * The "eval" prefix is used in deference to Lisp and John McCarthy's eval
+	 * function, the equivalent of Maxwell's equations in Computer Science.
+	 * 
+	 * @param ast
+	 *            The abstract syntax tree.
+	 */
+	private void evalRealExpression(AST ast) {
+		if (ast.isLeaf()) {
+			stack.push(parseDouble(ast.getToken()));
+		} else {
+			evalRealExpression(ast.left());
+			evalRealExpression(ast.right());
+
+			double n2 = stack.pop();
+			double n1 = stack.pop();
+
+			switch (ast.getOp()) {
+			case ADD:
+				stack.push(n1 + n2);
+				break;
+			case SUB:
+				stack.push(n1 - n2);
+				break;
+			case MUL:
+				stack.push(n1 * n2);
+				break;
+			case DIV:
+				stack.push(n1 / n2);
+				break;
 			}
 		}
 	}

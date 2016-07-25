@@ -29,7 +29,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	// Valid test cases
-/*
+
 	public void testPositiveReal1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("12.25");
@@ -71,19 +71,21 @@ public class VeLaTest extends TestCase {
 		double result = vela.realExpression("2457580.25/10");
 		assertEquals(245758.025, result);
 	}
-*/
+
 	public void testAddSubMulDiv1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		// The net effect of this expression is to add 1000 to 2457580.25.
-//		double result = vela.realExpression("2457580.25+1004*2-1");
-//		assertEquals(2459587.25, result);
-		double result = vela.realExpression("2+3-5*6");
-		assertEquals(-25, result);
+		double result = vela.realExpression("2457580.25+1004*2-1");
+		assertEquals(2459587.25, result);
 	}
-/*
+
+	public void testAddSubMulDiv2() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("2+3-5*6");
+		assertEquals(-25.0, result);
+	}
+
 	public void testParens1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		// The net effect of this expression is to add 1000 to 2457580.25.
 		double result = vela.realExpression("(2457580.25+1004-2)*10");
 		assertEquals(24585822.50, result);
 	}
@@ -101,5 +103,4 @@ public class VeLaTest extends TestCase {
 			assertEquals(10, e.getCharPos());
 		}
 	}
-	*/
 }
