@@ -35,13 +35,8 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  */
 public class RealExpressionListener extends VeLaBaseListener {
 
-	// TODO: Make this an external enum
-	enum Operator {
-		ADD, SUB, MUL, DIV
-	}
-
 	private Stack<Double> operandStack;
-	private Stack<Operator> operatorStack;
+	private Stack<Operation> operatorStack;
 	private Stack<AST> astStack;
 	private Queue<AST> astQ;
 
@@ -52,7 +47,7 @@ public class RealExpressionListener extends VeLaBaseListener {
 
 	public RealExpressionListener(Stack<Double> stack) {
 		this.operandStack = stack;
-		this.operatorStack = new Stack<Operator>();
+		this.operatorStack = new Stack<Operation>();
 		astStack = new Stack<AST>();
 		astQ = new ArrayDeque<AST>();
 	}
@@ -80,11 +75,11 @@ public class RealExpressionListener extends VeLaBaseListener {
 	}
 
 	public AST getAST() {
-		return astStack.pop();
+		return astStack.peek();
 	}
 
 	@Override
-	public void exitRealExpression(RealExpressionContext ctx) {
+	public void exitRealExpression(RealExpressionContext ctx) {		
 		List<TerminalNode> plusNodes = ctx.PLUS();
 		List<TerminalNode> minusNodes = ctx.MINUS();
 
@@ -96,8 +91,8 @@ public class RealExpressionListener extends VeLaBaseListener {
 		// => use an operand and operator operandStack and after walk, call
 		// interpret method
 		// or get AST method
-		 for (int i = ctx.getChildCount()-1; i>=0; i--) {
-//		for (int i = 0; i < ctx.getChildCount(); i++) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			// for (int i = 0; i < ctx.getChildCount(); i++) {
 			ParseTree tree = ctx.getChild(i);
 			int ccount = tree.getChildCount();
 			String op = ctx.getChild(i).getText();
@@ -112,7 +107,7 @@ public class RealExpressionListener extends VeLaBaseListener {
 					// n2 = operandStack.pop();
 					// n1 = operandStack.pop();
 					// operandStack.push(n1 + n2);
-					operatorStack.push(Operator.ADD);
+					operatorStack.push(Operation.ADD);
 					right = astStack.pop();
 					left = astStack.pop();
 					astStack.push(new AST(op, left, right));
@@ -124,6 +119,7 @@ public class RealExpressionListener extends VeLaBaseListener {
 					// n2 = operandStack.pop();
 					// n1 = operandStack.pop();
 					// operandStack.push(n1 - n2);
+					operatorStack.push(Operation.SUB);
 					right = astStack.pop();
 					left = astStack.pop();
 					astStack.push(new AST(op, left, right));
@@ -142,7 +138,7 @@ public class RealExpressionListener extends VeLaBaseListener {
 		List<TerminalNode> divNodes = ctx.DIV();
 
 		int count = ctx.getChildCount();
-		 for (int i = ctx.getChildCount()-1; i>=0; i--) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
 			// for (int i = 0; i < ctx.getChildCount(); i++) {
 			ParseTree tree = ctx.getChild(i);
 			int ccount = tree.getChildCount();
@@ -158,7 +154,7 @@ public class RealExpressionListener extends VeLaBaseListener {
 					// n2 = operandStack.pop();
 					// n1 = operandStack.pop();
 					// operandStack.push(n1 * n2);
-					operatorStack.push(Operator.MUL);
+					operatorStack.push(Operation.MUL);
 					right = astStack.pop();
 					left = astStack.pop();
 					astStack.push(new AST(op, left, right));
@@ -170,7 +166,7 @@ public class RealExpressionListener extends VeLaBaseListener {
 					// n2 = operandStack.pop();
 					// n1 = operandStack.pop();
 					// operandStack.push(n1 / n2);
-					operatorStack.push(Operator.DIV);
+					operatorStack.push(Operation.DIV);
 					right = astStack.pop();
 					left = astStack.pop();
 					astStack.push(new AST(op, left, right));
@@ -191,6 +187,6 @@ public class RealExpressionListener extends VeLaBaseListener {
 		}
 		operandStack.push(VeLaInterpreter.parseDouble(ctx.getText()));
 		astStack.push(new AST(ctx.getText()));
-		astQ.add(new AST(ctx.getText()));		
+		astQ.add(new AST(ctx.getText()));
 	}
 }
