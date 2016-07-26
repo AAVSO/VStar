@@ -90,6 +90,20 @@ public class VeLaTest extends TestCase {
 		assertEquals(24585822.50, result);
 	}
 
+	public void testParens2() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		// 20 years before some JD.
+		double result = vela.realExpression("2457580.25-(365.25*20)");
+		assertEquals(2450275.25, result);
+	}
+
+	public void testResultCacheTest1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		// 20 years before some JD.
+		double result = vela.realExpression("2457580.25-(365.25*20)");
+		assertEquals(2450275.25, result);
+	}
+
 	// Invalid test cases
 
 	public void testAmpersand() {

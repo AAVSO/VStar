@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="extlib/nico-camargo-toolbar-icons-4.0.jar"/>
 	<classpathentry kind="lib" path="extlib/commons-math-2.2.jar"/>
 	<classpathentry kind="lib" path="extlib/javacsv.jar"/>
+	<classpathentry kind="lib" path="/Users/david/Projects/working_copy/vstar/extlib/antlr-runtime-4.5.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
