@@ -21,22 +21,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  VeLa: VStar expression Language
- *  
- *  Abstract Syntax Tree class
+ * VeLa: VStar expression Language
+ * 
+ * Abstract Syntax Tree class
  */
 public class AST {
 
 	private String token;
 	private Operation op;
 	private List<AST> children;
-	
+
 	public AST() {
 		token = null;
 		op = null;
 		children = null;
 	}
-	
+
 	public AST(String token) {
 		this.token = token;
 		op = null;
@@ -46,6 +46,13 @@ public class AST {
 	public AST(String token, AST left, AST right) {
 		this.token = token;
 		this.op = Operation.getOp(token);
+		addChild(left);
+		addChild(right);
+	}
+
+	public AST(String token, Operation op, AST left, AST right) {
+		this.token = token;
+		this.op = op;
 		addChild(left);
 		addChild(right);
 	}
@@ -66,28 +73,57 @@ public class AST {
 		if (children == null) {
 			children = new ArrayList<AST>();
 		}
-		
+
 		children.add(child);
 	}
 
 	public AST left() {
 		assert !isLeaf();
-		return children.get(0);				
+		return children.get(0);
 	}
-	
+
 	public AST right() {
 		assert !isLeaf();
-		return children.get(1);				
+		return children.get(1);
 	}
 
 	public boolean isLeaf() {
 		return children == null;
 	}
 
+	/**
+	 * <p>
+	 * Will the evaluation of this AST and that of its children yield a
+	 * deterministic result?
+	 * </p>
+	 * 
+	 * <p>
+	 * If the operation a is function then the answer must be no, either because
+	 * a parameterless function itself is not deterministic or because the
+	 * result will vary according to input.
+	 * </p>
+	 * 
+	 * @return True if so, otherwise False.
+	 */
+	public boolean isDeterministic() {
+		boolean deterministic = op != Operation.FUNCTION;
+		
+		if (deterministic && !isLeaf()) {
+			for (AST child : children) {
+				if (!child.isDeterministic()) {
+					deterministic = false;
+					break;
+				}
+			}
+		}
+		
+		return deterministic;
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
-		
+
 		if (isLeaf()) {
 			buf.append(token);
 		} else {
@@ -98,10 +134,10 @@ public class AST {
 				buf.append(ast);
 				buf.append(" ");
 			}
-			buf.deleteCharAt(buf.length()-1);
+			buf.deleteCharAt(buf.length() - 1);
 			buf.append(")");
 		}
-		
+
 		return buf.toString();
 	}
 }

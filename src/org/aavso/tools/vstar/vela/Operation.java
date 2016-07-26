@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public enum Operation {
 
-	ADD("+"), SUB("-"), MUL("*"), DIV("/");
+	ADD("+"), SUB("-"), MUL("*"), DIV("/"), FUNCTION();
 
 	private static Map<String, Operation> tok2Op;
 
@@ -37,7 +37,12 @@ public enum Operation {
 		this.token = token;
 	}
 
+	private Operation() {
+		this(null);
+	}
+
 	public static Operation getOp(String token) {
+		assert token != null;
 		if (tok2Op == null) {
 			tok2Op = new HashMap<String, Operation>();
 			for (Operation op : values()) {
