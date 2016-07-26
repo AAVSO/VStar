@@ -59,8 +59,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JCheckBox allDataCheckBox;
 	private JCheckBox additiveLoadCheckbox;
 
-	private JulianDayValidator jdValidator;
-
 	private String starName;
 	private String auid;
 	private DateInfo minDate;
@@ -87,8 +85,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		this.minDate = null;
 		this.maxDate = null;
 		this.wantAllData = false;
-
-		this.jdValidator = new JulianDayValidator();
 
 		cal = Calendar.getInstance();
 		// Ensure the JD is well past today by adding one day, so that recently
@@ -220,7 +216,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// checkInput();
-				minJDField.setToolTipText(dateUtil.jdToCalendar(Double
+				minJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
 						.parseDouble(minJDField.getText())));
 			}
 		};
@@ -236,7 +232,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			public void focusLost(FocusEvent e) {
 				String current = minJDField.getText();
 				if (!prevString.equals(current)) {
-					minJDField.setToolTipText(dateUtil.jdToCalendar(Double
+					minJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
 							.parseDouble(current)));
 					prevString = current;
 				}
@@ -270,7 +266,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// checkInput();
-				maxJDField.setToolTipText(dateUtil.jdToCalendar(Double
+				maxJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
 						.parseDouble(maxJDField.getText())));
 			}
 		};
@@ -286,7 +282,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			public void focusLost(FocusEvent e) {
 				String current = maxJDField.getText();
 				if (!prevString.equals(current)) {
-					maxJDField.setToolTipText(dateUtil.jdToCalendar(Double
+					maxJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
 							.parseDouble(current)));
 					prevString = current;
 				}

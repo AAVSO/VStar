@@ -43,7 +43,7 @@ public class VeLaInterpreter {
 	// - change to stack of Operand, templated on type vs Double?
 	// - use a Deque implementation
 	private Stack<Double> stack;
-	
+
 	// AST and result caches.
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
 	private static Map<String, Double> exprToRealResult = new HashMap<String, Double>();
@@ -55,19 +55,16 @@ public class VeLaInterpreter {
 		stack = new Stack<Double>();
 	}
 
-	public double realExpression(String expr)
-			throws VeLaParseError {
+	public double realExpression(String expr) throws VeLaParseError {
 		return realExpression(expr, false);
 	}
-	
+
 	public double realExpression(String expr, boolean verbose)
 			throws VeLaParseError {
-		
+
 		AST ast = null;
-		
+
 		// We cache abstract syntax trees by expression to improve performance.
-		// For immutabale expressions (like real expressions), we can also
-		// cache results.
 		if (exprToAST.containsKey(expr)) {
 			ast = exprToAST.get(expr);
 		} else {
@@ -97,12 +94,13 @@ public class VeLaInterpreter {
 
 		double result;
 
-		if (!exprToRealResult.containsKey(expr)) {
+		if (ast.isDeterministic() && exprToRealResult.containsKey(expr)) {
+			// For deterministic expressions, we can also use cached results.
+			result = exprToRealResult.get(expr);
+		} else {
 			evalRealExpression(ast);
 			result = stack.pop();
 			exprToRealResult.put(expr, result);
-		} else {
-			result = exprToRealResult.get(expr);
 		}
 
 		return result;
