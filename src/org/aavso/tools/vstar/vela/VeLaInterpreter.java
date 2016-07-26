@@ -43,16 +43,16 @@ public class VeLaInterpreter {
 	// - change to stack of Operand, templated on type vs Double?
 	// - use a Deque implementation
 	private Stack<Double> stack;
-	private Map<String, AST> exprToAST;
-	private Map<String, Double> exprToRealResult;
+	
+	// AST and result caches.
+	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
+	private static Map<String, Double> exprToRealResult = new HashMap<String, Double>();
 
 	private VeLaErrorListener errorListener;
 
 	public VeLaInterpreter() {
 		errorListener = new VeLaErrorListener();
 		stack = new Stack<Double>();
-		exprToAST = new HashMap<String, AST>();
-		exprToRealResult = new HashMap<String, Double>();
 	}
 
 	public double realExpression(String expr)
