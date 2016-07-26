@@ -19,7 +19,9 @@ package org.aavso.tools.vstar.vela;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Stack;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -41,43 +43,69 @@ public class VeLaInterpreter {
 	// - change to stack of Operand, templated on type vs Double?
 	// - use a Deque implementation
 	private Stack<Double> stack;
+	private Map<String, AST> exprToAST;
+	private Map<String, Double> exprToRealResult;
+
+	private VeLaErrorListener errorListener;
 
 	public VeLaInterpreter() {
+		errorListener = new VeLaErrorListener();
 		stack = new Stack<Double>();
+		exprToAST = new HashMap<String, AST>();
+		exprToRealResult = new HashMap<String, Double>();
 	}
 
-	public double realExpression(String expr) throws VeLaParseError {
+	public double realExpression(String expr)
+			throws VeLaParseError {
+		return realExpression(expr, false);
+	}
+	
+	public double realExpression(String expr, boolean verbose)
+			throws VeLaParseError {
+		
+		AST ast = null;
+		
+		// We cache abstract syntax trees by expression to improve performance.
+		// For immutabale expressions (like real expressions), we can also
+		// cache results.
+		if (exprToAST.containsKey(expr)) {
+			ast = exprToAST.get(expr);
+		} else {
+			CharStream stream = new ANTLRInputStream(expr);
 
-		// TODO: probably want a Flyweight pattern here:
-		// expression => double
+			VeLaLexer lexer = new VeLaLexer(stream);
+			lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
+			lexer.addErrorListener(errorListener);
 
-		VeLaErrorListener errorListener = new VeLaErrorListener();
+			CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-		CharStream stream = new ANTLRInputStream(expr);
-		VeLaLexer lexer = new VeLaLexer(stream);
-		lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
-		lexer.addErrorListener(errorListener);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
+			VeLaParser parser = new VeLaParser(tokens);
+			parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+			parser.addErrorListener(errorListener);
 
-		VeLaParser parser = new VeLaParser(tokens);
-		parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-		parser.addErrorListener(errorListener);
+			VeLaParser.RealExpressionContext tree = parser.realExpression();
+			RealExpressionListener listener = new RealExpressionListener(stack);
+			ParseTreeWalker.DEFAULT.walk(listener, tree);
 
-		// TODO: above is common code that should go into the ctor
+			ast = listener.getAST();
+			exprToAST.put(expr, ast);
+		}
 
-		VeLaParser.RealExpressionContext tree = parser.realExpression();
-		RealExpressionListener listener = new RealExpressionListener(stack);
-		ParseTreeWalker.DEFAULT.walk(listener, tree);
-		System.out.println(listener.getAST());
-		evalRealExpression(listener.getAST());
+		if (verbose) {
+			System.out.println(ast);
+		}
 
-		// RealExpressionVisitor visitor = new RealExpressionVisitor(stack);
-		// parser.realExpression().accept(visitor);
-		// visitor.visitChildren(parser.realExpression());
-		// visitor.visitChildren(parser.realExpression());
-		// parser.realExpression().accept(visitor);
+		double result;
 
-		return stack.pop();
+		if (!exprToRealResult.containsKey(expr)) {
+			evalRealExpression(ast);
+			result = stack.pop();
+			exprToRealResult.put(expr, result);
+		} else {
+			result = exprToRealResult.get(expr);
+		}
+
+		return result;
 	}
 
 	/**
@@ -120,8 +148,7 @@ public class VeLaInterpreter {
 	/**
 	 * <p>
 	 * Given an AST representing a real expression, interpret this via a depth
-	 * first traversal on the stack and deposit the result of evaluation on the
-	 * stack.
+	 * first traversal, leaving the result of evaluation on the stack.
 	 * </p>
 	 * <p>
 	 * The "eval" prefix is used in deference to Lisp and John McCarthy's eval
