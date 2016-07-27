@@ -37,7 +37,7 @@
 	<!-- Classpaths -->
 
 	<path id="build.classpath">
-		<fileset dir="${extlib}" includes="*.jar" excludes="junit*.jar" />
+		<fileset dir="${extlib}" includes="*.jar" excludes="junit*.jar"/>
 	</path>
 
 	<path id="test.classpath">
@@ -45,7 +45,7 @@
 		<pathelement location="${dist}/vstar.jar" />
 		<pathelement path="${test_build}" />
 	</path>
-
+	
 	<target name="init">
 		<!-- Create the time stamp -->
 		<tstamp />
@@ -61,7 +61,21 @@
 
 	<!-- Build targets -->
 
-	<target name="compile_src" depends="init" description="Compile the source">
+	<target name="antlr4" depends="init" description="Generate Java source code from ANTLR VeLa grammar.">
+		<java jar="${extlib}/antlr-4.5.3-complete.jar" fork="true">
+			<arg value="${src}/org/aavso/tools/vstar/vela/VeLa.g4" />
+			<arg value="-o" />
+			<arg value="${src}/org/aavso/tools/vstar/vela" />
+			<arg value="-listener" />
+			<arg value="-no-visitor" />
+			<arg value="-package" />
+			<arg value="org.aavso.tools.vstar.vela" />
+			<arg value="-encoding" />
+			<arg value="UTF-8" />
+		</java>
+	</target>
+
+	<target name="compile_src" depends="init,antlr4" description="Compile the source">
 		<!-- Update svn revision -->
 		<exec outputproperty="svn_revision" executable="svnversion" failonerror="true" logError="true">
 			<arg value="-n" />
@@ -126,6 +140,7 @@
 				<exclude name="cobertura*" />
 				<exclude name="cobertura*/**" />
 				<exclude name="junit*" />
+				<exclude name="antlr-4.5.3-complete*"/>
 			</zipfileset>
 			<zipfileset file="VStar.sh" prefix="vstar" filemode="755" />
 			<zipfileset dir="data" prefix="vstar/data" />
