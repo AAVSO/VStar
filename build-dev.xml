@@ -71,7 +71,21 @@
 
 	<!-- Build targets -->
 
-	<target name="compile_src" depends="init" description="Compile the source">
+	<target name="antlr4" depends="init" description="Generate Java source code from ANTLR VeLa grammar.">
+		<java jar="${extlib}/antlr-4.5.3-complete.jar" fork="true">
+			<arg value="${src}/org/aavso/tools/vstar/vela/VeLa.g4" />
+			<arg value="-o" />
+			<arg value="${src}/org/aavso/tools/vstar/vela" />
+			<arg value="-listener" />
+			<arg value="-no-visitor" />
+			<arg value="-package" />
+			<arg value="org.aavso.tools.vstar.vela" />
+			<arg value="-encoding" />
+			<arg value="UTF-8" />
+		</java>
+	</target>
+
+	<target name="compile_src" depends="init,antlr4" description="Compile the source">
 		<!-- Update svn revision -->
 		<exec outputproperty="svn_revision" executable="svnversion">
 			<arg value="-n" />

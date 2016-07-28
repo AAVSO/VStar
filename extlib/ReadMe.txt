@@ -18,9 +18,12 @@ code.
   o jmathplot.jar
     http://code.google.com/p/jmathplot/
   
-  o javacsv
+  o javacsv.jar
     https://sourceforge.net/projects/javacsv/
          
+  o antlr-runtime-4.5.3.jar
+    http://www.antlr.org
+    
   o nico-camargo-toolbar-icons-4.0.jar
     Toolbar icons created by Citizen Sky participant, Nico Camargo.
   
@@ -52,19 +55,34 @@ URL for the web page of each project for more information.
 
     * javacsv  https://sourceforge.net/projects/javacsv/
         
-  o New BSD License
+  o FreeBSD License (2 clause)
     http://www.opensource.org/licenses/bsd-license.php
     
     * jmathplot  http://code.google.com/p/jmathplot/
-     
+  
+  o ANTLR4 Licence (3 clause Modified BSD licence)
+    http://www.antlr.org/license.html
+    
+    * ANTLR4 http://www.antlr.org
+       
 If you are a developer who wishes to contribute toward coding or 
 testing VStar, the following libraries must be downloaded for unit 
 testing purposes:
 
  - JUnit 3.8.2:
-     junit.jar (http://www.junit.org/)
-     
+     o http://www.junit.org/
+     o junit.jar
+     o Unit test framework
+          
  - Cobertura 1.9.3:
      o http://cobertura.sourceforge.net/
      o Unpack the cobertura-1.9.3 archive into the extlib directory.
      o This is used in build-dev.xml for code coverage.
+
+- ANTLR4
+     o http://www.antlr.org
+     o antlr-4.5.3-complete.jar
+     o ANother Tool for Language Recognition.
+     o This is used to generate Java source from
+       a lexer and parser grammar for the VeLa
+       domain specific language.
