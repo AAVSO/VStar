@@ -55,6 +55,7 @@
 	<path id="coverage.classpath">
 		<fileset dir="${extlib}" includes="*.jar" />
 		<pathelement path="${src_build_debug}" />
+		<pathelement location="${dist}/vstar.jar" />
 		<pathelement path="${test_build}" />
 	</path>
 
@@ -94,14 +95,14 @@
 		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${svn_revision}" />
 
 		<!-- Compile source -->
-		<javac compiler="modern" source="1.6" target="1.6" srcdir="${src}" destdir="${src_build}">
+		<javac compiler="modern" source="1.7" target="1.7" srcdir="${src}" destdir="${src_build}">
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
 
 	<target name="debug" depends="init, manifest" description="Compile the source">
 		<!-- Compile source. -->
-		<javac compiler="modern" source="1.6" target="1.6" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
+		<javac compiler="modern" source="1.7" target="1.7" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
 			<classpath refid="build.classpath" />
 		</javac>
 
@@ -120,10 +121,16 @@
 		</manifestclasspath>
 
 		<manifest file="${manifest_file}">
+		    <attribute name="Application-Name" value="VStar" />
 			<attribute name="Manifest-Version" value="1.0" />
 			<attribute name="Created-By" value="${user.name}" />
 			<attribute name="Main-Class" value="org.aavso.tools.vstar.ui.VStar" />
 			<attribute name="Class-Path" value="${jar.classpath}" />
+			<attribute name="Permissions" value="all-permissions" />
+			<!--
+            <attribute name="Codebase" value="http://www.aavso.org/files/vstar/" />
+            -->
+
 		</manifest>
 	</target>
 
@@ -179,7 +186,7 @@
 	<!-- Unit test targets -->
 
 	<target name="compile_ut" depends="dist" description="Compile the test code">
-		<javac srcdir="${test}" destdir="${test_build}">
+		<javac compiler="modern" source="1.7" target="1.7" srcdir="${test}" destdir="${test_build}">
 			<classpath refid="test.classpath" />
 		</javac>
 	</target>
@@ -230,7 +237,7 @@
 		<delete file="${basedir}/cobertura.ser" />
 
 		<!-- Compile source as debug. -->
-		<javac compiler="modern" source="1.6" target="1.6" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
+		<javac compiler="modern" source="1.7" target="1.7" srcdir="${src}" destdir="${src_build_debug}" debug="on" debuglevel="lines,vars,source">
 			<classpath refid="build.classpath" />
 		</javac>
 
