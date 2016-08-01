@@ -35,10 +35,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
  */
 public class VeLaInterpreter {
 
-	// The number format for the locale with which the JVM was started.
-//	private static final NumberFormat FORMAT = NumberFormat
-//			.getNumberInstance(Locale.getDefault());
-
 	// TODO:
 	// - change to stack of Result which can be either Double, Boolean, String?
 	// => that will be the challenge when filters expressions are implemented;
@@ -184,11 +180,11 @@ public class VeLaInterpreter {
 	 *         of the string.
 	 * @throws NumberFormatException
 	 *             If no valid double value is present.
-	 * 
 	 */
 	private double parseDouble(String str) throws NumberFormatException {
 		NumberFormat FORMAT = NumberFormat
 				.getNumberInstance(Locale.getDefault());
+
 		if (str == null) {
 			throw new NumberFormatException("String was null");
 		} else {
