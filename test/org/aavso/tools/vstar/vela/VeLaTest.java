@@ -29,7 +29,6 @@ public class VeLaTest extends TestCase {
 	}
 
 	// Valid test cases
-
 	public void testPositiveReal1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("12.25");
@@ -40,6 +39,12 @@ public class VeLaTest extends TestCase {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression(".25");
 		assertEquals(.25, result);
+	}
+
+	public void testNegativeReal1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("-12.25");
+		assertEquals(-12.25, result);
 	}
 
 	public void testNegativeRealNoLeadingZero() {
@@ -95,6 +100,12 @@ public class VeLaTest extends TestCase {
 		// 20 years before some JD.
 		double result = vela.realExpression("2457580.25-(365.25*20)");
 		assertEquals(2450275.25, result);
+	}
+
+	public void testParens3() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("-(12.25*-2)");
+		assertEquals(24.5, result);
 	}
 
 	public void testResultCacheTest1() {

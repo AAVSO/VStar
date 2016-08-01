@@ -43,11 +43,14 @@ public class AST {
 		children = null;
 	}
 
-	public AST(String token, AST left, AST right) {
-		this.token = token;
-		this.op = Operation.getOp(token);
-		addChild(left);
-		addChild(right);
+	public AST(Operation op, AST child) {
+		token = op.token();
+		this.op = op;
+		addChild(child);
+	}
+
+	public AST(Operation op, AST left, AST right) {
+		this(op.token(), op, left, right);
 	}
 
 	public AST(String token, Operation op, AST left, AST right) {
@@ -69,12 +72,10 @@ public class AST {
 		return children;
 	}
 
-	public void addChild(AST child) {
-		if (children == null) {
-			children = new ArrayList<AST>();
-		}
-
-		children.add(child);
+	public AST leaf() {
+		assert !isLeaf();
+		assert children.size() == 1;
+		return children.get(0);
 	}
 
 	public AST left() {
@@ -107,7 +108,7 @@ public class AST {
 	 */
 	public boolean isDeterministic() {
 		boolean deterministic = op != Operation.FUNCTION;
-		
+
 		if (deterministic && !isLeaf()) {
 			for (AST child : children) {
 				if (!child.isDeterministic()) {
@@ -116,7 +117,7 @@ public class AST {
 				}
 			}
 		}
-		
+
 		return deterministic;
 	}
 
@@ -139,5 +140,15 @@ public class AST {
 		}
 
 		return buf.toString();
+	}
+
+	// Helpers
+
+	private void addChild(AST child) {
+		if (children == null) {
+			children = new ArrayList<AST>();
+		}
+
+		children.add(child);
 	}
 }

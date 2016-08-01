@@ -22,6 +22,7 @@ import java.util.Stack;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
 
 /**
  * VeLa: VStar expression Language interpreter
@@ -50,10 +51,10 @@ public class RealExpressionListener extends VeLaBaseListener {
 				AST left = astStack.pop();
 				switch (op.charAt(0)) {
 				case '+':
-					astStack.push(new AST(op, left, right));
+					astStack.push(new AST(Operation.ADD, left, right));
 					break;
 				case '-':
-					astStack.push(new AST(op, left, right));
+					astStack.push(new AST(Operation.SUB, left, right));
 					break;
 				}
 			}
@@ -69,11 +70,24 @@ public class RealExpressionListener extends VeLaBaseListener {
 				AST left = astStack.pop();
 				switch (op.charAt(0)) {
 				case '*':
-					astStack.push(new AST(op, left, right));
+					astStack.push(new AST(Operation.MUL, left, right));
 					break;
 				case '/':
-					astStack.push(new AST(op, left, right));
+					astStack.push(new AST(Operation.DIV, left, right));
 					break;
+				}
+			}
+		}
+	}
+
+	@Override
+	public void exitUnaryExpression(UnaryExpressionContext ctx) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			String op = ctx.getChild(i).getText();
+			if (ctx.getChild(i).getChildCount() == 1) {
+				if (op.charAt(0) == '-') {
+					AST child = astStack.pop();
+					astStack.push(new AST(Operation.NEG, child));
 				}
 			}
 		}
