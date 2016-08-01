@@ -36,12 +36,14 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 public class VeLaInterpreter {
 
 	// The number format for the locale with which the JVM was started.
-	private static final NumberFormat FORMAT = NumberFormat
-			.getNumberInstance(Locale.getDefault());
+//	private static final NumberFormat FORMAT = NumberFormat
+//			.getNumberInstance(Locale.getDefault());
 
 	// TODO:
-	// - change to stack of Operand, templated on type vs Double?
-	// - use a Deque implementation
+	// - change to stack of Result which can be either Double, Boolean, String?
+	// => that will be the challenge when filters expressions are implemented;
+	// => see language implementation patterns book
+	// - use a Deque implementation for stack
 	private Stack<Double> stack;
 
 	// AST and result caches.
@@ -67,6 +69,9 @@ public class VeLaInterpreter {
 		// We cache abstract syntax trees by expression to improve performance.
 		if (exprToAST.containsKey(expr)) {
 			ast = exprToAST.get(expr);
+			if (verbose) {
+				System.out.println(String.format("AST in cache: %s", ast));
+			}
 		} else {
 			CharStream stream = new ANTLRInputStream(expr);
 
@@ -97,7 +102,12 @@ public class VeLaInterpreter {
 		if (ast.isDeterministic() && exprToRealResult.containsKey(expr)) {
 			// For deterministic expressions, we can also use cached results.
 			result = exprToRealResult.get(expr);
+			if (verbose) {
+				System.out.println(String.format(
+						"Result for AST '%s' in cache: %f", ast, result));
+			}
 		} else {
+			// Evaluate the abstract syntax tree and cache the result.
 			evalRealExpression(ast);
 			result = stack.pop();
 			exprToRealResult.put(expr, result);
@@ -106,6 +116,63 @@ public class VeLaInterpreter {
 		return result;
 	}
 
+	/**
+	 * <p>
+	 * Given an AST representing a real expression, interpret this via a depth
+	 * first traversal, leaving the result of evaluation on the stack.
+	 * </p>
+	 * <p>
+	 * The "eval" prefix is used in deference to Lisp and John McCarthy's eval
+	 * function, the equivalent of Maxwell's equations in Computer Science.
+	 * 
+	 * @param ast
+	 *            The abstract syntax tree.
+	 */
+	private void evalRealExpression(AST ast) {
+		if (ast.isLeaf()) {
+			stack.push(parseDouble(ast.getToken()));
+		} else {
+			Operation op = ast.getOp();
+
+			if (op.arity() == 2) {
+				// Binary
+				evalRealExpression(ast.left());
+				evalRealExpression(ast.right());
+
+				double n2 = stack.pop();
+				double n1 = stack.pop();
+
+				switch (op) {
+				case ADD:
+					stack.push(n1 + n2);
+					break;
+				case SUB:
+					stack.push(n1 - n2);
+					break;
+				case MUL:
+					stack.push(n1 * n2);
+					break;
+				case DIV:
+					stack.push(n1 / n2);
+					break;
+				default:
+					break;
+				}
+			} else if (op.arity() == 1) {
+				// Unary
+				evalRealExpression(ast.leaf());
+
+				switch (op) {
+				case NEG:
+					stack.push(-stack.pop());
+					break;
+				default:
+					break;
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Parse a string, returning a double primitive value, or if no valid double
 	 * value is present, throw a NumberFormatException. The string is first
@@ -119,7 +186,9 @@ public class VeLaInterpreter {
 	 *             If no valid double value is present.
 	 * 
 	 */
-	public static double parseDouble(String str) throws NumberFormatException {
+	private double parseDouble(String str) throws NumberFormatException {
+		NumberFormat FORMAT = NumberFormat
+				.getNumberInstance(Locale.getDefault());
 		if (str == null) {
 			throw new NumberFormatException("String was null");
 		} else {
@@ -139,45 +208,6 @@ public class VeLaInterpreter {
 				return FORMAT.parse(str).doubleValue();
 			} catch (ParseException e) {
 				throw new NumberFormatException(e.getLocalizedMessage());
-			}
-		}
-	}
-
-	/**
-	 * <p>
-	 * Given an AST representing a real expression, interpret this via a depth
-	 * first traversal, leaving the result of evaluation on the stack.
-	 * </p>
-	 * <p>
-	 * The "eval" prefix is used in deference to Lisp and John McCarthy's eval
-	 * function, the equivalent of Maxwell's equations in Computer Science.
-	 * 
-	 * @param ast
-	 *            The abstract syntax tree.
-	 */
-	private void evalRealExpression(AST ast) {
-		if (ast.isLeaf()) {
-			stack.push(parseDouble(ast.getToken()));
-		} else {
-			evalRealExpression(ast.left());
-			evalRealExpression(ast.right());
-
-			double n2 = stack.pop();
-			double n1 = stack.pop();
-
-			switch (ast.getOp()) {
-			case ADD:
-				stack.push(n1 + n2);
-				break;
-			case SUB:
-				stack.push(n1 - n2);
-				break;
-			case MUL:
-				stack.push(n1 * n2);
-				break;
-			case DIV:
-				stack.push(n1 / n2);
-				break;
 			}
 		}
 	}

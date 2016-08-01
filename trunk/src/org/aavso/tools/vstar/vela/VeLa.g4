@@ -9,17 +9,21 @@ realExpression
 	;
 	
 multiplicativeExpression
-	: numericFactor ((MULT | DIV) numericFactor)*
+	: unaryExpression ((MULT | DIV) unaryExpression)*
 	;
-	
+
+unaryExpression
+	: sign? numericFactor
+	;
+		
 numericFactor
 	: LPAREN realExpression RPAREN
 	| real
 	;
 	
 real
-	: sign? DIGIT+ (POINT DIGIT+)? (EXPONENT_INDICATOR MINUS? DIGIT+)?
-	| sign? POINT DIGIT+? (EXPONENT_INDICATOR MINUS? DIGIT+)?
+	: DIGIT+ (POINT DIGIT+)? (EXPONENT_INDICATOR MINUS? DIGIT+)?
+	| POINT DIGIT+? (EXPONENT_INDICATOR MINUS? DIGIT+)?
 	
 	;
 
