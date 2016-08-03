@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.vela;
 
 import java.util.Stack;
 
+import org.aavso.tools.vstar.vela.VeLaParser.FuncContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealExpressionContext;
@@ -90,6 +91,17 @@ public class RealExpressionListener extends VeLaBaseListener {
 					astStack.push(new AST(Operation.NEG, child));
 				}
 			}
+		}
+	}
+
+	@Override
+	public void exitFunc(FuncContext ctx) {
+		for (int i = 0; i < ctx.getChildCount(); i++) {
+			String op = ctx.getChild(i).getText();
+			int c = ctx.getChildCount();
+			int cc = ctx.getChild(i).getChildCount();
+			// TODO: Create an AST and add children (params) bounded by parens;
+			// Also need to lookup function name
 		}
 	}
 

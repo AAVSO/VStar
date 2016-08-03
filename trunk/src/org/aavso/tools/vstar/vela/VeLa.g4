@@ -2,7 +2,7 @@ grammar VeLa;
 
 // VeLa: VStar expression Language
 
-// TODO: next: unary negation, functions (start with "now")
+// TODO: next: functions (start with "now", days_in_year)
 
 realExpression
 	: multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*
@@ -19,12 +19,30 @@ unaryExpression
 numericFactor
 	: LPAREN realExpression RPAREN
 	| real
+	| func
+	;
+
+func
+	: identifier ( LPAREN RPAREN )?
+//	| identifier ( LPAREN realExpression ( COMMA realExpression )* RPAREN )?
+	;
+
+// TODO: These 2 rules need to move to the lexer because they allow whitespace and 
+// there's also a conflict with comma here and in the real number rule (may be 
+// able to handle this via a non-greedy directive)
+identifier
+	: LETTER ( LETTER | DIGIT )*
 	;
 	
 real
-	: DIGIT+ (POINT DIGIT+)? (EXPONENT_INDICATOR MINUS? DIGIT+)?
-	| POINT DIGIT+? (EXPONENT_INDICATOR MINUS? DIGIT+)?
-	
+	: DIGIT+ (POINT DIGIT+)? (exponentIndicator MINUS? DIGIT+)?
+	| POINT DIGIT+? (exponentIndicator MINUS? DIGIT+)?
+	;
+
+// TODO: this is to avoid [Ee] being treated as a subset of LETTER, such that it
+// would never be matched; unsatisfying! There must be a better approach
+exponentIndicator
+	: 'E' | 'e'
 	;
 
 sign
@@ -60,14 +78,18 @@ POINT
 	: '.' | ','
 	;
 
+COMMA
+	: ','
+	;
+
 DIGIT
 	: [0-9]
 	;
 
-EXPONENT_INDICATOR
-	: [Ee]
+LETTER
+	: [A-Z] | [a-z]
 	;
-		 
+	 
 WS 	
 	: [ \r\t\n]+ -> skip
 	;
