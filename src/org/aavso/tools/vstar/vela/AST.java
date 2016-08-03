@@ -68,6 +68,14 @@ public class AST {
 		return token;
 	}
 
+	private void addChild(AST child) {
+		if (children == null) {
+			children = new ArrayList<AST>();
+		}
+
+		children.add(child);
+	}
+
 	public List<AST> getChildren() {
 		return children;
 	}
@@ -140,15 +148,5 @@ public class AST {
 		}
 
 		return buf.toString();
-	}
-
-	// Helpers
-
-	private void addChild(AST child) {
-		if (children == null) {
-			children = new ArrayList<AST>();
-		}
-
-		children.add(child);
 	}
 }

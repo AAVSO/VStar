@@ -115,6 +115,30 @@ public class VeLaTest extends TestCase {
 		assertEquals(2450275.25, result);
 	}
 
+	public void testFuncParameterless1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("now()");
+		assertTrue(true);
+	}
+
+	public void testFuncParameterless2() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("now");
+		assertTrue(true);
+	}
+
+	public void testFuncParameterlessAsSubexpression1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("now()+2");
+		assertTrue(true);
+	}
+
+	public void testFuncParameterlessAsSubexpression() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("now+2");
+		assertTrue(true);
+	}
+
 	// Invalid test cases
 
 	public void testAmpersand() {
