@@ -17,6 +17,10 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.util.Calendar;
+
+import org.aavso.tools.vstar.util.date.AbstractDateUtil;
+
 import junit.framework.TestCase;
 
 /**
@@ -117,26 +121,26 @@ public class VeLaTest extends TestCase {
 
 	public void testFuncParameterless1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		double result = vela.realExpression("now()");
-		assertTrue(true);
+		double result = vela.realExpression("today()");
+		assertEquals(today(), result);
 	}
 
 	public void testFuncParameterless2() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		double result = vela.realExpression("now");
-		assertTrue(true);
+		double result = vela.realExpression("today");
+		assertEquals(today(), result);
 	}
 
 	public void testFuncParameterlessAsSubexpression1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		double result = vela.realExpression("now()+2");
-		assertTrue(true);
+		double result = vela.realExpression("today()+2");
+		assertEquals(today()+2, result);
 	}
 
 	public void testFuncParameterlessAsSubexpression() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		double result = vela.realExpression("now+2");
-		assertTrue(true);
+		double result = vela.realExpression("today+2");
+		assertEquals(today()+2, result);
 	}
 
 	// Invalid test cases
@@ -151,5 +155,15 @@ public class VeLaTest extends TestCase {
 			assertEquals(1, e.getLineNum());
 			assertEquals(10, e.getCharPos());
 		}
+	}
+
+	// Helpers
+
+	private double today() {
+		Calendar cal = Calendar.getInstance();
+		int year = cal.get(Calendar.YEAR);
+		int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
+		int day = cal.get(Calendar.DAY_OF_MONTH);
+		return AbstractDateUtil.getInstance().calendarToJD(year, month, day);
 	}
 }

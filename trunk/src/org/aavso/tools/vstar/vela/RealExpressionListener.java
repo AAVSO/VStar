@@ -96,13 +96,12 @@ public class RealExpressionListener extends VeLaBaseListener {
 
 	@Override
 	public void exitFunc(FuncContext ctx) {
-		for (int i = 0; i < ctx.getChildCount(); i++) {
-			String op = ctx.getChild(i).getText();
-			int c = ctx.getChildCount();
-			int cc = ctx.getChild(i).getChildCount();
-			// TODO: Create an AST and add children (params) bounded by parens;
-			// Also need to lookup function name
-		}
+		String func = ctx.getChild(0).getText();
+		AST ast = new AST(func, Operation.FUNCTION);
+		// TODO: Also need to lookup function name; in interp or here? Static vs
+		// dynamic; make lower case canonical and convert func name to this,
+		// allowing VeLa to be case insensitive
+		astStack.push(ast);
 	}
 
 	@Override

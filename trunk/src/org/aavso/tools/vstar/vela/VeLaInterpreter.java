@@ -19,11 +19,15 @@ package org.aavso.tools.vstar.vela;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 
+import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -125,7 +129,7 @@ public class VeLaInterpreter {
 	 *            The abstract syntax tree.
 	 */
 	private void evalRealExpression(AST ast) {
-		if (ast.isLeaf()) {
+		if (ast.isLeaf() && ast.getOp() != Operation.FUNCTION) {
 			stack.push(parseDouble(ast.getToken()));
 		} else {
 			Operation op = ast.getOp();
@@ -165,10 +169,49 @@ public class VeLaInterpreter {
 				default:
 					break;
 				}
+			} else if (ast.getOp() == Operation.FUNCTION) {
+				// Evaluate parameters, if any.
+				if (ast.getChildren() != null) {
+					for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
+						evalRealExpression(ast.getChildren().get(i));
+					}
+				}
+
+				// Prepare parameter list.
+				List<Double> params = new ArrayList<Double>();
+				while (!stack.isEmpty()) {
+					params.add(stack.pop());
+				}
+
+				// Apply function to parameters.
+				applyRealFunction(ast.getToken(), params);
 			}
 		}
 	}
-	
+
+	/**
+	 * Apply the real function to the supplied parameter list, leaving the
+	 * result on the stack.
+	 * 
+	 * @param funcName
+	 *            The name of the function.
+	 * @param params
+	 *            The parameter list.
+	 */
+	private void applyRealFunction(String funcName, List<Double> params) {
+		if (funcName.equals("today")) {
+			Calendar cal = Calendar.getInstance();
+			int year = cal.get(Calendar.YEAR);
+			int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
+			int day = cal.get(Calendar.DAY_OF_MONTH);
+			double jd = AbstractDateUtil.getInstance().calendarToJD(year,
+					month, day);
+			stack.push(jd);
+		} else {
+			throw new IllegalArgumentException("Unknown function: " + funcName);
+		}
+	}
+
 	/**
 	 * Parse a string, returning a double primitive value, or if no valid double
 	 * value is present, throw a NumberFormatException. The string is first
@@ -182,8 +225,8 @@ public class VeLaInterpreter {
 	 *             If no valid double value is present.
 	 */
 	private double parseDouble(String str) throws NumberFormatException {
-		NumberFormat FORMAT = NumberFormat
-				.getNumberInstance(Locale.getDefault());
+		NumberFormat FORMAT = NumberFormat.getNumberInstance(Locale
+				.getDefault());
 
 		if (str == null) {
 			throw new NumberFormatException("String was null");

@@ -49,6 +49,11 @@ public class AST {
 		addChild(child);
 	}
 
+	public AST(String token, Operation op) {
+		this.token = token;
+		this.op = op;
+	}
+
 	public AST(Operation op, AST left, AST right) {
 		this(op.token(), op, left, right);
 	}
@@ -68,7 +73,7 @@ public class AST {
 		return token;
 	}
 
-	private void addChild(AST child) {
+	public void addChild(AST child) {
 		if (children == null) {
 			children = new ArrayList<AST>();
 		}
