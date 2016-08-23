@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
@@ -174,7 +175,7 @@ public class Mediator {
 	private Map<SeriesType, List<ValidObservation>> phasedValidObservationCategoryMap;
 
 	// Current observation and mean plot model.
-	// Period search (TODO: did mean ANOVA vs period search?) needs access to
+	// Period search (TODO: did I mean ANOVA vs period search?) needs access to
 	// this to determine the current mean source band.
 	private ObservationAndMeanPlotModel obsAndMeanPlotModel;
 
@@ -187,7 +188,6 @@ public class Mediator {
 	// The new star messages created and sent to listeners, most recent at
 	// the highest index.
 	private List<NewStarMessage> newStarMessageList;
-	// private NewStarMessage newStarMessage;
 
 	// The latest model selection message created and sent to listeners.
 	private ModelSelectionMessage modelSelectionMessage;
@@ -394,6 +394,20 @@ public class Mediator {
 	}
 
 	/**
+	 * @return the newStarMessageList
+	 */
+	public List<NewStarMessage> getNewStarMessageList() {
+		return newStarMessageList;
+	}
+
+	/**
+	 * @return the validObservationCategoryMap
+	 */
+	public Map<SeriesType, List<ValidObservation>> getValidObservationCategoryMap() {
+		return validObservationCategoryMap;
+	}
+
+	/**
 	 * Given an analysis type, the plot pane for the specified analysis type.
 	 * 
 	 * @param type
@@ -416,13 +430,6 @@ public class Mediator {
 	 */
 	public ObservationListPane getObservationListPane(AnalysisType type) {
 		return analysisTypeMap.get(type).getObsListPane();
-	}
-
-	/**
-	 * @return the newStarMessageList
-	 */
-	public List<NewStarMessage> getNewStarMessageList() {
-		return newStarMessageList;
 	}
 
 	/**
@@ -1180,6 +1187,24 @@ public class Mediator {
 
 			if (!addObs) {
 				newStarMessageList.clear();
+			} else {
+				// Exclude all but the most recent new star message if the newly
+				// loaded dataset's series set is the same as that of any
+				// previously loaded dataset.
+				Set<SeriesType> newSeriesTypes = validObservationCategoryMap
+						.keySet();
+
+				List<NewStarMessage> dupMessages = new ArrayList<NewStarMessage>();
+
+				for (NewStarMessage msg : newStarMessageList) {
+					if (newSeriesTypes.equals(msg.getObsCategoryMap().keySet())) {
+						dupMessages.add(msg);
+					}
+				}
+
+				for (NewStarMessage msg : dupMessages) {
+					newStarMessageList.remove(msg);
+				}
 			}
 
 			newStarMessageList.add(newStarMsg);

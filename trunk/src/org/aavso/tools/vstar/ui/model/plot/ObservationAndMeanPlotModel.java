@@ -118,17 +118,17 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// since the parameter won't apply to the first mean series created.
 		this.setMeanSeries(false);
 
-		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
-				createDiscrepantChangeListener());
+		Mediator.getInstance().getDiscrepantObservationNotifier()
+				.addListener(createDiscrepantChangeListener());
 
-		Mediator.getInstance().getExcludedObservationNotifier().addListener(
-				createExcludedChangeListener());
+		Mediator.getInstance().getExcludedObservationNotifier()
+				.addListener(createExcludedChangeListener());
 
-		Mediator.getInstance().getModelSelectionNofitier().addListener(
-				createModelSelectionListener());
+		Mediator.getInstance().getModelSelectionNofitier()
+				.addListener(createModelSelectionListener());
 
-		Mediator.getInstance().getFilteredObservationNotifier().addListener(
-				createFilteredObservationListener());
+		Mediator.getInstance().getFilteredObservationNotifier()
+				.addListener(createFilteredObservationListener());
 	}
 
 	/**
@@ -179,7 +179,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			// this.seriesNumToObSrcListMap.put(this.meanSourceSeriesNum,
 			// meanObsList);
 			// this.fireDatasetChanged();
-			//				
+			//
 			// // The mean series has been changed after the initial one. If it
 			// // is not visible, make it so since the user has updated it and
 			// // probably wants to see it right away.
@@ -285,7 +285,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	 *            The item number within the series.
 	 * @return The error value associated with the mean.
 	 */
-	protected double getMagError(int series, int item) {
+	public double getMagError(int series, int item) {
 		if (series != this.meansSeriesNum) {
 			// The series is something other than the means series
 			// so just default to the superclass behaviour.
@@ -439,7 +439,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 						&& !series.isSynthetic()
 						&& !seriesNumToObSrcListMap.get(
 								srcTypeToSeriesNumMap.get(series)).isEmpty()) {
-					// 
+					//
 					seriesNum = srcTypeToSeriesNumMap.get(series);
 					int numObs = seriesNumToObSrcListMap.get(seriesNum).size();
 					if (numObs > maxObs) {
@@ -583,30 +583,30 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	/**
 	 * Update the model's fit and residual observation collections.
 	 */
-	protected void updateModelSeries(List<ValidObservation> modelObs,
+	public void updateModelSeries(List<ValidObservation> modelObs,
 			List<ValidObservation> residualObs, IModel model) {
 
 		// Add or replace model pointing to continuous function.
-//		if (this.seriesExists(SeriesType.ModelFunction)) {
-//			// Replace it.
-//			this.modelFunction = model.getModelFunction();
-//		} else {
-//			// Add it.
-//			// TODO: create up front like we do with some other series, e.g. in
-//			// obs retriever?
-//			modelFunctionSeriesNum = getNextSeriesNum();
-//
-//			this.srcTypeToSeriesNumMap.put(SeriesType.ModelFunction,
-//					modelFunctionSeriesNum);
-//
-//			this.seriesNumToSrcTypeMap.put(modelFunctionSeriesNum,
-//					SeriesType.ModelFunction);
-//
-//			this.seriesVisibilityMap.put(SeriesType.ModelFunction,
-//					isSeriesVisibleByDefault(SeriesType.ModelFunction));
-//
-//			this.modelFunction = model.getModelFunction();
-//		}
+		// if (this.seriesExists(SeriesType.ModelFunction)) {
+		// // Replace it.
+		// this.modelFunction = model.getModelFunction();
+		// } else {
+		// // Add it.
+		// // TODO: create up front like we do with some other series, e.g. in
+		// // obs retriever?
+		// modelFunctionSeriesNum = getNextSeriesNum();
+		//
+		// this.srcTypeToSeriesNumMap.put(SeriesType.ModelFunction,
+		// modelFunctionSeriesNum);
+		//
+		// this.seriesNumToSrcTypeMap.put(modelFunctionSeriesNum,
+		// SeriesType.ModelFunction);
+		//
+		// this.seriesVisibilityMap.put(SeriesType.ModelFunction,
+		// isSeriesVisibleByDefault(SeriesType.ModelFunction));
+		//
+		// this.modelFunction = model.getModelFunction();
+		// }
 
 		// Add or replace a series for the model and make sure
 		// the series is visible.
@@ -625,7 +625,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// Make the model function series visible either because this
 		// is its first appearance or because it may have been made
 		// invisible via the change series dialog.
-//		this.changeSeriesVisibility(modelFunctionSeriesNum, true);
+		// this.changeSeriesVisibility(modelFunctionSeriesNum, true);
 
 		// TODO: do we really need this? if not, revert means join
 		// handling code
@@ -691,7 +691,7 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		return result;
 	}
 
-	protected void updateFilteredSeries(List<ValidObservation> obs) {
+	public void updateFilteredSeries(List<ValidObservation> obs) {
 		if (this.seriesExists(SeriesType.Filtered)) {
 			filterSeriesNum = replaceObservationSeries(SeriesType.Filtered, obs);
 		} else {
@@ -702,6 +702,21 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 		// its first appearance or because it may have been made
 		// invisible via a previous NO_FILTER message.
 		changeSeriesVisibility(filterSeriesNum, true);
+	}
+
+	@Override
+	public boolean removeAllObservationFromSeries(SeriesType type) {
+		boolean removed = super.removeAllObservationFromSeries(type);
+
+		if (removed) {
+			// If the specified series is the source of the means series,
+			// re-compute the means series.
+			if (type == seriesNumToSrcTypeMap.get(meanSourceSeriesNum)) {
+				setMeanSeries(false);
+			}
+		}
+
+		return removed;
 	}
 
 	/**

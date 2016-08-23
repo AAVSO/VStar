@@ -19,7 +19,9 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -29,6 +31,9 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.dialog.ITextComponent;
+import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
@@ -68,6 +73,38 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		return InputType.NONE;
 	}
 
+	/**
+	 * Request the time tolerance with which to compare a pair of B and V
+	 * observations in order to determine whether to include them in the subset.
+	 * 
+	 * @return The tolerance in days or a fraction thereof, or null if the user
+	 *         does not wish to specify a tolerance.
+	 */
+	private Double requestTimeTolerance() {
+		Double tolerance = null;
+
+		do {
+			DoubleField timeToleranceField = new DoubleField(
+					"Fraction of a day", null, 1.0, 1.0);
+
+			List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
+			fields.add(timeToleranceField);
+
+			MultiEntryComponentDialog dlg = new MultiEntryComponentDialog(
+					"B,V Time Delta", fields);
+
+			Double value = timeToleranceField.getValue();
+
+			if (dlg.isCancelled()) {
+				break;
+			} else {
+				tolerance = value;
+			}
+		} while (tolerance <= 0);
+
+		return tolerance;
+	}
+
 	class BMinusVRetriever extends AbstractObservationRetriever {
 
 		private List<ValidObservation> b;
@@ -78,7 +115,9 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		@Override
 		public Integer getNumberOfRecords() throws ObservationReadError {
 
-			findBandVObsPairs();
+			Double tolerance = requestTimeTolerance();
+
+			findBandVObsPairs(tolerance);
 
 			records = b != null && v != null && b.size() != 0 && v.size() != 0 ? Math
 					.min(b.size(), v.size()) : 0;
@@ -103,6 +142,13 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 					collectObservation(bvOb);
 				}
 			}
+			
+			SeriesType bvtype = SeriesType.getSeriesFromDescription("B-V");
+			
+			if (validObservationCategoryMap.containsKey(bvtype)) {
+				List<ValidObservation> bvobs = validObservationCategoryMap.get(bvtype);
+				System.out.println(bvobs.size());
+			}
 		}
 
 		@Override
@@ -115,12 +161,26 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 			return "B-V";
 		}
 
+		@Override
+		public Set<SeriesType> seriesToExcludeWhenAdditive() {
+			Set<SeriesType> series = new HashSet<SeriesType>();
+			series.add(SeriesType.getSeriesFromDescription("B-V"));
+			return series;
+		}
+
 		// Helpers
 
-		private void findBandVObsPairs() {
+		/**
+		 * Find the subset of adjacent-in-time B and V observation pairs with
+		 * the same observer code and that fall within the optional time
+		 * tolerance constraint.
+		 * 
+		 * @param tolerance
+		 *            Time tolerance as a fraction of a day or null if no time
+		 *            tolerance is to be applied.
+		 */
+		private void findBandVObsPairs(Double tolerance) {
 
-			// TODO: add a time tolerance within which each member of a pair
-			// must fall?
 			Mediator mediator = Mediator.getInstance();
 
 			ObservationPlotModel model = mediator
@@ -139,21 +199,31 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 			bAndVObs.addAll(vObs);
 			bAndVObs.sort(JDComparator.instance);
 
-			// Look for B and V pairs and select that subset, e.g.
-			// V,V,V,B,B,V,B,V,V,V,B,B,V has the pairs: V,B, B,V, V,B, B,V
+			// Look for B and V pairs (with the same non-null observer code) and
+			// select that subset, e.g.
+			// V,V,V,V,V,V,B,B,V,B,V,V,V,B,B,V has the pairs-wise subset:
+			// V,B,B,V,B,V, V,B,B,V
 			List<ValidObservation> bAndVObsSubset = new ArrayList<ValidObservation>();
 
 			for (int i = 0; i < bAndVObs.size() - 1; i += 2) {
-				if (bAndVObs.get(i).getBand() == SeriesType.Johnson_B
-						&& bAndVObs.get(i + 1).getBand() == SeriesType.Johnson_V) {
-					// ..B,V..
-					bAndVObsSubset.add(bAndVObs.get(i));
-					bAndVObsSubset.add(bAndVObs.get(i + 1));
-				} else if (bAndVObs.get(i).getBand() == SeriesType.Johnson_V
-						&& bAndVObs.get(i + 1).getBand() == SeriesType.Johnson_B) {
-					// ..V,B..
-					bAndVObsSubset.add(bAndVObs.get(i));
-					bAndVObsSubset.add(bAndVObs.get(i + 1));
+				ValidObservation first = bAndVObs.get(i);
+				ValidObservation second = bAndVObs.get(i + 1);
+
+				if ((first.getBand() == SeriesType.Johnson_B && second
+						.getBand() == SeriesType.Johnson_V)
+						|| (first.getBand() == SeriesType.Johnson_V && second
+								.getBand() == SeriesType.Johnson_B)) {
+
+					if (first.getObsCode() != null
+							&& second.getObsCode() != null
+							&& first.getObsCode().equals(second.getObsCode())) {
+
+						double delta = second.getJD() - first.getJD();
+						if (tolerance == null || delta <= tolerance) {
+							bAndVObsSubset.add(first);
+							bAndVObsSubset.add(second);
+						}
+					}
 				}
 			}
 

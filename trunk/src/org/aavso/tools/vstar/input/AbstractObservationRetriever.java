@@ -21,6 +21,7 @@ package org.aavso.tools.vstar.input;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -284,6 +285,16 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
+	 * Are there any series that should be excluded from addition in
+	 * collectAllValidObservations() and collectAllInvalidObservations()?
+	 * 
+	 * @return The set of series to be excluded from addition; may be null.
+	 */
+	public Set<SeriesType> seriesToExcludeWhenAdditive() {
+		return null;
+	}
+
+	/**
 	 * Adds all of the specified observations to the current observations,
 	 * including classifying them by series. This can be used for additive load
 	 * operations.
@@ -296,14 +307,22 @@ public abstract class AbstractObservationRetriever {
 	 */
 	public void collectAllObservations(List<ValidObservation> obs,
 			String newSourceName) throws ObservationReadError {
+
 		// Set source name for new obs (those in this retriever).
 		for (ValidObservation ob : validObservations) {
 			ob.addDetail("SOURCE", newSourceName, "Source");
 		}
 
 		// Add previously existing obs (those passed to this method).
+		Set<SeriesType> seriesToExclude = seriesToExcludeWhenAdditive();
+
 		for (ValidObservation ob : obs) {
-			collectObservation(ob);
+			// If there are no series to exclude or the observation's band is
+			// not in the list of series to be excluded, include it.
+			if (seriesToExclude == null
+					|| !seriesToExclude.contains(ob.getBand())) {
+				collectObservation(ob);
+			}
 		}
 	}
 
