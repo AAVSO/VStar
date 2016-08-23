@@ -51,10 +51,10 @@ public class InfoDialog extends JDialog implements ActionListener {
 	/**
 	 * Constructor.
 	 * 
-	 * @param newStarMessage
-	 *            A new (loaded) star message.
+	 * @param newStarMessages
+	 *            The loaded star messages.
 	 */
-	public InfoDialog(List<NewStarMessage> newStarMessage) {
+	public InfoDialog(List<NewStarMessage> newStarMessages) {
 		super(DocumentManager.findActiveWindow());
 		this.setTitle("Information");
 
@@ -63,7 +63,7 @@ public class InfoDialog extends JDialog implements ActionListener {
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		JScrollPane scrollPane = new JScrollPane(
-				createInfoPanel(newStarMessage));
+				createInfoPanel(newStarMessages));
 		topPane.add(scrollPane);
 
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -189,13 +189,15 @@ public class InfoDialog extends JDialog implements ActionListener {
 
 		if (starInfo.getPeriod() != null) {
 			summaryBuf.append("Period: ");
-			summaryBuf.append(NumericPrecisionPrefs.formatOther(starInfo.getPeriod()));
+			summaryBuf.append(NumericPrecisionPrefs.formatOther(starInfo
+					.getPeriod()));
 			summaryBuf.append(" days\n");
 		}
 
 		if (starInfo.getEpoch() != null) {
 			summaryBuf.append("Epoch: ");
-			summaryBuf.append(NumericPrecisionPrefs.formatTime(starInfo.getEpoch()));
+			summaryBuf.append(NumericPrecisionPrefs.formatTime(starInfo
+					.getEpoch()));
 			summaryBuf.append("\n");
 		}
 

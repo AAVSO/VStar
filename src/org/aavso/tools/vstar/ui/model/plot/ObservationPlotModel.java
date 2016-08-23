@@ -142,8 +142,8 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 		this.seriesToBeJoinedVisually = new HashSet<Integer>();
 		this.lastSinglySelectedSeries = null;
 
-		Mediator.getInstance().getSeriesCreationNotifier().addListener(
-				createSeriesCreationListener());
+		Mediator.getInstance().getSeriesCreationNotifier()
+				.addListener(createSeriesCreationListener());
 	}
 
 	/**
@@ -233,8 +233,8 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 				// A series number may not be available yet, specifically for
 				// means series; can't handle that yet.
 				if (seriesNum != null) {
-					changeSeriesVisibility(seriesNum, seriesVisibilityMap
-							.get(seriesType));
+					changeSeriesVisibility(seriesNum,
+							seriesVisibilityMap.get(seriesType));
 				}
 			}
 		}
@@ -279,7 +279,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @param series
 	 *            A series.
 	 */
-	protected void addObservationToSeries(ValidObservation ob, SeriesType series) {
+	public void addObservationToSeries(ValidObservation ob, SeriesType series) {
 		Integer seriesNum = this.srcTypeToSeriesNumMap.get(series);
 
 		if (seriesNum != null) {
@@ -310,7 +310,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @param series
 	 *            The series to which to add the list.
 	 */
-	protected void addObservationsToSeries(List<ValidObservation> obs,
+	public void addObservationsToSeries(List<ValidObservation> obs,
 			SeriesType series) {
 		Integer seriesNum = this.srcTypeToSeriesNumMap.get(series);
 
@@ -338,44 +338,13 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 * @return The number of the series replaced.
 	 * @precondition The series has already been added to the plot.
 	 */
-	protected int replaceObservationSeries(SeriesType type,
+	public int replaceObservationSeries(SeriesType type,
 			List<ValidObservation> obs) {
 		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);
 		assert seriesNum != null;
 		this.seriesNumToObSrcListMap.put(seriesNum, obs);
 		this.fireDatasetChanged();
 		return seriesNum;
-	}
-
-	/**
-	 * Remove the specified series from the model.
-	 * 
-	 * Whether or not the named series was removed (it may not have existed to
-	 * begin with) is returned. The caller can determine whether or not this
-	 * matters.
-	 * 
-	 * Note: Be careful with this method, otherwise there will be gaps in the
-	 * series number sequence. Arguably we should remove this method.
-	 * 
-	 * @param type
-	 *            The series type.
-	 * @return Whether or not the series was removed.
-	 */
-	protected boolean removeObservationSeries(SeriesType type) {
-		boolean found = false;
-
-		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);
-
-		if (seriesNum != null) {
-			this.srcTypeToSeriesNumMap.remove(type);
-			this.seriesNumToSrcTypeMap.remove(seriesNum);
-			this.seriesNumToObSrcListMap.remove(seriesNum);
-			this.seriesVisibilityMap.remove(type);
-			this.fireDatasetChanged();
-			found = true;
-		}
-
-		return found;
 	}
 
 	/**
@@ -387,7 +356,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 *            A series.
 	 * @return Whether or not the observation was removed.
 	 */
-	protected boolean removeObservationFromSeries(ValidObservation ob,
+	public boolean removeObservationFromSeries(ValidObservation ob,
 			SeriesType series) {
 		boolean removed = false;
 
@@ -409,7 +378,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 *            The series from which the list is to be removed.
 	 * @return Whether or not the observations were removed.
 	 */
-	protected boolean removeObservationsFromSeries(List<ValidObservation> obs,
+	public boolean removeObservationsFromSeries(List<ValidObservation> obs,
 			SeriesType series) {
 		boolean removed = false;
 
@@ -424,6 +393,40 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	}
 
 	/**
+	 * Remove all observations from the specified series, but not the series
+	 * itself.
+	 * 
+	 * @param type
+	 *            The series type.
+	 * @return Whether or not the series observations were removed.
+	 */
+	public boolean removeAllObservationFromSeries(SeriesType type) {
+		boolean removed = false;
+
+		Integer seriesNum = this.srcTypeToSeriesNumMap.get(type);
+
+		if (seriesNum != null) {
+			List<ValidObservation> obs = this.seriesNumToObSrcListMap
+					.get(seriesNum);
+			removed = removeObservationsFromSeries(obs, type);
+		}
+
+		if (removed) {
+			Mediator.getInstance().getValidObservationCategoryMap().get(type)
+					.clear();
+
+			 srcTypeToSeriesNumMap.remove(type);
+			 seriesNumToSrcTypeMap.remove(seriesNum);
+			 seriesNumToObSrcListMap.remove(seriesNum);
+			 seriesVisibilityMap.remove(type);
+//
+//			fireDatasetChanged();
+		}
+
+		return removed;
+	}
+
+	/**
 	 * Attempt to change the specified series' visibility.
 	 * 
 	 * @param seriesNum
@@ -432,7 +435,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 *            Whether this series should be visible.
 	 * @return Whether or not the visibility of the object changed.
 	 */
-	protected boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
+	public boolean changeSeriesVisibility(int seriesNum, boolean visibility) {
 		SeriesType seriesType = seriesNumToSrcTypeMap.get(seriesNum);
 		Boolean currVis = this.seriesVisibilityMap.get(seriesType);
 
@@ -596,7 +599,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 *            The item number within the series.
 	 * @return The magnitude value.
 	 */
-	protected double getMagAsYCoord(int series, int item) {
+	public double getMagAsYCoord(int series, int item) {
 		return this.seriesNumToObSrcListMap.get(series).get(item)
 				.getMagnitude().getMagValue();
 	}
@@ -613,15 +616,15 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 *            The item number within the series.
 	 * @return The error value associated with the mean.
 	 */
-	protected double getMagError(int series, int item) {
+	public double getMagError(int series, int item) {
 		double error = 0;
 
 		// If the HQ uncertainty field is non-null, use that, otherwise
 		// use the uncertainty value, which may be zero, in which case
 		// the error will be zero.
 
-		Double hqUncertainty = this.seriesNumToObSrcListMap.get(series).get(
-				item).getHqUncertainty();
+		Double hqUncertainty = this.seriesNumToObSrcListMap.get(series)
+				.get(item).getHqUncertainty();
 
 		if (hqUncertainty != null && hqUncertainty != 0) {
 			error = hqUncertainty;
@@ -701,7 +704,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	 *            The series name.
 	 * @return Whether or not the series should be visible by default.
 	 */
-	protected boolean isSeriesVisibleByDefault(SeriesType series) {
+	public boolean isSeriesVisibleByDefault(SeriesType series) {
 		boolean visible = false;
 
 		// TODO: We could delegate "is visible" to SeriesType which
@@ -741,11 +744,11 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 				int seriesNum = NO_SERIES;
 
 				if (seriesExists(info.getType())) {
-					seriesNum = replaceObservationSeries(info.getType(), info
-							.getObs());
+					seriesNum = replaceObservationSeries(info.getType(),
+							info.getObs());
 				} else {
-					seriesNum = addObservationSeries(info.getType(), info
-							.getObs());
+					seriesNum = addObservationSeries(info.getType(),
+							info.getObs());
 				}
 
 				// Make sure the new series is initially not visible, before
