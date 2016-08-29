@@ -2,8 +2,6 @@ grammar VeLa;
 
 // VeLa: VStar expression Language
 
-// TODO: next: functions (start with "now", days_in_year)
-
 realExpression
 	: multiplicativeExpression ((PLUS | MINUS) multiplicativeExpression)*
 	;
