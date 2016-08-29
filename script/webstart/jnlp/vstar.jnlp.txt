@@ -7,15 +7,9 @@ VStar can load observational data from files or the AAVSO International
 Database, display interactive light curves and phase plots, and perform 
 period analysis.
  
-VStar will run on any platform that has version 1.6 or later of the Java 
-run-time environment. Download vstar.jnlp to install using Java WebStart.  
-This version is the same as the one on the Citizen Sky website, where you 
-can learn more about the VStar project: 
-
-  http://www.citizensky.org/teams/vstar-software-development
-
-You will also need to register for a free account on Citizen Sky to use the
-download from AAVSO database feature of VStar.
+VStar will run on any platform that has version 1.7 or later of the Java 
+run-time environment. Go to https://www.aavso.org/vstar to download and run 
+using Java WebStart.  
 
 VStar is licensed under the GNU Affero General Public License, version 3.  See
 http://www.gnu.org/licenses/agpl-3.0-standalone.html for details.  The source
@@ -24,11 +18,7 @@ SourceForge site: https://sourceforge.net/projects/vstar
 
 VStar uses the following external libraries. See the links for project info,
 source code and licensing:
-
-    * Commons Math
-      http://commons.apache.org/math/
-      http://commons.apache.org/license.html
-      
+   
     * JCommon
       http://sourceforge.net/projects/jfreechart/
       GNU Lesser General Public License, version 2.1
@@ -38,11 +28,16 @@ source code and licensing:
       GNU Lesser General Public License, version 2.1
       
     * jmathplot
-      New BSD License
+      http://code.google.com/p/jmathplot/
+      New BSD License (2 clause)
     
     * javacsv
       https://sourceforge.net/projects/javacsv/
       GNU Library or Lesser General Public License version 2.0 (LGPLv2)
+  
+    * ANTLR 4
+      ANTLR4 Licence (3 clause Modified BSD licence)
+      http://www.antlr.org
         
     * Toolbar icons created by Citizen Sky participant, Nico Camargo.
       (nico-camargo-toolbar-icons-4.0.jar)
