@@ -36,6 +36,7 @@
 		<jar jarfile="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/APASSEpochPhotometryObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.ASASObservationSource.jar" basedir="${build.classes}" includes="**/ASASObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.AAVSOnetEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOnetEpochPhotometryObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.BMinusVObservationSource.jar" basedir="${build.classes}" includes="**/BMinusVObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" basedir="${build.classes}" includes="**/CatalinaSkySurveyObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.CurrentModeANOVATool.jar" basedir="${build.classes}" includes="**/CurrentModeANOVATool**.class" />
 		<jar jarfile="${dist}/${pkg}.DASCHObservationSource.jar" basedir="${build.classes}" includes="**/DASCHObservationSource**.class" />
@@ -50,7 +51,6 @@
 		<jar jarfile="${dist}/${pkg}.ObserversBySeries.jar" basedir="${build.classes}" includes="**/ObserversBySeries**.class" />
 		<jar jarfile="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" basedir="${build.classes}" includes="**/PeriodLuminosityDistanceCalculator**.class" />
 		<jar jarfile="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" basedir="${build.classes}" includes="**/SuperWASPFITSObservationSource**.class" />
-		<jar jarfile="${dist}/${pkg}.BMinusVObservationSource.jar" basedir="${build.classes}" includes="**/BMinusVObservationSource**.class" />
 		<!--
 		<jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="**/CustomFilterTest**.class" />
 		<jar jarfile="${dist}/${pkg}.DifferentialPhotometry.jar" basedir="${build.classes}" includes="**/DifferentialPhotometry**.class" />
@@ -85,6 +85,7 @@
 		<copy file="${dist}/${pkg}.APASSEpochPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ASASObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.AAVSOnetEpochPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.BMinusVObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.CatalinaSkySurveyObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.CurrentModeANOVATool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.DASCHObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -99,7 +100,6 @@
 		<copy file="${dist}/${pkg}.ObserversBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.BMinusVObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<!--
 		<copy file="${dist}/${pkg}.DifferentialPhotometry.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -114,6 +114,7 @@
 		<echo file="${plugins_list_file}" message="${pkg}.APASSEpochPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ASASObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.AAVSOnetEpochPhotometryObservationSource.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.BMinusVObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.CatalinaSkySurveyObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.CurrentModeANOVATool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.DASCHObservationSource.jar${line.separator}" append="true" />
@@ -128,7 +129,6 @@
 		<echo file="${plugins_list_file}" message="${pkg}.ObserversBySeries.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.PeriodLuminosityDistanceCalculator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.SuperWASPFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.BMinusVObservationSource.jar${line.separator}" append="true" />
 		<!--
 		<echo file="${plugins_list_file}" message="${pkg}.DifferentialPhotometry.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.IRISAutomaticPhotometryObservationSource.jar${line.separator}" append="true" />
