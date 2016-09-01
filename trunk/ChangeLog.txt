@@ -32,6 +32,17 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: September 2 2016
+Version: 2.18.0
+Tag: DEV-AAVSO-02Sep2016
+Key Changes:
+- Ticket #523 Handle transformed flag correctly in AID load
+- Ticket #536 Allow exponential format in mag, time values 
+- Ticket #514 Remove all traces of JDBC from VStar (removed deprecated code)
+- Ticket #364 Create VeLa: initial implementation of numeric expressions
+- Ticket #331 Plot B-V index as a series
+- Added WWZ and StarInfo scripting API functions.
+
 Date: May 12 2016
 Version: 2.17.1
 Tag: DEV-AAVSO-12May2016
