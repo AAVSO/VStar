@@ -41,6 +41,7 @@ Key Changes:
 - Ticket #514 Remove all traces of JDBC from VStar (removed deprecated code)
 - Ticket #364 Create VeLa: initial implementation of numeric expressions
 - Ticket #331 Plot B-V index as a series
+- Updated bands collection.
 - Added WWZ and StarInfo scripting API functions.
 
 Date: May 12 2016
