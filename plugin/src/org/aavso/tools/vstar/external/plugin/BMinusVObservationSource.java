@@ -85,7 +85,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 
 		do {
 			DoubleField timeToleranceField = new DoubleField(
-					"Fraction of a day", null, 1.0, 1.0);
+					"Tolerance (>0..1 day)", null, 1.0, 1.0);
 
 			List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
 			fields.add(timeToleranceField);
@@ -131,23 +131,27 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 
 			if (records > 0) {
 				for (int i = 0; i < records; i++) {
-					// Note: simplifying assumption: B and V elements correspond
-					// somewhat in time!
 					double deltaMag = b.get(i).getMag() - v.get(i).getMag();
-					double meanJD = b.get(i).getJD();
+					double meanError = (b.get(i).getMagnitude()
+							.getUncertainty() + v.get(i).getMagnitude()
+							.getUncertainty()) / 2;
+					meanError = 0;
+					double meanJD = (b.get(i).getJD() + v.get(i).getJD()) / 2;
+					
 					ValidObservation bvOb = new ValidObservation();
+					
 					bvOb.setDateInfo(new DateInfo(meanJD));
-					bvOb.setMagnitude(new Magnitude(deltaMag, 0));
+					bvOb.setMagnitude(new Magnitude(deltaMag, meanError));
 					bvOb.setBand(bvSeries);
+					
+					// Set the record number to the earliest B or V observation,
+					// so that sorting by record will maintain a reasonable
+					// order, with B-V appearing between B and V in the list.
+					bvOb.setRecordNumber(Math.min(b.get(i).getRecordNumber(), v
+							.get(i).getRecordNumber()));
+					
 					collectObservation(bvOb);
 				}
-			}
-			
-			SeriesType bvtype = SeriesType.getSeriesFromDescription("B-V");
-			
-			if (validObservationCategoryMap.containsKey(bvtype)) {
-				List<ValidObservation> bvobs = validObservationCategoryMap.get(bvtype);
-				System.out.println(bvobs.size());
 			}
 		}
 
@@ -205,7 +209,11 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 			// V,B,B,V,B,V, V,B,B,V
 			List<ValidObservation> bAndVObsSubset = new ArrayList<ValidObservation>();
 
-			for (int i = 0; i < bAndVObs.size() - 1; i += 2) {
+			int i = 0;
+			// The stopping condition of the iteration over B,V observations is
+			// two short of the end of the collection, since we examine the next
+			// two observations.
+			while (i < bAndVObs.size() - 1) {
 				ValidObservation first = bAndVObs.get(i);
 				ValidObservation second = bAndVObs.get(i + 1);
 
@@ -220,20 +228,32 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 
 						double delta = second.getJD() - first.getJD();
 						if (tolerance == null || delta <= tolerance) {
+							// We found a B,V or V,B pair with same observer
+							// code and within the time tolerance requested.
 							bAndVObsSubset.add(first);
 							bAndVObsSubset.add(second);
 						}
+
+						// Whether the pair was within the time tolerance or
+						// not, we need to move onto the next pair, skipping
+						// the current pair.
+						i += 2;
+						continue;
 					}
 				}
+
+				// We either didn't find a B,V or V,B pair or we found a pair
+				// whose members have different observer codes. Either way, we
+				// advance past the first of the pair only, since the second and
+				// subsequent observation may constitute a pair of interest.
+				i++;
 			}
 
 			// Separate B and V pairs.
 			b = new ArrayList<ValidObservation>();
 			v = new ArrayList<ValidObservation>();
 
-			for (int i = 0; i < bAndVObsSubset.size(); i++) {
-				ValidObservation ob = bAndVObsSubset.get(i);
-
+			for (ValidObservation ob : bAndVObsSubset) {
 				if (ob.getBand() == SeriesType.Johnson_B) {
 					b.add(ob);
 				} else {
