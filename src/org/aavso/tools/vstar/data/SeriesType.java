@@ -71,34 +71,42 @@ public class SeriesType implements Comparable<SeriesType> {
 
 	// ** Auto-generated bands from aid.bands start here **
 
-	public static final SeriesType Visual = new SeriesType(0, LocaleProps
-			.get("VISUAL_SERIES"), "Vis.", new Color(0, 0, 0));
-	public static final SeriesType Unknown = new SeriesType(1, LocaleProps
-			.get("UNKNOWN_SERIES"), "N/A", new Color(255, 255, 0));
+	public static final SeriesType Visual = new SeriesType(0,
+			LocaleProps.get("VISUAL_SERIES"), "Vis.", new Color(0, 0, 0));
+
+	public static final SeriesType Unknown = new SeriesType(1,
+			LocaleProps.get("UNKNOWN_SERIES"), "N/A", new Color(255, 255, 0));
+
 	public static final SeriesType Johnson_R = new SeriesType(10, "Johnson R",
 			"RJ", new Color(192, 0, 64));
 
 	public static final SeriesType Johnson_I = new SeriesType(11, "Johnson I",
 			"IJ", new Color(192, 64, 128));
 
+	public static final SeriesType Halpha = new SeriesType(13, "Halpha", "HA",
+			new Color(192, 32, 0));
+
+	public static final SeriesType Halpha_continuum = new SeriesType(14,
+			"Halpha-continuum", "HAC", new Color(160, 32, 32));
+
 	public static final SeriesType Johnson_V = new SeriesType(2, "Johnson V",
 			"V", new Color(0, 255, 0));
 
-	public static final SeriesType Blue = new SeriesType(21, LocaleProps
-			.get("BLUE_SERIES"), LocaleProps.get("BLUE_SERIES") + "-Vis.",
-			new Color(0, 0, 128));
+	public static final SeriesType Blue = new SeriesType(21,
+			LocaleProps.get("BLUE_SERIES"), LocaleProps.get("BLUE_SERIES")
+					+ "-Vis.", new Color(0, 0, 128));
 
-	public static final SeriesType Green = new SeriesType(22, LocaleProps
-			.get("GREEN_SERIES"), LocaleProps.get("GREEN_SERIES") + "-Vis.",
-			new Color(0, 128, 0));
+	public static final SeriesType Green = new SeriesType(22,
+			LocaleProps.get("GREEN_SERIES"), LocaleProps.get("GREEN_SERIES")
+					+ "-Vis.", new Color(0, 128, 0));
 
-	public static final SeriesType Red = new SeriesType(23, LocaleProps
-			.get("RED_SERIES"), LocaleProps.get("RED_SERIES") + "-Vis.",
-			new Color(128, 0, 0));
+	public static final SeriesType Red = new SeriesType(23,
+			LocaleProps.get("RED_SERIES"), LocaleProps.get("RED_SERIES")
+					+ "-Vis.", new Color(128, 0, 0));
 
-	public static final SeriesType Yellow = new SeriesType(24, LocaleProps
-			.get("YELLOW_SERIES"), LocaleProps.get("YELLOW_SERIES") + "-Vis.",
-			new Color(255, 255, 128));
+	public static final SeriesType Yellow = new SeriesType(24,
+			LocaleProps.get("YELLOW_SERIES"), LocaleProps.get("YELLOW_SERIES")
+					+ "-Vis.", new Color(255, 255, 128));
 
 	public static final SeriesType K_NIR_2pt2micron = new SeriesType(26,
 			"K NIR 2.2micron", "K", new Color(255, 128, 255));
@@ -148,6 +156,12 @@ public class SeriesType implements Comparable<SeriesType> {
 	public static final SeriesType Sloan_i = new SeriesType(43, "Sloan i",
 			"SI", new Color(192, 64, 0));
 
+	public static final SeriesType PanSTARRS_Z_short = new SeriesType(44,
+			"PanSTARRS Z-short", "ZS", new Color(255, 64, 32));
+
+	public static final SeriesType PanSTARRS_Y = new SeriesType(45,
+			"PanSTARRS Y", "Y", new Color(96, 0, 0));
+
 	public static final SeriesType Cousins_I = new SeriesType(5, "Cousins I",
 			"I", new Color(255, 64, 0));
 
@@ -170,8 +184,8 @@ public class SeriesType implements Comparable<SeriesType> {
 			"Optec Wing C", "MI", new Color(128, 0, 192));
 
 	public static final SeriesType Orange_Liller = new SeriesType(6,
-			LocaleProps.get("ORANGE_SERIES") + " (Liller)", LocaleProps
-					.get("ORANGE_SERIES"), new Color(255, 128, 0));
+			LocaleProps.get("ORANGE_SERIES") + " (Liller)",
+			LocaleProps.get("ORANGE_SERIES"), new Color(255, 128, 0));
 
 	public static final SeriesType Johnson_U = new SeriesType(7, "Johnson U",
 			"U", new Color(0, 255, 255));
@@ -212,9 +226,9 @@ public class SeriesType implements Comparable<SeriesType> {
 			Color.RED, true, false);
 
 	// Model function series.
-	public static final SeriesType ModelFunction = new SeriesType(SeriesType.NO_INDEX,
-			LocaleProps.get("MODEL_SERIES"), LocaleProps.get("MODEL_SERIES"),
-			Color.RED, true, false);
+	public static final SeriesType ModelFunction = new SeriesType(
+			SeriesType.NO_INDEX, LocaleProps.get("MODEL_SERIES"),
+			LocaleProps.get("MODEL_SERIES"), Color.RED, true, false);
 
 	// Residuals series.
 	public static final SeriesType Residuals = new SeriesType(
