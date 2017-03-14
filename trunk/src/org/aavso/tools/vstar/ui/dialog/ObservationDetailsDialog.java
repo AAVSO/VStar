@@ -81,16 +81,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 
-		// We currently disable the discrepant checkbox for anything other
-		// than raw data mode due to this bug in which a chunk of data
-		// disappears after marking a point as discrepant, then unmarking it.
-		// Since the cross hair change is reflected in raw data mode also, this
-		// is no great user interface problem. The problem should be fixed
-		// though.
-		// See
-		// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
-		// for more detail.
-		if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+		//if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
 			// It doesn't make sense to mark a mean (etc) observation as
 			// discrepant since it's a derived (computed) observation.
 			if (!ob.getBand().isSynthetic()) {
@@ -105,7 +96,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 				Mediator.getInstance().getDiscrepantObservationNotifier()
 						.addListener(createDiscrepantChangeListener());
 			}
-		}
+		//}
 
 		JPanel buttonPane = new JPanel();
 		okButton = new JButton("OK");
@@ -145,13 +136,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 		final ObservationDetailsDialog parent = this;
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// We disable discrepant toggling here for now unless we are in
-				// raw mode, in case this dialog was opened in raw data mode,
-				// but we have since switched to phase plot mode.
-				// See
-				// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
-				// for more detail.
-				if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+				//if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
 					try {
 						toggleDiscrepantStatus();
 
@@ -190,7 +175,7 @@ public class ObservationDetailsDialog extends JDialog implements FocusListener {
 
 					}
 				}
-			}
+			//}
 		};
 	}
 
