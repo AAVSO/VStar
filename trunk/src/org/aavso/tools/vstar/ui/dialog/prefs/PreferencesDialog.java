@@ -38,6 +38,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	private NumericPrecisionSelectionPane numericPrecisionPane;
 	private StarGroupManagementPane starGroupManagementPane;
 	private PluginSettingsPane pluginSettingsPane;
+	private LocaleSelectionPane localeSelectionPane;
 	
 	/**
 	 * Constructor.
@@ -78,6 +79,9 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		pluginSettingsPane = new PluginSettingsPane();
 		tabs.addTab("Plug-in Settings", pluginSettingsPane);
 
+		localeSelectionPane = new LocaleSelectionPane();
+		tabs.addTab("Locale", localeSelectionPane);
+		
 		return tabs;
 	}
 
@@ -97,6 +101,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		numericPrecisionPane.update();
 		starGroupManagementPane.update();
 		pluginSettingsPane.update();
+		localeSelectionPane.update();
 		
 		this.setVisible(false);
 	}
@@ -109,6 +114,8 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		seriesSizePane.reset();
 		numericPrecisionPane.reset();
 		starGroupManagementPane.reset();
+		pluginSettingsPane.reset();
+		localeSelectionPane.reset();
 	}
 
 	/**
