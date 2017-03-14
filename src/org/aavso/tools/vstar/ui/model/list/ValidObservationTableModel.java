@@ -147,51 +147,43 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 */
 	public void setValueAt(Object value, int rowIndex, int columnIndex) {
 		if (columnIndex == columnInfoSource.getDiscrepantColumnIndex()) {
-			// We disable discrepant toggling here for now, in case this dialog
-			// was opened in raw data mode, but we have since switched to phase
-			// plot mode.
-			//
-			// See
-			// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
-			// for more detail.
-			if (Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA) {
+			// if (Mediator.getInstance().getAnalysisType() ==
+			// AnalysisType.RAW_DATA) {
 
-				ValidObservation ob = this.validObservations.get(rowIndex);
+			ValidObservation ob = this.validObservations.get(rowIndex);
 
-				try {
-					toggleDiscrepantStatus(ob);
+			try {
+				toggleDiscrepantStatus(ob);
 
-					// If the loaded dataset comes from AID, open
-					// report-to-HQ dialog.
-					Mediator.getInstance()
-							.reportDiscrepantObservation(ob, null);
+				// If the loaded dataset comes from AID, open
+				// report-to-HQ dialog.
+				Mediator.getInstance().reportDiscrepantObservation(ob, null);
 
-					// Tell anyone who's listening about the change.
-					DiscrepantObservationMessage message = new DiscrepantObservationMessage(
-							ob, this);
+				// Tell anyone who's listening about the change.
+				DiscrepantObservationMessage message = new DiscrepantObservationMessage(
+						ob, this);
 
-					Mediator.getInstance().getDiscrepantObservationNotifier()
-							.notifyListeners(message);
+				Mediator.getInstance().getDiscrepantObservationNotifier()
+						.notifyListeners(message);
 
-				} catch (CancellationException ex) {
-					toggleDiscrepantStatus(ob);
-				} catch (ConnectionException ex) {
-					toggleDiscrepantStatus(ob);
+			} catch (CancellationException ex) {
+				toggleDiscrepantStatus(ob);
+			} catch (ConnectionException ex) {
+				toggleDiscrepantStatus(ob);
 
-					MessageBox.showErrorDialog("Authentication Source Error",
-							ex);
-				} catch (AuthenticationError ex) {
-					toggleDiscrepantStatus(ob);
+				MessageBox.showErrorDialog("Authentication Source Error", ex);
+			} catch (AuthenticationError ex) {
+				toggleDiscrepantStatus(ob);
 
-					MessageBox.showErrorDialog("Authentication Error",
-							"Login failed.");
-				} catch (Exception ex) {
-					toggleDiscrepantStatus(ob);
+				MessageBox.showErrorDialog("Authentication Error",
+						"Login failed.");
+			} catch (Exception ex) {
+				toggleDiscrepantStatus(ob);
 
-					MessageBox.showErrorDialog("Discrepant Reporting Error",
-							ex.getLocalizedMessage());
-				}
+				MessageBox.showErrorDialog("Discrepant Reporting Error",
+						ex.getLocalizedMessage());
 			}
+			// }
 		}
 	}
 
@@ -204,18 +196,9 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 */
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// "is-discrepant" check box?
-		// We currently disable the discrepant checkbox for anything other
-		// than raw data mode due to this bug in which a chunk of data
-		// disappears
-		// after marking a point as discrepant, then unmarking it. Since the
-		// cross
-		// hair change is reflected in raw data mode also, this is no great user
-		// interface problem. The problem should be fixed though. See
-		// https://sourceforge.net/tracker/?func=detail&aid=2964224&group_id=263306&atid=1152052
-		// for more detail.
 		boolean is_discrepant_checkbox_editable = columnIndex == columnInfoSource
 				.getDiscrepantColumnIndex()
-				&& Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA;
+		/* && Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA */;
 
 		return is_discrepant_checkbox_editable;
 	}
