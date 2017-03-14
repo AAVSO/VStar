@@ -17,14 +17,65 @@
  */
 package org.aavso.tools.vstar.util.locale;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 /**
- * The purpose of this class is to provide locale-specific strings.
+ * The purpose of this class is to provide locale-specific strings and
+ * preference handling.
  */
 public class LocaleProps {
 
+	private final static String LOCALE_PREFS_KEY = "locale";
+
+	// Default locale when JVM (and this class) first loads.
+	private static final Locale defaultLocale = Locale.getDefault();
+
 	private static ResourceBundle localeResourceBundle = null;
+
+	private static Preferences prefs;
+	private static Locale locale;
+
+	static {
+		// Create preferences node for locale and get the current locale or the
+		// current JVM instance's locale if none is set.
+		try {
+			prefs = Preferences.userNodeForPackage(LocaleProps.class);
+			
+			String languageTag = prefs.get(LOCALE_PREFS_KEY,
+					defaultLocale.toLanguageTag());
+			
+			locale = Locale.forLanguageTag(languageTag);
+			Locale.setDefault(locale);
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+	}
+
+	public static void setLocalePref(Locale newLocale) {
+		locale = newLocale;
+		Locale.setDefault(locale);
+		
+		try {
+			String languageTag = newLocale.toLanguageTag();
+			prefs.put(LOCALE_PREFS_KEY, languageTag);
+			prefs.flush();
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+	}
+
+	public static void setDefaultLocalePref() {
+		setLocalePref(defaultLocale);
+	}
+
+	/**
+	 * @return the locale
+	 */
+	public static Locale getLocale() {
+		return locale;
+	}
 
 	/**
 	 * Return the localised string given the specified ID.
@@ -37,16 +88,18 @@ public class LocaleProps {
 		try {
 			if (localeResourceBundle == null) {
 				// For normal running from distribution jar.
-				localeResourceBundle = ResourceBundle
-						.getBundle("locale.strings");
+				localeResourceBundle = ResourceBundle.getBundle(
+						"locale.strings");
 			}
 		} catch (Exception e) {
 			try {
-			// For Eclipse run or other scenario in which bundle is to be taken
-			// from normal classpath. Note: Probably should unify these two cases by
-			// constructing the distribution jar to use full package below.
-			localeResourceBundle = ResourceBundle
-					.getBundle("org.aavso.tools.vstar.ui.resources.locale.strings");
+				// For Eclipse run or other scenario in which bundle is to be
+				// taken
+				// from normal classpath. Note: Probably should unify these two
+				// cases by
+				// constructing the distribution jar to use full package below.
+				localeResourceBundle = ResourceBundle.getBundle(
+						"org.aavso.tools.vstar.ui.resources.locale.strings");
 			} catch (Exception e2) {
 				e2.printStackTrace();
 			}
