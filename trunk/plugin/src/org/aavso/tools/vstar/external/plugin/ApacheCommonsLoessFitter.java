@@ -34,8 +34,6 @@ import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
-import org.aavso.tools.vstar.util.ApacheCommonsBrentOptimiserExtremaFinder;
-import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.apache.commons.math.MathException;
@@ -44,12 +42,12 @@ import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;
 
 /**
- * A Loess or Lowess (Local Regression algorithm) model creator plugin that uses
+ * A Loess (Local Regression algorithm) model creator plugin that uses
  * an Apache Commons Loess interpolator.
  */
-public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
+public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 
-	public ApacheCommonsLowessFitter() {
+	public ApacheCommonsLoessFitter() {
 		super();
 	}
 
@@ -109,12 +107,12 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 
 				@Override
 				public String getKind() {
-					return "Lowess Fit";
+					return "Loess Fit";
 				}
 
 				@Override
 				public List<PeriodFitParameters> getParameters() {
-					// None for a Lowess fit.
+					// None for a Loess fit.
 					return null;
 				}
 
@@ -151,7 +149,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 					return strRepr;
 				}
 
-				// Note: There is already a lowess fit function in R, so it
+				// Note: There is already a Loess fit function in R, so it
 				// would be interesting to compare the results of that and this
 				// plugin.
 				public String toRString() {
@@ -185,7 +183,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 				@Override
 				public void execute() throws AlgorithmError {
 
-					// The Lowess fitter requires a strictly increasing sequence
+					// The Loess fitter requires a strictly increasing sequence
 					// on the domain (i.e. JD values), i.e. no duplicates.
 					Map<Double, Double> jdToMagMap = new TreeMap<Double, Double>();
 
@@ -212,7 +210,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 						residuals = new ArrayList<ValidObservation>();
 						double sumSqResiduals = 0;
 
-						String comment = "From Lowess fit";
+						String comment = "From Loess fit";
 
 						// Create fit and residual observations and
 						// compute the sum of squares of residuals for
@@ -268,6 +266,7 @@ public class ApacheCommonsLowessFitter extends ModelCreatorPluginBase {
 						}
 
 						// Minimum/maximum.
+						// TODO: use derivative approach
 //						ApacheCommonsBrentOptimiserExtremaFinder finder = new ApacheCommonsBrentOptimiserExtremaFinder(
 //								fit, function, timeCoordSource, 0);
 //
