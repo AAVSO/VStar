@@ -63,6 +63,10 @@ public class PlotControlDialog extends JDialog {
 	protected boolean showCrossHairs;
 	protected JCheckBox crossHairCheckBox;
 
+	// Show inverted range?
+	protected boolean invertRange;
+	protected JCheckBox invertRangeCheckBox;
+
 	// Should the means series elements be joined visually?
 	protected boolean joinMeans;
 	protected JCheckBox joinMeansCheckBox;
@@ -107,12 +111,16 @@ public class PlotControlDialog extends JDialog {
 
 		// Get initial checkbox values.
 		showErrorBars = plotPane.getRenderer().getDrawYError();
+
 		showCrossHairs = plotPane.getChartPanel().getChart().getXYPlot()
 				.isDomainCrosshairVisible(); // ask for domain or range value
+
+		invertRange = plotPane.getChartPanel().getChart().getXYPlot()
+				.getRangeAxis().isInverted();
+
 		joinMeans = obsModel.getMeansSeriesNum() != ObservationAndMeanPlotModel.NO_SERIES ? plotPane
 				.getRenderer().getSeriesLinesVisible(
-						obsModel.getMeansSeriesNum())
-				: false;
+						obsModel.getMeansSeriesNum()) : false;
 
 		this.timeElementsInBinSettingPane = timeElementsInBinSettingPane;
 
@@ -179,11 +187,20 @@ public class PlotControlDialog extends JDialog {
 		showCheckBoxPanel.add(errorBarCheckBox);
 
 		// A checkbox to show/hide cross hairs.
-		crossHairCheckBox = new JCheckBox(LocaleProps
-				.get("CROSSHAIRS_CHECKBOX"));
+		crossHairCheckBox = new JCheckBox(
+				LocaleProps.get("CROSSHAIRS_CHECKBOX"));
 		crossHairCheckBox.setSelected(showCrossHairs);
 		crossHairCheckBox.addActionListener(createCrossHairCheckBoxListener());
 		showCheckBoxPanel.add(crossHairCheckBox);
+
+		subPanel.add(showCheckBoxPanel);
+
+		// A checkbox to invert (or not) the range axis.
+		invertRangeCheckBox = new JCheckBox(LocaleProps.get("INVERT_RANGE"));
+		invertRangeCheckBox.setSelected(invertRange);
+		invertRangeCheckBox
+				.addActionListener(createInvertRangeCheckBoxListener());
+		showCheckBoxPanel.add(invertRangeCheckBox);
 
 		subPanel.add(showCheckBoxPanel);
 
@@ -195,8 +212,8 @@ public class PlotControlDialog extends JDialog {
 
 		// A checkbox to determine whether or not to join mean
 		// series elements.
-		joinMeansCheckBox = new JCheckBox(LocaleProps
-				.get("JOIN_MEANS_CHECKBOX"));
+		joinMeansCheckBox = new JCheckBox(
+				LocaleProps.get("JOIN_MEANS_CHECKBOX"));
 		joinMeansCheckBox.setSelected(joinMeans);
 		joinMeansCheckBox.addActionListener(createJoinMeansCheckBoxListener());
 		meanChangePanel.add(joinMeansCheckBox);
@@ -262,6 +279,15 @@ public class PlotControlDialog extends JDialog {
 		};
 	}
 
+	// Returns a listener for the range axis inversion checkbox.
+	private ActionListener createInvertRangeCheckBoxListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				toggleRangeAxisInversion();
+			}
+		};
+	}
+
 	/**
 	 * Show/hide the error bars.
 	 */
@@ -278,6 +304,16 @@ public class PlotControlDialog extends JDialog {
 		JFreeChart chart = plotPane.getChartPanel().getChart();
 		chart.getXYPlot().setDomainCrosshairVisible(this.showCrossHairs);
 		chart.getXYPlot().setRangeCrosshairVisible(this.showCrossHairs);
+	}
+
+	/**
+	 * Invert (or not) the range axis.
+	 */
+	private void toggleRangeAxisInversion() {
+		this.invertRange = !this.invertRange;
+		plotPane.getChartPanel().getChart().getXYPlot().getRangeAxis()
+				.setInverted(this.invertRange);
+
 	}
 
 	// Return a listener for the "join means visually" checkbox.
