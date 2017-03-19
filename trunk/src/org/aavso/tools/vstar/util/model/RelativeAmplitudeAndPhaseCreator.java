@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.aavso.tools.vstar.util.locale.NumberParser;
+
 /**
  * This class computes relative amplitudes and phases from a set of multi-period
  * fit model coefficients in the presence of harmonics, grouped by fundamental
@@ -247,6 +249,6 @@ public class RelativeAmplitudeAndPhaseCreator {
 	private double round(double n, int precision) {
 		String fmt = "%1." + precision + "f";
 		String nStr = String.format(fmt, n);
-		return Double.parseDouble(nStr);
+		return NumberParser.parseDouble(nStr);
 	}
 }
