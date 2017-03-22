@@ -20,34 +20,55 @@ package org.aavso.tools.vstar.vela;
 /**
  * VeLa: VStar expression Language
  *
- * Operations abstracted from concrete syntax.
+ * A class that represents typed operands. 
  */
-public enum Operation {
+public class Operand {
 
-	ADD("+", 2), SUB("-", 2), NEG("-", 1), MUL("*", 2), DIV("/", 2), EQUAL("=",
-			2), NOT_EQUAL("<>", 2), FUNCTION("func");
-
-	private String symbol;
-	private int arity;
-
-	private Operation(String symbol, int arity) {
-		this.symbol = symbol;
-		this.arity = arity;
+	private Type type;
+	private double doubleVal;
+	private String stringVal;
+	private boolean booleanVal;
+	
+	public Operand(Type type, double value) {
+		this.type = type;
+		doubleVal = value;
 	}
 
-	private Operation(String symbol) {
-		this(symbol, 0);
+	public Operand(Type type, String value) {
+		this.type = type;
+		stringVal = value;
 	}
 
-	private Operation() {
-		this("", 0);
+	public Operand(Type type, boolean value) {
+		this.type = type;
+		booleanVal = value;
 	}
 
-	public String token() {
-		return symbol;
+	/**
+	 * @return the type
+	 */
+	public Type getType() {
+		return type;
 	}
 
-	public int arity() {
-		return arity;
+	/**
+	 * @return the doubleVal
+	 */
+	public double doubleVal() {
+		return doubleVal;
+	}
+
+	/**
+	 * @return the stringVal
+	 */
+	public String stringVal() {
+		return stringVal;
+	}
+
+	/**
+	 * @return the booleanVal
+	 */
+	public boolean booleanVal() {
+		return booleanVal;
 	}
 }

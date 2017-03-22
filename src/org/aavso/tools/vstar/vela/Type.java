@@ -19,35 +19,10 @@ package org.aavso.tools.vstar.vela;
 
 /**
  * VeLa: VStar expression Language
- *
- * Operations abstracted from concrete syntax.
+ * 
+ * An enumeration of operand types.
  */
-public enum Operation {
+public enum Type {
 
-	ADD("+", 2), SUB("-", 2), NEG("-", 1), MUL("*", 2), DIV("/", 2), EQUAL("=",
-			2), NOT_EQUAL("<>", 2), FUNCTION("func");
-
-	private String symbol;
-	private int arity;
-
-	private Operation(String symbol, int arity) {
-		this.symbol = symbol;
-		this.arity = arity;
-	}
-
-	private Operation(String symbol) {
-		this(symbol, 0);
-	}
-
-	private Operation() {
-		this("", 0);
-	}
-
-	public String token() {
-		return symbol;
-	}
-
-	public int arity() {
-		return arity;
-	}
+	DOUBLE, STRING, BOOLEAN;
 }

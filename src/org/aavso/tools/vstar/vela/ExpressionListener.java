@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.vela;
 
 import java.util.Stack;
 
+import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
@@ -28,19 +29,35 @@ import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
 /**
  * VeLa: VStar expression Language interpreter
  * 
- * Real expression parse tree listener.
+ * Expression parse tree listener.
  */
-public class RealExpressionListener extends VeLaBaseListener {
+public class ExpressionListener extends VeLaBaseListener {
 
 	private Stack<AST> astStack;
 
-	public RealExpressionListener(Stack<Double> stack) {
+	public ExpressionListener() {
 		astStack = new Stack<AST>();
 	}
 
 	public AST getAST() {
 		// Peek vs pop to allow multiple non-destructive calls to this method.
 		return astStack.peek();
+	}
+
+	@Override
+	public void exitBooleanExpression(BooleanExpressionContext ctx) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			String op = ctx.getChild(i).getText();
+			if (ctx.getChild(i).getChildCount() == 0) {
+				AST right = astStack.pop();
+				AST left = astStack.pop();
+				if (op.equals("=")) {
+					astStack.push(new AST(Operation.EQUAL, left, right));
+				} else if (op.equals("<>")) {
+					astStack.push(new AST(Operation.NOT_EQUAL, left, right));
+				}
+			}
+		}
 	}
 
 	@Override

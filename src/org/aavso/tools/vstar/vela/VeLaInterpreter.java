@@ -43,8 +43,11 @@ public class VeLaInterpreter {
 	// - change to stack of Result which can be either Double, Boolean, String?
 	// => that will be the challenge when filters expressions are implemented;
 	// => see language implementation patterns book
-	// - use a Deque implementation for stack
-	private Stack<Double> stack;
+	// => could multiple stacks be a suitable approach?
+	// => in the worst case: stack of Object
+	// => better would be a stack of Operand with subclasses or type tags
+	// - use a Deque implementation for stack (why?)
+	private Stack<Operand> stack;
 
 	// AST and result caches.
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
@@ -54,7 +57,7 @@ public class VeLaInterpreter {
 
 	public VeLaInterpreter() {
 		errorListener = new VeLaErrorListener();
-		stack = new Stack<Double>();
+		stack = new Stack<Operand>();
 	}
 
 	public double realExpression(String expr) throws VeLaParseError {
@@ -86,7 +89,7 @@ public class VeLaInterpreter {
 			parser.addErrorListener(errorListener);
 
 			VeLaParser.RealExpressionContext tree = parser.realExpression();
-			RealExpressionListener listener = new RealExpressionListener(stack);
+			ExpressionListener listener = new ExpressionListener();
 			ParseTreeWalker.DEFAULT.walk(listener, tree);
 
 			ast = listener.getAST();
@@ -108,10 +111,49 @@ public class VeLaInterpreter {
 			}
 		} else {
 			// Evaluate the abstract syntax tree and cache the result.
-			evalRealExpression(ast);
-			result = stack.pop();
+			eval(ast);
+			result = stack.pop().doubleVal();
 			exprToRealResult.put(expr, result);
 		}
+
+		return result;
+	}
+
+	public boolean booleanExpression(String expr) throws VeLaParseError {
+		return booleanExpression(expr, false);
+	}
+
+	public boolean booleanExpression(String expr, boolean verbose)
+			throws VeLaParseError {
+
+		AST ast = null;
+
+		CharStream stream = new ANTLRInputStream(expr);
+
+		VeLaLexer lexer = new VeLaLexer(stream);
+		lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
+		lexer.addErrorListener(errorListener);
+
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+		VeLaParser parser = new VeLaParser(tokens);
+		parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
+		parser.addErrorListener(errorListener);
+
+		VeLaParser.BooleanExpressionContext tree = parser.booleanExpression();
+		ExpressionListener listener = new ExpressionListener();
+		ParseTreeWalker.DEFAULT.walk(listener, tree);
+
+		ast = listener.getAST();
+		// exprToAST.put(expr, ast);
+
+		if (verbose) {
+			System.out.println(ast);
+		}
+
+		// TODO: consider caching as for real expressions
+		eval(ast);
+		boolean result = stack.pop().booleanVal();
 
 		return result;
 	}
@@ -122,49 +164,74 @@ public class VeLaInterpreter {
 	 * first traversal, leaving the result of evaluation on the stack.
 	 * </p>
 	 * <p>
-	 * The "eval" prefix is used in deference to Lisp and John McCarthy's eval
+	 * The name "eval" is used in deference to Lisp and John McCarthy's eval
 	 * function, the equivalent of Maxwell's equations in Computer Science.
 	 * 
 	 * @param ast
 	 *            The abstract syntax tree.
 	 */
-	private void evalRealExpression(AST ast) {
+	private void eval(AST ast) {
 		if (ast.isLeaf() && ast.getOp() != Operation.FUNCTION) {
-			stack.push(parseDouble(ast.getToken()));
+			stack.push(new Operand(Type.DOUBLE, parseDouble(ast.getToken())));
 		} else {
 			Operation op = ast.getOp();
 
 			if (op.arity() == 2) {
 				// Binary
-				evalRealExpression(ast.left());
-				evalRealExpression(ast.right());
+				eval(ast.left());
+				eval(ast.right());
 
-				double n2 = stack.pop();
-				double n1 = stack.pop();
+				Operand n2 = stack.pop();
+				Operand n1 = stack.pop();
 
 				switch (op) {
 				case ADD:
-					stack.push(n1 + n2);
+					stack.push(new Operand(Type.DOUBLE, n1.doubleVal()
+							+ n2.doubleVal()));
 					break;
 				case SUB:
-					stack.push(n1 - n2);
+					stack.push(new Operand(Type.DOUBLE, n1.doubleVal()
+							- n2.doubleVal()));
 					break;
 				case MUL:
-					stack.push(n1 * n2);
+					stack.push(new Operand(Type.DOUBLE, n1.doubleVal()
+							* n2.doubleVal()));
 					break;
 				case DIV:
-					stack.push(n1 / n2);
+					stack.push(new Operand(Type.DOUBLE, n1.doubleVal()
+							/ n2.doubleVal()));
+					break;
+				case EQUAL:
+					if (n1.getType() == Type.DOUBLE
+							&& n2.getType() == Type.DOUBLE) {
+						// TODO: call a function in Operation
+						stack.push(new Operand(Type.BOOLEAN,
+								n1.doubleVal() == n2.doubleVal()));
+					} else {
+						// TODO: string, boolean, coercion from double to string
+					}
+					break;
+				case NOT_EQUAL:
+					if (n1.getType() == Type.DOUBLE
+							&& n2.getType() == Type.DOUBLE) {
+						// TODO: call a function in Operation
+						stack.push(new Operand(Type.BOOLEAN,
+								n1.doubleVal() != n2.doubleVal()));
+					} else {
+						// TODO: string, boolean, coercion from double to string
+					}
 					break;
 				default:
 					break;
 				}
 			} else if (op.arity() == 1) {
 				// Unary
-				evalRealExpression(ast.leaf());
+				eval(ast.leaf());
 
 				switch (op) {
 				case NEG:
-					stack.push(-stack.pop());
+					stack.push(new Operand(Type.DOUBLE, -stack.pop()
+							.doubleVal()));
 					break;
 				default:
 					break;
@@ -173,14 +240,15 @@ public class VeLaInterpreter {
 				// Evaluate parameters, if any.
 				if (ast.getChildren() != null) {
 					for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
-						evalRealExpression(ast.getChildren().get(i));
+						eval(ast.getChildren().get(i));
 					}
 				}
 
 				// Prepare parameter list.
+				// TODO: generalise function parameter and return type.
 				List<Double> params = new ArrayList<Double>();
 				while (!stack.isEmpty()) {
-					params.add(stack.pop());
+					params.add(stack.pop().doubleVal());
 				}
 
 				// Apply function to parameters.
@@ -206,7 +274,7 @@ public class VeLaInterpreter {
 			int day = cal.get(Calendar.DAY_OF_MONTH);
 			double jd = AbstractDateUtil.getInstance().calendarToJD(year,
 					month, day);
-			stack.push(jd);
+			stack.push(new Operand(Type.DOUBLE, jd));
 		} else {
 			throw new IllegalArgumentException("Unknown function: " + funcName);
 		}
