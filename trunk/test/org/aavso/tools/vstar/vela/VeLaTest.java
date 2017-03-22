@@ -33,6 +33,9 @@ public class VeLaTest extends TestCase {
 	}
 
 	// Valid test cases
+	
+	// Real expressions
+	
 	public void testPositiveReal1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("12.25");
@@ -141,6 +144,20 @@ public class VeLaTest extends TestCase {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("today+2");
 		assertEquals(today()+2, result);
+	}
+
+	// Boolean expressions
+	
+	public void testDoubleEquality() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("42 = 42");
+		assertEquals(true, result);
+	}
+
+	public void testDoubleInequality() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("42 <> 4.2");
+		assertEquals(true, result);
 	}
 
 	// Invalid test cases
