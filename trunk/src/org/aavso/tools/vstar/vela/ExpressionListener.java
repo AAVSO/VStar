@@ -56,13 +56,6 @@ public class ExpressionListener extends VeLaBaseListener {
 				if (op.contains("=") || op.contains("<") || op.contains(">")) {
 					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
 				}
-//				if (op.equals("=")) {
-//					astStack.push(new AST(Operation.EQUAL, left, right));
-//				} else if (op.equals("<>")) {
-//					astStack.push(new AST(Operation.NOT_EQUAL, left, right));
-//				} else if (op.equals("<>")) {
-//					astStack.push(new AST(Operation.NOT_EQUAL, left, right));
-//				}
 			}
 		}
 	}
@@ -76,10 +69,7 @@ public class ExpressionListener extends VeLaBaseListener {
 				AST left = astStack.pop();
 				switch (op.charAt(0)) {
 				case '+':
-//					astStack.push(new AST(Operation.ADD, left, right));
-//					break;
 				case '-':
-//					astStack.push(new AST(Operation.SUB, left, right));
 					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
 					break;
 				}
@@ -96,10 +86,7 @@ public class ExpressionListener extends VeLaBaseListener {
 				AST left = astStack.pop();
 				switch (op.charAt(0)) {
 				case '*':
-//					astStack.push(new AST(Operation.MUL, left, right));
-//					break;
 				case '/':
-//					astStack.push(new AST(Operation.DIV, left, right));
 					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
 					break;
 				}

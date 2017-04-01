@@ -14,7 +14,7 @@ booleanExpression
 			| GREATER_THAN_OR_EQUAL
 			| LESS_THAN_OR_EQUAL
 		) expression
-	)* 
+	)*
 ;
 
 expression
@@ -54,39 +54,43 @@ numericFactor
 :
 	LPAREN realExpression RPAREN
 	| real
+	| var
 	| func
 ;
 
 stringExpression
 :
-	stringFactor (PLUS stringFactor)*
+	stringFactor
+	(
+		PLUS stringFactor
+	)*
 ;
 
 stringFactor
 :
-	string
+	LPAREN stringExpression LPAREN
+	| string
+	| var
 	| func
+;
+
+var
+:
+	IDENT
 ;
 
 func
 :
-	IDENT
+	IDENT LPAREN RPAREN
+	| IDENT LPAREN booleanExpression
 	(
-		LPAREN RPAREN
-	)?
-	| IDENT
-	(
-		LPAREN realExpression
-		(
-			COMMA realExpression
-		)* RPAREN
-	)?
+		COMMA booleanExpression
+	)* RPAREN
 ;
 
 // TODO: This rule needs to move to the lexer because it allows whitespace and 
 // there's also a conflict with comma here and in the real number rule (may be 
 // able to handle this via a non-greedy directive)
-
 real
 :
 	DIGIT+
@@ -105,7 +109,6 @@ real
 // TODO: should be in lexer; this avoids [Ee] being treated as a subset of 
 // LETTER, such that it would never be matched; unsatisfying! There must be 
 // a better approach
-
 exponentIndicator
 :
 	'E'
@@ -196,11 +199,6 @@ COMMA
 	','
 ;
 
-//QUOTE
-//:
-//	'\''
-//;
-
 DIGIT
 :
 	[0-9]
@@ -232,7 +230,10 @@ IDENT
 
 STRING
 :
-	'"' ( ~'"' | '""' )* '"'
+	'"'
+	(
+		~'"'
+	)* '"'
 ;
 
 WS
