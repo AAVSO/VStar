@@ -146,18 +146,73 @@ public class VeLaTest extends TestCase {
 		assertEquals(today()+2, result);
 	}
 
-	// Boolean expressions
+	// Relational expressions
 	
-	public void testDoubleEquality() {
+	public void testRealEquality() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		boolean result = vela.booleanExpression("42 = 42");
-		assertEquals(true, result);
+		assertTrue(result);
 	}
 
-	public void testDoubleInequality() {
+	public void testRealInequality() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		boolean result = vela.booleanExpression("42 <> 4.2");
-		assertEquals(true, result);
+		assertTrue(result);
+	}
+
+	public void testRealGreaterThan() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("42 > 4.2");
+		assertTrue(result);
+	}
+
+	public void testRealLessThan() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("4.22 < 42");
+		assertTrue(result);
+	}
+
+	public void testRealGreaterThanOrEqual1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("42 >= 4.2");
+		assertTrue(result);
+	}
+
+	public void testRealGreaterThanOrEqual2() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("42 >= 42");
+		assertTrue(result);
+	}
+
+	public void testRealLessThanOrEqual1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("4.2 <= 42");
+		assertTrue(result);
+	}
+
+	public void testRealLessThanOrEqual2() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("42 <= 42");
+		assertTrue(result);
+	}
+
+
+	public void testRealAdditionAndEquality() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("1+2 = 3");
+		assertTrue(result);
+	}
+
+	public void testStringAdditionAndEquality1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("\"foo\" <> \"foobar\"", true);
+		assertTrue(result);
+	}
+
+	public void testStringAdditionAndEquality2() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("\"foo\"+\"bar\" = \"foobar\"", true);
+		assertTrue(result);
 	}
 
 	// Invalid test cases
