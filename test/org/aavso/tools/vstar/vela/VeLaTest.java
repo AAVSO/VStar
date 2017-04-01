@@ -130,7 +130,7 @@ public class VeLaTest extends TestCase {
 
 	public void testFuncParameterless2() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		double result = vela.realExpression("today");
+		double result = vela.realExpression("today()");
 		assertEquals(today(), result);
 	}
 
@@ -142,7 +142,7 @@ public class VeLaTest extends TestCase {
 
 	public void testFuncParameterlessAsSubexpression() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		double result = vela.realExpression("today+2");
+		double result = vela.realExpression("today()+2");
 		assertEquals(today()+2, result);
 	}
 
@@ -205,13 +205,13 @@ public class VeLaTest extends TestCase {
 
 	public void testStringAdditionAndEquality1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		boolean result = vela.booleanExpression("\"foo\" <> \"foobar\"", true);
+		boolean result = vela.booleanExpression("\"foo\" <> \"foobar\"");
 		assertTrue(result);
 	}
 
 	public void testStringAdditionAndEquality2() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		boolean result = vela.booleanExpression("\"foo\"+\"bar\" = \"foobar\"", true);
+		boolean result = vela.booleanExpression("\"foo\"+\"bar\" = \"foobar\"");
 		assertTrue(result);
 	}
 
