@@ -24,6 +24,8 @@ import org.aavso.tools.vstar.vela.VeLaParser.FuncContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
+import org.aavso.tools.vstar.vela.VeLaParser.StringExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
 
 /**
@@ -51,11 +53,16 @@ public class ExpressionListener extends VeLaBaseListener {
 			if (ctx.getChild(i).getChildCount() == 0) {
 				AST right = astStack.pop();
 				AST left = astStack.pop();
-				if (op.equals("=")) {
-					astStack.push(new AST(Operation.EQUAL, left, right));
-				} else if (op.equals("<>")) {
-					astStack.push(new AST(Operation.NOT_EQUAL, left, right));
+				if (op.contains("=") || op.contains("<") || op.contains(">")) {
+					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
 				}
+//				if (op.equals("=")) {
+//					astStack.push(new AST(Operation.EQUAL, left, right));
+//				} else if (op.equals("<>")) {
+//					astStack.push(new AST(Operation.NOT_EQUAL, left, right));
+//				} else if (op.equals("<>")) {
+//					astStack.push(new AST(Operation.NOT_EQUAL, left, right));
+//				}
 			}
 		}
 	}
@@ -69,10 +76,11 @@ public class ExpressionListener extends VeLaBaseListener {
 				AST left = astStack.pop();
 				switch (op.charAt(0)) {
 				case '+':
-					astStack.push(new AST(Operation.ADD, left, right));
-					break;
+//					astStack.push(new AST(Operation.ADD, left, right));
+//					break;
 				case '-':
-					astStack.push(new AST(Operation.SUB, left, right));
+//					astStack.push(new AST(Operation.SUB, left, right));
+					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
 					break;
 				}
 			}
@@ -88,10 +96,11 @@ public class ExpressionListener extends VeLaBaseListener {
 				AST left = astStack.pop();
 				switch (op.charAt(0)) {
 				case '*':
-					astStack.push(new AST(Operation.MUL, left, right));
-					break;
+//					astStack.push(new AST(Operation.MUL, left, right));
+//					break;
 				case '/':
-					astStack.push(new AST(Operation.DIV, left, right));
+//					astStack.push(new AST(Operation.DIV, left, right));
+					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
 					break;
 				}
 			}
@@ -112,6 +121,22 @@ public class ExpressionListener extends VeLaBaseListener {
 	}
 
 	@Override
+	public void exitStringExpression(StringExpressionContext ctx) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			String op = ctx.getChild(i).getText();
+			if (ctx.getChild(i).getChildCount() == 0) {
+				AST right = astStack.pop();
+				AST left = astStack.pop();
+				switch (op.charAt(0)) {
+				case '+':
+					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
+					break;
+				}
+			}
+		}
+	}
+
+	@Override
 	public void exitFunc(FuncContext ctx) {
 		String func = ctx.getChild(0).getText();
 		AST ast = new AST(func, Operation.FUNCTION);
@@ -123,6 +148,11 @@ public class ExpressionListener extends VeLaBaseListener {
 
 	@Override
 	public void exitReal(RealContext ctx) {
-		astStack.push(new AST(ctx.getText()));
+		astStack.push(new AST(ctx.getText(), Type.DOUBLE));
+	}
+
+	@Override
+	public void exitString(StringContext ctx) {
+		astStack.push(new AST(ctx.getText().replace("\"", ""), Type.STRING));
 	}
 }
