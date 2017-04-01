@@ -28,29 +28,34 @@ import java.util.List;
 public class AST {
 
 	private String token;
+	private Type literalType;
 	private Operation op;
 	private List<AST> children;
 
 	public AST() {
 		token = null;
+		literalType = null;
 		op = null;
 		children = null;
 	}
 
-	public AST(String token) {
+	public AST(String token, Type literalType) {
 		this.token = token;
+		this.literalType = literalType;
 		op = null;
 		children = null;
 	}
 
 	public AST(Operation op, AST child) {
 		token = op.token();
+		literalType = null;
 		this.op = op;
 		addChild(child);
 	}
 
 	public AST(String token, Operation op) {
 		this.token = token;
+		literalType = null;
 		this.op = op;
 	}
 
@@ -61,6 +66,7 @@ public class AST {
 	public AST(String token, Operation op, AST left, AST right) {
 		this.token = token;
 		this.op = op;
+		literalType = null;
 		addChild(left);
 		addChild(right);
 	}
@@ -79,6 +85,10 @@ public class AST {
 		}
 
 		children.add(child);
+	}
+
+	public Type getLiteralType() {
+		return literalType;
 	}
 
 	public List<AST> getChildren() {

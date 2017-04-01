@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
 /**
  * VeLa: VStar expression Language
  *
@@ -52,10 +54,31 @@ public class Operand {
 	}
 
 	/**
+	 * @param type the type to set
+	 */
+	public void setType(Type type) {
+		this.type = type;
+	}
+
+	/**
+	 * @param doubleVal the doubleVal to set
+	 */
+	public void setDoubleVal(double doubleVal) {
+		this.doubleVal = doubleVal;
+	}
+
+	/**
 	 * @return the doubleVal
 	 */
 	public double doubleVal() {
 		return doubleVal;
+	}
+
+	/**
+	 * @param stringVal the stringVal to set
+	 */
+	public void setStringVal(String stringVal) {
+		this.stringVal = stringVal;
 	}
 
 	/**
@@ -66,9 +89,83 @@ public class Operand {
 	}
 
 	/**
+	 * @param booleanVal the booleanVal to set
+	 */
+	public void setBooleanVal(boolean booleanVal) {
+		this.booleanVal = booleanVal;
+	}
+
+	/**
 	 * @return the booleanVal
 	 */
 	public boolean booleanVal() {
 		return booleanVal;
+	}
+
+	@Override
+	public String toString() {
+		String str = "";
+		
+		switch(type) {
+		case STRING:
+			str = stringVal;
+			break;
+		case DOUBLE:
+			str = NumericPrecisionPrefs.formatOther(doubleVal);
+			break;
+		case BOOLEAN:
+			str = Boolean.toString(booleanVal);
+			break;
+		}
+		
+		str += " (" + type + ")";
+		
+		return str;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (booleanVal ? 1231 : 1237);
+		long temp;
+		temp = Double.doubleToLongBits(doubleVal);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result
+				+ ((stringVal == null) ? 0 : stringVal.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof Operand)) {
+			return false;
+		}
+		Operand other = (Operand) obj;
+		if (booleanVal != other.booleanVal) {
+			return false;
+		}
+		if (Double.doubleToLongBits(doubleVal) != Double
+				.doubleToLongBits(other.doubleVal)) {
+			return false;
+		}
+		if (stringVal == null) {
+			if (other.stringVal != null) {
+				return false;
+			}
+		} else if (!stringVal.equals(other.stringVal)) {
+			return false;
+		}
+		if (type != other.type) {
+			return false;
+		}
+		return true;
 	}
 }

@@ -17,6 +17,9 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * VeLa: VStar expression Language
  *
@@ -25,10 +28,26 @@ package org.aavso.tools.vstar.vela;
 public enum Operation {
 
 	ADD("+", 2), SUB("-", 2), NEG("-", 1), MUL("*", 2), DIV("/", 2), EQUAL("=",
-			2), NOT_EQUAL("<>", 2), FUNCTION("func");
+			2), NOT_EQUAL("<>", 2), GREATER_THAN(">", 2), LESS_THAN("<", 2), GREATER_THAN_OR_EQUAL(
+			">=", 2), LESS_THAN_OR_EQUAL("<=", 2), FUNCTION("func");
 
 	private String symbol;
 	private int arity;
+
+	private static Map<String, Operation> symbolToBinaryOp;
+
+	static {
+		symbolToBinaryOp = new HashMap<String, Operation>();
+		for (Operation op : values()) {
+			if (op.arity == 2) {
+				symbolToBinaryOp.put(op.symbol, op);
+			}
+		}
+	}
+
+	public static Operation getBinaryOp(String token) {
+		return symbolToBinaryOp.get(token);
+	}
 
 	private Operation(String symbol, int arity) {
 		this.symbol = symbol;
@@ -37,10 +56,6 @@ public enum Operation {
 
 	private Operation(String symbol) {
 		this(symbol, 0);
-	}
-
-	private Operation() {
-		this("", 0);
 	}
 
 	public String token() {
