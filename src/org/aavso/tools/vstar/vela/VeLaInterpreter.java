@@ -21,6 +21,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -44,16 +45,28 @@ public class VeLaInterpreter {
 	// - use a Deque implementation for stack (forgot why was I considering
 	// that)
 	private Stack<Operand> stack;
+	private Map<String, Operand> environment;
 
 	// AST and result caches.
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
-	private static Map<String, Double> exprToRealResult = new HashMap<String, Double>();
+	private static Map<String, Operand> exprToResult = new HashMap<String, Operand>();
 
 	private VeLaErrorListener errorListener;
 
-	public VeLaInterpreter() {
+	public VeLaInterpreter(Map<String, Operand> environment) {
 		errorListener = new VeLaErrorListener();
+
 		stack = new Stack<Operand>();
+
+		if (environment != null) {
+			this.environment = environment;
+		} else {
+			this.environment = Collections.emptyMap();
+		}
+	}
+
+	public VeLaInterpreter() {
+		this(null);
 	}
 
 	/**
@@ -120,9 +133,9 @@ public class VeLaInterpreter {
 
 		double result;
 
-		if (ast.isDeterministic() && exprToRealResult.containsKey(expr)) {
+		if (ast.isDeterministic() && exprToResult.containsKey(expr)) {
 			// For deterministic expressions, we can also use cached results.
-			result = exprToRealResult.get(expr);
+			result = exprToResult.get(expr).doubleVal();
 			if (verbose) {
 				System.out.println(String.format(
 						"Result for AST '%s' in cache: %f", ast, result));
@@ -131,7 +144,7 @@ public class VeLaInterpreter {
 			// Evaluate the abstract syntax tree and cache the result.
 			eval(ast);
 			result = stack.pop().doubleVal();
-			exprToRealResult.put(expr, result);
+			exprToResult.put(expr, new Operand(Type.DOUBLE, result));
 		}
 
 		return result;
@@ -210,9 +223,12 @@ public class VeLaInterpreter {
 	 * 
 	 * @param ast
 	 *            The abstract syntax tree.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
 	 */
-	private void eval(AST ast) {
-		if (ast.isLeaf() && ast.getOp() != Operation.FUNCTION) {
+	private void eval(AST ast) throws VeLaEvalError {
+		if (ast.isLeaf() && ast.getOp() != Operation.FUNCTION
+				&& ast.getOp() != Operation.VARIABLE) {
 			switch (ast.getLiteralType()) {
 			case DOUBLE:
 				stack.push(new Operand(Type.DOUBLE, parseDouble(ast.getToken())));
@@ -245,6 +261,16 @@ public class VeLaInterpreter {
 				default:
 					break;
 				}
+			} else if (ast.getOp() == Operation.VARIABLE) {
+				// Look up variable in the environment, pushing it on the stack
+				// if it exists, throwing an exception if not.
+				String varName = ast.getToken().toLowerCase();
+				if (environment.containsKey(varName)) {
+					stack.push(environment.get(varName));
+				} else {
+					throw new VeLaEvalError("Unknown variable: "
+							+ ast.getToken());
+				}
 			} else if (ast.getOp() == Operation.FUNCTION) {
 				// Evaluate parameters, if any.
 				if (ast.getChildren() != null) {
@@ -263,6 +289,51 @@ public class VeLaInterpreter {
 				// Apply function to parameters.
 				applyFunction(ast.getToken(), params);
 			}
+		}
+	}
+
+	/**
+	 * Unify operand types by converting both operands to strings if only one is
+	 * a string.
+	 * 
+	 * @param a
+	 *            The first operand.
+	 * @param b
+	 *            The second operand.
+	 * @return The final type of the unified operands.
+	 */
+	private Type unifyTypes(Operand a, Operand b) {
+		Type type = a.getType();
+
+		if (a.getType() != Type.STRING && b.getType() == Type.STRING) {
+			convertToString(a);
+		} else if (a.getType() == Type.STRING && b.getType() != Type.STRING) {
+			convertToString(b);
+		}
+
+		return type;
+	}
+
+	/**
+	 * Convert the specified operand to a string.
+	 * 
+	 * @param o
+	 *            The operand to be converted to a string.
+	 */
+	private void convertToString(Operand o) {
+		assert o.getType() != Type.STRING;
+
+		switch (o.getType()) {
+		case DOUBLE:
+			o.setStringVal(NumericPrecisionPrefs.formatOther(o.doubleVal()));
+			o.setType(Type.STRING);
+			break;
+		case BOOLEAN:
+			o.setStringVal(Boolean.toString(o.booleanVal()));
+			o.setType(Type.STRING);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -299,7 +370,15 @@ public class VeLaInterpreter {
 			stack.push(new Operand(Type.DOUBLE, n1.doubleVal() * n2.doubleVal()));
 			break;
 		case DIV:
-			stack.push(new Operand(Type.DOUBLE, n1.doubleVal() / n2.doubleVal()));
+
+			Double result = n1.doubleVal() / n2.doubleVal();
+			if (!result.isInfinite()) {
+				stack.push(new Operand(Type.DOUBLE, result));
+			} else {
+				throw new VeLaEvalError(String.format(
+						"%s/%s: division by zero error", n1.doubleVal(),
+						n2.doubleVal()));
+			}
 			break;
 		case EQUAL:
 			switch (type) {
@@ -385,51 +464,6 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Unify operand types by converting both operands to strings if only one is
-	 * a string.
-	 * 
-	 * @param a
-	 *            The first operand.
-	 * @param b
-	 *            The second operand.
-	 * @return The final type of the unified operands.
-	 */
-	private Type unifyTypes(Operand a, Operand b) {
-		Type type = a.getType();
-
-		if (a.getType() != Type.STRING && b.getType() == Type.STRING) {
-			convertToString(a);
-		} else if (a.getType() == Type.STRING && b.getType() != Type.STRING) {
-			convertToString(b);
-		}
-
-		return type;
-	}
-
-	/**
-	 * Convert the specified operand to a string.
-	 * 
-	 * @param o
-	 *            The operand to be converted to a string.
-	 */
-	private void convertToString(Operand o) {
-		assert o.getType() != Type.STRING;
-
-		switch (o.getType()) {
-		case DOUBLE:
-			o.setStringVal(NumericPrecisionPrefs.formatOther(o.doubleVal()));
-			o.setType(Type.STRING);
-			break;
-		case BOOLEAN:
-			o.setStringVal(Boolean.toString(o.booleanVal()));
-			o.setType(Type.STRING);
-			break;
-		default:
-			break;
-		}
-	}
-
-	/**
 	 * Apply the function to the supplied parameter list, leaving the result on
 	 * the stack.
 	 * 
@@ -437,9 +471,15 @@ public class VeLaInterpreter {
 	 *            The name of the function.
 	 * @param params
 	 *            The parameter list.
+	 * @throws VeLaEvalError
+	 *             If a function evaluation error occurs.
 	 */
-	private void applyFunction(String funcName, List<Operand> params) {
-		if (funcName.equals("today")) {
+	private void applyFunction(String funcName, List<Operand> params)
+			throws VeLaEvalError {
+		String canonicalFuncName = funcName.toLowerCase();
+
+		// TODO: create function executor objects (Strategy pattern)
+		if (canonicalFuncName.equals("today")) {
 			Calendar cal = Calendar.getInstance();
 			int year = cal.get(Calendar.YEAR);
 			int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
@@ -448,7 +488,7 @@ public class VeLaInterpreter {
 					month, day);
 			stack.push(new Operand(Type.DOUBLE, jd));
 		} else {
-			throw new IllegalArgumentException("Unknown function: " + funcName);
+			throw new VeLaEvalError("Unknown function: " + funcName);
 		}
 	}
 

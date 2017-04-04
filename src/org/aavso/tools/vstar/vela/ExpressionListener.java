@@ -27,6 +27,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.RealExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.VarContext;
 
 /**
  * VeLa: VStar expression Language interpreter
@@ -36,7 +37,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
 public class ExpressionListener extends VeLaBaseListener {
 
 	private Stack<AST> astStack;
-
+	
 	public ExpressionListener() {
 		astStack = new Stack<AST>();
 	}
@@ -127,9 +128,13 @@ public class ExpressionListener extends VeLaBaseListener {
 	public void exitFunc(FuncContext ctx) {
 		String func = ctx.getChild(0).getText();
 		AST ast = new AST(func, Operation.FUNCTION);
-		// TODO: Also need to lookup function name; in interp or here? Static vs
-		// dynamic; make lower case canonical and convert func name to this,
-		// allowing VeLa to be case insensitive
+		astStack.push(ast);
+	}
+
+	@Override
+	public void exitVar(VarContext ctx) {
+		String func = ctx.getChild(0).getText();
+		AST ast = new AST(func, Operation.VARIABLE);
 		astStack.push(ast);
 	}
 
