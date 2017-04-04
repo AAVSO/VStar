@@ -34,6 +34,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 /**
@@ -41,9 +42,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
  */
 public class VeLaInterpreter {
 
-	// TODO:
-	// - use a Deque implementation for stack (forgot why was I considering
-	// that)
 	private Stack<Operand> stack;
 	private Map<String, Operand> environment;
 
@@ -67,6 +65,59 @@ public class VeLaInterpreter {
 
 	public VeLaInterpreter() {
 		this(null);
+	}
+
+	/**
+	 * Generic expression evaluation entry point.
+	 * 
+	 * @param expr
+	 *            The expression string to be interpreted.
+	 * @param verbose
+	 *            Whether to output information messages.
+	 * @return A result of the specified type.
+	 * @throws VeLaParseError
+	 *             If a parse error occurs.
+	 */
+	public Operand expression(String expr, ParserRuleContext tree,
+			boolean verbose) throws VeLaParseError {
+
+		AST ast = null;
+
+		// We cache abstract syntax trees by expression to improve performance.
+		if (exprToAST.containsKey(expr)) {
+			ast = exprToAST.get(expr);
+			if (verbose) {
+				System.out.println(String.format("AST in cache: %s", ast));
+			}
+		} else {
+			ExpressionListener listener = new ExpressionListener();
+			ParseTreeWalker.DEFAULT.walk(listener, tree);
+
+			ast = listener.getAST();
+			exprToAST.put(expr, ast);
+		}
+
+		if (verbose) {
+			System.out.println(ast);
+		}
+
+		Operand result;
+
+		if (ast.isDeterministic() && exprToResult.containsKey(expr)) {
+			// For deterministic expressions, we can also use cached results.
+			result = exprToResult.get(expr);
+			if (verbose) {
+				System.out.println(String.format(
+						"Result for AST '%s' in cache: %f", ast, result));
+			}
+		} else {
+			// Evaluate the abstract syntax tree and cache the result.
+			eval(ast);
+			result = stack.pop();
+			exprToResult.put(expr, result);
+		}
+
+		return result;
 	}
 
 	/**
@@ -96,58 +147,9 @@ public class VeLaInterpreter {
 	public double realExpression(String expr, boolean verbose)
 			throws VeLaParseError {
 
-		AST ast = null;
-
-		// TODO: refactor
-
-		// We cache abstract syntax trees by expression to improve performance.
-		if (exprToAST.containsKey(expr)) {
-			ast = exprToAST.get(expr);
-			if (verbose) {
-				System.out.println(String.format("AST in cache: %s", ast));
-			}
-		} else {
-			CharStream stream = new ANTLRInputStream(expr);
-
-			VeLaLexer lexer = new VeLaLexer(stream);
-			lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
-			lexer.addErrorListener(errorListener);
-
-			CommonTokenStream tokens = new CommonTokenStream(lexer);
-
-			VeLaParser parser = new VeLaParser(tokens);
-			parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-			parser.addErrorListener(errorListener);
-
-			VeLaParser.RealExpressionContext tree = parser.realExpression();
-			ExpressionListener listener = new ExpressionListener();
-			ParseTreeWalker.DEFAULT.walk(listener, tree);
-
-			ast = listener.getAST();
-			exprToAST.put(expr, ast);
-		}
-
-		if (verbose) {
-			System.out.println(ast);
-		}
-
-		double result;
-
-		if (ast.isDeterministic() && exprToResult.containsKey(expr)) {
-			// For deterministic expressions, we can also use cached results.
-			result = exprToResult.get(expr).doubleVal();
-			if (verbose) {
-				System.out.println(String.format(
-						"Result for AST '%s' in cache: %f", ast, result));
-			}
-		} else {
-			// Evaluate the abstract syntax tree and cache the result.
-			eval(ast);
-			result = stack.pop().doubleVal();
-			exprToResult.put(expr, new Operand(Type.DOUBLE, result));
-		}
-
-		return result;
+		VeLaParser.RealExpressionContext tree = getParser(expr)
+				.realExpression();
+		return expression(expr, tree, verbose).doubleVal();
 	}
 
 	/**
@@ -178,10 +180,21 @@ public class VeLaInterpreter {
 	public boolean booleanExpression(String expr, boolean verbose)
 			throws VeLaParseError {
 
-		// TODO: refactor
+		VeLaParser.BooleanExpressionContext tree = getParser(expr)
+				.booleanExpression();
+		return expression(expr, tree, verbose).booleanVal();
+	}
 
-		AST ast = null;
+	// Helpers
 
+	/**
+	 * Given an expression string, return a VeLa parser object.
+	 * 
+	 * @param expr
+	 *            The expression string.
+	 * @return The parser object.
+	 */
+	private VeLaParser getParser(String expr) {
 		CharStream stream = new ANTLRInputStream(expr);
 
 		VeLaLexer lexer = new VeLaLexer(stream);
@@ -190,26 +203,7 @@ public class VeLaInterpreter {
 
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-		VeLaParser parser = new VeLaParser(tokens);
-		parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
-		parser.addErrorListener(errorListener);
-
-		VeLaParser.BooleanExpressionContext tree = parser.booleanExpression();
-		ExpressionListener listener = new ExpressionListener();
-		ParseTreeWalker.DEFAULT.walk(listener, tree);
-
-		ast = listener.getAST();
-		// exprToAST.put(expr, ast);
-
-		if (verbose) {
-			System.out.println(ast);
-		}
-
-		// TODO: consider caching as for real expressions
-		eval(ast);
-		boolean result = stack.pop().booleanVal();
-
-		return result;
+		return new VeLaParser(tokens);
 	}
 
 	/**

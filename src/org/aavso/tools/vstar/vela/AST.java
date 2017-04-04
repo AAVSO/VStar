@@ -122,15 +122,17 @@ public class AST {
 	 * </p>
 	 * 
 	 * <p>
-	 * If the operation a is function then the answer must be no, either because
-	 * a parameterless function itself is not deterministic or because the
-	 * result will vary according to input.
+	 * If the operation a is function or variable then the answer must be no,
+	 * either because a parameterless function itself is not deterministic or
+	 * because the result will vary according to input or because a variable's
+	 * value can change over time.
 	 * </p>
 	 * 
 	 * @return True if so, otherwise False.
 	 */
 	public boolean isDeterministic() {
-		boolean deterministic = op != Operation.FUNCTION;
+		boolean deterministic = op != Operation.FUNCTION
+				&& op != Operation.VARIABLE;
 
 		if (deterministic && !isLeaf()) {
 			for (AST child : children) {
