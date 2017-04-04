@@ -18,10 +18,12 @@
 package org.aavso.tools.vstar.vela;
 
 import java.util.Calendar;
-
-import org.aavso.tools.vstar.util.date.AbstractDateUtil;
+import java.util.HashMap;
+import java.util.Map;
 
 import junit.framework.TestCase;
+
+import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
 /**
  * This class contains unit tests for VeLa: VStar expression language.
@@ -33,9 +35,9 @@ public class VeLaTest extends TestCase {
 	}
 
 	// Valid test cases
-	
+
 	// Real expressions
-	
+
 	public void testPositiveReal1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("12.25");
@@ -137,17 +139,17 @@ public class VeLaTest extends TestCase {
 	public void testFuncParameterlessAsSubexpression1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("today()+2");
-		assertEquals(today()+2, result);
+		assertEquals(today() + 2, result);
 	}
 
 	public void testFuncParameterlessAsSubexpression() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("today()+2");
-		assertEquals(today()+2, result);
+		assertEquals(today() + 2, result);
 	}
 
 	// Relational expressions
-	
+
 	public void testRealEquality() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		boolean result = vela.booleanExpression("42 = 42");
@@ -196,7 +198,6 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
-
 	public void testRealAdditionAndEquality() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		boolean result = vela.booleanExpression("1+2 = 3");
@@ -215,6 +216,16 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
+	// Variables
+
+	public void testVariable1() {
+		Map<String, Operand> environment = new HashMap<String, Operand>();
+		environment.put("meaning_of_life", new Operand(Type.DOUBLE, 42));
+		VeLaInterpreter vela = new VeLaInterpreter(environment);
+		boolean result = vela.booleanExpression("meaning_of_life = 42");
+		assertTrue(result);
+	}
+
 	// Invalid test cases
 
 	public void testAmpersand() {
@@ -226,6 +237,16 @@ public class VeLaTest extends TestCase {
 			assertEquals("token recognition error at: '&'", e.getMessage());
 			assertEquals(1, e.getLineNum());
 			assertEquals(10, e.getCharPos());
+		}
+	}
+
+	public void testDivisionByZero() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		try {
+			vela.realExpression("42/0");
+			fail();
+		} catch (VeLaEvalError e) {
+			assertEquals(e.getMessage(), "42.0/0.0: division by zero error");
 		}
 	}
 
