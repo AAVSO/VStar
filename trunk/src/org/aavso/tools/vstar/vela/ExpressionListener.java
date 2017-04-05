@@ -20,10 +20,13 @@ package org.aavso.tools.vstar.vela;
 import java.util.Stack;
 
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.DisjunctiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncContext;
+import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
@@ -49,6 +52,48 @@ public class ExpressionListener extends VeLaBaseListener {
 
 	@Override
 	public void exitBooleanExpression(BooleanExpressionContext ctx) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			String op = ctx.getChild(i).getText();
+			if (ctx.getChild(i).getChildCount() == 0) {
+				AST right = astStack.pop();
+				AST left = astStack.pop();
+				if (op.equalsIgnoreCase("and")) {
+					astStack.push(new AST(Operation.AND, left, right));
+				}
+			}
+		}
+	}
+
+	@Override
+	public void exitDisjunctiveExpression(DisjunctiveExpressionContext ctx) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			String op = ctx.getChild(i).getText();
+			if (ctx.getChild(i).getChildCount() == 0) {
+				AST right = astStack.pop();
+				AST left = astStack.pop();
+				if (op.equalsIgnoreCase("or")) {
+					astStack.push(new AST(Operation.OR, left, right));
+				}
+			}
+		}
+	}
+
+	@Override
+	public void exitLogicalNegationExpression(
+			LogicalNegationExpressionContext ctx) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			String op = ctx.getChild(i).getText();
+			if (ctx.getChild(i).getChildCount() == 1) {
+				if (op.equalsIgnoreCase("not")) {
+					AST child = astStack.pop();
+					astStack.push(new AST(Operation.NOT, child));
+				}
+			}
+		}
+	}
+
+	@Override
+	public void exitRelationalExpression(RelationalExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
 			String op = ctx.getChild(i).getText();
 			if (ctx.getChild(i).getChildCount() == 0) {

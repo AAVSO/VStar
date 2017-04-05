@@ -4,7 +4,28 @@ grammar VeLa;
 
 booleanExpression
 :
-	expression
+	disjunctiveExpression
+	(
+		AND disjunctiveExpression
+	)*
+;
+
+disjunctiveExpression
+:
+	logicalNegationExpression
+	(
+		OR logicalNegationExpression
+	)*
+;
+
+logicalNegationExpression
+:
+	NOT? relationalExpression
+;
+
+relationalExpression
+:
+	groupedBooleanExpression
 	(
 		(
 			EQUAL
@@ -13,8 +34,14 @@ booleanExpression
 			| LESS_THAN
 			| GREATER_THAN_OR_EQUAL
 			| LESS_THAN_OR_EQUAL
-		) expression
+		) groupedBooleanExpression
 	)*
+;
+
+groupedBooleanExpression
+:
+	LPAREN booleanExpression RPAREN
+	| expression
 ;
 
 expression
@@ -68,8 +95,7 @@ stringExpression
 
 stringFactor
 :
-	LPAREN stringExpression LPAREN
-	| string
+	string
 	| var
 	| func
 ;
@@ -90,7 +116,9 @@ func
 
 // TODO: This rule needs to move to the lexer because it allows whitespace and 
 // there's also a conflict with comma here and in the real number rule (may be 
-// able to handle this via a non-greedy directive)
+// able to handle this via a non-greedy directive); hmm... whitespace in numbers
+// may be a nice side effect!
+
 real
 :
 	DIGIT+
@@ -109,6 +137,7 @@ real
 // TODO: should be in lexer; this avoids [Ee] being treated as a subset of 
 // LETTER, such that it would never be matched; unsatisfying! There must be 
 // a better approach
+
 exponentIndicator
 :
 	'E'
@@ -197,6 +226,24 @@ POINT
 COMMA
 :
 	','
+;
+
+AND
+:
+	'AND'
+	| 'and'
+;
+
+OR
+:
+	'OR'
+	| 'or'
+;
+
+NOT
+:
+	'NOT'
+	| 'not'
 ;
 
 DIGIT
