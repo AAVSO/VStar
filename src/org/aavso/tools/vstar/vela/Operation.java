@@ -27,14 +27,15 @@ import java.util.Map;
  */
 public enum Operation {
 
-	ADD("+", 2), SUB("-", 2), NEG("-", 1), MUL("*", 2), DIV("/", 2), EQUAL("=",
-			2), NOT_EQUAL("<>", 2), GREATER_THAN(">", 2), LESS_THAN("<", 2), GREATER_THAN_OR_EQUAL(
-			">=", 2), LESS_THAN_OR_EQUAL("<=", 2), VARIABLE("var"), FUNCTION("func");
+	ADD("+", 2), SUB("-", 2), NEG("-", 1), MUL("*", 2), DIV("/", 2), AND("and",
+			2), OR("or", 2), NOT("not", 1), EQUAL("=", 2), NOT_EQUAL("<>", 2), GREATER_THAN(
+			">", 2), LESS_THAN("<", 2), GREATER_THAN_OR_EQUAL(">=", 2), LESS_THAN_OR_EQUAL(
+			"<=", 2), VARIABLE("var"), FUNCTION("func");
 
 	private String symbol;
 	private int arity;
 
-	// Create a mapping from symbols to binary operation enumerated values for
+	// Create a mapping from symbols to binary operation values for
 	// fast lookup.
 	private static Map<String, Operation> symbolToBinaryOp;
 
@@ -48,16 +49,16 @@ public enum Operation {
 	}
 
 	public static Operation getBinaryOp(String token) {
-		return symbolToBinaryOp.get(token);
+		return symbolToBinaryOp.get(token.toLowerCase());
 	}
 
 	private Operation(String symbol, int arity) {
-		this.symbol = symbol;
+		this.symbol = symbol.toLowerCase();
 		this.arity = arity;
 	}
 
 	private Operation(String symbol) {
-		this(symbol, 0);
+		this(symbol.toLowerCase(), 0);
 	}
 
 	public String token() {

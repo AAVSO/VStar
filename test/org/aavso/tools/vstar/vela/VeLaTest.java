@@ -216,6 +216,45 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
+	// Logical connective expressions
+
+	public void testDisjunction1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("2 < 3 or 2 > 3", true);
+		assertTrue(result);
+	}
+
+	public void testConjunction1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("2 < 3 and 3 < 5", true);
+		assertTrue(result);
+	}
+
+	public void testConjunction2() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("2 < 3 and 2 > 3", true);
+		assertFalse(result);
+	}
+
+	public void testGroupedBooleanExpression1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("(2 < 3 and 3 < 5)", true);
+		assertTrue(result);
+	}
+
+	public void testGroupedBooleanExpression2() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("(2 < 3) and (3 < 5)", true);
+		assertTrue(result);
+	}
+
+	public void testGroupedBooleanExpression3() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("3 > 2 and (2 < 3 and 2 > 3)",
+				true);
+		assertFalse(result);
+	}
+
 	// Variables
 
 	public void testVariable1() {
@@ -226,7 +265,7 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
-	// Invalid test cases
+	// Error cases
 
 	public void testAmpersand() {
 		try {

@@ -67,6 +67,10 @@ public class VeLaInterpreter {
 		this(null);
 	}
 
+	public void setEnvironment(Map<String, Operand> environment) {
+		this.environment = environment;
+	}
+
 	/**
 	 * Generic expression evaluation entry point.
 	 * 
@@ -105,6 +109,7 @@ public class VeLaInterpreter {
 
 		if (ast.isDeterministic() && exprToResult.containsKey(expr)) {
 			// For deterministic expressions, we can also use cached results.
+			// Note: a better description may be constant rather than deterministic.
 			result = exprToResult.get(expr);
 			if (verbose) {
 				System.out.println(String.format(
@@ -252,6 +257,10 @@ public class VeLaInterpreter {
 					stack.push(new Operand(Type.DOUBLE, -stack.pop()
 							.doubleVal()));
 					break;
+				case NOT:
+					stack.push(new Operand(Type.BOOLEAN, !stack.pop()
+							.booleanVal()));
+					break;
 				default:
 					break;
 				}
@@ -339,50 +348,58 @@ public class VeLaInterpreter {
 	 *            The operation to be applied.
 	 */
 	private void applyBinaryOperation(Operation op) {
-		Operand n2 = stack.pop();
-		Operand n1 = stack.pop();
+		Operand operand2 = stack.pop();
+		Operand operand1 = stack.pop();
 
-		Type type = unifyTypes(n1, n2);
+		Type type = unifyTypes(operand1, operand2);
 
 		switch (op) {
 		case ADD:
 			switch (type) {
 			case DOUBLE:
-				stack.push(new Operand(Type.DOUBLE, n1.doubleVal()
-						+ n2.doubleVal()));
+				stack.push(new Operand(Type.DOUBLE, operand1.doubleVal()
+						+ operand2.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.STRING, n1.stringVal()
-						+ n2.stringVal()));
+				stack.push(new Operand(Type.STRING, operand1.stringVal()
+						+ operand2.stringVal()));
 			default:
 			}
 			break;
 		case SUB:
-			stack.push(new Operand(Type.DOUBLE, n1.doubleVal() - n2.doubleVal()));
+			stack.push(new Operand(Type.DOUBLE, operand1.doubleVal() - operand2.doubleVal()));
 			break;
 		case MUL:
-			stack.push(new Operand(Type.DOUBLE, n1.doubleVal() * n2.doubleVal()));
+			stack.push(new Operand(Type.DOUBLE, operand1.doubleVal() * operand2.doubleVal()));
 			break;
 		case DIV:
 
-			Double result = n1.doubleVal() / n2.doubleVal();
+			Double result = operand1.doubleVal() / operand2.doubleVal();
 			if (!result.isInfinite()) {
 				stack.push(new Operand(Type.DOUBLE, result));
 			} else {
 				throw new VeLaEvalError(String.format(
-						"%s/%s: division by zero error", n1.doubleVal(),
-						n2.doubleVal()));
+						"%s/%s: division by zero error", operand1.doubleVal(),
+						operand2.doubleVal()));
 			}
+			break;
+		case AND:
+			stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal()
+					& operand2.booleanVal()));
+			break;
+		case OR:
+			stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal()
+					| operand2.booleanVal()));
 			break;
 		case EQUAL:
 			switch (type) {
 			case DOUBLE:
-				stack.push(new Operand(Type.BOOLEAN, n1.doubleVal() == n2
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() == operand2
 						.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, n1.stringVal().equals(
-						n2.stringVal())));
+				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().equals(
+						operand2.stringVal())));
 				break;
 			default:
 			}
@@ -390,12 +407,12 @@ public class VeLaInterpreter {
 		case NOT_EQUAL:
 			switch (type) {
 			case DOUBLE:
-				stack.push(new Operand(Type.BOOLEAN, n1.doubleVal() != n2
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() != operand2
 						.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, !n1.stringVal().equals(
-						n2.stringVal())));
+				stack.push(new Operand(Type.BOOLEAN, !operand1.stringVal().equals(
+						operand2.stringVal())));
 				break;
 			default:
 			}
@@ -403,12 +420,12 @@ public class VeLaInterpreter {
 		case GREATER_THAN:
 			switch (type) {
 			case DOUBLE:
-				stack.push(new Operand(Type.BOOLEAN, n1.doubleVal() > n2
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() > operand2
 						.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, n1.stringVal().compareTo(
-						n2.stringVal()) > 0));
+				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(
+						operand2.stringVal()) > 0));
 				break;
 			default:
 			}
@@ -416,12 +433,12 @@ public class VeLaInterpreter {
 		case LESS_THAN:
 			switch (type) {
 			case DOUBLE:
-				stack.push(new Operand(Type.BOOLEAN, n1.doubleVal() < n2
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() < operand2
 						.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, n1.stringVal().compareTo(
-						n2.stringVal()) < 0));
+				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(
+						operand2.stringVal()) < 0));
 				break;
 			default:
 			}
@@ -429,12 +446,12 @@ public class VeLaInterpreter {
 		case GREATER_THAN_OR_EQUAL:
 			switch (type) {
 			case DOUBLE:
-				stack.push(new Operand(Type.BOOLEAN, n1.doubleVal() >= n2
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() >= operand2
 						.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, n1.stringVal().compareTo(
-						n2.stringVal()) >= 0));
+				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(
+						operand2.stringVal()) >= 0));
 				break;
 			default:
 			}
@@ -442,12 +459,12 @@ public class VeLaInterpreter {
 		case LESS_THAN_OR_EQUAL:
 			switch (type) {
 			case DOUBLE:
-				stack.push(new Operand(Type.BOOLEAN, n1.doubleVal() <= n2
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() <= operand2
 						.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, n1.stringVal().compareTo(
-						n2.stringVal()) <= 0));
+				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(
+						operand2.stringVal()) <= 0));
 				break;
 			default:
 			}
