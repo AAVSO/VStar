@@ -17,12 +17,18 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
 /**
@@ -34,7 +40,7 @@ public class VeLaTest extends TestCase {
 		super(name);
 	}
 
-	// Valid test cases
+	// ** Valid test cases **
 
 	// Real expressions
 
@@ -265,7 +271,23 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
-	// Error cases
+	// Filter test cases
+
+	public void testVeLaBooleanExpressionsAsFilters() {
+		List<ValidObservation> obs = commonObs();
+		String expr;
+		
+		expr = "uncertainty >= 0.1";
+		assertEquals(2, filterObs(expr, obs).size());
+
+		expr = "uncertainty > 0.01 and uncertainty < 0.03";
+		assertEquals(1, filterObs(expr, obs).size());
+
+		expr = "magnitude > 12 and (uncertainty > 0 and uncertainty <= 0.01)";
+		assertEquals(1, filterObs(expr, obs).size());
+	}
+
+	// ** Error cases **
 
 	public void testAmpersand() {
 		try {
@@ -297,5 +319,62 @@ public class VeLaTest extends TestCase {
 		int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
 		int day = cal.get(Calendar.DAY_OF_MONTH);
 		return AbstractDateUtil.getInstance().calendarToJD(year, month, day);
+	}
+
+	private List<ValidObservation> commonObs() {
+		List<ValidObservation> obs = new ArrayList<ValidObservation>();
+
+		ValidObservation ob = new ValidObservation();
+		ob.setMagnitude(new Magnitude(12, 0.1));
+		ob.setDateInfo(new DateInfo(2457849.1));
+		ob.setBand(SeriesType.Visual);
+		obs.add(ob);
+
+		ob = new ValidObservation();
+		ob.setMagnitude(new Magnitude(12.02, 0.01));
+		ob.setDateInfo(new DateInfo(2457849.1));
+		ob.setBand(SeriesType.Johnson_V);
+		obs.add(ob);
+
+		ob = new ValidObservation();
+		ob.setMagnitude(new Magnitude(11, 0.1));
+		ob.setDateInfo(new DateInfo(2457849.2));
+		ob.setBand(SeriesType.Visual);
+		obs.add(ob);
+
+		ob = new ValidObservation();
+		ob.setMagnitude(new Magnitude(11.05, 0.02));
+		ob.setDateInfo(new DateInfo(2457849.2));
+		ob.setBand(SeriesType.Johnson_V);
+		obs.add(ob);
+
+		return obs;
+	}
+
+	private List<ValidObservation> filterObs(String velaFilterExpr,
+			List<ValidObservation> obs) {
+
+		VeLaInterpreter vela = new VeLaInterpreter();
+
+		List<ValidObservation> filteredObs = new ArrayList<ValidObservation>();
+
+		for (ValidObservation ob : obs) {
+			Map<String, Operand> environment = new HashMap<String, Operand>();
+
+			environment.put("time", new Operand(Type.DOUBLE, ob.getJD()));
+			environment.put("magnitude", new Operand(Type.DOUBLE, ob.getMag()));
+			environment.put("uncertainty", new Operand(Type.DOUBLE, ob
+					.getMagnitude().getUncertainty()));
+			environment.put("band", new Operand(Type.STRING, ob.getBand()
+					.getShortName()));
+
+			vela.setEnvironment(environment);
+
+			if (vela.booleanExpression(velaFilterExpr, true)) {
+				filteredObs.add(ob);
+			}
+		}
+
+		return filteredObs;
 	}
 }
