@@ -50,7 +50,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * This dialog permits the user to specify a conjunctive filter, i.e. a set of
- * sub-filters each of which must be true (i.e. provide an match) for the
+ * sub-filters each of which must be true (i.e. provide a match) for the
  * overall filter to be true (i.e. match). The result of applying a filter is
  * that some subset of the current observations will be captured in a collection
  * and a message sent.
@@ -94,7 +94,7 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		topPane.add(createNamePane());
-		topPane.add(createFiltersPane());
+		topPane.add(createFilterPane());
 		topPane.add(createButtonPane());
 
 		contentPane.add(topPane);
@@ -123,7 +123,7 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 		return panel;
 	}
 
-	private JPanel createFiltersPane() {
+	private JPanel createFilterPane() {
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));

@@ -27,6 +27,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.resources.LoginInfo;
+import org.aavso.tools.vstar.util.Pair;
 
 /**
  * <p>
@@ -34,8 +35,8 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
  * </p>
  * 
  * <p>
- * A Custom Filter plugin will appear in VStar's View -> Custom Filters sub-menu
- * when its jar file is placed into the vstar_plugins directory.
+ * A Custom Filter plugin will appear in VStar's View menu when its jar file is
+ * placed into the vstar_plugins directory.
  * </p>
  * 
  * @see org.aavso.tools.vstar.plugin.IPlugin
@@ -49,14 +50,16 @@ abstract public class CustomFilterPluginBase implements IPlugin {
 
 	/**
 	 * <p>
-	 * Given a list of observations, return an ordered subset as the result of a
-	 * custom filtering operation.
+	 * Filter a list of observation returning a filter name and string
+	 * representation.
 	 * </p>
 	 * 
 	 * @param obs
 	 *            A list of currently loaded observations.
+	 * @return A pair containing a filter name and a string representation of
+	 *         the filter.
 	 */
-	abstract protected void filter(List<ValidObservation> obs);
+	abstract protected Pair<String, String> filter(List<ValidObservation> obs);
 
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
@@ -86,40 +89,50 @@ abstract public class CustomFilterPluginBase implements IPlugin {
 	final public void apply(List<ValidObservation> obs) {
 		filteredObs = new LinkedHashSet<ValidObservation>();
 
-		filter(obs);
+		final Pair<String, String> rep = filter(obs);
 
 		if (filteredObs.size() != 0) {
-			
+
 			IFilterDescription desc = new IFilterDescription() {
-				
+
 				@Override
 				public boolean isParsable() {
-					return false;
+					return filtersAreParsable();
 				}
-				
+
 				@Override
 				public String getFilterName() {
-					return getDisplayName();
+					return rep.first;
 				}
-				
+
 				@Override
 				public String getFilterDescription() {
-					return getDescription();
+					return rep.second;
 				}
 			};
-			
+
 			FilteredObservationMessage msg = new FilteredObservationMessage(
 					this, desc, filteredObs);
 
 			Mediator.getInstance().getFilteredObservationNotifier()
 					.notifyListeners(msg);
-		} else {
+		} else if (rep != null) {
 			String errMsg = "No observations matched.";
 			MessageBox.showWarningDialog(Mediator.getUI().getComponent(),
 					"Observation Filter", errMsg);
 		}
 	}
-	
+
+	/**
+	 * Returns whether or not the filters associated with the concrete subclass
+	 * are parsable.
+	 * 
+	 * @return Whether parsable or not.
+	 */
+	public boolean filtersAreParsable() {
+		return false;
+	}
+
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#requiresAuthentication()
 	 */

@@ -117,7 +117,7 @@ public class MenuBar extends JMenuBar {
 			.get("VIEW_MENU_PAN_RIGHT");
 	public static final String PAN_UP = LocaleProps.get("VIEW_MENU_PAN_UP");
 	public static final String PAN_DOWN = LocaleProps.get("VIEW_MENU_PAN_DOWN");
-	public static final String FILTER = LocaleProps.get("VIEW_MENU_FILTER");
+	public static final String FILTER = LocaleProps.get("VIEW_MENU_FILTER") + "...";
 	public static final String FILTERS = LocaleProps.get("VIEW_MENU_FILTERS");
 	public static final String FILTER_FROM_PLOT = LocaleProps
 			.get("VIEW_MENU_FILTER_FROM_PLOT");
@@ -199,6 +199,7 @@ public class MenuBar extends JMenuBar {
 	JMenuItem editExcludeSelectionItem;
 
 	// View menu.
+	JMenu viewMenu;
 	JCheckBoxMenuItem viewRawDataItem;
 	JCheckBoxMenuItem viewPhasePlotItem;
 	JMenuItem viewObDetailsItem;
@@ -215,7 +216,7 @@ public class MenuBar extends JMenuBar {
 	JMenuItem viewFilterFromPlotItem;
 	JMenuItem viewNoFilterItem;
 
-	JMenu viewCustomFilterMenu;
+	//JMenu viewCustomFilterMenu;
 
 	// Analysis menu.
 	JMenuItem analysisPhasePlotItem;
@@ -413,7 +414,7 @@ public class MenuBar extends JMenuBar {
 	}
 
 	private void createViewMenu() {
-		JMenu viewMenu = new JMenu(LocaleProps.get("VIEW_MENU"));
+		viewMenu = new JMenu(LocaleProps.get("VIEW_MENU"));
 
 		viewRawDataItem = new JCheckBoxMenuItem(RAW_DATA_MODE);
 		viewRawDataItem.setEnabled(false);
@@ -483,20 +484,11 @@ public class MenuBar extends JMenuBar {
 		viewFilterItem.addActionListener(createFilterListener());
 		viewMenu.add(viewFilterItem);
 
-		viewFiltersItem = new JMenuItem(FILTERS);
-		viewFiltersItem.setEnabled(false);
-		viewFiltersItem.addActionListener(createFiltersListener());
-		viewMenu.add(viewFiltersItem);
-
 		viewFilterFromPlotItem = new JMenuItem(FILTER_FROM_PLOT);
 		viewFilterFromPlotItem.setEnabled(false);
 		viewFilterFromPlotItem
 				.addActionListener(createFilterFromPlotListener());
 		viewMenu.add(viewFilterFromPlotItem);
-
-		viewCustomFilterMenu = new JMenu(
-				LocaleProps.get("VIEW_MENU_CUSTOM_FILTERS"));
-		viewCustomFilterMenu.setEnabled(false);
 
 		ActionListener customFilterListener = createCustomFilterListener();
 
@@ -504,16 +496,20 @@ public class MenuBar extends JMenuBar {
 
 		for (CustomFilterPluginBase plugin : PluginLoader
 				.getCustomFilterPlugins()) {
-			String itemName = plugin.getDisplayName() + "...";
+			String itemName = plugin.getDisplayName();
 
 			JMenuItem customFilterMenuItem = new JMenuItem(itemName);
 			customFilterMenuItem.addActionListener(customFilterListener);
-			viewCustomFilterMenu.add(customFilterMenuItem);
+			customFilterMenuItem.setEnabled(false);
+			viewMenu.add(customFilterMenuItem);
 
 			menuItemNameToCustomFilterPlugin.put(itemName, plugin);
 		}
 
-		viewMenu.add(viewCustomFilterMenu);
+		viewFiltersItem = new JMenuItem(FILTERS);
+		viewFiltersItem.setEnabled(false);
+		viewFiltersItem.addActionListener(createFiltersListener());
+		viewMenu.add(viewFiltersItem);
 
 		viewNoFilterItem = new JMenuItem(NO_FILTER);
 		viewNoFilterItem.setEnabled(false);
@@ -1351,7 +1347,7 @@ public class MenuBar extends JMenuBar {
 				// Enable filtering.
 				viewFilterItem.setEnabled(true);
 				viewNoFilterItem.setEnabled(true);
-				viewCustomFilterMenu.setEnabled(true);
+//				viewCustomFilterMenu.setEnabled(true);
 			}
 
 			public boolean canBeRemoved() {
@@ -1547,28 +1543,14 @@ public class MenuBar extends JMenuBar {
 		this.fileSaveItem.setEnabled(state);
 		this.filePrintItem.setEnabled(state);
 
-		// this.editMenu.setEnabled(state);
-
-		this.viewObDetailsItem.setEnabled(state);
-		this.viewPlotControlItem.setEnabled(state);
-		this.viewZoomInItem.setEnabled(state);
-		this.viewZoomOutItem.setEnabled(state);
-		// this.viewZoomToFitItem.setEnabled(state);
-
-		this.viewFilterItem.setEnabled(state);
-		this.viewFilterFromPlotItem.setEnabled(state);
-		this.viewCustomFilterMenu.setEnabled(state);
-		for (int i = 0; i < this.viewCustomFilterMenu.getItemCount(); i++) {
-			this.viewCustomFilterMenu.getItem(i).setEnabled(state);
+		for (int i = 0; i < this.viewMenu.getItemCount(); i++) {
+			JMenuItem item = this.viewMenu.getItem(i);
+			if (item != null) {
+				// Item could be a menu item separator I assume since we
+				// see null for some values of i.
+				this.viewMenu.getItem(i).setEnabled(state);
+			}
 		}
-		this.viewNoFilterItem.setEnabled(state);
-
-		this.viewPanLeftItem.setEnabled(state);
-		this.viewPanRightItem.setEnabled(state);
-		this.viewPanUpItem.setEnabled(state);
-		this.viewPanDownItem.setEnabled(state);
-
-		this.viewRawDataItem.setEnabled(state);
 
 		for (JMenuItem item : analysisMenuItems) {
 			item.setEnabled(state);
