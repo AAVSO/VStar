@@ -5,6 +5,7 @@ import java.util.List;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
+import org.aavso.tools.vstar.util.Pair;
 
 /**
  * This is an example Custom Filter plug-in that demonstrates that any condition
@@ -24,7 +25,7 @@ import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 public class CustomFilterTest extends CustomFilterPluginBase {
 
 	@Override
-	protected void filter(List<ValidObservation> obs) {
+	protected Pair<String,String> filter(List<ValidObservation> obs) {
 		ValidObservation last = null;
 
 		for (ValidObservation curr : obs) {
@@ -40,6 +41,8 @@ public class CustomFilterTest extends CustomFilterPluginBase {
 			}
 			last = curr;
 		}
+		
+		return new Pair<String,String>("Custom filter test", "Custom filter test");
 	}
 
 	@Override

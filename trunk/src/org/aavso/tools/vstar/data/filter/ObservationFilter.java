@@ -108,7 +108,7 @@ public class ObservationFilter {
 			boolean includeDiscrepant, boolean includeExcluded) {
 		// We use a LinkedHashSet to maintain addition and lookup efficiency
 		// while maintaining insertion order.
-		// Note: this is only necessary of a recipient of filtered observations
+		// Note: this is only necessary if a recipient of filtered observations
 		// needs to perform lookups.
 		Set<ValidObservation> matchingObs = new LinkedHashSet<ValidObservation>();
 

@@ -23,6 +23,7 @@ import javax.swing.JOptionPane;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
+import org.aavso.tools.vstar.util.Pair;
 
 /**
  * This VStar plugin can be used to create a filter for a group of observers.
@@ -30,20 +31,31 @@ import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
  * @author Sara J. Beck (with lots of help from D. Benn!)
  * @version 1.0 - 21 Feb 2011
  * @version 1.1 - 21 May 2014: fixed null-pointer exception
+ * @version 1.2 - 1 May 2017: adapted to modified filter() signature
  */
 
 public class ObserverListFilter extends CustomFilterPluginBase {
 
 	@Override
-	protected void filter(List<ValidObservation> obs) {
-		String[] observer = getObserverList();
+	protected Pair<String, String> filter(List<ValidObservation> obs) {
+		String[] observers = getObserverList();
 		for (ValidObservation curr : obs) {
-			for (int i = 0; i < observer.length; i++) {
-				if (observer[i].equals(curr.getObsCode())) {
+			for (int i = 0; i < observers.length; i++) {
+				if (observers[i].equals(curr.getObsCode())) {
 					addToSubset(curr);
 				}
 			}
 		}
+
+		StringBuffer buf = new StringBuffer();
+		buf.append("Observer filter: ");
+		for (String observer : observers) {
+			buf.append(observer);
+			buf.append(" ");
+		}
+
+		return new Pair<String, String>("Observer filter: " + buf.toString(),
+				buf.toString());
 	}
 
 	@Override
@@ -59,7 +71,7 @@ public class ObserverListFilter extends CustomFilterPluginBase {
 	public String[] getObserverList() {
 		String str = JOptionPane
 				.showInputDialog("Enter observer codes separated by spaces:");
-		
+
 		String[] obsList = {};
 
 		if (str != null) {

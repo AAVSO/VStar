@@ -31,6 +31,7 @@ import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
+import org.aavso.tools.vstar.plugin.filter.impl.VeLaFilterPlugin;
 import org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin;
 import org.aavso.tools.vstar.plugin.ob.src.impl.TextFormatObservationSourcePlugin;
 import org.aavso.tools.vstar.plugin.ob.src.impl.VSXWebServiceAIDObservationSourcePlugin;
@@ -138,6 +139,10 @@ public class PluginLoader {
 	public static List<CustomFilterPluginBase> getCustomFilterPlugins() {
 		List<CustomFilterPluginBase> customFilterPlugins = new ArrayList<CustomFilterPluginBase>();
 
+		// First, add the VeLa filter plug-in.
+		customFilterPlugins.add(new VeLaFilterPlugin());
+		
+		// Next, add all external filter plug-ins.
 		for (IPlugin plugin : plugins) {
 			if (plugin instanceof CustomFilterPluginBase) {
 				customFilterPlugins.add((CustomFilterPluginBase) plugin);
