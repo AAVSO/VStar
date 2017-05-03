@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.Logic;
 
 /**
  * A filter for valid observations.
@@ -118,22 +119,16 @@ public class ObservationFilter {
 			boolean does_match = matches(ob);
 
 			if (does_match) {
-				// Use logical implication (p => q which is the same as !p or q,
-				// where p is the observation's property and q is the inclusion
-				// property relating to p) to check that our inclusion criteria
-				// still permit a match for this observation. For example, taking
-				// fainter-thans we have this truth table:
-				//
-				// observation is-fainter-than | include is-fainter-thans | result
-				// ----------------------------+--------------------------+--------
-				//                       False |                    False | True
-				//                       False |                    True  | True
-				//                       True  |                    False | False
-				//                       True  |                    True  | True
-				does_match &= !ob.getMagnitude().isFainterThan()
-						|| includeFainterThan;
-				does_match &= !ob.isDiscrepant() || includeDiscrepant;
-				does_match &= !ob.isExcluded() || includeExcluded;
+				/**
+				 * Use logical implication, p => q, where p is the observation's
+				 * property and q is the inclusion property relating to p, to
+				 * check that our inclusion criteria still permit a match for
+				 * this observation.
+				 */
+				does_match &= Logic.imp(ob.getMagnitude().isFainterThan(),
+						includeFainterThan);
+				does_match &= Logic.imp(ob.isDiscrepant(), includeDiscrepant);
+				does_match &= Logic.imp(ob.isExcluded(), includeExcluded);
 
 				if (does_match) {
 					matchingObs.add(ob);
