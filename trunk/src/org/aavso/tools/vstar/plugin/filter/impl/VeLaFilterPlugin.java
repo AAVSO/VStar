@@ -17,21 +17,16 @@
  */
 package org.aavso.tools.vstar.plugin.filter.impl;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.util.Logic;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
-import org.aavso.tools.vstar.vela.Operand;
-import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaEvalError;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
-import org.aavso.tools.vstar.vela.VeLaMapEnvironment;
 import org.aavso.tools.vstar.vela.VeLaParseError;
 import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
 
@@ -81,29 +76,18 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 					does_match = vela.booleanExpression(velaFilterExpr);
 
 					if (does_match) {
-						// TODO: move to util method: Logic.imp(a, b)
 						/**
-						 * Use logical implication (p => q which is the same as
-						 * !p or q, where p is the observation's property and q
-						 * is the inclusion property relating to p) to check
-						 * that our inclusion criteria still permit a match for
-						 * this observation. For example, taking fainter-thans
-						 * we have this truth table, where A = is fainter-than,
-						 * B = include fainter-than, C = result<br/>
-						 * --+---+-- <br/>
-						 * A | B | C <br/>
-						 * --+---+-- <br/>
-						 * F | F | T <br/>
-						 * F | T | T <br/>
-						 * T | F | F <br/>
-						 * T | T | T <br/>
+						 * Use logical implication, p => q, where p is the
+						 * observation's property and q is the inclusion
+						 * property relating to p, to check that our inclusion
+						 * criteria still permit a match for this observation.
 						 */
-						does_match &= !ob.getMagnitude().isFainterThan()
-								|| dialog.includeFainterThan();
-						does_match &= !ob.isDiscrepant()
-								|| dialog.includeDiscrepant();
-						does_match &= !ob.isExcluded()
-								|| dialog.includeExcluded();
+						does_match &= Logic.imp(ob.getMagnitude()
+								.isFainterThan(), dialog.includeFainterThan());
+						does_match &= Logic.imp(ob.isDiscrepant(),
+								dialog.includeDiscrepant());
+						does_match &= Logic.imp(ob.isExcluded(),
+								dialog.includeExcluded());
 
 						if (does_match) {
 							addToSubset(ob);
