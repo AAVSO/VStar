@@ -261,22 +261,46 @@ public class VeLaTest extends TestCase {
 		assertFalse(result);
 	}
 
+	public void testGroupedBooleanExpression4() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("3 > 2 or (2 < 3 and 2 > 3)",
+				true);
+		assertTrue(result);
+	}
+
+	public void testGroupedBooleanExpression5() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("3 > 2 or 2 < 3 and 2 > 3",
+				true);
+		assertTrue(result);
+	}
+	
 	// Variables
 
-	public void testVariable1() {
+	public void testVariableMeaningOfLife() {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
 		environment.put("meaning_of_life", new Operand(Type.DOUBLE, 42));
-		VeLaInterpreter vela = new VeLaInterpreter(environment);
+		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(
+				environment));
 		boolean result = vela.booleanExpression("meaning_of_life = 42");
 		assertTrue(result);
 	}
 
+	public void _testVariableSingleCharacterVariable() {
+		Map<String, Operand> environment = new HashMap<String, Operand>();
+		environment.put("x", new Operand(Type.DOUBLE, 42));
+		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(
+				environment));
+		boolean result = vela.booleanExpression("x = 42");
+		assertTrue(result);
+	}
+	
 	// Filter test cases
 
 	public void testVeLaBooleanExpressionsAsFilters() {
 		List<ValidObservation> obs = commonObs();
 		String expr;
-		
+
 		expr = "uncertainty >= 0.1";
 		assertEquals(2, filterObs(expr, obs).size());
 
@@ -359,16 +383,7 @@ public class VeLaTest extends TestCase {
 		List<ValidObservation> filteredObs = new ArrayList<ValidObservation>();
 
 		for (ValidObservation ob : obs) {
-			Map<String, Operand> environment = new HashMap<String, Operand>();
-
-			environment.put("time", new Operand(Type.DOUBLE, ob.getJD()));
-			environment.put("magnitude", new Operand(Type.DOUBLE, ob.getMag()));
-			environment.put("uncertainty", new Operand(Type.DOUBLE, ob
-					.getMagnitude().getUncertainty()));
-			environment.put("band", new Operand(Type.STRING, ob.getBand()
-					.getShortName()));
-
-			vela.setEnvironment(environment);
+			vela.setEnvironment(new VeLaValidObservationEnvironment(ob));
 
 			if (vela.booleanExpression(velaFilterExpr, true)) {
 				filteredObs.add(ob);

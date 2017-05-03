@@ -20,7 +20,7 @@ package org.aavso.tools.vstar.vela;
 import java.util.Stack;
 
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
-import org.aavso.tools.vstar.vela.VeLaParser.DisjunctiveExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
@@ -57,22 +57,22 @@ public class ExpressionListener extends VeLaBaseListener {
 			if (ctx.getChild(i).getChildCount() == 0) {
 				AST right = astStack.pop();
 				AST left = astStack.pop();
-				if (op.equalsIgnoreCase("and")) {
-					astStack.push(new AST(Operation.AND, left, right));
+				if (op.equalsIgnoreCase("or")) {
+					astStack.push(new AST(Operation.OR, left, right));
 				}
 			}
 		}
 	}
 
 	@Override
-	public void exitDisjunctiveExpression(DisjunctiveExpressionContext ctx) {
+	public void exitConjunctiveExpression(ConjunctiveExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
 			String op = ctx.getChild(i).getText();
 			if (ctx.getChild(i).getChildCount() == 0) {
 				AST right = astStack.pop();
 				AST left = astStack.pop();
-				if (op.equalsIgnoreCase("or")) {
-					astStack.push(new AST(Operation.OR, left, right));
+				if (op.equalsIgnoreCase("and")) {
+					astStack.push(new AST(Operation.AND, left, right));
 				}
 			}
 		}

@@ -21,13 +21,13 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 
+import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -43,7 +43,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 public class VeLaInterpreter {
 
 	private Stack<Operand> stack;
-	private Map<String, Operand> environment;
+	private AbstractVeLaEnvironment environment;
 
 	// AST and result caches.
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
@@ -51,7 +51,7 @@ public class VeLaInterpreter {
 
 	private VeLaErrorListener errorListener;
 
-	public VeLaInterpreter(Map<String, Operand> environment) {
+	public VeLaInterpreter(AbstractVeLaEnvironment environment) {
 		errorListener = new VeLaErrorListener();
 
 		stack = new Stack<Operand>();
@@ -59,7 +59,7 @@ public class VeLaInterpreter {
 		if (environment != null) {
 			this.environment = environment;
 		} else {
-			this.environment = Collections.emptyMap();
+			this.environment = new NullVeLaEnvironment();
 		}
 	}
 
@@ -67,7 +67,7 @@ public class VeLaInterpreter {
 		this(null);
 	}
 
-	public void setEnvironment(Map<String, Operand> environment) {
+	public void setEnvironment(AbstractVeLaEnvironment environment) {
 		this.environment = environment;
 	}
 
@@ -105,8 +105,8 @@ public class VeLaInterpreter {
 		}
 
 		if (verbose) {
-			System.out
-					.println(String.format("%s [AST cached? %s]", ast, astCached));
+			System.out.println(String.format("%s [AST cached? %s]", ast,
+					astCached));
 		}
 
 		Operand result;
@@ -273,8 +273,9 @@ public class VeLaInterpreter {
 				// Look up variable in the environment, pushing it on the stack
 				// if it exists, throwing an exception if not.
 				String varName = ast.getToken().toLowerCase();
-				if (environment.containsKey(varName)) {
-					stack.push(environment.get(varName));
+				Pair<Boolean, Operand> result = environment.lookup(varName);
+				if (result.first) {
+					stack.push(result.second);
 				} else {
 					throw new VeLaEvalError("Unknown variable: "
 							+ ast.getToken());
