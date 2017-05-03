@@ -117,7 +117,7 @@ public class MenuBar extends JMenuBar {
 			.get("VIEW_MENU_PAN_RIGHT");
 	public static final String PAN_UP = LocaleProps.get("VIEW_MENU_PAN_UP");
 	public static final String PAN_DOWN = LocaleProps.get("VIEW_MENU_PAN_DOWN");
-	public static final String FILTER = LocaleProps.get("VIEW_MENU_FILTER") + "...";
+	public static final String FILTER = LocaleProps.get("VIEW_MENU_FILTER");
 	public static final String FILTERS = LocaleProps.get("VIEW_MENU_FILTERS");
 	public static final String FILTER_FROM_PLOT = LocaleProps
 			.get("VIEW_MENU_FILTER_FROM_PLOT");

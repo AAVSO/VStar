@@ -31,7 +31,9 @@ import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaEvalError;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
+import org.aavso.tools.vstar.vela.VeLaMapEnvironment;
 import org.aavso.tools.vstar.vela.VeLaParseError;
+import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
 
 /**
  * This filter plug-in allows for the creation of complex VeLa expressions for
@@ -50,7 +52,7 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 
 	@Override
 	public String getDisplayName() {
-		return "VeLa " + LocaleProps.get("VIEW_MENU_FILTER") + "...";
+		return LocaleProps.get("VIEW_MENU_VELA_FILTER");
 	}
 
 	@Override
@@ -63,47 +65,31 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 
 		String velaFilterExpr = "";
 
+		Pair<String, String> repr = null;
+
 		dialog.showDialog();
 
 		if (!dialog.isCancelled()) {
 			velaFilterExpr = dialog.getVeLaExpression();
 
-			Map<String, Operand> environment = new HashMap<String, Operand>();
-
 			try {
 				for (ValidObservation ob : obs) {
-					environment.clear();
-
-					environment.put("time",
-							new Operand(Type.DOUBLE, ob.getJD()));
-
-					Magnitude mag = ob.getMagnitude();
-					environment.put("magnitude",
-							new Operand(Type.DOUBLE, mag.getMagValue()));
-					environment.put("uncertainty",
-							new Operand(Type.DOUBLE, mag.getUncertainty()));
-
-					environment.put("band", new Operand(Type.STRING, ob
-							.getBand().getShortName()));
-
-					// TODO: create VeLaEnvironment class with get(varname)
-					// and exists(varname) and a subclass or realisation for
-					// ValidObservation with no need for an intermediate map
-					vela.setEnvironment(environment);
+					vela.setEnvironment(new VeLaValidObservationEnvironment(ob));
 
 					boolean does_match = false;
 
 					does_match = vela.booleanExpression(velaFilterExpr);
 
 					if (does_match) {
+						// TODO: move to util method: Logic.imp(a, b)
 						/**
 						 * Use logical implication (p => q which is the same as
 						 * !p or q, where p is the observation's property and q
 						 * is the inclusion property relating to p) to check
 						 * that our inclusion criteria still permit a match for
 						 * this observation. For example, taking fainter-thans
-						 * we have this truth table, where A = ob fainter-than,
-						 * B = include fainter-thans , C = result<br/>
+						 * we have this truth table, where A = is fainter-than,
+						 * B = include fainter-than, C = result<br/>
 						 * --+---+-- <br/>
 						 * A | B | C <br/>
 						 * --+---+-- <br/>
@@ -124,6 +110,10 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 						}
 					}
 				}
+
+				repr = new Pair<String, String>(dialog.getFilterName(),
+						velaFilterExpr);
+
 			} catch (VeLaParseError e) {
 				MessageBox.showErrorDialog("Syntax Error",
 						e.getLocalizedMessage());
@@ -136,7 +126,7 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 			}
 		}
 
-		return new Pair<String, String>(dialog.getFilterName(), velaFilterExpr);
+		return repr;
 	}
 
 	@Override

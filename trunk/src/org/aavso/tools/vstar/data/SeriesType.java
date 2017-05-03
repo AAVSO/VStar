@@ -29,7 +29,7 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 
 // TODO:
 // - Eventually change this class so that it starts out with a default set
-//   of static series values but when connected to AID, it "refreshes" that
+//   of static series values but when network is available, it "refreshes" that
 //   Set<SeriesType> dynamically.
 
 /**

@@ -2,19 +2,29 @@ grammar VeLa;
 
 // VeLa: VStar expression Language
 
+// TODO:
+// - set membership: x in [ ... ]; see filter from view descriptions: legal VeLa code
+// - regex: x like "..." or x =~ "..."; homage to SQL or Perl? SQL "like" doesn't use proper regex
+// - selection (e.g. in models): functional-style patterns instead of if-then
+// - math functions: by reflection from Math class
+// - internal function representation in Models dialog should become VeLa:
+//   t -> real-expression-over-t | (boolean-pattern =>|: real-expression-over-t ...)
+// - bug: why does a single character variable name, say x, lead to a parse error?
+//   => line 1:0 mismatched input 'x' expecting {'-', '+', '(', POINT, DIGIT, IDENT, STRING}
+
 booleanExpression
 :
-	disjunctiveExpression
+	conjunctiveExpression
 	(
-		AND disjunctiveExpression
+		OR conjunctiveExpression
 	)*
 ;
 
-disjunctiveExpression
+conjunctiveExpression
 :
 	logicalNegationExpression
 	(
-		OR logicalNegationExpression
+		AND logicalNegationExpression
 	)*
 ;
 

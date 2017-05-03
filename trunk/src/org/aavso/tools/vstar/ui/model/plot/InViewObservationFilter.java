@@ -113,9 +113,9 @@ public class InViewObservationFilter {
 
 				@Override
 				public String getFilterDescription() {
-					return "Time >= " + lowerTimeBoundStr + " AND Time <= "
-							+ upperTimeBoundStr + " AND Mag >= "
-							+ lowerMagBoundStr + " AND Mag <= "
+					return "time >= " + lowerTimeBoundStr + " AND time <= "
+							+ upperTimeBoundStr + " AND magnitude >= "
+							+ lowerMagBoundStr + " AND magnitude <= "
 							+ upperMagBoundStr + " AND series in ["
 							+ seriesListStr + "]";
 				}
