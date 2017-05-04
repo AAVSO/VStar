@@ -49,7 +49,7 @@ public class ObsCodeFieldMatcher extends StringFieldMatcher {
 
 	@Override
 	public String getDisplayName() {
-		return "Observer Code";
+		return "ObsCode";
 	}
 
 	@Override

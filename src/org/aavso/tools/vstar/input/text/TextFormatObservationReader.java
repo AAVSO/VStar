@@ -41,6 +41,8 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 
 	private ObservationSourceAnalyser analyser;
 
+	private String objName;
+
 	/**
 	 * Constructor.
 	 * 
@@ -66,6 +68,8 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	public void retrieveObservations() throws ObservationReadError {
 
 		try {
+			objName = null;
+
 			CommonTextFormatValidator validator = this.analyser
 					.getTextFormatValidator(reader);
 
@@ -98,6 +102,14 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 
 						addValidObservation(e.getObservation(), lineNum);
 					}
+				} else if (line.startsWith("#")) {
+					// Directives
+					String[] pair = line.toUpperCase().split("=");
+					if (pair.length == 2) {
+						if ("#NAME".equals(pair[0])) {
+							objName = pair[1];
+						}
+					}
 				}
 
 				incrementProgress();
@@ -107,7 +119,7 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 					"Error when attempting to read observation source.");
 		} finally {
 			// TODO: once analyser moved into here
-//			lines.clear();
+			// lines.clear();
 		}
 	}
 
@@ -131,7 +143,8 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 		// Try to get the name of the object from one of the observations,
 		// otherwise just use the source name (file name or URL).
 
-		String name = getValidObservations().get(0).getName();
+		String name = objName == null ? getValidObservations().get(0).getName()
+				: objName;
 
 		if (name == null) {
 			name = getSourceName();

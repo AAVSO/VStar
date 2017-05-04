@@ -1,9 +1,10 @@
 grammar VeLa;
 
 // VeLa: VStar expression Language
+//       -     -          -- 
 
 // TODO:
-// - set membership: x in [ ... ]; see filter from view descriptions: legal VeLa code
+// - set membership: x in [ ... ]; see filter from plot descriptions: make legal VeLa code
 // - regex: x like "..." or x =~ "..."; homage to SQL or Perl? SQL "like" doesn't use proper regex
 // - selection (e.g. in models): functional-style patterns instead of if-then
 // - math functions: by reflection from Math class
@@ -153,6 +154,8 @@ exponentIndicator
 	'E'
 	| 'e'
 ;
+
+// TODO: use body instead of sign above or make a lexer rule
 
 sign
 :

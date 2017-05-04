@@ -73,7 +73,7 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 
 					boolean does_match = false;
 
-					does_match = vela.booleanExpression(velaFilterExpr);
+					does_match = vela.booleanExpression(velaFilterExpr, true);
 
 					if (does_match) {
 						/**

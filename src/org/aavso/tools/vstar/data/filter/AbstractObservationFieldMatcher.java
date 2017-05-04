@@ -115,6 +115,14 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	 */
 	@Override
 	public String getParsableDescription() {
-		return getDisplayName() + " " + op.toParsableString() + " " + testValue;
+		String desc = getDisplayName() + " " + op.toParsableString() + " ";
+		
+		if (testValue.getClass() == String.class) {
+			desc += "\"" + testValue + "\"";
+		} else {
+			desc += testValue;
+		}
+		
+		return desc;
 	}	
 }
