@@ -50,7 +50,7 @@ public class ObjectNameFieldMatcher extends StringFieldMatcher {
 
 	@Override
 	public String getDisplayName() {
-		return "Object Name";
+		return "Name";
 	}
 
 	@Override

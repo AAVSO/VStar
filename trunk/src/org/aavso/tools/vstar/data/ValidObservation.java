@@ -397,7 +397,7 @@ public class ValidObservation extends Observation {
 	/**
 	 * @return the standarddetailkeys
 	 */
-	public static Set<String> getStandarddetailKeys() {
+	public static Set<String> getStandardDetailKeys() {
 		return standardDetailKeys;
 	}
 

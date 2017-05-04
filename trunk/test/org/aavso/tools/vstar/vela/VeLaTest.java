@@ -274,7 +274,21 @@ public class VeLaTest extends TestCase {
 				true);
 		assertTrue(result);
 	}
-	
+
+	public void testLogicalNegationExpression1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("not 3 > 2", true);
+		assertFalse(result);
+	}
+
+	public void testLogicalNegationExpression2() {
+		Map<String, Operand> env = new HashMap<String, Operand>();
+		env.put("raining", new Operand(Type.BOOLEAN, false));
+		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(env));
+		boolean result = vela.booleanExpression("not raining", true);
+		assertTrue(result);
+	}
+
 	// Variables
 
 	public void testVariableMeaningOfLife() {
@@ -286,6 +300,7 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
+	// TODO: fix!
 	public void _testVariableSingleCharacterVariable() {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
 		environment.put("x", new Operand(Type.DOUBLE, 42));
@@ -294,7 +309,7 @@ public class VeLaTest extends TestCase {
 		boolean result = vela.booleanExpression("x = 42");
 		assertTrue(result);
 	}
-	
+
 	// Filter test cases
 
 	public void testVeLaBooleanExpressionsAsFilters() {

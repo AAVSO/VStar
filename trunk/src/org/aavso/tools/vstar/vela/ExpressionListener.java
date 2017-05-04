@@ -31,6 +31,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.VarContext;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
  * VeLa: VStar expression Language interpreter
@@ -83,7 +84,8 @@ public class ExpressionListener extends VeLaBaseListener {
 			LogicalNegationExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
 			String op = ctx.getChild(i).getText();
-			if (ctx.getChild(i).getChildCount() == 1) {
+			// TODO: use everywhere!
+			if (ctx.getChild(i) instanceof TerminalNode) {
 				if (op.equalsIgnoreCase("not")) {
 					AST child = astStack.pop();
 					astStack.push(new AST(Operation.NOT, child));
