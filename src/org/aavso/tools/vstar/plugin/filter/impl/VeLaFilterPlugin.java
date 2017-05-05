@@ -42,7 +42,7 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 
 	public VeLaFilterPlugin() {
 		vela = new VeLaInterpreter();
-		dialog = new VeLaObservationFilterDialog(vela);
+		dialog = new VeLaObservationFilterDialog();
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 
 					boolean does_match = false;
 
-					does_match = vela.booleanExpression(velaFilterExpr, true);
+					does_match = vela.booleanExpression(velaFilterExpr);
 
 					if (does_match) {
 						/**

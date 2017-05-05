@@ -25,8 +25,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -34,7 +36,9 @@ import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.vela.VeLaInterpreter;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
 
 /**
  * This dialog permits the user to specify a VeLa expression for the purpose of
@@ -51,16 +55,17 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 
 	private JTextArea velaFilterField;
 
-	private VeLaInterpreter vela;
+	private JComboBox<String> obsPropsList;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 */
-	public VeLaObservationFilterDialog(VeLaInterpreter vela) {
+	public VeLaObservationFilterDialog() {
 		super("Filter Observations");
 
-		this.vela = vela;
-		
+		Mediator.getInstance().getNewStarNotifier()
+				.addListener(createNewStarListener());
+
 		Container contentPane = this.getContentPane();
 
 		JPanel topPane = new JPanel();
@@ -69,6 +74,7 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 
 		topPane.add(createNamePane());
 		topPane.add(createFilterPane());
+		topPane.add(createObsPropsListPane());
 		topPane.add(createButtonPane());
 
 		contentPane.add(topPane);
@@ -79,11 +85,11 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 	public String getFilterName() {
 		return nameField.getText();
 	}
-	
+
 	public String getVeLaExpression() {
 		return velaFilterField.getText();
 	}
-	
+
 	public boolean includeFainterThan() {
 		return includeFainterThanObservationCheckbox.isSelected();
 	}
@@ -132,6 +138,29 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 		return panel;
 	}
 
+	private JPanel createObsPropsListPane() {
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+		obsPropsList = new JComboBox<String>();
+		obsPropsList.setBorder(BorderFactory
+				.createTitledBorder("Observation Properties"));
+
+		obsPropsList.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String propText = (String) obsPropsList.getSelectedItem();
+				velaFilterField.append(propText);
+			}
+		});
+
+		panel.add(obsPropsList);
+
+		return panel;
+	}
+
 	@Override
 	protected JPanel createButtonPane() {
 		JPanel extraButtonPanel = new JPanel(new FlowLayout());
@@ -174,6 +203,26 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 	}
 
 	/**
+	 * @return A new star listener for the filter dialog.
+	 */
+	public Listener<NewStarMessage> createNewStarListener() {
+		return new Listener<NewStarMessage>() {
+
+			@Override
+			public void update(NewStarMessage info) {
+				velaFilterField.setText("");
+				String[] props = VeLaValidObservationEnvironment.symbols(info);
+				obsPropsList.setModel(new DefaultComboBoxModel<String>(props));
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return false;
+			}
+		};
+	}
+
+	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
 	 */
 	@Override
@@ -192,5 +241,5 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 			setCancelled(false);
 			setVisible(false);
 		}
-	}
+	}	
 }
