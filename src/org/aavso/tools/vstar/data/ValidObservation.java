@@ -910,8 +910,14 @@ public class ValidObservation extends Observation {
 		}
 
 		if (commentCode != null) {
-			strBuf.append("Comment Codes:\n");
-			strBuf.append(commentCode.toString());
+			String str = getCommentCode().getOrigString();
+			if (str.trim().length() != 0) {
+				strBuf.append("Comment Codes:\n");
+				strBuf.append("[");
+				strBuf.append(str);
+				strBuf.append("]\n");
+				strBuf.append(commentCode.toString());
+			}
 		}
 
 		if (nonEmptyDetailExists(compStar1Key)) {
@@ -1073,7 +1079,7 @@ public class ValidObservation extends Observation {
 	public String toAAVSOFormatString(String delimiter) {
 		return toAAVSOFormatString(delimiter, true);
 	}
-	
+
 	/**
 	 * Returns a line in delimiter-separator (TSV, CSV, ...) AAVSO download
 	 * format.
