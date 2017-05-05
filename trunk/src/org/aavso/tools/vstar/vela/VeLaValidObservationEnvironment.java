@@ -70,17 +70,17 @@ public class VeLaValidObservationEnvironment extends AbstractVeLaEnvironment {
 			}
 		} else if ("MTYPE".equals(name)) {
 			operand = operand(name, ob.getMType().getShortName());
-		} else if ("VAL_FLAG".equals(name)) {
+		} else if ("VALFLAG".equals(name)) {
 			contained &= ob.getValidationType() != null;
 			if (contained) {
 				operand = operand(name, ob.getValidationType().getValflag());
 			}
 		} else if ("TRANSFORMED".equals(name)) {
 			operand = operand(name, ob.isTransformed());
-		} else if ("COMMENT_CODES".equals(name)) {
+		} else if ("COMMENTCODES".equals(name)) {
 			contained &= ob.getCommentCode() != null;
 			if (contained) {
-				operand = operand(name, ob.getCommentCode().toString());
+				operand = operand(name, ob.getCommentCode().getOrigString());
 			}
 		} else {
 			contained = ob.nonEmptyDetailExists(name);
@@ -128,8 +128,6 @@ public class VeLaValidObservationEnvironment extends AbstractVeLaEnvironment {
 	private static void populateMap(NewStarMessage info) {
 		reset();
 
-		// TODO: actually, can't assume any conditionality below; remove...
-		
 		symbol2CanonicalSymbol.put("TIME", "TIME");
 		symbol2CanonicalSymbol.put("JD", "TIME");
 
@@ -143,57 +141,23 @@ public class VeLaValidObservationEnvironment extends AbstractVeLaEnvironment {
 
 		symbol2CanonicalSymbol.put("PHASE", "PHASE");
 
-		// AAVSO upload format obs source uses this; not all plug-ins do.
-		// Can live with this being in the list for all obs sources for now
-		// though.
-		symbol2CanonicalSymbol.put("OBS_CODE", "OBS_CODE");
+		symbol2CanonicalSymbol.put("COMMENTCODES", "COMMENTCODES");
 
-		switch (info.getNewStarType()) {
-		case NEW_STAR_FROM_DATABASE:
-		case NEW_STAR_FROM_DOWNLOAD_FILE:
-			symbol2CanonicalSymbol.put("COMMENTCODES", "COMMENT_CODES");
-			symbol2CanonicalSymbol.put("COMMENT_CODES", "COMMENT_CODES");
-		case NEW_STAR_FROM_SIMPLE_FILE:
-			symbol2CanonicalSymbol.put("VALFLAG", "VAL_FLAG");
-			symbol2CanonicalSymbol.put("VAL_FLAG", "VAL_FLAG");
-		case NEW_STAR_FROM_ARBITRARY_SOURCE:
-			symbol2CanonicalSymbol.put("MTYPE", "MTYPE");
-			symbol2CanonicalSymbol.put("TRANSFORMED", "TRANSFORMED");
-			break;
-		}
+		symbol2CanonicalSymbol.put("OBSCODE", "OBS_CODE");
+
+		symbol2CanonicalSymbol.put("COMPSTAR1", "COMP_STAR1");
+		
+		symbol2CanonicalSymbol.put("COMPSTAR2", "COMP_STAR2");
+
+		symbol2CanonicalSymbol.put("VALFLAG", "VALFLAG");
+
+		symbol2CanonicalSymbol.put("MTYPE", "MTYPE");
+		symbol2CanonicalSymbol.put("TRANSFORMED", "TRANSFORMED");
 
 		for (String detailKey : ValidObservation.getDetailTitles().keySet()) {
-			switch (info.getNewStarType()) {
-			// Other than what we are adding above, don't include standard
-			// detail keys for simple or arbitrary observation sources.
-			case NEW_STAR_FROM_SIMPLE_FILE:
-			case NEW_STAR_FROM_ARBITRARY_SOURCE:
-				if (ValidObservation.getStandardDetailKeys()
-						.contains(detailKey)) {
-					detailKey = null;
-				}
-				break;
-			default:
-				break;
-			}
-
-			if (detailKey != null) {
+			if (!detailKey.contains("_") && detailKey != null) {
 				symbol2CanonicalSymbol.put(detailKey, detailKey);
 			}
-		}
-
-		// Underscore-less variations on standard keys that contain
-		// underscores!
-		if (symbol2CanonicalSymbol.containsKey("OBS_CODE")) {
-			symbol2CanonicalSymbol.put("OBSCODE", "OBS_CODE");
-		}
-
-		if (symbol2CanonicalSymbol.containsKey("COMP_STAR1")) {
-			symbol2CanonicalSymbol.put("COMPSTAR1", "COMP_STAR1");
-		}
-
-		if (symbol2CanonicalSymbol.containsKey("COMP_STAR2")) {
-			symbol2CanonicalSymbol.put("COMPSTAR2", "COMP_STAR2");
 		}
 	}
 }
