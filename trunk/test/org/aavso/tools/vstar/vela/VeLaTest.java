@@ -393,6 +393,8 @@ public class VeLaTest extends TestCase {
 	private List<ValidObservation> filterObs(String velaFilterExpr,
 			List<ValidObservation> obs) {
 
+		VeLaValidObservationEnvironment.reset();
+		
 		VeLaInterpreter vela = new VeLaInterpreter();
 
 		List<ValidObservation> filteredObs = new ArrayList<ValidObservation>();

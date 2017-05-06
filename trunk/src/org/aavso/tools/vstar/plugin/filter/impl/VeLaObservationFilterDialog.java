@@ -211,7 +211,7 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 			@Override
 			public void update(NewStarMessage info) {
 				velaFilterField.setText("");
-				String[] props = VeLaValidObservationEnvironment.symbols(info);
+				String[] props = VeLaValidObservationEnvironment.symbols();
 				obsPropsList.setModel(new DefaultComboBoxModel<String>(props));
 			}
 
