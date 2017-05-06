@@ -135,7 +135,7 @@ public class NumberParserTest extends TestCase {
 	public void testParseExponentialFormatWithPlus1() {
 		try {
 			NumberParser.parseDouble("2.25E+2");
-			fail();
+			fail(); // TODO: parse appears to yield 2.25 (i.e. stops at E)
 		} catch (Exception e) {
 		}
 	}
@@ -143,7 +143,7 @@ public class NumberParserTest extends TestCase {
 	public void testParseExponentialFormatWithPlus2() {
 		try {
 			NumberParser.parseDouble("2.25e+2");
-			fail();
+			fail(); // TODO: parse appears to yield 2.25 (i.e. stops at e)
 		} catch (Exception e) {
 		}
 	}
