@@ -32,6 +32,19 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: May 6 2017
+Version: 2.19.0
+Tag: DEV-AAVSO-06May2017
+Key Changes:
+- Ticket #157 Cannot mark obs discrepant in phase plot mode
+- Ticket #364 Create VeLa: first working implementation of VeLa filters!
+- Ticket #547 Preferences: Allow localisation to be changed in preferences
+- Ticket #558 Allow the range axis to be reversed (plot control dialog)
+- Ticket #559 Minor Loess plugin fixes
+- Ticket #560 Show Model bug in non-English locale
+- Ticket #563 Additions to simple format: "#NAME=" now supported in 
+  simple and AAVSO download format files
+
 Date: September 2 2016
 Version: 2.18.0
 Tag: DEV-AAVSO-02Sep2016
@@ -40,7 +53,8 @@ Key Changes:
 - Ticket #536 Allow exponential format in mag, time values 
 - Ticket #514 Remove all traces of JDBC from VStar (removed deprecated code)
 - Ticket #364 Create VeLa: initial implementation of numeric expressions
-- Ticket #331 Plot B-V index as a series
+- Ticket #331 Plot B-V index as a series; thanks to Robert Jenkins for 
+  encouraging me to implement this, for testing and feedback.
 - Updated bands collection.
 - Added WWZ and StarInfo scripting API functions.
 
