@@ -39,6 +39,10 @@ public class NumberParser {
 	 *             If no valid double value is present.
 	 */
 	public static double parseDouble(String str) throws NumberFormatException {
+		// TODO:
+		// - consider treating VeLa interpreter as a Singleton for this purpose
+		// - realExpression() throws a VeLaParseError not NumberFormatException;
+		//   catch one and re-throw
 		VeLaInterpreter vela = new VeLaInterpreter();
 		return vela.realExpression(str);
 	}

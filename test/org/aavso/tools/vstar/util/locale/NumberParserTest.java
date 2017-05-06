@@ -22,7 +22,7 @@ import java.util.Locale;
 import junit.framework.TestCase;
 
 /**
- * NumberParser test cases for English locale.
+ * NumberParser test cases for English and non-English locales.
  */
 public class NumberParserTest extends TestCase {
 
