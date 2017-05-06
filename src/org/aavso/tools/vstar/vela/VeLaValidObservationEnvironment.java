@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.util.Pair;
 
 /**
@@ -104,9 +103,9 @@ public class VeLaValidObservationEnvironment extends AbstractVeLaEnvironment {
 	 *            A new star information message.
 	 * @return An array of symbol names.
 	 */
-	public static String[] symbols(NewStarMessage info) {
-		populateMap(info);
-
+	public static String[] symbols() {
+		reset();
+		
 		String[] symbols = new String[symbol2CanonicalSymbol.size()];
 		int i = 0;
 		for (String symbol : symbol2CanonicalSymbol.keySet()) {
@@ -120,13 +119,13 @@ public class VeLaValidObservationEnvironment extends AbstractVeLaEnvironment {
 	 * Clear the canonical symbol map.
 	 */
 	public static void reset() {
-		symbol2CanonicalSymbol.clear();
+		populateMap();
 	}
 
 	// Helpers
 
-	private static void populateMap(NewStarMessage info) {
-		reset();
+	private static void populateMap() {
+		symbol2CanonicalSymbol.clear();
 
 		symbol2CanonicalSymbol.put("TIME", "TIME");
 		symbol2CanonicalSymbol.put("JD", "TIME");
