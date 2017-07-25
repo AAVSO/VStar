@@ -34,6 +34,7 @@ import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
 import org.apache.commons.math.MathException;
@@ -42,8 +43,11 @@ import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
 import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;
 
 /**
- * A Loess (Local Regression algorithm) model creator plugin that uses
- * an Apache Commons Loess interpolator.
+ * A Loess (Local Regression algorithm) model creator plugin that uses an Apache
+ * Commons Loess interpolator.
+ * 
+ * See https://www.aavso.org/sites/default/files/Cleveland1979%20LOESS_0.pdf
+ * (thanks to Brad Walter for pointing me to this)
  */
 public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 
@@ -126,8 +130,33 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 					return true;
 				}
 
+				public String toString() {
+					String strRepr = functionStrMap.get(LocaleProps
+							.get("MODEL_INFO_FUNCTION_TITLE"));
+
+					if (strRepr == null) {
+						strRepr = "f(t) = ";
+
+						double constCoeff = 0;
+
+						for (PolynomialFunction f : function.getPolynomials()) {
+							double[] coeffs = f.getCoefficients();
+							for (int i = coeffs.length - 1; i >= 1; i--) {
+								strRepr += coeffs[i];
+								strRepr += "t^" + i + "+\n";
+							}
+							constCoeff += coeffs[0];
+						}
+
+						strRepr += constCoeff;
+					}
+
+					return strRepr;
+				}
+
 				public String toExcelString() {
-					String strRepr = functionStrMap.get("Excel");
+					String strRepr = functionStrMap.get(LocaleProps
+							.get("MODEL_INFO_EXCEL_TITLE"));
 
 					if (strRepr == null) {
 						strRepr = "=SUM(";
@@ -153,7 +182,8 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 				// would be interesting to compare the results of that and this
 				// plugin.
 				public String toRString() {
-					String strRepr = functionStrMap.get("R");
+					String strRepr = functionStrMap.get(LocaleProps
+							.get("MODEL_INFO_R_TITLE"));
 
 					if (strRepr == null) {
 						strRepr = "model <- function(t) ";
@@ -267,23 +297,31 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 
 						// Minimum/maximum.
 						// TODO: use derivative approach
-//						ApacheCommonsBrentOptimiserExtremaFinder finder = new ApacheCommonsBrentOptimiserExtremaFinder(
-//								fit, function, timeCoordSource, 0);
-//
-//						String extremaStr = finder.toString();
-//
-//						if (extremaStr != null) {
-//							String title = LocaleProps
-//									.get("MODEL_INFO_EXTREMA_TITLE");
-//
-//							functionStrMap.put(title, extremaStr);
-//						}
+						// ApacheCommonsBrentOptimiserExtremaFinder finder = new
+						// ApacheCommonsBrentOptimiserExtremaFinder(
+						// fit, function, timeCoordSource, 0);
+						//
+						// String extremaStr = finder.toString();
+						//
+						// if (extremaStr != null) {
+						// String title = LocaleProps
+						// .get("MODEL_INFO_EXTREMA_TITLE");
+						//
+						// functionStrMap.put(title, extremaStr);
+						// }
 
 						// Excel, R equations.
 						// TODO: consider Python, e.g. for use with matplotlib.
 						// functionStrMap.put("Function", toString());
-						functionStrMap.put("Excel", toExcelString());
-						functionStrMap.put("R", toRString());
+						functionStrMap.put(
+								LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"),
+								toString());
+						functionStrMap.put(
+								LocaleProps.get("MODEL_INFO_EXCEL_TITLE"),
+								toExcelString());
+						functionStrMap.put(
+								LocaleProps.get("MODEL_INFO_R_TITLE"),
+								toRString());
 
 					} catch (MathException e) {
 						throw new AlgorithmError(e.getLocalizedMessage());
