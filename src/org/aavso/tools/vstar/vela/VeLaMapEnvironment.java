@@ -35,6 +35,7 @@ public class VeLaMapEnvironment extends AbstractVeLaEnvironment {
 
 	@Override
 	public Pair<Boolean, Operand> lookup(String name) {
+		name = name.toUpperCase();
 		return new Pair<Boolean, Operand>(map.containsKey(name), map.get(name));
 	}
 }
