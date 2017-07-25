@@ -4,14 +4,14 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - set membership: x in [ ... ]; see filter from plot descriptions: make legal VeLa code
-// - regex: x like "..." or x =~ "..."; homage to SQL or Perl? SQL "like" doesn't use proper regex
+// - regex: x =~ "..."; homage to Perl
+// - add exponentiation (use associativity modifier)
+// - set membership: x in [ ... ]; see filter from plot descriptions
+// - math functions: by reflection from Math class or a targeted selection?
 // - selection (e.g. in models): functional-style patterns instead of if-then
-// - math functions: by reflection from Math class
-// - internal function representation in Models dialog should become VeLa:
-//   t -> real-expression-over-t | (boolean-pattern =>|: real-expression-over-t ...)
-// - bug: why does a single character variable name, say x, lead to a parse error?
-//   => line 1:0 mismatched input 'x' expecting {'-', '+', '(', POINT, DIGIT, IDENT, STRING}
+// - internal function representation in Models dialog should use VeLa:
+//     t -> real-expression-over-t
+//   | (boolean-expression : t -> real-expression-over-t ...)+
 
 booleanExpression
 :
@@ -118,8 +118,8 @@ var
 
 func
 :
-	IDENT LPAREN RPAREN
-	| IDENT LPAREN booleanExpression
+	//IDENT LPAREN RPAREN | 
+	IDENT LPAREN booleanExpression
 	(
 		COMMA booleanExpression
 	)* RPAREN
@@ -146,8 +146,7 @@ real
 ;
 
 // TODO: should be in lexer; this avoids [Ee] being treated as a subset of 
-// LETTER, such that it would never be matched; unsatisfying! There must be 
-// a better approach
+// LETTER, such that it would never be matched; unsatisfying! make a fragment
 
 exponentIndicator
 :
@@ -264,7 +263,7 @@ DIGIT
 	[0-9]
 ;
 
-LETTER
+fragment LETTER
 :
 	[A-Z]
 	| [a-z]

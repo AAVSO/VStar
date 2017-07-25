@@ -128,6 +128,7 @@ public class VeLaValidObservationEnvironment extends AbstractVeLaEnvironment {
 		symbol2CanonicalSymbol.clear();
 
 		symbol2CanonicalSymbol.put("TIME", "TIME");
+		symbol2CanonicalSymbol.put("T", "TIME");
 		symbol2CanonicalSymbol.put("JD", "TIME");
 
 		symbol2CanonicalSymbol.put("MAGNITUDE", "MAGNITUDE");

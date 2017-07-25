@@ -50,6 +50,8 @@ public abstract class AbstractVeLaEnvironment {
 	protected Operand operand(String name, double value) {
 		Operand operand;
 
+		name = name.toUpperCase();
+		
 		if (operandCache.containsKey(name)) {
 			operand = operandCache.get(name);
 		} else {
@@ -62,6 +64,8 @@ public abstract class AbstractVeLaEnvironment {
 	protected Operand operand(String name, boolean value) {
 		Operand operand;
 
+		name = name.toUpperCase();
+
 		if (operandCache.containsKey(name)) {
 			operand = operandCache.get(name);
 		} else {
@@ -73,6 +77,8 @@ public abstract class AbstractVeLaEnvironment {
 
 	protected Operand operand(String name, String value) {
 		Operand operand;
+
+		name = name.toUpperCase();
 
 		if (operandCache.containsKey(name)) {
 			operand = operandCache.get(name);

@@ -49,16 +49,16 @@ public enum Operation {
 	}
 
 	public static Operation getBinaryOp(String token) {
-		return symbolToBinaryOp.get(token.toLowerCase());
+		return symbolToBinaryOp.get(token.toUpperCase());
 	}
 
 	private Operation(String symbol, int arity) {
-		this.symbol = symbol.toLowerCase();
+		this.symbol = symbol.toUpperCase();
 		this.arity = arity;
 	}
 
 	private Operation(String symbol) {
-		this(symbol.toLowerCase(), 0);
+		this(symbol.toUpperCase(), 0);
 	}
 
 	public String token() {

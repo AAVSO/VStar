@@ -49,6 +49,14 @@ public class VeLaInterpreter {
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
 	private static Map<String, Operand> exprToResult = new HashMap<String, Operand>();
 
+	// TODO: make map of string to zero arity executor
+	private static Map<String,String> parameterLessFunctions;
+	
+	static {
+		parameterLessFunctions = new HashMap<String,String>();
+		parameterLessFunctions.put("TODAY", "");
+	}
+	
 	private VeLaErrorListener errorListener;
 
 	public VeLaInterpreter(AbstractVeLaEnvironment environment) {
@@ -87,9 +95,9 @@ public class VeLaInterpreter {
 
 		AST ast = null;
 
-		// Remove whitespace and change to lowercase to ensure a canonical
+		// Remove whitespace and change to uppercase to ensure a canonical
 		// expression string for caching purposes.
-		expr = expr.replace(" ", "").replace("\t", "").toLowerCase();
+		expr = expr.replace(" ", "").replace("\t", "").toUpperCase();
 
 		// We cache abstract syntax trees by expression to improve performance.
 		boolean astCached = false;
@@ -272,10 +280,12 @@ public class VeLaInterpreter {
 			} else if (ast.getOp() == Operation.VARIABLE) {
 				// Look up variable in the environment, pushing it on the stack
 				// if it exists, throwing an exception if not.
-				String varName = ast.getToken().toLowerCase();
+				String varName = ast.getToken().toUpperCase();
 				Pair<Boolean, Operand> result = environment.lookup(varName);
 				if (result.first) {
 					stack.push(result.second);
+				} else if (parameterLessFunctions.containsKey(varName)) {
+					applyFunction(varName);
 				} else {
 					throw new VeLaEvalError("Unknown variable: "
 							+ ast.getToken());
@@ -495,10 +505,31 @@ public class VeLaInterpreter {
 	 */
 	private void applyFunction(String funcName, List<Operand> params)
 			throws VeLaEvalError {
-		String canonicalFuncName = funcName.toLowerCase();
+		String canonicalFuncName = funcName.toUpperCase();
 
-		// TODO: create function executor objects (Strategy pattern)
-		if (canonicalFuncName.equals("today")) {
+		// TODO: create function executor objects
+		// (Strategy pattern: arity(), apply())
+		if (canonicalFuncName.equals("???")) {
+		} else {
+			throw new VeLaEvalError("Unknown function: " + funcName);
+		}
+	}
+
+	/**
+	 * Apply the parameterless function leaving the result on the stack.
+	 * 
+	 * @param funcName
+	 *            The name of the function.
+	 * @throws VeLaEvalError
+	 *             If a function evaluation error occurs.
+	 */
+	private void applyFunction(String funcName)
+			throws VeLaEvalError {
+		String canonicalFuncName = funcName.toUpperCase();
+
+		// TODO: create function executor objects
+		// (Strategy pattern: arity(), apply())
+		if (canonicalFuncName.equals("TODAY")) {
 			Calendar cal = Calendar.getInstance();
 			int year = cal.get(Calendar.YEAR);
 			int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12

@@ -180,7 +180,7 @@ public class ExpressionListener extends VeLaBaseListener {
 
 	@Override
 	public void exitVar(VarContext ctx) {
-		String func = ctx.getChild(0).getText();
+		String func = ctx.getChild(0).getText().toUpperCase();
 		AST ast = new AST(func, Operation.VARIABLE);
 		astStack.push(ast);
 	}
