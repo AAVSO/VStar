@@ -219,6 +219,28 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 						return strRepr;
 					}
 
+					@Override
+					public String toString() {
+						String strRepr = functionStrMap.get(LocaleProps
+								.get("MODEL_INFO_FUNCTION_TITLE"));
+
+						if (strRepr == null) {
+							strRepr = "f(t) = ";
+
+							double[] coeffs = function.getCoefficients();
+							for (int i = coeffs.length - 1; i >= 1; i--) {
+								strRepr += coeffs[i];
+								strRepr += "(t-"
+										+ NumericPrecisionPrefs
+												.formatTime(zeroPoint) + ")^"
+										+ i + " +\n";
+							}
+							strRepr += coeffs[0];
+						}
+
+						return strRepr;
+					}
+
 					public String toExcelString() {
 						String strRepr = functionStrMap.get(LocaleProps
 								.get("MODEL_INFO_EXCEL_TITLE"));
@@ -229,8 +251,10 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += coeffs[i];
-								strRepr += "*(A1-" + zeroPoint + ")^" + i
-										+ ",\n";
+								strRepr += "*(A1-"
+										+ NumericPrecisionPrefs
+												.formatTime(zeroPoint) + ")^"
+										+ i + ",\n";
 							}
 							strRepr += coeffs[0] + ")";
 						}
@@ -248,8 +272,10 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += coeffs[i];
-								strRepr += "*(t-" + zeroPoint + ")^" + i
-										+ " +\n";
+								strRepr += "*(t-"
+										+ NumericPrecisionPrefs
+												.formatTime(zeroPoint) + ")^"
+										+ i + " +\n";
 							}
 							strRepr += coeffs[0];
 						}
@@ -390,7 +416,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 
 									functionStrMap.put(title, extremaStr);
 								}
-								
+
 								// Minimum/maximum.
 								// ApacheCommonsBrentOptimiserExtremaFinder
 								// finder = new
@@ -407,9 +433,13 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 								// functionStrMap.put(title, extremaStr);
 								// }
 
-								// Excel, R equations.
+								// VeLa, Excel, R equations.
 								// TODO: consider Python, e.g. for use with
 								// matplotlib.
+								functionStrMap.put(LocaleProps
+										.get("MODEL_INFO_FUNCTION_TITLE"),
+										toString());
+
 								functionStrMap.put(LocaleProps
 										.get("MODEL_INFO_EXCEL_TITLE"),
 										toExcelString());
