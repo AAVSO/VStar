@@ -30,7 +30,8 @@ public enum Operation {
 	ADD("+", 2), SUB("-", 2), NEG("-", 1), MUL("*", 2), DIV("/", 2), AND("and",
 			2), OR("or", 2), NOT("not", 1), EQUAL("=", 2), NOT_EQUAL("<>", 2), GREATER_THAN(
 			">", 2), LESS_THAN("<", 2), GREATER_THAN_OR_EQUAL(">=", 2), LESS_THAN_OR_EQUAL(
-			"<=", 2), VARIABLE("var"), FUNCTION("func");
+			"<=", 2), APPROXIMATELY_EQUAL("=~", 2), VARIABLE("var"), FUNCTION(
+			"func");
 
 	private String symbol;
 	private int arity;
