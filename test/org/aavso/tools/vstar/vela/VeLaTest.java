@@ -132,25 +132,25 @@ public class VeLaTest extends TestCase {
 
 	public void testFuncParameterless1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		double result = vela.realExpression("today()");
+		double result = vela.realExpression("today");
 		assertEquals(today(), result);
 	}
 
 	public void testFuncParameterless2() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		double result = vela.realExpression("today()");
+		double result = vela.realExpression("today");
 		assertEquals(today(), result);
 	}
 
 	public void testFuncParameterlessAsSubexpression1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		double result = vela.realExpression("today()+2");
+		double result = vela.realExpression("today+2");
 		assertEquals(today() + 2, result);
 	}
 
 	public void testFuncParameterlessAsSubexpression() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		double result = vela.realExpression("today()+2");
+		double result = vela.realExpression("today+2");
 		assertEquals(today() + 2, result);
 	}
 
@@ -210,7 +210,7 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
-	public void testStringAdditionAndEquality1() {
+	public void testStringEquality1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		boolean result = vela.booleanExpression("\"foo\" <> \"foobar\"");
 		assertTrue(result);
@@ -219,6 +219,30 @@ public class VeLaTest extends TestCase {
 	public void testStringAdditionAndEquality2() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		boolean result = vela.booleanExpression("\"foo\"+\"bar\" = \"foobar\"");
+		assertTrue(result);
+	}
+
+	public void testRegularExpression1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("\"Johnson V\" =~ \".+V\"");
+		assertTrue(result);
+	}
+
+	public void testRegularExpression2() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("not(\"Johnson B\" =~ \".+V\")");
+		assertTrue(result);
+	}
+
+	public void testRegularExpression3() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("\"12.345\" =~ \".+\\d+\"");
+		assertTrue(result);
+	}
+
+	public void testRegularExpressionWithRealConvertedToString() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression("12.345 =~ \".+\\d+\"");
 		assertTrue(result);
 	}
 
@@ -283,7 +307,7 @@ public class VeLaTest extends TestCase {
 
 	public void testLogicalNegationExpression2() {
 		Map<String, Operand> env = new HashMap<String, Operand>();
-		env.put("raining", new Operand(Type.BOOLEAN, false));
+		env.put("raining".toUpperCase(), new Operand(Type.BOOLEAN, false));
 		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(env));
 		boolean result = vela.booleanExpression("not raining", true);
 		assertTrue(result);
@@ -293,17 +317,17 @@ public class VeLaTest extends TestCase {
 
 	public void testVariableMeaningOfLife() {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
-		environment.put("meaning_of_life", new Operand(Type.DOUBLE, 42));
+		environment.put("meaning_of_life".toUpperCase(), new Operand(
+				Type.DOUBLE, 42));
 		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(
 				environment));
 		boolean result = vela.booleanExpression("meaning_of_life = 42");
 		assertTrue(result);
 	}
 
-	// TODO: fix!
 	public void _testVariableSingleCharacterVariable() {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
-		environment.put("x", new Operand(Type.DOUBLE, 42));
+		environment.put("x".toUpperCase(), new Operand(Type.DOUBLE, 42));
 		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(
 				environment));
 		boolean result = vela.booleanExpression("x = 42");
@@ -394,7 +418,7 @@ public class VeLaTest extends TestCase {
 			List<ValidObservation> obs) {
 
 		VeLaValidObservationEnvironment.reset();
-		
+
 		VeLaInterpreter vela = new VeLaInterpreter();
 
 		List<ValidObservation> filteredObs = new ArrayList<ValidObservation>();

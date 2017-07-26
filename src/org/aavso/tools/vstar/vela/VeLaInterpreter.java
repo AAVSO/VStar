@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
@@ -49,14 +50,17 @@ public class VeLaInterpreter {
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
 	private static Map<String, Operand> exprToResult = new HashMap<String, Operand>();
 
+	// Regular expression pattern cache.
+	private static Map<String, Pattern> regexPatterns = new HashMap<String, Pattern>();
+
 	// TODO: make map of string to zero arity executor
-	private static Map<String,String> parameterLessFunctions;
-	
+	private static Map<String, String> parameterLessFunctions;
+
 	static {
-		parameterLessFunctions = new HashMap<String,String>();
+		parameterLessFunctions = new HashMap<String, String>();
 		parameterLessFunctions.put("TODAY", "");
 	}
-	
+
 	private VeLaErrorListener errorListener;
 
 	public VeLaInterpreter(AbstractVeLaEnvironment environment) {
@@ -487,6 +491,17 @@ public class VeLaInterpreter {
 			default:
 			}
 			break;
+		case APPROXIMATELY_EQUAL:
+			Pattern pattern;
+			String regex = operand2.stringVal();
+			if (!regexPatterns.containsKey(regex)) {
+				pattern = Pattern.compile(regex);
+				regexPatterns.put(regex, pattern);
+			}
+			pattern = regexPatterns.get(regex);
+			stack.push(new Operand(Type.BOOLEAN, pattern.matcher(
+					operand1.stringVal()).matches()));
+			break;
 		default:
 			break;
 		}
@@ -523,8 +538,7 @@ public class VeLaInterpreter {
 	 * @throws VeLaEvalError
 	 *             If a function evaluation error occurs.
 	 */
-	private void applyFunction(String funcName)
-			throws VeLaEvalError {
+	private void applyFunction(String funcName) throws VeLaEvalError {
 		String canonicalFuncName = funcName.toUpperCase();
 
 		// TODO: create function executor objects
