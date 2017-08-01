@@ -104,6 +104,24 @@ public class VeLaTest extends TestCase {
 		assertEquals(-25.0, result);
 	}
 
+	public void testReal1() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("2.25+1");
+		assertEquals(3.25, result);
+	}
+
+	public void testReal2() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("2.25-1");
+		assertEquals(1.25, result);
+	}
+
+	public void testParens0() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		double result = vela.realExpression("(2457580.25+1004)*10");
+		assertEquals(24585842.50, result);
+	}
+
 	public void testParens1() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		double result = vela.realExpression("(2457580.25+1004-2)*10");
@@ -230,7 +248,8 @@ public class VeLaTest extends TestCase {
 
 	public void testRegularExpression2() {
 		VeLaInterpreter vela = new VeLaInterpreter();
-		boolean result = vela.booleanExpression("not(\"Johnson B\" =~ \".+V\")");
+		boolean result = vela
+				.booleanExpression("not(\"Johnson B\" =~ \".+V\")");
 		assertTrue(result);
 	}
 
@@ -325,12 +344,28 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
-	public void _testVariableSingleCharacterVariable() {
+	public void testVariableSingleCharacterVariable() {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
 		environment.put("x".toUpperCase(), new Operand(Type.DOUBLE, 42));
 		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(
 				environment));
 		boolean result = vela.booleanExpression("x = 42");
+		assertTrue(result);
+	}
+
+	// Functions
+
+	public void testFunctionSub() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression(
+				"sub(2, 3) = -1", true);
+		assertTrue(result);
+	}
+
+	public void testFunctionContains() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		boolean result = vela.booleanExpression(
+				"contains(\"xyz123abc\", \"23a\")", true);
 		assertTrue(result);
 	}
 

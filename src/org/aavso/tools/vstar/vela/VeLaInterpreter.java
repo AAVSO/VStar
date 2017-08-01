@@ -19,9 +19,9 @@ package org.aavso.tools.vstar.vela;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -53,16 +53,18 @@ public class VeLaInterpreter {
 	// Regular expression pattern cache.
 	private static Map<String, Pattern> regexPatterns = new HashMap<String, Pattern>();
 
-	// TODO: make map of string to zero arity executor
-	private static Map<String, String> parameterLessFunctions;
-
-	static {
-		parameterLessFunctions = new HashMap<String, String>();
-		parameterLessFunctions.put("TODAY", "");
-	}
+	// A map of names to functions
+	private static Map<String, FunctionExecutor> functions = new HashMap<String, FunctionExecutor>();
 
 	private VeLaErrorListener errorListener;
 
+	static {
+		initFunctionExecutors();
+	}
+
+	/**
+	 * Construct a VeLa interpreter with an environment.
+	 */
 	public VeLaInterpreter(AbstractVeLaEnvironment environment) {
 		errorListener = new VeLaErrorListener();
 
@@ -75,6 +77,9 @@ public class VeLaInterpreter {
 		}
 	}
 
+	/**
+	 * Construct a VeLa interpreter without an environment.
+	 */
 	public VeLaInterpreter() {
 		this(null);
 	}
@@ -288,11 +293,11 @@ public class VeLaInterpreter {
 				Pair<Boolean, Operand> result = environment.lookup(varName);
 				if (result.first) {
 					stack.push(result.second);
-				} else if (parameterLessFunctions.containsKey(varName)) {
+				} else if (functions.containsKey(varName)) {
 					applyFunction(varName);
 				} else {
-					throw new VeLaEvalError("Unknown variable: "
-							+ ast.getToken());
+					throw new VeLaEvalError("Unknown variable: \""
+							+ ast.getToken() + "\"");
 				}
 			} else if (ast.getOp() == Operation.FUNCTION) {
 				// Evaluate parameters, if any.
@@ -302,11 +307,12 @@ public class VeLaInterpreter {
 					}
 				}
 
-				// Prepare parameter list.
-				List<Operand> params = new ArrayList<Operand>();
-				// TODO: check order
+				// Prepare parameter list. Note that we need to compensate for
+				// the fact that the operands will be popped from the stack in
+				// the reverse order to what is required.
+				LinkedList<Operand> params = new LinkedList<Operand>();
 				while (!stack.isEmpty()) {
-					params.add(stack.pop());
+					params.addFirst(stack.pop());
 				}
 
 				// Apply function to parameters.
@@ -522,11 +528,16 @@ public class VeLaInterpreter {
 			throws VeLaEvalError {
 		String canonicalFuncName = funcName.toUpperCase();
 
-		// TODO: create function executor objects
-		// (Strategy pattern: arity(), apply())
-		if (canonicalFuncName.equals("???")) {
+		if (functions.containsKey(canonicalFuncName)) {
+			FunctionExecutor function = functions.get(canonicalFuncName);
+			if (function.conforms(params)) {
+				stack.push(function.apply(params));
+			} else {
+				throw new VeLaEvalError("Invalid parameters for function: \""
+						+ funcName + "\"");
+			}
 		} else {
-			throw new VeLaEvalError("Unknown function: " + funcName);
+			throw new VeLaEvalError("Unknown function: \"" + funcName + "\"");
 		}
 	}
 
@@ -539,21 +550,7 @@ public class VeLaInterpreter {
 	 *             If a function evaluation error occurs.
 	 */
 	private void applyFunction(String funcName) throws VeLaEvalError {
-		String canonicalFuncName = funcName.toUpperCase();
-
-		// TODO: create function executor objects
-		// (Strategy pattern: arity(), apply())
-		if (canonicalFuncName.equals("TODAY")) {
-			Calendar cal = Calendar.getInstance();
-			int year = cal.get(Calendar.YEAR);
-			int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
-			int day = cal.get(Calendar.DAY_OF_MONTH);
-			double jd = AbstractDateUtil.getInstance().calendarToJD(year,
-					month, day);
-			stack.push(new Operand(Type.DOUBLE, jd));
-		} else {
-			throw new VeLaEvalError("Unknown function: " + funcName);
-		}
+		applyFunction(funcName, FunctionExecutor.NO_ACTUALS);
 	}
 
 	/**
@@ -593,5 +590,41 @@ public class VeLaInterpreter {
 				throw new NumberFormatException(e.getLocalizedMessage());
 			}
 		}
+	}
+
+	/**
+	 * Initialise function executors
+	 */
+	private static void initFunctionExecutors() {
+		functions.put("TODAY", new FunctionExecutor("TODAY", Type.DOUBLE) {
+			@Override
+			public Operand apply(List<Operand> operands) {
+				Calendar cal = Calendar.getInstance();
+				int year = cal.get(Calendar.YEAR);
+				int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
+				int day = cal.get(Calendar.DAY_OF_MONTH);
+				double jd = AbstractDateUtil.getInstance().calendarToJD(year,
+						month, day);
+				return new Operand(Type.DOUBLE, jd);
+			}
+		});
+
+		functions.put("CONTAINS", new FunctionExecutor("CONTAINS", new Type[] {
+				Type.STRING, Type.STRING }, Type.STRING) {
+			@Override
+			public Operand apply(List<Operand> operands) {
+				return new Operand(Type.STRING, operands.get(0).stringVal()
+						.contains(operands.get(1).stringVal()));
+			}
+		});
+
+		functions.put("SUB", new FunctionExecutor("SUB", new Type[] {
+				Type.DOUBLE, Type.DOUBLE }, Type.DOUBLE) {
+			@Override
+			public Operand apply(List<Operand> operands) {
+				return new Operand(Type.DOUBLE, operands.get(0).doubleVal()
+						- operands.get(1).doubleVal());
+			}
+		});
 	}
 }
