@@ -28,7 +28,6 @@ import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
-import org.aavso.tools.vstar.vela.VeLaParser.StringExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.VarContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -41,7 +40,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class ExpressionListener extends VeLaBaseListener {
 
 	private Stack<AST> astStack;
-	
+
 	public ExpressionListener() {
 		astStack = new Stack<AST>();
 	}
@@ -102,7 +101,8 @@ public class ExpressionListener extends VeLaBaseListener {
 				AST right = astStack.pop();
 				AST left = astStack.pop();
 				if (op.contains("=") || op.contains("<") || op.contains(">")) {
-					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
+					astStack.push(new AST(Operation.getBinaryOp(op), left,
+							right));
 				}
 			}
 		}
@@ -118,7 +118,8 @@ public class ExpressionListener extends VeLaBaseListener {
 				switch (op.charAt(0)) {
 				case '+':
 				case '-':
-					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
+					astStack.push(new AST(Operation.getBinaryOp(op), left,
+							right));
 					break;
 				}
 			}
@@ -135,7 +136,8 @@ public class ExpressionListener extends VeLaBaseListener {
 				switch (op.charAt(0)) {
 				case '*':
 				case '/':
-					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
+					astStack.push(new AST(Operation.getBinaryOp(op), left,
+							right));
 					break;
 				}
 			}
@@ -156,38 +158,25 @@ public class ExpressionListener extends VeLaBaseListener {
 	}
 
 	@Override
-	public void exitStringExpression(StringExpressionContext ctx) {
-		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
-			String op = ctx.getChild(i).getText();
-			if (ctx.getChild(i).getChildCount() == 0) {
-				AST right = astStack.pop();
-				AST left = astStack.pop();
-				switch (op.charAt(0)) {
-				case '+':
-					astStack.push(new AST(Operation.getBinaryOp(op), left, right));
-					break;
-				}
-			}
-		}
-	}
-
-	@Override
 	public void exitFunc(FuncContext ctx) {
-		String func = ctx.getChild(0).getText();
+		String func = ctx.getChild(0).getText().toUpperCase();
 		AST ast = new AST(func, Operation.FUNCTION);
+		while (!astStack.isEmpty()) {
+			AST child = astStack.pop();
+			ast.addChild(child);
+		}
 		astStack.push(ast);
 	}
 
 	@Override
 	public void exitVar(VarContext ctx) {
-		String func = ctx.getChild(0).getText().toUpperCase();
-		AST ast = new AST(func, Operation.VARIABLE);
-		astStack.push(ast);
+		String var = ctx.getChild(0).getText().toUpperCase();
+		astStack.push(new AST(var, Operation.VARIABLE));
 	}
 
 	@Override
 	public void exitReal(RealContext ctx) {
-		astStack.push(new AST(ctx.getText(), Type.DOUBLE));
+		astStack.push(new AST(ctx.getChild(0).getText(), Type.DOUBLE));
 	}
 
 	@Override
