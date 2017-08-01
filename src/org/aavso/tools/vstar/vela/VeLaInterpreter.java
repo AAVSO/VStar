@@ -617,14 +617,5 @@ public class VeLaInterpreter {
 						.contains(operands.get(1).stringVal()));
 			}
 		});
-
-		functions.put("SUB", new FunctionExecutor("SUB", new Type[] {
-				Type.DOUBLE, Type.DOUBLE }, Type.DOUBLE) {
-			@Override
-			public Operand apply(List<Operand> operands) {
-				return new Operand(Type.DOUBLE, operands.get(0).doubleVal()
-						- operands.get(1).doubleVal());
-			}
-		});
 	}
 }

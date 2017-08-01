@@ -12,6 +12,9 @@ grammar VeLa;
 //     t -> real-expression-over-t
 //   | (boolean-expression : t -> real-expression-over-t ...)+
 // - add print statement for higher-level use of VeLa with LLVM code generation
+// - add comments (-- or #)
+
+// ** Parser rules **
 
 booleanExpression
 :
@@ -53,13 +56,7 @@ relationalExpression
 groupedBooleanExpression
 :
 	LPAREN booleanExpression RPAREN
-	| expression
-;
-
-// TODO: rename realExpression as expression
-expression
-:
-	realExpression
+	| realExpression
 ;
 
 realExpression
@@ -86,11 +83,10 @@ multiplicativeExpression
 
 unaryExpression
 :
-	sign? numericFactor
+	sign? factor
 ;
 
-// TODO: change to factor
-numericFactor
+factor
 :
 	LPAREN realExpression RPAREN
 	| real
@@ -104,6 +100,11 @@ real
 	REAL
 ;
 
+string
+:
+	STRING
+;
+
 var
 :
 	IDENT
@@ -111,9 +112,9 @@ var
 
 func
 :
-	IDENT LPAREN expression
+	IDENT LPAREN realExpression
 	(
-		 comma expression
+		 comma realExpression
 	)* RPAREN
 ;
 
@@ -127,10 +128,7 @@ comma
 	COMMA
 ;
 
-string
-:
-	STRING
-;
+// ** Lexer rules **
 
 MINUS
 :
@@ -182,7 +180,7 @@ LESS_THAN_OR_EQUAL
 	'<='
 ;
 
-// In homage to Perl
+// Homage to Perl
 APPROXIMATELY_EQUAL
 :
 	'=~'
