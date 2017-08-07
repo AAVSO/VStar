@@ -428,7 +428,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 			Integer id = null;
 			Double jd = null;
 			Double mag = null;
-			double error = 0;
+			Double error = null;
 			SeriesType band = null;
 			String obscode = null;
 			String obsType = null;
@@ -518,7 +518,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 			ValidObservation ob = null;
 
-			if (id != null && jd != null && mag != null
+			if (id != null && jd != null && mag != null && error != null
 					&& valType != ValidationType.BAD) {
 
 				ob = new ValidObservation();
