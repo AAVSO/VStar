@@ -4,15 +4,15 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - add exponentiation (use associativity modifier)
-// - set membership: x in [ ... ]; see filter from plot descriptions
-// - math functions: by reflection from Math class or a targeted selection?
+// - types: integer, set literals
+// - set membership: x in [ ... ]; see filter from plot model descriptions
+// - exponentiation (use associativity modifier)
 // - selection (e.g. in models): Haskell functional-style patterns instead of if-then
 // - internal function representation in Models dialog should use VeLa:
 //     t -> real-expression-over-t
 //   | (boolean-expression : t -> real-expression-over-t ...)+
-// - add print statement for higher-level use of VeLa with LLVM code generation
-// - add comments (-- or #)
+// - print statement for higher-level use of VeLa with LLVM code generation
+// - comments (-- or #)
 
 // ** Parser rules **
 

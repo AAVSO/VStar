@@ -17,7 +17,9 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,11 +28,12 @@ import java.util.List;
  */
 public abstract class FunctionExecutor {
 
-	public static final Type[] NO_FORMALS = new Type[0];
+	public static final List<Type> NO_FORMALS = Collections.emptyList();
 	public static final List<Operand> NO_ACTUALS = new ArrayList<Operand>();
 
 	private String funcName;
-	private Type[] parameterTypes;
+	private Method method;
+	private List<Type> parameterTypes;
 	private Type returnType;
 
 	/**
@@ -44,6 +47,26 @@ public abstract class FunctionExecutor {
 	public abstract Operand apply(List<Operand> operands);
 
 	/**
+	 * Constructor for functions with a corresponding Java method to invoke.
+	 * 
+	 * @param funcName
+	 *            The function's name.
+	 * @param method
+	 *            The corresponding Java method object.
+	 * @param parameterTypes
+	 *            The function's parameter types.
+	 * @param returnType
+	 *            The function's return type.
+	 */
+	public FunctionExecutor(String funcName, Method method,
+			List<Type> parameterTypes, Type returnType) {
+		this.funcName = funcName;
+		this.method = method;
+		this.parameterTypes = parameterTypes;
+		this.returnType = returnType;
+	}
+
+	/**
 	 * Constructor
 	 * 
 	 * @param funcName
@@ -53,11 +76,40 @@ public abstract class FunctionExecutor {
 	 * @param returnType
 	 *            The function's return type.
 	 */
-	public FunctionExecutor(String funcName, Type[] parameterTypes,
+	public FunctionExecutor(String funcName, List<Type> parameterTypes,
 			Type returnType) {
-		this.funcName = funcName;
-		this.parameterTypes = parameterTypes;
-		this.returnType = returnType;
+		this(funcName, null, parameterTypes, returnType);
+	}
+
+	/**
+	 * Constructor for zero-arity functions with a corresponding Java method to
+	 * invoke.
+	 * 
+	 * @param funcName
+	 *            The function's name.
+	 * @param method
+	 *            The corresponding Java method object.
+	 * @param parameterTypes
+	 *            The function's parameter types.
+	 * @param returnType
+	 *            The function's return type.
+	 */
+	public FunctionExecutor(String funcName, Method method, Type returnType) {
+		this(funcName, method, NO_FORMALS, returnType);
+	}
+
+	/**
+	 * Constructor for zero-arity functions.
+	 * 
+	 * @param funcName
+	 *            The function's name.
+	 * @param parameterTypes
+	 *            The function's parameter types.
+	 * @param returnType
+	 *            The function's return type.
+	 */
+	public FunctionExecutor(String funcName, Type returnType) {
+		this(funcName, null, NO_FORMALS, returnType);
 	}
 
 	/**
@@ -71,11 +123,11 @@ public abstract class FunctionExecutor {
 	public boolean conforms(List<Operand> actualParameters) {
 		boolean result = true;
 
-		if (actualParameters.size() != parameterTypes.length) {
+		if (actualParameters.size() != parameterTypes.size()) {
 			result = false;
 		} else {
 			for (int i = 0; i < actualParameters.size(); i++) {
-				if (actualParameters.get(i).getType() != parameterTypes[i]) {
+				if (actualParameters.get(i).getType() != parameterTypes.get(i)) {
 					result = false;
 					break;
 				}
@@ -86,20 +138,6 @@ public abstract class FunctionExecutor {
 	}
 
 	/**
-	 * Constructor for zero-arity functions
-	 * 
-	 * @param funcName
-	 *            The function's name.
-	 * @param parameterTypes
-	 *            The function's parameter types.
-	 * @param returnType
-	 *            The function's return type.
-	 */
-	public FunctionExecutor(String funcName, Type returnType) {
-		this(funcName, NO_FORMALS, returnType);
-	}
-
-	/**
 	 * @return the funcName
 	 */
 	public String getFuncName() {
@@ -107,9 +145,16 @@ public abstract class FunctionExecutor {
 	}
 
 	/**
+	 * @return the method
+	 */
+	public Method getMethod() {
+		return method;
+	}
+
+	/**
 	 * @return the parameterTypes
 	 */
-	public Type[] getParameterTypes() {
+	public List<Type> getParameterTypes() {
 		return parameterTypes;
 	}
 
@@ -118,5 +163,10 @@ public abstract class FunctionExecutor {
 	 */
 	public Type getReturnType() {
 		return returnType;
+	}
+
+	public String toString() {
+		return String.format("%s :: %s -> %s", funcName, parameterTypes,
+				returnType);
 	}
 }

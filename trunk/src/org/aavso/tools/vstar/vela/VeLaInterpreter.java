@@ -17,16 +17,26 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
@@ -609,13 +619,111 @@ public class VeLaInterpreter {
 			}
 		});
 
-		functions.put("CONTAINS", new FunctionExecutor("CONTAINS", new Type[] {
-				Type.STRING, Type.STRING }, Type.STRING) {
-			@Override
-			public Operand apply(List<Operand> operands) {
-				return new Operand(Type.STRING, operands.get(0).stringVal()
-						.contains(operands.get(1).stringVal()));
+		// TODO: see whiteboard for more
+
+		// Functions from reflection over Math and String classes.
+		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
+		permittedTypes.add(double.class);
+		permittedTypes.add(boolean.class);
+		permittedTypes.add(String.class);
+		permittedTypes.add(CharSequence.class);
+
+		addFunctionExecutors(Math.class, permittedTypes, Collections.emptySet());
+		
+		addFunctionExecutors(String.class, permittedTypes, new HashSet<String>(
+				Arrays.asList("JOIN")));
+	}
+
+	/**
+	 * Given a class, add non zero-arity VeLa type compatible functions to the
+	 * functions map.
+	 * 
+	 * @param clazz
+	 *            The class from which to add function executors.
+	 * @param permittedTypes
+	 *            The set of Java types that are compatible with VeLa.
+	 * @param exclusions
+	 *            Names of functions to exclude.
+	 */
+	private static void addFunctionExecutors(Class<?> clazz,
+			Set<Class<?>> permittedTypes, Set<String> exclusions) {
+		Method[] declaredMethods = clazz.getDeclaredMethods();
+
+		for (Method declaredMethod : declaredMethods) {
+			String funcName = declaredMethod.getName().toUpperCase();
+			Class<?> returnType = declaredMethod.getReturnType();
+			List<Class<?>> paramTypes = getParameterTypes(declaredMethod,
+					permittedTypes);
+
+			if (!exclusions.contains(funcName)
+					&& permittedTypes.contains(returnType)
+					&& !paramTypes.isEmpty()) {
+				// If the method is non-static, we need to include a parameter
+				// type for the object on which the method will be invoked.
+				if (!Modifier.isStatic(declaredMethod.getModifiers())) {
+					List<Class<?>> newParamTypes = new ArrayList<Class<?>>();
+					newParamTypes.add(clazz);
+					newParamTypes.addAll(paramTypes);
+					paramTypes = newParamTypes;
+				}
+
+				List<Type> types = paramTypes.stream()
+						.map(t -> Type.java2Vela(t))
+						.collect(Collectors.toList());
+
+				FunctionExecutor function = new FunctionExecutor(funcName,
+						declaredMethod, types, Type.java2Vela(returnType)) {
+
+					@Override
+					public Operand apply(List<Operand> operands) {
+						Method method = getMethod();
+						Operand result = null;
+						try {
+							// Note that this is the first use of Java 8
+							// lambdas in VStar!
+							Object obj = null;
+							if (!Modifier.isStatic(method.getModifiers())) {
+								obj = operands.get(0).toObject();
+								operands.remove(0);
+							}
+
+							result = Operand.object2Operand(
+									getReturnType(),
+									method.invoke(
+											obj,
+											operands.stream()
+													.map(op -> op.toObject())
+													.toArray()));
+
+						} catch (InvocationTargetException e) {
+							throw new VeLaEvalError(e.getLocalizedMessage());
+						} catch (IllegalAccessException e) {
+							throw new VeLaEvalError(e.getLocalizedMessage());
+						}
+
+						return result;
+					}
+				};
+
+				functions.put(funcName, function);
+
+				System.out.println(function.toString());
 			}
-		});
+		}
+	}
+
+	private static List<Class<?>> getParameterTypes(Method method,
+			Set<Class<?>> targetTypes) {
+		Parameter[] parameters = method.getParameters();
+		List<Class<?>> parameterTypes = new ArrayList<Class<?>>();
+
+		for (Parameter parameter : parameters) {
+			Class<?> type = parameter.getType();
+			if (targetTypes.contains(type)) {
+				parameterTypes.add(type);
+			}
+		}
+
+		return parameterTypes;
 	}
 }

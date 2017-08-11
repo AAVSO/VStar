@@ -25,4 +25,22 @@ package org.aavso.tools.vstar.vela;
 public enum Type {
 
 	DOUBLE, STRING, BOOLEAN;
+
+	public static Type java2Vela(Class<?> jtype) {
+		Type vtype = null;
+
+		if (jtype == double.class) {
+			vtype = DOUBLE;
+		} else if (jtype == String.class) {
+			vtype = STRING;
+		} else if (jtype == CharSequence.class) {
+			vtype = STRING;
+		} else if (jtype == boolean.class) {
+			vtype = BOOLEAN;
+		} else {
+			throw new IllegalArgumentException("Unknown type: " + jtype);
+		}
+
+		return vtype;
+	}
 }
