@@ -22,7 +22,9 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 /**
  * VeLa: VStar expression Language
  *
- * A class that represents typed operands. 
+ * A class that represents typed operands.
+ * 
+ * Note: should cache Operand instances
  */
 public class Operand {
 
@@ -46,6 +48,56 @@ public class Operand {
 		booleanVal = value;
 	}
 
+	/**
+	 * Given a VeLa type and a Java object, return an Operand instance.
+	 * 
+	 * @param type The VeLa type.
+	 * @param obj The Java object.
+	 * @return A corresponding Operand instance.
+	 */
+	public static Operand object2Operand(Type type, Object obj) {
+		Operand operand = null;
+		
+		switch (type) {
+		case DOUBLE:
+			operand = new Operand(Type.DOUBLE,
+					(Double) obj);
+			break;
+		case STRING:
+			operand = new Operand(Type.STRING,
+					(String) obj);
+			break;
+		case BOOLEAN:
+			operand = new Operand(Type.BOOLEAN,
+					(Boolean) obj);
+			break;
+		}
+
+		return operand;
+	}
+
+	/**
+	 * Return a Java object corresponding to this Operand instance.
+	 * @return A corresponding Java object.
+	 */
+	public Object toObject() {
+		Object obj = null;
+		
+		switch(type) {
+		case DOUBLE:
+			obj = doubleVal();
+			break;
+		case STRING:
+			obj = stringVal();
+			break;
+		case BOOLEAN:
+			obj = booleanVal();
+			break;
+		}
+		
+		return obj;
+	}
+	
 	/**
 	 * @return the type
 	 */
