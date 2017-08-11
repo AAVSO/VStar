@@ -346,11 +346,31 @@ public class VeLaTest extends TestCase {
 		assertEquals(today() + 2, result);
 	}
 
+	public void testFunctionSin() {
+		Map<String, Operand> env = new HashMap<String, Operand>();
+		env.put("pi".toUpperCase(), new Operand(Type.DOUBLE, Math.PI));
+
+		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(env));
+		double result = vela.realExpression("sin(pi/2)", true);
+		assertEquals(1.0, result);
+	}
+
 	public void testFunctionContains() {
 		VeLaInterpreter vela = new VeLaInterpreter();
 		boolean result = vela.booleanExpression(
 				"contains(\"xyz123abc\", \"23a\")", true);
 		assertTrue(result);
+	}
+
+	public void testFunctionEndsWith() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		assertTrue(vela.booleanExpression("endsWith(\"12345\", \"45\")", true));
+	}
+
+	public void testFunctionReplace() {
+		VeLaInterpreter vela = new VeLaInterpreter();
+		assertTrue(vela.booleanExpression(
+				"replace(\"abcd\", \"bc\", \"BC\") = \"aBCd\"", true));
 	}
 
 	// Filter test cases
