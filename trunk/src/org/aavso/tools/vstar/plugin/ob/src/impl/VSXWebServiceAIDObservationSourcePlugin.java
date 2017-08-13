@@ -428,7 +428,7 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 			Integer id = null;
 			Double jd = null;
 			Double mag = null;
-			Double error = null;
+			Double error = 0.0;
 			SeriesType band = null;
 			String obscode = null;
 			String obsType = null;
