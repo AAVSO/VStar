@@ -17,7 +17,11 @@
  */
 package org.aavso.tools.vstar.util.locale;
 
+import org.aavso.tools.vstar.vela.Type;
+import org.aavso.tools.vstar.vela.Operand;
+import org.aavso.tools.vstar.vela.VeLaEvalError;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
+import org.aavso.tools.vstar.vela.VeLaParseError;
 
 /**
  * This class contains a static methods that parses numeric expressions in a
@@ -26,24 +30,33 @@ import org.aavso.tools.vstar.vela.VeLaInterpreter;
  */
 public class NumberParser {
 
+	private static VeLaInterpreter vela = new VeLaInterpreter();
+
 	/**
 	 * Parse a string, returning a double primitive value, or if no valid double
-	 * value is present, throw a NumberFormatException. The string is first
-	 * trimmed of leading and trailing whitespace.
+	 * value is present, throw an exception. The string is first trimmed of
+	 * leading and trailing whitespace.
 	 * 
 	 * @param str
 	 *            The string that (hopefully) contains a number.
 	 * @return The double value corresponding to the initial parseable portion
 	 *         of the string.
+	 * @throws VeLaParseError
+	 *             If a parse error occurs.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
 	 * @throws NumberFormatException
-	 *             If no valid double value is present.
+	 *             If there was no valid double value resulting from the parse
+	 *             (e.g. the VeLa expression evaluated to a string).
 	 */
-	public static double parseDouble(String str) throws NumberFormatException {
-		// TODO:
-		// - consider treating VeLa interpreter as a Singleton for this purpose
-		// - realExpression() throws a VeLaParseError not NumberFormatException;
-		//   catch one and re-throw
-		VeLaInterpreter vela = new VeLaInterpreter();
-		return vela.realExpression(str);
+	public static double parseDouble(String str) throws VeLaParseError,
+			VeLaEvalError, NumberFormatException {
+		Operand operand = vela.expressionToOperand(str);
+		
+		if (operand.getType() != Type.DOUBLE) {
+			throw new NumberFormatException();
+		}
+		
+		return operand.doubleVal();
 	}
 }

@@ -53,6 +53,8 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
  */
 public class VeLaInterpreter {
 
+	private boolean verbose;
+
 	private Stack<Operand> stack;
 	private AbstractVeLaEnvironment environment;
 
@@ -73,9 +75,9 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Construct a VeLa interpreter with an environment.
+	 * Construct a VeLa interpreter with an environment and a verbosity flag.
 	 */
-	public VeLaInterpreter(AbstractVeLaEnvironment environment) {
+	public VeLaInterpreter(AbstractVeLaEnvironment environment, boolean verbose) {
 		errorListener = new VeLaErrorListener();
 
 		stack = new Stack<Operand>();
@@ -85,13 +87,26 @@ public class VeLaInterpreter {
 		} else {
 			this.environment = new NullVeLaEnvironment();
 		}
+
+		this.verbose = verbose;
+	}
+
+	/**
+	 * Construct a VeLa interpreter with an environment.
+	 */
+	public VeLaInterpreter(AbstractVeLaEnvironment environment) {
+		this(environment, false);
 	}
 
 	/**
 	 * Construct a VeLa interpreter without an environment.
 	 */
+	public VeLaInterpreter(boolean verbose) {
+		this(null, verbose);
+	}
+
 	public VeLaInterpreter() {
-		this(null);
+		this(null, false);
 	}
 
 	public void setEnvironment(AbstractVeLaEnvironment environment) {
@@ -99,18 +114,91 @@ public class VeLaInterpreter {
 	}
 
 	/**
+	 * Expression interpreter entry point.
+	 * 
+	 * @param expr
+	 *            The expression string to be interpreted.
+	 * @return A real value result.
+	 * @throws VeLaParseError
+	 *             If a parse error occurs.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
+	 */
+	public double expression(String expr) throws VeLaParseError {
+
+		VeLaParser.ExpressionContext tree = getParser(expr).expression();
+		return commonExpression(expr, tree).doubleVal();
+	}
+
+	/**
+	 * Expression interpreter entry point.
+	 * 
+	 * @param expr
+	 *            The expression string to be interpreted.
+	 * @return An operand.
+	 * @throws VeLaParseError
+	 *             If a parse error occurs.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
+	 */
+	public Operand expressionToOperand(String expr) throws VeLaParseError {
+
+		VeLaParser.ExpressionContext tree = getParser(expr).expression();
+		return commonExpression(expr, tree);
+	}
+
+	/**
+	 * Boolean expression interpreter entry point.
+	 * 
+	 * @param expr
+	 *            The expression string to be interpreted.
+	 * @return A Boolean value result.
+	 * @throws VeLaParseError
+	 *             If a parse error occurs.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
+	 */
+	public boolean booleanExpression(String expr) throws VeLaParseError {
+
+		VeLaParser.BooleanExpressionContext tree = getParser(expr)
+				.booleanExpression();
+		return commonExpression(expr, tree).booleanVal();
+	}
+
+	// Helpers
+
+	/**
+	 * Given an expression string, return a VeLa parser object.
+	 * 
+	 * @param expr
+	 *            The expression string.
+	 * @return The parser object.
+	 */
+	private VeLaParser getParser(String expr) {
+		CharStream stream = new ANTLRInputStream(expr);
+
+		VeLaLexer lexer = new VeLaLexer(stream);
+		lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
+		lexer.addErrorListener(errorListener);
+
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+
+		return new VeLaParser(tokens);
+	}
+
+	/**
 	 * Generic expression evaluation entry point.
 	 * 
 	 * @param expr
 	 *            The expression string to be interpreted.
-	 * @param verbose
-	 *            Whether to output information messages.
 	 * @return A result of the specified type.
 	 * @throws VeLaParseError
 	 *             If a parse error occurs.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
 	 */
-	public Operand expression(String expr, ParserRuleContext tree,
-			boolean verbose) throws VeLaParseError {
+	public Operand commonExpression(String expr, ParserRuleContext tree)
+			throws VeLaParseError {
 
 		AST ast = null;
 
@@ -155,92 +243,6 @@ public class VeLaInterpreter {
 		}
 
 		return result;
-	}
-
-	/**
-	 * Real expression interpreter entry point with verbose parameter set false.
-	 * 
-	 * @param expr
-	 *            The expression string to be interpreted.
-	 * @return A real value result.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 */
-	public double realExpression(String expr) throws VeLaParseError {
-		return realExpression(expr, false);
-	}
-
-	/**
-	 * Real expression interpreter entry point.
-	 * 
-	 * @param expr
-	 *            The expression string to be interpreted.
-	 * @param verbose
-	 *            Whether to output information messages.
-	 * @return A real value result.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 */
-	public double realExpression(String expr, boolean verbose)
-			throws VeLaParseError {
-
-		VeLaParser.RealExpressionContext tree = getParser(expr)
-				.realExpression();
-		return expression(expr, tree, verbose).doubleVal();
-	}
-
-	/**
-	 * Boolean expression interpreter entry point with verbose parameter set
-	 * false.
-	 * 
-	 * @param expr
-	 *            The expression string to be interpreted.
-	 * @return A Boolean value result.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 */
-	public boolean booleanExpression(String expr) throws VeLaParseError {
-		return booleanExpression(expr, false);
-	}
-
-	/**
-	 * Boolean expression interpreter entry point.
-	 * 
-	 * @param expr
-	 *            The expression string to be interpreted.
-	 * @param verbose
-	 *            Whether to output information messages.
-	 * @return A Boolean value result.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 */
-	public boolean booleanExpression(String expr, boolean verbose)
-			throws VeLaParseError {
-
-		VeLaParser.BooleanExpressionContext tree = getParser(expr)
-				.booleanExpression();
-		return expression(expr, tree, verbose).booleanVal();
-	}
-
-	// Helpers
-
-	/**
-	 * Given an expression string, return a VeLa parser object.
-	 * 
-	 * @param expr
-	 *            The expression string.
-	 * @return The parser object.
-	 */
-	private VeLaParser getParser(String expr) {
-		CharStream stream = new ANTLRInputStream(expr);
-
-		VeLaLexer lexer = new VeLaLexer(stream);
-		lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
-		lexer.addErrorListener(errorListener);
-
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-
-		return new VeLaParser(tokens);
 	}
 
 	/**
@@ -297,8 +299,8 @@ public class VeLaInterpreter {
 					break;
 				}
 			} else if (ast.getOp() == Operation.VARIABLE) {
-				// Look up variable in the environment, pushing it on the stack
-				// if it exists, throwing an exception if not.
+				// Look up variable in the environment, pushing it onto the
+				// stack if it exists, throwing an exception if not.
 				String varName = ast.getToken().toUpperCase();
 				Pair<Boolean, Operand> result = environment.lookup(varName);
 				if (result.first) {
@@ -619,8 +621,6 @@ public class VeLaInterpreter {
 			}
 		});
 
-		// TODO: see whiteboard for more
-
 		// Functions from reflection over Math and String classes.
 		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
 		permittedTypes.add(double.class);
@@ -629,7 +629,7 @@ public class VeLaInterpreter {
 		permittedTypes.add(CharSequence.class);
 
 		addFunctionExecutors(Math.class, permittedTypes, Collections.emptySet());
-		
+
 		addFunctionExecutors(String.class, permittedTypes, new HashSet<String>(
 				Arrays.asList("JOIN")));
 	}
@@ -707,7 +707,7 @@ public class VeLaInterpreter {
 
 				functions.put(funcName, function);
 
-				System.out.println(function.toString());
+				//System.out.println(function.toString());
 			}
 		}
 	}

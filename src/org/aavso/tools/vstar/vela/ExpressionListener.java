@@ -21,11 +21,11 @@ import java.util.Stack;
 
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.ExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
-import org.aavso.tools.vstar.vela.VeLaParser.RealExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
 import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
@@ -53,8 +53,8 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void exitBooleanExpression(BooleanExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
-			String op = ctx.getChild(i).getText();
-			if (ctx.getChild(i).getChildCount() == 0) {
+			if (ctx.getChild(i) instanceof TerminalNode) {
+				String op = ctx.getChild(i).getText();
 				AST right = astStack.pop();
 				AST left = astStack.pop();
 				if (op.equalsIgnoreCase("or")) {
@@ -67,8 +67,8 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void exitConjunctiveExpression(ConjunctiveExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
-			String op = ctx.getChild(i).getText();
-			if (ctx.getChild(i).getChildCount() == 0) {
+			if (ctx.getChild(i) instanceof TerminalNode) {
+				String op = ctx.getChild(i).getText();
 				AST right = astStack.pop();
 				AST left = astStack.pop();
 				if (op.equalsIgnoreCase("and")) {
@@ -82,9 +82,8 @@ public class ExpressionListener extends VeLaBaseListener {
 	public void exitLogicalNegationExpression(
 			LogicalNegationExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
-			String op = ctx.getChild(i).getText();
-			// TODO: use everywhere!
 			if (ctx.getChild(i) instanceof TerminalNode) {
+				String op = ctx.getChild(i).getText();
 				if (op.equalsIgnoreCase("not")) {
 					AST child = astStack.pop();
 					astStack.push(new AST(Operation.NOT, child));
@@ -96,8 +95,8 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void exitRelationalExpression(RelationalExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
-			String op = ctx.getChild(i).getText();
-			if (ctx.getChild(i).getChildCount() == 0) {
+			if (ctx.getChild(i) instanceof TerminalNode) {
+				String op = ctx.getChild(i).getText();
 				AST right = astStack.pop();
 				AST left = astStack.pop();
 				if (op.contains("=") || op.contains("<") || op.contains(">")) {
@@ -109,10 +108,10 @@ public class ExpressionListener extends VeLaBaseListener {
 	}
 
 	@Override
-	public void exitRealExpression(RealExpressionContext ctx) {
+	public void exitExpression(ExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
-			String op = ctx.getChild(i).getText();
-			if (ctx.getChild(i).getChildCount() == 0) {
+			if (ctx.getChild(i) instanceof TerminalNode) {
+				String op = ctx.getChild(i).getText();
 				AST right = astStack.pop();
 				AST left = astStack.pop();
 				switch (op.charAt(0)) {
@@ -129,8 +128,8 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void exitMultiplicativeExpression(MultiplicativeExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
-			String op = ctx.getChild(i).getText();
-			if (ctx.getChild(i).getChildCount() == 0) {
+			if (ctx.getChild(i) instanceof TerminalNode) {
+				String op = ctx.getChild(i).getText();
 				AST right = astStack.pop();
 				AST left = astStack.pop();
 				switch (op.charAt(0)) {
@@ -147,8 +146,8 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void exitUnaryExpression(UnaryExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
-			String op = ctx.getChild(i).getText();
 			if (ctx.getChild(i).getChildCount() == 1) {
+				String op = ctx.getChild(i).getText();
 				if (op.charAt(0) == '-') {
 					AST child = astStack.pop();
 					astStack.push(new AST(Operation.NEG, child));
