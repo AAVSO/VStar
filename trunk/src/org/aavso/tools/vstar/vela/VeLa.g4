@@ -56,10 +56,10 @@ relationalExpression
 groupedBooleanExpression
 :
 	LPAREN booleanExpression RPAREN
-	| realExpression
+	| expression
 ;
 
-realExpression
+expression
 :
 	multiplicativeExpression
 	(
@@ -88,7 +88,7 @@ unaryExpression
 
 factor
 :
-	LPAREN realExpression RPAREN
+	LPAREN expression RPAREN
 	| real
 	| string
 	| var
@@ -112,9 +112,9 @@ var
 
 func
 :
-	IDENT LPAREN realExpression
+	IDENT LPAREN expression
 	(
-		 comma realExpression
+		 comma expression
 	)* RPAREN
 ;
 
