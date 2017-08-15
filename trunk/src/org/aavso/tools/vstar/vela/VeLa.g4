@@ -89,10 +89,16 @@ unaryExpression
 factor
 :
 	LPAREN expression RPAREN
+	| integer
 	| real
 	| string
 	| var
 	| func
+;
+
+integer
+:
+	INTEGER
 ;
 
 real
@@ -222,6 +228,11 @@ NOT
 :
 	'NOT'
 	| 'not'
+;
+
+INTEGER
+:
+	DIGIT+
 ;
 
 REAL

@@ -28,14 +28,20 @@ import org.aavso.tools.vstar.util.Pair;
 public abstract class AbstractVeLaEnvironment {
 
 	// Named operand cache.
-	private Map<String, Operand> operandCache;
+	private Map<String, Operand> intOperandCache;
+	private Map<String, Operand> doubleOperandCache;
+	private Map<String, Operand> stringOperandCache;
+	private Map<String, Operand> booleanOperandCache;
 
 	public AbstractVeLaEnvironment() {
-		operandCache = new HashMap<String, Operand>();
+		intOperandCache = new HashMap<String, Operand>();
+		doubleOperandCache = new HashMap<String, Operand>();
+		stringOperandCache = new HashMap<String, Operand>();
+		booleanOperandCache = new HashMap<String, Operand>();
 	}
 
 	/**
-	 * Lookup the named symbol exist in the environment.
+	 * Lookup the named symbol in the environment.
 	 * 
 	 * @param name
 	 *            The symbol's name.
@@ -46,44 +52,51 @@ public abstract class AbstractVeLaEnvironment {
 	public abstract Pair<Boolean, Operand> lookup(String name);
 
 	// Cached operator creation methods.
-	
-	protected Operand operand(String name, double value) {
-		Operand operand;
 
-		name = name.toUpperCase();
-		
-		if (operandCache.containsKey(name)) {
-			operand = operandCache.get(name);
-		} else {
-			operand = new Operand(Type.DOUBLE, value);
-		}
-
-		return operand;
+	protected Operand operand(String name, Integer value) {
+		return operand(intOperandCache, Type.INTEGER, name, value);
 	}
 
-	protected Operand operand(String name, boolean value) {
-		Operand operand;
+	protected Operand operand(String name, Double value) {
+		return operand(doubleOperandCache, Type.DOUBLE, name, value);
+	}
 
-		name = name.toUpperCase();
-
-		if (operandCache.containsKey(name)) {
-			operand = operandCache.get(name);
-		} else {
-			operand = new Operand(Type.BOOLEAN, value);
-		}
-
-		return operand;
+	protected Operand operand(String name, Boolean value) {
+		return operand(stringOperandCache, Type.STRING, name, value);
 	}
 
 	protected Operand operand(String name, String value) {
-		Operand operand;
+		return operand(booleanOperandCache, Type.BOOLEAN, name, value);
+	}
+
+	// Helpers
+
+	protected Operand operand(Map<String, Operand> cache, Type type,
+			String name, Object value) {
+		Operand operand = null;
 
 		name = name.toUpperCase();
 
-		if (operandCache.containsKey(name)) {
-			operand = operandCache.get(name);
+		if (cache.containsKey(name)) {
+			operand = cache.get(name);
 		} else {
-			operand = new Operand(Type.STRING, value);
+			switch (type) {
+
+			case INTEGER:
+				operand = new Operand(type, (int) value);
+				break;
+			case DOUBLE:
+				operand = new Operand(type, (double) value);
+				break;
+			case STRING:
+				operand = new Operand(type, (String) value);
+				break;
+			case BOOLEAN:
+				operand = new Operand(type, (boolean) value);
+				break;
+			}
+
+			cache.put(name, operand);
 		}
 
 		return operand;

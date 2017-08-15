@@ -23,6 +23,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncContext;
+import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
@@ -171,6 +172,11 @@ public class ExpressionListener extends VeLaBaseListener {
 	public void exitVar(VarContext ctx) {
 		String var = ctx.getChild(0).getText().toUpperCase();
 		astStack.push(new AST(var, Operation.VARIABLE));
+	}
+
+	@Override
+	public void exitInteger(IntegerContext ctx) {
+		astStack.push(new AST(ctx.getChild(0).getText(), Type.INTEGER));
 	}
 
 	@Override

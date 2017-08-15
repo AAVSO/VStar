@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.util.locale;
 
-import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.VeLaEvalError;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -52,11 +51,16 @@ public class NumberParser {
 	public static double parseDouble(String str) throws VeLaParseError,
 			VeLaEvalError, NumberFormatException {
 		Operand operand = vela.expressionToOperand(str);
-		
-		if (operand.getType() != Type.DOUBLE) {
+
+		switch (operand.getType()) {
+		case INTEGER:
+		case DOUBLE:
+			break;
+			
+		default:
 			throw new NumberFormatException();
 		}
-		
+
 		return operand.doubleVal();
 	}
 }
