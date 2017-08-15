@@ -100,8 +100,9 @@ public class VeLaTest extends TestCase {
 
 	public void testAddSubMulDiv2() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		double result = vela.expression("2+3-5*6");
-		assertEquals(-25.0, result);
+		Operand operand = vela.expressionToOperand("2+3-5*6");
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(-25, operand.intVal());
 	}
 
 	public void testReal1() {
@@ -329,7 +330,7 @@ public class VeLaTest extends TestCase {
 	public void testVariableMeaningOfLife() {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
 		environment.put("meaning_of_life".toUpperCase(), new Operand(
-				Type.DOUBLE, 42));
+				Type.INTEGER, 42));
 		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(
 				environment), true);
 		boolean result = vela.booleanExpression("meaning_of_life = 42");
@@ -338,7 +339,7 @@ public class VeLaTest extends TestCase {
 
 	public void testVariableSingleCharacterVariable() {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
-		environment.put("x".toUpperCase(), new Operand(Type.DOUBLE, 42));
+		environment.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
 		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(
 				environment), true);
 		boolean result = vela.booleanExpression("x = 42");
@@ -391,6 +392,13 @@ public class VeLaTest extends TestCase {
 				"replace(\"abcd\", \"bc\", \"BC\") = \"aBCd\""));
 	}
 
+	public void testLastIndexOf() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		Operand operand = vela.expressionToOperand("lastIndexOf(\"dabcde\", \"d\"");
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(4, operand.intVal());
+	}
+
 	// Filter test cases
 
 	public void testVeLaBooleanExpressionsAsFilters() {
@@ -421,13 +429,23 @@ public class VeLaTest extends TestCase {
 		}
 	}
 
-	public void testDivisionByZero() {
+	public void testDivisionByZero1() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		try {
+			vela.expression("42.42/0.0");
+			fail();
+		} catch (VeLaEvalError e) {
+			assertEquals(e.getMessage(), "42.42/0.0: division by zero error");
+		}
+	}
+
+	public void testDivisionByZero2() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
 		try {
 			vela.expression("42/0");
 			fail();
 		} catch (VeLaEvalError e) {
-			assertEquals(e.getMessage(), "42.0/0.0: division by zero error");
+			assertEquals(e.getMessage(), "42/0: division by zero error");
 		}
 	}
 

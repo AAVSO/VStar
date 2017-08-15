@@ -95,7 +95,7 @@ public class AST {
 		return children;
 	}
 
-	public AST leaf() {
+	public AST child() {
 		assert !isLeaf();
 		assert children.size() == 1;
 		return children.get(0);

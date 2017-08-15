@@ -24,12 +24,14 @@ package org.aavso.tools.vstar.vela;
  */
 public enum Type {
 
-	DOUBLE, STRING, BOOLEAN;
+	INTEGER, DOUBLE, STRING, BOOLEAN;
 
 	public static Type java2Vela(Class<?> jtype) {
 		Type vtype = null;
 
-		if (jtype == double.class) {
+		if (jtype == int.class) {
+			vtype = INTEGER;
+		} else if (jtype == double.class) {
 			vtype = DOUBLE;
 		} else if (jtype == String.class) {
 			vtype = STRING;

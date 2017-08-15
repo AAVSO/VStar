@@ -29,10 +29,16 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class Operand {
 
 	private Type type;
+	private int intVal;
 	private double doubleVal;
 	private String stringVal;
 	private boolean booleanVal;
-	
+
+	public Operand(Type type, int value) {
+		this.type = type;
+		intVal = value;
+	}
+
 	public Operand(Type type, double value) {
 		this.type = type;
 		doubleVal = value;
@@ -59,9 +65,13 @@ public class Operand {
 		Operand operand = null;
 		
 		switch (type) {
+		case INTEGER:
+			operand = new Operand(Type.INTEGER,
+					(int) obj);
+			break;
 		case DOUBLE:
 			operand = new Operand(Type.DOUBLE,
-					(Double) obj);
+					(double) obj);
 			break;
 		case STRING:
 			operand = new Operand(Type.STRING,
@@ -69,7 +79,7 @@ public class Operand {
 			break;
 		case BOOLEAN:
 			operand = new Operand(Type.BOOLEAN,
-					(Boolean) obj);
+					(boolean) obj);
 			break;
 		}
 
@@ -84,6 +94,9 @@ public class Operand {
 		Object obj = null;
 		
 		switch(type) {
+		case INTEGER:
+			obj = intVal();
+			break;
 		case DOUBLE:
 			obj = doubleVal();
 			break;
@@ -113,10 +126,24 @@ public class Operand {
 	}
 
 	/**
+	 * @param intVal the intVal to set
+	 */
+	public void setIntegerVal(int intVal) {
+		this.intVal = intVal;
+	}
+
+	/**
 	 * @param doubleVal the doubleVal to set
 	 */
 	public void setDoubleVal(double doubleVal) {
 		this.doubleVal = doubleVal;
+	}
+
+	/**
+	 * @return the intVal
+	 */
+	public int intVal() {
+		return intVal;
 	}
 
 	/**
@@ -159,14 +186,17 @@ public class Operand {
 		String str = "";
 		
 		switch(type) {
-		case STRING:
-			str = stringVal;
+		case INTEGER:
+			str = Integer.toString(intVal);
 			break;
 		case DOUBLE:
 			str = NumericPrecisionPrefs.formatOther(doubleVal);
 			break;
 		case BOOLEAN:
 			str = Boolean.toString(booleanVal);
+			break;
+		case STRING:
+			str = stringVal;
 			break;
 		}
 		
@@ -183,6 +213,7 @@ public class Operand {
 		long temp;
 		temp = Double.doubleToLongBits(doubleVal);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + intVal;
 		result = prime * result
 				+ ((stringVal == null) ? 0 : stringVal.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -206,6 +237,9 @@ public class Operand {
 		}
 		if (Double.doubleToLongBits(doubleVal) != Double
 				.doubleToLongBits(other.doubleVal)) {
+			return false;
+		}
+		if (intVal != other.intVal) {
 			return false;
 		}
 		if (stringVal == null) {

@@ -263,6 +263,10 @@ public class VeLaInterpreter {
 		if (ast.isLeaf() && ast.getOp() != Operation.FUNCTION
 				&& ast.getOp() != Operation.VARIABLE) {
 			switch (ast.getLiteralType()) {
+			case INTEGER:
+				stack.push(new Operand(Type.INTEGER, Integer.parseInt(ast
+						.getToken())));
+				break;
 			case DOUBLE:
 				stack.push(new Operand(Type.DOUBLE, parseDouble(ast.getToken())));
 				break;
@@ -284,16 +288,25 @@ public class VeLaInterpreter {
 
 			} else if (op.arity() == 1) {
 				// Unary
-				eval(ast.leaf());
+				eval(ast.child());
+
+				Operand operand = stack.pop();
 
 				switch (op) {
 				case NEG:
-					stack.push(new Operand(Type.DOUBLE, -stack.pop()
-							.doubleVal()));
+					switch (operand.getType()) {
+					case INTEGER:
+						stack.push(new Operand(Type.INTEGER, -operand.intVal()));
+						break;
+					case DOUBLE:
+						stack.push(new Operand(Type.DOUBLE, -operand
+								.doubleVal()));
+						break;
+					default:
+					}
 					break;
 				case NOT:
-					stack.push(new Operand(Type.BOOLEAN, !stack.pop()
-							.booleanVal()));
+					stack.push(new Operand(Type.BOOLEAN, !operand.booleanVal()));
 					break;
 				default:
 					break;
@@ -335,7 +348,7 @@ public class VeLaInterpreter {
 
 	/**
 	 * Unify operand types by converting both operands to strings if only one is
-	 * a string.
+	 * a string or both operands to double if only one is an integer.
 	 * 
 	 * @param a
 	 *            The first operand.
@@ -350,6 +363,12 @@ public class VeLaInterpreter {
 			convertToString(a);
 		} else if (a.getType() == Type.STRING && b.getType() != Type.STRING) {
 			convertToString(b);
+		} else if (a.getType() == Type.INTEGER && b.getType() == Type.DOUBLE) {
+			a.setDoubleVal(a.intVal());
+			a.setType(Type.DOUBLE);
+		} else if (a.getType() == Type.DOUBLE && b.getType() == Type.INTEGER) {
+			b.setDoubleVal(b.intVal());
+			b.setType(Type.DOUBLE);
 		}
 
 		return type;
@@ -365,6 +384,10 @@ public class VeLaInterpreter {
 		assert o.getType() != Type.STRING;
 
 		switch (o.getType()) {
+		case INTEGER:
+			o.setStringVal(Integer.toString(o.intVal()));
+			o.setType(Type.STRING);
+			break;
 		case DOUBLE:
 			o.setStringVal(NumericPrecisionPrefs.formatOther(o.doubleVal()));
 			o.setType(Type.STRING);
@@ -394,6 +417,10 @@ public class VeLaInterpreter {
 		switch (op) {
 		case ADD:
 			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.INTEGER, operand1.intVal()
+						+ operand2.intVal()));
+				break;
 			case DOUBLE:
 				stack.push(new Operand(Type.DOUBLE, operand1.doubleVal()
 						+ operand2.doubleVal()));
@@ -405,22 +432,54 @@ public class VeLaInterpreter {
 			}
 			break;
 		case SUB:
-			stack.push(new Operand(Type.DOUBLE, operand1.doubleVal()
-					- operand2.doubleVal()));
+			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.INTEGER, operand1.intVal()
+						- operand2.intVal()));
+				break;
+			case DOUBLE:
+				stack.push(new Operand(Type.DOUBLE, operand1.doubleVal()
+						- operand2.doubleVal()));
+				break;
+			default:
+			}
 			break;
 		case MUL:
-			stack.push(new Operand(Type.DOUBLE, operand1.doubleVal()
-					* operand2.doubleVal()));
+			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.INTEGER, operand1.intVal()
+						* operand2.intVal()));
+				break;
+			case DOUBLE:
+				stack.push(new Operand(Type.DOUBLE, operand1.doubleVal()
+						* operand2.doubleVal()));
+				break;
+			default:
+			}
 			break;
 		case DIV:
-
-			Double result = operand1.doubleVal() / operand2.doubleVal();
-			if (!result.isInfinite()) {
-				stack.push(new Operand(Type.DOUBLE, result));
-			} else {
-				throw new VeLaEvalError(String.format(
-						"%s/%s: division by zero error", operand1.doubleVal(),
-						operand2.doubleVal()));
+			switch (type) {
+			case INTEGER:
+				if (operand2.intVal() != 0) {
+					stack.push(new Operand(Type.INTEGER, operand1.intVal()
+							/ operand2.intVal()));
+				} else {
+					throw new VeLaEvalError(String.format(
+							"%s/%s: division by zero error", operand1.intVal(),
+							operand2.intVal()));
+				}
+				break;
+			case DOUBLE:
+				Double result = operand1.doubleVal() / operand2.doubleVal();
+				if (!result.isInfinite()) {
+					stack.push(new Operand(Type.DOUBLE, result));
+				} else {
+					throw new VeLaEvalError(String.format(
+							"%s/%s: division by zero error",
+							operand1.doubleVal(), operand2.doubleVal()));
+				}
+				break;
+			default:
 			}
 			break;
 		case AND:
@@ -433,6 +492,10 @@ public class VeLaInterpreter {
 			break;
 		case EQUAL:
 			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.BOOLEAN,
+						operand1.intVal() == operand2.intVal()));
+				break;
 			case DOUBLE:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() == operand2.doubleVal()));
@@ -446,6 +509,10 @@ public class VeLaInterpreter {
 			break;
 		case NOT_EQUAL:
 			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.BOOLEAN,
+						operand1.intVal() != operand2.intVal()));
+				break;
 			case DOUBLE:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() != operand2.doubleVal()));
@@ -459,6 +526,10 @@ public class VeLaInterpreter {
 			break;
 		case GREATER_THAN:
 			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.BOOLEAN,
+						operand1.intVal() > operand2.intVal()));
+				break;
 			case DOUBLE:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() > operand2.doubleVal()));
@@ -472,6 +543,10 @@ public class VeLaInterpreter {
 			break;
 		case LESS_THAN:
 			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.BOOLEAN,
+						operand1.intVal() < operand2.intVal()));
+				break;
 			case DOUBLE:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() < operand2.doubleVal()));
@@ -485,6 +560,10 @@ public class VeLaInterpreter {
 			break;
 		case GREATER_THAN_OR_EQUAL:
 			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.BOOLEAN,
+						operand1.intVal() >= operand2.intVal()));
+				break;
 			case DOUBLE:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() >= operand2.doubleVal()));
@@ -498,6 +577,10 @@ public class VeLaInterpreter {
 			break;
 		case LESS_THAN_OR_EQUAL:
 			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.BOOLEAN,
+						operand1.intVal() <= operand2.intVal()));
+				break;
 			case DOUBLE:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() <= operand2.doubleVal()));
@@ -623,6 +706,7 @@ public class VeLaInterpreter {
 
 		// Functions from reflection over Math and String classes.
 		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
+		permittedTypes.add(int.class);
 		permittedTypes.add(double.class);
 		permittedTypes.add(boolean.class);
 		permittedTypes.add(String.class);
@@ -707,7 +791,7 @@ public class VeLaInterpreter {
 
 				functions.put(funcName, function);
 
-				//System.out.println(function.toString());
+				 System.out.println(function.toString());
 			}
 		}
 	}
