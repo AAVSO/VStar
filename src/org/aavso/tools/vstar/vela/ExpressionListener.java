@@ -163,7 +163,7 @@ public class ExpressionListener extends VeLaBaseListener {
 		AST ast = new AST(func, Operation.FUNCTION);
 		while (!astStack.isEmpty()) {
 			AST child = astStack.pop();
-			ast.addChild(child);
+			ast.addFirstChild(child);
 		}
 		astStack.push(ast);
 	}

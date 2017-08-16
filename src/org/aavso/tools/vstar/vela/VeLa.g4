@@ -4,7 +4,7 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - types: integer, set literals
+// - types: set literals
 // - set membership: x in [ ... ]; see filter from plot model descriptions
 // - exponentiation (use associativity modifier)
 // - selection (e.g. in models): Haskell functional-style patterns instead of if-then
