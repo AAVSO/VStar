@@ -394,7 +394,7 @@ public class VeLaTest extends TestCase {
 
 	public void testLastIndexOf() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		Operand operand = vela.expressionToOperand("lastIndexOf(\"dabcde\", \"d\"");
+		Operand operand = vela.expressionToOperand("lastIndexOf(\"dabcde\", \"d\")");
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(4, operand.intVal());
 	}
