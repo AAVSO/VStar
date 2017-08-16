@@ -29,7 +29,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -332,12 +331,10 @@ public class VeLaInterpreter {
 					}
 				}
 
-				// Prepare parameter list. Note that we need to compensate for
-				// the fact that the operands will be popped from the stack in
-				// the reverse order to what is required.
-				LinkedList<Operand> params = new LinkedList<Operand>();
+				// Prepare parameter list.
+				List<Operand> params = new ArrayList<Operand>();
 				while (!stack.isEmpty()) {
-					params.addFirst(stack.pop());
+					params.add(stack.pop());
 				}
 
 				// Apply function to parameters.
@@ -704,6 +701,10 @@ public class VeLaInterpreter {
 			}
 		});
 
+		// TODO: add functions LIST(), SET() and corresponding Type and Operand
+		// cases; for performance reasons, I think we actually do want a
+		// composite (list) type rather than functions
+
 		// Functions from reflection over Math and String classes.
 		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
 		permittedTypes.add(int.class);
@@ -791,7 +792,7 @@ public class VeLaInterpreter {
 
 				functions.put(funcName, function);
 
-				 System.out.println(function.toString());
+				System.out.println(function.toString());
 			}
 		}
 	}

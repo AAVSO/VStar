@@ -17,7 +17,7 @@
  */
 package org.aavso.tools.vstar.vela;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -30,7 +30,7 @@ public class AST {
 	private String token;
 	private Type literalType;
 	private Operation op;
-	private List<AST> children;
+	private LinkedList<AST> children;
 
 	public AST() {
 		token = null;
@@ -81,10 +81,18 @@ public class AST {
 
 	public void addChild(AST child) {
 		if (children == null) {
-			children = new ArrayList<AST>();
+			children = new LinkedList<AST>();
 		}
 
 		children.add(child);
+	}
+
+	public void addFirstChild(AST child) {
+		if (children == null) {
+			children = new LinkedList<AST>();
+		}
+
+		children.addFirst(child);
 	}
 
 	public Type getLiteralType() {
