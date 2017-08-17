@@ -31,7 +31,7 @@ public enum Operation {
 			2), OR("or", 2), NOT("not", 1), EQUAL("=", 2), NOT_EQUAL("<>", 2), GREATER_THAN(
 			">", 2), LESS_THAN("<", 2), GREATER_THAN_OR_EQUAL(">=", 2), LESS_THAN_OR_EQUAL(
 			"<=", 2), APPROXIMATELY_EQUAL("=~", 2), VARIABLE("var"), FUNCTION(
-			"func");
+			"func"), LIST("list");
 
 	private String symbol;
 	private int arity;
@@ -60,6 +60,10 @@ public enum Operation {
 
 	private Operation(String symbol) {
 		this(symbol.toUpperCase(), 0);
+	}
+
+	private Operation() {
+		this(null, 0);
 	}
 
 	public String token() {

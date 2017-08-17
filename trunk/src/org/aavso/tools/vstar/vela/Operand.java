@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.util.List;
+
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -33,6 +35,7 @@ public class Operand {
 	private double doubleVal;
 	private String stringVal;
 	private boolean booleanVal;
+	private List<Operand> listVal;
 
 	public Operand(Type type, int value) {
 		this.type = type;
@@ -52,6 +55,11 @@ public class Operand {
 	public Operand(Type type, boolean value) {
 		this.type = type;
 		booleanVal = value;
+	}
+
+	public Operand(Type type, List<Operand> value) {
+		this.type = type;
+		listVal = value;
 	}
 
 	/**
@@ -81,6 +89,9 @@ public class Operand {
 			operand = new Operand(Type.BOOLEAN,
 					(boolean) obj);
 			break;
+		case LIST:
+			operand = new Operand(Type.LIST, (List<Operand>) obj);
+			break;
 		}
 
 		return operand;
@@ -95,16 +106,19 @@ public class Operand {
 		
 		switch(type) {
 		case INTEGER:
-			obj = intVal();
+			obj = intVal;
 			break;
 		case DOUBLE:
-			obj = doubleVal();
+			obj = doubleVal;
 			break;
 		case STRING:
-			obj = stringVal();
+			obj = stringVal;
 			break;
 		case BOOLEAN:
-			obj = booleanVal();
+			obj = booleanVal;
+			break;
+		case LIST:
+			obj = listVal;
 			break;
 		}
 		
@@ -181,6 +195,20 @@ public class Operand {
 		return booleanVal;
 	}
 
+	/**
+	 * @return the listVal
+	 */
+	public List<Operand> listVal() {
+		return listVal;
+	}
+
+	/**
+	 * @param listVal the listVal to set
+	 */
+	public void setListVal(List<Operand> listVal) {
+		this.listVal = listVal;
+	}
+
 	@Override
 	public String toString() {
 		String str = "";
@@ -198,6 +226,9 @@ public class Operand {
 		case STRING:
 			str = stringVal;
 			break;
+		case LIST:
+			str = listVal.toString();
+			break;
 		}
 		
 		str += " (" + type + ")";
@@ -214,6 +245,7 @@ public class Operand {
 		temp = Double.doubleToLongBits(doubleVal);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + intVal;
+		result = prime * result + ((listVal == null) ? 0 : listVal.hashCode());
 		result = prime * result
 				+ ((stringVal == null) ? 0 : stringVal.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -240,6 +272,13 @@ public class Operand {
 			return false;
 		}
 		if (intVal != other.intVal) {
+			return false;
+		}
+		if (listVal == null) {
+			if (other.listVal != null) {
+				return false;
+			}
+		} else if (!listVal.equals(other.listVal)) {
 			return false;
 		}
 		if (stringVal == null) {

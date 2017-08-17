@@ -99,6 +99,10 @@ public class AST {
 		return literalType;
 	}
 
+	public boolean hasChildren() {
+		return children != null;
+	}
+	
 	public List<AST> getChildren() {
 		return children;
 	}

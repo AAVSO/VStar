@@ -92,6 +92,7 @@ factor
 	| integer
 	| real
 	| string
+	| list
 	| var
 	| func
 ;
@@ -109,6 +110,14 @@ real
 string
 :
 	STRING
+;
+
+list
+:
+	LBRACKET expression?
+	(
+		comma expression
+	)* RBRACKET
 ;
 
 var
@@ -200,6 +209,16 @@ LPAREN
 RPAREN
 :
 	')'
+;
+
+LBRACKET
+:
+	'['
+;
+
+RBRACKET
+:
+	']'
 ;
 
 PERIOD

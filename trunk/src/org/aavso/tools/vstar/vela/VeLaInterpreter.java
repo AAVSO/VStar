@@ -260,7 +260,8 @@ public class VeLaInterpreter {
 	 */
 	private void eval(AST ast) throws VeLaEvalError {
 		if (ast.isLeaf() && ast.getOp() != Operation.FUNCTION
-				&& ast.getOp() != Operation.VARIABLE) {
+				&& ast.getOp() != Operation.VARIABLE
+				&& ast.getOp() != Operation.LIST) {
 			switch (ast.getLiteralType()) {
 			case INTEGER:
 				stack.push(new Operand(Type.INTEGER, Integer.parseInt(ast
@@ -323,9 +324,24 @@ public class VeLaInterpreter {
 					throw new VeLaEvalError("Unknown variable: \""
 							+ ast.getToken() + "\"");
 				}
+			} else if (ast.getOp() == Operation.LIST) {
+				// Evaluate list elements.
+				if (ast.hasChildren()) {
+					for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
+						eval(ast.getChildren().get(i));
+					}
+				}
+
+				// Create and push list of operands.
+				List<Operand> elements = new ArrayList<Operand>();
+				while (!stack.isEmpty()) {
+					elements.add(stack.pop());
+				}
+
+				stack.push(new Operand(Type.LIST, elements));
 			} else if (ast.getOp() == Operation.FUNCTION) {
 				// Evaluate parameters, if any.
-				if (ast.getChildren() != null) {
+				if (ast.hasChildren()) {
 					for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
 						eval(ast.getChildren().get(i));
 					}

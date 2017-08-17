@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.vela;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -244,8 +245,8 @@ public class VeLaTest extends TestCase {
 
 	public void testRegularExpression2() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		boolean result = vela.booleanExpression(
-				"not(\"Johnson B\" =~ \".+V\")");
+		boolean result = vela
+				.booleanExpression("not(\"Johnson B\" =~ \".+V\")");
 		assertTrue(result);
 	}
 
@@ -320,7 +321,8 @@ public class VeLaTest extends TestCase {
 	public void testLogicalNegationExpression2() {
 		Map<String, Operand> env = new HashMap<String, Operand>();
 		env.put("raining".toUpperCase(), new Operand(Type.BOOLEAN, false));
-		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(env), true);
+		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(env),
+				true);
 		boolean result = vela.booleanExpression("not raining");
 		assertTrue(result);
 	}
@@ -346,6 +348,33 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
+	// List
+
+	public void testListCaching() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+
+		Operand result1 = vela.expressionToOperand("[1,\"2\", 3.0]");
+		assertEquals(result1.getType(), Type.LIST);
+		assertEquals(result1.listVal(), Arrays.asList(new Operand(Type.INTEGER,
+				1), new Operand(Type.STRING, "2"),
+				new Operand(Type.DOUBLE, 3.0)));
+		
+		// This one should be cached...
+		Operand result2 = vela.expressionToOperand("[1,\"2\", 3.0]");
+		assertEquals(result2.getType(), Type.LIST);
+		assertEquals(result2.listVal(), Arrays.asList(new Operand(Type.INTEGER,
+				1), new Operand(Type.STRING, "2"),
+				new Operand(Type.DOUBLE, 3.0)));
+	}
+
+	public void testEmptyList() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+
+		Operand result = vela.expressionToOperand("[]");
+		assertEquals(result.getType(), Type.LIST);
+		assertTrue(result.listVal().isEmpty());
+	}
+	
 	// Functions
 
 	public void testFuncParameterless1() {
@@ -364,15 +393,16 @@ public class VeLaTest extends TestCase {
 		Map<String, Operand> env = new HashMap<String, Operand>();
 		env.put("pi".toUpperCase(), new Operand(Type.DOUBLE, Math.PI));
 
-		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(env), true);
+		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(env),
+				true);
 		double result = vela.expression("sin(pi/2)");
 		assertEquals(1.0, result);
 	}
 
 	public void testFunctionContains() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		boolean result = vela.booleanExpression(
-				"contains(\"xyz123abc\", \"23a\")");
+		boolean result = vela
+				.booleanExpression("contains(\"xyz123abc\", \"23a\")");
 		assertTrue(result);
 	}
 
@@ -388,13 +418,14 @@ public class VeLaTest extends TestCase {
 
 	public void testFunctionReplace() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		assertTrue(vela.booleanExpression(
-				"replace(\"abcd\", \"bc\", \"BC\") = \"aBCd\""));
+		assertTrue(vela
+				.booleanExpression("replace(\"abcd\", \"bc\", \"BC\") = \"aBCd\""));
 	}
 
 	public void testLastIndexOf() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		Operand operand = vela.expressionToOperand("lastIndexOf(\"dabcde\", \"d\")");
+		Operand operand = vela
+				.expressionToOperand("lastIndexOf(\"dabcde\", \"d\")");
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(4, operand.intVal());
 	}
