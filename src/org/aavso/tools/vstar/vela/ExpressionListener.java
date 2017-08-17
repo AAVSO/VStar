@@ -24,6 +24,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
+import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
@@ -187,5 +188,15 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void exitString(StringContext ctx) {
 		astStack.push(new AST(ctx.getText().replace("\"", ""), Type.STRING));
+	}
+
+	@Override
+	public void exitList(ListContext ctx) {
+		AST ast = new AST("list", Operation.LIST);
+		while (!astStack.isEmpty()) {
+			AST child = astStack.pop();
+			ast.addFirstChild(child);
+		}
+		astStack.push(ast);
 	}
 }

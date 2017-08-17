@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.util.List;
+
 /**
  * VeLa: VStar expression Language
  * 
@@ -24,7 +26,7 @@ package org.aavso.tools.vstar.vela;
  */
 public enum Type {
 
-	INTEGER, DOUBLE, STRING, BOOLEAN;
+	INTEGER, DOUBLE, STRING, BOOLEAN, LIST;
 
 	public static Type java2Vela(Class<?> jtype) {
 		Type vtype = null;
@@ -39,6 +41,8 @@ public enum Type {
 			vtype = STRING;
 		} else if (jtype == boolean.class) {
 			vtype = BOOLEAN;
+		} else if (jtype == List.class) {
+			vtype = LIST;
 		} else {
 			throw new IllegalArgumentException("Unknown type: " + jtype);
 		}
