@@ -49,4 +49,8 @@ public enum Type {
 
 		return vtype;
 	}
+	
+	public boolean isComposite() {
+		return this == LIST;
+	}
 }

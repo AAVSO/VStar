@@ -4,10 +4,11 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - types: set literals
 // - set membership: x in [ ... ]; see filter from plot model descriptions
+// - allow "in" to be used for list, set, string
+// - check that a symbol doesn't exist in the environment before adding (interpreter)
 // - exponentiation (use associativity modifier)
-// - selection (e.g. in models): Haskell functional-style patterns instead of if-then
+// - selection (e.g. in models): Haskell/Erland functional-style patterns instead of if-then
 // - internal function representation in Models dialog should use VeLa:
 //     t -> real-expression-over-t
 //   | (boolean-expression : t -> real-expression-over-t ...)+
@@ -49,6 +50,7 @@ relationalExpression
 			| GREATER_THAN_OR_EQUAL
 			| LESS_THAN_OR_EQUAL
 			| APPROXIMATELY_EQUAL
+			| IN
 		) groupedBooleanExpression
 	)*
 ;
@@ -129,13 +131,14 @@ func
 :
 	IDENT LPAREN expression
 	(
-		 comma expression
+		comma expression
 	)* RPAREN
 ;
 
 sign
 :
-	MINUS | PLUS
+	MINUS
+	| PLUS
 ;
 
 comma
@@ -196,9 +199,18 @@ LESS_THAN_OR_EQUAL
 ;
 
 // Homage to Perl
+
 APPROXIMATELY_EQUAL
 :
 	'=~'
+;
+
+// Homage to SQL, Python, ...
+
+IN
+:
+	'IN'
+	| 'in'
 ;
 
 LPAREN
@@ -269,19 +281,23 @@ REAL
 	)?
 ;
 
-fragment DIGIT
+fragment
+DIGIT
 :
 	[0-9]
 ;
 
-fragment POINT
+fragment
+POINT
 // Locale-inclusive
+
 :
 	PERIOD
 	| COMMA
 ;
 
-fragment EXPONENT_INDICATOR
+fragment
+EXPONENT_INDICATOR
 :
 	'E'
 	| 'e'
@@ -300,7 +316,8 @@ IDENT
 	)*
 ;
 
-fragment LETTER
+fragment
+LETTER
 :
 	[A-Z]
 	| [a-z]
