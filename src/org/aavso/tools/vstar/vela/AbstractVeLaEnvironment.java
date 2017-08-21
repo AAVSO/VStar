@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.vela;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.util.Pair;
@@ -81,7 +82,6 @@ public abstract class AbstractVeLaEnvironment {
 			operand = cache.get(name);
 		} else {
 			switch (type) {
-
 			case INTEGER:
 				operand = new Operand(type, (int) value);
 				break;
@@ -94,6 +94,8 @@ public abstract class AbstractVeLaEnvironment {
 			case BOOLEAN:
 				operand = new Operand(type, (boolean) value);
 				break;
+			case LIST:
+				operand = new Operand(type, (List<Operand>) value);
 			}
 
 			cache.put(name, operand);

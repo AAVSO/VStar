@@ -127,7 +127,8 @@ public abstract class FunctionExecutor {
 			result = false;
 		} else {
 			for (int i = 0; i < actualParameters.size(); i++) {
-				if (actualParameters.get(i).getType() != parameterTypes.get(i)) {
+				Type requiredType = parameterTypes.get(i);
+				if (actualParameters.get(i).convert(requiredType) != requiredType) {
 					result = false;
 					break;
 				}

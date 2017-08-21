@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
-import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -334,11 +333,14 @@ public class VeLaInterpreter {
 
 				// Create and push list of operands.
 				List<Operand> elements = new ArrayList<Operand>();
-				while (!stack.isEmpty()) {
-					elements.add(stack.pop());
+				if (ast.hasChildren()) {
+					for (int i = 1; i <= ast.getChildren().size(); i++) {
+						elements.add(stack.pop());
+					}
 				}
-
+				
 				stack.push(new Operand(Type.LIST, elements));
+				
 			} else if (ast.getOp() == Operation.FUNCTION) {
 				// Evaluate parameters, if any.
 				if (ast.hasChildren()) {
@@ -349,7 +351,7 @@ public class VeLaInterpreter {
 
 				// Prepare parameter list.
 				List<Operand> params = new ArrayList<Operand>();
-				while (!stack.isEmpty()) {
+				for (int i = 1; i <= ast.getChildren().size(); i++) {
 					params.add(stack.pop());
 				}
 
@@ -361,7 +363,8 @@ public class VeLaInterpreter {
 
 	/**
 	 * Unify operand types by converting both operands to strings if only one is
-	 * a string or both operands to double if only one is an integer.
+	 * a string or both operands to double if only one is an integer. We change
+	 * nothing if either type is composite or Boolean.
 	 * 
 	 * @param a
 	 *            The first operand.
@@ -372,46 +375,27 @@ public class VeLaInterpreter {
 	private Type unifyTypes(Operand a, Operand b) {
 		Type type = a.getType();
 
-		if (a.getType() != Type.STRING && b.getType() == Type.STRING) {
-			convertToString(a);
-		} else if (a.getType() == Type.STRING && b.getType() != Type.STRING) {
-			convertToString(b);
-		} else if (a.getType() == Type.INTEGER && b.getType() == Type.DOUBLE) {
-			a.setDoubleVal(a.intVal());
-			a.setType(Type.DOUBLE);
-		} else if (a.getType() == Type.DOUBLE && b.getType() == Type.INTEGER) {
-			b.setDoubleVal(b.intVal());
-			b.setType(Type.DOUBLE);
+		if (!a.getType().isComposite() && !b.getType().isComposite()) {
+			if (a.getType() != Type.STRING && b.getType() == Type.STRING) {
+				a.convertToString();
+				type = Type.STRING;
+			} else if (a.getType() == Type.STRING && b.getType() != Type.STRING) {
+				b.convertToString();
+				type = Type.STRING;
+			} else if (a.getType() == Type.INTEGER
+					&& b.getType() == Type.DOUBLE) {
+				a.setDoubleVal(a.intVal());
+				a.setType(Type.DOUBLE);
+				type = Type.DOUBLE;
+			} else if (a.getType() == Type.DOUBLE
+					&& b.getType() == Type.INTEGER) {
+				b.setDoubleVal(b.intVal());
+				b.setType(Type.DOUBLE);
+				type = Type.DOUBLE;
+			}
 		}
 
 		return type;
-	}
-
-	/**
-	 * Convert the specified operand to a string.
-	 * 
-	 * @param o
-	 *            The operand to be converted to a string.
-	 */
-	private void convertToString(Operand o) {
-		assert o.getType() != Type.STRING;
-
-		switch (o.getType()) {
-		case INTEGER:
-			o.setStringVal(Integer.toString(o.intVal()));
-			o.setType(Type.STRING);
-			break;
-		case DOUBLE:
-			o.setStringVal(NumericPrecisionPrefs.formatOther(o.doubleVal()));
-			o.setType(Type.STRING);
-			break;
-		case BOOLEAN:
-			o.setStringVal(Boolean.toString(o.booleanVal()));
-			o.setType(Type.STRING);
-			break;
-		default:
-			break;
-		}
 	}
 
 	/**
@@ -424,6 +408,9 @@ public class VeLaInterpreter {
 	private void applyBinaryOperation(Operation op) {
 		Operand operand2 = stack.pop();
 		Operand operand1 = stack.pop();
+
+		// TODO Refactor; type unification is not relevant to all operations,
+		// e.g. IN; define functions for each in Operation
 
 		Type type = unifyTypes(operand1, operand2);
 
@@ -616,6 +603,17 @@ public class VeLaInterpreter {
 			stack.push(new Operand(Type.BOOLEAN, pattern.matcher(
 					operand1.stringVal()).matches()));
 			break;
+		case IN:
+			if (operand2.getType().isComposite()) {
+				// Is a value contained within a list?
+				stack.push(new Operand(Type.BOOLEAN, operand2.listVal()
+						.contains(operand1)));
+			} else if (type == Type.STRING) {
+				// Is one string contained within another?
+				stack.push(new Operand(Type.BOOLEAN, operand2.stringVal()
+						.contains(operand1.stringVal())));
+			}
+			break;
 		default:
 			break;
 		}
@@ -636,6 +634,12 @@ public class VeLaInterpreter {
 			throws VeLaEvalError {
 		String canonicalFuncName = funcName.toUpperCase();
 
+		// TODO: this does not account for overloaded functions!
+		// Need names more like signatures, e.g.
+		// LASTINDEXOF :: [STRING, STRING, INTEGER] -> INTEGER
+		// LASTINDEXOF :: [STRING, INTEGER] -> INTEGER
+		// or a name that maps to a list of executors, each of
+		// which must be tried.
 		if (functions.containsKey(canonicalFuncName)) {
 			FunctionExecutor function = functions.get(canonicalFuncName);
 			if (function.conforms(params)) {
@@ -716,10 +720,6 @@ public class VeLaInterpreter {
 				return new Operand(Type.DOUBLE, jd);
 			}
 		});
-
-		// TODO: add functions LIST(), SET() and corresponding Type and Operand
-		// cases; for performance reasons, I think we actually do want a
-		// composite (list) type rather than functions
 
 		// Functions from reflection over Math and String classes.
 		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();

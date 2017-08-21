@@ -59,7 +59,7 @@ public class ExpressionListener extends VeLaBaseListener {
 				String op = ctx.getChild(i).getText();
 				AST right = astStack.pop();
 				AST left = astStack.pop();
-				if (op.equalsIgnoreCase("or")) {
+				if ("or".equalsIgnoreCase(op)) {
 					astStack.push(new AST(Operation.OR, left, right));
 				}
 			}
@@ -73,7 +73,7 @@ public class ExpressionListener extends VeLaBaseListener {
 				String op = ctx.getChild(i).getText();
 				AST right = astStack.pop();
 				AST left = astStack.pop();
-				if (op.equalsIgnoreCase("and")) {
+				if ("and".equalsIgnoreCase(op)) {
 					astStack.push(new AST(Operation.AND, left, right));
 				}
 			}
@@ -86,7 +86,7 @@ public class ExpressionListener extends VeLaBaseListener {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
 			if (ctx.getChild(i) instanceof TerminalNode) {
 				String op = ctx.getChild(i).getText();
-				if (op.equalsIgnoreCase("not")) {
+				if ("not".equalsIgnoreCase(op)) {
 					AST child = astStack.pop();
 					astStack.push(new AST(Operation.NOT, child));
 				}
@@ -101,7 +101,8 @@ public class ExpressionListener extends VeLaBaseListener {
 				String op = ctx.getChild(i).getText();
 				AST right = astStack.pop();
 				AST left = astStack.pop();
-				if (op.contains("=") || op.contains("<") || op.contains(">")) {
+				if (op.contains("=") || op.contains("<") || op.contains(">")
+						|| "in".equalsIgnoreCase(op)) {
 					astStack.push(new AST(Operation.getBinaryOp(op), left,
 							right));
 				}
@@ -159,11 +160,17 @@ public class ExpressionListener extends VeLaBaseListener {
 	}
 
 	@Override
+	public void enterFunc(FuncContext ctx) {
+		astStack.push(new AST("parameter", Operation.SENTINEL));
+	}
+
+	@Override
 	public void exitFunc(FuncContext ctx) {
 		String func = ctx.getChild(0).getText().toUpperCase();
 		AST ast = new AST(func, Operation.FUNCTION);
 		while (!astStack.isEmpty()) {
 			AST child = astStack.pop();
+			if (child.getOp() == Operation.SENTINEL) break;
 			ast.addFirstChild(child);
 		}
 		astStack.push(ast);
@@ -191,10 +198,16 @@ public class ExpressionListener extends VeLaBaseListener {
 	}
 
 	@Override
+	public void enterList(ListContext ctx) {
+		astStack.push(new AST("element", Operation.SENTINEL));
+	}
+
+	@Override
 	public void exitList(ListContext ctx) {
 		AST ast = new AST("list", Operation.LIST);
 		while (!astStack.isEmpty()) {
 			AST child = astStack.pop();
+			if (child.getOp() == Operation.SENTINEL) break;
 			ast.addFirstChild(child);
 		}
 		astStack.push(ast);

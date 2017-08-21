@@ -163,7 +163,19 @@ public class AST {
 		StringBuffer buf = new StringBuffer();
 
 		if (isLeaf()) {
+			if (literalType == Type.LIST && !hasChildren()) {
+				buf.append("empty ");
+			}
+
+			if (literalType == Type.STRING) {
+				buf.append("\"");
+			}
 			buf.append(token);
+//			buf.append(":");
+//			buf.append(literalType);
+			if (literalType == Type.STRING) {
+				buf.append("\"");
+			}			
 		} else {
 			buf.append("(");
 			buf.append(token);
@@ -178,4 +190,6 @@ public class AST {
 
 		return buf.toString();
 	}
+	
+	// TODO: fromSEXPR(String) => AST
 }

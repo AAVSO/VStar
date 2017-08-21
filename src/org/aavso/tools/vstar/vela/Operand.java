@@ -65,29 +65,27 @@ public class Operand {
 	/**
 	 * Given a VeLa type and a Java object, return an Operand instance.
 	 * 
-	 * @param type The VeLa type.
-	 * @param obj The Java object.
+	 * @param type
+	 *            The VeLa type.
+	 * @param obj
+	 *            The Java object.
 	 * @return A corresponding Operand instance.
 	 */
 	public static Operand object2Operand(Type type, Object obj) {
 		Operand operand = null;
-		
+
 		switch (type) {
 		case INTEGER:
-			operand = new Operand(Type.INTEGER,
-					(int) obj);
+			operand = new Operand(Type.INTEGER, (int) obj);
 			break;
 		case DOUBLE:
-			operand = new Operand(Type.DOUBLE,
-					(double) obj);
+			operand = new Operand(Type.DOUBLE, (double) obj);
 			break;
 		case STRING:
-			operand = new Operand(Type.STRING,
-					(String) obj);
+			operand = new Operand(Type.STRING, (String) obj);
 			break;
 		case BOOLEAN:
-			operand = new Operand(Type.BOOLEAN,
-					(boolean) obj);
+			operand = new Operand(Type.BOOLEAN, (boolean) obj);
 			break;
 		case LIST:
 			operand = new Operand(Type.LIST, (List<Operand>) obj);
@@ -99,12 +97,13 @@ public class Operand {
 
 	/**
 	 * Return a Java object corresponding to this Operand instance.
+	 * 
 	 * @return A corresponding Java object.
 	 */
 	public Object toObject() {
 		Object obj = null;
-		
-		switch(type) {
+
+		switch (type) {
 		case INTEGER:
 			obj = intVal;
 			break;
@@ -121,10 +120,60 @@ public class Operand {
 			obj = listVal;
 			break;
 		}
-		
+
 		return obj;
 	}
-	
+
+	/**
+	 * Convert this operand to the required type, if possible.
+	 * 
+	 * @param operand
+	 *            The operand to be converted.
+	 * @param requiredType
+	 *            The required type.
+	 * @return The converted type; will be unchanged if it matches the required
+	 *         type or can't be converted.
+	 */
+	public Type convert(Type requiredType) {
+		if (type != requiredType) {
+			// Integer to double
+			if (type == Type.INTEGER && requiredType == Type.DOUBLE) {
+				setType(Type.DOUBLE);
+				setDoubleVal((double) intVal);
+				// Integer or double to string
+			} else if ((type == Type.INTEGER || type == Type.DOUBLE)
+					&& requiredType == Type.STRING) {
+				convertToString();
+			}
+		}
+
+		return type;
+	}
+
+	/**
+	 * Convert this operand to a string.
+	 */
+	public void convertToString() {
+		assert type != Type.STRING;
+
+		switch (type) {
+		case INTEGER:
+			setStringVal(Integer.toString(intVal));
+			setType(Type.STRING);
+			break;
+		case DOUBLE:
+			setStringVal(NumericPrecisionPrefs.formatOther(doubleVal));
+			setType(Type.STRING);
+			break;
+		case BOOLEAN:
+			setStringVal(Boolean.toString(booleanVal));
+			setType(Type.STRING);
+			break;
+		default:
+			break;
+		}
+	}
+
 	/**
 	 * @return the type
 	 */
@@ -133,21 +182,24 @@ public class Operand {
 	}
 
 	/**
-	 * @param type the type to set
+	 * @param type
+	 *            the type to set
 	 */
 	public void setType(Type type) {
 		this.type = type;
 	}
 
 	/**
-	 * @param intVal the intVal to set
+	 * @param intVal
+	 *            the intVal to set
 	 */
 	public void setIntegerVal(int intVal) {
 		this.intVal = intVal;
 	}
 
 	/**
-	 * @param doubleVal the doubleVal to set
+	 * @param doubleVal
+	 *            the doubleVal to set
 	 */
 	public void setDoubleVal(double doubleVal) {
 		this.doubleVal = doubleVal;
@@ -168,7 +220,8 @@ public class Operand {
 	}
 
 	/**
-	 * @param stringVal the stringVal to set
+	 * @param stringVal
+	 *            the stringVal to set
 	 */
 	public void setStringVal(String stringVal) {
 		this.stringVal = stringVal;
@@ -182,7 +235,8 @@ public class Operand {
 	}
 
 	/**
-	 * @param booleanVal the booleanVal to set
+	 * @param booleanVal
+	 *            the booleanVal to set
 	 */
 	public void setBooleanVal(boolean booleanVal) {
 		this.booleanVal = booleanVal;
@@ -203,7 +257,8 @@ public class Operand {
 	}
 
 	/**
-	 * @param listVal the listVal to set
+	 * @param listVal
+	 *            the listVal to set
 	 */
 	public void setListVal(List<Operand> listVal) {
 		this.listVal = listVal;
@@ -212,8 +267,8 @@ public class Operand {
 	@Override
 	public String toString() {
 		String str = "";
-		
-		switch(type) {
+
+		switch (type) {
 		case INTEGER:
 			str = Integer.toString(intVal);
 			break;
@@ -230,9 +285,9 @@ public class Operand {
 			str = listVal.toString();
 			break;
 		}
-		
+
 		str += " (" + type + ")";
-		
+
 		return str;
 	}
 

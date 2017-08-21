@@ -358,7 +358,7 @@ public class VeLaTest extends TestCase {
 		assertEquals(result1.listVal(), Arrays.asList(new Operand(Type.INTEGER,
 				1), new Operand(Type.STRING, "2"),
 				new Operand(Type.DOUBLE, 3.0)));
-		
+
 		// This one should be cached...
 		Operand result2 = vela.expressionToOperand("[1,\"2\", 3.0]");
 		assertEquals(result2.getType(), Type.LIST);
@@ -369,12 +369,32 @@ public class VeLaTest extends TestCase {
 
 	public void testEmptyList() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-
 		Operand result = vela.expressionToOperand("[]");
 		assertEquals(result.getType(), Type.LIST);
 		assertTrue(result.listVal().isEmpty());
 	}
-	
+
+	public void testInOperator() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		
+		assertTrue(vela.booleanExpression("2 in [1, 2, 3]"));
+		// cached
+		assertTrue(vela.booleanExpression("2 in [1, 2, 3]"));
+		
+		assertTrue(vela.booleanExpression("\"2\" in [1, \"2\", 3]"));		
+
+		assertTrue(vela.booleanExpression("3.0 in [1,\"2\", 3.0]"));	
+		assertTrue(vela.booleanExpression("3.0 IN [1,\"2\", 3.0]"));	
+
+		assertTrue(vela.booleanExpression("[2] in [1, [2], 3]"));
+	}
+
+	public void testInOperatorNot() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+				
+		assertFalse(vela.booleanExpression("4 in [1, 2, 3]"));
+	}
+
 	// Functions
 
 	public void testFuncParameterless1() {
@@ -397,6 +417,12 @@ public class VeLaTest extends TestCase {
 				true);
 		double result = vela.expression("sin(pi/2)");
 		assertEquals(1.0, result);
+	}
+
+	public void testFunctionSqrt() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		double result = vela.expression("2*sqrt(144.0)");
+		assertEquals(24.0, result);
 	}
 
 	public void testFunctionContains() {
