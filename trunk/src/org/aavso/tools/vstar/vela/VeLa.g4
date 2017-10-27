@@ -8,7 +8,7 @@ grammar VeLa;
 // - allow "in" to be used for list, set, string
 // - check that a symbol doesn't exist in the environment before adding (interpreter)
 // - exponentiation (use associativity modifier)
-// - selection (e.g. in models): Haskell/Erland functional-style patterns instead of if-then
+// - selection (e.g. in models): Haskell/Erlang functional-style patterns instead of if-then
 // - internal function representation in Models dialog should use VeLa:
 //     t -> real-expression-over-t
 //   | (boolean-expression : t -> real-expression-over-t ...)+

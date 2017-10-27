@@ -5,7 +5,7 @@ developed in collaboration with the American Association of Variable Star
 Observers (http://www.aavso.org/) and the Citizen Sky project 
 (http://www.citizensky.org/).
 
-VStar can load observational data from files or the AAVSO International 
+VStar can load observation data from files or the AAVSO International 
 Database, display interactive light curves and phase plots, and perform period 
 analysis.
 
@@ -13,7 +13,7 @@ Plug-ins allow VStar's functionality to be extended.
 
 Installation
 ============
-In order to run VStar, you need to have version 1.6 or higher of the Java 
+In order to run VStar, you need to have version 1.8 or higher of the Java 
 runtime installed on your computer. See http://java.com/en/download/manual.jsp
 
 The dist directory contains the latest vstar.jar built from source so you
