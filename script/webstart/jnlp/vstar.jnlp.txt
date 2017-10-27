@@ -7,7 +7,7 @@ VStar can load observational data from files or the AAVSO International
 Database, display interactive light curves and phase plots, and perform 
 period analysis.
  
-VStar will run on any platform that has version 1.7 or later of the Java 
+VStar will run on any platform that has version 1.8 or later of the Java 
 run-time environment. Go to https://www.aavso.org/vstar to download and run 
 using Java WebStart.  
 
