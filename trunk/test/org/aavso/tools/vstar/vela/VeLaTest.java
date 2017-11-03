@@ -374,7 +374,7 @@ public class VeLaTest extends TestCase {
 		assertTrue(result.listVal().isEmpty());
 	}
 
-	public void testInOperator() {
+	public void testInListOperator() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
 		
 		assertTrue(vela.booleanExpression("2 in [1, 2, 3]"));
@@ -389,12 +389,20 @@ public class VeLaTest extends TestCase {
 		assertTrue(vela.booleanExpression("[2] in [1, [2], 3]"));
 	}
 
-	public void testInOperatorNot() {
+	public void testInListOperatorNot() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
 				
 		assertFalse(vela.booleanExpression("4 in [1, 2, 3]"));
 	}
 
+	public void testInStringOperator() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		
+		assertTrue(vela.booleanExpression("2 in \"123\""));
+		// cached
+		assertTrue(vela.booleanExpression("2 in \"123\""));
+	}
+	
 	// Functions
 
 	public void testFuncParameterless1() {
