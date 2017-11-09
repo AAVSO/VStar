@@ -4,15 +4,16 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - set membership: x in [ ... ]; see filter from plot model descriptions
-// - allow "in" to be used for list, set, string
+// - Optional vs Pair!
 // - check that a symbol doesn't exist in the environment before adding (interpreter)
 // - exponentiation (use associativity modifier)
-// - selection (e.g. in models): Haskell/Erlang functional-style patterns instead of if-then
-// - internal function representation in Models dialog should use VeLa:
-//     t -> real-expression-over-t
-//   | (boolean-expression : t -> real-expression-over-t ...)+
-// - print statement for higher-level use of VeLa with LLVM code generation
+// - selection (e.g. in models): Haskell/Scala/Erlang functional-style cases 
+//   instead of if-then:
+//     f(x,y,z) -> expression-over-x,y,z
+//   | f(x,y,z) -> (boolean-expression : expression-over-x,y,z ...)+
+// - Can f be \ or empty string?
+// - internal function representation in Models dialog should use VeLa
+// - print statement for higher-level use of VeLa with LLVM/JVM code generation
 // - comments (-- or #)
 
 // ** Parser rules **

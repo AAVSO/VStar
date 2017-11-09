@@ -46,9 +46,9 @@ public abstract class AbstractVeLaEnvironment {
 	 * 
 	 * @param name
 	 *            The symbol's name.
-	 * @return A pair of values, the first being whether or not it exists in the
-	 *         environment, the second being the value as an Operand instance if
-	 *         it exists, otherwise null.
+	 * @return A pair of values, the first being a Boolean indicating whether or
+	 *         not the symbol exists in the environment, the second being the
+	 *         value as an Operand instance if it exists, otherwise null.
 	 */
 	public abstract Pair<Boolean, Operand> lookup(String name);
 
