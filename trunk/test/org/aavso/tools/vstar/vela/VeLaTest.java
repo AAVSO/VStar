@@ -339,7 +339,24 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
+	// This test is crucial for nested or recursive function calls
 	public void testVariableSingleCharacterVariable() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+
+		Map<String, Operand> environment1 = new HashMap<String, Operand>();
+		environment1.put("x".toUpperCase(), new Operand(Type.INTEGER, 4.2));
+		vela.setEnvironment(new VeLaMapEnvironment(environment1));
+
+		Map<String, Operand> environment2 = new HashMap<String, Operand>();
+		environment2.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
+		vela.setEnvironment(new VeLaMapEnvironment(environment2));
+
+		// The value of x bound to 42 should be on top of the stack.
+		boolean result = vela.booleanExpression("x = 42");
+		assertTrue(result);
+	}
+
+	public void testVariableMultipleEnvironmentsOnStack() {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
 		environment.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
 		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(
@@ -376,33 +393,33 @@ public class VeLaTest extends TestCase {
 
 	public void testInListOperator() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		
+
 		assertTrue(vela.booleanExpression("2 in [1, 2, 3]"));
 		// cached
 		assertTrue(vela.booleanExpression("2 in [1, 2, 3]"));
-		
-		assertTrue(vela.booleanExpression("\"2\" in [1, \"2\", 3]"));		
 
-		assertTrue(vela.booleanExpression("3.0 in [1,\"2\", 3.0]"));	
-		assertTrue(vela.booleanExpression("3.0 IN [1,\"2\", 3.0]"));	
+		assertTrue(vela.booleanExpression("\"2\" in [1, \"2\", 3]"));
+
+		assertTrue(vela.booleanExpression("3.0 in [1,\"2\", 3.0]"));
+		assertTrue(vela.booleanExpression("3.0 IN [1,\"2\", 3.0]"));
 
 		assertTrue(vela.booleanExpression("[2] in [1, [2], 3]"));
 	}
 
 	public void testInListOperatorNot() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-				
+
 		assertFalse(vela.booleanExpression("4 in [1, 2, 3]"));
 	}
 
 	public void testInStringOperator() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		
+
 		assertTrue(vela.booleanExpression("2 in \"123\""));
 		// cached
 		assertTrue(vela.booleanExpression("2 in \"123\""));
 	}
-	
+
 	// Functions
 
 	public void testFuncParameterless1() {

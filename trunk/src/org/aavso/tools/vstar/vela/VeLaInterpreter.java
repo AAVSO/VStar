@@ -45,6 +45,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import java.util.Optional;
 
 /**
  * VeLa: VStar expression Language interpreter
@@ -54,7 +55,7 @@ public class VeLaInterpreter {
 	private boolean verbose;
 
 	private Stack<Operand> stack;
-	private AbstractVeLaEnvironment environment;
+	private Stack<AbstractVeLaEnvironment> environments;
 
 	// AST and result caches.
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
@@ -73,31 +74,32 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Construct a VeLa interpreter with an environment and a verbosity flag.
+	 * Construct a VeLa interpreter with an environments and a verbosity flag.
 	 */
 	public VeLaInterpreter(AbstractVeLaEnvironment environment, boolean verbose) {
 		errorListener = new VeLaErrorListener();
 
 		stack = new Stack<Operand>();
+		environments = new Stack<AbstractVeLaEnvironment>();
 
 		if (environment != null) {
-			this.environment = environment;
+			this.environments.push(environment);
 		} else {
-			this.environment = new NullVeLaEnvironment();
+			this.environments.push(new NullVeLaEnvironment());
 		}
 
 		this.verbose = verbose;
 	}
 
 	/**
-	 * Construct a VeLa interpreter with an environment.
+	 * Construct a VeLa interpreter with an environments.
 	 */
 	public VeLaInterpreter(AbstractVeLaEnvironment environment) {
 		this(environment, false);
 	}
 
 	/**
-	 * Construct a VeLa interpreter without an environment.
+	 * Construct a VeLa interpreter without an environments.
 	 */
 	public VeLaInterpreter(boolean verbose) {
 		this(null, verbose);
@@ -108,7 +110,7 @@ public class VeLaInterpreter {
 	}
 
 	public void setEnvironment(AbstractVeLaEnvironment environment) {
-		this.environment = environment;
+		this.environments.push(environment);
 	}
 
 	/**
@@ -311,12 +313,18 @@ public class VeLaInterpreter {
 					break;
 				}
 			} else if (ast.getOp() == Operation.VARIABLE) {
-				// Look up variable in the environment, pushing it onto the
-				// stack if it exists, throwing an exception if not.
+				// Look up variable in the environment stack, pushing it onto
+				// the operand stack if it exists, looking for and evaluating a
+				// function if not, throwing an exception otherwise.
 				String varName = ast.getToken().toUpperCase();
-				Pair<Boolean, Operand> result = environment.lookup(varName);
+				Pair<Boolean, Operand> result = lookup(varName);
 				if (result.first) {
 					stack.push(result.second);
+					// TODO: could instead lookup function signatures given name
+					// and
+					// operands on stack; but that's ambiguous since we need to
+					// know what others operations remain to be evaluated for
+					// the expression
 				} else if (functions.containsKey(varName)) {
 					applyFunction(varName);
 				} else {
@@ -338,9 +346,9 @@ public class VeLaInterpreter {
 						elements.add(stack.pop());
 					}
 				}
-				
+
 				stack.push(new Operand(Type.LIST, elements));
-				
+
 			} else if (ast.getOp() == Operation.FUNCTION) {
 				// Evaluate parameters, if any.
 				if (ast.hasChildren()) {
@@ -359,6 +367,34 @@ public class VeLaInterpreter {
 				applyFunction(ast.getToken(), params);
 			}
 		}
+	}
+
+	/**
+	 * Given a variable name, search for it in the stack of environments, return
+	 * a pair consisting of a Boolean value indicating whether the symbol was
+	 * found, and the value bound to the symbol as an Operand instance. If the
+	 * symbol was not found, this second value in the pair will be null. The
+	 * search proceeds from the top to the bottom of the stack, maintaining the
+	 * natural stack ordering.
+	 * 
+	 * @param name
+	 *            The name of the variable to look up.
+	 * @return The boolean/operand pair.
+	 */
+	private Pair<Boolean, Operand> lookup(String name) {
+		Pair<Boolean, Operand> result = null;
+
+		// Note: could use recursion or a reversed stream iterator instead;
+		// this use of a pair suggests the need for optional values ala Scala/Haskell
+		
+		for (int i = environments.size()-1; i >= 0; i--) {
+			result = environments.get(i).lookup(name);
+			if (result.first) {
+				break;
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -409,8 +445,8 @@ public class VeLaInterpreter {
 		Operand operand2 = stack.pop();
 		Operand operand1 = stack.pop();
 
-		// TODO Refactor; type unification is not relevant to all operations,
-		// e.g. IN; define functions for each in Operation
+		// TODO Refactor to N methods; type unification is not relevant to all
+		// operations, e.g. IN; define functions for each in Operation
 
 		Type type = unifyTypes(operand1, operand2);
 
@@ -635,11 +671,12 @@ public class VeLaInterpreter {
 		String canonicalFuncName = funcName.toUpperCase();
 
 		// TODO: this does not account for overloaded functions!
-		// Need names more like signatures, e.g.
+		// Need names to be more like signatures, e.g.
 		// LASTINDEXOF :: [STRING, STRING, INTEGER] -> INTEGER
 		// LASTINDEXOF :: [STRING, INTEGER] -> INTEGER
 		// or a name that maps to a list of executors, each of
-		// which must be tried.
+		// which must be examined; mapping from string signature to executor may
+		// be faster
 		if (functions.containsKey(canonicalFuncName)) {
 			FunctionExecutor function = functions.get(canonicalFuncName);
 			if (function.conforms(params)) {
