@@ -105,6 +105,27 @@ public class VeLaTest extends TestCase {
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(-25, operand.intVal());
 	}
+	
+	public void testRealExponentiation1() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		Operand operand = vela.expressionToOperand("2.0^3.0");
+		assertEquals(Type.DOUBLE, operand.getType());
+		assertEquals(8.0, operand.doubleVal());
+	}
+
+	public void testRealExponentiation2() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		Operand operand = vela.expressionToOperand("2^3.0");
+		assertEquals(Type.DOUBLE, operand.getType());
+		assertEquals(8.0, operand.doubleVal());
+	}
+
+	public void testRealExponentiation3() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		Operand operand = vela.expressionToOperand("3.0^4^2");
+		assertEquals(Type.DOUBLE, operand.getType());
+		assertEquals(43046721.0, operand.doubleVal());
+	}
 
 	public void testReal1() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
@@ -116,6 +137,18 @@ public class VeLaTest extends TestCase {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
 		double result = vela.expression("2.25-1");
 		assertEquals(1.25, result);
+	}
+	
+	public void testReal3() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		double result = vela.expression("2.25+1+2");
+		assertEquals(5.25, result);
+	}
+
+	public void testReal4() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		double result = vela.expression("2.25*2*2");
+		assertEquals(9.0, result);
 	}
 
 	public void testParens0() {
@@ -148,6 +181,50 @@ public class VeLaTest extends TestCase {
 		// 20 years before some JD.
 		double result = vela.expression("2457580.25-(365.25*20)");
 		assertEquals(2450275.25, result);
+	}
+
+	// Integer expressions
+
+	public void testIntegerExponentiation1() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		Operand operand = vela.expressionToOperand("2^3");
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(8, operand.intVal());
+	}
+
+	public void testIntegerExponentiation2() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		Operand operand = vela.expressionToOperand("3^4^2");
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(43046721, operand.intVal());
+	}
+
+	public void testIntegerExponentiation3() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		Operand operand = vela.expressionToOperand("-3^4^2");
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(-43046721, operand.intVal());
+	}
+
+	public void testIntegerExponentiation4() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		Operand operand = vela.expressionToOperand("-(3^4)^2");
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(-6561, operand.intVal());
+	}
+
+	public void testIntegerExponentiation5() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		Operand operand = vela.expressionToOperand("(-3^4)^2");
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(6561, operand.intVal());
+	}
+
+	public void testIntegerExponentiation6() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		Operand operand = vela.expressionToOperand("3^4+2");
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(83, operand.intVal());
 	}
 
 	// String expressions
