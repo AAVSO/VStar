@@ -339,7 +339,7 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
-	// This test is crucial for nested or recursive function calls
+	// This test is important for nested or recursive function calls
 	public void testVariableSingleCharacterVariable() {
 		VeLaInterpreter vela = new VeLaInterpreter(true);
 

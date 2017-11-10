@@ -20,11 +20,11 @@ package org.aavso.tools.vstar.vela;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.aavso.tools.vstar.util.Pair;
+import java.util.Optional;
 
 /**
- * All VeLa environments for symbol lookup must extend this abstract class.
+ * All VeLa environments for symbol lookup must extend this abstract class by
+ * implementing the lookup method.
  */
 public abstract class AbstractVeLaEnvironment {
 
@@ -46,11 +46,9 @@ public abstract class AbstractVeLaEnvironment {
 	 * 
 	 * @param name
 	 *            The symbol's name.
-	 * @return A pair of values, the first being a Boolean indicating whether or
-	 *         not the symbol exists in the environment, the second being the
-	 *         value as an Operand instance if it exists, otherwise null.
+	 * @return An optional Operand instance if it exists.
 	 */
-	public abstract Pair<Boolean, Operand> lookup(String name);
+	public abstract Optional<Operand> lookup(String name);
 
 	// Cached operator creation methods.
 
@@ -70,7 +68,7 @@ public abstract class AbstractVeLaEnvironment {
 		return operand(booleanOperandCache, Type.BOOLEAN, name, value);
 	}
 
-	// Helpers
+	// Common operand factory method.
 
 	protected Operand operand(Map<String, Operand> cache, Type type,
 			String name, Object value) {
