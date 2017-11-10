@@ -18,8 +18,7 @@
 package org.aavso.tools.vstar.vela;
 
 import java.util.Map;
-
-import org.aavso.tools.vstar.util.Pair;
+import java.util.Optional;
 
 /**
  * A VeLa environment that is backed by a Map.
@@ -34,8 +33,8 @@ public class VeLaMapEnvironment extends AbstractVeLaEnvironment {
 	}
 
 	@Override
-	public Pair<Boolean, Operand> lookup(String name) {
+	public Optional<Operand> lookup(String name) {
 		name = name.toUpperCase();
-		return new Pair<Boolean, Operand>(map.containsKey(name), map.get(name));
+		return Optional.ofNullable(map.get(name));
 	}
 }

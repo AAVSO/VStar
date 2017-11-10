@@ -18,10 +18,10 @@
 package org.aavso.tools.vstar.vela;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.util.Pair;
 
 /**
  * A VeLa environment that is backed by a ValidObservation instance.
@@ -42,7 +42,7 @@ public class VeLaValidObservationEnvironment extends AbstractVeLaEnvironment {
 	}
 
 	@Override
-	public Pair<Boolean, Operand> lookup(String name) {
+	public Optional<Operand> lookup(String name) {
 		boolean contained = false;
 		Operand operand = null;
 
@@ -93,7 +93,7 @@ public class VeLaValidObservationEnvironment extends AbstractVeLaEnvironment {
 		// - discrepant, excluded, fainter-than: for model creation, later
 		// - HJD later
 
-		return new Pair<Boolean, Operand>(contained, operand);
+		return Optional.ofNullable(operand);
 	}
 
 	/**

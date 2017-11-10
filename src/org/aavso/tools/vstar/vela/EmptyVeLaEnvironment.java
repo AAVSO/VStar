@@ -17,15 +17,15 @@
  */
 package org.aavso.tools.vstar.vela;
 
-import org.aavso.tools.vstar.util.Pair;
+import java.util.Optional;
 
 /**
  * A VeLa environment that is backed by nothing, i.e. has no content.
  */
-public class NullVeLaEnvironment extends AbstractVeLaEnvironment {
+public class EmptyVeLaEnvironment extends AbstractVeLaEnvironment {
 
 	@Override
-	public Pair<Boolean, Operand> lookup(String name) {
-		return new Pair<Boolean, Operand>(false, null);
+	public Optional<Operand> lookup(String name) {
+		return Optional.empty();
 	}
 }

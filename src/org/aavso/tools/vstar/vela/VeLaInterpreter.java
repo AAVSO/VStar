@@ -32,12 +32,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
@@ -45,7 +45,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import java.util.Optional;
 
 /**
  * VeLa: VStar expression Language interpreter
@@ -85,7 +84,7 @@ public class VeLaInterpreter {
 		if (environment != null) {
 			this.environments.push(environment);
 		} else {
-			this.environments.push(new NullVeLaEnvironment());
+			this.environments.push(new EmptyVeLaEnvironment());
 		}
 
 		this.verbose = verbose;
@@ -317,15 +316,14 @@ public class VeLaInterpreter {
 				// the operand stack if it exists, looking for and evaluating a
 				// function if not, throwing an exception otherwise.
 				String varName = ast.getToken().toUpperCase();
-				Pair<Boolean, Operand> result = lookup(varName);
-				if (result.first) {
-					stack.push(result.second);
-					// TODO: could instead lookup function signatures given name
-					// and
-					// operands on stack; but that's ambiguous since we need to
-					// know what others operations remain to be evaluated for
-					// the expression
+				Optional<Operand> result = lookup(varName);
+				if (result.isPresent()) {
+					stack.push(result.get());
 				} else if (functions.containsKey(varName)) {
+					// TODO: could instead lookup function signatures given name
+					// and operands on stack; but that's ambiguous since we need
+					// to know what other operations remain to be evaluated for
+					// the expression
 					applyFunction(varName);
 				} else {
 					throw new VeLaEvalError("Unknown variable: \""
@@ -381,15 +379,14 @@ public class VeLaInterpreter {
 	 *            The name of the variable to look up.
 	 * @return The boolean/operand pair.
 	 */
-	private Pair<Boolean, Operand> lookup(String name) {
-		Pair<Boolean, Operand> result = null;
+	private Optional<Operand> lookup(String name) {
+		Optional<Operand> result = Optional.empty();
 
-		// Note: could use recursion or a reversed stream iterator instead;
-		// this use of a pair suggests the need for optional values ala Scala/Haskell
-		
-		for (int i = environments.size()-1; i >= 0; i--) {
+		// Note: could use recursion or a reversed stream iterator instead
+
+		for (int i = environments.size() - 1; i >= 0; i--) {
 			result = environments.get(i).lookup(name);
-			if (result.first) {
+			if (result.isPresent()) {
 				break;
 			}
 		}
