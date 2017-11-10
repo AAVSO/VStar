@@ -21,6 +21,7 @@ import java.util.Stack;
 
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.ExponentiationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
@@ -51,6 +52,9 @@ public class ExpressionListener extends VeLaBaseListener {
 		// Peek vs pop to allow multiple non-destructive calls to this method.
 		return astStack.peek();
 	}
+
+	// TODO: change the body of each class of exit methods to take a lambda
+	// expression for the if-statement
 
 	@Override
 	public void exitBooleanExpression(BooleanExpressionContext ctx) {
@@ -160,6 +164,22 @@ public class ExpressionListener extends VeLaBaseListener {
 	}
 
 	@Override
+	public void exitExponentiationExpression(ExponentiationExpressionContext ctx) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			while (ctx.getChild(i) instanceof TerminalNode) {
+				String op = ctx.getChild(i).getText();
+				AST right = astStack.pop();
+				AST left = astStack.pop();
+				if (op.charAt(0) == '^') {
+					AST ast = new AST(Operation.getBinaryOp(op), left, right);
+					astStack.push(ast);
+					break;
+				}
+			}
+		}
+	}
+
+	@Override
 	public void enterFunc(FuncContext ctx) {
 		astStack.push(new AST("parameter", Operation.SENTINEL));
 	}
@@ -170,7 +190,8 @@ public class ExpressionListener extends VeLaBaseListener {
 		AST ast = new AST(func, Operation.FUNCTION);
 		while (!astStack.isEmpty()) {
 			AST child = astStack.pop();
-			if (child.getOp() == Operation.SENTINEL) break;
+			if (child.getOp() == Operation.SENTINEL)
+				break;
 			ast.addFirstChild(child);
 		}
 		astStack.push(ast);
@@ -207,7 +228,8 @@ public class ExpressionListener extends VeLaBaseListener {
 		AST ast = new AST("list", Operation.LIST);
 		while (!astStack.isEmpty()) {
 			AST child = astStack.pop();
-			if (child.getOp() == Operation.SENTINEL) break;
+			if (child.getOp() == Operation.SENTINEL)
+				break;
 			ast.addFirstChild(child);
 		}
 		astStack.push(ast);

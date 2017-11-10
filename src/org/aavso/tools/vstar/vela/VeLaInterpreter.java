@@ -515,6 +515,22 @@ public class VeLaInterpreter {
 			default:
 			}
 			break;
+		case POW:
+			switch (type) {
+			case INTEGER:
+				int result = operand1.intVal();
+				for (int i=2;i<=operand2.intVal();i++) {
+					result *= operand1.intVal();
+				}
+				stack.push(new Operand(Type.INTEGER, result));
+				break;
+			case DOUBLE:
+				stack.push(new Operand(Type.DOUBLE, Math.pow(
+						operand1.doubleVal(), operand2.doubleVal())));
+				break;
+			default:
+			}
+			break;
 		case AND:
 			stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal()
 					& operand2.booleanVal()));

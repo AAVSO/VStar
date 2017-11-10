@@ -4,14 +4,11 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - check that a symbol doesn't exist in the environment before adding (interpreter)
-//   o other than functions, VeLa controls what goes into an environment!
-// - exponentiation (use associativity modifier)
 // - selection (e.g. in models): Haskell/Scala/Erlang functional-style cases 
 //   instead of if-then:
 //     f(x,y,z) -> expression-over-x,y,z
 //   | f(x,y,z) -> (boolean-expression : expression-over-x,y,z ...)+
-// - Can f be \ or empty string?
+// - Allow f to be \ or empty string?
 // - Allow final "otherwise" clause?
 // - internal function representation in Models dialog should use VeLa
 // - print statement for higher-level use of VeLa with LLVM/JVM code generation
@@ -54,7 +51,7 @@ relationalExpression
 			| APPROXIMATELY_EQUAL
 			| IN
 		) groupedBooleanExpression
-	)*
+	)?
 ;
 
 groupedBooleanExpression
@@ -87,7 +84,18 @@ multiplicativeExpression
 
 unaryExpression
 :
-	sign? factor
+	sign? exponentiationExpression
+;
+
+exponentiationExpression
+:
+	<assoc=right>
+	factor
+	(
+		(
+			POW
+		) factor
+	)*
 ;
 
 factor
@@ -168,6 +176,11 @@ MULT
 DIV
 :
 	'/'
+;
+
+POW
+:
+	'^'
 ;
 
 EQUAL
