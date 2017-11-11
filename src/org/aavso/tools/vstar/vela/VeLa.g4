@@ -6,6 +6,8 @@ grammar VeLa;
 // TODO:
 // - selection (e.g. in models): Haskell/Scala/Erlang functional-style cases 
 //   instead of if-then:
+//     (boolean-expression : expression-over-x,y,z ...)+
+//   and in functions:
 //     f(x,y,z) -> expression-over-x,y,z
 //   | f(x,y,z) -> (boolean-expression : expression-over-x,y,z ...)+
 // - Allow f to be \ or empty string?
@@ -15,6 +17,25 @@ grammar VeLa;
 // - comments (-- or #)
 
 // ** Parser rules **
+
+function
+:
+	IDENT LPAREN IDENT
+	(
+		comma IDENT
+	)* RPAREN
+	ARROW
+	(
+		booleanExpression
+		| selectionExpression+	
+	)
+;
+
+// TODO: change this to expression...
+selectionExpression
+:
+	booleanExpression COLON booleanExpression
+;
 
 booleanExpression
 :
@@ -60,6 +81,7 @@ groupedBooleanExpression
 	| expression
 ;
 
+// TODO: ...and this to additiveExpression
 expression
 :
 	multiplicativeExpression
@@ -89,8 +111,8 @@ unaryExpression
 
 exponentiationExpression
 :
-	<assoc=right>
-	factor
+// This whole rule option is right associative.
+	< assoc = right > factor
 	(
 		(
 			POW
@@ -106,7 +128,7 @@ factor
 	| string
 	| list
 	| var
-	| func
+	| funcall
 ;
 
 integer
@@ -137,7 +159,7 @@ var
 	IDENT
 ;
 
-func
+funcall
 :
 	IDENT LPAREN expression
 	(
@@ -157,6 +179,16 @@ comma
 ;
 
 // ** Lexer rules **
+
+COLON
+:
+	':'
+;
+
+ARROW
+:
+	'->'
+;
 
 MINUS
 :
@@ -305,7 +337,6 @@ DIGIT
 fragment
 POINT
 // Locale-inclusive
-
 :
 	PERIOD
 	| COMMA

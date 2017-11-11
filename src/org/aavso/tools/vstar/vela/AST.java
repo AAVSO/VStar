@@ -28,34 +28,35 @@ import java.util.List;
 public class AST {
 
 	private String token;
-	private Type literalType;
+	private Operand literal;
 	private Operation op;
 	private LinkedList<AST> children;
 
 	public AST() {
+		// TODO: use Optional.empty()
 		token = null;
-		literalType = null;
+		literal = null;
 		op = null;
 		children = null;
 	}
 
-	public AST(String token, Type literalType) {
+	public AST(String token, Operand literal) {
 		this.token = token;
-		this.literalType = literalType;
+		this.literal = literal;
 		op = null;
 		children = null;
 	}
 
 	public AST(Operation op, AST child) {
 		token = op.token();
-		literalType = null;
+		literal = null;
 		this.op = op;
 		addChild(child);
 	}
 
 	public AST(String token, Operation op) {
 		this.token = token;
-		literalType = null;
+		literal = null;
 		this.op = op;
 	}
 
@@ -66,7 +67,7 @@ public class AST {
 	public AST(String token, Operation op, AST left, AST right) {
 		this.token = token;
 		this.op = op;
-		literalType = null;
+		literal = null;
 		addChild(left);
 		addChild(right);
 	}
@@ -77,6 +78,10 @@ public class AST {
 
 	public String getToken() {
 		return token;
+	}
+
+	public Operand getOperand() {
+		return literal;
 	}
 
 	public void addChild(AST child) {
@@ -95,14 +100,18 @@ public class AST {
 		children.addFirst(child);
 	}
 
+	public boolean isLiteral() {
+		return literal != null;
+	}
+	
 	public Type getLiteralType() {
-		return literalType;
+		return literal.getType();
 	}
 
 	public boolean hasChildren() {
 		return children != null;
 	}
-	
+
 	public List<AST> getChildren() {
 		return children;
 	}
@@ -163,19 +172,20 @@ public class AST {
 		StringBuffer buf = new StringBuffer();
 
 		if (isLeaf()) {
-			if (literalType == Type.LIST && !hasChildren()) {
+			// TODO: list should be an operand
+			if (op == Operation.LIST && !hasChildren()) {
 				buf.append("empty ");
+			} else if (op == Operation.VARIABLE){
+				buf.append(token);
+			} else {
+				if (literal.getType() == Type.STRING) {
+					buf.append("\"");
+				}
+				buf.append(token);
+				if (literal.getType() == Type.STRING) {
+					buf.append("\"");
+				}
 			}
-
-			if (literalType == Type.STRING) {
-				buf.append("\"");
-			}
-			buf.append(token);
-//			buf.append(":");
-//			buf.append(literalType);
-			if (literalType == Type.STRING) {
-				buf.append("\"");
-			}			
 		} else {
 			buf.append("(");
 			buf.append(token);
@@ -190,6 +200,20 @@ public class AST {
 
 		return buf.toString();
 	}
-	
-	// TODO: fromSEXPR(String) => AST
+
+	public String toDOT() {
+		StringBuffer buf = new StringBuffer();
+
+		buf.append("digraph VeLa AST {\n");
+		// TODO
+		buf.append("}");
+
+		return buf.toString();
+	}
+
+	public AST fromSEXPR(String sexpr) {
+		AST ast = null;
+		// TODO
+		return ast;
+	}
 }

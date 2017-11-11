@@ -17,13 +17,16 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 import java.util.Stack;
 
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExponentiationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExpressionContext;
-import org.aavso.tools.vstar.vela.VeLaParser.FuncContext;
+import org.aavso.tools.vstar.vela.VeLaParser.FuncallContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
@@ -53,8 +56,12 @@ public class ExpressionListener extends VeLaBaseListener {
 		return astStack.peek();
 	}
 
-	// TODO: change the body of each class of exit methods to take a lambda
-	// expression for the if-statement
+	// TODO:
+	// - change the body of each class of exit methods to take a lambda
+	// expression for the if-statement; what generic signature?
+	// - ASTs should store Operands not tokens; this would simplify the
+	// interpreter
+	// and speed up AST interpretation
 
 	@Override
 	public void exitBooleanExpression(BooleanExpressionContext ctx) {
@@ -126,7 +133,6 @@ public class ExpressionListener extends VeLaBaseListener {
 				case '-':
 					astStack.push(new AST(Operation.getBinaryOp(op), left,
 							right));
-					break;
 				}
 			}
 		}
@@ -144,7 +150,6 @@ public class ExpressionListener extends VeLaBaseListener {
 				case '/':
 					astStack.push(new AST(Operation.getBinaryOp(op), left,
 							right));
-					break;
 				}
 			}
 		}
@@ -166,26 +171,26 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void exitExponentiationExpression(ExponentiationExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
-			while (ctx.getChild(i) instanceof TerminalNode) {
+			if (ctx.getChild(i) instanceof TerminalNode) {
 				String op = ctx.getChild(i).getText();
 				AST right = astStack.pop();
 				AST left = astStack.pop();
 				if (op.charAt(0) == '^') {
 					AST ast = new AST(Operation.getBinaryOp(op), left, right);
 					astStack.push(ast);
-					break;
 				}
 			}
 		}
 	}
 
 	@Override
-	public void enterFunc(FuncContext ctx) {
+	public void enterFuncall(FuncallContext ctx) {
+		// Mark the position on the stack where parameters stop.
 		astStack.push(new AST("parameter", Operation.SENTINEL));
 	}
 
 	@Override
-	public void exitFunc(FuncContext ctx) {
+	public void exitFuncall(FuncallContext ctx) {
 		String func = ctx.getChild(0).getText().toUpperCase();
 		AST ast = new AST(func, Operation.FUNCTION);
 		while (!astStack.isEmpty()) {
@@ -205,17 +210,22 @@ public class ExpressionListener extends VeLaBaseListener {
 
 	@Override
 	public void exitInteger(IntegerContext ctx) {
-		astStack.push(new AST(ctx.getChild(0).getText(), Type.INTEGER));
+		String token = ctx.getChild(0).getText();
+		Operand intLiteral = new Operand(Type.INTEGER, Integer.parseInt(token));
+		astStack.push(new AST(token, intLiteral));
 	}
 
 	@Override
 	public void exitReal(RealContext ctx) {
-		astStack.push(new AST(ctx.getChild(0).getText(), Type.DOUBLE));
+		String token = ctx.getChild(0).getText();
+		Operand realLiteral = new Operand(Type.DOUBLE, parseDouble(token));
+		astStack.push(new AST(token, realLiteral));
 	}
 
 	@Override
 	public void exitString(StringContext ctx) {
-		astStack.push(new AST(ctx.getText().replace("\"", ""), Type.STRING));
+		String token = ctx.getText().replace("\"", "");
+		astStack.push(new AST(token, new Operand(Type.STRING, token)));
 	}
 
 	@Override
@@ -233,5 +243,46 @@ public class ExpressionListener extends VeLaBaseListener {
 			ast.addFirstChild(child);
 		}
 		astStack.push(ast);
+	}
+	
+	// Helpers
+	
+	/**
+	 * Parse a string, returning a double primitive value, or if no valid double
+	 * value is present, throw a NumberFormatException. The string is first
+	 * trimmed of leading and trailing whitespace.
+	 * 
+	 * @param str
+	 *            The string that (hopefully) contains a number.
+	 * @return The double value corresponding to the initial parseable portion
+	 *         of the string.
+	 * @throws NumberFormatException
+	 *             If no valid double value is present.
+	 */
+	private double parseDouble(String str) throws NumberFormatException {
+		NumberFormat FORMAT = NumberFormat.getNumberInstance(Locale
+				.getDefault());
+
+		if (str == null) {
+			throw new NumberFormatException("String was null");
+		} else {
+			try {
+				str = str.trim();
+
+				if (str.startsWith("+")) {
+					// Leading "+" causes an exception to be thrown.
+					str = str.substring(1);
+				}
+
+				if (str.contains("e")) {
+					// Convert exponential indicator to parsable form.
+					str = str.toUpperCase();
+				}
+
+				return FORMAT.parse(str).doubleValue();
+			} catch (ParseException e) {
+				throw new NumberFormatException(e.getLocalizedMessage());
+			}
+		}
 	}
 }
