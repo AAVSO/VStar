@@ -21,8 +21,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
-import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -30,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -259,23 +256,8 @@ public class VeLaInterpreter {
 	 *             If an evaluation error occurs.
 	 */
 	private void eval(AST ast) throws VeLaEvalError {
-		if (ast.isLeaf() && ast.getOp() != Operation.FUNCTION
-				&& ast.getOp() != Operation.VARIABLE
-				&& ast.getOp() != Operation.LIST) {
-			switch (ast.getLiteralType()) {
-			case INTEGER:
-				stack.push(new Operand(Type.INTEGER, Integer.parseInt(ast
-						.getToken())));
-				break;
-			case DOUBLE:
-				stack.push(new Operand(Type.DOUBLE, parseDouble(ast.getToken())));
-				break;
-			case STRING:
-				stack.push(new Operand(Type.STRING, ast.getToken()));
-				break;
-			default:
-				break;
-			}
+		if (ast.isLiteral()) {
+			stack.push(ast.getOperand());
 		} else {
 			Operation op = ast.getOp();
 
@@ -330,6 +312,9 @@ public class VeLaInterpreter {
 							+ ast.getToken() + "\"");
 				}
 			} else if (ast.getOp() == Operation.LIST) {
+				// TODO: move Operand creation to expression listener 
+				// as with other types!
+				
 				// Evaluate list elements.
 				if (ast.hasChildren()) {
 					for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
@@ -713,45 +698,6 @@ public class VeLaInterpreter {
 	 */
 	private void applyFunction(String funcName) throws VeLaEvalError {
 		applyFunction(funcName, FunctionExecutor.NO_ACTUALS);
-	}
-
-	/**
-	 * Parse a string, returning a double primitive value, or if no valid double
-	 * value is present, throw a NumberFormatException. The string is first
-	 * trimmed of leading and trailing whitespace.
-	 * 
-	 * @param str
-	 *            The string that (hopefully) contains a number.
-	 * @return The double value corresponding to the initial parseable portion
-	 *         of the string.
-	 * @throws NumberFormatException
-	 *             If no valid double value is present.
-	 */
-	private double parseDouble(String str) throws NumberFormatException {
-		NumberFormat FORMAT = NumberFormat.getNumberInstance(Locale
-				.getDefault());
-
-		if (str == null) {
-			throw new NumberFormatException("String was null");
-		} else {
-			try {
-				str = str.trim();
-
-				if (str.startsWith("+")) {
-					// Leading "+" causes an exception to be thrown.
-					str = str.substring(1);
-				}
-
-				if (str.contains("e")) {
-					// Convert exponential indicator to parsable form.
-					str = str.toUpperCase();
-				}
-
-				return FORMAT.parse(str).doubleValue();
-			} catch (ParseException e) {
-				throw new NumberFormatException(e.getLocalizedMessage());
-			}
-		}
 	}
 
 	/**
