@@ -40,6 +40,13 @@ public class AST {
 		children = null;
 	}
 
+	public AST(Operation op) {
+		this.token = op.token();
+		this.literal = null;
+		this.op = op;
+		children = null;
+	}
+
 	public AST(String token, Operand literal) {
 		this.token = token;
 		this.literal = literal;
@@ -103,7 +110,7 @@ public class AST {
 	public boolean isLiteral() {
 		return literal != null;
 	}
-	
+
 	public Type getLiteralType() {
 		return literal.getType();
 	}
@@ -152,7 +159,7 @@ public class AST {
 	 * @return True if so, otherwise False.
 	 */
 	public boolean isDeterministic() {
-		boolean deterministic = op != Operation.FUNCTION
+		boolean deterministic = op != Operation.FUNCALL
 				&& op != Operation.VARIABLE;
 
 		if (deterministic && !isLeaf()) {
@@ -171,21 +178,11 @@ public class AST {
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
 
-		if (isLeaf()) {
-			// TODO: list should be an operand
-			if (op == Operation.LIST && !hasChildren()) {
-				buf.append("empty ");
-			} else if (op == Operation.VARIABLE){
-				buf.append(token);
-			} else {
-				if (literal.getType() == Type.STRING) {
-					buf.append("\"");
-				}
-				buf.append(token);
-				if (literal.getType() == Type.STRING) {
-					buf.append("\"");
-				}
-			}
+		if (literal != null) {
+			buf.append(literal);
+		} else if (isLeaf()) {
+			// e.g. variable, sentinel
+			buf.append(token);
 		} else {
 			buf.append("(");
 			buf.append(token);

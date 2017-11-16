@@ -19,6 +19,8 @@ package org.aavso.tools.vstar.vela;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Stack;
 
@@ -186,13 +188,13 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void enterFuncall(FuncallContext ctx) {
 		// Mark the position on the stack where parameters stop.
-		astStack.push(new AST("parameter", Operation.SENTINEL));
+		astStack.push(new AST(Operation.SENTINEL));
 	}
 
 	@Override
 	public void exitFuncall(FuncallContext ctx) {
 		String func = ctx.getChild(0).getText().toUpperCase();
-		AST ast = new AST(func, Operation.FUNCTION);
+		AST ast = new AST(func, Operation.FUNCALL);
 		while (!astStack.isEmpty()) {
 			AST child = astStack.pop();
 			if (child.getOp() == Operation.SENTINEL)
@@ -230,19 +232,21 @@ public class ExpressionListener extends VeLaBaseListener {
 
 	@Override
 	public void enterList(ListContext ctx) {
-		astStack.push(new AST("element", Operation.SENTINEL));
+		astStack.push(new AST(Operation.SENTINEL));
 	}
 
 	@Override
 	public void exitList(ListContext ctx) {
-		AST ast = new AST("list", Operation.LIST);
+		List<Operand> list = new LinkedList<Operand>();
+		
 		while (!astStack.isEmpty()) {
 			AST child = astStack.pop();
 			if (child.getOp() == Operation.SENTINEL)
 				break;
-			ast.addFirstChild(child);
+			list.add(0, child.getOperand());
 		}
-		astStack.push(ast);
+
+		astStack.push(new AST("list", new Operand(Type.LIST, list)));
 	}
 	
 	// Helpers
