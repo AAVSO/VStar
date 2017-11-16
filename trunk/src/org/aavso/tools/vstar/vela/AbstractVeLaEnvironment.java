@@ -60,11 +60,11 @@ public abstract class AbstractVeLaEnvironment {
 		return operand(doubleOperandCache, Type.DOUBLE, name, value);
 	}
 
-	protected Operand operand(String name, Boolean value) {
+	protected Operand operand(String name, String value) {
 		return operand(stringOperandCache, Type.STRING, name, value);
 	}
 
-	protected Operand operand(String name, String value) {
+	protected Operand operand(String name, Boolean value) {
 		return operand(booleanOperandCache, Type.BOOLEAN, name, value);
 	}
 

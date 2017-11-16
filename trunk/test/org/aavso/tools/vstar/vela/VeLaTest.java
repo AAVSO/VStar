@@ -497,6 +497,18 @@ public class VeLaTest extends TestCase {
 		assertTrue(vela.booleanExpression("2 in \"123\""));
 	}
 
+	public void testHeterogenousList() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		
+		assertTrue(vela.booleanExpression("42 in [1, 2.0, \"foo\", 42]"));
+	}
+
+	public void testNestedList() {
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+
+		assertTrue(vela.booleanExpression("[3, 4] in [1, 2, [3, 4]]"));
+	}
+
 	// Functions
 
 	public void testFuncParameterless1() {
@@ -572,6 +584,15 @@ public class VeLaTest extends TestCase {
 
 		expr = "magnitude > 12 and (uncertainty > 0 and uncertainty <= 0.01)";
 		assertEquals(1, filterObs(expr, obs).size());
+		
+		expr = "obscode = \"PEX\"";
+		assertEquals(1, filterObs(expr, obs).size());
+
+		expr = "mag > 6 and mag < 15 and obscode = \"PEX\"";
+		assertEquals(1, filterObs(expr, obs).size());
+
+		expr = "mag > 6 and mag < 15 and obscode in [\"PEX\", \"PLA\"]";
+		assertEquals(2, filterObs(expr, obs).size());
 	}
 
 	// ** Error cases **
@@ -625,24 +646,28 @@ public class VeLaTest extends TestCase {
 		ob.setMagnitude(new Magnitude(12, 0.1));
 		ob.setDateInfo(new DateInfo(2457849.1));
 		ob.setBand(SeriesType.Visual);
+		ob.setObsCode("PEX");
 		obs.add(ob);
 
 		ob = new ValidObservation();
 		ob.setMagnitude(new Magnitude(12.02, 0.01));
 		ob.setDateInfo(new DateInfo(2457849.1));
 		ob.setBand(SeriesType.Johnson_V);
+		ob.setObsCode("PLA");
 		obs.add(ob);
 
 		ob = new ValidObservation();
 		ob.setMagnitude(new Magnitude(11, 0.1));
 		ob.setDateInfo(new DateInfo(2457849.2));
 		ob.setBand(SeriesType.Visual);
+		ob.setObsCode("ABC");
 		obs.add(ob);
 
 		ob = new ValidObservation();
 		ob.setMagnitude(new Magnitude(11.05, 0.02));
 		ob.setDateInfo(new DateInfo(2457849.2));
 		ob.setBand(SeriesType.Johnson_V);
+		ob.setObsCode("XYZ");
 		obs.add(ob);
 
 		return obs;

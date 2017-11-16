@@ -10,10 +10,11 @@ grammar VeLa;
 //   and in functions:
 //     f(x,y,z) -> expression-over-x,y,z
 //   | f(x,y,z) -> (boolean-expression : expression-over-x,y,z ...)+
-// - Allow f to be \ or empty string?
-// - Allow final "otherwise" clause?
+// - allow f to be \ or empty string?
+// - final "otherwise" or "else" clause
 // - internal function representation in Models dialog should use VeLa
 // - print statement for higher-level use of VeLa with LLVM/JVM code generation
+// - do we need a let statement? (non-mutable variable binding) 
 // - comments (-- or #)
 
 // ** Parser rules **

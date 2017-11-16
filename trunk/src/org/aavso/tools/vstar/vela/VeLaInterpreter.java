@@ -61,6 +61,7 @@ public class VeLaInterpreter {
 	private static Map<String, Pattern> regexPatterns = new HashMap<String, Pattern>();
 
 	// A map of names to functions
+	// TODO: consider this not being static
 	private static Map<String, FunctionExecutor> functions = new HashMap<String, FunctionExecutor>();
 
 	private VeLaErrorListener errorListener;
@@ -216,8 +217,11 @@ public class VeLaInterpreter {
 		}
 
 		if (verbose) {
-			System.out.println(String.format("%s [AST cached? %s]", ast,
-					astCached));
+			if (astCached) {
+				System.out.println(String.format("%s [AST cached]", ast));
+			} else {
+				System.out.println(ast);
+			}
 		}
 
 		Operand result;
@@ -228,8 +232,8 @@ public class VeLaInterpreter {
 			// deterministic.
 			result = exprToResult.get(expr);
 			if (verbose) {
-				System.out.println(String.format(
-						"Result for AST '%s' in cache: %s", ast, result));
+				System.out.println(String.format("%s [result cached: %s]",
+						ast, result));
 			}
 		} else {
 			// Evaluate the abstract syntax tree and cache the result.
@@ -302,51 +306,27 @@ public class VeLaInterpreter {
 				if (result.isPresent()) {
 					stack.push(result.get());
 				} else if (functions.containsKey(varName)) {
-					// TODO: could instead lookup function signatures given name
-					// and operands on stack; but that's ambiguous since we need
-					// to know what other operations remain to be evaluated for
-					// the expression
+					// Parameterless function call
 					applyFunction(varName);
 				} else {
 					throw new VeLaEvalError("Unknown variable: \""
 							+ ast.getToken() + "\"");
 				}
-			} else if (ast.getOp() == Operation.LIST) {
-				// TODO: move Operand creation to expression listener 
-				// as with other types!
-				
-				// Evaluate list elements.
+			} else if (ast.getOp() == Operation.FUNCALL) {
+				// Evaluate actual parameters, if any.
 				if (ast.hasChildren()) {
 					for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
 						eval(ast.getChildren().get(i));
 					}
 				}
 
-				// Create and push list of operands.
-				List<Operand> elements = new ArrayList<Operand>();
-				if (ast.hasChildren()) {
-					for (int i = 1; i <= ast.getChildren().size(); i++) {
-						elements.add(stack.pop());
-					}
-				}
-
-				stack.push(new Operand(Type.LIST, elements));
-
-			} else if (ast.getOp() == Operation.FUNCTION) {
-				// Evaluate parameters, if any.
-				if (ast.hasChildren()) {
-					for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
-						eval(ast.getChildren().get(i));
-					}
-				}
-
-				// Prepare parameter list.
+				// Prepare actual parameter list.
 				List<Operand> params = new ArrayList<Operand>();
 				for (int i = 1; i <= ast.getChildren().size(); i++) {
 					params.add(stack.pop());
 				}
 
-				// Apply function to parameters.
+				// Apply function to actual parameters.
 				applyFunction(ast.getToken(), params);
 			}
 		}
@@ -504,7 +484,7 @@ public class VeLaInterpreter {
 			switch (type) {
 			case INTEGER:
 				int result = operand1.intVal();
-				for (int i=2;i<=operand2.intVal();i++) {
+				for (int i = 2; i <= operand2.intVal(); i++) {
 					result *= operand1.intVal();
 				}
 				stack.push(new Operand(Type.INTEGER, result));
@@ -674,7 +654,8 @@ public class VeLaInterpreter {
 		// LASTINDEXOF :: [STRING, INTEGER] -> INTEGER
 		// or a name that maps to a list of executors, each of
 		// which must be examined; mapping from string signature to executor may
-		// be faster
+		// be faster, but then the number of overloaded functions is likely to
+		// be few compared with the number of overall functions
 		if (functions.containsKey(canonicalFuncName)) {
 			FunctionExecutor function = functions.get(canonicalFuncName);
 			if (function.conforms(params)) {

@@ -279,14 +279,15 @@ public class Operand {
 			str = Boolean.toString(booleanVal);
 			break;
 		case STRING:
-			str = stringVal;
+			str = "\"" + stringVal + "\"";
 			break;
 		case LIST:
-			str = listVal.toString();
+			str = listVal.toString().replace(",", "").replace("[", "'(")
+					.replace("]", ")");
 			break;
 		}
 
-		str += " (" + type + ")";
+		// str += " (" + type + ")";
 
 		return str;
 	}
