@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.plugin.filter.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
@@ -25,6 +26,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.util.Logic;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.VeLaEvalError;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
 import org.aavso.tools.vstar.vela.VeLaParseError;
@@ -71,9 +73,9 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 				for (ValidObservation ob : obs) {
 					vela.setEnvironment(new VeLaValidObservationEnvironment(ob));
 
-					boolean does_match = false;
-
-					does_match = vela.booleanExpression(velaFilterExpr);
+					Optional<Operand> result = vela.program(velaFilterExpr);
+					boolean does_match = result.isPresent()
+							&& result.get().booleanVal();
 
 					if (does_match) {
 						/**

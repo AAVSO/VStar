@@ -65,10 +65,6 @@ public class VeLaInterpreter {
 
 	private VeLaErrorListener errorListener;
 
-	static {
-		//initFunctionExecutors();
-	}
-
 	/**
 	 * Construct a VeLa interpreter with an environments and a verbosity flag.
 	 */
