@@ -61,13 +61,12 @@ public class VeLaInterpreter {
 	private static Map<String, Pattern> regexPatterns = new HashMap<String, Pattern>();
 
 	// A map of names to functions
-	// TODO: consider this not being static
-	private static Map<String, FunctionExecutor> functions = new HashMap<String, FunctionExecutor>();
+	private Map<String, FunctionExecutor> functions = new HashMap<String, FunctionExecutor>();
 
 	private VeLaErrorListener errorListener;
 
 	static {
-		initFunctionExecutors();
+		//initFunctionExecutors();
 	}
 
 	/**
@@ -79,6 +78,8 @@ public class VeLaInterpreter {
 		stack = new Stack<Operand>();
 		environments = new Stack<AbstractVeLaEnvironment>();
 
+		initFunctionExecutors();
+		
 		if (environment != null) {
 			this.environments.push(environment);
 		} else {
@@ -111,7 +112,25 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Expression interpreter entry point.
+	 * VeLa program interpreter entry point.
+	 * 
+	 * @param prog
+	 *            The VeLa program string to be interpreted.
+	 * @return An optional result, depending upon whether a value was left on
+	 *         the stack..
+	 * @throws VeLaParseError
+	 *             If a parse error occurs.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
+	 */
+	public Optional<Operand> program(String prog) throws VeLaParseError {
+
+		VeLaParser.ProgramContext tree = getParser(prog).program();
+		return commonInterpreter(prog, tree);
+	}
+
+	/**
+	 * Real expression interpreter entry point.
 	 * 
 	 * @param expr
 	 *            The expression string to be interpreted.
@@ -121,14 +140,22 @@ public class VeLaInterpreter {
 	 * @throws VeLaEvalError
 	 *             If an evaluation error occurs.
 	 */
-	public double expression(String expr) throws VeLaParseError {
+	public double expression(String expr) throws VeLaEvalError {
 
-		VeLaParser.ExpressionContext tree = getParser(expr).expression();
-		return commonExpression(expr, tree).doubleVal();
+		VeLaParser.AdditiveExpressionContext tree = getParser(expr)
+				.additiveExpression();
+
+		Optional<Operand> result = commonInterpreter(expr, tree);
+		
+		if (result.isPresent()) {
+			return result.get().doubleVal();
+		} else {
+			throw new VeLaEvalError("Numeric value expected as result");
+		}
 	}
 
 	/**
-	 * Expression interpreter entry point.
+	 * Real expression interpreter entry point.
 	 * 
 	 * @param expr
 	 *            The expression string to be interpreted.
@@ -140,15 +167,23 @@ public class VeLaInterpreter {
 	 */
 	public Operand expressionToOperand(String expr) throws VeLaParseError {
 
-		VeLaParser.ExpressionContext tree = getParser(expr).expression();
-		return commonExpression(expr, tree);
+		VeLaParser.AdditiveExpressionContext tree = getParser(expr)
+				.additiveExpression();
+
+		Optional<Operand> result = commonInterpreter(expr, tree);
+		
+		if (result.isPresent()) {
+			return result.get();
+		} else {
+			throw new VeLaEvalError("Result expected");
+		}
 	}
 
 	/**
-	 * Boolean expression interpreter entry point.
+	 * VeLa boolean expression interpreter entry point.
 	 * 
 	 * @param expr
-	 *            The expression string to be interpreted.
+	 *            The VeLa expression string to be interpreted.
 	 * @return A Boolean value result.
 	 * @throws VeLaParseError
 	 *             If a parse error occurs.
@@ -159,8 +194,17 @@ public class VeLaInterpreter {
 
 		VeLaParser.BooleanExpressionContext tree = getParser(expr)
 				.booleanExpression();
-		return commonExpression(expr, tree).booleanVal();
+		
+		Optional<Operand> result = commonInterpreter(expr, tree);
+		
+		if (result.isPresent()) {
+			return result.get().booleanVal();
+		} else {
+			throw new VeLaEvalError("Numeric value expected as result");
+		}
 	}
+
+	// wrapper for booleanExpr
 
 	// Helpers
 
@@ -184,36 +228,36 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Generic expression evaluation entry point.
+	 * Common parse tree walker and AST generator.
 	 * 
-	 * @param expr
-	 *            The expression string to be interpreted.
-	 * @return A result of the specified type.
+	 * @param prog
+	 *            The VeLa program to be interpreted.
+	 * @param tree
+	 *            The parse tree resulting from parsing the VeLa expression.
+	 * @return The abstract syntax tree created by walking the parse tree.
 	 * @throws VeLaParseError
 	 *             If a parse error occurs.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
 	 */
-	public Operand commonExpression(String expr, ParserRuleContext tree)
+	public AST commonParseTreeWalker(String prog, ParserRuleContext tree)
 			throws VeLaParseError {
 
 		AST ast = null;
 
 		// Remove whitespace and change to uppercase to ensure a canonical
 		// expression string for caching purposes.
-		expr = expr.replace(" ", "").replace("\t", "").toUpperCase();
+		prog = prog.replace(" ", "").replace("\t", "").toUpperCase();
 
 		// We cache abstract syntax trees by expression to improve performance.
 		boolean astCached = false;
-		if (exprToAST.containsKey(expr)) {
-			ast = exprToAST.get(expr);
+		if (exprToAST.containsKey(prog)) {
+			ast = exprToAST.get(prog);
 			astCached = true;
 		} else {
 			ExpressionListener listener = new ExpressionListener();
 			ParseTreeWalker.DEFAULT.walk(listener, tree);
 
 			ast = listener.getAST();
-			exprToAST.put(expr, ast);
+			exprToAST.put(prog, ast);
 		}
 
 		if (verbose) {
@@ -224,22 +268,46 @@ public class VeLaInterpreter {
 			}
 		}
 
-		Operand result;
+		return ast;
+	}
 
-		if (ast.isDeterministic() && exprToResult.containsKey(expr)) {
+	/**
+	 * Common VeLa evaluation entry point.
+	 * 
+	 * @param prog
+	 *            The VeLa program string to be interpreted.
+	 * @param tree
+	 *            The result of parsing the VeLa expression.
+	 * @return An optional result depending upon whether a value is left on the
+	 *         stack.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
+	 */
+	public Optional<Operand> commonInterpreter(String prog,
+			ParserRuleContext tree) throws VeLaParseError {
+
+		AST ast = commonParseTreeWalker(prog, tree);
+
+		Optional<Operand> result;
+
+		if (ast.isDeterministic() && exprToResult.containsKey(prog)) {
 			// For deterministic expressions, we can also use cached results.
 			// Note: a better description may be constant rather than
 			// deterministic.
-			result = exprToResult.get(expr);
+			result = Optional.of(exprToResult.get(prog));
 			if (verbose) {
-				System.out.println(String.format("%s [result cached: %s]",
-						ast, result));
+				System.out.println(String.format("%s [result cached: %s]", ast,
+						result));
 			}
 		} else {
 			// Evaluate the abstract syntax tree and cache the result.
 			eval(ast);
-			result = stack.pop();
-			exprToResult.put(expr, result);
+			if (!stack.isEmpty()) {
+				result = Optional.of(stack.pop());
+				exprToResult.put(prog, result.get());
+			} else {
+				result = Optional.empty();
+			}
 		}
 
 		return result;
@@ -684,7 +752,7 @@ public class VeLaInterpreter {
 	/**
 	 * Initialise function executors
 	 */
-	private static void initFunctionExecutors() {
+	private void initFunctionExecutors() {
 		functions.put("TODAY", new FunctionExecutor("TODAY", Type.DOUBLE) {
 			@Override
 			public Operand apply(List<Operand> operands) {
@@ -723,7 +791,7 @@ public class VeLaInterpreter {
 	 * @param exclusions
 	 *            Names of functions to exclude.
 	 */
-	private static void addFunctionExecutors(Class<?> clazz,
+	private void addFunctionExecutors(Class<?> clazz,
 			Set<Class<?>> permittedTypes, Set<String> exclusions) {
 		Method[] declaredMethods = clazz.getDeclaredMethods();
 
