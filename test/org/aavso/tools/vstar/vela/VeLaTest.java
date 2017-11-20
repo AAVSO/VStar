@@ -38,10 +38,11 @@ import org.aavso.tools.vstar.util.date.AbstractDateUtil;
  */
 public class VeLaTest extends TestCase {
 
-	private static VeLaInterpreter vela = new VeLaInterpreter(true);
+	private VeLaInterpreter vela;
 
 	public VeLaTest(String name) {
 		super(name);
+		vela = new VeLaInterpreter(true);
 	}
 
 	// ** Valid test cases **
