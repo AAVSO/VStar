@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Stack;
 
+import org.aavso.tools.vstar.vela.VeLaParser.AdditiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExponentiationExpressionContext;
-import org.aavso.tools.vstar.vela.VeLaParser.ExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncallContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
@@ -124,7 +124,7 @@ public class ExpressionListener extends VeLaBaseListener {
 	}
 
 	@Override
-	public void exitExpression(ExpressionContext ctx) {
+	public void exitAdditiveExpression(AdditiveExpressionContext ctx) {
 		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
 			if (ctx.getChild(i) instanceof TerminalNode) {
 				String op = ctx.getChild(i).getText();

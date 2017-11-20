@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import junit.framework.TestCase;
 
@@ -37,6 +38,8 @@ import org.aavso.tools.vstar.util.date.AbstractDateUtil;
  */
 public class VeLaTest extends TestCase {
 
+	private static VeLaInterpreter vela = new VeLaInterpreter(true);
+
 	public VeLaTest(String name) {
 		super(name);
 	}
@@ -46,138 +49,138 @@ public class VeLaTest extends TestCase {
 	// Real expressions
 
 	public void testPositiveReal1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("12.25");
 		assertEquals(12.25, result);
 	}
 
 	public void testPositiveRealNoLeadingZero() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression(".25");
 		assertEquals(.25, result);
 	}
 
 	public void testNegativeReal1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("-12.25");
 		assertEquals(-12.25, result);
 	}
 
 	public void testNegativeRealNoLeadingZero() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("-.25");
 		assertEquals(-.25, result);
 	}
 
 	public void testAddition() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("2457580.25+1004");
 		assertEquals(2458584.25, result);
 	}
 
 	public void testSubtraction() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("2457580.25-1004");
 		assertEquals(2456576.25, result);
 	}
 
 	public void testMultiplication() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("2457580.25*10");
 		assertEquals(24575802.5, result);
 	}
 
 	public void testDivision() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("2457580.25/10");
 		assertEquals(245758.025, result);
 	}
 
 	public void testAddSubMulDiv1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("2457580.25+1004*2-1");
 		assertEquals(2459587.25, result);
 	}
 
 	public void testAddSubMulDiv2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("2+3-5*6");
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(-25, operand.intVal());
 	}
-	
+
 	public void testRealExponentiation1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("2.0^3.0");
 		assertEquals(Type.DOUBLE, operand.getType());
 		assertEquals(8.0, operand.doubleVal());
 	}
 
 	public void testRealExponentiation2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("2^3.0");
 		assertEquals(Type.DOUBLE, operand.getType());
 		assertEquals(8.0, operand.doubleVal());
 	}
 
 	public void testRealExponentiation3() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("3.0^4^2");
 		assertEquals(Type.DOUBLE, operand.getType());
 		assertEquals(43046721.0, operand.doubleVal());
 	}
 
 	public void testReal1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("2.25+1");
 		assertEquals(3.25, result);
 	}
 
 	public void testReal2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("2.25-1");
 		assertEquals(1.25, result);
 	}
-	
+
 	public void testReal3() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("2.25+1+2");
 		assertEquals(5.25, result);
 	}
 
 	public void testReal4() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("2.25*2*2");
 		assertEquals(9.0, result);
 	}
 
 	public void testParens0() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("(2457580.25+1004)*10");
 		assertEquals(24585842.50, result);
 	}
 
 	public void testParens1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("(2457580.25+1004-2)*10");
 		assertEquals(24585822.50, result);
 	}
 
 	public void testParens2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		// 20 years before some JD.
 		double result = vela.expression("2457580.25-(365.25*20)");
 		assertEquals(2450275.25, result);
 	}
 
 	public void testParens3() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("-(12.25*-2)");
 		assertEquals(24.5, result);
 	}
 
 	public void testResultCacheTest1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		// 20 years before some JD.
 		double result = vela.expression("2457580.25-(365.25*20)");
 		assertEquals(2450275.25, result);
@@ -186,42 +189,42 @@ public class VeLaTest extends TestCase {
 	// Integer expressions
 
 	public void testIntegerExponentiation1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("2^3");
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(8, operand.intVal());
 	}
 
 	public void testIntegerExponentiation2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("3^4^2");
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(43046721, operand.intVal());
 	}
 
 	public void testIntegerExponentiation3() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("-3^4^2");
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(-43046721, operand.intVal());
 	}
 
 	public void testIntegerExponentiation4() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("-(3^4)^2");
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(-6561, operand.intVal());
 	}
 
 	public void testIntegerExponentiation5() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("(-3^4)^2");
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(6561, operand.intVal());
 	}
 
 	public void testIntegerExponentiation6() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("3^4+2");
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(83, operand.intVal());
@@ -233,14 +236,14 @@ public class VeLaTest extends TestCase {
 	// checking the type where a particular type is expected/required.
 
 	public void testString1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("\"foobar\"");
 		assertEquals(Type.STRING, operand.getType());
 		assertEquals("foobar", operand.stringVal());
 	}
 
 	public void testString2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela.expressionToOperand("concat(\"foo\", \"bar\")");
 		assertEquals(Type.STRING, operand.getType());
 		assertEquals("foobar", operand.stringVal());
@@ -249,92 +252,92 @@ public class VeLaTest extends TestCase {
 	// Relational expressions
 
 	public void testRealEquality() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("42 = 42");
 		assertTrue(result);
 	}
 
 	public void testRealInequality() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("42 <> 4.2");
 		assertTrue(result);
 	}
 
 	public void testRealGreaterThan() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("42 > 4.2");
 		assertTrue(result);
 	}
 
 	public void testRealLessThan() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("4.22 < 42");
 		assertTrue(result);
 	}
 
 	public void testRealGreaterThanOrEqual1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("42 >= 4.2");
 		assertTrue(result);
 	}
 
 	public void testRealGreaterThanOrEqual2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("42 >= 42");
 		assertTrue(result);
 	}
 
 	public void testRealLessThanOrEqual1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("4.2 <= 42");
 		assertTrue(result);
 	}
 
 	public void testRealLessThanOrEqual2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("42 <= 42");
 		assertTrue(result);
 	}
 
 	public void testRealAdditionAndEquality() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("1+2 = 3");
 		assertTrue(result);
 	}
 
 	public void testStringEquality1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("\"foo\" <> \"foobar\"");
 		assertTrue(result);
 	}
 
 	public void testStringAdditionAndEquality2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("\"foo\"+\"bar\" = \"foobar\"");
 		assertTrue(result);
 	}
 
 	public void testRegularExpression1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("\"Johnson V\" =~ \".+V\"");
 		assertTrue(result);
 	}
 
 	public void testRegularExpression2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela
 				.booleanExpression("not(\"Johnson B\" =~ \".+V\")");
 		assertTrue(result);
 	}
 
 	public void testRegularExpression3() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("\"12.345\" =~ \".+\\d+\"");
 		assertTrue(result);
 	}
 
 	public void testRegularExpressionWithRealConvertedToString() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("12.345 =~ \".+\\d+\"");
 		assertTrue(result);
 	}
@@ -342,55 +345,55 @@ public class VeLaTest extends TestCase {
 	// Logical connective expressions
 
 	public void testDisjunction1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("2 < 3 or 2 > 3");
 		assertTrue(result);
 	}
 
 	public void testConjunction1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("2 < 3 and 3 < 5");
 		assertTrue(result);
 	}
 
 	public void testConjunction2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("2 < 3 and 2 > 3");
 		assertFalse(result);
 	}
 
 	public void testGroupedBooleanExpression1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("(2 < 3 and 3 < 5)");
 		assertTrue(result);
 	}
 
 	public void testGroupedBooleanExpression2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("(2 < 3) and (3 < 5)");
 		assertTrue(result);
 	}
 
 	public void testGroupedBooleanExpression3() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("3 > 2 and (2 < 3 and 2 > 3)");
 		assertFalse(result);
 	}
 
 	public void testGroupedBooleanExpression4() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("3 > 2 or (2 < 3 and 2 > 3)");
 		assertTrue(result);
 	}
 
 	public void testGroupedBooleanExpression5() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("3 > 2 or 2 < 3 and 2 > 3");
 		assertTrue(result);
 	}
 
 	public void testLogicalNegationExpression1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela.booleanExpression("not 3 > 2");
 		assertFalse(result);
 	}
@@ -418,7 +421,6 @@ public class VeLaTest extends TestCase {
 
 	// This test is important for nested or recursive function calls
 	public void testVariableSingleCharacterVariable() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
 
 		Map<String, Operand> environment1 = new HashMap<String, Operand>();
 		environment1.put("x".toUpperCase(), new Operand(Type.INTEGER, 4.2));
@@ -445,7 +447,6 @@ public class VeLaTest extends TestCase {
 	// List
 
 	public void testListCaching() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
 
 		Operand result1 = vela.expressionToOperand("[1,\"2\", 3.0]");
 		assertEquals(result1.getType(), Type.LIST);
@@ -462,14 +463,13 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testEmptyList() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand result = vela.expressionToOperand("[]");
 		assertEquals(result.getType(), Type.LIST);
 		assertTrue(result.listVal().isEmpty());
 	}
 
 	public void testInListOperator() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
 
 		assertTrue(vela.booleanExpression("2 in [1, 2, 3]"));
 		// cached
@@ -484,13 +484,11 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testInListOperatorNot() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
 
 		assertFalse(vela.booleanExpression("4 in [1, 2, 3]"));
 	}
 
 	public void testInStringOperator() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
 
 		assertTrue(vela.booleanExpression("2 in \"123\""));
 		// cached
@@ -498,13 +496,11 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testHeterogenousList() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
-		
+
 		assertTrue(vela.booleanExpression("42 in [1, 2.0, \"foo\", 42]"));
 	}
 
 	public void testNestedList() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
 
 		assertTrue(vela.booleanExpression("[3, 4] in [1, 2, [3, 4]]"));
 	}
@@ -512,13 +508,13 @@ public class VeLaTest extends TestCase {
 	// Functions
 
 	public void testFuncParameterless1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("today");
 		assertEquals(today(), result);
 	}
 
 	public void testFuncParameterlessAsSubexpression1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("today+2");
 		assertEquals(today() + 2, result);
 	}
@@ -534,36 +530,36 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testFunctionSqrt() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		double result = vela.expression("2*sqrt(144.0)");
 		assertEquals(24.0, result);
 	}
 
 	public void testFunctionContains() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		boolean result = vela
 				.booleanExpression("contains(\"xyz123abc\", \"23a\")");
 		assertTrue(result);
 	}
 
 	public void testFunctionEndsWith() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		assertTrue(vela.booleanExpression("endsWith(\"12345\", \"45\")"));
 	}
 
 	public void testFunctionMatches() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		assertTrue(vela.booleanExpression("matches(\"12345\", \"^\\d{3}45$\")"));
 	}
 
 	public void testFunctionReplace() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		assertTrue(vela
 				.booleanExpression("replace(\"abcd\", \"bc\", \"BC\") = \"aBCd\""));
 	}
 
 	public void testLastIndexOf() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		Operand operand = vela
 				.expressionToOperand("lastIndexOf(\"dabcde\", \"d\")");
 		assertEquals(Type.INTEGER, operand.getType());
@@ -584,7 +580,7 @@ public class VeLaTest extends TestCase {
 
 		expr = "magnitude > 12 and (uncertainty > 0 and uncertainty <= 0.01)";
 		assertEquals(1, filterObs(expr, obs).size());
-		
+
 		expr = "obscode = \"PEX\"";
 		assertEquals(1, filterObs(expr, obs).size());
 
@@ -599,7 +595,7 @@ public class VeLaTest extends TestCase {
 
 	public void testAmpersand() {
 		try {
-			VeLaInterpreter vela = new VeLaInterpreter(true);
+
 			vela.expression("2457580.25&1004");
 			fail();
 		} catch (VeLaParseError e) {
@@ -610,7 +606,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testDivisionByZero1() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		try {
 			vela.expression("42.42/0.0");
 			fail();
@@ -620,7 +616,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testDivisionByZero2() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+
 		try {
 			vela.expression("42/0");
 			fail();
@@ -678,14 +674,13 @@ public class VeLaTest extends TestCase {
 
 		VeLaValidObservationEnvironment.reset();
 
-		VeLaInterpreter vela = new VeLaInterpreter(true);
-
 		List<ValidObservation> filteredObs = new ArrayList<ValidObservation>();
 
 		for (ValidObservation ob : obs) {
 			vela.setEnvironment(new VeLaValidObservationEnvironment(ob));
 
-			if (vela.booleanExpression(velaFilterExpr)) {
+			Optional<Operand> result = vela.program(velaFilterExpr);
+			if (result.isPresent() && result.get().booleanVal()) {
 				filteredObs.add(ob);
 			}
 		}

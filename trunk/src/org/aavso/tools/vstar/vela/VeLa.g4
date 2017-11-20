@@ -8,34 +8,53 @@ grammar VeLa;
 //   instead of if-then:
 //     (boolean-expression : expression-over-x,y,z ...)+
 //   and in functions:
-//     f(x,y,z) -> expression-over-x,y,z
-//   | f(x,y,z) -> (boolean-expression : expression-over-x,y,z ...)+
-// - allow f to be \ or empty string?
-// - final "otherwise" or "else" clause
+//     f <- fun(x:t1,y:t2,z:t3) -> expression-over-x,y,z
+//   | fun(x:t1,y:t2,z:t3) -> (boolean-expression : expression-over-x,y,z ...)+
+// - final "else" clause
+// - variable binding of any expression, including functions (HOFs)
+// - print statement for higher-level use of VeLa with LLVM/JVM
 // - internal function representation in Models dialog should use VeLa
-// - print statement for higher-level use of VeLa with LLVM/JVM code generation
-// - do we need a let statement? (non-mutable variable binding) 
 // - comments (-- or #)
 
 // ** Parser rules **
 
-function
+// A VeLa program consists of zero or more bindings or output 
+// statements, or expressions.
+
+// The expression production will leave a value on the stack,
+// therefore the program rule could be the entry point for 
+// VStar filters as well as models. If one wishes to create 
+// a filter that is a complete VeLa program that happens to
+// end in a boolean expression, then that should be allowed.
+program
 :
-	IDENT LPAREN IDENT
-	(
-		comma IDENT
-	)* RPAREN
-	ARROW
-	(
-		booleanExpression
-		| selectionExpression+	
-	)
+	(binding | out | expression)*
 ;
 
-// TODO: change this to expression...
+// The intention of the semantics are that within a given scope,
+// a binding cannot be repeated without error.
+binding
+:
+	IDENT BACK_ARROW expression
+;
+
+out
+:
+	OUT expression (COMMA expression)*
+;
+
+expression
+:
+	booleanExpression
+	| selectionExpression+
+;
+
 selectionExpression
 :
 	booleanExpression COLON booleanExpression
+	(
+		ELSE COLON booleanExpression
+	)?
 ;
 
 booleanExpression
@@ -79,11 +98,10 @@ relationalExpression
 groupedBooleanExpression
 :
 	LPAREN booleanExpression RPAREN
-	| expression
+	| additiveExpression
 ;
 
-// TODO: ...and this to additiveExpression
-expression
+additiveExpression
 :
 	multiplicativeExpression
 	(
@@ -110,6 +128,12 @@ unaryExpression
 	sign? exponentiationExpression
 ;
 
+sign
+:
+	MINUS
+	| PLUS
+;
+
 exponentiationExpression
 :
 // This whole rule option is right associative.
@@ -123,7 +147,7 @@ exponentiationExpression
 
 factor
 :
-	LPAREN expression RPAREN
+	LPAREN additiveExpression RPAREN
 	| integer
 	| real
 	| string
@@ -149,9 +173,9 @@ string
 
 list
 :
-	LBRACKET expression?
+	LBRACKET additiveExpression?
 	(
-		comma expression
+		comma additiveExpression
 	)* RBRACKET
 ;
 
@@ -162,16 +186,34 @@ var
 
 funcall
 :
-	IDENT LPAREN expression
+	IDENT LPAREN additiveExpression
 	(
-		comma expression
+		comma additiveExpression
 	)* RPAREN
 ;
 
-sign
+fundef
 :
-	MINUS
-	| PLUS
+	FUN LPAREN formalParameter?
+	(
+		comma formalParameter
+	)* RPAREN ARROW
+	(
+		booleanExpression
+		| expression
+	)
+;
+
+formalParameter
+:
+	IDENT COLON
+	(
+		INT_T
+		| REAL_T
+		| STR_T
+		| LIST_T
+		| FUN
+	)
 ;
 
 comma
@@ -180,6 +222,53 @@ comma
 ;
 
 // ** Lexer rules **
+
+BACK_ARROW
+:
+	'<-'
+;
+
+OUT
+:
+	'out'
+	| 'OUT'
+;
+
+ELSE
+:
+	'else'
+	| 'ELSE'
+;
+
+FUN
+:
+	'fun'
+	| 'FUN'
+;
+
+INT_T
+:
+	'integer'
+	| 'INTEGER'
+;
+
+REAL_T
+:
+	'real'
+	| 'REAL'
+;
+
+STR_T
+:
+	'string'
+	| 'STRING'
+;
+
+LIST_T
+:
+	'list'
+	| 'LIST'
+;
 
 COLON
 :
@@ -338,6 +427,7 @@ DIGIT
 fragment
 POINT
 // Locale-inclusive
+
 :
 	PERIOD
 	| COMMA
