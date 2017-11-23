@@ -60,10 +60,12 @@ public class VeLaInterpreter {
 	// Regular expression pattern cache.
 	private static Map<String, Pattern> regexPatterns = new HashMap<String, Pattern>();
 
-	// A map of names to functions
+	// A map of names to functions.
 	private Map<String, FunctionExecutor> functions = new HashMap<String, FunctionExecutor>();
 
 	private VeLaErrorListener errorListener;
+
+	// TODO: make use of AST caching at each level of eval()!
 
 	/**
 	 * Construct a VeLa interpreter with an environments and a verbosity flag.
@@ -75,7 +77,7 @@ public class VeLaInterpreter {
 		environments = new Stack<AbstractVeLaEnvironment>();
 
 		initFunctionExecutors();
-		
+
 		if (environment != null) {
 			this.environments.push(environment);
 		} else {
@@ -136,13 +138,13 @@ public class VeLaInterpreter {
 	 * @throws VeLaEvalError
 	 *             If an evaluation error occurs.
 	 */
-	public double expression(String expr) throws VeLaEvalError {
+	public double realExpression(String expr) throws VeLaEvalError {
 
 		VeLaParser.AdditiveExpressionContext tree = getParser(expr)
 				.additiveExpression();
 
 		Optional<Operand> result = commonInterpreter(expr, tree);
-		
+
 		if (result.isPresent()) {
 			return result.get().doubleVal();
 		} else {
@@ -167,7 +169,7 @@ public class VeLaInterpreter {
 				.additiveExpression();
 
 		Optional<Operand> result = commonInterpreter(expr, tree);
-		
+
 		if (result.isPresent()) {
 			return result.get();
 		} else {
@@ -190,9 +192,9 @@ public class VeLaInterpreter {
 
 		VeLaParser.BooleanExpressionContext tree = getParser(expr)
 				.booleanExpression();
-		
+
 		Optional<Operand> result = commonInterpreter(expr, tree);
-		
+
 		if (result.isPresent()) {
 			return result.get().booleanVal();
 		} else {
@@ -376,18 +378,46 @@ public class VeLaInterpreter {
 					throw new VeLaEvalError("Unknown variable: \""
 							+ ast.getToken() + "\"");
 				}
-			} else if (ast.getOp() == Operation.FUNCALL) {
-				// Evaluate actual parameters, if any.
+			} else if (ast.getOp() == Operation.LIST) {
+				// Evaluate list elements.
+				List<Operand> elements = new ArrayList<Operand>();
+
 				if (ast.hasChildren()) {
 					for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
 						eval(ast.getChildren().get(i));
 					}
+
+					// Create and push list of operands.
+					for (int i = 1; i <= ast.getChildren().size(); i++) {
+						elements.add(stack.pop());
+					}
 				}
 
-				// Prepare actual parameter list.
+				stack.push(new Operand(Type.LIST, elements));
+			} else if (ast.getOp() == Operation.SELECTION) {
+				// Evaluate each antecedent in turn, pushing the value
+				// of the first consequent whose antecedent is true and stop
+				// antecedent evaluation.
+				for (AST pair : ast.getChildren()) {
+					eval(pair.left());
+					if (stack.peek().booleanVal()) {
+						eval(pair.right());
+						break;
+					}
+				}
+			} else if (ast.getOp() == Operation.FUNCALL) {
+				// Evaluate actual parameters, if any.
 				List<Operand> params = new ArrayList<Operand>();
-				for (int i = 1; i <= ast.getChildren().size(); i++) {
-					params.add(stack.pop());
+
+				if (ast.hasChildren()) {
+					for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
+						eval(ast.getChildren().get(i));
+					}
+
+					// Prepare actual parameter list.
+					for (int i = 1; i <= ast.getChildren().size(); i++) {
+						params.add(stack.pop());
+					}
 				}
 
 				// Apply function to actual parameters.
@@ -849,7 +879,7 @@ public class VeLaInterpreter {
 
 				functions.put(funcName, function);
 
-				System.out.println(function.toString());
+				// System.out.println(function.toString());
 			}
 		}
 	}

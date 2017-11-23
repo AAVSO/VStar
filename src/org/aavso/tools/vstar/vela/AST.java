@@ -33,7 +33,6 @@ public class AST {
 	private LinkedList<AST> children;
 
 	public AST() {
-		// TODO: use Optional.empty()
 		token = null;
 		literal = null;
 		op = null;
