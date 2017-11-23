@@ -7,6 +7,10 @@ grammar VeLa;
 // - selection (e.g. in models): Haskell/Scala/Erlang functional-style cases 
 //   instead of if-then:
 //     (boolean-expression : expression-over-x,y,z ...)+
+//   e.g.
+//     select 
+//       2 > 3 -> 42
+//       t -> 12
 //   and in functions:
 //     f <- fun(x:t1,y:t2,z:t3) -> expression-over-x,y,z
 //   | fun(x:t1,y:t2,z:t3) -> (boolean-expression : expression-over-x,y,z ...)+
@@ -45,16 +49,13 @@ out
 
 expression
 :
-	booleanExpression
-	| selectionExpression+
+	selectionExpression
+	| booleanExpression
 ;
 
 selectionExpression
 :
-	booleanExpression COLON booleanExpression
-	(
-		ELSE COLON booleanExpression
-	)?
+	SELECT (booleanExpression ARROW booleanExpression)+
 ;
 
 booleanExpression
@@ -80,7 +81,7 @@ logicalNegationExpression
 
 relationalExpression
 :
-	groupedBooleanExpression
+	additiveExpression
 	(
 		(
 			EQUAL
@@ -91,14 +92,8 @@ relationalExpression
 			| LESS_THAN_OR_EQUAL
 			| APPROXIMATELY_EQUAL
 			| IN
-		) groupedBooleanExpression
+		) additiveExpression
 	)?
-;
-
-groupedBooleanExpression
-:
-	LPAREN booleanExpression RPAREN
-	| additiveExpression
 ;
 
 additiveExpression
@@ -136,7 +131,7 @@ sign
 
 exponentiationExpression
 :
-// This whole rule option is right associative.
+// This rule option is right associative.
 	< assoc = right > factor
 	(
 		(
@@ -147,12 +142,14 @@ exponentiationExpression
 
 factor
 :
-	LPAREN additiveExpression RPAREN
+	LPAREN expression RPAREN
 	| integer
 	| real
+	| bool
 	| string
 	| list
 	| var
+	| fundef
 	| funcall
 ;
 
@@ -166,6 +163,11 @@ real
 	REAL
 ;
 
+bool
+:
+	BOOLEAN
+;
+
 string
 :
 	STRING
@@ -173,23 +175,15 @@ string
 
 list
 :
-	LBRACKET additiveExpression?
+	LBRACKET expression?
 	(
-		comma additiveExpression
+		comma expression
 	)* RBRACKET
 ;
 
 var
 :
 	IDENT
-;
-
-funcall
-:
-	IDENT LPAREN additiveExpression
-	(
-		comma additiveExpression
-	)* RPAREN
 ;
 
 fundef
@@ -199,8 +193,7 @@ fundef
 		comma formalParameter
 	)* RPAREN ARROW
 	(
-		booleanExpression
-		| expression
+		expression
 	)
 ;
 
@@ -216,12 +209,25 @@ formalParameter
 	)
 ;
 
+funcall
+:
+	IDENT LPAREN expression
+	(
+		comma expression
+	)* RPAREN
+;
+
 comma
 :
 	COMMA
 ;
 
 // ** Lexer rules **
+
+SELECT
+:
+	[Ss] [Ee] [Ll] [Ee] [Cc] [Tt]
+;
 
 BACK_ARROW
 :
@@ -232,12 +238,6 @@ OUT
 :
 	'out'
 	| 'OUT'
-;
-
-ELSE
-:
-	'else'
-	| 'ELSE'
 ;
 
 FUN
@@ -418,6 +418,23 @@ REAL
 	)?
 ;
 
+BOOLEAN
+:
+	TRUE | FALSE
+;
+
+fragment
+TRUE
+:
+	'T' | 't'
+;
+
+fragment
+FALSE
+:
+	'F' | 'f'
+;
+	
 fragment
 DIGIT
 :

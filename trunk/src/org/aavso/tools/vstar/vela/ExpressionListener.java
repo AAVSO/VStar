@@ -19,12 +19,11 @@ package org.aavso.tools.vstar.vela;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Stack;
 
 import org.aavso.tools.vstar.vela.VeLaParser.AdditiveExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.BoolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExponentiationExpressionContext;
@@ -35,6 +34,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.SelectionExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
 import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.VarContext;
@@ -61,9 +61,34 @@ public class ExpressionListener extends VeLaBaseListener {
 	// TODO:
 	// - change the body of each class of exit methods to take a lambda
 	// expression for the if-statement; what generic signature?
-	// - ASTs should store Operands not tokens; this would simplify the
-	// interpreter
-	// and speed up AST interpretation
+
+	@Override
+	public void enterSelectionExpression(SelectionExpressionContext ctx) {
+		// Mark the position on the stack where selection expressions stop.
+		astStack.push(new AST(Operation.SENTINEL));
+	}
+
+	@Override
+	public void exitSelectionExpression(SelectionExpressionContext ctx) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			if (ctx.getChild(i) instanceof TerminalNode) {
+				String op = ctx.getChild(i).getText();
+				if ("select".equalsIgnoreCase(op)) {
+					AST ast = new AST(Operation.SELECTION);
+					while (!astStack.isEmpty()) {
+						AST consequent = astStack.pop();
+						if (consequent.getOp() == Operation.SENTINEL)
+							break;
+						AST antecedent = astStack.pop();
+						AST pair = new AST(Operation.PAIR, antecedent,
+								consequent);
+						ast.addFirstChild(pair);
+					}
+					astStack.push(ast);
+				}
+			}
+		}
+	}
 
 	@Override
 	public void exitBooleanExpression(BooleanExpressionContext ctx) {
@@ -225,6 +250,14 @@ public class ExpressionListener extends VeLaBaseListener {
 	}
 
 	@Override
+	public void exitBool(BoolContext ctx) {
+		String token = ctx.getChild(0).getText().toUpperCase();
+		boolean value = "T".equals(token) ? true : false;
+		Operand booleanLiteral = new Operand(Type.BOOLEAN, value);
+		astStack.push(new AST(token, booleanLiteral));
+	}
+
+	@Override
 	public void exitString(StringContext ctx) {
 		String token = ctx.getText().replace("\"", "");
 		astStack.push(new AST(token, new Operand(Type.STRING, token)));
@@ -235,22 +268,36 @@ public class ExpressionListener extends VeLaBaseListener {
 		astStack.push(new AST(Operation.SENTINEL));
 	}
 
-	@Override
 	public void exitList(ListContext ctx) {
-		List<Operand> list = new LinkedList<Operand>();
-		
+		AST ast = new AST(Operation.LIST);
 		while (!astStack.isEmpty()) {
 			AST child = astStack.pop();
 			if (child.getOp() == Operation.SENTINEL)
 				break;
-			list.add(0, child.getOperand());
+			ast.addFirstChild(child);
 		}
-
-		astStack.push(new AST("list", new Operand(Type.LIST, list)));
+		astStack.push(ast);
 	}
-	
+
+	//@Override
+//	public void exitList1(ListContext ctx) {
+//		List<Operand> list = new LinkedList<Operand>();
+//
+//		while (!astStack.isEmpty()) {
+//			AST child = astStack.pop();
+//			if (child.getOp() == Operation.SENTINEL)
+//				break;
+//			list.add(0, child.getOperand());
+//			// ast.add...(new AST("list", new AST(Operation.LIST, child)));
+//		}
+//
+//		// TODO: This won't work where lists contain non-literals!
+//		// Still need Operation.LIST I suspect; also for selection expressions
+//		astStack.push(new AST("list", new Operand(Type.LIST, list)));
+//	}
+
 	// Helpers
-	
+
 	/**
 	 * Parse a string, returning a double primitive value, or if no valid double
 	 * value is present, throw a NumberFormatException. The string is first
