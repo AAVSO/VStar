@@ -71,7 +71,7 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 
 			try {
 				for (ValidObservation ob : obs) {
-					vela.setEnvironment(new VeLaValidObservationEnvironment(ob));
+					vela.pushEnvironment(new VeLaValidObservationEnvironment(ob));
 
 					Optional<Operand> result = vela.program(velaFilterExpr);
 					boolean does_match = result.isPresent()
@@ -95,6 +95,8 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 							addToSubset(ob);
 						}
 					}
+					
+					vela.popEnvironment();
 				}
 
 				repr = new Pair<String, String>(dialog.getFilterName(),

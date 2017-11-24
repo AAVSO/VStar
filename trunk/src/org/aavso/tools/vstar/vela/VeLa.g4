@@ -27,11 +27,16 @@ grammar VeLa;
 
 program
 :
-	(binding | out | expression)*
+	(
+		binding
+		| out
+		| expression
+	)*
 ;
 
 // The intention of the semantics are that within a given scope,
 // a binding cannot be repeated without error.
+
 binding
 :
 	IDENT BACK_ARROW expression
@@ -39,7 +44,10 @@ binding
 
 out
 :
-	OUT expression (COMMA expression)*
+	OUT expression
+	(
+		COMMA expression
+	)*
 ;
 
 expression
@@ -49,9 +57,13 @@ expression
 ;
 
 // Homage to Haskell/Scala/Erlang functional-style cases
+
 selectionExpression
 :
-	SELECT (booleanExpression ARROW booleanExpression)+
+	SELECT
+	(
+		booleanExpression ARROW booleanExpression
+	)+
 ;
 
 booleanExpression
@@ -193,24 +205,43 @@ fundef
 	)
 ;
 
+// A formal parameter consists of a name-type pair
+
 formalParameter
 :
 	IDENT COLON
 	(
 		INT_T
 		| REAL_T
+		| BOOL_T
 		| STR_T
 		| LIST_T
 		| FUN
 	)
 ;
 
+// A function call consists of a function object followed 
+// by zero or more parameters surrounded by parentheses.
+
 funcall
 :
-	IDENT LPAREN expression
+	funobj LPAREN expression?
 	(
 		comma expression
 	)* RPAREN
+;
+
+// IDENT corresponds to an explicit function name
+// var allows a HOF (let binding or function parameter)
+// fundef allows an anonymous function
+
+funobj
+:
+	(
+		IDENT
+		| var
+		| fundef
+	)
 ;
 
 comma
@@ -235,6 +266,7 @@ OUT
 	[Oo] [Uu] [Tt]
 ;
 
+// Used for function definition and parameter type
 FUN
 :
 	[Ff] [Uu] [Nn]
@@ -248,6 +280,11 @@ INT_T
 REAL_T
 :
 	[Rr] [Ee] [Aa] [Ll]
+;
+
+BOOL_T
+:
+	[Bb] [Oo] [Oo] [Ll]
 ;
 
 STR_T
@@ -406,21 +443,24 @@ REAL
 
 BOOLEAN
 :
-	TRUE | FALSE
+	TRUE
+	| FALSE
 ;
 
 fragment
 TRUE
 :
-	'T' | 't'
+	'T'
+	| 't'
 ;
 
 fragment
 FALSE
 :
-	'F' | 'f'
+	'F'
+	| 'f'
 ;
-	
+
 fragment
 DIGIT
 :

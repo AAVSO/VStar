@@ -106,10 +106,22 @@ public class VeLaInterpreter {
 		this(null, false);
 	}
 
-	public void setEnvironment(AbstractVeLaEnvironment environment) {
+	/**
+	 * Push an environment onto the stack.
+	 * @param environment The environment to be pushed.
+	 */
+	public void pushEnvironment(AbstractVeLaEnvironment environment) {
 		this.environments.push(environment);
 	}
 
+	/**
+	 * Pop the top-most environment from the stack and return it.
+	 * @return The top-most environment.
+	 */
+	public AbstractVeLaEnvironment popEnvironment() {
+		return this.environments.pop();
+	}
+	
 	/**
 	 * VeLa program interpreter entry point.
 	 * 
@@ -289,7 +301,7 @@ public class VeLaInterpreter {
 		Optional<Operand> result;
 
 		// TODO: we should map from AST to Operand not String to Operand;
-		// then we really can cache within eval() itself at every level,
+		// then we really can cache within eval() at every level, not
 		// not just at the top level! Need to add equals() and hashCode() to AST
 
 		if (ast.isDeterministic() && exprToResult.containsKey(prog)) {
@@ -375,9 +387,6 @@ public class VeLaInterpreter {
 				Optional<Operand> result = lookup(varName);
 				if (result.isPresent()) {
 					stack.push(result.get());
-				} else if (functions.containsKey(varName)) {
-					// Parameterless function call
-					applyFunction(varName);
 				} else {
 					throw new VeLaEvalError("Unknown variable: \""
 							+ ast.getToken() + "\"");
