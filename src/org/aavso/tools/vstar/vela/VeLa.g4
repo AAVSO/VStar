@@ -4,18 +4,10 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - selection (e.g. in models): Haskell/Scala/Erlang functional-style cases 
-//   instead of if-then:
-//     (boolean-expression : expression-over-x,y,z ...)+
-//   e.g.
-//     select 
-//       2 > 3 -> 42
-//       t -> 12
-//   and in functions:
+//   selection in functions:
 //     f <- fun(x:t1,y:t2,z:t3) -> expression-over-x,y,z
 //   | fun(x:t1,y:t2,z:t3) -> (boolean-expression : expression-over-x,y,z ...)+
-// - final "else" clause
-// - variable binding of any expression, including functions (HOFs)
+// - let binding of any expression, including functions (HOFs)
 // - print statement for higher-level use of VeLa with LLVM/JVM
 // - internal function representation in Models dialog should use VeLa
 // - comments (-- or #)
@@ -23,13 +15,16 @@ grammar VeLa;
 // ** Parser rules **
 
 // A VeLa program consists of zero or more bindings or output 
-// statements, or expressions.
+// statements, or expressions. Variable bindings are immutable, 
+// as is the operation of functions. VeLa identifiers and keywords
+// are case-insensitive.
 
 // The expression production will leave a value on the stack,
 // therefore the program rule could be the entry point for 
 // VStar filters as well as models. If one wishes to create 
 // a filter that is a complete VeLa program that happens to
-// end in a boolean expression, then that should be allowed.
+// end in a boolean expression, then that is permitted.
+
 program
 :
 	(binding | out | expression)*
@@ -53,6 +48,7 @@ expression
 	| booleanExpression
 ;
 
+// Homage to Haskell/Scala/Erlang functional-style cases
 selectionExpression
 :
 	SELECT (booleanExpression ARROW booleanExpression)+
@@ -236,38 +232,32 @@ BACK_ARROW
 
 OUT
 :
-	'out'
-	| 'OUT'
+	[Oo] [Uu] [Tt]
 ;
 
 FUN
 :
-	'fun'
-	| 'FUN'
+	[Ff] [Uu] [Nn]
 ;
 
 INT_T
 :
-	'integer'
-	| 'INTEGER'
+	[Ii] [Nn] [Tt] [Ee] [Gg] [Ee] [Rr]
 ;
 
 REAL_T
 :
-	'real'
-	| 'REAL'
+	[Rr] [Ee] [Aa] [Ll]
 ;
 
 STR_T
 :
-	'string'
-	| 'STRING'
+	[Ss] [Tt] [Rr] [Ii] [Nn] [Gg]
 ;
 
 LIST_T
 :
-	'list'
-	| 'LIST'
+	[Ll] [Ii] [Ss] [Tt]
 ;
 
 COLON
@@ -346,8 +336,7 @@ APPROXIMATELY_EQUAL
 
 IN
 :
-	'IN'
-	| 'in'
+	[Ii] [Nn]
 ;
 
 LPAREN
@@ -382,20 +371,17 @@ COMMA
 
 AND
 :
-	'AND'
-	| 'and'
+	[Aa] [Nn] [Dd]
 ;
 
 OR
 :
-	'OR'
-	| 'or'
+	[Oo] [Rr]
 ;
 
 NOT
 :
-	'NOT'
-	| 'not'
+	[Nn] [Oo] [Tt]
 ;
 
 INTEGER
