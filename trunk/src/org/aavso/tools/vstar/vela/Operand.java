@@ -144,10 +144,6 @@ public class Operand {
 			if (type == Type.INTEGER && requiredType == Type.DOUBLE) {
 				setType(Type.DOUBLE);
 				setDoubleVal((double) intVal);
-				// Integer or double to string
-			} else if ((type == Type.INTEGER || type == Type.DOUBLE)
-					&& requiredType == Type.STRING) {
-				convertToString();
 			}
 		}
 

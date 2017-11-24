@@ -492,6 +492,11 @@ public class VeLaTest extends TestCase {
 		assertEquals(1.0, result);
 	}
 
+	public void testFunctionSqrt() {
+		double result = vela.realExpression("2*sqrt(144.0)");
+		assertEquals(24.0, result);
+	}
+
 	// List head
 
 	public void testListHead1() {
@@ -571,12 +576,7 @@ public class VeLaTest extends TestCase {
 		assertEquals(0, result.intVal());
 	}
 
-	public void testFunctionSqrt() {
-		double result = vela.realExpression("2*sqrt(144.0)");
-		assertEquals(24.0, result);
-	}
-
-	// List tail
+	// List concatenation
 
 	public void testListConcat1() {
 		String expr = "concat([\"first\", 2, \"3rd\"], [4, 5])";
@@ -590,6 +590,48 @@ public class VeLaTest extends TestCase {
 		String expr = "concat([], [])";
 		Operand result = vela.expressionToOperand(expr);
 		assertEquals(Operand.EMPTY_LIST, result);
+	}
+
+	// List append
+	
+	public void testListAppend1() {
+		String expr = "append([\"first\", 2, \"3rd\"], [4, 5])";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela
+				.expressionToOperand("[\"first\", 2, \"3rd\", [4, 5]]");
+		assertEquals(expected, actual);
+	}
+
+	public void testListAppend2() {
+		String expr = "append([\"first\", 2, \"3rd\"], \"4\")";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela
+				.expressionToOperand("[\"first\", 2, \"3rd\", \"4\"]");
+		assertEquals(expected, actual);
+	}
+
+	public void testListAppend3() {
+		String expr = "append([\"first\", 2, \"3rd\"], 42)";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela
+				.expressionToOperand("[\"first\", 2, \"3rd\", 42]");
+		assertEquals(expected, actual);
+	}
+
+	public void testListAppend4() {
+		String expr = "append([\"first\", 2, \"3rd\"], 4.2)";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela
+				.expressionToOperand("[\"first\", 2, \"3rd\", 4.2]");
+		assertEquals(expected, actual);
+	}
+
+	public void testListAppend5() {
+		String expr = "append([\"first\", 2, \"3rd\"], t)";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela
+				.expressionToOperand("[\"first\", 2, \"3rd\", t]");
+		assertEquals(expected, actual);
 	}
 
 	// Intrinsic string functions (from String class)

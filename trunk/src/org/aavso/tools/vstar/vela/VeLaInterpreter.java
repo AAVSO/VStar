@@ -744,6 +744,14 @@ public class VeLaInterpreter {
 	 */
 	private void applyFunction(String funcName, List<Operand> params)
 			throws VeLaEvalError {
+		// TODO: user defined functions should be added to/retreieved from the
+		// functions multi-map rather than the environment, but does this imply
+		// the need to add this multi-map to the environment on top of the stack
+		// both due to the need for scoping of all let bindings and in order to
+		// be able to capture a function within a closure along with all other
+		// bindings?
+		// As an aside, a closure need not capture the zeroth environment since
+		// this is effectively the global environment
 		String canonicalFuncName = funcName.toUpperCase();
 
 		// Iterate over all variations of each potentially overloaded function,
@@ -751,11 +759,12 @@ public class VeLaInterpreter {
 
 		if (functions.containsKey(canonicalFuncName)) {
 			boolean match = false;
-			
+
 			for (FunctionExecutor function : functions.get(canonicalFuncName)) {
 				if (function.conforms(params)) {
 					stack.push(function.apply(params));
 					match = true;
+					break;
 				}
 			}
 
@@ -786,13 +795,18 @@ public class VeLaInterpreter {
 	private void initFunctionExecutors() {
 
 		addZeroArityFunctions();
-		// TODO: concat, append (overloaded for each type)
+
 		// TODO: map, reduce, foreach once we have functions
 		addListHeadFunction();
 		addListTailFunction();
 		addListNthFunction();
 		addListLengthFunction();
 		addListConcatFunction();
+		addListAppendFunction(Type.LIST);
+		addListAppendFunction(Type.STRING);
+		addListAppendFunction(Type.INTEGER);
+		addListAppendFunction(Type.DOUBLE);
+		addListAppendFunction(Type.BOOLEAN);
 
 		// Functions from reflection over Math and String classes.
 		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
@@ -912,6 +926,23 @@ public class VeLaInterpreter {
 				List<Operand> newList = new ArrayList<Operand>();
 				newList.addAll(list1);
 				newList.addAll(list2);
+				return new Operand(Type.LIST, newList);
+			}
+		});
+	}
+
+	private void addListAppendFunction(Type secondParameterType) {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.LIST);
+		paramTypes.add(secondParameterType);
+		// Return type will always be LIST here.
+		addFunctionExecutor(new FunctionExecutor("APPEND", paramTypes,
+				Type.LIST) {
+			@Override
+			public Operand apply(List<Operand> operands) {
+				List<Operand> newList = new ArrayList<Operand>();
+				newList.addAll(operands.get(0).listVal());
+				newList.add(operands.get(1));
 				return new Operand(Type.LIST, newList);
 			}
 		});
