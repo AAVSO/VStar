@@ -472,8 +472,6 @@ public class VeLaTest extends TestCase {
 
 	// Functions
 
-	// ** Intrinsic **
-
 	public void testFuncParameterless1() {
 		double result = vela.realExpression("today");
 		assertEquals(today(), result);
@@ -494,10 +492,107 @@ public class VeLaTest extends TestCase {
 		assertEquals(1.0, result);
 	}
 
+	// List head
+
+	public void testListHead1() {
+		String expr = "head([\"first\", 2, \"3rd\"])";
+		Operand result = vela.expressionToOperand(expr);
+		assertEquals("first", result.stringVal());
+	}
+
+	public void testListHead2() {
+		String expr = "head([])";
+		Operand result = vela.expressionToOperand(expr);
+		assertEquals(Operand.EMPTY_LIST, result);
+	}
+
+	public void testListHead3() {
+		String expr = "head([[\"first\", 2], \"3rd\"])";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela.expressionToOperand("[\"first\", 2]");
+		assertEquals(expected, actual);
+	}
+
+	// List nth
+
+	public void testListNth1() {
+		String expr = "nth([\"first\", 2, \"3rd\"], 1)";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela.expressionToOperand("2");
+		assertEquals(expected, actual);
+	}
+
+	public void testListNth2() {
+		String expr = "nth([], 42)";
+		Operand result = vela.expressionToOperand(expr);
+		assertEquals(Operand.EMPTY_LIST, result);
+	}
+
+	public void testListNth3() {
+		String expr = "nth([[\"first\", 2], \"3rd\"], 0)";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela.expressionToOperand("[\"first\", 2]");
+		assertEquals(expected, actual);
+	}
+
+	// List tail
+
+	public void testListTail1() {
+		String expr = "tail([\"first\", 2, \"3rd\"])";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela.expressionToOperand("[2, \"3rd\"]");
+		assertEquals(expected, actual);
+	}
+
+	public void testListTail2() {
+		String expr = "tail([])";
+		Operand result = vela.expressionToOperand(expr);
+		assertEquals(Operand.EMPTY_LIST, result);
+	}
+
+	public void testListTail3() {
+		String expr = "tail([[\"first\", 2], \"3rd\"])";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela.expressionToOperand("[\"3rd\"]");
+		assertEquals(expected, actual);
+	}
+
+	// List length
+
+	public void testListLength1() {
+		String expr = "length([\"first\", 2, \"3rd\"])";
+		Operand actual = vela.expressionToOperand(expr);
+		assertEquals(3, actual.intVal());
+	}
+
+	public void testListLength2() {
+		String expr = "length([])";
+		Operand result = vela.expressionToOperand(expr);
+		assertEquals(0, result.intVal());
+	}
+
 	public void testFunctionSqrt() {
 		double result = vela.realExpression("2*sqrt(144.0)");
 		assertEquals(24.0, result);
 	}
+
+	// List tail
+
+	public void testListConcat1() {
+		String expr = "concat([\"first\", 2, \"3rd\"], [4, 5])";
+		Operand actual = vela.expressionToOperand(expr);
+		Operand expected = vela
+				.expressionToOperand("[\"first\", 2, \"3rd\", 4, 5]");
+		assertEquals(expected, actual);
+	}
+
+	public void testListConcat2() {
+		String expr = "concat([], [])";
+		Operand result = vela.expressionToOperand(expr);
+		assertEquals(Operand.EMPTY_LIST, result);
+	}
+
+	// Intrinsic string functions (from String class)
 
 	public void testFunctionContains() {
 		boolean result = vela
@@ -516,6 +611,11 @@ public class VeLaTest extends TestCase {
 	public void testFunctionReplace() {
 		assertTrue(vela
 				.booleanExpression("replace(\"abcd\", \"bc\", \"BC\") = \"aBCd\""));
+	}
+
+	public void testFunctionConcat() {
+		assertTrue(vela
+				.booleanExpression("concat(\"abcd\", \"ef\") = \"abcdef\""));
 	}
 
 	public void testLastIndexOf() {

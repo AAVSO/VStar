@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -36,6 +37,9 @@ public class Operand {
 	private String stringVal;
 	private boolean booleanVal;
 	private List<Operand> listVal;
+
+	public static Operand EMPTY_LIST = new Operand(Type.LIST,
+			Collections.emptyList());
 
 	public Operand(Type type, int value) {
 		this.type = type;

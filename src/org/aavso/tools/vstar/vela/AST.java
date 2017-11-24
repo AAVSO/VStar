@@ -149,7 +149,7 @@ public class AST {
 	 * </p>
 	 * 
 	 * <p>
-	 * If the operation a is function or variable then the answer must be no,
+	 * If the operation is function or variable or a then the answer must be no,
 	 * either because a parameterless function itself is not deterministic or
 	 * because the result will vary according to input or because a variable's
 	 * value can change over time.
