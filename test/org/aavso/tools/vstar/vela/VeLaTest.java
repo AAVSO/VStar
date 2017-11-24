@@ -382,11 +382,11 @@ public class VeLaTest extends TestCase {
 	public void testVariableSingleCharacterVariable() {
 		Map<String, Operand> environment1 = new HashMap<String, Operand>();
 		environment1.put("x".toUpperCase(), new Operand(Type.INTEGER, 4.2));
-		vela.setEnvironment(new VeLaMapEnvironment(environment1));
+		vela.pushEnvironment(new VeLaMapEnvironment(environment1));
 
 		Map<String, Operand> environment2 = new HashMap<String, Operand>();
 		environment2.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
-		vela.setEnvironment(new VeLaMapEnvironment(environment2));
+		vela.pushEnvironment(new VeLaMapEnvironment(environment2));
 
 		// The value of x bound to 42 should be on top of the stack.
 		boolean result = vela.booleanExpression("x = 42");
@@ -473,12 +473,12 @@ public class VeLaTest extends TestCase {
 	// Functions
 
 	public void testFuncParameterless1() {
-		double result = vela.realExpression("today");
+		double result = vela.realExpression("today()");
 		assertEquals(today(), result);
 	}
 
 	public void testFuncParameterlessAsSubexpression1() {
-		double result = vela.realExpression("today+2");
+		double result = vela.realExpression("today()+2");
 		assertEquals(today() + 2, result);
 	}
 
@@ -776,12 +776,14 @@ public class VeLaTest extends TestCase {
 		List<ValidObservation> filteredObs = new ArrayList<ValidObservation>();
 
 		for (ValidObservation ob : obs) {
-			vela.setEnvironment(new VeLaValidObservationEnvironment(ob));
+			vela.pushEnvironment(new VeLaValidObservationEnvironment(ob));
 
 			Optional<Operand> result = vela.program(velaFilterExpr);
 			if (result.isPresent() && result.get().booleanVal()) {
 				filteredObs.add(ob);
 			}
+			
+			vela.popEnvironment();
 		}
 
 		return filteredObs;
