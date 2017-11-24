@@ -55,17 +55,18 @@ public class VeLaInterpreter {
 
 	// AST and result caches.
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
+
+	// TODO: make use of AST => Operand caching at each level of eval()! AST
+	// needs to be key not VeLa string
 	private static Map<String, Operand> exprToResult = new HashMap<String, Operand>();
 
 	// Regular expression pattern cache.
 	private static Map<String, Pattern> regexPatterns = new HashMap<String, Pattern>();
 
-	// A map of names to functions.
-	private Map<String, FunctionExecutor> functions = new HashMap<String, FunctionExecutor>();
+	// A multi-map of names to potentially overloaded functions.
+	private Map<String, List<FunctionExecutor>> functions = new HashMap<String, List<FunctionExecutor>>();
 
 	private VeLaErrorListener errorListener;
-
-	// TODO: make use of AST caching at each level of eval()!
 
 	/**
 	 * Construct a VeLa interpreter with an environments and a verbosity flag.
@@ -202,8 +203,6 @@ public class VeLaInterpreter {
 		}
 	}
 
-	// wrapper for booleanExpr
-
 	// Helpers
 
 	/**
@@ -270,7 +269,8 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Common VeLa evaluation entry point.
+	 * Common VeLa evaluation entry point. This will be most effective where
+	 * prog is an often used expression.
 	 * 
 	 * @param prog
 	 *            The VeLa program string to be interpreted.
@@ -287,6 +287,10 @@ public class VeLaInterpreter {
 		AST ast = commonParseTreeWalker(prog, tree);
 
 		Optional<Operand> result;
+
+		// TODO: we should map from AST to Operand not String to Operand;
+		// then we really can cache within eval() itself at every level,
+		// not just at the top level! Need to add equals() and hashCode() to AST
 
 		if (ast.isDeterministic() && exprToResult.containsKey(prog)) {
 			// For deterministic expressions, we can also use cached results.
@@ -742,19 +746,20 @@ public class VeLaInterpreter {
 			throws VeLaEvalError {
 		String canonicalFuncName = funcName.toUpperCase();
 
-		// TODO: this does not account for overloaded functions!
-		// Need names to be more like signatures, e.g.
-		// LASTINDEXOF :: [STRING, STRING, INTEGER] -> INTEGER
-		// LASTINDEXOF :: [STRING, INTEGER] -> INTEGER
-		// or a name that maps to a list of executors, each of
-		// which must be examined; mapping from string signature to executor may
-		// be faster, but then the number of overloaded functions is likely to
-		// be few compared with the number of overall functions
+		// Iterate over all variations of each potentially overloaded function,
+		// asking whether each conforms.
+
 		if (functions.containsKey(canonicalFuncName)) {
-			FunctionExecutor function = functions.get(canonicalFuncName);
-			if (function.conforms(params)) {
-				stack.push(function.apply(params));
-			} else {
+			boolean match = false;
+			
+			for (FunctionExecutor function : functions.get(canonicalFuncName)) {
+				if (function.conforms(params)) {
+					stack.push(function.apply(params));
+					match = true;
+				}
+			}
+
+			if (!match) {
 				throw new VeLaEvalError("Invalid parameters for function: \""
 						+ funcName + "\"");
 			}
@@ -779,18 +784,15 @@ public class VeLaInterpreter {
 	 * Initialise function executors
 	 */
 	private void initFunctionExecutors() {
-		functions.put("TODAY", new FunctionExecutor("TODAY", Type.DOUBLE) {
-			@Override
-			public Operand apply(List<Operand> operands) {
-				Calendar cal = Calendar.getInstance();
-				int year = cal.get(Calendar.YEAR);
-				int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
-				int day = cal.get(Calendar.DAY_OF_MONTH);
-				double jd = AbstractDateUtil.getInstance().calendarToJD(year,
-						month, day);
-				return new Operand(Type.DOUBLE, jd);
-			}
-		});
+
+		addZeroArityFunctions();
+		// TODO: concat, append (overloaded for each type)
+		// TODO: map, reduce, foreach once we have functions
+		addListHeadFunction();
+		addListTailFunction();
+		addListNthFunction();
+		addListLengthFunction();
+		addListConcatFunction();
 
 		// Functions from reflection over Math and String classes.
 		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
@@ -804,6 +806,115 @@ public class VeLaInterpreter {
 
 		addFunctionExecutors(String.class, permittedTypes, new HashSet<String>(
 				Arrays.asList("JOIN")));
+	}
+
+	private void addZeroArityFunctions() {
+		addFunctionExecutor(new FunctionExecutor("TODAY", Type.DOUBLE) {
+			@Override
+			public Operand apply(List<Operand> operands) {
+				Calendar cal = Calendar.getInstance();
+				int year = cal.get(Calendar.YEAR);
+				int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
+				int day = cal.get(Calendar.DAY_OF_MONTH);
+				double jd = AbstractDateUtil.getInstance().calendarToJD(year,
+						month, day);
+				return new Operand(Type.DOUBLE, jd);
+			}
+		});
+	}
+
+	private void addListHeadFunction() {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.LIST);
+		// Return type could be any but we use LIST here arbitrarily.
+		// TODO: perhaps we need Type.ANY
+		addFunctionExecutor(new FunctionExecutor("HEAD", paramTypes, Type.LIST) {
+			@Override
+			public Operand apply(List<Operand> operands) {
+				List<Operand> list = operands.get(0).listVal();
+				Operand result;
+				if (!list.isEmpty()) {
+					result = list.get(0);
+				} else {
+					result = Operand.EMPTY_LIST;
+				}
+				return result;
+			}
+		});
+	}
+
+	private void addListTailFunction() {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.LIST);
+		// Return type will always be a list.
+		addFunctionExecutor(new FunctionExecutor("TAIL", paramTypes, Type.LIST) {
+			@Override
+			public Operand apply(List<Operand> operands) {
+				List<Operand> list = operands.get(0).listVal();
+				Operand result;
+				if (!list.isEmpty()) {
+					List<Operand> tail = new ArrayList<Operand>(list);
+					tail.remove(0);
+					result = new Operand(Type.LIST, tail);
+				} else {
+					result = Operand.EMPTY_LIST;
+				}
+				return result;
+			}
+		});
+	}
+
+	private void addListNthFunction() {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.LIST);
+		paramTypes.add(Type.INTEGER);
+		// Return type could be any but we use LIST here arbitrarily.
+		addFunctionExecutor(new FunctionExecutor("NTH", paramTypes, Type.LIST) {
+			@Override
+			public Operand apply(List<Operand> operands) {
+				List<Operand> list = operands.get(0).listVal();
+				Operand result;
+				if (!list.isEmpty()) {
+					result = list.get(operands.get(1).intVal());
+				} else {
+					result = Operand.EMPTY_LIST;
+				}
+				return result;
+			}
+		});
+	}
+
+	private void addListLengthFunction() {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.LIST);
+		// Return type will always be integer.
+		addFunctionExecutor(new FunctionExecutor("LENGTH", paramTypes,
+				Type.INTEGER) {
+			@Override
+			public Operand apply(List<Operand> operands) {
+				return new Operand(Type.INTEGER, operands.get(0).listVal()
+						.size());
+			}
+		});
+	}
+
+	private void addListConcatFunction() {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.LIST);
+		paramTypes.add(Type.LIST);
+		// Return type will always be LIST here.
+		addFunctionExecutor(new FunctionExecutor("CONCAT", paramTypes,
+				Type.LIST) {
+			@Override
+			public Operand apply(List<Operand> operands) {
+				List<Operand> list1 = operands.get(0).listVal();
+				List<Operand> list2 = operands.get(1).listVal();
+				List<Operand> newList = new ArrayList<Operand>();
+				newList.addAll(list1);
+				newList.addAll(list2);
+				return new Operand(Type.LIST, newList);
+			}
+		});
 	}
 
 	/**
@@ -862,7 +973,7 @@ public class VeLaInterpreter {
 							result = Operand.object2Operand(
 									getReturnType(),
 									method.invoke(
-											obj,
+											obj, // null for static methods
 											operands.stream()
 													.map(op -> op.toObject())
 													.toArray()));
@@ -877,11 +988,29 @@ public class VeLaInterpreter {
 					}
 				};
 
-				functions.put(funcName, function);
+				addFunctionExecutor(function);
 
 				// System.out.println(function.toString());
 			}
 		}
+	}
+
+	/**
+	 * Add a function executor to the multi-map.
+	 * 
+	 * @param executor
+	 *            The function executor to be added.
+	 */
+	private void addFunctionExecutor(FunctionExecutor executor) {
+		List<FunctionExecutor> executors = functions
+				.get(executor.getFuncName());
+
+		if (executors == null) {
+			executors = new ArrayList<FunctionExecutor>();
+			functions.put(executor.getFuncName(), executors);
+		}
+
+		executors.add(executor);
 	}
 
 	private static List<Class<?>> getParameterTypes(Method method,

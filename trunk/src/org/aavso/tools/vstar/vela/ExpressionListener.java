@@ -279,23 +279,6 @@ public class ExpressionListener extends VeLaBaseListener {
 		astStack.push(ast);
 	}
 
-	//@Override
-//	public void exitList1(ListContext ctx) {
-//		List<Operand> list = new LinkedList<Operand>();
-//
-//		while (!astStack.isEmpty()) {
-//			AST child = astStack.pop();
-//			if (child.getOp() == Operation.SENTINEL)
-//				break;
-//			list.add(0, child.getOperand());
-//			// ast.add...(new AST("list", new AST(Operation.LIST, child)));
-//		}
-//
-//		// TODO: This won't work where lists contain non-literals!
-//		// Still need Operation.LIST I suspect; also for selection expressions
-//		astStack.push(new AST("list", new Operand(Type.LIST, list)));
-//	}
-
 	// Helpers
 
 	/**
