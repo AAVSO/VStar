@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -26,7 +27,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 /**
  * A VeLa environment that is backed by a ValidObservation instance.
  */
-public class VeLaValidObservationEnvironment extends AbstractVeLaEnvironment {
+public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 
 	private static Map<String, String> symbol2CanonicalSymbol;
 
@@ -94,6 +95,58 @@ public class VeLaValidObservationEnvironment extends AbstractVeLaEnvironment {
 		// - HJD later
 
 		return Optional.ofNullable(operand);
+	}
+
+
+	// Cached operand creation methods.
+
+	protected Operand operand(String name, Integer value) {
+		return operand(Type.INTEGER, name, value);
+	}
+
+	protected Operand operand(String name, Double value) {
+		return operand(Type.DOUBLE, name, value);
+	}
+
+	protected Operand operand(String name, String value) {
+		return operand(Type.STRING, name, value);
+	}
+
+	protected Operand operand(String name, Boolean value) {
+		return operand(Type.BOOLEAN, name, value);
+	}
+
+	// Common operand factory method
+
+	protected Operand operand(Type type, String name, Object value) {
+		Operand operand = null;
+
+		name = name.toUpperCase();
+		
+		if (cache.containsKey(name)) {
+			operand = cache.get(name);
+		} else {
+			switch (type) {
+			case INTEGER:
+				operand = new Operand(type, (int) value);
+				break;
+			case DOUBLE:
+				operand = new Operand(type, (double) value);
+				break;
+			case STRING:
+				operand = new Operand(type, (String) value);
+				break;
+			case BOOLEAN:
+				operand = new Operand(type, (boolean) value);
+				break;
+			case LIST:
+				operand = new Operand(type, (List<Operand>) value);
+			}
+
+			bind(name, operand);
+		}
+
+		return operand;
 	}
 
 	/**

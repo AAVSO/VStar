@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.vela;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Stack;
 
 import org.aavso.tools.vstar.vela.VeLaParser.AdditiveExpressionContext;
@@ -53,9 +54,13 @@ public class ExpressionListener extends VeLaBaseListener {
 		astStack = new Stack<AST>();
 	}
 
-	public AST getAST() {
+	public Optional<AST> getAST() {
 		// Peek vs pop to allow multiple non-destructive calls to this method.
-		return astStack.peek();
+		if (!astStack.isEmpty()) {
+			return Optional.of(astStack.peek());
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	// TODO:

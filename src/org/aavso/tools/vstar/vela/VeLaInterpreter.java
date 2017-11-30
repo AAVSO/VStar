@@ -51,77 +51,72 @@ public class VeLaInterpreter {
 	private boolean verbose;
 
 	private Stack<Operand> stack;
-	private Stack<AbstractVeLaEnvironment> environments;
+
+	// TODO: A closure need not capture the zeroth environment since
+	// this is effectively the global environment
+
+	private Stack<VeLaEnvironment<Operand>> environments;
 
 	// AST and result caches.
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
 
 	// TODO: make use of AST => Operand caching at each level of eval()! AST
 	// needs to be key not VeLa string
+
 	private static Map<String, Operand> exprToResult = new HashMap<String, Operand>();
 
 	// Regular expression pattern cache.
 	private static Map<String, Pattern> regexPatterns = new HashMap<String, Pattern>();
 
-	// A multi-map of names to potentially overloaded functions.
-	private Map<String, List<FunctionExecutor>> functions = new HashMap<String, List<FunctionExecutor>>();
-
 	private VeLaErrorListener errorListener;
 
 	/**
-	 * Construct a VeLa interpreter with an environments and a verbosity flag.
+	 * Construct a VeLa interpreter with an initial scope and intrinsic
+	 * functions.
+	 * 
+	 * @param verbose
+	 *            Verbose mode?
 	 */
-	public VeLaInterpreter(AbstractVeLaEnvironment environment, boolean verbose) {
+	public VeLaInterpreter(boolean verbose) {
 		errorListener = new VeLaErrorListener();
 
 		stack = new Stack<Operand>();
-		environments = new Stack<AbstractVeLaEnvironment>();
+		environments = new Stack<VeLaEnvironment<Operand>>();
 
+		environments.push(new VeLaScope());
+
+		initBindings();
 		initFunctionExecutors();
-
-		if (environment != null) {
-			this.environments.push(environment);
-		} else {
-			this.environments.push(new EmptyVeLaEnvironment());
-		}
 
 		this.verbose = verbose;
 	}
 
 	/**
-	 * Construct a VeLa interpreter with an environments.
+	 * Construct a VeLa interpreter with verbose mode set to false.
 	 */
-	public VeLaInterpreter(AbstractVeLaEnvironment environment) {
-		this(environment, false);
-	}
-
-	/**
-	 * Construct a VeLa interpreter without an environments.
-	 */
-	public VeLaInterpreter(boolean verbose) {
-		this(null, verbose);
-	}
-
 	public VeLaInterpreter() {
-		this(null, false);
+		this(false);
 	}
 
 	/**
 	 * Push an environment onto the stack.
-	 * @param environment The environment to be pushed.
+	 * 
+	 * @param environment
+	 *            The environment to be pushed.
 	 */
-	public void pushEnvironment(AbstractVeLaEnvironment environment) {
+	public void pushEnvironment(VeLaEnvironment<Operand> environment) {
 		this.environments.push(environment);
 	}
 
 	/**
 	 * Pop the top-most environment from the stack and return it.
+	 * 
 	 * @return The top-most environment.
 	 */
-	public AbstractVeLaEnvironment popEnvironment() {
+	public VeLaEnvironment<Operand> popEnvironment() {
 		return this.environments.pop();
 	}
-	
+
 	/**
 	 * VeLa program interpreter entry point.
 	 * 
@@ -135,7 +130,6 @@ public class VeLaInterpreter {
 	 *             If an evaluation error occurs.
 	 */
 	public Optional<Operand> program(String prog) throws VeLaParseError {
-
 		VeLaParser.ProgramContext tree = getParser(prog).program();
 		return commonInterpreter(prog, tree);
 	}
@@ -159,7 +153,13 @@ public class VeLaInterpreter {
 		Optional<Operand> result = commonInterpreter(expr, tree);
 
 		if (result.isPresent()) {
-			return result.get().doubleVal();
+			if (result.get().getType() == Type.DOUBLE) {
+				return (double) result.get().doubleVal();
+			} else if (result.get().getType() == Type.INTEGER) {
+				return result.get().intVal();
+			} else {
+				throw new VeLaEvalError("Numeric value expected as result");
+			}
 		} else {
 			throw new VeLaEvalError("Numeric value expected as result");
 		}
@@ -265,11 +265,14 @@ public class VeLaInterpreter {
 			ExpressionListener listener = new ExpressionListener();
 			ParseTreeWalker.DEFAULT.walk(listener, tree);
 
-			ast = listener.getAST();
-			exprToAST.put(prog, ast);
+			Optional<AST> possibleAST = listener.getAST();
+			if (possibleAST.isPresent()) {
+				ast = possibleAST.get();
+				exprToAST.put(prog, ast);
+			}
 		}
 
-		if (verbose) {
+		if (verbose && ast != null) {
 			if (astCached) {
 				System.out.println(String.format("%s [AST cached]", ast));
 			} else {
@@ -298,29 +301,34 @@ public class VeLaInterpreter {
 
 		AST ast = commonParseTreeWalker(prog, tree);
 
-		Optional<Operand> result;
+		Optional<Operand> result = Optional.empty();
 
 		// TODO: we should map from AST to Operand not String to Operand;
 		// then we really can cache within eval() at every level, not
 		// not just at the top level! Need to add equals() and hashCode() to AST
 
-		if (ast.isDeterministic() && exprToResult.containsKey(prog)) {
-			// For deterministic expressions, we can also use cached results.
-			// Note: a better description may be constant rather than
-			// deterministic.
-			result = Optional.of(exprToResult.get(prog));
-			if (verbose) {
-				System.out.println(String.format("%s [result cached: %s]", ast,
-						result));
-			}
-		} else {
-			// Evaluate the abstract syntax tree and cache the result.
-			eval(ast);
-			if (!stack.isEmpty()) {
-				result = Optional.of(stack.pop());
-				exprToResult.put(prog, result.get());
+		// TODO: make Optional<AST>?
+		if (ast != null) {
+			if (ast.isDeterministic() && exprToResult.containsKey(prog)) {
+
+				// For deterministic expressions, we can also use cached
+				// results.
+				// Note: a better description may be constant rather than
+				// deterministic.
+				result = Optional.of(exprToResult.get(prog));
+				if (verbose) {
+					System.out.println(String.format("%s [result cached: %s]",
+							ast, result));
+				}
 			} else {
-				result = Optional.empty();
+				// Evaluate the abstract syntax tree and cache the result.
+				eval(ast);
+				if (!stack.isEmpty()) {
+					result = Optional.of(stack.pop());
+					exprToResult.put(prog, result.get());
+				} else {
+					result = Optional.empty();
+				}
 			}
 		}
 
@@ -384,7 +392,7 @@ public class VeLaInterpreter {
 				// the operand stack if it exists, looking for and evaluating a
 				// function if not, throwing an exception otherwise.
 				String varName = ast.getToken().toUpperCase();
-				Optional<Operand> result = lookup(varName);
+				Optional<Operand> result = lookupBinding(varName);
 				if (result.isPresent()) {
 					stack.push(result.get());
 				} else {
@@ -437,33 +445,6 @@ public class VeLaInterpreter {
 				applyFunction(ast.getToken(), params);
 			}
 		}
-	}
-
-	/**
-	 * Given a variable name, search for it in the stack of environments, return
-	 * a pair consisting of a Boolean value indicating whether the symbol was
-	 * found, and the value bound to the symbol as an Operand instance. If the
-	 * symbol was not found, this second value in the pair will be null. The
-	 * search proceeds from the top to the bottom of the stack, maintaining the
-	 * natural stack ordering.
-	 * 
-	 * @param name
-	 *            The name of the variable to look up.
-	 * @return The boolean/operand pair.
-	 */
-	private Optional<Operand> lookup(String name) {
-		Optional<Operand> result = Optional.empty();
-
-		// Note: could use recursion or a reversed stream iterator instead
-
-		for (int i = environments.size() - 1; i >= 0; i--) {
-			result = environments.get(i).lookup(name);
-			if (result.isPresent()) {
-				break;
-			}
-		}
-
-		return result;
 	}
 
 	/**
@@ -725,7 +706,7 @@ public class VeLaInterpreter {
 					operand1.stringVal()).matches()));
 			break;
 		case IN:
-			if (operand2.getType().isComposite()) {
+			if (operand2.getType() == Type.LIST) {
 				// Is a value contained within a list?
 				stack.push(new Operand(Type.BOOLEAN, operand2.listVal()
 						.contains(operand1)));
@@ -738,6 +719,67 @@ public class VeLaInterpreter {
 		default:
 			break;
 		}
+	}
+
+	// ** Variable related methods **
+	
+	/**
+	 * Given a variable name, search for it in the stack of environments, return
+	 * an optional Operand instance. The search proceeds from the top to the
+	 * bottom of the stack, maintaining the natural stack ordering.
+	 * 
+	 * @param name
+	 *            The name of the variable to look up.
+	 * @return The optional operand.
+	 */
+	private Optional<Operand> lookupBinding(String name) {
+		Optional<Operand> result = Optional.empty();
+
+		// Note: could use recursion or a reversed stream iterator instead
+
+		for (int i = environments.size() - 1; i >= 0; i--) {
+			result = environments.get(i).lookup(name);
+			if (result.isPresent()) {
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	/**
+	 * Add useful/important bindings
+	 */
+	private void initBindings() {
+		environments.peek().bind("PI", new Operand(Type.DOUBLE, Math.PI));
+		environments.peek().bind("E", new Operand(Type.DOUBLE, Math.E));
+	}
+	
+	// ** Function related methods *
+	
+	/**
+	 * Given a function name, search for it in the stack of environments, return
+	 * an optional list of function executors. The search proceeds from the top
+	 * to the bottom of the stack, maintaining the natural stack ordering.
+	 * 
+	 * @param name
+	 *            The name of the variable to look up.
+	 * @return The optional function executor list.
+	 */
+	private Optional<List<FunctionExecutor>> lookupFunctions(String name) {
+		Optional<List<FunctionExecutor>> functions = Optional.empty();
+
+		for (int i = environments.size() - 1; i >= 0; i--) {
+			VeLaEnvironment<Operand> environment = environments.get(i);
+			if (environment instanceof VeLaScope) {
+				functions = ((VeLaScope) environment).lookupFunction(name);
+				if (functions.isPresent()) {
+					break;
+				}
+			}
+		}
+
+		return functions;
 	}
 
 	/**
@@ -753,23 +795,18 @@ public class VeLaInterpreter {
 	 */
 	private void applyFunction(String funcName, List<Operand> params)
 			throws VeLaEvalError {
-		// TODO: user defined functions should be added to/retreieved from the
-		// functions multi-map rather than the environment, but does this imply
-		// the need to add this multi-map to the environment on top of the stack
-		// both due to the need for scoping of all let bindings and in order to
-		// be able to capture a function within a closure along with all other
-		// bindings?
-		// As an aside, a closure need not capture the zeroth environment since
-		// this is effectively the global environment
+
 		String canonicalFuncName = funcName.toUpperCase();
 
 		// Iterate over all variations of each potentially overloaded function,
 		// asking whether each conforms.
 
-		if (functions.containsKey(canonicalFuncName)) {
+		Optional<List<FunctionExecutor>> functions = lookupFunctions(canonicalFuncName);
+
+		if (functions.isPresent()) {
 			boolean match = false;
 
-			for (FunctionExecutor function : functions.get(canonicalFuncName)) {
+			for (FunctionExecutor function : functions.get()) {
 				if (function.conforms(params)) {
 					stack.push(function.apply(params));
 					match = true;
@@ -787,15 +824,21 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Apply the parameterless function leaving the result on the stack.
+	 * Add a function executor to the current scope.
 	 * 
-	 * @param funcName
-	 *            The name of the function.
-	 * @throws VeLaEvalError
-	 *             If a function evaluation error occurs.
+	 * @param executor
+	 *            The function executor to be added.
 	 */
-	private void applyFunction(String funcName) throws VeLaEvalError {
-		applyFunction(funcName, FunctionExecutor.NO_ACTUALS);
+	public void addFunctionExecutor(FunctionExecutor executor) {
+		// It's possible that the top-most environment is not a scope, so find
+		// the top-most scope and add the function executor to it.
+		for (int i = environments.size() - 1; i >= 0; i--) {
+			VeLaEnvironment<Operand> environment = environments.get(i);
+			if (environment instanceof VeLaScope) {
+				VeLaScope scope = (VeLaScope) environment;
+				scope.addFunctionExecutor(executor);
+			}
+		}
 	}
 
 	/**
@@ -805,7 +848,8 @@ public class VeLaInterpreter {
 
 		addZeroArityFunctions();
 
-		// TODO: map, reduce, foreach once we have functions
+		// TODO: add map, reduce and foreach once we have user-defined functions
+
 		addListHeadFunction();
 		addListTailFunction();
 		addListNthFunction();
@@ -1033,24 +1077,6 @@ public class VeLaInterpreter {
 				// System.out.println(function.toString());
 			}
 		}
-	}
-
-	/**
-	 * Add a function executor to the multi-map.
-	 * 
-	 * @param executor
-	 *            The function executor to be added.
-	 */
-	private void addFunctionExecutor(FunctionExecutor executor) {
-		List<FunctionExecutor> executors = functions
-				.get(executor.getFuncName());
-
-		if (executors == null) {
-			executors = new ArrayList<FunctionExecutor>();
-			functions.put(executor.getFuncName(), executors);
-		}
-
-		executors.add(executor);
 	}
 
 	private static List<Class<?>> getParameterTypes(Method method,

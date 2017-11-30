@@ -360,8 +360,8 @@ public class VeLaTest extends TestCase {
 	public void testLogicalNegationExpression2() {
 		Map<String, Operand> env = new HashMap<String, Operand>();
 		env.put("raining".toUpperCase(), new Operand(Type.BOOLEAN, false));
-		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(env),
-				true);
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		vela.pushEnvironment(new VeLaEnvironment<Operand>(env));
 		boolean result = vela.booleanExpression("not raining");
 		assertTrue(result);
 	}
@@ -372,8 +372,8 @@ public class VeLaTest extends TestCase {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
 		environment.put("meaning_of_life".toUpperCase(), new Operand(
 				Type.INTEGER, 42));
-		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(
-				environment), true);
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment));
 		boolean result = vela.booleanExpression("meaning_of_life = 42");
 		assertTrue(result);
 	}
@@ -382,11 +382,11 @@ public class VeLaTest extends TestCase {
 	public void testVariableSingleCharacterVariable() {
 		Map<String, Operand> environment1 = new HashMap<String, Operand>();
 		environment1.put("x".toUpperCase(), new Operand(Type.INTEGER, 4.2));
-		vela.pushEnvironment(new VeLaMapEnvironment(environment1));
+		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment1));
 
 		Map<String, Operand> environment2 = new HashMap<String, Operand>();
 		environment2.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
-		vela.pushEnvironment(new VeLaMapEnvironment(environment2));
+		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment2));
 
 		// The value of x bound to 42 should be on top of the stack.
 		boolean result = vela.booleanExpression("x = 42");
@@ -396,8 +396,8 @@ public class VeLaTest extends TestCase {
 	public void testVariableMultipleEnvironmentsOnStack() {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
 		environment.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
-		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(
-				environment), true);
+		VeLaInterpreter vela = new VeLaInterpreter(true);
+		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment));
 		boolean result = vela.booleanExpression("x = 42");
 		assertTrue(result);
 	}
@@ -483,11 +483,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testFunctionSin() {
-		Map<String, Operand> env = new HashMap<String, Operand>();
-		env.put("pi".toUpperCase(), new Operand(Type.DOUBLE, Math.PI));
-
-		VeLaInterpreter vela = new VeLaInterpreter(new VeLaMapEnvironment(env),
-				true);
+		VeLaInterpreter vela = new VeLaInterpreter(true);		
 		double result = vela.realExpression("sin(pi/2)");
 		assertEquals(1.0, result);
 	}
@@ -593,7 +589,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	// List append
-	
+
 	public void testListAppend1() {
 		String expr = "append([\"first\", 2, \"3rd\"], [4, 5])";
 		Operand actual = vela.expressionToOperand(expr);
@@ -692,6 +688,28 @@ public class VeLaTest extends TestCase {
 		assertEquals(2, filterObs(expr, obs).size());
 	}
 
+	// Comments
+
+	public void testComments1() {
+		double result = vela.realExpression("-- comment test\n\r12+2");
+		assertEquals(14.0, result);
+	}
+
+	public void testComments2() {
+		double result = vela.realExpression("-- comment test\r\n12+2");
+		assertEquals(14.0, result);
+	}
+
+	public void testComments3() {
+		double result = vela.realExpression("-- comment test\n12+2");
+		assertEquals(14.0, result);
+	}
+
+	public void testComments4() {
+		Optional<Operand> operand = vela.program("-- comment test");
+		assertFalse(operand.isPresent());
+	}
+
 	// ** Error cases **
 
 	public void testAmpersand() {
@@ -782,7 +800,7 @@ public class VeLaTest extends TestCase {
 			if (result.isPresent() && result.get().booleanVal()) {
 				filteredObs.add(ob);
 			}
-			
+
 			vela.popEnvironment();
 		}
 
