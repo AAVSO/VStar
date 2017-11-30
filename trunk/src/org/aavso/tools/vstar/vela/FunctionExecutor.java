@@ -170,4 +170,57 @@ public abstract class FunctionExecutor {
 		return String.format("%s :: %s -> %s", funcName, parameterTypes,
 				returnType);
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((funcName == null) ? 0 : funcName.hashCode());
+		result = prime * result + ((method == null) ? 0 : method.hashCode());
+		result = prime * result
+				+ ((parameterTypes == null) ? 0 : parameterTypes.hashCode());
+		result = prime * result
+				+ ((returnType == null) ? 0 : returnType.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof FunctionExecutor)) {
+			return false;
+		}
+		FunctionExecutor other = (FunctionExecutor) obj;
+		if (funcName == null) {
+			if (other.funcName != null) {
+				return false;
+			}
+		} else if (!funcName.equals(other.funcName)) {
+			return false;
+		}
+		if (method == null) {
+			if (other.method != null) {
+				return false;
+			}
+		} else if (!method.equals(other.method)) {
+			return false;
+		}
+		if (parameterTypes == null) {
+			if (other.parameterTypes != null) {
+				return false;
+			}
+		} else if (!parameterTypes.equals(other.parameterTypes)) {
+			return false;
+		}
+		if (returnType != other.returnType) {
+			return false;
+		}
+		return true;
+	}
 }

@@ -37,6 +37,7 @@ public class Operand {
 	private String stringVal;
 	private boolean booleanVal;
 	private List<Operand> listVal;
+	private FunctionExecutor functionVal;
 
 	public static Operand EMPTY_LIST = new Operand(Type.LIST,
 			Collections.emptyList());
@@ -64,6 +65,11 @@ public class Operand {
 	public Operand(Type type, List<Operand> value) {
 		this.type = type;
 		listVal = value;
+	}
+
+	public Operand(Type type, FunctionExecutor value) {
+		this.type = type;
+		functionVal = value;
 	}
 
 	/**
@@ -94,6 +100,9 @@ public class Operand {
 		case LIST:
 			operand = new Operand(Type.LIST, (List<Operand>) obj);
 			break;
+		case FUNCTION:
+			operand = new Operand(Type.FUNCTION, (FunctionExecutor) obj);
+			break;
 		}
 
 		return operand;
@@ -123,6 +132,9 @@ public class Operand {
 		case LIST:
 			obj = listVal;
 			break;
+		case FUNCTION:
+			obj = functionVal;
+			break;
 		}
 
 		return obj;
@@ -151,7 +163,7 @@ public class Operand {
 	}
 
 	/**
-	 * Convert this operand to a string.
+	 * Convert this operand's type to string.
 	 */
 	public void convertToString() {
 		assert type != Type.STRING;
@@ -264,6 +276,20 @@ public class Operand {
 		this.listVal = listVal;
 	}
 
+	/**
+	 * @return the functionVal
+	 */
+	public FunctionExecutor functionVal() {
+		return functionVal;
+	}
+
+	/**
+	 * @param functionVal the functionVal to set
+	 */
+	public void setFunctionVal(FunctionExecutor functionVal) {
+		this.functionVal = functionVal;
+	}
+
 	@Override
 	public String toString() {
 		String str = "";
@@ -285,6 +311,9 @@ public class Operand {
 			str = listVal.toString().replace(",", "").replace("[", "'(")
 					.replace("]", ")");
 			break;
+		case FUNCTION:
+			str = "<function " + functionVal.getFuncName() + ">";
+			break;
 		}
 
 		// str += " (" + type + ")";
@@ -300,6 +329,8 @@ public class Operand {
 		long temp;
 		temp = Double.doubleToLongBits(doubleVal);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result
+				+ ((functionVal == null) ? 0 : functionVal.hashCode());
 		result = prime * result + intVal;
 		result = prime * result + ((listVal == null) ? 0 : listVal.hashCode());
 		result = prime * result
@@ -325,6 +356,13 @@ public class Operand {
 		}
 		if (Double.doubleToLongBits(doubleVal) != Double
 				.doubleToLongBits(other.doubleVal)) {
+			return false;
+		}
+		if (functionVal == null) {
+			if (other.functionVal != null) {
+				return false;
+			}
+		} else if (!functionVal.equals(other.functionVal)) {
 			return false;
 		}
 		if (intVal != other.intVal) {

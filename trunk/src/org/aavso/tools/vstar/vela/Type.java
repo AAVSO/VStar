@@ -26,7 +26,7 @@ import java.util.List;
  */
 public enum Type {
 
-	INTEGER, DOUBLE, STRING, BOOLEAN, LIST;
+	INTEGER, DOUBLE, STRING, BOOLEAN, LIST, FUNCTION;
 
 	public static Type java2Vela(Class<?> jtype) {
 		Type vtype = null;
@@ -44,13 +44,13 @@ public enum Type {
 		} else if (jtype == List.class) {
 			vtype = LIST;
 		} else {
-			throw new IllegalArgumentException("Unknown type: " + jtype);
+			throw new IllegalArgumentException("Invalid type: " + jtype);
 		}
 
 		return vtype;
 	}
 	
 	public boolean isComposite() {
-		return this == LIST;
+		return this == LIST || this == FUNCTION;
 	}
 }

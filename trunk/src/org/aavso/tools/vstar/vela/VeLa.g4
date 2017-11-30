@@ -4,12 +4,12 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
+// - let binding of any expression, including functions (HOFs)
 //   selection in functions:
 //     f <- fun(x:t1,y:t2,z:t3) -> expression-over-x,y,z
 //   | fun(x:t1,y:t2,z:t3) -> (boolean-expression : expression-over-x,y,z ...)+
-// - let binding of any expression, including functions (HOFs)
-// - print statement for higher-level use of VeLa with LLVM/JVM
 // - internal function representation in Models dialog should use VeLa
+// - print statement for higher-level use of VeLa with LLVM/JVM
 // - comments (-- or #)
 
 // ** Parser rules **
@@ -29,6 +29,7 @@ program
 :
 	(
 		binding
+		| namedFundef
 		| out
 		| expression
 	)*
@@ -40,6 +41,21 @@ program
 binding
 :
 	IDENT BACK_ARROW expression
+;
+
+// A named function definition, when invoked, introduces an additional 
+// environment and allows all VeLa program elements operating over that 
+// environment and its predecessors.
+
+namedFundef
+:
+	FUN IDENT LPAREN formalParameter?
+	(
+		comma formalParameter
+	)* RPAREN ARROW
+	(
+		program
+	)
 ;
 
 out
@@ -157,7 +173,7 @@ factor
 	| string
 	| list
 	| var
-	| fundef
+	| anonFundef
 	| funcall
 ;
 
@@ -194,14 +210,18 @@ var
 	IDENT
 ;
 
-fundef
+// An anonymous function definition, when invoked, introduces an additional 
+// environment and allows all VeLa program elements operating over that environment 
+// and its predecessors.
+
+anonFundef
 :
 	FUN LPAREN formalParameter?
 	(
 		comma formalParameter
 	)* RPAREN ARROW
 	(
-		expression
+		program
 	)
 ;
 
@@ -240,7 +260,7 @@ funobj
 	(
 		IDENT
 		| var
-		| fundef
+		| anonFundef
 	)
 ;
 
@@ -267,6 +287,7 @@ OUT
 ;
 
 // Used for function definition and parameter type
+
 FUN
 :
 	[Ff] [Uu] [Nn]
@@ -519,4 +540,11 @@ STRING
 WS
 :
 	[ \r\t\n]+ -> skip
+;
+
+COMMENT
+:
+// Could use channel(HIDDEN) instead of skip,
+// e.g. https://stackoverflow.com/questions/23976617/parsing-single-line-comments
+	'--' ~[\r\n]* -> skip
 ;

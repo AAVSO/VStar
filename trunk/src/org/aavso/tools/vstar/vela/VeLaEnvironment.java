@@ -17,24 +17,48 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * A VeLa environment that is backed by a Map.
+ * An unrestrictive symbol binding and lookup environment implementation.
  */
-public class VeLaMapEnvironment extends AbstractVeLaEnvironment {
+public class VeLaEnvironment<T> {
 
-	private Map<String, Operand> map;
+	// Named operand cache
+	protected Map<String, T> cache;
 
-	public VeLaMapEnvironment(Map<String, Operand> map) {
-		super();
-		this.map = map;
+	public VeLaEnvironment() {
+		cache = new HashMap<String, T>();
 	}
 
-	@Override
-	public Optional<Operand> lookup(String name) {
-		name = name.toUpperCase();
-		return Optional.ofNullable(map.get(name));
+	public VeLaEnvironment(Map<String, T> map) {
+		cache = map;
+	}
+
+	/**
+	 * Lookup the named symbol in the environment.
+	 * 
+	 * @param name
+	 *            The symbol's name.
+	 * @return An optional Operand instance if it exists.
+	 */
+	public Optional<T> lookup(String name) {
+		return Optional.ofNullable(cache.get(name.toUpperCase()));
+	}
+
+	/**
+	 * Bind a value to a name.
+	 * 
+	 * @param name
+	 *            The name to which to bind the value.
+	 * @param value
+	 *            The value to be bound.
+	 */
+	public void bind(String name, T value) {
+		if (!cache.containsKey(name)) {
+			cache.put(name, value);
+		}
 	}
 }

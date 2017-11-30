@@ -22,7 +22,7 @@ import java.util.Optional;
 /**
  * A VeLa environment that is backed by nothing, i.e. has no content.
  */
-public class EmptyVeLaEnvironment extends AbstractVeLaEnvironment {
+public class EmptyVeLaEnvironment extends VeLaEnvironment {
 
 	@Override
 	public Optional<Operand> lookup(String name) {
