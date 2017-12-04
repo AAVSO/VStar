@@ -20,10 +20,10 @@ package org.aavso.tools.vstar.vela;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Stack;
 
 import org.aavso.tools.vstar.vela.VeLaParser.AdditiveExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.BindingContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BoolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
@@ -33,12 +33,13 @@ import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.ProgramContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SelectionExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
+import org.aavso.tools.vstar.vela.VeLaParser.SymbolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
-import org.aavso.tools.vstar.vela.VeLaParser.VarContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
@@ -54,18 +55,52 @@ public class ExpressionListener extends VeLaBaseListener {
 		astStack = new Stack<AST>();
 	}
 
-	public Optional<AST> getAST() {
-		// Peek vs pop to allow multiple non-destructive calls to this method.
-		if (!astStack.isEmpty()) {
-			return Optional.of(astStack.peek());
-		} else {
-			return Optional.empty();
-		}
+	/**
+	 * Pop the AST from the stack and return it.
+	 * 
+	 * @return The AST
+	 */
+	public AST getAST() {
+		return astStack.pop();
 	}
+
+	/**
+	 * Is there an AST present?
+	 * 
+	 * @return Yes or no
+	 */
+	public boolean isASTPresent() {
+		return !astStack.isEmpty();
+	}
+
+	// ** Rule listener methods **
 
 	// TODO:
 	// - change the body of each class of exit methods to take a lambda
 	// expression for the if-statement; what generic signature?
+
+	@Override
+	public void exitProgram(ProgramContext ctx) {
+		AST ast = new AST(Operation.PROGRAM);
+		while (!astStack.isEmpty()) {
+			ast.addFirstChild(astStack.pop());
+		}
+		astStack.push(ast);
+	}
+
+	@Override
+	public void exitBinding(BindingContext ctx) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			if (ctx.getChild(i) instanceof TerminalNode) {
+				String op = ctx.getChild(i).getText();
+				AST right = astStack.pop();
+				AST left = astStack.pop();
+				if ("<-".equals(op)) {
+					astStack.push(new AST(Operation.BIND, left, right));
+				}
+			}
+		}
+	}
 
 	@Override
 	public void enterSelectionExpression(SelectionExpressionContext ctx) {
@@ -79,7 +114,7 @@ public class ExpressionListener extends VeLaBaseListener {
 			if (ctx.getChild(i) instanceof TerminalNode) {
 				String op = ctx.getChild(i).getText();
 				if ("select".equalsIgnoreCase(op)) {
-					AST ast = new AST(Operation.SELECTION);
+					AST ast = new AST(Operation.SELECT);
 					while (!astStack.isEmpty()) {
 						AST consequent = astStack.pop();
 						if (consequent.getOp() == Operation.SENTINEL)
@@ -235,9 +270,9 @@ public class ExpressionListener extends VeLaBaseListener {
 	}
 
 	@Override
-	public void exitVar(VarContext ctx) {
-		String var = ctx.getChild(0).getText().toUpperCase();
-		astStack.push(new AST(var, Operation.VARIABLE));
+	public void exitSymbol(SymbolContext ctx) {
+		String symbol = ctx.getChild(0).getText().toUpperCase();
+		astStack.push(new AST(symbol, Operation.SYMBOL));
 	}
 
 	@Override

@@ -52,16 +52,13 @@ public class VeLaInterpreter {
 
 	private Stack<Operand> stack;
 
-	// TODO: A closure need not capture the zeroth environment since
-	// this is effectively the global environment
-
 	private Stack<VeLaEnvironment<Operand>> environments;
 
 	// AST and result caches.
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
 
 	// TODO: make use of AST => Operand caching at each level of eval()! AST
-	// needs to be key not VeLa string
+	// needs to be key not VeLa string; need equals, hashCode on AST
 
 	private static Map<String, Operand> exprToResult = new HashMap<String, Operand>();
 
@@ -265,9 +262,10 @@ public class VeLaInterpreter {
 			ExpressionListener listener = new ExpressionListener();
 			ParseTreeWalker.DEFAULT.walk(listener, tree);
 
-			Optional<AST> possibleAST = listener.getAST();
-			if (possibleAST.isPresent()) {
-				ast = possibleAST.get();
+			if (listener.isASTPresent()) {
+				ast = listener.getAST();
+				// This relates a VeLa program or expression to a sequence of
+				// ASTs.
 				exprToAST.put(prog, ast);
 			}
 		}
@@ -299,16 +297,18 @@ public class VeLaInterpreter {
 	public Optional<Operand> commonInterpreter(String prog,
 			ParserRuleContext tree) throws VeLaParseError {
 
-		AST ast = commonParseTreeWalker(prog, tree);
-
 		Optional<Operand> result = Optional.empty();
 
-		// TODO: we should map from AST to Operand not String to Operand;
-		// then we really can cache within eval() at every level, not
-		// not just at the top level! Need to add equals() and hashCode() to AST
+		AST ast = commonParseTreeWalker(prog, tree);
 
-		// TODO: make Optional<AST>?
 		if (ast != null) {
+
+			// TODO: we should map from AST to Operand not String to Operand;
+			// then we really can cache within eval() at every level, not
+			// not just at the top level! Need to add equals() and hashCode() to
+			// AST; this is especially so now that we are dealing with lists
+			// (sequences; an implicit special form) of ASTs.
+
 			if (ast.isDeterministic() && exprToResult.containsKey(prog)) {
 
 				// For deterministic expressions, we can also use cached
@@ -387,7 +387,7 @@ public class VeLaInterpreter {
 				default:
 					break;
 				}
-			} else if (ast.getOp() == Operation.VARIABLE) {
+			} else if (ast.getOp() == Operation.SYMBOL) {
 				// Look up variable in the environment stack, pushing it onto
 				// the operand stack if it exists, looking for and evaluating a
 				// function if not, throwing an exception otherwise.
@@ -415,73 +415,82 @@ public class VeLaInterpreter {
 				}
 
 				stack.push(new Operand(Type.LIST, elements));
-			} else if (ast.getOp() == Operation.SELECTION) {
-				// Evaluate each antecedent in turn, pushing the value
-				// of the first consequent whose antecedent is true and stop
-				// antecedent evaluation.
-				for (AST pair : ast.getChildren()) {
-					eval(pair.left());
-					if (stack.peek().booleanVal()) {
-						eval(pair.right());
-						break;
-					}
-				}
-			} else if (ast.getOp() == Operation.FUNCALL) {
-				// Evaluate actual parameters, if any.
-				List<Operand> params = new ArrayList<Operand>();
-
-				if (ast.hasChildren()) {
-					for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
-						eval(ast.getChildren().get(i));
-					}
-
-					// Prepare actual parameter list.
-					for (int i = 1; i <= ast.getChildren().size(); i++) {
-						params.add(stack.pop());
-					}
-				}
-
-				// Apply function to actual parameters.
-				applyFunction(ast.getToken(), params);
+			} else if (ast.getOp().isSpecialForm()) {
+				specialForm(ast);
 			}
 		}
 	}
 
 	/**
-	 * Unify operand types by converting both operands to strings if only one is
-	 * a string or both operands to double if only one is an integer. We change
-	 * nothing if either type is composite or Boolean.
+	 * Handle special forms.
 	 * 
-	 * @param a
-	 *            The first operand.
-	 * @param b
-	 *            The second operand.
-	 * @return The final type of the unified operands.
+	 * @param ast
+	 *            The special form's AST.
 	 */
-	private Type unifyTypes(Operand a, Operand b) {
-		Type type = a.getType();
-
-		if (!a.getType().isComposite() && !b.getType().isComposite()) {
-			if (a.getType() != Type.STRING && b.getType() == Type.STRING) {
-				a.convertToString();
-				type = Type.STRING;
-			} else if (a.getType() == Type.STRING && b.getType() != Type.STRING) {
-				b.convertToString();
-				type = Type.STRING;
-			} else if (a.getType() == Type.INTEGER
-					&& b.getType() == Type.DOUBLE) {
-				a.setDoubleVal(a.intVal());
-				a.setType(Type.DOUBLE);
-				type = Type.DOUBLE;
-			} else if (a.getType() == Type.DOUBLE
-					&& b.getType() == Type.INTEGER) {
-				b.setDoubleVal(b.intVal());
-				b.setType(Type.DOUBLE);
-				type = Type.DOUBLE;
+	private void specialForm(AST ast) {
+		switch (ast.getOp()) {
+		case PROGRAM:
+			// Evaluate each child AST in turn. No children means an empty
+			// program or one consisting only of whitespace or comments.
+			if (ast.hasChildren()) {
+				for (AST child : ast.getChildren()) {
+					eval(child);
+				}
 			}
-		}
+			break;
 
-		return type;
+		case BIND:
+			eval(ast.right());
+			environments.peek().bind(ast.left().getToken(), stack.pop());
+			break;
+
+		case SELECT:
+			// Evaluate each antecedent in turn, pushing the value
+			// of the first consequent whose antecedent is true and stop
+			// antecedent evaluation.
+			for (AST pair : ast.getChildren()) {
+				eval(pair.left());
+				if (stack.peek().booleanVal()) {
+					eval(pair.right());
+					break;
+				}
+			}
+			break;
+
+		case FUNCALL:
+			// TODO: for user defined functions, introduce a new scope, bind
+			// parameters, evaluate each child AST in turn as for PROGRAM.
+			// Indeed, the body of a function is literally the PROGRAM form,
+			// as per the grammar, so we just need to evaluate the function's
+			// PROGRAM AST! We need to distinguish between intrinsic
+			// functions and user-defined functions for the purpose of: pushing
+			// a scope, invoking the body. The latter should be done as part of
+			// FunctionExecutor. We need a subclass for intrinsic and user
+			// defined functions which should handle the actual parameter
+			// list created below as appropriate for each subclass.
+			// Evaluate actual parameters, if any.
+			// TODO: A closure need not capture the zeroth environment since
+			// this is effectively the global environment
+			List<Operand> params = new ArrayList<Operand>();
+
+			if (ast.hasChildren()) {
+				for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
+					eval(ast.getChildren().get(i));
+				}
+
+				// Prepare actual parameter list.
+				for (int i = 1; i <= ast.getChildren().size(); i++) {
+					params.add(stack.pop());
+				}
+			}
+
+			// Apply function to actual parameters.
+			applyFunction(ast.getToken(), params);
+			break;
+
+		default:
+			break;
+		}
 	}
 
 	/**
@@ -496,7 +505,7 @@ public class VeLaInterpreter {
 		Operand operand1 = stack.pop();
 
 		// TODO Refactor to N methods; type unification is not relevant to all
-		// operations, e.g. IN; define functions for each in Operation
+		// operations, e.g. IN; define functions for each in Operation/Operand
 
 		Type type = unifyTypes(operand1, operand2);
 
@@ -721,8 +730,45 @@ public class VeLaInterpreter {
 		}
 	}
 
+	/**
+	 * Unify operand types by converting both operands to strings if only one is
+	 * a string or both operands to double if only one is an integer. We change
+	 * nothing if either type is composite or Boolean.
+	 * 
+	 * @param a
+	 *            The first operand.
+	 * @param b
+	 *            The second operand.
+	 * @return The final type of the unified operands.
+	 */
+	private Type unifyTypes(Operand a, Operand b) {
+		Type type = a.getType();
+
+		if (!a.getType().isComposite() && !b.getType().isComposite()) {
+			if (a.getType() != Type.STRING && b.getType() == Type.STRING) {
+				a.convertToString();
+				type = Type.STRING;
+			} else if (a.getType() == Type.STRING && b.getType() != Type.STRING) {
+				b.convertToString();
+				type = Type.STRING;
+			} else if (a.getType() == Type.INTEGER
+					&& b.getType() == Type.DOUBLE) {
+				a.setDoubleVal(a.intVal());
+				a.setType(Type.DOUBLE);
+				type = Type.DOUBLE;
+			} else if (a.getType() == Type.DOUBLE
+					&& b.getType() == Type.INTEGER) {
+				b.setDoubleVal(b.intVal());
+				b.setType(Type.DOUBLE);
+				type = Type.DOUBLE;
+			}
+		}
+
+		return type;
+	}
+
 	// ** Variable related methods **
-	
+
 	/**
 	 * Given a variable name, search for it in the stack of environments, return
 	 * an optional Operand instance. The search proceeds from the top to the
@@ -754,9 +800,9 @@ public class VeLaInterpreter {
 		environments.peek().bind("PI", new Operand(Type.DOUBLE, Math.PI));
 		environments.peek().bind("E", new Operand(Type.DOUBLE, Math.E));
 	}
-	
+
 	// ** Function related methods *
-	
+
 	/**
 	 * Given a function name, search for it in the stack of environments, return
 	 * an optional list of function executors. The search proceeds from the top
@@ -848,8 +894,8 @@ public class VeLaInterpreter {
 
 		addZeroArityFunctions();
 
-		// TODO: add map, reduce and foreach once we have user-defined functions
-
+		// TODO: add map, reduce and foreach, especially once we have
+		// user-defined functions
 		addListHeadFunction();
 		addListTailFunction();
 		addListNthFunction();

@@ -149,17 +149,21 @@ public class AST {
 	 * </p>
 	 * 
 	 * <p>
-	 * If the operation is function or variable or a then the answer must be no,
-	 * either because a parameterless function itself is not deterministic or
-	 * because the result will vary according to input or because a variable's
-	 * value can change over time.
+	 * If the operation is a function call then the answer must be no, either
+	 * because a function may not not deterministic e.g. in the presence of
+	 * random numbers or because the result will vary according to input since
+	 * parameters may be bound to different values on each call. If the
+	 * operation corresponds to retrieving a symbol's value, then the answer
+	 * must also be no since a symbol may be bound to different values in
+	 * different environments (e.g. functions, filters). The result returned
+	 * from a selection varies according to its antecedent condition.
 	 * </p>
 	 * 
 	 * @return True if so, otherwise False.
 	 */
 	public boolean isDeterministic() {
 		boolean deterministic = op != Operation.FUNCALL
-				&& op != Operation.VARIABLE;
+				&& op != Operation.SYMBOL && op != Operation.SELECT;
 
 		if (deterministic && !isLeaf()) {
 			for (AST child : children) {

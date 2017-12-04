@@ -483,7 +483,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testFunctionSin() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);		
+		VeLaInterpreter vela = new VeLaInterpreter(true);
 		double result = vela.realExpression("sin(pi/2)");
 		assertEquals(1.0, result);
 	}
@@ -662,6 +662,26 @@ public class VeLaTest extends TestCase {
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(4, operand.intVal());
 	}
+
+	// Bindings
+
+	public void testBinding1() {
+		// Bind X to 42 then retrieve the bound value of X.
+		Optional<Operand> result1 = vela.program("x <- 42\n x");
+		assertTrue(result1.isPresent());
+		assertEquals(42, result1.get().intVal());
+
+		// Attempt to bind X again.
+		try {
+			vela.program("x <- 1");
+			fail();
+		} catch (Exception e) {
+			// It's an error to bind the same variable twice in the current
+			// scope, so we should end up here.
+		}
+	}
+
+	// ** Application oriented tests **
 
 	// Filter test cases
 

@@ -31,11 +31,13 @@ public enum Operation {
 			"and", 2), OR("or", 2), NOT("not", 1), EQUAL("=", 2), NOT_EQUAL(
 			"<>", 2), GREATER_THAN(">", 2), LESS_THAN("<", 2), GREATER_THAN_OR_EQUAL(
 			">=", 2), LESS_THAN_OR_EQUAL("<=", 2), APPROXIMATELY_EQUAL("=~", 2), IN(
-			"in", 2), LIST("list"), PAIR("pair"), VARIABLE("var"), FUNCALL(
-			"func"), SELECTION("selection"), SENTINEL("sentinel");
+			"in", 2), LIST("list"), PAIR("pair"), PROGRAM("program", true), BIND(
+			"bind", true), SYMBOL("symbol"), FUNDEF("fundef", true), FUNCALL(
+			"func", true), SELECT("select", true), SENTINEL("sentinel");
 
 	private String symbol;
 	private int arity;
+	private boolean specialForm;
 
 	// Create a mapping from symbols to binary operation values for
 	// fast lookup.
@@ -54,13 +56,23 @@ public enum Operation {
 		return symbolToBinaryOp.get(token.toUpperCase());
 	}
 
-	private Operation(String symbol, int arity) {
+	private Operation(String symbol, int arity, boolean specialForm) {
 		this.symbol = symbol.toUpperCase();
 		this.arity = arity;
+		this.specialForm = specialForm;
+	}
+
+	private Operation(String symbol, int arity) {
+		this(symbol, arity, false);
+
+	}
+
+	private Operation(String symbol, boolean specialForm) {
+		this(symbol, 0, specialForm);
 	}
 
 	private Operation(String symbol) {
-		this(symbol.toUpperCase(), 0);
+		this(symbol, 0);
 	}
 
 	private Operation() {
@@ -73,5 +85,9 @@ public enum Operation {
 
 	public int arity() {
 		return arity;
+	}
+
+	public boolean isSpecialForm() {
+		return specialForm;
 	}
 }

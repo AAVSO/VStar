@@ -9,8 +9,6 @@ grammar VeLa;
 //     f <- fun(x:t1,y:t2,z:t3) -> expression-over-x,y,z
 //   | fun(x:t1,y:t2,z:t3) -> (boolean-expression : expression-over-x,y,z ...)+
 // - internal function representation in Models dialog should use VeLa
-// - print statement for higher-level use of VeLa with LLVM/JVM
-// - comments (-- or #)
 
 // ** Parser rules **
 
@@ -40,7 +38,7 @@ program
 
 binding
 :
-	IDENT BACK_ARROW expression
+	symbol BACK_ARROW expression
 ;
 
 // A named function definition, when invoked, introduces an additional 
@@ -172,7 +170,7 @@ factor
 	| bool
 	| string
 	| list
-	| var
+	| symbol
 	| anonFundef
 	| funcall
 ;
@@ -205,7 +203,7 @@ list
 	)* RBRACKET
 ;
 
-var
+symbol
 :
 	IDENT
 ;
@@ -259,7 +257,7 @@ funobj
 :
 	(
 		IDENT
-		| var
+		| symbol
 		| anonFundef
 	)
 ;
