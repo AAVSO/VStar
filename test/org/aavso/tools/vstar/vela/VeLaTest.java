@@ -667,9 +667,10 @@ public class VeLaTest extends TestCase {
 
 	public void testBinding1() {
 		// Bind X to 42 then retrieve the bound value of X.
-		Optional<Operand> result1 = vela.program("x <- 42\n x");
+		Optional<Operand> result1 = vela
+				.program("x <- 12\n y <- x*x\n out \"x squared is \", y, \"\n\"\n x");
 		assertTrue(result1.isPresent());
-		assertEquals(42, result1.get().intVal());
+		assertEquals(12, result1.get().intVal());
 
 		// Attempt to bind X again.
 		try {
@@ -681,7 +682,7 @@ public class VeLaTest extends TestCase {
 		}
 	}
 
-	// ** Application oriented tests **
+	// ** Application oriented test cases **
 
 	// Filter test cases
 

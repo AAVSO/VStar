@@ -33,6 +33,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.OutContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ProgramContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
@@ -128,6 +129,25 @@ public class ExpressionListener extends VeLaBaseListener {
 				}
 			}
 		}
+	}
+
+
+	@Override
+	public void enterOut(OutContext ctx) {
+		// Mark the position on the stack where OUT expressions stop.
+		astStack.push(new AST(Operation.SENTINEL));		
+	}
+	
+	@Override
+	public void exitOut(OutContext ctx) {
+		AST ast = new AST(Operation.OUT);
+		while (!astStack.isEmpty()) {
+			AST child = astStack.pop();
+			if (child.getOp() == Operation.SENTINEL)
+				break;
+			ast.addFirstChild(child);
+		}
+		astStack.push(ast);
 	}
 
 	@Override

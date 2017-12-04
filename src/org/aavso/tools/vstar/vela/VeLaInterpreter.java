@@ -471,6 +471,7 @@ public class VeLaInterpreter {
 			// Evaluate actual parameters, if any.
 			// TODO: A closure need not capture the zeroth environment since
 			// this is effectively the global environment
+			// TODO: is this really a special form?
 			List<Operand> params = new ArrayList<Operand>();
 
 			if (ast.hasChildren()) {
@@ -488,6 +489,14 @@ public class VeLaInterpreter {
 			applyFunction(ast.getToken(), params);
 			break;
 
+		case OUT:
+			// Evaluate and print each AST. 
+			for (AST child : ast.getChildren()) {
+				eval(child);
+				System.out.print(stack.pop().toHumanReadableString());
+			}
+			break;
+			
 		default:
 			break;
 		}

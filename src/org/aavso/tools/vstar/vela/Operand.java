@@ -290,6 +290,34 @@ public class Operand {
 		this.functionVal = functionVal;
 	}
 
+	public String toHumanReadableString() {
+		String str = "";
+
+		switch (type) {
+		case INTEGER:
+			str = Integer.toString(intVal);
+			break;
+		case DOUBLE:
+			str = NumericPrecisionPrefs.formatOther(doubleVal);
+			break;
+		case BOOLEAN:
+			str = Boolean.toString(booleanVal);
+			break;
+		case STRING:
+			str = stringVal;
+			break;
+		case LIST:
+			str = listVal.toString().replace(",", "").replace("[", "'(")
+					.replace("]", ")");
+			break;
+		case FUNCTION:
+			str = "<function " + functionVal.getFuncName() + ">";
+			break;
+		}
+
+		return str;
+	}
+
 	@Override
 	public String toString() {
 		String str = "";
