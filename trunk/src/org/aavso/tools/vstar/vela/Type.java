@@ -50,6 +50,26 @@ public enum Type {
 		return vtype;
 	}
 	
+	public static Type name2Vela(String type) {
+		Type vtype = null;
+
+		if ("integer".equalsIgnoreCase(type)) {
+			vtype = INTEGER;
+		} else if ("real".equalsIgnoreCase(type)) {
+			vtype = DOUBLE;
+		} else if ("string".equalsIgnoreCase(type)) {
+			vtype = STRING;
+		} else if ("boolean".equalsIgnoreCase(type)) {
+			vtype = BOOLEAN;
+		} else if ("list".equalsIgnoreCase(type)) {
+			vtype = LIST;
+		} else {
+			throw new IllegalArgumentException("Invalid type: " + type);
+		}
+
+		return vtype;
+	}
+	
 	public boolean isComposite() {
 		return this == LIST || this == FUNCTION;
 	}

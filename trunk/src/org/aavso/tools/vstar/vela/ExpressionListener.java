@@ -23,23 +23,27 @@ import java.util.Locale;
 import java.util.Stack;
 
 import org.aavso.tools.vstar.vela.VeLaParser.AdditiveExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.AnonFundefContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BindingContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BoolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExponentiationExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.FormalParameterContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FuncallContext;
 import org.aavso.tools.vstar.vela.VeLaParser.IntegerContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.NamedFundefContext;
 import org.aavso.tools.vstar.vela.VeLaParser.OutContext;
-import org.aavso.tools.vstar.vela.VeLaParser.ProgramContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SelectionExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.SequenceContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SymbolContext;
+import org.aavso.tools.vstar.vela.VeLaParser.TypeContext;
 import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -81,10 +85,18 @@ public class ExpressionListener extends VeLaBaseListener {
 	// expression for the if-statement; what generic signature?
 
 	@Override
-	public void exitProgram(ProgramContext ctx) {
-		AST ast = new AST(Operation.PROGRAM);
+	public void enterSequence(SequenceContext ctx) {
+		astStack.push(new AST(Operation.SENTINEL));
+	}
+
+	@Override
+	public void exitSequence(SequenceContext ctx) {
+		AST ast = new AST(Operation.SEQUENCE);
 		while (!astStack.isEmpty()) {
-			ast.addFirstChild(astStack.pop());
+			AST child = astStack.pop();
+			if (child.getOp() == Operation.SENTINEL)
+				break;
+			ast.addFirstChild(child);
 		}
 		astStack.push(ast);
 	}
@@ -101,6 +113,73 @@ public class ExpressionListener extends VeLaBaseListener {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void exitNamedFundef(NamedFundefContext ctx) {
+		// Create function definition AST with name and formal parameter list.
+		// TODO: why some names, like f, g are not recognised as symbols?!
+		AST ast = new AST(Operation.FUNDEF);
+		ast.addFirstChild(astStack.pop());
+		while (!astStack.isEmpty()) {
+			AST child = astStack.pop();
+			// TODO: where is the additional sentinel coming from?
+			if (child.getOp() == Operation.SENTINEL)
+				break;
+			ast.addFirstChild(child);
+		}
+		astStack.push(ast);
+	}
+
+	@Override
+	public void exitAnonFundef(AnonFundefContext ctx) {
+		AST ast = new AST(Operation.FUNDEF);
+		while (!astStack.isEmpty()) {
+			AST child = astStack.pop();
+			// TODO: where is the additional sentinel coming from?
+			if (child.getOp() == Operation.SENTINEL)
+				break;			
+			ast.addFirstChild(child);
+		}
+		astStack.push(ast);
+	}
+
+	@Override
+	public void exitFormalParameter(FormalParameterContext ctx) {
+		for (int i = ctx.getChildCount() - 1; i >= 0; i--) {
+			if (ctx.getChild(i) instanceof TerminalNode) {
+				String op = ctx.getChild(i).getText();
+				AST right = astStack.pop();
+				AST left = astStack.pop();
+				if (":".equals(op)) {
+					astStack.push(new AST(Operation.PAIR, left, right));
+				}
+			}
+		}
+	}
+
+	@Override
+	public void exitType(TypeContext ctx) {
+		String symbol = ctx.getChild(0).getText().toUpperCase();
+		astStack.push(new AST(symbol, Operation.SYMBOL));
+	}
+
+	@Override
+	public void enterOut(OutContext ctx) {
+		// Mark the position on the stack where OUT expressions stop.
+		astStack.push(new AST(Operation.SENTINEL));
+	}
+
+	@Override
+	public void exitOut(OutContext ctx) {
+		AST ast = new AST(Operation.OUT);
+		while (!astStack.isEmpty()) {
+			AST child = astStack.pop();
+			if (child.getOp() == Operation.SENTINEL)
+				break;
+			ast.addFirstChild(child);
+		}
+		astStack.push(ast);
 	}
 
 	@Override
@@ -129,25 +208,6 @@ public class ExpressionListener extends VeLaBaseListener {
 				}
 			}
 		}
-	}
-
-
-	@Override
-	public void enterOut(OutContext ctx) {
-		// Mark the position on the stack where OUT expressions stop.
-		astStack.push(new AST(Operation.SENTINEL));		
-	}
-	
-	@Override
-	public void exitOut(OutContext ctx) {
-		AST ast = new AST(Operation.OUT);
-		while (!astStack.isEmpty()) {
-			AST child = astStack.pop();
-			if (child.getOp() == Operation.SENTINEL)
-				break;
-			ast.addFirstChild(child);
-		}
-		astStack.push(ast);
 	}
 
 	@Override
@@ -312,7 +372,7 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void exitBool(BoolContext ctx) {
 		String token = ctx.getChild(0).getText().toUpperCase();
-		boolean value = "T".equals(token) ? true : false;
+		boolean value = "#T".equalsIgnoreCase(token) ? true : false;
 		Operand booleanLiteral = new Operand(Type.BOOLEAN, value);
 		astStack.push(new AST(token, booleanLiteral));
 	}

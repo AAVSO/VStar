@@ -223,13 +223,13 @@ public class VeLaTest extends TestCase {
 	// Boolean expressions
 
 	public void testTrue() {
-		assertTrue(vela.booleanExpression("T"));
-		assertTrue(vela.booleanExpression("t"));
+		assertTrue(vela.booleanExpression("#T"));
+		assertTrue(vela.booleanExpression("#t"));
 	}
 
 	public void testFalse() {
-		assertFalse(vela.booleanExpression("F"));
-		assertFalse(vela.booleanExpression("f"));
+		assertFalse(vela.booleanExpression("#F"));
+		assertFalse(vela.booleanExpression("#f"));
 	}
 
 	// Relational expressions
@@ -459,7 +459,7 @@ public class VeLaTest extends TestCase {
 	// Selection
 
 	public void testSelection1() {
-		String prog = "select\n3 > 2 -> 42.42\nt -> 21.21";
+		String prog = "select\n3 > 2 -> 42.42\n#t -> 21.21";
 
 		Optional<Operand> result = vela.program(prog);
 
@@ -483,7 +483,6 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testFunctionSin() {
-		VeLaInterpreter vela = new VeLaInterpreter(true);
 		double result = vela.realExpression("sin(pi/2)");
 		assertEquals(1.0, result);
 	}
@@ -586,6 +585,8 @@ public class VeLaTest extends TestCase {
 		String expr = "concat([], [])";
 		Operand result = vela.expressionToOperand(expr);
 		assertEquals(Operand.EMPTY_LIST, result);
+		expr = "concat([\"first\", 2, \"3rd\"], [4, 5])";
+		result = vela.expressionToOperand(expr);
 	}
 
 	// List append
@@ -623,10 +624,10 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testListAppend5() {
-		String expr = "append([\"first\", 2, \"3rd\"], t)";
+		String expr = "append([\"first\", 2, \"3rd\"], #t)";
 		Operand actual = vela.expressionToOperand(expr);
 		Operand expected = vela
-				.expressionToOperand("[\"first\", 2, \"3rd\", t]");
+				.expressionToOperand("[\"first\", 2, \"3rd\", #t]");
 		assertEquals(expected, actual);
 	}
 
@@ -663,14 +664,34 @@ public class VeLaTest extends TestCase {
 		assertEquals(4, operand.intVal());
 	}
 
+	// User defined functions
+
+	public void testNamedFunc1() {
+		String prog = "";
+		prog += "fun f(x:integer, y:integer) { x^y }\n";
+		prog += "x <- f(12, 2)\n";
+		prog += "x";
+		
+		Optional<Operand> result = vela.program(prog);
+		
+		assertTrue(result.isPresent());
+		assertEquals(144, result.get().intVal());
+	}
+
 	// Bindings
 
 	public void testBinding1() {
 		// Bind X to 42 then retrieve the bound value of X.
-		Optional<Operand> result1 = vela
-				.program("x <- 12\n y <- x*x\n out \"x squared is \", y, \"\n\"\n x");
-		assertTrue(result1.isPresent());
-		assertEquals(12, result1.get().intVal());
+		String prog = "";
+		prog += "x <- 12\n";
+		prog += "y <- x*x\n";
+		prog += "out \"x squared is \", y, \"\n\"\n";
+				prog += "x";
+				
+		Optional<Operand> result = vela.program(prog);
+		
+		assertTrue(result.isPresent());
+		assertEquals(12, result.get().intVal());
 
 		// Attempt to bind X again.
 		try {

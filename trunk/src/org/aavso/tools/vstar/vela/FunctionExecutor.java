@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The base class for all function executors. Each subclass must implement
@@ -31,10 +32,10 @@ public abstract class FunctionExecutor {
 	public static final List<Type> NO_FORMALS = Collections.emptyList();
 	public static final List<Operand> NO_ACTUALS = new ArrayList<Operand>();
 
-	private String funcName;
+	private Optional<String> funcName;
 	private Method method;
 	private List<Type> parameterTypes;
-	private Type returnType;
+	private Optional<Type> returnType;
 
 	/**
 	 * Apply the function to the specified operands and return a result of the
@@ -42,9 +43,13 @@ public abstract class FunctionExecutor {
 	 * 
 	 * @param operands
 	 *            A list if operands to which the function is to be applied.
-	 * @return The return value.
+	 * @return The optional return value.
+	 * @throws A
+	 *             VeLaEvalError if an error occurred during function
+	 *             evaluation.
 	 */
-	public abstract Operand apply(List<Operand> operands);
+	public abstract Optional<Operand> apply(List<Operand> operands)
+			throws VeLaEvalError;
 
 	/**
 	 * Constructor for functions with a corresponding Java method to invoke.
@@ -56,10 +61,10 @@ public abstract class FunctionExecutor {
 	 * @param parameterTypes
 	 *            The function's parameter types.
 	 * @param returnType
-	 *            The function's return type.
+	 *            The function's optional return type.
 	 */
-	public FunctionExecutor(String funcName, Method method,
-			List<Type> parameterTypes, Type returnType) {
+	public FunctionExecutor(Optional<String> funcName, Method method,
+			List<Type> parameterTypes, Optional<Type> returnType) {
 		this.funcName = funcName;
 		this.method = method;
 		this.parameterTypes = parameterTypes;
@@ -76,8 +81,8 @@ public abstract class FunctionExecutor {
 	 * @param returnType
 	 *            The function's return type.
 	 */
-	public FunctionExecutor(String funcName, List<Type> parameterTypes,
-			Type returnType) {
+	public FunctionExecutor(Optional<String> funcName,
+			List<Type> parameterTypes, Optional<Type> returnType) {
 		this(funcName, null, parameterTypes, returnType);
 	}
 
@@ -94,7 +99,8 @@ public abstract class FunctionExecutor {
 	 * @param returnType
 	 *            The function's return type.
 	 */
-	public FunctionExecutor(String funcName, Method method, Type returnType) {
+	public FunctionExecutor(Optional<String> funcName, Method method,
+			Optional<Type> returnType) {
 		this(funcName, method, NO_FORMALS, returnType);
 	}
 
@@ -108,7 +114,7 @@ public abstract class FunctionExecutor {
 	 * @param returnType
 	 *            The function's return type.
 	 */
-	public FunctionExecutor(String funcName, Type returnType) {
+	public FunctionExecutor(Optional<String> funcName, Optional<Type> returnType) {
 		this(funcName, null, NO_FORMALS, returnType);
 	}
 
@@ -141,7 +147,7 @@ public abstract class FunctionExecutor {
 	/**
 	 * @return the funcName
 	 */
-	public String getFuncName() {
+	public Optional<String> getFuncName() {
 		return funcName;
 	}
 
@@ -162,7 +168,7 @@ public abstract class FunctionExecutor {
 	/**
 	 * @return the returnType
 	 */
-	public Type getReturnType() {
+	public Optional<Type> getReturnType() {
 		return returnType;
 	}
 
