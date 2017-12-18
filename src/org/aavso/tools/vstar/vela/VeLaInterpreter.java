@@ -127,7 +127,7 @@ public class VeLaInterpreter {
 	 *             If an evaluation error occurs.
 	 */
 	public Optional<Operand> program(String prog) throws VeLaParseError {
-		VeLaParser.ProgramContext tree = getParser(prog).program();
+		VeLaParser.SequenceContext tree = getParser(prog).sequence();
 		return commonInterpreter(prog, tree);
 	}
 
@@ -343,13 +343,16 @@ public class VeLaInterpreter {
 	 * <p>
 	 * The name "eval" is used in deference to Lisp and John McCarthy's eval
 	 * function, the equivalent of Maxwell's equations in Computer Science.
-	 * 
+	 * </p>
+	 * <p>
+	 * I've also just noticed that VeLa is an anagram of eval! :)
+	 * </p>
 	 * @param ast
 	 *            The abstract syntax tree.
 	 * @throws VeLaEvalError
 	 *             If an evaluation error occurs.
 	 */
-	private void eval(AST ast) throws VeLaEvalError {
+	public void eval(AST ast) throws VeLaEvalError {
 		if (ast.isLiteral()) {
 			stack.push(ast.getOperand());
 		} else {
@@ -429,7 +432,7 @@ public class VeLaInterpreter {
 	 */
 	private void specialForm(AST ast) {
 		switch (ast.getOp()) {
-		case PROGRAM:
+		case SEQUENCE:
 			// Evaluate each child AST in turn. No children means an empty
 			// program or one consisting only of whitespace or comments.
 			if (ast.hasChildren()) {
@@ -444,34 +447,54 @@ public class VeLaInterpreter {
 			environments.peek().bind(ast.left().getToken(), stack.pop());
 			break;
 
-		case SELECT:
-			// Evaluate each antecedent in turn, pushing the value
-			// of the first consequent whose antecedent is true and stop
-			// antecedent evaluation.
-			for (AST pair : ast.getChildren()) {
-				eval(pair.left());
-				if (stack.peek().booleanVal()) {
-					eval(pair.right());
+		case FUNDEF:
+			Optional<String> name = Optional.empty();
+			if (ast.getChildren().get(0).getOp() == Operation.SYMBOL) {
+				name = Optional.of(ast.getChildren().get(0).getToken());
+			}
+
+			List<String> parameterNames = new ArrayList<String>();
+			List<Type> parameterTypes = new ArrayList<Type>();
+			Optional<Type> returnType = Optional.empty();
+			Optional<AST> functionBody = Optional.empty();
+
+			for (int i = 1; i < ast.getChildren().size(); i++) {
+				AST child = ast.getChildren().get(i);
+				switch (child.getOp()) {
+				case PAIR:
+					parameterNames.add(child.left().getToken());
+					parameterTypes
+							.add(Type.name2Vela(child.right().getToken()));
+					break;
+
+				case SYMBOL:
+					returnType = Optional.of(Type.name2Vela(child.getToken()));
+					break;
+
+				case SEQUENCE:
+					functionBody = Optional.of(child);
+					break;
+
+				default:
 					break;
 				}
 			}
+
+			// Add the named function to the top-most scope's function namespace
+			// or the push the anonymous function to the operand stack.
+			UserDefinedFunctionExecutor function = new UserDefinedFunctionExecutor(
+					this, name, parameterNames, parameterTypes, returnType,
+					functionBody);
+
+			if (name.isPresent()) {
+				addFunctionExecutor(function);
+			} else {
+				stack.push(new Operand(Type.FUNCTION, function));
+			}
+
 			break;
 
 		case FUNCALL:
-			// TODO: for user defined functions, introduce a new scope, bind
-			// parameters, evaluate each child AST in turn as for PROGRAM.
-			// Indeed, the body of a function is literally the PROGRAM form,
-			// as per the grammar, so we just need to evaluate the function's
-			// PROGRAM AST! We need to distinguish between intrinsic
-			// functions and user-defined functions for the purpose of: pushing
-			// a scope, invoking the body. The latter should be done as part of
-			// FunctionExecutor. We need a subclass for intrinsic and user
-			// defined functions which should handle the actual parameter
-			// list created below as appropriate for each subclass.
-			// Evaluate actual parameters, if any.
-			// TODO: A closure need not capture the zeroth environment since
-			// this is effectively the global environment
-			// TODO: is this really a special form?
 			List<Operand> params = new ArrayList<Operand>();
 
 			if (ast.hasChildren()) {
@@ -489,14 +512,27 @@ public class VeLaInterpreter {
 			applyFunction(ast.getToken(), params);
 			break;
 
+		case SELECT:
+			// Evaluate each antecedent in turn, pushing the value
+			// of the first consequent whose antecedent is true and stop
+			// antecedent evaluation.
+			for (AST pair : ast.getChildren()) {
+				eval(pair.left());
+				if (stack.peek().booleanVal()) {
+					eval(pair.right());
+					break;
+				}
+			}
+			break;
+
 		case OUT:
-			// Evaluate and print each AST. 
+			// Evaluate and print each AST.
 			for (AST child : ast.getChildren()) {
 				eval(child);
 				System.out.print(stack.pop().toHumanReadableString());
 			}
 			break;
-			
+
 		default:
 			break;
 		}
@@ -513,8 +549,9 @@ public class VeLaInterpreter {
 		Operand operand2 = stack.pop();
 		Operand operand1 = stack.pop();
 
-		// TODO Refactor to N methods; type unification is not relevant to all
-		// operations, e.g. IN; define functions for each in Operation/Operand
+		// TODO Refactor to N methods or define functions for each in
+		// Operation/Operand;
+		// type unification is not relevant to all operations, e.g. IN;
 
 		Type type = unifyTypes(operand1, operand2);
 
@@ -779,6 +816,16 @@ public class VeLaInterpreter {
 	// ** Variable related methods **
 
 	/**
+	 * Bind a name to a value in the top-most scope.
+	 * 
+	 * @param name The name to which to bind the value.
+	 * @param value The value to be bound.
+	 */
+	public void bind(String name, Operand value) {
+		environments.peek().bind(name, value);
+	}
+	
+	/**
 	 * Given a variable name, search for it in the stack of environments, return
 	 * an optional Operand instance. The search proceeds from the top to the
 	 * bottom of the stack, maintaining the natural stack ordering.
@@ -863,7 +910,10 @@ public class VeLaInterpreter {
 
 			for (FunctionExecutor function : functions.get()) {
 				if (function.conforms(params)) {
-					stack.push(function.apply(params));
+					Optional<Operand> result = function.apply(params);
+					if (result.isPresent()) {
+						stack.push(result.get());
+					}
 					match = true;
 					break;
 				}
@@ -931,16 +981,17 @@ public class VeLaInterpreter {
 	}
 
 	private void addZeroArityFunctions() {
-		addFunctionExecutor(new FunctionExecutor("TODAY", Type.DOUBLE) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"),
+				Optional.of(Type.DOUBLE)) {
 			@Override
-			public Operand apply(List<Operand> operands) {
+			public Optional<Operand> apply(List<Operand> operands) {
 				Calendar cal = Calendar.getInstance();
 				int year = cal.get(Calendar.YEAR);
 				int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
 				int day = cal.get(Calendar.DAY_OF_MONTH);
 				double jd = AbstractDateUtil.getInstance().calendarToJD(year,
 						month, day);
-				return new Operand(Type.DOUBLE, jd);
+				return Optional.of(new Operand(Type.DOUBLE, jd));
 			}
 		});
 	}
@@ -950,9 +1001,10 @@ public class VeLaInterpreter {
 		paramTypes.add(Type.LIST);
 		// Return type could be any but we use LIST here arbitrarily.
 		// TODO: perhaps we need Type.ANY
-		addFunctionExecutor(new FunctionExecutor("HEAD", paramTypes, Type.LIST) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("HEAD"),
+				paramTypes, Optional.of(Type.LIST)) {
 			@Override
-			public Operand apply(List<Operand> operands) {
+			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list = operands.get(0).listVal();
 				Operand result;
 				if (!list.isEmpty()) {
@@ -960,7 +1012,7 @@ public class VeLaInterpreter {
 				} else {
 					result = Operand.EMPTY_LIST;
 				}
-				return result;
+				return Optional.of(result);
 			}
 		});
 	}
@@ -969,9 +1021,10 @@ public class VeLaInterpreter {
 		List<Type> paramTypes = new ArrayList<Type>();
 		paramTypes.add(Type.LIST);
 		// Return type will always be a list.
-		addFunctionExecutor(new FunctionExecutor("TAIL", paramTypes, Type.LIST) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("TAIL"),
+				paramTypes, Optional.of(Type.LIST)) {
 			@Override
-			public Operand apply(List<Operand> operands) {
+			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list = operands.get(0).listVal();
 				Operand result;
 				if (!list.isEmpty()) {
@@ -981,7 +1034,7 @@ public class VeLaInterpreter {
 				} else {
 					result = Operand.EMPTY_LIST;
 				}
-				return result;
+				return Optional.of(result);
 			}
 		});
 	}
@@ -991,9 +1044,10 @@ public class VeLaInterpreter {
 		paramTypes.add(Type.LIST);
 		paramTypes.add(Type.INTEGER);
 		// Return type could be any but we use LIST here arbitrarily.
-		addFunctionExecutor(new FunctionExecutor("NTH", paramTypes, Type.LIST) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("NTH"),
+				paramTypes, Optional.of(Type.LIST)) {
 			@Override
-			public Operand apply(List<Operand> operands) {
+			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list = operands.get(0).listVal();
 				Operand result;
 				if (!list.isEmpty()) {
@@ -1001,7 +1055,7 @@ public class VeLaInterpreter {
 				} else {
 					result = Operand.EMPTY_LIST;
 				}
-				return result;
+				return Optional.of(result);
 			}
 		});
 	}
@@ -1010,12 +1064,12 @@ public class VeLaInterpreter {
 		List<Type> paramTypes = new ArrayList<Type>();
 		paramTypes.add(Type.LIST);
 		// Return type will always be integer.
-		addFunctionExecutor(new FunctionExecutor("LENGTH", paramTypes,
-				Type.INTEGER) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("LENGTH"),
+				paramTypes, Optional.of(Type.INTEGER)) {
 			@Override
-			public Operand apply(List<Operand> operands) {
-				return new Operand(Type.INTEGER, operands.get(0).listVal()
-						.size());
+			public Optional<Operand> apply(List<Operand> operands) {
+				return Optional.of(new Operand(Type.INTEGER, operands.get(0).listVal()
+						.size()));
 			}
 		});
 	}
@@ -1025,16 +1079,16 @@ public class VeLaInterpreter {
 		paramTypes.add(Type.LIST);
 		paramTypes.add(Type.LIST);
 		// Return type will always be LIST here.
-		addFunctionExecutor(new FunctionExecutor("CONCAT", paramTypes,
-				Type.LIST) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("CONCAT"),
+				paramTypes, Optional.of(Type.LIST)) {
 			@Override
-			public Operand apply(List<Operand> operands) {
+			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list1 = operands.get(0).listVal();
 				List<Operand> list2 = operands.get(1).listVal();
 				List<Operand> newList = new ArrayList<Operand>();
 				newList.addAll(list1);
 				newList.addAll(list2);
-				return new Operand(Type.LIST, newList);
+				return Optional.of(new Operand(Type.LIST, newList));
 			}
 		});
 	}
@@ -1044,14 +1098,14 @@ public class VeLaInterpreter {
 		paramTypes.add(Type.LIST);
 		paramTypes.add(secondParameterType);
 		// Return type will always be LIST here.
-		addFunctionExecutor(new FunctionExecutor("APPEND", paramTypes,
-				Type.LIST) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("APPEND"),
+				paramTypes, Optional.of(Type.LIST)) {
 			@Override
-			public Operand apply(List<Operand> operands) {
+			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> newList = new ArrayList<Operand>();
 				newList.addAll(operands.get(0).listVal());
 				newList.add(operands.get(1));
-				return new Operand(Type.LIST, newList);
+				return Optional.of(new Operand(Type.LIST, newList));
 			}
 		});
 	}
@@ -1093,29 +1147,29 @@ public class VeLaInterpreter {
 						.map(t -> Type.java2Vela(t))
 						.collect(Collectors.toList());
 
-				FunctionExecutor function = new FunctionExecutor(funcName,
-						declaredMethod, types, Type.java2Vela(returnType)) {
+				FunctionExecutor function = new FunctionExecutor(
+						Optional.of(funcName), declaredMethod, types,
+						Optional.of(Type.java2Vela(returnType))) {
 
 					@Override
-					public Operand apply(List<Operand> operands) {
+					public Optional<Operand> apply(List<Operand> operands) {
 						Method method = getMethod();
 						Operand result = null;
 						try {
-							// Note that this is the first use of Java 8
-							// lambdas in VStar!
 							Object obj = null;
 							if (!Modifier.isStatic(method.getModifiers())) {
 								obj = operands.get(0).toObject();
 								operands.remove(0);
 							}
 
-							result = Operand.object2Operand(
-									getReturnType(),
-									method.invoke(
-											obj, // null for static methods
-											operands.stream()
-													.map(op -> op.toObject())
-													.toArray()));
+							// Note that this is the first use of Java 8
+							// lambdas in VStar!
+							result = Operand.object2Operand(getReturnType()
+									.get(), method.invoke(obj, // null for
+																// static
+																// methods
+									operands.stream().map(op -> op.toObject())
+											.toArray()));
 
 						} catch (InvocationTargetException e) {
 							throw new VeLaEvalError(e.getLocalizedMessage());
@@ -1123,7 +1177,7 @@ public class VeLaInterpreter {
 							throw new VeLaEvalError(e.getLocalizedMessage());
 						}
 
-						return result;
+						return Optional.of(result);
 					}
 				};
 

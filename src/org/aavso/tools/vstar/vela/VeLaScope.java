@@ -71,11 +71,11 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	 */
 	public void addFunctionExecutor(FunctionExecutor executor) {
 		List<FunctionExecutor> executors = functions
-				.get(executor.getFuncName());
+				.get(executor.getFuncName().get());
 
 		if (executors == null) {
 			executors = new ArrayList<FunctionExecutor>();
-			functions.put(executor.getFuncName(), executors);
+			functions.put(executor.getFuncName().get(), executors);
 		}
 
 		executors.add(executor);

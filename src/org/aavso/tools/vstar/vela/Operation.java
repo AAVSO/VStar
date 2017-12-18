@@ -31,7 +31,7 @@ public enum Operation {
 			"and", 2), OR("or", 2), NOT("not", 1), EQUAL("=", 2), NOT_EQUAL(
 			"<>", 2), GREATER_THAN(">", 2), LESS_THAN("<", 2), GREATER_THAN_OR_EQUAL(
 			">=", 2), LESS_THAN_OR_EQUAL("<=", 2), APPROXIMATELY_EQUAL("=~", 2), IN(
-			"in", 2), LIST("list"), PAIR("pair"), PROGRAM("program", true), BIND(
+			"in", 2), LIST("list"), PAIR("pair"), SEQUENCE("sequence", true), BIND(
 			"bind", true), SYMBOL("symbol"), FUNDEF("fundef", true), FUNCALL(
 			"func", true), SELECT("select", true), OUT("out", true), SENTINEL(
 			"sentinel");

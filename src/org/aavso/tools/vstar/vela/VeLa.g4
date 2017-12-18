@@ -8,12 +8,15 @@ grammar VeLa;
 //   selection in functions:
 //     f <- fun(x:t1,y:t2,z:t3) -> expression-over-x,y,z
 //   | fun(x:t1,y:t2,z:t3) -> (boolean-expression : expression-over-x,y,z ...)+
+// - Consider maps
 // - internal function representation in Models dialog should use VeLa
+// - VeLa could replace or be an alternative to JavaScript for scripting
+// - Generate class files from VeLa ASTs
 
 // ** Parser rules **
 
-// A VeLa program consists of zero or more bindings or output 
-// statements, or expressions. Variable bindings are immutable, 
+// A VeLa program consists of zero or more bindings, output 
+// statements or expressions. Variable bindings are immutable, 
 // as is the operation of functions. VeLa identifiers and keywords
 // are case-insensitive.
 
@@ -23,7 +26,7 @@ grammar VeLa;
 // a filter that is a complete VeLa program that happens to
 // end in a boolean expression, then that is permitted.
 
-program
+sequence
 :
 	(
 		binding
@@ -47,14 +50,17 @@ binding
 
 namedFundef
 :
-	FUN IDENT LPAREN formalParameter?
+	FUN symbol LPAREN formalParameter?
 	(
 		comma formalParameter
-	)* RPAREN ARROW
-	(
-		program
-	)
+	)* RPAREN (COLON type)? LBRACE sequence RBRACE
 ;
+
+// TODO: use {...} for function bodies, omitting -> 
+
+// TODO: really need return type? not used for function signature comparison
+
+// TODO: add IN/INPUT/READ and change below to WRITE if necessary
 
 out
 :
@@ -164,15 +170,16 @@ exponentiationExpression
 
 factor
 :
+// Note: funcall must precede symbol to avoid errors
 	LPAREN expression RPAREN
 	| integer
 	| real
 	| bool
 	| string
 	| list
+	| funcall
 	| symbol
 	| anonFundef
-	| funcall
 ;
 
 integer
@@ -217,25 +224,26 @@ anonFundef
 	FUN LPAREN formalParameter?
 	(
 		comma formalParameter
-	)* RPAREN ARROW
-	(
-		program
-	)
+	)* RPAREN (COLON type)? LBRACE sequence RBRACE
 ;
 
 // A formal parameter consists of a name-type pair
 
 formalParameter
 :
-	IDENT COLON
-	(
-		INT_T
-		| REAL_T
-		| BOOL_T
-		| STR_T
-		| LIST_T
-		| FUN
-	)
+	symbol COLON type
+;
+
+// TODO: make it int, bool, real ...
+
+type
+: 		
+	INT_T
+	| REAL_T
+	| BOOL_T
+	| STR_T
+	| LIST_T
+	| FUN
 ;
 
 // A function call consists of a function object followed 
@@ -251,13 +259,12 @@ funcall
 
 // IDENT corresponds to an explicit function name
 // var allows a HOF (let binding or function parameter)
-// fundef allows an anonymous function
+// anonFundef allows an anonymous function
 
 funobj
 :
 	(
 		IDENT
-		| symbol
 		| anonFundef
 	)
 ;
@@ -277,6 +284,16 @@ SELECT
 BACK_ARROW
 :
 	'<-'
+;
+
+COLON
+:
+	':'
+;
+
+ARROW
+:
+	'->'
 ;
 
 OUT
@@ -303,7 +320,7 @@ REAL_T
 
 BOOL_T
 :
-	[Bb] [Oo] [Oo] [Ll]
+	[Bb] [Oo] [Oo] [Ll] [Ee] [Aa] [Nn]
 ;
 
 STR_T
@@ -314,16 +331,6 @@ STR_T
 LIST_T
 :
 	[Ll] [Ii] [Ss] [Tt]
-;
-
-COLON
-:
-	':'
-;
-
-ARROW
-:
-	'->'
 ;
 
 MINUS
@@ -415,6 +422,16 @@ RBRACKET
 	']'
 ;
 
+LBRACE
+:
+	'{'
+;
+
+RBRACE
+:
+	'}'
+;
+
 PERIOD
 :
 	'.'
@@ -469,15 +486,15 @@ BOOLEAN
 fragment
 TRUE
 :
-	'T'
-	| 't'
+	'#T'
+	| '#t'
 ;
 
 fragment
 FALSE
 :
-	'F'
-	| 'f'
+	'#F'
+	| '#f'
 ;
 
 fragment
@@ -503,15 +520,19 @@ EXPONENT_INDICATOR
 ;
 
 IDENT
+// TODO: exclude what isn't permitted in an identifier rather than including what can
 :
 	(
 		LETTER
 		| UNDERSCORE
+		| QUESTION
 	)
 	(
 		LETTER
 		| DIGIT
 		| UNDERSCORE
+		| QUESTION
+		
 	)*
 ;
 
@@ -525,6 +546,11 @@ LETTER
 UNDERSCORE
 :
 	'_'
+;
+
+QUESTION
+:
+	'?'
 ;
 
 STRING
