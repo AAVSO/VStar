@@ -52,9 +52,9 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	 */
 	@Override
 	public void bind(String name, Operand value) {
-//		if (value.getType() == Type.FUNCTION) {
-//			addFunctionExecutor(value.functionVal());
-//		} else 
+		// if (value.getType() == Type.FUNCTION) {
+		// addFunctionExecutor(value.functionVal());
+		// } else
 		if (!lookup(name).isPresent()) {
 			super.bind(name, value);
 		} else {
@@ -70,8 +70,8 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	 *            The function executor to be added.
 	 */
 	public void addFunctionExecutor(FunctionExecutor executor) {
-		List<FunctionExecutor> executors = functions
-				.get(executor.getFuncName().get());
+		List<FunctionExecutor> executors = functions.get(executor.getFuncName()
+				.get());
 
 		if (executors == null) {
 			executors = new ArrayList<FunctionExecutor>();
@@ -89,6 +89,12 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	 * @return An optional list of function executors.
 	 */
 	public Optional<List<FunctionExecutor>> lookupFunction(String name) {
-		return Optional.of(functions.get(name));
+		Optional<List<FunctionExecutor>> funList = Optional.empty();
+
+		if (functions.containsKey(name)) {
+			funList = Optional.of(functions.get(name));
+		}
+
+		return funList;
 	}
 }

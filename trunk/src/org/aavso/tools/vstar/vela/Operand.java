@@ -284,7 +284,8 @@ public class Operand {
 	}
 
 	/**
-	 * @param functionVal the functionVal to set
+	 * @param functionVal
+	 *            the functionVal to set
 	 */
 	public void setFunctionVal(FunctionExecutor functionVal) {
 		this.functionVal = functionVal;
@@ -311,7 +312,7 @@ public class Operand {
 					.replace("]", ")");
 			break;
 		case FUNCTION:
-			str = "<function " + functionVal.getFuncName() + ">";
+			str = "<" + functionVal + ">";
 			break;
 		}
 
@@ -340,7 +341,7 @@ public class Operand {
 					.replace("]", ")");
 			break;
 		case FUNCTION:
-			str = "<function " + functionVal.getFuncName() + ">";
+			str = "<" + functionVal + ">";
 			break;
 		}
 

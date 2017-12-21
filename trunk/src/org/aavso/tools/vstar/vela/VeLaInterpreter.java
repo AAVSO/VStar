@@ -347,6 +347,7 @@ public class VeLaInterpreter {
 	 * <p>
 	 * I've also just noticed that VeLa is an anagram of eval! :)
 	 * </p>
+	 * 
 	 * @param ast
 	 *            The abstract syntax tree.
 	 * @throws VeLaEvalError
@@ -395,10 +396,15 @@ public class VeLaInterpreter {
 				// the operand stack if it exists, looking for and evaluating a
 				// function if not, throwing an exception otherwise.
 				String varName = ast.getToken().toUpperCase();
+				// TODO: lookupBinding also needs to call lookupFunctions() and
+				// create an operand from a function name; crucial for HOFs!
+				// The first function will in the list will have to be chosen in
+				// the absence of parameter type information
 				Optional<Operand> result = lookupBinding(varName);
 				if (result.isPresent()) {
 					stack.push(result.get());
 				} else {
+					// TODO: or function...
 					throw new VeLaEvalError("Unknown variable: \""
 							+ ast.getToken() + "\"");
 				}
@@ -448,17 +454,20 @@ public class VeLaInterpreter {
 			break;
 
 		case FUNDEF:
+			// Does this function have a name or is it anonymous?
 			Optional<String> name = Optional.empty();
 			if (ast.getChildren().get(0).getOp() == Operation.SYMBOL) {
 				name = Optional.of(ast.getChildren().get(0).getToken());
 			}
 
+			// Extract components from AST in order to create a function
+			// executor.
 			List<String> parameterNames = new ArrayList<String>();
 			List<Type> parameterTypes = new ArrayList<Type>();
 			Optional<Type> returnType = Optional.empty();
 			Optional<AST> functionBody = Optional.empty();
 
-			for (int i = 1; i < ast.getChildren().size(); i++) {
+			for (int i = name.isPresent() ? 1 : 0; i < ast.getChildren().size(); i++) {
 				AST child = ast.getChildren().get(i);
 				switch (child.getOp()) {
 				case PAIR:
@@ -497,6 +506,8 @@ public class VeLaInterpreter {
 		case FUNCALL:
 			List<Operand> params = new ArrayList<Operand>();
 
+			FunctionExecutor anon = null;
+
 			if (ast.hasChildren()) {
 				for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
 					eval(ast.getChildren().get(i));
@@ -504,12 +515,24 @@ public class VeLaInterpreter {
 
 				// Prepare actual parameter list.
 				for (int i = 1; i <= ast.getChildren().size(); i++) {
-					params.add(stack.pop());
+					Operand value = stack.pop();
+					if (value.getType() != Type.FUNCTION) {
+						params.add(value);
+					} else {
+						anon = value.functionVal();
+					}
 				}
 			}
 
 			// Apply function to actual parameters.
-			applyFunction(ast.getToken(), params);
+			if (anon == null) {
+				applyFunction(ast.getToken(), params);
+			} else {
+				if (!applyFunction(anon, params)) {
+					throw new VeLaEvalError(
+							"Invalid parameters for function: \"" + anon + "\"");
+				}
+			}
 			break;
 
 		case SELECT:
@@ -518,7 +541,7 @@ public class VeLaInterpreter {
 			// antecedent evaluation.
 			for (AST pair : ast.getChildren()) {
 				eval(pair.left());
-				if (stack.peek().booleanVal()) {
+				if (stack.pop().booleanVal()) {
 					eval(pair.right());
 					break;
 				}
@@ -818,13 +841,15 @@ public class VeLaInterpreter {
 	/**
 	 * Bind a name to a value in the top-most scope.
 	 * 
-	 * @param name The name to which to bind the value.
-	 * @param value The value to be bound.
+	 * @param name
+	 *            The name to which to bind the value.
+	 * @param value
+	 *            The value to be bound.
 	 */
 	public void bind(String name, Operand value) {
 		environments.peek().bind(name, value);
 	}
-	
+
 	/**
 	 * Given a variable name, search for it in the stack of environments, return
 	 * an optional Operand instance. The search proceeds from the top to the
@@ -909,14 +934,9 @@ public class VeLaInterpreter {
 			boolean match = false;
 
 			for (FunctionExecutor function : functions.get()) {
-				if (function.conforms(params)) {
-					Optional<Operand> result = function.apply(params);
-					if (result.isPresent()) {
-						stack.push(result.get());
-					}
-					match = true;
+				match = applyFunction(function, params);
+				if (match)
 					break;
-				}
 			}
 
 			if (!match) {
@@ -926,6 +946,34 @@ public class VeLaInterpreter {
 		} else {
 			throw new VeLaEvalError("Unknown function: \"" + funcName + "\"");
 		}
+	}
+
+	/**
+	 * Apply the function to the supplied parameter list if it conforms to them,
+	 * leaving the result on the stack.
+	 * 
+	 * @param function
+	 *            The function executor to be applied to the supplied
+	 *            parameters.
+	 * @param params
+	 *            The parameter list.
+	 * @return Does the function conform to the actual parameters?
+	 * @throws VeLaEvalError
+	 *             If a function evaluation error occurs.
+	 */
+	private boolean applyFunction(FunctionExecutor function,
+			List<Operand> params) throws VeLaEvalError {
+
+		boolean conforms = function.conforms(params);
+
+		if (conforms) {
+			Optional<Operand> result = function.apply(params);
+			if (result.isPresent()) {
+				stack.push(result.get());
+			}
+		}
+
+		return conforms;
 	}
 
 	/**
@@ -1068,8 +1116,8 @@ public class VeLaInterpreter {
 				paramTypes, Optional.of(Type.INTEGER)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
-				return Optional.of(new Operand(Type.INTEGER, operands.get(0).listVal()
-						.size()));
+				return Optional.of(new Operand(Type.INTEGER, operands.get(0)
+						.listVal().size()));
 			}
 		});
 	}

@@ -172,9 +172,19 @@ public abstract class FunctionExecutor {
 		return returnType;
 	}
 
+	@Override
 	public String toString() {
-		return String.format("%s :: %s -> %s", funcName, parameterTypes,
-				returnType);
+		StringBuffer buf = new StringBuffer();
+		
+		buf.append(String.format("%s :: %s",
+				funcName.isPresent() ? funcName.get() : "anonymous",
+				parameterTypes));
+		
+		if (returnType.isPresent()) {
+			buf.append(String.format(" -> %s", returnType.get()));
+		}
+		
+		return buf.toString();
 	}
 
 	@Override

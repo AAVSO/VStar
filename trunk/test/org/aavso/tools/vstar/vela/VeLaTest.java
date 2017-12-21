@@ -666,14 +666,68 @@ public class VeLaTest extends TestCase {
 
 	// User defined functions
 
-	public void testNamedFunc1() {
+	public void testNamedFunSquare() {
 		String prog = "";
-		prog += "fun f(x:integer, y:integer) { x^y }\n";
+		prog += "f(x:integer, y:integer) : integer { x^y }\n";
 		prog += "x <- f(12, 2)\n";
 		prog += "x";
-		
+
 		Optional<Operand> result = vela.program(prog);
-		
+
+		assertTrue(result.isPresent());
+		assertEquals(144, result.get().intVal());
+	}
+
+	public void testNamedFunWithSelect() {
+		String prog = "";
+		prog += "f(n:integer) : integer {";
+		prog += "    select";
+		prog += "      n <= 0 -> 1";
+		prog += "      #t -> n*n";
+		prog += "}";
+		prog += "x <- f(12)";
+		prog += "x";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(144, result.get().intVal());
+	}
+
+	public void testNamedFunRecursiveLoop() {
+		String prog = "";
+		prog += "loop(n:integer) {";
+		prog += "    out n, \"^2 = \", n*n, \"\n\"";
+		prog += "    select n < 10 -> loop(n+1)";
+		prog += "}";
+		prog += "loop(1)";
+
+		vela.program(prog);
+	}
+
+	// Turing Completeness: Dec 20 2018, 18:55 :)
+	public void testNamedFunRecursiveFactorial() {
+		String prog = "";
+		prog += "fact(n:integer) : integer {";
+		prog += "    select";
+		prog += "      n <= 0 -> 1";
+		prog += "      #t -> n*fact(n-1)";
+		prog += "}";
+		prog += "x <- fact(6)";
+		prog += "x";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(720, result.get().intVal());
+	}
+
+	public void testAnonFunSquare() {
+		// TODO: whitespace is significant in parameter lists
+		String prog = "function(x:integer, y:integer) { x^y }(12, 2)";
+
+		Optional<Operand> result = vela.program(prog);
+
 		assertTrue(result.isPresent());
 		assertEquals(144, result.get().intVal());
 	}
@@ -686,10 +740,10 @@ public class VeLaTest extends TestCase {
 		prog += "x <- 12\n";
 		prog += "y <- x*x\n";
 		prog += "out \"x squared is \", y, \"\n\"\n";
-				prog += "x";
-				
+		prog += "x";
+
 		Optional<Operand> result = vela.program(prog);
-		
+
 		assertTrue(result.isPresent());
 		assertEquals(12, result.get().intVal());
 
@@ -781,6 +835,20 @@ public class VeLaTest extends TestCase {
 			fail();
 		} catch (VeLaEvalError e) {
 			assertEquals(e.getMessage(), "42/0: division by zero error");
+		}
+	}
+
+	public void testFunProperlyTailRecursive1() {
+		String prog = "";
+		prog += "infinite_loop() {";
+		prog += "    infinite_loop()";
+		prog += "}";
+		prog += "infinite_loop()";
+
+		try {
+			vela.program(prog);
+		} catch (StackOverflowError e) {
+			// We expect to end up here 
 		}
 	}
 

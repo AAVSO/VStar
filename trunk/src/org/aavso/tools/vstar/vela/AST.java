@@ -106,14 +106,6 @@ public class AST {
 		children.addFirst(child);
 	}
 
-	public boolean isLiteral() {
-		return literal != null;
-	}
-
-	public Type getLiteralType() {
-		return literal.getType();
-	}
-
 	public boolean hasChildren() {
 		return children != null;
 	}
@@ -138,8 +130,21 @@ public class AST {
 		return children.get(1);
 	}
 
+	public AST lastChild() {
+		assert !isLeaf();
+		return children.getLast();
+	}
+
 	public boolean isLeaf() {
 		return children == null;
+	}
+
+	public boolean isLiteral() {
+		return literal != null;
+	}
+
+	public Type getLiteralType() {
+		return literal.getType();
 	}
 
 	/**
@@ -184,7 +189,7 @@ public class AST {
 		if (literal != null) {
 			buf.append(literal);
 		} else if (isLeaf()) {
-			// e.g. variable, sentinel
+			// e.g. variable, function definition/call, sentinel
 			buf.append(token);
 		} else {
 			buf.append("(");
