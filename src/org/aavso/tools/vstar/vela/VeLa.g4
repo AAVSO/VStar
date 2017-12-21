@@ -4,14 +4,19 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - let binding of any expression, including functions (HOFs)
-//   selection in functions:
-//     f <- fun(x:t1,y:t2,z:t3) -> expression-over-x,y,z
-//   | fun(x:t1,y:t2,z:t3) -> (boolean-expression : expression-over-x,y,z ...)+
 // - Consider maps
 // - internal function representation in Models dialog should use VeLa
 // - VeLa could replace or be an alternative to JavaScript for scripting
 // - Generate class files from VeLa ASTs
+// - Functions should be properly tail recursive to allow loops
+//   o final AST in function is a recursive call, or
+//   o final SELECT AST consequent is a recursive call 
+// - Functions should be closures; need to capture environment
+// - Add eval() and compile() functions
+//   o need to be able to tell whether eval() has left a value on the stack;
+//     could do this by returning boolean and having a pop() function
+//   o compile() returns AST as list and/or S-expression
+// - Allow S-expressions to be evaluated
 
 // ** Parser rules **
 
@@ -50,13 +55,11 @@ binding
 
 namedFundef
 :
-	FUN symbol LPAREN formalParameter?
+	symbol LPAREN formalParameter?
 	(
 		comma formalParameter
 	)* RPAREN (COLON type)? LBRACE sequence RBRACE
 ;
-
-// TODO: use {...} for function bodies, omitting -> 
 
 // TODO: really need return type? not used for function signature comparison
 
@@ -82,6 +85,7 @@ selectionExpression
 :
 	SELECT
 	(
+		// TODO: should be expression on RHS; allows nested select!
 		booleanExpression ARROW booleanExpression
 	)+
 ;
@@ -216,8 +220,8 @@ symbol
 ;
 
 // An anonymous function definition, when invoked, introduces an additional 
-// environment and allows all VeLa program elements operating over that environment 
-// and its predecessors.
+// environment and allows all VeLa program elements operating over that 
+// environment and its predecessors.
 
 anonFundef
 :
@@ -276,11 +280,6 @@ comma
 
 // ** Lexer rules **
 
-SELECT
-:
-	[Ss] [Ee] [Ll] [Ee] [Cc] [Tt]
-;
-
 BACK_ARROW
 :
 	'<-'
@@ -301,11 +300,18 @@ OUT
 	[Oo] [Uu] [Tt]
 ;
 
-// Used for function definition and parameter type
+// TODO: or case or if?
 
+SELECT
+:
+	[Ss] [Ee] [Ll] [Ee] [Cc] [Tt]
+;
+
+// Used for function definition and type
+// TODO: or define?
 FUN
 :
-	[Ff] [Uu] [Nn]
+	[Ff] [Uu] [Nn] [Cc] [Tt] [Ii] [Oo] [Nn]
 ;
 
 INT_T

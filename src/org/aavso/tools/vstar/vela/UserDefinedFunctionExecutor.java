@@ -86,7 +86,9 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
 		// parameters to the formal parameters, evaluate the body AST and pop
 		// the scope.
 		if (ast.isPresent()) {
-			vela.pushEnvironment(new VeLaScope());
+			if (!isTailRecursive()) {
+				vela.pushEnvironment(new VeLaScope());
+			}
 
 			for (int i = 0; i < operands.size(); i++) {
 				vela.bind(parameterNames.get(i), operands.get(i));
@@ -94,11 +96,34 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
 
 			vela.eval(ast.get());
 
-			vela.popEnvironment();
+			if (!isTailRecursive()) {
+				vela.popEnvironment();
+			}
 		}
 
 		// The result, if any, will be on the stack.
-		// TODO: Should we distinguish between functions and procedures?
 		return Optional.empty();
+	}
+
+	/**
+	 * Is the function body tail recursive?
+	 */
+	private boolean isTailRecursive() {
+		boolean isTailRecursive = false;
+
+		AST lastChild = ast.get().lastChild();
+
+		switch (lastChild.getOp()) {
+		case FUNCALL:
+			if (getFuncName().isPresent()
+					&& getFuncName().get().equalsIgnoreCase(
+							lastChild.getToken())) {
+				isTailRecursive = true;
+			}
+			break;
+		default:
+		}
+
+		return isTailRecursive;
 	}
 }
