@@ -392,21 +392,28 @@ public class VeLaInterpreter {
 					break;
 				}
 			} else if (ast.getOp() == Operation.SYMBOL) {
-				// Look up variable in the environment stack, pushing it onto
-				// the operand stack if it exists, looking for and evaluating a
-				// function if not, throwing an exception otherwise.
-				String varName = ast.getToken().toUpperCase();
-				// TODO: lookupBinding also needs to call lookupFunctions() and
-				// create an operand from a function name; crucial for HOFs!
-				// The first function will in the list will have to be chosen in
-				// the absence of parameter type information
-				Optional<Operand> result = lookupBinding(varName);
+				// Look up variable or function in the environment stack,
+				// pushing it onto the operand stack if it exists, looking for
+				// and evaluating a function if not, throwing an exception
+				// otherwise.
+				String name = ast.getToken().toUpperCase();
+				// Bound symbol?
+				Optional<Operand> result = lookupBinding(name);
 				if (result.isPresent()) {
 					stack.push(result.get());
 				} else {
-					// TODO: or function...
-					throw new VeLaEvalError("Unknown variable: \""
-							+ ast.getToken() + "\"");
+					// Function?
+					Optional<List<FunctionExecutor>> funList = lookupFunctions(name);
+					if (funList.isPresent()) {
+						// The first function will in the list is chosen in the
+						// absence of parameter type information.
+						stack.push(new Operand(Type.FUNCTION, funList.get()
+								.get(0)));
+					} else {
+						throw new VeLaEvalError(
+								"Unknown variable or function: \""
+										+ ast.getToken() + "\"");
+					}
 				}
 			} else if (ast.getOp() == Operation.LIST) {
 				// Evaluate list elements.
@@ -930,9 +937,11 @@ public class VeLaInterpreter {
 
 		Optional<List<FunctionExecutor>> functions = lookupFunctions(canonicalFuncName);
 
-		if (functions.isPresent()) {
-			boolean match = false;
+		boolean match = false;
 
+		if (functions.isPresent()) {
+			// First look for the name in the function namespace and try to
+			// apply it.
 			for (FunctionExecutor function : functions.get()) {
 				match = applyFunction(function, params);
 				if (match)
@@ -944,7 +953,18 @@ public class VeLaInterpreter {
 						+ funcName + "\"");
 			}
 		} else {
-			throw new VeLaEvalError("Unknown function: \"" + funcName + "\"");
+			// Instead of being a named function, it may be a function that's
+			// been bound to a symbol, so try that next.
+			Optional<Operand> value = lookupBinding(canonicalFuncName);
+
+			if (value.isPresent()) {
+				if (value.get().getType() == Type.FUNCTION) {
+					applyFunction(value.get().functionVal(), params);
+				}
+			} else {
+				throw new VeLaEvalError("Unknown function: \"" + funcName
+						+ "\"");
+			}
 		}
 	}
 
@@ -1001,7 +1021,7 @@ public class VeLaInterpreter {
 
 		addZeroArityFunctions();
 
-		// TODO: add map, reduce and foreach, especially once we have
+		// TODO: add map, reduce and for, especially once we have
 		// user-defined functions
 		addListHeadFunction();
 		addListTailFunction();

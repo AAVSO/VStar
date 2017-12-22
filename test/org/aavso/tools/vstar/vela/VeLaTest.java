@@ -705,7 +705,7 @@ public class VeLaTest extends TestCase {
 		vela.program(prog);
 	}
 
-	// Turing Completeness: Dec 20 2018, 18:55 :)
+	// Turing Completeness attained: Dec 20 2018, 18:55 :)
 	public void testNamedFunRecursiveFactorial() {
 		String prog = "";
 		prog += "fact(n:integer) : integer {";
@@ -730,6 +730,22 @@ public class VeLaTest extends TestCase {
 
 		assertTrue(result.isPresent());
 		assertEquals(144, result.get().intVal());
+	}
+
+	public void testFunAsOperand() {
+		String prog = "";
+		prog += "fact(n:integer) : integer {";
+		prog += "    select";
+		prog += "      n <= 0 -> 1";
+		prog += "      #t -> n*fact(n-1)";
+		prog += "}";
+		prog += "f <- fact\n";
+		prog += "f(6)";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(720, result.get().intVal());
 	}
 
 	// Bindings
