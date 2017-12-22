@@ -11,12 +11,20 @@ grammar VeLa;
 // - Functions should be properly tail recursive to allow loops
 //   o final AST in function is a recursive call, or
 //   o final SELECT AST consequent is a recursive call 
+//   Detecting tail recursion is easy enough and not pushing VeLa scopes is also easy, 
+//   but eliminating recursive calls to eval() is harder
+//   May need while loops after all
 // - Functions should be closures; need to capture environment
 // - Add eval() and compile() functions
 //   o need to be able to tell whether eval() has left a value on the stack;
 //     could do this by returning boolean and having a pop() function
 //   o compile() returns AST as list and/or S-expression
 // - Allow S-expressions to be evaluated
+// - Need a FFI
+// - Add for, map, reduce
+// - Object-based starting with maps (object keyword)
+//   o Implicit (or explicit) reference to map available to functions in map
+// - Optional types for let bindings
 
 // ** Parser rules **
 
@@ -58,7 +66,10 @@ namedFundef
 	symbol LPAREN formalParameter?
 	(
 		comma formalParameter
-	)* RPAREN (COLON type)? LBRACE sequence RBRACE
+	)* RPAREN
+	(
+		COLON type
+	)? LBRACE sequence RBRACE
 ;
 
 // TODO: really need return type? not used for function signature comparison
@@ -85,7 +96,7 @@ selectionExpression
 :
 	SELECT
 	(
-		// TODO: should be expression on RHS; allows nested select!
+	// TODO: should be expression on RHS; allows nested select!
 		booleanExpression ARROW booleanExpression
 	)+
 ;
@@ -228,7 +239,10 @@ anonFundef
 	FUN LPAREN formalParameter?
 	(
 		comma formalParameter
-	)* RPAREN (COLON type)? LBRACE sequence RBRACE
+	)* RPAREN
+	(
+		COLON type
+	)? LBRACE sequence RBRACE
 ;
 
 // A formal parameter consists of a name-type pair
@@ -241,7 +255,7 @@ formalParameter
 // TODO: make it int, bool, real ...
 
 type
-: 		
+:
 	INT_T
 	| REAL_T
 	| BOOL_T
@@ -309,6 +323,7 @@ SELECT
 
 // Used for function definition and type
 // TODO: or define?
+
 FUN
 :
 	[Ff] [Uu] [Nn] [Cc] [Tt] [Ii] [Oo] [Nn]
@@ -527,6 +542,7 @@ EXPONENT_INDICATOR
 
 IDENT
 // TODO: exclude what isn't permitted in an identifier rather than including what can
+
 :
 	(
 		LETTER
@@ -538,7 +554,6 @@ IDENT
 		| DIGIT
 		| UNDERSCORE
 		| QUESTION
-		
 	)*
 ;
 
