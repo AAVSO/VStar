@@ -516,18 +516,28 @@ public class VeLaInterpreter {
 			FunctionExecutor anon = null;
 
 			if (ast.hasChildren()) {
-				for (int i = ast.getChildren().size() - 1; i >= 0; i--) {
+				int childLimit = 0;
+
+				// TODO: it would be better if the FUNDEF AST was at the head
+				// of the list and the null token was supplanted by it; would
+				// also make VeLa's ASTs closer to Lisp s-expressions
+				if (ast.getToken() == null) {
+					if (ast.getChildren().get(0).getOp() == Operation.FUNDEF) {
+						// Anonymous functions
+						eval(ast.getChildren().get(0));
+						anon = stack.pop().functionVal();
+						childLimit = 1;
+					}
+				}
+
+				for (int i = ast.getChildren().size() - 1; i >= childLimit; i--) {
 					eval(ast.getChildren().get(i));
 				}
 
 				// Prepare actual parameter list.
-				for (int i = 1; i <= ast.getChildren().size(); i++) {
+				for (int i = childLimit; i <= ast.getChildren().size() - 1; i++) {
 					Operand value = stack.pop();
-					if (value.getType() != Type.FUNCTION) {
-						params.add(value);
-					} else {
-						anon = value.functionVal();
-					}
+					params.add(value);
 				}
 			}
 
@@ -1021,8 +1031,7 @@ public class VeLaInterpreter {
 
 		addZeroArityFunctions();
 
-		// TODO: add map, reduce and for, especially once we have
-		// user-defined functions
+		// TODO: add reduce, for, filter
 		addListHeadFunction();
 		addListTailFunction();
 		addListNthFunction();
@@ -1033,6 +1042,7 @@ public class VeLaInterpreter {
 		addListAppendFunction(Type.INTEGER);
 		addListAppendFunction(Type.DOUBLE);
 		addListAppendFunction(Type.BOOLEAN);
+		addMapFunction();
 
 		// Functions from reflection over Math and String classes.
 		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
@@ -1042,10 +1052,11 @@ public class VeLaInterpreter {
 		permittedTypes.add(String.class);
 		permittedTypes.add(CharSequence.class);
 
-		addFunctionExecutors(Math.class, permittedTypes, Collections.emptySet());
+		addIntrinsicFunctionExecutors(Math.class, permittedTypes,
+				Collections.emptySet());
 
-		addFunctionExecutors(String.class, permittedTypes, new HashSet<String>(
-				Arrays.asList("JOIN")));
+		addIntrinsicFunctionExecutors(String.class, permittedTypes,
+				new HashSet<String>(Arrays.asList("JOIN")));
 	}
 
 	private void addZeroArityFunctions() {
@@ -1178,6 +1189,42 @@ public class VeLaInterpreter {
 		});
 	}
 
+	private void addMapFunction() {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.FUNCTION);
+		paramTypes.add(Type.LIST);
+		// Return type will always be LIST here.
+		addFunctionExecutor(new FunctionExecutor(Optional.of("MAP"),
+				paramTypes, Optional.of(Type.LIST)) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				FunctionExecutor fun = operands.get(0).functionVal();
+				List<Operand> list = operands.get(1).listVal();
+				List<Operand> resultList = new ArrayList<Operand>();
+				for (Operand item : list) {
+					List<Operand> params = null;
+
+					// If the list element is a list, use these as the actual
+					// parameters, otherwise create an actual parameter list
+					// from the list item.
+					if (item.getType() == Type.LIST) {
+						params = item.listVal();
+					} else {
+						params = new ArrayList<Operand>();
+						params.add(item);
+					}
+
+					fun.apply(params);
+					
+					if (!stack.isEmpty()) {
+						resultList.add(stack.pop());						
+					}
+				}
+				return Optional.of(new Operand(Type.LIST, resultList));
+			}
+		});
+	}
+
 	/**
 	 * Given a class, add non zero-arity VeLa type compatible functions to the
 	 * functions map.
@@ -1189,7 +1236,7 @@ public class VeLaInterpreter {
 	 * @param exclusions
 	 *            Names of functions to exclude.
 	 */
-	private void addFunctionExecutors(Class<?> clazz,
+	private void addIntrinsicFunctionExecutors(Class<?> clazz,
 			Set<Class<?>> permittedTypes, Set<String> exclusions) {
 		Method[] declaredMethods = clazz.getDeclaredMethods();
 

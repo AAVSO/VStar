@@ -63,6 +63,8 @@ public enum Type {
 			vtype = BOOLEAN;
 		} else if ("list".equalsIgnoreCase(type)) {
 			vtype = LIST;
+		} else if ("function".equalsIgnoreCase(type)) {
+			vtype = FUNCTION;
 		} else {
 			throw new IllegalArgumentException("Invalid type: " + type);
 		}
