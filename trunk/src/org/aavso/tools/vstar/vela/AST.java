@@ -182,6 +182,9 @@ public class AST {
 		return deterministic;
 	}
 
+	// TODO: if token is null but there are children, show first child (head)
+	// Also, add a head() function, e.g. for use by FUNCALL special form
+	
 	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer();

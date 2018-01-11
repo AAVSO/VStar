@@ -4,27 +4,41 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - Consider maps
-// - internal function representation in Models dialog should use VeLa
+// - Internal function representation in Models dialog should use VeLa
 // - VeLa could replace or be an alternative to JavaScript for scripting
 // - Generate class files from VeLa ASTs
 // - Functions should be properly tail recursive to allow loops
 //   o final AST in function is a recursive call, or
 //   o final SELECT AST consequent is a recursive call 
 //   Detecting tail recursion is easy enough and not pushing VeLa scopes is also easy, 
-//   but eliminating recursive calls to eval() is harder
-//   May need while loops after all
-// - Functions should be closures; need to capture environment
+//   but eliminating recursive calls to eval() is harder; compiling VeLa could do it
 // - Add eval() and compile() functions
 //   o need to be able to tell whether eval() has left a value on the stack;
 //     could do this by returning boolean and having a pop() function
 //   o compile() returns AST as list and/or S-expression
 // - Allow S-expressions to be evaluated
 // - Need a FFI
-// - Add for, map, reduce
-// - Object-based starting with maps (object keyword)
+// - Add for, map, reduce, filter
+// - May need while loops: while booleanExpression { ... }
+// - Add maps; -> as key-value pair delimiter, e.g. m <- [ key -> value, ... ];
+//   probably use : actually; we already use -> for select statements
+// - Object-based starting with maps (object keyword); actually structs since
+//   keys in maps can be any value at all, not only bindings
 //   o Implicit (or explicit) reference to map available to functions in map
+//   o A function in an object map could have either the non-function contents 
+//     of the map added to the current scope or a self/this variable pointed 
+//     to the map
+// - Functions need to capture environments (scopes only) beyond the global 
+//   environment (zeroth scope) and reuse them at function invocation time
+// - Check optional return type against what is on the stack after function ends
 // - Optional types for let bindings
+// - Whitespace is significant in parameter lists because we allow commas in numbers;
+//   so, remove commas as parameter list and list delimiters 
+// - The interpreter could be used by the compiler for deterministic ASTs;
+//   that assumes the compiler generates Java (or whatever the interpreter
+//   is written in, e.g. VeLa)
+// - Add .. operator as shorthand for creating numeric lists over a range
+// - Y-combinator in VeLa
 
 // ** Parser rules **
 
@@ -50,7 +64,8 @@ sequence
 ;
 
 // The intention of the semantics are that within a given scope,
-// a binding cannot be repeated without error.
+// a binding cannot be repeated without error. I note that F# uses
+// <- for modifying mutable values
 
 binding
 :
@@ -59,7 +74,10 @@ binding
 
 // A named function definition, when invoked, introduces an additional 
 // environment and allows all VeLa program elements operating over that 
-// environment and its predecessors.
+// environment and its predecessors. name:type pays homage to Pascal, 
+// OCaml/F# and Swift.
+// TODO: Should consider using -> vs : for return type ala ML
+//       Alternatively, use colons EVERYWHERE -> cou'ld be used, e.g. in select
 
 namedFundef
 :
@@ -72,7 +90,8 @@ namedFundef
 	)? LBRACE sequence RBRACE
 ;
 
-// TODO: really need return type? not used for function signature comparison
+// TODO: really need return type? not used for function signature comparison;
+// should use for type checking result of function (dynamically at first)
 
 // TODO: add IN/INPUT/READ and change below to WRITE if necessary
 
@@ -91,7 +110,8 @@ expression
 ;
 
 // Homage to Haskell/Scala/Erlang functional-style cases
-
+// TODO: or MATCH (OCaml) or IF or CASE; in OCaml, MATCH is arbitrary
+// pattern matching not just booleans; SELECT|IF
 selectionExpression
 :
 	SELECT
@@ -322,7 +342,7 @@ SELECT
 ;
 
 // Used for function definition and type
-// TODO: or define?
+// TODO: or define? or just fun as per ML ...
 
 FUN
 :
@@ -504,6 +524,7 @@ BOOLEAN
 	| FALSE
 ;
 
+// #t pays homage to (Common) Lisp; #f?
 fragment
 TRUE
 :

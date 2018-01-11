@@ -225,17 +225,18 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 								.get("MODEL_INFO_FUNCTION_TITLE"));
 
 						if (strRepr == null) {
-							strRepr = "f(t) = ";
+							strRepr = "function(t:real) : real {\n";
 
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += coeffs[i];
-								strRepr += "(t-"
+								strRepr += "    " + coeffs[i];
+								strRepr += "*(t-"
 										+ NumericPrecisionPrefs
 												.formatTime(zeroPoint) + ")^"
 										+ i + " +\n";
 							}
-							strRepr += coeffs[0];
+							strRepr += "    " + coeffs[0];
+							strRepr += "\n}";
 						}
 
 						return strRepr;

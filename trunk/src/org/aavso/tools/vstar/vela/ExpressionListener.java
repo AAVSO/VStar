@@ -138,7 +138,7 @@ public class ExpressionListener extends VeLaBaseListener {
 			AST child = astStack.pop();
 			// TODO: where is the additional sentinel coming from?
 			if (child.getOp() == Operation.SENTINEL)
-				break;			
+				break;
 			ast.addFirstChild(child);
 		}
 		astStack.push(ast);
@@ -339,6 +339,11 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void exitFuncall(FuncallContext ctx) {
 		String func = ctx.getChild(0).getText().toUpperCase();
+		if (func.startsWith("FUNCTION(")) {
+			// This is an anonymous function
+			func = null;
+		}
+			
 		AST ast = new AST(func, Operation.FUNCALL);
 		while (!astStack.isEmpty()) {
 			AST child = astStack.pop();
@@ -346,6 +351,7 @@ public class ExpressionListener extends VeLaBaseListener {
 				break;
 			ast.addFirstChild(child);
 		}
+		
 		astStack.push(ast);
 	}
 

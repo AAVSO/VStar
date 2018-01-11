@@ -732,7 +732,32 @@ public class VeLaTest extends TestCase {
 		assertEquals(144, result.get().intVal());
 	}
 
-	public void testFunAsOperand() {
+	public void testHOF1() {
+		String prog = "";
+		prog += "func1(g:function, n:integer) {";
+		prog += "    x <- g(n)";
+		prog += "    out \"sin \", n, \" = \", x, \"\n\"" ;
+		prog += "    x";
+		prog += "}\n";
+
+//		prog += "fact(n:integer) : integer {";
+//		prog += "    select";
+//		prog += "      n <= 0 -> 1";
+//		prog += "      #t -> n*fact(n-1)";
+//		prog += "}\n";
+
+		// Note: this yields a malformed FUNDEF AST
+//		prog += "x <- f(fact, function(x:integer, y:integer), 4)";
+		
+		prog += "func1(sin, 4)";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(-0.7568024953079282, result.get().doubleVal());
+	}
+	
+	public void testBoundFun() {
 		String prog = "";
 		prog += "fact(n:integer) : integer {";
 		prog += "    select";
@@ -748,6 +773,28 @@ public class VeLaTest extends TestCase {
 		assertEquals(720, result.get().intVal());
 	}
 
+	public void testFunMap() {
+		String prog = "";
+		prog += "fact(n:integer) : integer {";
+		prog += "    select";
+		prog += "      n <= 0 -> 1";
+		prog += "      #t -> n*fact(n-1)";
+		prog += "}";
+		prog += "map(fact, [1, 2, 3, 4, 5])";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		List<Operand> expected = new ArrayList<Operand>();
+		expected.add(new Operand(Type.INTEGER, 1));
+		expected.add(new Operand(Type.INTEGER, 2));
+		expected.add(new Operand(Type.INTEGER, 6));
+		expected.add(new Operand(Type.INTEGER, 24));
+		expected.add(new Operand(Type.INTEGER, 120));
+		List<Operand> actual = result.get().listVal();
+		assertEquals(expected, actual);
+	}
+	
 	// Bindings
 
 	public void testBinding1() {
