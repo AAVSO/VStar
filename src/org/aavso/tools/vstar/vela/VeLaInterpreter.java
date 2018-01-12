@@ -368,7 +368,7 @@ public class VeLaInterpreter {
 
 			} else if (op.arity() == 1) {
 				// Unary
-				eval(ast.child());
+				eval(ast.head());
 
 				Operand operand = stack.pop();
 
@@ -463,8 +463,8 @@ public class VeLaInterpreter {
 		case FUNDEF:
 			// Does this function have a name or is it anonymous?
 			Optional<String> name = Optional.empty();
-			if (ast.getChildren().get(0).getOp() == Operation.SYMBOL) {
-				name = Optional.of(ast.getChildren().get(0).getToken());
+			if (ast.head().getOp() == Operation.SYMBOL) {
+				name = Optional.of(ast.head().getToken());
 			}
 
 			// Extract components from AST in order to create a function
@@ -518,13 +518,10 @@ public class VeLaInterpreter {
 			if (ast.hasChildren()) {
 				int childLimit = 0;
 
-				// TODO: it would be better if the FUNDEF AST was at the head
-				// of the list and the null token was supplanted by it; would
-				// also make VeLa's ASTs closer to Lisp s-expressions
 				if (ast.getToken() == null) {
-					if (ast.getChildren().get(0).getOp() == Operation.FUNDEF) {
+					if (ast.head().getOp() == Operation.FUNDEF) {
 						// Anonymous functions
-						eval(ast.getChildren().get(0));
+						eval(ast.head());
 						anon = stack.pop().functionVal();
 						childLimit = 1;
 					}

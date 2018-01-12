@@ -114,6 +114,12 @@ public class ExpressionListener extends VeLaBaseListener {
 			}
 		}
 	}
+	
+	@Override
+	public void enterNamedFundef(NamedFundefContext ctx) {
+		// Mark the position on the stack where FUNDEF expressions stop.
+		astStack.push(new AST(Operation.SENTINEL));
+	}
 
 	@Override
 	public void exitNamedFundef(NamedFundefContext ctx) {
@@ -129,6 +135,12 @@ public class ExpressionListener extends VeLaBaseListener {
 			ast.addFirstChild(child);
 		}
 		astStack.push(ast);
+	}
+
+	@Override
+	public void enterAnonFundef(AnonFundefContext ctx) {
+		// Mark the position on the stack where FUNDEF expressions stop.
+		astStack.push(new AST(Operation.SENTINEL));
 	}
 
 	@Override

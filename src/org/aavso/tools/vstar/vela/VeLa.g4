@@ -33,7 +33,8 @@ grammar VeLa;
 // - Check optional return type against what is on the stack after function ends
 // - Optional types for let bindings
 // - Whitespace is significant in parameter lists because we allow commas in numbers;
-//   so, remove commas as parameter list and list delimiters 
+//   so, remove commas as parameter list and list delimiters; use space or 
+//   semi-colon ala MATLAB
 // - The interpreter could be used by the compiler for deterministic ASTs;
 //   that assumes the compiler generates Java (or whatever the interpreter
 //   is written in, e.g. VeLa)

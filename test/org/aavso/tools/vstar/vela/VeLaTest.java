@@ -734,27 +734,24 @@ public class VeLaTest extends TestCase {
 
 	public void testHOF1() {
 		String prog = "";
-		prog += "func1(g:function, n:integer) {";
-		prog += "    x <- g(n)";
-		prog += "    out \"sin \", n, \" = \", x, \"\n\"" ;
+		prog += "f(g:function, h:function, n:integer) {";
+		prog += "    x <- g(h(n))";
+		prog += "    out \"g o h \", n, \" = \", x, \"\n\"" ;
 		prog += "    x";
 		prog += "}\n";
 
-//		prog += "fact(n:integer) : integer {";
-//		prog += "    select";
-//		prog += "      n <= 0 -> 1";
-//		prog += "      #t -> n*fact(n-1)";
-//		prog += "}\n";
-
-		// Note: this yields a malformed FUNDEF AST
-//		prog += "x <- f(fact, function(x:integer, y:integer), 4)";
+		prog += "fact(n:integer) : integer {";
+		prog += "    select";
+		prog += "      n <= 0 -> 1";
+		prog += "      #t -> n*fact(n-1)";
+		prog += "}\n";
 		
-		prog += "func1(sin, 4)";
+		prog += "f(fact, function(n:integer){n*n}, 3)";
 
 		Optional<Operand> result = vela.program(prog);
 
 		assertTrue(result.isPresent());
-		assertEquals(-0.7568024953079282, result.get().doubleVal());
+		assertEquals(362880, result.get().intVal());
 	}
 	
 	public void testBoundFun() {
