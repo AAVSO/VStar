@@ -28,8 +28,7 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
 	private VeLaInterpreter vela;
 	private List<String> parameterNames;
 	private Optional<AST> ast;
-
-	// TODO: capture environment and set/reset it in interpreter in apply()
+	private VeLaScope env;
 
 	/**
 	 * Construct a named function definition
@@ -56,6 +55,15 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
 		this.vela = vela;
 		this.parameterNames = parameterNames;
 		this.ast = ast;
+
+		// Capture current environment by coalescing all but the global scope
+		// into one environment, starting from the first to the last such that
+		// newer definitions override older ones.
+		env = new VeLaScope();
+		List<VeLaScope> scopes = vela.getScopes();
+		for (int i = 1; i < scopes.size(); i++) {
+			env.addAll(scopes.get(i));
+		}
 	}
 
 	/**
@@ -82,11 +90,15 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
 
 	@Override
 	public Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError {
-		// If the function has a body, push a new scope, bind the actual
-		// parameters to the formal parameters, evaluate the body AST and pop
-		// the scope.
+		// If the function has a body, push a new scope and the environment if
+		// non-empty, bind the actual parameters to the formal parameters,
+		// evaluate the body AST and pop the scope and the environment if
+		// non-empty.
 		if (ast.isPresent()) {
 			if (!isTailRecursive()) {
+				if (!env.isEmpty()) {
+					vela.pushEnvironment(env);
+				}
 				vela.pushEnvironment(new VeLaScope());
 			}
 
@@ -98,6 +110,9 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
 
 			if (!isTailRecursive()) {
 				vela.popEnvironment();
+				if (!env.isEmpty()) {
+					vela.popEnvironment();
+				}
 			}
 		}
 

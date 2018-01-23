@@ -61,4 +61,11 @@ public class VeLaEnvironment<T> {
 			cache.put(name, value);
 		}
 	}
+	
+	/**
+	 * Is this VeLa environment empty?
+	 */
+	public boolean isEmpty() {
+		return cache.isEmpty();
+	}
 }

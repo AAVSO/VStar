@@ -791,7 +791,48 @@ public class VeLaTest extends TestCase {
 		List<Operand> actual = result.get().listVal();
 		assertEquals(expected, actual);
 	}
-	
+
+	public void testFunFilter() {
+		String prog = "";
+		prog += "lessthan10(n:integer) : boolean {";
+		prog += "    n < 5";
+		prog += "}";
+		prog += "filter(lessthan10, [1, 2, 3, 4, 5])";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		List<Operand> expected = new ArrayList<Operand>();
+		expected.add(new Operand(Type.INTEGER, 1));
+		expected.add(new Operand(Type.INTEGER, 2));
+		expected.add(new Operand(Type.INTEGER, 3));
+		expected.add(new Operand(Type.INTEGER, 4));
+		List<Operand> actual = result.get().listVal();
+		assertEquals(expected, actual);
+	}
+
+	public void testFunFilterWithClosure() {
+		String prog = "";
+		// This tests that a closure works! (January 22 2018)
+		prog += "lessthan(n:integer) : boolean {";
+		prog += "    function(x: integer) { x < n }";
+		prog += "}";
+		prog += "filter(lessthan(7), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])";
+
+		Optional<Operand> result = vela.program(prog);
+		assertTrue(result.isPresent());
+		List<Operand> actual = result.get().listVal();
+		
+		List<Operand> expected = new ArrayList<Operand>();
+		expected.add(new Operand(Type.INTEGER, 1));
+		expected.add(new Operand(Type.INTEGER, 2));
+		expected.add(new Operand(Type.INTEGER, 3));
+		expected.add(new Operand(Type.INTEGER, 4));
+		expected.add(new Operand(Type.INTEGER, 5));
+		expected.add(new Operand(Type.INTEGER, 6));
+		assertEquals(expected, actual);
+	}
+
 	// Bindings
 
 	public void testBinding1() {

@@ -115,6 +115,22 @@ public class VeLaInterpreter {
 	}
 
 	/**
+	 * Return all scopes (activation records) on the stack as a list in order
+	 * from oldest to newest.
+	 */
+	public List<VeLaScope> getScopes() {
+		List<VeLaScope> scopes = new ArrayList<VeLaScope>();
+
+		for (VeLaEnvironment<Operand> env : environments) {
+			if (env instanceof VeLaScope) {
+				scopes.add((VeLaScope) env);
+			}
+		}
+
+		return scopes;
+	}
+
+	/**
 	 * VeLa program interpreter entry point.
 	 * 
 	 * @param prog
@@ -410,9 +426,8 @@ public class VeLaInterpreter {
 						stack.push(new Operand(Type.FUNCTION, funList.get()
 								.get(0)));
 					} else {
-						throw new VeLaEvalError(
-								"Unknown variable or function: \""
-										+ ast.getToken() + "\"");
+						throw new VeLaEvalError("Unknown binding: \""
+								+ ast.getToken() + "\"");
 					}
 				}
 			} else if (ast.getOp() == Operation.LIST) {
@@ -1028,7 +1043,7 @@ public class VeLaInterpreter {
 
 		addZeroArityFunctions();
 
-		// TODO: add reduce, for, filter
+		// TODO: add reduce, for
 		addListHeadFunction();
 		addListTailFunction();
 		addListNthFunction();
@@ -1040,6 +1055,7 @@ public class VeLaInterpreter {
 		addListAppendFunction(Type.DOUBLE);
 		addListAppendFunction(Type.BOOLEAN);
 		addMapFunction();
+		addFilterFunction();
 
 		// Functions from reflection over Math and String classes.
 		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
@@ -1212,9 +1228,56 @@ public class VeLaInterpreter {
 					}
 
 					fun.apply(params);
-					
+
 					if (!stack.isEmpty()) {
-						resultList.add(stack.pop());						
+						resultList.add(stack.pop());
+					} else {
+						throw new VeLaEvalError("Expected function result");
+					}
+				}
+				return Optional.of(new Operand(Type.LIST, resultList));
+			}
+		});
+	}
+
+	private void addFilterFunction() {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.FUNCTION);
+		paramTypes.add(Type.LIST);
+		// Return type will always be LIST here.
+		addFunctionExecutor(new FunctionExecutor(Optional.of("FILTER"),
+				paramTypes, Optional.of(Type.LIST)) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				FunctionExecutor fun = operands.get(0).functionVal();
+				List<Operand> list = operands.get(1).listVal();
+				List<Operand> resultList = new ArrayList<Operand>();
+				for (Operand item : list) {
+					List<Operand> params = null;
+
+					// If the list element is a list, use these as the actual
+					// parameters, otherwise create an actual parameter list
+					// from the list item.
+					if (item.getType() == Type.LIST) {
+						params = item.listVal();
+					} else {
+						params = new ArrayList<Operand>();
+						params.add(item);
+					}
+
+					fun.apply(params);
+
+					if (!stack.isEmpty()) {
+						Operand retVal = stack.pop();
+						if (retVal.getType() == Type.BOOLEAN) {
+							if (retVal.booleanVal()) {
+								resultList.add(item);
+							}
+						} else {
+							throw new VeLaEvalError("Expected boolean value");
+						}
+					} else {
+						throw new VeLaEvalError("Expected boolean value");
 					}
 				}
 				return Optional.of(new Operand(Type.LIST, resultList));
@@ -1275,7 +1338,7 @@ public class VeLaInterpreter {
 							}
 
 							// Note that this is the first use of Java 8
-							// lambdas in VStar!
+							// lambda expressions in VStar!
 							result = Operand.object2Operand(getReturnType()
 									.get(), method.invoke(obj, // null for
 																// static

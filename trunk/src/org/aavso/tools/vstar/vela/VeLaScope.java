@@ -82,6 +82,17 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	}
 
 	/**
+	 * Add all symbol bindings and functions from another scope to this one.
+	 * 
+	 * @param other
+	 *            The scope to be added to this one.
+	 */
+	public void addAll(VeLaScope other) {
+		cache.putAll(other.cache);
+		functions.putAll(other.functions);
+	}
+
+	/**
 	 * Lookup the named function, returning an optional list of functions.
 	 * 
 	 * @param name
@@ -96,5 +107,13 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 		}
 
 		return funList;
+	}
+	
+	/**
+	 * Is this scope empty?
+	 */
+	@Override
+	public boolean isEmpty() {
+		return super.isEmpty() && functions.isEmpty();
 	}
 }
