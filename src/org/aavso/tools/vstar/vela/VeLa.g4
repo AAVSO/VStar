@@ -6,6 +6,7 @@ grammar VeLa;
 // TODO:
 // - Internal function representation in Models dialog should use VeLa
 // - VeLa could replace or be an alternative to JavaScript for scripting
+//   o Need a FFI
 // - Generate class files from VeLa ASTs
 // - Functions should be properly tail recursive to allow loops
 //   o final AST in function is a recursive call, or
@@ -14,31 +15,29 @@ grammar VeLa;
 //   but eliminating recursive calls to eval() is harder; compiling VeLa could do it
 // - Add eval() and compile() functions
 //   o need to be able to tell whether eval() has left a value on the stack;
-//     could do this by returning boolean and having a pop() function
+//     could do this by returning boolean and having a VeLa pop() function
 //   o compile() returns AST as list and/or S-expression
 // - Allow S-expressions to be evaluated
-// - Need a FFI
-// - Add for, map, reduce, filter
+// - Add for, reduce **
 // - May need while loops: while booleanExpression { ... }
 // - Add maps; -> as key-value pair delimiter, e.g. m <- [ key -> value, ... ];
 //   probably use : actually; we already use -> for select statements
-// - Object-based starting with maps (object keyword); actually structs since
+// - Object-based starting with maps; actually structs (object keyword) since
 //   keys in maps can be any value at all, not only bindings
-//   o Implicit (or explicit) reference to map available to functions in map
-//   o A function in an object map could have either the non-function contents 
+//   o Implicit (or explicit) reference to object available to functions in object
+//   o A function in an object could have either the non-function contents 
 //     of the map added to the current scope or a self/this variable pointed 
 //     to the map
-// - Functions need to capture environments (scopes only) beyond the global 
-//   environment (zeroth scope) and reuse them at function invocation time
-// - Check optional return type against what is on the stack after function ends
-// - Optional types for let bindings
+// - Check optional return type against what is on the stack after function ends **
+// - Optional types for let bindings **
 // - Whitespace is significant in parameter lists because we allow commas in numbers;
-//   so, remove commas as parameter list and list delimiters; use space or 
-//   semi-colon ala MATLAB
+//   so, remove commas as parameter list (formal and actual) and list delimiters; use 
+//   space or semi-colon ala MATLAB
 // - The interpreter could be used by the compiler for deterministic ASTs;
 //   that assumes the compiler generates Java (or whatever the interpreter
 //   is written in, e.g. VeLa)
-// - Add .. operator as shorthand for creating numeric lists over a range
+// - Add .. operator as shorthand for creating numeric lists over a range **
+//   o Open-ended range: N..
 // - Y-combinator in VeLa
 
 // ** Parser rules **
@@ -113,6 +112,7 @@ expression
 // Homage to Haskell/Scala/Erlang functional-style cases
 // TODO: or MATCH (OCaml) or IF or CASE; in OCaml, MATCH is arbitrary
 // pattern matching not just booleans; SELECT|IF
+
 selectionExpression
 :
 	SELECT
@@ -257,6 +257,7 @@ symbol
 
 anonFundef
 :
+// TODO: call it lambda instead of function? either that or fun.
 	FUN LPAREN formalParameter?
 	(
 		comma formalParameter
@@ -526,6 +527,7 @@ BOOLEAN
 ;
 
 // #t pays homage to (Common) Lisp; #f?
+
 fragment
 TRUE
 :
