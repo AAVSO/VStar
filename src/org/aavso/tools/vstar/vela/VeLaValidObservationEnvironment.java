@@ -105,7 +105,7 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 	}
 
 	protected Operand operand(String name, Double value) {
-		return operand(Type.DOUBLE, name, value);
+		return operand(Type.REAL, name, value);
 	}
 
 	protected Operand operand(String name, String value) {
@@ -130,7 +130,7 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 			case INTEGER:
 				operand = new Operand(type, (int) value);
 				break;
-			case DOUBLE:
+			case REAL:
 				operand = new Operand(type, (double) value);
 				break;
 			case STRING:

@@ -4,6 +4,7 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
+// - Allow short band names, e.g. TG, in obs filters
 // - Internal function representation in Models dialog should use VeLa
 // - VeLa could replace or be an alternative to JavaScript for scripting
 //   o Need a FFI
@@ -17,27 +18,28 @@ grammar VeLa;
 //   o need to be able to tell whether eval() has left a value on the stack;
 //     could do this by returning boolean and having a VeLa pop() function
 //   o compile() returns AST as list and/or S-expression
-// - Allow S-expressions to be evaluated
+// - Allow S-expressions to be evaluated, e.g. compile_sexpr()
 // - Add for, reduce **
-// - May need while loops: while booleanExpression { ... }
+// - May still need while loops: while booleanExpression { ... }
 // - Add maps; -> as key-value pair delimiter, e.g. m <- [ key -> value, ... ];
-//   probably use : actually; we already use -> for select statements
+//   probably use : actually; we already use -> for select statements; could use 
+//   colon for that too
 // - Object-based starting with maps; actually structs (object keyword) since
 //   keys in maps can be any value at all, not only bindings
 //   o Implicit (or explicit) reference to object available to functions in object
 //   o A function in an object could have either the non-function contents 
 //     of the map added to the current scope or a self/this variable pointed 
 //     to the map
-// - Check optional return type against what is on the stack after function ends **
-// - Optional types for let bindings **
+// - It would be more type safe to allow a signature instead of "function" 
+//   for function parameters, e.g. [real, real] -> real
+// - Optional types for let bindings; more useful if mutable **
 // - Whitespace is significant in parameter lists because we allow commas in numbers;
 //   so, remove commas as parameter list (formal and actual) and list delimiters; use 
 //   space or semi-colon ala MATLAB
-// - The interpreter could be used by the compiler for deterministic ASTs;
-//   that assumes the compiler generates Java (or whatever the interpreter
-//   is written in, e.g. VeLa)
+// - The interpreter could be used by a compiler for deterministic ASTs
 // - Add .. operator as shorthand for creating numeric lists over a range **
 //   o Open-ended range: N..
+// - A counter style closure would not work since bindings are immutable
 // - Y-combinator in VeLa
 
 // ** Parser rules **

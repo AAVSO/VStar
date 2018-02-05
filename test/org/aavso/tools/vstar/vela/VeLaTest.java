@@ -102,19 +102,19 @@ public class VeLaTest extends TestCase {
 
 	public void testRealExponentiation1() {
 		Operand operand = vela.expressionToOperand("2.0^3.0");
-		assertEquals(Type.DOUBLE, operand.getType());
+		assertEquals(Type.REAL, operand.getType());
 		assertEquals(8.0, operand.doubleVal());
 	}
 
 	public void testRealExponentiation2() {
 		Operand operand = vela.expressionToOperand("2^3.0");
-		assertEquals(Type.DOUBLE, operand.getType());
+		assertEquals(Type.REAL, operand.getType());
 		assertEquals(8.0, operand.doubleVal());
 	}
 
 	public void testRealExponentiation3() {
 		Operand operand = vela.expressionToOperand("3.0^4^2");
-		assertEquals(Type.DOUBLE, operand.getType());
+		assertEquals(Type.REAL, operand.getType());
 		assertEquals(43046721.0, operand.doubleVal());
 	}
 
@@ -409,14 +409,14 @@ public class VeLaTest extends TestCase {
 		assertEquals(result1.getType(), Type.LIST);
 		assertEquals(result1.listVal(), Arrays.asList(new Operand(Type.INTEGER,
 				1), new Operand(Type.STRING, "2"),
-				new Operand(Type.DOUBLE, 3.0)));
+				new Operand(Type.REAL, 3.0)));
 
 		// This one should be cached...
 		Operand result2 = vela.expressionToOperand("[1,\"2\", 3.0]");
 		assertEquals(result2.getType(), Type.LIST);
 		assertEquals(result2.listVal(), Arrays.asList(new Operand(Type.INTEGER,
 				1), new Operand(Type.STRING, "2"),
-				new Operand(Type.DOUBLE, 3.0)));
+				new Operand(Type.REAL, 3.0)));
 	}
 
 	public void testEmptyList() {
@@ -722,9 +722,9 @@ public class VeLaTest extends TestCase {
 		assertEquals(720, result.get().intVal());
 	}
 
-	public void testAnonFunSquare() {
+	public void testAnonFunExponentiation() {
 		// TODO: whitespace is significant in parameter lists
-		String prog = "function(x:integer, y:integer) { x^y }(12, 2)";
+		String prog = "function(x:integer, y:integer) : integer { x^y }(12, 2)";
 
 		Optional<Operand> result = vela.program(prog);
 
@@ -732,9 +732,18 @@ public class VeLaTest extends TestCase {
 		assertEquals(144, result.get().intVal());
 	}
 
+	public void testAnonFunExponentiationWithReturnTypeConversion() {
+		String prog = "function(x:integer, y:integer) : real { x^y }(12, 2)";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(144.0, result.get().doubleVal());
+	}
+
 	public void testHOF1() {
 		String prog = "";
-		prog += "f(g:function, h:function, n:integer) {";
+		prog += "f(g:function, h:function, n:integer) : integer {";
 		prog += "    x <- g(h(n))";
 		prog += "    out \"g o h \", n, \" = \", x, \"\n\"" ;
 		prog += "    x";
@@ -746,7 +755,7 @@ public class VeLaTest extends TestCase {
 		prog += "      #t -> n*fact(n-1)";
 		prog += "}\n";
 		
-		prog += "f(fact, function(n:integer){n*n}, 3)";
+		prog += "f(fact, function(n:integer) : integer {n*n}, 3)";
 
 		Optional<Operand> result = vela.program(prog);
 
@@ -814,8 +823,8 @@ public class VeLaTest extends TestCase {
 	public void testFunFilterWithClosure() {
 		String prog = "";
 		// This tests that a closure works! (January 22 2018)
-		prog += "lessthan(n:integer) : boolean {";
-		prog += "    function(x: integer) { x < n }";
+		prog += "lessthan(n:integer) : function {";
+		prog += "    function(x: integer) : boolean { x < n }";
 		prog += "}";
 		prog += "filter(lessthan(7), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])";
 
@@ -833,6 +842,33 @@ public class VeLaTest extends TestCase {
 		assertEquals(expected, actual);
 	}
 
+	public void testFunReduceInteger() {
+		String prog = "";
+		prog += "sum(x:integer, y:integer) : integer {";
+		prog += "    x+y";
+		prog += "}";
+		prog += "reduce(sum, [1, 2, 3, 4, 5], 0)";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(15, result.get().intVal());
+	}
+
+	public void testFunReduceReal() {
+		String prog = "";
+		prog += "prod(x:real, y:real) : real {";
+		prog += "    x*y";
+		prog += "}";
+		// Factorial via reduce
+		prog += "reduce(prod, [5, 4, 3, 2, 1], 1)";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(120.0, result.get().doubleVal());
+	}
+	
 	// Bindings
 
 	public void testBinding1() {

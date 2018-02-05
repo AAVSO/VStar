@@ -383,7 +383,7 @@ public class ExpressionListener extends VeLaBaseListener {
 	@Override
 	public void exitReal(RealContext ctx) {
 		String token = ctx.getChild(0).getText();
-		Operand realLiteral = new Operand(Type.DOUBLE, parseDouble(token));
+		Operand realLiteral = new Operand(Type.REAL, parseDouble(token));
 		astStack.push(new AST(token, realLiteral));
 	}
 

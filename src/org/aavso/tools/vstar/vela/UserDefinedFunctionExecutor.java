@@ -94,7 +94,10 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
 		// non-empty, bind the actual parameters to the formal parameters,
 		// evaluate the body AST and pop the scope and the environment if
 		// non-empty.
+		int initialStackSize = vela.getStack().size();
+
 		if (ast.isPresent()) {
+			
 			if (!isTailRecursive()) {
 				if (!env.isEmpty()) {
 					vela.pushEnvironment(env);
@@ -117,7 +120,13 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
 		}
 
 		// The result, if any, will be on the stack.
-		return Optional.empty();
+		Optional<Operand> result = Optional.empty();
+		
+		if (vela.getStack().size() > initialStackSize) {
+			result = Optional.of(vela.getStack().pop());
+		}
+		
+		return result;
 	}
 
 	/**

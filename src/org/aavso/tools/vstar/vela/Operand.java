@@ -88,8 +88,8 @@ public class Operand {
 		case INTEGER:
 			operand = new Operand(Type.INTEGER, (int) obj);
 			break;
-		case DOUBLE:
-			operand = new Operand(Type.DOUBLE, (double) obj);
+		case REAL:
+			operand = new Operand(Type.REAL, (double) obj);
 			break;
 		case STRING:
 			operand = new Operand(Type.STRING, (String) obj);
@@ -120,7 +120,7 @@ public class Operand {
 		case INTEGER:
 			obj = intVal;
 			break;
-		case DOUBLE:
+		case REAL:
 			obj = doubleVal;
 			break;
 		case STRING:
@@ -148,13 +148,14 @@ public class Operand {
 	 * @param requiredType
 	 *            The required type.
 	 * @return The converted type; will be unchanged if it matches the required
-	 *         type or can't be converted.
+	 *         type or can't be converted; TODO: consider returning Optional<Type>;
+	 *         if empty, then the type can't be converted
 	 */
 	public Type convert(Type requiredType) {
 		if (type != requiredType) {
 			// Integer to double
-			if (type == Type.INTEGER && requiredType == Type.DOUBLE) {
-				setType(Type.DOUBLE);
+			if (type == Type.INTEGER && requiredType == Type.REAL) {
+				setType(Type.REAL);
 				setDoubleVal((double) intVal);
 			}
 		}
@@ -173,7 +174,7 @@ public class Operand {
 			setStringVal(Integer.toString(intVal));
 			setType(Type.STRING);
 			break;
-		case DOUBLE:
+		case REAL:
 			setStringVal(NumericPrecisionPrefs.formatOther(doubleVal));
 			setType(Type.STRING);
 			break;
@@ -298,7 +299,7 @@ public class Operand {
 		case INTEGER:
 			str = Integer.toString(intVal);
 			break;
-		case DOUBLE:
+		case REAL:
 			str = NumericPrecisionPrefs.formatOther(doubleVal);
 			break;
 		case BOOLEAN:
@@ -327,7 +328,7 @@ public class Operand {
 		case INTEGER:
 			str = Integer.toString(intVal);
 			break;
-		case DOUBLE:
+		case REAL:
 			str = NumericPrecisionPrefs.formatOther(doubleVal);
 			break;
 		case BOOLEAN:
