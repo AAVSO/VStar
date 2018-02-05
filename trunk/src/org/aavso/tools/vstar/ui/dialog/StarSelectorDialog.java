@@ -35,7 +35,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.data.DateInfo;
-import org.aavso.tools.vstar.data.validation.JulianDayValidator;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.aavso.tools.vstar.util.locale.LocaleProps;

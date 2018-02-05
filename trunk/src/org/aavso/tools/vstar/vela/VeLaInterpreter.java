@@ -131,6 +131,13 @@ public class VeLaInterpreter {
 	}
 
 	/**
+	 * @return the operand stack
+	 */
+	public Stack<Operand> getStack() {
+		return stack;
+	}
+
+	/**
 	 * VeLa program interpreter entry point.
 	 * 
 	 * @param prog
@@ -166,7 +173,7 @@ public class VeLaInterpreter {
 		Optional<Operand> result = commonInterpreter(expr, tree);
 
 		if (result.isPresent()) {
-			if (result.get().getType() == Type.DOUBLE) {
+			if (result.get().getType() == Type.REAL) {
 				return (double) result.get().doubleVal();
 			} else if (result.get().getType() == Type.INTEGER) {
 				return result.get().intVal();
@@ -394,9 +401,8 @@ public class VeLaInterpreter {
 					case INTEGER:
 						stack.push(new Operand(Type.INTEGER, -operand.intVal()));
 						break;
-					case DOUBLE:
-						stack.push(new Operand(Type.DOUBLE, -operand
-								.doubleVal()));
+					case REAL:
+						stack.push(new Operand(Type.REAL, -operand.doubleVal()));
 						break;
 					default:
 					}
@@ -614,8 +620,8 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.INTEGER, operand1.intVal()
 						+ operand2.intVal()));
 				break;
-			case DOUBLE:
-				stack.push(new Operand(Type.DOUBLE, operand1.doubleVal()
+			case REAL:
+				stack.push(new Operand(Type.REAL, operand1.doubleVal()
 						+ operand2.doubleVal()));
 				break;
 			case STRING:
@@ -630,8 +636,8 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.INTEGER, operand1.intVal()
 						- operand2.intVal()));
 				break;
-			case DOUBLE:
-				stack.push(new Operand(Type.DOUBLE, operand1.doubleVal()
+			case REAL:
+				stack.push(new Operand(Type.REAL, operand1.doubleVal()
 						- operand2.doubleVal()));
 				break;
 			default:
@@ -643,8 +649,8 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.INTEGER, operand1.intVal()
 						* operand2.intVal()));
 				break;
-			case DOUBLE:
-				stack.push(new Operand(Type.DOUBLE, operand1.doubleVal()
+			case REAL:
+				stack.push(new Operand(Type.REAL, operand1.doubleVal()
 						* operand2.doubleVal()));
 				break;
 			default:
@@ -662,10 +668,10 @@ public class VeLaInterpreter {
 							operand2.intVal()));
 				}
 				break;
-			case DOUBLE:
+			case REAL:
 				Double result = operand1.doubleVal() / operand2.doubleVal();
 				if (!result.isInfinite()) {
-					stack.push(new Operand(Type.DOUBLE, result));
+					stack.push(new Operand(Type.REAL, result));
 				} else {
 					throw new VeLaEvalError(String.format(
 							"%s/%s: division by zero error",
@@ -684,8 +690,8 @@ public class VeLaInterpreter {
 				}
 				stack.push(new Operand(Type.INTEGER, result));
 				break;
-			case DOUBLE:
-				stack.push(new Operand(Type.DOUBLE, Math.pow(
+			case REAL:
+				stack.push(new Operand(Type.REAL, Math.pow(
 						operand1.doubleVal(), operand2.doubleVal())));
 				break;
 			default:
@@ -705,7 +711,7 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.intVal() == operand2.intVal()));
 				break;
-			case DOUBLE:
+			case REAL:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() == operand2.doubleVal()));
 				break;
@@ -722,7 +728,7 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.intVal() != operand2.intVal()));
 				break;
-			case DOUBLE:
+			case REAL:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() != operand2.doubleVal()));
 				break;
@@ -739,7 +745,7 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.intVal() > operand2.intVal()));
 				break;
-			case DOUBLE:
+			case REAL:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() > operand2.doubleVal()));
 				break;
@@ -756,7 +762,7 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.intVal() < operand2.intVal()));
 				break;
-			case DOUBLE:
+			case REAL:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() < operand2.doubleVal()));
 				break;
@@ -773,7 +779,7 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.intVal() >= operand2.intVal()));
 				break;
-			case DOUBLE:
+			case REAL:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() >= operand2.doubleVal()));
 				break;
@@ -790,7 +796,7 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.intVal() <= operand2.intVal()));
 				break;
-			case DOUBLE:
+			case REAL:
 				stack.push(new Operand(Type.BOOLEAN,
 						operand1.doubleVal() <= operand2.doubleVal()));
 				break;
@@ -849,16 +855,14 @@ public class VeLaInterpreter {
 			} else if (a.getType() == Type.STRING && b.getType() != Type.STRING) {
 				b.convertToString();
 				type = Type.STRING;
-			} else if (a.getType() == Type.INTEGER
-					&& b.getType() == Type.DOUBLE) {
+			} else if (a.getType() == Type.INTEGER && b.getType() == Type.REAL) {
 				a.setDoubleVal(a.intVal());
-				a.setType(Type.DOUBLE);
-				type = Type.DOUBLE;
-			} else if (a.getType() == Type.DOUBLE
-					&& b.getType() == Type.INTEGER) {
+				a.setType(Type.REAL);
+				type = Type.REAL;
+			} else if (a.getType() == Type.REAL && b.getType() == Type.INTEGER) {
 				b.setDoubleVal(b.intVal());
-				b.setType(Type.DOUBLE);
-				type = Type.DOUBLE;
+				b.setType(Type.REAL);
+				type = Type.REAL;
 			}
 		}
 
@@ -907,8 +911,8 @@ public class VeLaInterpreter {
 	 * Add useful/important bindings
 	 */
 	private void initBindings() {
-		environments.peek().bind("PI", new Operand(Type.DOUBLE, Math.PI));
-		environments.peek().bind("E", new Operand(Type.DOUBLE, Math.E));
+		environments.peek().bind("PI", new Operand(Type.REAL, Math.PI));
+		environments.peek().bind("E", new Operand(Type.REAL, Math.E));
 	}
 
 	// ** Function related methods *
@@ -1009,9 +1013,42 @@ public class VeLaInterpreter {
 		boolean conforms = function.conforms(params);
 
 		if (conforms) {
+			// Apply the function to the actual parameters.
 			Optional<Operand> result = function.apply(params);
+			
+			String funcRepr = function.toString();
+
 			if (result.isPresent()) {
-				stack.push(result.get());
+				// The function returned a result.
+				// Does the function have a return type defined?
+				if (function.returnType.isPresent()) {
+					// Attempt to convert to return type if necessary.
+					result.get().convert(function.getReturnType().get());
+
+					if (result.get().getType() == function.returnType.get()) {
+						// The returned result was of the expected type.
+						stack.push(result.get());
+					} else {
+						// The returned result was not of the expected type.
+						throw new VeLaEvalError(String.format(
+								"The expected return type of %s does not match "
+										+ "the actual return type of %s.",
+								funcRepr, result.get().getType()));
+					}
+				} else {
+					throw new VeLaEvalError(String.format(
+							"%s has no return type but a result "
+									+ "of type %s was returned.", funcRepr,
+							result.get().getType()));
+				}
+			} else {
+				if (function.returnType.isPresent()) {
+					// No result was returned but one was expected.
+					throw new VeLaEvalError(String.format(
+							"The expected return type of %s was %s "
+									+ "but no result was returned.", funcRepr,
+							function.getReturnType().get()));
+				}
 			}
 		}
 
@@ -1043,19 +1080,20 @@ public class VeLaInterpreter {
 
 		addZeroArityFunctions();
 
-		// TODO: add reduce, for
+		// List functions
 		addListHeadFunction();
 		addListTailFunction();
 		addListNthFunction();
 		addListLengthFunction();
 		addListConcatFunction();
-		addListAppendFunction(Type.LIST);
-		addListAppendFunction(Type.STRING);
-		addListAppendFunction(Type.INTEGER);
-		addListAppendFunction(Type.DOUBLE);
-		addListAppendFunction(Type.BOOLEAN);
-		addMapFunction();
-		addFilterFunction();
+		addListMapFunction();
+		addListFilterFunction();
+
+		for (Type type : Type.values()) {
+			// Note that this includes function; useful?
+			addListAppendFunction(type);
+			addListReduceFunction(type);
+		}
 
 		// Functions from reflection over Math and String classes.
 		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
@@ -1074,7 +1112,7 @@ public class VeLaInterpreter {
 
 	private void addZeroArityFunctions() {
 		addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"),
-				Optional.of(Type.DOUBLE)) {
+				Optional.of(Type.REAL)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				Calendar cal = Calendar.getInstance();
@@ -1083,7 +1121,7 @@ public class VeLaInterpreter {
 				int day = cal.get(Calendar.DAY_OF_MONTH);
 				double jd = AbstractDateUtil.getInstance().calendarToJD(year,
 						month, day);
-				return Optional.of(new Operand(Type.DOUBLE, jd));
+				return Optional.of(new Operand(Type.REAL, jd));
 			}
 		});
 	}
@@ -1091,10 +1129,9 @@ public class VeLaInterpreter {
 	private void addListHeadFunction() {
 		List<Type> paramTypes = new ArrayList<Type>();
 		paramTypes.add(Type.LIST);
-		// Return type could be any but we use LIST here arbitrarily.
-		// TODO: perhaps we need Type.ANY
+		// Return type will change with invocation.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("HEAD"),
-				paramTypes, Optional.of(Type.LIST)) {
+				paramTypes, Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list = operands.get(0).listVal();
@@ -1104,6 +1141,7 @@ public class VeLaInterpreter {
 				} else {
 					result = Operand.EMPTY_LIST;
 				}
+				setReturnType(Optional.of(result.getType()));
 				return Optional.of(result);
 			}
 		});
@@ -1135,9 +1173,9 @@ public class VeLaInterpreter {
 		List<Type> paramTypes = new ArrayList<Type>();
 		paramTypes.add(Type.LIST);
 		paramTypes.add(Type.INTEGER);
-		// Return type could be any but we use LIST here arbitrarily.
+		// Return type will change with invocation.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("NTH"),
-				paramTypes, Optional.of(Type.LIST)) {
+				paramTypes, Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list = operands.get(0).listVal();
@@ -1147,6 +1185,7 @@ public class VeLaInterpreter {
 				} else {
 					result = Operand.EMPTY_LIST;
 				}
+				setReturnType(Optional.of(result.getType()));
 				return Optional.of(result);
 			}
 		});
@@ -1202,7 +1241,7 @@ public class VeLaInterpreter {
 		});
 	}
 
-	private void addMapFunction() {
+	private void addListMapFunction() {
 		List<Type> paramTypes = new ArrayList<Type>();
 		paramTypes.add(Type.FUNCTION);
 		paramTypes.add(Type.LIST);
@@ -1220,14 +1259,14 @@ public class VeLaInterpreter {
 					// If the list element is a list, use these as the actual
 					// parameters, otherwise create an actual parameter list
 					// from the list item.
-					if (item.getType() == Type.LIST) {
-						params = item.listVal();
-					} else {
-						params = new ArrayList<Operand>();
-						params.add(item);
-					}
+					// if (item.getType() == Type.LIST) {
+					// params = item.listVal();
+					// } else {
+					params = new ArrayList<Operand>();
+					params.add(item);
+					// }
 
-					fun.apply(params);
+					applyFunction(fun, params);
 
 					if (!stack.isEmpty()) {
 						resultList.add(stack.pop());
@@ -1240,7 +1279,7 @@ public class VeLaInterpreter {
 		});
 	}
 
-	private void addFilterFunction() {
+	private void addListFilterFunction() {
 		List<Type> paramTypes = new ArrayList<Type>();
 		paramTypes.add(Type.FUNCTION);
 		paramTypes.add(Type.LIST);
@@ -1258,14 +1297,14 @@ public class VeLaInterpreter {
 					// If the list element is a list, use these as the actual
 					// parameters, otherwise create an actual parameter list
 					// from the list item.
-					if (item.getType() == Type.LIST) {
-						params = item.listVal();
-					} else {
-						params = new ArrayList<Operand>();
-						params.add(item);
-					}
+					// if (item.getType() == Type.LIST) {
+					// params = item.listVal();
+					// } else {
+					params = new ArrayList<Operand>();
+					params.add(item);
+					// }
 
-					fun.apply(params);
+					applyFunction(fun, params);
 
 					if (!stack.isEmpty()) {
 						Operand retVal = stack.pop();
@@ -1285,8 +1324,39 @@ public class VeLaInterpreter {
 		});
 	}
 
+	private void addListReduceFunction(Type reductionType) {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.FUNCTION);
+		paramTypes.add(Type.LIST);
+		paramTypes.add(reductionType);
+		// Return type will be same as function the parameter's type.
+		addFunctionExecutor(new FunctionExecutor(Optional.of("REDUCE"),
+				paramTypes, Optional.empty()) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				FunctionExecutor fun = operands.get(0).functionVal();
+				// Set return type on reduce dynamically each time.
+				setReturnType(fun.getReturnType());
+				List<Operand> list = operands.get(1).listVal();
+				Operand retVal = operands.get(2);
+				for (Operand item : list) {
+					List<Operand> params = new ArrayList<Operand>();
+					params.add(retVal);
+					params.add(item);
+
+					applyFunction(fun, params);
+
+					if (!stack.isEmpty()) {
+						retVal = stack.pop();
+					}
+				}
+				return Optional.of(retVal);
+			}
+		});
+	}
+
 	/**
-	 * Given a class, add non zero-arity VeLa type compatible functions to the
+	 * Given a class, add non zero-arity VeLa type-compatible functions to the
 	 * functions map.
 	 * 
 	 * @param clazz

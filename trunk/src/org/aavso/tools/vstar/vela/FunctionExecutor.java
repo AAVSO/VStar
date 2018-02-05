@@ -32,10 +32,11 @@ public abstract class FunctionExecutor {
 	public static final List<Type> NO_FORMALS = Collections.emptyList();
 	public static final List<Operand> NO_ACTUALS = new ArrayList<Operand>();
 
-	private Optional<String> funcName;
-	private Method method;
-	private List<Type> parameterTypes;
-	private Optional<Type> returnType;
+	protected Optional<String> funcName;
+	protected List<Type> parameterTypes;
+	protected Optional<Type> returnType;
+
+	protected Method method;
 
 	/**
 	 * Apply the function to the specified operands and return a result of the
@@ -170,6 +171,13 @@ public abstract class FunctionExecutor {
 	 */
 	public Optional<Type> getReturnType() {
 		return returnType;
+	}
+
+	/**
+	 * @param returnType the returnType to set
+	 */
+	public void setReturnType(Optional<Type> returnType) {
+		this.returnType = returnType;
 	}
 
 	@Override

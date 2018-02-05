@@ -187,14 +187,17 @@ public class SeriesType implements Comparable<SeriesType> {
 			LocaleProps.get("ORANGE_SERIES") + " (Liller)",
 			LocaleProps.get("ORANGE_SERIES"), new Color(255, 128, 0));
 
+	public static final SeriesType Clear_Blue_Blocking = new SeriesType(60,
+			"Clear Blue Blocking", "CBB", new Color(255, 220, 32));
+
 	public static final SeriesType Johnson_U = new SeriesType(7, "Johnson U",
 			"U", new Color(0, 255, 255));
 
 	public static final SeriesType Unfiltered_with_V_Zeropoint = new SeriesType(
 			8, "Unfiltered with V Zeropoint", "CV", new Color(0, 192, 0));
 
-	public static final SeriesType Unfiltered_with_Red_Zeropoint = new SeriesType(
-			9, "Unfiltered with Red Zeropoint", "CR", new Color(192, 0, 0));
+	public static final SeriesType Unfiltered_with_R_Zeropoint = new SeriesType(
+			9, "Unfiltered with R Zeropoint", "CR", new Color(192, 0, 0));
 
 	// ** Auto-generated bands from aid.bands end here **
 

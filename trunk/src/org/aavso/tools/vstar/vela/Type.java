@@ -26,7 +26,7 @@ import java.util.List;
  */
 public enum Type {
 
-	INTEGER, DOUBLE, STRING, BOOLEAN, LIST, FUNCTION;
+	INTEGER, REAL, STRING, BOOLEAN, LIST, FUNCTION;
 
 	public static Type java2Vela(Class<?> jtype) {
 		Type vtype = null;
@@ -34,7 +34,7 @@ public enum Type {
 		if (jtype == int.class) {
 			vtype = INTEGER;
 		} else if (jtype == double.class) {
-			vtype = DOUBLE;
+			vtype = REAL;
 		} else if (jtype == String.class) {
 			vtype = STRING;
 		} else if (jtype == CharSequence.class) {
@@ -56,7 +56,7 @@ public enum Type {
 		if ("integer".equalsIgnoreCase(type)) {
 			vtype = INTEGER;
 		} else if ("real".equalsIgnoreCase(type)) {
-			vtype = DOUBLE;
+			vtype = REAL;
 		} else if ("string".equalsIgnoreCase(type)) {
 			vtype = STRING;
 		} else if ("boolean".equalsIgnoreCase(type)) {

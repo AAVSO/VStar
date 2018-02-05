@@ -54,7 +54,7 @@ public class NumberParser {
 
 		switch (operand.getType()) {
 		case INTEGER:
-		case DOUBLE:
+		case REAL:
 			break;
 			
 		default:
