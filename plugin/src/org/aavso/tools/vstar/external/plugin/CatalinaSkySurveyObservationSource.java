@@ -174,7 +174,7 @@ public class CatalinaSkySurveyObservationSource extends
 			mag.setUncertainty(err);
 
 			DateInfo mjdDate = julianDayValidator.validate(fields[5]);
-			DateInfo jdDate = new DateInfo(2400000 + mjdDate.getJulianDay());
+			DateInfo jdDate = new DateInfo(2400000.5 + mjdDate.getJulianDay());
 
 			observation.setMagnitude(mag);
 			observation.setDateInfo(jdDate);
