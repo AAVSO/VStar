@@ -8,7 +8,7 @@
 
 import sys
 from lxml import etree
-import urllib
+import urllib.request
 
 def gen_bands(tree, locale_bands):
     for band in tree.findall('Band'):
@@ -22,13 +22,13 @@ def gen_bands(tree, locale_bands):
         if False:
             print (code, desc, short_name, r, g, b)
         else:
-            print "public static final SeriesType {0} = new SeriesType" \
+            print("public static final SeriesType {0} = new SeriesType" \
                     "({1}, {2}, {3}, new Color({4}, {5}, {6}));\n". \
                     format(make_band_enum_name(desc), 
                            code,
                            _desc(desc, locale_bands), 
                            _short_name(short_name, locale_bands),
-                           r, g, b)
+                           r, g, b))
 
 def make_band_enum_name(band):
     band = band.replace(' ', '_')
@@ -72,5 +72,5 @@ if __name__ == '__main__':
     locale_bands['Orange'] = 'ORANGE_SERIES'
     
     url = 'https://www.aavso.org/vsx/index.php?view=api.bands'
-    tree = etree.parse(urllib.urlopen(url))
+    tree = etree.parse(urllib.request.urlopen(url))
     gen_bands(tree, locale_bands)
