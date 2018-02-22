@@ -94,15 +94,15 @@ public class SeriesType implements Comparable<SeriesType> {
 
 	public static final SeriesType Blue = new SeriesType(21,
 			LocaleProps.get("BLUE_SERIES"), LocaleProps.get("BLUE_SERIES")
-					+ "-Vis.", new Color(0, 0, 128));
+					+ "-Vis.", new Color(0, 0, 75));
 
 	public static final SeriesType Green = new SeriesType(22,
 			LocaleProps.get("GREEN_SERIES"), LocaleProps.get("GREEN_SERIES")
-					+ "-Vis.", new Color(0, 128, 0));
+					+ "-Vis.", new Color(0, 75, 0));
 
 	public static final SeriesType Red = new SeriesType(23,
 			LocaleProps.get("RED_SERIES"), LocaleProps.get("RED_SERIES")
-					+ "-Vis.", new Color(128, 0, 0));
+					+ "-Vis.", new Color(75, 0, 0));
 
 	public static final SeriesType Yellow = new SeriesType(24,
 			LocaleProps.get("YELLOW_SERIES"), LocaleProps.get("YELLOW_SERIES")
@@ -166,13 +166,13 @@ public class SeriesType implements Comparable<SeriesType> {
 			"I", new Color(255, 64, 0));
 
 	public static final SeriesType Tri_Color_Blue = new SeriesType(50,
-			"Tri-Color Blue", "TB", new Color(0, 0, 64));
+			"Tri-Color Blue", "TB", new Color(0, 0, 128));
 
 	public static final SeriesType Tri_Color_Green = new SeriesType(51,
-			"Tri-Color Green", "TG", new Color(0, 64, 0));
+			"Tri-Color Green", "TG", new Color(0, 128, 0));
 
 	public static final SeriesType Tri_Color_Red = new SeriesType(52,
-			"Tri-Color Red", "TR", new Color(64, 0, 0));
+			"Tri-Color Red", "TR", new Color(128, 0, 0));
 
 	public static final SeriesType Optec_Wing_A = new SeriesType(55,
 			"Optec Wing A", "MA", new Color(128, 64, 255));
