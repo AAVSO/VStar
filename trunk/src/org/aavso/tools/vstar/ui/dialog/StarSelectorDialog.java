@@ -104,7 +104,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		topPane.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
 
 		JPanel starFieldPane = createStarFieldPane();
-		starGroupSelectionPane = new StarGroupSelectionPane(starField);
+		starGroupSelectionPane = new StarGroupSelectionPane(starField, false);
 		topPane.add(starGroupSelectionPane);
 		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
 		topPane.add(starFieldPane);
@@ -291,27 +291,27 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	// Check that we have valid input in an appropriate subset
 	// of dialog widgets. The dialog will not be dismissed until
-	// there is a valid star selection and date range or the
-	// all-data checkbox is selected.
+	// there is an entry in the star text box and a date range
+	// or the all-data checkbox is selected.
 	private void checkInput() {
 		String text = starField.getText();
 		if (!whitespacePattern.matcher(text).matches()) {
-			// If text box is not empty, prioritise it over 10-star
-			// drop-down menu. AUID or star name?
+			// AUID or star name?
 			text = sanitise(text);
 			if (auidPattern.matcher(text).matches()) {
 				auid = text.trim();
 			} else {
 				starName = text.trim();
 			}
-		} else {
-			// There's nothing in the text field, so use the
-			// selected star group item. Note that by only
-			// setting AUID, we will force the lookup of star
-			// info from the database, at least the name, but
-			// also period and epoch if they are available.
-			auid = starGroupSelectionPane.getSelectedAUID();
 		}
+//		else {
+//			// There's nothing in the text field, so use the
+//			// selected star group item. Note that by only
+//			// setting AUID, we will force the lookup of star
+//			// info from the database, at least the name, but
+//			// also period and epoch if they are available.
+//			auid = starGroupSelectionPane.getSelectedAUID();
+//		}
 
 		// Is the all-data checkbox selected?
 		wantAllData = allDataCheckBox.isSelected();

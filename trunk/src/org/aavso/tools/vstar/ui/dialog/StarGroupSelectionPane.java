@@ -62,6 +62,19 @@ public class StarGroupSelectionPane extends JPanel {
 	 *            selected.
 	 */
 	public StarGroupSelectionPane(JTextField starField) {
+		this(starField, true);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param starField
+	 *            An optional star field to be cleared or set when a group star
+	 *            is selected.
+	 * @param clearStarField
+	 *            Whether to clear (true) or set (false) the star field.
+	 */
+	public StarGroupSelectionPane(JTextField starField, boolean clearStarField) {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createEtchedBorder());
 
@@ -72,7 +85,7 @@ public class StarGroupSelectionPane extends JPanel {
 		selectedStarName = null;
 		selectedAUID = null;
 
-		clearStarField = true;
+		this.clearStarField = clearStarField;
 
 		starGroups = StarGroups.getInstance();
 		Set<String> starGroupMapKeys = starGroups.getGroupNames();
@@ -108,8 +121,13 @@ public class StarGroupSelectionPane extends JPanel {
 				populateStarListForSelectedGroup();
 				starSelector.addActionListener(starSelectorListener);
 
-				if (starField != null && clearStarField) {
-					starField.setText("");
+				if (starField != null) {
+					if (clearStarField) {
+						starField.setText("");
+					} else {
+						String starName = (String) starSelector.getSelectedItem();
+						starField.setText(starName);
+					}
 				}
 			}
 		};
@@ -126,8 +144,12 @@ public class StarGroupSelectionPane extends JPanel {
 					selectedAUID = starGroups.getAUID(selectedStarGroup,
 							selectedStarName);
 
-					if (starField != null && clearStarField) {
-						starField.setText("");
+					if (starField != null) {
+						if (clearStarField) {
+							starField.setText("");
+						} else {
+							starField.setText(starName);
+						}
 					}
 				}
 			}
@@ -242,7 +264,7 @@ public class StarGroupSelectionPane extends JPanel {
 	 * stars will be "refreshed".
 	 */
 	public void refreshGroups() {
-		clearStarField = false;
+		boolean prevClearStarField = clearStarField;
 
 		starGroupSelector.removeAllItems();
 
@@ -259,7 +281,7 @@ public class StarGroupSelectionPane extends JPanel {
 			selectAndRefreshStarsInGroup(starGroups.getDefaultStarListTitle());
 		}
 
-		clearStarField = true;
+		clearStarField = prevClearStarField;
 	}
 
 	/**
