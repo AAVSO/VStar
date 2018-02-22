@@ -33,34 +33,39 @@ public class NumberParser {
 
 	/**
 	 * Parse a string, returning a double primitive value, or if no valid double
-	 * value is present, throw an exception. The string is first trimmed of
-	 * leading and trailing whitespace.
+	 * value is present, throw an exception.
 	 * 
 	 * @param str
-	 *            The string that (hopefully) contains a number.
-	 * @return The double value corresponding to the initial parseable portion
-	 *         of the string.
+	 *            The string that (hopefully) contains a numeric VeLa expression.
+	 * @return The double value corresponding to the evaluated string.
 	 * @throws VeLaParseError
 	 *             If a parse error occurs.
 	 * @throws VeLaEvalError
 	 *             If an evaluation error occurs.
 	 * @throws NumberFormatException
 	 *             If there was no valid double value resulting from the parse
-	 *             (e.g. the VeLa expression evaluated to a string).
+	 *             (the VeLa expression did not evaluate to a double or integer).
 	 */
 	public static double parseDouble(String str) throws VeLaParseError,
 			VeLaEvalError, NumberFormatException {
+		
 		Operand operand = vela.expressionToOperand(str);
 
+		double result = Double.NaN;
+		
 		switch (operand.getType()) {
 		case INTEGER:
+			result = operand.intVal();
+			break;
+			
 		case REAL:
+			result = operand.doubleVal();
 			break;
 			
 		default:
 			throw new NumberFormatException();
 		}
 
-		return operand.doubleVal();
+		return result;
 	}
 }
