@@ -31,6 +31,17 @@ import org.aavso.tools.vstar.data.SeriesType;
  */
 public class StarGroups {
 
+	private String tenStarList = "10-Star Tutorial list (North):"
+			+ "alf Ori,000-BBK-383;bet Lyr,000-BCW-361;"
+			+ "bet Per,000-BBF-713;del Cep,000-BDC-570;"
+			+ "eps Aur,000-BCT-905;eta Aql,000-BCT-763;"
+			+ "eta Gem,000-BBK-904;gam Cas,000-BBC-215;"
+			+ "miu Cep,000-BCP-244;R Lyr,000-BCD-657";
+
+	private String southerGemsList = "11-Star Tutorial list (South):"
+			+ "X Sgr,?;W Sgr,?;eta Aql,?;kap Pav,?;zet Phe,?;bet Dor,?;"
+			+ "V Pup,?;alf Ori,?;R Dor,?;l Car,?;R Car,?";
+
 	private final static StarGroups instance = new StarGroups();
 
 	private final static String PREFS_KEY = "STAR_GROUPS";
@@ -51,7 +62,7 @@ public class StarGroups {
 		starGroupMap = new TreeMap<String, Map<String, String>>();
 
 		defaultStarListTitle = PropertiesAccessor.getStarListTitle();
-		addDefaultStarGroup();
+		addDefaultStarGroups();
 
 		// Add to star group map from user preferences.
 		try {
@@ -200,7 +211,7 @@ public class StarGroups {
 	 */
 	public void resetGroupsToDefault() {
 		starGroupMap.clear();
-		addDefaultStarGroup();
+		addDefaultStarGroups();
 	}
 
 	/**
@@ -269,8 +280,8 @@ public class StarGroups {
 
 					// Remove trailing semi-colon after star-auid pairs.
 					if (prefsValue.endsWith(";")) {
-						prefsValue = prefsValue.substring(0, prefsValue
-								.length() - 1);
+						prefsValue = prefsValue.substring(0,
+								prefsValue.length() - 1);
 					}
 				}
 			}
@@ -294,13 +305,9 @@ public class StarGroups {
 
 	// Helpers
 
-	// Add known default star group.
-	private void addDefaultStarGroup() {
-		starGroupMap.put(defaultStarListTitle, new TreeMap<String, String>());
-
-		for (Star star : PropertiesAccessor.getStarList()) {
-			starGroupMap.get(defaultStarListTitle).put(star.getName(),
-					star.getIdentifier());
-		}
+	// Add known default star groups.
+	private void addDefaultStarGroups() {
+		populateStarGroupMapFromPrefs(tenStarList);
+		populateStarGroupMapFromPrefs(southerGemsList);
 	}
 }
