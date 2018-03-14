@@ -31,7 +31,7 @@ public class AAVSOnetEpochPhotometryObservationSource extends
 
 		super(
 				"AAVSOnet",
-				"http://tombstone.physics.mcmaster.ca/BSM2015/conesearch_filter_cr.php?",
+				"https://physics.mcmaster.ca/astro/BSM2015/conesearch_filter_cr.php?",
 				"apass", "Its_full_of_stars", true);
 
 		seriesNameToTypeMap.put("B", SeriesType.Johnson_B);
