@@ -125,7 +125,7 @@ public class NewStarFromObSourcePluginWithSuppliedFileTask extends
 			}
 
 			// Create plots, tables.
-			NewStarType type = NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
+			NewStarType type = obSourcePlugin.getNewStarType();
 			mediator.createNewStarObservationArtefacts(type, retriever
 					.getStarInfo(), 0, isAdditive);
 
