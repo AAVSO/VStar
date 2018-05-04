@@ -282,13 +282,16 @@ public class VeLaInterpreter {
 			ast = exprToAST.get(prog);
 			astCached = true;
 		} else {
-			ExpressionListener listener = new ExpressionListener();
-			ParseTreeWalker.DEFAULT.walk(listener, tree);
+			ExpressionVisitor visitor = new ExpressionVisitor();
+			ast = visitor.visit(tree);
+			
+//			ExpressionListener listener = new ExpressionListener();
+//			ParseTreeWalker.DEFAULT.walk(listener, tree);
 
-			if (listener.isASTPresent()) {
-				ast = listener.getAST();
-				// This relates a VeLa program or expression to a sequence of
-				// ASTs.
+			if (ast != null) {
+//			if (listener.isASTPresent()) {
+//				ast = listener.getAST();
+				// This relates a VeLa program or expression to an AST.
 				exprToAST.put(prog, ast);
 			}
 		}
@@ -583,13 +586,13 @@ public class VeLaInterpreter {
 			}
 			break;
 
-		case OUT:
-			// Evaluate and print each AST.
-			for (AST child : ast.getChildren()) {
-				eval(child);
-				System.out.print(stack.pop().toHumanReadableString());
-			}
-			break;
+//		case OUT:
+//			// Evaluate and print each AST.
+//			for (AST child : ast.getChildren()) {
+//				eval(child);
+//				System.out.print(stack.pop().toHumanReadableString());
+//			}
+//			break;
 
 		default:
 			break;
@@ -1015,7 +1018,7 @@ public class VeLaInterpreter {
 		if (conforms) {
 			// Apply the function to the actual parameters.
 			Optional<Operand> result = function.apply(params);
-			
+
 			String funcRepr = function.toString();
 
 			if (result.isPresent()) {
@@ -1037,7 +1040,7 @@ public class VeLaInterpreter {
 					}
 				} else {
 					throw new VeLaEvalError(String.format(
-							"%s has no return type but a result "
+							"%s has no return type but a value "
 									+ "of type %s was returned.", funcRepr,
 							result.get().getType()));
 				}
@@ -1045,9 +1048,7 @@ public class VeLaInterpreter {
 				if (function.returnType.isPresent()) {
 					// No result was returned but one was expected.
 					throw new VeLaEvalError(String.format(
-							"The expected return type of %s was %s "
-									+ "but no result was returned.", funcRepr,
-							function.getReturnType().get()));
+							"No value was returned by %s.", funcRepr));
 				}
 			}
 		}
@@ -1080,6 +1081,9 @@ public class VeLaInterpreter {
 
 		addZeroArityFunctions();
 
+		// I/O
+		addOutProcedure();
+		
 		// List functions
 		addListHeadFunction();
 		addListTailFunction();
@@ -1088,6 +1092,7 @@ public class VeLaInterpreter {
 		addListConcatFunction();
 		addListMapFunction();
 		addListFilterFunction();
+		addListForFunction();
 
 		for (Type type : Type.values()) {
 			// Note that this includes function; useful?
@@ -1122,6 +1127,20 @@ public class VeLaInterpreter {
 				double jd = AbstractDateUtil.getInstance().calendarToJD(year,
 						month, day);
 				return Optional.of(new Operand(Type.REAL, jd));
+			}
+		});
+	}
+
+	private void addOutProcedure() {
+		// Any number or type of parameters will do.
+		addFunctionExecutor(new FunctionExecutor(Optional.of("OUT"),
+				FunctionExecutor.ANY_FORMALS, Optional.empty()) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				for (Operand operand : operands) {
+					System.out.print(operand.toHumanReadableString());
+				}
+				return Optional.empty();
 			}
 		});
 	}
@@ -1351,6 +1370,28 @@ public class VeLaInterpreter {
 					}
 				}
 				return Optional.of(retVal);
+			}
+		});
+	}
+
+	private void addListForFunction() {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.FUNCTION);
+		paramTypes.add(Type.LIST);
+		// FOR should not return anything.
+		addFunctionExecutor(new FunctionExecutor(Optional.of("FOR"),
+				paramTypes, Optional.empty()) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				FunctionExecutor fun = operands.get(0).functionVal();
+				List<Operand> list = operands.get(1).listVal();
+				for (Operand item : list) {
+					List<Operand> params = new ArrayList<Operand>();
+					params.add(item);
+
+					applyFunction(fun, params);
+				}
+				return Optional.empty();
 			}
 		});
 	}
