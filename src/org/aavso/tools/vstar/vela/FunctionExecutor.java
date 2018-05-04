@@ -29,6 +29,7 @@ import java.util.Optional;
  */
 public abstract class FunctionExecutor {
 
+	public static final List<Type> ANY_FORMALS = Collections.emptyList();
 	public static final List<Type> NO_FORMALS = Collections.emptyList();
 	public static final List<Operand> NO_ACTUALS = new ArrayList<Operand>();
 
@@ -130,7 +131,9 @@ public abstract class FunctionExecutor {
 	public boolean conforms(List<Operand> actualParameters) {
 		boolean result = true;
 
-		if (actualParameters.size() != parameterTypes.size()) {
+		if (parameterTypes == ANY_FORMALS) {
+			result = true;
+		} else if (actualParameters.size() != parameterTypes.size()) {
 			result = false;
 		} else {
 			for (int i = 0; i < actualParameters.size(); i++) {
