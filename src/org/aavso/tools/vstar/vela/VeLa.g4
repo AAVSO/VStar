@@ -4,7 +4,6 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - Allow short band names, e.g. TG, in obs filters
 // - Internal function representation in Models dialog should use VeLa
 // - VeLa could replace or be an alternative to JavaScript for scripting
 //   o Need a FFI
@@ -35,12 +34,14 @@ grammar VeLa;
 // - Optional types for let bindings; more useful if mutable **
 // - Whitespace is significant in parameter lists because we allow commas in numbers;
 //   so, remove commas as parameter list (formal and actual) and list delimiters; use 
-//   space or semi-colon ala MATLAB
+//   space or semi-colon ala MATLAB **
 // - The interpreter could be used by a compiler for deterministic ASTs
 // - Add .. operator as shorthand for creating numeric lists over a range **
 //   o Open-ended range: N..
 // - A counter style closure would not work since bindings are immutable
 // - Y-combinator in VeLa
+// - Unicode symbols for vars, e.g. PI, for Fourier models
+// - Need a REPL for test model functions
 
 // ** Parser rules **
 
@@ -60,7 +61,7 @@ sequence
 	(
 		binding
 		| namedFundef
-		| out
+//		| out
 		| expression
 	)*
 ;
@@ -79,45 +80,41 @@ binding
 // environment and its predecessors. name:type pays homage to Pascal, 
 // OCaml/F# and Swift.
 // TODO: Should consider using -> vs : for return type ala ML
-//       Alternatively, use colons EVERYWHERE -> cou'ld be used, e.g. in select
+//       Alternatively, use colons EVERYWHERE; -> could be used, e.g. in select
 
 namedFundef
 :
 	symbol LPAREN formalParameter?
 	(
-		comma formalParameter
+		formalParameter
 	)* RPAREN
 	(
 		COLON type
 	)? LBRACE sequence RBRACE
 ;
 
-// TODO: really need return type? not used for function signature comparison;
-// should use for type checking result of function (dynamically at first)
-
 // TODO: add IN/INPUT/READ and change below to WRITE if necessary
 
-out
-:
-	OUT expression
-	(
-		COMMA expression
-	)*
-;
-
+//out
+//:
+//	OUT LPAREN 
+//	expression
+//	(
+//		expression
+//	)*
+//	RPAREN
+//;
+ 
 expression
 :
 	selectionExpression
 	| booleanExpression
 ;
 
-// Homage to Haskell/Scala/Erlang functional-style cases
-// TODO: or MATCH (OCaml) or IF or CASE; in OCaml, MATCH is arbitrary
-// pattern matching not just booleans; SELECT|IF
-
+// Homage to Haskell/Scala/Erlang functional-style cases and Kotlin for name
 selectionExpression
 :
-	SELECT
+	WHEN
 	(
 	// TODO: should be expression on RHS; allows nested select!
 		booleanExpression ARROW booleanExpression
@@ -198,6 +195,7 @@ sign
 exponentiationExpression
 :
 // This rule option is right associative.
+//	factor
 	< assoc = right > factor
 	(
 		(
@@ -244,7 +242,7 @@ list
 :
 	LBRACKET expression?
 	(
-		comma expression
+		expression
 	)* RBRACKET
 ;
 
@@ -262,7 +260,7 @@ anonFundef
 // TODO: call it lambda instead of function? either that or fun.
 	FUN LPAREN formalParameter?
 	(
-		comma formalParameter
+		formalParameter
 	)* RPAREN
 	(
 		COLON type
@@ -290,12 +288,12 @@ type
 
 // A function call consists of a function object followed 
 // by zero or more parameters surrounded by parentheses.
-
+ 
 funcall
 :
 	funobj LPAREN expression?
 	(
-		comma expression
+		expression
 	)* RPAREN
 ;
 
@@ -311,10 +309,10 @@ funobj
 	)
 ;
 
-comma
-:
-	COMMA
-;
+//comma
+//:
+//	COMMA
+//;
 
 // ** Lexer rules **
 
@@ -333,16 +331,14 @@ ARROW
 	'->'
 ;
 
-OUT
-:
-	[Oo] [Uu] [Tt]
-;
+//OUT
+//:
+//	[Oo] [Uu] [Tt]
+//;
 
-// TODO: or case or if?
-
-SELECT
+WHEN
 :
-	[Ss] [Ee] [Ll] [Ee] [Cc] [Tt]
+	[Ww] [Hh] [Ee] [Nn]
 ;
 
 // Used for function definition and type
