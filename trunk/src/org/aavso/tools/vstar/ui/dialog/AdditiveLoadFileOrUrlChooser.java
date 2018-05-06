@@ -84,7 +84,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	 * 
 	 * @param extensions
 	 */
-	public void setFileExtensions(List<String> extensions) {
+	public synchronized void setFileExtensions(List<String> extensions) {
 		fileChooser.setFileFilter(new FileExtensionFilter(extensions));
 	}
 
@@ -135,8 +135,9 @@ public class AdditiveLoadFileOrUrlChooser {
 	 *            relative.
 	 * @return Whether the dialog was "approved".
 	 */
-	public boolean showDialog(Component parent) {
-		return fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION;
+	public synchronized boolean showDialog(Component parent) {
+		int result = fileChooser.showOpenDialog(parent);
+		return result == JFileChooser.APPROVE_OPTION;
 	}
 
 	/**
@@ -159,7 +160,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	 * @param urlProvided
 	 *            the urlProvided to set
 	 */
-	public void setUrlProvided(boolean urlProvided) {
+	public synchronized void setUrlProvided(boolean urlProvided) {
 		this.urlProvided = urlProvided;
 	}
 
@@ -182,7 +183,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	/**
 	 * Reset this file selector's state before use.
 	 */
-	public void reset() {
+	public synchronized void reset() {
 		setUrlProvided(false);
 	}
 }
