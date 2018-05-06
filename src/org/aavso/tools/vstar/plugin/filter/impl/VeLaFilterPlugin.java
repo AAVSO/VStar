@@ -27,6 +27,7 @@ import org.aavso.tools.vstar.util.Logic;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.vela.Operand;
+import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaEvalError;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
 import org.aavso.tools.vstar.vela.VeLaParseError;
@@ -74,7 +75,9 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 					vela.pushEnvironment(new VeLaValidObservationEnvironment(ob));
 
 					Optional<Operand> result = vela.program(velaFilterExpr);
+					
 					boolean does_match = result.isPresent()
+							&& result.get().getType() == Type.BOOLEAN
 							&& result.get().booleanVal();
 
 					if (does_match) {
@@ -95,7 +98,7 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 							addToSubset(ob);
 						}
 					}
-					
+
 					vela.popEnvironment();
 				}
 
