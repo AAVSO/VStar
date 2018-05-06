@@ -38,7 +38,6 @@ import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
-import org.aavso.tools.vstar.util.ApacheCommonsBrentOptimiserExtremaFinder;
 import org.aavso.tools.vstar.util.ApacheCommonsDerivativeBasedExtremaFinder;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
@@ -225,7 +224,7 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 								.get("MODEL_INFO_FUNCTION_TITLE"));
 
 						if (strRepr == null) {
-							strRepr = "function(t:real) : real {\n";
+							strRepr = "f(t:real) : real {\n";
 
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
