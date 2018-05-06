@@ -257,19 +257,18 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	public String toString() {
 		String str = cosineCoefficient >= 0 ? "+" : "";
 
-		String sincosParam = "2\u03C0" + harmonic + "(t-"
+		String sincosParam = "2*PI*" + harmonic + "*(t-"
 				+ NumericPrecisionPrefs.formatTime(zeroPointOffset) + ")";
 
 		str += NumericPrecisionPrefs.formatOther(cosineCoefficient)
-				+ "cos(";
+				+ " * cos(";
 		str += sincosParam;
 		str += ")";
 
-		str += sineCoefficient >= 0 ? "+" : "";
+		str += sineCoefficient >= 0 ? " + " : "";
 
-		// implicit mult: \u00D7
 		str += NumericPrecisionPrefs.formatOther(sineCoefficient)
-				+ "sin(";
+				+ " * sin(";
 		str += sincosParam;
 		str += ")";
 
@@ -307,7 +306,7 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 		str += sincosParam;
 		str += ")";
 
-		str += sineCoefficient >= 0 ? "+" : "";
+		str += sineCoefficient >= 0 ? " + " : "";
 
 		str += NumericPrecisionPrefs.formatOther(sineCoefficient) + " * sin(";
 		str += sincosParam;
