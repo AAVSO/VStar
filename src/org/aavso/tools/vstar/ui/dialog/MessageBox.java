@@ -18,12 +18,14 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.Component;
+import java.util.logging.Level;
 
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 import org.aavso.tools.vstar.scripting.ScriptRunner;
+import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
@@ -120,6 +122,9 @@ public class MessageBox {
 	 */
 	public static void showWarningDialog(Component parent, String title,
 			String msg) {
+
+		VStar.LOGGER.log(Level.WARNING, msg);
+
 		if (!Mediator.getUI().isScriptingMode()) {
 			JOptionPane pane = new JOptionPane(msg,
 					JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
@@ -140,6 +145,8 @@ public class MessageBox {
 	 */
 	public static void showWarningDialog(String title, String msg) {
 		if (!Mediator.getUI().isScriptingMode()) {
+
+			VStar.LOGGER.log(Level.WARNING, msg);
 
 			JOptionPane pane = new JOptionPane(msg,
 					JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
@@ -163,6 +170,8 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			String msg) {
+		VStar.LOGGER.log(Level.SEVERE, msg);
+
 		if (!Mediator.getUI().isScriptingMode()) {
 			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
 					JOptionPane.OK_CANCEL_OPTION);
@@ -187,6 +196,8 @@ public class MessageBox {
 	 *            The message that is the content of the dialog.
 	 */
 	public static void showErrorDialog(String title, String msg) {
+		VStar.LOGGER.log(Level.SEVERE, msg);
+
 		if (!Mediator.getUI().isScriptingMode()) {
 			Component parent = Mediator.getUI().getComponent();
 
@@ -214,6 +225,8 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			Throwable e) {
+		VStar.LOGGER.log(Level.SEVERE, title, e);
+
 		if (!Mediator.getUI().isScriptingMode()) {
 			String msg = e.getClass().getName() + ": "
 					+ e.getLocalizedMessage();
@@ -223,7 +236,7 @@ public class MessageBox {
 			JDialog dialog = pane.createDialog(parent, title);
 			dialog.setVisible(true);
 
-			e.printStackTrace();
+			// e.printStackTrace();
 
 			// Turn off the wait cursor, in case it's enabled.
 			if (parent != null) {
@@ -244,6 +257,8 @@ public class MessageBox {
 	 *            The exception whose content will be the content of the dialog.
 	 */
 	public static void showErrorDialog(String title, Throwable e) {
+		VStar.LOGGER.log(Level.SEVERE, title, e);
+
 		if (!Mediator.getUI().isScriptingMode()) {
 			Component parent = DocumentManager.findActiveWindow();
 
@@ -255,7 +270,7 @@ public class MessageBox {
 			JDialog dialog = pane.createDialog(parent, title);
 			dialog.setVisible(true);
 
-			e.printStackTrace();
+			//e.printStackTrace();
 
 			// Turn off the wait cursor, in case it's enabled.
 			parent.setCursor(null);

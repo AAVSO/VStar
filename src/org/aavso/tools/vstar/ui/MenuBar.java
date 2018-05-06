@@ -49,6 +49,7 @@ import org.aavso.tools.vstar.scripting.ScriptRunner;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
 import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser;
 import org.aavso.tools.vstar.ui.dialog.InfoDialog;
+import org.aavso.tools.vstar.ui.dialog.LogDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementDialog;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
@@ -89,6 +90,7 @@ public class MenuBar extends JMenuBar {
 	public static final String SAVE = LocaleProps.get("FILE_MENU_SAVE");
 	public static final String PRINT = LocaleProps.get("FILE_MENU_PRINT");
 	public static final String INFO = LocaleProps.get("FILE_MENU_INFO");
+	public static final String LOG = LocaleProps.get("FILE_MENU_LOG");
 	public static final String PREFS = LocaleProps.get("FILE_MENU_PREFS");
 	public static final String QUIT = LocaleProps.get("FILE_MENU_QUIT");
 
@@ -188,6 +190,7 @@ public class MenuBar extends JMenuBar {
 	JMenuItem fileSaveItem;
 	JMenuItem filePrintItem;
 	JMenuItem fileInfoItem;
+	JMenuItem fileLogItem;
 	JMenuItem filePrefsItem;
 	JMenuItem fileQuitItem;
 
@@ -216,7 +219,7 @@ public class MenuBar extends JMenuBar {
 	JMenuItem viewFilterFromPlotItem;
 	JMenuItem viewNoFilterItem;
 
-	//JMenu viewCustomFilterMenu;
+	// JMenu viewCustomFilterMenu;
 
 	// Analysis menu.
 	JMenuItem analysisPhasePlotItem;
@@ -359,6 +362,10 @@ public class MenuBar extends JMenuBar {
 		fileMenu.add(fileInfoItem);
 
 		fileMenu.addSeparator();
+
+		fileLogItem = new JMenuItem(LOG);
+		fileLogItem.addActionListener(this.createLogListener());
+		fileMenu.add(fileLogItem);
 
 		filePrefsItem = new JMenuItem(PREFS);
 		filePrefsItem.addActionListener(this.createPrefsListener());
@@ -739,6 +746,17 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				new InfoDialog(Mediator.getInstance().getNewStarMessageList());
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for File->Log...
+	 */
+	public ActionListener createLogListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new LogDialog();
 			}
 		};
 	}
@@ -1347,7 +1365,7 @@ public class MenuBar extends JMenuBar {
 				// Enable filtering.
 				viewFilterItem.setEnabled(true);
 				viewNoFilterItem.setEnabled(true);
-//				viewCustomFilterMenu.setEnabled(true);
+				// viewCustomFilterMenu.setEnabled(true);
 			}
 
 			public boolean canBeRemoved() {
