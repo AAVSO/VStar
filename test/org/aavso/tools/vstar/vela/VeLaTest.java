@@ -139,8 +139,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testReal5() {
-		double result = new VeLaInterpreter(true)
-				.realExpression("1 - 6 / 2 + 4 * 5");
+		double result = vela.realExpression("1 - 6 / 2 + 4 * 5");
 		assertEquals(18.0, result);
 	}
 
