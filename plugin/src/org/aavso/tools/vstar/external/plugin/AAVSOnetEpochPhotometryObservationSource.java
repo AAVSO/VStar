@@ -32,7 +32,8 @@ public class AAVSOnetEpochPhotometryObservationSource extends
 		super(
 				"AAVSOnet",
 				"https://physics.mcmaster.ca/astro/BSM2015/conesearch_filter_cr.php?",
-				"apass", "Its_full_of_stars", true);
+				// "apass", "Its_full_of_stars",
+				null, null, true);
 
 		seriesNameToTypeMap.put("B", SeriesType.Johnson_B);
 		seriesNameToTypeMap.put("V", SeriesType.Johnson_V);
@@ -45,7 +46,7 @@ public class AAVSOnetEpochPhotometryObservationSource extends
 		radiusDegs = 0.005;
 		seriesNames.add("B");
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#requiresAuthentication()
 	 */
@@ -53,7 +54,7 @@ public class AAVSOnetEpochPhotometryObservationSource extends
 	public boolean requiresAuthentication() {
 		return true;
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#additionalAuthenticationSatisfied(org.aavso.tools.vstar.ui.resources.LoginInfo)
 	 */

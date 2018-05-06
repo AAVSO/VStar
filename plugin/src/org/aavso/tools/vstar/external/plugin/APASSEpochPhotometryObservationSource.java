@@ -32,7 +32,8 @@ public class APASSEpochPhotometryObservationSource extends
 		super(
 				"APASS",
 				"https://physics.mcmaster.ca/astro/APASS/conesearch_filter_cr.php?",
-				"apass", "Its_full_of_stars", true);
+				// "apass", "Its_full_of_stars",
+				null, null, true);
 
 		seriesNameToTypeMap.put("B", SeriesType.Johnson_B);
 		seriesNameToTypeMap.put("V", SeriesType.Johnson_V);
