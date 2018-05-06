@@ -66,6 +66,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	private Calendar cal;
 	private int year, month, day;
+	
+	private String lastStarName;
 
 	private static Pattern whitespacePattern = Pattern.compile("^\\s*$");
 
@@ -338,6 +340,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		// Can we dismiss the dialog?
 		if ((starName != null || auid != null)
 				&& ((minDate != null && maxDate != null) || wantAllData)) {
+			lastStarName = starName;
 			cancelled = false;
 			setVisible(false);
 			dispose();
@@ -421,6 +424,15 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	protected void okAction() {
 		checkInput();
+	}
+
+	@Override
+	public void showDialog() {
+		super.showDialog();
+		
+		if (lastStarName != null) {
+			starField.setText(lastStarName);
+		}
 	}
 
 	/**
