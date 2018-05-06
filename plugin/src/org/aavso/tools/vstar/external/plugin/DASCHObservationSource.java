@@ -20,6 +20,8 @@ package org.aavso.tools.vstar.external.plugin;
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -32,26 +34,35 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 
 /**
- * DASCHObservationSource is a VStar observation source plug-in tool which
- * reads DASCH (Digital Access to a Sky Century @ Harvard) data from an 
- * input file in tab-delimited "Starbase table" (.txt) format.
- * See bugs-and-features #439 on SourceForge for VStar.
+ * DASCHObservationSource is a VStar observation source plug-in tool which reads
+ * DASCH (Digital Access to a Sky Century @ Harvard) data from an input file in
+ * tab-delimited "Starbase table" (.txt) format. See bugs-and-features #439 on
+ * SourceForge for VStar.
  * 
- * More information is available at http://dasch.rc.fas.harvard.edu/lightcurve.php. 
+ * More information is available at
+ * http://dasch.rc.fas.harvard.edu/lightcurve.php.
  * 
- * As an example, if you enter "SV* HV 873" into the search form at the above url
- * it will eventually produce a search result window containing three frames.
- * In the top left hand frame, three sets of results are shown. If you choose 
- * the option “Download all points in table form”, the resultant page lists
- * several file options (A - F) for each of the three result sets. 
+ * As an example, if you enter "SV* HV 873" into the search form at the above
+ * url it will eventually produce a search result window containing three
+ * frames. In the top left hand frame, three sets of results are shown. If you
+ * choose the option “Download all points in table form”, the resultant page
+ * lists several file options (A - F) for each of the three result sets.
  * 
  * This plug-in is designed to read files of type A, such as 
- * "short_SV*_HV_873_APASS_J045423.3-705406_0002.db". The plug-in can read this either as a local file 
- * on your PC or Mac, or as the appropriate url, which in this case is -
- * http://dasch.rc.fas.harvard.edu/tmp/HyDcJo/short_SV*_HV_873_APASS_J045423.3-705406_0002.db
+ * "short_SV*_HV_873_APASS_J045423.3-705406_0002.db". The plug-in can read this
+ * either as a local file on your PC or Mac, or as the appropriate url, which in
+ * this case is -
+ * http://dasch.rc.fas.harvard.edu/tmp/HyDcJo/short_SV*_HV_873_APASS_J045423
+ * .3-705406_0002.db
  * 
  * @author Paul F. York
  * @version 1.0 - 06 Sep 2014: Original
+ * 
+ * It appears that some A .db files now have dashes ("-") under column header names.
+ * This has to be skipped if present.
+ * 
+ * @author David Benn
+ * @version 1.0.1 - 30 Mar 2018
  */
 
 public class DASCHObservationSource extends ObservationSourcePluginBase {
@@ -74,6 +85,13 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 	@Override
 	public String getDisplayName() {
 		return "New Star from DASCH File...";
+	}
+
+	@Override
+	public List<String> getAdditionalFileExtensions() {
+		List<String> dbExtension = new ArrayList<String>();
+		dbExtension.add("db");
+		return dbExtension;
 	}
 
 	class DASCHFileReader extends AbstractObservationRetriever {
@@ -108,16 +126,24 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 				InterruptedException {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					getInputStreams().get(0)));
-			
-			String line = null;
-			int headerLines = 2;	// Number of header lines in source file
-			int lineNum = 1;
-			
-			for (int i = 1; i <= headerLines + 1; i++) {
-				line = getNextLine(reader, lineNum); // Discard the 2-line header, read the first line of data
-			}
-			while (line != null) {
 
+			String line = null;
+			int headerLines = 2; // Number of header lines in source file
+			int lineNum = 1;
+
+			for (int i = 1; i <= headerLines + 1; i++) {
+				line = getNextLine(reader, lineNum); // Discard the 2-line
+														// header, read the
+														// first line of data
+			}
+
+			// It seems that at least some A .db files have dashes under
+			// each header token, so check and skip if necessary.
+			if (line.startsWith("---")) {
+				line = getNextLine(reader, lineNum);
+			}
+
+			while (line != null) {
 				handleData(line, lineNum);
 				lineNum++;
 				line = getNextLine(reader, lineNum); // Fetch next line
@@ -132,16 +158,18 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 			// DASCH makes use of the Heliocentric Julian Date (HJD)
 
 			String[] fields = line.split("\\t");
-			Double magErrThreshold = 99.0;  // Obs with magErr of 99 to be excluded
-			
+			Double magErrThreshold = 99.0; // Obs with magErr of 99 to be
+											// excluded
+
 			if (lineNum == 1) {
-				starName = fields[0];  // Get star designation from data line 1 ...
+				starName = fields[0]; // Get star designation from data line 1
+										// ...
 				getSourceName();
 			}
 			double hjd = Double.parseDouble(fields[1].trim());
 			double mag = Double.parseDouble(fields[3].trim());
 			double magErr = Double.parseDouble(fields[4].trim());
-			
+
 			String limitingMag = fields[5].trim();
 			String RA = fields[6].trim();
 			String Dec = fields[7].trim();
@@ -159,7 +187,7 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 			}
 			ob.setBand(series);
 			ob.setRecordNumber(lineNum);
-			
+
 			ob.addDetail("LIMITING MAG", limitingMag, "Limiting Mag");
 			ob.addDetail("RA", RA, "RA");
 			ob.addDetail("DEC", Dec, "Dec");
