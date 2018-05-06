@@ -1054,7 +1054,11 @@ public class Mediator {
 		NewStarFromObSourcePluginTask task = new NewStarFromObSourcePluginTask(
 				obSourcePlugin);
 		this.currTask = task;
-		task.execute();
+		task.configure();
+		if (task.isConfigured()) {
+			task.execute();
+		}
+		task.done();
 	}
 
 	/**
