@@ -84,7 +84,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 		ctx.formalParameter()
 				.forEach(param -> ast.addChild(param.accept(this)));
 		if (ctx.type() != null) {
-			// Optional retutn type
+			// Optional return type
 			ast.addChild(ctx.type().accept(this));
 		}
 		ast.addChild(ctx.sequence().accept(this));
@@ -97,7 +97,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 		ctx.formalParameter()
 				.forEach(param -> ast.addChild(param.accept(this)));
 		if (ctx.type() != null) {
-			// Optional retutn type
+			// Optional return type
 			ast.addChild(ctx.type().accept(this));
 		}
 		ast.addChild(ctx.sequence().accept(this));
@@ -254,10 +254,8 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	public AST visitFunobj(FunobjContext ctx) {
 		AST ast = null;
 
-		// TODO: consider using getAltNumber() here and elsewhere
-
 		if (ctx.getChild(0).equals(ctx.IDENT())) {
-			ast = new AST(ctx.IDENT().getText(), Operation.SYMBOL);
+			ast = new AST(ctx.IDENT().getText().toUpperCase(), Operation.SYMBOL);
 		} else {
 			ast = ctx.anonFundef().accept(this);
 		}

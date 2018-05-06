@@ -41,7 +41,6 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 /**
  * VeLa: VStar expression Language interpreter
@@ -284,24 +283,29 @@ public class VeLaInterpreter {
 		} else {
 			ExpressionVisitor visitor = new ExpressionVisitor();
 			ast = visitor.visit(tree);
-			
-//			ExpressionListener listener = new ExpressionListener();
-//			ParseTreeWalker.DEFAULT.walk(listener, tree);
 
 			if (ast != null) {
-//			if (listener.isASTPresent()) {
-//				ast = listener.getAST();
 				// This relates a VeLa program or expression to an AST.
 				exprToAST.put(prog, ast);
 			}
 		}
 
+		StringBuffer dot = null;
+		if (verbose && ast != null) {
+			dot = new StringBuffer();
+		}
+		
 		if (verbose && ast != null) {
 			if (astCached) {
 				System.out.println(String.format("%s [AST cached]", ast));
 			} else {
 				System.out.println(ast);
 			}
+			
+			// Create a DOT digraph for AST visualisation
+			dot.append("digraph VeLaAST {\n");
+			dot.append(ast.toDOT().second);
+			dot.append("}");
 		}
 
 		return ast;

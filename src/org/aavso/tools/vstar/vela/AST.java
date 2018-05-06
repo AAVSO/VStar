@@ -20,6 +20,8 @@ package org.aavso.tools.vstar.vela;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.aavso.tools.vstar.util.Pair;
+
 /**
  * VeLa: VStar expression Language
  * 
@@ -31,6 +33,8 @@ public class AST {
 	private Operand literal;
 	private Operation op;
 	private LinkedList<AST> children;
+
+	private static int nodeIndex = 0;
 
 	public AST() {
 		token = null;
@@ -60,6 +64,7 @@ public class AST {
 		addChild(child);
 	}
 
+	// TODO: why in this order?
 	public AST(String token, Operation op) {
 		this.token = token;
 		literal = null;
@@ -93,7 +98,7 @@ public class AST {
 	public void head(AST ast) {
 		addChild(ast);
 	}
-	
+
 	public void addChild(AST child) {
 		if (children == null) {
 			children = new LinkedList<AST>();
@@ -186,6 +191,9 @@ public class AST {
 		return deterministic;
 	}
 
+	/**
+	 * Return an SEXPR representation of the AST.
+	 */
 	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
@@ -193,7 +201,7 @@ public class AST {
 		if (literal != null) {
 			buf.append(literal);
 		} else if (isLeaf()) {
-			// e.g. variable, function definition/call, sentinel
+			// e.g. variable, function definition/call
 			buf.append(token);
 		} else {
 			buf.append("(");
@@ -214,19 +222,66 @@ public class AST {
 		return buf.toString();
 	}
 
-	public String toDOT() {
+	/**
+	 * Return the "..." of a DOT "digraph { ... }" representation of the
+	 * AST."</br>
+	 * 
+	 * @return A pair containing the top node name of the DOT representation of
+	 *         the AST and the DOT representation itself.
+	 */
+	public Pair<String, String> toDOT() {
+		String node = null;
 		StringBuffer buf = new StringBuffer();
 
-		buf.append("digraph VeLa AST {\n");
-		// TODO
-		buf.append("}");
+		if (literal != null) {
+			node = dotNode(buf, literal.toString(), false);
+		} else if (isLeaf()) {
+			// e.g. variable, function definition/call
+			node = dotNode(buf, token, false);
+		} else {
+			if (token != null) {
+				node = dotNode(buf, token, true);
+			} else if (!isLeaf()) {
+				node = dotNode(buf, children.get(0).toString(), true);
+			}
+			for (AST ast : children) {
+				Pair<String, String> pair = ast.toDOT();
+				String dot = pair.second;
+				String childNode = pair.first;
+				buf.append(dot);
+				buf.append("  ");
+				buf.append(node);
+				buf.append(" -> ");
+				buf.append(childNode);
+				buf.append(";\n");
+			}
+		}
 
-		return buf.toString();
+		return new Pair<String, String>(node, buf.toString());
 	}
 
 	public AST fromSEXPR(String sexpr) {
 		AST ast = null;
 		// TODO
 		return ast;
+	}
+
+	// Helpers
+
+	private String dotNode(StringBuffer buf, String label, boolean root) {
+		++nodeIndex;
+		String node = "node" + nodeIndex;
+
+		buf.append("  ");
+		buf.append(node);
+		buf.append("[label=\"");
+		buf.append(label.replace("\"", "\\\""));
+		buf.append("\"");
+		if (root) {
+			buf.append(", shape=\"rectangle\"");
+		}
+		buf.append("];\n");
+
+		return node;
 	}
 }
