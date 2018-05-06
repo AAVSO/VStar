@@ -135,20 +135,20 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 							.get("MODEL_INFO_FUNCTION_TITLE"));
 
 					if (strRepr == null) {
-						strRepr = "f(t) = ";
+						strRepr = "f(t:real) : real {\n";
 
 						double constCoeff = 0;
 
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += coeffs[i];
+								strRepr += "    " + coeffs[i];
 								strRepr += "t^" + i + "+\n";
 							}
 							constCoeff += coeffs[0];
 						}
-
-						strRepr += constCoeff;
+						strRepr += "    " + constCoeff;
+						strRepr += "\n}";
 					}
 
 					return strRepr;
