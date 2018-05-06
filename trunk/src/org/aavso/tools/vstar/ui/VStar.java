@@ -17,8 +17,14 @@
  */
 package org.aavso.tools.vstar.ui;
 
+import java.io.File;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.URL;
 import java.security.Policy;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import javax.swing.UIManager;
 
@@ -32,6 +38,24 @@ import org.aavso.tools.vstar.util.property.ApplicationProperties;
  * The VStar GUI.
  */
 public class VStar {
+
+	public static final String LOG_PATH = System.getProperty("user.home")
+			+ File.separator + "vstar.log";
+	
+	public static Logger LOGGER;
+
+	static {
+		try {
+			Handler fh = new FileHandler(LOG_PATH);
+			fh.setFormatter(new SimpleFormatter());
+			LOGGER = Logger.getLogger("VStar Logger");
+			LOGGER.setUseParentHandlers(false);
+			LOGGER.addHandler(fh);
+
+		} catch (Exception e) {
+			// Default to console?
+		}
+	}
 
 	private static boolean loadPlugins = true;
 
@@ -73,6 +97,14 @@ public class VStar {
 			// Load plug-ins, if any exist and plug-in loading is enabled.
 			PluginLoader.loadPlugins();
 		}
+
+		// Create an uncaught exception handler.
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			public void uncaughtException(Thread th, Throwable ex) {
+				//LOGGER.log(Level.SEVERE, "Uncaught Exception", ex);
+				MessageBox.showErrorDialog("Error", ex);
+			}
+		});
 
 		// Schedule a job for the event-dispatching thread:
 		// creating and showing this application's GUI.
@@ -116,7 +148,7 @@ public class VStar {
 					new Thread(shutdownTask, "Application shutdown task"));
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Error", t);
+					"Error", t.getLocalizedMessage());
 		}
 	}
 
