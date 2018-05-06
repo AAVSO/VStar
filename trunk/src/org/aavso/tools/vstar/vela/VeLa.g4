@@ -613,5 +613,6 @@ COMMENT
 :
 // Could use channel(HIDDEN) instead of skip,
 // e.g. https://stackoverflow.com/questions/23976617/parsing-single-line-comments
+// Homage to SQL
 	'--' ~[\r\n]* -> skip
 ;

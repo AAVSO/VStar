@@ -36,7 +36,6 @@ import org.aavso.tools.vstar.vela.VeLaParser.ListContext;
 import org.aavso.tools.vstar.vela.VeLaParser.LogicalNegationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.MultiplicativeExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.NamedFundefContext;
-import org.aavso.tools.vstar.vela.VeLaParser.OutContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SelectionExpressionContext;
@@ -51,6 +50,8 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * VeLa: VStar expression Language interpreter
  * 
  * Expression parse tree listener.
+ * 
+ * @deprecated
  */
 public class ExpressionListener extends VeLaBaseListener {
 
@@ -174,24 +175,6 @@ public class ExpressionListener extends VeLaBaseListener {
 	public void exitType(TypeContext ctx) {
 		String symbol = ctx.getChild(0).getText().toUpperCase();
 		astStack.push(new AST(symbol, Operation.SYMBOL));
-	}
-
-	@Override
-	public void enterOut(OutContext ctx) {
-		// Mark the position on the stack where OUT expressions stop.
-		astStack.push(new AST(Operation.SENTINEL));
-	}
-
-	@Override
-	public void exitOut(OutContext ctx) {
-		AST ast = new AST(Operation.OUT);
-		while (!astStack.isEmpty()) {
-			AST child = astStack.pop();
-			if (child.getOp() == Operation.SENTINEL)
-				break;
-			ast.addFirstChild(child);
-		}
-		astStack.push(ast);
 	}
 
 	@Override
