@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,13 +87,14 @@ public class PluginComponentFactory {
 	 * 
 	 * @return The file chooser or null if no file was selected.
 	 */
-	public static AdditiveLoadFileOrUrlChooser chooseFileForReading(
-			String id, List<String> additionalFileExtensions, boolean allowURL) {
+	public static AdditiveLoadFileOrUrlChooser chooseFileForReading(String id,
+			List<String> additionalFileExtensions, boolean allowURL) {
 		AdditiveLoadFileOrUrlChooser fileChooser = null;
 
 		if (id != null) {
 			if (!fileChoosers.containsKey(id)) {
-				fileChoosers.put(id, new AdditiveLoadFileOrUrlChooser(allowURL));
+				fileChoosers
+						.put(id, new AdditiveLoadFileOrUrlChooser(allowURL));
 
 				if (additionalFileExtensions != null) {
 					List<String> newFileExtensions = new ArrayList<String>();
@@ -109,8 +111,17 @@ public class PluginComponentFactory {
 		}
 
 		// Was a file chosen or a URL string accepted?
-		boolean approved = fileChooser.showDialog(Mediator.getUI()
-				.getComponent()) || fileChooser.isUrlProvided();
+		boolean approved = true;
+
+		Component parent = Mediator.getUI().getComponent();
+		
+		if (fileChooser.showDialog(parent)) {
+			approved = true;
+		}
+
+		if (fileChooser.isUrlProvided()) {
+			approved = true;
+		}
 
 		return approved ? fileChooser : null;
 	}
