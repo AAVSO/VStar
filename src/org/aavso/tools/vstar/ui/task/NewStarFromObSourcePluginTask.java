@@ -31,7 +31,6 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.plugin.InputType;
@@ -58,6 +57,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
 	private ObservationSourcePluginBase obSourcePlugin;
 
+	private AbstractObservationRetriever retriever;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -70,9 +71,9 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	}
 
 	/**
-	 * Main task. Executed in background thread.
+	 * Configure the plug-in for observation retrieval.
 	 */
-	public Void doInBackground() {
+	public void configure() {
 		try {
 			if (obSourcePlugin.requiresAuthentication()) {
 				Mediator.getUI().setCursor(
@@ -88,33 +89,6 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				}
 			}
 
-			createObservationArtefacts();
-
-		} catch (CancellationException ex) {
-			// Nothing to do; dialog cancelled.
-		} catch (ConnectionException ex) {
-			MessageBox.showErrorDialog("Authentication Source Error",
-					ex.getLocalizedMessage());
-		} catch (AuthenticationError ex) {
-			MessageBox.showErrorDialog("Authentication Error",
-					ex.getLocalizedMessage());
-		} catch (Exception ex) {
-			MessageBox.showErrorDialog("Observation Source Plug-in Error",
-					ex.getLocalizedMessage());
-		} finally {
-			Mediator.getUI().setCursor(null);
-		}
-
-		return null;
-	}
-
-	/**
-	 * Create observation table and plot models from an observation source
-	 * plug-in.
-	 */
-	protected synchronized void createObservationArtefacts() {
-
-		try {
 			// Set input streams and name, if requested by the plug-in.
 			List<InputStream> streams = new ArrayList<InputStream>();
 
@@ -141,6 +115,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 									obSourcePlugin
 											.getAdditionalFileExtensions(),
 									obSourcePlugin.getInputType() == InputType.FILE_OR_URL);
+
 					if (fileChooser != null) {
 						// If a file was chosen or a URL obtained, use as input.
 						obSourcePlugin
@@ -153,9 +128,13 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 							obSourcePlugin.setInputInfo(streams, urlStr);
 						} else {
 							File file = fileChooser.getSelectedFile();
-							streams.add(new FileInputStream(file));
-							obSourcePlugin
-									.setInputInfo(streams, file.getName());
+							if (file != null) {
+								streams.add(new FileInputStream(file));
+								obSourcePlugin.setInputInfo(streams,
+										file.getName());
+							} else {
+								throw new CancellationException();
+							}
 						}
 					} else {
 						throw new CancellationException();
@@ -164,8 +143,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				break;
 
 			case URL:
-				// If the plug-in specifies a username and password, create and
-				// set an authenticator.
+				// If the plug-in specifies a basic auth http username and
+				// password, create and set an authenticator.
 				String userName = obSourcePlugin.getUsername();
 				String password = obSourcePlugin.getPassword();
 
@@ -211,13 +190,56 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				obSourcePlugin.setInputInfo(null, null);
 				break;
 			}
-
+			
 			// Retrieve the observations. If the retriever can return
 			// the number of records, we can show updated progress,
 			// otherwise just show busy state.
-			AbstractObservationRetriever retriever = obSourcePlugin
-					.getObservationRetriever();
+			retriever = obSourcePlugin.getObservationRetriever();
 
+		} catch (CancellationException ex) {
+			// Nothing to do; dialog cancelled.
+		} catch (ConnectionException ex) {
+			MessageBox.showErrorDialog("Authentication Source Error",
+					ex.getLocalizedMessage());
+		} catch (AuthenticationError ex) {
+			MessageBox.showErrorDialog("Authentication Error",
+					ex.getLocalizedMessage());
+		} catch (Exception ex) {
+			MessageBox.showErrorDialog("Observation Source Plug-in Error",
+					ex.getLocalizedMessage());
+		} finally {
+			Mediator.getUI().setCursor(null);
+		}
+	}
+
+	public boolean isConfigured() {
+		return retriever != null;
+	}
+	
+	/**
+	 * Main task. Executed in background thread.
+	 */
+	public Void doInBackground() {
+		try {
+			
+			createObservationArtefacts();
+			
+		} catch (Exception ex) {
+			MessageBox.showErrorDialog("Observation Source Plug-in Error",
+					ex.getLocalizedMessage());
+		} finally {
+			Mediator.getUI().setCursor(null);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Create observation table and plot models from an observation source
+	 * plug-in.
+	 */
+	protected void createObservationArtefacts() {
+		try {
 			int plotPortion = 0;
 			Integer numRecords = retriever.getNumberOfRecords();
 			if (numRecords == null) {
@@ -245,8 +267,9 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			retriever.retrieveObservations();
 
 			if (retriever.getValidObservations().isEmpty()) {
-				throw new ObservationReadError(
-						"No observations for the specified period or error in observation source.");
+				String msg = "No observations for the specified period.";
+				MessageBox.showErrorDialog("Observation Read Error", msg);
+				// throw new ObservationReadError(msg);
 			}
 
 			// Create plots, tables.
@@ -257,14 +280,11 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 		} catch (InterruptedException e) {
 			ValidObservation.restore();
 			done();
-		} catch (CancellationException e) {
-			ValidObservation.restore();
-			done();
 		} catch (Throwable t) {
 			ValidObservation.restore();
 			done();
-			MessageBox.showErrorDialog(
-					"New Star From Observation Source Read Error", t);
+			// MessageBox.showErrorDialog(
+			// "New Star From Observation Source Read Error", t);
 		}
 	}
 
