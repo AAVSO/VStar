@@ -153,13 +153,13 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	public boolean hasFuncDesc() {
 		return true;
 	}
-
+	
 	public String toString() {
 		String strRepr = functionStrMap.get(LocaleProps
 				.get("MODEL_INFO_FUNCTION_TITLE"));
 
 		if (strRepr == null) {
-			strRepr = "f(t) = ";
+			strRepr = "f(t:real) : real {\n";
 
 			double constantCoefficient = parameters.get(0)
 					.getConstantCoefficient();
@@ -169,8 +169,10 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 				PeriodFitParameters params = parameters.get(i);
 				strRepr += params.toString() + "\n";
 			}
-
+			
 			strRepr = strRepr.trim();
+
+			strRepr += "\n}";
 		}
 
 		return strRepr;
