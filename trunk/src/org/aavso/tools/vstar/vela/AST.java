@@ -260,7 +260,7 @@ public class AST {
 		return new Pair<String, String>(node, buf.toString());
 	}
 
-	public AST fromSEXPR(String sexpr) {
+	public static AST fromSEXPR(String sexpr) {
 		AST ast = null;
 		// TODO
 		return ast;
