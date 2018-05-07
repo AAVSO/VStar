@@ -4,21 +4,23 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - Internal function representation in Models dialog should use VeLa
+// - Add eval() and compile() functions
+//   o need to be able to tell whether eval() has left a value on the stack;
+//     could do this by returning boolean and having a VeLa pop() function or 
+//     using an Optional
+//   o compile() returns AST as list and/or S-expression
+// - Allow S-expressions to be converted into ASTs, e.g. compile_sexpr() => AST internally
+// - Need a REPL for test model functions
 // - VeLa could replace or be an alternative to JavaScript for scripting
 //   o Need a FFI
 // - Generate class files from VeLa ASTs
+// - The interpreter could be used by a compiler for deterministic ASTs
 // - Functions should be properly tail recursive to allow loops
 //   o final AST in function is a recursive call, or
 //   o final SELECT AST consequent is a recursive call 
-//   Detecting tail recursion is easy enough and not pushing VeLa scopes is also easy, 
-//   but eliminating recursive calls to eval() is harder; compiling VeLa could do it
-// - Add eval() and compile() functions
-//   o need to be able to tell whether eval() has left a value on the stack;
-//     could do this by returning boolean and having a VeLa pop() function
-//   o compile() returns AST as list and/or S-expression
-// - Allow S-expressions to be evaluated, e.g. compile_sexpr()
-// - Add for, reduce **
+//   o Detecting tail recursion is easy enough and not pushing VeLa 
+//     scopes is also easy, but eliminating recursive calls to eval() is harder; 
+//     compiling VeLa could do it
 // - May still need while loops: while booleanExpression { ... }
 // - Add maps; -> as key-value pair delimiter, e.g. m <- [ key -> value, ... ];
 //   probably use : actually; we already use -> for select statements; could use 
@@ -30,18 +32,13 @@ grammar VeLa;
 //     of the map added to the current scope or a self/this variable pointed 
 //     to the map
 // - It would be more type safe to allow a signature instead of "function" 
-//   for function parameters, e.g. [real, real] -> real
+//   for function parameters, e.g. [real real] : real
 // - Optional types for let bindings; more useful if mutable **
-// - Whitespace is significant in parameter lists because we allow commas in numbers;
-//   so, remove commas as parameter list (formal and actual) and list delimiters; use 
-//   space or semi-colon ala MATLAB **
-// - The interpreter could be used by a compiler for deterministic ASTs
 // - Add .. operator as shorthand for creating numeric lists over a range **
-//   o Open-ended range: N..
-// - A counter style closure would not work since bindings are immutable
+//   o Open-ended range: N.. => generator
+// - A counter style closure will not currently work since bindings are immutable
 // - Y-combinator in VeLa
 // - Unicode symbols for vars, e.g. PI, for Fourier models
-// - Need a REPL for test model functions
 
 // ** Parser rules **
 
@@ -61,7 +58,6 @@ sequence
 	(
 		binding
 		| namedFundef
-//		| out
 		| expression
 	)*
 ;
@@ -79,9 +75,6 @@ binding
 // environment and allows all VeLa program elements operating over that 
 // environment and its predecessors. name:type pays homage to Pascal, 
 // OCaml/F# and Swift.
-// TODO: Should consider using -> vs : for return type ala ML
-//       Alternatively, use colons EVERYWHERE; -> could be used, e.g. in select
-
 namedFundef
 :
 	symbol LPAREN formalParameter?
@@ -93,17 +86,7 @@ namedFundef
 	)? LBRACE sequence RBRACE
 ;
 
-// TODO: add IN/INPUT/READ and change below to WRITE if necessary
-
-//out
-//:
-//	OUT LPAREN 
-//	expression
-//	(
-//		expression
-//	)*
-//	RPAREN
-//;
+// TODO: add IN/INPUT/READ/READCHAR,GETCHAR and change below to WRITE if necessary
  
 expression
 :
@@ -195,7 +178,6 @@ sign
 exponentiationExpression
 :
 // This rule option is right associative.
-//	factor
 	< assoc = right > factor
 	(
 		(
@@ -254,7 +236,6 @@ symbol
 // An anonymous function definition, when invoked, introduces an additional 
 // environment and allows all VeLa program elements operating over that 
 // environment and its predecessors.
-
 anonFundef
 :
 // TODO: call it lambda instead of function? either that or fun.
@@ -268,13 +249,10 @@ anonFundef
 ;
 
 // A formal parameter consists of a name-type pair
-
 formalParameter
 :
 	symbol COLON type
 ;
-
-// TODO: make it int, bool, real ...
 
 type
 :
@@ -288,7 +266,7 @@ type
 
 // A function call consists of a function object followed 
 // by zero or more parameters surrounded by parentheses.
- 
+
 funcall
 :
 	funobj LPAREN expression?
@@ -300,7 +278,6 @@ funcall
 // IDENT corresponds to an explicit function name
 // var allows a HOF (let binding or function parameter)
 // anonFundef allows an anonymous function
-
 funobj
 :
 	(
@@ -308,11 +285,6 @@ funobj
 		| anonFundef
 	)
 ;
-
-//comma
-//:
-//	COMMA
-//;
 
 // ** Lexer rules **
 
@@ -330,11 +302,6 @@ ARROW
 :
 	'->'
 ;
-
-//OUT
-//:
-//	[Oo] [Uu] [Tt]
-//;
 
 WHEN
 :
@@ -430,14 +397,12 @@ LESS_THAN_OR_EQUAL
 ;
 
 // Homage to Perl
-
 APPROXIMATELY_EQUAL
 :
 	'=~'
 ;
 
 // Homage to SQL, Python, ...
-
 IN
 :
 	[Ii] [Nn]
@@ -525,7 +490,6 @@ BOOLEAN
 ;
 
 // #t pays homage to (Common) Lisp; #f?
-
 fragment
 TRUE
 :
