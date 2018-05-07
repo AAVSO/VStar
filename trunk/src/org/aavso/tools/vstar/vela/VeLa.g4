@@ -99,8 +99,7 @@ selectionExpression
 :
 	WHEN
 	(
-	// TODO: should be expression on RHS; allows nested select!
-		booleanExpression ARROW booleanExpression
+		booleanExpression ARROW expression
 	)+
 ;
 
@@ -310,7 +309,6 @@ WHEN
 
 // Used for function definition and type
 // TODO: or define? or just fun as per ML ...
-
 FUN
 :
 	[Ff] [Uu] [Nn] [Cc] [Tt] [Ii] [Oo] [Nn]
