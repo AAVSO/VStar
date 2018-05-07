@@ -126,9 +126,10 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	public AST visitSelectionExpression(SelectionExpressionContext ctx) {
 		AST ast = new AST(Operation.SELECT);
 
-		for (int i = 0; i < ctx.booleanExpression().size() - 1; i += 2) {
+		// Iterate over the antecedent-consequent pairs.
+		for (int i = 0; i < ctx.booleanExpression().size(); i++) {
 			AST antecedent = ctx.booleanExpression(i).accept(this);
-			AST consequent = ctx.booleanExpression(i + 1).accept(this);
+			AST consequent = ctx.expression(i).accept(this);
 			ast.addChild(new AST(Operation.PAIR, antecedent, consequent));
 		}
 
