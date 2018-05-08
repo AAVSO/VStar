@@ -487,19 +487,16 @@ BOOLEAN
 	| FALSE
 ;
 
-// #t pays homage to (Common) Lisp; #f?
 fragment
 TRUE
 :
-	'#T'
-	| '#t'
+	[Tt] [Rr] [Uu] [Ee]
 ;
 
 fragment
 FALSE
 :
-	'#F'
-	| '#f'
+	[Ff] [Aa] [Ll] [Ss] [Ee]
 ;
 
 fragment
@@ -575,6 +572,6 @@ COMMENT
 :
 // Could use channel(HIDDEN) instead of skip,
 // e.g. https://stackoverflow.com/questions/23976617/parsing-single-line-comments
-// Homage to SQL
-	'--' ~[\r\n]* -> skip
+// The first pays homage to SQL. The second is a concession to the shebang mechanism.
+	('--' | '#') ~[\r\n]* -> skip
 ;

@@ -281,7 +281,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	@Override
 	public AST visitBool(BoolContext ctx) {
 		String token = ctx.BOOLEAN().getText().toUpperCase();
-		boolean value = "#T".equalsIgnoreCase(token) ? true : false;
+		boolean value = "TRUE".equalsIgnoreCase(token) ? true : false;
 		Operand booleanLiteral = new Operand(Type.BOOLEAN, value);
 		return new AST(token, booleanLiteral);
 	}

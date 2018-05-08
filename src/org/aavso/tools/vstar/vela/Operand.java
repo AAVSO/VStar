@@ -303,7 +303,7 @@ public class Operand {
 			str = NumericPrecisionPrefs.formatOther(doubleVal);
 			break;
 		case BOOLEAN:
-			str = booleanVal ? "#T" : "#F";
+			str = booleanVal ? "True" : "False";
 			break;
 		case STRING:
 			str = stringVal;
@@ -332,7 +332,7 @@ public class Operand {
 			str = NumericPrecisionPrefs.formatOther(doubleVal);
 			break;
 		case BOOLEAN:
-			str = booleanVal ? "#T" : "#F";
+			str = booleanVal ? "True" : "False";
 			break;
 		case STRING:
 			str = "\"" + stringVal + "\"";
