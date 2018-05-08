@@ -74,6 +74,8 @@ public class VeLaInterpreter {
 	 *            Verbose mode?
 	 */
 	public VeLaInterpreter(boolean verbose) {
+		this.verbose = verbose;
+
 		errorListener = new VeLaErrorListener();
 
 		stack = new Stack<Operand>();
@@ -83,8 +85,6 @@ public class VeLaInterpreter {
 
 		initBindings();
 		initFunctionExecutors();
-
-		this.verbose = verbose;
 	}
 
 	/**
@@ -294,14 +294,14 @@ public class VeLaInterpreter {
 		if (verbose && ast != null) {
 			dot = new StringBuffer();
 		}
-		
+
 		if (verbose && ast != null) {
 			if (astCached) {
 				System.out.println(String.format("%s [AST cached]", ast));
 			} else {
 				System.out.println(ast);
 			}
-			
+
 			// Create a DOT digraph for AST visualisation
 			dot.append("digraph VeLaAST {\n");
 			dot.append(ast.toDOT().second);
@@ -589,14 +589,6 @@ public class VeLaInterpreter {
 				}
 			}
 			break;
-
-//		case OUT:
-//			// Evaluate and print each AST.
-//			for (AST child : ast.getChildren()) {
-//				eval(child);
-//				System.out.print(stack.pop().toHumanReadableString());
-//			}
-//			break;
 
 		default:
 			break;
@@ -1086,8 +1078,8 @@ public class VeLaInterpreter {
 		addZeroArityFunctions();
 
 		// I/O
-		addOutProcedure();
-		
+		addPrintProcedure();
+
 		// List functions
 		addListHeadFunction();
 		addListTailFunction();
@@ -1135,9 +1127,9 @@ public class VeLaInterpreter {
 		});
 	}
 
-	private void addOutProcedure() {
+	private void addPrintProcedure() {
 		// Any number or type of parameters will do.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("OUT"),
+		addFunctionExecutor(new FunctionExecutor(Optional.of("PRINT"),
 				FunctionExecutor.ANY_FORMALS, Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
@@ -1473,7 +1465,9 @@ public class VeLaInterpreter {
 
 				addFunctionExecutor(function);
 
-				// System.out.println(function.toString());
+				if (verbose) {
+					System.out.println(function.toString());
+				}
 			}
 		}
 	}
