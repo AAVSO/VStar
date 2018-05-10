@@ -1078,7 +1078,8 @@ public class VeLaInterpreter {
 		addZeroArityFunctions();
 
 		// I/O
-		addPrintProcedure();
+		addPrintProcedures();
+		addFormatFunction();
 
 		// List functions
 		addListHeadFunction();
@@ -1108,7 +1109,7 @@ public class VeLaInterpreter {
 				Collections.emptySet());
 
 		addIntrinsicFunctionExecutors(String.class, permittedTypes,
-				new HashSet<String>(Arrays.asList("JOIN")));
+				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
 	}
 
 	private void addZeroArityFunctions() {
@@ -1127,16 +1128,73 @@ public class VeLaInterpreter {
 		});
 	}
 
-	private void addPrintProcedure() {
+	private void addPrintProcedures() {
 		// Any number or type of parameters will do.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("PRINT"),
 				FunctionExecutor.ANY_FORMALS, Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
-				for (Operand operand : operands) {
-					System.out.print(operand.toHumanReadableString());
+				return commonPrintProcedure(operands, false);
+			}
+		});
+
+		// Note: shouldn't need this but on command-line, the LF character
+		// prints literally. Why?
+		addFunctionExecutor(new FunctionExecutor(Optional.of("PRINTLN"),
+				FunctionExecutor.ANY_FORMALS, Optional.empty()) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				return commonPrintProcedure(operands, true);
+			}
+		});
+	}
+
+	private Optional<Operand> commonPrintProcedure(List<Operand> operands,
+			boolean eoln) {
+		for (Operand operand : operands) {
+			System.out.print(operand.toHumanReadableString());
+		}
+		if (eoln) {
+			System.out.println();
+		}
+		return Optional.empty();
+	}
+
+	private void addFormatFunction() {
+		List<Type> paramTypes = new ArrayList<Type>();
+		paramTypes.add(Type.STRING);
+		paramTypes.add(Type.LIST);
+		addFunctionExecutor(new FunctionExecutor(Optional.of("FORMAT"),
+				paramTypes, Optional.of(Type.STRING)) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				List<Object> args = new ArrayList<Object>();
+				for (Operand operand : operands.get(1).listVal()) {
+					switch (operand.getType()) {
+					case INTEGER:
+						args.add(operand.intVal());
+						break;
+					case REAL:
+						args.add(operand.doubleVal());
+						break;
+					case STRING:
+						args.add(operand.stringVal());
+						break;
+					case BOOLEAN:
+						args.add(operand.booleanVal());
+						break;
+					case LIST:
+						args.add(operand.listVal());
+						break;
+					case FUNCTION:
+						args.add(operand.functionVal());
+						break;
+					}
 				}
-				return Optional.empty();
+				Operand result = new Operand(Type.STRING, String.format(
+						operands.get(0).stringVal(),
+						args.toArray(new Object[0])));
+				return Optional.of(result);
 			}
 		});
 	}

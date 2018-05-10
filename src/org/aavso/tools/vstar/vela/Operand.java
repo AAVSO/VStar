@@ -71,7 +71,7 @@ public class Operand {
 		this.type = type;
 		functionVal = value;
 	}
-
+	
 	/**
 	 * Given a VeLa type and a Java object, return an Operand instance.
 	 * 

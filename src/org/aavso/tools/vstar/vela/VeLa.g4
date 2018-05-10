@@ -64,8 +64,8 @@ sequence
 
 // The intention of the semantics are that within a given scope,
 // a binding cannot be repeated without error. I note that F# uses
-// <- for modifying mutable values
-
+// <- for modifying mutable values while R uses it for regular 
+// assignment.
 binding
 :
 	symbol BACK_ARROW expression
@@ -86,7 +86,7 @@ namedFundef
 	)? LBRACE sequence RBRACE
 ;
 
-// TODO: add IN/INPUT/READ/READCHAR,GETCHAR and change below to WRITE if necessary
+// TODO: add IN/INPUT/READ/READCHAR,GETCHAR
  
 expression
 :
