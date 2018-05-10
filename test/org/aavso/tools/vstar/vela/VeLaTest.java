@@ -240,13 +240,13 @@ public class VeLaTest extends TestCase {
 	// Boolean expressions
 
 	public void testTrue() {
-		assertTrue(vela.booleanExpression("#T"));
-		assertTrue(vela.booleanExpression("#t"));
+		assertTrue(vela.booleanExpression("true"));
+		assertTrue(vela.booleanExpression("true"));
 	}
 
 	public void testFalse() {
-		assertFalse(vela.booleanExpression("#F"));
-		assertFalse(vela.booleanExpression("#f"));
+		assertFalse(vela.booleanExpression("false"));
+		assertFalse(vela.booleanExpression("false"));
 	}
 
 	// Relational expressions
@@ -477,13 +477,30 @@ public class VeLaTest extends TestCase {
 
 	// Selection
 
-	public void testSelection1() {
-		String prog = "when\n3 > 2 -> 42.42\n#t -> 21.21";
+	public void testSelection() {
+		String prog = "when\n3 > 2 -> 42.42\ntrue -> 21.21";
 
 		Optional<Operand> result = vela.program(prog);
 
 		if (result.isPresent()) {
 			assertEquals(42.42, result.get().doubleVal());
+		} else {
+			fail();
+		}
+	}
+
+	public void testSelectionNested() {
+		String prog = "";
+		prog += "when\n";
+		prog += "  3 < 2 -> 42.42\n";
+		prog += "  true ->\n";
+		prog += "     when 42 > 42 -> 42\n";
+		prog += "          true -> 42.0*2";
+
+		Optional<Operand> result = vela.program(prog);
+
+		if (result.isPresent()) {
+			assertEquals(84.0, result.get().doubleVal());
 		} else {
 			fail();
 		}
@@ -642,9 +659,10 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testListAppend5() {
-		String expr = "append([\"first\" 2 \"3rd\"] #t)";
+		String expr = "append([\"first\" 2 \"3rd\"] true)";
 		Operand actual = vela.expressionToOperand(expr);
-		Operand expected = vela.expressionToOperand("[\"first\" 2 \"3rd\" #t]");
+		Operand expected = vela
+				.expressionToOperand("[\"first\" 2 \"3rd\" true]");
 		assertEquals(expected, actual);
 	}
 
@@ -700,7 +718,7 @@ public class VeLaTest extends TestCase {
 		prog += "f(n:integer) : integer {";
 		prog += "    when";
 		prog += "      n <= 0 -> 1";
-		prog += "      #t -> n*n";
+		prog += "      true -> n*n";
 		prog += "}";
 		prog += "x <- f(12)";
 		prog += "x";
@@ -714,7 +732,7 @@ public class VeLaTest extends TestCase {
 	public void testNamedFunRecursiveLoop() {
 		String prog = "";
 		prog += "loop(n:integer) {";
-		prog += "    out(n \"^2 = \" n*n \"\n\")";
+		prog += "    print(n \"^2 = \" n*n \"\n\")";
 		prog += "    when n < 10 -> loop(n+1)";
 		prog += "}";
 		prog += "loop(1)";
@@ -728,7 +746,7 @@ public class VeLaTest extends TestCase {
 		prog += "fact(n:integer) : integer {";
 		prog += "    when";
 		prog += "      n <= 0 -> 1";
-		prog += "      #t -> n*fact(n-1)";
+		prog += "      true -> n*fact(n-1)";
 		prog += "}";
 		prog += "x <- fact(6)";
 		prog += "x";
@@ -763,14 +781,14 @@ public class VeLaTest extends TestCase {
 		String prog = "";
 		prog += "f(g:function h:function n:integer) : integer {";
 		prog += "    x <- g(h(n))";
-		prog += "    out(\"g o h \" n \" = \" x \"\n\")";
+		prog += "    print(\"g o h \" n \" = \" x \"\n\")";
 		prog += "    x";
 		prog += "}\n";
 
 		prog += "fact(n:integer) : integer {";
 		prog += "    when";
 		prog += "      n <= 0 -> 1";
-		prog += "      #t -> n*fact(n-1)";
+		prog += "      true -> n*fact(n-1)";
 		prog += "}\n";
 
 		prog += "f(fact function(n:integer) : integer {n*n} 3)";
@@ -786,7 +804,7 @@ public class VeLaTest extends TestCase {
 		prog += "fact(n:integer) : integer {";
 		prog += "    when";
 		prog += "      n <= 0 -> 1";
-		prog += "      #t -> n*fact(n-1)";
+		prog += "      true -> n*fact(n-1)";
 		// prog += "    n*n";
 		prog += "}";
 		prog += "f <- fact\n";
@@ -803,7 +821,7 @@ public class VeLaTest extends TestCase {
 		prog += "fact(n:integer) : integer {";
 		prog += "    when";
 		prog += "      n <= 0 -> 1";
-		prog += "      #t -> n*fact(n-1)";
+		prog += "      true -> n*fact(n-1)";
 		prog += "}";
 		prog += "map(fact [1 2 3 4 5])";
 
@@ -915,7 +933,7 @@ public class VeLaTest extends TestCase {
 	public void testFunFor2() {
 		String prog = "";
 		prog += "cubeplus1(n:integer) {\n";
-		prog += "    out(n^3+1 \"\n\"\n)";
+		prog += "    print(n^3+1 \"\n\"\n)";
 		prog += "}\n";
 
 		prog += "nums <- [2 4 6 8]\n";
@@ -948,7 +966,7 @@ public class VeLaTest extends TestCase {
 		String prog = "";
 		prog += "x <- 12\n";
 		prog += "y <- x*x\n";
-		prog += "out(\"x squared is \" y \"\n\"\n)";
+		prog += "print(\"x squared is \" y \"\n\"\n)";
 		prog += "x";
 
 		Optional<Operand> result = vela.program(prog);
@@ -966,7 +984,29 @@ public class VeLaTest extends TestCase {
 		}
 	}
 
-	// ** Application oriented test cases **
+	// I/O test cases
+
+	public void testFormat() {
+		String prog = "";
+		prog += "s <- format(\"%d\n\" [42])";
+		prog += "s";
+		Optional<Operand> result = vela.program(prog);
+		assertEquals("42\n", result.get().stringVal());
+	}
+
+	// By inspection...
+	
+	public void testFormattedPrint() {
+		String prog = "";
+		prog += "print(format(\"%d\n\" [42]))";
+		vela.program(prog);
+	}
+
+	public void testFormattedPrintln() {
+		String prog = "";
+		prog += "println(format(\"%d\" [42]))";
+		vela.program(prog);
+	}
 
 	// Filter test cases
 
