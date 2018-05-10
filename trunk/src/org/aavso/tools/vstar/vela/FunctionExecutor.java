@@ -177,7 +177,8 @@ public abstract class FunctionExecutor {
 	}
 
 	/**
-	 * @param returnType the returnType to set
+	 * @param returnType
+	 *            the returnType to set
 	 */
 	public void setReturnType(Optional<Type> returnType) {
 		this.returnType = returnType;
@@ -186,15 +187,16 @@ public abstract class FunctionExecutor {
 	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
-		
-		buf.append(String.format("%s :: %s",
+
+		buf.append(String.format("%s (%s)",
 				funcName.isPresent() ? funcName.get() : "anonymous",
-				parameterTypes));
-		
+				parameterTypes.toString().replace("[", "").replace("]", "")
+						.replace(",", "")));
+
 		if (returnType.isPresent()) {
-			buf.append(String.format(" -> %s", returnType.get()));
+			buf.append(String.format(" : %s", returnType.get()));
 		}
-		
+
 		return buf.toString();
 	}
 

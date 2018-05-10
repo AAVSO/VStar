@@ -26,12 +26,19 @@ import java.io.IOException;
  */
 public class VeLaScriptDriver {
 	public static void main(String[] args) {
-		if (args.length == 1) {
+		if (args.length == 1 || args.length == 2) {
 			BufferedReader reader = null;
 			try {
+				String velaSourceFile = null;
 				boolean verbose = false;
+				if (args.length == 1) {
+					velaSourceFile = args[0];
+				} else {
+					verbose = "--verbose".equals(args[0]);
+					velaSourceFile = args[1];
+				}
 				VeLaInterpreter vela = new VeLaInterpreter(verbose);
-				reader = new BufferedReader(new FileReader(args[0]));
+				reader = new BufferedReader(new FileReader(velaSourceFile));
 				StringBuffer buf = new StringBuffer();
 				String line = reader.readLine();
 				while (line != null) {
