@@ -237,6 +237,32 @@ public class VeLaTest extends TestCase {
 		assertEquals("foobar", operand.stringVal());
 	}
 
+	public void testFormat() {
+		String prog = "";
+		prog += "s <- format(\"%d\n\" [42])";
+		prog += "s";
+		Optional<Operand> result = vela.program(prog);
+		assertEquals("42\n", result.get().stringVal());
+	}
+
+	public void testChr1() {
+		String prog = "chr(65)";
+		Optional<Operand> result = vela.program(prog);
+		assertEquals("A", result.get().stringVal());
+	}
+
+	public void testChr2() {
+		String prog = "chr(-1)";
+		Optional<Operand> result = vela.program(prog);
+		assertEquals("", result.get().stringVal());
+	}
+
+	public void testOrd() {
+		String prog = "ord(\"A\")";
+		Optional<Operand> result = vela.program(prog);
+		assertEquals(65, result.get().intVal());
+	}
+
 	// Boolean expressions
 
 	public void testTrue() {
@@ -419,6 +445,22 @@ public class VeLaTest extends TestCase {
 		assertTrue(result);
 	}
 
+	// While
+	
+	public void testWhileLoop1() {
+		String prog = "";
+		prog += "i <- 0\n";
+		prog += "while i < 10 {";
+		prog += "  i <- i + 1";
+		prog += "}";
+		prog += "i";
+		
+		Optional<Operand> result = vela.program(prog);
+		
+		assertTrue(result.isPresent());
+		assertEquals(10, result.get().intVal());
+	}
+	
 	// List
 
 	public void testListCaching() {
@@ -758,7 +800,6 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testAnonFunExponentiation() {
-		// TODO: whitespace is significant in parameter lists
 		String prog = "function(x:integer y:integer) : integer { x^y }(12 2)";
 
 		Optional<Operand> result = vela.program(prog);
@@ -975,27 +1016,32 @@ public class VeLaTest extends TestCase {
 		assertEquals(12, result.get().intVal());
 
 		// Attempt to bind X again.
-		try {
-			vela.program("x <- 1");
-			fail();
-		} catch (Exception e) {
-			// It's an error to bind the same variable twice in the current
-			// scope, so we should end up here.
-		}
+		result = vela.program("x <- x + 1  x");
+		assertTrue(result.isPresent());
+		assertEquals(13, result.get().intVal());		
 	}
 
-	// I/O test cases
-
-	public void testFormat() {
-		String prog = "";
-		prog += "s <- format(\"%d\n\" [42])";
-		prog += "s";
-		Optional<Operand> result = vela.program(prog);
-		assertEquals("42\n", result.get().stringVal());
-	}
-
-	// By inspection...
+	// Sequence
 	
+	public void testSequence() {
+		String prog = "";
+		prog += "str <- \"\"";
+		prog += "ch <- \"1\"";
+		prog += "str <- when";
+		prog += "           ch = \"1\" -> str + \" ONE\"";
+		prog += "           ch = \"2\" -> str + \" TWO\"";
+		prog += "           true -> { println(\"OTHER\") str }\n";
+		//prog += "println(format(\"%s: '%s'\" [ch str]))";
+		prog += "str";
+		
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(" ONE", result.get().stringVal());
+	}
+	
+	// I/O test cases by inspection...
+
 	public void testFormattedPrint() {
 		String prog = "";
 		prog += "print(format(\"%d\n\" [42]))";

@@ -50,18 +50,18 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	 * @throws VeLaEvalError
 	 *             if the name is already bound.
 	 */
-	@Override
-	public void bind(String name, Operand value) {
-		// if (value.getType() == Type.FUNCTION) {
-		// addFunctionExecutor(value.functionVal());
-		// } else
-		if (!lookup(name).isPresent()) {
-			super.bind(name, value);
-		} else {
-			throw new VeLaEvalError("'" + name
-					+ "' already bound in this environment.");
-		}
-	}
+//	@Override
+//	public void bind(String name, Operand value) {
+//		// if (value.getType() == Type.FUNCTION) {
+//		// addFunctionExecutor(value.functionVal());
+//		// } else
+//		if (!lookup(name).isPresent()) {
+//			super.bind(name, value);
+//		} else {
+//			throw new VeLaEvalError("'" + name
+//					+ "' is already bound in this environment.");
+//		}
+//	}
 
 	/**
 	 * Add a function executor to the multi-map.

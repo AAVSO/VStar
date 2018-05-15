@@ -57,9 +57,9 @@ public class VeLaEnvironment<T> {
 	 *            The value to be bound.
 	 */
 	public void bind(String name, T value) {
-		if (!cache.containsKey(name)) {
+//		if (!cache.containsKey(name)) {
 			cache.put(name, value);
-		}
+//		}
 	}
 	
 	/**

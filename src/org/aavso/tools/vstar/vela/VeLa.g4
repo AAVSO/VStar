@@ -4,16 +4,16 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - Add eval() and compile() functions
+// - Add eval() and compile() functions **
 //   o need to be able to tell whether eval() has left a value on the stack;
 //     could do this by returning boolean and having a VeLa pop() function or 
-//     using an Optional
+//     using a list
 //   o compile() returns AST as list and/or S-expression
 // - Allow S-expressions to be converted into ASTs, e.g. compile_sexpr() => AST internally
 // - Need a REPL for test model functions
 // - VeLa could replace or be an alternative to JavaScript for scripting
 //   o Need a FFI
-// - Generate class files from VeLa ASTs
+// - Generate Java class files from VeLa ASTs
 // - The interpreter could be used by a compiler for deterministic ASTs
 // - Functions should be properly tail recursive to allow loops
 //   o final AST in function is a recursive call, or
@@ -21,7 +21,6 @@ grammar VeLa;
 //   o Detecting tail recursion is easy enough and not pushing VeLa 
 //     scopes is also easy, but eliminating recursive calls to eval() is harder; 
 //     compiling VeLa could do it
-// - May still need while loops: while booleanExpression { ... }
 // - Add maps; -> as key-value pair delimiter, e.g. m <- [ key -> value, ... ];
 //   probably use : actually; we already use -> for select statements; could use 
 //   colon for that too
@@ -42,30 +41,27 @@ grammar VeLa;
 
 // ** Parser rules **
 
-// A VeLa program consists of zero or more bindings, output 
-// statements or expressions. Variable bindings are immutable, 
-// as is the operation of functions. VeLa identifiers and keywords
-// are case-insensitive.
+// A VeLa program consists of zero or more bindings, function 
+// definitions, while loops or expressions. Variable bindings 
+// are mutable, VeLa identifiers and keywords are case-insensitive.
 
 // The expression production will leave a value on the stack,
 // therefore the program rule could be the entry point for 
 // VStar filters as well as models. If one wishes to create 
 // a filter that is a complete VeLa program that happens to
 // end in a boolean expression, then that is permitted.
-
 sequence
 :
 	(
 		binding
+		| whileLoop
 		| namedFundef
 		| expression
 	)*
 ;
 
-// The intention of the semantics are that within a given scope,
-// a binding cannot be repeated without error. I note that F# uses
-// <- for modifying mutable values while R uses it for regular 
-// assignment.
+// F# (+ OCaml, ML?) uses <- for modifying mutable values while 
+// R uses it for regular assignment.
 binding
 :
 	symbol BACK_ARROW expression
@@ -83,10 +79,8 @@ namedFundef
 	)* RPAREN
 	(
 		COLON type
-	)? LBRACE sequence RBRACE
+	)? block
 ;
-
-// TODO: add IN/INPUT/READ/READCHAR,GETCHAR
  
 expression
 :
@@ -99,8 +93,18 @@ selectionExpression
 :
 	WHEN
 	(
-		booleanExpression ARROW expression
+		booleanExpression ARROW consequent
 	)+
+;
+	
+consequent
+:
+	expression | block
+;
+
+whileLoop
+:
+	WHILE booleanExpression block
 ;
 
 booleanExpression
@@ -244,7 +248,7 @@ anonFundef
 	)* RPAREN
 	(
 		COLON type
-	)? LBRACE sequence RBRACE
+	)? block
 ;
 
 // A formal parameter consists of a name-type pair
@@ -285,6 +289,11 @@ funobj
 	)
 ;
 
+block
+:
+	LBRACE sequence RBRACE
+;
+
 // ** Lexer rules **
 
 BACK_ARROW
@@ -305,6 +314,11 @@ ARROW
 WHEN
 :
 	[Ww] [Hh] [Ee] [Nn]
+;
+
+WHILE
+:
+	[Ww] [Hh] [Ii] [Ll] [Ee]
 ;
 
 // Used for function definition and type
