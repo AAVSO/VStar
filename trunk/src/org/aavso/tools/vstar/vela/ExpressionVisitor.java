@@ -24,6 +24,7 @@ import java.util.Locale;
 import org.aavso.tools.vstar.vela.VeLaParser.AdditiveExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.AnonFundefContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BindingContext;
+import org.aavso.tools.vstar.vela.VeLaParser.BlockContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BoolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
@@ -47,6 +48,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SymbolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.TypeContext;
 import org.aavso.tools.vstar.vela.VeLaParser.UnaryExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.WhileLoopContext;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -78,6 +80,12 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	}
 
 	@Override
+	public AST visitWhileLoop(WhileLoopContext ctx) {
+		return new AST(Operation.WHILE, ctx.booleanExpression().accept(this),
+				ctx.block().accept(this));
+	}
+
+	@Override
 	public AST visitNamedFundef(NamedFundefContext ctx) {
 		AST ast = new AST(Operation.FUNDEF);
 		ast.addChild(ctx.symbol().accept(this));
@@ -87,7 +95,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 			// Optional return type
 			ast.addChild(ctx.type().accept(this));
 		}
-		ast.addChild(ctx.sequence().accept(this));
+		ast.addChild(ctx.block().accept(this));
 		return ast;
 	}
 
@@ -100,7 +108,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 			// Optional return type
 			ast.addChild(ctx.type().accept(this));
 		}
-		ast.addChild(ctx.sequence().accept(this));
+		ast.addChild(ctx.block().accept(this));
 		return ast;
 	}
 
@@ -129,7 +137,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 		// Iterate over the antecedent-consequent pairs.
 		for (int i = 0; i < ctx.booleanExpression().size(); i++) {
 			AST antecedent = ctx.booleanExpression(i).accept(this);
-			AST consequent = ctx.expression(i).accept(this);
+			AST consequent = ctx.consequent(i).accept(this);
 			ast.addChild(new AST(Operation.PAIR, antecedent, consequent));
 		}
 
@@ -193,7 +201,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	@Override
 	public AST visitExponentiationExpression(ExponentiationExpressionContext ctx) {
 		AST right = null;
-		
+
 		if (ctx.getChildCount() == 1) {
 			right = ctx.factor(0).accept(this);
 		} else {
@@ -265,6 +273,11 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	}
 
 	@Override
+	public AST visitBlock(BlockContext ctx) {
+		return ctx.sequence().accept(this);
+	}
+
+	@Override
 	public AST visitInteger(IntegerContext ctx) {
 		String token = ctx.INTEGER().getText();
 		Operand intLiteral = new Operand(Type.INTEGER, Integer.parseInt(token));
@@ -332,6 +345,8 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 
 		return left;
 	}
+
+	// TODO: move into a numeric utils class with a static import
 
 	/**
 	 * Parse a string, returning a double primitive value, or if no valid double

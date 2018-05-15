@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -367,11 +368,11 @@ public class VeLaInterpreter {
 
 	/**
 	 * <p>
-	 * Given an AST representing a real expression, interpret this via a depth
+	 * Given an AST representing a VeLa program, interpret this via a depth
 	 * first traversal, leaving the result of evaluation on the stack.
 	 * </p>
 	 * <p>
-	 * The name "eval" is used in deference to Lisp and John McCarthy's eval
+	 * The name "eval" is used in deference to John McCarthy's Lisp and its eval
 	 * function, the equivalent of Maxwell's equations in Computer Science.
 	 * </p>
 	 * <p>
@@ -379,7 +380,7 @@ public class VeLaInterpreter {
 	 * </p>
 	 * 
 	 * @param ast
-	 *            The abstract syntax tree.
+	 *            An abstract syntax tree.
 	 * @throws VeLaEvalError
 	 *             If an evaluation error occurs.
 	 */
@@ -434,7 +435,7 @@ public class VeLaInterpreter {
 					// Function?
 					Optional<List<FunctionExecutor>> funList = lookupFunctions(name);
 					if (funList.isPresent()) {
-						// The first function will in the list is chosen in the
+						// The first function in the list is chosen in the
 						// absence of parameter type information.
 						stack.push(new Operand(Type.FUNCTION, funList.get()
 								.get(0)));
@@ -585,6 +586,19 @@ public class VeLaInterpreter {
 				eval(pair.left());
 				if (stack.pop().booleanVal()) {
 					eval(pair.right());
+					break;
+				}
+			}
+			break;
+
+		case WHILE:
+			// Evaluate the condition, executing the body while it is true.
+			while (true) {
+				eval(ast.left());
+				if (!stack.isEmpty() && stack.peek().getType() == Type.BOOLEAN
+						&& stack.pop().booleanVal()) {
+					eval(ast.right());
+				} else {
 					break;
 				}
 			}
@@ -1079,7 +1093,12 @@ public class VeLaInterpreter {
 
 		// I/O
 		addPrintProcedures();
+		addInputProcedures();
+
+		// String functions
 		addFormatFunction();
+		addChrFunction();
+		addOrdFunction();
 
 		// List functions
 		addListHeadFunction();
@@ -1160,12 +1179,26 @@ public class VeLaInterpreter {
 		return Optional.empty();
 	}
 
+	private void addInputProcedures() {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("NEXTCHAR"),
+				Optional.of(Type.STRING)) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				Operand ch = null;
+				try {
+					ch = new Operand(Type.STRING,
+							Character.toString((char) System.in.read()));
+				} catch (IOException e) {
+					ch = new Operand(Type.STRING, "");
+				}
+				return Optional.of(ch);
+			}
+		});
+	}
+
 	private void addFormatFunction() {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.STRING);
-		paramTypes.add(Type.LIST);
 		addFunctionExecutor(new FunctionExecutor(Optional.of("FORMAT"),
-				paramTypes, Optional.of(Type.STRING)) {
+				Arrays.asList(Type.STRING, Type.LIST), Optional.of(Type.STRING)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Object> args = new ArrayList<Object>();
@@ -1199,12 +1232,34 @@ public class VeLaInterpreter {
 		});
 	}
 
+	private void addChrFunction() {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("CHR"),
+				Arrays.asList(Type.INTEGER), Optional.of(Type.STRING)) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				int ordVal = operands.get(0).intVal();
+				String str = ordVal > -1 ? Character.toString((char) ordVal)
+						: "";
+				return Optional.of(new Operand(Type.STRING, str));
+			}
+		});
+	}
+
+	private void addOrdFunction() {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("ORD"),
+				Arrays.asList(Type.STRING), Optional.of(Type.INTEGER)) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				char chrVal = operands.get(0).stringVal().charAt(0);
+				return Optional.of(new Operand(Type.INTEGER, (int) chrVal));
+			}
+		});
+	}
+
 	private void addListHeadFunction() {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.LIST);
 		// Return type will change with invocation.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("HEAD"),
-				paramTypes, Optional.empty()) {
+				Arrays.asList(Type.LIST), Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list = operands.get(0).listVal();
@@ -1221,11 +1276,9 @@ public class VeLaInterpreter {
 	}
 
 	private void addListTailFunction() {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.LIST);
 		// Return type will always be a list.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("TAIL"),
-				paramTypes, Optional.of(Type.LIST)) {
+				Arrays.asList(Type.LIST), Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list = operands.get(0).listVal();
@@ -1243,12 +1296,9 @@ public class VeLaInterpreter {
 	}
 
 	private void addListNthFunction() {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.LIST);
-		paramTypes.add(Type.INTEGER);
 		// Return type will change with invocation.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("NTH"),
-				paramTypes, Optional.empty()) {
+				Arrays.asList(Type.LIST, Type.INTEGER), Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list = operands.get(0).listVal();
@@ -1265,11 +1315,9 @@ public class VeLaInterpreter {
 	}
 
 	private void addListLengthFunction() {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.LIST);
 		// Return type will always be integer.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("LENGTH"),
-				paramTypes, Optional.of(Type.INTEGER)) {
+				Arrays.asList(Type.LIST), Optional.of(Type.INTEGER)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				return Optional.of(new Operand(Type.INTEGER, operands.get(0)
@@ -1279,12 +1327,9 @@ public class VeLaInterpreter {
 	}
 
 	private void addListConcatFunction() {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.LIST);
-		paramTypes.add(Type.LIST);
 		// Return type will always be LIST here.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("CONCAT"),
-				paramTypes, Optional.of(Type.LIST)) {
+				Arrays.asList(Type.LIST, Type.LIST), Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list1 = operands.get(0).listVal();
@@ -1298,12 +1343,10 @@ public class VeLaInterpreter {
 	}
 
 	private void addListAppendFunction(Type secondParameterType) {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.LIST);
-		paramTypes.add(secondParameterType);
 		// Return type will always be LIST here.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("APPEND"),
-				paramTypes, Optional.of(Type.LIST)) {
+				Arrays.asList(Type.LIST, secondParameterType),
+				Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> newList = new ArrayList<Operand>();
@@ -1315,12 +1358,9 @@ public class VeLaInterpreter {
 	}
 
 	private void addListMapFunction() {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.FUNCTION);
-		paramTypes.add(Type.LIST);
 		// Return type will always be LIST here.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("MAP"),
-				paramTypes, Optional.of(Type.LIST)) {
+				Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				FunctionExecutor fun = operands.get(0).functionVal();
@@ -1353,12 +1393,9 @@ public class VeLaInterpreter {
 	}
 
 	private void addListFilterFunction() {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.FUNCTION);
-		paramTypes.add(Type.LIST);
 		// Return type will always be LIST here.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("FILTER"),
-				paramTypes, Optional.of(Type.LIST)) {
+				Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				FunctionExecutor fun = operands.get(0).functionVal();
@@ -1398,13 +1435,10 @@ public class VeLaInterpreter {
 	}
 
 	private void addListReduceFunction(Type reductionType) {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.FUNCTION);
-		paramTypes.add(Type.LIST);
-		paramTypes.add(reductionType);
 		// Return type will be same as function the parameter's type.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("REDUCE"),
-				paramTypes, Optional.empty()) {
+				Arrays.asList(Type.FUNCTION, Type.LIST, reductionType),
+				Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				FunctionExecutor fun = operands.get(0).functionVal();
@@ -1429,12 +1463,9 @@ public class VeLaInterpreter {
 	}
 
 	private void addListForFunction() {
-		List<Type> paramTypes = new ArrayList<Type>();
-		paramTypes.add(Type.FUNCTION);
-		paramTypes.add(Type.LIST);
 		// FOR should not return anything.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("FOR"),
-				paramTypes, Optional.empty()) {
+				Arrays.asList(Type.FUNCTION, Type.LIST), Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				FunctionExecutor fun = operands.get(0).functionVal();
