@@ -1,0 +1,11 @@
+#!/usr/bin/env /Users/david/vstar/VeLa.sh --verbose
+
+fact(n:integer) : integer {
+    when
+        n <= 0 -> 1
+          true -> n*fact(n-1)
+}
+
+x <- fact(6)
+
+println(format("fact(%d) = %d" [6 x]))
