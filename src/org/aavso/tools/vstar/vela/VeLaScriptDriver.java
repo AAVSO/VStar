@@ -26,29 +26,40 @@ import java.io.IOException;
  */
 public class VeLaScriptDriver {
 	public static void main(String[] args) {
-		if (args.length == 1 || args.length == 2) {
+		if (args.length >= 1 && args.length <= 3) {
 			BufferedReader reader = null;
 			try {
+				// Process command-line arguments.
 				String velaSourceFile = null;
 				boolean verbose = false;
-				if (args.length == 1) {
-					velaSourceFile = args[0];
-				} else {
-					verbose = "--verbose".equals(args[0]);
-					velaSourceFile = args[1];
+				boolean restartOnError = false;
+				for (String arg : args) {
+					if (arg.startsWith("--")) {
+						verbose = "--verbose".equals(arg);
+						restartOnError = "--restart".equals(arg);
+					} else {
+						velaSourceFile = arg;
+					}
 				}
+
+				// Run interpreter, optionally restarting it on error.
 				VeLaInterpreter vela = new VeLaInterpreter(verbose);
-				reader = new BufferedReader(new FileReader(velaSourceFile));
-				StringBuffer buf = new StringBuffer();
-				String line = reader.readLine();
-				while (line != null) {
-					buf.append(line);
-					buf.append("\n");
-					line = reader.readLine();
-				}
-				vela.program(buf.toString());
-			} catch (Throwable t) {
-				System.out.println(t.getLocalizedMessage());
+				do {
+					try {
+						reader = new BufferedReader(new FileReader(
+								velaSourceFile));
+						StringBuffer buf = new StringBuffer();
+						String line = reader.readLine();
+						while (line != null) {
+							buf.append(line);
+							buf.append("\n");
+							line = reader.readLine();
+						}
+						vela.program(buf.toString());
+					} catch (Throwable t) {
+						System.out.println(t.getLocalizedMessage());
+					}
+				} while (restartOnError);
 			} finally {
 				try {
 					reader.close();

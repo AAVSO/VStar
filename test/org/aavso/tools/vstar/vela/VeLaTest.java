@@ -634,6 +634,17 @@ public class VeLaTest extends TestCase {
 		Operand expected = vela.expressionToOperand("[\"3rd\"]");
 		assertEquals(expected, actual);
 	}
+	
+	// Eval
+	
+	public void testEval1() {
+		String prog = "eval(\"2+3\")";
+		Optional<Operand> result = vela.program(prog);
+		assertTrue(result.isPresent());
+		assertEquals(Type.LIST, result.get().getType());
+		assertEquals(1, result.get().listVal().size());
+		assertEquals(5, result.get().listVal().get(0).intVal());
+	}
 
 	// List length
 
@@ -1021,6 +1032,24 @@ public class VeLaTest extends TestCase {
 		assertEquals(13, result.get().intVal());		
 	}
 
+	public void testClosureBasedCounter() {
+		String prog = "";
+		prog += "mkcounter(start:integer) : function {\n";
+		prog += "  count <- start\n";
+		prog +=	"  counter(n:integer) : integer { count <- count + n  count }\n";
+		prog += "  counter\n";
+		prog += "}\n";
+		prog += "c <- mkcounter(10)\n";
+		prog += "c(1)\n";
+		prog += "c(1)\n";
+		prog += "c(1)\n";
+		
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(13, result.get().intVal());
+	}
+	
 	// Sequence
 	
 	public void testSequence() {

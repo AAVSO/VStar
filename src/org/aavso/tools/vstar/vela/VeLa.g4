@@ -4,13 +4,10 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - Add eval() and compile() functions **
-//   o need to be able to tell whether eval() has left a value on the stack;
-//     could do this by returning boolean and having a VeLa pop() function or 
-//     using a list
-//   o compile() returns AST as list and/or S-expression
-// - Allow S-expressions to be converted into ASTs, e.g. compile_sexpr() => AST internally
-// - Need a REPL for test model functions
+// - Add compile() function **
+//   o compile() returns AST as list and/or S-expression string
+// - Allow S-expressions to be converted into ASTs, e.g. compile_sexpr() 
+//   => AST internally
 // - VeLa could replace or be an alternative to JavaScript for scripting
 //   o Need a FFI
 // - Generate Java class files from VeLa ASTs
@@ -24,6 +21,8 @@ grammar VeLa;
 // - Add maps; -> as key-value pair delimiter, e.g. m <- [ key -> value, ... ];
 //   probably use : actually; we already use -> for select statements; could use 
 //   colon for that too
+// - An object could just be created from a closure with multiple functions 
+//   accessible via an instance with a class and -> or . syntax
 // - Object-based starting with maps; actually structs (object keyword) since
 //   keys in maps can be any value at all, not only bindings
 //   o Implicit (or explicit) reference to object available to functions in object
@@ -35,7 +34,6 @@ grammar VeLa;
 // - Optional types for let bindings; more useful if mutable **
 // - Add .. operator as shorthand for creating numeric lists over a range **
 //   o Open-ended range: N.. => generator
-// - A counter style closure will not currently work since bindings are immutable
 // - Y-combinator in VeLa
 // - Unicode symbols for vars, e.g. PI, for Fourier models
 

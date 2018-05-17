@@ -337,8 +337,7 @@ public class VeLaInterpreter {
 			// TODO: we should map from AST to Operand not String to Operand;
 			// then we really can cache within eval() at every level, not
 			// not just at the top level! Need to add equals() and hashCode() to
-			// AST; this is especially so now that we are dealing with lists
-			// (sequences; an implicit special form) of ASTs.
+			// AST.
 
 			if (ast.isDeterministic() && exprToResult.containsKey(prog)) {
 
@@ -486,7 +485,7 @@ public class VeLaInterpreter {
 
 		case BIND:
 			eval(ast.right());
-			environments.peek().bind(ast.left().getToken(), stack.pop());
+			bind(ast.left().getToken(), stack.pop());
 			break;
 
 		case FUNDEF:
@@ -885,7 +884,10 @@ public class VeLaInterpreter {
 	// ** Variable related methods **
 
 	/**
-	 * Bind a name to a value in the top-most scope.
+	 * Given a variable name, search for it in the stack of environments,
+	 * binding a value if found. The search proceeds from the top to the bottom
+	 * of the stack, maintaining the natural stack ordering. If the name is not
+	 * found, a new binding is created in the top-most scope.
 	 * 
 	 * @param name
 	 *            The name to which to bind the value.
@@ -893,7 +895,19 @@ public class VeLaInterpreter {
 	 *            The value to be bound.
 	 */
 	public void bind(String name, Operand value) {
-		environments.peek().bind(name, value);
+		boolean bound = false;
+
+		for (int i = environments.size() - 1; i >= 0; i--) {
+			if (environments.get(i).hasBinding(name)) {
+				environments.get(i).bind(name, value);
+				bound = true;
+				break;
+			}
+		}
+
+		if (!bound) {
+			environments.peek().bind(name, value);
+		}
 	}
 
 	/**
@@ -924,8 +938,8 @@ public class VeLaInterpreter {
 	 * Add useful/important bindings
 	 */
 	private void initBindings() {
-		environments.peek().bind("PI", new Operand(Type.REAL, Math.PI));
-		environments.peek().bind("E", new Operand(Type.REAL, Math.E));
+		bind("PI", new Operand(Type.REAL, Math.PI));
+		bind("E", new Operand(Type.REAL, Math.E));
 	}
 
 	// ** Function related methods *
@@ -1089,6 +1103,9 @@ public class VeLaInterpreter {
 	 */
 	private void initFunctionExecutors() {
 
+		// Special functions
+		addEval();
+		addExit();
 		addZeroArityFunctions();
 
 		// I/O
@@ -1131,6 +1148,29 @@ public class VeLaInterpreter {
 				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
 	}
 
+	private void addEval() {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("EVAL"),
+				Arrays.asList(Type.STRING), Optional.of(Type.LIST)) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				// Compile and evaluate code.
+				program(operands.get(0).stringVal());
+				Optional<Operand> result = program(operands.get(0).stringVal());
+
+				// Return a list containing the result or the empty list.
+				Optional<Operand> resultList;
+				if (result.isPresent()) {
+					resultList = Optional.of(new Operand(Type.LIST, Arrays
+							.asList(result.get())));
+				} else {
+					resultList = Optional.of(Operand.EMPTY_LIST);
+				}
+
+				return resultList;
+			}
+		});
+	}
+
 	private void addZeroArityFunctions() {
 		addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"),
 				Optional.of(Type.REAL)) {
@@ -1143,6 +1183,17 @@ public class VeLaInterpreter {
 				double jd = AbstractDateUtil.getInstance().calendarToJD(year,
 						month, day);
 				return Optional.of(new Operand(Type.REAL, jd));
+			}
+		});
+	}
+
+	private void addExit() {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("EXIT"),
+				Arrays.asList(Type.INTEGER), Optional.empty()) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				System.exit(operands.get(0).intVal());
+				return Optional.empty();
 			}
 		});
 	}
