@@ -1,0 +1,32 @@
+#!/usr/bin/env /Users/david/vstar/VeLa.sh --restart
+
+-- VeLa Read Eval Print Loop (REPL)
+
+read() : string {
+  str <- ""
+  done <- false
+
+  while not done {
+    ch <- nextchar()
+    str <- when 
+	     ch = ";" -> { done <- true str }
+             ch <> "" -> str + ch
+  }
+
+  str
+}
+
+repl() {
+  while true {
+    print("==> ")
+    str <- read()
+    when 
+      str =~ "^\s*exit\s*$" -> { exit(0) }
+      true -> { 
+      	      	result <- eval(str) 
+      	        when length(result) <> 0 -> println(head(result)) 
+      }
+  }
+}
+
+repl()
