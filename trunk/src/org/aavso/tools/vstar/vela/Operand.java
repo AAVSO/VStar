@@ -313,7 +313,7 @@ public class Operand {
 					.replace("]", ")");
 			break;
 		case FUNCTION:
-			str = "<" + functionVal + ">";
+			str = functionVal.toString();
 			break;
 		}
 
@@ -342,7 +342,7 @@ public class Operand {
 					.replace("]", ")");
 			break;
 		case FUNCTION:
-			str = "<" + functionVal + ">";
+			str = functionVal.toString();
 			break;
 		}
 

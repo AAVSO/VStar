@@ -49,6 +49,17 @@ public class VeLaEnvironment<T> {
 	}
 
 	/**
+	 * Does this environment contain the named binding?
+	 * 
+	 * @param name
+	 *            The name of the binding to lookup.
+	 * @return Whether the name is bound in this environment.
+	 */
+	public boolean hasBinding(String name) {
+		return cache.containsKey(name);
+	}
+
+	/**
 	 * Bind a value to a name.
 	 * 
 	 * @param name
@@ -57,11 +68,11 @@ public class VeLaEnvironment<T> {
 	 *            The value to be bound.
 	 */
 	public void bind(String name, T value) {
-//		if (!cache.containsKey(name)) {
-			cache.put(name, value);
-//		}
+		// if (!cache.containsKey(name)) {
+		cache.put(name, value);
+		// }
 	}
-	
+
 	/**
 	 * Is this VeLa environment empty?
 	 */
