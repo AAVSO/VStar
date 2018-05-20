@@ -70,4 +70,9 @@ public class IntegerField extends NumberFieldBase<Integer> {
 
 		return value;
 	}
+
+	@Override
+	public void setValue(Integer value) {
+		textField.setText(value.toString());
+	}
 }

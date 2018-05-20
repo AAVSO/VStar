@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * The base class for all function executors. Each subclass must implement
@@ -130,6 +131,9 @@ public abstract class FunctionExecutor {
 	 */
 	public boolean conforms(List<Operand> actualParameters) {
 		boolean result = true;
+
+		actualParameters = actualParameters.stream().map(op -> op.copy())
+				.collect(Collectors.toList());
 
 		if (parameterTypes == ANY_FORMALS) {
 			result = true;

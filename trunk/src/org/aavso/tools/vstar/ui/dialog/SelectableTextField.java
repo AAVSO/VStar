@@ -34,7 +34,7 @@ public class SelectableTextField implements ITextComponent<String> {
 	private boolean canBeEmpty;
 	private boolean readOnly;
 
-	private JComboBox textChooser;
+	private JComboBox<String> textChooser;
 
 	/**
 	 * Constructor
@@ -58,7 +58,7 @@ public class SelectableTextField implements ITextComponent<String> {
 		this.readOnly = readOnly;
 		this.canBeEmpty = canBeEmpty;
 
-		textChooser = new JComboBox(values.toArray(new String[0]));
+		textChooser = new JComboBox<String>(values.toArray(new String[0]));
 		if (initialValue != null) {
 			textChooser.setSelectedItem(initialValue);
 		}
@@ -131,5 +131,10 @@ public class SelectableTextField implements ITextComponent<String> {
 
 	public void addActionListener(ActionListener l) {
 		textChooser.addActionListener(l);
+	}
+
+	@Override
+	public void setValue(String value) {
+		textChooser.setSelectedItem(value);
 	}
 }

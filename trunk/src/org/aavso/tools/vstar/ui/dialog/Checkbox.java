@@ -77,4 +77,9 @@ public class Checkbox implements ITextComponent<Boolean> {
 	public void setEditable(boolean state) {
 		checkbox.setEnabled(state);
 	}
+
+	@Override
+	public void setValue(Boolean value) {
+		checkbox.setSelected(value);
+	}
 }

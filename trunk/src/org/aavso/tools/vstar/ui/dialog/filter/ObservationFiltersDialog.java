@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.dialog;
+package org.aavso.tools.vstar.ui.dialog.filter;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -38,6 +38,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.dialog.ITextComponent;
+import org.aavso.tools.vstar.ui.dialog.SeriesTypeCreationDialog;
+import org.aavso.tools.vstar.ui.dialog.TextArea;
+import org.aavso.tools.vstar.ui.dialog.TextDialog;
+import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
@@ -197,9 +202,8 @@ public class ObservationFiltersDialog extends JDialog implements
 				List<ITextComponent<String>> fields = new ArrayList<ITextComponent<String>>();
 				fields.add(new TextField("Name", filterMsg.getDescription()
 						.getFilterName()));
-				fields.add(new TextField("Description", filterMsg
-						.getDescription().getFilterDescription(),
-						TextField.Kind.AREA));
+				fields.add(new TextArea("Description", filterMsg
+						.getDescription().getFilterDescription()));
 				new TextDialog("Description", fields);
 			}
 		};

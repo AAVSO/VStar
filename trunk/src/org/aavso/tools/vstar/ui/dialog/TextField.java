@@ -19,27 +19,20 @@ package org.aavso.tools.vstar.ui.dialog;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
 /**
  * This class encapsulates the name and value of a text field along with a GUI
- * textComponent and methods to operate upon it.
+ * textField and methods to operate upon it.
  */
 public class TextField implements ITextComponent<String> {
 
-	public enum Kind {
-		LINE, AREA;
-	}
-
 	private String name;
-	private Kind kind;
 	private boolean canBeEmpty;
 	private boolean readOnly;
 
-	private JTextComponent textComponent;
+	private JTextComponent textField;
 
 	/**
 	 * Constructor.
@@ -52,27 +45,19 @@ public class TextField implements ITextComponent<String> {
 	 *            Is this field read-only?
 	 * @param canBeEmpty
 	 *            Can this field be empty?
-	 * @param kind
-	 *            The kind of field: line or area.
 	 */
 	public TextField(String name, String initialValue, boolean readOnly,
-			boolean canBeEmpty, Kind kind) {
+			boolean canBeEmpty) {
 		this.name = name;
-		this.kind = kind;
 		this.readOnly = readOnly;
 		this.canBeEmpty = canBeEmpty;
 
-		if (kind == Kind.LINE) {
-			this.textComponent = new JTextField(initialValue == null ? ""
-					: initialValue);
-		} else if (kind == Kind.AREA) {
-			this.textComponent = new JTextArea(initialValue == null ? ""
-					: initialValue);
-		}
+		this.textField = new JTextField(initialValue == null ? ""
+				: initialValue);
 
-		textComponent.setBorder(BorderFactory.createTitledBorder(name));
+		textField.setBorder(BorderFactory.createTitledBorder(name));
 		if (!isReadOnly()) {
-			textComponent.setToolTipText("Enter " + name);
+			textField.setToolTipText("Enter " + name);
 		}
 	}
 
@@ -81,22 +66,9 @@ public class TextField implements ITextComponent<String> {
 	 * 
 	 * @param name
 	 *            The field's name.
-	 * @param kind
-	 *            The kind of field: line or area.
-	 */
-	public TextField(String name, Kind kind) {
-		this(name, null, false, false, kind);
-	}
-
-	/**
-	 * Construct a writable single-line field with no initial value that cannot
-	 * be empty.
-	 * 
-	 * @param name
-	 *            The field's name.
 	 */
 	public TextField(String name) {
-		this(name, null, false, false, Kind.LINE);
+		this(name, null, false, false);
 	}
 
 	/**
@@ -108,26 +80,9 @@ public class TextField implements ITextComponent<String> {
 	 *            The field's name.
 	 * @param initialValue
 	 *            The field's initial value.
-	 * @param kind
-	 *            The kind of field: line or area.
-	 */
-	public TextField(String name, String initialValue, Kind kind) {
-		this(name, initialValue, true, true, kind);
-	}
-
-	/**
-	 * Construct a read-only single-line field with an initial value; it doesn't
-	 * matter whether or not it can be empty, so we permit this in order to
-	 * prevent field validation from failing, and e.g. stopping a dialog from
-	 * closing.
-	 * 
-	 * @param name
-	 *            The field's name.
-	 * @param initialValue
-	 *            The field's initial value.
 	 */
 	public TextField(String name, String initialValue) {
-		this(name, initialValue, true, true, Kind.LINE);
+		this(name, initialValue, true, true);
 	}
 
 	@Override
@@ -147,29 +102,25 @@ public class TextField implements ITextComponent<String> {
 
 	@Override
 	public String getValue() {
-		return textComponent.getText();
+		return textField.getText();
 	}
 
 	@Override
 	public String getStringValue() {
 		return getValue();
 	}
-	
+
 	@Override
 	public JComponent getUIComponent() {
-		JComponent comp = textComponent;
-		
-		// Make text areas scrollable since we don't know how much content
-		// one will have.
-		if (kind == Kind.AREA) {
-			comp = new JScrollPane(textComponent);
-		}
-		
-		return comp;
+		return textField;
 	}
 
 	@Override
 	public void setEditable(boolean state) {
-		textComponent.setEditable(state);
+		textField.setEditable(state);
+	}
+
+	public void setValue(String value) {
+		textField.setText(value);
 	}
 }

@@ -39,13 +39,19 @@ import org.aavso.tools.vstar.util.property.ApplicationProperties;
  */
 public class VStar {
 
-	public static final String LOG_PATH = System.getProperty("user.home")
-			+ File.separator + "vstar.log";
+	public static final String LOG_DIR = System.getProperty("user.home")
+			+ File.separator + "vstar_log";
+
+	public static final String LOG_PATH = LOG_DIR + File.separator + "vstar.log";
 	
 	public static Logger LOGGER;
 
 	static {
 		try {
+			File logDir = new File(LOG_DIR);
+			if (!logDir.isDirectory()) {
+				logDir.mkdir();
+			}
 			Handler fh = new FileHandler(LOG_PATH);
 			fh.setFormatter(new SimpleFormatter());
 			LOGGER = Logger.getLogger("VStar Logger");
@@ -101,7 +107,7 @@ public class VStar {
 		// Create an uncaught exception handler.
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			public void uncaughtException(Thread th, Throwable ex) {
-				//LOGGER.log(Level.SEVERE, "Uncaught Exception", ex);
+				// LOGGER.log(Level.SEVERE, "Uncaught Exception", ex);
 				MessageBox.showErrorDialog("Error", ex);
 			}
 		});

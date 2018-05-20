@@ -45,8 +45,10 @@ public class TextDialog extends AbstractOkCancelDialog {
 	 *            The title to be used for the dialog.
 	 * @param fields
 	 *            A list of text fields.
+	 * @param Show the dialog immediately?
 	 */
-	public TextDialog(String title, List<ITextComponent<String>> fields) {
+	public TextDialog(String title, List<ITextComponent<String>> fields,
+			boolean show) {
 		super(title);
 		this.setModal(true);
 
@@ -70,8 +72,22 @@ public class TextDialog extends AbstractOkCancelDialog {
 		contentPane.add(new JScrollPane(topPane));
 
 		this.pack();
-		
-		showDialog();
+
+		if (show) {
+			showDialog();
+		}
+	}
+
+	/**
+	 * Constructor. Don't show the dialog immediately.
+	 * 
+	 * @param title
+	 *            The title to be used for the dialog.
+	 * @param fields
+	 *            A list of text fields.
+	 */
+	public TextDialog(String title, List<ITextComponent<String>> fields) {
+		this(title, fields, true);
 	}
 
 	/**
@@ -82,10 +98,14 @@ public class TextDialog extends AbstractOkCancelDialog {
 	 * @param fields
 	 *            A variable number of text fields.
 	 */
-	public TextDialog(String title, ITextComponent<String> ... fields) {
-		this(title, Arrays.asList(fields));
+	public TextDialog(String title, ITextComponent<String>... fields) {
+		this(title, Arrays.asList(fields), true);
 	}
-	
+
+	public List<ITextComponent<String>> getTextFields() {
+		return textFields;
+	}
+
 	/**
 	 * Get a list of strings from the text fields.
 	 * 

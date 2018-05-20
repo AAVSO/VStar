@@ -278,8 +278,7 @@ public class ObservationListPane extends JPanel implements
 				String defaultName = Mediator.getInstance()
 						.getDocumentManager().getNextUntitledFilterName();
 				List<ITextComponent<String>> fields = new ArrayList<ITextComponent<String>>();
-				fields.add(new TextField("Name", defaultName, false, false,
-						TextField.Kind.LINE));
+				fields.add(new TextField("Name", defaultName, false, false));
 				final TextDialog nameDlg = new TextDialog("Filter Name", fields);
 
 				// Create an observation filter message and notify listeners.
@@ -334,13 +333,12 @@ public class ObservationListPane extends JPanel implements
 	 */
 	public void selectAll() {
 		validDataTable.selectAll();
-		ListSelectionModel selModel = validDataTable
-				.getSelectionModel();
-		valueChanged(new ListSelectionEvent(selModel, selModel
-				.getMinSelectionIndex(), selModel
-				.getMaxSelectionIndex(), false));
+		ListSelectionModel selModel = validDataTable.getSelectionModel();
+		valueChanged(new ListSelectionEvent(selModel,
+				selModel.getMinSelectionIndex(),
+				selModel.getMaxSelectionIndex(), false));
 	}
-	
+
 	/**
 	 * @return the validDataTable
 	 */
