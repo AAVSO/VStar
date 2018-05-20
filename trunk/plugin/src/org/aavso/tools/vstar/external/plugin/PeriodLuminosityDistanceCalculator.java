@@ -29,13 +29,12 @@ import java.util.TreeSet;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
-import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.SelectableTextField;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
-import org.aavso.tools.vstar.ui.dialog.TextField.Kind;
 import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -52,8 +51,8 @@ import org.aavso.tools.vstar.util.stats.DescStats;
  * Period-Luminosity relationship for specific variable star types.
  * <p/>
  * <p>
- * I was inspired to write this while participating in the "CHOICE Variable
- * Star Classification and Light Curves III:" course in Jan & Feb 2013.
+ * I was inspired to write this while participating in the "CHOICE Variable Star
+ * Classification and Light Curves III:" course in Jan & Feb 2013.
  * </p>
  * <p>
  * References:<br>
@@ -122,7 +121,7 @@ public class PeriodLuminosityDistanceCalculator extends
 			final TextField absMagEqn = new TextField(
 					"Absolute Mag Relationship",
 					initialType != null ? absMagEqns.get(initialType) : "",
-					true, false, Kind.LINE);
+					true, false);
 
 			final SelectableTextField typesField = new SelectableTextField(
 					"Variable Type", types, initialType);
@@ -198,17 +197,15 @@ public class PeriodLuminosityDistanceCalculator extends
 		// resultFields.add(new TextField("Absolute Magnitude Calculation",
 		// absMagEqns.get(varType), true, false, TextField.Kind.LINE));
 		resultFields.add(new TextField("Absolute Magnitude",
-				NumericPrecisionPrefs.formatMag(absMagnitude), true, false,
-				TextField.Kind.LINE));
+				NumericPrecisionPrefs.formatMag(absMagnitude), true, false));
 		resultFields.add(new TextField("Distance (parsecs)",
-				NumericPrecisionPrefs.formatOther(distance), true, false,
-				TextField.Kind.LINE));
-		resultFields.add(new TextField("Distance (light years)",
-				NumericPrecisionPrefs.formatOther(distance * 3.26), true,
-				false, TextField.Kind.LINE));
+				NumericPrecisionPrefs.formatOther(distance), true, false));
+		resultFields
+				.add(new TextField("Distance (light years)",
+						NumericPrecisionPrefs.formatOther(distance * 3.26),
+						true, false));
 		resultFields.add(new TextField("Distance Modulus",
-				"10 ^ ((apparent mag - absolute mag + 5) / 5)", true, false,
-				TextField.Kind.LINE));
+				"10 ^ ((apparent mag - absolute mag + 5) / 5)", true, false));
 		// resultFields[2] = new TextField("Minimum Distance", String
 		// .format(otherFmt + " parsecs", distanceMin), true,
 		// false, TextField.Kind.LINE);

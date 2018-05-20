@@ -44,9 +44,8 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
+import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
-import org.aavso.tools.vstar.ui.dialog.TextField;
-import org.aavso.tools.vstar.ui.dialog.TextField.Kind;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
@@ -54,12 +53,11 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.DescStats;
 
 /**
- * This plug-in allows photometry to be carried out using loaded data on the
- * assumption that such data constitute instrumental magnitudes.
+ * This plug-in allows differential photometry to be carried out using loaded
+ * data on the assumption that such data constitute instrumental magnitudes.
  * 
  * @author David Benn
  * @version 1.0 - 6 Apr 2015
- * 
  */
 public class DifferentialPhotometry extends ObservationToolPluginBase {
 
@@ -470,8 +468,7 @@ public class DifferentialPhotometry extends ObservationToolPluginBase {
 							magMeanStr, magStdevStr);
 				}
 
-				infoFields.add(new TextField(series.getDescription(), infoStr,
-						Kind.AREA));
+				infoFields.add(new TextArea(series.getDescription(), infoStr));
 			}
 		}
 

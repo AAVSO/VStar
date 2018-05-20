@@ -26,7 +26,6 @@ import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
-import org.aavso.tools.vstar.ui.dialog.TextField.Kind;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -62,9 +61,9 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 
 				String statsStr = String.format("%s: %s (%s)", jdMeanStr,
 						magMeanStr, magStdevStr);
-						
-				seriesFields.add(new TextField(type.getDescription(), statsStr,
-						Kind.LINE));
+
+				seriesFields
+						.add(new TextField(type.getDescription(), statsStr));
 			}
 		}
 
