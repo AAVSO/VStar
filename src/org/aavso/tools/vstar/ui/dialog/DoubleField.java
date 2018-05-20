@@ -70,4 +70,9 @@ public class DoubleField extends NumberFieldBase<Double> {
 
 		return value;
 	}
+
+	@Override
+	public void setValue(Double value) {
+		textField.setText(value.toString());
+	}
 }

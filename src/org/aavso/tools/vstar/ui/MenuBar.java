@@ -1,4 +1,5 @@
 /**
+
  * VStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2009  AAVSO (http://www.aavso.org/)
  *
@@ -55,6 +56,7 @@ import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementDialog;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog;
+import org.aavso.tools.vstar.ui.dialog.vela.VeLaDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
@@ -140,6 +142,8 @@ public class MenuBar extends JMenuBar {
 			.get("TOOL_MENU_PLUGIN_MANAGER");
 	public static final String RUN_SCRIPT = LocaleProps
 			.get("TOOL_MENU_RUN_SCRIPT");
+	public static final String VELA = LocaleProps
+			.get("TOOL_MENU_VELA");
 
 	// Help menu item names.
 	public static final String HELP_CONTENTS = LocaleProps
@@ -231,6 +235,7 @@ public class MenuBar extends JMenuBar {
 	JMenu toolMenu;
 	JMenuItem toolPluginManager;
 	JMenuItem toolRunScript;
+	JMenuItem toolVeLa;
 
 	// Help menu.
 	JMenuItem helpContentsItem;
@@ -603,6 +608,10 @@ public class MenuBar extends JMenuBar {
 		toolRunScript = new JMenuItem(RUN_SCRIPT);
 		toolRunScript.addActionListener(createRunScriptListener());
 		toolMenu.add(toolRunScript);
+
+		toolVeLa = new JMenuItem(VELA);
+		toolVeLa.addActionListener(createVeLaListener());
+		toolMenu.add(toolVeLa);
 
 		// toolMenu.addSeparator();
 		// }
@@ -1201,6 +1210,18 @@ public class MenuBar extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ScriptRunner.getInstance().runScript();
+			}
+		};
+	}
+
+	/**
+	 * Returns the action listener to be invoked for Tool -> Run Script...
+	 */
+	public ActionListener createVeLaListener() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new VeLaDialog();
 			}
 		};
 	}

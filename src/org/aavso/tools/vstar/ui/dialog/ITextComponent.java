@@ -59,6 +59,13 @@ public interface ITextComponent<T> {
 	public void setEditable(boolean state);
 	
 	/**
+	 * Set the component's value.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setValue(T value);
+
+	/**
 	 * Returns the UI component. 
 	 */
 	public JComponent getUIComponent();
