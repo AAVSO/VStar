@@ -32,6 +32,49 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: May ? 2018
+Version: 2.20.0
+Tag: DEV-AAVSO-??May2018
+Key Changes:
+- Java 8 is now required
+- Fixed MJD to JD calculation in Catalina Sky Survey obs source plugin after 
+  bug found by Velimir Popov (MJD+2400000.5 necessary instead of MJD+2400000).
+- Updated TBGR series colors after discussion with Sara and request for change.
+- ASAS-SN observation source plugin.
+- #559 Loess plugin fixes; localisation; added reference URL.
+- #605 Hardwired AUIDs no longer work: 
+       o Changed title of Citizen Sky list to "10-Star Tutorial list (North)" 
+         and added Southern Gems as "11-Star Tutorial list (South)" as per 
+         Sara/HQ's suggestion.
+       o Selecting a star from a group in the star selector dialog now sets 
+         the Star text box and the dialog can no longer be dismissed if this 
+         text box is empty. Probably should always have operated this way.
+         In any case, this forces the star info to be looked up online rather 
+         than relying upon hard-coded AUIDs.
+- #602 Non-numeric uncertainty value causing NullPointerException (fixed)
+- #609 Adapt to new APASS/AAVSONet Photometry URL
+- #612 All bands erroneously loaded for some stars via scripting API (fixed)
+- #361 Added logging
+- #517 File dialog based observation source UI freeze (fixed); this was a nasty
+       non-determinism that took me awhile to track down.
+- #613 Handle DASCH format change (fixed)
+- #364 VeLa
+       o now Turing Complete
+       o selection, iteration, sequence rules
+       o made all keywords, variable and function names case insensitive
+       o integer, boolean types and operations
+       o heterogenous list literals, IN operator, map, reduce, filter, ...
+       o exponentiation operator
+       o regular expressions
+       o variables; pi, e bindings
+       o higher order functions including anonymous functions, closures;
+         functions can be overloaded by parameter type
+       o I/O (print, format, nextchar) functions
+       o implemented eval function
+       o VeLa script runner and read-eval-print loop script for VeLa in VeLa
+       o model functions are now VeLa functions for use in Models dialog
+       o added functions by reflection from Math and String classes
+
 Date: May 6 2017
 Version: 2.19.0
 Tag: DEV-AAVSO-06May2017
