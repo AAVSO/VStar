@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,6 +71,10 @@ public class Operand {
 	public Operand(Type type, FunctionExecutor value) {
 		this.type = type;
 		functionVal = value;
+	}
+	
+	// For object copy
+	private Operand() {
 	}
 	
 	/**
@@ -309,8 +314,7 @@ public class Operand {
 			str = stringVal;
 			break;
 		case LIST:
-			str = listVal.toString().replace(",", "").replace("[", "'(")
-					.replace("]", ")");
+			str = listVal.toString().replace(",", "");
 			break;
 		case FUNCTION:
 			str = functionVal.toString();
@@ -417,4 +421,37 @@ public class Operand {
 		}
 		return true;
 	}
+
+	public Operand copy() {
+		Operand operand = new Operand();
+		
+		operand.type = type;
+		
+		switch (type) {
+		case INTEGER:
+			operand.intVal = intVal;
+			break;
+		case REAL:
+			operand.doubleVal = doubleVal;
+			break;
+		case BOOLEAN:
+			operand.booleanVal = booleanVal;
+			break;
+		case STRING:
+			operand.stringVal = stringVal;
+			break;
+		case LIST:
+			List<Operand> list = new ArrayList<Operand>();
+			for (Operand op : listVal) {
+				list.add(op.copy());
+			}
+			operand.listVal = list;
+			break;
+		case FUNCTION:
+			operand.functionVal = functionVal;
+			break;
+		}
+		
+		return operand;
+	}	
 }

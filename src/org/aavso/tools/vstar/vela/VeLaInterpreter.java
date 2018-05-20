@@ -96,6 +96,13 @@ public class VeLaInterpreter {
 	}
 
 	/**
+	 * @param verbose the verbose to set
+	 */
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
+	}
+	
+	/**
 	 * Push an environment onto the stack.
 	 * 
 	 * @param environment
@@ -439,7 +446,7 @@ public class VeLaInterpreter {
 						stack.push(new Operand(Type.FUNCTION, funList.get()
 								.get(0)));
 					} else {
-						throw new VeLaEvalError("Unknown binding: \""
+						throw new VeLaEvalError("Unknown binding \""
 								+ ast.getToken() + "\"");
 					}
 				}
@@ -572,7 +579,7 @@ public class VeLaInterpreter {
 			} else {
 				if (!applyFunction(anon, params)) {
 					throw new VeLaEvalError(
-							"Invalid parameters for function: \"" + anon + "\"");
+							"Invalid parameters for function \"" + anon + "\"");
 				}
 			}
 			break;
@@ -616,8 +623,8 @@ public class VeLaInterpreter {
 	 *            The operation to be applied.
 	 */
 	private void applyBinaryOperation(Operation op) {
-		Operand operand2 = stack.pop();
-		Operand operand1 = stack.pop();
+		Operand operand2 = stack.pop().copy();
+		Operand operand1 = stack.pop().copy();
 
 		// TODO Refactor to N methods or define functions for each in
 		// Operation/Operand;
@@ -1002,7 +1009,7 @@ public class VeLaInterpreter {
 			}
 
 			if (!match) {
-				throw new VeLaEvalError("Invalid parameters for function: \""
+				throw new VeLaEvalError("Invalid parameters for function \""
 						+ funcName + "\"");
 			}
 		} else {
@@ -1015,7 +1022,7 @@ public class VeLaInterpreter {
 					applyFunction(value.get().functionVal(), params);
 				}
 			} else {
-				throw new VeLaEvalError("Unknown function: \"" + funcName
+				throw new VeLaEvalError("Unknown function \"" + funcName
 						+ "\"");
 			}
 		}
