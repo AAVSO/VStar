@@ -17,8 +17,8 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -26,8 +26,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
-import org.aavso.tools.vstar.ui.dialog.TextField;
-import org.aavso.tools.vstar.ui.dialog.TextField.Kind;
+import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 
@@ -46,8 +45,7 @@ public class ObserversBySeries extends ObservationToolPluginBase {
 		String obsCodes;
 		String squareBrackets = "\\[|\\]";
 
-		List<ITextComponent<String>> seriesFields = 
-				new ArrayList<ITextComponent<String>>();
+		List<ITextComponent<String>> seriesFields = new ArrayList<ITextComponent<String>>();
 		for (SeriesType type : seriesInfo.getSeriesKeys()) {
 			if (!type.isSynthetic() && !type.isUserDefined()
 					&& (type != SeriesType.Excluded)
@@ -58,17 +56,16 @@ public class ObserversBySeries extends ObservationToolPluginBase {
 				}
 				obsCodes = obsCodesForCurrentSeries.toString();
 				obsCodes = obsCodes.replaceAll(squareBrackets, "");
-				obsCodes = wrap(obsCodes);  // Force lines to wrap ...
-				seriesFields.add(new TextField(type.getDescription(), obsCodes,
-						Kind.AREA));
+				obsCodes = wrap(obsCodes); // Force lines to wrap ...
+				seriesFields.add(new TextArea(type.getDescription(), obsCodes));
 			}
 		}
 		new TextDialog("Observers By Series", seriesFields);
 	}
 
 	/*
-	* Wrap a string of text for output ...
-	*/
+	 * Wrap a string of text for output ...
+	 */
 	private String wrap(String str) {
 		int approxObsCodesPerLine = 12;
 		int approxCharsPerObsCode = 5;
@@ -76,7 +73,7 @@ public class ObserversBySeries extends ObservationToolPluginBase {
 		int position;
 		String replacementString = (", " + "\n");
 		StringBuffer sbuff = new StringBuffer();
-		
+
 		sbuff.append(str);
 		position = approxLineLength;
 		if (!(sbuff.length() < approxLineLength)) {

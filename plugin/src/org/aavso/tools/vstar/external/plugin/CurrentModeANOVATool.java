@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
+import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
-import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
@@ -54,9 +54,9 @@ public class CurrentModeANOVATool extends GeneralToolPluginBase {
 			BinningResult binningResult = model.getBinningResult();
 
 			String msg = binningResult.createAnovaText();
-			
+
 			List<ITextComponent<String>> fields = new ArrayList<ITextComponent<String>>();
-			fields.add(new TextField("ANOVA", msg, TextField.Kind.AREA));
+			fields.add(new TextArea("ANOVA", msg));
 			new TextDialog(
 					"ANOVA for " + binningResult.getSeries() + " series",
 					fields);
