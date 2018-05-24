@@ -28,7 +28,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.aavso.tools.vstar.input.IStarInfoSource;
-import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.EpochType;
@@ -127,7 +126,7 @@ public class VSXWebServiceStarInfoSource implements IStarInfoSource {
 						spectralType, discoverer, ra, dec, obsCount);
 			} else {
 				String msg = "Unable to obtain information for " + id;
-				MessageBox.showErrorDialog("Target Error", msg);
+//				MessageBox.showErrorDialog("Target Error", msg);
 				throw new IllegalArgumentException(msg);
 			}
 		} catch (MalformedURLException e) {

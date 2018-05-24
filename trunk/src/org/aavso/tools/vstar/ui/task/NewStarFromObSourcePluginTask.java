@@ -205,7 +205,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			MessageBox.showErrorDialog("Authentication Error",
 					ex.getLocalizedMessage());
 		} catch (Exception ex) {
-			MessageBox.showErrorDialog("Observation Source Plug-in Error",
+			MessageBox.showErrorDialog("Observation Source Error",
 					ex.getLocalizedMessage());
 		} finally {
 			Mediator.getUI().setCursor(null);
@@ -225,7 +225,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			createObservationArtefacts();
 			
 		} catch (Exception ex) {
-			MessageBox.showErrorDialog("Observation Source Plug-in Error",
+			MessageBox.showErrorDialog("Observation Source Error",
 					ex.getLocalizedMessage());
 		} finally {
 			Mediator.getUI().setCursor(null);
