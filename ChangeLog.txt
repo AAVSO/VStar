@@ -32,11 +32,11 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
-Date: May ? 2018
+Date: May 27 2018
 Version: 2.20.0
-Tag: DEV-AAVSO-??May2018
+Tag: DEV-AAVSO-27May2018
 Key Changes:
-- Java 8 is now required
+- Java 8 (or higher) is now required
 - Fixed MJD to JD calculation in Catalina Sky Survey obs source plugin after 
   bug found by Velimir Popov (MJD+2400000.5 necessary instead of MJD+2400000).
 - Updated TBGR series colors after discussion with Sara and request for change.
