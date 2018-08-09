@@ -1,0 +1,84 @@
+<project name="plugin-dev" default="jar" basedir=".">
+	<description>Generic build file to make plugin building easier.</description>
+
+	<!-- ** User properties START ** -->
+	<property name="vstar_home" location="/Users/david/vstar" />
+	<property name="plugin_type" value="ObservationSource" />
+	<property name="plugin_src_dir" location="my/vstar/plugin" />
+	<property name="plugin_pkg" value="my.vstar.plugin" />
+	<property name="plugin_class" value="SimpleExampleObSource" />
+	<!-- ** User properties END ** -->
+
+	<property name="plugin_dir" value="vstar_plugins" />
+	<property name="plugin_lib_dir" value="vstar_plugin_libs" />
+	<property name="build" location="build" />
+	<property name="build.classes" location="./build" />
+	<property name="dist" location="dist/" />
+	<property name="vstar_plugins_zip_dir" location="vstar-plugins" />
+	<property name="plugins_list_file" value=".plugins.lst" />
+
+	<target name="create" description="Create the initial structure given plug-in type">
+		<!-- Just in case these don't exist -->
+		<mkdir dir="${user.home}/${plugin_dir}" />
+		<mkdir dir="${user.home}/${plugin_lib_dir}" />
+
+		<mkdir dir="${plugin_src_dir}" />
+
+		<copy file="template/${plugin_type}.java" tofile="${plugin_src_dir}/${plugin_class}.java" />
+
+		<replace file="${plugin_src_dir}/${plugin_class}.java">
+			<replacefilter token="package template" value="package ${plugin_pkg}" />
+			<replacefilter token="${plugin_type} " value="${plugin_class} " />
+		</replace>
+	</target>
+
+	<target name="compile" depends="create" description="Compile the source">
+		<path id="libs">
+			<fileset dir="${vstar_home}">
+				<include name="dist/vstar.jar" />
+			</fileset>
+			<fileset dir="${plugin_lib_dir}">
+				<include name="**.jar" />
+			</fileset>
+		</path>
+
+		<!-- Compile the java code from ${src} into ${build} -->
+		<mkdir dir="${build}" />
+		<javac compiler="modern" source="1.8" target="1.8" srcdir="${plugin_src_dir}" destdir="${build}" classpathref="libs" />
+	</target>
+
+	<target name="jar" depends="compile" description="Generate the distribution jar">
+		<mkdir dir="${dist}" />
+		<jar jarfile="${dist}/${plugin_pkg}.${plugin_class}.jar" basedir="${build.classes}" includes="**/**.class" />
+	</target>
+
+	<target name="install" depends="jar" description="Install the jar into the users home directory">
+		<copy todir="${user.home}/${plugin_dir}">
+			<fileset dir="${dist}" includes="**/*.jar" />
+		</copy>
+	</target>
+
+	<target name="zip" depends="jar" description="Create a plug-in manager compatible zip file and a .plugins.lst file">
+		<mkdir dir="${vstar_plugins_zip_dir}/${plugin_dir}" />
+		<mkdir dir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
+
+		<copy file="${dist}/${plugin_pkg}.${plugin_class}.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+
+		<copy file="${plugins_list_file}" todir="${vstar_plugins_zip_dir}" overwrite="true" />
+
+		<zip destfile="${vstar_plugins_zip_dir}.zip">
+			<zipfileset dir="${vstar_plugins_zip_dir}" />
+		</zip>
+
+		<delete dir="${vstar_plugins_zip_dir}" />
+	</target>
+
+	<target name="clean" description="Remove build artefacts">
+		<!-- Delete the build, dist directories, zip file, .plugins.lst -->
+		<delete dir="build" />
+		<delete dir="dist" />
+		<delete file="${vstar_plugins_zip_dir}.zip" />
+		<delete file="${plugins_list_file}" />
+	</target>
+
+</project>
