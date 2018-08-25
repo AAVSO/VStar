@@ -25,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Calendar;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
@@ -35,6 +36,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.ui.dialog.series.AIDSeriesSelectionPane;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -47,6 +50,8 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 @SuppressWarnings("serial")
 public class StarSelectorDialog extends AbstractOkCancelDialog {
 
+	// TODO: consider storing state but recreating GUI from scratch each time
+
 	private static AbstractDateUtil dateUtil = AbstractDateUtil.getInstance();
 
 	private Container contentPane;
@@ -58,6 +63,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JCheckBox allDataCheckBox;
 	private JCheckBox additiveLoadCheckbox;
 
+	private AIDSeriesSelectionPane aidSeriesPane;
+
 	private String starName;
 	private String auid;
 	private DateInfo minDate;
@@ -66,8 +73,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	private Calendar cal;
 	private int year, month, day;
-	
-	private String lastStarName;
 
 	private static Pattern whitespacePattern = Pattern.compile("^\\s*$");
 
@@ -101,25 +106,31 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		contentPane = this.getContentPane();
 
 		JPanel topPane = new JPanel();
-		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		topPane.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
+		topPane.setLayout(new BoxLayout(topPane, BoxLayout.LINE_AXIS));
+
+		JPanel mainPane = new JPanel();
+		mainPane.setLayout(new BoxLayout(mainPane, BoxLayout.PAGE_AXIS));
+		mainPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		mainPane.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
 
 		JPanel starFieldPane = createStarFieldPane();
 		starGroupSelectionPane = new StarGroupSelectionPane(starField, false);
-		topPane.add(starGroupSelectionPane);
-		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		topPane.add(starFieldPane);
-		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		topPane.add(createMinJDFieldPane());
-		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		topPane.add(createMaxJDFieldPane());
-		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		topPane.add(createAdditiveLoadCheckboxPane());
-		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		topPane.add(createAllDataCheckBoxPane());
-		topPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		topPane.add(createButtonPane());
+		mainPane.add(starGroupSelectionPane);
+		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		mainPane.add(starFieldPane);
+		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		mainPane.add(createMinJDFieldPane());
+		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		mainPane.add(createMaxJDFieldPane());
+		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		mainPane.add(createAdditiveLoadCheckboxPane());
+		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		mainPane.add(createAllDataCheckBoxPane());
+		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		mainPane.add(createButtonPane());
+
+		topPane.add(mainPane);
+		topPane.add(createSeriesSelectionPane());
 
 		contentPane.add(topPane);
 
@@ -200,6 +211,16 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		return panel;
 	}
 
+	private JPanel createSeriesSelectionPane() {
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder(""));
+
+		aidSeriesPane = new AIDSeriesSelectionPane();
+		panel.add(aidSeriesPane);
+
+		return panel;
+	}
+
 	// Event handlers
 
 	// Return a listener for the star field.
@@ -233,8 +254,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			public void focusLost(FocusEvent e) {
 				String current = minJDField.getText();
 				if (!prevString.equals(current)) {
-					minJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
-							.parseDouble(current)));
+					minJDField.setToolTipText(dateUtil
+							.jdToCalendar(NumberParser.parseDouble(current)));
 					prevString = current;
 				}
 			}
@@ -246,9 +267,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (allDataCheckBox.isSelected()) {
-					// We want all data, so clear date fields.
-					// minJDField.setText("");
-					// maxJDField.setText("");
+					// Disable date fields to avoid usability confusion.
 					minJDField.setEnabled(false);
 					maxJDField.setEnabled(false);
 				} else {
@@ -283,8 +302,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			public void focusLost(FocusEvent e) {
 				String current = maxJDField.getText();
 				if (!prevString.equals(current)) {
-					maxJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
-							.parseDouble(current)));
+					maxJDField.setToolTipText(dateUtil
+							.jdToCalendar(NumberParser.parseDouble(current)));
 					prevString = current;
 				}
 			}
@@ -305,15 +324,13 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 			} else {
 				starName = text.trim();
 			}
+		} else {
+			// There's nothing in the text field, so use the
+			// selected star group item. Note that by setting
+			// the star name, we will force the lookup of star
+			// info from the database.
+			starName = starGroupSelectionPane.getSelectedStarName();
 		}
-//		else {
-//			// There's nothing in the text field, so use the
-//			// selected star group item. Note that by only
-//			// setting AUID, we will force the lookup of star
-//			// info from the database, at least the name, but
-//			// also period and epoch if they are available.
-//			auid = starGroupSelectionPane.getSelectedAUID();
-//		}
 
 		// Is the all-data checkbox selected?
 		wantAllData = allDataCheckBox.isSelected();
@@ -339,8 +356,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 		// Can we dismiss the dialog?
 		if ((starName != null || auid != null)
-				&& ((minDate != null && maxDate != null) || wantAllData)) {
-			lastStarName = starName;
+				&& ((minDate != null && maxDate != null) || wantAllData)
+				&& !getSelectedSeries().isEmpty()) {
 			cancelled = false;
 			setVisible(false);
 			dispose();
@@ -402,6 +419,13 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	}
 
 	/**
+	 * Return the selected series.
+	 */
+	public List<SeriesType> getSelectedSeries() {
+		return aidSeriesPane.getSelectedSeries();
+	}
+
+	/**
 	 * @return has the dialog been cancelled? TODO: isn't this in base class?
 	 */
 	public boolean isCancelled() {
@@ -424,15 +448,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 	protected void okAction() {
 		checkInput();
-	}
-
-	@Override
-	public void showDialog() {
-		super.showDialog();
-		
-		if (lastStarName != null) {
-			starField.setText(lastStarName);
-		}
 	}
 
 	/**
