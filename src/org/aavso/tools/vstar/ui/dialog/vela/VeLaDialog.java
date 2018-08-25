@@ -45,7 +45,8 @@ public class VeLaDialog extends TextDialog {
 	private static ITextComponent<String> codeTextArea;
 	private static ITextComponent<String> resultTextArea;
 	private static JCheckBox verbosityCheckBox;
-	private static VeLaInterpreter vela;
+	
+	private VeLaInterpreter vela;
 
 	static {
 		codeTextArea = new TextArea("VeLa Code", 10, 40);
@@ -53,12 +54,11 @@ public class VeLaDialog extends TextDialog {
 
 		verbosityCheckBox = new JCheckBox("Verbose?");
 		verbosityCheckBox.setSelected(false);
-
-		vela = new VeLaInterpreter(false);
 	}
 
 	public VeLaDialog() {
 		super("VeLa", Arrays.asList(codeTextArea, resultTextArea));
+		vela = new VeLaInterpreter(false);
 	}
 
 	protected JPanel createButtonPane() {
