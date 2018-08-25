@@ -492,9 +492,14 @@ public class VeLaInterpreter {
 
 		case BIND:
 			eval(ast.right());
-			bind(ast.left().getToken(), stack.pop());
+			bind(ast.left().getToken(), stack.pop(), false);
 			break;
 
+		case IS:
+			eval(ast.right());
+			bind(ast.left().getToken(), stack.pop(), true);
+			break;
+			
 		case FUNDEF:
 			// Does this function have a name or is it anonymous?
 			Optional<String> name = Optional.empty();
@@ -900,20 +905,22 @@ public class VeLaInterpreter {
 	 *            The name to which to bind the value.
 	 * @param value
 	 *            The value to be bound.
+	 * @param isConstant
+	 *            Is this a constant binding?
 	 */
-	public void bind(String name, Operand value) {
+	public void bind(String name, Operand value, boolean isConstant) {
 		boolean bound = false;
 
 		for (int i = environments.size() - 1; i >= 0; i--) {
 			if (environments.get(i).hasBinding(name)) {
-				environments.get(i).bind(name, value);
+				environments.get(i).bind(name, value, isConstant);
 				bound = true;
 				break;
 			}
 		}
 
 		if (!bound) {
-			environments.peek().bind(name, value);
+			environments.peek().bind(name, value, isConstant);
 		}
 	}
 
@@ -945,8 +952,8 @@ public class VeLaInterpreter {
 	 * Add useful/important bindings
 	 */
 	private void initBindings() {
-		bind("PI", new Operand(Type.REAL, Math.PI));
-		bind("E", new Operand(Type.REAL, Math.E));
+		bind("PI", new Operand(Type.REAL, Math.PI), true);
+		bind("E", new Operand(Type.REAL, Math.E), true);
 	}
 
 	// ** Function related methods *

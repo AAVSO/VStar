@@ -145,7 +145,7 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 				operand = new Operand(type, (List<Operand>) value);
 			}
 
-			bind(name, operand);
+			bind(name, operand, true);
 		}
 
 		return operand;

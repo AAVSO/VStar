@@ -106,7 +106,7 @@ public class UserDefinedFunctionExecutor extends FunctionExecutor {
 			}
 
 			for (int i = 0; i < operands.size(); i++) {
-				vela.bind(parameterNames.get(i), operands.get(i));
+				vela.bind(parameterNames.get(i), operands.get(i), false);
 			}
 
 			vela.eval(ast.get());

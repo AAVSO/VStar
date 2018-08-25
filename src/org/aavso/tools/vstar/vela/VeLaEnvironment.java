@@ -18,8 +18,10 @@
 package org.aavso.tools.vstar.vela;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * An unrestrictive symbol binding and lookup environment implementation.
@@ -29,12 +31,23 @@ public class VeLaEnvironment<T> {
 	// Named operand cache
 	protected Map<String, T> cache;
 
+	// Constant binding map
+	protected Set<String> constants;
+
+	/**
+	 * Construct an environment with an empty name and constant set.
+	 */
 	public VeLaEnvironment() {
 		cache = new HashMap<String, T>();
+		constants = new HashSet<String>();
 	}
 
-	public VeLaEnvironment(Map<String, T> map) {
+	/**
+	 * Construct an environment with a specified empty name and constant set.
+	 */
+	public VeLaEnvironment(Map<String, T> map, Set<String> isBoundConstants) {
 		cache = map;
+		constants = isBoundConstants;
 	}
 
 	/**
@@ -60,17 +73,40 @@ public class VeLaEnvironment<T> {
 	}
 
 	/**
-	 * Bind a value to a name.
+	 * Bind a value to a name.<br/>
+	 * It is an invariant that a constant binding cannot be overridden.
 	 * 
 	 * @param name
 	 *            The name to which to bind the value.
 	 * @param value
 	 *            The value to be bound.
+	 * @param isConstant
+	 *            Is this a constant binding?
 	 */
-	public void bind(String name, T value) {
-		// if (!cache.containsKey(name)) {
-		cache.put(name, value);
-		// }
+	public void bind(String name, T value, boolean isConstant) {
+		boolean isBoundConstant = false;
+
+		if (!constants.contains(name)) {
+			if (!isConstant) {
+				// Variable binding.
+				cache.put(name, value);
+			} else if (isConstant && !cache.containsKey(name)) {
+				// Bind name to constant value.
+				cache.put(name, value);
+				constants.add(name);
+			} else {
+				// We are trying to bind a constant to a name in the presence of
+				// a variable binding.
+				isBoundConstant = true;
+			}
+		} else {
+			isBoundConstant = true;
+		}
+
+		if (isBoundConstant) {
+			throw new VeLaEvalError("'" + name
+					+ "' is a constant binding in this environment.");
+		}
 	}
 
 	/**

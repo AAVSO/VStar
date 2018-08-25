@@ -4,12 +4,16 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
+// - Add .. operator as shorthand for creating numeric lists over a range **
+//   o Open-ended range: N.. => generator
+// - VeLa could replace or be an alternative to JavaScript for scripting
+//   o Need a FFI
+// - It would be more type safe to allow a signature instead of "function" 
+//   for function parameters, e.g. [real real] : real
 // - Add compile() function **
 //   o compile() returns AST as list and/or S-expression string
 // - Allow S-expressions to be converted into ASTs, e.g. compile_sexpr() 
 //   => AST internally
-// - VeLa could replace or be an alternative to JavaScript for scripting
-//   o Need a FFI
 // - Generate Java class files from VeLa ASTs
 // - The interpreter could be used by a compiler for deterministic ASTs
 // - Functions should be properly tail recursive to allow loops
@@ -29,19 +33,15 @@ grammar VeLa;
 //   o A function in an object could have either the non-function contents 
 //     of the map added to the current scope or a self/this variable pointed 
 //     to the map
-// - It would be more type safe to allow a signature instead of "function" 
-//   for function parameters, e.g. [real real] : real
-// - Optional types for let bindings; more useful if mutable **
-// - Add .. operator as shorthand for creating numeric lists over a range **
-//   o Open-ended range: N.. => generator
 // - Y-combinator in VeLa
 // - Unicode symbols for vars, e.g. PI, for Fourier models
 
 // ** Parser rules **
 
 // A VeLa program consists of zero or more bindings, function 
-// definitions, while loops or expressions. Variable bindings 
-// are mutable, VeLa identifiers and keywords are case-insensitive.
+// definitions, while loops or expressions. Bindings may be 
+// variable (mutable) or constant. VeLa identifiers and keywords
+// are case-insensitive.
 
 // The expression production will leave a value on the stack,
 // therefore the program rule could be the entry point for 
@@ -62,7 +62,7 @@ sequence
 // R uses it for regular assignment.
 binding
 :
-	symbol BACK_ARROW expression
+	symbol (BACK_ARROW | IS) expression
 ;
 
 // A named function definition, when invoked, introduces an additional 
@@ -297,6 +297,11 @@ block
 BACK_ARROW
 :
 	'<-'
+;
+
+IS
+:
+	[Ii] [Ss]
 ;
 
 COLON

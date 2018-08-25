@@ -21,9 +21,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -403,8 +405,10 @@ public class VeLaTest extends TestCase {
 	public void testLogicalNegationExpression2() {
 		Map<String, Operand> env = new HashMap<String, Operand>();
 		env.put("raining".toUpperCase(), new Operand(Type.BOOLEAN, false));
+		Set<String> boundConstants = new HashSet<String>();
+		boundConstants.add("raining");
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		vela.pushEnvironment(new VeLaEnvironment<Operand>(env));
+		vela.pushEnvironment(new VeLaEnvironment<Operand>(env, boundConstants));
 		boolean result = vela.booleanExpression("not raining");
 		assertTrue(result);
 	}
@@ -415,8 +419,10 @@ public class VeLaTest extends TestCase {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
 		environment.put("meaning_of_life".toUpperCase(), new Operand(
 				Type.INTEGER, 42));
+		Set<String> consts = new HashSet<String>();
+		consts.add("meaning_of_life");
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment));
+		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment, consts));
 		boolean result = vela.booleanExpression("meaning_of_life = 42");
 		assertTrue(result);
 	}
@@ -425,11 +431,15 @@ public class VeLaTest extends TestCase {
 	public void testVariableSingleCharacterVariable() {
 		Map<String, Operand> environment1 = new HashMap<String, Operand>();
 		environment1.put("x".toUpperCase(), new Operand(Type.INTEGER, 4.2));
-		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment1));
+		Set<String> consts1 = new HashSet<String>();
+		consts1.add("x");
+		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment1, consts1));
 
 		Map<String, Operand> environment2 = new HashMap<String, Operand>();
 		environment2.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
-		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment2));
+		Set<String> consts2 = new HashSet<String>();
+		consts2.add("x");
+		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment2, consts2));
 
 		// The value of x bound to 42 should be on top of the stack.
 		boolean result = vela.booleanExpression("x = 42");
@@ -439,14 +449,16 @@ public class VeLaTest extends TestCase {
 	public void testVariableMultipleEnvironmentsOnStack() {
 		Map<String, Operand> environment = new HashMap<String, Operand>();
 		environment.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
+		Set<String> consts = new HashSet<String>();
+		consts.add("x");
 		VeLaInterpreter vela = new VeLaInterpreter(true);
-		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment));
+		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment, consts));
 		boolean result = vela.booleanExpression("x = 42");
 		assertTrue(result);
 	}
 
 	// While
-	
+
 	public void testWhileLoop1() {
 		String prog = "";
 		prog += "i <- 0\n";
@@ -454,13 +466,13 @@ public class VeLaTest extends TestCase {
 		prog += "  i <- i + 1";
 		prog += "}";
 		prog += "i";
-		
+
 		Optional<Operand> result = vela.program(prog);
-		
+
 		assertTrue(result.isPresent());
 		assertEquals(10, result.get().intVal());
 	}
-	
+
 	// List
 
 	public void testListCaching() {
@@ -634,9 +646,9 @@ public class VeLaTest extends TestCase {
 		Operand expected = vela.expressionToOperand("[\"3rd\"]");
 		assertEquals(expected, actual);
 	}
-	
+
 	// Eval
-	
+
 	public void testEval1() {
 		String prog = "eval(\"2+3\")";
 		Optional<Operand> result = vela.program(prog);
@@ -1013,7 +1025,7 @@ public class VeLaTest extends TestCase {
 
 	// Bindings
 
-	public void testBinding1() {
+	public void testBindingNonConstant() {
 		// Bind X to 42 then retrieve the bound value of X.
 		String prog = "";
 		prog += "x <- 12\n";
@@ -1026,32 +1038,95 @@ public class VeLaTest extends TestCase {
 		assertTrue(result.isPresent());
 		assertEquals(12, result.get().intVal());
 
-		// Attempt to bind X again.
+		// Bind X again.
 		result = vela.program("x <- x + 1  x");
 		assertTrue(result.isPresent());
-		assertEquals(13, result.get().intVal());		
+		assertEquals(13, result.get().intVal());
+	}
+
+	public void testBindingConstant1() {
+		// Bind X to 12 then retrieve the bound value of X.
+		String prog = "";
+		prog += "x is 12\n";
+		prog += "x";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(12, result.get().intVal());
+
+		// Attempt to bind X again by assignment.
+		// This should fail.
+		try {
+			vela.program("x <- x + 1");
+			fail();
+		} catch (Exception e) {
+			// This is where we expect to be.
+		}
+	}
+
+	public void testBindingConstant2() {
+		// Bind X to 12 then retrieve the bound value of X.
+		String prog = "";
+		prog += "x is 12\n";
+		prog += "x";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(12, result.get().intVal());
+
+		// Attempt to bind X again as a constant.
+		// This should fail.
+		try {
+			vela.program("x <- x + 1");
+			fail();
+		} catch (Exception e) {
+			// This is where we expect to be.
+		}
+	}
+
+	public void testBindingConstant3() {
+		// Bind X to 42 then retrieve the bound value of X.
+		String prog = "";
+		prog += "x <- 12\n";
+		prog += "x";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(12, result.get().intVal());
+
+		// Attempt to bind X as a constant.
+		// This should fail.
+		try {
+			vela.program("x is x + 1");
+			fail();
+		} catch (Exception e) {
+			// This is where we expect to be.
+		}
 	}
 
 	public void testClosureBasedCounter() {
 		String prog = "";
 		prog += "mkcounter(start:integer) : function {\n";
 		prog += "  count <- start\n";
-		prog +=	"  counter(n:integer) : integer { count <- count + n  count }\n";
+		prog += "  counter(n:integer) : integer { count <- count + n  count }\n";
 		prog += "  counter\n";
 		prog += "}\n";
 		prog += "c <- mkcounter(10)\n";
 		prog += "c(1)\n";
 		prog += "c(1)\n";
 		prog += "c(1)\n";
-		
+
 		Optional<Operand> result = vela.program(prog);
 
 		assertTrue(result.isPresent());
 		assertEquals(13, result.get().intVal());
 	}
-	
+
 	// Sequence
-	
+
 	public void testSequence() {
 		String prog = "";
 		prog += "str <- \"\"";
@@ -1060,15 +1135,15 @@ public class VeLaTest extends TestCase {
 		prog += "           ch = \"1\" -> str + \" ONE\"";
 		prog += "           ch = \"2\" -> str + \" TWO\"";
 		prog += "           true -> { println(\"OTHER\") str }\n";
-		//prog += "println(format(\"%s: '%s'\" [ch str]))";
+		// prog += "println(format(\"%s: '%s'\" [ch str]))";
 		prog += "str";
-		
+
 		Optional<Operand> result = vela.program(prog);
 
 		assertTrue(result.isPresent());
 		assertEquals(" ONE", result.get().stringVal());
 	}
-	
+
 	// I/O test cases by inspection...
 
 	public void testFormattedPrint() {
