@@ -39,13 +39,16 @@ public class TextDialog extends AbstractOkCancelDialog {
 	private List<ITextComponent<String>> textFields;
 
 	/**
-	 * Constructor.
+	 * Constructor<br/>
+	 * 
+	 * If there are only two fields, a split pane is used to contain the fields.
 	 * 
 	 * @param title
 	 *            The title to be used for the dialog.
 	 * @param fields
 	 *            A list of text fields.
-	 * @param Show the dialog immediately?
+	 * @param Show
+	 *            the dialog immediately?
 	 */
 	public TextDialog(String title, List<ITextComponent<String>> fields,
 			boolean show) {
@@ -79,7 +82,7 @@ public class TextDialog extends AbstractOkCancelDialog {
 	}
 
 	/**
-	 * Constructor. Don't show the dialog immediately.
+	 * Constructor.
 	 * 
 	 * @param title
 	 *            The title to be used for the dialog.

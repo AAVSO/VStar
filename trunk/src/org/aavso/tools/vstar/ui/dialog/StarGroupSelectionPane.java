@@ -39,13 +39,12 @@ public class StarGroupSelectionPane extends JPanel {
 
 	private final static String NO_STARS = "No stars";
 
-	private JComboBox starGroupSelector;
-	private JComboBox starSelector;
+	private JComboBox<String> starGroupSelector;
+	private JComboBox<String> starSelector;
 	private ActionListener starSelectorListener;
 
 	private StarGroups starGroups;
 
-	private JTextField starField;
 
 	// Selected star group, name and AUID.
 	private String selectedStarGroup;
@@ -78,8 +77,6 @@ public class StarGroupSelectionPane extends JPanel {
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createEtchedBorder());
 
-		this.starField = starField;
-
 		selectedStarGroup = null;
 
 		selectedStarName = null;
@@ -90,7 +87,7 @@ public class StarGroupSelectionPane extends JPanel {
 		starGroups = StarGroups.getInstance();
 		Set<String> starGroupMapKeys = starGroups.getGroupNames();
 
-		starGroupSelector = new JComboBox(
+		starGroupSelector = new JComboBox<String>(
 				starGroupMapKeys.toArray(new String[0]));
 		selectedStarGroup = (String) starGroupSelector.getItemAt(0);
 		starGroupSelector.setBorder(BorderFactory
@@ -98,7 +95,7 @@ public class StarGroupSelectionPane extends JPanel {
 						.get("NEW_STAR_FROM_AID_DLG_GROUP")));
 		starGroupSelector.addActionListener(createStarGroupSelectorListener());
 
-		starSelector = new JComboBox();
+		starSelector = new JComboBox<String>();
 		populateStarListForSelectedGroup();
 		starSelector.setBorder(BorderFactory.createTitledBorder(LocaleProps
 				.get("NEW_STAR_FROM_AID_DLG_STAR")));
@@ -120,15 +117,6 @@ public class StarGroupSelectionPane extends JPanel {
 				starSelector.removeActionListener(starSelectorListener);
 				populateStarListForSelectedGroup();
 				starSelector.addActionListener(starSelectorListener);
-
-				if (starField != null) {
-					if (clearStarField) {
-						starField.setText("");
-					} else {
-						String starName = (String) starSelector.getSelectedItem();
-						starField.setText(starName);
-					}
-				}
 			}
 		};
 	}
@@ -143,14 +131,6 @@ public class StarGroupSelectionPane extends JPanel {
 					selectedStarName = starName;
 					selectedAUID = starGroups.getAUID(selectedStarGroup,
 							selectedStarName);
-
-					if (starField != null) {
-						if (clearStarField) {
-							starField.setText("");
-						} else {
-							starField.setText(starName);
-						}
-					}
 				}
 			}
 		};
