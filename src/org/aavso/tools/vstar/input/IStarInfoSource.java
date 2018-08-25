@@ -32,7 +32,20 @@ public interface IStarInfoSource {
 	 *            The star name or alias.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getStarByName(String name)
+	public StarInfo getStarByName(String name) throws Exception;
+
+	/**
+	 * Return the AUID of the named star.
+	 * 
+	 * @param name
+	 *            The star name or alias.
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 * @return Information about the star, e.g. name, AUID, period.
+	 */
+	public StarInfo getStarByName(String name, double minJD, double maxJD)
 			throws Exception;
 
 	/**
@@ -42,6 +55,19 @@ public interface IStarInfoSource {
 	 *            The AUID.
 	 * @return Information about the star, e.g. name, AUID, period.
 	 */
-	public StarInfo getStarByAUID(String auid)
+	public StarInfo getStarByAUID(String auid) throws Exception;
+
+	/**
+	 * Return the name of the star given an AUID.
+	 * 
+	 * @param name
+	 *            The AUID.
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 * @return Information about the star, e.g. name, AUID, period.
+	 */
+	public StarInfo getStarByAUID(String auid, double minJD, double maxJD)
 			throws Exception;
 }

@@ -58,10 +58,25 @@ public class VSXWebServiceStarInfoSource implements IStarInfoSource {
 	}
 
 	@Override
+	public StarInfo getStarByAUID(String auid, double minJD, double maxJD)
+			throws Exception {
+		return retrieveData("ident=" + auid + "&fromjd=" + minJD + "&tojd="
+				+ maxJD, auid);
+	}
+
+	@Override
 	public StarInfo getStarByName(String name) {
 		// Replace "+" with %2B (thanks Patrick) and spaces with "+".
 		return retrieveData(
 				"ident=" + name.replace("+", "%2B").replace(" ", "+"), name);
+	}
+
+	@Override
+	public StarInfo getStarByName(String name, double minJD, double maxJD) {
+		// Replace "+" with %2B (thanks Patrick) and spaces with "+".
+		return retrieveData(
+				"ident=" + name.replace("+", "%2B").replace(" ", "+")
+						+ "&fromjd=" + minJD + "&tojd=" + maxJD, name);
 	}
 
 	/**
@@ -81,7 +96,8 @@ public class VSXWebServiceStarInfoSource implements IStarInfoSource {
 
 		try {
 			// Get the XML document.
-			URL vsxUrl = new URL(baseVsxUrlString + "&" + queryParam + "&data=1");
+			URL vsxUrl = new URL(baseVsxUrlString + "&" + queryParam
+					+ "&data=0");
 
 			DocumentBuilderFactory factory = DocumentBuilderFactory
 					.newInstance();
@@ -110,13 +126,12 @@ public class VSXWebServiceStarInfoSource implements IStarInfoSource {
 				String discoverer = data.get("Discoverer");
 				RAInfo ra = new RAInfo(EpochType.J2000, Double.parseDouble(data
 						.get("RA2000")));
-				DecInfo dec = new DecInfo(EpochType.J2000, Double.parseDouble(data
-						.get("Declination2000")));
+				DecInfo dec = new DecInfo(EpochType.J2000,
+						Double.parseDouble(data.get("Declination2000")));
 
 				// Is there an observation count?
 				Integer obsCount = null;
-				NodeList obsCountNodes = document
-						.getElementsByTagName("Count");
+				NodeList obsCountNodes = document.getElementsByTagName("Count");
 				if (obsCountNodes.getLength() != 0) {
 					Element obsCountElt = (Element) obsCountNodes.item(0);
 					obsCount = Integer.parseInt(obsCountElt.getTextContent());
@@ -126,7 +141,7 @@ public class VSXWebServiceStarInfoSource implements IStarInfoSource {
 						spectralType, discoverer, ra, dec, obsCount);
 			} else {
 				String msg = "Unable to obtain information for " + id;
-//				MessageBox.showErrorDialog("Target Error", msg);
+				// MessageBox.showErrorDialog("Target Error", msg);
 				throw new IllegalArgumentException(msg);
 			}
 		} catch (MalformedURLException e) {

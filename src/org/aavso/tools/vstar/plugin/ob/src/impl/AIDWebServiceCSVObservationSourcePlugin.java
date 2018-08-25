@@ -73,7 +73,7 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 
 	private final static String BASE_URL = "https://www.aavso.org/vsx/index.php?view=api.object";
 
-	private final static String METHOD = "&csv";
+	private String METHOD = "&csv";
 
 	private final static MagnitudeFieldValidator magnitudeFieldValidator = new MagnitudeFieldValidator();
 
@@ -93,8 +93,7 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 	 * @return The URL string necessary to load data for the target and JD
 	 *         range.
 	 */
-	public static String createAIDUrlForAUID(String auid, double minJD,
-			double maxJD) {
+	public String createAIDUrlForAUID(String auid, double minJD, double maxJD) {
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
 
@@ -126,8 +125,8 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 	 * @return The URL string necessary to load data for the target and JD
 	 *         range.
 	 */
-	public static String createAIDUrlForAUID(String auid, double minJD,
-			double maxJD, SeriesType series) {
+	public String createAIDUrlForAUID(String auid, double minJD, double maxJD,
+			SeriesType series) {
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
 
@@ -155,7 +154,7 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 	 * @return The URL string necessary to load data for the target and JD
 	 *         range.
 	 */
-	public static String createAIDUrlForAUID(String auid) {
+	public String createAIDUrlForAUID(String auid) {
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
 
@@ -321,7 +320,6 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 
 		@Override
 		public Integer getNumberOfRecords() throws ObservationReadError {
-			// TOFO: fix; wrong!
 			return info.getObsCount();
 		}
 
@@ -353,7 +351,7 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 
 						document.getDocumentElement().normalize();
 
-						pageNum = requestObservationDetailsFromCSV(document,
+						pageNum = requestObservationDetails(document,
 								pageNum);
 
 					} catch (MalformedURLException e) {
@@ -389,7 +387,7 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 
 		// Helpers
 
-		private Integer requestObservationDetailsFromCSV(Document document,
+		private Integer requestObservationDetails(Document document,
 				Integer pageNum) throws ObservationReadError {
 
 			// Has an observation count been supplied?
@@ -452,7 +450,7 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 					if (csvReader.readHeaders()) {
 
 						while (csvReader.readRecord()) {
-							ValidObservation ob = retrieveNextCSVObservation(csvReader);
+							ValidObservation ob = retrieveNextObservation(csvReader);
 
 							if (ob != null) {
 								collectObservation(ob);
@@ -516,7 +514,7 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 		 * @throws ObservationReadError
 		 *             if an error occurred during observation processing.
 		 */
-		private ValidObservation retrieveNextCSVObservation(CsvReader reader)
+		private ValidObservation retrieveNextObservation(CsvReader reader)
 				throws ObservationReadError {
 
 			Integer id = null;
