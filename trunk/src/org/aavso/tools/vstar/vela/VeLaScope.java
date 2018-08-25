@@ -26,8 +26,7 @@ import java.util.Optional;
 /**
  * This class represents a VeLa scope assumed to exist within a stack of scopes,
  * with a global scope at the bottom and function scopes thereafter. Symbols in
- * each correspond to one-time variable or function bindings such that binding a
- * variable or function twice is considered an error.
+ * each correspond to variable or function bindings.
  */
 public class VeLaScope extends VeLaEnvironment<Operand> {
 
@@ -50,13 +49,17 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	 * @throws VeLaEvalError
 	 *             if the name is already bound.
 	 */
+	// TODO: 
+	// - if bound, ask what type it is bound to; don't allow type to change;
+	//   think about this actually; may be more important what a function can
+	//   take or return than whether a variable binding can change
 //	@Override
-//	public void bind(String name, Operand value) {
+//	public void bind(String name, Operand value, boolean isConstant) {
 //		// if (value.getType() == Type.FUNCTION) {
 //		// addFunctionExecutor(value.functionVal());
 //		// } else
 //		if (!lookup(name).isPresent()) {
-//			super.bind(name, value);
+//			super.bind(name, value, isConstant);
 //		} else {
 //			throw new VeLaEvalError("'" + name
 //					+ "' is already bound in this environment.");
