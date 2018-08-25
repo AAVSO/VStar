@@ -224,15 +224,16 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 								.get("MODEL_INFO_FUNCTION_TITLE"));
 
 						if (strRepr == null) {
-							strRepr = "f(t:real) : real {\n";
+							strRepr = "zeroPoint is "
+									+ NumericPrecisionPrefs
+											.formatTime(zeroPoint) + "\n\n";
+
+							strRepr += "f(t:real) : real {\n";
 
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += "    " + coeffs[i];
-								strRepr += "*(t-"
-										+ NumericPrecisionPrefs
-												.formatTime(zeroPoint) + ")^"
-										+ i + " +\n";
+								strRepr += "*(t-zeroPoint)^" + i + " +\n";
 							}
 							strRepr += "    " + coeffs[0];
 							strRepr += "\n}";
@@ -267,15 +268,16 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 								.get("MODEL_INFO_R_TITLE"));
 
 						if (strRepr == null) {
-							strRepr = "model <- function(t) ";
+							strRepr = "zeroPoint <- "
+									+ NumericPrecisionPrefs
+											.formatTime(zeroPoint) + "\n\n";
+
+							strRepr += "model <- function(t) ";
 
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += coeffs[i];
-								strRepr += "*(t-"
-										+ NumericPrecisionPrefs
-												.formatTime(zeroPoint) + ")^"
-										+ i + " +\n";
+								strRepr += "*(t-zeroPoint)^" + i + " +\n";
 							}
 							strRepr += coeffs[0];
 						}
