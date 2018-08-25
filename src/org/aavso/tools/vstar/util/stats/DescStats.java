@@ -216,7 +216,8 @@ public class DescStats {
 	 * sample of magnitudes for observations in a specified inclusive range.
 	 * 
 	 * We use the sample standard deviation formula as per
-	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
+	 * https://www.aavso.org/sites/default/files/education/vsa/Chapter10.pdf<br/>
+	 * See also a discussion
 	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
 	 * 
 	 * @param observations
