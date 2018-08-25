@@ -36,6 +36,7 @@ import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
+import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
@@ -53,18 +54,27 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+// TODO: create XML and CSV sub-classes!
+
 /**
  * This intrinsic observation source plug-in retrieves AID observations via the
  * VSX web service.
  */
-public class VSXWebServiceAIDObservationSourcePlugin extends
+public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 		ObservationSourcePluginBase {
 
+	// TODO: make a preference
 	private final static int MAX_OBS_AT_ONCE = 1000;
+
 	private final static String BASE_URL = "https://www.aavso.org/vsx/index.php?view=api.object";
 
-	private String urlStr;
+	private final static String METHOD = "&att";
+
+	private final static MagnitudeFieldValidator magnitudeFieldValidator = new MagnitudeFieldValidator();
+
 	private StarInfo info;
+
+	private List<String> urlStrs;
 
 	/**
 	 * Given an AUID, min and max JD, return a web service URL.
@@ -91,7 +101,42 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		urlStrBuf.append(minJD);
 		urlStrBuf.append("&tojd=");
 		urlStrBuf.append(maxJD);
-		urlStrBuf.append("&att");
+		urlStrBuf.append(METHOD);
+		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
+
+		return urlStrBuf.toString();
+	}
+
+	/**
+	 * Given an AUID, min and max JD, and a series, return a web service URL.
+	 * 
+	 * @param auid
+	 *            The AUID of the target.
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 * @param series
+	 *            The series to be loaded.
+	 * @return The URL string necessary to load data for the target and JD
+	 *         range.
+	 */
+	public static String createAIDUrlForAUID(String auid, double minJD,
+			double maxJD, SeriesType series) {
+
+		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
+
+		urlStrBuf.append("&ident=");
+		urlStrBuf.append(auid);
+		urlStrBuf.append("&data=");
+		urlStrBuf.append(MAX_OBS_AT_ONCE);
+		urlStrBuf.append("&fromjd=");
+		urlStrBuf.append(minJD);
+		urlStrBuf.append("&tojd=");
+		urlStrBuf.append(maxJD);
+		urlStrBuf.append(METHOD);
+		urlStrBuf.append("&band=");
+		urlStrBuf.append(series.getShortName());
 		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
 
 		return urlStrBuf.toString();
@@ -113,13 +158,13 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		urlStrBuf.append(auid);
 		urlStrBuf.append("&data=");
 		urlStrBuf.append(MAX_OBS_AT_ONCE);
-		urlStrBuf.append("&att");
+		urlStrBuf.append(METHOD);
 		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
 
 		return urlStrBuf.toString();
 	}
 
-	public VSXWebServiceAIDObservationSourcePlugin() {
+	public AIDWebServiceXMLAttributeObservationSourcePlugin() {
 		// baseVsxUrlString =
 		// "https://www.aavso.org/vsx/index.php?view=api.csv";
 		info = null;
@@ -142,6 +187,8 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 	@Override
 	public List<URL> getURLs() throws Exception {
+		String urlStr = null;
+		urlStrs = new ArrayList<String>();
 		List<URL> urls = new ArrayList<URL>();
 
 		StarSelectorDialog starSelector = StarSelectorDialog.getInstance();
@@ -166,22 +213,33 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 				auid = info.getAuid();
 			}
 
-			if (starSelector.wantAllData()) {
-				urlStr = createAIDUrlForAUID(auid);
-			} else {
-				urlStr = createAIDUrlForAUID(auid, starSelector.getMinDate()
-						.getJulianDay(), starSelector.getMaxDate()
-						.getJulianDay());
+			// Create a list of URLs with different series for the same target
+			// and time range.
+			for (SeriesType series : starSelector.getSelectedSeries()) {
+
+				if (starSelector.wantAllData()) {
+					// Request all AID data for object for requested series.
+					urlStr = createAIDUrlForAUID(auid);
+				} else {
+					// Request AID data for object over a range and for the
+					// zeroth requested series.
+					urlStr = createAIDUrlForAUID(auid, starSelector
+							.getMinDate().getJulianDay(), starSelector
+							.getMaxDate().getJulianDay(), series);
+				}
+
+				urlStrs.add(urlStr);
 			}
 
+			// Return a list containing one URL to satisfy logic in new star
+			// from obs source plug-in task. We are actually interested in just
+			// the partial URL string we constructed, which will be used in
+			// retrieveObservations().
 			urls.add(new URL(urlStr));
 		} else {
 			throw new CancellationException();
 		}
 
-		// Return the URLs list to satisfy logic in new star from obs source
-		// plug-in task. We are actually interested in just the partial URL
-		// string we constructed, which will be used in retrieveObservations().
 		return urls;
 	}
 
@@ -202,7 +260,8 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
-		return new VSXAIDObservationRetriever();
+
+		return new VSXAIDAttributeObservationRetriever();
 	}
 
 	/**
@@ -223,12 +282,14 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 	 * @param url
 	 */
 	public void setUrl(String urlStr) {
-		this.urlStr = urlStr;
+		urlStrs = new ArrayList<String>();
+		urlStrs.add(urlStr);
 	}
 
-	class VSXAIDObservationRetriever extends AbstractObservationRetriever {
+	class VSXAIDAttributeObservationRetriever extends
+			AbstractObservationRetriever {
 
-		public VSXAIDObservationRetriever() {
+		public VSXAIDAttributeObservationRetriever() {
 			info.setRetriever(this);
 		}
 
@@ -246,71 +307,53 @@ public class VSXWebServiceAIDObservationSourcePlugin extends
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
 
-			Integer pageNum = 1;
+			// Iterate over each series-based URL reading observations over
+			// potentially many "pages" for each URL.
+			for (String urlStr : urlStrs) {
+				Integer pageNum = 1;
 
-			do {
-				try {
-					String currUrlStr = urlStr;
-					if (pageNum != null) {
-						currUrlStr += "&page=" + pageNum;
+				do {
+					try {
+						String currUrlStr = urlStr;
+						if (pageNum != null) {
+							currUrlStr += "&page=" + pageNum;
+						}
+
+						URL vsxUrl = new URL(currUrlStr);
+
+						DocumentBuilderFactory factory = DocumentBuilderFactory
+								.newInstance();
+						DocumentBuilder builder = factory.newDocumentBuilder();
+
+						InputStream stream = new UTF8FilteringInputStream(
+								vsxUrl.openStream());
+						Document document = builder.parse(stream);
+
+						document.getDocumentElement().normalize();
+
+						pageNum = requestObservationDetailsAsAttributes(
+								document, pageNum);
+
+					} catch (MalformedURLException e) {
+						throw new ObservationReadError(
+								"Unable to obtain information for "
+										+ info.getDesignation());
+					} catch (ParserConfigurationException e) {
+						throw new ObservationReadError(
+								"Unable to obtain information for "
+										+ info.getDesignation());
+					} catch (SAXException e) {
+						throw new ObservationReadError(
+								"Unable to obtain information for "
+										+ info.getDesignation());
+					} catch (IOException e) {
+						throw new ObservationReadError(
+								"Unable to obtain information for "
+										+ info.getDesignation());
 					}
-
-					URL vsxUrl = new URL(currUrlStr);
-
-					DocumentBuilderFactory factory = DocumentBuilderFactory
-							.newInstance();
-					DocumentBuilder builder = factory.newDocumentBuilder();
-
-					InputStream stream = new UTF8FilteringInputStream(
-							vsxUrl.openStream());
-					Document document = builder.parse(stream);
-
-					document.getDocumentElement().normalize();
-
-					// pageNum = requestObservationDetailsAsElements(document,
-					// pageNum);
-
-					pageNum = requestObservationDetailsAsAttributes(document,
-							pageNum);
-				} catch (MalformedURLException e) {
-					throw new ObservationReadError(
-							"Unable to obtain information for "
-									+ info.getDesignation());
-				} catch (ParserConfigurationException e) {
-					throw new ObservationReadError(
-							"Unable to obtain information for "
-									+ info.getDesignation());
-				} catch (SAXException e) {
-					throw new ObservationReadError(
-							"Unable to obtain information for "
-									+ info.getDesignation());
-				} catch (IOException e) {
-					throw new ObservationReadError(
-							"Unable to obtain information for "
-									+ info.getDesignation());
-				}
-			} while (pageNum != null && !interrupted);
+				} while (pageNum != null && !interrupted);
+			}
 		}
-
-		// TODO: replace above with this or delete
-		// public void retrieveObservations2() throws ObservationReadError,
-		// InterruptedException {
-		//
-		// try {
-		// URL vsxUrl = new URL(urlStr);
-		//
-		// InputStream stream = vsxUrl.openStream();
-		// InputStreamReader reader = new InputStreamReader(stream);
-		// // TODO: create CSV reader, read lines, create obs list.
-		// } catch (Throwable t) {
-		// throw new ObservationReadError(
-		// "Error when attempting to read observation source.");
-		// } catch (IOException e) {
-		// throw new ObservationReadError(
-		// "Unable to obtain information for "
-		// + info.getDesignation());
-		// }
-		// }
 
 		@Override
 		public String getSourceType() {
