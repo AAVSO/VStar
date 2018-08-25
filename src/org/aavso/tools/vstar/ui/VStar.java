@@ -28,6 +28,7 @@ import java.util.logging.SimpleFormatter;
 
 import javax.swing.UIManager;
 
+import org.aavso.tools.vstar.scripting.ScriptRunner;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -64,6 +65,9 @@ public class VStar {
 	}
 
 	private static boolean loadPlugins = true;
+	
+	private static boolean runScript = false;
+	private static String scriptPath = null;
 
 	public static void main(String[] args) {
 		// Apply VStar Java policy for all code.
@@ -116,7 +120,7 @@ public class VStar {
 		// creating and showing this application's GUI.
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				createAndShowGUI();
+				createAndShowGUI();				
 			}
 		});
 	}
@@ -152,6 +156,11 @@ public class VStar {
 
 			Runtime.getRuntime().addShutdownHook(
 					new Thread(shutdownTask, "Application shutdown task"));
+			
+			if (scriptPath != null) {
+				new ScriptRunner(false).runScript(new File(scriptPath));
+			}
+
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"Error", t.getLocalizedMessage());
@@ -169,10 +178,14 @@ public class VStar {
 	private static void processCmdLineArgs(String[] args) {
 		for (String arg : args) {
 			if ("--help".equals(arg)) {
-				System.out.println("usage: vstar [--noplugins]");
+				System.out.println("usage: vstar [--noplugins] [--script path]");
 				System.exit(0);
 			} else if ("--noplugins".equals(arg)) {
 				loadPlugins = false;
+			} else if ("--script".equals(arg)) {
+				runScript = true;
+			} else if (runScript) {
+				scriptPath = arg;
 			}
 		}
 	}

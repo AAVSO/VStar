@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.scripting;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -40,7 +39,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  */
 public class ScriptRunner {
 
-	private static ScriptRunner instance = new ScriptRunner();
+	private static ScriptRunner instance = new ScriptRunner(true);
 
 	private ScriptEngineManager manager;
 	private ScriptEngine jsEngine;
@@ -52,15 +51,17 @@ public class ScriptRunner {
 	private JFileChooser scriptFileChooser;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 */
-	protected ScriptRunner() {
+	public ScriptRunner(boolean fromFileChooser) {
 		manager = new ScriptEngineManager();
 		jsEngine = manager.getEngineByName("javascript");
 		compilable = (Compilable) jsEngine;
 		bindings = jsEngine.getBindings(ScriptContext.GLOBAL_SCOPE);
 		bindings.put("vstar", VStarScriptingAPI.getInstance());
-		scriptFileChooser = new JFileChooser();
+		if (fromFileChooser) {
+			scriptFileChooser = new JFileChooser();
+		}
 	}
 
 	/**
@@ -75,6 +76,19 @@ public class ScriptRunner {
 	 */
 	public void runScript() {
 		File scriptFile = null;
+
+		int returnVal = scriptFileChooser.showOpenDialog(DocumentManager
+				.findActiveWindow());
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			scriptFile = scriptFileChooser.getSelectedFile();
+			runScript(scriptFile);
+		}
+	}
+
+	/**
+	 * Run script from the specified file.
+	 */
+	public void runScript(File scriptFile) {
 		FileReader reader = null;
 
 		try {
@@ -83,19 +97,10 @@ public class ScriptRunner {
 
 			Mediator.getUI().setScriptingStatus(true);
 
-			int returnVal = scriptFileChooser.showOpenDialog(DocumentManager
-					.findActiveWindow());
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				scriptFile = scriptFileChooser.getSelectedFile();
-				reader = new FileReader(scriptFile);
-				jsEngine.put(ScriptEngine.FILENAME, scriptFile.toString());
-				CompiledScript script = compilable.compile(reader);
-				script.eval();
-			}
-		} catch (FileNotFoundException ex) {
-			Mediator.getUI().setScriptingStatus(false);
-			MessageBox.showErrorDialog("Script Error", "Cannot load script '"
-					+ scriptFile.getAbsolutePath() + "'");
+			reader = new FileReader(scriptFile);
+			jsEngine.put(ScriptEngine.FILENAME, scriptFile.toString());
+			CompiledScript script = compilable.compile(reader);
+			script.eval();
 		} catch (ScriptException ex) {
 			Mediator.getUI().setScriptingStatus(false);
 			MessageBox
@@ -146,12 +151,14 @@ public class ScriptRunner {
 	public void setWarning(String warning) {
 		this.warning = warning;
 	}
-	
+
 	/**
 	 * Bind a name to a value in the scripting context.
 	 * 
-	 * @param name The name of the value to bind to.
-	 * @param value The value to which to bind.
+	 * @param name
+	 *            The name of the value to bind to.
+	 * @param value
+	 *            The value to which to bind.
 	 */
 	public void bind(String name, Object value) {
 		bindings.put(name, value);
