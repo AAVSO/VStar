@@ -62,7 +62,6 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
-
 		return new VSXAIDAttributeObservationRetriever();
 	}
 

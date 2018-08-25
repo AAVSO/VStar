@@ -31,7 +31,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-import org.aavso.tools.vstar.plugin.ob.src.impl.VSXWebServiceAIDObservationSourcePlugin;
+import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
@@ -223,7 +223,25 @@ public class VStarScriptingAPI {
 	public synchronized void loadFromAID(final String name, double minJD,
 			double maxJD) {
 
-		commonLoadFromAID(name, minJD, maxJD, false);
+		commonLoadFromAID(name, minJD, maxJD, null, false);
+	}
+
+	/**
+	 * Load a dataset from the AAVSO international database.
+	 * 
+	 * @param name
+	 *            The name (not AUID) of the object.
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 * @param band
+	 *            A short band name.
+	 */
+	public synchronized void loadFromAID(final String name, double minJD,
+			double maxJD, String band) {
+
+		commonLoadFromAID(name, minJD, maxJD, band, false);
 	}
 
 	/**
@@ -240,7 +258,26 @@ public class VStarScriptingAPI {
 	public synchronized void additiveLoadFromAID(final String name,
 			double minJD, double maxJD) {
 
-		commonLoadFromAID(name, minJD, maxJD, true);
+		commonLoadFromAID(name, minJD, maxJD, null, true);
+	}
+
+	/**
+	 * Load a dataset from the AAVSO international database, adding it to the
+	 * existing dataset.
+	 * 
+	 * @param name
+	 *            The name (not AUID) of the object.
+	 * @param minJD
+	 *            The minimum JD of the range to be loaded.
+	 * @param maxJD
+	 *            The maximum JD of the range to be loaded.
+	 * @param band
+	 *            A short band name.
+	 */
+	public synchronized void additiveLoadFromAID(final String name,
+			double minJD, double maxJD, String band) {
+
+		commonLoadFromAID(name, minJD, maxJD, band, true);
 	}
 
 	// TODO: add loadFromAID(name) => all
@@ -706,11 +743,13 @@ public class VStarScriptingAPI {
 	 *            The minimum JD of the range to be loaded.
 	 * @param maxJD
 	 *            The maximum JD of the range to be loaded.
+	 * @param band
+	 *            A short band name or null for all available bands.
 	 * @param isAdditive
 	 *            Is this load additive?
 	 */
 	private void commonLoadFromAID(final String name, double minJD,
-			double maxJD, boolean isAdditive) {
+			double maxJD, String band, boolean isAdditive) {
 		init();
 
 		ObservationSourcePluginBase obSourcePlugin = null;
@@ -729,10 +768,19 @@ public class VStarScriptingAPI {
 				VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
 				StarInfo info = infoSrc.getStarByName(name);
 
-				String url = VSXWebServiceAIDObservationSourcePlugin
-						.createAIDUrlForAUID(info.getAuid(), minJD, maxJD);
+				String url = "";
 
-				VSXWebServiceAIDObservationSourcePlugin aidPlugin = (VSXWebServiceAIDObservationSourcePlugin) obSourcePlugin;
+				AIDWebServiceObservationSourcePluginBase aidPlugin = (AIDWebServiceObservationSourcePluginBase) obSourcePlugin;
+
+				if (band == null) {
+					url = aidPlugin
+							.createAIDUrlForAUID(info.getAuid(), minJD, maxJD);
+				} else {
+					url = aidPlugin
+							.createAIDUrlForAUID(info.getAuid(), minJD, maxJD,
+									SeriesType.getSeriesFromShortName(band));
+				}
+
 				aidPlugin.setUrl(url);
 				aidPlugin.setInfo(info);
 
