@@ -23,17 +23,17 @@ import org.aavso.tools.vstar.vela.VeLaInterpreter;
 import org.aavso.tools.vstar.vela.VeLaParseError;
 
 /**
- * This class contains a static methods that parses numeric expressions in a
- * locale-independent way, intended as replacements for Number-subclass methods
- * of the same names.
+ * This class contains static method that parses numeric expressions in a
+ * locale-independent way, intended as replacements for the Double method
+ * of the same name.
  */
 public class NumberParser {
 
 	private static VeLaInterpreter vela = new VeLaInterpreter();
 
 	/**
-	 * Parse a string, returning a double primitive value, or if no valid double
-	 * value is present, throw an exception.
+	 * Parses a string, returning a double primitive value, or if no valid double
+	 * value is present, throws an exception.
 	 * 
 	 * @param str
 	 *            The string that (hopefully) contains a numeric VeLa expression.
