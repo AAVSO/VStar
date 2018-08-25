@@ -68,7 +68,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 
 	private final static String BASE_URL = "https://www.aavso.org/vsx/index.php?view=api.object";
 
-	private final static String METHOD = "&att";
+	private String METHOD = "&att";
 
 	private final static MagnitudeFieldValidator magnitudeFieldValidator = new MagnitudeFieldValidator();
 
@@ -88,7 +88,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 	 * @return The URL string necessary to load data for the target and JD
 	 *         range.
 	 */
-	public static String createAIDUrlForAUID(String auid, double minJD,
+	public String createAIDUrlForAUID(String auid, double minJD,
 			double maxJD) {
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
@@ -121,7 +121,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 	 * @return The URL string necessary to load data for the target and JD
 	 *         range.
 	 */
-	public static String createAIDUrlForAUID(String auid, double minJD,
+	public String createAIDUrlForAUID(String auid, double minJD,
 			double maxJD, SeriesType series) {
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
@@ -150,7 +150,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 	 * @return The URL string necessary to load data for the target and JD
 	 *         range.
 	 */
-	public static String createAIDUrlForAUID(String auid) {
+	public String createAIDUrlForAUID(String auid) {
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
 
@@ -331,7 +331,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 
 						document.getDocumentElement().normalize();
 
-						pageNum = requestObservationDetailsAsAttributes(
+						pageNum = requestObservationDetails(
 								document, pageNum);
 
 					} catch (MalformedURLException e) {
@@ -408,7 +408,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 			return pageNum;
 		}
 
-		private Integer requestObservationDetailsAsAttributes(
+		private Integer requestObservationDetails(
 				Document document, Integer pageNum) throws ObservationReadError {
 
 			// Has an observation count been supplied?
