@@ -31,18 +31,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.MTypeType;
-import org.aavso.tools.vstar.data.Magnitude;
-import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
-import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
 import org.aavso.tools.vstar.plugin.InputType;
-import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
@@ -54,27 +50,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-// TODO: create XML and CSV sub-classes!
-
 /**
  * This intrinsic observation source plug-in retrieves AID observations via the
  * VSX web service.
  */
 public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
-		ObservationSourcePluginBase {
+		AIDWebServiceObservationSourcePluginBase {
 
-	// TODO: make a preference
-	private final static int MAX_OBS_AT_ONCE = 1000;
-
-	private final static String BASE_URL = "https://www.aavso.org/vsx/index.php?view=api.object";
-
-	private String METHOD = "&att";
-
-	private final static MagnitudeFieldValidator magnitudeFieldValidator = new MagnitudeFieldValidator();
-
-	private StarInfo info;
-
-	private List<String> urlStrs;
+	public AIDWebServiceXMLAttributeObservationSourcePlugin() {
+		super("&att");
+	}
 
 	/**
 	 * Given an AUID, min and max JD, return a web service URL.
@@ -88,8 +73,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 	 * @return The URL string necessary to load data for the target and JD
 	 *         range.
 	 */
-	public String createAIDUrlForAUID(String auid, double minJD,
-			double maxJD) {
+	public String createAIDUrlForAUID(String auid, double minJD, double maxJD) {
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
 
@@ -101,7 +85,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 		urlStrBuf.append(minJD);
 		urlStrBuf.append("&tojd=");
 		urlStrBuf.append(maxJD);
-		urlStrBuf.append(METHOD);
+		urlStrBuf.append(method);
 		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
 
 		return urlStrBuf.toString();
@@ -121,8 +105,8 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 	 * @return The URL string necessary to load data for the target and JD
 	 *         range.
 	 */
-	public String createAIDUrlForAUID(String auid, double minJD,
-			double maxJD, SeriesType series) {
+	public String createAIDUrlForAUID(String auid, double minJD, double maxJD,
+			SeriesType series) {
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
 
@@ -134,7 +118,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 		urlStrBuf.append(minJD);
 		urlStrBuf.append("&tojd=");
 		urlStrBuf.append(maxJD);
-		urlStrBuf.append(METHOD);
+		urlStrBuf.append(method);
 		urlStrBuf.append("&band=");
 		urlStrBuf.append(series.getShortName());
 		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
@@ -158,16 +142,10 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 		urlStrBuf.append(auid);
 		urlStrBuf.append("&data=");
 		urlStrBuf.append(MAX_OBS_AT_ONCE);
-		urlStrBuf.append(METHOD);
+		urlStrBuf.append(method);
 		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
 
 		return urlStrBuf.toString();
-	}
-
-	public AIDWebServiceXMLAttributeObservationSourcePlugin() {
-		// baseVsxUrlString =
-		// "https://www.aavso.org/vsx/index.php?view=api.csv";
-		info = null;
 	}
 
 	@Override
@@ -331,8 +309,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 
 						document.getDocumentElement().normalize();
 
-						pageNum = requestObservationDetails(
-								document, pageNum);
+						pageNum = requestObservationDetails(document, pageNum);
 
 					} catch (MalformedURLException e) {
 						throw new ObservationReadError(
@@ -367,49 +344,8 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 
 		// Helpers
 
-		private Integer requestObservationDetailsAsElements(Document document,
+		private Integer requestObservationDetails(Document document,
 				Integer pageNum) throws ObservationReadError {
-
-			// Has an observation count element been supplied?
-			Integer obsCount = null;
-
-			NodeList obsCountNodes = document.getElementsByTagName("Count");
-			if (obsCountNodes.getLength() != 0) {
-				Element obsCountElt = (Element) obsCountNodes.item(0);
-				obsCount = Integer.parseInt(obsCountElt.getTextContent());
-			}
-
-			if (obsCount == null) {
-				pageNum = null;
-			}
-
-			NodeList obsNodes = document.getElementsByTagName("Observation");
-			for (int i = 0; i < obsNodes.getLength(); i++) {
-
-				if (interrupted)
-					break;
-
-				NodeList obsDetails = obsNodes.item(i).getChildNodes();
-
-				ValidObservation ob = retrieveObservation(new NodeListSequence(
-						obsDetails));
-
-				if (ob != null) {
-					collectObservation(ob);
-				}
-
-				incrementProgress();
-			}
-
-			if (pageNum != null) {
-				pageNum++;
-			}
-
-			return pageNum;
-		}
-
-		private Integer requestObservationDetails(
-				Document document, Integer pageNum) throws ObservationReadError {
 
 			// Has an observation count been supplied?
 			// If so, more observations remain than the ones about to be
@@ -599,76 +535,5 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 
 			return ob;
 		}
-
-		private Magnitude getMagnitude(double mag, double error,
-				boolean fainterThan, boolean isUncertain) {
-
-			MagnitudeModifier modifier = fainterThan ? MagnitudeModifier.FAINTER_THAN
-					: MagnitudeModifier.NO_DELTA;
-
-			return new Magnitude(mag, modifier, isUncertain, error);
-		}
-
-		private ValidationType getValidationType(String valflag) {
-			ValidationType type;
-
-			// - V,Z,U => Good
-			// - T,N => discrepant
-			// - Y(,Q) filtered out server side
-
-			switch (valflag.charAt(0)) {
-			case 'V':
-			case 'Z':
-			case 'U':
-				type = ValidationType.GOOD;
-				break;
-
-			case 'T':
-			case 'N':
-				type = ValidationType.DISCREPANT;
-				break;
-
-			default:
-				// In case anything else slips through, e.g. Y,Q.
-				type = ValidationType.BAD;
-				break;
-			}
-
-			return type;
-		}
-
-		private MTypeType getMType(String mtypeStr) {
-			MTypeType result = MTypeType.STD;
-
-			// If mtypeStr is null, we use the ValidObservation's
-			// constructed default (standard magnitude type).
-			//
-			// Note that we should only ever see STD here anyway!
-
-			if (mtypeStr != null || "".equals(mtypeStr)) {
-				if (mtypeStr == "DIFF") {
-					result = MTypeType.DIFF;
-				} else if (mtypeStr == "STEP") {
-					result = MTypeType.STEP;
-				}
-			}
-
-			return result;
-		}
 	}
-
-	private Double getPossiblyNullDouble(String valStr) {
-		Double num = null;
-
-		try {
-			if (valStr != null) {
-				num = Double.parseDouble(valStr);
-			}
-		} catch (NumberFormatException e) {
-			// The value will default to null.
-		}
-
-		return num;
-	}
-
 }

@@ -26,18 +26,44 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ob.src.impl.UTF8FilteringInputStream;
-import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceXMLAttributeObservationSourcePlugin;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
- * Unit (or integration) test that reads AID observations via the VSX web
- * service.
+ * Unit (or integration) base class for tests that read AID observations via
+ * the VSX web service.
  */
-public class VSXWebServiceAIDObservationReaderTest extends TestCase {
+public class VSXWebServiceAIDObservationReaderTestBase extends TestCase {
 
-	public VSXWebServiceAIDObservationReaderTest(String name) {
+	private Class<? extends AIDWebServiceObservationSourcePluginBase> obsSourceClass;
+	protected AIDWebServiceObservationSourcePluginBase obsSource;
+
+	/**
+	 * Constructor
+	 * 
+	 * @param name Test name
+	 */
+	public VSXWebServiceAIDObservationReaderTestBase(String name) {
 		super(name);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param name Test name
+	 * @param obsSourceClass Name of the observation source class
+	 */
+	public VSXWebServiceAIDObservationReaderTestBase(String name,
+			Class<? extends AIDWebServiceObservationSourcePluginBase> obsSourceClass) {
+		this(name);
+		this.obsSourceClass = obsSourceClass;
+	}
+
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		obsSource = obsSourceClass.newInstance();
 	}
 
 	// Read a result set from the database for Eps Aur in the
@@ -48,13 +74,10 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
 			StarInfo info = infoSrc.getStarByName("eps Aur");
 
-			AIDWebServiceXMLAttributeObservationSourcePlugin obsSource = new AIDWebServiceXMLAttributeObservationSourcePlugin();
-
 			obsSource.setInfo(info);
 
-			obsSource.setUrl(AIDWebServiceXMLAttributeObservationSourcePlugin
-					.createAIDUrlForAUID(info.getAuid(), 2454000.5,
-							2454939.56597));
+			obsSource.setUrl(obsSource.createAIDUrlForAUID(info.getAuid(),
+					2454000.5, 2454939.56597));
 
 			AbstractObservationRetriever reader = obsSource
 					.getObservationRetriever();
@@ -90,12 +113,10 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
 			StarInfo info = infoSrc.getStarByName("TT Cen");
 
-			AIDWebServiceXMLAttributeObservationSourcePlugin obsSource = new AIDWebServiceXMLAttributeObservationSourcePlugin();
-
 			obsSource.setInfo(info);
 
-			obsSource.setUrl(AIDWebServiceXMLAttributeObservationSourcePlugin
-					.createAIDUrlForAUID(info.getAuid(), 2454000, 2454100));
+			obsSource.setUrl(obsSource.createAIDUrlForAUID(info.getAuid(),
+					2454000, 2454100));
 
 			AbstractObservationRetriever reader = obsSource
 					.getObservationRetriever();
@@ -112,7 +133,7 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 	// Check that a file containing a non UTF-8 character (so not XML 1.0
 	// compliant) can be filtered out.
 	public void testNonUTF8Char() throws Exception {
-		URL url = VSXWebServiceAIDObservationReaderTest.class
+		URL url = VSXWebServiceAIDObservationReaderTestBase.class
 				.getResource("xcrb.xml");
 		UTF8FilteringInputStream reader = new UTF8FilteringInputStream(
 				url.openStream());
@@ -134,19 +155,17 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 		assertEquals(559, count);
 		assertFalse(foundNotUTF);
 	}
-	
+
 	// Read data for SS Cyg and check valflags.
 	public void testReadValidObservationAndCheckValFlagsSSCyg() {
 		try {
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
 			StarInfo info = infoSrc.getStarByName("SS Cyg");
 
-			AIDWebServiceXMLAttributeObservationSourcePlugin obsSource = new AIDWebServiceXMLAttributeObservationSourcePlugin();
-
 			obsSource.setInfo(info);
 
-			obsSource.setUrl(AIDWebServiceXMLAttributeObservationSourcePlugin
-					.createAIDUrlForAUID(info.getAuid(), 2457301.2, 2457301.3));
+			obsSource.setUrl(obsSource.createAIDUrlForAUID(info.getAuid(),
+					2457301.2, 2457301.3));
 
 			AbstractObservationRetriever reader = obsSource
 					.getObservationRetriever();
@@ -155,8 +174,9 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 
 			assertEquals(2, obs.size());
 			assertEquals(ValidationType.GOOD, obs.get(0).getValidationType());
-			assertEquals(ValidationType.DISCREPANT, obs.get(1).getValidationType());
-			
+			assertEquals(ValidationType.DISCREPANT, obs.get(1)
+					.getValidationType());
+
 		} catch (Exception e) {
 			fail();
 		}
