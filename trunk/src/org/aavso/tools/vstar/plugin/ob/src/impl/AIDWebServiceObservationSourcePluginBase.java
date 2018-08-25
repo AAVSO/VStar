@@ -36,6 +36,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 	 */
 	public AIDWebServiceObservationSourcePluginBase(String method) {
 		super();
+		assert("&csv".equals(method) || "&att".equals(method));
 		this.method = method;
 		this.info = null;
 	}
