@@ -75,8 +75,10 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	@Override
 	public AST visitBinding(BindingContext ctx) {
 		AST symbol = ctx.symbol().accept(this);
+		String binder = ctx.getChild(1).getText();
 		AST value = ctx.expression().accept(this);
-		return new AST(Operation.BIND, symbol, value);
+		return new AST("<-".equals(binder) ? Operation.BIND : Operation.IS,
+				symbol, value);
 	}
 
 	@Override
