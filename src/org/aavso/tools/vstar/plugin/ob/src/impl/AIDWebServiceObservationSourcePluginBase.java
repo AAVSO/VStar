@@ -32,11 +32,12 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 	/**
 	 * Constructor
 	 * 
-	 * @param method response method: &csv, &att
+	 * @param method
+	 *            response method: &csv, &att
 	 */
 	public AIDWebServiceObservationSourcePluginBase(String method) {
 		super();
-		assert("&csv".equals(method) || "&att".equals(method));
+		assert ("&csv".equals(method) || "&att".equals(method));
 		this.method = method;
 		this.info = null;
 	}
@@ -54,9 +55,9 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 	 *         range.
 	 */
 	public String createAIDUrlForAUID(String auid, double minJD, double maxJD) {
-	
+
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
-	
+
 		urlStrBuf.append("&ident=");
 		urlStrBuf.append(auid);
 		urlStrBuf.append("&data=");
@@ -67,7 +68,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		urlStrBuf.append(maxJD);
 		urlStrBuf.append(method);
 		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
-	
+
 		return urlStrBuf.toString();
 	}
 
@@ -87,24 +88,24 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 	 */
 	public String createAIDUrlForAUID(String auid, double minJD, double maxJD,
 			SeriesType series) {
-			
-				StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
-			
-				urlStrBuf.append("&ident=");
-				urlStrBuf.append(auid);
-				urlStrBuf.append("&data=");
-				urlStrBuf.append(MAX_OBS_AT_ONCE);
-				urlStrBuf.append("&fromjd=");
-				urlStrBuf.append(minJD);
-				urlStrBuf.append("&tojd=");
-				urlStrBuf.append(maxJD);
-				urlStrBuf.append(method);
-				urlStrBuf.append("&band=");
-				urlStrBuf.append(series.getShortName());
-				urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
-			
-				return urlStrBuf.toString();
-			}
+
+		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
+
+		urlStrBuf.append("&ident=");
+		urlStrBuf.append(auid);
+		urlStrBuf.append("&data=");
+		urlStrBuf.append(MAX_OBS_AT_ONCE);
+		urlStrBuf.append("&fromjd=");
+		urlStrBuf.append(minJD);
+		urlStrBuf.append("&tojd=");
+		urlStrBuf.append(maxJD);
+		urlStrBuf.append(method);
+		urlStrBuf.append("&band=");
+		urlStrBuf.append(series.getShortName());
+		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
+
+		return urlStrBuf.toString();
+	}
 
 	/**
 	 * Given an AUID return a web service URL for all data for the target.
@@ -115,16 +116,16 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 	 *         range.
 	 */
 	public String createAIDUrlForAUID(String auid) {
-	
+
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
-	
+
 		urlStrBuf.append("&ident=");
 		urlStrBuf.append(auid);
 		urlStrBuf.append("&data=");
 		urlStrBuf.append(MAX_OBS_AT_ONCE);
 		urlStrBuf.append(method);
 		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
-	
+
 		return urlStrBuf.toString();
 	}
 
@@ -148,21 +149,21 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		String urlStr = null;
 		urlStrs = new ArrayList<String>();
 		List<URL> urls = new ArrayList<URL>();
-	
+
 		StarSelectorDialog starSelector = StarSelectorDialog.getInstance();
-	
+
 		// Ask for object information.
 		starSelector.showDialog();
-	
+
 		if (!starSelector.isCancelled()) {
 			setAdditive(starSelector.isLoadAdditive());
-	
+
 			String auid = starSelector.getAuid();
 			String starName = starSelector.getStarName();
-	
+
 			// Get the star name if we don't have it.
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
-	
+
 			if (starSelector.wantAllData()) {
 				// Star info for all data
 				if (starName == null) {
@@ -186,11 +187,11 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 					auid = info.getAuid();
 				}
 			}
-	
+
 			// Create a list of URLs with different series for the same target
 			// and time range.
 			for (SeriesType series : starSelector.getSelectedSeries()) {
-	
+
 				if (starSelector.wantAllData()) {
 					// Request all AID data for object for requested series.
 					urlStr = createAIDUrlForAUID(auid);
@@ -201,10 +202,10 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 							.getMinDate().getJulianDay(), starSelector
 							.getMaxDate().getJulianDay(), series);
 				}
-	
+
 				urlStrs.add(urlStr);
 			}
-	
+
 			// Return a list containing one URL to satisfy logic in new star
 			// from obs source plug-in task. We are actually interested in just
 			// the partial URL string we constructed, which will be used in
@@ -213,7 +214,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		} else {
 			throw new CancellationException();
 		}
-	
+
 		return urls;
 	}
 
@@ -256,7 +257,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 
 	protected Double getPossiblyNullDouble(String valStr) {
 		Double num = null;
-	
+
 		try {
 			if (valStr != null) {
 				num = Double.parseDouble(valStr);
@@ -264,7 +265,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		} catch (NumberFormatException e) {
 			// The value will default to null.
 		}
-	
+
 		return num;
 	}
 

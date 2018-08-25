@@ -139,6 +139,18 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 
 		// Helpers
 
+		/**
+		 * Retrieve all observation details from the document.
+		 * 
+		 * @param document
+		 *            The document from which to extract observations.
+		 * @param pageNum
+		 *            The page number of the document to read.
+		 * @return The next page number to read or null if not a multi-page
+		 *         document.
+		 * @throws ObservationReadError
+		 *             If an error occurs when reading the document.
+		 */
 		private Integer requestObservationDetails(Document document,
 				Integer pageNum) throws ObservationReadError {
 
@@ -146,8 +158,9 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 			// If so, more observations remain than the ones about to be
 			// retrieved here.
 			Integer obsCount = null;
-
+			
 			NodeList dataNodes = document.getElementsByTagName("Data");
+			
 			if (dataNodes.getLength() == 1) {
 				Element dataElt = (Element) dataNodes.item(0);
 				String count = dataElt.getAttribute("Count");

@@ -110,8 +110,7 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 
 						document.getDocumentElement().normalize();
 
-						pageNum = requestObservationDetails(document,
-								pageNum);
+						pageNum = requestObservationDetails(document, pageNum);
 
 					} catch (MalformedURLException e) {
 						throw new ObservationReadError(
@@ -146,68 +145,49 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 
 		// Helpers
 
+		/**
+		 * Retrieve all observation details from the document.
+		 * 
+		 * @param document
+		 *            The document from which to extract observations.
+		 * @param pageNum
+		 *            The page number of the document to read.
+		 * @return The next page number to read or null if not a multi-page
+		 *         document.
+		 * @throws ObservationReadError
+		 *             If an error occurs when reading the document.
+		 */
 		private Integer requestObservationDetails(Document document,
 				Integer pageNum) throws ObservationReadError {
 
 			// Has an observation count been supplied?
 			// If so, more observations remain than the ones about to be
 			// retrieved here.
-			// TODO: only needed the first time or even get from info object?
 			Integer obsCount = null;
+			
 			NodeList obsCountNodes = document.getElementsByTagName("Count");
 			if (obsCountNodes.getLength() != 0) {
 				Element obsCountElt = (Element) obsCountNodes.item(0);
 				obsCount = Integer.parseInt(obsCountElt.getTextContent());
 			}
 
-			NodeList dataNodes = document.getElementsByTagName("Data");
-			if (dataNodes.getLength() == 1) {
-				Element dataElt = (Element) dataNodes.item(0);
-				String count = dataElt.getAttribute("Count");
-				if (count != null && count.trim().length() != 0) {
-					obsCount = Integer.parseInt(count);
-				}
-			}
-
 			if (obsCount == null) {
 				pageNum = null;
 			}
+
+			NodeList dataNodes = document.getElementsByTagName("Data");
 
 			if (dataNodes.getLength() == 1) {
 				Element dataElt = (Element) dataNodes.item(0);
 				String data = getCharacterDataFromElement(dataElt);
 
-				// byte[] allBytes = null;
-				// List<byte[]> byteArrayList = new ArrayList<byte[]>();
-				// int totalBytes = 0;
 				try {
 					BufferedReader streamReader = new BufferedReader(
 							new StringReader(data));
 
-					// Obtain bytes from stream in order to re-use in analyser
-					// and reader.
-					// int lineCount = 0;
-					// String line;
-					// while ((line = streamReader.readLine()) != null) {
-					// byte[] bytes = line.getBytes();
-					// byteArrayList.add(bytes);
-					// totalBytes += bytes.length + 1;
-					// lineCount++;
-					// }
-
-					// int i = 0;
-					// allBytes = new byte[total];
-					// for (byte[] bytes : byteArrayList) {
-					// for (byte b : bytes) {
-					// allBytes[i++] = b;
-					// }
-					// allBytes[i++] = '\n';
-					// }
-
 					CsvReader csvReader = new CsvReader(streamReader);
 
 					if (csvReader.readHeaders()) {
-
 						while (csvReader.readRecord()) {
 							ValidObservation ob = retrieveNextObservation(csvReader);
 
@@ -217,32 +197,16 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 
 							incrementProgress();
 						}
+					} else {
+						throw new ObservationReadError(
+								"No CSV header in AID data stream");
 					}
-
-					// Analyse the observation file and create an observation
-					// retriever.
-					// ObservationSourceAnalyser analyser = new
-					// ObservationSourceAnalyser(
-					// new LineNumberReader(new InputStreamReader(
-					// new ByteArrayInputStream(allBytes))),
-					// getInputName());
-					// analyser.analyse();
-					//
-					// AbstractObservationRetriever retriever = new
-					// TextFormatObservationReader(
-					// new LineNumberReader(new InputStreamReader(
-					// new ByteArrayInputStream(allBytes))),
-					// analyser);
-					//
-					// retriever.retrieveObservations();
-
 				} catch (Exception e) {
-					// TODO: move analyser creation into reader class so we can
-					// handle
-					// this more efficiently, passing top-level stream not
-					// reader...or perhaps
-					// pass lines, handling exception there
+					throw new ObservationReadError(e.getLocalizedMessage());
 				}
+			} else {
+				throw new ObservationReadError(
+						"Only one Data element expected in CSV AID data stream");
 			}
 
 			if (pageNum != null) {
@@ -252,6 +216,13 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 			return pageNum;
 		}
 
+		/**
+		 * Extract and return CDATA element text from the specified element.
+		 * 
+		 * @param e
+		 *            The element possibly containing CDATA
+		 * @return The element's CDATA text
+		 */
 		private String getCharacterDataFromElement(Element e) {
 			String data = "";
 
