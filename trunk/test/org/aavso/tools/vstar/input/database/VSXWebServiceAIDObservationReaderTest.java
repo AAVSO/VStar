@@ -27,7 +27,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.ob.src.impl.UTF8FilteringInputStream;
-import org.aavso.tools.vstar.plugin.ob.src.impl.VSXWebServiceAIDObservationSourcePlugin;
+import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceXMLAttributeObservationSourcePlugin;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
@@ -48,11 +48,11 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
 			StarInfo info = infoSrc.getStarByName("eps Aur");
 
-			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
+			AIDWebServiceXMLAttributeObservationSourcePlugin obsSource = new AIDWebServiceXMLAttributeObservationSourcePlugin();
 
 			obsSource.setInfo(info);
 
-			obsSource.setUrl(VSXWebServiceAIDObservationSourcePlugin
+			obsSource.setUrl(AIDWebServiceXMLAttributeObservationSourcePlugin
 					.createAIDUrlForAUID(info.getAuid(), 2454000.5,
 							2454939.56597));
 
@@ -90,11 +90,11 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
 			StarInfo info = infoSrc.getStarByName("TT Cen");
 
-			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
+			AIDWebServiceXMLAttributeObservationSourcePlugin obsSource = new AIDWebServiceXMLAttributeObservationSourcePlugin();
 
 			obsSource.setInfo(info);
 
-			obsSource.setUrl(VSXWebServiceAIDObservationSourcePlugin
+			obsSource.setUrl(AIDWebServiceXMLAttributeObservationSourcePlugin
 					.createAIDUrlForAUID(info.getAuid(), 2454000, 2454100));
 
 			AbstractObservationRetriever reader = obsSource
@@ -141,11 +141,11 @@ public class VSXWebServiceAIDObservationReaderTest extends TestCase {
 			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
 			StarInfo info = infoSrc.getStarByName("SS Cyg");
 
-			VSXWebServiceAIDObservationSourcePlugin obsSource = new VSXWebServiceAIDObservationSourcePlugin();
+			AIDWebServiceXMLAttributeObservationSourcePlugin obsSource = new AIDWebServiceXMLAttributeObservationSourcePlugin();
 
 			obsSource.setInfo(info);
 
-			obsSource.setUrl(VSXWebServiceAIDObservationSourcePlugin
+			obsSource.setUrl(AIDWebServiceXMLAttributeObservationSourcePlugin
 					.createAIDUrlForAUID(info.getAuid(), 2457301.2, 2457301.3));
 
 			AbstractObservationRetriever reader = obsSource
