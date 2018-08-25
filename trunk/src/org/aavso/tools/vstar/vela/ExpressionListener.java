@@ -51,7 +51,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * 
  * Expression parse tree listener.
  * 
- * @deprecated
+ * @deprecated See ExpressionVisitor
  */
 public class ExpressionListener extends VeLaBaseListener {
 
