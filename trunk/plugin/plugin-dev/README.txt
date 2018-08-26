@@ -28,33 +28,49 @@ my/vstar/plugin with VStar located in /Users/david/vstar.
 Modify these to suit your environment and desired plugin type.
 
 Note that currently, the plugin source package path and plugin package 
-properties must be independently specified. There are ways to fix this
-but I want to keep things simple for now.
+properties must be independently specified.
+
+Legal values for the plugin_type property are:
+
+- CustomFilter
+- GeneralTool
+- ModelCreator
+- ObservationSource
+- ObservationTool
+- PeriodAnalysis
 
 Given the foregoing, to create skeleton code for an observation source 
 plugin, type this in a shell (Unix shell, Mac Terminal, Windows command 
 prompt, ...):
 
-  ant create
+  ant skeleton
 
-Once you have edited the created code to implement your plugin's 
-functionality, to compile the code and build the jar file, type this:
+Instead of a skeleton, you can create a fully functioning example plugin
+by entering:
+
+  ant example
+
+Once you have optionally edited the code to implement your plugin's 
+functionality (or just want to use the example code) to compile the 
+source and build the jar file, type this:
 
   ant jar
 
-or just:
-
-  ant
-
-since "jar" is the default target.
+Skeleton code will build but won't do anything.
 
 To install the plugin's jar file into the vstar_plugins directory, type:
 
   ant install
 
+which will build the source first if necessary, or just:
+
+  ant
+
+since "install" is the default target.
+
 To see all options, type:
 
   ant -p
 
-For non-trivial plugin code, I would recommend using an IDE like Eclipse.
-Use of such a tool is beyond the scope of this README file.
+For non-trivial plugin code, I would recommend using an IDE such as Eclipse.
+Use of such a tool is beyond the scope of this document.
