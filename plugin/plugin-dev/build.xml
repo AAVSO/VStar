@@ -1,12 +1,12 @@
-<project name="plugin-dev" default="jar" basedir=".">
-	<description>Generic build file to make plugin building easier.</description>
+<project name="plugin-dev" default="install" basedir=".">
+	<description>Generic build file to make plugin development easier.</description>
 
 	<!-- ** User properties START ** -->
 	<property name="vstar_home" location="/Users/david/vstar" />
-	<property name="plugin_type" value="ObservationSource" />
+	<property name="plugin_type" value="GeneralTool" />
 	<property name="plugin_src_dir" location="my/vstar/plugin" />
 	<property name="plugin_pkg" value="my.vstar.plugin" />
-	<property name="plugin_class" value="SimpleExampleObSource" />
+	<property name="plugin_class" value="ShowAIDBands" />
 	<!-- ** User properties END ** -->
 
 	<property name="plugin_dir" value="vstar_plugins" />
@@ -17,14 +17,13 @@
 	<property name="vstar_plugins_zip_dir" location="vstar-plugins" />
 	<property name="plugins_list_file" value=".plugins.lst" />
 
-	<target name="create" description="Create the initial structure given plug-in type">
-		<!-- Just in case these don't exist -->
-		<mkdir dir="${user.home}/${plugin_dir}" />
+	<target name="skeleton" description="Create a plug-in skeleton given a type">
+		<!-- Just in case plugin library directory doesn't exist, create it -->
 		<mkdir dir="${user.home}/${plugin_lib_dir}" />
 
 		<mkdir dir="${plugin_src_dir}" />
 
-		<copy file="template/${plugin_type}.java" tofile="${plugin_src_dir}/${plugin_class}.java" />
+		<copy file="skeleton/${plugin_type}.java" tofile="${plugin_src_dir}/${plugin_class}.java" />
 
 		<replace file="${plugin_src_dir}/${plugin_class}.java">
 			<replacefilter token="package template" value="package ${plugin_pkg}" />
@@ -32,12 +31,26 @@
 		</replace>
 	</target>
 
-	<target name="compile" depends="create" description="Compile the source">
+	<target name="example" description="Create a plug-in example given a type">
+		<!-- Just in case plugin library directory doesn't exist, create it -->
+		<mkdir dir="${user.home}/${plugin_lib_dir}" />
+
+		<mkdir dir="${plugin_src_dir}" />
+
+		<copy file="example/${plugin_type}.java" tofile="${plugin_src_dir}/${plugin_class}.java" />
+
+		<replace file="${plugin_src_dir}/${plugin_class}.java">
+			<replacefilter token="package example" value="package ${plugin_pkg}" />
+			<replacefilter token="${plugin_type} " value="${plugin_class} " />
+		</replace>
+	</target>
+
+	<target name="compile" depends="skeleton,example" description="Compile the source">
 		<path id="libs">
 			<fileset dir="${vstar_home}">
 				<include name="dist/vstar.jar" />
 			</fileset>
-			<fileset dir="${plugin_lib_dir}">
+			<fileset dir="${user.home}/${plugin_lib_dir}">
 				<include name="**.jar" />
 			</fileset>
 		</path>
@@ -53,6 +66,9 @@
 	</target>
 
 	<target name="install" depends="jar" description="Install the jar into the users home directory">
+		<!-- Just in case plugin directory doesn't exist, create it -->
+		<mkdir dir="${user.home}/${plugin_dir}" />
+
 		<copy todir="${user.home}/${plugin_dir}">
 			<fileset dir="${dist}" includes="**/*.jar" />
 		</copy>
@@ -80,5 +96,4 @@
 		<delete file="${vstar_plugins_zip_dir}.zip" />
 		<delete file="${plugins_list_file}" />
 	</target>
-
 </project>
