@@ -52,14 +52,11 @@
 		<jar jarfile="${dist}/${pkg}.ObserversBySeries.jar" basedir="${build.classes}" includes="**/ObserversBySeries**.class" />
 		<jar jarfile="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" basedir="${build.classes}" includes="**/PeriodLuminosityDistanceCalculator**.class" />
 		<jar jarfile="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" basedir="${build.classes}" includes="**/SuperWASPFITSObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.VeLaModelCreator.jar" basedir="${build.classes}" includes="**/VeLaModelCreator**.class" />
 		<!--
-		<jar jarfile="${dist}/${pkg}.CustomFilterTest.jar" basedir="${build.classes}" includes="**/CustomFilterTest**.class" />
 		<jar jarfile="${dist}/${pkg}.DifferentialPhotometry.jar" basedir="${build.classes}" includes="**/DifferentialPhotometry**.class" />
- 		<jar jarfile="${dist}/${pkg}.ExampleObSource.jar" basedir="${build.classes}" includes="**/ExampleObSource**.class" />
 		<jar jarfile="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/IRISAutomaticPhotometryObservationSource**.class" />
    		<jar jarfile="${dist}/${pkg}.MagnitudeShiftTool.jar" basedir="${build.classes}" includes="**/MagnitudeShiftTool**.class"/>
-    	<jar jarfile="${dist}/${pkg}.ObservationCounter.jar" basedir="${build.classes}" includes="**/ObservationCounter**.class"/>
-		<jar jarfile="${dist}/${pkg}.PeriodAnalysisPluginTest1.jar" basedir="${build.classes}" includes="**/PeriodAnalysisPluginTest1**.class"/>
 		<jar jarfile="${dist}/${pkg}.VSOLJObservationSource.jar" basedir="${build.classes}" includes="**/VSOLJObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.VSPChartInfoRetriever.jar" basedir="${build.classes}" includes="**/VSPChartInfoRetriever**.class" />
 		-->
@@ -102,16 +99,16 @@
 		<copy file="${dist}/${pkg}.ObserversBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.PeriodLuminosityDistanceCalculator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.VeLaModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<!--
 		<copy file="${dist}/${pkg}.DifferentialPhotometry.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.PeriodAnalysisPluginTest1.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VSPChartInfoRetriever.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		-->		
 		<copy file="lib/tamfits.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
 
 		<echo file="${plugins_list_file}" message="${pkg}.AAVSOnetEpochPhotometryObservationSource.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.AAVSOUploadFileFormatObservationSource.jar${line.separator}" append="false" />
+		<echo file="${plugins_list_file}" message="${pkg}.AAVSOUploadFileFormatObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.AoVPeriodSearch.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ApacheCommonsLoessFitter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.APASSEpochPhotometryObservationSource.jar${line.separator}" append="true" />
@@ -132,10 +129,10 @@
 		<echo file="${plugins_list_file}" message="${pkg}.ObserversBySeries.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.PeriodLuminosityDistanceCalculator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.SuperWASPFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.VeLaModelCreator.jar${line.separator}" append="true" />
 		<!--
 		<echo file="${plugins_list_file}" message="${pkg}.DifferentialPhotometry.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.IRISAutomaticPhotometryObservationSource.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.PeriodAnalysisPluginTest1.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VSPChartInfoRetriever.jar${line.separator}" append="true" />
 		-->
 		

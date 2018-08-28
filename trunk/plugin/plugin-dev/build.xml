@@ -3,10 +3,16 @@
 
 	<!-- ** User properties START ** -->
 	<property name="vstar_home" location="/Users/david/vstar" />
+	<property name="plugin_type" value="ModelCreator" />
+	<property name="plugin_src_dir" location="my/vstar/plugin" />
+	<property name="plugin_pkg" value="my.vstar.plugin" />
+	<property name="plugin_class" value="SimpleModelCreator" />
+<!--
 	<property name="plugin_type" value="GeneralTool" />
 	<property name="plugin_src_dir" location="my/vstar/plugin" />
 	<property name="plugin_pkg" value="my.vstar.plugin" />
 	<property name="plugin_class" value="ShowAIDBands" />
+-->
 	<!-- ** User properties END ** -->
 
 	<property name="plugin_dir" value="vstar_plugins" />
@@ -45,7 +51,7 @@
 		</replace>
 	</target>
 
-	<target name="compile" depends="skeleton,example" description="Compile the source">
+	<target name="compile" description="Compile the source">
 		<path id="libs">
 			<fileset dir="${vstar_home}">
 				<include name="dist/vstar.jar" />

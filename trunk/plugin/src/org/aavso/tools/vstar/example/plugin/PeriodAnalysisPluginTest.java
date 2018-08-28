@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.external.plugin;
+package org.aavso.tools.vstar.example.plugin;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -53,7 +53,7 @@ import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
  * in a table, with the selected period displayed in a label component. A new
  * phase plot can be generated with that period.
  */
-public class PeriodAnalysisPluginTest1 extends PeriodAnalysisPluginBase {
+public class PeriodAnalysisPluginTest extends PeriodAnalysisPluginBase {
 
 	final private int N = 100;
 

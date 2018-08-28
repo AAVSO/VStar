@@ -153,6 +153,7 @@
 			</zipfileset>
 			<zipfileset file="${doc}/user_manual/VStarUserManual.pdf" prefix="vstar/doc" />
 			<zipfileset file="${plugin}/doc/vstar_plugin_dev.pdf" prefix="vstar/doc" />
+			<zipfileset dir="${plugin}/plugin-dev" prefix="vstar/plugin-dev" />
 			<zipfileset file="src/org/aavso/tools/vstar/ui/resources/icons/vstaricon.png" prefix="vstar/doc" />
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
 			<zipfileset file="ChangeLog.txt" prefix="vstar" />
@@ -184,6 +185,7 @@
 			</zipfileset>
 			<zipfileset file="${doc}/user_manual/VStarUserManual.pdf" prefix="vstar/doc" />
 			<zipfileset file="${plugin}/doc/vstar_plugin_dev.pdf" prefix="vstar/doc" />
+			<zipfileset dir="${plugin}/plugin-dev" prefix="vstar/plugin-dev" />
 			<zipfileset file="src/org/aavso/tools/vstar/ui/resources/icons/vstaricon.png" prefix="vstar/doc" />
 			<zipfileset file="ReadMe.txt" prefix="vstar" />
 			<zipfileset file="ChangeLog.txt" prefix="vstar" />
@@ -268,6 +270,10 @@
 		<mkdir dir="${vstar_volume}/Extras/data" />
 		<copy todir="${vstar_volume}/Extras/data">
 			<fileset dir="data" />
+		</copy>
+		<mkdir dir="${vstar_volume}/Extras/plugin-dev" />
+		<copy todir="${vstar_volume}/Extras/plugin-dev">
+			<fileset dir="${plugin}/plugin-dev" />
 		</copy>
 
 		<echo message="create disk image: detaching" />

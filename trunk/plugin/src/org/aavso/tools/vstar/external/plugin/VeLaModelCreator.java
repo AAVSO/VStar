@@ -62,13 +62,10 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 	@Override
 	public IModel getModel(List<ValidObservation> obs) {
-		VeLaModel velaModelCreator = new VeLaModel(obs);
-		return velaModelCreator.createModel();
+		VeLaModel velaModel = new VeLaModel(obs);
+		return velaModel.createModel();
 	}
 
-	// TODO: this class should go into the VeLa package
-
-//	class VeLaUnivariateRealFunction implements DifferentiableUnivariateRealFunction {
 	class VeLaUnivariateRealFunction implements UnivariateRealFunction {
 
 		private VeLaInterpreter vela;
@@ -89,12 +86,6 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 				throw new FunctionEvaluationException(n);
 			}
 		}
-
-//		@Override
-//		public UnivariateRealFunction derivative() {
-//			// TODO: fix!
-//			return this;
-//		}
 	}
 
 	class VeLaModel {
@@ -127,7 +118,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 			IModel model = null;
 
 			if (velaDialog == null) {
-				ITextComponent<String> velaCode = new TextArea("Function Code",
+				ITextComponent<String> velaCode = new TextArea("Function Code [model function assumed to be f(t)]",
 						10, 40);
 				velaDialog = new TextDialog("VeLa Model", velaCode);
 			} else {
@@ -135,12 +126,6 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 			}
 
 			if (!velaDialog.isCancelled()) {
-				// final AbstractLeastSquaresOptimizer optimizer = new
-				// LevenbergMarquardtOptimizer();
-
-				// final PolynomialFitter fitter = new PolynomialFitter(
-				// getDegree(), optimizer);
-
 				String velaModelFunctionStr = velaDialog.getTextFields().get(0)
 						.getStringValue();
 
@@ -150,9 +135,6 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 					List<ValidObservation> residuals;
 					UnivariateRealFunction function;
 					Map<String, String> functionStrMap = new LinkedHashMap<String, String>();
-
-					// double aic = Double.NaN;
-					// double bic = Double.NaN;
 
 					@Override
 					public String getDescription() {
@@ -186,30 +168,6 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 						return true;
 					}
 
-					public String toFitMetricsString() throws AlgorithmError {
-						String strRepr = functionStrMap
-								.get("MODEL_INFO_FIT_METRICS_TITLE");
-
-						if (strRepr == null) {
-							// Goodness of fit.
-							// strRepr = "RMS: "
-							// + NumericPrecisionPrefs
-							// .formatOther(optimizer.getRMS());
-
-							// // Akaike and Bayesean Information Criteria.
-							// if (aic != Double.NaN && bic != Double.NaN) {
-							// strRepr += "\nAIC: "
-							// + NumericPrecisionPrefs
-							// .formatOther(aic);
-							// strRepr += "\nBIC: "
-							// + NumericPrecisionPrefs
-							// .formatOther(bic);
-							// }
-						}
-
-						return strRepr;
-					}
-
 					@Override
 					public String toString() {
 						return functionStrMap.get(LocaleProps
@@ -225,14 +183,6 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 					@Override
 					public void execute() throws AlgorithmError {
-
-						// for (int i = 0; i < obs.size() && !interrupted; i++)
-						// {
-						// fitter.addObservedPoint(1.0,
-						// timeCoordSource.getXCoord(i, obs)
-						// - zeroPoint, obs.get(i).getMag());
-						// }
-
 						if (!interrupted) {
 							try {
 								// Create a VeLa interpreter instance and
@@ -248,12 +198,8 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 								function = new VeLaUnivariateRealFunction(vela,
 										funcName);
 
-								// function = fitter.fit();
-
 								fit = new ArrayList<ValidObservation>();
 								residuals = new ArrayList<ValidObservation>();
-
-								// double sumSqResiduals = 0;
 
 								String comment = velaModelFunctionStr;
 
@@ -303,36 +249,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 									// Pop the observation environment.
 									vela.popEnvironment();
-
-									// sumSqResiduals += (residual * residual);
 								}
-
-								// // Fit metrics (AIC, BIC).
-								// int n = residuals.size();
-								// if (n != 0 && sumSqResiduals / n != 0) {
-								// double commonIC = n
-								// * Math.log(sumSqResiduals / n);
-								// aic = commonIC + 2 * degree;
-								// bic = commonIC + degree * Math.log(n);
-								// }
-
-								functionStrMap.put(LocaleProps
-										.get("MODEL_INFO_FIT_METRICS_TITLE"),
-										toFitMetricsString());
-
-//								ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
-//										fit,
-//										(DifferentiableUnivariateRealFunction) function,
-//										timeCoordSource, zeroPoint);
-//
-//								String extremaStr = finder.toString();
-//
-//								if (extremaStr != null) {
-//									String title = LocaleProps
-//											.get("MODEL_INFO_EXTREMA_TITLE");
-//
-//									functionStrMap.put(title, extremaStr);
-//								}
 
 								functionStrMap.put(LocaleProps
 										.get("MODEL_INFO_FUNCTION_TITLE"),
