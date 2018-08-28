@@ -1,4 +1,4 @@
-package org.aavso.tools.vstar.external.plugin;
+package org.aavso.tools.vstar.example.plugin;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;

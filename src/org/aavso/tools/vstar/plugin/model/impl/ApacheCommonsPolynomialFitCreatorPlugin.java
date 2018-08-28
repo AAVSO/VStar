@@ -111,6 +111,9 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 		private double zeroPoint;
 
 		PolynomialFitCreator(List<ValidObservation> obs) {
+			// TODO: the code in this block should be refactored into the model
+			// creator base class or elsewhere
+
 			// Select time mode (JD or phase).
 			switch (Mediator.getInstance().getAnalysisType()) {
 			case RAW_DATA:
@@ -183,6 +186,8 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 						return LocaleProps.get("ANALYSIS_MENU_POLYNOMIAL_FIT");
 					}
 
+					// TODO: if this is not generalisable, it should be removed
+					// as a requirement from base class
 					@Override
 					public List<PeriodFitParameters> getParameters() {
 						// None for a polynomial fit.

@@ -24,7 +24,7 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * This class represents a continuous model function, the synthetic
- * ValidbObservations resulting from the model and any context required to apply
+ * ValidObservations resulting from the model and any context required to apply
  * it such as coordinate source.
  */
 public class ContinuousModelFunction {

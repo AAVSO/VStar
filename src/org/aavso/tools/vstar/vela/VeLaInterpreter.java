@@ -150,7 +150,7 @@ public class VeLaInterpreter {
 	 * @param prog
 	 *            The VeLa program string to be interpreted.
 	 * @return An optional result, depending upon whether a value was left on
-	 *         the stack..
+	 *         the stack.
 	 * @throws VeLaParseError
 	 *             If a parse error occurs.
 	 * @throws VeLaEvalError
