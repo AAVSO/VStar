@@ -52,7 +52,7 @@ public class AIDSeriesSelectionPane extends JPanel {
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder(LocaleProps
-				.get("BAND_TO_LOAD")));
+				.get("BANDS_TO_LOAD")));
 		this.setToolTipText("Select or deselect desired series.");
 
 		this.checkBoxes = new ArrayList<JCheckBox>();
