@@ -18,11 +18,11 @@ def main():
 
     parser.add_option("-s", "--show-plugin-types",
                       action="store_true", dest="show_types", default=False,
-                      help="Show plug-in types")
+                      help="Show plug-in types and exit")
 
     parser.add_option("-v", "--vstar-home-dir",
                       action="store", dest="vstar_home", default=None,
-                      help="VStar Home", metavar="VSTAR_HOME")
+                      help="VStar home directory", metavar="VSTAR_HOME")
 
     parser.add_option("-t", "--plugin-type",
                       action="store", dest="plugin_type", default=None,
