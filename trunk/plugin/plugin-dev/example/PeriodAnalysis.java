@@ -43,7 +43,7 @@ public class PeriodAnalysis extends PeriodAnalysisPluginBase {
 
 	private double period;
 
-	protected final static String NAME = "Period Analysis Plugin Test 1";
+	protected final static String NAME = "Example Period Analysis Plugin";
 
 	class TestAlgorithm implements IPeriodAnalysisAlgorithm {
 		private List<Double> domain;

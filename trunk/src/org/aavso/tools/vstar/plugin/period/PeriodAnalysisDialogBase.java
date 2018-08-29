@@ -207,7 +207,9 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 	 *            The desired boolean state.
 	 */
 	public void setFindHarmonicsButtonState(boolean state) {
-		this.findHarmonicsButton.setEnabled(state);
+		if (wantHarmonicsButton) {
+			this.findHarmonicsButton.setEnabled(state);
+		}
 	}
 
 	// Dismiss button listener.

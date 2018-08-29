@@ -53,13 +53,13 @@ import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
  * in a table, with the selected period displayed in a label component. A new
  * phase plot can be generated with that period.
  */
-public class PeriodAnalysisPluginTest extends PeriodAnalysisPluginBase {
+public class PeriodAnalysis extends PeriodAnalysisPluginBase {
 
 	final private int N = 100;
 
 	private double period;
 
-	protected final static String NAME = "Period Analysis Plugin Test 1";
+	protected final static String NAME = "Example Period Analysis Plugin";
 
 	class TestAlgorithm implements IPeriodAnalysisAlgorithm {
 		private List<Double> domain;

@@ -2,11 +2,11 @@
 	<description>Generic build file to make plugin development easier.</description>
 
 	<!-- ** User properties START ** -->
-	<property name="vstar_home" location="/Users/david/vstar" />
-	<property name="plugin_type" value="PeriodAnalysis" />
-	<property name="plugin_src_dir" location="my/plugin" />
-	<property name="plugin_pkg" value="my.plugin" />
-	<property name="plugin_class" value="MyThing" />
+	<property name="vstar_home" location="{0}" />
+	<property name="plugin_type" value="{0}" />
+	<property name="plugin_src_dir" location="{0}" />
+	<property name="plugin_pkg" value="{0}" />
+	<property name="plugin_class" value="{0}" />
 	<!-- ** User properties END ** -->
 
 	<property name="plugin_dir" value="vstar_plugins" />
