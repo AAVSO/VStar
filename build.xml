@@ -204,8 +204,8 @@
 			<classpath file="${extlib}/antlr-runtime-4.5.3.jar" />
 			<classpath file="${extlib}/nico-camargo-toolbar-icons-4.0.jar" />
 			<classpath file="${extlib}/vstaricon.png" />
-			<option value="-Xms25m" />
-			<option value="-Xmx500m" />
+			<option value="-Xms800m" />
+			<option value="-Xmx1500m" />
 			<!-- APP_ROOT will be replaced by absolute path to app bundle. -->
 			<option value="-splash:$APP_ROOT/Contents/Java/vstaricon.png" />
 			<!-- I suspect this won't have any effect unless a Mac app can

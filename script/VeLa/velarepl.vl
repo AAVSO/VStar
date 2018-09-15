@@ -10,7 +10,7 @@ read() : string {
     ch <- nextchar()
     str <- when 
 	     ch = ";" -> { done <- true str }
-             ch <> "" -> str + ch
+         ch <> "" -> str + ch
   }
 
   str
@@ -23,8 +23,8 @@ repl() {
     when 
       str =~ "^\s*exit\s*$" -> { exit(0) }
       true -> { 
-      	      	result <- eval(str) 
-      	        when length(result) <> 0 -> println(head(result)) 
+      	 result <- eval(str) 
+      	 when length(result) <> 0 -> println(head(result)) 
       }
   }
 }
