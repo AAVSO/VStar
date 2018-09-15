@@ -33,7 +33,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.filter.impl.VeLaFilterPlugin;
 import org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin;
-import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceCSVObservationSourcePlugin;
+import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceCSV2ObservationSourcePlugin;
 import org.aavso.tools.vstar.plugin.ob.src.impl.TextFormatObservationSourcePlugin;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.plugin.period.impl.DcDftFrequencyRangePeriodAnalysisPlugin;
@@ -159,7 +159,7 @@ public class PluginLoader {
 		List<ObservationSourcePluginBase> obSourcePlugins = new ArrayList<ObservationSourcePluginBase>();
 
 		// First, add AAVSO observation reader plug-ins.
-		obSourcePlugins.add(new AIDWebServiceCSVObservationSourcePlugin());
+		obSourcePlugins.add(new AIDWebServiceCSV2ObservationSourcePlugin());
 		obSourcePlugins.add(new TextFormatObservationSourcePlugin());
 		
 		// Next, add all external observation source plug-ins.

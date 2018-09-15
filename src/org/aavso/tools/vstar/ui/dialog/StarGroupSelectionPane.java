@@ -45,7 +45,6 @@ public class StarGroupSelectionPane extends JPanel {
 
 	private StarGroups starGroups;
 
-
 	// Selected star group, name and AUID.
 	private String selectedStarGroup;
 	private String selectedStarName;
@@ -78,8 +77,8 @@ public class StarGroupSelectionPane extends JPanel {
 		this.setBorder(BorderFactory.createEtchedBorder());
 
 		selectedStarGroup = null;
-
 		selectedStarName = null;
+
 		selectedAUID = null;
 
 		this.clearStarField = clearStarField;

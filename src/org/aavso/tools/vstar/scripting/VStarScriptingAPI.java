@@ -223,7 +223,7 @@ public class VStarScriptingAPI {
 	public synchronized void loadFromAID(final String name, double minJD,
 			double maxJD) {
 
-		commonLoadFromAID(name, minJD, maxJD, null, false);
+		commonLoadFromAID(name, minJD, maxJD, null, null, false, false);
 	}
 
 	/**
@@ -235,13 +235,19 @@ public class VStarScriptingAPI {
 	 *            The minimum JD of the range to be loaded.
 	 * @param maxJD
 	 *            The maximum JD of the range to be loaded.
-	 * @param band
+	 * @param bands
 	 *            A short band name.
+	 * @oaram obscodes A comma-delimited list of observer codes or null for all
+	 *        available observer codes.
+	 * @param loadMinimalFields
+	 *            Load a minimal field subset?
 	 */
 	public synchronized void loadFromAID(final String name, double minJD,
-			double maxJD, String band) {
+			double maxJD, String bands, String obscodes,
+			boolean loadMinimalFields) {
 
-		commonLoadFromAID(name, minJD, maxJD, band, false);
+		commonLoadFromAID(name, minJD, maxJD, bands, obscodes,
+				loadMinimalFields, false);
 	}
 
 	/**
@@ -258,7 +264,7 @@ public class VStarScriptingAPI {
 	public synchronized void additiveLoadFromAID(final String name,
 			double minJD, double maxJD) {
 
-		commonLoadFromAID(name, minJD, maxJD, null, true);
+		commonLoadFromAID(name, minJD, maxJD, null, null, false, true);
 	}
 
 	/**
@@ -271,13 +277,19 @@ public class VStarScriptingAPI {
 	 *            The minimum JD of the range to be loaded.
 	 * @param maxJD
 	 *            The maximum JD of the range to be loaded.
-	 * @param band
+	 * @param bands
 	 *            A short band name.
+	 * @oaram obscodes A comma-delimited list of observer codes or null for all
+	 *        available observer codes.
+	 * @param loadMinimalFields
+	 *            Load a minimal field subset?
 	 */
 	public synchronized void additiveLoadFromAID(final String name,
-			double minJD, double maxJD, String band) {
+			double minJD, double maxJD, String bands, String obscodes,
+			boolean loadMinimalFields) {
 
-		commonLoadFromAID(name, minJD, maxJD, band, true);
+		commonLoadFromAID(name, minJD, maxJD, bands, obscodes,
+				loadMinimalFields, true);
 	}
 
 	// TODO: add loadFromAID(name) => all
@@ -744,12 +756,18 @@ public class VStarScriptingAPI {
 	 * @param maxJD
 	 *            The maximum JD of the range to be loaded.
 	 * @param band
-	 *            A short band name or null for all available bands.
+	 *            A comma-delimited list of short band names or null for all
+	 *            available bands.
+	 * @oaram obscodes A comma-delimited list of observer codes or null for all
+	 *        available observer codes.
+	 * @param loadMinimalFields
+	 *            Load a minimal field subset?
 	 * @param isAdditive
 	 *            Is this load additive?
 	 */
 	private void commonLoadFromAID(final String name, double minJD,
-			double maxJD, String band, boolean isAdditive) {
+			double maxJD, String bands, String obscodes,
+			boolean loadMinimalFields, boolean isAdditive) {
 		init();
 
 		ObservationSourcePluginBase obSourcePlugin = null;
@@ -772,13 +790,13 @@ public class VStarScriptingAPI {
 
 				AIDWebServiceObservationSourcePluginBase aidPlugin = (AIDWebServiceObservationSourcePluginBase) obSourcePlugin;
 
-				if (band == null) {
-					url = aidPlugin
-							.createAIDUrlForAUID(info.getAuid(), minJD, maxJD);
+				if (bands == null) {
+					url = aidPlugin.createAIDUrlForAUID(info.getAuid(), minJD,
+							maxJD);
 				} else {
-					url = aidPlugin
-							.createAIDUrlForAUID(info.getAuid(), minJD, maxJD,
-									SeriesType.getSeriesFromShortName(band));
+					// TODO: change null and false to use parameters passed in
+					url = aidPlugin.createAIDUrlForAUID(info.getAuid(), minJD,
+							maxJD, bands, null, false);
 				}
 
 				aidPlugin.setUrl(url);

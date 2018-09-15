@@ -51,12 +51,37 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 		AIDWebServiceObservationSourcePluginBase {
 
 	public AIDWebServiceXMLAttributeObservationSourcePlugin() {
-		super("&att");
+		super("api.object", "&att");
 	}
 
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
 		return new VSXAIDAttributeObservationRetriever();
+	}
+
+	@Override
+	protected String addURLs(String auid) {
+		String urlStr = null;
+
+		// Create a list of URLs with different series for the same target
+		// and time range.
+		for (SeriesType series : starSelector.getSelectedSeries()) {
+
+			if (starSelector.wantAllData()) {
+				// Request all AID data for object for requested series.
+				urlStr = createAIDUrlForAUID(auid);
+			} else {
+				// Request AID data for object over a range and for the
+				// zeroth requested series.
+				urlStr = createAIDUrlForAUID(auid, starSelector.getMinDate()
+						.getJulianDay(), starSelector.getMaxDate()
+						.getJulianDay(), series.getShortName(), null, false);
+			}
+
+			urlStrs.add(urlStr);
+		}
+
+		return urlStr;
 	}
 
 	class VSXAIDAttributeObservationRetriever extends
@@ -158,9 +183,9 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 			// If so, more observations remain than the ones about to be
 			// retrieved here.
 			Integer obsCount = null;
-			
+
 			NodeList dataNodes = document.getElementsByTagName("Data");
-			
+
 			if (dataNodes.getLength() == 1) {
 				Element dataElt = (Element) dataNodes.item(0);
 				String count = dataElt.getAttribute("Count");
