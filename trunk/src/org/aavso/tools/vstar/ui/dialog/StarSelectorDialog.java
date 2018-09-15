@@ -33,6 +33,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.data.DateInfo;
@@ -50,8 +51,6 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 @SuppressWarnings("serial")
 public class StarSelectorDialog extends AbstractOkCancelDialog {
 
-	// TODO: consider storing state but recreating GUI from scratch each time
-
 	private static AbstractDateUtil dateUtil = AbstractDateUtil.getInstance();
 
 	private Container contentPane;
@@ -60,8 +59,13 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JTextField starField;
 	private JTextField minJDField;
 	private JTextField maxJDField;
+	private JTextArea obsCodesField;
 	private JCheckBox allDataCheckBox;
 	private JCheckBox additiveLoadCheckbox;
+	private JCheckBox minFieldsCheckbox;
+
+	// TODO: add a show counts button/checkbox that displays the counts for data
+	// based upon the criteria specified in a dialog similar to Info
 
 	private AIDSeriesSelectionPane aidSeriesPane;
 
@@ -108,29 +112,37 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		JPanel topPane = new JPanel();
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.LINE_AXIS));
 
-		JPanel mainPane = new JPanel();
-		mainPane.setLayout(new BoxLayout(mainPane, BoxLayout.PAGE_AXIS));
-		mainPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		mainPane.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
+		JPanel leftPane = new JPanel();
+		leftPane.setLayout(new BoxLayout(leftPane, BoxLayout.PAGE_AXIS));
+		leftPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		leftPane.setToolTipText("Select a star from drop-down or enter a name, AUID or alias.");
 
 		JPanel starFieldPane = createStarFieldPane();
 		starGroupSelectionPane = new StarGroupSelectionPane(starField, false);
-		mainPane.add(starGroupSelectionPane);
-		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		mainPane.add(starFieldPane);
-		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		mainPane.add(createMinJDFieldPane());
-		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		mainPane.add(createMaxJDFieldPane());
-		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		mainPane.add(createAdditiveLoadCheckboxPane());
-		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		mainPane.add(createAllDataCheckBoxPane());
-		mainPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		mainPane.add(createButtonPane());
+		leftPane.add(starGroupSelectionPane);
 
-		topPane.add(mainPane);
-		topPane.add(createSeriesSelectionPane());
+		leftPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		leftPane.add(starFieldPane);
+		leftPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		leftPane.add(createMinJDFieldPane());
+		leftPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		leftPane.add(createMaxJDFieldPane());
+		leftPane.add(Box.createRigidArea(new Dimension(10, 10)));
+
+		leftPane.add(createOptionsPane());
+
+		leftPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		leftPane.add(createButtonPane());
+
+		JPanel rightPane = new JPanel();
+		rightPane.setLayout(new BoxLayout(rightPane, BoxLayout.PAGE_AXIS));
+		rightPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+		rightPane.add(createSeriesSelectionPane());
+		rightPane.add(createObsCodesPane());
+
+		topPane.add(leftPane);
+		topPane.add(rightPane);
 
 		contentPane.add(topPane);
 
@@ -138,6 +150,116 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 		this.pack();
 		starGroupSelectionPane.requestFocusInWindow();
+	}
+
+	// Getters
+
+	/**
+	 * @return the starName; a valid value is null in the case where an auid is
+	 *         entered in the "Other Star" field rather than being selected from
+	 *         the pull-down menu.
+	 */
+	public String getStarName() {
+		return starName;
+	}
+
+	/**
+	 * @return the auid; a valid value is null in the case where a name is
+	 *         entered in the "Other Star" field rather than being selected from
+	 *         the pull-down menu.
+	 */
+	public String getAuid() {
+		return auid;
+	}
+
+	/**
+	 * @return the minDate
+	 */
+	public DateInfo getMinDate() {
+		return minDate;
+	}
+
+	/**
+	 * @return the maxDate
+	 */
+	public DateInfo getMaxDate() {
+		return maxDate;
+	}
+
+	/**
+	 * @return return whether we want all the data
+	 */
+	public boolean wantAllData() {
+		return wantAllData;
+	}
+
+	/**
+	 * Return whether or not the load is additive.
+	 * 
+	 * @return Whether or not the load is additive.
+	 */
+	public boolean isLoadAdditive() {
+		return additiveLoadCheckbox.isSelected();
+	}
+
+	/**
+	 * Return whether or not to load minimal fields.
+	 * 
+	 * @return Whether or not to load minimal fields.
+	 */
+	public boolean loadMinimalFields() {
+		return minFieldsCheckbox.isSelected();
+	}
+
+	/**
+	 * Return the selected series.
+	 */
+	public List<SeriesType> getSelectedSeries() {
+		return aidSeriesPane.getSelectedSeries();
+	}
+
+	/**
+	 * Return a comma-delimited string of observer codes or null if there are
+	 * none.
+	 */
+	public String getObsCodes() {
+		String obscodes = null;
+
+		String text = obsCodesField.getText();
+		if (text.trim().length() > 0) {
+			StringBuffer obscodesBuf = new StringBuffer();
+			String[] fields = text.split("\\s+");
+
+			for (int i = 0; i < fields.length; i++) {
+				obscodesBuf.append(fields[i].trim());
+				if (i < fields.length - 1) {
+					obscodesBuf.append(",");
+				}
+			}
+
+			obscodes = obscodesBuf.toString();
+		}
+
+		return obscodes;
+	}
+
+	/**
+	 * @return has the dialog been cancelled? TODO: isn't this in base class?
+	 */
+	public boolean isCancelled() {
+		return cancelled;
+	}
+
+	// Setters
+
+	/**
+	 * Set the star field text.
+	 * 
+	 * @param text
+	 *            The text to be set in the star field.
+	 */
+	public void setStarField(String text) {
+		starField.setText(text);
 	}
 
 	// GUI components
@@ -188,6 +310,38 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		return panel;
 	}
 
+	private JPanel createOptionsPane() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createTitledBorder("Options"));
+
+		panel.add(createAdditiveLoadCheckboxPane());
+		panel.add(Box.createRigidArea(new Dimension(10, 10)));
+		panel.add(createMinFieldsCheckBoxPane());
+		panel.add(Box.createRigidArea(new Dimension(10, 10)));
+		panel.add(createAllDataCheckBoxPane());
+
+		return panel;
+	}
+
+	private JPanel createMinFieldsCheckBoxPane() {
+		JPanel panel = new JPanel();
+
+		minFieldsCheckbox = new JCheckBox("Minimal Fields?");
+		panel.add(minFieldsCheckbox);
+
+		return panel;
+	}
+
+	private JPanel createAdditiveLoadCheckboxPane() {
+		JPanel panel = new JPanel();
+
+		additiveLoadCheckbox = new JCheckBox("Add to current?");
+		panel.add(additiveLoadCheckbox);
+
+		return panel;
+	}
+
 	private JPanel createAllDataCheckBoxPane() {
 		JPanel panel = new JPanel();
 
@@ -196,17 +350,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		allDataCheckBox
 				.addActionListener(createAllDataCheckBoxActionListener());
 		panel.add(allDataCheckBox, BorderLayout.CENTER);
-		panel.add(allDataCheckBox);
-
-		return panel;
-	}
-
-	private JPanel createAdditiveLoadCheckboxPane() {
-		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder("Additive Load"));
-
-		additiveLoadCheckbox = new JCheckBox("Add to current?");
-		panel.add(additiveLoadCheckbox);
 
 		return panel;
 	}
@@ -217,6 +360,18 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 		aidSeriesPane = new AIDSeriesSelectionPane();
 		panel.add(aidSeriesPane);
+
+		return panel;
+	}
+
+	private JPanel createObsCodesPane() {
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder("Observer Codes"));
+
+		obsCodesField = new JTextArea("", 3, 20);
+		obsCodesField
+				.setToolTipText("One observer code per line or separated by spaces");
+		panel.add(obsCodesField);
 
 		return panel;
 	}
@@ -368,80 +523,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		return str.replace("\'", "");
 	}
 
-	// Getters
-
-	/**
-	 * @return the starName; a valid value is null in the case where an auid is
-	 *         entered in the "Other Star" field rather than being selected from
-	 *         the pull-down menu.
-	 */
-	public String getStarName() {
-		return starName;
-	}
-
-	/**
-	 * @return the auid; a valid value is null in the case where a name is
-	 *         entered in the "Other Star" field rather than being selected from
-	 *         the pull-down menu.
-	 */
-	public String getAuid() {
-		return auid;
-	}
-
-	/**
-	 * @return the minDate
-	 */
-	public DateInfo getMinDate() {
-		return minDate;
-	}
-
-	/**
-	 * @return the maxDate
-	 */
-	public DateInfo getMaxDate() {
-		return maxDate;
-	}
-
-	/**
-	 * @return return whether we want all the data
-	 */
-	public boolean wantAllData() {
-		return wantAllData;
-	}
-
-	/**
-	 * Return whether or not the load is additive.
-	 * 
-	 * @return Whether or not the load is additive.
-	 */
-	public boolean isLoadAdditive() {
-		return additiveLoadCheckbox.isSelected();
-	}
-
-	/**
-	 * Return the selected series.
-	 */
-	public List<SeriesType> getSelectedSeries() {
-		return aidSeriesPane.getSelectedSeries();
-	}
-
-	/**
-	 * @return has the dialog been cancelled? TODO: isn't this in base class?
-	 */
-	public boolean isCancelled() {
-		return cancelled;
-	}
-
-	/**
-	 * Set the star field text.
-	 * 
-	 * @param text
-	 *            The text to be set in the star field.
-	 */
-	public void setStarField(String text) {
-		starField.setText(text);
-	}
-
 	protected void cancelAction() {
 		// Nothing to do.
 	}
@@ -463,8 +544,11 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		this.minDate = null;
 		this.maxDate = null;
 		this.wantAllData = false;
+	}
 
-		starGroupSelectionPane.refreshGroups();
+	@Override
+	public void showDialog() {
+		super.showDialog();
 	}
 
 	// Singleton

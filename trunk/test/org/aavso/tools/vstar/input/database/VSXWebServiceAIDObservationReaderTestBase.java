@@ -31,8 +31,8 @@ import org.aavso.tools.vstar.plugin.ob.src.impl.UTF8FilteringInputStream;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 /**
- * Unit (or integration) base class for tests that read AID observations via
- * the VSX web service.
+ * Unit (or integration) base class for tests that read AID observations via the
+ * VSX web service.
  */
 public class VSXWebServiceAIDObservationReaderTestBase extends TestCase {
 
@@ -42,7 +42,8 @@ public class VSXWebServiceAIDObservationReaderTestBase extends TestCase {
 	/**
 	 * Constructor
 	 * 
-	 * @param name Test name
+	 * @param name
+	 *            Test name
 	 */
 	public VSXWebServiceAIDObservationReaderTestBase(String name) {
 		super(name);
@@ -51,10 +52,13 @@ public class VSXWebServiceAIDObservationReaderTestBase extends TestCase {
 	/**
 	 * Constructor
 	 * 
-	 * @param name Test name
-	 * @param obsSourceClass Name of the observation source class
+	 * @param name
+	 *            Test name
+	 * @param obsSourceClass
+	 *            Name of the observation source class
 	 */
-	public VSXWebServiceAIDObservationReaderTestBase(String name,
+	public VSXWebServiceAIDObservationReaderTestBase(
+			String name,
 			Class<? extends AIDWebServiceObservationSourcePluginBase> obsSourceClass) {
 		this(name);
 		this.obsSourceClass = obsSourceClass;
@@ -176,6 +180,31 @@ public class VSXWebServiceAIDObservationReaderTestBase extends TestCase {
 			assertEquals(ValidationType.GOOD, obs.get(0).getValidationType());
 			assertEquals(ValidationType.DISCREPANT, obs.get(1)
 					.getValidationType());
+
+		} catch (Exception e) {
+			fail();
+		}
+	}
+
+	// Helpers
+
+	protected void commonReadValidObservationASASSN18ey(String bands,
+			String obscodes, boolean minFields, int expectedCount) {
+		try {
+			VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
+			StarInfo info = infoSrc.getStarByName("ASASSN-18ey");
+
+			obsSource.setInfo(info);
+
+			obsSource.setUrl(obsSource.createAIDUrlForAUID(info.getAuid(),
+					2458368.5 - 1, 2458368.5, bands, obscodes, false));
+
+			AbstractObservationRetriever reader = obsSource
+					.getObservationRetriever();
+			reader.retrieveObservations();
+			List<ValidObservation> obs = reader.getValidObservations();
+
+			assertEquals(expectedCount, obs.size());
 
 		} catch (Exception e) {
 			fail();

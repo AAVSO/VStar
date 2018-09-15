@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
+import java.util.logging.Level;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -38,6 +40,7 @@ import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.w3c.dom.CharacterData;
@@ -51,48 +54,57 @@ import com.csvreader.CsvReader;
 
 /**
  * This intrinsic observation source plug-in retrieves AID observations via the
- * VSX web service.
+ * experimental, optimised VSX web service.
  */
-public class AIDWebServiceCSVObservationSourcePlugin extends
+public class AIDWebServiceCSV2ObservationSourcePlugin extends
 		AIDWebServiceObservationSourcePluginBase {
 
-	public AIDWebServiceCSVObservationSourcePlugin() {
-		super("api.object", "&csv");
+	public AIDWebServiceCSV2ObservationSourcePlugin() {
+		super("api2.object", "&csv");
 	}
 
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
-		return new VSXCSVObservationRetriever();
+		return new VSXAIDCSVObservationRetriever();
 	}
 
 	@Override
 	protected String addURLs(String auid) {
+
 		String urlStr = null;
 
-		// Create a list of URLs with different series for the same target
-		// and time range.
-		for (SeriesType series : starSelector.getSelectedSeries()) {
+		if (starSelector.wantAllData()) {
+			// Request all AID data for object for requested series.
+			urlStr = createAIDUrlForAUID(auid);
+		} else {
+			// Collect series as a comma-delimited short name list.
+			StringBuffer seriesBuf = new StringBuffer();
+			List<SeriesType> seriesList = starSelector.getSelectedSeries();
 
-			if (starSelector.wantAllData()) {
-				// Request all AID data for object for requested series.
-				urlStr = createAIDUrlForAUID(auid);
-			} else {
-				// Request AID data for object over a range and for the
-				// zeroth requested series.
-				urlStr = createAIDUrlForAUID(auid, starSelector.getMinDate()
-						.getJulianDay(), starSelector.getMaxDate()
-						.getJulianDay(), series.getShortName(), null, false);
+			for (int i = 0; i < seriesList.size(); i++) {
+				SeriesType series = seriesList.get(i);
+				seriesBuf.append(series.getShortName());
+				if (i < seriesList.size() - 1) {
+					seriesBuf.append(",");
+				}
 			}
 
-			urlStrs.add(urlStr);
+			// Request AID data for object over a range and for the
+			// zeroth requested series.
+			urlStr = createAIDUrlForAUID(auid, starSelector.getMinDate()
+					.getJulianDay(), starSelector.getMaxDate().getJulianDay(),
+					seriesBuf.toString(), starSelector.getObsCodes(),
+					starSelector.loadMinimalFields());
 		}
+
+		urlStrs.add(urlStr);
 
 		return urlStr;
 	}
 
-	class VSXCSVObservationRetriever extends AbstractObservationRetriever {
+	class VSXAIDCSVObservationRetriever extends AbstractObservationRetriever {
 
-		public VSXCSVObservationRetriever() {
+		public VSXAIDCSVObservationRetriever() {
 			info.setRetriever(this);
 		}
 
@@ -106,57 +118,55 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 			return info.getObsCount();
 		}
 
-		// TODO: could have a base class with this method in it
-
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
 
-			// Iterate over each series-based URL reading observations over
-			// potentially many "pages" for each URL.
-			for (String urlStr : urlStrs) {
-				Integer pageNum = 1;
+			// Read observations over potentially many "pages" for each URL.
+			String urlStr = urlStrs.get(0);
+			// for (String urlStr : urlStrs) {
+			Integer pageNum = 1;
 
-				do {
-					try {
-						String currUrlStr = urlStr;
-						if (pageNum != null) {
-							currUrlStr += "&page=" + pageNum;
-						}
-
-						URL vsxUrl = new URL(currUrlStr);
-
-						DocumentBuilderFactory factory = DocumentBuilderFactory
-								.newInstance();
-						DocumentBuilder builder = factory.newDocumentBuilder();
-
-						InputStream stream = new UTF8FilteringInputStream(
-								vsxUrl.openStream());
-						Document document = builder.parse(stream);
-
-						document.getDocumentElement().normalize();
-
-						pageNum = requestObservationDetails(document, pageNum);
-
-					} catch (MalformedURLException e) {
-						throw new ObservationReadError(
-								"Unable to obtain information for "
-										+ info.getDesignation());
-					} catch (ParserConfigurationException e) {
-						throw new ObservationReadError(
-								"Unable to obtain information for "
-										+ info.getDesignation());
-					} catch (SAXException e) {
-						throw new ObservationReadError(
-								"Unable to obtain information for "
-										+ info.getDesignation());
-					} catch (IOException e) {
-						throw new ObservationReadError(
-								"Unable to obtain information for "
-										+ info.getDesignation());
+			do {
+				try {
+					String currUrlStr = urlStr;
+					if (pageNum != null) {
+						currUrlStr += "&page=" + pageNum;
 					}
-				} while (pageNum != null && !interrupted);
-			}
+
+					URL vsxUrl = new URL(currUrlStr);
+
+					DocumentBuilderFactory factory = DocumentBuilderFactory
+							.newInstance();
+					DocumentBuilder builder = factory.newDocumentBuilder();
+
+					InputStream stream = new UTF8FilteringInputStream(
+							vsxUrl.openStream());
+					Document document = builder.parse(stream);
+
+					document.getDocumentElement().normalize();
+
+					pageNum = requestObservationDetails(document, pageNum);
+
+				} catch (MalformedURLException e) {
+					throw new ObservationReadError(
+							"Unable to obtain information for "
+									+ info.getDesignation());
+				} catch (ParserConfigurationException e) {
+					throw new ObservationReadError(
+							"Unable to obtain information for "
+									+ info.getDesignation());
+				} catch (SAXException e) {
+					throw new ObservationReadError(
+							"Unable to obtain information for "
+									+ info.getDesignation());
+				} catch (IOException e) {
+					throw new ObservationReadError(
+							"Unable to obtain information for "
+									+ info.getDesignation());
+				}
+			} while (pageNum != null && !interrupted);
+			// }
 		}
 
 		@Override
@@ -207,21 +217,26 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 				Element dataElt = (Element) dataNodes.item(0);
 				String data = getCharacterDataFromElement(dataElt);
 
-				try {
-					BufferedReader streamReader = new BufferedReader(
-							new StringReader(data));
+				BufferedReader streamReader = new BufferedReader(
+						new StringReader(data));
 
+				try {
 					CsvReader csvReader = new CsvReader(streamReader);
 
 					if (csvReader.readHeaders()) {
+						int recordNum = 1;
+
 						while (csvReader.readRecord()) {
-							ValidObservation ob = retrieveNextObservation(csvReader);
+							ValidObservation ob = retrieveNextObservation(
+									csvReader, recordNum);
 
 							if (ob != null) {
 								collectObservation(ob);
 							}
 
 							incrementProgress();
+
+							recordNum++;
 						}
 					} else {
 						throw new ObservationReadError(
@@ -232,7 +247,7 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 				}
 			} else {
 				throw new ObservationReadError(
-						"Only one Data element expected in CSV AID data stream");
+						"Only one Data element expected in AID CSV stream");
 			}
 
 			if (pageNum != null) {
@@ -266,12 +281,14 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 		 * 
 		 * @param reader
 		 *            The CSV reader
-		 * @return The observation
+		 * @param recordNum
+		 *            The record number
+		 * @return The observation read from the current CSV record
 		 * @throws ObservationReadError
 		 *             if an error occurred during observation processing.
 		 */
-		private ValidObservation retrieveNextObservation(CsvReader reader)
-				throws ObservationReadError {
+		private ValidObservation retrieveNextObservation(CsvReader reader,
+				int recordNum) throws ObservationReadError {
 
 			Integer id = null;
 			Double jd = null;
@@ -375,18 +392,25 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 						}
 						// TODO: obsAffil,software,obsName,obsCountry
 					} catch (ObservationValidationError e) {
-						System.out.printf("Error on %s", header);
+						log(Level.WARNING, String.format(
+								"Error for column %s: \"%s\"", header, value),
+								recordNum);
+					} catch (NumberFormatException e) {
+						log(Level.WARNING, String.format(
+								"Number expected for column %s, was \"%s\"",
+								header, value), recordNum);
 					}
 				}
 			} catch (IOException e) {
-				// No such header
-				System.out.printf("no %s for obs Id %d", lastHeader, id);
+				// No such header for this record
+				log(Level.WARNING,
+						String.format("No \"%s\" column", lastHeader),
+						recordNum);
 			}
 
 			ValidObservation ob = null;
 
-			if (id != null && jd != null && mag != null && error != null
-					&& valType != ValidationType.BAD) {
+			if (jd != null && mag != null && error != null) {
 
 				ob = new ValidObservation();
 
@@ -423,5 +447,10 @@ public class AIDWebServiceCSVObservationSourcePlugin extends
 
 			return ob;
 		}
+	}
+
+	private void log(Level level, String msg, int recordNum) {
+		VStar.LOGGER
+				.log(level, String.format("%s (record %d)", msg, recordNum));
 	}
 }

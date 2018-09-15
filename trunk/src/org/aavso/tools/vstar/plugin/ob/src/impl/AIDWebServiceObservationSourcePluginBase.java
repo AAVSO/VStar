@@ -7,7 +7,6 @@ import java.util.List;
 import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
-import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
 import org.aavso.tools.vstar.exception.CancellationException;
@@ -23,21 +22,26 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		ObservationSourcePluginBase {
 
 	protected static final int MAX_OBS_AT_ONCE = 1000;
-	protected static final String BASE_URL = "https://www.aavso.org/vsx/index.php?view=api.object";
+	protected static final String BASE_URL = "https://www.aavso.org/vsx/index.php?view=";
+	protected String view;
 	protected String method;
 	protected static final MagnitudeFieldValidator magnitudeFieldValidator = new MagnitudeFieldValidator();
 	protected StarInfo info;
+	protected StarSelectorDialog starSelector;
 	protected List<String> urlStrs;
 
 	/**
 	 * Constructor
 	 * 
+	 * @param view
+	 *            view type, e.g. api.object
 	 * @param method
 	 *            response method: &csv, &att
 	 */
-	public AIDWebServiceObservationSourcePluginBase(String method) {
+	public AIDWebServiceObservationSourcePluginBase(String view, String method) {
 		super();
 		assert ("&csv".equals(method) || "&att".equals(method));
+		this.view = view;
 		this.method = method;
 		this.info = null;
 	}
@@ -58,6 +62,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
 
+		urlStrBuf.append(view);
 		urlStrBuf.append("&ident=");
 		urlStrBuf.append(auid);
 		urlStrBuf.append("&data=");
@@ -82,15 +87,21 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 	 * @param maxJD
 	 *            The maximum JD of the range to be loaded.
 	 * @param series
-	 *            The series to be loaded.
+	 *            The series to be loaded; may be a comma-delimited list or null
+	 * @param obsCodes
+	 *            The observer codes to be loaded; may be a comma-delimited list
+	 *            or null
+	 * @param minFields
+	 *            Whether or not to request a minimum number of fields.
 	 * @return The URL string necessary to load data for the target and JD
 	 *         range.
 	 */
 	public String createAIDUrlForAUID(String auid, double minJD, double maxJD,
-			SeriesType series) {
+			String series, String obsCodes, boolean minFields) {
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
 
+		urlStrBuf.append(view);
 		urlStrBuf.append("&ident=");
 		urlStrBuf.append(auid);
 		urlStrBuf.append("&data=");
@@ -100,8 +111,17 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		urlStrBuf.append("&tojd=");
 		urlStrBuf.append(maxJD);
 		urlStrBuf.append(method);
-		urlStrBuf.append("&band=");
-		urlStrBuf.append(series.getShortName());
+		if (series != null) {
+			urlStrBuf.append("&band=");
+			urlStrBuf.append(series);
+		}
+		if (obsCodes != null) {
+			urlStrBuf.append("&obscode=");
+			urlStrBuf.append(obsCodes);
+		}		
+		if (minFields) {
+			urlStrBuf.append("&minfields");
+		}
 		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
 
 		return urlStrBuf.toString();
@@ -119,6 +139,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 
 		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
 
+		urlStrBuf.append(view);
 		urlStrBuf.append("&ident=");
 		urlStrBuf.append(auid);
 		urlStrBuf.append("&data=");
@@ -146,11 +167,10 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 
 	@Override
 	public List<URL> getURLs() throws Exception {
-		String urlStr = null;
 		urlStrs = new ArrayList<String>();
 		List<URL> urls = new ArrayList<URL>();
 
-		StarSelectorDialog starSelector = StarSelectorDialog.getInstance();
+		starSelector = StarSelectorDialog.getInstance();
 
 		// Ask for object information.
 		starSelector.showDialog();
@@ -188,23 +208,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 				}
 			}
 
-			// Create a list of URLs with different series for the same target
-			// and time range.
-			for (SeriesType series : starSelector.getSelectedSeries()) {
-
-				if (starSelector.wantAllData()) {
-					// Request all AID data for object for requested series.
-					urlStr = createAIDUrlForAUID(auid);
-				} else {
-					// Request AID data for object over a range and for the
-					// zeroth requested series.
-					urlStr = createAIDUrlForAUID(auid, starSelector
-							.getMinDate().getJulianDay(), starSelector
-							.getMaxDate().getJulianDay(), series);
-				}
-
-				urlStrs.add(urlStr);
-			}
+			String urlStr = addURLs(auid);
 
 			// Return a list containing one URL to satisfy logic in new star
 			// from obs source plug-in task. We are actually interested in just
@@ -254,6 +258,16 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		urlStrs = new ArrayList<String>();
 		urlStrs.add(urlStr);
 	}
+
+	/**
+	 * Create one or more URLs, adding them to the URL string list, for the
+	 * specified target AUID.
+	 * 
+	 * @param auid
+	 *            The target AUID.
+	 * @return A representative URL.
+	 */
+	abstract protected String addURLs(String auid);
 
 	protected Double getPossiblyNullDouble(String valStr) {
 		Double num = null;

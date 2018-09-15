@@ -20,8 +20,8 @@ package org.aavso.tools.vstar.input.database;
 import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceXMLAttributeObservationSourcePlugin;
 
 /**
- * Unit (or integration) class for tests that read AID
- * observations via the VSX web service using the XML attribute response method.
+ * Unit (or integration) class for tests that read AID observations via the VSX
+ * web service using the XML attribute response method.
  */
 public class VSXWebServiceAIDXMLAttributeObservationReaderTest extends
 		VSXWebServiceAIDObservationReaderTestBase {
@@ -29,5 +29,10 @@ public class VSXWebServiceAIDXMLAttributeObservationReaderTest extends
 	public VSXWebServiceAIDXMLAttributeObservationReaderTest() {
 		super("AID XML Attribute reader test",
 				AIDWebServiceXMLAttributeObservationSourcePlugin.class);
+	}
+
+	// Read two days of V data for ASASSN-18ey with all fields.
+	public void testReadValidObservationASASSN18eyAllFields() {
+		commonReadValidObservationASASSN18ey("V", null, false, 384);
 	}
 }
