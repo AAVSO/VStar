@@ -21,7 +21,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 public abstract class AIDWebServiceObservationSourcePluginBase extends
 		ObservationSourcePluginBase {
 
-	protected static final int MAX_OBS_AT_ONCE = 1000;
+	protected static final int MAX_OBS_AT_ONCE = 10000;
 	protected static final String BASE_URL = "https://www.aavso.org/vsx/index.php?view=";
 	protected String view;
 	protected String method;
@@ -118,7 +118,50 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		if (obsCodes != null) {
 			urlStrBuf.append("&obscode=");
 			urlStrBuf.append(obsCodes);
-		}		
+		}
+		if (minFields) {
+			urlStrBuf.append("&minfields");
+		}
+		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
+
+		return urlStrBuf.toString();
+	}
+
+	/**
+	 * Given an AUID and a series, return a web service URL to load data for all
+	 * times with the specified constraints.
+	 * 
+	 * @param auid
+	 *            The AUID of the target.
+	 * @param series
+	 *            The series to be loaded; may be a comma-delimited list or null
+	 * @param obsCodes
+	 *            The observer codes to be loaded; may be a comma-delimited list
+	 *            or null
+	 * @param minFields
+	 *            Whether or not to request a minimum number of fields.
+	 * @return The URL string necessary to load data for the target and JD
+	 *         range.
+	 */
+	public String createAIDUrlForAUID(String auid, String series,
+			String obsCodes, boolean minFields) {
+
+		StringBuffer urlStrBuf = new StringBuffer(BASE_URL);
+
+		urlStrBuf.append(view);
+		urlStrBuf.append("&ident=");
+		urlStrBuf.append(auid);
+		urlStrBuf.append("&data=");
+		urlStrBuf.append(MAX_OBS_AT_ONCE);
+		urlStrBuf.append(method);
+		if (series != null) {
+			urlStrBuf.append("&band=");
+			urlStrBuf.append(series);
+		}
+		if (obsCodes != null) {
+			urlStrBuf.append("&obscode=");
+			urlStrBuf.append(obsCodes);
+		}
 		if (minFields) {
 			urlStrBuf.append("&minfields");
 		}
@@ -299,15 +342,15 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		// - T,N => discrepant
 		// - Y(,Q) filtered out server side
 
-		switch (valflag.charAt(0)) {
-		case 'V':
-		case 'Z':
-		case 'U':
+		switch (valflag) {
+		case "V":
+		case "Z":
+		case "U":
 			type = ValidationType.GOOD;
 			break;
 
-		case 'T':
-		case 'N':
+		case "T":
+		case "N":
 			type = ValidationType.DISCREPANT;
 			break;
 
