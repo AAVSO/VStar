@@ -73,24 +73,27 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 
 		String urlStr = null;
 
-		if (starSelector.wantAllData()) {
-			// Request all AID data for object for requested series.
-			urlStr = createAIDUrlForAUID(auid);
-		} else {
-			// Collect series as a comma-delimited short name list.
-			StringBuffer seriesBuf = new StringBuffer();
-			List<SeriesType> seriesList = starSelector.getSelectedSeries();
+		// Collect series as a comma-delimited short name list.
+		StringBuffer seriesBuf = new StringBuffer();
+		List<SeriesType> seriesList = starSelector.getSelectedSeries();
 
-			for (int i = 0; i < seriesList.size(); i++) {
-				SeriesType series = seriesList.get(i);
-				seriesBuf.append(series.getShortName());
-				if (i < seriesList.size() - 1) {
-					seriesBuf.append(",");
-				}
+		for (int i = 0; i < seriesList.size(); i++) {
+			SeriesType series = seriesList.get(i);
+			seriesBuf.append(series.getShortName());
+			if (i < seriesList.size() - 1) {
+				seriesBuf.append(",");
 			}
+		}
 
+		if (starSelector.wantAllData()) {
+			// Request AID data for object over whole time range and for the
+			// requested series.
+			urlStr = createAIDUrlForAUID(auid, seriesBuf.toString(),
+					starSelector.getObsCodes(),
+					starSelector.loadMinimalFields());
+		} else {
 			// Request AID data for object over a range and for the
-			// zeroth requested series.
+			// requested series.
 			urlStr = createAIDUrlForAUID(auid, starSelector.getMinDate()
 					.getJulianDay(), starSelector.getMaxDate().getJulianDay(),
 					seriesBuf.toString(), starSelector.getObsCodes(),
@@ -124,7 +127,7 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 
 			// Read observations over potentially many "pages" for each URL.
 			String urlStr = urlStrs.get(0);
-			// for (String urlStr : urlStrs) {
+
 			Integer pageNum = 1;
 
 			do {
@@ -166,7 +169,6 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 									+ info.getDesignation());
 				}
 			} while (pageNum != null && !interrupted);
-			// }
 		}
 
 		@Override
@@ -409,7 +411,7 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 			}
 
 			ValidObservation ob = null;
-
+			
 			if (jd != null && mag != null && error != null) {
 
 				ob = new ValidObservation();
