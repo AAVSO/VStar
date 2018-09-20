@@ -45,7 +45,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  * As an example, if you enter "SV* HV 873" into the search form at the above
  * url it will eventually produce a search result window containing three
  * frames. In the top left hand frame, three sets of results are shown. If you
- * choose the option “Download all points in table form”, the resultant page
+ * choose the option "Download all points in table form", the resultant page
  * lists several file options (A - F) for each of the three result sets.
  * 
  * This plug-in is designed to read files of type A, such as 
