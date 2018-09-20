@@ -72,10 +72,10 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 
 /**
- * This plug-in class reads from the GAIA DR2 Photometry Web Service in CSV format or the same 
+ * This plug-in class reads from the Gaia DR2 Photometry Web Service in CSV format or the same 
  * saved to files, yielding an observation list.
  * 
- * See the following for information about the GAIA DR2 photometry service:
+ * See the following for information about the Gaia DR2 photometry service:
  * 
  * https://gea.esac.esa.int/archive-help/tutorials/datalink_lc/index.html
  * https://gea.esac.esa.int/archive/documentation/GDR2/Gaia_archive/chap_datamodel/sec_dm_datalink_tables/ssec_dm_light_curve.html
@@ -117,7 +117,7 @@ public class GAIADR2XformObSource extends
 			try {
 				urls.add(new URL(baseURL+source_id));
 			} catch (MalformedURLException e) {
-				throw new ObservationReadError("Cannot construct GAIA" 
+				throw new ObservationReadError("Cannot construct Gaia" 
 						+ " URL (reason: " + e.getLocalizedMessage() + ")");
 			}
 		} else {
@@ -142,7 +142,7 @@ public class GAIADR2XformObSource extends
 	 */
 	@Override
 	public String getDescription() {
-		return "GAIA DR2 Photometry Format reader";
+		return "Gaia DR2 Photometry Format reader";
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class GAIADR2XformObSource extends
 	 */
 	@Override
 	public String getDisplayName() {
-		return "New Star from GAIA DR2 Photometry ...";
+		return "New Star from Gaia DR2 Photometry ...";
 	}
 
 	class GAIADR2FormatRetriever extends AbstractObservationRetriever {
@@ -319,7 +319,7 @@ public class GAIADR2XformObSource extends
 			    Use the tranformation equations found in appendix A of the 
     			Gaia Data Release 2: Photometric content and validation
     			https://arxiv.org/abs/1804.09368 to transform the passbands
-    			from GAIA to VRI
+    			from Gaia to VRI
 			*/
 			double v = magCalc(g,bp_rp,0.01760,0.006860,0.1732);
 			double r = magCalc(g,bp_rp,0.003226,- 0.3833,0.1345);
@@ -360,7 +360,7 @@ public class GAIADR2XformObSource extends
 				rObs.setDiscrepant(true);
 			}
 
-			String comment =  "Transformed from GAIA DR2  BP="+String.valueOf(bp)
+			String comment =  "Transformed from Gaia DR2  BP="+String.valueOf(bp)
 							+ "  G=" +String.valueOf(g)
 							+ "  RP=" +String.valueOf(rp);
 			bObs.setComments(comment);
@@ -409,13 +409,13 @@ public class GAIADR2XformObSource extends
 			}
 		}
 
-		// GAIA DR2 format observation reader.
-		// The GAIA lightcurve data in the file/web response will have the following columns:
+		// Gaia DR2 format observation reader.
+		// The Gaia lightcurve data in the file/web response will have the following columns:
 		//
 		// source_id	transit_id	band	time	mag	flux	flux_error	flux_over_error
 		// rejected_by_photometry	rejected_by_variability	other_flags	solution_id
 		//
-		// The description of these are contained in section 14.7.1 fo the GAIA DR2 documentation
+		// The description of these are contained in section 14.7.1 fo the Gaia DR2 documentation
 		// found at https://gea.esac.esa.int/archive/documentation/GDR2/Gaia_archive/chap_datamodel/sec_dm_datalink_tables/ssec_dm_light_curve.html
 		//
 		private ValidObservation readNextObservation(String[] fields,
@@ -423,7 +423,7 @@ public class GAIADR2XformObSource extends
 
 			ValidObservation observation = new ValidObservation();
 
-			String name = "GAIA_" + fields[0].trim();
+			String name = "Gaia_" + fields[0].trim();
 			gaiaSrcID = name;
 
 			observation.setRecordNumber(obNum);
@@ -454,7 +454,7 @@ public class GAIADR2XformObSource extends
 				band = SeriesType.Green;
 			}else{
 				throw new ObservationValidationError(
-					"Unexpected GAIA band:" + filter);
+					"Unexpected Gaia band:" + filter);
 			}
 			observation.setBand(band);
 
@@ -463,7 +463,7 @@ public class GAIADR2XformObSource extends
 			// ValidObservation defaults to STD.
 			observation.setMType(MTypeType.STD);
 
-			observation.setComments("GAIA DR2  G->Green BP->Blue RP->Red");
+			observation.setComments("Gaia DR2  G->Green BP->Blue RP->Red");
 
 			String rejectedByVariability = fields[9].trim();
 			if (rejectedByVariability.equalsIgnoreCase("TRUE")){
@@ -481,7 +481,7 @@ public class GAIADR2XformObSource extends
 
 		@Override
 		public String getSourceType() {
-			return "GAIA DR2 Format";
+			return "Gaia DR2 Format";
 		}
 	}
 
@@ -506,7 +506,7 @@ public class GAIADR2XformObSource extends
 		 * Constructor
 		 */
 		public GAIAParameterDialog(boolean additiveChecked,boolean transformChecked) {
-			super("GAIA Load Parameters");
+			super("Gaia Load Parameters");
 
 			Container contentPane = this.getContentPane();
 
@@ -534,7 +534,7 @@ public class GAIADR2XformObSource extends
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
-			sourceIDField = new TextField("GAIA source_id");
+			sourceIDField = new TextField("Gaia source_id");
 			panel.add(sourceIDField.getUIComponent());
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
@@ -555,7 +555,7 @@ public class GAIADR2XformObSource extends
 			JPanel panel = new JPanel();
 			panel.setBorder(BorderFactory.createTitledBorder("Passband Transformation"));
 
-			transformCheckbox = new JCheckBox("Transform GAIA passbands to V,R,I?",checked);
+			transformCheckbox = new JCheckBox("Transform Gaia passbands to V,R,I?",checked);
 			panel.add(transformCheckbox);
 
 			return panel;
