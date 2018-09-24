@@ -16,7 +16,7 @@ public class CustomFilter extends CustomFilterPluginBase {
 	 */
 	@Override
 	public String getDisplayName() {
-		return null;
+		return "Skeleton custom filter";
 	}
 
 	/**
@@ -24,7 +24,7 @@ public class CustomFilter extends CustomFilterPluginBase {
 	 */
 	@Override
 	public String getDescription() {
-		return null;
+		return "Skeleton custom filter";
 	}
 
 	/**

@@ -14,7 +14,7 @@ public class ObservationSource extends ObservationSourcePluginBase {
 	 */
 	@Override
 	public String getDisplayName() {
-		return null;
+		return "Skeleton observation source";
 	}
 
 	/**
@@ -22,7 +22,7 @@ public class ObservationSource extends ObservationSourcePluginBase {
 	 */
 	@Override
 	public String getDescription() {
-		return null;
+		return "Skeleton observation source";
 	}
 
 	/**

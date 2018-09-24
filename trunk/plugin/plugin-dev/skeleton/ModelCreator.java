@@ -16,7 +16,7 @@ public class ModelCreator extends ModelCreatorPluginBase {
 	 */
 	@Override
 	public String getDisplayName() {
-		return null;
+		return "Skeleton model creator";
 	}
 
 	/**
@@ -24,7 +24,7 @@ public class ModelCreator extends ModelCreatorPluginBase {
 	 */
 	@Override
 	public String getDescription() {
-		return null;
+		return "Skeleton model creator";
 	}
 	
 	/**

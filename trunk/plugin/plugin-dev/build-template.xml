@@ -21,6 +21,7 @@
 		<!-- Just in case plugin library directory doesn't exist, create it -->
 		<mkdir dir="${user.home}/${plugin_lib_dir}" />
 
+		<delete dir="${plugin_src_dir}" />
 		<mkdir dir="${plugin_src_dir}" />
 
 		<copy file="skeleton/${plugin_type}.java" tofile="${plugin_src_dir}/${plugin_class}.java" />
@@ -35,6 +36,7 @@
 		<!-- Just in case plugin library directory doesn't exist, create it -->
 		<mkdir dir="${user.home}/${plugin_lib_dir}" />
 
+		<delete dir="${plugin_src_dir}" />
 		<mkdir dir="${plugin_src_dir}" />
 
 		<copy file="example/${plugin_type}.java" tofile="${plugin_src_dir}/${plugin_class}.java" />

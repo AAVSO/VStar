@@ -13,7 +13,7 @@ public class ObservationTool extends ObservationToolPluginBase {
 	 */
 	@Override
 	public String getDisplayName() {
-		return null;
+		return "Skeleton observation tool";
 	}
 
 	/**
@@ -21,7 +21,7 @@ public class ObservationTool extends ObservationToolPluginBase {
 	 */
 	@Override
 	public String getDescription() {
-		return null;
+		return "Skeleton observation tool";
 	}
 
 	/**
