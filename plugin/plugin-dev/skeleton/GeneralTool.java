@@ -12,7 +12,7 @@ public class GeneralTool extends GeneralToolPluginBase {
 	 */
 	@Override
 	public String getDisplayName() {
-		return null;
+		return "Skeleton general tool";
 	}
 
 	/**
@@ -20,12 +20,9 @@ public class GeneralTool extends GeneralToolPluginBase {
 	 */
 	@Override
 	public String getDescription() {
-		return null;
+		return "Skeleton general tool";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.aavso.tools.vstar.plugin.GeneralToolPluginBase#invoke()
-	 */
 	@Override
 	public void invoke() {
 		// TODO Auto-generated method stub

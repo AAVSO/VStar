@@ -19,7 +19,7 @@ public class PeriodAnalysis extends PeriodAnalysisPluginBase {
 	 */
 	@Override
 	public String getDisplayName() {
-		return null;
+		return "Skeleton period analysis";
 	}
 
 	/**
@@ -27,7 +27,7 @@ public class PeriodAnalysis extends PeriodAnalysisPluginBase {
 	 */
 	@Override
 	public String getDescription() {
-		return null;
+		return "Skeleton period analysis";
 	}
 
 	/**
