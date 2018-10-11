@@ -3,7 +3,7 @@
 fact(n:integer) : integer {
     when
         n <= 0 -> 1
-          true -> n*fact(n-1)
+        true -> n*fact(n-1)
 }
 
 x <- fact(6)
