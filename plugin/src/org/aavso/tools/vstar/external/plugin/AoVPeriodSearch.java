@@ -20,7 +20,6 @@ package org.aavso.tools.vstar.external.plugin;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -427,8 +426,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 			if (!cancelled) {
 				// Duplicate the obs (just JD and mag) so we can set phases
-				// without
-				// disturbing the original observation object.
+				// without disturbing the original observation object.
 				List<ValidObservation> phObs = new ArrayList<ValidObservation>();
 
 				// TODO: cache these by JD range between new star resets...
@@ -459,9 +457,9 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 				// resolution.
 
 				// TODO: multi-core approach => iterate over a subset of the
-				// period range but over all observations, where the full set is
-				// copied for each core (set phases, sort mutate obs and
-				// list...); top-hits will have to b combined and ordered once
+				// period range but over all observations, where the full set
+				// is copied for each core (set phases, sort mutate obs and
+				// list...); top-hits will have to be combined and ordered once
 				// at end as part of or before prune operation
 
 				for (double period = minPeriod; period <= maxPeriod; period += resolution) {
@@ -483,10 +481,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 					double fValue = binningResult.getFValue();
 					fValues.add(fValue);
-					// if (fValue < smallestFValue) {
-					// smallestFValue = fValue;
-					// smallestValueIndex = fValues.size() - 1;
-					// }
 
 					pValues.add(binningResult.getPValue());
 
@@ -511,20 +505,30 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 				double fValue = fValues.get(i);
 				double pValue = pValues.get(i);
 
-				// Find index to insert value and...
+				// Starting from highest fValue, find index to insert value
+				// and...
 				int index = 0;
 				for (int j = 0; j < orderedFValues.size(); j++) {
-					if (fValue > orderedFValues.get(j)) {
-						index = j;
-						break;
+					if (fValue < orderedFValues.get(j)) {
+						// Insertion index is one after the matched element's
+						// index since the list's elements are in descending
+						// order.
+						index++;
 					}
 				}
 
 				// ...apply to all ordered collections.
-				orderedFrequencies.add(index, frequency);
-				orderedPeriods.add(index, period);
-				orderedFValues.add(index, fValue);
-				orderedPValues.add(index, pValue);
+				if (index >= 0) {
+					orderedFrequencies.add(index, frequency);
+					orderedPeriods.add(index, period);
+					orderedFValues.add(index, fValue);
+					orderedPValues.add(index, pValue);
+				} else {
+					orderedFrequencies.add(0, frequency);
+					orderedPeriods.add(0, period);
+					orderedFValues.add(0, fValue);
+					orderedPValues.add(0, pValue);
+				}
 			}
 		}
 
@@ -544,108 +548,10 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 			}
 		}
 
-		// Order the top-hits by fValue
-		// TODO: improve efficiency! O(n^2)
-		private void collectTopHits() {
-			// orderedFrequencies.add(frequencies.get(smallestValueIndex));
-			// orderedPeriods.add(periods.get(smallestValueIndex));
-			// orderedFValues.add(fValues.get(smallestValueIndex));
-			// orderedPValues.add(pValues.get(smallestValueIndex));
-
-			orderedFrequencies.add(frequencies.get(0));
-			orderedPeriods.add(periods.get(0));
-			orderedFValues.add(fValues.get(0));
-			orderedPValues.add(pValues.get(0));
-
-			for (int i = 1; i < periods.size(); i++) {
-				double frequency = frequencies.get(i);
-				double period = periods.get(i);
-				double fValue = fValues.get(i);
-				double pValue = pValues.get(i);
-
-				// Find index to insert value and...
-				int index = 0;
-				for (int j = 0; j < orderedFValues.size(); j++) {
-					if (fValue > orderedFValues.get(j)) {
-						index = j;
-						break;
-					}
-				}
-
-				// ...apply to all collections.
-				orderedFrequencies.add(index, frequency);
-				orderedPeriods.add(index, period);
-				orderedFValues.add(index, fValue);
-				orderedPValues.add(index, pValue);
-
-				// if (fValue > orderedFValues.get(0)) {
-				// orderedFrequencies.addFirst(frequency);
-				// orderedPeriods.addFirst(period);
-				// orderedFValues.addFirst(fValue);
-				// orderedPValues.addFirst(pValue);
-				// } else {
-				// orderedFrequencies.add(frequency);
-				// orderedPeriods.add(period);
-				// orderedFValues.add(fValue);
-				// orderedPValues.add(pValue);
-				// }
-			}
-
-			// Include only MAX_TOP_HITS.
-			if (periods.size() > MAX_TOP_HITS) {
-				orderedFrequencies = new ArrayList<Double>(
-						orderedFrequencies.subList(0, MAX_TOP_HITS));
-
-				orderedPeriods = new ArrayList<Double>(orderedPeriods.subList(
-						0, MAX_TOP_HITS));
-
-				orderedFValues = new ArrayList<Double>(orderedFValues.subList(
-						0, MAX_TOP_HITS));
-
-				orderedPValues = new ArrayList<Double>(orderedPValues.subList(
-						0, MAX_TOP_HITS));
-			}
-
-			// orderedFrequencies = removeAllButMaxTopHits(frequencies);
-			// orderedPeriods = removeAllButMaxTopHits(periods);
-			// orderedFValues = removeAllButMaxTopHits(fValues);
-			// orderedPValues = removeAllButMaxTopHits(pValues);
-
-			// TODO: ...
-			// if (periods.size() > MAX_TOP_HITS) {
-			// for (int i = MAX_TOP_HITS; i < periods.size(); i++) {
-			// orderedFrequencies.remove(i);
-			// orderedPeriods.remove(i);
-			// orderedFValues.remove(i);
-			// orderedPValues.remove(i);
-			// }
-			// }
-		}
-
 		@Override
 		public void interrupt() {
 			interrupted = true;
 		}
-	}
-
-	private List<Double> removeAllButMaxTopHits(List<Double> values) {
-		List<Double> sortedValues = new ArrayList<Double>(values);
-
-		// Reverse numerical order sort.
-		Collections.sort(sortedValues, new Comparator<Double>() {
-			@Override
-			public int compare(Double x, Double y) {
-				return -Double.compare(x, y);
-			}
-		});
-
-		List<Double> topHitValues = sortedValues;
-
-		if (values.size() > MAX_TOP_HITS) {
-			topHitValues = sortedValues.subList(0, MAX_TOP_HITS);
-		}
-
-		return topHitValues;
 	}
 
 	// Ask user for period min, max, resolution and number of bins.
