@@ -19,12 +19,10 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -50,6 +48,7 @@ import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.list.PeriodAnalysisDataTableModel;
 import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
+import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -66,7 +65,8 @@ import org.jfree.chart.plot.DatasetRenderingOrder;
  * 
  * This is a port of Jeff Byron's Period Finder C code.
  * 
- * TODO: - create a model from segments?
+ * TODO:<br/>
+ * o create a model from segments? o interrupted!
  */
 public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 
@@ -86,7 +86,7 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 
 	private IPeriodAnalysisAlgorithm algorithm;
 
-	private PeriodAnalysisCoordinateType SCATTER;
+	private PeriodAnalysisCoordinateType SCATTER, SEGMENT_SUM;
 
 	private int observations;
 	private double[] obsTime, mag, phase;
@@ -119,6 +119,8 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 					.addListener(getNewStarListener());
 
 			SCATTER = PeriodAnalysisCoordinateType.create("Scatter");
+			SEGMENT_SUM = PeriodAnalysisCoordinateType
+					.create("Sum of segments");
 
 			firstInvocation = false;
 		}
@@ -145,6 +147,8 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 		private PeriodAnalysisTopHitsTablePane topHitsTablePane;
 		private PeriodAnalysis2DChartPane powerPlotPane;
 		private PeriodAnalysis2DChartPane topHitsPowerPlotPane;
+		private PeriodAnalysis2DChartPane segmentSumPlotPane;
+		private PeriodAnalysis2DChartPane topHitsSegmentSumPlotPane;
 		private PeriodAnalysis2DChartPane scatterPlotPane;
 		private PeriodAnalysis2DChartPane topHitsPlotPane;
 
@@ -166,38 +170,75 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 			String title = "Periodogram";
 
 			// Power plot model and plot
-//			PeriodAnalysis2DPlotModel powerPlotModel = new PeriodAnalysis2DPlotModel(
-//					algorithm.getResultSeries(),
-//					PeriodAnalysisCoordinateType.PERIOD,
-//					PeriodAnalysisCoordinateType.POWER, false);
-//
-//			powerPlotPane = PeriodAnalysisComponentFactory.createLinePlot(title
-//					+ ": Power vs Period", sourceSeriesType.getDescription(),
-//					powerPlotModel, false);
-//
-//			PeriodAnalysis2DPlotModel powerPlotTopHitsModel = new PeriodAnalysis2DPlotModel(
-//					algorithm.getTopHits(),
-//					PeriodAnalysisCoordinateType.PERIOD,
-//					PeriodAnalysisCoordinateType.POWER, false);
-//
-//			topHitsPowerPlotPane = PeriodAnalysisComponentFactory
-//					.createScatterPlot(title,
-//							sourceSeriesType.getDescription(),
-//							powerPlotTopHitsModel, true);
+			if (false) {
+				PeriodAnalysis2DPlotModel powerPlotModel = new PeriodAnalysis2DPlotModel(
+						algorithm.getResultSeries(),
+						PeriodAnalysisCoordinateType.PERIOD,
+						PeriodAnalysisCoordinateType.POWER, false);
 
-//			JFreeChart powerChart = topHitsPowerPlotPane.getChart();
-//			powerChart.getXYPlot().setDataset(
-//					PeriodAnalysis2DChartPane.DATA_SERIES, powerPlotModel);
-//			powerChart.getXYPlot().setDataset(
-//					PeriodAnalysis2DChartPane.TOP_HIT_SERIES,
-//					powerPlotTopHitsModel);
-//			powerChart.getXYPlot().setRenderer(
-//					PeriodAnalysis2DChartPane.DATA_SERIES,
-//					powerPlotPane.getChart().getXYPlot().getRenderer());
-//			powerChart.getXYPlot().setDatasetRenderingOrder(
-//					DatasetRenderingOrder.REVERSE);
-//
-//			powerPlotPane = topHitsPowerPlotPane;
+				powerPlotPane = PeriodAnalysisComponentFactory.createLinePlot(
+						title + ": Segment Sums vs Period",
+						sourceSeriesType.getDescription(), powerPlotModel,
+						false);
+
+				PeriodAnalysis2DPlotModel powerPlotTopHitsModel = new PeriodAnalysis2DPlotModel(
+						algorithm.getTopHits(),
+						PeriodAnalysisCoordinateType.PERIOD,
+						PeriodAnalysisCoordinateType.POWER, false);
+
+				topHitsPowerPlotPane = PeriodAnalysisComponentFactory
+						.createScatterPlot(title,
+								sourceSeriesType.getDescription(),
+								powerPlotTopHitsModel, true);
+
+				JFreeChart powerChart = topHitsPowerPlotPane.getChart();
+				powerChart.getXYPlot().setDataset(
+						PeriodAnalysis2DChartPane.DATA_SERIES, powerPlotModel);
+				powerChart.getXYPlot().setDataset(
+						PeriodAnalysis2DChartPane.TOP_HIT_SERIES,
+						powerPlotTopHitsModel);
+				powerChart.getXYPlot().setRenderer(
+						PeriodAnalysis2DChartPane.DATA_SERIES,
+						powerPlotPane.getChart().getXYPlot().getRenderer());
+				powerChart.getXYPlot().setDatasetRenderingOrder(
+						DatasetRenderingOrder.REVERSE);
+
+				powerPlotPane = topHitsPowerPlotPane;
+			}
+
+			// Segment sum plot model and plot (all results)
+			PeriodAnalysis2DPlotModel segmentSumPlotModel = new PeriodAnalysis2DPlotModel(
+					algorithm.getResultSeries(),
+					PeriodAnalysisCoordinateType.PERIOD, SEGMENT_SUM, false);
+
+			segmentSumPlotPane = PeriodAnalysisComponentFactory.createLinePlot(
+					title + ": Segment Sum vs Period",
+					sourceSeriesType.getDescription(), segmentSumPlotModel,
+					false);
+
+			// Segment sum plot model and plot (top hits)
+			PeriodAnalysis2DPlotModel segmentSumTopHitsPlotModel = new PeriodAnalysis2DPlotModel(
+					algorithm.getTopHits(),
+					PeriodAnalysisCoordinateType.PERIOD, SEGMENT_SUM, false);
+
+			topHitsSegmentSumPlotPane = PeriodAnalysisComponentFactory
+					.createScatterPlot(title,
+							sourceSeriesType.getDescription(),
+							segmentSumTopHitsPlotModel, true);
+
+			JFreeChart segmentSumChart = topHitsSegmentSumPlotPane.getChart();
+			segmentSumChart.getXYPlot().setDataset(
+					PeriodAnalysis2DChartPane.DATA_SERIES, segmentSumPlotModel);
+			segmentSumChart.getXYPlot().setDataset(
+					PeriodAnalysis2DChartPane.TOP_HIT_SERIES,
+					segmentSumTopHitsPlotModel);
+			segmentSumChart.getXYPlot().setRenderer(
+					PeriodAnalysis2DChartPane.DATA_SERIES,
+					segmentSumPlotPane.getChart().getXYPlot().getRenderer());
+			segmentSumChart.getXYPlot().setDatasetRenderingOrder(
+					DatasetRenderingOrder.REVERSE);
+
+			segmentSumPlotPane = topHitsSegmentSumPlotPane;
 
 			// Scatter plot model and plot (all results)
 			PeriodAnalysis2DPlotModel scatterPlotModel = new PeriodAnalysis2DPlotModel(
@@ -238,8 +279,8 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 			PeriodAnalysisCoordinateType[] columns = {
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.PERIOD,
-					//PeriodAnalysisCoordinateType.POWER, 
-					SCATTER };
+					// PeriodAnalysisCoordinateType.POWER,
+					SCATTER, SEGMENT_SUM };
 
 			// Note: algorithm won't be used (?) in this case but we must pass
 			// it along.
@@ -261,11 +302,18 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 					topHitsModel, dataTableModel, algorithm);
 
 			// Return tabbed pane of plot and period display component.
-			return PluginComponentFactory.createTabs(/*new NamedComponent(
-					"Power vs Period", powerPlotPane),*/ new NamedComponent(
+			return PluginComponentFactory.createTabs(/*
+													 * new NamedComponent(
+													 * "Power vs Period",
+													 * powerPlotPane),
+													 */new NamedComponent(
 					"Scatter vs Period", scatterPlotPane), new NamedComponent(
-					"Results", resultsTablePane), new NamedComponent(
-					"Top Hits", topHitsTablePane));
+					"Segment Sum vs Period", segmentSumPlotPane),
+					new NamedComponent("Scatter vs Period", scatterPlotPane),
+					new NamedComponent("Segment Sum vs Period",
+							segmentSumPlotPane), new NamedComponent("Results",
+							resultsTablePane), new NamedComponent("Top Hits",
+							topHitsTablePane));
 		}
 
 		// Send a period change message when the new-phase-plot button is
@@ -373,6 +421,9 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 		private LinkedList<Double> scatterValues;
 		private ArrayList<Double> orderedScatterValues;
 
+		private LinkedList<Double> segmentSumValues;
+		private ArrayList<Double> orderedSegmentSumValues;
+
 		private List<Double> power;
 
 		public PeriodFinderAlgorithm(List<ValidObservation> obs) {
@@ -387,8 +438,8 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 			scatterValues = new LinkedList<Double>();
 			orderedScatterValues = new ArrayList<Double>();
 
-			// smallestFValue = Double.MAX_VALUE;
-			// smallestValueIndex = 0;
+			segmentSumValues = new LinkedList<Double>();
+			orderedSegmentSumValues = new ArrayList<Double>();
 		}
 
 		@Override
@@ -402,8 +453,9 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 
 			results.put(PeriodAnalysisCoordinateType.FREQUENCY, frequencies);
 			results.put(PeriodAnalysisCoordinateType.PERIOD, periods);
-//			results.put(PeriodAnalysisCoordinateType.POWER, power);
+			// results.put(PeriodAnalysisCoordinateType.POWER, power);
 			results.put(SCATTER, scatterValues);
+			results.put(SEGMENT_SUM, segmentSumValues);
 
 			return results;
 		}
@@ -415,9 +467,10 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 			topHits.put(PeriodAnalysisCoordinateType.FREQUENCY,
 					orderedFrequencies);
 			topHits.put(PeriodAnalysisCoordinateType.PERIOD, orderedPeriods);
-//			topHits.put(PeriodAnalysisCoordinateType.POWER, power.stream()
-//					.sorted().limit(MAX_TOP_HITS).collect(Collectors.toList()));
+			// topHits.put(PeriodAnalysisCoordinateType.POWER, power.stream()
+			// .sorted().limit(MAX_TOP_HITS).collect(Collectors.toList()));
 			topHits.put(SCATTER, orderedScatterValues);
+			topHits.put(SEGMENT_SUM, orderedSegmentSumValues);
 
 			return topHits;
 		}
@@ -515,11 +568,11 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 				// resulting data and plot will reveal a power spectrum that is
 				// of the kind expected by a user of DCDFT or AoV and whose
 				// data points are more easily selectable. We sort the data
-//				double maxScatter = Collections.max(scatterValues);
-//				power = scatterValues.stream().map((n) -> {
-//					return 1 - n / maxScatter;
-//				}).sorted(Collections.reverseOrder())
-//						.collect(Collectors.toList());
+				// double maxScatter = Collections.max(scatterValues);
+				// power = scatterValues.stream().map((n) -> {
+				// return 1 - n / maxScatter;
+				// }).sorted(Collections.reverseOrder())
+				// .collect(Collectors.toList());
 
 				pruneTopHits();
 			}
@@ -531,7 +584,7 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 		void stepThroughPeriods(double minPeriod, double maxPeriod,
 				double periodStep, double filter) {
 			int i, counter;
-			double period, trialPeriod, bestMatch, scatter;// , sumSegs;
+			double period, trialPeriod, bestMatch, scatter, sumSegs;
 			// time_t startTime, endTime;
 			// char* c_time_string;
 
@@ -543,27 +596,20 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 										// final
 										// value
 			counter = 1;
-			// startTime = time(NULL);
-			// c_time_string = ctime(&startTime);
-			// fprintf(fp_info,"Minimum Period: %lf\n", minPeriod); // Print to
-			// information file.
-			// fprintf(fp_info,"Maximum Period: %lf\n", maxPeriod);
-			// fprintf(fp_info,"Period step size: %lf\n", periodStep);
-			// fprintf(fp_info,"Scatter Threshold: %lf\n", filter);
-			// fprintf(fp_info,"Computation Start Time: %s", c_time_string); //
-			// Print to information file. ctime() has already added a
-			// terminating
-			// newline character.
-			System.out.println("Start...");
 			for (trialPeriod = minPeriod; trialPeriod < maxPeriod + periodStep; trialPeriod += periodStep) {
 				if (++counter > ASTERISK_COUNTER_LIMIT) {
 					// printf("*");
 					counter = 1;
 				}
-				scatter = scatterCalc(trialPeriod/* , &sumSegs */);
+
+				Pair<Double, Double> scatterPair = scatterCalc(trialPeriod);
+				sumSegs = scatterPair.first;
+				scatter = scatterPair.second;
+
 				if ((scatter <= filter) || (filter < 0.1)) {
 					// System.out.printf("%.10f\t%f\n", trialPeriod, scatter);
 				}
+
 				if (scatter < bestMatch) {
 					bestMatch = scatter;
 					period = trialPeriod;
@@ -571,24 +617,10 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 					frequencies.addFirst(1.0 / period);
 					periods.addFirst(period);
 					scatterValues.addFirst(scatter);
+					segmentSumValues.addFirst(sumSegs);
 					updateOrderedValues();
 				}
 			}
-
-			// endTime = time(NULL);
-			// c_time_string = ctime(&endTime);
-			// fprintf(fp_info,"Computation End Time:   %s", c_time_string); //
-			// Print to information file. ctime() has already added a
-			// terminating
-			// newline character.
-			// fprintf(fp_info,"Computation Time Duration: %ld seconds\n",
-			// (long)(endTime-startTime)); // Print to information file.
-			System.out.printf("\n\nLeast scatter of %f for period %.10f\n",
-					bestMatch, period);
-			System.out.printf("Least scatter of %f for period %.10f\n",
-					bestMatch, period);
-			// fclose(fp_outdata);
-			// fclose(fp_info);
 		}
 
 		private void updateOrderedValues() {
@@ -596,12 +628,14 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 				orderedFrequencies.add(frequencies.get(0));
 				orderedPeriods.add(periods.get(0));
 				orderedScatterValues.add(scatterValues.get(0));
+				orderedSegmentSumValues.add(segmentSumValues.get(0));
 			} else {
-				int i = 0;// periods.size() - 1;
+				int i = 0;
 
 				double frequency = frequencies.get(i);
 				double period = periods.get(i);
 				double scatterValue = scatterValues.get(i);
+				double segmentSumValue = segmentSumValues.get(i);
 
 				// Starting from highest scatter value, find index to insert
 				// value and...
@@ -620,10 +654,12 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 					orderedFrequencies.add(index, frequency);
 					orderedPeriods.add(index, period);
 					orderedScatterValues.add(index, scatterValue);
+					orderedSegmentSumValues.add(index, segmentSumValue);
 				} else {
 					orderedFrequencies.add(0, frequency);
 					orderedPeriods.add(0, period);
 					orderedScatterValues.add(0, scatterValue);
+					orderedSegmentSumValues.add(0, segmentSumValue);
 				}
 			}
 		}
@@ -638,6 +674,9 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 
 				orderedScatterValues = new ArrayList<Double>(
 						orderedScatterValues.subList(0, MAX_TOP_HITS));
+
+				orderedSegmentSumValues = new ArrayList<Double>(
+						orderedSegmentSumValues.subList(0, MAX_TOP_HITS));
 			}
 		}
 
@@ -674,7 +713,7 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 		// SelectableTextField binsField = new SelectableTextField("Bins",
 		// binSet);
 
-		DoubleField filterField = new DoubleField("Filter", 0.0, 1.0, filter);
+		DoubleField filterField = new DoubleField("Filter", 0.0, 100.0, filter);
 		fields.add(filterField);
 
 		MultiEntryComponentDialog dlg = new MultiEntryComponentDialog(
@@ -686,11 +725,11 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 
 			try {
 				filter = filterField.getValue();
-				if (filter > 1) {
-					MessageBox.showErrorDialog("PeriodFinder Parameters",
-							"Filter must be greater than one");
-					legalParams = false;
-				}
+//				if (filter > 1) {
+//					MessageBox.showErrorDialog("PeriodFinder Parameters",
+//							"Filter must be less than one");
+//					legalParams = false;
+//				}
 			} catch (Exception e) {
 				legalParams = false;
 			}
@@ -770,9 +809,9 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 	// But tests have indicated that disabling calculation of sum-of-segments
 	// makes very little
 	// difference to the overall computation time.
-	private double scatterCalc(double period/* , double *seg */) {
+	private Pair<Double, Double> scatterCalc(double period/* , double *seg */) {
 		int i;
-		double scatter;
+		double seg, scatter;
 		// Generate phase data
 		// TODO: use my code?
 		for (i = 0; i < observations; i++) {
@@ -783,20 +822,23 @@ public class MinimumScatterPeriodFinder extends PeriodAnalysisPluginBase {
 
 		// TODO: use my code?
 		sort(/* period */);
+
 		scatter = 0;
-		// *seg = 0;
+		seg = 0;
 		// TODO: i can't start at 0 else i-1 = -1
 		for (i = 1; i < observations; i++) {
-			// *seg += sqrt((phase[i] - phase[i-1]) * (phase[i] - phase[i-1])
-			// + (mag[i] - mag[i-1]) * (mag[i] - mag[i-1]));
+			seg += Math.sqrt((phase[i] - phase[i - 1])
+					* (phase[i] - phase[i - 1]) + (mag[i] - mag[i - 1])
+					* (mag[i] - mag[i - 1]));
+
 			scatter += Math.abs(mag[i] - mag[i - 1]);
 		}
 
-		return scatter;
+		return new Pair<Double, Double>(seg, scatter);
 	}
 
 	// Performs bubble-sort of phase-folded data.
-	// TODO: replace with efficient sort as per execute()
+	// TODO: replace with efficient sort as per execute() but in scatterCalc()?
 	void sort(/* double period */) {
 		int i, changes;
 		double tempPhase, tempTime, tempMag;
