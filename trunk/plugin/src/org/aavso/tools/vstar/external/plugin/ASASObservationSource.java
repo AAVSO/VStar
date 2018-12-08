@@ -30,7 +30,8 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-
+//12/02/2018 C. Kotnik added name to observations so they can be
+//saved and reloaded from a file.
 /**
  * <p>
  * ASAS observation source plug-in.
@@ -208,6 +209,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 					double magErr = Double.parseDouble(fields[6]);
 
 					ValidObservation ob = new ValidObservation();
+					ob.setName(getInputName());
 					ob.setDateInfo(new DateInfo(hjd));
 					ob.setMagnitude(new Magnitude(mag, magErr));
 					ob.setBand(seriesType);

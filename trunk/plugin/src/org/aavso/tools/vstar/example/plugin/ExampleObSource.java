@@ -59,6 +59,8 @@ public class ExampleObSource extends ObservationSourcePluginBase {
 				double uncertainty = 0;
 
 				ValidObservation ob = new ValidObservation();
+				// NOTE: Always setName so that observations saved to a file
+ 				//       can be reloaded.  Suggest the object name or ID or coords
 				ob.setName("Cosine plus Noise");
 				ob.setDateInfo(new DateInfo(jdBase + i));
 				ob.setMagnitude(new Magnitude(mag, uncertainty));

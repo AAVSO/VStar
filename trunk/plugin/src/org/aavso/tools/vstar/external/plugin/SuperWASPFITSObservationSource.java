@@ -49,7 +49,8 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.NumberSelectionPane;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
-
+//12/02/2018 C. Kotnik added name to observations so they can be
+//saved and reloaded from a file.
 /**
  * A FITS file observation source plug-in that uses the Topcat FITS library.
  */
@@ -173,6 +174,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 								}
 
 								ValidObservation ob = new ValidObservation();
+								ob.setName(getInputName());
 								ob.setDateInfo(new DateInfo(hjd));
 								ob.setMagnitude(new Magnitude(mag, magErr));
 								ob.setBand(superWaspSeries);

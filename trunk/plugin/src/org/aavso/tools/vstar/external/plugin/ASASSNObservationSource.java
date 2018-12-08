@@ -36,7 +36,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-
+//12/02/2018 C. Kotnik added name to observations so they can be
+//saved and reloaded from a file.
 /**
  * <p>
  * ASAS-SN file observation source plug-in for CSV observation files obtained
@@ -187,7 +188,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 				series = asassn5SigmaLimitSeries;
 			}
 			mag.setUncertainty(err);
-
+			observation.setName(getInputName());
 			observation.setMagnitude(mag);
 			observation.setDateInfo(hjd);
 			observation.setRecordNumber(obNum);

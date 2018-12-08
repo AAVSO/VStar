@@ -32,7 +32,8 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-
+//12/02/2018 C. Kotnik added name to observations so they can be
+//saved and reloaded from a file.
 /**
  * DASCHObservationSource is a VStar observation source plug-in tool which reads
  * DASCH (Digital Access to a Sky Century @ Harvard) data from an input file in
@@ -180,6 +181,7 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 			String flags = fields[12].trim();
 
 			ValidObservation ob = new ValidObservation();
+			ob.setName(getInputName());
 			ob.setDateInfo(new DateInfo(hjd));
 			ob.setMagnitude(new Magnitude(mag, magErr));
 			if (magErr >= magErrThreshold) {

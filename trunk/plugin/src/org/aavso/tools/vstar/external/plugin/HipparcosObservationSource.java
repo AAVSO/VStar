@@ -30,7 +30,8 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-
+//12/02/2018 C. Kotnik added name to observations so they can be
+//saved and reloaded from a file.
 /**
  * HipparcosObservationSource is a VStar observation source plug-in tool which
  * reads Hipparcos / Tycho Catalogue Data in the format exemplified at
@@ -154,6 +155,7 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 			String flags = fields[3].trim();
 
 			ValidObservation ob = new ValidObservation();
+			ob.setName(getInputName());
 			ob.setDateInfo(new DateInfo(bjd));
 			ob.setMagnitude(new Magnitude(mag, magErr));
 			ob.setBand(series);
