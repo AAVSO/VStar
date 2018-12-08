@@ -148,10 +148,10 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 				setDegree(polyDegreeDialog.getDegree());
 
 				final AbstractLeastSquaresOptimizer optimizer = new LevenbergMarquardtOptimizer();
-
+				
 				final PolynomialFitter fitter = new PolynomialFitter(
 						getDegree(), optimizer);
-
+				
 				model = new IModel() {
 					boolean interrupted = false;
 					List<ValidObservation> fit;

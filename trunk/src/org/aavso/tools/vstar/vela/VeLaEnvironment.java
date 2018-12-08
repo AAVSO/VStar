@@ -85,7 +85,6 @@ public class VeLaEnvironment<T> {
 	 */
 	public void bind(String name, T value, boolean isConstant) {
 		boolean isBoundConstant = false;
-
 		if (!constants.contains(name)) {
 			if (!isConstant) {
 				// Variable binding.
@@ -95,8 +94,8 @@ public class VeLaEnvironment<T> {
 				cache.put(name, value);
 				constants.add(name);
 			} else {
-				// We are trying to bind a constant to a name in the presence of
-				// a variable binding.
+				// We are trying to bind a constant to a name in the presence
+				// of a variable binding.
 				isBoundConstant = true;
 			}
 		} else {
