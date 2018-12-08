@@ -21,7 +21,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 public abstract class AIDWebServiceObservationSourcePluginBase extends
 		ObservationSourcePluginBase {
 
-	protected static final int MAX_OBS_AT_ONCE = 10000;
+	protected static final int MAX_OBS_AT_ONCE = 50000;
 	protected static final String BASE_URL = "https://www.aavso.org/vsx/index.php?view=";
 	protected String view;
 	protected String method;

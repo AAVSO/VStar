@@ -39,34 +39,6 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	}
 
 	/**
-	 * Bind a value to a name, iff it has not already been bound in this
-	 * environment, otherwise throw an exception.
-	 * 
-	 * @param name
-	 *            The name to which to bind the value.
-	 * @param value
-	 *            The value to be bound.
-	 * @throws VeLaEvalError
-	 *             if the name is already bound.
-	 */
-	// TODO: 
-	// - if bound, ask what type it is bound to; don't allow type to change;
-	//   think about this actually; may be more important what a function can
-	//   take or return than whether a variable binding can change
-//	@Override
-//	public void bind(String name, Operand value, boolean isConstant) {
-//		// if (value.getType() == Type.FUNCTION) {
-//		// addFunctionExecutor(value.functionVal());
-//		// } else
-//		if (!lookup(name).isPresent()) {
-//			super.bind(name, value, isConstant);
-//		} else {
-//			throw new VeLaEvalError("'" + name
-//					+ "' is already bound in this environment.");
-//		}
-//	}
-
-	/**
 	 * Add a function executor to the multi-map.
 	 * 
 	 * @param executor

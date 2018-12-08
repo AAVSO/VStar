@@ -42,6 +42,7 @@ public class APASSEpochPhotometryObservationSource extends
 		seriesNameToTypeMap.put("r", SeriesType.Sloan_r);
 		seriesNameToTypeMap.put("i", SeriesType.Sloan_i);
 		seriesNameToTypeMap.put("z", SeriesType.Sloan_z);
+		seriesNameToTypeMap.put("Z", SeriesType.Sloan_z);
 
 		// Initial parameter values.
 		raDegs = 57.8155;

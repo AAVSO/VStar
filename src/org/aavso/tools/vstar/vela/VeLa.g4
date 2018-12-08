@@ -4,10 +4,10 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - Add .. operator as shorthand for creating numeric lists over a range **
+// - Add .. operator as shorthand for creating numeric lists over a range
 //   o Open-ended range: N.. => generator
 // - VeLa could replace or be an alternative to JavaScript for scripting
-//   o Need a FFI
+//   o Need a FFI and objects in VeLa
 // - It would be more type safe to allow a signature instead of "function" 
 //   for function parameters, e.g. [real real] : real
 // - Add compile() function **
@@ -32,7 +32,16 @@ grammar VeLa;
 //   o Implicit (or explicit) reference to object available to functions in object
 //   o A function in an object could have either the non-function contents 
 //     of the map added to the current scope or a self/this variable pointed 
-//     to the map
+//     to the map.
+//   o Indeed, an object is arguably just a scope, such that x.f() or
+//     x.a would involve object x being created (as a VeLaScope) and pushed
+//     onto the stack with look-ups for 'f' and 'a' then proceeding as 
+//     normal. VeLaScope's addAll() would permit multiple super classes; 
+//     to disambiguate function arguments from class instance variables, a
+//     'this' or 'self' or 'me' argument could be added to a function's actual 
+//     parameter list at invocation time. The object scope must be popped 
+//     when a function exits or by a method invocation handler in eval().
+//     A function could be marked as a method, for example.
 // - Y-combinator in VeLa
 // - Unicode symbols for vars, e.g. PI, for Fourier models
 
@@ -44,8 +53,8 @@ grammar VeLa;
 // are case-insensitive.
 
 // The expression production will leave a value on the stack,
-// therefore the program rule could be the entry point for 
-// VStar filters as well as models. If one wishes to create 
+// therefore the sequence rule could be the entry point for 
+// VStar filters as well as models, i.e. f one wishes to create 
 // a filter that is a complete VeLa program that happens to
 // end in a boolean expression, then that is permitted.
 sequence
