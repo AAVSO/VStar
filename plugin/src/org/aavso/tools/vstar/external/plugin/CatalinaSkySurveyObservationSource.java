@@ -35,7 +35,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-
+//12/02/2018 C. Kotnik added name to observations so they can be
+//saved and reloaded from a file.
 /**
  * <p>
  * Catalina Sky Survey data file observation source plugin available from:<br/>
@@ -175,7 +176,8 @@ public class CatalinaSkySurveyObservationSource extends
 
 			DateInfo mjdDate = julianDayValidator.validate(fields[5]);
 			DateInfo jdDate = new DateInfo(2400000.5 + mjdDate.getJulianDay());
-
+			
+			observation.setName(getInputName());
 			observation.setMagnitude(mag);
 			observation.setDateInfo(jdDate);
 			observation.setRecordNumber(obNum);

@@ -42,7 +42,8 @@ import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-
+// 12/02/2018 C. Kotnik
+// Removed kname from kmag field to allow observations save/reload
 /**
  * This plug-in class reads AAVSO upload (extended and visual) format files,
  * yielding an observation list.
@@ -369,7 +370,11 @@ public class AAVSOUploadFileFormatObservationSource extends
 				// seems not to represent the reality of some instrumental
 				// magnitudes, for example.
 				double kmag = magnitudeValueValidator.validate(kmagStr);
-				observation.setKMag(kname + kmag);
+				// observation.setKMag(kname + kmag);
+				// 12/02/2018 C. Kotnik
+				// Concatenation of name and value not valid for reloading
+				// saved observation.  Reverted to just value
+				observation.setKMag(Double.toString(kmag));
 			}
 
 			String airmass = fields[11].trim();

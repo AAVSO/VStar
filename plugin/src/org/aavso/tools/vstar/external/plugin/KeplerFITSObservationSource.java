@@ -36,7 +36,8 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-
+//12/02/2018 C. Kotnik added name to observations so they can be
+//saved and reloaded from a file.
 /**
  * A Kepler FITS file v2.0 observation source plug-in that uses the
  * Topcat FITS library.
@@ -173,6 +174,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 								}
 
 								ValidObservation ob = new ValidObservation();
+								ob.setName(getInputName());
 								ob.setDateInfo(new DateInfo(hjd));
 								ob.setMagnitude(new Magnitude(mag, magErr));
 								ob.setBand(keplerSeries);

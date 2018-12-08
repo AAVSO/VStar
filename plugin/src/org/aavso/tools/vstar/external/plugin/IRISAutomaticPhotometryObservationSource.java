@@ -36,7 +36,8 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.util.stats.DescStats;
-
+//12/02/2018 C. Kotnik added name to observations so they can be
+//saved and reloaded from a file.
 /**
  * Observation source for IRIS Automatic Photometry file format.
  * 
@@ -199,6 +200,7 @@ public class IRISAutomaticPhotometryObservationSource extends
 
 				double mag = Double.parseDouble(fields[i].trim());
 				ValidObservation ob = new ValidObservation();
+				ob.setName(getInputName());
 				ob.setDateInfo(new DateInfo(jd));
 				ob.setMagnitude(new Magnitude(mag, 0));
 				ob.setRecordNumber(lineNum);

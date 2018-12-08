@@ -30,7 +30,8 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-
+//12/02/2018 C. Kotnik added name to observations so they can be
+//saved and reloaded from a file.
 /**
  * Northern Sky Variability Survey (NSVS) observation source plugin.
  */
@@ -145,6 +146,7 @@ public class NSVSObservationSource extends ObservationSourcePluginBase {
 			String flags = fields[3];
 
 			ValidObservation ob = new ValidObservation();
+			ob.setName(getInputName());
 			ob.setDateInfo(new DateInfo(jd));
 			ob.setMagnitude(new Magnitude(mag, magErr));
 			ob.setBand(series);
