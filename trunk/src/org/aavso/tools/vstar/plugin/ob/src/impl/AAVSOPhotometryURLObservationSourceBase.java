@@ -35,10 +35,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -54,6 +57,8 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.dialog.TextDialog;
+import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
@@ -314,6 +319,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 		private JComboBox radiusDegSelector;
 		private List<JCheckBox> checkBoxes;
 		private JCheckBox additiveLoadCheckbox;
+		private TextField urlField;
 
 		/**
 		 * Constructor
@@ -362,6 +368,9 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
 			panel.add(createDataSeriesCheckboxes());
+			panel.add(Box.createRigidArea(new Dimension(75, 10)));
+
+			panel.add(createUrlPane());
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
 			return panel;
@@ -420,6 +429,82 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			};
 		}
 
+		/**
+		 * This component provides a URL request button and corresponding
+		 * action.
+		 */
+		private JPanel createUrlPane() {
+			final Pattern raParamPattern = Pattern
+					.compile("^.+radeg=(\\d+(\\.\\d+)?).+$");
+
+			final Pattern decParamPattern = Pattern
+					.compile("^.+decdeg=((\\-|\\+)?\\d+(\\.\\d+)?).+$");
+
+			final Pattern radiusParamPattern = Pattern
+					.compile("^.+raddeg=(\\d+\\.\\d+).*$");
+
+			JPanel pane = new JPanel();
+
+			JButton urlRequestButton = new JButton(
+					"Populate Parameters From VSX URL");
+
+			urlRequestButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					urlField = new TextField("URL");
+					TextDialog urlDialog = new TextDialog("Enter URL", urlField);
+					if (!urlDialog.isCancelled()
+							&& !urlField.getValue().matches("^\\s*$")) {
+
+						// Set RA, Dec, radius from URL and select all
+						// checkboxes since the VSX URL contains no filter
+						// information, returning all available.
+						Matcher raMatcher = raParamPattern.matcher(urlField
+								.getStringValue());
+
+						if (raMatcher.matches()) {
+							raDegField.setValue(Double.parseDouble(raMatcher
+									.group(1)));
+						}
+
+						Matcher decMatcher = decParamPattern.matcher(urlField
+								.getStringValue());
+
+						if (decMatcher.matches()) {
+							decDegField.setValue(Double.parseDouble(decMatcher
+									.group(1)));
+						}
+
+						Matcher radiusMatcher = radiusParamPattern
+								.matcher(urlField.getStringValue());
+
+						if (radiusMatcher.matches()) {
+							String radiusStr = radiusMatcher.group(1);
+							switch (radiusStr) {
+							case "0.001":
+								radiusDegSelector.setSelectedIndex(0);
+								break;
+							case "0.002":
+								radiusDegSelector.setSelectedIndex(1);
+								break;
+							case "0.005":
+								radiusDegSelector.setSelectedIndex(2);
+								break;
+							}
+						}
+
+						for (JCheckBox checkbox : checkBoxes) {
+							checkbox.setSelected(true);
+						}
+					}
+				}
+			});
+
+			pane.add(urlRequestButton);
+
+			return pane;
+		}
+
 		public double getRADeg() {
 			return raDegField.getValue();
 		}
@@ -434,6 +519,13 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			String[] fields = ((String) radiusDegSelector.getSelectedItem())
 					.split("\\s+");
 			return Double.parseDouble(fields[0]);
+		}
+
+		/**
+		 * @return The URL string.
+		 */
+		public String getUrlString() {
+			return urlField.getValue().trim();
 		}
 
 		/**
