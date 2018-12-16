@@ -32,6 +32,8 @@ import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
+// C. Kotnik 2018-12-16
+// Exclude excluded observations from the output file
 /**
  * A concurrent task in which an observation list file save operation takes
  * place.
@@ -101,8 +103,11 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 		for (ValidObservation ob : this.observations) {
 			boolean includeJD = Mediator.getInstance().getViewMode() == ViewModeType.LIST_OBS_MODE
 					|| Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA;
-			ostream.write(ob.toSimpleFormatString(delimiter, includeJD)
+			// Exclude excluded observations from the output file C.Kotnik 2018-12-16
+			if (! ob.isExcluded()) {
+				ostream.write(ob.toSimpleFormatString(delimiter, includeJD)
 					.getBytes());
+			}
 
 			Mediator.getInstance().getProgressNotifier()
 					.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);
@@ -121,8 +126,11 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 		for (ValidObservation ob : this.observations) {
 			boolean includeJD = Mediator.getInstance().getViewMode() == ViewModeType.LIST_OBS_MODE
 					|| Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA;
-			ostream.write(ob.toAAVSOFormatString(delimiter, includeJD)
+			// Exclude excluded observations from the output file C.Kotnik 2018-12-16
+			if (! ob.isExcluded()) {
+				ostream.write(ob.toAAVSOFormatString(delimiter, includeJD)
 					.getBytes());
+			}
 			Mediator.getInstance().getProgressNotifier()
 					.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);
 		}
