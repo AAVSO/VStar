@@ -99,6 +99,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 		private Integer numObs;
 		private SeriesType seriesType;
 		private String designation;
+		private Integer datasetNum;
 
 		private int seriesColor;
 
@@ -177,14 +178,15 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 		private void handleInfo(String line) {
 			if (line.startsWith("#dataset")) {
 				String dataset = getStringFromNameValuePair(line);
-				int datasetNum = Integer
+				datasetNum = Integer
 						.parseInt(dataset.split("\\s*;\\s*")[0]);
-				String seriesName = "ASAS-" + datasetNum;
-				seriesType = SeriesType.create(seriesName, seriesName,
-						COLORS[seriesColor++], false, false);
-				if (seriesColor == COLORS.length) {
-					seriesColor = 0;
-				}
+				// String seriesName = "ASAS-" + datasetNum;
+
+				//seriesType = SeriesType.create(seriesName, seriesName,
+				//		COLORS[seriesColor++], false, false);
+				//if (seriesColor == COLORS.length) {
+				//	seriesColor = 0;
+				//}
 			} else if (line.startsWith("#desig")) {
 				designation = getStringFromNameValuePair(line);
 			} else if (line.startsWith("#") && line.contains("HJD")) {
@@ -209,10 +211,11 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 					double magErr = Double.parseDouble(fields[6]);
 
 					ValidObservation ob = new ValidObservation();
-					ob.setName(getInputName());
+					ob.setName("ASAS " + designation);
+					ob.setComments("dataset " + datasetNum);
 					ob.setDateInfo(new DateInfo(hjd));
 					ob.setMagnitude(new Magnitude(mag, magErr));
-					ob.setBand(seriesType);
+					ob.setBand(SeriesType.Johnson_V);
 					ob.setRecordNumber(lineNum);
 					ob.addDetail("DESIGNATION", designation, "Designation");
 					ob.addDetail("CLASS", dataClass, "Class");
