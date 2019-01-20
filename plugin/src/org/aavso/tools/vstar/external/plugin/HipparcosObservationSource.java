@@ -119,7 +119,7 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 				// State machine cases ...
 				switch (state) {
 				case HEADER:
-					if (line.startsWith("HT1")) {
+					if (line.startsWith("JD")) {
 						state = State.DATA;
 					}
 					break;
@@ -148,20 +148,33 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 			// therefore referred to as BJD(TT).
 
 			String[] fields = line.split("\\|");
+			
+			try {
+				double bjd = Double.parseDouble(fields[0].trim()) + 40000 + 2400000.0;
+				double mag = Double.parseDouble(fields[1].trim());
+				double magErr = Double.parseDouble(fields[2].trim());
+				String flags = fields[3].trim();
 
-			double bjd = Double.parseDouble(fields[0].trim()) + 40000 + 2400000.0;
-			double mag = Double.parseDouble(fields[1].trim());
-			double magErr = Double.parseDouble(fields[2].trim());
-			String flags = fields[3].trim();
+				ValidObservation ob = new ValidObservation();
+				ob.setName(getInputName());
+				ob.setDateInfo(new DateInfo(bjd));
+				ob.setMagnitude(new Magnitude(mag, magErr));
+				ob.setBand(series);
+				ob.setRecordNumber(lineNum);
+				ob.addDetail("FLAGS", flags, "Flags");
+				collectObservation(ob);
 
-			ValidObservation ob = new ValidObservation();
-			ob.setName(getInputName());
-			ob.setDateInfo(new DateInfo(bjd));
-			ob.setMagnitude(new Magnitude(mag, magErr));
-			ob.setBand(series);
-			ob.setRecordNumber(lineNum);
-			ob.addDetail("FLAGS", flags, "Flags");
-			collectObservation(ob);
+			} catch (Exception e) {
+				// Create an invalid observation. Record the line number
+				// rather than the observation number for error reporting
+				// purposes, but still increment the latter.
+				String error = e.getLocalizedMessage();
+				InvalidObservation ob = new InvalidObservation(line, error);
+				ob.setRecordNumber(lineNum);
+				addInvalidObservation(ob);
+			}
+			
+
 		}
 
 		private String getNextLine(BufferedReader reader, int lineNum) {
