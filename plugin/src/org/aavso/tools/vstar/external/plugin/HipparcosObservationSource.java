@@ -119,7 +119,7 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 				// State machine cases ...
 				switch (state) {
 				case HEADER:
-					if (line.startsWith("JD")) {
+					if (line.startsWith("JD") || line.startsWith("HT1")) {
 						state = State.DATA;
 					}
 					break;
