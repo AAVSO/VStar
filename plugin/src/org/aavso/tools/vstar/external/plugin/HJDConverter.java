@@ -40,7 +40,8 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
  * Converts currently loaded observations to HJD if they are not already
  * Heliocentric.
  * 
- * TODO: undoable edits!
+ * TODO:<br/>
+ * - undoable edits! - warn if BJD obs present that they won't be converted
  */
 public class HJDConverter extends ObservationToolPluginBase {
 
@@ -63,21 +64,20 @@ public class HJDConverter extends ObservationToolPluginBase {
 		int count = 0;
 		Pair<RAInfo, DecInfo> lastCoordsFound = null;
 		for (AbstractObservationRetriever retriever : getRequestedNonHeliocentricDatasets()) {
-			if (!retriever.isHeliocentric()) {
+			if (retriever.isBarycentric()) {
+				String msg = "Observations from " + retriever.getSourceName()
+						+ " are Barycentric and will not be converted.";
+				MessageBox.showWarningDialog("HJD Conversion", msg);
+			} else if (!retriever.isHeliocentric()) {
 
 				Pair<RAInfo, DecInfo> coords = getCoordinates(
 						retriever.getStarInfo(), lastCoordsFound);
 
-				Mediator.getInstance().convertObsToHJD(
+				retriever.setHeliocentric(true);
+
+				count += Mediator.getInstance().convertObsToHJD(
 						retriever.getValidObservations(), coords.first,
 						coords.second);
-
-				int numConverted = retriever.getValidObservations().size();
-
-				if (numConverted > 0) {
-					retriever.setHeliocentric(true);
-					count += numConverted;
-				}
 
 				lastCoordsFound = coords;
 			}
@@ -119,6 +119,8 @@ public class HJDConverter extends ObservationToolPluginBase {
 					selected.add(name2retriever.get(checkbox.getName()));
 				}
 			}
+		} else {
+			selected.clear();
 		}
 
 		return selected;
@@ -167,24 +169,23 @@ public class HJDConverter extends ObservationToolPluginBase {
 			// Ask the user for J2000.0 RA/DEC and if that is cancelled,
 			// indicate that HJD conversion cannot take place.
 			if (otherCoords != null) {
-				// Alternative coordinates supplied.
-				ra = otherCoords.first;
-				dec = otherCoords.second;
-				// TODO: still prompt! need degs to H:M:S, D:M:S
+				// Alternative coordinates supplied. Use these as defaults for
+				// requests.
+				ra = Mediator.getInstance().requestRA(otherCoords.first);
+				dec = Mediator.getInstance().requestDec(otherCoords.second);
 			} else {
 				// No other coordinates supplied so ask user.
 				ra = Mediator.getInstance().requestRA();
 				dec = Mediator.getInstance().requestDec();
-				if (ra == null || dec == null) {
-					MessageBox
-							.showWarningDialog("HJD Conversion",
-									"The previously loaded observations have NOT been converted to HJD.");
-				}
 			}
 		}
 
 		if (ra != null && dec != null) {
 			coords = new Pair<RAInfo, DecInfo>(ra, dec);
+		} else {
+			MessageBox
+					.showWarningDialog("HJD Conversion",
+							"The previously loaded observations have NOT been converted to HJD.");
 		}
 
 		return coords;
