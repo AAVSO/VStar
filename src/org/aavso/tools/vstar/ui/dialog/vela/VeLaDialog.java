@@ -46,7 +46,7 @@ public class VeLaDialog extends TextDialog {
 	private static ITextComponent<String> resultTextArea;
 	private static JCheckBox verbosityCheckBox;
 	
-	private VeLaInterpreter vela;
+	private static VeLaInterpreter vela;
 
 	static {
 		codeTextArea = new TextArea("VeLa Code", 10, 40);
@@ -54,11 +54,12 @@ public class VeLaDialog extends TextDialog {
 
 		verbosityCheckBox = new JCheckBox("Verbose?");
 		verbosityCheckBox.setSelected(false);
+		
+		//vela = new VeLaInterpreter(false);
 	}
 
 	public VeLaDialog() {
 		super("VeLa", Arrays.asList(codeTextArea, resultTextArea));
-		vela = new VeLaInterpreter(false);
 	}
 
 	protected JPanel createButtonPane() {
@@ -85,7 +86,7 @@ public class VeLaDialog extends TextDialog {
 		// verbosityCheckBox.addActionListener(e -> {
 		// vela.setVerbose(verbosityCheckBox.isSelected());
 		// });
-		// panel.add(verbosityCheckBox);
+		panel.add(verbosityCheckBox);
 
 		return panel;
 	}
@@ -106,6 +107,8 @@ public class VeLaDialog extends TextDialog {
 
 		try {
 			// Compile and execute the code.
+			vela = new VeLaInterpreter(false);
+			vela.setVerbose(verbosityCheckBox.isSelected());
 			Optional<Operand> result = vela.program(text);
 
 			// Any standard error or output to show?
