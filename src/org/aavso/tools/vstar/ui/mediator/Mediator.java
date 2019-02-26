@@ -128,6 +128,7 @@ import org.aavso.tools.vstar.ui.task.PeriodAnalysisTask;
 import org.aavso.tools.vstar.ui.task.PhasePlotTask;
 import org.aavso.tools.vstar.ui.task.PluginManagerOperationTask;
 import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
+import org.aavso.tools.vstar.util.Triple;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.PreviousCyclePhaseComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
@@ -1136,11 +1137,11 @@ public class Mediator {
 		// Handle additive load if requested and observations are already
 		// loaded.
 		if (addObs && getLatestNewStarMessage() != null) {
-			convertObsToHJD(starInfo);
+			// convertObsToHJD(starInfo);
 
 			starInfo.getRetriever().collectAllObservations(validObsList,
 					starInfo.getRetriever().getSourceName());
-
+			
 			starInfo.getRetriever().addAllInvalidObservations(invalidObsList);
 
 			// If any loaded data source type is different from the current data
@@ -1431,10 +1432,21 @@ public class Mediator {
 	}
 
 	// Request the J2000.0 RA in HH:MM:SS.n
-	public RAInfo requestRA() {
-		IntegerField raHours = new IntegerField("Hours", 0, 60, null);
-		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, null);
-		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, null);
+	public RAInfo requestRA(RAInfo ra) {
+		int h = 0;
+		int m = 0;
+		double s = 0.0;
+
+		if (ra != null) {
+			Triple<Integer, Integer, Double> hms = ra.toHMS();
+			h = hms.first;
+			m = hms.second;
+			s = hms.third;
+		}
+
+		IntegerField raHours = new IntegerField("Hours", h, 60, null);
+		IntegerField raMinutes = new IntegerField("Minutes", m, 60, null);
+		DoubleField raSeconds = new DoubleField("Seconds", s, 60.0, null);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("RA ("
 				+ EpochType.J2000 + ")", raHours, raMinutes, raSeconds);
 
@@ -1447,25 +1459,48 @@ public class Mediator {
 		return raInfo;
 	}
 
+	// Request the J2000.0 RA in HH:MM:SS.n
+	public RAInfo requestRA() {
+		return requestRA(null);
+	}
+
 	// Request the J2000.0 Dec in DD:MM:SS.n
-	public DecInfo requestDec() {
-		IntegerField raHours = new IntegerField("Degrees", -90, 90, null);
-		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, null);
-		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, null);
+	public DecInfo requestDec(DecInfo dec) {
+		int d = 0;
+		int m = 0;
+		double s = 0.0;
+
+		if (dec != null) {
+			Triple<Integer, Integer, Double> dms = dec.toDMS();
+			d = dms.first;
+			m = dms.second;
+			s = dms.third;
+		}
+
+		IntegerField decHours = new IntegerField("Degrees", d, 90, null);
+		IntegerField decMinutes = new IntegerField("Minutes", m, 60, null);
+		DoubleField decSeconds = new DoubleField("Seconds", s, 60.0, null);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
-				"Dec (" + EpochType.J2000 + ")", raHours, raMinutes, raSeconds);
+				"Dec (" + EpochType.J2000 + ")", decHours, decMinutes,
+				decSeconds);
 
 		DecInfo decInfo = null;
 		if (!dialog.isCancelled()) {
-			decInfo = new DecInfo(EpochType.J2000, raHours.getValue(),
-					raMinutes.getValue(), raSeconds.getValue());
+			decInfo = new DecInfo(EpochType.J2000, decHours.getValue(),
+					decMinutes.getValue(), decSeconds.getValue());
 		}
 
 		return decInfo;
 	}
 
+	// Request the J2000.0 Dec in DD:MM:SS.n
+	public DecInfo requestDec() {
+		return requestDec(null);
+	}
+
 	/**
-	 * Convert the specified observations to use HJD rather than JD.
+	 * Convert the specified observations to use HJD (if not already) rather
+	 * than JD.
 	 * 
 	 * @param obs
 	 *            The list of observations to be converted.
@@ -1473,14 +1508,23 @@ public class Mediator {
 	 *            The RA for the object.
 	 * @param dec
 	 *            The Dec for the object.
+	 *            @return The number of observations converted.
 	 */
-	public void convertObsToHJD(List<ValidObservation> obs, RAInfo ra,
+	public int convertObsToHJD(List<ValidObservation> obs, RAInfo ra,
 			DecInfo dec) {
+		int count = 0;
+		
 		AbstractHJDConverter converter = AbstractHJDConverter.getInstance(ra
 				.getEpoch());
+
 		for (ValidObservation ob : obs) {
-			ob.setJD(converter.convert(ob.getJD(), ra, dec));
+			if (!ob.isHeliocentric()) {
+				ob.setJD(converter.convert(ob.getJD(), ra, dec));
+				count++;
+			}
 		}
+		
+		return count;
 	}
 
 	/**

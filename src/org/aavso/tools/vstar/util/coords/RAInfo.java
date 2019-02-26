@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.util.coords;
 
+import org.aavso.tools.vstar.util.Triple;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -71,5 +72,16 @@ public class RAInfo {
 
 	public double toDegrees() {
 		return degs;
+	}
+
+	/**
+	 * Converts RA in degrees to hours, minutes, seconds.
+	 * @return An triple (3-tuple) containing hours, minutes, seconds.
+	 */
+	public Triple<Integer, Integer, Double> toHMS() {
+		double h = degs / 15;
+		double m = (h - (int) h) * 60;
+		double s = (m - (int) m) * 60;
+		return new Triple<Integer, Integer, Double>((int)h, (int)m, s);
 	}
 }

@@ -327,6 +327,19 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
+	 * Adds all the specified valid observations to the existing valid
+	 * observations. This can be used for additive load operations.
+	 * 
+	 * @param obs
+	 *            The list of previously existing invalid observations.
+	 */
+	public void addAllValidObservations(List<ValidObservation> obs) {
+		for (ValidObservation ob : obs) {
+			addValidObservation(ob);
+		}
+	}
+
+	/**
 	 * Adds all the specified invalid observations to the existing invalid
 	 * observations. This can be used for additive load operations.
 	 * 
@@ -384,16 +397,17 @@ public abstract class AbstractObservationRetriever {
 	 * valid observations and categorises it by band. This method is
 	 * particularly suitable for observation source plugins since it asks
 	 * whether an observation satisfies the requirement that it has at least JD
-	 * and magnitude values. The caller can either propagate this exception
-	 * further or add to the invalid observation list, or do whatever else it
-	 * considers to be appropriate.
+	 * and magnitude values.
 	 * </p>
 	 * 
 	 * @param ob
 	 *            The valid observation to be added to collections.
 	 * 
 	 * @throws ObservationReadError
-	 *             if the observation has no date or magnitude.
+	 *             if the observation has no date or magnitude. The caller can
+	 *             either propagate this exception further or add to the invalid
+	 *             observation list, or do whatever else it considers to be
+	 *             appropriate.
 	 */
 	protected void collectObservation(ValidObservation ob)
 			throws ObservationReadError {
@@ -414,7 +428,10 @@ public abstract class AbstractObservationRetriever {
 	/**
 	 * Here we categorise a valid observation in terms of whether it is a
 	 * fainter-than or discrepant or belongs to a particular band, in that
-	 * order.
+	 * order. If this observation retriever is reading heliocentric
+	 * observations, we set that attribute on the observation as well. The
+	 * observation is then inserted into a map of categories and the valid
+	 * observation list.
 	 * 
 	 * @param validOb
 	 *            A valid observation.
@@ -422,6 +439,7 @@ public abstract class AbstractObservationRetriever {
 	protected void categoriseValidObservation(ValidObservation validOb) {
 		SeriesType category = null;
 
+		// Categorise
 		if (validOb.getMagnitude().isFainterThan()) {
 			category = SeriesType.FAINTER_THAN;
 		} else if (validOb.isDiscrepant()) {
@@ -430,6 +448,12 @@ public abstract class AbstractObservationRetriever {
 			category = SeriesType.Excluded;
 		} else {
 			category = validOb.getBand();
+		}
+
+		// Only set observation's Heliocentric status from the receiver's if not
+		// already true.
+		if (!validOb.isHeliocentric()) {
+			validOb.setHeliocentric(isHeliocentric());
 		}
 
 		List<ValidObservation> validObsList = validObservationCategoryMap
@@ -473,15 +497,15 @@ public abstract class AbstractObservationRetriever {
 	 * Insert an observation into the observation list with the post-condition
 	 * that the list remains sorted by JD. This post-condition is valid iff the
 	 * pre-condition that the list is already sorted before the addition is
-	 * true.
+	 * satisfied.
 	 * </p>
 	 * 
 	 * <p>
-	 * An observation source plug-in developer may want to completely override
-	 * this method if data is expected to be mostly out of order; in the worst
-	 * case, if all elements are out of order, the cost will be O(n^2) due to
-	 * the O(n) traversal being carried out n times (for the number of
-	 * observations inserted).
+	 * An observation source plug-in developer could, if so desired, completely
+	 * override this method if data is expected to be mostly out of order; in
+	 * the worst case, if all elements are out of order, the cost will be O(n^2)
+	 * due to the O(n) traversal being carried out n times for the number of
+	 * observations inserted.
 	 * </p>
 	 * 
 	 * @param ob

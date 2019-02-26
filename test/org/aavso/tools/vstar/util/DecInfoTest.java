@@ -27,7 +27,6 @@ import org.aavso.tools.vstar.util.coords.EpochType;
  */
 public class DecInfoTest extends TestCase {
 
-	private final EpochType EPOCH = EpochType.B1950;
 	private static final int PRECISION = 8;
 
 	public DecInfoTest(String name) {
@@ -45,23 +44,43 @@ public class DecInfoTest extends TestCase {
 	// Test cases.
 	
 	public void testDecToDegrees1() {
-		DecInfo dec = new DecInfo(EPOCH, 0, 0, 0);
+		DecInfo dec = new DecInfo(EpochType.B1950, 0, 0, 0);
 		assertEquals(0.0, dec.toDegrees());
 	}
 
 	public void testDecToDegrees2() {
-		DecInfo dec = new DecInfo(EPOCH, -25, 45, 3);
+		DecInfo dec = new DecInfo(EpochType.B1950, -25, 45, 3);
 		String decStr = getNumToPrecision(dec.toDegrees(), PRECISION);
 		assertEquals(getNumToPrecision(-25.7508333333333, PRECISION), decStr);
 	}
 
 	public void testDecToDegrees3() {
-		DecInfo dec = new DecInfo(EPOCH, 2, 0, 0);
+		DecInfo dec = new DecInfo(EpochType.B1950, 2, 0, 0);
 		assertEquals(2.0, dec.toDegrees());
 	}
 	
+	public void testDecDegsToDMS1() {
+		DecInfo dec = new DecInfo(EpochType.J2000, 15.5092);
+		Triple<Integer, Integer, Double> dms = dec.toDMS();
+		assertEquals((int)15, (int)dms.first);
+		assertEquals((int)30, (int)dms.second);
+		assertTrue(areClose(33.12, dms.third, 1e6));
+	}
+
+	public void testDecDegsToDMS2() {
+		DecInfo dec = new DecInfo(EpochType.J2000, -15.5092);
+		Triple<Integer, Integer, Double> dms = dec.toDMS();
+		assertEquals(-15, (int)dms.first);
+		assertEquals(30, (int)dms.second);
+		assertTrue(areClose(33.12, dms.third, 1e6));
+	}
+
 	// Helpers
 	
+	private boolean areClose(double a, double b, double epsilon) {
+		return Math.abs(a - b) < epsilon;
+	}
+
 	private String getNumToPrecision(double n, int precision) {
 		return String.format("%1." + precision + "f", n);
 	}
