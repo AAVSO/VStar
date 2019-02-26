@@ -1023,6 +1023,19 @@ public class VeLaTest extends TestCase {
 		assertTrue(areClose(12.34620932, result.get().doubleVal(), 1e-6));
 	}
 
+	public void testMean() {
+		String prog = "";
+		prog += "mean(vals:list) : real {"; 
+		prog += "  reduce(function(n:real m:real) : real { n+m } vals 0) / length(vals)"; 
+		prog += "}";
+		prog += "mags is [3.678 3.776 3.866 3.943 4 4.062 4.117 4.089 3.883 3.651 3.653]";
+		prog += "mean(mags)";
+		
+		Optional<Operand> result = vela.program(prog);
+		assertTrue(result.isPresent());
+		assertTrue(areClose(3.8834545, result.get().doubleVal(), 1e-7));	
+	}
+	
 	// Bindings
 
 	public void testBindingNonConstant() {
