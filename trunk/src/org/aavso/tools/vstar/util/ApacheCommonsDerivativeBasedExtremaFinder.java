@@ -81,7 +81,8 @@ public class ApacheCommonsDerivativeBasedExtremaFinder extends
 			// Find the obs immediately before and after the transition and use
 			// this as the bracket range.
 			for (int i = 0; i < obs.size(); i++) {
-				if (interrupt) break;
+				if (interrupt)
+					break;
 
 				jd = obs.get(i).getJD();
 
@@ -102,7 +103,7 @@ public class ApacheCommonsDerivativeBasedExtremaFinder extends
 
 			int firstIndex = minDerivIndex > 0 ? minDerivIndex - 1
 					: minDerivIndex;
-			int lastIndex = minDerivIndex < obs.size() ? minDerivIndex + 1
+			int lastIndex = minDerivIndex < obs.size() - 1 ? minDerivIndex + 1
 					: minDerivIndex;
 
 			// We are trying to get the first derivative to be as close to zero
@@ -114,7 +115,8 @@ public class ApacheCommonsDerivativeBasedExtremaFinder extends
 			double minDerivJD = firstJD;
 
 			for (jd = firstJD; jd <= lastJD; jd += resolution) {
-				if (interrupt) break;
+				if (interrupt)
+					break;
 
 				double deriv = Math.abs(firstDerivative.value(jd - zeroPoint));
 
