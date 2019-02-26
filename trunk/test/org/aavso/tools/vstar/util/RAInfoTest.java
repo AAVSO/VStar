@@ -26,8 +26,6 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
  * RAInfo unit tests.
  */
 public class RAInfoTest extends TestCase {
-
-	private final EpochType EPOCH = EpochType.B1950;
 	
 	public RAInfoTest(String name) {
 		super(name);
@@ -44,17 +42,47 @@ public class RAInfoTest extends TestCase {
 	// Test cases.
 	
 	public void testRAToDegrees1() {
-		RAInfo ra = new RAInfo(EPOCH, 0, 0, 0);
+		RAInfo ra = new RAInfo(EpochType.B1950, 0, 0, 0);
 		assertEquals(0.0, ra.toDegrees());
 	}
 
 	public void testRAToDegrees2() {
-		RAInfo ra = new RAInfo(EPOCH, 15, 2, 3.6);
+		RAInfo ra = new RAInfo(EpochType.B1950, 15, 2, 3.6);
 		assertEquals(225.515, ra.toDegrees());
 	}
 
 	public void testRAToDegrees3() {
-		RAInfo ra = new RAInfo(EPOCH, -12, 0, 0);
+		RAInfo ra = new RAInfo(EpochType.B1950, -12, 0, 0);
 		assertEquals(-180.0, ra.toDegrees());
+	}
+	
+	public void testRADegsToHMS1() {
+		RAInfo ra = new RAInfo(EpochType.J2000, 232.6375);
+		Triple<Integer, Integer, Double> hms = ra.toHMS();
+		assertEquals(15, (int)hms.first);
+		assertEquals(30, (int)hms.second);
+		assertTrue(areClose(33.12, hms.third, 1e6));
+	}
+
+	public void testRADegsToHMS2() {
+		RAInfo ra = new RAInfo(EpochType.J2000, 7.6375);
+		Triple<Integer, Integer, Double> hms = ra.toHMS();
+		assertEquals(0, (int)hms.first);
+		assertEquals(30, (int)hms.second);
+		assertTrue(areClose(33.12, hms.third, 1e6));
+	}
+
+	public void testRADegsToHMS3() {
+		RAInfo ra = new RAInfo(EpochType.J2000, 352.6375);
+		Triple<Integer, Integer, Double> hms = ra.toHMS();
+		assertEquals(23, (int)hms.first);
+		assertEquals(30, (int)hms.second);
+		assertTrue(areClose(33.12, hms.third, 1e6));
+	}
+
+	// Helpers
+	
+	private boolean areClose(double a, double b, double epsilon) {
+		return Math.abs(a - b) < epsilon;
 	}
 }

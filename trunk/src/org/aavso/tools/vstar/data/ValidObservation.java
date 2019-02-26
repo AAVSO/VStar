@@ -106,6 +106,8 @@ public class ValidObservation extends Observation {
 
 	private boolean excluded = false;
 
+	private boolean isHeliocentric = false;
+	
 	// Optional string-based observation details.
 	private Map<String, String> details;
 
@@ -831,6 +833,20 @@ public class ValidObservation extends Observation {
 		this.excluded = excluded;
 	}
 
+	/**
+	 * @return the isHeliocentric
+	 */
+	public boolean isHeliocentric() {
+		return isHeliocentric;
+	}
+
+	/**
+	 * @param isHeliocentric the isHeliocentric to set
+	 */
+	public void setHeliocentric(boolean isHeliocentric) {
+		this.isHeliocentric = isHeliocentric;
+	}
+
 	// Output formatting methods.
 
 	public String toString() {
@@ -1227,6 +1243,143 @@ public class ValidObservation extends Observation {
 		buf.append("\n");
 
 		return buf.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((band == null) ? 0 : band.hashCode());
+		result = prime * result
+				+ ((commentCode == null) ? 0 : commentCode.hashCode());
+		result = prime * result
+				+ ((dateInfo == null) ? 0 : dateInfo.hashCode());
+		result = prime * result + ((details == null) ? 0 : details.hashCode());
+		result = prime * result + (excluded ? 1231 : 1237);
+		result = prime * result + ((hJD == null) ? 0 : hJD.hashCode());
+		result = prime * result
+				+ ((hqUncertainty == null) ? 0 : hqUncertainty.hashCode());
+		result = prime * result + (isHeliocentric ? 1231 : 1237);
+		result = prime * result + ((mType == null) ? 0 : mType.hashCode());
+		result = prime * result
+				+ ((magnitude == null) ? 0 : magnitude.hashCode());
+		result = prime * result + ((obsType == null) ? 0 : obsType.hashCode());
+		result = prime
+				* result
+				+ ((previousCyclePhase == null) ? 0 : previousCyclePhase
+						.hashCode());
+		result = prime * result
+				+ ((standardPhase == null) ? 0 : standardPhase.hashCode());
+		result = prime * result + (transformed ? 1231 : 1237);
+		result = prime * result
+				+ ((validationType == null) ? 0 : validationType.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof ValidObservation)) {
+			return false;
+		}
+		ValidObservation other = (ValidObservation) obj;
+		if (band == null) {
+			if (other.band != null) {
+				return false;
+			}
+		} else if (!band.equals(other.band)) {
+			return false;
+		}
+		if (commentCode == null) {
+			if (other.commentCode != null) {
+				return false;
+			}
+		} else if (!commentCode.equals(other.commentCode)) {
+			return false;
+		}
+		if (dateInfo == null) {
+			if (other.dateInfo != null) {
+				return false;
+			}
+		} else if (!dateInfo.equals(other.dateInfo)) {
+			return false;
+		}
+		if (details == null) {
+			if (other.details != null) {
+				return false;
+			}
+		} else if (!details.equals(other.details)) {
+			return false;
+		}
+		if (excluded != other.excluded) {
+			return false;
+		}
+		if (hJD == null) {
+			if (other.hJD != null) {
+				return false;
+			}
+		} else if (!hJD.equals(other.hJD)) {
+			return false;
+		}
+		if (hqUncertainty == null) {
+			if (other.hqUncertainty != null) {
+				return false;
+			}
+		} else if (!hqUncertainty.equals(other.hqUncertainty)) {
+			return false;
+		}
+		if (isHeliocentric != other.isHeliocentric) {
+			return false;
+		}
+		if (mType != other.mType) {
+			return false;
+		}
+		if (magnitude == null) {
+			if (other.magnitude != null) {
+				return false;
+			}
+		} else if (!magnitude.equals(other.magnitude)) {
+			return false;
+		}
+		if (obsType == null) {
+			if (other.obsType != null) {
+				return false;
+			}
+		} else if (!obsType.equals(other.obsType)) {
+			return false;
+		}
+		if (previousCyclePhase == null) {
+			if (other.previousCyclePhase != null) {
+				return false;
+			}
+		} else if (!previousCyclePhase.equals(other.previousCyclePhase)) {
+			return false;
+		}
+		if (standardPhase == null) {
+			if (other.standardPhase != null) {
+				return false;
+			}
+		} else if (!standardPhase.equals(other.standardPhase)) {
+			return false;
+		}
+		if (transformed != other.transformed) {
+			return false;
+		}
+		if (validationType != other.validationType) {
+			return false;
+		}
+		return true;
 	}
 
 	// Convenience methods.

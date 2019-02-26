@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.util.coords;
 
+import org.aavso.tools.vstar.util.Triple;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -72,5 +73,18 @@ public class DecInfo {
 
 	public double toDegrees() {
 		return degs;
+	}
+
+	/**
+	 * Converts Declination in degrees to degrees, minutes, seconds.
+	 * 
+	 * @return An triple (3-tuple) containing degrees, minutes, seconds.
+	 */
+	public Triple<Integer, Integer, Double> toDMS() {
+		double d = Math.abs(degs);
+		double m = (d - (int) d) * 60;
+		double s = (m - (int) m) * 60;
+		return new Triple<Integer, Integer, Double>((int) (d * Math.signum(degs)),
+				(int) m, s);
 	}
 }
