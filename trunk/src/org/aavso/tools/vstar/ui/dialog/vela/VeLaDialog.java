@@ -125,7 +125,7 @@ public class VeLaDialog extends TextDialog {
 			// Show error in text area.
 			String msg = e.getLocalizedMessage();
 			if (msg != null) {
-				resultTextArea.setValue(msg + "\n");
+				//resultTextArea.setValue(msg + "\n");
 			}
 
 			// Any standard error to show in relation to this exception?
