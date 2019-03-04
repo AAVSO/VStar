@@ -44,14 +44,12 @@ public class VeLaErrorListener implements ANTLRErrorListener {
 			int startIndex, int stopIndex, BitSet conflictingAlts,
 			ATNConfigSet configs) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void reportContextSensitivity(Parser arg0, DFA arg1, int arg2,
 			int arg3, int arg4, ATNConfigSet arg5) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override

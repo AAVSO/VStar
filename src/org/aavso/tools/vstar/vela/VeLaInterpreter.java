@@ -260,7 +260,10 @@ public class VeLaInterpreter {
 
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 
-		return new VeLaParser(tokens);
+		VeLaParser parser = new VeLaParser(tokens);
+		parser.addErrorListener(errorListener);
+		
+		return parser;
 	}
 
 	/**
