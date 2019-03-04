@@ -1195,7 +1195,7 @@ public class VeLaTest extends TestCase {
 		expr = "mag > 6 and mag < 15 and obscode in [\"PEX\" \"PLA\"]";
 		assertEquals(2, filterObs(expr, obs).size());
 	}
-
+	
 	// Comments
 
 	public void testComments1() {
@@ -1222,7 +1222,6 @@ public class VeLaTest extends TestCase {
 
 	public void testAmpersand() {
 		try {
-
 			vela.realExpression("2457580.25&1004");
 			fail();
 		} catch (VeLaParseError e) {
@@ -1250,6 +1249,15 @@ public class VeLaTest extends TestCase {
 		}
 	}
 
+	public void testGreaterThanOrEqualSwappedCharacters() {
+		try {
+			vela.booleanExpression("2 => 3");
+			fail();
+		} catch (VeLaParseError e) {
+			assertTrue(e.getMessage().contains("extraneous input '>'"));
+		}
+	}
+	
 	public void testFunProperlyTailRecursive1() {
 		String prog = "";
 		prog += "infinite_loop() {";
