@@ -19,83 +19,54 @@ package org.aavso.tools.vstar.ui.pane.list;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Optional;
 import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
+import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.vela.Operand;
+import org.aavso.tools.vstar.vela.Type;
+import org.aavso.tools.vstar.vela.VeLaInterpreter;
+import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
 
 /**
- * A list search pane component, supporting regular expressions on all columns
- * or a single column.
+ * A VeLa list search pane component.
  */
 @SuppressWarnings("serial")
-public class ListSearchPane<S extends TableModel> extends JPanel {
+// TODO: can we make S = ValidObservationTableModel?
+public class VeLaListSearchPane<S extends TableModel> extends JPanel {
 
-	private final static int ALL_COLUMNS = -1;
+	private ValidObservationTableModel model;
 
 	private TableRowSorter<S> rowSorter;
 	private RowFilter defaultRowFilter;
 
 	private JButton searchButton;
 	private JButton resetButton;
-	private JCheckBox allColumnsCheckBox;
-	private JComboBox columnSelector;
 	private JTextField searchField;
 
-	private int searchColumnIndex;
-
-	public ListSearchPane(AbstractTableModel model, TableRowSorter<S> rowSorter) {
+	public VeLaListSearchPane(ValidObservationTableModel model,
+			TableRowSorter<S> rowSorter) {
 		super();
 
+		this.model = model;
+
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+		//this.setBorder(BorderFactory.createTitledBorder("VeLa Search"));
 
 		this.rowSorter = rowSorter;
 		defaultRowFilter = rowSorter.getRowFilter();
-
-		searchColumnIndex = ALL_COLUMNS;
-
-		String[] columnNames = new String[model.getColumnCount()];
-		for (int i = 0; i < model.getColumnCount(); i++) {
-			columnNames[i] = model.getColumnName(i);
-		}
-		columnSelector = new JComboBox(columnNames);
-		columnSelector.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				searchColumnIndex = columnSelector.getSelectedIndex();
-			}
-		});
-		columnSelector.setEnabled(false);
-		this.add(columnSelector);
-
-		allColumnsCheckBox = new JCheckBox("All Columns?");
-		allColumnsCheckBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JCheckBox checkBox = (JCheckBox) e.getSource();
-				if (checkBox.isSelected()) {
-					columnSelector.setEnabled(false);
-					searchColumnIndex = ALL_COLUMNS;
-				} else {
-					columnSelector.setEnabled(true);
-					searchColumnIndex = columnSelector.getSelectedIndex();
-				}
-			}
-		});
-		allColumnsCheckBox.setSelected(true);
-		this.add(allColumnsCheckBox);
 
 		searchField = new JTextField();
 		searchField.setToolTipText("Enter a regular expression...");
@@ -105,22 +76,14 @@ public class ListSearchPane<S extends TableModel> extends JPanel {
 		searchButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String text = searchField.getText();
-				try {
-					if (searchColumnIndex == ALL_COLUMNS) {
-						setRowFilter(RowFilter.regexFilter(text));
-					} else {
-						setRowFilter(RowFilter.regexFilter(text,
-								searchColumnIndex));
-					}
-				} catch (PatternSyntaxException ex) {
-					MessageBox.showErrorDialog(LocaleProps.get("APPLY_BUTTON"),
-							"Invalid regular expression: '" + text + "'");
-				}
+				setRowFilter(new VeLaRowFilter(new VeLaInterpreter(),
+						searchField.getText()));
 			}
 		});
 		this.add(searchButton);
 
+		// TODO: just need one Reset button in observation list pane so move it
+		// there
 		resetButton = new JButton("Reset");
 		resetButton.addActionListener(new ActionListener() {
 			@Override
@@ -166,4 +129,38 @@ public class ListSearchPane<S extends TableModel> extends JPanel {
 		searchButton.setEnabled(true);
 		resetButton.setEnabled(true);
 	}
+
+	// VeLa row filter class
+
+	class VeLaRowFilter extends RowFilter<Object, Object> {
+		private VeLaInterpreter vela;
+		private String prog;
+
+		public VeLaRowFilter(VeLaInterpreter vela, String prog) {
+			this.vela = vela;
+			this.prog = prog;
+		}
+
+		@Override
+		public boolean include(
+				javax.swing.RowFilter.Entry<? extends Object, ? extends Object> entry) {
+			// Default to inclusion.
+			boolean result = true;
+
+			Integer rowIndex = (Integer) entry.getIdentifier();
+
+			if (rowIndex != null) {
+				ValidObservation ob = model.getObservations().get(rowIndex);
+				vela.pushEnvironment(new VeLaValidObservationEnvironment(ob));
+				Optional<Operand> value = vela.program(prog);
+				result = value.isPresent()
+						&& value.get().getType() == Type.BOOLEAN
+						&& value.get().booleanVal();
+				vela.popEnvironment();
+			}
+
+			return result;
+		}
+	}
+
 }
