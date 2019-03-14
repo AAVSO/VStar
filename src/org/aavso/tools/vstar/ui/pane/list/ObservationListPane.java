@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.pane.list;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -30,10 +31,12 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
@@ -84,6 +87,7 @@ public class ObservationListPane extends JPanel implements
 	private JButton createFilterButton;
 
 	private ListSearchPane<ValidObservationTableModel> searchPanel;
+	private VeLaListSearchPane<ValidObservationTableModel> velaSearchPanel;
 
 	private Set<ValidObservation> selectedObs;
 
@@ -240,10 +244,12 @@ public class ObservationListPane extends JPanel implements
 					// Show all data, no filtering, no search permitted.
 					currFilter = null;
 					searchPanel.disable();
+					velaSearchPanel.disable();
 				} else {
 					// Filter the data displayed, permit search.
 					currFilter = rowFilter;
 					searchPanel.enable();
+					velaSearchPanel.enable();
 				}
 				rowSorter.setRowFilter(currFilter);
 			}
@@ -253,9 +259,47 @@ public class ObservationListPane extends JPanel implements
 
 		panel.add(Box.createRigidArea(new Dimension(10, 10)));
 
+		// Selectable search pane: pattern and VeLa search
+		JPanel selectableSearchPanes = new JPanel(new CardLayout());
+
 		searchPanel = new ListSearchPane<ValidObservationTableModel>(
 				validDataModel, rowSorter);
-		panel.add(searchPanel);
+		selectableSearchPanes.add(searchPanel, "Regex");
+
+		velaSearchPanel = new VeLaListSearchPane<ValidObservationTableModel>(
+				validDataModel, rowSorter);
+		selectableSearchPanes.add(velaSearchPanel, "VeLa");
+
+		JRadioButton patternSearchSelector = new JRadioButton("Regular Expression");
+		patternSearchSelector.setSelected(true);
+		patternSearchSelector.addActionListener(e -> {
+			CardLayout cl = (CardLayout) selectableSearchPanes.getLayout();
+			cl.show(selectableSearchPanes, "Regex");
+		});
+
+		JRadioButton velaSearchSelector = new JRadioButton("VeLa");
+		velaSearchSelector.addActionListener(e -> {
+			CardLayout cl = (CardLayout) selectableSearchPanes.getLayout();
+			cl.show(selectableSearchPanes, "VeLa");
+		});
+
+		ButtonGroup searchSelectionRadioButtons = new ButtonGroup();
+		searchSelectionRadioButtons.add(patternSearchSelector);
+		searchSelectionRadioButtons.add(velaSearchSelector);
+
+		JPanel searchSelectorPane = new JPanel();
+		searchSelectorPane.setLayout(new BoxLayout(searchSelectorPane,
+				BoxLayout.LINE_AXIS));
+		searchSelectorPane.add(patternSearchSelector);
+		searchSelectorPane.add(velaSearchSelector);
+
+		JPanel searchPane = new JPanel();
+		searchPane.setLayout(new BoxLayout(searchPane, BoxLayout.PAGE_AXIS));
+		searchPane.setBorder(BorderFactory.createTitledBorder("Search"));
+		searchPane.add(searchSelectorPane);
+		searchPane.add(selectableSearchPanes);
+
+		panel.add(searchPane);
 
 		final JPanel parent = this;
 
