@@ -153,23 +153,31 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	public boolean hasFuncDesc() {
 		return true;
 	}
-	
+
 	public String toString() {
 		String strRepr = functionStrMap.get(LocaleProps
 				.get("MODEL_INFO_FUNCTION_TITLE"));
 
 		if (strRepr == null) {
-			strRepr = "f(t:real) : real {\n";
+			// Factor out the zero point so variant models can be more easily
+			// created; the zero point will be the same for all parameters, so
+			// just get it from the first.
+			strRepr = "zeroPoint is "
+					+ NumericPrecisionPrefs.formatTime(parameters.get(0)
+							.getZeroPointOffset()) + "\n\n";
+
+			strRepr += "f(t:real) : real {\n";
 
 			double constantCoefficient = parameters.get(0)
 					.getConstantCoefficient();
-			strRepr += NumericPrecisionPrefs.formatOther(constantCoefficient) + "\n";
+			strRepr += NumericPrecisionPrefs.formatOther(constantCoefficient)
+					+ "\n";
 
 			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);
 				strRepr += params.toString() + "\n";
 			}
-			
+
 			strRepr = strRepr.trim();
 
 			strRepr += "\n}";
@@ -188,7 +196,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			double constantCoefficient = parameters.get(0)
 					.getConstantCoefficient();
 			strRepr += NumericPrecisionPrefs.formatOther(constantCoefficient);
-			
+
 			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);
 				strRepr += params.toExcelString();
@@ -205,7 +213,14 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 				.get("MODEL_INFO_R_TITLE"));
 
 		if (strRepr == null) {
-			strRepr = "model <- function(t) ";
+			// Factor out the zero point so variant models can be more easily
+			// created; the zero point will be the same for all parameters, so
+			// just get it from the first.
+			strRepr = "zeroPoint <- "
+					+ NumericPrecisionPrefs.formatTime(parameters.get(0)
+							.getZeroPointOffset()) + "\n\n";
+
+			strRepr += "model <- function(t) ";
 
 			double constantCoefficient = parameters.get(0)
 					.getConstantCoefficient();
@@ -228,7 +243,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			@Override
 			public double value(double t) throws FunctionEvaluationException {
 				double y = parameters.get(0).getConstantCoefficient();
-				
+
 				for (int i = 0; i < parameters.size(); i++) {
 					PeriodFitParameters params = parameters.get(i);
 					y += params.toValue(t);
