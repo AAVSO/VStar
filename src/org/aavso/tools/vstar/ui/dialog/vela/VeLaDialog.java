@@ -20,9 +20,13 @@ package org.aavso.tools.vstar.ui.dialog.vela;
 import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -32,6 +36,8 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
+import org.aavso.tools.vstar.ui.dialog.VeLaFileLoadChooser;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -45,7 +51,7 @@ public class VeLaDialog extends TextDialog {
 	private static ITextComponent<String> codeTextArea;
 	private static ITextComponent<String> resultTextArea;
 	private static JCheckBox verbosityCheckBox;
-	
+
 	private static VeLaInterpreter vela;
 
 	static {
@@ -54,8 +60,8 @@ public class VeLaDialog extends TextDialog {
 
 		verbosityCheckBox = new JCheckBox("Verbose?");
 		verbosityCheckBox.setSelected(false);
-		
-		//vela = new VeLaInterpreter(false);
+
+		// vela = new VeLaInterpreter(false);
 	}
 
 	public VeLaDialog() {
@@ -82,6 +88,28 @@ public class VeLaDialog extends TextDialog {
 			execute();
 		});
 		panel.add(runButton);
+
+		JButton loadButton = new JButton(LocaleProps.get("LOAD_BUTTON"));
+		loadButton.addActionListener(e -> {
+			StringBuffer code = new StringBuffer();
+
+			VeLaFileLoadChooser chooser = Mediator.getInstance()
+					.getVelaFileLoadDialog();
+
+			if (chooser.showDialog(this)) {
+				try (Stream<String> stream = Files.lines(Paths.get(chooser
+						.getSelectedFile().getAbsolutePath()))) {
+					stream.forEachOrdered(line -> {
+						code.append(line);
+						code.append("\n");
+					});
+					codeTextArea.setValue(code.toString());
+				} catch (IOException ex) {
+					// Nothing to do
+			}
+		}
+	})	;
+		panel.add(loadButton);
 
 		// verbosityCheckBox.addActionListener(e -> {
 		// vela.setVerbose(verbosityCheckBox.isSelected());
@@ -125,7 +153,7 @@ public class VeLaDialog extends TextDialog {
 			// Show error in text area.
 			String msg = e.getLocalizedMessage();
 			if (msg != null) {
-				//resultTextArea.setValue(msg + "\n");
+				// resultTextArea.setValue(msg + "\n");
 			}
 
 			// Any standard error to show in relation to this exception?
