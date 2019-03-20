@@ -731,6 +731,47 @@ public class VeLaTest extends TestCase {
 		assertEquals(expected, actual);
 	}
 
+	public void testIntegerSeq() {
+		String prog = "seq(1 5 1)";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		
+		List<Operand> expected = Arrays.asList(new Operand(Type.INTEGER, 1),
+				new Operand(Type.INTEGER, 2), new Operand(Type.INTEGER, 3),
+				new Operand(Type.INTEGER, 4), new Operand(Type.INTEGER, 5));
+		
+		assertEquals(expected, result.get().listVal());
+	}
+
+	public void testIntegerSeqWithReduce() {
+		String prog = "";
+		prog += "sum(x:integer y:integer) : integer {";
+		prog += "    x+y";
+		prog += "}";
+		prog += "reduce(sum seq(1 5 1) 0)";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(15, result.get().intVal());
+	}
+
+	public void testRealSeq() {
+		String prog = "seq(1.0 5.0 1.0)";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		
+		List<Operand> expected = Arrays.asList(new Operand(Type.REAL, 1.0),
+				new Operand(Type.REAL, 2.0), new Operand(Type.REAL, 3.0),
+				new Operand(Type.REAL, 4.0), new Operand(Type.REAL, 5.0));
+		
+		assertEquals(expected, result.get().listVal());
+	}
+
 	// Intrinsic string functions (from String class)
 
 	public void testFunctionContains() {
@@ -1025,17 +1066,17 @@ public class VeLaTest extends TestCase {
 
 	public void testMean() {
 		String prog = "";
-		prog += "mean(vals:list) : real {"; 
-		prog += "  reduce(function(n:real m:real) : real { n+m } vals 0) / length(vals)"; 
+		prog += "mean(vals:list) : real {";
+		prog += "  reduce(function(n:real m:real) : real { n+m } vals 0) / length(vals)";
 		prog += "}";
 		prog += "mags is [3.678 3.776 3.866 3.943 4 4.062 4.117 4.089 3.883 3.651 3.653]";
 		prog += "mean(mags)";
-		
+
 		Optional<Operand> result = vela.program(prog);
 		assertTrue(result.isPresent());
-		assertTrue(areClose(3.8834545, result.get().doubleVal(), 1e-7));	
+		assertTrue(areClose(3.8834545, result.get().doubleVal(), 1e-7));
 	}
-	
+
 	// Bindings
 
 	public void testBindingNonConstant() {
@@ -1195,7 +1236,7 @@ public class VeLaTest extends TestCase {
 		expr = "mag > 6 and mag < 15 and obscode in [\"PEX\" \"PLA\"]";
 		assertEquals(2, filterObs(expr, obs).size());
 	}
-	
+
 	// Comments
 
 	public void testComments1() {
@@ -1257,7 +1298,7 @@ public class VeLaTest extends TestCase {
 			assertTrue(e.getMessage().contains("extraneous input '>'"));
 		}
 	}
-	
+
 	public void testFunProperlyTailRecursive1() {
 		String prog = "";
 		prog += "infinite_loop() {";

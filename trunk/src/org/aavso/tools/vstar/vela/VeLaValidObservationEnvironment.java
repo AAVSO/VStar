@@ -42,6 +42,7 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 		this.ob = ob;
 	}
 
+	
 	@Override
 	public Optional<Operand> lookup(String name) {
 		boolean contained = false;
@@ -98,8 +99,7 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 
 		return Optional.ofNullable(operand);
 	}
-
-
+	
 	// Cached operand creation methods.
 
 	protected Operand operand(String name, Integer value) {

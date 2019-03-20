@@ -135,9 +135,7 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		velaFilterField = new JTextArea();
-		velaFilterField.setRows(4);
-		velaFilterField.setBorder(BorderFactory
-				.createTitledBorder("Filter Expression"));
+		velaFilterField.setRows(8);
 
 		panel.add(new JScrollPane(velaFilterField));
 
