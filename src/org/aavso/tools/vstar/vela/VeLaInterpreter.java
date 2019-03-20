@@ -96,12 +96,13 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * @param verbose the verbose to set
+	 * @param verbose
+	 *            the verbose to set
 	 */
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
-	
+
 	/**
 	 * Push an environment onto the stack.
 	 * 
@@ -262,7 +263,7 @@ public class VeLaInterpreter {
 
 		VeLaParser parser = new VeLaParser(tokens);
 		parser.addErrorListener(errorListener);
-		
+
 		return parser;
 	}
 
@@ -277,7 +278,7 @@ public class VeLaInterpreter {
 	 * @throws VeLaParseError
 	 *             If a parse error occurs.
 	 */
-	public AST commonParseTreeWalker(String prog, ParserRuleContext tree)
+	protected AST commonParseTreeWalker(String prog, ParserRuleContext tree)
 			throws VeLaParseError {
 
 		AST ast = null;
@@ -502,7 +503,7 @@ public class VeLaInterpreter {
 			eval(ast.right());
 			bind(ast.left().getToken(), stack.pop(), true);
 			break;
-			
+
 		case FUNDEF:
 			// Does this function have a name or is it anonymous?
 			Optional<String> name = Optional.empty();
@@ -936,7 +937,7 @@ public class VeLaInterpreter {
 	 *            The name of the variable to look up.
 	 * @return The optional operand.
 	 */
-	private Optional<Operand> lookupBinding(String name) {
+	public Optional<Operand> lookupBinding(String name) {
 		Optional<Operand> result = Optional.empty();
 
 		// Note: could use recursion or a reversed stream iterator instead
@@ -970,7 +971,7 @@ public class VeLaInterpreter {
 	 *            The name of the variable to look up.
 	 * @return The optional function executor list.
 	 */
-	private Optional<List<FunctionExecutor>> lookupFunctions(String name) {
+	public Optional<List<FunctionExecutor>> lookupFunctions(String name) {
 		Optional<List<FunctionExecutor>> functions = Optional.empty();
 
 		for (int i = environments.size() - 1; i >= 0; i--) {
@@ -1032,8 +1033,7 @@ public class VeLaInterpreter {
 					applyFunction(value.get().functionVal(), params);
 				}
 			} else {
-				throw new VeLaEvalError("Unknown function \"" + funcName
-						+ "\"");
+				throw new VeLaEvalError("Unknown function \"" + funcName + "\"");
 			}
 		}
 	}
@@ -1140,6 +1140,8 @@ public class VeLaInterpreter {
 		addListNthFunction();
 		addListLengthFunction();
 		addListConcatFunction();
+		addIntegerSeqFunction();
+		addRealSeqFunction();
 		addListMapFunction();
 		addListFilterFunction();
 		addListForFunction();
@@ -1425,6 +1427,44 @@ public class VeLaInterpreter {
 		});
 	}
 
+	private void addIntegerSeqFunction() {
+		// Return type will always be LIST here..
+		addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"),
+				Arrays.asList(Type.INTEGER, Type.INTEGER, Type.INTEGER),
+				Optional.of(Type.LIST)) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				Integer first = operands.get(0).intVal();
+				Integer last = operands.get(1).intVal();
+				Integer step = operands.get(2).intVal();
+				List<Operand> resultList = new ArrayList<Operand>();
+				for (int i=first;i<=last;i+=step) {
+					resultList.add(new Operand(Type.INTEGER, i));
+				}
+				return Optional.of(new Operand(Type.LIST, resultList));
+			}
+		});
+	}
+
+	private void addRealSeqFunction() {
+		// Return type will always be LIST here..
+		addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"),
+				Arrays.asList(Type.REAL, Type.REAL, Type.REAL),
+				Optional.of(Type.LIST)) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands) {
+				Double first = operands.get(0).doubleVal();
+				Double last = operands.get(1).doubleVal();
+				Double step = operands.get(2).doubleVal();
+				List<Operand> resultList = new ArrayList<Operand>();
+				for (double i=first;i<=last;i+=step) {
+					resultList.add(new Operand(Type.REAL, i));
+				}
+				return Optional.of(new Operand(Type.LIST, resultList));
+			}
+		});
+	}
+	
 	private void addListMapFunction() {
 		// Return type will always be LIST here.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("MAP"),
@@ -1548,7 +1588,7 @@ public class VeLaInterpreter {
 			}
 		});
 	}
-
+	
 	/**
 	 * Given a class, add non zero-arity VeLa type-compatible functions to the
 	 * functions map.

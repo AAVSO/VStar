@@ -42,6 +42,8 @@ grammar VeLa;
 //     parameter list at invocation time. The object scope must be popped 
 //     when a function exits or by a method invocation handler in eval().
 //     A function could be marked as a method, for example.
+// - Consider omitting "function" prefix ala Java etc anonymous functions
+// - Consider a list subscript operator vs nth()
 // - Y-combinator in VeLa
 // - Unicode symbols for vars, e.g. PI, for Fourier models
 
