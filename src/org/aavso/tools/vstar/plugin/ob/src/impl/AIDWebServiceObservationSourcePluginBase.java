@@ -22,6 +22,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		ObservationSourcePluginBase {
 
 	protected static final int MAX_OBS_AT_ONCE = 50000;
+//	protected static final String BASE_URL = "https://api.aavso.org/index.php?view=";
 	protected static final String BASE_URL = "https://www.aavso.org/vsx/index.php?view=";
 	protected String view;
 	protected String method;
@@ -72,7 +73,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		urlStrBuf.append("&tojd=");
 		urlStrBuf.append(maxJD);
 		urlStrBuf.append(method);
-		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
+		urlStrBuf.append("&mtype=std");
 
 		return urlStrBuf.toString();
 	}
@@ -122,7 +123,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		if (minFields) {
 			urlStrBuf.append("&minfields");
 		}
-		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
+		urlStrBuf.append("&mtype=std");
 
 		return urlStrBuf.toString();
 	}
@@ -165,7 +166,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		if (minFields) {
 			urlStrBuf.append("&minfields");
 		}
-		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
+		urlStrBuf.append("&mtype=std");
 
 		return urlStrBuf.toString();
 	}
@@ -188,7 +189,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		urlStrBuf.append("&data=");
 		urlStrBuf.append(MAX_OBS_AT_ONCE);
 		urlStrBuf.append(method);
-		urlStrBuf.append("&where=mtype%3D0+or+mtype+is+null");
+		urlStrBuf.append("&mtype=std");
 
 		return urlStrBuf.toString();
 	}
@@ -237,7 +238,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 					auid = info.getAuid();
 				}
 			} else {
-				// // Star info by JD range
+				// Star info by JD range
 				if (starName == null) {
 					info = infoSrc.getStarByAUID(auid, starSelector
 							.getMinDate().getJulianDay(), starSelector
