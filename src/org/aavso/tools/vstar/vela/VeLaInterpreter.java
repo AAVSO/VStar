@@ -33,9 +33,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.aavso.tools.vstar.scripting.VStarScriptingAPI;
+import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
@@ -158,6 +161,22 @@ public class VeLaInterpreter {
 	 *             If an evaluation error occurs.
 	 */
 	public Optional<Operand> program(String prog) throws VeLaParseError {
+		return veLaToResultASTPair(prog).first;
+	}
+
+	/**
+	 * VeLa program interpreter entry point.
+	 * 
+	 * @param prog
+	 *            The VeLa program string to be interpreted.
+	 * @return An optional result, depending upon whether a value was left on
+	 *         the stack and the AST that gave rise to the result.
+	 * @throws VeLaParseError
+	 *             If a parse error occurs.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
+	 */
+	public Pair<Optional<Operand>, AST> veLaToResultASTPair(String prog) throws VeLaParseError {
 		VeLaParser.SequenceContext tree = getParser(prog).sequence();
 		return commonInterpreter(prog, tree);
 	}
@@ -178,7 +197,7 @@ public class VeLaInterpreter {
 		VeLaParser.AdditiveExpressionContext tree = getParser(expr)
 				.additiveExpression();
 
-		Optional<Operand> result = commonInterpreter(expr, tree);
+		Optional<Operand> result = commonInterpreter(expr, tree).first;
 
 		if (result.isPresent()) {
 			if (result.get().getType() == Type.REAL) {
@@ -209,7 +228,7 @@ public class VeLaInterpreter {
 		VeLaParser.AdditiveExpressionContext tree = getParser(expr)
 				.additiveExpression();
 
-		Optional<Operand> result = commonInterpreter(expr, tree);
+		Optional<Operand> result = commonInterpreter(expr, tree).first;
 
 		if (result.isPresent()) {
 			return result.get();
@@ -234,7 +253,7 @@ public class VeLaInterpreter {
 		VeLaParser.BooleanExpressionContext tree = getParser(expr)
 				.booleanExpression();
 
-		Optional<Operand> result = commonInterpreter(expr, tree);
+		Optional<Operand> result = commonInterpreter(expr, tree).first;
 
 		if (result.isPresent()) {
 			return result.get().booleanVal();
@@ -288,10 +307,10 @@ public class VeLaInterpreter {
 		prog = prog.replace(" ", "").replace("\t", "").toUpperCase();
 
 		// We cache abstract syntax trees by expression to improve performance.
-		boolean astCached = false;
+//		boolean astCached = false;
 		if (exprToAST.containsKey(prog)) {
 			ast = exprToAST.get(prog);
-			astCached = true;
+//			astCached = true;
 		} else {
 			ExpressionVisitor visitor = new ExpressionVisitor();
 			ast = visitor.visit(tree);
@@ -302,29 +321,20 @@ public class VeLaInterpreter {
 			}
 		}
 
-		StringBuffer dot = null;
-		if (verbose && ast != null) {
-			dot = new StringBuffer();
-		}
-
-		if (verbose && ast != null) {
-			if (astCached) {
-				System.out.println(String.format("%s [AST cached]", ast));
-			} else {
-				System.out.println(ast);
-			}
-
-			// Create a DOT digraph for AST visualisation
-			dot.append("digraph VeLaAST {\n");
-			dot.append(ast.toDOT().second);
-			dot.append("}");
-		}
+//		if (verbose && ast != null) {
+//			if (astCached) {
+//				System.out.println(String.format("%s [AST cached]", ast));
+//			} else {
+//				System.out.println(ast);
+//			}
+//		}
 
 		return ast;
 	}
 
+	
 	/**
-	 * Common VeLa evaluation entry point. This will be most effective where
+	 * Common VeLa evaluation entry point. This will be most effective when
 	 * prog is an often used expression.
 	 * 
 	 * @param prog
@@ -332,11 +342,11 @@ public class VeLaInterpreter {
 	 * @param tree
 	 *            The result of parsing the VeLa expression.
 	 * @return An optional result depending upon whether a value is left on the
-	 *         stack.
+	 *         stack and the AST that was constructed and evaluated.
 	 * @throws VeLaEvalError
 	 *             If an evaluation error occurs.
 	 */
-	public Optional<Operand> commonInterpreter(String prog,
+	public Pair<Optional<Operand>, AST> commonInterpreter(String prog,
 			ParserRuleContext tree) throws VeLaParseError {
 
 		Optional<Operand> result = Optional.empty();
@@ -357,10 +367,10 @@ public class VeLaInterpreter {
 				// Note: a better description may be constant rather than
 				// deterministic.
 				result = Optional.of(exprToResult.get(prog));
-				if (verbose) {
-					System.out.println(String.format("%s [result cached: %s]",
-							ast, result));
-				}
+//				if (verbose) {
+//					System.out.println(String.format("%s [result cached: %s]",
+//							ast, result));
+//				}
 			} else {
 				// Evaluate the abstract syntax tree and cache the result.
 				eval(ast);
@@ -373,7 +383,7 @@ public class VeLaInterpreter {
 			}
 		}
 
-		return result;
+		return new Pair<Optional<Operand>, AST>(result, ast);
 	}
 
 	/**
@@ -1015,13 +1025,20 @@ public class VeLaInterpreter {
 			// apply it.
 			for (FunctionExecutor function : functions.get()) {
 				match = applyFunction(function, params);
-				if (match)
+				if (match) {
 					break;
+				}
 			}
 
 			if (!match) {
+				StringBuffer candidateFunStr = new StringBuffer();
+				for (FunctionExecutor candidateFun : functions.get()) {
+					candidateFunStr.append(" ");
+					candidateFunStr.append(candidateFun.toString());
+					candidateFunStr.append("\n");
+				}
 				throw new VeLaEvalError("Invalid parameters for function \""
-						+ funcName + "\"");
+						+ funcName + "\":\n" + candidateFunStr);
 			}
 		} else {
 			// Instead of being a named function, it may be a function that's
@@ -1159,12 +1176,18 @@ public class VeLaInterpreter {
 		permittedTypes.add(boolean.class);
 		permittedTypes.add(String.class);
 		permittedTypes.add(CharSequence.class);
+		permittedTypes.add(void.class);
+		permittedTypes.add(VStarScriptingAPI.class);
 
-		addIntrinsicFunctionExecutors(Math.class, permittedTypes,
+		addFunctionExecutorsFromClass(Math.class, null, permittedTypes,
 				Collections.emptySet());
 
-		addIntrinsicFunctionExecutors(String.class, permittedTypes,
+		addFunctionExecutorsFromClass(String.class, null, permittedTypes,
 				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
+
+		addFunctionExecutorsFromClass(VStarScriptingAPI.class,
+				VStarScriptingAPI.getInstance(), permittedTypes,
+				Collections.emptySet());
 	}
 
 	private void addEval() {
@@ -1202,6 +1225,26 @@ public class VeLaInterpreter {
 				double jd = AbstractDateUtil.getInstance().calendarToJD(year,
 						month, day);
 				return Optional.of(new Operand(Type.REAL, jd));
+			}
+		});
+
+		addFunctionExecutor(new FunctionExecutor(Optional.of("INTRINSICS"),
+				Optional.of(Type.STRING)) {
+			@Override
+			public Optional<Operand> apply(List<Operand> operands)
+					throws VeLaEvalError {
+				StringBuffer buf = new StringBuffer();
+				VeLaScope environment = (VeLaScope) environments.get(0);
+				Map<String, List<FunctionExecutor>> functionMap = new TreeMap<String, List<FunctionExecutor>>(
+						environment.getFunctions());
+				for (String name : functionMap.keySet()) {
+					List<FunctionExecutor> functions = functionMap.get(name);
+					for (FunctionExecutor function : functions) {
+						buf.append(function);
+						buf.append("\n");
+					}
+				}
+				return Optional.of(new Operand(Type.STRING, buf.toString()));
 			}
 		});
 	}
@@ -1264,6 +1307,8 @@ public class VeLaInterpreter {
 				return Optional.of(ch);
 			}
 		});
+
+		// TODO: readln()?
 	}
 
 	private void addFormatFunction() {
@@ -1438,7 +1483,7 @@ public class VeLaInterpreter {
 				Integer last = operands.get(1).intVal();
 				Integer step = operands.get(2).intVal();
 				List<Operand> resultList = new ArrayList<Operand>();
-				for (int i=first;i<=last;i+=step) {
+				for (int i = first; i <= last; i += step) {
 					resultList.add(new Operand(Type.INTEGER, i));
 				}
 				return Optional.of(new Operand(Type.LIST, resultList));
@@ -1457,14 +1502,14 @@ public class VeLaInterpreter {
 				Double last = operands.get(1).doubleVal();
 				Double step = operands.get(2).doubleVal();
 				List<Operand> resultList = new ArrayList<Operand>();
-				for (double i=first;i<=last;i+=step) {
+				for (double i = first; i <= last; i += step) {
 					resultList.add(new Operand(Type.REAL, i));
 				}
 				return Optional.of(new Operand(Type.LIST, resultList));
 			}
 		});
 	}
-	
+
 	private void addListMapFunction() {
 		// Return type will always be LIST here.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("MAP"),
@@ -1588,88 +1633,107 @@ public class VeLaInterpreter {
 			}
 		});
 	}
-	
+
 	/**
 	 * Given a class, add non zero-arity VeLa type-compatible functions to the
 	 * functions map.
 	 * 
 	 * @param clazz
 	 *            The class from which to add function executors.
+	 * @param instance
+	 *            The instance of this class on which to invoke the function.
 	 * @param permittedTypes
 	 *            The set of Java types that are compatible with VeLa.
 	 * @param exclusions
 	 *            Names of functions to exclude.
 	 */
-	private void addIntrinsicFunctionExecutors(Class<?> clazz,
+	public void addFunctionExecutorsFromClass(Class<?> clazz, Object instance,
 			Set<Class<?>> permittedTypes, Set<String> exclusions) {
 		Method[] declaredMethods = clazz.getDeclaredMethods();
 
 		for (Method declaredMethod : declaredMethods) {
 			String funcName = declaredMethod.getName().toUpperCase();
 			Class<?> returnType = declaredMethod.getReturnType();
-			List<Class<?>> paramTypes = getParameterTypes(declaredMethod,
+			List<Class<?>> paramTypes = getJavaParameterTypes(declaredMethod,
 					permittedTypes);
 
+			if (!Modifier.isStatic(declaredMethod.getModifiers())
+					&& instance == null) {
+				List<Class<?>> newParamTypes = new ArrayList<Class<?>>();
+				newParamTypes.add(clazz);
+				newParamTypes.addAll(paramTypes);
+				paramTypes = newParamTypes;
+			}
+
+			FunctionExecutor function = null;
+
 			if (!exclusions.contains(funcName)
-					&& permittedTypes.contains(returnType)
-					&& !paramTypes.isEmpty()) {
-				// If the method is non-static, we need to include a parameter
-				// type for the object on which the method will be invoked.
-				if (!Modifier.isStatic(declaredMethod.getModifiers())) {
-					List<Class<?>> newParamTypes = new ArrayList<Class<?>>();
-					newParamTypes.add(clazz);
-					newParamTypes.addAll(paramTypes);
-					paramTypes = newParamTypes;
-				}
+					&& permittedTypes.contains(returnType)) {
+				// If the method is non-static, we need to include a
+				// parameter type for the object on which the method will be
+				// invoked.
 
 				List<Type> types = paramTypes.stream()
 						.map(t -> Type.java2Vela(t))
 						.collect(Collectors.toList());
 
-				FunctionExecutor function = new FunctionExecutor(
-						Optional.of(funcName), declaredMethod, types,
-						Optional.of(Type.java2Vela(returnType))) {
-
+				function = new FunctionExecutor(Optional.of(funcName),
+						declaredMethod, types, Optional.of(Type
+								.java2Vela(returnType))) {
 					@Override
 					public Optional<Operand> apply(List<Operand> operands) {
-						Method method = getMethod();
-						Operand result = null;
-						try {
-							Object obj = null;
-							if (!Modifier.isStatic(method.getModifiers())) {
-								obj = operands.get(0).toObject();
-								operands.remove(0);
-							}
-
-							// Note that this is the first use of Java 8
-							// lambda expressions in VStar!
-							result = Operand.object2Operand(getReturnType()
-									.get(), method.invoke(obj, // null for
-																// static
-																// methods
-									operands.stream().map(op -> op.toObject())
-											.toArray()));
-
-						} catch (InvocationTargetException e) {
-							throw new VeLaEvalError(e.getLocalizedMessage());
-						} catch (IllegalAccessException e) {
-							throw new VeLaEvalError(e.getLocalizedMessage());
-						}
-
-						return Optional.of(result);
+						return invokeJavaMethod(getMethod(), instance,
+								operands, getReturnType());
 					}
 				};
 
 				addFunctionExecutor(function);
-
-				if (verbose) {
+				if (verbose && function != null) {
 					System.out.println(function.toString());
 				}
 			}
 		}
 	}
 
-	private static List<Class<?>> getParameterTypes(Method method,
+	private Optional<Operand> invokeJavaMethod(Method method, Object instance,
+			List<Operand> operands, Optional<Type> retType) {
+		Operand result = null;
+
+		try {
+			Object obj = null;
+
+			if (!Modifier.isStatic(method.getModifiers())) {
+				// For non-static methods, if instance is null, assume the first
+				// operand is an object instance.
+				if (instance == null) {
+					obj = operands.get(0).toObject();
+					operands.remove(0);
+				} else {
+					// ...otherwise, use what's been passed in.
+					obj = instance;
+				}
+			}
+
+			// Note that this is the first use of Java 8
+			// lambda expressions in VStar!
+
+			// obj is null for static methods
+			result = Operand.object2Operand(
+					retType.get(),
+					method.invoke(obj,
+							operands.stream().map(op -> op.toObject())
+									.toArray()));
+
+		} catch (InvocationTargetException e) {
+			throw new VeLaEvalError(e.getLocalizedMessage());
+		} catch (IllegalAccessException e) {
+			throw new VeLaEvalError(e.getLocalizedMessage());
+		}
+
+		return Optional.of(result);
+	}
+
+	private static List<Class<?>> getJavaParameterTypes(Method method,
 			Set<Class<?>> targetTypes) {
 		Parameter[] parameters = method.getParameters();
 		List<Class<?>> parameterTypes = new ArrayList<Class<?>>();

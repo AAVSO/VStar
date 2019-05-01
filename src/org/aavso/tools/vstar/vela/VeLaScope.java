@@ -39,6 +39,13 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	}
 
 	/**
+	 * @return the functions
+	 */
+	public Map<String, List<FunctionExecutor>> getFunctions() {
+		return functions;
+	}
+
+	/**
 	 * Add a function executor to the multi-map.
 	 * 
 	 * @param executor

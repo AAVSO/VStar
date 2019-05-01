@@ -69,6 +69,7 @@ import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.VeLaFileLoadChooser;
+import org.aavso.tools.vstar.ui.dialog.VeLaFileSaveChooser;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFiltersDialog;
 import org.aavso.tools.vstar.ui.dialog.model.ModelDialog;
@@ -207,6 +208,9 @@ public class Mediator {
 	// A file dialog for loading a VeLa code file.
 	private VeLaFileLoadChooser velaFileLoadDialog;
 
+	// A file dialog for saving a VeLa code file.
+	private VeLaFileSaveChooser velaFileSaveDialog;
+
 	// Persistent phase parameter dialog.
 	private PhaseParameterDialog phaseParameterDialog;
 
@@ -295,6 +299,7 @@ public class Mediator {
 		this.obsListFileSaveDialog = new DelimitedFieldFileSaveChooser();
 		this.imageSaveDialog = new PNGImageFileSaveChooser();
 		this.velaFileLoadDialog = new VeLaFileLoadChooser();
+		this.velaFileSaveDialog = new VeLaFileSaveChooser();
 		
 		// These (among other things) are created for each new star.
 		this.validObsList = null;
@@ -633,6 +638,13 @@ public class Mediator {
 	 */
 	public VeLaFileLoadChooser getVelaFileLoadDialog() {
 		return velaFileLoadDialog;
+	}
+
+	/**
+	 * @return the velaFileSaveDialog
+	 */
+	public VeLaFileSaveChooser getVelaFileSaveDialog() {
+		return velaFileSaveDialog;
 	}
 
 	/**

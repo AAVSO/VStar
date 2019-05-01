@@ -21,6 +21,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+
 /**
  * This class allows a VeLa program to be run from the command-line.
  */
@@ -41,6 +43,8 @@ public class VeLaScriptDriver {
 						velaSourceFile = arg;
 					}
 				}
+
+				Mediator.getUI().setScriptingStatus(true);
 
 				// Run interpreter, optionally restarting it on error.
 				VeLaInterpreter vela = new VeLaInterpreter(verbose);
@@ -65,6 +69,8 @@ public class VeLaScriptDriver {
 					reader.close();
 				} catch (IOException e) {
 				}
+				
+				Mediator.getUI().setScriptingStatus(false);
 			}
 		}
 	}
