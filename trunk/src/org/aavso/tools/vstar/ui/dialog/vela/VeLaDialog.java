@@ -18,8 +18,10 @@
 package org.aavso.tools.vstar.ui.dialog.vela;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -34,13 +36,20 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
+import org.aavso.tools.vstar.ui.dialog.TextAreaTabs;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.dialog.VeLaFileLoadChooser;
+import org.aavso.tools.vstar.ui.dialog.VeLaFileSaveChooser;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+import org.aavso.tools.vstar.vela.AST;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
+
+// TODO: move this to main dialog package
 
 /**
  * A dialog in which to run VeLa code.
@@ -49,14 +58,16 @@ import org.aavso.tools.vstar.vela.VeLaInterpreter;
 public class VeLaDialog extends TextDialog {
 
 	private static ITextComponent<String> codeTextArea;
-	private static ITextComponent<String> resultTextArea;
+	private static TextAreaTabs resultTextArea;
 	private static JCheckBox verbosityCheckBox;
 
 	private static VeLaInterpreter vela;
 
 	static {
 		codeTextArea = new TextArea("VeLa Code", 10, 40);
-		resultTextArea = new TextArea("Result", 10, 40);
+		resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error",
+				"AST", "DOT"), Arrays.asList("", "", "", ""), 10, 40,
+				true, true);
 
 		verbosityCheckBox = new JCheckBox("Verbose?");
 		verbosityCheckBox.setSelected(false);
@@ -111,9 +122,33 @@ public class VeLaDialog extends TextDialog {
 	})	;
 		panel.add(loadButton);
 
-		// verbosityCheckBox.addActionListener(e -> {
-		// vela.setVerbose(verbosityCheckBox.isSelected());
-		// });
+		JButton saveButton = new JButton(LocaleProps.get("SAVE_BUTTON"));
+		saveButton.addActionListener(e -> {
+			VeLaFileSaveChooser chooser = Mediator.getInstance()
+					.getVelaFileSaveDialog();
+
+			if (chooser.showDialog(this)) {
+				File path = chooser.getSelectedFile();
+				if (path.exists()
+						&& path.isFile()
+						&& !MessageBox.showConfirmDialog(
+								LocaleProps.get("FILE_MENU_SAVE"),
+								LocaleProps.get("SAVE_OVERWRITE"))) {
+					return;
+				}
+				String code = codeTextArea.getValue();
+				try {
+					FileWriter writer = new FileWriter(path);
+					writer.write(code);
+					writer.flush();
+					writer.close();
+				} catch (IOException ex) {
+					// Nothing to do
+			}
+		}
+	})	;
+		panel.add(saveButton);
+
 		panel.add(verbosityCheckBox);
 
 		return panel;
@@ -122,11 +157,16 @@ public class VeLaDialog extends TextDialog {
 	// Helpers
 
 	private void execute() {
+		boolean verbose = verbosityCheckBox.isSelected();
+		
 		String text = codeTextArea.getValue();
 
-		// Clear the result text area and capture standard output and error.
-		resultTextArea.setValue("");
+		String output = "";
+		String error = "";
+		String lispAST = "";
+		String dotAST = "";
 
+		// Capture standard output and error
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		System.setOut(new PrintStream(outStream));
 
@@ -134,30 +174,39 @@ public class VeLaDialog extends TextDialog {
 		System.setErr(new PrintStream(errStream));
 
 		try {
+			Mediator.getUI().setScriptingStatus(true);
+
 			// Compile and execute the code.
 			vela = new VeLaInterpreter(false);
-			vela.setVerbose(verbosityCheckBox.isSelected());
-			Optional<Operand> result = vela.program(text);
+			vela.setVerbose(verbose);
+			Pair<Optional<Operand>, AST> pair = vela.veLaToResultASTPair(text);
+			Optional<Operand> result = pair.first;
+			AST ast = pair.second;
+			if (verbose && ast != null) {
+				lispAST = ast.toString();
+				dotAST = ast.toFullDOT();
+			}
 
 			// Any standard error or output to show?
-			boolean wasErrOutput = showOutput(errStream, true);
-			showOutput(outStream, false);
+			error += showOutput(errStream);
+			output += showOutput(outStream);
 
 			// Is there a result to show?
-			if (result.isPresent() && !wasErrOutput) {
-				String str = resultTextArea.getValue();
-				str += result.get().toHumanReadableString();
-				resultTextArea.setValue(str);
+			if (result.isPresent() && error == "") {
+				output = result.get().toHumanReadableString();
 			}
 		} catch (Exception e) {
 			// Show error in text area.
 			String msg = e.getLocalizedMessage();
 			if (msg != null) {
-				// resultTextArea.setValue(msg + "\n");
+				error = msg;
 			}
 
-			// Any standard error to show in relation to this exception?
-			showOutput(errStream, true);
+			if (msg != null && !msg.equals(errStream.toString())) {
+				// Any standard error to show in relation to this exception?
+				// Don't repeat msg.
+				error += showOutput(errStream);
+			}
 		} finally {
 			// Reset standard output and error to console.
 			System.setOut(new PrintStream(new FileOutputStream(
@@ -165,19 +214,32 @@ public class VeLaDialog extends TextDialog {
 
 			System.setErr(new PrintStream(new FileOutputStream(
 					FileDescriptor.err)));
+
+			Mediator.getUI().setScriptingStatus(false);
 		}
+
+		resultTextArea
+				.setValue(areaTabsPayload(output, error, lispAST, dotAST));
 	}
 
-	private boolean showOutput(ByteArrayOutputStream stream, boolean clearStack) {
-		boolean wasOutput = false;
+	private String areaTabsPayload(String... strings) {
+		StringBuffer buf = new StringBuffer();
 
-		if (stream.size() != 0) {
-			String str = resultTextArea.getValue();
-			str += stream.toString() + "\n";
-			resultTextArea.setValue(str);
-			wasOutput = true;
+		for (String str : strings) {
+			buf.append(str);
+			buf.append("<sentinel>");
 		}
 
-		return wasOutput;
+		return buf.toString();
+	}
+
+	private String showOutput(ByteArrayOutputStream stream) {
+		String str = "";
+
+		if (stream.size() != 0) {
+			str = stream.toString() + "\n";
+		}
+
+		return str;
 	}
 }

@@ -26,7 +26,7 @@ import java.util.List;
  */
 public enum Type {
 
-	INTEGER, REAL, STRING, BOOLEAN, LIST, FUNCTION;
+	INTEGER, REAL, STRING, BOOLEAN, LIST, FUNCTION, OBJECT, NONE;
 
 	public static Type java2Vela(Class<?> jtype) {
 		Type vtype = null;
@@ -43,8 +43,13 @@ public enum Type {
 			vtype = BOOLEAN;
 		} else if (jtype == List.class) {
 			vtype = LIST;
+		} else if (jtype == void.class) {
+			vtype = NONE;
 		} else {
-			throw new IllegalArgumentException("Invalid type: " + jtype);
+			// It's a class representing instances of *some* kind of object!
+			vtype = OBJECT;
+//		} else {
+//			throw new IllegalArgumentException("Invalid type: " + jtype);
 		}
 
 		return vtype;

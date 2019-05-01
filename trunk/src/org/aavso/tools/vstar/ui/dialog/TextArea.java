@@ -38,17 +38,17 @@ public class TextArea implements ITextComponent<String> {
 	 * Constructor.
 	 * 
 	 * @param name
-	 *            The field's name.
+	 *            The area's name.
 	 * @param initialValue
-	 *            The field's initial value.
+	 *            The area's initial value.
 	 * @param rows
 	 *            The number of rows in this text area; 0 means don't set.
 	 * @param cols
 	 *            The number of rows in this text area; 0 means don't set.
 	 * @param readOnly
-	 *            Is this field read-only?
+	 *            Is this area read-only?
 	 * @param canBeEmpty
-	 *            Can this field be empty?
+	 *            Can this area be empty?
 	 */
 	public TextArea(String name, String initialValue, int rows, int cols,
 			boolean readOnly, boolean canBeEmpty) {

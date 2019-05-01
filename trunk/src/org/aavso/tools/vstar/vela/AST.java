@@ -259,6 +259,21 @@ public class AST {
 
 		return new Pair<String, String>(node, buf.toString());
 	}
+	
+	/**
+	 * Return a DOT "digraph { ... }" representation of the AST."</br>
+	 * 
+	 * @return A string containing the DOT AST.
+	 */
+	public String toFullDOT() {
+		StringBuffer dot = new StringBuffer();
+		
+		dot.append("digraph VeLaAST {\n");
+		dot.append(toDOT().second);
+		dot.append("}");
+
+		return dot.toString();
+	}
 
 	public static AST fromSEXPR(String sexpr) {
 		AST ast = null;
