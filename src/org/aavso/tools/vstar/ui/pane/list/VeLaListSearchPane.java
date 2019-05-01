@@ -20,9 +20,7 @@ package org.aavso.tools.vstar.ui.pane.list;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Optional;
-import java.util.regex.PatternSyntaxException;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -32,9 +30,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
-import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -44,7 +40,6 @@ import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
  * A VeLa list search pane component.
  */
 @SuppressWarnings("serial")
-// TODO: can we make S = ValidObservationTableModel?
 public class VeLaListSearchPane<S extends TableModel> extends JPanel {
 
 	private ValidObservationTableModel model;
