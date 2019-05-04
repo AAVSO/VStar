@@ -38,7 +38,6 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
-import org.aavso.tools.vstar.ui.dialog.TextAreaTabs;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.dialog.VeLaFileLoadChooser;
 import org.aavso.tools.vstar.ui.dialog.VeLaFileSaveChooser;
@@ -49,8 +48,6 @@ import org.aavso.tools.vstar.vela.AST;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
 
-// TODO: move this to main dialog package
-
 /**
  * A dialog in which to run VeLa code.
  */
@@ -58,19 +55,23 @@ import org.aavso.tools.vstar.vela.VeLaInterpreter;
 public class VeLaDialog extends TextDialog {
 
 	private static ITextComponent<String> codeTextArea;
-	private static TextAreaTabs resultTextArea;
+	private static TextArea resultTextArea;
 	private static JCheckBox verbosityCheckBox;
 
 	private static VeLaInterpreter vela;
 
 	static {
-		codeTextArea = new TextArea("VeLa Code", 10, 40);
-		resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error",
-				"AST", "DOT"), Arrays.asList("", "", "", ""), 10, 40,
-				true, true);
+		codeTextArea = new TextArea("VeLa Code", 12, 42);
+		// resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error",
+		// "AST", "DOT"), Arrays.asList("", "", "", ""), 15, 70,
+		// true, true);
+		// resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error"),
+		// Arrays.asList("", ""), 10, 40, true, true);
+		resultTextArea = new TextArea("Output", 12, 42);
 
 		verbosityCheckBox = new JCheckBox("Verbose?");
 		verbosityCheckBox.setSelected(false);
+		verbosityCheckBox.setVisible(false);
 
 		// vela = new VeLaInterpreter(false);
 	}
@@ -158,7 +159,7 @@ public class VeLaDialog extends TextDialog {
 
 	private void execute() {
 		boolean verbose = verbosityCheckBox.isSelected();
-		
+
 		String text = codeTextArea.getValue();
 
 		String output = "";
@@ -218,8 +219,7 @@ public class VeLaDialog extends TextDialog {
 			Mediator.getUI().setScriptingStatus(false);
 		}
 
-		resultTextArea
-				.setValue(areaTabsPayload(output, error, lispAST, dotAST));
+		resultTextArea.setValue(areaTabsPayload(output, error));
 	}
 
 	private String areaTabsPayload(String... strings) {
@@ -227,10 +227,10 @@ public class VeLaDialog extends TextDialog {
 
 		for (String str : strings) {
 			buf.append(str);
-			buf.append("<sentinel>");
+			buf.append("\n");
 		}
 
-		return buf.toString();
+		return buf.toString().trim();
 	}
 
 	private String showOutput(ByteArrayOutputStream stream) {

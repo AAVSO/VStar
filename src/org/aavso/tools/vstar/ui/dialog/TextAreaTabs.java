@@ -20,8 +20,8 @@ package org.aavso.tools.vstar.ui.dialog;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -39,7 +39,7 @@ public class TextAreaTabs implements ITextComponent<String> {
 	private List<JTextArea> textAreas;
 
 	private JTabbedPane tabs;
-	
+
 	/**
 	 * Constructor.
 	 * 
@@ -66,22 +66,23 @@ public class TextAreaTabs implements ITextComponent<String> {
 		this.canBeEmpty = canBeEmpty;
 		this.textAreas = new ArrayList<JTextArea>();
 
-		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();		
-		
+		List<NamedComponent> namedComponents = new ArrayList<NamedComponent>();
+
 		for (int i = 0; i < names.size(); i++) {
-			JTextArea textArea = new JTextArea(initialValues.get(i) == null ? ""
-					: initialValues.get(i));
-			
-			this.textAreas.add(textArea);
-			
-			textArea.setBorder(BorderFactory.createTitledBorder(names.get(i)));
+			JTextArea textArea = new JTextArea(
+					initialValues.get(i) == null ? "" : initialValues.get(i));
+
+			textAreas.add(textArea);
+
+			// textArea.setBorder(BorderFactory.createTitledBorder(names.get(i)));
 			if (!isReadOnly()) {
 				textArea.setToolTipText("Enter " + names.get(i));
 			}
-			
-			namedComponents.add(new NamedComponent(names.get(i), textArea));
+
+			namedComponents.add(new NamedComponent(names.get(i),
+					new JScrollPane(textArea)));
 		}
-		
+
 		for (JTextArea textArea : textAreas) {
 			if (rows != 0) {
 				textArea.setRows(rows);
@@ -99,7 +100,7 @@ public class TextAreaTabs implements ITextComponent<String> {
 	public String getName() {
 		return null;
 	}
-	
+
 	@Override
 	public boolean canBeEmpty() {
 		return canBeEmpty;
@@ -113,24 +114,24 @@ public class TextAreaTabs implements ITextComponent<String> {
 	@Override
 	public String getValue() {
 		StringBuffer value = new StringBuffer();
-		
+
 		for (JTextArea textArea : textAreas) {
 			value.append(textArea.getText());
+			value.append("\n");
 		}
-		
+
 		return value.toString();
 	}
 
 	@Override
 	public String getStringValue() {
 		StringBuffer buf = new StringBuffer();
-		
-		
+
 		for (JTextArea textArea : textAreas) {
 			buf.append(textArea.getText());
 			buf.append("\n");
 		}
-		
+
 		return buf.toString();
 	}
 
@@ -142,9 +143,15 @@ public class TextAreaTabs implements ITextComponent<String> {
 
 	@Override
 	public void setValue(String value) {
-		String[] values = value.split("\\<sentinel\\>");
-		for (int i=0;i<values.length;i++) {
-			textAreas.get(i).setText(values[i]);;
+		if ("".equals(value)) {
+			for (JTextArea textArea : textAreas) {
+				textArea.setText("");
+			}
+		} else {
+			String[] values = value.split("\\<sentinel\\>");
+			for (int i = 0; i < values.length; i++) {
+				textAreas.get(i).setText(values[i]);
+			}
 		}
 	}
 
