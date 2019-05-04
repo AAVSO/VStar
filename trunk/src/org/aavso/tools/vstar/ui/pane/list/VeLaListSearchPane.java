@@ -64,7 +64,7 @@ public class VeLaListSearchPane<S extends TableModel> extends JPanel {
 		defaultRowFilter = rowSorter.getRowFilter();
 
 		searchField = new JTextField();
-		searchField.setToolTipText("Enter a regular expression...");
+		searchField.setToolTipText("Enter a VeLa expression...");
 		this.add(searchField);
 
 		searchButton = new JButton("Apply");

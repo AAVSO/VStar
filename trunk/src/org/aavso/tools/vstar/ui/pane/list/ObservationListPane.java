@@ -277,7 +277,7 @@ public class ObservationListPane extends JPanel implements
 			cl.show(selectableSearchPanes, "Regex");
 		});
 
-		JRadioButton velaSearchSelector = new JRadioButton("VeLa");
+		JRadioButton velaSearchSelector = new JRadioButton("VeLa Expression");
 		velaSearchSelector.addActionListener(e -> {
 			CardLayout cl = (CardLayout) selectableSearchPanes.getLayout();
 			cl.show(selectableSearchPanes, "VeLa");
