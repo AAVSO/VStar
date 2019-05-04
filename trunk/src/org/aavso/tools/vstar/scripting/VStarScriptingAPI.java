@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -591,6 +592,71 @@ public class VStarScriptingAPI {
 		}
 
 		return nameStr.substring(0, nameStr.lastIndexOf(",") - 1);
+	}
+
+	/**
+	 * Returns the time values (e.g. JD, HJD) for the specified series.
+	 * 
+	 * @param seriesName The short or long series name.
+	 * @return An array of time values.
+	 */
+	public double[] getTimes(String seriesName) {
+		List<ValidObservation> obs = getObsForSeries(seriesName);
+		
+		List<Double> timeList = obs.stream().map(ob -> ob.getJD())
+				.collect(Collectors.toList());
+		
+		double[] times = new double[timeList.size()];
+		
+		int i=0;
+		for (Double time : timeList) {
+			times[i++] = time;
+		}
+		
+		return times;
+	}
+	/**
+	 * Returns the (standard) phase values for the specified series.
+	 * 
+	 * @param seriesName The short or long series name.
+	 * @return An array of phase values.
+	 */
+	public double[] getPhases(String seriesName) {
+		List<ValidObservation> obs = getObsForSeries(seriesName);
+		
+		List<Double> phaseList = obs.stream().map(ob -> ob.getStandardPhase())
+				.collect(Collectors.toList());
+		
+		double[] phases = new double[phaseList.size()];
+		
+		int i=0;
+		for (Double phase : phaseList) {
+			phases[i++] = phase;
+		}
+		
+		return phases;
+	}
+
+	/**
+	 * Returns the magnitude values for the specified series.
+	 * 
+	 * @param seriesName The short or long series name.
+	 * @return An array of magnitude values.
+	 */
+	public double[] getMags(String seriesName) {
+		List<ValidObservation> obs = getObsForSeries(seriesName);
+		
+		List<Double> magList = obs.stream().map(ob -> ob.getMag())
+				.collect(Collectors.toList());
+		
+		double[] mags = new double[magList.size()];
+		
+		int i=0;
+		for (Double mag : magList) {
+			mags[i++] = mag;
+		}
+		
+		return mags;
 	}
 
 	/**
