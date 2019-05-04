@@ -103,6 +103,13 @@ public class Operand {
 			operand = new Operand(Type.BOOLEAN, (boolean) obj);
 			break;
 		case LIST:
+			if (obj.getClass() == Type.DBL_ARR.getClass()) {
+				List<Operand> arr = new ArrayList<Operand>();
+				for (double n : (double[]) obj) {
+					arr.add(new Operand(Type.REAL, n));
+				}
+				obj = arr;
+			}
 			operand = new Operand(Type.LIST, (List<Operand>) obj);
 			break;
 		case FUNCTION:
@@ -172,8 +179,8 @@ public class Operand {
 	 * Convert this operand's type to string.
 	 */
 	public void convertToString() {
-		assert type != Type.STRING;
-
+		assert type == Type.INTEGER || type == Type.REAL || type == Type.BOOLEAN;
+		
 		switch (type) {
 		case INTEGER:
 			setStringVal(Integer.toString(intVal));

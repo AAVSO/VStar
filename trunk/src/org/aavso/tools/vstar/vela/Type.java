@@ -28,9 +28,14 @@ public enum Type {
 
 	INTEGER, REAL, STRING, BOOLEAN, LIST, FUNCTION, OBJECT, NONE;
 
+	public final static int[] INT_ARR = new int[0];
+	public final static double[] DBL_ARR = new double[0];
+	public final static boolean[] BOOL_ARR = new boolean[0];
+	public final static String[] STR_ARR = new String[0];
+
 	public static Type java2Vela(Class<?> jtype) {
 		Type vtype = null;
-
+				
 		if (jtype == int.class) {
 			vtype = INTEGER;
 		} else if (jtype == double.class) {
@@ -42,6 +47,14 @@ public enum Type {
 		} else if (jtype == boolean.class) {
 			vtype = BOOLEAN;
 		} else if (jtype == List.class) {
+			vtype = LIST;
+		} else if (jtype == INT_ARR.getClass()) {
+			vtype = LIST;
+		} else if (jtype == DBL_ARR.getClass()) {
+			vtype = LIST;
+		} else if (jtype == BOOL_ARR.getClass()) {
+			vtype = LIST;
+		} else if (jtype == STR_ARR.getClass()) {
 			vtype = LIST;
 		} else if (jtype == void.class) {
 			vtype = NONE;

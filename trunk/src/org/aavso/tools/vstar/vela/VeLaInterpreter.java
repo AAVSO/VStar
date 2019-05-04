@@ -1177,6 +1177,7 @@ public class VeLaInterpreter {
 		permittedTypes.add(String.class);
 		permittedTypes.add(CharSequence.class);
 		permittedTypes.add(void.class);
+		permittedTypes.add(Type.DBL_ARR.getClass());
 		permittedTypes.add(VStarScriptingAPI.class);
 
 		addFunctionExecutorsFromClass(Math.class, null, permittedTypes,

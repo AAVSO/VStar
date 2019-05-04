@@ -44,7 +44,9 @@ public class VeLaScriptDriver {
 					}
 				}
 
-				Mediator.getUI().setScriptingStatus(true);
+				if (Mediator.getUI() != null) {
+					Mediator.getUI().setScriptingStatus(true);
+				}
 
 				// Run interpreter, optionally restarting it on error.
 				VeLaInterpreter vela = new VeLaInterpreter(verbose);
@@ -69,8 +71,10 @@ public class VeLaScriptDriver {
 					reader.close();
 				} catch (IOException e) {
 				}
-				
-				Mediator.getUI().setScriptingStatus(false);
+
+				if (Mediator.getUI() != null) {
+					Mediator.getUI().setScriptingStatus(false);
+				}
 			}
 		}
 	}
