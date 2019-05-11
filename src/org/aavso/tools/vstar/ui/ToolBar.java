@@ -370,7 +370,7 @@ public class ToolBar extends JPanel {
 		buttonPanel.add(panLeftButton);
 
 		panRightButton = new JButton(panRightIcon);
-		panRightButton.setToolTipText(MenuBar.PAN_LEFT);
+		panRightButton.setToolTipText(MenuBar.PAN_RIGHT);
 		panRightButton.addActionListener(menuBar.createPanRightListener());
 		panRightButton.setEnabled(false);
 		panRightButton.setBorder(BorderFactory.createEmptyBorder());
