@@ -19,8 +19,18 @@ package org.aavso.tools.vstar.external.plugin;
  */
 
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -38,6 +48,24 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 //12/02/2018 C. Kotnik added name to observations so they can be
 //saved and reloaded from a file.
+//2019-05-21 (1) by PMAK: added 'filter' field recognition
+//2019-05-21 (2) by PMAK: added dialog to select maximum error
+//   The plugin can generate six different datasets at most:
+//      1) Normal V
+//      2) Normal g
+//      3) 5 sigma limit V
+//      4) 5 sigma limit g
+//      5) user-defined excluded V
+//      6) user-defined excluded g
+//
+//2019-05-23 by PMAK: load parameters dialog
+//2019-05-30 by PMAK: support of ASAS-SN Photometry Database CSV.
+//2019-05-31 by PMAK: Unknown series for all filters but V, g: support for possible future filters.
+//       Those observaions are loaded without splitting into normal, 5sigma, Excluded
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+
 /**
  * <p>
  * ASAS-SN file observation source plug-in for CSV observation files obtained
@@ -46,18 +74,52 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  * <p>
  * This plug-in reads CSV files in this format:
  * </p>
- * HJD,UT Date,Camera,FWHM,Limit,mag,mag_err,flux(mJy),flux_err
- * 2458000.47009,2017-09-03.9710173,be,1.77,15.518,14.839,0.117,4.448,0.477
- * 2458000.47137,2017-09-03.9722892,be,1.76,15.730,14.760,0.090,4.789,0.392
- * 2458000.47263,2017-09-03.9735547,be,1.72,15.751,14.759,0.088,4.788,0.385
- * 2458002.51020,2017-09-06.0112978,be,2.03,14.814,>14.814,99.990,4.020,0.911
- * 2458002.51147,2017-09-06.0125694,be,2.03,14.729,>14.729,99.990,3.640,0.985
+ * HJD,UT Date,Camera,FWHM,Limit,mag,mag_err,flux(mJy),flux_err[,Filter]
+ * 2458000.47009,2017-09-03.9710173,be,1.77,15.518,14.839,0.117,4.448,0.477[,V]
+ * 2458000.47137,2017-09-03.9722892,be,1.76,15.730,14.760,0.090,4.789,0.392[,V]
+ * 2458000.47263,2017-09-03.9735547,be,1.72,15.751,14.759,0.088,4.788,0.385[,V]
+ * 2458002.51020,2017-09-06.0112978,be,2.03,14.814,>14.814,99.990,4.020,0.911[,V]
+ * 2458002.51147,2017-09-06.0125694,be,2.03,14.729,>14.729,99.990,3.640,0.985[,V]
+ * ...<br/>
+ * <p>
+ * New format ASAS-SN Phometry Database added by PMAK:
+ * </p>
+ * hjd,camera,filter,mag,mag err,flux (mJy),flux err
+ * 2458379.59981,bg,V,12.137,0.02,53.604,0.986
+ * 2457903.65639,bg,V,11.76,0.02,75.877,1.396
+ * 2457796.86118,bg,V,11.857,0.02,69.339,1.276
+ * 2457784.8791,bg,V,12.063,0.02,57.363,1.055
+ * 2458375.58684,bg,V,12.125,0.02,54.179,0.997
  * ...<br/>
  */
 public class ASASSNObservationSource extends ObservationSourcePluginBase {
 
+	protected static final String SKY_PATROL_HEADER = "HJD,UT Date,Camera,FWHM,Limit,mag,mag_err,flux(mJy),flux_err"; // there can be optional Filter field at the end!
+	protected static final String PHOT_DB_HEADER    = "hjd,camera,filter,mag,mag err,flux (mJy),flux err";
+	protected static final String HEADER_START      = "HJD";
+
 	private SeriesType asassnVSeries;
-	private SeriesType asassn5SigmaLimitSeries;
+	private SeriesType asassn5SigmaLimitSeries;     // mag_err = 99.99	
+	private SeriesType asassn_g_Series;
+	private SeriesType asassn5SigmaLimit_g_Series;  // mag_err = 99.99
+	private SeriesType asassnExcludedVseries;       // above user-defined limit
+	private SeriesType asassnExcluded_g_Series;     // above user-defined limit
+	
+	protected double userDefinedErrLimit = 99.99;
+	protected boolean loadExcludedObs = true;
+	protected boolean loadVmagnitudes = true;
+	protected boolean load_g_magnitudes = true;
+	protected boolean loadUnknownFilterMagnitudes = false;
+	protected boolean loadASASSN_V_as_Johnson_V = false;
+	protected boolean loadASASSN_g_as_Sloan_g = false;
+	
+	protected enum fileModeASASSNenum {
+		AUTO,
+		SKY_PATROL,
+		PHOT_DB;
+	}
+	
+	protected fileModeASASSNenum fileModeASASSN = fileModeASASSNenum.AUTO;
 
 	/**
 	 * Constructor
@@ -67,6 +129,15 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 				false, false);
 		asassn5SigmaLimitSeries = SeriesType.create("ASAS-SN 5\u03C3 limit",
 				"ASAS-SN limit", Color.BLUE, false, false);
+		asassnExcludedVseries = SeriesType.create("ASAS-SN Excluded",
+				"ASAS-SN excluded", Color.CYAN, false, false);
+		asassn_g_Series = SeriesType.create("ASAS-SN g", "ASAS-SN g", Color.MAGENTA,
+				false, false);
+		asassn5SigmaLimit_g_Series = SeriesType.create("ASAS-SN g 5\u03C3 limit",
+				"ASAS-SN limit g", Color.GRAY, false, false);
+		asassnExcluded_g_Series = SeriesType.create("ASAS-SN g Excluded",
+				"ASAS-SN excluded g", Color.PINK, false, false);
+
 	}
 
 	/**
@@ -130,31 +201,67 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
+
+
+			ASASSNParameterDialog paramDialog = new ASASSNParameterDialog();
+			if (paramDialog.isCancelled())
+				return;
+			userDefinedErrLimit = paramDialog.getErrorLimit();
+			loadVmagnitudes = paramDialog.isLoadVmagnitudes();
+			load_g_magnitudes = paramDialog.isLoad_g_magnitudes();
+			loadUnknownFilterMagnitudes = paramDialog.isLoadUnknownFilterMagnitudes();
+			loadExcludedObs = paramDialog.isLoadExcludedObs();
+			loadASASSN_V_as_Johnson_V = paramDialog.isLoadASASSN_V_as_Johnson_V();
+			loadASASSN_g_as_Sloan_g = paramDialog.isLoadASASSN_g_as_Sloan_g();
+			fileModeASASSN = paramDialog.getFileModeASASSN();
+
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					getInputStreams().get(0)));
+			getInputStreams().get(0)));
 
 			String line = null;
 			int lineNum = 1;
 			int obNum = 1;
-
+			fileModeASASSNenum fileModeASASSNlocal = fileModeASASSN;			
+			
 			do {
 				try {
 					line = reader.readLine();
 					if (line != null) {
 						line = line.replaceFirst("\n", "").trim();
 						if (!isEmpty(line)) {
-							// Skip header row
-							if (!line.startsWith("HJD")) {
+							// Define CSV format by a header row or skip it if format has been defined by a user
+							boolean skipLine = false;
+							if (fileModeASASSNlocal == fileModeASASSNenum.AUTO)
+							{
+								skipLine = true;
+								if (line.startsWith(SKY_PATROL_HEADER)) // there could be additional Filter field at the end!
+									fileModeASASSNlocal = fileModeASASSNenum.SKY_PATROL;
+								else
+								if (line.startsWith(PHOT_DB_HEADER))
+									fileModeASASSNlocal = fileModeASASSNenum.PHOT_DB;
+								else
+									; // do nothing!
+							}
+							else
+								skipLine = line.toUpperCase().startsWith(HEADER_START);
+							if (!skipLine) {
 								String[] fields = line.split(",");
 								ValidObservation ob = readNextObservation(
-										fields, obNum);
-								Magnitude mag = ob.getMagnitude();
-								// Skip any observation whose magnitude and
-								// error are 99.99
-								if (mag.getMagValue() != MAX
-										&& mag.getUncertainty() != MAX) {
-									collectObservation(ob);
-									obNum++;
+										fields, obNum, 
+										userDefinedErrLimit, loadASASSN_V_as_Johnson_V, loadASASSN_g_as_Sloan_g,
+										fileModeASASSNlocal);
+								if (ob != null)
+								{
+									Magnitude mag = ob.getMagnitude();
+									// Skip any observation whose magnitude and
+									// error are 99.99
+									if (mag.getMagValue() != MAX
+										&& mag.getUncertainty() != MAX 
+										&& isBandSelected(ob))
+									{
+										collectObservation(ob);
+										obNum++;
+									}
 								}
 							}
 						}
@@ -172,33 +279,129 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 				}
 			} while (line != null);
 		}
+		
+		private boolean isBandSelected(ValidObservation ob)
+		{
+			if (ob == null) return false;
+			return  loadVmagnitudes   && (ob.getBand() == asassnVSeries || ob.getBand() == SeriesType.Johnson_V) || 
+					load_g_magnitudes && (ob.getBand() == asassn_g_Series || ob.getBand() == SeriesType.Sloan_g) || 
+					loadExcludedObs   && loadVmagnitudes   && (ob.getBand() == asassn5SigmaLimitSeries || ob.getBand() == asassnExcludedVseries) ||
+					loadExcludedObs   && load_g_magnitudes && (ob.getBand() == asassn5SigmaLimit_g_Series || ob.getBand() == asassnExcluded_g_Series) ||
+					loadUnknownFilterMagnitudes && (ob.getBand() == SeriesType.Unknown);
 
-		private ValidObservation readNextObservation(String[] fields, int obNum)
+		}
+
+		private ValidObservation readNextObservation(String[] fields, int obNum, double userDefinedErrLimit, boolean loadASASSN_V_as_Johnson_V, boolean loadASASSN_g_as_Sloan_g, fileModeASASSNenum fileMode)
 				throws ObservationValidationError {
-			ValidObservation observation = new ValidObservation();
 
-			SeriesType series = asassnVSeries;
+			SeriesType series = null;
+			String filter = "";
+			
+			// Get filter and make rought chech CSV format for validity
+			if (fileMode == fileModeASASSNenum.SKY_PATROL && fields.length == 9)
+				// Old SkyPatrol CSV format 
+				filter = "V";
+			else
+			if (fileMode == fileModeASASSNenum.SKY_PATROL && fields.length > 9)
+				// New SkyPatrol CSV format
+				filter = fields[9].trim();
+			else
+			if (fileMode == fileModeASASSNenum.PHOT_DB && fields.length >= 7)
+				// ASAS-SN Photometry Database CSV format
+				filter = fields[2].trim();
+			else
+				return null;
+			
+			if (filter.equals("V"))
+			{
+				if (!loadASASSN_V_as_Johnson_V)
+					series = asassnVSeries;
+				else
+					series = SeriesType.Johnson_V;
+			}
+			else
+			if (filter.equals("g"))
+			{
+				if (!loadASASSN_g_as_Sloan_g)
+					series = asassn_g_Series;
+				else
+					series = SeriesType.Sloan_g;
+			}
+			else
+				series = SeriesType.Unknown;
+
+			ValidObservation observation = new ValidObservation();
 
 			DateInfo hjd = julianDayValidator.validate(fields[0]);
 
-			Magnitude mag = magnitudeFieldValidator.validate(fields[5]);
-			double err = uncertaintyValueValidator.validate(fields[6]);
-			if (err == MAX) {
-				err = 0.0;
-				series = asassn5SigmaLimitSeries;
+			if (fileMode == fileModeASASSNenum.SKY_PATROL)
+			{
+				// HJD,UT Date,Camera,FWHM,Limit,mag,mag_err,flux(mJy),flux_err[,Filter]
+				Magnitude mag = magnitudeFieldValidator.validate(fields[5]);
+				double err = uncertaintyValueValidator.validate(fields[6]);
+				if (err == MAX) {
+					err = 0.0;
+					if (filter.equals("V"))
+						series = asassn5SigmaLimitSeries;
+					else
+					if (filter.equals("g"))	
+						series = asassn5SigmaLimit_g_Series;
+					else
+						; // do nothing: Unknown series
+				}
+				else
+				if (err > userDefinedErrLimit)
+				{
+					if (filter.equals("V"))
+						series = asassnExcludedVseries;
+					else
+					if (filter.equals("g"))
+						series = asassnExcluded_g_Series;
+					else
+						; // do nothing: Unknown series
+				}
+			
+				mag.setUncertainty(err);
+				observation.setName(getInputName());
+				observation.setMagnitude(mag);
+				observation.setDateInfo(hjd);
+				observation.setRecordNumber(obNum);
+				observation.setBand(series);
+				observation.addDetail("UT", fields[1], "UT Date");
+				observation.addDetail("Camera", fields[2], "Camera");
+				observation.addDetail("FWHM", fields[3], "FWHM");
+				observation.addDetail("LIMIT", fields[4], "Limit");
+				observation.addDetail("FLUX", fields[7], "Flux (mJy)");
+				observation.addDetail("FLUX_ERR", fields[8], "Flux error");
+				observation.addDetail("FILTER", filter, "Filter");
 			}
-			mag.setUncertainty(err);
-			observation.setName(getInputName());
-			observation.setMagnitude(mag);
-			observation.setDateInfo(hjd);
-			observation.setRecordNumber(obNum);
-			observation.setBand(series);
-			observation.addDetail("UT", fields[1], "UT Date");
-			observation.addDetail("Camera", fields[2], "Camera");
-			observation.addDetail("FWHM", fields[3], "FWHM");
-			observation.addDetail("LIMIT", fields[4], "Limit");
-			observation.addDetail("FLUX", fields[7], "Flux (mJy)");
-			observation.addDetail("FLUX_ERR", fields[8], "Flux error");
+			else // PHOT_DB
+			{
+				// hjd,camera,filter,mag,mag err,flux (mJy),flux err
+				Magnitude mag = magnitudeFieldValidator.validate(fields[3]);
+				double err = uncertaintyValueValidator.validate(fields[4]);
+				if (err > userDefinedErrLimit)
+				{
+					if (filter.equals("V"))
+						series = asassnExcludedVseries;
+					else
+					if (filter.equals("g"))	
+						series = asassnExcluded_g_Series;
+					else
+						; // do nothing: Unknown series
+				}
+				
+				mag.setUncertainty(err);
+				observation.setName(getInputName());
+				observation.setMagnitude(mag);
+				observation.setDateInfo(hjd);
+				observation.setRecordNumber(obNum);
+				observation.setBand(series);
+				observation.addDetail("Camera", fields[1], "Camera");
+				observation.addDetail("FILTER", filter, "Filter");
+				observation.addDetail("FLUX", fields[5], "Flux (mJy)");
+				observation.addDetail("FLUX_ERR", fields[6], "Flux error");
+			}
 
 			return observation;
 		}
@@ -207,4 +410,219 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			return str != null && "".equals(str.trim());
 		}
 	}
+	
+	@SuppressWarnings("serial")
+	class ASASSNParameterDialog extends
+			AbstractOkCancelDialog {
+
+		private DoubleField errorLimitField;
+		private JCheckBox loadVmagnitudesCheckBox;
+		private JCheckBox load_g_magnitudesCheckBox;
+		private JCheckBox loadUnknownFilterMagnitudesCheckBox;
+		private JCheckBox loadExcludedObsCheckBox;
+		private JCheckBox loadASASSN_V_as_Johnson_V_CheckBox;
+		private JCheckBox loadASASSN_g_as_Sloan_g_CheckBox;
+		private JRadioButton fileModeAutoRadioButton;
+		private JRadioButton fileModeSkyPatrolRadioButton;
+		private JRadioButton fileModePhotDbRadioButton;
+
+		/**
+		 * Constructor
+		 */
+		public ASASSNParameterDialog() {
+			super("Parameters");
+
+			Container contentPane = this.getContentPane();
+
+			JPanel topPane = new JPanel();
+			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+			topPane.add(createParameterPane());
+			topPane.add(createParameterPane2());
+			topPane.add(createParameterPane3());
+			topPane.add(createParameterPane4());
+
+			// OK, Cancel
+			topPane.add(createButtonPane());
+
+			contentPane.add(topPane);
+
+			this.pack();
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
+			this.setVisible(true);
+		}
+		
+		private JPanel createParameterPane() {
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+			
+			errorLimitField = new DoubleField("Exclude observations having an error greater than: ", 0.0, 99.99, userDefinedErrLimit);
+			panel.add(errorLimitField.getUIComponent());
+			panel.add(Box.createRigidArea(new Dimension(75, 10)));
+
+			return panel;
+		}
+
+		private JPanel createParameterPane2() {
+			JPanel panel = new JPanel();
+			panel.setBorder(BorderFactory.createTitledBorder(""));
+
+			loadVmagnitudesCheckBox = new JCheckBox("Load V magnitudes?");
+			loadVmagnitudesCheckBox.setSelected(loadVmagnitudes);
+			panel.add(loadVmagnitudesCheckBox);
+
+			load_g_magnitudesCheckBox = new JCheckBox("Load g magnitudes?");
+			load_g_magnitudesCheckBox.setSelected(load_g_magnitudes);
+			panel.add(load_g_magnitudesCheckBox);
+			
+			loadExcludedObsCheckBox = new JCheckBox("Load 5 sigma / excluded observations?");
+			loadExcludedObsCheckBox.setSelected(loadExcludedObs);
+			panel.add(loadExcludedObsCheckBox);
+
+			loadUnknownFilterMagnitudesCheckBox = new JCheckBox("Load Unknown Filters? (*)");
+			loadUnknownFilterMagnitudesCheckBox.setToolTipText("Observations in Unknown Filtes (other tnan V, g) are loaded without splitting into normal / 5-sigma / excluded");
+			loadUnknownFilterMagnitudesCheckBox.setSelected(loadUnknownFilterMagnitudes);
+			panel.add(loadUnknownFilterMagnitudesCheckBox);
+
+			return panel;
+		}
+		
+		private JPanel createParameterPane3() {
+			JPanel panel = new JPanel();
+			panel.setBorder(BorderFactory.createTitledBorder(""));
+
+			loadASASSN_V_as_Johnson_V_CheckBox = new JCheckBox("Load ASAS-SN V magnitudes as Johnson V?");
+			loadASASSN_V_as_Johnson_V_CheckBox.setSelected(loadASASSN_V_as_Johnson_V);
+			panel.add(loadASASSN_V_as_Johnson_V_CheckBox);
+
+			loadASASSN_g_as_Sloan_g_CheckBox = new JCheckBox("Load ASAS-SN g magnitudes as Sloan g?");
+			loadASASSN_g_as_Sloan_g_CheckBox.setSelected(loadASASSN_g_as_Sloan_g);
+			panel.add(loadASASSN_g_as_Sloan_g_CheckBox);
+
+			return panel;
+		}
+		
+		private JPanel createParameterPane4() {
+			JPanel panel = new JPanel();
+			panel.setBorder(BorderFactory.createTitledBorder("ASAS-SN CSV file type"));
+
+			fileModeAutoRadioButton = new JRadioButton("Auto");
+			fileModeSkyPatrolRadioButton = new JRadioButton("Sky Patrol");
+			fileModePhotDbRadioButton = new JRadioButton("Photometry DB");
+						
+			switch (fileModeASASSN)
+			{
+				case SKY_PATROL:
+					fileModeSkyPatrolRadioButton.setSelected(true);
+					break;
+				case PHOT_DB:
+					fileModePhotDbRadioButton.setSelected(true);
+					break;
+				default:
+					fileModeAutoRadioButton.setSelected(true);
+			}
+						
+			ButtonGroup group = new ButtonGroup();
+			group.add(fileModeAutoRadioButton);
+			group.add(fileModeSkyPatrolRadioButton);
+			group.add(fileModePhotDbRadioButton);
+			
+			panel.add(fileModeAutoRadioButton);
+			panel.add(fileModeSkyPatrolRadioButton);
+			panel.add(fileModePhotDbRadioButton);
+
+			return panel;
+		}
+
+		/**
+		 * 
+		 */
+		public double getErrorLimit() {
+			return errorLimitField.getValue();
+		}
+
+		/**
+		 * 
+		 */
+		public boolean isLoadVmagnitudes() {
+			return loadVmagnitudesCheckBox.isSelected();
+		}
+
+		/**
+		 * 
+		 */
+		public boolean isLoad_g_magnitudes() {
+			return load_g_magnitudesCheckBox.isSelected();
+		}
+		
+		/**
+		 * 
+		 */
+		public boolean isLoadUnknownFilterMagnitudes() {
+			return loadUnknownFilterMagnitudesCheckBox.isSelected();
+		}
+
+		/**
+		 * 
+		 */
+		public boolean isLoadExcludedObs() {
+			return loadExcludedObsCheckBox.isSelected();
+		}
+		
+		/**
+		 * 
+		 */
+		public boolean isLoadASASSN_V_as_Johnson_V() {
+			return loadASASSN_V_as_Johnson_V_CheckBox.isSelected();
+		}
+		
+		/**
+		 * 
+		 */
+		public boolean isLoadASASSN_g_as_Sloan_g() {
+			return loadASASSN_g_as_Sloan_g_CheckBox.isSelected();
+		}
+		
+		/**
+		 * 
+		 */
+		public fileModeASASSNenum getFileModeASASSN() {
+			if (fileModeSkyPatrolRadioButton.isSelected())
+				return fileModeASASSNenum.SKY_PATROL;
+			else
+			if (fileModePhotDbRadioButton.isSelected())
+				return fileModeASASSNenum.PHOT_DB;
+			else
+				return fileModeASASSNenum.AUTO;
+			
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+		 */
+		@Override
+		protected void cancelAction() {
+			// Nothing to do.
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+		 */
+		@Override
+		protected void okAction() {
+			boolean ok = true;
+
+			if (errorLimitField.getValue() == null) {
+				ok = false;
+			}
+
+			if (ok) {
+				cancelled = false;
+				setVisible(false);
+				dispose();
+			}
+		}
+	}
+
 }
