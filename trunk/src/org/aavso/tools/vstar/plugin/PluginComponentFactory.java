@@ -111,7 +111,7 @@ public class PluginComponentFactory {
 		}
 
 		// Was a file chosen or a URL string accepted?
-		boolean approved = true;
+		boolean approved = false;
 
 		Component parent = Mediator.getUI().getComponent();
 		
