@@ -47,7 +47,8 @@ public class DoubleField extends NumberFieldBase<Double> {
 
 	/**
 	 * Get the double value from the text field, if possible, otherwise return
-	 * null if no valid number is present in the textField.
+	 * null if no valid number is present in the textField. If there was a VeLa
+	 * exception from parseDouble(), this will be propagated for reporting.
 	 * 
 	 * @return The double value or null.
 	 */
