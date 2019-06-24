@@ -53,13 +53,6 @@ public class DateInfo {
 	}
 
 	/**
-	 * @param julianDay the julianDay to set
-	 */
-	public void setJulianDay(double julianDay) {
-		this.julianDay = julianDay;
-	}
-
-	/**
 	 * @return the Calendar Date
 	 */
 	public String getCalendarDate() {
