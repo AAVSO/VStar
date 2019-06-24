@@ -107,7 +107,7 @@ public class ValidObservation extends Observation {
 	private boolean excluded = false;
 
 	private boolean isHeliocentric = false;
-	
+
 	// Optional string-based observation details.
 	private Map<String, String> details;
 
@@ -430,7 +430,17 @@ public class ValidObservation extends Observation {
 	 *            the magnitude to set
 	 */
 	public void setMagnitude(Magnitude magnitude) {
-		this.magnitude = getCachedValue(magnitudeCache, magnitude);
+//		this.magnitude = getCachedValue(magnitudeCache, magnitude);
+		this.magnitude = magnitude;
+	}
+
+	/**
+	 * @param mag
+	 *            the magnitude component to set.
+	 */
+	public void setMag(double mag) {
+//		setMagnitude(new Magnitude(mag, magnitude.getUncertainty()));
+		this.magnitude.setMagValue(mag);
 	}
 
 	/**
@@ -841,7 +851,8 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param isHeliocentric the isHeliocentric to set
+	 * @param isHeliocentric
+	 *            the isHeliocentric to set
 	 */
 	public void setHeliocentric(boolean isHeliocentric) {
 		this.isHeliocentric = isHeliocentric;
@@ -1245,7 +1256,9 @@ public class ValidObservation extends Observation {
 		return buf.toString();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -1279,7 +1292,9 @@ public class ValidObservation extends Observation {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -1389,7 +1404,7 @@ public class ValidObservation extends Observation {
 	}
 
 	public void setJD(double jd) {
-		this.dateInfo.setJulianDay(jd);
+		setDateInfo(new DateInfo(jd));
 	}
 
 	public double getMag() {
