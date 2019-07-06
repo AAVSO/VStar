@@ -53,6 +53,7 @@ import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.ui.IMainUI;
 import org.aavso.tools.vstar.ui.NamedComponent;
@@ -74,6 +75,7 @@ import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFiltersDialog;
 import org.aavso.tools.vstar.ui.dialog.model.ModelDialog;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
+import org.aavso.tools.vstar.ui.dialog.series.MultipleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
@@ -98,6 +100,7 @@ import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.AbstractModelObservationTableModel;
@@ -129,6 +132,7 @@ import org.aavso.tools.vstar.ui.task.ObsListFileSaveTask;
 import org.aavso.tools.vstar.ui.task.PeriodAnalysisTask;
 import org.aavso.tools.vstar.ui.task.PhasePlotTask;
 import org.aavso.tools.vstar.ui.task.PluginManagerOperationTask;
+import org.aavso.tools.vstar.ui.undo.IUndoableAction;
 import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
 import org.aavso.tools.vstar.util.Triple;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
@@ -181,6 +185,9 @@ public class Mediator {
 	// Period search (TODO: did I mean ANOVA vs period search?) needs access to
 	// this to determine the current mean source band.
 	private ObservationAndMeanPlotModel obsAndMeanPlotModel;
+
+	// Current observation table model.
+	private ValidObservationTableModel validObsTableModel;
 
 	// Current view viewMode.
 	private ViewModeType viewMode;
@@ -300,7 +307,7 @@ public class Mediator {
 		this.imageSaveDialog = new PNGImageFileSaveChooser();
 		this.velaFileLoadDialog = new VeLaFileLoadChooser();
 		this.velaFileSaveDialog = new VeLaFileSaveChooser();
-		
+
 		// These (among other things) are created for each new star.
 		this.validObsList = null;
 		this.invalidObsList = null;
@@ -1165,7 +1172,7 @@ public class Mediator {
 
 			starInfo.getRetriever().collectAllObservations(validObsList,
 					starInfo.getRetriever().getSourceName());
-			
+
 			starInfo.getRetriever().addAllInvalidObservations(invalidObsList);
 
 			// If any loaded data source type is different from the current data
@@ -1190,7 +1197,7 @@ public class Mediator {
 				.getRetriever().getValidObservationCategoryMap();
 
 		// Table models.
-		ValidObservationTableModel validObsTableModel = null;
+		validObsTableModel = null;
 		InvalidObservationTableModel invalidObsTableModel = null;
 		RawDataMeanObservationTableModel meanObsTableModel = null;
 
@@ -1532,12 +1539,12 @@ public class Mediator {
 	 *            The RA for the object.
 	 * @param dec
 	 *            The Dec for the object.
-	 *            @return The number of observations converted.
+	 * @return The number of observations converted.
 	 */
 	public int convertObsToHJD(List<ValidObservation> obs, RAInfo ra,
 			DecInfo dec) {
 		int count = 0;
-		
+
 		AbstractHJDConverter converter = AbstractHJDConverter.getInstance(ra
 				.getEpoch());
 
@@ -1547,7 +1554,7 @@ public class Mediator {
 				count++;
 			}
 		}
-		
+
 		return count;
 	}
 
@@ -1980,6 +1987,55 @@ public class Mediator {
 
 			Mediator.getUI().getStatusPane().setMessage("");
 		}
+	}
+
+	/**
+	 * Perform an observation transformation plugin operation.
+	 */
+	public void performObservationTransformationOperation(
+			ObservationTransformerPluginBase plugin) {
+		try {
+			if (getLatestNewStarMessage() != null && validObsList != null) {
+				MultipleSeriesSelectionDialog seriesDialog = new MultipleSeriesSelectionDialog(
+						obsAndMeanPlotModel);
+
+				if (!seriesDialog.isCancelled()) {
+					boolean ok = plugin.invokeDialog();
+
+					if (!ok) {
+						IUndoableAction action = plugin.execute(
+								getSeriesInfoProvider(),
+								seriesDialog.getSelectedSeries());
+
+						action.execute();
+						
+						getUndoableActionManager().addAction(action,
+								UndoRedoType.UNDO);
+
+						updatePlotsAndTables();
+					}
+				}
+			}
+		} catch (Exception e) {
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
+					"Observation Transformation Error", e);
+		}
+	}
+
+	/**
+	 * Fire data model change events.<br/>
+	 * This method should be called after observation plot or table model
+	 * changes.
+	 */
+	public void updatePlotsAndTables() {
+		getObservationPlotModel(AnalysisType.RAW_DATA).update();
+
+		if (analysisTypeMap.containsKey(AnalysisType.PHASE_PLOT)) {
+			ObservationAndMeanPlotModel phase_model = getObservationPlotModel(AnalysisType.PHASE_PLOT);
+			phase_model.update();
+		}
+
+		validObsTableModel.fireTableDataChanged();
 	}
 
 	/**
