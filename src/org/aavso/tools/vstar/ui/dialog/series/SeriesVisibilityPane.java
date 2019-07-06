@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -65,6 +67,9 @@ public class SeriesVisibilityPane extends JPanel {
 	private int discrepantCount;
 	private int excludedCount;
 
+	private boolean includeSynthetic;
+	private boolean modifyVisibility;
+
 	/**
 	 * Constructor.
 	 * 
@@ -72,19 +77,26 @@ public class SeriesVisibilityPane extends JPanel {
 	 *            The plot model.
 	 * @param analysisType
 	 *            The analysis type.
+	 * @param includeSynthetic
+	 *            Include synthetic series?
+	 * @param modifyVisibility
+	 *            Modify series visibility?
 	 */
 	public SeriesVisibilityPane(ObservationAndMeanPlotModel obsPlotModel,
-			AnalysisType analysisType) {
+			AnalysisType analysisType, boolean includeSynthetic,
+			boolean modifyVisibility) {
 		super();
 
 		this.obsPlotModel = obsPlotModel;
 		this.analysisType = analysisType;
 
+		this.includeSynthetic = includeSynthetic;
+		this.modifyVisibility = modifyVisibility;
+
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		this.setBorder(BorderFactory.createTitledBorder(LocaleProps
 				.get("VISIBILITY_TITLE")));
-		this
-				.setToolTipText("Select or deselect series for desired visibility.");
+		this.setToolTipText("Select or deselect series for desired visibility.");
 
 		this.visibilityDeltaMap = new HashMap<Integer, Boolean>();
 
@@ -99,13 +111,13 @@ public class SeriesVisibilityPane extends JPanel {
 
 		Integer discrepantSeriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
 				.get(SeriesType.DISCREPANT);
-		discrepantCount = obsPlotModel.getSeriesNumToObSrcListMap().get(
-				discrepantSeriesNum).size();
+		discrepantCount = obsPlotModel.getSeriesNumToObSrcListMap()
+				.get(discrepantSeriesNum).size();
 
 		Integer excludedSeriesNum = obsPlotModel.getSrcTypeToSeriesNumMap()
 				.get(SeriesType.Excluded);
-		excludedCount = obsPlotModel.getSeriesNumToObSrcListMap().get(
-				excludedSeriesNum).size();
+		excludedCount = obsPlotModel.getSeriesNumToObSrcListMap()
+				.get(excludedSeriesNum).size();
 
 		obsPlotModel.getMeansChangeNotifier().addListener(
 				createMeanObsChangeListener());
@@ -113,15 +125,49 @@ public class SeriesVisibilityPane extends JPanel {
 		addButtons();
 	}
 
+	/**
+	 * Constructor for pane in which synthetic series are included and series
+	 * visibility is modified.
+	 * 
+	 * @param obsPlotModel
+	 *            The plot model.
+	 * @param analysisType
+	 *            The analysis type.
+	 */
+	public SeriesVisibilityPane(ObservationAndMeanPlotModel obsPlotModel,
+			AnalysisType analysisType) {
+		this(obsPlotModel, analysisType, true, true);
+	}
+
+	/**
+	 * Return the complete set of selected series.
+	 * 
+	 * @return The selected series.
+	 */
+	public Set<SeriesType> getSelectedSeries() {
+		Set<SeriesType> series = new TreeSet<SeriesType>();
+
+		for (JCheckBox checkBox : checkBoxes) {
+			if (checkBox.isSelected()) {
+				String desc = checkBox.getText();
+				series.add(SeriesType.getSeriesFromDescription(desc));
+			}
+		}
+
+		return series;
+	}
+
 	// Create a checkbox for each series, grouped by type.
 	private void addSeriesCheckBoxes() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.add(createDataSeriesCheckboxes());
-		panel.add(createDerivedSeriesCheckboxes());
-		JPanel userPanel = createUserDefinedSeriesCheckboxes();
-		if (userPanel != null) {
-			panel.add(userPanel);
+		if (includeSynthetic) {
+			panel.add(createDerivedSeriesCheckboxes());
+			JPanel userPanel = createUserDefinedSeriesCheckboxes();
+			if (userPanel != null) {
+				panel.add(userPanel);
+			}
 		}
 		this.add(panel);
 	}
@@ -142,8 +188,7 @@ public class SeriesVisibilityPane extends JPanel {
 				String seriesName = series.getDescription();
 				JCheckBox checkBox = new JCheckBox(seriesName);
 
-				checkBox
-						.addActionListener(createSeriesVisibilityCheckBoxListener());
+				checkBox.addActionListener(createSeriesVisibilityCheckBoxListener());
 
 				// Enable/disable the series.
 				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(series);
@@ -161,20 +206,20 @@ public class SeriesVisibilityPane extends JPanel {
 				// We also set the initial state for these checkboxes
 				// conditionally, depending upon whether any observations are
 				// present in these series. If they are already selected, it is
-				// not disabled, e.g. cateringh for the case where a single
+				// not disabled, e.g. catering for the case where a single
 				// discrepant or excluded observation is undone.
 				if (series == SeriesType.DISCREPANT) {
 					discrepantCheckBox = checkBox;
 					if (!discrepantCheckBox.isSelected()
-							&& obsPlotModel.getSeriesNumToObSrcListMap().get(
-									seriesNum).isEmpty()) {
+							&& obsPlotModel.getSeriesNumToObSrcListMap()
+									.get(seriesNum).isEmpty()) {
 						setInitialCheckBoxState(series, discrepantCheckBox);
 					}
 				} else if (series == SeriesType.Excluded) {
 					excludedCheckBox = checkBox;
 					if (!excludedCheckBox.isSelected()
-							&& obsPlotModel.getSeriesNumToObSrcListMap().get(
-									seriesNum).isEmpty()) {
+							&& obsPlotModel.getSeriesNumToObSrcListMap()
+									.get(seriesNum).isEmpty()) {
 						setInitialCheckBoxState(series, excludedCheckBox);
 					}
 				}
@@ -268,8 +313,7 @@ public class SeriesVisibilityPane extends JPanel {
 				String seriesName = series.getDescription();
 				JCheckBox checkBox = new JCheckBox(seriesName);
 
-				checkBox
-						.addActionListener(createSeriesVisibilityCheckBoxListener());
+				checkBox.addActionListener(createSeriesVisibilityCheckBoxListener());
 
 				// Enable/disable the series.
 				boolean vis = obsPlotModel.getSeriesVisibilityMap().get(series);
@@ -325,9 +369,11 @@ public class SeriesVisibilityPane extends JPanel {
 	private ActionListener createSeriesVisibilityCheckBoxListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JCheckBox checkBox = (JCheckBox) e.getSource();
-				updateSeriesVisibilityMap(checkBox);
-				seriesVisibilityChange(getVisibilityDeltaMap());
+				if (modifyVisibility) {
+					JCheckBox checkBox = (JCheckBox) e.getSource();
+					updateSeriesVisibilityMap(checkBox);
+					seriesVisibilityChange(getVisibilityDeltaMap());
+				}
 			}
 		};
 	}
@@ -339,14 +385,14 @@ public class SeriesVisibilityPane extends JPanel {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
-		JButton selectAllButton = new JButton(LocaleProps
-				.get("SELECT_ALL_BUTTON"));
+		JButton selectAllButton = new JButton(
+				LocaleProps.get("SELECT_ALL_BUTTON"));
 		selectAllButton
 				.addActionListener(createEnMasseSelectionButtonListener(true));
 		panel.add(selectAllButton, BorderLayout.LINE_START);
 
-		JButton deSelectAllButton = new JButton(LocaleProps
-				.get("DESELECT_ALL_BUTTON"));
+		JButton deSelectAllButton = new JButton(
+				LocaleProps.get("DESELECT_ALL_BUTTON"));
 		deSelectAllButton
 				.addActionListener(createEnMasseSelectionButtonListener(false));
 		panel.add(deSelectAllButton, BorderLayout.LINE_END);
