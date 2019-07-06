@@ -25,20 +25,20 @@ import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
 public interface IUndoableAction {
 
 	/**
-	 * Execute the action corresponding to the undoable action.
+	 * Executes the action corresponding to the undoable action.
 	 */
 	public void execute();
 
 	/**
-	 * Return a human-readable display string for this action.
+	 * Returns a human-readable display string for this action.
 	 * 
 	 * @return The display string.
 	 */
 	public String getDisplayString();
 
 	/**
-	 * Change the internal state of this action to prepare for a call to
-	 * execute() in the context of an undo or redo operation.
+	 * Changes the internal state of this action object, to prepare for all but
+	 * the first call to execute(), in the context of an undo or redo operation.
 	 * 
 	 * @param type
 	 *            The type of operation (redo/undo).
