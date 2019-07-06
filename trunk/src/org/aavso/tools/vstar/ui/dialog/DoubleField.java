@@ -19,6 +19,8 @@ package org.aavso.tools.vstar.ui.dialog;
 
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.aavso.tools.vstar.vela.VeLaEvalError;
+import org.aavso.tools.vstar.vela.VeLaParseError;
 
 /**
  * This class encapsulates the name, range, and value of a numeric text field
@@ -47,8 +49,7 @@ public class DoubleField extends NumberFieldBase<Double> {
 
 	/**
 	 * Get the double value from the text field, if possible, otherwise return
-	 * null if no valid number is present in the textField. If there was a VeLa
-	 * exception from parseDouble(), this will be propagated for reporting.
+	 * null if no valid number is present in the textField.
 	 * 
 	 * @return The double value or null.
 	 */
@@ -67,8 +68,12 @@ public class DoubleField extends NumberFieldBase<Double> {
 			}
 		} catch (NumberFormatException e) {
 			// Nothing to do; return null.
+		} catch (VeLaParseError e) { // #PMAK#
+			// Nothing to do; return null.
+		} catch (VeLaEvalError e) { // #PMAK#
+			// Nothing to do; return null.
 		}
-
+		
 		return value;
 	}
 
