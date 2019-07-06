@@ -475,6 +475,13 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 	}
 
 	/**
+	 * Inform the views that the dataset has changed.
+	 */
+	public void update() {
+		this.fireDatasetChanged();
+	}
+	
+	/**
 	 * Listen for discrepant observation change notification and add/remove it
 	 * from the relevant collections. Since a discrepant observation is ignored
 	 * for statistical analysis purposes (see DescStats class), we need to
