@@ -23,16 +23,30 @@ package org.aavso.tools.vstar.ui.mediator.message;
 public enum UndoRedoType {
 
 	UNDO, REDO;
-	
+
+	public UndoRedoType opposite() {
+		UndoRedoType result = null;
+
+		switch (this) {
+		case UNDO:
+			result = REDO;
+		case REDO:
+			result = UNDO;
+		default:
+		}
+
+		return result;
+	}
+
 	public String toString() {
 		String str = null;
-		
+
 		if (this == UNDO) {
 			str = "Undo";
 		} else {
 			str = "Redo";
 		}
-		
+
 		return str;
 	}
 }
