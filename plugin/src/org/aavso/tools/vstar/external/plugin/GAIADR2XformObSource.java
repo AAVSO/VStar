@@ -430,8 +430,7 @@ public class GAIADR2XformObSource extends
 			observation.setName(name);
 			observation.setObsCode(obscode);
 
-			DateInfo dateInfo = julianDayValidator.validate(fields[3].trim());
-			dateInfo.setJulianDay(dateInfo.getJulianDay() + gaiaEpoch);
+			DateInfo dateInfo = new DateInfo(julianDayValidator.validate(fields[3].trim()).getJulianDay() + gaiaEpoch);
 			observation.setDateInfo(dateInfo);
 
 			Magnitude magnitude = magnitudeFieldValidator.validate(fields[4].trim());
