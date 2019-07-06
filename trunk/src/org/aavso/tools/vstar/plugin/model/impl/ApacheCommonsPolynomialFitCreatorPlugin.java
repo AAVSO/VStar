@@ -62,6 +62,8 @@ import org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer;
 public class ApacheCommonsPolynomialFitCreatorPlugin extends
 		ModelCreatorPluginBase {
 
+	private boolean needGUI = true;
+
 	private int degree;
 
 	private ICoordSource timeCoordSource;
@@ -87,6 +89,17 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 	public IModel getModel(List<ValidObservation> obs) {
 		fitCreator = new PolynomialFitCreator(obs);
 		return fitCreator.createModel();
+	}
+
+	/**
+	 * This is intended for setting parameters from the scripting API.
+	 */
+	@Override
+	public void setParams(Object[] params) {
+		assert (params.length == 1);
+		double degree = (double) params[0];
+		setDegree((int) degree);
+		needGUI = false;
 	}
 
 	private void setDegree(int degree) {
@@ -141,17 +154,23 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 			int minDegree = getMinDegree();
 			int maxDegree = getMaxDegree();
 
-			PolynomialDegreeDialog polyDegreeDialog = new PolynomialDegreeDialog(
-					minDegree, maxDegree);
+			boolean cancelled = false;
 
-			if (!polyDegreeDialog.isCancelled()) {
+			if (needGUI) {
+				PolynomialDegreeDialog polyDegreeDialog = new PolynomialDegreeDialog(
+						minDegree, maxDegree);
+
 				setDegree(polyDegreeDialog.getDegree());
 
+				cancelled = polyDegreeDialog.isCancelled();
+			}
+
+			if (!cancelled) {
 				final AbstractLeastSquaresOptimizer optimizer = new LevenbergMarquardtOptimizer();
-				
+
 				final PolynomialFitter fitter = new PolynomialFitter(
 						getDegree(), optimizer);
-				
+
 				model = new IModel() {
 					boolean interrupted = false;
 					List<ValidObservation> fit;

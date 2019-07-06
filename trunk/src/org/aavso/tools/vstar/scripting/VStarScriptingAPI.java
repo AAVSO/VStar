@@ -31,7 +31,9 @@ import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
 import org.aavso.tools.vstar.plugin.InputType;
+import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin;
 import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.MenuBar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -42,6 +44,7 @@ import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.DcDftAnalysisType;
@@ -424,6 +427,36 @@ public class VStarScriptingAPI {
 	}
 
 	/**
+	 * Create a polynomial fit model given the specified series and polynomial
+	 * degree.
+	 * 
+	 * @param seriesName
+	 *            Name of series to which polynomial fit should be applied.
+	 * 
+	 * @param degree
+	 *            The required polynomial degree.
+	 */
+	public synchronized void polyfit(String seriesName, double degree) {
+		modelCreatorCommon(null, ApacheCommonsPolynomialFitCreatorPlugin.class,
+				seriesName, new Double[] { degree });
+	}
+
+	/**
+	 * Create a model given the specified partial plugin name, series and
+	 * parameters.
+	 * 
+	 * @param seriesName
+	 *            Name of series to which the model creation operation should be
+	 *            applied.
+	 * @param params
+	 *            Array of parameters; could be of any type.
+	 */
+	public synchronized void createModel(String pluginName, String seriesName,
+			Object[] params) {
+		modelCreatorCommon(pluginName, null, seriesName, params);
+	}
+
+	/**
 	 * Perform DCDFT period analysis with period range.
 	 * 
 	 * @param seriesName
@@ -597,65 +630,69 @@ public class VStarScriptingAPI {
 	/**
 	 * Returns the time values (e.g. JD, HJD) for the specified series.
 	 * 
-	 * @param seriesName The short or long series name.
+	 * @param seriesName
+	 *            The short or long series name.
 	 * @return An array of time values.
 	 */
 	public double[] getTimes(String seriesName) {
 		List<ValidObservation> obs = getObsForSeries(seriesName);
-		
+
 		List<Double> timeList = obs.stream().map(ob -> ob.getJD())
 				.collect(Collectors.toList());
-		
+
 		double[] times = new double[timeList.size()];
-		
-		int i=0;
+
+		int i = 0;
 		for (Double time : timeList) {
 			times[i++] = time;
 		}
-		
+
 		return times;
 	}
+
 	/**
 	 * Returns the (standard) phase values for the specified series.
 	 * 
-	 * @param seriesName The short or long series name.
+	 * @param seriesName
+	 *            The short or long series name.
 	 * @return An array of phase values.
 	 */
 	public double[] getPhases(String seriesName) {
 		List<ValidObservation> obs = getObsForSeries(seriesName);
-		
+
 		List<Double> phaseList = obs.stream().map(ob -> ob.getStandardPhase())
 				.collect(Collectors.toList());
-		
+
 		double[] phases = new double[phaseList.size()];
-		
-		int i=0;
+
+		int i = 0;
 		for (Double phase : phaseList) {
 			phases[i++] = phase;
 		}
-		
+
 		return phases;
 	}
 
 	/**
 	 * Returns the magnitude values for the specified series.
 	 * 
-	 * @param seriesName The short or long series name.
+	 * @param seriesName
+	 *            The short or long series name.
 	 * @return An array of magnitude values.
 	 */
 	public double[] getMags(String seriesName) {
 		List<ValidObservation> obs = getObsForSeries(seriesName);
-		
+
 		List<Double> magList = obs.stream().map(ob -> ob.getMag())
 				.collect(Collectors.toList());
-		
+
 		double[] mags = new double[magList.size()];
-		
-		int i=0;
+
+		int i = 0;
 		for (Double mag : magList) {
 			mags[i++] = mag;
 		}
-		
+
 		return mags;
 	}
 
@@ -1007,6 +1044,39 @@ public class VStarScriptingAPI {
 		}
 
 		return maximalStats;
+	}
+
+	/**
+	 * Common model creator plugin method.
+	 * 
+	 * @param seriesName
+	 *            Partial plugin name; may be null.
+	 * @param clazz
+	 *            Plugin class; may be null.
+	 * @param series
+	 *            Name of series to which the model creation operation should be
+	 *            applied.
+	 * @param params
+	 *            Array of parameters; could be of any type.
+	 */
+	private void modelCreatorCommon(String pluginName, Class<?> clazz,
+			String seriesName, Object[] params) {
+		// It's not okay for them both to be null!
+		assert pluginName != null || clazz != null;
+
+		for (ModelCreatorPluginBase plugin : PluginLoader
+				.getModelCreatorPlugins()) {
+			if ((pluginName != null && plugin.getDisplayName().contains(
+					pluginName))
+					|| (clazz != null && plugin.getClass() == clazz)) {
+				plugin.setParams(params);
+				List<ValidObservation> obs = getObsForSeries(seriesName);
+				IModel model = plugin.getModel(obs);
+				Mediator.getInstance().performModellingOperation(model);
+				mediator.waitForJobCompletion();
+				break;
+			}
+		}
 	}
 
 	/**

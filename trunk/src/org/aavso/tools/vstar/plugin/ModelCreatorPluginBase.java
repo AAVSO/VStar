@@ -60,6 +60,14 @@ abstract public class ModelCreatorPluginBase implements IPlugin {
 	abstract public String getDisplayName();
 
 	/**
+	 * Set parameters for this model creator plugin invocation.
+	 * @param params The parameters to set.
+	 */
+	public void setParams(Object[] params) {
+		// Do nothing by default
+	}
+
+	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */
 	@Override

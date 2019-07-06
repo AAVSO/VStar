@@ -159,6 +159,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * @return a list of URLs or null.
 	 * @throws Exception
 	 *             if a problem occurs during URL creation.
+	 * @deprecated
 	 */
 	public List<File> getFiles() throws Exception {
 		return null;
