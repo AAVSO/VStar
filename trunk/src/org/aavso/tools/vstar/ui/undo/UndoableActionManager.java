@@ -59,7 +59,7 @@ public class UndoableActionManager {
 	 * @param type
 	 *            The type of action (undo/redo).
 	 */
-	private void addAction(IUndoableAction action, UndoRedoType type) {
+	public void addAction(IUndoableAction action, UndoRedoType type) {
 
 		action.prepare(type);
 
@@ -93,6 +93,7 @@ public class UndoableActionManager {
 			// stack.
 			action.execute();
 			addAction(action, UndoRedoType.REDO);
+			Mediator.getInstance().updatePlotsAndTables();
 		}
 	}
 
@@ -116,6 +117,7 @@ public class UndoableActionManager {
 			// stack.
 			action.execute();
 			addAction(action, UndoRedoType.UNDO);
+			Mediator.getInstance().updatePlotsAndTables();
 		}
 	}
 
