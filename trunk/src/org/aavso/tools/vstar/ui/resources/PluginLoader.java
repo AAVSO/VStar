@@ -31,6 +31,7 @@ import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase;
 import org.aavso.tools.vstar.plugin.filter.impl.VeLaFilterPlugin;
 import org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin;
 import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceCSV2ObservationSourcePlugin;
@@ -51,7 +52,7 @@ public class PluginLoader {
 
 	public final static String VSTAR_PLUGINS_DIR_NAME = "vstar_plugins";
 	public final static String VSTAR_PLUGIN_LIBS_DIR_NAME = "vstar_plugin_libs";
-	
+
 	// List to store plugins, if any exist.
 	private static List<IPlugin> plugins = new ArrayList<IPlugin>();
 
@@ -134,6 +135,22 @@ public class PluginLoader {
 	}
 
 	/**
+	 * Return a list of VStar Observation Transformer plugins.
+	 */
+	public static List<ObservationTransformerPluginBase> getObservationTransformerPlugins() {
+		List<ObservationTransformerPluginBase> transformerPlugins = new ArrayList<ObservationTransformerPluginBase>();
+
+		for (IPlugin plugin : plugins) {
+			if (plugin instanceof ObservationTransformerPluginBase) {
+				transformerPlugins
+						.add((ObservationTransformerPluginBase) plugin);
+			}
+		}
+
+		return transformerPlugins;
+	}
+
+	/**
 	 * Return a list of VStar Custom Filter plugins.
 	 */
 	public static List<CustomFilterPluginBase> getCustomFilterPlugins() {
@@ -141,7 +158,7 @@ public class PluginLoader {
 
 		// First, add the VeLa filter plug-in.
 		customFilterPlugins.add(new VeLaFilterPlugin());
-		
+
 		// Next, add all external filter plug-ins.
 		for (IPlugin plugin : plugins) {
 			if (plugin instanceof CustomFilterPluginBase) {
@@ -161,7 +178,7 @@ public class PluginLoader {
 		// First, add AAVSO observation reader plug-ins.
 		obSourcePlugins.add(new AIDWebServiceCSV2ObservationSourcePlugin());
 		obSourcePlugins.add(new TextFormatObservationSourcePlugin());
-		
+
 		// Next, add all external observation source plug-ins.
 		for (IPlugin plugin : plugins) {
 			if (plugin instanceof ObservationSourcePluginBase) {
@@ -195,7 +212,9 @@ public class PluginLoader {
 				try {
 					depLibs.add(file.toURI().toURL());
 				} catch (MalformedURLException e) {
-					MessageBox.showErrorDialog(null, "Plugin Loader",
+					MessageBox.showErrorDialog(
+							null,
+							"Plugin Loader",
 							"Invalid plugin library jar file: "
 									+ file.getAbsolutePath());
 				}
@@ -215,11 +234,14 @@ public class PluginLoader {
 				// IPlugin methods.
 				String qualifiedClassName = file.getName().replace(".jar", "");
 				try {
-					Class<?> clazz = loadClass(file, qualifiedClassName, depLibs);
+					Class<?> clazz = loadClass(file, qualifiedClassName,
+							depLibs);
 					Object plugin = clazz.newInstance();
 					plugins.add((IPlugin) plugin);
 				} catch (MalformedURLException e) {
-					MessageBox.showErrorDialog(null, "Plugin Loader",
+					MessageBox.showErrorDialog(
+							null,
+							"Plugin Loader",
 							"Invalid plugin jar file: "
 									+ file.getAbsolutePath());
 				} catch (ClassNotFoundException e) {
@@ -238,12 +260,16 @@ public class PluginLoader {
 							qualifiedClassName
 									+ " is not an instance of IPlugin");
 				} catch (NoClassDefFoundError e) {
-					MessageBox.showErrorDialog(null, "Plugin Loader",
+					MessageBox.showErrorDialog(
+							null,
+							"Plugin Loader",
 							"A class required by " + qualifiedClassName
 									+ " was not found: "
 									+ e.getLocalizedMessage());
 				} catch (Throwable t) {
-					MessageBox.showErrorDialog(null, "Plugin Loader",
+					MessageBox.showErrorDialog(
+							null,
+							"Plugin Loader",
 							"An error occurred during plugin loading: "
 									+ t.getLocalizedMessage());
 				}
