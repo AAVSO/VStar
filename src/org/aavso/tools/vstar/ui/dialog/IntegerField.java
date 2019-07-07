@@ -19,14 +19,16 @@ package org.aavso.tools.vstar.ui.dialog;
 
 import java.text.NumberFormat;
 
+import org.aavso.tools.vstar.util.locale.NumberParser;
+
 /**
  * This class encapsulates the name, range, and value of an integer text field
  * along with a GUI textField and methods to operate upon it.
  */
 public class IntegerField extends NumberFieldBase<Integer> {
 
-	private final static NumberFormat NUM_FORMAT = NumberFormat.getInstance();
-	
+	private final static NumberFormat NUM_FORMAT = NumberFormat.getIntegerInstance();
+
 	/**
 	 * Constructor
 	 * 
@@ -55,7 +57,7 @@ public class IntegerField extends NumberFieldBase<Integer> {
 		Integer value = null;
 
 		try {
-			value = Integer.parseInt(textField.getText());
+			value = NumberParser.parseInteger(textField.getText());
 
 			if (min != null && value < min) {
 				value = null;
