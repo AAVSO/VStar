@@ -58,7 +58,9 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	private ObservationSourcePluginBase obSourcePlugin;
 
 	private AbstractObservationRetriever retriever;
-	
+
+	private boolean cancelled;
+
 	/**
 	 * Constructor.
 	 * 
@@ -68,6 +70,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	public NewStarFromObSourcePluginTask(
 			ObservationSourcePluginBase obSourcePlugin) {
 		this.obSourcePlugin = obSourcePlugin;
+		cancelled = false;
 	}
 
 	/**
@@ -117,6 +120,14 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 									obSourcePlugin.getInputType() == InputType.FILE_OR_URL);
 
 					if (fileChooser != null) {
+						// Which plugin was selected in the end?
+						// We only ask this for plugins that can share the
+						// common file/URL dialog approach (with a list of
+						// plugins).
+						if (obSourcePlugin.getInputType() == InputType.FILE_OR_URL) {
+							obSourcePlugin = fileChooser.getSelectedPlugin();
+						}
+
 						// If a file was chosen or a URL obtained, use as input.
 						obSourcePlugin
 								.setAdditive(fileChooser.isLoadAdditive());
@@ -190,14 +201,14 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				obSourcePlugin.setInputInfo(null, null);
 				break;
 			}
-			
+
 			// Retrieve the observations. If the retriever can return
 			// the number of records, we can show updated progress,
 			// otherwise just show busy state.
 			retriever = obSourcePlugin.getObservationRetriever();
 
 		} catch (CancellationException ex) {
-			// Nothing to do; dialog cancelled.
+			cancelled = true;
 		} catch (ConnectionException ex) {
 			MessageBox.showErrorDialog("Authentication Source Error",
 					ex.getLocalizedMessage());
@@ -215,15 +226,15 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	public boolean isConfigured() {
 		return retriever != null;
 	}
-	
+
 	/**
 	 * Main task. Executed in background thread.
 	 */
 	public Void doInBackground() {
 		try {
-			
+
 			createObservationArtefacts();
-			
+
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog("Observation Source Error",
 					ex.getLocalizedMessage());
@@ -292,8 +303,18 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		mediator.getProgressNotifier().notifyListeners(
-				ProgressInfo.COMPLETE_PROGRESS);
+		if (cancelled
+				|| retriever.getValidObservations().size() != 0
+				|| (obSourcePlugin.isAdditive() && !mediator
+						.getNewStarMessageList().isEmpty())) {
+			// Either there were observations loaded or this was a failed
+			// additive load and there exist previously loaded observations, so
+			// we want to complete progress. We also want to complete progress
+			// if the dialog is cancelled. Doing so ensures menu and tool bar
+			// icons have their state restored.
+			mediator.getProgressNotifier().notifyListeners(
+					ProgressInfo.COMPLETE_PROGRESS);
+		}
 
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.CLEAR_PROGRESS);
