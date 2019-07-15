@@ -122,13 +122,12 @@ public class NewStarFromObSourcePluginWithSuppliedFileTask extends
 			if (retriever.getValidObservations().isEmpty()) {
 				throw new ObservationReadError(
 						"No observations for the specified period or error in observation source.");
+			} else {
+				// Create plots, tables.
+				NewStarType type = obSourcePlugin.getNewStarType();
+				mediator.createNewStarObservationArtefacts(type,
+						retriever.getStarInfo(), 0, isAdditive);
 			}
-
-			// Create plots, tables.
-			NewStarType type = obSourcePlugin.getNewStarType();
-			mediator.createNewStarObservationArtefacts(type, retriever
-					.getStarInfo(), 0, isAdditive);
-
 		} catch (InterruptedException e) {
 			ValidObservation.restore();
 
