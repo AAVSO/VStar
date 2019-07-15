@@ -281,21 +281,21 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				String msg = "No observations for the specified period.";
 				MessageBox.showErrorDialog("Observation Read Error", msg);
 				// throw new ObservationReadError(msg);
+			} else {
+				// Create plots, tables.
+				mediator.createNewStarObservationArtefacts(
+						obSourcePlugin.getNewStarType(),
+						retriever.getStarInfo(), plotPortion,
+						obSourcePlugin.isAdditive());
 			}
-
-			// Create plots, tables.
-			mediator.createNewStarObservationArtefacts(
-					obSourcePlugin.getNewStarType(), retriever.getStarInfo(),
-					plotPortion, obSourcePlugin.isAdditive());
-
 		} catch (InterruptedException e) {
 			ValidObservation.restore();
 			done();
 		} catch (Throwable t) {
 			ValidObservation.restore();
 			done();
-			// MessageBox.showErrorDialog(
-			// "New Star From Observation Source Read Error", t);
+			MessageBox.showErrorDialog(
+					"New Star From Observation Source Read Error", t);
 		}
 	}
 
