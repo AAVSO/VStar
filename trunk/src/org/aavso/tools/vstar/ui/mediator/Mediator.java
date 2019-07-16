@@ -2002,7 +2002,7 @@ public class Mediator {
 				if (!seriesDialog.isCancelled()) {
 					boolean ok = plugin.invokeDialog();
 
-					if (!ok) {
+					if (ok) {
 						IUndoableAction action = plugin.execute(
 								getSeriesInfoProvider(),
 								seriesDialog.getSelectedSeries());

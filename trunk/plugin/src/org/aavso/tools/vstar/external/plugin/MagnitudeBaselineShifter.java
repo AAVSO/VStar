@@ -68,7 +68,7 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 
 			ok = !dialog.isCancelled();
 			
-			if (!ok) {
+			if (ok) {
 				shift = shiftField.getValue();
 			}
 		}
