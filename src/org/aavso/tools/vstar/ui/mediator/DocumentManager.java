@@ -330,7 +330,7 @@ public class DocumentManager {
 			if (ui.getUiType() == UIType.DESKTOP) {
 				if (Window.getWindows().length > 0) {
 					for (Window window : Window.getWindows()) {
-						if (window.isActive()) {
+						if (window.isFocusOwner()) {
 							wdw = window;
 							break;
 						}

@@ -44,8 +44,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 
 	protected JButton okButton;
 
-	public AbstractOkCancelDialog(String title, boolean isModal,
-			boolean isAlwaysOnType) {
+	public AbstractOkCancelDialog(String title, boolean isModal) {
 		super(DocumentManager.findActiveWindow());
 		this.setTitle(title);
 		this.setModal(isModal);
@@ -54,7 +53,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	}
 
 	public AbstractOkCancelDialog(String title) {
-		this(title, true, true);
+		this(title, true);
 	}
 
 	protected JPanel createButtonPane() {
