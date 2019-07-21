@@ -142,7 +142,7 @@ public class ObservationListPane extends JPanel implements
 			rowSorter = new TableRowSorter<ValidObservationTableModel>(
 					validDataModel);
 			int jdColIndex = validDataModel.getColumnInfoSource()
-					.getColumnIndexByName("Julian Day");
+					.getColumnIndexByName(LocaleProps.get("TIME"));
 			rowSorter.setComparator(jdColIndex, new DoubleAsStringComparator());
 			int magColIndex = validDataModel.getColumnInfoSource()
 					.getColumnIndexByName("Magnitude");
