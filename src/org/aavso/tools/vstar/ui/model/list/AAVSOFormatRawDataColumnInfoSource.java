@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -30,7 +31,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		ITableColumnInfoSource {
 
 	// Table columns.
-	private static final int JD_COLUMN = 0;
+	private static final int TIME_COLUMN = 0;
 	private static final int CALENDAR_DATE_COLUMN = 1;
 	private static final int MAGNITUDE_COLUMN = 2;
 	private static final int UNCERTAINTY_COLUMN = 3;
@@ -59,7 +60,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final int NAME_COLUMN = 26;
 	private static final int LINE_NUM_COLUMN = 27;
 
-	private static final String JD_COLUMN_NAME = "Julian Day";
+	private static final String TIME_COLUMN_NAME = LocaleProps.get("TIME");
 	private static final String CALENDAR_DATE_COLUMN_NAME = "Calendar Date";
 	private static final String MAGNITUDE_COLUMN_NAME = "Magnitude";
 	private static final String UNCERTAINTY_COLUMN_NAME = "Uncertainty";
@@ -87,11 +88,11 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	private static final String DISCREPANT_COLUMN_NAME = "Discrepant?";
 	private static final String NAME_COLUMN_NAME = "Name";
 	private static final String LINE_NUM_COLUMN_NAME = "Line";
-	
+
 	protected static final Map<String, Integer> COLUMN_NAMES = new HashMap<String, Integer>();
 
 	static {
-		COLUMN_NAMES.put(JD_COLUMN_NAME, JD_COLUMN);
+		COLUMN_NAMES.put(TIME_COLUMN_NAME, TIME_COLUMN);
 		COLUMN_NAMES.put(CALENDAR_DATE_COLUMN_NAME, CALENDAR_DATE_COLUMN);
 		COLUMN_NAMES.put(MAGNITUDE_COLUMN_NAME, MAGNITUDE_COLUMN);
 		COLUMN_NAMES.put(UNCERTAINTY_COLUMN_NAME, UNCERTAINTY_COLUMN);
@@ -141,10 +142,10 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		String columnName = null;
 
 		// TODO: programmatically create a reverse map!
-		
+
 		switch (index) {
-		case JD_COLUMN:
-			columnName = JD_COLUMN_NAME;
+		case TIME_COLUMN:
+			columnName = TIME_COLUMN_NAME;
 			break;
 		case CALENDAR_DATE_COLUMN:
 			columnName = CALENDAR_DATE_COLUMN_NAME;
@@ -236,7 +237,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		Class<?> clazz = String.class;
 
 		switch (index) {
-		case JD_COLUMN:
+		case TIME_COLUMN:
 			break;
 		case CALENDAR_DATE_COLUMN:
 			break;
@@ -303,7 +304,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		Object value = null;
 
 		switch (index) {
-		case JD_COLUMN:
+		case TIME_COLUMN:
 			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo()
 					.getJulianDay());
 			;
