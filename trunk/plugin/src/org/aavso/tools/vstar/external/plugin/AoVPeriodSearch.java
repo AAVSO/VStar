@@ -573,14 +573,6 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 				resolution);
 		fields.add(resolutionField);
 
-		// Set<String> binSet = new TreeSet<String>();
-		// binSet.add("4");
-		// binSet.add("10");
-		// binSet.add("20");
-		// binSet.add("50");
-		// SelectableTextField binsField = new SelectableTextField("Bins",
-		// binSet);
-
 		IntegerField binsField = new IntegerField("Bins", 0, 50, bins);
 		fields.add(binsField);
 
