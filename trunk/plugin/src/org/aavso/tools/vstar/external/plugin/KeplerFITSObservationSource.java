@@ -105,7 +105,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 	@Override
 	public List<String> getAdditionalFileExtensions() {
 		List<String> extensions = new ArrayList<String>();
-		extensions.add(".fits");
+		extensions.add("fits");
 		return extensions;
 	}
 
