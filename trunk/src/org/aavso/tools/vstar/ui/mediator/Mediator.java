@@ -51,6 +51,7 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.database.Authenticator;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase;
@@ -2008,7 +2009,7 @@ public class Mediator {
 								seriesDialog.getSelectedSeries());
 
 						action.execute();
-						
+
 						getUndoableActionManager().addAction(action,
 								UndoRedoType.UNDO);
 
@@ -2154,12 +2155,15 @@ public class Mediator {
 	 * 
 	 * @param parent
 	 *            The parent component to be used in dialogs.
+	 * @param plugin
+	 *            The observation sink plugin.
 	 * @param path
 	 *            The path of the file to save to.
 	 * @param delimiter
 	 *            The delimiter between data items.
 	 */
-	public void saveObsListToFile(Component parent, File path, String delimiter) {
+	public void saveObsListToFile(Component parent,
+			ObservationSinkPluginBase plugin, File path, String delimiter) {
 		List<ValidObservation> obs = this.analysisTypeMap.get(analysisType)
 				.getObsListPane().getObservationsInView();
 
@@ -2170,8 +2174,8 @@ public class Mediator {
 			this.getProgressNotifier().notifyListeners(
 					new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));
 
-			ObsListFileSaveTask task = new ObsListFileSaveTask(obs, path, this
-					.getLatestNewStarMessage().getNewStarType(), delimiter);
+			ObsListFileSaveTask task = new ObsListFileSaveTask(plugin, obs,
+					path, delimiter);
 
 			this.currTask = task;
 			task.execute();
@@ -2189,6 +2193,8 @@ public class Mediator {
 	 * 
 	 * @param parent
 	 *            The parent component to be used in dialogs.
+	 * @param plugin
+	 *            The observation sink plugin.
 	 * @param mode
 	 *            The current synthetic view mode.
 	 * @param path
@@ -2196,8 +2202,9 @@ public class Mediator {
 	 * @param delimiter
 	 *            The delimiter between data items.
 	 */
-	public void saveSyntheticObsListToFile(Component parent, ViewModeType mode,
-			File path, String delimiter) {
+	public void saveSyntheticObsListToFile(Component parent,
+			ObservationSinkPluginBase plugin, ViewModeType mode, File path,
+			String delimiter) {
 
 		List<ValidObservation> obs = null;
 
@@ -2242,9 +2249,8 @@ public class Mediator {
 			// elsewhere but specify simple file type to match the fact that
 			// we are only going to save JD, magnitude, and uncertainty
 			// (for means).
-			ObsListFileSaveTask task = new ObsListFileSaveTask(obs, path,
-					NewStarType.NEW_STAR_FROM_SIMPLE_FILE,
-					obsListFileSaveDialog.getDelimiter());
+			ObsListFileSaveTask task = new ObsListFileSaveTask(plugin, obs,
+					path, obsListFileSaveDialog.getDelimiter());
 
 			this.currTask = task;
 			task.execute();
@@ -2319,10 +2325,9 @@ public class Mediator {
 								new ProgressInfo(ProgressType.MAX_PROGRESS, obs
 										.size()));
 
-				ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
-						outFile, this.getLatestNewStarMessage()
-								.getNewStarType(),
-						obsListFileSaveDialog.getDelimiter());
+				ObsListFileSaveTask task = new ObsListFileSaveTask(
+						obsListFileSaveDialog.getSelectedPlugin(), obs,
+						outFile, obsListFileSaveDialog.getDelimiter());
 
 				this.currTask = task;
 				task.execute();
@@ -2339,6 +2344,8 @@ public class Mediator {
 	 * 
 	 * @param parent
 	 *            The parent component to be used in dialogs.
+	 * @param plugin
+	 *            The observation sink plugin.
 	 * @param obs
 	 *            The list of observations to be saved.
 	 */
@@ -2369,9 +2376,9 @@ public class Mediator {
 				// above but specify simple file type to match the fact that
 				// we are only going to save JD, magnitude, and uncertainty
 				// (for means).
-				ObsListFileSaveTask task = new ObsListFileSaveTask(obs,
-						outFile, NewStarType.NEW_STAR_FROM_SIMPLE_FILE,
-						obsListFileSaveDialog.getDelimiter());
+				ObsListFileSaveTask task = new ObsListFileSaveTask(
+						obsListFileSaveDialog.getSelectedPlugin(), obs,
+						outFile, obsListFileSaveDialog.getDelimiter());
 
 				this.currTask = task;
 				task.execute();
