@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin;
 import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceObservationSourcePluginBase;
@@ -44,6 +45,7 @@ import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
@@ -119,8 +121,7 @@ public class VStarScriptingAPI {
 
 	/**
 	 * Load a dataset from the specified path, adding it to the existing
-	 * dataset. This is equivalent to "File -> New Star from File..." with the
-	 * additive checkbox selected.
+	 * dataset.
 	 * 
 	 * @param path
 	 *            The path to the file.
@@ -130,8 +131,7 @@ public class VStarScriptingAPI {
 	}
 
 	/**
-	 * Load a dataset from the specified path. This is equivalent to
-	 * "File -> New Star from File..." with URL requested.
+	 * Load a dataset from the specified URL.
 	 * 
 	 * @param url
 	 *            The URL of the file.
@@ -142,8 +142,7 @@ public class VStarScriptingAPI {
 
 	/**
 	 * Load a dataset from the specified path, adding it to the existing
-	 * dataset. This is equivalent to "File -> New Star from File..." with the
-	 * additive checkbox selected and URL requested.
+	 * dataset.
 	 * 
 	 * @param url
 	 *            The URL of the file.
@@ -155,7 +154,7 @@ public class VStarScriptingAPI {
 	/**
 	 * Load a dataset from the specified path using the (possibly partial)
 	 * plug-in name to identify the observation source plug-in to use. This is
-	 * equivalent to "File -> New Star from <obs-source-type>..."
+	 * equivalent to plugin display name.
 	 * 
 	 * @param pluginName
 	 *            The sub-string with which to match the plug-in name.
@@ -171,9 +170,8 @@ public class VStarScriptingAPI {
 	/**
 	 * Load a dataset from the specified path, adding it to the existing dataset
 	 * using the (possibly partial) plug-in name to identify the observation
-	 * source plug-in to use. This is equivalent to
-	 * "File -> New Star from <obs-source-type>..." with the additive checkbox
-	 * selected.
+	 * source plug-in to use. his is equivalent to plugin display name with the
+	 * additive checkbox selected.
 	 * 
 	 * @param pluginName
 	 *            The sub-string with which to match the plug-in name.
@@ -322,8 +320,15 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void saveObsList(final String path, String delimiter) {
 		init();
-		mediator.saveObsListToFile(Mediator.getUI().getComponent(), new File(
-				path), delimiter);
+
+		ObservationSinkPluginBase obSinkPlugin = getObsSinkPlugin(LocaleProps
+				.get("TEXT_FORMAT_FILE"));
+
+		if (obSinkPlugin != null) {
+			mediator.saveObsListToFile(Mediator.getUI().getComponent(),
+					obSinkPlugin, new File(path), delimiter);
+		}
+
 		mediator.waitForJobCompletion();
 	}
 
@@ -338,8 +343,16 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void saveMeanList(final String path, String delimiter) {
 		init();
-		mediator.saveSyntheticObsListToFile(Mediator.getUI().getComponent(),
-				ViewModeType.LIST_MEANS_MODE, new File(path), delimiter);
+
+		ObservationSinkPluginBase obSinkPlugin = getObsSinkPlugin(LocaleProps
+				.get("TEXT_FORMAT_FILE"));
+
+		if (obSinkPlugin != null) {
+			mediator.saveSyntheticObsListToFile(
+					Mediator.getUI().getComponent(), obSinkPlugin,
+					ViewModeType.LIST_MEANS_MODE, new File(path), delimiter);
+		}
+
 		mediator.waitForJobCompletion();
 	}
 
@@ -354,8 +367,16 @@ public class VStarScriptingAPI {
 	 */
 	public synchronized void saveModelList(final String path, String delimiter) {
 		init();
-		mediator.saveSyntheticObsListToFile(Mediator.getUI().getComponent(),
-				ViewModeType.MODEL_MODE, new File(path), delimiter);
+
+		ObservationSinkPluginBase obSinkPlugin = getObsSinkPlugin(LocaleProps
+				.get("TEXT_FORMAT_FILE"));
+
+		if (obSinkPlugin != null) {
+			mediator.saveSyntheticObsListToFile(
+					Mediator.getUI().getComponent(), obSinkPlugin,
+					ViewModeType.MODEL_MODE, new File(path), delimiter);
+		}
+
 		mediator.waitForJobCompletion();
 	}
 
@@ -371,8 +392,16 @@ public class VStarScriptingAPI {
 	public synchronized void saveResidualList(final String path,
 			String delimiter) {
 		init();
-		mediator.saveSyntheticObsListToFile(Mediator.getUI().getComponent(),
-				ViewModeType.RESIDUALS_MODE, new File(path), delimiter);
+
+		ObservationSinkPluginBase obSinkPlugin = getObsSinkPlugin(LocaleProps
+				.get("TEXT_FORMAT_FILE"));
+
+		if (obSinkPlugin != null) {
+			mediator.saveSyntheticObsListToFile(
+					Mediator.getUI().getComponent(), obSinkPlugin,
+					ViewModeType.RESIDUALS_MODE, new File(path), delimiter);
+		}
+
 		mediator.waitForJobCompletion();
 	}
 
@@ -921,6 +950,25 @@ public class VStarScriptingAPI {
 		}
 
 		mediator.waitForJobCompletion();
+	}
+
+	/**
+	 * 
+	 * @param pluginName
+	 * @return
+	 */
+	private ObservationSinkPluginBase getObsSinkPlugin(String pluginName) {
+		ObservationSinkPluginBase obSinkPlugin = null;
+
+		for (ObservationSinkPluginBase plugin : PluginLoader
+				.getObservationSinkPlugins()) {
+			if (plugin.getDisplayName().contains(pluginName)) {
+				obSinkPlugin = plugin;
+				break;
+			}
+		}
+
+		return obSinkPlugin;
 	}
 
 	/**

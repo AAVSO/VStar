@@ -18,74 +18,77 @@
 package org.aavso.tools.vstar.ui.dialog;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+
+import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
- * This class aggregates a JFileChooser and a field delimiter selection
- * component.
+ * This class aggregates a JFileChooser, a plugin selector, and a field
+ * delimiter selection component.
  */
 public class DelimitedFieldFileSaveChooser {
 
-	private String delimiter;
 	private JFileChooser fileChooser;
+
+	private DefaultComboBoxModel<String> delimitersModel;
+	private JComboBox<String> delimiterChooser;
+	private Map<String, String> delimiters;
+	private String delimiter;
+
+	private Map<String, ObservationSinkPluginBase> plugins;
+	private JComboBox<String> pluginChooser;
 
 	/**
 	 * Constructor
 	 */
 	public DelimitedFieldFileSaveChooser() {
-		delimiter = "\t";
 		fileChooser = new JFileChooser();
-		fileChooser.setAccessory(createDelimiterSelectionPane());
+
+		delimiter = null;
+		delimitersModel = new DefaultComboBoxModel<String>();
+		delimiterChooser = new JComboBox<String>();
+
+		JPanel accessoryPane = new JPanel();
+		accessoryPane.setLayout(new BoxLayout(accessoryPane,
+				BoxLayout.PAGE_AXIS));
+		accessoryPane.add(createPluginsList());
+		accessoryPane.add(createDelimiterSelectionPane());
+
+		fileChooser.setAccessory(accessoryPane);
 	}
 
 	/**
-	 * This component permits selection between field delimiters.
+	 * Return the currently selected observation sink plugin.
+	 * 
+	 * @return The plugin instance.
 	 */
-	private JPanel createDelimiterSelectionPane() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-		panel.setBorder(BorderFactory.createTitledBorder("Delimiter"));
-
-		ButtonGroup group = new ButtonGroup();
-
-		JRadioButton tabButton = new JRadioButton("Tab");
-		tabButton.setActionCommand("\t");
-		tabButton.addActionListener(createDelimiterRadioButtonListener());
-		tabButton.setSelected(true);
-		panel.add(tabButton);
-		group.add(tabButton);
-
-		JRadioButton commaButton = new JRadioButton("Comma");
-		commaButton.setActionCommand(",");
-		commaButton.addActionListener(createDelimiterRadioButtonListener());
-		panel.add(commaButton);
-		group.add(commaButton);
-
-		JRadioButton spaceButton = new JRadioButton("Space");
-		spaceButton.setActionCommand(" ");
-		spaceButton.addActionListener(createDelimiterRadioButtonListener());
-		panel.add(spaceButton);
-		group.add(spaceButton);
-
-		return panel;
+	public ObservationSinkPluginBase getSelectedPlugin() {
+		return plugins.get(pluginChooser.getSelectedItem());
 	}
 
-	private ActionListener createDelimiterRadioButtonListener() {
-		return new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				delimiter = e.getActionCommand();
-			}
-		};
+	/**
+	 * @return The selected file.
+	 */
+	public File getSelectedFile() {
+		return fileChooser.getSelectedFile();
+	}
+
+	/**
+	 * @return the delimiter
+	 */
+	public String getDelimiter() {
+		return delimiter;
 	}
 
 	/**
@@ -101,16 +104,86 @@ public class DelimitedFieldFileSaveChooser {
 	}
 
 	/**
-	 * @return The selected file.
+	 * Create plugin list and add a listener to change delimiters when a plugin
+	 * is selected.
 	 */
-	public File getSelectedFile() {
-		return fileChooser.getSelectedFile();
+	private JPanel createPluginsList() {
+		JPanel pane = new JPanel();
+
+		plugins = new HashMap<String, ObservationSinkPluginBase>();
+
+		for (ObservationSinkPluginBase plugin : PluginLoader
+				.getObservationSinkPlugins()) {
+			String name = plugin.getDisplayName();
+			plugins.put(name, plugin);
+		}
+
+		pluginChooser = new JComboBox<String>(plugins.keySet().toArray(
+				new String[0]));
+		pluginChooser.setSelectedItem(LocaleProps.get("TEXT_FORMAT_FILE"));
+		pluginChooser.setBorder(BorderFactory.createTitledBorder("Type"));
+
+		pluginChooser.addActionListener(e -> {
+			String name = (String) pluginChooser.getSelectedItem();
+			updateDelimiterChoices(plugins.get(name));
+		});
+
+		if (!plugins.isEmpty()) {
+			// Initial delimiter choices.
+			String name = (String) pluginChooser.getSelectedItem();
+			updateDelimiterChoices(plugins.get(name));
+		}
+
+		pane.add(pluginChooser);
+
+		return pane;
 	}
 
 	/**
-	 * @return the delimiter
+	 * Update the delimiter choices for a plugin.
+	 * 
+	 * @param plugin
+	 *            The selected plugin.
 	 */
-	public String getDelimiter() {
-		return delimiter;
+	private void updateDelimiterChoices(ObservationSinkPluginBase plugin) {
+		delimitersModel.removeAllElements();
+
+		if (plugin.getDelimiterNameValuePairs() != null) {
+			delimiters = plugin
+					.getDelimiterNameValuePairs();
+
+			for (String delim : delimiters.keySet().toArray(new String[0])) {
+				delimitersModel.addElement(delim);
+			}
+
+			delimiterChooser.setModel(delimitersModel);
+			delimiterChooser.setSelectedIndex(0);
+		} else {
+			delimiterChooser.setModel(delimitersModel);
+		}
+	}
+
+	/**
+	 * This component permits selection between field delimiters.
+	 */
+	private JPanel createDelimiterSelectionPane() {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setBorder(BorderFactory.createTitledBorder("Delimiter"));
+
+		delimiterChooser.addActionListener(e -> {
+			String name = (String) delimiterChooser.getSelectedItem();
+			delimiter = delimiters.get(name);
+		});
+
+		if (delimiters != null && !delimiters.isEmpty()) {
+			// Initial delimiter selection.
+			String name = (String) delimiterChooser.getSelectedItem();
+			delimiter = delimiters.get(name);
+		}
+
+		panel.add(delimiterChooser);
+
+		return panel;
 	}
 }
