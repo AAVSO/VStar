@@ -20,16 +20,13 @@ package org.aavso.tools.vstar.ui.task;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.List;
 
 import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.NewStarType;
-import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
 // C. Kotnik 2018-12-16
@@ -40,30 +37,29 @@ import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
  */
 public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 
+	private ObservationSinkPluginBase plugin;
 	private List<ValidObservation> observations;
 	private File outFile;
-	private NewStarType newStarType;
 	private String delimiter;
 
 	/**
 	 * Constructor.
 	 * 
+	 * @param plugin
+	 *            The observation sink plugin.
 	 * @param observations
 	 *            Observation list.
 	 * @param outFile
 	 *            Output file.
-	 * @param newStarType
-	 *            The originating new-star type.
-	 * 
 	 * @param delimiter
 	 *            The field delimiter to use.
 	 */
-	public ObsListFileSaveTask(List<ValidObservation> observations,
-			File outFile, NewStarType newStarType, String delimiter) {
+	public ObsListFileSaveTask(ObservationSinkPluginBase plugin,
+			List<ValidObservation> observations, File outFile, String delimiter) {
 		super();
+		this.plugin = plugin;
 		this.observations = observations;
 		this.outFile = outFile;
-		this.newStarType = newStarType;
 		this.delimiter = delimiter;
 	}
 
@@ -72,68 +68,12 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	 */
 	protected Void doInBackground() throws Exception {
 
-		BufferedOutputStream bufStream = null;
-
-		try {
-			bufStream = new BufferedOutputStream(new FileOutputStream(outFile));
-
-			if (this.newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE) {
-				saveObsToFileInSimpleFormat(bufStream);
-			} else {
-				saveObsToFileInAAVSOFormat(bufStream);
-			}
-		} finally {
-			if (bufStream != null) {
-				bufStream.close();
-			}
+		try (BufferedOutputStream bufStream = new BufferedOutputStream(
+				new FileOutputStream(outFile))) {
+			plugin.save(bufStream, observations, delimiter);
 		}
 
 		return null;
-	}
-
-	/**
-	 * Write observations in simple format to specified output stream. Also
-	 * updates the progress bar upon each observation written.
-	 * 
-	 * @param ostream
-	 *            The specified buffered output stream.
-	 */
-	private void saveObsToFileInSimpleFormat(BufferedOutputStream ostream)
-			throws IOException {
-		for (ValidObservation ob : this.observations) {
-			boolean includeJD = Mediator.getInstance().getViewMode() == ViewModeType.LIST_OBS_MODE
-					|| Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA;
-			// Exclude excluded observations from the output file C.Kotnik 2018-12-16
-			if (! ob.isExcluded()) {
-				ostream.write(ob.toSimpleFormatString(delimiter, includeJD)
-					.getBytes());
-			}
-
-			Mediator.getInstance().getProgressNotifier()
-					.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);
-		}
-	}
-
-	/**
-	 * Write observations in AAVSO format to specified output stream. Also
-	 * updates the progress bar upon each observation written.
-	 * 
-	 * @param ostream
-	 *            The specified buffered output stream.
-	 */
-	private void saveObsToFileInAAVSOFormat(BufferedOutputStream ostream)
-			throws IOException {
-		for (ValidObservation ob : this.observations) {
-			boolean includeJD = Mediator.getInstance().getViewMode() == ViewModeType.LIST_OBS_MODE
-					|| Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA;
-			// Exclude excluded observations from the output file C.Kotnik 2018-12-16
-			if (! ob.isExcluded()) {
-				ostream.write(ob.toAAVSOFormatString(delimiter, includeJD)
-					.getBytes());
-			}
-			Mediator.getInstance().getProgressNotifier()
-					.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);
-		}
 	}
 
 	/**
