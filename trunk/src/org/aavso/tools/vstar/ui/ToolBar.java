@@ -239,8 +239,9 @@ public class ToolBar extends JPanel {
 		newStarFromDatabaseButton = new JButton(newStarFromDatabaseIcon);
 		newStarFromDatabaseButton
 				.setToolTipText(MenuBar.NEW_STAR_FROM_DATABASE);
-		newStarFromDatabaseButton.addActionListener(menuBar
-				.createObservationSourceListener(MenuBar.NEW_STAR_FROM_DATABASE));
+		newStarFromDatabaseButton
+				.addActionListener(menuBar
+						.createObservationSourceListener(MenuBar.NEW_STAR_FROM_DATABASE));
 		newStarFromDatabaseButton.setBorder(BorderFactory.createEmptyBorder());
 		buttonPanel.add(newStarFromDatabaseButton);
 
