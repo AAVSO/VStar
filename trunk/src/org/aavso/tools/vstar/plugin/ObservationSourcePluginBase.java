@@ -33,8 +33,9 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
  * This is the base class for all observation source plug-in classes.
  * </p>
  * <p>
- * An observation source plugin will appear in VStar's File menu when its jar
- * file is placed into the vstar_plugins directory.
+ * An observation source plugin will appear in VStar's File menu or file load
+ * dialog (if the source loads from a file +/- a URL) when its jar file is
+ * placed into the vstar_plugins directory.
  * </p>
  */
 public abstract class ObservationSourcePluginBase implements IPlugin {
