@@ -23,13 +23,21 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+
+import org.aavso.tools.vstar.plugin.InputType;
+import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * This class aggregates a JFileChooser and additive load checkbox and URL entry
@@ -40,8 +48,12 @@ public class AdditiveLoadFileOrUrlChooser {
 	private JFileChooser fileChooser;
 	private JCheckBox additiveLoadCheckbox;
 	private boolean urlProvided;
+	private JButton urlRequestButton;
 	private TextField urlField;
+	private List<String> DEFAULT_EXTENSIONS = new ArrayList<String>();
 	private List<String> extensions = new ArrayList<String>();
+	private Map<String, ObservationSourcePluginBase> plugins;
+	private JComboBox<String> pluginChooser;
 
 	/**
 	 * Constructor
@@ -52,13 +64,14 @@ public class AdditiveLoadFileOrUrlChooser {
 	public AdditiveLoadFileOrUrlChooser(boolean allowURL) {
 		fileChooser = new JFileChooser();
 		urlProvided = false;
+		plugins = new TreeMap<String, ObservationSourcePluginBase>();
 
 		// Default file extensions.
-		extensions.add("csv");
-		extensions.add("dat");
-		extensions.add("tsv");
-		extensions.add("txt");
-		setFileExtensions(extensions);
+		DEFAULT_EXTENSIONS.add("csv");
+		DEFAULT_EXTENSIONS.add("dat");
+		DEFAULT_EXTENSIONS.add("tsv");
+		DEFAULT_EXTENSIONS.add("txt");
+		setFileExtensions(DEFAULT_EXTENSIONS);
 
 		JPanel accessoryPane = new JPanel();
 		accessoryPane.setLayout(new BoxLayout(accessoryPane,
@@ -66,7 +79,9 @@ public class AdditiveLoadFileOrUrlChooser {
 		accessoryPane.add(createAdditiveLoadCheckboxPane());
 		if (allowURL) {
 			accessoryPane.add(createUrlPane());
-		}
+		}		
+		accessoryPane.add(createPluginsList());
+
 		fileChooser.setAccessory(accessoryPane);
 	}
 
@@ -85,6 +100,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	 * @param extensions
 	 */
 	public synchronized void setFileExtensions(List<String> extensions) {
+		fileChooser.removeChoosableFileFilter(fileChooser.getFileFilter());
 		fileChooser.setFileFilter(new FileExtensionFilter(extensions));
 	}
 
@@ -107,7 +123,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	private JPanel createUrlPane() {
 		JPanel pane = new JPanel();
 
-		JButton urlRequestButton = new JButton("Request URL");
+		urlRequestButton = new JButton("Request URL");
 
 		urlRequestButton.addActionListener(new ActionListener() {
 			@Override
@@ -123,6 +139,57 @@ public class AdditiveLoadFileOrUrlChooser {
 		});
 
 		pane.add(urlRequestButton);
+
+		return pane;
+	}
+
+	/**
+	 * Create plugin list and add a listener to change extensions when a plugin
+	 * is selected.
+	 */
+	private JPanel createPluginsList() {
+		JPanel pane = new JPanel();
+
+		for (ObservationSourcePluginBase plugin : PluginLoader
+				.getObservationSourcePlugins()) {
+
+			switch (plugin.getInputType()) {
+			case FILE:
+			case FILE_OR_URL:
+				String name = plugin.getDisplayName();
+				if (name.equals(LocaleProps.get("FILE_MENU_NEW_STAR_FROM_FILE"))) {
+					// Handle localised "New Star from File"
+					name = LocaleProps.get("TEXT_FORMAT_FILE");
+				} else {
+					// Shorten other "New Star from " plugin names.
+					name = name.replace("New Star from ", "");
+					name = name.replace("...", "");
+				}
+				plugins.put(name, plugin);
+			default:
+			}
+		}
+
+		pluginChooser = new JComboBox<String>(plugins.keySet().toArray(new String[0]));
+		pluginChooser.setSelectedItem(LocaleProps.get("TEXT_FORMAT_FILE"));
+		pluginChooser.setBorder(BorderFactory.createTitledBorder("Source"));
+		
+		pluginChooser.addActionListener(e -> {
+			String name = (String) pluginChooser.getSelectedItem();
+			ObservationSourcePluginBase plugin = plugins.get(name);
+			
+			List<String> additional = new ArrayList<String>();
+			additional.addAll(DEFAULT_EXTENSIONS);
+			if (plugin.getAdditionalFileExtensions() != null) {
+				additional.addAll(plugin.getAdditionalFileExtensions());
+			}
+			setFileExtensions(additional);
+			
+			boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;
+			urlRequestButton.setEnabled(urlAllowed);
+		});
+
+		pane.add(pluginChooser);
 
 		return pane;
 	}
@@ -178,6 +245,15 @@ public class AdditiveLoadFileOrUrlChooser {
 	 */
 	public boolean isLoadAdditive() {
 		return additiveLoadCheckbox.isSelected();
+	}
+
+	/**
+	 * Return the currently selected observation source plugin.
+	 * 
+	 * @return The plugin instance.
+	 */
+	public ObservationSourcePluginBase getSelectedPlugin() {
+		return plugins.get(pluginChooser.getSelectedItem());
 	}
 
 	/**
