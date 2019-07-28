@@ -42,9 +42,11 @@ import javax.swing.JMenuItem;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.plugin.IPlugin;
+import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
+import org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
 import org.aavso.tools.vstar.scripting.ScriptRunner;
 import org.aavso.tools.vstar.ui.dialog.AboutBox;
@@ -142,8 +144,7 @@ public class MenuBar extends JMenuBar {
 			.get("TOOL_MENU_PLUGIN_MANAGER");
 	public static final String RUN_SCRIPT = LocaleProps
 			.get("TOOL_MENU_RUN_SCRIPT");
-	public static final String VELA = LocaleProps
-			.get("TOOL_MENU_VELA");
+	public static final String VELA = LocaleProps.get("TOOL_MENU_VELA");
 
 	// Help menu item names.
 	public static final String HELP_CONTENTS = LocaleProps
@@ -176,6 +177,7 @@ public class MenuBar extends JMenuBar {
 	private Map<String, ModelCreatorPluginBase> menuItemNameToModelCreatorPlugin;
 	private Map<String, ObservationToolPluginBase> menuItemNameToObsToolPlugin;
 	private Map<String, GeneralToolPluginBase> menuItemNameToGenToolPlugin;
+	private Map<String, ObservationTransformerPluginBase> menuItemNameToObsTransPlugin;
 
 	// Keep track of analysis menu items for enabling/disabling.
 	private List<JMenuItem> analysisMenuItems;
@@ -242,9 +244,6 @@ public class MenuBar extends JMenuBar {
 	JMenuItem helpVStarOnlineItem;
 	JMenuItem helpAboutItem;
 
-	// New star message.
-	private NewStarMessage newStarMessage;
-
 	/**
 	 * Constructor
 	 * 
@@ -267,8 +266,6 @@ public class MenuBar extends JMenuBar {
 		createAnalysisMenu();
 		createToolMenu();
 		createHelpMenu();
-
-		this.newStarMessage = null;
 
 		// Listen to events
 
@@ -327,19 +324,24 @@ public class MenuBar extends JMenuBar {
 			int internalPluginIndex = 1;
 			for (ObservationSourcePluginBase plugin : obSourcePlugins) {
 				String itemName = plugin.getDisplayName();
+				if (plugin.getInputType() == InputType.NONE
+						|| plugin.getInputType() == InputType.URL
+						|| LocaleProps.get("FILE_MENU_NEW_STAR_FROM_FILE")
+								.equals(itemName)) {
 
-				JMenuItem obSourceMenuItem = new JMenuItem(itemName);
-				obSourceMenuItem.addActionListener(obSourceListener);
-				fileMenu.add(obSourceMenuItem);
+					JMenuItem obSourceMenuItem = new JMenuItem(itemName);
+					obSourceMenuItem.addActionListener(obSourceListener);
+					fileMenu.add(obSourceMenuItem);
 
-				if ("Internal".equals(plugin.getGroup())
-						&& internalPluginIndex == internalPluginCount) {
-					fileMenu.addSeparator();
-				} else {
-					internalPluginIndex++;
+					if ("Internal".equals(plugin.getGroup())
+							&& internalPluginIndex == internalPluginCount) {
+						fileMenu.addSeparator();
+					} else {
+						internalPluginIndex++;
+					}
+
+					menuItemNameToObSourcePlugin.put(itemName, plugin);
 				}
-
-				menuItemNameToObSourcePlugin.put(itemName, plugin);
 			}
 
 			fileMenu.addSeparator();
@@ -655,6 +657,27 @@ public class MenuBar extends JMenuBar {
 				toolMenu.add(toolMenuItem);
 
 				menuItemNameToGenToolPlugin.put(itemName, plugin);
+			}
+		}
+
+		List<ObservationTransformerPluginBase> obsTransPlugins = PluginLoader
+				.getObservationTransformerPlugins();
+
+		if (!obsTransPlugins.isEmpty()) {
+			toolMenu.addSeparator();
+
+			ActionListener obsTransMenuItemListener = createObsTransMenuItemListener();
+
+			menuItemNameToObsTransPlugin = new TreeMap<String, ObservationTransformerPluginBase>();
+
+			for (ObservationTransformerPluginBase plugin : obsTransPlugins) {
+				String itemName = plugin.getDisplayName() + "...";
+
+				JMenuItem toolMenuItem = new JMenuItem(itemName);
+				toolMenuItem.addActionListener(obsTransMenuItemListener);
+				toolMenu.add(toolMenuItem);
+
+				menuItemNameToObsTransPlugin.put(itemName, plugin);
 			}
 		}
 
@@ -1260,6 +1283,27 @@ public class MenuBar extends JMenuBar {
 		};
 	}
 
+	/**
+	 * Returns the action listener to be invoked for Observation Transformer
+	 * menu item selections.
+	 */
+	public ActionListener createObsTransMenuItemListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String item = e.getActionCommand();
+				ObservationTransformerPluginBase plugin = menuItemNameToObsTransPlugin
+						.get(item);
+				try {
+					Mediator.getInstance()
+							.performObservationTransformationOperation(plugin);
+				} catch (Throwable t) {
+					MessageBox.showErrorDialog(
+							"Observation Transformation Error", t);
+				}
+			}
+		};
+	}
+
 	// ** Help Menu listeners **
 
 	/**
@@ -1413,8 +1457,6 @@ public class MenuBar extends JMenuBar {
 
 			@Override
 			public void update(NewStarMessage msg) {
-				newStarMessage = msg;
-
 				editUndoItem.setText(UNDO);
 				editUndoItem.setEnabled(false);
 
