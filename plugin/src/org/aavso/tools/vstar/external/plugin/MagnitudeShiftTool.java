@@ -38,7 +38,11 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 /**
  * This plug-in allows a new series to be created from an existing series by
  * taking one series and shifting the magnitudes of each observation by a
- * specified amount.
+ * specified amount.<br/>
+ * 
+ * @deprecated What do we want to do with this? Obviously relates to observation
+ *             transformation but here we create a new series rather than
+ *             modifying an existing series.
  */
 public class MagnitudeShiftTool extends ObservationToolPluginBase {
 
@@ -66,12 +70,12 @@ public class MagnitudeShiftTool extends ObservationToolPluginBase {
 				SeriesType type = seriesSelector.getSeries();
 				List<ValidObservation> obs = seriesInfo.getObservations(type);
 
-				String description = String.format("%s shifted by %s", type
-						.getDescription(), NumericPrecisionPrefs
-						.formatMag(magDelta));
+				String description = String.format("%s shifted by %s",
+						type.getDescription(),
+						NumericPrecisionPrefs.formatMag(magDelta));
 				String shortName = String.format("%s + %s",
-						type.getShortName(), NumericPrecisionPrefs
-								.formatMag(magDelta));
+						type.getShortName(),
+						NumericPrecisionPrefs.formatMag(magDelta));
 				Color color = type.getColor();
 
 				// SeriesType newType = SeriesType.create(description,
