@@ -20,7 +20,6 @@ package org.aavso.tools.vstar.plugin;
 import java.util.Set;
 
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.resources.LoginInfo;
 import org.aavso.tools.vstar.ui.undo.IUndoableAction;
@@ -39,7 +38,7 @@ abstract public class ObservationTransformerPluginBase implements IPlugin {
 	 *            The list of observations to be transformed.
 	 * @return The undoable action.
 	 */
-	abstract public IUndoableAction execute(ISeriesInfoProvider seriesInfo,
+	abstract public IUndoableAction createAction(ISeriesInfoProvider seriesInfo,
 			Set<SeriesType> series);
 
 	/**
@@ -63,16 +62,6 @@ abstract public class ObservationTransformerPluginBase implements IPlugin {
 	 */
 	@Override
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
-		return true;
-	}
-
-	/**
-	 * If there is a plugin-specific dialog to be invoked before execute(),
-	 * override this method.
-	 * 
-	 * @return Whether or not it is OK to continue.
-	 */
-	public boolean invokeDialog() {
 		return true;
 	}
 }
