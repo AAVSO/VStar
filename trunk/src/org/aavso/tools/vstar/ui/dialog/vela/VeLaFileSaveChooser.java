@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.ui.dialog;
+package org.aavso.tools.vstar.ui.dialog.vela;
 
 import java.awt.Component;
 import java.io.File;
@@ -24,20 +24,22 @@ import java.util.List;
 
 import javax.swing.JFileChooser;
 
+import org.aavso.tools.vstar.ui.dialog.FileExtensionFilter;
+
 /**
- * This class implements a VeLa file load chooser.
+ * This class implements a VeLa file save chooser.
  */
-public class VeLaFileLoadChooser {
+public class VeLaFileSaveChooser {
 
 	private JFileChooser fileChooser;
 
-	public VeLaFileLoadChooser() {
+	public VeLaFileSaveChooser() {
 		fileChooser = new JFileChooser();
 		
 		List<String> extensions = new ArrayList<String>();
-		extensions.add(".txt");
-		extensions.add(".vl");
-		extensions.add(".vela");
+		extensions.add("txt");
+		extensions.add("vl");
+		extensions.add("vela");
 
 		fileChooser.setFileFilter(new FileExtensionFilter(extensions));
 	}
@@ -51,7 +53,7 @@ public class VeLaFileLoadChooser {
 	 * @return Whether the dialog was "approved".
 	 */
 	public boolean showDialog(Component parent) {
-		return fileChooser.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION;
+		return fileChooser.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION;
 	}
 
 	/**
