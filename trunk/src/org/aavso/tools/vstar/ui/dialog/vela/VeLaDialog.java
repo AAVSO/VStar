@@ -39,8 +39,6 @@ import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
-import org.aavso.tools.vstar.ui.dialog.VeLaFileLoadChooser;
-import org.aavso.tools.vstar.ui.dialog.VeLaFileSaveChooser;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -61,13 +59,13 @@ public class VeLaDialog extends TextDialog {
 	private static VeLaInterpreter vela;
 
 	static {
-		codeTextArea = new TextArea("VeLa Code", 12, 42);
+		codeTextArea = new TextArea("VeLa Code", "", 12, 42, false, true);
 		// resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error",
 		// "AST", "DOT"), Arrays.asList("", "", "", ""), 15, 70,
 		// true, true);
 		// resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error"),
 		// Arrays.asList("", ""), 10, 40, true, true);
-		resultTextArea = new TextArea("Output", 12, 42);
+		resultTextArea = new TextArea("Output", "", 12, 42, true, true);
 
 		verbosityCheckBox = new JCheckBox("Verbose?");
 		verbosityCheckBox.setSelected(false);
@@ -76,10 +74,24 @@ public class VeLaDialog extends TextDialog {
 		// vela = new VeLaInterpreter(false);
 	}
 
+	public VeLaDialog(String title) {
+		super(title, Arrays.asList(codeTextArea, resultTextArea));		
+	}
+	
 	public VeLaDialog() {
-		super("VeLa", Arrays.asList(codeTextArea, resultTextArea));
+		this("VeLa");
 	}
 
+	/**
+	 * Get the VeLa code.
+	 * 
+	 * @return A string containing the code.
+	 */
+	public String getCode() {
+		return codeTextArea.getStringValue();
+	}
+
+	@Override
 	protected JPanel createButtonPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
@@ -118,9 +130,10 @@ public class VeLaDialog extends TextDialog {
 					codeTextArea.setValue(code.toString());
 				} catch (IOException ex) {
 					// Nothing to do
+				}
 			}
-		}
-	})	;
+		});
+		
 		panel.add(loadButton);
 
 		JButton saveButton = new JButton(LocaleProps.get("SAVE_BUTTON"));
@@ -145,11 +158,17 @@ public class VeLaDialog extends TextDialog {
 					writer.close();
 				} catch (IOException ex) {
 					// Nothing to do
+				}
 			}
-		}
-	})	;
+		});
 		panel.add(saveButton);
 
+		JButton dismissButton = new JButton(LocaleProps.get("DISMISS_BUTTON"));
+		dismissButton.addActionListener(e -> {
+			okAction();
+		});
+		panel.add(dismissButton);
+		
 		panel.add(verbosityCheckBox);
 
 		return panel;
