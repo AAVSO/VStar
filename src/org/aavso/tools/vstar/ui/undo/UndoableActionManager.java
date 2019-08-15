@@ -74,12 +74,41 @@ public class UndoableActionManager {
 	}
 
 	/**
+	 * Clear pending undo/redo actions for actions with the specified display
+	 * string.
+	 * 
+	 * @param displayString The action's display string.
+	 */
+	public void clearPendingAction(String displayString) {
+		if (!isUndoStackEmpty()) {
+			if (undoStack.peek().getDisplayString().equals(displayString)) {
+				undoStack.pop();
+			}
+		}
+
+		if (!isRedoStackEmpty()) {
+			if (redoStack.peek().getDisplayString().equals(displayString)) {
+				redoStack.pop();
+			}
+		}
+	}
+
+	/**
 	 * Is the undo stack empty?
 	 * 
 	 * @return Whether or not the undo stack is empty.
 	 */
 	public boolean isUndoStackEmpty() {
 		return undoStack.isEmpty();
+	}
+
+	/**
+	 * Is the redo stack empty?
+	 * 
+	 * @return Whether or not the redo stack is empty.
+	 */
+	public boolean isRedoStackEmpty() {
+		return redoStack.isEmpty();
 	}
 
 	/**
@@ -95,15 +124,6 @@ public class UndoableActionManager {
 			addAction(action, UndoRedoType.REDO);
 			Mediator.getInstance().updatePlotsAndTables();
 		}
-	}
-
-	/**
-	 * Is the redo stack empty?
-	 * 
-	 * @return Whether or not the redo stack is empty.
-	 */
-	public boolean isRedoStackEmpty() {
-		return redoStack.isEmpty();
 	}
 
 	/**
