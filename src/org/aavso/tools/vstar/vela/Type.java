@@ -93,4 +93,17 @@ public enum Type {
 	public boolean isComposite() {
 		return this == LIST || this == FUNCTION;
 	}
+	
+	public boolean oneOf(Type ...types) {
+		boolean result = false;
+		
+		for (Type type : types) {
+			if (this == type) {
+				result = true;
+				break;
+			}
+		}
+		
+		return result;
+	}
 }
