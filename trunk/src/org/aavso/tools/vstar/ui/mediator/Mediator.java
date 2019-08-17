@@ -70,14 +70,14 @@ import org.aavso.tools.vstar.ui.dialog.PNGImageFileSaveChooser;
 import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
-import org.aavso.tools.vstar.ui.dialog.VeLaFileLoadChooser;
-import org.aavso.tools.vstar.ui.dialog.VeLaFileSaveChooser;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFiltersDialog;
 import org.aavso.tools.vstar.ui.dialog.model.ModelDialog;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
 import org.aavso.tools.vstar.ui.dialog.series.MultipleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
+import org.aavso.tools.vstar.ui.dialog.vela.VeLaFileLoadChooser;
+import org.aavso.tools.vstar.ui.dialog.vela.VeLaFileSaveChooser;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
@@ -130,6 +130,7 @@ import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedFileTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedURLTask;
 import org.aavso.tools.vstar.ui.task.ObsListFileSaveTask;
+import org.aavso.tools.vstar.ui.task.ObsTransformationTask;
 import org.aavso.tools.vstar.ui.task.PeriodAnalysisTask;
 import org.aavso.tools.vstar.ui.task.PhasePlotTask;
 import org.aavso.tools.vstar.ui.task.PluginManagerOperationTask;
@@ -2001,25 +2002,30 @@ public class Mediator {
 						obsAndMeanPlotModel);
 
 				if (!seriesDialog.isCancelled()) {
-					boolean ok = plugin.invokeDialog();
+					IUndoableAction action = plugin.createAction(Mediator
+							.getInstance().getSeriesInfoProvider(),
+							seriesDialog.getSelectedSeries());
 
-					if (ok) {
-						IUndoableAction action = plugin.execute(
-								getSeriesInfoProvider(),
-								seriesDialog.getSelectedSeries());
+					ObsTransformationTask task = new ObsTransformationTask(action);
 
-						action.execute();
+					this.currTask = task;
 
-						getUndoableActionManager().addAction(action,
-								UndoRedoType.UNDO);
+					this.getProgressNotifier().notifyListeners(
+							ProgressInfo.START_PROGRESS);
+					this.getProgressNotifier().notifyListeners(
+							ProgressInfo.BUSY_PROGRESS);
 
-						updatePlotsAndTables();
-					}
+					task.execute();
 				}
 			}
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Observation Transformation Error", e);
+					"Observation Transformartion Error", e);
+
+			this.getProgressNotifier().notifyListeners(
+					ProgressInfo.START_PROGRESS);
+
+			Mediator.getUI().getStatusPane().setMessage("");
 		}
 	}
 
