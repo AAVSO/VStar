@@ -31,12 +31,14 @@ public class ObservationExclusionAction implements IUndoableAction {
 
 	private List<ValidObservation> obs;
 	private boolean exclusionState;
-	
+
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
-	 * @param obs The observations to be included/exclusionState.
-	 * @param exclusionState The exclusion/inclusion state.
+	 * @param obs
+	 *            The observations to be included/exclusionState.
+	 * @param exclusionState
+	 *            The exclusion/inclusion state.
 	 */
 	public ObservationExclusionAction(List<ValidObservation> obs,
 			boolean exclusionState) {
@@ -46,7 +48,8 @@ public class ObservationExclusionAction implements IUndoableAction {
 	}
 
 	/**
-	 * @param exclusionState the exclusionState to set
+	 * @param exclusionState
+	 *            the exclusionState to set
 	 */
 	public void setExclusionState(boolean exclusionState) {
 		this.exclusionState = exclusionState;
@@ -58,10 +61,12 @@ public class ObservationExclusionAction implements IUndoableAction {
 	@Override
 	public void execute() {
 		// Set the exclusion state of each observation.
-		for (ValidObservation ob : obs) {
+		int i;
+		for (i = 0; i < obs.size(); i++) {
+			ValidObservation ob = obs.get(i);
 			ob.setExcluded(exclusionState);
 		}
-		
+
 		// Send an exclusion message.
 		ExcludedObservationMessage msg = new ExcludedObservationMessage(
 				obs, this);
