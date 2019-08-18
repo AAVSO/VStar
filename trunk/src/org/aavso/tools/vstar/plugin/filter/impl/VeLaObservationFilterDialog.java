@@ -39,7 +39,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
-import org.aavso.tools.vstar.ui.dialog.VeLaFileLoadChooser;
+import org.aavso.tools.vstar.ui.dialog.vela.VeLaFileLoadChooser;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
