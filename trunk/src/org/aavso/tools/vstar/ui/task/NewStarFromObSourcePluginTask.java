@@ -291,7 +291,6 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				if (retriever.getValidObservations().isEmpty()) {
 					String msg = "No observations for the specified period.";
 					MessageBox.showErrorDialog("Observation Read Error", msg);
-					// throw new ObservationReadError(msg);
 				} else {
 					// Create plots, tables.
 					mediator.createNewStarObservationArtefacts(
