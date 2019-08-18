@@ -104,32 +104,40 @@ public class NewStarFromObSourcePluginWithSuppliedURLTask extends
 	 * plug-in.
 	 */
 	protected void createObservationArtefacts() {
+		List<InputStream> streams = new ArrayList<InputStream>();
 
 		try {
-			if (inputURL != null) {
-				// Set input streams and name, if requested by the plug-in.
-				List<InputStream> streams = new ArrayList<InputStream>();
-				streams.add(inputURL.openStream());
-				obSourcePlugin.setInputInfo(streams, inputURL.getPath());
+			try {
+				if (inputURL != null) {
+					// Set input streams and name, if requested by the plug-in.
+					streams.add(inputURL.openStream());
+					obSourcePlugin.setInputInfo(streams, inputURL.getPath());
+				}
+
+				// Retrieve the observations.
+				AbstractObservationRetriever retriever = obSourcePlugin
+						.getObservationRetriever();
+
+				ValidObservation.reset();
+
+				retriever.retrieveObservations();
+
+				if (retriever.getValidObservations().isEmpty()) {
+					throw new ObservationReadError(
+							"No observations for the specified period or error in observation source.");
+				} else {
+					// Create plots, tables.
+					NewStarType type = obSourcePlugin.getNewStarType();
+					mediator.createNewStarObservationArtefacts(type,
+							retriever.getStarInfo(), 0, isAdditive);
+				}
+			} finally {
+				// Close all streams
+				for (InputStream stream : streams) {
+					stream.close();
+				}
 			}
 
-			// Retrieve the observations.
-			AbstractObservationRetriever retriever = obSourcePlugin
-					.getObservationRetriever();
-
-			ValidObservation.reset();
-
-			retriever.retrieveObservations();
-
-			if (retriever.getValidObservations().isEmpty()) {
-				throw new ObservationReadError(
-						"No observations for the specified period or error in observation source.");
-			} else {
-				// Create plots, tables.
-				NewStarType type = obSourcePlugin.getNewStarType();
-				mediator.createNewStarObservationArtefacts(type,
-						retriever.getStarInfo(), 0, isAdditive);
-			}
 		} catch (InterruptedException e) {
 			ValidObservation.restore();
 

@@ -57,7 +57,11 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
 	private ObservationSourcePluginBase obSourcePlugin;
 
+	private List<InputStream> streams;
+
 	private AbstractObservationRetriever retriever;
+
+	private int obsCount;
 
 	private boolean cancelled;
 
@@ -70,6 +74,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	public NewStarFromObSourcePluginTask(
 			ObservationSourcePluginBase obSourcePlugin) {
 		this.obSourcePlugin = obSourcePlugin;
+		obsCount = 0;
 		cancelled = false;
 	}
 
@@ -93,7 +98,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			}
 
 			// Set input streams and name, if requested by the plug-in.
-			List<InputStream> streams = new ArrayList<InputStream>();
+			streams = new ArrayList<InputStream>();
 
 			switch (obSourcePlugin.getInputType()) {
 			case FILE:
@@ -236,8 +241,13 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			createObservationArtefacts();
 
 		} catch (Exception ex) {
-			MessageBox.showErrorDialog("Observation Source Error",
-					ex.getLocalizedMessage());
+			// Experience shows that if we get to this point, a different
+			// exception has already been caught and reported in the event
+			// thread. There is no point in reporting a null exception!
+			if (ex.getLocalizedMessage() != null) {
+				MessageBox.showErrorDialog("Observation Source Error",
+						ex.getLocalizedMessage());
+			}
 		} finally {
 			Mediator.getUI().setCursor(null);
 		}
@@ -269,24 +279,33 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						ProgressInfo.START_PROGRESS);
 			}
 
-			// Note: This may cause problems if isAdditive() is true, so make
+			// Note: A reset may cause problems if isAdditive() is true, so make
 			// conditional.
 			if (!obSourcePlugin.isAdditive()) {
 				ValidObservation.reset();
 			}
 
-			retriever.retrieveObservations();
+			try {
+				retriever.retrieveObservations();
+				
+				if (retriever.getValidObservations().isEmpty()) {
+					String msg = "No observations for the specified period.";
+					MessageBox.showErrorDialog("Observation Read Error", msg);
+					// throw new ObservationReadError(msg);
+				} else {
+					// Create plots, tables.
+					mediator.createNewStarObservationArtefacts(
+							obSourcePlugin.getNewStarType(),
+							retriever.getStarInfo(), plotPortion,
+							obSourcePlugin.isAdditive());
 
-			if (retriever.getValidObservations().isEmpty()) {
-				String msg = "No observations for the specified period.";
-				MessageBox.showErrorDialog("Observation Read Error", msg);
-				// throw new ObservationReadError(msg);
-			} else {
-				// Create plots, tables.
-				mediator.createNewStarObservationArtefacts(
-						obSourcePlugin.getNewStarType(),
-						retriever.getStarInfo(), plotPortion,
-						obSourcePlugin.isAdditive());
+					obsCount = retriever.getValidObservations().size();
+				}
+			} finally {
+				// Close all streams
+				for (InputStream stream : streams) {
+					stream.close();
+				}
 			}
 		} catch (InterruptedException e) {
 			ValidObservation.restore();
@@ -295,7 +314,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			ValidObservation.restore();
 			done();
 			MessageBox.showErrorDialog(
-					"New Star From Observation Source Read Error", t);
+					"New Star From Observation Source Read Error",
+					t.getLocalizedMessage());
 		}
 	}
 
@@ -304,14 +324,15 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 	 */
 	public void done() {
 		if (cancelled
-				|| retriever.getValidObservations().size() != 0
+				|| obsCount != 0
 				|| (obSourcePlugin.isAdditive() && !mediator
 						.getNewStarMessageList().isEmpty())) {
 			// Either there were observations loaded or this was a failed
 			// additive load and there exist previously loaded observations, so
 			// we want to complete progress. We also want to complete progress
 			// if the dialog is cancelled. Doing so ensures menu and tool bar
-			// icons have their state restored.
+			// icons have their state restored. Question: why not just do this
+			// unconditionally then?
 			mediator.getProgressNotifier().notifyListeners(
 					ProgressInfo.COMPLETE_PROGRESS);
 		}
