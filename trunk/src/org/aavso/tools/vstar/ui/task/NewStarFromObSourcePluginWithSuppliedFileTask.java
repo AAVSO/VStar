@@ -105,28 +105,36 @@ public class NewStarFromObSourcePluginWithSuppliedFileTask extends
 	 */
 	protected void createObservationArtefacts() {
 
+		List<InputStream> streams = new ArrayList<InputStream>();
+
 		try {
-			// Set input streams and name, if requested by the plug-in.
-			List<InputStream> streams = new ArrayList<InputStream>();
-			streams.add(new FileInputStream(inputFile));
-			obSourcePlugin.setInputInfo(streams, inputFile.getName());
+			try {
+				// Set input streams and name, if requested by the plug-in.
+				streams.add(new FileInputStream(inputFile));
+				obSourcePlugin.setInputInfo(streams, inputFile.getName());
 
-			// Retrieve the observations.
-			AbstractObservationRetriever retriever = obSourcePlugin
-					.getObservationRetriever();
+				// Retrieve the observations.
+				AbstractObservationRetriever retriever = obSourcePlugin
+						.getObservationRetriever();
 
-			ValidObservation.reset();
+				ValidObservation.reset();
 
-			retriever.retrieveObservations();
+				retriever.retrieveObservations();
 
-			if (retriever.getValidObservations().isEmpty()) {
-				throw new ObservationReadError(
-						"No observations for the specified period or error in observation source.");
-			} else {
-				// Create plots, tables.
-				NewStarType type = obSourcePlugin.getNewStarType();
-				mediator.createNewStarObservationArtefacts(type,
-						retriever.getStarInfo(), 0, isAdditive);
+				if (retriever.getValidObservations().isEmpty()) {
+					throw new ObservationReadError(
+							"No observations for the specified period or error in observation source.");
+				} else {
+					// Create plots, tables.
+					NewStarType type = obSourcePlugin.getNewStarType();
+					mediator.createNewStarObservationArtefacts(type,
+							retriever.getStarInfo(), 0, isAdditive);
+				}
+			} finally {
+				// Close all streams
+				for (InputStream stream : streams) {
+					stream.close();
+				}
 			}
 		} catch (InterruptedException e) {
 			ValidObservation.restore();
