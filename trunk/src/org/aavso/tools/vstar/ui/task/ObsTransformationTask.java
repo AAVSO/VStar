@@ -34,7 +34,6 @@ import org.aavso.tools.vstar.util.notification.Listener;
 public class ObsTransformationTask extends SwingWorker<Void, Void> {
 
 	private IUndoableAction action;
-	private Listener<StopRequestMessage> stopListener;
 
 	/**
 	 * Constructor
@@ -48,9 +47,6 @@ public class ObsTransformationTask extends SwingWorker<Void, Void> {
 	 */
 	protected Void doInBackground() throws Exception {
 
-		Mediator.getInstance().getStopRequestNotifier()
-				.addListener(stopListener);
-
 		Mediator.getUI().getStatusPane()
 				.setMessage("Performing " + action.getDisplayString() + "...");
 		try {
@@ -58,7 +54,7 @@ public class ObsTransformationTask extends SwingWorker<Void, Void> {
 			Mediator.getInstance().getUndoableActionManager()
 					.clearPendingAction(action.getDisplayString());
 
-			// Execute a (re)do action.
+			// Execute a (re)do action...
 			action.prepare(UndoRedoType.REDO);
 			action.execute();
 			Mediator.getInstance().updatePlotsAndTables();
@@ -69,11 +65,8 @@ public class ObsTransformationTask extends SwingWorker<Void, Void> {
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(action.getDisplayString() + " Error", t);
 		} finally {
-			Mediator.getInstance().getStopRequestNotifier()
-					.removeListenerIfWilling(stopListener);
+			Mediator.getUI().getStatusPane().setMessage("");
 		}
-
-		Mediator.getUI().getStatusPane().setMessage("");
 
 		return null;
 	}
