@@ -25,9 +25,9 @@ import org.aavso.tools.vstar.ui.undo.IUndoableAction;
 public class UndoActionMessage extends MessageBase {
 
 	private IUndoableAction action;
-	private UndoRedoType type;
+	private UndoableActionType type;
 	
-	public UndoActionMessage(Object source, IUndoableAction action, UndoRedoType type) {
+	public UndoActionMessage(Object source, IUndoableAction action, UndoableActionType type) {
 		super(source);
 		
 		this.action = action;
@@ -44,7 +44,7 @@ public class UndoActionMessage extends MessageBase {
 	/**
 	 * @return the type
 	 */
-	public UndoRedoType getType() {
+	public UndoableActionType getType() {
 		return type;
 	}
 }

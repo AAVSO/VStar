@@ -22,7 +22,7 @@ import java.util.List;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
-import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
 
 /**
  * This class reverses an exclusion/inclusion operation.
@@ -59,7 +59,13 @@ public class ObservationExclusionAction implements IUndoableAction {
 	 * @see org.aavso.tools.vstar.ui.undo.IUndoableAction#execute()
 	 */
 	@Override
-	public void execute() {
+	public boolean execute(UndoableActionType type) {
+		// Undo and Redo toggle the exclusion state, whereas we just use the
+		// first exclusion state for the first ("do") action.
+		if (type != UndoableActionType.DO) {
+			exclusionState = !exclusionState;
+		}
+
 		// Set the exclusion state of each observation.
 		int i;
 		for (i = 0; i < obs.size(); i++) {
@@ -68,21 +74,17 @@ public class ObservationExclusionAction implements IUndoableAction {
 		}
 
 		// Send an exclusion message.
-		ExcludedObservationMessage msg = new ExcludedObservationMessage(
-				obs, this);
+		ExcludedObservationMessage msg = new ExcludedObservationMessage(obs,
+				this);
 
 		Mediator.getInstance().getExcludedObservationNotifier()
 				.notifyListeners(msg);
+		
+		return true;
 	}
 
 	@Override
 	public String getDisplayString() {
 		return "observation exclusion";
-	}
-
-	@Override
-	public void prepare(UndoRedoType type) {
-		// Just toggle the exclusion state.
-		exclusionState = !exclusionState;
 	}
 }

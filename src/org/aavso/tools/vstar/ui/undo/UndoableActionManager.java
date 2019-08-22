@@ -28,8 +28,10 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
+import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
-import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
+import org.aavso.tools.vstar.ui.task.UndoableActionTask;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -59,13 +61,11 @@ public class UndoableActionManager {
 	 * @param type
 	 *            The type of action (undo/redo).
 	 */
-	public void addAction(IUndoableAction action, UndoRedoType type) {
+	public void addAction(IUndoableAction action, UndoableActionType type) {
 
-		action.prepare(type);
-
-		if (type == UndoRedoType.UNDO) {
+		if (type == UndoableActionType.UNDO) {
 			undoStack.add(action);
-		} else if (type == UndoRedoType.REDO) {
+		} else if (type == UndoableActionType.REDO) {
 			redoStack.add(action);
 		}
 
@@ -77,7 +77,8 @@ public class UndoableActionManager {
 	 * Clear pending undo/redo actions for actions with the specified display
 	 * string.
 	 * 
-	 * @param displayString The action's display string.
+	 * @param displayString
+	 *            The action's display string.
 	 */
 	public void clearPendingAction(String displayString) {
 		if (!isUndoStackEmpty()) {
@@ -116,13 +117,7 @@ public class UndoableActionManager {
 	 */
 	public void executeUndoAction() {
 		if (!undoStack.isEmpty()) {
-			IUndoableAction action = undoStack.pop();
-
-			// Perform the action, then add its opposite to the redo
-			// stack.
-			action.execute();
-			addAction(action, UndoRedoType.REDO);
-			Mediator.getInstance().updatePlotsAndTables();
+			performUndoableAction(undoStack.pop(), UndoableActionType.UNDO);
 		}
 	}
 
@@ -131,14 +126,31 @@ public class UndoableActionManager {
 	 */
 	public void executeRedoAction() {
 		if (!redoStack.isEmpty()) {
-			IUndoableAction action = redoStack.pop();
-
-			// Perform the action, then add its opposite to the undo
-			// stack.
-			action.execute();
-			addAction(action, UndoRedoType.UNDO);
-			Mediator.getInstance().updatePlotsAndTables();
+			performUndoableAction(redoStack.pop(), UndoableActionType.REDO);
 		}
+	}
+
+	/**
+	 * Start an asynchronous task to execute an undoable action.
+	 * 
+	 * @param action
+	 *            The undoable action.
+	 * @param type
+	 *            The undoable action type (undo/redo).
+	 */
+	public UndoableActionTask performUndoableAction(IUndoableAction action,
+			UndoableActionType type) {
+
+		UndoableActionTask task = new UndoableActionTask(action, type);
+
+		Mediator.getInstance().getProgressNotifier()
+				.notifyListeners(ProgressInfo.START_PROGRESS);
+		Mediator.getInstance().getProgressNotifier()
+				.notifyListeners(ProgressInfo.BUSY_PROGRESS);
+
+		task.execute();
+
+		return task;
 	}
 
 	// ** Specific actions and related methods. **
@@ -158,8 +170,8 @@ public class UndoableActionManager {
 
 			// Perform the exclusion action, then add its opposite to the undo
 			// stack.
-			action.execute();
-			addAction(action, UndoRedoType.UNDO);
+			action.execute(UndoableActionType.DO);
+			addAction(action, UndoableActionType.UNDO);
 
 			// Now that we have excluded the selected observations,
 			// clear the collection.

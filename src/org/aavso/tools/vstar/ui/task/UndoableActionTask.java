@@ -22,24 +22,24 @@ import javax.swing.SwingWorker;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
-import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
-import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
 import org.aavso.tools.vstar.ui.undo.IUndoableAction;
-import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * A concurrent task in which a potentially long-running observation task is
  * executed.
  */
-public class ObsTransformationTask extends SwingWorker<Void, Void> {
+public class UndoableActionTask extends SwingWorker<Void, Void> {
 
 	private IUndoableAction action;
+	private UndoableActionType type;
 
 	/**
 	 * Constructor
 	 */
-	public ObsTransformationTask(IUndoableAction action) {
+	public UndoableActionTask(IUndoableAction action, UndoableActionType type) {
 		this.action = action;
+		this.type = type;
 	}
 
 	/**
@@ -50,18 +50,36 @@ public class ObsTransformationTask extends SwingWorker<Void, Void> {
 		Mediator.getUI().getStatusPane()
 				.setMessage("Performing " + action.getDisplayString() + "...");
 		try {
-			// Reset undo/redo actions of this type...
-			Mediator.getInstance().getUndoableActionManager()
-					.clearPendingAction(action.getDisplayString());
+			// Reset undo/redo actions of this type if we are starting from
+			// scratch with a "do" action.
+			if (type == UndoableActionType.DO) {
+				Mediator.getInstance().getUndoableActionManager()
+						.clearPendingAction(action.getDisplayString());
+			}
 
-			// Execute a (re)do action...
-			action.prepare(UndoRedoType.REDO);
-			action.execute();
+			// Execute an action...
+			boolean ok = action.execute(type);
+
+			// ...update the UI...
 			Mediator.getInstance().updatePlotsAndTables();
 
-			// ...and add an undo operation.
-			Mediator.getInstance().getUndoableActionManager()
-					.addAction(action, UndoRedoType.UNDO);
+			if (ok) {
+				// ...then add an undo/redo operation.
+				UndoableActionType nextType = null;
+
+				switch (type) {
+				case DO:
+				case REDO:
+					nextType = UndoableActionType.UNDO;
+					break;
+				case UNDO:
+					nextType = UndoableActionType.REDO;
+					break;
+				}
+
+				Mediator.getInstance().getUndoableActionManager()
+						.addAction(action, nextType);
+			}
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(action.getDisplayString() + " Error", t);
 		} finally {

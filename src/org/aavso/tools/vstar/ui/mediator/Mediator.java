@@ -101,7 +101,7 @@ import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
-import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.model.list.AbstractMeanObservationTableModel;
 import org.aavso.tools.vstar.ui.model.list.AbstractModelObservationTableModel;
@@ -130,7 +130,6 @@ import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedFileTask;
 import org.aavso.tools.vstar.ui.task.NewStarFromObSourcePluginWithSuppliedURLTask;
 import org.aavso.tools.vstar.ui.task.ObsListFileSaveTask;
-import org.aavso.tools.vstar.ui.task.ObsTransformationTask;
 import org.aavso.tools.vstar.ui.task.PeriodAnalysisTask;
 import org.aavso.tools.vstar.ui.task.PhasePlotTask;
 import org.aavso.tools.vstar.ui.task.PluginManagerOperationTask;
@@ -2006,21 +2005,15 @@ public class Mediator {
 							.getInstance().getSeriesInfoProvider(),
 							seriesDialog.getSelectedSeries());
 
-					ObsTransformationTask task = new ObsTransformationTask(action);
-
-					this.currTask = task;
-
-					this.getProgressNotifier().notifyListeners(
-							ProgressInfo.START_PROGRESS);
-					this.getProgressNotifier().notifyListeners(
-							ProgressInfo.BUSY_PROGRESS);
-
-					task.execute();
+					currTask = getUndoableActionManager()
+							.performUndoableAction(action,
+									UndoableActionType.DO);
 				}
 			}
 		} catch (Exception e) {
 			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Observation Transformartion Error", e);
+					"Observation Transformartion Error",
+					e.getLocalizedMessage());
 
 			this.getProgressNotifier().notifyListeners(
 					ProgressInfo.START_PROGRESS);

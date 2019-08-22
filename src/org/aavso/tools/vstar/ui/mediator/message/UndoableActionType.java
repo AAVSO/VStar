@@ -18,21 +18,25 @@
 package org.aavso.tools.vstar.ui.mediator.message;
 
 /**
- * An enum representing the kind of undoable action: undo, redo.
+ * An enum representing the kind of undoable action: do, undo, redo.
  */
-public enum UndoRedoType {
+public enum UndoableActionType {
 
-	UNDO, REDO;
+	DO, UNDO, REDO;
 
-	public UndoRedoType opposite() {
-		UndoRedoType result = null;
+	public UndoableActionType opposite() {
+		UndoableActionType result = null;
 
 		switch (this) {
+		case DO:
+			result = UNDO;
+			break;
 		case UNDO:
 			result = REDO;
+			break;
 		case REDO:
 			result = UNDO;
-		default:
+			break;
 		}
 
 		return result;
@@ -41,10 +45,16 @@ public enum UndoRedoType {
 	public String toString() {
 		String str = null;
 
-		if (this == UNDO) {
+		switch(this) {
+		case DO:
+			str = "Do";
+			break;
+		case UNDO:
 			str = "Undo";
-		} else {
+			break;
+		case REDO: 
 			str = "Redo";
+			break;
 		}
 
 		return str;

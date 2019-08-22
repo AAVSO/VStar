@@ -72,7 +72,7 @@ import org.aavso.tools.vstar.ui.mediator.message.PanType;
 import org.aavso.tools.vstar.ui.mediator.message.PhaseChangeMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
-import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
@@ -1539,7 +1539,7 @@ public class MenuBar extends JMenuBar {
 						+ info.getAction().getDisplayString();
 
 				JMenuItem item = null;
-				if (info.getType() == UndoRedoType.UNDO) {
+				if (info.getType() == UndoableActionType.UNDO) {
 					item = editUndoItem;
 				} else {
 					item = editRedoItem;
