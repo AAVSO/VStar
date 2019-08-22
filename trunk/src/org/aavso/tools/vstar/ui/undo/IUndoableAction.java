@@ -17,7 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.undo;
 
-import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
 
 /**
  * All classes that represent undoable actions must implement this interface.
@@ -26,8 +26,13 @@ public interface IUndoableAction {
 
 	/**
 	 * Executes the action corresponding to the undoable action.
+	 *
+	 * @param type
+	 *            The type of operation (do/redo/undo).
+	 * @return Was the action execution successful? If not, then there's nothing
+	 *         to undo or redo.
 	 */
-	public void execute();
+	public boolean execute(UndoableActionType type);
 
 	/**
 	 * Returns a human-readable display string for this action.
@@ -35,13 +40,4 @@ public interface IUndoableAction {
 	 * @return The display string.
 	 */
 	public String getDisplayString();
-
-	/**
-	 * Changes the internal state of this action object, to prepare for all but
-	 * the first call to execute(), in the context of an undo or redo operation.
-	 * 
-	 * @param type
-	 *            The type of operation (redo/undo).
-	 */
-	public void prepare(UndoRedoType type);
 }

@@ -26,7 +26,7 @@ import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.undo.IUndoableAction;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -37,13 +37,11 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 
-	private boolean shouldInvokeDialog;
 	private double shift;
 	private boolean firstInvocation;
 
 	public MagnitudeBaselineShifter() {
 		super();
-		shouldInvokeDialog = true;
 		shift = 0;
 		firstInvocation = true;
 	}
@@ -76,9 +74,21 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 			}
 
 			@Override
-			public void execute() {
-				if (shouldInvokeDialog) {
-					invokeDialog();
+			public boolean execute(UndoableActionType type) {
+				boolean ok = true;
+				
+				switch (type) {
+				case DO:
+					// For a do operation, invoke the dialog when the action is
+					// executed.
+					ok = invokeDialog();
+					break;
+					
+				case UNDO:
+				case REDO:
+					// For an undo or a redo operation, negate the shift.
+					shift = -shift;
+					break;
 				}
 
 				if (shift != 0) {
@@ -89,24 +99,11 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 						}
 					}
 				}
-			}
-
-			@Override
-			public void prepare(UndoRedoType type) {
-				if (type == UndoRedoType.UNDO) {
-					// For an undo operation, negate the shift for when
-					// the action is executed.
-					shift = -shift;
-					shouldInvokeDialog = false;
-				} else {
-					// For a (re)do operation, preoare to invoke the dialog when
-					// the action is executed.
-					shouldInvokeDialog = true;
-				}
+				
+				return ok;
 			}
 		};
 	}
-
 
 	/**
 	 * Get the new star listener for this plugin.
@@ -114,7 +111,6 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 	protected Listener<NewStarMessage> getNewStarListener() {
 		return new Listener<NewStarMessage>() {
 			public void update(NewStarMessage info) {
-				shouldInvokeDialog = true;
 				shift = 0;
 			}
 
@@ -127,12 +123,13 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 	/**
 	 * Invoke dialog to request magnitude shift value.
 	 * 
-	 * @return Whether the dialog was dismissed 
+	 * @return Whether the dialog was dismissed but not cancelled.
 	 */
 	private boolean invokeDialog() {
 		boolean ok = true;
 
-		DoubleField shiftField = new DoubleField("Shift", null, null, -shift);
+		DoubleField shiftField = new DoubleField("Shift", null, null,
+				Math.abs(shift));
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
 				"Magnitude Shift", shiftField);
 

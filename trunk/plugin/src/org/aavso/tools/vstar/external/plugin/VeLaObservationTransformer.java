@@ -28,17 +28,17 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.vela.VeLaDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.ui.mediator.message.UndoRedoType;
+import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.undo.IUndoableAction;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.Type;
-import org.aavso.tools.vstar.vela.VeLaEvalError;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
 import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
 
@@ -48,6 +48,7 @@ import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
 public class VeLaObservationTransformer extends
 		ObservationTransformerPluginBase {
 
+	private VeLaInterpreter vela;
 	private boolean shouldInvokeDialog;
 	private boolean firstInvocation;
 
@@ -70,7 +71,9 @@ public class VeLaObservationTransformer extends
 			private Map<SeriesType, List<Double>> errs = new HashMap<SeriesType, List<Double>>();
 
 			@Override
-			public void execute() {
+			public boolean execute(UndoableActionType type) {
+				boolean ok = true;
+
 				if (firstInvocation) {
 					Mediator.getInstance().getNewStarNotifier()
 							.addListener(getNewStarListener());
@@ -78,87 +81,91 @@ public class VeLaObservationTransformer extends
 					firstInvocation = false;
 				}
 
-				if (shouldInvokeDialog) {
-					VeLaInterpreter vela = new VeLaInterpreter();
+				switch (type) {
+				case DO:
+					vela = new VeLaInterpreter();
 
 					Pair<Boolean, String> pair = invokeDialog(vela);
 
-					if (pair.first && pair.second.trim().length() != 0) {
+					ok = pair.first;
 
+					if (ok && pair.second.trim().length() != 0) {
 						vela.program(pair.second);
+					}
+					// Note: there being no break here is on purpose!
+				case REDO:
+					for (SeriesType seriesType : series) {
+						for (ValidObservation ob : seriesInfo
+								.getObservations(seriesType)) {
+							// Store old magnitude for undo
+							Magnitude magnitude = ob.getMagnitude();
 
-						for (SeriesType seriesType : series) {
-							for (ValidObservation ob : seriesInfo
-									.getObservations(seriesType)) {
-								// Store old magnitude for undo
-								Magnitude magnitude = ob.getMagnitude();
+							if (mags.get(seriesType) == null) {
+								mags.put(seriesType, new ArrayList<Double>());
+							}
+							mags.get(seriesType).add(magnitude.getMagValue());
 
-								if (mags.get(seriesType) == null) {
-									mags.put(seriesType,
-											new ArrayList<Double>());
-								}
-								mags.get(seriesType).add(
-										magnitude.getMagValue());
+							if (errs.get(seriesType) == null) {
+								errs.put(seriesType, new ArrayList<Double>());
+							}
+							errs.get(seriesType)
+									.add(magnitude.getUncertainty());
 
-								if (errs.get(seriesType) == null) {
-									errs.put(seriesType,
-											new ArrayList<Double>());
-								}
-								errs.get(seriesType).add(
-										magnitude.getUncertainty());
+							// Push an environment that makes the
+							// observation available to VeLa code...
+							vela.pushEnvironment(new VeLaValidObservationEnvironment(
+									ob));
 
-								// Push an environment that makes the
-								// observation available to VeLa code...
-								vela.pushEnvironment(new VeLaValidObservationEnvironment(
-										ob));
+							// ...and call the function with the current
+							// observation's magnitude and error values.
+							String funCall = String.format("do()",
+									magnitude.getMagValue(),
+									magnitude.getUncertainty());
 
-								// ...and call the function with the current
-								// observation's magnitude and error values.
-								String funCall = String.format("do()",
-										magnitude.getMagValue(),
-										magnitude.getUncertainty());
+							Optional<Operand> result = vela.program(funCall);
 
-								Optional<Operand> result = vela
-										.program(funCall);
+							if (result.isPresent()
+									&& result.get().getType() == Type.LIST) {
+								Operand op = result.get();
 
-								boolean resultOK = true;
+								if (op.listVal().size() == 2) {
+									boolean bothReal = op
+											.listVal()
+											.stream()
+											.allMatch(
+													x -> x.convert(Type.REAL) == Type.REAL);
 
-								if (result.isPresent()
-										&& result.get().getType() == Type.LIST) {
-									Operand op = result.get();
-
-									if (op.listVal().size() == 2) {
-										boolean bothReal = op
-												.listVal()
-												.stream()
-												.allMatch(
-														x -> x.convert(Type.REAL) == Type.REAL);
-
-										if (bothReal) {
-											double mag = op.listVal().get(0)
-													.doubleVal();
-											double err = op.listVal().get(1)
-													.doubleVal();
-											ob.setMagnitude(new Magnitude(mag,
-													err));
-										} else {
-											resultOK = false;
-										}
+									if (bothReal) {
+										double mag = op.listVal().get(0)
+												.doubleVal();
+										double err = op.listVal().get(1)
+												.doubleVal();
+										ob.setMagnitude(new Magnitude(mag, err));
 									} else {
-										resultOK = false;
+										// Need two real numbers
+										ok = false;
 									}
 								} else {
-									resultOK = false;
+									// Need two real numbers
+									ok = false;
 								}
-
-								if (!resultOK) {
-									throw new VeLaEvalError(
-											"Expected a 2 element result list");
-								}
+							} else {
+								// Need (two real numbers in) a list
+								ok = false;
 							}
+
+							if (!ok) {
+								ok = false;
+								MessageBox.showErrorDialog("VeLa Error",
+										"Expected a 2 element result list");
+							}
+
+							// Push current observation's environment.
+							vela.popEnvironment();
 						}
 					}
-				} else {
+					break;
+				case UNDO:
 					// Undo by restoring magnitude and error values.
 					for (SeriesType seriesType : series) {
 						for (int i = 0; i < seriesInfo.getObservations(
@@ -170,21 +177,15 @@ public class VeLaObservationTransformer extends
 							ob.setMagnitude(new Magnitude(mag, err));
 						}
 					}
+					break;
 				}
+
+				return ok;
 			}
 
 			@Override
 			public String getDisplayString() {
 				return "VeLa observation transformation";
-			}
-
-			@Override
-			public void prepare(UndoRedoType type) {
-				if (type == UndoRedoType.UNDO) {
-					shouldInvokeDialog = false;
-				} else {
-					shouldInvokeDialog = true;
-				}
 			}
 		};
 	}
@@ -211,7 +212,8 @@ public class VeLaObservationTransformer extends
 	 *         button was clicked and the VeLa code string.
 	 */
 	private Pair<Boolean, String> invokeDialog(VeLaInterpreter vela) {
-		VeLaDialog velaDialog = new VeLaDialog("Define VeLa function: do():list");
+		VeLaDialog velaDialog = new VeLaDialog(
+				"Define VeLa function: do():list");
 
 		boolean ok = !velaDialog.isCancelled();
 		String code = velaDialog.getCode();
