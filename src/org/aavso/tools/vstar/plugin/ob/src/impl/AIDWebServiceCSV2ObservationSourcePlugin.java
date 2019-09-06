@@ -60,7 +60,7 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 		AIDWebServiceObservationSourcePluginBase {
 
 	public AIDWebServiceCSV2ObservationSourcePlugin() {
-		super("api2.object", "&csv");
+		super("api.object", "&csv");
 	}
 
 	@Override
