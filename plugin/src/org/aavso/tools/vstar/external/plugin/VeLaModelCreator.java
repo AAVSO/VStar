@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -14,23 +15,20 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
-import org.aavso.tools.vstar.ui.dialog.ITextComponent;
-import org.aavso.tools.vstar.ui.dialog.TextArea;
-import org.aavso.tools.vstar.ui.dialog.TextDialog;
+import org.aavso.tools.vstar.ui.dialog.vela.VeLaDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
-import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
-import org.aavso.tools.vstar.util.stats.DescStats;
 import org.aavso.tools.vstar.vela.Operand;
+import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
 import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
 import org.apache.commons.math.FunctionEvaluationException;
@@ -38,10 +36,11 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * A model creator that allows a VeLa function to be applied to observations.
+ * TODO: allow arbitrarily named function; add extrema determination
  */
 public class VeLaModelCreator extends ModelCreatorPluginBase {
 
-	private static TextDialog velaDialog;
+	private static VeLaDialog velaDialog;
 
 	private ICoordSource timeCoordSource;
 	private Comparator<ValidObservation> timeComparator;
@@ -91,16 +90,25 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 	class VeLaModel {
 		private List<ValidObservation> obs;
 		private double zeroPoint;
+		private VeLaInterpreter vela;
 
 		VeLaModel(List<ValidObservation> obs) {
+			// Create a VeLa interpreter instance.
+			vela = new VeLaInterpreter();
+
 			// Select time mode (JD or phase).
 			switch (Mediator.getInstance().getAnalysisType()) {
 			case RAW_DATA:
 				timeCoordSource = JDCoordSource.instance;
 				timeComparator = JDComparator.instance;
 				this.obs = obs;
-				zeroPoint = DescStats.calcTimeElementMean(obs,
-						JDTimeElementEntity.instance);
+				// zeroPoint = DescStats.calcTimeElementMean(obs,
+				// JDTimeElementEntity.instance);
+				zeroPoint = 0;
+				List<Operand> jdList = obs.stream()
+						.map(ob -> new Operand(Type.REAL, ob.getJD()))
+						.collect(Collectors.toList());
+				vela.bind("TIMES", new Operand(Type.LIST, jdList), true);
 				break;
 
 			case PHASE_PLOT:
@@ -109,8 +117,19 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 				this.obs = new ArrayList<ValidObservation>(obs);
 				Collections.sort(this.obs, timeComparator);
 				zeroPoint = 0;
+				List<Operand> phaseList = this.obs
+						.stream()
+						.map(ob -> new Operand(Type.REAL, ob.getStandardPhase()))
+						.collect(Collectors.toList());
+				vela.bind("TIMES", new Operand(Type.LIST, phaseList), true);
 				break;
 			}
+
+			List<Operand> magList = this.obs.stream()
+					.map(ob -> new Operand(Type.REAL, ob.getMag()))
+					.collect(Collectors.toList());
+			Operand mags = new Operand(Type.LIST, magList);
+			vela.bind("MAGS", mags, true);
 		}
 
 		// Create a VeLa model.
@@ -118,16 +137,17 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 			IModel model = null;
 
 			if (velaDialog == null) {
-				ITextComponent<String> velaCode = new TextArea("Function Code [model function assumed to be f(t)]",
-						10, 40);
-				velaDialog = new TextDialog("VeLa Model", velaCode);
+
+				velaDialog = new VeLaDialog(
+						"Function Code [model function is assumed to be f(t)]");
+
 			} else {
 				velaDialog.showDialog();
 			}
 
 			if (!velaDialog.isCancelled()) {
-				String velaModelFunctionStr = velaDialog.getTextFields().get(0)
-						.getStringValue();
+				String velaModelFunctionStr = velaDialog.getCode();
+				// double resolution = resolutionField.getValue();
 
 				model = new IModel() {
 					boolean interrupted = false;
@@ -138,7 +158,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 					@Override
 					public String getDescription() {
-						return velaModelFunctionStr + " for "
+						return velaDialog.getPath() + " with "
 								+ obs.get(0).getBand() + " series";
 					}
 
@@ -170,9 +190,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 					@Override
 					public String toString() {
-						return functionStrMap.get(LocaleProps
-								.get("MODEL_INFO_FUNCTION_TITLE"))
-								+ velaModelFunctionStr;
+						return velaModelFunctionStr;
 					}
 
 					@Override
@@ -185,14 +203,18 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 					public void execute() throws AlgorithmError {
 						if (!interrupted) {
 							try {
-								// Create a VeLa interpreter instance and
-								// compile the model function.
-								VeLaInterpreter vela = new VeLaInterpreter();
-
+								// Evaluate the VeLa model code.
+								// A univariate function f(t:real):real is
+								// assumed to
+								// exist after this completes.
 								vela.program(velaModelFunctionStr);
 
-								// Create a univariate real function instance.
+								// Create an arity 1 real function instance.
 								// Assume the function is called "f"
+								// TODO: could assume that the last function
+								// matching the required signature is the one to
+								// be used; see
+								// vela.lookupFunctions()
 								String funcName = "f";
 
 								function = new VeLaUnivariateRealFunction(vela,
@@ -214,8 +236,9 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 									double x = timeCoordSource
 											.getXCoord(i, obs);
-									double zeroedX = x - zeroPoint;
-									double y = function.value(zeroedX);
+
+									// double zeroedX = x - zeroPoint;
+									double y = function.value(x);
 
 									ValidObservation fitOb = new ValidObservation();
 									fitOb.setDateInfo(new DateInfo(ob.getJD()));
