@@ -1,0 +1,42 @@
+slope(x1:real y1:real x2:real y2:real) : real {
+    (y2-y1) / (x2-x1)
+}
+
+--println("slope: " slope(nth(times 0)  nth(mags 0) nth(times 1) nth(mags 1)))
+
+genf() : function {
+    i <- 0
+
+    f(t:real) : real {
+        -- is time coordinate beyond end of current line segment?
+        when t > nth(times i+1) and i < length(times)-1 -> { 
+            i <- i+1 
+        }
+        
+        -- obtain coordinates of point at ends of line segment
+        t0 <- nth(times i)
+        mag0 <- nth(mags i)
+        t1 <- nth(times i+1)
+        mag1 <- nth(mags i+1)
+                
+        -- create linear model for segment and compute y value
+        m <- slope(t1 t0 mag1 mag0)
+        c <- mag1 - m*t1
+        y <- m*t + c
+
+        y
+    }
+
+    f
+}
+
+--times <- [0.045 0.141 0.239 0.343 0.44 0.543 0.641 0.741 0.842 0.941 1]
+--times <- getPhases("Visual")
+--times <- getTimes("Visual")
+--mags <- [3.678 3.776 3.866 3.943 4 4.062 4.117 4.089 3.883 3.651 3.653]
+--mags <- getMags("Visual")
+
+
+f <- genf()
+
+--println(map(f mags))
