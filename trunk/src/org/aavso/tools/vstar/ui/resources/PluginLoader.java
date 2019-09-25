@@ -238,6 +238,10 @@ public class PluginLoader {
 							"Plugin Loader",
 							"Invalid plugin library jar file: "
 									+ file.getAbsolutePath());
+				} catch (Throwable t) {
+					MessageBox.showErrorDialog(null, "Plugin Loader",
+							"An error occurred during plugin dependency loading: "
+									+ t.getLocalizedMessage());
 				}
 			}
 		}
