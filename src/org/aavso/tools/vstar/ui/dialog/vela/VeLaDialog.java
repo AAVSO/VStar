@@ -51,13 +51,15 @@ import org.aavso.tools.vstar.vela.VeLaInterpreter;
  */
 @SuppressWarnings("serial")
 public class VeLaDialog extends TextDialog {
-
+	
 	private static ITextComponent<String> codeTextArea;
 	private static TextArea resultTextArea;
 	private static JCheckBox verbosityCheckBox;
 
 	private static VeLaInterpreter vela;
 
+	private String path;
+	
 	static {
 		codeTextArea = new TextArea("VeLa Code", "", 12, 42, false, true);
 		// resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error",
@@ -75,11 +77,19 @@ public class VeLaDialog extends TextDialog {
 	}
 
 	public VeLaDialog(String title) {
-		super(title, Arrays.asList(codeTextArea, resultTextArea));		
+		super(title, Arrays.asList(codeTextArea, resultTextArea));
 	}
-	
+
 	public VeLaDialog() {
 		this("VeLa");
+		path = "Untitled";
+	}
+
+	/**
+	 * @return the most recently loaded/saved file path
+	 */
+	public String getPath() {
+		return path;
 	}
 
 	/**
@@ -121,8 +131,8 @@ public class VeLaDialog extends TextDialog {
 					.getVelaFileLoadDialog();
 
 			if (chooser.showDialog(this)) {
-				try (Stream<String> stream = Files.lines(Paths.get(chooser
-						.getSelectedFile().getAbsolutePath()))) {
+				path = chooser.getSelectedFile().getAbsolutePath();
+				try (Stream<String> stream = Files.lines(Paths.get(path))) {
 					stream.forEachOrdered(line -> {
 						code.append(line);
 						code.append("\n");
@@ -130,10 +140,10 @@ public class VeLaDialog extends TextDialog {
 					codeTextArea.setValue(code.toString());
 				} catch (IOException ex) {
 					// Nothing to do
-				}
 			}
-		});
-		
+		}
+	})	;
+
 		panel.add(loadButton);
 
 		JButton saveButton = new JButton(LocaleProps.get("SAVE_BUTTON"));
@@ -142,9 +152,10 @@ public class VeLaDialog extends TextDialog {
 					.getVelaFileSaveDialog();
 
 			if (chooser.showDialog(this)) {
-				File path = chooser.getSelectedFile();
-				if (path.exists()
-						&& path.isFile()
+				path = chooser.getSelectedFile().getAbsolutePath();
+				File file = chooser.getSelectedFile();
+				if (file.exists()
+						&& file.isFile()
 						&& !MessageBox.showConfirmDialog(
 								LocaleProps.get("FILE_MENU_SAVE"),
 								LocaleProps.get("SAVE_OVERWRITE"))) {
@@ -158,17 +169,17 @@ public class VeLaDialog extends TextDialog {
 					writer.close();
 				} catch (IOException ex) {
 					// Nothing to do
-				}
 			}
-		});
+		}
+	})	;
 		panel.add(saveButton);
 
-		JButton dismissButton = new JButton(LocaleProps.get("DISMISS_BUTTON"));
+		JButton dismissButton = new JButton(LocaleProps.get("OK_BUTTON"));
 		dismissButton.addActionListener(e -> {
 			okAction();
 		});
 		panel.add(dismissButton);
-		
+
 		panel.add(verbosityCheckBox);
 
 		return panel;
