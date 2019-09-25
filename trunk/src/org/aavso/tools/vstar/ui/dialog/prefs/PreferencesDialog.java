@@ -77,7 +77,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		tabs.addTab("Star Groups", starGroupManagementPane);
 		
 		pluginSettingsPane = new PluginSettingsPane();
-		tabs.addTab("Plug-in Settings", pluginSettingsPane);
+		tabs.addTab("Plug-ins", pluginSettingsPane);
 
 		localeSelectionPane = new LocaleSelectionPane();
 		tabs.addTab("Locale", localeSelectionPane);
