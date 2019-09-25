@@ -26,7 +26,8 @@ import org.aavso.tools.vstar.ui.undo.IUndoableAction;
 
 /**
  * The base class of all observation transformation plugins.<br/>
- * Such plugins must provide an undoable action given ...
+ * Such plugins must provide an undoable action given series information.<br/>
+ * TODO: allow new x and y labels to be returned, e.g. mag to flux
  */
 abstract public class ObservationTransformerPluginBase implements IPlugin {
 
@@ -34,12 +35,14 @@ abstract public class ObservationTransformerPluginBase implements IPlugin {
 	 * Create and return an undoable action that can transform the supplied list
 	 * of observations and undo this transformation.<br/>
 	 * 
-	 * @param obs
-	 *            The list of observations to be transformed.
+	 * @param seriesInfo
+	 *            A series information provider.
+	 * @param series
+	 *            The series to which the transformation has been requested.
 	 * @return The undoable action.
 	 */
-	abstract public IUndoableAction createAction(ISeriesInfoProvider seriesInfo,
-			Set<SeriesType> series);
+	abstract public IUndoableAction createAction(
+			ISeriesInfoProvider seriesInfo, Set<SeriesType> series);
 
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
