@@ -69,7 +69,7 @@ public class ApacheCommonsDerivativeBasedExtremaFinder extends
 
 		double jd = 0;
 
-		// One sixth of a second.
+		// One sixth of a second. TODO: is it really?
 		double resolution = 0.00001;
 
 		try {
@@ -80,31 +80,35 @@ public class ApacheCommonsDerivativeBasedExtremaFinder extends
 
 			// Find the obs immediately before and after the transition and use
 			// this as the bracket range.
-			for (int i = 0; i < obs.size(); i++) {
-				if (interrupt)
-					break;
+//			for (int i = 0; i < obs.size(); i++) {
+////			for (int i=0; i<bracketRange.length; i++) {
+//				if (interrupt)
+//					break;
+//
+//				jd = obs.get(i).getJD();
+//
+//				double deriv = Math.abs(firstDerivative.value(jd - zeroPoint));
+//
+//				// if (deriv <= tolerance) {
+//				// double mag = function.value(jd - zeroPoint);
+//				// double deriv2 = secondDerivative.value(jd - zeroPoint);
+//				// System.out.printf("%d => %f: %f (f': %f, f'': %f)\n", i,
+//				// jd, mag, deriv, deriv2);
+//
+//				if (deriv < minDeriv) {
+//					minDeriv = deriv;
+//					minDerivIndex = i;
+//				}
+//				// }
+//			}
 
-				jd = obs.get(i).getJD();
-
-				double deriv = Math.abs(firstDerivative.value(jd - zeroPoint));
-
-				// if (deriv <= tolerance) {
-				// double mag = function.value(jd - zeroPoint);
-				// double deriv2 = secondDerivative.value(jd - zeroPoint);
-				// System.out.printf("%d => %f: %f (f': %f, f'': %f)\n", i,
-				// jd, mag, deriv, deriv2);
-
-				if (deriv < minDeriv) {
-					minDeriv = deriv;
-					minDerivIndex = i;
-				}
-				// }
-			}
-
-			int firstIndex = minDerivIndex > 0 ? minDerivIndex - 1
-					: minDerivIndex;
-			int lastIndex = minDerivIndex < obs.size() - 1 ? minDerivIndex + 1
-					: minDerivIndex;
+//			int firstIndex = minDerivIndex > 0 ? minDerivIndex - 1
+//					: minDerivIndex;
+//			int lastIndex = minDerivIndex < obs.size() - 1 ? minDerivIndex + 1
+//					: minDerivIndex;
+			
+			int firstIndex = bracketRange[0];
+			int lastIndex = bracketRange[1];
 
 			// We are trying to get the first derivative to be as close to zero
 			// as possible. This could be at firstJD but since we may have
@@ -114,6 +118,8 @@ public class ApacheCommonsDerivativeBasedExtremaFinder extends
 			double lastJD = obs.get(lastIndex).getJD();
 			double minDerivJD = firstJD;
 
+			// TODO: use bracket range instead!
+			
 			for (jd = firstJD; jd <= lastJD; jd += resolution) {
 				if (interrupt)
 					break;
@@ -134,6 +140,7 @@ public class ApacheCommonsDerivativeBasedExtremaFinder extends
 			}
 			// }
 
+			//if (true) {
 			if (matchesDesiredGoal(secondDerivative, minDerivJD, goal)) {
 				extremeTime = minDerivJD;
 				extremeMag = function.value(minDerivJD - zeroPoint);
@@ -151,7 +158,7 @@ public class ApacheCommonsDerivativeBasedExtremaFinder extends
 			double jd, GoalType goal) throws FunctionEvaluationException {
 
 		boolean matches = false;
-		// The inflection point determines whether the inflection point is a
+		// The inflection point sign determines whether the inflection point is a
 		// minimum or maximum.
 		double deriv2 = secondDerivative.value(jd - zeroPoint);
 

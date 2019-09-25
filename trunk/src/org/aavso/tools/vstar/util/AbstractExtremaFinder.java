@@ -120,18 +120,18 @@ abstract public class AbstractExtremaFinder implements IInteruptible {
 		int[] range = new int[2];
 
 		// To the left...
-		range[0] = numericallyMaxMagIndex;
-		for (int i = numericallyMaxMagIndex - 1; i >= 0; i--) {
-			if (obs.get(i).getMag() > obs.get(numericallyMaxMagIndex).getMag()) {
+		range[0] = numericallyMinMagIndex;
+		for (int i = numericallyMinMagIndex - 1; i >= 0; i--) {
+			if (obs.get(i).getMag() > obs.get(numericallyMinMagIndex).getMag()) {
 				range[0] = i;
 				break;
 			}
 		}
 
 		// To the right...
-		range[1] = numericallyMaxMagIndex;
-		for (int i = numericallyMaxMagIndex + 1; i < obs.size(); i++) {
-			if (obs.get(i).getMag() > obs.get(numericallyMaxMagIndex).getMag()) {
+		range[1] = numericallyMinMagIndex;
+		for (int i = numericallyMinMagIndex + 1; i < obs.size(); i++) {
+			if (obs.get(i).getMag() > obs.get(numericallyMinMagIndex).getMag()) {
 				range[1] = i;
 				break;
 			}
