@@ -22,23 +22,28 @@ import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
+import org.aavso.tools.vstar.util.ApacheCommonsDerivativeBasedExtremaFinder;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
+import org.aavso.tools.vstar.vela.FunctionExecutor;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
 import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
 import org.apache.commons.math.FunctionEvaluationException;
+import org.apache.commons.math.analysis.DifferentiableUnivariateRealFunction;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
  * A model creator that allows a VeLa function to be applied to observations.
- * TODO: allow arbitrarily named function; add extrema determination
  */
 public class VeLaModelCreator extends ModelCreatorPluginBase {
+
+	private static final String FUNC_NAME = "F";
+	private static final String DERIV_FUNC_NAME = "DF";
 
 	private static VeLaDialog velaDialog;
 
@@ -65,7 +70,8 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 		return velaModel.createModel();
 	}
 
-	class VeLaUnivariateRealFunction implements UnivariateRealFunction {
+	class VeLaUnivariateRealFunction implements
+			DifferentiableUnivariateRealFunction {
 
 		private VeLaInterpreter vela;
 		private String funcName;
@@ -75,15 +81,33 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 			this.funcName = funcName;
 		}
 
+		/**
+		 * Return the value of the model function or its derivative.
+		 * 
+		 * @param t
+		 *            The time value.
+		 * @return The model value at time t.
+		 * @throws FunctionEvaluationException
+		 *             If there is an error during function evaluation.
+		 */
 		@Override
-		public double value(double n) throws FunctionEvaluationException {
-			String funCall = funcName + "(" + n + ")";
+		public double value(double t) throws FunctionEvaluationException {
+			String funCall = funcName + "(" + t + ")";
 			Optional<Operand> result = vela.program(funCall);
 			if (result.isPresent()) {
 				return result.get().doubleVal();
 			} else {
-				throw new FunctionEvaluationException(n);
+				throw new FunctionEvaluationException(t);
 			}
+		}
+
+		/**
+		 * If the derivative (df) function doesn't exist, this will never be
+		 * called since we will bypass extrema determination.
+		 */
+		@Override
+		public UnivariateRealFunction derivative() {
+			return new VeLaUnivariateRealFunction(vela, DERIV_FUNC_NAME);
 		}
 	}
 
@@ -158,7 +182,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 					@Override
 					public String getDescription() {
-						return velaDialog.getPath() + " with "
+						return velaDialog.getPath() + " applied to "
 								+ obs.get(0).getBand() + " series";
 					}
 
@@ -205,17 +229,12 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 							try {
 								// Evaluate the VeLa model code.
 								// A univariate function f(t:real):real is
-								// assumed to
-								// exist after this completes.
+								// assumed to exist after this completes.
 								vela.program(velaModelFunctionStr);
 
 								// Create an arity 1 real function instance.
-								// Assume the function is called "f"
-								// TODO: could assume that the last function
-								// matching the required signature is the one to
-								// be used; see
-								// vela.lookupFunctions()
-								String funcName = "f";
+								// TODO: actually needs to be a function that returns a function
+								String funcName = FUNC_NAME;
 
 								function = new VeLaUnivariateRealFunction(vela,
 										funcName);
@@ -278,6 +297,26 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 										.get("MODEL_INFO_FUNCTION_TITLE"),
 										toString());
 
+								Optional<List<FunctionExecutor>> funcs = vela
+										.lookupFunctions(FUNC_NAME);
+
+								// Has a derivative function been defined?
+								if (vela.lookupFunctions(DERIV_FUNC_NAME)
+										.isPresent()) {
+									ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
+											fit,
+											(DifferentiableUnivariateRealFunction) function,
+											timeCoordSource, zeroPoint);
+
+									String extremaStr = finder.toString();
+
+									if (extremaStr != null) {
+										String title = LocaleProps
+												.get("MODEL_INFO_EXTREMA_TITLE");
+
+										functionStrMap.put(title, extremaStr);
+									}
+								}
 							} catch (FunctionEvaluationException e) {
 								throw new AlgorithmError(
 										e.getLocalizedMessage());
