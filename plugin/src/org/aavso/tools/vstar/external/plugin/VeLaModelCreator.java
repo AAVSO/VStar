@@ -15,6 +15,7 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.vela.VeLaDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -28,7 +29,6 @@ import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
-import org.aavso.tools.vstar.vela.FunctionExecutor;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -163,7 +163,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 			if (velaDialog == null) {
 
 				velaDialog = new VeLaDialog(
-						"Function Code [model function is assumed to be f(t)]");
+						"Function Code [model: f(t), optional derivative: df(t)]");
 
 			} else {
 				velaDialog.showDialog();
@@ -232,89 +232,97 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 								// assumed to exist after this completes.
 								vela.program(velaModelFunctionStr);
 
-								// Create an arity 1 real function instance.
-								// TODO: actually needs to be a function that returns a function
 								String funcName = FUNC_NAME;
 
-								function = new VeLaUnivariateRealFunction(vela,
-										funcName);
-
-								fit = new ArrayList<ValidObservation>();
-								residuals = new ArrayList<ValidObservation>();
-
-								String comment = velaModelFunctionStr;
-
-								// Create fit and residual observations.
-								for (int i = 0; i < obs.size() && !interrupted; i++) {
-									ValidObservation ob = obs.get(i);
-
-									// Push an environment that makes the
-									// observation available to VeLa code.
-									vela.pushEnvironment(new VeLaValidObservationEnvironment(
-											ob));
-
-									double x = timeCoordSource
-											.getXCoord(i, obs);
-
-									// double zeroedX = x - zeroPoint;
-									double y = function.value(x);
-
-									ValidObservation fitOb = new ValidObservation();
-									fitOb.setDateInfo(new DateInfo(ob.getJD()));
-									if (Mediator.getInstance()
-											.getAnalysisType() == AnalysisType.PHASE_PLOT) {
-										fitOb.setPreviousCyclePhase(ob
-												.getPreviousCyclePhase());
-										fitOb.setStandardPhase(ob
-												.getStandardPhase());
-									}
-									fitOb.setMagnitude(new Magnitude(y, 0));
-									fitOb.setBand(SeriesType.Model);
-									fitOb.setComments(comment);
-									fit.add(fitOb);
-
-									ValidObservation resOb = new ValidObservation();
-									resOb.setDateInfo(new DateInfo(ob.getJD()));
-									if (Mediator.getInstance()
-											.getAnalysisType() == AnalysisType.PHASE_PLOT) {
-										resOb.setPreviousCyclePhase(ob
-												.getPreviousCyclePhase());
-										resOb.setStandardPhase(ob
-												.getStandardPhase());
-									}
-									double residual = ob.getMag() - y;
-									resOb.setMagnitude(new Magnitude(residual,
-											0));
-									resOb.setBand(SeriesType.Residuals);
-									resOb.setComments(comment);
-									residuals.add(resOb);
-
-									// Pop the observation environment.
-									vela.popEnvironment();
-								}
-
-								functionStrMap.put(LocaleProps
-										.get("MODEL_INFO_FUNCTION_TITLE"),
-										toString());
-
-								Optional<List<FunctionExecutor>> funcs = vela
-										.lookupFunctions(FUNC_NAME);
-
-								// Has a derivative function been defined?
-								if (vela.lookupFunctions(DERIV_FUNC_NAME)
+								// Has a model function been defined?
+								if (!vela.lookupFunctions(FUNC_NAME)
 										.isPresent()) {
-									ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
-											fit,
-											(DifferentiableUnivariateRealFunction) function,
-											timeCoordSource, zeroPoint);
+									MessageBox.showErrorDialog(
+											"VeLa Model Error",
+											"f(t:real):real undefined");
+								} else {
+									function = new VeLaUnivariateRealFunction(
+											vela, funcName);
 
-									String extremaStr = finder.toString();
+									fit = new ArrayList<ValidObservation>();
+									residuals = new ArrayList<ValidObservation>();
 
-									if (extremaStr != null) {
-										String title = LocaleProps
-												.get("MODEL_INFO_EXTREMA_TITLE");
+									String comment = velaModelFunctionStr;
 
-										functionStrMap.put(title, extremaStr);
+									// Create fit and residual observations.
+									for (int i = 0; i < obs.size()
+											&& !interrupted; i++) {
+										ValidObservation ob = obs.get(i);
+
+										// Push an environment that makes the
+										// observation available to VeLa code.
+										vela.pushEnvironment(new VeLaValidObservationEnvironment(
+												ob));
+
+										double x = timeCoordSource.getXCoord(i,
+												obs);
+
+										// double zeroedX = x - zeroPoint;
+										double y = function.value(x);
+
+										ValidObservation fitOb = new ValidObservation();
+										fitOb.setDateInfo(new DateInfo(ob
+												.getJD()));
+										if (Mediator.getInstance()
+												.getAnalysisType() == AnalysisType.PHASE_PLOT) {
+											fitOb.setPreviousCyclePhase(ob
+													.getPreviousCyclePhase());
+											fitOb.setStandardPhase(ob
+													.getStandardPhase());
+										}
+										fitOb.setMagnitude(new Magnitude(y, 0));
+										fitOb.setBand(SeriesType.Model);
+										fitOb.setComments(comment);
+										fit.add(fitOb);
+
+										ValidObservation resOb = new ValidObservation();
+										resOb.setDateInfo(new DateInfo(ob
+												.getJD()));
+										if (Mediator.getInstance()
+												.getAnalysisType() == AnalysisType.PHASE_PLOT) {
+											resOb.setPreviousCyclePhase(ob
+													.getPreviousCyclePhase());
+											resOb.setStandardPhase(ob
+													.getStandardPhase());
+										}
+										double residual = ob.getMag() - y;
+										resOb.setMagnitude(new Magnitude(
+												residual, 0));
+										resOb.setBand(SeriesType.Residuals);
+										resOb.setComments(comment);
+										residuals.add(resOb);
+
+										// Pop the observation environment.
+										vela.popEnvironment();
+									}
+
+									functionStrMap.put(LocaleProps
+											.get("MODEL_INFO_FUNCTION_TITLE"),
+											toString());
+
+									// Has a derivative function been defined?
+									// If so, carry out extrema determination.
+									if (vela.lookupFunctions(DERIV_FUNC_NAME)
+											.isPresent()) {
+										ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
+												fit,
+												(DifferentiableUnivariateRealFunction) function,
+												timeCoordSource, zeroPoint);
+
+										String extremaStr = finder.toString();
+
+										if (extremaStr != null) {
+											String title = LocaleProps
+													.get("MODEL_INFO_EXTREMA_TITLE");
+
+											functionStrMap.put(title,
+													extremaStr);
+										}
 									}
 								}
 							} catch (FunctionEvaluationException e) {
