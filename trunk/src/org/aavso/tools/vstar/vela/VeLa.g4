@@ -5,9 +5,7 @@ grammar VeLa;
 
 // TODO:
 // - Add .. operator as shorthand for creating numeric lists over a range
-//   o Open-ended range: N.. => generator
-// - VeLa could replace or be an alternative to JavaScript for scripting
-//   o Need a FFI and objects in VeLa
+//   o open-ended range: N.. => generator
 // - It would be more type safe to allow a signature instead of "function" 
 //   for function parameters, e.g. [real real] : real
 // - Add compile() function **
@@ -21,10 +19,12 @@ grammar VeLa;
 //   o final SELECT AST consequent is a recursive call 
 //   o Detecting tail recursion is easy enough and not pushing VeLa 
 //     scopes is also easy, but eliminating recursive calls to eval() is harder; 
-//     compiling VeLa could do it
+//     compiling VeLa could do it; could we have an iteration within the loop call 
+//     Java code that handled this?
 // - Add maps; -> as key-value pair delimiter, e.g. m <- [ key -> value, ... ];
 //   probably use : actually; we already use -> for select statements; could use 
 //   colon for that too
+// - Consider a typed vs heterogenous tuple type, e.g. record in homage to Pascal
 // - An object could just be created from a closure with multiple functions 
 //   accessible via an instance with a class and -> or . syntax
 // - Object-based starting with maps; actually structs (object keyword) since
@@ -59,6 +59,7 @@ grammar VeLa;
 // VStar filters as well as models, i.e. f one wishes to create 
 // a filter that is a complete VeLa program that happens to
 // end in a boolean expression, then that is permitted.
+
 sequence
 :
 	(
@@ -71,15 +72,21 @@ sequence
 
 // F# (+ OCaml, ML?) uses <- for modifying mutable values while 
 // R uses it for regular assignment.
+
 binding
 :
-	symbol (BACK_ARROW | IS) expression
+	symbol
+	(
+		BACK_ARROW
+		| IS
+	) expression
 ;
 
 // A named function definition, when invoked, introduces an additional 
 // environment and allows all VeLa program elements operating over that 
 // environment and its predecessors. name:type pays homage to Pascal, 
 // OCaml/F# and Swift.
+
 namedFundef
 :
 	symbol LPAREN formalParameter?
@@ -90,7 +97,7 @@ namedFundef
 		COLON type
 	)? block
 ;
- 
+
 expression
 :
 	selectionExpression
@@ -98,6 +105,7 @@ expression
 ;
 
 // Homage to Haskell/Scala/Erlang functional-style cases and Kotlin for name
+
 selectionExpression
 :
 	WHEN
@@ -105,10 +113,11 @@ selectionExpression
 		booleanExpression ARROW consequent
 	)+
 ;
-	
+
 consequent
 :
-	expression | block
+	expression
+	| block
 ;
 
 whileLoop
@@ -248,6 +257,7 @@ symbol
 // An anonymous function definition, when invoked, introduces an additional 
 // environment and allows all VeLa program elements operating over that 
 // environment and its predecessors.
+
 anonFundef
 :
 // TODO: call it lambda instead of function? either that or fun.
@@ -261,6 +271,7 @@ anonFundef
 ;
 
 // A formal parameter consists of a name-type pair
+
 formalParameter
 :
 	symbol COLON type
@@ -290,6 +301,7 @@ funcall
 // IDENT corresponds to an explicit function name
 // var allows a HOF (let binding or function parameter)
 // anonFundef allows an anonymous function
+
 funobj
 :
 	(
@@ -337,6 +349,7 @@ WHILE
 
 // Used for function definition and type
 // TODO: or define? or just fun as per ML ...
+
 FUN
 :
 	[Ff] [Uu] [Nn] [Cc] [Tt] [Ii] [Oo] [Nn]
@@ -423,12 +436,14 @@ LESS_THAN_OR_EQUAL
 ;
 
 // Homage to Perl
+
 APPROXIMATELY_EQUAL
 :
 	'=~'
 ;
 
 // Homage to SQL, Python, ...
+
 IN
 :
 	[Ii] [Nn]
@@ -601,5 +616,9 @@ COMMENT
 // Could use channel(HIDDEN) instead of skip,
 // e.g. https://stackoverflow.com/questions/23976617/parsing-single-line-comments
 // The first pays homage to SQL. The second is a concession to the shebang mechanism.
-	('--' | '#') ~[\r\n]* -> skip
+
+	(
+		'--'
+		| '#'
+	) ~[\r\n]* -> skip
 ;
