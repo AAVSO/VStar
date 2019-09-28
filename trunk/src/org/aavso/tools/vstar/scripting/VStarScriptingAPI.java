@@ -1153,8 +1153,10 @@ public class VStarScriptingAPI {
 						.equals(seriesName.toLowerCase())) {
 			ScriptRunner.getInstance().setError("Unknown series " + seriesName);
 		} else {
-			obs = Mediator.getInstance().getLatestNewStarMessage()
-					.getObsCategoryMap().get(series);
+			// ...otherwise, get the observations for the requested series.
+			obs = mediator.getObservationPlotModel(mediator.getAnalysisType())
+					.getObservations(series);
+
 			if (obs.size() == 0) {
 				ScriptRunner.getInstance().setError(
 						"No observations in series " + seriesName);
