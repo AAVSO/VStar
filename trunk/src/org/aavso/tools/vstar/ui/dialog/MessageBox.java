@@ -227,20 +227,25 @@ public class MessageBox {
 			Throwable e) {
 		VStar.LOGGER.log(Level.SEVERE, title, e);
 
-		if (!Mediator.getUI().isScriptingMode()) {
-			String msg = e.getClass().getName() + ": "
-					+ e.getLocalizedMessage();
+		// Getting an error dialog with a NPE is not useful and in my
+		// experience, a previous error dialog will have been invoked
+		// already. We log the NPE above.
+		if (!(e instanceof NullPointerException)) {
+			if (!Mediator.getUI().isScriptingMode()) {
+				String msg = e.getClass().getName() + ": "
+						+ e.getLocalizedMessage();
 
-			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-					JOptionPane.OK_CANCEL_OPTION);
-			JDialog dialog = pane.createDialog(parent, title);
-			dialog.setVisible(true);
+				JOptionPane pane = new JOptionPane(msg,
+						JOptionPane.ERROR_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+				JDialog dialog = pane.createDialog(parent, title);
+				dialog.setVisible(true);
 
-			// e.printStackTrace();
+				// e.printStackTrace();
 
-			// Turn off the wait cursor, in case it's enabled.
-			if (parent != null) {
-				parent.setCursor(null);
+				// Turn off the wait cursor, in case it's enabled.
+				if (parent != null) {
+					parent.setCursor(null);
+				}
 			}
 		} else {
 			ScriptRunner.getInstance().setError(e.getLocalizedMessage());
@@ -260,20 +265,25 @@ public class MessageBox {
 		VStar.LOGGER.log(Level.SEVERE, title, e);
 
 		if (!Mediator.getUI().isScriptingMode()) {
-			Component parent = DocumentManager.findActiveWindow();
+			// Getting an error dialog with a NPE is not useful and in my
+			// experience, a previous error dialog will have been invoked
+			// already. We log the NPE above.
+			if (!(e instanceof NullPointerException)) {
+				Component parent = DocumentManager.findActiveWindow();
 
-			String msg = e.getClass().getName() + ": "
-					+ e.getLocalizedMessage();
+				String msg = e.getClass().getName() + ": "
+						+ e.getLocalizedMessage();
 
-			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-					JOptionPane.OK_CANCEL_OPTION);
-			JDialog dialog = pane.createDialog(parent, title);
-			dialog.setVisible(true);
+				JOptionPane pane = new JOptionPane(msg,
+						JOptionPane.ERROR_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+				JDialog dialog = pane.createDialog(parent, title);
+				dialog.setVisible(true);
 
-			//e.printStackTrace();
+				// e.printStackTrace();
 
-			// Turn off the wait cursor, in case it's enabled.
-			parent.setCursor(null);
+				// Turn off the wait cursor, in case it's enabled.
+				parent.setCursor(null);
+			}
 		} else {
 			ScriptRunner.getInstance().setError(e.getLocalizedMessage());
 		}
