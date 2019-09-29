@@ -32,6 +32,89 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: Oct ?? 2019
+Version: 2.21.0
+Tag: DEV-AAVSO-??Oct2019
+Key Changes:
+- #595 Standalone HJD conversion plugin
+  o Converts any obs in selected loaded additive datasets that are not in HJD 
+    based upon observation retriever via which observation was loaded.
+    A question from Mike Miller and earlier conversations with Sebastian Otero
+    prompted creation of this plugin.
+  o Crucially, whereas VStar once converted to HJD on additive loads, silently
+    if possible, the plugin permits and indeed requires, explicit conversion now.
+- #634 Use CSV response method for AID web service observation source plugin
+- #636 AID web service load optimisations
+  o Alternative web service CSV usage allowing band subset
+  o Observer code subset
+  o Handling minimal fields option
+  o Star selector dialog and UT additions
+  o Increasing heap range in launch scripts and JNLP
+  o Making a distinction between all times and all bands for all times
+  o Changed all times French locale string
+  o Increased obs batch size
+  o MType fix
+  o Thanks to Patrick Wills for AID VSX web service functionality enhancements
+    and others at HQ notably Bert and Sara for putting up with me bothering them 
+    about this.
+- Last star entered in AID load dialog is remembered between dialog invocations.
+- #585 AoV: possible problem dropping scan results early in the range
+- Added support for running a script from the command-line via --script option
+- #645 Polynomial fit extrema determination exception
+- VeLa
+  o Implemented "is" binding (e.g. meaning_of_life is 42); cannot be re-bound
+  o Model creator plugin and example piecewise linear model
+  o #632 Add Reset button to VeLa dialog to reset interpreter
+  o #571 VeLa filter parse errors
+  o #615 Observation list VeLa search
+  o #647 VeLa dialogs need Load script button
+  o Improvements to VeLa dialog
+  o Added handling of double arrays as lists in VeLa
+- Added getters for magnitudes, times, phases to scripting API
+- #624 Change functions in models dialog to set a zeropoint variable used in function
+- #648 Pan right button tool-tip is wrong
+- #654 File opened if cancel clicked
+- #662 File -> Save,Print,Info give errors when no observations loaded
+- Observation transformation plugin base class and magnitude baseline shifter plugin
+- Updates to undoable edit code to support observation transformation plugins 
+  (plot, table updates)
+- Generalised series selection UI code to support observation transformation plugins
+- Support for model creation and polyfit in VStar scripting API
+- Julian Date column in observation list should indicate JD, HJD, (or simply time)
+- Deprecated getFiles() in ObservationSourcePluginBase
+- #658 DoubleField.getValue() should catch VeLaParseError and VeLaEvalError
+- #660 Some cached ValidObservation data members are mutable!
+- #659 IntegerField.getValue() should use VeLa to convert textual input to number
+- #631 Latest Mac Java leaves dialogs behind main window when opened
+- Support for SkyPatrol and ASAS-SN photometry database CSV by Maksym Pyatnytskyy (Max) 
+- #663 Create an observation transformation plugin category
+- Magnitude baseline shifter plugin (an observation transformation plugin)
+- Extended text file format observation source plugin (Max)
+- #661 Vstar does not close input streams after reading data (found by Max))
+- Changed Kepler and SuperWASP plugin FITS file suffix handling for file chooser
+- Changed AoV bin combobox to use more flexible ranged integer field
+- #637 Create an observation sink plugin category and converted internal file 
+  saving to use this; could write plugins for save as Upload file format, XML etc
+  shifter and VeLa observation transformer plugins; none yet written!
+- Changed plugin settings tab name
+- #665: A plugin load error should NEVER prevent VStar from starting up
+- Improvements to extrema determination
+- Plugin development ant build file generation script and plugin examples
+- Gaia observation source plugin. (Cliff Kotnik)
+- Added star name to all observations sources so that if observations are 
+  subsequently saved, they will pass the edit to be reloaded (Cliff Kotnik)
+- When observations are saved to a text file do not save excluded observations.
+  Otherwise, these will be reloaded without any indication of their excluded 
+  status. (Cliff Kotnik)
+- Change for different file format and handle exceptions for trailing non-data 
+  lines and llow either old or new format to be loaded. (Cliff Kotnik)
+- Creation and update of documentation for HJD converter plugin, Hipparcos, DASCH 
+  and ASAS observation source plugins, Loess model and AoV period analysis plugins.
+  (Dave Hinzel)
+- Added Open doc format (ODT) versions for documents without them. (Cliff Kotnik)
+- Testing and support by Dave Hinzel and Cliff Kotnik.
+- Thank to numerous people for bug reports and encouragement.
+
 Date: May 27 2018
 Version: 2.20.0
 Tag: DEV-AAVSO-27May2018
@@ -252,7 +335,7 @@ Key Changes:
 - Fixed ticket 458: Authentication error post 2.16.2.
 - Fixed ticket 457: Commas in numbers when decimal point expected 
   in tailored non-English locale.
-- Fixed ticket 460: Files saved as CSV/TSV from in non-Enlish locale
+- Fixed ticket 460: Files saved as CSV/TSV from in non-English locale
   generate commas.
 - Fixed ticket 416: APASS/BSM input dialog won't validate when Dec 
   field has a leading "+".
