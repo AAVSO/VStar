@@ -73,6 +73,8 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 			}
 		} else if ("MTYPE".equals(name)) {
 			operand = operand(name, ob.getMType().getShortName());
+		} else if ("OBSTYPE".equals(name)) {
+			operand = operand(name, ob.getObsType());
 		} else if ("VALFLAG".equals(name)) {
 			contained &= ob.getValidationType() != null;
 			if (contained) {
