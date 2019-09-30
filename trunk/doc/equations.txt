@@ -1,0 +1,9 @@
+# LaTeX equations
+# https://arachnoid.com/latex/ is a good online LaTeX editor
+# The rendering of these should go into the manual
+
+# Standard error of the average
+\displaystyle StdErr = \frac{\sqrt{ \frac{ \sum^N_{i=1} { (x_i - \bar{x})^2 } } {N-1} } } {\sqrt{N}}
+
+# Polynomial fit
+

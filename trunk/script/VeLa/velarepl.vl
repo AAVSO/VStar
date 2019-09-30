@@ -9,8 +9,8 @@ read() : string {
   while not done {
     ch <- nextchar()
     str <- when 
-	     ch = ";" -> { done <- true str }
-         ch <> "" -> str + ch
+	     ch = "." -> { done <- true str } -- "true str" seems confusing; need optional ";" => "true; str"?
+       ch <> "" -> str + ch
   }
 
   str
