@@ -29,6 +29,7 @@
 		<replace file="${plugin_src_dir}/${plugin_class}.java">
 			<replacefilter token="package template" value="package ${plugin_pkg}" />
 			<replacefilter token="${plugin_type} " value="${plugin_class} " />
+			<replacefilter token="${plugin_type}(" value="${plugin_class}(" />
 		</replace>
 	</target>
 
@@ -44,6 +45,7 @@
 		<replace file="${plugin_src_dir}/${plugin_class}.java">
 			<replacefilter token="package example" value="package ${plugin_pkg}" />
 			<replacefilter token="${plugin_type} " value="${plugin_class} " />
+			<replacefilter token="${plugin_type}(" value="${plugin_class}(" />
 		</replace>
 	</target>
 

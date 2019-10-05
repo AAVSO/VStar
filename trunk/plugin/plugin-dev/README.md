@@ -37,8 +37,10 @@ to give usage information:
 		CustomFilter
 		GeneralTool
 		ModelCreator
+		ObservationSink
 		ObservationSource
 		ObservationTool
+		ObservationTransformer
 		PeriodAnalysis
 
 ### Example Usage

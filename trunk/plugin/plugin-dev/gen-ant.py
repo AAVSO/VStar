@@ -9,8 +9,9 @@ from optparse import OptionParser
 
 
 TYPES =  ["CustomFilter", "GeneralTool", 
-          "ModelCreator", "ObservationSource", 
-          "ObservationTool","PeriodAnalysis"]
+          "ModelCreator", "ObservationSink", 
+          "ObservationSource", "ObservationTool",
+          "ObservationTransformer", "PeriodAnalysis"]
 
 
 def main():
