@@ -17,8 +17,8 @@
  */
 package org.aavso.tools.vstar.plugin.ob.sink.impl;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -39,22 +39,22 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 public class TextFormatObservationSinkPlugin extends ObservationSinkPluginBase {
 
 	private final static Map<String, String> DELIMS;
-	
+
 	static {
 		DELIMS = new TreeMap<String, String>();
 		DELIMS.put("Comma", ",");
 		DELIMS.put("Space", " ");
 		DELIMS.put("Tab", "\t");
 	}
-	
+
 	@Override
-	public void save(BufferedOutputStream stream, List<ValidObservation> obs,
+	public void save(PrintWriter writer, List<ValidObservation> obs,
 			String delimiter) throws IOException {
 
 		if (Mediator.getInstance().getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE) {
-			saveObsToFileInSimpleFormat(stream, obs, delimiter);
+			saveObsToFileInSimpleFormat(writer, obs, delimiter);
 		} else {
-			saveObsToFileInAAVSOFormat(stream, obs, delimiter);
+			saveObsToFileInAAVSOFormat(writer, obs, delimiter);
 		}
 	}
 
@@ -79,14 +79,14 @@ public class TextFormatObservationSinkPlugin extends ObservationSinkPluginBase {
 	 * Write observations in simple format to specified output stream. Also
 	 * updates the progress bar upon each observation written.
 	 * 
-	 * @param ostream
-	 *            The specified buffered output stream.
+	 * @param writer
+	 *            The specified print writer.
 	 * @param obs
 	 *            A list of observations.
 	 * @param delimiter
 	 *            The field delimiter to use; may be null.
 	 */
-	private void saveObsToFileInSimpleFormat(BufferedOutputStream ostream,
+	private void saveObsToFileInSimpleFormat(PrintWriter writer,
 			List<ValidObservation> obs, String delimiter) throws IOException {
 		for (ValidObservation ob : obs) {
 			boolean includeJD = Mediator.getInstance().getViewMode() == ViewModeType.LIST_OBS_MODE
@@ -94,8 +94,7 @@ public class TextFormatObservationSinkPlugin extends ObservationSinkPluginBase {
 			// Exclude excluded observations from the output file C.Kotnik
 			// 2018-12-16
 			if (!ob.isExcluded()) {
-				ostream.write(ob.toSimpleFormatString(delimiter, includeJD)
-						.getBytes());
+				writer.write(ob.toSimpleFormatString(delimiter, includeJD));
 			}
 
 			Mediator.getInstance().getProgressNotifier()
@@ -107,14 +106,14 @@ public class TextFormatObservationSinkPlugin extends ObservationSinkPluginBase {
 	 * Write observations in AAVSO format to specified output stream. Also
 	 * updates the progress bar upon each observation written.
 	 * 
-	 * @param ostream
-	 *            The specified buffered output stream.
+	 * @param writer
+	 *            The specified print writer.
 	 * @param obs
 	 *            A list of observations.
 	 * @param delimiter
 	 *            The field delimiter to use; may be null.
 	 */
-	private void saveObsToFileInAAVSOFormat(BufferedOutputStream ostream,
+	private void saveObsToFileInAAVSOFormat(PrintWriter writer,
 			List<ValidObservation> obs, String delimiter) throws IOException {
 		for (ValidObservation ob : obs) {
 			boolean includeJD = Mediator.getInstance().getViewMode() == ViewModeType.LIST_OBS_MODE
@@ -122,8 +121,7 @@ public class TextFormatObservationSinkPlugin extends ObservationSinkPluginBase {
 			// Exclude excluded observations from the output file C.Kotnik
 			// 2018-12-16
 			if (!ob.isExcluded()) {
-				ostream.write(ob.toAAVSOFormatString(delimiter, includeJD)
-						.getBytes());
+				writer.write(ob.toAAVSOFormatString(delimiter, includeJD));
 			}
 			Mediator.getInstance().getProgressNotifier()
 					.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);

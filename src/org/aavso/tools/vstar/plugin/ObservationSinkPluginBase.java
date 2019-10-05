@@ -17,8 +17,8 @@
  */
 package org.aavso.tools.vstar.plugin;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -37,16 +37,16 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
 public abstract class ObservationSinkPluginBase implements IPlugin {
 
 	/**
-	 * Save the specified observations to the specified output stream.
+	 * Save the specified observations.
 	 * 
-	 * @param stream
-	 *            A buffered output stream.
+	 * @param writer
+	 *            A text writer.
 	 * @param obs
 	 *            A list of observations.
 	 * @param delimiter
 	 *            The field delimiter to use; may be null.
 	 */
-	abstract public void save(BufferedOutputStream stream,
+	abstract public void save(PrintWriter writer,
 			List<ValidObservation> obs, String delimiter) throws IOException;
 
 	/**
