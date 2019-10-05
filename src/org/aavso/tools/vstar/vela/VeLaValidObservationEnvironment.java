@@ -203,6 +203,8 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 
 		symbol2CanonicalSymbol.put("OBSCODE", "OBS_CODE");
 
+		symbol2CanonicalSymbol.put("OBS_TYPE", "OBSTYPE");
+
 		symbol2CanonicalSymbol.put("COMPSTAR1", "COMP_STAR1");
 		
 		symbol2CanonicalSymbol.put("COMPSTAR2", "COMP_STAR2");
