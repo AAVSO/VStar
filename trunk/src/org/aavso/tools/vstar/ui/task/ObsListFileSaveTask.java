@@ -17,9 +17,8 @@
  */
 package org.aavso.tools.vstar.ui.task;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.List;
 
 import javax.swing.SwingWorker;
@@ -67,10 +66,9 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	 * @see javax.swing.SwingWorker#doInBackground()
 	 */
 	protected Void doInBackground() throws Exception {
-
-		try (BufferedOutputStream bufStream = new BufferedOutputStream(
-				new FileOutputStream(outFile))) {
-			plugin.save(bufStream, observations, delimiter);
+		
+		try (PrintWriter writer = new PrintWriter(outFile)) {
+			plugin.save(writer, observations, delimiter);
 		}
 
 		return null;
