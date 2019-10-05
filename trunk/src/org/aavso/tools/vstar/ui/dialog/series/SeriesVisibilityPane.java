@@ -45,6 +45,8 @@ import org.aavso.tools.vstar.util.stats.BinningResult;
 /**
  * This class represents a pane with checkboxes showing those series that are
  * rendered. The series to be displayed can be changed.
+ *
+ * TODO: rename as MultipleSeriesSelectionPane
  */
 @SuppressWarnings("serial")
 public class SeriesVisibilityPane extends JPanel {
@@ -85,6 +87,28 @@ public class SeriesVisibilityPane extends JPanel {
 	public SeriesVisibilityPane(ObservationAndMeanPlotModel obsPlotModel,
 			AnalysisType analysisType, boolean includeSynthetic,
 			boolean modifyVisibility) {
+		this(obsPlotModel, analysisType, includeSynthetic, modifyVisibility,
+				true);
+	}
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param obsPlotModel
+	 *            The plot model.
+	 * @param analysisType
+	 *            The analysis type.
+	 * @param includeSynthetic
+	 *            Include synthetic series?
+	 * @param modifyVisibility
+	 *            Modify series visibility?
+	 * @param showVisibilityBorderTitle
+	 *            show "Series Visibility" border title? For some uses of the
+	 *            dialog, we just want to see the series checkboxes.
+	 */
+	public SeriesVisibilityPane(ObservationAndMeanPlotModel obsPlotModel,
+			AnalysisType analysisType, boolean includeSynthetic,
+			boolean modifyVisibility, boolean showVisibilityBorderTitle) {
 		super();
 
 		this.obsPlotModel = obsPlotModel;
@@ -94,9 +118,11 @@ public class SeriesVisibilityPane extends JPanel {
 		this.modifyVisibility = modifyVisibility;
 
 		this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-		this.setBorder(BorderFactory.createTitledBorder(LocaleProps
-				.get("VISIBILITY_TITLE")));
-		this.setToolTipText("Select or deselect series for desired visibility.");
+		if (showVisibilityBorderTitle) {
+			this.setBorder(BorderFactory.createTitledBorder(LocaleProps
+					.get("VISIBILITY_TITLE")));
+		}
+		this.setToolTipText("Select or deselect series.");
 
 		this.visibilityDeltaMap = new HashMap<Integer, Boolean>();
 
