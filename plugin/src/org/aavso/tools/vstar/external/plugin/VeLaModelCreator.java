@@ -160,6 +160,9 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 		IModel createModel() {
 			IModel model = null;
 
+			// TODO: possible race condition here since we sometimes don't
+			// see the dialog and VStar hangs; a log entry shows a NPE
+			
 			if (velaDialog == null) {
 
 				velaDialog = new VeLaDialog(
