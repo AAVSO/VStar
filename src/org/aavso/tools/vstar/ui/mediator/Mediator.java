@@ -1933,6 +1933,9 @@ public class Mediator {
 					List<ValidObservation> obs = getSeriesInfoProvider()
 							.getObservations(type);
 
+					// TODO: possibly need to add: getUI()/invokeDialog()
+					// compare with modelling and obs src plugins
+					
 					IModel model = plugin.getModel(obs);
 
 					if (model != null) {
