@@ -90,7 +90,7 @@ Key Changes:
 - #663 Create an observation transformation plugin category
 - Magnitude baseline shifter plugin (an observation transformation plugin)
 - Extended text file format observation source plugin (Max)
-- #661 Vstar does not close input streams after reading data (found by Max))
+- #661 VStar does not close input streams after reading data (found by Max)
 - Changed Kepler and SuperWASP plugin FITS file suffix handling for file chooser
 - Changed AoV bin combobox to use more flexible ranged integer field
 - #637 Create an observation sink plugin category and converted internal file 
@@ -98,6 +98,7 @@ Key Changes:
   shifter and VeLa observation transformer plugins; none yet written!
 - Changed plugin settings tab name
 - #665: A plugin load error should NEVER prevent VStar from starting up
+- #666 obstype not available to VeLa filters or observations list searches
 - Improvements to extrema determination
 - Plugin development ant build file generation script and plugin examples
 - Gaia observation source plugin. (Cliff Kotnik)
@@ -107,7 +108,7 @@ Key Changes:
   Otherwise, these will be reloaded without any indication of their excluded 
   status. (Cliff Kotnik)
 - Change for different file format and handle exceptions for trailing non-data 
-  lines and llow either old or new format to be loaded. (Cliff Kotnik)
+  lines and allow either old or new format to be loaded. (Cliff Kotnik)
 - Creation and update of documentation for HJD converter plugin, Hipparcos, DASCH 
   and ASAS observation source plugins, Loess model and AoV period analysis plugins.
   (Dave Hinzel)
