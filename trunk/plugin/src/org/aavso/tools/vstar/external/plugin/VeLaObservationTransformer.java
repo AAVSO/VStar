@@ -91,8 +91,10 @@ public class VeLaObservationTransformer extends
 
 					if (ok && pair.second.trim().length() != 0) {
 						vela.program(pair.second);
+					} else {
+						break;
 					}
-					// Note: there being no break here is on purpose!
+					// Note: there being no unconditional break here is on purpose!
 				case REDO:
 					for (SeriesType seriesType : series) {
 						for (ValidObservation ob : seriesInfo
