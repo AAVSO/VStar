@@ -18,6 +18,8 @@
 package org.aavso.tools.vstar.ui.dialog.period;
 
 import java.awt.Component;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -130,6 +132,14 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.AMPLITUDE, false));
 		}
+
+		// If the window is closed in some other way than via the Dismiss
+		// button.
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we) {
+				cleanup();
+			}
+		});
 
 		prepareDialog();
 
