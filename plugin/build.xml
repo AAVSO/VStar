@@ -43,7 +43,7 @@
 		<jar jarfile="${dist}/${pkg}.CurrentModeANOVATool.jar" basedir="${build.classes}" includes="**/CurrentModeANOVATool**.class" />
 		<jar jarfile="${dist}/${pkg}.DASCHObservationSource.jar" basedir="${build.classes}" includes="**/DASCHObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.DescStatsBySeries.jar" basedir="${build.classes}" includes="**/DescStatsBySeries**.class" />
-		<jar jarfile="${dist}/${pkg}.ExtendedTextFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/ExtendedTextFileFormatObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.FlexibleTextFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/FlexibleTextFileFormatObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.FourierModelCreator.jar" basedir="${build.classes}" includes="**/FourierModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.GAIADR2XformObSource.jar" basedir="${build.classes}" includes="**/GAIADR2XformObSource**.class" />
 		<jar jarfile="${dist}/${pkg}.HJDConverter.jar" basedir="${build.classes}" includes="**/HJDConverter**.class" />
@@ -96,7 +96,7 @@
 		<copy file="${dist}/${pkg}.CurrentModeANOVATool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.DASCHObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.DescStatsBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.ExtendedTextFileFormatObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />		
+		<copy file="${dist}/${pkg}.FlexibleTextFileFormatObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />		
 		<copy file="${dist}/${pkg}.FourierModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.GAIADR2XformObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.HJDConverter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -132,7 +132,7 @@
 		<echo file="${plugins_list_file}" message="${pkg}.CurrentModeANOVATool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.DASCHObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.DescStatsBySeries.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.ExtendedTextFileFormatObservationSource.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.FlexibleTextFileFormatObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FourierModelCreator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.GAIADR2XformObSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HJDConverter.jar${line.separator}" append="true" />
