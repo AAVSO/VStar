@@ -73,7 +73,7 @@ import org.aavso.tools.vstar.util.Pair;
 //   ObsCode: observation code field, optional
 //   Flag   : validation flag field, optional
 //   Filter : filter field, optional
-// Any other field names are ignored, empty name is allowed.
+// Any other field names are ignored, the empty name is allowed.
 //
 // Example1 (any extra columns will be ignored): 
 //   #FIELDS=Time,Mag,MagErr,ObsCode,Flag,Filter
@@ -100,8 +100,6 @@ import org.aavso.tools.vstar.util.Pair;
 // <..>
 //
 //
-// Note 1. Quoted values are not currently supported (#FIELDS directive).
-//
 // PMAK 2019-06-23:
 //   1) delimiter can be one-char only
 //   2) splitWithQuotes() instead of split()
@@ -118,9 +116,9 @@ import org.aavso.tools.vstar.util.Pair;
 //   VStar Rev. 1630: DateInfo.setJulianDay() removed. Compatible code is used.
 
 /**
- * This plug-in class reads Extended Text Format File (PMAK)
+ * This plug-in class reads Flexible Text Format File (PMAK)
  */
-public class ExtendedTextFileFormatObservationSource extends
+public class FlexibleTextFileFormatObservationSource extends
 		ObservationSourcePluginBase {
 
 	private static final char DEFAULT_DELIMITER = ',';
@@ -149,7 +147,7 @@ public class ExtendedTextFileFormatObservationSource extends
 	 */
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
-		return new ExtendedTextFileFormatRetriever();
+		return new FlexibleTextFileFormatRetriever();
 	}
 
 	/**
@@ -157,7 +155,7 @@ public class ExtendedTextFileFormatObservationSource extends
 	 */
 	@Override
 	public String getDescription() {
-		return "Extended Text File Format Reader";
+		return "Flexible Text File Format Reader";
 	}
 
 	/**
@@ -165,10 +163,10 @@ public class ExtendedTextFileFormatObservationSource extends
 	 */
 	@Override
 	public String getDisplayName() {
-		return "New Star from Extended Text Format File...";
+		return "New Star from Flexible Text Format File...";
 	}
 
-	class ExtendedTextFileFormatRetriever extends AbstractObservationRetriever {
+	class FlexibleTextFileFormatRetriever extends AbstractObservationRetriever {
 		private char delimiter    = DEFAULT_DELIMITER;
 		private String dateType   = "JD";
 		private String objName    = "";
@@ -197,7 +195,7 @@ public class ExtendedTextFileFormatObservationSource extends
 		/**
 		 * Constructor
 		 */
-		public ExtendedTextFileFormatRetriever() {
+		public FlexibleTextFileFormatRetriever() {
 			julianDayValidator = new JulianDayValidator();
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
 			uncertaintyValueValidator = new UncertaintyValueValidator(new InclusiveRangePredicate(0, 1));
@@ -613,7 +611,7 @@ public class ExtendedTextFileFormatObservationSource extends
 
 		@Override
 		public String getSourceType() {
-			return "Extended Text Format File V1.0";
+			return "Flexible Text Format File V1.0";
 		}
 		
 		@Override
