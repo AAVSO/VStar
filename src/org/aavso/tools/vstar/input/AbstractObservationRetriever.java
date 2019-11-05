@@ -545,6 +545,27 @@ public abstract class AbstractObservationRetriever {
 		invalidObservations.add(ob);
 	}
 
+	/**
+	 * Skip any bytes at the start of a line that have an ordinal value of less
+	 * than zero, e.g. a byte-order mark sequence. This is likely to be an
+	 * exceptional case so low cost when amortised over all lines.
+	 * 
+	 * @param line The line to be processed.
+	 * @return The line without characters whose ordinal values are negative.
+	 */
+	protected String removeNegativeBytes(String line) {
+		byte[] bytes = line.getBytes();
+		
+		int i = 0;
+		for (; i < bytes.length && bytes[i] < 0; i++)
+			;
+		if (i > 0) {
+			line = new String(bytes, i, line.length() - 1);
+		}
+
+		return line;
+	}
+
 	// Creates a stop request listener.
 	private Listener<StopRequestMessage> createStopRequestListener() {
 		return new Listener<StopRequestMessage>() {
