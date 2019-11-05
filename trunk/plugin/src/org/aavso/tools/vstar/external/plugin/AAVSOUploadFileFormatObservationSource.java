@@ -44,6 +44,7 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 // 12/02/2018 C. Kotnik
 // Removed kname from kmag field to allow observations save/reload
+
 /**
  * This plug-in class reads AAVSO upload (extended and visual) format files,
  * yielding an observation list.
@@ -140,15 +141,20 @@ public class AAVSOUploadFileFormatObservationSource extends
 				InterruptedException {
 
 			getNumberOfRecords();
-			
+
 			int lineNum = 1;
 			int obNum = 1;
 
 			for (String line : lines) {
 				try {
 					if (line != null) {
+						// Remove any CR or LF characters.
 						line = line.replaceFirst("\n", "").replaceFirst("\r",
 								"");
+
+						line = removeNegativeBytes(line);
+						
+						// Process current line.
 						if (!isEmpty(line)) {
 							if (line.startsWith("#")) {
 								handleDirective(line);
@@ -160,7 +166,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 							}
 						}
 						lineNum++;
-						
+
 						incrementProgress();
 					}
 				} catch (Exception e) {
@@ -373,7 +379,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 				// observation.setKMag(kname + kmag);
 				// 12/02/2018 C. Kotnik
 				// Concatenation of name and value not valid for reloading
-				// saved observation.  Reverted to just value
+				// saved observation. Reverted to just value
 				observation.setKMag(Double.toString(kmag));
 			}
 
