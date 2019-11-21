@@ -41,7 +41,7 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
  * Heliocentric.
  * 
  * TODO:<br/>
- * - undoable edits! - warn if BJD obs present that they won't be converted
+ * - undoable edits!
  */
 public class HJDConverter extends ObservationToolPluginBase {
 
