@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.model.list;
 
 import java.util.List;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -27,6 +28,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
@@ -144,7 +146,9 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 					validOb);
 		} catch (IndexOutOfBoundsException e) {
 			// Sometimes the series-index, item-index pair will have
-			// changed or have become non-existent. Ignore.
+			// changed or have become non-existent. Ignore but log.
+			VStar.LOGGER.log(Level.WARNING,
+					"Observation value retrieval error", e);
 		}
 
 		return result;
