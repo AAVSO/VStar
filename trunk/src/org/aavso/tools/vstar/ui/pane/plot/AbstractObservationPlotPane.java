@@ -215,14 +215,14 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 
 		// Listen to events.
 
-		Mediator.getInstance().getObservationSelectionNotifier().addListener(
-				createObservationSelectionListener());
+		Mediator.getInstance().getObservationSelectionNotifier()
+				.addListener(createObservationSelectionListener());
 
-		Mediator.getInstance().getZoomRequestNotifier().addListener(
-				createZoomRequestListener());
+		Mediator.getInstance().getZoomRequestNotifier()
+				.addListener(createZoomRequestListener());
 
-		Mediator.getInstance().getPanRequestNotifier().addListener(
-				createPanRequestListener());
+		Mediator.getInstance().getPanRequestNotifier()
+				.addListener(createPanRequestListener());
 	}
 
 	/**
@@ -337,8 +337,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 
 		for (SeriesType seriesType : seriesVisibilityMap.keySet()) {
 			int seriesNum = obsModel.getSrcTypeToSeriesNumMap().get(seriesType);
-			renderer.setSeriesVisible(seriesNum, seriesVisibilityMap
-					.get(seriesType));
+			renderer.setSeriesVisible(seriesNum,
+					seriesVisibilityMap.get(seriesType));
 		}
 	}
 
@@ -431,22 +431,22 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 				if (o instanceof XYItemEntity) {
 					XYItemEntity entity = (XYItemEntity) o;
 					Rectangle2D itemBounds = entity.getArea().getBounds2D();
-					Point2D centerPt = new Point2D.Double(itemBounds
-							.getCenterX(), itemBounds.getCenterY());
+					Point2D centerPt = new Point2D.Double(
+							itemBounds.getCenterX(), itemBounds.getCenterY());
 
 					double dist = centerPt.distance(lastPointClicked);
 					if (dist < closestDist) {
 						closestDist = dist;
 						lastDatasetSelected = entity.getDataset();
-						lastObSelected = obsModel.getValidObservation(entity
-								.getSeriesIndex(), entity.getItem());
+						lastObSelected = obsModel.getValidObservation(
+								entity.getSeriesIndex(), entity.getItem());
 					}
 
 					// Note: The approach below definitely does not work.
 					// if (item.getArea().contains(lastPointClicked)) {
 					// lastObSelected = obsModel.getValidObservation(item
 					// .getSeriesIndex(), item.getItem());
-					//						
+					//
 					// }
 				}
 			}
@@ -494,7 +494,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		// with the corresponding XYItemEntity. It's still O(n) though.
 		// TODO: Use RendererUtilities method to return a list of entity indices
 		// that lie in a given x (JD/phase) range; this would reduce n.
-		@SuppressWarnings("unchecked")
 		Iterator it = entities.iterator();
 		while (it.hasNext()) {
 			Object o = it.next();
@@ -503,26 +502,33 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 				// Dataset may not be same as primary observation model, e.g.
 				// could be model function dataset (continuous model).
 				if (item.getDataset() == obsModel) {
-					double domainValue = obsModel.getXValue(item
-							.getSeriesIndex(), item.getItem());
-					double mag = obsModel.getYValue(item.getSeriesIndex(), item
-							.getItem());
+					try {
+						double domainValue = obsModel.getXValue(
+								item.getSeriesIndex(), item.getItem());
+						double mag = obsModel.getYValue(item.getSeriesIndex(),
+								item.getItem());
 
-					// Since the data in the observations and in the
-					// XYItemEntities
-					// should be the same, using equality here ought to be safe.
-					List<ValidObservation> obs = obsModel
-							.getSeriesNumToObSrcListMap().get(
-									item.getSeriesIndex());
-					if (obsModel.getTimeElementEntity().getTimeElement(obs,
-							item.getItem()) == domainValue
-							&& ob.getMag() == mag) {
-						Rectangle2D itemBounds = item.getArea().getBounds2D();
-						Point2D centerPt = new Point2D.Double(itemBounds
-								.getCenterX(), itemBounds.getCenterY());
+						// Since the data in the observations and in the
+						// XYItemEntities should be the same, using equality
+						// here ought to be safe.
+						List<ValidObservation> obs = obsModel
+								.getSeriesNumToObSrcListMap().get(
+										item.getSeriesIndex());
+						if (obsModel.getTimeElementEntity().getTimeElement(obs,
+								item.getItem()) == domainValue
+								&& ob.getMag() == mag) {
+							Rectangle2D itemBounds = item.getArea()
+									.getBounds2D();
+							Point2D centerPt = new Point2D.Double(
+									itemBounds.getCenterX(),
+									itemBounds.getCenterY());
 
-						lastPointClicked = centerPt;
-						break;
+							lastPointClicked = centerPt;
+							break;
+						}
+					} catch (IndexOutOfBoundsException e) {
+						// Sometimes the series-index, item-index pair will have
+						// changed or have become non-existent. Ignore.
 					}
 				}
 			}

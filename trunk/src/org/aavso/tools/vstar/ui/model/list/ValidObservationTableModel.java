@@ -135,9 +135,19 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		assert columnIndex < columnCount;
-		ValidObservation validOb = this.validObservations.get(rowIndex);
-		return this.columnInfoSource.getTableColumnValue(columnIndex, validOb);
+		Object result = null;
+
+		try {
+			assert columnIndex < columnCount;
+			ValidObservation validOb = this.validObservations.get(rowIndex);
+			result = this.columnInfoSource.getTableColumnValue(columnIndex,
+					validOb);
+		} catch (IndexOutOfBoundsException e) {
+			// Sometimes the series-index, item-index pair will have
+			// changed or have become non-existent. Ignore.
+		}
+
+		return result;
 	}
 
 	/**
@@ -218,9 +228,9 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 
 			@Override
 			public void update(DiscrepantObservationMessage info) {
-				if (info.getSource() != this) {
-					fireTableDataChanged();
-				}
+				// if (info.getSource() != this) {
+				fireTableDataChanged();
+				// }
 			}
 
 			@Override
