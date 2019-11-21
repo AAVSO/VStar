@@ -163,6 +163,7 @@ public class AdditiveLoadFileOrUrlChooser {
 				} else {
 					// Shorten other "New Star from " plugin names.
 					name = name.replace("New Star from ", "");
+					name = name.replace(" File", "");
 					name = name.replace("...", "");
 				}
 				plugins.put(name, plugin);
