@@ -24,6 +24,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -34,6 +35,7 @@ import javax.swing.JTextArea;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
@@ -528,7 +530,9 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 						}
 					} catch (IndexOutOfBoundsException e) {
 						// Sometimes the series-index, item-index pair will have
-						// changed or have become non-existent. Ignore.
+						// changed or have become non-existent. Ignore but log.
+						VStar.LOGGER.log(Level.WARNING,
+								"Observation selection error", e);
 					}
 				}
 			}
