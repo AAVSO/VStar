@@ -57,11 +57,13 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 //12/02/2018 C. Kotnik added name to observations so they can be
 //saved and reloaded from a file.
+
 /**
  * The base class for URL based AAVSO photometry observation source plugins.
  */
@@ -269,7 +271,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 					double error = Double.parseDouble(fields[2]);
 
 					ValidObservation ob = new ValidObservation();
-					ob.setName(getInputName());					
+					ob.setName(getInputName());
 					ob.setDateInfo(new DateInfo(jd));
 					ob.setMagnitude(new Magnitude(mag, error));
 					ob.setBand(series);
@@ -458,6 +460,10 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 					if (!urlDialog.isCancelled()
 							&& !urlField.getValue().matches("^\\s*$")) {
 
+						boolean raGiven = false;
+						boolean decGiven = false;
+						boolean radiusGiven = false;
+
 						// Set RA, Dec, radius from URL and select all
 						// checkboxes since the VSX URL contains no filter
 						// information, returning all available.
@@ -465,6 +471,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 								.getStringValue());
 
 						if (raMatcher.matches()) {
+							raGiven = true;
 							raDegField.setValue(Double.parseDouble(raMatcher
 									.group(1)));
 						}
@@ -473,6 +480,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 								.getStringValue());
 
 						if (decMatcher.matches()) {
+							decGiven = true;
 							decDegField.setValue(Double.parseDouble(decMatcher
 									.group(1)));
 						}
@@ -484,19 +492,27 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 							String radiusStr = radiusMatcher.group(1);
 							switch (radiusStr) {
 							case "0.001":
+								radiusGiven = true;
 								radiusDegSelector.setSelectedIndex(0);
 								break;
 							case "0.002":
+								radiusGiven = true;
 								radiusDegSelector.setSelectedIndex(1);
 								break;
 							case "0.005":
+								radiusGiven = true;
 								radiusDegSelector.setSelectedIndex(2);
 								break;
 							}
 						}
 
-						for (JCheckBox checkbox : checkBoxes) {
-							checkbox.setSelected(true);
+						if (raGiven && decGiven && radiusGiven) {
+							for (JCheckBox checkbox : checkBoxes) {
+								checkbox.setSelected(true);
+							}
+						} else {
+							MessageBox.showWarningDialog("Parameter Error",
+									"Invalid URL");
 						}
 					}
 				}
