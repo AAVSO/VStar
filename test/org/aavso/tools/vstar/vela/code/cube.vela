@@ -1,0 +1,2 @@
+-- cube function
+cube(n:real):real{ n*n*n }
