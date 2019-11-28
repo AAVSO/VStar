@@ -17,11 +17,14 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -36,8 +39,10 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.aavso.tools.vstar.scripting.VStarScriptingAPI;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -52,6 +57,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 public class VeLaInterpreter {
 
 	private boolean verbose;
+
+	private List<File> sourceDirectories;
 
 	private Stack<Operand> stack;
 
@@ -76,9 +83,13 @@ public class VeLaInterpreter {
 	 * 
 	 * @param verbose
 	 *            Verbose mode?
+	 * @param sourceDirectories
+	 *            A list of source directories containing VeLa source files
+	 *            (ending in ".vl" or ".vela") to be loaded.
 	 */
-	public VeLaInterpreter(boolean verbose) {
+	public VeLaInterpreter(boolean verbose, List<File> sourceDirectories) {
 		this.verbose = verbose;
+		this.sourceDirectories = sourceDirectories;
 
 		errorListener = new VeLaErrorListener();
 
@@ -89,13 +100,27 @@ public class VeLaInterpreter {
 
 		initBindings();
 		initFunctionExecutors();
+		// allows user to override intrinsic code
+		loadUserCode();
 	}
 
 	/**
-	 * Construct a VeLa interpreter with verbose mode set to false.
+	 * Construct a VeLa interpreter with verbose mode as specified and no source
+	 * directories.
+	 * 
+	 * @param verbose
+	 *            Verbose mode?
+	 */
+	public VeLaInterpreter(boolean verbose) {
+		this(verbose, Collections.emptyList());
+	}
+
+	/**
+	 * Construct a VeLa interpreter with verbose mode set to false and no source
+	 * directories.
 	 */
 	public VeLaInterpreter() {
-		this(false);
+		this(false, Collections.emptyList());
 	}
 
 	/**
@@ -151,6 +176,39 @@ public class VeLaInterpreter {
 	/**
 	 * VeLa program interpreter entry point.
 	 * 
+	 * @param file
+	 *            A path to a file containing a VeLa program string to be
+	 *            interpreted.
+	 * @return An optional result, depending upon whether a value was left on
+	 *         the stack.
+	 * @throws VeLaParseError
+	 *             If a parse error occurs.
+	 * @throws VeLaEvalError
+	 *             If an evaluation error occurs.
+	 */
+	public Optional<Operand> program(File path) throws VeLaParseError,
+			VeLaEvalError {
+		StringBuffer code = new StringBuffer();
+
+		try {
+			try (Stream<String> stream = Files.lines(Paths.get(path
+					.getAbsolutePath()))) {
+				stream.forEachOrdered(line -> {
+					code.append(line);
+					code.append("\n");
+				});
+			}
+		} catch (IOException e) {
+			throw new VeLaEvalError("Error when attempting to read VeLa file "
+					+ path.getAbsolutePath());
+		}
+
+		return program(code.toString());
+	}
+
+	/**
+	 * VeLa program interpreter entry point.
+	 * 
 	 * @param prog
 	 *            The VeLa program string to be interpreted.
 	 * @return An optional result, depending upon whether a value was left on
@@ -160,7 +218,8 @@ public class VeLaInterpreter {
 	 * @throws VeLaEvalError
 	 *             If an evaluation error occurs.
 	 */
-	public Optional<Operand> program(String prog) throws VeLaParseError {
+	public Optional<Operand> program(String prog) throws VeLaParseError,
+			VeLaEvalError {
 		return veLaToResultASTPair(prog).first;
 	}
 
@@ -176,7 +235,8 @@ public class VeLaInterpreter {
 	 * @throws VeLaEvalError
 	 *             If an evaluation error occurs.
 	 */
-	public Pair<Optional<Operand>, AST> veLaToResultASTPair(String prog) throws VeLaParseError {
+	public Pair<Optional<Operand>, AST> veLaToResultASTPair(String prog)
+			throws VeLaParseError, VeLaEvalError {
 		VeLaParser.SequenceContext tree = getParser(prog).sequence();
 		return commonInterpreter(prog, tree);
 	}
@@ -223,7 +283,8 @@ public class VeLaInterpreter {
 	 * @throws VeLaEvalError
 	 *             If an evaluation error occurs.
 	 */
-	public Operand expressionToOperand(String expr) throws VeLaParseError {
+	public Operand expressionToOperand(String expr) throws VeLaParseError,
+			VeLaEvalError {
 
 		VeLaParser.AdditiveExpressionContext tree = getParser(expr)
 				.additiveExpression();
@@ -248,7 +309,8 @@ public class VeLaInterpreter {
 	 * @throws VeLaEvalError
 	 *             If an evaluation error occurs.
 	 */
-	public boolean booleanExpression(String expr) throws VeLaParseError {
+	public boolean booleanExpression(String expr) throws VeLaParseError,
+			VeLaEvalError {
 
 		VeLaParser.BooleanExpressionContext tree = getParser(expr)
 				.booleanExpression();
@@ -307,10 +369,10 @@ public class VeLaInterpreter {
 		prog = prog.replace(" ", "").replace("\t", "").toUpperCase();
 
 		// We cache abstract syntax trees by expression to improve performance.
-//		boolean astCached = false;
+		// boolean astCached = false;
 		if (exprToAST.containsKey(prog)) {
 			ast = exprToAST.get(prog);
-//			astCached = true;
+			// astCached = true;
 		} else {
 			ExpressionVisitor visitor = new ExpressionVisitor();
 			ast = visitor.visit(tree);
@@ -321,21 +383,20 @@ public class VeLaInterpreter {
 			}
 		}
 
-//		if (verbose && ast != null) {
-//			if (astCached) {
-//				System.out.println(String.format("%s [AST cached]", ast));
-//			} else {
-//				System.out.println(ast);
-//			}
-//		}
+		// if (verbose && ast != null) {
+		// if (astCached) {
+		// System.out.println(String.format("%s [AST cached]", ast));
+		// } else {
+		// System.out.println(ast);
+		// }
+		// }
 
 		return ast;
 	}
 
-	
 	/**
-	 * Common VeLa evaluation entry point. This will be most effective when
-	 * prog is an often used expression.
+	 * Common VeLa evaluation entry point. This will be most effective when prog
+	 * is an often used expression.
 	 * 
 	 * @param prog
 	 *            The VeLa program string to be interpreted.
@@ -347,7 +408,7 @@ public class VeLaInterpreter {
 	 *             If an evaluation error occurs.
 	 */
 	public Pair<Optional<Operand>, AST> commonInterpreter(String prog,
-			ParserRuleContext tree) throws VeLaParseError {
+			ParserRuleContext tree) throws VeLaEvalError {
 
 		Optional<Operand> result = Optional.empty();
 
@@ -367,10 +428,10 @@ public class VeLaInterpreter {
 				// Note: a better description may be constant rather than
 				// deterministic.
 				result = Optional.of(exprToResult.get(prog));
-//				if (verbose) {
-//					System.out.println(String.format("%s [result cached: %s]",
-//							ast, result));
-//				}
+				// if (verbose) {
+				// System.out.println(String.format("%s [result cached: %s]",
+				// ast, result));
+				// }
 			} else {
 				// Evaluate the abstract syntax tree and cache the result.
 				eval(ast);
@@ -960,6 +1021,26 @@ public class VeLaInterpreter {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Read and interpret user-defined code.
+	 */
+	private void loadUserCode() {
+		for (File dir : sourceDirectories) {
+			if (dir.isDirectory()) {
+				for (File file : dir.listFiles()) {
+					if (file.getName().endsWith(".vl")
+							|| file.getName().endsWith(".vela")) {
+						program(file);
+					} else {
+						// TODO: message box, exception, log, ignore?
+					}
+				}
+			} else {
+				// TODO: message box, exception, log, ignore?
+			}
+		}
 	}
 
 	/**

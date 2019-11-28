@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -737,11 +738,11 @@ public class VeLaTest extends TestCase {
 		Optional<Operand> result = vela.program(prog);
 
 		assertTrue(result.isPresent());
-		
+
 		List<Operand> expected = Arrays.asList(new Operand(Type.INTEGER, 1),
 				new Operand(Type.INTEGER, 2), new Operand(Type.INTEGER, 3),
 				new Operand(Type.INTEGER, 4), new Operand(Type.INTEGER, 5));
-		
+
 		assertEquals(expected, result.get().listVal());
 	}
 
@@ -764,11 +765,11 @@ public class VeLaTest extends TestCase {
 		Optional<Operand> result = vela.program(prog);
 
 		assertTrue(result.isPresent());
-		
+
 		List<Operand> expected = Arrays.asList(new Operand(Type.REAL, 1.0),
 				new Operand(Type.REAL, 2.0), new Operand(Type.REAL, 3.0),
 				new Operand(Type.REAL, 4.0), new Operand(Type.REAL, 5.0));
-		
+
 		assertEquals(expected, result.get().listVal());
 	}
 
@@ -1308,9 +1309,29 @@ public class VeLaTest extends TestCase {
 
 		try {
 			vela.program(prog);
+			fail("Should end in stack overflow, since VeLaInterpreter "
+					+ "not yet properly tail recursive.");
 		} catch (StackOverflowError e) {
 			// We expect to end up here
 		}
+	}
+
+	public void testUserCode1() {
+		// TODO: find current dir programmatically
+		File code = new File("test/org/aavso/tools/vstar/vela/code/sqr.vela");
+		Optional<Operand> result = vela.program(code);
+		assertTrue(result.isPresent());
+		assertEquals(144, result.get().intVal());
+	}
+
+	public void testUserCode2() {
+		List<File> dirs = new ArrayList<File>();
+		// TODO: find current dir programmatically
+		dirs.add(new File("test/org/aavso/tools/vstar/vela/code"));
+		VeLaInterpreter vela = new VeLaInterpreter(true, dirs);
+		Optional<Operand> result = vela.program("cube(2)");
+		assertTrue(result.isPresent());
+		assertEquals(8, result.get().intVal());
 	}
 
 	// Helpers
