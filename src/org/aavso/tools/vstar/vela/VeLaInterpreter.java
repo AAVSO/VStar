@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.aavso.tools.vstar.scripting.VStarScriptingAPI;
+import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
@@ -1024,21 +1025,25 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Read and interpret user-defined code.
+	 * Read and interpret user-defined code.<br/>
+	 * A VeLa error should not bring VStar down.<br/>
+	 * Ignore all but VeLa files (e.g. could be README files) and directories.
 	 */
 	private void loadUserCode() {
 		for (File dir : sourceDirectories) {
-			if (dir.isDirectory()) {
-				for (File file : dir.listFiles()) {
-					if (file.getName().endsWith(".vl")
-							|| file.getName().endsWith(".vela")) {
-						program(file);
-					} else {
-						// TODO: message box, exception, log, ignore?
+			try {
+				if (dir.isDirectory()) {
+					for (File file : dir.listFiles()) {
+						if (file.getName().endsWith(".vl")
+								|| file.getName().endsWith(".vela")) {
+							program(file);
+						}
 					}
+				} else {
 				}
-			} else {
-				// TODO: message box, exception, log, ignore?
+			} catch (Throwable t) {
+				VStar.LOGGER.warning("Error when sourcing VeLa code: "
+						+ t.getLocalizedMessage());
 			}
 		}
 	}
