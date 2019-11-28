@@ -1,5 +1,2 @@
 -- apply an anonymous square function to 12 leaving 144 on the stack
 function(n:real):real{ n*n }(12)
-
--- cube function
-cube(n:real):real{ n*n*n }

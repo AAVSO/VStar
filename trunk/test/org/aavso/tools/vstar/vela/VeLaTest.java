@@ -1317,7 +1317,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testUserCode1() {
-		// TODO: find current dir programmatically
+		// Current directory must be VStar root.
 		File code = new File("test/org/aavso/tools/vstar/vela/code/sqr.vela");
 		Optional<Operand> result = vela.program(code);
 		assertTrue(result.isPresent());
@@ -1326,7 +1326,7 @@ public class VeLaTest extends TestCase {
 
 	public void testUserCode2() {
 		List<File> dirs = new ArrayList<File>();
-		// TODO: find current dir programmatically
+		// Current directory must be VStar root.
 		dirs.add(new File("test/org/aavso/tools/vstar/vela/code"));
 		VeLaInterpreter vela = new VeLaInterpreter(true, dirs);
 		Optional<Operand> result = vela.program("cube(2)");
