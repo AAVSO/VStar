@@ -43,7 +43,6 @@ import java.util.stream.Stream;
 
 import org.aavso.tools.vstar.scripting.VStarScriptingAPI;
 import org.aavso.tools.vstar.ui.VStar;
-import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.antlr.v4.runtime.ANTLRInputStream;

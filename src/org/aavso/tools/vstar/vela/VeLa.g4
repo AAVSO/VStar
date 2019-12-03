@@ -7,7 +7,7 @@ grammar VeLa;
 // - Add .. operator as shorthand for creating numeric lists over a range
 //   o open-ended range: N.. => generator
 // - It would be more type safe to allow a signature instead of "function" 
-//   for function parameters, e.g. [real real] : real
+//   for function parameters, e.g. (real real) : real
 // - Add compile() function **
 //   o compile() returns AST as list and/or S-expression string
 // - Allow S-expressions to be converted into ASTs, e.g. compile_sexpr() 
@@ -46,6 +46,7 @@ grammar VeLa;
 // - Consider a list subscript operator vs nth()
 // - Y-combinator in VeLa
 // - Unicode symbols for vars, e.g. PI, for Fourier models
+// - Refinement types ala Wadler's complement to blame, e.g. f(n:real{n >= 0})
 
 // ** Parser rules **
 
