@@ -46,7 +46,9 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 	}
 
 	/**
-	 * Add a function executor to the multi-map.
+	 * Add a function executor to the multi-map.<br/>
+	 * If the new executor has the same signature as one already in existence,
+	 * it will be replaced.
 	 * 
 	 * @param executor
 	 *            The function executor to be added.
@@ -58,9 +60,29 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 		if (executors == null) {
 			executors = new ArrayList<FunctionExecutor>();
 			functions.put(executor.getFuncName().get(), executors);
-		}
+			executors.add(executor);
+		} else {
 
-		executors.add(executor);
+			int index = -1;
+
+			for (int i = 0; i < executors.size(); i++) {
+				FunctionExecutor func = executors.get(i);
+				// Two functions are equivalent if they have the same
+				// parameters.
+				if (func.parameterTypes.equals(executor.parameterTypes)) {
+					index = i;
+				}
+			}
+
+			if (index == -1) {
+				// The common case is a new function...
+				executors.add(executor);
+			} else {
+				// ...but sometimes we will replace an existing function
+				// (last one defined wins).
+				executors.set(index, executor);
+			}
+		}
 	}
 
 	/**
@@ -90,7 +112,7 @@ public class VeLaScope extends VeLaEnvironment<Operand> {
 
 		return funList;
 	}
-	
+
 	/**
 	 * Is this scope empty?
 	 */
