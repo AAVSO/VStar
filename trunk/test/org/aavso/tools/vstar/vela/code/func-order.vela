@@ -1,0 +1,5 @@
+-- second f(n) should replace first
+f(n:integer):integer{ n*n }
+f(n:integer):integer{ n*n*n }
+-- expect result of 8
+f(2)
