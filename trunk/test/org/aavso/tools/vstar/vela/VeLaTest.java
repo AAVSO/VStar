@@ -40,22 +40,38 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 /**
  * This class contains unit tests for VeLa: VStar expression language.
  */
 public class VeLaTest {
 
+	private String testName;
+
 	private final static double DELTA = 0.001;
+
+	private final static boolean VERBOSE = false;
 
 	private VeLaInterpreter vela;
 
 	private long start;
 
 	public VeLaTest() {
-		vela = new VeLaInterpreter(true);
+		vela = new VeLaInterpreter(VERBOSE);
+
 	}
+
+	@Rule
+	public TestRule watcher = new TestWatcher() {
+		protected void starting(Description description) {
+			testName = description.getMethodName();
+		}
+	};
 
 	@Before
 	public void start() {
@@ -64,7 +80,8 @@ public class VeLaTest {
 
 	@After
 	public void end() {
-		System.out.printf("** Time: %d ms\n", System.currentTimeMillis() - start);
+		System.out.printf("** %s: %d ms\n", testName,
+				System.currentTimeMillis() - start);
 	}
 
 	// ** Valid test cases **
@@ -185,14 +202,14 @@ public class VeLaTest {
 
 	@Test
 	public void testReal6() {
-		double result = new VeLaInterpreter(false)
+		double result = new VeLaInterpreter(VERBOSE)
 				.realExpression("1 + 6 / 2 + 4 * 5");
 		assertEquals(24.0, result, DELTA);
 	}
 
 	@Test
 	public void testReal7() {
-		double result = new VeLaInterpreter(false)
+		double result = new VeLaInterpreter(VERBOSE)
 				.realExpression("1 + 6 / 2 - 4 * 5");
 		assertEquals(-16.0, result, DELTA);
 	}
@@ -491,7 +508,7 @@ public class VeLaTest {
 		env.put("raining".toUpperCase(), new Operand(Type.BOOLEAN, false));
 		Set<String> boundConstants = new HashSet<String>();
 		boundConstants.add("raining");
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE);
 		vela.pushEnvironment(new VeLaEnvironment<Operand>(env, boundConstants));
 		boolean result = vela.booleanExpression("not raining");
 		assertTrue(result);
@@ -506,7 +523,7 @@ public class VeLaTest {
 				Type.INTEGER, 42));
 		Set<String> consts = new HashSet<String>();
 		consts.add("meaning_of_life");
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE);
 		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment, consts));
 		boolean result = vela.booleanExpression("meaning_of_life = 42");
 		assertTrue(result);
@@ -538,7 +555,7 @@ public class VeLaTest {
 		environment.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
 		Set<String> consts = new HashSet<String>();
 		consts.add("x");
-		VeLaInterpreter vela = new VeLaInterpreter(true);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE);
 		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment, consts));
 		boolean result = vela.booleanExpression("x = 42");
 		assertTrue(result);
@@ -1204,7 +1221,7 @@ public class VeLaTest {
 
 		prog += "f(2447121.5)\n";
 
-		Optional<Operand> result = new VeLaInterpreter(true).program(prog);
+		Optional<Operand> result = new VeLaInterpreter(VERBOSE).program(prog);
 
 		assertTrue(result.isPresent());
 		assertTrue(areClose(12.34620932, result.get().doubleVal(), 1e-6));
@@ -1504,7 +1521,7 @@ public class VeLaTest {
 		List<File> dirs = new ArrayList<File>();
 		// Current directory must be VStar root.
 		dirs.add(new File("test/org/aavso/tools/vstar/vela/code"));
-		VeLaInterpreter vela = new VeLaInterpreter(true, dirs);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, dirs);
 		Optional<Operand> result = vela.program("cube(2)");
 		assertTrue(result.isPresent());
 		assertEquals(8, result.get().intVal());
