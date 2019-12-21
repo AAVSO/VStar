@@ -38,7 +38,7 @@ abstract public class DcDftPeriodAnalysisPluginBase extends
 			PeriodAnalysisCoordinateType.FREQUENCY,
 			PeriodAnalysisCoordinateType.PERIOD,
 			PeriodAnalysisCoordinateType.POWER,
-			PeriodAnalysisCoordinateType.AMPLITUDE };
+			PeriodAnalysisCoordinateType.SEMI_AMPLITUDE };
 
 	protected NewStarMessage newStarMessage;
 	protected TSDcDft periodAnalysisAlgorithm;

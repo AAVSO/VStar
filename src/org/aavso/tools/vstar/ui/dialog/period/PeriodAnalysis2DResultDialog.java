@@ -120,7 +120,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 			// Period vs Amplitude
 			plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
 					PeriodAnalysisCoordinateType.PERIOD,
-					PeriodAnalysisCoordinateType.AMPLITUDE, false));
+					PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, false));
 		} else if (searchType == PeriodAnalysisCoordinateType.FREQUENCY) {
 			// Frequency vs Power
 			plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
@@ -130,7 +130,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 			// Frequency vs Amplitude
 			plotModels.add(new PeriodAnalysis2DPlotModel(resultDataMap,
 					PeriodAnalysisCoordinateType.FREQUENCY,
-					PeriodAnalysisCoordinateType.AMPLITUDE, false));
+					PeriodAnalysisCoordinateType.SEMI_AMPLITUDE, false));
 		}
 
 		// If the window is closed in some other way than via the Dismiss
