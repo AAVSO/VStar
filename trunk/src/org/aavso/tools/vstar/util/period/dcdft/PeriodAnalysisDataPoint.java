@@ -32,7 +32,7 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 			PeriodAnalysisCoordinateType.FREQUENCY,
 			PeriodAnalysisCoordinateType.PERIOD,
 			PeriodAnalysisCoordinateType.POWER,
-			PeriodAnalysisCoordinateType.AMPLITUDE };
+			PeriodAnalysisCoordinateType.SEMI_AMPLITUDE };
 
 	private PeriodAnalysisCoordinateType[] coordTypes;
 	private Map<PeriodAnalysisCoordinateType, Double> coords;
@@ -94,7 +94,7 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	 */
 	public double getAmplitude() {
 		assert coordTypes == DCDFT_COORD_TYPES;
-		return coords.get(PeriodAnalysisCoordinateType.AMPLITUDE);
+		return coords.get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE);
 	}
 
 	/**

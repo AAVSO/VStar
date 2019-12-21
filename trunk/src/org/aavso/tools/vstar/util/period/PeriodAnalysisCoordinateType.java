@@ -35,6 +35,8 @@ public class PeriodAnalysisCoordinateType implements
 			LocaleProps.get("PERIOD_COORD"));
 	public final static PeriodAnalysisCoordinateType AMPLITUDE = new PeriodAnalysisCoordinateType(
 			LocaleProps.get("AMPLITUDE_COORD"));
+	public final static PeriodAnalysisCoordinateType SEMI_AMPLITUDE = new PeriodAnalysisCoordinateType(
+			LocaleProps.get("SEMI_AMPLITUDE_COORD"));
 	public final static PeriodAnalysisCoordinateType POWER = new PeriodAnalysisCoordinateType(
 			LocaleProps.get("POWER_COORD"));
 

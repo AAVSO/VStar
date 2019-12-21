@@ -102,7 +102,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 				PeriodAnalysisCoordinateType.FREQUENCY,
 				PeriodAnalysisCoordinateType.PERIOD,
 				PeriodAnalysisCoordinateType.POWER,
-				PeriodAnalysisCoordinateType.AMPLITUDE };
+				PeriodAnalysisCoordinateType.SEMI_AMPLITUDE };
 
 		resultSeries = new LinkedHashMap<PeriodAnalysisCoordinateType, List<Double>>();
 		for (PeriodAnalysisCoordinateType type : coordTypes) {
@@ -295,7 +295,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 						.add(dgnu[i]);
 				topHits.get(PeriodAnalysisCoordinateType.PERIOD).add(dgper[i]);
 				topHits.get(PeriodAnalysisCoordinateType.POWER).add(dgpower[i]);
-				topHits.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
+				topHits.get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).add(
 						dgamplitude[i]);
 			} else {
 				// We've seen a zero frequency which indicates this is the end
@@ -595,7 +595,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		this.resultSeries.get(PeriodAnalysisCoordinateType.FREQUENCY).add(freq);
 		this.resultSeries.get(PeriodAnalysisCoordinateType.PERIOD).add(period);
 		this.resultSeries.get(PeriodAnalysisCoordinateType.POWER).add(power);
-		this.resultSeries.get(PeriodAnalysisCoordinateType.AMPLITUDE).add(
+		this.resultSeries.get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).add(
 				amplitude);
 	}
 

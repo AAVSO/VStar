@@ -3208,7 +3208,7 @@ public class DcDftTest extends DelCepData {
 
 			assertEquals(String.format("%1.4f", expected.getAmplitude()),
 					String.format("%1.4f", results.get(
-							PeriodAnalysisCoordinateType.AMPLITUDE).get(i)));
+							PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(i)));
 
 			assertEquals(String.format("%1.4f", expected.getPower()), String
 					.format("%1.4f", results.get(
