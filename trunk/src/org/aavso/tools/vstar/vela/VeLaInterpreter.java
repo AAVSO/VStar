@@ -228,8 +228,9 @@ public class VeLaInterpreter {
 	 * 
 	 * @param prog
 	 *            The VeLa program string to be interpreted.
-	 * @return An optional result, depending upon whether a value was left on
-	 *         the stack and the AST that gave rise to the result.
+	 * @return A pair consisting of an optional result, depending upon whether a
+	 *         value was left on the stack, and the AST that gave rise to the
+	 *         result.
 	 * @throws VeLaParseError
 	 *             If a parse error occurs.
 	 * @throws VeLaEvalError
