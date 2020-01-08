@@ -38,6 +38,9 @@ import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 //12/02/2018 C. Kotnik added name to observations so they can be
 //saved and reloaded from a file.
+
+//01/06/2020 C. Kotnik Generalized logic to calculate BJD to include TESS by getting
+//                     offset from FITS header.
 /**
  * A Kepler FITS file v2.0 observation source plug-in that uses the
  * Topcat FITS library.
@@ -82,10 +85,10 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		String str = "Kepler FITS file v2.0 observation source";
+		String str = "Kepler/TESS FITS file v2.0 observation source";
 
 		if (locale.equals("es")) {
-			str = "Observaciones de archivo FITS de Kepler v2.0 del plug-in que usa la biblioteca Topcat FITS.";
+			str = "Observaciones de archivo FITS de Kepler/TESS v2.0 del plug-in que usa la biblioteca Topcat FITS.";
 		}
 
 		return str;
@@ -93,10 +96,10 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDisplayName() {
-		String str = "New Star from Kepler FITS File v2.0...";
+		String str = "New Star from Kepler/TESS FITS File v2.0...";
 
 		if (locale.equals("es")) {
-			str = "Nueva estrella de archivo FITS de Kepler...";
+			str = "Nueva estrella de archivo FITS de Kepler/TESS...";
 		}
 
 		return str;
@@ -119,7 +122,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
-
+			setBarycentric(true);
 			try {
 				Fits fits = new Fits(getInputStreams().get(0));
 				BasicHDU[] hdus = fits.read();
@@ -140,7 +143,9 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 			for (BasicHDU hdu : hdus) {
 				if (hdu instanceof BinaryTableHDU) {
 					BinaryTableHDU tableHDU = (BinaryTableHDU) hdu;
-
+					double timei = tableHDU.getHeader().getDoubleValue("BJDREFI");
+					double timef = tableHDU.getHeader().getDoubleValue("BJDREFF");
+					
 					for (int row = 0; row < tableHDU.getNRows()
 							&& !wasInterrupted(); row++) {
 						try {
@@ -159,7 +164,8 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 									&& !Float.isNaN(ap_corr_flux)
 									&& !Float.isNaN(ap_corr_err)) {
 
-								double hjd = barytime + 2454833.0;
+								//double hjd = barytime + 2454833.0;
+								double hjd = barytime + timei + timef;
 								double mag = 15.0 - 2.5
 										* Math.log(ap_corr_flux)
 										/ Math.log(10.0);
@@ -201,10 +207,10 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 		@Override
 		public String getSourceType() {
-			String str = "Kepler FITS File";
+			String str = "Kepler/TESS FITS File";
 			
 			if (locale.equals("es")) {
-				str = "De archivo FITS de Kepler";
+				str = "De archivo FITS de Kepler/TESS";
 			}
 
 			return str;
