@@ -62,14 +62,14 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  */
 public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
-	private final SeriesType keplerSeries;
+	//private  final SeriesType keplerSeries;
+	private   SeriesType keplerSeries;
 
 	private Locale locale;
 
 	public KeplerFITSObservationSource() {
 		super();
-		keplerSeries = SeriesType
-				.create("Kepler", "Kepler", Color.GREEN, false, false);
+		//SeriesType keplerSeries;
 		locale = Locale.getDefault();
 	}
 
@@ -145,6 +145,17 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 					BinaryTableHDU tableHDU = (BinaryTableHDU) hdu;
 					double timei = tableHDU.getHeader().getDoubleValue("BJDREFI");
 					double timef = tableHDU.getHeader().getDoubleValue("BJDREFF");
+					// CLK 2020-02-04
+					// Find the TELESCOP FITS header and use it to name the band
+					// Since this plugin just converts flux to magnitude with an 
+					// arbitrary zero point, there is not a band in the normal sense.
+					// Do this nameing to allow users to see the correct origin
+					String telescope = tableHDU.getTelescope();
+					if (telescope == null) {
+						telescope = "MAST";
+					}
+					keplerSeries = SeriesType
+							.create(telescope, telescope, Color.GREEN, false, false);
 					
 					for (int row = 0; row < tableHDU.getNRows()
 							&& !wasInterrupted(); row++) {
