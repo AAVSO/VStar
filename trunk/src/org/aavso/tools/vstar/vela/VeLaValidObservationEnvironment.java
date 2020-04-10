@@ -40,6 +40,7 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 	public VeLaValidObservationEnvironment(ValidObservation ob) {
 		super();
 		this.ob = ob;
+		reset();
 	}
 
 	
