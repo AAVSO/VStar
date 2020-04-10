@@ -101,7 +101,8 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 		String starName = "      ";
 
 		public DASCHFileReader() {
-
+			super(getVelaFilterStr());
+			
 			series = SeriesType.create("DASCH", "DASCH", Color.PINK, false,
 					false);
 			this.setHeliocentric(true);

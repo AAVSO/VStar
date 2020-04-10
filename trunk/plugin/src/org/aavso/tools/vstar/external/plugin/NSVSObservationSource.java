@@ -70,6 +70,7 @@ public class NSVSObservationSource extends ObservationSourcePluginBase {
 		private SeriesType series;
 
 		public NSVSFileReader() {
+			super(getVelaFilterStr());
 			state = State.HEADER;
 			series = SeriesType.create("NSVS", "NSVS", Color.RED, false, false);
 		}

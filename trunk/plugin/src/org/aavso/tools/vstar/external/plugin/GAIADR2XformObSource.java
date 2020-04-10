@@ -17,31 +17,20 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
-import java.lang.Math;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.util.Set;
-import java.util.Map;
-import java.util.LinkedHashSet;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Locale;
 
-import javax.swing.JOptionPane;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.CommentType;
@@ -58,41 +47,51 @@ import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
 import org.aavso.tools.vstar.data.validation.MagnitudeValueValidator;
 import org.aavso.tools.vstar.data.validation.TransformedValidator;
 import org.aavso.tools.vstar.data.validation.UncertaintyValueValidator;
+import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-import org.aavso.tools.vstar.exception.CancellationException;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
-import org.aavso.tools.vstar.ui.dialog.IntegerField;
-import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-
+import org.aavso.tools.vstar.util.Pair;
 
 /**
- * This plug-in class reads from the Gaia DR2 Photometry Web Service in CSV format or the same 
- * saved to files, yielding an observation list.
+ * This plug-in class reads from the Gaia DR2 Photometry Web Service in CSV
+ * format or the same saved to files, yielding an observation list.
  * 
  * See the following for information about the Gaia DR2 photometry service:
  * 
  * https://gea.esac.esa.int/archive-help/tutorials/datalink_lc/index.html
- * https://gea.esac.esa.int/archive/documentation/GDR2/Gaia_archive/chap_datamodel/sec_dm_datalink_tables/ssec_dm_light_curve.html
+ * https:/
+ * /gea.esac.esa.int/archive/documentation/GDR2/Gaia_archive/chap_datamodel
+ * /sec_dm_datalink_tables/ssec_dm_light_curve.html
  * 
- * Example URL: http://geadata.esac.esa.int/data-server/data?RETRIEVAL_TYPE=epoch_photometry&FORMAT=CSV&ID=4116592768715278848
- *              or 5085674696501016192 or 6857141688677395840 or 3530587602644108800
+ * Example URL: http://geadata.esac.esa.int/data-server/data?RETRIEVAL_TYPE=
+ * epoch_photometry&FORMAT=CSV&ID=4116592768715278848 or 5085674696501016192 or
+ * 6857141688677395840 or 3530587602644108800
  * 
  * @author Cliff Kotnik
  * @version 1.0 - 2018-09-18
  */
-public class GAIADR2XformObSource extends
-		ObservationSourcePluginBase {
+public class GAIADR2XformObSource extends ObservationSourcePluginBase {
 
 	private boolean transform = false;
 	private String source_id;
 	private String baseURL = "http://geadata.esac.esa.int/data-server/data?RETRIEVAL_TYPE=epoch_photometry&FORMAT=CSV&ID=";
 
+	// Create static VeLa filter field here since cannot create it in
+	// inner dialog class.
+	private static Pair<TextArea, JPanel> velaFilterFieldPanelPair;
+
+	static {
+		velaFilterFieldPanelPair = PluginComponentFactory
+				.createVeLaFilterPane();
+	}
 
 	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#getInputType()
@@ -106,8 +105,9 @@ public class GAIADR2XformObSource extends
 	@Override
 	public List<URL> getURLs() throws Exception {
 		List<URL> urls = new ArrayList<URL>();
-		
-		GAIAParameterDialog paramDialog = new GAIAParameterDialog(isAdditive,transform);
+
+		GAIAParameterDialog paramDialog = new GAIAParameterDialog(isAdditive,
+				transform);
 
 		if (!paramDialog.isCancelled()) {
 			source_id = paramDialog.getSourceID();
@@ -115,18 +115,19 @@ public class GAIADR2XformObSource extends
 			setAdditive(paramDialog.isLoadAdditive());
 
 			try {
-				urls.add(new URL(baseURL+source_id));
+				urls.add(new URL(baseURL + source_id));
 			} catch (MalformedURLException e) {
-				throw new ObservationReadError("Cannot construct Gaia" 
+				throw new ObservationReadError("Cannot construct Gaia"
 						+ " URL (reason: " + e.getLocalizedMessage() + ")");
 			}
+			
+			setVelaFilterStr(paramDialog.getVelaFilterStr());
 		} else {
 			throw new CancellationException();
 		}
 
 		return urls;
 	}
-
 
 	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#
@@ -154,13 +155,13 @@ public class GAIADR2XformObSource extends
 	}
 
 	class GAIADR2FormatRetriever extends AbstractObservationRetriever {
-		//private String fileType;
-		private String obscode="GAIA";
-		private String delimiter=",";
-		private String dateType="BJD";		
+		// private String fileType;
+		private String obscode = "GAIA";
+		private String delimiter = ",";
+		private String dateType = "BJD";
 		private List<String> lines;
 		private Double gaiaEpoch = 2455197.5;
-		// delta T in days within which two observations are considered 
+		// delta T in days within which two observations are considered
 		// close enough to be used together for a transform
 		private Double maxDeltaT = 1.0 / 24.0 / 12.0;
 		private String gaiaSrcID;
@@ -180,6 +181,8 @@ public class GAIADR2XformObSource extends
 		 * Constructor
 		 */
 		public GAIADR2FormatRetriever() {
+			super(getVelaFilterStr());
+
 			julianDayValidator = new JulianDayValidator();
 
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
@@ -200,33 +203,39 @@ public class GAIADR2XformObSource extends
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
-			
-			setBarycentric(true);	
-			
+
+			setBarycentric(true);
+
 			getNumberOfRecords();
 
-			if(transform){
-				// we will cache obs here as lines are processed for subsequent transformation
+			if (transform) {
+				// we will cache obs here as lines are processed for subsequent
+				// transformation
 				blueList = new ArrayList<ValidObservation>();
 				greenList = new ArrayList<ValidObservation>();
 				redList = new ArrayList<ValidObservation>();
 			}
-			
+
 			int lineNum = 1;
-			int obNum = 1;			
+			int obNum = 1;
 
 			for (String line : lines) {
 				try {
 					lineNum++;
-					if ((line != null) && (!(line.contains("source_id")))){ // skip header line
-						line = line.replaceFirst("\n", "").replaceFirst("\r","");
+					if ((line != null) && (!(line.contains("source_id")))) { // skip
+																				// header
+																				// line
+						line = line.replaceFirst("\n", "").replaceFirst("\r",
+								"");
 						if (!isEmpty(line)) {
 							String[] fields = line.split(delimiter);
-							ValidObservation vo = readNextObservation(fields,obNum);
-							if (transform){
-								// We just separate obs into passband lists to be collected later
+							ValidObservation vo = readNextObservation(fields,
+									obNum);
+							if (transform) {
+								// We just separate obs into passband lists to
+								// be collected later
 								cacheObservation(vo);
-							}else{
+							} else {
 								// Done with obs, add to final valid list
 								collectObservation(vo);
 							}
@@ -245,145 +254,156 @@ public class GAIADR2XformObSource extends
 					obNum++;
 					addInvalidObservation(ob);
 				}
-			}			
-			if(transform){
+			}
+			if (transform) {
 				retrieveTransformedObservations();
 			}
-	}
+		}
 
-		private void cacheObservation(ValidObservation obs)  
-		{
-			if (obs.getBand() == SeriesType.Blue){
+		private void cacheObservation(ValidObservation obs) {
+			if (obs.getBand() == SeriesType.Blue) {
 				blueList.add(obs); // was BP
-			}else if (obs.getBand() == SeriesType.Green){
+			} else if (obs.getBand() == SeriesType.Green) {
 				greenList.add(obs); // was G
-			}else{
+			} else {
 				redList.add(obs); // was RP
 			}
 		}
 
-		public void retrieveTransformedObservations() throws  ObservationReadError{
+		public void retrieveTransformedObservations()
+				throws ObservationReadError {
 
-			for (int i=0; i<greenList.size(); i++){
+			for (int i = 0; i < greenList.size(); i++) {
 				ValidObservation gObs = greenList.get(i);
-				ValidObservation rObs = closestObs(gObs,redList);
-				ValidObservation bObs = closestObs(gObs,blueList);
-				if ((rObs != null) && (bObs != null)){
-					transformVRI(bObs,gObs,rObs);
+				ValidObservation rObs = closestObs(gObs, redList);
+				ValidObservation bObs = closestObs(gObs, blueList);
+				if ((rObs != null) && (bObs != null)) {
+					transformVRI(bObs, gObs, rObs);
 					collectObservation(bObs);
 					collectObservation(gObs);
 					collectObservation(rObs);
-				}else{
-					InvalidObservation io = new InvalidObservation(gObs.toSimpleFormatString(","),
-												"No matching blue/red observation to transform");
+				} else {
+					InvalidObservation io = new InvalidObservation(
+							gObs.toSimpleFormatString(","),
+							"No matching blue/red observation to transform");
 					addInvalidObservation(io);
 				}
 			}
 		}
 
-		public ValidObservation closestObs(ValidObservation obs, ArrayList<ValidObservation> matchList){
+		public ValidObservation closestObs(ValidObservation obs,
+				ArrayList<ValidObservation> matchList) {
 			double deltaT = 9999999.0;
 			double targetDay = obs.getDateInfo().getJulianDay();
-			ValidObservation closest=null;
+			ValidObservation closest = null;
 
-			for (ValidObservation matchObs : matchList){
+			for (ValidObservation matchObs : matchList) {
 				double matchDay = matchObs.getDateInfo().getJulianDay();
-				if (Math.abs(targetDay - matchDay)<deltaT){
+				if (Math.abs(targetDay - matchDay) < deltaT) {
 					deltaT = Math.abs(targetDay - matchDay);
 					closest = matchObs;
 				}
 			}
-			if (deltaT < maxDeltaT){
+			if (deltaT < maxDeltaT) {
 				return closest;
-			}else{
+			} else {
 				return null;
 			}
 		}
 
-		public void transformVRI(ValidObservation bObs, ValidObservation gObs, ValidObservation rObs){
-			double avgDay = (( bObs.getJD() 
-							+  gObs.getJD() 
-							+  rObs.getJD())/3.0);
+		public void transformVRI(ValidObservation bObs, ValidObservation gObs,
+				ValidObservation rObs) {
+			double avgDay = ((bObs.getJD() + gObs.getJD() + rObs.getJD()) / 3.0);
 			Magnitude bpMagnitude = bObs.getMagnitude();
 			double bp = bpMagnitude.getMagValue();
-			double bperr= bpMagnitude.getUncertainty();
+			double bperr = bpMagnitude.getUncertainty();
 			Magnitude gMagnitude = gObs.getMagnitude();
 			double g = gMagnitude.getMagValue();
-			double gerr= gMagnitude.getUncertainty();
+			double gerr = gMagnitude.getUncertainty();
 			Magnitude rpMagnitude = rObs.getMagnitude();
 			double rp = rpMagnitude.getMagValue();
-			double rperr= rpMagnitude.getUncertainty();
-		
+			double rperr = rpMagnitude.getUncertainty();
+
 			double bp_rp = bp - rp;
 			/*
-			    Use the tranformation equations found in appendix A of the 
-    			Gaia Data Release 2: Photometric content and validation
-    			https://arxiv.org/abs/1804.09368 to transform the passbands
-    			from Gaia to VRI
-			*/
-			double v = magCalc(g,bp_rp,0.01760,0.006860,0.1732);
-			double r = magCalc(g,bp_rp,0.003226,- 0.3833,0.1345);
-			double i = magCalc(g,bp_rp,-0.02085,-0.7419,0.09631);
-			
-			double bp_rp_err = Math.sqrt(bperr*bperr+rperr*rperr);
+			 * Use the tranformation equations found in appendix A of the Gaia
+			 * Data Release 2: Photometric content and validation
+			 * https://arxiv.org/abs/1804.09368 to transform the passbands from
+			 * Gaia to VRI
+			 */
+			double v = magCalc(g, bp_rp, 0.01760, 0.006860, 0.1732);
+			double r = magCalc(g, bp_rp, 0.003226, -0.3833, 0.1345);
+			double i = magCalc(g, bp_rp, -0.02085, -0.7419, 0.09631);
 
-			double verr = uncCalc(g,gerr,bp_rp,bp_rp_err,0.01760,0.006860,0.1732);
-			double rerr = uncCalc(g,gerr,bp_rp,bp_rp_err,0.003226,-0.3833,0.1345);
-			double ierr = uncCalc(g,gerr,bp_rp,bp_rp_err,-0.02085,-0.7419,0.09631);
-					
+			double bp_rp_err = Math.sqrt(bperr * bperr + rperr * rperr);
+
+			double verr = uncCalc(g, gerr, bp_rp, bp_rp_err, 0.01760, 0.006860,
+					0.1732);
+			double rerr = uncCalc(g, gerr, bp_rp, bp_rp_err, 0.003226, -0.3833,
+					0.1345);
+			double ierr = uncCalc(g, gerr, bp_rp, bp_rp_err, -0.02085, -0.7419,
+					0.09631);
+
 			// Now blue, green, red for V, R, I
 			bObs.setBand(SeriesType.Johnson_V);
 			gObs.setBand(SeriesType.Cousins_R);
 			rObs.setBand(SeriesType.Cousins_I);
-			bObs.setJD(avgDay);			
-			gObs.setJD(avgDay);			
-			rObs.setJD(avgDay);		
+			bObs.setJD(avgDay);
+			gObs.setJD(avgDay);
+			rObs.setJD(avgDay);
 
-			bpMagnitude.setMagValue(v);	
+			bpMagnitude.setMagValue(v);
 			bpMagnitude.setUncertainty(verr);
-			//bObs.setMagnitude(bpMagnitude);	
-			gMagnitude.setMagValue(r);	
+			// bObs.setMagnitude(bpMagnitude);
+			gMagnitude.setMagValue(r);
 			gMagnitude.setUncertainty(rerr);
-			//gObs.setMagnitude(gMagnitude);	
-			rpMagnitude.setMagValue(i);	
+			// gObs.setMagnitude(gMagnitude);
+			rpMagnitude.setMagValue(i);
 			rpMagnitude.setUncertainty(ierr);
-			//rObs.setMagnitude(rpMagnitude);	
+			// rObs.setMagnitude(rpMagnitude);
 			bObs.setTransformed(true);
 			gObs.setTransformed(true);
 			rObs.setTransformed(true);
 
-			// Consider all three observations as discrepant if any of the G, BP, RP observations
+			// Consider all three observations as discrepant if any of the G,
+			// BP, RP observations
 			// was flagged as rejected by GAI variability analysis
-			if (bObs.isDiscrepant() || gObs.isDiscrepant() || rObs.isDiscrepant()){
+			if (bObs.isDiscrepant() || gObs.isDiscrepant()
+					|| rObs.isDiscrepant()) {
 				bObs.setDiscrepant(true);
 				gObs.setDiscrepant(true);
 				rObs.setDiscrepant(true);
 			}
 
-			String comment =  "Transformed from Gaia DR2  BP="+String.valueOf(bp)
-							+ "  G=" +String.valueOf(g)
-							+ "  RP=" +String.valueOf(rp);
+			String comment = "Transformed from Gaia DR2  BP="
+					+ String.valueOf(bp) + "  G=" + String.valueOf(g) + "  RP="
+					+ String.valueOf(rp);
 			bObs.setComments(comment);
 			gObs.setComments(comment);
 			rObs.setComments(comment);
 
 		}
-		public  double magCalc(double g, double bp_rp,
-								double c0, double c1, double c2) {
-			return g + c0  + c1 * bp_rp + c2  * bp_rp * bp_rp;
-		}
-		// Error propagation per John Taylor's "An Introduction to Error Analysis"
-		// 2nd edition, chapter 3
-		public  double uncCalc(double g, double gerr, double bp_rp, double bp_rp_err, 
-								double c0, double c1, double c2) {
-			double der = c1 + 2 * c2 * bp_rp; // derivative of c0  + c1 * bp_rp + c2  * bp_rp * bp_rp
-			double t1 = der * bp_rp_err;  // eq. 3.23 error of function of one var
-			return Math.sqrt(gerr*gerr+t1*t1);  // eq. 3.16 error of independent vars
+
+		public double magCalc(double g, double bp_rp, double c0, double c1,
+				double c2) {
+			return g + c0 + c1 * bp_rp + c2 * bp_rp * bp_rp;
 		}
 
+		// Error propagation per John Taylor's
+		// "An Introduction to Error Analysis"
+		// 2nd edition, chapter 3
+		public double uncCalc(double g, double gerr, double bp_rp,
+				double bp_rp_err, double c0, double c1, double c2) {
+			double der = c1 + 2 * c2 * bp_rp; // derivative of c0 + c1 * bp_rp +
+												// c2 * bp_rp * bp_rp
+			double t1 = der * bp_rp_err; // eq. 3.23 error of function of one
+											// var
+			return Math.sqrt(gerr * gerr + t1 * t1); // eq. 3.16 error of
+														// independent vars
+		}
 
 		@Override
-		public  Integer getNumberOfRecords() throws ObservationReadError {
+		public Integer getNumberOfRecords() throws ObservationReadError {
 			if (lines == null) {
 				try {
 					readLines();
@@ -410,16 +430,20 @@ public class GAIADR2XformObSource extends
 		}
 
 		// Gaia DR2 format observation reader.
-		// The Gaia lightcurve data in the file/web response will have the following columns:
+		// The Gaia lightcurve data in the file/web response will have the
+		// following columns:
 		//
-		// source_id	transit_id	band	time	mag	flux	flux_error	flux_over_error
-		// rejected_by_photometry	rejected_by_variability	other_flags	solution_id
+		// source_id transit_id band time mag flux flux_error flux_over_error
+		// rejected_by_photometry rejected_by_variability other_flags
+		// solution_id
 		//
-		// The description of these are contained in section 14.7.1 fo the Gaia DR2 documentation
-		// found at https://gea.esac.esa.int/archive/documentation/GDR2/Gaia_archive/chap_datamodel/sec_dm_datalink_tables/ssec_dm_light_curve.html
+		// The description of these are contained in section 14.7.1 fo the Gaia
+		// DR2 documentation
+		// found at
+		// https://gea.esac.esa.int/archive/documentation/GDR2/Gaia_archive/chap_datamodel/sec_dm_datalink_tables/ssec_dm_light_curve.html
 		//
-		private ValidObservation readNextObservation(String[] fields,
-				int obNum) throws ObservationValidationError {
+		private ValidObservation readNextObservation(String[] fields, int obNum)
+				throws ObservationValidationError {
 
 			ValidObservation observation = new ValidObservation();
 
@@ -430,30 +454,33 @@ public class GAIADR2XformObSource extends
 			observation.setName(name);
 			observation.setObsCode(obscode);
 
-			DateInfo dateInfo = new DateInfo(julianDayValidator.validate(fields[3].trim()).getJulianDay() + gaiaEpoch);
+			DateInfo dateInfo = new DateInfo(julianDayValidator.validate(
+					fields[3].trim()).getJulianDay()
+					+ gaiaEpoch);
 			observation.setDateInfo(dateInfo);
 
-			Magnitude magnitude = magnitudeFieldValidator.validate(fields[4].trim());
+			Magnitude magnitude = magnitudeFieldValidator.validate(fields[4]
+					.trim());
 			observation.setMagnitude(magnitude);
-		
+
 			double flux = Double.parseDouble(fields[5].trim());
 			double ferr = Double.parseDouble(fields[6].trim());
-			double uncertainty = -2.5 * Math.log10(flux/(flux+ferr));
+			double uncertainty = -2.5 * Math.log10(flux / (flux + ferr));
 			String uncertaintyStr = String.valueOf(uncertainty);
 			uncertainty = uncertaintyValueValidator.validate(uncertaintyStr);
 			observation.getMagnitude().setUncertainty(uncertainty);
 
 			String filter = fields[2].trim();
-			SeriesType band;			
-			if (filter.equals("BP")){
+			SeriesType band;
+			if (filter.equals("BP")) {
 				band = SeriesType.Blue;
-			}else if (filter.equals("RP")){
+			} else if (filter.equals("RP")) {
 				band = SeriesType.Red;
-			}else if (filter.equals("G")){
+			} else if (filter.equals("G")) {
 				band = SeriesType.Green;
-			}else{
-				throw new ObservationValidationError(
-					"Unexpected Gaia band:" + filter);
+			} else {
+				throw new ObservationValidationError("Unexpected Gaia band:"
+						+ filter);
 			}
 			observation.setBand(band);
 
@@ -465,7 +492,7 @@ public class GAIADR2XformObSource extends
 			observation.setComments("Gaia DR2  G->Green BP->Blue RP->Red");
 
 			String rejectedByVariability = fields[9].trim();
-			if (rejectedByVariability.equalsIgnoreCase("TRUE")){
+			if (rejectedByVariability.equalsIgnoreCase("TRUE")) {
 				observation.setDiscrepant(true);
 			}
 
@@ -475,7 +502,7 @@ public class GAIADR2XformObSource extends
 		@Override
 		public String getSourceName() {
 			return gaiaSrcID;
-//			return getInputName();
+			// return getInputName();
 		}
 
 		@Override
@@ -492,10 +519,8 @@ public class GAIADR2XformObSource extends
 		return str == null || "NA".equalsIgnoreCase(str);
 	}
 
-
 	@SuppressWarnings("serial")
-	class GAIAParameterDialog extends
-			AbstractOkCancelDialog {
+	class GAIAParameterDialog extends AbstractOkCancelDialog {
 
 		private TextField sourceIDField;
 		private JCheckBox transformCheckbox;
@@ -504,7 +529,8 @@ public class GAIADR2XformObSource extends
 		/**
 		 * Constructor
 		 */
-		public GAIAParameterDialog(boolean additiveChecked,boolean transformChecked) {
+		public GAIAParameterDialog(boolean additiveChecked,
+				boolean transformChecked) {
 			super("Gaia Load Parameters");
 
 			Container contentPane = this.getContentPane();
@@ -517,6 +543,8 @@ public class GAIADR2XformObSource extends
 
 			topPane.add(createTransformCheckboxPane(transformChecked));
 
+			topPane.add(velaFilterFieldPanelPair.second);
+
 			topPane.add(createAdditiveLoadCheckboxPane(additiveChecked));
 
 			// OK, Cancel
@@ -524,7 +552,7 @@ public class GAIADR2XformObSource extends
 
 			contentPane.add(topPane);
 
-			this.pack();  
+			this.pack();
 			setLocationRelativeTo(Mediator.getUI().getContentPane());
 			this.setVisible(true);
 		}
@@ -544,7 +572,7 @@ public class GAIADR2XformObSource extends
 			JPanel panel = new JPanel();
 			panel.setBorder(BorderFactory.createTitledBorder("Additive Load"));
 
-			additiveLoadCheckbox = new JCheckBox("Add to current?",checked);
+			additiveLoadCheckbox = new JCheckBox("Add to current?", checked);
 			panel.add(additiveLoadCheckbox);
 
 			return panel;
@@ -552,15 +580,16 @@ public class GAIADR2XformObSource extends
 
 		private JPanel createTransformCheckboxPane(boolean checked) {
 			JPanel panel = new JPanel();
-			panel.setBorder(BorderFactory.createTitledBorder("Passband Transformation"));
+			panel.setBorder(BorderFactory
+					.createTitledBorder("Passband Transformation"));
 
-			transformCheckbox = new JCheckBox("Transform Gaia passbands to V,R,I?",checked);
+			transformCheckbox = new JCheckBox(
+					"Transform Gaia passbands to V,R,I?", checked);
 			panel.add(transformCheckbox);
 
 			return panel;
 		}
 
-		
 		public String getSourceID() {
 			return sourceIDField.getValue();
 		}
@@ -573,7 +602,7 @@ public class GAIADR2XformObSource extends
 		public boolean isTransform() {
 			return transformCheckbox.isSelected();
 		}
-
+		
 		/**
 		 * Return whether or not the load is additive.
 		 * 
@@ -581,6 +610,13 @@ public class GAIADR2XformObSource extends
 		 */
 		public boolean isLoadAdditive() {
 			return additiveLoadCheckbox.isSelected();
+		}
+
+		/**
+		 * @return The VeLa filter string.
+		 */
+		public String getVelaFilterStr() {
+			return velaFilterFieldPanelPair.first.getValue().trim();
 		}
 
 		/**

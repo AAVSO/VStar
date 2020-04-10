@@ -104,6 +104,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 		private int seriesColor;
 
 		public ASASFileReader() {
+			super(getVelaFilterStr());
 			state = State.SEEK;
 			numObs = null;
 			seriesType = null;

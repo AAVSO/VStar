@@ -111,6 +111,7 @@ public class CatalinaSkySurveyObservationSource extends
 		private UncertaintyValueValidator uncertaintyValueValidator;
 
 		public CatalinaSkySurveyFileReader() {
+			super(getVelaFilterStr());
 			julianDayValidator = new JulianDayValidator();
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
 			uncertaintyValueValidator = new UncertaintyValueValidator(

@@ -100,6 +100,7 @@ public class VSOLJObservationSource extends ObservationSourcePluginBase {
 		private MagnitudeFieldValidator magValidator;
 
 		public VSOLJObservationRetriever() {
+			super(getVelaFilterStr());
 			state = State.SEEK;
 			magValidator = new MagnitudeFieldValidator();
 		}

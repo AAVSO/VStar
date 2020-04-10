@@ -119,6 +119,8 @@ public class AAVSOUploadFileFormatObservationSource extends
 		 * Constructor
 		 */
 		public AAVSOUploadFileFormatRetriever() {
+			super(getVelaFilterStr());
+			
 			julianDayValidator = new JulianDayValidator();
 
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
