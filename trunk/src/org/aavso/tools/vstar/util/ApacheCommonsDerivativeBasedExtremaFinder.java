@@ -32,10 +32,17 @@ import org.apache.commons.math.optimization.GoalType;
  * function.
  * 
  * See also DifferentiableUnivariateRealFunction
+ * 
+ * TODO: handle phase mode as well as raw (time) mode
  */
 public class ApacheCommonsDerivativeBasedExtremaFinder extends
 		AbstractExtremaFinder {
 
+	// One sixth of a second.
+	final static double DEFAULT_RESOLUTION = 0.00001;
+
+	private double resolution;
+	
 	/**
 	 * Constructor
 	 * 
@@ -53,7 +60,29 @@ public class ApacheCommonsDerivativeBasedExtremaFinder extends
 			List<ValidObservation> obs,
 			DifferentiableUnivariateRealFunction function,
 			ICoordSource timeCoordSource, double zeroPoint) {
+		this(obs, function, timeCoordSource, zeroPoint, DEFAULT_RESOLUTION);
+	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param obs
+	 *            The list of observations modeled by the function.
+	 * @param function
+	 *            An Apache Commons Math univariate function for which extrema
+	 *            are required.
+	 * @param timeCoordSource
+	 *            Time coordinate source.
+	 * @param zeroPoint
+	 *            The zeroPoint to be added to the extreme time result.
+	 *            @param resolution The resolution of the domain search.
+	 */
+	public ApacheCommonsDerivativeBasedExtremaFinder(
+			List<ValidObservation> obs,
+			DifferentiableUnivariateRealFunction function,
+			ICoordSource timeCoordSource, double zeroPoint, double resolution) {
 		super(obs, function, timeCoordSource, zeroPoint);
+		this.resolution = resolution;
 	}
 
 	@Override
@@ -68,10 +97,7 @@ public class ApacheCommonsDerivativeBasedExtremaFinder extends
 				.derivative();
 
 		double jd = 0;
-
-		// One sixth of a second. TODO: is it really?
-		double resolution = 0.00001;
-
+		
 		try {
 			int minDerivIndex = 0;
 			double minDeriv = Double.POSITIVE_INFINITY;
