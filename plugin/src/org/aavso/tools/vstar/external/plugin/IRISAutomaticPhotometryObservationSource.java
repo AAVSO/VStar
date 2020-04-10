@@ -88,6 +88,7 @@ public class IRISAutomaticPhotometryObservationSource extends
 		private int seriesColor;
 
 		public IRISAutomaticPhotometryFileReader() {
+			super(getVelaFilterStr());
 			state = State.HEADER;
 			seriesMap = new HashMap<Integer, SeriesType>();
 			seriesToObsMap = new HashMap<SeriesType, List<ValidObservation>>();

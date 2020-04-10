@@ -84,6 +84,7 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 		private SeriesType series;
 
 		public HipparcosFileReader() {
+			super(getVelaFilterStr());
 			state = State.HEADER; // Start out assuming a header ...
 			series = SeriesType.create("Hipparcos", "Hipparcos", Color.ORANGE,
 					false, false);

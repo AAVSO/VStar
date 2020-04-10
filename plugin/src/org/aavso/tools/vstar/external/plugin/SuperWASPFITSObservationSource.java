@@ -98,6 +98,10 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 
 	class FITSObservationRetriever extends AbstractObservationRetriever {
 
+		public FITSObservationRetriever() {
+			super(getVelaFilterStr());
+		}
+
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {

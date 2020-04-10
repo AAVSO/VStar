@@ -181,6 +181,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 		private UncertaintyValueValidator uncertaintyValueValidator;
 
 		public ASASSNFileReader() {
+			super(getVelaFilterStr());
 			julianDayValidator = new JulianDayValidator();
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
 			uncertaintyValueValidator = new UncertaintyValueValidator(
