@@ -55,14 +55,17 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 //12/02/2018 C. Kotnik added name to observations so they can be
 //saved and reloaded from a file.
+import org.aavso.tools.vstar.util.Pair;
 
 /**
  * The base class for URL based AAVSO photometry observation source plugins.
@@ -87,6 +90,15 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 	// Ordered list of series.
 	protected List<SeriesType> seriesList;
 
+	// Create static VeLa filter field here since cannot create it in
+	// inner dialog class.
+	private static Pair<TextArea, JPanel> velaFilterFieldPanelPair;
+
+	static {
+		velaFilterFieldPanelPair = PluginComponentFactory
+				.createVeLaFilterPane();
+	}
+	
 	/**
 	 * Constructor
 	 * 
@@ -178,6 +190,9 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 							+ " URL (reason: " + e.getLocalizedMessage() + ")");
 				}
 			}
+
+			setVelaFilterStr(paramDialog.getVelaFilterStr());
+
 		} else {
 			throw new CancellationException();
 		}
@@ -207,6 +222,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			AbstractObservationRetriever {
 
 		public AAVSOPhotometryURLObservationRetriever() {
+			super(getVelaFilterStr());
 			setHeliocentric(isHeliocentricObsSrc);
 		}
 
@@ -324,7 +340,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 		private List<JCheckBox> checkBoxes;
 		private JCheckBox additiveLoadCheckbox;
 		private TextField urlField;
-
+		
 		/**
 		 * Constructor
 		 */
@@ -375,6 +391,9 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
 			panel.add(createUrlPane());
+			
+			panel.add(velaFilterFieldPanelPair.second);
+			
 			panel.add(Box.createRigidArea(new Dimension(75, 10)));
 
 			return panel;
@@ -553,6 +572,13 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 		 */
 		public boolean isLoadAdditive() {
 			return additiveLoadCheckbox.isSelected();
+		}
+
+		/**
+		 * @return The VeLa filter string.
+		 */
+		public String getVelaFilterStr() {
+			return velaFilterFieldPanelPair.first.getValue().trim();
 		}
 
 		/**

@@ -19,7 +19,6 @@ package org.aavso.tools.vstar.ui.dialog;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 /**
@@ -33,7 +32,7 @@ public class TextArea implements ITextComponent<String> {
 	private boolean readOnly;
 
 	private JTextArea textArea;
-
+	
 	/**
 	 * Constructor.
 	 * 
@@ -57,7 +56,8 @@ public class TextArea implements ITextComponent<String> {
 		this.canBeEmpty = canBeEmpty;
 
 		this.textArea = new JTextArea(initialValue == null ? "" : initialValue);
-
+		this.textArea.setAutoscrolls(true);
+		
 		if (rows != 0) {
 			this.textArea.setRows(rows);
 		}
@@ -151,7 +151,7 @@ public class TextArea implements ITextComponent<String> {
 
 	@Override
 	public JComponent getUIComponent() {
-		return new JScrollPane(textArea);
+		return textArea;
 	}
 
 	@Override

@@ -252,13 +252,15 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 				}
 			}
 
+			setVelaFilterStr(starSelector.getVeLaFilter());
+
 			String urlStr = addURLs(auid);
 
 			// Return a list containing one URL to satisfy logic in new star
 			// from obs source plug-in task. We are actually interested in just
 			// the partial URL string we constructed, which will be used in
 			// retrieveObservations().
-			urls.add(new URL(urlStr));
+			urls.add(new URL(urlStr));			
 		} else {
 			throw new CancellationException();
 		}

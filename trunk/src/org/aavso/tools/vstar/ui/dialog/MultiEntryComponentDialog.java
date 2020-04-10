@@ -21,10 +21,12 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -47,9 +49,12 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	 *            Title for the dialog.
 	 * @param fields
 	 *            The list of fields.
+	 * @param additionalUIComponent
+	 *            An optional addition UI component.
 	 */
 	public MultiEntryComponentDialog(String title,
-			List<ITextComponent<?>> fields) {
+			List<ITextComponent<?>> fields,
+			Optional<JComponent> additionalUIComponent) {
 		super(title);
 		this.fields = fields;
 
@@ -60,6 +65,10 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		topPane.add(createParameterPane());
+
+		if (additionalUIComponent.isPresent()) {
+			topPane.add(additionalUIComponent.get());
+		}
 
 		// OK, Cancel
 		topPane.add(createButtonPane());
@@ -77,13 +86,25 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	 * @param title
 	 *            Title for the dialog.
 	 * @param fields
-	 *            The variable list of text fields.
+	 *            The list of fields.
 	 */
 	public MultiEntryComponentDialog(String title,
-			ITextComponent<?> ... fields) {
-		this(title, Arrays.asList(fields));
+			List<ITextComponent<?>> fields) {
+		this(title, fields, Optional.empty());
 	}
-	
+
+	/**
+	 * Constructor
+	 * 
+	 * @param title
+	 *            Title for the dialog.
+	 * @param fields
+	 *            The variable list of fields.
+	 */
+	public MultiEntryComponentDialog(String title, ITextComponent<?>... fields) {
+		this(title, Arrays.asList(fields), Optional.empty());
+	}
+
 	// Add the fields.
 	private JPanel createParameterPane() {
 		JPanel panel = new JPanel();

@@ -88,6 +88,7 @@ public class AIDWebServiceXMLAttributeObservationSourcePlugin extends
 			AbstractObservationRetriever {
 
 		public VSXAIDAttributeObservationRetriever() {
+			super(getVelaFilterStr());
 			info.setRetriever(this);
 		}
 

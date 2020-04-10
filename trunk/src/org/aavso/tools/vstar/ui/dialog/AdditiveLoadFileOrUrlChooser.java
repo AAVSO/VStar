@@ -36,7 +36,9 @@ import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
@@ -50,6 +52,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	private boolean urlProvided;
 	private JButton urlRequestButton;
 	private TextField urlField;
+	private TextArea velaFilterField;
 	private List<String> DEFAULT_EXTENSIONS = new ArrayList<String>();
 	private List<String> extensions = new ArrayList<String>();
 	private Map<String, ObservationSourcePluginBase> plugins;
@@ -79,8 +82,13 @@ public class AdditiveLoadFileOrUrlChooser {
 		accessoryPane.add(createAdditiveLoadCheckboxPane());
 		if (allowURL) {
 			accessoryPane.add(createUrlPane());
-		}		
+		}
 		accessoryPane.add(createPluginsList());
+		
+		Pair<TextArea, JPanel> pair = PluginComponentFactory
+				.createVeLaFilterPane();
+		velaFilterField = pair.first;
+		accessoryPane.add(pair.second);
 
 		fileChooser.setAccessory(accessoryPane);
 	}
@@ -105,6 +113,15 @@ public class AdditiveLoadFileOrUrlChooser {
 	}
 
 	/**
+	 * Returns the content of the VeLa filter field.
+	 * 
+	 * @return the string content of the VeLa filter field.
+	 */
+	public String getVeLaFilter() {
+		return velaFilterField.getValue().trim();
+	}
+
+	/**
 	 * This component provides an additive load checkbox.
 	 */
 	private JPanel createAdditiveLoadCheckboxPane() {
@@ -118,7 +135,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	}
 
 	/**
-	 * This component provides a URL request button and corresponding action.
+	 * This component creates a URL request button and corresponding action.
 	 */
 	private JPanel createUrlPane() {
 		JPanel pane = new JPanel();
@@ -171,24 +188,26 @@ public class AdditiveLoadFileOrUrlChooser {
 			}
 		}
 
-		pluginChooser = new JComboBox<String>(plugins.keySet().toArray(new String[0]));
+		pluginChooser = new JComboBox<String>(plugins.keySet().toArray(
+				new String[0]));
 		pluginChooser.setSelectedItem(LocaleProps.get("TEXT_FORMAT_FILE"));
 		pluginChooser.setBorder(BorderFactory.createTitledBorder("Source"));
-		
-		pluginChooser.addActionListener(e -> {
-			String name = (String) pluginChooser.getSelectedItem();
-			ObservationSourcePluginBase plugin = plugins.get(name);
-			
-			List<String> additional = new ArrayList<String>();
-			additional.addAll(DEFAULT_EXTENSIONS);
-			if (plugin.getAdditionalFileExtensions() != null) {
-				additional.addAll(plugin.getAdditionalFileExtensions());
-			}
-			setFileExtensions(additional);
-			
-			boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;
-			urlRequestButton.setEnabled(urlAllowed);
-		});
+
+		pluginChooser
+				.addActionListener(e -> {
+					String name = (String) pluginChooser.getSelectedItem();
+					ObservationSourcePluginBase plugin = plugins.get(name);
+
+					List<String> additional = new ArrayList<String>();
+					additional.addAll(DEFAULT_EXTENSIONS);
+					if (plugin.getAdditionalFileExtensions() != null) {
+						additional.addAll(plugin.getAdditionalFileExtensions());
+					}
+					setFileExtensions(additional);
+
+					boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;
+					urlRequestButton.setEnabled(urlAllowed);
+				});
 
 		pane.add(pluginChooser);
 
