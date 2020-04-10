@@ -160,7 +160,8 @@ public class AAVSOUploadFileFormatObservationSourceTest extends TestCase {
 		assertFalse(ob1.isTransformed());
 		assertEquals(MTypeType.STD, ob1.getMType());
 		assertEquals("105: 10.593", ob1.getCMag());
-		assertEquals("110: 11.09", ob1.getKMag());
+		//assertEquals("110: 11.09", ob1.getKMag());
+		assertEquals("11.09", ob1.getKMag());
 		assertEquals("1.561", ob1.getAirmass());
 		assertEquals("070613", ob1.getCharts());
 
@@ -173,7 +174,8 @@ public class AAVSOUploadFileFormatObservationSourceTest extends TestCase {
 		assertFalse(ob4.isTransformed());
 		assertEquals(MTypeType.STD, ob4.getMType());
 		assertEquals("105: 10.592", ob4.getCMag());
-		assertEquals("110: 10.793", ob4.getKMag());
+//		assertEquals("110: 10.793", ob4.getKMag());
+		assertEquals("10.793", ob4.getKMag());
 		assertEquals("1.567", ob4.getAirmass());
 		assertEquals("070613", ob4.getCharts());
 	}
