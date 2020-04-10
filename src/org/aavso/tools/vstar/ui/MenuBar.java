@@ -58,7 +58,6 @@ import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementDialog;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog;
-import org.aavso.tools.vstar.ui.dialog.vela.VeLaDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
@@ -77,6 +76,7 @@ import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.ui.vela.VeLaDialog;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 
