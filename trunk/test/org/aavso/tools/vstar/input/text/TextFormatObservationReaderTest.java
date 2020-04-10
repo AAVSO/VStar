@@ -99,7 +99,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 		lines.append("2450001.5\t10.0\n");
 		lines.append("2430002.0\t2.0");
 
-		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t");
+		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t", "");
 
 		assertTrue(obs.size() == 2);
 
@@ -116,7 +116,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 		lines.append("24550000 4.2 0.1\n");
 		lines.append("24550002 2.2 0.3");
 
-		List<ValidObservation> obs = commonValidTest(lines.toString(), " ");
+		List<ValidObservation> obs = commonValidTest(lines.toString(), " ", "");
 
 		assertTrue(obs.size() == 3);
 
@@ -138,12 +138,10 @@ public class TextFormatObservationReaderTest extends TestCase {
 	// same lines works as expected. Why?
 	public void testAAVSODownloadTSV1() {
 		StringBuffer lines = new StringBuffer();
-		lines
-				.append("2454531.66261	8.441			V	FOO		89	92	80320		No	1.143	G	8.936			W UMA		STD			\n");
-		lines
-				.append("2454531.66346	9.283			B	FOO		89	92	80320		No	1.143	G	9.958			W UMA		STD			\n");
+		lines.append("2454531.66261	8.441			V	FOO		89	92	80320		No	1.143	G	8.936			W UMA		STD			\n");
+		lines.append("2454531.66346	9.283			B	FOO		89	92	80320		No	1.143	G	9.958			W UMA		STD			\n");
 
-		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t");
+		List<ValidObservation> obs = commonValidTest(lines.toString(), "\t", "");
 
 		assertTrue(obs.size() == 2);
 
@@ -158,12 +156,10 @@ public class TextFormatObservationReaderTest extends TestCase {
 	// same lines works as expected. Why?
 	public void testAAVSODownloadCSV1() {
 		StringBuffer lines = new StringBuffer();
-		lines
-				.append("2454531.66261,8.441,,,V,FOO,,89,92,80320,,No,1.143,P,8.936,,,W UMA,,STD,,\n");
-		lines
-				.append("2454531.66346,9.283,,,B,FOO,,89,92,80320,,No,1.143,P,9.958,,,W UMA,,STD,,\n");
+		lines.append("2454531.66261,8.441,,,V,FOO,,89,92,80320,,No,1.143,P,8.936,,,W UMA,,STD,,\n");
+		lines.append("2454531.66346,9.283,,,B,FOO,,89,92,80320,,No,1.143,P,9.958,,,W UMA,,STD,,\n");
 
-		List<ValidObservation> obs = commonValidTest(lines.toString(), ",");
+		List<ValidObservation> obs = commonValidTest(lines.toString(), ",", "");
 
 		assertTrue(obs.size() == 2);
 
@@ -184,7 +180,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 			analyser.analyse();
 
 			AbstractObservationRetriever simpleTextFormatReader = new TextFormatObservationReader(
-					new LineNumberReader(new StringReader(str)), analyser);
+					new LineNumberReader(new StringReader(str)), analyser, "");
 
 			simpleTextFormatReader.retrieveObservations();
 
@@ -209,7 +205,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 		lines.append("2454925.3,4.2\n");
 		lines.append("2454922.3,4.0\n");
 
-		List<ValidObservation> obs = commonValidTest(lines.toString(), ",");
+		List<ValidObservation> obs = commonValidTest(lines.toString(), ",", "");
 
 		double[][] expected = { { 2454921.3, 4.3 }, { 2454922.3, 4.0 },
 				{ 2454923.3, 4.2 }, { 2454924.3, 4.1 }, { 2454925.3, 4.2 } };
@@ -246,7 +242,7 @@ public class TextFormatObservationReaderTest extends TestCase {
 
 	private ValidObservation commonValidJulianDayAndMagTest(String line,
 			String delimiter) {
-		List<ValidObservation> obs = commonValidTest(line, delimiter);
+		List<ValidObservation> obs = commonValidTest(line, delimiter, "");
 
 		assertTrue(obs.size() == 1);
 
@@ -259,7 +255,8 @@ public class TextFormatObservationReaderTest extends TestCase {
 		return ob;
 	}
 
-	private List<ValidObservation> commonValidTest(String str, String delimiter) {
+	private List<ValidObservation> commonValidTest(String str,
+			String delimiter, String velaFilterStr) {
 		List<ValidObservation> obs = null;
 
 		try {
@@ -268,7 +265,8 @@ public class TextFormatObservationReaderTest extends TestCase {
 			analyser.analyse();
 
 			AbstractObservationRetriever simpleTextFormatReader = new TextFormatObservationReader(
-					new LineNumberReader(new StringReader(str)), analyser);
+					new LineNumberReader(new StringReader(str)), analyser,
+					velaFilterStr);
 
 			simpleTextFormatReader.retrieveObservations();
 			obs = simpleTextFormatReader.getValidObservations();
@@ -285,8 +283,8 @@ public class TextFormatObservationReaderTest extends TestCase {
 			reader.setDelimiter('\t');
 			assertTrue(reader.readRecord());
 			SimpleTextFormatValidator validator = new SimpleTextFormatValidator(
-					reader, 2, 5, NewStarType.NEW_STAR_FROM_SIMPLE_FILE
-							.getFieldInfoSource());
+					reader, 2, 5,
+					NewStarType.NEW_STAR_FROM_SIMPLE_FILE.getFieldInfoSource());
 			validator.validate();
 			// We should have thrown a ObservationValidationError...
 			fail();
