@@ -21,7 +21,10 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+
+import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
@@ -31,12 +34,15 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
+import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
+import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 
 /**
@@ -46,11 +52,15 @@ import org.aavso.tools.vstar.util.comparator.JDComparator;
 public class BMinusVObservationSource extends ObservationSourcePluginBase {
 
 	private SeriesType bvSeries;
-
+	private Pair<TextArea, JPanel> velaFilterFieldAndPanel;
+	private TextArea velaFilterField;
+	
 	public BMinusVObservationSource() {
 		super();
 		isAdditive = true;
 		bvSeries = SeriesType.create("B-V", "B-V", Color.MAGENTA, false, false);
+		velaFilterFieldAndPanel = PluginComponentFactory.createVeLaFilterPane();
+		velaFilterField = velaFilterFieldAndPanel.first;
 	}
 
 	@Override
@@ -65,7 +75,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
-		return new BMinusVRetriever();
+		return new BMinusVRetriever(requestTimeTolerance());
 	}
 
 	@Override
@@ -80,8 +90,8 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 	 * @return The tolerance in days or a fraction thereof, or null if the user
 	 *         does not wish to specify a tolerance.
 	 */
-	private Double requestTimeTolerance() {
-		Double tolerance = null;
+	private Optional<Double> requestTimeTolerance() {
+		Optional<Double> tolerance = Optional.empty();
 
 		do {
 			DoubleField timeToleranceField = new DoubleField(
@@ -91,36 +101,48 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 			fields.add(timeToleranceField);
 
 			MultiEntryComponentDialog dlg = new MultiEntryComponentDialog(
-					"B,V Time Delta", fields);
+					"B,V Time Delta", fields,
+					Optional.of(velaFilterFieldAndPanel.second));
 
-			Double value = timeToleranceField.getValue();
+			Optional<Double> value = Optional.of(timeToleranceField.getValue());
 
 			if (dlg.isCancelled()) {
+				tolerance = Optional.empty();
 				break;
 			} else {
 				tolerance = value;
+				// Also, set the VeLa filter string.
+				String str = velaFilterField.getValue().trim();
+				setVelaFilterStr(str);
 			}
-		} while (tolerance <= 0);
+		} while (tolerance.get() <= 0);
 
 		return tolerance;
 	}
 
 	class BMinusVRetriever extends AbstractObservationRetriever {
 
+		private Optional<Double> tolerance;
+		
 		private List<ValidObservation> b;
 		private List<ValidObservation> v;
 
-		private int records;
+		private Integer records;
 
+		public BMinusVRetriever(Optional<Double> tolerance) {
+			super(getVelaFilterStr());
+		}
+		
 		@Override
 		public Integer getNumberOfRecords() throws ObservationReadError {
+			if (tolerance.isPresent()) {
+				findBandVObsPairs(tolerance.get());
 
-			Double tolerance = requestTimeTolerance();
-
-			findBandVObsPairs(tolerance);
-
-			records = b != null && v != null && b.size() != 0 && v.size() != 0 ? Math
-					.min(b.size(), v.size()) : 0;
+				records = b != null && v != null && b.size() != 0
+						&& v.size() != 0 ? Math.min(b.size(), v.size()) : 0;
+			} else {
+				records = null;
+			}
 
 			return records;
 		}
@@ -137,19 +159,26 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 							.getUncertainty()) / 2;
 					meanError = 0;
 					double meanJD = (b.get(i).getJD() + v.get(i).getJD()) / 2;
-					
+
 					ValidObservation bvOb = new ValidObservation();
-					
+
 					bvOb.setDateInfo(new DateInfo(meanJD));
 					bvOb.setMagnitude(new Magnitude(deltaMag, meanError));
+					String bObsCode = b.get(i).getObsCode();
+					String vObsCode = v.get(i).getObsCode();
+					String bvObsCode = bObsCode;
+					if (!bObsCode.equals(vObsCode)) {
+						bvObsCode = bObsCode + "," + vObsCode;
+					}
+					bvOb.setObsCode(bvObsCode);
 					bvOb.setBand(bvSeries);
-					
+
 					// Set the record number to the earliest B or V observation,
 					// so that sorting by record will maintain a reasonable
 					// order, with B-V appearing between B and V in the list.
 					bvOb.setRecordNumber(Math.min(b.get(i).getRecordNumber(), v
 							.get(i).getRecordNumber()));
-					
+
 					collectObservation(bvOb);
 				}
 			}
