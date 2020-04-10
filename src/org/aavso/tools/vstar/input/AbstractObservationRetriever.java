@@ -21,6 +21,7 @@ package org.aavso.tools.vstar.input;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -28,6 +29,7 @@ import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
@@ -35,6 +37,12 @@ import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
 import org.aavso.tools.vstar.ui.mediator.message.StopRequestMessage;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.vela.Operand;
+import org.aavso.tools.vstar.vela.Type;
+import org.aavso.tools.vstar.vela.VeLaEvalError;
+import org.aavso.tools.vstar.vela.VeLaInterpreter;
+import org.aavso.tools.vstar.vela.VeLaParseError;
+import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
 
 /**
  * This is the abstract base class for all observation retrieval classes,
@@ -48,7 +56,14 @@ public abstract class AbstractObservationRetriever {
 	public final String BJD = LocaleProps.get("BJD");
 	public final String MAGNITUDE = LocaleProps.get("MAGNITUDE");
 
-	private final static int DEFAULT = -1;
+	public final static int DEFAULT_CAPACITY = -1;
+	public final static String NO_VELA_FILTER = "";
+
+	private String velaFilterStr;
+
+	private VeLaInterpreter vela;
+
+	private boolean velaErrorReported;
 
 	private double minMag;
 	private double maxMag;
@@ -79,16 +94,24 @@ public abstract class AbstractObservationRetriever {
 	 * 
 	 * @param initialCapacity
 	 *            The initial capacity of the valid observation list.
+	 * @param velaFilterStr
+	 *            The VeLa filter string to be applied for each observation
+	 *            before being added to the valid observation list.
 	 */
-	public AbstractObservationRetriever(int initialCapacity) {
+	public AbstractObservationRetriever(int initialCapacity,
+			String velaFilterStr) {
 		this.validObservations = new ArrayList<ValidObservation>();
 		this.invalidObservations = new ArrayList<InvalidObservation>();
 
 		// Optionally set the capacity of the valid observation list to speed up
 		// out-of-order insertion due to the shifting operations required.
-		if (initialCapacity != DEFAULT) {
+		if (initialCapacity != DEFAULT_CAPACITY) {
 			this.validObservations.ensureCapacity(initialCapacity);
 		}
+
+		this.velaFilterStr = velaFilterStr.trim();
+		velaErrorReported = false;
+		vela = new VeLaInterpreter();
 
 		// Create observation category map and add discrepant and excluded
 		// series list so these are available if needed.
@@ -127,10 +150,17 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * Constructor.
+	 * Constructor
+	 */
+	public AbstractObservationRetriever(String velaFilterStr) {
+		this(DEFAULT_CAPACITY, velaFilterStr);
+	}
+
+	/**
+	 * Constructor
 	 */
 	public AbstractObservationRetriever() {
-		this(DEFAULT);
+		this(DEFAULT_CAPACITY, NO_VELA_FILTER);
 	}
 
 	/**
@@ -421,8 +451,56 @@ public abstract class AbstractObservationRetriever {
 					+ ob.getRecordNumber() + " has no magnitude.");
 		}
 
-		addValidObservation(ob);
-		categoriseValidObservation(ob);
+		boolean include = true;
+
+		// If a VeLa filter string is present, apply it to each observation.
+		if (!NO_VELA_FILTER.equals(velaFilterStr)) {
+			vela.pushEnvironment(new VeLaValidObservationEnvironment(ob));
+			try {
+				Optional<Operand> value = vela.program(velaFilterStr);
+				if (value.isPresent()) {
+					// There may be no value present because everything
+					// is commented or because no expression has been
+					// evaluated (e.g. one or more functions or variables
+					// have been defined but no expression has been evaluated
+					// that uses them). In this case, there's nothing to do.
+					if (value.get().getType() == Type.BOOLEAN) {
+						include = value.get().booleanVal();
+					} else {
+						if (!velaErrorReported) {
+							MessageBox.showErrorDialog("Type Error",
+									"Expected a Boolean value");
+							velaErrorReported = true;
+						}
+					}
+				}
+			} catch (VeLaParseError e) {
+				MessageBox.showErrorDialog("Parse Error",
+						messageFromException(e));
+				velaErrorReported = true;
+			} catch (VeLaEvalError e) {
+				MessageBox.showErrorDialog("Evaluation Error",
+						messageFromException(e));
+				velaErrorReported = true;
+			} finally {
+				vela.popEnvironment();
+			}
+		}
+
+		if (include) {
+			addValidObservation(ob);
+			categoriseValidObservation(ob);
+		}
+	}
+
+	/**
+	 * Add an observation to the list of invalid observations.
+	 * 
+	 * @param ob
+	 *            The invalid observation to be added.
+	 */
+	protected void addInvalidObservation(InvalidObservation ob) {
+		invalidObservations.add(ob);
 	}
 
 	/**
@@ -436,7 +514,7 @@ public abstract class AbstractObservationRetriever {
 	 * @param validOb
 	 *            A valid observation.
 	 */
-	protected void categoriseValidObservation(ValidObservation validOb) {
+	private void categoriseValidObservation(ValidObservation validOb) {
 		SeriesType category = null;
 
 		// Categorise
@@ -474,7 +552,7 @@ public abstract class AbstractObservationRetriever {
 	 * @param ob
 	 *            The valid observation to be added.
 	 */
-	protected void addValidObservation(ValidObservation ob) {
+	private void addValidObservation(ValidObservation ob) {
 		insertObservation(ob, validObservations);
 
 		double uncert = ob.getMagnitude().getUncertainty();
@@ -536,26 +614,17 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * Add an observation to the list of invalid observations.
-	 * 
-	 * @param ob
-	 *            The invalid observation to be added.
-	 */
-	protected void addInvalidObservation(InvalidObservation ob) {
-		invalidObservations.add(ob);
-	}
-
-	/**
 	 * Skip any bytes at the start of a line that have an ordinal value of less
 	 * than zero, e.g. a byte-order mark sequence. This is likely to be an
 	 * exceptional case so low cost when amortised over all lines.
 	 * 
-	 * @param line The line to be processed.
+	 * @param line
+	 *            The line to be processed.
 	 * @return The line without characters whose ordinal values are negative.
 	 */
 	protected String removeNegativeBytes(String line) {
 		byte[] bytes = line.getBytes();
-		
+
 		int i = 0;
 		for (; i < bytes.length && bytes[i] < 0; i++)
 			;
@@ -564,6 +633,34 @@ public abstract class AbstractObservationRetriever {
 		}
 
 		return line;
+	}
+
+	/**
+	 * Is the string empty?
+	 * 
+	 * @param str
+	 *            The string in question.
+	 * @return Whether or not it's empty.
+	 */
+	private boolean isEmpty(String str) {
+		return str != null && "".equals(str.trim());
+	}
+
+	/**
+	 * Given a throwable, return a message string.
+	 * 
+	 * @param t
+	 *            The throwable object.
+	 * @return The message.
+	 */
+	private String messageFromException(Throwable t) {
+		String msg = t.getMessage();
+
+		if (msg == null || isEmpty(msg)) {
+			msg = t.toString();
+		}
+
+		return msg;
 	}
 
 	// Creates a stop request listener.

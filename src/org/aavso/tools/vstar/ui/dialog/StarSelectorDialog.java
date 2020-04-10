@@ -33,13 +33,14 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.ui.dialog.series.AIDSeriesSelectionPane;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.locale.NumberParser;
@@ -59,7 +60,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	private JTextField starField;
 	private JTextField minJDField;
 	private JTextField maxJDField;
-	private JTextArea obsCodesField;
+	private TextArea obsCodesField;
+	private TextArea velaFilterField;
 	private JCheckBox allDataCheckBox;
 	private JCheckBox additiveLoadCheckbox;
 	private JCheckBox minFieldsCheckbox;
@@ -109,9 +111,6 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 		contentPane = this.getContentPane();
 
-		JPanel topPane = new JPanel();
-		topPane.setLayout(new BoxLayout(topPane, BoxLayout.LINE_AXIS));
-
 		JPanel leftPane = new JPanel();
 		leftPane.setLayout(new BoxLayout(leftPane, BoxLayout.PAGE_AXIS));
 		leftPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -131,20 +130,19 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 		leftPane.add(createOptionsPane());
 
-		leftPane.add(Box.createRigidArea(new Dimension(10, 10)));
-		leftPane.add(createButtonPane());
-
 		JPanel rightPane = new JPanel();
 		rightPane.setLayout(new BoxLayout(rightPane, BoxLayout.PAGE_AXIS));
 		rightPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		rightPane.add(createSeriesSelectionPane());
 		rightPane.add(createObsCodesPane());
+		leftPane.add(Box.createRigidArea(new Dimension(10, 10)));
+		rightPane.add(createVeLaFilterPane());
 
-		topPane.add(leftPane);
-		topPane.add(rightPane);
-
-		contentPane.add(topPane);
+		// Default layout manager of content pane is BorderLayout
+		contentPane.add(leftPane, BorderLayout.LINE_START);
+		contentPane.add(rightPane, BorderLayout.LINE_END);
+		contentPane.add(createButtonPane(), BorderLayout.PAGE_END);
 
 		// this.addWindowListener(this.createWindowListener());
 
@@ -225,7 +223,7 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	public String getObsCodes() {
 		String obscodes = null;
 
-		String text = obsCodesField.getText();
+		String text = obsCodesField.getValue();
 		if (text.trim().length() > 0) {
 			StringBuffer obscodesBuf = new StringBuffer();
 			String[] fields = text.split("\\s+");
@@ -241,6 +239,15 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		}
 
 		return obscodes;
+	}
+
+	/**
+	 * Returns the content of the VeLa filter field.
+	 * 
+	 * @return the string content of the VeLa filter field.
+	 */
+	public String getVeLaFilter() {
+		return velaFilterField.getValue().trim();
 	}
 
 	/**
@@ -365,15 +372,24 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	}
 
 	private JPanel createObsCodesPane() {
-		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createTitledBorder("Observer Codes"));
+		Pair<TextArea, JPanel> pair = PluginComponentFactory
+				.createTextAreaPane("Observer Codes",
+						"Observer codes, separated by spaces", 1, 20);
 
-		obsCodesField = new JTextArea("", 3, 20);
-		obsCodesField
-				.setToolTipText("One observer code per line or separated by spaces");
-		panel.add(obsCodesField);
+		obsCodesField = pair.first;
 
-		return panel;
+		return pair.second;
+	}
+
+	/**
+	 * This component creates a VeLa Filter pane.
+	 */
+	private JPanel createVeLaFilterPane() {
+		Pair<TextArea, JPanel> pair = PluginComponentFactory
+				.createVeLaFilterPane();
+		velaFilterField = pair.first;
+
+		return pair.second;
 	}
 
 	// Event handlers

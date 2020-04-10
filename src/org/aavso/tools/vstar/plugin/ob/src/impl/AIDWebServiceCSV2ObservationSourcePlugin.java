@@ -108,6 +108,7 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 	class VSXAIDCSVObservationRetriever extends AbstractObservationRetriever {
 
 		public VSXAIDCSVObservationRetriever() {
+			super(getVelaFilterStr());
 			info.setRetriever(this);
 		}
 

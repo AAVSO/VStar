@@ -47,6 +47,8 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	protected String inputName;
 
 	protected boolean isAdditive;
+	
+	protected String velaFilterStr;
 
 	/**
 	 * Constructor
@@ -60,6 +62,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 		this.userName = username;
 		this.password = password;
 		isAdditive = false;
+		velaFilterStr = "";
 	}
 
 	/**
@@ -247,6 +250,20 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	public void setAdditive(boolean isAdditive) {
 		this.isAdditive = isAdditive;
+	}
+
+	/**
+	 * @return the velaFilterStr
+	 */
+	public String getVelaFilterStr() {
+		return velaFilterStr;
+	}
+
+	/**
+	 * @param velaFilterStr the velaFilterStr to set
+	 */
+	public void setVelaFilterStr(String velaFilterStr) {
+		this.velaFilterStr = velaFilterStr;
 	}
 
 	/**

@@ -110,7 +110,7 @@ public class TextFormatObservationSourcePlugin extends
 
 			retriever = new TextFormatObservationReader(new LineNumberReader(
 					new InputStreamReader(new ByteArrayInputStream(allBytes))),
-					analyser);
+					analyser, getVelaFilterStr());
 
 		} catch (Exception e) {
 			// TODO: move analyser creation into reader class so we can handle

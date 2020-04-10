@@ -44,7 +44,7 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	private String objName;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * We pass the number of lines to be read to the base class to ensure a
 	 * large enough observation list capacity in the case where we an read
@@ -54,10 +54,13 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 	 *            The reader that is the source of the observation.
 	 * @param analyser
 	 *            An observation file analyser.
+	 * @param velaFilterStr
+	 *            The VeLa filter string to be applied for each observation
+	 *            before being added to the valid observation list.
 	 */
 	public TextFormatObservationReader(LineNumberReader reader,
-			ObservationSourceAnalyser analyser) {
-		super(analyser.getLineCount());
+			ObservationSourceAnalyser analyser, String velaFilterStr) {
+		super(analyser.getLineCount(), velaFilterStr);
 		this.reader = reader;
 		this.analyser = analyser;
 	}
@@ -155,11 +158,11 @@ public class TextFormatObservationReader extends AbstractObservationRetriever {
 
 	// Helpers
 
-	private void addValidObservation(ValidObservation validOb, int lineNum) {
+	private void addValidObservation(ValidObservation validOb, int lineNum)
+			throws ObservationReadError {
 		if (validOb.getMType() == MTypeType.STD) {
 			validOb.setRecordNumber(lineNum);
-			addValidObservation(validOb);
-			categoriseValidObservation(validOb);
+			collectObservation(validOb);
 		}
 	}
 

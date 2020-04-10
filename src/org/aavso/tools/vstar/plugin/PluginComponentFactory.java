@@ -23,11 +23,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser;
+import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.Pair;
 
 /**
  * This factory class creates components and returns values for use by plug-ins.
@@ -114,7 +118,7 @@ public class PluginComponentFactory {
 		boolean approved = false;
 
 		Component parent = Mediator.getUI().getComponent();
-		
+
 		if (fileChooser.showDialog(parent)) {
 			approved = true;
 		}
@@ -125,4 +129,42 @@ public class PluginComponentFactory {
 
 		return approved ? fileChooser : null;
 	}
+		
+	/**
+	 * Create a TextArea and a panel, add the former to the latter, and return
+	 * both as a pair.
+	 * 
+	 * @param borderTitle
+	 *            The title of the text area's border.
+	 * @param toolTip
+	 *            The tool tip for the text area.
+	 * @param rows
+	 *            The number of rows for the text area.
+	 * @param cols
+	 *            The number of columns for the text area.
+	 * @return A pair containing the text area and its containing pane.
+	 */
+	public static Pair<TextArea, JPanel> createTextAreaPane(String borderTitle,
+			String toolTip, int rows, int cols) {
+		JPanel pane = new JPanel();
+		pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
+
+		TextArea field = new TextArea(borderTitle, rows, cols);
+		field.getUIComponent().setToolTipText(toolTip);
+		pane.add(field.getUIComponent());
+
+		return new Pair<TextArea, JPanel>(field, pane);
+	}
+
+	/**
+	 * This component creates a VeLa Filter pane and returns a text area and
+	 * pane as a pair.
+	 */
+	public static Pair<TextArea, JPanel> createVeLaFilterPane() {
+		Pair<TextArea, JPanel> pair = PluginComponentFactory
+				.createTextAreaPane("VeLa Filter",
+						"VeLa filter applied to each observation read", 2, 15);
+		return pair;
+	}
+
 }
