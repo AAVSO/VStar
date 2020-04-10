@@ -152,6 +152,9 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 								throw new CancellationException();
 							}
 						}
+
+						obSourcePlugin.setVelaFilterStr(fileChooser
+								.getVeLaFilter());
 					} else {
 						throw new CancellationException();
 					}
@@ -183,6 +186,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				} else {
 					// Request a URL from the user.
 					TextField urlField = new TextField("URL");
+					TextField velaFilterField = new TextField("VeLa Filter");
 					Checkbox additiveLoadCheckbox = new Checkbox(
 							"Add to current?", false);
 					MultiEntryComponentDialog urlDialog = new MultiEntryComponentDialog(
@@ -190,6 +194,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 					if (!urlDialog.isCancelled()
 							&& !urlField.getValue().matches("^\\s*$")) {
 						String urlStr = urlField.getValue();
+						obSourcePlugin.setVelaFilterStr(velaFilterField
+								.getValue());
 						obSourcePlugin.setAdditive(additiveLoadCheckbox
 								.getValue());
 						URL url = new URL(urlStr);
@@ -204,6 +210,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
 			case NONE:
 				obSourcePlugin.setInputInfo(null, null);
+				String str = obSourcePlugin.getVelaFilterStr();
 				break;
 			}
 
@@ -211,7 +218,6 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// the number of records, we can show updated progress,
 			// otherwise just show busy state.
 			retriever = obSourcePlugin.getObservationRetriever();
-
 		} catch (CancellationException ex) {
 			cancelled = true;
 		} catch (ConnectionException ex) {
@@ -287,7 +293,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
 			try {
 				retriever.retrieveObservations();
-				
+
 				if (retriever.getValidObservations().isEmpty()) {
 					String msg = "No observations for the specified period.";
 					MessageBox.showErrorDialog("Observation Read Error", msg);
