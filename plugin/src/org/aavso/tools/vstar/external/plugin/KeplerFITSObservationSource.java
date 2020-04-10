@@ -118,7 +118,11 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 	}
 
 	class KeplerFITSObservationRetriever extends AbstractObservationRetriever {
-				
+		
+		public KeplerFITSObservationRetriever() {
+			super(getVelaFilterStr());
+		}
+
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
