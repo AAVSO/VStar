@@ -178,7 +178,7 @@ public class VSXWebServiceAIDObservationReaderTestBase extends TestCase {
 
 			assertEquals(2, obs.size());
 			assertEquals(ValidationType.GOOD, obs.get(0).getValidationType());
-			assertEquals(ValidationType.DISCREPANT, obs.get(1)
+			assertEquals(ValidationType.GOOD, obs.get(1)
 					.getValidationType());
 
 		} catch (Exception e) {
