@@ -361,8 +361,9 @@ public class AAVSOUploadFileFormatObservationSource extends
 				// Note: Could CKMagValidator here, but its max field width
 				// seems not to represent the reality of some instrumental
 				// magnitudes, for example.
+				// 2020-04-11: same change as Cliff Kotnik make below for KMag 
 				double cmag = magnitudeValueValidator.validate(cmagStr);
-				observation.setCMag(cname + cmag);
+				observation.setCMag(Double.toString(cmag));
 			}
 
 			String kname = fields[9].trim();
