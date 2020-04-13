@@ -47,6 +47,7 @@ public class PluginSettingsPane extends JPanel implements IPreferenceComponent {
 	private JCheckBox loadPluginsCheckbox;
 	private JTextField baseUrlField;
 	private JFileChooser localDirChooser;
+	private JCheckBox showAllObsSourcePluginsInFileMenuButton;
 
 	/**
 	 * Constructor.
@@ -97,6 +98,21 @@ public class PluginSettingsPane extends JPanel implements IPreferenceComponent {
 				.addActionListener(createDeleteAllPluginsButtonActionListener());
 		pluginManagementPane.add(deleteAllButton);
 
+		pluginManagementPane.add(Box.createRigidArea(new Dimension(10, 10)));
+
+		showAllObsSourcePluginsInFileMenuButton = new JCheckBox(
+				"Show all observation source plugins in File menu?");
+		showAllObsSourcePluginsInFileMenuButton
+				.setToolTipText("Determines whether to show all observation source plugins in the File menu");
+		showAllObsSourcePluginsInFileMenuButton
+				.addActionListener(e -> {
+					PluginManager
+							.setAllObsSourcePluginsInFileMenu(showAllObsSourcePluginsInFileMenuButton
+									.isSelected());
+				});
+		showAllObsSourcePluginsInFileMenuButton.setSelected(false);
+		pluginManagementPane.add(showAllObsSourcePluginsInFileMenuButton);
+
 		// Add a local context button pane.
 		pluginManagementPane.add(createButtonPane());
 
@@ -133,6 +149,7 @@ public class PluginSettingsPane extends JPanel implements IPreferenceComponent {
 			public void actionPerformed(ActionEvent e) {
 				loadPluginsCheckbox.setSelected(true);
 				baseUrlField.setText(PluginManager.DEFAULT_PLUGIN_BASE_URL_STR);
+				PluginManager.setAllObsSourcePluginsInFileMenu(false);
 			}
 		};
 	}
@@ -185,14 +202,19 @@ public class PluginSettingsPane extends JPanel implements IPreferenceComponent {
 	public void update() {
 		PluginManager.setLoadPlugins(loadPluginsCheckbox.isSelected());
 		PluginManager.setPluginsBaseUrl(baseUrlField.getText());
+		PluginManager
+				.setAllObsSourcePluginsInFileMenu(showAllObsSourcePluginsInFileMenuButton
+						.isSelected());
 	}
 
 	/**
-	 * Prepare this pane for use by resetting whatever needs to be.
+	 * Prepare this pane for use by resetting whatever state needs to be.
 	 */
 	@Override
 	public void reset() {
 		loadPluginsCheckbox.setSelected(PluginManager.shouldLoadPlugins());
 		baseUrlField.setText(PluginManager.getPluginsBaseUrl());
+		showAllObsSourcePluginsInFileMenuButton.setSelected(PluginManager
+				.shouldAllObsSourcePluginsBeInFileMenu());
 	}
 }

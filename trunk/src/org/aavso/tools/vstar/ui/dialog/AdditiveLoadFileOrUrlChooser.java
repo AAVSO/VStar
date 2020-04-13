@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
@@ -37,6 +38,7 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.PluginComponentFactory;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -83,8 +85,11 @@ public class AdditiveLoadFileOrUrlChooser {
 		if (allowURL) {
 			accessoryPane.add(createUrlPane());
 		}
-		accessoryPane.add(createPluginsList());
-		
+
+		if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
+			accessoryPane.add(createPluginsList());
+		}
+
 		Pair<TextArea, JPanel> pair = PluginComponentFactory
 				.createVeLaFilterPane();
 		velaFilterField = pair.first;
@@ -268,12 +273,20 @@ public class AdditiveLoadFileOrUrlChooser {
 	}
 
 	/**
-	 * Return the currently selected observation source plugin.
+	 * Return the optional currently selected observation source plugin.
 	 * 
-	 * @return The plugin instance.
+	 * @return The optional plugin instance.
 	 */
-	public ObservationSourcePluginBase getSelectedPlugin() {
-		return plugins.get(pluginChooser.getSelectedItem());
+	public Optional<ObservationSourcePluginBase> getSelectedPlugin() {
+		Optional<ObservationSourcePluginBase> plugin;
+
+		if (PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
+			plugin = Optional.empty();
+		} else {
+			plugin = Optional.of(plugins.get(pluginChooser.getSelectedItem()));
+		}
+
+		return plugin;
 	}
 
 	/**

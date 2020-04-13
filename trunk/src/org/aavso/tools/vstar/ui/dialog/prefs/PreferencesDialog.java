@@ -119,7 +119,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	}
 
 	/**
-	 * Singleton.
+	 * Singleton
 	 */
 	private static PreferencesDialog instance = new PreferencesDialog();
 

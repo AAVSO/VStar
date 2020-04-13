@@ -183,6 +183,39 @@ public class PluginManager {
 	}
 
 	/**
+	 * Should all observation source plug-ins be shown in the file menu
+	 * according to preferences? Defaults to false.
+	 */
+	public static boolean shouldAllObsSourcePluginsBeInFileMenu() {
+		boolean loadPlugins = true;
+
+		try {
+			loadPlugins = prefs.getBoolean(PLUGIN_PREFS_PREFIX
+					+ "OBS_SOURCE_PLUGINS_IN_FILE_MENU", false);
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+
+		return loadPlugins;
+	}
+
+	/**
+	 * Set whether all observation source plug-ins be shown in the file menu
+	 * according to preferences?
+	 * 
+	 * @param state
+	 *            The true/false state to set.
+	 */
+	public static void setAllObsSourcePluginsInFileMenu(boolean state) {
+		try {
+			prefs.putBoolean(PLUGIN_PREFS_PREFIX
+					+ "OBS_SOURCE_PLUGINS_IN_FILE_MENU", state);
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+		}
+	}
+
+	/**
 	 * Return the plug-ins base URL according to preferences.
 	 */
 	public static String getPluginsBaseUrl() {
@@ -368,22 +401,22 @@ public class PluginManager {
 
 		try {
 			URL infoUrl = new URL(baseUrlStr + "/" + PLUGINS_LIST_FILE);
-				
+
 			URLConnection conn = infoUrl.openConnection();
-						
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(conn.getInputStream()));
+
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					conn.getInputStream()));
 
 			List<String> lineList = new ArrayList<String>();
-			
+
 			String line;
-			
+
 			while ((line = reader.readLine()) != null) {
 				lineList.add(line);
 			}
 
 			lines = lineList.toArray(new String[0]);
-			
+
 		} catch (MalformedURLException e) {
 			MessageBox.showErrorDialog("Plug-in Manager",
 					"Invalid remote plug-in location.");
@@ -415,14 +448,14 @@ public class PluginManager {
 					// TODO: remove this after 2.6.10 after which no potential
 					// for colon-prefixed jar names will exist
 					if (pluginJarFileName.startsWith(":")) {
-//						if (!ResourceAccessor.getLoginInfo().isMember()) {
-//							// Member-only accessible plug-ins should be skipped
-//							// if not appropriately authenticated.
-//							continue;
-//						} else {
-							// Remove leading colon.
-							pluginJarFileName = pluginJarFileName.substring(1);
-//						}
+						// if (!ResourceAccessor.getLoginInfo().isMember()) {
+						// // Member-only accessible plug-ins should be skipped
+						// // if not appropriately authenticated.
+						// continue;
+						// } else {
+						// Remove leading colon.
+						pluginJarFileName = pluginJarFileName.substring(1);
+						// }
 					}
 
 					URL pluginUrl = new URL(pluginBaseURLStr + "/"
