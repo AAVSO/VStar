@@ -60,6 +60,16 @@ public abstract class ObservationSinkPluginBase implements IPlugin {
 	}
 
 	/**
+	 * Return a mapping from field delimiter names to file suffix values to
+	 * be used if a file name with no suffix is not specified.
+	 * 
+	 * @return The map of field delimiter name-suffix pairs; may be null.
+	 */
+	public Map<String, String> getDelimiterSuffixValuePairs() {
+		return null;
+	}
+
+	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */
 	@Override
