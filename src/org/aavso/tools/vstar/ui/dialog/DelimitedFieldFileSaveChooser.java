@@ -56,7 +56,6 @@ public class DelimitedFieldFileSaveChooser {
 		fileChooser = new JFileChooser();
 
 		delimiter = null;
-		delimitersModel = new DefaultComboBoxModel<String>();
 		delimiterChooser = new JComboBox<String>();
 
 		JPanel accessoryPane = new JPanel();
@@ -78,10 +77,28 @@ public class DelimitedFieldFileSaveChooser {
 	}
 
 	/**
-	 * @return The selected file.
+	 * Return the selected file. If no suffix was specified and one is
+	 * associated with the selected delimiter, a suffix will be added to the
+	 * file name.
+	 * 
+	 * @return The selected file (absolute path as a File object).
 	 */
 	public File getSelectedFile() {
-		return fileChooser.getSelectedFile();
+		File file = fileChooser.getSelectedFile();
+
+		ObservationSinkPluginBase plugin = getSelectedPlugin();
+		Map<String, String> delimiter2suffixes = plugin
+				.getDelimiterSuffixValuePairs();
+
+		String selectedDelimiterName = (String) delimiterChooser
+				.getSelectedItem();
+		String suffix = delimiter2suffixes.get(selectedDelimiterName);
+
+		if (!file.getName().endsWith(suffix) && delimiter2suffixes != null) {
+			file = new File(file.getAbsolutePath() + "." + suffix);
+		}
+
+		return file;
 	}
 
 	/**
@@ -146,20 +163,23 @@ public class DelimitedFieldFileSaveChooser {
 	 *            The selected plugin.
 	 */
 	private void updateDelimiterChoices(ObservationSinkPluginBase plugin) {
-		delimitersModel.removeAllElements();
+		try {
+			delimitersModel = new DefaultComboBoxModel<String>();
 
-		if (plugin.getDelimiterNameValuePairs() != null) {
-			delimiters = plugin
-					.getDelimiterNameValuePairs();
+			if (plugin.getDelimiterNameValuePairs() != null) {
+				delimiters = plugin.getDelimiterNameValuePairs();
 
-			for (String delim : delimiters.keySet().toArray(new String[0])) {
-				delimitersModel.addElement(delim);
+				for (String delim : delimiters.keySet().toArray(new String[0])) {
+					delimitersModel.addElement(delim);
+				}
+
+				delimiterChooser.setModel(delimitersModel);
+				delimiterChooser.setSelectedIndex(0);
+			} else {
+				delimiterChooser.setModel(delimitersModel);
 			}
-
-			delimiterChooser.setModel(delimitersModel);
-			delimiterChooser.setSelectedIndex(0);
-		} else {
-			delimiterChooser.setModel(delimitersModel);
+		} catch (Exception e) {
+			Exception f = e;
 		}
 	}
 

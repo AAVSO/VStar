@@ -40,11 +40,18 @@ public class TextFormatObservationSinkPlugin extends ObservationSinkPluginBase {
 
 	private final static Map<String, String> DELIMS;
 
+	private final static Map<String, String> SUFFIXES;
+
 	static {
 		DELIMS = new TreeMap<String, String>();
 		DELIMS.put("Comma", ",");
 		DELIMS.put("Space", " ");
 		DELIMS.put("Tab", "\t");
+		
+		SUFFIXES = new TreeMap<String, String>();
+		SUFFIXES.put("Comma", "csv");
+		SUFFIXES.put("Space", "txt");
+		SUFFIXES.put("Tab", "tsv");
 	}
 
 	@Override
@@ -71,6 +78,11 @@ public class TextFormatObservationSinkPlugin extends ObservationSinkPluginBase {
 	@Override
 	public Map<String, String> getDelimiterNameValuePairs() {
 		return DELIMS;
+	}
+
+	@Override
+	public Map<String, String> getDelimiterSuffixValuePairs() {
+		return SUFFIXES;
 	}
 
 	// Helpers
@@ -127,5 +139,4 @@ public class TextFormatObservationSinkPlugin extends ObservationSinkPluginBase {
 					.notifyListeners(ProgressInfo.INCREMENT_PROGRESS);
 		}
 	}
-
 }
