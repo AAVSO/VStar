@@ -327,7 +327,9 @@ public class MenuBar extends JMenuBar {
 				if (plugin.getInputType() == InputType.NONE
 						|| plugin.getInputType() == InputType.URL
 						|| LocaleProps.get("FILE_MENU_NEW_STAR_FROM_FILE")
-								.equals(itemName)) {
+								.equals(itemName)
+						|| PluginManager
+								.shouldAllObsSourcePluginsBeInFileMenu()) {
 
 					JMenuItem obSourceMenuItem = new JMenuItem(itemName);
 					obSourceMenuItem.addActionListener(obSourceListener);

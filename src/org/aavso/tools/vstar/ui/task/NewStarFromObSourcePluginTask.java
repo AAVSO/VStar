@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.swing.SwingWorker;
 
@@ -41,6 +42,7 @@ import org.aavso.tools.vstar.ui.dialog.Checkbox;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
@@ -128,9 +130,16 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						// Which plugin was selected in the end?
 						// We only ask this for plugins that can share the
 						// common file/URL dialog approach (with a list of
-						// plugins).
+						// plugins). There will only be a non-empty optional
+						// value if all observation source plugins
+						// have been not been requested to be shown in the file
+						// menu.
 						if (obSourcePlugin.getInputType() == InputType.FILE_OR_URL) {
-							obSourcePlugin = fileChooser.getSelectedPlugin();
+							Optional<ObservationSourcePluginBase> selectedPlugin = fileChooser
+									.getSelectedPlugin();
+							if (selectedPlugin.isPresent()) {
+								obSourcePlugin = selectedPlugin.get();
+							}
 						}
 
 						// If a file was chosen or a URL obtained, use as input.
