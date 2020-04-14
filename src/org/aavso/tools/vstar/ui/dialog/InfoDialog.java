@@ -121,24 +121,28 @@ public class InfoDialog extends JDialog implements ActionListener {
 
 		seriesTextArea.setText(seriesBuf.toString());
 
-		// Statistics.
+		// Statistics
 		JTextArea statsTextArea = new JTextArea();
-		statsTextArea.setEditable(false);
-		statsTextArea.setBorder(BorderFactory.createTitledBorder("Statistics"));
+		// We don't include this now. See Current Mode ANOVA plugin.
+		if (false) {
+			statsTextArea.setEditable(false);
+			statsTextArea.setBorder(BorderFactory
+					.createTitledBorder("Statistics"));
 
-		StringBuffer statsBuf = new StringBuffer();
+			StringBuffer statsBuf = new StringBuffer();
 
-		Map<String, String> statsInfo = Mediator.getInstance()
-				.getDocumentManager().getStatsInfo();
+			Map<String, String> statsInfo = Mediator.getInstance()
+					.getDocumentManager().getStatsInfo();
 
-		for (String key : statsInfo.keySet()) {
-			statsBuf.append(key);
-			statsBuf.append(": ");
-			statsBuf.append(statsInfo.get(key));
-			statsBuf.append("\n");
+			for (String key : statsInfo.keySet()) {
+				statsBuf.append(key);
+				statsBuf.append(": ");
+				statsBuf.append(statsInfo.get(key));
+				statsBuf.append("\n");
+			}
+
+			statsTextArea.setText(statsBuf.toString());
 		}
-
-		statsTextArea.setText(statsBuf.toString());
 
 		// Add dataset summaries, series info, stats.
 		for (NewStarMessage msg : msgs) {
@@ -147,8 +151,8 @@ public class InfoDialog extends JDialog implements ActionListener {
 		}
 
 		pane.add(seriesTextArea);
-		pane.add(Box.createRigidArea(new Dimension(10, 10)));
-		pane.add(statsTextArea);
+		// pane.add(Box.createRigidArea(new Dimension(10, 10)));
+		// pane.add(statsTextArea);
 
 		return pane;
 	}

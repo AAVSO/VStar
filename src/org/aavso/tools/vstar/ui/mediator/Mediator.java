@@ -1258,10 +1258,13 @@ public class Mediator {
 					validObservationCategoryMap, JDCoordSource.instance,
 					JDComparator.instance, JDTimeElementEntity.instance, null);
 
-			// Record initial ANOVA information and make the document manager
-			// listen to changes to ANOVA via new binning results.
-			documentManager.updateAnovaInfo(obsAndMeanPlotModel
-					.getBinningResult());
+			if (false) {
+				// Record initial ANOVA information and make the document
+				// manager
+				// listen to changes to ANOVA via new binning results.
+				documentManager.updateAnovaInfo(obsAndMeanPlotModel
+						.getBinningResult());
+			}
 
 			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
 					documentManager.createBinChangeListener());
@@ -1935,7 +1938,7 @@ public class Mediator {
 
 					// TODO: possibly need to add: getUI()/invokeDialog()
 					// compare with modelling and obs src plugins
-					
+
 					IModel model = plugin.getModel(obs);
 
 					if (model != null) {
