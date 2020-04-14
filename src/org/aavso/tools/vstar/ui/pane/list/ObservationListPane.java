@@ -19,8 +19,6 @@ package org.aavso.tools.vstar.ui.pane.list;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,7 +28,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -67,7 +64,6 @@ import org.aavso.tools.vstar.util.comparator.DoubleAsStringComparator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
-import org.jfree.chart.block.BorderArrangement;
 
 /**
  * This class represents a GUI component that renders information about
@@ -262,8 +258,6 @@ public class ObservationListPane extends JPanel implements
 		allDataCheckBox.setSelected(false);
 		controlPane.add(allDataCheckBox);
 
-		//panel.add(Box.createRigidArea(new Dimension(10, 10)));
-
 		// Selectable search pane: pattern and VeLa search
 		JPanel selectableSearchPanes = new JPanel(new CardLayout());
 
@@ -292,11 +286,6 @@ public class ObservationListPane extends JPanel implements
 		searchSelectionRadioButtons.add(patternSearchSelector);
 		searchSelectionRadioButtons.add(velaSearchSelector);
 
-//		JPanel searchSelectorPane = new JPanel();
-////		searchSelectorPane.setLayout(new BorderLayout());
-////		searchSelectorPane.setLayout(new FlowLayout());
-//		searchSelectorPane.setLayout(new BoxLayout(searchSelectorPane,
-//				BoxLayout.LINE_AXIS));
 		controlPane.add(patternSearchSelector);
 		controlPane.add(velaSearchSelector);
 
@@ -305,7 +294,6 @@ public class ObservationListPane extends JPanel implements
 		JPanel searchPane = new JPanel();
 		searchPane.setLayout(new BoxLayout(searchPane, BoxLayout.PAGE_AXIS));
 		searchPane.setBorder(BorderFactory.createTitledBorder("Search"));
-		//searchPane.add(searchSelectorPane);
 		searchPane.add(selectableSearchPanes);
 
 		panel.add(searchPane);
