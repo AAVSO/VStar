@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.regex.PatternSyntaxException;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -98,7 +99,12 @@ public class ListSearchPane<S extends TableModel> extends JPanel {
 
 		searchField = new JTextField();
 		searchField.setToolTipText("Enter a regular expression...");
+		searchField.setBorder(BorderFactory.createEtchedBorder());
 		this.add(searchField);
+
+		JPanel applyResetPane = new JPanel();
+		applyResetPane.setLayout(new BoxLayout(applyResetPane,
+				BoxLayout.PAGE_AXIS));
 
 		searchButton = new JButton("Apply");
 		searchButton.addActionListener(new ActionListener() {
@@ -118,7 +124,7 @@ public class ListSearchPane<S extends TableModel> extends JPanel {
 				}
 			}
 		});
-		this.add(searchButton);
+		applyResetPane.add(searchButton);
 
 		resetButton = new JButton("Reset");
 		resetButton.addActionListener(new ActionListener() {
@@ -128,7 +134,9 @@ public class ListSearchPane<S extends TableModel> extends JPanel {
 				restoreDefaultRowFilter();
 			}
 		});
-		this.add(resetButton);
+		applyResetPane.add(resetButton);
+		
+		this.add(applyResetPane);
 	}
 
 	/**

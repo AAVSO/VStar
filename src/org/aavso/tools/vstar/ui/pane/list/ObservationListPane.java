@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.pane.list;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -66,6 +67,7 @@ import org.aavso.tools.vstar.util.comparator.DoubleAsStringComparator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.jfree.chart.block.BorderArrangement;
 
 /**
  * This class represents a GUI component that renders information about
@@ -234,6 +236,9 @@ public class ObservationListPane extends JPanel implements
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.setBorder(BorderFactory.createEtchedBorder());
 
+		JPanel controlPane = new JPanel();
+		controlPane.setLayout(new BoxLayout(controlPane, BoxLayout.PAGE_AXIS));
+		
 		// A checkbox to determine whether to display all the data in the table.
 		JCheckBox allDataCheckBox = new JCheckBox("Show all data?");
 		allDataCheckBox.addActionListener(new ActionListener() {
@@ -255,9 +260,9 @@ public class ObservationListPane extends JPanel implements
 			}
 		});
 		allDataCheckBox.setSelected(false);
-		panel.add(allDataCheckBox);
+		controlPane.add(allDataCheckBox);
 
-		panel.add(Box.createRigidArea(new Dimension(10, 10)));
+		//panel.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		// Selectable search pane: pattern and VeLa search
 		JPanel selectableSearchPanes = new JPanel(new CardLayout());
@@ -287,22 +292,29 @@ public class ObservationListPane extends JPanel implements
 		searchSelectionRadioButtons.add(patternSearchSelector);
 		searchSelectionRadioButtons.add(velaSearchSelector);
 
-		JPanel searchSelectorPane = new JPanel();
-		searchSelectorPane.setLayout(new BoxLayout(searchSelectorPane,
-				BoxLayout.LINE_AXIS));
-		searchSelectorPane.add(patternSearchSelector);
-		searchSelectorPane.add(velaSearchSelector);
+//		JPanel searchSelectorPane = new JPanel();
+////		searchSelectorPane.setLayout(new BorderLayout());
+////		searchSelectorPane.setLayout(new FlowLayout());
+//		searchSelectorPane.setLayout(new BoxLayout(searchSelectorPane,
+//				BoxLayout.LINE_AXIS));
+		controlPane.add(patternSearchSelector);
+		controlPane.add(velaSearchSelector);
 
+		panel.add(controlPane);
+		
 		JPanel searchPane = new JPanel();
 		searchPane.setLayout(new BoxLayout(searchPane, BoxLayout.PAGE_AXIS));
 		searchPane.setBorder(BorderFactory.createTitledBorder("Search"));
-		searchPane.add(searchSelectorPane);
+		//searchPane.add(searchSelectorPane);
 		searchPane.add(selectableSearchPanes);
 
 		panel.add(searchPane);
 
 		final JPanel parent = this;
 
+		JPanel selectPane = new JPanel();
+		selectPane.setLayout(new BoxLayout(selectPane, BoxLayout.PAGE_AXIS));
+		
 		selectAllButton = new JButton(LocaleProps.get("SELECT_ALL"));
 		selectAllButton.addActionListener(new ActionListener() {
 			@Override
@@ -310,7 +322,7 @@ public class ObservationListPane extends JPanel implements
 				selectAll();
 			}
 		});
-		panel.add(selectAllButton);
+		selectPane.add(selectAllButton);
 
 		createFilterButton = new JButton(
 				LocaleProps.get("CREATE_SELECTION_FILTER"));
@@ -367,8 +379,10 @@ public class ObservationListPane extends JPanel implements
 						.notifyListeners(message);
 			}
 		});
-		panel.add(createFilterButton);
+		selectPane.add(createFilterButton);
 
+		panel.add(selectPane);
+		
 		return panel;
 	}
 

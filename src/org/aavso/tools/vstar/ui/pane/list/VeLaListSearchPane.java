@@ -21,16 +21,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Optional;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.JTextArea;
 import javax.swing.RowFilter;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
+import org.aavso.tools.vstar.util.Logic;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -49,7 +52,10 @@ public class VeLaListSearchPane<S extends TableModel> extends JPanel {
 
 	private JButton searchButton;
 	private JButton resetButton;
-	private JTextField searchField;
+	private JTextArea searchField;
+	private JCheckBox includeFainterThanObservationCheckbox;
+	private JCheckBox includeDiscrepantObservationCheckbox;
+	private JCheckBox includeExcludedObservationCheckbox;
 
 	public VeLaListSearchPane(ValidObservationTableModel model,
 			TableRowSorter<S> rowSorter) {
@@ -58,27 +64,46 @@ public class VeLaListSearchPane<S extends TableModel> extends JPanel {
 		this.model = model;
 
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-		//this.setBorder(BorderFactory.createTitledBorder("VeLa Search"));
+		// this.setBorder(BorderFactory.createTitledBorder("VeLa Search"));
 
 		this.rowSorter = rowSorter;
 		defaultRowFilter = rowSorter.getRowFilter();
 
-		searchField = new JTextField();
+		// JPanel includePanel = new JPanel(new FlowLayout());
+		JPanel includePanel = new JPanel();
+		includePanel
+				.setLayout(new BoxLayout(includePanel, BoxLayout.LINE_AXIS));
+		includePanel.setBorder(BorderFactory.createTitledBorder("Include"));
+
+		includeFainterThanObservationCheckbox = new JCheckBox("Fainter Than?");
+		includePanel.add(includeFainterThanObservationCheckbox);
+		includeDiscrepantObservationCheckbox = new JCheckBox("Discrepant?");
+		includePanel.add(includeDiscrepantObservationCheckbox);
+		includeExcludedObservationCheckbox = new JCheckBox("Excluded?");
+		includePanel.add(includeExcludedObservationCheckbox);
+		this.add(includePanel);
+
+		searchField = new JTextArea();
 		searchField.setToolTipText("Enter a VeLa expression...");
+		searchField.setBorder(BorderFactory.createEtchedBorder());
 		this.add(searchField);
+
+		JPanel applyResetPane = new JPanel();
+		applyResetPane.setLayout(new BoxLayout(applyResetPane,
+				BoxLayout.PAGE_AXIS));
+
+		final VeLaListSearchPane<? extends TableModel> velaSearchPane = this;
 
 		searchButton = new JButton("Apply");
 		searchButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setRowFilter(new VeLaRowFilter(new VeLaInterpreter(),
-						searchField.getText()));
+						velaSearchPane));
 			}
 		});
-		this.add(searchButton);
+		applyResetPane.add(searchButton);
 
-		// TODO: just need one Reset button in observation list pane so move it
-		// there
 		resetButton = new JButton("Reset");
 		resetButton.addActionListener(new ActionListener() {
 			@Override
@@ -87,7 +112,25 @@ public class VeLaListSearchPane<S extends TableModel> extends JPanel {
 				restoreDefaultRowFilter();
 			}
 		});
-		this.add(resetButton);
+		applyResetPane.add(resetButton);
+
+		this.add(applyResetPane);
+	}
+
+	public String getVeLaExpression() {
+		return searchField.getText();
+	}
+
+	public boolean includeFainterThan() {
+		return includeFainterThanObservationCheckbox.isSelected();
+	}
+
+	public boolean includeDiscrepant() {
+		return includeDiscrepantObservationCheckbox.isSelected();
+	}
+
+	public boolean includeExcluded() {
+		return includeExcludedObservationCheckbox.isSelected();
 	}
 
 	/**
@@ -129,11 +172,12 @@ public class VeLaListSearchPane<S extends TableModel> extends JPanel {
 
 	class VeLaRowFilter extends RowFilter<Object, Object> {
 		private VeLaInterpreter vela;
-		private String prog;
+		private VeLaListSearchPane<? extends TableModel> searchPane;
 
-		public VeLaRowFilter(VeLaInterpreter vela, String prog) {
+		public VeLaRowFilter(VeLaInterpreter vela,
+				VeLaListSearchPane<? extends TableModel> searchPane) {
 			this.vela = vela;
-			this.prog = prog;
+			this.searchPane = searchPane;
 		}
 
 		@Override
@@ -147,15 +191,29 @@ public class VeLaListSearchPane<S extends TableModel> extends JPanel {
 			if (rowIndex != null) {
 				ValidObservation ob = model.getObservations().get(rowIndex);
 				vela.pushEnvironment(new VeLaValidObservationEnvironment(ob));
-				Optional<Operand> value = vela.program(prog);
+				Optional<Operand> value = vela.program(searchPane
+						.getVeLaExpression());
 				result = value.isPresent()
 						&& value.get().getType() == Type.BOOLEAN
 						&& value.get().booleanVal();
+
+				/**
+				 * Use logical implication, p => q, where p is the observation's
+				 * property and q is the inclusion property relating to p, to
+				 * check that our inclusion criteria still permit a match for
+				 * this observation.
+				 */
+				result &= Logic.imp(ob.getMagnitude().isFainterThan(),
+						searchPane.includeFainterThan());
+				result &= Logic.imp(ob.isDiscrepant(),
+						searchPane.includeDiscrepant());
+				result &= Logic.imp(ob.isExcluded(),
+						searchPane.includeExcluded());
+
 				vela.popEnvironment();
 			}
 
 			return result;
 		}
 	}
-
 }
