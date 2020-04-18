@@ -16,13 +16,13 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.dialog.vela.VeLaDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.ui.model.plot.ICoordSource;
 import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
+import org.aavso.tools.vstar.ui.vela.VeLaDialog;
 import org.aavso.tools.vstar.util.ApacheCommonsDerivativeBasedExtremaFinder;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
@@ -44,6 +44,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 	private static final String FUNC_NAME = "F";
 	private static final String DERIV_FUNC_NAME = "DF";
+	private static final String RESOLUTION_VAR = "RESOLUTION";
 
 	private static VeLaDialog velaDialog;
 
@@ -162,7 +163,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 			// TODO: possible race condition here since we sometimes don't
 			// see the dialog and VStar hangs; a log entry shows a NPE
-			
+
 			if (velaDialog == null) {
 
 				velaDialog = new VeLaDialog(
@@ -174,6 +175,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 			if (!velaDialog.isCancelled()) {
 				String velaModelFunctionStr = velaDialog.getCode();
+				String modelName = velaDialog.getPath();
 				// double resolution = resolutionField.getValue();
 
 				model = new IModel() {
@@ -185,7 +187,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 
 					@Override
 					public String getDescription() {
-						return velaDialog.getPath() + " applied to "
+						return modelName + " applied to "
 								+ obs.get(0).getBand() + " series";
 					}
 
@@ -250,7 +252,8 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 									fit = new ArrayList<ValidObservation>();
 									residuals = new ArrayList<ValidObservation>();
 
-									String comment = velaModelFunctionStr;
+									String comment = "\n"
+											+ velaModelFunctionStr;
 
 									// Create fit and residual observations.
 									for (int i = 0; i < obs.size()
@@ -312,10 +315,23 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 									// If so, carry out extrema determination.
 									if (vela.lookupFunctions(DERIV_FUNC_NAME)
 											.isPresent()) {
+										// Use a real VeLa resolution variable
+										// if it exists, else use a value of
+										// 0.1.
+										double resolution = 0.1;
+										Optional<Operand> resVar = vela
+												.lookupBinding(RESOLUTION_VAR);
+										if (resVar.isPresent()
+												&& resVar.get().getType() == Type.REAL) {
+											resolution = resVar.get()
+													.doubleVal();
+										}
+
 										ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
 												fit,
 												(DifferentiableUnivariateRealFunction) function,
-												timeCoordSource, zeroPoint);
+												timeCoordSource, zeroPoint,
+												resolution);
 
 										String extremaStr = finder.toString();
 
