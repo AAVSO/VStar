@@ -170,7 +170,8 @@ public class PeriodLuminosityDistanceCalculator extends
 					// chooser one choice of which is
 					// "Custom" that uses VELa (VStar expression language:
 					// modelling, this, filter, JD calc, basically anywhere
-					// numbers are used as input) => opens
+					// numbers are used as input) => opens; actually, just
+					// always use VeLa
 				}
 
 				if (absMagnitude != null && distance != null) {
