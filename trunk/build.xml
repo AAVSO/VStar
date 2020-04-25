@@ -143,7 +143,6 @@
 				<exclude name="antlr-4.5.3-complete*"/>
 			</zipfileset>
 			<zipfileset file="VStar.sh" prefix="vstar" filemode="755" />
-			<zipfileset file="VeLa.sh" prefix="vstar" filemode="755" />
 			<zipfileset dir="data" prefix="vstar/data" />
 			<zipfileset dir="${doc}" prefix="vstar/doc">
 				<include name="license/*" />
@@ -252,7 +251,6 @@
 		</exec>
 		<mkdir dir="${vstar_volume}/Extras" />
 		<copy todir="${vstar_volume}/Extras">
-			<fileset file="VeLa.sh" />
 			<fileset file="ReadMe.txt" />
 			<fileset file="ChangeLog.txt" />
 		</copy>
