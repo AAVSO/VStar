@@ -1,0 +1,5 @@
+f <- "tcas.tsv"
+--f <- "simple_format1.tsv"
+--loadFromFile("/Users/david/vstar/data/" + f)
+--println(getError())
+intrinsics()
