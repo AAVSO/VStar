@@ -125,7 +125,7 @@ public class MessageBox {
 
 		VStar.LOGGER.log(Level.WARNING, msg);
 
-		if (!Mediator.getUI().isScriptingMode()) {
+	    if (!isScriptingMode()) {
 			JOptionPane pane = new JOptionPane(msg,
 					JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
 			JDialog dialog = pane.createDialog(parent, title);
@@ -144,10 +144,9 @@ public class MessageBox {
 	 *            The message that is the content of the dialog.
 	 */
 	public static void showWarningDialog(String title, String msg) {
-		if (!Mediator.getUI().isScriptingMode()) {
-
-			VStar.LOGGER.log(Level.WARNING, msg);
-
+		VStar.LOGGER.log(Level.WARNING, msg);
+		
+	    if (!isScriptingMode()) {
 			JOptionPane pane = new JOptionPane(msg,
 					JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
 			JDialog dialog = pane.createDialog(
@@ -170,9 +169,10 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(Component parent, String title,
 			String msg) {
+		
 		VStar.LOGGER.log(Level.SEVERE, msg);
 
-		if (!Mediator.getUI().isScriptingMode()) {
+		if (!isScriptingMode()) {
 			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
 					JOptionPane.OK_CANCEL_OPTION);
 			JDialog dialog = pane.createDialog(parent, title);
@@ -197,9 +197,9 @@ public class MessageBox {
 	 */
 	public static void showErrorDialog(String title, String msg) {
 		VStar.LOGGER.log(Level.SEVERE, msg);
-
-		if (!Mediator.getUI().isScriptingMode()) {
-			Component parent = Mediator.getUI().getComponent();
+	    
+	    if (!isScriptingMode()) {
+	    	Component parent = Mediator.getUI().getComponent();
 
 			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
 					JOptionPane.OK_CANCEL_OPTION);
@@ -231,7 +231,7 @@ public class MessageBox {
 		// experience, a previous error dialog will have been invoked
 		// already. We log the NPE above.
 		if (!(e instanceof NullPointerException)) {
-			if (!Mediator.getUI().isScriptingMode()) {
+			if (!isScriptingMode()) {
 				String msg = e.getClass().getName() + ": "
 						+ e.getLocalizedMessage();
 
@@ -264,7 +264,7 @@ public class MessageBox {
 	public static void showErrorDialog(String title, Throwable e) {
 		VStar.LOGGER.log(Level.SEVERE, title, e);
 
-		if (!Mediator.getUI().isScriptingMode()) {
+		if (!isScriptingMode()) {
 			// Getting an error dialog with a NPE is not useful and in my
 			// experience, a previous error dialog will have been invoked
 			// already. We log the NPE above.
@@ -300,7 +300,7 @@ public class MessageBox {
 	 * @return True if "yes" was selected, false if "no" was selected.
 	 */
 	public static boolean showConfirmDialog(String title, String msg) {
-		if (!Mediator.getUI().isScriptingMode()) {
+		if (!isScriptingMode()) {
 			int result = JOptionPane.showConfirmDialog(
 					DocumentManager.findActiveWindow(), msg, title,
 					JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -309,5 +309,22 @@ public class MessageBox {
 		} else {
 			return true;
 		}
+	}
+	
+	// Helpers
+	
+	private static boolean isScriptingMode() {
+		boolean isScriptingMode = false;
+		
+	    // PMAK 2020-04-18: 
+	    // "ui" can be null when the dialog invoked at startup while loading plugins.
+	    // When a plugin's constructor throws an exception, "ui" is not created yet.
+	    // So NullPointerException is thrown if we do not check for null.
+	    // This prevents VStar from starting at all.
+	    if (Mediator.getUI() != null) {
+	        isScriptingMode = Mediator.getUI().isScriptingMode();
+	    }
+	    
+	    return isScriptingMode;
 	}
 }
