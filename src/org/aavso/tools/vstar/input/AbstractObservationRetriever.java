@@ -308,6 +308,15 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
+	 * Set the VeLa filter string.
+	 * 
+	 * @param velaFilterStr the velaFilterStr to set
+	 */
+	public void setVelaFilter(String velaFilterStr) {
+		this.velaFilterStr = velaFilterStr;
+	}
+
+	/**
 	 * @return the validObservationCategoryMap
 	 */
 	public Map<SeriesType, List<ValidObservation>> getValidObservationCategoryMap() {
