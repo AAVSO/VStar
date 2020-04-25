@@ -49,7 +49,7 @@ public class MessageBox {
 	public static void showMessageDialog(Component parent, String title,
 			String msg, Icon icon) {
 		JOptionPane pane = new JOptionPane(msg,
-				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION,
 				icon);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setVisible(true);
@@ -68,7 +68,7 @@ public class MessageBox {
 	 */
 	public static void showMessageDialog(String title, String msg, Icon icon) {
 		JOptionPane pane = new JOptionPane(msg,
-				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION,
 				icon);
 		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(),
 				title);
@@ -88,7 +88,7 @@ public class MessageBox {
 	public static void showMessageDialog(Component parent, String title,
 			String msg) {
 		JOptionPane pane = new JOptionPane(msg,
-				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION);
 		JDialog dialog = pane.createDialog(parent, title);
 		dialog.setVisible(true);
 	}
@@ -104,7 +104,7 @@ public class MessageBox {
 	 */
 	public static void showMessageDialog(String title, String msg) {
 		JOptionPane pane = new JOptionPane(msg,
-				JOptionPane.INFORMATION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+				JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION);
 		JDialog dialog = pane.createDialog(DocumentManager.findActiveWindow(),
 				title);
 		dialog.setVisible(true);
@@ -127,7 +127,7 @@ public class MessageBox {
 
 	    if (!isScriptingMode()) {
 			JOptionPane pane = new JOptionPane(msg,
-					JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+					JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION);
 			JDialog dialog = pane.createDialog(parent, title);
 			dialog.setVisible(true);
 		} else {
@@ -148,7 +148,7 @@ public class MessageBox {
 		
 	    if (!isScriptingMode()) {
 			JOptionPane pane = new JOptionPane(msg,
-					JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+					JOptionPane.WARNING_MESSAGE, JOptionPane.DEFAULT_OPTION);
 			JDialog dialog = pane.createDialog(
 					DocumentManager.findActiveWindow(), title);
 			dialog.setVisible(true);
@@ -174,7 +174,7 @@ public class MessageBox {
 
 		if (!isScriptingMode()) {
 			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-					JOptionPane.OK_CANCEL_OPTION);
+					JOptionPane.DEFAULT_OPTION);
 			JDialog dialog = pane.createDialog(parent, title);
 			dialog.setVisible(true);
 
@@ -202,7 +202,7 @@ public class MessageBox {
 	    	Component parent = Mediator.getUI().getComponent();
 
 			JOptionPane pane = new JOptionPane(msg, JOptionPane.ERROR_MESSAGE,
-					JOptionPane.OK_CANCEL_OPTION);
+					JOptionPane.DEFAULT_OPTION);
 			JDialog dialog = pane.createDialog(parent, title);
 			dialog.setVisible(true);
 
@@ -236,7 +236,7 @@ public class MessageBox {
 						+ e.getLocalizedMessage();
 
 				JOptionPane pane = new JOptionPane(msg,
-						JOptionPane.ERROR_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+						JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION);
 				JDialog dialog = pane.createDialog(parent, title);
 				dialog.setVisible(true);
 
@@ -275,7 +275,7 @@ public class MessageBox {
 						+ e.getLocalizedMessage();
 
 				JOptionPane pane = new JOptionPane(msg,
-						JOptionPane.ERROR_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+						JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION);
 				JDialog dialog = pane.createDialog(parent, title);
 				dialog.setVisible(true);
 
