@@ -1,0 +1,36 @@
+% https://www.papeeria.com/ is a good LaTeX editor and renderer
+% The rendering of these should go into the manual
+
+\documentclass{article}      % Specifies the document class
+
+                             % The preamble begins here.
+\title{\LaTeX\ equations for VStar} % Declares the document's title.
+\author{David Benn}          % Declares the author's name.
+\date{April 18 2020}         % Deleting this command produces today's date.
+
+%\newcommand{\ip}[2]{\langle #1 | #2\rangle}
+                             % This is an alternative definition of
+                             % \ip that is commented out.
+
+\begin{document}             % End of preamble and beginning of text.
+
+\maketitle                   % Produces the title.
+
+\section{Standard error of the average}
+    \[ StdErr = \frac{\sqrt{ \frac{ \sum^N_{i=1} { (x_i - \bar{x})^2 } } {N-1} } } {\sqrt{N}} \]
+
+\section{Phase}
+    \[ \phi = \frac{t - epoch}{P} \]
+    
+\section{Polynomial fit}
+    \[ y = f(t) = \beta_0 + \beta_1t + \beta_2t^2 + \beta_3t^3 + ... + \beta_nt^n \]
+
+\section{DCDFT standard scan}
+    \[ \frac{1}{frequency} \]
+    \[ \frac{1}{4T} \]
+    \[ \frac{N}{4T} \]
+
+\section{WWZ time divisions}
+    \[ \frac{\mathrm{JD}_\mathrm{max} - \mathrm{JD}_\mathrm{min} }{\mathrm{time} \, \mathrm{divisions} } \]
+    
+\end{document}               
