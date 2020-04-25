@@ -1,0 +1,7 @@
+do() : list {
+  err is uncertainty
+  when
+     obscode = "BDJB" -> [mag+1 err*0.5]
+     mag < 8 -> [mag-3 err]
+     true -> [mag err]
+}
