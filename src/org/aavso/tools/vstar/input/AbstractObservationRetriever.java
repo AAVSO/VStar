@@ -310,7 +310,8 @@ public abstract class AbstractObservationRetriever {
 	/**
 	 * Set the VeLa filter string.
 	 * 
-	 * @param velaFilterStr the velaFilterStr to set
+	 * @param velaFilterStr
+	 *            the velaFilterStr to set
 	 */
 	public void setVelaFilter(String velaFilterStr) {
 		this.velaFilterStr = velaFilterStr;
@@ -484,13 +485,17 @@ public abstract class AbstractObservationRetriever {
 					}
 				}
 			} catch (VeLaParseError e) {
-				MessageBox.showErrorDialog("Parse Error",
-						messageFromException(e));
-				velaErrorReported = true;
+				if (!velaErrorReported) {
+					MessageBox.showErrorDialog("Parse Error",
+							messageFromException(e));
+					velaErrorReported = true;
+				}
 			} catch (VeLaEvalError e) {
-				MessageBox.showErrorDialog("Evaluation Error",
-						messageFromException(e));
-				velaErrorReported = true;
+				if (!velaErrorReported) {
+					MessageBox.showErrorDialog("Evaluation Error",
+							messageFromException(e));
+					velaErrorReported = true;
+				}
 			} finally {
 				vela.popEnvironment();
 			}
