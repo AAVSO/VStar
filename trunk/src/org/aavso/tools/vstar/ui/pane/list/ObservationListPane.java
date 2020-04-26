@@ -350,7 +350,7 @@ public class ObservationListPane extends JPanel implements
 									.getJD());
 							buf.append("JD = " + jdStr);
 							if (i < selectedObs.size() - 1) {
-								buf.append(" AND\n");
+								buf.append(" OR\n");
 								i++;
 							}
 						}
