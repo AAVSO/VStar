@@ -238,7 +238,7 @@ public class DocumentManager {
 	public void updateAnovaInfo(BinningResult binningResult) {
 		addStatsInfo("Mean Source Series", binningResult.getSeries()
 				.getDescription());
-		
+
 		addStatsInfo("anova", createAnovaText(binningResult));
 	}
 
@@ -330,6 +330,13 @@ public class DocumentManager {
 			if (ui.getUiType() == UIType.DESKTOP) {
 				if (Window.getWindows().length > 0) {
 					for (Window window : Window.getWindows()) {
+						// At least find the main window...
+						if (window instanceof org.aavso.tools.vstar.ui.MainFrame) {
+							wdw = window;
+						}
+						// ...even better if it's the focus owner. If nothing
+						// else, by the end of the loop, we should have found
+						// the main window, whether or not it has the focus.
 						if (window.isFocusOwner()) {
 							wdw = window;
 							break;

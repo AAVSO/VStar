@@ -110,6 +110,7 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 
 			this.pack();
 			this.setLocationRelativeTo(Mediator.getUI().getContentPane());
+			this.setAlwaysOnTop(true);
 			this.setVisible(true);
 		}
 
