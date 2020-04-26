@@ -468,7 +468,7 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	 * @return The time axis label.
 	 */
 	protected static String getTimeAxisLabel(String units) {
-		return String.format("%s (%s)", LocaleProps.get("TIME"), units);
+		return String.format(LocaleProps.get("TIME"));
 	}
 
 	/**

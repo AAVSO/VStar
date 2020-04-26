@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -869,13 +870,10 @@ public class ValidObservation extends Observation {
 		}
 
 		if (dateInfo != null) {
-			boolean isHeliocentric = Mediator.getInstance()
-					.getLatestNewStarMessage().getStarInfo().getRetriever()
-					.isHeliocentric();
-			if (isHeliocentric) {
-				strBuf.append("Heliocentric ");
-			}
-			strBuf.append("Julian Date: ");
+			AbstractObservationRetriever retriever = Mediator.getInstance()
+					.getLatestNewStarMessage().getStarInfo().getRetriever();
+			strBuf.append(retriever.getTimeUnits());
+			strBuf.append(": ");
 			strBuf.append(NumericPrecisionPrefs.formatTime(dateInfo
 					.getJulianDay()));
 			strBuf.append("\n");

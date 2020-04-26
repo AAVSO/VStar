@@ -63,12 +63,9 @@ public class HJDConverter extends ObservationToolPluginBase {
 		// does not tell us which observations are Heliocentric.
 		int count = 0;
 		Pair<RAInfo, DecInfo> lastCoordsFound = null;
-		for (AbstractObservationRetriever retriever : getRequestedNonHeliocentricDatasets()) {
-			if (retriever.isBarycentric()) {
-				String msg = "Observations from " + retriever.getSourceName()
-						+ " are Barycentric and will not be converted.";
-				MessageBox.showWarningDialog("HJD Conversion", msg);
-			} else if (!retriever.isHeliocentric()) {
+		List<AbstractObservationRetriever> retrievers = getRequestedNonHeliocentricDatasets();
+		for (AbstractObservationRetriever retriever : retrievers) {
+			if (!retriever.isHeliocentric()) {
 
 				Pair<RAInfo, DecInfo> coords = getCoordinates(
 						retriever.getStarInfo(), lastCoordsFound);
@@ -83,8 +80,10 @@ public class HJDConverter extends ObservationToolPluginBase {
 			}
 		}
 
-		MessageBox.showMessageDialog("HJD Conversion",
-				String.format("%d observations converted.", count));
+		if (retrievers.size() != 0) {
+			MessageBox.showMessageDialog("HJD Conversion",
+					String.format("%d observations converted.", count));
+		}
 	}
 
 	/**
@@ -101,7 +100,7 @@ public class HJDConverter extends ObservationToolPluginBase {
 		Map<String, AbstractObservationRetriever> name2retriever = new HashMap<String, AbstractObservationRetriever>();
 
 		for (AbstractObservationRetriever retriever : retrievers) {
-			if (!retriever.isHeliocentric()) {
+			if (!retriever.isHeliocentric() && !retriever.isBarycentric()) {
 				String name = retriever.getSourceType() + ": "
 						+ retriever.getStarInfo().getDesignation();
 				checkboxes.add(new Checkbox(name, false));
@@ -109,18 +108,23 @@ public class HJDConverter extends ObservationToolPluginBase {
 			}
 		}
 
-		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
-				"Non-Heliocentric Datasets", checkboxes);
+		if (checkboxes.size() != 0) {
+			MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
+					"Non-Heliocentric Datasets", checkboxes);
 
-		if (!dialog.isCancelled()) {
-			for (ITextComponent<?> checkbox : checkboxes) {
-				Boolean checked = (Boolean) checkbox.getValue();
-				if (checked) {
-					selected.add(name2retriever.get(checkbox.getName()));
+			if (!dialog.isCancelled()) {
+				for (ITextComponent<?> checkbox : checkboxes) {
+					Boolean checked = (Boolean) checkbox.getValue();
+					if (checked) {
+						selected.add(name2retriever.get(checkbox.getName()));
+					}
 				}
+			} else {
+				selected.clear();
 			}
 		} else {
-			selected.clear();
+			MessageBox.showMessageDialog("Non-Heliocentric Datasets",
+					"No datasets with Julian Date observations");
 		}
 
 		return selected;
