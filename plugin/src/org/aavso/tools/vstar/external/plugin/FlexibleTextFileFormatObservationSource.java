@@ -140,6 +140,13 @@ import org.aavso.tools.vstar.vela.VeLaEvalError;
 //      Example (new series with name "TESS +0.73"):
 // #DEFINESERIES= TESS +0.73, TESS +0.73, #660099
 // #FILTER=       TESS +0.73
+//
+// PMAK 2020-04-25:
+//   1) Series created by #DEFINESERIES is not user-defined now 
+//      (so it can appear in "Descriptive Statistic by Series")
+//   2) VeLa Filter code improved
+//   3) addObservationWarning helper
+//
 
 /**
  * This plug-in class reads Flexible Text Format File (PMAK)
@@ -305,7 +312,7 @@ public class FlexibleTextFileFormatObservationSource extends
 						incrementProgress();
 					}
 				}
-				;
+
 			} catch (Exception e) {
 				throw new ObservationReadError(
 						"Error while reading observation source.\n"
@@ -412,7 +419,7 @@ public class FlexibleTextFileFormatObservationSource extends
 								SeriesType.create(items[0].trim(),
 										items[1].trim(),
 										Color.decode(items[2].trim()), false,
-										true);
+										false);
 							} catch (Exception e) {
 								// System.out.println(e.toString());
 								// do not return error! Instead, throw
@@ -553,12 +560,9 @@ public class FlexibleTextFileFormatObservationSource extends
 
 			if (!"JD".equals(dateType) && !"HJD".equals(dateType)
 					&& !"BJD".equals(dateType)) {
-				if (observationWarnings != null)
-					observationWarnings += "; ";
-				else
-					observationWarnings = "";
-				String error = "Unsupported date type: " + dateType;
-				observationWarnings += error;
+				observationWarnings = addObservationWarning(
+						observationWarnings, "Unsupported date type: "
+								+ dateType);
 			}
 			DateInfo dateInfo = julianDayValidator.validate(fields[timeColumn]
 					.trim());
@@ -588,14 +592,11 @@ public class FlexibleTextFileFormatObservationSource extends
 						if (!ignoreValidationErrors) {
 							throw e;
 						} else {
-							if (observationWarnings != null)
-								observationWarnings += "; ";
-							else
-								observationWarnings = "";
 							String error = e.getMessage();
 							if (error == null || isEmpty(error))
 								error = e.toString();
-							observationWarnings += error;
+							observationWarnings = addObservationWarning(
+									observationWarnings, error);
 						}
 					}
 				}
@@ -629,14 +630,11 @@ public class FlexibleTextFileFormatObservationSource extends
 						if (!ignoreValidationErrors) {
 							throw e;
 						} else {
-							if (observationWarnings != null)
-								observationWarnings += "; ";
-							else
-								observationWarnings = "";
 							String error = e.getMessage();
 							if (error == null || isEmpty(error))
 								error = e.toString();
-							observationWarnings += error;
+							observationWarnings = addObservationWarning(
+									observationWarnings, error);
 						}
 					}
 				}
@@ -672,32 +670,34 @@ public class FlexibleTextFileFormatObservationSource extends
 			if (filterVeLa != null && !isEmpty(filterVeLa)) {
 				if (vela == null)
 					vela = new VeLaInterpreter();
+
+				boolean includeObservation = true;
 				vela.pushEnvironment(new VeLaValidObservationEnvironment(
 						observation));
-
-				Optional<Operand> result = null;
 				try {
-					result = vela.program(filterVeLa);
+					Optional<Operand> result = vela.program(filterVeLa);
+					if (result.isPresent()) {
+						if (result.get().getType() == Type.BOOLEAN) {
+							includeObservation = result.get().booleanVal();
+						} else {
+							observationWarnings = addObservationWarning(
+									observationWarnings,
+									"VeLa filter error: Expected a Boolean value");
+						}
+					}
 				} catch (VeLaParseError | VeLaEvalError e) {
-					if (observationWarnings != null)
-						observationWarnings += "; ";
-					else
-						observationWarnings = "";
 					String error = e.getMessage();
 					if (error == null || isEmpty(error))
 						error = e.toString();
-					observationWarnings += "VeLa filter error: " + error;
-					result = null;
-				}
-				if (result != null) {
-					boolean does_match = result.isPresent()
-							&& result.get().getType() == Type.BOOLEAN
-							&& result.get().booleanVal();
-					if (!does_match)
-						observation = null;
+					observationWarnings = addObservationWarning(
+							observationWarnings, "VeLa filter error: " + error);
+				} finally {
+					vela.popEnvironment();
 				}
 
-				vela.popEnvironment();
+				if (!includeObservation)
+					observation = null;
+
 			}
 
 			if (observationWarnings != null) {
@@ -706,6 +706,15 @@ public class FlexibleTextFileFormatObservationSource extends
 			}
 
 			return observation;
+		}
+
+		private String addObservationWarning(String warnings, String warning) {
+			if (warnings != null)
+				warnings += "; ";
+			else
+				warnings = "";
+			warnings += warning;
+			return warnings;
 		}
 
 		/**
