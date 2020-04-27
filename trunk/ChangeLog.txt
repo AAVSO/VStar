@@ -34,8 +34,10 @@ Release History
 
 Date: Apr ?? 2020
 Version: 2.21.0
-Tag: DEV-AAVSO-??Oct2019
+Tag: DEV-AAVSO-??Apr2020
 Key Changes:
+- #497 Remove ANOVA from Info, require use of ANOVA plug-in
+- #585 AoV Possible problem dropping scan results early in the range
 - #595 Standalone HJD conversion plugin
   o Converts any obs in selected loaded additive datasets that are not in HJD 
     based upon observation retriever via which observation was loaded.
@@ -43,6 +45,7 @@ Key Changes:
     prompted creation of this plugin.
   o Crucially, whereas VStar once converted to HJD on additive loads, silently
     if possible, the plugin permits and indeed requires, explicit conversion now.
+- #624 Change function in models dialog to set a var to JD used in function
 - #634 Use CSV response method for AID web service observation source plugin
 - #636 AID web service load optimisations
   o Alternative web service CSV usage allowing band subset
@@ -57,6 +60,7 @@ Key Changes:
   o Thanks to Patrick Wills for AID VSX web service functionality enhancements
     and others at HQ notably Bert and Sara for putting up with me bothering them 
     about this.
+- Improvements to load from AID: band selection, remembering last star entered
 - Last star entered in AID load dialog is remembered between dialog invocations.
 - #585 AoV: possible problem dropping scan results early in the range
 - Added support for running a script from the command-line via --script option
@@ -70,15 +74,21 @@ Key Changes:
   o #647 VeLa dialogs need Load script button
   o Improvements to VeLa dialog
   o Added handling of double arrays as lists in VeLa
+  o Added seq function
 - Added getters for magnitudes, times, phases to scripting API
 - #624 Change functions in models dialog to set a zeropoint variable used in function
+- #634 Use CSV response method for AID web service obs source plugin
 - #648 Pan right button tool-tip is wrong
 - #654 File opened if cancel clicked
+- #660 Some cached ValidObservation data members mutable
 - #662 File -> Save,Print,Info give errors when no observations loaded
-- Observation transformation plugin base class and magnitude baseline shifter plugin
+- #663 Create an observation transformation plugin category
+- #689 Allow VeLa filter for observation source plugins
 - Updates to undoable edit code to support observation transformation plugins 
   (plot, table updates)
+- Magnitude baseline shifter plugin (an observation transformation plugin)
 - Generalised series selection UI code to support observation transformation plugins
+- Observation baseline shifter and VeLa observation transformer plugins
 - Support for model creation and polyfit in VStar scripting API
 - Julian Date column in observation list should indicate JD, HJD, (or simply time)
 - Deprecated getFiles() in ObservationSourcePluginBase
@@ -87,18 +97,24 @@ Key Changes:
 - #659 IntegerField.getValue() should use VeLa to convert textual input to number
 - #631 Latest Mac Java leaves dialogs behind main window when opened
 - Support for SkyPatrol and ASAS-SN photometry database CSV by Maksym Pyatnytskyy (Max) 
-- #663 Create an observation transformation plugin category
-- Magnitude baseline shifter plugin (an observation transformation plugin)
-- Extended text file format observation source plugin (Max)
 - #661 VStar does not close input streams after reading data (found by Max)
 - Changed Kepler and SuperWASP plugin FITS file suffix handling for file chooser
 - Changed AoV bin combobox to use more flexible ranged integer field
 - #637 Create an observation sink plugin category and converted internal file 
-  saving to use this; could write plugins for save as Upload file format, XML etc
-  shifter and VeLa observation transformer plugins; none yet written!
+  saving to use this; possible future plugins: save as Upload file format, XML
 - Changed plugin settings tab name
 - #665: A plugin load error should NEVER prevent VStar from starting up
 - #666 obstype not available to VeLa filters or observations list searches
+- #687 VeLa obs list search should include checkboxes for discrepant, fainter-than 
+  as does VeLa filter
+- #694 showErrorDialog prevents VStar from startup if a plugin throws error 
+  in constructor
+- #696 Mean Time Between Selections plugin is not registering selections
+- Fixed window-behind problem for Mean Time Between Selections plugin
+- #697 Plot Time Axis not Changed to HJD After JD 2 HJD: Changed domain title 
+  to always show "Time"; fixed problem in which BJD was not showing in observation 
+  details dialog for barycentric observations; changed the HJD converter plugin to 
+  exclude Barycentric datasets
 - Improvements to extrema determination
 - Plugin development ant build file generation script and plugin examples
 - Gaia observation source plugin. (Cliff Kotnik)
@@ -114,6 +130,14 @@ Key Changes:
   (Dave Hinzel)
 - Added Open doc format (ODT) versions for documents without them. (Cliff Kotnik)
 - Testing and support by Dave Hinzel and Cliff Kotnik.
+- Numerous plug-in updates including plugin development aid, first cut of a VeLa 
+  model creator plugin, doc updates
+- Changed CMag to have same format as KMag in AAVSO upload format observation source
+- FlexibleFileFormat plugin from Maksym Pyatnytskyy (Max)
+- Added preference to allow user to decide whether obs source plugins all appear 
+  in file menu or file/URL plugins appear in file chooser; currently takes effect 
+  after restart of VStar
+- Kepler plugin extended to handle TESS (Cliff, Max)
 - Thank to numerous people for bug reports and encouragement.
 
 Date: May 27 2018
@@ -406,7 +430,6 @@ Key Changes:
   phase plot. Written during VStar CHOICE course.
 - Internal improvements to make possible more flexible period analysis
   and other plug-in types, e.g. for forthcoming AoV period analysis plug-in.
-- Improvements to field UI widgets/dialogs.
 - Added plug-ins build script "aavso" target to generate plug-in zip and 
   list file for AAVSO distribution.
 
