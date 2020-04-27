@@ -46,6 +46,7 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.util.Pair;
 
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -247,7 +248,8 @@ public class FlexibleTextFileFormatObservationSource extends
 
 			try {
 				int lineNum = 0;
-				boolean terminatesReading = false;
+				int readErrorCount = 0;
+				boolean terminateReading = false;
 
 				BufferedReader reader = new BufferedReader(
 						new InputStreamReader(getInputStreams().get(0)));
@@ -262,7 +264,7 @@ public class FlexibleTextFileFormatObservationSource extends
 								if (line.startsWith("#")) {
 									String errorText = handleDirective(line);
 									if (errorText != null) {
-										terminatesReading = true;
+										terminateReading = true;
 										throw new ObservationValidationError(
 												"Reading terminated due to fatal error: "
 														+ errorText);
@@ -282,6 +284,8 @@ public class FlexibleTextFileFormatObservationSource extends
 						}
 						incrementProgress();
 					} catch (ObservationValidationError e) {
+						readErrorCount++;
+
 						String error = e.getLocalizedMessage();
 						if (error == null || isEmpty(error))
 							error = e.toString();
@@ -290,11 +294,13 @@ public class FlexibleTextFileFormatObservationSource extends
 						invalidOb.setRecordNumber(lineNum);
 						addInvalidObservation(invalidOb);
 
-						if (terminatesReading)
+						if (terminateReading)
 							break;
 
 						incrementProgress();
 					} catch (ObservationValidationWarning e) {
+						readErrorCount++;
+
 						String error = e.getLocalizedMessage();
 						if (error == null || isEmpty(error))
 							error = e.toString();
@@ -311,6 +317,25 @@ public class FlexibleTextFileFormatObservationSource extends
 
 						incrementProgress();
 					}
+				}
+
+				// Give the user a chance to see what went wrong
+				// even if no valid records read.
+				if (validObservations.isEmpty()) {
+					if (!invalidObservations.isEmpty()) {
+						InvalidObservation ob = invalidObservations.get(0);
+						throw new ObservationReadError(
+								"No observations read.\n"
+										+ "The first read error: "
+										+ ob.getError());
+					}
+				}
+
+				// Notify the user if there were errors.
+				if (readErrorCount > 0) {
+					MessageBox.showWarningDialog(getDescription(),
+							"There are errors.\n"
+									+ "See 'Observations' pane for details.");
 				}
 
 			} catch (Exception e) {
