@@ -84,6 +84,7 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 
 		this.pack();
 		setLocationRelativeTo(Mediator.getUI().getContentPane());
+		this.setAlwaysOnTop(true);
 		this.setVisible(true);
 	}
 
