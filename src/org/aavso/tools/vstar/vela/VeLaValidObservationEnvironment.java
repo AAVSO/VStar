@@ -193,6 +193,7 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 		symbol2CanonicalSymbol.put("MAG", "MAGNITUDE");
 
 		symbol2CanonicalSymbol.put("UNCERTAINTY", "UNCERTAINTY");
+		symbol2CanonicalSymbol.put("ERROR", "UNCERTAINTY");
 
 		symbol2CanonicalSymbol.put("BAND", "SERIES");
 		symbol2CanonicalSymbol.put("SERIES", "SERIES");
