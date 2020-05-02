@@ -321,10 +321,23 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 										double resolution = 0.1;
 										Optional<Operand> resVar = vela
 												.lookupBinding(RESOLUTION_VAR);
-										if (resVar.isPresent()
-												&& resVar.get().getType() == Type.REAL) {
-											resolution = resVar.get()
-													.doubleVal();
+										if (resVar.isPresent()) {
+											switch (resVar.get().getType()) {
+											case REAL:
+												resolution = resVar.get()
+														.doubleVal();
+												break;
+											case INTEGER:
+												resolution = resVar.get()
+														.intVal();
+												break;
+											default:
+												MessageBox
+														.showErrorDialog(
+																"VeLa Model Error",
+																"Resolution must be numeric");
+												break;
+											}
 										}
 
 										ApacheCommonsDerivativeBasedExtremaFinder finder = new ApacheCommonsDerivativeBasedExtremaFinder(
