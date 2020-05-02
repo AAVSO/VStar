@@ -32,9 +32,9 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
-Date: Apr ?? 2020
+Date: May 3 2020
 Version: 2.21.0
-Tag: DEV-AAVSO-??Apr2020
+Tag: DEV-AAVSO-03May2020
 Key Changes:
 - #497 Remove ANOVA from Info, require use of ANOVA plug-in
 - #585 AoV Possible problem dropping scan results early in the range
@@ -75,6 +75,7 @@ Key Changes:
   o Improvements to VeLa dialog
   o Added handling of double arrays as lists in VeLa
   o Added seq function
+  o Added error as an alias for uncertainty in VeLa observation environment
 - Added getters for magnitudes, times, phases to scripting API
 - #624 Change functions in models dialog to set a zeropoint variable used in function
 - #634 Use CSV response method for AID web service obs source plugin
