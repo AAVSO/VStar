@@ -136,11 +136,15 @@
 		<zip destfile="vstar-bash.zip">
 			<zipfileset dir="${dist}" prefix="vstar/dist" />
 			<zipfileset dir="${extlib}" prefix="vstar/extlib">
-				<exclude name="appbundler*" />
-				<exclude name="cobertura*" />
-				<exclude name="cobertura*/**" />
-				<exclude name="junit*" />
-				<exclude name="antlr-4.5.3-complete*"/>
+				<include name="vstar.jar" />
+				<include name="commons-math-2.2.jar" />
+				<include name="javacsv.jar" />
+				<include name="jcommon-1.0.16.jar" />
+				<include name="jfreechart-1.0.13.jar" />
+				<include name="jmathplot.jar" />
+				<include name="antlr-runtime-4.5.3.jar" />
+				<include name="nico-camargo-toolbar-icons-4.0.jar" />
+				<include name="vstaricon.png" />
 			</zipfileset>
 			<zipfileset file="VStar.sh" prefix="vstar" filemode="755" />
 			<zipfileset dir="data" prefix="vstar/data" />
@@ -166,11 +170,15 @@
 		<zip destfile="vstar-win32.zip">
 			<zipfileset dir="${dist}" prefix="vstar/dist" />
 			<zipfileset dir="${extlib}" prefix="vstar/extlib">
-				<exclude name="appbundler*" />
-				<exclude name="cobertura*" />
-				<exclude name="cobertura*/**" />
-				<exclude name="junit*" />
-				<exclude name="antlr-4.5.3-complete*"/>
+				<include name="vstar.jar" />
+				<include name="commons-math-2.2.jar" />
+				<include name="javacsv.jar" />
+				<include name="jcommon-1.0.16.jar" />
+				<include name="jfreechart-1.0.13.jar" />
+				<include name="jmathplot.jar" />
+				<include name="antlr-runtime-4.5.3.jar" />
+				<include name="nico-camargo-toolbar-icons-4.0.jar" />
+				<include name="vstaricon.png" />
 			</zipfileset>
 			<zipfileset file="${install_files}/VStar.exe" prefix="vstar" />
 			<zipfileset file="${install_files}/VStar.bat" prefix="vstar" />
