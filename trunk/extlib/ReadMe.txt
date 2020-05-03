@@ -2,7 +2,7 @@ VStar is reliant upon a number of freely available open source libraries that
 are distributed as Java archive files ("jar" files) and are described below.
 
 The following libraries must (and should already be) be present in the 
-current directory (./extlib) for VStar to function. The list of jar files
+current directory (extlib) for VStar to function. The list of jar files
 is given below, along with the web address from which to obtain the source 
 code.
 
@@ -22,6 +22,7 @@ code.
     https://sourceforge.net/projects/javacsv/
          
   o antlr-runtime-4.5.3.jar
+  o antlr-4.5.3-complete.jar
     http://www.antlr.org
     
   o nico-camargo-toolbar-icons-4.0.jar
@@ -69,20 +70,13 @@ If you are a developer who wishes to contribute toward coding or
 testing VStar, the following libraries must be downloaded for unit 
 testing purposes:
 
- - JUnit 3.8.2:
-     o http://www.junit.org/
-     o junit.jar
+ - JUnit
      o Unit test framework
+     o junit-4.13-rc-2.jar
+     o hamcrest-core-1.3.jar 
+     o http://www.junit.org
           
  - Cobertura 1.9.3:
-     o http://cobertura.sourceforge.net/
+     o http://cobertura.sourceforge.net
      o Unpack the cobertura-1.9.3 archive into the extlib directory.
      o This is used in build-dev.xml for code coverage.
-
-- ANTLR4
-     o http://www.antlr.org
-     o antlr-4.5.3-complete.jar
-     o ANother Tool for Language Recognition.
-     o This is used to generate Java source from
-       a lexer and parser grammar for the VeLa
-       domain specific language.
