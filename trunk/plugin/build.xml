@@ -52,7 +52,6 @@
 		<jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="**/KeplerFITSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.MagnitudeBaselineShifter.jar" basedir="${build.classes}" includes="**/MagnitudeBaselineShifter**.class" />
 		<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class" />
-		<jar jarfile="${dist}/${pkg}.MinimumScatterPeriodFinder.jar" basedir="${build.classes}" includes="**/MinimumScatterPeriodFinder**.class" />
 		<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.ObserverListFilter.jar" basedir="${build.classes}" includes="**/ObserverListFilter**.class" />
 		<jar jarfile="${dist}/${pkg}.ObserversBySeries.jar" basedir="${build.classes}" includes="**/ObserversBySeries**.class" />
@@ -64,6 +63,7 @@
 		<jar jarfile="${dist}/${pkg}.DifferentialPhotometry.jar" basedir="${build.classes}" includes="**/DifferentialPhotometry**.class" />
 		<jar jarfile="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/IRISAutomaticPhotometryObservationSource**.class" />
    		<jar jarfile="${dist}/${pkg}.MagnitudeShiftTool.jar" basedir="${build.classes}" includes="**/MagnitudeShiftTool**.class"/>
+		<jar jarfile="${dist}/${pkg}.MinimumScatterPeriodFinder.jar" basedir="${build.classes}" includes="**/MinimumScatterPeriodFinder**.class" />
 		<jar jarfile="${dist}/${pkg}.VSOLJObservationSource.jar" basedir="${build.classes}" includes="**/VSOLJObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.VSPChartInfoRetriever.jar" basedir="${build.classes}" includes="**/VSPChartInfoRetriever**.class" />
 		-->
@@ -105,7 +105,6 @@
 		<copy file="${dist}/${pkg}.KeplerFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MagnitudeBaselineShifter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.MinimumScatterPeriodFinder.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.NSVSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ObserverListFilter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.ObserversBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -116,6 +115,7 @@
 		<!--
 		<copy file="${dist}/${pkg}.DifferentialPhotometry.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.MinimumScatterPeriodFinder.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VSPChartInfoRetriever.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		-->		
 		<copy file="lib/tamfits.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
@@ -141,7 +141,6 @@
 		<echo file="${plugins_list_file}" message="${pkg}.KeplerFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MagnitudeBaselineShifter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.MinimumScatterPeriodFinder.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ObserverListFilter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.ObserversBySeries.jar${line.separator}" append="true" />
@@ -152,6 +151,7 @@
 		<!--
 		<echo file="${plugins_list_file}" message="${pkg}.DifferentialPhotometry.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.IRISAutomaticPhotometryObservationSource.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.MinimumScatterPeriodFinder.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VSPChartInfoRetriever.jar${line.separator}" append="true" />
 		-->
 		
