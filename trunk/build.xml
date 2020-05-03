@@ -163,11 +163,11 @@
 		</zip>
 	</target>
 
-	<target name="win32" depends="dist" description="Create a standalone distribution archive for Win32">
+	<target name="win" depends="dist" description="Create a standalone distribution archive for Win32">
 		<!--
 		<launch4j configFile="${install_files}/vstar-launch4j.xml" />
 		-->
-		<zip destfile="vstar-win32.zip">
+		<zip destfile="vstar-win.zip">
 			<zipfileset dir="${dist}" prefix="vstar/dist" />
 			<zipfileset dir="${extlib}" prefix="vstar/extlib">
 				<include name="vstar.jar" />
