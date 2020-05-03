@@ -53,11 +53,11 @@ Key Changes:
   o Alternative web service CSV usage allowing band subset
   o Observer code subset
   o Handling minimal fields option
-  o Star selector dialog and UT additions
+  o Star selector dialog additions
   o Increasing heap range in launch scripts and JNLP
   o Making a distinction between all times and all bands for all times
-  o Changed all times French locale string
-  o Increased obs batch size
+  o Changed "all times" French locale string
+  o Increased observations batch size
   o MType fix
   o Thanks to Patrick Wills for AID VSX web service functionality enhancements
     and others at HQ notably Bert and Sara for putting up with me bothering 
@@ -65,12 +65,10 @@ Key Changes:
 - Improvements to load from AID: band selection, remembering last star entered.
 - Last star entered in AID load dialog is remembered between dialog 
   invocations.
-- #585 AoV: possible problem dropping scan results early in the range
 - Added support for running a script from the command-line via --script option
 - #645 Polynomial fit extrema determination exception
 - VeLa
   o Implemented "is" binding (e.g. meaning_of_life is 42); cannot be re-bound
-  o Model creator plugin and example piecewise linear model
   o #632 Add Reset button to VeLa dialog to reset interpreter
   o #571 VeLa filter parse errors
   o #615 Observation list VeLa search
@@ -91,17 +89,14 @@ Key Changes:
 - #689 Allow VeLa filter for observation source plugins
 - Updates to undoable edit code to support observation transformation plugins 
   (plot, table updates)
-- Magnitude baseline shifter plugin (an observation transformation plugin)
-- Generalised series selection UI code to support observation transformation 
-  plugins.
-- Observation baseline shifter and VeLa observation transformer plugins
+- Magnitude baseline shifter and VeLa observation transformer plugins
 - Support for model creation and polyfit in VStar scripting API
 - Deprecated getFiles() in ObservationSourcePluginBase
 - #658 DoubleField.getValue() should catch VeLaParseError and VeLaEvalError
 - #660 Some cached ValidObservation data members are mutable!
 - #659 IntegerField.getValue() should use VeLa to convert textual input to 
   number
-- #631 Latest Mac Java leaves dialogs behind main window when opened
+- #631 Latest Java leaves dialogs behind main window when opened
 - Support for SkyPatrol and ASAS-SN photometry database CSV by Maksym 
   Pyatnytskyy (Max) 
 - #661 VStar does not close input streams after reading data (found by Max)
