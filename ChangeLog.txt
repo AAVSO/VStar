@@ -139,6 +139,7 @@ Key Changes:
   in file menu or file/URL plugins appear in file chooser; currently takes effect 
   after restart of VStar
 - Kepler plugin extended to handle TESS (Cliff, Max)
+- About Box text update to include more credits.
 - Thank to numerous people for bug reports and encouragement.
 
 Date: May 27 2018
