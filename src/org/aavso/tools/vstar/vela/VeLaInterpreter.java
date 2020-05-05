@@ -56,6 +56,33 @@ import org.antlr.v4.runtime.ParserRuleContext;
  */
 public class VeLaInterpreter {
 
+	private static List<FunctionExecutor> javaClassFunctionExecutors;
+
+	static {
+		// Collect functions from reflection over Java classes
+		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
+		permittedTypes.add(int.class);
+		permittedTypes.add(double.class);
+		permittedTypes.add(boolean.class);
+		permittedTypes.add(String.class);
+		permittedTypes.add(CharSequence.class);
+		permittedTypes.add(void.class);
+		permittedTypes.add(Type.DBL_ARR.getClass());
+		permittedTypes.add(VStarScriptingAPI.class);
+
+		javaClassFunctionExecutors = new ArrayList<FunctionExecutor>();
+
+		addFunctionExecutorsFromClass(Math.class, null, permittedTypes,
+				Collections.emptySet());
+
+		addFunctionExecutorsFromClass(String.class, null, permittedTypes,
+				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
+
+		addFunctionExecutorsFromClass(VStarScriptingAPI.class,
+				VStarScriptingAPI.getInstance(), permittedTypes,
+				Collections.emptySet());
+	}
+
 	private boolean verbose;
 
 	private List<File> sourceDirectories;
@@ -1255,26 +1282,13 @@ public class VeLaInterpreter {
 			addListReduceFunction(type);
 		}
 
-		// Functions from reflection over Math and String classes.
-		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
-		permittedTypes.add(int.class);
-		permittedTypes.add(double.class);
-		permittedTypes.add(boolean.class);
-		permittedTypes.add(String.class);
-		permittedTypes.add(CharSequence.class);
-		permittedTypes.add(void.class);
-		permittedTypes.add(Type.DBL_ARR.getClass());
-		permittedTypes.add(VStarScriptingAPI.class);
-
-		addFunctionExecutorsFromClass(Math.class, null, permittedTypes,
-				Collections.emptySet());
-
-		addFunctionExecutorsFromClass(String.class, null, permittedTypes,
-				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
-
-		addFunctionExecutorsFromClass(VStarScriptingAPI.class,
-				VStarScriptingAPI.getInstance(), permittedTypes,
-				Collections.emptySet());
+		// Collect functions from reflection over Java classes
+		for (FunctionExecutor function : javaClassFunctionExecutors) {
+			addFunctionExecutor(function);
+			if (verbose && function != null) {
+				System.out.println(function.toString());
+			}
+		}
 	}
 
 	private void addEval() {
@@ -1734,8 +1748,9 @@ public class VeLaInterpreter {
 	 * @param exclusions
 	 *            Names of functions to exclude.
 	 */
-	public void addFunctionExecutorsFromClass(Class<?> clazz, Object instance,
-			Set<Class<?>> permittedTypes, Set<String> exclusions) {
+	public static void addFunctionExecutorsFromClass(Class<?> clazz,
+			Object instance, Set<Class<?>> permittedTypes,
+			Set<String> exclusions) {
 		Method[] declaredMethods = clazz.getDeclaredMethods();
 
 		for (Method declaredMethod : declaredMethods) {
@@ -1774,16 +1789,13 @@ public class VeLaInterpreter {
 					}
 				};
 
-				addFunctionExecutor(function);
-				if (verbose && function != null) {
-					System.out.println(function.toString());
-				}
+				javaClassFunctionExecutors.add(function);
 			}
 		}
 	}
 
-	private Optional<Operand> invokeJavaMethod(Method method, Object instance,
-			List<Operand> operands, Optional<Type> retType) {
+	private static Optional<Operand> invokeJavaMethod(Method method,
+			Object instance, List<Operand> operands, Optional<Type> retType) {
 		Operand result = null;
 
 		try {
