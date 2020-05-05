@@ -215,12 +215,12 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		 */
 		private void findBandVObsPairs(Double tolerance) {
 
-			Mediator mediator = Mediator.getInstance();
-
-			ObservationPlotModel model = mediator
-					.getObservationPlotModel(AnalysisType.RAW_DATA);
-
 			try {
+				Mediator mediator = Mediator.getInstance();
+
+				ObservationPlotModel model = mediator
+						.getObservationPlotModel(AnalysisType.RAW_DATA);
+
 				// Get all B and V observations into a sorted sequence.
 				List<ValidObservation> bObs = model
 						.getObservations(SeriesType.Johnson_B);
