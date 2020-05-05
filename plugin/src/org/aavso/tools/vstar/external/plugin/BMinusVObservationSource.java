@@ -54,7 +54,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 	private SeriesType bvSeries;
 	private Pair<TextArea, JPanel> velaFilterFieldAndPanel;
 	private TextArea velaFilterField;
-	
+
 	public BMinusVObservationSource() {
 		super();
 		isAdditive = true;
@@ -123,7 +123,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 	class BMinusVRetriever extends AbstractObservationRetriever {
 
 		private Optional<Double> tolerance;
-		
+
 		private List<ValidObservation> b;
 		private List<ValidObservation> v;
 
@@ -131,8 +131,9 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 
 		public BMinusVRetriever(Optional<Double> tolerance) {
 			super(getVelaFilterStr());
+			this.tolerance = tolerance;
 		}
-		
+
 		@Override
 		public Integer getNumberOfRecords() throws ObservationReadError {
 			if (tolerance.isPresent()) {
@@ -151,7 +152,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
 
-			if (records > 0) {
+			if (records != null && records > 0) {
 				for (int i = 0; i < records; i++) {
 					double deltaMag = b.get(i).getMag() - v.get(i).getMag();
 					double meanError = (b.get(i).getMagnitude()
@@ -219,75 +220,86 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 			ObservationPlotModel model = mediator
 					.getObservationPlotModel(AnalysisType.RAW_DATA);
 
-			// Get all B and V observations into a sorted sequence.
-			List<ValidObservation> bObs = model
-					.getObservations(SeriesType.Johnson_B);
+			try {
+				// Get all B and V observations into a sorted sequence.
+				List<ValidObservation> bObs = model
+						.getObservations(SeriesType.Johnson_B);
 
-			List<ValidObservation> vObs = model
-					.getObservations(SeriesType.Johnson_V);
+				List<ValidObservation> vObs = model
+						.getObservations(SeriesType.Johnson_V);
 
-			List<ValidObservation> bAndVObs = new ArrayList<ValidObservation>();
+				List<ValidObservation> bAndVObs = new ArrayList<ValidObservation>();
 
-			bAndVObs.addAll(bObs);
-			bAndVObs.addAll(vObs);
-			bAndVObs.sort(JDComparator.instance);
+				bAndVObs.addAll(bObs);
+				bAndVObs.addAll(vObs);
+				bAndVObs.sort(JDComparator.instance);
 
-			// Look for B and V pairs (with the same non-null observer code) and
-			// select that subset, e.g.
-			// V,V,V,V,V,V,B,B,V,B,V,V,V,B,B,V has the pairs-wise subset:
-			// V,B,B,V,B,V, V,B,B,V
-			List<ValidObservation> bAndVObsSubset = new ArrayList<ValidObservation>();
+				// Look for B and V pairs (with the same non-null observer code)
+				// and
+				// select that subset, e.g.
+				// V,V,V,V,V,V,B,B,V,B,V,V,V,B,B,V has the pairs-wise subset:
+				// V,B,B,V,B,V, V,B,B,V
+				List<ValidObservation> bAndVObsSubset = new ArrayList<ValidObservation>();
 
-			int i = 0;
-			// The stopping condition of the iteration over B,V observations is
-			// two short of the end of the collection, since we examine the next
-			// two observations.
-			while (i < bAndVObs.size() - 1) {
-				ValidObservation first = bAndVObs.get(i);
-				ValidObservation second = bAndVObs.get(i + 1);
+				int i = 0;
+				// The stopping condition of the iteration over B,V observations
+				// is
+				// two short of the end of the collection, since we examine the
+				// next
+				// two observations.
+				while (i < bAndVObs.size() - 1) {
+					ValidObservation first = bAndVObs.get(i);
+					ValidObservation second = bAndVObs.get(i + 1);
 
-				if ((first.getBand() == SeriesType.Johnson_B && second
-						.getBand() == SeriesType.Johnson_V)
-						|| (first.getBand() == SeriesType.Johnson_V && second
-								.getBand() == SeriesType.Johnson_B)) {
+					if ((first.getBand() == SeriesType.Johnson_B && second
+							.getBand() == SeriesType.Johnson_V)
+							|| (first.getBand() == SeriesType.Johnson_V && second
+									.getBand() == SeriesType.Johnson_B)) {
 
-					if (first.getObsCode() != null
-							&& second.getObsCode() != null
-							&& first.getObsCode().equals(second.getObsCode())) {
+						if (first.getObsCode() != null
+								&& second.getObsCode() != null
+								&& first.getObsCode().equals(
+										second.getObsCode())) {
 
-						double delta = second.getJD() - first.getJD();
-						if (tolerance == null || delta <= tolerance) {
-							// We found a B,V or V,B pair with same observer
-							// code and within the time tolerance requested.
-							bAndVObsSubset.add(first);
-							bAndVObsSubset.add(second);
+							double delta = second.getJD() - first.getJD();
+							if (tolerance == null || delta <= tolerance) {
+								// We found a B,V or V,B pair with same observer
+								// code and within the time tolerance requested.
+								bAndVObsSubset.add(first);
+								bAndVObsSubset.add(second);
+							}
+
+							// Whether the pair was within the time tolerance or
+							// not, we need to move onto the next pair, skipping
+							// the current pair.
+							i += 2;
+							continue;
 						}
+					}
 
-						// Whether the pair was within the time tolerance or
-						// not, we need to move onto the next pair, skipping
-						// the current pair.
-						i += 2;
-						continue;
+					// We either didn't find a B,V or V,B pair or we found a
+					// pair
+					// whose members have different observer codes. Either way,
+					// we
+					// advance past the first of the pair only, since the second
+					// and
+					// subsequent observation may constitute a pair of interest.
+					i++;
+				}
+
+				// Separate B and V pairs.
+				b = new ArrayList<ValidObservation>();
+				v = new ArrayList<ValidObservation>();
+
+				for (ValidObservation ob : bAndVObsSubset) {
+					if (ob.getBand() == SeriesType.Johnson_B) {
+						b.add(ob);
+					} else {
+						v.add(ob);
 					}
 				}
-
-				// We either didn't find a B,V or V,B pair or we found a pair
-				// whose members have different observer codes. Either way, we
-				// advance past the first of the pair only, since the second and
-				// subsequent observation may constitute a pair of interest.
-				i++;
-			}
-
-			// Separate B and V pairs.
-			b = new ArrayList<ValidObservation>();
-			v = new ArrayList<ValidObservation>();
-
-			for (ValidObservation ob : bAndVObsSubset) {
-				if (ob.getBand() == SeriesType.Johnson_B) {
-					b.add(ob);
-				} else {
-					v.add(ob);
-				}
+			} catch (Throwable t) {
+				// b or v may be null; the caller needs to check
 			}
 		}
 	}
