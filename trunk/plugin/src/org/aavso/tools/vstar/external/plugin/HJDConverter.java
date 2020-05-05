@@ -70,17 +70,19 @@ public class HJDConverter extends ObservationToolPluginBase {
 				Pair<RAInfo, DecInfo> coords = getCoordinates(
 						retriever.getStarInfo(), lastCoordsFound);
 
-				retriever.setHeliocentric(true);
+				if (coords != null) {
+					retriever.setHeliocentric(true);
 
-				count += Mediator.getInstance().convertObsToHJD(
-						retriever.getValidObservations(), coords.first,
-						coords.second);
+					count += Mediator.getInstance().convertObsToHJD(
+							retriever.getValidObservations(), coords.first,
+							coords.second);
 
-				lastCoordsFound = coords;
+					lastCoordsFound = coords;
+				}
 			}
 		}
 
-		if (retrievers.size() != 0) {
+		if (retrievers.size() != 0 && count != 0) {
 			MessageBox.showMessageDialog("HJD Conversion",
 					String.format("%d observations converted.", count));
 		}
@@ -101,6 +103,7 @@ public class HJDConverter extends ObservationToolPluginBase {
 
 		for (AbstractObservationRetriever retriever : retrievers) {
 			if (!retriever.isHeliocentric() && !retriever.isBarycentric()) {
+				StarInfo si = retriever.getStarInfo();
 				String name = retriever.getSourceType() + ": "
 						+ retriever.getStarInfo().getDesignation();
 				checkboxes.add(new Checkbox(name, false));
