@@ -95,7 +95,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 
 		do {
 			DoubleField timeToleranceField = new DoubleField(
-					"Tolerance (>0 days)", null, 1.0, 1.0);
+					"Tolerance (days)", null, 1.0, 1.0);
 
 			List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
 			fields.add(timeToleranceField);
