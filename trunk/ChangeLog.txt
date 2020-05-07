@@ -33,6 +33,20 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: May 7 2020
+Version: 2.21.1
+Tag: DEV-AAVSO-07May2020
+Key Changes:
+- #699 B-V plug-in seems to be broken in 2.21.0 (null tolerance)
+- #700 B-V plug-in should check if any observations are loaded
+- #701 Many plug-ins fail with webstart (JNLP) in 2.21.0 (particular
+  VeLa Java reflection API usage which failed with webstart launch)
+- #702 HJD converter plug-in fails to allow datasets to be selected 
+  after cancellation
+- #703 Index out of bounds error from HJD converter in presence of B-V 
+  observations (now checking for non-zero observations)
+- #704 B-V Tolerance (>0..1 day) title could be more clear
+
 Date: May 3 2020
 Version: 2.21.0
 Tag: DEV-AAVSO-03May2020
