@@ -102,10 +102,14 @@ public class HJDConverter extends ObservationToolPluginBase {
 		Map<String, AbstractObservationRetriever> name2retriever = new HashMap<String, AbstractObservationRetriever>();
 
 		for (AbstractObservationRetriever retriever : retrievers) {
-			if (!retriever.isHeliocentric() && !retriever.isBarycentric()) {
-				StarInfo si = retriever.getStarInfo();
-				String name = retriever.getSourceType() + ": "
-						+ retriever.getStarInfo().getDesignation();
+			if (!retriever.getValidObservations().isEmpty()
+					&& !retriever.isHeliocentric()
+					&& !retriever.isBarycentric()) {
+				String name = retriever.getSourceType();
+				String designation = retriever.getStarInfo().getDesignation();
+				if (!name.equals(designation)) {
+					name = name + ": " + designation;
+				}
 				checkboxes.add(new Checkbox(name, false));
 				name2retriever.put(name, retriever);
 			}
