@@ -63,7 +63,7 @@ public class ResourceAccessor {
 			if (url == null) {
 				// Otherwise, look in resources dir under ui (e.g. if running
 				// from Eclipse, not from a distribution of vstar.jar).
-				url = ResourceAccessor.class.getResource("resources/" + urlStr);
+				url = ResourceAccessor.class.getResource(urlStr.substring(1));
 			}
 
 			if (url != null) {
@@ -93,7 +93,7 @@ public class ResourceAccessor {
 			if (url == null) {
 				// Otherwise, look in resources dir under ui (e.g. if running
 				// from Eclipse, not from a distribution of vstar.jar).
-				url = ResourceAccessor.class.getResource("resources/" + urlStr);
+				url = ResourceAccessor.class.getResource(urlStr.substring(1));
 			}
 
 			if (url != null) {
@@ -128,7 +128,7 @@ public class ResourceAccessor {
 			// Otherwise, look in resources dir under ui (e.g. if running
 			// from Eclipse, not from a distribution of vstar.jar).
 			url = ResourceAccessor.class
-					.getResource("resources/help/html/HelpContents.html");
+					.getResource("help/html/HelpContents.html");
 		}
 
 		return url;
