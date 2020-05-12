@@ -111,8 +111,8 @@ public class PluginManagementDialog extends JDialog implements
 		}
 
 		pluginList = new JList(pluginListModel);
-		pluginList
-				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		// PluginManager can install/delete one plugin at once so multiply selection is useless and may confuse
+		pluginList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION/*.SINGLE_INTERVAL_SELECTION*/);
 		pluginList.addListSelectionListener(this);
 		JScrollPane modelListScroller = new JScrollPane(pluginList);
 
