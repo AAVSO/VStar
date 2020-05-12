@@ -83,10 +83,12 @@ Key Changes:
 - #645 Polynomial fit extrema determination exception
 - VeLa
   o Implemented "is" binding (e.g. meaning_of_life is 42); cannot be re-bound
-  o #632 Add Reset button to VeLa dialog to reset interpreter
+  o #632 Add Reset button to VeLa dialog to reset interpreter (each Run button
+    click does this now)
   o #571 VeLa filter parse errors
   o #615 Observation list VeLa search
   o #647 VeLa dialogs need Load script button
+  o #679 VeLa function lookup order (corrected)
   o Improvements to VeLa dialog
   o Added handling of double arrays as lists in VeLa
   o Added seq function
@@ -96,10 +98,13 @@ Key Changes:
   in function
 - #634 Use CSV response method for AID web service obs source plugin
 - #648 Pan right button tool-tip is wrong
+- #649 Julian Date column in observation list should indicate JD (now "Time")
 - #654 File opened if cancel clicked
 - #660 Some cached ValidObservation data members mutable
 - #662 File -> Save,Print,Info give errors when no observations loaded
 - #663 Create an observation transformation plugin category
+- #674 UTF byte order mark in AAVSO Upload file prevents #TYPE being 
+  recognised
 - #689 Allow VeLa filter for observation source plugins
 - Updates to undoable edit code to support observation transformation plugins 
   (plot, table updates)
@@ -134,6 +139,7 @@ Key Changes:
   title to always show "Time"; fixed problem in which BJD was not showing in
   observation details dialog for barycentric observations; changed the HJD 
   converter plugin to exclude Barycentric datasets
+- #685 Change y-axis in DCDFT amplitude vs period/frequency to semi-amplitude
 - Improvements to extrema determination
 - Gaia observation source plugin. (Cliff Kotnik)
 - Added star name to all observations sources so that if observations are 
