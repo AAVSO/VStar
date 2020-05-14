@@ -54,6 +54,8 @@
 		<!-- Create the build directory structure used by compile and test. -->
 		<mkdir dir="${src_build}" />
 		<mkdir dir="${src_build_debug}" />
+		<mkdir dir="${dist}" />
+		<mkdir dir="${dist_debug}" />
 		<mkdir dir="${test_build}" />
 		<mkdir dir="${test_report}" />
 		<mkdir dir="${dist_mac}" />
@@ -96,8 +98,6 @@
 			<classpath refid="build.classpath" />
 		</javac>
 
-		<mkdir dir="${dist_debug}" />
-
 		<jar jarfile="${dist_debug}/vstar.jar" basedir="${src_build_debug}" manifest="${manifest_file}" excludes="**/external/plugin/*.class">
 			<fileset dir="${ui_resources}" />
 		</jar>
@@ -124,8 +124,6 @@
 	</target>
 
 	<target name="dist" depends="compile_src, manifest" description="Generate the distribution">
-		<mkdir dir="${dist}" />
-
 		<jar jarfile="${dist}/vstar.jar" basedir="${src_build}" manifest="${manifest_file}" excludes="**/external/plugin/*.class">
 			<fileset dir="${ui_resources}" />
 		</jar>
