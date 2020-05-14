@@ -28,8 +28,9 @@
 	<property name="javadoc" location="doc/vstar_docs" />
 
 	<!-- Task definitions -->
-
+<!--
 	<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${extlib}/appbundler-1.0.jar" />
+-->
 	<!--
 	<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j_dir}/launch4j.jar
 	        :${launch4j_dir}/lib/xstream.jar" />
