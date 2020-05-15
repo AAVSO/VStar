@@ -28,7 +28,7 @@
 	<property name="javadoc" location="doc/vstar_docs" />
 
 	<!-- Task definitions -->
-<!--
+	<!--
 	<taskdef name="bundleapp" classname="com.oracle.appbundler.AppBundlerTask" classpath="${extlib}/appbundler-1.0.jar" />
 -->
 	<!--
@@ -38,7 +38,7 @@
 	<!-- Classpaths -->
 
 	<path id="build.classpath">
-		<fileset dir="${extlib}" includes="*.jar" excludes="junit*.jar"/>
+		<fileset dir="${extlib}" includes="*.jar" excludes="junit*.jar" />
 	</path>
 
 	<path id="test.classpath">
@@ -46,7 +46,7 @@
 		<pathelement location="${dist}/vstar.jar" />
 		<pathelement path="${test_build}" />
 	</path>
-	
+
 	<target name="init">
 		<!-- Create the time stamp -->
 		<tstamp />
@@ -343,6 +343,9 @@
 				<fileset dir="${test}">
 					<include name="**/*Test.java" />
 				</fileset>
+				<fileset dir="${plugin}/test">
+					<include name="**/Test.java" />
+				</fileset>
 			</batchtest>
 
 			<classpath refid="test.classpath" />
@@ -364,6 +367,17 @@
 				</linecontains>
 			</filterchain>
 		</concat>
+
+		<!-- Exit with status 1 if there were UT failures or errors. -->
+
+		<fileset id="build.failures" file="${test_report}/summary.txt">
+			<containsregexp expression="Errors|Failures: [123456789]+" />
+		</fileset>
+		<fail status="1" message="One or more failures detected">
+			<condition>
+				<resourcecount when="greater" count="0" refid="build.failures" />
+			</condition>
+		</fail>
 	</target>
 
 	<!-- Documentation targets -->
