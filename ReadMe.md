@@ -9,11 +9,14 @@ VStar can load observation data from files or the AAVSO International
 Database, display interactive light curves and phase plots, and perform period 
 analysis.
 
-Plug-ins allow VStar's functionality to be extended.
+(Plug-ins)[https://www.aavso.org/vstar-plugin-library] allow VStar's functionality to be extended.
 
 ### Installation
 In order to run VStar, you need to have version 1.8 or higher of the Java 
-runtime installed on your computer. For Oracle Java Runtime Environments, see https://www.oracle.com/java/technologies/javase-jre8-downloads.html or for Amazon Corretto as an alternative, see https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html
+runtime installed on your computer. For more, see:
+
+* (Oracle)[https://www.oracle.com/java/technologies/javase-jre8-downloads.html] or 
+* (Amazon Corretto)[https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html]
 
 The dist directory contains the latest vstar.jar built from source so you
 don't have to build it (see below).
@@ -59,7 +62,9 @@ To open a data file in VStar:
 2. Navigate to the data directory via the file dialog.
 3. Choose a file, e.g. "eps_aur_2445000.csv".
    and plot views.
-  
+
+For more complete documentation, see the (VStar User Manual)[https://github.com/AAVSO/VStar/blob/master/doc/user_manual/VStarUserManual.pdf].
+
 ### Building from source
 This section is of interest to developers rather than VStar users. 
 
