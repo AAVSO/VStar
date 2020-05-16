@@ -17,7 +17,7 @@
  */
 package org.aavso.tools.vstar.input.database;
 
-import java.net.URL;
+import java.io.FileInputStream;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -137,10 +137,11 @@ public class VSXWebServiceAIDObservationReaderTestBase extends TestCase {
 	// Check that a file containing a non UTF-8 character (so not XML 1.0
 	// compliant) can be filtered out.
 	public void testNonUTF8Char() throws Exception {
-		URL url = VSXWebServiceAIDObservationReaderTestBase.class
-				.getResource("xcrb.xml");
+		String xcrbPath = "test/org/aavso/tools/vstar/input/database/xcrb.xml";
+		FileInputStream xcrbIn = new FileInputStream(xcrbPath);
+
 		UTF8FilteringInputStream reader = new UTF8FilteringInputStream(
-				url.openStream());
+				xcrbIn);
 
 		int b;
 		int count = 0;
