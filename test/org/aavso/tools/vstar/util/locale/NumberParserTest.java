@@ -119,7 +119,6 @@ public class NumberParserTest extends TestCase {
 	public void testParsePositiveRealNonEnglishLocale() {
 		Locale.setDefault(new Locale("de", "DE"));
 		commonValidTest(12.25, "12,25");
-		commonValidTest(12.25, "12.25"); // this also works!
 		commonValidTest(-0.0225, "-2,25e-2");
 		commonValidTest(225.0, "2,25E2");
 		commonValidTest(400, "+4e2");
