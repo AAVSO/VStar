@@ -125,7 +125,6 @@ public class AST {
 
 	public AST head() {
 		assert !isLeaf();
-		assert children.size() == 1;
 		return children.get(0);
 	}
 
