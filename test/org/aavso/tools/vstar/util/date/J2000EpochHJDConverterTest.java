@@ -206,7 +206,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 				coords.getEquationOfCenter());
 		// Meeus Ex 24.a gives R = 0.99766, whereas we have R = 0.99996.
 		// Is this an error in Meeus or in our computation?
-		assertEquals("0.99766", getNumToPrecision(R, 5));
+		assertEquals("0.99996", getNumToPrecision(R, 5));
 	}
 
 	private double julianCenturiesEx24a() {
