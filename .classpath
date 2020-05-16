@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="test"/>
+	<classpathentry excluding="build/" kind="src" path="test"/>
 	<classpathentry kind="src" path="extlib"/>
 	<classpathentry kind="src" path="plugin/lib"/>
 	<classpathentry kind="src" path="plugin/src"/>
