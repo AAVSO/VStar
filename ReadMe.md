@@ -1,9 +1,9 @@
-Introduction
-============
+## VStar
+
+### Introduction
 VStar is a visualisation and analysis tool for variable star observation data
 developed in collaboration with the American Association of Variable Star 
-Observers (http://www.aavso.org/) and the Citizen Sky project 
-(http://www.citizensky.org/).
+Observers (http://www.aavso.org/) and the Citizen Sky project.
 
 VStar can load observation data from files or the AAVSO International 
 Database, display interactive light curves and phase plots, and perform period 
@@ -11,31 +11,28 @@ analysis.
 
 Plug-ins allow VStar's functionality to be extended.
 
-Installation
-============
+### Installation
 In order to run VStar, you need to have version 1.8 or higher of the Java 
-runtime installed on your computer. See http://java.com/en/download/manual.jsp
+runtime installed on your computer. For Oracle Java Runtime Environments, see https://www.oracle.com/java/technologies/javase-jre8-downloads.html or for Amazon Corretto as an alternative, see https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html
 
 The dist directory contains the latest vstar.jar built from source so you
 don't have to build it (see below).
 
-The file extlib/ReadMe.txt details additional free Java libraries that are
+The file extlib/ReadMe.txt details additional Java libraries that are
 required (and should already be present as part of this distribution) to run
 VStar.
 
 The data directory contains sample variable star data files mostly taken
 from the AAVSO International Database.
 
-Running VStar 
-=============
+### Running VStar
 The easiest way to run the latest version of VStar is by clicking on the
 Java WebStart (TM) download button on the AAVSO web page Data tab (Data -> 
-Data Analysis) or the VStar SourceForge web site or the Citizen Sky VStar 
+Data Analysis) or the VStar GitHub web site or the Citizen Sky VStar 
 team page: 
 
  o http://www.aavso.org/vstar-overview
- o https://sourceforge.net/projects/vstar
- o http://www.citizensky.org/teams/vstar-software-development
+ o https://github.com/AAVSO/VStar
 
 The WebStart vstar.jnlp file can be saved (e.g. to the desktop) and used as an
 alternative to accessing VStar via the web site.
@@ -46,20 +43,16 @@ o Mac OS X: double-clicking the "VStar" launcher application.
 o Windows: double-clicking "VStar.exe" launcher application.
 o Linux (or other Unix variants or bash users): running the "VStar.sh" shell script.
 
-  Each of the foregoing options runs VStar with the same memory allocation 
-  parameters as for WebStart, permitting, for example, larger datasets 
-  to be loaded. For running VStar locally, this is the best method.
+Each of the foregoing options runs VStar with the same memory allocation 
+parameters as for WebStart, permitting, for example, larger datasets 
+to be loaded. For running VStar locally, this is the best method.
   
-Opening a data file in VStar
-============================
-If you obtained the VStar distribution via SourceForge, you will find a data
-folder containing sample datasets.
+### Opening a data file in VStar
+If you downloaded a VStar distribution, you will find a data folder containing sample datasets.
 
-If you started VStar via WebStart rather than obtaining the distribution
-via SourceForge, the latest example data files are available here:
+If you started VStar via WebStart instead, the latest example data files are available here:
 
-   https://sourceforge.net/projects/vstar/files/
-or http://vstar.svn.sourceforge.net/viewvc/vstar/trunk/data
+   https://github.com/AAVSO/VStar/tree/master/data
 
 To open a data file in VStar:
 
@@ -68,8 +61,7 @@ To open a data file in VStar:
 3. Choose a file, e.g. "eps_aur_2445000.csv".
    and plot views.
   
-Building from source
-====================
+### Building from source
 This section is of interest to developers rather than VStar users. 
 
 The file build.xml is an Ant file used for building a VStar distribution jar 
@@ -80,16 +72,14 @@ or higher is assumed. Type "ant -p" to see the options.
 The src directory contains the Java source code for the tool.
 
 The most recent version of the source code may be obtained from the VStar 
-SourceForge repository at http://vstar.svn.sourceforge.net
+GitHub repository at https://github.com/AAVSO/VStar
 
-Testing
-=======
+### Testing
 The test directory contains unit tests. For testing, JUnit 3.8.2 is 
 assumed (http://www.junit.org). This is of interest to developers only.
 See also extlib/ReadMe.txt for more about testing libraries.
 
-Licensing
-=========
+### Licensing
 VStar is licensed under the GNU Affero General Public License, version 3.
 See doc/license or http://www.gnu.org/licenses/agpl-3.0-standalone.html for
 details.
