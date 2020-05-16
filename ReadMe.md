@@ -9,7 +9,7 @@ VStar can load observation data from files or the AAVSO International
 Database, display interactive light curves and phase plots, and perform period 
 analysis.
 
-(Plug-ins)[https://www.aavso.org/vstar-plugin-library] allow VStar's functionality to be extended.
+[Plug-ins](https://www.aavso.org/vstar-plugin-library) allow VStar's functionality to be extended.
 
 ### Installation
 In order to run VStar, you need to have version 1.8 or higher of the Java 
