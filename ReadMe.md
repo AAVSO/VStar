@@ -31,17 +31,16 @@ Java WebStart (TM) download button on the AAVSO web page Data tab (Data ->
 Data Analysis) or the VStar GitHub web site or the Citizen Sky VStar 
 team page: 
 
- o http://www.aavso.org/vstar-overview
- o https://github.com/AAVSO/VStar
+* http://www.aavso.org/vstar-overview
+* https://github.com/AAVSO/VStar
 
 The WebStart vstar.jnlp file can be saved (e.g. to the desktop) and used as an
 alternative to accessing VStar via the web site.
 
 VStar can also be launched by one of the following methods:
-
-o Mac OS X: double-clicking the "VStar" launcher application.
-o Windows: double-clicking "VStar.exe" launcher application.
-o Linux (or other Unix variants or bash users): running the "VStar.sh" shell script.
+* Mac OS X: double-clicking the "VStar" launcher application.
+* Windows: double-clicking "VStar.exe" launcher application.
+* Linux (or other Unix variants or bash users): running the "VStar.sh" shell script.
 
 Each of the foregoing options runs VStar with the same memory allocation 
 parameters as for WebStart, permitting, for example, larger datasets 
