@@ -64,19 +64,11 @@ public class ASASObservationSourceTest extends TestCase {
 		Map<SeriesType, List<ValidObservation>> seriesMap = retriever
 				.getValidObservationCategoryMap();
 		
-		List<ValidObservation> asas1Obs = seriesMap.get(SeriesType
-				.getSeriesFromDescription("ASAS-1"));
-		assertEquals(1, asas1Obs.size());
+		List<ValidObservation> asasObs = seriesMap.get(SeriesType
+				.getSeriesFromDescription("Johnson V"));
+		assertEquals(792, asasObs.size());
 
-		List<ValidObservation> asas2Obs = seriesMap.get(SeriesType
-				.getSeriesFromDescription("ASAS-2"));
-		assertEquals(788, asas2Obs.size());
-
-		List<ValidObservation> asas3Obs = seriesMap.get(SeriesType
-				.getSeriesFromDescription("ASAS-3"));
-		assertEquals(3, asas3Obs.size());
-
-		ValidObservation ob = asas2Obs.get(0);
+		ValidObservation ob = asasObs.get(0);
 		assertEquals("195228+0100.5", ob.getDetail("DESIGNATION"));
 		assertEquals("12341", ob.getDetail("FRAME"));
 		assertEquals("B", ob.getDetail("CLASS"));
