@@ -347,7 +347,6 @@
                     <exclude name="**/PluginManagerTest"/>
                     <exclude name="**/NumberParserTest"/>
                     <exclude name="**/VeLaTest"/>
-                    <exclude name="**/"/>
 				</fileset>
 				<fileset dir="${plugin}/test">
 					<include name="**/Test.java" />
