@@ -15,7 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
+
 package org.aavso.tools.vstar.external.plugin;
+
+import java.util.Locale;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -23,13 +26,16 @@ import junit.framework.TestSuite;
 public class AllTests {
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite(
-				"Test for org.aavso.tools.vstar.external.plugin");
-		//$JUnit-BEGIN$
+		// Ensure no locale-related errors
+		Locale.setDefault(Locale.ENGLISH);
+
+		TestSuite suite = new TestSuite("Test suite for VStar plug-ins");
+
+		// $JUnit-BEGIN$
 		suite.addTestSuite(AAVSOUploadFileFormatObservationSourceTest.class);
 		suite.addTestSuite(ASASObservationSourceTest.class);
-		//$JUnit-END$
+		// $JUnit-END$
+		
 		return suite;
 	}
-
 }
