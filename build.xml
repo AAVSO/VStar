@@ -343,10 +343,10 @@
 				<fileset dir="${test}">
 					<include name="**/*Test.java" />
 					<exclude name="**/VSXWebServiceAID*ObservationReaderTest.java"/>
-					<exclude name="**/TextFormatObservationReaderTest"/>
-                    <exclude name="**/PluginManagerTest"/>
-                    <exclude name="**/NumberParserTest"/>
-                    <exclude name="**/VeLaTest"/>
+					<exclude name="**/TextFormatObservationReaderTest.java"/>
+                    <exclude name="**/PluginManagerTest.java"/>
+                    <exclude name="**/NumberParserTest.java"/>
+                    <exclude name="**/VeLaTest.java"/>
 				</fileset>
 				<fileset dir="${plugin}/test">
 					<include name="**/Test.java" />
