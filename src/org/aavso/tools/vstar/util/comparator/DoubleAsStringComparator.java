@@ -19,6 +19,8 @@ package org.aavso.tools.vstar.util.comparator;
 
 import java.util.Comparator;
 
+import org.aavso.tools.vstar.util.locale.NumberParser;
+
 /**
  * This class compares double values encoded as strings.
  */
@@ -26,7 +28,7 @@ public class DoubleAsStringComparator implements Comparator<String> {
 
 	@Override
 	public int compare(String mag1, String mag2) {
-		return Double.compare(Double.parseDouble(mag1),
-				Double.parseDouble(mag2));
+		return Double.compare(NumberParser.parseDouble(mag1),
+				NumberParser.parseDouble(mag2));
 	}
 }
