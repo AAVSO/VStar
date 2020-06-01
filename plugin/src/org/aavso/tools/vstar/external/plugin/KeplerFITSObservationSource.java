@@ -17,42 +17,37 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.Color;
+import java.awt.Container;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import java.awt.Color;
-import java.awt.Container;
-
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import nom.tam.fits.BasicHDU;
-import nom.tam.fits.ImageHDU;
-import nom.tam.fits.BinaryTableHDU;
-import nom.tam.fits.Fits;
-import nom.tam.fits.FitsException;
-
-import org.apache.commons.math.stat.descriptive.rank.Median;
-import java.lang.reflect.Method;
-
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.Observation;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-import org.aavso.tools.vstar.ui.mediator.StarInfo;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.apache.commons.math.stat.descriptive.rank.Median;
+
+import nom.tam.fits.BasicHDU;
+import nom.tam.fits.BinaryTableHDU;
+import nom.tam.fits.Fits;
+import nom.tam.fits.FitsException;
+import nom.tam.fits.ImageHDU;
 
 
 //12/02/2018 C. Kotnik added name to observations so they can be
@@ -171,6 +166,10 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 		private BasicHDU[] hdus = null;
 		
 		private String objName = null;
+		
+		public KeplerFITSObservationRetriever() {
+			super(getVelaFilterStr());
+		}
 
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
