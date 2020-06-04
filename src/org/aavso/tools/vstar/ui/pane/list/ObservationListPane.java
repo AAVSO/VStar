@@ -70,6 +70,8 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * observation data, including one or both of valid and invalid observation
  * data. If both are present, they are rendered as tables in a vertical split
  * pane. Otherwise, a single table will appear.
+ * 
+ * CLKotnik perhaps add JD/HJD/BJD column?
  */
 @SuppressWarnings("serial")
 public class ObservationListPane extends JPanel implements
