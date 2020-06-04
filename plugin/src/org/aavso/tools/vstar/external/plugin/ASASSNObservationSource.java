@@ -172,7 +172,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 		// Dialog moved from retrieveObservations() where it invoked from non-UI thread
 		// to this more natural place.
 		// No annoying "No observations for the specified period" messages.
-		System.out.println(Thread.currentThread().getId());
+		//System.out.println(Thread.currentThread().getId());
 		ASASSNParameterDialog paramDialog = new ASASSNParameterDialog();
 		if (paramDialog.isCancelled()) {
 			// It seems it is safe to return null here.
