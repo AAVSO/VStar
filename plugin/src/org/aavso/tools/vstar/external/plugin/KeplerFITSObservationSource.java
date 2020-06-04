@@ -156,6 +156,15 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
+		// Dialog moved from retrieveObservations() where it invoked from non-UI thread
+		// to this more natural place.
+		// No annoying "No observations for the specified period" messages.
+		FITSParameterDialog paramDialog = new FITSParameterDialog();
+		if (paramDialog.isCancelled()) {
+			// It seems it is safe to return null here.
+			return null;
+		}
+		loadRaw = paramDialog.getLoadRaw();
 		return new KeplerFITSObservationRetriever();
 	}
 
@@ -172,15 +181,17 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 		
 		private String objName = null;
 
+		/**
+		 * Constructor
+		 */
+		public KeplerFITSObservationRetriever()
+		{
+			super(getVelaFilterStr());
+		}
+
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
-					
-			FITSParameterDialog paramDialog = new FITSParameterDialog();
-			if (paramDialog.isCancelled()) return;
-
-			loadRaw = paramDialog.getLoadRaw();
-				
 			setBarycentric(true);
 			try {
 				// BasicHDU initialization moved to getNumberOfRecords
