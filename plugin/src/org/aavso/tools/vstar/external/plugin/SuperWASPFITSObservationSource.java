@@ -57,6 +57,8 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase {
 
 	private SeriesType superWaspSeries;
+	
+	double magErrThreshold = 0.05;
 
 	public SuperWASPFITSObservationSource() {
 		super();
@@ -83,6 +85,16 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
+		// Dialog moved from collectObservations() where it invoked from non-UI thread
+		// to this more natural place.
+		// No annoying "No observations for the specified period" messages.
+		MagErrorSelectionDialog magErrThresholdDialog = new MagErrorSelectionDialog(
+				0.01, 99.0, 0.01, magErrThreshold);
+		if (magErrThresholdDialog.isCancelled()) {
+			// It seems it is safe to return null here.
+			return null;
+		};
+		magErrThreshold = magErrThresholdDialog.getValue();
 		return new FITSObservationRetriever();
 	}
 
@@ -212,15 +224,9 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 		private void collectObservations(List<ValidObservation> obs,
 				double minMagErr, double maxMagErr) throws ObservationReadError {
 
-			double magErrThreshold;
-			magErrThreshold = (maxMagErr + minMagErr) / 2;
+			//magErrThreshold = (maxMagErr + minMagErr) / 2;
 
-			double magErrIncrement = (maxMagErr - minMagErr) / 100;
-
-			MagErrorSelectionDialog magErrThresholdDialog = new MagErrorSelectionDialog(
-					minMagErr, maxMagErr, magErrIncrement, magErrThreshold);
-
-			magErrThreshold = magErrThresholdDialog.getValue();
+			//double magErrIncrement = (maxMagErr - minMagErr) / 100;
 
 			for (ValidObservation ob : obs) {
 				double magErr = ob.getMagnitude().getUncertainty();
@@ -247,10 +253,14 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 	class MagErrorSelectionDialog extends JDialog {
 
 		private NumberSelectionPane magErrorSelector;
+		
+		private boolean cancelled;
 
 		public MagErrorSelectionDialog(double min, double max,
 				double increment, double initial) {
 			super();
+			
+			cancelled = true;
 
 			setTitle("Maximum Magnitude Error");
 			setModal(true);
@@ -272,6 +282,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 
 			contentPane.add(topPane);
 
+			this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE); 
 			this.pack();
 			setLocationRelativeTo(Mediator.getUI().getContentPane());
 			this.setVisible(true);
@@ -283,6 +294,7 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 			JButton okButton = new JButton("OK");
 			okButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					cancelled = false;
 					setVisible(false);
 					dispose();
 				}
@@ -292,6 +304,13 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 			this.getRootPane().setDefaultButton(okButton);
 
 			return panel;
+		}
+		
+		/**
+		 * @return whether this dialog box cancelled
+		 */
+		public boolean isCancelled() {
+			return cancelled;
 		}
 
 		/**

@@ -169,6 +169,23 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 	 */
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
+		// Dialog moved from retrieveObservations() where it invoked from non-UI thread
+		// to this more natural place.
+		// No annoying "No observations for the specified period" messages.
+		//System.out.println(Thread.currentThread().getId());
+		ASASSNParameterDialog paramDialog = new ASASSNParameterDialog();
+		if (paramDialog.isCancelled()) {
+			// It seems it is safe to return null here.
+			return null;
+		}
+		userDefinedErrLimit = paramDialog.getErrorLimit();
+		loadVmagnitudes = paramDialog.isLoadVmagnitudes();
+		load_g_magnitudes = paramDialog.isLoad_g_magnitudes();
+		loadUnknownFilterMagnitudes = paramDialog.isLoadUnknownFilterMagnitudes();
+		loadExcludedObs = paramDialog.isLoadExcludedObs();
+		loadASASSN_V_as_Johnson_V = paramDialog.isLoadASASSN_V_as_Johnson_V();
+		loadASASSN_g_as_Sloan_g = paramDialog.isLoadASASSN_g_as_Sloan_g();
+		fileModeASASSN = paramDialog.getFileModeASASSN();
 		return new ASASSNFileReader();
 	}
 
@@ -202,19 +219,6 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
-
-
-			ASASSNParameterDialog paramDialog = new ASASSNParameterDialog();
-			if (paramDialog.isCancelled())
-				return;
-			userDefinedErrLimit = paramDialog.getErrorLimit();
-			loadVmagnitudes = paramDialog.isLoadVmagnitudes();
-			load_g_magnitudes = paramDialog.isLoad_g_magnitudes();
-			loadUnknownFilterMagnitudes = paramDialog.isLoadUnknownFilterMagnitudes();
-			loadExcludedObs = paramDialog.isLoadExcludedObs();
-			loadASASSN_V_as_Johnson_V = paramDialog.isLoadASASSN_V_as_Johnson_V();
-			loadASASSN_g_as_Sloan_g = paramDialog.isLoadASASSN_g_as_Sloan_g();
-			fileModeASASSN = paramDialog.getFileModeASASSN();
 
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 			getInputStreams().get(0)));
