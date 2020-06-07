@@ -68,6 +68,7 @@ public class VeLaInterpreter {
 		permittedTypes.add(CharSequence.class);
 		permittedTypes.add(void.class);
 		permittedTypes.add(Type.DBL_ARR.getClass());
+		permittedTypes.add(Type.DBL_CLASS_ARR.getClass());
 		permittedTypes.add(VStarScriptingAPI.class);
 
 		javaClassFunctionExecutors = new ArrayList<FunctionExecutor>();
@@ -1079,6 +1080,7 @@ public class VeLaInterpreter {
 	 * Add useful/important bindings
 	 */
 	private void initBindings() {
+		bind("Π", new Operand(Type.REAL, Math.PI), true);
 		bind("PI", new Operand(Type.REAL, Math.PI), true);
 		bind("E", new Operand(Type.REAL, Math.E), true);
 	}
