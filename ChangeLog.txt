@@ -145,16 +145,15 @@ Key Changes:
 - Added star name to all observations sources so that if observations are 
   subsequently saved, they will pass the edit to be reloaded. (Cliff Kotnik)
 - When observations are saved to a text file do not save excluded 
-  observations.
-  Otherwise, these will be reloaded without any indication of their excluded 
-  status. (Cliff Kotnik)
+  observations. Otherwise, these will be reloaded without any indication 
+  of their excluded status. (Cliff Kotnik)
 - Change for different file format and handle exceptions for trailing 
   non-data lines and allow either old or new format to be loaded.
   (Cliff Kotnik)
 - Creation and update of documentation for HJD converter plugin, Hipparcos,
   DASCH and ASAS observation source plugins, Loess model and AoV period 
   analysis plugins. (Dave Hinzel)
-- FlexibleFileFormat plugin from Maksym Pyatnytskyy.
+- FlexibleFileFormat plugin (Maksym Pyatnytskyy).
 - Added open doc format (ODT) versions for documents without them. 
   (Cliff Kotnik)
 - General testing and support by Dave Hinzel, Cliff Kotnik, Maksym 
