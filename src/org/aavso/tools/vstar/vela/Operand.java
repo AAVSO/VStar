@@ -39,6 +39,7 @@ public class Operand {
 	private boolean booleanVal;
 	private List<Operand> listVal;
 	private FunctionExecutor functionVal;
+	private Object objVal;
 
 	public static Operand EMPTY_LIST = new Operand(Type.LIST,
 			Collections.emptyList());
@@ -72,7 +73,7 @@ public class Operand {
 		this.type = type;
 		functionVal = value;
 	}
-	
+
 	// For object copy
 	private Operand() {
 	}
@@ -109,12 +110,21 @@ public class Operand {
 					arr.add(new Operand(Type.REAL, n));
 				}
 				obj = arr;
+			} else if (obj.getClass() == Type.DBL_CLASS_ARR.getClass()) {
+				List<Operand> arr = new ArrayList<Operand>();
+				for (Double n : (Double[]) obj) {
+					arr.add(new Operand(Type.REAL, n));
+				}
+				obj = arr;
 			}
 			operand = new Operand(Type.LIST, (List<Operand>) obj);
 			break;
 		case FUNCTION:
 			operand = new Operand(Type.FUNCTION, (FunctionExecutor) obj);
 			break;
+		case OBJECT:
+			// TODO
+//			operand = new Operand(Type.OBJECT, obj);
 		}
 
 		return operand;
