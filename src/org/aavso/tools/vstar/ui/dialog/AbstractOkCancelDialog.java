@@ -50,6 +50,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 		this.setModal(isModal);
 		this.cancelled = true;
 		this.firstUse = true;
+		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}
 
 	public AbstractOkCancelDialog(String title) {
