@@ -16,6 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
 
+// The plug-in shows variable star information taken from the VSX database.
+// It could be useful if the star does exist in the VSX yet data for it
+// are loaded from a source other then AAVSO Database.
+
 // Maksym Pyatnytskyy (PMAK (AAVSO)) mpyat2@gmail.com
  
 package org.aavso.tools.vstar.external.plugin;
@@ -30,17 +34,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.w3c.dom.Element;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-//import java.awt.Cursor;
 import java.awt.Container;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -59,7 +58,6 @@ import javax.swing.SwingWorker;
 import java.util.concurrent.ExecutionException;
 
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
-//import org.aavso.tools.vstar.ui.dialog.MessageBox;
 
 import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
