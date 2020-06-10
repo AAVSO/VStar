@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="11"/>
+    <BuildModes Active="Default"/>
+    <Units Count="4">
+      <Unit0>
+        <Filename Value="VStar.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="26"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="..\..\..\TOOLS\lazarus32\fpc\3.0.4\source\packages\fcl-process\src\process.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="99"/>
+        <CursorPos X="15" Y="116"/>
+        <UsageCount Value="11"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\..\..\TOOLS\lazarus32\fpc\3.0.4\source\packages\fcl-process\src\win\process.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="243"/>
+        <CursorPos X="39" Y="266"/>
+        <UsageCount Value="11"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="VStarIcon.rc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="10"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
+      </Unit3>
+    </Units>
+    <General>
+      <ActiveWindowIndexAtStart Value="-1"/>
+    </General>
+    <JumpHistory HistoryIndex="-1"/>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode=""/>
+    </RunParams>
+  </ProjectSession>
+  <Debugging>
+    <Watches Count="1">
+      <Item1>
+        <Expression Value="AProcess.Parameters.Count"/>
+      </Item1>
+    </Watches>
+  </Debugging>
+</CONFIG>
