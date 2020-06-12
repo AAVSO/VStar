@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.resources;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -57,6 +58,7 @@ public class PluginLoader {
 
 	// List to store plugins, if any exist.
 	private static List<IPlugin> plugins = new ArrayList<IPlugin>();
+	private static List<URLClassLoader> pluginLoaders = new ArrayList<URLClassLoader>();	
 
 	/**
 	 * Return a list of Period Analysis plugins, whether internal to VStar or
@@ -209,7 +211,7 @@ public class PluginLoader {
 
 		return obSinkPlugins;
 	}
-
+	
 	/**
 	 * Load all VStar plugins and create an instance of each.
 	 */
@@ -259,10 +261,7 @@ public class PluginLoader {
 				// IPlugin methods.
 				String qualifiedClassName = file.getName().replace(".jar", "");
 				try {
-					Class<?> clazz = loadClass(file, qualifiedClassName,
-							depLibs);
-					Object plugin = clazz.newInstance();
-					plugins.add((IPlugin) plugin);
+					loadPluginClass(file, qualifiedClassName,	depLibs);
 				} catch (MalformedURLException e) {
 					MessageBox.showErrorDialog(
 							null,
@@ -317,18 +316,42 @@ public class PluginLoader {
 	 *             If the jar path is not valid.
 	 * @throws ClassNotFoundException
 	 *             If the class cannot be loaded.
+	 * @throws IllegalAccessException 
+	 * 
+	 * @throws InstantiationException 
 	 */
-	private static Class<?> loadClass(File jarFile, String qualifiedClassName,
+	private static void loadPluginClass(File jarFile, String qualifiedClassName,
 			List<URL> depLibs) throws MalformedURLException,
-			ClassNotFoundException {
+			ClassNotFoundException, InstantiationException, IllegalAccessException {
 		URL url = jarFile.toURI().toURL();
 		List<URL> urlList = new ArrayList<URL>();
 		urlList.add(url);
 		urlList.addAll(depLibs);
 		URL[] urls = urlList.toArray(new URL[0]);
-		ClassLoader cl = new URLClassLoader(urls, VStar.class.getClassLoader());
-
-		return cl.loadClass(qualifiedClassName);
-		// return new PluginClassLoader(urls).loadClass(qualifiedClassName);
+		URLClassLoader cl = new URLClassLoader(urls, VStar.class.getClassLoader());
+		Class<?> clazz = cl.loadClass(qualifiedClassName);
+		Object plugin = clazz.newInstance();
+		plugins.add((IPlugin) plugin);
+		pluginLoaders.add(cl);
 	}
+	
+	public static void closePluginLoaders() {
+		// Max: closing ULRClassLoader:
+		// 	https://docs.oracle.com/javase/8/docs/technotes/guides/net/ClassLoader.html
+		boolean closePluginError = false;
+		for (int i = pluginLoaders.size() - 1; i >= 0; i--) {
+			URLClassLoader cl = pluginLoaders.get(i);
+			try {
+				cl.close();
+				pluginLoaders.remove(i);
+			} catch (IOException ex) {
+				closePluginError = true;
+			}
+		}
+		if (closePluginError) {
+			MessageBox.showErrorDialog(null, "Plugin Loader",
+					"Error closing ClassLoader");
+		}
+	}
+	
 }

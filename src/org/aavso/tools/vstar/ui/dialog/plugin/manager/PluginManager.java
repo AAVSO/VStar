@@ -42,6 +42,7 @@ import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.Pair;
 
 /**
  * This class manages plug-in installation, deletion, and update.
@@ -135,7 +136,7 @@ public class PluginManager {
 	public PluginManager() {
 		pluginBaseUrl = getPluginsBaseUrl();
 	}
-
+	
 	/**
 	 * @return the remote plugins map
 	 */
@@ -403,16 +404,13 @@ public class PluginManager {
 			URL infoUrl = new URL(baseUrlStr + "/" + PLUGINS_LIST_FILE);
 
 			URLConnection conn = infoUrl.openConnection();
-
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					conn.getInputStream()));
-
+			
 			List<String> lineList = new ArrayList<String>();
-
-			String line;
-
-			while ((line = reader.readLine()) != null) {
-				lineList.add(line);
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+				String line;
+				while ((line = reader.readLine()) != null) {
+					lineList.add(line);
+				}
 			}
 
 			lines = lineList.toArray(new String[0]);
@@ -462,59 +460,69 @@ public class PluginManager {
 							+ pluginJarFileName);
 					String className = pluginJarFileName.replace(".jar", "");
 
-					IPlugin plugin = createObjectFromJarURL(pluginUrl,
+					//Max: get class loader with plugin and close it at the end!
+                    // https://docs.oracle.com/javase/8/docs/technotes/guides/net/ClassLoader.html
+					Pair<IPlugin, URLClassLoader> plugin_cl = createObjectFromJarURL(pluginUrl,
 							className);
+					try {
+						remoteDescriptions.put(plugin_cl.first.getDescription(),
+								pluginJarFileName);
+						remotePlugins.put(pluginJarFileName, pluginUrl);
 
-					remoteDescriptions.put(plugin.getDescription(),
-							pluginJarFileName);
-					remotePlugins.put(pluginJarFileName, pluginUrl);
+						// Store dependent libs, if any exist, by plugin key.
+						if (fields.length == 2) {
+							if (interrupted)
+								break;
 
-					// Store dependent libs, if any exist, by plugin key.
-					if (fields.length == 2) {
-						if (interrupted)
-							break;
-
-						File pluginLibDirPath = new File(
-								System.getProperty("user.home")
+							File pluginLibDirPath = new File(
+									System.getProperty("user.home")
 										+ File.separator + PLUGIN_LIBS_DIR);
 
-						for (String libFileStr : fields[1].split("\\s*,\\s*")) {
-							String libJarFileName = libFileStr;
-							URL libUrl = new URL(libBaseURLStr + "/"
-									+ libJarFileName);
-							List<URL> libUrls = libs.get(pluginJarFileName);
-							if (libUrls == null) {
-								libUrls = new ArrayList<URL>();
-								libs.put(pluginJarFileName, libUrls);
-							}
-							libUrls.add(libUrl);
-
-							// Populate dependent library name and reference
-							// counting maps. Note that we treat the remote
-							// plugin information as the source of truth for the
-							// basis of checking against local library jar
-							// files. Our reference counting will only be as
-							// good as this remote/local correspondence.
-							File localLibJarFilePath = new File(
-									pluginLibDirPath, libJarFileName);
-
-							if (localLibJarFilePath.exists()) {
-								if (!libDescriptions.containsKey(plugin
-										.getDescription())) {
-									libDescriptions.put(
-											plugin.getDescription(),
-											new HashSet<String>());
+							for (String libFileStr : fields[1].split("\\s*,\\s*")) {
+								String libJarFileName = libFileStr;
+								URL libUrl = new URL(libBaseURLStr + "/"
+										+ libJarFileName);
+								List<URL> libUrls = libs.get(pluginJarFileName);
+								if (libUrls == null) {
+									libUrls = new ArrayList<URL>();
+									libs.put(pluginJarFileName, libUrls);
 								}
-								libDescriptions.get(plugin.getDescription())
+								libUrls.add(libUrl);
+
+								// Populate dependent library name and reference
+								// counting maps. Note that we treat the remote
+								// plugin information as the source of truth for the
+								// basis of checking against local library jar
+								// files. Our reference counting will only be as
+								// good as this remote/local correspondence.
+								File localLibJarFilePath = new File(
+										pluginLibDirPath, libJarFileName);
+
+								if (localLibJarFilePath.exists()) {
+									if (!libDescriptions.containsKey(plugin_cl.first
+											.getDescription())) {
+										libDescriptions.put(
+												plugin_cl.first.getDescription(),
+												new HashSet<String>());
+									}
+									libDescriptions.get(plugin_cl.first.getDescription())
 										.add(libJarFileName);
 
-								if (!libRefs.containsKey(libJarFileName)) {
-									libRefs.put(libJarFileName, 1);
-								} else {
-									int count = libRefs.get(libJarFileName) + 1;
-									libRefs.put(libJarFileName, count);
+									if (!libRefs.containsKey(libJarFileName)) {
+										libRefs.put(libJarFileName, 1);
+									} else {
+										int count = libRefs.get(libJarFileName) + 1;
+										libRefs.put(libJarFileName, count);
+									}
 								}
 							}
+						}
+					} finally {
+						try {
+							plugin_cl.second.close();
+						} catch (IOException ex) {
+							MessageBox.showErrorDialog("Plug-in Manager",
+									"Error closing ClassLoader.");
 						}
 					}
 				} else {
@@ -579,11 +587,20 @@ public class PluginManager {
 					localPlugins.put(pluginJarFileName, file);
 					String className = pluginJarFileName.replace(".jar", "");
 
-					IPlugin plugin = createObjectFromJarURL(file.toURI()
+                    // https://docs.oracle.com/javase/8/docs/technotes/guides/net/ClassLoader.html 
+					Pair<IPlugin, URLClassLoader> plugin_cl = createObjectFromJarURL(file.toURI()
 							.toURL(), className);
-
-					localDescriptions.put(plugin.getDescription(),
-							pluginJarFileName);
+					try {
+						localDescriptions.put(plugin_cl.first.getDescription(),
+								pluginJarFileName);
+					} finally {
+						try {
+							plugin_cl.second.close();
+						} catch (IOException ex) {
+							MessageBox.showErrorDialog("Plug-in Manager",
+									"Error closing ClassLoader.");
+						}
+					}
 				} catch (MalformedURLException e) {
 					MessageBox.showErrorDialog("Plug-in Manager",
 							"Invalid local plug-in location.");
@@ -766,9 +783,10 @@ public class PluginManager {
 	 */
 	public void deleteAllPlugins() {
 		interrupted = false;
-
-		if (MessageBox.showConfirmDialog("Plug-in Manager",
-				"Delete all plug-ins?")) {
+		boolean deleteError = false;
+		
+		//if (MessageBox.showConfirmDialog("Plug-in Manager",
+		//		"Delete all plug-ins?")) {
 			try {
 				File pluginDirPath = new File(System.getProperty("user.home")
 						+ File.separator + PLUGINS_DIR);
@@ -781,23 +799,31 @@ public class PluginManager {
 						&& pluginLibDirPath.isDirectory()) {
 					File[] jarFiles = pluginDirPath.listFiles();
 					for (File jarFile : jarFiles) {
-						if (interrupted)
+						if (interrupted) {
+							deleteError = true;
 							break;
+						}
 						// Check existence, to avoid an insanely unlikely race
 						// condition.
 						if (jarFile.exists()) {
-							jarFile.delete();
+							if (!jarFile.delete()) {
+								deleteError = true;
+							}
 						}
 					}
 
 					File[] libJarFiles = pluginLibDirPath.listFiles();
 					for (File libJarFile : libJarFiles) {
-						if (interrupted)
+						if (interrupted) {
+							deleteError = true;
 							break;
+						}
 						// Check existence, to avoid an insanely unlikely race
 						// condition.
 						if (libJarFile.exists()) {
-							libJarFile.delete();
+							if (!libJarFile.delete()) {
+								deleteError = true;
+							}
 						}
 					}
 
@@ -815,14 +841,18 @@ public class PluginManager {
 						remoteAndLocalPluginEquality.clear();
 					}
 
-					MessageBox.showMessageDialog("Plug-in Manager",
-							"All installed plug-ins have been deleted.");
+					if (!deleteError)
+						MessageBox.showMessageDialog("Plug-in Manager",
+								"All installed plug-ins have been deleted.");
+					else
+						MessageBox.showErrorDialog("Plug-in Manager",
+								"Cannot delete some plugins. Try to delete them manually.");
 				}
 
 			} catch (Throwable t) {
 				MessageBox.showErrorDialog("Plug-in Manager", "Deletion error");
 			}
-		}
+		//}
 	}
 
 	/**
@@ -835,23 +865,31 @@ public class PluginManager {
 	// Helpers
 
 	private void copy(InputStream in, File file) throws IOException {
-		OutputStream out = new FileOutputStream(file);
-		byte[] buf = new byte[4096];
-		int len;
-		while ((len = in.read(buf)) > 0) {
-			out.write(buf, 0, len);
+		try {
+			OutputStream out = new FileOutputStream(file);
+			try {
+				byte[] buf = new byte[4096];
+				int len;
+				while ((len = in.read(buf)) > 0) {
+					out.write(buf, 0, len);
+				}
+			} finally {
+				out.close();
+			}
+		} finally {
+			in.close();
 		}
-		out.close();
-		in.close();
 	}
 
-	private IPlugin createObjectFromJarURL(URL url, String className)
+	// return class loader here!
+	private Pair<IPlugin, URLClassLoader> createObjectFromJarURL(URL url, String className)
 			throws ClassNotFoundException, IllegalAccessException,
 			InstantiationException {
 		URLClassLoader loader = new URLClassLoader(new URL[] { url },
 				VStar.class.getClassLoader());
 		Class<?> clazz = loader.loadClass(className);
-		return (IPlugin) clazz.newInstance();
+		IPlugin plugin = (IPlugin) clazz.newInstance(); 
+		return new Pair<IPlugin, URLClassLoader>(plugin, loader); 
 	}
 
 	private boolean areURLReferentsEqual(URL url1, URL url2) throws IOException {
@@ -861,13 +899,16 @@ public class PluginManager {
 	private List<byte[]> getBytesFromURL(URL url) throws IOException {
 		List<byte[]> byteList = new ArrayList<byte[]>();
 		InputStream stream = url.openStream();
-
-		int len = stream.available();
-		while (len > 0) {
-			byte[] bytes = new byte[len];
-			stream.read(bytes, 0, len);
-			byteList.add(bytes);
-			len = stream.available();
+		try {
+			int len = stream.available();
+			while (len > 0) {
+				byte[] bytes = new byte[len];
+				stream.read(bytes, 0, len);
+				byteList.add(bytes);
+				len = stream.available();
+			}
+		} finally {
+			stream.close();
 		}
 
 		return byteList;

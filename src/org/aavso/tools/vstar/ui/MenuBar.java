@@ -1199,6 +1199,10 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// Max: probably I'm paranoid: preventing opening PluginManagementDialog twice.
+				if (PluginManagementDialog.getPluginManagementActive()) return;
+				PluginManagementDialog.setPluginManagementActive(true);
+				//System.out.println(Thread.currentThread().getId());
 				final PluginManager manager = new PluginManager();
 				PluginManagementOperation op = new PluginManagementOperation(
 						manager, "Initialising Plug-in Manager") {
@@ -1206,11 +1210,29 @@ public class MenuBar extends JMenuBar {
 					public void execute() {
 						// try {
 						// Authenticator.getInstance().authenticate();
-						Mediator.getUI().getStatusPane()
-								.setMessage("Initialising Plug-in Manager...");
-						manager.init();
-						new PluginManagementDialog(manager);
-						Mediator.getUI().getStatusPane().setMessage("");
+						javax.swing.SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								Mediator.getUI().getStatusPane()
+									.setMessage("Initialising Plug-in Manager...");
+							}
+						});
+						try {
+							manager.init();
+						} catch(Throwable t) {
+							PluginManagementDialog.setPluginManagementActive(false);
+							throw t;
+						}
+						javax.swing.SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								// PluginManagementDialog clears pluginManagementActive flag on close.								
+								new PluginManagementDialog(manager);				
+							}
+						});
+						javax.swing.SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								Mediator.getUI().getStatusPane().setMessage("");
+							}
+						});
 						// } catch (ConnectionException ex) {
 						// MessageBox.showErrorDialog(
 						// "Authentication Source Error", ex);

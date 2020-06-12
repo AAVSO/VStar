@@ -35,6 +35,8 @@ import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
+import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementDialog;
+import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
@@ -138,7 +140,19 @@ public class PluginSettingsPane extends JPanel implements IPreferenceComponent {
 	private ActionListener createDeleteAllPluginsButtonActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if (PluginManagementDialog.getPluginManagementActive()) {
+					// Max: somewhat paranoid.
+					MessageBox.showMessageDialog("Plug-in Manager", 
+							"Cannot perform plug-in operations now.");
+					return;
+				}
+				if (!MessageBox.showConfirmDialog("Plug-in Manager",
+						"Delete all plug-ins?"))
+					return;
+				PluginLoader.closePluginLoaders();
 				new PluginManager().deleteAllPlugins();
+				MessageBox.showMessageDialog("Plug-in Manager", 
+						"The program should be restarted now.");
 			}
 		};
 	}
