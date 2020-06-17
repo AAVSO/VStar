@@ -14,17 +14,20 @@ Function GetWorkDir
 End Function
 
 Sub Main
-  Dim Shell, DesktopPath, Link, WorkDir
+  Dim Shell, Link, DesktopPath, MenuPath, WorkDir
   Set Shell = CreateObject("WScript.Shell")
+  WorkDir = GetWorkDir
   DesktopPath = AddTrailingBackslash(Shell.SpecialFolders("Desktop"))
   Set Link = Shell.CreateShortcut(DesktopPath & "AAVSO VStar.lnk")
-  WorkDir = GetWorkDir 
-  Link.TargetPath = GetWorkDir & "VStar.exe"
-  Link.WorkingDirectory = GetWorkDir
+  Link.TargetPath = WorkDir & "VStar.exe"
+  Link.WorkingDirectory = WorkDir
   Link.Save
+  MenuPath = AddTrailingBackslash(Shell.SpecialFolders("Programs"))
+  Set Link = Shell.CreateShortcut(MenuPath & "AAVSO VStar.lnk")
+  Link.TargetPath = WorkDir & "VStar.exe"
+  Link.WorkingDirectory = WorkDir
+  Link.Save
+  MsgBox "Shortcuts to VStar have been created successfully!"
 End Sub
 
 Main
-
-
-
