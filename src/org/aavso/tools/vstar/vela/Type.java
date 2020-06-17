@@ -30,6 +30,7 @@ public enum Type {
 
 	public final static int[] INT_ARR = new int[0];
 	public final static double[] DBL_ARR = new double[0];
+	public final static Double[] DBL_CLASS_ARR = new Double[0];
 	public final static boolean[] BOOL_ARR = new boolean[0];
 	public final static String[] STR_ARR = new String[0];
 
@@ -51,6 +52,8 @@ public enum Type {
 		} else if (jtype == INT_ARR.getClass()) {
 			vtype = LIST;
 		} else if (jtype == DBL_ARR.getClass()) {
+			vtype = LIST;
+		} else if (jtype == DBL_CLASS_ARR.getClass()) {
 			vtype = LIST;
 		} else if (jtype == BOOL_ARR.getClass()) {
 			vtype = LIST;
