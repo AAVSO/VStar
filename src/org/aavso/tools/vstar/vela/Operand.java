@@ -39,11 +39,12 @@ public class Operand {
 	private boolean booleanVal;
 	private List<Operand> listVal;
 	private FunctionExecutor functionVal;
-	private Object objVal;
 
 	public static Operand EMPTY_LIST = new Operand(Type.LIST,
 			Collections.emptyList());
 
+	public static Operand NO_VALUE = new Operand(Type.NONE, false);
+	
 	public Operand(Type type, int value) {
 		this.type = type;
 		intVal = value;
@@ -121,6 +122,9 @@ public class Operand {
 			break;
 		case FUNCTION:
 			operand = new Operand(Type.FUNCTION, (FunctionExecutor) obj);
+			break;
+		case NONE:
+			operand = NO_VALUE;
 			break;
 		case OBJECT:
 			// TODO

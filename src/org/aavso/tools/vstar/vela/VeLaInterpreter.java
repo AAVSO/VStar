@@ -73,14 +73,12 @@ public class VeLaInterpreter {
 
 		javaClassFunctionExecutors = new ArrayList<FunctionExecutor>();
 
-		addFunctionExecutorsFromClass(Math.class, null, permittedTypes,
-				Collections.emptySet());
+		addFunctionExecutorsFromClass(Math.class, null, permittedTypes, Collections.emptySet());
 
 		addFunctionExecutorsFromClass(String.class, null, permittedTypes,
 				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
 
-		addFunctionExecutorsFromClass(VStarScriptingAPI.class,
-				VStarScriptingAPI.getInstance(), permittedTypes,
+		addFunctionExecutorsFromClass(VStarScriptingAPI.class, VStarScriptingAPI.getInstance(), permittedTypes,
 				Collections.emptySet());
 	}
 
@@ -106,14 +104,11 @@ public class VeLaInterpreter {
 	private VeLaErrorListener errorListener;
 
 	/**
-	 * Construct a VeLa interpreter with an initial scope and intrinsic
-	 * functions.
+	 * Construct a VeLa interpreter with an initial scope and intrinsic functions.
 	 * 
-	 * @param verbose
-	 *            Verbose mode?
-	 * @param sourceDirectories
-	 *            A list of source directories containing VeLa source files
-	 *            (ending in ".vl" or ".vela") to be loaded.
+	 * @param verbose           Verbose mode?
+	 * @param sourceDirectories A list of source directories containing VeLa source
+	 *                          files (ending in ".vl" or ".vela") to be loaded.
 	 */
 	public VeLaInterpreter(boolean verbose, List<File> sourceDirectories) {
 		this.verbose = verbose;
@@ -136,8 +131,7 @@ public class VeLaInterpreter {
 	 * Construct a VeLa interpreter with verbose mode as specified and no source
 	 * directories.
 	 * 
-	 * @param verbose
-	 *            Verbose mode?
+	 * @param verbose Verbose mode?
 	 */
 	public VeLaInterpreter(boolean verbose) {
 		this(verbose, Collections.emptyList());
@@ -152,8 +146,7 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * @param verbose
-	 *            the verbose to set
+	 * @param verbose the verbose to set
 	 */
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
@@ -162,8 +155,7 @@ public class VeLaInterpreter {
 	/**
 	 * Push an environment onto the stack.
 	 * 
-	 * @param environment
-	 *            The environment to be pushed.
+	 * @param environment The environment to be pushed.
 	 */
 	public void pushEnvironment(VeLaEnvironment<Operand> environment) {
 		this.environments.push(environment);
@@ -179,8 +171,8 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Return all scopes (activation records) on the stack as a list in order
-	 * from oldest to newest.
+	 * Return all scopes (activation records) on the stack as a list in order from
+	 * oldest to newest.
 	 */
 	public List<VeLaScope> getScopes() {
 		List<VeLaScope> scopes = new ArrayList<VeLaScope>();
@@ -204,31 +196,25 @@ public class VeLaInterpreter {
 	/**
 	 * VeLa program interpreter entry point.
 	 * 
-	 * @param file
-	 *            A path to a file containing a VeLa program string to be
-	 *            interpreted.
-	 * @return An optional result, depending upon whether a value was left on
-	 *         the stack.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
+	 * @param file A path to a file containing a VeLa program string to be
+	 *             interpreted.
+	 * @return An optional result, depending upon whether a value was left on the
+	 *         stack.
+	 * @throws VeLaParseError If a parse error occurs.
+	 * @throws VeLaEvalError  If an evaluation error occurs.
 	 */
-	public Optional<Operand> program(File path) throws VeLaParseError,
-			VeLaEvalError {
+	public Optional<Operand> program(File path) throws VeLaParseError, VeLaEvalError {
 		StringBuffer code = new StringBuffer();
 
 		try {
-			try (Stream<String> stream = Files.lines(Paths.get(path
-					.getAbsolutePath()))) {
+			try (Stream<String> stream = Files.lines(Paths.get(path.getAbsolutePath()))) {
 				stream.forEachOrdered(line -> {
 					code.append(line);
 					code.append("\n");
 				});
 			}
 		} catch (IOException e) {
-			throw new VeLaEvalError("Error when attempting to read VeLa file "
-					+ path.getAbsolutePath());
+			throw new VeLaEvalError("Error when attempting to read VeLa file " + path.getAbsolutePath());
 		}
 
 		return program(code.toString());
@@ -237,35 +223,27 @@ public class VeLaInterpreter {
 	/**
 	 * VeLa program interpreter entry point.
 	 * 
-	 * @param prog
-	 *            The VeLa program string to be interpreted.
-	 * @return An optional result, depending upon whether a value was left on
-	 *         the stack.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
+	 * @param prog The VeLa program string to be interpreted.
+	 * @return An optional result, depending upon whether a value was left on the
+	 *         stack.
+	 * @throws VeLaParseError If a parse error occurs.
+	 * @throws VeLaEvalError  If an evaluation error occurs.
 	 */
-	public Optional<Operand> program(String prog) throws VeLaParseError,
-			VeLaEvalError {
+	public Optional<Operand> program(String prog) throws VeLaParseError, VeLaEvalError {
 		return veLaToResultASTPair(prog).first;
 	}
 
 	/**
 	 * VeLa program interpreter entry point.
 	 * 
-	 * @param prog
-	 *            The VeLa program string to be interpreted.
+	 * @param prog The VeLa program string to be interpreted.
 	 * @return A pair consisting of an optional result, depending upon whether a
 	 *         value was left on the stack, and the AST that gave rise to the
 	 *         result.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
+	 * @throws VeLaParseError If a parse error occurs.
+	 * @throws VeLaEvalError  If an evaluation error occurs.
 	 */
-	public Pair<Optional<Operand>, AST> veLaToResultASTPair(String prog)
-			throws VeLaParseError, VeLaEvalError {
+	public Pair<Optional<Operand>, AST> veLaToResultASTPair(String prog) throws VeLaParseError, VeLaEvalError {
 		VeLaParser.SequenceContext tree = getParser(prog).sequence();
 		return commonInterpreter(prog, tree);
 	}
@@ -273,18 +251,14 @@ public class VeLaInterpreter {
 	/**
 	 * Real expression interpreter entry point.
 	 * 
-	 * @param expr
-	 *            The expression string to be interpreted.
+	 * @param expr The expression string to be interpreted.
 	 * @return A real value result.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
+	 * @throws VeLaParseError If a parse error occurs.
+	 * @throws VeLaEvalError  If an evaluation error occurs.
 	 */
 	public double realExpression(String expr) throws VeLaEvalError {
 
-		VeLaParser.AdditiveExpressionContext tree = getParser(expr)
-				.additiveExpression();
+		VeLaParser.AdditiveExpressionContext tree = getParser(expr).additiveExpression();
 
 		Optional<Operand> result = commonInterpreter(expr, tree).first;
 
@@ -304,19 +278,14 @@ public class VeLaInterpreter {
 	/**
 	 * Real expression interpreter entry point.
 	 * 
-	 * @param expr
-	 *            The expression string to be interpreted.
+	 * @param expr The expression string to be interpreted.
 	 * @return An operand.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
+	 * @throws VeLaParseError If a parse error occurs.
+	 * @throws VeLaEvalError  If an evaluation error occurs.
 	 */
-	public Operand expressionToOperand(String expr) throws VeLaParseError,
-			VeLaEvalError {
+	public Operand expressionToOperand(String expr) throws VeLaParseError, VeLaEvalError {
 
-		VeLaParser.AdditiveExpressionContext tree = getParser(expr)
-				.additiveExpression();
+		VeLaParser.AdditiveExpressionContext tree = getParser(expr).additiveExpression();
 
 		Optional<Operand> result = commonInterpreter(expr, tree).first;
 
@@ -330,19 +299,14 @@ public class VeLaInterpreter {
 	/**
 	 * VeLa boolean expression interpreter entry point.
 	 * 
-	 * @param expr
-	 *            The VeLa expression string to be interpreted.
+	 * @param expr The VeLa expression string to be interpreted.
 	 * @return A Boolean value result.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
+	 * @throws VeLaParseError If a parse error occurs.
+	 * @throws VeLaEvalError  If an evaluation error occurs.
 	 */
-	public boolean booleanExpression(String expr) throws VeLaParseError,
-			VeLaEvalError {
+	public boolean booleanExpression(String expr) throws VeLaParseError, VeLaEvalError {
 
-		VeLaParser.BooleanExpressionContext tree = getParser(expr)
-				.booleanExpression();
+		VeLaParser.BooleanExpressionContext tree = getParser(expr).booleanExpression();
 
 		Optional<Operand> result = commonInterpreter(expr, tree).first;
 
@@ -358,8 +322,7 @@ public class VeLaInterpreter {
 	/**
 	 * Given an expression string, return a VeLa parser object.
 	 * 
-	 * @param expr
-	 *            The expression string.
+	 * @param expr The expression string.
 	 * @return The parser object.
 	 */
 	private VeLaParser getParser(String expr) {
@@ -380,16 +343,12 @@ public class VeLaInterpreter {
 	/**
 	 * Common parse tree walker and AST generator.
 	 * 
-	 * @param prog
-	 *            The VeLa program to be interpreted.
-	 * @param tree
-	 *            The parse tree resulting from parsing the VeLa expression.
+	 * @param prog The VeLa program to be interpreted.
+	 * @param tree The parse tree resulting from parsing the VeLa expression.
 	 * @return The abstract syntax tree created by walking the parse tree.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
+	 * @throws VeLaParseError If a parse error occurs.
 	 */
-	protected AST commonParseTreeWalker(String prog, ParserRuleContext tree)
-			throws VeLaParseError {
+	protected AST commonParseTreeWalker(String prog, ParserRuleContext tree) throws VeLaParseError {
 
 		AST ast = null;
 
@@ -424,20 +383,16 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Common VeLa evaluation entry point. This will be most effective when prog
-	 * is an often used expression.
+	 * Common VeLa evaluation entry point. This will be most effective when prog is
+	 * an often used expression.
 	 * 
-	 * @param prog
-	 *            The VeLa program string to be interpreted.
-	 * @param tree
-	 *            The result of parsing the VeLa expression.
+	 * @param prog The VeLa program string to be interpreted.
+	 * @param tree The result of parsing the VeLa expression.
 	 * @return An optional result depending upon whether a value is left on the
 	 *         stack and the AST that was constructed and evaluated.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
+	 * @throws VeLaEvalError If an evaluation error occurs.
 	 */
-	public Pair<Optional<Operand>, AST> commonInterpreter(String prog,
-			ParserRuleContext tree) throws VeLaEvalError {
+	public Pair<Optional<Operand>, AST> commonInterpreter(String prog, ParserRuleContext tree) throws VeLaEvalError {
 
 		Optional<Operand> result = Optional.empty();
 
@@ -478,8 +433,8 @@ public class VeLaInterpreter {
 
 	/**
 	 * <p>
-	 * Given an AST representing a VeLa program, interpret this via a depth
-	 * first traversal, leaving the result of evaluation on the stack.
+	 * Given an AST representing a VeLa program, interpret this via a depth first
+	 * traversal, leaving the result of evaluation on the stack.
 	 * </p>
 	 * <p>
 	 * The name "eval" is used in deference to John McCarthy's Lisp and its eval
@@ -489,10 +444,8 @@ public class VeLaInterpreter {
 	 * I've also just noticed that VeLa is an anagram of eval! :)
 	 * </p>
 	 * 
-	 * @param ast
-	 *            An abstract syntax tree.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
+	 * @param ast An abstract syntax tree.
+	 * @throws VeLaEvalError If an evaluation error occurs.
 	 */
 	public void eval(AST ast) throws VeLaEvalError {
 		if (ast.isLiteral()) {
@@ -547,11 +500,9 @@ public class VeLaInterpreter {
 					if (funList.isPresent()) {
 						// The first function in the list is chosen in the
 						// absence of parameter type information.
-						stack.push(new Operand(Type.FUNCTION, funList.get()
-								.get(0)));
+						stack.push(new Operand(Type.FUNCTION, funList.get().get(0)));
 					} else {
-						throw new VeLaEvalError("Unknown binding \""
-								+ ast.getToken() + "\"");
+						throw new VeLaEvalError("Unknown binding \"" + ast.getToken() + "\"");
 					}
 				}
 			} else if (ast.getOp() == Operation.LIST) {
@@ -579,8 +530,7 @@ public class VeLaInterpreter {
 	/**
 	 * Handle special forms.
 	 * 
-	 * @param ast
-	 *            The special form's AST.
+	 * @param ast The special form's AST.
 	 */
 	private void specialForm(AST ast) {
 		switch (ast.getOp()) {
@@ -623,8 +573,7 @@ public class VeLaInterpreter {
 				switch (child.getOp()) {
 				case PAIR:
 					parameterNames.add(child.left().getToken());
-					parameterTypes
-							.add(Type.name2Vela(child.right().getToken()));
+					parameterTypes.add(Type.name2Vela(child.right().getToken()));
 					break;
 
 				case SYMBOL:
@@ -642,9 +591,8 @@ public class VeLaInterpreter {
 
 			// Add the named function to the top-most scope's function namespace
 			// or the push the anonymous function to the operand stack.
-			UserDefinedFunctionExecutor function = new UserDefinedFunctionExecutor(
-					this, name, parameterNames, parameterTypes, returnType,
-					functionBody);
+			UserDefinedFunctionExecutor function = new UserDefinedFunctionExecutor(this, name, parameterNames,
+					parameterTypes, returnType, functionBody);
 
 			if (name.isPresent()) {
 				addFunctionExecutor(function);
@@ -687,8 +635,7 @@ public class VeLaInterpreter {
 				applyFunction(ast.getToken(), params);
 			} else {
 				if (!applyFunction(anon, params)) {
-					throw new VeLaEvalError(
-							"Invalid parameters for function \"" + anon + "\"");
+					throw new VeLaEvalError("Invalid parameters for function \"" + anon + "\"");
 				}
 			}
 			break;
@@ -710,8 +657,7 @@ public class VeLaInterpreter {
 			// Evaluate the condition, executing the body while it is true.
 			while (true) {
 				eval(ast.left());
-				if (!stack.isEmpty() && stack.peek().getType() == Type.BOOLEAN
-						&& stack.pop().booleanVal()) {
+				if (!stack.isEmpty() && stack.peek().getType() == Type.BOOLEAN && stack.pop().booleanVal()) {
 					eval(ast.right());
 				} else {
 					break;
@@ -728,8 +674,7 @@ public class VeLaInterpreter {
 	 * Apply a binary operation to the values on the stack, consuming them and
 	 * leaving a result on the stack.
 	 * 
-	 * @param op
-	 *            The operation to be applied.
+	 * @param op The operation to be applied.
 	 */
 	private void applyBinaryOperation(Operation op) {
 		Operand operand2 = stack.pop().copy();
@@ -745,28 +690,23 @@ public class VeLaInterpreter {
 		case ADD:
 			switch (type) {
 			case INTEGER:
-				stack.push(new Operand(Type.INTEGER, operand1.intVal()
-						+ operand2.intVal()));
+				stack.push(new Operand(Type.INTEGER, operand1.intVal() + operand2.intVal()));
 				break;
 			case REAL:
-				stack.push(new Operand(Type.REAL, operand1.doubleVal()
-						+ operand2.doubleVal()));
+				stack.push(new Operand(Type.REAL, operand1.doubleVal() + operand2.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.STRING, operand1.stringVal()
-						+ operand2.stringVal()));
+				stack.push(new Operand(Type.STRING, operand1.stringVal() + operand2.stringVal()));
 			default:
 			}
 			break;
 		case SUB:
 			switch (type) {
 			case INTEGER:
-				stack.push(new Operand(Type.INTEGER, operand1.intVal()
-						- operand2.intVal()));
+				stack.push(new Operand(Type.INTEGER, operand1.intVal() - operand2.intVal()));
 				break;
 			case REAL:
-				stack.push(new Operand(Type.REAL, operand1.doubleVal()
-						- operand2.doubleVal()));
+				stack.push(new Operand(Type.REAL, operand1.doubleVal() - operand2.doubleVal()));
 				break;
 			default:
 			}
@@ -774,12 +714,10 @@ public class VeLaInterpreter {
 		case MUL:
 			switch (type) {
 			case INTEGER:
-				stack.push(new Operand(Type.INTEGER, operand1.intVal()
-						* operand2.intVal()));
+				stack.push(new Operand(Type.INTEGER, operand1.intVal() * operand2.intVal()));
 				break;
 			case REAL:
-				stack.push(new Operand(Type.REAL, operand1.doubleVal()
-						* operand2.doubleVal()));
+				stack.push(new Operand(Type.REAL, operand1.doubleVal() * operand2.doubleVal()));
 				break;
 			default:
 			}
@@ -788,12 +726,10 @@ public class VeLaInterpreter {
 			switch (type) {
 			case INTEGER:
 				if (operand2.intVal() != 0) {
-					stack.push(new Operand(Type.INTEGER, operand1.intVal()
-							/ operand2.intVal()));
+					stack.push(new Operand(Type.INTEGER, operand1.intVal() / operand2.intVal()));
 				} else {
-					throw new VeLaEvalError(String.format(
-							"%s/%s: division by zero error", operand1.intVal(),
-							operand2.intVal()));
+					throw new VeLaEvalError(
+							String.format("%s/%s: division by zero error", operand1.intVal(), operand2.intVal()));
 				}
 				break;
 			case REAL:
@@ -801,9 +737,8 @@ public class VeLaInterpreter {
 				if (!result.isInfinite()) {
 					stack.push(new Operand(Type.REAL, result));
 				} else {
-					throw new VeLaEvalError(String.format(
-							"%s/%s: division by zero error",
-							operand1.doubleVal(), operand2.doubleVal()));
+					throw new VeLaEvalError(
+							String.format("%s/%s: division by zero error", operand1.doubleVal(), operand2.doubleVal()));
 				}
 				break;
 			default:
@@ -819,33 +754,27 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.INTEGER, result));
 				break;
 			case REAL:
-				stack.push(new Operand(Type.REAL, Math.pow(
-						operand1.doubleVal(), operand2.doubleVal())));
+				stack.push(new Operand(Type.REAL, Math.pow(operand1.doubleVal(), operand2.doubleVal())));
 				break;
 			default:
 			}
 			break;
 		case AND:
-			stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal()
-					& operand2.booleanVal()));
+			stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() & operand2.booleanVal()));
 			break;
 		case OR:
-			stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal()
-					| operand2.booleanVal()));
+			stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() | operand2.booleanVal()));
 			break;
 		case EQUAL:
 			switch (type) {
 			case INTEGER:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.intVal() == operand2.intVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.intVal() == operand2.intVal()));
 				break;
 			case REAL:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.doubleVal() == operand2.doubleVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() == operand2.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal()
-						.equals(operand2.stringVal())));
+				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().equals(operand2.stringVal())));
 				break;
 			default:
 			}
@@ -853,16 +782,13 @@ public class VeLaInterpreter {
 		case NOT_EQUAL:
 			switch (type) {
 			case INTEGER:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.intVal() != operand2.intVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.intVal() != operand2.intVal()));
 				break;
 			case REAL:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.doubleVal() != operand2.doubleVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() != operand2.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, !operand1.stringVal()
-						.equals(operand2.stringVal())));
+				stack.push(new Operand(Type.BOOLEAN, !operand1.stringVal().equals(operand2.stringVal())));
 				break;
 			default:
 			}
@@ -870,16 +796,13 @@ public class VeLaInterpreter {
 		case GREATER_THAN:
 			switch (type) {
 			case INTEGER:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.intVal() > operand2.intVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.intVal() > operand2.intVal()));
 				break;
 			case REAL:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.doubleVal() > operand2.doubleVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() > operand2.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal()
-						.compareTo(operand2.stringVal()) > 0));
+				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) > 0));
 				break;
 			default:
 			}
@@ -887,16 +810,13 @@ public class VeLaInterpreter {
 		case LESS_THAN:
 			switch (type) {
 			case INTEGER:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.intVal() < operand2.intVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.intVal() < operand2.intVal()));
 				break;
 			case REAL:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.doubleVal() < operand2.doubleVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() < operand2.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal()
-						.compareTo(operand2.stringVal()) < 0));
+				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) < 0));
 				break;
 			default:
 			}
@@ -904,16 +824,13 @@ public class VeLaInterpreter {
 		case GREATER_THAN_OR_EQUAL:
 			switch (type) {
 			case INTEGER:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.intVal() >= operand2.intVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.intVal() >= operand2.intVal()));
 				break;
 			case REAL:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.doubleVal() >= operand2.doubleVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() >= operand2.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal()
-						.compareTo(operand2.stringVal()) >= 0));
+				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) >= 0));
 				break;
 			default:
 			}
@@ -921,16 +838,13 @@ public class VeLaInterpreter {
 		case LESS_THAN_OR_EQUAL:
 			switch (type) {
 			case INTEGER:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.intVal() <= operand2.intVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.intVal() <= operand2.intVal()));
 				break;
 			case REAL:
-				stack.push(new Operand(Type.BOOLEAN,
-						operand1.doubleVal() <= operand2.doubleVal()));
+				stack.push(new Operand(Type.BOOLEAN, operand1.doubleVal() <= operand2.doubleVal()));
 				break;
 			case STRING:
-				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal()
-						.compareTo(operand2.stringVal()) <= 0));
+				stack.push(new Operand(Type.BOOLEAN, operand1.stringVal().compareTo(operand2.stringVal()) <= 0));
 				break;
 			default:
 			}
@@ -943,18 +857,15 @@ public class VeLaInterpreter {
 				regexPatterns.put(regex, pattern);
 			}
 			pattern = regexPatterns.get(regex);
-			stack.push(new Operand(Type.BOOLEAN, pattern.matcher(
-					operand1.stringVal()).matches()));
+			stack.push(new Operand(Type.BOOLEAN, pattern.matcher(operand1.stringVal()).matches()));
 			break;
 		case IN:
 			if (operand2.getType() == Type.LIST) {
 				// Is a value contained within a list?
-				stack.push(new Operand(Type.BOOLEAN, operand2.listVal()
-						.contains(operand1)));
+				stack.push(new Operand(Type.BOOLEAN, operand2.listVal().contains(operand1)));
 			} else if (type == Type.STRING) {
 				// Is one string contained within another?
-				stack.push(new Operand(Type.BOOLEAN, operand2.stringVal()
-						.contains(operand1.stringVal())));
+				stack.push(new Operand(Type.BOOLEAN, operand2.stringVal().contains(operand1.stringVal())));
 			}
 			break;
 		default:
@@ -963,14 +874,12 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Unify operand types by converting both operands to strings if only one is
-	 * a string or both operands to double if only one is an integer. We change
+	 * Unify operand types by converting both operands to strings if only one is a
+	 * string or both operands to double if only one is an integer. We change
 	 * nothing if either type is composite or Boolean.
 	 * 
-	 * @param a
-	 *            The first operand.
-	 * @param b
-	 *            The second operand.
+	 * @param a The first operand.
+	 * @param b The second operand.
 	 * @return The final type of the unified operands.
 	 */
 	private Type unifyTypes(Operand a, Operand b) {
@@ -1000,17 +909,14 @@ public class VeLaInterpreter {
 	// ** Variable related methods **
 
 	/**
-	 * Given a variable name, search for it in the stack of environments,
-	 * binding a value if found. The search proceeds from the top to the bottom
-	 * of the stack, maintaining the natural stack ordering. If the name is not
-	 * found, a new binding is created in the top-most scope.
+	 * Given a variable name, search for it in the stack of environments, binding a
+	 * value if found. The search proceeds from the top to the bottom of the stack,
+	 * maintaining the natural stack ordering. If the name is not found, a new
+	 * binding is created in the top-most scope.
 	 * 
-	 * @param name
-	 *            The name to which to bind the value.
-	 * @param value
-	 *            The value to be bound.
-	 * @param isConstant
-	 *            Is this a constant binding?
+	 * @param name       The name to which to bind the value.
+	 * @param value      The value to be bound.
+	 * @param isConstant Is this a constant binding?
 	 */
 	public void bind(String name, Operand value, boolean isConstant) {
 		boolean bound = false;
@@ -1029,12 +935,11 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Given a variable name, search for it in the stack of environments, return
-	 * an optional Operand instance. The search proceeds from the top to the
-	 * bottom of the stack, maintaining the natural stack ordering.
+	 * Given a variable name, search for it in the stack of environments, return an
+	 * optional Operand instance. The search proceeds from the top to the bottom of
+	 * the stack, maintaining the natural stack ordering.
 	 * 
-	 * @param name
-	 *            The name of the variable to look up.
+	 * @param name The name of the variable to look up.
 	 * @return The optional operand.
 	 */
 	public Optional<Operand> lookupBinding(String name) {
@@ -1062,16 +967,14 @@ public class VeLaInterpreter {
 			try {
 				if (dir.isDirectory()) {
 					for (File file : dir.listFiles()) {
-						if (file.getName().endsWith(".vl")
-								|| file.getName().endsWith(".vela")) {
+						if (file.getName().endsWith(".vl") || file.getName().endsWith(".vela")) {
 							program(file);
 						}
 					}
 				} else {
 				}
 			} catch (Throwable t) {
-				VStar.LOGGER.warning("Error when sourcing VeLa code: "
-						+ t.getLocalizedMessage());
+				VStar.LOGGER.warning("Error when sourcing VeLa code: " + t.getLocalizedMessage());
 			}
 		}
 	}
@@ -1088,12 +991,11 @@ public class VeLaInterpreter {
 	// ** Function related methods *
 
 	/**
-	 * Given a function name, search for it in the stack of environments, return
-	 * an optional list of function executors. The search proceeds from the top
-	 * to the bottom of the stack, maintaining the natural stack ordering.
+	 * Given a function name, search for it in the stack of environments, return an
+	 * optional list of function executors. The search proceeds from the top to the
+	 * bottom of the stack, maintaining the natural stack ordering.
 	 * 
-	 * @param name
-	 *            The name of the variable to look up.
+	 * @param name The name of the variable to look up.
 	 * @return The optional function executor list.
 	 */
 	public Optional<List<FunctionExecutor>> lookupFunctions(String name) {
@@ -1113,18 +1015,14 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Apply the function to the supplied parameter list, leaving the result on
-	 * the stack.
+	 * Apply the function to the supplied parameter list, leaving the result on the
+	 * stack.
 	 * 
-	 * @param funcName
-	 *            The name of the function.
-	 * @param params
-	 *            The parameter list.
-	 * @throws VeLaEvalError
-	 *             If a function evaluation error occurs.
+	 * @param funcName The name of the function.
+	 * @param params   The parameter list.
+	 * @throws VeLaEvalError If a function evaluation error occurs.
 	 */
-	private void applyFunction(String funcName, List<Operand> params)
-			throws VeLaEvalError {
+	private void applyFunction(String funcName, List<Operand> params) throws VeLaEvalError {
 
 		String canonicalFuncName = funcName.toUpperCase();
 
@@ -1152,8 +1050,7 @@ public class VeLaInterpreter {
 					candidateFunStr.append(candidateFun.toString());
 					candidateFunStr.append("\n");
 				}
-				throw new VeLaEvalError("Invalid parameters for function \""
-						+ funcName + "\":\n" + candidateFunStr);
+				throw new VeLaEvalError("Invalid parameters for function \"" + funcName + "\":\n" + candidateFunStr);
 			}
 		} else {
 			// Instead of being a named function, it may be a function that's
@@ -1174,17 +1071,13 @@ public class VeLaInterpreter {
 	 * Apply the function to the supplied parameter list if it conforms to them,
 	 * leaving the result on the stack.
 	 * 
-	 * @param function
-	 *            The function executor to be applied to the supplied
-	 *            parameters.
-	 * @param params
-	 *            The parameter list.
+	 * @param function The function executor to be applied to the supplied
+	 *                 parameters.
+	 * @param params   The parameter list.
 	 * @return Does the function conform to the actual parameters?
-	 * @throws VeLaEvalError
-	 *             If a function evaluation error occurs.
+	 * @throws VeLaEvalError If a function evaluation error occurs.
 	 */
-	private boolean applyFunction(FunctionExecutor function,
-			List<Operand> params) throws VeLaEvalError {
+	private boolean applyFunction(FunctionExecutor function, List<Operand> params) throws VeLaEvalError {
 
 		boolean conforms = function.conforms(params);
 
@@ -1207,21 +1100,18 @@ public class VeLaInterpreter {
 					} else {
 						// The returned result was not of the expected type.
 						throw new VeLaEvalError(String.format(
-								"The expected return type of %s does not match "
-										+ "the actual return type of %s.",
+								"The expected return type of %s does not match " + "the actual return type of %s.",
 								funcRepr, result.get().getType()));
 					}
 				} else {
-					throw new VeLaEvalError(String.format(
-							"%s has no return type but a value "
-									+ "of type %s was returned.", funcRepr,
-							result.get().getType()));
+					throw new VeLaEvalError(
+							String.format("%s has no return type but a value " + "of type %s was returned.", funcRepr,
+									result.get().getType()));
 				}
 			} else {
 				if (function.returnType.isPresent()) {
 					// No result was returned but one was expected.
-					throw new VeLaEvalError(String.format(
-							"No value was returned by %s.", funcRepr));
+					throw new VeLaEvalError(String.format("No value was returned by %s.", funcRepr));
 				}
 			}
 		}
@@ -1232,8 +1122,7 @@ public class VeLaInterpreter {
 	/**
 	 * Add a function executor to the current scope.
 	 * 
-	 * @param executor
-	 *            The function executor to be added.
+	 * @param executor The function executor to be added.
 	 */
 	public void addFunctionExecutor(FunctionExecutor executor) {
 		// It's possible that the top-most environment is not a scope, so find
@@ -1294,48 +1183,43 @@ public class VeLaInterpreter {
 	}
 
 	private void addEval() {
-		addFunctionExecutor(new FunctionExecutor(Optional.of("EVAL"),
-				Arrays.asList(Type.STRING), Optional.of(Type.LIST)) {
-			@Override
-			public Optional<Operand> apply(List<Operand> operands) {
-				// Compile and evaluate code.
-				program(operands.get(0).stringVal());
-				Optional<Operand> result = program(operands.get(0).stringVal());
+		addFunctionExecutor(
+				new FunctionExecutor(Optional.of("EVAL"), Arrays.asList(Type.STRING), Optional.of(Type.LIST)) {
+					@Override
+					public Optional<Operand> apply(List<Operand> operands) {
+						// Compile and evaluate code.
+						program(operands.get(0).stringVal());
+						Optional<Operand> result = program(operands.get(0).stringVal());
 
-				// Return a list containing the result or the empty list.
-				Optional<Operand> resultList;
-				if (result.isPresent()) {
-					resultList = Optional.of(new Operand(Type.LIST, Arrays
-							.asList(result.get())));
-				} else {
-					resultList = Optional.of(Operand.EMPTY_LIST);
-				}
+						// Return a list containing the result or the empty list.
+						Optional<Operand> resultList;
+						if (result.isPresent()) {
+							resultList = Optional.of(new Operand(Type.LIST, Arrays.asList(result.get())));
+						} else {
+							resultList = Optional.of(Operand.EMPTY_LIST);
+						}
 
-				return resultList;
-			}
-		});
+						return resultList;
+					}
+				});
 	}
 
 	private void addZeroArityFunctions() {
-		addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"),
-				Optional.of(Type.REAL)) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("TODAY"), Optional.of(Type.REAL)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				Calendar cal = Calendar.getInstance();
 				int year = cal.get(Calendar.YEAR);
 				int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
 				int day = cal.get(Calendar.DAY_OF_MONTH);
-				double jd = AbstractDateUtil.getInstance().calendarToJD(year,
-						month, day);
+				double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, day);
 				return Optional.of(new Operand(Type.REAL, jd));
 			}
 		});
 
-		addFunctionExecutor(new FunctionExecutor(Optional.of("INTRINSICS"),
-				Optional.of(Type.STRING)) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("INTRINSICS"), Optional.of(Type.STRING)) {
 			@Override
-			public Optional<Operand> apply(List<Operand> operands)
-					throws VeLaEvalError {
+			public Optional<Operand> apply(List<Operand> operands) throws VeLaEvalError {
 				StringBuffer buf = new StringBuffer();
 				VeLaScope environment = (VeLaScope) environments.get(0);
 				Map<String, List<FunctionExecutor>> functionMap = new TreeMap<String, List<FunctionExecutor>>(
@@ -1353,8 +1237,7 @@ public class VeLaInterpreter {
 	}
 
 	private void addExit() {
-		addFunctionExecutor(new FunctionExecutor(Optional.of("EXIT"),
-				Arrays.asList(Type.INTEGER), Optional.empty()) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("EXIT"), Arrays.asList(Type.INTEGER), Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				System.exit(operands.get(0).intVal());
@@ -1365,8 +1248,7 @@ public class VeLaInterpreter {
 
 	private void addPrintProcedures() {
 		// Any number or type of parameters will do.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("PRINT"),
-				FunctionExecutor.ANY_FORMALS, Optional.empty()) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("PRINT"), FunctionExecutor.ANY_FORMALS, Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				return commonPrintProcedure(operands, false);
@@ -1375,17 +1257,16 @@ public class VeLaInterpreter {
 
 		// Note: shouldn't need this but on command-line, the LF character
 		// prints literally. Why?
-		addFunctionExecutor(new FunctionExecutor(Optional.of("PRINTLN"),
-				FunctionExecutor.ANY_FORMALS, Optional.empty()) {
-			@Override
-			public Optional<Operand> apply(List<Operand> operands) {
-				return commonPrintProcedure(operands, true);
-			}
-		});
+		addFunctionExecutor(
+				new FunctionExecutor(Optional.of("PRINTLN"), FunctionExecutor.ANY_FORMALS, Optional.empty()) {
+					@Override
+					public Optional<Operand> apply(List<Operand> operands) {
+						return commonPrintProcedure(operands, true);
+					}
+				});
 	}
 
-	private Optional<Operand> commonPrintProcedure(List<Operand> operands,
-			boolean eoln) {
+	private Optional<Operand> commonPrintProcedure(List<Operand> operands, boolean eoln) {
 		for (Operand operand : operands) {
 			System.out.print(operand.toHumanReadableString());
 		}
@@ -1396,14 +1277,12 @@ public class VeLaInterpreter {
 	}
 
 	private void addInputProcedures() {
-		addFunctionExecutor(new FunctionExecutor(Optional.of("NEXTCHAR"),
-				Optional.of(Type.STRING)) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("NEXTCHAR"), Optional.of(Type.STRING)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				Operand ch = null;
 				try {
-					ch = new Operand(Type.STRING,
-							Character.toString((char) System.in.read()));
+					ch = new Operand(Type.STRING, Character.toString((char) System.in.read()));
 				} catch (IOException e) {
 					ch = new Operand(Type.STRING, "");
 				}
@@ -1415,8 +1294,8 @@ public class VeLaInterpreter {
 	}
 
 	private void addFormatFunction() {
-		addFunctionExecutor(new FunctionExecutor(Optional.of("FORMAT"),
-				Arrays.asList(Type.STRING, Type.LIST), Optional.of(Type.STRING)) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("FORMAT"), Arrays.asList(Type.STRING, Type.LIST),
+				Optional.of(Type.STRING)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Object> args = new ArrayList<Object>();
@@ -1442,42 +1321,39 @@ public class VeLaInterpreter {
 						break;
 					}
 				}
-				Operand result = new Operand(Type.STRING, String.format(
-						operands.get(0).stringVal(),
-						args.toArray(new Object[0])));
+				Operand result = new Operand(Type.STRING,
+						String.format(operands.get(0).stringVal(), args.toArray(new Object[0])));
 				return Optional.of(result);
 			}
 		});
 	}
 
 	private void addChrFunction() {
-		addFunctionExecutor(new FunctionExecutor(Optional.of("CHR"),
-				Arrays.asList(Type.INTEGER), Optional.of(Type.STRING)) {
-			@Override
-			public Optional<Operand> apply(List<Operand> operands) {
-				int ordVal = operands.get(0).intVal();
-				String str = ordVal > -1 ? Character.toString((char) ordVal)
-						: "";
-				return Optional.of(new Operand(Type.STRING, str));
-			}
-		});
+		addFunctionExecutor(
+				new FunctionExecutor(Optional.of("CHR"), Arrays.asList(Type.INTEGER), Optional.of(Type.STRING)) {
+					@Override
+					public Optional<Operand> apply(List<Operand> operands) {
+						int ordVal = operands.get(0).intVal();
+						String str = ordVal > -1 ? Character.toString((char) ordVal) : "";
+						return Optional.of(new Operand(Type.STRING, str));
+					}
+				});
 	}
 
 	private void addOrdFunction() {
-		addFunctionExecutor(new FunctionExecutor(Optional.of("ORD"),
-				Arrays.asList(Type.STRING), Optional.of(Type.INTEGER)) {
-			@Override
-			public Optional<Operand> apply(List<Operand> operands) {
-				char chrVal = operands.get(0).stringVal().charAt(0);
-				return Optional.of(new Operand(Type.INTEGER, (int) chrVal));
-			}
-		});
+		addFunctionExecutor(
+				new FunctionExecutor(Optional.of("ORD"), Arrays.asList(Type.STRING), Optional.of(Type.INTEGER)) {
+					@Override
+					public Optional<Operand> apply(List<Operand> operands) {
+						char chrVal = operands.get(0).stringVal().charAt(0);
+						return Optional.of(new Operand(Type.INTEGER, (int) chrVal));
+					}
+				});
 	}
 
 	private void addListHeadFunction() {
 		// Return type will change with invocation.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("HEAD"),
-				Arrays.asList(Type.LIST), Optional.empty()) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("HEAD"), Arrays.asList(Type.LIST), Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list = operands.get(0).listVal();
@@ -1495,59 +1371,58 @@ public class VeLaInterpreter {
 
 	private void addListTailFunction() {
 		// Return type will always be a list.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("TAIL"),
-				Arrays.asList(Type.LIST), Optional.of(Type.LIST)) {
-			@Override
-			public Optional<Operand> apply(List<Operand> operands) {
-				List<Operand> list = operands.get(0).listVal();
-				Operand result;
-				if (!list.isEmpty()) {
-					List<Operand> tail = new ArrayList<Operand>(list);
-					tail.remove(0);
-					result = new Operand(Type.LIST, tail);
-				} else {
-					result = Operand.EMPTY_LIST;
-				}
-				return Optional.of(result);
-			}
-		});
+		addFunctionExecutor(
+				new FunctionExecutor(Optional.of("TAIL"), Arrays.asList(Type.LIST), Optional.of(Type.LIST)) {
+					@Override
+					public Optional<Operand> apply(List<Operand> operands) {
+						List<Operand> list = operands.get(0).listVal();
+						Operand result;
+						if (!list.isEmpty()) {
+							List<Operand> tail = new ArrayList<Operand>(list);
+							tail.remove(0);
+							result = new Operand(Type.LIST, tail);
+						} else {
+							result = Operand.EMPTY_LIST;
+						}
+						return Optional.of(result);
+					}
+				});
 	}
 
 	private void addListNthFunction() {
 		// Return type will change with invocation.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("NTH"),
-				Arrays.asList(Type.LIST, Type.INTEGER), Optional.empty()) {
-			@Override
-			public Optional<Operand> apply(List<Operand> operands) {
-				List<Operand> list = operands.get(0).listVal();
-				Operand result;
-				if (!list.isEmpty()) {
-					result = list.get(operands.get(1).intVal());
-				} else {
-					result = Operand.EMPTY_LIST;
-				}
-				setReturnType(Optional.of(result.getType()));
-				return Optional.of(result);
-			}
-		});
+		addFunctionExecutor(
+				new FunctionExecutor(Optional.of("NTH"), Arrays.asList(Type.LIST, Type.INTEGER), Optional.empty()) {
+					@Override
+					public Optional<Operand> apply(List<Operand> operands) {
+						List<Operand> list = operands.get(0).listVal();
+						Operand result;
+						if (!list.isEmpty()) {
+							result = list.get(operands.get(1).intVal());
+						} else {
+							result = Operand.EMPTY_LIST;
+						}
+						setReturnType(Optional.of(result.getType()));
+						return Optional.of(result);
+					}
+				});
 	}
 
 	private void addListLengthFunction() {
 		// Return type will always be integer.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("LENGTH"),
-				Arrays.asList(Type.LIST), Optional.of(Type.INTEGER)) {
-			@Override
-			public Optional<Operand> apply(List<Operand> operands) {
-				return Optional.of(new Operand(Type.INTEGER, operands.get(0)
-						.listVal().size()));
-			}
-		});
+		addFunctionExecutor(
+				new FunctionExecutor(Optional.of("LENGTH"), Arrays.asList(Type.LIST), Optional.of(Type.INTEGER)) {
+					@Override
+					public Optional<Operand> apply(List<Operand> operands) {
+						return Optional.of(new Operand(Type.INTEGER, operands.get(0).listVal().size()));
+					}
+				});
 	}
 
 	private void addListConcatFunction() {
 		// Return type will always be LIST here.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("CONCAT"),
-				Arrays.asList(Type.LIST, Type.LIST), Optional.of(Type.LIST)) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("CONCAT"), Arrays.asList(Type.LIST, Type.LIST),
+				Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				List<Operand> list1 = operands.get(0).listVal();
@@ -1562,8 +1437,7 @@ public class VeLaInterpreter {
 
 	private void addListAppendFunction(Type secondParameterType) {
 		// Return type will always be LIST here.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("APPEND"),
-				Arrays.asList(Type.LIST, secondParameterType),
+		addFunctionExecutor(new FunctionExecutor(Optional.of("APPEND"), Arrays.asList(Type.LIST, secondParameterType),
 				Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
@@ -1578,8 +1452,7 @@ public class VeLaInterpreter {
 	private void addIntegerSeqFunction() {
 		// Return type will always be LIST here..
 		addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"),
-				Arrays.asList(Type.INTEGER, Type.INTEGER, Type.INTEGER),
-				Optional.of(Type.LIST)) {
+				Arrays.asList(Type.INTEGER, Type.INTEGER, Type.INTEGER), Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				Integer first = operands.get(0).intVal();
@@ -1596,8 +1469,7 @@ public class VeLaInterpreter {
 
 	private void addRealSeqFunction() {
 		// Return type will always be LIST here..
-		addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"),
-				Arrays.asList(Type.REAL, Type.REAL, Type.REAL),
+		addFunctionExecutor(new FunctionExecutor(Optional.of("SEQ"), Arrays.asList(Type.REAL, Type.REAL, Type.REAL),
 				Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
@@ -1615,8 +1487,8 @@ public class VeLaInterpreter {
 
 	private void addListMapFunction() {
 		// Return type will always be LIST here.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("MAP"),
-				Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.LIST)) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("MAP"), Arrays.asList(Type.FUNCTION, Type.LIST),
+				Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				FunctionExecutor fun = operands.get(0).functionVal();
@@ -1650,8 +1522,8 @@ public class VeLaInterpreter {
 
 	private void addListFilterFunction() {
 		// Return type will always be LIST here.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("FILTER"),
-				Arrays.asList(Type.FUNCTION, Type.LIST), Optional.of(Type.LIST)) {
+		addFunctionExecutor(new FunctionExecutor(Optional.of("FILTER"), Arrays.asList(Type.FUNCTION, Type.LIST),
+				Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				FunctionExecutor fun = operands.get(0).functionVal();
@@ -1693,8 +1565,7 @@ public class VeLaInterpreter {
 	private void addListReduceFunction(Type reductionType) {
 		// Return type will be same as function the parameter's type.
 		addFunctionExecutor(new FunctionExecutor(Optional.of("REDUCE"),
-				Arrays.asList(Type.FUNCTION, Type.LIST, reductionType),
-				Optional.empty()) {
+				Arrays.asList(Type.FUNCTION, Type.LIST, reductionType), Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
 				FunctionExecutor fun = operands.get(0).functionVal();
@@ -1720,49 +1591,43 @@ public class VeLaInterpreter {
 
 	private void addListForFunction() {
 		// FOR should not return anything.
-		addFunctionExecutor(new FunctionExecutor(Optional.of("FOR"),
-				Arrays.asList(Type.FUNCTION, Type.LIST), Optional.empty()) {
-			@Override
-			public Optional<Operand> apply(List<Operand> operands) {
-				FunctionExecutor fun = operands.get(0).functionVal();
-				List<Operand> list = operands.get(1).listVal();
-				for (Operand item : list) {
-					List<Operand> params = new ArrayList<Operand>();
-					params.add(item);
+		addFunctionExecutor(
+				new FunctionExecutor(Optional.of("FOR"), Arrays.asList(Type.FUNCTION, Type.LIST), Optional.empty()) {
+					@Override
+					public Optional<Operand> apply(List<Operand> operands) {
+						FunctionExecutor fun = operands.get(0).functionVal();
+						List<Operand> list = operands.get(1).listVal();
+						for (Operand item : list) {
+							List<Operand> params = new ArrayList<Operand>();
+							params.add(item);
 
-					applyFunction(fun, params);
-				}
-				return Optional.empty();
-			}
-		});
+							applyFunction(fun, params);
+						}
+						return Optional.empty();
+					}
+				});
 	}
 
 	/**
 	 * Given a class, add non zero-arity VeLa type-compatible functions to the
 	 * functions map.
 	 * 
-	 * @param clazz
-	 *            The class from which to add function executors.
-	 * @param instance
-	 *            The instance of this class on which to invoke the function.
-	 * @param permittedTypes
-	 *            The set of Java types that are compatible with VeLa.
-	 * @param exclusions
-	 *            Names of functions to exclude.
+	 * @param clazz          The class from which to add function executors.
+	 * @param instance       The instance of this class on which to invoke the
+	 *                       function.
+	 * @param permittedTypes The set of Java types that are compatible with VeLa.
+	 * @param exclusions     Names of functions to exclude.
 	 */
-	public static void addFunctionExecutorsFromClass(Class<?> clazz,
-			Object instance, Set<Class<?>> permittedTypes,
+	public static void addFunctionExecutorsFromClass(Class<?> clazz, Object instance, Set<Class<?>> permittedTypes,
 			Set<String> exclusions) {
 		Method[] declaredMethods = clazz.getDeclaredMethods();
 
 		for (Method declaredMethod : declaredMethods) {
 			String funcName = declaredMethod.getName().toUpperCase();
 			Class<?> returnType = declaredMethod.getReturnType();
-			List<Class<?>> paramTypes = getJavaParameterTypes(declaredMethod,
-					permittedTypes);
+			List<Class<?>> paramTypes = getJavaParameterTypes(declaredMethod, permittedTypes);
 
-			if (!Modifier.isStatic(declaredMethod.getModifiers())
-					&& instance == null) {
+			if (!Modifier.isStatic(declaredMethod.getModifiers()) && instance == null) {
 				List<Class<?>> newParamTypes = new ArrayList<Class<?>>();
 				newParamTypes.add(clazz);
 				newParamTypes.addAll(paramTypes);
@@ -1771,23 +1636,18 @@ public class VeLaInterpreter {
 
 			FunctionExecutor function = null;
 
-			if (!exclusions.contains(funcName)
-					&& permittedTypes.contains(returnType)) {
+			if (!exclusions.contains(funcName) && permittedTypes.contains(returnType)) {
 				// If the method is non-static, we need to include a
 				// parameter type for the object on which the method will be
 				// invoked.
 
-				List<Type> types = paramTypes.stream()
-						.map(t -> Type.java2Vela(t))
-						.collect(Collectors.toList());
+				List<Type> types = paramTypes.stream().map(t -> Type.java2Vela(t)).collect(Collectors.toList());
 
-				function = new FunctionExecutor(Optional.of(funcName),
-						declaredMethod, types, Optional.of(Type
-								.java2Vela(returnType))) {
+				function = new FunctionExecutor(Optional.of(funcName), declaredMethod, types,
+						Optional.of(Type.java2Vela(returnType))) {
 					@Override
 					public Optional<Operand> apply(List<Operand> operands) {
-						return invokeJavaMethod(getMethod(), instance,
-								operands, getReturnType());
+						return invokeJavaMethod(getMethod(), instance, operands, getReturnType());
 					}
 				};
 
@@ -1796,8 +1656,8 @@ public class VeLaInterpreter {
 		}
 	}
 
-	private static Optional<Operand> invokeJavaMethod(Method method,
-			Object instance, List<Operand> operands, Optional<Type> retType) {
+	private static Optional<Operand> invokeJavaMethod(Method method, Object instance, List<Operand> operands,
+			Optional<Type> retType) {
 		Operand result = null;
 
 		try {
@@ -1819,23 +1679,27 @@ public class VeLaInterpreter {
 			// lambda expressions in VStar!
 
 			// obj is null for static methods
-			result = Operand.object2Operand(
-					retType.get(),
-					method.invoke(obj,
-							operands.stream().map(op -> op.toObject())
-									.toArray()));
+			result = Operand.object2Operand(retType.get(),
+					method.invoke(obj, operands.stream().map(op -> op.toObject()).toArray()));
+
+			Optional<Operand> retVal = null;
+
+			if (result != null) {
+				retVal = Optional.of(result);
+			} else {
+				retVal = Optional.of(Operand.NO_VALUE);
+			}
+
+			return retVal;
 
 		} catch (InvocationTargetException e) {
 			throw new VeLaEvalError(e.getLocalizedMessage());
 		} catch (IllegalAccessException e) {
 			throw new VeLaEvalError(e.getLocalizedMessage());
 		}
-
-		return Optional.of(result);
 	}
 
-	private static List<Class<?>> getJavaParameterTypes(Method method,
-			Set<Class<?>> targetTypes) {
+	private static List<Class<?>> getJavaParameterTypes(Method method, Set<Class<?>> targetTypes) {
 		Parameter[] parameters = method.getParameters();
 		List<Class<?>> parameterTypes = new ArrayList<Class<?>>();
 
