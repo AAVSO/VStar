@@ -51,7 +51,7 @@ import org.aavso.tools.vstar.vela.VeLaInterpreter;
  */
 @SuppressWarnings("serial")
 public class VeLaDialog extends TextDialog {
-	
+
 	private static ITextComponent<String> codeTextArea;
 	private static TextArea resultTextArea;
 	private static JCheckBox verbosityCheckBox;
@@ -59,7 +59,7 @@ public class VeLaDialog extends TextDialog {
 	private static VeLaInterpreter vela;
 
 	private String path;
-	
+
 	static {
 		codeTextArea = new TextArea("VeLa Code", "", 12, 42, false, true);
 		// resultTextArea = new TextAreaTabs(Arrays.asList("Output", "Error",
@@ -127,8 +127,7 @@ public class VeLaDialog extends TextDialog {
 		loadButton.addActionListener(e -> {
 			StringBuffer code = new StringBuffer();
 
-			VeLaFileLoadChooser chooser = Mediator.getInstance()
-					.getVelaFileLoadDialog();
+			VeLaFileLoadChooser chooser = Mediator.getInstance().getVelaFileLoadDialog();
 
 			if (chooser.showDialog(this)) {
 				path = chooser.getSelectedFile().getAbsolutePath();
@@ -140,25 +139,21 @@ public class VeLaDialog extends TextDialog {
 					codeTextArea.setValue(code.toString());
 				} catch (IOException ex) {
 					// Nothing to do
+				}
 			}
-		}
-	})	;
+		});
 
 		panel.add(loadButton);
 
 		JButton saveButton = new JButton(LocaleProps.get("SAVE_BUTTON"));
 		saveButton.addActionListener(e -> {
-			VeLaFileSaveChooser chooser = Mediator.getInstance()
-					.getVelaFileSaveDialog();
+			VeLaFileSaveChooser chooser = Mediator.getInstance().getVelaFileSaveDialog();
 
 			if (chooser.showDialog(this)) {
 				path = chooser.getSelectedFile().getAbsolutePath();
 				File file = chooser.getSelectedFile();
-				if (file.exists()
-						&& file.isFile()
-						&& !MessageBox.showConfirmDialog(
-								LocaleProps.get("FILE_MENU_SAVE"),
-								LocaleProps.get("SAVE_OVERWRITE"))) {
+				if (file.exists() && file.isFile() && !MessageBox.showConfirmDialog(LocaleProps.get("FILE_MENU_SAVE"),
+						LocaleProps.get("SAVE_OVERWRITE"))) {
 					return;
 				}
 				String code = codeTextArea.getValue();
@@ -169,9 +164,9 @@ public class VeLaDialog extends TextDialog {
 					writer.close();
 				} catch (IOException ex) {
 					// Nothing to do
+				}
 			}
-		}
-	})	;
+		});
 		panel.add(saveButton);
 
 		JButton dismissButton = new JButton(LocaleProps.get("OK_BUTTON"));
@@ -210,21 +205,26 @@ public class VeLaDialog extends TextDialog {
 			// Compile and execute the code.
 			vela = new VeLaInterpreter(false);
 			vela.setVerbose(verbose);
+			
 			Pair<Optional<Operand>, AST> pair = vela.veLaToResultASTPair(text);
+	
 			Optional<Operand> result = pair.first;
-			AST ast = pair.second;
-			if (verbose && ast != null) {
-				lispAST = ast.toString();
-				dotAST = ast.toFullDOT();
-			}
+			
+			if (result.isPresent()) {
+				AST ast = pair.second;
+				if (verbose && ast != null) {
+					lispAST = ast.toString();
+					dotAST = ast.toFullDOT();
+				}
 
-			// Any standard error or output to show?
-			error += showOutput(errStream);
-			output += showOutput(outStream);
+				// Any standard error or output to show?
+				error += showOutput(errStream);
+				output += showOutput(outStream);
 
-			// Is there a result to show?
-			if (result.isPresent() && error == "") {
-				output = result.get().toHumanReadableString();
+				// Is there a result to show?
+				if (error == "") {
+					output = result.get().toHumanReadableString();
+				}
 			}
 		} catch (Exception e) {
 			// Show error in text area.
@@ -240,11 +240,9 @@ public class VeLaDialog extends TextDialog {
 			}
 		} finally {
 			// Reset standard output and error to console.
-			System.setOut(new PrintStream(new FileOutputStream(
-					FileDescriptor.out)));
+			System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
 
-			System.setErr(new PrintStream(new FileOutputStream(
-					FileDescriptor.err)));
+			System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
 
 			Mediator.getUI().setScriptingStatus(false);
 		}

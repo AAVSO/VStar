@@ -1,0 +1,22 @@
+-- Standard functions corresponding to intrinsic VeLa functions
+
+-- TODO:
+-- o need an ANY or variant types
+
+_nthrec(L:list n:integer) : integer
+-- Given a list L and an index n, return the element at that index
+{
+    when
+      n = 0 -> head(L)
+      n > 0 -> _nthrec(tail(L) n-1)
+}
+
+_nthiter(L:list n:integer) : integer
+-- Given a list L and an index n, return the element at that index
+{ 
+    while n > 0 {
+        L <- tail(L)
+        n <- n-1   
+    }
+    head(L)
+}
