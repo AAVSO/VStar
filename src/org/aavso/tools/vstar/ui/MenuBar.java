@@ -1202,7 +1202,6 @@ public class MenuBar extends JMenuBar {
 				// Max: probably I'm paranoid: preventing opening PluginManagementDialog twice.
 				if (PluginManagementDialog.getPluginManagementActive()) return;
 				PluginManagementDialog.setPluginManagementActive(true);
-				//System.out.println(Thread.currentThread().getId());
 				final PluginManager manager = new PluginManager();
 				PluginManagementOperation op = new PluginManagementOperation(
 						manager, "Initialising Plug-in Manager") {

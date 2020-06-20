@@ -121,10 +121,12 @@ public class PluginManagementDialog extends JDialog implements
 	}
 	
 	public static synchronized void setPluginManagementActive(boolean b) {
+		//System.out.println("setPluginManagementActive: " + Thread.currentThread().getId());
 		pluginManagementActive = b;
 	}
 	
 	public static synchronized boolean getPluginManagementActive() {
+		//System.out.println("getPluginManagementActive: " + Thread.currentThread().getId());
 		return pluginManagementActive;
 	}	
 	
