@@ -69,7 +69,7 @@ public class PluginManagementDialog extends JDialog implements
 	private final String DIALOG_TITLE_MOD = "Plug-in Manager: PROGRAM RESTART NEEDED";
 	private boolean restartNeeded = false;
 	
-	private static volatile boolean pluginManagementActive = false; 
+	private static boolean pluginManagementActive = false; 
 
 	/**
 	 * Constructor
@@ -110,7 +110,7 @@ public class PluginManagementDialog extends JDialog implements
 
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				pluginManagementActive = false;
+				setPluginManagementActive(false);
 			}
 		});
 		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -120,11 +120,11 @@ public class PluginManagementDialog extends JDialog implements
 		this.setVisible(true);
 	}
 	
-	public static void setPluginManagementActive(boolean b) {
+	public static synchronized void setPluginManagementActive(boolean b) {
 		pluginManagementActive = b;
 	}
 	
-	public static boolean getPluginManagementActive() {
+	public static synchronized boolean getPluginManagementActive() {
 		return pluginManagementActive;
 	}	
 	
@@ -254,6 +254,7 @@ public class PluginManagementDialog extends JDialog implements
 	private ActionListener createDismissButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				setPluginManagementActive(false);
 				setVisible(false);
 				dispose();
 			}
