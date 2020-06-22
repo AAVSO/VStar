@@ -1,0 +1,57 @@
+<project name="VStarWinInstaller" default="installer" basedir=".">
+	<description>
+		Ant build file for VStar Windows Installer.
+		This works under Windows only.
+		Inno Setup Compiler (https://jrsoftware.org/isinfo.php) 
+		must be installed (see InnoSetupCompiler property).
+		
+		Create VStar Windows package (vstar-win.zip) first: 
+			ant win
+		Then use
+			ant -f build-win-installer.xml
+		command to make the installer.
+		
+		Do not forget to set the correct application version (app_name property)!
+	</description>
+
+	<!-- Do not forget to set the correct app_version! -->
+	<property name="app_version" value ="2.21.1"/>
+
+	<!-- VStar zipped Windows package -->
+	<property name="windows_bundle" location ="vstar-win.zip"/>
+	<!-- Directory to hold temporary files -->
+	<property name="win_install_dir" location="win-install"/>
+	<!-- Directory with additional installer files (images etc.) -->
+	<property name="installer_files" location="install-files"/>
+	<!-- Path to InnoSetupCompiler -->
+	<property name="InnoSetupCompiler" location="C:/Program Files (x86)/Inno Setup 6/ISCC.exe"/>
+
+	<target name="installer" description="Generate Windows installer.">
+
+		<mkdir dir="${win_install_dir}"/>
+
+		<delete includeemptydirs="true">
+			<fileset dir="${win_install_dir}" includes="**/*"/>
+		</delete>
+
+		<unzip src="${windows_bundle}" dest="${win_install_dir}">
+			<patternset>
+				<include name="/"/>
+			</patternset>
+		</unzip>
+
+		<copy file="${installer_files}/VStarSetup.iss" todir="${win_install_dir}"/>
+		<copy file="${installer_files}/tenstar_artist_conception1.bmp" todir="${win_install_dir}"/>
+		<copy file="${installer_files}/aavso.bmp" todir="${win_install_dir}"/>
+
+		<exec executable="${InnoSetupCompiler}" failonerror="true">
+			<arg value="${win_install_dir}/VStarSetup.iss"/>
+			<arg value="-DMyAppVersion=${app_version}"/>
+		</exec>
+
+		<delete includeemptydirs="true">
+			<fileset dir="${win_install_dir}" includes="**/*"/>
+		</delete>
+
+	</target>
+</project>
