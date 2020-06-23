@@ -79,7 +79,7 @@
 	</target>
 
 	<target name="compile_src" depends="init,antlr4" description="Compile the source">
-		<!-- Update git revision and build date -->
+		<!-- Update git revision -->
 		<exec executable="git" outputproperty="git.revision" failifexecutionfails="false" errorproperty="">
 			<arg value="rev-parse" />
 			<arg value="--short" />
