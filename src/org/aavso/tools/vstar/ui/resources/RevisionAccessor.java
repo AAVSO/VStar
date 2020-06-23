@@ -26,13 +26,25 @@ import java.util.regex.Pattern;
 
 public class RevisionAccessor {
 
-	private static String REVISION = "e9f893cb";
+	private static String REVISION = "Unversioned directory";
+
+	private static final Pattern revNumPat = Pattern
+			.compile("^\\d+:(\\d+).*$");
 
 	/**
-	 * Get the latest git revision
+	 * Get the latest revision number if REVISION is of the form:
+	 * n:m... (i.e. get m), otherwise just return the whole revision
+	 * string. It doesn't really matter what it is so long as it's
+	 * unique from one commit of dist/vstar.jar to the next.
 	 */
 	public static String getRevNum() {
-		return REVISION;
-	}
+		String rev = REVISION;
 
+		Matcher revMatcher = revNumPat.matcher(rev);
+		if (revMatcher.matches()) {
+			rev = revMatcher.group(1);
+		}
+		
+		return rev;
+	}
 }
