@@ -1,29 +1,31 @@
 ;VStar InnoSetup Script
 
-#define MyAppName "AAVSO VStar"
-;#define MyAppVersion "2.21.X"
-#define MyAppPublisher "AAVSO"
-#define MyAppURL "https://aavso.org/vstar"
-#define MyAppExeName "VStar.exe"
+#define TheAppName "AAVSO VStar"
+; Normally, TheAppVersion defined via ISCC.exe command-line parameter (see build-win-installer.xml)
+#ifndef TheAppVersion
+  #define TheAppVersion "Unversioned"
+#endif
+#define TheAppPublisher "AAVSO"
+#define TheAppURL "https://aavso.org/vstar"
+#define TheAppExeName "VStar.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{1860E797-A226-48ED-891A-2B3A0960A83D}
-AppName={#MyAppName}
-AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
-AppPublisher={#MyAppPublisher}
-AppPublisherURL={#MyAppURL}
-AppSupportURL={#MyAppURL}
-AppUpdatesURL={#MyAppURL}
+AppName={#TheAppName}
+AppVersion={#TheAppVersion}
+AppPublisher={#TheAppPublisher}
+AppPublisherURL={#TheAppURL}
+AppSupportURL={#TheAppURL}
+AppUpdatesURL={#TheAppURL}
 DefaultDirName={%HOMEDRIVE}{%HOMEPATH}\vstar
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
 WizardImageFile=tenstar_artist_conception1.bmp
 WizardSmallImageFile=aavso.bmp
-OutputBaseFilename=VStarSetup_{#MyAppVersion}
+OutputBaseFilename=VStarSetup_{#TheAppVersion}
 OutputDir=..\
 Compression=lzma
 SolidCompression=yes
@@ -49,12 +51,12 @@ Source: "vstar\extlib\*"      ; DestDir: "{app}\extlib"     ; Flags: ignoreversi
 Source: "vstar\plugin-dev\*"  ; DestDir: "{app}\plugin-dev" ; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{userprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{userdesktop}\{#MyAppName}" ; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{userprograms}\{#TheAppName}"; Filename: "{app}\{#TheAppExeName}"
+Name: "{userdesktop}\{#TheAppName}" ; Filename: "{app}\{#TheAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-Filename: "{#MyAppURL}"; Description: "Go to Application Website"; Flags: postinstall shellexec skipifsilent
+Filename: "{app}\{#TheAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(TheAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{#TheAppURL}"; Description: "Visit Application Website"; Flags: postinstall shellexec skipifsilent
 
 [Code]
 
@@ -80,20 +82,23 @@ begin
     '{\rtf1 This will install {#SetupSetting("AppName")} ' + 
     'version {#SetupSetting("AppVersion")} on your computer.\par\par ' +
     'Click Next to continue or Cancel to exit Setup.';
+
   // Cannot read HKLM if PrivilegesRequired=lowest.
   //JavaVer := '';
   //if not RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\JavaSoft\Java Runtime Environment',
   //  'CurrentVersion', JavaVer)
   //then
   //  JavaVer := '';
+  
+  // Instead checking The Registry, testing for the JRE executable.
   try
-    JavaFound := Exec('java.exe', '', '', SW_HIDE, ewNoWait, ResultCode);
+    JavaFound := Exec('javaw.exe', '', '', SW_HIDE, ewNoWait, ResultCode);
   except
     JavaFound := False;
   end;
   if not JavaFound then begin
     Message := Message + 
-      '\par\par It seems there is no Java Runtime Environment (JRE) installed on your machine.\par ' + 
+      '\par\par Test for "javaw.exe" failed!\par It seems there is no Java Runtime Environment (JRE) installed on your machine.\par ' + 
       'You can download JRE installer from the Java download site \par' + 
       '{\field{\*\fldinst{HYPERLINK "https://www.java.com/download/"}}{\fldrslt{\ul\cf1 https://www.java.com/download/}}}';
   end;
