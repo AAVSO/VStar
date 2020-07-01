@@ -205,26 +205,26 @@ public class VeLaDialog extends TextDialog {
 			// Compile and execute the code.
 			vela = new VeLaInterpreter(false);
 			vela.setVerbose(verbose);
-			
+
 			Pair<Optional<Operand>, AST> pair = vela.veLaToResultASTPair(text);
-	
+
 			Optional<Operand> result = pair.first;
-			
+
 			if (result.isPresent()) {
 				AST ast = pair.second;
 				if (verbose && ast != null) {
 					lispAST = ast.toString();
 					dotAST = ast.toFullDOT();
 				}
+			}
 
-				// Any standard error or output to show?
-				error += showOutput(errStream);
-				output += showOutput(outStream);
+			// Any standard error or output to show?
+			error += showOutput(errStream);
+			output += showOutput(outStream);
 
-				// Is there a result to show?
-				if (error == "") {
-					output = result.get().toHumanReadableString();
-				}
+			// Is there a result to show?
+			if (error == "") {
+				output = result.get().toHumanReadableString();
 			}
 		} catch (Exception e) {
 			// Show error in text area.
