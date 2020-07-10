@@ -1,3 +1,5 @@
+@echo off
+
 :: Run VStar with the same VM configuration as via JNLP.
 
 :: VSTAR_HOME needs to be set to the VStar root directory,
@@ -5,9 +7,16 @@
 :: If not set, the script assumes the current directory is the
 :: directory that the script is running from.
 
-if not "%VSTAR_HOME%" == "" GOTO RUN
+title VStar
+
+if not "%VSTAR_HOME%" == "" goto :RUN
 
 set VSTAR_HOME=%~dp0
 
-:RUN 
+:RUN
 java -splash:"%VSTAR_HOME%\extlib\vstaricon.png" -Xms800m -Xmx1500m -jar "%VSTAR_HOME%\dist\vstar.jar" %*
+if ERRORLEVEL 1 goto :ERROR
+goto :EOF
+:ERROR
+echo *** Nonzero exit code: possible ERROR running VStar
+pause
