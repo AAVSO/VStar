@@ -88,6 +88,19 @@ public class TabbedDataPane extends JPanel {
 	}
 
 	/**
+	 * Create a tab with the specified component.
+	 * 
+	 * @param component
+	 *            The component to be comtained in the tab when created.
+	 */
+	public void createTab(ViewModeType type, Component component) {
+		tabs.addTab(type.getModeDesc(), component);
+		viewModeToTabIndexMap.put(type, index);
+		tabIndexToViewModeMap.put(index, type);
+		nextTabIndex();
+	}
+
+	/**
 	 * Advance to the next new tab index to be used.
 	 * 
 	 * @return
@@ -125,19 +138,6 @@ public class TabbedDataPane extends JPanel {
 		topPane.add(tabs);
 
 		this.add(new JScrollPane(topPane), BorderLayout.CENTER);
-	}
-
-	/**
-	 * Create a tab with the specified component.
-	 * 
-	 * @param component
-	 *            The component to be comtained in the tab when created.
-	 */
-	private void createTab(ViewModeType type, Component component) {
-		tabs.addTab(type.getModeDesc(), component);
-		viewModeToTabIndexMap.put(type, index);
-		tabIndexToViewModeMap.put(index, type);
-		nextTabIndex();
 	}
 
 	/**

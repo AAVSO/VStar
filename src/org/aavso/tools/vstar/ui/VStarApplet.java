@@ -154,4 +154,9 @@ public class VStarApplet extends JApplet implements IMainUI {
 	public boolean isScriptingMode() {
 		return scriptingMode;
 	}
+
+	@Override
+	public void addTab(String name, Component component, boolean canClose) {
+		// Do nothing
+	}
 }
