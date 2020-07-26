@@ -251,9 +251,6 @@ public class FlexibleTextFileFormatObservationSource extends
 				int readErrorCount = 0;
 				boolean terminateReading = false;
 
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(getInputStreams().get(0)));
-
 				for (String line : lines) {
 					lineNum++;
 					try {
