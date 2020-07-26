@@ -1,0 +1,17 @@
+objName <- "000-BJV-425"
+startJD <- 2455000
+lastJD <- 2456000
+step <- 500
+
+while startJD <= lastJD {
+  endJD <-  startJD+step
+
+  loadFromAID(objName startJD startJD+step)
+
+  periods <- dcdftPeriod("Johnson V" 10 50 0.1)
+
+  averageJD <- (startJD + endJD)/2
+  println(format("%d,%1.1f" [averageJD nth(periods 0)]))
+
+  startJD <- startJD+(step-step*20/100)
+}
