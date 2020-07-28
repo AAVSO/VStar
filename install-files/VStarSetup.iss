@@ -113,6 +113,8 @@ begin
   MaxHeapSize := ((MemSize div 1024) div 1024) div 2; // half of available physical memory, in megabytes.
   if MaxHeapSize < 256 then
     MaxHeapSize := 256; // default value
+  if (not IsWin64) and (MaxHeapSize > 1500) then
+    MaxHeapSize := 1500;
   // Max heap size cannot be less than initial heap size
   if MaxHeapSize > 800 then
     Result := '-Xms800m -Xmx' + Int64toStr(MaxHeapSize) + 'm'
