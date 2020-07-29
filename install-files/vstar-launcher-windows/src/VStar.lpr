@@ -17,6 +17,8 @@ var
   JVMexecutable: string;
   JVMparameters: string;
   ShowParameters: Boolean;
+  DebugMode: Boolean;
+  S: string;
   I: Integer;
 
 // This program runs VStar Java application like existing VStar.bat does.
@@ -32,6 +34,23 @@ begin
   JavaPath := '';
   JVMexecutable := 'javaw.exe';
   JVMparameters := '';
+  DebugMode := False;
+  // Check command line for the special VStar.exe parameters.
+  for I := 1 to ParamCount do begin
+    S := ParamStr(I);
+    if Copy(S, 1, 2) = '//' then begin
+      // A special VStar.exe parameter found.
+      if AnsiUpperCase(S) = '//DEBUG' then begin
+        // Debug mode: create console, use console-mode java.exe,
+        // wait on exit to see possible error output.
+        DebugMode := True;
+        JVMexecutable := 'java.exe';
+        AllocConsole;
+        IsConsole := True;
+        SysInitStdIO;
+      end;
+    end;
+  end;
   try
     Ini := TMemIniFile.Create(ChangeFileExt(ParamStr(0), '.INI'));
     try
@@ -72,18 +91,36 @@ begin
       end;
       AProcess.Parameters.Add('-jar "' + VStarHome + 'dist\vstar.jar"');
       // Any additional parameters passed through command-line
-      for I := 1 to ParamCount do
-        AProcess.Parameters.Add(ParamStr(I));
+      // but VStar.exe special parameters!
+      for I := 1 to ParamCount do begin
+        S := ParamStr(I);
+        if Copy(S, 1, 2) = '//' then begin
+          // special VStar.exe parameter. do not pass it to Java!
+        end
+        else
+          AProcess.Parameters.Add(ParamStr(I));
+      end;
       AProcess.Executable := JVMexecutable;
       JVMparameters := AProcess.Parameters.Text;
       // Some debug optiion
       if ShowParameters then begin
         Windows.MessageBox(0,
           PChar(JVMparameters),
-          PChar('Parameters of ' + JVMexecutable), MB_OK or MB_ICONINFORMATION);
+          PChar('Parameters of ' + JVMexecutable), MB_OK or MB_ICONINFORMATION or MB_SYSTEMMODAL);
       end;
       // Running VStar Java application
+      if DebugMode then begin
+        AProcess.Options := AProcess.Options + [poWaitOnExit];
+        WriteLn('Launching ' + JVMexecutable);
+        WriteLn('With parameters:');
+        WriteLn(JVMparameters);
+      end;
       AProcess.Execute;
+      if DebugMode then begin
+          Windows.MessageBox(0,
+          PChar('Process terminated.'),
+          PChar(JVMexecutable), MB_OK or MB_ICONINFORMATION or MB_SYSTEMMODAL);
+       end;
     finally
       FreeAndNil(AProcess);
     end;
@@ -99,7 +136,7 @@ begin
     ErrorString := ErrorString + JVMparameters + ^M^J;
     Windows.MessageBox(0,
       PChar('Cannot launch VStar.'^M^J + ErrorString),
-      'VStar Launcher', MB_OK or MB_ICONERROR);
+      'VStar Launcher', MB_OK or MB_ICONERROR or MB_SYSTEMMODAL);
   end;
 end.
 

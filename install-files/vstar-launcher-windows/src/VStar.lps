@@ -9,8 +9,10 @@
         <Filename Value="VStar.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="26"/>
+        <TopLine Value="102"/>
+        <CursorPos X="30" Y="122"/>
+        <UsageCount Value="28"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="..\..\..\TOOLS\lazarus32\fpc\3.0.4\source\packages\fcl-process\src\process.pp"/>
@@ -34,10 +36,123 @@
         <DefaultSyntaxHighlighter Value="None"/>
       </Unit3>
     </Units>
-    <General>
-      <ActiveWindowIndexAtStart Value="-1"/>
-    </General>
-    <JumpHistory HistoryIndex="-1"/>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="95" Column="20" TopLine="56"/>
+      </Position1>
+      <Position2>
+        <Filename Value="VStar.lpr"/>
+      </Position2>
+      <Position3>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="43" TopLine="13"/>
+      </Position3>
+      <Position4>
+        <Filename Value="VStar.lpr"/>
+      </Position4>
+      <Position5>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="20"/>
+      </Position5>
+      <Position6>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="102" Column="20" TopLine="81"/>
+      </Position6>
+      <Position7>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="106" Column="30" TopLine="81"/>
+      </Position7>
+      <Position8>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="97" TopLine="95"/>
+      </Position8>
+      <Position9>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="102" Column="20" TopLine="94"/>
+      </Position9>
+      <Position10>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="106" Column="30" TopLine="94"/>
+      </Position10>
+      <Position11>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="102" Column="20" TopLine="86"/>
+      </Position11>
+      <Position12>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="106" Column="30" TopLine="86"/>
+      </Position12>
+      <Position13>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="112" Column="45" TopLine="98"/>
+      </Position13>
+      <Position14>
+        <Filename Value="VStar.lpr"/>
+      </Position14>
+      <Position15>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="17" Column="16"/>
+      </Position15>
+      <Position16>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="35" Column="16" TopLine="2"/>
+      </Position16>
+      <Position17>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="45" Column="22" TopLine="12"/>
+      </Position17>
+      <Position18>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="63" Column="20" TopLine="30"/>
+      </Position18>
+      <Position19>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="45" Column="12" TopLine="48"/>
+      </Position19>
+      <Position20>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="109" TopLine="74"/>
+      </Position20>
+      <Position21>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="122" Column="69" TopLine="87"/>
+      </Position21>
+      <Position22>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="139" Column="61" TopLine="102"/>
+      </Position22>
+      <Position23>
+        <Filename Value="VStar.lpr"/>
+      </Position23>
+      <Position24>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="107" Column="27" TopLine="74"/>
+      </Position24>
+      <Position25>
+        <Filename Value="VStar.lpr"/>
+      </Position25>
+      <Position26>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="107" Column="27" TopLine="74"/>
+      </Position26>
+      <Position27>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="120" Column="29" TopLine="87"/>
+      </Position27>
+      <Position28>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="137" TopLine="102"/>
+      </Position28>
+      <Position29>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="109" Column="92" TopLine="89"/>
+      </Position29>
+      <Position30>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="122" Column="67" TopLine="102"/>
+      </Position30>
+    </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
       <Modes Count="0" ActiveMode=""/>
