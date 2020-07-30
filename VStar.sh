@@ -22,7 +22,7 @@ else
     MAX_MEM=1500mb
 fi
 
-#echo $MAX_MEM
+echo $MAX_MEM
 
 java -splash:"$APP_DIR/extlib/vstaricon.png" \
      -Xms800m -Xmx${MAX_MEM} -jar "$APP_DIR/dist/vstar.jar" $*
