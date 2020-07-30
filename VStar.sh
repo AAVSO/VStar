@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Run VStar with the same VM configuration as via JNLP.
+# Run VStar
 
 APP_DIR=$(dirname "$0")
 
@@ -8,7 +8,9 @@ APP_DIR=$(dirname "$0")
 VER=`uname -a | grep _64`
 
 if [ "$VER" != "" ]; then
-    MAX_MEM=32g
+    # 64 bit, so determine half of available memory
+    HALF_MEM=$(perl -e "print `sysctl -n hw.memsize` / (1024*1024*1024) / 2;")
+    MAX_MEM=${HALF_MEM}g
 else
     MAX_MEM=1500mb
 fi
