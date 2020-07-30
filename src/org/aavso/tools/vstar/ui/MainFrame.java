@@ -51,10 +51,10 @@ public class MainFrame extends JFrame implements IMainUI {
 
 	// The tabbed pane that includes all content (plots, tables).
 	private TabbedDataPane tabs;
-	
+
 	// Are we in scripting mode?
 	private boolean scriptingMode;
-	
+
 	public MainFrame() {
 		super("VStar " + ResourceAccessor.getVersionString());
 
@@ -100,8 +100,7 @@ public class MainFrame extends JFrame implements IMainUI {
 		topPane.add(majorPane, BorderLayout.CENTER);
 
 		// Add status pane with an initial message.
-		statusPane = new StatusPane(LocaleProps
-				.get("STATUS_PANE_SELECT_NEW_STAR_FROM_FILE"));
+		statusPane = new StatusPane(LocaleProps.get("STATUS_PANE_SELECT_NEW_STAR_FROM_FILE"));
 		topPane.add(statusPane, BorderLayout.PAGE_END);
 
 		return topPane;
@@ -135,7 +134,7 @@ public class MainFrame extends JFrame implements IMainUI {
 	}
 
 	@Override
-	public void addTab(String name, Component component, boolean canClose) {
-		tabs.createTab(ViewModeType.PLOT_OBS_MODE, component);
+	public void addTab(String name, ViewModeType viewMode, Component component, boolean canClose) {
+		tabs.createTab(name, viewMode, component);
 	}
 }

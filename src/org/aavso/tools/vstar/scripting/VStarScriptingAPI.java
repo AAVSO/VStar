@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.scripting;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -54,6 +55,13 @@ import org.aavso.tools.vstar.util.period.dcdft.TSDcDft;
 import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
 import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
 import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 /**
  * This is VStar's scripting Application Programming Interface. An instance of
@@ -656,6 +664,39 @@ public class VStarScriptingAPI {
 	// commonLoadFromFileOrURLViaPlugin() re: pattern;
 	// API may need to change to accommodate this, e.g.
 	// a generic way to get results as a collection
+
+	/**
+	 * Create a scatter plot in the named tab.
+	 * 
+	 * @param name   The name of the dataset to create or add to.
+	 * @param xTitle The x axis title.
+	 * @param yTitle The y axis title.
+	 * @param xs     The x values to plot.
+	 * @param ys     The y values to plot.
+	 */
+	public synchronized void scatter(String name, String xTitle, String yTitle, double[] xs, double[] ys) {
+		// TODO: in a future revision, store/get dataset in/from DocumentManager and
+		// fire dataset change if exists when adding new series; also need plot if e.g.
+		// scatter then lines(); also setting renderer for dataset
+		XYSeriesCollection dataset = new XYSeriesCollection();
+
+		XYSeries series = new XYSeries(name);
+		for (int i = 0; i < xs.length; i++) {
+			series.add(xs[i], ys[i]);
+		}
+		dataset.addSeries(series);
+
+		JFreeChart chart = ChartFactory.createScatterPlot(name, xTitle, yTitle, dataset, PlotOrientation.VERTICAL, true,
+				true, true);
+
+		XYPlot plot = (XYPlot) chart.getPlot();
+
+		plot.setBackgroundPaint(new Color(255, 255, 255));
+
+		ChartPanel panel = new ChartPanel(chart);
+
+		Mediator.getUI().addTab(name, ViewModeType.PLOT_OBS_MODE, panel, false);
+	}
 
 	/**
 	 * Pause for the specified number of milliseconds.

@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
@@ -156,7 +157,7 @@ public class VStarApplet extends JApplet implements IMainUI {
 	}
 
 	@Override
-	public void addTab(String name, Component component, boolean canClose) {
+	public void addTab(String name, ViewModeType viewMode, Component component, boolean canClose) {
 		// Do nothing
 	}
 }

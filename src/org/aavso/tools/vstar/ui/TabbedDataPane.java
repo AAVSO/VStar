@@ -78,11 +78,9 @@ public class TabbedDataPane extends JPanel {
 
 		createDataPanel();
 
-		mediator.getAnalysisTypeChangeNotifier().addListener(
-				createAnalysisTypeChangeListener());
+		mediator.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeChangeListener());
 
-		mediator.getModelSelectionNofitier().addListener(
-				createModelSelectionListener());
+		mediator.getModelSelectionNofitier().addListener(createModelSelectionListener());
 
 		mediator.getNewStarNotifier().addListener(createNewStarListener());
 	}
@@ -90,13 +88,29 @@ public class TabbedDataPane extends JPanel {
 	/**
 	 * Create a tab with the specified component.
 	 * 
-	 * @param component
-	 *            The component to be comtained in the tab when created.
+	 * @param name      The tab name.
+	 * @param viewMode  The component's view mode (e.g. plot).
+	 * @param component The component to be contained in the tab when created.
 	 */
-	public void createTab(ViewModeType type, Component component) {
-		tabs.addTab(type.getModeDesc(), component);
-		viewModeToTabIndexMap.put(type, index);
-		tabIndexToViewModeMap.put(index, type);
+	public void createTab(String name, ViewModeType viewMode, Component component) {
+		tabs.addTab(name, component);
+		// TODO: may need to make these multi-maps so each mode can have N > 1
+		// components
+		// viewModeToTabIndexMap.put(viewMode, index);
+		// tabIndexToViewModeMap.put(index, viewMode);
+		nextTabIndex();
+	}
+
+	/**
+	 * Create a tab with the specified component.
+	 * 
+	 * @param viewMode  The component's view mode (e.g. plot).
+	 * @param component The component to be comtained in the tab when created.
+	 */
+	public void createTab(ViewModeType viewMode, Component component) {
+		tabs.addTab(viewMode.getModeDesc(), component);
+		viewModeToTabIndexMap.put(viewMode, index);
+		tabIndexToViewModeMap.put(index, viewMode);
 		nextTabIndex();
 	}
 
@@ -125,8 +139,7 @@ public class TabbedDataPane extends JPanel {
 		tabs = new JTabbedPane();
 
 		tabs.setBorder(BorderFactory.createEtchedBorder());
-		tabs.setPreferredSize(new Dimension((int) (MainFrame.WIDTH * 0.9),
-				(int) (MainFrame.HEIGHT * 0.95)));
+		tabs.setPreferredSize(new Dimension((int) (MainFrame.WIDTH * 0.9), (int) (MainFrame.HEIGHT * 0.95)));
 
 		for (ViewModeType type : ViewModeType.values()) {
 			String desc = type.getModeDesc();
@@ -143,8 +156,7 @@ public class TabbedDataPane extends JPanel {
 	/**
 	 * Create a text pane with a centered string.
 	 * 
-	 * @param text
-	 *            The text to be displayed.
+	 * @param text The text to be displayed.
 	 * @return The text pane component.
 	 */
 	private static Component createTextPanel(String text) {
@@ -157,11 +169,10 @@ public class TabbedDataPane extends JPanel {
 	}
 
 	/**
-	 * Given a string 'something', return a string indicating that there is not
-	 * one of these 'something's yet.
+	 * Given a string 'something', return a string indicating that there is not one
+	 * of these 'something's yet.
 	 * 
-	 * @param s
-	 *            The 'something' string.
+	 * @param s The 'something' string.
 	 * @return The annotated string.
 	 */
 	private String noSomethingYet(String s) {
@@ -199,30 +210,22 @@ public class TabbedDataPane extends JPanel {
 				JPanel obsListPane = msg.getObsListPane();
 				JPanel meansListPane = msg.getMeansListPane();
 
-				if (obsAndMeanPane != null && obsListPane != null
-						&& meansListPane != null) {
-					tabs.setComponentAt(viewModeToTabIndexMap
-							.get(ViewModeType.PLOT_OBS_MODE), obsAndMeanPane);
-					tabs.setComponentAt(viewModeToTabIndexMap
-							.get(ViewModeType.LIST_OBS_MODE), obsListPane);
-					tabs.setComponentAt(viewModeToTabIndexMap
-							.get(ViewModeType.LIST_MEANS_MODE), meansListPane);
+				if (obsAndMeanPane != null && obsListPane != null && meansListPane != null) {
+					tabs.setComponentAt(viewModeToTabIndexMap.get(ViewModeType.PLOT_OBS_MODE), obsAndMeanPane);
+					tabs.setComponentAt(viewModeToTabIndexMap.get(ViewModeType.LIST_OBS_MODE), obsListPane);
+					tabs.setComponentAt(viewModeToTabIndexMap.get(ViewModeType.LIST_MEANS_MODE), meansListPane);
 
 					// If a model has been created, set the appropriate
 					// components.
 					if (currModel != null) {
-						Component modelPane = mediator.getDocumentManager()
-								.getModelListPane(analysisType, currModel);
+						Component modelPane = mediator.getDocumentManager().getModelListPane(analysisType, currModel);
 
-						tabs.setComponentAt(viewModeToTabIndexMap
-								.get(ViewModeType.MODEL_MODE), modelPane);
+						tabs.setComponentAt(viewModeToTabIndexMap.get(ViewModeType.MODEL_MODE), modelPane);
 
-						Component residualsPane = mediator.getDocumentManager()
-								.getResidualsListPane(analysisType, currModel);
+						Component residualsPane = mediator.getDocumentManager().getResidualsListPane(analysisType,
+								currModel);
 
-						tabs.setComponentAt(viewModeToTabIndexMap
-								.get(ViewModeType.RESIDUALS_MODE),
-								residualsPane);
+						tabs.setComponentAt(viewModeToTabIndexMap.get(ViewModeType.RESIDUALS_MODE), residualsPane);
 					}
 
 					tabs.repaint();
@@ -236,8 +239,8 @@ public class TabbedDataPane extends JPanel {
 	}
 
 	/**
-	 * Return a model selection listener that sets model and residual tab
-	 * content for the current analysis mode (raw, phase).
+	 * Return a model selection listener that sets model and residual tab content
+	 * for the current analysis mode (raw, phase).
 	 */
 	private Listener<ModelSelectionMessage> createModelSelectionListener() {
 		return new Listener<ModelSelectionMessage>() {
@@ -246,11 +249,9 @@ public class TabbedDataPane extends JPanel {
 				currModel = info.getModel();
 
 				// Obtain the list components for models and residuals.
-				Component modelPane = mediator.getDocumentManager()
-						.getModelListPane(analysisType, currModel);
+				Component modelPane = mediator.getDocumentManager().getModelListPane(analysisType, currModel);
 
-				Component residualsPane = mediator.getDocumentManager()
-						.getResidualsListPane(analysisType, currModel);
+				Component residualsPane = mediator.getDocumentManager().getResidualsListPane(analysisType, currModel);
 
 				// Have the model tabs been created yet?
 				if (!viewModeToTabIndexMap.containsKey(ViewModeType.MODEL_MODE)) {
@@ -261,10 +262,8 @@ public class TabbedDataPane extends JPanel {
 					// Yes, so, set the components in the existing tabs...
 					// TODO: should be able to instead update models from
 					// info.getModel() getters!
-					tabs.setComponentAt(viewModeToTabIndexMap
-							.get(ViewModeType.MODEL_MODE), modelPane);
-					tabs.setComponentAt(viewModeToTabIndexMap
-							.get(ViewModeType.RESIDUALS_MODE), residualsPane);
+					tabs.setComponentAt(viewModeToTabIndexMap.get(ViewModeType.MODEL_MODE), modelPane);
+					tabs.setComponentAt(viewModeToTabIndexMap.get(ViewModeType.RESIDUALS_MODE), residualsPane);
 				}
 
 				tabs.repaint();
@@ -286,21 +285,19 @@ public class TabbedDataPane extends JPanel {
 			public void update(NewStarMessage info) {
 				// Get rid of any previous model.
 				currModel = null;
-				
+
 				String desc = null;
 
 				// TODO: should be able to instead clear models
 
 				desc = ViewModeType.MODEL_MODE_DESC;
-				tabs.setComponentAt(viewModeToTabIndexMap
-						.get(ViewModeType.MODEL_MODE),
+				tabs.setComponentAt(viewModeToTabIndexMap.get(ViewModeType.MODEL_MODE),
 						createTextPanel(noSomethingYet(desc)));
 
 				desc = ViewModeType.RESIDUALS_MODE_DESC;
-				tabs.setComponentAt(viewModeToTabIndexMap
-						.get(ViewModeType.RESIDUALS_MODE),
+				tabs.setComponentAt(viewModeToTabIndexMap.get(ViewModeType.RESIDUALS_MODE),
 						createTextPanel(noSomethingYet(desc)));
-				
+
 				tabs.repaint();
 			}
 

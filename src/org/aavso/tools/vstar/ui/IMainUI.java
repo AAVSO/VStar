@@ -21,6 +21,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
+
 /**
  * The interface for all VStar main UI components, e.g. desktop window, applet
  * UI component.
@@ -72,9 +74,10 @@ public interface IMainUI {
 	 * Add a tab to the main VStar UI that can optionally be closed.
 	 * 
 	 * @param name      The tab's name.
+	 * @param viewMode  The view mode (e.g. plot).
 	 * @param component The UI component that will be contained within the tabbed
 	 *                  pane.
 	 * @param canClose  Whether or not the tab can be closed by the user.
 	 */
-	public void addTab(String name, Component component, boolean canClose);
+	public void addTab(String name, ViewModeType viewMode, Component component, boolean canClose);
 }
