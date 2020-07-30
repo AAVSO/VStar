@@ -9,7 +9,7 @@ VER=`uname -a | grep _64`
 
 if [ "$VER" != "" ]; then
     # 64 bit, so determine half of available memory for Mac OS X or Linux
-    if [ `echo $OSTYPE | grep darwin` != "" ]; then
+    if [ "`echo $OSTYPE | grep darwin`" != "" ]; then
         # Mac OS X...
         HALF_MEM=$(perl -e "print int(`sysctl -n hw.memsize` / (1024*1024*1024) / 2);")
     else
