@@ -14,7 +14,7 @@ if [ "$VER" != "" ]; then
         HALF_MEM=$(perl -e "print int(`sysctl -n hw.memsize` / (1024*1024*1024) / 2);")
     else
         # ...otherwise, assume Linux...
-        HALF_MEM=$(perl -e "print int(`cat /proc/meminfo | head | awk '/MemTotal:/{print $2}'` / 1024/1024/2)")
+        HALF_MEM=$(perl -e "print int(`cat /proc/meminfo | head | awk '/MemTotal:/{print $2}'` / 1024/1024/2);")
     fi
  
     if [ "$HALF_MEM" == "" ]; then
