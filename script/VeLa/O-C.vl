@@ -25,3 +25,5 @@ oc is o_minus_c(jds 0.480303709)
 
 println(nth(jds 1))
 println(nth(oc 1))
+
+scatter("O-C" "observed" "calculated" jds oc)
