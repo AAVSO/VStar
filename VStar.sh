@@ -13,10 +13,16 @@ if [ "$VER" != "" ]; then
         # Mac OS X...
         HALF_MEM=$(perl -e "print int(`sysctl -n hw.memsize` / (1024*1024*1024) / 2);")
     else
-        # ...otherwise, assume Linux/Unix
-        HALF_MEM=$(perl -e "print int(`free -h | awk '/^Mem:/{print $2}' | sed 's/G//'` / 2);")
+        # ...otherwise, assume Linux...
+        HALF_MEM=$(perl -e "print int(`cat /proc/meminfo | head | awk '/MemTotal:/{print $2}'` / 1024/1024/2)")
     fi
-    
+ 
+    if [ "$HALF_MEM" == "" ]; then
+        # ...for any other case (e.g. a Unix with no /proc 
+        # or non-Unix bash), set to a conservative value of 4GB
+        HALF_MEM="4"
+    fi
+       
     MAX_MEM=${HALF_MEM}g
 else
     MAX_MEM=1500mb
