@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Run VStar
 
@@ -16,16 +16,21 @@ if [ "$VER" != "" ]; then
         # ...otherwise, assume Linux...
         HALF_MEM=$(perl -e "print int(`cat /proc/meminfo | head | awk '/MemTotal:/{print $2}'` / 1024/1024/2);")
     fi
- 
+
     if [ "$HALF_MEM" == "" ]; then
         # ...for any other case (e.g. a Unix with no /proc 
         # or non-Unix bash), set to a conservative value of 4GB
         HALF_MEM="4"
     fi
-       
-    MAX_MEM=${HALF_MEM}g
+
+    if [ "$HALF_MEM" == "0" ]; then
+      # <2g
+      MAX_MEM=1000m
+    else   
+      MAX_MEM=${HALF_MEM}g
+    fi
 else
-    MAX_MEM=1500mb
+    MAX_MEM=1500m
 fi
 
 echo $MAX_MEM
