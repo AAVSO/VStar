@@ -60,6 +60,7 @@ Source: "vstar\plugin-dev\*"    ; DestDir: "{app}\plugin-dev" ; Flags: ignorever
 ;Name: "{userprograms}\{#TheAppName}"; Filename: "{app}\{#TheAppExeName}"
 Name: "{group}\{#TheAppName}"; Filename: "{app}\{#TheAppExeName}"
 Name: "{group}\{#TheAppDebugName}"; Filename: "{app}\{#TheAppExeName}"; Parameters: "//DEBUG"
+Name: "{group}\Restore Default Memory Options"; Filename: "{app}\{#TheAppExeName}"; Parameters: "//RESTORE"
 Name: "{group}\{#TheAppConfig}"; Filename: "{app}\{#TheAppCnfName}"
 Name: "{userdesktop}\{#TheAppName}" ; Filename: "{app}\{#TheAppExeName}"; Tasks: desktopicon
 

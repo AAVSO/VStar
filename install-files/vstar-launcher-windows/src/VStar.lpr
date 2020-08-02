@@ -1,10 +1,12 @@
 program VStar;
 
+{$mode objfpc}{$H+}
+
 {$R *.res}
 {$R VStarIcon.rc}
 
 uses
-  Windows, SysUtils, Classes, IniFiles, Process;
+  Windows, SysUtils, Classes, IniFiles, Process, UnitUtils;
 
 var
   AProcess: TProcess;
@@ -18,6 +20,7 @@ var
   JVMparameters: string;
   ShowParameters: Boolean;
   DebugMode: Boolean;
+  RestoreINIandExit: Boolean;
   S: string;
   I: Integer;
 
@@ -35,11 +38,17 @@ begin
   JVMexecutable := 'javaw.exe';
   JVMparameters := '';
   DebugMode := False;
+  RestoreINIandExit := False;
   // Check command line for the special VStar.exe parameters.
   for I := 1 to ParamCount do begin
     S := ParamStr(I);
     if Copy(S, 1, 2) = '//' then begin
       // A special VStar.exe parameter found.
+      if AnsiUpperCase(S) = '//RESTORE' then begin
+        // Restore default JRE prarameters
+        RestoreINIandExit := True;
+      end
+      else
       if AnsiUpperCase(S) = '//DEBUG' then begin
         // Debug mode: create console, use console-mode java.exe,
         // wait on exit to see possible error output.
@@ -54,6 +63,16 @@ begin
   try
     Ini := TMemIniFile.Create(ChangeFileExt(ParamStr(0), '.INI'));
     try
+      if RestoreINIandExit then begin
+        S := GetIniMemParameters;
+        Ini.WriteString('Settings', 'Parameters', S);
+        Ini.UpdateFile;
+        S := 'Java memory options were set to'^M^J + S;
+        Windows.MessageBox(0,
+          PChar(S),
+          PChar(Ini.FileName), MB_OK or MB_ICONINFORMATION or MB_SYSTEMMODAL);
+        Exit;
+      end;
       IniParam := Trim(Ini.ReadString('Settings', 'Parameters', ''));
       ShowParameters := Ini.ReadBool('Settings', 'ShowParameters', False);
       VStarHome := Trim(Ini.ReadString('Settings', 'VSTAR_HOME', ''));
@@ -130,13 +149,19 @@ begin
     end;
   end;
   if ErrorString <> '' then begin
-    ErrorString := ErrorString + ^M^J^M^J;
-    ErrorString := ErrorString + 'Executable: ' + JVMexecutable + ^M^J;
-    ErrorString := ErrorString + 'Parameters:'^M^J;
-    ErrorString := ErrorString + JVMparameters + ^M^J;
-    Windows.MessageBox(0,
-      PChar('Cannot launch VStar.'^M^J + ErrorString),
-      'VStar Launcher', MB_OK or MB_ICONERROR or MB_SYSTEMMODAL);
+    if not RestoreINIandExit then begin
+      ErrorString := ErrorString + ^M^J^M^J;
+      ErrorString := ErrorString + 'Executable: ' + JVMexecutable + ^M^J;
+      ErrorString := ErrorString + 'Parameters:'^M^J;
+      ErrorString := ErrorString + JVMparameters + ^M^J;
+      Windows.MessageBox(0,
+        PChar('Cannot launch VStar.'^M^J + ErrorString),
+        'VStar Launcher', MB_OK or MB_ICONERROR or MB_SYSTEMMODAL);
+    end
+    else
+      Windows.MessageBox(0,
+        PChar(ErrorString),
+        'VStar Launcher', MB_OK or MB_ICONERROR or MB_SYSTEMMODAL);
   end;
 end.
 
