@@ -61,16 +61,21 @@ begin
     end;
   end;
   try
-    Ini := TMemIniFile.Create(ChangeFileExt(ParamStr(0), '.INI'));
+    Ini := TMemIniFile.Create(ChangeFileExt(ParamStr(0), '.ini'));
     try
       if RestoreINIandExit then begin
         S := GetIniMemParameters;
-        Ini.WriteString('Settings', 'Parameters', S);
-        Ini.UpdateFile;
-        S := 'Java memory options were set to'^M^J + S;
-        Windows.MessageBox(0,
-          PChar(S),
-          PChar(Ini.FileName), MB_OK or MB_ICONINFORMATION or MB_SYSTEMMODAL);
+        if Windows.MessageBox(0,
+          PChar('Java memory options will be set to'^M^J + S),
+          PChar(Ini.FileName), MB_OKCANCEL or MB_ICONQUESTION or MB_SYSTEMMODAL) = IDOK then
+        begin
+          Ini.WriteString('Settings', 'Parameters', S);
+          Ini.UpdateFile;
+          S := Ini.ReadString('Settings', 'Parameters', '');
+          Windows.MessageBox(0,
+            PChar('Java memory options were set to'^M^J + S),
+            PChar(Ini.FileName), MB_OK or MB_ICONINFORMATION or MB_SYSTEMMODAL);
+        end;
         Exit;
       end;
       IniParam := Trim(Ini.ReadString('Settings', 'Parameters', ''));

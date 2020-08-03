@@ -4,38 +4,17 @@
     <PathDelim Value="\"/>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="5">
+    <Units Count="6">
       <Unit0>
         <Filename Value="VStar.lpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="127"/>
-        <CursorPos X="5" Y="162"/>
+        <TopLine Value="28"/>
+        <CursorPos X="63" Y="64"/>
         <UsageCount Value="29"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="..\..\..\TOOLS\lazarus32\fpc\3.0.4\source\packages\fcl-process\src\process.pp"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="99"/>
-        <CursorPos X="15" Y="116"/>
-        <UsageCount Value="11"/>
-      </Unit1>
-      <Unit2>
-        <Filename Value="..\..\..\TOOLS\lazarus32\fpc\3.0.4\source\packages\fcl-process\src\win\process.inc"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="243"/>
-        <CursorPos X="39" Y="266"/>
-        <UsageCount Value="11"/>
-      </Unit2>
-      <Unit3>
-        <Filename Value="VStarIcon.rc"/>
-        <EditorIndex Value="-1"/>
-        <CursorPos X="10"/>
-        <UsageCount Value="10"/>
-        <DefaultSyntaxHighlighter Value="None"/>
-      </Unit3>
-      <Unit4>
         <Filename Value="unitutils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="UnitUtils"/>
@@ -43,124 +22,154 @@
         <CursorPos X="29" Y="10"/>
         <UsageCount Value="21"/>
         <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\..\..\TOOLS\lazarus32\fpc\3.0.4\source\packages\fcl-process\src\process.pp"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="99"/>
+        <CursorPos X="15" Y="116"/>
+        <UsageCount Value="11"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\..\..\TOOLS\lazarus32\fpc\3.0.4\source\packages\fcl-process\src\win\process.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="243"/>
+        <CursorPos X="39" Y="266"/>
+        <UsageCount Value="11"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="VStarIcon.rc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="10"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="None"/>
       </Unit4>
+      <Unit5>
+        <Filename Value="..\..\..\..\..\..\TOOLS\lazarus32\fpc\3.0.4\source\rtl\win\wininc\defines.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2213"/>
+        <CursorPos X="10" Y="2243"/>
+        <UsageCount Value="10"/>
+      </Unit5>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="109" TopLine="74"/>
+        <Caret Line="3" Column="14"/>
       </Position1>
       <Position2>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="122" Column="69" TopLine="87"/>
       </Position2>
       <Position3>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="139" Column="61" TopLine="102"/>
+        <Caret Line="14" Column="19"/>
       </Position3>
       <Position4>
         <Filename Value="VStar.lpr"/>
+        <Caret Line="15" Column="24"/>
       </Position4>
       <Position5>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="107" Column="27" TopLine="74"/>
+        <Caret Line="16" Column="20"/>
       </Position5>
       <Position6>
         <Filename Value="VStar.lpr"/>
+        <Caret Line="17" Column="22"/>
       </Position6>
       <Position7>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="107" Column="27" TopLine="74"/>
+        <Caret Line="18" Column="19"/>
       </Position7>
       <Position8>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="120" Column="29" TopLine="87"/>
+        <Caret Line="19" Column="24"/>
       </Position8>
       <Position9>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="137" TopLine="102"/>
+        <Caret Line="20" Column="24"/>
       </Position9>
       <Position10>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="109" Column="92" TopLine="89"/>
+        <Caret Line="23" Column="12"/>
       </Position10>
       <Position11>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="122" Column="67" TopLine="102"/>
+        <Caret Line="35" Column="14" TopLine="2"/>
       </Position11>
       <Position12>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="118" Column="44"/>
+        <Caret Line="59" Column="38" TopLine="26"/>
       </Position12>
       <Position13>
         <Filename Value="VStar.lpr"/>
+        <Caret Line="61" Column="39" TopLine="28"/>
       </Position13>
       <Position14>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="3" Column="14"/>
+        <Caret Line="62" Column="38" TopLine="29"/>
       </Position14>
       <Position15>
-        <Filename Value="VStar.lpr"/>
+        <Filename Value="unitutils.pas"/>
+        <Caret Line="77" TopLine="39"/>
       </Position15>
       <Position16>
-        <Filename Value="VStar.lpr"/>
-        <Caret Line="14" Column="19"/>
+        <Filename Value="unitutils.pas"/>
+        <Caret Line="10" Column="38"/>
       </Position16>
       <Position17>
-        <Filename Value="VStar.lpr"/>
-        <Caret Line="15" Column="24"/>
+        <Filename Value="unitutils.pas"/>
+        <Caret Line="44" Column="20" TopLine="24"/>
       </Position17>
       <Position18>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="16" Column="20"/>
+        <Caret Line="70" Column="85" TopLine="39"/>
       </Position18>
       <Position19>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="17" Column="22"/>
+        <Caret Line="74" Column="11" TopLine="45"/>
       </Position19>
       <Position20>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="18" Column="19"/>
+        <Caret Line="56" Column="24" TopLine="50"/>
       </Position20>
       <Position21>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="19" Column="24"/>
       </Position21>
       <Position22>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="20" Column="24"/>
+        <Caret Line="9" Column="34"/>
       </Position22>
       <Position23>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="23" Column="12"/>
+        <Caret Line="13" Column="15"/>
       </Position23>
       <Position24>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="35" Column="14" TopLine="2"/>
+        <Caret Line="14" Column="6"/>
       </Position24>
       <Position25>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="59" Column="38" TopLine="26"/>
+        <Caret Line="15" Column="6"/>
       </Position25>
       <Position26>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="61" Column="39" TopLine="28"/>
+        <Caret Line="23" Column="13"/>
       </Position26>
       <Position27>
         <Filename Value="VStar.lpr"/>
-        <Caret Line="62" Column="38" TopLine="29"/>
+        <Caret Line="30" Column="13"/>
       </Position27>
       <Position28>
-        <Filename Value="unitutils.pas"/>
-        <Caret Line="77" TopLine="39"/>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="41" Column="13" TopLine="8"/>
       </Position28>
       <Position29>
-        <Filename Value="unitutils.pas"/>
-        <Caret Line="10" Column="38"/>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="49" Column="19" TopLine="28"/>
       </Position29>
       <Position30>
-        <Filename Value="unitutils.pas"/>
-        <Caret Line="44" Column="20" TopLine="24"/>
+        <Filename Value="VStar.lpr"/>
+        <Caret Line="59" Column="15" TopLine="28"/>
       </Position30>
     </JumpHistory>
     <RunParams>
