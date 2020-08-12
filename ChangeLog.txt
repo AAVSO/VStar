@@ -9,16 +9,13 @@ o The version is composed of the form x.y.z where x is the major version
 o The tag for each revision is applied to the VStar SourceForge Subversion 
   repository. By navigating to that URL, the files that made up that release
   can be viewed.
-o The Subversion log will reveal the full details of what went into each 
+o The subversion/git logs reveal the full details of what went into each 
   release and who contributed what. The Key Changes sections below just 
   summarise the key changes and features for each release, but are based 
-  directly upon Subversion log entries. For the detailed svn commit log 
-  comments see:
-    http://vstar.svn.sourceforge.net/viewvc/vstar/trunk/?view=log
+  upon log entries.
 o Bug & Issue tracker entries cited below can be found here:
-  https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
-  These contain more detail about who did what, when, and where (in the 
-  codebase).
+  - https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
+  - https://github.com/AAVSO/VStar/issues
 
 Known Issues:
 o WWZ is brittle in the presence of gaps in the data. See ticket 328.
@@ -32,6 +29,26 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 ===============
 Release History
 ===============
+
+Date: Aug 12 2020
+Version: 2.21.2
+Tag: 2.12.2
+Key Changes:
+- #8: Architectural plug-in fix: dialogs called from different
+  thread; prevents "observations for the specified period" error 
+  when user cancels dialog
+- #9: Prevent dialog memory leaks
+- #11: Number Format Exception when re-ordering by column in 
+  observation list; a problem that occurred in non-English locales
+- #12: Common VeLa filter does not work in some plug-ins (e.g. 
+  Kepler/TESS, ASAS-SN)
+- #23: Extend VeLa identifiers to allow Unicode and other special symbols
+- #30: New VSX Query plug-in
+- #34: VStar windows installer
+- #38: Out of memory after loading 20 or 30 files
+- #39: Add plot function to scripting API #39
+- Maksym Pyatnytskyy (Max), Cliff Kotnik and David Benn worked on
+  these issues; of particular note: #30 and #34 were owned by Max
 
 Date: May 7 2020
 Version: 2.21.1
