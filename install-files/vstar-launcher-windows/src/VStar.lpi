@@ -19,7 +19,7 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <BuildNr Value="4"/>
+      <BuildNr Value="15"/>
       <StringTable FileDescription="VStar Launcher"/>
     </VersionInfo>
     <BuildModes Count="1">
@@ -33,11 +33,16 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <Units Count="1">
+    <Units Count="2">
       <Unit0>
         <Filename Value="VStar.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
+      <Unit1>
+        <Filename Value="unitutils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UnitUtils"/>
+      </Unit1>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
