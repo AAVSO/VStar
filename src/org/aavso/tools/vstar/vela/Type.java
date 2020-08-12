@@ -36,7 +36,7 @@ public enum Type {
 
 	public static Type java2Vela(Class<?> jtype) {
 		Type vtype = null;
-				
+		
 		if (jtype == int.class) {
 			vtype = INTEGER;
 		} else if (jtype == double.class) {
@@ -70,7 +70,40 @@ public enum Type {
 
 		return vtype;
 	}
-	
+
+	public static Class<?> vela2Java(Type vtype) {
+		Class<?> jtype = null;
+
+		switch (vtype) {
+		case INTEGER:
+			jtype = int.class;
+			break;
+		case REAL:
+			jtype = double.class;
+			break;
+		case STRING:
+			jtype = String.class;
+			break;
+		case BOOLEAN:
+			jtype = boolean.class;
+			break;
+		case LIST:
+			// TODO
+			break;
+		case FUNCTION:
+			// TODO
+			break;
+		case NONE:
+			jtype = void.class;
+			break;
+		case OBJECT:
+			jtype = Object.class;
+			break;
+		}
+
+		return jtype;
+	}
+
 	public static Type name2Vela(String type) {
 		Type vtype = null;
 
@@ -92,21 +125,21 @@ public enum Type {
 
 		return vtype;
 	}
-	
+
 	public boolean isComposite() {
 		return this == LIST || this == FUNCTION;
 	}
-	
-	public boolean oneOf(Type ...types) {
+
+	public boolean oneOf(Type... types) {
 		boolean result = false;
-		
+
 		for (Type type : types) {
 			if (this == type) {
 				result = true;
 				break;
 			}
 		}
-		
+
 		return result;
 	}
 }

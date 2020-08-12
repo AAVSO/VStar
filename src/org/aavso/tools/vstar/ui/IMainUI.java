@@ -21,6 +21,8 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
+
 /**
  * The interface for all VStar main UI components, e.g. desktop window, applet
  * UI component.
@@ -50,23 +52,32 @@ public interface IMainUI {
 	/**
 	 * Set the cursor for this UI.
 	 * 
-	 * @param cursor
-	 *            The cursor to set.
+	 * @param cursor The cursor to set.
 	 */
 	public void setCursor(Cursor cursor);
 
 	/**
 	 * Set the status of scripting mode.
 	 * 
-	 * @param status
-	 *            true or false to indicate whether we are in scripting mode.
+	 * @param status true or false to indicate whether we are in scripting mode.
 	 */
 	public void setScriptingStatus(boolean status);
-	
+
 	/**
 	 * Are we in scripting mode?
 	 * 
 	 * @return true or false
 	 */
 	public boolean isScriptingMode();
+
+	/**
+	 * Add a tab to the main VStar UI that can optionally be closed.
+	 * 
+	 * @param name      The tab's name.
+	 * @param viewMode  The view mode (e.g. plot).
+	 * @param component The UI component that will be contained within the tabbed
+	 *                  pane.
+	 * @param canClose  Whether or not the tab can be closed by the user.
+	 */
+	public void addTab(String name, ViewModeType viewMode, Component component, boolean canClose);
 }

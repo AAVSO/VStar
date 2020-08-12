@@ -27,6 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
@@ -48,9 +49,12 @@ public class MainFrame extends JFrame implements IMainUI {
 	// The status bar which includes text and progress bar components.
 	private StatusPane statusPane;
 
+	// The tabbed pane that includes all content (plots, tables).
+	private TabbedDataPane tabs;
+
 	// Are we in scripting mode?
 	private boolean scriptingMode;
-	
+
 	public MainFrame() {
 		super("VStar " + ResourceAccessor.getVersionString());
 
@@ -85,18 +89,18 @@ public class MainFrame extends JFrame implements IMainUI {
 		// Add the tool-bar.
 		topPane.add(new ToolBar(this.menuBar), BorderLayout.PAGE_START);
 
-		// Major pane with left to right layout and an empty border.
+		// Major pane :) with left to right layout and an empty border.
 		JPanel majorPane = new JPanel();
 		majorPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		majorPane.setLayout(new BoxLayout(majorPane, BoxLayout.LINE_AXIS));
 
-		majorPane.add(new TabbedDataPane());
+		tabs = new TabbedDataPane();
+		majorPane.add(tabs);
 
 		topPane.add(majorPane, BorderLayout.CENTER);
 
 		// Add status pane with an initial message.
-		statusPane = new StatusPane(LocaleProps
-				.get("STATUS_PANE_SELECT_NEW_STAR_FROM_FILE"));
+		statusPane = new StatusPane(LocaleProps.get("STATUS_PANE_SELECT_NEW_STAR_FROM_FILE"));
 		topPane.add(statusPane, BorderLayout.PAGE_END);
 
 		return topPane;
@@ -127,5 +131,10 @@ public class MainFrame extends JFrame implements IMainUI {
 	@Override
 	public boolean isScriptingMode() {
 		return scriptingMode;
+	}
+
+	@Override
+	public void addTab(String name, ViewModeType viewMode, Component component, boolean canClose) {
+		tabs.createTab(name, viewMode, component);
 	}
 }

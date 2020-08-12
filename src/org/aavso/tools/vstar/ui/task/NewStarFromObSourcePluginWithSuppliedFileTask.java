@@ -117,7 +117,17 @@ public class NewStarFromObSourcePluginWithSuppliedFileTask extends
 				AbstractObservationRetriever retriever = obSourcePlugin
 						.getObservationRetriever();
 
-				ValidObservation.reset();
+				// We don't need the return value (number of records)
+				// in this context (scripting) but a plug-in may use
+				// this method to load and cache lines, so we do care
+				// about the side effects of this method.
+				retriever.getNumberOfRecords();
+
+				// Note: A reset may cause problems if isAdditive() is true, so make
+				// conditional.
+				if (!obSourcePlugin.isAdditive()) {
+					ValidObservation.reset();
+				}
 
 				retriever.retrieveObservations();
 

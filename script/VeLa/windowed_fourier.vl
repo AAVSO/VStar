@@ -1,0 +1,25 @@
+--objName <- "000-BJV-425"
+objName <- "T UMi"
+startJD <- 2455000
+lastJD <- 2460000
+step <- 1000
+
+times <- []
+periods <- []
+
+while startJD <= lastJD {
+  endJD <-  startJD+step
+
+  loadFromAID(objName startJD startJD+step)
+
+  periods <- dcdftPeriod("Johnson V" 10 50 0.1)
+
+  averageJD <- (startJD + endJD)/2.0
+  --println(format("%d,%1.1f" [averageJD nth(periods 0)]))
+  times <- append(times averageJD)
+  periods <- append(periods nth(periods 0))
+
+  startJD <- startJD+(step-step*20/100)
+}
+
+scatter("Windowed Fourier Analysis" "time" "period" times periods)

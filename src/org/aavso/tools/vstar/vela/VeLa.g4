@@ -45,6 +45,11 @@ grammar VeLa;
 //     A function could be marked as a method, for example.
 // - Consider omitting "function" prefix ala Java etc anonymous functions
 // - Consider a list subscript operator vs nth()
+// - Require list elements to be all the same?
+//   o realistic & good for API calls
+//   o type checker must determine whether a lists's elements can be 
+//     coerced to the same value; perhaps declared as list<T> or checked
+//     upon each element addition
 // - Y-combinator in VeLa
 // - Allow a type called ANY or variant types such as (real | string | list)
 // - Refinement types ala Wadler's complement to blame, e.g. f(n:real{n >= 0})
@@ -588,7 +593,7 @@ LETTER
     | [\u0080-\uFFFF]
 ;
 
-fragment 
+fragment
 UNDERSCORE
 :
     '_'

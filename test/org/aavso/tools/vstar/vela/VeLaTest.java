@@ -1269,7 +1269,7 @@ public class VeLaTest extends TestCase {
 			vela.realExpression("2457580.25&1004");
 			fail();
 		} catch (VeLaParseError e) {
-			assertTrue(e.getMessage().contains("extraneous input '&1004'"));
+			assertTrue(e.getMessage().contains("token recognition error at: '&'"));
 			assertEquals(1, e.getLineNum());
 			assertEquals(10, e.getCharPos());
 		}

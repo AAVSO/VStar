@@ -40,11 +40,10 @@ public class Operand {
 	private List<Operand> listVal;
 	private FunctionExecutor functionVal;
 
-	public static Operand EMPTY_LIST = new Operand(Type.LIST,
-			Collections.emptyList());
+	public static Operand EMPTY_LIST = new Operand(Type.LIST, Collections.emptyList());
 
 	public static Operand NO_VALUE = new Operand(Type.NONE, false);
-	
+
 	public Operand(Type type, int value) {
 		this.type = type;
 		intVal = value;
@@ -78,14 +77,12 @@ public class Operand {
 	// For object copy
 	private Operand() {
 	}
-	
+
 	/**
 	 * Given a VeLa type and a Java object, return an Operand instance.
 	 * 
-	 * @param type
-	 *            The VeLa type.
-	 * @param obj
-	 *            The Java object.
+	 * @param type The VeLa type.
+	 * @param obj  The Java object.
 	 * @return A corresponding Operand instance.
 	 */
 	public static Operand object2Operand(Type type, Object obj) {
@@ -156,10 +153,56 @@ public class Operand {
 			obj = booleanVal;
 			break;
 		case LIST:
-			obj = listVal;
+			for (Type type : Type.values()) {
+				if (listVal.stream().allMatch(op -> op.type == type)) {
+					int i = 0;
+					try {
+						switch (type) {
+						case INTEGER:
+							int[] ints = new int[listVal.size()];
+							for (Operand op : listVal) {
+								ints[i++] = (int) op.intVal;
+							}
+							obj = ints;
+							break;
+						case REAL:
+							double[] reals = new double[listVal.size()];
+							for (Operand op : listVal) {
+								reals[i++] = (double) op.doubleVal;
+							}
+							obj = reals;
+							break;
+						case STRING:
+							String[] strings = new String[listVal.size()];
+							for (Operand op : listVal) {
+								strings[i++] = (String) op.stringVal;
+							}
+							obj = strings;
+							break;
+						case BOOLEAN:
+							boolean[] booleans = new boolean[listVal.size()];
+							for (Operand op : listVal) {
+								booleans[i++] = (boolean) op.booleanVal;
+							}
+							obj = booleans;
+							break;
+						default:
+							throw new VeLaEvalError("");
+						}
+					} catch (Throwable t) {
+						throw new VeLaEvalError("Cannot construct array from VeLa list");
+					}
+				}
+			}
 			break;
 		case FUNCTION:
-			obj = functionVal;
+			// TODO
+			break;
+		case NONE:
+			// TODO
+			break;
+		case OBJECT:
+			// TODO
 			break;
 		}
 
@@ -169,13 +212,11 @@ public class Operand {
 	/**
 	 * Convert this operand to the required type, if possible.
 	 * 
-	 * @param operand
-	 *            The operand to be converted.
-	 * @param requiredType
-	 *            The required type.
-	 * @return The converted type; will be unchanged if it matches the required
-	 *         type or can't be converted; TODO: consider returning Optional<Type>;
-	 *         if empty, then the type can't be converted
+	 * @param operand      The operand to be converted.
+	 * @param requiredType The required type.
+	 * @return The converted type; will be unchanged if it matches the required type
+	 *         or can't be converted; TODO: consider returning Optional<Type>; if
+	 *         empty, then the type can't be converted
 	 */
 	public Type convert(Type requiredType) {
 		if (type != requiredType) {
@@ -194,7 +235,7 @@ public class Operand {
 	 */
 	public void convertToString() {
 		assert type == Type.INTEGER || type == Type.REAL || type == Type.BOOLEAN;
-		
+
 		switch (type) {
 		case INTEGER:
 			setStringVal(Integer.toString(intVal));
@@ -221,24 +262,21 @@ public class Operand {
 	}
 
 	/**
-	 * @param type
-	 *            the type to set
+	 * @param type the type to set
 	 */
 	public void setType(Type type) {
 		this.type = type;
 	}
 
 	/**
-	 * @param intVal
-	 *            the intVal to set
+	 * @param intVal the intVal to set
 	 */
 	public void setIntegerVal(int intVal) {
 		this.intVal = intVal;
 	}
 
 	/**
-	 * @param doubleVal
-	 *            the doubleVal to set
+	 * @param doubleVal the doubleVal to set
 	 */
 	public void setDoubleVal(double doubleVal) {
 		this.doubleVal = doubleVal;
@@ -259,8 +297,7 @@ public class Operand {
 	}
 
 	/**
-	 * @param stringVal
-	 *            the stringVal to set
+	 * @param stringVal the stringVal to set
 	 */
 	public void setStringVal(String stringVal) {
 		this.stringVal = stringVal;
@@ -274,8 +311,7 @@ public class Operand {
 	}
 
 	/**
-	 * @param booleanVal
-	 *            the booleanVal to set
+	 * @param booleanVal the booleanVal to set
 	 */
 	public void setBooleanVal(boolean booleanVal) {
 		this.booleanVal = booleanVal;
@@ -296,8 +332,7 @@ public class Operand {
 	}
 
 	/**
-	 * @param listVal
-	 *            the listVal to set
+	 * @param listVal the listVal to set
 	 */
 	public void setListVal(List<Operand> listVal) {
 		this.listVal = listVal;
@@ -311,8 +346,7 @@ public class Operand {
 	}
 
 	/**
-	 * @param functionVal
-	 *            the functionVal to set
+	 * @param functionVal the functionVal to set
 	 */
 	public void setFunctionVal(FunctionExecutor functionVal) {
 		this.functionVal = functionVal;
@@ -363,8 +397,7 @@ public class Operand {
 			str = "\"" + stringVal + "\"";
 			break;
 		case LIST:
-			str = listVal.toString().replace(",", "").replace("[", "'(")
-					.replace("]", ")");
+			str = listVal.toString().replace(",", "").replace("[", "'(").replace("]", ")");
 			break;
 		case FUNCTION:
 			str = functionVal.toString();
@@ -384,12 +417,10 @@ public class Operand {
 		long temp;
 		temp = Double.doubleToLongBits(doubleVal);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result
-				+ ((functionVal == null) ? 0 : functionVal.hashCode());
+		result = prime * result + ((functionVal == null) ? 0 : functionVal.hashCode());
 		result = prime * result + intVal;
 		result = prime * result + ((listVal == null) ? 0 : listVal.hashCode());
-		result = prime * result
-				+ ((stringVal == null) ? 0 : stringVal.hashCode());
+		result = prime * result + ((stringVal == null) ? 0 : stringVal.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
@@ -409,8 +440,7 @@ public class Operand {
 		if (booleanVal != other.booleanVal) {
 			return false;
 		}
-		if (Double.doubleToLongBits(doubleVal) != Double
-				.doubleToLongBits(other.doubleVal)) {
+		if (Double.doubleToLongBits(doubleVal) != Double.doubleToLongBits(other.doubleVal)) {
 			return false;
 		}
 		if (functionVal == null) {
@@ -445,9 +475,9 @@ public class Operand {
 
 	public Operand copy() {
 		Operand operand = new Operand();
-		
+
 		operand.type = type;
-		
+
 		switch (type) {
 		case INTEGER:
 			operand.intVal = intVal;
@@ -472,7 +502,7 @@ public class Operand {
 			operand.functionVal = functionVal;
 			break;
 		}
-		
+
 		return operand;
-	}	
+	}
 }
