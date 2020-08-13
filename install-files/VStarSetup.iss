@@ -68,9 +68,9 @@ Name: "{userdesktop}\{#TheAppName}" ; Filename: "{app}\{#TheAppExeName}"; Tasks:
 Filename: "{app}\{#TheAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(TheAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 Filename: "{#TheAppURL}"; Description: "Visit Application Website"; Flags: postinstall shellexec skipifsilent
 
-[INI]
-Filename: "{app}\{#TheAppCnfName}"; Section: "Settings"; Key: "Parameters"; String: {code:GetIniMemParameters}
-Filename: "{app}\{#TheAppCnfName}"; Section: "Settings"; Key: "Description"; String: {code:GetIniDescription}
+;[INI]
+;Filename: "{app}\{#TheAppCnfName}"; Section: "Settings"; Key: "Parameters"; String: {code:GetIniMemParameters}
+;Filename: "{app}\{#TheAppCnfName}"; Section: "Settings"; Key: "Description"; String: {code:GetIniDescription}
 
 [Code]
 
@@ -135,6 +135,26 @@ begin
   Result := 'VStar.exe configuration file created at ' + DateTime;
 end;
 
+procedure MakeVStarIni();
+var
+  S: String;
+begin
+  S := 
+    '[Settings]'#13#10 +
+    'Description=VStar.exe configuration file created at ' + DateTime + #13#10 +
+    ';Additional JVM parameters'#13#10 +
+    'Parameters=' + GetIniMemParameters('') + #13#10 +
+    ';Set ShowParameters=1 to view parameters to be passed to Java VM'#13#10 +
+    'ShowParameters=0'#13#10 +
+    ';VSTAR_HOME parameter overrides environment variable VSTAR_HOME'#13#10 +
+    'VSTAR_HOME='#13#10 +
+    ';JavaPath'#13#10 +
+    'JavaPath='#13#10;
+  if not SaveStringsToFile(ExpandConstant('{app}') + '\' + '{#TheAppCnfName}', [S], False) then begin
+    MsgBox('Cannot create ' + '{#TheAppCnfName}', mbError, MB_OK);
+  end;
+end;
+
 procedure MakeBatLauncher();
 var
   S: String;
@@ -171,6 +191,7 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then begin
+    MakeVStarIni;
     MakeBatLauncher;
     MsgBox('Java memory options were set to'#13#10 + 
             GetIniMemParameters('') + #13#10 +
