@@ -79,12 +79,20 @@
 	</target>
 
 	<target name="compile_src" depends="init,antlr4" description="Compile the source">
-		<!-- Update svn revision -->
-		<exec outputproperty="svn_revision" executable="svnversion" failonerror="true" logError="true">
-			<arg value="-n" />
+		<!-- Update git revision -->
+		<exec executable="git" outputproperty="git.revision" failifexecutionfails="false" errorproperty="">
+			<arg value="rev-parse" />
+			<arg value="--short" />
+			<arg value="HEAD" />
 		</exec>
+		<condition property="git_revision" value="${git.revision}" else="unknown">
+			<and>
+				<isset property="git.revision"/>
+				<length string="${git.revision}" trim="yes" length="0" when="greater" />
+			</and>
+		</condition>
 		<copy file="${ui_resources}/RevisionAccessor.java.template" tofile="${ui_resources}/RevisionAccessor.java" overwrite="true" />
-		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${svn_revision}" />
+		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${git_revision}" />
 
 		<!-- Compile source -->
 		<javac compiler="modern" source="1.8" target="1.8" srcdir="${src}" destdir="${src_build}" includeantruntime="false">

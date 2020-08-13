@@ -170,7 +170,7 @@ public class AboutBox extends JDialog {
 		StringBuffer strBuf = new StringBuffer();
 		strBuf.append("VStar ");
 		strBuf.append(ResourceAccessor.getVersionString());
-		strBuf.append(" (svn revision ");
+		strBuf.append(" (git revision ");
 		strBuf.append(ResourceAccessor.getRevNum());
 		strBuf.append(")\n\n");
 
