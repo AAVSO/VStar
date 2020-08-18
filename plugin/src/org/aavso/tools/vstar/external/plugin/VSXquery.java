@@ -41,20 +41,29 @@ import org.w3c.dom.Element;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.Container;
+import java.awt.Dialog;
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
+import javax.swing.KeyStroke;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JButton;
-import javax.swing.JTextArea;
-import javax.swing.text.JTextComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+import javax.swing.text.JTextComponent;
 import javax.swing.SwingWorker;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
@@ -65,6 +74,9 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
+import org.aavso.tools.vstar.util.date.YMD;
+
+import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
 /**
  * VSX query by name
@@ -73,7 +85,7 @@ public class VSXquery extends GeneralToolPluginBase
 {
 
 	private static String sVSXname = "";
-
+	
 	protected static final String sVSX_URL = "https://www.aavso.org/vsx/index.php?view=api.object&ident=";
 
 	@Override
@@ -105,11 +117,16 @@ public class VSXquery extends GeneralToolPluginBase
 		protected TextField fieldVSXvarType;
 		protected TextField fieldVSXspectralType;
 		protected JTextArea textArea;
+		protected DoubleField fieldEphemerisFrom;
+		protected DoubleField fieldEphemerisTo;
+		protected DoubleField fieldEphemerisPhase;
+		protected DoubleField fieldTimeZoneOffset;
 		
 		protected boolean closed = false;
 		
 		protected JButton queryButton;
 		protected JButton phaseDialogButton;
+		protected JButton calcEphemeris;
 
 		/**
 		 * Constructor
@@ -118,7 +135,13 @@ public class VSXquery extends GeneralToolPluginBase
 		{
 			super(DocumentManager.findActiveWindow());
 			setTitle(sTITLE);
-			setModal(false);
+			setModalityType(Dialog.ModalityType.MODELESS);
+			
+			ActionListener cancelListener = createCancelButtonListener();
+		    getRootPane().registerKeyboardAction(cancelListener, 
+		    		KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), 
+		    		JComponent.WHEN_IN_FOCUSED_WINDOW);
+		
 			Container contentPane = this.getContentPane();
 
 			JPanel topPane = new JPanel();
@@ -126,7 +149,9 @@ public class VSXquery extends GeneralToolPluginBase
 			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 			topPane.add(createInfoPane());
-			topPane.add(createButtonPane());
+			topPane.add(createButtonPane(cancelListener));
+			topPane.add(createParamPane2());
+			topPane.add(createButtonPane2());
 			contentPane.add(topPane);
 
 			this.addWindowListener(new WindowAdapter() {
@@ -139,6 +164,7 @@ public class VSXquery extends GeneralToolPluginBase
 			this.pack();
 			setLocationRelativeTo(Mediator.getUI().getContentPane());
 			this.setVisible(true);
+			
 		}
 		
 		private JPanel createInfoPane()
@@ -168,6 +194,7 @@ public class VSXquery extends GeneralToolPluginBase
 			panel.add(fieldVSXspectralType.getUIComponent());
 			
 			textArea = new JTextArea(16, 0);
+			//textArea.setFont(textArea.getFont().deriveFont(12f));
 			textArea.setEditable(false);
 			JScrollPane scrollPane = new JScrollPane(textArea);
 			panel.add(scrollPane);
@@ -175,11 +202,11 @@ public class VSXquery extends GeneralToolPluginBase
 			return panel;
 		}
 
-		private JPanel createButtonPane() {
+		private JPanel createButtonPane(ActionListener cancelListener) {
 			JPanel panel = new JPanel(new BorderLayout());
 
 			JButton cancelButton = new JButton("Cancel");
-			cancelButton.addActionListener(createCancelButtonListener());
+			cancelButton.addActionListener(cancelListener);
 			panel.add(cancelButton, BorderLayout.LINE_START);
 
 			queryButton = new JButton("Query");
@@ -193,6 +220,38 @@ public class VSXquery extends GeneralToolPluginBase
 
 			this.getRootPane().setDefaultButton(queryButton);
 
+			return panel;
+		}
+		
+		private JPanel createParamPane2() {
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(0, 2));
+			panel.add(new JLabel("Ephemeris"));
+			panel.add(new JLabel(""));			
+			Calendar cal = Calendar.getInstance();
+			TimeZone tz = cal.getTimeZone();
+			double offset = tz.getOffset(new Date().getTime()) / 1000. / 60. / 60.;
+			int year = cal.get(Calendar.YEAR);
+			int month = cal.get(Calendar.MONTH) + 1; // 0..11 -> 1..12
+			double day = cal.get(Calendar.DAY_OF_MONTH);
+			double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, day);
+			fieldEphemerisFrom = new DoubleField("Minimum JD", null, null, new Double(jd));
+			fieldEphemerisTo = new DoubleField("Maximum JD", null, null, new Double(jd + 100));
+			fieldEphemerisPhase = new DoubleField("For Phase", new Double(-1), new Double(1), new Double(0));
+			fieldTimeZoneOffset = new DoubleField("Zone Offset (hours)", null, null, new Double(offset));
+			panel.add(fieldEphemerisFrom.getUIComponent());
+			panel.add(fieldEphemerisTo.getUIComponent());
+			panel.add(fieldEphemerisPhase.getUIComponent());
+			panel.add(fieldTimeZoneOffset.getUIComponent());
+			return panel;
+		}
+		
+		private JPanel createButtonPane2() {
+			JPanel panel = new JPanel(new BorderLayout());
+			calcEphemeris = new JButton("Calculate");
+			calcEphemeris.addActionListener(createEphemerisButtonListener());
+			panel.add(calcEphemeris);
+			calcEphemeris.setEnabled(false);
 			return panel;
 		}
 		
@@ -229,6 +288,52 @@ public class VSXquery extends GeneralToolPluginBase
 			};
 		}
 		
+		// Return a listener for the "Ephemeris" button.
+		private ActionListener createEphemerisButtonListener() {
+			JDialog parent = this;
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Double period;
+					Double epoch;
+					Double minJD;
+					Double maxJD;
+					Double phase;
+					Double zoneOffset;
+					period = fieldVSXperiod.getValue();
+					if (period == null || period <= 0) {
+						MessageBox.showErrorDialog(parent, "Error", "Period must be > 0");
+						return;
+					}
+					epoch = fieldVSXepoch.getValue();
+					if (epoch == null) {
+						MessageBox.showErrorDialog(parent, "Error", "Invalid epoch");
+						return;
+					}
+					minJD = fieldEphemerisFrom.getValue();
+					if (minJD == null) {
+						MessageBox.showErrorDialog(parent, "Error", "Invalid Min JD");
+						return;
+					}
+					maxJD = fieldEphemerisTo.getValue();
+					if (maxJD == null) {
+						MessageBox.showErrorDialog(parent, "Error", "Invalid Max JD");
+						return;
+					}
+					phase = fieldEphemerisPhase.getValue();
+					if (phase == null) {
+						MessageBox.showErrorDialog(parent, "Error", "Invalid phase");
+						return;
+					}
+					zoneOffset = fieldTimeZoneOffset.getValue();
+					if (zoneOffset == null) {
+						MessageBox.showErrorDialog(parent, "Error", "Invalid Zone Offset");
+						return;
+					}
+					new EphemerisDialog(parent, period, epoch, minJD, maxJD, phase, zoneOffset);
+				}
+			};
+		}
+		
 		private void queryVSX() {
 			sVSXname = fieldVSXname.getValue().trim();
 			if ("".equals(sVSXname))
@@ -243,10 +348,107 @@ public class VSXquery extends GeneralToolPluginBase
 			SwingWorker<VSQqueryResult, VSQqueryResult> worker = new VSXquerySwingWorker(this, sVSXname);
 			queryButton.setEnabled(false);
 			phaseDialogButton.setEnabled(false);
+			calcEphemeris.setEnabled(false);
 			worker.execute();
 		}
 		
 
+	}
+	
+	
+	@SuppressWarnings("serial")
+	class EphemerisDialog extends JDialog {
+		
+		protected EphemerisDialog(JDialog parent, Double period, Double epoch, Double fromJD, Double toJD, Double phase, Double zoneOffset) {
+			super();
+			setTitle("Ephemeris");
+			setModalityType(Dialog.DEFAULT_MODALITY_TYPE);
+			
+			ActionListener cancelListener = createCancelButtonListener();
+		    getRootPane().registerKeyboardAction(cancelListener, 
+		    		KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), 
+		    		JComponent.WHEN_IN_FOCUSED_WINDOW);
+			
+			Container contentPane = this.getContentPane();
+
+			JPanel panel = new JPanel();
+			//panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+			panel.setLayout(new BorderLayout());
+			
+			JTextArea textArea = new JTextArea(16, 80);
+			textArea.setFont(textArea.getFont().deriveFont(12f)); // https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows
+			textArea.setTabSize(22);
+			textArea.setEditable(false);
+			JScrollPane scrollPane = new JScrollPane(textArea);
+			panel.add(scrollPane, BorderLayout.CENTER);
+			
+			textArea.setText(getEphemerisAsText(period, epoch, fromJD, toJD, phase, zoneOffset));
+			textArea.setCaretPosition(0);
+
+			JButton cancelButton = new JButton("Close");
+			cancelButton.addActionListener(cancelListener);
+			panel.add(cancelButton, BorderLayout.PAGE_END);
+			
+			contentPane.add(panel);
+			
+			this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			this.pack();
+			//setLocationRelativeTo(Mediator.getUI().getContentPane());
+			setLocationRelativeTo(parent);
+			this.setVisible(true);
+		}
+		
+		private ActionListener createCancelButtonListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+					dispose();
+				}
+			};
+		}
+		
+		private String getEphemerisAsText(Double period, Double epoch, Double fromJD, Double toJD, Double phase, Double zoneOffset) {
+			if (period <= 0)
+				return "Period must be greater than zero!";
+			int maxEphemeris = 100;
+			double nearestEpoch = epoch + Math.floor((fromJD - epoch) / period) * period;
+			//return nearestEpoch.toString();
+			String result = "Epoch\tUT\tUT+Offset\tPhase\n";
+			int i = 0;
+			double jd = nearestEpoch + phase * period;
+			while (jd <= toJD && i <= maxEphemeris) {
+				if (jd >= fromJD && jd <= toJD) {
+					result += String.format("%.4f", jd);
+					result += "\t";					
+					YMD ymd = AbstractDateUtil.getInstance().jdToYMD(jd);
+					result += formatDate(ymd);
+					result += "\t";					
+					ymd = AbstractDateUtil.getInstance().jdToYMD(jd + zoneOffset / 24.);
+					result += formatDate(ymd);
+					result += "\t";
+					result += String.format("%.2f", phase);
+					result += "\n"; 
+					i++;
+				}
+				jd = jd + period;
+			}
+			if (i == 0)
+				result += "No events in this timespan!\n";
+			return result;
+		}
+		
+		private String formatDate(YMD ymd) {
+			double day = ymd.getDay();
+			double hours = (day - Math.floor(day)) * 24;
+			double mins = (hours - Math.floor(hours)) * 60;
+			double secs = (mins - Math.floor(mins)) * 60;
+			int iday = (int)Math.floor(day);
+			int ihours = (int)Math.floor(hours);
+			int imins = (int)Math.floor(mins);
+			int isecs = (int)Math.floor(secs);
+			return String.format("%d-%02d-%02d %02d:%02d:%02d", ymd.getYear(), ymd.getMonth(), iday, ihours, imins, isecs);
+		}
+		
 	}
 	
 	class VSQqueryResult {
@@ -279,16 +481,11 @@ public class VSXquery extends GeneralToolPluginBase
 		{ 
 			VSQqueryResult vsxResult = null;
 			String error = "Unknown error";
-			try 
-			{ 
+			try { 
 				vsxResult = get(); 
-			}  
-			catch (InterruptedException ex)  
-			{ 
+			} catch (InterruptedException ex) { 
 				error = "Interrupted";
-			}  
-			catch (ExecutionException ex)  
-			{ 
+			} catch (ExecutionException ex)	{ 
 				Throwable cause = ex.getCause();
 				error = cause.getLocalizedMessage();
 				if (error == null || "".equals(error))
@@ -307,6 +504,7 @@ public class VSXquery extends GeneralToolPluginBase
 						dialog.fieldVSXvarType.setValue(vsxResult.varType);
 						dialog.fieldVSXspectralType.setValue(vsxResult.spType);
 						dialog.phaseDialogButton.setEnabled(true);
+						dialog.calcEphemeris.setEnabled(true);
 					} else {
 						dialog.textArea.setText(error);
 						dialog.fieldVSXperiod.setValue(0.0);
