@@ -237,7 +237,7 @@ public class VSXquery extends GeneralToolPluginBase
 			double jd = AbstractDateUtil.getInstance().calendarToJD(year, month, day);
 			fieldEphemerisFrom = new DoubleField("Minimum JD", null, null, new Double(jd));
 			fieldEphemerisTo = new DoubleField("Maximum JD", null, null, new Double(jd + 100));
-			fieldEphemerisPhase = new DoubleField("For Phase", new Double(-1), new Double(1), new Double(0));
+			fieldEphemerisPhase = new DoubleField("For Phase", null, null, new Double(0));
 			fieldTimeZoneOffset = new DoubleField("Zone Offset (hours)", null, null, new Double(offset));
 			panel.add(fieldEphemerisFrom.getUIComponent());
 			panel.add(fieldEphemerisTo.getUIComponent());
@@ -410,14 +410,23 @@ public class VSXquery extends GeneralToolPluginBase
 		private String getEphemerisAsText(Double period, Double epoch, Double fromJD, Double toJD, Double phase, Double zoneOffset) {
 			if (period <= 0)
 				return "Period must be greater than zero!";
-			int maxEphemeris = 100;
-			double nearestEpoch = epoch + Math.floor((fromJD - epoch) / period) * period;
-			//return nearestEpoch.toString();
-			String result = "Epoch\tUT\tUT+Offset\tPhase\n";
+			int maxEphemeris = 100; // max rows
+			// Normalizing phase
+			phase = Math.IEEEremainder(phase, 1.0);
+			if (phase < 0) phase += 1.0;
+			// Calculate nearest epoch <= fromJD.
+			double nearestEpoch = epoch + Math.floor((fromJD - epoch) / period) * period + phase * period;
+			if (nearestEpoch > fromJD)
+				nearestEpoch -= period;
+			String result = "Epoch\tUT\tUT+Offset\tPhase [0 - 1]\n";
 			int i = 0;
-			double jd = nearestEpoch + phase * period;
-			while (jd <= toJD && i <= maxEphemeris) {
+			double jd = nearestEpoch;
+			while (jd <= toJD) {
 				if (jd >= fromJD && jd <= toJD) {
+					if (i == maxEphemeris) {
+						result += "(maximum number of rows reached)\n";
+						return result;
+					}
 					result += String.format("%.4f", jd);
 					result += "\t";					
 					YMD ymd = AbstractDateUtil.getInstance().jdToYMD(jd);
