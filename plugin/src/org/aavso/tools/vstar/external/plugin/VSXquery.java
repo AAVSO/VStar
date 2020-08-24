@@ -87,6 +87,8 @@ public class VSXquery extends GeneralToolPluginBase
 	private static String sVSXname = "";
 	
 	protected static final String sVSX_URL = "https://www.aavso.org/vsx/index.php?view=api.object&ident=";
+	
+	private EphemerisDialog ephemerisDialog = null; 
 
 	@Override
 	public void invoke()
@@ -157,6 +159,7 @@ public class VSXquery extends GeneralToolPluginBase
 			this.addWindowListener(new WindowAdapter() {
 				public void windowClosing(WindowEvent we) {
 					closed = true;
+					closeEphemerisDialog(true);
 				}
 			});
 			this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -205,7 +208,7 @@ public class VSXquery extends GeneralToolPluginBase
 		private JPanel createButtonPane(ActionListener cancelListener) {
 			JPanel panel = new JPanel(new BorderLayout());
 
-			JButton cancelButton = new JButton("Cancel");
+			JButton cancelButton = new JButton("Close");
 			cancelButton.addActionListener(cancelListener);
 			panel.add(cancelButton, BorderLayout.LINE_START);
 
@@ -282,6 +285,7 @@ public class VSXquery extends GeneralToolPluginBase
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					closed = true;
+					closeEphemerisDialog(true);					
 					setVisible(false);
 					dispose();
 				}
@@ -290,51 +294,73 @@ public class VSXquery extends GeneralToolPluginBase
 		
 		// Return a listener for the "Ephemeris" button.
 		private ActionListener createEphemerisButtonListener() {
-			JDialog parent = this;
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					String starName;
 					Double period;
 					Double epoch;
 					Double minJD;
 					Double maxJD;
 					Double phase;
 					Double zoneOffset;
+					starName = sVSXname;
+					if (starName == null) starName = "";
 					period = fieldVSXperiod.getValue();
 					if (period == null || period <= 0) {
-						MessageBox.showErrorDialog(parent, "Error", "Period must be > 0");
+						ShowError("Period must be > 0");
 						return;
 					}
 					epoch = fieldVSXepoch.getValue();
 					if (epoch == null) {
-						MessageBox.showErrorDialog(parent, "Error", "Invalid epoch");
+						ShowError("Invalid epoch");
 						return;
 					}
 					minJD = fieldEphemerisFrom.getValue();
 					if (minJD == null) {
-						MessageBox.showErrorDialog(parent, "Error", "Invalid Min JD");
+						ShowError("Invalid Min JD");
 						return;
 					}
 					maxJD = fieldEphemerisTo.getValue();
 					if (maxJD == null) {
-						MessageBox.showErrorDialog(parent, "Error", "Invalid Max JD");
+						ShowError("Invalid Max JD");
 						return;
 					}
 					phase = fieldEphemerisPhase.getValue();
 					if (phase == null) {
-						MessageBox.showErrorDialog(parent, "Error", "Invalid phase");
+						ShowError("Invalid phase");
 						return;
 					}
 					zoneOffset = fieldTimeZoneOffset.getValue();
 					if (zoneOffset == null) {
-						MessageBox.showErrorDialog(parent, "Error", "Invalid Zone Offset");
+						ShowError("Invalid Zone Offset");
 						return;
 					}
-					new EphemerisDialog(parent, period, epoch, minJD, maxJD, phase, zoneOffset);
+					if (ephemerisDialog == null) {
+						ephemerisDialog = new EphemerisDialog(QueryVSXdialog.this, starName, period, epoch, minJD, maxJD, phase, zoneOffset);
+					} else {
+						ephemerisDialog.setVisible(false);
+						ephemerisDialog.updateEphemeris(starName, period, epoch, minJD, maxJD, phase, zoneOffset);
+						ephemerisDialog.setVisible(true);
+					}
+				}
+				private void ShowError(String msg) {
+					MessageBox.showErrorDialog(QueryVSXdialog.this, "Error", msg);
 				}
 			};
 		}
 		
+		private void closeEphemerisDialog(boolean destroy) {
+			if (ephemerisDialog != null) {
+				ephemerisDialog.setVisible(false);
+				if (destroy) {
+					ephemerisDialog.dispose();
+					ephemerisDialog = null;
+				}
+			}
+		}
+		
 		private void queryVSX() {
+			closeEphemerisDialog(false);
 			sVSXname = fieldVSXname.getValue().trim();
 			if ("".equals(sVSXname))
 				return;
@@ -351,18 +377,18 @@ public class VSXquery extends GeneralToolPluginBase
 			calcEphemeris.setEnabled(false);
 			worker.execute();
 		}
-		
-
+	
 	}
 	
 	
 	@SuppressWarnings("serial")
 	class EphemerisDialog extends JDialog {
 		
-		protected EphemerisDialog(JDialog parent, Double period, Double epoch, Double fromJD, Double toJD, Double phase, Double zoneOffset) {
-			super();
-			setTitle("Ephemeris");
-			setModalityType(Dialog.DEFAULT_MODALITY_TYPE);
+		private JTextArea textArea;
+		
+		protected EphemerisDialog(JDialog parent, String starName, Double period, Double epoch, Double fromJD, Double toJD, Double phase, Double zoneOffset) {
+			super(parent, "Ephemeris");
+			setModalityType(Dialog.ModalityType.MODELESS);
 			
 			ActionListener cancelListener = createCancelButtonListener();
 		    getRootPane().registerKeyboardAction(cancelListener, 
@@ -372,28 +398,24 @@ public class VSXquery extends GeneralToolPluginBase
 			Container contentPane = this.getContentPane();
 
 			JPanel panel = new JPanel();
-			//panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 			panel.setLayout(new BorderLayout());
 			
-			JTextArea textArea = new JTextArea(16, 80);
+			textArea = new JTextArea(16, 80);
 			textArea.setFont(textArea.getFont().deriveFont(12f)); // https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows
 			textArea.setTabSize(22);
 			textArea.setEditable(false);
 			JScrollPane scrollPane = new JScrollPane(textArea);
 			panel.add(scrollPane, BorderLayout.CENTER);
 			
-			textArea.setText(getEphemerisAsText(period, epoch, fromJD, toJD, phase, zoneOffset));
-			textArea.setCaretPosition(0);
-
+			updateEphemeris(starName, period, epoch, fromJD, toJD, phase, zoneOffset);
+			
 			JButton cancelButton = new JButton("Close");
 			cancelButton.addActionListener(cancelListener);
 			panel.add(cancelButton, BorderLayout.PAGE_END);
 			
 			contentPane.add(panel);
 			
-			this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			this.pack();
-			//setLocationRelativeTo(Mediator.getUI().getContentPane());
 			setLocationRelativeTo(parent);
 			this.setVisible(true);
 		}
@@ -402,10 +424,16 @@ public class VSXquery extends GeneralToolPluginBase
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					setVisible(false);
-					dispose();
 				}
 			};
 		}
+
+		protected void updateEphemeris(String starName, Double period, Double epoch, Double fromJD, Double toJD, Double phase, Double zoneOffset) {
+			this.setTitle("Ephemeris for " + starName);
+			textArea.setText(getEphemerisAsText(period, epoch, fromJD, toJD, phase, zoneOffset));
+			textArea.setCaretPosition(0);
+		}
+
 		
 		private String getEphemerisAsText(Double period, Double epoch, Double fromJD, Double toJD, Double phase, Double zoneOffset) {
 			if (period <= 0)
