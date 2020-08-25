@@ -303,6 +303,7 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 			ValidationType valType = null;
 			String comp1 = null;
 			String comp2 = null;
+			String cMag = null;
 			String kMag = null;
 			String charts = null;
 			String commentCode = null;
@@ -360,7 +361,9 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 							comp1 = value;
 						} else if ("compStar2".equalsIgnoreCase(header)) {
 							comp2 = value;
-						} else if ("KMag".equalsIgnoreCase(header)) {
+						} else if ("CMag".equalsIgnoreCase(header)) {
+							cMag = value;
+							} else if ("KMag".equalsIgnoreCase(header)) {
 							kMag = value;
 							// TODO: no hjd in AID/CSV obs?
 							// } else if ("hjd".equalsIgnoreCase(header)) {
@@ -430,6 +433,7 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 				ob.setValidationType(valType);
 				ob.setCompStar1(comp1);
 				ob.setCompStar2(comp2);
+				ob.setCMag(cMag);
 				ob.setKMag(kMag);
 				ob.setHJD(hJD);
 				ob.setCharts(charts);
