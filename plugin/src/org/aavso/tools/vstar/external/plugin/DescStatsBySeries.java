@@ -30,6 +30,10 @@ import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.ui.model.plot.JDTimeElementEntity;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.DescStats;
+import org.apache.commons.math.stat.descriptive.rank.Median;
+
+// PMAK, 2020-02-22
+// 1) Magnitude median
 
 /**
  * This is an observation VStar tool plug-in which displays, descriptive
@@ -54,20 +58,22 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 						JDTimeElementEntity.instance, 0, obs.size() - 1);
 				double stdev = DescStats.calcMagSampleStdDevInRange(obs, 0,
 						obs.size() - 1);
-
+				double median = calcMedian(obs);
+						
 				String jdMeanStr = NumericPrecisionPrefs.formatTime(means[1]);
 				String magMeanStr = NumericPrecisionPrefs.formatMag(means[0]);
 				String magStdevStr = NumericPrecisionPrefs.formatMag(stdev);
+				String magMedian = NumericPrecisionPrefs.formatMag(median); 
 
-				String statsStr = String.format("%s: %s (%s)", jdMeanStr,
-						magMeanStr, magStdevStr);
+				String statsStr = String.format("%s: %s (%s), %s", jdMeanStr,
+						magMeanStr, magStdevStr, magMedian);
 
 				seriesFields
 						.add(new TextField(type.getDescription(), statsStr));
 			}
 		}
 
-		new TextDialog("JD mean, mag mean & stdev", seriesFields);
+		new TextDialog("JD mean: mag mean(stdev), mag median", seriesFields);
 	}
 
 	@Override
@@ -78,5 +84,13 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 	@Override
 	public String getDisplayName() {
 		return "Descriptive statistics by series";
+	}
+	
+	private double calcMedian(List<ValidObservation> obs)	{
+		assert (!obs.isEmpty());
+		double[] values = new double[obs.size()];
+		for (int i = 0; i< obs.size(); i++)
+			values[i] = obs.get(i).getMag();
+		return (new Median()).evaluate(values);
 	}
 }
