@@ -177,16 +177,6 @@ public class VSXquery extends GeneralToolPluginBase
 
 			fieldVSXname = new TextField("VSX Name", sVSXname);
 			panel.add(fieldVSXname.getUIComponent());
-			
-			fieldVSXperiod = new DoubleField("VSX Period", null, null, null);
-			fieldVSXperiod.setValue(0.0);
-			((JTextComponent) (fieldVSXperiod.getUIComponent())).setEditable(false);
-			panel.add(fieldVSXperiod.getUIComponent());
-			
-			fieldVSXepoch = new DoubleField("VSX Epoch", null, null, null);
-			fieldVSXepoch.setValue(0.0);
-			((JTextComponent) (fieldVSXepoch.getUIComponent())).setEditable(false);
-			panel.add(fieldVSXepoch.getUIComponent());
 
 			fieldVSXvarType = new TextField("VSX Variability Type", "");
 			fieldVSXvarType.setEditable(false);			
@@ -196,6 +186,16 @@ public class VSXquery extends GeneralToolPluginBase
 			fieldVSXspectralType.setEditable(false);
 			panel.add(fieldVSXspectralType.getUIComponent());
 			
+			fieldVSXperiod = new DoubleField("VSX Period", null, null, null);
+			fieldVSXperiod.setValue(0.0);
+			//((JTextComponent) (fieldVSXperiod.getUIComponent())).setEditable(false);
+			panel.add(fieldVSXperiod.getUIComponent());
+			
+			fieldVSXepoch = new DoubleField("VSX Epoch", null, null, null);
+			fieldVSXepoch.setValue(0.0);
+			//((JTextComponent) (fieldVSXepoch.getUIComponent())).setEditable(false);
+			panel.add(fieldVSXepoch.getUIComponent());
+		
 			textArea = new JTextArea(16, 0);
 			//textArea.setFont(textArea.getFont().deriveFont(12f));
 			textArea.setEditable(false);
@@ -254,7 +254,7 @@ public class VSXquery extends GeneralToolPluginBase
 			calcEphemeris = new JButton("Calculate");
 			calcEphemeris.addActionListener(createEphemerisButtonListener());
 			panel.add(calcEphemeris);
-			calcEphemeris.setEnabled(false);
+			//calcEphemeris.setEnabled(false);
 			return panel;
 		}
 		
@@ -374,7 +374,7 @@ public class VSXquery extends GeneralToolPluginBase
 			SwingWorker<VSQqueryResult, VSQqueryResult> worker = new VSXquerySwingWorker(this, sVSXname);
 			queryButton.setEnabled(false);
 			phaseDialogButton.setEnabled(false);
-			calcEphemeris.setEnabled(false);
+			//calcEphemeris.setEnabled(false);
 			worker.execute();
 		}
 	
@@ -429,7 +429,9 @@ public class VSXquery extends GeneralToolPluginBase
 		}
 
 		protected void updateEphemeris(String starName, Double period, Double epoch, Double fromJD, Double toJD, Double phase, Double zoneOffset) {
-			this.setTitle("Ephemeris for " + starName);
+			if (starName == null || starName.trim() == "")
+				starName = "<unknown>";
+			this.setTitle("Ephemeris for " + starName  + ", period: " + period.toString() + ", epoch: " + epoch.toString());
 			textArea.setText(getEphemerisAsText(period, epoch, fromJD, toJD, phase, zoneOffset));
 			textArea.setCaretPosition(0);
 		}
@@ -463,7 +465,7 @@ public class VSXquery extends GeneralToolPluginBase
 					ymd = AbstractDateUtil.getInstance().jdToYMD(jd + zoneOffset / 24.);
 					result += formatDate(ymd);
 					result += "\t";
-					result += String.format("%.2f", phase);
+					result += String.format("%.3f", phase);
 					result += "\n"; 
 					i++;
 				}
@@ -541,7 +543,7 @@ public class VSXquery extends GeneralToolPluginBase
 						dialog.fieldVSXvarType.setValue(vsxResult.varType);
 						dialog.fieldVSXspectralType.setValue(vsxResult.spType);
 						dialog.phaseDialogButton.setEnabled(true);
-						dialog.calcEphemeris.setEnabled(true);
+						//dialog.calcEphemeris.setEnabled(true);
 					} else {
 						dialog.textArea.setText(error);
 						dialog.fieldVSXperiod.setValue(0.0);
@@ -595,8 +597,7 @@ public class VSXquery extends GeneralToolPluginBase
 					vsxResult.varType = content;
 				else if ("SpectralType".equalsIgnoreCase(tag))
 					vsxResult.spType = content;
-				else
-					result += tag + ": " + content + "\n";
+				result += tag + ": " + content + "\n";
 			}
 			if ("".equals(result))
 				result = "No valid data returned by the query.";
