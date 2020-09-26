@@ -44,6 +44,7 @@ Key Changes:
   Kepler/TESS, ASAS-SN)
 - #23: Extend VeLa identifiers to allow Unicode and other special symbols
 - #30: New VSX Query plug-in
+- #33: Attempt to fix plugin deletion error under Windows
 - #34: VStar windows installer
 - #38: Out of memory after loading 20 or 30 files
 - #39: Add plot function to scripting API #39
