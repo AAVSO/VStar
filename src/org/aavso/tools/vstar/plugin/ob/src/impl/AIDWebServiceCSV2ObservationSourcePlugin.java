@@ -363,7 +363,7 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 							comp2 = value;
 						} else if ("CMag".equalsIgnoreCase(header)) {
 							cMag = value;
-							} else if ("KMag".equalsIgnoreCase(header)) {
+						} else if ("KMag".equalsIgnoreCase(header)) {
 							kMag = value;
 							// TODO: no hjd in AID/CSV obs?
 							// } else if ("hjd".equalsIgnoreCase(header)) {
