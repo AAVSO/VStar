@@ -169,17 +169,6 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 				if (hdu instanceof BinaryTableHDU) {
 					BinaryTableHDU tableHDU = (BinaryTableHDU) hdu;
 					
-					/*
-					System.out.println(tableHDU.getColumnName(0));
-					System.out.println(tableHDU.getColumnName(1));
-					System.out.println(tableHDU.getColumnName(2));
-					System.out.println(tableHDU.getColumnName(3));
-					System.out.println(tableHDU.getColumnName(4));
-					System.out.println(tableHDU.getColumnName(5));
-					System.out.println(tableHDU.getColumnName(6));
-					System.out.println(tableHDU.getColumnName(7));
-					*/
-					
 					int tableRows = tableHDU.getNRows();
 					for (int row = 0; row < tableRows && !wasInterrupted(); row++) {
 						try {
