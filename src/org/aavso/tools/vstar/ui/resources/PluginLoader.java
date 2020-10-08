@@ -36,7 +36,8 @@ import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase;
 import org.aavso.tools.vstar.plugin.filter.impl.VeLaFilterPlugin;
 import org.aavso.tools.vstar.plugin.model.impl.ApacheCommonsPolynomialFitCreatorPlugin;
-import org.aavso.tools.vstar.plugin.ob.sink.impl.TextFormatObservationSinkPlugin;
+import org.aavso.tools.vstar.plugin.ob.sink.impl.DownloadFormatObservationSinkPlugin;
+import org.aavso.tools.vstar.plugin.ob.sink.impl.SimpleFormatObservationSinkPlugin;
 import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceCSV2ObservationSourcePlugin;
 import org.aavso.tools.vstar.plugin.ob.src.impl.TextFormatObservationSourcePlugin;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisPluginBase;
@@ -199,8 +200,9 @@ public class PluginLoader {
 	public static List<ObservationSinkPluginBase> getObservationSinkPlugins() {
 		List<ObservationSinkPluginBase> obSinkPlugins = new ArrayList<ObservationSinkPluginBase>();
 
-		// First, add simple/AAVSO download text format plug-in.
-		obSinkPlugins.add(new TextFormatObservationSinkPlugin());
+		// First, add simple and AAVSO download text format plug-ins.
+		obSinkPlugins.add(new SimpleFormatObservationSinkPlugin());
+		obSinkPlugins.add(new DownloadFormatObservationSinkPlugin());
 
 		// Next, add all external observation sink plug-ins.
 		for (IPlugin plugin : plugins) {
