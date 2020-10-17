@@ -189,14 +189,6 @@ public class VSXquery extends GeneralToolPluginBase {
 		private JPanel createInfoPane()	{
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-
-			fieldVSXvarType = new TextField("VSX Variability Type", "");
-			fieldVSXvarType.setEditable(false);			
-			panel.add(fieldVSXvarType.getUIComponent());
-
-			fieldVSXspectralType = new TextField("VSX Spectral Type", "");
-			fieldVSXspectralType.setEditable(false);
-			panel.add(fieldVSXspectralType.getUIComponent());
 			
 			textArea = new JTextArea(16, 64);
 			//textArea.setFont(textArea.getFont().deriveFont(12f));
@@ -204,12 +196,22 @@ public class VSXquery extends GeneralToolPluginBase {
 			JScrollPane scrollPane = new JScrollPane(textArea);
 			panel.add(scrollPane);
 			
-			fieldVSXperiod = new DoubleField("VSX Period", null, null, null);
+			fieldVSXvarType = new TextField("Variability Type", "");
+			fieldVSXvarType.setEditable(false);			
+			panel.add(fieldVSXvarType.getUIComponent());
+
+			fieldVSXspectralType = new TextField("Spectral Type", "");
+			fieldVSXspectralType.setEditable(false);
+			panel.add(fieldVSXspectralType.getUIComponent());
+			
+			panel.add(new JLabel(" "));
+			
+			fieldVSXperiod = new DoubleField("Period", null, null, null);
 			fieldVSXperiod.setValue(0.0);
 			//((JTextComponent) (fieldVSXperiod.getUIComponent())).setEditable(false);
 			panel.add(fieldVSXperiod.getUIComponent());
 			
-			fieldVSXepoch = new DoubleField("VSX Epoch", null, null, null);
+			fieldVSXepoch = new DoubleField("Epoch", null, null, null);
 			fieldVSXepoch.setValue(0.0);
 			//((JTextComponent) (fieldVSXepoch.getUIComponent())).setEditable(false);
 			panel.add(fieldVSXepoch.getUIComponent());
@@ -293,6 +295,8 @@ public class VSXquery extends GeneralToolPluginBase {
 		private ActionListener createResetButtonListener() {
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					closeEphemerisDialog(false);
+					fieldVSXname.setValue("");
 					resetVSXFields();
 					setDefaultEphemerisParams();
 				}
@@ -486,11 +490,13 @@ public class VSXquery extends GeneralToolPluginBase {
 			int maxEphemeris = 100; // max rows
 			// Normalizing phase
 			phase = Math.IEEEremainder(phase, 1.0);
-			if (phase < 0) phase += 1.0;
+			if (phase < 0) 
+				phase += 1.0;
+			// Epoch for chosen phase
+			epoch += phase * period;
 			// Calculate nearest epoch <= fromJD.
-			double nearestEpoch = epoch + Math.floor((fromJD - epoch) / period) * period + phase * period;
-			if (nearestEpoch > fromJD)
-				nearestEpoch -= period;
+			double nearestEpoch = epoch + Math.floor((fromJD - epoch) / period) * period;
+			
 			String result = "Epoch\tUT\tUT+Offset\tPhase [0 - 1]\n";
 			int i = 0;
 			double jd = nearestEpoch;
@@ -500,7 +506,7 @@ public class VSXquery extends GeneralToolPluginBase {
 						result += "(maximum number of rows reached)\n";
 						return result;
 					}
-					result += String.format("%.4f", jd);
+					result += String.format("%.5f", jd);
 					result += "\t";
 					YMD ymd = AbstractDateUtil.getInstance().jdToYMD(jd);
 					result += formatDate(ymd);
