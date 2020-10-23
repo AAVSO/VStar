@@ -27,6 +27,7 @@ package org.aavso.tools.vstar.external.plugin;
 import java.net.URLEncoder;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -46,6 +47,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 import javax.swing.KeyStroke;
@@ -76,7 +78,6 @@ import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.util.date.YMD;
-
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
 /**
@@ -105,20 +106,41 @@ public class VSXquery extends GeneralToolPluginBase {
 		return "VSX Query";
 	}
 	
+	class DoubleField2 extends DoubleField {
+		
+		public DoubleField2(String name, Double min, Double max, Double initial) {
+			super(name, min, max, initial);
+		}
+		
+		@Override
+		public void setValue(Double value) {
+			//textField.setText(value.toString());
+			//locale-specific version (PMAK).
+			if (value != null) {
+				DecimalFormat df = new DecimalFormat("0");
+				df.setMaximumFractionDigits(20);
+				textField.setText(df.format(value));
+			} else {
+				textField.setText("");
+			}
+		}		
+			
+	}
+	
 	@SuppressWarnings("serial")
 	class QueryVSXdialog extends JDialog {
 		protected static final String sTITLE = "Query VSX";
 		
 		protected TextField fieldVSXname;
-		protected DoubleField fieldVSXperiod;
-		protected DoubleField fieldVSXepoch;
+		protected DoubleField2 fieldVSXperiod;
+		protected DoubleField2 fieldVSXepoch;
 		protected TextField fieldVSXvarType;
 		protected TextField fieldVSXspectralType;
 		protected JTextArea textArea;
-		protected DoubleField fieldEphemerisFrom;
-		protected DoubleField fieldEphemerisTo;
-		protected DoubleField fieldEphemerisPhase;
-		protected DoubleField fieldTimeZoneOffset;
+		protected DoubleField2 fieldEphemerisFrom;
+		protected DoubleField2 fieldEphemerisTo;
+		protected DoubleField2 fieldEphemerisPhase;
+		protected DoubleField2 fieldTimeZoneOffset;
 		
 		protected boolean closed = false;
 		
@@ -178,6 +200,14 @@ public class VSXquery extends GeneralToolPluginBase {
 		private JPanel createNamePane()	{
 			JPanel panel = new JPanel(new BorderLayout());
 			fieldVSXname = new TextField("VSX Name", sVSXname);
+			fieldVSXname.getUIComponent().addKeyListener(new KeyAdapter() {
+		        @Override
+		        public void keyPressed(KeyEvent e) {
+		            if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+		            	queryVSX();
+		            }
+		        }
+		    });			
 			panel.add(fieldVSXname.getUIComponent(), BorderLayout.CENTER);
 			queryButton = new JButton("Query");			
 			queryButton.addActionListener(createQueryButtonListener());
@@ -206,12 +236,12 @@ public class VSXquery extends GeneralToolPluginBase {
 			
 			panel.add(new JLabel(" "));
 			
-			fieldVSXperiod = new DoubleField("Period", null, null, null);
+			fieldVSXperiod = new DoubleField2("Period", null, null, null);
 			fieldVSXperiod.setValue(0.0);
 			//((JTextComponent) (fieldVSXperiod.getUIComponent())).setEditable(false);
 			panel.add(fieldVSXperiod.getUIComponent());
 			
-			fieldVSXepoch = new DoubleField("Epoch", null, null, null);
+			fieldVSXepoch = new DoubleField2("Epoch", null, null, null);
 			fieldVSXepoch.setValue(0.0);
 			//((JTextComponent) (fieldVSXepoch.getUIComponent())).setEditable(false);
 			panel.add(fieldVSXepoch.getUIComponent());
@@ -235,10 +265,10 @@ public class VSXquery extends GeneralToolPluginBase {
 			panel.setLayout(new GridLayout(0, 2));
 			panel.add(new JLabel("Ephemeris"));
 			panel.add(new JLabel(""));			
-			fieldEphemerisFrom = new DoubleField("Minimum JD", null, null, new Double(0));
-			fieldEphemerisTo = new DoubleField("Maximum JD", null, null, new Double(0));
-			fieldEphemerisPhase = new DoubleField("For Phase", null, null, new Double(0));
-			fieldTimeZoneOffset = new DoubleField("Zone Offset (hours)", null, null, new Double(0));
+			fieldEphemerisFrom = new DoubleField2("Minimum JD", null, null, 0.0);
+			fieldEphemerisTo = new DoubleField2("Maximum JD", null, null, 0.0);
+			fieldEphemerisPhase = new DoubleField2("For Phase", null, null, 0.0);
+			fieldTimeZoneOffset = new DoubleField2("Zone Offset (hours)", null, null, 0.0);
 			setDefaultEphemerisParams();
 			panel.add(fieldEphemerisFrom.getUIComponent());
 			panel.add(fieldEphemerisTo.getUIComponent());
