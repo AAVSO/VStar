@@ -78,6 +78,7 @@ import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.util.date.YMD;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
 /**
@@ -108,6 +109,8 @@ public class VSXquery extends GeneralToolPluginBase {
 	
 	class DoubleField2 extends DoubleField {
 		
+		private int MIN_DECIMAL_PLACES = 20; 
+		
 		public DoubleField2(String name, Double min, Double max, Double initial) {
 			super(name, min, max, initial);
 		}
@@ -115,10 +118,13 @@ public class VSXquery extends GeneralToolPluginBase {
 		@Override
 		public void setValue(Double value) {
 			//textField.setText(value.toString());
-			//locale-specific version (PMAK).
+			//Locale-specific version, more decimals than by default (PMAK).
+			//Default settings for decimal places = 6 (can be changed in "preferences")
 			if (value != null) {
 				DecimalFormat df = new DecimalFormat("0");
-				df.setMaximumFractionDigits(20);
+				int fractionDigits = NumericPrecisionPrefs.getOtherDecimalPlaces();
+				if (fractionDigits < MIN_DECIMAL_PLACES) fractionDigits = MIN_DECIMAL_PLACES;
+				df.setMaximumFractionDigits(fractionDigits);
 				textField.setText(df.format(value));
 			} else {
 				textField.setText("");
