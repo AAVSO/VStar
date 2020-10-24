@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
+import java.text.DecimalFormat;
+
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.vela.VeLaEvalError;
@@ -79,6 +81,8 @@ public class DoubleField extends NumberFieldBase<Double> {
 
 	@Override
 	public void setValue(Double value) {
-		textField.setText(value.toString());
+		//textField.setText(value.toString());
+		//locale-specific version (PMAK): identical to setting _initail_ value (see constructor).
+		textField.setText(value == null ? "" : NumericPrecisionPrefs.getOtherOutputFormat().format(value));
 	}
 }
