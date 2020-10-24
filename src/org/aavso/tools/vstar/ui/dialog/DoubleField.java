@@ -17,8 +17,6 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
-import java.text.DecimalFormat;
-
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.vela.VeLaEvalError;
