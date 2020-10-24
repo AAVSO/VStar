@@ -178,10 +178,12 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 		int n = Harmonic.FUNDAMENTAL + 1;
 
 		for (int i = 0; i < data.size(); i++) {
-			// Try it both ways in case of round-off errors.
-			// TODO: could multiply by precision factor, truncate/round and
-			// compare after division by n.
-			if (data.get(i) / n == freq || data.get(i) == freq * n) {
+			
+			double potentialHarmonic = data.get(i) / n;
+			
+			// Check if the data is a harmonic of the frequency within
+			// a tolerance range
+			if (Math.abs(potentialHarmonic - freq) < .001) {
 				harmonics.add(new Harmonic(freq * n, n));
 				n++;
 			}
