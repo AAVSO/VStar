@@ -1479,9 +1479,9 @@ public class Mediator {
 			s = hms.third;
 		}
 
-		IntegerField raHours = new IntegerField("Hours", h, 60, null);
-		IntegerField raMinutes = new IntegerField("Minutes", m, 60, null);
-		DoubleField raSeconds = new DoubleField("Seconds", s, 60.0, null);
+		IntegerField raHours = new IntegerField("Hours", 0, 60, h);
+		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, m);
+		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, s);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("RA ("
 				+ EpochType.J2000 + ")", raHours, raMinutes, raSeconds);
 
@@ -1512,9 +1512,9 @@ public class Mediator {
 			s = dms.third;
 		}
 
-		IntegerField decHours = new IntegerField("Degrees", d, 90, null);
-		IntegerField decMinutes = new IntegerField("Minutes", m, 60, null);
-		DoubleField decSeconds = new DoubleField("Seconds", s, 60.0, null);
+		IntegerField decHours = new IntegerField("Degrees", -90, 90, d);
+		IntegerField decMinutes = new IntegerField("Minutes", 0, 60, m);
+		DoubleField decSeconds = new DoubleField("Seconds", 0.0, 60.0, s);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
 				"Dec (" + EpochType.J2000 + ")", decHours, decMinutes,
 				decSeconds);
