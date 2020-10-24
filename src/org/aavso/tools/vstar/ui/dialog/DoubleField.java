@@ -80,7 +80,7 @@ public class DoubleField extends NumberFieldBase<Double> {
 	@Override
 	public void setValue(Double value) {
 		//textField.setText(value.toString());
-		//locale-specific version (PMAK): identical to setting _initail_ value (see constructor).
+		//locale-specific version (PMAK): identical to setting _initial_ value (see constructor).
 		textField.setText(value == null ? "" : NumericPrecisionPrefs.getOtherOutputFormat().format(value));
 	}
 }
