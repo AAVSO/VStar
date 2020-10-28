@@ -182,11 +182,18 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 			double potentialHarmonic = data.get(i) / n;
 			
 			// Check if the data is a harmonic of the frequency within
-			// a tolerance range
-			if (Math.abs(potentialHarmonic - freq) < .001) {
+			// a relative tolerance range
+			
+			double relativeTolerance = 1e-3;
+			double diff = Math.abs(potentialHarmonic - freq);
+			  
+			if( (diff == 0.0) || 
+			    ((diff <= Math.abs(relativeTolerance * potentialHarmonic)) && 
+			    (diff <= Math.abs(relativeTolerance * freq))) ){
+				
 				harmonics.add(new Harmonic(freq * n, n));
-				n++;
-			}
+				n++; 
+			  }
 		}
 
 		return harmonics;
