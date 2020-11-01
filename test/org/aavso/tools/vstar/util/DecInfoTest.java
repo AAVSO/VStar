@@ -64,7 +64,7 @@ public class DecInfoTest extends TestCase {
 		Triple<Integer, Integer, Double> dms = dec.toDMS();
 		assertEquals((int)15, (int)dms.first);
 		assertEquals((int)30, (int)dms.second);
-		assertTrue(areClose(33.12, dms.third, 1e6));
+		assertTrue(Tolerance.areClose(33.12, dms.third, 1e6, true));
 	}
 
 	public void testDecDegsToDMS2() {
@@ -72,14 +72,10 @@ public class DecInfoTest extends TestCase {
 		Triple<Integer, Integer, Double> dms = dec.toDMS();
 		assertEquals(-15, (int)dms.first);
 		assertEquals(30, (int)dms.second);
-		assertTrue(areClose(33.12, dms.third, 1e6));
+		assertTrue(Tolerance.areClose(33.12, dms.third, 1e6, true));
 	}
 
 	// Helpers
-	
-	private boolean areClose(double a, double b, double epsilon) {
-		return Math.abs(a - b) < epsilon;
-	}
 
 	private String getNumToPrecision(double n, int precision) {
 		return String.format("%1." + precision + "f", n);

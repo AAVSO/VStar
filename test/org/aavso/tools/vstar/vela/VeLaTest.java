@@ -32,6 +32,7 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
 import junit.framework.TestCase;
@@ -59,47 +60,47 @@ public class VeLaTest extends TestCase {
 
 	public void testPositiveReal1() {
 		double result = vela.realExpression("12.25");
-		assertTrue(areClose(12.25, result, DELTA));
+		assertTrue(Tolerance.areClose(12.25, result, DELTA, true));
 	}
 
 	public void testPositiveRealNoLeadingZero() {
 		double result = vela.realExpression(".25");
-		assertTrue(areClose(.25, result, DELTA));
+		assertTrue(Tolerance.areClose(.25, result, DELTA, true));
 	}
 
 	public void testNegativeReal1() {
 		double result = vela.realExpression("-12.25");
-		assertTrue(areClose(-12.25, result, DELTA));
+		assertTrue(Tolerance.areClose(-12.25, result, DELTA, true));
 	}
 
 	public void testNegativeRealNoLeadingZero() {
 		double result = vela.realExpression("-.25");
-		assertTrue(areClose(-.25, result, DELTA));
+		assertTrue(Tolerance.areClose(-.25, result, DELTA, true));
 	}
 
 	public void testAddition() {
 		double result = vela.realExpression("2457580.25+1004");
-		assertTrue(areClose(2458584.25, result, DELTA));
+		assertTrue(Tolerance.areClose(2458584.25, result, DELTA, true));
 	}
 
 	public void testSubtraction() {
 		double result = vela.realExpression("2457580.25-1004");
-		assertTrue(areClose(2456576.25, result, DELTA));
+		assertTrue(Tolerance.areClose(2456576.25, result, DELTA, true));
 	}
 
 	public void testMultiplication() {
 		double result = vela.realExpression("2457580.25*10");
-		assertTrue(areClose(24575802.5, result, DELTA));
+		assertTrue(Tolerance.areClose(24575802.5, result, DELTA, true));
 	}
 
 	public void testDivision() {
 		double result = vela.realExpression("2457580.25/10");
-		assertTrue(areClose(245758.025, result, DELTA));
+		assertTrue(Tolerance.areClose(245758.025, result, DELTA, true));
 	}
 
 	public void testAddSubMul() {
 		double result = vela.realExpression("2457580.25+1004*2-1");
-		assertTrue(areClose(2459587.25, result, DELTA));
+		assertTrue(Tolerance.areClose(2459587.25, result, DELTA, true));
 	}
 
 	public void testAddSubMulDiv() {
@@ -111,81 +112,81 @@ public class VeLaTest extends TestCase {
 	public void testRealExponentiation1() {
 		Operand operand = vela.expressionToOperand("2.0^3.0");
 		assertEquals(Type.REAL, operand.getType());
-		assertTrue(areClose(8.0, operand.doubleVal(), DELTA));
+		assertTrue(Tolerance.areClose(8.0, operand.doubleVal(), DELTA, true));
 	}
 
 	public void testRealExponentiation2() {
 		Operand operand = vela.expressionToOperand("2^3.0");
 		assertEquals(Type.REAL, operand.getType());
-		assertTrue(areClose(8.0, operand.doubleVal(), DELTA));
+		assertTrue(Tolerance.areClose(8.0, operand.doubleVal(), DELTA, true));
 	}
 
 	public void testRealExponentiation3() {
 		Operand operand = vela.expressionToOperand("3.0^4^2");
 		assertEquals(Type.REAL, operand.getType());
-		assertTrue(areClose(43046721.0, operand.doubleVal(), DELTA));
+		assertTrue(Tolerance.areClose(43046721.0, operand.doubleVal(), DELTA, true));
 	}
 
 	public void testReal1() {
 		double result = vela.realExpression("2.25+1");
-		assertTrue(areClose(3.25, result, DELTA));
+		assertTrue(Tolerance.areClose(3.25, result, DELTA, true));
 	}
 
 	public void testReal2() {
 		double result = vela.realExpression("2.25-1");
-		assertTrue(areClose(1.25, result, DELTA));
+		assertTrue(Tolerance.areClose(1.25, result, DELTA, true));
 	}
 
 	public void testReal3() {
 		double result = vela.realExpression("2.25+1+2");
-		assertTrue(areClose(5.25, result, DELTA));
+		assertTrue(Tolerance.areClose(5.25, result, DELTA, true));
 	}
 
 	public void testReal4() {
 		double result = vela.realExpression("2.25*2*2");
-		assertTrue(areClose(9.0, result, DELTA));
+		assertTrue(Tolerance.areClose(9.0, result, DELTA, true));
 	}
 
 	public void testReal5() {
 		double result = vela.realExpression("1 - 6 / 2 + 4 * 5");
-		assertTrue(areClose(18.0, result, DELTA));
+		assertTrue(Tolerance.areClose(18.0, result, DELTA, true));
 	}
 
 	public void testReal6() {
 		double result = new VeLaInterpreter(VERBOSE).realExpression("1 + 6 / 2 + 4 * 5");
-		assertTrue(areClose(24.0, result, DELTA));
+		assertTrue(Tolerance.areClose(24.0, result, DELTA, true));
 	}
 
 	public void testReal7() {
 		double result = new VeLaInterpreter(VERBOSE).realExpression("1 + 6 / 2 - 4 * 5");
-		assertTrue(areClose(-16.0, result, DELTA));
+		assertTrue(Tolerance.areClose(-16.0, result, DELTA, true));
 	}
 
 	public void testParens0() {
 		double result = vela.realExpression("(2457580.25+1004)*10");
-		assertTrue(areClose(24585842.50, result, DELTA));
+		assertTrue(Tolerance.areClose(24585842.50, result, DELTA, true));
 	}
 
 	public void testParens1() {
 		double result = vela.realExpression("(2457580.25+1004-2)*10");
-		assertTrue(areClose(24585822.50, result, DELTA));
+		assertTrue(Tolerance.areClose(24585822.50, result, DELTA, true));
 	}
 
 	public void testParens2() {
 		// 20 years before some JD.
 		double result = vela.realExpression("2457580.25-(365.25*20)");
-		assertTrue(areClose(2450275.25, result, DELTA));
+		assertTrue(Tolerance.areClose(2450275.25, result, DELTA, true));
 	}
 
 	public void testParens3() {
 		double result = vela.realExpression("(12.25*-2)");
-		assertTrue(areClose(-24.5, result, DELTA));
+		assertTrue(Tolerance.areClose(-24.5, result, DELTA, true));
 	}
 
 	public void testResultCacheTest1() {
 		// 20 years before some JD.
 		double result = vela.realExpression("2457580.25-(365.25*20)");
-		assertTrue(areClose(2450275.25, result, DELTA));
+		assertTrue(Tolerance.areClose(2450275.25, result, DELTA, true));
 	}
 
 	// Integer expressions
@@ -540,7 +541,7 @@ public class VeLaTest extends TestCase {
 		Optional<Operand> result = vela.program(prog);
 
 		if (result.isPresent()) {
-			assertTrue(areClose(42.42, result.get().doubleVal(), DELTA));
+			assertTrue(Tolerance.areClose(42.42, result.get().doubleVal(), DELTA, true));
 		} else {
 			fail();
 		}
@@ -557,7 +558,7 @@ public class VeLaTest extends TestCase {
 		Optional<Operand> result = vela.program(prog);
 
 		if (result.isPresent()) {
-			assertTrue(areClose(84.0, result.get().doubleVal(), DELTA));
+			assertTrue(Tolerance.areClose(84.0, result.get().doubleVal(), DELTA, true));
 		} else {
 			fail();
 		}
@@ -567,22 +568,22 @@ public class VeLaTest extends TestCase {
 
 	public void testFuncParameterless1() {
 		double result = vela.realExpression("today()");
-		assertTrue(areClose(today(), result, DELTA));
+		assertTrue(Tolerance.areClose(today(), result, DELTA, true));
 	}
 
 	public void testFuncParameterlessAsSubexpression1() {
 		double result = vela.realExpression("today()+2");
-		assertTrue(areClose(today() + 2, result, DELTA));
+		assertTrue(Tolerance.areClose(today() + 2, result, DELTA, true));
 	}
 
 	public void testFunctionSin() {
 		double result = vela.realExpression("sin(pi/2)");
-		assertTrue(areClose(1.0, result, DELTA));
+		assertTrue(Tolerance.areClose(1.0, result, DELTA, true));
 	}
 
 	public void testFunctionSqrt() {
 		double result = vela.realExpression("2*sqrt(144.0)");
-		assertTrue(areClose(24.0, result, DELTA));
+		assertTrue(Tolerance.areClose(24.0, result, DELTA, true));
 	}
 
 	// List head
@@ -872,7 +873,7 @@ public class VeLaTest extends TestCase {
 		Optional<Operand> result = vela.program(prog);
 
 		assertTrue(result.isPresent());
-		assertTrue(areClose(144.0, result.get().doubleVal(), DELTA));
+		assertTrue(Tolerance.areClose(144.0, result.get().doubleVal(), DELTA, true));
 	}
 
 	public void testHOF1() {
@@ -1001,7 +1002,7 @@ public class VeLaTest extends TestCase {
 		Optional<Operand> result = vela.program(prog);
 
 		assertTrue(result.isPresent());
-		assertTrue(areClose(120.0, result.get().doubleVal(), DELTA));
+		assertTrue(Tolerance.areClose(120.0, result.get().doubleVal(), DELTA,true));
 	}
 
 	public void ignoreTestFunFor1() {
@@ -1054,7 +1055,7 @@ public class VeLaTest extends TestCase {
 		Optional<Operand> result = new VeLaInterpreter(VERBOSE).program(prog);
 
 		assertTrue(result.isPresent());
-		assertTrue(areClose(12.34620932, result.get().doubleVal(), 1e-6));
+		assertTrue(Tolerance.areClose(12.34620932, result.get().doubleVal(), 1e-6, true));
 	}
 
 	public void testMean() {
@@ -1067,7 +1068,7 @@ public class VeLaTest extends TestCase {
 
 		Optional<Operand> result = vela.program(prog);
 		assertTrue(result.isPresent());
-		assertTrue(areClose(3.8834545, result.get().doubleVal(), 1e-7));
+		assertTrue(Tolerance.areClose(3.8834545, result.get().doubleVal(), 1e-7, true));
 	}
 
 	// Bindings
@@ -1161,7 +1162,7 @@ public class VeLaTest extends TestCase {
 		Optional<Operand> result = vela.program(prog);
 
 		assertTrue(result.isPresent());
-		assertTrue(areClose(Math.PI, result.get().doubleVal(), 0.00001));
+		assertTrue(Tolerance.areClose(Math.PI, result.get().doubleVal(), 0.00001, true));
 	}
 	
 	public void testClosureBasedCounter() {
@@ -1244,17 +1245,17 @@ public class VeLaTest extends TestCase {
 
 	public void testComments1() {
 		double result = vela.realExpression("-- comment test\n\r12+2");
-		assertTrue(areClose(14.0, result, DELTA));
+		assertTrue(Tolerance.areClose(14.0, result, DELTA, true));
 	}
 
 	public void testComments2() {
 		double result = vela.realExpression("-- comment test\r\n12+2");
-		assertTrue(areClose(14.0, result, DELTA));
+		assertTrue(Tolerance.areClose(14.0, result, DELTA, true));
 	}
 
 	public void testComments3() {
 		double result = vela.realExpression("-- comment test\n12+2");
-		assertTrue(areClose(14.0, result, DELTA));
+		assertTrue(Tolerance.areClose(14.0, result, DELTA, true));
 	}
 
 	public void testComments4() {
@@ -1383,10 +1384,6 @@ public class VeLaTest extends TestCase {
 	}
 
 	// Helpers
-
-	private boolean areClose(double a, double b, double epsilon) {
-		return Math.abs(a - b) < epsilon;
-	}
 
 	private double today() {
 		Calendar cal = Calendar.getInstance();

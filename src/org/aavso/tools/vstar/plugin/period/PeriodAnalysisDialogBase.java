@@ -33,6 +33,7 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.Harmonic;
 
@@ -183,14 +184,7 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 			
 			// Check if the data is a harmonic of the frequency within
 			// a relative tolerance range
-			
-			double relativeTolerance = 1e-3;
-			double diff = Math.abs(potentialHarmonic - freq);
-			  
-			if( (diff == 0.0) || 
-			    ((diff <= Math.abs(relativeTolerance * potentialHarmonic)) && 
-			    (diff <= Math.abs(relativeTolerance * freq))) ){
-				
+			if(Tolerance.areClose(potentialHarmonic, freq, 1e-3, false)){
 				harmonics.add(new Harmonic(freq * n, n));
 				n++; 
 			  }
