@@ -84,6 +84,10 @@ public class VStar {
 				System.setProperty(
 						"com.apple.mrj.application.apple.menu.about.name",
 						"VStar");
+			} else if (os_name.startsWith("Windows")) {
+				// Under Windows, the default TextArea font is too small.
+				// This fixes the issue [https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows]
+				UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
 			}
 		} catch (Exception e) {
 			System.err.println("Unable to detect operating system. Exiting.");
