@@ -75,19 +75,16 @@ public class VStar {
 				.getResource("/etc/vstar.java.policy");
 		Policy.getPolicy().refresh();
 
+		String os_name = "";
 		// For Mac OS X, make it look more native by using the screen
 		// menu bar. Suggested by Adam Weber.
 		try {
-			String os_name = System.getProperty("os.name");
+			os_name = System.getProperty("os.name");
 			if (os_name.startsWith("Mac OS X")) {
 				System.setProperty("apple.laf.useScreenMenuBar", "true");
 				System.setProperty(
 						"com.apple.mrj.application.apple.menu.about.name",
 						"VStar");
-			} else if (os_name.startsWith("Windows")) {
-				// Under Windows, the default TextArea font is too small.
-				// This fixes the issue [https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows]
-				UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
 			}
 		} catch (Exception e) {
 			System.err.println("Unable to detect operating system. Exiting.");
@@ -100,6 +97,14 @@ public class VStar {
 		} catch (Exception e) {
 			System.err.println("Unable to set native look & feel. Exiting.");
 			System.exit(1);
+		}
+		
+		// Under Windows, the default TextArea font is too small.
+		// Making TextArea the same as TextField fixes this.
+		// We should make this fix AFTER setting native Look & Feel!
+		if (os_name.startsWith("Windows")) {
+			// [https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows]
+			UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
 		}
 
 		processCmdLineArgs(args);
