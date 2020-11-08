@@ -61,7 +61,7 @@ public class RAInfoTest extends TestCase {
 		Triple<Integer, Integer, Double> hms = ra.toHMS();
 		assertEquals(15, (int)hms.first);
 		assertEquals(30, (int)hms.second);
-		assertTrue(Tolerance.areClose(33.12, hms.third, 1e6, true));
+		assertTrue(Tolerance.areClose(33.12, hms.third, 1e1, true));
 	}
 
 	public void testRADegsToHMS2() {
@@ -69,7 +69,7 @@ public class RAInfoTest extends TestCase {
 		Triple<Integer, Integer, Double> hms = ra.toHMS();
 		assertEquals(0, (int)hms.first);
 		assertEquals(30, (int)hms.second);
-		assertTrue(Tolerance.areClose(33.12, hms.third, 1e6, true));
+		assertTrue(Tolerance.areClose(33.12, hms.third, 1e1, true));
 	}
 
 	public void testRADegsToHMS3() {
@@ -77,6 +77,6 @@ public class RAInfoTest extends TestCase {
 		Triple<Integer, Integer, Double> hms = ra.toHMS();
 		assertEquals(23, (int)hms.first);
 		assertEquals(30, (int)hms.second);
-		assertTrue(Tolerance.areClose(33.12, hms.third, 1e6, true));
+		assertTrue(Tolerance.areClose(33.12, hms.third, 1e1, true));
 	}
 }
