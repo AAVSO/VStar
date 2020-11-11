@@ -40,12 +40,9 @@ public class Tolerance {
 		}
 		
 		else {			  
-			if( (diff == 0.0) || 
-			    ((diff <= Math.abs(epsilon * a)) && 
-			    (diff <= Math.abs(epsilon * b))) ){
-				return true;
-			  }
-			else return false;
+			return ((diff == 0.0) || 
+			       ((diff <= Math.abs(epsilon * a)) && 
+			        (diff <= Math.abs(epsilon * b))) );
 		}
 	}
 
