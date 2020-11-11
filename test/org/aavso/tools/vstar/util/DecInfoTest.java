@@ -17,17 +17,15 @@
  */
 package org.aavso.tools.vstar.util;
 
-import junit.framework.TestCase;
-
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.EpochType;
+
+import junit.framework.TestCase;
 
 /**
  * DecInfo unit tests.
  */
 public class DecInfoTest extends TestCase {
-
-	private static final int PRECISION = 8;
 
 	public DecInfoTest(String name) {
 		super(name);
@@ -42,7 +40,7 @@ public class DecInfoTest extends TestCase {
 	}
 
 	// Test cases.
-	
+
 	public void testDecToDegrees1() {
 		DecInfo dec = new DecInfo(EpochType.B1950, 0, 0, 0);
 		assertEquals(0.0, dec.toDegrees());
@@ -50,34 +48,27 @@ public class DecInfoTest extends TestCase {
 
 	public void testDecToDegrees2() {
 		DecInfo dec = new DecInfo(EpochType.B1950, -25, 45, 3);
-		String decStr = getNumToPrecision(dec.toDegrees(), PRECISION);
-		assertEquals(getNumToPrecision(-25.7508333333333, PRECISION), decStr);
+		assertTrue(Tolerance.areClose(-25.7508333333333, dec.toDegrees(), 1e-8, true));
 	}
 
 	public void testDecToDegrees3() {
 		DecInfo dec = new DecInfo(EpochType.B1950, 2, 0, 0);
 		assertEquals(2.0, dec.toDegrees());
 	}
-	
+
 	public void testDecDegsToDMS1() {
 		DecInfo dec = new DecInfo(EpochType.J2000, 15.5092);
 		Triple<Integer, Integer, Double> dms = dec.toDMS();
-		assertEquals((int)15, (int)dms.first);
-		assertEquals((int)30, (int)dms.second);
-		assertTrue(Tolerance.areClose(33.12, dms.third, 1e6, true));
+		assertEquals((int) 15, (int) dms.first);
+		assertEquals((int) 30, (int) dms.second);
+		assertTrue(Tolerance.areClose(33.12, dms.third, 1e-8, true));
 	}
 
 	public void testDecDegsToDMS2() {
 		DecInfo dec = new DecInfo(EpochType.J2000, -15.5092);
 		Triple<Integer, Integer, Double> dms = dec.toDMS();
-		assertEquals(-15, (int)dms.first);
-		assertEquals(30, (int)dms.second);
-		assertTrue(Tolerance.areClose(33.12, dms.third, 1e6, true));
-	}
-
-	// Helpers
-
-	private String getNumToPrecision(double n, int precision) {
-		return String.format("%1." + precision + "f", n);
+		assertEquals(-15, (int) dms.first);
+		assertEquals(30, (int) dms.second);
+		assertTrue(Tolerance.areClose(33.12, dms.third, 1e-8, true));
 	}
 }
