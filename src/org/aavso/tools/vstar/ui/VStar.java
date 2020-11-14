@@ -94,17 +94,16 @@ public class VStar {
 		// Set the Look & Feel of the application to be native.
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			// Under Windows, the default TextArea font is too small.
+			// Making TextArea the same as TextField fixes this.
+			// We should make this fix AFTER setting native Look & Feel!
+			if (os_name.startsWith("Windows")) {
+				// [https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows]
+				UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
+			}
 		} catch (Exception e) {
 			System.err.println("Unable to set native look & feel. Exiting.");
 			System.exit(1);
-		}
-		
-		// Under Windows, the default TextArea font is too small.
-		// Making TextArea the same as TextField fixes this.
-		// We should make this fix AFTER setting native Look & Feel!
-		if (os_name.startsWith("Windows")) {
-			// [https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows]
-			UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
 		}
 
 		processCmdLineArgs(args);
