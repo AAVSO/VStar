@@ -226,8 +226,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 			
-			textArea = new JTextArea(16, 64);
-			//textArea.setFont(textArea.getFont().deriveFont(12f));
+			textArea = new JTextArea(16, 40);
 			textArea.setEditable(false);
 			JScrollPane scrollPane = new JScrollPane(textArea);
 			panel.add(scrollPane);
@@ -484,7 +483,6 @@ public class VSXquery extends GeneralToolPluginBase {
 			panel.setLayout(new BorderLayout());
 			
 			textArea = new JTextArea(16, 80);
-			textArea.setFont(textArea.getFont().deriveFont(12f)); // https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows
 			textArea.setTabSize(22);
 			textArea.setEditable(false);
 			JScrollPane scrollPane = new JScrollPane(textArea);
