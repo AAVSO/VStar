@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.task;
 import java.awt.Cursor;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -239,6 +240,15 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			MessageBox.showErrorDialog("Observation Source Error",
 					ex.getLocalizedMessage());
 		} finally {
+			// #PMAK#20201121#1#: close input streams if no retriever returned.
+			if (retriever == null)
+				try {
+					closeStreams();
+				} catch (IOException ex) {
+					// we unlikely be here
+					MessageBox.showErrorDialog("Observation Source Error",
+							ex.getLocalizedMessage());
+				}
 			Mediator.getUI().setCursor(null);
 		}
 	}
@@ -316,10 +326,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 					obsCount = retriever.getValidObservations().size();
 				}
 			} finally {
-				// Close all streams
-				for (InputStream stream : streams) {
-					stream.close();
-				}
+				closeStreams();
 			}
 		} catch (InterruptedException e) {
 			ValidObservation.restore();
@@ -353,5 +360,13 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
 		mediator.getProgressNotifier().notifyListeners(
 				ProgressInfo.CLEAR_PROGRESS);
+	}
+	
+	private void closeStreams() throws IOException
+	{
+		// Close all streams
+		for (InputStream stream : streams) {
+			stream.close();
+		}
 	}
 }
