@@ -162,13 +162,27 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 				throws FitsException, ObservationReadError {
 
 			List<ValidObservation> obs = new ArrayList<ValidObservation>();
-			double minMagErr = Double.MAX_VALUE;
-			double maxMagErr = Double.MIN_VALUE;
+			
+			// PMAK: minMagErr/maxMagErr are not used anymore
+			//double minMagErr = Double.MAX_VALUE;
+			//double maxMagErr = Double.MIN_VALUE;
 
 			for (BasicHDU hdu : hdus) {
 				if (hdu instanceof BinaryTableHDU) {
 					BinaryTableHDU tableHDU = (BinaryTableHDU) hdu;
 					
+					// PMAK: Check field names to be sure we are using correct FITS.
+					if (!"TMID".equals(tableHDU.getColumnName(0)) ||
+						!"FLUX2".equals(tableHDU.getColumnName(1)) ||
+						!"FLUX2_ERR".equals(tableHDU.getColumnName(2)) ||
+						!"TAMFLUX2".equals(tableHDU.getColumnName(3)) ||
+						!"TAMFLUX2_ERR".equals(tableHDU.getColumnName(4)) ||
+						!"IMAGEID".equals(tableHDU.getColumnName(5)) ||
+						!"CCDX".equals(tableHDU.getColumnName(6)) ||
+						!"CCDY".equals(tableHDU.getColumnName(7))) {
+						throw new ObservationReadError("Not a valid FITS file");
+					}					
+										
 					int tableRows = tableHDU.getNRows();
 					for (int row = 0; row < tableRows && !wasInterrupted(); row++) {
 						try {
@@ -193,11 +207,11 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 										/ Math.log(10.0);
 								double magErr = 1.086 * fluxErr / flux;
 
-								if (magErr < minMagErr) {
-									minMagErr = magErr;
-								} else if (magErr > maxMagErr) {
-									maxMagErr = magErr;
-								}
+								//if (magErr < minMagErr) {
+								//	minMagErr = magErr;
+								//} else if (magErr > maxMagErr) {
+								//	maxMagErr = magErr;
+								//}
 
 								ValidObservation ob = new ValidObservation();
 								ob.setName(getInputName());
@@ -227,24 +241,17 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 				}
 			}
 
-			collectObservations(obs, minMagErr, maxMagErr);
+			collectObservations(obs);
 		}
 
 		// Collect observations, distinguishing those with a magnitude error
 		// greater than or equal to some threshold.
-		private void collectObservations(List<ValidObservation> obs,
-				double minMagErr, double maxMagErr) throws ObservationReadError {
-
-			//magErrThreshold = (maxMagErr + minMagErr) / 2;
-
-			//double magErrIncrement = (maxMagErr - minMagErr) / 100;
-
+		private void collectObservations(List<ValidObservation> obs) throws ObservationReadError {
 			for (ValidObservation ob : obs) {
 				double magErr = ob.getMagnitude().getUncertainty();
 				if (magErr >= magErrThreshold) {
 					ob.setExcluded(true);
 				}
-
 				collectObservation(ob);
 			}
 		}

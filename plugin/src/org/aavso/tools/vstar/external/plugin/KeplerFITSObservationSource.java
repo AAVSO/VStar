@@ -200,8 +200,8 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 			// Kepler and TESS light curve FITS contains primary HDU having keywords only, binary table extension, and image extension (aperture).
 			if (hdus.length >  1 && hdus[0] instanceof ImageHDU && hdus[1] instanceof BinaryTableHDU) {
 
-				double minMagErr = Double.MAX_VALUE;
-				double maxMagErr = Double.MIN_VALUE;
+				//double minMagErr = Double.MAX_VALUE;
+				//double maxMagErr = Double.MIN_VALUE;
 
 				double invalidMag = 99.99;
 
@@ -237,9 +237,19 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 				objName = imageHDU.getObject();
 
 				BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
+				
+				// PMAK: Check field names to be sure we are using correct FITS.
+				if (!"TIME".equals(tableHDU.getColumnName(0)) ||
+					!"SAP_FLUX".equals(tableHDU.getColumnName(3)) ||
+					!"SAP_FLUX_ERR".equals(tableHDU.getColumnName(4)) ||
+					!"PDCSAP_FLUX".equals(tableHDU.getColumnName(7)) ||
+					!"PDCSAP_FLUX_ERR".equals(tableHDU.getColumnName(8))) {
+					throw new ObservationReadError("Not a valid FITS file");
+				}
+				
 				double timei = tableHDU.getHeader().getDoubleValue("BJDREFI");
 				double timef = tableHDU.getHeader().getDoubleValue("BJDREFF");
-				
+			
 				for (int row = 0; row < tableHDU.getNRows()	&& !wasInterrupted(); row++) {
 					try {
 						double barytime = ((double[]) tableHDU.getElement(row, 0))[0];
@@ -321,11 +331,11 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 					double mag = magShift - 2.5 * Math.log10(rawObs.intensity);
 					double magErr = 1.086 * rawObs.error / rawObs.intensity;
 					// PMAK: it seems minMagErr and maxMagErr not used?
-					if (magErr < minMagErr) {
-						minMagErr = magErr;
-					} else if (magErr > maxMagErr) {
-						maxMagErr = magErr;
-					}
+					//if (magErr < minMagErr) {
+					//	minMagErr = magErr;
+					//} else if (magErr > maxMagErr) {
+					//	maxMagErr = magErr;
+					//}
 
 					ValidObservation ob = new ValidObservation();
 					if (objName != null && !"".equals(objName.trim())) {

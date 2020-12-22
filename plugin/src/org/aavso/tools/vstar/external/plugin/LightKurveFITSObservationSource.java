@@ -140,7 +140,14 @@ public class LightKurveFITSObservationSource extends ObservationSourcePluginBase
 				SeriesType lightKurveSeries = dataSeriesLightKurve;
 				
 				BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
-				
+
+				// PMAK: Check field names to be sure we are using correct FITS.
+				if (!"TIME".equals(tableHDU.getColumnName(0)) ||
+					!"FLUX".equals(tableHDU.getColumnName(1)) ||
+					!"FLUX_ERR".equals(tableHDU.getColumnName(2))) {
+					throw new ObservationReadError("Not a valid FITS file");
+				}
+
 				double timeConstant = 0;
 				if ("TESS".equals(telescope)) {
 					lightKurveSeries = dataSeriesLightKurveTESS;
