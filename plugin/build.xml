@@ -52,6 +52,7 @@
 		<jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class" />
 		<jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="**/KeplerFITSObservationSource**.class" />
         <jar jarfile="${dist}/${pkg}.LightKurveFITSObservationSource.jar" basedir="${build.classes}" includes="**/LightKurveFITSObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.QLPFITSObservationSource.jar" basedir="${build.classes}" includes="**/QLPFITSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.MagnitudeBaselineShifter.jar" basedir="${build.classes}" includes="**/MagnitudeBaselineShifter**.class" />
 		<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class" />
 		<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class" />
@@ -107,6 +108,7 @@
 		<copy file="${dist}/${pkg}.JDToDateTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.KeplerFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
         <copy file="${dist}/${pkg}.LightKurveFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.QLPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MagnitudeBaselineShifter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.NSVSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -145,6 +147,7 @@
 		<echo file="${plugins_list_file}" message="${pkg}.JDToDateTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.KeplerFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
         <echo file="${plugins_list_file}" message="${pkg}.LightKurveFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.QLPFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MagnitudeBaselineShifter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />

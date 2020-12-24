@@ -49,11 +49,8 @@ import nom.tam.fits.Fits;
 import nom.tam.fits.FitsException;
 import nom.tam.fits.ImageHDU;
 
-
-// PMAK, 2020
-
 /**
- * A QLP FITS file v2.0 observation source plug-in that uses the
+ * A QLP FITS file observation source plug-in that uses the
  * Topcat FITS library.
  * 
  * See also:<br/>
@@ -204,8 +201,6 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 						int quality = ((int[]) tableHDU.getElement(row, 5))[0];
 
 						// Include only valid magnitude fluxes.
-						// Question: why do we see such values in Kepler
-						// data sets?
 						if (!Float.isInfinite(flux)
 								&& !Float.isInfinite(flux_err)
 								&& !Float.isNaN(flux)
@@ -295,7 +290,7 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 
 		@Override
 		public String getSourceType() {
-			String str = "Kepler/TESS FITS File";
+			String str = "QLP FITS File";
 			return str;
 		}
 
