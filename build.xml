@@ -139,7 +139,7 @@
 		<delete file="${manifest_file}" />
 	</target>
 
-	<target name="bash" depends="dist" description="Create a standalone distribution archive for bash">
+	<target name="bash" depends="dist,javadoc" description="Create a standalone distribution archive for bash">
 		<zip destfile="vstar-bash.zip">
 			<zipfileset dir="${dist}" prefix="vstar/dist" />
 			<zipfileset dir="${extlib}" prefix="vstar/extlib">
@@ -159,7 +159,7 @@
 				<include name="license/*" />
 			</zipfileset>
 			<zipfileset dir="${doc}" prefix="vstar/doc">
-				<include name="vstar_docs/*" />
+				<include name="vstar_docs/**" />
 			</zipfileset>
 			<zipfileset file="${doc}/user_manual/VStarUserManual.pdf" prefix="vstar/doc" />
 			<zipfileset file="${plugin}/doc/vstar_plugin_dev.pdf" prefix="vstar/doc" />
@@ -170,7 +170,7 @@
 		</zip>
 	</target>
 
-	<target name="win" depends="dist" description="Create a standalone distribution archive for Win32">
+	<target name="win" depends="dist,javadoc" description="Create a standalone distribution archive for Win32">
 		<!--
 		<launch4j configFile="${install_files}/vstar-launch4j.xml" />
 		-->
@@ -208,7 +208,7 @@
 		</zip>
 	</target>
 
-	<target name="mac" depends="dist" description="Create a standalone distribution archive for Mac">
+	<target name="mac" depends="dist,javadoc" description="Create a standalone distribution archive for Mac">
 		<echo message="bundling" />
 		<bundleapp outputdirectory="${dist_mac}" name="VStar" displayname="VStar" identifier="org.aavso.tools.vstar.ui.VStar" mainclassname="org.aavso.tools.vstar.ui.VStar" icon="${install_files}/vstaricon.icns">
 			<classpath file="${dist}/vstar.jar" />
