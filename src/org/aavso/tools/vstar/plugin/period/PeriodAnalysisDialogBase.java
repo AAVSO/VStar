@@ -21,6 +21,8 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +66,8 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 	public PeriodAnalysisDialogBase(String title, boolean isModal,
 			boolean wantPhasePlotButton, boolean wantHarmonicsButton) {
 		super(DocumentManager.findActiveWindow());
+		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(createWindowClosingListener());
 		this.wantPhasePlotButton = wantPhasePlotButton;
 		this.wantHarmonicsButton = wantHarmonicsButton;
 		this.setTitle(title);
@@ -215,6 +219,18 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 		}
 	}
 
+	// WindowClosing listener.
+	private WindowAdapter createWindowClosingListener() {
+		return new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				setVisible(false);
+				cleanup();
+				dispose();
+			}
+		};
+	}
+
 	// Dismiss button listener.
 	private ActionListener createDismissButtonHandler() {
 		return new ActionListener() {
@@ -226,7 +242,7 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 		};
 	}
 
-	// Invoke concrete dialo class's handler when the new-phase-plot button is
+	// Invoke concrete dialog class's handler when the new-phase-plot button is
 	// clicked.
 	private ActionListener createNewPhasePlotButtonHandler() {
 		return new ActionListener() {
@@ -236,7 +252,7 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 		};
 	}
 
-	// Invoke concrete dialo class's handler when the find-harmomics button is
+	// Invoke concrete dialog class's handler when the find-harmomics button is
 	// clicked.
 	private ActionListener createFindHarmonicsButtonHandler() {
 		return new ActionListener() {
