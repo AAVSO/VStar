@@ -197,7 +197,7 @@
 				<include name="license/*" />
 			</zipfileset>
 			<zipfileset dir="${doc}" prefix="vstar/doc">
-				<include name="vstar_docs/*" />
+				<include name="vstar_docs/**" />
 			</zipfileset>
 			<zipfileset file="${doc}/user_manual/VStarUserManual.pdf" prefix="vstar/doc" />
 			<zipfileset file="${plugin}/doc/vstar_plugin_dev.pdf" prefix="vstar/doc" />
@@ -277,7 +277,7 @@
 				<include name="license/*" />
 			</fileset>
 			<fileset dir="${doc}">
-				<include name="vstar_docs/*" />
+				<include name="vstar_docs/**" />
 			</fileset>
 			<fileset file="${doc}/user_manual/VStarUserManual.pdf" />
 			<fileset file="${plugin}/doc/vstar_plugin_dev.pdf" />
