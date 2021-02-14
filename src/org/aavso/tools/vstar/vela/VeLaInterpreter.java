@@ -876,7 +876,9 @@ public class VeLaInterpreter {
 	/**
 	 * Unify operand types by converting both operands to strings if only one is a
 	 * string or both operands to double if only one is an integer. We change
-	 * nothing if either type is composite or Boolean.
+	 * nothing if either type is composite or Boolean. Note that this method
+	 * is intended to be used for expressions, not for variable bindings where
+	 * much less conversion/coercion is possible. 
 	 * 
 	 * @param a The first operand.
 	 * @param b The second operand.
@@ -910,7 +912,8 @@ public class VeLaInterpreter {
 
 	/**
 	 * Given a variable name, search for it in the stack of environments, binding a
-	 * value if found. The search proceeds from the top to the bottom of the stack,
+	 * value if found and the type of the binding is compatible with the type of the
+	 * new value. The search proceeds from the top to the bottom of the stack,
 	 * maintaining the natural stack ordering. If the name is not found, a new
 	 * binding is created in the top-most scope.
 	 * 
@@ -922,14 +925,25 @@ public class VeLaInterpreter {
 		boolean bound = false;
 
 		for (int i = environments.size() - 1; i >= 0; i--) {
-			if (environments.get(i).hasBinding(name)) {
-				environments.get(i).bind(name, value, isConstant);
-				bound = true;
+			Optional<Operand> possibleBinding = environments.get(i).lookup(name);
+			if (possibleBinding.isPresent()) {
+				Operand existingBinding = possibleBinding.get();
+				Type convertedType = value.convert(existingBinding.getType());
+				if (convertedType == existingBinding.getType()) {
+					// bind value to existing variable...
+					environments.get(i).bind(name, value, isConstant);
+					bound = true;
+				} else {
+					throw new VeLaEvalError(
+							String.format("The type of the new value (%s) is not compatible with the bound type of %s.",
+									value, name));
+				}
 				break;
 			}
 		}
 
 		if (!bound) {
+			// ...a new binding
 			environments.peek().bind(name, value, isConstant);
 		}
 	}
