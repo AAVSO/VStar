@@ -935,7 +935,7 @@ public class VeLaInterpreter {
 					bound = true;
 				} else {
 					throw new VeLaEvalError(
-							String.format("The type of the new value (%s) is not compatible with the bound type of %s.",
+							String.format("The type of the value (%s) is not compatible with the bound type of %s.",
 									value, name));
 				}
 				break;
