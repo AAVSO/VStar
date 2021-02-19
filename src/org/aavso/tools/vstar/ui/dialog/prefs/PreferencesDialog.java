@@ -35,6 +35,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 
 	private SeriesColorSelectionPane seriesColorPane;
 	private SeriesSizeSelectionPane seriesSizePane;
+	private ChartPropertiesSelectionPane chartPropertiesPane;
 	private NumericPrecisionSelectionPane numericPrecisionPane;
 	private StarGroupManagementPane starGroupManagementPane;
 	private PluginSettingsPane pluginSettingsPane;
@@ -70,6 +71,9 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 		seriesSizePane = new SeriesSizeSelectionPane();
 		tabs.addTab("Series Size", seriesSizePane);
 		
+		chartPropertiesPane = new ChartPropertiesSelectionPane();
+		tabs.addTab("Chart Properties", chartPropertiesPane);
+		
 		numericPrecisionPane = new NumericPrecisionSelectionPane();
 		tabs.addTab("Numeric Precision", numericPrecisionPane);
 		
@@ -98,6 +102,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	protected void okAction() {
 		seriesColorPane.update();
 		seriesSizePane.update();
+		chartPropertiesPane.update();
 		numericPrecisionPane.update();
 		starGroupManagementPane.update();
 		pluginSettingsPane.update();
@@ -112,6 +117,7 @@ public class PreferencesDialog extends AbstractOkCancelDialog {
 	protected void reset() {
 		seriesColorPane.reset();
 		seriesSizePane.reset();
+		chartPropertiesPane.reset();
 		numericPrecisionPane.reset();
 		starGroupManagementPane.reset();
 		pluginSettingsPane.reset();

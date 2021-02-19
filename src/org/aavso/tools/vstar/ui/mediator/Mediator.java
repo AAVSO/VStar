@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -2501,6 +2502,34 @@ public class Mediator {
 		} else {
 			MessageBox.showWarningDialog("Observation Details",
 					"No observation selected");
+		}
+	}
+
+	private void updateChartPropertiesForAnalysisType(AnalysisType type) {
+		AnalysisTypeChangeMessage m = analysisTypeMap.get(type);
+		if (m != null) {
+			ObservationAndMeanPlotPane pane = m.getObsAndMeanChartPane();
+			if (pane != null) {
+				pane.updateChartProperties();
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * Updates properties for charts (light curve, phase plot)
+	 * 
+	 * @param backgroundColor
+	 *            Chart background
+	 *
+	 * @param gridlinesColor
+	 *            Color of gridlines
+	 * 
+	 */
+	public void updateChartProperties() {
+		List<AnalysisType> list = Arrays.asList(AnalysisType.values());
+		for (AnalysisType type : list) {
+			updateChartPropertiesForAnalysisType(type);
 		}
 	}
 
