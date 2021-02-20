@@ -1074,11 +1074,9 @@ public class VeLaTest extends TestCase {
 	// Bindings
 
 	public void testBindingNonConstant() {
-		// Bind X to 42 then retrieve the bound value of X.
+		// Bind X to 2 then retrieve the bound value of X.
 		String prog = "";
 		prog += "x <- 12\n";
-		prog += "y <- x*x\n";
-		prog += "print(\"x squared is \" y \"\n\"\n)";
 		prog += "x";
 
 		Optional<Operand> result = vela.program(prog);
@@ -1090,6 +1088,22 @@ public class VeLaTest extends TestCase {
 		result = vela.program("x <- x + 1  x");
 		assertTrue(result.isPresent());
 		assertEquals(13, result.get().intVal());
+	}
+
+	public void testBindingNonConstantTwoTypes() {
+		// Bind X to 2
+		String prog = "x <- 2\n";
+
+		vela.program(prog);
+
+		// Attempt to bind X again but to a value of 
+		// type string, not integer. This should fail.
+		try {
+			vela.program("x <- \"2\"");
+			fail();
+		} catch (Exception e) {
+			// This is where we expect to be.
+		}
 	}
 
 	public void testBindingConstant1() {

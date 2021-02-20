@@ -202,6 +202,7 @@ public class FlexibleTextFileFormatObservationSource extends
 
 	class FlexibleTextFileFormatRetriever extends AbstractObservationRetriever {
 		private char delimiter = DEFAULT_DELIMITER;
+		private boolean multispaceDelimiter = false;
 		private String dateType = "JD";
 		private String objName = "";
 		private String defFilter = "";
@@ -252,6 +253,8 @@ public class FlexibleTextFileFormatObservationSource extends
 				boolean terminateReading = false;
 
 				for (String line : lines) {
+					if (wasInterrupted())
+						break;
 					lineNum++;
 					try {
 						if (line != null) {
@@ -267,10 +270,9 @@ public class FlexibleTextFileFormatObservationSource extends
 														+ errorText);
 									}
 								} else {
-									// String[] fields =
-									// line.split(String.valueOf(delimiter));
 									String[] fields = splitWithQuotes(line,
-											delimiter, DEFAULT_QUOTEMARK,
+											delimiter, multispaceDelimiter, 
+											DEFAULT_QUOTEMARK,
 											escapingQuotes);
 									ValidObservation ob = readNextObservation(
 											fields, lineNum);
@@ -384,22 +386,25 @@ public class FlexibleTextFileFormatObservationSource extends
 			// String[] pair = line.split("="); // do not uppercase!
 			String[] pair = splitDirective(line);
 
-			// If a name-value pair, process as a directive, otherwise assume a
-			// comment and ignore.
+			// If a name-value pair, process as a directive, otherwise assume
+			// it is a comment and ignore.
 			if (pair != null && pair.length == 2) {
 				pair[0] = pair[0].trim().toUpperCase();
 				pair[1] = pair[1].trim();
-
-				// System.out.println(line);
-				// System.out.println(pair[0]);
-				// System.out.println(pair[1]);
 
 				if ("#DELIM".equals(pair[0])) {
 					Pair<String, String> translated_delim = translateDelimiter(pair[1]);
 					if (translated_delim.first == null) {
 						return translated_delim.second; // error text
 					} else {
-						delimiter = translated_delim.first.charAt(0);
+						// test for 'multispace' delimiter (special case)
+						if ("  ".equals(translated_delim.first)) {
+							delimiter = ' ';
+							multispaceDelimiter = true;
+						} else {
+							delimiter = translated_delim.first.charAt(0);
+							multispaceDelimiter = false;
+						}
 					}
 
 				} else if ("#DATE".equals(pair[0])) {
@@ -430,20 +435,12 @@ public class FlexibleTextFileFormatObservationSource extends
 								&& items[1].trim().length() > 0
 								&& items[2].trim().length() > 0) {
 							try {
-								// System.out.println("#DEFINESERIES=" +
-								// newSeries);
-								// System.out.println("items[0] = " + items[0]);
-								// System.out.println("items[1] = " + items[1]);
-								// System.out.println("items[2] = " + items[2]);
-								// System.out.println("Color    = " +
-								// Color.decode(items[2].trim()).toString());
 								// New user-defined series
 								SeriesType.create(items[0].trim(),
 										items[1].trim(),
 										Color.decode(items[2].trim()), false,
 										false);
 							} catch (Exception e) {
-								// System.out.println(e.toString());
 								// do not return error! Instead, throw
 								// ObservationValidationError.
 								// return "#DEFINESERIES directive is invalid!";
@@ -535,17 +532,28 @@ public class FlexibleTextFileFormatObservationSource extends
 						String.valueOf(DEFAULT_DELIMITER), null);
 
 			char delimChar;
-			if ("tab".equalsIgnoreCase(delim)) {
+			boolean multispace = false;
+			if ("".equals(delim)) {
+				delimChar = DEFAULT_DELIMITER; // otherwise an error occurred in
+				                               // 'delimChar = delim.charAt(0);'
+			} else if ("tab".equalsIgnoreCase(delim)) {
 				delimChar = '\t';
 			} else if ("comma".equalsIgnoreCase(delim)) {
 				delimChar = ',';
 			} else if ("space".equalsIgnoreCase(delim)) {
 				delimChar = ' ';
+			} else if ("multispace".equalsIgnoreCase(delim)) {
+				delimChar = ' ';
+				multispace = true;
 			} else {
 				int ordVal;
 				try {
 					ordVal = Integer.parseInt(delim);
 				} catch (NumberFormatException e) {
+					if (delim.length() != 1) {
+						return new Pair<String, String>(null, 
+								"Invalid delimites specification");
+					}
 					// returns the first char of the delimiter
 					delimChar = delim.charAt(0);
 					return new Pair<String, String>(String.valueOf(delimChar),
@@ -560,7 +568,15 @@ public class FlexibleTextFileFormatObservationSource extends
 				}
 				delimChar = (char) ordVal;
 			}
-			return new Pair<String, String>(String.valueOf(delimChar), null);
+			String delimCharAsString;
+			if (!multispace) {
+				delimCharAsString = String.valueOf(delimChar);
+			} else {
+				// special case:
+				// two-space delimiter means 'multispace delimiter' 
+				delimCharAsString = "  ";
+			}
+			return new Pair<String, String>(delimCharAsString, null);
 		}
 
 		// Read the next observation.
@@ -745,6 +761,10 @@ public class FlexibleTextFileFormatObservationSource extends
 		 *            input string
 		 * @param delim
 		 *            delimiter (char)
+		 * @param multispaceDelimiter
+		 *           delimiter is multi-space (boolean):
+		 *           any number of repeating spaces are
+		 *           interpreted as a single delimiter 
 		 * @param quote
 		 *            quote (char)
 		 * @param escapingQuote
@@ -753,8 +773,8 @@ public class FlexibleTextFileFormatObservationSource extends
 		 * @return the array of strings computed by splitting the input
 		 * 
 		 */
-		private String[] splitWithQuotes(String s, char delim, char quote,
-				boolean escapingQuote) {
+		private String[] splitWithQuotes(String s, char delim, boolean multispaceDelimiter,
+				char quote, boolean escapingQuote) {
 			List<String> fields = new ArrayList<String>();
 			char esc = '\\';
 			boolean inQuotes = false;
@@ -794,6 +814,11 @@ public class FlexibleTextFileFormatObservationSource extends
 						fields.add(field.toString());
 						field.delete(0, field.length());
 						pos++;
+						if (multispaceDelimiter) {
+							while (pos < len && s.charAt(pos) == delim) {
+								pos++;
+							}
+						}
 						if (pos < len && s.charAt(pos) == quote) {
 							inQuotes = true;
 							pos++;
