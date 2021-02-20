@@ -45,6 +45,7 @@ import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.prefs.ChartPropertiesPrefs;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -190,8 +191,8 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 
 		chart.getXYPlot().setRenderer(renderer);
 
-		this.chart.getXYPlot().setBackgroundPaint(Color.WHITE);
-
+		updateChartProperties();
+		
 		setupCrossHairs();
 
 		setSeriesColors();
@@ -382,6 +383,23 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 		chart.getXYPlot().setRangeCrosshairVisible(true);
 
 		chartPanel.addChartMouseListener(this);
+	}
+	
+	/**
+	 * 
+	 * Updates properties of the chart
+	 * 
+	 * @param backgroundColor
+	 *            chart background color
+	 *            
+	 * @param gridlinesColor
+	 *             color of gridlines
+	 * 
+	 */
+	public void updateChartProperties() {
+		this.chart.getXYPlot().setBackgroundPaint(ChartPropertiesPrefs.getChartBackgroundColor());
+		this.chart.getXYPlot().setDomainGridlinePaint(ChartPropertiesPrefs.getChartGridlinesColor());
+		this.chart.getXYPlot().setRangeGridlinePaint(ChartPropertiesPrefs.getChartGridlinesColor());
 	}
 
 	// From ChartMouseListener interface.
