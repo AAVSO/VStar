@@ -55,6 +55,8 @@ public class SeriesSizeSelectionPane extends JPanel implements
 
 	private Map<SeriesType, Integer> changedSeriesSizeMap;
 	private SeriesType currentSeries;
+	
+	private boolean seriesSelectorActionListenerEnabled = true;
 
 	/**
 	 * A dot component to show the size and color of the plot shape for the
@@ -179,17 +181,19 @@ public class SeriesSizeSelectionPane extends JPanel implements
 	private ActionListener createSeriesSelectorActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Set the size selector according to what the current
-				// value of the selected series is.
-				String seriesDesc = (String) seriesSelector.getSelectedItem();
-				currentSeries = SeriesType.getSeriesFromDescription(seriesDesc);
-				sizeSelector.setSelectedItem(SeriesType
-						.getSizeFromSeries(currentSeries));
+				if (seriesSelectorActionListenerEnabled) {
+					// Set the size selector according to what the current
+					// value of the selected series is.
+					String seriesDesc = (String) seriesSelector.getSelectedItem();
+					currentSeries = SeriesType.getSeriesFromDescription(seriesDesc);
+					sizeSelector.setSelectedItem(SeriesType
+							.getSizeFromSeries(currentSeries));
 
-				// Show the new dot size and color.
-				dotComponent.change(
-						SeriesType.getSizeFromSeries(currentSeries), SeriesType
-								.getColorFromSeries(currentSeries));
+					// Show the new dot size and color.
+					dotComponent.change(
+							SeriesType.getSizeFromSeries(currentSeries), SeriesType
+							.getColorFromSeries(currentSeries));
+				}
 			}
 		};
 	}
@@ -250,6 +254,20 @@ public class SeriesSizeSelectionPane extends JPanel implements
 	 */
 	@Override
 	public void reset() {
+		// Refresh series list: series can be created dynamically
+		// (see, for example, FlexibleTextFormat plugin).
+		seriesSelectorActionListenerEnabled = false;
+		try {
+			seriesSelector.removeAllItems();		
+			for (SeriesType series : SeriesType.values()) {
+				seriesSelector.addItem(series.getDescription());
+			}
+			// Restore selection
+			seriesSelector.setSelectedItem(currentSeries.getDescription());
+		} finally {
+			seriesSelectorActionListenerEnabled = true;
+		}
+		
 		// Ensure that the selected size matches SeriesType. This is
 		// important if the last time the parent dialog was dismissed,
 		// it was cancelled.

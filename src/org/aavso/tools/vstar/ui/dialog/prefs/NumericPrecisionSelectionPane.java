@@ -33,6 +33,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
@@ -154,6 +155,7 @@ public class NumericPrecisionSelectionPane extends JPanel implements
 			public void actionPerformed(ActionEvent e) {
 				NumericPrecisionPrefs.setDefaultDecimalPlacePrefs();
 				reset();
+				updateContentPane();
 			}
 		};
 	}
@@ -165,6 +167,11 @@ public class NumericPrecisionSelectionPane extends JPanel implements
 				update();
 			}
 		};
+	}
+	
+	private void updateContentPane() {
+		// Make changes visible immediately if a tab with data grid is active.  
+		Mediator.getUI().getContentPane().repaint();
 	}
 
 	/**
@@ -197,6 +204,7 @@ public class NumericPrecisionSelectionPane extends JPanel implements
 
 		if (delta) {
 			NumericPrecisionPrefs.storeDecimalPlacesPrefs();
+			updateContentPane();
 		}
 	}
 

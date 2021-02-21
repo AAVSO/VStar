@@ -268,19 +268,9 @@ public class NumericPrecisionPrefs {
 	}
 
 	public static void setDefaultDecimalPlacePrefs() {
-		try {
-			prefs.putInt(PREFS_PREFIX + "time_decimal_places",
-					DEFAULT_TIME_DECIMAL_PLACES);
-
-			prefs.putInt(PREFS_PREFIX + "mag_decimal_places",
-					DEFAULT_MAG_DECIMAL_PLACES);
-
-			prefs.putInt(PREFS_PREFIX + "other_decimal_places",
-					DEFAULT_OTHER_DECIMAL_PLACES);
-
-			prefs.flush();
-		} catch (Throwable t) {
-			// We need VStar to function in the absence of prefs.
-		}
+		timeDecimalPlaces = DEFAULT_TIME_DECIMAL_PLACES;
+		magDecimalPlaces = DEFAULT_MAG_DECIMAL_PLACES;
+		otherDecimalPlaces = DEFAULT_OTHER_DECIMAL_PLACES;
+		storeDecimalPlacesPrefs();
 	}
 }

@@ -51,6 +51,7 @@ public class SeriesColorSelectionPane extends JPanel implements
 	private JColorChooser colorChooser;
 	private Map<SeriesType, Color> changedSeriesColorMap;
 	private SeriesType currentSeries;
+	private boolean seriesSelectorActionListenerEnabled = true;
 
 	/**
 	 * Constructor.
@@ -120,12 +121,14 @@ public class SeriesColorSelectionPane extends JPanel implements
 	private ActionListener createSeriesSelectorActionListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Set the color chooser according to what the current
-				// value of the selected series is.
-				String seriesDesc = (String) seriesSelector.getSelectedItem();
-				currentSeries = SeriesType.getSeriesFromDescription(seriesDesc);
-				colorChooser.setColor(SeriesType
-						.getColorFromSeries(currentSeries));
+				if (seriesSelectorActionListenerEnabled) {
+					// Set the color chooser according to what the current
+					// value of the selected series is.
+					String seriesDesc = (String) seriesSelector.getSelectedItem();
+					currentSeries = SeriesType.getSeriesFromDescription(seriesDesc);
+					colorChooser.setColor(SeriesType
+							.getColorFromSeries(currentSeries));
+				}
 			}
 		};
 	}
@@ -172,8 +175,7 @@ public class SeriesColorSelectionPane extends JPanel implements
 	@Override
 	public void update() {
 		if (!changedSeriesColorMap.isEmpty()) {
-			// Apply the changed color map to SeriesType and notify
-			// listeners.
+			// Apply the changed color map to SeriesType and notify listeners.
 			SeriesType.updateSeriesColorMap(changedSeriesColorMap);
 		}
 	}
@@ -183,6 +185,20 @@ public class SeriesColorSelectionPane extends JPanel implements
 	 */
 	@Override
 	public void reset() {
+		// Refresh series list: series can be created dynamically
+		// (see, for example, FlexibleTextFormat plugin).
+		seriesSelectorActionListenerEnabled = false;
+		try {
+			seriesSelector.removeAllItems();		
+			for (SeriesType series : SeriesType.values()) {
+				seriesSelector.addItem(series.getDescription());
+			}
+			// Restore selection
+			seriesSelector.setSelectedItem(currentSeries.getDescription());
+		} finally {
+			seriesSelectorActionListenerEnabled = true;
+		}
+
 		// Ensure that the selected color matches SeriesType. This is
 		// important if the last time the parent dialog was dismissed,
 		// it was cancelled.
