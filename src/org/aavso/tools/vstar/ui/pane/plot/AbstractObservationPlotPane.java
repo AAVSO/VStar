@@ -31,6 +31,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -191,8 +192,6 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 
 		chart.getXYPlot().setRenderer(renderer);
 
-		updateChartProperties();
-		
 		setupCrossHairs();
 
 		setSeriesColors();
@@ -226,7 +225,15 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 
 		Mediator.getInstance().getPanRequestNotifier()
 				.addListener(createPanRequestListener());
-	}
+		
+		// Update chart properties.
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				// Invoke in the UI thread (some paranoia)				
+				updateChartProperties();
+			}
+		});
+	}		
 
 	/**
 	 * @return the chartPanel

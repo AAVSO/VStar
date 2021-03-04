@@ -86,7 +86,7 @@ IPreferenceComponent {
 			Graphics2D gfx = (Graphics2D) g;
 			int height = this.getHeight();
 			int width = this.getWidth();
-			Shape rect = new Rectangle2D.Float(0, 0, width, height);
+			Shape rect = new Rectangle2D.Float(0, 0, width - 1, height - 1);
 			gfx.setPaint(color);
 			gfx.fill(rect);
 			gfx.setPaint(Color.BLACK);
