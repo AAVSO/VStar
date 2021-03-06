@@ -74,7 +74,9 @@ IPreferenceComponent {
 		}
 		
 		public void setColor(Color color) {
-			if (this.color != color) {
+			if (color == null)
+				color = Color.BLACK;
+			if (!color.equals(this.color)) {
 				colorChanged = true;
 				this.color = color;
 				repaint();

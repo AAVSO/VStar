@@ -42,6 +42,7 @@ import org.aavso.tools.vstar.ui.pane.plot.ObservationAndMeanPlotPane;
 import org.aavso.tools.vstar.ui.pane.plot.TimeElementsInBinSettingPane;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.SeriesRenderingOrder;
 
 /**
  * A dialog that controls the features of plots.
@@ -66,6 +67,10 @@ public class PlotControlDialog extends JDialog {
 	// Show inverted range?
 	protected boolean invertRange;
 	protected JCheckBox invertRangeCheckBox;
+	
+	// Show series in inverse order?
+	protected boolean invertSeriesOrder;
+	protected JCheckBox invertSeriesOrderCheckBox;
 
 	// Should the means series elements be joined visually?
 	protected boolean joinMeans;
@@ -117,6 +122,9 @@ public class PlotControlDialog extends JDialog {
 
 		invertRange = plotPane.getChartPanel().getChart().getXYPlot()
 				.getRangeAxis().isInverted();
+		
+		invertSeriesOrder = plotPane.getChartPanel().getChart().getXYPlot()
+				.getSeriesRenderingOrder().equals(SeriesRenderingOrder.REVERSE);
 
 		joinMeans = obsModel.getMeansSeriesNum() != ObservationAndMeanPlotModel.NO_SERIES ? plotPane
 				.getRenderer().getSeriesLinesVisible(
@@ -201,6 +209,14 @@ public class PlotControlDialog extends JDialog {
 		invertRangeCheckBox
 				.addActionListener(createInvertRangeCheckBoxListener());
 		showCheckBoxPanel.add(invertRangeCheckBox);
+		
+		// A checkbox to invert (or not) the order of series.
+		invertSeriesOrderCheckBox = new JCheckBox(LocaleProps.get("INVERT_SERIES_ORDER"));
+		invertSeriesOrderCheckBox.setSelected(invertSeriesOrder);
+		invertSeriesOrderCheckBox
+				.addActionListener(createInvertSeriesOrderCheckBoxListener());
+		showCheckBoxPanel.add(invertSeriesOrderCheckBox);
+		
 
 		subPanel.add(showCheckBoxPanel);
 
@@ -210,6 +226,8 @@ public class PlotControlDialog extends JDialog {
 		meanChangePanel.setLayout(new BoxLayout(meanChangePanel,
 				BoxLayout.PAGE_AXIS));
 
+		meanChangePanel.add(Box.createRigidArea(new Dimension(75, 10)));
+		
 		// A checkbox to determine whether or not to join mean
 		// series elements.
 		joinMeansCheckBox = new JCheckBox(
@@ -287,6 +305,15 @@ public class PlotControlDialog extends JDialog {
 			}
 		};
 	}
+	
+	// Returns a listener for the series order inversion checkbox.
+	private ActionListener createInvertSeriesOrderCheckBoxListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				toggleSeriesOrderInversion();
+			}
+		};
+	}
 
 	/**
 	 * Show/hide the error bars.
@@ -314,6 +341,17 @@ public class PlotControlDialog extends JDialog {
 		plotPane.getChartPanel().getChart().getXYPlot().getRangeAxis()
 				.setInverted(this.invertRange);
 
+	}
+	
+	/**
+	 * Invert (or not) the order of series.
+	 */
+	private void toggleSeriesOrderInversion() {
+		this.invertSeriesOrder = !this.invertSeriesOrder;
+		plotPane.getChartPanel().getChart().getXYPlot()
+			.setSeriesRenderingOrder(this.invertSeriesOrder ? 
+					SeriesRenderingOrder.REVERSE : 
+						SeriesRenderingOrder.FORWARD);
 	}
 
 	// Return a listener for the "join means visually" checkbox.
