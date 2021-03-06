@@ -223,7 +223,7 @@ public class VeLaDialog extends TextDialog {
 			output += showOutput(outStream);
 
 			// Is there a result to show?
-			if (error == "") {
+			if ("".equals(error)) {
 				output = result.get().toHumanReadableString();
 			}
 		} catch (Exception e) {
