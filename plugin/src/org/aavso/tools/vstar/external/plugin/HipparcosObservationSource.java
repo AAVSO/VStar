@@ -35,7 +35,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 /**
  * HipparcosObservationSource is a VStar observation source plug-in tool which
  * reads Hipparcos/Tycho catalogue data from a URL of the form 
- * http://cdsarc.u-strasbg.fr/viz-bin/nph-Plot/Vgraph/htm?1/239/834, as 
+ * http://cdsarc.u-strasbg.fr/viz-bin/nph-Plot/Vgraph/htm?I/239/834, as 
  * constructed to access observational data for the star HIP 834 ...
  * 
  * To find the data for a particular star, construct a URL like the one above 
