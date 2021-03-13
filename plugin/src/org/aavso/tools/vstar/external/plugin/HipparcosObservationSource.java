@@ -35,11 +35,11 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 /**
  * HipparcosObservationSource is a VStar observation source plug-in tool which
  * reads Hipparcos/Tycho catalogue data from a URL of the form 
- * http://cdsarc.u-strasbg.fr/viz-bin/nph-Plot/Vgraph/htm?I/239/834, as 
- * constructed to access observational data for the star HIP 834 ...
+ * http://cdsarc.u-strasbg.fr/viz-bin/nph-Plot/Vgraph/htm?I/239/76343, as 
+ * constructed to access observational data for the star HIP 76343 ...
  * 
  * To find the data for a particular star, construct a URL like the one above 
- * replacing “834” with the HIP number of interest. 
+ * replacing “76343” with the HIP number of interest. 
  * 
  * Note that Hipparcos makes use of the Barycentric Julian Date (BJD).
  * 
@@ -49,6 +49,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  * @version 1.2 - 17 Aug 2014: Removed unnecessary .isEmpty method and call
  * @version 1.3 - 15 Sep 2014: Fixed incorrect record count
  * @version 1.5 - 04 Mar 2021: Documentation updated
+ * @version 1.6 - 13 Mar 2021: Further update to documentation
  */
 
 public class HipparcosObservationSource extends ObservationSourcePluginBase {
