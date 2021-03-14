@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.ui.mediator.StarInfo;
  * Unit (or integration) base class for tests that read AID observations via the
  * VSX web service.
  */
-public class VSXWebServiceAIDObservationReaderTestBase extends TestCase {
+public abstract class VSXWebServiceAIDObservationReaderTestBase extends TestCase {
 
 	private Class<? extends AIDWebServiceObservationSourcePluginBase> obsSourceClass;
 	protected AIDWebServiceObservationSourcePluginBase obsSource;

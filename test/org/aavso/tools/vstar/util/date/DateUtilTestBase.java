@@ -17,8 +17,6 @@
  */
 package org.aavso.tools.vstar.util.date;
 
-import org.aavso.tools.vstar.util.date.AbstractDateUtil;
-
 import junit.framework.TestCase;
 
 /**
@@ -30,7 +28,7 @@ import junit.framework.TestCase;
  * http://www.sizes.com/time/dayJulianr.htm. Others were checked with
  * http://www.aavso.org/observing/aids/jdcalendar.shtml (marked).
  */
-public class DateUtilTestBase extends TestCase {
+public abstract class DateUtilTestBase extends TestCase {
 
 	private AbstractDateUtil dateUtil;
 	
