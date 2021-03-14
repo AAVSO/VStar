@@ -22,4 +22,4 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Ant
-      run: ant -noinput -buildfile build.xml -Doutputproperty="devnull" test
+      run: ant -noinput -buildfile build.xml test
