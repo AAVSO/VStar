@@ -29,7 +29,6 @@ public class VSXWebServiceAIDCSV2ObservationReaderTest extends
 	public VSXWebServiceAIDCSV2ObservationReaderTest() {
 		super("AID CSV reader test",
 				AIDWebServiceCSV2ObservationSourcePlugin.class);
-		System.err.println("** VSXWebServiceAIDCSV2ObservationReaderTest **");
 	}
 	
 	// Read two days of V data for ASASSN-18ey with all fields.
