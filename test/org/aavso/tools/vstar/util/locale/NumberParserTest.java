@@ -28,6 +28,11 @@ public class NumberParserTest extends TestCase {
 
 	// Valid tests
 
+	@Override
+	protected void setUp() throws Exception {
+		Locale.setDefault(new Locale("en", "US"));
+	}
+
 	public void testParsePositiveRealNoFractionalComponent() {
 		commonValidTest(1000, "1000");
 	}
@@ -122,7 +127,6 @@ public class NumberParserTest extends TestCase {
 		commonValidTest(-0.0225, "-2,25e-2");
 		commonValidTest(225.0, "2,25E2");
 		commonValidTest(400, "+4e2");
-		Locale.setDefault(new Locale("en", "US"));
 	}
 
 	private void commonValidTest(double expected, String actual) {
