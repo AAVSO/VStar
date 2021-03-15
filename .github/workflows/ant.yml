@@ -23,5 +23,5 @@ jobs:
         java-version: 1.8
     - name: Build with Ant
       run:
-        echo "DISPLAY=:0" >> $GITHUB_ENV
-        ant -Djava.awt.headless=true -noinput -buildfile build.xml test
+      - echo "DISPLAY=:0" >> $GITHUB_ENV
+      - ant -Djava.awt.headless=true -noinput -buildfile build.xml test
