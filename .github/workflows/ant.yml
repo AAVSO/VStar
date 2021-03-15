@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-        DISPLAY:
+        DISPLAY: :0
 
     steps:
     - uses: actions/checkout@v2
