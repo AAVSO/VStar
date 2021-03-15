@@ -351,17 +351,12 @@
 
 			<batchtest todir="${test_report}" unless="testcase">
 				<fileset dir="${test}">
-					<include name="**/VeLaTest.java"/>
-				<!--
 				    <include name="**/*Test.java" />
 				    <exclude name="**/VSXWebServiceAID*ObservationReaderTest.java"/>
 				    <exclude name="**/TextFormatObservationReaderTest.java"/>
-					<exclude name="**/PluginManagerTest.java"/>
-				    
-					<exclude name="**/NumberParserTest.java"/>
-				    
+					<exclude name="**/PluginManagerTest.java"/>				    
+					<exclude name="**/NumberParserTest.java"/>				   
 					<exclude name="**/VeLaTest.java"/>
-				-->
 				</fileset>
 				<fileset dir="${plugin}/test">
 					<include name="**/Test.java" />
