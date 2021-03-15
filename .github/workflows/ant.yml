@@ -15,6 +15,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+        DISPLAY: localhost:0.1
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 1.8
