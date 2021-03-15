@@ -23,7 +23,7 @@ jobs:
         java-version: 1.8
     - name: Set up environment
       run:
-        echo "DISPLAY=:0" >> $GITHUB_ENV
+        echo "DISPLAY=localhost:1.0" >> $GITHUB_ENV
     - name: Build with Ant
       run:
         ant -Djava.awt.headless=false -noinput -buildfile build.xml test
