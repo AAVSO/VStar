@@ -29,7 +29,7 @@ public class NumberParserTest extends TestCase {
 	// Valid tests
 
 	public NumberParserTest() {
-		//System.setProperty("java.awt.headless", "false");	
+		//System.setProperty("java.awt.headless", "false");
 	}
 	
 	@Override
