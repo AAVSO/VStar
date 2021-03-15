@@ -28,6 +28,10 @@ public class NumberParserTest extends TestCase {
 
 	// Valid tests
 
+	public NumberParserTest() {
+		System.setProperty("java.awt.headless", "false");	
+	}
+	
 	@Override
 	protected void setUp() throws Exception {
 		Locale.setDefault(new Locale("en", "US"));
@@ -130,13 +134,7 @@ public class NumberParserTest extends TestCase {
 	}
 
 	private void commonValidTest(double expected, String actual) {
-		try {
-			assertEquals(expected, NumberParser.parseDouble(actual));
-		} catch (Exception e) {
-			System.out.println("**************************");
-			System.out.println(e.getLocalizedMessage());
-			System.out.println("**************************");
-		}
+		assertEquals(expected, NumberParser.parseDouble(actual));
 	}
 
 	// Invalid tests
@@ -144,20 +142,20 @@ public class NumberParserTest extends TestCase {
 	// TODO: should parseDouble() check whether length of number (as string)
 	// is same / less than original string and throw an exception if not?
 	// But, since it fails, it must already be throwing an exception! CHECK!
-	
-//	public void testParseExponentialFormatWithPlus1() {
-//		try {
-//			NumberParser.parseDouble("2.25E+2");
-//			fail(); // TODO: parse appears to yield 2.25 (i.e. stops at E)
-//		} catch (Exception e) {
-//		}
-//	}
-//
-//	public void testParseExponentialFormatWithPlus2() {
-//		try {
-//			NumberParser.parseDouble("2.25e+2");
-//			fail(); // TODO: parse appears to yield 2.25 (i.e. stops at e)
-//		} catch (Exception e) {
-//		}
-//	}
+
+	public void testParseExponentialFormatWithPlus1() {
+		try {
+			NumberParser.parseDouble("2.25E+2");
+			fail(); // TODO: parse appears to yield 2.25 (i.e. stops at E)
+		} catch (Exception e) {
+		}
+	}
+
+	public void testParseExponentialFormatWithPlus2() {
+		try {
+			NumberParser.parseDouble("2.25e+2");
+			fail(); // TODO: parse appears to yield 2.25 (i.e. stops at e)
+		} catch (Exception e) {
+		}
+	}
 }
