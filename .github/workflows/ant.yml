@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-        DISPLAY: localhost:0.1
+        DISPLAY:
 
     steps:
     - uses: actions/checkout@v2
@@ -25,4 +25,4 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Ant
-      run: ant -noinput -buildfile build.xml test
+      run: ant -Djava.awt.headless=true -noinput -buildfile build.xml test
