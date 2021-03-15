@@ -72,7 +72,7 @@ import org.jfree.data.xy.XYSeriesCollection;
  */
 public class VStarScriptingAPI {
 
-	private Mediator mediator = Mediator.getInstance();
+	private Mediator mediator;
 
 	private final static VStarScriptingAPI instance = new VStarScriptingAPI();
 

@@ -27,10 +27,6 @@ import junit.framework.TestCase;
 public class NumberParserTest extends TestCase {
 
 	// Valid tests
-
-	public NumberParserTest() {
-		//System.setProperty("java.awt.headless", "false");
-	}
 	
 	@Override
 	protected void setUp() throws Exception {
