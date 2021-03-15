@@ -130,7 +130,13 @@ public class NumberParserTest extends TestCase {
 	}
 
 	private void commonValidTest(double expected, String actual) {
-		assertEquals(expected, NumberParser.parseDouble(actual));
+		try {
+			assertEquals(expected, NumberParser.parseDouble(actual));
+		} catch (Exception e) {
+			System.out.println("**************************");
+			System.out.println(e.getLocalizedMessage());
+			System.out.println("**************************");
+		}
 	}
 
 	// Invalid tests
