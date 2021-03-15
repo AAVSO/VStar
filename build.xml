@@ -351,7 +351,7 @@
 
 			<batchtest todir="${test_report}" unless="testcase">
 				<fileset dir="${test}">
-					<include name="**/NumberParserTest.java"/>
+					<include name="**/VeLaTest.java"/>
 				<!--
 				    <include name="**/*Test.java" />
 				    <exclude name="**/VSXWebServiceAID*ObservationReaderTest.java"/>
