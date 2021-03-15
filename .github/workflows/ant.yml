@@ -15,9 +15,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    env:
-        DISPLAY: :0
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 1.8
@@ -25,4 +22,6 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Ant
-      run: ant -Djava.awt.headless=true -noinput -buildfile build.xml test
+      run:
+        echo "DISPLAY=:0" >> $GITHUB_ENV
+        ant -Djava.awt.headless=true -noinput -buildfile build.xml test
