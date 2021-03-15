@@ -26,4 +26,4 @@ jobs:
         unset DISPLAY
     - name: Build with Ant
       run:
-        ant -Djava.awt.headless=true -noinput -buildfile build.xml test
+        ant -Djava.awt.headless=false -noinput -buildfile build.xml test
