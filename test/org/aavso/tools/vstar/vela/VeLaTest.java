@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,15 +46,14 @@ public class VeLaTest extends TestCase {
 	private final static double DELTA = 0.001;
 
 	private final static boolean VERBOSE = false;
-	
+
 	private final static boolean ADD_VSTAR_API = false;
-	
+
 	private VeLaInterpreter vela;
 
 	public VeLaTest(String name) {
 		super(name);
-		vela = new VeLaInterpreter(VERBOSE);
-
+		vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 	}
 
 	// ** Valid test cases **
@@ -413,7 +413,7 @@ public class VeLaTest extends TestCase {
 		env.put("raining".toUpperCase(), new Operand(Type.BOOLEAN, false));
 		Set<String> boundConstants = new HashSet<String>();
 		boundConstants.add("raining");
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 		vela.pushEnvironment(new VeLaEnvironment<Operand>(env, boundConstants));
 		boolean result = vela.booleanExpression("not raining");
 		assertTrue(result);
@@ -426,7 +426,7 @@ public class VeLaTest extends TestCase {
 		environment.put("meaning_of_life".toUpperCase(), new Operand(Type.INTEGER, 42));
 		Set<String> consts = new HashSet<String>();
 		consts.add("meaning_of_life");
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment, consts));
 		boolean result = vela.booleanExpression("meaning_of_life = 42");
 		assertTrue(result);
@@ -457,7 +457,7 @@ public class VeLaTest extends TestCase {
 		environment.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
 		Set<String> consts = new HashSet<String>();
 		consts.add("x");
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment, consts));
 		boolean result = vela.booleanExpression("x = 42");
 		assertTrue(result);
@@ -1004,7 +1004,7 @@ public class VeLaTest extends TestCase {
 		Optional<Operand> result = vela.program(prog);
 
 		assertTrue(result.isPresent());
-		assertTrue(Tolerance.areClose(120.0, result.get().doubleVal(), DELTA,true));
+		assertTrue(Tolerance.areClose(120.0, result.get().doubleVal(), DELTA, true));
 	}
 
 	public void ignoreTestFunFor1() {
@@ -1098,7 +1098,7 @@ public class VeLaTest extends TestCase {
 
 		vela.program(prog);
 
-		// Attempt to bind X again but to a value of 
+		// Attempt to bind X again but to a value of
 		// type string, not integer. This should fail.
 		try {
 			vela.program("x <- \"2\"");
@@ -1180,7 +1180,7 @@ public class VeLaTest extends TestCase {
 		assertTrue(result.isPresent());
 		assertTrue(Tolerance.areClose(Math.PI, result.get().doubleVal(), 0.00001, true));
 	}
-	
+
 	public void testClosureBasedCounter() {
 		String prog = "";
 		prog += "mkcounter(start:integer) : function {\n";
@@ -1390,7 +1390,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testStdFunJavaNth() {
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 		Optional<Operand> result = null;
 		for (int i = 1; i < 10; i++) {
 			result = vela.program("nth(seq(1 100 1) 41)");
