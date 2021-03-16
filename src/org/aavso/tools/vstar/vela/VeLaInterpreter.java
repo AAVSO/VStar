@@ -56,31 +56,32 @@ import org.antlr.v4.runtime.ParserRuleContext;
  */
 public class VeLaInterpreter {
 
-	private static List<FunctionExecutor> javaClassFunctionExecutors;
+	private List<FunctionExecutor> javaClassFunctionExecutors;
 
-	static {
-		// Collect functions from reflection over Java classes
-		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
-		permittedTypes.add(int.class);
-		permittedTypes.add(double.class);
-		permittedTypes.add(boolean.class);
-		permittedTypes.add(String.class);
-		permittedTypes.add(CharSequence.class);
-		permittedTypes.add(void.class);
-		permittedTypes.add(Type.DBL_ARR.getClass());
-		permittedTypes.add(Type.DBL_CLASS_ARR.getClass());
-		permittedTypes.add(VStarScriptingAPI.class);
-
-		javaClassFunctionExecutors = new ArrayList<FunctionExecutor>();
-
-		addFunctionExecutorsFromClass(Math.class, null, permittedTypes, Collections.emptySet());
-
-		addFunctionExecutorsFromClass(String.class, null, permittedTypes,
-				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
-
-		addFunctionExecutorsFromClass(VStarScriptingAPI.class, VStarScriptingAPI.getInstance(), permittedTypes,
-				Collections.emptySet());
-	}
+//	static {
+//		// Collect functions from reflection over Java classes
+//		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
+//		permittedTypes.add(int.class);
+//		permittedTypes.add(double.class);
+//		permittedTypes.add(boolean.class);
+//		permittedTypes.add(String.class);
+//		permittedTypes.add(CharSequence.class);
+//		permittedTypes.add(void.class);
+//		permittedTypes.add(Type.DBL_ARR.getClass());
+//		permittedTypes.add(Type.DBL_CLASS_ARR.getClass());
+//		// TODO: really needed here?
+//		permittedTypes.add(VStarScriptingAPI.class);
+//
+//		javaClassFunctionExecutors = new ArrayList<FunctionExecutor>();
+//
+//		addFunctionExecutorsFromClass(Math.class, null, permittedTypes, Collections.emptySet());
+//
+//		addFunctionExecutorsFromClass(String.class, null, permittedTypes,
+//				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
+//
+//		addFunctionExecutorsFromClass(VStarScriptingAPI.class, VStarScriptingAPI.getInstance(), permittedTypes,
+//				Collections.emptySet());
+//	}
 
 	private boolean verbose;
 
@@ -107,10 +108,12 @@ public class VeLaInterpreter {
 	 * Construct a VeLa interpreter with an initial scope and intrinsic functions.
 	 * 
 	 * @param verbose           Verbose mode?
+	 * @param addVStarAPI		Add the VStar API?
 	 * @param sourceDirectories A list of source directories containing VeLa source
 	 *                          files (ending in ".vl" or ".vela") to be loaded.
 	 */
-	public VeLaInterpreter(boolean verbose, List<File> sourceDirectories) {
+	public VeLaInterpreter(boolean verbose, boolean addVStarAPI,
+			List<File> sourceDirectories) {
 		this.verbose = verbose;
 		this.sourceDirectories = sourceDirectories;
 
@@ -121,6 +124,35 @@ public class VeLaInterpreter {
 
 		environments.push(new VeLaScope());
 
+		// Collect functions from reflection over Java classes
+		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
+		permittedTypes.add(int.class);
+		permittedTypes.add(double.class);
+		permittedTypes.add(boolean.class);
+		permittedTypes.add(String.class);
+		permittedTypes.add(CharSequence.class);
+		permittedTypes.add(void.class);
+		permittedTypes.add(Type.DBL_ARR.getClass());
+		permittedTypes.add(Type.DBL_CLASS_ARR.getClass());
+		if (addVStarAPI) {
+			// TODO: really needed here?
+			permittedTypes.add(VStarScriptingAPI.class);
+		}
+		
+		javaClassFunctionExecutors = new ArrayList<FunctionExecutor>();
+
+		addFunctionExecutorsFromClass(Math.class, null, permittedTypes,
+				Collections.emptySet());
+
+		addFunctionExecutorsFromClass(String.class, null, permittedTypes,
+				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
+
+		if (addVStarAPI) {
+			addFunctionExecutorsFromClass(VStarScriptingAPI.class,
+					VStarScriptingAPI.getInstance(), permittedTypes,
+					Collections.emptySet());
+		}
+		
 		initBindings();
 		initFunctionExecutors();
 		// allows user to override intrinsic code
@@ -128,21 +160,21 @@ public class VeLaInterpreter {
 	}
 
 	/**
-	 * Construct a VeLa interpreter with verbose mode as specified and no source
-	 * directories.
+	 * Construct a VeLa interpreter with verbose mode as specified,
+	 * adding the VeLa API, and no source directories.
 	 * 
 	 * @param verbose Verbose mode?
 	 */
 	public VeLaInterpreter(boolean verbose) {
-		this(verbose, Collections.emptyList());
+		this(verbose, true, Collections.emptyList());
 	}
 
 	/**
-	 * Construct a VeLa interpreter with verbose mode set to false and no source
-	 * directories.
+	 * Construct a VeLa interpreter with verbose mode set to false,
+	 * adding the VeLa API, and no source directories.
 	 */
 	public VeLaInterpreter() {
-		this(false, Collections.emptyList());
+		this(false, true, Collections.emptyList());
 	}
 
 	/**
@@ -1632,7 +1664,7 @@ public class VeLaInterpreter {
 	 * @param permittedTypes The set of Java types that are compatible with VeLa.
 	 * @param exclusions     Names of functions to exclude.
 	 */
-	public static void addFunctionExecutorsFromClass(Class<?> clazz, Object instance, Set<Class<?>> permittedTypes,
+	public void addFunctionExecutorsFromClass(Class<?> clazz, Object instance, Set<Class<?>> permittedTypes,
 			Set<String> exclusions) {
 		Method[] declaredMethods = clazz.getDeclaredMethods();
 

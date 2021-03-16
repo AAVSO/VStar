@@ -45,7 +45,9 @@ public class VeLaTest extends TestCase {
 	private final static double DELTA = 0.001;
 
 	private final static boolean VERBOSE = false;
-
+	
+	private final static boolean ADD_VSTAR_API = false;
+	
 	private VeLaInterpreter vela;
 
 	public VeLaTest(String name) {
@@ -1352,7 +1354,7 @@ public class VeLaTest extends TestCase {
 		List<File> dirs = new ArrayList<File>();
 		// Current directory must be VStar root.
 		dirs.add(new File("test/org/aavso/tools/vstar/vela/code"));
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, dirs);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, dirs);
 		Optional<Operand> result = vela.program("cube(2)");
 		assertTrue(result.isPresent());
 		assertEquals(8, result.get().intVal());
@@ -1365,7 +1367,7 @@ public class VeLaTest extends TestCase {
 		List<File> dirs = new ArrayList<File>();
 		// Current directory must be VStar root.
 		dirs.add(new File("test/org/aavso/tools/vstar/vela/code"));
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, dirs);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, dirs);
 		Optional<Operand> result = null;
 		for (int i = 1; i < 10; i++) {
 			result = vela.program("_nthrec(seq(1 100 1) 41)");
@@ -1378,7 +1380,7 @@ public class VeLaTest extends TestCase {
 		List<File> dirs = new ArrayList<File>();
 		// Current directory must be VStar root.
 		dirs.add(new File("test/org/aavso/tools/vstar/vela/code"));
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, dirs);
+		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, dirs);
 		Optional<Operand> result = null;
 		for (int i = 1; i < 10; i++) {
 			result = vela.program("_nthiter(seq(1 100 1) 41)");
