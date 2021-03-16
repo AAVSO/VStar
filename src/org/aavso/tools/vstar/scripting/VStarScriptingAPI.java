@@ -74,7 +74,7 @@ public class VStarScriptingAPI {
 
 	private Mediator mediator;
 
-	private final static VStarScriptingAPI instance = new VStarScriptingAPI();
+	private static VStarScriptingAPI instance;
 
 	private AnalysisTypeChangeMessage analysisTypeMsg;
 
@@ -91,6 +91,10 @@ public class VStarScriptingAPI {
 	 * Return Singleton.
 	 */
 	public static VStarScriptingAPI getInstance() {
+		if (instance == null) {
+			instance = new VStarScriptingAPI();
+		}
+		
 		return instance;
 	}
 
