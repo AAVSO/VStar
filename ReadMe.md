@@ -1,3 +1,5 @@
+![VStar workflow](https://github.com/AAVSO/VStar/blob/master/.github/workflows/ant.yml/badge.svg)
+
 ## VStar
 
 ### Introduction
