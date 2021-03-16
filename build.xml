@@ -340,8 +340,6 @@
 
 		<!-- Run the tests. -->
 
-        <exec command="ls"/>
-
 		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
 			<formatter type="plain" />
 
@@ -356,11 +354,9 @@
 				    <include name="**/*Test.java" />
 				    <exclude name="**/VSXWebServiceAID*ObservationReaderTest.java"/>
 				    <exclude name="**/TextFormatObservationReaderTest.java"/>
-					<exclude name="**/PluginManagerTest.java"/>				    
-                    <!--
-					<exclude name="**/NumberParserTest.java"/>				   
-					<exclude name="**/VeLaTest.java"/>
-                    -->
+					<!--
+					<exclude name="**/PluginManagerTest.java"/>
+					-->			    
 				</fileset>
 				<fileset dir="${plugin}/test">
 					<include name="**/Test.java" />
@@ -388,10 +384,11 @@
 		</concat>
 		
         <exec command="cat ${test_report}/summary.txt"/>
-
+	    <!--
 		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.util.locale.NumberParserTest.txt"/>
 		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.vela.VeLaTest.txt"/>
-		
+		-->
+        <exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.plugin.PluginManagerTest.txt"/>
 		
 		<!-- Exit with status 1 if there were UT failures or errors. -->
 
