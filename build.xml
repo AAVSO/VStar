@@ -353,10 +353,9 @@
 				<fileset dir="${test}">
 				    <include name="**/*Test.java" />
 				    <exclude name="**/VSXWebServiceAID*ObservationReaderTest.java"/>
-				    <exclude name="**/TextFormatObservationReaderTest.java"/>
 					<!--
-					<exclude name="**/PluginManagerTest.java"/>
-					-->			    
+				    <exclude name="**/TextFormatObservationReaderTest.java"/>
+				    -->
 				</fileset>
 				<fileset dir="${plugin}/test">
 					<include name="**/Test.java" />
@@ -387,8 +386,9 @@
 	    <!--
 		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.util.locale.NumberParserTest.txt"/>
 		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.vela.VeLaTest.txt"/>
-		-->
         <exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.plugin.PluginManagerTest.txt"/>
+		-->
+        <exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.input.text.TextFormatObservationReaderTest.txt"/>
 		
 		<!-- Exit with status 1 if there were UT failures or errors. -->
 
