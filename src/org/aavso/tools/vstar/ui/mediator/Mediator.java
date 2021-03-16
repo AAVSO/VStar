@@ -155,7 +155,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 
 /**
@@ -2144,7 +2144,7 @@ public class Mediator {
 				.getObsAndMeanChartPane().getChartPanel();
 
 		try {
-			ChartUtilities
+			ChartUtils
 					.saveChartAsPNG(file, chart.getChart(), width, height);
 		} catch (IOException e) {
 			MessageBox.showErrorDialog("Save plot to file",
@@ -2291,7 +2291,7 @@ public class Mediator {
 				int width = chartPanel.getWidth();
 				int height = chartPanel.getHeight();
 
-				ChartUtilities.saveChartAsPNG(path, chart, width, height);
+				ChartUtils.saveChartAsPNG(path, chart, width, height);
 			}
 		} catch (IOException ex) {
 			MessageBox.showErrorDialog(parent,
