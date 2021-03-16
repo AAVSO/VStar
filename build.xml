@@ -388,6 +388,8 @@
 		
         <exec command="cat ${test_report}/summary.txt"/>
 
+		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.util.locale.NumberParserTest.txt"/>
+		
 		<!--
 		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.vela.VeLaTest.txt"/>
 		-->

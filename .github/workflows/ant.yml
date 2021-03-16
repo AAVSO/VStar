@@ -21,9 +21,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    #- name: Unset DISPLAY 
-    #  run:
-    #    unset DISPLAY
     - name: Build with Ant
       run:
-        ant -Djava.awt.headless=true -noinput -buildfile build.xml test
+        ant -noinput -buildfile build.xml test
