@@ -340,6 +340,8 @@
 
 		<!-- Run the tests. -->
 
+        <exec command="ls"/>
+
 		<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
 			<formatter type="plain" />
 
@@ -348,8 +350,6 @@
 			<formatter type="plain" />
 
 			<test name="${testcase}" todir="${test_report}" if="testcase" />
-
-			<exec command="ls"/>
 			
 			<batchtest todir="${test_report}" unless="testcase">
 				<fileset dir="${test}">
