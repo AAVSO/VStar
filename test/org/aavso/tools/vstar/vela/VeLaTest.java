@@ -155,12 +155,12 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testReal6() {
-		double result = new VeLaInterpreter(VERBOSE).realExpression("1 + 6 / 2 + 4 * 5");
+		double result = vela.realExpression("1 + 6 / 2 + 4 * 5");
 		assertTrue(Tolerance.areClose(24.0, result, DELTA, true));
 	}
 
 	public void testReal7() {
-		double result = new VeLaInterpreter(VERBOSE).realExpression("1 + 6 / 2 - 4 * 5");
+		double result = vela.realExpression("1 + 6 / 2 - 4 * 5");
 		assertTrue(Tolerance.areClose(-16.0, result, DELTA, true));
 	}
 
@@ -413,7 +413,7 @@ public class VeLaTest extends TestCase {
 		env.put("raining".toUpperCase(), new Operand(Type.BOOLEAN, false));
 		Set<String> boundConstants = new HashSet<String>();
 		boundConstants.add("raining");
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
+		//VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 		vela.pushEnvironment(new VeLaEnvironment<Operand>(env, boundConstants));
 		boolean result = vela.booleanExpression("not raining");
 		assertTrue(result);
@@ -426,7 +426,7 @@ public class VeLaTest extends TestCase {
 		environment.put("meaning_of_life".toUpperCase(), new Operand(Type.INTEGER, 42));
 		Set<String> consts = new HashSet<String>();
 		consts.add("meaning_of_life");
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
+		//VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment, consts));
 		boolean result = vela.booleanExpression("meaning_of_life = 42");
 		assertTrue(result);
@@ -457,7 +457,7 @@ public class VeLaTest extends TestCase {
 		environment.put("x".toUpperCase(), new Operand(Type.INTEGER, 42));
 		Set<String> consts = new HashSet<String>();
 		consts.add("x");
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
+		//VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 		vela.pushEnvironment(new VeLaEnvironment<Operand>(environment, consts));
 		boolean result = vela.booleanExpression("x = 42");
 		assertTrue(result);
@@ -1054,7 +1054,7 @@ public class VeLaTest extends TestCase {
 
 		prog += "f(2447121.5)\n";
 
-		Optional<Operand> result = new VeLaInterpreter(VERBOSE).program(prog);
+		Optional<Operand> result = vela.program(prog);
 
 		assertTrue(result.isPresent());
 		assertTrue(Tolerance.areClose(12.34620932, result.get().doubleVal(), 1e-6, true));
@@ -1390,7 +1390,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testStdFunJavaNth() {
-		VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
+		//VeLaInterpreter vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 		Optional<Operand> result = null;
 		for (int i = 1; i < 10; i++) {
 			result = vela.program("nth(seq(1 100 1) 41)");
