@@ -19,6 +19,7 @@
 package org.aavso.tools.vstar.input;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,6 +60,9 @@ public abstract class AbstractObservationRetriever {
 	public final static int DEFAULT_CAPACITY = -1;
 	public final static String NO_VELA_FILTER = "";
 
+	private final static boolean VERBOSE = false;
+	private final static boolean ADD_VSTAR_API = false;
+	
 	private String velaFilterStr;
 
 	private VeLaInterpreter vela;
@@ -111,7 +115,7 @@ public abstract class AbstractObservationRetriever {
 
 		this.velaFilterStr = velaFilterStr.trim();
 		velaErrorReported = false;
-		vela = new VeLaInterpreter();
+		vela = new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 
 		// Create observation category map and add discrepant and excluded
 		// series list so these are available if needed.
