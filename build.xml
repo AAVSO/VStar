@@ -351,15 +351,14 @@
 
 			<batchtest todir="${test_report}" unless="testcase">
 				<fileset dir="${test}">
-					<include name="**/NumberParserTest.java"/> 
-					<!--
 				    <include name="**/*Test.java" />
+                    <!--
 				    <exclude name="**/VSXWebServiceAID*ObservationReaderTest.java"/>
 				    <exclude name="**/TextFormatObservationReaderTest.java"/>
 					<exclude name="**/PluginManagerTest.java"/>				    
+                    -->
 					<exclude name="**/NumberParserTest.java"/>				   
 					<exclude name="**/VeLaTest.java"/>
-					-->
 				</fileset>
 				<fileset dir="${plugin}/test">
 					<include name="**/Test.java" />
@@ -389,10 +388,8 @@
         <exec command="cat ${test_report}/summary.txt"/>
 
 		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.util.locale.NumberParserTest.txt"/>
-		
-		<!--
 		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.vela.VeLaTest.txt"/>
-		-->
+		
 		
 		<!-- Exit with status 1 if there were UT failures or errors. -->
 
