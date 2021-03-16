@@ -58,31 +58,6 @@ public class VeLaInterpreter {
 
 	private List<FunctionExecutor> javaClassFunctionExecutors;
 
-//	static {
-//		// Collect functions from reflection over Java classes
-//		Set<Class<?>> permittedTypes = new HashSet<Class<?>>();
-//		permittedTypes.add(int.class);
-//		permittedTypes.add(double.class);
-//		permittedTypes.add(boolean.class);
-//		permittedTypes.add(String.class);
-//		permittedTypes.add(CharSequence.class);
-//		permittedTypes.add(void.class);
-//		permittedTypes.add(Type.DBL_ARR.getClass());
-//		permittedTypes.add(Type.DBL_CLASS_ARR.getClass());
-//		// TODO: really needed here?
-//		permittedTypes.add(VStarScriptingAPI.class);
-//
-//		javaClassFunctionExecutors = new ArrayList<FunctionExecutor>();
-//
-//		addFunctionExecutorsFromClass(Math.class, null, permittedTypes, Collections.emptySet());
-//
-//		addFunctionExecutorsFromClass(String.class, null, permittedTypes,
-//				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
-//
-//		addFunctionExecutorsFromClass(VStarScriptingAPI.class, VStarScriptingAPI.getInstance(), permittedTypes,
-//				Collections.emptySet());
-//	}
-
 	private boolean verbose;
 
 	private List<File> sourceDirectories;
