@@ -387,8 +387,9 @@
 		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.util.locale.NumberParserTest.txt"/>
 		<exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.vela.VeLaTest.txt"/>
         <exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.plugin.PluginManagerTest.txt"/>
-		-->
         <exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.input.text.TextFormatObservationReaderTest.txt"/>
+		-->
+        <exec command="cat ${test_report}/TEST-org.aavso.tools.vstar.input.database.VSXWebServiceAIDCSV2ObservationReaderTest.txt"/>
 		
 		<!-- Exit with status 1 if there were UT failures or errors. -->
 
