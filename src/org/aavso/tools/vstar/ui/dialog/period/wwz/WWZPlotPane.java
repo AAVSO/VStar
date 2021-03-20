@@ -123,8 +123,13 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 		chart.getXYPlot().setDomainCrosshairVisible(true);
 		chart.getXYPlot().setRangeCrosshairVisible(true);
 
-		chart.getXYPlot().getRangeAxis()
+		if (Double.isFinite(maxRange - minRange))
+			chart.getXYPlot().getRangeAxis()
 				.setRange(new Range(minRange, maxRange));
+		else
+			chart.getXYPlot().getRangeAxis()
+				.setRange(new Range(-Double.MAX_VALUE / 2,
+						Double.MAX_VALUE / 2));
 	}
 
 	@Override
