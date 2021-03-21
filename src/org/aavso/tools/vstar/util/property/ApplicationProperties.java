@@ -19,11 +19,7 @@ package org.aavso.tools.vstar.util.property;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Properties;
+import java.util.prefs.Preferences;
 
 import org.aavso.tools.vstar.ui.MainFrame;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -36,7 +32,6 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 public class ApplicationProperties {
 
 	private final static String ERROR_DIALOG_TITLE = "User properties error";
-	private final static String PROPS_FILE_COMMENT = "VStar user properties. Read on startup, written on exit.";
 
 	// Property keys.
 	private static final String MAIN_WDW_HEIGHT = "main_wdw_height";
@@ -45,136 +40,119 @@ public class ApplicationProperties {
 	private static final String MAIN_WDW_UPPER_LEFT_Y = "main_wdw_upper_left_y";
 
 	// Default values.
-	private static final int DEFAULT_MAIN_WDW_HEIGHT = MainFrame.HEIGHT;
-	private static final int DEFAULT_MAIN_WDW_WIDTH = MainFrame.WIDTH;
-	private static final int DEFAULT_MAIN_WDW_UPPER_LEFT_X = 0;
-	private static final int DEFAULT_MAIN_WDW_UPPER_LEFT_Y = 0;
-
+	private static final int DEFAULT_MIN_MAINWDW_HEIGHT = 600;
+	private static final int DEFAULT_MIN_MAINWDW_WIDTH = 800;
+	
+	// Defaults initialized in constructor
+	private int defaultMainWDWheight;
+	private int defaultMainWDWwidth;
+	private int defaultMainWDWupperLeftX;
+	private int defaultMainWDWupperLeftY;
+	
+	// screen size
+	private int screenHeight;
+	private int screenWidth;
+	
+	private final static String PREFS_PREFIX = "VSTAR_APPLICATION_PROPERTIES_";
+	
 	private MainFrame frame;
-	private File propsFile;
-	private Properties props;
-
+	
+	private Preferences prefs;
+	
+	
 	/**
 	 * Constructor.
 	 * 
-	 * If the properties file does not exist, create it, otherwise just read it.
+	 * If the properties file does not exist, create it.
 	 * 
 	 * @param frame
 	 *            The main window instance from which to populate initial
 	 *            properties.
 	 */
 	public ApplicationProperties(MainFrame frame) {
-		propsFile = new File(System.getProperty("user.home") + File.separator
-				+ ".vstar");
-		props = new Properties();
-
-		this.frame = frame;
-
+		// Create preferences node.
 		try {
-			// We've seen one instance of the props file being empty,
-			// so if it is, delete it, and re-create it, because it
-			// won't load.
-			if (propsFile.length() == 0) {
-				propsFile.delete();
-			}
-
-			if (!propsFile.exists()) {
-				propsFile.createNewFile();
-				init();
-			} else {
-				props.load(new FileInputStream(propsFile));
-			}
-		} catch (IOException e) {
-			MessageBox.showErrorDialog(frame, ERROR_DIALOG_TITLE, e);
-			System.exit(-1);
+			prefs = Preferences.userNodeForPackage(ApplicationProperties.class);
+		} catch (Throwable t) {
+			// We need VStar to function in the absence of prefs.
+			prefs = null;
 		}
+		this.frame = frame;
+		// Tune default values
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		Dimension screenSize = toolkit.getScreenSize();
+		screenHeight = screenSize.height;
+		screenWidth = screenSize.width;
+		
+		// if prefs == null (e.g. VStar invoked via Web Start) we  provide some reasonable defaults.		
+		defaultMainWDWheight = Math.min(Math.max(MainFrame.HEIGHT, screenHeight / 6 * 5), screenHeight);
+		defaultMainWDWwidth = Math.min(Math.max(MainFrame.WIDTH, screenWidth / 6 * 5), screenWidth);
+		defaultMainWDWupperLeftX = (screenWidth - defaultMainWDWwidth) / 2;
+		defaultMainWDWupperLeftY = (screenHeight - defaultMainWDWheight) / 2;
 	}
 
 	// Property getters.
-
-	// If a property value is not present (e.g. when migrating to newer versions
-	// of the properties file) or corrupt (e.g. because of hand-editing), a
-	// default value is returned.
-
+	
 	public int getMainWdwHeight() {
-		Integer height = parseInt(props.getProperty(MAIN_WDW_HEIGHT));
-		return height != null ? height : DEFAULT_MAIN_WDW_HEIGHT;
+		int height = prefs == null ? 
+				defaultMainWDWheight : 
+					prefs.getInt(PREFS_PREFIX + MAIN_WDW_HEIGHT, defaultMainWDWheight);
+		if (height > screenHeight)
+			height = screenHeight;
+		if (height < DEFAULT_MIN_MAINWDW_HEIGHT)
+			height = Math.min(DEFAULT_MIN_MAINWDW_HEIGHT, screenHeight);
+		return height;
 	}
 
 	public int getMainWdwWidth() {
-		Integer width = parseInt(props.getProperty(MAIN_WDW_WIDTH));
-		return width != null ? width : DEFAULT_MAIN_WDW_WIDTH;
+		int width = prefs == null ? 
+				defaultMainWDWwidth : 
+					prefs.getInt(PREFS_PREFIX + MAIN_WDW_WIDTH, defaultMainWDWwidth);
+		if (width > screenWidth)
+			width = screenWidth;
+		if (width < DEFAULT_MIN_MAINWDW_WIDTH)
+			width = Math.min(DEFAULT_MIN_MAINWDW_WIDTH, screenWidth); 
+		return width;
 	}
 
 	public int getMainWdwUpperLeftX() {
-		Integer x = parseInt(props.getProperty(MAIN_WDW_UPPER_LEFT_X));
-		return x != null ? x : DEFAULT_MAIN_WDW_UPPER_LEFT_X;
+		int x = prefs == null ? 
+				defaultMainWDWupperLeftX : 
+					prefs.getInt(PREFS_PREFIX + MAIN_WDW_UPPER_LEFT_X, defaultMainWDWupperLeftX);
+		if (x < 0)
+			x = 0;
+		else if (x + 20 > screenWidth)
+			x = defaultMainWDWupperLeftX;
+		return x;
 	}
 
 	public int getMainWdwUpperLeftY() {
-		Integer y = parseInt(props.getProperty(MAIN_WDW_UPPER_LEFT_Y));
-		return y != null ? y : DEFAULT_MAIN_WDW_UPPER_LEFT_Y;
+		int y = prefs == null ? 
+				defaultMainWDWupperLeftY : 
+					prefs.getInt(PREFS_PREFIX + MAIN_WDW_UPPER_LEFT_Y, defaultMainWDWupperLeftY);
+		if (y < 0)
+			y = 0;
+		else if (y + 20 > screenHeight)
+			y = defaultMainWDWupperLeftY;
+		return y;
 	}
 
-	/**
-	 * Return an integer from the specified string, or null. We may actually be
-	 * dealing with a double value, but we convert to integer in that case.
-	 * 
-	 * @param s
-	 *            The string to be parsed.
-	 * @return The integer value in s, or null.
-	 */
-	private Integer parseInt(String s) {
-		Integer n = null;
-
-		try {
-			n = Integer.parseInt(s);
-		} catch (NumberFormatException e1) {
-			try {
-				n = (int) Double.parseDouble(s);
-			} catch (NumberFormatException e2) {
-				// now we're in trouble; not a number: return null
-			}
-		}
-
-		return n;
-	}
-
-	/**
-	 * Initialise the application properties and store them.
-	 */
-	public void init() {
-		Toolkit toolkit = Toolkit.getDefaultToolkit();
-		Dimension screenSize = toolkit.getScreenSize();
-		double height = screenSize.getHeight();
-		double width = screenSize.getWidth();
-
-		props.setProperty(MAIN_WDW_HEIGHT, height + "");
-		props.setProperty(MAIN_WDW_WIDTH, width + "");
-		props.setProperty(MAIN_WDW_UPPER_LEFT_X, DEFAULT_MAIN_WDW_UPPER_LEFT_X
-				+ "");
-		props.setProperty(MAIN_WDW_UPPER_LEFT_Y, DEFAULT_MAIN_WDW_UPPER_LEFT_Y
-				+ "");
-		store();
-	}
-
+	
 	/**
 	 * Update the application properties and store them.
 	 */
 	public void update() {
-		props.setProperty(MAIN_WDW_HEIGHT, frame.getHeight() + "");
-		props.setProperty(MAIN_WDW_WIDTH, frame.getWidth() + "");
-		props.setProperty(MAIN_WDW_UPPER_LEFT_X, frame.getX() + "");
-		props.setProperty(MAIN_WDW_UPPER_LEFT_Y, frame.getY() + "");
-		store();
-	}
-
-	private void store() {
-		try {
-			props.store(new FileOutputStream(propsFile), PROPS_FILE_COMMENT);
-		} catch (IOException e) {
-			MessageBox.showErrorDialog(frame, ERROR_DIALOG_TITLE, e);
-			System.exit(-1);
+		if (prefs != null) {
+			try {
+				prefs.putInt(PREFS_PREFIX + MAIN_WDW_HEIGHT, frame.getHeight());
+				prefs.putInt(PREFS_PREFIX + MAIN_WDW_WIDTH, frame.getWidth());
+				prefs.putInt(PREFS_PREFIX + MAIN_WDW_UPPER_LEFT_X, frame.getX());
+				prefs.putInt(PREFS_PREFIX + MAIN_WDW_UPPER_LEFT_Y, frame.getY());
+				prefs.flush();
+			} catch (Throwable t) {
+				MessageBox.showErrorDialog(frame, ERROR_DIALOG_TITLE, t);
+				System.exit(-1);
+			}
 		}
 	}
 }
