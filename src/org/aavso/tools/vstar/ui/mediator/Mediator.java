@@ -330,55 +330,42 @@ public class Mediator {
 		this.phaseSelectionNotifier.addListener(createPhaseSelectionListener());
 
 		this.modelSelectionNofitier.addListener(createModelSelectionListener());
-		this.filteredObservationNotifier
-				.addListener(createFilteredObservationListener());
+		this.filteredObservationNotifier.addListener(createFilteredObservationListener());
 
 		this.seriesCreationNotifier.addListener(createSeriesCreationListener());
 
 //		this.phaseParameterDialog = new PhaseParameterDialog();
 //		this.newStarNotifier.addListener(this.phaseParameterDialog);
 
-		this.obsFilterDialog = new ObservationFilterDialog();
-		this.newStarNotifier.addListener(this.obsFilterDialog
-				.createNewStarListener());
-		this.observationSelectionNotifier.addListener(this.obsFilterDialog
-				.createObservationSelectionListener());
+//		this.obsFilterDialog = new ObservationFilterDialog();
+//		this.newStarNotifier.addListener(this.obsFilterDialog
+//				.createNewStarListener());
+//		this.observationSelectionNotifier.addListener(this.obsFilterDialog
+//				.createObservationSelectionListener());
 
-		this.modelDialog = new ModelDialog();
-		this.newStarNotifier.addListener(this.modelDialog
-				.createNewStarListener());
-		this.modelCreationNotifier.addListener(this.modelDialog
-				.createModelCreationListener());
+//		this.modelDialog = new ModelDialog();
+//		this.newStarNotifier.addListener(this.modelDialog.createNewStarListener());
+//		this.modelCreationNotifier.addListener(this.modelDialog.createModelCreationListener());
 
-		this.phaseDialog = new PhaseDialog();
-		this.newStarNotifier.addListener(this.phaseDialog
-				.createNewStarListener());
-		this.phaseChangeNotifier.addListener(this.phaseDialog
-				.createPhaseChangeListener());
+//		this.phaseDialog = new PhaseDialog();
+//		this.newStarNotifier.addListener(this.phaseDialog.createNewStarListener());
+//		this.phaseChangeNotifier.addListener(this.phaseDialog.createPhaseChangeListener());
 
-		this.observationFiltersDialog = new ObservationFiltersDialog();
-		this.newStarNotifier.addListener(this.observationFiltersDialog
-				.createNewStarListener());
-		this.filteredObservationNotifier.addListener(observationFiltersDialog
-				.createFilterListener());
+//		this.observationFiltersDialog = new ObservationFiltersDialog();
+//		this.newStarNotifier.addListener(this.observationFiltersDialog.createNewStarListener());
+//		this.filteredObservationNotifier.addListener(observationFiltersDialog.createFilterListener());
 
 		// Document manager creation and listener setup.
-		this.documentManager = new DocumentManager();
-		this.phaseChangeNotifier.addListener(this.documentManager
-				.createPhaseChangeListener());
-		this.newStarNotifier.addListener(this.documentManager
-				.createNewStarListener());
+//		this.documentManager = new DocumentManager();
+//		this.phaseChangeNotifier.addListener(this.documentManager.createPhaseChangeListener());
+//		this.newStarNotifier.addListener(this.documentManager.createNewStarListener());
 
 		// Undoable action manager creation and listener setup.
-		this.undoableActionManager = new UndoableActionManager();
-		this.newStarNotifier.addListener(this.undoableActionManager
-				.createNewStarListener());
-		this.observationSelectionNotifier
-				.addListener(this.undoableActionManager
-						.createObservationSelectionListener());
-		this.multipleObservationSelectionNotifier
-				.addListener(this.undoableActionManager
-						.createMultipleObservationSelectionListener());
+//		this.undoableActionManager = new UndoableActionManager();
+//		this.newStarNotifier.addListener(this.undoableActionManager.createNewStarListener());
+//		this.observationSelectionNotifier.addListener(this.undoableActionManager.createObservationSelectionListener());
+//		this.multipleObservationSelectionNotifier
+//				.addListener(this.undoableActionManager.createMultipleObservationSelectionListener());
 	}
 
 	/**
@@ -389,8 +376,7 @@ public class Mediator {
 	}
 
 	/**
-	 * @param ui
-	 *            the ui to set
+	 * @param ui the ui to set
 	 */
 	public void setUI(IMainUI ui) {
 		this.ui = ui;
@@ -399,7 +385,7 @@ public class Mediator {
 	public static IMainUI getUI() {
 		return ui;
 	}
-	
+
 	/**
 	 * @return the latest newStarMessage, or null if none present.
 	 */
@@ -430,8 +416,7 @@ public class Mediator {
 	/**
 	 * Given an analysis type, the plot pane for the specified analysis type.
 	 * 
-	 * @param type
-	 *            The analysis type.
+	 * @param type The analysis type.
 	 * 
 	 * @return The plot pane.
 	 */
@@ -440,11 +425,10 @@ public class Mediator {
 	}
 
 	/**
-	 * Given an analysis type, the observation list pane for the specified
-	 * analysis type.
+	 * Given an analysis type, the observation list pane for the specified analysis
+	 * type.
 	 * 
-	 * @param type
-	 *            The analysis type.
+	 * @param type The analysis type.
 	 * 
 	 * @return The observation list pane.
 	 */
@@ -467,8 +451,7 @@ public class Mediator {
 	}
 
 	/**
-	 * @param analysisType
-	 *            the analysisType to set
+	 * @param analysisType the analysisType to set
 	 */
 	public void setAnalysisType(AnalysisType analysisType) {
 		this.analysisType = analysisType;
@@ -629,20 +612,6 @@ public class Mediator {
 	}
 
 	/**
-	 * @return the undoableActionManager
-	 */
-	public UndoableActionManager getUndoableActionManager() {
-		return undoableActionManager;
-	}
-
-	/**
-	 * @return the documentManager
-	 */
-	public DocumentManager getDocumentManager() {
-		return documentManager;
-	}
-
-	/**
 	 * @return the velaFileLoadDialog
 	 */
 	public VeLaFileLoadChooser getVelaFileLoadDialog() {
@@ -657,12 +626,11 @@ public class Mediator {
 	}
 
 	/**
-	 * Create a mean observation change listener and return it. Whenever the
-	 * mean series source changes, listeners may want to perform a new period
-	 * analysis or change the max time increments for means binning.
+	 * Create a mean observation change listener and return it. Whenever the mean
+	 * series source changes, listeners may want to perform a new period analysis or
+	 * change the max time increments for means binning.
 	 */
-	private Listener<BinningResult> createMeanObsChangeListener(
-			int initialSeriesNum) {
+	private Listener<BinningResult> createMeanObsChangeListener(int initialSeriesNum) {
 		final int initialSeriesNumFinal = initialSeriesNum;
 
 		return new Listener<BinningResult>() {
@@ -676,19 +644,15 @@ public class Mediator {
 				// TODO: would removing this guard permit listeners
 				// to do other things, e.g. compare old and new binning results,
 				// e.g. for change to days-in-bin?
-				if (this.meanSourceSeriesNum != obsAndMeanPlotModel
-						.getMeanSourceSeriesNum()) {
+				if (this.meanSourceSeriesNum != obsAndMeanPlotModel.getMeanSourceSeriesNum()) {
 
-					this.meanSourceSeriesNum = obsAndMeanPlotModel
-							.getMeanSourceSeriesNum();
+					this.meanSourceSeriesNum = obsAndMeanPlotModel.getMeanSourceSeriesNum();
 
-					SeriesType meanSourceSeriesType = obsAndMeanPlotModel
-							.getSeriesNumToSrcTypeMap().get(
-									this.meanSourceSeriesNum);
+					SeriesType meanSourceSeriesType = obsAndMeanPlotModel.getSeriesNumToSrcTypeMap()
+							.get(this.meanSourceSeriesNum);
 
 					meanSourceSeriesChangeNotifier
-							.notifyListeners(new MeanSourceSeriesChangeMessage(
-									this, meanSourceSeriesType));
+							.notifyListeners(new MeanSourceSeriesChangeMessage(this, meanSourceSeriesType));
 				}
 			}
 		};
@@ -711,23 +675,19 @@ public class Mediator {
 					double period = phaseDialog.getPeriod();
 					double epoch = phaseDialog.getEpoch();
 
-					AnalysisTypeChangeMessage lastPhasePlotMsg = analysisTypeMap
-							.get(AnalysisType.PHASE_PLOT);
+					AnalysisTypeChangeMessage lastPhasePlotMsg = analysisTypeMap.get(AnalysisType.PHASE_PLOT);
 
 					Map<SeriesType, Boolean> seriesVisibilityMap = null;
 
 					if (lastPhasePlotMsg != null) {
 						// Use the last phase plot's series visibility map.
-						seriesVisibilityMap = lastPhasePlotMsg
-								.getObsAndMeanChartPane().getObsModel()
+						seriesVisibilityMap = lastPhasePlotMsg.getObsAndMeanChartPane().getObsModel()
 								.getSeriesVisibilityMap();
 					} else {
 						// There has been no phase plot yet, so use the
 						// light curve's series visibility map.
-						AnalysisTypeChangeMessage lightCurveMsg = analysisTypeMap
-								.get(AnalysisType.RAW_DATA);
-						seriesVisibilityMap = lightCurveMsg
-								.getObsAndMeanChartPane().getObsModel()
+						AnalysisTypeChangeMessage lightCurveMsg = analysisTypeMap.get(AnalysisType.RAW_DATA);
+						seriesVisibilityMap = lightCurveMsg.getObsAndMeanChartPane().getObsModel()
 								.getSeriesVisibilityMap();
 					}
 
@@ -749,8 +709,7 @@ public class Mediator {
 			@Override
 			public void update(PhaseSelectionMessage info) {
 				if (info.getSource() != me) {
-					performPhasePlot(info.getPeriod(), info.getEpoch(),
-							info.getSeriesVisibilityMap());
+					performPhasePlot(info.getPeriod(), info.getEpoch(), info.getSeriesVisibilityMap());
 				}
 			}
 
@@ -774,9 +733,8 @@ public class Mediator {
 			double period = phaseDialog.getPeriod();
 			double epoch = phaseDialog.getEpoch();
 
-			Map<SeriesType, Boolean> seriesVisibilityMap = analysisTypeMap
-					.get(analysisType).getObsAndMeanChartPane().getObsModel()
-					.getSeriesVisibilityMap();
+			Map<SeriesType, Boolean> seriesVisibilityMap = analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
+					.getObsModel().getSeriesVisibilityMap();
 
 			performPhasePlot(period, epoch, seriesVisibilityMap);
 		}
@@ -788,15 +746,12 @@ public class Mediator {
 	 * The series visibility map for the phase plot is taken from the currently
 	 * visible plot (raw data or phase plot).
 	 * 
-	 * @param period
-	 *            The requested period of the phase plot.
-	 * @param epoch
-	 *            The epoch (first Julian Date) for the phase plot.
+	 * @param period The requested period of the phase plot.
+	 * @param epoch  The epoch (first Julian Date) for the phase plot.
 	 */
 	public void createPhasePlot(double period, double epoch) {
-		Map<SeriesType, Boolean> seriesVisibilityMap = analysisTypeMap
-				.get(analysisType).getObsAndMeanChartPane().getObsModel()
-				.getSeriesVisibilityMap();
+		Map<SeriesType, Boolean> seriesVisibilityMap = analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
+				.getObsModel().getSeriesVisibilityMap();
 
 		performPhasePlot(period, epoch, seriesVisibilityMap);
 	}
@@ -804,26 +759,20 @@ public class Mediator {
 	/**
 	 * Common phase plot handler.
 	 * 
-	 * @param period
-	 *            The requested period of the phase plot.
-	 * @param epoch
-	 *            The epoch (first Julian Date) for the phase plot.
-	 * @param seriesVisibilityMap
-	 *            A mapping from series number to visibility status.
+	 * @param period              The requested period of the phase plot.
+	 * @param epoch               The epoch (first Julian Date) for the phase plot.
+	 * @param seriesVisibilityMap A mapping from series number to visibility status.
 	 */
-	public void performPhasePlot(double period, double epoch,
-			Map<SeriesType, Boolean> seriesVisibilityMap) {
+	public void performPhasePlot(double period, double epoch, Map<SeriesType, Boolean> seriesVisibilityMap) {
 
-		PhasePlotTask task = new PhasePlotTask(period, epoch,
-				seriesVisibilityMap);
+		PhasePlotTask task = new PhasePlotTask(period, epoch, seriesVisibilityMap);
 
 		try {
 			currTask = task;
 			task.execute();
 		} catch (Exception e) {
 			Mediator.getUI().setCursor(null);
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"New Phase Plot", e);
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "New Phase Plot", e);
 		}
 	}
 
@@ -838,8 +787,7 @@ public class Mediator {
 			task.execute();
 		} catch (Exception e) {
 			Mediator.getUI().setCursor(null);
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Plugin Manager", e.getLocalizedMessage());
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "Plugin Manager", e.getLocalizedMessage());
 		}
 	}
 
@@ -857,11 +805,9 @@ public class Mediator {
 		return new Listener<ModelSelectionMessage>() {
 			@Override
 			public void update(ModelSelectionMessage info) {
-				validObservationCategoryMap.put(SeriesType.Model, info
-						.getModel().getFit());
+				validObservationCategoryMap.put(SeriesType.Model, info.getModel().getFit());
 
-				validObservationCategoryMap.put(SeriesType.Residuals, info
-						.getModel().getResiduals());
+				validObservationCategoryMap.put(SeriesType.Residuals, info.getModel().getResiduals());
 
 				modelSelectionMessage = info;
 			}
@@ -915,11 +861,9 @@ public class Mediator {
 	}
 
 	/**
-	 * Change the mode of VStar's focus (i.e what is to be presented to the
-	 * user).
+	 * Change the mode of VStar's focus (i.e what is to be presented to the user).
 	 * 
-	 * @param viewMode
-	 *            The mode to change to.
+	 * @param viewMode The mode to change to.
 	 */
 	public void changeViewMode(ViewModeType viewMode) {
 		if (viewMode != this.viewMode) {
@@ -927,41 +871,105 @@ public class Mediator {
 		}
 	}
 
-	/**
-	 * @return the viewMode
-	 */
 	public ViewModeType getViewMode() {
 		return viewMode;
 	}
 
-	/**
-	 * @return the phaseParameterDialog
-	 */
+	// Dialog singleton getters
+	
 	public PhaseParameterDialog getPhaseParameterDialog() {
 		if (phaseParameterDialog == null) {
 			phaseParameterDialog = new PhaseParameterDialog();
-			newStarNotifier.addListener(phaseParameterDialog);
+			NewStarMessage msg = getLatestNewStarMessage();
+			newStarNotifier.addListener(phaseParameterDialog, msg);
 		}
 
 		return phaseParameterDialog;
 	}
 
-	/**
-	 * @return the obsFilterDialog
-	 */
+	// TODO: unused?
 	public ObservationFilterDialog getObsFilterDialog() {
+		if (obsFilterDialog == null) {
+			obsFilterDialog = new ObservationFilterDialog();
+			NewStarMessage msg = getLatestNewStarMessage();
+			newStarNotifier.addListener(obsFilterDialog.createNewStarListener(), msg);
+			observationSelectionNotifier.addListener(obsFilterDialog.createObservationSelectionListener());
+		}
+
 		return obsFilterDialog;
 	}
 
+	public ModelDialog getModelDialog() {
+		if (modelDialog == null) {
+			modelDialog = new ModelDialog();
+			NewStarMessage msg = getLatestNewStarMessage();
+			newStarNotifier.addListener(modelDialog.createNewStarListener(), msg);
+			modelCreationNotifier.addListener(modelDialog.createModelCreationListener());
+		}
+
+		return modelDialog;
+	}
+
+	public PhaseDialog getPhaseDialog() {
+		if (phaseDialog == null) {
+			phaseDialog = new PhaseDialog();
+			NewStarMessage msg = getLatestNewStarMessage();
+			newStarNotifier.addListener(phaseDialog.createNewStarListener(), msg);
+			phaseChangeNotifier.addListener(phaseDialog.createPhaseChangeListener());
+		}
+
+		return phaseDialog;
+	}
+
+	public ObservationFiltersDialog getObservationFiltersDialog() {
+		if (observationFiltersDialog == null) {
+			observationFiltersDialog = new ObservationFiltersDialog();
+			NewStarMessage msg = getLatestNewStarMessage();
+			newStarNotifier.addListener(
+					observationFiltersDialog.createNewStarListener(), msg);
+			filteredObservationNotifier.addListener(
+					observationFiltersDialog.createFilterListener());
+		}
+
+		return observationFiltersDialog;
+	}
+
+	public DocumentManager getDocumentManager() {
+		if (documentManager == null) {
+			documentManager = new DocumentManager();
+			phaseChangeNotifier.addListener(documentManager.createPhaseChangeListener());
+			NewStarMessage msg = getLatestNewStarMessage();
+			newStarNotifier.addListener(documentManager.createNewStarListener(), msg);
+		}
+
+		return documentManager;
+	}
+
+	public UndoableActionManager getUndoableActionManager() {
+		if (undoableActionManager == null) {
+			undoableActionManager = new UndoableActionManager();
+			NewStarMessage msg = getLatestNewStarMessage();
+			newStarNotifier.addListener(
+					undoableActionManager.createNewStarListener(), msg);
+			observationSelectionNotifier
+					.addListener(
+							undoableActionManager.createObservationSelectionListener());
+			multipleObservationSelectionNotifier
+					.addListener(
+							undoableActionManager.createMultipleObservationSelectionListener());
+		}
+
+		return undoableActionManager;
+	}
+
 	/**
-	 * Get the object that has information about available series and
-	 * observations pertaining thereto.
+	 * Get the object that has information about available series and observations
+	 * pertaining thereto.
 	 * 
 	 * @return The series information provider.
 	 */
 	public ISeriesInfoProvider getSeriesInfoProvider() {
-		return analysisTypeMap.get(AnalysisType.RAW_DATA)
-				.getObsAndMeanChartPane().getObsModel();
+		return analysisTypeMap.get(AnalysisType.RAW_DATA).getObsAndMeanChartPane().getObsModel();
 	}
 
 	/**
@@ -974,11 +982,10 @@ public class Mediator {
 	}
 
 	/**
-	 * Change the analysis type. If the old and new types are the same, there
-	 * will be no effect.
+	 * Change the analysis type. If the old and new types are the same, there will
+	 * be no effect.
 	 * 
-	 * @param analysisType
-	 *            The analysis type to change to.
+	 * @param analysisType The analysis type to change to.
 	 */
 	public AnalysisType changeAnalysisType(AnalysisType analysisType) {
 		if (this.analysisType != analysisType) {
@@ -996,8 +1003,7 @@ public class Mediator {
 						this.analysisType = analysisType;
 						this.analysisTypeChangeNotifier.notifyListeners(msg);
 						String statusMsg = "Raw data mode ("
-								+ this.getLatestNewStarMessage().getStarInfo()
-										.getDesignation() + ")";
+								+ this.getLatestNewStarMessage().getStarInfo().getDesignation() + ")";
 						Mediator.getUI().getStatusPane().setMessage(statusMsg);
 					}
 					break;
@@ -1019,8 +1025,7 @@ public class Mediator {
 					break;
 				}
 			} catch (Exception e) {
-				MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-						"Analysis Type Change", e);
+				MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "Analysis Type Change", e);
 			}
 		}
 
@@ -1031,9 +1036,7 @@ public class Mediator {
 	 * Set the status bar to display phase plot information.
 	 */
 	public void setPhasePlotStatusMessage() {
-		String statusMsg = "Phase plot mode ("
-				+ this.getLatestNewStarMessage().getStarInfo().getDesignation()
-				+ ")";
+		String statusMsg = "Phase plot mode (" + this.getLatestNewStarMessage().getStarInfo().getDesignation() + ")";
 		Mediator.getUI().getStatusPane().setMessage(statusMsg);
 	}
 
@@ -1045,11 +1048,10 @@ public class Mediator {
 	}
 
 	/**
-	 * Remove all listeners that are willing, from all notifiers, to ensure that
-	 * no old, unnecessary listeners remain from one new-star load to another.
-	 * Such listeners could receive notifications that make no sense (e.g.
-	 * location of an observation within a dataset) and guard against memory
-	 * leaks.
+	 * Remove all listeners that are willing, from all notifiers, to ensure that no
+	 * old, unnecessary listeners remain from one new-star load to another. Such
+	 * listeners could receive notifications that make no sense (e.g. location of an
+	 * observation within a dataset) and guard against memory leaks.
 	 */
 	private void freeListeners() {
 		analysisTypeChangeNotifier.removeAllWillingListeners();
@@ -1081,17 +1083,14 @@ public class Mediator {
 	 * Creates and executes a background task to handle
 	 * new-star-from-external-source-plugin.
 	 * 
-	 * @param obSourcePlugin
-	 *            The plugin that will be used to obtain observations.
+	 * @param obSourcePlugin The plugin that will be used to obtain observations.
 	 */
-	public void createObservationArtefactsFromObSourcePlugin(
-			ObservationSourcePluginBase obSourcePlugin) {
+	public void createObservationArtefactsFromObSourcePlugin(ObservationSourcePluginBase obSourcePlugin) {
 
 		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 		this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
 
-		NewStarFromObSourcePluginTask task = new NewStarFromObSourcePluginTask(
-				obSourcePlugin);
+		NewStarFromObSourcePluginTask task = new NewStarFromObSourcePluginTask(obSourcePlugin);
 		this.currTask = task;
 		task.configure();
 		if (task.isConfigured()) {
@@ -1104,15 +1103,11 @@ public class Mediator {
 	 * Creates and executes a background task to handle
 	 * new-star-from-external-source-plugin when a file is supplied.
 	 * 
-	 * @param obSourcePlugin
-	 *            The plugin that will be used to obtain observations.
-	 * @param file
-	 *            The file to used as input.
-	 * @param isAdditive
-	 *            Is this an additive load?
+	 * @param obSourcePlugin The plugin that will be used to obtain observations.
+	 * @param file           The file to used as input.
+	 * @param isAdditive     Is this an additive load?
 	 */
-	public void createObservationArtefactsFromObSourcePlugin(
-			ObservationSourcePluginBase obSourcePlugin, File file,
+	public void createObservationArtefactsFromObSourcePlugin(ObservationSourcePluginBase obSourcePlugin, File file,
 			boolean isAdditive) throws IOException, ObservationReadError {
 
 		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
@@ -1128,15 +1123,11 @@ public class Mediator {
 	 * Creates and executes a background task to handle
 	 * new-star-from-external-source-plugin when a URL is supplied.
 	 * 
-	 * @param obSourcePlugin
-	 *            The plugin that will be used to obtain observations.
-	 * @param url
-	 *            The URL to used as input.
-	 * @param isAdditive
-	 *            Is this an additive load?
+	 * @param obSourcePlugin The plugin that will be used to obtain observations.
+	 * @param url            The URL to used as input.
+	 * @param isAdditive     Is this an additive load?
 	 */
-	public void createObservationArtefactsFromObSourcePlugin(
-			ObservationSourcePluginBase obSourcePlugin, URL url,
+	public void createObservationArtefactsFromObSourcePlugin(ObservationSourcePluginBase obSourcePlugin, URL url,
 			boolean isAdditive) throws IOException, ObservationReadError {
 
 		this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
@@ -1149,25 +1140,22 @@ public class Mediator {
 	}
 
 	/**
-	 * Create observation artefacts (models, GUI elements) on the assumption
-	 * that a valid observation list and category map have already been created.
+	 * Create observation artefacts (models, GUI elements) on the assumption that a
+	 * valid observation list and category map have already been created.
 	 * 
-	 * @param newStarType
-	 *            The new star enum type.
-	 * @param starInfo
-	 *            Information about the star, e.g. name (designation), AUID (for
-	 *            AID), period, epoch, including observation retriever.
-	 * @param obsArtefactProgressAmount
-	 *            The amount the progress bar should be incremented by, a value
-	 *            corresponding to a portion of the overall task of which this
-	 *            is just a part.
-	 * @param addObs
-	 *            Should the observations be added to the existing loaded
-	 *            dataset?
+	 * @param newStarType               The new star enum type.
+	 * @param starInfo                  Information about the star, e.g. name
+	 *                                  (designation), AUID (for AID), period,
+	 *                                  epoch, including observation retriever.
+	 * @param obsArtefactProgressAmount The amount the progress bar should be
+	 *                                  incremented by, a value corresponding to a
+	 *                                  portion of the overall task of which this is
+	 *                                  just a part.
+	 * @param addObs                    Should the observations be added to the
+	 *                                  existing loaded dataset?
 	 */
-	public void createNewStarObservationArtefacts(NewStarType newStarType,
-			StarInfo starInfo, int obsArtefactProgressAmount, boolean addObs)
-			throws ObservationReadError {
+	public void createNewStarObservationArtefacts(NewStarType newStarType, StarInfo starInfo,
+			int obsArtefactProgressAmount, boolean addObs) throws ObservationReadError {
 
 		// Given raw valid and invalid observation data, create observation
 		// table and plot models, along with corresponding GUI components.
@@ -1177,8 +1165,7 @@ public class Mediator {
 		if (addObs && getLatestNewStarMessage() != null) {
 			// convertObsToHJD(starInfo);
 
-			starInfo.getRetriever().collectAllObservations(validObsList,
-					starInfo.getRetriever().getSourceName());
+			starInfo.getRetriever().collectAllObservations(validObsList, starInfo.getRetriever().getSourceName());
 
 			starInfo.getRetriever().addAllInvalidObservations(invalidObsList);
 
@@ -1194,14 +1181,12 @@ public class Mediator {
 			}
 		}
 
-		List<ValidObservation> validObsList = starInfo.getRetriever()
-				.getValidObservations();
+		List<ValidObservation> validObsList = starInfo.getRetriever().getValidObservations();
 
-		List<InvalidObservation> invalidObsList = starInfo.getRetriever()
-				.getInvalidObservations();
+		List<InvalidObservation> invalidObsList = starInfo.getRetriever().getInvalidObservations();
 
-		Map<SeriesType, List<ValidObservation>> validObservationCategoryMap = starInfo
-				.getRetriever().getValidObservationCategoryMap();
+		Map<SeriesType, List<ValidObservation>> validObservationCategoryMap = starInfo.getRetriever()
+				.getValidObservationCategoryMap();
 
 		// Table models.
 		validObsTableModel = null;
@@ -1222,11 +1207,9 @@ public class Mediator {
 
 			// Create a message to notify whoever is listening that a new star
 			// has been loaded.
-			NewStarMessage newStarMsg = new NewStarMessage(newStarType,
-					starInfo, validObsList, validObservationCategoryMap,
-					starInfo.getRetriever().getMinMag(), starInfo
-							.getRetriever().getMaxMag(), starInfo
-							.getRetriever().getSourceName());
+			NewStarMessage newStarMsg = new NewStarMessage(newStarType, starInfo, validObsList,
+					validObservationCategoryMap, starInfo.getRetriever().getMinMag(),
+					starInfo.getRetriever().getMaxMag(), starInfo.getRetriever().getSourceName());
 
 			if (!addObs) {
 				newStarMessageList.clear();
@@ -1234,8 +1217,7 @@ public class Mediator {
 				// Exclude all but the most recent new star message if the newly
 				// loaded dataset's series set is the same as that of any
 				// previously loaded dataset.
-				Set<SeriesType> newSeriesTypes = validObservationCategoryMap
-						.keySet();
+				Set<SeriesType> newSeriesTypes = validObservationCategoryMap.keySet();
 
 				List<NewStarMessage> dupMessages = new ArrayList<NewStarMessage>();
 
@@ -1260,56 +1242,45 @@ public class Mediator {
 					newStarType.getRawDataTableColumnInfoSource());
 
 			// Observation-and-mean table and plot.
-			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(
-					validObservationCategoryMap, JDCoordSource.instance,
+			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(validObservationCategoryMap, JDCoordSource.instance,
 					JDComparator.instance, JDTimeElementEntity.instance, null);
 
 			if (false) {
 				// Record initial ANOVA information and make the document
 				// manager
 				// listen to changes to ANOVA via new binning results.
-				documentManager.updateAnovaInfo(obsAndMeanPlotModel
-						.getBinningResult());
+				getDocumentManager().updateAnovaInfo(obsAndMeanPlotModel.getBinningResult());
 			}
 
-			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
-					documentManager.createBinChangeListener());
+			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(getDocumentManager().createBinChangeListener());
 
-			documentManager
-					.addStatsInfo("Confidence Interval",
-							"Mean error bars denote 95% Confidence Interval (twice Standard Error)");
+			getDocumentManager().addStatsInfo("Confidence Interval",
+					"Mean error bars denote 95% Confidence Interval (twice Standard Error)");
 
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					LocaleProps.get("LIGHT_CURVE") + " "
-							+ LocaleProps.get("FOR") + " "
-							+ starInfo.getDesignation(), null,
-					obsAndMeanPlotModel, starInfo.getRetriever());
+					LocaleProps.get("LIGHT_CURVE") + " " + LocaleProps.get("FOR") + " " + starInfo.getDesignation(),
+					null, obsAndMeanPlotModel, starInfo.getRetriever());
 
-			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
-					createMeanObsChangeListener(obsAndMeanPlotModel
-							.getMeanSourceSeriesNum()));
+			obsAndMeanPlotModel.getMeansChangeNotifier()
+					.addListener(createMeanObsChangeListener(obsAndMeanPlotModel.getMeanSourceSeriesNum()));
 
 			// The mean observation table model must listen to the plot
 			// model to know when the means data has changed. We also pass
 			// the initial means data obtained from the plot model to
 			// the mean observation table model.
-			meanObsTableModel = new RawDataMeanObservationTableModel(
-					obsAndMeanPlotModel.getMeanObsList());
+			meanObsTableModel = new RawDataMeanObservationTableModel(obsAndMeanPlotModel.getMeanObsList());
 
-			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(
-					meanObsTableModel);
+			obsAndMeanPlotModel.getMeansChangeNotifier().addListener(meanObsTableModel);
 
 			if (obsArtefactProgressAmount > 0) {
 				// Update progress.
-				getProgressNotifier().notifyListeners(
-						new ProgressInfo(ProgressType.INCREMENT_PROGRESS,
-								obsArtefactProgressAmount));
+				getProgressNotifier()
+						.notifyListeners(new ProgressInfo(ProgressType.INCREMENT_PROGRESS, obsArtefactProgressAmount));
 			}
 		}
 
 		if (!invalidObsList.isEmpty()) {
-			invalidObsTableModel = new InvalidObservationTableModel(
-					invalidObsList);
+			invalidObsTableModel = new InvalidObservationTableModel(invalidObsList);
 		}
 
 		// The observation table pane contains valid and potentially
@@ -1319,23 +1290,19 @@ public class Mediator {
 		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
 				|| (newStarType == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE && !addObs);
 
-		obsListPane = new ObservationListPane(starInfo.getDesignation(),
-				validObsTableModel, invalidObsTableModel,
-				enableColumnAutoResize, obsAndMeanPlotModel.getVisibleSeries(),
-				AnalysisType.RAW_DATA);
+		obsListPane = new ObservationListPane(starInfo.getDesignation(), validObsTableModel, invalidObsTableModel,
+				enableColumnAutoResize, obsAndMeanPlotModel.getVisibleSeries(), AnalysisType.RAW_DATA);
 
 		// We also create the means list pane.
-		meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(
-				meanObsTableModel, null);
+		meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(meanObsTableModel, null);
 
 		// Create a message to notify whoever is listening that the analysis
 		// type has changed (we could have been viewing a phase plot for a
 		// different star before now) passing GUI components in the message.
 		analysisType = AnalysisType.RAW_DATA;
 
-		AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(
-				analysisType, obsAndMeanChartPane, obsListPane, meansListPane,
-				ViewModeType.PLOT_OBS_MODE);
+		AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(analysisType, obsAndMeanChartPane,
+				obsListPane, meansListPane, ViewModeType.PLOT_OBS_MODE);
 
 		// Commit to using the new observation lists and category map,
 		// first making old values available for garbage collection.
@@ -1379,15 +1346,15 @@ public class Mediator {
 	}
 
 	/**
-	 * Do the new or old observations need to be converted to HJD? Note that we
-	 * can only convert to HJD if we have RA/Dec for the object, e.g. from AID;
-	 * perhaps later an RA/Dec dialog can be opened. The existing (old)
+	 * Do the new or old observations need to be converted to HJD? Note that we can
+	 * only convert to HJD if we have RA/Dec for the object, e.g. from AID; perhaps
+	 * later an RA/Dec dialog can be opened. The existing (old)
 	 * newStarMessage.starInfo.retriever will be replaced with this new HJD
 	 * retriever, permitting it to be consulted the next time this method is
 	 * invoked.
 	 * 
-	 * @param newStarInfo
-	 *            Info about the new star who's observations are to be added.
+	 * @param newStarInfo Info about the new star who's observations are to be
+	 *                    added.
 	 */
 	public void convertObsToHJD(StarInfo newStarInfo) {
 		// Try to get RA and Dec information from any of our loaded datasets.
@@ -1413,8 +1380,7 @@ public class Mediator {
 		}
 
 		if (newStarInfo.getRetriever().isHeliocentric()
-				&& !getLatestNewStarMessage().getStarInfo().getRetriever()
-						.isHeliocentric()) {
+				&& !getLatestNewStarMessage().getStarInfo().getRetriever().isHeliocentric()) {
 
 			if (ra == null || dec == null) {
 				// Asking the user for J2000.0 RA/DEC and if that is cancelled,
@@ -1422,25 +1388,21 @@ public class Mediator {
 				ra = requestRA();
 				dec = requestDec();
 				if (ra == null || dec == null) {
-					MessageBox
-							.showWarningDialog("HJD Conversion",
-									"The previously loaded observations have NOT been converted to HJD.");
+					MessageBox.showWarningDialog("HJD Conversion",
+							"The previously loaded observations have NOT been converted to HJD.");
 					return;
 				}
 			}
 
 			/*
-			 * The new observations use HJD but the existing observations do
-			 * not, so convert the existing observations.
+			 * The new observations use HJD but the existing observations do not, so convert
+			 * the existing observations.
 			 */
 			convertObsToHJD(validObsList, ra, dec);
 
-			MessageBox
-					.showWarningDialog("HJD Conversion",
-							"The previously loaded observations were converted to HJD.");
+			MessageBox.showWarningDialog("HJD Conversion", "The previously loaded observations were converted to HJD.");
 		} else if (!newStarInfo.getRetriever().isHeliocentric()
-				&& getLatestNewStarMessage().getStarInfo().getRetriever()
-						.isHeliocentric()) {
+				&& getLatestNewStarMessage().getStarInfo().getRetriever().isHeliocentric()) {
 
 			if (ra == null || dec == null) {
 				// Asking the user for J2000.0 RA/DEC and if that is cancelled,
@@ -1448,27 +1410,23 @@ public class Mediator {
 				ra = requestRA();
 				dec = requestDec();
 				if (ra == null || dec == null) {
-					MessageBox
-							.showWarningDialog("HJD Conversion",
-									"The previously loaded observations have NOT been converted to HJD.");
+					MessageBox.showWarningDialog("HJD Conversion",
+							"The previously loaded observations have NOT been converted to HJD.");
 					return;
 				}
 			}
 
 			/*
-			 * The new observations do not use HJD but the existing observations
-			 * do, so convert the new observations. Note that the new retriever
-			 * needs to have its HJD flag set once the observations are
-			 * converted. We do not need to do this for the case above, because
-			 * the new StarInfo will replace the existing one, so the question
-			 * about "existing HJD" will ask this new object's retriever.
+			 * The new observations do not use HJD but the existing observations do, so
+			 * convert the new observations. Note that the new retriever needs to have its
+			 * HJD flag set once the observations are converted. We do not need to do this
+			 * for the case above, because the new StarInfo will replace the existing one,
+			 * so the question about "existing HJD" will ask this new object's retriever.
 			 */
-			convertObsToHJD(newStarInfo.getRetriever().getValidObservations(),
-					ra, dec);
+			convertObsToHJD(newStarInfo.getRetriever().getValidObservations(), ra, dec);
 			newStarInfo.getRetriever().setHeliocentric(true);
 
-			MessageBox.showWarningDialog("HJD Conversion",
-					"The newly loaded observations were converted to HJD.");
+			MessageBox.showWarningDialog("HJD Conversion", "The newly loaded observations were converted to HJD.");
 		}
 	}
 
@@ -1488,13 +1446,12 @@ public class Mediator {
 		IntegerField raHours = new IntegerField("Hours", 0, 60, h);
 		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, m);
 		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, s);
-		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("RA ("
-				+ EpochType.J2000 + ")", raHours, raMinutes, raSeconds);
+		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("RA (" + EpochType.J2000 + ")", raHours,
+				raMinutes, raSeconds);
 
 		RAInfo raInfo = null;
 		if (!dialog.isCancelled()) {
-			raInfo = new RAInfo(EpochType.J2000, raHours.getValue(),
-					raMinutes.getValue(), raSeconds.getValue());
+			raInfo = new RAInfo(EpochType.J2000, raHours.getValue(), raMinutes.getValue(), raSeconds.getValue());
 		}
 
 		return raInfo;
@@ -1521,14 +1478,12 @@ public class Mediator {
 		IntegerField decHours = new IntegerField("Degrees", -90, 90, d);
 		IntegerField decMinutes = new IntegerField("Minutes", 0, 60, m);
 		DoubleField decSeconds = new DoubleField("Seconds", 0.0, 60.0, s);
-		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
-				"Dec (" + EpochType.J2000 + ")", decHours, decMinutes,
-				decSeconds);
+		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("Dec (" + EpochType.J2000 + ")", decHours,
+				decMinutes, decSeconds);
 
 		DecInfo decInfo = null;
 		if (!dialog.isCancelled()) {
-			decInfo = new DecInfo(EpochType.J2000, decHours.getValue(),
-					decMinutes.getValue(), decSeconds.getValue());
+			decInfo = new DecInfo(EpochType.J2000, decHours.getValue(), decMinutes.getValue(), decSeconds.getValue());
 		}
 
 		return decInfo;
@@ -1540,23 +1495,18 @@ public class Mediator {
 	}
 
 	/**
-	 * Convert the specified observations to use HJD (if not already) rather
-	 * than JD.
+	 * Convert the specified observations to use HJD (if not already) rather than
+	 * JD.
 	 * 
-	 * @param obs
-	 *            The list of observations to be converted.
-	 * @param ra
-	 *            The RA for the object.
-	 * @param dec
-	 *            The Dec for the object.
+	 * @param obs The list of observations to be converted.
+	 * @param ra  The RA for the object.
+	 * @param dec The Dec for the object.
 	 * @return The number of observations converted.
 	 */
-	public int convertObsToHJD(List<ValidObservation> obs, RAInfo ra,
-			DecInfo dec) {
+	public int convertObsToHJD(List<ValidObservation> obs, RAInfo ra, DecInfo dec) {
 		int count = 0;
 
-		AbstractHJDConverter converter = AbstractHJDConverter.getInstance(ra
-				.getEpoch());
+		AbstractHJDConverter converter = AbstractHJDConverter.getInstance(ra.getEpoch());
 
 		for (ValidObservation ob : obs) {
 			if (!ob.isHeliocentric()) {
@@ -1572,31 +1522,24 @@ public class Mediator {
 	 * Create phase plot artefacts, adding them to the analysis type map and
 	 * returning this message.
 	 * 
-	 * @param period
-	 *            The requested period of the phase plot.
-	 * @param epoch
-	 *            The epoch (first Julian Date) for the phase plot.
-	 * @param seriesVisibilityMap
-	 *            A mapping from series number to visibility status.
+	 * @param period              The requested period of the phase plot.
+	 * @param epoch               The epoch (first Julian Date) for the phase plot.
+	 * @param seriesVisibilityMap A mapping from series number to visibility status.
 	 * @return An analysis type message consisting of phase plot artefacts.
 	 */
-	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period,
-			double epoch, Map<SeriesType, Boolean> seriesVisibilityMap)
-			throws Exception {
-		String objName = getLatestNewStarMessage().getStarInfo()
-				.getDesignation();
+	public AnalysisTypeChangeMessage createPhasePlotArtefacts(double period, double epoch,
+			Map<SeriesType, Boolean> seriesVisibilityMap) throws Exception {
+		String objName = getLatestNewStarMessage().getStarInfo().getDesignation();
 
 		String subTitle = "";
-		String periodAndEpochStr = String.format(LocaleProps.get("PERIOD")
-				+ ": %s, " + LocaleProps.get("EPOCH") + ": %s",
-				NumericPrecisionPrefs.formatOther(period),
-				NumericPrecisionPrefs.formatTime(epoch));
+		String periodAndEpochStr = String.format(
+				LocaleProps.get("PERIOD") + ": %s, " + LocaleProps.get("EPOCH") + ": %s",
+				NumericPrecisionPrefs.formatOther(period), NumericPrecisionPrefs.formatTime(epoch));
 
 		if (this.getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 			Date now = Calendar.getInstance().getTime();
 			String formattedDate = DateFormat.getDateInstance().format(now);
-			subTitle = formattedDate + " (" + LocaleProps.get("DATABASE")
-					+ "), " + periodAndEpochStr;
+			subTitle = formattedDate + " (" + LocaleProps.get("DATABASE") + "), " + periodAndEpochStr;
 		} else {
 			subTitle = periodAndEpochStr;
 		}
@@ -1617,11 +1560,9 @@ public class Mediator {
 		Map<SeriesType, List<ValidObservation>> phasedValidObservationCategoryMap = new TreeMap<SeriesType, List<ValidObservation>>();
 
 		for (SeriesType series : validObservationCategoryMap.keySet()) {
-			List<ValidObservation> obs = validObservationCategoryMap
-					.get(series);
+			List<ValidObservation> obs = validObservationCategoryMap.get(series);
 
-			List<ValidObservation> phasedObs = new ArrayList<ValidObservation>(
-					obs);
+			List<ValidObservation> phasedObs = new ArrayList<ValidObservation>(obs);
 
 			Collections.sort(phasedObs, StandardPhaseComparator.instance);
 
@@ -1633,13 +1574,11 @@ public class Mediator {
 		// o indeed: is this needed now anyway? see plot model/pane code
 
 		// Table and plot models.
-		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(
-				validObsList, getLatestNewStarMessage().getNewStarType()
-						.getPhasePlotTableColumnInfoSource());
+		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(validObsList,
+				getLatestNewStarMessage().getNewStarType().getPhasePlotTableColumnInfoSource());
 
 		// Observation-and-mean plot and table.
-		ContinuousModelFunction rawModelFuncModel = obsAndMeanPlotModel
-				.getModelFunction();
+		ContinuousModelFunction rawModelFuncModel = obsAndMeanPlotModel.getModelFunction();
 
 		ContinuousModelFunction prevCyclePhaseModelFuncModel = null;
 		ContinuousModelFunction stdPhaseModelFuncModel = null;
@@ -1648,28 +1587,20 @@ public class Mediator {
 		if (rawModelFuncModel != null) {
 			// Use sorted fit from category map; this will also be compatible,
 			// order-wise, with previous cycle phase.
-			List<ValidObservation> phasedFit = phasedValidObservationCategoryMap
-					.get(SeriesType.Model);
+			List<ValidObservation> phasedFit = phasedValidObservationCategoryMap.get(SeriesType.Model);
 
-			prevCyclePhaseModelFuncModel = new ContinuousModelFunction(
-					rawModelFuncModel.getFunction(), phasedFit,
-					rawModelFuncModel.getZeroPoint(),
-					PreviousCyclePhaseCoordSource.instance);
+			prevCyclePhaseModelFuncModel = new ContinuousModelFunction(rawModelFuncModel.getFunction(), phasedFit,
+					rawModelFuncModel.getZeroPoint(), PreviousCyclePhaseCoordSource.instance);
 
-			stdPhaseModelFuncModel = new ContinuousModelFunction(
-					rawModelFuncModel.getFunction(), phasedFit,
-					rawModelFuncModel.getZeroPoint(),
-					StandardPhaseCoordSource.instance);
+			stdPhaseModelFuncModel = new ContinuousModelFunction(rawModelFuncModel.getFunction(), phasedFit,
+					rawModelFuncModel.getZeroPoint(), StandardPhaseCoordSource.instance);
 
-			modelFuncSeriesNum = obsAndMeanPlotModel
-					.getModelFunctionSeriesNum();
+			modelFuncSeriesNum = obsAndMeanPlotModel.getModelFunctionSeriesNum();
 		}
 
 		PhasedObservationAndMeanPlotModel obsAndMeanPlotModel1 = new PhasedObservationAndMeanPlotModel(
-				phasedValidObservationCategoryMap,
-				PreviousCyclePhaseCoordSource.instance,
-				PreviousCyclePhaseComparator.instance,
-				PhaseTimeElementEntity.instance, seriesVisibilityMap,
+				phasedValidObservationCategoryMap, PreviousCyclePhaseCoordSource.instance,
+				PreviousCyclePhaseComparator.instance, PhaseTimeElementEntity.instance, seriesVisibilityMap,
 				prevCyclePhaseModelFuncModel, modelFuncSeriesNum);
 
 		if (prevCyclePhaseModelFuncModel != null) {
@@ -1677,11 +1608,8 @@ public class Mediator {
 		}
 
 		PhasedObservationAndMeanPlotModel obsAndMeanPlotModel2 = new PhasedObservationAndMeanPlotModel(
-				phasedValidObservationCategoryMap,
-				StandardPhaseCoordSource.instance,
-				StandardPhaseComparator.instance,
-				PhaseTimeElementEntity.instance, seriesVisibilityMap,
-				stdPhaseModelFuncModel, modelFuncSeriesNum);
+				phasedValidObservationCategoryMap, StandardPhaseCoordSource.instance, StandardPhaseComparator.instance,
+				PhaseTimeElementEntity.instance, seriesVisibilityMap, stdPhaseModelFuncModel, modelFuncSeriesNum);
 
 		if (stdPhaseModelFuncModel != null) {
 			stdPhaseModelFuncModel.setPpModel(obsAndMeanPlotModel2);
@@ -1697,17 +1625,14 @@ public class Mediator {
 		PhasePlotMeanObservationTableModel meanObsTableModel = new PhasePlotMeanObservationTableModel(
 				obsAndMeanPlotModel1.getMeanObsList());
 
-		obsAndMeanPlotModel1.getMeansChangeNotifier().addListener(
-				meanObsTableModel);
+		obsAndMeanPlotModel1.getMeansChangeNotifier().addListener(meanObsTableModel);
 
-		obsAndMeanPlotModel2.getMeansChangeNotifier().addListener(
-				meanObsTableModel);
+		obsAndMeanPlotModel2.getMeansChangeNotifier().addListener(meanObsTableModel);
 
 		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
-				LocaleProps.get("PHASE_PLOT") + " " + LocaleProps.get("FOR")
-						+ " " + objName, subTitle, obsAndMeanPlotModel1,
-				obsAndMeanPlotModel2, epoch, period, getLatestNewStarMessage()
-						.getStarInfo().getRetriever());
+				LocaleProps.get("PHASE_PLOT") + " " + LocaleProps.get("FOR") + " " + objName, subTitle,
+				obsAndMeanPlotModel1, obsAndMeanPlotModel2, epoch, period,
+				getLatestNewStarMessage().getStarInfo().getRetriever());
 
 		// The observation table pane contains valid and potentially
 		// invalid data components but for phase plot purposes, we only
@@ -1718,10 +1643,8 @@ public class Mediator {
 				.getNewStarType() == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
 				|| getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
 
-		ObservationListPane obsListPane = new ObservationListPane(objName,
-				validObsTableModel, null, enableColumnAutoResize,
-				obsAndMeanPlotModel1.getVisibleSeries(),
-				AnalysisType.PHASE_PLOT);
+		ObservationListPane obsListPane = new ObservationListPane(objName, validObsTableModel, null,
+				enableColumnAutoResize, obsAndMeanPlotModel1.getVisibleSeries(), AnalysisType.PHASE_PLOT);
 
 		SyntheticObservationListPane<AbstractMeanObservationTableModel> meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(
 				meanObsTableModel, null);
@@ -1731,14 +1654,12 @@ public class Mediator {
 		// recording the series visibility map permits the existence of a phase
 		// change creation listener that collects phase change messages for the
 		// purpose of later being able to re-create the same phase plot.
-		PhaseChangeMessage phaseChangeMessage = new PhaseChangeMessage(this,
-				period, epoch, seriesVisibilityMap);
+		PhaseChangeMessage phaseChangeMessage = new PhaseChangeMessage(this, period, epoch, seriesVisibilityMap);
 		phaseChangeNotifier.notifyListeners(phaseChangeMessage);
 
 		// Observation-and-mean table and plot.
-		AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(
-				AnalysisType.PHASE_PLOT, obsAndMeanChartPane, obsListPane,
-				meansListPane, ViewModeType.PLOT_OBS_MODE);
+		AnalysisTypeChangeMessage phasePlotMsg = new AnalysisTypeChangeMessage(AnalysisType.PHASE_PLOT,
+				obsAndMeanChartPane, obsListPane, meansListPane, ViewModeType.PLOT_OBS_MODE);
 
 		analysisTypeMap.put(AnalysisType.PHASE_PLOT, phasePlotMsg);
 
@@ -1750,13 +1671,9 @@ public class Mediator {
 	/**
 	 * Set the phases for a particular series in the observation category map.
 	 * 
-	 * @param type
-	 *            The series type of the observations whose phases are to be
-	 *            set.
-	 * @param epoch
-	 *            The epoch to use for the phase calculation.
-	 * @param period
-	 *            The period to use for the phase calculation.
+	 * @param type   The series type of the observations whose phases are to be set.
+	 * @param epoch  The epoch to use for the phase calculation.
+	 * @param period The period to use for the phase calculation.
 	 */
 	public void setPhasesForSeries(SeriesType type, double epoch, double period) {
 		if (validObservationCategoryMap.containsKey(type)) {
@@ -1801,78 +1718,65 @@ public class Mediator {
 	 * Create the observation-and-mean plot pane for the current list of valid
 	 * observations.
 	 */
-	private ObservationAndMeanPlotPane createObservationAndMeanPlotPane(
-			String plotName, String subTitle,
-			ObservationAndMeanPlotModel obsAndMeanPlotModel,
-			AbstractObservationRetriever retriever) {
+	private ObservationAndMeanPlotPane createObservationAndMeanPlotPane(String plotName, String subTitle,
+			ObservationAndMeanPlotModel obsAndMeanPlotModel, AbstractObservationRetriever retriever) {
 
-		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
-				(int) (TabbedDataPane.HEIGHT * 0.9));
+		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9), (int) (TabbedDataPane.HEIGHT * 0.9));
 
-		return new ObservationAndMeanPlotPane(plotName, subTitle,
-				obsAndMeanPlotModel, bounds, retriever);
+		return new ObservationAndMeanPlotPane(plotName, subTitle, obsAndMeanPlotModel, bounds, retriever);
 	}
 
 	/**
-	 * Create the observation-and-mean phase plot pane for the current list of
-	 * valid observations.
+	 * Create the observation-and-mean phase plot pane for the current list of valid
+	 * observations.
 	 */
-	private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(String plotName,
-			String subTitle,
+	private PhaseAndMeanPlotPane createPhaseAndMeanPlotPane(String plotName, String subTitle,
 			PhasedObservationAndMeanPlotModel obsAndMeanPlotModel1,
-			PhasedObservationAndMeanPlotModel obsAndMeanPlotModel2,
-			double epoch, double period, AbstractObservationRetriever retriever) {
+			PhasedObservationAndMeanPlotModel obsAndMeanPlotModel2, double epoch, double period,
+			AbstractObservationRetriever retriever) {
 
-		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9),
-				(int) (TabbedDataPane.HEIGHT * 0.9));
+		Dimension bounds = new Dimension((int) (TabbedDataPane.WIDTH * 0.9), (int) (TabbedDataPane.HEIGHT * 0.9));
 
-		return new PhaseAndMeanPlotPane(plotName, subTitle, bounds, epoch,
-				period, retriever, obsAndMeanPlotModel1, obsAndMeanPlotModel2);
+		return new PhaseAndMeanPlotPane(plotName, subTitle, bounds, epoch, period, retriever, obsAndMeanPlotModel1,
+				obsAndMeanPlotModel2);
 	}
 
 	/**
 	 * Create a period analysis dialog after the analysis is done. It only makes
-	 * sense to apply the observations to a single band as per this Q & A
-	 * between Matt Templeton and I:<br/>
+	 * sense to apply the observations to a single band as per this Q & A between
+	 * Matt Templeton and I:<br/>
 	 * DB: Like mean curve creation in VStar, should we only apply DC DFT to a
-	 * single band, e.g. visual? MT: Yes, because of two things: 1) The
-	 * different bands will have different mean values, and 2) The different
-	 * bands will have different amplitudes or frequencies depending on what is
-	 * physically causing the variation. Variability caused by temperature
-	 * changes can have wildly different amplitudes in U or B versus Rc or Ic.
+	 * single band, e.g. visual? MT: Yes, because of two things: 1) The different
+	 * bands will have different mean values, and 2) The different bands will have
+	 * different amplitudes or frequencies depending on what is physically causing
+	 * the variation. Variability caused by temperature changes can have wildly
+	 * different amplitudes in U or B versus Rc or Ic.
 	 */
 	public void performPeriodAnalysis(PeriodAnalysisPluginBase plugin) {
 		try {
 			if (getLatestNewStarMessage() != null && validObsList != null) {
-				SingleSeriesSelectionDialog dialog = new SingleSeriesSelectionDialog(
-						obsAndMeanPlotModel);
+				SingleSeriesSelectionDialog dialog = new SingleSeriesSelectionDialog(obsAndMeanPlotModel);
 
 				if (!dialog.isCancelled()) {
 					SeriesType type = dialog.getSeries();
 
-					List<ValidObservation> obs = getSeriesInfoProvider()
-							.getObservations(type);
+					List<ValidObservation> obs = getSeriesInfoProvider().getObservations(type);
 
-					this.getProgressNotifier().notifyListeners(
-							ProgressInfo.START_PROGRESS);
-					this.getProgressNotifier().notifyListeners(
-							ProgressInfo.BUSY_PROGRESS);
+					this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
+					this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
 
-					PeriodAnalysisTask task = new PeriodAnalysisTask(plugin,
-							type, obs);
+					PeriodAnalysisTask task = new PeriodAnalysisTask(plugin, type, obs);
 
 					this.currTask = task;
 					task.execute();
 				}
 			}
 		} catch (Exception e) {
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					LocaleProps.get("PERIOD_ANALYSIS"), e);
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), LocaleProps.get("PERIOD_ANALYSIS"), e);
 
 			// TODO: why not ProgressInfo.COMPLETE_PROGRESS then
 			// ProgressInfo.CLEAR_PROGRESS?
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.START_PROGRESS);
+			this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
 			Mediator.getUI().getStatusPane().setMessage("");
 		}
@@ -1884,25 +1788,21 @@ public class Mediator {
 	 */
 	public void showPlotControlDialog() {
 		String title = null;
-		ObservationAndMeanPlotPane plotPane = analysisTypeMap.get(analysisType)
-				.getObsAndMeanChartPane();
+		ObservationAndMeanPlotPane plotPane = analysisTypeMap.get(analysisType).getObsAndMeanChartPane();
 		TimeElementsInBinSettingPane binSettingPane = null;
 		NamedComponent extra = null;
 
 		if (analysisType == AnalysisType.RAW_DATA) {
 			title = LocaleProps.get("LIGHT_CURVE_CONTROL_DLG_TITLE");
-			binSettingPane = new TimeElementsInBinSettingPane(
-					LocaleProps.get("DAYS_PER_MEAN_SERIES_BIN"), plotPane,
+			binSettingPane = new TimeElementsInBinSettingPane(LocaleProps.get("DAYS_PER_MEAN_SERIES_BIN"), plotPane,
 					JDTimeElementEntity.instance);
 		} else if (analysisType == AnalysisType.PHASE_PLOT) {
 			title = LocaleProps.get("PHASE_PLOT_CONTROL_DLG_TITLE");
-			binSettingPane = new TimeElementsInBinSettingPane(
-					LocaleProps.get("PHASE_STEPS_PER_MEAN_SERIES_BIN"),
+			binSettingPane = new TimeElementsInBinSettingPane(LocaleProps.get("PHASE_STEPS_PER_MEAN_SERIES_BIN"),
 					plotPane, PhaseTimeElementEntity.instance);
 		}
 
-		PlotControlDialog dialog = new PlotControlDialog(title, plotPane,
-				binSettingPane, extra, analysisType);
+		PlotControlDialog dialog = new PlotControlDialog(title, plotPane, binSettingPane, extra, analysisType);
 		dialog.setVisible(true);
 	}
 
@@ -1910,21 +1810,21 @@ public class Mediator {
 	 * Open the model dialog.
 	 */
 	public void showModelDialog() {
-		modelDialog.showDialog();
+		getModelDialog().showDialog();
 	}
 
 	/**
 	 * Open the phase plots dialog.
 	 */
 	public void showPhaseDialog() {
-		phaseDialog.showDialog();
+		getModelDialog().showDialog();
 	}
 
 	/**
 	 * Opens the filters dialog.
 	 */
 	public void showFiltersDialog() {
-		observationFiltersDialog.showDialog();
+		getObservationFiltersDialog().showDialog();
 	}
 
 	/**
@@ -1933,14 +1833,12 @@ public class Mediator {
 	public void performModellingOperation(ModelCreatorPluginBase plugin) {
 		try {
 			if (getLatestNewStarMessage() != null && validObsList != null) {
-				SingleSeriesSelectionDialog seriesDialog = new SingleSeriesSelectionDialog(
-						obsAndMeanPlotModel);
+				SingleSeriesSelectionDialog seriesDialog = new SingleSeriesSelectionDialog(obsAndMeanPlotModel);
 
 				if (!seriesDialog.isCancelled()) {
 					SeriesType type = seriesDialog.getSeries();
 
-					List<ValidObservation> obs = getSeriesInfoProvider()
-							.getObservations(type);
+					List<ValidObservation> obs = getSeriesInfoProvider().getObservations(type);
 
 					// TODO: possibly need to add: getUI()/invokeDialog()
 					// compare with modelling and obs src plugins
@@ -1952,21 +1850,17 @@ public class Mediator {
 
 						this.currTask = task;
 
-						this.getProgressNotifier().notifyListeners(
-								ProgressInfo.START_PROGRESS);
-						this.getProgressNotifier().notifyListeners(
-								ProgressInfo.BUSY_PROGRESS);
+						this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
+						this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
 
 						task.execute();
 					}
 				}
 			}
 		} catch (Exception e) {
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Modelling Error", e);
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "Modelling Error", e);
 
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.START_PROGRESS);
+			this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
 			Mediator.getUI().getStatusPane().setMessage("");
 		}
@@ -1975,9 +1869,8 @@ public class Mediator {
 	/**
 	 * Perform a non-plugin based modeling operation.
 	 * 
-	 * @param model
-	 *            The model object for this plugin whose execute() method can be
-	 *            invoked to create the model artifacts.
+	 * @param model The model object for this plugin whose execute() method can be
+	 *              invoked to create the model artifacts.
 	 */
 	public void performModellingOperation(IModel model) {
 		try {
@@ -1985,18 +1878,14 @@ public class Mediator {
 
 			this.currTask = task;
 
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.START_PROGRESS);
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.BUSY_PROGRESS);
+			this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
+			this.getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
 
 			task.execute();
 		} catch (Exception e) {
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Modelling Error", e);
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "Modelling Error", e);
 
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.START_PROGRESS);
+			this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
 			Mediator.getUI().getStatusPane().setMessage("");
 		}
@@ -2005,30 +1894,23 @@ public class Mediator {
 	/**
 	 * Perform an observation transformation plugin operation.
 	 */
-	public void performObservationTransformationOperation(
-			ObservationTransformerPluginBase plugin) {
+	public void performObservationTransformationOperation(ObservationTransformerPluginBase plugin) {
 		try {
 			if (getLatestNewStarMessage() != null && validObsList != null) {
-				MultipleSeriesSelectionDialog seriesDialog = new MultipleSeriesSelectionDialog(
-						obsAndMeanPlotModel);
+				MultipleSeriesSelectionDialog seriesDialog = new MultipleSeriesSelectionDialog(obsAndMeanPlotModel);
 
 				if (!seriesDialog.isCancelled()) {
-					IUndoableAction action = plugin.createAction(Mediator
-							.getInstance().getSeriesInfoProvider(),
+					IUndoableAction action = plugin.createAction(Mediator.getInstance().getSeriesInfoProvider(),
 							seriesDialog.getSelectedSeries());
 
-					currTask = getUndoableActionManager()
-							.performUndoableAction(action,
-									UndoableActionType.DO);
+					currTask = getUndoableActionManager().performUndoableAction(action, UndoableActionType.DO);
 				}
 			}
 		} catch (Exception e) {
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Observation Transformartion Error",
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "Observation Transformartion Error",
 					e.getLocalizedMessage());
 
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.START_PROGRESS);
+			this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
 			Mediator.getUI().getStatusPane().setMessage("");
 		}
@@ -2036,8 +1918,7 @@ public class Mediator {
 
 	/**
 	 * Fire data model change events.<br/>
-	 * This method should be called after observation plot or table model
-	 * changes.
+	 * This method should be called after observation plot or table model changes.
 	 */
 	public void updatePlotsAndTables() {
 		getObservationPlotModel(AnalysisType.RAW_DATA).update();
@@ -2053,8 +1934,7 @@ public class Mediator {
 	/**
 	 * Invokes a tool plugin with the currently loaded observations.
 	 * 
-	 * @param plugin
-	 *            The tool plugin to be invoked.
+	 * @param plugin The tool plugin to be invoked.
 	 */
 	public void invokeTool(ObservationToolPluginBase plugin) {
 		if (validObservationCategoryMap != null) {
@@ -2064,19 +1944,17 @@ public class Mediator {
 				MessageBox.showErrorDialog("Tool Error", t);
 			}
 		} else {
-			MessageBox.showMessageDialog(Mediator.getUI().getComponent(),
-					"Tool Error", "There are no observations loaded.");
+			MessageBox.showMessageDialog(Mediator.getUI().getComponent(), "Tool Error",
+					"There are no observations loaded.");
 		}
 	}
 
 	/**
 	 * Apply the custom filter plug-in to the currently loaded observation set.
 	 * 
-	 * @param plugin
-	 *            The tool plug-in to be invoked.
+	 * @param plugin The tool plug-in to be invoked.
 	 */
-	public void applyCustomFilterToCurrentObservations(
-			CustomFilterPluginBase plugin) {
+	public void applyCustomFilterToCurrentObservations(CustomFilterPluginBase plugin) {
 		if (validObsList != null) {
 			try {
 				plugin.apply(validObsList);
@@ -2084,8 +1962,8 @@ public class Mediator {
 				MessageBox.showErrorDialog("Custom Filter Error", t);
 			}
 		} else {
-			MessageBox.showMessageDialog(Mediator.getUI().getComponent(),
-					"Custom Filter", "There are no observations loaded.");
+			MessageBox.showMessageDialog(Mediator.getUI().getComponent(), "Custom Filter",
+					"There are no observations loaded.");
 		}
 	}
 
@@ -2100,8 +1978,7 @@ public class Mediator {
 	/**
 	 * Save the artefact corresponding to the current viewMode.
 	 * 
-	 * @param parent
-	 *            The parent component to be used in dialogs.
+	 * @param parent The parent component to be used in dialogs.
 	 */
 	public void saveCurrentMode(Component parent) {
 		List<ValidObservation> obs = null;
@@ -2114,8 +1991,7 @@ public class Mediator {
 			saveObsListToFile(parent);
 			break;
 		case LIST_MEANS_MODE:
-			obs = analysisTypeMap.get(analysisType).getMeansListPane()
-					.getObsTableModel().getObs();
+			obs = analysisTypeMap.get(analysisType).getMeansListPane().getObsTableModel().getObs();
 			saveSyntheticObsListToFile(parent, obs);
 			break;
 		case MODEL_MODE:
@@ -2137,62 +2013,46 @@ public class Mediator {
 	 * Save the current plot (as a PNG) to the specified file.<br/>
 	 * Used by VStar scripting API.
 	 * 
-	 * @param path
-	 *            The file to write the PNG image to.
-	 * @param width
-	 *            The desired width of the image.
-	 * @param height
-	 *            The desired height of the image.
+	 * @param path   The file to write the PNG image to.
+	 * @param width  The desired width of the image.
+	 * @param height The desired height of the image.
 	 */
 	public void saveCurrentPlotToFile(File file, int width, int height) {
-		ChartPanel chart = analysisTypeMap.get(analysisType)
-				.getObsAndMeanChartPane().getChartPanel();
+		ChartPanel chart = analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getChartPanel();
 
 		try {
-			ChartUtilities
-					.saveChartAsPNG(file, chart.getChart(), width, height);
+			ChartUtilities.saveChartAsPNG(file, chart.getChart(), width, height);
 		} catch (IOException e) {
-			MessageBox.showErrorDialog("Save plot to file",
-					"Cannot save plot to " + "'" + file.getPath() + "'.");
+			MessageBox.showErrorDialog("Save plot to file", "Cannot save plot to " + "'" + file.getPath() + "'.");
 		}
 	}
 
 	/**
-	 * Save observation list to a file in a separate thread. Note that we want
-	 * to save just those observations that are in view in the observation list
+	 * Save observation list to a file in a separate thread. Note that we want to
+	 * save just those observations that are in view in the observation list
 	 * currently.
 	 * 
 	 * Used by the VStar Scripting API.
 	 * 
-	 * @param parent
-	 *            The parent component to be used in dialogs.
-	 * @param plugin
-	 *            The observation sink plugin.
-	 * @param path
-	 *            The path of the file to save to.
-	 * @param delimiter
-	 *            The delimiter between data items.
+	 * @param parent    The parent component to be used in dialogs.
+	 * @param plugin    The observation sink plugin.
+	 * @param path      The path of the file to save to.
+	 * @param delimiter The delimiter between data items.
 	 */
-	public void saveObsListToFile(Component parent,
-			ObservationSinkPluginBase plugin, File path, String delimiter) {
-		List<ValidObservation> obs = this.analysisTypeMap.get(analysisType)
-				.getObsListPane().getObservationsInView();
+	public void saveObsListToFile(Component parent, ObservationSinkPluginBase plugin, File path, String delimiter) {
+		List<ValidObservation> obs = this.analysisTypeMap.get(analysisType).getObsListPane().getObservationsInView();
 
 		if (!obs.isEmpty()) {
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.START_PROGRESS);
+			this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
-			this.getProgressNotifier().notifyListeners(
-					new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));
+			this.getProgressNotifier().notifyListeners(new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));
 
-			ObsListFileSaveTask task = new ObsListFileSaveTask(plugin, obs,
-					path, delimiter);
+			ObsListFileSaveTask task = new ObsListFileSaveTask(plugin, obs, path, delimiter);
 
 			this.currTask = task;
 			task.execute();
 		} else {
-			MessageBox.showMessageDialog(parent, "Save Observations",
-					"There are no visible observations to save.");
+			MessageBox.showMessageDialog(parent, "Save Observations", "There are no visible observations to save.");
 		}
 	}
 
@@ -2202,42 +2062,33 @@ public class Mediator {
 	 * 
 	 * Used by VStar scripting API.
 	 * 
-	 * @param parent
-	 *            The parent component to be used in dialogs.
-	 * @param plugin
-	 *            The observation sink plugin.
-	 * @param mode
-	 *            The current synthetic view mode.
-	 * @param path
-	 *            The path of the file to save to.
-	 * @param delimiter
-	 *            The delimiter between data items.
+	 * @param parent    The parent component to be used in dialogs.
+	 * @param plugin    The observation sink plugin.
+	 * @param mode      The current synthetic view mode.
+	 * @param path      The path of the file to save to.
+	 * @param delimiter The delimiter between data items.
 	 */
-	public void saveSyntheticObsListToFile(Component parent,
-			ObservationSinkPluginBase plugin, ViewModeType mode, File path,
-			String delimiter) {
+	public void saveSyntheticObsListToFile(Component parent, ObservationSinkPluginBase plugin, ViewModeType mode,
+			File path, String delimiter) {
 
 		List<ValidObservation> obs = null;
 
 		switch (mode) {
 		case LIST_MEANS_MODE:
-			obs = analysisTypeMap.get(analysisType).getMeansListPane()
-					.getObsTableModel().getObs();
+			obs = analysisTypeMap.get(analysisType).getMeansListPane().getObsTableModel().getObs();
 			break;
 		case MODEL_MODE:
 			if (modelSelectionMessage != null) {
 				obs = modelSelectionMessage.getModel().getFit();
 			} else {
-				MessageBox.showMessageDialog(parent, "Save Observations",
-						"There are no observations to save.");
+				MessageBox.showMessageDialog(parent, "Save Observations", "There are no observations to save.");
 			}
 			break;
 		case RESIDUALS_MODE:
 			if (modelSelectionMessage != null) {
 				obs = modelSelectionMessage.getModel().getResiduals();
 			} else {
-				MessageBox.showMessageDialog(parent, "Save Observations",
-						"There are no observations to save.");
+				MessageBox.showMessageDialog(parent, "Save Observations", "There are no observations to save.");
 			}
 			// Note: we include these for completeness otherwise the type
 			// checker will complain. We assert that we should never arrive
@@ -2250,46 +2101,37 @@ public class Mediator {
 		}
 
 		if (!obs.isEmpty()) {
-			this.getProgressNotifier().notifyListeners(
-					ProgressInfo.START_PROGRESS);
+			this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
-			this.getProgressNotifier().notifyListeners(
-					new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));
+			this.getProgressNotifier().notifyListeners(new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));
 
 			// We re-use the same observation list file save task as
 			// elsewhere but specify simple file type to match the fact that
 			// we are only going to save JD, magnitude, and uncertainty
 			// (for means).
-			ObsListFileSaveTask task = new ObsListFileSaveTask(plugin, obs,
-					path, obsListFileSaveDialog.getDelimiter());
+			ObsListFileSaveTask task = new ObsListFileSaveTask(plugin, obs, path, obsListFileSaveDialog.getDelimiter());
 
 			this.currTask = task;
 			task.execute();
 		} else {
-			MessageBox.showMessageDialog(parent, "Save Observations",
-					"There are no observations to save.");
+			MessageBox.showMessageDialog(parent, "Save Observations", "There are no observations to save.");
 		}
 	}
 
 	/**
-	 * Save the currently visible mode's plot. The file is requested from the
-	 * user via a dialog.
+	 * Save the currently visible mode's plot. The file is requested from the user
+	 * via a dialog.
 	 * 
-	 * @param parent
-	 *            The parent component of the file dialog.
+	 * @param parent The parent component of the file dialog.
 	 */
 	private void savePlotToFile(Component parent) {
 		try {
-			ChartPanel chartPanel = analysisTypeMap.get(analysisType)
-					.getObsAndMeanChartPane().getChartPanel();
+			ChartPanel chartPanel = analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getChartPanel();
 
 			if (imageSaveDialog.showDialog(parent)) {
 				File path = imageSaveDialog.getSelectedFile();
-				if (path.exists()
-						&& path.isFile()
-						&& !MessageBox.showConfirmDialog(
-								LocaleProps.get("FILE_MENU_SAVE"),
-								LocaleProps.get("SAVE_OVERWRITE"))) {
+				if (path.exists() && path.isFile() && !MessageBox.showConfirmDialog(LocaleProps.get("FILE_MENU_SAVE"),
+						LocaleProps.get("SAVE_OVERWRITE"))) {
 					return;
 				}
 				JFreeChart chart = chartPanel.getChart();
@@ -2299,53 +2141,41 @@ public class Mediator {
 				ChartUtilities.saveChartAsPNG(path, chart, width, height);
 			}
 		} catch (IOException ex) {
-			MessageBox.showErrorDialog(parent,
-					"Save Observation and Means Plot", ex.getMessage());
+			MessageBox.showErrorDialog(parent, "Save Observation and Means Plot", ex.getMessage());
 		}
 	}
 
 	/**
-	 * Save observation list to a file in a separate thread. Note that we want
-	 * to save just those observations that are in view in the observation list
+	 * Save observation list to a file in a separate thread. Note that we want to
+	 * save just those observations that are in view in the observation list
 	 * currently. The file is requested from the user via a dialog.
 	 * 
-	 * @param parent
-	 *            The parent component to be used in dialogs.
+	 * @param parent The parent component to be used in dialogs.
 	 */
 	private void saveObsListToFile(Component parent) {
-		List<ValidObservation> obs = this.analysisTypeMap.get(analysisType)
-				.getObsListPane().getObservationsInView();
+		List<ValidObservation> obs = this.analysisTypeMap.get(analysisType).getObsListPane().getObservationsInView();
 
 		if (!obs.isEmpty()) {
 			if (obsListFileSaveDialog.showDialog(parent)) {
 				File outFile = obsListFileSaveDialog.getSelectedFile();
 
-				if (outFile.exists()
-						&& outFile.isFile()
-						&& !MessageBox.showConfirmDialog(
-								LocaleProps.get("FILE_MENU_SAVE"),
-								LocaleProps.get("SAVE_OVERWRITE"))) {
+				if (outFile.exists() && outFile.isFile() && !MessageBox
+						.showConfirmDialog(LocaleProps.get("FILE_MENU_SAVE"), LocaleProps.get("SAVE_OVERWRITE"))) {
 					return;
 				}
 
-				this.getProgressNotifier().notifyListeners(
-						ProgressInfo.START_PROGRESS);
+				this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
-				this.getProgressNotifier()
-						.notifyListeners(
-								new ProgressInfo(ProgressType.MAX_PROGRESS, obs
-										.size()));
+				this.getProgressNotifier().notifyListeners(new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));
 
-				ObsListFileSaveTask task = new ObsListFileSaveTask(
-						obsListFileSaveDialog.getSelectedPlugin(), obs,
+				ObsListFileSaveTask task = new ObsListFileSaveTask(obsListFileSaveDialog.getSelectedPlugin(), obs,
 						outFile, obsListFileSaveDialog.getDelimiter());
 
 				this.currTask = task;
 				task.execute();
 			}
 		} else {
-			MessageBox.showMessageDialog(parent, "Save Observations",
-					"There are no visible observations to save.");
+			MessageBox.showMessageDialog(parent, "Save Observations", "There are no visible observations to save.");
 		}
 	}
 
@@ -2353,80 +2183,62 @@ public class Mediator {
 	 * Save synthetic observation list (means, model, residuals) to a file in a
 	 * separate thread.
 	 * 
-	 * @param parent
-	 *            The parent component to be used in dialogs.
-	 * @param plugin
-	 *            The observation sink plugin.
-	 * @param obs
-	 *            The list of observations to be saved.
+	 * @param parent The parent component to be used in dialogs.
+	 * @param plugin The observation sink plugin.
+	 * @param obs    The list of observations to be saved.
 	 */
-	private void saveSyntheticObsListToFile(Component parent,
-			List<ValidObservation> obs) {
+	private void saveSyntheticObsListToFile(Component parent, List<ValidObservation> obs) {
 
 		if (!obs.isEmpty()) {
 			if (obsListFileSaveDialog.showDialog(parent)) {
 				File outFile = obsListFileSaveDialog.getSelectedFile();
 
-				if (outFile.exists()
-						&& outFile.isFile()
-						&& !MessageBox.showConfirmDialog(
-								LocaleProps.get("FILE_MENU_SAVE"),
-								LocaleProps.get("SAVE_OVERWRITE"))) {
+				if (outFile.exists() && outFile.isFile() && !MessageBox
+						.showConfirmDialog(LocaleProps.get("FILE_MENU_SAVE"), LocaleProps.get("SAVE_OVERWRITE"))) {
 					return;
 				}
 
-				this.getProgressNotifier().notifyListeners(
-						ProgressInfo.START_PROGRESS);
+				this.getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
-				this.getProgressNotifier()
-						.notifyListeners(
-								new ProgressInfo(ProgressType.MAX_PROGRESS, obs
-										.size()));
+				this.getProgressNotifier().notifyListeners(new ProgressInfo(ProgressType.MAX_PROGRESS, obs.size()));
 
 				// We re-use the same observation list file save task as
 				// above but specify simple file type to match the fact that
 				// we are only going to save JD, magnitude, and uncertainty
 				// (for means).
-				ObsListFileSaveTask task = new ObsListFileSaveTask(
-						obsListFileSaveDialog.getSelectedPlugin(), obs,
+				ObsListFileSaveTask task = new ObsListFileSaveTask(obsListFileSaveDialog.getSelectedPlugin(), obs,
 						outFile, obsListFileSaveDialog.getDelimiter());
 
 				this.currTask = task;
 				task.execute();
 			}
 		} else {
-			MessageBox.showMessageDialog(parent, "Save Observations",
-					"There are no observations to save.");
+			MessageBox.showMessageDialog(parent, "Save Observations", "There are no observations to save.");
 		}
 	}
 
 	/**
 	 * Print the artefact corresponding to the current mode.
 	 * 
-	 * @param parent
-	 *            The parent component to be used by an error dialog.
+	 * @param parent The parent component to be used by an error dialog.
 	 */
 	public void printCurrentMode(Component parent) {
 		switch (viewMode) {
 		case PLOT_OBS_MODE:
-			this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
-					.getChartPanel().createChartPrintJob();
+			this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getChartPanel().createChartPrintJob();
 			break;
 
 		case LIST_OBS_MODE:
 			try {
-				ObservationListPane obsListPane = this.analysisTypeMap.get(
-						analysisType).getObsListPane();
+				ObservationListPane obsListPane = this.analysisTypeMap.get(analysisType).getObsListPane();
 
 				obsListPane.getValidDataTable().print(PrintMode.FIT_WIDTH);
 
 				if (obsListPane.getInvalidDataTable() != null) {
-					obsListPane.getInvalidDataTable()
-							.print(PrintMode.FIT_WIDTH);
+					obsListPane.getInvalidDataTable().print(PrintMode.FIT_WIDTH);
 				}
 			} catch (PrinterException e) {
-				MessageBox.showErrorDialog(parent, "Print Observations",
-						e.getMessage());
+				MessageBox.showErrorDialog(parent, "Print Observations", e.getMessage());
 			}
 			break;
 
@@ -2437,35 +2249,30 @@ public class Mediator {
 
 				meanObsListPane.getObsTable().print(PrintMode.FIT_WIDTH);
 			} catch (PrinterException e) {
-				MessageBox.showErrorDialog(parent, "Print Mean Values",
-						e.getMessage());
+				MessageBox.showErrorDialog(parent, "Print Mean Values", e.getMessage());
 			}
 			break;
 		case MODEL_MODE:
 			if (modelSelectionMessage != null) {
 				try {
-					SyntheticObservationListPane<AbstractModelObservationTableModel> modelListPane = documentManager
-							.getModelListPane(analysisType,
-									modelSelectionMessage.getModel());
+					SyntheticObservationListPane<AbstractModelObservationTableModel> modelListPane = getDocumentManager()
+							.getModelListPane(analysisType, modelSelectionMessage.getModel());
 
 					modelListPane.getObsTable().print(PrintMode.FIT_WIDTH);
 				} catch (PrinterException e) {
-					MessageBox.showErrorDialog(parent, "Print Model Values",
-							e.getMessage());
+					MessageBox.showErrorDialog(parent, "Print Model Values", e.getMessage());
 				}
 			}
 			break;
 		case RESIDUALS_MODE:
 			if (modelSelectionMessage != null) {
 				try {
-					SyntheticObservationListPane<AbstractModelObservationTableModel> residualsListPane = documentManager
-							.getResidualsListPane(analysisType,
-									modelSelectionMessage.getModel());
+					SyntheticObservationListPane<AbstractModelObservationTableModel> residualsListPane = getDocumentManager()
+							.getResidualsListPane(analysisType, modelSelectionMessage.getModel());
 
 					residualsListPane.getObsTable().print(PrintMode.FIT_WIDTH);
 				} catch (PrinterException e) {
-					MessageBox.showErrorDialog(parent, "Print Residual Values",
-							e.getMessage());
+					MessageBox.showErrorDialog(parent, "Print Residual Values", e.getMessage());
 				}
 			}
 			break;
@@ -2473,40 +2280,35 @@ public class Mediator {
 	}
 
 	/**
-	 * Show the details of the currently selected observation in the current
-	 * view mode (plot or table).
+	 * Show the details of the currently selected observation in the current view
+	 * mode (plot or table).
 	 */
 	public void showObservationDetails() {
 		ValidObservation ob = null;
 
 		switch (viewMode) {
 		case PLOT_OBS_MODE:
-			ob = this.analysisTypeMap.get(analysisType)
-					.getObsAndMeanChartPane().getLastObSelected();
+			ob = this.analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getLastObSelected();
 			break;
 		case LIST_OBS_MODE:
-			ob = this.analysisTypeMap.get(analysisType).getObsListPane()
-					.getLastObSelected();
+			ob = this.analysisTypeMap.get(analysisType).getObsListPane().getLastObSelected();
 			break;
 		case LIST_MEANS_MODE:
-			ob = this.analysisTypeMap.get(analysisType).getMeansListPane()
-					.getLastObSelected();
+			ob = this.analysisTypeMap.get(analysisType).getMeansListPane().getLastObSelected();
 			break;
 		case MODEL_MODE:
-			ob = documentManager.getModelListPane(analysisType,
-					modelSelectionMessage.getModel()).getLastObSelected();
+			ob = getDocumentManager().getModelListPane(analysisType, modelSelectionMessage.getModel()).getLastObSelected();
 			break;
 		case RESIDUALS_MODE:
-			ob = documentManager.getResidualsListPane(analysisType,
-					modelSelectionMessage.getModel()).getLastObSelected();
+			ob = getDocumentManager().getResidualsListPane(analysisType, modelSelectionMessage.getModel())
+					.getLastObSelected();
 			break;
 		}
 
 		if (ob != null) {
 			new ObservationDetailsDialog(ob);
 		} else {
-			MessageBox.showWarningDialog("Observation Details",
-					"No observation selected");
+			MessageBox.showWarningDialog("Observation Details", "No observation selected");
 		}
 	}
 
@@ -2519,16 +2321,14 @@ public class Mediator {
 			}
 		}
 	}
-	
+
 	/**
 	 * 
 	 * Updates properties for charts (light curve, phase plot)
 	 * 
-	 * @param backgroundColor
-	 *            Chart background
+	 * @param backgroundColor Chart background
 	 *
-	 * @param gridlinesColor
-	 *            Color of gridlines
+	 * @param gridlinesColor  Color of gridlines
 	 * 
 	 */
 	public void updateChartProperties() {
@@ -2539,39 +2339,31 @@ public class Mediator {
 	}
 
 	/**
-	 * Report a discrepant observation to AAVSO (if the dataset was
-	 * AID-downloaded).
+	 * Report a discrepant observation to AAVSO (if the dataset was AID-downloaded).
 	 * 
-	 * @param ob
-	 *            The observation to be reported.
-	 * @param dialog
-	 *            A parent dialog to set non-visible and dispose. May be null.
+	 * @param ob     The observation to be reported.
+	 * @param dialog A parent dialog to set non-visible and dispose. May be null.
 	 */
 	public void reportDiscrepantObservation(ValidObservation ob, JDialog dialog)
-			throws AuthenticationError, CancellationException,
-			ConnectionException {
+			throws AuthenticationError, CancellationException, ConnectionException {
 		// If the dataset was loaded from AID and the change was
 		// to mark this observation as discrepant, we ask the user
 		// whether to report this to AAVSO.
-		if (ob.isDiscrepant()
-				&& getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
+		if (ob.isDiscrepant() && getLatestNewStarMessage().getNewStarType() == NewStarType.NEW_STAR_FROM_DATABASE) {
 
 			String auid = getLatestNewStarMessage().getStarInfo().getAuid();
 			String name = ob.getName();
 			int uniqueId = ob.getRecordNumber();
 
-			DiscrepantReportDialog reportDialog = new DiscrepantReportDialog(
-					auid, ob);
+			DiscrepantReportDialog reportDialog = new DiscrepantReportDialog(auid, ob);
 
 			if (!reportDialog.isCancelled()) {
 				try {
-					Mediator.getUI().setCursor(
-							Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					Mediator.getUI().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 					Authenticator.getInstance().authenticate();
 
-					String userName = ResourceAccessor.getLoginInfo()
-							.getUserName();
+					String userName = ResourceAccessor.getLoginInfo().getUserName();
 
 					String editor = "vstar:" + userName;
 
@@ -2580,8 +2372,8 @@ public class Mediator {
 					}
 
 					// Create and submit the discrepant report.
-					DiscrepantReport report = new DiscrepantReport(auid, name,
-							uniqueId, editor, reportDialog.getComments());
+					DiscrepantReport report = new DiscrepantReport(auid, name, uniqueId, editor,
+							reportDialog.getComments());
 
 					IDiscrepantReporter reporter = new VSXWebServiceZapperLogger();
 
