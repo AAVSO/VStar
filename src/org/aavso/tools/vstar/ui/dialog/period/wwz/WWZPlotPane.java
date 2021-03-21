@@ -19,6 +19,7 @@ package org.aavso.tools.vstar.ui.dialog.period.wwz;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -47,6 +48,9 @@ import org.jfree.data.general.DatasetChangeListener;
 public class WWZPlotPane extends JPanel implements ChartMouseListener,
 		DatasetChangeListener, IStartAndCleanup {
 
+	private static int DEFAULT_CHART_PANEL_WIDTH = 680;
+	private static int DEFAULT_CHART_PANEL_HEIGHT = 420;	
+	
 	private JFreeChart chart;
 	private WWZ2DPlotModel model;
 
@@ -81,6 +85,11 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 		model.addChangeListener(this);
 	}
 
+	@Override
+	public Dimension getPreferredSize() {
+	    return new Dimension(DEFAULT_CHART_PANEL_WIDTH, DEFAULT_CHART_PANEL_HEIGHT);
+	}	
+	
 	/**
 	 * @return the chart
 	 */
@@ -114,8 +123,13 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 		chart.getXYPlot().setDomainCrosshairVisible(true);
 		chart.getXYPlot().setRangeCrosshairVisible(true);
 
-		chart.getXYPlot().getRangeAxis()
+		if (Double.isFinite(maxRange - minRange))
+			chart.getXYPlot().getRangeAxis()
 				.setRange(new Range(minRange, maxRange));
+		else
+			chart.getXYPlot().getRangeAxis()
+				.setRange(new Range(-Double.MAX_VALUE / 2,
+						Double.MAX_VALUE / 2));
 	}
 
 	@Override
