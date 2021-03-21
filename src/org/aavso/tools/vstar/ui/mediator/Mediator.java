@@ -335,8 +335,8 @@ public class Mediator {
 
 		this.seriesCreationNotifier.addListener(createSeriesCreationListener());
 
-		this.phaseParameterDialog = new PhaseParameterDialog();
-		this.newStarNotifier.addListener(this.phaseParameterDialog);
+//		this.phaseParameterDialog = new PhaseParameterDialog();
+//		this.newStarNotifier.addListener(this.phaseParameterDialog);
 
 		this.obsFilterDialog = new ObservationFilterDialog();
 		this.newStarNotifier.addListener(this.obsFilterDialog
@@ -399,7 +399,7 @@ public class Mediator {
 	public static IMainUI getUI() {
 		return ui;
 	}
-
+	
 	/**
 	 * @return the latest newStarMessage, or null if none present.
 	 */
@@ -938,6 +938,11 @@ public class Mediator {
 	 * @return the phaseParameterDialog
 	 */
 	public PhaseParameterDialog getPhaseParameterDialog() {
+		if (phaseParameterDialog == null) {
+			phaseParameterDialog = new PhaseParameterDialog();
+			newStarNotifier.addListener(phaseParameterDialog);
+		}
+
 		return phaseParameterDialog;
 	}
 
