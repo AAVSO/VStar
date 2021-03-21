@@ -333,39 +333,6 @@ public class Mediator {
 		this.filteredObservationNotifier.addListener(createFilteredObservationListener());
 
 		this.seriesCreationNotifier.addListener(createSeriesCreationListener());
-
-//		this.phaseParameterDialog = new PhaseParameterDialog();
-//		this.newStarNotifier.addListener(this.phaseParameterDialog);
-
-//		this.obsFilterDialog = new ObservationFilterDialog();
-//		this.newStarNotifier.addListener(this.obsFilterDialog
-//				.createNewStarListener());
-//		this.observationSelectionNotifier.addListener(this.obsFilterDialog
-//				.createObservationSelectionListener());
-
-//		this.modelDialog = new ModelDialog();
-//		this.newStarNotifier.addListener(this.modelDialog.createNewStarListener());
-//		this.modelCreationNotifier.addListener(this.modelDialog.createModelCreationListener());
-
-//		this.phaseDialog = new PhaseDialog();
-//		this.newStarNotifier.addListener(this.phaseDialog.createNewStarListener());
-//		this.phaseChangeNotifier.addListener(this.phaseDialog.createPhaseChangeListener());
-
-//		this.observationFiltersDialog = new ObservationFiltersDialog();
-//		this.newStarNotifier.addListener(this.observationFiltersDialog.createNewStarListener());
-//		this.filteredObservationNotifier.addListener(observationFiltersDialog.createFilterListener());
-
-		// Document manager creation and listener setup.
-//		this.documentManager = new DocumentManager();
-//		this.phaseChangeNotifier.addListener(this.documentManager.createPhaseChangeListener());
-//		this.newStarNotifier.addListener(this.documentManager.createNewStarListener());
-
-		// Undoable action manager creation and listener setup.
-//		this.undoableActionManager = new UndoableActionManager();
-//		this.newStarNotifier.addListener(this.undoableActionManager.createNewStarListener());
-//		this.observationSelectionNotifier.addListener(this.undoableActionManager.createObservationSelectionListener());
-//		this.multipleObservationSelectionNotifier
-//				.addListener(this.undoableActionManager.createMultipleObservationSelectionListener());
 	}
 
 	/**
