@@ -1988,7 +1988,7 @@ public class Mediator {
 		ChartPanel chart = analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getChartPanel();
 
 		try {
-			ChartUtilities.saveChartAsPNG(file, chart.getChart(), width, height);
+			ChartUtils.saveChartAsPNG(file, chart.getChart(), width, height);
 		} catch (IOException e) {
 			MessageBox.showErrorDialog("Save plot to file", "Cannot save plot to " + "'" + file.getPath() + "'.");
 		}
