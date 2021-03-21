@@ -46,7 +46,7 @@ import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
 import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
 import org.aavso.tools.vstar.util.period.wwz.WeightedWaveletZTransform;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
@@ -57,8 +57,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.LookupPaintScale;
 import org.jfree.chart.renderer.xy.XYBlockRenderer;
 import org.jfree.chart.title.PaintScaleLegend;
-import org.jfree.ui.RectangleEdge;
-import org.jfree.ui.RectangleInsets;
+import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.ui.RectangleInsets;
 import org.math.plot.Plot3DPanel;
 
 /**
@@ -335,7 +335,7 @@ public class WeightedWaveletZTransformResultDialog extends
 		chart.addSubtitle(legend);
 		chart.setBackgroundPaint(new GradientPaint(0, 0, Color.WHITE, 0, 1000,
 				Color.WHITE));
-		ChartUtilities.applyCurrentTheme(chart);
+		ChartUtils.applyCurrentTheme(chart);
 
 		double rangeMargin = ((maxRange - minRange) / 100) * 25;
 		minRange -= rangeMargin;
