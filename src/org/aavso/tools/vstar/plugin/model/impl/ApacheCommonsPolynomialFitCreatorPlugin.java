@@ -254,12 +254,13 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 
 							strRepr += "f(t:real) : real {\n";
 
+							// We use formatGeneral because of a huge range
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += "    " + coeffs[i];
+								strRepr += "    " + NumericPrecisionPrefs.formatGeneral(coeffs[i]);
 								strRepr += "*(t-zeroPoint)^" + i + " +\n";
 							}
-							strRepr += "    " + coeffs[0];
+							strRepr += "    " + NumericPrecisionPrefs.formatGeneral(coeffs[0]);
 							strRepr += "\n}";
 						}
 
@@ -273,20 +274,22 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 						if (strRepr == null) {
 							strRepr = "=SUM(";
 
+							// We use formatGeneral because of a huge range
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += coeffs[i];
+								strRepr += NumericPrecisionPrefs.formatGeneral(coeffs[i]);
 								strRepr += "*(A1-"
 										+ NumericPrecisionPrefs
 												.formatTime(zeroPoint) + ")^"
-										+ i + ",\n";
+										+ i + NumericPrecisionPrefs.getExcelFormulaSeparator() + "\n";
 							}
-							strRepr += coeffs[0] + ")";
+							strRepr += NumericPrecisionPrefs.formatGeneral(coeffs[0]) + ")";
 						}
 
 						return strRepr;
 					}
 
+					// toRString must be locale-independent!
 					public String toRString() {
 						String strRepr = functionStrMap.get(LocaleProps
 								.get("MODEL_INFO_R_TITLE"));
@@ -294,16 +297,17 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 						if (strRepr == null) {
 							strRepr = "zeroPoint <- "
 									+ NumericPrecisionPrefs
-											.formatTime(zeroPoint) + "\n\n";
+											.formatTimeLocaleIndependent(zeroPoint) + "\n\n";
 
-							strRepr += "model <- function(t) ";
+							strRepr += "model <- function(t) \n";
 
+							// We use formatGeneralLocaleIndependent because of a huge range
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += coeffs[i];
+								strRepr += NumericPrecisionPrefs.formatGeneralLocaleIndependent(coeffs[i]);
 								strRepr += "*(t-zeroPoint)^" + i + " +\n";
 							}
-							strRepr += coeffs[0];
+							strRepr += NumericPrecisionPrefs.formatGeneralLocaleIndependent(coeffs[0]);
 						}
 
 						return strRepr;
