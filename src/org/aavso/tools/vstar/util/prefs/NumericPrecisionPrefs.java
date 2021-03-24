@@ -84,10 +84,12 @@ public class NumericPrecisionPrefs {
 	// locale-sensitive parameter). So we make an assumption. 
 	private static char excelFormulaSeparator;
 	
+	private static char decimalSeparator;
+	
 	static {
 		DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
 		DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
-		char decimalSeparator = symbols.getDecimalSeparator();
+		decimalSeparator = symbols.getDecimalSeparator();
 		excelFormulaSeparator = decimalSeparator != ',' ? ',' : ';';
 	}
 
@@ -205,11 +207,26 @@ public class NumericPrecisionPrefs {
 	// General format
 	
 	public static String formatGeneral(double num) {
-		return String.format("%." + otherDecimalPlaces + "g", num);
+		String s = String.format("%." + otherDecimalPlaces + "G", num);
+		// VeLa parser problems workaround
+		if (s.indexOf("E") != -1) {
+			s = s.replace("E+", "E");
+		} else if (s.indexOf(decimalSeparator) == -1)
+			// only if no exponent!
+			s += decimalSeparator + "0";
+		return s;
 	}
 	
 	public static String formatGeneralLocaleIndependent(double num) {
-		return String.format(Locale.ENGLISH, "%." + otherDecimalPlaces + "g", num);
+		String s = String.format(Locale.ENGLISH, "%." + otherDecimalPlaces + "G", num);
+		// VeLa parser problems workaround
+		if (s.indexOf("E") != -1) {
+			s = s.replace("E+", "E");
+		} else 	if (s.indexOf('.') == -1) {
+			// only if no exponent!
+			s += ".0";
+		}
+		return s;
 	}
 	
 	// Excel formula separator
