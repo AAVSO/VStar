@@ -144,12 +144,12 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += "    " + NumericPrecisionPrefs.formatGeneral(coeffs[i]);
+								strRepr += "    " + NumericPrecisionPrefs.formatPolyCoef(coeffs[i]);
 								strRepr += "*t^" + i + "+\n";
 							}
 							constCoeff += coeffs[0];
 						}
-						strRepr += "    " + NumericPrecisionPrefs.formatGeneral(constCoeff);
+						strRepr += "    " + NumericPrecisionPrefs.formatPolyCoef(constCoeff);
 						strRepr += "\n}";
 					}
 
@@ -169,13 +169,13 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += NumericPrecisionPrefs.formatGeneral(coeffs[i]);
+								strRepr += NumericPrecisionPrefs.formatPolyCoef(coeffs[i]);
 								strRepr += "*A1^" + i + NumericPrecisionPrefs.getExcelFormulaSeparator() + "\n";
 							}
 							constCoeff += coeffs[0];
 						}
 
-						strRepr += NumericPrecisionPrefs.formatGeneral(constCoeff) + ")";
+						strRepr += NumericPrecisionPrefs.formatPolyCoef(constCoeff) + ")";
 					}
 
 					return strRepr;
@@ -198,13 +198,13 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += NumericPrecisionPrefs.formatGeneralLocaleIndependent(coeffs[i]);
+								strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(coeffs[i]);
 								strRepr += "*t^" + i + "+\n";
 							}
 							constCoeff += coeffs[0];
 						}
 
-						strRepr += NumericPrecisionPrefs.formatGeneralLocaleIndependent(constCoeff);
+						strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(constCoeff);
 					}
 
 					return strRepr;

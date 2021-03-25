@@ -257,10 +257,10 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 							// We use formatGeneral because of a huge range
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += "    " + NumericPrecisionPrefs.formatGeneral(coeffs[i]);
+								strRepr += "    " + NumericPrecisionPrefs.formatPolyCoef(coeffs[i]);
 								strRepr += "*(t-zeroPoint)^" + i + " +\n";
 							}
-							strRepr += "    " + NumericPrecisionPrefs.formatGeneral(coeffs[0]);
+							strRepr += "    " + NumericPrecisionPrefs.formatPolyCoef(coeffs[0]);
 							strRepr += "\n}";
 						}
 
@@ -277,13 +277,13 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 							// We use formatGeneral because of a huge range
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += NumericPrecisionPrefs.formatGeneral(coeffs[i]);
+								strRepr += NumericPrecisionPrefs.formatPolyCoef(coeffs[i]);
 								strRepr += "*(A1-"
 										+ NumericPrecisionPrefs
 												.formatTime(zeroPoint) + ")^"
 										+ i + NumericPrecisionPrefs.getExcelFormulaSeparator() + "\n";
 							}
-							strRepr += NumericPrecisionPrefs.formatGeneral(coeffs[0]) + ")";
+							strRepr += NumericPrecisionPrefs.formatPolyCoef(coeffs[0]) + ")";
 						}
 
 						return strRepr;
@@ -304,10 +304,10 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 							// We use formatGeneralLocaleIndependent because of a huge range
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += NumericPrecisionPrefs.formatGeneralLocaleIndependent(coeffs[i]);
+								strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(coeffs[i]);
 								strRepr += "*(t-zeroPoint)^" + i + " +\n";
 							}
-							strRepr += NumericPrecisionPrefs.formatGeneralLocaleIndependent(coeffs[0]);
+							strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(coeffs[0]);
 						}
 
 						return strRepr;

@@ -79,20 +79,15 @@ public class NumericPrecisionPrefs {
 	private static int magDecimalPlaces = DEFAULT_MAG_DECIMAL_PLACES;
 	private static int otherDecimalPlaces = DEFAULT_OTHER_DECIMAL_PLACES;
 	
-	// List separator (for EXCEL formula)
-	// There is no way to get system "list separator" (Windows specific
-	// locale-sensitive parameter). So we make an assumption. 
-	private static char excelFormulaSeparator;
-	
-	private static char decimalSeparator;
-	
-	static {
-		DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
-		DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
-		decimalSeparator = symbols.getDecimalSeparator();
-		excelFormulaSeparator = decimalSeparator != ',' ? ',' : ';';
+	/**
+	 * Clears stored locale-dependent formats (i.e. after locale change)
+	 */
+	public static void clearHashMaps() {
+		timeOutputFormats.clear();
+		magOutputFormats.clear();
+		otherOutputFormats.clear();
 	}
-
+	
 	/**
 	 * @return the timeDecimalPlaces
 	 */
@@ -204,10 +199,46 @@ public class NumericPrecisionPrefs {
 		return getInputFormatString(otherDecimalPlaces, Type.OTHER);
 	}
 
+	// PMAK (2021-03-25): 
+	// Special case: format for polynomial coefficients.
+	// These coefficients have a huge value range and cannot be satisfactorily
+	// represented by DecimalFormat.
+	// What format would be better: general (%.xxG) or pure scientific (%.xxE)?
+	// Both have issues (for the current VeLa numeric parser):
+	//   1) signed positive exponent cannot be correctly parsed by VeLa now (i.e. 1.234E+15)
+	//   2) long number strings without decimal separator cannot be parsed too (i.e. -608516245008941)
+	// General format has both issues; scientific one has the (1) only.
+	// However, the general format looks more natural.
+
+	// PolyCoefFormat
+	
+	public static String formatPolyCoef(double num) {
+		//return formatGeneral(num);
+		return formatScientific(num);
+	}
+
+	public static String formatPolyCoefLocaleIndependent(double num) {
+		//return formatGeneralLocaleIndependent(num);
+		return formatScientificLocaleIndependent(num);
+	}
+	
+	// Scientific format
+
+	private static String formatScientific(double num) {
+		// .replace("E+", "E"): VeLa issue workaround
+		return String.format(Locale.getDefault(), "%." + otherDecimalPlaces + "E", num).replace("E+", "E");
+	}
+	
+	private static String formatScientificLocaleIndependent(double num) {
+		// .replace("E+", "E"): VeLa issue workaround
+		return String.format(Locale.ENGLISH, "%." + otherDecimalPlaces + "E", num).replace("E+", "E");
+	}
+
+/*	
 	// General format
 	
-	public static String formatGeneral(double num) {
-		String s = String.format("%." + otherDecimalPlaces + "G", num);
+	private static String formatGeneral(double num) {
+		String s = String.format(Locale.getDefault(), "%." + otherDecimalPlaces + "G", num);
 		// VeLa parser problems workaround
 		if (s.indexOf("E") != -1) {
 			s = s.replace("E+", "E");
@@ -217,7 +248,7 @@ public class NumericPrecisionPrefs {
 		return s;
 	}
 	
-	public static String formatGeneralLocaleIndependent(double num) {
+	private static String formatGeneralLocaleIndependent(double num) {
 		String s = String.format(Locale.ENGLISH, "%." + otherDecimalPlaces + "G", num);
 		// VeLa parser problems workaround
 		if (s.indexOf("E") != -1) {
@@ -228,10 +259,21 @@ public class NumericPrecisionPrefs {
 		}
 		return s;
 	}
+*/	
 	
-	// Excel formula separator
+	// Excel formula separator (list separator)
+	// There is no way to get system "list separator" (Windows specific
+	// locale-sensitive parameter). So we make an assumption. 
+	// Why not replace SUM() in Excel formulas with a simple a+b+c... expression?
+	// We could get rid of the list separator at all!
 	public static char getExcelFormulaSeparator() {
-		return excelFormulaSeparator;
+		return getDecimalSeparator() != ',' ? ',' : ';';
+	}
+	
+	private static char getDecimalSeparator() {
+		return getOtherOutputFormat()
+				.getDecimalFormatSymbols()
+					.getDecimalSeparator();
 	}
 	
 	// Helpers

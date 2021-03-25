@@ -21,6 +21,8 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+
 /**
  * The purpose of this class is to provide locale-specific strings and
  * preference handling.
@@ -64,6 +66,9 @@ public class LocaleProps {
 		} catch (Throwable t) {
 			// We need VStar to function in the absence of prefs.
 		}
+		
+		// PMAK: to avoid using cashed formats after locale change   
+		NumericPrecisionPrefs.clearHashMaps();
 	}
 
 	public static void setDefaultLocalePref() {
