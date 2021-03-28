@@ -43,7 +43,7 @@ public class NumberParserTest extends TestCase {
 	public void testParseExplicitNegtiveRealNoFractionalComponent() {
 		commonValidTest(-1000, "-1000");
 	}
-
+	
 	public void testParsePositiveReal1() {
 		commonValidTest(12.25, "12.25");
 	}
@@ -88,6 +88,14 @@ public class NumberParserTest extends TestCase {
 		commonValidTest(225.0, "2.25E2");
 	}
 
+	public void testParseExponentialFormatWithPlus1() {
+		commonValidTest(225.0, "2.25E+2");
+	}
+
+	public void testParseExponentialFormatWithPlus2() {
+		commonValidTest(225.0, "2.25e+2");
+	}
+
 	public void testParseExponentialFormat4() {
 		commonValidTest(0.0225, "2.25e-2");
 	}
@@ -127,23 +135,5 @@ public class NumberParserTest extends TestCase {
 
 	private void commonValidTest(double expected, String actual) {
 		assertEquals(expected, NumberParser.parseDouble(actual));
-	}
-
-	// Invalid tests
-
-	public void testParseExponentialFormatWithPlus1() {
-		try {
-			NumberParser.parseDouble("2.25E+2");
-			fail(); // TODO: parse appears to yield 2.25 (i.e. stops at E)
-		} catch (Exception e) {
-		}
-	}
-
-	public void testParseExponentialFormatWithPlus2() {
-		try {
-			NumberParser.parseDouble("2.25e+2");
-			fail(); // TODO: parse appears to yield 2.25 (i.e. stops at e)
-		} catch (Exception e) {
-		}
 	}
 }

@@ -268,10 +268,10 @@ public class VeLaInterpreter {
 			} else if (result.get().getType() == Type.INTEGER) {
 				return result.get().intVal();
 			} else {
-				throw new VeLaEvalError("Numeric value expected as result");
+				throw new VeLaEvalError("Numeric value expected");
 			}
 		} else {
-			throw new VeLaEvalError("Numeric value expected as result");
+			throw new VeLaEvalError("Numeric value expected");
 		}
 	}
 
@@ -313,7 +313,7 @@ public class VeLaInterpreter {
 		if (result.isPresent()) {
 			return result.get().booleanVal();
 		} else {
-			throw new VeLaEvalError("Numeric value expected as result");
+			throw new VeLaEvalError("Boolean value expected");
 		}
 	}
 

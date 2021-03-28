@@ -195,14 +195,16 @@ multiplicativeExpression
 
 unaryExpression
 :
-    sign? exponentiationExpression
+    //sign? 
+    (PLUS | MINUS)? exponentiationExpression
 ;
 
-sign
-:
-    MINUS
-    | PLUS
-;
+// TODO: make lexer rule or just use (PLUS | MINUS) in unary expression
+//sign
+//:
+//    MINUS
+//    | PLUS
+//;
 
 exponentiationExpression
 :
@@ -524,11 +526,11 @@ REAL
         POINT DIGIT+
     )?
     (
-        EXPONENT_INDICATOR MINUS? DIGIT+
+        EXPONENT
     )?
     | POINT DIGIT+
     (
-        EXPONENT_INDICATOR MINUS? DIGIT+
+        EXPONENT
     )?
 ;
 
@@ -559,17 +561,16 @@ DIGIT
 fragment
 POINT
 // Locale-inclusive
-
 :
     PERIOD
     | COMMA
 ;
 
 fragment
-EXPONENT_INDICATOR
+EXPONENT
 :
-    'E'
-    | 'e'
+    //[Ee] [+-]?
+    ('E' | 'e') (PLUS | MINUS)? DIGIT+
 ;
 
 IDENT

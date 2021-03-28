@@ -43,7 +43,6 @@ import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SelectionExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SequenceContext;
-import org.aavso.tools.vstar.vela.VeLaParser.SignContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SymbolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.TypeContext;
@@ -192,12 +191,6 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 		}
 
 		return ast;
-	}
-
-	@Override
-	public AST visitSign(SignContext ctx) {
-		// Nothing to do; could visit this and return AST(Operation.NEG)
-		return null;
 	}
 
 	@Override

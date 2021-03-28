@@ -32,28 +32,23 @@ public class NumberParser {
 	private static VeLaInterpreter vela = new VeLaInterpreter();
 
 	/**
-	 * Parses a string, returning a double primitive value, or if no valid
-	 * double value is present, throws an exception.
+	 * Parses a string, returning a double primitive value, or if no valid double
+	 * value is present, throws an exception.
 	 * 
-	 * @param str
-	 *            The string that (hopefully) contains a numeric VeLa
-	 *            expression.
+	 * @param str The string that (hopefully) contains a numeric VeLa expression.
 	 * @return The double value corresponding to the evaluated string.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
-	 * @throws NumberFormatException
-	 *             If there was no valid double value resulting from the parse
-	 *             (the VeLa expression did not evaluate to a double or
-	 *             integer).
+	 * @throws VeLaParseError        If a parse error occurs.
+	 * @throws VeLaEvalError         If an evaluation error occurs.
+	 * @throws NumberFormatException If there was no valid double value resulting
+	 *                               from the parse (the VeLa expression did not
+	 *                               evaluate to a double or integer).
 	 */
-	public static double parseDouble(String str) throws VeLaParseError,
-			VeLaEvalError, NumberFormatException {
+	public static double parseDouble(String str) throws VeLaParseError, VeLaEvalError, NumberFormatException {
 
-		Operand operand = vela.expressionToOperand(str);
-
+		Operand operand = null;
 		double result = Double.NaN;
+
+		operand = vela.expressionToOperand(str);
 
 		switch (operand.getType()) {
 		case INTEGER:
@@ -72,23 +67,18 @@ public class NumberParser {
 	}
 
 	/**
-	 * Parses a string, returning an integer primitive value, or if no valid
-	 * integer value is present, throws an exception.
+	 * Parses a string, returning an integer primitive value, or if no valid integer
+	 * value is present, throws an exception.
 	 * 
-	 * @param str
-	 *            The string that (hopefully) contains an integer VeLa
-	 *            expression.
+	 * @param str The string that (hopefully) contains an integer VeLa expression.
 	 * @return The integer value corresponding to the evaluated string.
-	 * @throws VeLaParseError
-	 *             If a parse error occurs.
-	 * @throws VeLaEvalError
-	 *             If an evaluation error occurs.
-	 * @throws NumberFormatException
-	 *             If there was no valid integer value resulting from the parse
-	 *             (the VeLa expression did not evaluate to an integer).
+	 * @throws VeLaParseError        If a parse error occurs.
+	 * @throws VeLaEvalError         If an evaluation error occurs.
+	 * @throws NumberFormatException If there was no valid integer value resulting
+	 *                               from the parse (the VeLa expression did not
+	 *                               evaluate to an integer).
 	 */
-	public static int parseInteger(String str) throws VeLaParseError,
-			VeLaEvalError, NumberFormatException {
+	public static int parseInteger(String str) throws VeLaParseError, VeLaEvalError, NumberFormatException {
 
 		Operand operand = vela.expressionToOperand(str);
 
