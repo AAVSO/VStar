@@ -52,6 +52,7 @@ import com.csvreader.CsvReader;
 /**
  * This intrinsic observation source plug-in retrieves AID observations via the
  * VSX web service.
+ * @deprecated use AIDWebServiceCSV2ObservationSourcePlugin
  */
 public class AIDWebServiceCSVObservationSourcePlugin extends
 		AIDWebServiceObservationSourcePluginBase {

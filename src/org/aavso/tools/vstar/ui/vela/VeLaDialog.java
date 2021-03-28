@@ -27,6 +27,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -203,7 +204,7 @@ public class VeLaDialog extends TextDialog {
 			Mediator.getUI().setScriptingStatus(true);
 
 			// Compile and execute the code.
-			vela = new VeLaInterpreter(false);
+			vela = new VeLaInterpreter(false, true, Collections.emptyList());
 			vela.setVerbose(verbose);
 
 			Pair<Optional<Operand>, AST> pair = vela.veLaToResultASTPair(text);

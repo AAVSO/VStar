@@ -23,7 +23,7 @@ import junit.framework.TestCase;
  * Time Series Del Cep data class for use for period analysis, polynomial fit
  * etc tests.
  */
-public class DelCepData extends TestCase {
+public abstract class DelCepData extends TestCase {
 
 	public DelCepData(String name) {
 		super(name);
