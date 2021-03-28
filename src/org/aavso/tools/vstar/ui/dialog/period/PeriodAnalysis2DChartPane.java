@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.dialog.period;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -59,6 +60,9 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	public static final int TOP_HIT_SERIES = 0;
 	public static final int DATA_SERIES = 1;
 
+	private static int DEFAULT_CHART_PANEL_WIDTH = 680;
+	private static int DEFAULT_CHART_PANEL_HEIGHT = 420;	
+	
 	private ChartPanel chartPanel;
 	private JFreeChart chart;
 	private PeriodAnalysis2DPlotModel model;
@@ -102,6 +106,11 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		model.addChangeListener(this);
 	}
 
+	@Override
+	public Dimension getPreferredSize() {
+	    return new Dimension(DEFAULT_CHART_PANEL_WIDTH, DEFAULT_CHART_PANEL_HEIGHT);
+	}	
+	
 	/**
 	 * @return the chart
 	 */

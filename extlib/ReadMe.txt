@@ -8,12 +8,9 @@ code.
 
   o commons-math-2.2.jar
     http://commons.apache.org/math/
-    
-  o jcommon-1.0.16.jar
-    http://sourceforge.net/projects/jfreechart/files/
 
-  o jfreechart-1.0.13.jar
-    http://sourceforge.net/projects/jfreechart/files/
+  o jfreechart-1.5.2.jar
+    https://github.com/jfree/jfreechart/releases/tag/v1.5.2
 
   o jmathplot.jar
     http://code.google.com/p/jmathplot/

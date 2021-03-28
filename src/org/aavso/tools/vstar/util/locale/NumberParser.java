@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.util.locale;
 
+import java.util.Collections;
+
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.VeLaEvalError;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -29,7 +31,12 @@ import org.aavso.tools.vstar.vela.VeLaParseError;
  */
 public class NumberParser {
 
-	private static VeLaInterpreter vela = new VeLaInterpreter();
+	private final static boolean VERBOSE = false;
+	
+	private final static boolean ADD_VSTAR_API = false;
+
+	private static VeLaInterpreter vela =
+			new VeLaInterpreter(VERBOSE, ADD_VSTAR_API, Collections.emptyList());
 
 	/**
 	 * Parses a string, returning a double primitive value, or if no valid

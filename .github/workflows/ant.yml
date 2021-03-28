@@ -5,7 +5,8 @@ name: Java CI
 
 on:
   push:
-    branches: [ master ]
+    branches:
+        - "**"
   pull_request:
     branches: [ master ]
 
@@ -20,5 +21,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Create plugin dir
+      run:
+        mkdir -p ~/vstar_plugins
+    - name: Create plugin libs dir
+      run:
+        mkdir -p ~/vstar_plugin_libs
     - name: Build with Ant
-      run: ant -noinput -buildfile build.xml test
+      run:
+        ant -noinput -buildfile build.xml test

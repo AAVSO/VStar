@@ -26,7 +26,7 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 /**
  * DC DFT top hits unit test.
  */
-public class TopHitsDcDftTestBase extends DataTestBase {
+public abstract class TopHitsDcDftTestBase extends DataTestBase {
 
 	public TopHitsDcDftTestBase(String name, double[][] jdAndMagPairs) {
 		super(name, jdAndMagPairs);

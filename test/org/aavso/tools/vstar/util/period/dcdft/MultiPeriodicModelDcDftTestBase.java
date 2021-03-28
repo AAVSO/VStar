@@ -29,8 +29,8 @@ import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 /**
  * Base class for multi-period model creation unit tests.
  */
-public class MultiPeriodicModelDcDftTestBase extends DataTestBase {
-
+public abstract class MultiPeriodicModelDcDftTestBase extends DataTestBase {
+	
 	public MultiPeriodicModelDcDftTestBase(String name, double[][] jdAndMagPairs) {
 		super(name, jdAndMagPairs);
 	}

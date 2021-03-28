@@ -22,6 +22,7 @@ import org.aavso.tools.vstar.plugin.ob.src.impl.AIDWebServiceCSVObservationSourc
 /**
  * Unit (or integration) class for tests that read AID
  * observations via the VSX web service using the CSV response method.
+ * @deprecated use VSXWebServiceAIDCSV2ObservationReaderTest
  */
 public class VSXWebServiceAIDCSVObservationReaderTest extends
 		VSXWebServiceAIDObservationReaderTestBase {

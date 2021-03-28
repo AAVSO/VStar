@@ -29,7 +29,7 @@ import junit.framework.TestCase;
 /**
  * Data-based test base class.
  */
-public class DataTestBase extends TestCase {
+public abstract class DataTestBase extends TestCase {
 
 	protected List<ValidObservation> obs;
 
