@@ -754,7 +754,7 @@ public class VeLaInterpreter {
 		case POW:
 			switch (type) {
 			case INTEGER:
-				int result = operand1.intVal();
+				long result = operand1.intVal();
 				for (int i = 2; i <= operand2.intVal(); i++) {
 					result *= operand1.intVal();
 				}
@@ -1261,7 +1261,7 @@ public class VeLaInterpreter {
 		addFunctionExecutor(new FunctionExecutor(Optional.of("EXIT"), Arrays.asList(Type.INTEGER), Optional.empty()) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
-				System.exit(operands.get(0).intVal());
+				System.exit((int)operands.get(0).intVal());
 				return Optional.empty();
 			}
 		});
@@ -1354,7 +1354,7 @@ public class VeLaInterpreter {
 				new FunctionExecutor(Optional.of("CHR"), Arrays.asList(Type.INTEGER), Optional.of(Type.STRING)) {
 					@Override
 					public Optional<Operand> apply(List<Operand> operands) {
-						int ordVal = operands.get(0).intVal();
+						long ordVal = operands.get(0).intVal();
 						String str = ordVal > -1 ? Character.toString((char) ordVal) : "";
 						return Optional.of(new Operand(Type.STRING, str));
 					}
@@ -1419,7 +1419,7 @@ public class VeLaInterpreter {
 						List<Operand> list = operands.get(0).listVal();
 						Operand result;
 						if (!list.isEmpty()) {
-							result = list.get(operands.get(1).intVal());
+							result = list.get((int) operands.get(1).intVal());
 						} else {
 							result = Operand.EMPTY_LIST;
 						}
@@ -1476,11 +1476,11 @@ public class VeLaInterpreter {
 				Arrays.asList(Type.INTEGER, Type.INTEGER, Type.INTEGER), Optional.of(Type.LIST)) {
 			@Override
 			public Optional<Operand> apply(List<Operand> operands) {
-				Integer first = operands.get(0).intVal();
-				Integer last = operands.get(1).intVal();
-				Integer step = operands.get(2).intVal();
+				Long first = operands.get(0).intVal();
+				Long last = operands.get(1).intVal();
+				Long step = operands.get(2).intVal();
 				List<Operand> resultList = new ArrayList<Operand>();
-				for (int i = first; i <= last; i += step) {
+				for (long i = first; i <= last; i += step) {
 					resultList.add(new Operand(Type.INTEGER, i));
 				}
 				return Optional.of(new Operand(Type.LIST, resultList));

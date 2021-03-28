@@ -22,10 +22,10 @@ import java.text.NumberFormat;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
- * This class encapsulates the name, range, and value of an integer text
+ * This class encapsulates the name, range, and value of a long integer text
  * field along with a GUI textField and methods to operate upon it.
  */
-public class IntegerField extends NumberFieldBase<Integer> {
+public class LongField extends NumberFieldBase<Long> {
 
 	private final static NumberFormat NUM_FORMAT = NumberFormat.getIntegerInstance();
 
@@ -39,21 +39,21 @@ public class IntegerField extends NumberFieldBase<Integer> {
 	 *                null).
 	 * @param initial The initial value.
 	 */
-	public IntegerField(String name, Integer min, Integer max, Integer initial) {
+	public LongField(String name, Long min, Long max, Long initial) {
 		super(NUM_FORMAT, name, min, max, initial);
 	}
 
 	/**
-	 * Get the integer value from the text field, if possible, otherwise return null
-	 * if no valid number is present in the textField.
+	 * Get the long integer value from the text field, if possible,
+	 * otherwise return null if no valid number is present in the textField.
 	 * 
 	 * @return The double value or null.
 	 */
-	public Integer getValue() {
-		Integer value = null;
+	public Long getValue() {
+		 Long value = null;
 
 		try {
-			value = (int) NumberParser.parseInteger(textField.getText());
+			value = NumberParser.parseInteger(textField.getText());
 
 			if (min != null && value < min) {
 				value = null;
@@ -70,7 +70,7 @@ public class IntegerField extends NumberFieldBase<Integer> {
 	}
 
 	@Override
-	public void setValue(Integer value) {
+	public void setValue(Long value) {
 		textField.setText(value.toString());
 	}
 }
