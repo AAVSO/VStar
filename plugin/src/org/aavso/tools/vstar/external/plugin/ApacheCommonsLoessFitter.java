@@ -136,11 +136,11 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 							.get("MODEL_INFO_FUNCTION_TITLE"));
 
 					if (strRepr == null) {
+						/*
 						strRepr = "f(t:real) : real {\n";
 
 						double constCoeff = 0;
 
-						// We use formatGeneral because of a huge range
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
@@ -151,6 +151,8 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 						}
 						strRepr += "    " + NumericPrecisionPrefs.formatPolyCoef(constCoeff);
 						strRepr += "\n}";
+						*/
+						strRepr = Mediator.NOT_IMPLEMENTED_YET;
 					}
 
 					return strRepr;
@@ -161,11 +163,11 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 							.get("MODEL_INFO_EXCEL_TITLE"));
 
 					if (strRepr == null) {
+						/*
 						strRepr = "=SUM(";
 
 						double constCoeff = 0;
 
-						// We use formatGeneral because of a huge range
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
@@ -176,6 +178,8 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 						}
 
 						strRepr += NumericPrecisionPrefs.formatPolyCoef(constCoeff) + ")";
+						*/
+						strRepr = Mediator.NOT_IMPLEMENTED_YET;
 					}
 
 					return strRepr;
@@ -190,11 +194,11 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 							.get("MODEL_INFO_R_TITLE"));
 
 					if (strRepr == null) {
-						strRepr = "model <- function(t) \n";
+						/*
+						strRepr = "model <- function(t)\n";
 
 						double constCoeff = 0;
 
-						// We use formatGeneralLocaleIndependent because of a huge range
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
@@ -205,6 +209,8 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 						}
 
 						strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(constCoeff);
+						*/
+						strRepr = Mediator.NOT_IMPLEMENTED_YET;
 					}
 
 					return strRepr;

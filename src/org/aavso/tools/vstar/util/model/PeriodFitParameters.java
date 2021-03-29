@@ -275,20 +275,20 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	}
 
 	public String toExcelString() {
-		String str = null;
-
-		str = cosineCoefficient != 0 ? NumericPrecisionPrefs.getExcelFormulaSeparator() + "\n" : "\n";
+		String str = cosineCoefficient >= 0 ? "+" : "";
 
 		String sincosParam = "2*PI()*" + harmonic + "*(A1-"
 				+ NumericPrecisionPrefs.formatTime(zeroPointOffset) + ")";
 
-		str += NumericPrecisionPrefs.formatOther(cosineCoefficient) + " * COS(";
+		str += NumericPrecisionPrefs.formatOther(cosineCoefficient) 
+				+ " * COS(";
 		str += sincosParam;
 		str += ")";
 
-		str += sineCoefficient != 0 ? NumericPrecisionPrefs.getExcelFormulaSeparator() + "\n" : "\n";
+		str += sineCoefficient >= 0 ? " + " : "";
 
-		str += NumericPrecisionPrefs.formatOther(sineCoefficient) + " * SIN(";
+		str += NumericPrecisionPrefs.formatOther(sineCoefficient) 
+				+ " * SIN(";
 		str += sincosParam;
 		str += ")";
 

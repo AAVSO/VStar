@@ -254,7 +254,6 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 
 							strRepr += "f(t:real) : real {\n";
 
-							// We use formatGeneral because of a huge range
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += "    " + NumericPrecisionPrefs.formatPolyCoef(coeffs[i]);
@@ -272,18 +271,17 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 								.get("MODEL_INFO_EXCEL_TITLE"));
 
 						if (strRepr == null) {
-							strRepr = "=SUM(";
+							strRepr = "=";
 
-							// We use formatGeneral because of a huge range
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += NumericPrecisionPrefs.formatPolyCoef(coeffs[i]);
 								strRepr += "*(A1-"
 										+ NumericPrecisionPrefs
 												.formatTime(zeroPoint) + ")^"
-										+ i + NumericPrecisionPrefs.getExcelFormulaSeparator() + "\n";
+										+ i + "+\n";
 							}
-							strRepr += NumericPrecisionPrefs.formatPolyCoef(coeffs[0]) + ")";
+							strRepr += NumericPrecisionPrefs.formatPolyCoef(coeffs[0]);
 						}
 
 						return strRepr;
@@ -299,9 +297,8 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 									+ NumericPrecisionPrefs
 											.formatTimeLocaleIndependent(zeroPoint) + "\n\n";
 
-							strRepr += "model <- function(t) \n";
+							strRepr += "model <- function(t)\n";
 
-							// We use formatGeneralLocaleIndependent because of a huge range
 							double[] coeffs = function.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
 								strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(coeffs[i]);

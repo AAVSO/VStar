@@ -213,12 +213,10 @@ public class NumericPrecisionPrefs {
 	// PolyCoefFormat
 	
 	public static String formatPolyCoef(double num) {
-		//return formatGeneral(num);
 		return formatScientific(num);
 	}
 
 	public static String formatPolyCoefLocaleIndependent(double num) {
-		//return formatGeneralLocaleIndependent(num);
 		return formatScientificLocaleIndependent(num);
 	}
 	
@@ -234,48 +232,6 @@ public class NumericPrecisionPrefs {
 		return String.format(Locale.ENGLISH, "%." + otherDecimalPlaces + "E", num).replace("E+", "E");
 	}
 
-/*	
-	// General format
-	
-	private static String formatGeneral(double num) {
-		String s = String.format(Locale.getDefault(), "%." + otherDecimalPlaces + "G", num);
-		// VeLa parser problems workaround
-		if (s.indexOf("E") != -1) {
-			s = s.replace("E+", "E");
-		} else if (s.indexOf(decimalSeparator) == -1)
-			// only if no exponent!
-			s += decimalSeparator + "0";
-		return s;
-	}
-	
-	private static String formatGeneralLocaleIndependent(double num) {
-		String s = String.format(Locale.ENGLISH, "%." + otherDecimalPlaces + "G", num);
-		// VeLa parser problems workaround
-		if (s.indexOf("E") != -1) {
-			s = s.replace("E+", "E");
-		} else 	if (s.indexOf('.') == -1) {
-			// only if no exponent!
-			s += ".0";
-		}
-		return s;
-	}
-*/	
-	
-	// Excel formula separator (list separator)
-	// There is no way to get system "list separator" (Windows specific
-	// locale-sensitive parameter). So we make an assumption. 
-	// Why not replace SUM() in Excel formulas with a simple a+b+c... expression?
-	// We could get rid of the list separator at all!
-	public static char getExcelFormulaSeparator() {
-		return getDecimalSeparator() != ',' ? ',' : ';';
-	}
-	
-	private static char getDecimalSeparator() {
-		return getOtherOutputFormat()
-				.getDecimalFormatSymbols()
-					.getDecimalSeparator();
-	}
-	
 	// Helpers
 
 	// Construct a formatter for numeric output.
