@@ -47,7 +47,7 @@ public class IntegerField extends NumberFieldBase<Integer> {
 	 * Get the integer value from the text field, if possible, otherwise return null
 	 * if no valid number is present in the textField.
 	 * 
-	 * @return The double value or null.
+	 * @return The integer value or null.
 	 */
 	public Integer getValue() {
 		Integer value = null;
@@ -71,6 +71,6 @@ public class IntegerField extends NumberFieldBase<Integer> {
 
 	@Override
 	public void setValue(Integer value) {
-		textField.setText(value.toString());
+		textField.setText(value == null ? "" : value.toString());
 	}
 }

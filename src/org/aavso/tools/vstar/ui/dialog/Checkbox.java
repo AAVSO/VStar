@@ -80,6 +80,6 @@ public class Checkbox implements ITextComponent<Boolean> {
 
 	@Override
 	public void setValue(Boolean value) {
-		checkbox.setSelected(value);
+		checkbox.setSelected(value == null ? false : value);
 	}
 }

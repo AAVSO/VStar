@@ -47,7 +47,7 @@ public class LongField extends NumberFieldBase<Long> {
 	 * Get the long integer value from the text field, if possible,
 	 * otherwise return null if no valid number is present in the textField.
 	 * 
-	 * @return The double value or null.
+	 * @return The long integer value or null.
 	 */
 	public Long getValue() {
 		 Long value = null;
@@ -71,6 +71,6 @@ public class LongField extends NumberFieldBase<Long> {
 
 	@Override
 	public void setValue(Long value) {
-		textField.setText(value.toString());
+		textField.setText(value == null ? "" : value.toString());
 	}
 }
