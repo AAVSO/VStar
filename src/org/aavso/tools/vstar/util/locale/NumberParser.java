@@ -94,12 +94,12 @@ public class NumberParser {
 	 *             If there was no valid integer value resulting from the parse
 	 *             (the VeLa expression did not evaluate to an integer).
 	 */
-	public static int parseInteger(String str) throws VeLaParseError,
+	public static long parseInteger(String str) throws VeLaParseError,
 			VeLaEvalError, NumberFormatException {
 
 		Operand operand = vela.expressionToOperand(str);
 
-		int result = 0;
+		long result = 0;
 
 		switch (operand.getType()) {
 		case INTEGER:

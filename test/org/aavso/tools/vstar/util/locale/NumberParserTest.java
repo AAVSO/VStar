@@ -49,6 +49,14 @@ public class NumberParserTest extends TestCase {
 		commonValidTest(-1000, "-1000");
 	}
 
+	public void testParseLargeNegativeReal() {
+		commonValidTest(-608516245008941.0, "-608516245008941.0");
+	}
+	
+	public void testParseLongNegativeInteger() {
+		commonValidTest(-608516245008941L, "-608516245008941");
+	}
+
 	public void testParsePositiveReal1() {
 		commonValidTest(12.25, "12.25");
 	}
