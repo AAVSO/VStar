@@ -33,7 +33,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class Operand {
 
 	private Type type;
-	private int intVal;
+	private long intVal;
 	private double doubleVal;
 	private String stringVal;
 	private boolean booleanVal;
@@ -44,7 +44,7 @@ public class Operand {
 
 	public static Operand NO_VALUE = new Operand(Type.NONE, false);
 
-	public Operand(Type type, int value) {
+	public Operand(Type type, long value) {
 		this.type = type;
 		intVal = value;
 	}
@@ -238,7 +238,7 @@ public class Operand {
 
 		switch (type) {
 		case INTEGER:
-			setStringVal(Integer.toString(intVal));
+			setStringVal(Long.toString(intVal));
 			setType(Type.STRING);
 			break;
 		case REAL:
@@ -271,7 +271,7 @@ public class Operand {
 	/**
 	 * @param intVal the intVal to set
 	 */
-	public void setIntegerVal(int intVal) {
+	public void setIntegerVal(long intVal) {
 		this.intVal = intVal;
 	}
 
@@ -285,7 +285,7 @@ public class Operand {
 	/**
 	 * @return the intVal
 	 */
-	public int intVal() {
+	public long intVal() {
 		return intVal;
 	}
 
@@ -357,7 +357,7 @@ public class Operand {
 
 		switch (type) {
 		case INTEGER:
-			str = Integer.toString(intVal);
+			str = Long.toString(intVal);
 			break;
 		case REAL:
 			str = NumericPrecisionPrefs.formatOther(doubleVal);
@@ -385,7 +385,7 @@ public class Operand {
 
 		switch (type) {
 		case INTEGER:
-			str = Integer.toString(intVal);
+			str = Long.toString(intVal);
 			break;
 		case REAL:
 			str = NumericPrecisionPrefs.formatOther(doubleVal);
@@ -418,7 +418,7 @@ public class Operand {
 		temp = Double.doubleToLongBits(doubleVal);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((functionVal == null) ? 0 : functionVal.hashCode());
-		result = prime * result + intVal;
+		result = prime * result + (int) (intVal ^ (intVal >>> 32));
 		result = prime * result + ((listVal == null) ? 0 : listVal.hashCode());
 		result = prime * result + ((stringVal == null) ? 0 : stringVal.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -427,49 +427,36 @@ public class Operand {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (!(obj instanceof Operand)) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		Operand other = (Operand) obj;
-		if (booleanVal != other.booleanVal) {
+		if (booleanVal != other.booleanVal)
 			return false;
-		}
-		if (Double.doubleToLongBits(doubleVal) != Double.doubleToLongBits(other.doubleVal)) {
+		if (Double.doubleToLongBits(doubleVal) != Double.doubleToLongBits(other.doubleVal))
 			return false;
-		}
 		if (functionVal == null) {
-			if (other.functionVal != null) {
+			if (other.functionVal != null)
 				return false;
-			}
-		} else if (!functionVal.equals(other.functionVal)) {
+		} else if (!functionVal.equals(other.functionVal))
 			return false;
-		}
-		if (intVal != other.intVal) {
+		if (intVal != other.intVal)
 			return false;
-		}
 		if (listVal == null) {
-			if (other.listVal != null) {
+			if (other.listVal != null)
 				return false;
-			}
-		} else if (!listVal.equals(other.listVal)) {
+		} else if (!listVal.equals(other.listVal))
 			return false;
-		}
 		if (stringVal == null) {
-			if (other.stringVal != null) {
+			if (other.stringVal != null)
 				return false;
-			}
-		} else if (!stringVal.equals(other.stringVal)) {
+		} else if (!stringVal.equals(other.stringVal))
 			return false;
-		}
-		if (type != other.type) {
+		if (type != other.type)
 			return false;
-		}
 		return true;
 	}
 

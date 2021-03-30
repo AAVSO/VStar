@@ -282,7 +282,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	@Override
 	public AST visitInteger(IntegerContext ctx) {
 		String token = ctx.INTEGER().getText();
-		Operand intLiteral = new Operand(Type.INTEGER, Integer.parseInt(token));
+		Operand intLiteral = new Operand(Type.INTEGER, Long.parseLong(token));
 		return new AST(token, intLiteral);
 	}
 
