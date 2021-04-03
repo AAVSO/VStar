@@ -34,12 +34,13 @@ import com.csvreader.CsvReader;
  * This class accepts a line of text for tokenising, validation, and
  * ValidObservation instance creation that is common to all text format sources.
  * Currently, simple and AAVSO download file formats have an intersecting set of
- * mandatory and optional fields. The field indices differ across formats, as
- * does what counts as a legal valflag field value, but the fieldIndexMap and
- * valflagPatternStr constructor arguments cater for the differences.
+ * mandatory and optional fields. The field indices differ across formats but the 
+ * fieldIndexMap constructor argument caters for the differences.
  */
 public class CommonTextFormatValidator {
 
+	protected final static String COMMON_VALFLAG_PATTERN = "G|D|T|P|V|Z";
+	
 	protected final ObservationFieldSplitter fieldSplitter;
 
 	protected CsvReader lineReader;
@@ -68,8 +69,7 @@ public class CommonTextFormatValidator {
 	 *            The maximum number of fields permitted in an observation line.
 	 * @param valflagPatternStr
 	 *            A regex pattern representing the alternations of permitted
-	 *            valflags for this validator instance, e.g. "D" (simple format)
-	 *            or "G|D|T|P|V|Z" (AAVSO download format).
+	 *            valflags for this validator instance, e.g. COMMON_VALFLAG_PATTERN
 	 * @param fieldInfoSource
 	 *            A mapping from field name to field index that makes sense for
 	 *            the source.

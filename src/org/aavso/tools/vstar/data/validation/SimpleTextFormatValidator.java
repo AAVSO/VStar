@@ -52,7 +52,7 @@ public class SimpleTextFormatValidator extends CommonTextFormatValidator {
 	public SimpleTextFormatValidator(CsvReader lineReader, int minFields,
 			int maxFields, IFieldInfoSource fieldInfoSource) throws IOException {
 		super("simple text format observation line", lineReader, minFields,
-				maxFields, "D", fieldInfoSource);
+				maxFields, COMMON_VALFLAG_PATTERN, fieldInfoSource);
 	}
 
 	/**
