@@ -39,7 +39,7 @@ import com.csvreader.CsvReader;
  */
 public class CommonTextFormatValidator {
 
-	protected final static String COMMON_VALFLAG_PATTERN = "G|D|T|P|V|Z";
+	protected final static String COMMON_VALFLAG_PATTERN = "G|D|T|P|U|V|Z";
 	
 	protected final ObservationFieldSplitter fieldSplitter;
 

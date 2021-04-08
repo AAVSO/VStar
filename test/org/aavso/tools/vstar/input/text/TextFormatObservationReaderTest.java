@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidationType;
 import org.aavso.tools.vstar.data.validation.SimpleTextFormatValidator;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.exception.ObservationValidationWarning;
@@ -62,12 +63,21 @@ public class TextFormatObservationReaderTest extends TestCase {
 		commonValidJulianDayAndMagTest("2450001.5,10.0\n", ",");
 	}
 
-	public void testSimpleValidFullObservationTSV() {
+	public void testSimpleValidFullObservationValflagDiscrepantTSV() {
 		ValidObservation ob = commonValidJulianDayAndMagTest(
 				"2450001.5\t10.0\t0.1\tDJB\tD\n", "\t");
 		assertEquals(0.1, ob.getMagnitude().getUncertainty());
 		assertEquals("DJB", ob.getObsCode());
+		assertEquals(ValidationType.DISCREPANT, ob.getValidationType());
 		assertTrue(ob.isDiscrepant());
+	}
+
+	public void testSimpleValidFullObservationValflagUnvalidatedTSV() {
+		ValidObservation ob = commonValidJulianDayAndMagTest(
+				"2450001.5\t10.0\t0.1\tDJB\tU\n", "\t");
+		assertEquals(0.1, ob.getMagnitude().getUncertainty());
+		assertEquals("DJB", ob.getObsCode());
+		assertEquals(ValidationType.UNVALIDATED, ob.getValidationType());
 	}
 
 	public void testSimpleValidAllButUncertaintyTSV() {

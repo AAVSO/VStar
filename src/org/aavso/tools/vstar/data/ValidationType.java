@@ -35,6 +35,7 @@ public enum ValidationType {
 	GOOD,
 	DISCREPANT,
 	PREVALIDATION,
+	UNVALIDATED,
 	BAD;	
 		
 	/**
@@ -50,6 +51,8 @@ public enum ValidationType {
 			valtype = DISCREPANT;
 		} else if ("P".equals(valflag)) {
 			valtype = GOOD;
+		} else if ("U".equals(valflag)) {
+			valtype = UNVALIDATED;
 		} else if ("V".equals(valflag)) {
 			valtype = GOOD;
 		} else if ("Z".equals(valflag)) {
@@ -79,7 +82,10 @@ public enum ValidationType {
 			// this for saving files, this seems reasonable.
 		case PREVALIDATION:
 			str = "P";
-			break;			
+			break;
+		case UNVALIDATED:
+			str = "U";
+			break;
 		case BAD:
 			str = "B";
 			break;
@@ -105,7 +111,10 @@ public enum ValidationType {
 			break;			
 		case PREVALIDATION:
 			str = "Prevalidated";
-			break;			
+			break;
+		case UNVALIDATED:
+			str = "Unvalidated";
+			break;
 		case BAD:
 			str = "Bad";
 			break;
