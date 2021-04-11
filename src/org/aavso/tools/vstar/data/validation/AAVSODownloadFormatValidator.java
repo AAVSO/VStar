@@ -77,7 +77,7 @@ public class AAVSODownloadFormatValidator extends CommonTextFormatValidator {
 	public AAVSODownloadFormatValidator(CsvReader lineReader, int minFields,
 			int maxFields, IFieldInfoSource fieldInfoSource) throws IOException {
 		super("AAVSO format observation line", lineReader, minFields,
-				maxFields, "G|D|T|P|V|Z", fieldInfoSource);
+				maxFields, COMMON_VALFLAG_PATTERN, fieldInfoSource);
 
 		this.optionalFieldValidator = new OptionalityFieldValidator(
 				OptionalityFieldValidator.CAN_BE_EMPTY);
