@@ -275,38 +275,40 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	}
 
 	public String toExcelString() {
-		String str = null;
-
-		str = cosineCoefficient != 0 ? ",\n" : "\n";
+		String str = cosineCoefficient >= 0 ? "+" : "";
 
 		String sincosParam = "2*PI()*" + harmonic + "*(A1-"
 				+ NumericPrecisionPrefs.formatTime(zeroPointOffset) + ")";
 
-		str += NumericPrecisionPrefs.formatOther(cosineCoefficient) + " * COS(";
+		str += NumericPrecisionPrefs.formatOther(cosineCoefficient) 
+				+ " * COS(";
 		str += sincosParam;
 		str += ")";
 
-		str += sineCoefficient != 0 ? ",\n" : "\n";
+		str += sineCoefficient >= 0 ? " + " : "";
 
-		str += NumericPrecisionPrefs.formatOther(sineCoefficient) + " * SIN(";
+		str += NumericPrecisionPrefs.formatOther(sineCoefficient) 
+				+ " * SIN(";
 		str += sincosParam;
 		str += ")";
 
 		return str;
 	}
 
+	// toRString must be locale-independent!
 	public String toRString() {
 		String str = "+\n";
 
-		String sincosParam = "2*pi*" + harmonic + "*(t-zeroPoint" + ")";
+		// harmonic.toString() is locale-dependent!
+		String sincosParam = "2*pi*" + NumericPrecisionPrefs.formatOtherLocaleIndependent(harmonic.getFrequency()) + "*(t-zeroPoint" + ")";
 
-		str += NumericPrecisionPrefs.formatOther(cosineCoefficient) + " * cos(";
+		str += NumericPrecisionPrefs.formatOtherLocaleIndependent(cosineCoefficient) + " * cos(";
 		str += sincosParam;
 		str += ")";
 
 		str += sineCoefficient >= 0 ? " + " : "";
 
-		str += NumericPrecisionPrefs.formatOther(sineCoefficient) + " * sin(";
+		str += NumericPrecisionPrefs.formatOtherLocaleIndependent(sineCoefficient) + " * sin(";
 		str += sincosParam;
 		str += ")";
 

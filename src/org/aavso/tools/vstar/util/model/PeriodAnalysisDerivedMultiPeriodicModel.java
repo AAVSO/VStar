@@ -191,23 +191,24 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 				.get("MODEL_INFO_EXCEL_TITLE"));
 
 		if (strRepr == null) {
-			strRepr = "=SUM(";
+			strRepr = "=";
 
 			double constantCoefficient = parameters.get(0)
 					.getConstantCoefficient();
-			strRepr += NumericPrecisionPrefs.formatOther(constantCoefficient);
+			strRepr += NumericPrecisionPrefs.formatOther(constantCoefficient)
+					+ "\n";
 
 			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);
-				strRepr += params.toExcelString();
+				strRepr += params.toExcelString() + "\n";
 			}
 
-			strRepr += ")";
 		}
 
 		return strRepr;
 	}
 
+	// toRString must be locale-independent!
 	private String toRString() {
 		String strRepr = functionStrMap.get(LocaleProps
 				.get("MODEL_INFO_R_TITLE"));
@@ -217,14 +218,14 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			// created; the zero point will be the same for all parameters, so
 			// just get it from the first.
 			strRepr = "zeroPoint <- "
-					+ NumericPrecisionPrefs.formatTime(parameters.get(0)
+					+ NumericPrecisionPrefs.formatTimeLocaleIndependent(parameters.get(0)
 							.getZeroPointOffset()) + "\n\n";
 
-			strRepr += "model <- function(t) ";
+			strRepr += "model <- function(t)\n";
 
 			double constantCoefficient = parameters.get(0)
 					.getConstantCoefficient();
-			strRepr += NumericPrecisionPrefs.formatOther(constantCoefficient);
+			strRepr += NumericPrecisionPrefs.formatOtherLocaleIndependent(constantCoefficient);
 
 			for (int i = 0; i < parameters.size(); i++) {
 				PeriodFitParameters params = parameters.get(i);

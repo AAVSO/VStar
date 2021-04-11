@@ -37,6 +37,7 @@ import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.analysis.interpolation.LoessInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialFunction;
@@ -135,6 +136,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 							.get("MODEL_INFO_FUNCTION_TITLE"));
 
 					if (strRepr == null) {
+						/*
 						strRepr = "f(t:real) : real {\n";
 
 						double constCoeff = 0;
@@ -142,13 +144,15 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += "    " + coeffs[i];
-								strRepr += "t^" + i + "+\n";
+								strRepr += "    " + NumericPrecisionPrefs.formatPolyCoef(coeffs[i]);
+								strRepr += "*t^" + i + "+\n";
 							}
 							constCoeff += coeffs[0];
 						}
-						strRepr += "    " + constCoeff;
+						strRepr += "    " + NumericPrecisionPrefs.formatPolyCoef(constCoeff);
 						strRepr += "\n}";
+						*/
+						strRepr = Mediator.NOT_IMPLEMENTED_YET;
 					}
 
 					return strRepr;
@@ -159,6 +163,7 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 							.get("MODEL_INFO_EXCEL_TITLE"));
 
 					if (strRepr == null) {
+						/*
 						strRepr = "=SUM(";
 
 						double constCoeff = 0;
@@ -166,13 +171,15 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += coeffs[i];
-								strRepr += "*A1^" + i + ",\n";
+								strRepr += NumericPrecisionPrefs.formatPolyCoef(coeffs[i]);
+								strRepr += "*A1^" + i + NumericPrecisionPrefs.getExcelFormulaSeparator() + "\n";
 							}
 							constCoeff += coeffs[0];
 						}
 
-						strRepr += constCoeff + ")";
+						strRepr += NumericPrecisionPrefs.formatPolyCoef(constCoeff) + ")";
+						*/
+						strRepr = Mediator.NOT_IMPLEMENTED_YET;
 					}
 
 					return strRepr;
@@ -181,25 +188,29 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 				// Note: There is already a Loess fit function in R, so it
 				// would be interesting to compare the results of that and this
 				// plugin.
+				// toRString must be locale-independent!
 				public String toRString() {
 					String strRepr = functionStrMap.get(LocaleProps
 							.get("MODEL_INFO_R_TITLE"));
 
 					if (strRepr == null) {
-						strRepr = "model <- function(t) ";
+						/*
+						strRepr = "model <- function(t)\n";
 
 						double constCoeff = 0;
 
 						for (PolynomialFunction f : function.getPolynomials()) {
 							double[] coeffs = f.getCoefficients();
 							for (int i = coeffs.length - 1; i >= 1; i--) {
-								strRepr += coeffs[i];
+								strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(coeffs[i]);
 								strRepr += "*t^" + i + "+\n";
 							}
 							constCoeff += coeffs[0];
 						}
 
-						strRepr += constCoeff;
+						strRepr += NumericPrecisionPrefs.formatPolyCoefLocaleIndependent(constCoeff);
+						*/
+						strRepr = Mediator.NOT_IMPLEMENTED_YET;
 					}
 
 					return strRepr;

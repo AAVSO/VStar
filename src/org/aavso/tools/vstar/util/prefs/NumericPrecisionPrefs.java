@@ -61,6 +61,12 @@ public class NumericPrecisionPrefs {
 	private static Map<Integer, DecimalFormat> magOutputFormats = new HashMap<Integer, DecimalFormat>();
 	private static Map<Integer, DecimalFormat> otherOutputFormats = new HashMap<Integer, DecimalFormat>();
 
+	// Output decimal place maps: locale-independent formats.
+	
+	private static Map<Integer, DecimalFormat> timeOutputFormatsLocaleIndependent = new HashMap<Integer, DecimalFormat>();
+	private static Map<Integer, DecimalFormat> magOutputFormatsLocaleIndependent = new HashMap<Integer, DecimalFormat>();
+	private static Map<Integer, DecimalFormat> otherOutputFormatsLocaleIndependent = new HashMap<Integer, DecimalFormat>();
+		
 	// Default decimal place values.
 
 	private static int DEFAULT_TIME_DECIMAL_PLACES = 5;
@@ -72,7 +78,16 @@ public class NumericPrecisionPrefs {
 	private static int timeDecimalPlaces = DEFAULT_TIME_DECIMAL_PLACES;
 	private static int magDecimalPlaces = DEFAULT_MAG_DECIMAL_PLACES;
 	private static int otherDecimalPlaces = DEFAULT_OTHER_DECIMAL_PLACES;
-
+	
+	/**
+	 * Clears stored locale-dependent formats (i.e. after locale change)
+	 */
+	public static void clearHashMaps() {
+		timeOutputFormats.clear();
+		magOutputFormats.clear();
+		otherOutputFormats.clear();
+	}
+	
 	/**
 	 * @return the timeDecimalPlaces
 	 */
@@ -127,6 +142,14 @@ public class NumericPrecisionPrefs {
 	public static DecimalFormat getTimeOutputFormat() {
 		return getOutputFormat(timeDecimalPlaces, Type.TIME);
 	}
+	
+	public static String formatTimeLocaleIndependent(double num) {
+		return getTimeOutputFormatLocaleIndependent().format(num);
+	}
+	
+	public static DecimalFormat getTimeOutputFormatLocaleIndependent() {
+		return getOutputFormatLocaleIndependent(timeDecimalPlaces, Type.TIME);
+	}
 
 	public static String getTimeInputFormat() {
 		return getInputFormatString(timeDecimalPlaces, Type.TIME);
@@ -140,6 +163,14 @@ public class NumericPrecisionPrefs {
 
 	public static DecimalFormat getMagOutputFormat() {
 		return getOutputFormat(magDecimalPlaces, Type.MAG);
+	}
+	
+	public static String formatMagLocaleIndependent(double num) {
+		return getMagOutputFormatLocaleIndependent().format(num);
+	}
+	
+	public static DecimalFormat getMagOutputFormatLocaleIndependent() {
+		return getOutputFormatLocaleIndependent(magDecimalPlaces, Type.MAG);
 	}
 
 	public static String getMagInputFormat() {
@@ -156,8 +187,49 @@ public class NumericPrecisionPrefs {
 		return getOutputFormat(otherDecimalPlaces, Type.OTHER);
 	}
 
+	public static String formatOtherLocaleIndependent(double num) {
+		return getOtherOutputFormatLocaleIndependent().format(num);
+	}
+	
+	public static DecimalFormat getOtherOutputFormatLocaleIndependent() {
+		return getOutputFormatLocaleIndependent(otherDecimalPlaces, Type.OTHER);
+	}
+	
 	public static String getOtherInputFormat() {
 		return getInputFormatString(otherDecimalPlaces, Type.OTHER);
+	}
+
+	// PMAK (2021-03-25): 
+	// Special case: format for polynomial coefficients.
+	// These coefficients have a huge value range and cannot be satisfactorily
+	// represented by DecimalFormat.
+	// What format would be better: general (%.xxG) or pure scientific (%.xxE)?
+	// Both have issues (for the current VeLa numeric parser):
+	//   1) signed positive exponent cannot be correctly parsed by VeLa now (i.e. 1.234E+15)
+	//   2) long number strings without decimal separator cannot be parsed too (i.e. -608516245008941)
+	// General format has both issues; scientific one has the (1) only.
+	// However, the general format looks more natural.
+
+	// PolyCoefFormat
+	
+	public static String formatPolyCoef(double num) {
+		return formatScientific(num);
+	}
+
+	public static String formatPolyCoefLocaleIndependent(double num) {
+		return formatScientificLocaleIndependent(num);
+	}
+	
+	// Scientific format
+
+	private static String formatScientific(double num) {
+		// .replace("E+", "E"): VeLa issue workaround
+		return String.format(Locale.getDefault(), "%." + otherDecimalPlaces + "E", num).replace("E+", "E");
+	}
+	
+	private static String formatScientificLocaleIndependent(double num) {
+		// .replace("E+", "E"): VeLa issue workaround
+		return String.format(Locale.ENGLISH, "%." + otherDecimalPlaces + "E", num).replace("E+", "E");
 	}
 
 	// Helpers
@@ -184,7 +256,30 @@ public class NumericPrecisionPrefs {
 
 		return formats.get(decimalPlaces);
 	}
+	
+	// Construct a formatter for locale-independent numeric output.
+	private static DecimalFormat getOutputFormatLocaleIndependent(int decimalPlaces, Type type) {
+		Map<Integer, DecimalFormat> formats = null;
 
+		switch (type) {
+		case MAG:
+			formats = magOutputFormatsLocaleIndependent;
+			break;
+		case TIME:
+			formats = timeOutputFormatsLocaleIndependent;
+			break;
+		case OTHER:
+			formats = otherOutputFormatsLocaleIndependent;
+			break;
+		}
+
+		if (!formats.containsKey(decimalPlaces)) {
+			formats.put(decimalPlaces, getOutputFormatLocaleIndependent(decimalPlaces));
+		}
+
+		return formats.get(decimalPlaces);
+	}
+	
 	// Construct a format string of the form #.##... where the ellipsis
 	// denotes a variable number of hashes. This can be used with input text
 	// boxes where a numeric input is required.
@@ -214,6 +309,14 @@ public class NumericPrecisionPrefs {
 		DecimalFormat decFormatter = new DecimalFormat(
 				getFormatString(decimalPlaces), new DecimalFormatSymbols(Locale
 						.getDefault()));
+
+		return decFormatter;
+	}
+	
+	private static DecimalFormat getOutputFormatLocaleIndependent(int decimalPlaces) {
+		DecimalFormat decFormatter = new DecimalFormat(
+				getFormatString(decimalPlaces), new DecimalFormatSymbols(Locale
+						.ENGLISH));
 
 		return decFormatter;
 	}
