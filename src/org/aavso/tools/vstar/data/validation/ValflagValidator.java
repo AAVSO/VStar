@@ -36,10 +36,10 @@ public class ValflagValidator extends AbstractStringValidator<ValidationType> {
 	 * 
 	 * @param valflagPatternStr
 	 *            A regex pattern representing the alternations of permission
-	 *            valflags for this validator instance, e.g. "D" (simple format)
-	 *            or "G|D|T|P|V|Z" (AAVSO download format). This pattern string
-	 *            will be wrapped in a ^(...)$ to ensure that nothing else
-	 *            exists in the string, and that there is one capturing group.
+	 *            valflags for this validator instance, e.g. "G|D|T|P|V|Z"
+	 *            (AAVSO download format). This pattern string will be wrapped
+	 *            in a ^(...)$ to ensure that nothing else exists in the string,
+	 *            and that there is one capturing group.
 	 */
 	public ValflagValidator(String valflagPatternStr) {
 		super(KIND);
