@@ -1784,7 +1784,7 @@ public class Mediator {
 	 * Open the phase plots dialog.
 	 */
 	public void showPhaseDialog() {
-		getModelDialog().showDialog();
+		getPhaseDialog().showDialog();
 	}
 
 	/**
