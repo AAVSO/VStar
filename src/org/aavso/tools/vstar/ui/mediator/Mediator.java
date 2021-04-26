@@ -272,8 +272,7 @@ public class Mediator {
 
 	// Singleton fields, constructor, getter.
 
-	// TODO: create this in static getter!
-	private static Mediator mediator = new Mediator();
+	private static Mediator mediator;
 
 	/**
 	 * Private constructor.
@@ -336,9 +335,12 @@ public class Mediator {
 	}
 
 	/**
-	 * Return the Singleton instance.
+	 * Return the Singleton instance, optionally creating it first
 	 */
-	public static Mediator getInstance() {
+	public static synchronized Mediator getInstance() {
+		if (mediator == null) {
+			mediator = new Mediator();
+		}
 		return mediator;
 	}
 
