@@ -332,6 +332,10 @@ public class Mediator {
 		this.filteredObservationNotifier.addListener(createFilteredObservationListener());
 
 		this.seriesCreationNotifier.addListener(createSeriesCreationListener());
+		
+		// Create dialogs with listeners
+		getModelDialog();
+		getPhaseDialog();
 	}
 
 	/**
@@ -871,8 +875,8 @@ public class Mediator {
 	public ModelDialog getModelDialog() {
 		if (modelDialog == null) {
 			modelDialog = new ModelDialog();
-			NewStarMessage msg = getLatestNewStarMessage();
-			newStarNotifier.addListener(modelDialog.createNewStarListener(), msg);
+			//NewStarMessage msg = getLatestNewStarMessage();
+			newStarNotifier.addListener(modelDialog.createNewStarListener());
 			modelCreationNotifier.addListener(modelDialog.createModelCreationListener());
 		}
 
@@ -882,8 +886,8 @@ public class Mediator {
 	public PhaseDialog getPhaseDialog() {
 		if (phaseDialog == null) {
 			phaseDialog = new PhaseDialog();
-			NewStarMessage msg = getLatestNewStarMessage();
-			newStarNotifier.addListener(phaseDialog.createNewStarListener(), msg);
+			//NewStarMessage msg = getLatestNewStarMessage();
+			newStarNotifier.addListener(phaseDialog.createNewStarListener());
 			phaseChangeNotifier.addListener(phaseDialog.createPhaseChangeListener());
 		}
 
