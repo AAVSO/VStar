@@ -269,7 +269,8 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 						if (!Float.isInfinite(flux)
 								&& !Float.isInfinite(flux_err)
 								&& !Float.isNaN(flux)
-								&& !Float.isNaN(flux_err)) {
+								&& !Float.isNaN(flux_err) 
+								&& (flux > 0)) {
 
 							//double hjd = barytime + 2454833.0;
 							double hjd = barytime + timei + timef;
