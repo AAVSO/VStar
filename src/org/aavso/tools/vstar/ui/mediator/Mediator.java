@@ -272,8 +272,7 @@ public class Mediator {
 
 	// Singleton fields, constructor, getter.
 
-	// TODO: create this in static getter!
-	private static Mediator mediator = new Mediator();
+	private static Mediator mediator;
 
 	/**
 	 * Private constructor.
@@ -336,9 +335,12 @@ public class Mediator {
 	}
 
 	/**
-	 * Return the Singleton instance.
+	 * Return the Singleton instance, optionally creating it first
 	 */
-	public static Mediator getInstance() {
+	public static synchronized Mediator getInstance() {
+		if (mediator == null) {
+			mediator = new Mediator();
+		}
 		return mediator;
 	}
 
@@ -843,24 +845,21 @@ public class Mediator {
 	}
 
 	// Dialog singleton getters
-	
+
 	public PhaseParameterDialog getPhaseParameterDialog() {
 		if (phaseParameterDialog == null) {
 			phaseParameterDialog = new PhaseParameterDialog();
-			NewStarMessage msg = getLatestNewStarMessage();
-			newStarNotifier.addListener(phaseParameterDialog, msg);
+			newStarNotifier.addListener(phaseParameterDialog, true);
 		}
 
 		return phaseParameterDialog;
 	}
 
-	// TODO: unused?
 	public ObservationFilterDialog getObsFilterDialog() {
 		if (obsFilterDialog == null) {
 			obsFilterDialog = new ObservationFilterDialog();
-			NewStarMessage msg = getLatestNewStarMessage();
-			newStarNotifier.addListener(obsFilterDialog.createNewStarListener(), msg);
-			observationSelectionNotifier.addListener(obsFilterDialog.createObservationSelectionListener());
+			newStarNotifier.addListener(obsFilterDialog.createNewStarListener(), true);
+			observationSelectionNotifier.addListener(obsFilterDialog.createObservationSelectionListener(), true);
 		}
 
 		return obsFilterDialog;
@@ -869,9 +868,8 @@ public class Mediator {
 	public ModelDialog getModelDialog() {
 		if (modelDialog == null) {
 			modelDialog = new ModelDialog();
-			NewStarMessage msg = getLatestNewStarMessage();
-			newStarNotifier.addListener(modelDialog.createNewStarListener(), msg);
-			modelCreationNotifier.addListener(modelDialog.createModelCreationListener());
+			newStarNotifier.addListener(modelDialog.createNewStarListener(), true);
+			modelCreationNotifier.addListener(modelDialog.createModelCreationListener(), true);
 		}
 
 		return modelDialog;
@@ -880,9 +878,8 @@ public class Mediator {
 	public PhaseDialog getPhaseDialog() {
 		if (phaseDialog == null) {
 			phaseDialog = new PhaseDialog();
-			NewStarMessage msg = getLatestNewStarMessage();
-			newStarNotifier.addListener(phaseDialog.createNewStarListener(), msg);
-			phaseChangeNotifier.addListener(phaseDialog.createPhaseChangeListener());
+			newStarNotifier.addListener(phaseDialog.createNewStarListener(), true);
+			phaseChangeNotifier.addListener(phaseDialog.createPhaseChangeListener(), true);
 		}
 
 		return phaseDialog;
@@ -891,11 +888,8 @@ public class Mediator {
 	public ObservationFiltersDialog getObservationFiltersDialog() {
 		if (observationFiltersDialog == null) {
 			observationFiltersDialog = new ObservationFiltersDialog();
-			NewStarMessage msg = getLatestNewStarMessage();
-			newStarNotifier.addListener(
-					observationFiltersDialog.createNewStarListener(), msg);
-			filteredObservationNotifier.addListener(
-					observationFiltersDialog.createFilterListener());
+			newStarNotifier.addListener(observationFiltersDialog.createNewStarListener(), true);
+			filteredObservationNotifier.addListener(observationFiltersDialog.createFilterListener(), true);
 		}
 
 		return observationFiltersDialog;
@@ -904,9 +898,8 @@ public class Mediator {
 	public DocumentManager getDocumentManager() {
 		if (documentManager == null) {
 			documentManager = new DocumentManager();
-			phaseChangeNotifier.addListener(documentManager.createPhaseChangeListener());
-			NewStarMessage msg = getLatestNewStarMessage();
-			newStarNotifier.addListener(documentManager.createNewStarListener(), msg);
+			phaseChangeNotifier.addListener(documentManager.createPhaseChangeListener(), true);
+			newStarNotifier.addListener(documentManager.createNewStarListener(), true);
 		}
 
 		return documentManager;
@@ -915,15 +908,10 @@ public class Mediator {
 	public UndoableActionManager getUndoableActionManager() {
 		if (undoableActionManager == null) {
 			undoableActionManager = new UndoableActionManager();
-			NewStarMessage msg = getLatestNewStarMessage();
-			newStarNotifier.addListener(
-					undoableActionManager.createNewStarListener(), msg);
-			observationSelectionNotifier
-					.addListener(
-							undoableActionManager.createObservationSelectionListener());
+			newStarNotifier.addListener(undoableActionManager.createNewStarListener(), true);
+			observationSelectionNotifier.addListener(undoableActionManager.createObservationSelectionListener(), true);
 			multipleObservationSelectionNotifier
-					.addListener(
-							undoableActionManager.createMultipleObservationSelectionListener());
+					.addListener(undoableActionManager.createMultipleObservationSelectionListener(), true);
 		}
 
 		return undoableActionManager;
@@ -1015,35 +1003,36 @@ public class Mediator {
 	}
 
 	/**
-	 * Remove all listeners that are willing, from all notifiers, to ensure that no
-	 * old, unnecessary listeners remain from one new-star load to another. Such
-	 * listeners could receive notifications that make no sense (e.g. location of an
-	 * observation within a dataset) and guard against memory leaks.
+	 * Remove messages and all listeners that are willing, from all notifiers, to
+	 * ensure that no old, unnecessary listeners/messages remain from one new-star
+	 * load to another. Such listeners could receive notifications that make no
+	 * sense (e.g. location of an observation within a dataset) and guard against
+	 * memory leaks.
 	 */
 	private void freeListeners() {
-		analysisTypeChangeNotifier.removeAllWillingListeners();
-		newStarNotifier.removeAllWillingListeners();
-		progressNotifier.removeAllWillingListeners();
-		discrepantObservationNotifier.removeAllWillingListeners();
-		excludedObservationNotifier.removeAllWillingListeners();
-		observationSelectionNotifier.removeAllWillingListeners();
-		multipleObservationSelectionNotifier.removeAllWillingListeners();
-		periodAnalysisSelectionNotifier.removeAllWillingListeners();
-		periodChangeNotifier.removeAllWillingListeners();
-		phaseChangeNotifier.removeAllWillingListeners();
-		phaseSelectionNotifier.removeAllWillingListeners();
-		periodAnalysisRefinementNotifier.removeAllWillingListeners();
-		meanSourceSeriesChangeNotifier.removeAllWillingListeners();
-		zoomRequestNotifier.removeAllWillingListeners();
-		filteredObservationNotifier.removeAllWillingListeners();
-		modelSelectionNofitier.removeAllWillingListeners();
-		modelCreationNotifier.removeAllWillingListeners();
-		panRequestNotifier.removeAllWillingListeners();
-		undoActionNotifier.removeAllWillingListeners();
-		stopRequestNotifier.removeAllWillingListeners();
-		seriesVisibilityChangeNotifier.removeAllWillingListeners();
-		harmonicSearchNotifier.removeAllWillingListeners();
-		observationSelectionNotifier.removeAllWillingListeners();
+		analysisTypeChangeNotifier.cleanup();
+		newStarNotifier.cleanup();
+		progressNotifier.cleanup();
+		discrepantObservationNotifier.cleanup();
+		excludedObservationNotifier.cleanup();
+		observationSelectionNotifier.cleanup();
+		multipleObservationSelectionNotifier.cleanup();
+		periodAnalysisSelectionNotifier.cleanup();
+		periodChangeNotifier.cleanup();
+		phaseChangeNotifier.cleanup();
+		phaseSelectionNotifier.cleanup();
+		periodAnalysisRefinementNotifier.cleanup();
+		meanSourceSeriesChangeNotifier.cleanup();
+		zoomRequestNotifier.cleanup();
+		filteredObservationNotifier.cleanup();
+		modelSelectionNofitier.cleanup();
+		modelCreationNotifier.cleanup();
+		panRequestNotifier.cleanup();
+		undoActionNotifier.cleanup();
+		stopRequestNotifier.cleanup();
+		seriesVisibilityChangeNotifier.cleanup();
+		harmonicSearchNotifier.cleanup();
+		observationSelectionNotifier.cleanup();
 	}
 
 	/**
@@ -1784,7 +1773,7 @@ public class Mediator {
 	 * Open the phase plots dialog.
 	 */
 	public void showPhaseDialog() {
-		getModelDialog().showDialog();
+		getPhaseDialog().showDialog();
 	}
 
 	/**
@@ -2264,7 +2253,8 @@ public class Mediator {
 			ob = this.analysisTypeMap.get(analysisType).getMeansListPane().getLastObSelected();
 			break;
 		case MODEL_MODE:
-			ob = getDocumentManager().getModelListPane(analysisType, modelSelectionMessage.getModel()).getLastObSelected();
+			ob = getDocumentManager().getModelListPane(analysisType, modelSelectionMessage.getModel())
+					.getLastObSelected();
 			break;
 		case RESIDUALS_MODE:
 			ob = getDocumentManager().getResidualsListPane(analysisType, modelSelectionMessage.getModel())
