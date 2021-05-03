@@ -32,11 +32,15 @@ public class Notifier<T> {
 	// notifier's activities.
 	private CopyOnWriteArrayList<Listener<T>> listeners;
 
+	// The list of messages for this notifier's listeners.
+	private CopyOnWriteArrayList<T> messages;
+	
 	/**
-	 * Constructor.
+	 * Constructor
 	 */
 	public Notifier() {
 		this.listeners = new CopyOnWriteArrayList<Listener<T>>();
+		this.messages = new CopyOnWriteArrayList<T>();
 	}
 
 	/**
@@ -46,7 +50,7 @@ public class Notifier<T> {
 	 *            The listener to add.
 	 */
 	public void addListener(Listener<T> listener) {
-		this.addListener(listener, null);
+		this.addListener(listener, false);
 	}
 
 	/**
@@ -54,14 +58,16 @@ public class Notifier<T> {
 	 * 
 	 * @param listener
 	 *            The listener to add.
-	 * @param immediateMessage
-	 *            The initial notification message, or null.
+	 * @param immediateMessages
+	 *            Send all messages so far to this new listener.
 	 */
-	public void addListener(Listener<T> listener, T message) {
+	public void addListener(Listener<T> listener, boolean immediateMessages) {
 		listeners.addIfAbsent(listener);
 
-		if (message != null) {
-			this.notifyListeners(message);
+		if (immediateMessages) {
+			for (T message : messages) {
+				listener.update(message);
+			}
 		}
 	}
 
@@ -79,20 +85,26 @@ public class Notifier<T> {
 
 	/**
 	 * Remove all listeners that are willing to be removed.
+	 * Also, clear the message list.
 	 */
-	public void removeAllWillingListeners() {
+	public void cleanup() {
+		messages.clear();
+		
 		for (Listener<T> listener : listeners) {
 			removeListenerIfWilling(listener);
 		}
 	}
-
+	
 	/**
-	 * Notify all listeners of an activity update.
+	 * Notify all listeners of an activity update and collect the message
+	 * for future replay, in particular for new listeners.
 	 * 
 	 * @param message
 	 *            The message to pass to each listener.
 	 */
 	public void notifyListeners(T message) {
+		messages.add(message);
+		
 		for (Listener<T> listener : listeners) {
 			listener.update(message);
 		}

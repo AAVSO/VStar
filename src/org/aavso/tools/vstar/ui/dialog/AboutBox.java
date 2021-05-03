@@ -208,16 +208,19 @@ public class AboutBox extends JDialog {
 		strBuf.append("and conversations over beer.\n\n");
 
 		strBuf.append("For bug reports and fixes, documentation, plug-in\n");
-		strBuf.append("development, testing, and enthusiasm, thanks to Cliff\n");
-		strBuf.append("Kotnik, Dave Hinzel, Maksym Pyatnytskyy, Adam Weber,\n");
-		strBuf.append("Doug Welch, Ken Mogul, Alan Plummer, Mark Blackford.\n\n");
+		strBuf.append("development, testing, and enthusiasm, thanks to\n");
+		strBuf.append("Cliff Kotnik, Dave Hinzel, Maksym Pyatnytskyy,\n");
+		strBuf.append("Adam Weber, Paul York, Michelle Dadighat, Doug Welch,\n");
+		strBuf.append("Ken Mogul, Alan Plummer, Mark Blackford.\n\n");
 		
-		strBuf.append("Thanks to Patrick Wills who made web service access\n");
-		strBuf.append("to the AAVSO International Database possible.\n\n");
+		strBuf.append("Thanks to Patrick Wils who made web service access\n");
+		strBuf.append("to the AAVSO International Database possible.\n");
+		strBuf.append("Thanks to JoDee Baker and Brad Walter for their work\n");
+		strBuf.append("on CHOICE courses and for all the questions and feedback.\n\n");
 		
 		strBuf.append("Finally, thanks Arne, for the conversation at NACAA\n");
 		strBuf.append("2008 that got the ball rolling, ongoing interest,\n");
-		strBuf.append("the 2011 AAVSO Director's Award. Thanks also to\n");
+		strBuf.append("and the 2011 AAVSO Director's Award. Thanks also to\n");
 		strBuf.append("Stella and AAVSO for the 2019 Merit Award.");
 
 		return strBuf.toString();
