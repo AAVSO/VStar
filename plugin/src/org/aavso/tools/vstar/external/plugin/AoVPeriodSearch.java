@@ -476,19 +476,28 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 									PhaseTimeElementEntity.instance, 1.0 / bins);
 
 					// Collect results
-					frequencies.add(1.0 / period);
+					//   PMAK, Issue #152:
+					//     Use fixInf() to prevent 
+					//     'java.lang.IllegalArgumentException: Must be finite' 
+					//     error in AoV chart when period = 0
+					frequencies.add(fixInf(1.0 / period));
 					periods.add(period);
-
-					double fValue = binningResult.getFValue();
-					fValues.add(fValue);
-
-					pValues.add(binningResult.getPValue());
+					fValues.add(fixInf(binningResult.getFValue()));
+					pValues.add(fixInf(binningResult.getPValue()));
 
 					updateOrderedValues();
 				}
 
 				pruneTopHits();
 			}
+		}
+
+		// replace +-Infinity by NaN
+		private double fixInf(double v) {
+			if (Double.isInfinite(v))
+				return Double.NaN;
+			else
+				return v;
 		}
 
 		private void updateOrderedValues() {
