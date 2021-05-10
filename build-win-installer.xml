@@ -5,8 +5,11 @@
 		Inno Setup Compiler (https://jrsoftware.org/isinfo.php) 
 		must be installed (see InnoSetupCompiler property).
 		
-		Create VStar Windows package (vstar-win.zip) first: 
+		Create VStar Windows package (vstar-win.zip) and the plug-in bundle first: 
 			ant win
+			cd plugin
+			ant aavso
+			cd ..
 		Then use
 			ant -f build-win-installer.xml
 		command to make the installer.
@@ -15,10 +18,12 @@
 	</description>
 
 	<!-- Do not forget to set the correct app_version! -->
-	<property name="app_version" value ="2.21.2"/>
+	<property name="app_version" value ="2.2x.y"/>
 
 	<!-- VStar zipped Windows package -->
 	<property name="windows_bundle" location ="vstar-win.zip"/>
+	<!-- VStar zipped plugin package -->
+	<property name="plugin_bundle" location ="plugin/vstar-plugins.zip"/>
 	<!-- Directory to hold temporary files -->
 	<property name="win_install_dir" location="win-install"/>
 	<!-- Directory with additional installer files (images etc.) -->
@@ -35,6 +40,12 @@
 		</delete>
 
 		<unzip src="${windows_bundle}" dest="${win_install_dir}">
+			<patternset>
+				<include name="/"/>
+			</patternset>
+		</unzip>
+		
+		<unzip src="${plugin_bundle}" dest="${win_install_dir}">
 			<patternset>
 				<include name="/"/>
 			</patternset>
