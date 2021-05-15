@@ -18,7 +18,9 @@
 package org.aavso.tools.vstar.ui.dialog.plugin.manager;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -29,13 +31,16 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -60,7 +65,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 	private JButton installButton;
 	private JButton updateButton;
 	private JButton deleteButton;
-	private JButton deleteAllButton;
+	//private JButton deleteAllButton;
 	private JCheckBox allCheckBox;
 	private JButton closeProgramButton;
 
@@ -163,6 +168,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		// useless and may confuse
 		pluginList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION/* .SINGLE_INTERVAL_SELECTION */);
 		pluginList.addListSelectionListener(this);
+		pluginList.setCellRenderer(new pluginManagerCellRenderer());
 		JScrollPane modelListScroller = new JScrollPane(pluginList);
 
 		panel.add(modelListScroller);
@@ -202,9 +208,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		allCheckBox.addActionListener((e) -> {
 			if (allCheckBox.isSelected()) {
 				pluginList.setEnabled(false);
-				deleteButton.setEnabled(true);
-				installButton.setEnabled(true);
-				updateButton.setEnabled(true);
+				enableAllButtons();
 			} else {
 				pluginList.setEnabled(true);
 				setAllButtonStates();
@@ -220,7 +224,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 	private JPanel createButtonPane2() {
 		JPanel panel = new JPanel(new FlowLayout());
 
-		closeProgramButton = new JButton("VStar should be restarted: Click to close the program.");
+		closeProgramButton = new JButton("VStar should be restarted. Click to close the program.");
 		closeProgramButton.addActionListener(createCloseProgramButtonListener());
 		closeProgramButton.setEnabled(true);
 		closeProgramButton.setVisible(false);
@@ -231,10 +235,31 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		return panel;
 	}
 
+	private void enableAllButtons() {
+		dismissButton.setEnabled(true);
+		deleteButton.setEnabled(true);
+		installButton.setEnabled(true);
+		updateButton.setEnabled(true);
+		allCheckBox.setEnabled(true);
+		closeProgramButton.setEnabled(true);
+		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+	}
+	
+	private void disableAllButtons() {
+		dismissButton.setEnabled(false);
+		deleteButton.setEnabled(false);
+		installButton.setEnabled(false);
+		updateButton.setEnabled(false);
+		allCheckBox.setEnabled(false);
+		closeProgramButton.setEnabled(false);
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+	}
+	
 	// Set all button states per plugin
 	private void setAllButtonStates() {
-		for (int i=0;i<pluginListModel.size();i++) {
-			String desc = (String)pluginListModel.elementAt(i);
+		int index = pluginList.getSelectedIndex();
+		if (index != -1) {
+			String desc = (String) pluginListModel.get(index);
 			setButtonStates(desc);
 		}
 	}
@@ -285,6 +310,16 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 			}
 		};
 	}
+	
+  	private void updateInterfaceState() {
+  		enableAllButtons();
+  		if (!allCheckBox.isSelected()) {
+  			setAllButtonStates();
+  		}
+  		setRestartFlag();
+  		pluginList.repaint();
+  	}
+	
 
 	// Return a listener for the "Install" button.
 	private ActionListener createInstallButtonListener() {
@@ -301,22 +336,27 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 				} else {
 					descs.addAll(manager.getRemoteDescriptions());
 				}
-				installButton.setEnabled(true);
+
 				PluginManagementOperation op = new PluginManagementOperation(manager,
 						"Performing Plug-in Install Operation") {
 					@Override
 					public void execute() {
-						for (String desc : descs) {
-							manager.installPlugin(desc, PluginManager.Operation.INSTALL);
+						try {
+							for (String desc : descs) {
+								manager.installPlugin(desc, PluginManager.Operation.INSTALL);
+							}
+						} finally {
+							javax.swing.SwingUtilities.invokeLater(new Runnable() {
+								public void run() {
+									updateInterfaceState();				
+								}
+							});
 						}
-
-						for (String desc : descs) {
-							setButtonStates(desc);
-						}
-						
-						setRestartFlag();
 					}
 				};
+				// in "Install All" mode all plugins, including existing, will be installed
+				closePluginLoaders(); // under Windows, JAR file handles must be closed to allow overwriting
+				disableAllButtons();
 				Mediator.getInstance().performPluginManagerOperation(op);
 			}
 		};
@@ -337,22 +377,26 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 				} else {
 					descs.addAll(manager.getRemoteDescriptions());
 				}
-				closePluginLoaders();
+ 
 				PluginManagementOperation op = new PluginManagementOperation(manager,
 						"Performing Plug-in Update Operation") {
 					@Override
 					public void execute() {
-						for (String desc : descs) {
-							manager.installPlugin(desc, PluginManager.Operation.UPDATE);
+						try {
+							for (String desc : descs) {
+								manager.installPlugin(desc, PluginManager.Operation.UPDATE);
+							}
+						} finally {
+							javax.swing.SwingUtilities.invokeLater(new Runnable() {
+								public void run() {
+									updateInterfaceState();				
+								}
+							});
 						}
-
-						for (String desc : descs) {
-							setButtonStates(desc);
-						}
-						
-						setRestartFlag();
 					}
 				};
+				closePluginLoaders(); // under Windows, JAR file handles must be closed to allow overwriting				
+				disableAllButtons();
 				Mediator.getInstance().performPluginManagerOperation(op);
 			}
 		};
@@ -373,65 +417,35 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 				} else {
 					descs.addAll(manager.getLocalDescriptions());
 				}
-				closePluginLoaders();
+
 				PluginManagementOperation op = new PluginManagementOperation(manager,
 						"Performing Plug-in Delete Operation") {
 					@Override
 					public void execute() {
-						if (!allCheckBox.isSelected()) {
-							manager.deletePlugin((String) pluginListModel.get(index));
-						} else {
-							manager.deleteAllPlugins();
-						}
-
-						for (String desc : descs) {
-							setButtonStates(desc);
+						// Do not use manager.deleteAllPlugins() here,
+						// it displays dialogs yet would be called from background thread here.
+						try {
+							for (String desc : descs) {
+								manager.deletePlugin(desc);
+								if (!manager.isRemote(desc)) {
+									pluginListModel.remove(pluginListModel.indexOf(desc));
+								}
+							}
+						} finally {
+							javax.swing.SwingUtilities.invokeLater(new Runnable() {
+								public void run() {
+									updateInterfaceState();				
+								}
+							});
 						}
 					}
 				};
+				closePluginLoaders(); // under Windows, JAR file handles must be closed				
+				disableAllButtons();
 				Mediator.getInstance().performPluginManagerOperation(op);
-
-				// If not also remote, remove from list.
-				for (String desc : descs) {
-					if (!manager.isRemote(desc)) {
-						pluginListModel.remove(pluginListModel.indexOf(desc));
-					}
-				}
 			}
 		};
 	}
-
-	// Return a listener for the "Delete All" button.
-//	private ActionListener createDeleteAllButtonListener() {
-//		return new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				if (!MessageBox.showConfirmDialog("Plug-in Manager",
-//						"Delete all plug-ins?"))
-//					return;
-//				final Set<String> descs = new HashSet<String>(
-//						manager.getLocalDescriptions());
-//				closePluginLoaders();
-//				PluginManagementOperation op = new PluginManagementOperation(
-//						manager, "Performing Plug-in Delete All Operation") {
-//					@Override
-//					public void execute() {
-//						manager.deleteAllPlugins();
-//						for (String desc : descs) {
-//							setButtonStates(desc);
-//						}
-//					}
-//				};
-//				Mediator.getInstance().performPluginManagerOperation(op);
-//
-//				// If not also remote, remove from list.
-//				for (String desc : descs) {
-//					if (!manager.isRemote(desc)) {
-//						pluginListModel.remove(pluginListModel.indexOf(desc));
-//					}
-//				}
-//			}
-//		};
-//	}
 
 	// Return a listener for the "Close Program" button.
 	private ActionListener createCloseProgramButtonListener() {
@@ -443,4 +457,23 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		};
 	}
 
+	
+	private class pluginManagerCellRenderer extends DefaultListCellRenderer  {
+
+		@Override
+		public Component getListCellRendererComponent(JList<?> list,
+			Object value, int index, boolean isSelected, boolean cellHasFocus) {
+			JLabel l = (JLabel)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			String desc = (String) pluginListModel.get(index);
+			Font f = l.getFont();
+			if (manager.isLocal(desc)) {
+				//l.setText("[Y] " + desc);
+				l.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
+			} else {
+				//l.setText("[N] " + desc);
+				l.setFont(f.deriveFont(f.getStyle() | ~Font.BOLD));
+			}
+			return l;
+	     }
+	}
 }
