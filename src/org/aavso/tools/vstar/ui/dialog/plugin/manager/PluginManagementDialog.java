@@ -211,7 +211,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 				enableAllButtons();
 			} else {
 				pluginList.setEnabled(true);
-				setAllButtonStates();
+				setButtonStatesForSelectedPlugin();
 			}
 		});
 		panel.add(allCheckBox);
@@ -255,8 +255,8 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 	}
 	
-	// Set all button states per plugin
-	private void setAllButtonStates() {
+	// Set button states for currently selected plugin
+	private void setButtonStatesForSelectedPlugin() {
 		int index = pluginList.getSelectedIndex();
 		if (index != -1) {
 			String desc = (String) pluginListModel.get(index);
@@ -314,7 +314,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
   	private void updateInterfaceState() {
   		enableAllButtons();
   		if (!allCheckBox.isSelected()) {
-  			setAllButtonStates();
+  			setButtonStatesForSelectedPlugin();
   		}
   		setRestartFlag();
   		pluginList.repaint();
