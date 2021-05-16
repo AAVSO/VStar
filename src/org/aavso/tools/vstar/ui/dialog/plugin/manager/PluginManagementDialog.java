@@ -65,7 +65,6 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 	private JButton installButton;
 	private JButton updateButton;
 	private JButton deleteButton;
-	//private JButton deleteAllButton;
 	private JCheckBox allCheckBox;
 	private JButton closeProgramButton;
 
@@ -199,16 +198,12 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		deleteButton.setEnabled(false);
 		panel.add(deleteButton);
 
-//		deleteAllButton = new JButton("Delete All");
-//		deleteAllButton.addActionListener(createDeleteAllButtonListener());
-//		deleteAllButton.setEnabled(true);
-//		panel.add(deleteAllButton);
-
 		allCheckBox = new JCheckBox("All?");
 		allCheckBox.addActionListener((e) -> {
+			enableAllButtons();			
 			if (allCheckBox.isSelected()) {
 				pluginList.setEnabled(false);
-				enableAllButtons();
+				setButtonStatesForBatchOp();
 			} else {
 				pluginList.setEnabled(true);
 				setButtonStatesForSelectedPlugin();
@@ -253,6 +248,12 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		allCheckBox.setEnabled(false);
 		closeProgramButton.setEnabled(false);
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+	}
+
+	private void setButtonStatesForBatchOp() {
+		deleteButton.setEnabled(true);
+		installButton.setEnabled(true);
+		updateButton.setEnabled(false);
 	}
 	
 	// Set button states for currently selected plugin
@@ -311,11 +312,13 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		};
 	}
 	
-  	private void updateInterfaceState() {
-  		enableAllButtons();
-  		if (!allCheckBox.isSelected()) {
-  			setButtonStatesForSelectedPlugin();
-  		}
+  	private void updateInterfaceAfterPluginOp() {
+		enableAllButtons();			
+		if (allCheckBox.isSelected()) {
+			setButtonStatesForBatchOp();
+		} else {
+			setButtonStatesForSelectedPlugin();
+		}
   		setRestartFlag();
   		pluginList.repaint();
   	}
@@ -348,7 +351,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 						} finally {
 							javax.swing.SwingUtilities.invokeLater(new Runnable() {
 								public void run() {
-									updateInterfaceState();				
+									updateInterfaceAfterPluginOp();				
 								}
 							});
 						}
@@ -389,7 +392,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 						} finally {
 							javax.swing.SwingUtilities.invokeLater(new Runnable() {
 								public void run() {
-									updateInterfaceState();				
+									updateInterfaceAfterPluginOp();				
 								}
 							});
 						}
@@ -434,7 +437,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 						} finally {
 							javax.swing.SwingUtilities.invokeLater(new Runnable() {
 								public void run() {
-									updateInterfaceState();				
+									updateInterfaceAfterPluginOp();				
 								}
 							});
 						}
