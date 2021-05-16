@@ -430,13 +430,16 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 						try {
 							for (String desc : descs) {
 								manager.deletePlugin(desc);
-								if (!manager.isRemote(desc)) {
-									pluginListModel.remove(pluginListModel.indexOf(desc));
-								}
 							}
 						} finally {
 							javax.swing.SwingUtilities.invokeLater(new Runnable() {
 								public void run() {
+									// If not also remote, remove from list.
+									for (String desc : descs) {
+										if (!manager.isRemote(desc)) {
+											pluginListModel.remove(pluginListModel.indexOf(desc));
+										}
+									}
 									updateInterfaceAfterPluginOp();				
 								}
 							});
