@@ -68,7 +68,7 @@ public class MultipleSeriesSelectionDialog extends AbstractOkCancelDialog {
 		seriesPane = new JPanel();
 		seriesPane.setLayout(new BoxLayout(seriesPane, BoxLayout.LINE_AXIS));
 		seriesVisibilityPane = new SeriesVisibilityPane(obsPlotModel, Mediator
-				.getInstance().getAnalysisType(), false, false, false);
+				.getInstance().getAnalysisType(), true, false, false);
 		seriesPane.add(seriesVisibilityPane);
 
 		topPane.add(new JScrollPane(seriesPane));
