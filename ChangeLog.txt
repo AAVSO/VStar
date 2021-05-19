@@ -89,7 +89,7 @@ Key Changes:
 - Thank you to Maksym Pyatnytskyy, Paul York, Michelle Dadighat, 
   Cliff Kotnik.
 - In particular, a big thank you to Max who took on more issues than
-  anyone including me (David Benn) this time around. Thanks Max!
+  anyone including David this time around (>60%). Thanks Max!
 - Thanks also to Paul York for document updates and worthwhile 
   conversations about how to improve the development experience.
 
