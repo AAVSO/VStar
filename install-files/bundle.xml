@@ -1,0 +1,5 @@
+<app name="SimpleTest">
+    <jar name="vstar.jar" 
+        main-class="org.aavso.tools.vstar.ui.VStar"/>
+    <jar name="XMLLib.jar"/>
+</app>

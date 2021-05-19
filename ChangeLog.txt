@@ -30,9 +30,72 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: May 19 2021
+Version: 2.21.3
+Tag: 2.21.3
+Key Changes:
+- #157: All plugins included in the Windows installer
+- #155: Install/Update All buttons in plugin manager
+- #152: AoV plugin IllegalArgumentException: Must be finite if 
+  Minimum Period = 0
+- #148: Kepler/TESS plugin: infinity magnitude values due to 
+  possible zero fluxes in FITS
+- #143: Models not being recorded in Models dialog initially
+- #141: VeLa integers should be long not int
+- #140: Simple text format: observation flags are not consistent
+  between reading and writing.
+- #135: Update About Box
+- #130: Hipparcos Plugin: Documentation needs further updating
+- #129: Remove deprecated VeLa ANTLR listener code
+- #127: VeLa dialog does not show any output
+- #123: Preferences issues: Numeric Precision, Chart Properties,
+  Series Color, Series Size
+- #121: Chart Properties tab in Preferences
+- #119: Plugin HipparcosObservationSource: Documentation needs Updating
+- #117: JFreeChart library update
+- #114: Flexible Text Format plugin: multispace separator
+- #112: Javadocs do not open from downloaded zip, DMG
+- #110: Developing VStar plugins doc needs updating
+- #108: Allow user-defined ordering of series on plot or at least make
+  Filtered series last to render
+- #104: Replace .vstar file with Java Preferences API internally?
+- #101: PeriodAnalysisDialogBase: cleanup code is not invoked if the dialog 
+  is closed via title bar button
+- #99: TESS QLP FITS Observation Source Plugin
+- #97: Check binary table field names to be sure that correct FITS is used
+- #95: VSX Query Plugin Enhancement
+- #92: Make model equation term precisions consistent (use preferences)
+- #80: NewStarFromObSourcePluginTask does not close input streams under
+  some circumstances
+- #77: TextArea font extremely small under Windows
+- #70: DoubleField.setValue() does not respect locale
+- #68: LightKurve plugin
+- #67: HJD converter declination dialog does not handle negative degrees
+- #62: Harmonic search needs to use a numeric tolerance vs equality approach
+- #58: VeLa variables may undesirably change type
+- #53: Allow plot order to be specified by user
+- #52: Loading saved residuals fails without deleting extra empty columns
+- #47: CMag is always empty after loading data via "New star from AAVSO 
+  Database
+- #32: Observation Read Error - No Observations for the specified period:
+  not helpful
+- #30: New Plugin VSX Query
+- #25: KeplerFITSObservationRetriever() constructor was defined twice
+- #14: Model dialog function tab for R zeroPoint shows comma in value
+  for non-English locales
+- #6: Fix all unit tests with failures or errors to establish a baseline
+  for ongoing development
+- See https://github.com/AAVSO/VStar/projects/1 for more details.
+- Thank you to Maksym Pyatnytskyy, Paul York, Michelle Dadighat, 
+  Cliff Kotnik.
+- In particular, a big thank you to Max who took on more issues than
+  anyone including David this time around (>60%). Thanks Max!
+- Thanks also to Paul York for document updates and worthwhile 
+  conversations about how to improve the development experience.
+
 Date: Aug 12 2020
 Version: 2.21.2
-Tag: 2.12.2
+Tag: 2.21.2
 Key Changes:
 - #8: Architectural plug-in fix: dialogs called from different
   thread; prevents "observations for the specified period" error 
