@@ -95,7 +95,7 @@ Key Changes:
 
 Date: Aug 12 2020
 Version: 2.21.2
-Tag: 2.12.2 (note: this should have been 2.21.2)
+Tag: 2.21.2
 Key Changes:
 - #8: Architectural plug-in fix: dialogs called from different
   thread; prevents "observations for the specified period" error 
