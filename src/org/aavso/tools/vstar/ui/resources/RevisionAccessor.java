@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 public class RevisionAccessor {
 
-	private static String REVISION = "edf5bacf";
+	private static String REVISION = "d6766476";
 
 	/**
 	 * Get the latest git revision
