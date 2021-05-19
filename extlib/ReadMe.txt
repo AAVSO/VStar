@@ -77,3 +77,9 @@ testing purposes:
      o http://cobertura.sourceforge.net
      o Unpack the cobertura-1.9.3 archive into the extlib directory.
      o This is used in build-dev.xml for code coverage.
+
+and the following are used by Ant (see build.xml) to build the Mac OS X
+DMG release archive:
+
+ - AppBundler and dependent XMLLib.jar
+     o https://github.com/joshmarinacci/AppBundler 
