@@ -73,7 +73,7 @@ begin
           Ini.UpdateFile;
           S := Ini.ReadString('Settings', 'Parameters', '');
           Windows.MessageBox(0,
-            PChar('Java memory options were set to'^M^J + S),
+            PChar('Java memory options have been set to'^M^J + S),
             PChar(Ini.FileName), MB_OK or MB_ICONINFORMATION or MB_SYSTEMMODAL);
         end;
         Exit;

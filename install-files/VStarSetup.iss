@@ -40,24 +40,26 @@ PrivilegesRequired=lowest
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags:
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: ; Components: core
 
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-Source: "vstar\{#TheAppExeName}"; DestDir: "{app}"            ; Flags: ignoreversion
-Source: "vstar\{#TheAppCnfName}"; DestDir: "{app}"            ; Flags: ignoreversion
+Source: "vstar\{#TheAppExeName}"; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
+Source: "vstar\{#TheAppCnfName}"; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
 // We should copy VStar.bat to destination (it will be rewritten in 'PostInstall') to make it uninstallable.
-Source: "vstar\VStar.bat"       ; DestDir: "{app}"            ; Flags: ignoreversion
-Source: "vstar\VeLa.bat"        ; DestDir: "{app}"            ; Flags: ignoreversion
-Source: "vstar\ChangeLog.txt"   ; DestDir: "{app}"            ; Flags: ignoreversion
-Source: "vstar\data\*"          ; DestDir: "{app}\data"       ; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "vstar\dist\*"          ; DestDir: "{app}\dist"       ; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "vstar\doc\*"           ; DestDir: "{app}\doc"        ; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "vstar\extlib\*"        ; DestDir: "{app}\extlib"     ; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "vstar\plugin-dev\*"    ; DestDir: "{app}\plugin-dev" ; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "vstar\VStar.bat"       ; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
+Source: "vstar\VeLa.bat"        ; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
+Source: "vstar\ChangeLog.txt"   ; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
+Source: "vstar\data\*"          ; DestDir: "{app}\data"       ; Flags: ignoreversion recursesubdirs createallsubdirs; Components: core
+Source: "vstar\dist\*"          ; DestDir: "{app}\dist"       ; Flags: ignoreversion recursesubdirs createallsubdirs; Components: core
+Source: "vstar\doc\*"           ; DestDir: "{app}\doc"        ; Flags: ignoreversion recursesubdirs createallsubdirs; Components: core
+Source: "vstar\extlib\*"        ; DestDir: "{app}\extlib"     ; Flags: ignoreversion recursesubdirs createallsubdirs; Components: core
+Source: "vstar\plugin-dev\*"    ; DestDir: "{app}\plugin-dev" ; Flags: ignoreversion recursesubdirs createallsubdirs; Components: core
+;;
+Source: "vstar_plugins\*"       ; DestDir: "{%USERPROFILE}\vstar_plugins"    ; Flags: ignoreversion; Components: plugins
+Source: "vstar_plugin_libs\*"   ; DestDir: "{%USERPROFILE}\vstar_plugin_libs"; Flags: ignoreversion; Components: plugins
 
 [Icons]
-;Name: "{userprograms}\{#TheAppName}"; Filename: "{app}\{#TheAppExeName}"
 Name: "{group}\{#TheAppName}"; Filename: "{app}\{#TheAppExeName}"
 Name: "{group}\{#TheAppDebugName}"; Filename: "{app}\{#TheAppExeName}"; Parameters: "//DEBUG"
 Name: "{group}\Restore Default Memory Options"; Filename: "{app}\{#TheAppExeName}"; Parameters: "//RESTORE"
@@ -68,9 +70,13 @@ Name: "{userdesktop}\{#TheAppName}" ; Filename: "{app}\{#TheAppExeName}"; Tasks:
 Filename: "{app}\{#TheAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(TheAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 Filename: "{#TheAppURL}"; Description: "Visit Application Website"; Flags: postinstall shellexec skipifsilent
 
-;[INI]
-;Filename: "{app}\{#TheAppCnfName}"; Section: "Settings"; Key: "Parameters"; String: {code:GetIniMemParameters}
-;Filename: "{app}\{#TheAppCnfName}"; Section: "Settings"; Key: "Description"; String: {code:GetIniDescription}
+[Types]
+Name: "full";         Description: "Full Installation"
+Name: "custom";       Description: "Custom Installation"; Flags: iscustom
+
+[Components]
+Name: "core";       Description: "VStar core"    ; Types: custom full; Flags: fixed
+Name: "plugins";    Description: "VStar plugins" ; Types: custom full
 
 [Code]
 
@@ -193,7 +199,7 @@ begin
   if CurStep = ssPostInstall then begin
     MakeVStarIni;
     MakeBatLauncher;
-    MsgBox('Java memory options were set to'#13#10 + 
+    MsgBox('Java memory options have been set to'#13#10 + 
             GetIniMemParameters('') + #13#10 +
            'To modify them, edit ' + #13#10 + 
            '"' + ExpandConstant('{app}') + '\' + '{#TheAppCnfName}"'#13#10 + 
