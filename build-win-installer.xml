@@ -18,7 +18,7 @@
 	</description>
 
 	<!-- Do not forget to set the correct app_version! -->
-	<property name="app_version" value ="2.2x.y"/>
+	<property name="app_version" value ="2.21.3"/>
 
 	<!-- VStar zipped Windows package -->
 	<property name="windows_bundle" location ="vstar-win.zip"/>
