@@ -33,7 +33,7 @@ public class PluginManagerTest extends TestCase {
 
 	private PluginManager pluginManager;
 
-	private final String BASE_URL = "https://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-2.16.8";
+	private final String BASE_URL = "https://www.aavso.org/sites/default/files/vstar-plugins/vstar-plugins-2.21.3";
 
 	public PluginManagerTest(String name) {
 		super(name);
@@ -53,7 +53,6 @@ public class PluginManagerTest extends TestCase {
 		Map<String, URL> plugins = pluginManager.getRemotePluginsByJarName();
 		assertTrue(plugins.size() > 10);
 		Map<String, List<URL>> libs = pluginManager.getLibs();
-		assertEquals(2, libs.size());
 	}
 
 	public void testRetrieveLocalPluginJarInfo() throws Exception {

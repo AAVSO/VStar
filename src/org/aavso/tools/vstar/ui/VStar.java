@@ -33,6 +33,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.property.ApplicationProperties;
 
 /**
@@ -106,6 +107,8 @@ public class VStar {
 			System.exit(1);
 		}
 
+		veLaInit();
+
 		processCmdLineArgs(args);
 
 		// If there's no command-line option that says we shouldn't load
@@ -175,6 +178,20 @@ public class VStar {
 		}
 	}
 
+	/**
+	 * Force VeLa initialization before any plug-in invocation.
+	 * See Issue #162  
+	 * 
+	 */
+	private static void veLaInit() {
+		// try/catch just in case.
+		try {
+			double dummy = NumberParser.parseDouble("1911");
+		} catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+	
 	/**
 	 * Process the command-line arguments. Note: If we do anything more complex
 	 * than this, consideration should be given to using a library such as:
