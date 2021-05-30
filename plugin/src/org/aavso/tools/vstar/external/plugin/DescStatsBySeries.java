@@ -139,15 +139,15 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 
 	    @Override
 	    public int compare(Vector<Object> first, Vector<Object> second) {
-	    	String name1 = null;
-	    	String name2 = null;
-	    	if (first != null)
-	    		name1 = (String) first.elementAt(0);
-	    	if (second != null)
-	    		name2 = (String) second.elementAt(0);
-	    	if (name1 == null)
+	    	String name1;
+	    	String name2;
+	    	if (first != null && first.size() > 0 && first.elementAt(0) != null)
+	    		name1 = first.elementAt(0).toString();
+	    	else
 	    		name1 = "";
-	    	if (name2 == null)
+	    	if (second != null && second.size() > 0 && second.elementAt(0) != null)
+	    		name2 = second.elementAt(0).toString();
+	    	else
 	    		name2 = "";
 	    	return name1.compareTo(name2);
 	    }
