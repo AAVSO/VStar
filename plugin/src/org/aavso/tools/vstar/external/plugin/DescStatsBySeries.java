@@ -81,7 +81,9 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 			}
 		}
 
-		Collections.sort(rows, new SeriesComparator());		
+		SeriesComparator seriesComparatorInstance = new SeriesComparator(); 
+		
+		Collections.sort(rows, seriesComparatorInstance);		
 
 		Vector<Vector<Object>> rows2 = new Vector<Vector<Object>>();		
 		
@@ -96,7 +98,7 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 		}
 		
 		if (rows2.size() > 0) {
-			Collections.sort(rows2, new SeriesComparator());
+			Collections.sort(rows2, seriesComparatorInstance);
 			rows.add(null);
 			for (Vector<Object> v : rows2) {
 				rows.add(v);
@@ -116,7 +118,7 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 		}
 		
 		if (rows2.size() > 0) {
-			Collections.sort(rows2, new SeriesComparator());				
+			Collections.sort(rows2, seriesComparatorInstance);				
 			rows.add(null);
 			for (Vector<Object> v : rows2) {
 				rows.add(v);
@@ -135,7 +137,7 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 		new DescStatsDialog(rows, columnNames);
 	}
 	
-	public class SeriesComparator implements Comparator<Vector<Object>> {
+	private class SeriesComparator implements Comparator<Vector<Object>> {
 
 	    @Override
 	    public int compare(Vector<Object> first, Vector<Object> second) {
