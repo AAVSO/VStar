@@ -17,8 +17,6 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -215,37 +213,18 @@ public class HJDConverter extends ObservationToolPluginBase {
 		// PMAK (2021-06-03):
 		// There is no way to recalculate observation phases (as for VStar 2.21.3)
 		// So we are switching to RAW plot and trying to delete existing phase plot.
-		// Again, there was no method to do it (VStar 2.21.3).
-		// We are checking if the new 'Mediator.dropPhasePlotAnalysis' method exists
-		// (to make the plug-in compatible with the previous VStar build)
-		// and invoking it if possible.
 		
 		Mediator mediator = Mediator.getInstance();
 		
 		mediator.changeAnalysisType(AnalysisType.RAW_DATA);
 
-		boolean phasePlotDeleted = false;
-		Method dropPhasePlotAnalysis = null;
 		try {
-			dropPhasePlotAnalysis = Mediator.class.getMethod("dropPhasePlotAnalysis", (Class<?>[]) null);
-		} catch (NoSuchMethodException | SecurityException e) {
-		  // do nothing
-		}
-		if (dropPhasePlotAnalysis != null) {
-			try {
-				dropPhasePlotAnalysis.invoke(mediator, (Object[]) null);
-				phasePlotDeleted =  true;
-			} catch (InvocationTargetException | IllegalAccessException e) {
-				// do nothing
-			}
-		}
-		
-		if (!phasePlotDeleted) {
-			// Warn the user if the current phase plot cannot be deleted...
+			mediator.dropPhasePlotAnalysis();
+		} catch (Exception e) {
 			MessageBox.showWarningDialog("HJD Conversion", 
-					"Please recreate Phase Plot to reflect changes.");
+				"Cannot delete current Phase Plot. Please recreate it to reflect changes.");
 		}
-		
+	
 		// Updates RAW plot and data table.
 		Mediator.getInstance().updatePlotsAndTables();
 		
