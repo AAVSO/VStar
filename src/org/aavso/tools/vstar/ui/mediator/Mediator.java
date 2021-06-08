@@ -689,6 +689,16 @@ public class Mediator {
 		};
 	}
 
+	
+	/**
+	 * Removes phase plot if exists.
+	 * 
+	 */
+	public void dropPhasePlotAnalysis() {
+		assert(analysisType != AnalysisType.PHASE_PLOT);
+		analysisTypeMap.remove(AnalysisType.PHASE_PLOT);
+	}
+	
 	/**
 	 * Create a phase plot, first asking for period and epoch.
 	 * 

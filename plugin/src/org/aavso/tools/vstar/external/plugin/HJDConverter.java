@@ -28,6 +28,7 @@ import org.aavso.tools.vstar.ui.dialog.Checkbox;
 import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
@@ -81,6 +82,8 @@ public class HJDConverter extends ObservationToolPluginBase {
 				}
 			}
 		}
+		
+		updateUI();
 
 		if (retrievers.size() != 0 && count != 0) {
 			MessageBox.showMessageDialog("HJD Conversion",
@@ -201,4 +204,30 @@ public class HJDConverter extends ObservationToolPluginBase {
 
 		return coords;
 	}
+	
+	/**
+	 * Update UI
+	 */
+	private void updateUI() {
+		
+		// PMAK (2021-06-03):
+		// There is no way to recalculate observation phases (as for VStar 2.21.3)
+		// So we are switching to RAW plot and trying to delete existing phase plot.
+		
+		Mediator mediator = Mediator.getInstance();
+		
+		mediator.changeAnalysisType(AnalysisType.RAW_DATA);
+
+		try {
+			mediator.dropPhasePlotAnalysis();
+		} catch (Exception e) {
+			MessageBox.showWarningDialog("HJD Conversion", 
+				"Cannot delete current Phase Plot. Please recreate it to reflect changes.");
+		}
+	
+		// Updates RAW plot and data table.
+		Mediator.getInstance().updatePlotsAndTables();
+		
+	}
+	
 }
