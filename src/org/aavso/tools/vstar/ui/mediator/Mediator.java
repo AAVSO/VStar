@@ -1905,7 +1905,12 @@ public class Mediator {
 	public void invokeTool(ObservationToolPluginBase plugin) {
 		if (validObservationCategoryMap != null) {
 			try {
-				plugin.invoke(getSeriesInfoProvider());
+				// getSeriesInfoProvider() always returns series info for RAW_DATA.
+				// PHASE_PLOT can have other series visibility, so it is more logical to pass
+				// series info for the active analysis.
+				ISeriesInfoProvider seriesInfo = analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getObsModel();
+				plugin.invoke(seriesInfo);
+				//plugin.invoke(getSeriesInfoProvider());				
 			} catch (Throwable t) {
 				MessageBox.showErrorDialog("Tool Error", t);
 			}
