@@ -83,9 +83,8 @@ public class HJDConverter extends ObservationToolPluginBase {
 			}
 		}
 		
-		updateUI();
-
 		if (retrievers.size() != 0 && count != 0) {
+			updateUI();
 			MessageBox.showMessageDialog("HJD Conversion",
 					String.format("%d observations converted.", count));
 		}
