@@ -87,10 +87,12 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 
 		Vector<Vector<Object>> rows2 = new Vector<Vector<Object>>();		
 		
-		// Synthetic: Filtered, Mean, Model, etc.
+		// Synthetic: Filtered, Model, etc.
 		
 		for (SeriesType type : seriesInfo.getVisibleSeries()) {
-			if (type.isSynthetic()) {				
+			// Do not show info for MEAN series:
+			//   if it is phase MEAN, calcMagMeanInRange throws an exception.
+			if (type.isSynthetic() && (type != SeriesType.MEANS)) {				
 				Vector<Object> row = getRow(seriesInfo, type); 
 				if (row != null)
 					rows2.add(row);
