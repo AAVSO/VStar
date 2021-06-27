@@ -107,8 +107,6 @@ public class VStar {
 			System.exit(1);
 		}
 
-		veLaInit();
-
 		processCmdLineArgs(args);
 
 		// If there's no command-line option that says we shouldn't load
@@ -175,20 +173,6 @@ public class VStar {
 		} catch (Throwable t) {
 			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
 					"Error", t.getLocalizedMessage());
-		}
-	}
-
-	/**
-	 * Force VeLa initialization before any plug-in invocation.
-	 * See Issue #162  
-	 * 
-	 */
-	private static void veLaInit() {
-		// try/catch just in case.
-		try {
-			double dummy = NumberParser.parseDouble("1911");
-		} catch (Exception e) {
-			System.err.println(e);
 		}
 	}
 	
