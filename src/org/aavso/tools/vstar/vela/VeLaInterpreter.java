@@ -56,8 +56,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
  */
 public class VeLaInterpreter {
 
-	private List<FunctionExecutor> javaClassFunctionExecutors;
-
 	private boolean verbose;
 
 	private List<File> sourceDirectories;
@@ -76,6 +74,8 @@ public class VeLaInterpreter {
 
 	// Regular expression pattern cache.
 	private static Map<String, Pattern> regexPatterns = new HashMap<String, Pattern>();
+
+	private static List<FunctionExecutor> javaClassFunctionExecutors = null;
 
 	private VeLaErrorListener errorListener;
 
@@ -114,19 +114,20 @@ public class VeLaInterpreter {
 			permittedTypes.add(VStarScriptingAPI.class);
 		}
 		
-		javaClassFunctionExecutors = new ArrayList<FunctionExecutor>();
-
-		addFunctionExecutorsFromClass(Math.class, null, permittedTypes,
-				Collections.emptySet());
-
-		addFunctionExecutorsFromClass(String.class, null, permittedTypes,
-				new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
-
-		if (addVStarAPI) {
-			addFunctionExecutorsFromClass(VStarScriptingAPI.class,
-					VStarScriptingAPI.getInstance(), permittedTypes,
+		if (javaClassFunctionExecutors == null) {
+			javaClassFunctionExecutors = new ArrayList<FunctionExecutor>();
+			addFunctionExecutorsFromClass(Math.class, null, permittedTypes,
 					Collections.emptySet());
-		}
+
+			addFunctionExecutorsFromClass(String.class, null, permittedTypes,
+					new HashSet<String>(Arrays.asList("JOIN", "FORMAT")));
+
+			if (addVStarAPI) {
+				addFunctionExecutorsFromClass(VStarScriptingAPI.class,
+						VStarScriptingAPI.getInstance(), permittedTypes,
+						Collections.emptySet());
+			}
+		}		
 		
 		initBindings();
 		initFunctionExecutors();
