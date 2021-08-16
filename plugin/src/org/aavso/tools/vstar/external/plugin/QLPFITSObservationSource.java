@@ -47,6 +47,7 @@ import nom.tam.fits.BasicHDU;
 import nom.tam.fits.BinaryTableHDU;
 import nom.tam.fits.Fits;
 import nom.tam.fits.FitsException;
+import nom.tam.fits.Header;
 import nom.tam.fits.ImageHDU;
 
 /**
@@ -59,6 +60,9 @@ import nom.tam.fits.ImageHDU;
  */
 public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 
+	private static final String BJDREF_INT   = "BJDREFI";
+	private static final String BJDREF_FLOAT = "BJDREFR";
+	
 	//private  final SeriesType keplerSeries;
 	private SeriesType dataSeriesQLP;
 
@@ -181,8 +185,15 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 					throw new ObservationReadError("Not a valid FITS file");
 				}
 			
-				double timei = tableHDU.getHeader().getDoubleValue("BJDREFI");
-				double timef = tableHDU.getHeader().getDoubleValue("BJDREFF");
+				Header tableHeader = tableHDU.getHeader();
+				double timei;
+				double timef;
+				if (tableHeader.containsKey(BJDREF_INT) && tableHeader.containsKey(BJDREF_FLOAT)) {
+					timei = tableHDU.getHeader().getDoubleValue(BJDREF_INT);
+					timef = tableHDU.getHeader().getDoubleValue(BJDREF_FLOAT);
+				} else {
+					throw new ObservationReadError("Cannot find " + BJDREF_INT + " and/or " + BJDREF_FLOAT + " keywords.");
+				}
 				
 				for (int row = 0; row < tableHDU.getNRows()	&& !wasInterrupted(); row++) {
 					try {
