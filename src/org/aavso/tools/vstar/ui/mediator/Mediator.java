@@ -44,6 +44,7 @@ import javax.swing.SwingWorker;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
@@ -1311,91 +1312,6 @@ public class Mediator {
 		analysisTypeChangeNotifier.notifyListeners(analysisTypeMsg);
 	}
 
-	/**
-	 * Do the new or old observations need to be converted to HJD? Note that we can
-	 * only convert to HJD if we have RA/Dec for the object, e.g. from AID; perhaps
-	 * later an RA/Dec dialog can be opened. The existing (old)
-	 * newStarMessage.starInfo.retriever will be replaced with this new HJD
-	 * retriever, permitting it to be consulted the next time this method is
-	 * invoked.
-	 * 
-	 * @param newStarInfo Info about the new star who's observations are to be
-	 *                    added.
-	 */
-	public void convertObsToHJD(StarInfo newStarInfo) {
-		// Try to get RA and Dec information from any of our loaded datasets.
-		// We are making the simplifying assumption that all datasets correspond
-		// to the same object!
-
-		RAInfo ra = null;
-		DecInfo dec = null;
-
-		for (NewStarMessage msg : newStarMessageList) {
-			ra = msg.getStarInfo().getRA();
-			dec = msg.getStarInfo().getDec();
-
-			if (ra != null && dec != null) {
-				break;
-			}
-		}
-
-		// Perhaps our new retriever has RA and Dec we can use?
-		if (ra == null || dec == null) {
-			ra = newStarInfo.getRA();
-			dec = newStarInfo.getDec();
-		}
-
-		if (newStarInfo.getRetriever().isHeliocentric()
-				&& !getLatestNewStarMessage().getStarInfo().getRetriever().isHeliocentric()) {
-
-			if (ra == null || dec == null) {
-				// Asking the user for J2000.0 RA/DEC and if that is cancelled,
-				// indicate that HJD conversion cannot take place.
-				ra = requestRA();
-				dec = requestDec();
-				if (ra == null || dec == null) {
-					MessageBox.showWarningDialog("HJD Conversion",
-							"The previously loaded observations have NOT been converted to HJD.");
-					return;
-				}
-			}
-
-			/*
-			 * The new observations use HJD but the existing observations do not, so convert
-			 * the existing observations.
-			 */
-			convertObsToHJD(validObsList, ra, dec);
-
-			MessageBox.showWarningDialog("HJD Conversion", "The previously loaded observations were converted to HJD.");
-		} else if (!newStarInfo.getRetriever().isHeliocentric()
-				&& getLatestNewStarMessage().getStarInfo().getRetriever().isHeliocentric()) {
-
-			if (ra == null || dec == null) {
-				// Asking the user for J2000.0 RA/DEC and if that is cancelled,
-				// indicate that HJD conversion cannot take place.
-				ra = requestRA();
-				dec = requestDec();
-				if (ra == null || dec == null) {
-					MessageBox.showWarningDialog("HJD Conversion",
-							"The previously loaded observations have NOT been converted to HJD.");
-					return;
-				}
-			}
-
-			/*
-			 * The new observations do not use HJD but the existing observations do, so
-			 * convert the new observations. Note that the new retriever needs to have its
-			 * HJD flag set once the observations are converted. We do not need to do this
-			 * for the case above, because the new StarInfo will replace the existing one,
-			 * so the question about "existing HJD" will ask this new object's retriever.
-			 */
-			convertObsToHJD(newStarInfo.getRetriever().getValidObservations(), ra, dec);
-			newStarInfo.getRetriever().setHeliocentric(true);
-
-			MessageBox.showWarningDialog("HJD Conversion", "The newly loaded observations were converted to HJD.");
-		}
-	}
-
 	// Request the J2000.0 RA in HH:MM:SS.n
 	public RAInfo requestRA(RAInfo ra) {
 		int h = 0;
@@ -1475,8 +1391,9 @@ public class Mediator {
 		AbstractHJDConverter converter = AbstractHJDConverter.getInstance(ra.getEpoch());
 
 		for (ValidObservation ob : obs) {
-			if (!ob.isHeliocentric()) {
+			if (ob.getJDflavour() == JDflavour.JD) {
 				ob.setJD(converter.convert(ob.getJD(), ra, dec));
+				ob.setJDflavour(JDflavour.HJD);
 				count++;
 			}
 		}

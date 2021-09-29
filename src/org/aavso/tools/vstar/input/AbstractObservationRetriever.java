@@ -29,6 +29,7 @@ import java.util.TreeMap;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -52,9 +53,6 @@ import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
  */
 public abstract class AbstractObservationRetriever {
 
-	public final String JD = LocaleProps.get("JD");
-	public final String HJD = LocaleProps.get("HJD");
-	public final String BJD = LocaleProps.get("BJD");
 	public final String MAGNITUDE = LocaleProps.get("MAGNITUDE");
 
 	public final static int DEFAULT_CAPACITY = -1;
@@ -74,9 +72,8 @@ public abstract class AbstractObservationRetriever {
 
 	protected boolean interrupted;
 
-	protected boolean isHeliocentric;
-	protected boolean isBarycentric;
-
+	protected JDflavour jdFlavour;
+	
 	/**
 	 * The list of valid observations retrieved.
 	 */
@@ -146,8 +143,7 @@ public abstract class AbstractObservationRetriever {
 
 		interrupted = false;
 
-		isHeliocentric = false;
-		isBarycentric = false;
+		jdFlavour = JDflavour.JD;
 
 		Mediator.getInstance().getStopRequestNotifier()
 				.addListener(createStopRequestListener());
@@ -248,30 +244,45 @@ public abstract class AbstractObservationRetriever {
 	 *         correspond to heliocentric JD values.
 	 */
 	public boolean isHeliocentric() {
-		return isHeliocentric;
+		return jdFlavour == JDflavour.HJD;
 	}
 
 	/**
 	 * @param isHeliocentric
-	 *            the isHeliocentric to set
+	 * 
+	 * @deprecated
+	 * This method is deprecated.
+	 * <p> Use {@link AbstractObservationRetriever#setJDflavour(JDflavour)} instead.
+	 * 
 	 */
 	public void setHeliocentric(boolean isHeliocentric) {
-		this.isHeliocentric = isHeliocentric;
+		jdFlavour = isHeliocentric ? JDflavour.HJD : JDflavour.JD; 
 	}
 
 	/**
 	 * @return the isBarycentric
 	 */
 	public boolean isBarycentric() {
-		return isBarycentric;
+		return jdFlavour == JDflavour.BJD;
 	}
 
 	/**
 	 * @param isBarycentric
-	 *            the isBarycentric to set
+	 * 
+	 * @deprecated
+	 * This method is deprecated.
+	 * <p> Use {@link AbstractObservationRetriever#setJDflavour(JDflavour)} instead.
 	 */
 	public void setBarycentric(boolean isBarycentric) {
-		this.isBarycentric = isBarycentric;
+		jdFlavour = isBarycentric ? JDflavour.BJD : JDflavour.JD; 
+	}
+	
+	public JDflavour getJDflavour() {
+		return jdFlavour; 
+	}
+	
+	public void setJDflavour(JDflavour jdFlavour) {
+		this.jdFlavour = jdFlavour; 
 	}
 
 	/**
@@ -291,15 +302,7 @@ public abstract class AbstractObservationRetriever {
 	 * @return The time units string.
 	 */
 	public String getTimeUnits() {
-		String timeUnits = JD;
-
-		if (isHeliocentric) {
-			timeUnits = HJD;
-		} else if (isBarycentric) {
-			timeUnits = BJD;
-		}
-
-		return timeUnits;
+		return jdFlavour.label;
 	}
 
 	/**
@@ -367,19 +370,6 @@ public abstract class AbstractObservationRetriever {
 					|| !seriesToExclude.contains(ob.getBand())) {
 				collectObservation(ob);
 			}
-		}
-	}
-
-	/**
-	 * Adds all the specified valid observations to the existing valid
-	 * observations. This can be used for additive load operations.
-	 * 
-	 * @param obs
-	 *            The list of previously existing invalid observations.
-	 */
-	public void addAllValidObservations(List<ValidObservation> obs) {
-		for (ValidObservation ob : obs) {
-			addValidObservation(ob);
 		}
 	}
 
@@ -546,10 +536,8 @@ public abstract class AbstractObservationRetriever {
 			category = validOb.getBand();
 		}
 
-		// Only set observation's Heliocentric status from the receiver's if not
-		// already true.
-		if (!validOb.isHeliocentric()) {
-			validOb.setHeliocentric(isHeliocentric());
+		if (validOb.getJDflavour() == JDflavour.UNKNOWN) {
+			validOb.setJDflavour(getJDflavour());
 		}
 
 		List<ValidObservation> validObsList = validObservationCategoryMap

@@ -62,6 +62,7 @@
 		<jar jarfile="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" basedir="${build.classes}" includes="**/SuperWASPFITSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaModelCreator.jar" basedir="${build.classes}" includes="**/VeLaModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaObservationTransformer.jar" basedir="${build.classes}" includes="**/VeLaObservationTransformer**.class" />
+		<jar jarfile="${dist}/${pkg}.JulianDateObservationsFilter.jar" basedir="${build.classes}" includes="**/JulianDateObservationsFilter**.class" />		
 		<!--
 		<jar jarfile="${dist}/${pkg}.DifferentialPhotometry.jar" basedir="${build.classes}" includes="**/DifferentialPhotometry**.class" />
 		<jar jarfile="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/IRISAutomaticPhotometryObservationSource**.class" />
@@ -118,6 +119,7 @@
 		<copy file="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VeLaModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VeLaObservationTransformer.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.JulianDateObservationsFilter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />		
 		<!--
 		<copy file="${dist}/${pkg}.DifferentialPhotometry.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -157,6 +159,7 @@
 		<echo file="${plugins_list_file}" message="${pkg}.SuperWASPFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaModelCreator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObservationTransformer.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.JulianDateObservationsFilter.jar${line.separator}" append="true" />		
 		<!--
 		<echo file="${plugins_list_file}" message="${pkg}.DifferentialPhotometry.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.IRISAutomaticPhotometryObservationSource.jar${line.separator}" append="true" />
