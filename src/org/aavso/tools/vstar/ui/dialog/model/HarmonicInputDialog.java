@@ -111,7 +111,7 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 	// Get an appropriate max-number-of-harmonics value for the specified
 	// frequency, based upon the last harmonic search result if one exists.
 	private int getMaxHarmonicsForFreq(double freq) {
-		int maxHarmonics = 12; // TODO: make this a preference
+		int maxHarmonics = 25;
 
 		// If there are less harmonics for the frequency than the default, use
 		// this. Allowing this to have no reasonable bound just doesn't make
