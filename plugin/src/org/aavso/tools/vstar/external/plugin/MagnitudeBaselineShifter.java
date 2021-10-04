@@ -135,8 +135,6 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 
 		if (ok) {
 			origShift = shift = shiftField.getValue();
-		} else {
-			origShift = shift = 0;
 		}
 
 		return ok;
