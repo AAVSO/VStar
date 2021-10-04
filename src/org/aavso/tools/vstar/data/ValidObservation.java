@@ -66,7 +66,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class ValidObservation extends Observation {
 
 	public enum JDflavour {
-		UNKNOWN("UNKNOWN"), 
+		UNKNOWN("Time"), 
 		JD("JD"), 
 		HJD("HJD"), 
 		BJD("BJD");
