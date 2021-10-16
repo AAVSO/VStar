@@ -37,12 +37,12 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 
-	private double shift;
+	private double shift, origShift;
 	private boolean firstInvocation;
 
 	public MagnitudeBaselineShifter() {
 		super();
-		shift = 0;
+		origShift = shift = 0;
 		firstInvocation = true;
 	}
 
@@ -76,7 +76,6 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 			@Override
 			public boolean execute(UndoableActionType type) {
 				boolean ok = true;
-				
 				switch (type) {
 				case DO:
 					// For a do operation, invoke the dialog when the action is
@@ -111,7 +110,7 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 	protected Listener<NewStarMessage> getNewStarListener() {
 		return new Listener<NewStarMessage>() {
 			public void update(NewStarMessage info) {
-				shift = 0;
+				origShift = shift = 0;
 			}
 
 			public boolean canBeRemoved() {
@@ -128,16 +127,14 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 	private boolean invokeDialog() {
 		boolean ok = true;
 
-		DoubleField shiftField = new DoubleField("Shift", null, null, shift);
+		DoubleField shiftField = new DoubleField("Shift", null, null, origShift);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
 				"Magnitude Shift", shiftField);
 
 		ok = !dialog.isCancelled();
 
 		if (ok) {
-			shift = shiftField.getValue();
-		} else {
-			shift = 0;
+			origShift = shift = shiftField.getValue();
 		}
 
 		return ok;
