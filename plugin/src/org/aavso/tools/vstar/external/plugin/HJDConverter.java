@@ -17,17 +17,11 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
-import org.aavso.tools.vstar.ui.dialog.Checkbox;
-import org.aavso.tools.vstar.ui.dialog.ITextComponent;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
-import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
@@ -43,6 +37,10 @@ import org.aavso.tools.vstar.util.coords.RAInfo;
  * 
  * TODO:<br/>
  * - undoable edits!
+ * 
+ * PMAK (2021-09-29):
+ * - Plug-in was simplified because currently there is no way to 
+ * 		distinguish JD/HJD/BJD observations by loading methods and/or by series.
  */
 public class HJDConverter extends ObservationToolPluginBase {
 
@@ -58,105 +56,43 @@ public class HJDConverter extends ObservationToolPluginBase {
 
 	@Override
 	public void invoke(ISeriesInfoProvider seriesInfo) {
-		// If coordinates were returned, iterate over all new star messages,
-		// converting observation times to HJD that are not already
-		// Heliocentric. Note that we do not make use of seriesInfo since it
-		// does not tell us which observations are Heliocentric.
-		int count = 0;
-		Pair<RAInfo, DecInfo> lastCoordsFound = null;
-		List<AbstractObservationRetriever> retrievers = getRequestedNonHeliocentricDatasets();
-		for (AbstractObservationRetriever retriever : retrievers) {
-			if (!retriever.isHeliocentric()) {
-
-				Pair<RAInfo, DecInfo> coords = getCoordinates(
-						retriever.getStarInfo(), lastCoordsFound);
-
-				if (coords != null) {
-					retriever.setHeliocentric(true);
-
-					count += Mediator.getInstance().convertObsToHJD(
-							retriever.getValidObservations(), coords.first,
-							coords.second);
-
-					lastCoordsFound = coords;
+		// The most recent new star message will have all obs and series
+		// (whether a single or additive dataset).
+		// [comment from InfoDialog.java]
+		NewStarMessage msg = Mediator.getInstance().getLatestNewStarMessage();
+		if (msg != null) {
+			List<ValidObservation> obs = msg.getObservations();
+			int count = 0;			
+			for (ValidObservation ob : obs) {
+				if (ob.getJDflavour() == JDflavour.JD) {
+					count++;
 				}
 			}
-		}
-		
-		if (retrievers.size() != 0 && count != 0) {
-			updateUI();
-			MessageBox.showMessageDialog("HJD Conversion",
-					String.format("%d observations converted.", count));
-		}
-	}
-
-	/**
-	 * Return a list of requested selected retrievers whose observations have
-	 * not been converted to HJD. The user is prompted to select which
-	 * non-Heliocentric datasets to convert.
-	 */
-	private List<AbstractObservationRetriever> getRequestedNonHeliocentricDatasets() {
-		List<AbstractObservationRetriever> selected = new ArrayList<AbstractObservationRetriever>();
-
-		List<AbstractObservationRetriever> retrievers = getNonHeliocentricDatasets();
-
-		List<ITextComponent<?>> checkboxes = new ArrayList<ITextComponent<?>>();
-		Map<String, AbstractObservationRetriever> name2retriever = new HashMap<String, AbstractObservationRetriever>();
-
-		for (AbstractObservationRetriever retriever : retrievers) {
-			if (!retriever.getValidObservations().isEmpty()
-					&& !retriever.isHeliocentric()
-					&& !retriever.isBarycentric()) {
-				String name = retriever.getSourceType();
-				String designation = retriever.getStarInfo().getDesignation();
-				if (!name.equals(designation)) {
-					name = name + ": " + designation;
-				}
-				checkboxes.add(new Checkbox(name, false));
-				name2retriever.put(name, retriever);
+			if (count == 0) {
+				MessageBox.showMessageDialog("Non-Heliocentric Observations",
+						"No observations with Julian Date");
+				return;
 			}
-		}
-
-		if (checkboxes.size() != 0) {
-			MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
-					"Non-Heliocentric Datasets", checkboxes);
-
-			if (!dialog.isCancelled()) {
-				for (ITextComponent<?> checkbox : checkboxes) {
-					Boolean checked = (Boolean) checkbox.getValue();
-					if (checked) {
-						selected.add(name2retriever.get(checkbox.getName()));
-					}
+			if (!MessageBox.showConfirmDialog("Non-Heliocentric Observations", count + " Julian Date observations found. Convert them to HJD?"))
+				return;
+			Pair<RAInfo, DecInfo> coords = getCoordinates(msg.getStarInfo());
+			if (coords != null) {
+				count = Mediator.getInstance().convertObsToHJD(obs, coords.first, coords.second);
+				if (count != 0) {				
+					updateUI();
+					MessageBox.showMessageDialog("HJD Conversion",
+							String.format("%d observations converted.", count));
+				} else {
+					// We should never be here
+					MessageBox.showWarningDialog("HJD Conversion",
+							"The previously loaded observations have NOT been converted to HJD.");
+					
 				}
 			} else {
-				selected.clear();
-			}
-		} else {
-			MessageBox.showMessageDialog("Non-Heliocentric Datasets",
-					"No datasets with Julian Date observations");
-		}
-
-		return selected;
-	}
-
-	/**
-	 * Return a list of observation retrievers whose observations have not been
-	 * converted to HJD.
-	 */
-	private List<AbstractObservationRetriever> getNonHeliocentricDatasets() {
-		List<AbstractObservationRetriever> retrievers = new ArrayList<AbstractObservationRetriever>();
-
-		for (NewStarMessage msg : Mediator.getInstance()
-				.getNewStarMessageList()) {
-			AbstractObservationRetriever retriever = msg.getStarInfo()
-					.getRetriever();
-
-			if (!retriever.isHeliocentric()) {
-				retrievers.add(retriever);
+				MessageBox.showWarningDialog("HJD Conversion",
+						"Canceled by user: the previously loaded observations have NOT been converted to HJD.");
 			}
 		}
-
-		return retrievers;
 	}
 
 	/**
@@ -172,8 +108,7 @@ public class HJDConverter extends ObservationToolPluginBase {
 	 *            Coordinates to use if info contains none.
 	 * @return A pair of coordinates: RA and Declination
 	 */
-	private Pair<RAInfo, DecInfo> getCoordinates(StarInfo info,
-			Pair<RAInfo, DecInfo> otherCoords) {
+	private Pair<RAInfo, DecInfo> getCoordinates(StarInfo info) {
 		RAInfo ra = info.getRA();
 		DecInfo dec = info.getDec();
 		Pair<RAInfo, DecInfo> coords = null;
@@ -181,27 +116,14 @@ public class HJDConverter extends ObservationToolPluginBase {
 		if (ra == null || dec == null) {
 			// Ask the user for J2000.0 RA/DEC and if that is cancelled,
 			// indicate that HJD conversion cannot take place.
-			if (otherCoords != null) {
-				// Alternative coordinates supplied. Use these as defaults for
-				// requests.
-				ra = Mediator.getInstance().requestRA(otherCoords.first);
-				dec = Mediator.getInstance().requestDec(otherCoords.second);
-			} else {
-				// No other coordinates supplied so ask user.
-				ra = Mediator.getInstance().requestRA();
+			ra = Mediator.getInstance().requestRA();
+			if (ra != null)
 				dec = Mediator.getInstance().requestDec();
-			}
 		}
 
 		if (ra != null && dec != null) {
 			coords = new Pair<RAInfo, DecInfo>(ra, dec);
-		} else {
-			MessageBox
-					.showWarningDialog("HJD Conversion",
-							"The previously loaded observations have NOT been converted to HJD.");
-		}
-
-		return coords;
+		}		return coords;
 	}
 	
 	/**

@@ -26,6 +26,7 @@ import java.util.WeakHashMap;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -63,6 +64,19 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * </p>
  */
 public class ValidObservation extends Observation {
+
+	public enum JDflavour {
+		UNKNOWN("Time"), 
+		JD("JD"), 
+		HJD("HJD"), 
+		BJD("BJD");
+
+		public final String label;
+
+		private JDflavour(String label) {
+			this.label = label;
+		}
+	}
 
 	// Julian Day, calendar date, and cache.
 	private DateInfo dateInfo = null;
@@ -107,7 +121,7 @@ public class ValidObservation extends Observation {
 
 	private boolean excluded = false;
 
-	private boolean isHeliocentric = false;
+	private JDflavour jdFlavour = JDflavour.UNKNOWN;
 
 	// Optional string-based observation details.
 	private Map<String, String> details;
@@ -845,18 +859,29 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @return the isHeliocentric
+	 * @return true if Heliocentric
 	 */
 	public boolean isHeliocentric() {
-		return isHeliocentric;
+		return jdFlavour == JDflavour.HJD;
 	}
 
 	/**
-	 * @param isHeliocentric
-	 *            the isHeliocentric to set
+	 * @return true if Barycentric
 	 */
-	public void setHeliocentric(boolean isHeliocentric) {
-		this.isHeliocentric = isHeliocentric;
+	public boolean isBarycentric() {
+		return jdFlavour == JDflavour.BJD;
+	}
+
+	public JDflavour getJDflavour() {
+		return jdFlavour; 
+	}
+
+	public void setJDflavour(JDflavour jdFlavour) {
+		this.jdFlavour = jdFlavour; 
+	}
+
+	public String getTimeUnits() {
+		return jdFlavour.label;
 	}
 
 	// Output formatting methods.
@@ -870,9 +895,7 @@ public class ValidObservation extends Observation {
 		}
 
 		if (dateInfo != null) {
-			AbstractObservationRetriever retriever = Mediator.getInstance()
-					.getLatestNewStarMessage().getStarInfo().getRetriever();
-			strBuf.append(retriever.getTimeUnits());
+			strBuf.append(getTimeUnits());
 			strBuf.append(": ");
 			strBuf.append(NumericPrecisionPrefs.formatTime(dateInfo
 					.getJulianDay()));
@@ -1273,7 +1296,7 @@ public class ValidObservation extends Observation {
 		result = prime * result + ((hJD == null) ? 0 : hJD.hashCode());
 		result = prime * result
 				+ ((hqUncertainty == null) ? 0 : hqUncertainty.hashCode());
-		result = prime * result + (isHeliocentric ? 1231 : 1237);
+		result = prime * result + ((jdFlavour == null) ? 0 : jdFlavour.hashCode());
 		result = prime * result + ((mType == null) ? 0 : mType.hashCode());
 		result = prime * result
 				+ ((magnitude == null) ? 0 : magnitude.hashCode());
@@ -1303,7 +1326,7 @@ public class ValidObservation extends Observation {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof ValidObservation)) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		ValidObservation other = (ValidObservation) obj;
@@ -1352,7 +1375,7 @@ public class ValidObservation extends Observation {
 		} else if (!hqUncertainty.equals(other.hqUncertainty)) {
 			return false;
 		}
-		if (isHeliocentric != other.isHeliocentric) {
+		if (jdFlavour != other.jdFlavour) {
 			return false;
 		}
 		if (mType != other.mType) {
