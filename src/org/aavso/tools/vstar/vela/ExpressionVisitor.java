@@ -60,6 +60,12 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  */
 public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 
+	private VeLaInterpreter interpreter;
+	
+	public ExpressionVisitor(VeLaInterpreter interpreter) {
+		this.interpreter = interpreter;
+	}
+
 	@Override
 	public AST visitSequence(SequenceContext ctx) {
 		AST ast = new AST(Operation.SEQUENCE);
@@ -162,7 +168,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 		AST ast = ctx.relationalExpression().accept(this);
 
 		if ("not".equalsIgnoreCase(ctx.getChild(0).getText())) {
-			ast = new AST(Operation.NOT, ast);
+			ast = optimisedMonadicOpAST(Operation.NOT, ast);
 		}
 
 		return ast;
@@ -188,7 +194,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 		AST ast = ctx.exponentiationExpression().accept(this);
 
 		if ("-".equals(ctx.getChild(0).getText())) {
-			ast = new AST(Operation.NEG, ast);
+			ast = optimisedMonadicOpAST(Operation.NEG, ast);
 		}
 
 		return ast;
@@ -217,7 +223,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 					op = child.getText();
 				} else {
 					AST left = child.accept(this);
-					right = new AST(Operation.getBinaryOp(op), left, right);
+					right = optimisedDyadicOpAST(op, left, right);
 				}
 			}
 		}
@@ -341,13 +347,76 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 				op = child.getText();
 			} else {
 				AST right = child.accept(this);
-				left = new AST(Operation.getBinaryOp(op), left, right);
+				left = optimisedDyadicOpAST(op, left, right);
 			}
 		}
 
 		return left;
 	}
 
+	/**
+	 * Optionally optimse a dyadic AST in the presence of literal children.
+	 * 
+	 * @param op the operation
+	 * @param left the left child AST
+	 * @param right the right child AST
+	 * @return optionally optimised AST
+	 */
+	private AST optimisedDyadicOpAST(String op, AST left, AST right) {
+		AST ast = null;
+		
+		if (left.isLiteral() && right.isLiteral()) {
+			// perform a constant folding optimisation for dyadic
+			// expressions in the presence of literal children by
+			// invoking the VeLa interpreter on the AST, e.g. (* 3 2)
+			// => 6; this has a one-time cost, but pruning the abstract
+			// syntax tree by invoking eval() in this way will reduce
+			// run-time where the expression is used multiple times,
+			// e.g. in a filter or a model function
+			interpreter.eval(new AST(Operation.getBinaryOp(op), left, right));
+			if (!interpreter.getStack().isEmpty()) {
+				Operand operand = interpreter.getStack().pop();
+				ast = new AST(operand.toString(), operand);
+			} else {
+				throw new VeLaEvalError("Dyadic operation optimisation error");
+			}
+		} else {
+			ast = new AST(Operation.getBinaryOp(op), left, right);
+		}
+		
+		return ast;
+	}
+
+	/**
+	 * Optionally optimse a monadic AST in the presence of a literal child.
+	 * 
+	 * @param op the operation
+	 * @param ast the child AST
+	 * @return optionally optimised AST
+	 */
+	private AST optimisedMonadicOpAST(Operation op, AST ast) {
+		if (ast.isLiteral()) {
+			// perform a constant folding optimisation for monadic
+			// expressions in the presence of a literal child by
+			// invoking the VeLa interpreter on the AST, e.g. (- 3)
+			// => -3; this has a one-time cost, but pruning the abstract
+			// syntax tree by invoking eval() in this way will reduce
+			// run-time where the expression is used multiple times,
+			// e.g. in a filter or a model function
+			interpreter.eval(new AST(op, ast));
+			if (!interpreter.getStack().isEmpty()) {
+				Operand operand = interpreter.getStack().pop();
+				ast = new AST(operand.toString(), operand);
+			} else {
+				throw new VeLaEvalError("Monadic operation optimisation error");
+			}
+		} else {
+			ast = new AST(op, ast);
+		}
+		
+		return ast;
+	}
+	
 	// TODO: move into a numeric utils class with a static import
 
 	/**

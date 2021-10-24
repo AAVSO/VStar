@@ -4,6 +4,7 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
+// - IF antecedent { consequent1 } ELSE { consequent2 } 
 // - Add .. operator as shorthand for creating numeric lists over a range
 //   o open-ended range: N.. => generator
 // - It would be more type safe to allow a signature instead of "function" **
@@ -22,6 +23,7 @@ grammar VeLa;
 //     scopes is also easy, but eliminating recursive calls to eval() is harder; 
 //     compiling VeLa could do it; could we have an iteration within the loop call 
 //     Java code that handled this?
+//   o could continuation passing vs direct style combined with iteration help here?
 // - Add maps; -> as key-value pair delimiter, e.g. m <- [ key -> value, ... ];
 //   probably use : actually; we already use -> for select statements; could use 
 //   colon for that too
