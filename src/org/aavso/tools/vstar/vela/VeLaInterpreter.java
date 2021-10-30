@@ -67,11 +67,6 @@ public class VeLaInterpreter {
 	// AST and result caches.
 	private static Map<String, AST> exprToAST = new HashMap<String, AST>();
 
-	// TODO: make use of AST => Operand caching at each level of eval()! AST
-	// needs to be key not VeLa string; need equals, hashCode on AST
-
-	private static Map<String, Operand> exprToResult = new HashMap<String, Operand>();
-
 	// Regular expression pattern cache.
 	private static Map<String, Pattern> regexPatterns = new HashMap<String, Pattern>();
 
@@ -364,13 +359,14 @@ public class VeLaInterpreter {
 		// expression string for caching purposes.
 		prog = prog.replace(" ", "").replace("\t", "").toUpperCase();
 
-		// We cache abstract syntax trees by expression to improve performance.
+		// We cache abstract syntax trees by top-level program string
+		// to improve performance.
 		// boolean astCached = false;
 		if (exprToAST.containsKey(prog)) {
 			ast = exprToAST.get(prog);
 			// astCached = true;
 		} else {
-			ExpressionVisitor visitor = new ExpressionVisitor();
+			ExpressionVisitor visitor = new ExpressionVisitor(this);
 			ast = visitor.visit(tree);
 
 			if (ast != null) {
@@ -379,13 +375,13 @@ public class VeLaInterpreter {
 			}
 		}
 
-		// if (verbose && ast != null) {
-		// if (astCached) {
-		// System.out.println(String.format("%s [AST cached]", ast));
-		// } else {
-		// System.out.println(ast);
-		// }
-		// }
+//		if (verbose && ast != null) {
+//			if (astCached) {
+//				System.out.println(String.format("%s [AST cached]", ast));
+//			} else {
+//				System.out.println(ast);
+//			}
+//		}
 
 		return ast;
 	}
@@ -407,33 +403,13 @@ public class VeLaInterpreter {
 		AST ast = commonParseTreeWalker(prog, tree);
 
 		if (ast != null) {
-
-			// TODO: we should map from AST to Operand not String to Operand;
-			// then we really can cache within eval() at every level, not
-			// not just at the top level! Need to add equals() and hashCode() to
-			// AST.
-
-			if (ast.isDeterministic() && exprToResult.containsKey(prog)) {
-
-				// For deterministic expressions, we can also use cached
-				// results.
-				// Note: a better description may be constant rather than
-				// deterministic.
-				result = Optional.of(exprToResult.get(prog));
-				// if (verbose) {
-				// System.out.println(String.format("%s [result cached: %s]",
-				// ast, result));
-				// }
-			} else {
 				// Evaluate the abstract syntax tree and cache the result.
 				eval(ast);
 				if (!stack.isEmpty()) {
 					result = Optional.of(stack.pop());
-					exprToResult.put(prog, result.get());
 				} else {
 					result = Optional.empty();
 				}
-			}
 		}
 
 		return new Pair<Optional<Operand>, AST>(result, ast);

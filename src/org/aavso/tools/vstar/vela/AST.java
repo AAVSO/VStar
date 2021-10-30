@@ -173,6 +173,8 @@ public class AST {
 	 * </p>
 	 * 
 	 * @return True if so, otherwise False.
+	 * @deprecated See Expression visitor optimisedDyadicOpAST() and
+	 *             optimisedMonadicOpAST()
 	 */
 	public boolean isDeterministic() {
 		boolean deterministic = op != Operation.FUNCALL
