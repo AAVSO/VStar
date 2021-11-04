@@ -15,7 +15,6 @@ grammar VeLa;
 // - Allow S-expressions to be converted into ASTs, e.g. compile_sexpr() 
 //   => AST internally
 // - Generate Java class files from VeLa ASTs
-// - The interpreter could be used by a compiler for deterministic ASTs
 // - Functions should be properly tail recursive to allow loops
 //   o final AST in function is a recursive call, or
 //   o final SELECT AST consequent is a recursive call 
@@ -25,11 +24,11 @@ grammar VeLa;
 //     Java code that handled this?
 //   o could continuation passing vs direct style combined with iteration help here?
 // - Add maps; -> as key-value pair delimiter, e.g. m <- [ key -> value, ... ];
-//   probably use : actually; we already use -> for select statements; could use 
+//   probably use ":" actually; we already use -> for select statements; could use 
 //   colon for that too
 // - Consider a typed vs heterogenous tuple type, e.g. record in homage to Pascal
 // - An object could just be created from a closure with multiple functions 
-//   accessible via an instance with a class and -> or . syntax
+//   accessible via an instance (function call) with "class", ".", "this"
 // - Object-based starting with maps; actually structs (object keyword) since
 //   keys in maps can be any value at all, not only bindings
 //   o Implicit (or explicit) reference to object available to functions in object
@@ -46,14 +45,14 @@ grammar VeLa;
 //     when a function exits or by a method invocation handler in eval().
 //     A function could be marked as a method, for example.
 // - Consider omitting "function" prefix ala Java etc anonymous functions
-// - Consider a list subscript operator vs nth()
+// - Consider a list subscript operator vs nth() **
 // - Require list elements to be all the same?
 //   o realistic & good for API calls
 //   o type checker must determine whether a lists's elements can be 
 //     coerced to the same value; perhaps declared as list<T> or checked
 //     upon each element addition
-// - Y-combinator in VeLa
-// - Allow a type called ANY or variant types such as (real | string | list)
+// - Y-combinator in VeLa **
+// - Allow a type called ANY or variant types such as (real | string | list) **
 // - Refinement types ala Wadler's complement to blame, e.g. f(n:real{n >= 0})
 // - Doc strings for functions; use ;; rather than -- ?
 
@@ -270,8 +269,7 @@ symbol
 
 anonFundef
 :
-// TODO: call it lambda instead of function? either that or fun.
-    FUN LPAREN formalParameter?
+    (FUN | LAMBDA) LPAREN formalParameter?
     (
         formalParameter
     )* RPAREN
@@ -363,6 +361,10 @@ WHILE
 FUN
 :
     [Ff] [Uu] [Nn] [Cc] [Tt] [Ii] [Oo] [Nn]
+;
+
+LAMBDA
+:   '\u2C96' | '\u2C97'
 ;
 
 INT_T
