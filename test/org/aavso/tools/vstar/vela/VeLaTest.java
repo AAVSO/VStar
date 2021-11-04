@@ -865,6 +865,24 @@ public class VeLaTest extends TestCase {
 		assertEquals(144, result.get().intVal());
 	}
 
+	public void testAnonUpperCaseLambdaExponentiation() {
+		String prog = "Ⲗ(x:integer y:integer) : integer { x^y }(12 2)";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(144, result.get().intVal());
+	}
+
+	public void testAnonLowerCaseLambdaExponentiation() {
+		String prog = "ⲗ(x:integer y:integer) : integer { x^y }(12 2)";
+
+		Optional<Operand> result = vela.program(prog);
+
+		assertTrue(result.isPresent());
+		assertEquals(144, result.get().intVal());
+	}
+
 	public void testAnonFunExponentiationWithReturnTypeConversion() {
 		// Returned value should be coerced from integer to real.
 		String prog = "function(x:integer y:integer) : real { x^y }(12 2)";
