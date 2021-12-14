@@ -21,6 +21,8 @@ var
   ShowParameters: Boolean;
   DebugMode: Boolean;
   RestoreINIandExit: Boolean;
+  IsJava64var: Boolean;
+  Java64Message: string;
   S: string;
   I: Integer;
 
@@ -63,10 +65,20 @@ begin
   try
     Ini := TMemIniFile.Create(ChangeFileExt(ParamStr(0), '.ini'));
     try
+      JavaPath := Trim(Ini.ReadString('Settings', 'JavaPath', ''));
       if RestoreINIandExit then begin
-        S := GetIniMemParameters;
+        try
+          IsJava64var := IsJava64(JavaPath);
+        except
+           IsJava64var := False;
+        end;
+        if IsJava64var then
+          Java64Message := 'Java 64-bit detected.'^M^J^M^J
+        else
+          Java64Message := 'Cannot detect Java 64-bit. Assuming 32-bit architecture.'^M^J^M^J;
+        S := GetIniMemParameters(IsJava64var);
         if Windows.MessageBox(0,
-          PChar('Java memory options will be set to'^M^J + S),
+          PChar(Java64Message + 'Java memory options will be set to'^M^J + S),
           PChar(Ini.FileName), MB_OKCANCEL or MB_ICONQUESTION or MB_SYSTEMMODAL) = IDOK then
         begin
           Ini.WriteString('Settings', 'Parameters', S);
@@ -81,7 +93,6 @@ begin
       IniParam := Trim(Ini.ReadString('Settings', 'Parameters', ''));
       ShowParameters := Ini.ReadBool('Settings', 'ShowParameters', False);
       VStarHome := Trim(Ini.ReadString('Settings', 'VSTAR_HOME', ''));
-      JavaPath := Trim(Ini.ReadString('Settings', 'JavaPath', ''));
     finally
       FreeAndNil(Ini);
     end;

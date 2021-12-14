@@ -184,6 +184,7 @@
 				<include name="vstaricon.png" />
 			</zipfileset>
 			<zipfileset file="${install_files}/VStar.exe" prefix="vstar" />
+			<zipfileset file="${install_files}/JavaOsArch.class" prefix="vstar" />
 			<zipfileset file="${install_files}/VStar.ini" prefix="vstar" />
 			<zipfileset file="${install_files}/VStar.bat" prefix="vstar" />
 			<zipfileset file="${install_files}/VeLa.bat" prefix="vstar" />

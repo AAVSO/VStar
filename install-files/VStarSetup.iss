@@ -46,10 +46,13 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "vstar\{#TheAppExeName}"; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
 Source: "vstar\{#TheAppCnfName}"; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
-// We should copy VStar.bat to destination (it will be rewritten in 'PostInstall') to make it uninstallable.
+; We should copy VStar.bat to destination (it will be rewritten in 'PostInstall') to make it uninstallable.
 Source: "vstar\VStar.bat"       ; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
 Source: "vstar\VeLa.bat"        ; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
 Source: "vstar\ChangeLog.txt"   ; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
+; Helper Java class for VStar.exe 
+Source: "vstar\JavaOsArch.class"; DestDir: "{app}"            ; Flags: ignoreversion                                ; Components: core
+
 Source: "vstar\data\*"          ; DestDir: "{app}\data"       ; Flags: ignoreversion recursesubdirs createallsubdirs; Components: core
 Source: "vstar\dist\*"          ; DestDir: "{app}\dist"       ; Flags: ignoreversion recursesubdirs createallsubdirs; Components: core
 Source: "vstar\doc\*"           ; DestDir: "{app}\doc"        ; Flags: ignoreversion recursesubdirs createallsubdirs; Components: core
@@ -80,6 +83,9 @@ Name: "plugins";    Description: "VStar plugins" ; Types: custom full
 
 [Code]
 
+var
+  JavaFound: Boolean;
+
 type
   DWORDLONG = Int64; // Should be unsigned, currently not available
   TMemoryStatusEx = record
@@ -93,9 +99,6 @@ type
     ullAvailVirtual: DWORDLONG;
     ullAvailExtendedVirtual: DWORDLONG;
   end;
-
-var
-  IniMemParameters: string;
 
 function GlobalMemoryStatusEx(var lpBuffer: TMemoryStatusEx): BOOL;
   external 'GlobalMemoryStatusEx@kernel32.dll stdcall';
@@ -115,14 +118,14 @@ begin
   Result := GetDateTimeString('yyyy/mm/dd"T"hh:nn:ss', '-', ':');
 end;
 
-function InitIniMemParameters: string;
+function InitIniMemParameters(Is64bit: Boolean): string;
 var
   MaxHeapSize: Int64;
 begin
   MaxHeapSize := ((MemSize div 1024) div 1024) div 2; // half of available physical memory, in megabytes.
   if MaxHeapSize < 256 then
     MaxHeapSize := 256; // default value
-  if (not IsWin64) and (MaxHeapSize > 1500) then
+  if (not Is64bit) and (MaxHeapSize > 1500) then
     MaxHeapSize := 1500;
   // Max heap size cannot be less than initial heap size
   if MaxHeapSize > 800 then
@@ -131,17 +134,12 @@ begin
     Result := '-Xmx' + Int64toStr(MaxHeapSize) + 'm';
 end;
 
-function GetIniMemParameters(Param: string): string;
-begin
-  Result := IniMemParameters;
-end;
-
 function GetIniDescription(Param: string): string;
 begin
   Result := 'VStar.exe configuration file created at ' + DateTime;
 end;
 
-procedure MakeVStarIni();
+procedure MakeVStarIni(const IniMemParameters: string);
 var
   S: String;
 begin
@@ -149,7 +147,7 @@ begin
     '[Settings]'#13#10 +
     'Description=VStar.exe configuration file created at ' + DateTime + #13#10 +
     ';Additional JVM parameters'#13#10 +
-    'Parameters=' + GetIniMemParameters('') + #13#10 +
+    'Parameters=' + IniMemParameters + #13#10 +
     ';Set ShowParameters=1 to view parameters to be passed to Java VM'#13#10 +
     'ShowParameters=0'#13#10 +
     ';VSTAR_HOME parameter overrides environment variable VSTAR_HOME'#13#10 +
@@ -161,7 +159,7 @@ begin
   end;
 end;
 
-procedure MakeBatLauncher();
+procedure MakeBatLauncher(const IniMemParameters: string);
 var
   S: String;
 begin
@@ -182,7 +180,7 @@ begin
     'set VSTAR_HOME=%~dp0'#13#10 +
     ''#13#10 +
     ':RUN'#13#10 +
-    'java -splash:"%VSTAR_HOME%\extlib\vstaricon.png" ' + GetIniMemParameters('') + ' -jar "%VSTAR_HOME%\dist\vstar.jar" %*'#13#10 +
+    'java -splash:"%VSTAR_HOME%\extlib\vstaricon.png" ' + IniMemParameters + ' -jar "%VSTAR_HOME%\dist\vstar.jar" %*'#13#10 +
     'if ERRORLEVEL 1 goto :ERROR'#13#10 +
     'goto :EOF'#13#10 +
     ''#13#10 +
@@ -195,12 +193,36 @@ begin
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
+var
+  IniMemParameters: string;
+  ResultCode: Integer;
+  Is64Bit: Boolean;
+  JavaArchMessage: string;
 begin
   if CurStep = ssPostInstall then begin
-    MakeVStarIni;
-    MakeBatLauncher;
-    MsgBox('Java memory options have been set to'#13#10 + 
-            GetIniMemParameters('') + #13#10 +
+    //Is64Bit = IsWin64;
+
+    if JavaFound then begin
+      try
+        JavaFound := Exec('java.exe', 'JavaOsArch', ExpandConstant('{app}'), SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      except
+        JavaFound := False;
+        ResultCode := 1;
+      end;
+    end;
+    
+    Is64Bit := JavaFound and (ResultCode = 0);
+
+    if Is64Bit then
+      JavaArchMessage := 'Java 64-bit detected.'#13#10#13#10
+    else
+      JavaArchMessage := '';
+
+    IniMemParameters := InitIniMemParameters(Is64Bit);
+    MakeVStarIni(IniMemParameters);
+    MakeBatLauncher(IniMemParameters);
+    MsgBox(JavaArchMessage + 'Java memory options have been set to'#13#10 + 
+            IniMemParameters + #13#10 +
            'To modify them, edit ' + #13#10 + 
            '"' + ExpandConstant('{app}') + '\' + '{#TheAppCnfName}"'#13#10 + 
            'file.', 
@@ -213,7 +235,6 @@ var
   RichViewer: TRichEditViewer;
   Message: String;
   //JavaVer: string;
-  JavaFound: Boolean;
   ResultCode: Integer;
 begin
   RichViewer := TRichEditViewer.Create(WizardForm);
@@ -252,7 +273,5 @@ begin
   end;
   Message := Message + '}';
   RichViewer.RTFText := Message;
-
-  IniMemParameters := InitIniMemParameters;
 end;
 
