@@ -142,6 +142,7 @@ public class VSXquery extends GeneralToolPluginBase {
 		protected DoubleField2 fieldVSXepoch;
 		protected TextField fieldVSXvarType;
 		protected TextField fieldVSXspectralType;
+		protected TextField fieldVSXcoordinates;
 		protected JTextArea textArea;
 		protected DoubleField2 fieldEphemerisFrom;
 		protected DoubleField2 fieldEphemerisTo;
@@ -226,7 +227,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 			
-			textArea = new JTextArea(16, 40);
+			textArea = new JTextArea(12, 40);
 			textArea.setEditable(false);
 			JScrollPane scrollPane = new JScrollPane(textArea);
 			panel.add(scrollPane);
@@ -238,6 +239,10 @@ public class VSXquery extends GeneralToolPluginBase {
 			fieldVSXspectralType = new TextField("Spectral Type", "");
 			fieldVSXspectralType.setEditable(false);
 			panel.add(fieldVSXspectralType.getUIComponent());
+			
+			fieldVSXcoordinates =  new TextField("J2000.0", "");
+			fieldVSXcoordinates.setEditable(false);
+			panel.add(fieldVSXcoordinates.getUIComponent());
 			
 			panel.add(new JLabel(" "));
 			
@@ -441,6 +446,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			fieldVSXepoch.setValue(0.0);
 			fieldVSXvarType.setValue("");
 			fieldVSXspectralType.setValue("");
+			fieldVSXcoordinates.setValue("");
 		}
 		
 		private void queryVSX() {
@@ -578,8 +584,30 @@ public class VSXquery extends GeneralToolPluginBase {
 		protected Double period;
 		protected Double epoch;
 		protected String varType;
-		protected String spType;		
+		protected String spType;
 		protected String stringResult;
+
+		private Double ra2000;
+		private Double declination2000;
+		protected String getCoordinates() {
+			if (ra2000 != null && declination2000 != null && ra2000 >= 0.0 && ra2000 < 360.0 && declination2000 >= -90.0 && declination2000 <= 90.0) {
+				
+				double hours = ra2000 / 360.0 * 24.0;
+				int h = (int)(hours);
+				int m = (int)((hours - h) * 60.0);
+				double s = (hours - h - m / 60.0) * 60.0 * 60.0; 
+				
+				double declination_abs = Math.abs(declination2000);
+				int deg = (int)(declination_abs);
+				int arcmin = (int)((declination_abs - deg) * 60.0);
+				double arcsec = (declination_abs - deg - arcmin / 60.0) * 60.0 * 60.0;
+				char sign = declination2000 < 0 ? '-' : '+';
+				
+				return String.format("%02d:%02d:%05.2f %c%02d:%02d:%04.1f", h, m, s, sign, deg, arcmin, arcsec);
+			}
+			else
+				return null;
+		}
 	}
 
 	class VSXquerySwingWorker extends SwingWorker<VSQqueryResult, VSQqueryResult>	{
@@ -624,10 +652,12 @@ public class VSXquery extends GeneralToolPluginBase {
 					dialog.fieldVSXname.setValue(vsxName);
 					if (vsxResult != null) {
 						dialog.textArea.setText(vsxResult.stringResult);
+						dialog.textArea.setCaretPosition(0);
 						dialog.fieldVSXperiod.setValue(vsxResult.period != null ? vsxResult.period : 0.0);
 						dialog.fieldVSXepoch.setValue(vsxResult.epoch != null ? vsxResult.epoch : 0.0);
 						dialog.fieldVSXvarType.setValue(vsxResult.varType);
 						dialog.fieldVSXspectralType.setValue(vsxResult.spType);
+						dialog.fieldVSXcoordinates.setValue(vsxResult.getCoordinates());
 						//dialog.phaseDialogButton.setEnabled(true);
 						//dialog.calcEphemeris.setEnabled(true);
 					} else {
@@ -636,6 +666,7 @@ public class VSXquery extends GeneralToolPluginBase {
 						dialog.fieldVSXepoch.setValue(0.0);
 						dialog.fieldVSXvarType.setValue("");
 						dialog.fieldVSXspectralType.setValue("");
+						dialog.fieldVSXcoordinates.setValue("");
 					}
 					dialog.pack();
 				}
@@ -683,6 +714,18 @@ public class VSXquery extends GeneralToolPluginBase {
 					vsxResult.varType = content;
 				else if ("SpectralType".equalsIgnoreCase(tag))
 					vsxResult.spType = content;
+				else if ("ra2000".equalsIgnoreCase(tag))
+					try {
+						vsxResult.ra2000 = Double.parseDouble(content);
+					} catch (NumberFormatException ex) {
+						vsxResult.ra2000 = null;
+					}
+				else if ("Declination2000".equalsIgnoreCase(tag))
+					try {
+						vsxResult.declination2000 = Double.parseDouble(content);
+					} catch (NumberFormatException ex) {
+						vsxResult.declination2000 = null;
+					} 
 				result += tag + ": " + content + "\n";
 			}
 			if ("".equals(result))
