@@ -1,5 +1,3 @@
-#!/usr/bin/python
-#
 # Converts web service elements into SeriesType enum constructor invocations.
 #
 # See https://www.aavso.org/vsx/index.php?view=api.bands for XML.
