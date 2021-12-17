@@ -20,6 +20,8 @@ package org.aavso.tools.vstar.ui.dialog;
 import java.text.NumberFormat;
 
 import org.aavso.tools.vstar.util.locale.NumberParser;
+import org.aavso.tools.vstar.vela.VeLaEvalError;
+import org.aavso.tools.vstar.vela.VeLaParseError;
 
 /**
  * This class encapsulates the name, range, and value of an integer text
@@ -54,15 +56,22 @@ public class IntegerField extends NumberFieldBase<Integer> {
 
 		try {
 			value = (int) NumberParser.parseInteger(textField.getText());
-
+			
+			// In the previous realization, null is assigned to the value if value < min.
+			// Then in the next 'if' the null value is compared with max, this leads to Null Pointer Exception.
+			
 			if (min != null && value < min) {
-				value = null;
+				return null;
 			}
 
 			if (max != null && value > max) {
-				value = null;
+				return null;
 			}
 		} catch (NumberFormatException e) {
+			// Nothing to do; return null.
+		} catch (VeLaParseError e) { // #PMAK#
+			// Nothing to do; return null.
+		} catch (VeLaEvalError e) { // #PMAK#
 			// Nothing to do; return null.
 		}
 
