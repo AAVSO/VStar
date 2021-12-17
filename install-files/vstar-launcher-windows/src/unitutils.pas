@@ -5,9 +5,11 @@ unit UnitUtils;
 interface
 
 uses
-  Windows, Classes, SysUtils;
+  Windows, Classes, SysUtils, Process;
 
-function GetIniMemParameters: string;
+function GetIniMemParameters(IsJava64: Boolean): string;
+
+function IsJava64(const JavaPath: string): Boolean;
 
 implementation
 
@@ -27,7 +29,8 @@ type
 
 function GlobalMemoryStatusEx(var Buffer: TMemoryStatusEx): BOOL; stdcall; external 'kernel32' name 'GlobalMemoryStatusEx';
 
-function IsWindows64: boolean;
+(*
+function IsWindows64: Boolean;
 // https://wiki.lazarus.freepascal.org/Detect_Windows_x32-x64_example
 type
   TIsWow64Process = function(Handle: Windows.THandle; var Res: Windows.BOOL): Windows.BOOL; stdcall;
@@ -51,6 +54,29 @@ begin
     // Function not implemented: can't be running on Wow64
     Result := False;
 end;
+*)
+
+function IsJava64(const JavaPath: string): Boolean;
+var
+  AProcess: TProcess;
+  JVMexecutable: string;
+begin
+  JVMexecutable := 'java.exe';
+  if JavaPath <> '' then
+    JVMexecutable := IncludeTrailingPathDelimiter(JavaPath) + JVMexecutable;
+  AProcess := TProcess.Create(nil);
+  try
+     AProcess.Executable := JVMexecutable;
+     AProcess.CurrentDirectory := ExtractFileDir(ParamStr(0));
+     AProcess.Parameters.Add('JavaOsArch');
+     AProcess.Options := AProcess.Options + [poWaitOnExit];
+     AProcess.ShowWindow := swoHide;
+     AProcess.Execute;
+     Result := AProcess.ExitCode = 0;
+  finally
+    FreeAndNil(AProcess);
+  end;
+end;
 
 function MemSize: uint64;
 var
@@ -62,14 +88,14 @@ begin
     Result := MemoryStatus.ullTotalPhys;
 end;
 
-function GetIniMemParameters: string;
+function GetIniMemParameters(IsJava64: Boolean): string;
 var
   MaxHeapSize: uint64;
 begin
   MaxHeapSize := ((MemSize div 1024) div 1024) div 2; // half of available physical memory, in megabytes.
   if MaxHeapSize < 256 then
     MaxHeapSize := 256; // default value
-  if (not IsWindows64) and (MaxHeapSize > 1500) then
+  if (not IsJava64) and (MaxHeapSize > 1500) then
     MaxHeapSize := 1500;
   // Max heap size cannot be less than initial heap size
   if MaxHeapSize > 800 then

@@ -19,7 +19,8 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <BuildNr Value="19"/>
+      <MinorVersionNr Value="1"/>
+      <BuildNr Value="23"/>
       <StringTable FileDescription="VStar Launcher"/>
     </VersionInfo>
     <BuildModes Count="1">
