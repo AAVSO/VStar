@@ -138,24 +138,24 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			JPanel panel = new JPanel(new FlowLayout());
 
 			yearField = new IntegerField("Year", MIN_YEAR, MAX_YEAR, 0);
-			panel.add(setTextFieldPreferredSize((JTextField)(yearField.getUIComponent()), "WWWWW"));
+			panel.add(setNumberFieldColumns(yearField, 5));
 			
 			monthField = new IntegerField("Mon", 1, 12, 0);
-			panel.add(setTextFieldPreferredSize((JTextField)(monthField.getUIComponent()), "WWWW"));
+			panel.add(setNumberFieldColumns(monthField, 4));
 			
 			dayField = new IntegerField("Day", 1, 31, 0);
-			panel.add(setTextFieldPreferredSize((JTextField)(dayField.getUIComponent()), "WWWW"));
+			panel.add(setNumberFieldColumns(dayField, 4));
 			
 			panel.add(new JLabel("  "));
 			
 			hourField = new IntegerField("Hr", 0, 23, 0);
-			panel.add(setTextFieldPreferredSize((JTextField)(hourField.getUIComponent()), "WWWW"));
+			panel.add(setNumberFieldColumns(hourField, 4));
 			
 			minField = new IntegerField("Min", 0, 59, 0);
-			panel.add(setTextFieldPreferredSize((JTextField)(minField.getUIComponent()), "WWWW"));
+			panel.add(setNumberFieldColumns(minField, 4));
 			
 			secField = new DoubleFieldSeconds("Sec", 0.0, 59.99, 0.00);
-			panel.add(setTextFieldPreferredSize((JTextField)(secField.getUIComponent()), "WWWWW"));
+			panel.add(setNumberFieldColumns(secField, 5));
 			return panel;
 		}
 
@@ -229,13 +229,12 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			};
 		}
 		
-		private JTextField setTextFieldPreferredSize(JTextField textField, String sampleText) {
-			int w = textField.getFontMetrics(textField.getFont()).stringWidth(sampleText);
-			int h = textField.getPreferredSize().height;
-			textField.setPreferredSize(new Dimension(w, h));
+		private JTextField setNumberFieldColumns(NumberFieldBase<?> field, int columns) {
+			JTextField textField = (JTextField)(field.getUIComponent());
+			textField.setColumns(columns);
 			return textField;
 		}
-		
+	
 		private JButton createIconButton(Icon icon) {
 			JButton button = new JButton(icon);
 			button.setPreferredSize(new Dimension(icon.getIconWidth() + 4, icon.getIconHeight() + 4));
