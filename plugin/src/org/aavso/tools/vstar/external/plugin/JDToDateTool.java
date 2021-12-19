@@ -50,11 +50,11 @@ public class JDToDateTool extends GeneralToolPluginBase {
 	// Min Date = 1600-01-01T00:00:00
 	// Max Date = 9999-12-31T00:00:00
 	
-	private static int MIN_YEAR = 1600;
-	private static int MAX_YEAR = 9999;
+	private static final int MIN_YEAR = 1600;
+	private static final int MAX_YEAR = 9999;
 	
 	// Julian day of the Java Epoch 1970-01-01T00:00:00Z
-	private static double JAVA_EPOCH_JD = 2440587.5;
+	private static final double JAVA_EPOCH_JD = 2440587.5;
 
 	@Override
 	public void invoke() {
@@ -75,7 +75,6 @@ public class JDToDateTool extends GeneralToolPluginBase {
     private static double julianDayNow()
     {
         return Instant.now().getEpochSecond() / (24.0 * 60.0 * 60.0) + JAVA_EPOCH_JD;
-        
     }
 	
 	@SuppressWarnings("serial")
@@ -101,7 +100,6 @@ public class JDToDateTool extends GeneralToolPluginBase {
 		    getRootPane().registerKeyboardAction(cancelListener, 
 		    		KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), 
 		    		JComponent.WHEN_IN_FOCUSED_WINDOW);
-			
 
 			Container contentPane = this.getContentPane();
 
@@ -123,13 +121,6 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			this.pack();
 			setLocationRelativeTo(Mediator.getUI().getContentPane());
 			this.setVisible(true);
-		}
-		
-		private JTextField setTextFieldPreferredSize(JTextField textField, String sampleText) {
-			int w = textField.getFontMetrics(textField.getFont()).stringWidth(sampleText);
-			int h = textField.getPreferredSize().height;
-			textField.setPreferredSize(new Dimension(w, h));
-			return textField;
 		}
 		
 		private JPanel createJulianDayPane() {
@@ -167,12 +158,6 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			return panel;
 		}
 
-		private JButton createIconButton(Icon icon) {
-			JButton button = new JButton(icon);
-			button.setPreferredSize(new Dimension(icon.getIconWidth() + 4, icon.getIconHeight() + 4));
-			return button;
-		}
-		
 		private JPanel createButtonPane1() {
 			Icon panUpIcon = ResourceAccessor.getIconResource("/nico/toolbarIcons/_24_/UpArrow.png");
 			Icon panDownIcon = ResourceAccessor.getIconResource("/nico/toolbarIcons/_24_/DownArrow.png");
@@ -243,6 +228,19 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			};
 		}
 		
+		private JTextField setTextFieldPreferredSize(JTextField textField, String sampleText) {
+			int w = textField.getFontMetrics(textField.getFont()).stringWidth(sampleText);
+			int h = textField.getPreferredSize().height;
+			textField.setPreferredSize(new Dimension(w, h));
+			return textField;
+		}
+		
+		private JButton createIconButton(Icon icon) {
+			JButton button = new JButton(icon);
+			button.setPreferredSize(new Dimension(icon.getIconWidth() + 4, icon.getIconHeight() + 4));
+			return button;
+		}
+		
 		// Set form fields to values corresponding to the current time
 		private void setCurrentTime() {
 			fieldJulianDay.setValue(julianDayNow());
@@ -284,23 +282,6 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			}
 		}
 		
-		// Get value of IntegerField, show message in case of error and set focus to the field
-		Integer getAndCheck(IntegerField input) {
-			Integer i;
-			try {
-				i = input.getValue();
-			} catch (Exception e) {
-				// We should never be here as soon as getValue catches parseInteger() exceptions.  
-				i = null;
-			}
-			if (i == null) {
-				MessageBox.showErrorDialog("Error", input.getName() + ": Invalid value!\n" + numberFieldInfo(input));				
-				(input.getUIComponent()).requestFocus();
-				((JTextField)(input.getUIComponent())).selectAll();
-			}
-			return i;
-		}
-		
 		// Set Julian Day field to a value calculated from date fields (YYYY-MM-DD HH:MM:SS) 
 		private void setJdFromDate() {
 			fieldJulianDay.setValue(null);
@@ -337,19 +318,38 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			fieldJulianDay.setValue(jd);
 		}
 		
+		// Get value of IntegerField, show message in case of error and set focus to the field
+		private Integer getAndCheck(IntegerField input) {
+			Integer i;
+			try {
+				i = input.getValue();
+			} catch (Exception e) {
+				// We should never be here as soon as getValue catches parseInteger() exceptions.  
+				i = null;
+			}
+			if (i == null) {
+				MessageBox.showErrorDialog("Error", input.getName() + ": Invalid value!\n" +
+						"Value must be integer.\n" +
+						numberFieldInfo(input));				
+				(input.getUIComponent()).requestFocus();
+				((JTextField)(input.getUIComponent())).selectAll();
+			}
+			return i;
+		}
+		
+		private String numberFieldInfo(NumberFieldBase<?> field) {
+			String s = "";
+			if (field.getMin() == null && field.getMax() != null)
+				s = "Only values <= " + field.getMax() + " allowed.";
+			else if (field.getMin() != null && field.getMax() == null)
+				s = "Only values >= " + field.getMin() + " allowed.";
+			else if (field.getMin() != null && field.getMax() != null)
+				s = "Only values between " + field.getMin() + " and " + field.getMax() + " allowed.";
+			return s; 
+		}
+		
 	}
-	
-	private String numberFieldInfo(NumberFieldBase<?> field) {
-		String s = "";
-		if (field.getMin() == null && field.getMax() != null)
-			s = "Only values <= " + field.getMax() + " allowed.";
-		else if (field.getMin() != null && field.getMax() == null)
-			s = "Only values >= " + field.getMin() + " allowed.";
-		else if (field.getMin() != null && field.getMax() != null)
-			s = "Only values between " + field.getMin() + " and " + field.getMax() + " allowed.";
-		return s; 
-	}
-	
+
 	/*
 	 * Unlike DoubleField, DoubleFieldTime uses 'timeOutputFormat' instead of 'otherOutputFormat'
 	 */
@@ -366,6 +366,5 @@ public class JDToDateTool extends GeneralToolPluginBase {
 		}
 		
 	}
-
 
 }
