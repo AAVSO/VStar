@@ -11,6 +11,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.YearMonth;
 
@@ -86,7 +87,7 @@ public class JDToDateTool extends GeneralToolPluginBase {
 		private IntegerField dayField;
 		private IntegerField hourField;
 		private IntegerField minField;
-		private IntegerField secField;
+		private DoubleFieldSeconds secField;
 		
 		/**
 		 * Constructor
@@ -153,8 +154,8 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			minField = new IntegerField("Min", 0, 59, 0);
 			panel.add(setTextFieldPreferredSize((JTextField)(minField.getUIComponent()), "WWWW"));
 			
-			secField = new IntegerField("Sec", 0, 59, 0);
-			panel.add(setTextFieldPreferredSize((JTextField)(secField.getUIComponent()), "WWWW"));
+			secField = new DoubleFieldSeconds("Sec", 0.0, 59.99, 0.00);
+			panel.add(setTextFieldPreferredSize((JTextField)(secField.getUIComponent()), "WWWWW"));
 			return panel;
 		}
 
@@ -256,30 +257,21 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			hourField.setValue(null);
 			minField.setValue(null);
 			secField.setValue(null);
-			Double jd;
-			try {
-				jd = fieldJulianDay.getValue();
-			} catch (Exception e) {
-				// We should never be here as soon as getValue() catches all possible exceptions.
-				jd = null;
-			}
-			if (jd != null) {
-				YMD ymd = AbstractDateUtil.getInstance().jdToYMD(jd);
-				double day = ymd.getDay();
-				int hour = (int)((day - (int)day) * 24.0);
-				int min = (int)((day - (int)day - hour / 24.0) * 24.0 * 60.0);
-				int sec = (int)((day - (int)day - hour / 24.0 - min / 24.0 / 60.0) * 24.0 * 60.0 * 60.0);
-				yearField.setValue(ymd.getYear());
-				monthField.setValue(ymd.getMonth());
-				dayField.setValue((int)day);
-				hourField.setValue(hour);
-				minField.setValue(min);
-				secField.setValue(sec);
-			} else {
-				MessageBox.showErrorDialog("Error", fieldJulianDay.getName() + ": Invalid value!\n" + numberFieldInfo(fieldJulianDay));
-				(fieldJulianDay.getUIComponent()).requestFocus();
-				((JTextField)(fieldJulianDay.getUIComponent())).selectAll();
-			}
+			
+			Double jd = getAndCheck(fieldJulianDay);
+			if (jd == null) return;
+			
+			YMD ymd = AbstractDateUtil.getInstance().jdToYMD(jd);
+			double day = ymd.getDay();
+			int hour = (int)((day - (int)day) * 24.0);
+			int min = (int)((day - (int)day - hour / 24.0) * 24.0 * 60.0);
+			double sec = ((day - (int)day - hour / 24.0 - min / 24.0 / 60.0) * 24.0 * 60.0 * 60.0);
+			yearField.setValue(ymd.getYear());
+			monthField.setValue(ymd.getMonth());
+			dayField.setValue((int)day);
+			hourField.setValue(hour);
+			minField.setValue(min);
+			secField.setValue(sec);
 		}
 		
 		// Set Julian Day field to a value calculated from date fields (YYYY-MM-DD HH:MM:SS) 
@@ -296,7 +288,7 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			YearMonth yearMonthObject = YearMonth.of(year, month);
 			int daysInMonth = yearMonthObject.lengthOfMonth();
 			if (day > daysInMonth) {
-				MessageBox.showErrorDialog("Error", dayField.getName() + ": Invalid number of days in the month!");
+				MessageBox.showErrorDialog(this, "Error", dayField.getName() + ": Invalid number of days in the month!");
 				(dayField.getUIComponent()).requestFocus();
 				((JTextField)(dayField.getUIComponent())).selectAll();
 				day = null;
@@ -309,7 +301,7 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			Integer min = getAndCheck(minField);
 			if (min == null) return;
 
-			Integer sec = getAndCheck(secField);
+			Double sec = getAndCheck(secField);
 			if (sec == null) return;
 
 			double dday = day + hour / 24.0 + min / 24.0 / 60.0 + sec / 24.0 / 60.0 / 60.0;   
@@ -328,13 +320,31 @@ public class JDToDateTool extends GeneralToolPluginBase {
 				i = null;
 			}
 			if (i == null) {
-				MessageBox.showErrorDialog("Error", input.getName() + ": Invalid value!\n" +
+				MessageBox.showErrorDialog(this, "Error", input.getName() + ": Invalid value!\n" +
 						"Value must be integer.\n" +
 						numberFieldInfo(input));				
 				(input.getUIComponent()).requestFocus();
 				((JTextField)(input.getUIComponent())).selectAll();
 			}
 			return i;
+		}
+
+		// Get value of DoubleField, show message in case of error and set focus to the field
+		private Double getAndCheck(DoubleField input) {
+			Double d;
+			try {
+				d = input.getValue();
+			} catch (Exception e) {
+				// We should never be here as soon as getValue catches catches all possible exceptions.  
+				d = null;
+			}
+			if (d == null) {
+				MessageBox.showErrorDialog(this, "Error", input.getName() + ": Invalid value!\n" +
+						numberFieldInfo(input));				
+				(input.getUIComponent()).requestFocus();
+				((JTextField)(input.getUIComponent())).selectAll();
+			}
+			return d;
 		}
 		
 		private String numberFieldInfo(NumberFieldBase<?> field) {
@@ -363,6 +373,26 @@ public class JDToDateTool extends GeneralToolPluginBase {
 		@Override
 		public void setValue(Double value) {
 			textField.setText(value == null ? "" : NumericPrecisionPrefs.getTimeOutputFormat().format(value));
+		}
+		
+	}
+
+	
+	/*
+	 * Unlike DoubleField, DoubleFieldTime uses special format
+	 */
+	private class DoubleFieldSeconds extends DoubleField {
+
+		private DecimalFormat format = new DecimalFormat("#.##");
+		
+		public DoubleFieldSeconds(String name, Double min, Double max, Double initial) {
+			super(name, min, max, initial);
+			setValue(initial); // special formatting
+		}
+
+		@Override
+		public void setValue(Double value) {
+			textField.setText(value == null ? "" : format.format(value));
 		}
 		
 	}
