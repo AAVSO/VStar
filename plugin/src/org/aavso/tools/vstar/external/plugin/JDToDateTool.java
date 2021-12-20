@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.text.DecimalFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 
 import javax.swing.BorderFactory;
@@ -264,17 +265,41 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			if (jd == null) return; 
 			
 			YMD ymd = AbstractDateUtil.getInstance().jdToYMD(jd);
+
+			int year = ymd.getYear();
+			int month = ymd.getMonth();
 			double day = ymd.getDay();
-			int hour = (int)((day - (int)day) * 24.0);
-			int min = (int)((day - (int)day - hour / 24.0) * 24.0 * 60.0);
-			double sec = ((day - (int)day - hour / 24.0 - min / 24.0 / 60.0) * 24.0 * 60.0 * 60.0);
-			if (sec > 59.99) sec = 59.99; // rounding issue: if a value = 59.996 (for example) it will be rounded to 60.
-			yearField.setValue(ymd.getYear());
-			monthField.setValue(ymd.getMonth());
-			dayField.setValue((int)day);
+			int iday = (int)day;
+			
+			int hour = (int)((day - iday) * 24.0);
+			int min = (int)((day - iday - hour / 24.0) * 24.0 * 60.0);
+			double sec = ((day - iday - hour / 24.0 - min / 24.0 / 60.0) * 24.0 * 60.0 * 60.0);
+
+			// round seconds to 0.01, like in the input field.
+			double rsec = Math.round(sec * 100.0) / 100.0;
+			
+			// After rounding, rsec can be up to 60.00.
+			// This is a fix for the case when rounded seconds = 60: 
+			if (rsec > 59.99) {
+				// Create LocalDateTime object using integer number of seconds. 
+				LocalDateTime aTime = LocalDateTime.of(year, month, iday, hour, min, 59);
+				// Add 1 second.
+				aTime = aTime.plusSeconds(1);
+				// Now we can get correct values of Date/Time fields after adding a second (potentially, adding a second can change them all).
+				year = aTime.getYear();
+				month = aTime.getMonthValue();
+				iday = aTime.getDayOfMonth();
+				hour = aTime.getHour();
+				min = aTime.getMinute();
+				rsec = aTime.getSecond(); // should be 0 
+			}
+			
+			yearField.setValue(year);
+			monthField.setValue(month);
+			dayField.setValue(iday);
 			hourField.setValue(hour);
 			minField.setValue(min);
-			secField.setValue(sec);
+			secField.setValue(rsec);
 		}
 		
 		// Set Julian Day field to a value calculated from date fields (YYYY-MM-DD HH:MM:SS) 
