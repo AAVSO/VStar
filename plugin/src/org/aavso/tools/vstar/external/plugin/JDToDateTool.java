@@ -243,13 +243,17 @@ public class JDToDateTool extends GeneralToolPluginBase {
 		
 		// Set form fields to values corresponding to the current time
 		private void setCurrentTime() {
-			fieldJulianDay.setValue(julianDayNow());
-			setDateFromJd();
-			setJdFromDate(); // to synchronize fields after rounding seconds.
+			double jd = julianDayNow();
+			setDateFromJd(jd);			
+			setJdFromDate(); // to synchronize after rounding of seconds
 		}
 
 		// Date/Time fields (YYYY-MM-DD HH:MM:SS) from Julian Day field 
 		private void setDateFromJd() {
+			setDateFromJd(getAndCheck(fieldJulianDay));
+		}
+		
+		private void setDateFromJd(Double jd) {
 			yearField.setValue(null);
 			monthField.setValue(null);
 			dayField.setValue(null);
@@ -257,14 +261,14 @@ public class JDToDateTool extends GeneralToolPluginBase {
 			minField.setValue(null);
 			secField.setValue(null);
 			
-			Double jd = getAndCheck(fieldJulianDay);
-			if (jd == null) return;
+			if (jd == null) return; 
 			
 			YMD ymd = AbstractDateUtil.getInstance().jdToYMD(jd);
 			double day = ymd.getDay();
 			int hour = (int)((day - (int)day) * 24.0);
 			int min = (int)((day - (int)day - hour / 24.0) * 24.0 * 60.0);
 			double sec = ((day - (int)day - hour / 24.0 - min / 24.0 / 60.0) * 24.0 * 60.0 * 60.0);
+			if (sec > 59.99) sec = 59.99; // rounding issue: if a value = 59.996 (for example) it will be rounded to 60.
 			yearField.setValue(ymd.getYear());
 			monthField.setValue(ymd.getMonth());
 			dayField.setValue((int)day);
