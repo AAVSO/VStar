@@ -591,9 +591,10 @@ public class VSXquery extends GeneralToolPluginBase {
 		private Double declination2000;
 
 		protected String getCoordinates() {
-			if (ra2000 != null && declination2000 != null && ra2000 >= 0.0 && ra2000 < 360.0 && declination2000 >= -90.0 && declination2000 <= 90.0) {
-
-				double hours = ra2000 / 360.0 * 24.0;
+			if (ra2000 == null || declination2000 == null)
+				return null;
+			double hours = ra2000 / 15.0;
+			if (hours >= 0.0 && hours < 24.0 && declination2000 >= -90.0 && declination2000 <= 90.0) {
 				int h = (int)(hours);
 				int m = (int)((hours - h) * 60.0);
 				double s = (hours - h - m / 60.0) * 60.0 * 60.0;
