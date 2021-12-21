@@ -89,8 +89,8 @@ public class VSXquery extends GeneralToolPluginBase {
 	private static String sVSXname = "";
 	
 	protected static final String sVSX_URL = "https://www.aavso.org/vsx/index.php?view=api.object&ident=";
-	
-	private EphemerisDialog ephemerisDialog = null; 
+
+	private EphemerisDialog ephemerisDialog = null;
 
 	@Override
 	public void invoke() {
@@ -106,15 +106,15 @@ public class VSXquery extends GeneralToolPluginBase {
 	public String getDisplayName() {
 		return "VSX Query";
 	}
-	
+
 	class DoubleField2 extends DoubleField {
-		
-		private int MIN_DECIMAL_PLACES = 20; 
-		
+
+		private int MIN_DECIMAL_PLACES = 20;
+
 		public DoubleField2(String name, Double min, Double max, Double initial) {
 			super(name, min, max, initial);
 		}
-		
+
 		@Override
 		public void setValue(Double value) {
 			//textField.setText(value.toString());
@@ -129,14 +129,14 @@ public class VSXquery extends GeneralToolPluginBase {
 			} else {
 				textField.setText("");
 			}
-		}		
-			
+		}
+
 	}
-	
+
 	@SuppressWarnings("serial")
 	class QueryVSXdialog extends JDialog {
 		protected static final String sTITLE = "Query VSX";
-		
+
 		protected TextField fieldVSXname;
 		protected DoubleField2 fieldVSXperiod;
 		protected DoubleField2 fieldVSXepoch;
@@ -148,9 +148,9 @@ public class VSXquery extends GeneralToolPluginBase {
 		protected DoubleField2 fieldEphemerisTo;
 		protected DoubleField2 fieldEphemerisPhase;
 		protected DoubleField2 fieldTimeZoneOffset;
-		
+
 		protected boolean closed = false;
-		
+
 		protected JButton queryButton;
 		protected JButton phaseDialogButton;
 		protected JButton resetButton;
@@ -163,12 +163,12 @@ public class VSXquery extends GeneralToolPluginBase {
 			super(DocumentManager.findActiveWindow());
 			setTitle(sTITLE);
 			setModalityType(Dialog.ModalityType.MODELESS);
-			
+
 			ActionListener cancelListener = createCancelButtonListener();
-		    getRootPane().registerKeyboardAction(cancelListener, 
-		    		KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), 
-		    		JComponent.WHEN_IN_FOCUSED_WINDOW);
-		
+			getRootPane().registerKeyboardAction(cancelListener,
+					KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+
 			Container contentPane = this.getContentPane();
 
 			JPanel topPane = new JPanel();
@@ -185,7 +185,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			topPane.add(new JSeparator(SwingConstants.HORIZONTAL));
 			topPane.add(new JLabel(" "));
 			topPane.add(createButtonPane3(cancelListener));
-			
+
 			//this.getRootPane().setDefaultButton(queryButton);
 
 			contentPane.add(topPane);
@@ -208,54 +208,54 @@ public class VSXquery extends GeneralToolPluginBase {
 			JPanel panel = new JPanel(new BorderLayout());
 			fieldVSXname = new TextField("VSX Name", sVSXname);
 			fieldVSXname.getUIComponent().addKeyListener(new KeyAdapter() {
-		        @Override
-		        public void keyPressed(KeyEvent e) {
-		            if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-		            	queryVSX();
-		            }
-		        }
-		    });			
+				@Override
+				public void keyPressed(KeyEvent e) {
+					if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+						queryVSX();
+					}
+				}
+			});
 			panel.add(fieldVSXname.getUIComponent(), BorderLayout.CENTER);
-			queryButton = new JButton("Query");			
+			queryButton = new JButton("Query");
 			queryButton.addActionListener(createQueryButtonListener());
 			panel.add(queryButton, BorderLayout.LINE_END);
-			
+
 			return panel;
 		}
-		
+
 		private JPanel createInfoPane()	{
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-			
+
 			textArea = new JTextArea(12, 40);
 			textArea.setEditable(false);
 			JScrollPane scrollPane = new JScrollPane(textArea);
 			panel.add(scrollPane);
-			
+
 			fieldVSXvarType = new TextField("Variability Type", "");
-			fieldVSXvarType.setEditable(false);			
+			fieldVSXvarType.setEditable(false);
 			panel.add(fieldVSXvarType.getUIComponent());
 
 			fieldVSXspectralType = new TextField("Spectral Type", "");
 			fieldVSXspectralType.setEditable(false);
 			panel.add(fieldVSXspectralType.getUIComponent());
-			
+
 			fieldVSXcoordinates =  new TextField("J2000.0", "");
 			fieldVSXcoordinates.setEditable(false);
 			panel.add(fieldVSXcoordinates.getUIComponent());
-			
+
 			panel.add(new JLabel(" "));
-			
+
 			fieldVSXperiod = new DoubleField2("Period", null, null, null);
 			fieldVSXperiod.setValue(0.0);
 			//((JTextComponent) (fieldVSXperiod.getUIComponent())).setEditable(false);
 			panel.add(fieldVSXperiod.getUIComponent());
-			
+
 			fieldVSXepoch = new DoubleField2("Epoch", null, null, null);
 			fieldVSXepoch.setValue(0.0);
 			//((JTextComponent) (fieldVSXepoch.getUIComponent())).setEditable(false);
 			panel.add(fieldVSXepoch.getUIComponent());
-		
+
 			return panel;
 		}
 
@@ -269,7 +269,7 @@ public class VSXquery extends GeneralToolPluginBase {
 
 			return panel;
 		}
-		
+
 		private JPanel createParamPane2() {
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridLayout(0, 2));
@@ -286,7 +286,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			panel.add(fieldTimeZoneOffset.getUIComponent());
 			return panel;
 		}
-		
+
 		private void setDefaultEphemerisParams() {
 			Calendar cal = Calendar.getInstance();
 			TimeZone tz = cal.getTimeZone();
@@ -300,7 +300,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			fieldEphemerisPhase.setValue(0.0);
 			fieldTimeZoneOffset.setValue(offset);
 		}
-		
+
 		private JPanel createButtonPane2() {
 			JPanel panel = new JPanel(new BorderLayout());
 			calcEphemeris = new JButton("Calculate Ephemeris");
@@ -309,7 +309,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			//calcEphemeris.setEnabled(false);
 			return panel;
 		}
-		
+
 		private JPanel createButtonPane3(ActionListener cancelListener) {
 			JPanel panel = new JPanel(new BorderLayout());
 			JButton cancelButton = new JButton("Close");
@@ -318,10 +318,10 @@ public class VSXquery extends GeneralToolPluginBase {
 			resetButton = new JButton("Reset");
 			resetButton.addActionListener(createResetButtonListener());
 			panel.add(resetButton, BorderLayout.LINE_END);
-			
+
 			return panel;
 		}
-		
+
 		// Return a listener for the "Query" button.
 		private ActionListener createQueryButtonListener() {
 			return new ActionListener() {
@@ -330,7 +330,7 @@ public class VSXquery extends GeneralToolPluginBase {
 				}
 			};
 		}
-		
+
 		// Return a listener for the "Reset" button.
 		private ActionListener createResetButtonListener() {
 			return new ActionListener() {
@@ -360,7 +360,7 @@ public class VSXquery extends GeneralToolPluginBase {
 				}
 			};
 		}
-		
+
 		// Return a listener for the "Cancel" button.
 		private ActionListener createCancelButtonListener() {
 			return new ActionListener() {
@@ -372,7 +372,7 @@ public class VSXquery extends GeneralToolPluginBase {
 				}
 			};
 		}
-		
+
 		// Return a listener for the "Ephemeris" button.
 		private ActionListener createEphemerisButtonListener() {
 			return new ActionListener() {
@@ -429,7 +429,7 @@ public class VSXquery extends GeneralToolPluginBase {
 				}
 			};
 		}
-		
+
 		private void closeEphemerisDialog(boolean destroy) {
 			if (ephemerisDialog != null) {
 				ephemerisDialog.setVisible(false);
@@ -439,7 +439,7 @@ public class VSXquery extends GeneralToolPluginBase {
 				}
 			}
 		}
-		
+
 		private void resetVSXFields() {
 			textArea.setText("");
 			fieldVSXperiod.setValue(0.0);
@@ -448,7 +448,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			fieldVSXspectralType.setValue("");
 			fieldVSXcoordinates.setValue("");
 		}
-		
+
 		private void queryVSX() {
 			closeEphemerisDialog(false);
 			sVSXname = fieldVSXname.getValue().trim();
@@ -467,46 +467,46 @@ public class VSXquery extends GeneralToolPluginBase {
 		}
 	
 	}
-	
-	
+
+
 	@SuppressWarnings("serial")
 	class EphemerisDialog extends JDialog {
-		
+
 		private JTextArea textArea;
-		
+
 		protected EphemerisDialog(JDialog parent, String starName, Double period, Double epoch, Double fromJD, Double toJD, Double phase, Double zoneOffset) {
 			super(parent, "Ephemeris");
 			setModalityType(Dialog.ModalityType.MODELESS);
-			
+
 			ActionListener cancelListener = createCancelButtonListener();
-		    getRootPane().registerKeyboardAction(cancelListener, 
-		    		KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), 
-		    		JComponent.WHEN_IN_FOCUSED_WINDOW);
-			
+			getRootPane().registerKeyboardAction(cancelListener, 
+					KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), 
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+
 			Container contentPane = this.getContentPane();
 
 			JPanel panel = new JPanel();
 			panel.setLayout(new BorderLayout());
-			
+
 			textArea = new JTextArea(16, 80);
 			textArea.setTabSize(22);
 			textArea.setEditable(false);
 			JScrollPane scrollPane = new JScrollPane(textArea);
 			panel.add(scrollPane, BorderLayout.CENTER);
-			
+
 			updateEphemeris(starName, period, epoch, fromJD, toJD, phase, zoneOffset);
-			
+
 			JButton cancelButton = new JButton("Close");
 			cancelButton.addActionListener(cancelListener);
 			panel.add(cancelButton, BorderLayout.PAGE_END);
-			
+
 			contentPane.add(panel);
-			
+
 			this.pack();
 			setLocationRelativeTo(parent);
 			this.setVisible(true);
 		}
-		
+
 		private ActionListener createCancelButtonListener() {
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -523,7 +523,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			textArea.setCaretPosition(0);
 		}
 
-		
+
 		private String getEphemerisAsText(Double period, Double epoch, Double fromJD, Double toJD, Double phase, Double zoneOffset) {
 			if (period <= 0)
 				return "Period must be greater than zero!";
@@ -564,7 +564,7 @@ public class VSXquery extends GeneralToolPluginBase {
 				result += "No events in this timespan!\n";
 			return result;
 		}
-		
+
 		private String formatDate(YMD ymd) {
 			double day = ymd.getDay();
 			double hours = (day - Math.floor(day)) * 24;
@@ -576,9 +576,9 @@ public class VSXquery extends GeneralToolPluginBase {
 			int isecs = (int)Math.floor(secs);
 			return String.format("%d-%02d-%02d %02d:%02d:%02d", ymd.getYear(), ymd.getMonth(), iday, ihours, imins, isecs);
 		}
-		
+
 	}
-	
+
 	class VSQqueryResult {
 		protected String name;
 		protected Double period;
@@ -589,25 +589,52 @@ public class VSXquery extends GeneralToolPluginBase {
 
 		private Double ra2000;
 		private Double declination2000;
+
 		protected String getCoordinates() {
 			if (ra2000 != null && declination2000 != null && ra2000 >= 0.0 && ra2000 < 360.0 && declination2000 >= -90.0 && declination2000 <= 90.0) {
-				
+
 				double hours = ra2000 / 360.0 * 24.0;
 				int h = (int)(hours);
 				int m = (int)((hours - h) * 60.0);
-				double s = (hours - h - m / 60.0) * 60.0 * 60.0; 
-				
+				double s = (hours - h - m / 60.0) * 60.0 * 60.0;
+				// round to the number of digits specified after decimal separator in String.format() below. 
+				s = Math.round(s * 100.0) / 100.0;
+				// can be 60.00 after rounding!
+				if (s > 59.99) {
+					s = 0.0;
+					m++;
+					if (m > 59) {
+						m = 0;
+						h++;
+						if (h == 24)
+							h = 0;
+					}
+				}
+
 				double declination_abs = Math.abs(declination2000);
 				int deg = (int)(declination_abs);
 				int arcmin = (int)((declination_abs - deg) * 60.0);
 				double arcsec = (declination_abs - deg - arcmin / 60.0) * 60.0 * 60.0;
+				// round to the number of digits specified after decimal separator in String.format() below.
+				arcsec = Math.round(arcsec * 10.0) / 10.0;
+				// can be 60.00 after rounding!
+				if (arcsec > 59.9) {
+					arcsec = 0.0;
+					arcmin++;
+					if (arcmin > 59) {
+						arcmin = 0;
+						deg++;
+					}
+				}
+
 				char sign = declination2000 < 0 ? '-' : '+';
-				
+
 				return String.format("%02d:%02d:%05.2f %c%02d:%02d:%04.1f", h, m, s, sign, deg, arcmin, arcsec);
 			}
 			else
 				return null;
 		}
+
 	}
 
 	class VSXquerySwingWorker extends SwingWorker<VSQqueryResult, VSQqueryResult>	{
@@ -672,7 +699,7 @@ public class VSXquery extends GeneralToolPluginBase {
 				}
 			}
 		}
-		
+
 		private VSQqueryResult queryVSX(String sVSXname, int maxStars)
 				throws UnsupportedEncodingException, ParserConfigurationException, IOException, SAXException {
 			VSQqueryResult vsxResult = new VSQqueryResult();
