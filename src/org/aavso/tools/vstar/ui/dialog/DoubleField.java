@@ -59,12 +59,15 @@ public class DoubleField extends NumberFieldBase<Double> {
 		try {
 			value = NumberParser.parseDouble(textField.getText());
 
+			// In the previous realization, null is assigned to the value if value < min.
+			// Then in the next 'if' the null value is compared with max, this leads to Null Pointer Exception.
+			
 			if (min != null && value < min) {
-				value = null;
+				return null;
 			}
 
 			if (max != null && value > max) {
-				value = null;
+				return null;
 			}
 		} catch (NumberFormatException e) {
 			// Nothing to do; return null.
