@@ -211,7 +211,10 @@ public class VSXquery extends GeneralToolPluginBase {
 				@Override
 				public void keyPressed(KeyEvent e) {
 					if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-						queryVSX();
+						// Check queryButton state to prevent sending another request 
+						// while async queryVSX() is running 
+						if (queryButton.isEnabled())
+							queryVSX();
 					}
 				}
 			});
