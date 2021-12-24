@@ -1314,9 +1314,9 @@ public class Mediator {
 
 	// Request the J2000.0 RA in HH:MM:SS.n
 	public RAInfo requestRA(RAInfo ra) {
-		int h = 0;
-		int m = 0;
-		double s = 0.0;
+		Integer h = null;
+		Integer m = null;
+		Double s = null;
 
 		if (ra != null) {
 			Triple<Integer, Integer, Double> hms = ra.toHMS();
@@ -1325,9 +1325,9 @@ public class Mediator {
 			s = hms.third;
 		}
 
-		IntegerField raHours = new IntegerField("Hours", 0, 60, h);
-		IntegerField raMinutes = new IntegerField("Minutes", 0, 60, m);
-		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 60.0, s);
+		IntegerField raHours = new IntegerField("Hours", 0, 23, h);
+		IntegerField raMinutes = new IntegerField("Minutes", 0, 59, m);
+		DoubleField raSeconds = new DoubleField("Seconds", 0.0, 59.99, s);
 		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("RA (" + EpochType.J2000 + ")", raHours,
 				raMinutes, raSeconds);
 
@@ -1346,9 +1346,9 @@ public class Mediator {
 
 	// Request the J2000.0 Dec in DD:MM:SS.n
 	public DecInfo requestDec(DecInfo dec) {
-		int d = 0;
-		int m = 0;
-		double s = 0.0;
+		Integer d = null;
+		Integer m = null;
+		Double s = null;
 
 		if (dec != null) {
 			Triple<Integer, Integer, Double> dms = dec.toDMS();
@@ -1357,15 +1357,27 @@ public class Mediator {
 			s = dms.third;
 		}
 
-		IntegerField decHours = new IntegerField("Degrees", -90, 90, d);
-		IntegerField decMinutes = new IntegerField("Minutes", 0, 60, m);
-		DoubleField decSeconds = new DoubleField("Seconds", 0.0, 60.0, s);
-		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("Dec (" + EpochType.J2000 + ")", decHours,
-				decMinutes, decSeconds);
+		IntegerField decDegrees = new IntegerField("Degrees", -90, 90, d);
+		IntegerField decMinutes = new IntegerField("Minutes", 0, 59, m);
+		DoubleField decSeconds = new DoubleField("Seconds", 0.0, 59.99, s);
 
-		DecInfo decInfo = null;
-		if (!dialog.isCancelled()) {
-			decInfo = new DecInfo(EpochType.J2000, decHours.getValue(), decMinutes.getValue(), decSeconds.getValue());
+		DecInfo decInfo;		
+		while (true) {
+			decInfo = null;			
+			MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("Dec (" + EpochType.J2000 + ")", decDegrees,
+					decMinutes, decSeconds);
+			if (dialog.isCancelled())
+				break;
+			decInfo = new DecInfo(EpochType.J2000, decDegrees.getValue(), decMinutes.getValue(), decSeconds.getValue());
+			
+			double degrees = decInfo.toDegrees();
+
+			// If Degrees = 90 and Min or Sec > 0, the resulted value is out of range.
+			if (degrees >= -90.0 && degrees <= 90.0)
+				break;
+
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), 
+					"Error", "Please check input: Dec must be between -90.0 and 90.0");
 		}
 
 		return decInfo;
