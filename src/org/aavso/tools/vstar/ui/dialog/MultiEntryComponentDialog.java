@@ -141,6 +141,14 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 		for (ITextComponent<?> field : fields) {
 			if (field.getValue() == null || !field.canBeEmpty()
 					&& field.getStringValue().trim().length() == 0) {
+
+				String errorMessage = "Invalid value entered in " + field.getName() + ".";
+
+				if (field instanceof NumberFieldBase<?>)
+					errorMessage += "\n" + numberFieldInfo((NumberFieldBase<?>)field);
+
+				MessageBox.showErrorDialog(this, getTitle(), errorMessage);
+
 				ok = false;
 				break;
 			}
@@ -152,4 +160,16 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 			dispose();
 		}
 	}
+	
+	private String numberFieldInfo(NumberFieldBase<?> field) {
+		String s = "";
+		if (field.getMin() == null && field.getMax() != null)
+			s = "Only values <= " + field.getMax() + " allowed.";
+		else if (field.getMin() != null && field.getMax() == null)
+			s = "Only values >= " + field.getMin() + " allowed.";
+		else if (field.getMin() != null && field.getMax() != null)
+			s = "Only values between " + field.getMin() + " and " + field.getMax() + " allowed.";
+		return s; 
+	}
+
 }
