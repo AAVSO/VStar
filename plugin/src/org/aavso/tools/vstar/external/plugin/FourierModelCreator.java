@@ -53,38 +53,42 @@ public class FourierModelCreator extends ModelCreatorPluginBase {
 
 	@Override
 	public IModel getModel(List<ValidObservation> obs) {
-		IntegerField numPeriodField = new IntegerField("Number of Periods", 0, null, 1);
-		MultiEntryComponentDialog numPeriodsDialog = new MultiEntryComponentDialog(
-				"Period Count", numPeriodField);
-		
-		PeriodAnalysisDerivedMultiPeriodicModel model = null;
+		PeriodAnalysisDerivedMultiPeriodicModel model = null;		
+		try {
+			// Catch all possible errors: getHarmonics() may generate an error if one of frequencies < 0, etc.			
+			IntegerField numPeriodField = new IntegerField("Number of Periods", 0, null, 1);
+			MultiEntryComponentDialog numPeriodsDialog = new MultiEntryComponentDialog(
+					"Period Count", numPeriodField);
 			
-		if (!numPeriodsDialog.isCancelled()) {
-			int numPeriods = numPeriodField.getValue();
+			if (!numPeriodsDialog.isCancelled()) {
+				int numPeriods = numPeriodField.getValue();
 
-			List<Double> userSelectedFreqs = new ArrayList<Double>();
-			for (int i = 0; i < numPeriods; i++) {
-				userSelectedFreqs.add(1.0);
-			}
+				List<Double> userSelectedFreqs = new ArrayList<Double>();
+				for (int i = 0; i < numPeriods; i++) {
+					userSelectedFreqs.add(1.0);
+				}
 
-			Map<Double, List<Harmonic>> freqToHarmonicsMap = new HashMap<Double, List<Harmonic>>();
+				Map<Double, List<Harmonic>> freqToHarmonicsMap = new HashMap<Double, List<Harmonic>>();
 
-			HarmonicInputDialog dialog = new HarmonicInputDialog(
-					DocumentManager.findActiveWindow(), userSelectedFreqs,
-					freqToHarmonicsMap);
+				HarmonicInputDialog dialog = new HarmonicInputDialog(
+						DocumentManager.findActiveWindow(), userSelectedFreqs,
+						freqToHarmonicsMap);
+			
+				if (!dialog.isCancelled()) { 
+					List<Harmonic> harmonics = dialog.getHarmonics();
+					if (!harmonics.isEmpty()) {
+						IPeriodAnalysisAlgorithm algorithm = new TSDcDft(obs);
+						model = new PeriodAnalysisDerivedMultiPeriodicModel(
+								harmonics, algorithm);
 
-			if (!dialog.isCancelled()) {
-				List<Harmonic> harmonics = dialog.getHarmonics();
-				if (!harmonics.isEmpty()) {
-					IPeriodAnalysisAlgorithm algorithm = new TSDcDft(obs);
-					model = new PeriodAnalysisDerivedMultiPeriodicModel(
-							harmonics, algorithm);
-
-				} else {
-					MessageBox.showErrorDialog("Fourier Model Creator",
-							"Period list error");
+					} else {
+						throw new Exception("Period list error");
+					}
 				}
 			}
+		} catch (Exception e) {
+			MessageBox.showErrorDialog("Fourier Model Creator", 
+					e.getLocalizedMessage());
 		}
 
 		return model;

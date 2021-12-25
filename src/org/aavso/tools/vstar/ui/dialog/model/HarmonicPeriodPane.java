@@ -31,6 +31,8 @@ import javax.swing.JTextField;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
+import org.aavso.tools.vstar.vela.VeLaEvalError;
+import org.aavso.tools.vstar.vela.VeLaParseError;
 
 /**
  * This component defines a pane that shows a period and a combo-box requesting
@@ -103,6 +105,10 @@ public class HarmonicPeriodPane extends JPanel {
 		try {
 			period = NumberParser.parseDouble(periodText);
 		} catch (NumberFormatException e) {
+			// Nothing to do; return null.
+		} catch (VeLaParseError e) { // #PMAK#
+			// Nothing to do; return null.
+		} catch (VeLaEvalError e) { // #PMAK#
 			// Nothing to do; return null.
 		}
 
