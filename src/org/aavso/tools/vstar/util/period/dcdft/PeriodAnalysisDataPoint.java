@@ -69,7 +69,6 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	 * @return the frequency
 	 */
 	public double getFrequency() {
-		assert coordTypes == DCDFT_COORD_TYPES;
 		return coords.get(PeriodAnalysisCoordinateType.FREQUENCY);
 	}
 
@@ -77,7 +76,6 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	 * @return the period
 	 */
 	public double getPeriod() {
-		assert coordTypes == DCDFT_COORD_TYPES;
 		return coords.get(PeriodAnalysisCoordinateType.PERIOD);
 	}
 
@@ -85,7 +83,6 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	 * @return the power
 	 */
 	public double getPower() {
-		assert coordTypes == DCDFT_COORD_TYPES;
 		return coords.get(PeriodAnalysisCoordinateType.POWER);
 	}
 
@@ -93,7 +90,6 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	 * @return the amplitude
 	 */
 	public double getAmplitude() {
-		assert coordTypes == DCDFT_COORD_TYPES;
 		return coords.get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE);
 	}
 
