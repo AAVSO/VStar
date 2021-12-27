@@ -420,6 +420,8 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 
 				interrupted = false;
 
+				// TODO: for a multi-threaded range-subset approach, we would
+				// need to do this once for each thread
 				for (ValidObservation ob : obs) {
 					if (interrupted)
 						break;
