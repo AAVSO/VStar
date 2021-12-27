@@ -209,21 +209,10 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 					PeriodAnalysisCoordinateType.FREQUENCY,
 					PeriodAnalysisCoordinateType.PERIOD, F_STATISTIC, P_VALUE };
 
-			// Note: algorithm won't be used (?) in this case but we must pass
-			// it along.
-			// TODO: subclass PeriodAnalysisDataTablePane to have no model
-			// button
-
 			PeriodAnalysisDataTableModel dataTableModel = new PeriodAnalysisDataTableModel(
 					columns, algorithm.getResultSeries());
 			resultsTablePane = new NoModelPeriodAnalysisDataTablePane(
 					dataTableModel, algorithm);
-
-			// Note: algorithm won't be used (?) in this case but we must pass
-			// it along. TODO: how do we get top hit squares? See what DCDFT
-			// does.
-			// TODO: subclass PeriodAnalysisTopHitsTablePane to have no model
-			// button
 
 			PeriodAnalysisDataTableModel topHitsModel = new PeriodAnalysisDataTableModel(
 					columns, algorithm.getTopHits());
@@ -405,14 +394,12 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		public void multiPeriodicFit(List<Harmonic> harmonics,
 				PeriodAnalysisDerivedMultiPeriodicModel model)
 				throws AlgorithmError {
-			// TODO Auto-generated method stub
 		}
 
 		@Override
 		public List<PeriodAnalysisDataPoint> refineByFrequency(
 				List<Double> freqs, List<Double> variablePeriods,
 				List<Double> lockedPeriod) throws AlgorithmError {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
@@ -460,7 +447,11 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 				// period range but over all observations, where the full set
 				// is copied for each core (set phases, sort mutate obs and
 				// list...); top-hits will have to be combined and ordered once
-				// at end as part of or before prune operation
+				// at end as part of or before prune operation; instead, could
+				// just iterate over a subset of observations; this would only
+				// give a large speedup if many observations; such a for-loop
+				// unrolling would be simpler and less memory intensive though;
+				// may be worth trying first
 
 				for (double period = minPeriod; period <= maxPeriod; period += resolution) {
 					if (interrupted)
