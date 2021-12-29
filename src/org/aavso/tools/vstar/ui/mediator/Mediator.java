@@ -31,6 +31,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,6 +73,7 @@ import org.aavso.tools.vstar.ui.dialog.PNGImageFileSaveChooser;
 import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
+import org.aavso.tools.vstar.ui.dialog.FileIOchoosers;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFiltersDialog;
 import org.aavso.tools.vstar.ui.dialog.model.ModelDialog;
@@ -220,6 +222,9 @@ public class Mediator {
 
 	// A file dialog for saving a VeLa code file.
 	private VeLaFileSaveChooser velaFileSaveDialog;
+	
+	// Methods to load/save an XML as String from/to VeLa Model XML files with respective choosers.  
+	private FileIOchoosers velaXMLchoosers;
 
 	// Persistent phase parameter dialog.
 	private PhaseParameterDialog phaseParameterDialog;
@@ -309,6 +314,11 @@ public class Mediator {
 		this.imageSaveDialog = new PNGImageFileSaveChooser();
 		this.velaFileLoadDialog = new VeLaFileLoadChooser();
 		this.velaFileSaveDialog = new VeLaFileSaveChooser();
+		{
+			LinkedHashMap<String, String> fileExtensions = new LinkedHashMap<String, String>();
+			fileExtensions.put("Vela XML files (*.vlx)", "vlx");
+			this.velaXMLchoosers = new FileIOchoosers(fileExtensions, "vlx", "Open VeLa XML File", "Save VeLa XML File As");
+		}
 
 		// These (among other things) are created for each new star.
 		this.validObsList = null;
@@ -593,6 +603,13 @@ public class Mediator {
 	 */
 	public VeLaFileSaveChooser getVelaFileSaveDialog() {
 		return velaFileSaveDialog;
+	}
+	
+	/**
+	 * @return the velaXMLchoosers
+	 */
+	public FileIOchoosers getVelaXMLchoosers() {
+		return velaXMLchoosers;
 	}
 
 	/**
