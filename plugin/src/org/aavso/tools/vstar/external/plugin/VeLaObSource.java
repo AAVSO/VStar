@@ -258,18 +258,13 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 				
 				double time = minJD + i * step;
 				
-				//vela.pushEnvironment(new VeLaFuncEnvironment(time));
-				//try {
-					String funCall = FUNC_NAME + "(" + NumericPrecisionPrefs.formatTime(time) + ")";
-					Optional<Operand> result = vela.program(funCall);
-					if (result.isPresent() && result.get().getType() == Type.REAL) {
-						magVal = result.get().doubleVal();
-					} else {
-						throw new ObservationReadError("VeLa expression: Expected a Real value");
-					}
-				//} finally {
-				//	vela.popEnvironment();
-				//}
+				String funCall = FUNC_NAME + "(" + NumericPrecisionPrefs.formatTime(time) + ")";
+				Optional<Operand> result = vela.program(funCall);
+				if (result.isPresent() && result.get().getType() == Type.REAL) {
+					magVal = result.get().doubleVal();
+				} else {
+					throw new ObservationReadError("VeLa expression: Expected a Real value");
+				}
 
 				if (magVal != null) {
 					double uncertainty = 0;
@@ -315,124 +310,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		}
 
 	}
-	
-/*
-	class VeLaFuncEnvironment extends VeLaEnvironment<Operand> {
 
-		private Map<String, String> symbol2CanonicalSymbol = new TreeMap<String, String>();
-
-		private double time;
-
-		public VeLaFuncEnvironment(double time) {
-			super();
-			this.time = time;
-			reset();
-		}
-
-		
-		@Override
-		public Optional<Operand> lookup(String name) {
-			boolean contained = false;
-			Operand operand = null;
-
-			name = name.toUpperCase();
-
-			contained = symbol2CanonicalSymbol.containsKey(name);
-
-			if (contained) {
-				name = symbol2CanonicalSymbol.get(name);
-			}
-
-			if ("TIME".equals(name)) {
-				operand = operand(name, time);
-			}
-
-			return Optional.ofNullable(operand);
-		}
-		
-		// Cached operand creation methods.
-
-		protected Operand operand(String name, Integer value) {
-			return operand(Type.INTEGER, name, value);
-		}
-
-		protected Operand operand(String name, Double value) {
-			return operand(Type.REAL, name, value);
-		}
-
-		protected Operand operand(String name, String value) {
-			return operand(Type.STRING, name, value);
-		}
-
-		protected Operand operand(String name, Boolean value) {
-			return operand(Type.BOOLEAN, name, value);
-		}
-
-		// Common operand factory method
-
-		protected Operand operand(Type type, String name, Object value) {
-			Operand operand = null;
-
-			name = name.toUpperCase();
-			
-			if (cache.containsKey(name)) {
-				operand = cache.get(name);
-			} else {
-				switch (type) {
-				case INTEGER:
-					operand = new Operand(type, (int) value);
-					break;
-				case REAL:
-					operand = new Operand(type, (double) value);
-					break;
-				case STRING:
-					operand = new Operand(type, (String) value);
-					break;
-				case BOOLEAN:
-					operand = new Operand(type, (boolean) value);
-					break;
-				case LIST:
-					operand = new Operand(type, (List<Operand>) value);
-					break;
-				default:
-					operand = null;
-				}
-
-				bind(name, operand, true);
-			}
-
-			return operand;
-		}
-
-		public String[] symbols() {
-			reset();
-			
-			String[] symbols = new String[symbol2CanonicalSymbol.size()];
-			int i = 0;
-			for (String symbol : symbol2CanonicalSymbol.keySet()) {
-				symbols[i++] = symbol.toLowerCase();
-			}
-
-			return symbols;
-		}
-
-		public void reset() {
-			populateMap();
-		}
-
-		// Helpers
-
-		private void populateMap() {
-			symbol2CanonicalSymbol.clear();
-
-			symbol2CanonicalSymbol.put("TIME", "TIME");
-			symbol2CanonicalSymbol.put("T", "TIME");
-			symbol2CanonicalSymbol.put("JD", "TIME");
-		}
-		
-	}
-*/
-	
 	@SuppressWarnings("serial")
 	private class ParameterDialog extends AbstractOkCancelDialog {
 
