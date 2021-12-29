@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.vela.Operand;
 import org.aavso.tools.vstar.vela.Type;
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -93,7 +94,7 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 		 */
 		@Override
 		public double value(double t) throws FunctionEvaluationException {
-			String funCall = funcName + "(" + t + ")";
+			String funCall = funcName + "(" + NumericPrecisionPrefs.formatTime(t) + ")";
 			Optional<Operand> result = vela.program(funCall);
 			if (result.isPresent()) {
 				return result.get().doubleVal();
