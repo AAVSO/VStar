@@ -22,10 +22,15 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.util.List;
@@ -33,14 +38,17 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -313,6 +321,8 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 
 	@SuppressWarnings("serial")
 	private class ParameterDialog extends AbstractOkCancelDialog {
+		
+		private ActionListener cancelListener;
 
 		private DoubleField minJD;
 		private DoubleField maxJD;
@@ -385,6 +395,11 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		public ParameterDialog() {
 			super("Function Code [model: f(t)]");
 			
+			cancelListener = createCancelButtonListener();
+			getRootPane().registerKeyboardAction(cancelListener,
+					KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+			
 			Container contentPane = this.getContentPane();
 
 			JPanel topPane = new JPanel();
@@ -393,19 +408,20 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			
 			topPane.add(createControlPane());
 			topPane.add(createCodePane());
-			topPane.add(createFileControlPane());
+			//topPane.add(createFileControlPane());
 			
 			// OK, Cancel
 			topPane.add(createButtonPane());
 
 			contentPane.add(topPane);
 			
-			clearInput();
-			
 			this.pack();
+			//this.setResizable(false);
 			// Singleton mode! Use showDialog()!
 			//setLocationRelativeTo(Mediator.getUI().getContentPane());
 			//this.setVisible(true);
+			
+			clearInput();
 		}
 
 		private JPanel createControlPane() {
@@ -423,15 +439,21 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			((JTextField)(points.getUIComponent())).setColumns(12);			
 			panel.add(points.getUIComponent());
 			
+			String jdFlavourFieldName = "Date Type";
 			jDflavour = new JComboBox<String>();
+			//jDflavour.setBorder(BorderFactory.createTitledBorder(jdFlavourFieldName));
+			jDflavour.setToolTipText("Select " + jdFlavourFieldName);
+			
 			jDflavour.addItem(JDflavour.JD.toString());
 			jDflavour.addItem(JDflavour.HJD.toString());
 			jDflavour.addItem(JDflavour.BJD.toString());
 			jDflavour.setSelectedIndex(dateTypeToSelectedIndex("HJD")); // HJD
 			panel.add(jDflavour);
 			
+			panel.add(Box.createRigidArea(new Dimension(25, 0)));
+			
 			addToCurrent = new JCheckBox("Add to current?");
-			//addToCurrent.setSelected(true);
+			addToCurrent.setSelected(true);
 			panel.add(addToCurrent);
 			
 			return panel;
@@ -440,7 +462,9 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		private JPanel createCodePane() {
 			JPanel panel = new JPanel();
 			panel.setLayout((LayoutManager) new BoxLayout(panel, BoxLayout.PAGE_AXIS));
-			codeArea = new JTextArea(25, 80);
+			codeArea = new JTextArea(24, 80);
+			Font font = codeArea.getFont();
+			codeArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, font.getSize()));
 			JScrollPane scrollPane = new JScrollPane(codeArea);
 			panel.add(scrollPane);
 			return panel;
@@ -460,6 +484,26 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			saveButton = new JButton(LocaleProps.get("SAVE_BUTTON"));
 			panel.add(saveButton);
 			saveButton.addActionListener(createSaveButtonActionListener());
+			
+			return panel;
+		}
+		
+		@Override
+		protected JPanel createButtonPane() {
+			JPanel panel = new JPanel(new FlowLayout());
+
+			JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
+			cancelButton.addActionListener(cancelListener);
+			panel.add(cancelButton);
+
+			JPanel fileControls = createFileControlPane();
+			panel.add(fileControls);
+			
+			okButton = new JButton(LocaleProps.get("OK_BUTTON"));
+			okButton.addActionListener(createOKButtonListener());
+			panel.add(okButton);
+
+			this.getRootPane().setDefaultButton(okButton);
 			
 			return panel;
 		}
