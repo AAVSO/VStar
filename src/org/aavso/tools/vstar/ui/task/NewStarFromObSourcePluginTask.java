@@ -228,6 +228,14 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			// the number of records, we can show updated progress,
 			// otherwise just show busy state.
 			retriever = obSourcePlugin.getObservationRetriever();
+			
+			// #PMAK#20211229#1#:
+			//	if the retriever has configuration dialog (see, for example, ASAS-SN plug-in)
+			//  that was canceled, getObservationRetriever() returns null.
+			//  It is essentially the same as CancellationException
+			//  that cannot be thrown from within getObservationRetriever()
+			if (retriever == null)
+				cancelled = true;
 		} catch (CancellationException ex) {
 			cancelled = true;
 		} catch (ConnectionException ex) {
