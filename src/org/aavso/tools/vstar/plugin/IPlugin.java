@@ -72,4 +72,11 @@ public interface IPlugin {
 	 * @return Whether or not any additional authentication has satisfied.
 	 */
 	abstract public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo);
+	
+	/**
+	 * Test method
+	 * 
+	 * @return whether the test passed (true, false) or null meaning no test
+	 */
+	abstract public Boolean test(); 
 }

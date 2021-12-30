@@ -148,4 +148,9 @@ abstract public class CustomFilterPluginBase implements IPlugin {
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
 		return true;
 	}
+	
+	@Override
+	public Boolean test() {
+		return null;
+	}
 }

@@ -275,4 +275,9 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	public NewStarType getNewStarType() {
 		return NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
 	}
+	
+	@Override
+	public Boolean test() {
+		return null;
+	}
 }

@@ -90,4 +90,9 @@ abstract public class ModelCreatorPluginBase implements IPlugin {
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
 		return true;
 	}
+	
+	@Override
+	public Boolean test() {
+		return null;
+	}
 }

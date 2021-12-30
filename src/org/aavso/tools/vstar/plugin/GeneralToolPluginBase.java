@@ -63,4 +63,10 @@ abstract public class GeneralToolPluginBase implements IPlugin {
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
 		return true;
 	}
+	
+	@Override
+	public Boolean test() {
+		return null;
+	}
+
 }
