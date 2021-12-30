@@ -174,6 +174,15 @@ public class VeLaInterpreter {
 	}
 
 	/**
+	 * Peek the top-most environment on the stack and return it.
+	 * 
+	 * @return The top-most environment.
+	 */
+	public VeLaEnvironment<Operand> peekEnvironment() {
+		return this.environments.peek();
+	}
+	
+	/**
 	 * Return all scopes (activation records) on the stack as a list in order from
 	 * oldest to newest.
 	 */
