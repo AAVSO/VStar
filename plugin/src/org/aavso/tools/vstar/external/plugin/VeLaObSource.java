@@ -29,8 +29,6 @@ import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.util.List;
@@ -364,6 +362,8 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		}
 		
 		private int dateTypeToSelectedIndex(String dateType) {
+			if (dateType == null)
+				dateType = "";
 			switch (dateType) {
 				case "JD": 
 					return 0;
@@ -548,7 +548,15 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 				String content = Mediator.getInstance().getVelaXMLchoosers().readFileAsString(ParameterDialog.this);
 				if (content != null) {
 					clearInput();
-					processXMLstring(content);
+					try {
+						processXMLstring(content);
+					} catch (Exception ex) {
+						MessageBox.showWarningDialog(ParameterDialog.this, getTitle(),
+								"Cannot parse XML content. The data will be loaded as plain text.\n\n" +
+								"Message:\n" + ex.getLocalizedMessage());
+						clearInput();
+						codeArea.setText(content);
+					}
 				}
 			} catch (Exception ex) {
 				MessageBox.showErrorDialog(ParameterDialog.this, getTitle(), ex);
