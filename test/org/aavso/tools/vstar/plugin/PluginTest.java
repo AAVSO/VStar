@@ -1,24 +1,28 @@
 package org.aavso.tools.vstar.plugin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 
 import junit.framework.TestCase;
 
-// Invoke the test() method on each plug-in
+// Invoke the test() method on each plug-in that is built in and currently
+// in the user's environment. It may be better to iterate over each class
+// in the org.aavso.tools.vstar.external.plugin package and include intrinsic
+// plug-ins.
 
 public class PluginTest extends TestCase {
 
-	private List<IPlugin> plugins;
+	private Set<IPlugin> plugins;
 	
 	public PluginTest(String name) {
 		super(name);
 
-		PluginLoader.loadPlugins();
+		// Load all plug-ins in the current environment
+//		PluginLoader.loadPlugins();
 
-		plugins = new ArrayList<IPlugin>();
+		plugins = new LinkedHashSet<IPlugin>();
 		plugins.addAll(PluginLoader.getCustomFilterPlugins());
 		plugins.addAll(PluginLoader.getGeneralToolPlugins());
 		plugins.addAll(PluginLoader.getModelCreatorPlugins());
