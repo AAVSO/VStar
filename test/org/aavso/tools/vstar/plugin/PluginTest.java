@@ -19,8 +19,7 @@ public class PluginTest extends TestCase {
 	public PluginTest(String name) {
 		super(name);
 
-		// Load all plug-ins in the current environment
-//		PluginLoader.loadPlugins();
+		PluginLoader.loadPlugins();
 
 		plugins = new LinkedHashSet<IPlugin>();
 		plugins.addAll(PluginLoader.getCustomFilterPlugins());

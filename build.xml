@@ -334,6 +334,7 @@
 		<batchtest todir="${test_report}" unless="testcase">
 			<fileset dir="${test}">
 				<include name="**/*Test.java" />
+				<exclude name="**/PluginTest.java" />
 			</fileset>
 			<fileset dir="${plugin}/test">
 				<include name="**/Test.java" />
