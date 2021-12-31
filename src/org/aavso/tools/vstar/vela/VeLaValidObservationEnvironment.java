@@ -43,7 +43,6 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 		reset();
 	}
 
-	
 	@Override
 	public Optional<Operand> lookup(String name) {
 		boolean contained = false;
