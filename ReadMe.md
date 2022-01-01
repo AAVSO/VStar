@@ -1,4 +1,4 @@
-![VStar workflow](https://github.com/AAVSO/VStar/actions/workflows/ant.yml/badge.svg)
+![VStar workflow](https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml/badge.svg)
 ## VStar
 
 ### Introduction
