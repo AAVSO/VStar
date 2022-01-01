@@ -28,6 +28,6 @@ jobs:
       run:
         mkdir -p ~/vstar_plugin_libs
     - name: Build with Ant
-      run:
+      run: |
         cd plugin
         ant -noinput -buildfile build.xml test
