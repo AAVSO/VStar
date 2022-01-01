@@ -43,6 +43,8 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
  */
 public abstract class ObservationSourcePluginBase implements IPlugin {
 
+	protected boolean testMode = false;
+
 	protected String userName;
 	protected String password;
 
@@ -276,6 +278,16 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	@Override
 	public Boolean test() {
 		return null;
+	}
+
+	@Override
+	public boolean inTestMode() {
+		return testMode;
+	}
+
+	@Override
+	public void setTestMode(boolean mode) {
+		testMode = mode;
 	}
 
 	/**

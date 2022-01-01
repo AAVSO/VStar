@@ -49,6 +49,8 @@ import org.aavso.tools.vstar.util.notification.Notifier;
 
 abstract public class PeriodAnalysisPluginBase implements IPlugin {
 	
+	protected boolean testMode = false;
+
 	/**
 	 * Send a period change message.
 	 * 
@@ -180,5 +182,15 @@ abstract public class PeriodAnalysisPluginBase implements IPlugin {
 	@Override
 	public Boolean test() {
 		return null;
+	}
+
+	@Override
+	public boolean inTestMode() {
+		return testMode;
+	}
+
+	@Override
+	public void setTestMode(boolean mode) {
+		testMode = mode;
 	}
 }

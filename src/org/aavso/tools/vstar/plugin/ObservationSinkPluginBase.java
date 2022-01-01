@@ -36,6 +36,8 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
  */
 public abstract class ObservationSinkPluginBase implements IPlugin {
 
+	protected boolean testMode = false;
+
 	/**
 	 * Save the specified observations.
 	 * 
@@ -97,4 +99,14 @@ public abstract class ObservationSinkPluginBase implements IPlugin {
 	public Boolean test() {
 		return null;
 	}
+
+	@Override
+	public boolean inTestMode() {
+		return testMode;
+	}
+
+	@Override
+	public void setTestMode(boolean mode) {
+		testMode = mode;	
+	}	
 }

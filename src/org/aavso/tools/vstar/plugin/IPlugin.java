@@ -72,11 +72,30 @@ public interface IPlugin {
 	 * @return Whether or not any additional authentication has satisfied.
 	 */
 	abstract public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo);
-	
+
+	// Test methods
+
 	/**
-	 * Test method
+	 * Method to be invoked in order to test this plug-in
 	 * 
 	 * @return whether the test passed (true, false) or null meaning no test
 	 */
-	abstract public Boolean test(); 
+	abstract public Boolean test();
+
+	/**
+	 * Is the current invocation of the plug-in in test mode? This can help in
+	 * design-for-test by allowing non-essential logic to change what code is
+	 * invoked during a test.
+	 * 
+	 * @return true or false
+	 */
+	abstract public boolean inTestMode();
+
+	/**
+	 * Set the test mode. Each test() method must do this if required, and not all
+	 * plug-in tests will require it.
+	 * 
+	 * @param mode true or false, denoting whether in test mode
+	 */
+	abstract public void setTestMode(boolean mode);
 }

@@ -35,6 +35,8 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
  */
 abstract public class GeneralToolPluginBase implements IPlugin {
 
+	protected boolean testMode = false;
+
 	/**
 	 * Invokes this tool plugin.
 	 */
@@ -69,4 +71,13 @@ abstract public class GeneralToolPluginBase implements IPlugin {
 		return null;
 	}
 
+	@Override
+	public boolean inTestMode() {
+		return testMode;
+	}
+
+	@Override
+	public void setTestMode(boolean mode) {
+		testMode = mode;	
+	}
 }

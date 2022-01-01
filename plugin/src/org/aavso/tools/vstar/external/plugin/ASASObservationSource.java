@@ -19,12 +19,7 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Color;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -262,6 +257,9 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 	}
 
 	private boolean etaAqlTest() {
+		// These lines were taken from an actual ASAS file. some header comment lines
+		// were omitted and only the first data set (commencing with #ndata) was
+		// extracted.
 		String[] lines = { "# The All Sky Automated Survey Data\n", "# gp@astrouw.edu.pl\n", "# ...\n",
 				"# ######### LIGHT CURVE BEGINS NEXT LINE ###########\n", "#ndata= 1\n",
 				"#dataset= 1 ; 1 F1944-08_325\n", "#desig= 195229+0100.3\n", "#cra=   19.874652  19:52:28.7\n",
@@ -274,17 +272,17 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 				"   2140.58808  5.114  5.720  5.352  5.216  5.130    0.039 0.057 0.036 0.032 0.036  A 30163\n" };
 
 		boolean success = true;
-		
+
 		try {
 			AbstractObservationRetriever retriever = getTestRetriever(lines, "eta Aql");
-	
+
 			success &= retriever.isHeliocentric();
-	
+
 			Map<SeriesType, List<ValidObservation>> seriesMap = retriever.getValidObservationCategoryMap();
-	
+
 			List<ValidObservation> asasObs = seriesMap.get(SeriesType.getSeriesFromDescription("Johnson V"));
 			success &= 1 == asasObs.size();
-	
+
 			ValidObservation ob = asasObs.get(0);
 			success &= "195229+0100.3".equals(ob.getDetail("DESIGNATION"));
 			success &= "30163".equals(ob.getDetail("FRAME"));
@@ -295,7 +293,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 		} catch (Exception e) {
 			success = false;
 		}
-		
+
 		return success;
 	}
 }

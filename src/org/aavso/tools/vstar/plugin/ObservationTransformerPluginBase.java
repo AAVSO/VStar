@@ -30,6 +30,8 @@ import org.aavso.tools.vstar.ui.undo.IUndoableAction;
  * TODO: allow new x and y labels to be returned, e.g. mag to flux
  */
 abstract public class ObservationTransformerPluginBase implements IPlugin {
+	
+	protected boolean testMode = false;
 
 	/**
 	 * Create and return an undoable action that can transform the supplied list
@@ -71,5 +73,15 @@ abstract public class ObservationTransformerPluginBase implements IPlugin {
 	@Override
 	public Boolean test() {
 		return null;
+	}
+
+	@Override
+	public boolean inTestMode() {
+		return testMode;
+	}
+
+	@Override
+	public void setTestMode(boolean mode) {
+		testMode = mode;
 	}
 }

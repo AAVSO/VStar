@@ -43,10 +43,12 @@ import org.aavso.tools.vstar.util.Pair;
  */
 abstract public class CustomFilterPluginBase implements IPlugin {
 
+	protected boolean testMode = false;
+	
 	// Subset of observations.
 	// We use a LinkedHashSet to maintain addition and lookup efficiency
 	// while maintaining insertion order.
-	private Set<ValidObservation> filteredObs;
+	protected Set<ValidObservation> filteredObs;
 
 	/**
 	 * <p>
@@ -152,5 +154,15 @@ abstract public class CustomFilterPluginBase implements IPlugin {
 	@Override
 	public Boolean test() {
 		return null;
+	}
+
+	@Override
+	public boolean inTestMode() {
+		return testMode;
+	}
+
+	@Override
+	public void setTestMode(boolean mode) {
+		testMode = mode;	
 	}
 }
