@@ -102,7 +102,7 @@
         </javac>
     </target>
     
-    <target name="test" depends="install" description="Run unit tests">
+    <target name="test" depends="compile_ut,install" description="Run unit tests">
 
         <!-- Run the tests -->
 
