@@ -31,4 +31,4 @@ jobs:
       run: |
         ant -noinput -buildfile build.xml dist
         cd plugin
-        ant -noinput -buildfile build.xml test
+        ant -noinput -Djava.awt.headless=true -buildfile build.xml test
