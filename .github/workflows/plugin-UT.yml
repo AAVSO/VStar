@@ -31,5 +31,6 @@ jobs:
       run: |
         ant -noinput -buildfile build.xml dist
         cd plugin
-        export DISPLAY=
-        ant -noinput -Djava.awt.headless=true -buildfile build.xml test
+        unset DISPLAY
+        xhost +local:
+        ant -Djava.awt.headless=true -noinput -buildfile build.xml test
