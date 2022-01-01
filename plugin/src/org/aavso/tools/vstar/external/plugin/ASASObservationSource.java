@@ -19,7 +19,14 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Color;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -30,6 +37,7 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+
 //12/02/2018 C. Kotnik added name to observations so they can be
 //saved and reloaded from a file.
 /**
@@ -40,7 +48,8 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  * <li>The magnitude and error columns appropriate to the object are used.</li>
  * <li>Each dataset is assigned the series ASAS-n where n is the dataset number.
  * </li>
- * <li>No dataset is discarded since in some cases, they are similar in size.</li>
+ * <li>No dataset is discarded since in some cases, they are similar in
+ * size.</li>
  * <li>Class C and D data is discarded from every data set.</li>
  * <li>Class, frame, designation are collected for each observation.</li>
  * </ul>
@@ -63,8 +72,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 		DATA
 	};
 
-	private final static Color[] COLORS = { Color.RED, Color.GREEN, Color.BLUE,
-			Color.ORANGE };
+	private final static Color[] COLORS = { Color.RED, Color.GREEN, Color.BLUE, Color.ORANGE };
 
 	/**
 	 * Constructor
@@ -124,10 +132,8 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 		}
 
 		@Override
-		public void retrieveObservations() throws ObservationReadError,
-				InterruptedException {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					getInputStreams().get(0)));
+		public void retrieveObservations() throws ObservationReadError, InterruptedException {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStreams().get(0)));
 
 			String line = null;
 			int lineNum = 1;
@@ -138,8 +144,7 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 
 					if (line != null) {
 
-						line = line.replaceFirst("\n", "").replaceFirst("\r",
-								"").trim();
+						line = line.replaceFirst("\n", "").replaceFirst("\r", "").trim();
 
 						if (!isEmpty(line)) {
 							// State machine cases.
@@ -179,15 +184,14 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 		private void handleInfo(String line) {
 			if (line.startsWith("#dataset")) {
 				String dataset = getStringFromNameValuePair(line);
-				datasetNum = Integer
-						.parseInt(dataset.split("\\s*;\\s*")[0]);
+				datasetNum = Integer.parseInt(dataset.split("\\s*;\\s*")[0]);
 				// String seriesName = "ASAS-" + datasetNum;
 
-				//seriesType = SeriesType.create(seriesName, seriesName,
-				//		COLORS[seriesColor++], false, false);
-				//if (seriesColor == COLORS.length) {
-				//	seriesColor = 0;
-				//}
+				// seriesType = SeriesType.create(seriesName, seriesName,
+				// COLORS[seriesColor++], false, false);
+				// if (seriesColor == COLORS.length) {
+				// seriesColor = 0;
+				// }
 			} else if (line.startsWith("#desig")) {
 				designation = getStringFromNameValuePair(line);
 			} else if (line.startsWith("#") && line.contains("HJD")) {
@@ -248,5 +252,68 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 			String[] fields = str.split("\\s*=\\s*");
 			return fields[1];
 		}
+	}
+
+	// Test methods
+
+	@Override
+	public Boolean test() {
+		return etaAqlTest();
+	}
+
+	private boolean etaAqlTest() {
+		String[] lines = { "# The All Sky Automated Survey Data\n", "# gp@astrouw.edu.pl\n", "# ...\n",
+				"# ######### LIGHT CURVE BEGINS NEXT LINE ###########\n", "#ndata= 1\n",
+				"#dataset= 1 ; 1 F1944-08_325\n", "#desig= 195229+0100.3\n", "#cra=   19.874652  19:52:28.7\n",
+				"#cdec=   1.005554 01:00:20.0\n", "#class= 0\n", "#cmag_0=  5.719\n", "#cmer_0=  0.000\n",
+				"#nskip_0= 0\n", "#cmag_1=  5.351\n", "#cmer_1=  0.000\n", "#nskip_1= 0\n", "#cmag_2=  5.215\n",
+				"#cmer_2=  0.000\n", "#nskip_2= 0\n", "#cmag_3=  5.129\n", "#cmer_3=  0.000\n", "#nskip_3= 0\n",
+				"#cmag_4=  5.114\n", "#cmer_4=  0.000\n", "#nskip_4= 0\n", "#ra=   19.874652  19:52:28.7\n",
+				"#dec=   1.005554 01:00:20.0\n",
+				"#     HJD      MAG_4  MAG_0  MAG_1  MAG_2  MAG_3    MER_4 MER_0 MER_1 MER_2 MER_3 GRADE FRAME\n",
+				"   2140.58808  5.114  5.720  5.352  5.216  5.130    0.039 0.057 0.036 0.032 0.036  A 30163\n" };
+
+		boolean success = true;
+		
+		try {
+			AbstractObservationRetriever retriever = getTestRetriever(lines, "eta Aql");
+	
+			success &= retriever.isHeliocentric();
+	
+			Map<SeriesType, List<ValidObservation>> seriesMap = retriever.getValidObservationCategoryMap();
+	
+			List<ValidObservation> asasObs = seriesMap.get(SeriesType.getSeriesFromDescription("Johnson V"));
+			success &= 1 == asasObs.size();
+	
+			ValidObservation ob = asasObs.get(0);
+			success &= "195229+0100.3".equals(ob.getDetail("DESIGNATION"));
+			success &= "30163".equals(ob.getDetail("FRAME"));
+			success &= "A".equals(ob.getDetail("CLASS"));
+			success &= 2452140.58808 == ob.getJD();
+			success &= 5.114 == ob.getMag();
+			success &= 0.039 == ob.getMagnitude().getUncertainty();
+		} catch (Exception e) {
+			success = false;
+		}
+		
+		return success;
+	}
+
+	private AbstractObservationRetriever getTestRetriever(String[] lines, String inputName)
+			throws InterruptedException, ObservationReadError {
+		StringBuffer content = new StringBuffer();
+		for (String line : lines) {
+			content.append(line);
+		}
+
+		InputStream in = new ByteArrayInputStream(content.toString().getBytes());
+		List<InputStream> streams = new ArrayList<InputStream>();
+		streams.add(in);
+		setInputInfo(streams, inputName);
+
+		AbstractObservationRetriever retriever = getObservationRetriever();
+		retriever.retrieveObservations();
+		
+		return retriever;
 	}
 }

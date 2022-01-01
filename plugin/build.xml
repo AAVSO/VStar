@@ -140,10 +140,12 @@
                 </linecontains>
             </filterchain>
         </concat>
-
+    	
+        <!--
     	<concat>
     	  <fileset dir="${test_report}" includes="*"/>
     	</concat>
+    	-->
     	
         <exec command="cat ${test_report}/summary.txt"/>
 
