@@ -62,7 +62,7 @@ public class ObserverListFilter extends CustomFilterPluginBase {
 			buf.append(" ");
 		}
 
-		return new Pair<String, String>("Observer filter: " + buf.toString(), buf.toString());
+		return new Pair<String, String>(buf.toString(), buf.toString());
 	}
 
 	@Override
@@ -111,7 +111,7 @@ public class ObserverListFilter extends CustomFilterPluginBase {
 		boolean success = true;
 		
 		success &= filteredObs.size() == 1;
-		success &= "Observer filter: Observer filter: FOO ".equals(idPair.first);
+		success &= "Observer filter: FOO ".equals(idPair.first);
 		success &= "Observer filter: FOO ".equals(idPair.second);
 		
 		return success;
