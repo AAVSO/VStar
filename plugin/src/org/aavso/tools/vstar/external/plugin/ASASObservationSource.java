@@ -298,22 +298,4 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 		
 		return success;
 	}
-
-	private AbstractObservationRetriever getTestRetriever(String[] lines, String inputName)
-			throws InterruptedException, ObservationReadError {
-		StringBuffer content = new StringBuffer();
-		for (String line : lines) {
-			content.append(line);
-		}
-
-		InputStream in = new ByteArrayInputStream(content.toString().getBytes());
-		List<InputStream> streams = new ArrayList<InputStream>();
-		streams.add(in);
-		setInputInfo(streams, inputName);
-
-		AbstractObservationRetriever retriever = getObservationRetriever();
-		retriever.retrieveObservations();
-		
-		return retriever;
-	}
 }

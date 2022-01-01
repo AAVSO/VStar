@@ -17,13 +17,16 @@
  */
 package org.aavso.tools.vstar.plugin;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.aavso.tools.vstar.data.SeriesType;
+import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.resources.LoginInfo;
@@ -47,16 +50,14 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	protected String inputName;
 
 	protected boolean isAdditive;
-	
+
 	protected String velaFilterStr;
 
 	/**
 	 * Constructor
 	 * 
-	 * @param userName
-	 *            The user name to pass to the authenticator.
-	 * @param password
-	 *            The password to pass to the authenticator.
+	 * @param userName The user name to pass to the authenticator.
+	 * @param password The password to pass to the authenticator.
 	 */
 	protected ObservationSourcePluginBase(String username, String password) {
 		this.userName = username;
@@ -78,9 +79,9 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * </p>
 	 * 
 	 * <p>
-	 * A new observation retriever instance should be created for each call to
-	 * this method to avoid side-effects relating to clearing of collections by
-	 * Mediator upon each new-star-artefact creation operation.
+	 * A new observation retriever instance should be created for each call to this
+	 * method to avoid side-effects relating to clearing of collections by Mediator
+	 * upon each new-star-artefact creation operation.
 	 * </p>
 	 * 
 	 * @return An observation retriever.
@@ -91,9 +92,9 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * Get the name of the star associated with the current observation dataset.
 	 * 
 	 * @return The current star name.
-	 * @deprecated Use getInputName() or getObservationRetriever() for more
-	 *             specific information about source name, type, and
-	 *             observations possibly containing object name.
+	 * @deprecated Use getInputName() or getObservationRetriever() for more specific
+	 *             information about source name, type, and observations possibly
+	 *             containing object name.
 	 */
 	public String getCurrentStarName() {
 		return null;
@@ -117,12 +118,10 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	/**
 	 * Sets the input streams and a representative name for these.
 	 * 
-	 * @param inputStreams
-	 *            The input streams. Multiple streams may be required, e.g. one
-	 *            per filter or one to access data and another to access catalog
-	 *            information.
-	 * @param inputName
-	 *            A name associated with the input (e.g. file, URL).
+	 * @param inputStreams The input streams. Multiple streams may be required, e.g.
+	 *                     one per filter or one to access data and another to
+	 *                     access catalog information.
+	 * @param inputName    A name associated with the input (e.g. file, URL).
 	 */
 	public void setInputInfo(List<InputStream> inputStreams, String inputName) {
 		this.inputStreams = inputStreams;
@@ -134,8 +133,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * extensions in the file chooser, or null if none are to be added (the
 	 * default).
 	 * 
-	 * @return The list of file extension strings to be added to the file
-	 *         chooser.
+	 * @return The list of file extension strings to be added to the file chooser.
 	 */
 	public List<String> getAdditionalFileExtensions() {
 		return null;
@@ -153,16 +151,15 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * Return a list of File objects; defaults to null.
 	 * </p>
 	 * 
-	 * NewStarFromObsSourcePlugin invokes this when the input type is FILE. If
-	 * null is returned, a dialog is opened requesting a single File be
-	 * selected. The purpose of this is so that when executed from a WebStart
-	 * context, a plugin cannot create input streams. It can however create File
-	 * objects, so if it wants to construct Files on the fly, this will be OK
-	 * from a security policy perspective.
+	 * NewStarFromObsSourcePlugin invokes this when the input type is FILE. If null
+	 * is returned, a dialog is opened requesting a single File be selected. The
+	 * purpose of this is so that when executed from a WebStart context, a plugin
+	 * cannot create input streams. It can however create File objects, so if it
+	 * wants to construct Files on the fly, this will be OK from a security policy
+	 * perspective.
 	 * 
 	 * @return a list of URLs or null.
-	 * @throws Exception
-	 *             if a problem occurs during URL creation.
+	 * @throws Exception if a problem occurs during URL creation.
 	 * @deprecated
 	 */
 	public List<File> getFiles() throws Exception {
@@ -174,16 +171,15 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 * Return a list of URL objects; defaults to null.
 	 * </p>
 	 * 
-	 * NewStarFromObsSourcePlugin invokes this when the input type is URL. If
-	 * null is returned, a dialog is opened requesting a single URL be entered.
-	 * The purpose of this is so that when executed from a WebStart context, a
-	 * plugin cannot create input streams. It can however create URL objects, so
-	 * if it wants to construct URLs on the fly, this will be OK from a security
-	 * policy perspective.
+	 * NewStarFromObsSourcePlugin invokes this when the input type is URL. If null
+	 * is returned, a dialog is opened requesting a single URL be entered. The
+	 * purpose of this is so that when executed from a WebStart context, a plugin
+	 * cannot create input streams. It can however create URL objects, so if it
+	 * wants to construct URLs on the fly, this will be OK from a security policy
+	 * perspective.
 	 * 
 	 * @return a list of URLs or null.
-	 * @throws Exception
-	 *             if a problem occurs during URL creation.
+	 * @throws Exception if a problem occurs during URL creation.
 	 */
 	public List<URL> getURLs() throws Exception {
 		return null;
@@ -212,8 +208,8 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 
 	/**
 	 * If a non-null value is return by this method, once all observations are
-	 * loaded, a series visibility change message will be sent to ensure that
-	 * all observations are visible.
+	 * loaded, a series visibility change message will be sent to ensure that all
+	 * observations are visible.
 	 * 
 	 * @return The set of visible series or null.
 	 */
@@ -245,8 +241,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	}
 
 	/**
-	 * @param isAdditive
-	 *            the isAdditive to set
+	 * @param isAdditive the isAdditive to set
 	 */
 	public void setAdditive(boolean isAdditive) {
 		this.isAdditive = isAdditive;
@@ -275,9 +270,40 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	public NewStarType getNewStarType() {
 		return NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE;
 	}
-	
+
+	// Test methods
+
 	@Override
 	public Boolean test() {
 		return null;
+	}
+
+	/**
+	 * Helper method that takes an array of lines (each string ending in "\n", sets
+	 * the plugin's inputs and, retrieves the observations and returns the
+	 * observation retriever.
+	 * 
+	 * @param lines An array of linefeed-delimited strings
+	 * @param inputName An input name (arbitrary string)
+	 * @return The observation retriever
+	 * @throws InterruptedException
+	 * @throws ObservationReadError
+	 */
+	protected AbstractObservationRetriever getTestRetriever(String[] lines, String inputName)
+			throws InterruptedException, ObservationReadError {
+		StringBuffer content = new StringBuffer();
+		for (String line : lines) {
+			content.append(line);
+		}
+
+		InputStream in = new ByteArrayInputStream(content.toString().getBytes());
+		List<InputStream> streams = new ArrayList<InputStream>();
+		streams.add(in);
+		setInputInfo(streams, inputName);
+
+		AbstractObservationRetriever retriever = getObservationRetriever();
+		retriever.retrieveObservations();
+
+		return retriever;
 	}
 }

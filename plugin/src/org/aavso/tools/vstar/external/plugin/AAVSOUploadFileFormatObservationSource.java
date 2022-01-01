@@ -506,8 +506,7 @@ public class AAVSOUploadFileFormatObservationSource extends ObservationSourcePlu
 
 	@Override
 	public Boolean test() {
-		return visualExampleTest() && whitespaceTest() && 
-				extendedExample1Test() && extendedExample2Test();
+		return visualExampleTest() && whitespaceTest() && extendedExample1Test() && extendedExample2Test();
 	}
 
 	// Visual format
@@ -518,20 +517,25 @@ public class AAVSOUploadFileFormatObservationSource extends ObservationSourcePlu
 				"#NAME,DATE,MAG,COMMENTCODE,COMP1,COMP2,CHART,NOTES\n",
 				"SS CYG,2450702.1234,<11.1,na,110,113,070613,This is a test\n" };
 
-		List<ValidObservation> obs = commonTest(lines, "Visual example 2");
-
 		boolean success = true;
 
-		success &= 1 == obs.size();
+		try {
+			AbstractObservationRetriever retriever = getTestRetriever(lines, "Visual example");
+			List<ValidObservation> obs = retriever.getValidObservations();
 
-		ValidObservation ob = obs.get(0);
-		success &= "SS CYG".equals(ob.getName());
-		success &= 2450702.1234 == ob.getJD();
-		success &= 11.1 == ob.getMag();
-		success &= ob.getMagnitude().isFainterThan();
-		success &= "110".equals(ob.getCompStar1());
-		success &= "113".equals(ob.getCompStar2());
-		success &= "070613".equals(ob.getCharts());
+			success &= 1 == obs.size();
+
+			ValidObservation ob = obs.get(0);
+			success &= "SS CYG".equals(ob.getName());
+			success &= 2450702.1234 == ob.getJD();
+			success &= 11.1 == ob.getMag();
+			success &= ob.getMagnitude().isFainterThan();
+			success &= "110".equals(ob.getCompStar1());
+			success &= "113".equals(ob.getCompStar2());
+			success &= "070613".equals(ob.getCharts());
+		} catch (Exception e) {
+			success = false;
+		}
 
 		return success;
 	}
@@ -543,20 +547,25 @@ public class AAVSOUploadFileFormatObservationSource extends ObservationSourcePlu
 				"#NAME,DATE,MAG,COMMENTCODE,COMP1,COMP2,CHART,NOTES\n",
 				"SS CYG, 2450702.1234 , <11.1, na , 110 ,113, 070613, This is a test\n" };
 
-		List<ValidObservation> obs = commonTest(lines, "Visual example 2 (WS)");
-
 		boolean success = true;
 
-		success &= 1 == obs.size();
+		try {
+			AbstractObservationRetriever retriever = getTestRetriever(lines, "Visual example (whitespace)");
+			List<ValidObservation> obs = retriever.getValidObservations();
 
-		ValidObservation ob = obs.get(0);
-		success &= "SS CYG".equals(ob.getName());
-		success &= 2450702.1234 == ob.getJD();
-		success &= 11.1 == ob.getMag();
-		success &= ob.getMagnitude().isFainterThan();
-		success &= "110".equals(ob.getCompStar1());
-		success &= "113".equals(ob.getCompStar2());
-		success &= "070613".equals(ob.getCharts());
+			success &= 1 == obs.size();
+
+			ValidObservation ob = obs.get(0);
+			success &= "SS CYG".equals(ob.getName());
+			success &= 2450702.1234 == ob.getJD();
+			success &= 11.1 == ob.getMag();
+			success &= ob.getMagnitude().isFainterThan();
+			success &= "110".equals(ob.getCompStar1());
+			success &= "113".equals(ob.getCompStar2());
+			success &= "070613".equals(ob.getCharts());
+		} catch (Exception e) {
+			success = false;
+		}
 
 		return success;
 	}
@@ -581,64 +590,45 @@ public class AAVSOUploadFileFormatObservationSource extends ObservationSourcePlu
 				"SS CYG,2450702.1274,11.035,0.003,R,NO,STD,105,10.594,110,10.896,1.564,1,070613,na\n",
 				"SS CYG,2450702.1294,10.935,0.003,I,NO,STD,105,10.592,110,10.793,1.567,1,070613,na\n" };
 
-		List<ValidObservation> obs = commonTest(lines, "Extended example 2");
-
 		boolean success = true;
 
-		success &= 4 == obs.size();
+		try {
+			AbstractObservationRetriever retriever = getTestRetriever(lines, "Extended example");
+			List<ValidObservation> obs = retriever.getValidObservations();
 
-		// Check first and last observations.
+			success &= 4 == obs.size();
 
-		ValidObservation ob1 = obs.get(0);
-		success &= "SS CYG".equals(ob1.getName());
-		success &= 2450702.1234 == ob1.getJD();
-		success &= 11.235 == ob1.getMag();
-		success &= 0.003 == ob1.getMagnitude().getUncertainty();
-		success &= SeriesType.Johnson_B == ob1.getBand();
-		success &= !ob1.isTransformed();
-		success &= MTypeType.STD == ob1.getMType();
-		success &= "10.593".equals(ob1.getCMag());
-		success &= "11.09".equals(ob1.getKMag());
-		success &= "1.561".equals(ob1.getAirmass());
-		success &= "070613".equals(ob1.getCharts());
+			// Check first and last observations.
 
-		ValidObservation ob4 = obs.get(3);
-		success &= "SS CYG".equals(ob4.getName());
-		success &= 2450702.1294 == ob4.getJD();
-		success &= 10.935 == ob4.getMag();
-		success &= 0.003 == ob4.getMagnitude().getUncertainty();
-		success &= SeriesType.Cousins_I == ob4.getBand();
-		success &= !ob4.isTransformed();
-		success &= MTypeType.STD == ob4.getMType();
-		success &= "10.592".equals(ob4.getCMag());
-		success &= "10.793".equals(ob4.getKMag());
-		success &= "1.567".equals(ob4.getAirmass());
-		success &= "070613".equals(ob4.getCharts());
+			ValidObservation ob1 = obs.get(0);
+			success &= "SS CYG".equals(ob1.getName());
+			success &= 2450702.1234 == ob1.getJD();
+			success &= 11.235 == ob1.getMag();
+			success &= 0.003 == ob1.getMagnitude().getUncertainty();
+			success &= SeriesType.Johnson_B == ob1.getBand();
+			success &= !ob1.isTransformed();
+			success &= MTypeType.STD == ob1.getMType();
+			success &= "10.593".equals(ob1.getCMag());
+			success &= "11.09".equals(ob1.getKMag());
+			success &= "1.561".equals(ob1.getAirmass());
+			success &= "070613".equals(ob1.getCharts());
+
+			ValidObservation ob4 = obs.get(3);
+			success &= "SS CYG".equals(ob4.getName());
+			success &= 2450702.1294 == ob4.getJD();
+			success &= 10.935 == ob4.getMag();
+			success &= 0.003 == ob4.getMagnitude().getUncertainty();
+			success &= SeriesType.Cousins_I == ob4.getBand();
+			success &= !ob4.isTransformed();
+			success &= MTypeType.STD == ob4.getMType();
+			success &= "10.592".equals(ob4.getCMag());
+			success &= "10.793".equals(ob4.getKMag());
+			success &= "1.567".equals(ob4.getAirmass());
+			success &= "070613".equals(ob4.getCharts());
+		} catch (Exception e) {
+			success = false;
+		}
 
 		return success;
-	}
-
-	private List<ValidObservation> commonTest(String[] lines, String inputName) {
-		List<ValidObservation> obs = null;
-
-		StringBuffer content = new StringBuffer();
-		for (String line : lines) {
-			content.append(line);
-		}
-
-		InputStream in = new ByteArrayInputStream(content.toString().getBytes());
-		List<InputStream> streams = new ArrayList<InputStream>();
-		streams.add(in);
-		setInputInfo(streams, inputName);
-
-		AbstractObservationRetriever retriever = getObservationRetriever();
-		try {
-			retriever.retrieveObservations();
-			obs = retriever.getValidObservations();
-		} catch (Exception e) {
-			// obs defaults to null
-		}
-
-		return obs;
 	}
 }

@@ -1,7 +1,7 @@
 package org.aavso.tools.vstar.external.plugin;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
@@ -15,14 +15,14 @@ import junit.framework.TestCase;
 
 public class PluginTest extends TestCase {
 
-	private Set<IPlugin> plugins;
+	private List<IPlugin> plugins;
 	
 	public PluginTest(String name) {
 		super(name);
 
 		PluginLoader.loadPlugins();
 
-		plugins = new LinkedHashSet<IPlugin>();
+		plugins = new ArrayList<IPlugin>();
 		plugins.addAll(PluginLoader.getCustomFilterPlugins());
 		plugins.addAll(PluginLoader.getGeneralToolPlugins());
 		plugins.addAll(PluginLoader.getModelCreatorPlugins());
@@ -45,19 +45,20 @@ public class PluginTest extends TestCase {
 			if (success != null) {
 				overallResult &= success;
 				
-				System.out.printf("%s ('%s') test: %s\n",
+				System.out.printf("[%s]  %s ('%s') test\n",
+						success ? "PASSED" : "FAILED",
 						plugin.getClass().getSimpleName(),
-						plugin.getDescription(), success ? "PASSED" : "FAILED");
+						plugin.getDescription());
 				
 				if (success) passCount++; else failCount++;
 			} else {
-				System.out.printf("%s ('%s'): NO TEST\n",
+				System.out.printf("[NO TEST] %s ('%s')\n",
 						plugin.getClass().getSimpleName(),
 						plugin.getDescription());
 			}
 		}
 
-		System.out.printf(String.format("** PASSED=%d, FAILED=%d, NO TEST=%d\n",
+		System.out.printf(String.format("** PASSED: %d, FAILED: %d, NO TEST: %d\n",
 				passCount, failCount, plugins.size()-passCount-failCount));
 		
 		assertTrue(overallResult);
