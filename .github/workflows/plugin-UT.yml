@@ -32,5 +32,5 @@ jobs:
         ant -noinput -buildfile build.xml dist
         cd plugin
         export DISPLAY=localhost:0.0
-        xhost +local:
-        ant -Djava.awt.headless=true -noinput -buildfile build.xml test
+        #ant -Djava.awt.headless=true -noinput -buildfile build.xml test
+        ant -noinput -buildfile build.xml test
