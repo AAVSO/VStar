@@ -3,16 +3,30 @@
 	<description>Generic build file to make plugin building easier.</description>
 
 	<property name="src" location="src/org/aavso/tools/vstar/external/plugin" />
+	<property name="test" location="test" />
 	<property name="pkg" value="org.aavso.tools.vstar.external.plugin" />
 	<property name="plugin_dir" value="vstar_plugins" />
 	<property name="plugin_lib_dir" value="vstar_plugin_libs" />
 	<property name="build" location="build" />
+	<property name="test_build" location="test/build/" />
+	<property name="test_report" location="test_report" />
 	<property name="build.classes" location="./build" />
 	<property name="dist" location="dist/" />
 	<property name="vstar_plugins_zip_dir" location="vstar-plugins" />
 	<property name="plugins_list_file" value=".plugins.lst" />
 	
-	<target name="compile" description="compile the source ">
+   <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp />
+
+        <!-- Create the build directory structure used by compile and test. -->
+        <mkdir dir="${build}" />
+        <mkdir dir="${dist}" />
+        <mkdir dir="${test_build}" />
+        <mkdir dir="${test_report}" />
+    </target>
+	
+	<target name="compile" depends="init" description="compile the source ">
 		<path id="libs">
 			<fileset dir="../">
 				<include name="dist/vstar.jar" />
@@ -66,12 +80,80 @@
 		<!--
 		<jar jarfile="${dist}/${pkg}.DifferentialPhotometry.jar" basedir="${build.classes}" includes="**/DifferentialPhotometry**.class" />
 		<jar jarfile="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/IRISAutomaticPhotometryObservationSource**.class" />
-   		<jar jarfile="${dist}/${pkg}.MagnitudeShiftTool.jar" basedir="${build.classes}" includes="**/MagnitudeShiftTool**.class"/>
 		<jar jarfile="${dist}/${pkg}.MinimumScatterPeriodFinder.jar" basedir="${build.classes}" includes="**/MinimumScatterPeriodFinder**.class" />
 		<jar jarfile="${dist}/${pkg}.VSOLJObservationSource.jar" basedir="${build.classes}" includes="**/VSOLJObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.VSPChartInfoRetriever.jar" basedir="${build.classes}" includes="**/VSPChartInfoRetriever**.class" />
 		-->
 	</target>
+
+    <!-- Unit test targets -->
+
+    <path id="test.classpath">
+        <fileset dir="../extlib" includes="*.jar" />
+        <pathelement location="../dist/vstar.jar" />
+        <pathelement location="lib/tamfits.jar" />
+    	<pathelement location="${build.classes}" />
+    	<pathelement location="${test_build}" />
+    </path>
+
+    <target name="compile_ut" depends="dist" description="Compile the test code">
+        <javac compiler="modern" source="1.8" target="1.8" srcdir="${test}" destdir="${test_build}">
+            <classpath refid="test.classpath" />
+        </javac>
+    </target>
+    
+    <target name="test" depends="compile_ut" description="Run unit tests">
+
+        <!-- Run the tests -->
+
+        <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+            <formatter type="plain" />
+
+            <jvmarg value="-ea" />
+
+            <formatter type="plain" />
+
+            <test name="${testcase}" todir="${test_report}" if="testcase" />
+
+        	<batchtest todir="${test_report}" unless="testcase">
+                <fileset dir="${test_build}">
+                    <include name="**/PluginTest.class" />
+                </fileset>
+            </batchtest>
+        	
+            <classpath refid="test.classpath" />
+        </junit>
+
+        <!-- Generate a summary report file to make it easier to spot failures. -->
+
+        <concat destfile="${test_report}/summary.txt">
+            <header filtering="no" trimleading="yes">
+                      Test Summary
+                      ============
+                </header>
+            <path>
+                <fileset dir="${test_report}" includes="TEST-*" />
+            </path>
+            <filterchain>
+                <linecontains>
+                    <contains value="Tests run:" />
+                </linecontains>
+            </filterchain>
+        </concat>
+
+        <exec command="cat ${test_report}/summary.txt"/>
+
+        <!-- Exit with status 1 if there were UT failures or errors. -->
+
+        <fileset id="build.failures" file="${test_report}/summary.txt">
+            <containsregexp expression="(Errors|Failures): [123456789]+" />
+        </fileset>
+        <fail status="1" message="One or more failures detected">
+            <condition>
+                <resourcecount when="greater" count="0" refid="build.failures" />
+            </condition>
+        </fail>
+    </target>
 
 	<target name="install" depends="dist" description="Install the libs into the users home directory">
 		<mkdir dir="${user.home}/${plugin_dir}" />
@@ -178,8 +260,10 @@
 
 	<target name="clean" description="Clean up">
 		<!-- Delete the build, dist directories, AAVSO zip file, .plugins.lst -->
-		<delete dir="build" />
-		<delete dir="dist" />
+		<delete dir="${build}" />
+        <delete dir="${test_build}" />
+		<delete dir="${dist}" />
+        <delete dir="${test_report}" />
    	 	<delete dir="src/**/*.class" />
 		<delete dir="src/build" />
 		<delete file="${vstar_plugins_zip_dir}.zip" />

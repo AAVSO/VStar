@@ -15,19 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.external.plugin;
+
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.aavso.tools.vstar.data.MTypeType;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.external.plugin.AAVSOUploadFileFormatObservationSource;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+
+import junit.framework.TestCase;
 
 /**
  * AAVSO Upload (Visual and Extended) File Format observation source unit tests.

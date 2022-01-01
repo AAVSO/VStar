@@ -1,8 +1,9 @@
-package org.aavso.tools.vstar.plugin;
+package org.aavso.tools.vstar.external.plugin;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 
 import junit.framework.TestCase;
@@ -37,23 +38,26 @@ public class PluginTest extends TestCase {
 		int passCount = 0;
 		boolean overallResult = true;
 		
-		System.out.printf("Running %d Plugin Tests...\n\n", plugins.size());
+		System.out.printf("Running %d Plugin Tests...\n", plugins.size());
 		
 		for (IPlugin plugin : plugins) {
 			Boolean success = plugin.test();
 			if (success != null) {
 				overallResult &= success;
-				System.out.printf("%s (%s') test: %b\n",
+				
+				System.out.printf("%s ('%s') test: %s\n",
 						plugin.getClass().getSimpleName(),
-						plugin.getDescription(), success);
+						plugin.getDescription(), success ? "PASSED" : "FAILED");
+				
+				if (success) passCount++; else failCount++;
 			} else {
-				System.out.printf("No test for %s (%s)\n",
+				System.out.printf("%s ('%s'): NO TEST\n",
 						plugin.getClass().getSimpleName(),
 						plugin.getDescription());
 			}
 		}
-		
-		System.out.printf(String.format("\n** PASS=%d, FAIL=%d, No Test=%d\n",
+
+		System.out.printf(String.format("** PASSED=%d, FAILED=%d, NO TEST=%d\n",
 				passCount, failCount, plugins.size()-passCount-failCount));
 		
 		assertTrue(overallResult);

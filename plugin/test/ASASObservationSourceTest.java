@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.external.plugin;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,6 +29,7 @@ import junit.framework.TestCase;
 
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.external.plugin.ASASObservationSource;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 
 /**

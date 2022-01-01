@@ -18,7 +18,9 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +56,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
  * http://www.aavso.org/aavso-extended-file-format
  * http://www.aavso.org/aavso-visual-file-format
  */
-public class AAVSOUploadFileFormatObservationSource extends
-		ObservationSourcePluginBase {
+public class AAVSOUploadFileFormatObservationSource extends ObservationSourcePluginBase {
 
 	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#getCurrentStarName
@@ -120,27 +121,23 @@ public class AAVSOUploadFileFormatObservationSource extends
 		 */
 		public AAVSOUploadFileFormatRetriever() {
 			super(getVelaFilterStr());
-			
+
 			julianDayValidator = new JulianDayValidator();
 
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
 
-			uncertaintyValueValidator = new UncertaintyValueValidator(
-					new InclusiveRangePredicate(0, 1));
+			uncertaintyValueValidator = new UncertaintyValueValidator(new InclusiveRangePredicate(0, 1));
 
 			transformedValidator = new TransformedValidator();
 
 			// What should the range be for CCD/PEP, Visual/PTG?
-			magnitudeValueValidator = new MagnitudeValueValidator(
-					new InclusiveRangePredicate(-10, 25));
+			magnitudeValueValidator = new MagnitudeValueValidator(new InclusiveRangePredicate(-10, 25));
 
-			this.commentCodeValidator = new CommentCodeValidator(
-					CommentType.getRegex());
+			this.commentCodeValidator = new CommentCodeValidator(CommentType.getRegex());
 		}
 
 		@Override
-		public void retrieveObservations() throws ObservationReadError,
-				InterruptedException {
+		public void retrieveObservations() throws ObservationReadError, InterruptedException {
 
 			getNumberOfRecords();
 
@@ -151,19 +148,17 @@ public class AAVSOUploadFileFormatObservationSource extends
 				try {
 					if (line != null) {
 						// Remove any CR or LF characters.
-						line = line.replaceFirst("\n", "").replaceFirst("\r",
-								"");
+						line = line.replaceFirst("\n", "").replaceFirst("\r", "");
 
 						line = removeNegativeBytes(line);
-						
+
 						// Process current line.
 						if (!isEmpty(line)) {
 							if (line.startsWith("#")) {
 								handleDirective(line);
 							} else {
 								String[] fields = line.split(delimiter);
-								collectObservation(readNextObservation(fields,
-										obNum));
+								collectObservation(readNextObservation(fields, obNum));
 								obNum++;
 							}
 						}
@@ -201,8 +196,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 		private void readLines() throws IOException {
 			lines = new ArrayList<String>();
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					getInputStreams().get(0)));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStreams().get(0)));
 
 			String line = null;
 
@@ -223,10 +217,8 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 				if ("#TYPE".equals(pair[0])) {
 					fileType = pair[1];
-					if (!"EXTENDED".equals(fileType)
-							&& !"VISUAL".equals(fileType)) {
-						throw new ObservationReadError("Invalid file type: "
-								+ fileType);
+					if (!"EXTENDED".equals(fileType) && !"VISUAL".equals(fileType)) {
+						throw new ObservationReadError("Invalid file type: " + fileType);
 					}
 				} else if ("#OBSCODE".equals(pair[0])) {
 					obscode = pair[1].toUpperCase();
@@ -235,8 +227,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 				} else if ("#DELIM".equals(pair[0])) {
 					delimiter = translateDelimiter(pair[1]);
 					if (isEmpty(delimiter)) {
-						throw new ObservationReadError(
-								"No delimiter specified.");
+						throw new ObservationReadError("No delimiter specified.");
 					}
 				} else if ("#DATE".equals(pair[0])) {
 					dateType = pair[1];
@@ -245,13 +236,11 @@ public class AAVSOUploadFileFormatObservationSource extends
 					obsType = pair[1];
 					if ("EXTENDED".equals(fileType)) {
 						if (!"CCD".equals(obsType) && !"PEP".equals(obsType)) {
-							throw new ObservationReadError(
-									"Unknown observation type: " + obsType);
+							throw new ObservationReadError("Unknown observation type: " + obsType);
 						}
 					} else if ("VISUAL".equals(fileType)) {
 						if (!"VISUAL".equals(obsType) && !"PTG".equals(obsType)) {
-							throw new ObservationReadError(
-									"Unknown observation type: " + obsType);
+							throw new ObservationReadError("Unknown observation type: " + obsType);
 						}
 					}
 				}
@@ -259,8 +248,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 		}
 
 		// Translate the delimiter.
-		private String translateDelimiter(String delim)
-				throws ObservationReadError {
+		private String translateDelimiter(String delim) throws ObservationReadError {
 			if ("tab".equalsIgnoreCase(delim)) {
 				delim = "\t";
 			} else if ("comma".equalsIgnoreCase(delim)) {
@@ -285,8 +273,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 		}
 
 		// Read the next observation.
-		private ValidObservation readNextObservation(String[] fields, int obNum)
-				throws ObservationValidationError {
+		private ValidObservation readNextObservation(String[] fields, int obNum) throws ObservationValidationError {
 			ValidObservation observation = null;
 
 			if ("VISUAL".equalsIgnoreCase(fileType)) {
@@ -302,16 +289,14 @@ public class AAVSOUploadFileFormatObservationSource extends
 		}
 
 		// Extended format observation reader.
-		private ValidObservation readNextExtendedObservation(String[] fields,
-				int obNum) throws ObservationValidationError {
+		private ValidObservation readNextExtendedObservation(String[] fields, int obNum)
+				throws ObservationValidationError {
 
-			ValidObservation observation = commonReadNextObservation(fields,
-					obNum);
+			ValidObservation observation = commonReadNextObservation(fields, obNum);
 
 			String uncertaintyStr = fields[3].trim();
 			if (!isNA(uncertaintyStr)) {
-				double uncertainty = uncertaintyValueValidator
-						.validate(uncertaintyStr);
+				double uncertainty = uncertaintyValueValidator.validate(uncertaintyStr);
 				observation.getMagnitude().setUncertainty(uncertainty);
 			}
 
@@ -321,8 +306,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 			String transformedStr = fields[5].trim();
 			if (!isNA(transformedStr)) {
-				boolean transformed = transformedValidator
-						.validate(transformedStr);
+				boolean transformed = transformedValidator.validate(transformedStr);
 				// Defaults to false.
 				observation.setTransformed(transformed);
 			}
@@ -347,8 +331,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 			String cname = fields[7].trim();
 			if (isNA(cname)) {
 				if (mtype == MTypeType.DIFF) {
-					throw new ObservationValidationError(
-							"Magnitude type is differential but there is no CNAME.");
+					throw new ObservationValidationError("Magnitude type is differential but there is no CNAME.");
 				} else {
 					cname = "";
 				}
@@ -361,7 +344,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 				// Note: Could CKMagValidator here, but its max field width
 				// seems not to represent the reality of some instrumental
 				// magnitudes, for example.
-				// 2020-04-11: same change as Cliff Kotnik make below for KMag 
+				// 2020-04-11: same change as Cliff Kotnik make below for KMag
 				double cmag = magnitudeValueValidator.validate(cmagStr);
 				observation.setCMag(Double.toString(cmag));
 			}
@@ -393,8 +376,7 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 			String group = fields[12].trim();
 			if (group.length() > 5) {
-				throw new ObservationValidationError(
-						"GROUP has more than 5 characters.");
+				throw new ObservationValidationError("GROUP has more than 5 characters.");
 			}
 
 			String chart = fields[13].trim();
@@ -408,11 +390,10 @@ public class AAVSOUploadFileFormatObservationSource extends
 		}
 
 		// Visual format observation reader.
-		private ValidObservation readNextVisualObservation(String[] fields,
-				int obNum) throws ObservationValidationError {
+		private ValidObservation readNextVisualObservation(String[] fields, int obNum)
+				throws ObservationValidationError {
 
-			ValidObservation observation = commonReadNextObservation(fields,
-					obNum);
+			ValidObservation observation = commonReadNextObservation(fields, obNum);
 
 			observation.setBand(SeriesType.Visual);
 
@@ -451,8 +432,8 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 		// Common (to extended and visual formats) observation reader.
 		// Reads: name, date, magnitude. Sets record number, observer code.
-		private ValidObservation commonReadNextObservation(String[] fields,
-				int obNum) throws ObservationValidationError {
+		private ValidObservation commonReadNextObservation(String[] fields, int obNum)
+				throws ObservationValidationError {
 			ValidObservation observation = new ValidObservation();
 
 			String name = fields[0].trim();
@@ -463,23 +444,19 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 			// TODO: handle "calendar" date format.
 			if (!"JD".equals(dateType) && !"HJD".equals(dateType)) {
-				throw new ObservationValidationError("Unsupported date type: "
-						+ dateType);
+				throw new ObservationValidationError("Unsupported date type: " + dateType);
 			} else {
-				DateInfo dateInfo = julianDayValidator.validate(fields[1]
-						.trim());
+				DateInfo dateInfo = julianDayValidator.validate(fields[1].trim());
 				observation.setDateInfo(dateInfo);
 			}
 
-			Magnitude magnitude = magnitudeFieldValidator.validate(fields[2]
-					.trim());
+			Magnitude magnitude = magnitudeFieldValidator.validate(fields[2].trim());
 			observation.setMagnitude(magnitude);
 
 			return observation;
 		}
 
-		private void handleComments(String notes, String group,
-				ValidObservation observation) {
+		private void handleComments(String notes, String group, ValidObservation observation) {
 			// Combine some fields as comments.
 			String comments = "";
 
@@ -523,5 +500,145 @@ public class AAVSOUploadFileFormatObservationSource extends
 
 	private boolean isNA(String str) {
 		return str == null || "NA".equalsIgnoreCase(str);
+	}
+
+	// Test methods
+
+	@Override
+	public Boolean test() {
+		return visualExampleTest() && whitespaceTest() && 
+				extendedExample1Test() && extendedExample2Test();
+	}
+
+	// Visual format
+	// Test cases from http://www.aavso.org/aavso-visual-file-format
+
+	public boolean visualExampleTest() {
+		String[] lines = { "#TYPE=VISUAL\n", "#OBSCODE=TST01\n", "#SOFTWARE=WORD\n", "#DELIM=,\n", "#DATE=JD\n",
+				"#NAME,DATE,MAG,COMMENTCODE,COMP1,COMP2,CHART,NOTES\n",
+				"SS CYG,2450702.1234,<11.1,na,110,113,070613,This is a test\n" };
+
+		List<ValidObservation> obs = commonTest(lines, "Visual example 2");
+
+		boolean success = true;
+
+		success &= 1 == obs.size();
+
+		ValidObservation ob = obs.get(0);
+		success &= "SS CYG".equals(ob.getName());
+		success &= 2450702.1234 == ob.getJD();
+		success &= 11.1 == ob.getMag();
+		success &= ob.getMagnitude().isFainterThan();
+		success &= "110".equals(ob.getCompStar1());
+		success &= "113".equals(ob.getCompStar2());
+		success &= "070613".equals(ob.getCharts());
+
+		return success;
+	}
+
+	public boolean whitespaceTest() {
+		// Whitespace in DELIM directive and data fields.
+
+		String[] lines = { "#TYPE=VISUAL\n", "#OBSCODE=TST01\n", "#SOFTWARE=WORD\n", "#DELIM = ,\n", "#DATE=JD\n",
+				"#NAME,DATE,MAG,COMMENTCODE,COMP1,COMP2,CHART,NOTES\n",
+				"SS CYG, 2450702.1234 , <11.1, na , 110 ,113, 070613, This is a test\n" };
+
+		List<ValidObservation> obs = commonTest(lines, "Visual example 2 (WS)");
+
+		boolean success = true;
+
+		success &= 1 == obs.size();
+
+		ValidObservation ob = obs.get(0);
+		success &= "SS CYG".equals(ob.getName());
+		success &= 2450702.1234 == ob.getJD();
+		success &= 11.1 == ob.getMag();
+		success &= ob.getMagnitude().isFainterThan();
+		success &= "110".equals(ob.getCompStar1());
+		success &= "113".equals(ob.getCompStar2());
+		success &= "070613".equals(ob.getCharts());
+
+		return success;
+	}
+
+	// Extended format
+	// Test cases from http://www.aavso.org/aavso-extended-file-format
+
+	public boolean extendedExample1Test() {
+		return commonExtendedExampleTest(",");
+	}
+
+	public boolean extendedExample2Test() {
+		return commonExtendedExampleTest("comma");
+	}
+
+	private boolean commonExtendedExampleTest(String delim) {
+		String[] lines = { "#TYPE=EXTENDED\n", "#OBSCODE=TST01\n", "#SOFTWARE=GCX 2.0\n", "#DELIM=" + delim + "\n",
+				"#DATE=JD\n", "#OBSTYPE=CCD\n",
+				"#NAME,DATE,MAG,MERR,FILT,TRANS,MTYPE,CNAME,CMAG,KNAME,KMAG,AMASS,GROUP,CHART,NOTES\n",
+				"SS CYG,2450702.1234,11.235,0.003,B,NO,STD,105,10.593,110,11.090,1.561,1,070613,na\n",
+				"SS CYG,2450702.1254,11.135,0.003,V,NO,STD,105,10.594,110,10.994,1.563,1,070613,na\n",
+				"SS CYG,2450702.1274,11.035,0.003,R,NO,STD,105,10.594,110,10.896,1.564,1,070613,na\n",
+				"SS CYG,2450702.1294,10.935,0.003,I,NO,STD,105,10.592,110,10.793,1.567,1,070613,na\n" };
+
+		List<ValidObservation> obs = commonTest(lines, "Extended example 2");
+
+		boolean success = true;
+
+		success &= 4 == obs.size();
+
+		// Check first and last observations.
+
+		ValidObservation ob1 = obs.get(0);
+		success &= "SS CYG".equals(ob1.getName());
+		success &= 2450702.1234 == ob1.getJD();
+		success &= 11.235 == ob1.getMag();
+		success &= 0.003 == ob1.getMagnitude().getUncertainty();
+		success &= SeriesType.Johnson_B == ob1.getBand();
+		success &= !ob1.isTransformed();
+		success &= MTypeType.STD == ob1.getMType();
+		success &= "10.593".equals(ob1.getCMag());
+		success &= "11.09".equals(ob1.getKMag());
+		success &= "1.561".equals(ob1.getAirmass());
+		success &= "070613".equals(ob1.getCharts());
+
+		ValidObservation ob4 = obs.get(3);
+		success &= "SS CYG".equals(ob4.getName());
+		success &= 2450702.1294 == ob4.getJD();
+		success &= 10.935 == ob4.getMag();
+		success &= 0.003 == ob4.getMagnitude().getUncertainty();
+		success &= SeriesType.Cousins_I == ob4.getBand();
+		success &= !ob4.isTransformed();
+		success &= MTypeType.STD == ob4.getMType();
+		success &= "10.592".equals(ob4.getCMag());
+		success &= "10.793".equals(ob4.getKMag());
+		success &= "1.567".equals(ob4.getAirmass());
+		success &= "070613".equals(ob4.getCharts());
+
+		return success;
+	}
+
+	private List<ValidObservation> commonTest(String[] lines, String inputName) {
+		List<ValidObservation> obs = null;
+
+		StringBuffer content = new StringBuffer();
+		for (String line : lines) {
+			content.append(line);
+		}
+
+		InputStream in = new ByteArrayInputStream(content.toString().getBytes());
+		List<InputStream> streams = new ArrayList<InputStream>();
+		streams.add(in);
+		setInputInfo(streams, inputName);
+
+		AbstractObservationRetriever retriever = getObservationRetriever();
+		try {
+			retriever.retrieveObservations();
+			obs = retriever.getValidObservations();
+		} catch (Exception e) {
+			// obs defaults to null
+		}
+
+		return obs;
 	}
 }
