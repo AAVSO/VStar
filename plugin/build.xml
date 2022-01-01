@@ -141,6 +141,10 @@
             </filterchain>
         </concat>
 
+    	<concat>
+    	  <fileset dir="${test_report}" includes="*"/>
+    	</concat>
+    	
         <exec command="cat ${test_report}/summary.txt"/>
 
         <!-- Exit with status 1 if there were UT failures or errors. -->
