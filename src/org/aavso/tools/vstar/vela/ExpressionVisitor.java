@@ -439,6 +439,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.getDefault());
 			dfs.setExponentSeparator("E"); // may differ for some locales
 			DecimalFormat FORMAT = new DecimalFormat("", dfs);
+			FORMAT.setGroupingUsed(false); // Suppress grouping (to avoid grouping symbol ambiguity)
 			ParsePosition parsePosition = new ParsePosition(0);
 
 			str = str.trim();
