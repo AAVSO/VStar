@@ -18,6 +18,8 @@
 package org.aavso.tools.vstar.vela;
 
 import java.io.File;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -82,16 +84,17 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testExponent1() {
-		commonNumericLocaleTest("3.141592E5", 314159.2);
+		commonNumericLocaleTest("3.141592E5", 314159.2, 1e-6);
 	}
 
-	// See issue #138
+	// See GitHub issue #138; this is caused by an ANTLR parse error before we ever
+	// get to ExpressionVisitor.parseDouble()
 //	public void testExponent2() {
-//		commonNumericLocaleTest("3.141592E+5", 314159.2);
+//		commonNumericLocaleTest("3.141592E+5", 314159.2, 1e-6);
 //	}
 
 	public void testExponent3() {
-		commonNumericLocaleTest("3.141592E-1", 0.314159);
+		commonNumericLocaleTest("3.141592E-1", 0.314159, 1e-6);
 	}
 
 	public void testAddition() {
@@ -1124,7 +1127,7 @@ public class VeLaTest extends TestCase {
 		prog += "1.033057728586E01\n";
 		prog += "}\n";
 		prog += "f(2459332.28594)";
-		commonNumericLocaleTest(prog, 10.231882);
+		commonNumericLocaleTest(prog, 10.231882, 1e-6);
 	}
 
 	// Bindings
@@ -1455,25 +1458,28 @@ public class VeLaTest extends TestCase {
 	// Helpers
 
 	/**
-	 * Given a VeLa program, test that it works in all available locales. If a
-	 * program fails once, an attempt is made to test it again with all occurrences
-	 * of "." replaced with ",".
+	 * Given a VeLa program, test that it works in all available locales. We replace
+	 * the decimal separator "." in prog with the locale-specific separator (e.g.
+	 * ",") first.
 	 * 
-	 * @param prog The arbitrary VeLa code.
+	 * @param prog A string containing arbitrary VeLa code.
 	 */
-	private void commonNumericLocaleTest(String prog, double expected) {
+	private void commonNumericLocaleTest(String prog, double expected, double tolerance) {
 		for (Locale locale : Locale.getAvailableLocales()) {
 			Locale.setDefault(locale);
-			Optional<Operand> result = vela.program(prog);
-			assertTrue(result.isPresent());
-			if (!Tolerance.areClose(expected, result.get().doubleVal(), 1e-6, true)) {
-				prog = prog.replace('.', ',');
-				result = vela.program(prog.replace('.', ','));
+			DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
+			DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
+			char sep = symbols.getDecimalSeparator();
+			prog = prog.replace('.', sep);
+			Optional<Operand> result = Optional.ofNullable(null);
+			try {
+				result = vela.program(prog);
 				assertTrue(result.isPresent());
-				if (!Tolerance.areClose(expected, result.get().doubleVal(), 1e-6, true)) {
-					System.out.printf("testModelFunctionWithAllLocales: failed with %s\n", locale);
-					fail();
-				}
+				assertTrue(Tolerance.areClose(expected, result.get().doubleVal(), tolerance, true));
+			} catch (NumberFormatException e) {
+				// allows us to debug a failure more easily via breakpoints
+				fail(String.format("Number format exception thrown: locale=%s, result=%s", locale.toLanguageTag(),
+						result.get().toHumanReadableString()));
 			}
 		}
 	}
