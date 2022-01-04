@@ -18,6 +18,8 @@
 package org.aavso.tools.vstar.vela;
 
 import java.io.File;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -25,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -78,6 +81,20 @@ public class VeLaTest extends TestCase {
 	public void testNegativeRealNoLeadingZero() {
 		double result = vela.realExpression("-.25");
 		assertTrue(Tolerance.areClose(-.25, result, DELTA, true));
+	}
+
+	public void testExponent1() {
+		commonNumericLocaleTest("3.141592E5", 314159.2, 1e-6);
+	}
+
+	// See GitHub issue #138; this is caused by an ANTLR parse error before we ever
+	// get to ExpressionVisitor.parseDouble()
+//	public void testExponent2() {
+//		commonNumericLocaleTest("3.141592E+5", 314159.2, 1e-6);
+//	}
+
+	public void testExponent3() {
+		commonNumericLocaleTest("3.141592E-1", 0.314159, 1e-6);
 	}
 
 	public void testAddition() {
@@ -1088,6 +1105,31 @@ public class VeLaTest extends TestCase {
 		assertTrue(Tolerance.areClose(3.8834545, result.get().doubleVal(), 1e-7, true));
 	}
 
+	public void testModelFunctionWithAllLocales() {
+		String prog = "";
+		prog += "zeroPoint <- 2459332.35709\n";
+		prog += "f(t:real) : real {\n";
+		prog += "3.513493389760E19*(t-zeroPoint)^15 +\n";
+		prog += "1.486885038629E18*(t-zeroPoint)^14 +\n";
+		prog += "-6.994358939253E17*(t-zeroPoint)^13 +\n";
+		prog += "-2.778248197535E16*(t-zeroPoint)^12 +\n";
+		prog += "5.705533522828E15*(t-zeroPoint)^11 +\n";
+		prog += "2.089863042692E14*(t-zeroPoint)^10 +\n";
+		prog += "-2.460853674112E13*(t-zeroPoint)^9 +\n";
+		prog += "-8.103385927143E11*(t-zeroPoint)^8 +\n";
+		prog += "6.037656131770E10*(t-zeroPoint)^7 +\n";
+		prog += "1.722865043295E09*(t-zeroPoint)^6 +\n";
+		prog += "-8.456524341291E07*(t-zeroPoint)^5 +\n";
+		prog += "-1.993607493521E06*(t-zeroPoint)^4 +\n";
+		prog += "6.522979829427E04*(t-zeroPoint)^3 +\n";
+		prog += "1.170687252721E03*(t-zeroPoint)^2 +\n";
+		prog += "-2.269285161529E01*(t-zeroPoint)^1 +\n";
+		prog += "1.033057728586E01\n";
+		prog += "}\n";
+		prog += "f(2459332.28594)";
+		commonNumericLocaleTest(prog, 10.231882, 1e-6);
+	}
+
 	// Bindings
 
 	public void testBindingNonConstant() {
@@ -1414,6 +1456,33 @@ public class VeLaTest extends TestCase {
 	}
 
 	// Helpers
+
+	/**
+	 * Given a VeLa program, test that it works in all available locales. We replace
+	 * the decimal separator "." in prog with the locale-specific separator (e.g.
+	 * ",") first.
+	 * 
+	 * @param prog A string containing arbitrary VeLa code.
+	 */
+	private void commonNumericLocaleTest(String prog, double expected, double tolerance) {
+		for (Locale locale : Locale.getAvailableLocales()) {
+			Locale.setDefault(locale);
+			DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
+			DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
+			char sep = symbols.getDecimalSeparator();
+			prog = prog.replace('.', sep);
+			Optional<Operand> result = Optional.ofNullable(null);
+			try {
+				result = vela.program(prog);
+				assertTrue(result.isPresent());
+				assertTrue(Tolerance.areClose(expected, result.get().doubleVal(), tolerance, true));
+			} catch (NumberFormatException e) {
+				// allows us to debug a failure more easily via breakpoints
+				fail(String.format("Number format exception thrown: locale=%s, result=%s", locale.toLanguageTag(),
+						result.get().toHumanReadableString()));
+			}
+		}
+	}
 
 	private double today() {
 		Calendar cal = Calendar.getInstance();
