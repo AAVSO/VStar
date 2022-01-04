@@ -17,8 +17,9 @@
  */
 package org.aavso.tools.vstar.vela;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParsePosition;
 import java.util.Locale;
 
 import org.aavso.tools.vstar.vela.VeLaParser.AdditiveExpressionContext;
@@ -432,29 +433,41 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	 *             If no valid double value is present.
 	 */
 	private double parseDouble(String str) throws NumberFormatException {
-		NumberFormat FORMAT = NumberFormat.getNumberInstance(Locale
-				.getDefault());
-
 		if (str == null) {
 			throw new NumberFormatException("String was null");
 		} else {
-			try {
-				str = str.trim();
+			DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.getDefault());
+			dfs.setExponentSeparator("E"); // may differ for some locales
+			DecimalFormat FORMAT = new DecimalFormat("", dfs);
+			FORMAT.setGroupingUsed(false); // Suppress grouping (to avoid grouping symbol ambiguity)
+			ParsePosition parsePosition = new ParsePosition(0);
 
-				if (str.startsWith("+")) {
-					// Leading "+" causes an exception to be thrown.
-					str = str.substring(1);
-				}
+			str = str.trim();
 
-				if (str.contains("e")) {
-					// Convert exponential indicator to parsable form.
-					str = str.toUpperCase();
-				}
-
-				return FORMAT.parse(str).doubleValue();
-			} catch (ParseException e) {
-				throw new NumberFormatException(e.getLocalizedMessage());
+			if (str.startsWith("+")) {
+				// Leading "+" causes an exception to be thrown.
+				str = str.substring(1);
 			}
+
+			if (str.contains("e")) {
+				// Convert exponential indicator to parsable form.
+				str = str.toUpperCase();
+			}
+
+			// We use parsePosition to be sure that the input string is parsed to the end.
+			// Without parsePosition the parse() method may return a valid result for
+			// a part of the string (parsing is terminated at the first invalid symbol).
+			// For example, a string "1.234" parsed under uk_UA, fr_FR, or other European locales
+			// without parsePosition is converted to 1. If parsePosition is used, we can check
+			// if the string is parsed completely and throw an exception if not.
+			Number number = FORMAT.parse(str, parsePosition);
+			if (number == null) {
+				throw new NumberFormatException("Failed to parse: " + str);
+			}
+			if (parsePosition.getIndex() < str.length()) {
+				throw new NumberFormatException("Failed to parse the full string: " + str);
+			}
+			return number.doubleValue();
 		}
 	}
 }
