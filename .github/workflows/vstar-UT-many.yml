@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ '8', '11' ]
+        java: [ '8', '11', '14', '15', '16' ]
     name: Java ${{ matrix.Java }} VStar UTs
     steps:
     - uses: actions/checkout@v2
