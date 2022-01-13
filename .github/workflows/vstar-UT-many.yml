@@ -12,13 +12,11 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         java: [ '8', '11' ]
-    name: Java ${{ matrix.Java }} sample
+    name: Java ${{ matrix.Java }} VStar UTs
     steps:
     - uses: actions/checkout@v2
     - name: Set up Java
