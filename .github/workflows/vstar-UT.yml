@@ -25,7 +25,6 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v1
       with:
-        distribution: '<distribution>'
         java-version: ${{ matrix.java }}
     - name: Create plugin dir
       run:
