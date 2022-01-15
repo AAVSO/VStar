@@ -31,7 +31,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +39,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.JDialog;
 import javax.swing.JTable.PrintMode;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -315,9 +315,12 @@ public class Mediator {
 		this.velaFileLoadDialog = new VeLaFileLoadChooser();
 		this.velaFileSaveDialog = new VeLaFileSaveChooser();
 		{
-			LinkedHashMap<String, String> fileExtensions = new LinkedHashMap<String, String>();
-			fileExtensions.put("Vela XML files (*.vlx)", "vlx");
-			this.velaXMLchoosers = new FileIOchoosers(fileExtensions, "vlx", "Open VeLa XML File", "Save VeLa XML File As");
+			FileNameExtensionFilter[] extensionFilterOpen = new FileNameExtensionFilter[2]; 
+			FileNameExtensionFilter[] extensionFilterSave = new FileNameExtensionFilter[1];
+			extensionFilterOpen[0] = new FileNameExtensionFilter("VeLa XML files (*.vlx)", "vlx");
+			extensionFilterOpen[1] = new FileNameExtensionFilter("VeLa files (*.txt, *.vl, *.vela)", "txt", "vl", "vela");
+			extensionFilterSave[0] = extensionFilterOpen[0];
+			this.velaXMLchoosers = new FileIOchoosers(extensionFilterOpen, extensionFilterSave, "vlx", "Open VeLa XML File", "Save VeLa XML File As");
 		}
 
 		// These (among other things) are created for each new star.

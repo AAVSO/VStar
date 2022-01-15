@@ -24,14 +24,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.aavso.tools.vstar.util.locale.LocaleProps;
+
+import org.aavso.tools.vstar.util.Pair;
 
 public class FileIOchoosers {
 	
@@ -43,8 +43,11 @@ public class FileIOchoosers {
 	/**
 	 * Constructor
 	 * 
-	 * @param fileExtensions
-	 *          file filters for file dialogs: LinkedHashMap with Extension=Description pairs
+	 * @param extensionFilterOpen
+	 *          file filters for 'Open' dialog
+	 *          
+	 * @param extensionFilterSave
+	 *          file filters for 'Save' dialog
 	 * 
 	 * @param defaultExt
 	 *          default file extension for 'Save' dialog
@@ -54,7 +57,8 @@ public class FileIOchoosers {
 	 * @param titleSave
 	 * 
 	 */
-	public FileIOchoosers(LinkedHashMap<String, String> fileExtensions, String defaultExt, String titleOpen, String titleSave) {
+	public FileIOchoosers(FileNameExtensionFilter[] extensionFilterOpen, FileNameExtensionFilter[] extensionFilterSave, 
+			String defaultExt, String titleOpen, String titleSave) {
 		loadFileChooser = new JFileChooser();
 		saveFileChooser = new JFileChooser();
 		
@@ -66,19 +70,34 @@ public class FileIOchoosers {
 			saveFileChooser.setDialogTitle(titleSave);
 		}
 		
-		if (fileExtensions != null) {
+		if (extensionFilterOpen != null) {
 			FileNameExtensionFilter flt0 = null;
-			for (Map.Entry<String, String> entry : fileExtensions.entrySet()) {
-			    String ext = entry.getKey();
-			    String description = entry.getValue();
-			    FileNameExtensionFilter flt = new FileNameExtensionFilter(ext, description);
-			    if (flt0 == null)
-			    	flt0 = flt;
-				loadFileChooser.addChoosableFileFilter(flt);
+			for (FileNameExtensionFilter flt : extensionFilterOpen) {
+				if (flt != null) {
+					if (flt0 == null) {
+						flt0 = flt;
+					}
+					loadFileChooser.addChoosableFileFilter(flt);
+				}
+			}
+			if (flt0 != null) {
 				loadFileChooser.setFileFilter(flt0);
-				saveFileChooser.addChoosableFileFilter(flt);
+			}
+		}
+
+		if (extensionFilterSave != null) {
+			FileNameExtensionFilter flt0 = null;
+			for (FileNameExtensionFilter flt : extensionFilterSave) {
+				if (flt != null) {
+					if (flt0 == null) {
+						flt0 = flt;
+					}
+					saveFileChooser.addChoosableFileFilter(flt);
+				}
+			}
+			if (flt0 != null) {
 				saveFileChooser.setFileFilter(flt0);
-			}			
+			}
 		}
 		
 		this.defaultExt = defaultExt;
@@ -114,7 +133,7 @@ public class FileIOchoosers {
 	 * @param path
 	 *          Path to a file
 	 * 
-	 * @return Content as String.
+	 * @return Content as String
 	 * 
 	 * @throws IOException 
 	 */
@@ -136,15 +155,22 @@ public class FileIOchoosers {
 	 *            The parent component to which the dialog should be positioned
 	 *            relative.
 	 * 
-	 * @return content as a String or null if no files selected (dialog cancelled)
+	 * @return a Pair object: file content as the first member, file extension as the second one
+	 *            or null if no files selected (dialog cancelled)
 	 * 
 	 * @throws IOException 
 	 */
-	public String readFileAsString(Component parent) throws IOException {
+	public Pair<String, String> readFileAsString(Component parent) throws IOException {
 		if (showOpenDialog(parent)) {
 			File file = getOpenDialogSelectedFile();
 			if (file != null) {
-				return readFileAsString(file.getAbsolutePath());
+				String filename = file.getName();
+				String extension = "";
+				int index = filename.lastIndexOf('.');
+				if (index > 0) {
+					extension = filename.substring(index + 1);
+				}			
+				return new Pair<String, String>(readFileAsString(file.getAbsolutePath()), extension);
 			} else {
 				return null;
 			}

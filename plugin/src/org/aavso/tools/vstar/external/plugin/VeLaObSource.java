@@ -73,6 +73,7 @@ import org.aavso.tools.vstar.ui.dialog.IntegerField;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.NumberFieldBase;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.vela.Operand;
@@ -545,17 +546,21 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		
 		private void readVelaXML() {
 			try {
-				String content = Mediator.getInstance().getVelaXMLchoosers().readFileAsString(ParameterDialog.this);
+				Pair<String, String> content = Mediator.getInstance().getVelaXMLchoosers().readFileAsString(ParameterDialog.this);
 				if (content != null) {
 					clearInput();
 					try {
-						processXMLstring(content);
+						processXMLstring(content.first);
 					} catch (Exception ex) {
-						MessageBox.showWarningDialog(ParameterDialog.this, getTitle(),
-								"Cannot parse XML content. The data will be loaded as plain text.\n\n" +
-								"Message:\n" + ex.getLocalizedMessage());
+						if ("vlx".equalsIgnoreCase(content.second)) {
+							// We assume that file should be VeLa XML if it had 'vlx' extension.
+							// In this case we are displaying the warning.
+							MessageBox.showWarningDialog(ParameterDialog.this, getTitle(),
+									"Cannot parse XML content. The data will be loaded as plain text.\n\n" +
+									"Message:\n" + ex.getLocalizedMessage());
+						}
 						clearInput();
-						codeArea.setText(content);
+						codeArea.setText(content.first);
 					}
 				}
 			} catch (Exception ex) {
