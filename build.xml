@@ -320,7 +320,7 @@
 
 <target name="test" depends="compile_ut" description="Run unit tests">
 
-	<!-- Run the tests. -->
+	<!-- Run the tests -->
 
 	<junit fork="yes" printsummary="withOutAndErr" showoutput="true">
 		<formatter type="plain" />
@@ -334,9 +334,6 @@
 		<batchtest todir="${test_report}" unless="testcase">
 			<fileset dir="${test}">
 				<include name="**/*Test.java" />
-			</fileset>
-			<fileset dir="${plugin}/test">
-				<include name="**/Test.java" />
 			</fileset>
 		</batchtest>
 

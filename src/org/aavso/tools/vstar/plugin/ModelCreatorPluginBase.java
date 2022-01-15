@@ -37,6 +37,8 @@ import org.aavso.tools.vstar.util.model.IModel;
  */
 abstract public class ModelCreatorPluginBase implements IPlugin {
 
+	protected boolean testMode = false;
+
 	/**
 	 * Returns the model object for this plugin whose execute() method can be
 	 * invoked to create the model artifacts.
@@ -89,5 +91,20 @@ abstract public class ModelCreatorPluginBase implements IPlugin {
 	@Override
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
 		return true;
+	}
+	
+	@Override
+	public Boolean test() {
+		return null;
+	}
+
+	@Override
+	public boolean inTestMode() {
+		return testMode;
+	}
+	
+	@Override
+	public void setTestMode(boolean mode) {
+		testMode = mode;	
 	}
 }

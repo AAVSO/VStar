@@ -44,10 +44,6 @@ public class PluginManagerTest extends TestCase {
 		pluginManager = new PluginManager();
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
 	public void testRetrievePluginInfo() {
 		pluginManager.retrieveRemotePluginInfo(BASE_URL);
 		Map<String, URL> plugins = pluginManager.getRemotePluginsByJarName();

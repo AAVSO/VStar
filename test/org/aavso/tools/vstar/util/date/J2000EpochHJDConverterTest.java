@@ -116,36 +116,36 @@ public class J2000EpochHJDConverterTest extends TestCase {
 	}
 
 	public void testMeanObliquityLowPrecision1() {
-		// From test case on p 136 of Meeus.
+		// From test case on p 136 of Meeus
 		double jd = 2446895.5;
 		double T = converter.julianCenturies(jd);
 		double meanObliq = converter.meanObliquityLowPrecision(T);
 		double meanObliqDegs = Math.toDegrees(meanObliq);
 		// In agreement with Meeus.
-		assertEquals("23.440946490658636", getNumToPrecision(meanObliqDegs, 15));
+		assertEquals("23.4409464906586", getNumToPrecision(meanObliqDegs, 13));
 	}
 
 	public void testMeanObliquityHighPrecision1() {
-		// From test case on p 136 of Meeus.
+		// From test case on p 136 of Meeus
 		double jd = 2446895.5;
 		double T = converter.julianCenturies(jd);
 		double meanObliq = converter.meanObliquityHighPrecision(T);
 		double meanObliqDegs = Math.toDegrees(meanObliq);
-		// In agreement with Meeus.
+		// In agreement with Meeus
 		assertEquals("23.440946290957320", getNumToPrecision(meanObliqDegs, 15));
 	}
 
 	public void testObliquity1() {
-		// From test case on p 136 of Meeus.
+		// From test case on p 136 of Meeus
 		double jd = 2446895.5;
 		double T = converter.julianCenturies(jd);
 		double obliq = converter.obliquity(T);
 		double obliqDegs = Math.toDegrees(obliq);
-		// Approximately 0.025 degrees larger than in Meeus.
-		assertEquals("23.443576286439995", getNumToPrecision(obliqDegs, 15));
+		// Approximately 0.025 degrees larger than in Meeus
+		assertEquals("23.4435762864", getNumToPrecision(obliqDegs, 10));
 	}
 
-	// Meeus scenario, Example 24.a, p 153 (BEGIN).
+	// Meeus scenario, Example 24.a, p 153 (BEGIN)
 
 	public void testJulianCenturiesEx24a() {
 		double T = julianCenturiesEx24a();
@@ -214,11 +214,11 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		return converter.julianCenturies(jd);
 	}
 
-	// Meeus scenario, Example 24.a, p 153 (END).
+	// Meeus scenario, Example 24.a, p 153 (END)
 
-	// HJD test cases using 3 stars at various declinations for two JDs.
+	// HJD test cases using 3 stars at various declinations for two JDs
 	
-	// R Car with Meeus's Ex24.a JD.
+	// R Car with Meeus's Ex24.a JD
 	public void testHJDRCar1() {
 		RAInfo ra = new RAInfo(EpochType.J2000, 143.06083);
 		DecInfo dec = new DecInfo(EpochType.J2000, -62.78889);
@@ -236,7 +236,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		assertEquals("2448908.49782", getNumToPrecision(hjd, 5));
 	}
 
-	// R Car with JD2.
+	// R Car with JD2
 	public void testHJDRCar2() {
 		RAInfo ra = new RAInfo(EpochType.J2000, 143.06083);
 		DecInfo dec = new DecInfo(EpochType.J2000, -62.78889);
@@ -254,7 +254,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		assertEquals("2457501.86941", getNumToPrecision(hjd, 5));
 	}
 
-	// X Sgr with Meeus's Ex24.a JD.
+	// X Sgr with Meeus's Ex24.a JD
 	public void testHJDXSgr1() {
 		RAInfo ra = new RAInfo(EpochType.J2000, 266.89013);
 		DecInfo dec = new DecInfo(EpochType.J2000, -27.83081);
@@ -271,7 +271,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		assertEquals("2448908.49778", getNumToPrecision(hjd, 5));
 	}
 
-	// X Sgr with JD2.
+	// X Sgr with JD2
 	public void testHJDXSgr2() {
 		RAInfo ra = new RAInfo(EpochType.J2000, 266.89013);
 		DecInfo dec = new DecInfo(EpochType.J2000, -27.83081);
@@ -288,7 +288,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		assertEquals("2457501.87075", getNumToPrecision(hjd, 5));
 	}
 
-	// Sig Oct with Meeus's Ex24.a JD.
+	// Sig Oct with Meeus's Ex24.a JD
 	public void testHJDSigOct1() {
 		RAInfo ra = new RAInfo(EpochType.J2000, 21, 8, 46.84);
 		DecInfo dec = new DecInfo(EpochType.J2000, -88, 57, 23.40);
@@ -305,7 +305,7 @@ public class J2000EpochHJDConverterTest extends TestCase {
 		assertEquals("2448908.49927", getNumToPrecision(hjd, 5));
 	}
 
-	// Sig Oct with JD2.
+	// Sig Oct with JD2
 	public void testHJDSigOct2() {
 		RAInfo ra = new RAInfo(EpochType.J2000, 21, 8, 46.84);
 		DecInfo dec = new DecInfo(EpochType.J2000, -88, 57, 23.40);

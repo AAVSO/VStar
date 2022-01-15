@@ -45,7 +45,6 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 
 	public VeLaFilterPlugin() {
 		vela = new VeLaInterpreter();
-		dialog = new VeLaObservationFilterDialog();
 	}
 
 	@Override
@@ -65,6 +64,10 @@ public class VeLaFilterPlugin extends CustomFilterPluginBase {
 
 		Pair<String, String> repr = null;
 
+		if (dialog == null) {
+			dialog = new VeLaObservationFilterDialog();
+		}
+		
 		dialog.showDialog();
 
 		if (!dialog.isCancelled()) {

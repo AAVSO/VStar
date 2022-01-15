@@ -36,6 +36,8 @@ import org.aavso.tools.vstar.ui.resources.LoginInfo;
  */
 abstract public class ObservationToolPluginBase implements IPlugin {
 
+	protected boolean testMode = false;
+
 	/**
 	 * Given information about observations per series, perform some arbitrary
 	 * processing on a subset of the observations.
@@ -68,5 +70,20 @@ abstract public class ObservationToolPluginBase implements IPlugin {
 	@Override
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
 		return true;
+	}
+	
+	@Override
+	public Boolean test() {
+		return null;
+	}
+
+	@Override
+	public boolean inTestMode() {
+		return testMode;
+	}
+
+	@Override
+	public void setTestMode(boolean mode) {
+		testMode = mode;
 	}
 }

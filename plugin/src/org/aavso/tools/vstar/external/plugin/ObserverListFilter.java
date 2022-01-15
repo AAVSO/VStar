@@ -17,10 +17,13 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.util.Pair;
@@ -36,9 +39,14 @@ import org.aavso.tools.vstar.util.Pair;
 
 public class ObserverListFilter extends CustomFilterPluginBase {
 
+	private String[] observers;
+	
 	@Override
 	protected Pair<String, String> filter(List<ValidObservation> obs) {
-		String[] observers = getObserverList();
+		if (!inTestMode()) {
+			observers = getObserverList();
+		}
+		
 		for (ValidObservation curr : obs) {
 			for (int i = 0; i < observers.length; i++) {
 				if (observers[i].equals(curr.getObsCode())) {
@@ -54,8 +62,7 @@ public class ObserverListFilter extends CustomFilterPluginBase {
 			buf.append(" ");
 		}
 
-		return new Pair<String, String>("Observer filter: " + buf.toString(),
-				buf.toString());
+		return new Pair<String, String>(buf.toString(), buf.toString());
 	}
 
 	@Override
@@ -69,8 +76,7 @@ public class ObserverListFilter extends CustomFilterPluginBase {
 	}
 
 	public String[] getObserverList() {
-		String str = JOptionPane
-				.showInputDialog("Enter observer codes separated by spaces:");
+		String str = JOptionPane.showInputDialog("Enter observer codes separated by spaces:");
 
 		String[] obsList = {};
 
@@ -79,5 +85,35 @@ public class ObserverListFilter extends CustomFilterPluginBase {
 		}
 
 		return obsList;
+	}
+
+	@Override
+	public Boolean test() {
+		setTestMode(true);
+		
+		observers = new String[]{"FOO"};
+		
+		List<ValidObservation> obs = new ArrayList<ValidObservation>();
+		ValidObservation fooOb = new ValidObservation();
+		fooOb.setJD(2450000);
+		fooOb.setMagnitude(new Magnitude(5, 0));
+		fooOb.setObsCode("FOO");
+		obs.add(fooOb);
+		ValidObservation barOb = new ValidObservation();
+		barOb.setJD(2450001);
+		fooOb.setMagnitude(new Magnitude(6, 0));
+		barOb.setObsCode("BAR");
+
+		// next 2 lines normally executed in superclass apply() method
+		filteredObs = new LinkedHashSet<ValidObservation>();
+		Pair<String, String> idPair = filter(obs);
+				
+		boolean success = true;
+		
+		success &= filteredObs.size() == 1;
+		success &= "Observer filter: FOO ".equals(idPair.first);
+		success &= "Observer filter: FOO ".equals(idPair.second);
+		
+		return success;
 	}
 }

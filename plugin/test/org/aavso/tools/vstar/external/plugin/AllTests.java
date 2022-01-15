@@ -32,8 +32,7 @@ public class AllTests {
 		TestSuite suite = new TestSuite("Test suite for VStar plug-ins");
 
 		// $JUnit-BEGIN$
-		suite.addTestSuite(AAVSOUploadFileFormatObservationSourceTest.class);
-		suite.addTestSuite(ASASObservationSourceTest.class);
+		suite.addTestSuite(PluginTest.class);
 		// $JUnit-END$
 		
 		return suite;
