@@ -551,7 +551,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		
 		private void readVelaXML() {
 			try {
-				Pair<byte[], String> content = Mediator.getInstance().getVelaXMLchoosers().readFileAsBytes(ParameterDialog.this);
+				Pair<byte[], String> content = Mediator.getInstance().getVelaXMLloadDialog().readFileAsBytes(ParameterDialog.this);
 				if (content != null) {
 					clearInput();
 					try {
@@ -566,6 +566,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 						}
 						clearInput();
 						codeArea.setText(new String(content.first, Charset.defaultCharset()));
+						codeArea.setCaretPosition(0);
 					}
 				}
 			} catch (Exception ex) {
@@ -593,6 +594,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 	        if ("VELA_MODEL".equals(root.getNodeName())) {
 		        Element element = (Element)root;
 	        	codeArea.setText(getNodeTextContent(element, "code"));
+	        	codeArea.setCaretPosition(0);
 	        	((JTextField)(minJD.getUIComponent())).setText(getNodeTextContent(element, "minJD"));
 	        	((JTextField)(maxJD.getUIComponent())).setText(getNodeTextContent(element, "maxJD"));
 	        	((JTextField)(points.getUIComponent())).setText(getNodeTextContent(element, "points"));
@@ -617,7 +619,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		private void writeVelaXML() {
 			try	{
 				String content = getVelaXMLstring();
-				Mediator.getInstance().getVelaXMLchoosers().writeStringToFile(ParameterDialog.this, content, StandardCharsets.UTF_8);
+				Mediator.getInstance().getVelaXMLsaveDialog().writeStringToFile(ParameterDialog.this, content, StandardCharsets.UTF_8);
 			} catch (Exception ex) {
 				MessageBox.showErrorDialog(ParameterDialog.this, getTitle(), ex);
 			}
