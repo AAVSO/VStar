@@ -31,6 +31,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -83,6 +85,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import org.xml.sax.InputSource;
+
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
@@ -546,11 +551,11 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		
 		private void readVelaXML() {
 			try {
-				Pair<String, String> content = Mediator.getInstance().getVelaXMLchoosers().readFileAsString(ParameterDialog.this);
+				Pair<byte[], String> content = Mediator.getInstance().getVelaXMLchoosers().readFileAsBytes(ParameterDialog.this);
 				if (content != null) {
 					clearInput();
 					try {
-						processXMLstring(content.first);
+						processXMLbytes(content.first);
 					} catch (Exception ex) {
 						if ("vlx".equalsIgnoreCase(content.second)) {
 							// We assume that file should be VeLa XML if it had 'vlx' extension.
@@ -560,7 +565,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 									"Message:\n" + ex.getLocalizedMessage());
 						}
 						clearInput();
-						codeArea.setText(content.first);
+						codeArea.setText(new String(content.first, Charset.defaultCharset()));
 					}
 				}
 			} catch (Exception ex) {
@@ -568,7 +573,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			}
 		}
 
-		private void processXMLstring(String xmlString) throws Exception {
+		private void processXMLbytes(byte[] xml) throws Exception {
 			// https://mkyong.com/java/how-to-read-xml-file-in-java-dom-parser/
 			
 			// Instantiate the Factory
@@ -577,7 +582,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 			// parse XML file
 	        DocumentBuilder db = dbf.newDocumentBuilder(); 
-	        Document doc = db.parse(new ByteArrayInputStream(xmlString.getBytes()));
+	        Document doc = db.parse(new InputSource(new ByteArrayInputStream(xml)));
 
 	        // optional, but recommended
 	        // http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
@@ -612,7 +617,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		private void writeVelaXML() {
 			try	{
 				String content = getVelaXMLstring();
-				Mediator.getInstance().getVelaXMLchoosers().writeStringToFile(ParameterDialog.this, content);
+				Mediator.getInstance().getVelaXMLchoosers().writeStringToFile(ParameterDialog.this, content, StandardCharsets.UTF_8);
 			} catch (Exception ex) {
 				MessageBox.showErrorDialog(ParameterDialog.this, getTitle(), ex);
 			}

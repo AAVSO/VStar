@@ -74,6 +74,7 @@ import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
 import org.aavso.tools.vstar.ui.dialog.FileIOchoosers;
+import org.aavso.tools.vstar.ui.dialog.FileIOchoosers.fileIOchooserMode;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFiltersDialog;
 import org.aavso.tools.vstar.ui.dialog.model.ModelDialog;
@@ -320,7 +321,9 @@ public class Mediator {
 			extensionFilterOpen[0] = new FileNameExtensionFilter("VeLa XML files (*.vlx)", "vlx");
 			extensionFilterOpen[1] = new FileNameExtensionFilter("VeLa files (*.txt, *.vl, *.vela)", "txt", "vl", "vela");
 			extensionFilterSave[0] = extensionFilterOpen[0];
-			this.velaXMLchoosers = new FileIOchoosers(extensionFilterOpen, extensionFilterSave, "vlx", "Open VeLa XML File", "Save VeLa XML File As");
+			this.velaXMLchoosers = new FileIOchoosers(extensionFilterOpen, extensionFilterSave, 
+					"vlx", "Open VeLa XML File", "Save VeLa XML File As",
+					fileIOchooserMode.OPEN_SAVE);
 		}
 
 		// These (among other things) are created for each new star.
