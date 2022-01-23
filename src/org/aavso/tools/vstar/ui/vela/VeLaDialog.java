@@ -72,7 +72,7 @@ public class VeLaDialog extends TextDialog {
 	}
 
 	public VeLaDialog(String title) {
-		super(title, Arrays.asList(codeTextArea, resultTextArea));
+		super(title, Arrays.asList(codeTextArea, resultTextArea), true, true);
 		path = "Untitled";
 	}
 

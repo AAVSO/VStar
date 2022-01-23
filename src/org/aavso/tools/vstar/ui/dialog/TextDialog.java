@@ -26,8 +26,10 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.Border;
 
 /**
  * This class implements a dialog to obtain one or more string values from text
@@ -47,11 +49,15 @@ public class TextDialog extends AbstractOkCancelDialog {
 	 *            The title to be used for the dialog.
 	 * @param fields
 	 *            A list of text fields.
-	 * @param Show
+	 * @param show
 	 *            the dialog immediately?
+	 *            
+	 * @param scrolled
+	 *            envelop the text fields by scroll boxes?
+	 *            
 	 */
 	public TextDialog(String title, List<ITextComponent<String>> fields,
-			boolean show) {
+			boolean show, boolean scrolled) {
 		super(title);
 		this.setModal(true);
 
@@ -65,7 +71,7 @@ public class TextDialog extends AbstractOkCancelDialog {
 
 		for (ITextComponent<String> field : fields) {
 			textFields.add(field);
-			topPane.add(createTextFieldPane(field));
+			topPane.add(createTextFieldPane(field, scrolled));
 			topPane.add(Box.createRigidArea(new Dimension(75, 10)));
 		}
 
@@ -79,6 +85,23 @@ public class TextDialog extends AbstractOkCancelDialog {
 		if (show) {
 			showDialog();
 		}
+	}
+	
+	/**
+	 * Constructor<br/>
+	 * 
+	 * If there are only two fields, a split pane is used to contain the fields.
+	 * 
+	 * @param title
+	 *            The title to be used for the dialog.
+	 * @param fields
+	 *            A list of text fields.
+	 * @param Show
+	 *            the dialog immediately?
+	 */
+	public TextDialog(String title, List<ITextComponent<String>> fields,
+			boolean show) {
+		this(title, fields, show, false);
 	}
 
 	/**
@@ -124,13 +147,23 @@ public class TextDialog extends AbstractOkCancelDialog {
 		return strings;
 	}
 
-	private JPanel createTextFieldPane(ITextComponent<String> field) {
+	private JPanel createTextFieldPane(ITextComponent<String> field, boolean scrolled) {
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 
 		field.setEditable(!field.isReadOnly());
-		panel.add(field.getUIComponent());
+		
+		if (!scrolled) {
+			panel.add(field.getUIComponent());
+		} else {
+			JComponent uIComponent = field.getUIComponent();		
+			Border border = uIComponent.getBorder();
+			uIComponent.setBorder(null);
+			JScrollPane pane = new JScrollPane(uIComponent);
+			pane.setBorder(border);
+			panel.add(pane);
+		}
 
 		return panel;
 	}
