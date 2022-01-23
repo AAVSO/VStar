@@ -87,17 +87,17 @@ public class VeLaTest extends TestCase {
 		assertTrue(Tolerance.areClose(-.25, result, DELTA, true));
 	}
 
-	public void testExponent1() {
+	public void testPosExponent() {
 		commonNumericLocaleTest("3.141592E5", 314159.2, 1e-6);
 	}
 
 	// See GitHub issue #138; this is caused by an ANTLR parse error before we ever
 	// get to ExpressionVisitor.parseDouble()
-//	public void testExponent2() {
+//	public void testPosExponentWithEPlus() {
 //		commonNumericLocaleTest("3.141592E+5", 314159.2, 1e-6);
 //	}
 
-	public void testExponent3() {
+	public void testNegExponent() {
 		commonNumericLocaleTest("3.141592E-1", 0.314159, 1e-6);
 	}
 
@@ -1469,7 +1469,7 @@ public class VeLaTest extends TestCase {
 	 * @param prog A string containing arbitrary VeLa code.
 	 */
 	private void commonNumericLocaleTest(String prog, double expected, double tolerance) {
-		// see issues #229, #236
+		// see issues #229, #236 re: testNegExponent() failure
 		Set<String> localesToIgnore = new HashSet<String>();
 		localesToIgnore.add("nn");
 		localesToIgnore.add("ar-JO");
@@ -1490,11 +1490,9 @@ public class VeLaTest extends TestCase {
 				assertTrue(Tolerance.areClose(expected, result.get().doubleVal(), tolerance, true));
 			} catch (NumberFormatException e) {
 				// allows us to debug a failure more easily via breakpoints
-				if (result.isPresent()) {
-					Operand val = result.get();
-					fail(String.format("Number format exception thrown: locale=%s, result=%s",
-							locale.toLanguageTag(), val.toHumanReadableString()));
-				}
+				Operand val = result.get();
+				fail(String.format("Number format exception thrown: locale=%s, result=%s",
+						locale.toLanguageTag(), val.toHumanReadableString()));
 			}
 		}
 	}
