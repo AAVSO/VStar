@@ -39,6 +39,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.JDialog;
 import javax.swing.JTable.PrintMode;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -65,6 +66,7 @@ import org.aavso.tools.vstar.ui.dialog.DelimitedFieldFileSaveChooser;
 import org.aavso.tools.vstar.ui.dialog.DiscrepantReportDialog;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.IntegerField;
+import org.aavso.tools.vstar.ui.dialog.LoadChooser;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.ObservationDetailsDialog;
@@ -72,6 +74,7 @@ import org.aavso.tools.vstar.ui.dialog.PNGImageFileSaveChooser;
 import org.aavso.tools.vstar.ui.dialog.PhaseDialog;
 import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.dialog.PlotControlDialog;
+import org.aavso.tools.vstar.ui.dialog.SaveChooser;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFilterDialog;
 import org.aavso.tools.vstar.ui.dialog.filter.ObservationFiltersDialog;
 import org.aavso.tools.vstar.ui.dialog.model.ModelDialog;
@@ -220,7 +223,13 @@ public class Mediator {
 
 	// A file dialog for saving a VeLa code file.
 	private VeLaFileSaveChooser velaFileSaveDialog;
+	
+	// A helper object to load an XML from VeLa Model XML file using respective chooser.  
+	private LoadChooser velaXMLloadDialog;
 
+	// An helper object to save a VeLa model to XML file using respective chooser.  
+	private SaveChooser velaXMLsaveDialog;
+	
 	// Persistent phase parameter dialog.
 	private PhaseParameterDialog phaseParameterDialog;
 
@@ -309,6 +318,15 @@ public class Mediator {
 		this.imageSaveDialog = new PNGImageFileSaveChooser();
 		this.velaFileLoadDialog = new VeLaFileLoadChooser();
 		this.velaFileSaveDialog = new VeLaFileSaveChooser();
+		{
+			FileNameExtensionFilter[] extensionFilterOpen = new FileNameExtensionFilter[2]; 
+			FileNameExtensionFilter[] extensionFilterSave = new FileNameExtensionFilter[1];
+			extensionFilterOpen[0] = new FileNameExtensionFilter("VeLa XML files (*.vlx)", "vlx");
+			extensionFilterOpen[1] = new FileNameExtensionFilter("VeLa files (*.txt, *.vl, *.vela)", "txt", "vl", "vela");
+			extensionFilterSave[0] = extensionFilterOpen[0];
+			this.velaXMLloadDialog = new LoadChooser(extensionFilterOpen, "Open VeLa XML File");
+			this.velaXMLsaveDialog = new SaveChooser(extensionFilterSave, "vlx", "Save VeLa XML File");
+		}
 
 		// These (among other things) are created for each new star.
 		this.validObsList = null;
@@ -594,7 +612,21 @@ public class Mediator {
 	public VeLaFileSaveChooser getVelaFileSaveDialog() {
 		return velaFileSaveDialog;
 	}
+	
+	/**
+	 * @return the velaXMLloadDialog
+	 */
+	public LoadChooser getVelaXMLloadDialog() {
+		return velaXMLloadDialog;
+	}
 
+	/**
+	 * @return the velaXMLsaveDialog
+	 */
+	public SaveChooser getVelaXMLsaveDialog() {
+		return velaXMLsaveDialog;
+	}
+	
 	/**
 	 * Create a mean observation change listener and return it. Whenever the mean
 	 * series source changes, listeners may want to perform a new period analysis or
