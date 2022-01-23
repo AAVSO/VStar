@@ -329,11 +329,9 @@
 
 		<formatter type="plain" />
 
-		<test name="${testcase}" todir="${test_report}" if="testcase" />
-
 		<batchtest todir="${test_report}" unless="testcase">
 			<fileset dir="${test}">
-				<include name="**/*Test.java" />
+				<include name="org/**/*Test.java" />
 			</fileset>
 		</batchtest>
 
@@ -348,7 +346,7 @@
 		          ============
 		    </header>
 		<path>
-			<fileset dir="${test_report}" includes="TEST-*" />
+			<fileset dir="${test_report}" includes="TEST-org*" />
 		</path>
 		<filterchain>
 			<linecontains>
