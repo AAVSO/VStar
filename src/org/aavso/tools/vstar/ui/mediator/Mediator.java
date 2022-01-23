@@ -327,7 +327,7 @@ public class Mediator {
 			extensionFilterOpen[1] = new FileNameExtensionFilter("VeLa files (*.txt, *.vl, *.vela)", "txt", "vl", "vela");
 			extensionFilterSave[0] = extensionFilterOpen[0];
 			this.velaXMLloadDialog = new LoadChooser(extensionFilterOpen, "Open VeLa XML File");
-			this.velaXMLsaveDialog = new SaveChooser(extensionFilterSave, "vlx", "Save VeLa XML File");
+			this.velaXMLsaveDialog = new SaveChooser(extensionFilterSave, "vlmx", "Save VeLa XML File");
 		}
 
 		// These (among other things) are created for each new star.
