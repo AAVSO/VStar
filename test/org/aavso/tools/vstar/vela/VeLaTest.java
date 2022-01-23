@@ -1469,9 +1469,17 @@ public class VeLaTest extends TestCase {
 	 * @param prog A string containing arbitrary VeLa code.
 	 */
 	private void commonNumericLocaleTest(String prog, double expected, double tolerance) {
+		// see issues #229, #236
+		Set<String> localesToIgnore = new HashSet<String>();
+		localesToIgnore.add("nn");
+		localesToIgnore.add("ar-JO");
+
 		for (Locale locale : Locale.getAvailableLocales()) {
 			Locale.setDefault(locale);
-//			System.err.printf("locale: %s\n", locale.toLanguageTag());
+			if (localesToIgnore.contains(locale.toLanguageTag())) {
+				System.err.printf("** Ignoring locale: %s\n", locale.toLanguageTag());
+				continue;
+			}
 			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.getDefault());
 			char sep = symbols.getDecimalSeparator();
 			prog = prog.replace('.', sep);
@@ -1484,12 +1492,8 @@ public class VeLaTest extends TestCase {
 				// allows us to debug a failure more easily via breakpoints
 				if (result.isPresent()) {
 					Operand val = result.get();
-					// testExponent3() fails with "nn" (Norwegian) only under Java 11
-					// (see issues #229, #236)
-					if (!"nn".equals(locale.toLanguageTag())) {
-						fail(String.format("Number format exception thrown: locale=%s, result=%s",
-								locale.toLanguageTag(), val.toHumanReadableString()));
-					}
+					fail(String.format("Number format exception thrown: locale=%s, result=%s",
+							locale.toLanguageTag(), val.toHumanReadableString()));
 				}
 			}
 		}
