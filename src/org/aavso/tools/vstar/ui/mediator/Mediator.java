@@ -138,8 +138,6 @@ import org.aavso.tools.vstar.ui.task.PhasePlotTask;
 import org.aavso.tools.vstar.ui.task.PluginManagerOperationTask;
 import org.aavso.tools.vstar.ui.undo.IUndoableAction;
 import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
-import org.aavso.tools.vstar.ui.vela.VeLaFileLoadChooser;
-import org.aavso.tools.vstar.ui.vela.VeLaFileSaveChooser;
 import org.aavso.tools.vstar.util.Triple;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.PreviousCyclePhaseComparator;
@@ -218,16 +216,16 @@ public class Mediator {
 	// A file dialog for saving an image, e.g. a plot.
 	private PNGImageFileSaveChooser imageSaveDialog;
 
-	// A file dialog for loading a VeLa code file.
-	private VeLaFileLoadChooser velaFileLoadDialog;
+	// A helper object for loading a VeLa code file.
+	private LoadChooser velaFileLoadDialog;
 
-	// A file dialog for saving a VeLa code file.
-	private VeLaFileSaveChooser velaFileSaveDialog;
+	// A helper object for saving a VeLa code file.
+	private SaveChooser velaFileSaveDialog;
 	
-	// A helper object to load an XML from VeLa Model XML file using respective chooser.  
+	// A helper object for loading an XML from VeLa Model XML file using respective chooser.  
 	private LoadChooser velaXMLloadDialog;
 
-	// An helper object to save a VeLa model to XML file using respective chooser.  
+	// An helper object for saving a VeLa model to XML file using respective chooser.  
 	private SaveChooser velaXMLsaveDialog;
 	
 	// Persistent phase parameter dialog.
@@ -316,12 +314,16 @@ public class Mediator {
 
 		this.obsListFileSaveDialog = new DelimitedFieldFileSaveChooser();
 		this.imageSaveDialog = new PNGImageFileSaveChooser();
-		this.velaFileLoadDialog = new VeLaFileLoadChooser();
-		this.velaFileSaveDialog = new VeLaFileSaveChooser();
+		{
+			FileNameExtensionFilter[] extensionFilter = new FileNameExtensionFilter[1];
+			extensionFilter[0] = new FileNameExtensionFilter("VeLa files (*.txt, *.vl, *.vela)", "txt", "vl", "vela");
+			this.velaFileLoadDialog = new LoadChooser(extensionFilter, "Open VeLa File");
+			this.velaFileSaveDialog = new SaveChooser(extensionFilter, "vela", "Save VeLa File");
+		}
 		{
 			FileNameExtensionFilter[] extensionFilterOpen = new FileNameExtensionFilter[2]; 
 			FileNameExtensionFilter[] extensionFilterSave = new FileNameExtensionFilter[1];
-			extensionFilterOpen[0] = new FileNameExtensionFilter("VeLa XML files (*.vlx)", "vlx");
+			extensionFilterOpen[0] = new FileNameExtensionFilter("VeLa XML files (*.vlmx)", "vlmx");
 			extensionFilterOpen[1] = new FileNameExtensionFilter("VeLa files (*.txt, *.vl, *.vela)", "txt", "vl", "vela");
 			extensionFilterSave[0] = extensionFilterOpen[0];
 			this.velaXMLloadDialog = new LoadChooser(extensionFilterOpen, "Open VeLa XML File");
@@ -602,14 +604,14 @@ public class Mediator {
 	/**
 	 * @return the velaFileLoadDialog
 	 */
-	public VeLaFileLoadChooser getVelaFileLoadDialog() {
+	public LoadChooser getVelaFileLoadDialog() {
 		return velaFileLoadDialog;
 	}
 
 	/**
 	 * @return the velaFileSaveDialog
 	 */
-	public VeLaFileSaveChooser getVelaFileSaveDialog() {
+	public SaveChooser getVelaFileSaveDialog() {
 		return velaFileSaveDialog;
 	}
 	

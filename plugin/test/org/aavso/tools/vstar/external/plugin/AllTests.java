@@ -32,7 +32,7 @@ public class AllTests {
 		TestSuite suite = new TestSuite("Test suite for VStar plug-ins");
 
 		// $JUnit-BEGIN$
-		suite.addTestSuite(PluginTest.class);
+		//suite.addTestSuite(PluginTest.class);
 		// $JUnit-END$
 		
 		return suite;

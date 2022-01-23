@@ -18,18 +18,12 @@
 package org.aavso.tools.vstar.ui.vela;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -126,21 +120,13 @@ public class VeLaDialog extends TextDialog {
 
 		JButton loadButton = new JButton(LocaleProps.get("LOAD_BUTTON"));
 		loadButton.addActionListener(e -> {
-			StringBuffer code = new StringBuffer();
-
-			VeLaFileLoadChooser chooser = Mediator.getInstance().getVelaFileLoadDialog();
-
-			if (chooser.showDialog(this)) {
-				path = chooser.getSelectedFile().getAbsolutePath();
-				try (Stream<String> stream = Files.lines(Paths.get(path))) {
-					stream.forEachOrdered(line -> {
-						code.append(line);
-						code.append("\n");
-					});
-					codeTextArea.setValue(code.toString());
-				} catch (IOException ex) {
-					// Nothing to do
+			try {
+				Pair<String, String> content = Mediator.getInstance().getVelaFileLoadDialog().readFileAsString(this, null);
+				if (content != null) {
+					codeTextArea.setValue(content.first);
 				}
+			} catch (Exception ex) {
+				MessageBox.showErrorDialog(this, getTitle(), ex);
 			}
 		});
 
@@ -148,24 +134,11 @@ public class VeLaDialog extends TextDialog {
 
 		JButton saveButton = new JButton(LocaleProps.get("SAVE_BUTTON"));
 		saveButton.addActionListener(e -> {
-			VeLaFileSaveChooser chooser = Mediator.getInstance().getVelaFileSaveDialog();
-
-			if (chooser.showDialog(this)) {
-				path = chooser.getSelectedFile().getAbsolutePath();
-				File file = chooser.getSelectedFile();
-				if (file.exists() && file.isFile() && !MessageBox.showConfirmDialog(LocaleProps.get("FILE_MENU_SAVE"),
-						LocaleProps.get("SAVE_OVERWRITE"))) {
-					return;
-				}
-				String code = codeTextArea.getValue();
-				try {
-					FileWriter writer = new FileWriter(path);
-					writer.write(code);
-					writer.flush();
-					writer.close();
-				} catch (IOException ex) {
-					// Nothing to do
-				}
+			try {
+				String content = codeTextArea.getValue();
+				Mediator.getInstance().getVelaFileSaveDialog().writeStringToFile(this, content, null);
+			} catch (Exception ex) {
+				MessageBox.showErrorDialog(this, getTitle(), ex);
 			}
 		});
 		panel.add(saveButton);
