@@ -22,10 +22,6 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -39,9 +35,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
-import org.aavso.tools.vstar.ui.vela.VeLaFileLoadChooser;
+import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.vela.VeLaValidObservationEnvironment;
@@ -186,24 +183,15 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 
 		JButton loadButton = new JButton(LocaleProps.get("LOAD_BUTTON"));
 		loadButton.addActionListener(e -> {
-			StringBuffer code = new StringBuffer();
-
-			VeLaFileLoadChooser chooser = Mediator.getInstance()
-					.getVelaFileLoadDialog();
-
-			if (chooser.showDialog(this)) {
-				try (Stream<String> stream = Files.lines(Paths.get(chooser
-						.getSelectedFile().getAbsolutePath()))) {
-					stream.forEachOrdered(line -> {
-						code.append(line);
-						code.append("\n");
-					});
-					velaFilterField.setText(code.toString());
-				} catch (IOException ex) {
-					// Nothing to do
+			try {
+				Pair<String, String> content = Mediator.getInstance().getVelaFileLoadDialog().readFileAsString(this, null);
+				if (content != null) {
+					velaFilterField.setText(content.first);
+				}
+			} catch (Exception ex) {
+				MessageBox.showErrorDialog(this, getTitle(), ex);
 			}
-		}
-	})	;
+		});
 		extraButtonPanel.add(loadButton);
 
 		JButton clearButton = new JButton(LocaleProps.get("CLEAR_BUTTON"));
