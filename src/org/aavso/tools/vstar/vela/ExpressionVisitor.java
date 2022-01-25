@@ -438,6 +438,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 		} else {
 			DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.getDefault());
 			dfs.setExponentSeparator("E"); // may differ for some locales
+			dfs.setMinusSign('-'); // "nn" locale fails without this
 			DecimalFormat FORMAT = new DecimalFormat("", dfs);
 			FORMAT.setGroupingUsed(false); // Suppress grouping (to avoid grouping symbol ambiguity)
 			ParsePosition parsePosition = new ParsePosition(0);
