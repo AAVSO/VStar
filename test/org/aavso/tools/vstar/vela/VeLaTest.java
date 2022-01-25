@@ -1471,7 +1471,6 @@ public class VeLaTest extends TestCase {
 	private void commonNumericLocaleTest(String prog, double expected, double tolerance) {
 		// see issues #229, #236 re: testNegExponent() failure
 		Set<String> localesToIgnore = new HashSet<String>();
-		localesToIgnore.add("nn");
 		localesToIgnore.add("ar-JO");
 
 		for (Locale locale : Locale.getAvailableLocales()) {
