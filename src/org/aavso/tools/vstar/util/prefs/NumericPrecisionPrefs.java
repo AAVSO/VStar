@@ -306,9 +306,10 @@ public class NumericPrecisionPrefs {
 	}
 
 	private static DecimalFormat getOutputFormat(int decimalPlaces) {
-		DecimalFormat decFormatter = new DecimalFormat(
-				getFormatString(decimalPlaces), new DecimalFormatSymbols(Locale
-						.getDefault()));
+		DecimalFormatSymbols dfs = new DecimalFormatSymbols(Locale.getDefault());
+		dfs.setExponentSeparator("E"); // may differ for some locales
+		dfs.setMinusSign('-'); // "nn" locale fails without this
+		DecimalFormat decFormatter = new DecimalFormat(getFormatString(decimalPlaces), dfs);
 
 		return decFormatter;
 	}
