@@ -196,13 +196,7 @@ multiplicativeExpression
 
 unaryExpression
 :
-    sign? exponentiationExpression
-;
-
-sign
-:
-    MINUS
-    | PLUS
+    MINUS? exponentiationExpression
 ;
 
 exponentiationExpression

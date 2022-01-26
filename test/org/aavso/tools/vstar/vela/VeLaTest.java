@@ -91,12 +91,6 @@ public class VeLaTest extends TestCase {
 		commonNumericLocaleTest("3.141592E5", 314159.2, 1e-6);
 	}
 
-	// See GitHub issue #138; this is caused by an ANTLR parse error before we ever
-	// get to ExpressionVisitor.parseDouble()
-//	public void testPosExponentWithEPlus() {
-//		commonNumericLocaleTest("3.141592E+5", 314159.2, 1e-6);
-//	}
-
 	public void testNegExponent() {
 		commonNumericLocaleTest("3.141592E-1", 0.314159, 1e-6);
 	}
