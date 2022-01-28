@@ -38,7 +38,7 @@ public class NumberParserTest extends TestCase {
 	}
 
 	public void testParseExplicitPositiveRealNoFractionalComponent() {
-		commonValidTest(1000, "+1000");
+		commonValidTest(1000, "1000");
 	}
 
 	public void testParseNegativeRealNoFractionalComponent() {
@@ -62,7 +62,7 @@ public class NumberParserTest extends TestCase {
 	}
 
 	public void testParsePositiveReal2() {
-		commonValidTest(+12.25, "+12.25");
+		commonValidTest(12.25, "12.25");
 	}
 
 	public void testParseNegativeReal1() {
@@ -74,7 +74,7 @@ public class NumberParserTest extends TestCase {
 	}
 
 	public void testParseExplicitPositiveRealNoLeadingZero() {
-		commonValidTest(.25, "+.25");
+		commonValidTest(.25, ".25");
 	}
 
 	public void testParseNegativeRealNoLeadingZero() {
@@ -110,7 +110,7 @@ public class NumberParserTest extends TestCase {
 	}
 
 	public void testParseExponentialFormat6() {
-		commonValidTest(0.0225, "+2.25e-2");
+		commonValidTest(0.0225, "2.25e-2");
 	}
 
 	public void testParseExponentialFormat7() {
@@ -118,7 +118,7 @@ public class NumberParserTest extends TestCase {
 	}
 
 	public void testParseExponentialFormat8() {
-		commonValidTest(400, "+4e2");
+		commonValidTest(400, "4e2");
 	}
 
 	public void testParseExponentialFormat9() {
@@ -134,7 +134,7 @@ public class NumberParserTest extends TestCase {
 		commonValidTest(12.25, "12,25");
 		commonValidTest(-0.0225, "-2,25e-2");
 		commonValidTest(225.0, "2,25E2");
-		commonValidTest(400, "+4e2");
+		commonValidTest(400, "4e2");
 	}
 
 	private void commonValidTest(double expected, String actual) {
