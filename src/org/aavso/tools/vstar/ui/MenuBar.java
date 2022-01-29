@@ -39,6 +39,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.plugin.CustomFilterPluginBase;
 import org.aavso.tools.vstar.plugin.GeneralToolPluginBase;
 import org.aavso.tools.vstar.plugin.IPlugin;
@@ -54,10 +55,12 @@ import org.aavso.tools.vstar.ui.dialog.AdditiveLoadFileOrUrlChooser;
 import org.aavso.tools.vstar.ui.dialog.InfoDialog;
 import org.aavso.tools.vstar.ui.dialog.LogDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.SeriesTypeCreationDialog;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementDialog;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManagementOperation;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.dialog.prefs.PreferencesDialog;
+import org.aavso.tools.vstar.ui.dialog.series.SingleSeriesSelectionDialog;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.AnalysisTypeChangeMessage;
@@ -74,6 +77,7 @@ import org.aavso.tools.vstar.ui.mediator.message.UndoActionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
+import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.ui.vela.VeLaDialog;
@@ -87,10 +91,8 @@ import org.aavso.tools.vstar.util.notification.Listener;
 public class MenuBar extends JMenuBar {
 
 	// File menu item names.
-	public static final String NEW_STAR_FROM_DATABASE = LocaleProps
-			.get("FILE_MENU_NEW_STAR_FROM_DATABASE");
-	public static final String NEW_STAR_FROM_FILE = LocaleProps
-			.get("FILE_MENU_NEW_STAR_FROM_FILE");
+	public static final String NEW_STAR_FROM_DATABASE = LocaleProps.get("FILE_MENU_NEW_STAR_FROM_DATABASE");
+	public static final String NEW_STAR_FROM_FILE = LocaleProps.get("FILE_MENU_NEW_STAR_FROM_FILE");
 	public static final String SAVE = LocaleProps.get("FILE_MENU_SAVE");
 	public static final String PRINT = LocaleProps.get("FILE_MENU_PRINT");
 	public static final String INFO = LocaleProps.get("FILE_MENU_INFO");
@@ -102,55 +104,40 @@ public class MenuBar extends JMenuBar {
 	public static final String UNDO = LocaleProps.get("EDIT_MENU_UNDO");
 	public static final String REDO = LocaleProps.get("EDIT_MENU_REDO");
 	public static final String SELECT_ALL = LocaleProps.get("SELECT_ALL");
-	public static final String EXCLUDE_SELECTION = LocaleProps
-			.get("EDIT_MENU_EXCLUDE_SELECTION");
+	public static final String EXCLUDE_SELECTION = LocaleProps.get("EDIT_MENU_EXCLUDE_SELECTION");
 
 	// View menu item names.
-	public static final String RAW_DATA_MODE = LocaleProps
-			.get("VIEW_MENU_RAW_DATA_MODE");
-	public static final String PHASE_PLOT_MODE = LocaleProps
-			.get("VIEW_MENU_PHASE_PLOT_MODE");
-	public static final String OB_DETAILS = LocaleProps
-			.get("VIEW_MENU_OB_DETAILS");
-	public static final String PLOT_CONTROL = LocaleProps
-			.get("VIEW_MENU_PLOT_CONTROL");
+	public static final String RAW_DATA_MODE = LocaleProps.get("VIEW_MENU_RAW_DATA_MODE");
+	public static final String PHASE_PLOT_MODE = LocaleProps.get("VIEW_MENU_PHASE_PLOT_MODE");
+	public static final String OB_DETAILS = LocaleProps.get("VIEW_MENU_OB_DETAILS");
+	public static final String PLOT_CONTROL = LocaleProps.get("VIEW_MENU_PLOT_CONTROL");
 	public static final String ZOOM_IN = LocaleProps.get("VIEW_MENU_ZOOM_IN");
 	public static final String ZOOM_OUT = LocaleProps.get("VIEW_MENU_ZOOM_OUT");
-	public static final String ZOOM_TO_FIT = LocaleProps
-			.get("VIEW_MENU_ZOOM_TO_FIT");
+	public static final String ZOOM_TO_FIT = LocaleProps.get("VIEW_MENU_ZOOM_TO_FIT");
 	public static final String PAN_LEFT = LocaleProps.get("VIEW_MENU_PAN_LEFT");
-	public static final String PAN_RIGHT = LocaleProps
-			.get("VIEW_MENU_PAN_RIGHT");
+	public static final String PAN_RIGHT = LocaleProps.get("VIEW_MENU_PAN_RIGHT");
 	public static final String PAN_UP = LocaleProps.get("VIEW_MENU_PAN_UP");
 	public static final String PAN_DOWN = LocaleProps.get("VIEW_MENU_PAN_DOWN");
+	public static final String CREATE_SERIES = LocaleProps.get("VIEW_MENU_CREATE_SERIES");
 	public static final String FILTER = LocaleProps.get("VIEW_MENU_FILTER");
 	public static final String FILTERS = LocaleProps.get("VIEW_MENU_FILTERS");
-	public static final String FILTER_FROM_PLOT = LocaleProps
-			.get("VIEW_MENU_FILTER_FROM_PLOT");
-	public static final String NO_FILTER = LocaleProps
-			.get("VIEW_MENU_NO_FILTER");
+	public static final String FILTER_FROM_PLOT = LocaleProps.get("VIEW_MENU_FILTER_FROM_PLOT");
+	public static final String NO_FILTER = LocaleProps.get("VIEW_MENU_NO_FILTER");
 
 	// Analysis menu item names.
-	public static final String PHASE_PLOT = LocaleProps
-			.get("ANALYSIS_MENU_PHASE_PLOT");
-	public static final String PHASE_PLOTS = LocaleProps
-			.get("ANALYSIS_MENU_PHASE_PLOTS");
-	public static final String POLYNOMIAL_FIT = LocaleProps
-			.get("ANALYSIS_MENU_POLYNOMIAL_FIT");
+	public static final String PHASE_PLOT = LocaleProps.get("ANALYSIS_MENU_PHASE_PLOT");
+	public static final String PHASE_PLOTS = LocaleProps.get("ANALYSIS_MENU_PHASE_PLOTS");
+	public static final String POLYNOMIAL_FIT = LocaleProps.get("ANALYSIS_MENU_POLYNOMIAL_FIT");
 	public static final String MODELS = LocaleProps.get("ANALYSIS_MENU_MODELS");
 
 	// Tool menu item names.
-	public static final String PLUGIN_MANAGER = LocaleProps
-			.get("TOOL_MENU_PLUGIN_MANAGER");
-	public static final String RUN_SCRIPT = LocaleProps
-			.get("TOOL_MENU_RUN_SCRIPT");
+	public static final String PLUGIN_MANAGER = LocaleProps.get("TOOL_MENU_PLUGIN_MANAGER");
+	public static final String RUN_SCRIPT = LocaleProps.get("TOOL_MENU_RUN_SCRIPT");
 	public static final String VELA = LocaleProps.get("TOOL_MENU_VELA");
 
 	// Help menu item names.
-	public static final String HELP_CONTENTS = LocaleProps
-			.get("HELP_MENU_HELP_CONTENTS");
-	public static final String VSTAR_ONLINE = LocaleProps
-			.get("HELP_MENU_VSTAR_ONLINE");
+	public static final String HELP_CONTENTS = LocaleProps.get("HELP_MENU_HELP_CONTENTS");
+	public static final String VSTAR_ONLINE = LocaleProps.get("HELP_MENU_VSTAR_ONLINE");
 	public static final String ABOUT = LocaleProps.get("HELP_MENU_ABOUT");
 
 	// Set of menu items NOT to be rendered in a minimal UI such as for an
@@ -220,6 +207,7 @@ public class MenuBar extends JMenuBar {
 	JMenuItem viewPanRightItem;
 	JMenuItem viewPanUpItem;
 	JMenuItem viewPanDownItem;
+	JMenuItem viewCreateSeriesItem;
 	JMenuItem viewFilterItem;
 	JMenuItem viewFiltersItem;
 	JMenuItem viewFilterFromPlotItem;
@@ -247,10 +235,8 @@ public class MenuBar extends JMenuBar {
 	/**
 	 * Constructor
 	 * 
-	 * @param parent
-	 *            The frame's parent.
-	 * @param uiType
-	 *            The type of UI.
+	 * @param parent The frame's parent.
+	 * @param uiType The type of UI.
 	 */
 	public MenuBar(IMainUI parent, UIType uiType) {
 		super();
@@ -269,31 +255,24 @@ public class MenuBar extends JMenuBar {
 
 		// Listen to events
 
-		this.mediator.getProgressNotifier().addListener(
-				createProgressListener());
+		this.mediator.getProgressNotifier().addListener(createProgressListener());
 
 		this.mediator.getNewStarNotifier().addListener(createNewStarListener());
 
-		this.mediator.getAnalysisTypeChangeNotifier().addListener(
-				createAnalysisTypeChangeListener());
+		this.mediator.getAnalysisTypeChangeNotifier().addListener(createAnalysisTypeChangeListener());
 
-		this.mediator.getObservationSelectionNotifier().addListener(
-				createObservationSelectionListener());
+		this.mediator.getObservationSelectionNotifier().addListener(createObservationSelectionListener());
 
-		this.mediator.getMultipleObservationSelectionNotifier().addListener(
-				createMultipleObservationSelectionListener());
+		this.mediator.getMultipleObservationSelectionNotifier()
+				.addListener(createMultipleObservationSelectionListener());
 
-		this.mediator.getUndoActionNotifier().addListener(
-				createUndoActionListener());
+		this.mediator.getUndoActionNotifier().addListener(createUndoActionListener());
 
-		this.mediator.getModelCreationNotifier().addListener(
-				createModelCreationListener());
+		this.mediator.getModelCreationNotifier().addListener(createModelCreationListener());
 
-		this.mediator.getPhaseChangeNotifier().addListener(
-				createPhaseChangeListener());
+		this.mediator.getPhaseChangeNotifier().addListener(createPhaseChangeListener());
 
-		this.mediator.getFilteredObservationNotifier().addListener(
-				createObsFilterListener());
+		this.mediator.getFilteredObservationNotifier().addListener(createObsFilterListener());
 	}
 
 	/**
@@ -306,8 +285,7 @@ public class MenuBar extends JMenuBar {
 	private void createFileMenu() {
 		JMenu fileMenu = new JMenu(LocaleProps.get("FILE_MENU"));
 
-		List<ObservationSourcePluginBase> obSourcePlugins = PluginLoader
-				.getObservationSourcePlugins();
+		List<ObservationSourcePluginBase> obSourcePlugins = PluginLoader.getObservationSourcePlugins();
 
 		if (!obSourcePlugins.isEmpty()) {
 			menuItemNameToObSourcePlugin = new TreeMap<String, ObservationSourcePluginBase>();
@@ -324,19 +302,15 @@ public class MenuBar extends JMenuBar {
 			int internalPluginIndex = 1;
 			for (ObservationSourcePluginBase plugin : obSourcePlugins) {
 				String itemName = plugin.getDisplayName();
-				if (plugin.getInputType() == InputType.NONE
-						|| plugin.getInputType() == InputType.URL
-						|| LocaleProps.get("FILE_MENU_NEW_STAR_FROM_FILE")
-								.equals(itemName)
-						|| PluginManager
-								.shouldAllObsSourcePluginsBeInFileMenu()) {
+				if (plugin.getInputType() == InputType.NONE || plugin.getInputType() == InputType.URL
+						|| LocaleProps.get("FILE_MENU_NEW_STAR_FROM_FILE").equals(itemName)
+						|| PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
 
 					JMenuItem obSourceMenuItem = new JMenuItem(itemName);
 					obSourceMenuItem.addActionListener(obSourceListener);
 					fileMenu.add(obSourceMenuItem);
 
-					if ("Internal".equals(plugin.getGroup())
-							&& internalPluginIndex == internalPluginCount) {
+					if ("Internal".equals(plugin.getGroup()) && internalPluginIndex == internalPluginCount) {
 						fileMenu.addSeparator();
 					} else {
 						internalPluginIndex++;
@@ -422,8 +396,7 @@ public class MenuBar extends JMenuBar {
 
 		editExcludeSelectionItem = new JMenuItem(EXCLUDE_SELECTION);
 		editExcludeSelectionItem.setEnabled(false);
-		editExcludeSelectionItem
-				.addActionListener(createExcludeSelectionListener());
+		editExcludeSelectionItem.addActionListener(createExcludeSelectionListener());
 		editMenu.add(editExcludeSelectionItem);
 
 		this.add(editMenu);
@@ -495,6 +468,25 @@ public class MenuBar extends JMenuBar {
 
 		viewMenu.addSeparator();
 
+		viewCreateSeriesItem = new JMenuItem(CREATE_SERIES);
+		viewCreateSeriesItem.setEnabled(false);
+		viewCreateSeriesItem.addActionListener(e -> {
+			// create a named series from an existing series selection
+			// (GitHub issue #195)
+			Mediator mediator = Mediator.getInstance();
+			ObservationAndMeanPlotModel obsModel = mediator.getObservationPlotModel(mediator.getAnalysisType());
+			SingleSeriesSelectionDialog seriesDialog = new SingleSeriesSelectionDialog(obsModel);
+			if (!seriesDialog.isCancelled()) {
+				SeriesType type = seriesDialog.getSeries();
+				SeriesTypeCreationDialog seriesCreationDialog = new SeriesTypeCreationDialog(mediator.getValidObservationCategoryMap().get(type));
+				seriesCreationDialog.showDialog();
+			}
+		});
+
+		viewMenu.add(viewCreateSeriesItem);
+		
+		viewMenu.addSeparator();
+
 		viewFilterItem = new JMenuItem(FILTER);
 		viewFilterItem.setEnabled(false);
 		viewFilterItem.addActionListener(createFilterListener());
@@ -540,8 +532,7 @@ public class MenuBar extends JMenuBar {
 
 		analysisPhasePlotItem = new JMenuItem(PHASE_PLOT);
 		analysisPhasePlotItem.setEnabled(false);
-		analysisPhasePlotItem
-				.addActionListener(createCreatePhasePlotListener());
+		analysisPhasePlotItem.addActionListener(createCreatePhasePlotListener());
 		analysisMenu.add(analysisPhasePlotItem);
 
 		analysisPhasePlotsItem = new JMenuItem(PHASE_PLOTS);
@@ -559,29 +550,23 @@ public class MenuBar extends JMenuBar {
 		String lastGroup = null;
 
 		menuItemNameToPeriodAnalysisPlugin = new TreeMap<String, PeriodAnalysisPluginBase>();
-		lastGroup = addAnalysisPlugins(analysisMenu,
-				createPeriodSearchListener(),
-				PluginLoader.getPeriodAnalysisPlugins(),
-				menuItemNameToPeriodAnalysisPlugin, lastGroup);
+		lastGroup = addAnalysisPlugins(analysisMenu, createPeriodSearchListener(),
+				PluginLoader.getPeriodAnalysisPlugins(), menuItemNameToPeriodAnalysisPlugin, lastGroup);
 
 		menuItemNameToModelCreatorPlugin = new TreeMap<String, ModelCreatorPluginBase>();
-		lastGroup = addAnalysisPlugins(analysisMenu,
-				createModelCreatorListener(),
-				PluginLoader.getModelCreatorPlugins(),
-				menuItemNameToModelCreatorPlugin, lastGroup);
+		lastGroup = addAnalysisPlugins(analysisMenu, createModelCreatorListener(),
+				PluginLoader.getModelCreatorPlugins(), menuItemNameToModelCreatorPlugin, lastGroup);
 
 		this.add(analysisMenu);
 	}
 
 	// Add items for analysis plug-ins of type P to the analysis menu.
-	private <P extends IPlugin> String addAnalysisPlugins(JMenu analysisMenu,
-			ActionListener listener, List<P> plugins,
+	private <P extends IPlugin> String addAnalysisPlugins(JMenu analysisMenu, ActionListener listener, List<P> plugins,
 			Map<String, P> menuItemToPluginMap, String lastGroup) {
 
 		for (P plugin : plugins) {
 
-			if (plugin.getGroup() != null
-					&& !plugin.getGroup().equals(lastGroup)) {
+			if (plugin.getGroup() != null && !plugin.getGroup().equals(lastGroup)) {
 				lastGroup = plugin.getGroup();
 				analysisMenu.addSeparator();
 			}
@@ -620,8 +605,7 @@ public class MenuBar extends JMenuBar {
 		// toolMenu.addSeparator();
 		// }
 
-		List<ObservationToolPluginBase> obsToolPlugins = PluginLoader
-				.getObservationToolPlugins();
+		List<ObservationToolPluginBase> obsToolPlugins = PluginLoader.getObservationToolPlugins();
 
 		if (!obsToolPlugins.isEmpty()) {
 			toolMenu.addSeparator();
@@ -641,8 +625,7 @@ public class MenuBar extends JMenuBar {
 			}
 		}
 
-		List<GeneralToolPluginBase> genToolPlugins = PluginLoader
-				.getGeneralToolPlugins();
+		List<GeneralToolPluginBase> genToolPlugins = PluginLoader.getGeneralToolPlugins();
 
 		if (!genToolPlugins.isEmpty()) {
 			toolMenu.addSeparator();
@@ -662,8 +645,7 @@ public class MenuBar extends JMenuBar {
 			}
 		}
 
-		List<ObservationTransformerPluginBase> obsTransPlugins = PluginLoader
-				.getObservationTransformerPlugins();
+		List<ObservationTransformerPluginBase> obsTransPlugins = PluginLoader.getObservationTransformerPlugins();
 
 		if (!obsTransPlugins.isEmpty()) {
 			toolMenu.addSeparator();
@@ -696,14 +678,12 @@ public class MenuBar extends JMenuBar {
 			if (desktop.isSupported(Desktop.Action.BROWSE)) {
 				// User manual.
 				helpContentsItem = new JMenuItem(HELP_CONTENTS, KeyEvent.VK_H);
-				helpContentsItem
-						.addActionListener(createHelpContentsListener());
+				helpContentsItem.addActionListener(createHelpContentsListener());
 				helpMenu.add(helpContentsItem);
 
 				// VStar online.
 				helpVStarOnlineItem = new JMenuItem(VSTAR_ONLINE);
-				helpVStarOnlineItem
-						.addActionListener(createVStarOnlineListener());
+				helpVStarOnlineItem.addActionListener(createVStarOnlineListener());
 				helpMenu.add(helpVStarOnlineItem);
 			}
 		}
@@ -720,32 +700,29 @@ public class MenuBar extends JMenuBar {
 	// ** File Menu listeners **
 
 	/**
-	 * Returns the action listener to be invoked for observation source menu
-	 * item selections.
+	 * Returns the action listener to be invoked for observation source menu item
+	 * selections.
 	 */
 	public ActionListener createObservationSourceListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String item = e.getActionCommand();
-				ObservationSourcePluginBase plugin = menuItemNameToObSourcePlugin
-						.get(item);
+				ObservationSourcePluginBase plugin = menuItemNameToObSourcePlugin.get(item);
 				mediator.createObservationArtefactsFromObSourcePlugin(plugin);
 			}
 		};
 	}
 
 	/**
-	 * Returns the action listener to be invoked for a particular observation
-	 * source menu item. TODO: interim solution until we have toolbar buttons
-	 * with lists of items!
+	 * Returns the action listener to be invoked for a particular observation source
+	 * menu item. TODO: interim solution until we have toolbar buttons with lists of
+	 * items!
 	 */
-	public ActionListener createObservationSourceListener(
-			final String obsSourceItemName) {
+	public ActionListener createObservationSourceListener(final String obsSourceItemName) {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				ObservationSourcePluginBase plugin = menuItemNameToObSourcePlugin
-						.get(obsSourceItemName);
+				ObservationSourcePluginBase plugin = menuItemNameToObSourcePlugin.get(obsSourceItemName);
 				mediator.createObservationArtefactsFromObSourcePlugin(plugin);
 			}
 		};
@@ -874,8 +851,7 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Mediator.getInstance().getUndoableActionManager()
-						.excludeCurrentSelection();
+				Mediator.getInstance().getUndoableActionManager().excludeCurrentSelection();
 
 				// Once this menu item has been used for a particular selection,
 				// disable the menu item until the next selection is made.
@@ -904,8 +880,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createPhasePlotListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				AnalysisType type = mediator
-						.changeAnalysisType(AnalysisType.PHASE_PLOT);
+				AnalysisType type = mediator.changeAnalysisType(AnalysisType.PHASE_PLOT);
 				if (type == AnalysisType.PHASE_PLOT) {
 					// It may be that no phase plot has been created because the
 					// phase plot dialog was cancelled.
@@ -916,8 +891,7 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
-	 * Returns the action listener to be invoked for View->Observation
-	 * Details...
+	 * Returns the action listener to be invoked for View->Observation Details...
 	 */
 	public ActionListener createObDetailsListener() {
 		return new ActionListener() {
@@ -946,8 +920,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createZoomInListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ZoomRequestMessage msg = new ZoomRequestMessage(this,
-						ZoomType.ZOOM_IN);
+				ZoomRequestMessage msg = new ZoomRequestMessage(this, ZoomType.ZOOM_IN);
 				mediator.getZoomRequestNotifier().notifyListeners(msg);
 			}
 		};
@@ -959,8 +932,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createZoomOutListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ZoomRequestMessage msg = new ZoomRequestMessage(this,
-						ZoomType.ZOOM_OUT);
+				ZoomRequestMessage msg = new ZoomRequestMessage(this, ZoomType.ZOOM_OUT);
 				mediator.getZoomRequestNotifier().notifyListeners(msg);
 			}
 		};
@@ -972,8 +944,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createZoomToFitListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ZoomRequestMessage msg = new ZoomRequestMessage(this,
-						ZoomType.ZOOM_TO_FIT);
+				ZoomRequestMessage msg = new ZoomRequestMessage(this, ZoomType.ZOOM_TO_FIT);
 				mediator.getZoomRequestNotifier().notifyListeners(msg);
 			}
 		};
@@ -1020,10 +991,8 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String item = e.getActionCommand();
-				CustomFilterPluginBase plugin = menuItemNameToCustomFilterPlugin
-						.get(item);
-				Mediator.getInstance().applyCustomFilterToCurrentObservations(
-						plugin);
+				CustomFilterPluginBase plugin = menuItemNameToCustomFilterPlugin.get(item);
+				Mediator.getInstance().applyCustomFilterToCurrentObservations(plugin);
 			}
 		};
 	}
@@ -1034,8 +1003,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createShowAllListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mediator.getFilteredObservationNotifier().notifyListeners(
-						FilteredObservationMessage.NO_FILTER);
+				mediator.getFilteredObservationNotifier().notifyListeners(FilteredObservationMessage.NO_FILTER);
 			}
 		};
 	}
@@ -1046,8 +1014,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createPanLeftListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PanRequestMessage msg = new PanRequestMessage(this,
-						PanType.LEFT);
+				PanRequestMessage msg = new PanRequestMessage(this, PanType.LEFT);
 				mediator.getPanRequestNotifier().notifyListeners(msg);
 			}
 		};
@@ -1059,8 +1026,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createPanRightListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PanRequestMessage msg = new PanRequestMessage(this,
-						PanType.RIGHT);
+				PanRequestMessage msg = new PanRequestMessage(this, PanType.RIGHT);
 				mediator.getPanRequestNotifier().notifyListeners(msg);
 			}
 		};
@@ -1084,8 +1050,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createPanDownListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PanRequestMessage msg = new PanRequestMessage(this,
-						PanType.DOWN);
+				PanRequestMessage msg = new PanRequestMessage(this, PanType.DOWN);
 				mediator.getPanRequestNotifier().notifyListeners(msg);
 			}
 		};
@@ -1112,8 +1077,7 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String item = e.getActionCommand();
-				PeriodAnalysisPluginBase plugin = menuItemNameToPeriodAnalysisPlugin
-						.get(item);
+				PeriodAnalysisPluginBase plugin = menuItemNameToPeriodAnalysisPlugin.get(item);
 				Mediator.getInstance().performPeriodAnalysis(plugin);
 			}
 		};
@@ -1121,15 +1085,13 @@ public class MenuBar extends JMenuBar {
 
 	/**
 	 * Returns the action listener to be invoked for a particular Analysis menu
-	 * Period Search item. TODO: interim solution until we have toolbar buttons
-	 * with lists of items!
+	 * Period Search item. TODO: interim solution until we have toolbar buttons with
+	 * lists of items!
 	 */
-	public ActionListener createPeriodSearchListener(
-			final String periodSearchItemName) {
+	public ActionListener createPeriodSearchListener(final String periodSearchItemName) {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PeriodAnalysisPluginBase plugin = menuItemNameToPeriodAnalysisPlugin
-						.get(periodSearchItemName);
+				PeriodAnalysisPluginBase plugin = menuItemNameToPeriodAnalysisPlugin.get(periodSearchItemName);
 				Mediator.getInstance().performPeriodAnalysis(plugin);
 			}
 		};
@@ -1143,8 +1105,7 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String item = e.getActionCommand();
-				ModelCreatorPluginBase plugin = menuItemNameToModelCreatorPlugin
-						.get(item);
+				ModelCreatorPluginBase plugin = menuItemNameToModelCreatorPlugin.get(item);
 				Mediator.getInstance().performModellingOperation(plugin);
 			}
 		};
@@ -1155,12 +1116,10 @@ public class MenuBar extends JMenuBar {
 	 * item.<br/>
 	 * TODO: interim solution until we have toolbar buttons with lists of items!
 	 */
-	public ActionListener createPolynomialFitListener(
-			final String polyFitItemName) {
+	public ActionListener createPolynomialFitListener(final String polyFitItemName) {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ModelCreatorPluginBase plugin = menuItemNameToModelCreatorPlugin
-						.get(polyFitItemName);
+				ModelCreatorPluginBase plugin = menuItemNameToModelCreatorPlugin.get(polyFitItemName);
 				Mediator.getInstance().performModellingOperation(plugin);
 			}
 		};
@@ -1200,31 +1159,30 @@ public class MenuBar extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Max: probably I'm paranoid: preventing opening PluginManagementDialog twice.
-				if (PluginManagementDialog.getPluginManagementActive()) return;
+				if (PluginManagementDialog.getPluginManagementActive())
+					return;
 				PluginManagementDialog.setPluginManagementActive(true);
 				final PluginManager manager = new PluginManager();
-				PluginManagementOperation op = new PluginManagementOperation(
-						manager, "Initialising Plug-in Manager") {
+				PluginManagementOperation op = new PluginManagementOperation(manager, "Initialising Plug-in Manager") {
 					@Override
 					public void execute() {
 						// try {
 						// Authenticator.getInstance().authenticate();
 						javax.swing.SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
-								Mediator.getUI().getStatusPane()
-									.setMessage("Initialising Plug-in Manager...");
+								Mediator.getUI().getStatusPane().setMessage("Initialising Plug-in Manager...");
 							}
 						});
 						try {
 							manager.init();
-						} catch(Throwable t) {
+						} catch (Throwable t) {
 							PluginManagementDialog.setPluginManagementActive(false);
 							throw t;
 						}
 						javax.swing.SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
-								// PluginManagementDialog clears pluginManagementActive flag on close.								
-								new PluginManagementDialog(manager);				
+								// PluginManagementDialog clears pluginManagementActive flag on close.
+								new PluginManagementDialog(manager);
 							}
 						});
 						javax.swing.SwingUtilities.invokeLater(new Runnable() {
@@ -1280,8 +1238,7 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String item = e.getActionCommand();
-				ObservationToolPluginBase plugin = menuItemNameToObsToolPlugin
-						.get(item);
+				ObservationToolPluginBase plugin = menuItemNameToObsToolPlugin.get(item);
 				Mediator.getInstance().invokeTool(plugin);
 			}
 		};
@@ -1295,8 +1252,7 @@ public class MenuBar extends JMenuBar {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String item = e.getActionCommand();
-				GeneralToolPluginBase plugin = menuItemNameToGenToolPlugin
-						.get(item);
+				GeneralToolPluginBase plugin = menuItemNameToGenToolPlugin.get(item);
 				try {
 					plugin.invoke();
 				} catch (Throwable t) {
@@ -1307,21 +1263,18 @@ public class MenuBar extends JMenuBar {
 	}
 
 	/**
-	 * Returns the action listener to be invoked for Observation Transformer
-	 * menu item selections.
+	 * Returns the action listener to be invoked for Observation Transformer menu
+	 * item selections.
 	 */
 	public ActionListener createObsTransMenuItemListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String item = e.getActionCommand();
-				ObservationTransformerPluginBase plugin = menuItemNameToObsTransPlugin
-						.get(item);
+				ObservationTransformerPluginBase plugin = menuItemNameToObsTransPlugin.get(item);
 				try {
-					Mediator.getInstance()
-							.performObservationTransformationOperation(plugin);
+					Mediator.getInstance().performObservationTransformationOperation(plugin);
 				} catch (Throwable t) {
-					MessageBox.showErrorDialog(
-							"Observation Transformation Error", t);
+					MessageBox.showErrorDialog("Observation Transformation Error", t);
 				}
 			}
 		};
@@ -1361,26 +1314,20 @@ public class MenuBar extends JMenuBar {
 					URL url = null;
 					try {
 						url = new URL(urlStr);
-						java.net.URL helpURL = ResourceAccessor
-								.getHelpHTMLResource();
+						java.net.URL helpURL = ResourceAccessor.getHelpHTMLResource();
 						if (desktop.isSupported(Desktop.Action.BROWSE)) {
 							try {
 								desktop.browse(url.toURI());
 							} catch (IOException e) {
-								MessageBox.showErrorDialog(
-										"VStar Help",
-										"Error reading from '"
-												+ helpURL.toString() + "'");
+								MessageBox.showErrorDialog("VStar Help",
+										"Error reading from '" + helpURL.toString() + "'");
 							} catch (URISyntaxException e) {
-								MessageBox.showErrorDialog(
-										"VStar Help",
-										"Invalid address: '"
-												+ helpURL.toString() + "'");
+								MessageBox.showErrorDialog("VStar Help",
+										"Invalid address: '" + helpURL.toString() + "'");
 							}
 						}
 					} catch (MalformedURLException e) {
-						MessageBox.showErrorDialog("VStar Help",
-								"Invalid address.");
+						MessageBox.showErrorDialog("VStar Help", "Invalid address.");
 					}
 				}
 			}
@@ -1489,11 +1436,13 @@ public class MenuBar extends JMenuBar {
 				editSelectAllItem.setEnabled(true);
 				editExcludeSelectionItem.setEnabled(false);
 
+				// TODO: I think this set needs to be expanded...
 				viewPhasePlotItem.setEnabled(false);
 				viewObDetailsItem.setEnabled(false);
 				viewZoomInItem.setEnabled(false);
 				viewZoomOutItem.setEnabled(false);
 				viewZoomToFitItem.setEnabled(false);
+				viewCreateSeriesItem.setEnabled(false);
 				viewFiltersItem.setEnabled(false);
 
 				analysisPhasePlotItem.setEnabled(true);
@@ -1558,8 +1507,7 @@ public class MenuBar extends JMenuBar {
 		return new Listener<UndoActionMessage>() {
 			@Override
 			public void update(UndoActionMessage info) {
-				String itemName = info.getType() + " "
-						+ info.getAction().getDisplayString();
+				String itemName = info.getType() + " " + info.getAction().getDisplayString();
 
 				JMenuItem item = null;
 				if (info.getType() == UndoableActionType.UNDO) {
