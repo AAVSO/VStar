@@ -50,6 +50,8 @@ import org.jfree.chart.plot.SeriesRenderingOrder;
 @SuppressWarnings("serial")
 public class PlotControlDialog extends JDialog {
 
+	private DocumentManager docMgr;
+	
 	private AnalysisType analysisType;
 
 	// Series-related panes.
@@ -57,23 +59,18 @@ public class PlotControlDialog extends JDialog {
 	protected MeanSourcePane meanSourcePane;
 
 	// Show error bars?
-	protected boolean showErrorBars;
 	protected JCheckBox errorBarCheckBox;
 
 	// Show cross-hairs?
-	protected boolean showCrossHairs;
 	protected JCheckBox crossHairCheckBox;
 
 	// Show inverted range?
-	protected boolean invertRange;
 	protected JCheckBox invertRangeCheckBox;
 	
 	// Show series in inverse order?
-	protected boolean invertSeriesOrder;
 	protected JCheckBox invertSeriesOrderCheckBox;
 
 	// Should the means series elements be joined visually?
-	protected boolean joinMeans;
 	protected JCheckBox joinMeansCheckBox;
 
 	protected JButton dismissButton;
@@ -86,7 +83,7 @@ public class PlotControlDialog extends JDialog {
 	protected NamedComponent extra;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * @param title
 	 *            The dialog title.
@@ -110,25 +107,11 @@ public class PlotControlDialog extends JDialog {
 		setTitle(title);
 		setModal(true);
 
+		docMgr = Mediator.getInstance().getDocumentManager();
+		
 		this.plotPane = plotPane;
 		this.obsModel = plotPane.getObsModel();
 		this.extra = extra;
-
-		// Get initial checkbox values.
-		showErrorBars = plotPane.getRenderer().getDrawYError();
-
-		showCrossHairs = plotPane.getChartPanel().getChart().getXYPlot()
-				.isDomainCrosshairVisible(); // ask for domain or range value
-
-		invertRange = plotPane.getChartPanel().getChart().getXYPlot()
-				.getRangeAxis().isInverted();
-		
-		invertSeriesOrder = plotPane.getChartPanel().getChart().getXYPlot()
-				.getSeriesRenderingOrder().equals(SeriesRenderingOrder.REVERSE);
-
-		joinMeans = obsModel.getMeansSeriesNum() != ObservationAndMeanPlotModel.NO_SERIES ? plotPane
-				.getRenderer().getSeriesLinesVisible(
-						obsModel.getMeansSeriesNum()) : false;
 
 		this.timeElementsInBinSettingPane = timeElementsInBinSettingPane;
 
@@ -190,14 +173,14 @@ public class PlotControlDialog extends JDialog {
 
 		// A checkbox to show/hide error bars.
 		errorBarCheckBox = new JCheckBox(LocaleProps.get("ERROR_BARS_CHECKBOX"));
-		errorBarCheckBox.setSelected(showErrorBars);
+		errorBarCheckBox.setSelected(docMgr.shouldShowErrorBars());
 		errorBarCheckBox.addActionListener(createErrorBarCheckBoxListener());
 		showCheckBoxPanel.add(errorBarCheckBox);
 
 		// A checkbox to show/hide cross hairs.
 		crossHairCheckBox = new JCheckBox(
 				LocaleProps.get("CROSSHAIRS_CHECKBOX"));
-		crossHairCheckBox.setSelected(showCrossHairs);
+		crossHairCheckBox.setSelected(docMgr.shouldShowCrossHairs());
 		crossHairCheckBox.addActionListener(createCrossHairCheckBoxListener());
 		showCheckBoxPanel.add(crossHairCheckBox);
 
@@ -205,14 +188,14 @@ public class PlotControlDialog extends JDialog {
 
 		// A checkbox to invert (or not) the range axis.
 		invertRangeCheckBox = new JCheckBox(LocaleProps.get("INVERT_RANGE"));
-		invertRangeCheckBox.setSelected(invertRange);
+		invertRangeCheckBox.setSelected(docMgr.shouldInvertRange());
 		invertRangeCheckBox
 				.addActionListener(createInvertRangeCheckBoxListener());
 		showCheckBoxPanel.add(invertRangeCheckBox);
 		
 		// A checkbox to invert (or not) the order of series.
 		invertSeriesOrderCheckBox = new JCheckBox(LocaleProps.get("INVERT_SERIES_ORDER"));
-		invertSeriesOrderCheckBox.setSelected(invertSeriesOrder);
+		invertSeriesOrderCheckBox.setSelected(docMgr.shouldInvertSeriesOrder());
 		invertSeriesOrderCheckBox
 				.addActionListener(createInvertSeriesOrderCheckBoxListener());
 		showCheckBoxPanel.add(invertSeriesOrderCheckBox);
@@ -232,7 +215,7 @@ public class PlotControlDialog extends JDialog {
 		// series elements.
 		joinMeansCheckBox = new JCheckBox(
 				LocaleProps.get("JOIN_MEANS_CHECKBOX"));
-		joinMeansCheckBox.setSelected(joinMeans);
+		joinMeansCheckBox.setSelected(docMgr.shouldJoinMeans());
 		joinMeansCheckBox.addActionListener(createJoinMeansCheckBoxListener());
 		meanChangePanel.add(joinMeansCheckBox);
 
@@ -315,45 +298,6 @@ public class PlotControlDialog extends JDialog {
 		};
 	}
 
-	/**
-	 * Show/hide the error bars.
-	 */
-	private void toggleErrorBars() {
-		this.showErrorBars = !this.showErrorBars;
-		plotPane.getRenderer().setDrawYError(this.showErrorBars);
-	}
-
-	/**
-	 * Show/hide the cross hairs.
-	 */
-	private void toggleCrossHairs() {
-		this.showCrossHairs = !this.showCrossHairs;
-		JFreeChart chart = plotPane.getChartPanel().getChart();
-		chart.getXYPlot().setDomainCrosshairVisible(this.showCrossHairs);
-		chart.getXYPlot().setRangeCrosshairVisible(this.showCrossHairs);
-	}
-
-	/**
-	 * Invert (or not) the range axis.
-	 */
-	private void toggleRangeAxisInversion() {
-		this.invertRange = !this.invertRange;
-		plotPane.getChartPanel().getChart().getXYPlot().getRangeAxis()
-				.setInverted(this.invertRange);
-
-	}
-	
-	/**
-	 * Invert (or not) the order of series.
-	 */
-	private void toggleSeriesOrderInversion() {
-		this.invertSeriesOrder = !this.invertSeriesOrder;
-		plotPane.getChartPanel().getChart().getXYPlot()
-			.setSeriesRenderingOrder(this.invertSeriesOrder ? 
-					SeriesRenderingOrder.REVERSE : 
-						SeriesRenderingOrder.FORWARD);
-	}
-
 	// Return a listener for the "join means visually" checkbox.
 	private ActionListener createJoinMeansCheckBoxListener() {
 		return new ActionListener() {
@@ -363,12 +307,51 @@ public class PlotControlDialog extends JDialog {
 		};
 	}
 
+	/**
+	 * Show/hide the error bars.
+	 */
+	private void toggleErrorBars() {
+		docMgr.toggleErrorBarState();
+		plotPane.getRenderer().setDrawYError(docMgr.shouldShowErrorBars());
+	}
+
+	/**
+	 * Show/hide the cross hairs.
+	 */
+	private void toggleCrossHairs() {
+		docMgr.toggleCrossHairState();
+		JFreeChart chart = plotPane.getChartPanel().getChart();
+		chart.getXYPlot().setDomainCrosshairVisible(docMgr.shouldShowCrossHairs());
+		chart.getXYPlot().setRangeCrosshairVisible(docMgr.shouldShowCrossHairs());
+	}
+
+	/**
+	 * Invert (or not) the range axis.
+	 */
+	private void toggleRangeAxisInversion() {
+		docMgr.toggleRangeAxisInversionState();
+		plotPane.getChartPanel().getChart().getXYPlot().getRangeAxis()
+				.setInverted(docMgr.shouldInvertRange());
+
+	}
+	
+	/**
+	 * Invert (or not) the order of series.
+	 */
+	private void toggleSeriesOrderInversion() {
+		docMgr.toggleSeriesOrderInversionState();
+		plotPane.getChartPanel().getChart().getXYPlot()
+			.setSeriesRenderingOrder(docMgr.shouldInvertSeriesOrder() ? 
+					SeriesRenderingOrder.REVERSE : 
+						SeriesRenderingOrder.FORWARD);
+	}
+
 	// Toggle the "join means" setting which dictates whether or
 	// not the means are visually joined (by lines).
 	private void toggleJoinMeansSetting() {
-		this.joinMeans = !this.joinMeans;
+		docMgr.toggleJoinMeansState();
 		plotPane.getRenderer().setSeriesLinesVisible(
-				this.obsModel.getMeansSeriesNum(), this.joinMeans);
+				this.obsModel.getMeansSeriesNum(), docMgr.shouldJoinMeans());
 	}
 
 	protected JPanel createButtonPane() {
