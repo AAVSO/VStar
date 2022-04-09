@@ -35,13 +35,15 @@ import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.SeriesRenderingOrder;
 
 /**
  * This class manages the creation of VStar "documents", i.e. models and GUI
- * components. It will also expand to manage document printing, saving (and the
- * need to) etc. Another thing this class will allow us to do is to cache GUI
- * components (and by association, their models) permitting reuse of these and
- * updates to models. TODO: call it ComponentManager instead?
+ * components and important state. It will also expand to manage document printing,
+ * saving (and the need to) etc. Another thing this class will allow us to do is to
+ * cache GUI components (and by association, their models) permitting reuse of these
+ * and updates to models. TODO: call it ComponentManager instead?
  */
 public class DocumentManager {
 
@@ -56,13 +58,17 @@ public class DocumentManager {
 	private double epoch;
 	private double period;
 
+	// state of user-controllable plot pane characteristics
+	private boolean showErrorBars = true;
+	private boolean showCrossHairs = true;
+	private boolean invertRange = true;
+	private boolean invertSeriesOrder = true;
+	private boolean joinMeans = true;
+	
 	private Map<String, String> statsInfo;
 
 	private static int filterNum = 0;
 
-	/**
-	 * Constructor.
-	 */
 	public DocumentManager() {
 		rawDataModelComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
 		phasedModelComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
@@ -77,25 +83,60 @@ public class DocumentManager {
 		statsInfo = new TreeMap<String, String>();
 	}
 
-	/**
-	 * @return the phasePlotExists
-	 */
+	// ** phase, epoch, period methods **
+	
 	public boolean phasePlotExists() {
 		return phasePlotExists;
 	}
 
-	/**
-	 * @return the epoch
-	 */
 	public double getEpoch() {
 		return epoch;
 	}
 
-	/**
-	 * @return the period
-	 */
 	public double getPeriod() {
 		return period;
+	}
+
+	// ** user-controllable plot pane methods **
+	
+	public void toggleErrorBarState() {
+		showErrorBars = !showErrorBars;
+	}
+
+	public void toggleCrossHairState() {
+		showCrossHairs = !showCrossHairs;
+	}
+
+	public void toggleRangeAxisInversionState() {
+		invertRange = !invertRange;
+	}
+	
+	public void toggleSeriesOrderInversionState() {
+		invertSeriesOrder = !invertSeriesOrder;
+	}
+
+	public void toggleJoinMeansState() {
+		joinMeans = !joinMeans;
+	}
+
+	public boolean shouldShowErrorBars() {
+		return showErrorBars;
+	}
+
+	public boolean shouldShowCrossHairs() {
+		return showCrossHairs;
+	}
+
+	public boolean shouldInvertRange() {
+		return invertRange;
+	}
+
+	public boolean shouldInvertSeriesOrder() {
+		return invertSeriesOrder;
+	}
+
+	public boolean shouldJoinMeans() {
+		return joinMeans;
 	}
 
 	// ** List pane methods **
