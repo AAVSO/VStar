@@ -21,7 +21,6 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -46,7 +45,6 @@ import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
-import org.apache.commons.math.stat.inference.TestUtils;
 
 /**
  * This plug-in is an additive source of B-V observations if such bands exist in
@@ -168,6 +166,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 					double deltaMag = b.get(i).getMag() - v.get(i).getMag();
 					double bUncertainty = b.get(i).getMagnitude().getUncertainty();
 					double vUncertainty = v.get(i).getMagnitude().getUncertainty();
+					// see https://github.com/AAVSO/VStar/issues/246 
 					double meanError = Math.sqrt(bUncertainty * bUncertainty + vUncertainty * vUncertainty);
 					double meanJD = (b.get(i).getJD() + v.get(i).getJD()) / 2;
 
