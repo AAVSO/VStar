@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
@@ -166,7 +167,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 					double deltaMag = b.get(i).getMag() - v.get(i).getMag();
 					double bUncertainty = b.get(i).getMagnitude().getUncertainty();
 					double vUncertainty = v.get(i).getMagnitude().getUncertainty();
-					// see https://github.com/AAVSO/VStar/issues/246 
+					// see https://github.com/AAVSO/VStar/issues/246
 					double meanError = Math.sqrt(bUncertainty * bUncertainty + vUncertainty * vUncertainty);
 					double meanJD = (b.get(i).getJD() + v.get(i).getJD()) / 2;
 
@@ -193,6 +194,11 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 					// format saved files to be able to be loaded. Choose V
 					// observation arbitrarily.
 					bvOb.setName(v.get(i).getName());
+
+					// Initially, JD flavour for the B-V observation will be unknown. We assume
+					// that the time mode for both B and V observations are the same and take JD
+					// flavour from V observations (thanks Max, for the suggestion).
+					bvOb.setJDflavour(v.get(i).getJDflavour());
 
 					collectObservation(bvOb);
 				}
@@ -325,6 +331,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		bOb1.setObsCode(obsCode);
 		bOb1.setBand(SeriesType.Johnson_B);
 		bOb1.setName(targetName);
+		bOb1.setJDflavour(JDflavour.JD);
 		testBObs.add(bOb1);
 
 		ValidObservation vOb1 = new ValidObservation();
@@ -333,6 +340,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		vOb1.setObsCode(obsCode);
 		vOb1.setBand(SeriesType.Johnson_V);
 		vOb1.setName(targetName);
+		vOb1.setJDflavour(JDflavour.JD);
 		testVObs.add(vOb1);
 
 		ValidObservation bOb2 = new ValidObservation();
@@ -341,6 +349,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		bOb2.setObsCode(obsCode);
 		bOb2.setBand(SeriesType.Johnson_B);
 		bOb2.setName(targetName);
+		bOb2.setJDflavour(JDflavour.JD);
 		testBObs.add(bOb2);
 
 		ValidObservation vOb2 = new ValidObservation();
@@ -349,6 +358,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		vOb2.setObsCode(obsCode);
 		vOb2.setBand(SeriesType.Johnson_V);
 		vOb2.setName(targetName);
+		vOb2.setJDflavour(JDflavour.JD);
 		testVObs.add(vOb2);
 
 		boolean success = true;
@@ -370,6 +380,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 			success &= Tolerance.areClose(0.002236, ob1.getMagnitude().getUncertainty(), 1e-6, true);
 			success &= obsCode == ob1.getObsCode();
 			success &= bvSeries == ob1.getBand();
+			success &= vOb1.getJDflavour() == ob1.getJDflavour();
 
 			ValidObservation ob2 = bvObs.get(1);
 			success &= targetName.equals(ob2.getName());
@@ -378,6 +389,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 			success &= 0 == ob2.getMagnitude().getUncertainty();
 			success &= obsCode == ob2.getObsCode();
 			success &= bvSeries == ob2.getBand();
+			success &= vOb2.getJDflavour() == ob2.getJDflavour();
 		} catch (Exception e) {
 			success = false;
 		}
