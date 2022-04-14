@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
@@ -43,6 +44,7 @@ import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.model.plot.ObservationPlotModel;
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 
 /**
@@ -51,12 +53,19 @@ import org.aavso.tools.vstar.util.comparator.JDComparator;
  */
 public class BMinusVObservationSource extends ObservationSourcePluginBase {
 
+	private Double testTimeTolerance;
+	private List<ValidObservation> testVObs;
+	private List<ValidObservation> testBObs;
+
 	private SeriesType bvSeries;
 	private Pair<TextArea, JPanel> velaFilterFieldAndPanel;
 	private TextArea velaFilterField;
 
 	public BMinusVObservationSource() {
 		super();
+		testTimeTolerance = null;
+		testVObs = new ArrayList<ValidObservation>();
+		testBObs = new ArrayList<ValidObservation>();
 		isAdditive = true;
 		bvSeries = SeriesType.create("B-V", "B-V", Color.MAGENTA, false, false);
 		velaFilterFieldAndPanel = PluginComponentFactory.createVeLaFilterPane();
@@ -87,35 +96,38 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 	 * Request the time tolerance with which to compare a pair of B and V
 	 * observations in order to determine whether to include them in the subset.
 	 * 
-	 * @return The tolerance in days or a fraction thereof, or null if the user
-	 *         does not wish to specify a tolerance.
+	 * @return The tolerance in days or a fraction thereof, or null if the user does
+	 *         not wish to specify a tolerance.
 	 */
 	private Optional<Double> requestTimeTolerance() {
 		Optional<Double> tolerance = Optional.empty();
 
-		do {
-			DoubleField timeToleranceField = new DoubleField(
-					"Tolerance (days)", null, 1.0, 1.0);
+		if (testTimeTolerance != null) {
+			tolerance = Optional.of(testTimeTolerance);
+			setVelaFilterStr("");
+		} else {
+			do {
+				DoubleField timeToleranceField = new DoubleField("Tolerance (days)", null, 1.0, 1.0);
 
-			List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
-			fields.add(timeToleranceField);
+				List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
+				fields.add(timeToleranceField);
 
-			MultiEntryComponentDialog dlg = new MultiEntryComponentDialog(
-					"B,V Time Delta", fields,
-					Optional.of(velaFilterFieldAndPanel.second));
+				MultiEntryComponentDialog dlg = new MultiEntryComponentDialog("B,V Time Delta", fields,
+						Optional.of(velaFilterFieldAndPanel.second));
 
-			Optional<Double> value = Optional.of(timeToleranceField.getValue());
+				Optional<Double> value = Optional.of(timeToleranceField.getValue());
 
-			if (dlg.isCancelled()) {
-				tolerance = Optional.empty();
-				break;
-			} else {
-				tolerance = value;
-				// Also, set the VeLa filter string.
-				String str = velaFilterField.getValue().trim();
-				setVelaFilterStr(str);
-			}
-		} while (tolerance.get() <= 0);
+				if (dlg.isCancelled()) {
+					tolerance = Optional.empty();
+					break;
+				} else {
+					tolerance = value;
+					// Also, set the VeLa filter string.
+					String str = velaFilterField.getValue().trim();
+					setVelaFilterStr(str);
+				}
+			} while (tolerance.get() <= 0);
+		}
 
 		return tolerance;
 	}
@@ -139,8 +151,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 			if (tolerance.isPresent()) {
 				findBandVObsPairs(tolerance.get());
 
-				records = b != null && v != null && b.size() != 0
-						&& v.size() != 0 ? Math.min(b.size(), v.size()) : 0;
+				records = b != null && v != null && b.size() != 0 && v.size() != 0 ? Math.min(b.size(), v.size()) : 0;
 			} else {
 				records = null;
 			}
@@ -149,16 +160,15 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		}
 
 		@Override
-		public void retrieveObservations() throws ObservationReadError,
-				InterruptedException {
+		public void retrieveObservations() throws ObservationReadError, InterruptedException {
 
 			if (records != null && records > 0) {
 				for (int i = 0; i < records; i++) {
 					double deltaMag = b.get(i).getMag() - v.get(i).getMag();
-					double meanError = (b.get(i).getMagnitude()
-							.getUncertainty() + v.get(i).getMagnitude()
-							.getUncertainty()) / 2;
-					meanError = 0;
+					double bUncertainty = b.get(i).getMagnitude().getUncertainty();
+					double vUncertainty = v.get(i).getMagnitude().getUncertainty();
+					// see https://github.com/AAVSO/VStar/issues/246
+					double meanError = Math.sqrt(bUncertainty * bUncertainty + vUncertainty * vUncertainty);
 					double meanJD = (b.get(i).getJD() + v.get(i).getJD()) / 2;
 
 					ValidObservation bvOb = new ValidObservation();
@@ -177,8 +187,18 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 					// Set the record number to the earliest B or V observation,
 					// so that sorting by record will maintain a reasonable
 					// order, with B-V appearing between B and V in the list.
-					bvOb.setRecordNumber(Math.min(b.get(i).getRecordNumber(), v
-							.get(i).getRecordNumber()));
+					bvOb.setRecordNumber(Math.min(b.get(i).getRecordNumber(), v.get(i).getRecordNumber()));
+
+					// Setting the name is important at least for being able
+					// to load observations again when saved as AAVSO Download
+					// format saved files to be able to be loaded. Choose V
+					// observation arbitrarily.
+					bvOb.setName(v.get(i).getName());
+
+					// Initially, JD flavour for the B-V observation will be unknown. We assume
+					// that the time mode for both B and V observations are the same and take JD
+					// flavour from V observations (thanks Max, for the suggestion).
+					bvOb.setJDflavour(v.get(i).getJDflavour());
 
 					collectObservation(bvOb);
 				}
@@ -205,28 +225,29 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		// Helpers
 
 		/**
-		 * Find the subset of adjacent-in-time B and V observation pairs with
-		 * the same observer code and that fall within the optional time
-		 * tolerance constraint.
+		 * Find the subset of adjacent-in-time B and V observation pairs with the same
+		 * observer code and that fall within the optional time tolerance constraint.
 		 * 
-		 * @param tolerance
-		 *            Time tolerance as a fraction of a day or null if no time
-		 *            tolerance is to be applied.
+		 * @param tolerance Time tolerance as a fraction of a day or null if no time
+		 *                  tolerance is to be applied.
 		 */
 		private void findBandVObsPairs(Double tolerance) {
 
 			try {
 				Mediator mediator = Mediator.getInstance();
 
-				ObservationPlotModel model = mediator
-						.getObservationPlotModel(AnalysisType.RAW_DATA);
-
 				// Get all B and V observations into a sorted sequence.
-				List<ValidObservation> bObs = model
-						.getObservations(SeriesType.Johnson_B);
+				List<ValidObservation> bObs;
+				List<ValidObservation> vObs;
 
-				List<ValidObservation> vObs = model
-						.getObservations(SeriesType.Johnson_V);
+				if (testTimeTolerance != null) {
+					bObs = testBObs;
+					vObs = testVObs;
+				} else {
+					ObservationPlotModel model = mediator.getObservationPlotModel(AnalysisType.RAW_DATA);
+					bObs = model.getObservations(SeriesType.Johnson_B);
+					vObs = model.getObservations(SeriesType.Johnson_V);
+				}
 
 				List<ValidObservation> bAndVObs = new ArrayList<ValidObservation>();
 
@@ -251,15 +272,11 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 					ValidObservation first = bAndVObs.get(i);
 					ValidObservation second = bAndVObs.get(i + 1);
 
-					if ((first.getBand() == SeriesType.Johnson_B && second
-							.getBand() == SeriesType.Johnson_V)
-							|| (first.getBand() == SeriesType.Johnson_V && second
-									.getBand() == SeriesType.Johnson_B)) {
+					if ((first.getBand() == SeriesType.Johnson_B && second.getBand() == SeriesType.Johnson_V)
+							|| (first.getBand() == SeriesType.Johnson_V && second.getBand() == SeriesType.Johnson_B)) {
 
-						if (first.getObsCode() != null
-								&& second.getObsCode() != null
-								&& first.getObsCode().equals(
-										second.getObsCode())) {
+						if (first.getObsCode() != null && second.getObsCode() != null
+								&& first.getObsCode().equals(second.getObsCode())) {
 
 							double delta = second.getJD() - first.getJD();
 							if (tolerance == null || delta <= tolerance) {
@@ -277,13 +294,10 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 						}
 					}
 
-					// We either didn't find a B,V or V,B pair or we found a
-					// pair
-					// whose members have different observer codes. Either way,
-					// we
-					// advance past the first of the pair only, since the second
-					// and
-					// subsequent observation may constitute a pair of interest.
+					// We either didn't find a B,V or V,B pair or we found a pair whose members have
+					// different observer codes. Either way, we advance past the first of the pair
+					// only, since the second and subsequent observation may constitute a pair of
+					// interest.
 					i++;
 				}
 
@@ -302,5 +316,84 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 				// b or v may be null; the caller needs to check
 			}
 		}
+	}
+
+	@Override
+	public Boolean test() {
+		testTimeTolerance = 1.0;
+
+		String obsCode = "FOO";
+		String targetName = "TU Mus";
+
+		ValidObservation bOb1 = new ValidObservation();
+		bOb1.setDateInfo(new DateInfo(2459645.1134785));
+		bOb1.setMagnitude(new Magnitude(5, 0.001));
+		bOb1.setObsCode(obsCode);
+		bOb1.setBand(SeriesType.Johnson_B);
+		bOb1.setName(targetName);
+		bOb1.setJDflavour(JDflavour.JD);
+		testBObs.add(bOb1);
+
+		ValidObservation vOb1 = new ValidObservation();
+		vOb1.setDateInfo(new DateInfo(2459645.1134785));
+		vOb1.setMagnitude(new Magnitude(4, 0.002));
+		vOb1.setObsCode(obsCode);
+		vOb1.setBand(SeriesType.Johnson_V);
+		vOb1.setName(targetName);
+		vOb1.setJDflavour(JDflavour.JD);
+		testVObs.add(vOb1);
+
+		ValidObservation bOb2 = new ValidObservation();
+		bOb2.setDateInfo(new DateInfo(2459646.2));
+		bOb2.setMagnitude(new Magnitude(5, 0));
+		bOb2.setObsCode(obsCode);
+		bOb2.setBand(SeriesType.Johnson_B);
+		bOb2.setName(targetName);
+		bOb2.setJDflavour(JDflavour.JD);
+		testBObs.add(bOb2);
+
+		ValidObservation vOb2 = new ValidObservation();
+		vOb2.setDateInfo(new DateInfo(2459646.3));
+		vOb2.setMagnitude(new Magnitude(4.5, 0));
+		vOb2.setObsCode(obsCode);
+		vOb2.setBand(SeriesType.Johnson_V);
+		vOb2.setName(targetName);
+		vOb2.setJDflavour(JDflavour.JD);
+		testVObs.add(vOb2);
+
+		boolean success = true;
+
+		try {
+			// create B-V observations
+			AbstractObservationRetriever retriever = getObservationRetriever();
+			retriever.getNumberOfRecords(); // identifies B & V observations
+			retriever.retrieveObservations();
+
+			List<ValidObservation> bvObs = retriever.getValidObservations();
+
+			success &= 2 == bvObs.size();
+
+			ValidObservation ob1 = bvObs.get(0);
+			success &= targetName.equals(ob1.getName());
+			success &= 2459645.1134785 == ob1.getJD();
+			success &= 1 == ob1.getMag();
+			success &= Tolerance.areClose(0.002236, ob1.getMagnitude().getUncertainty(), 1e-6, true);
+			success &= obsCode == ob1.getObsCode();
+			success &= bvSeries == ob1.getBand();
+			success &= vOb1.getJDflavour() == ob1.getJDflavour();
+
+			ValidObservation ob2 = bvObs.get(1);
+			success &= targetName.equals(ob2.getName());
+			success &= 2459646.25 == ob2.getJD();
+			success &= 0.5 == ob2.getMag();
+			success &= 0 == ob2.getMagnitude().getUncertainty();
+			success &= obsCode == ob2.getObsCode();
+			success &= bvSeries == ob2.getBand();
+			success &= vOb2.getJDflavour() == ob2.getJDflavour();
+		} catch (Exception e) {
+			success = false;
+		}
+
+		return success;
 	}
 }

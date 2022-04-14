@@ -1229,7 +1229,7 @@ public class ValidObservation extends Observation {
 		}
 		buf.append(delimiter);
 
-		buf.append(this.getName());
+		buf.append(!isEmpty(this.getName()) ? this.getName() : "Unknown");
 		buf.append(delimiter);
 
 		// Affiliation
