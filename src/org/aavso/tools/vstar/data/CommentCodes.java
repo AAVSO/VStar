@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.data;
 
-import org.aavso.tools.vstar.data.CommentType;
 import java.util.Collection;
 import java.util.HashSet;
 

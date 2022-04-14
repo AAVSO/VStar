@@ -20,6 +20,7 @@ package org.aavso.tools.vstar.ui.dialog;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -47,7 +48,7 @@ public class SeriesTypeCreationDialog extends AbstractOkCancelDialog {
 	private JColorChooser colorChooser;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * @param obs
 	 *            The list of observations from which to create the series.
@@ -55,7 +56,12 @@ public class SeriesTypeCreationDialog extends AbstractOkCancelDialog {
 	public SeriesTypeCreationDialog(List<ValidObservation> obs) {
 		super("Create Series");
 
-		this.obs = obs;
+		// First, copy each observation as a minimal independent observation
+		List<ValidObservation> newSeriesObs = new ArrayList<ValidObservation>();
+		for (ValidObservation ob : obs) {
+			newSeriesObs.add(ob.copy());
+		}
+		this.obs = newSeriesObs;
 
 		Container contentPane = this.getContentPane();
 
