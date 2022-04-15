@@ -35,24 +35,19 @@ public class Magnitude {
 	/**
 	 * Parameterless constructor for web service.
 	 */
-	public Magnitude() {	
+	public Magnitude() {
 	}
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param magnitude
-	 *            The magnitude value itself.
-	 * @param brightnessModifier
-	 *            Does the magValue constitute a fainter/brighter-than
-	 *            observation?
-	 * @param isUncertain
-	 *            Is this an uncertain magValue value?
-	 * @param uncertainty
-	 *            The uncertainty of the magnitude.
+	 * @param magnitude          The magnitude value itself.
+	 * @param brightnessModifier Does the magValue constitute a
+	 *                           fainter/brighter-than observation?
+	 * @param isUncertain        Is this an uncertain magValue value?
+	 * @param uncertainty        The uncertainty of the magnitude.
 	 */
-	public Magnitude(double magnitude, MagnitudeModifier magModifier,
-			boolean isUncertain, double uncertainty) {
+	public Magnitude(double magnitude, MagnitudeModifier magModifier, boolean isUncertain, double uncertainty) {
 		this.magValue = magnitude;
 		this.magModifier = magModifier;
 		this.isUncertain = isUncertain;
@@ -64,16 +59,12 @@ public class Magnitude {
 	 * 
 	 * Uncertainty value defaults to zero; may be changed after construction.
 	 * 
-	 * @param magnitude
-	 *            The magnitude value itself.
-	 * @param brightnessModifier
-	 *            Does the magValue constitute a fainter/brighter-than
-	 *            observation?
-	 * @param isUncertain
-	 *            Is this an uncertain magValue value?
+	 * @param magnitude          The magnitude value itself.
+	 * @param brightnessModifier Does the magValue constitute a
+	 *                           fainter/brighter-than observation?
+	 * @param isUncertain        Is this an uncertain magValue value?
 	 */
-	public Magnitude(double magnitude, MagnitudeModifier magModifier,
-			boolean isUncertain) {
+	public Magnitude(double magnitude, MagnitudeModifier magModifier, boolean isUncertain) {
 		this(magnitude, magModifier, isUncertain, 0);
 	}
 
@@ -82,13 +73,20 @@ public class Magnitude {
 	 * 
 	 * Creates a Magnitude with magnitude and uncertainty values.
 	 * 
-	 * @param magnitude
-	 *            The magnitude value itself.
-	 * @param uncertainty
-	 *            The uncertainty of the magnitude.
+	 * @param magnitude   The magnitude value itself.
+	 * @param uncertainty The uncertainty of the magnitude.
 	 */
 	public Magnitude(double magnitude, double uncertainty) {
 		this(magnitude, MagnitudeModifier.NO_DELTA, !IS_UNCERTAIN, uncertainty);
+	}
+
+	/**
+	 * Creates and returns a copy of this magnitude.
+	 * @return the copied magnitude
+	 */
+	public Magnitude copy() {
+		return new Magnitude(this.magValue, this.magModifier,
+							 this.isUncertain, this.uncertainty);
 	}
 
 	/**
@@ -132,10 +130,9 @@ public class Magnitude {
 	public double getUncertainty() {
 		return uncertainty;
 	}
-	
+
 	/**
-	 * @param uncertainty
-	 *            The quantitative uncertainty value to set
+	 * @param uncertainty The quantitative uncertainty value to set
 	 */
 	public void setUncertainty(double uncertainty) {
 		this.uncertainty = uncertainty;
@@ -187,7 +184,9 @@ public class Magnitude {
 		return strBuf.toString();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -195,8 +194,7 @@ public class Magnitude {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (isUncertain ? 1231 : 1237);
-		result = prime * result
-				+ ((magModifier == null) ? 0 : magModifier.hashCode());
+		result = prime * result + ((magModifier == null) ? 0 : magModifier.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(magValue);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -205,7 +203,9 @@ public class Magnitude {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -230,12 +230,10 @@ public class Magnitude {
 		} else if (!magModifier.equals(other.magModifier)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(magValue) != Double
-				.doubleToLongBits(other.magValue)) {
+		if (Double.doubleToLongBits(magValue) != Double.doubleToLongBits(other.magValue)) {
 			return false;
 		}
-		if (Double.doubleToLongBits(uncertainty) != Double
-				.doubleToLongBits(other.uncertainty)) {
+		if (Double.doubleToLongBits(uncertainty) != Double.doubleToLongBits(other.uncertainty)) {
 			return false;
 		}
 		return true;

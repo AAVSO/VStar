@@ -23,10 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -66,10 +64,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 public class ValidObservation extends Observation {
 
 	public enum JDflavour {
-		UNKNOWN("Time"), 
-		JD("JD"), 
-		HJD("HJD"), 
-		BJD("BJD");
+		UNKNOWN("Time"), JD("JD"), HJD("HJD"), BJD("BJD");
 
 		public final String label;
 
@@ -220,8 +215,36 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * Reset static non-cache maps and detail index in readiness for a new
-	 * dataset.
+	 * Creates and returns a new ValidObservation instance that is a copy of the
+	 * current instance.<br/>
+	 * See https://github.com/AAVSO/VStar/issues/51
+	 * 
+	 * @return the new observation instance
+	 */
+	public ValidObservation copy() {
+		ValidObservation ob = new ValidObservation();
+
+		ob.setJD(this.getJD());
+		ob.setJDflavour(this.getJDflavour());
+		ob.setMagnitude(this.getMagnitude().copy());
+		ob.setHqUncertainty(this.getHqUncertainty());
+		ob.setBand(this.getBand());
+		ob.setCommentCode(this.getCommentCode());
+		ob.setTransformed(this.isTransformed());
+		ob.setValidationType(this.getValidationType());
+		ob.setHJD(this.getHJD());
+		ob.setMType(this.getMType());
+		ob.setObsType(this.getObsType());
+		ob.setStandardPhase(this.getStandardPhase());
+		ob.setPreviousCyclePhase(this.getPreviousCyclePhase());
+		ob.setExcluded(this.isExcluded());
+		ob.details = new HashMap<String, String>(this.details);
+
+		return ob;
+	}
+
+	/**
+	 * Reset static non-cache maps and detail index in readiness for a new dataset.
 	 */
 	public static void reset() {
 		if (detailTitles != null) {
@@ -230,14 +253,12 @@ public class ValidObservation extends Observation {
 		}
 
 		if (indexToDetailKey != null) {
-			savedIndexToDetailKey = new HashMap<Integer, String>(
-					indexToDetailKey);
+			savedIndexToDetailKey = new HashMap<Integer, String>(indexToDetailKey);
 			indexToDetailKey.clear();
 		}
 
 		if (detailKeyToIndex != null) {
-			savedDetailKeyToIndex = new HashMap<String, Integer>(
-					detailKeyToIndex);
+			savedDetailKeyToIndex = new HashMap<String, Integer>(detailKeyToIndex);
 			detailKeyToIndex.clear();
 		}
 
@@ -246,8 +267,8 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * Restore static non-cache maps and detail index when a dataset load
-	 * failure occurs.
+	 * Restore static non-cache maps and detail index when a dataset load failure
+	 * occurs.
 	 */
 	public static void restore() {
 		// Don't restore to null values, e.g. in the case of a first observation
@@ -274,12 +295,9 @@ public class ValidObservation extends Observation {
 	/**
 	 * Generic cached value getter.
 	 * 
-	 * @param <T>
-	 *            The type of the cached value.
-	 * @param cache
-	 *            The cache in which to look for the value.
-	 * @param value
-	 *            The value to look up.
+	 * @param <T>   The type of the cached value.
+	 * @param cache The cache in which to look for the value.
+	 * @param value The value to look up.
 	 * @return The present or future cached value.
 	 */
 	private static <T> T getCachedValue(WeakHashMap<T, T> cache, T value) {
@@ -309,8 +327,7 @@ public class ValidObservation extends Observation {
 	/**
 	 * Return the detail key given the detail ordering index.
 	 * 
-	 * @param the
-	 *            detail index
+	 * @param the detail index
 	 * @return the detail key
 	 */
 	public static String getDetailKey(int index) {
@@ -320,8 +337,7 @@ public class ValidObservation extends Observation {
 	/**
 	 * Return the detail index given the key.
 	 * 
-	 * @param the
-	 *            detail key
+	 * @param the detail key
 	 * @return the detail index
 	 */
 	public static int getDetailIndex(String key) {
@@ -331,13 +347,10 @@ public class ValidObservation extends Observation {
 	/**
 	 * Add an observation detail, if the value is not null.
 	 * 
-	 * @param key
-	 *            The detail key.
-	 * @param value
-	 *            The string detail value.
-	 * @param title
-	 *            The detail title, e.g. for use in table column, observation
-	 *            details.
+	 * @param key   The detail key.
+	 * @param value The string detail value.
+	 * @param title The detail title, e.g. for use in table column, observation
+	 *              details.
 	 */
 	public void addDetail(String key, String value, String title) {
 		if (key != null && value != null) {
@@ -370,8 +383,7 @@ public class ValidObservation extends Observation {
 	/**
 	 * Does the specified detail key exist?
 	 * 
-	 * @param key
-	 *            The detail key.
+	 * @param key The detail key.
 	 * @return Whether or not detail exists.
 	 */
 	public boolean detailExists(String key) {
@@ -381,8 +393,7 @@ public class ValidObservation extends Observation {
 	/**
 	 * Does the specified detail key exist and is it non-empty?
 	 * 
-	 * @param key
-	 *            The detail key.
+	 * @param key The detail key.
 	 * @return Whether or not non-empty detail exists.
 	 */
 	public boolean nonEmptyDetailExists(String key) {
@@ -392,8 +403,7 @@ public class ValidObservation extends Observation {
 	/**
 	 * Does the specified detail title key exist?
 	 * 
-	 * @param key
-	 *            The detail key.
+	 * @param key The detail key.
 	 * @return Whether or not the detail title exists.
 	 */
 	public boolean detailTitleExists(String key) {
@@ -403,8 +413,7 @@ public class ValidObservation extends Observation {
 	/**
 	 * Does the specified detail key correspond to a standard detail key?
 	 * 
-	 * @param key
-	 *            The detail key.
+	 * @param key The detail key.
 	 * @return Whether or not the detail key is standard.
 	 */
 	public boolean isStandardDetailKey(String key) {
@@ -426,8 +435,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param dateInfo
-	 *            the dateInfo to set
+	 * @param dateInfo the dateInfo to set
 	 */
 	public void setDateInfo(DateInfo dateInfo) {
 		this.dateInfo = getCachedValue(dateInfoCache, dateInfo);
@@ -441,8 +449,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param magnitude
-	 *            the magnitude to set
+	 * @param magnitude the magnitude to set
 	 */
 	public void setMagnitude(Magnitude magnitude) {
 //		this.magnitude = getCachedValue(magnitudeCache, magnitude);
@@ -450,8 +457,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param mag
-	 *            the magnitude component to set.
+	 * @param mag the magnitude component to set.
 	 */
 	public void setMag(double mag) {
 //		setMagnitude(new Magnitude(mag, magnitude.getUncertainty()));
@@ -466,8 +472,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param obsCode
-	 *            the obsCode to set
+	 * @param obsCode the obsCode to set
 	 */
 	public void setObsCode(String obsCode) {
 		addDetail(obsCodeKey, obsCode, obsCodeTitle);
@@ -481,8 +486,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param discrepant
-	 *            the discrepant to set
+	 * @param discrepant the discrepant to set
 	 */
 	public void setDiscrepant(boolean discrepant) {
 		// TODO: Should we keep a record of the last known value of
@@ -490,8 +494,7 @@ public class ValidObservation extends Observation {
 		// we are going from {G,D,P} -> D -> G -> D -> G ... so we are
 		// potentially losing information. This is a good candidate
 		// for undoable edits.
-		this.validationType = discrepant ? ValidationType.DISCREPANT
-				: ValidationType.GOOD;
+		this.validationType = discrepant ? ValidationType.DISCREPANT : ValidationType.GOOD;
 	}
 
 	/**
@@ -502,8 +505,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param name
-	 *            the name to set
+	 * @param name the name to set
 	 */
 	public void setName(String name) {
 		addDetail(nameKey, name, nameTitle);
@@ -517,8 +519,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param validationType
-	 *            the validationType to set
+	 * @param validationType the validationType to set
 	 */
 	public void setValidationType(ValidationType validationType) {
 		this.validationType = validationType;
@@ -532,8 +533,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param hqUncertainty
-	 *            the hqUncertainty to set
+	 * @param hqUncertainty the hqUncertainty to set
 	 */
 	public void setHqUncertainty(Double hqUncertainty) {
 		this.hqUncertainty = hqUncertainty;
@@ -547,8 +547,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param band
-	 *            the band to set
+	 * @param band the band to set
 	 */
 	public void setBand(SeriesType band) {
 		this.band = band;
@@ -562,12 +561,17 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param commentCode
-	 *            the commentCode to set
+	 * @param commentCodeStr the comment code string to set
 	 */
-	public void setCommentCode(String commentCode) {
-		this.commentCode = getCachedValue(commentCodeCache, new CommentCodes(
-				commentCode));
+	public void setCommentCode(String commentCodeStr) {
+		this.commentCode = getCachedValue(commentCodeCache, new CommentCodes(commentCodeStr));
+	}
+
+	/**
+	 * @param commentCodes the comment codes to set
+	 */
+	public void setCommentCode(CommentCodes commentCodes) {
+		this.commentCode = getCachedValue(commentCodeCache, commentCodes);
 	}
 
 	/**
@@ -578,8 +582,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param compStar1
-	 *            the compStar1 to set
+	 * @param compStar1 the compStar1 to set
 	 */
 	public void setCompStar1(String compStar1) {
 		addDetail(compStar1Key, compStar1, compStar1Title);
@@ -593,8 +596,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param compStar2
-	 *            the compStar2 to set
+	 * @param compStar2 the compStar2 to set
 	 */
 	public void setCompStar2(String compStar2) {
 		addDetail(compStar2Key, compStar2, compStar2Title);
@@ -608,8 +610,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param charts
-	 *            the charts to set
+	 * @param charts the charts to set
 	 */
 	public void setCharts(String charts) {
 		addDetail(chartsKey, charts, chartsTitle);
@@ -623,8 +624,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param comments
-	 *            the comments to set
+	 * @param comments the comments to set
 	 */
 	public void setComments(String comments) {
 		addDetail(commentsKey, comments, commentsTitle);
@@ -638,8 +638,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param transformed
-	 *            the transformed to set
+	 * @param transformed the transformed to set
 	 */
 	public void setTransformed(boolean transformed) {
 		this.transformed = transformed;
@@ -653,8 +652,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param airmass
-	 *            the airmass to set
+	 * @param airmass the airmass to set
 	 */
 	public void setAirmass(String airmass) {
 		addDetail(airmassKey, airmass, airmassTitle);
@@ -668,8 +666,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param cMag
-	 *            the cMag to set
+	 * @param cMag the cMag to set
 	 */
 	public void setCMag(String cMag) {
 		if ("0.ensemb".equals(cMag)) {
@@ -686,8 +683,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param kMag
-	 *            the kMag to set
+	 * @param kMag the kMag to set
 	 */
 	public void setKMag(String kMag) {
 		addDetail(kMagKey, kMag, kMagTitle);
@@ -701,8 +697,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param hJD
-	 *            the hJD to set
+	 * @param hJD the hJD to set
 	 */
 	public void setHJD(DateInfo hJD) {
 		this.hJD = getCachedValue(dateInfoCache, hJD);
@@ -716,8 +711,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param affiliation
-	 *            the affiliation to set
+	 * @param affiliation the affiliation to set
 	 */
 	public void setAffiliation(String affiliation) {
 		addDetail(affiliationKey, affiliation, affiliationTitle);
@@ -731,8 +725,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param mType
-	 *            the mType to set
+	 * @param mType the mType to set
 	 */
 	public void setMType(MTypeType mType) {
 		this.mType = mType;
@@ -746,8 +739,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param group
-	 *            the group of filters used for this observation
+	 * @param group the group of filters used for this observation
 	 */
 	public void setGroup(String group) {
 		addDetail(groupKey, group, groupTitle);
@@ -761,8 +753,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param obsType
-	 *            the obsType to set
+	 * @param obsType the obsType to set
 	 */
 	public void setObsType(String obsType) {
 		this.obsType = obsType;
@@ -776,8 +767,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param ADS
-	 *            Reference the ADS Reference to set
+	 * @param ADS Reference the ADS Reference to set
 	 */
 	public void setADSRef(String adsRef) {
 		addDetail(pubrefKey, adsRef, pubrefTitle);
@@ -791,8 +781,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param digitizer
-	 *            the digitizer to set
+	 * @param digitizer the digitizer to set
 	 */
 	public void setDigitizer(String digitizer) {
 		addDetail(digitizerKey, digitizer, digitizerTitle);
@@ -806,8 +795,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param credit
-	 *            the organization to be credited for the observation
+	 * @param credit the organization to be credited for the observation
 	 */
 	public void setCredit(String credit) {
 		addDetail(creditKey, credit, creditTitle);
@@ -821,8 +809,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param standardPhase
-	 *            the standardPhase to set
+	 * @param standardPhase the standardPhase to set
 	 */
 	public void setStandardPhase(Double standardPhase) {
 		this.standardPhase = standardPhase;
@@ -836,8 +823,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param previousCyclePhase
-	 *            the previousCyclePhase to set
+	 * @param previousCyclePhase the previousCyclePhase to set
 	 */
 	public void setPreviousCyclePhase(Double previousCyclePhase) {
 		this.previousCyclePhase = previousCyclePhase;
@@ -851,8 +837,7 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * @param excluded
-	 *            the excluded to set
+	 * @param excluded the excluded to set
 	 */
 	public void setExcluded(boolean excluded) {
 		this.excluded = excluded;
@@ -873,11 +858,11 @@ public class ValidObservation extends Observation {
 	}
 
 	public JDflavour getJDflavour() {
-		return jdFlavour; 
+		return jdFlavour;
 	}
 
 	public void setJDflavour(JDflavour jdFlavour) {
-		this.jdFlavour = jdFlavour; 
+		this.jdFlavour = jdFlavour;
 	}
 
 	public String getTimeUnits() {
@@ -897,8 +882,7 @@ public class ValidObservation extends Observation {
 		if (dateInfo != null) {
 			strBuf.append(getTimeUnits());
 			strBuf.append(": ");
-			strBuf.append(NumericPrecisionPrefs.formatTime(dateInfo
-					.getJulianDay()));
+			strBuf.append(NumericPrecisionPrefs.formatTime(dateInfo.getJulianDay()));
 			strBuf.append("\n");
 
 			strBuf.append("Calendar Date: ");
@@ -917,8 +901,7 @@ public class ValidObservation extends Observation {
 
 			if (previousCyclePhase != null) {
 				strBuf.append("Previous Cycle Phase: ");
-				strBuf.append(NumericPrecisionPrefs
-						.formatTime(previousCyclePhase));
+				strBuf.append(NumericPrecisionPrefs.formatTime(previousCyclePhase));
 				strBuf.append("\n");
 			}
 		}
@@ -1057,28 +1040,25 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * Returns a line in TSV format of the following fields (bracketed fields
-	 * are optional):
+	 * Returns a line in TSV format of the following fields (bracketed fields are
+	 * optional):
 	 * 
 	 * [Phase,]JD,MAGNITUDE,[UNCERTAINTY],[OBSERVER_CODE],[VALFLAG]
 	 * 
-	 * @param delimiter
-	 *            The field delimiter to use.
+	 * @param delimiter The field delimiter to use.
 	 */
 	public String toSimpleFormatString(String delimiter) {
 		return toSimpleFormatString(delimiter, true);
 	}
 
 	/**
-	 * Returns a line in TSV format of the following fields (bracketed fields
-	 * are optional):
+	 * Returns a line in TSV format of the following fields (bracketed fields are
+	 * optional):
 	 * 
 	 * [Phase,][JD,]MAGNITUDE,[UNCERTAINTY],[OBSERVER_CODE],[VALFLAG]
 	 * 
-	 * @param delimiter
-	 *            The field delimiter to use.
-	 * @param includeJD
-	 *            Should the JD be included in the output?
+	 * @param delimiter The field delimiter to use.
+	 * @param includeJD Should the JD be included in the output?
 	 */
 	public String toSimpleFormatString(String delimiter, boolean includeJD) {
 		StringBuffer buf = new StringBuffer();
@@ -1118,24 +1098,19 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
-	 * Returns a line in delimiter-separator (TSV, CSV, ...) AAVSO download
-	 * format.
+	 * Returns a line in delimiter-separator (TSV, CSV, ...) AAVSO download format.
 	 * 
-	 * @param delimiter
-	 *            The field delimiter to use.
+	 * @param delimiter The field delimiter to use.
 	 */
 	public String toAAVSOFormatString(String delimiter) {
 		return toAAVSOFormatString(delimiter, true);
 	}
 
 	/**
-	 * Returns a line in delimiter-separator (TSV, CSV, ...) AAVSO download
-	 * format.
+	 * Returns a line in delimiter-separator (TSV, CSV, ...) AAVSO download format.
 	 * 
-	 * @param delimiter
-	 *            The field delimiter to use.
-	 * @param includeJD
-	 *            Should the JD be included in the output?
+	 * @param delimiter The field delimiter to use.
+	 * @param includeJD Should the JD be included in the output?
 	 */
 	public String toAAVSOFormatString(String delimiter, boolean includeJD) {
 		StringBuffer buf = new StringBuffer();
@@ -1238,8 +1213,7 @@ public class ValidObservation extends Observation {
 		}
 		buf.append(delimiter);
 
-		buf.append(this.getMType() != null ? this.getMType().getShortName()
-				: MTypeType.STD.getShortName());
+		buf.append(this.getMType() != null ? this.getMType().getShortName() : MTypeType.STD.getShortName());
 		buf.append(delimiter);
 
 		// Group
@@ -1287,29 +1261,20 @@ public class ValidObservation extends Observation {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((band == null) ? 0 : band.hashCode());
-		result = prime * result
-				+ ((commentCode == null) ? 0 : commentCode.hashCode());
-		result = prime * result
-				+ ((dateInfo == null) ? 0 : dateInfo.hashCode());
+		result = prime * result + ((commentCode == null) ? 0 : commentCode.hashCode());
+		result = prime * result + ((dateInfo == null) ? 0 : dateInfo.hashCode());
 		result = prime * result + ((details == null) ? 0 : details.hashCode());
 		result = prime * result + (excluded ? 1231 : 1237);
 		result = prime * result + ((hJD == null) ? 0 : hJD.hashCode());
-		result = prime * result
-				+ ((hqUncertainty == null) ? 0 : hqUncertainty.hashCode());
+		result = prime * result + ((hqUncertainty == null) ? 0 : hqUncertainty.hashCode());
 		result = prime * result + ((jdFlavour == null) ? 0 : jdFlavour.hashCode());
 		result = prime * result + ((mType == null) ? 0 : mType.hashCode());
-		result = prime * result
-				+ ((magnitude == null) ? 0 : magnitude.hashCode());
+		result = prime * result + ((magnitude == null) ? 0 : magnitude.hashCode());
 		result = prime * result + ((obsType == null) ? 0 : obsType.hashCode());
-		result = prime
-				* result
-				+ ((previousCyclePhase == null) ? 0 : previousCyclePhase
-						.hashCode());
-		result = prime * result
-				+ ((standardPhase == null) ? 0 : standardPhase.hashCode());
+		result = prime * result + ((previousCyclePhase == null) ? 0 : previousCyclePhase.hashCode());
+		result = prime * result + ((standardPhase == null) ? 0 : standardPhase.hashCode());
 		result = prime * result + (transformed ? 1231 : 1237);
-		result = prime * result
-				+ ((validationType == null) ? 0 : validationType.hashCode());
+		result = prime * result + ((validationType == null) ? 0 : validationType.hashCode());
 		return result;
 	}
 

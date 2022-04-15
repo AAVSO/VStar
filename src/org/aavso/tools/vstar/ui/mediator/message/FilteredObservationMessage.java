@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.mediator.message;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -47,7 +48,13 @@ public class FilteredObservationMessage extends MessageBase {
 			Set<ValidObservation> filteredObs) {
 		super(source);
 		this.filterDesc = filterDesc;
-		this.filteredObs = filteredObs;
+		
+		Set<ValidObservation> newSeriesObs = new LinkedHashSet<ValidObservation>();
+		for (ValidObservation ob : filteredObs) {
+			newSeriesObs.add(ob.copy());
+		}
+		
+		this.filteredObs = newSeriesObs;
 	}
 
 	/**
