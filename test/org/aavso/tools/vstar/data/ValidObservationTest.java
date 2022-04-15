@@ -39,16 +39,19 @@ public class ValidObservationTest extends TestCase {
 		ob.setMagnitude(new Magnitude(2, 0.02));
 		ob.setJD(2459684.50764);
 		ob.setBand(SeriesType.Johnson_V);
+		ob.setName("FooStar");
 		// Note: add more setters; the focus at time of writing was copy() and
 		// non-mutable magnitude, and other class-based members such as CommentCodes,
 		// SeriesType, ... have no instance setter methods
 	}
 
-	// copying an observation should lead to a different magnitude reference
-	public void testObCopyNotSameMagRef() {
+	// copying an observation should lead to different magnitude and details map
+	// references
+	public void testObCopyNotSameRefs() {
 		ValidObservation obCopy = ob.copy();
 		assertEquals(ob.getMagnitude(), obCopy.getMagnitude());
 		assertNotSame(ob.getMagnitude(), obCopy.getMagnitude());
+		assertNotSame(ob.getDetails(), obCopy.getDetails());
 	}
 
 	// changing one observation's magnitude should not change another's
