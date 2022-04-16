@@ -143,4 +143,8 @@ public class ResourceAccessor {
 	public static String getRevNum() {
 		return RevisionAccessor.getRevNum();
 	}
+	
+	public static String getBuildTimeStamp() {
+		return RevisionAccessor.getBuildTimeStamp();
+	}
 }

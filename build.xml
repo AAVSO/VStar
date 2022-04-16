@@ -47,7 +47,9 @@
 
 	<target name="init">
 		<!-- Create the time stamp -->
-		<tstamp />
+		<tstamp>
+				<format property="BUILD_TIME" pattern="yyyy-MM-dd HH:mm"/>
+		</tstamp>
 
 		<!-- Create the build directory structure used by compile and test. -->
 		<mkdir dir="${src_build}" />
@@ -91,7 +93,7 @@
 		</condition>
 		<copy file="${ui_resources}/RevisionAccessor.java.template" tofile="${ui_resources}/RevisionAccessor.java" overwrite="true" />
 		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${git_revision}" />
-
+		<replace file="${ui_resources}/RevisionAccessor.java" token="@build_time@" value="${BUILD_TIME}" />
 		<!-- Compile source -->
 		<javac compiler="modern" source="1.8" target="1.8" srcdir="${src}" destdir="${src_build}" includeantruntime="false">
 			<classpath refid="build.classpath" />

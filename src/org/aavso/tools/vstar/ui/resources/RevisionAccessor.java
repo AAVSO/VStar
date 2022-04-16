@@ -26,13 +26,21 @@ import java.util.regex.Pattern;
 
 public class RevisionAccessor {
 
-	private static String REVISION = "3b38e4de";
+	private static String REVISION = "54603cc3";
+	private static String BUILD_TIME = "2022-04-16 15:05";
 
 	/**
 	 * Get the latest git revision
 	 */
 	public static String getRevNum() {
 		return REVISION;
+	}
+
+	/**
+	 * Get the buld date
+	 */
+	public static String getBuildTimeStamp() {
+		return BUILD_TIME;
 	}
 
 }
