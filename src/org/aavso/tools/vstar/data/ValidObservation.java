@@ -23,10 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
