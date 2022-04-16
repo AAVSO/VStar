@@ -170,9 +170,11 @@ public class AboutBox extends JDialog {
 		StringBuffer strBuf = new StringBuffer();
 		strBuf.append("VStar ");
 		strBuf.append(ResourceAccessor.getVersionString());
-		strBuf.append(" (git revision ");
+		strBuf.append(" (git rev. ");
 		strBuf.append(ResourceAccessor.getRevNum());
-		strBuf.append(")\n\n");
+		strBuf.append(") ");
+		strBuf.append(ResourceAccessor.getBuildTimeStamp());
+		strBuf.append("\n\n");
 
 		strBuf.append("A variable star observation data analysis tool\n");
 		strBuf.append("developed for the American Association of Variable\n");
