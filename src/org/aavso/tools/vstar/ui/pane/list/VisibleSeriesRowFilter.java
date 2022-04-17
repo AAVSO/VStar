@@ -18,6 +18,8 @@
 package org.aavso.tools.vstar.ui.pane.list;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.RowFilter;
@@ -38,8 +40,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  * This class filters observations by whether or not they are visible in the
  * plot, information obtained from the model.
  */
-public class VisibleSeriesRowFilter extends
-		RowFilter<IOrderedObservationSource, Integer> {
+public class VisibleSeriesRowFilter extends RowFilter<IOrderedObservationSource, Integer> {
 
 	private ValidObservationTableModel tableModel;
 	private Set<SeriesType> visibleSeries;
@@ -49,40 +50,35 @@ public class VisibleSeriesRowFilter extends
 	/**
 	 * Constructor.
 	 * 
-	 * @param visibleSeries
-	 *            The initially visible series.
-	 * @param analysisType
-	 *            The analysis type (raw, phase) under which this table was
-	 *            created.
+	 * @param visibleSeries The initially visible series.
+	 * @param analysisType  The analysis type (raw, phase) under which this table
+	 *                      was created.
 	 */
-	public VisibleSeriesRowFilter(ValidObservationTableModel tableModel,
-			Set<SeriesType> visibleSeries, AnalysisType analysisType) {
+	public VisibleSeriesRowFilter(ValidObservationTableModel tableModel, Set<SeriesType> visibleSeries,
+			AnalysisType analysisType) {
 		super();
 		this.tableModel = tableModel;
 		this.visibleSeries = visibleSeries;
 		this.filteredObs = null;
 		this.analysisType = analysisType;
 
-		Mediator.getInstance().getSeriesVisibilityChangeNotifier().addListener(
-				createSeriesVisibilityChangeListener());
+		Mediator.getInstance().getSeriesVisibilityChangeNotifier().addListener(createSeriesVisibilityChangeListener());
 
-		Mediator.getInstance().getFilteredObservationNotifier().addListener(
-				createFilteredObservationListener());
+		Mediator.getInstance().getFilteredObservationNotifier().addListener(createFilteredObservationListener());
 
-		Mediator.getInstance().getExcludedObservationNotifier().addListener(
-				createExcludedObservationListener());
+		Mediator.getInstance().getExcludedObservationNotifier().addListener(createExcludedObservationListener());
 
-		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(
-				createDiscrepantObservationListener());
+		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(createDiscrepantObservationListener());
 	}
 
 	@Override
-	public boolean include(
-			javax.swing.RowFilter.Entry<? extends IOrderedObservationSource, ? extends Integer> entry) {
+	public boolean include(javax.swing.RowFilter.Entry<? extends IOrderedObservationSource, ? extends Integer> entry) {
 
 		int id = entry.getIdentifier();
 		IOrderedObservationSource model = entry.getModel();
 		ValidObservation ob = model.getObservations().get(id);
+
+		// First, check whether observation's band is in the set of visible series.
 
 		SeriesType series = ob.getBand();
 
@@ -96,15 +92,28 @@ public class VisibleSeriesRowFilter extends
 
 		boolean visible = visibleSeries.contains(series);
 
-		// The observation is not visible because the series to which it belongs
-		// in the plot is not visible currently. It may be filtered however, so
-		// check whether the filtered series is visible and whether the
-		// observation is in the set of filtered observations.
-		// If filtered observations are visible, there should be a filtered
-		// observations collection.
-		if (!visible && visibleSeries.contains(SeriesType.Filtered)
-				&& filteredObs != null) {
-			visible = filteredObs.contains(ob);
+		if (!visible) {
+			// The observation is not visible because the series to which it belongs
+			// in the plot is not visible currently.
+			if (visibleSeries.contains(SeriesType.Filtered) && filteredObs != null) {
+				// It may be filtered however, so check whether the filtered series is visible
+				// in the set of visible series and whether the observation is in the set of
+				// filtered observations.
+				visible = filteredObs.contains(ob);
+			} else {
+				Map<SeriesType, List<ValidObservation>> obsMap = Mediator.getInstance()
+						.getValidObservationCategoryMap();
+				if (obsMap != null) {
+					// Or, it could be in another visible series, e.g. a user defined series.
+					for (SeriesType visibleType : visibleSeries) {
+						if (obsMap.containsKey(visibleType)) {
+							visible = obsMap.get(visibleType).contains(ob);
+							if (visible)
+								break;
+						}
+					}
+				}
+			}
 		}
 
 		return visible;
