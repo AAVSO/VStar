@@ -52,7 +52,7 @@ grammar VeLa;
 //     coerced to the same value; perhaps declared as list<T> or checked
 //     upon each element addition
 // - Y-combinator in VeLa **
-// - Allow a type called ANY or variant types such as (real | string | list) **
+// - Allow a type called ANY or variant types such as (real | string | list)
 // - Refinement types ala Wadler's complement to blame, e.g. f(n:real{n >= 0})
 // - Doc strings for functions; use ;; rather than -- ?
 
@@ -358,7 +358,7 @@ FUN
 ;
 
 LAMBDA
-:   '\u2C96' | '\u2C97'
+:   '\u039B' | '\u03BB'
 ;
 
 INT_T
