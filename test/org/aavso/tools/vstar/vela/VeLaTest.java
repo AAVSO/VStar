@@ -881,7 +881,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testAnonUpperCaseLambdaExponentiation() {
-		String prog = "Ⲗ(x:integer y:integer) : integer { x^y }(12 2)";
+		String prog = "Λ(x:integer y:integer) : integer { x^y }(12 2)";
 
 		Optional<Operand> result = vela.program(prog);
 
@@ -890,7 +890,7 @@ public class VeLaTest extends TestCase {
 	}
 
 	public void testAnonLowerCaseLambdaExponentiation() {
-		String prog = "ⲗ(x:integer y:integer) : integer { x^y }(12 2)";
+		String prog = "λ(x:integer y:integer) : integer { x^y }(12 2)";
 
 		Optional<Operand> result = vela.program(prog);
 
