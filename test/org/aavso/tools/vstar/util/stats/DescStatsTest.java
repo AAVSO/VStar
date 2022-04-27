@@ -97,6 +97,13 @@ public class DescStatsTest extends TestCase {
 		assertEquals(4.0, meanPair[DescStats.MEAN_MAG_INDEX]);
 		assertEquals(46.0, meanPair[DescStats.MEAN_TIME_INDEX]);
 	}
+	
+	public void testVarianceSample1() {
+		double magVar = DescStats.calcMagSampleVarianceInRange(
+				this.observations1, 0, mags1.length - 1);
+		String magVarStr = String.format("%1.1f", magVar);
+		assertEquals("2.5", magVarStr);
+	}
 
 	public void testStdDevSample1() {
 		double magStdDev = DescStats.calcMagSampleStdDevInRange(
@@ -105,11 +112,25 @@ public class DescStatsTest extends TestCase {
 		assertEquals("1.6", magStdDevStr);
 	}
 
+	public void testVarianceSample2() {
+		double magVar = DescStats.calcMagSampleVarianceInRange(
+				this.observations2, 0, mags2.length - 1);
+		String magVarStr = String.format("%1.1f", magVar);
+		assertEquals("0.5", magVarStr);
+	}
+	
 	public void testStdDevSample2() {
 		double magStdDev = DescStats.calcMagSampleStdDevInRange(
 				this.observations2, 0, mags2.length - 1);
 		String magStdDevStr = String.format("%1.2f", magStdDev);
 		assertEquals("0.71", magStdDevStr);
+	}
+
+	public void testVarianceSample3() {
+		double magVar = DescStats.calcMagSampleVarianceInRange(
+				this.observations3, 0, mags3.length - 1);
+		String magVarStr = String.format("%1.3f", magVar);
+		assertEquals("0.014", magVarStr);
 	}
 
 	public void testStdDevSample3() {
@@ -119,6 +140,13 @@ public class DescStatsTest extends TestCase {
 		assertEquals("0.12", magStdDevStr);
 	}
 
+	public void testVariancePopulation1() {
+		double magVar = DescStats.calcMagPopulationVarianceInRange(
+				this.observations1, 0, mags1.length - 1);
+		String magVarStr = String.format("%1.1f", magVar);
+		assertEquals("2.0", magVarStr);
+	}
+
 	public void testStdDevPopulation1() {
 		double magStdDev = DescStats.calcMagPopulationStdDevInRange(
 				this.observations1, 0, mags1.length - 1);
@@ -126,11 +154,25 @@ public class DescStatsTest extends TestCase {
 		assertEquals("1.4", magStdDevStr);
 	}
 
+	public void testVariancePopulation2() {
+		double magVar = DescStats.calcMagPopulationVarianceInRange(
+				this.observations2, 0, mags2.length - 1);
+		String magVarStr = String.format("%1.1f", magVar);
+		assertEquals("0.4", magVarStr);
+	}
+
 	public void testStdDevPopulation2() {
 		double magStdDev = DescStats.calcMagPopulationStdDevInRange(
 				this.observations2, 0, mags2.length - 1);
 		String magStdDevStr = String.format("%1.2f", magStdDev);
 		assertEquals("0.63", magStdDevStr);
+	}
+
+	public void testVariancePopulation3() {
+		double magVar = DescStats.calcMagPopulationVarianceInRange(
+				this.observations3, 0, mags3.length - 1);
+		String magVarStr = String.format("%1.3f", magVar);
+		assertEquals("0.013", magVarStr);
 	}
 
 	public void testStdDevPopulation3() {
