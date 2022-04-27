@@ -220,15 +220,15 @@ public class ApacheCommonsPolynomialFitCreatorPlugin extends
 
 					public String toFitMetricsString() throws AlgorithmError {
 						String strRepr = functionStrMap
-								.get("MODEL_INFO_FIT_METRICS_TITLE");
+								.get(LocaleProps.get("MODEL_INFO_FIT_METRICS_TITLE"));
 
 						if (strRepr == null) {
-							// Goodness of fit.
+							// Goodness of fit
 							strRepr = "RMS: "
 									+ NumericPrecisionPrefs
 											.formatOther(optimizer.getRMS());
 
-							// Akaike and Bayesean Information Criteria.
+							// Akaike and Bayesean Information Criteria
 							if (aic != Double.NaN && bic != Double.NaN) {
 								strRepr += "\nAIC: "
 										+ NumericPrecisionPrefs
