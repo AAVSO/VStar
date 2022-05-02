@@ -156,11 +156,11 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_UNCERTAINTY"));
 
 		if (strRepr == null) {
-			// Standard error of the frequency and semi-amplitude.
-			// Only makes sense for a model where just the fundamental frequency is
-			// included, otherwise the additional harmonics would change the residuals.
-
 			if (harmonics.size() == 1) {
+				// Standard error of the frequency and semi-amplitude.
+				// Only makes sense for a model where just the fundamental frequency is
+				// included, otherwise the additional harmonics would change the residuals.
+
 				strRepr = "Standard Error of the Frequency: "
 						+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency());
 

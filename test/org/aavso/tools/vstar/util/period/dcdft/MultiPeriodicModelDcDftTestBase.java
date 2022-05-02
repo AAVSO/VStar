@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.model.PeriodAnalysisDerivedMultiPeriodicModel;
 import org.aavso.tools.vstar.util.model.PeriodFitParameters;
@@ -30,7 +31,11 @@ import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
  * Base class for multi-period model creation unit tests.
  */
 public abstract class MultiPeriodicModelDcDftTestBase extends DataTestBase {
-	
+
+	protected static double DELTA = 1e-4;
+
+	protected PeriodAnalysisDerivedMultiPeriodicModel model;
+
 	public MultiPeriodicModelDcDftTestBase(String name, double[][] jdAndMagPairs) {
 		super(name, jdAndMagPairs);
 	}
@@ -43,14 +48,12 @@ public abstract class MultiPeriodicModelDcDftTestBase extends DataTestBase {
 		super.tearDown();
 	}
 
-	protected void commonTest(IPeriodAnalysisAlgorithm algorithm,
-			List<Harmonic> harmonics,
-			List<PeriodFitParameters> expectedParamsList,
-			double[][] expectedModelData, double[][] expectedResidualData) {
+	protected void commonTest(IPeriodAnalysisAlgorithm algorithm, List<Harmonic> harmonics,
+			List<PeriodFitParameters> expectedParamsList, double[][] expectedModelData,
+			double[][] expectedResidualData) {
 
 		// Create a multi-periodic fit model based upon the specified periods.
-		PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
-				harmonics, algorithm);
+		model = new PeriodAnalysisDerivedMultiPeriodicModel(harmonics, algorithm);
 		try {
 			try {
 				algorithm.multiPeriodicFit(harmonics, model);
@@ -61,12 +64,10 @@ public abstract class MultiPeriodicModelDcDftTestBase extends DataTestBase {
 			}
 
 			// Check the model parameters.
-			assertEquals(expectedParamsList.size(), model.getParameters()
-					.size());
+			assertEquals(expectedParamsList.size(), model.getParameters().size());
 
 			for (int i = 0; i < expectedParamsList.size(); i++) {
-				assertTrue(expectedParamsList.get(i).equals(
-						model.getParameters().get(i)));
+				assertTrue(expectedParamsList.get(i).equals(model.getParameters().get(i)));
 			}
 
 			// Check the model and residual data.
@@ -82,12 +83,10 @@ public abstract class MultiPeriodicModelDcDftTestBase extends DataTestBase {
 
 		for (int i = 0; i < expectedData.length; i++) {
 			// JD
-			assertEquals(String.format("%1.4f", expectedData[i][0]), String
-					.format("%1.4f", obs.get(i).getJD()));
+			assertTrue(Tolerance.areClose(expectedData[i][0], obs.get(i).getJD(), DELTA, true));
 
 			// Magnitude
-			assertEquals(String.format("%1.4f", expectedData[i][1]), String
-					.format("%1.4f", obs.get(i).getMag()));
+			assertTrue(Tolerance.areClose(expectedData[i][1], obs.get(i).getMag(), DELTA, true));
 		}
 	}
 }

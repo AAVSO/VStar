@@ -969,6 +969,7 @@ public class TSDcDft extends TSBase implements IPeriodAnalysisAlgorithm {
 		avemod = avemod / (double) numact;
 		varmod = varmod / (double) (numact - 1);
 		double rdev = Math.sqrt(varmod - avemod * avemod);
+		double nnn = rdev;
 	}
 
 	// -------------------------------------------------------------------------------
