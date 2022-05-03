@@ -284,18 +284,16 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 								// code and within the time tolerance requested.
 								bAndVObsSubset.add(first);
 								bAndVObsSubset.add(second);
+								// Move onto the next pair (skip over the current pair).
+								i += 2;
+								continue;
 							}
-
-							// Whether the pair was within the time tolerance or
-							// not, we need to move onto the next pair, skipping
-							// the current pair.
-							i += 2;
-							continue;
 						}
 					}
 
 					// We either didn't find a B,V or V,B pair or we found a pair whose members have
-					// different observer codes. Either way, we advance past the first of the pair
+					// different observer codes or with times falling outside of the tolerance.
+					// Either way, we advance past the first of the pair
 					// only, since the second and subsequent observation may constitute a pair of
 					// interest.
 					i++;
