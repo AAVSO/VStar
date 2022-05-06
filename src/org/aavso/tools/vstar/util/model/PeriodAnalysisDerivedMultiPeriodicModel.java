@@ -161,11 +161,19 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 				// Only makes sense for a model where just the fundamental frequency is
 				// included, otherwise the additional harmonics would change the residuals.
 
-				strRepr = "Standard Error of the Frequency: "
-						+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency());
+				try {
+					strRepr = "Standard Error of the Frequency: "
+							+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency()) + "\n";
+				} catch (AlgorithmError e) {
+					strRepr = "";
+				}
 
-				strRepr += "\nStandard Error of the Semi-Amplitude: "
-						+ NumericPrecisionPrefs.formatOther(standardErrorOfTheSemiAmplitude());
+				try {
+					strRepr += "Standard Error of the Semi-Amplitude: "
+							+ NumericPrecisionPrefs.formatOther(standardErrorOfTheSemiAmplitude());
+				} catch (AlgorithmError e) {
+					// don't report this uncertainty
+				}
 			}
 		}
 
@@ -278,7 +286,6 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	// see https://github.com/AAVSO/VStar/issues/255
 
 	public double standardErrorOfTheFrequency() throws AlgorithmError {
-		// Standard error of the frequency
 		double totalTimeSpan = residuals.get(residuals.size() - 1).getJD() - residuals.get(0).getJD();
 		double semiAmplitude = Double.NaN;
 		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
@@ -289,7 +296,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			}
 		}
 
-		if (semiAmplitude == Double.NaN) {
+		if (Double.isNaN(semiAmplitude)) {
 			throw new AlgorithmError("cannot find semi-amplitude for modelled period");
 		}
 
