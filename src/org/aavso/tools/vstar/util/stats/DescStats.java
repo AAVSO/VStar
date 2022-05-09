@@ -46,20 +46,15 @@ public class DescStats {
 	 * Calculates the means of a sequence of magnitudes and time elements for
 	 * observations in a specified inclusive range.
 	 * 
-	 * @param observations
-	 *            A list of valid observations.
-	 * @param timeElementEntity
-	 *            A time element source for observations.
-	 * @param minIndex
-	 *            The first observation index in the inclusive range.
-	 * @param maxIndex
-	 *            The last observation index in the inclusive range.
-	 * @return The means of magnitudes and time elements in the range as a
-	 *         2-element double array.
+	 * @param observations      A list of valid observations.
+	 * @param timeElementEntity A time element source for observations.
+	 * @param minIndex          The first observation index in the inclusive range.
+	 * @param maxIndex          The last observation index in the inclusive range.
+	 * @return The means of magnitudes and time elements in the range as a 2-element
+	 *         double array.
 	 */
-	public static double[] calcMagMeanInRange(
-			List<ValidObservation> observations,
-			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex) {
+	public static double[] calcMagMeanInRange(List<ValidObservation> observations, ITimeElementEntity timeElementEntity,
+			int minIndex, int maxIndex) {
 
 		// Pre-conditions.
 		assert (!observations.isEmpty());
@@ -73,8 +68,7 @@ public class DescStats {
 		for (int i = minIndex; i <= maxIndex; i++) {
 			if (!observations.get(i).isDiscrepant()) {
 				totalMag += observations.get(i).getMag();
-				totalTimeElement += timeElementEntity.getTimeElement(
-						observations, i);
+				totalTimeElement += timeElementEntity.getTimeElement(observations, i);
 				included++;
 			}
 		}
@@ -89,14 +83,11 @@ public class DescStats {
 	/**
 	 * Calculate the mean time element from a list of observations.
 	 * 
-	 * @param observations
-	 *            A list of valid observations.
-	 * @param timeElementEntity
-	 *            A time element source for observations.
+	 * @param observations      A list of valid observations.
+	 * @param timeElementEntity A time element source for observations.
 	 * @return The mean of time elements.
 	 */
-	public static double calcTimeElementMean(
-			List<ValidObservation> observations,
+	public static double calcTimeElementMean(List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity) {
 
 		// Pre-conditions.
@@ -112,86 +103,90 @@ public class DescStats {
 	}
 
 	/**
-	 * Calculates the standard deviation of a sample of magnitudes for
-	 * observations in a specified inclusive range.
-	 * 
-	 * We use the sample standard deviation formula as per
-	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
-	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
-	 * 
-	 * @param observations
-	 *            The observations for which the standard deviation will be
-	 *            computed.
-	 * @param minIndex
-	 *            The first observation index in the inclusive range.
-	 * @param maxIndex
-	 *            The last observation index in the inclusive range.
-	 * @return The sample standard deviation of the magnitudes in the range.
-	 */
-	public static double calcMagSampleStdDevInRange(
-			List<ValidObservation> observations, int minIndex, int maxIndex) {
-
-		return calcMagCommonStdDevInRange(observations,
-				JDTimeElementEntity.instance, minIndex, maxIndex, true);
-	}
-
-	/**
-	 * Calculates the standard deviation of a population of magnitudes for
-	 * observations in a specified inclusive range.
-	 * 
-	 * We use the sample standard deviation formula as per
-	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
-	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
-	 * 
-	 * @param observations
-	 *            The observations for which the standard deviation will be
-	 *            computed.
-	 * @param minIndex
-	 *            The first observation index in the inclusive range.
-	 * @param maxIndex
-	 *            The last observation index in the inclusive range.
-	 * @return The population standard deviation of the magnitudes in the range.
-	 */
-	public static double calcMagPopulationStdDevInRange(
-			List<ValidObservation> observations, int minIndex, int maxIndex) {
-
-		return calcMagCommonStdDevInRange(observations,
-				JDTimeElementEntity.instance, minIndex, maxIndex, false);
-	}
-
-	/**
-	 * Calculates the standard deviation of magnitudes for observations in a
+	 * Calculates the variance of a sample of magnitudes for observations in a
 	 * specified inclusive range.
 	 * 
-	 * We use the sample standard deviation formula as per
-	 * http://www.aavso.org/education/vsa/Chapter10.pdf. See also a discussion
-	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
+	 * @param observations The observations for which the variance will be computed.
+	 * @param minIndex     The first observation index in the inclusive range.
+	 * @param maxIndex     The last observation index in the inclusive range.
+	 * @return The sample variance of the magnitudes in the range.
+	 */
+	public static double calcMagSampleVarianceInRange(List<ValidObservation> observations, int minIndex, int maxIndex) {
+
+		return calcMagCommonVarianceInRange(observations, JDTimeElementEntity.instance, minIndex, maxIndex, true);
+	}
+
+	/**
+	 * Calculates the sample standard deviation of a sample of magnitudes for
+	 * observations in a specified inclusive range.
 	 * 
-	 * @param observations
-	 *            The observations to which binning will be applied.
-	 * @param timeElementEntity
-	 *            A time element source for observations.
-	 * @param minIndex
-	 *            The first observation index in the inclusive range.
-	 * @param maxIndex
-	 *            The last observation index in the inclusive range.
-	 * @param isSample
-	 *            True if a sample standard deviation is required, false if a
-	 *            population standard deviation is required.
+	 * @param observations The observations for which the standard deviation will be
+	 *                     computed.
+	 * @param minIndex     The first observation index in the inclusive range.
+	 * @param maxIndex     The last observation index in the inclusive range.
 	 * @return The sample standard deviation of the magnitudes in the range.
 	 */
-	public static double calcMagCommonStdDevInRange(
-			List<ValidObservation> observations,
-			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex,
-			boolean isSample) {
+	public static double calcMagSampleStdDevInRange(List<ValidObservation> observations, int minIndex, int maxIndex) {
 
-		// Pre-conditions.
+		double variance = calcMagCommonVarianceInRange(observations, JDTimeElementEntity.instance, minIndex, maxIndex,
+				true);
+		return Math.sqrt(variance);
+	}
+
+	/**
+	 * Calculates the variance of a population of magnitudes for observations in a
+	 * specified inclusive range.
+	 * 
+	 * @param observations The observations for which the variance will be computed.
+	 * @param minIndex     The first observation index in the inclusive range.
+	 * @param maxIndex     The last observation index in the inclusive range.
+	 * @return The population variance of the magnitudes in the range.
+	 */
+	public static double calcMagPopulationVarianceInRange(List<ValidObservation> observations, int minIndex, int maxIndex) {
+
+		return calcMagCommonVarianceInRange(observations, JDTimeElementEntity.instance, minIndex, maxIndex, false);
+	}
+
+	/**
+	 * Calculates the population standard deviation of a population of magnitudes
+	 * for observations in a specified inclusive range.
+	 * 
+	 * @param observations The observations for which the standard deviation will be
+	 *                     computed.
+	 * @param minIndex     The first observation index in the inclusive range.
+	 * @param maxIndex     The last observation index in the inclusive range.
+	 * @return The population standard deviation of the magnitudes in the range.
+	 */
+	public static double calcMagPopulationStdDevInRange(List<ValidObservation> observations, int minIndex,
+			int maxIndex) {
+
+		double variance = calcMagCommonVarianceInRange(observations, JDTimeElementEntity.instance, minIndex, maxIndex,
+				false);
+		return Math.sqrt(variance);
+	}
+
+	/**
+	 * Calculates the (sample of population) variance of magnitudes for observations
+	 * in a specified inclusive range.
+	 * 
+	 * @param observations      The observations for which the variance will be
+	 *                          computed.
+	 * @param timeElementEntity A time element source for observations.
+	 * @param minIndex          The first observation index in the inclusive range.
+	 * @param maxIndex          The last observation index in the inclusive range.
+	 * @param isSample          True if a sample variance is required, false if a
+	 *                          population variance is required.
+	 * @return The (sample) variance of the magnitudes in the range.
+	 */
+	private static double calcMagCommonVarianceInRange(List<ValidObservation> observations,
+			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex, boolean isSample) {
+
+		// pre-conditions
 		assert (!observations.isEmpty());
 		assert (maxIndex >= minIndex);
 		assert (maxIndex < observations.size());
 
-		double magMean = calcMagMeanInRange(observations, timeElementEntity,
-				minIndex, maxIndex)[MEAN_MAG_INDEX];
+		double magMean = calcMagMeanInRange(observations, timeElementEntity, minIndex, maxIndex)[MEAN_MAG_INDEX];
 
 		double total = 0;
 		double included = 0;
@@ -204,11 +199,9 @@ public class DescStats {
 			}
 		}
 
-		// Standard sample variance.
-		// The sample standard deviation requires total-1 as denominator.
-		double variance = total / (included - (isSample ? 1 : 0));
-
-		return Math.sqrt(variance);
+		// Population or sample variance; sample variance requires N-1 as
+		// denominator.
+		return total / (included - (isSample ? 1 : 0));
 	}
 
 	/**
@@ -217,26 +210,21 @@ public class DescStats {
 	 * 
 	 * We use the sample standard deviation formula as per
 	 * https://www.aavso.org/sites/default/files/education/vsa/Chapter10.pdf<br/>
-	 * See also a discussion
-	 * of this here: http://en.wikipedia.org/wiki/Standard_deviation
+	 * See also a discussion of this here:
+	 * http://en.wikipedia.org/wiki/Standard_deviation
 	 * 
-	 * @param observations
-	 *            A list of valid observations.
-	 * @param timeElementEntity
-	 *            A time element source for observations.
-	 * @param minIndex
-	 *            The first observation index in the inclusive range.
-	 * @param maxIndex
-	 *            The last observation index in the inclusive range.
+	 * @param observations      A list of valid observations.
+	 * @param timeElementEntity A time element source for observations.
+	 * @param minIndex          The first observation index in the inclusive range.
+	 * @param maxIndex          The last observation index in the inclusive range.
 	 * @return A Bin object containing magnitude bin data and a ValidObservation
 	 *         instance whose time parameter (JD or phase) is the mean of the
 	 *         indexed observations, and whose magnitude captures the mean of
-	 *         magnitude values in that range, and the Standard Error of the
-	 *         Average for that mean magnitude value. The binned magnitude data
-	 *         can be used for further analysis such as ANOVA.
+	 *         magnitude values in that range, and the Standard Error of the Average
+	 *         for that mean magnitude value. The binned magnitude data can be used
+	 *         for further analysis such as ANOVA.
 	 */
-	public static Bin createMeanObservationForRange(
-			List<ValidObservation> observations,
+	public static Bin createMeanObservationForRange(List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, int minIndex, int maxIndex) {
 
 		// Pre-conditions.
@@ -244,8 +232,7 @@ public class DescStats {
 		assert (maxIndex >= minIndex);
 		assert (maxIndex < observations.size());
 
-		double[] meanPair = calcMagMeanInRange(observations, timeElementEntity,
-				minIndex, maxIndex);
+		double[] meanPair = calcMagMeanInRange(observations, timeElementEntity, minIndex, maxIndex);
 
 		double magMean = meanPair[MEAN_MAG_INDEX];
 		double timeMean = meanPair[MEAN_TIME_INDEX];
@@ -302,24 +289,20 @@ public class DescStats {
 
 	/**
 	 * Create a sequence of observations based upon bin size. The observations
-	 * represent mean magnitudes at the mid-point of each bin. Each bin consists
-	 * of the range index..index+binSize-1
+	 * represent mean magnitudes at the mid-point of each bin. Each bin consists of
+	 * the range index..index+binSize-1
 	 * 
 	 * Observation bins are populated from left to right of the time domain.
 	 * 
-	 * @param observations
-	 *            The observations to which binning will be applied.
-	 * @param timeElementEntity
-	 *            A time element source for observations.
-	 * @param timeElementsInBin
-	 *            The bin size in number of time elements (days, phase
-	 *            increments) or portions thereof.
-	 * @return An observation sequence consisting of magnitude means per bin and
-	 *         the observation at the center point of each bin.
+	 * @param observations      The observations to which binning will be applied.
+	 * @param timeElementEntity A time element source for observations.
+	 * @param timeElementsInBin The bin size in number of time elements (days, phase
+	 *                          increments) or portions thereof.
+	 * @return An observation sequence consisting of magnitude means per bin and the
+	 *         observation at the center point of each bin.
 	 * @deprecated Use createSymmetricBinnedObservations() in preference.
 	 */
-	public static List<ValidObservation> createLeftToRightBinnedObservations(
-			List<ValidObservation> observations,
+	public static List<ValidObservation> createLeftToRightBinnedObservations(List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
 		// Pre-conditions.
@@ -327,8 +310,7 @@ public class DescStats {
 
 		List<ValidObservation> binnedObs = new ArrayList<ValidObservation>();
 
-		double minTimeElement = timeElementEntity.getTimeElement(observations,
-				0);
+		double minTimeElement = timeElementEntity.getTimeElement(observations, 0);
 		int minIndex = 0;
 		int maxIndex = 0;
 
@@ -350,8 +332,7 @@ public class DescStats {
 				// to the list.
 				maxIndex = i - 1;
 
-				Bin bin = createMeanObservationForRange(observations,
-						timeElementEntity, minIndex, maxIndex);
+				Bin bin = createMeanObservationForRange(observations, timeElementEntity, minIndex, maxIndex);
 
 				ValidObservation ob = bin.getMeanObservation();
 
@@ -363,8 +344,7 @@ public class DescStats {
 				}
 
 				minIndex = i;
-				minTimeElement = timeElementEntity.getTimeElement(observations,
-						i);
+				minTimeElement = timeElementEntity.getTimeElement(observations, i);
 
 				i++;
 			}
@@ -374,8 +354,7 @@ public class DescStats {
 		// that we include any left over data that would otherwise be
 		// excluded by the less-than constraint?
 		if (maxIndex < observations.size() - 1) {
-			Bin bin = createMeanObservationForRange(observations,
-					timeElementEntity, minIndex, observations.size() - 1);
+			Bin bin = createMeanObservationForRange(observations, timeElementEntity, minIndex, observations.size() - 1);
 
 			ValidObservation ob = bin.getMeanObservation();
 
@@ -392,27 +371,23 @@ public class DescStats {
 
 	/**
 	 * Create a sequence of observations based upon bin size. The observations
-	 * represent mean magnitudes at the mid-point of each bin. Each bin consists
-	 * of the range index..index+binSize-1
+	 * represent mean magnitudes at the mid-point of each bin. Each bin consists of
+	 * the range index..index+binSize-1
 	 * 
-	 * Observation bins are populated from center to left, then from center to
-	 * right of the time domain to ensure symmetric bins.
+	 * Observation bins are populated from center to left, then from center to right
+	 * of the time domain to ensure symmetric bins.
 	 * 
 	 * The final result also includes a one-way anova statistic.
 	 * 
-	 * @param observations
-	 *            The observations to which binning will be applied.
-	 * @param timeElementEntity
-	 *            A time element source for observations.
-	 * @param timeElementsInBin
-	 *            The bin size in number of time elements (days, phase
-	 *            increments) or portions thereof.
-	 * @return An observation sequence consisting of magnitude means per bin and
-	 *         the observation at the center point of each bin. If there were
+	 * @param observations      The observations to which binning will be applied.
+	 * @param timeElementEntity A time element source for observations.
+	 * @param timeElementsInBin The bin size in number of time elements (days, phase
+	 *                          increments) or portions thereof.
+	 * @return An observation sequence consisting of magnitude means per bin and the
+	 *         observation at the center point of each bin. If there were
 	 *         insufficient observations, the empty list is returned.
 	 */
-	public static BinningResult createSymmetricBinnedObservations(
-			List<ValidObservation> observations,
+	public static BinningResult createSymmetricBinnedObservations(List<ValidObservation> observations,
 			ITimeElementEntity timeElementEntity, double timeElementsInBin) {
 
 		// Pre-conditions.
@@ -428,55 +403,45 @@ public class DescStats {
 			binnedObs = new LinkedList<ValidObservation>();
 			magnitudeBins = new LinkedList<double[]>();
 
-			createLeftmostBinnedObservations(observations,
-					observations.size() / 2 - 1, timeElementEntity,
+			createLeftmostBinnedObservations(observations, observations.size() / 2 - 1, timeElementEntity,
 					timeElementsInBin, binnedObs, magnitudeBins);
 
-			createRightmostBinnedObservations(observations,
-					observations.size() / 2, timeElementEntity,
+			createRightmostBinnedObservations(observations, observations.size() / 2, timeElementEntity,
 					timeElementsInBin, binnedObs, magnitudeBins);
 
 			series = observations.get(0).getBand();
 		}
 
-		return new BinningResult(series, observations.size(), binnedObs,
-				magnitudeBins);
+		return new BinningResult(series, observations.size(), binnedObs, magnitudeBins);
 	}
 
 	// Helpers
 
 	/**
 	 * Create a sequence of observations based upon bin size. The observations
-	 * represent mean magnitudes at the mid-point of each bin. Each bin consists
-	 * of the range index..index+binSize-1
+	 * represent mean magnitudes at the mid-point of each bin. Each bin consists of
+	 * the range index..index+binSize-1
 	 * 
-	 * Observation bins are populated only from the left-most region of the
-	 * supplied list, starting at the specified index.
+	 * Observation bins are populated only from the left-most region of the supplied
+	 * list, starting at the specified index.
 	 * 
-	 * @param obs
-	 *            The observations to which binning will be applied.
-	 * @param startIndex
-	 *            The starting index in the list.
-	 * @param timeElementEntity
-	 *            A time element source for observations.
-	 * @param timeElementsInBin
-	 *            The bin size in number of time elements (days, phase
-	 *            increments) or portions thereof.
-	 * @param binnedObs
-	 *            An observation sequence consisting of magnitude means per bin
-	 *            and the observation at the center point of each bin.
-	 * @param bins
-	 *            A list of binned data (magnitude) arrays.
+	 * @param obs               The observations to which binning will be applied.
+	 * @param startIndex        The starting index in the list.
+	 * @param timeElementEntity A time element source for observations.
+	 * @param timeElementsInBin The bin size in number of time elements (days, phase
+	 *                          increments) or portions thereof.
+	 * @param binnedObs         An observation sequence consisting of magnitude
+	 *                          means per bin and the observation at the center
+	 *                          point of each bin.
+	 * @param bins              A list of binned data (magnitude) arrays.
 	 */
-	protected static void createLeftmostBinnedObservations(
-			List<ValidObservation> observations, int startIndex,
-			ITimeElementEntity timeElementEntity, double timeElementsInBin,
-			List<ValidObservation> binnedObs, List<double[]> bins) {
+	protected static void createLeftmostBinnedObservations(List<ValidObservation> observations, int startIndex,
+			ITimeElementEntity timeElementEntity, double timeElementsInBin, List<ValidObservation> binnedObs,
+			List<double[]> bins) {
 
 		int maxIndex = startIndex;
 
-		double maxTimeElement = timeElementEntity.getTimeElement(observations,
-				maxIndex);
+		double maxTimeElement = timeElementEntity.getTimeElement(observations, maxIndex);
 
 		int i = startIndex - 1;
 
@@ -487,16 +452,13 @@ public class DescStats {
 			// o not at the start of the list or
 			// o not at the bottom of the current range?
 			// If either is true, search further to the left.
-			if (i >= 0
-					&& timeElementEntity.getTimeElement(observations, i)
-							+ timeElementsInBin > maxTimeElement) {
+			if (i >= 0 && timeElementEntity.getTimeElement(observations, i) + timeElementsInBin > maxTimeElement) {
 				i--;
 			} else {
 				// Otherwise, we have found the bottom of the current range,
 				// so add a ValidObservation containing mean and error value
 				// to the list.
-				Bin bin = createMeanObservationForRange(observations,
-						timeElementEntity, i + 1, maxIndex);
+				Bin bin = createMeanObservationForRange(observations, timeElementEntity, i + 1, maxIndex);
 
 				ValidObservation ob = bin.getMeanObservation();
 
@@ -516,8 +478,7 @@ public class DescStats {
 				// for the next round of range finding.
 				if (i >= 0) {
 					maxIndex = i;
-					maxTimeElement = timeElementEntity.getTimeElement(
-							observations, maxIndex);
+					maxTimeElement = timeElementEntity.getTimeElement(observations, maxIndex);
 
 					i--;
 				} else {
@@ -529,36 +490,29 @@ public class DescStats {
 
 	/**
 	 * Create a sequence of observations based upon bin size. The observations
-	 * represent mean magnitudes at the mid-point of each bin. Each bin consists
-	 * of the range index..index+binSize-1
+	 * represent mean magnitudes at the mid-point of each bin. Each bin consists of
+	 * the range index..index+binSize-1
 	 * 
 	 * Observation bins are populated only from the right-most region of the
 	 * supplied list, starting at the specified index.
 	 * 
-	 * @param obs
-	 *            The observations to which binning will be applied.
-	 * @param startIndex
-	 *            The starting index in the list.
-	 * @param timeElementEntity
-	 *            A time element source for observations.
-	 * @param timeElementsInBin
-	 *            The bin size in number of time elements (days, phase
-	 *            increments) or portions thereof.
-	 * @param binnedObs
-	 *            An observation sequence consisting of magnitude means per bin
-	 *            and the observation at the center point of each bin.
-	 * @param bins
-	 *            A list of binned data (magnitude) arrays.
+	 * @param obs               The observations to which binning will be applied.
+	 * @param startIndex        The starting index in the list.
+	 * @param timeElementEntity A time element source for observations.
+	 * @param timeElementsInBin The bin size in number of time elements (days, phase
+	 *                          increments) or portions thereof.
+	 * @param binnedObs         An observation sequence consisting of magnitude
+	 *                          means per bin and the observation at the center
+	 *                          point of each bin.
+	 * @param bins              A list of binned data (magnitude) arrays.
 	 */
-	protected static void createRightmostBinnedObservations(
-			List<ValidObservation> observations, int startIndex,
-			ITimeElementEntity timeElementEntity, double timeElementsInBin,
-			List<ValidObservation> binnedObs, List<double[]> bins) {
+	protected static void createRightmostBinnedObservations(List<ValidObservation> observations, int startIndex,
+			ITimeElementEntity timeElementEntity, double timeElementsInBin, List<ValidObservation> binnedObs,
+			List<double[]> bins) {
 
 		int minIndex = startIndex;
 
-		double minTimeElement = timeElementEntity.getTimeElement(observations,
-				minIndex);
+		double minTimeElement = timeElementEntity.getTimeElement(observations, minIndex);
 
 		int i = startIndex + 1;
 
@@ -570,15 +524,13 @@ public class DescStats {
 			// o not at the top of the current range?
 			// If either is true, search further to the right.
 			if (i < observations.size()
-					&& (minTimeElement + timeElementsInBin) > timeElementEntity
-							.getTimeElement(observations, i)) {
+					&& (minTimeElement + timeElementsInBin) > timeElementEntity.getTimeElement(observations, i)) {
 				i++;
 			} else {
 				// Otherwise, we have found the top of the current range,
 				// so add a ValidObservation containing mean and error value
 				// to the list.
-				Bin bin = createMeanObservationForRange(observations,
-						timeElementEntity, minIndex, i - 1);
+				Bin bin = createMeanObservationForRange(observations, timeElementEntity, minIndex, i - 1);
 
 				ValidObservation ob = bin.getMeanObservation();
 
@@ -592,8 +544,7 @@ public class DescStats {
 
 				if (i < observations.size()) {
 					minIndex = i;
-					minTimeElement = timeElementEntity.getTimeElement(
-							observations, minIndex);
+					minTimeElement = timeElementEntity.getTimeElement(observations, minIndex);
 
 					i++;
 				} else {

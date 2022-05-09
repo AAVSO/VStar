@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.util.model;
 
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -24,6 +25,8 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * that could be be used to re-create a model fit.
  */
 public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
+
+	private final static double DELTA = 1e-4;
 
 	private final static double TWOPI = 2 * Math.PI;
 
@@ -40,22 +43,17 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	 * 
 	 * TODO: consider computing amplitude locally rather than passing it in!
 	 * 
-	 * @param harmonic
-	 *            The harmonic, from which can be obtained period and frequency.
-	 * @param amplitude
-	 *            The amplitude parameter.
-	 * @param sineCoefficient
-	 *            The sine Fourier coefficient.
-	 * @param cosineCoefficient
-	 *            The cosine Fourier coefficient.
-	 * @param constantCoefficient
-	 *            The constant (Y intercept?; check) coefficient.
-	 * @param zeroPointOffset
-	 *            The zero point offset/term/subrahend to be subtracted from
-	 *            each time step for which the model is computed.
+	 * @param harmonic            The harmonic, from which can be obtained period
+	 *                            and frequency.
+	 * @param amplitude           The amplitude parameter.
+	 * @param cosineCoefficient   The cosine Fourier coefficient.
+	 * @param sineCoefficient     The sine Fourier coefficient.
+	 * @param constantCoefficient The constant (Y intercept?; check) coefficient.
+	 * @param zeroPointOffset     The zero point offset/term/subrahend to be
+	 *                            subtracted from each time step for which the model
+	 *                            is computed.
 	 */
-	public PeriodFitParameters(Harmonic harmonic, double amplitude,
-			double cosineCoefficient, double sineCoefficient,
+	public PeriodFitParameters(Harmonic harmonic, double amplitude, double cosineCoefficient, double sineCoefficient,
 			double constantCoefficient, double zeroPointOffset) {
 		this.harmonic = harmonic;
 		this.amplitude = amplitude;
@@ -105,9 +103,8 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	 * Get the relative amplitude given the first amplitude to which the current
 	 * amplitude is relative.
 	 * 
-	 * @param firstAmplitude
-	 *            The amplitude to which the current parameter's amplitude
-	 *            should be taken to be relative.
+	 * @param firstAmplitude The amplitude to which the current parameter's
+	 *                       amplitude should be taken to be relative.
 	 * @return The relative amplitude.
 	 */
 	public double getRelativeAmplitude(double firstAmplitude) {
@@ -122,13 +119,11 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	}
 
 	/**
-	 * Get the relative phase in radians given the first phase to which the
-	 * current phase is relative. The result is adjusted to be in the range
-	 * 0..2PI.
+	 * Get the relative phase in radians given the first phase to which the current
+	 * phase is relative. The result is adjusted to be in the range 0..2PI.
 	 * 
-	 * @param firstPhase
-	 *            The phase to which the current parameter's phase should be
-	 *            taken to be relative.
+	 * @param firstPhase The phase to which the current parameter's phase should be
+	 *                   taken to be relative.
 	 * @return The relative phase in radians.
 	 */
 	public double getRelativePhase(double firstPhase) {
@@ -146,12 +141,11 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	}
 
 	/**
-	 * Get the relative phase in cycles (radians/2PI) given the first phase to
-	 * which the current phase is relative.
+	 * Get the relative phase in cycles (radians/2PI) given the first phase to which
+	 * the current phase is relative.
 	 * 
-	 * @param firstPhase
-	 *            The phase to which the current parameter's phase should be
-	 *            taken to be relative.
+	 * @param firstPhase The phase to which the current parameter's phase should be
+	 *                   taken to be relative.
 	 * @return The relative phase in cycles.
 	 */
 	public double getRelativePhaseInCycles(double firstPhase) {
@@ -187,8 +181,8 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	}
 
 	/**
-	 * @see java.lang.Object#equals(java.lang.Object) Equality of parameters to
-	 *      4 decimal places.
+	 * @see java.lang.Object#equals(java.lang.Object) Equality of parameters to 4
+	 *      decimal places.
 	 */
 	@Override
 	public boolean equals(Object other) {
@@ -197,26 +191,13 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 		if (equal) {
 			PeriodFitParameters params = (PeriodFitParameters) other;
 
-			equal &= String.format("%1.4f", params.getFrequency()).equals(
-					String.format("%1.4f", getFrequency()));
-
-			equal &= String.format("%1.4f", params.getPeriod()).equals(
-					String.format("%1.4f", getPeriod()));
-
-			equal &= String.format("%1.4f", params.getAmplitude()).equals(
-					String.format("%1.4f", amplitude));
-
-			equal &= String.format("%1.4f", params.getCosineCoefficient())
-					.equals(String.format("%1.4f", cosineCoefficient));
-
-			equal &= String.format("%1.4f", params.getSineCoefficient())
-					.equals(String.format("%1.4f", sineCoefficient));
-
-			equal &= String.format("%1.4f", params.getConstantCoefficient())
-					.equals(String.format("%1.4f", constantCoefficient));
-
-			equal &= String.format("%1.4f", params.getZeroPointOffset())
-					.equals(String.format("%1.4f", zeroPointOffset));
+			equal &= Tolerance.areClose(params.getFrequency(), getFrequency(), DELTA, true);
+			equal &= Tolerance.areClose(params.getPeriod(), getPeriod(), DELTA, true);
+			equal &= Tolerance.areClose(params.getAmplitude(), getAmplitude(), DELTA, true);
+			equal &= Tolerance.areClose(params.getCosineCoefficient(), getCosineCoefficient(), DELTA, true);
+			equal &= Tolerance.areClose(params.getSineCoefficient(), getSineCoefficient(), DELTA, true);
+			equal &= Tolerance.areClose(params.getConstantCoefficient(), getConstantCoefficient(), DELTA, true);
+			equal &= Tolerance.areClose(params.getZeroPointOffset(), getZeroPointOffset(), DELTA, true);
 		}
 
 		return equal;
@@ -259,15 +240,13 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 
 		String sincosParam = "2*PI*" + harmonic + "*(t-zeroPoint" + ")";
 
-		str += NumericPrecisionPrefs.formatOther(cosineCoefficient)
-				+ " * cos(";
+		str += NumericPrecisionPrefs.formatOther(cosineCoefficient) + " * cos(";
 		str += sincosParam;
 		str += ")";
 
 		str += sineCoefficient >= 0 ? " + " : "";
 
-		str += NumericPrecisionPrefs.formatOther(sineCoefficient)
-				+ " * sin(";
+		str += NumericPrecisionPrefs.formatOther(sineCoefficient) + " * sin(";
 		str += sincosParam;
 		str += ")";
 
@@ -277,18 +256,15 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	public String toExcelString() {
 		String str = cosineCoefficient >= 0 ? "+" : "";
 
-		String sincosParam = "2*PI()*" + harmonic + "*(A1-"
-				+ NumericPrecisionPrefs.formatTime(zeroPointOffset) + ")";
+		String sincosParam = "2*PI()*" + harmonic + "*(A1-" + NumericPrecisionPrefs.formatTime(zeroPointOffset) + ")";
 
-		str += NumericPrecisionPrefs.formatOther(cosineCoefficient) 
-				+ " * COS(";
+		str += NumericPrecisionPrefs.formatOther(cosineCoefficient) + " * COS(";
 		str += sincosParam;
 		str += ")";
 
 		str += sineCoefficient >= 0 ? " + " : "";
 
-		str += NumericPrecisionPrefs.formatOther(sineCoefficient) 
-				+ " * SIN(";
+		str += NumericPrecisionPrefs.formatOther(sineCoefficient) + " * SIN(";
 		str += sincosParam;
 		str += ")";
 
@@ -300,7 +276,8 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 		String str = "+\n";
 
 		// harmonic.toString() is locale-dependent!
-		String sincosParam = "2*pi*" + NumericPrecisionPrefs.formatOtherLocaleIndependent(harmonic.getFrequency()) + "*(t-zeroPoint" + ")";
+		String sincosParam = "2*pi*" + NumericPrecisionPrefs.formatOtherLocaleIndependent(harmonic.getFrequency())
+				+ "*(t-zeroPoint" + ")";
 
 		str += NumericPrecisionPrefs.formatOtherLocaleIndependent(cosineCoefficient) + " * cos(";
 		str += sincosParam;
@@ -316,10 +293,8 @@ public class PeriodFitParameters implements Comparable<PeriodFitParameters> {
 	}
 
 	public double toValue(double t) {
-		double sincosParam = 2 * Math.PI * harmonic.getFrequency()
-				* (t - zeroPointOffset);
-		return cosineCoefficient * Math.cos(sincosParam) + sineCoefficient
-				* Math.sin(sincosParam);
+		double sincosParam = 2 * Math.PI * harmonic.getFrequency() * (t - zeroPointOffset);
+		return cosineCoefficient * Math.cos(sincosParam) + sineCoefficient * Math.sin(sincosParam);
 	}
 
 	@Override

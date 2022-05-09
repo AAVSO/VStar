@@ -418,6 +418,5 @@ public class SinglePeriodModelDcDftTest extends MultiPeriodicModelDcDftTestBase 
 		} catch (AlgorithmError e) {
 			fail();
 		}
-
 	}
 }
