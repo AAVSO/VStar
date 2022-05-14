@@ -158,18 +158,17 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_UNCERTAINTY"));
 
 		if (strRepr == null) {
-			if (harmonics.size() == 1) {
-				// Full Width Half Maximum
-				
-				try {
-					Pair<Double, Double> fwhm = fwhm();
-					strRepr = "FWHM lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
-					strRepr += "FWHM upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
-				} catch (AlgorithmError e) {
-					// don't report this uncertainty
-					strRepr = "";
-				}
+			// Full Width Half Maximum
+			try {
+				Pair<Double, Double> fwhm = fwhm();
+				strRepr = "FWHM lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
+				strRepr += "FWHM upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
+			} catch (AlgorithmError e) {
+				// don't report this uncertainty
+				strRepr = "";
+			}
 
+			if (harmonics.size() == 1) {
 				// Standard error of the frequency and semi-amplitude.
 				// Only makes sense for a model where just the fundamental frequency is
 				// included, otherwise the additional harmonics would change the residuals.
