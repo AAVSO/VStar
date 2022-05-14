@@ -25,6 +25,7 @@ import java.util.Map;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
+import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
@@ -35,7 +36,8 @@ import org.apache.commons.math.FunctionEvaluationException;
 import org.apache.commons.math.analysis.UnivariateRealFunction;
 
 /**
- * This class creates a multi-periodic fit model for the specified observations.
+ * This class creates a multi-periodic fit model for the specified observations
+ * and provides measures of error.
  */
 public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
@@ -157,15 +159,26 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
 		if (strRepr == null) {
 			if (harmonics.size() == 1) {
+				// Full Width Half Maximum
+				
+				try {
+					Pair<Double, Double> fwhm = fwhm();
+					strRepr = "FWHM lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
+					strRepr += "FWHM upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
+				} catch (AlgorithmError e) {
+					// don't report this uncertainty
+					strRepr = "";
+				}
+
 				// Standard error of the frequency and semi-amplitude.
 				// Only makes sense for a model where just the fundamental frequency is
 				// included, otherwise the additional harmonics would change the residuals.
 
 				try {
-					strRepr = "Standard Error of the Frequency: "
+					strRepr += "Standard Error of the Frequency: "
 							+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency()) + "\n";
 				} catch (AlgorithmError e) {
-					strRepr = "";
+					// don't report this uncertainty
 				}
 
 				try {
@@ -282,33 +295,96 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		return functionStrMap;
 	}
 
-	// residuals-based standard error functions
+	// Residuals-based standard error functions
 	// see https://github.com/AAVSO/VStar/issues/255
 
 	public double standardErrorOfTheFrequency() throws AlgorithmError {
-		double totalTimeSpan = residuals.get(residuals.size() - 1).getJD() - residuals.get(0).getJD();
-		double semiAmplitude = Double.NaN;
-		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
-		for (int i = 0; i < frequencies.size(); i++) {
-			if (Tolerance.areClose(frequencies.get(i), harmonics.get(0).getFrequency(), 1e-9, true)) {
-				semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(i);
-				break;
-			}
-		}
-
-		if (Double.isNaN(semiAmplitude)) {
-			throw new AlgorithmError("cannot find semi-amplitude for modelled period");
-		}
+		// Find the semi-amplitude for the fundamental frequency (zeroth harmonic)
+		int index = findIndexOfFrequency(harmonics.get(0).getFrequency());
+		double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(index);
 
 		double sampleVariance = DescStats.calcMagSampleVarianceInRange(residuals, 0, residuals.size() - 1);
 
+		double totalTimeSpan = residuals.get(residuals.size() - 1).getJD() - residuals.get(0).getJD();
+
 		return Math.sqrt(6 * sampleVariance / (Math.PI * Math.PI * residuals.size() * semiAmplitude * semiAmplitude
 				* totalTimeSpan * totalTimeSpan));
-
 	}
 
 	public double standardErrorOfTheSemiAmplitude() throws AlgorithmError {
 		double sampleVariance = DescStats.calcMagSampleVarianceInRange(residuals, 0, residuals.size() - 1);
 		return Math.sqrt(2 * sampleVariance / residuals.size());
+	}
+
+	// Full Width Half Maximum for the model's fundamental frequency (zeroth
+	// harmonic)
+
+	public Pair<Double, Double> fwhm() throws AlgorithmError {
+		// For FWHM, we are assuming a top-hit (peak) so check that the model's
+		// fundamental frequency is a peak (top-hit)
+		boolean isTopHit = false;
+		List<Double> topHitFrequencies = algorithm.getTopHits().get(PeriodAnalysisCoordinateType.FREQUENCY);
+		for (int i = 0; i < topHitFrequencies.size(); i++) {
+			if (Tolerance.areClose(topHitFrequencies.get(i), harmonics.get(0).getFrequency(), 1e-9, true)) {
+				isTopHit = true;
+				break;
+			}
+		}
+
+		if (!isTopHit) {
+			throw new AlgorithmError("selected frequency is not a top-hit");
+		}
+
+		// Find the index of the fundamental frequency in the full DCDFT result
+		int index = findIndexOfFrequency(harmonics.get(0).getFrequency());
+
+		// Obtain the power at this frequency
+		List<Double> powers = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER);
+		double peakPower = powers.get(index);
+		double fwhmLo = peakPower;
+		double fwhmHi = peakPower;
+
+		// Descend the left and right branches starting from the model's fundamental
+		// peak frequency, returning the low (left branch) and high (right branch)
+		// frequencies whose powers are greater than or equal to half the power at the
+		// model's fundamental frequency.
+		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
+
+		for (int i = index; i >= 0; i--) {
+			if (powers.get(i) >= peakPower / 2) {
+				fwhmLo = frequencies.get(i);
+			} else {
+				break;
+			}
+		}
+
+		for (int i = index; i < powers.size(); i++) {
+			if (powers.get(i) >= peakPower / 2) {
+				fwhmHi = frequencies.get(i);
+			} else {
+				break;
+			}
+		}
+
+		return new Pair<Double, Double>(fwhmLo, fwhmHi);
+	}
+
+	protected int findIndexOfFrequency(double freq) throws AlgorithmError {
+		int index = -1;
+
+		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
+		for (int i = 0; i < frequencies.size(); i++) {
+			if (Tolerance.areClose(frequencies.get(i), freq, 1e-9, true)) {
+				index = i;
+				break;
+			}
+		}
+
+		if (index == -1) {
+			// should not happen unless there is a tolerance problem above
+			throw new AlgorithmError("cannot find specified frequency in DCDFT result");
+		}
+
+		return index;
 	}
 }
