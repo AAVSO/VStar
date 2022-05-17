@@ -65,6 +65,8 @@ public class VStar {
 		}
 	}
 
+	private static boolean setNativeLookAndFeel = true; 
+	
 	private static boolean loadPlugins = true;
 	
 	private static boolean runScript = false;
@@ -92,22 +94,24 @@ public class VStar {
 			System.exit(1);
 		}
 
-		// Set the Look & Feel of the application to be native.
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			// Under Windows, the default TextArea font is too small.
-			// Making TextArea the same as TextField fixes this.
-			// We should make this fix AFTER setting native Look & Feel!
-			if (os_name.startsWith("Windows")) {
-				// [https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows]
-				UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
+		processCmdLineArgs(args);		
+		
+		if (setNativeLookAndFeel) {
+			// Set the Look & Feel of the application to be native.
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				// Under Windows, the default TextArea font is too small.
+				// Making TextArea the same as TextField fixes this.
+				// We should make this fix AFTER setting native Look & Feel!
+				if (os_name.startsWith("Windows")) {
+					// [https://stackoverflow.com/questions/6461506/jtextarea-default-font-very-small-in-windows]
+					UIManager.getDefaults().put("TextArea.font", UIManager.getFont("TextField.font"));
+				}
+			} catch (Exception e) {
+				System.err.println("Unable to set native look & feel. Exiting.");
+				System.exit(1);
 			}
-		} catch (Exception e) {
-			System.err.println("Unable to set native look & feel. Exiting.");
-			System.exit(1);
 		}
-
-		processCmdLineArgs(args);
 
 		// If there's no command-line option that says we shouldn't load
 		// plug-ins and the plug-in manager says it's okay to load them, then go
@@ -187,8 +191,10 @@ public class VStar {
 	private static void processCmdLineArgs(String[] args) {
 		for (String arg : args) {
 			if ("--help".equals(arg)) {
-				System.out.println("usage: vstar [--noplugins] [--script path]");
+				System.out.println("usage: vstar [--default-look-and-feel] [--noplugins] [--script path]");
 				System.exit(0);
+			} else if ("--default-look-and-feel".equals(arg)) {
+				setNativeLookAndFeel = false;
 			} else if ("--noplugins".equals(arg)) {
 				loadPlugins = false;
 			} else if ("--script".equals(arg)) {
