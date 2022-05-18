@@ -155,14 +155,26 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
 	// see https://github.com/AAVSO/VStar/issues/255
 	public String toUncertaintyString() throws AlgorithmError {
+		double freq = harmonics.get(0).getFrequency();
+		double period = harmonics.get(0).getPeriod();
+		int index = findIndexOfFrequency(freq);
+		double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(index);
+		double power = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER).get(index);
+
 		String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_UNCERTAINTY"));
 
 		if (strRepr == null) {
+			strRepr = String.format("For frequency %s, period %s, power %s, semi-amplitude %s:\n\n",
+					NumericPrecisionPrefs.formatOther(freq), NumericPrecisionPrefs.formatOther(period),
+					NumericPrecisionPrefs.formatOther(power),
+					NumericPrecisionPrefs.formatOther(semiAmplitude));
+
 			// Full Width Half Maximum
 			try {
 				Pair<Double, Double> fwhm = fwhm();
-				strRepr = "FWHM lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
-				strRepr += "FWHM upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
+				strRepr += "  FWHM for frequency:\n";
+				strRepr += "    Lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
+				strRepr += "    Upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n\n";
 			} catch (AlgorithmError e) {
 				// don't report this uncertainty
 				strRepr = "";
@@ -174,14 +186,14 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 				// included, otherwise the additional harmonics would change the residuals.
 
 				try {
-					strRepr += "Standard Error of the Frequency: "
+					strRepr += "  Standard Error of the Frequency: "
 							+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency()) + "\n";
 				} catch (AlgorithmError e) {
 					// don't report this uncertainty
 				}
 
 				try {
-					strRepr += "Standard Error of the Semi-Amplitude: "
+					strRepr += "  Standard Error of the Semi-Amplitude: "
 							+ NumericPrecisionPrefs.formatOther(standardErrorOfTheSemiAmplitude());
 				} catch (AlgorithmError e) {
 					// don't report this uncertainty
