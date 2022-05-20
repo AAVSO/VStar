@@ -172,10 +172,10 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			try {
 				Pair<Double, Double> fwhm = fwhm();
 				strRepr += "  FWHM for frequency:\n";
-				strRepr += "    Lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
-				strRepr += "    Upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
-				double fwhmError = (fwhm.second - fwhm.first) / 2;
-				strRepr += "    Resulting error: " + NumericPrecisionPrefs.formatOther(fwhmError) + "\n\n";
+				strRepr += "        Lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
+				strRepr += "        Upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
+				double fwhmError = Math.abs(fwhm.second - fwhm.first) / 2;
+				strRepr += "     Resulting error: " + NumericPrecisionPrefs.formatOther(fwhmError) + "\n\n";
 			} catch (AlgorithmError e) {
 				// don't report this uncertainty
 				strRepr = "";
