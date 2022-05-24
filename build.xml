@@ -26,6 +26,7 @@
 	<property name="test_report" location="test_report" />
 	<property name="doc" location="doc" />
 	<property name="javadoc" location="doc/vstar_docs" />
+	<property name="mac_identity" value="P433N2A49C" /> 
 
 	<!-- Classpaths -->
 
@@ -227,9 +228,49 @@
         </copy>
 		
 	    <echo message="codesign: signing" />
+        <exec executable="codesign">
+              <arg value="-s" />
+              <arg value="${mac_identity}" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/commons-math-2.2.jar" />
+        </exec>
+        <exec executable="codesign">
+              <arg value="-s" />
+              <arg value="${mac_identity}" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/javacsv.jar" />
+        </exec>
+        <exec executable="codesign">
+              <arg value="-s" />
+              <arg value="${mac_identity}" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/jfreechart-1.5.2.jar" />
+        </exec>
+        <exec executable="codesign">
+              <arg value="-s" />
+              <arg value="${mac_identity}" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/jmathplot.jar" />
+        </exec>
+        <exec executable="codesign">
+              <arg value="-s" />
+              <arg value="${mac_identity}" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/antlr-runtime-4.5.3.jar" />
+        </exec>
+        <exec executable="codesign">
+              <arg value="-s" />
+              <arg value="${mac_identity}" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/nico-camargo-toolbar-icons-4.0.jar" />
+        </exec>
+        <exec executable="codesign">
+              <arg value="-s" />
+              <arg value="${mac_identity}" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/vstaricon.png" />
+        </exec>
+		<exec executable="codesign">
+		      <arg value="-s" />
+		      <arg value="${mac_identity}" />
+		      <arg value="${dist_mac}/VStar.app/Contents/MacOS/dist/vstar.jar" />
+	    </exec>
 	    <exec executable="codesign">
 	        <arg value="-s" />
-	        <arg value="Developer ID Application: David Benn" />
+	        <arg value="${mac_identity}" />
 	        <arg value="${dist_mac}/VStar.app" />
 	    </exec>
 
