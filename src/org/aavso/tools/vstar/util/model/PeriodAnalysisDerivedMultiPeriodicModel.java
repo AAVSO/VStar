@@ -136,7 +136,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		try {
 			algorithm.multiPeriodicFit(harmonics, this);
 
-			functionStrMap.put(LocaleProps.get("MODEL_INFO_UNCERTAINTY"), toUncertaintyString());
+			if (!algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY).isEmpty()) {
+				functionStrMap.put(LocaleProps.get("MODEL_INFO_UNCERTAINTY"), toUncertaintyString());
+			}
 
 			functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
 
@@ -155,49 +157,55 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
 	// see https://github.com/AAVSO/VStar/issues/255
 	public String toUncertaintyString() throws AlgorithmError {
-		double freq = harmonics.get(0).getFrequency();
-		double period = harmonics.get(0).getPeriod();
-		int index = findIndexOfFrequency(freq);
-		double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(index);
-		double power = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER).get(index);
+		String strRepr = "";
 
-		String strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_UNCERTAINTY"));
+		if (!algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY).isEmpty()) {
+			double freq = harmonics.get(0).getFrequency();
+			double period = harmonics.get(0).getPeriod();
 
-		if (strRepr == null) {
-			strRepr = String.format("For frequency %s, period %s, power %s, semi-amplitude %s:\n\n",
-					NumericPrecisionPrefs.formatOther(freq), NumericPrecisionPrefs.formatOther(period),
-					NumericPrecisionPrefs.formatOther(power), NumericPrecisionPrefs.formatOther(semiAmplitude));
+			int index = findIndexOfFrequency(freq);
+			double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE)
+					.get(index);
+			double power = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER).get(index);
 
-			// Full Width Half Maximum
-			try {
-				Pair<Double, Double> fwhm = fwhm();
-				strRepr += "  FWHM for frequency:\n";
-				strRepr += "        Lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
-				strRepr += "        Upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
-				double fwhmError = Math.abs(fwhm.second - fwhm.first) / 2;
-				strRepr += "     Resulting error: " + NumericPrecisionPrefs.formatOther(fwhmError) + "\n\n";
-			} catch (AlgorithmError e) {
-				// don't report this uncertainty
-				strRepr = "";
-			}
+			strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_UNCERTAINTY"));
 
-			if (harmonics.size() == 1) {
-				// Standard error of the frequency and semi-amplitude.
-				// Only makes sense for a model where just the fundamental frequency is
-				// included, otherwise the additional harmonics would change the residuals.
+			if (strRepr == null) {
+				strRepr = String.format("For frequency %s, period %s, power %s, semi-amplitude %s:\n\n",
+						NumericPrecisionPrefs.formatOther(freq), NumericPrecisionPrefs.formatOther(period),
+						NumericPrecisionPrefs.formatOther(power), NumericPrecisionPrefs.formatOther(semiAmplitude));
 
+				// Full Width Half Maximum
 				try {
-					strRepr += "  Standard Error of the Frequency: "
-							+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency()) + "\n";
+					Pair<Double, Double> fwhm = fwhm();
+					strRepr += "  FWHM for frequency:\n";
+					strRepr += "        Lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
+					strRepr += "        Upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
+					double fwhmError = Math.abs(fwhm.second - fwhm.first) / 2;
+					strRepr += "     Resulting error: " + NumericPrecisionPrefs.formatOther(fwhmError) + "\n\n";
 				} catch (AlgorithmError e) {
 					// don't report this uncertainty
+					strRepr = "";
 				}
 
-				try {
-					strRepr += "  Standard Error of the Semi-Amplitude: "
-							+ NumericPrecisionPrefs.formatOther(standardErrorOfTheSemiAmplitude());
-				} catch (AlgorithmError e) {
-					// don't report this uncertainty
+				if (harmonics.size() == 1) {
+					// Standard error of the frequency and semi-amplitude.
+					// Only makes sense for a model where just the fundamental frequency is
+					// included, otherwise the additional harmonics would change the residuals.
+
+					try {
+						strRepr += "  Standard Error of the Frequency: "
+								+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency()) + "\n";
+					} catch (AlgorithmError e) {
+						// don't report this uncertainty
+					}
+
+					try {
+						strRepr += "  Standard Error of the Semi-Amplitude: "
+								+ NumericPrecisionPrefs.formatOther(standardErrorOfTheSemiAmplitude());
+					} catch (AlgorithmError e) {
+						// don't report this uncertainty
+					}
 				}
 			}
 		}
@@ -347,7 +355,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			throw new AlgorithmError("selected frequency is not a top-hit");
 		}
 
-		// Find the index of the fundamental frequency in the full DCDFT result
+		// Find index of fundamental frequency in full period analysis result
 		int index = findIndexOfFrequency(harmonics.get(0).getFrequency());
 
 		// Obtain the power at this frequency
@@ -394,7 +402,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
 		if (index == -1) {
 			// should not happen unless there is a tolerance problem above
-			throw new AlgorithmError("cannot find specified frequency in DCDFT result");
+			throw new AlgorithmError("cannot find specified frequency in period analysis result");
 		}
 
 		return index;
