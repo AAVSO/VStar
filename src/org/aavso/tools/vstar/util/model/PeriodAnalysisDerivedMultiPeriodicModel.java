@@ -136,9 +136,14 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		try {
 			algorithm.multiPeriodicFit(harmonics, this);
 
+			String uncertaintyStr;
 			if (!algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY).isEmpty()) {
-				functionStrMap.put(LocaleProps.get("MODEL_INFO_UNCERTAINTY"), toUncertaintyString());
+				uncertaintyStr = toUncertaintyString();
+			} else {
+				uncertaintyStr = "A period analysis must be carried out for uncertainty information to be computed.";
 			}
+
+			functionStrMap.put(LocaleProps.get("MODEL_INFO_UNCERTAINTY"), uncertaintyStr);
 
 			functionStrMap.put(LocaleProps.get("MODEL_INFO_FUNCTION_TITLE"), toString());
 
