@@ -55,6 +55,8 @@ public class LocaleProps {
 		}
 	}
 
+	public static void initClass() {}
+	
 	public static void setLocalePref(Locale newLocale) {
 		locale = newLocale;
 		Locale.setDefault(locale);
