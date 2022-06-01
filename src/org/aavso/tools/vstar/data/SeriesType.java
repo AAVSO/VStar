@@ -68,6 +68,8 @@ public class SeriesType implements Comparable<SeriesType> {
 			// We need VStar to function in the absence of prefs.
 		}
 	}
+	
+	public static void initClass() {}
 
 	// ** Auto-generated bands from aid.bands start here **
 
