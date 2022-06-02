@@ -30,6 +30,78 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: Jun 2 2022
+Version: 2.22.0
+Tag: 2.22.0
+Key Changes:
+- #40: WWZ time steps computation documentation
+- #49: Magnitude baseline shifter observation transformation plugin does
+       not show all series
+- #50: Define RMS, AIC, BIC in user manual
+- #51: User defined series need to use copies of original observations
+- #74: Zeros as defaults in HJD RA/Dec dialogs may be confusing
+- #75: HJD RA hour can (incorrectly) be > 24
+- #76: HJD conversion not visible immediately in observation list if that 
+       tab is selected at conversion time 
+- #120: Unit Tests for plugins
+- #138: VeLa: trouble with a signed positive exponent
+- #164: "Descriptive Statistics by Series" plugin does not show all series
+- #165: Document chart properties tab in Preferences
+- #166: Update user manual re: series inversion checkbox in plot control dialog
+- #169: New DescStatBySeries plug-in fails for Mean series in PHASE_PLOT
+        mode
+- #170: invokeTool always uses RAW_DATA series info (for Tool plugins)
+- #171: HJDConverter should not update UI if series dialog canceled
+- #175: Observation source errors under WebStart
+- #176: Fix ant mac (Mac OS X build mechanism) 
+- #181: In QLPFITSObservationSource plug-in: fractional part of reference time
+        should be read via BJDREFR keyword
+- #183: Allow more harmonics in Fourier models periods dialog
+- #184: Magnitude baseline shifter plugin: Magnitude Shift dialog value loses
+        'minus' sign
+- #185: Heliocentric JD converter converts BJD observations if they are loaded
+        along with JD
+- #191: Implement constant folding optimisation in VeLa
+- #195: Labelling each Light Curve
+- #197: Lambda unicode vs function in VeLa
+- #205: Make VSX Query plugin to display RA/DEC in sexagesimal format
+- #208: Extend "JD to Calendar Date" plugin
+- #210: Mediator requestRA/requestDec: min/max input boundaries
+- #212: VSX Query: rounding issues of sexagesimal RA/De
+- #214: AoV AssertionError if code executed from within Eclipse
+- #215: FourierModelCreator plug-in is not finished properly if empty value
+        entered in "Period (days)" dialog
+- #224: Toolbar buttons / menu items remain disabled if a file obs. plug-in
+        has param dialog that canceled
+- #222: VeLa function parameter binding should always occur in top-most scope
+- #223: VeLaModelCreator should apply NumericPrecisionPrefs.formatTime() on
+        model function's time parameter
+- #227: Applying polynomial model using VeLa model creator plugin gives
+        incorrect result
+- #229: ExpressionVisitor.parseDouble fails for some locales for Java
+        version > 8
+- #235: Fix Unicode saves for all character sets and locales in VeLa dialog
+- #236: Fix unit tests for Java versions > 8
+- #238: Use correct lambda Unicode symbol for function in VeLa parser
+- #239: DecimalFormat in NumericPrecisionPrefs should be created with the
+        same DecimalFormatSymbols as in ExpressionVisitor.ParseDouble
+- #244: to keep "Light curve control" settings in "Show" group after loading
+        a new portion of data
+- #246: B-V observation source plugin creates observations with no names        
+- #250: Add timestamp (along with git version) into the About box
+- #255: DCDFT standard error of the frequency & semi-amplitude
+- #256: DCDFT FWHM as a measure of period error
+- #257: Model interpolation between observations
+- #261: "Create B-V series" plug-in does not utilize all possible B, V pairs
+- #266: Heliocentric JD Converter plug-in documentation update
+- #268: New Star from VeLa Model plug-in documentation
+- #273: Command-line option '--default-look-and-feel
+- #275: Mac OS X codesign failing
+- #277: Document DCDFT uncertainty measures: FWHM and standard errors
+- #278: Broken Fourier model: "Cannot find specified frequency in DCDFT 
+        result" error
+- #280: Some preferences are not read/saved in WebStart mode
+
 Date: May 19 2021
 Version: 2.21.3
 Tag: 2.21.3

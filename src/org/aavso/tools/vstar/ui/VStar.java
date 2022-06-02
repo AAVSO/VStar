@@ -28,12 +28,13 @@ import java.util.logging.SimpleFormatter;
 
 import javax.swing.UIManager;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.scripting.ScriptRunner;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
-import org.aavso.tools.vstar.util.locale.NumberParser;
+import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.property.ApplicationProperties;
 
 /**
@@ -112,6 +113,14 @@ public class VStar {
 				System.exit(1);
 			}
 		}
+
+		// Classes SeriesType and LocaleProps have static prefs members of Preferences type;
+		// those members cannot be created from within plug-ins in WebStart mode due to security restrictions.
+		// As far as 'prefs' in both classes are created with a 'static' block of code, any reference to the class
+		// initializes 'prefs'. This is ensured by a call of the empty initClass() method.
+		// After initialization, 'prefs' can be accessed from within plug-ins.
+		SeriesType.initClass();		
+		LocaleProps.initClass();
 
 		// If there's no command-line option that says we shouldn't load
 		// plug-ins and the plug-in manager says it's okay to load them, then go
