@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
 
 public class RevisionAccessor {
 
-	private static String REVISION = "0144b3f";
-	private static String BUILD_TIME = "2022-05-24 21:39";
+	private static String REVISION = "79db9f8";
+	private static String BUILD_TIME = "2022-06-02 01:19";
 
 	/**
 	 * Get the latest git revision
