@@ -130,12 +130,16 @@ public class DcDftDerivedFourierModelErrorTest extends MultiPeriodicModelDcDftTe
 			// Drum roll please...
 			commonTest(dcdft, harmonics, expectedParams, expectedModelData, expectedResidualData);
 
+			int topHitIndex = model.findIndexOfTopHitInFullResultData();
+			
 			// What are the standard errors?
-			assertTrue(Tolerance.areClose(2.3577e-5, model.standardErrorOfTheFrequency(), 1e-9, true));
-			assertTrue(Tolerance.areClose(0.1242, model.standardErrorOfTheSemiAmplitude(), DELTA, true));
+			double stdErrFreq = model.standardErrorOfTheFrequency(topHitIndex);
+			assertTrue(Tolerance.areClose(2.3577e-5, stdErrFreq, 1e-9, true));
+			double stdErrSemiAmpl = model.standardErrorOfTheSemiAmplitude();
+			assertTrue(Tolerance.areClose(0.1242, stdErrSemiAmpl, DELTA, true));
 
 			// What is the FWHM?
-			Pair<Double, Double> fwhm = model.fwhm();
+			Pair<Double, Double> fwhm = model.fwhm(topHitIndex);
 			double fwhmLo = fwhm.first;
 			double fwhmHi = fwhm.second;
 			assertTrue(Tolerance.areClose(0.0026534, fwhmLo, 1e-7, true));

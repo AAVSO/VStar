@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.stats.DescStats;
 import org.apache.commons.math.FunctionEvaluationException;
@@ -41,13 +42,14 @@ import org.apache.commons.math.analysis.UnivariateRealFunction;
  */
 public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
+	private PeriodAnalysisDataPoint topDataPoint;
 	private List<Harmonic> harmonics;
 	private IPeriodAnalysisAlgorithm algorithm;
 
 	private List<ValidObservation> fit;
 	private List<ValidObservation> residuals;
 
-	// TODO: PeriodFitParameters could be a generic parameter per concrete
+	// TODO: PeriodFitParameters could instead be a generic parameter per concrete
 	// model since this will differ for each model type.
 	private List<PeriodFitParameters> parameters;
 
@@ -58,10 +60,13 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	/**
 	 * Constructor
 	 * 
-	 * @param harmonics A list of harmonics used as input to the fit algorithm.
-	 * @param algorithm The algorithm to be executed to generate the fit.
+	 * @param topDataPoint The top period analysis datapoint May be null!
+	 * @param harmonics    A list of harmonics used as input to the fit algorithm.
+	 * @param algorithm    The algorithm to be executed to generate the fit.
 	 */
-	public PeriodAnalysisDerivedMultiPeriodicModel(List<Harmonic> harmonics, IPeriodAnalysisAlgorithm algorithm) {
+	public PeriodAnalysisDerivedMultiPeriodicModel(PeriodAnalysisDataPoint topDataPoint, List<Harmonic> harmonics,
+			IPeriodAnalysisAlgorithm algorithm) {
+		this.topDataPoint = topDataPoint;
 		this.harmonics = harmonics;
 		this.algorithm = algorithm;
 
@@ -140,7 +145,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			if (!algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY).isEmpty()) {
 				uncertaintyStr = toUncertaintyString();
 			} else {
-				uncertaintyStr = "A period analysis must be carried out for uncertainty information to be computed.";
+				uncertaintyStr = "A period analysis must be carried out for uncertainty to be computed.";
 			}
 
 			functionStrMap.put(LocaleProps.get("MODEL_INFO_UNCERTAINTY"), uncertaintyStr);
@@ -160,58 +165,53 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		return true;
 	}
 
-	// see https://github.com/AAVSO/VStar/issues/255
+	// See
+	// - https://github.com/AAVSO/VStar/issues/255
+	// - https://github.com/AAVSO/VStar/issues/294
 	public String toUncertaintyString() throws AlgorithmError {
-		String strRepr = "";
+		String strRepr = "Could not determine uncertainty for this model.";
 
 		if (!algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY).isEmpty()) {
 			double freq = harmonics.get(0).getFrequency();
 			double period = harmonics.get(0).getPeriod();
 
-			int index = findIndexOfFrequency(freq);
-			double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE)
-					.get(index);
-			double power = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER).get(index);
+			try {
+				int index = findIndexOfTopHitInFullResultData();
+				if (index != -1) {
+					double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE)
+							.get(index);
+					double power = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER).get(index);
 
-			strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_UNCERTAINTY"));
+					strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_UNCERTAINTY"));
 
-			if (strRepr == null) {
-				strRepr = String.format("For frequency %s, period %s, power %s, semi-amplitude %s:\n\n",
-						NumericPrecisionPrefs.formatOther(freq), NumericPrecisionPrefs.formatOther(period),
-						NumericPrecisionPrefs.formatOther(power), NumericPrecisionPrefs.formatOther(semiAmplitude));
+					if (strRepr == null) {
+						strRepr = String.format("For frequency %s, period %s, power %s, semi-amplitude %s:\n\n",
+								NumericPrecisionPrefs.formatOther(freq), NumericPrecisionPrefs.formatOther(period),
+								NumericPrecisionPrefs.formatOther(power),
+								NumericPrecisionPrefs.formatOther(semiAmplitude));
 
-				// Full Width Half Maximum
-				try {
-					Pair<Double, Double> fwhm = fwhm();
-					strRepr += "  FWHM for frequency:\n";
-					strRepr += "        Lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
-					strRepr += "        Upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
-					double fwhmError = Math.abs(fwhm.second - fwhm.first) / 2;
-					strRepr += "     Resulting error: " + NumericPrecisionPrefs.formatOther(fwhmError) + "\n\n";
-				} catch (AlgorithmError e) {
-					// don't report this uncertainty
-					strRepr = "";
-				}
+						// Full Width Half Maximum
+						Pair<Double, Double> fwhm = fwhm(index);
+						strRepr += "  FWHM for frequency:\n";
+						strRepr += "        Lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
+						strRepr += "        Upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
+						double fwhmError = Math.abs(fwhm.second - fwhm.first) / 2;
+						strRepr += "     Resulting error: " + NumericPrecisionPrefs.formatOther(fwhmError) + "\n\n";
 
-				if (harmonics.size() == 1) {
-					// Standard error of the frequency and semi-amplitude.
-					// Only makes sense for a model where just the fundamental frequency is
-					// included, otherwise the additional harmonics would change the residuals.
+						if (harmonics.size() == 1) {
+							// Standard error of the frequency and semi-amplitude.
+							// Only makes sense for a model where just the fundamental frequency is
+							// included, otherwise the additional harmonics would change the residuals.
+							strRepr += "  Standard Error of the Frequency: "
+									+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency(index)) + "\n";
 
-					try {
-						strRepr += "  Standard Error of the Frequency: "
-								+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency()) + "\n";
-					} catch (AlgorithmError e) {
-						// don't report this uncertainty
-					}
-
-					try {
-						strRepr += "  Standard Error of the Semi-Amplitude: "
-								+ NumericPrecisionPrefs.formatOther(standardErrorOfTheSemiAmplitude());
-					} catch (AlgorithmError e) {
-						// don't report this uncertainty
+							strRepr += "  Standard Error of the Semi-Amplitude: "
+									+ NumericPrecisionPrefs.formatOther(standardErrorOfTheSemiAmplitude());
+						}
 					}
 				}
+			} catch (AlgorithmError e) {
+				// can't report uncertainty
 			}
 		}
 
@@ -323,10 +323,11 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	// Residuals-based standard error functions
 	// see https://github.com/AAVSO/VStar/issues/255
 
-	public double standardErrorOfTheFrequency() throws AlgorithmError {
+	public double standardErrorOfTheFrequency(int topHitIndexInFullResult) throws AlgorithmError {
 		// Find the semi-amplitude for the fundamental frequency (zeroth harmonic)
-		int index = findIndexOfFrequency(harmonics.get(0).getFrequency());
-		double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(index);
+//		int index = findIndexOfFrequency(harmonics.get(0).getFrequency());
+		double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE)
+				.get(topHitIndexInFullResult);
 
 		double sampleVariance = DescStats.calcMagSampleVarianceInRange(residuals, 0, residuals.size() - 1);
 
@@ -344,28 +345,32 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	// Full Width Half Maximum for the model's fundamental frequency (zeroth
 	// harmonic)
 
-	public Pair<Double, Double> fwhm() throws AlgorithmError {
+	public Pair<Double, Double> fwhm(int topHitIndexInFullResult) throws AlgorithmError {
+
+		// TODO: call findIndexOfTopHitInFullResultData() from here, just using
+		// topDataPoint where semi-amplitude, power of fundamental selection are needed
+
 		// For FWHM, we are assuming a top-hit (peak) so check that the model's
 		// fundamental frequency is a peak (top-hit)
-		boolean isTopHit = false;
-		List<Double> topHitFrequencies = algorithm.getTopHits().get(PeriodAnalysisCoordinateType.FREQUENCY);
-		for (int i = 0; i < topHitFrequencies.size(); i++) {
-			if (Tolerance.areClose(topHitFrequencies.get(i), harmonics.get(0).getFrequency(), 1e-9, true)) {
-				isTopHit = true;
-				break;
-			}
-		}
-
-		if (!isTopHit) {
-			throw new AlgorithmError("selected frequency is not a top-hit");
-		}
+//		boolean isTopHit = false;
+//		List<Double> topHitFrequencies = algorithm.getTopHits().get(PeriodAnalysisCoordinateType.FREQUENCY);
+//		for (int i = 0; i < topHitFrequencies.size(); i++) {
+//			if (Tolerance.areClose(topHitFrequencies.get(i), harmonics.get(0).getFrequency(), TOLERANCE, true)) {
+//				isTopHit = true;
+//				break;
+//			}
+//		}
+//
+//		if (!isTopHit) {
+//			throw new AlgorithmError("selected frequency is not a top-hit");
+//		}
 
 		// Find index of fundamental frequency in full period analysis result
-		int index = findIndexOfFrequency(harmonics.get(0).getFrequency());
+		// int index = findIndexOfFrequency(harmonics.get(0).getFrequency());
 
 		// Obtain the power at this frequency
 		List<Double> powers = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER);
-		double peakPower = powers.get(index);
+		double peakPower = powers.get(topHitIndexInFullResult);
 		double fwhmLo = peakPower;
 		double fwhmHi = peakPower;
 
@@ -375,7 +380,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		// model's fundamental frequency.
 		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
 
-		for (int i = index; i >= 0; i--) {
+		for (int i = topHitIndexInFullResult; i >= 0; i--) {
 			if (powers.get(i) >= peakPower / 2) {
 				fwhmLo = frequencies.get(i);
 			} else {
@@ -383,7 +388,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			}
 		}
 
-		for (int i = index; i < powers.size(); i++) {
+		for (int i = topHitIndexInFullResult; i < powers.size(); i++) {
 			if (powers.get(i) >= peakPower / 2) {
 				fwhmHi = frequencies.get(i);
 			} else {
@@ -394,20 +399,55 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		return new Pair<Double, Double>(fwhmLo, fwhmHi);
 	}
 
-	protected int findIndexOfFrequency(double freq) throws AlgorithmError {
+	public int findIndexOfTopHitInFullResultData() throws AlgorithmError {
 		int index = -1;
 
-		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
-		for (int i = 0; i < frequencies.size(); i++) {
-			if (Tolerance.areClose(frequencies.get(i), freq, 1e-9, true)) {
-				index = i;
-				break;
-			}
-		}
+//		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
+		if (topDataPoint != null) {
+			Map<PeriodAnalysisCoordinateType, List<Double>> resultDataMap = algorithm.getResultSeries();
 
-		if (index == -1) {
-			// should not happen unless there is a tolerance problem above
-			throw new AlgorithmError("cannot find specified frequency in period analysis result");
+			for (int i = 0; i < resultDataMap.get(PeriodAnalysisCoordinateType.FREQUENCY).size(); i++) {
+				double candidateFreq = resultDataMap.get(PeriodAnalysisCoordinateType.FREQUENCY).get(i);
+				double candidatePeriod = resultDataMap.get(PeriodAnalysisCoordinateType.PERIOD).get(i);
+				double candidatePower = resultDataMap.get(PeriodAnalysisCoordinateType.POWER).get(i);
+				double candidateSemiAmplitude = resultDataMap.get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(i);
+
+				PeriodAnalysisDataPoint candidateDataPoint = new PeriodAnalysisDataPoint(candidateFreq, candidatePeriod,
+						candidatePower, candidateSemiAmplitude);
+
+				if (candidateDataPoint.hashCode() == topDataPoint.hashCode()) {
+					// System.out.printf("%x, %x\n", candidateDataPoint.hashCode(),
+					// topDataPoint.hashCode());
+					index = i;
+					break;
+				}
+
+				// if (Tolerance.areClose(frequencies.get(i), freq, TOLERANCE, true)) {
+				// index = i;
+				// System.out.printf("%f, %f\n", frequencies.get(i), freq);
+				//
+				// double candidateFreq =
+				// algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY).get(i);
+				// double candidatePeriod =
+				// algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.PERIOD).get(i);
+				// double candidatePower =
+				// algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER).get(i);
+				// double candidateSemiAmplitude = algorithm.getResultSeries()
+				// .get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(i);
+				// PeriodAnalysisDataPoint candidateDataPoint = new
+				// PeriodAnalysisDataPoint(candidateFreq, candidatePeriod,
+				// candidatePower, candidateSemiAmplitude);
+				// System.out.printf("%s, %s\n", candidateDataPoint, resultDataPoints.get(0));
+				// System.out.printf("%x, %x\n", candidateDataPoint.hashCode(),
+				// resultDataPoints.get(0).hashCode());
+				// break;
+				// }
+			}
+
+			if (index == -1) {
+				// should not happen unless there is a tolerance problem above
+				throw new AlgorithmError("cannot find specified frequency in period analysis result");
+			}
 		}
 
 		return index;

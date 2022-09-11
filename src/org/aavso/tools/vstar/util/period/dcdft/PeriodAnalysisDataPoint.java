@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.util.period.dcdft;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -28,11 +29,9 @@ import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
  */
 public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 
-	private final static PeriodAnalysisCoordinateType[] DCDFT_COORD_TYPES = new PeriodAnalysisCoordinateType[] {
-			PeriodAnalysisCoordinateType.FREQUENCY,
-			PeriodAnalysisCoordinateType.PERIOD,
-			PeriodAnalysisCoordinateType.POWER,
-			PeriodAnalysisCoordinateType.SEMI_AMPLITUDE };
+	public final static PeriodAnalysisCoordinateType[] DCDFT_COORD_TYPES = new PeriodAnalysisCoordinateType[] {
+			PeriodAnalysisCoordinateType.FREQUENCY, PeriodAnalysisCoordinateType.PERIOD,
+			PeriodAnalysisCoordinateType.POWER, PeriodAnalysisCoordinateType.SEMI_AMPLITUDE };
 
 	private PeriodAnalysisCoordinateType[] coordTypes;
 	private Map<PeriodAnalysisCoordinateType, Double> coords;
@@ -40,18 +39,15 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	/**
 	 * Constructor
 	 * 
-	 * @param coordTypes
-	 *            The array of coordinate types for this data point.
-	 * @param coordVals
-	 *            ... Coordinate values corresponding to each coordinate in
-	 *            sequence.
+	 * @param coordTypes The array of coordinate types for this data point.
+	 * @param coordVals  ... Coordinate values corresponding to each coordinate in
+	 *                   sequence.
 	 */
-	public PeriodAnalysisDataPoint(PeriodAnalysisCoordinateType[] coordTypes,
-			double... coordVals) {
+	public PeriodAnalysisDataPoint(PeriodAnalysisCoordinateType[] coordTypes, double... coordVals) {
 		this.coordTypes = coordTypes;
 		coords = new LinkedHashMap<PeriodAnalysisCoordinateType, Double>();
-		
-		int i=0;
+
+		int i = 0;
 		for (Double val : coordVals) {
 			assert (i < coordTypes.length);
 			coords.put(coordTypes[i++], val);
@@ -63,7 +59,14 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 		this(DCDFT_COORD_TYPES, coordVals);
 	}
 
-	// ultimately remove these getters
+
+	public PeriodAnalysisCoordinateType[] getCoordTypes() {
+		return coordTypes;
+	}
+
+	public Map<PeriodAnalysisCoordinateType, Double> getCoords() {
+		return coords;
+	}
 
 	/**
 	 * @return the frequency
@@ -96,8 +99,7 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	/**
 	 * Retrieve a value by coordinate type.
 	 * 
-	 * @param type
-	 *            The coordinate type.
+	 * @param type The coordinate type.
 	 * @return The value.
 	 */
 	public double getValue(PeriodAnalysisCoordinateType type) {
@@ -113,19 +115,33 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		boolean equal = false;
-
-		if (obj instanceof PeriodAnalysisDataPoint) {
-			PeriodAnalysisDataPoint other = (PeriodAnalysisDataPoint) obj;
-//			boolean b = coordTypes.equals(other.coordTypes);
-			equal = /*coordTypes.equals(other.coordTypes)
-					&& */ coords.equals(other.coords);
-		}
-
-		return equal;
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(coordTypes);
+		result = prime * result + ((coords == null) ? 0 : coords.hashCode());
+		return result;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PeriodAnalysisDataPoint other = (PeriodAnalysisDataPoint) obj;
+		if (!Arrays.equals(coordTypes, other.coordTypes))
+			return false;
+		if (coords == null) {
+			if (other.coords != null)
+				return false;
+		} else if (!coords.equals(other.coords))
+			return false;
+		return true;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
