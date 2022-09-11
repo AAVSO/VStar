@@ -78,7 +78,7 @@ public class FourierModelCreator extends ModelCreatorPluginBase {
 					List<Harmonic> harmonics = dialog.getHarmonics();
 					if (!harmonics.isEmpty()) {
 						IPeriodAnalysisAlgorithm algorithm = new TSDcDft(obs);
-						model = new PeriodAnalysisDerivedMultiPeriodicModel(
+						model = new PeriodAnalysisDerivedMultiPeriodicModel(null,
 								harmonics, algorithm);
 
 					} else {

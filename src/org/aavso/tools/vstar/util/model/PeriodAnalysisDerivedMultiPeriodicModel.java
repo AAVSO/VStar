@@ -26,7 +26,6 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.util.Pair;
-import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
@@ -325,7 +324,6 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
 	public double standardErrorOfTheFrequency(int topHitIndexInFullResult) throws AlgorithmError {
 		// Find the semi-amplitude for the fundamental frequency (zeroth harmonic)
-//		int index = findIndexOfFrequency(harmonics.get(0).getFrequency());
 		double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE)
 				.get(topHitIndexInFullResult);
 
@@ -343,31 +341,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	}
 
 	// Full Width Half Maximum for the model's fundamental frequency (zeroth
-	// harmonic)
-
+	// harmonic from the selected top-hit).
+	
 	public Pair<Double, Double> fwhm(int topHitIndexInFullResult) throws AlgorithmError {
-
-		// TODO: call findIndexOfTopHitInFullResultData() from here, just using
-		// topDataPoint where semi-amplitude, power of fundamental selection are needed
-
-		// For FWHM, we are assuming a top-hit (peak) so check that the model's
-		// fundamental frequency is a peak (top-hit)
-//		boolean isTopHit = false;
-//		List<Double> topHitFrequencies = algorithm.getTopHits().get(PeriodAnalysisCoordinateType.FREQUENCY);
-//		for (int i = 0; i < topHitFrequencies.size(); i++) {
-//			if (Tolerance.areClose(topHitFrequencies.get(i), harmonics.get(0).getFrequency(), TOLERANCE, true)) {
-//				isTopHit = true;
-//				break;
-//			}
-//		}
-//
-//		if (!isTopHit) {
-//			throw new AlgorithmError("selected frequency is not a top-hit");
-//		}
-
-		// Find index of fundamental frequency in full period analysis result
-		// int index = findIndexOfFrequency(harmonics.get(0).getFrequency());
-
 		// Obtain the power at this frequency
 		List<Double> powers = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER);
 		double peakPower = powers.get(topHitIndexInFullResult);
@@ -402,7 +378,6 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	public int findIndexOfTopHitInFullResultData() throws AlgorithmError {
 		int index = -1;
 
-//		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
 		if (topDataPoint != null) {
 			Map<PeriodAnalysisCoordinateType, List<Double>> resultDataMap = algorithm.getResultSeries();
 
@@ -416,37 +391,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 						candidatePower, candidateSemiAmplitude);
 
 				if (candidateDataPoint.hashCode() == topDataPoint.hashCode()) {
-					// System.out.printf("%x, %x\n", candidateDataPoint.hashCode(),
-					// topDataPoint.hashCode());
 					index = i;
 					break;
 				}
-
-				// if (Tolerance.areClose(frequencies.get(i), freq, TOLERANCE, true)) {
-				// index = i;
-				// System.out.printf("%f, %f\n", frequencies.get(i), freq);
-				//
-				// double candidateFreq =
-				// algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY).get(i);
-				// double candidatePeriod =
-				// algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.PERIOD).get(i);
-				// double candidatePower =
-				// algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER).get(i);
-				// double candidateSemiAmplitude = algorithm.getResultSeries()
-				// .get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE).get(i);
-				// PeriodAnalysisDataPoint candidateDataPoint = new
-				// PeriodAnalysisDataPoint(candidateFreq, candidatePeriod,
-				// candidatePower, candidateSemiAmplitude);
-				// System.out.printf("%s, %s\n", candidateDataPoint, resultDataPoints.get(0));
-				// System.out.printf("%x, %x\n", candidateDataPoint.hashCode(),
-				// resultDataPoints.get(0).hashCode());
-				// break;
-				// }
-			}
-
-			if (index == -1) {
-				// should not happen unless there is a tolerance problem above
-				throw new AlgorithmError("cannot find specified frequency in period analysis result");
 			}
 		}
 
