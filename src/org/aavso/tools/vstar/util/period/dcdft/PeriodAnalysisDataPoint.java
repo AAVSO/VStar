@@ -90,9 +90,9 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	}
 
 	/**
-	 * @return the amplitude
+	 * @return the semi-amplitude
 	 */
-	public double getAmplitude() {
+	public double getSemiAmplitude() {
 		return coords.get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE);
 	}
 

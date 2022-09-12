@@ -250,12 +250,12 @@ public class WeightedWaveletZTransform implements IAlgorithm {
 				maxPeriod = stat.getPeriod();
 			}
 
-			if (stat.getAmplitude() < minAmp) {
-				minAmp = stat.getAmplitude();
+			if (stat.getSemiAmplitude() < minAmp) {
+				minAmp = stat.getSemiAmplitude();
 			}
 
-			if (stat.getAmplitude() > maxAmp) {
-				maxAmp = stat.getAmplitude();
+			if (stat.getSemiAmplitude() > maxAmp) {
+				maxAmp = stat.getSemiAmplitude();
 			}
 
 			if (stat.getWwz() < minWWZ) {

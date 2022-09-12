@@ -133,7 +133,7 @@ public class DcDftDerivedFourierModelErrorTest extends MultiPeriodicModelDcDftTe
 			int topHitIndex = model.findIndexOfTopHitInFullResultData();
 			
 			// What are the standard errors?
-			double stdErrFreq = model.standardErrorOfTheFrequency(topHitIndex);
+			double stdErrFreq = model.standardErrorOfTheFrequency();
 			assertTrue(Tolerance.areClose(2.3577e-5, stdErrFreq, 1e-9, true));
 			double stdErrSemiAmpl = model.standardErrorOfTheSemiAmplitude();
 			assertTrue(Tolerance.areClose(0.1242, stdErrSemiAmpl, DELTA, true));

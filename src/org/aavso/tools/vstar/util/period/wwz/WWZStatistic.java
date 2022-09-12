@@ -119,7 +119,7 @@ public class WWZStatistic implements IPeriodAnalysisDatum {
 	/**
 	 * @return the amp
 	 */
-	public double getAmplitude() {
+	public double getSemiAmplitude() {
 		return amp;
 	}
 
@@ -190,7 +190,7 @@ public class WWZStatistic implements IPeriodAnalysisDatum {
 			value = getWwz();
 			break;
 		case SEMI_AMPLITUDE:
-			value = getAmplitude();
+			value = getSemiAmplitude();
 			break;
 		case MEAN_MAG:
 			value = getMave();
@@ -216,7 +216,7 @@ public class WWZStatistic implements IPeriodAnalysisDatum {
 		} else if (type == PeriodAnalysisCoordinateType.PERIOD) {
 			value = getPeriod();
 		} else if (type == PeriodAnalysisCoordinateType.AMPLITUDE) {
-			value = getAmplitude();
+			value = getSemiAmplitude();
 		} else if (type == PeriodAnalysisCoordinateType.POWER) {
 			value = getPower();
 		}

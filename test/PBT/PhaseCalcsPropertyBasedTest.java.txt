@@ -19,6 +19,8 @@ package PBT;
 
 //import static org.junit.Assume.assumeTrue;
 
+//import static org.junit.Assume.assumeTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,9 +33,12 @@ import org.aavso.tools.vstar.util.stats.epoch.AlphaOmegaMeanJDEpochStrategy;
 import org.aavso.tools.vstar.util.stats.epoch.MaxMagEpochStrategy;
 import org.aavso.tools.vstar.util.stats.epoch.MinMagEpochStrategy;
 //import org.junit.runner.RunWith;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import com.pholser.junit.quickcheck.Property;
-import com.pholser.junit.quickcheck.generator.InRange;
+//import com.pholser.junit.quickcheck.Property;
+//import com.pholser.junit.quickcheck.generator.InRange;
+//import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 //import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 
 import junit.framework.TestCase;
@@ -53,19 +58,19 @@ public class PhaseCalcsPropertyBasedTest extends TestCase {
 
 	// Valid
 
-	//@Test
+	@Test
 	public void testStandardPhase1() {
 		double phase = PhaseCalcs.calcStandardPhase(2450004, 2450002, 10);
 		assertEquals(0.2, phase, DELTA);
 	}
 
-	//@Test
+	@Test
 	public void testStandardPhase2() {
 		double phase = PhaseCalcs.calcStandardPhase(2450002, 2450004, 10);
 		assertEquals(0.8, phase, DELTA);
 	}
 
-	//@Test
+	@Test
 	public void testDetermineEpochAlphaAndOmegaMeanJD() {
 		List<ValidObservation> observations = populateObservations(mags1, jds1);
 		double epoch = new AlphaOmegaMeanJDEpochStrategy()
@@ -73,21 +78,21 @@ public class PhaseCalcsPropertyBasedTest extends TestCase {
 		assertEquals(2450003.25, epoch, DELTA);
 	}
 
-	//@Test
+	@Test
 	public void testDetermineMinMagJD() {
 		List<ValidObservation> observations = populateObservations(mags1, jds1);
 		double epoch = new MinMagEpochStrategy().determineEpoch(observations);
 		assertEquals(2450001.5, epoch, DELTA);
 	}
 
-	//@Test
+	@Test
 	public void testDetermineMaxMagJD() {
 		List<ValidObservation> observations = populateObservations(mags1, jds1);
 		double epoch = new MaxMagEpochStrategy().determineEpoch(observations);
 		assertEquals(2450003.5, epoch, DELTA);
 	}
 
-	//@Test
+	@Test
 	public void testPhases1() {
 		List<ValidObservation> observations = populateObservations(mags1, jds1);
 		double epoch = 2450003.25;
@@ -112,7 +117,7 @@ public class PhaseCalcsPropertyBasedTest extends TestCase {
 	@Property(trials=1000)
 	public void phaseInRange(@InRange(minDouble = 0) double jd,
 			@InRange(minDouble = 0) double epoch, double period) {
-		//assumeTrue(period > 0);
+		assumeTrue(period > 0);
 		double phase = PhaseCalcs.calcStandardPhase(jd, epoch, period);
 		assertTrue(phase >= 0 && phase <= 1);
 	}

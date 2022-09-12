@@ -175,20 +175,18 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			double period = harmonics.get(0).getPeriod();
 
 			try {
-				int index = findIndexOfTopHitInFullResultData();
-				if (index != -1) {
-					double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE)
-							.get(index);
-					double power = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER).get(index);
+				double semiAmplitude = topDataPoint.getSemiAmplitude();
+				double power = topDataPoint.getPower();
 
-					strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_UNCERTAINTY"));
+				strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_UNCERTAINTY"));
 
-					if (strRepr == null) {
-						strRepr = String.format("For frequency %s, period %s, power %s, semi-amplitude %s:\n\n",
-								NumericPrecisionPrefs.formatOther(freq), NumericPrecisionPrefs.formatOther(period),
-								NumericPrecisionPrefs.formatOther(power),
-								NumericPrecisionPrefs.formatOther(semiAmplitude));
+				if (strRepr == null) {
+					strRepr = String.format("For frequency %s, period %s, power %s, semi-amplitude %s:\n\n",
+							NumericPrecisionPrefs.formatOther(freq), NumericPrecisionPrefs.formatOther(period),
+							NumericPrecisionPrefs.formatOther(power), NumericPrecisionPrefs.formatOther(semiAmplitude));
 
+					int index = findIndexOfTopHitInFullResultData();
+					if (index != -1) {
 						// Full Width Half Maximum
 						Pair<Double, Double> fwhm = fwhm(index);
 						strRepr += "  FWHM for frequency:\n";
@@ -196,17 +194,17 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 						strRepr += "        Upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
 						double fwhmError = Math.abs(fwhm.second - fwhm.first) / 2;
 						strRepr += "     Resulting error: " + NumericPrecisionPrefs.formatOther(fwhmError) + "\n\n";
+					}
 
-						if (harmonics.size() == 1) {
-							// Standard error of the frequency and semi-amplitude.
-							// Only makes sense for a model where just the fundamental frequency is
-							// included, otherwise the additional harmonics would change the residuals.
-							strRepr += "  Standard Error of the Frequency: "
-									+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency(index)) + "\n";
+					if (harmonics.size() == 1) {
+						// Standard error of the frequency and semi-amplitude.
+						// Only makes sense for a model where just the fundamental frequency is
+						// included, otherwise the additional harmonics would change the residuals.
+						strRepr += "  Standard Error of the Frequency: "
+								+ NumericPrecisionPrefs.formatOther(standardErrorOfTheFrequency()) + "\n";
 
-							strRepr += "  Standard Error of the Semi-Amplitude: "
-									+ NumericPrecisionPrefs.formatOther(standardErrorOfTheSemiAmplitude());
-						}
+						strRepr += "  Standard Error of the Semi-Amplitude: "
+								+ NumericPrecisionPrefs.formatOther(standardErrorOfTheSemiAmplitude());
 					}
 				}
 			} catch (AlgorithmError e) {
@@ -215,6 +213,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		}
 
 		return strRepr;
+
 	}
 
 	public String toString() {
@@ -322,10 +321,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	// Residuals-based standard error functions
 	// see https://github.com/AAVSO/VStar/issues/255
 
-	public double standardErrorOfTheFrequency(int topHitIndexInFullResult) throws AlgorithmError {
+	public double standardErrorOfTheFrequency() throws AlgorithmError {
 		// Find the semi-amplitude for the fundamental frequency (zeroth harmonic)
-		double semiAmplitude = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.SEMI_AMPLITUDE)
-				.get(topHitIndexInFullResult);
+		double semiAmplitude = topDataPoint.getSemiAmplitude();
 
 		double sampleVariance = DescStats.calcMagSampleVarianceInRange(residuals, 0, residuals.size() - 1);
 
@@ -342,7 +340,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
 	// Full Width Half Maximum for the model's fundamental frequency (zeroth
 	// harmonic from the selected top-hit).
-	
+
 	public Pair<Double, Double> fwhm(int topHitIndexInFullResult) throws AlgorithmError {
 		// Obtain the power at this frequency
 		List<Double> powers = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER);
