@@ -32,9 +32,9 @@ from the AAVSO International Database.
 
 ### Running VStar
 VStar can be launched by one of the following methods:
-* Mac OS X: double-clicking the "VStar" launcher application.
-* Windows: double-clicking "VStar.exe" launcher application.
-* Linux (or other Unix variants or bash users): running the "VStar.sh" shell script.
+* Mac OS X: double-clicking the `VStar` launcher application.
+* Windows: double-clicking `VStar.exe` launcher application.
+* Linux (or other Unix variants or bash users): running the `VStar.sh` shell script.
 
 Each of the foregoing options runs VStar with the same memory allocation 
 parameters.
