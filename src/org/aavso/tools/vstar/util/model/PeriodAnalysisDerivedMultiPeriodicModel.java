@@ -318,6 +318,8 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		return functionStrMap;
 	}
 
+	// TODO: do the names of these std err functions reflect a typo in Foster's book?
+	
 	// Residuals-based standard error functions
 	// see https://github.com/AAVSO/VStar/issues/255
 
@@ -342,17 +344,18 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	// harmonic from the selected top-hit).
 
 	public Pair<Double, Double> fwhm(int topHitIndexInFullResult) throws AlgorithmError {
-		// Obtain the power at this frequency
+		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
+		double fwhmLo = frequencies.get(topHitIndexInFullResult);
+		double fwhmHi = frequencies.get(topHitIndexInFullResult);
+
+		// Obtain the power at the top-hit frequency
 		List<Double> powers = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER);
 		double peakPower = powers.get(topHitIndexInFullResult);
-		double fwhmLo = peakPower;
-		double fwhmHi = peakPower;
 
 		// Descend the left and right branches starting from the model's fundamental
 		// peak frequency, returning the low (left branch) and high (right branch)
 		// frequencies whose powers are greater than or equal to half the power at the
 		// model's fundamental frequency.
-		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
 
 		for (int i = topHitIndexInFullResult; i >= 0; i--) {
 			if (powers.get(i) >= peakPower / 2) {
