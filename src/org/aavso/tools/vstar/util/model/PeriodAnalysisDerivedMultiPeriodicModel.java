@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -318,8 +319,9 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 		return functionStrMap;
 	}
 
-	// TODO: do the names of these std err functions reflect a typo in Foster's book?
-	
+	// TODO: do the names of these std err functions reflect a typo in Foster's
+	// book?
+
 	// Residuals-based standard error functions
 	// see https://github.com/AAVSO/VStar/issues/255
 
@@ -342,11 +344,20 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 
 	// Full Width Half Maximum for the model's fundamental frequency (zeroth
 	// harmonic from the selected top-hit).
-
 	public Pair<Double, Double> fwhm(int topHitIndexInFullResult) throws AlgorithmError {
+		// Start with peak frequency
 		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
 		double fwhmLo = frequencies.get(topHitIndexInFullResult);
 		double fwhmHi = frequencies.get(topHitIndexInFullResult);
+
+		// Check that the user supplied frequency is a top hit
+		String candidateFreqStr = NumericPrecisionPrefs.formatOther(harmonics.get(0).getFrequency());
+		String topHitFreqStr = NumericPrecisionPrefs.formatOther(frequencies.get(topHitIndexInFullResult));
+
+		if (!candidateFreqStr.equals(topHitFreqStr)) {
+			MessageBox.showWarningDialog("Fourier Model Uncertainty",
+					"A top hit was not specified, so the FWHM uncertainty value will not be computed, only standard error values.");
+		}
 
 		// Obtain the power at the top-hit frequency
 		List<Double> powers = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.POWER);

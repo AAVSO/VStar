@@ -18,6 +18,7 @@
 package org.aavso.tools.vstar.ui.dialog.model;
 
 import java.awt.Dimension;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +42,8 @@ import org.aavso.tools.vstar.vela.VeLaParseError;
  */
 @SuppressWarnings("serial")
 public class HarmonicPeriodPane extends JPanel {
+
+	private final static DecimalFormat periodFormatter = new DecimalFormat("0.#");
 
 	private int defaultNumHarmonics;
 
@@ -66,7 +69,8 @@ public class HarmonicPeriodPane extends JPanel {
 
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-		String periodStr = NumericPrecisionPrefs.formatOther(period);
+		String periodStr = String.format("%g", period);
+
 		periodField = new JTextField(periodStr);
 		periodField.setEditable(true);
 		periodField.setToolTipText("frequency="
