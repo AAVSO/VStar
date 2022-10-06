@@ -42,86 +42,86 @@ public abstract class DateUtilTestBase extends TestCase {
 	// From Meeus
 	
 	public void testJDtoCal2000() {
-		commonJDtoCalTest(2451545.0, "2000 JAN 1");
+		commonJDtoCalTest(2451545.0, "2000-01-01");
 	}
 
 	public void testJDtoCal1987a() {
-		commonJDtoCalTest(2446822.5, "1987 JAN 27");
+		commonJDtoCalTest(2446822.5, "1987-01-27");
 	}
 	
 	public void testJDtoCal1987b() {
-		commonJDtoCalTest(2446966.0, "1987 JUN 19");
+		commonJDtoCalTest(2446966.0, "1987-06-19");
 	}
 
 	public void testJDtoCal1988a() {
-		commonJDtoCalTest(2447187.5, "1988 JAN 27");
+		commonJDtoCalTest(2447187.5, "1988-01-27");
 	}
 
 	public void testJDtoCa1988b() {
-		commonJDtoCalTest(2447332.0, "1988 JUN 19");
+		commonJDtoCalTest(2447332.0, "1988-06-19");
 	}
 
 	public void testJDtoCal1957() {
 		// Sputnik
-		commonJDtoCalTest(2436116.31, "1957 OCT 4");
+		commonJDtoCalTest(2436116.31, "1957-10-04");
 	}
 
 	public void testJDtoCa1900() {
-		commonJDtoCalTest(2415020.5, "1900 JAN 1");
+		commonJDtoCalTest(2415020.5, "1900-01-01");
 	}
 
 	public void testJDtoCal1600a() {
-		commonJDtoCalTest(2305447.5, "1600 JAN 1");		
+		commonJDtoCalTest(2305447.5, "1600-01-01");		
 	}
 
 	public void testJDtoCal1600b() {
-		commonJDtoCalTest(2305812.5, "1600 DEC 31");		
+		commonJDtoCalTest(2305812.5, "1600-12-31");		
 	}
 
 	public void testJDtoCal837() {
-		commonJDtoCalTest(2026871.8, "837 APR 10");		
+		commonJDtoCalTest(2026871.8, "837-04-10");		
 	}
 	
 	public void testJDtoCal333() {
-		commonJDtoCalTest(1842713.0, "333 JAN 27");		
+		commonJDtoCalTest(1842713.0, "333-01-27");		
 	}
 
 	public void testJDtoCalNeg584() {
-		commonJDtoCalTest(1507900.13, "-584 MAY 28");		
+		commonJDtoCalTest(1507900.13, "-584-05-28");		
 	}
 
 	public void testJDtoCalNeg1000a() {
-		commonJDtoCalTest(1356001.0, "-1000 JUL 12");		
+		commonJDtoCalTest(1356001.0, "-1000-07-12");		
 	}
 
 	public void testJDtoCalNeg1000b() {
-		commonJDtoCalTest(1355866.5, "-1000 FEB 29");		
+		commonJDtoCalTest(1355866.5, "-1000-02-29");		
 	}
 
 	public void testJDtoCalNeg1001() {
-		commonJDtoCalTest(1355671.4, "-1001 AUG 17");		
+		commonJDtoCalTest(1355671.4, "-1001-08-17");		
 	}
 
 	public void testJDtoCalNeg4712() {
-		commonJDtoCalTest(0.0, "-4712 JAN 1");		
+		commonJDtoCalTest(0.0, "-4712-01-01");		
 	}
 
 	// From http://www.sizes.com/time/dayJulianr.htm
 
 	public void testJDtoCal2010a() {
-		commonJDtoCalTest(2455197.5, "2010 JAN 1");		
+		commonJDtoCalTest(2455197.5, "2010-01-01");		
 	}
 
 	public void testJDtoCal2010b() {
-		commonJDtoCalTest(2455561.5, "2010 DEC 31");		
+		commonJDtoCalTest(2455561.5, "2010-12-31");		
 	}
 
 	public void testJDtoCal2009a() {
-		commonJDtoCalTest(2454832.5, "2009 JAN 1");		
+		commonJDtoCalTest(2454832.5, "2009-01-01");		
 	}	
 	
 	public void testJDtoCal2009b() {
-		commonJDtoCalTest(2455196.5, "2009 DEC 31");		
+		commonJDtoCalTest(2455196.5, "2009-12-31");		
 	}	
 
 	// Helper
@@ -242,7 +242,7 @@ public abstract class DateUtilTestBase extends TestCase {
 	}
 
 	public void testJDtoCalAug62013() {
-		commonJDtoCalTest(2456510.9167, "2013 AUG 6");
+		commonJDtoCalTest(2456510.9167, "2013-08-06");
 	}
 	
 	// Helper
