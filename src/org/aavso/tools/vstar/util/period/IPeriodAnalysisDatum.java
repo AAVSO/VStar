@@ -44,7 +44,7 @@ public interface IPeriodAnalysisDatum {
 	/**
 	 * @return the amplitude
 	 */
-	public double getAmplitude();
+	public double getSemiAmplitude();
 	
 	/**
 	 * Retrieve a value by coordinate type.

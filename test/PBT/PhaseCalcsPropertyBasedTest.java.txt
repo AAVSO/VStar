@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
  */
-package org.aavso.tools.vstar.util.stats;
+package PBT;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
+//import static org.junit.Assume.assumeTrue;
+
+//import static org.junit.Assume.assumeTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,21 +28,27 @@ import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.MagnitudeModifier;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 import org.aavso.tools.vstar.util.stats.epoch.AlphaOmegaMeanJDEpochStrategy;
 import org.aavso.tools.vstar.util.stats.epoch.MaxMagEpochStrategy;
 import org.aavso.tools.vstar.util.stats.epoch.MinMagEpochStrategy;
+//import org.junit.runner.RunWith;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.pholser.junit.quickcheck.Property;
-import com.pholser.junit.quickcheck.generator.InRange;
-import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+//import com.pholser.junit.quickcheck.Property;
+//import com.pholser.junit.quickcheck.generator.InRange;
+//import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+//import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+
+import junit.framework.TestCase;
 
 /**
  * Phase calculation UTs.
+ * Needs JUnit 4 for property based tests to run.
  */
-@RunWith(JUnitQuickcheck.class)
-public class PhaseCalcsPropertyBasedTest {
+//@RunWith(JUnitQuickcheck.class)
+public class PhaseCalcsPropertyBasedTest extends TestCase {
 
 	private final static double[] mags1 = { 3, 3.5, 3.6, 3.2, 3.1 };
 	private final static double[] jds1 = { 2450001.5, 2450002, 2450003.5,

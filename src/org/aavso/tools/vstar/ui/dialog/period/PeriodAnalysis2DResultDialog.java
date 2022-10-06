@@ -198,7 +198,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 		// Add data table view.
 		dataTablePane = new PeriodAnalysisDataTablePane(dataTableModel,
-				algorithm);
+				algorithm, false);
 		namedComponents.add(new NamedComponent(LocaleProps.get("DATA_TAB"),
 				dataTablePane));
 

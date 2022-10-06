@@ -56,8 +56,7 @@ import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
  * This class represents a period analysis data table pane.
  */
 @SuppressWarnings("serial")
-public class PeriodAnalysisDataTablePane extends JPanel implements
-		ListSelectionListener, IStartAndCleanup {
+public class PeriodAnalysisDataTablePane extends JPanel implements ListSelectionListener, IStartAndCleanup {
 
 	protected JTable table;
 	protected PeriodAnalysisDataTableModel model;
@@ -67,6 +66,8 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 
 	protected IPeriodAnalysisAlgorithm algorithm;
 
+	protected boolean wantModelButton;
+
 	protected Map<Double, List<Harmonic>> freqToHarmonicsMap;
 
 	protected Listener<HarmonicSearchResultMessage> harmonicSearchResultListener;
@@ -75,17 +76,18 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 	/**
 	 * Constructor
 	 * 
-	 * @param model
-	 *            The period analysis table model.
-	 * @param algorithm
-	 *            The period analysis algorithm.
+	 * @param model           The period analysis table model.
+	 * @param algorithm       The period analysis algorithm.
+	 * @param wantModelButton Add a model button?
 	 */
-	public PeriodAnalysisDataTablePane(PeriodAnalysisDataTableModel model,
-			IPeriodAnalysisAlgorithm algorithm) {
+	public PeriodAnalysisDataTablePane(PeriodAnalysisDataTableModel model, IPeriodAnalysisAlgorithm algorithm,
+			boolean wantModelButton) {
 		super(new GridLayout(1, 1));
 
 		this.model = model;
 		this.algorithm = algorithm;
+		this.wantModelButton = wantModelButton;
+
 		freqToHarmonicsMap = new HashMap<Double, List<Harmonic>>();
 
 		table = new JTable(model);
@@ -99,8 +101,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		table.setRowSelectionAllowed(true);
 
 		table.setAutoCreateRowSorter(true);
-		FormattedDoubleComparator comparator = FormattedDoubleComparator
-				.getInstance();
+		FormattedDoubleComparator comparator = FormattedDoubleComparator.getInstance();
 		rowSorter = new TableRowSorter<PeriodAnalysisDataTableModel>(model);
 		for (int i = 0; i < model.getColumnCount(); i++) {
 			rowSorter.setComparator(i, comparator);
@@ -111,34 +112,46 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		add(createButtonPanel());
 	}
 
+	/**
+	 * Constructor for a period analysis data table pane with a model button.
+	 * 
+	 * @param model     The period analysis table model.
+	 * @param algorithm The period analysis algorithm.
+	 */
+	public PeriodAnalysisDataTablePane(PeriodAnalysisDataTableModel model, IPeriodAnalysisAlgorithm algorithm) {
+		this(model, algorithm, true);
+	}
+
 	protected JPanel createButtonPanel() {
 		JPanel buttonPane = new JPanel();
 
 		modelButton = new JButton(LocaleProps.get("CREATE_MODEL_BUTTON"));
 		modelButton.setEnabled(false);
 		modelButton.addActionListener(createModelButtonHandler());
+
+		if (!wantModelButton) {
+			modelButton.setVisible(false);
+		}
+
 		buttonPane.add(modelButton, BorderLayout.LINE_END);
 
 		return buttonPane;
 	}
 
 	/**
-	 * We send a period analysis selection message when the table selection
-	 * value has "settled". This event could be consumed by other views such as
-	 * plots.
+	 * We send a period analysis selection message when the table selection value
+	 * has "settled". This event could be consumed by other views such as plots.
 	 */
 	public void valueChanged(ListSelectionEvent e) {
-		if (e.getSource() == table.getSelectionModel()
-				&& table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
+		if (e.getSource() == table.getSelectionModel() && table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
 			int row = table.getSelectedRow();
 
 			if (row >= 0) {
 				row = table.convertRowIndexToModel(row);
 
-				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
-						this, model.getDataPointFromRow(row), row);
-				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-						.notifyListeners(message);
+				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(this,
+						model.getDataPointFromRow(row), row);
+				Mediator.getInstance().getPeriodAnalysisSelectionNotifier().notifyListeners(message);
 			}
 		}
 	}
@@ -149,34 +162,32 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				List<PeriodAnalysisDataPoint> dataPoints = new ArrayList<PeriodAnalysisDataPoint>();
 				List<Double> userSelectedFreqs = new ArrayList<Double>();
 				int[] selectedTableRowIndices = table.getSelectedRows();
 				for (int row : selectedTableRowIndices) {
 					int modelRow = table.convertRowIndexToModel(row);
-					PeriodAnalysisDataPoint dataPoint = model
-							.getDataPointFromRow(modelRow);
+
+					PeriodAnalysisDataPoint dataPoint = model.getDataPointFromRow(modelRow);
+					dataPoints.add(dataPoint);
 					userSelectedFreqs.add(dataPoint.getFrequency());
 				}
 
-				HarmonicInputDialog dialog = new HarmonicInputDialog(parent,
-						userSelectedFreqs, freqToHarmonicsMap);
+				HarmonicInputDialog dialog = new HarmonicInputDialog(parent, userSelectedFreqs, freqToHarmonicsMap);
 
 				if (!dialog.isCancelled()) {
 					List<Harmonic> harmonics = dialog.getHarmonics();
 					if (!harmonics.isEmpty()) {
 						try {
 							PeriodAnalysisDerivedMultiPeriodicModel model = new PeriodAnalysisDerivedMultiPeriodicModel(
-									harmonics, algorithm);
+									dataPoints.get(0), harmonics, algorithm);
 
-							Mediator.getInstance().performModellingOperation(
-									model);
+							Mediator.getInstance().performModellingOperation(model);
 						} catch (Exception ex) {
-							MessageBox.showErrorDialog(parent, "Modelling", ex
-									.getLocalizedMessage());
+							MessageBox.showErrorDialog(parent, "Modelling", ex.getLocalizedMessage());
 						}
 					} else {
-						MessageBox.showErrorDialog("Create Model",
-								"Period list error");
+						MessageBox.showErrorDialog("Create Model", "Period list error");
 					}
 				}
 			}
@@ -191,8 +202,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 		return new Listener<HarmonicSearchResultMessage>() {
 			@Override
 			public void update(HarmonicSearchResultMessage info) {
-				freqToHarmonicsMap.put(info.getDataPoint().getFrequency(), info
-						.getHarmonics());
+				freqToHarmonicsMap.put(info.getDataPoint().getFrequency(), info.getHarmonics());
 			}
 
 			@Override
@@ -203,8 +213,8 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 	}
 
 	/**
-	 * Select the row in the table corresponding to the period analysis
-	 * selection. We also enable the "refine" button.
+	 * Select the row in the table corresponding to the period analysis selection.
+	 * We also enable the "refine" button.
 	 */
 	protected Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
 		final Component parent = this;
@@ -216,8 +226,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 					// Find data point in table.
 					int row = -1;
 					for (int i = 0; i < model.getRowCount(); i++) {
-						if (model.getDataPointFromRow(i).equals(
-								info.getDataPoint())) {
+						if (model.getDataPointFromRow(i).equals(info.getDataPoint())) {
 							row = i;
 							break;
 						}
@@ -238,11 +247,9 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 						// Note that we could call this on the scroll
 						// pane, which would then forward the request to
 						// the table pane anyway.
-						int colWidth = (int) table.getCellRect(row, 0, true)
-								.getWidth();
+						int colWidth = (int) table.getCellRect(row, 0, true).getWidth();
 						int rowHeight = table.getRowHeight(row);
-						table.scrollRectToVisible(new Rectangle(colWidth,
-								rowHeight * row, colWidth, rowHeight));
+						table.scrollRectToVisible(new Rectangle(colWidth, rowHeight * row, colWidth, rowHeight));
 
 						table.setRowSelectionInterval(row, row);
 						enableButtons();
@@ -269,18 +276,15 @@ public class PeriodAnalysisDataTablePane extends JPanel implements
 	@Override
 	public void startup() {
 		harmonicSearchResultListener = createHarmonicSearchResultListener();
-		Mediator.getInstance().getHarmonicSearchNotifier().addListener(
-				harmonicSearchResultListener);
+		Mediator.getInstance().getHarmonicSearchNotifier().addListener(harmonicSearchResultListener);
 
 		periodAnalysisSelectionListener = createPeriodAnalysisListener();
-		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
-				.addListener(periodAnalysisSelectionListener);
+		Mediator.getInstance().getPeriodAnalysisSelectionNotifier().addListener(periodAnalysisSelectionListener);
 	}
 
 	@Override
 	public void cleanup() {
-		Mediator.getInstance().getHarmonicSearchNotifier()
-				.removeListenerIfWilling(harmonicSearchResultListener);
+		Mediator.getInstance().getHarmonicSearchNotifier().removeListenerIfWilling(harmonicSearchResultListener);
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.removeListenerIfWilling(periodAnalysisSelectionListener);
 	}
