@@ -24,31 +24,43 @@ package org.aavso.tools.vstar.util.date;
 public class MeeusDateUtil extends AbstractDateUtil {
 
 	/**
-	 * Method to convert the integer part of a JD into a calendar date.
+	 * Method to convert the integer part of a JD into an ISO-8601 calendar date.
 	 * 
-	 * This method determines the Calendar day given the Julian Day. It is not
-	 * valid for negative Julian Days (but is valid for negative year results).
+	 * This method determines the Calendar day given the Julian Day. It is not valid
+	 * for negative Julian Days (but is valid for negative year results).
 	 * 
-	 * @param jd
-	 *            Julian Day (double)
-	 * @return calendar date string of the form "YEAR MON DAY"
+	 * @param jd Julian Day (double)
+	 * @return calendar date string of the form "YYYY-MM-DD" (ISO-8601 format)
 	 */
 	public String jdToCalendar(double jd) throws IllegalArgumentException {
 
 		YMD ymd = jdToYMD(jd);
 
-		return (ymd.getYear() + " " + getMonthName(ymd.getMonth()) + " " + (int) ymd
-				.getDay());
+		StringBuffer yyyymmddBuf = new StringBuffer();
+		yyyymmddBuf.append(ymd.getYear());
+
+		yyyymmddBuf.append("-");
+
+		int month = ymd.getMonth();
+		if (month < 10) yyyymmddBuf.append("0");
+		yyyymmddBuf.append(month);
+
+		yyyymmddBuf.append("-");
+
+		int day = (int) ymd.getDay();
+		if (day < 10) yyyymmddBuf.append("0");
+		yyyymmddBuf.append(day);
+
+		return yyyymmddBuf.toString();
 	}
 
 	/**
 	 * Method to convert the integer part of a JD into a calendar date.
 	 *
-	 * This method determines the Calendar day given the Julian Day. It is not
-	 * valid for negative Julian Days (but is valid for negative year results).
+	 * This method determines the Calendar day given the Julian Day. It is not valid
+	 * for negative Julian Days (but is valid for negative year results).
 	 * 
-	 * @param jd
-	 *            Julian Day (double)
+	 * @param jd Julian Day (double)
 	 * @return structure of the form year, month, day
 	 */
 	public YMD jdToYMD(double jd) throws IllegalArgumentException {
@@ -77,8 +89,7 @@ public class MeeusDateUtil extends AbstractDateUtil {
 		} else if (e == 14 || e == 15) {
 			month = e - 13;
 		} else {
-			throw new IllegalArgumentException("Unable to convert Julian Day '"
-					+ jd + "'");
+			throw new IllegalArgumentException("Unable to convert Julian Day '" + jd + "'");
 		}
 
 		int year;
@@ -87,31 +98,26 @@ public class MeeusDateUtil extends AbstractDateUtil {
 		} else if (month == 1 || month == 2) {
 			year = c - 4715;
 		} else {
-			throw new IllegalArgumentException("Unable to convert Julian Day '"
-					+ jd + "'");
+			throw new IllegalArgumentException("Unable to convert Julian Day '" + jd + "'");
 		}
 
 		return new YMD(year, month, day);
 	}
 
 	/**
-	 * Method to convert the Julian Day corresponding to the specified year,
-	 * month, and day.
+	 * Method to convert the Julian Day corresponding to the specified year, month,
+	 * and day.
 	 * 
-	 * The method determines the Julian Day for any year, including dates prior
-	 * to the start of the Gregorian Calendar. It is not valid for negative
-	 * Julian Day results (but is valid for negative years).
+	 * The method determines the Julian Day for any year, including dates prior to
+	 * the start of the Gregorian Calendar. It is not valid for negative Julian Day
+	 * results (but is valid for negative years).
 	 * 
-	 * @param year
-	 *            The year.
-	 * @param month
-	 *            The month (1..12).
-	 * @param day
-	 *            The day which may contain a fractional component.
+	 * @param year  The year.
+	 * @param month The month (1..12).
+	 * @param day   The day which may contain a fractional component.
 	 * @return The Julian Day (double)
 	 */
-	public double calendarToJD(int year, int month, double day)
-			throws IllegalArgumentException {
+	public double calendarToJD(int year, int month, double day) throws IllegalArgumentException {
 		int a, b;
 		double jd;
 
@@ -127,22 +133,20 @@ public class MeeusDateUtil extends AbstractDateUtil {
 			b = 0;
 		}
 
-		jd = (int) (365.25 * (year + 4716)) + (int) (30.6001 * (month + 1))
-				+ day + b - 1524.5;
+		jd = (int) (365.25 * (year + 4716)) + (int) (30.6001 * (month + 1)) + day + b - 1524.5;
 
 		return jd;
 	}
 
+	// Helpers
+	
 	/**
-	 * Is the specified date in the Gregorian Calendar which started the day
-	 * after Oct 4 1582? This day was in fact Oct 15 1582.
+	 * Is the specified date in the Gregorian Calendar which started the day after
+	 * Oct 4 1582? This day was in fact Oct 15 1582.
 	 * 
-	 * @param day
-	 *            The (integer) day.
-	 * @param month
-	 *            The month (1..12).
-	 * @param year
-	 *            The year.
+	 * @param day   The (integer) day.
+	 * @param month The month (1..12).
+	 * @param year  The year.
 	 */
 	private boolean inGregorianCalendar(int day, int month, int year) {
 		if (year > 1582)
