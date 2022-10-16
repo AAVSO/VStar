@@ -20,29 +20,30 @@ runtime installed on your computer. For more, see:
 * [Oracle](https://www.oracle.com/java/technologies/javase-jre8-downloads.html) or 
 * [Amazon Corretto](https://docs.aws.amazon.com/corretto/latest/corretto-8-ug/downloads-list.html)
 
-The `dist` directory contains the latest vstar.jar built from source so you
-don't have to build it (see below).
+Releases for Windows, Mac OS X and Linux (or other Unix variants or bash shells)
+are available: https://github.com/AAVSO/VStar/releases
 
-The file `extlib/ReadMe.txt` details additional Java libraries that are
-required (and should already be present as part of this distribution) to run
-VStar.
+#### Mac OS X
+Open `vstar-mac.dmg` and copy the VStar application to a location of your choice, along with the `Extras` folder if desired.  
 
-The `data` directory contains sample variable star data files mostly taken
-from the AAVSO International Database.
+#### Windows
+Extract `vstar-win.zip` to a location of your choice or run the installer by first extracting `VStarWinSetup-x.y.z.zip`. For more detail, see https://github.com/AAVSO/VStar/wiki/Installation-Recipes
+
+#### Linux or other contexts in which a bash shell can be used
+Extract `vstar-bash.zip` to a location of your choice.
 
 ### Running VStar
 VStar can be launched by one of the following methods:
 * Mac OS X: double-clicking the `VStar` launcher application.
-* Windows: double-clicking `VStar.exe` launcher application.
-* Linux (or other Unix variants or bash users): running the `VStar.sh` shell script.
+* Windows: double-clicking the `VStar.exe` launcher application. See https://github.com/AAVSO/VStar/wiki/Installation-Recipes for more details.
+* Linux (or other Unix variants or bash shells): running the `VStar.sh` shell script.
 
-Each of the foregoing options runs VStar with the same memory allocation 
-parameters.
+Each of the foregoing options runs VStar with the same memory allocation parameters.
   
 ### Opening a data file in VStar
-If you downloaded a VStar distribution, you will find a data folder containing sample datasets.
-
-If you started VStar via WebStart instead, the latest example data files are available here:
+If you downloaded a VStar distribution, you will find a `data` directory containing sample
+variable star data files mostly taken from the AAVSO International Database. These example
+data files are also available here:
 
    https://github.com/AAVSO/VStar/tree/master/data
 
@@ -64,6 +65,10 @@ The `src` directory contains the Java source code for VStar.
 
 The most recent version of the source code may be obtained from the VStar 
 GitHub repository at https://github.com/AAVSO/VStar
+
+The file `extlib/ReadMe.txt` details additional Java libraries that are
+required (and should already be present as part of this distribution) to
+build and run VStar.
 
 ### Testing
 The `test` directory contains unit tests. For testing, JUnit 3.8.2 is 
