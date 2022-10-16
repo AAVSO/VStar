@@ -27,9 +27,9 @@ are available: https://github.com/AAVSO/VStar/releases
 Open `vstar-mac.dmg` and copy the VStar application to a location of your choice, along with the `Extras` folder if desired.  
 
 #### Windows
-Extract `vstar-win.zip` to a location of your choice or run the installer by first extracting `VStarWinSetup-x.y.z.zip`. For more detail, see https://github.com/AAVSO/VStar/wiki/Installation-Recipes
+Extract `vstar-win.zip` to a location of your choice or run the installer by first extracting `VStarWinSetup-x.y.z.zip`.
 
-#### Linux or other contexts in which a bash shell can be used
+#### Linux or other environments in which a bash shell can be used
 Extract `vstar-bash.zip` to a location of your choice.
 
 ### Running VStar
@@ -38,8 +38,8 @@ VStar can be launched by one of the following methods:
 * Windows: double-clicking the `VStar.exe` launcher application. See https://github.com/AAVSO/VStar/wiki/Installation-Recipes for more details.
 * Linux (or other Unix variants or bash shells): running the `VStar.sh` shell script.
 
-Each of the foregoing options runs VStar with the same memory allocation parameters.
-  
+For more information about installing and running VStar for each operating system or environment, see https://github.com/AAVSO/VStar/wiki/Installation-Recipes
+
 ### Opening a data file in VStar
 If you downloaded a VStar distribution, you will find a `data` directory containing sample
 variable star data files mostly taken from the AAVSO International Database. These example
