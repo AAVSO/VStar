@@ -216,7 +216,7 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 
 			NodeList dataNodes = document.getElementsByTagName("Data");
 
-			if (dataNodes.getLength() == 1) {
+			if (dataNodes.getLength() != 0) {
 				Element dataElt = (Element) dataNodes.item(0);
 				String data = getCharacterDataFromElement(dataElt);
 
@@ -249,8 +249,7 @@ public class AIDWebServiceCSV2ObservationSourcePlugin extends
 					throw new ObservationReadError(e.getLocalizedMessage());
 				}
 			} else {
-				throw new ObservationReadError(
-						"Only one Data element expected in AID CSV stream");
+				pageNum = null;
 			}
 
 			if (pageNum != null) {
