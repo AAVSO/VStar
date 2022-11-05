@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
@@ -28,30 +29,34 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
+import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
  * A table model for valid observations.
  */
 @SuppressWarnings("serial")
-public class ValidObservationTableModel extends AbstractTableModel implements
-		IOrderedObservationSource {
+public class ValidObservationTableModel extends AbstractTableModel implements IOrderedObservationSource {
 
 	/**
 	 * The list of valid observations retrieved.
 	 */
-	private final List<ValidObservation> validObservations;
+	private List<ValidObservation> validObservations;
 
 	/**
-	 * A weak reference hash map from observations to row indices. We only want
-	 * this map's entries to exist if they (ValidObservation instances in
-	 * particular) are in use elsewhere.
+	 * A weak reference hash map from observations to row indices. We only want this
+	 * map's entries to exist if they (ValidObservation instances in particular) are
+	 * in use elsewhere.
 	 */
-	private final WeakHashMap<ValidObservation, Integer> validObservationToRowIndexMap;
+	private WeakHashMap<ValidObservation, Integer> validObservationToRowIndexMap;
+
+	private ObservationInserter obsInserter;
 
 	/**
 	 * The source of column information.
@@ -66,24 +71,19 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	/**
 	 * Constructor
 	 * 
-	 * @param validObservations
-	 *            A list of valid observations.
-	 * @param columnInfoSource
+	 * @param observations     The initial set of observations for the table model.
+	 * @param columnInfoSource A source of table column information.
 	 */
-	public ValidObservationTableModel(List<ValidObservation> validObservations,
-			ITableColumnInfoSource columnInfoSource) {
-		this.validObservations = validObservations;
-
-		this.validObservationToRowIndexMap = new WeakHashMap<ValidObservation, Integer>();
-		for (int i = 0; i < validObservations.size(); i++) {
-			this.validObservationToRowIndexMap.put(validObservations.get(i), i);
-		}
+	public ValidObservationTableModel(List<ValidObservation> observations, ITableColumnInfoSource columnInfoSource) {
 
 		this.columnInfoSource = columnInfoSource;
 		this.columnCount = columnInfoSource.getColumnCount();
 
-		Mediator.getInstance().getDiscrepantObservationNotifier()
-				.addListener(createDiscrepantChangeListener());
+		this.obsInserter = new ObservationInserter();
+		updateObservationsList(observations);
+
+		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(createDiscrepantChangeListener());
+		Mediator.getInstance().getSeriesCreationNotifier().addListener(createSeriesCreationListener());
 	}
 
 	/**
@@ -103,8 +103,7 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	/**
 	 * Returns the row index (0..n-1) given an observation.
 	 * 
-	 * @param ob
-	 *            a valid observation whose row index we want.
+	 * @param ob a valid observation whose row index we want.
 	 * @return The observation's row index.
 	 */
 	public Integer getRowIndexFromObservation(ValidObservation ob) {
@@ -142,21 +141,19 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 		try {
 			assert columnIndex < columnCount;
 			ValidObservation validOb = this.validObservations.get(rowIndex);
-			result = this.columnInfoSource.getTableColumnValue(columnIndex,
-					validOb);
+			result = this.columnInfoSource.getTableColumnValue(columnIndex, validOb);
 		} catch (IndexOutOfBoundsException e) {
 			// Sometimes the series-index, item-index pair will have
 			// changed or have become non-existent. Ignore but log.
-			VStar.LOGGER.log(Level.WARNING,
-					"Observation value retrieval error", e);
+			VStar.LOGGER.log(Level.WARNING, "Observation value retrieval error", e);
 		}
 
 		return result;
 	}
 
 	/**
-	 * @see javax.swing.table.AbstractTableModel#setValueAt(java.lang.Object,
-	 *      int, int)
+	 * @see javax.swing.table.AbstractTableModel#setValueAt(java.lang.Object, int,
+	 *      int)
 	 */
 	public void setValueAt(Object value, int rowIndex, int columnIndex) {
 		if (columnIndex == columnInfoSource.getDiscrepantColumnIndex()) {
@@ -173,11 +170,9 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 				Mediator.getInstance().reportDiscrepantObservation(ob, null);
 
 				// Tell anyone who's listening about the change.
-				DiscrepantObservationMessage message = new DiscrepantObservationMessage(
-						ob, this);
+				DiscrepantObservationMessage message = new DiscrepantObservationMessage(ob, this);
 
-				Mediator.getInstance().getDiscrepantObservationNotifier()
-						.notifyListeners(message);
+				Mediator.getInstance().getDiscrepantObservationNotifier().notifyListeners(message);
 
 			} catch (CancellationException ex) {
 				toggleDiscrepantStatus(ob);
@@ -188,13 +183,11 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 			} catch (AuthenticationError ex) {
 				toggleDiscrepantStatus(ob);
 
-				MessageBox.showErrorDialog("Authentication Error",
-						"Login failed.");
+				MessageBox.showErrorDialog("Authentication Error", "Login failed.");
 			} catch (Exception ex) {
 				toggleDiscrepantStatus(ob);
 
-				MessageBox.showErrorDialog("Discrepant Reporting Error",
-						ex.getLocalizedMessage());
+				MessageBox.showErrorDialog("Discrepant Reporting Error", ex.getLocalizedMessage());
 			}
 			// }
 		}
@@ -209,8 +202,7 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 	 */
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		// "is-discrepant" check box?
-		boolean is_discrepant_checkbox_editable = columnIndex == columnInfoSource
-				.getDiscrepantColumnIndex()
+		boolean is_discrepant_checkbox_editable = columnIndex == columnInfoSource.getDiscrepantColumnIndex()
 		/* && Mediator.getInstance().getAnalysisType() == AnalysisType.RAW_DATA */;
 
 		return is_discrepant_checkbox_editable;
@@ -223,6 +215,9 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 		return columnInfoSource.getTableColumnClass(columnIndex);
 	}
 
+	// TODO: needed? exists in row filter; and if needed, why not also one for
+	// excluded?
+
 	/**
 	 * Listen for discrepant observation change notification.
 	 */
@@ -232,9 +227,7 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 
 			@Override
 			public void update(DiscrepantObservationMessage info) {
-				// if (info.getSource() != this) {
 				fireTableDataChanged();
-				// }
 			}
 
 			@Override
@@ -242,5 +235,69 @@ public class ValidObservationTableModel extends AbstractTableModel implements
 				return true;
 			}
 		};
+	}
+
+	protected Listener<SeriesCreationMessage> createSeriesCreationListener() {
+
+		return new Listener<SeriesCreationMessage>() {
+
+			@Override
+			public void update(SeriesCreationMessage info) {
+				updateObservationsList(info.getObs());
+				fireTableDataChanged();
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	// Helpers
+
+	// Minimally overridden retriever that is used to maintain observation order
+	// when user-defined observations are added to the initial observation set for
+	// this table model. It's a slight abuse of this base class and arguably the
+	// addValidObservation() method called by updateObservationsList()
+	// should be factored out of the retriever base class. Yet it has the desired
+	// effect without code duplication.
+	class ObservationInserter extends AbstractObservationRetriever {
+
+		ObservationInserter() {
+			validObservations = new ArrayList<ValidObservation>();
+		}
+
+		@Override
+		public void retrieveObservations() throws ObservationReadError, InterruptedException {
+			// nothing to do; see constructor
+		}
+
+		@Override
+		public String getSourceType() {
+			return null;
+		}
+
+		@Override
+		public String getSourceName() {
+			return null;
+		}
+	}
+
+	/**
+	 * Accept observations into this table model.
+	 * 
+	 * @param observations The observations to accept; may be null
+	 */
+	private void updateObservationsList(List<ValidObservation> observations) {
+		// maintain ordering, keep track of min/max
+		observations.stream().forEach(ob -> obsInserter.addValidObservation(ob));
+		validObservations = obsInserter.getValidObservations();
+
+		// re-map *all* observations to row indices
+		this.validObservationToRowIndexMap = new WeakHashMap<ValidObservation, Integer>();
+		for (int i = 0; i < validObservations.size(); i++) {
+			this.validObservationToRowIndexMap.put(validObservations.get(i), i);
+		}
 	}
 }

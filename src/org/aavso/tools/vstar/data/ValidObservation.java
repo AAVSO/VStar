@@ -89,6 +89,7 @@ public class ValidObservation extends Observation {
 
 	private Double hqUncertainty = null;
 	private SeriesType band = null;
+	private SeriesType series = null; // series and band may differ on copy
 
 	// Comment codes and cache.
 	private CommentCodes commentCode = null;
@@ -219,9 +220,11 @@ public class ValidObservation extends Observation {
 	 * current instance.<br/>
 	 * See https://github.com/AAVSO/VStar/issues/51
 	 * 
+	 * @param type the series with which the copied observation will be associated
+	 *             (may be null)
 	 * @return the new observation instance
 	 */
-	public ValidObservation copy() {
+	public ValidObservation copy(SeriesType series) {
 		ValidObservation ob = new ValidObservation();
 
 		ob.setJD(this.getJD());
@@ -229,6 +232,7 @@ public class ValidObservation extends Observation {
 		ob.setMagnitude(this.getMagnitude().copy());
 		ob.setHqUncertainty(this.getHqUncertainty());
 		ob.setBand(this.getBand());
+		if (series != null) ob.setSeries(series);
 		ob.setCommentCode(this.getCommentCode());
 		ob.setTransformed(this.isTransformed());
 		ob.setValidationType(this.getValidationType());
@@ -241,6 +245,16 @@ public class ValidObservation extends Observation {
 		ob.details = new HashMap<String, String>(this.details);
 
 		return ob;
+	}
+
+	/**
+	 * Creates and returns a new ValidObservation instance that is a copy of the
+	 * current instance that is not associated with a different series.<br/>
+	 * 
+	 * @return the new observation instance
+	 */
+	public ValidObservation copy() {
+		return copy(null);
 	}
 
 	/**
@@ -551,6 +565,21 @@ public class ValidObservation extends Observation {
 	 */
 	public void setBand(SeriesType band) {
 		this.band = band;
+		setSeries(band);
+	}
+
+	/**
+	 * @return the series with which this observation is associated
+	 */
+	public SeriesType getSeries() {
+		return series;
+	}
+
+	/**
+	 * @param series the series with which this observation is associated
+	 */
+	public void setSeries(SeriesType series) {
+		this.series = series;
 	}
 
 	/**

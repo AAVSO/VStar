@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.pane.list;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
+import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.SeriesVisibilityChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.ValidObservationTableModel;
 import org.aavso.tools.vstar.util.notification.Listener;
@@ -45,6 +47,7 @@ public class VisibleSeriesRowFilter extends RowFilter<IOrderedObservationSource,
 	private ValidObservationTableModel tableModel;
 	private Set<SeriesType> visibleSeries;
 	private Set<ValidObservation> filteredObs;
+	private Map<SeriesType, List<ValidObservation>> userDefinedObs;
 	private AnalysisType analysisType;
 
 	/**
@@ -60,27 +63,27 @@ public class VisibleSeriesRowFilter extends RowFilter<IOrderedObservationSource,
 		this.tableModel = tableModel;
 		this.visibleSeries = visibleSeries;
 		this.filteredObs = null;
+		this.userDefinedObs = new HashMap<SeriesType, List<ValidObservation>>();
+
 		this.analysisType = analysisType;
 
 		Mediator.getInstance().getSeriesVisibilityChangeNotifier().addListener(createSeriesVisibilityChangeListener());
-
 		Mediator.getInstance().getFilteredObservationNotifier().addListener(createFilteredObservationListener());
-
 		Mediator.getInstance().getExcludedObservationNotifier().addListener(createExcludedObservationListener());
-
 		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(createDiscrepantObservationListener());
+		Mediator.getInstance().getSeriesCreationNotifier().addListener(createSeriesCreationListener());
 	}
 
 	@Override
 	public boolean include(javax.swing.RowFilter.Entry<? extends IOrderedObservationSource, ? extends Integer> entry) {
 
+		boolean visible = false;
+
 		int id = entry.getIdentifier();
 		IOrderedObservationSource model = entry.getModel();
 		ValidObservation ob = model.getObservations().get(id);
 
-		// First, check whether observation's band is in the set of visible series.
-
-		SeriesType series = ob.getBand();
+		SeriesType series;
 
 		if (ob.isDiscrepant()) {
 			series = SeriesType.DISCREPANT;
@@ -88,52 +91,32 @@ public class VisibleSeriesRowFilter extends RowFilter<IOrderedObservationSource,
 			series = SeriesType.Excluded;
 		} else if (ob.getMagnitude().isFainterThan()) {
 			series = SeriesType.FAINTER_THAN;
+		} else {
+			series = ob.getBand();
 		}
 
-		boolean visible = visibleSeries.contains(series);
+		if (ob.getSeries() == ob.getBand()) {
+			visible = visibleSeries.contains(series);
+		} else {
+			series = ob.getSeries();
+			if (userDefinedObs.containsKey(series)) {
+				visible = visibleSeries.contains(series);
+			}
+		}
 
 		if (!visible) {
-			// The observation is not visible because the series to which it belongs
-			// in the plot is not visible currently.
+			// TODO: setSeries() with Filtered and just use above!
 			if (visibleSeries.contains(SeriesType.Filtered) && filteredObs != null) {
-				// It may be filtered however, so check whether the filtered series is visible
-				// in the set of visible series and whether the observation is in the set of
-				// filtered observations.
+				// The observation is not visible because the series to which it belongs
+				// in the plot is not visible currently. It may be filtered however, so check
+				// whether the filtered series is in the set of visible series and whether the
+				// observation is in the set of filtered observations.
+				// O(n) lookup
 				visible = filteredObs.contains(ob);
-			} else {
-				Map<SeriesType, List<ValidObservation>> obsMap = Mediator.getInstance()
-						.getValidObservationCategoryMap();
-				if (obsMap != null) {
-					// Or, it could be in another visible series, e.g. a user defined series.
-					for (SeriesType visibleType : visibleSeries) {
-						if (obsMap.containsKey(visibleType)) {
-							visible = obsMap.get(visibleType).contains(ob);
-							if (visible)
-								break;
-						}
-					}
-				}
 			}
 		}
 
 		return visible;
-	}
-
-	// Returns a series visibility change listener to update the visible
-	// series.
-	private Listener<SeriesVisibilityChangeMessage> createSeriesVisibilityChangeListener() {
-		return new Listener<SeriesVisibilityChangeMessage>() {
-			public void update(SeriesVisibilityChangeMessage info) {
-				if (Mediator.getInstance().getAnalysisType() == analysisType) {
-					visibleSeries = info.getVisibleSeries();
-					tableModel.fireTableDataChanged();
-				}
-			}
-
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
 	}
 
 	// Returns a filtered observation listener to update the set of filtered
@@ -158,7 +141,43 @@ public class VisibleSeriesRowFilter extends RowFilter<IOrderedObservationSource,
 		};
 	}
 
-	// Returns an excluded observation listener to trigger a filtering
+	// Returns a series visibility change listener to update the visible
+	// series.
+	private Listener<SeriesVisibilityChangeMessage> createSeriesVisibilityChangeListener() {
+		return new Listener<SeriesVisibilityChangeMessage>() {
+			public void update(SeriesVisibilityChangeMessage info) {
+				if (Mediator.getInstance().getAnalysisType() == analysisType) {
+					visibleSeries = info.getVisibleSeries();
+					tableModel.fireTableDataChanged();
+				}
+			}
+
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	// Returns a series creation listener to trigger a row filtering
+	// operation.
+	protected Listener<SeriesCreationMessage> createSeriesCreationListener() {
+		return new Listener<SeriesCreationMessage>() {
+			@Override
+			public void update(SeriesCreationMessage info) {
+				if (Mediator.getInstance().getAnalysisType() == analysisType) {
+					userDefinedObs.put(info.getType(), info.getObs());
+					tableModel.fireTableDataChanged();
+				}
+			}
+
+			@Override
+			public boolean canBeRemoved() {
+				return true;
+			}
+		};
+	}
+
+	// Returns an excluded observation listener to trigger a row filtering
 	// operation.
 	private Listener<ExcludedObservationMessage> createExcludedObservationListener() {
 		return new Listener<ExcludedObservationMessage>() {
@@ -176,7 +195,7 @@ public class VisibleSeriesRowFilter extends RowFilter<IOrderedObservationSource,
 		};
 	}
 
-	// Returns a discrepant observation listener to trigger a filtering
+	// Returns a discrepant observation listener to trigger a row filtering
 	// operation.
 	private Listener<DiscrepantObservationMessage> createDiscrepantObservationListener() {
 		return new Listener<DiscrepantObservationMessage>() {

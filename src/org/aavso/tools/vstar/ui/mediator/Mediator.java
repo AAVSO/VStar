@@ -39,8 +39,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.JDialog;
 import javax.swing.JTable.PrintMode;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.SwingWorker;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.SeriesType;
@@ -221,13 +221,15 @@ public class Mediator {
 
 	// A helper object for saving a VeLa code file.
 	private SaveChooser velaFileSaveDialog;
-	
-	// A helper object for loading an XML from VeLa Model XML file using respective chooser.  
+
+	// A helper object for loading an XML from VeLa Model XML file using respective
+	// chooser.
 	private LoadChooser velaXMLloadDialog;
 
-	// An helper object for saving a VeLa model to XML file using respective chooser.  
+	// An helper object for saving a VeLa model to XML file using respective
+	// chooser.
 	private SaveChooser velaXMLsaveDialog;
-	
+
 	// Persistent phase parameter dialog.
 	private PhaseParameterDialog phaseParameterDialog;
 
@@ -321,8 +323,9 @@ public class Mediator {
 			this.velaFileSaveDialog = new SaveChooser(extensionFilter, "vela", "Save VeLa File");
 		}
 		{
-			FileNameExtensionFilter[] extensionFilter = new FileNameExtensionFilter[1]; 
-			extensionFilter[0] = new FileNameExtensionFilter("VeLa XML and Text files (*.vlmx, *.txt, *.vl, *.vela)", "vlmx", "txt", "vl", "vela");
+			FileNameExtensionFilter[] extensionFilter = new FileNameExtensionFilter[1];
+			extensionFilter[0] = new FileNameExtensionFilter("VeLa XML and Text files (*.vlmx, *.txt, *.vl, *.vela)",
+					"vlmx", "txt", "vl", "vela");
 			this.velaXMLloadDialog = new LoadChooser(extensionFilter, "Open VeLa XML File");
 			this.velaXMLsaveDialog = new SaveChooser(extensionFilter, "vlmx", "Save VeLa XML File");
 		}
@@ -611,7 +614,7 @@ public class Mediator {
 	public SaveChooser getVelaFileSaveDialog() {
 		return velaFileSaveDialog;
 	}
-	
+
 	/**
 	 * @return the velaXMLloadDialog
 	 */
@@ -625,7 +628,7 @@ public class Mediator {
 	public SaveChooser getVelaXMLsaveDialog() {
 		return velaXMLsaveDialog;
 	}
-	
+
 	/**
 	 * Create a mean observation change listener and return it. Whenever the mean
 	 * series source changes, listeners may want to perform a new period analysis or
@@ -721,16 +724,15 @@ public class Mediator {
 		};
 	}
 
-	
 	/**
 	 * Removes phase plot if exists.
 	 * 
 	 */
 	public void dropPhasePlotAnalysis() {
-		assert(analysisType != AnalysisType.PHASE_PLOT);
+		assert (analysisType != AnalysisType.PHASE_PLOT);
 		analysisTypeMap.remove(AnalysisType.PHASE_PLOT);
 	}
-	
+
 	/**
 	 * Create a phase plot, first asking for period and epoch.
 	 * 
@@ -1392,23 +1394,23 @@ public class Mediator {
 		IntegerField decMinutes = new IntegerField("Minutes", 0, 59, m);
 		DoubleField decSeconds = new DoubleField("Seconds", 0.0, 59.99, s);
 
-		DecInfo decInfo;		
+		DecInfo decInfo;
 		while (true) {
-			decInfo = null;			
-			MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("Dec (" + EpochType.J2000 + ")", decDegrees,
-					decMinutes, decSeconds);
+			decInfo = null;
+			MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("Dec (" + EpochType.J2000 + ")",
+					decDegrees, decMinutes, decSeconds);
 			if (dialog.isCancelled())
 				break;
 			decInfo = new DecInfo(EpochType.J2000, decDegrees.getValue(), decMinutes.getValue(), decSeconds.getValue());
-			
+
 			double degrees = decInfo.toDegrees();
 
 			// If Degrees = 90 and Min or Sec > 0, the resulted value is out of range.
 			if (degrees >= -90.0 && degrees <= 90.0)
 				break;
 
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), 
-					"Error", "Please check input: Dec must be between -90.0 and 90.0");
+			MessageBox.showErrorDialog(Mediator.getUI().getComponent(), "Error",
+					"Please check input: Dec must be between -90.0 and 90.0");
 		}
 
 		return decInfo;
@@ -1868,9 +1870,10 @@ public class Mediator {
 				// getSeriesInfoProvider() always returns series info for RAW_DATA.
 				// PHASE_PLOT can have other series visibility, so it is more logical to pass
 				// series info for the active analysis.
-				ISeriesInfoProvider seriesInfo = analysisTypeMap.get(analysisType).getObsAndMeanChartPane().getObsModel();
+				ISeriesInfoProvider seriesInfo = analysisTypeMap.get(analysisType).getObsAndMeanChartPane()
+						.getObsModel();
 				plugin.invoke(seriesInfo);
-				//plugin.invoke(getSeriesInfoProvider());				
+				// plugin.invoke(getSeriesInfoProvider());
 			} catch (Throwable t) {
 				MessageBox.showErrorDialog("Tool Error", t);
 			}

@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  * Note: Should be more tests here given the centrality of this class. Had there
  * been a test case for what happens when a magnitude is changed, the Fly-weight
  * pattern derived mutable observation bug present before 2.21.1 would have been
- * picked up earlier; of course that assumes I had thought to write such as test
+ * picked up earlier; of course that assumes I had thought to write such a test
  * case :| (dbenn, Apr 15 2022)
  */
 public class ValidObservationTest extends TestCase {
@@ -52,6 +52,17 @@ public class ValidObservationTest extends TestCase {
 		assertEquals(ob.getMagnitude(), obCopy.getMagnitude());
 		assertNotSame(ob.getMagnitude(), obCopy.getMagnitude());
 		assertNotSame(ob.getDetails(), obCopy.getDetails());
+	}
+
+	// copying an observation should lead to different magnitude and details map
+	// references; we arbitrarily set series to Visual as opposed to user defined
+	// (the only requirement for testing is that it be different to band, Johnson V
+	// in this case)
+	public void testObCopyWithSeries() {
+		ValidObservation obCopy = ob.copy(SeriesType.Filtered);
+		assertTrue(ob.getBand() == obCopy.getBand());
+		assertTrue(ob.getSeries() != obCopy.getSeries());
+		assertTrue(obCopy.getBand() != obCopy.getSeries());
 	}
 
 	// changing one observation's magnitude should not change another's

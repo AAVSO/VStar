@@ -558,7 +558,7 @@ public abstract class AbstractObservationRetriever {
 	 * @param ob
 	 *            The valid observation to be added.
 	 */
-	private void addValidObservation(ValidObservation ob) {
+	public void addValidObservation(ValidObservation ob) {
 		insertObservation(ob, validObservations);
 
 		double uncert = ob.getMagnitude().getUncertainty();
@@ -597,7 +597,7 @@ public abstract class AbstractObservationRetriever {
 	 * @param obs
 	 *            The list into which it is to be inserted.
 	 */
-	protected void insertObservation(ValidObservation ob,
+	public void insertObservation(ValidObservation ob,
 			List<ValidObservation> obs) {
 		double newJD = ob.getJD();
 		int obListSize = obs.size();

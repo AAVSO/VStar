@@ -50,18 +50,12 @@ public class SeriesTypeCreationDialog extends AbstractOkCancelDialog {
 	/**
 	 * Constructor
 	 * 
-	 * @param obs
-	 *            The list of observations from which to create the series.
+	 * @param obs The list of observations from which to create the series.
 	 */
 	public SeriesTypeCreationDialog(List<ValidObservation> obs) {
 		super("Create Series");
 
-		// First, copy each observation as a minimal independent observation
-		List<ValidObservation> newSeriesObs = new ArrayList<ValidObservation>();
-		for (ValidObservation ob : obs) {
-			newSeriesObs.add(ob.copy());
-		}
-		this.obs = newSeriesObs;
+		this.obs = obs;
 
 		Container contentPane = this.getContentPane();
 
@@ -127,25 +121,20 @@ public class SeriesTypeCreationDialog extends AbstractOkCancelDialog {
 		String description = nameField.getText().trim();
 
 		if (description.length() != 0) {
-			// If the series type previously existed, delete it first.
-			// Note: does not appear to make any difference to the outcome.
-			// if (SeriesType.exists(description)) {
-			// SeriesType.delete(SeriesType
-			// .getSeriesFromDescription(description));
-			// }
-
 			// Create the series type and send out a notification.
-			SeriesType type = null;
 			Color color = colorChooser.getColor();
 
-			type = SeriesType.create(description, description, color, false,
-					true);
+			SeriesType series = SeriesType.create(description, description, color, false, true);
 
-			SeriesCreationMessage msg = new SeriesCreationMessage(this, type,
-					obs);
+			// Copy each observation as an independent observation
+			List<ValidObservation> newSeriesObs = new ArrayList<ValidObservation>();
+			for (ValidObservation ob : obs) {
+				newSeriesObs.add(ob.copy(series));
+			}
 
-			Mediator.getInstance().getSeriesCreationNotifier().notifyListeners(
-					msg);
+			SeriesCreationMessage msg = new SeriesCreationMessage(this, series, newSeriesObs);
+
+			Mediator.getInstance().getSeriesCreationNotifier().notifyListeners(msg);
 
 			// Dismiss the dialog.
 			cancelled = false;
