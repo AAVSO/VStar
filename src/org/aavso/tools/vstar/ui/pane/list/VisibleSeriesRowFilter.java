@@ -51,7 +51,7 @@ public class VisibleSeriesRowFilter extends RowFilter<IOrderedObservationSource,
 	private AnalysisType analysisType;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * @param visibleSeries The initially visible series.
 	 * @param analysisType  The analysis type (raw, phase) under which this table
@@ -105,13 +105,11 @@ public class VisibleSeriesRowFilter extends RowFilter<IOrderedObservationSource,
 		}
 
 		if (!visible) {
-			// TODO: setSeries() with Filtered and just use above!
 			if (visibleSeries.contains(SeriesType.Filtered) && filteredObs != null) {
 				// The observation is not visible because the series to which it belongs
 				// in the plot is not visible currently. It may be filtered however, so check
 				// whether the filtered series is in the set of visible series and whether the
 				// observation is in the set of filtered observations.
-				// O(n) lookup
 				visible = filteredObs.contains(ob);
 			}
 		}
@@ -129,7 +127,7 @@ public class VisibleSeriesRowFilter extends RowFilter<IOrderedObservationSource,
 						// Do nothing. We want to keep the filtered observations
 						// in case the Filter series is selected again.
 					} else {
-						filteredObs = new HashSet<ValidObservation>(info.getFilteredObs());
+						filteredObs = info.getFilteredObs();
 					}
 					tableModel.fireTableDataChanged();
 				}
