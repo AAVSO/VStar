@@ -14,11 +14,11 @@
 			ant -f build-win-installer.xml
 		command to make the installer.
 		
-		Do not forget to set the correct application version (app_name property)!
+		Do not forget to set the correct application version (app_version property)!
 	</description>
 
 	<!-- Do not forget to set the correct app_version! -->
-	<property name="app_version" value ="2.22.0"/>
+	<property name="app_version" value ="2.22.1-dev"/>
 
 	<!-- VStar zipped Windows package -->
 	<property name="windows_bundle" location ="vstar-win.zip"/>
