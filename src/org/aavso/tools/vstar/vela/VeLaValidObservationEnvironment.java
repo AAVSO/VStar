@@ -62,10 +62,12 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 			operand = operand(name, ob.getMag());
 		} else if ("UNCERTAINTY".equals(name)) {
 			operand = operand(name, ob.getMagnitude().getUncertainty());
-		} else if ("SERIES".equals(name)) {
+		} else if ("BAND".equals(name)) {
 			operand = operand(name, ob.getBand().getDescription());
 		} else if ("SHORTBAND".equals(name)) {
 			operand = operand(name, ob.getBand().getShortName());
+		} else if ("SERIES".equals(name)) {
+			operand = operand(name, ob.getSeries().getDescription());
 		} else if ("PHASE".equals(name)) {
 			contained &= ob.getStandardPhase() != null;
 			if (contained) {
@@ -194,7 +196,7 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 		symbol2CanonicalSymbol.put("UNCERTAINTY", "UNCERTAINTY");
 		symbol2CanonicalSymbol.put("ERROR", "UNCERTAINTY");
 
-		symbol2CanonicalSymbol.put("BAND", "SERIES");
+		symbol2CanonicalSymbol.put("BAND", "BAND");
 		symbol2CanonicalSymbol.put("SERIES", "SERIES");
 		symbol2CanonicalSymbol.put("SHORTBAND", "SHORTBAND");
 

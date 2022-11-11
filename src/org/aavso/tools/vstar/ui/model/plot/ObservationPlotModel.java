@@ -733,6 +733,9 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 
 		return visible;
 	}
+	
+	// TODO: need listener for new series creation in Mediator to update
+	// valid obs list and map
 
 	// Returns a series creation listener, adding a new observation series to
 	// the plot, and making it visible.
