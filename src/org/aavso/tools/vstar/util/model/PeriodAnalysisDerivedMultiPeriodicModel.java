@@ -21,11 +21,9 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AlgorithmError;
-import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.model.plot.ContinuousModelFunction;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -170,16 +168,15 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	// - https://github.com/AAVSO/VStar/issues/255
 	// - https://github.com/AAVSO/VStar/issues/294
 	public String toUncertaintyString() throws AlgorithmError {
-		String strRepr = "Could not determine uncertainty for this model.";
+		String strRepr;
 
 		if (!algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY).isEmpty()) {
 			double freq = topDataPoint.getFrequency();
 			double period = topDataPoint.getPeriod();
+			double semiAmplitude = topDataPoint.getSemiAmplitude();
+			double power = topDataPoint.getPower();
 
 			try {
-				double semiAmplitude = topDataPoint.getSemiAmplitude();
-				double power = topDataPoint.getPower();
-
 				strRepr = functionStrMap.get(LocaleProps.get("MODEL_INFO_UNCERTAINTY"));
 
 				if (strRepr == null) {
@@ -188,22 +185,27 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 							NumericPrecisionPrefs.formatOther(power), NumericPrecisionPrefs.formatOther(semiAmplitude));
 
 					int index = findIndexOfTopHitInFullResultData();
+
 					if (index != -1) {
-						// Full Width Half Maximum
-						Optional<Pair<Double, Double>> maybeFWHM = fwhm(index);
-						if (maybeFWHM.isPresent()) {
-							Pair<Double, Double> fwhm = maybeFWHM.get();
+						// The top hit must be the same as the potentially user-edited value in order to
+						// determine FWHM error (Full Width Half Maximum) uncertainty value.
+						String candidateFreqStr = NumericPrecisionPrefs.formatOther(harmonics.get(0).getFrequency());
+						List<Double> frequencies = algorithm.getResultSeries()
+								.get(PeriodAnalysisCoordinateType.FREQUENCY);
+						String topHitFreqStr = NumericPrecisionPrefs.formatOther(frequencies.get(index));
+
+						if (candidateFreqStr.equals(topHitFreqStr)) {
+							Pair<Double, Double> fwhm = fwhm(index);
 							strRepr += "  FWHM for frequency:\n";
 							strRepr += "        Lower bound: " + NumericPrecisionPrefs.formatOther(fwhm.first) + "\n";
 							strRepr += "        Upper bound: " + NumericPrecisionPrefs.formatOther(fwhm.second) + "\n";
 							double fwhmError = Math.abs(fwhm.second - fwhm.first) / 2;
 							strRepr += "     Resulting error: " + NumericPrecisionPrefs.formatOther(fwhmError) + "\n\n";
+						} else {
+							throw new AlgorithmError();
 						}
 					} else {
-						// Note: this should not occur since each data point in the top hits should be
-						// present in the full result!
-						MessageBox.showWarningDialog("Fourier Model Uncertainty",
-								"A top hit was not specified, so the FWHM uncertainty value will not be computed.");
+						throw new AlgorithmError();
 					}
 
 					// Standard error of the frequency and semi-amplitude.
@@ -217,13 +219,14 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 						strRepr += "  Standard Error of the Semi-Amplitude: "
 								+ NumericPrecisionPrefs.formatOther(standardErrorOfTheSemiAmplitude());
 					} else {
-						MessageBox.showWarningDialog("Fourier Model Uncertainty",
-								"Standard errors are computed only for models with a single frequency and no additional harmonics.");
+						strRepr += "Standard errors are computed only for models with a single frequency and no additional harmonics.";
 					}
 				}
 			} catch (AlgorithmError e) {
-				// can't report uncertainty
+				strRepr = "A top hit must be specified for uncertainty values to be computed.";
 			}
+		} else {
+			strRepr = "There is no period analysis result data, so uncertainty can not be determined for this model.";
 		}
 
 		return strRepr;
@@ -356,21 +359,10 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 	}
 
 	// Full Width Half Maximum for the model's fundamental frequency (zeroth
-	// harmonic from the selected top-hit). An optional result is returned.
-	public Optional<Pair<Double, Double>> fwhm(int topHitIndexInFullResult) throws AlgorithmError {
+	// harmonic from the selected top-hit).
+	public Pair<Double, Double> fwhm(int topHitIndexInFullResult) throws AlgorithmError {
 		// Start with peak frequency
 		List<Double> frequencies = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
-
-		// The top hit must be the same as the potentially user-edited value in order to
-		// determine FWHM.
-		String candidateFreqStr = NumericPrecisionPrefs.formatOther(harmonics.get(0).getFrequency());
-		String topHitFreqStr = NumericPrecisionPrefs.formatOther(frequencies.get(topHitIndexInFullResult));
-
-		if (!candidateFreqStr.equals(topHitFreqStr)) {
-			MessageBox.showWarningDialog("Fourier Model Uncertainty",
-					"A top hit was not specified, so the FWHM uncertainty value will not be computed.");
-			return Optional.empty();
-		}
 
 		double fwhmLo = frequencies.get(topHitIndexInFullResult);
 		double fwhmHi = frequencies.get(topHitIndexInFullResult);
@@ -400,7 +392,7 @@ public class PeriodAnalysisDerivedMultiPeriodicModel implements IModel {
 			}
 		}
 
-		return Optional.of(new Pair<Double, Double>(fwhmLo, fwhmHi));
+		return new Pair<Double, Double>(fwhmLo, fwhmHi);
 	}
 
 	public int findIndexOfTopHitInFullResultData() throws AlgorithmError {

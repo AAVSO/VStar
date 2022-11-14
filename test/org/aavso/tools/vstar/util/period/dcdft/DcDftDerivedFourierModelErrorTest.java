@@ -139,7 +139,7 @@ public class DcDftDerivedFourierModelErrorTest extends MultiPeriodicModelDcDftTe
 			assertTrue(Tolerance.areClose(0.1242, stdErrSemiAmpl, DELTA, true));
 
 			// What is the FWHM?
-			Pair<Double, Double> fwhm = model.fwhm(topHitIndex).get();
+			Pair<Double, Double> fwhm = model.fwhm(topHitIndex);
 			double fwhmLo = fwhm.first;
 			double fwhmHi = fwhm.second;
 			assertTrue(Tolerance.areClose(0.0026534, fwhmLo, 1e-7, true));
