@@ -58,8 +58,6 @@ import org.aavso.tools.vstar.util.notification.Listener;
 @SuppressWarnings("serial")
 public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
-	private NewStarMessage newStarMessage;
-
 	private ObservationSelectionMessage observationSelectionMessage;
 
 	private ObservationFilter filter;
@@ -78,8 +76,6 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 	 */
 	public ObservationFilterDialog() {
 		super("Filter Observations");
-
-		newStarMessage = null;
 
 		observationSelectionMessage = null;
 
@@ -193,7 +189,6 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 			@Override
 			public void update(NewStarMessage info) {
-				newStarMessage = info;
 				resetFilters();
 				useSelectedObservationCheckbox.setEnabled(false);
 			}
@@ -304,7 +299,7 @@ public class ObservationFilterDialog extends AbstractOkCancelDialog {
 
 				// Apply the filter (and all its matchers) to the full set
 				// of observations.
-				List<ValidObservation> obs = newStarMessage.getObservations();
+				List<ValidObservation> obs = Mediator.getInstance().getValidObsList();
 
 				Set<ValidObservation> filteredObs = filter
 						.getFilteredObservations(obs,

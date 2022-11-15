@@ -138,6 +138,7 @@ import org.aavso.tools.vstar.ui.task.PhasePlotTask;
 import org.aavso.tools.vstar.ui.task.PluginManagerOperationTask;
 import org.aavso.tools.vstar.ui.undo.IUndoableAction;
 import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
+import org.aavso.tools.vstar.util.ObservationInserter;
 import org.aavso.tools.vstar.util.Triple;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.PreviousCyclePhaseComparator;
@@ -178,6 +179,11 @@ public class Mediator {
 	// Valid and invalid observation lists and series category map.
 	private List<ValidObservation> validObsList;
 	private List<InvalidObservation> invalidObsList;
+
+	// Observation inserter utility class used to properly add observations from
+	// new (user defined) series, created by copying existing observations and
+	// associating them with a new SeriesType instance.
+	private ObservationInserter obsInserter;
 
 	// Note: it would be useful to update these with mean obs, excluded obs etc
 	// so they could be used in places where currently the model must be
@@ -333,6 +339,7 @@ public class Mediator {
 		// These (among other things) are created for each new star.
 		this.validObsList = null;
 		this.invalidObsList = null;
+		this.obsInserter = null;
 		this.validObservationCategoryMap = null;
 		this.phasedValidObservationCategoryMap = null;
 		this.obsAndMeanPlotModel = null;
@@ -374,6 +381,13 @@ public class Mediator {
 
 	public static IMainUI getUI() {
 		return ui;
+	}
+
+	/**
+	 * @return The current list of valid observations
+	 */
+	public List<ValidObservation> getValidObsList() {
+		return validObsList;
 	}
 
 	/**
@@ -864,6 +878,7 @@ public class Mediator {
 			@Override
 			public void update(SeriesCreationMessage info) {
 				validObservationCategoryMap.put(info.getType(), info.getObs());
+				validObsList = obsInserter.addValidObservations(info.getObs());
 			}
 
 			@Override
@@ -1182,7 +1197,7 @@ public class Mediator {
 		}
 
 		List<ValidObservation> validObsList = starInfo.getRetriever().getValidObservations();
-
+		ObservationInserter obsInserter = new ObservationInserter(validObsList);
 		List<InvalidObservation> invalidObsList = starInfo.getRetriever().getInvalidObservations();
 
 		Map<SeriesType, List<ValidObservation>> validObservationCategoryMap = starInfo.getRetriever()
@@ -1337,6 +1352,7 @@ public class Mediator {
 
 		// Store new data.
 		this.validObsList = validObsList;
+		this.obsInserter = obsInserter;
 		this.invalidObsList = invalidObsList;
 		this.validObservationCategoryMap = validObservationCategoryMap;
 

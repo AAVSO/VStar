@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.data.filter;
 
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.message.ObservationSelectionMessage;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -24,8 +25,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 /**
  * The interface for all observation field matchers.
  */
-public abstract class AbstractObservationFieldMatcher<T> implements
-		IObservationFieldMatcher {
+public abstract class AbstractObservationFieldMatcher<T> implements IObservationFieldMatcher {
 
 	protected T testValue;
 	protected ObservationMatcherOp op;
@@ -35,15 +35,12 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	/**
 	 * Constructor.
 	 * 
-	 * @param testValue
-	 *            The value against which data are to be matched.
-	 * @param op
-	 *            The operation to apply to the observation and test expression.
-	 * @param ops
-	 *            The operations associated with matchers of this type.
+	 * @param testValue The value against which data are to be matched.
+	 * @param op        The operation to apply to the observation and test
+	 *                  expression.
+	 * @param ops       The operations associated with matchers of this type.
 	 */
-	public AbstractObservationFieldMatcher(T testValue,
-			ObservationMatcherOp op, ObservationMatcherOp[] ops) {
+	public AbstractObservationFieldMatcher(T testValue, ObservationMatcherOp op, ObservationMatcherOp[] ops) {
 		this.testValue = testValue;
 		this.op = op;
 		this.ops = ops;
@@ -61,8 +58,7 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 			}
 
 			if (!found) {
-				String msg = LocaleProps.get("FIELD_MATCHER_OP_ERR_MSG") + " '"
-						+ op + "'";
+				String msg = LocaleProps.get("FIELD_MATCHER_OP_ERR_MSG") + " '" + op + "'";
 				throw new IllegalArgumentException(msg);
 			}
 		}
@@ -71,8 +67,7 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	/**
 	 * Constructor (for matcher "prototypes").
 	 * 
-	 * @param ops
-	 *            The operations associated with matchers of this type.
+	 * @param ops The operations associated with matchers of this type.
 	 */
 	protected AbstractObservationFieldMatcher(ObservationMatcherOp[] ops) {
 		this(null, null, ops);
@@ -89,8 +84,7 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	 * Get the value under test. If any conversion must first be done, e.g. from
 	 * string, this method must handle that.
 	 * 
-	 * @param ob
-	 *            An observation containing the value.
+	 * @param ob An observation containing the value.
 	 * @return The value to be matched against.
 	 */
 	protected abstract T getValueUnderTest(ValidObservation ob);
@@ -116,13 +110,13 @@ public abstract class AbstractObservationFieldMatcher<T> implements
 	@Override
 	public String getParsableDescription() {
 		String desc = getDisplayName() + " " + op.toParsableString() + " ";
-		
-		if (testValue.getClass() == String.class) {
+
+		if (testValue.getClass() == String.class || testValue.getClass() == SeriesType.class) {
 			desc += "\"" + testValue + "\"";
 		} else {
 			desc += testValue;
 		}
-		
+
 		return desc;
-	}	
+	}
 }
