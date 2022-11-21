@@ -21,17 +21,27 @@ import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
- * A series type (band) field matcher.
+ * A series type field (band, series) matcher.
  */
 public class SeriesTypeFieldMatcher extends
 		AbstractObservationFieldMatcher<SeriesType> {
 
-	public SeriesTypeFieldMatcher(SeriesType testValue, ObservationMatcherOp op) {
-		super(testValue, op, ops);
+	private Kind kind;
+
+	public enum Kind {
+		BAND("Band"), SERIES("Series");
+		public String name;
+		Kind(String name) { this.name = name; }
 	}
 
-	public SeriesTypeFieldMatcher() {
+	public SeriesTypeFieldMatcher(Kind kind, SeriesType testValue, ObservationMatcherOp op) {
+		super(testValue, op, ops);
+		this.kind = kind;
+	}
+
+	public SeriesTypeFieldMatcher(Kind kind) {
 		super(ops);
+		this.kind = kind;
 	}
 
 	private final static ObservationMatcherOp[] ops = {
@@ -39,8 +49,13 @@ public class SeriesTypeFieldMatcher extends
 
 	@Override
 	protected SeriesType getValueUnderTest(ValidObservation ob) {
-		SeriesType band = ob.getBand();
-		return (band == null) ? SeriesType.getDefault() : band;
+		SeriesType val = null;
+		if (kind == Kind.BAND) {
+			val = ob.getBand();
+		} else if (kind == Kind.SERIES) {
+			val = ob.getSeries();
+		}
+		return (val == null) ? SeriesType.getDefault() : val;
 	}
 
 	@Override
@@ -51,7 +66,7 @@ public class SeriesTypeFieldMatcher extends
 		// Currently requires long band name to be specified.
 		if (!"".equals(fieldValue)) {
 			SeriesType type = SeriesType.getSeriesFromDescription(fieldValue);
-			matcher = new SeriesTypeFieldMatcher(type, op);
+			matcher = new SeriesTypeFieldMatcher(kind, type, op);
 
 			// Check that we didn't classify something else as "unspecified".
 			if (type == SeriesType.Unspecified
@@ -83,7 +98,7 @@ public class SeriesTypeFieldMatcher extends
 
 	@Override
 	public String getDisplayName() {
-		return "Band";
+		return kind.name;
 	}
 
 	@Override
@@ -98,6 +113,6 @@ public class SeriesTypeFieldMatcher extends
 
 	@Override
 	public String getTestValueFromObservation(ValidObservation ob) {
-		return ob.getBand().toString();
+		return getValueUnderTest(ob).toString();
 	}
 }

@@ -17,7 +17,6 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
@@ -29,13 +28,12 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.exception.ObservationReadError;
-import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.DiscrepantObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.SeriesCreationMessage;
+import org.aavso.tools.vstar.util.ObservationInserter;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
@@ -256,34 +254,6 @@ public class ValidObservationTableModel extends AbstractTableModel implements IO
 
 	// Helpers
 
-	// Minimally overridden retriever that is used to maintain observation order
-	// when user-defined observations are added to the initial observation set for
-	// this table model. It's a slight abuse of this base class and arguably the
-	// addValidObservation() method called by updateObservationsList()
-	// should be factored out of the retriever base class. Yet it has the desired
-	// effect without code duplication.
-	class ObservationInserter extends AbstractObservationRetriever {
-
-		ObservationInserter() {
-			validObservations = new ArrayList<ValidObservation>();
-		}
-
-		@Override
-		public void retrieveObservations() throws ObservationReadError, InterruptedException {
-			// nothing to do; see constructor
-		}
-
-		@Override
-		public String getSourceType() {
-			return null;
-		}
-
-		@Override
-		public String getSourceName() {
-			return null;
-		}
-	}
-
 	/**
 	 * Accept observations into this table model.
 	 * 
@@ -291,13 +261,14 @@ public class ValidObservationTableModel extends AbstractTableModel implements IO
 	 */
 	private void updateObservationsList(List<ValidObservation> observations) {
 		// maintain ordering, keep track of min/max
-		observations.stream().forEach(ob -> obsInserter.addValidObservation(ob));
-		validObservations = obsInserter.getValidObservations();
+		validObservations = obsInserter.addValidObservations(observations);
+//		observations.stream().forEach(ob -> obsInserter.addValidObservation(ob));
+//		validObservations = obsInserter.getValidObservations();
 
 		// re-map *all* observations to row indices
-		this.validObservationToRowIndexMap = new WeakHashMap<ValidObservation, Integer>();
+		validObservationToRowIndexMap = new WeakHashMap<ValidObservation, Integer>();
 		for (int i = 0; i < validObservations.size(); i++) {
-			this.validObservationToRowIndexMap.put(validObservations.get(i), i);
+			validObservationToRowIndexMap.put(validObservations.get(i), i);
 		}
 	}
 }

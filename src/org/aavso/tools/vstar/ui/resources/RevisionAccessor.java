@@ -17,9 +17,6 @@
  */
 package org.aavso.tools.vstar.ui.resources;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * The purpose of this class is to provide access to subversion revision number.
  */

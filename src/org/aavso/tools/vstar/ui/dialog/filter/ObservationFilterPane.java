@@ -58,7 +58,7 @@ public class ObservationFilterPane extends JPanel {
 	private ValidObservation observation;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 */
 	public ObservationFilterPane() {
 		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));

@@ -62,8 +62,11 @@ public class ObservationFilter {
 		IObservationFieldMatcher transformedMatcher = new TransformedFieldMatcher();
 		MATCHERS.put(transformedMatcher.getDisplayName(), transformedMatcher);
 
-		IObservationFieldMatcher seriesTypeMatcher = new SeriesTypeFieldMatcher();
-		MATCHERS.put(seriesTypeMatcher.getDisplayName(), seriesTypeMatcher);
+		IObservationFieldMatcher bandMatcher = new SeriesTypeFieldMatcher(SeriesTypeFieldMatcher.Kind.BAND);
+		MATCHERS.put(bandMatcher.getDisplayName(), bandMatcher);
+
+		IObservationFieldMatcher seriesMatcher = new SeriesTypeFieldMatcher(SeriesTypeFieldMatcher.Kind.SERIES);
+		MATCHERS.put(seriesMatcher.getDisplayName(), seriesMatcher);
 	}
 
 	// Actual matchers for this observation filter instance.
