@@ -18,7 +18,6 @@
 package org.aavso.tools.vstar.ui.dialog.model;
 
 import java.awt.Dimension;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -43,38 +42,36 @@ import org.aavso.tools.vstar.vela.VeLaParseError;
 @SuppressWarnings("serial")
 public class HarmonicPeriodPane extends JPanel {
 
-	private final static DecimalFormat periodFormatter = new DecimalFormat("0.#");
-
-	private int defaultNumHarmonics;
+	private double frequency;
 
 	private JTextField periodField;
+	private String initialPeriodStr;
+
 	private JComboBox harmonicSelector;
 
 	/**
 	 * Constructor.
 	 * 
-	 * @param frequency
-	 *            The frequency to be displayed as a period.
-	 * @param numHarmonics
-	 *            The maximum number of harmonics that can be selected from.
-	 * @param numDefaultNumHarmonics
-	 *            The default number of harmonics for the frequency.
+	 * @param frequency              The frequency to be displayed as a period.
+	 * @param numHarmonics           The maximum number of harmonics that can be
+	 *                               selected from.
+	 * @param numDefaultNumHarmonics The default number of harmonics for the
+	 *                               frequency.
 	 */
-	public HarmonicPeriodPane(double frequency, int numHarmonics,
-			int defaultNumHarmonics) {
+	public HarmonicPeriodPane(double frequency, int numHarmonics, int defaultNumHarmonics) {
+
+		this.frequency = frequency;
 
 		double period = 1.0 / frequency;
-
-		this.defaultNumHarmonics = defaultNumHarmonics;
 
 		setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
 		String periodStr = String.format("%g", period);
+		initialPeriodStr = periodStr;
 
 		periodField = new JTextField(periodStr);
 		periodField.setEditable(true);
-		periodField.setToolTipText("frequency="
-				+ NumericPrecisionPrefs.formatOther(frequency));
+		periodField.setToolTipText("frequency=" + NumericPrecisionPrefs.formatOther(frequency));
 		add(periodField);
 
 		add(Box.createRigidArea(new Dimension(10, 10)));
@@ -88,13 +85,26 @@ public class HarmonicPeriodPane extends JPanel {
 	}
 
 	/**
-	 * Return the frequency or null if the field text is malformed.
+	 * Return the frequency or null if the field text is malformed.<br/>
+	 * If the period text has not been edited, just return the initial frequency
+	 * since the reciprocal of the period may have a different number of decimal
+	 * places that does not actually correspond to a top hit, if being used in that
+	 * context, for example, and context matters! Especially if you want to use a
+	 * frequency value for a Fourier model uncertainty calculation which MUST
+	 * correspond to an actual top hit that is at the peak of a local periodogram
+	 * maximum.
 	 * 
 	 * @return the frequency
 	 */
 	public Double getFrequency() {
-		Double period = getPeriod();
-		return period != null ? 1.0 / period : null;
+		Double freq = frequency;
+		if (!periodField.getText().equals(initialPeriodStr)) {
+			Double period = getPeriod();
+			// Garbage may have been entered into the period text field which will yield
+			// null from getPeriod().
+			freq = period != null ? 1.0 / period : null;
+		}
+		return freq;
 	}
 
 	/**
@@ -132,18 +142,17 @@ public class HarmonicPeriodPane extends JPanel {
 	 * Create and return a harmonic object for this period and harmonic count
 	 * selection.
 	 * 
-	 * @return A harmonic object corresponding to the frequency and harmonic
-	 *         count selection, or null if the frequency is null.
+	 * @return A harmonic object corresponding to the frequency and harmonic count
+	 *         selection, or null if the frequency is null.
 	 */
 	public Harmonic getHarmonic() {
 		Double frequency = getFrequency();
-		return frequency != null ? new Harmonic(frequency,
-				getNumberOfHarmonics()) : null;
+		return frequency != null ? new Harmonic(frequency, getNumberOfHarmonics()) : null;
 	}
 
 	/**
-	 * A list of Harmonic objects, each representing a frequency and harmonic
-	 * number (up to user selection) with respect to some fundamental frequency.
+	 * A list of Harmonic objects, each representing a frequency and harmonic number
+	 * (up to user selection) with respect to some fundamental frequency.
 	 * 
 	 * @return A list of Harmonic objects or null if any frequency is null.
 	 */
