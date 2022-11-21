@@ -25,7 +25,7 @@ public class RevisionAccessor {
 
 	private static String REVISION = "6d11427";
 	private static String BUILD_TIME = "2022-11-14 23:12";
-	
+
 	/**
 	 * Get the latest git revision
 	 */
