@@ -17,18 +17,15 @@
  */
 package org.aavso.tools.vstar.ui.resources;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * The purpose of this class is to provide access to subversion revision number.
  */
 
 public class RevisionAccessor {
 
-	private static String REVISION = "e25a882";
-	private static String BUILD_TIME = "2022-11-15 20:01";
-
+	private static String REVISION = "6d11427";
+	private static String BUILD_TIME = "2022-11-14 23:12";
+	
 	/**
 	 * Get the latest git revision
 	 */
