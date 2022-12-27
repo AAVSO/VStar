@@ -59,8 +59,7 @@ public class DelimitedFieldFileSaveChooser {
 		delimiterChooser = new JComboBox<String>();
 
 		JPanel accessoryPane = new JPanel();
-		accessoryPane.setLayout(new BoxLayout(accessoryPane,
-				BoxLayout.PAGE_AXIS));
+		accessoryPane.setLayout(new BoxLayout(accessoryPane, BoxLayout.PAGE_AXIS));
 		accessoryPane.add(createPluginsList());
 		accessoryPane.add(createDelimiterSelectionPane());
 
@@ -77,9 +76,8 @@ public class DelimitedFieldFileSaveChooser {
 	}
 
 	/**
-	 * Return the selected file. If no suffix was specified and one is
-	 * associated with the selected delimiter, a suffix will be added to the
-	 * file name.
+	 * Return the selected file. If no suffix was specified and one is associated
+	 * with the selected delimiter, a suffix will be added to the file name.
 	 * 
 	 * @return The selected file (absolute path as a File object).
 	 */
@@ -87,15 +85,16 @@ public class DelimitedFieldFileSaveChooser {
 		File file = fileChooser.getSelectedFile();
 
 		ObservationSinkPluginBase plugin = getSelectedPlugin();
-		Map<String, String> delimiter2suffixes = plugin
-				.getDelimiterSuffixValuePairs();
+		String selectedDelimiterName = (String) delimiterChooser.getSelectedItem();
 
-		String selectedDelimiterName = (String) delimiterChooser
-				.getSelectedItem();
-		String suffix = delimiter2suffixes.get(selectedDelimiterName);
+		Map<String, String> delimiter2suffixes = plugin.getDelimiterSuffixValuePairs();
 
-		if (!file.getName().endsWith(suffix) && delimiter2suffixes != null) {
-			file = new File(file.getAbsolutePath() + "." + suffix);
+		if (selectedDelimiterName != null && delimiter2suffixes != null) {
+			String suffix = delimiter2suffixes.get(selectedDelimiterName);
+
+			if (!file.getName().endsWith(suffix)) {
+				file = new File(file.getAbsolutePath() + "." + suffix);
+			}
 		}
 
 		return file;
@@ -111,9 +110,8 @@ public class DelimitedFieldFileSaveChooser {
 	/**
 	 * Show the file dialog.
 	 * 
-	 * @param parent
-	 *            The parent component to which this dialog should be positioned
-	 *            relative.
+	 * @param parent The parent component to which this dialog should be positioned
+	 *               relative.
 	 * @return Whether the dialog was "approved".
 	 */
 	public boolean showDialog(Component parent) {
@@ -121,23 +119,21 @@ public class DelimitedFieldFileSaveChooser {
 	}
 
 	/**
-	 * Create plugin list and add a listener to change delimiters when a plugin
-	 * is selected.
+	 * Create plugin list and add a listener to change delimiters when a plugin is
+	 * selected.
 	 */
 	private JPanel createPluginsList() {
 		JPanel pane = new JPanel();
 
 		plugins = new HashMap<String, ObservationSinkPluginBase>();
 
-		for (ObservationSinkPluginBase plugin : PluginLoader
-				.getObservationSinkPlugins()) {
+		for (ObservationSinkPluginBase plugin : PluginLoader.getObservationSinkPlugins()) {
 			String name = plugin.getDisplayName();
 			plugins.put(name, plugin);
 		}
 
-		pluginChooser = new JComboBox<String>(plugins.keySet().toArray(
-				new String[0]));
-		pluginChooser.setSelectedItem(LocaleProps.get("TEXT_FORMAT_FILE"));
+		pluginChooser = new JComboBox<String>(plugins.keySet().toArray(new String[0]));
+		pluginChooser.setSelectedItem(LocaleProps.get("SIMPLE_FORMAT_FILE"));
 		pluginChooser.setBorder(BorderFactory.createTitledBorder("Type"));
 
 		pluginChooser.addActionListener(e -> {
@@ -159,28 +155,25 @@ public class DelimitedFieldFileSaveChooser {
 	/**
 	 * Update the delimiter choices for a plugin.
 	 * 
-	 * @param plugin
-	 *            The selected plugin.
+	 * @param plugin The selected plugin.
 	 */
 	private void updateDelimiterChoices(ObservationSinkPluginBase plugin) {
-		try {
-			delimitersModel = new DefaultComboBoxModel<String>();
+		delimitersModel = new DefaultComboBoxModel<String>();
 
-			if (plugin.getDelimiterNameValuePairs() != null) {
-				delimiters = plugin.getDelimiterNameValuePairs();
+		delimiters = plugin.getDelimiterNameValuePairs();
 
-				for (String delim : delimiters.keySet().toArray(new String[0])) {
-					delimitersModel.addElement(delim);
-				}
-
-				delimiterChooser.setModel(delimitersModel);
-				delimiterChooser.setSelectedIndex(0);
-			} else {
-				delimiterChooser.setModel(delimitersModel);
+		if (delimiters != null) {
+			for (String delim : delimiters.keySet().toArray(new String[0])) {
+				delimitersModel.addElement(delim);
 			}
-		} catch (Exception e) {
-			Exception f = e;
+
+			delimiterChooser.setModel(delimitersModel);
+			delimiterChooser.setSelectedIndex(0);
+		} else {
+			delimiterChooser.setModel(delimitersModel);
 		}
+		
+		delimiterChooser.setEnabled(delimitersModel.getSize() != 0);
 	}
 
 	/**
