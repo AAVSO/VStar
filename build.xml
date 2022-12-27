@@ -90,7 +90,7 @@
 		<replace file="${ui_resources}/RevisionAccessor.java" token="@revision@" value="${git_revision}" />
 		<replace file="${ui_resources}/RevisionAccessor.java" token="@build_time@" value="${BUILD_TIME}" />
 		<!-- Compile source -->
-		<javac compiler="modern" source="1.8" target="1.8" srcdir="${src}" destdir="${src_build}" includeantruntime="false">
+		<javac compiler="modern" source="1.8" target="1.8" encoding="UTF-8" srcdir="${src}" destdir="${src_build}" includeantruntime="false">
 			<classpath refid="build.classpath" />
 		</javac>
 	</target>
