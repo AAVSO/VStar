@@ -35,7 +35,7 @@
 		</path>
 		<mkdir dir="${build}" />
 		<!-- Compile the java code from ${src} into ${build} -->
-		<javac compiler="modern" source="1.8" target="1.8" srcdir="${src}" destdir="${build}" classpathref="libs" />
+		<javac compiler="modern" source="1.8" target="1.8"  encoding="UTF-8" srcdir="${src}" destdir="${build}" classpathref="libs" />
 	</target>
 	
 	<target name="dist" depends="compile" description="generate the distribution">
