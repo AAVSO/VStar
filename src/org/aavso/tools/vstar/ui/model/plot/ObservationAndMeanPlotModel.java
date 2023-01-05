@@ -452,20 +452,26 @@ public class ObservationAndMeanPlotModel extends ObservationPlotModel {
 			seriesNum = maxObsSeriesNum;
 		}
 
-		// Still nothing? Okay, now we just choose the first series we come to,
-		// including fainter-thans or discrepants.
+		// Still nothing? Okay, now we just choose the first non-empty series
+		// we come to, including fainter-thans or discrepants.
 		//
 		// For this to happen should be very rare, but it could happen
 		// For example, CM Cru as of Sep 2010 contains one data value
 		// since around 1949 and that is a Fainter-than. Note that currently,
 		// determineMeanSeriesSource() will ignore Fainter-thans, discrepants,
-		// and excluded observations
-		// with respect to mean curves. We might want to revise this. Of course,
-		// fainter-thans can later be selected as the means-source.
+		// and excluded observations with respect to mean curves. We might want
+		// to revise this. Of course, fainter-thans can later be selected as the
+		// means-source.
+		//
+		// Note: This code is showing its age; "very rare" may have been true before
+		//       observation source plug-ins with non-standard filters. Also, there's
+		//       much cruft in general, e.g. see setMeanSeries() (dbenn)
 		if (seriesNum == NO_SERIES) {
 			for (SeriesType series : srcTypeToSeriesNumMap.keySet()) {
 				seriesNum = srcTypeToSeriesNumMap.get(series);
-				break;
+				if (seriesNumToObSrcListMap.get(seriesNum).size() != 0) {
+				    break;
+				}
 			}
 		}
 
