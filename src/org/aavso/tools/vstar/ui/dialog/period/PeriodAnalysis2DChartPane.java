@@ -38,6 +38,8 @@ import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
+import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -251,27 +253,13 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
 				if (info.getSource() != parent) {
-					double x = Double.NaN;
-					double y = Double.NaN;
-					
-//					if (model.getDomainType() == PeriodAnalysisCoordinateType.FREQUENCY) {
-//						x = info.getDataPoint().getFrequency();
-//					} else if (model.getDomainType() == PeriodAnalysisCoordinateType.PERIOD) {
-//						x = info.getDataPoint().getPeriod();
-//					} else {
-						x = info.getDataPoint().getValue(model.getDomainType());
-//					}
+					double x = info.getDataPoint().getValue(model.getDomainType());
+					double y = info.getDataPoint().getValue(model.getRangeType());
 
-//					if (model.getRangeType() == PeriodAnalysisCoordinateType.POWER) {
-//						y = info.getDataPoint().getPower();
-//					} else if (model.getRangeType() == PeriodAnalysisCoordinateType.AMPLITUDE) {
-//						y = info.getDataPoint().getAmplitude();
-//					} else {
-						y = info.getDataPoint().getValue(model.getRangeType());
-//					}
-
-					chart.getXYPlot().setDomainCrosshairValue(x);
-					chart.getXYPlot().setRangeCrosshairValue(y);
+					if (x != Double.NaN && y != Double.NaN) {
+						chart.getXYPlot().setDomainCrosshairValue(x);
+						chart.getXYPlot().setRangeCrosshairValue(y);
+					}
 				}
 			}
 

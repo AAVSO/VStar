@@ -100,15 +100,13 @@ public class PeriodAnalysisDataPoint implements IPeriodAnalysisDatum {
 	 * Retrieve a value by coordinate type.
 	 * 
 	 * @param type The coordinate type.
-	 * @return The value.
+	 * @return The value or NaN if the coordinate type is not present.
 	 */
 	public double getValue(PeriodAnalysisCoordinateType type) {
-		double value;
+		double value = Double.NaN;
 
 		if (coords.containsKey(type)) {
 			value = coords.get(type);
-		} else {
-			throw new IllegalArgumentException();
 		}
 
 		return value;
