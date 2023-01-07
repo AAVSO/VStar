@@ -1201,7 +1201,7 @@ public class ValidObservation extends Observation {
 		buf.append(delimiter);
 
 		if (this.getComments() != null) {
-			buf.append(this.getComments());
+			buf.append(quoteForCSV(this.getComments()));
 		}
 		buf.append(delimiter);
 
@@ -1430,5 +1430,17 @@ public class ValidObservation extends Observation {
 
 	private boolean isEmpty(String s) {
 		return s == null || s.trim().length() == 0;
+	}
+
+	/**
+	 * Precede any double quote in the argument with another and
+	 * wrap the whole argument in double quotes.
+	 * 
+	 * @param field The field to be quoted
+	 * @return The quoted field
+	 */
+	private String quoteForCSV(String field) {
+		field = field.replace("\"", "\"\"");
+		return "\"" + field + "\"";
 	}
 }
