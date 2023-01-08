@@ -41,6 +41,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.stat.descriptive.rank.Median;
 
 import nom.tam.fits.BasicHDU;
@@ -92,13 +93,13 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		String str = "QLP FITS file v0.2 observation source";
+		String str = "QLP FITS file v0.3 observation source";
 		return str;
 	}
 
 	@Override
 	public String getDisplayName() {
-		String str = "New Star from QLP FITS File v0.2...";
+		String str = "New Star from QLP FITS File v0.3...";
 		return str;
 	}
 
@@ -125,6 +126,7 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 		double time;
 		double intensity;
 		double error;
+		Double headerMagnitude;
 		int quality;
 	}
 
@@ -225,6 +227,8 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 							rawObs.intensity = flux;
 							rawObs.error = flux_err;
 							rawObs.quality = quality;
+							rawObs.headerMagnitude = tessMag != invalidMag ? tessMag : null;
+							
 							rawObsList.add(rawObs);
 						}
 					} catch (Exception e) {
@@ -263,6 +267,10 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 					ob.setMagnitude(new Magnitude(mag, magErr));
 					ob.setBand(qlpSeries);
 					ob.setRecordNumber(rawObs.row);
+					ob.addDetail("HEAGER_MAG", 
+							rawObs.headerMagnitude != null ? NumericPrecisionPrefs.getOtherOutputFormat().format(rawObs.headerMagnitude) : "",
+							"TESS magnitude");
+					
 					ob.addDetail("Quality", Integer.toString(rawObs.quality), "Quality");
 					collectObservation(ob);
 					incrementProgress();

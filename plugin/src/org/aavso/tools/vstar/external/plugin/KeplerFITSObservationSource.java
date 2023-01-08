@@ -41,6 +41,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.stat.descriptive.rank.Median;
 
 import nom.tam.fits.BasicHDU;
@@ -122,10 +123,10 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		String str = "Kepler/TESS FITS file v2.2 observation source";
+		String str = "Kepler/TESS FITS file v2.3 observation source";
 
 		if (locale.equals("es")) {
-			str = "Observaciones de archivo FITS de Kepler/TESS v2.2 del plug-in que usa la biblioteca Topcat FITS.";
+			str = "Observaciones de archivo FITS de Kepler/TESS v2.3 del plug-in que usa la biblioteca Topcat FITS.";
 		}
 
 		return str;
@@ -133,7 +134,7 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDisplayName() {
-		String str = "New Star from Kepler/TESS FITS File v2.2...";
+		String str = "New Star from Kepler/TESS FITS File v2.3...";
 
 		if (locale.equals("es")) {
 			str = "Nueva estrella de archivo FITS de Kepler/TESS...";
@@ -168,8 +169,21 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 		double time;
 		double intensity;
 		double error;
+		Double headerMagnitude;
+		Integer quality;
 	}
 
+	private enum FitsType {
+		UNKNOWN ("Magnitude"),
+		KEPLER ("Kepler magnitude (Kp)"),
+		TESS ("TESS magnitude");
+		
+		private final String description;
+		FitsType(String description) {
+			this.description = description;
+		}
+	}
+	
 	class KeplerFITSObservationRetriever extends AbstractObservationRetriever {
 
 		private BasicHDU[] hdus = null;
@@ -200,10 +214,9 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 			// Kepler and TESS light curve FITS contains primary HDU having keywords only, binary table extension, and image extension (aperture).
 			if (hdus.length >  1 && hdus[0] instanceof ImageHDU && hdus[1] instanceof BinaryTableHDU) {
 
-				//double minMagErr = Double.MAX_VALUE;
-				//double maxMagErr = Double.MIN_VALUE;
-
 				double invalidMag = 99.99;
+				
+				FitsType fitsType = FitsType.UNKNOWN;
 
 				// Lists to store observations before median level adjust
 				List<RawObservationData> rawObsList = new ArrayList<RawObservationData>();
@@ -226,10 +239,12 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 				
 				// TESSMAG/KEPMAG from FITS header
 				if ("TESS".equals(telescope)) {
+					fitsType = FitsType.TESS;
 					if (loadRaw) keplerSeries = dataSeriesTESS_raw; else keplerSeries = dataSeriesTESS;
 					keplerOrTessMag = imageHDU.getHeader().getDoubleValue("TESSMAG", invalidMag);
 				}
 				if ("Kepler".equals(telescope)) {
+					fitsType = FitsType.KEPLER;
 					if (loadRaw) keplerSeries = dataSeriesKepler_raw; else keplerSeries = dataSeriesKepler;
 					keplerOrTessMag = imageHDU.getHeader().getDoubleValue("KEPMAG", invalidMag);
 				}
@@ -272,36 +287,23 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 								&& !Float.isNaN(flux_err) 
 								&& (flux > 0)) {
 
-							//double hjd = barytime + 2454833.0;
 							double hjd = barytime + timei + timef;
-							/*
-							double mag = 15.0 - 2.5
-									* Math.log(ap_corr_flux)
-									/ Math.log(10.0);
-
-							double magErr = 1.086 * ap_corr_err
-									/ ap_corr_flux;
-
-							if (magErr < minMagErr) {
-								minMagErr = magErr;
-							} else if (magErr > maxMagErr) {
-								maxMagErr = magErr;
-							}
-
-							ValidObservation ob = new ValidObservation();
-							ob.setName(getInputName());
-							ob.setDateInfo(new DateInfo(hjd));
-							ob.setMagnitude(new Magnitude(mag, magErr));
-							ob.setBand(keplerSeries);
-							ob.setRecordNumber(row);
-							collectObservation(ob);
-							*/
+							
 							// Store data to temporary list
 							RawObservationData rawObs = new RawObservationData();
 							rawObs.row = row;
 							rawObs.time = hjd;
 							rawObs.intensity = flux;
 							rawObs.error = flux_err;
+							rawObs.headerMagnitude = keplerOrTessMag != invalidMag ? keplerOrTessMag : null;
+							rawObs.quality = null;
+							
+							if (fitsType == FitsType.KEPLER) {
+								if ("SAP_QUALITY".equals(tableHDU.getColumnName(9))) rawObs.quality = ((int[]) tableHDU.getElement(row, 9))[0];
+							} else if (fitsType == FitsType.TESS) {
+								if ("QUALITY".equals(tableHDU.getColumnName(9))) rawObs.quality = ((int[]) tableHDU.getElement(row, 9))[0];
+							}
+							
 							rawObsList.add(rawObs);
 						}
 					} catch (Exception e) {
@@ -310,7 +312,6 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 						InvalidObservation ob = new InvalidObservation(input, error);
 						ob.setRecordNumber(row);
 						// Store observation in a temporary list
-						//addInvalidObservation(ob);
 						invalidObsList.add(ob);
 					}
 				}
@@ -348,6 +349,10 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 					ob.setMagnitude(new Magnitude(mag, magErr));
 					ob.setBand(keplerSeries);
 					ob.setRecordNumber(rawObs.row);
+					ob.addDetail("HEAGER_MAG", 
+							rawObs.headerMagnitude != null ? NumericPrecisionPrefs.getOtherOutputFormat().format(rawObs.headerMagnitude) : "",
+							fitsType.description);
+					ob.addDetail("QUALITY",	rawObs.quality != null ? rawObs.quality.toString() : "", "Quality");
 					collectObservation(ob);
 					incrementProgress();
 				}
