@@ -126,7 +126,6 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 		double time;
 		double intensity;
 		double error;
-		Double headerMagnitude;
 		int quality;
 	}
 
@@ -227,7 +226,6 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 							rawObs.intensity = flux;
 							rawObs.error = flux_err;
 							rawObs.quality = quality;
-							rawObs.headerMagnitude = tessMag != invalidMag ? tessMag : null;
 							
 							rawObsList.add(rawObs);
 						}
@@ -267,8 +265,8 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 					ob.setMagnitude(new Magnitude(mag, magErr));
 					ob.setBand(qlpSeries);
 					ob.setRecordNumber(rawObs.row);
-					ob.addDetail("HEAGER_MAG", 
-							rawObs.headerMagnitude != null ? NumericPrecisionPrefs.getOtherOutputFormat().format(rawObs.headerMagnitude) : "",
+					ob.addDetail("HEAGER_MAG",
+							tessMag != invalidMag ? NumericPrecisionPrefs.getOtherOutputFormat().format(tessMag) : "",
 							"TESS magnitude");
 					
 					ob.addDetail("Quality", Integer.toString(rawObs.quality), "Quality");

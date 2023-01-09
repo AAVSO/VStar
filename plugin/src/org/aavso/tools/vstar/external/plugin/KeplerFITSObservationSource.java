@@ -169,7 +169,6 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 		double time;
 		double intensity;
 		double error;
-		Double headerMagnitude;
 		Integer quality;
 	}
 
@@ -295,7 +294,6 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 							rawObs.time = hjd;
 							rawObs.intensity = flux;
 							rawObs.error = flux_err;
-							rawObs.headerMagnitude = keplerOrTessMag != invalidMag ? keplerOrTessMag : null;
 							rawObs.quality = null;
 							
 							if (fitsType == FitsType.KEPLER) {
@@ -349,8 +347,8 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 					ob.setMagnitude(new Magnitude(mag, magErr));
 					ob.setBand(keplerSeries);
 					ob.setRecordNumber(rawObs.row);
-					ob.addDetail("HEAGER_MAG", 
-							rawObs.headerMagnitude != null ? NumericPrecisionPrefs.getOtherOutputFormat().format(rawObs.headerMagnitude) : "",
+					ob.addDetail("HEAGER_MAG",
+							keplerOrTessMag != invalidMag ? NumericPrecisionPrefs.getOtherOutputFormat().format(keplerOrTessMag) : "",
 							fitsType.description);
 					ob.addDetail("QUALITY",	rawObs.quality != null ? rawObs.quality.toString() : "", "Quality");
 					collectObservation(ob);
