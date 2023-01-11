@@ -82,9 +82,9 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  * 2458002.51147,2017-09-06.0125694,be,2.03,14.729,>14.729,99.990,3.640,0.985[,V]
  * ...<br/>
  * <p>
- * New format ASAS-SN Phometry Database added by PMAK:
+ * New format ASAS-SN Phometry Database added by PMAK (updated 2023-01-11 to reflect ASAS-SN portal changes):
  * </p>
- * hjd,camera,filter,mag,mag err,flux (mJy),flux err
+ * hjd,camera,mag,mag_err,flux,flux_err
  * 2458379.59981,bg,V,12.137,0.02,53.604,0.986
  * 2457903.65639,bg,V,11.76,0.02,75.877,1.396
  * 2457796.86118,bg,V,11.857,0.02,69.339,1.276
@@ -95,7 +95,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 public class ASASSNObservationSource extends ObservationSourcePluginBase {
 
 	protected static final String SKY_PATROL_HEADER = "HJD,UT Date,Camera,FWHM,Limit,mag,mag_err,flux(mJy),flux_err"; // there can be optional Filter field at the end!
-	protected static final String PHOT_DB_HEADER    = "hjd,camera,filter,mag,mag err,flux (mJy),flux err";
+	protected static final String PHOT_DB_HEADER    = "hjd,camera,mag,mag_err,flux,flux_err";
 	protected static final String HEADER_START      = "HJD";
 
 	private SeriesType asassnVSeries;
@@ -224,12 +224,15 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			getInputStreams().get(0)));
 
 			String line = null;
-			int lineNum = 1;
-			int obNum = 1;
+			int lineNum = 0;
+			//int obNum = 1;
 			fileModeASASSNenum fileModeASASSNlocal = fileModeASASSN;			
 			
 			do {
 				try {
+					if (wasInterrupted())
+						break;
+					lineNum++;
 					line = reader.readLine();
 					if (line != null) {
 						line = line.replaceFirst("\n", "").trim();
@@ -252,7 +255,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 							if (!skipLine) {
 								String[] fields = line.split(",");
 								ValidObservation ob = readNextObservation(
-										fields, obNum, 
+										fields, lineNum, 
 										userDefinedErrLimit, loadASASSN_V_as_Johnson_V, loadASASSN_g_as_Sloan_g,
 										fileModeASASSNlocal);
 								if (ob != null)
@@ -265,12 +268,10 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 										&& isBandSelected(ob))
 									{
 										collectObservation(ob);
-										obNum++;
 									}
 								}
 							}
 						}
-						lineNum++;
 					}
 				} catch (Exception e) {
 					// Create an invalid observation.
@@ -279,7 +280,6 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 					String error = e.getLocalizedMessage();
 					InvalidObservation ob = new InvalidObservation(line, error);
 					ob.setRecordNumber(lineNum);
-					obNum++;
 					addInvalidObservation(ob);
 				}
 			} while (line != null);
@@ -296,7 +296,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 
 		}
 
-		private ValidObservation readNextObservation(String[] fields, int obNum, double userDefinedErrLimit, boolean loadASASSN_V_as_Johnson_V, boolean loadASASSN_g_as_Sloan_g, fileModeASASSNenum fileMode)
+		private ValidObservation readNextObservation(String[] fields, int lineNum, double userDefinedErrLimit, boolean loadASASSN_V_as_Johnson_V, boolean loadASASSN_g_as_Sloan_g, fileModeASASSNenum fileMode)
 				throws ObservationValidationError {
 
 			SeriesType series = null;
@@ -311,9 +311,9 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 				// New SkyPatrol CSV format
 				filter = fields[9].trim();
 			else
-			if (fileMode == fileModeASASSNenum.PHOT_DB && fields.length >= 7)
+			if (fileMode == fileModeASASSNenum.PHOT_DB)
 				// ASAS-SN Photometry Database CSV format
-				filter = fields[2].trim();
+				filter = "V";
 			else
 				return null;
 			
@@ -370,10 +370,10 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 				observation.setName(getInputName());
 				observation.setMagnitude(mag);
 				observation.setDateInfo(hjd);
-				observation.setRecordNumber(obNum);
+				observation.setRecordNumber(lineNum);
 				observation.setBand(series);
 				observation.addDetail("UT", fields[1], "UT Date");
-				observation.addDetail("Camera", fields[2], "Camera");
+				observation.addDetail("CAMERA", fields[2], "Camera");
 				observation.addDetail("FWHM", fields[3], "FWHM");
 				observation.addDetail("LIMIT", fields[4], "Limit");
 				observation.addDetail("FLUX", fields[7], "Flux (mJy)");
@@ -383,8 +383,8 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			else // PHOT_DB
 			{
 				// hjd,camera,filter,mag,mag err,flux (mJy),flux err
-				Magnitude mag = magnitudeFieldValidator.validate(fields[3]);
-				double err = uncertaintyValueValidator.validate(fields[4]);
+				Magnitude mag = magnitudeFieldValidator.validate(fields[2]);
+				double err = uncertaintyValueValidator.validate(fields[3]);
 				if (err > userDefinedErrLimit)
 				{
 					if (filter.equals("V"))
@@ -400,12 +400,11 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 				observation.setName(getInputName());
 				observation.setMagnitude(mag);
 				observation.setDateInfo(hjd);
-				observation.setRecordNumber(obNum);
+				observation.setRecordNumber(lineNum);
 				observation.setBand(series);
-				observation.addDetail("Camera", fields[1], "Camera");
-				observation.addDetail("FILTER", filter, "Filter");
-				observation.addDetail("FLUX", fields[5], "Flux (mJy)");
-				observation.addDetail("FLUX_ERR", fields[6], "Flux error");
+				observation.addDetail("CAMERA", fields[1], "Camera");
+				observation.addDetail("FLUX", fields[4], "Flux (mJy)");
+				observation.addDetail("FLUX_ERR", fields[5], "Flux error");
 			}
 
 			return observation;
