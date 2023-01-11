@@ -85,11 +85,12 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  * New format ASAS-SN Phometry Database added by PMAK (updated 2023-01-11 to reflect ASAS-SN portal changes):
  * </p>
  * hjd,camera,mag,mag_err,flux,flux_err
- * 2458379.59981,bg,V,12.137,0.02,53.604,0.986
- * 2457903.65639,bg,V,11.76,0.02,75.877,1.396
- * 2457796.86118,bg,V,11.857,0.02,69.339,1.276
- * 2457784.8791,bg,V,12.063,0.02,57.363,1.055
- * 2458375.58684,bg,V,12.125,0.02,54.179,0.997
+ * 2457981.84031,bc,11.221,0.02,124.549,2.292
+ * 2457478.08718,bc,11.167,0.02,130.945,2.409
+ * 2456897.81061,bc,11.227,0.02,123.962,2.281
+ * 2458372.79859,bc,11.252,0.02,121.073,2.228
+ * 2457065.13389,bc,11.411,0.02,104.597,1.925
+ * 2457303.71059,bc,11.452,0.02,100.68,1.853
  * ...<br/>
  */
 public class ASASSNObservationSource extends ObservationSourcePluginBase {
