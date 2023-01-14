@@ -14,7 +14,7 @@
 	<property name="dist" location="dist/" />
 	<property name="vstar_plugins_zip_dir" location="vstar-plugins" />
 	<property name="plugins_list_file" value=".plugins.lst" />
-	
+
    <target name="init">
         <!-- Create the time stamp -->
         <tstamp />
@@ -25,7 +25,7 @@
         <mkdir dir="${test_build}" />
         <mkdir dir="${test_report}" />
     </target>
-	
+
 	<target name="compile" depends="init" description="compile the source ">
 		<path id="libs">
 			<fileset dir="../">
@@ -37,12 +37,12 @@
 		<!-- Compile the java code from ${src} into ${build} -->
 		<javac compiler="modern" source="1.8" target="1.8"  encoding="UTF-8" srcdir="${src}" destdir="${build}" classpathref="libs" />
 	</target>
-	
+
 	<target name="dist" depends="compile" description="generate the distribution">
 
 		<mkdir dir="${dist}" />
 
-		<!-- I don't like the idea of forcing people to install and use ant.contrib 
+		<!-- I don't like the idea of forcing people to install and use ant.contrib
          so right now this is just a huge list of targets add your new plugin here
 	     as another jar task line (comment by Adam Weber)-->
 		<jar jarfile="${dist}/${pkg}.AAVSOnetEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOnetEpochPhotometryObservationSource**.class" />
@@ -77,7 +77,7 @@
 		<jar jarfile="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" basedir="${build.classes}" includes="**/SuperWASPFITSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaModelCreator.jar" basedir="${build.classes}" includes="**/VeLaModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaObservationTransformer.jar" basedir="${build.classes}" includes="**/VeLaObservationTransformer**.class" />
-		<jar jarfile="${dist}/${pkg}.JulianDateObservationsFilter.jar" basedir="${build.classes}" includes="**/JulianDateObservationsFilter**.class" />		
+		<jar jarfile="${dist}/${pkg}.JulianDateObservationsFilter.jar" basedir="${build.classes}" includes="**/JulianDateObservationsFilter**.class" />
 		<!--
 		<jar jarfile="${dist}/${pkg}.DifferentialPhotometry.jar" basedir="${build.classes}" includes="**/DifferentialPhotometry**.class" />
 		<jar jarfile="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/IRISAutomaticPhotometryObservationSource**.class" />
@@ -102,7 +102,7 @@
             <classpath refid="test.classpath" />
         </javac>
     </target>
-    
+
     <target name="test" depends="compile_ut,install" description="Run unit tests">
 
         <!-- Run the tests -->
@@ -121,7 +121,7 @@
                     <include name="**/PluginTest.class" />
                 </fileset>
             </batchtest>
-        	
+
             <classpath refid="test.classpath" />
         </junit>
 
@@ -141,13 +141,13 @@
                 </linecontains>
             </filterchain>
         </concat>
-    	
+
         <!--
     	<concat>
     	  <fileset dir="${test_report}" includes="*"/>
     	</concat>
     	-->
-    	
+
         <exec command="cat ${test_report}/summary.txt"/>
 
         <!-- Exit with status 1 if there were UT failures or errors. -->
@@ -172,7 +172,7 @@
 		</copy>
 		<copy todir="${user.home}/${plugin_lib_dir}" file="lib/tamfits.jar" />
 	</target>
-	
+
 	<target name="aavso" depends="dist" description="Create a .plugins.lst and zip file containing the plug-ins for AAVSO">
 		<mkdir dir="${vstar_plugins_zip_dir}/${plugin_dir}" />
 		<mkdir dir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
@@ -189,9 +189,9 @@
 		<copy file="${dist}/${pkg}.CurrentModeANOVATool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.DASCHObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.DescStatsBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.FlexibleTextFileFormatObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />		
-		<copy file="${dist}/${pkg}.VSXquery.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />		
-		<copy file="${dist}/${pkg}.VeLaObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />		
+		<copy file="${dist}/${pkg}.FlexibleTextFileFormatObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.VSXquery.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.VeLaObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.FourierModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.GAIADR2XformObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.HJDConverter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -209,13 +209,13 @@
 		<copy file="${dist}/${pkg}.SuperWASPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VeLaModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VeLaObservationTransformer.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.JulianDateObservationsFilter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />		
+		<copy file="${dist}/${pkg}.JulianDateObservationsFilter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<!--
 		<copy file="${dist}/${pkg}.DifferentialPhotometry.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MinimumScatterPeriodFinder.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VSPChartInfoRetriever.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		-->		
+		-->
 		<copy file="lib/tamfits.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
 
 		<echo file="${plugins_list_file}" message="${pkg}.AAVSOnetEpochPhotometryObservationSource.jar${line.separator}" append="true" />
@@ -250,14 +250,14 @@
 		<echo file="${plugins_list_file}" message="${pkg}.SuperWASPFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaModelCreator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObservationTransformer.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.JulianDateObservationsFilter.jar${line.separator}" append="true" />		
+		<echo file="${plugins_list_file}" message="${pkg}.JulianDateObservationsFilter.jar${line.separator}" append="true" />
 		<!--
 		<echo file="${plugins_list_file}" message="${pkg}.DifferentialPhotometry.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.IRISAutomaticPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MinimumScatterPeriodFinder.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VSPChartInfoRetriever.jar${line.separator}" append="true" />
 		-->
-		
+
 		<copy file="${plugins_list_file}" todir="${vstar_plugins_zip_dir}" overwrite="true"/>
 
 		<zip destfile="${vstar_plugins_zip_dir}.zip">
@@ -273,7 +273,9 @@
         <delete dir="${test_build}" />
 		<delete dir="${dist}" />
         <delete dir="${test_report}" />
-   	 	<delete dir="src/**/*.class" />
+   	 	<delete>
+  			<fileset dir="src" includes="**/*.class"/>
+		</delete>
 		<delete dir="src/build" />
 		<delete file="${vstar_plugins_zip_dir}.zip" />
 		<delete file="${plugins_list_file}" />
