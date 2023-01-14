@@ -68,10 +68,15 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 			operand = operand(name, ob.getBand().getShortName());
 		} else if ("SERIES".equals(name)) {
 			operand = operand(name, ob.getSeries().getDescription());
-		} else if ("PHASE".equals(name)) {
+		} else if ("STANDARDPHASE".equals(name)) {
 			contained &= ob.getStandardPhase() != null;
 			if (contained) {
 				operand = operand(name, ob.getStandardPhase());
+			}
+		} else if ("PREVIOUSCYCLEPHASE".equals(name)) {
+			contained &= ob.getPreviousCyclePhase() != null;
+			if (contained) {
+				operand = operand(name, ob.getPreviousCyclePhase());
 			}
 		} else if ("MTYPE".equals(name)) {
 			operand = operand(name, ob.getMType().getShortName());
@@ -200,7 +205,9 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 		symbol2CanonicalSymbol.put("SERIES", "SERIES");
 		symbol2CanonicalSymbol.put("SHORTBAND", "SHORTBAND");
 
-		symbol2CanonicalSymbol.put("PHASE", "PHASE");
+		symbol2CanonicalSymbol.put("STANDARDPHASE", "STANDARDPHASE");
+		symbol2CanonicalSymbol.put("PHASE", "STANDARDPHASE");
+		symbol2CanonicalSymbol.put("PREVIOUSCYCLEPHASE", "PREVIOUSCYCLEPHASE");
 
 		symbol2CanonicalSymbol.put("COMMENTCODES", "COMMENTCODES");
 
