@@ -269,7 +269,7 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 							tessMag != invalidMag ? NumericPrecisionPrefs.getOtherOutputFormat().format(tessMag) : "",
 							"TESS magnitude");
 					
-					ob.addDetail("Quality", Integer.toString(rawObs.quality), "Quality");
+					ob.addDetail("QUALITY", Integer.toString(rawObs.quality), "Quality");
 					collectObservation(ob);
 					incrementProgress();
 				}
