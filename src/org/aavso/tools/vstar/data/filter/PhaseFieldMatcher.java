@@ -59,10 +59,6 @@ public class PhaseFieldMatcher extends DoubleFieldMatcher {
 
 		try {
 			Double value = NumberParser.parseDouble(fieldValue);
-			if (value < 0.0) {
-				// Convert to standard phase.
-				value += 1;
-			}
 			matcher = new PhaseFieldMatcher(value, op);
 		} catch (NumberFormatException e) {
 			// Nothing to do but return null.
@@ -83,20 +79,10 @@ public class PhaseFieldMatcher extends DoubleFieldMatcher {
 
 	@Override
 	public String getTestValueFromObservation(ValidObservation ob) {
-		Double phase = null;
+		Double phase = Double.MAX_VALUE; // a value the phase cannot be
 
-		if (observationSelectionMessage == null) {
+		if (ob.getStandardPhase() != null) {
 			phase = ob.getStandardPhase();
-		} else {
-			Object obj = observationSelectionMessage.getSource();
-			if (obj instanceof PhaseAndMeanPlotPane) {
-				PhaseAndMeanPlotPane pane = (PhaseAndMeanPlotPane) obj;
-				if (pane.wasLastSelectionStdPhase()) {
-					phase = ob.getStandardPhase();
-				} else {
-					phase = ob.getPreviousCyclePhase();
-				}
-			}
 		}
 
 		return NumericPrecisionPrefs.formatTime(phase);
