@@ -149,6 +149,9 @@ public class VeLaObservationFilterDialog extends AbstractOkCancelDialog {
 		obsPropsList.setBorder(BorderFactory
 				.createTitledBorder("Observation Properties"));
 
+		String[] props = VeLaValidObservationEnvironment.symbols();
+		obsPropsList.setModel(new DefaultComboBoxModel<String>(props));
+		
 		obsPropsList.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

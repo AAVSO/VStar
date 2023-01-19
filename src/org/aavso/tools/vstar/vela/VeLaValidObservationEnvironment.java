@@ -225,7 +225,7 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 		symbol2CanonicalSymbol.put("TRANSFORMED", "TRANSFORMED");
 
 		for (String detailKey : ValidObservation.getDetailTitles().keySet()) {
-			if (!detailKey.contains("_") && detailKey != null) {
+			if (detailKey != null && !detailKey.contains("_")) {
 				symbol2CanonicalSymbol.put(detailKey, detailKey);
 			}
 		}
