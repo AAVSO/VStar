@@ -373,9 +373,6 @@ public class AAVSOUploadFileFormatObservationSource extends ObservationSourcePlu
 			}
 
 			String group = fields[12].trim();
-			if (group.length() > 5) {
-				throw new ObservationValidationError("GROUP has more than 5 characters.");
-			}
 
 			String chart = fields[13].trim();
 			if (!isNA(chart)) {
