@@ -107,9 +107,11 @@ public class ObservationAndMeanPlotPane extends AbstractObservationPlotPane<Obse
 		getChartPanel().getChart().getXYPlot().setSeriesRenderingOrder(
 				docMgr.shouldInvertSeriesOrder() ? SeriesRenderingOrder.REVERSE : SeriesRenderingOrder.FORWARD);
 
-		// This may override the action of setJoinedSeries() depending upon state of
-		// this user-controllable characteristic
-		getRenderer().setSeriesLinesVisible(obsModel.getMeansSeriesNum(), docMgr.shouldJoinMeans());
+		if (meanSeriesNum != ObservationAndMeanPlotModel.NO_SERIES) {
+			// This may override the action of setJoinedSeries() depending upon state of
+			// this user-controllable characteristic
+			getRenderer().setSeriesLinesVisible(obsModel.getMeansSeriesNum(), docMgr.shouldJoinMeans());
+		}
 	}
 
 	/**
