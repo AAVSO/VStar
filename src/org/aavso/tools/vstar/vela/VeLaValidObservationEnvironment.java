@@ -89,11 +89,6 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 				operand = operand(name, ob.getPreviousCyclePhase());
 			}
 		} else {
-//			contained = ob.nonEmptyDetailExists(name);
-//
-//			if (contained) {
-//				operand = operand(name, ob.getDetail(name));
-//			}
 			if (columnInfoSource != null) {
 				int index = columnInfoSource.getColumnIndexByName(name);
 				operand = objToOperand(name, columnInfoSource.getTableColumnValue(index, ob));
@@ -218,26 +213,6 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 
 			if (columnInfoSource != null) {
 				Collection<String> columnNames = columnInfoSource.getColumnNames();
-
-//		symbol2CanonicalSymbol.put("COMMENTCODES", "COMMENTCODES");
-//
-				// ** add these two back here and above **
-//		symbol2CanonicalSymbol.put("OBSCODE", "OBS_CODE");
-//
-//		symbol2CanonicalSymbol.put("OBS_TYPE", "OBSTYPE");
-//
-//		symbol2CanonicalSymbol.put("COMPSTAR1", "COMP_STAR1");
-//
-//		symbol2CanonicalSymbol.put("COMPSTAR2", "COMP_STAR2");
-//
-//		symbol2CanonicalSymbol.put("VALFLAG", "VALFLAG");
-//
-//		symbol2CanonicalSymbol.put("MTYPE", "MTYPE");
-//		symbol2CanonicalSymbol.put("TRANSFORMED", "TRANSFORMED");
-
-//		Set<String> detailTitles = ValidObservation.getDetailTitles().keySet();
-//		Set<String> detailTitles = ValidObservation.getDetailTitles().keySet().stream().map(name -> name.toUpperCase())
-//				.collect(Collectors.toSet());
 
 				for (String columnName : columnNames) {
 					if (columnName != null) {
