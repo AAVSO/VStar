@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,15 +61,23 @@ public class ArbitraryFormatRawDataColumnInfoSource implements
 		COLUMN_NAMES.put(DISCREPANT_COLUMN_NAME, DISCREPANT_COLUMN);
 	}
 
+	@Override
 	public int getColumnCount() {
 		int detailCount = ValidObservation.getDetailTitles().size();
 		return DISCREPANT_COLUMN + detailCount + 1;
 	}
 
+	@Override
+	public Collection<String> getColumnNames() {
+		return COLUMN_NAMES.keySet();
+	}
+
+	@Override
 	public int getDiscrepantColumnIndex() {
 		return DISCREPANT_COLUMN;
 	}
 
+	@Override
 	public String getTableColumnTitle(int index) {
 		String columnName = null;
 
@@ -104,6 +113,7 @@ public class ArbitraryFormatRawDataColumnInfoSource implements
 		return columnName;
 	}
 
+	@Override
 	public Class<?> getTableColumnClass(int index) {
 		Class<?> clazz = String.class;
 
@@ -129,6 +139,7 @@ public class ArbitraryFormatRawDataColumnInfoSource implements
 		return clazz;
 	}
 
+	@Override
 	public Object getTableColumnValue(int index, ValidObservation ob) {
 		Object value = null;
 

@@ -38,14 +38,17 @@ public class ArbitraryFormatPhasePlotColumnInfoSource extends
 		COLUMN_NAMES.put(PHASE_COLUMN_NAME, PHASE_COLUMN);
 	}
 
+	@Override
 	public int getColumnCount() {
 		return super.getColumnCount() + 1;
 	}
 
+	@Override
 	public int getDiscrepantColumnIndex() {
 		return super.getDiscrepantColumnIndex() + 1;
 	}
 
+	@Override
 	public String getTableColumnTitle(int index) {
 		String columnName = null;
 
@@ -61,6 +64,7 @@ public class ArbitraryFormatPhasePlotColumnInfoSource extends
 		return columnName;
 	}
 
+	@Override
 	public Class<?> getTableColumnClass(int index) {
 		Class<?> clazz = null;
 
@@ -76,6 +80,7 @@ public class ArbitraryFormatPhasePlotColumnInfoSource extends
 		return clazz;
 	}
 
+	@Override
 	public Object getTableColumnValue(int index, ValidObservation ob) {
 		Object value = null;
 

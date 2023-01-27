@@ -17,6 +17,8 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
+import java.util.Collection;
+
 import org.aavso.tools.vstar.data.ValidObservation;
 
 /**
@@ -32,6 +34,13 @@ public interface ITableColumnInfoSource {
 	 * @return The column count.
 	 */
 	abstract public int getColumnCount();
+	
+	/**
+	 * Return the names of the table columns for this source.
+	 * 
+	 * @return The column names.
+	 */
+	abstract public Collection<String> getColumnNames();
 	
 	/**
 	 * Return the index of the "is-discrepant" column.
