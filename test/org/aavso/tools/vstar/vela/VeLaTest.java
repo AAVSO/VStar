@@ -1289,26 +1289,39 @@ public class VeLaTest extends TestCase {
 
 	// Filter test cases
 
-	public void testVeLaBooleanExpressionsAsFilters() {
+	public void testVeLaBooleanExpressionsAsFilters1() {
 		List<ValidObservation> obs = commonObs();
-		String expr;
-
-		expr = "uncertainty >= 0.1";
+		String expr = "uncertainty >= 0.1";
 		assertEquals(2, filterObs(expr, obs).size());
+	}
 
-		expr = "uncertainty > 0.01 and uncertainty < 0.03";
+	public void testVeLaBooleanExpressionsAsFilters2() {
+		List<ValidObservation> obs = commonObs();
+		String expr = "uncertainty > 0.01 and uncertainty < 0.03";
 		assertEquals(1, filterObs(expr, obs).size());
+	}
 
-		expr = "magnitude > 12 and (uncertainty > 0 and uncertainty <= 0.01)";
+	public void testVeLaBooleanExpressionsAsFilters3() {
+		List<ValidObservation> obs = commonObs();
+		String expr = "magnitude > 12 and (uncertainty > 0 and uncertainty <= 0.01)";
 		assertEquals(1, filterObs(expr, obs).size());
+	}
 
-		expr = "obscode = \"PEX\"";
+	public void testVeLaBooleanExpressionsAsFilters4() {
+		List<ValidObservation> obs = commonObs();
+		String expr = "obs_code = \"PEX\"";
 		assertEquals(1, filterObs(expr, obs).size());
+	}
 
-		expr = "mag > 6 and mag < 15 and obscode = \"PEX\"";
+	public void testVeLaBooleanExpressionsAsFilters5() {
+		List<ValidObservation> obs = commonObs();
+		String expr = "mag > 6 and mag < 15 and obs_code = \"PEX\"";
 		assertEquals(1, filterObs(expr, obs).size());
+	}
 
-		expr = "mag > 6 and mag < 15 and obscode in [\"PEX\" \"PLA\"]";
+	public void testVeLaBooleanExpressionsAsFilters6() {
+		List<ValidObservation> obs = commonObs();
+		String expr = "mag > 6 and mag < 15 and obs_code in [\"PEX\" \"PLA\"]";
 		assertEquals(2, filterObs(expr, obs).size());
 	}
 
