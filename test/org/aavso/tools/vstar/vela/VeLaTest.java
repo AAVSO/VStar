@@ -1307,24 +1307,6 @@ public class VeLaTest extends TestCase {
 		assertEquals(1, filterObs(expr, obs).size());
 	}
 
-	public void testVeLaBooleanExpressionsAsFilters4() {
-		List<ValidObservation> obs = commonObs();
-		String expr = "obs_code = \"PEX\"";
-		assertEquals(1, filterObs(expr, obs).size());
-	}
-
-	public void testVeLaBooleanExpressionsAsFilters5() {
-		List<ValidObservation> obs = commonObs();
-		String expr = "mag > 6 and mag < 15 and obs_code = \"PEX\"";
-		assertEquals(1, filterObs(expr, obs).size());
-	}
-
-	public void testVeLaBooleanExpressionsAsFilters6() {
-		List<ValidObservation> obs = commonObs();
-		String expr = "mag > 6 and mag < 15 and obs_code in [\"PEX\" \"PLA\"]";
-		assertEquals(2, filterObs(expr, obs).size());
-	}
-
 	// Comments
 
 	public void testComments1() {

@@ -76,8 +76,6 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 			operand = operand(name, ob.getBand().getShortName());
 		} else if ("SERIES".equals(name)) {
 			operand = operand(name, ob.getSeries().getDescription());
-		} else if ("OBS_CODE".equals(name)) {
-			operand = operand(name, ob.getObsCode());
 		} else if ("STANDARDPHASE".equals(name)) {
 			contained &= ob.getStandardPhase() != null;
 			if (contained) {
@@ -238,8 +236,6 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 		symbol2CanonicalSymbol.put("SERIES", "SERIES");
 		symbol2CanonicalSymbol.put("SHORTBAND", "SHORTBAND");
 		
-		symbol2CanonicalSymbol.put("OBSCODE", "OBS_CODE");
-
 		// Add phase variables if we're in phase plot mode
 
 		if (analysisType == AnalysisType.PHASE_PLOT) {

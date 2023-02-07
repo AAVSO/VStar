@@ -17,8 +17,10 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.aavso.tools.vstar.data.ValidObservation;
@@ -69,7 +71,9 @@ public class ArbitraryFormatRawDataColumnInfoSource implements
 
 	@Override
 	public Collection<String> getColumnNames() {
-		return COLUMN_NAMES.keySet();
+		List<String> names = new ArrayList<String>(COLUMN_NAMES.keySet());
+		names.addAll(ValidObservation.getDetailTitles().keySet());
+		return names;
 	}
 
 	@Override
