@@ -17,6 +17,7 @@
  */
 package org.aavso.tools.vstar.ui.model.list;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,8 +28,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 /**
  * AAVSO format (file, database) raw data table column information source.
  */
-public class AAVSOFormatRawDataColumnInfoSource implements
-		ITableColumnInfoSource {
+public class AAVSOFormatRawDataColumnInfoSource implements ITableColumnInfoSource {
 
 	// Table columns.
 	private static final int TIME_COLUMN = 0;
@@ -123,21 +123,28 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	/**
 	 * Constructor.
 	 * 
-	 * @param useLineNumbers
-	 *            Should line numbers be used?
+	 * @param useLineNumbers Should line numbers be used?
 	 */
 	public AAVSOFormatRawDataColumnInfoSource(boolean useLineNumbers) {
 		this.useLineNumbers = useLineNumbers;
 	}
 
+	@Override
 	public int getColumnCount() {
 		return useLineNumbers ? LINE_NUM_COLUMN + 1 : LINE_NUM_COLUMN;
 	}
 
+	@Override
+	public Collection<String> getColumnNames() {
+		return COLUMN_NAMES.keySet();
+	}
+
+	@Override
 	public int getDiscrepantColumnIndex() {
 		return DISCREPANT_COLUMN;
 	}
 
+	@Override
 	public String getTableColumnTitle(int index) {
 		String columnName = null;
 
@@ -233,6 +240,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		return columnName;
 	}
 
+	@Override
 	public Class<?> getTableColumnClass(int index) {
 		Class<?> clazz = String.class;
 
@@ -300,25 +308,23 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 		return clazz;
 	}
 
+	@Override
 	public Object getTableColumnValue(int index, ValidObservation ob) {
 		Object value = null;
 
 		switch (index) {
 		case TIME_COLUMN:
-			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo()
-					.getJulianDay());
+			value = NumericPrecisionPrefs.formatTime(ob.getDateInfo().getJulianDay());
 			;
 			break;
 		case CALENDAR_DATE_COLUMN:
 			value = ob.getDateInfo().getCalendarDate();
 			break;
 		case MAGNITUDE_COLUMN:
-			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()
-					.getMagValue());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude().getMagValue());
 			break;
 		case UNCERTAINTY_COLUMN:
-			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude()
-					.getUncertainty());
+			value = NumericPrecisionPrefs.formatMag(ob.getMagnitude().getUncertainty());
 			break;
 		case BAND_COLUMN:
 			value = ob.getBand().getDescription();
@@ -327,8 +333,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getObsCode();
 			break;
 		case VALFLAG_COLUMN:
-			value = ob.getValidationType() == null ? "" : ob
-					.getValidationType().toString();
+			value = ob.getValidationType() == null ? "" : ob.getValidationType().toString();
 			break;
 		case COMP_STAR_1_COLUMN:
 			value = ob.getCompStar1();
@@ -340,8 +345,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getCharts();
 			break;
 		case COMMENT_CODE_COLUMN:
-			value = ob.getCommentCode() == null ? "" : ob.getCommentCode()
-					.getOrigString();
+			value = ob.getCommentCode() == null ? "" : ob.getCommentCode().getOrigString();
 			break;
 		case COMMENTS_COLUMN:
 			value = ob.getComments();
@@ -359,13 +363,11 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 			value = ob.getKMag();
 			break;
 		case HJD_COLUMN:
-			value = ob.getHJD() == null ? "" : NumericPrecisionPrefs
-					.formatTime(ob.getHJD().getJulianDay());
+			value = ob.getHJD() == null ? "" : NumericPrecisionPrefs.formatTime(ob.getHJD().getJulianDay());
 			break;
 		case HQ_UNCERTAINTY_COLUMN:
 			Double hqUncertainty = ob.getHqUncertainty();
-			value = null == hqUncertainty ? "" : NumericPrecisionPrefs
-					.formatMag(ob.getHqUncertainty());
+			value = null == hqUncertainty ? "" : NumericPrecisionPrefs.formatMag(ob.getHqUncertainty());
 			break;
 		case MTYPE_COLUMN:
 			value = ob.getMType() == null ? "" : ob.getMType().toString();
@@ -402,8 +404,7 @@ public class AAVSOFormatRawDataColumnInfoSource implements
 	}
 
 	@Override
-	public int getColumnIndexByName(String name)
-			throws IllegalArgumentException {
+	public int getColumnIndexByName(String name) throws IllegalArgumentException {
 		if (name == null || !COLUMN_NAMES.containsKey(name)) {
 			throw new IllegalArgumentException("No column name: " + name);
 		} else {

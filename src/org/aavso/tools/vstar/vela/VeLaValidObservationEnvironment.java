@@ -17,12 +17,18 @@
  */
 package org.aavso.tools.vstar.vela;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.ui.mediator.AnalysisType;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.NewStarType;
+import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
+import org.aavso.tools.vstar.ui.model.list.ITableColumnInfoSource;
 
 /**
  * A VeLa environment that is backed by a ValidObservation instance.
@@ -34,6 +40,8 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 	static {
 		symbol2CanonicalSymbol = new TreeMap<String, String>();
 	}
+
+	private static ITableColumnInfoSource columnInfoSource = null;
 
 	private ValidObservation ob;
 
@@ -78,38 +86,17 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 			if (contained) {
 				operand = operand(name, ob.getPreviousCyclePhase());
 			}
-		} else if ("MTYPE".equals(name)) {
-			operand = operand(name, ob.getMType().getShortName());
-		} else if ("OBSTYPE".equals(name)) {
-			operand = operand(name, ob.getObsType());
-		} else if ("VALFLAG".equals(name)) {
-			contained &= ob.getValidationType() != null;
-			if (contained) {
-				operand = operand(name, ob.getValidationType().getValflag());
-			}
-		} else if ("TRANSFORMED".equals(name)) {
-			operand = operand(name, ob.isTransformed());
-		} else if ("COMMENTCODES".equals(name)) {
-			contained &= ob.getCommentCode() != null;
-			if (contained) {
-				operand = operand(name, ob.getCommentCode().getOrigString());
-			}
 		} else {
-			contained = ob.nonEmptyDetailExists(name);
-
-			if (contained) {
-				operand = operand(name, ob.getDetail(name));
+			if (columnInfoSource != null) {
+				int index = columnInfoSource.getColumnIndexByName(name);
+				operand = objToOperand(name, columnInfoSource.getTableColumnValue(index, ob));
 			}
 		}
 
-		// TODO:
-		// - discrepant, excluded, fainter-than: for model creation, later
-		// - HJD later
-
 		return Optional.ofNullable(operand);
 	}
-	
-	// Cached operand creation methods.
+
+	// Cached operand creation methods
 
 	protected Operand operand(String name, Integer value) {
 		return operand(Type.INTEGER, name, value);
@@ -127,13 +114,29 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 		return operand(Type.BOOLEAN, name, value);
 	}
 
+	protected Operand objToOperand(String name, Object value) {
+		Type type = Type.NONE;
+
+		if (value instanceof Integer) {
+			type = Type.INTEGER;
+		} else if (value instanceof Double) {
+			type = Type.REAL;
+		} else if (value instanceof String) {
+			type = Type.STRING;
+		} else if (value instanceof Boolean) {
+			type = Type.BOOLEAN;
+		}
+
+		return operand(type, name, value);
+	}
+
 	// Common operand factory method
 
 	protected Operand operand(Type type, String name, Object value) {
 		Operand operand = null;
 
 		name = name.toUpperCase();
-		
+
 		if (cache.containsKey(name)) {
 			operand = cache.get(name);
 		} else {
@@ -163,13 +166,12 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 	/**
 	 * Return the symbols associated with currently loaded observations.
 	 * 
-	 * @param info
-	 *            A new star information message.
+	 * @param info A new star information message.
 	 * @return An array of symbol names.
 	 */
 	public static String[] symbols() {
 		reset();
-		
+
 		String[] symbols = new String[symbol2CanonicalSymbol.size()];
 		int i = 0;
 		for (String symbol : symbol2CanonicalSymbol.keySet()) {
@@ -191,6 +193,35 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 	private static void populateMap() {
 		symbol2CanonicalSymbol.clear();
 
+		// Use current observation list column names as VeLa variables
+
+		Mediator mediator = Mediator.getInstance();
+		NewStarMessage newStarMsg = mediator.getLatestNewStarMessage();
+		AnalysisType analysisType = mediator.getAnalysisType();
+
+		if (newStarMsg != null) {
+
+			NewStarType newStarType = newStarMsg.getNewStarType();
+
+			if (analysisType == AnalysisType.RAW_DATA) {
+				columnInfoSource = newStarType.getRawDataTableColumnInfoSource();
+			} else {
+				columnInfoSource = newStarType.getPhasePlotTableColumnInfoSource();
+			}
+
+			if (columnInfoSource != null) {
+				Collection<String> columnNames = columnInfoSource.getColumnNames();
+
+				for (String columnName : columnNames) {
+					if (columnName != null) {
+						String velaName = columnName.replace(" ", "_");
+						symbol2CanonicalSymbol.put(velaName.toUpperCase(), columnName);
+					}
+				}
+			}
+		}
+		// Add common variables
+
 		symbol2CanonicalSymbol.put("TIME", "TIME");
 		symbol2CanonicalSymbol.put("T", "TIME");
 		symbol2CanonicalSymbol.put("JD", "TIME");
@@ -204,30 +235,13 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 		symbol2CanonicalSymbol.put("BAND", "BAND");
 		symbol2CanonicalSymbol.put("SERIES", "SERIES");
 		symbol2CanonicalSymbol.put("SHORTBAND", "SHORTBAND");
-
-		symbol2CanonicalSymbol.put("STANDARDPHASE", "STANDARDPHASE");
-		symbol2CanonicalSymbol.put("PHASE", "STANDARDPHASE");
-		symbol2CanonicalSymbol.put("PREVIOUSCYCLEPHASE", "PREVIOUSCYCLEPHASE");
-
-		symbol2CanonicalSymbol.put("COMMENTCODES", "COMMENTCODES");
-
-		symbol2CanonicalSymbol.put("OBSCODE", "OBS_CODE");
-
-		symbol2CanonicalSymbol.put("OBS_TYPE", "OBSTYPE");
-
-		symbol2CanonicalSymbol.put("COMPSTAR1", "COMP_STAR1");
 		
-		symbol2CanonicalSymbol.put("COMPSTAR2", "COMP_STAR2");
+		// Add phase variables if we're in phase plot mode
 
-		symbol2CanonicalSymbol.put("VALFLAG", "VALFLAG");
-
-		symbol2CanonicalSymbol.put("MTYPE", "MTYPE");
-		symbol2CanonicalSymbol.put("TRANSFORMED", "TRANSFORMED");
-
-		for (String detailKey : ValidObservation.getDetailTitles().keySet()) {
-			if (!detailKey.contains("_") && detailKey != null) {
-				symbol2CanonicalSymbol.put(detailKey, detailKey);
-			}
+		if (analysisType == AnalysisType.PHASE_PLOT) {
+			symbol2CanonicalSymbol.put("STANDARDPHASE", "STANDARDPHASE");
+			symbol2CanonicalSymbol.put("PHASE", "STANDARDPHASE");
+			symbol2CanonicalSymbol.put("PREVIOUSCYCLEPHASE", "PREVIOUSCYCLEPHASE");
 		}
 	}
 }
