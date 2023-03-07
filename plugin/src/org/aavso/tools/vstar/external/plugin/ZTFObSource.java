@@ -26,13 +26,17 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -56,8 +60,8 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextField;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
  * 
@@ -78,8 +82,7 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	private SeriesType ztfiSeries;
 	private SeriesType ztfUnknownSeries;
 	
-	private String objectID;
-	private String baseURL = "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?FORMAT=TSV&ID=";
+	private String baseURL = "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?FORMAT=TSV&";
 	
 	// Create static VeLa filter field here since cannot create it in
 	// inner dialog class.
@@ -88,6 +91,8 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	static {
 		velaFilterFieldPanelPair = PluginComponentFactory.createVeLaFilterPane();
 	}
+	
+	private ZTFParameterDialog paramDialog;
 
 	/**
 	 * Constructor
@@ -112,29 +117,30 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	public List<URL> getURLs() throws Exception {
 		List<URL> urls = new ArrayList<URL>();
 
-		String s = "";
-		while (true) {
-			ZTFParameterDialog paramDialog = new ZTFParameterDialog(s, isAdditive);
-			if (!paramDialog.isCancelled()) {
-				s = paramDialog.getObjectID().trim();
-				if (s != null && !"".equals(s) && s.matches("[0-9]+")) {
-					setAdditive(paramDialog.isLoadAdditive());
-					objectID = s;
-					try {
-						urls.add(new URL(baseURL + objectID));
-					} catch (MalformedURLException e) {
-						throw new ObservationReadError("Cannot construct ZTF URL (reason: " + e.getLocalizedMessage() + ")");
-					}
-					
-					return urls;
-				} else {
-					MessageBox.showErrorDialog("ZTF", "ZTF source must be numeric");
-				}
-			} else {
-				throw new CancellationException();
-			}
-				
+		if (paramDialog == null) {
+			paramDialog = new ZTFParameterDialog(isAdditive());
 		}
+		paramDialog.showDialog();
+		if (!paramDialog.isCancelled()) {
+			String url;
+			if (paramDialog.getSearchByID()) {
+				setAdditive(paramDialog.isLoadAdditive());
+				url = baseURL + "ID=" + paramDialog.getObjectID();
+			} else {
+				url = baseURL + "POS=CIRCLE%20" +
+						String.format(Locale.ENGLISH, "%.5f%%20%.5f%%20%.5f", paramDialog.getRA(), paramDialog.getDec(), paramDialog.getRadius());  
+			}
+			try {
+				//System.out.println(url);
+				urls.add(new URL(url));
+			} catch (MalformedURLException e) {
+				throw new ObservationReadError("Cannot construct ZTF URL (reason: " + e.getLocalizedMessage() + ")");
+			}
+			setVelaFilterStr(paramDialog.getVelaFilterStr());
+		} else {
+			throw new CancellationException();
+		}
+		return urls;
 	}
 	
 	/**
@@ -166,7 +172,8 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 
 		private String obscode = "ZTF";
 		private String delimiter = "\t";
-		private String objectName;
+		//private String objectName;
+		private HashSet<String> ztfObjects;
 		
 		private List<String> lines;
 
@@ -183,6 +190,7 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			julianDayValidator = new JulianDayValidator();
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
 			uncertaintyValueValidator = new UncertaintyValueValidator(new InclusiveRangePredicate(0, 1));
+			ztfObjects = new HashSet<String>();
 		}
 
 		@Override
@@ -270,8 +278,8 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 
 			ValidObservation observation = new ValidObservation();
 
-			String name = "ZTF object " + fields[0].trim();
-			objectName = name;
+			String name = fields[0].trim();
+			ztfObjects.add(name);
 
 			observation.setRecordNumber(recordNumber);
 			observation.setName(name);
@@ -313,7 +321,18 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 
 		@Override
 		public String getSourceName() {
-			return objectName;
+			if (ztfObjects.size() == 0)
+				return "ZTF object";
+			String name = ""; 
+			for (String ztf : ztfObjects) {
+				if (name.length() > 0)
+					name += ", ";
+				name += ztf;
+			}
+			if (ztfObjects.size() == 1)
+				return "ZTF object " + name;
+			else
+				return "ZTF objects " + name;
 		}
 
 		@Override
@@ -326,10 +345,19 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	class ZTFParameterDialog extends AbstractOkCancelDialog {
 
 		private TextField objectIDField;
+		private TextField objectRAField;
+		private TextField objectDecField;
+		private TextField objectRadiusField;
 		private JCheckBox additiveLoadCheckbox;
-
-		public ZTFParameterDialog(String ztfObjectID, boolean additiveChecked) {
-			super("ZTF Object");
+		private JTabbedPane searchParamPane;
+		
+		private String objectID;
+		private Double objectRA;
+		private Double objectDec;
+		private Double objectRadius;
+		
+		public ZTFParameterDialog(boolean additiveChecked) {
+			super("ZTF Photometry");
 
 			Container contentPane = this.getContentPane();
 
@@ -337,8 +365,11 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-			topPane.add(createParameterPane(ztfObjectID));
+			searchParamPane = createParameterPane();
+			topPane.add(searchParamPane);
 
+			topPane.add(Box.createRigidArea(new Dimension(400, 20)));
+			
 			topPane.add(velaFilterFieldPanelPair.second);
 
 			topPane.add(createAdditiveLoadCheckboxPane(additiveChecked));
@@ -349,19 +380,28 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			contentPane.add(topPane);
 
 			this.pack();
-			setLocationRelativeTo(Mediator.getUI().getContentPane());
-			this.setVisible(true);
 		}
 
-		private JPanel createParameterPane(String ztfObjectID) {
-			JPanel panel = new JPanel();
-			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		private JTabbedPane createParameterPane() {
+			JTabbedPane tabbedPane = new JTabbedPane();
+			
+			JPanel panelID = new JPanel();
+			panelID.setLayout(new BoxLayout(panelID, BoxLayout.PAGE_AXIS));
+			objectIDField = new TextField("ZTF object ID", "");
+			panelID.add(objectIDField.getUIComponent());
+			tabbedPane.addTab("Object ID", null, panelID, "Search by ZTF object identifier");
+			
+			JPanel panelCoord = new JPanel();
+			panelCoord.setLayout(new BoxLayout(panelCoord, BoxLayout.LINE_AXIS));
+			objectRAField = new TextField("RA (degrees)", "0");
+			panelCoord.add(objectRAField.getUIComponent());
+			objectDecField = new TextField("Dec (degrees)", "0");
+			panelCoord.add(objectDecField.getUIComponent());
+			objectRadiusField = new TextField("Radius (degrees)", String.format(Locale.getDefault(), "%.4f", 0.0004));
+			panelCoord.add(objectRadiusField.getUIComponent());
+			tabbedPane.addTab("Coordinates", null, panelCoord, "Search by Coordinates");
 
-			objectIDField = new TextField("ZTF object ID", ztfObjectID);
-			panel.add(objectIDField.getUIComponent());
-			panel.add(Box.createRigidArea(new Dimension(75, 10)));
-
-			return panel;
+			return tabbedPane;
 		}
 
 		private JPanel createAdditiveLoadCheckboxPane(boolean checked) {
@@ -375,7 +415,23 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 		}
 
 		public String getObjectID() {
-			return objectIDField.getValue();
+			return objectID;
+		}
+		
+		public Double getRA() {
+			return objectRA;
+		}
+
+		public  Double getDec() {
+			return objectDec;
+		}
+
+		public  Double getRadius() {
+			return objectRadius;
+		}
+		
+		public boolean getSearchByID() {
+			return searchParamPane.getSelectedIndex() == 0;
 		}
 
 		/**
@@ -402,19 +458,71 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			// Nothing to do.
 		}
 
+		@Override
+		public void showDialog() {
+			//objectIDField.getUIComponent().requestFocusInWindow();
+			SwingUtilities.invokeLater( new Runnable() { 
+				public void run() {
+						if (getSearchByID()) {
+							objectIDField.getUIComponent().requestFocusInWindow();
+						} else {
+							objectRAField.getUIComponent().requestFocusInWindow();
+						}
+					} 
+				} );
+			super.showDialog();			
+		}
+		
 		/**
 		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
 		 */
 		@Override
 		protected void okAction() {
-			boolean ok = true;
+			if (getSearchByID()) {
+				objectID = objectIDField.getValue();
+				if (objectID != null) objectID = objectID.trim();
+				if (objectID == null || "".equals(objectID) || !objectID.matches("[0-9]+")) {
+					objectIDField.getUIComponent().requestFocusInWindow();
+					MessageBox.showErrorDialog("ZTF", "ZTF object ID must be numeric");
+					return;
+				}
+			} else {
+				objectRA = getDouble(objectRAField, 0, 360, true, false, "RA must be >= 0 and < 360");
+				if (objectRA == null) {
+					return;
+				}
+ 				objectDec = getDouble(objectDecField, -90, 90, true, true, "Dec must be >= -90 and <= 90");
+				if (objectDec == null) {
+					return;
+				}
+				objectRadius = getDouble(objectRadiusField, 0, 0.005, true, true, "Radius must be >= 0 and <= 0.005");
+				if (objectRadius == null) {
+					return;
+				}
+			}
 
-			if (ok) {
-				cancelled = false;
-				setVisible(false);
-				dispose();
+			cancelled = false;
+			setVisible(false);
+			dispose();
+		}
+		
+		private Double getDouble(TextField f, double min, double max, boolean min_inclusive, boolean max_inclusive, String errorMessage) {
+			Double v;
+			try {
+				v = NumberParser.parseDouble(f.getValue());
+			} catch (Exception e) {
+				v = null;
+				errorMessage = e.getMessage();
+			}
+			if (v != null && (v > min || min_inclusive && v == min) && (v < max || max_inclusive && v == max)) {
+				return v;
+			} else {
+				f.getUIComponent().requestFocusInWindow();
+				MessageBox.showErrorDialog(f.getName(), errorMessage);
+				return null;
 			}
 		}
+
 	}
 
 }
