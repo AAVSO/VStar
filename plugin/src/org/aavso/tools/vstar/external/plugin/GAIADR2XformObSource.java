@@ -82,7 +82,7 @@ public class GAIADR2XformObSource extends ObservationSourcePluginBase {
 
 	private boolean transform = false;
 	private String source_id;
-	private String baseURL = "http://geadata.esac.esa.int/data-server/data?RETRIEVAL_TYPE=epoch_photometry&FORMAT=CSV&ID=";
+	private String baseURL = "http://gea.esac.esa.int/data-server/data?RETRIEVAL_TYPE=epoch_photometry&FORMAT=CSV&ID=";
 
 	// Create static VeLa filter field here since cannot create it in
 	// inner dialog class.
