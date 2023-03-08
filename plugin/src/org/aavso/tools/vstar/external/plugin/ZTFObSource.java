@@ -26,9 +26,13 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -70,12 +74,7 @@ import org.aavso.tools.vstar.util.locale.NumberParser;
  */
 public class ZTFObSource extends ObservationSourcePluginBase {
 
-	// start of the header like
-	private static final String HEADER_LINE_START = 
-			"oid\texpid\thjd\tmjd\tmag\tmagerr\tcatflags\tfiltercode\t" + 
-			"ra\tdec\tchi\tsharp\tfilefracday\tfield\tccdid\tqid\t" + 
-			"limitmag\tmagzp\tmagzprms\tclrcoeff\tclrcounc\texptime\t" + 
-			"airmass\tprogramid";
+	private Map<String, Integer> fieldIndices;
 	
 	private SeriesType ztfgSeries;
 	private SeriesType ztfrSeries;
@@ -103,6 +102,15 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 		ztfrSeries = SeriesType.create("ZTF zr", "ZTF zr", Color.RED, false, false);
 		ztfiSeries = SeriesType.create("ZTF zi", "ZTF zi", new Color(192, 64, 0), false, false);
 		ztfUnknownSeries = SeriesType.create("ZTF unknown", "ZTF unknown", new Color(255, 255, 0), false, false);
+		fieldIndices = new HashMap<String, Integer>();
+		fieldIndices.put("oid", -1);
+		fieldIndices.put("hjd", -1);
+		fieldIndices.put("mag", -1);
+		fieldIndices.put("magerr", -1);
+		fieldIndices.put("catflags", -1);
+		fieldIndices.put("filtercode", -1);
+		fieldIndices.put("exptime", -1);
+		fieldIndices.put("airmass", -1);
 	}
 	
 	/**
@@ -170,7 +178,7 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 
 	class ZTFFormatRetriever extends AbstractObservationRetriever {
 
-		private String obscode = "ZTF";
+		//private String obscode = "ZTF";
 		private String delimiter = "\t";
 		//private String objectName;
 		private HashSet<String> ztfObjects;
@@ -192,7 +200,7 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			uncertaintyValueValidator = new UncertaintyValueValidator(new InclusiveRangePredicate(0, 1));
 			ztfObjects = new HashSet<String>();
 		}
-
+		
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
 				InterruptedException {
@@ -202,48 +210,64 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			// read lines and determine the number of them 
 			getNumberOfRecords();
 
-			int headerLineNum = -1;
+			boolean headerFound = false;
 			
-			// look for the header line
+			String firstError = null;
 			for (int i = 0; i < lines.size(); i++) {
 				String line = lines.get(i);
-				if (line != null ) {
+				if (line != null) {
 					line = line.trim();
-					if (HEADER_LINE_START.equals(line.substring(0, HEADER_LINE_START.length()))) {
-						// header found
-						headerLineNum = i;
-						break;
+					if (!"".equals(line)) {
+						if (headerFound) {
+							try {
+								ValidObservation vo = readNextObservation(line.split(delimiter), i + 1);
+								collectObservation(vo);
+							} catch (Exception e) {
+								// Create an invalid observation.
+								String error = e.getLocalizedMessage();
+								if (firstError == null) firstError = error;
+								InvalidObservation ob = new InvalidObservation(line, error);
+								ob.setRecordNumber(i + 1);
+								addInvalidObservation(ob);
+							}
+						} else {
+							headerFound = checkForHeaderAndFillFieldIndices(line.split(delimiter));
+						}
 					}
 				}
 				incrementProgress();
 			}
 			
-			if (headerLineNum < 0)
+			if (!headerFound)
 				throw new ObservationReadError("Cannot find ZTF header");
-				
-			// The header has been found. Read the rest of lines.
-			for (int i = headerLineNum + 1; i < lines.size(); i++) {
-				String line = lines.get(i);				
-				try {
-					if (line != null ) {
-						line = line.trim();
-						if (!"".equals(line)) {
-							String[] fields = line.split(delimiter);
-							ValidObservation vo = readNextObservation(fields, i + 1);
-							collectObservation(vo);
-						}
-					}
-				} catch (Exception e) {
-					// Create an invalid observation.
-					String error = e.getLocalizedMessage();
-					InvalidObservation ob = new InvalidObservation(line, error);
-					ob.setRecordNumber(i + 1);
-					addInvalidObservation(ob);
-				}
-				incrementProgress();
+			
+			if (validObservations.size() == 0 && firstError != null) {
+				throw new ObservationReadError("No observations found. The first error message:\n" + firstError);
 			}
+			
 		}
-
+		
+		private boolean checkForHeaderAndFillFieldIndices(String[] fields) {
+			for (Map.Entry<String, Integer> entry : fieldIndices.entrySet()) {
+				int i = indexInArray(entry.getKey(), fields);
+				if (i >= 0) {
+					entry.setValue(i);
+				} else {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		private int indexInArray(String s, String[] a) {
+			for (int i = 0; i < a.length; i++) {
+				if (s.equals(a[i])) {
+					return i;
+				}
+			}
+			return -1;
+		}		
+		
 		@Override
 		public Integer getNumberOfRecords() throws ObservationReadError {
 			if (lines == null) {
@@ -260,11 +284,8 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 		// Read all lines from the source.
 		private void readLines() throws IOException {
 			lines = new ArrayList<String>();
-
 			BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStreams().get(0)));
-
-			String line = null;
-
+			String line;
 			while ((line = reader.readLine()) != null) {
 				lines.add(line);
 			}
@@ -278,22 +299,22 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 
 			ValidObservation observation = new ValidObservation();
 
-			String name = fields[0].trim();
+			String name = fields[fieldIndices.get("oid")].trim();
 			ztfObjects.add(name);
 
 			observation.setRecordNumber(recordNumber);
 			observation.setName(name);
-			observation.setObsCode(obscode);
+			//observation.setObsCode(obscode);
 
-			DateInfo dateInfo = new DateInfo(julianDayValidator.validate(fields[2].trim()).getJulianDay());
+			DateInfo dateInfo = new DateInfo(julianDayValidator.validate(fields[fieldIndices.get("hjd")].trim()).getJulianDay());
 			observation.setDateInfo(dateInfo);
 
-			Magnitude magnitude = magnitudeFieldValidator.validate(fields[4].trim());
+			Magnitude magnitude = magnitudeFieldValidator.validate(fields[fieldIndices.get("mag")].trim());
 			observation.setMagnitude(magnitude);
-			double uncertainty = uncertaintyValueValidator.validate(fields[5].trim());
+			double uncertainty = uncertaintyValueValidator.validate(fields[fieldIndices.get("magerr")].trim());
 			observation.getMagnitude().setUncertainty(uncertainty);
 
-			String filter = fields[7].trim();
+			String filter = fields[fieldIndices.get("filtercode")].trim();
 			SeriesType band;
 			if (filter.equals("zg")) {
 				band = ztfgSeries;
@@ -311,9 +332,9 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 
 			//observation.setComments("");
 
-			observation.addDetail("CATFLAGS", fields[6], "catflags");
-			observation.addDetail("EXPTIME", fields[21], "exptime");
-			observation.addDetail("AIRMASS", fields[22], "airmass");
+			observation.addDetail("CATFLAGS", fields[fieldIndices.get("catflags")], "catflags");
+			observation.addDetail("EXPTIME", fields[fieldIndices.get("exptime")], "exptime");
+			observation.addDetail("AIRMASS", fields[fieldIndices.get("airmass")], "airmass");
 			// todo: add other details
 			
 			return observation;
