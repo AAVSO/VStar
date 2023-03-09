@@ -19,12 +19,16 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +39,7 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -55,6 +60,7 @@ import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.PluginComponentFactory;
@@ -62,8 +68,10 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextField;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.NumberParser;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * 
@@ -363,10 +371,13 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	@SuppressWarnings("serial")
 	class ZTFParameterDialog extends AbstractOkCancelDialog {
 
+		private final int MIN_DECIMAL_PLACES = 20;
+		
 		private TextField objectIDField;
 		private TextField objectRAField;
 		private TextField objectDecField;
 		private TextField objectRadiusField;
+		private JButton btnVSX;
 		private JCheckBox additiveLoadCheckbox;
 		private JTabbedPane searchParamPane;
 		
@@ -374,6 +385,8 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 		private Double objectRA;
 		private Double objectDec;
 		private Double objectRadius;
+		
+		private ResolveVSXnameDialog vsxDialog;
 		
 		public ZTFParameterDialog(boolean additiveChecked) {
 			super("ZTF Photometry");
@@ -418,6 +431,13 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			panelCoord.add(objectDecField.getUIComponent());
 			objectRadiusField = new TextField("Radius (degrees)", String.format(Locale.getDefault(), "%.4f", 0.0004));
 			panelCoord.add(objectRadiusField.getUIComponent());
+			btnVSX = new JButton("VSX");
+			btnVSX.addActionListener(new ActionListener() { 
+				  public void actionPerformed(ActionEvent e) { 
+					  coordinatesFromVSX();
+				  } 
+				} );
+			panelCoord.add(btnVSX);
 			tabbedPane.addTab("Coordinates", null, panelCoord, "Search by Coordinates");
 
 			return tabbedPane;
@@ -469,14 +489,6 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			return velaFilterFieldPanelPair.first.getValue().trim();
 		}
 
-		/**
-		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
-		 */
-		@Override
-		protected void cancelAction() {
-			// Nothing to do.
-		}
-
 		@Override
 		public void showDialog() {
 			//objectIDField.getUIComponent().requestFocusInWindow();
@@ -490,6 +502,14 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 					} 
 				} );
 			super.showDialog();			
+		}
+		
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+		 */
+		@Override
+		protected void cancelAction() {
+			// Nothing to do.
 		}
 		
 		/**
@@ -524,6 +544,25 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			setVisible(false);
 			dispose();
 		}
+
+		private String DoubleToStringMaxDigits(double value) {
+			DecimalFormat df = new DecimalFormat("0");
+			int fractionDigits = NumericPrecisionPrefs.getOtherDecimalPlaces();
+			if (fractionDigits < MIN_DECIMAL_PLACES) fractionDigits = MIN_DECIMAL_PLACES;
+			df.setMaximumFractionDigits(fractionDigits);
+			return df.format(value);
+		}
+		
+		private void coordinatesFromVSX() {
+			if (vsxDialog == null) {
+				vsxDialog = new ResolveVSXnameDialog();
+			}
+			vsxDialog.showDialog();
+			if (!vsxDialog.isCancelled()) {
+				objectRAField.setValue(DoubleToStringMaxDigits(vsxDialog.getRA()));
+				objectDecField.setValue(DoubleToStringMaxDigits(vsxDialog.getDec()));
+			}
+		}
 		
 		private Double getDouble(TextField f, double min, double max, boolean min_inclusive, boolean max_inclusive, String errorMessage) {
 			Double v;
@@ -542,6 +581,99 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			}
 		}
 
+	}
+	
+	@SuppressWarnings("serial")
+	class ResolveVSXnameDialog extends AbstractOkCancelDialog {
+
+		private TextField vsxIdField;
+		private double objRA;
+		private double objDec;
+		
+		private Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
+		
+		public ResolveVSXnameDialog() {
+			super("VSX");
+
+			Container contentPane = this.getContentPane();
+
+			JPanel topPane = new JPanel();
+			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+			JPanel paramPane = createParameterPane();
+			topPane.add(paramPane);
+
+			topPane.add(Box.createRigidArea(new Dimension(200, 20)));
+			
+			// OK, Cancel
+			topPane.add(createButtonPane());
+
+			contentPane.add(topPane);
+
+			this.pack();
+		}
+		
+		private JPanel createParameterPane() {
+			JPanel panelVSXid = new JPanel();
+			panelVSXid.setLayout(new BoxLayout(panelVSXid, BoxLayout.PAGE_AXIS));
+			vsxIdField = new TextField("VSX object ID", "");
+			panelVSXid.add(vsxIdField.getUIComponent());
+			return panelVSXid;
+		}
+
+		private void ResolveVSXidentifier(String id) {
+			Cursor defaultCursor = getCursor();
+			setCursor(waitCursor);
+			try {
+				VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
+				StarInfo info = infoSrc.getStarByName(id);
+				objRA = info.getRA().toDegrees();
+				objDec = info.getDec().toDegrees();
+			} finally {
+				setCursor(defaultCursor);
+			}
+		}
+		
+		public double getRA() {
+			return objRA;
+		}
+
+		public double getDec() {
+			return objDec;
+		}
+		
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+		 */
+		@Override
+		protected void cancelAction() {
+			// Nothing to do.
+		}
+		
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+		 */
+		@Override
+		protected void okAction() {
+			String id = vsxIdField.getValue();
+			if (id != null) id = id.trim();
+			if (id == null || "".equals(id)) {
+				vsxIdField.getUIComponent().requestFocusInWindow();
+				return;
+			}
+			try {
+				ResolveVSXidentifier(id);
+			} catch (Exception e) {
+				vsxIdField.getUIComponent().requestFocusInWindow();
+				MessageBox.showErrorDialog("VSX", "VSX identifier not found");
+				return;
+			}
+			cancelled = false;
+			setVisible(false);
+			dispose();
+		}
+		
 	}
 
 }
