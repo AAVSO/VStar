@@ -26,10 +26,8 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -130,9 +128,9 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 		}
 		paramDialog.showDialog();
 		if (!paramDialog.isCancelled()) {
+			setAdditive(paramDialog.isLoadAdditive());			
 			String url;
 			if (paramDialog.getSearchByID()) {
-				setAdditive(paramDialog.isLoadAdditive());
 				url = baseURL + "ID=" + paramDialog.getObjectID();
 			} else {
 				url = baseURL + "POS=CIRCLE%20" +
