@@ -21,14 +21,11 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,11 +36,12 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
@@ -71,11 +69,12 @@ import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.locale.NumberParser;
-import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
  * 
  * @author max (PMAK)
+ * 
+ * see https://irsa.ipac.caltech.edu/docs/program_interface/ztf_lightcurve_api.html
  * 
  */
 public class ZTFObSource extends ObservationSourcePluginBase {
@@ -88,6 +87,8 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	private SeriesType ztfUnknownSeries;
 	
 	private String baseURL = "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?FORMAT=TSV&";
+	
+	//private StarInfo starInfo;
 	
 	// Create static VeLa filter field here since cannot create it in
 	// inner dialog class.
@@ -131,12 +132,17 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	public List<URL> getURLs() throws Exception {
 		List<URL> urls = new ArrayList<URL>();
 
+		//starInfo = null;
+		
 		if (paramDialog == null) {
 			paramDialog = new ZTFParameterDialog(isAdditive());
 		}
 		paramDialog.showDialog();
 		if (!paramDialog.isCancelled()) {
-			setAdditive(paramDialog.isLoadAdditive());			
+			//StarInfo starInfo = paramDialog.getStarInfo();
+			
+			setAdditive(paramDialog.isLoadAdditive());
+			
 			String url;
 			if (paramDialog.getSearchByID()) {
 				url = baseURL + "ID=" + paramDialog.getObjectID();
@@ -144,12 +150,18 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 				url = baseURL + "POS=CIRCLE%20" +
 						String.format(Locale.ENGLISH, "%.5f%%20%.5f%%20%.5f", paramDialog.getRA(), paramDialog.getDec(), paramDialog.getRadius());  
 			}
+			
+			if (paramDialog.isCatflagsZero()) {
+				url += "&BAD_CATFLAGS_MASK=65535";
+			}
+			
 			try {
-				//System.out.println(url);
+				System.out.println(url);
 				urls.add(new URL(url));
 			} catch (MalformedURLException e) {
 				throw new ObservationReadError("Cannot construct ZTF URL (reason: " + e.getLocalizedMessage() + ")");
 			}
+			
 			setVelaFilterStr(paramDialog.getVelaFilterStr());
 		} else {
 			throw new CancellationException();
@@ -165,7 +177,7 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	public AbstractObservationRetriever getObservationRetriever() {
 		return new ZTFFormatRetriever();
 	}
-	
+
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDescription()
 	 */
@@ -206,6 +218,21 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			uncertaintyValueValidator = new UncertaintyValueValidator(new InclusiveRangePredicate(0, 1));
 			ztfObjects = new HashSet<String>();
 		}
+		
+		/**
+		 * Extended information
+		 */
+		/*
+		@Override
+		public StarInfo getStarInfo() {
+			if (starInfo != null) {
+				starInfo.setRetriever(this);
+				return starInfo;
+			} else {
+				return new StarInfo(this, getSourceName());
+			}
+		}
+		*/
 		
 		@Override
 		public void retrieveObservations() throws ObservationReadError,
@@ -298,8 +325,6 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 		}
 
 		// ZTF format observation reader.
-		// see https://irsa.ipac.caltech.edu/docs/program_interface/ztf_lightcurve_api.html
-		//
 		private ValidObservation readNextObservation(String[] fields, int recordNumber)
 				throws ObservationValidationError {
 
@@ -371,22 +396,25 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	@SuppressWarnings("serial")
 	class ZTFParameterDialog extends AbstractOkCancelDialog {
 
-		private final int MIN_DECIMAL_PLACES = 20;
+		//private final int MIN_DECIMAL_PLACES = 20;
 		
 		private TextField objectIDField;
 		private TextField objectRAField;
 		private TextField objectDecField;
 		private TextField objectRadiusField;
-		private JButton btnVSX;
+		private TextField objectVSXNameField;
 		private JCheckBox additiveLoadCheckbox;
+		private JCheckBox catflagsZeroCheckbox;
 		private JTabbedPane searchParamPane;
+		private JTabbedPane searchParamPane2;
 		
 		private String objectID;
 		private Double objectRA;
 		private Double objectDec;
 		private Double objectRadius;
+		//private StarInfo starInfo;		
 		
-		private ResolveVSXnameDialog vsxDialog;
+		private Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
 		
 		public ZTFParameterDialog(boolean additiveChecked) {
 			super("ZTF Photometry");
@@ -397,15 +425,31 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-			searchParamPane = createParameterPane();
+			createParameterPane();
 			topPane.add(searchParamPane);
 
+			searchParamPane.addChangeListener(
+					new ChangeListener() {
+						public void stateChanged(ChangeEvent e) {
+							searchParamPaneUpdateFocus();
+						}
+					} );
+			
+			searchParamPane2.addChangeListener(
+					new ChangeListener() {
+						public void stateChanged(ChangeEvent e) {
+							searchParamPane2UpdateFocus();
+						}
+					} );
+
+			topPane.add(createCatflagsZeroCheckboxPane());			
+			
 			topPane.add(Box.createRigidArea(new Dimension(400, 20)));
 			
 			topPane.add(velaFilterFieldPanelPair.second);
 
 			topPane.add(createAdditiveLoadCheckboxPane(additiveChecked));
-
+			
 			// OK, Cancel
 			topPane.add(createButtonPane());
 
@@ -413,15 +457,47 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 
 			this.pack();
 		}
+		
+		private void searchParamPaneUpdateFocus() {
+			SwingUtilities.invokeLater( new Runnable() { 
+				public void run() {
+					switch (searchParamPane.getSelectedIndex()) {
+						case 0:
+							searchParamPane2UpdateFocus();
+							break;
+						case 1:
+							objectIDField.getUIComponent().requestFocusInWindow();								
+							break;
+						default:
+							break;
+					}
+				}
+			} );
+		}
+		
 
-		private JTabbedPane createParameterPane() {
-			JTabbedPane tabbedPane = new JTabbedPane();
+		private void searchParamPane2UpdateFocus() {
+			SwingUtilities.invokeLater( new Runnable() {
+				public void run() {
+					switch (searchParamPane2.getSelectedIndex()) {
+						case 0:
+							objectRAField.getUIComponent().requestFocusInWindow();
+							break;
+						case 1:
+							objectVSXNameField.getUIComponent().requestFocusInWindow();
+							break;
+						default:
+							break;
+					}
+				}
+			} );
+		}
+
+		
+		private void createParameterPane() {
+			searchParamPane = new JTabbedPane();
 			
-			JPanel panelID = new JPanel();
-			panelID.setLayout(new BoxLayout(panelID, BoxLayout.PAGE_AXIS));
-			objectIDField = new TextField("ZTF object ID", "");
-			panelID.add(objectIDField.getUIComponent());
-			tabbedPane.addTab("Object ID", null, panelID, "Search by ZTF object identifier");
+			searchParamPane2 = new JTabbedPane();
 			
 			JPanel panelCoord = new JPanel();
 			panelCoord.setLayout(new BoxLayout(panelCoord, BoxLayout.LINE_AXIS));
@@ -429,20 +505,45 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			panelCoord.add(objectRAField.getUIComponent());
 			objectDecField = new TextField("Dec (degrees)", "0");
 			panelCoord.add(objectDecField.getUIComponent());
+			
+			searchParamPane2.addTab("Coordinates", null, panelCoord, "Search by coordinates");
+			
+			JPanel panelVSX = new JPanel();
+			panelVSX.setLayout(new BoxLayout(panelVSX, BoxLayout.LINE_AXIS));
+			objectVSXNameField = new TextField("VSX name", "");
+			panelVSX.add(objectVSXNameField.getUIComponent());
+			
+			searchParamPane2.addTab("VSX", null, panelVSX, "Search by VSX name");
+			
+			JPanel panelCoordAndVSX = new JPanel();
+			panelCoordAndVSX.setLayout(new BoxLayout(panelCoordAndVSX, BoxLayout.PAGE_AXIS));
+			panelCoordAndVSX.add(searchParamPane2);
+			
 			objectRadiusField = new TextField("Radius (degrees)", String.format(Locale.getDefault(), "%.4f", 0.0004));
-			panelCoord.add(objectRadiusField.getUIComponent());
-			btnVSX = new JButton("VSX");
-			btnVSX.addActionListener(new ActionListener() { 
-				  public void actionPerformed(ActionEvent e) { 
-					  coordinatesFromVSX();
-				  } 
-				} );
-			panelCoord.add(btnVSX);
-			tabbedPane.addTab("Coordinates", null, panelCoord, "Search by Coordinates");
-
-			return tabbedPane;
+			panelCoordAndVSX.add(objectRadiusField.getUIComponent());
+			
+			searchParamPane.addTab("Coordinates or VSX name", panelCoordAndVSX);
+			
+			JPanel panelID = new JPanel();
+			panelID.setLayout(new BoxLayout(panelID, BoxLayout.PAGE_AXIS));
+			panelID.add(Box.createRigidArea(new Dimension(100, 40)));
+			objectIDField = new TextField("ZTF object ID", "");
+			panelID.add(objectIDField.getUIComponent());
+			panelID.add(Box.createRigidArea(new Dimension(100, 40)));
+			
+			searchParamPane.addTab("Object ID", null, panelID, "Search by ZTF object identifier");
 		}
 
+		private JPanel createCatflagsZeroCheckboxPane() {
+			JPanel panel = new JPanel();
+			panel.setBorder(BorderFactory.createTitledBorder("Catflags"));
+
+			catflagsZeroCheckbox = new JCheckBox("ZTF data with catflags 0 only?", true);
+			panel.add(catflagsZeroCheckbox);
+
+			return panel;
+		}
+		
 		private JPanel createAdditiveLoadCheckboxPane(boolean checked) {
 			JPanel panel = new JPanel();
 			panel.setBorder(BorderFactory.createTitledBorder("Additive Load"));
@@ -461,16 +562,28 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			return objectRA;
 		}
 
-		public  Double getDec() {
+		public Double getDec() {
 			return objectDec;
 		}
 
-		public  Double getRadius() {
+		public Double getRadius() {
 			return objectRadius;
 		}
 		
+		public boolean isCatflagsZero() {
+			return catflagsZeroCheckbox.isSelected();
+		}
+		
+		//public StarInfo getStarInfo() {
+		//	return starInfo;
+		//}
+		
 		public boolean getSearchByID() {
-			return searchParamPane.getSelectedIndex() == 0;
+			return searchParamPane.getSelectedIndex() == 1;
+		}
+		
+		public boolean getCoordinateSearchManual() {
+			return searchParamPane2.getSelectedIndex() == 0;
 		}
 
 		/**
@@ -491,16 +604,12 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 
 		@Override
 		public void showDialog() {
-			//objectIDField.getUIComponent().requestFocusInWindow();
-			SwingUtilities.invokeLater( new Runnable() { 
-				public void run() {
-						if (getSearchByID()) {
-							objectIDField.getUIComponent().requestFocusInWindow();
-						} else {
-							objectRAField.getUIComponent().requestFocusInWindow();
-						}
-					} 
-				} );
+			objectID = null;
+			objectRA = null;
+			objectDec = null;
+			objectRadius = null;
+			//starInfo = null;
+			searchParamPaneUpdateFocus();			
 			super.showDialog();			
 		}
 		
@@ -526,41 +635,69 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 					return;
 				}
 			} else {
-				objectRA = getDouble(objectRAField, 0, 360, true, false, "RA must be >= 0 and < 360");
-				if (objectRA == null) {
-					return;
-				}
- 				objectDec = getDouble(objectDecField, -90, 90, true, true, "Dec must be >= -90 and <= 90");
-				if (objectDec == null) {
-					return;
-				}
 				objectRadius = getDouble(objectRadiusField, 0, 0.005, true, true, "Radius must be >= 0 and <= 0.005");
 				if (objectRadius == null) {
 					return;
 				}
+				if (getCoordinateSearchManual()) {
+					objectRA = getDouble(objectRAField, 0, 360, true, false, "RA must be >= 0 and < 360");
+					if (objectRA == null) {
+						return;
+					}
+					objectDec = getDouble(objectDecField, -90, 90, true, true, "Dec must be >= -90 and <= 90");
+					if (objectDec == null) {
+						return;
+					}
+				}
+				else {
+					String vsxName = objectVSXNameField.getValue();
+					if (vsxName != null) vsxName = vsxName.trim();
+					if (vsxName == null || "".equals(vsxName)) {
+						objectVSXNameField.getUIComponent().requestFocusInWindow();
+						MessageBox.showErrorDialog("VSX", "VSX name must be specified");
+						return;
+					}
+					
+					try {
+						StarInfo starInfo = ResolveVSXidentifier(vsxName);
+						objectRA = starInfo.getRA().toDegrees();
+						objectDec = starInfo.getDec().toDegrees();
+					} catch (Exception e) {
+						objectVSXNameField.getUIComponent().requestFocusInWindow();
+						MessageBox.showErrorDialog("VSX", "Cannot resolve the VSX identifier.\nError message:\n" + 
+								e.getLocalizedMessage());
+						return;
+					}
+				}		
 			}
-
+			
 			cancelled = false;
 			setVisible(false);
 			dispose();
 		}
 
-		private String DoubleToStringMaxDigits(double value) {
-			DecimalFormat df = new DecimalFormat("0");
-			int fractionDigits = NumericPrecisionPrefs.getOtherDecimalPlaces();
-			if (fractionDigits < MIN_DECIMAL_PLACES) fractionDigits = MIN_DECIMAL_PLACES;
-			df.setMaximumFractionDigits(fractionDigits);
-			return df.format(value);
-		}
-		
-		private void coordinatesFromVSX() {
-			if (vsxDialog == null) {
-				vsxDialog = new ResolveVSXnameDialog();
+		/*
+		private String DoubleToStringMaxDigits(Double value) {
+			if (value != null) {
+				DecimalFormat df = new DecimalFormat("0");
+				int fractionDigits = NumericPrecisionPrefs.getOtherDecimalPlaces();
+				if (fractionDigits < MIN_DECIMAL_PLACES) fractionDigits = MIN_DECIMAL_PLACES;
+				df.setMaximumFractionDigits(fractionDigits);
+				return df.format(value);
+			} else {
+				return "";
 			}
-			vsxDialog.showDialog();
-			if (!vsxDialog.isCancelled()) {
-				objectRAField.setValue(DoubleToStringMaxDigits(vsxDialog.getRA()));
-				objectDecField.setValue(DoubleToStringMaxDigits(vsxDialog.getDec()));
+		}
+		*/
+		
+		private StarInfo ResolveVSXidentifier(String id) {
+			Cursor defaultCursor = getCursor();
+			setCursor(waitCursor);
+			try {
+				VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
+				return infoSrc.getStarByName(id);
+			} finally {
+				setCursor(defaultCursor);
 			}
 		}
 		
@@ -570,7 +707,7 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 				v = NumberParser.parseDouble(f.getValue());
 			} catch (Exception e) {
 				v = null;
-				errorMessage = e.getMessage();
+				errorMessage = e.getLocalizedMessage();
 			}
 			if (v != null && (v > min || min_inclusive && v == min) && (v < max || max_inclusive && v == max)) {
 				return v;
@@ -581,99 +718,6 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			}
 		}
 
-	}
-	
-	@SuppressWarnings("serial")
-	class ResolveVSXnameDialog extends AbstractOkCancelDialog {
-
-		private TextField vsxIdField;
-		private double objRA;
-		private double objDec;
-		
-		private Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
-		
-		public ResolveVSXnameDialog() {
-			super("VSX");
-
-			Container contentPane = this.getContentPane();
-
-			JPanel topPane = new JPanel();
-			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-			JPanel paramPane = createParameterPane();
-			topPane.add(paramPane);
-
-			topPane.add(Box.createRigidArea(new Dimension(200, 20)));
-			
-			// OK, Cancel
-			topPane.add(createButtonPane());
-
-			contentPane.add(topPane);
-
-			this.pack();
-		}
-		
-		private JPanel createParameterPane() {
-			JPanel panelVSXid = new JPanel();
-			panelVSXid.setLayout(new BoxLayout(panelVSXid, BoxLayout.PAGE_AXIS));
-			vsxIdField = new TextField("VSX object ID", "");
-			panelVSXid.add(vsxIdField.getUIComponent());
-			return panelVSXid;
-		}
-
-		private void ResolveVSXidentifier(String id) {
-			Cursor defaultCursor = getCursor();
-			setCursor(waitCursor);
-			try {
-				VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
-				StarInfo info = infoSrc.getStarByName(id);
-				objRA = info.getRA().toDegrees();
-				objDec = info.getDec().toDegrees();
-			} finally {
-				setCursor(defaultCursor);
-			}
-		}
-		
-		public double getRA() {
-			return objRA;
-		}
-
-		public double getDec() {
-			return objDec;
-		}
-		
-		/**
-		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
-		 */
-		@Override
-		protected void cancelAction() {
-			// Nothing to do.
-		}
-		
-		/**
-		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
-		 */
-		@Override
-		protected void okAction() {
-			String id = vsxIdField.getValue();
-			if (id != null) id = id.trim();
-			if (id == null || "".equals(id)) {
-				vsxIdField.getUIComponent().requestFocusInWindow();
-				return;
-			}
-			try {
-				ResolveVSXidentifier(id);
-			} catch (Exception e) {
-				vsxIdField.getUIComponent().requestFocusInWindow();
-				MessageBox.showErrorDialog("VSX", "VSX identifier not found");
-				return;
-			}
-			cancelled = false;
-			setVisible(false);
-			dispose();
-		}
-		
 	}
 
 }
