@@ -420,23 +420,10 @@ public class GAIADR2XformObSource extends ObservationSourcePluginBase {
 		private void readLines() throws IOException {
 			lines = new ArrayList<String>();
 
-//			InputStream inStream = getInputStreams().get(0);
-//
-//			int avail = inStream.available();
-
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					getInputStreams().get(0)));
 
 			String line = null;
-
-//			boolean ready = false;
-//			
-//			int tries = 3;
-//			
-//			do {
-//				ready = reader.ready();
-//				tries--;
-//			} while (!ready && tries > 0);
 
 			while ((line = reader.readLine()) != null) {
 				lines.add(line);
