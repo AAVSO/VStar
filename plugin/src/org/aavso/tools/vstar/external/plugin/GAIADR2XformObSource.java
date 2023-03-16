@@ -21,6 +21,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -71,7 +72,7 @@ import org.aavso.tools.vstar.util.Pair;
  * /gea.esac.esa.int/archive/documentation/GDR2/Gaia_archive/chap_datamodel
  * /sec_dm_datalink_tables/ssec_dm_light_curve.html
  * 
- * Example URL: http://geadata.esac.esa.int/data-server/data?RETRIEVAL_TYPE=
+ * Example URL: https://gea.esac.esa.int/data-server/data?RETRIEVAL_TYPE=
  * epoch_photometry&FORMAT=CSV&ID=4116592768715278848 or 5085674696501016192 or
  * 6857141688677395840 or 3530587602644108800
  * 
@@ -82,7 +83,7 @@ public class GAIADR2XformObSource extends ObservationSourcePluginBase {
 
 	private boolean transform = false;
 	private String source_id;
-	private String baseURL = "http://geadata.esac.esa.int/data-server/data?RETRIEVAL_TYPE=epoch_photometry&FORMAT=CSV&ID=";
+	private String baseURL = "https://gea.esac.esa.int/data-server/data?RETRIEVAL_TYPE=epoch_photometry&FORMAT=CSV&ID=";
 
 	// Create static VeLa filter field here since cannot create it in
 	// inner dialog class.
