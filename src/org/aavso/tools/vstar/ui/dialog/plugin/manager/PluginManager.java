@@ -438,6 +438,7 @@ public class PluginManager {
 				// Separate jar file name from dependent libraries, if any
 				// exist.
 				String[] fields = line.split("\\s*=>\\s*");
+				//System.out.println(fields.length + " " + line);
 
 				if (fields.length != 0) {
 					// Load plugin, store mappings from jar name to plugin
@@ -455,15 +456,27 @@ public class PluginManager {
 						pluginJarFileName = pluginJarFileName.substring(1);
 						// }
 					}
-
+					
 					URL pluginUrl = new URL(pluginBaseURLStr + "/"
 							+ pluginJarFileName);
 					String className = pluginJarFileName.replace(".jar", "");
-
+					
+					//System.out.println(pluginUrl);
+					
+					List<URL> depLibs = new ArrayList<URL>();
+					if (fields.length == 2) {
+						for (String libFileStr : fields[1].split("\\s*,\\s*")) {
+							String libJarFileName = libFileStr;
+							depLibs.add(new URL(libBaseURLStr + "/"	+ libJarFileName));							
+						}
+					}
+					
 					//Max: get class loader with plugin and close it at the end!
                     // https://docs.oracle.com/javase/8/docs/technotes/guides/net/ClassLoader.html
 					Pair<IPlugin, URLClassLoader> plugin_cl = createObjectFromJarURL(pluginUrl,
-							className);
+							className, depLibs);
+					//System.out.println("Remote plug-in info: " + plugin_cl.first.getDescription());
+					//System.out.println();					
 					try {
 						remoteDescriptions.put(plugin_cl.first.getDescription(),
 								pluginJarFileName);
@@ -572,6 +585,27 @@ public class PluginManager {
 		// Get information about local plugins.
 		File pluginPath = new File(System.getProperty("user.home")
 				+ File.separator + PLUGINS_DIR);
+		File pluginLibPath = new File(System.getProperty("user.home")
+				+ File.separator + PLUGIN_LIBS_DIR);
+		
+		List<URL> depLibs = new ArrayList<URL>();
+		if (pluginLibPath.exists() && pluginLibPath.isDirectory()) {
+			for (File file : pluginLibPath.listFiles(jarFilter)) {
+				try {
+					depLibs.add(file.toURI().toURL());
+				} catch (MalformedURLException e) {
+					MessageBox.showErrorDialog(
+							"Plug-in Manager",
+							"Invalid plugin library jar file: "
+									+ file.getAbsolutePath());
+				} catch (Throwable t) {
+					MessageBox.showErrorDialog(
+							"Plug-in Manager",
+							"An error occurred during plugin dependency loading: "
+									+ t.getLocalizedMessage());
+				}
+			}
+		}
 
 		if (pluginPath.exists() && pluginPath.isDirectory()) {
 
@@ -589,7 +623,9 @@ public class PluginManager {
 
                     // https://docs.oracle.com/javase/8/docs/technotes/guides/net/ClassLoader.html 
 					Pair<IPlugin, URLClassLoader> plugin_cl = createObjectFromJarURL(file.toURI()
-							.toURL(), className);
+							.toURL(), className, depLibs);
+					//System.out.println("Local plug-in info: " + plugin_cl.first.getDescription());
+					//System.out.println();					
 					try {
 						localDescriptions.put(plugin_cl.first.getDescription(),
 								pluginJarFileName);
@@ -882,10 +918,14 @@ public class PluginManager {
 	}
 
 	// return class loader here!
-	private Pair<IPlugin, URLClassLoader> createObjectFromJarURL(URL url, String className)
+	private Pair<IPlugin, URLClassLoader> createObjectFromJarURL(URL url, String className, List<URL> depLibs)
 			throws ClassNotFoundException, IllegalAccessException,
 			InstantiationException {
-		URLClassLoader loader = new URLClassLoader(new URL[] { url },
+		List<URL> urlList = new ArrayList<URL>();
+		urlList.add(url);
+		urlList.addAll(depLibs);
+		URL[] urls = urlList.toArray(new URL[0]);
+		URLClassLoader loader = new URLClassLoader(urls,
 				VStar.class.getClassLoader());
 		Class<?> clazz = loader.loadClass(className);
 		IPlugin plugin = (IPlugin) clazz.newInstance(); 
