@@ -37,11 +37,12 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.prefs.Preferences;
 
+import javax.swing.SwingUtilities;
+
 import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
-import org.aavso.tools.vstar.util.Pair;
 
 /**
  * This class manages plug-in installation, deletion, and update.
@@ -415,14 +416,20 @@ public class PluginManager {
 			lines = lineList.toArray(new String[0]);
 
 		} catch (Exception e) {
-			MessageBox.showErrorDialog("Plug-in Manager",
-					"Error reading remote plug-in information.\nErrror:\n" + 
-					e.getLocalizedMessage());
+			SwingUtilities.invokeLater( new Runnable() { 
+				public void run() {
+					MessageBox.showErrorDialog("Plug-in Manager",
+							"Error reading remote plug-in information.\nErrror:\n" + 
+							e.getLocalizedMessage());
+				}
+			} );
 			return;
 		}
 
 		String pluginBaseURLStr = baseUrlStr + "/" + PLUGINS_DIR;
 		String libBaseURLStr = baseUrlStr + "/" + PLUGIN_LIBS_DIR;
+		
+		ArrayList<String> errors = new ArrayList<String>(); 
 		
 		for (String line : lines) {
 			if (interrupted)
@@ -484,35 +491,39 @@ public class PluginManager {
 				}
 				plugin_desc = getPluginDescription(pluginUrl, className, depLibs);
 			} catch (Exception e) {
-				MessageBox.showErrorDialog("Plug-in Manager",
-					"Error reading remote plug-in information: " + className + ".\nErrror:\n" + 
-					e.getLocalizedMessage());
+				//MessageBox.showErrorDialog("Plug-in Manager",
+				//	"Error reading remote plug-in information: " + className + ".\nErrror:\n" + 
+				//	e.getLocalizedMessage());
+				errors.add("Plug-in: " + className + ", Error: " + e.getLocalizedMessage());
 				continue;
 			} catch (Throwable t) {
-				MessageBox.showErrorDialog("Plug-in Manager",
-						"Error reading remote plug-in information: " + className + ".\nSevere Error:\n" + 
-						t.getLocalizedMessage());
-					continue;
+				//MessageBox.showErrorDialog("Plug-in Manager",
+				//		"Error reading remote plug-in information: " + className + ".\nSevere Error:\n" + 
+				//		t.getLocalizedMessage());
+				errors.add("Plug-in: " + className + ", Error: " + t.getLocalizedMessage());
+				continue;
 			}
 			
 			remoteDescriptions.put(plugin_desc, pluginJarFileName);
 			remotePlugins.put(pluginJarFileName, pluginUrl);
 
-				// Store dependent libs, if any exist, by plugin key.
+			// Store dependent libs, if any exist, by plugin key.
 			if (fields.length > 1) {
 				if (interrupted) 
 					break;
 
-				File pluginLibDirPath = new File(System.getProperty("user.home") + File.separator + PLUGIN_LIBS_DIR);
+				File pluginPath = new File(System.getProperty("user.home") + File.separator + PLUGINS_DIR);
+				
 				for (String libFileStr : fields[1].split("\\s*,\\s*")) {
 					String libJarFileName = libFileStr.trim();
 					URL libUrl = null;
 					try {
 						libUrl = new URL(libBaseURLStr + "/" + libJarFileName);
 					} catch (Exception e) {
-						MessageBox.showErrorDialog("Plug-in Manager",
-							"Error reading remote plug-in information.\nErrror:\n" + 
-							e.getLocalizedMessage());
+						//MessageBox.showErrorDialog("Plug-in Manager",
+						//	"Error reading remote plug-in information.\nErrror:\n" + 
+						//	e.getLocalizedMessage());
+						errors.add("Plug-in: " + className + ", Library: " + libJarFileName + ", Error: " + e.getLocalizedMessage());
 						break;
 					}
 					List<URL> libUrls = libs.get(pluginJarFileName);
@@ -528,9 +539,10 @@ public class PluginManager {
 					// basis of checking against local library jar
 					// files. Our reference counting will only be as
 					// good as this remote/local correspondence.
-					File localLibJarFilePath = new File(pluginLibDirPath, libJarFileName);
+					
+					File locaPluginJarFilePath = new File(pluginPath, pluginJarFileName);
 
-					if (localLibJarFilePath.exists()) {
+					if (locaPluginJarFilePath.exists()) {
 						if (!libDescriptions.containsKey(plugin_desc)) {
 							libDescriptions.put(plugin_desc, new HashSet<String>());
 						}
@@ -544,6 +556,16 @@ public class PluginManager {
 					}
 				}
 			}
+		}
+		
+		if (errors.size() > 0) {
+			SwingUtilities.invokeLater( new Runnable() { 
+				public void run() {
+					String err = String.join("\n", errors);
+					MessageBox.showErrorDialog("Plug-in Manager",
+							"Error reading remote plug-in information.\nErrors:\n" + err);
+				}
+			} );
 		}
 	}
 
@@ -576,6 +598,8 @@ public class PluginManager {
 				+ File.separator + PLUGINS_DIR);
 		File pluginLibPath = new File(System.getProperty("user.home")
 				+ File.separator + PLUGIN_LIBS_DIR);
+
+		ArrayList<String> errors = new ArrayList<String>();		
 		
 		List<URL> depLibs = new ArrayList<URL>();
 		if (pluginLibPath.exists() && pluginLibPath.isDirectory()) {
@@ -583,10 +607,11 @@ public class PluginManager {
 				try {
 					depLibs.add(file.toURI().toURL());
 				} catch (Exception e) {
-					MessageBox.showErrorDialog(
-							"Plug-in Manager",
-							"Invalid plugin library file.\nError:\n" +
-							e.getLocalizedMessage());
+					//MessageBox.showErrorDialog(
+					//		"Plug-in Manager",
+					//		"Invalid plugin library file.\nError:\n" +
+					//		e.getLocalizedMessage());
+					errors.add("File: " + file.getName() + ", Error: " + e.getLocalizedMessage());
 				}
 			}
 		}
@@ -607,19 +632,30 @@ public class PluginManager {
 					localPlugins.put(pluginJarFileName, file);
 					plugin_desc = getPluginDescription(file.toURI().toURL(), className, depLibs);
 				} catch (Exception e) {
-					MessageBox.showErrorDialog("Plug-in Manager",
-						"Error reading local plugin information: " + className + ".\nError:\n" +
-						e.getLocalizedMessage());
+					//MessageBox.showErrorDialog("Plug-in Manager",
+					//	"Error reading local plugin information: " + className + ".\nError:\n" +
+					//	e.getLocalizedMessage());
+					errors.add("Plug-in class: " + className + ", Error: " + e.getLocalizedMessage());
 					continue;
 				} catch (Throwable t) {
-					MessageBox.showErrorDialog("Plug-in Manager",
-						"Error reading remote plug-in information: " + className + ".\nSevere Error:\n" + 
-						t.getLocalizedMessage());
+					//MessageBox.showErrorDialog("Plug-in Manager",
+					//	"Error reading remote plug-in information: " + className + ".\nSevere Error:\n" + 
+					//	t.getLocalizedMessage());
+					errors.add("Plug-in class: " + className + ", Error: " + t.getLocalizedMessage());
 					continue;
 				}
 
 				localDescriptions.put(plugin_desc, pluginJarFileName);				
 			}
+		}
+		if (errors.size() > 0) {
+			SwingUtilities.invokeLater( new Runnable() { 
+				public void run() {
+					String err = String.join("\n", errors);
+					MessageBox.showErrorDialog("Plug-in Manager",
+							"Error reading local plug-in information.\nErrors:\n" + err);
+				}
+			} );
 		}
 	}
 
@@ -650,6 +686,9 @@ public class PluginManager {
 			String pluginJarName = pluginURL.getPath().substring(
 					pluginURL.getPath().lastIndexOf("/") + 1);
 			File pluginJarFile = new File(pluginDirPath, pluginJarName);
+			
+			boolean pluginExisted = pluginJarFile.exists();			
+			
 			copy(pluginURL.openStream(), pluginJarFile);
 
 			// Update maps after copy.
@@ -680,12 +719,22 @@ public class PluginManager {
 						// Library reference counting.
 						switch (op) {
 						case INSTALL:
+							// Bind libJarName with the plug-in 
+							if (!libDescriptions.containsKey(description)) {
+								libDescriptions.put(description, new HashSet<String>());
+							}
+							libDescriptions.get(description).add(libJarName);
 							// Implies a new dependency on any library file.
 							if (!libRefs.keySet().contains(libJarName)) {
+								// Actually, this should never occur, libRefs should be
+								// already populated in retrieveRemotePluginInfo
 								libRefs.put(libJarName, 1);
 							} else {
-								int count = libRefs.get(libJarName) + 1;
-								libRefs.put(libJarName, count);
+								// Increment refcount ONLY if the plugin had not existed!
+								if (!pluginExisted) {
+									int count = libRefs.get(libJarName) + 1;
+									libRefs.put(libJarName, count);
+								}
 							}
 							break;
 						case UPDATE:
@@ -693,6 +742,8 @@ public class PluginManager {
 							// additional to the current update of the plugin
 							// compared to previous plugin version.
 							if (!libRefs.keySet().contains(libJarName)) {
+								// Actually, this should never occur, libRefs should be
+								// already populated in retrieveRemotePluginInfo
 								libRefs.put(libJarName, 1);
 							}
 							break;
@@ -701,8 +752,12 @@ public class PluginManager {
 				}
 			}
 		} catch (IOException e) {
-			MessageBox.showErrorDialog("Plug-in Manager",
-					"An error occurred while installing remotePlugins.");
+			SwingUtilities.invokeLater( new Runnable() { 
+				public void run() {
+					MessageBox.showErrorDialog("Plug-in Manager",
+						"An error occurred while installing remotePlugins.");
+				}
+			} );			
 		}
 	}
 
@@ -725,8 +780,12 @@ public class PluginManager {
 		File pluginJarPath = new File(pluginDirPath, jarName);
 		if (pluginJarPath.exists()) {
 			if (!pluginJarPath.delete()) {
-				MessageBox.showErrorDialog("Plug-in Manager",
-						"Unable to delete plug-in " + jarName);
+				SwingUtilities.invokeLater( new Runnable() { 
+					public void run() {
+						MessageBox.showErrorDialog("Plug-in Manager",
+							"Unable to delete plug-in " + jarName);
+					}
+				} );			
 			} else {
 				// Update maps after delete.
 				localDescriptions.remove(description);
@@ -734,8 +793,13 @@ public class PluginManager {
 				remoteAndLocalPluginEquality.remove(description);
 			}
 		} else {
-			MessageBox.showErrorDialog("Plug-in Manager", "Plug-in " + jarName
-					+ " does not exist so unable to delete");
+			SwingUtilities.invokeLater( new Runnable() { 
+				public void run() {
+					MessageBox.showErrorDialog("Plug-in Manager", 
+						"Plug-in " + jarName + 
+						" does not exist so unable to delete");
+				}
+			} );			
 		}
 
 		// Delete dependent jars for this plug-in.
@@ -759,25 +823,28 @@ public class PluginManager {
 					// vagaries of file systems or the possibility of
 					// concurrent deletion.
 					if (libJarPath.exists()) {
-						// Max: This fragment was commented out by David(?)
-						// Even being commented out, it contained an error in the if-condition:
-						// logical '!' was missing!
-						// I have not uncommented it but fixed the error.
-						// So, actually, we never delete the libraries. 
-						// if (!libJarPath.delete()) {
-						// String errMsg = String.format(
-						// "Unable to delete dependent library %s "
-						// + "for plug-in %s", libJarName,
-						// jarName);
-						// throw new PluginManagerException(errMsg);
-						// }
+						if (!libJarPath.delete()) {
+							String errMsg = String.format(
+								"Unable to delete dependent library %s for plug-in %s",
+								libJarName, jarName);
+							SwingUtilities.invokeLater( new Runnable() { 
+								public void run() {
+									MessageBox.showErrorDialog("Plug-in Manager", errMsg);
+								}
+							} );			
+							
+						}
 					} else {
 						String errMsg = String.format(
 								"The dependent library %s "
 										+ "for the plug-in %s cannot be "
 										+ "found so cannot be deleted.",
 								libJarName, jarName);
-						MessageBox.showErrorDialog("Plug-in Manager", errMsg);
+						SwingUtilities.invokeLater( new Runnable() { 
+							public void run() {
+								MessageBox.showErrorDialog("Plug-in Manager", errMsg);								
+							}
+						} );			
 					}
 				}
 			}
@@ -792,7 +859,8 @@ public class PluginManager {
 	 * Delete all locally installed plug-ins.
 	 */
 	public void deleteAllPlugins() {
-		interrupted = false;
+		// This method called from Preferences synchronously.
+		//interrupted = false;
 		boolean deleteError = false;
 		
 		//if (MessageBox.showConfirmDialog("Plug-in Manager",
@@ -809,10 +877,10 @@ public class PluginManager {
 						&& pluginLibDirPath.isDirectory()) {
 					File[] jarFiles = pluginDirPath.listFiles();
 					for (File jarFile : jarFiles) {
-						if (interrupted) {
-							deleteError = true;
-							break;
-						}
+						//if (interrupted) {
+						//	deleteError = true;
+						//	break;
+						//}
 						// Check existence, to avoid an insanely unlikely race
 						// condition.
 						if (jarFile.exists()) {
@@ -908,16 +976,10 @@ public class PluginManager {
 	}
 
 	private boolean areURLReferentsEqual(URL url1, URL url2) throws IOException {
-		// Max: arrays retrieved by getBytesFromURL will never be equal!
-		// This is because they are lists of byte subarrays, which are pointers;
-		// they differ in both arrays.
-		//return getBytesFromURL(url1).equals(getBytesFromURL(url2));
-		// The following approach gives the correct result.
-		// It is not perfect yet works.
-		return getBytesFromURL1(url1).equals(getBytesFromURL1(url2));
+		return getBytesFromURL(url1).equals(getBytesFromURL(url2));
 	}
 
-	private List<Byte> getBytesFromURL1(URL url) throws IOException {
+	private List<Byte> getBytesFromURL(URL url) throws IOException {
 		List<Byte> byteList = new ArrayList<Byte>();
 		InputStream stream = url.openStream();
 		try {
@@ -937,21 +999,4 @@ public class PluginManager {
 		return byteList;
 	}
 
-//	private List<byte[]> getBytesFromURL(URL url) throws IOException {
-//		List<byte[]> byteList = new ArrayList<byte[]>();
-//		InputStream stream = url.openStream();
-//		try {
-//			int len = stream.available();
-//			while (len > 0) {
-//				byte[] bytes = new byte[len];
-//				stream.read(bytes, 0, len);
-//				byteList.add(bytes);
-//				len = stream.available();
-//			}
-//		} finally {
-//			stream.close();
-//		}
-//
-//		return byteList;
-//	}
 }
