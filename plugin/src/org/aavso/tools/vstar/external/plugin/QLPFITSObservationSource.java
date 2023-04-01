@@ -21,7 +21,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.Locale;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -29,25 +28,16 @@ import javax.swing.ButtonGroup;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import org.aavso.tools.vstar.data.DateInfo;
-import org.aavso.tools.vstar.data.InvalidObservation;
-import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.StarInfo;
-import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
-import org.apache.commons.math.stat.descriptive.rank.Median;
 
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.BinaryTableHDU;
-import nom.tam.fits.Fits;
-import nom.tam.fits.FitsException;
 import nom.tam.fits.Header;
 import nom.tam.fits.ImageHDU;
 
@@ -59,26 +49,22 @@ import nom.tam.fits.ImageHDU;
  * o http://archive.stsci.edu/hlsp/qlp<br/>
  * 
  */
+
+// PMAK, 2023-03-28
+// 1) QLPFITSObservationRetriever inherits TESSObservationRetrieverBase
+
 public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 
-	private static final String BJDREF_INT   = "BJDREFI";
-	private static final String BJDREF_FLOAT = "BJDREFR";
-	
-	//private  final SeriesType keplerSeries;
 	private SeriesType dataSeriesQLP;
 
 	private SeriesType dataSeriesQLP_raw;
 	
-	//private Locale locale;
-	
-	private boolean loadRaw = true; // it seems SAP (raw) data are better for QLP!
+	private boolean loadRawData = true; // it seems SAP (raw) data are better for QLP!
 
 	public QLPFITSObservationSource() {
 		super();
 		dataSeriesQLP      = SeriesType.create("QLP", "QLP", Color.GREEN, false, false);
 		dataSeriesQLP_raw  = SeriesType.create("QLP raw", "QLP raw", Color.GREEN, false, false);
-
-		//locale = Locale.getDefault();
 	}
 
 	@Override
@@ -93,13 +79,13 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 
 	@Override
 	public String getDescription() {
-		String str = "QLP FITS file v0.3 observation source";
+		String str = "QLP FITS file v0.4 observation source";
 		return str;
 	}
 
 	@Override
 	public String getDisplayName() {
-		String str = "New Star from QLP FITS File v0.3...";
+		String str = "New Star from QLP FITS File v0.4...";
 		return str;
 	}
 
@@ -117,210 +103,86 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 			// It seems it is safe to return null here.
 			return null;
 		}
-		loadRaw = paramDialog.getLoadRaw();
-		return new QLPFITSObservationRetriever();
+		loadRawData = paramDialog.getLoadRaw();
+		return new QLPFITSObservationRetriever(loadRawData);
 	}
 
-	private class RawObservationData {
-		int row;
-		double time;
-		double intensity;
-		double error;
-		int quality;
-	}
+	class QLPFITSObservationRetriever extends TESSObservationRetrieverBase {
 
-	class QLPFITSObservationRetriever extends AbstractObservationRetriever {
-
-		private BasicHDU[] hdus = null;
+		private static final String BJDREF_INT   = "BJDREFI";
+		private static final String BJDREF_FLOAT = "BJDREFR";
 		
-		private String objName = null;
+		private boolean loadRaw;
 		
-		public QLPFITSObservationRetriever() {
-			super(getVelaFilterStr());
+		public QLPFITSObservationRetriever(boolean loadRaw) {
+			super(QLPFITSObservationSource.this);
+			this.loadRaw = loadRaw;
 		}
 
 		@Override
-		public void retrieveObservations() throws ObservationReadError,
-				InterruptedException {
-			setBarycentric(true);
-			try {
-				// BasicHDU initialization moved to getNumberOfRecords
-				retrieveQLPObservations(hdus);
-			} catch (Exception e) {
-				throw new ObservationReadError(e.getLocalizedMessage());
+		public boolean validateFITS(BasicHDU[] hdus) {
+			if (!(hdus.length > 1 && hdus[0] instanceof ImageHDU && hdus[1] instanceof BinaryTableHDU))
+				return false;
+			BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
+			if (!"TIME".equals(tableHDU.getColumnName(0)) ||
+				!"SAP_FLUX".equals(tableHDU.getColumnName(2)) ||
+				!"KSPSAP_FLUX".equals(tableHDU.getColumnName(3)) ||
+				!"KSPSAP_FLUX_ERR".equals(tableHDU.getColumnName(4)) ||
+				!"QUALITY".equals(tableHDU.getColumnName(5))) {
+				return false;
 			}
+			return true;
+		}
+		
+		@Override		
+		public SeriesType getSeriesType(BasicHDU[] hdus) {
+			if (loadRaw) 
+				return dataSeriesQLP_raw; 
+			else 
+				return dataSeriesQLP;
 		}
 
-		// Collect observations from the table...
-		private void retrieveQLPObservations(BasicHDU[] hdus)
-				throws FitsException, ObservationReadError {
-
-			// QLP light curve FITS contains primary HDU having keywords only and binary table extension.
-			if (hdus.length >  1 && hdus[0] instanceof ImageHDU && hdus[1] instanceof BinaryTableHDU) {
-
-				double invalidMag = 99.99;
-
-				// Lists to store observations before median level adjust
-				List<RawObservationData> rawObsList = new ArrayList<RawObservationData>();
-				List<InvalidObservation> invalidObsList = new ArrayList<InvalidObservation>();
-				double tessMag = invalidMag;
-
-				SeriesType qlpSeries = dataSeriesQLP;
-				if (loadRaw) qlpSeries = dataSeriesQLP_raw;
-
-				ImageHDU imageHDU = (ImageHDU) hdus[0];
-				
-				// TESSMAG from FITS header
-				tessMag = imageHDU.getHeader().getDoubleValue("TESSMAG", invalidMag);
-
-				objName = imageHDU.getObject();
-
-				BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
-				
-				// PMAK: Check field names to be sure we are using correct FITS.
-				if (!"TIME".equals(tableHDU.getColumnName(0)) ||
-					!"SAP_FLUX".equals(tableHDU.getColumnName(2)) ||
-					!"KSPSAP_FLUX".equals(tableHDU.getColumnName(3)) ||
-					!"KSPSAP_FLUX_ERR".equals(tableHDU.getColumnName(4)) ||
-					!"QUALITY".equals(tableHDU.getColumnName(5))) {
-					throw new ObservationReadError("Not a valid FITS file");
-				}
-			
-				Header tableHeader = tableHDU.getHeader();
-				double timei;
-				double timef;
-				if (tableHeader.containsKey(BJDREF_INT) && tableHeader.containsKey(BJDREF_FLOAT)) {
-					timei = tableHDU.getHeader().getDoubleValue(BJDREF_INT);
-					timef = tableHDU.getHeader().getDoubleValue(BJDREF_FLOAT);
-				} else {
-					throw new ObservationReadError("Cannot find " + BJDREF_INT + " and/or " + BJDREF_FLOAT + " keywords.");
-				}
-				
-				for (int row = 0; row < tableHDU.getNRows()	&& !wasInterrupted(); row++) {
-					try {
-						double barytime = ((double[]) tableHDU.getElement(row, 0))[0];
-						float flux;
-						float flux_err;
-						if (!loadRaw) {
-							flux = ((float[]) tableHDU.getElement(row, 3))[0];
-							flux_err = ((float[]) tableHDU.getElement(row, 4))[0];
-						} else {
-							flux = ((float[]) tableHDU.getElement(row, 2))[0];
-							flux_err = 0;
-						}
-						
-						// Additional fields
-						int quality = ((int[]) tableHDU.getElement(row, 5))[0];
-
-						// Include only valid magnitude fluxes.
-						if (!Float.isInfinite(flux)
-								&& !Float.isInfinite(flux_err)
-								&& !Float.isNaN(flux)
-								&& !Float.isNaN(flux_err)) {
-
-							double hjd = barytime + timei + timef;
-							// Store data to temporary list
-							RawObservationData rawObs = new RawObservationData();
-							rawObs.row = row;
-							rawObs.time = hjd;
-							rawObs.intensity = flux;
-							rawObs.error = flux_err;
-							rawObs.quality = quality;
-							
-							rawObsList.add(rawObs);
-						}
-					} catch (Exception e) {
-						String input = tableHDU.getRow(row).toString();
-						String error = e.getLocalizedMessage();
-						InvalidObservation ob = new InvalidObservation(input, error);
-						ob.setRecordNumber(row);
-						invalidObsList.add(ob);
-					}
-				}
-
-				// Calculating magShift (median of all points)
-				double magShift = 15.0; // arbitrary value
-				if (tessMag != invalidMag) {
-					double flux[] = new double[rawObsList.size()];
-					for (int i = 0; i < rawObsList.size(); i++) {
-						flux[i] = rawObsList.get(i).intensity;
-					}
-					Median median = new Median();
-					double median_flux = median.evaluate(flux);
-					double median_inst_mag = -2.5 * Math.log10(median_flux);
-					magShift = tessMag - median_inst_mag;
-				}
-
-				for (RawObservationData rawObs : rawObsList) {
-					double mag = magShift - 2.5 * Math.log10(rawObs.intensity);
-					double magErr = 1.086 * rawObs.error / rawObs.intensity;
-
-					ValidObservation ob = new ValidObservation();
-					if (objName != null && !"".equals(objName.trim())) {
-						ob.setName(objName);
-					} else {
-						ob.setName(getInputName());
-					}
-					ob.setDateInfo(new DateInfo(rawObs.time));
-					ob.setMagnitude(new Magnitude(mag, magErr));
-					ob.setBand(qlpSeries);
-					ob.setRecordNumber(rawObs.row);
-					ob.addDetail("HEAGER_MAG",
-							tessMag != invalidMag ? NumericPrecisionPrefs.getOtherOutputFormat().format(tessMag) : "",
-							"TESS magnitude");
-					
-					ob.addDetail("QUALITY", Integer.toString(rawObs.quality), "Quality");
-					collectObservation(ob);
-					incrementProgress();
-				}
-
-				for (InvalidObservation ob : invalidObsList) {
-					addInvalidObservation(ob);
-					incrementProgress();
-				}
+		@Override
+		public double getRefMagnitude(BasicHDU[] hdus) {
+			ImageHDU infohdu = (ImageHDU)hdus[0];
+			return infohdu.getHeader().getDoubleValue("TESSMAG", TESSObservationRetrieverBase.INVALID_MAG);			
+		}
+		
+		@Override
+		public String getRefMagnitudeDescription(BasicHDU[] hdus) {
+			return "TESS Magnitude";
+		}
+		
+		@Override
+		public Double getTimeRef(BasicHDU[] hdus) {
+			BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
+			Header tableHeader = tableHDU.getHeader();
+			if (tableHeader.containsKey(BJDREF_INT) && tableHeader.containsKey(BJDREF_FLOAT)) {			
+				double timei = tableHeader.getDoubleValue(BJDREF_INT);
+				double timef = tableHeader.getDoubleValue(BJDREF_FLOAT);
+				return timei + timef;
 			} else {
-				throw new ObservationReadError("Not a valid FITS file");
+				return null;
 			}
 		}
 
 		@Override
-		public Integer getNumberOfRecords() throws ObservationReadError {
-			//System.out.println("getNumberOfRecords");
-			try {
-				Fits fits = new Fits(getInputStreams().get(0));
-				hdus = fits.read();
-				if (hdus.length > 1 && hdus[1] instanceof BinaryTableHDU) {
-					BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
-					return tableHDU.getNRows();
-				} else {
-					throw new ObservationReadError("Not a valid FITS file");
-				}
-			} catch (Exception e) {
-				throw new ObservationReadError(e.getLocalizedMessage());
+		public int getColumnIndex(BasicHDU[] hdus, BinaryTableFieldType field) {
+			if (field == BinaryTableFieldType.TIME)
+				return 0;
+			if (field == BinaryTableFieldType.FLUX)
+				return loadRaw ? 2 : 3;
+			if (field == BinaryTableFieldType.FLUX_ERROR)
+				return loadRaw ? -1 : 4;
+			if (field == BinaryTableFieldType.QUALITY_FLAGS) {
+				return 5;
 			}
+			return -1;
 		}
 		
-		@Override
-		public String getSourceName() {
-			return getInputName();
-		}
-
 		@Override
 		public String getSourceType() {
-			String str = "QLP FITS File";
-			return str;
-		}
-
-		@Override
-		public StarInfo getStarInfo() {
-
-			String name = objName;
-
-			if (name == null || "".equals(name.trim())) {
-				name = getSourceName();
-			}
-
-			return new StarInfo(this, name);
+			return "QLP FITS File";
 		}
 		
 	}
@@ -363,7 +225,7 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 			fitsLoadCorRadioButton = new JRadioButton("Corrected (KSPSAP_FLUX)");
 			fitsLoadRawRadioButton = new JRadioButton("Raw (SAP_FLUX)");
 						
-			if (!loadRaw) {
+			if (!loadRawData) {
 				fitsLoadCorRadioButton.setSelected(true);
 			} else {
 				fitsLoadRawRadioButton.setSelected(true);
