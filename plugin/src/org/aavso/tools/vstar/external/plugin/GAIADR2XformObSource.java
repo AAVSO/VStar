@@ -83,14 +83,14 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 
 		if (!paramDialog.isCancelled()) {
 			
-			transform = paramDialog.isTransform();
-			ignoreFlags = paramDialog.isIgnoreFlags();
-			gaiaRelease = paramDialog.isGaiaDR2() ? GaiaRelease.DR2 : GaiaRelease.DR3;			
+			paramTransform = paramDialog.isTransform();
+			paramIgnoreFlags = paramDialog.isIgnoreFlags();
+			paramGaiaRelease = paramDialog.isGaiaDR2() ? GaiaRelease.DR2 : GaiaRelease.DR3;			
 			setAdditive(paramDialog.isLoadAdditive());
 
 			try {
 				String releaseStr = "&RELEASE=Gaia+DR";  
-				switch (gaiaRelease) {
+				switch (paramGaiaRelease) {
 					case DR2:
 						releaseStr += "2";
 						break;

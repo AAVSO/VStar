@@ -79,8 +79,6 @@ import org.aavso.tools.vstar.util.locale.NumberParser;
  */
 public class ZTFObSource extends ObservationSourcePluginBase {
 
-	private Map<String, Integer> fieldIndices;
-	
 	private SeriesType ztfgSeries;
 	private SeriesType ztfrSeries;
 	private SeriesType ztfiSeries;
@@ -109,15 +107,6 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 		ztfrSeries = SeriesType.create("ZTF zr", "ZTF zr", Color.RED, false, false);
 		ztfiSeries = SeriesType.create("ZTF zi", "ZTF zi", new Color(192, 64, 0), false, false);
 		ztfUnknownSeries = SeriesType.create("ZTF unknown", "ZTF unknown", new Color(255, 255, 0), false, false);
-		fieldIndices = new HashMap<String, Integer>();
-		fieldIndices.put("oid", -1);
-		fieldIndices.put("hjd", -1);
-		fieldIndices.put("mag", -1);
-		fieldIndices.put("magerr", -1);
-		fieldIndices.put("catflags", -1);
-		fieldIndices.put("filtercode", -1);
-		fieldIndices.put("exptime", -1);
-		fieldIndices.put("airmass", -1);
 	}
 	
 	/**
@@ -196,13 +185,14 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 
 	class ZTFFormatRetriever extends AbstractObservationRetriever {
 
+		private Map<String, Integer> fieldIndices;
+		
 		//private String obscode = "ZTF";
 		private String delimiter = "\t";
 		//private String objectName;
 		private HashSet<String> ztfObjects;
 		
 		private List<String> lines;
-
 
 		private JulianDayValidator julianDayValidator;
 		private MagnitudeFieldValidator magnitudeFieldValidator;
@@ -213,6 +203,17 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 		 */
 		public ZTFFormatRetriever() {
 			super(getVelaFilterStr());
+			
+			fieldIndices = new HashMap<String, Integer>();
+			fieldIndices.put("oid", -1);
+			fieldIndices.put("hjd", -1);
+			fieldIndices.put("mag", -1);
+			fieldIndices.put("magerr", -1);
+			fieldIndices.put("catflags", -1);
+			fieldIndices.put("filtercode", -1);
+			fieldIndices.put("exptime", -1);
+			fieldIndices.put("airmass", -1);
+			
 			julianDayValidator = new JulianDayValidator();
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
 			uncertaintyValueValidator = new UncertaintyValueValidator(new InclusiveRangePredicate(0, 1));
@@ -240,9 +241,10 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 
 			setJDflavour(JDflavour.HJD);
 
-			// read lines and determine the number of them 
-			getNumberOfRecords();
-
+			if (lines.size() == 0) {
+				return;
+			}
+			
 			boolean headerFound = false;
 			
 			String firstError = null;

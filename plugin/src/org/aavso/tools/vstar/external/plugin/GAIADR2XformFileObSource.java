@@ -45,7 +45,7 @@ public class GAIADR2XformFileObSource extends GaiaObSourceBase {
 	 */
 	public GAIADR2XformFileObSource() {
 		super();
-		gaiaRelease = GAIADR2XformObSource.GaiaRelease.UNKNOWN;
+		paramGaiaRelease = GAIADR2XformObSource.GaiaRelease.UNKNOWN;
 	}
 	
 	/**
@@ -81,8 +81,8 @@ public class GAIADR2XformFileObSource extends GaiaObSourceBase {
 		if (paramDialog.isCancelled()) {
 			return null;
 		}
-		ignoreFlags = paramDialog.isIgnoreFlags();
-		transform = paramDialog.isTransform();
+		paramIgnoreFlags = paramDialog.isIgnoreFlags();
+		paramTransform = paramDialog.isTransform();
 		
 		return super.getObservationRetriever();
 	}
@@ -106,9 +106,9 @@ public class GAIADR2XformFileObSource extends GaiaObSourceBase {
 			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-			topPane.add(createIgnoreRejectFlagsCheckboxPane(ignoreFlags));
+			topPane.add(createIgnoreRejectFlagsCheckboxPane(paramIgnoreFlags));
 
-			topPane.add(createTransformCheckboxPane(transform));
+			topPane.add(createTransformCheckboxPane(paramTransform));
 
 			// OK, Cancel
 			topPane.add(createButtonPane());
