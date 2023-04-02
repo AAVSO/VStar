@@ -31,6 +31,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1200,7 +1201,7 @@ public class Mediator {
 		ObservationInserter obsInserter = new ObservationInserter(validObsList);
 		List<InvalidObservation> invalidObsList = starInfo.getRetriever().getInvalidObservations();
 
-		Map<SeriesType, List<ValidObservation>> validObservationCategoryMap = starInfo.getRetriever()
+		Map<SeriesType, List<ValidObservation>> newObsCategoryMap = starInfo.getRetriever()
 				.getValidObservationCategoryMap();
 
 		// Table models.
@@ -1216,6 +1217,8 @@ public class Mediator {
 		SyntheticObservationListPane<AbstractMeanObservationTableModel> meansListPane = null;
 		ObservationAndMeanPlotPane obsAndMeanChartPane = null;
 
+		Map<SeriesType, List<ValidObservation>> mergedObsCategoryMap = null;
+
 		if (!validObsList.isEmpty()) {
 
 			freeListeners();
@@ -1223,20 +1226,59 @@ public class Mediator {
 			// Create a message to notify whoever is listening that a new star
 			// has been loaded.
 			NewStarMessage newStarMsg = new NewStarMessage(newStarType, starInfo, validObsList,
-					validObservationCategoryMap, starInfo.getRetriever().getMinMag(),
+					newObsCategoryMap, starInfo.getRetriever().getMinMag(),
 					starInfo.getRetriever().getMaxMag(), starInfo.getRetriever().getSourceName());
 
 			if (!addObs) {
 				newStarMessageList.clear();
+				// The valid observation category map is just the new one.
+				mergedObsCategoryMap = newObsCategoryMap;
 			} else {
+				// What is the intersection of series in the newly and
+				// previously loaded datasets? We will need to merge them.
+				Set<SeriesType> commonSeries = new HashSet<SeriesType>();
+				commonSeries.addAll(commonSeries);
+				// Retain in commonSeries only the SeriesTypes also contained
+				// newObsCategoryMap. This is the intersection.
+				commonSeries.retainAll(newObsCategoryMap.keySet());
+
+				// Prepare a new valid observation category map that
+				// incorporates previous dataset's map.
+				mergedObsCategoryMap = new TreeMap<SeriesType, List<ValidObservation>>();
+
+				// Start with the new observation map.
+				mergedObsCategoryMap.putAll(newObsCategoryMap);
+
+				// If any of the previous series are not present in the new map
+				// (including user-defined series), add them to the merged map. 
+				for (SeriesType type : validObservationCategoryMap.keySet()) {
+					mergedObsCategoryMap.putIfAbsent(type, validObservationCategoryMap.get(type));
+				}
+
+				// For any series that the previous and new maps have in common,
+				// merge the corresponding observation lists. Note that time order
+				// is preserved via sort; this may be an unnecessary overhead for
+				// the valid observation category map's use cases (MenuBar,
+				// ObservationPlotModel, VeLaObSource), but it has the advantage
+				// of future-proofing. If performance suffers, we can revisit this.
+				for (SeriesType type : commonSeries) {
+					List<ValidObservation> mergedObs = new ArrayList<ValidObservation>();
+					mergedObs.addAll(validObservationCategoryMap.get(type));
+					mergedObs.addAll(newObsCategoryMap.get(type));
+					Collections.sort(mergedObs, JDComparator.instance);
+					mergedObsCategoryMap.put(type, mergedObs);
+				}
+
 				// Exclude all but the most recent new star message if the newly
 				// loaded dataset's series set is the same as that of any
 				// previously loaded dataset.
-				Set<SeriesType> newSeriesTypes = validObservationCategoryMap.keySet();
+				Set<SeriesType> newSeriesTypes = newObsCategoryMap.keySet();
 
 				List<NewStarMessage> dupMessages = new ArrayList<NewStarMessage>();
 
 				for (NewStarMessage msg : newStarMessageList) {
+					// TODO: it's not enough for series to be equal, each series
+					// must also have the same obs list for this to be true!
 					if (newSeriesTypes.equals(msg.getObsCategoryMap().keySet())) {
 						dupMessages.add(msg);
 					}
@@ -1257,7 +1299,7 @@ public class Mediator {
 					newStarType.getRawDataTableColumnInfoSource());
 
 			// Observation-and-mean table and plot.
-			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(validObservationCategoryMap, JDCoordSource.instance,
+			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(mergedObsCategoryMap, JDCoordSource.instance,
 					JDComparator.instance, JDTimeElementEntity.instance, null);
 
 			if (false) {
@@ -1354,7 +1396,7 @@ public class Mediator {
 		this.validObsList = validObsList;
 		this.obsInserter = obsInserter;
 		this.invalidObsList = invalidObsList;
-		this.validObservationCategoryMap = validObservationCategoryMap;
+		this.validObservationCategoryMap = mergedObsCategoryMap;
 
 		// Notify listeners of new star and analysis type.
 		newStarNotifier.notifyListeners(getLatestNewStarMessage());
