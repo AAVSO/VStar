@@ -61,15 +61,13 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 
 	protected static enum GaiaRelease {UNKNOWN, DR2, DR3};
 	
-	protected Map<String, Integer> fieldIndices;
-	
 	protected SeriesType gaiaGseries;
 	protected SeriesType gaiaBPseries;
 	protected SeriesType gaiaRPseries;
 
-	protected boolean transform = false;
-	protected boolean ignoreFlags = false;
-	protected GaiaRelease gaiaRelease = GaiaRelease.DR3;	
+	protected boolean paramTransform = false;
+	protected boolean paramIgnoreFlags = false;
+	protected GaiaRelease paramGaiaRelease = GaiaRelease.DR3;	
 	
 	/**
 	 * Constructor
@@ -79,17 +77,6 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 		gaiaGseries = SeriesType.create("Gaia G", "Gaia G", Color.GREEN, false, false);
 		gaiaBPseries = SeriesType.create("Gaia BP", "Gaia BP", Color.BLUE, false, false);
 		gaiaRPseries = SeriesType.create("Gaia RP", "Gaia RP", Color.RED, false, false);
-
-		fieldIndices = new HashMap<String, Integer>();
-		fieldIndices.put("source_id", -1);
-		fieldIndices.put("band", -1);
-		fieldIndices.put("time", -1);
-		fieldIndices.put("mag", -1);
-		fieldIndices.put("flux", -1);
-		fieldIndices.put("flux_error", -1);
-		fieldIndices.put("rejected_by_photometry", -1);
-		fieldIndices.put("rejected_by_variability", -1);
-		fieldIndices.put("other_flags", -1);
 	}
 	
 	/**
@@ -98,11 +85,13 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 	 */
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
-		return new GAIADR2FormatRetriever();
+		return new GAIADR2FormatRetriever(paramTransform, paramIgnoreFlags, paramGaiaRelease);
 	}
 	
 	class GAIADR2FormatRetriever extends AbstractObservationRetriever {
 
+		protected Map<String, Integer> fieldIndices;
+		
 		private String delimiter = ",";
 		private List<String> lines = null;
 		private Double gaiaEpoch = 2455197.5;
@@ -114,6 +103,10 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 		private JulianDayValidator julianDayValidator;
 		private MagnitudeFieldValidator magnitudeFieldValidator;
 		private UncertaintyValueValidator uncertaintyValueValidator;
+		
+		private boolean transform = false;
+		private boolean ignoreFlags = false;
+		private GaiaRelease gaiaRelease = GaiaRelease.DR3;	
 
 		private class ValidObservationEx {
 			public ValidObservation ob;
@@ -156,15 +149,27 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 		/**
 		 * Constructor
 		 */
-		public GAIADR2FormatRetriever() {
+		public GAIADR2FormatRetriever(boolean transform, boolean ignoreFlags, GaiaRelease gaiaRelease) {
 			super(getVelaFilterStr());
+			
+			fieldIndices = new HashMap<String, Integer>();
+			fieldIndices.put("source_id", -1);
+			fieldIndices.put("band", -1);
+			fieldIndices.put("time", -1);
+			fieldIndices.put("mag", -1);
+			fieldIndices.put("flux", -1);
+			fieldIndices.put("flux_error", -1);
+			fieldIndices.put("rejected_by_photometry", -1);
+			fieldIndices.put("rejected_by_variability", -1);
+			fieldIndices.put("other_flags", -1);
 
+			this.transform = transform;
+			this.ignoreFlags = ignoreFlags;
+			this.gaiaRelease = gaiaRelease;	
+			
 			julianDayValidator = new JulianDayValidator();
-
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
-
-			uncertaintyValueValidator = new UncertaintyValueValidator(
-					new InclusiveRangePredicate(0, 1));
+			uncertaintyValueValidator = new UncertaintyValueValidator(new InclusiveRangePredicate(0, 1));
 
 		}
 
@@ -174,9 +179,6 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 			
 			setJDflavour(JDflavour.BJD);
 			
-			// read lines and determine the number of them
-			getNumberOfRecords();
-
 			if (lines.size() == 0) {
 				return;
 			}
