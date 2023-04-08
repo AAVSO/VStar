@@ -32,11 +32,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import javax.swing.JDialog;
 import javax.swing.JTable.PrintMode;
@@ -1263,10 +1265,10 @@ public class Mediator {
 				// ObservationPlotModel, VeLaObSource), but it has the advantage
 				// of future-proofing. If performance suffers, we can revisit this.
 				for (SeriesType type : commonSeries) {
-					List<ValidObservation> mergedObs = new ArrayList<ValidObservation>();
-					mergedObs.addAll(validObservationCategoryMap.get(type));
-					mergedObs.addAll(newObsCategoryMap.get(type));
-					// TODO: duplicates?; use obsInserter or LinkedHashSet -> List?
+					LinkedHashSet<ValidObservation> mergedObsSeq = new LinkedHashSet<ValidObservation>();
+					mergedObsSeq.addAll(validObservationCategoryMap.get(type));
+					mergedObsSeq.addAll(newObsCategoryMap.get(type));
+					List<ValidObservation> mergedObs = mergedObsSeq.stream().collect(Collectors.toList());
 					Collections.sort(mergedObs, JDComparator.instance);
 					mergedObsCategoryMap.put(type, mergedObs);
 				}
