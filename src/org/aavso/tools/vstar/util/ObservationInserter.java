@@ -26,11 +26,10 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 
 /**
  * Minimally overridden retriever that can be used to maintain observation order
- * when user defined observations are added to the initial observation set for
- * this table model. It's a slight abuse of this base class and arguably the
- * addValidObservation() method called by updateObservationsList() should be
- * factored out of the retriever base class. Yet it has the desired effect
- * without code duplication.
+ * when user defined observations are added to the initial observation set. It's
+ * a slight abuse of this base class and arguably the addValidObservation() method
+ * called by updateObservationsList() should be factored out of the retriever base
+ * class. Yet it has the desired effect without code duplication.
  */
 public class ObservationInserter extends AbstractObservationRetriever {
 

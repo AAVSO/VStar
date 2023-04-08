@@ -177,20 +177,20 @@ public class Mediator {
 
 	private static IMainUI ui;
 
-	// Valid and invalid observation lists and series category map.
+	// Valid and invalid observation lists and series category maps.
 	private List<ValidObservation> validObsList;
 	private List<InvalidObservation> invalidObsList;
-
-	// Observation inserter utility class used to properly add observations from
-	// new (user defined) series, created by copying existing observations and
-	// associating them with a new SeriesType instance.
-	private ObservationInserter obsInserter;
 
 	// Note: it would be useful to update these with mean obs, excluded obs etc
 	// so they could be used in places where currently the model must be
 	// consulted instead; especially the first map, e.g. for period analysis.
 	private Map<SeriesType, List<ValidObservation>> validObservationCategoryMap;
 	private Map<SeriesType, List<ValidObservation>> phasedValidObservationCategoryMap;
+
+	// Observation inserter utility class used to properly add observations from
+	// new (user defined) series, created by copying existing observations and
+	// associating them with a new SeriesType instance.
+	private ObservationInserter obsInserter;
 
 	// Current observation and mean plot model.
 	// Period search (TODO: did I mean ANOVA vs period search?) needs access to
@@ -824,7 +824,8 @@ public class Mediator {
 	// up to date with models, filters, new series. We handle means separately,
 	// although it would be more consistent if we did not. For example, perhaps
 	// we should just reconstruct this map each time it is required, from the
-	// obs model.
+	// obs model. For user-defined series, the obs list is also updated.
+	// Deriving this from the map would also be worth consideration.
 	// ************************************************************************
 
 	// Returns a model selection listener that updates the observation
@@ -1225,9 +1226,9 @@ public class Mediator {
 
 			// Create a message to notify whoever is listening that a new star
 			// has been loaded.
-			NewStarMessage newStarMsg = new NewStarMessage(newStarType, starInfo, validObsList,
-					newObsCategoryMap, starInfo.getRetriever().getMinMag(),
-					starInfo.getRetriever().getMaxMag(), starInfo.getRetriever().getSourceName());
+			NewStarMessage newStarMsg = new NewStarMessage(newStarType, starInfo, validObsList, newObsCategoryMap,
+					starInfo.getRetriever().getMinMag(), starInfo.getRetriever().getMaxMag(),
+					starInfo.getRetriever().getSourceName());
 
 			if (!addObs) {
 				newStarMessageList.clear();
@@ -1250,7 +1251,7 @@ public class Mediator {
 				mergedObsCategoryMap.putAll(newObsCategoryMap);
 
 				// If any of the previous series are not present in the new map
-				// (including user-defined series), add them to the merged map. 
+				// (including user-defined series), add them to the merged map.
 				for (SeriesType type : validObservationCategoryMap.keySet()) {
 					mergedObsCategoryMap.putIfAbsent(type, validObservationCategoryMap.get(type));
 				}
@@ -1265,21 +1266,20 @@ public class Mediator {
 					List<ValidObservation> mergedObs = new ArrayList<ValidObservation>();
 					mergedObs.addAll(validObservationCategoryMap.get(type));
 					mergedObs.addAll(newObsCategoryMap.get(type));
+					// TODO: duplicates?; use obsInserter or LinkedHashSet -> List?
 					Collections.sort(mergedObs, JDComparator.instance);
 					mergedObsCategoryMap.put(type, mergedObs);
 				}
 
 				// Exclude all but the most recent new star message if the newly
-				// loaded dataset's series set is the same as that of any
-				// previously loaded dataset.
-				Set<SeriesType> newSeriesTypes = newObsCategoryMap.keySet();
-
+				// loaded dataset's series+observations are the same as that
+				// of any previously loaded dataset.
 				List<NewStarMessage> dupMessages = new ArrayList<NewStarMessage>();
 
 				for (NewStarMessage msg : newStarMessageList) {
-					// TODO: it's not enough for series to be equal, each series
-					// must also have the same obs list for this to be true!
-					if (newSeriesTypes.equals(msg.getObsCategoryMap().keySet())) {
+					// We need to check that both SeriesType and the corresponding observations are
+					// the same.
+					if (newObsCategoryMap.entrySet().equals(msg.getObsCategoryMap().entrySet())) {
 						dupMessages.add(msg);
 					}
 				}
@@ -1295,7 +1295,7 @@ public class Mediator {
 			this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
 
 			// Observation table and plot.
-			validObsTableModel = new ValidObservationTableModel(validObsList,
+			validObsTableModel = new ValidObservationTableModel(mergedObsCategoryMap, validObsList,
 					newStarType.getRawDataTableColumnInfoSource());
 
 			// Observation-and-mean table and plot.
@@ -1560,7 +1560,8 @@ public class Mediator {
 		// o indeed: is this needed now anyway? see plot model/pane code
 
 		// Table and plot models.
-		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(validObsList,
+		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(
+				phasedValidObservationCategoryMap, validObsList, // TODO: phased obs?
 				getLatestNewStarMessage().getNewStarType().getPhasePlotTableColumnInfoSource());
 
 		// Observation-and-mean plot and table.

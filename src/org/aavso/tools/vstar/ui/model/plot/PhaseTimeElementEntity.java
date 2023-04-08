@@ -41,7 +41,7 @@ public class PhaseTimeElementEntity implements ITimeElementEntity {
 			phase = ob.getStandardPhase();
 		}
 
-		assert phase != null;
+		if (phase == null) phase = Double.NaN;
 
 		return phase;
 	}

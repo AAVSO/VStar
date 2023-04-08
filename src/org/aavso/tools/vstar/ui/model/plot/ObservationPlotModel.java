@@ -520,8 +520,6 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 		return coordSrc.getItemCount(series, seriesNumToObSrcListMap);
 	}
 
-	// TODO: are these next two still required? (are they ever hit?)
-
 	/**
 	 * @see org.jfree.data.xy.XYDataset#getX(int, int)
 	 */
@@ -545,7 +543,7 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 	}
 
 	// TODO: in future, I think we want to get rid of this approach and just
-	// leave all series join login in the view classes.
+	// leave all series join logic in the view classes.
 	// In addition, it ought to be possible for *any* series to joined, so we
 	// need to unify this at the series change dialog level (for example).
 
@@ -734,9 +732,6 @@ abstract public class ObservationPlotModel extends AbstractIntervalXYDataset
 		return visible;
 	}
 	
-	// TODO: need listener for new series creation in Mediator to update
-	// valid obs list and map
-
 	// Returns a series creation listener, adding a new observation series to
 	// the plot, and making it visible.
 	protected Listener<SeriesCreationMessage> createSeriesCreationListener() {

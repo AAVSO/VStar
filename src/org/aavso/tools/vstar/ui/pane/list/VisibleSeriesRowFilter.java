@@ -64,7 +64,7 @@ public class VisibleSeriesRowFilter extends RowFilter<IOrderedObservationSource,
 		this.visibleSeries = visibleSeries;
 		this.filteredObs = null;
 		this.userDefinedObs = new HashMap<SeriesType, List<ValidObservation>>();
-
+		this.userDefinedObs.putAll(tableModel.getObsSourceListMap());
 		this.analysisType = analysisType;
 
 		Mediator.getInstance().getSeriesVisibilityChangeNotifier().addListener(createSeriesVisibilityChangeListener());
