@@ -1264,6 +1264,7 @@ public class Mediator {
 				// the valid observation category map's use cases (MenuBar,
 				// ObservationPlotModel, VeLaObSource), but it has the advantage
 				// of future-proofing. If performance suffers, we can revisit this.
+				// We eliminate duplicates, if any, via ordered set insertion.
 				for (SeriesType type : commonSeries) {
 					LinkedHashSet<ValidObservation> mergedObsSeq = new LinkedHashSet<ValidObservation>();
 					mergedObsSeq.addAll(validObservationCategoryMap.get(type));
