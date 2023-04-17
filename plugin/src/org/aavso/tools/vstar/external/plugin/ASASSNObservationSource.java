@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,23 +76,22 @@ import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
- * <p>
+ * 
  * ASAS-SN file observation source plug-in for CSV observation files obtained
  * from https://asas-sn.osu.edu
- * </p>
- * <p>
+ * 
  * This plug-in reads CSV files in this format:
- * </p>
+ * 
  * HJD,UT Date,Camera,FWHM,Limit,mag,mag_err,flux(mJy),flux_err[,Filter]
  * 2458000.47009,2017-09-03.9710173,be,1.77,15.518,14.839,0.117,4.448,0.477[,V]
  * 2458000.47137,2017-09-03.9722892,be,1.76,15.730,14.760,0.090,4.789,0.392[,V]
  * 2458000.47263,2017-09-03.9735547,be,1.72,15.751,14.759,0.088,4.788,0.385[,V]
  * 2458002.51020,2017-09-06.0112978,be,2.03,14.814,>14.814,99.990,4.020,0.911[,V]
  * 2458002.51147,2017-09-06.0125694,be,2.03,14.729,>14.729,99.990,3.640,0.985[,V]
- * ...<br/>
- * <p>
+ * ...
+ *
  * New format ASAS-SN Phometry Database added by PMAK (updated 2023-01-11 to reflect ASAS-SN portal changes):
- * </p>
+ *
  * hjd,camera,mag,mag_err,flux,flux_err
  * 2457981.84031,bc,11.221,0.02,124.549,2.292
  * 2457478.08718,bc,11.167,0.02,130.945,2.409
@@ -99,7 +99,22 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  * 2458372.79859,bc,11.252,0.02,121.073,2.228
  * 2457065.13389,bc,11.411,0.02,104.597,1.925
  * 2457303.71059,bc,11.452,0.02,100.68,1.853
- * ...<br/>
+ * ...
+ *
+ * ASAS-SN Sky Patrol V2.0
+ * https://arxiv.org/abs/2304.03791
+ * http://asas-sn.ifa.hawaii.edu/skypatrol/  
+ * 
+ * #<several comment lines>
+ * <empty lines>
+ * JD,Flux,Flux Error,Mag,Mag Error,Limit,FWHM,Filter,Quality
+ * 2457148.1143957,26.0455,0.1300,12.9204,0.0054,16.9278,1.70,V,G
+ * 2457164.0441139,27.0177,0.0732,12.8807,0.0029,17.5513,1.98,V,G
+ * 2457275.7573557,22.4170,0.1109,13.0833,0.0054,17.1004,2.06,V,G
+ * 2457372.724288,23.7647,0.0925,13.0199,0.0042,17.2975,2.16,V,G
+ * ...
+ * 
+ * 
  */
 public class ASASSNObservationSource extends ObservationSourcePluginBase {
 
@@ -160,7 +175,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 	 */
 	@Override
 	public String getDisplayName() {
-		return "New Star from ASAS-SN File...";
+		return "New Star from ASAS-SN V2.0 File...";
 	}
 
 	/**
@@ -196,6 +211,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 	class ASASSNFileReader extends AbstractObservationRetriever {
 
 		private Map<String, Integer> fieldIndices;
+		private Map<String, Integer> optionalFieldIndices;
 
 		private List<String> lines;
 		
@@ -235,9 +251,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			this.loadASASSN_g_as_Sloan_g = loadASASSN_g_as_Sloan_g;
 			
 			fieldIndices = new HashMap<String, Integer>();
-			fieldIndices.put("HJD", -1);
-			fieldIndices.put("MAG", -1);
-			fieldIndices.put("MAG_ERR", -1);
+			optionalFieldIndices = new HashMap<String, Integer>();
 			
 			julianDayValidator = new JulianDayValidator();
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
@@ -253,7 +267,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 
 		@Override
 		public String getSourceType() {
-			return "ASAS-SN CSV File";
+			return "ASAS-SN V2.0 CSV File";
 		}
 
 		@Override
@@ -271,12 +285,11 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 				String line = lines.get(i);
 				if (line != null) {
 					line = line.trim();
-					if (!"".equals(line)) {
+					if (!"".equals(line) && line.charAt(0) != '#') {
 						if (header != null) {
 							try {
 								ValidObservation ob = readNextObservation(
 										line.split(DELIMITER), i + 1,
-										header,
 										userDefinedErrLimit, loadASASSN_V_as_Johnson_V, loadASASSN_g_as_Sloan_g);
 								if (ob != null)
 								{
@@ -308,16 +321,66 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 		}
 
 		private String[] checkForHeaderAndFillFieldIndices(String[] fields) {
-			for (Map.Entry<String, Integer> entry : fieldIndices.entrySet()) {
-				int i = indexInArrayIgnoreCase(entry.getKey(), fields);
-				if (i >= 0) {
-					entry.setValue(i);
+
+			// look for HJD, MAG, MAG_ERR
+			int hjd_index = indexInArrayIgnoreCase("HJD", fields);
+			int mag_index = indexInArrayIgnoreCase("MAG", fields);
+			int err_index = indexInArrayIgnoreCase("MAG_ERR", fields);
+			if (hjd_index >= 0 && mag_index >= 0 && err_index >= 0) {
+				fieldIndices.put("HJD", hjd_index);
+				fieldIndices.put("MAG", mag_index);
+				fieldIndices.put("MAG_ERR", err_index);
+			} else {
+				// trying to find another combination (ASAS-SN V2): JD, Mag, Mag Error
+				hjd_index = indexInArrayIgnoreCase("JD", fields);
+				mag_index = indexInArrayIgnoreCase("MAG", fields);
+				err_index = indexInArrayIgnoreCase("MAG ERROR", fields);
+				if (hjd_index >= 0 && mag_index >= 0 && err_index >= 0) {
+					fieldIndices.put("HJD", hjd_index);
+					fieldIndices.put("MAG", mag_index);
+					fieldIndices.put("MAG_ERR", err_index);
 				} else {
+					// not a header line
 					return null;
 				}
 			}
+			
+			// Is there a Filter field? (not exist in the old format and photometry DB format: V by default)
+			int index = indexInArrayIgnoreCase("Filter", fields);
+			fieldIndices.put("FILTER", index); // index = -1 if there is no 'Filter' field
+			
+			// Optional fields
+						
+			index = indexInArrayIgnoreCase("UT Date", fields);
+			optionalFieldIndices.put("UT", index);
+			
+			index = indexInArrayIgnoreCase("Camera", fields);
+			optionalFieldIndices.put("CAMERA", index);
+
+			index = indexInArrayIgnoreCase("FWHM", fields);
+			optionalFieldIndices.put("FWHM", index);
+			
+			index = indexInArrayIgnoreCase("Limit", fields);
+			optionalFieldIndices.put("LIMIT", index);
+			
+			index = indexInArrayIgnoreCase("flux(mJy)", fields);
+			if (index < 0) {
+				index = indexInArrayIgnoreCase("flux", fields);
+			}
+			optionalFieldIndices.put("FLUX", index);
+
+			index = indexInArrayIgnoreCase("flux_err", fields);
+			if (index < 0) {
+				index = indexInArrayIgnoreCase("Flux Error", fields);
+			}
+			optionalFieldIndices.put("FLUX_ERR", index);
+			
+			index = indexInArrayIgnoreCase("Quality", fields);
+			optionalFieldIndices.put("QUALITY", index);
+			
 			return fields;
 		}
+		
 		
 		private int indexInArrayIgnoreCase(String s, String[] a) {
 			for (int i = 0; i < a.length; i++) {
@@ -342,7 +405,6 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 
 		private ValidObservation readNextObservation(
 				String[] fields, int lineNum,
-				String[] header,
 				double userDefinedErrLimit, 
 				boolean loadASASSN_V_as_Johnson_V, 
 				boolean loadASASSN_g_as_Sloan_g)
@@ -352,7 +414,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			String filter = "";
 			
 			// Is there a Filter field? (absent in the old format and photometry DB format: V by default)
-			int index = indexInArrayIgnoreCase("Filter", header);
+			int index = fieldIndices.get("FILTER");
 			if (index < 0) {
 				filter = "V";
 			} else {
@@ -411,46 +473,23 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			observation.setBand(series);
 			
 			// optional fields
-			index = indexInArrayIgnoreCase("UT Date", header);
-			if (index > 0) {
-				observation.addDetail("UT", fields[index].trim(), "UT Date");
-			}
-			
-			index = indexInArrayIgnoreCase("Camera", header);
-			if (index > 0) {
-				observation.addDetail("CAMERA", fields[index].trim(), "Camera");
-			}
-			
-			index = indexInArrayIgnoreCase("FWHM", header);
-			if (index > 0) {
-				observation.addDetail("FWHM", fields[index].trim(), "FWHM");
-			}
-			
-			index = indexInArrayIgnoreCase("Limit", header);
-			if (index > 0) {
-				observation.addDetail("LIMIT", fields[index].trim(), "Limit");
-			}
-			
-			index = indexInArrayIgnoreCase("flux(mJy)", header);
-			if (index > 0) {
-				observation.addDetail("FLUX", fields[index].trim(), "Flux");
-			} else {
-				index = indexInArrayIgnoreCase("flux", header);
-				if (index > 0) {
-					observation.addDetail("FLUX", fields[index].trim(), "Flux");
+			List<String> keys = new ArrayList<String>(optionalFieldIndices.keySet());
+			Collections.sort(keys);
+			for (String key : keys) {			
+				int i = optionalFieldIndices.get(key);
+				if (i >= 0) {
+					observation.addDetail(key.toUpperCase(), fields[i].trim(), key);
 				}
 			}
 			
-			index = indexInArrayIgnoreCase("flux_err", header);
-			if (index > 0) {
-				observation.addDetail("FLUX_ERR", fields[index].trim(), "flux_err");
+			// Include original ASAS-SN band
+			index = fieldIndices.get("FILTER");
+			if (index < 0) {
+				observation.addDetail("ASASSN_BAND", "", "ASASSN_BAND");
+			} else {
+				observation.addDetail("ASASSN_BAND", fields[index].trim(), "ASASSN_BAND");
 			}
-
-			index = indexInArrayIgnoreCase("Filter", header);
-			if (index > 0) {
-				observation.addDetail("ASASSN_FILTER", fields[index].trim(), "ASAS-SN Filter");
-			}
-
+			
 			return observation;
 		}
 
