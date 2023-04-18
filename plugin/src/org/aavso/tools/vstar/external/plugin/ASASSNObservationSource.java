@@ -167,7 +167,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 	 */
 	@Override
 	public String getDescription() {
-		return "ASAS-SN CSV file reader";
+		return "ASAS-SN V2.0 CSV file reader";
 	}
 
 	/**
