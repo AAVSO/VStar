@@ -512,12 +512,12 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
-	 * Here we categorise a valid observation in terms of whether it is a
-	 * fainter-than or discrepant or belongs to a particular band, in that
-	 * order. If this observation retriever is reading heliocentric
-	 * observations, we set that attribute on the observation as well. The
-	 * observation is then inserted into a map of categories and the valid
-	 * observation list.
+	 * Here we categorise a valid observation in terms of whether it is
+	 * fainter-than, discrepant or excluded, belongs to a user-defined series,
+	 * or to a particular band. If this observation retriever is reading
+	 * helio/barycentric observations, we set the "JD flavour" on the observation
+	 * as well. The observation is then inserted into a map of categories and
+	 * the valid observation list.
 	 * 
 	 * @param validOb
 	 *            A valid observation.
@@ -525,13 +525,14 @@ public abstract class AbstractObservationRetriever {
 	private void categoriseValidObservation(ValidObservation validOb) {
 		SeriesType category = null;
 
-		// Categorise
 		if (validOb.getMagnitude().isFainterThan()) {
 			category = SeriesType.FAINTER_THAN;
 		} else if (validOb.isDiscrepant()) {
 			category = SeriesType.DISCREPANT;
 		} else if (validOb.isExcluded()) {
 			category = SeriesType.Excluded;
+		} else if (validOb.getBand() != validOb.getSeries()) {
+			category = validOb.getSeries();
 		} else {
 			category = validOb.getBand();
 		}

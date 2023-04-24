@@ -876,7 +876,7 @@ public class Mediator {
 	}
 
 	// Returns a series creation listener that updates the observation
-	// category map with the series.
+	// category map and observation list with the series.
 	protected Listener<SeriesCreationMessage> createSeriesCreationListener() {
 		return new Listener<SeriesCreationMessage>() {
 			@Override
@@ -1184,7 +1184,8 @@ public class Mediator {
 		if (addObs && getLatestNewStarMessage() != null) {
 			// convertObsToHJD(starInfo);
 
-			starInfo.getRetriever().collectAllObservations(validObsList, starInfo.getRetriever().getSourceName());
+			starInfo.getRetriever().collectAllObservations(validObsList,
+					starInfo.getRetriever().getSourceName());
 
 			starInfo.getRetriever().addAllInvalidObservations(invalidObsList);
 
@@ -1201,7 +1202,9 @@ public class Mediator {
 		}
 
 		List<ValidObservation> validObsList = starInfo.getRetriever().getValidObservations();
+
 		ObservationInserter obsInserter = new ObservationInserter(validObsList);
+		
 		List<InvalidObservation> invalidObsList = starInfo.getRetriever().getInvalidObservations();
 
 		Map<SeriesType, List<ValidObservation>> newObsCategoryMap = starInfo.getRetriever()
@@ -1220,66 +1223,19 @@ public class Mediator {
 		SyntheticObservationListPane<AbstractMeanObservationTableModel> meansListPane = null;
 		ObservationAndMeanPlotPane obsAndMeanChartPane = null;
 
-		Map<SeriesType, List<ValidObservation>> mergedObsCategoryMap = null;
-
 		if (!validObsList.isEmpty()) {
-
+			
 			freeListeners();
-
-			// Create a message to notify whoever is listening that a new star
-			// has been loaded.
-			NewStarMessage newStarMsg = new NewStarMessage(newStarType, starInfo, validObsList, newObsCategoryMap,
-					starInfo.getRetriever().getMinMag(), starInfo.getRetriever().getMaxMag(),
-					starInfo.getRetriever().getSourceName());
-
+			
 			if (!addObs) {
 				newStarMessageList.clear();
-				// The valid observation category map is just the new one.
-				mergedObsCategoryMap = newObsCategoryMap;
 			} else {
-				// What is the intersection of series in the newly and
-				// previously loaded datasets? We will need to merge them.
-				Set<SeriesType> commonSeries = new HashSet<SeriesType>();
-				commonSeries.addAll(commonSeries);
-				// Retain in commonSeries only the SeriesTypes also contained
-				// newObsCategoryMap. This is the intersection.
-				commonSeries.retainAll(newObsCategoryMap.keySet());
-
-				// Prepare a new valid observation category map that
-				// incorporates previous dataset's map.
-				mergedObsCategoryMap = new TreeMap<SeriesType, List<ValidObservation>>();
-
-				// Start with the new observation map.
-				mergedObsCategoryMap.putAll(newObsCategoryMap);
-
-				// If any of the previous series are not present in the new map
-				// (including user-defined series), add them to the merged map.
-				for (SeriesType type : validObservationCategoryMap.keySet()) {
-					mergedObsCategoryMap.putIfAbsent(type, validObservationCategoryMap.get(type));
-				}
-
-				// For any series that the previous and new maps have in common,
-				// merge the corresponding observation lists. Note that time order
-				// is preserved via sort; this may be an unnecessary overhead for
-				// the valid observation category map's use cases (MenuBar,
-				// ObservationPlotModel, VeLaObSource), but it has the advantage
-				// of future-proofing. If performance suffers, we can revisit this.
-				// We eliminate duplicates, if any, via ordered set insertion.
-				for (SeriesType type : commonSeries) {
-					LinkedHashSet<ValidObservation> mergedObsSeq = new LinkedHashSet<ValidObservation>();
-					mergedObsSeq.addAll(validObservationCategoryMap.get(type));
-					mergedObsSeq.addAll(newObsCategoryMap.get(type));
-					List<ValidObservation> mergedObs = mergedObsSeq.stream().collect(Collectors.toList());
-					Collections.sort(mergedObs, JDComparator.instance);
-					mergedObsCategoryMap.put(type, mergedObs);
-				}
-
 				// Exclude all but the most recent new star message if the newly
 				// loaded dataset's series+observations are the same as that
 				// of any previously loaded dataset.
 				List<NewStarMessage> dupMessages = new ArrayList<NewStarMessage>();
 
-				for (NewStarMessage msg : newStarMessageList) {
+				for (NewStarMessage msg : getNewStarMessageList()) {
 					// We need to check that both SeriesType and the corresponding observations are
 					// the same.
 					if (newObsCategoryMap.entrySet().equals(msg.getObsCategoryMap().entrySet())) {
@@ -1292,17 +1248,23 @@ public class Mediator {
 				}
 			}
 
+			// Create a message to notify whoever is listening that a new star
+			// has been loaded.
+			NewStarMessage newStarMsg = new NewStarMessage(newStarType, starInfo, validObsList, newObsCategoryMap,
+					starInfo.getRetriever().getMinMag(), starInfo.getRetriever().getMaxMag(),
+					starInfo.getRetriever().getSourceName());
+
 			newStarMessageList.add(newStarMsg);
 
 			// This is a specific fix for tracker 3007948.
 			this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
 
 			// Observation table and plot.
-			validObsTableModel = new ValidObservationTableModel(mergedObsCategoryMap, validObsList,
+			validObsTableModel = new ValidObservationTableModel(newObsCategoryMap, validObsList,
 					newStarType.getRawDataTableColumnInfoSource());
 
 			// Observation-and-mean table and plot.
-			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(mergedObsCategoryMap, JDCoordSource.instance,
+			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(newObsCategoryMap, JDCoordSource.instance,
 					JDComparator.instance, JDTimeElementEntity.instance, null);
 
 			if (false) {
@@ -1337,7 +1299,7 @@ public class Mediator {
 				getProgressNotifier()
 						.notifyListeners(new ProgressInfo(ProgressType.INCREMENT_PROGRESS, obsArtefactProgressAmount));
 			}
-		}
+		} // TODO: move this to the end of the function?
 
 		if (!invalidObsList.isEmpty()) {
 			invalidObsTableModel = new InvalidObservationTableModel(invalidObsList);
@@ -1399,7 +1361,7 @@ public class Mediator {
 		this.validObsList = validObsList;
 		this.obsInserter = obsInserter;
 		this.invalidObsList = invalidObsList;
-		this.validObservationCategoryMap = mergedObsCategoryMap;
+		this.validObservationCategoryMap = newObsCategoryMap;
 
 		// Notify listeners of new star and analysis type.
 		newStarNotifier.notifyListeners(getLatestNewStarMessage());
