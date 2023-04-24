@@ -56,12 +56,9 @@ public class HJDConverter extends ObservationToolPluginBase {
 
 	@Override
 	public void invoke(ISeriesInfoProvider seriesInfo) {
-		// The most recent new star message will have all obs and series
-		// (whether a single or additive dataset).
-		// [comment from InfoDialog.java]
 		NewStarMessage msg = Mediator.getInstance().getLatestNewStarMessage();
 		if (msg != null) {
-			List<ValidObservation> obs = msg.getObservations();
+			List<ValidObservation> obs = Mediator.getInstance().getValidObsList();
 			int count = 0;			
 			for (ValidObservation ob : obs) {
 				if (ob.getJDflavour() == JDflavour.JD) {

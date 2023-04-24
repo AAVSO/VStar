@@ -351,6 +351,12 @@ public abstract class AbstractObservationRetriever {
 	 *            added.
 	 * @param newSourceName
 	 *            The name of the source for new obs (in this retriever).
+	 *
+	 * @throws ObservationReadError
+	 *             if the observation has no date or magnitude. The caller can
+	 *             either propagate this exception further or add to the invalid
+	 *             observation list, or do whatever else it considers to be
+	 *             appropriate.
 	 */
 	public void collectAllObservations(List<ValidObservation> obs,
 			String newSourceName) throws ObservationReadError {
@@ -428,7 +434,7 @@ public abstract class AbstractObservationRetriever {
 	 * 
 	 * <p>
 	 * This is a convenience method that adds an observation to the list of
-	 * valid observations and categorises it by band. This method is
+	 * valid observations and categorises it by band/series. This method is
 	 * particularly suitable for observation source plugins since it asks
 	 * whether an observation satisfies the requirement that it has at least JD
 	 * and magnitude values.
