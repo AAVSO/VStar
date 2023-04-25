@@ -9,8 +9,8 @@ name: Daily release
 
 on:
   schedule:
-     # every day at 0804 GMT
-    - cron: '4 8 * * *'
+     # every day at 0845 GMT
+    - cron: '45 08 * * *'
 
 #on:
   # TODO: when working, this whole "on" section will go in favour of cron on
