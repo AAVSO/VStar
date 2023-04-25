@@ -24,7 +24,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    name: Daily release build with Java ${{ matrix.Java }}
+    name: Daily VStar snapshot release
 
     steps:
     - uses: actions/checkout@v2
@@ -45,7 +45,7 @@ jobs:
       run:
         ant -noinput -buildfile build.xml win
     - name: Build plugins archive
-      run:
+      run: |
         cd plugin
         ant -noinput -buildfile build.xml aavso
         cd ..
