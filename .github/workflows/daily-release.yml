@@ -22,8 +22,7 @@ on:
 
 jobs:
   build:
-    #runs-on: ubuntu-latest
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
 
     # TODO: simplify to be non-matrix, specific version
     strategy:
@@ -50,13 +49,15 @@ jobs:
     - name: Build win archive
       run:
         ant -noinput -buildfile build.xml win
-    - name: Build mac archive
-      run:
-        ant -noinput -buildfile build.xml mac
+#    - name: Build mac archive
+#      run:
+#        ant -noinput -buildfile build.xml mac
     - uses: pyTooling/Actions/releaser@r0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
+        tag: daily-snapshot
+        rm: true
         files: |
             vstar-bash.zip
             vstar-win.zip
-            vstar-mac.dmg
+#            vstar-mac.dmg
