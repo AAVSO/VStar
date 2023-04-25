@@ -7,18 +7,15 @@
 
 name: Daily release 
 
-on:
-  schedule:
-     # every day at 0845 GMT
-    - cron: '45 08 * * *'
-
 #on:
-  # TODO: when working, this whole "on" section will go in favour of cron on
-#  push:
-#    branches:
-#        - "**"
-#  pull_request:
-#    branches: [ master ]
+#  schedule:
+#     # every day at 0845 GMT
+#    - cron: '45 08 * * *'
+
+on:
+  pull_request:
+    branches:
+    - master
 
 jobs:
   build:
