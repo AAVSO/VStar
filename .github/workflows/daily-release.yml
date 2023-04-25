@@ -5,7 +5,7 @@
 # - https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-ant
 # - https://github.com/AAVSO/VStar/issues/340
 
-name: VStar Daily Build and Release
+name: Daily release 
 
 #on:
 #  schedule:
@@ -24,7 +24,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    name: Daily VStar snapshot release
+    name: Daily release
 
     steps:
     - uses: actions/checkout@v2
@@ -57,4 +57,4 @@ jobs:
         files: |
             vstar-bash.zip
             vstar-win.zip
-            vstar-plugins.zip
+            plugin/vstar-plugins.zip
