@@ -1,5 +1,5 @@
-# This workflow will build a Java project with Ant
-# and create a daily release for each OS.
+# This workflow will build a Java project with Ant and create a daily 
+# release of the bash and win targets.
 #
 # For more information see:
 # - https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-ant
@@ -9,8 +9,8 @@ name: VStar Daily Build and Release
 
 #on:
 #  schedule:
-     # every day at 12:00 (TODO: US, GMT?)
-#    - cron: '0 12 * * *'
+     # every day at 1700 GMT
+#    - cron: '0 17 * * *'
 
 on:
   # TODO: when working, this whole "on" section will go in favour of cron on
@@ -24,11 +24,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # TODO: simplify to be non-matrix, specific version
-    strategy:
-      matrix:
-        java: [ '8' ]
-
     name: Daily release build with Java ${{ matrix.Java }}
 
     steps:
@@ -36,7 +31,7 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v1
       with:
-        java-version: ${{ matrix.java }}
+        java-version: '8'
     - name: Create plugin dir
       run:
         mkdir -p ~/vstar_plugins
@@ -49,9 +44,11 @@ jobs:
     - name: Build win archive
       run:
         ant -noinput -buildfile build.xml win
-#    - name: Build mac archive
-#      run:
-#        ant -noinput -buildfile build.xml mac
+    - name: Build plugins archive
+      run:
+        cd plugin
+        ant -noinput -buildfile build.xml aavso
+        cd ..
     - uses: pyTooling/Actions/releaser@r0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -60,4 +57,4 @@ jobs:
         files: |
             vstar-bash.zip
             vstar-win.zip
-#            vstar-mac.dmg
+            vstar-plugins.zip
