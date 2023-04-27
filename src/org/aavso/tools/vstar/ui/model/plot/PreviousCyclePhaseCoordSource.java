@@ -26,18 +26,16 @@ import org.aavso.tools.vstar.data.ValidObservation;
  * A previous cycle phase based coordinate source.
  */
 public class PreviousCyclePhaseCoordSource implements ICoordSource {
-	
+
 	public static PreviousCyclePhaseCoordSource instance = new PreviousCyclePhaseCoordSource();
 
 	/**
 	 * Get the number of items in the series.
 	 * 
-	 * @param series
-	 *            The series of interest.
+	 * @param series The series of interest.
 	 * @return The number of items in this series.
 	 */
-	public int getItemCount(int series,
-			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
+	public int getItemCount(int series, Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 
 		return seriesNumToObSrcListMap.get(series).size();
 	}
@@ -45,29 +43,30 @@ public class PreviousCyclePhaseCoordSource implements ICoordSource {
 	/**
 	 * Get the phase associated with the specified series and item.
 	 * 
-	 * @param series
-	 *            The series of interest.
-	 * @param item
-	 *            The target item.
-	 * @param seriesNumToObSrcListMap
-	 *            A mapping from series number to a list of observations.
+	 * @param series                  The series of interest.
+	 * @param item                    The target item.
+	 * @param seriesNumToObSrcListMap A mapping from series number to a list of
+	 *                                observations.
 	 * @return The X coordinate (previous cycle phase).
 	 */
-	public double getXCoord(int series, int item,
-			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
+	public double getXCoord(int series, int item, Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 
-		List<ValidObservation> obs = seriesNumToObSrcListMap.get(series);
+		double phase;
 
-		return obs.get(item).getPreviousCyclePhase();
+		try {
+			phase = seriesNumToObSrcListMap.get(series).get(item).getPreviousCyclePhase();
+		} catch (Exception e) {
+			phase = Double.NaN;
+		}
+
+		return phase;
 	}
 
 	/**
 	 * Get the phase coordinate value associated with the specified item.
 	 * 
-	 * @param item
-	 *            The target item.
-	 * @param obs
-	 *            A list of observations.
+	 * @param item The target item.
+	 * @param obs  A list of observations.
 	 * @return The previous cycle phase.
 	 */
 	@Override
@@ -79,38 +78,32 @@ public class PreviousCyclePhaseCoordSource implements ICoordSource {
 	 * The actual item number for the Y coordinate is in fact, just item in this
 	 * case.
 	 * 
-	 * @param series
-	 *            The series of interest.
-	 * @param item
-	 *            The target item.
-	 * @param seriesNumToObSrcListMap
-	 *            A mapping from series number to a list of observations.
+	 * @param series                  The series of interest.
+	 * @param item                    The target item.
+	 * @param seriesNumToObSrcListMap A mapping from series number to a list of
+	 *                                observations.
 	 * @return The actual Y item number.
 	 */
-	public int getActualYItemNum(int series, int item,
-			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
+	public int getActualYItemNum(int series, int item, Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 		return item;
 	}
 
 	/**
 	 * Given a series and item number, return the corresponding observation.
 	 * 
-	 * @param series
-	 *            The series number.
-	 * @param item
-	 *            The item within the series.
-	 * @param seriesNumToObSrcListMap
-	 *            A mapping from series number to a list of observations.
+	 * @param series                  The series number.
+	 * @param item                    The item within the series.
+	 * @param seriesNumToObSrcListMap A mapping from series number to a list of
+	 *                                observations.
 	 * @return The valid observation.
-	 * @throws IllegalArgumentException
-	 *             if series or item are out of range.
+	 * @throws IllegalArgumentException if series or item are out of range.
 	 */
 	public ValidObservation getValidObservation(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 
 		return seriesNumToObSrcListMap.get(series).get(item);
 	}
-	
+
 	@Override
 	public String getUnit() {
 		return "Phase";

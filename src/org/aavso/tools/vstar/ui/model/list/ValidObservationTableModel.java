@@ -18,12 +18,14 @@
 package org.aavso.tools.vstar.ui.model.list;
 
 import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 
 import javax.swing.table.AbstractTableModel;
 
 import org.aavso.tools.vstar.data.IOrderedObservationSource;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
@@ -41,6 +43,11 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 @SuppressWarnings("serial")
 public class ValidObservationTableModel extends AbstractTableModel implements IOrderedObservationSource {
+
+	/**
+	 * A mapping from series to valid observations.
+	 */
+	private Map<SeriesType, List<ValidObservation>> obsSourceListMap;
 
 	/**
 	 * The list of valid observations retrieved.
@@ -69,11 +76,15 @@ public class ValidObservationTableModel extends AbstractTableModel implements IO
 	/**
 	 * Constructor
 	 * 
+	 * @param obsSourceListMap A mapping from source series to lists of observation
+	 *                         sources.
 	 * @param observations     The initial set of observations for the table model.
 	 * @param columnInfoSource A source of table column information.
 	 */
-	public ValidObservationTableModel(List<ValidObservation> observations, ITableColumnInfoSource columnInfoSource) {
+	public ValidObservationTableModel(Map<SeriesType, List<ValidObservation>> obsSourceListMap,
+			List<ValidObservation> observations, ITableColumnInfoSource columnInfoSource) {
 
+		this.obsSourceListMap = obsSourceListMap;
 		this.columnInfoSource = columnInfoSource;
 		this.columnCount = columnInfoSource.getColumnCount();
 
@@ -82,6 +93,10 @@ public class ValidObservationTableModel extends AbstractTableModel implements IO
 
 		Mediator.getInstance().getDiscrepantObservationNotifier().addListener(createDiscrepantChangeListener());
 		Mediator.getInstance().getSeriesCreationNotifier().addListener(createSeriesCreationListener());
+	}
+
+	public Map<SeriesType, List<ValidObservation>> getObsSourceListMap() {
+		return obsSourceListMap;
 	}
 
 	/**
@@ -96,6 +111,13 @@ public class ValidObservationTableModel extends AbstractTableModel implements IO
 	 */
 	public List<ValidObservation> getObservations() {
 		return validObservations;
+	}
+
+	/**
+	 * @return the observation inserter
+	 */
+	public ObservationInserter getObsInserter() {
+		return obsInserter;
 	}
 
 	/**

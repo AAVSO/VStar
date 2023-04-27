@@ -1280,11 +1280,6 @@ public class ValidObservation extends Observation {
 		return buf.toString();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -1301,114 +1296,87 @@ public class ValidObservation extends Observation {
 		result = prime * result + ((magnitude == null) ? 0 : magnitude.hashCode());
 		result = prime * result + ((obsType == null) ? 0 : obsType.hashCode());
 		result = prime * result + ((previousCyclePhase == null) ? 0 : previousCyclePhase.hashCode());
+		result = prime * result + ((series == null) ? 0 : series.hashCode());
 		result = prime * result + ((standardPhase == null) ? 0 : standardPhase.hashCode());
 		result = prime * result + (transformed ? 1231 : 1237);
 		result = prime * result + ((validationType == null) ? 0 : validationType.hashCode());
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		ValidObservation other = (ValidObservation) obj;
 		if (band == null) {
-			if (other.band != null) {
+			if (other.band != null)
 				return false;
-			}
-		} else if (!band.equals(other.band)) {
+		} else if (!band.equals(other.band))
 			return false;
-		}
 		if (commentCode == null) {
-			if (other.commentCode != null) {
+			if (other.commentCode != null)
 				return false;
-			}
-		} else if (!commentCode.equals(other.commentCode)) {
+		} else if (!commentCode.equals(other.commentCode))
 			return false;
-		}
 		if (dateInfo == null) {
-			if (other.dateInfo != null) {
+			if (other.dateInfo != null)
 				return false;
-			}
-		} else if (!dateInfo.equals(other.dateInfo)) {
+		} else if (!dateInfo.equals(other.dateInfo))
 			return false;
-		}
 		if (details == null) {
-			if (other.details != null) {
+			if (other.details != null)
 				return false;
-			}
-		} else if (!details.equals(other.details)) {
+		} else if (!details.equals(other.details))
 			return false;
-		}
-		if (excluded != other.excluded) {
+		if (excluded != other.excluded)
 			return false;
-		}
 		if (hJD == null) {
-			if (other.hJD != null) {
+			if (other.hJD != null)
 				return false;
-			}
-		} else if (!hJD.equals(other.hJD)) {
+		} else if (!hJD.equals(other.hJD))
 			return false;
-		}
 		if (hqUncertainty == null) {
-			if (other.hqUncertainty != null) {
+			if (other.hqUncertainty != null)
 				return false;
-			}
-		} else if (!hqUncertainty.equals(other.hqUncertainty)) {
+		} else if (!hqUncertainty.equals(other.hqUncertainty))
 			return false;
-		}
-		if (jdFlavour != other.jdFlavour) {
+		if (jdFlavour != other.jdFlavour)
 			return false;
-		}
-		if (mType != other.mType) {
+		if (mType != other.mType)
 			return false;
-		}
 		if (magnitude == null) {
-			if (other.magnitude != null) {
+			if (other.magnitude != null)
 				return false;
-			}
-		} else if (!magnitude.equals(other.magnitude)) {
+		} else if (!magnitude.equals(other.magnitude))
 			return false;
-		}
 		if (obsType == null) {
-			if (other.obsType != null) {
+			if (other.obsType != null)
 				return false;
-			}
-		} else if (!obsType.equals(other.obsType)) {
+		} else if (!obsType.equals(other.obsType))
 			return false;
-		}
 		if (previousCyclePhase == null) {
-			if (other.previousCyclePhase != null) {
+			if (other.previousCyclePhase != null)
 				return false;
-			}
-		} else if (!previousCyclePhase.equals(other.previousCyclePhase)) {
+		} else if (!previousCyclePhase.equals(other.previousCyclePhase))
 			return false;
-		}
+		if (series == null) {
+			if (other.series != null)
+				return false;
+		} else if (!series.equals(other.series))
+			return false;
 		if (standardPhase == null) {
-			if (other.standardPhase != null) {
+			if (other.standardPhase != null)
 				return false;
-			}
-		} else if (!standardPhase.equals(other.standardPhase)) {
+		} else if (!standardPhase.equals(other.standardPhase))
 			return false;
-		}
-		if (transformed != other.transformed) {
+		if (transformed != other.transformed)
 			return false;
-		}
-		if (validationType != other.validationType) {
+		if (validationType != other.validationType)
 			return false;
-		}
 		return true;
 	}
 
