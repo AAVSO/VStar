@@ -13,7 +13,7 @@ name: Snapshot release
 #    - cron: '45 08 * * *'
 
 on:
-  pull_request:
+  push:
     branches:
     - master
 
