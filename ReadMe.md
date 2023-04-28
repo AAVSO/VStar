@@ -1,5 +1,6 @@
 [![VStar Unit Tests](https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/vstar-UT.yml)
 [![Plug-in Unit Tests](https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/plugin-UT.yml)
+[![Snapshot release](https://github.com/AAVSO/VStar/actions/workflows/daily-release.yml/badge.svg)](https://github.com/AAVSO/VStar/actions/workflows/daily-release.yml)
 ## VStar
 
 ### Introduction
