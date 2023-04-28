@@ -1,0 +1,57 @@
+# This workflow will build a Java project with Ant and create a daily 
+# release of the bash and win targets.
+#
+# For more information see:
+# - https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-ant
+# - https://github.com/AAVSO/VStar/issues/340
+
+name: Snapshot release 
+
+#on:
+#  schedule:
+#     # every day at 0845 GMT
+#    - cron: '45 08 * * *'
+
+on:
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    name: Snapshot release
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Java
+      uses: actions/setup-java@v1
+      with:
+        java-version: '8'
+    - name: Create plugin dir
+      run:
+        mkdir -p ~/vstar_plugins
+    - name: Create plugin libs dir
+      run:
+        mkdir -p ~/vstar_plugin_libs
+    - name: Build bash archive
+      run:
+        ant -noinput -buildfile build.xml bash
+    - name: Build win archive
+      run:
+        ant -noinput -buildfile build.xml win
+    - name: Build plugins archive
+      run: |
+        cd plugin
+        ant -noinput -buildfile build.xml aavso
+        cd ..
+    - uses: pyTooling/Actions/releaser@r0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: snapshot
+        rm: true
+        files: |
+            vstar-bash.zip
+            vstar-win.zip
+            plugin/vstar-plugins.zip
