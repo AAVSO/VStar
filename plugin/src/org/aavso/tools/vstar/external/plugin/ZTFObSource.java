@@ -17,21 +17,14 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -43,24 +36,11 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.aavso.tools.vstar.data.DateInfo;
-import org.aavso.tools.vstar.data.InvalidObservation;
-import org.aavso.tools.vstar.data.MTypeType;
-import org.aavso.tools.vstar.data.Magnitude;
-import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
-import org.aavso.tools.vstar.data.validation.InclusiveRangePredicate;
-import org.aavso.tools.vstar.data.validation.JulianDayValidator;
-import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
-import org.aavso.tools.vstar.data.validation.UncertaintyValueValidator;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ObservationReadError;
-import org.aavso.tools.vstar.exception.ObservationValidationError;
-import org.aavso.tools.vstar.input.AbstractObservationRetriever;
+import org.aavso.tools.vstar.external.lib.ZTFObSourceBase;
 import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
 import org.aavso.tools.vstar.plugin.InputType;
-import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -74,19 +54,10 @@ import org.aavso.tools.vstar.util.locale.NumberParser;
  * 
  * @author max (PMAK)
  * 
- * see https://irsa.ipac.caltech.edu/docs/program_interface/ztf_lightcurve_api.html
- * 
  */
-public class ZTFObSource extends ObservationSourcePluginBase {
+public class ZTFObSource extends ZTFObSourceBase {
 
-	private SeriesType ztfgSeries;
-	private SeriesType ztfrSeries;
-	private SeriesType ztfiSeries;
-	private SeriesType ztfUnknownSeries;
-	
 	private String baseURL = "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?FORMAT=TSV&";
-	
-	//private StarInfo starInfo;
 	
 	// Create static VeLa filter field here since cannot create it in
 	// inner dialog class.
@@ -98,17 +69,6 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	
 	private ZTFParameterDialog paramDialog;
 
-	/**
-	 * Constructor
-	 */
-	public ZTFObSource() {
-		super();
-		ztfgSeries = SeriesType.create("ZTF zg", "ZTF zg", Color.GREEN, false, false);
-		ztfrSeries = SeriesType.create("ZTF zr", "ZTF zr", Color.RED, false, false);
-		ztfiSeries = SeriesType.create("ZTF zi", "ZTF zi", new Color(192, 64, 0), false, false);
-		ztfUnknownSeries = SeriesType.create("ZTF unknown", "ZTF unknown", new Color(255, 255, 0), false, false);
-	}
-	
 	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#getInputType()
 	 */
@@ -159,15 +119,6 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	}
 	
 	/**
-	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#
-	 *      getObservationRetriever ()
-	 */
-	@Override
-	public AbstractObservationRetriever getObservationRetriever() {
-		return new ZTFFormatRetriever();
-	}
-
-	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDescription()
 	 */
 	@Override
@@ -181,218 +132,6 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 	@Override
 	public String getDisplayName() {
 		return "New Star from ZTF Photometry ...";
-	}
-
-	class ZTFFormatRetriever extends AbstractObservationRetriever {
-
-		private Map<String, Integer> fieldIndices;
-		
-		//private String obscode = "ZTF";
-		private String delimiter = "\t";
-		//private String objectName;
-		private HashSet<String> ztfObjects;
-		
-		private List<String> lines;
-
-		private JulianDayValidator julianDayValidator;
-		private MagnitudeFieldValidator magnitudeFieldValidator;
-		private UncertaintyValueValidator uncertaintyValueValidator;
-
-		/**
-		 * Constructor
-		 */
-		public ZTFFormatRetriever() {
-			super(getVelaFilterStr());
-			
-			fieldIndices = new HashMap<String, Integer>();
-			fieldIndices.put("oid", -1);
-			fieldIndices.put("hjd", -1);
-			fieldIndices.put("mag", -1);
-			fieldIndices.put("magerr", -1);
-			fieldIndices.put("catflags", -1);
-			fieldIndices.put("filtercode", -1);
-			fieldIndices.put("exptime", -1);
-			fieldIndices.put("airmass", -1);
-			
-			julianDayValidator = new JulianDayValidator();
-			magnitudeFieldValidator = new MagnitudeFieldValidator();
-			uncertaintyValueValidator = new UncertaintyValueValidator(new InclusiveRangePredicate(0, 1));
-			ztfObjects = new HashSet<String>();
-		}
-		
-		/**
-		 * Extended information
-		 */
-		/*
-		@Override
-		public StarInfo getStarInfo() {
-			if (starInfo != null) {
-				starInfo.setRetriever(this);
-				return starInfo;
-			} else {
-				return new StarInfo(this, getSourceName());
-			}
-		}
-		*/
-		
-		@Override
-		public void retrieveObservations() throws ObservationReadError,
-				InterruptedException {
-
-			setJDflavour(JDflavour.HJD);
-
-			if (lines.size() == 0) {
-				return;
-			}
-			
-			boolean headerFound = false;
-			
-			String firstError = null;
-			for (int i = 0; i < lines.size(); i++) {
-				String line = lines.get(i);
-				if (line != null) {
-					line = line.trim();
-					if (!"".equals(line)) {
-						if (headerFound) {
-							try {
-								ValidObservation vo = readNextObservation(line.split(delimiter), i + 1);
-								collectObservation(vo);
-							} catch (Exception e) {
-								// Create an invalid observation.
-								String error = e.getLocalizedMessage();
-								if (firstError == null) firstError = error;
-								InvalidObservation ob = new InvalidObservation(line, error);
-								ob.setRecordNumber(i + 1);
-								addInvalidObservation(ob);
-							}
-						} else {
-							headerFound = checkForHeaderAndFillFieldIndices(line.split(delimiter));
-						}
-					}
-				}
-				incrementProgress();
-			}
-			
-			if (!headerFound)
-				throw new ObservationReadError("Cannot find ZTF header");
-			
-			if (validObservations.size() == 0 && firstError != null) {
-				throw new ObservationReadError("No observations found. The first error message:\n" + firstError);
-			}
-			
-		}
-		
-		private boolean checkForHeaderAndFillFieldIndices(String[] fields) {
-			for (Map.Entry<String, Integer> entry : fieldIndices.entrySet()) {
-				int i = indexInArray(entry.getKey(), fields);
-				if (i >= 0) {
-					entry.setValue(i);
-				} else {
-					return false;
-				}
-			}
-			return true;
-		}
-		
-		private int indexInArray(String s, String[] a) {
-			for (int i = 0; i < a.length; i++) {
-				if (s.equals(a[i])) {
-					return i;
-				}
-			}
-			return -1;
-		}		
-		
-		@Override
-		public Integer getNumberOfRecords() throws ObservationReadError {
-			if (lines == null) {
-				try {
-					readLines();
-				} catch (IOException e) {
-					throw new ObservationReadError("Error reading lines");
-				}
-			}
-
-			return lines.size();
-		}
-
-		// Read all lines from the source.
-		private void readLines() throws IOException {
-			lines = new ArrayList<String>();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStreams().get(0)));
-			String line;
-			while ((line = reader.readLine()) != null) {
-				lines.add(line);
-			}
-		}
-
-		// ZTF format observation reader.
-		private ValidObservation readNextObservation(String[] fields, int recordNumber)
-				throws ObservationValidationError {
-
-			ValidObservation observation = new ValidObservation();
-
-			String name = fields[fieldIndices.get("oid")].trim();
-			ztfObjects.add(name);
-
-			observation.setRecordNumber(recordNumber);
-			observation.setName(name);
-			//observation.setObsCode(obscode);
-
-			DateInfo dateInfo = new DateInfo(julianDayValidator.validate(fields[fieldIndices.get("hjd")].trim()).getJulianDay());
-			observation.setDateInfo(dateInfo);
-
-			Magnitude magnitude = magnitudeFieldValidator.validate(fields[fieldIndices.get("mag")].trim());
-			observation.setMagnitude(magnitude);
-			double uncertainty = uncertaintyValueValidator.validate(fields[fieldIndices.get("magerr")].trim());
-			observation.getMagnitude().setUncertainty(uncertainty);
-
-			String filter = fields[fieldIndices.get("filtercode")].trim();
-			SeriesType band;
-			if (filter.equals("zg")) {
-				band = ztfgSeries;
-			} else if (filter.equals("zr")) {
-				band = ztfrSeries;
-			} else if (filter.equals("zi")) {
-				band = ztfiSeries;
-			} else {
-				band = ztfUnknownSeries;
-			}
-			observation.setBand(band);
-
-			// ValidObservation defaults to STD.
-			observation.setMType(MTypeType.STD);
-
-			//observation.setComments("");
-
-			observation.addDetail("CATFLAGS", fields[fieldIndices.get("catflags")], "catflags");
-			observation.addDetail("EXPTIME", fields[fieldIndices.get("exptime")], "exptime");
-			observation.addDetail("AIRMASS", fields[fieldIndices.get("airmass")], "airmass");
-			// todo: add other details
-			
-			return observation;
-		}
-
-		@Override
-		public String getSourceName() {
-			if (ztfObjects.size() == 0)
-				return "ZTF object";
-			String name = ""; 
-			for (String ztf : ztfObjects) {
-				if (name.length() > 0)
-					name += ", ";
-				name += ztf;
-			}
-			if (ztfObjects.size() == 1)
-				return "ZTF object " + name;
-			else
-				return "ZTF objects " + name;
-		}
-
-		@Override
-		public String getSourceType() {
-			return "ZTF Format";
-		}
 	}
 
 	@SuppressWarnings("serial")
@@ -576,10 +315,6 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			return catflagsZeroCheckbox.isSelected();
 		}
 		
-		//public StarInfo getStarInfo() {
-		//	return starInfo;
-		//}
-		
 		public boolean getSearchByID() {
 			return searchParamPane.getSelectedIndex() == 1;
 		}
@@ -678,20 +413,6 @@ public class ZTFObSource extends ObservationSourcePluginBase {
 			dispose();
 		}
 
-		/*
-		private String DoubleToStringMaxDigits(Double value) {
-			if (value != null) {
-				DecimalFormat df = new DecimalFormat("0");
-				int fractionDigits = NumericPrecisionPrefs.getOtherDecimalPlaces();
-				if (fractionDigits < MIN_DECIMAL_PLACES) fractionDigits = MIN_DECIMAL_PLACES;
-				df.setMaximumFractionDigits(fractionDigits);
-				return df.format(value);
-			} else {
-				return "";
-			}
-		}
-		*/
-		
 		private StarInfo ResolveVSXidentifier(String id) {
 			Cursor defaultCursor = getCursor();
 			setCursor(waitCursor);
