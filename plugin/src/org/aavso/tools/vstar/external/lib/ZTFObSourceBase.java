@@ -173,7 +173,8 @@ public abstract class ZTFObSourceBase extends ObservationSourcePluginBase {
 					return true;
 				} else {
 					// This special delimiter occurs when the user copies data from an HTML table generated via VSX "External Links" ZTF
-					localDelim = "\s*\t";
+					//localDelim = "\s*\t";
+					localDelim = " *\t";
 					if (checkForHeaderAndFillFieldIndices(line.split(localDelim))) {
 						delimiter = localDelim;
 						return true;
