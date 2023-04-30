@@ -20,6 +20,11 @@ package org.aavso.tools.vstar.external.plugin;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,6 +34,7 @@ import java.util.Locale;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -57,7 +63,7 @@ import org.aavso.tools.vstar.util.locale.NumberParser;
  */
 public class ZTFObSource extends ZTFObSourceBase {
 
-	private String baseURL = "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?FORMAT=TSV&";
+	private final String BASE_URL = "https://irsa.ipac.caltech.edu/cgi-bin/ZTF/nph_light_curves?FORMAT=TSV&";
 	
 	// Create static VeLa filter field here since cannot create it in
 	// inner dialog class.
@@ -81,31 +87,16 @@ public class ZTFObSource extends ZTFObSourceBase {
 	public List<URL> getURLs() throws Exception {
 		List<URL> urls = new ArrayList<URL>();
 
-		//starInfo = null;
-		
 		if (paramDialog == null) {
 			paramDialog = new ZTFParameterDialog(isAdditive());
 		}
 		paramDialog.showDialog();
 		if (!paramDialog.isCancelled()) {
-			//StarInfo starInfo = paramDialog.getStarInfo();
-			
 			setAdditive(paramDialog.isLoadAdditive());
 			
-			String url;
-			if (paramDialog.getSearchByID()) {
-				url = baseURL + "ID=" + paramDialog.getObjectID();
-			} else {
-				url = baseURL + "POS=CIRCLE%20" +
-						String.format(Locale.ENGLISH, "%.5f%%20%.5f%%20%.5f", paramDialog.getRA(), paramDialog.getDec(), paramDialog.getRadius());  
-			}
-			
-			if (paramDialog.isCatflagsZero()) {
-				url += "&BAD_CATFLAGS_MASK=65535";
-			}
+			String url = paramDialog.getZtfURL();
 			
 			try {
-				System.out.println(url);
 				urls.add(new URL(url));
 			} catch (MalformedURLException e) {
 				throw new ObservationReadError("Cannot construct ZTF URL (reason: " + e.getLocalizedMessage() + ")");
@@ -137,8 +128,6 @@ public class ZTFObSource extends ZTFObSourceBase {
 	@SuppressWarnings("serial")
 	class ZTFParameterDialog extends AbstractOkCancelDialog {
 
-		//private final int MIN_DECIMAL_PLACES = 20;
-		
 		private TextField objectIDField;
 		private TextField objectRAField;
 		private TextField objectDecField;
@@ -146,14 +135,11 @@ public class ZTFObSource extends ZTFObSourceBase {
 		private TextField objectVSXNameField;
 		private JCheckBox additiveLoadCheckbox;
 		private JCheckBox catflagsZeroCheckbox;
+
 		private JTabbedPane searchParamPane;
 		private JTabbedPane searchParamPane2;
 		
-		private String objectID;
-		private Double objectRA;
-		private Double objectDec;
-		private Double objectRadius;
-		//private StarInfo starInfo;		
+		private String ztfURL = null;
 		
 		private Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
 		
@@ -184,6 +170,8 @@ public class ZTFObSource extends ZTFObSourceBase {
 					} );
 
 			topPane.add(createCatflagsZeroCheckboxPane());			
+			
+			topPane.add(createGetURLPane());
 			
 			topPane.add(Box.createRigidArea(new Dimension(400, 20)));
 			
@@ -284,6 +272,30 @@ public class ZTFObSource extends ZTFObSourceBase {
 
 			return panel;
 		}
+
+		private JPanel createGetURLPane() {
+			JPanel panel = new JPanel();
+			panel.setBorder(BorderFactory.createTitledBorder("URL"));
+
+			JButton getUrlButton = new JButton("Copy ZTF URL to clipboard");
+			
+			getUrlButton.addActionListener(
+					new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							String url = constructURL();
+							if (url != null) {
+								Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+								clipboard.setContents(new StringSelection(url), null);
+								MessageBox.showMessageDialog("ZTF", "ZTF URL has been copied to the clipboard");
+							}
+						}
+					}
+				);
+			
+			panel.add(getUrlButton);
+
+			return panel;
+		}
 		
 		private JPanel createAdditiveLoadCheckboxPane(boolean checked) {
 			JPanel panel = new JPanel();
@@ -294,35 +306,68 @@ public class ZTFObSource extends ZTFObSourceBase {
 
 			return panel;
 		}
+		
+		public String constructURL() {
+			String url = null;
+			if (searchParamPane.getSelectedIndex() == 1) {
+				String objectID = objectIDField.getValue();
+				if (objectID != null) objectID = objectID.trim();
+				if (objectID == null || "".equals(objectID) || !objectID.matches("[0-9]+")) {
+					objectIDField.getUIComponent().requestFocusInWindow();
+					MessageBox.showErrorDialog("ZTF", "ZTF object ID must be numeric");
+					return null;
+				}
+				url = BASE_URL + "ID=" + objectID;
+			} else {
+				Double objectRA = null;
+				Double objectDec = null;
+				Double objectRadius = getDouble(objectRadiusField, 0, 0.005, true, true, "Radius must be >= 0 and <= 0.005");
+				if (objectRadius == null) {
+					return null;
+				}
+				if (searchParamPane2.getSelectedIndex() == 0) {
+					objectRA = getDouble(objectRAField, 0, 360, true, false, "RA must be >= 0 and < 360");
+					if (objectRA == null) {
+						return null;
+					}
+					objectDec = getDouble(objectDecField, -90, 90, true, true, "Dec must be >= -90 and <= 90");
+					if (objectDec == null) {
+						return null;
+					}
+				}
+				else {
+					String vsxName = objectVSXNameField.getValue();
+					if (vsxName != null) vsxName = vsxName.trim();
+					if (vsxName == null || "".equals(vsxName)) {
+						objectVSXNameField.getUIComponent().requestFocusInWindow();
+						MessageBox.showErrorDialog("VSX", "VSX name must be specified");
+						return null;
+					}
+					
+					try {
+						StarInfo starInfo = ResolveVSXidentifier(vsxName);
+						objectRA = starInfo.getRA().toDegrees();
+						objectDec = starInfo.getDec().toDegrees();
+					} catch (Exception e) {
+						objectVSXNameField.getUIComponent().requestFocusInWindow();
+						MessageBox.showErrorDialog("VSX", "Cannot resolve the VSX identifier.\nError message:\n" + 
+								e.getLocalizedMessage());
+						return null;
+					}
+				}
 
-		public String getObjectID() {
-			return objectID;
+				url = BASE_URL + "POS=CIRCLE%20" + String.format(Locale.ENGLISH, "%.5f%%20%.5f%%20%.5f", objectRA, objectDec, objectRadius);  
+
+				if (catflagsZeroCheckbox.isSelected())
+					url += "&BAD_CATFLAGS_MASK=65535";
+			}
+			return url;			
+		}
+
+		public String getZtfURL() {
+			return ztfURL;
 		}
 		
-		public Double getRA() {
-			return objectRA;
-		}
-
-		public Double getDec() {
-			return objectDec;
-		}
-
-		public Double getRadius() {
-			return objectRadius;
-		}
-		
-		public boolean isCatflagsZero() {
-			return catflagsZeroCheckbox.isSelected();
-		}
-		
-		public boolean getSearchByID() {
-			return searchParamPane.getSelectedIndex() == 1;
-		}
-		
-		public boolean getCoordinateSearchManual() {
-			return searchParamPane2.getSelectedIndex() == 0;
-		}
-
 		/**
 		 * Return whether or not the load is additive.
 		 * 
@@ -341,11 +386,7 @@ public class ZTFObSource extends ZTFObSourceBase {
 
 		@Override
 		public void showDialog() {
-			objectID = null;
-			objectRA = null;
-			objectDec = null;
-			objectRadius = null;
-			//starInfo = null;
+			ztfURL = null;
 			searchParamPaneUpdateFocus();			
 			super.showDialog();			
 		}
@@ -363,56 +404,15 @@ public class ZTFObSource extends ZTFObSourceBase {
 		 */
 		@Override
 		protected void okAction() {
-			if (getSearchByID()) {
-				objectID = objectIDField.getValue();
-				if (objectID != null) objectID = objectID.trim();
-				if (objectID == null || "".equals(objectID) || !objectID.matches("[0-9]+")) {
-					objectIDField.getUIComponent().requestFocusInWindow();
-					MessageBox.showErrorDialog("ZTF", "ZTF object ID must be numeric");
-					return;
-				}
-			} else {
-				objectRadius = getDouble(objectRadiusField, 0, 0.005, true, true, "Radius must be >= 0 and <= 0.005");
-				if (objectRadius == null) {
-					return;
-				}
-				if (getCoordinateSearchManual()) {
-					objectRA = getDouble(objectRAField, 0, 360, true, false, "RA must be >= 0 and < 360");
-					if (objectRA == null) {
-						return;
-					}
-					objectDec = getDouble(objectDecField, -90, 90, true, true, "Dec must be >= -90 and <= 90");
-					if (objectDec == null) {
-						return;
-					}
-				}
-				else {
-					String vsxName = objectVSXNameField.getValue();
-					if (vsxName != null) vsxName = vsxName.trim();
-					if (vsxName == null || "".equals(vsxName)) {
-						objectVSXNameField.getUIComponent().requestFocusInWindow();
-						MessageBox.showErrorDialog("VSX", "VSX name must be specified");
-						return;
-					}
-					
-					try {
-						StarInfo starInfo = ResolveVSXidentifier(vsxName);
-						objectRA = starInfo.getRA().toDegrees();
-						objectDec = starInfo.getDec().toDegrees();
-					} catch (Exception e) {
-						objectVSXNameField.getUIComponent().requestFocusInWindow();
-						MessageBox.showErrorDialog("VSX", "Cannot resolve the VSX identifier.\nError message:\n" + 
-								e.getLocalizedMessage());
-						return;
-					}
-				}		
-			}
+			ztfURL = constructURL();
+			if (ztfURL == null)
+				return;
 			
 			cancelled = false;
 			setVisible(false);
 			dispose();
 		}
-
+		
 		private StarInfo ResolveVSXidentifier(String id) {
 			Cursor defaultCursor = getCursor();
 			setCursor(waitCursor);
