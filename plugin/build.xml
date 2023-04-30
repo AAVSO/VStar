@@ -80,7 +80,7 @@
 		<jar jarfile="${dist}/${pkg}.VeLaModelCreator.jar" basedir="${build.classes}" includes="**/VeLaModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaObservationTransformer.jar" basedir="${build.classes}" includes="**/VeLaObservationTransformer**.class" />
 		<jar jarfile="${dist}/${pkg}.JulianDateObservationsFilter.jar" basedir="${build.classes}" includes="**/JulianDateObservationsFilter**.class" />
-		<jar jarfile="${dist}/${pkg}.ZTFObSource.jar" basedir="${build.classes}" includes="**/ZTFObSource**.class" />
+		<jar jarfile="${dist}/${pkg}.ZTFObSource.jar" basedir="${build.classes}" includes="**/ZTFObSource**.class" excludes="**/ZTFObSourceBase**.class"/>
 		<jar jarfile="${dist}/${pkg}.ZTFFileObSource.jar" basedir="${build.classes}" includes="**/ZTFFileObSource**.class" />
 		<jar jarfile="${dist_lib}/${pkg_lib}.ZTFObSourceBase.jar" basedir="${build.classes}" includes="**/ZTFObSourceBase**.class" />
 		<jar jarfile="${dist}/${pkg}.GAIADR2XformObSource.jar" basedir="${build.classes}" includes="**/GAIADR2XformObSource**.class" />
