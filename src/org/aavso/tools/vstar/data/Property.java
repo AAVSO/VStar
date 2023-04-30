@@ -24,8 +24,10 @@ package org.aavso.tools.vstar.data;
  */
 public class Property {
 
+	public static Property NO_VALUE = new Property();
+
 	public static enum propType {
-		INTEGER, REAL, BOOLEAN, STRING
+		INTEGER, REAL, BOOLEAN, STRING, NONE
 	};
 
 	private propType type;
@@ -35,6 +37,10 @@ public class Property {
 	private boolean boolVal;
 	private String strVal;
 
+	public Property() {
+		type = propType.NONE;
+	}
+	
 	public Property(int val) {
 		type = propType.INTEGER;
 		intVal = val;
@@ -116,7 +122,7 @@ public class Property {
 
 	@Override
 	public String toString() {
-		String str = null;
+		String str;
 		
 		switch(type) {
 		case INTEGER:
@@ -131,6 +137,9 @@ public class Property {
 		case STRING:
 			str = strVal;
 			break;
+		case NONE:
+		default:
+			str = "";
 		}
 		
 		return str;

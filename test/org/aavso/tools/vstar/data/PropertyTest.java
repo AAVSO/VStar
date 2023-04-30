@@ -17,17 +17,15 @@
  */
 package org.aavso.tools.vstar.data;
 
-import static org.junit.Assert.*;
-
 import org.aavso.tools.vstar.util.Tolerance;
-import org.junit.Test;
+
+import junit.framework.TestCase;
 
 /**
  * Property class unit tests.
  */
-public class PropertyTest {
+public class PropertyTest extends TestCase {
 
-	@Test
 	public void testIntProp() {
 		Property prop = new Property(42);
 		assertEquals(Property.propType.INTEGER, prop.getType());
@@ -35,7 +33,6 @@ public class PropertyTest {
 		assertEquals("42", prop.toString());
 	}
 
-	@Test
 	public void testRealProp() {
 		Property prop = new Property(42.0);
 		assertEquals(Property.propType.REAL, prop.getType());
@@ -43,7 +40,6 @@ public class PropertyTest {
 		assertEquals("42.0", prop.toString());
 	}
 	
-	@Test
 	public void testBooleanProp() {
 		Property prop = new Property(true);
 		assertEquals(Property.propType.BOOLEAN, prop.getType());
@@ -51,7 +47,6 @@ public class PropertyTest {
 		assertEquals("true", prop.toString());
 	}
 	
-	@Test
 	public void testStringProp() {
 		Property prop = new Property("42");
 		assertEquals(Property.propType.STRING, prop.getType());
