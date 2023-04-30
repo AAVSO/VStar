@@ -269,8 +269,8 @@
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaModelCreator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObservationTransformer.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JulianDateObservationsFilter.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.ZTFObSource.jar$ => ${pkg_lib}.ZTFObSourceBase.jar{line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.ZTFFileObSource.jar$ => ${pkg_lib}.ZTFObSourceBase.jar{line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.ZTFObSource.jar => ${pkg_lib}.ZTFObSourceBase.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.ZTFFileObSource.jar => ${pkg_lib}.ZTFObSourceBase.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.GAIADR2XformObSource.jar => ${pkg_lib}.GaiaObSourceBase.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.GAIADR2XformFileObSource.jar => ${pkg_lib}.GaiaObSourceBase.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.KeplerFITSObservationSource.jar => tamfits.jar,org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase.jar${line.separator}" append="true" />

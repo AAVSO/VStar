@@ -43,7 +43,7 @@ public class ZTFFileObSource extends ZTFObSourceBase {
 	 */
 	@Override
 	public String getDescription() {
-		return "ZTF Photometry Format reader";
+		return "ZTF Photometry File Format reader";
 	}
 
 	/**
