@@ -63,4 +63,44 @@ public class PropertyTest extends TestCase {
 		assertEquals(Property.propType.NONE, prop.getType());
 		assertEquals(Void.class, prop.getClazz());
 	}
+	
+	public void testCompareInteger() {
+		Property prop1 = new Property(42);
+		Property prop2 = new Property(42);
+		assert prop1.compareTo(prop2) == 0;
+
+		Property prop3 = new Property(21);
+		assert prop1.compareTo(prop3) > 0;
+		assert prop3.compareTo(prop1) < 0;
+	}
+
+	public void testCompareReal() {
+		Property prop1 = new Property(42.0);
+		Property prop2 = new Property(42.0);
+		assert prop1.compareTo(prop2) == 0;
+
+		Property prop3 = new Property(21.0);
+		assert prop1.compareTo(prop3) > 0;
+		assert prop3.compareTo(prop1) < 0;
+	}
+
+	public void testCompareBoolean() {
+		Property prop1 = new Property(true);
+		Property prop2 = new Property(true);
+		assert prop1.compareTo(prop2) == 0;
+
+		Property prop3 = new Property(false);
+		assert prop1.compareTo(prop3) > 0;
+		assert prop3.compareTo(prop1) < 0;
+	}
+
+	public void testCompareString() {
+		Property prop1 = new Property("xyz");
+		Property prop2 = new Property("xyz");
+		assert prop1.compareTo(prop2) == 0;
+
+		Property prop3 = new Property("abc");		
+		assert prop1.compareTo(prop3) > 0;
+		assert prop3.compareTo(prop1) < 0;
+	}
 }

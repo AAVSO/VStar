@@ -41,7 +41,7 @@ public class Property implements Comparable {
 	public Property() {
 		type = propType.NONE;
 	}
-	
+
 	public Property(int val) {
 		type = propType.INTEGER;
 		intVal = val;
@@ -62,8 +62,6 @@ public class Property implements Comparable {
 		strVal = val != null ? val : "";
 	}
 
-	// TODO: make generic via class type and use Integer, Double, Boolean?
-	
 	public propType getType() {
 		return type;
 	}
@@ -83,11 +81,11 @@ public class Property implements Comparable {
 	public String getStrVal() {
 		return strVal;
 	}
-	
+
 	public Class<?> getClazz() {
 		Class<?> clazz;
 
-		switch(type) {
+		switch (type) {
 		case INTEGER:
 			clazz = Integer.class;
 			break;
@@ -150,8 +148,8 @@ public class Property implements Comparable {
 	@Override
 	public String toString() {
 		String str;
-		
-		switch(type) {
+
+		switch (type) {
 		case INTEGER:
 			str = String.valueOf(intVal);
 			break;
@@ -168,32 +166,33 @@ public class Property implements Comparable {
 		default:
 			str = "";
 		}
-		
+
 		return str;
 	}
 
 	@Override
 	public int compareTo(Object o) {
-		int result;
-		
-		// TODO: need !(o instanceof X) ? 0 part ?
-		
-		switch(type) {
-		case INTEGER:
-			result = !(o instanceof Integer) ? 0 : Integer.compare((Integer)o, intVal);
-			break;
-		case REAL:
-			result = !(o instanceof Double) ? 0 : Double.compare((Double)o, realVal);
-			break;
-		case BOOLEAN:
-			result = !(o instanceof Boolean) ? 0 : Boolean.compare((Boolean)o, boolVal);			
-			break;
-		case STRING:
-			result = !(o instanceof String) ? 0 : ((String)o).compareTo(strVal);
-			break;
-		case NONE:
-		default:
-			result = 0;
+		int result = 0;
+
+		if (o instanceof Property) {
+			Property p = (Property)o;
+			switch (type) {
+			case INTEGER:
+				result = Integer.compare(intVal, p.intVal);
+				break;
+			case REAL:
+				result = Double.compare(realVal, p.realVal);
+				break;
+			case BOOLEAN:
+				result = Boolean.compare(boolVal, p.boolVal); 
+				break;
+			case STRING:
+				result = strVal.compareTo(p.strVal);
+				break;
+			case NONE:
+			default:
+				result = 0;
+			}
 		}
 
 		return result;
