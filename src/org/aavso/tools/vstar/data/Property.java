@@ -22,9 +22,10 @@ package org.aavso.tools.vstar.data;
  * instances of this class in the context of ValidObservation where string
  * properties (details) would once have been used.
  */
-public class Property {
+// TODO: need <T> in both!
+public class Property implements Comparable {
 
-	public static Property NO_VALUE = new Property();
+	public final static Property NO_VALUE = new Property();
 
 	public static enum propType {
 		INTEGER, REAL, BOOLEAN, STRING, NONE
@@ -58,9 +59,11 @@ public class Property {
 
 	public Property(String val) {
 		type = propType.STRING;
-		strVal = val;
+		strVal = val != null ? val : "";
 	}
 
+	// TODO: make generic via class type and use Integer, Double, Boolean?
+	
 	public propType getType() {
 		return type;
 	}
@@ -79,6 +82,30 @@ public class Property {
 
 	public String getStrVal() {
 		return strVal;
+	}
+	
+	public Class<?> getClazz() {
+		Class<?> clazz;
+
+		switch(type) {
+		case INTEGER:
+			clazz = Integer.class;
+			break;
+		case REAL:
+			clazz = Double.class;
+			break;
+		case BOOLEAN:
+			clazz = Boolean.class;
+			break;
+		case STRING:
+			clazz = String.class;
+			break;
+		case NONE:
+		default:
+			clazz = Void.class;
+		}
+
+		return clazz;
 	}
 
 	@Override
@@ -143,5 +170,32 @@ public class Property {
 		}
 		
 		return str;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		int result;
+		
+		// TODO: need !(o instanceof X) ? 0 part ?
+		
+		switch(type) {
+		case INTEGER:
+			result = !(o instanceof Integer) ? 0 : Integer.compare((Integer)o, intVal);
+			break;
+		case REAL:
+			result = !(o instanceof Double) ? 0 : Double.compare((Double)o, realVal);
+			break;
+		case BOOLEAN:
+			result = !(o instanceof Boolean) ? 0 : Boolean.compare((Boolean)o, boolVal);			
+			break;
+		case STRING:
+			result = !(o instanceof String) ? 0 : ((String)o).compareTo(strVal);
+			break;
+		case NONE:
+		default:
+			result = 0;
+		}
+
+		return result;
 	}
 }

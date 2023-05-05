@@ -78,6 +78,8 @@ public class Operand {
 	private Operand() {
 	}
 
+	// TODO: add a Property to Operand method
+
 	/**
 	 * Given a VeLa type and a Java object, return an Operand instance.
 	 * 

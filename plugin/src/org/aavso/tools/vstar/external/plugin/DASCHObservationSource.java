@@ -198,7 +198,7 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 			ob.addDetail("ELLIPTICITY", ellipticity, "Ellipticity");
 			ob.addDetail("PLATE", plateNum, "Plate");
 			ob.addDetail("VERSION ID", versionID, "Version ID");
-			ob.addDetail("FLAGS", flags, "Flags");
+			ob.addDetail("FLAGS", Integer.valueOf(flags), "Flags");
 			collectObservation(ob);
 		}
 

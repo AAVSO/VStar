@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.data.InvalidObservation;
+import org.aavso.tools.vstar.data.Property;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
@@ -357,7 +358,7 @@ public abstract class AbstractObservationRetriever {
 
 		// Set source name for new obs (those in this retriever).
 		for (ValidObservation ob : validObservations) {
-			ob.addDetail("SOURCE", newSourceName, "Source");
+			ob.addDetail("SOURCE", new Property(newSourceName), "Source");
 		}
 
 		// Add previously existing obs (those passed to this method).

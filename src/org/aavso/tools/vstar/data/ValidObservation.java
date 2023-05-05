@@ -58,7 +58,7 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
  * <p>
  * When VStar was first developed, observation source plugins were not
  * anticipated, but should have been. The additional details members permit
- * other string-based information to be stored for an observation.
+ * other typed information to be stored for an observation.
  * </p>
  */
 public class ValidObservation extends Observation {
@@ -120,12 +120,16 @@ public class ValidObservation extends Observation {
 	private JDflavour jdFlavour = JDflavour.UNKNOWN;
 
 	// Optional string-based observation details.
-	private Map<String, String> details;
+	private Map<String, Property> details;
 
-	// Optional string-based observation detail titles, and shadow save
-	// collection.
+	// Optional observation detail titles, and shadow save collection.
 	private static Map<String, String> detailTitles = new HashMap<String, String>();
 	private static Map<String, String> savedDetailTitles = null;
+
+	// Optional observation detail types, and shadow save collection.
+	// @deprecated
+	private static Map<String, Class<?>> detailTypes = new HashMap<String, Class<?>>();
+	private static Map<String, Class<?>> savedDetailTypes = null;
 
 	// Ordering of keys via an index of insertion to titles table.
 	private static int detailIndex = 0;
@@ -199,10 +203,10 @@ public class ValidObservation extends Observation {
 	}
 
 	// A cache of detail values.
-	private static final WeakHashMap<String, String> detailValueCache;
+	private static final WeakHashMap<Property, Property> detailValueCache;
 
 	static {
-		detailValueCache = new WeakHashMap<String, String>();
+		detailValueCache = new WeakHashMap<Property, Property>();
 	}
 
 	/**
@@ -212,7 +216,7 @@ public class ValidObservation extends Observation {
 	 */
 	public ValidObservation() {
 		super(0);
-		details = new HashMap<String, String>();
+		details = new HashMap<String, Property>();
 	}
 
 	/**
@@ -242,7 +246,7 @@ public class ValidObservation extends Observation {
 		ob.setStandardPhase(this.getStandardPhase());
 		ob.setPreviousCyclePhase(this.getPreviousCyclePhase());
 		ob.setExcluded(this.isExcluded());
-		ob.details = new HashMap<String, String>(this.details);
+		ob.details = new HashMap<String, Property>(this.details);
 
 		return ob;
 	}
@@ -264,6 +268,11 @@ public class ValidObservation extends Observation {
 		if (detailTitles != null) {
 			savedDetailTitles = new HashMap<String, String>(detailTitles);
 			detailTitles.clear();
+		}
+		
+		if (detailTypes != null) {
+			savedDetailTypes = new HashMap<String, Class<?>>(detailTypes);
+			detailTypes.clear();
 		}
 
 		if (indexToDetailKey != null) {
@@ -291,6 +300,10 @@ public class ValidObservation extends Observation {
 
 		if (savedDetailTitles != null) {
 			detailTitles = savedDetailTitles;
+		}
+
+		if (savedDetailTypes != null) {
+			detailTypes = savedDetailTypes;
 		}
 
 		if (savedIndexToDetailKey != null) {
@@ -327,7 +340,7 @@ public class ValidObservation extends Observation {
 	/**
 	 * @return details map
 	 */
-	public Map<String, String> getDetails() {
+	public Map<String, Property> getDetails() {
 		return details;
 	}
 
@@ -336,6 +349,13 @@ public class ValidObservation extends Observation {
 	 */
 	public static Map<String, String> getDetailTitles() {
 		return detailTitles;
+	}
+
+	/**
+	 * @return the detail types
+	 */
+	public static Map<String, Class<?>> getDetailTypes() {
+		return detailTypes;
 	}
 
 	/**
@@ -362,16 +382,17 @@ public class ValidObservation extends Observation {
 	 * Add an observation detail, if the value is not null.
 	 * 
 	 * @param key   The detail key.
-	 * @param value The string detail value.
+	 * @param value The detail property value.
 	 * @param title The detail title, e.g. for use in table column, observation
 	 *              details.
 	 */
-	public void addDetail(String key, String value, String title) {
+	public void addDetail(String key, Property value, String title) {
 		if (key != null && value != null) {
 			value = getCachedValue(detailValueCache, value);
 			details.put(key, value);
 			if (!detailTitles.containsKey(key)) {
 				detailTitles.put(key, title);
+				detailTypes.put(key, value.getClazz());
 				indexToDetailKey.put(detailIndex, key);
 				detailKeyToIndex.put(key, detailIndex);
 				detailIndex++;
@@ -380,19 +401,74 @@ public class ValidObservation extends Observation {
 	}
 
 	/**
+	 * Add an observation detail, whose value is of type integer.
+	 * 
+	 * @param key   The detail key.
+	 * @param value The detail integer value.
+	 * @param title The detail title, e.g. for use in table column, observation
+	 *              details.
+	 */
+	public void addDetail(String key, Integer value, String title) {
+		addDetail(key, new Property(value), title);
+	}
+
+	/**
+	 * Add an observation detail, whose value is of type real.
+	 * 
+	 * @param key   The detail key.
+	 * @param value The detail real value.
+	 * @param title The detail title, e.g. for use in table column, observation
+	 *              details.
+	 */
+	public void addDetail(String key, Double value, String title) {
+		addDetail(key, new Property(value), title);
+	}
+
+	/**
+	 * Add an observation detail, whose value is of type Boolean.
+	 * 
+	 * @param key   The detail key.
+	 * @param value The detail Boolean value.
+	 * @param title The detail title, e.g. for use in table column, observation
+	 *              details.
+	 */
+	public void addDetail(String key, Boolean value, String title) {
+		addDetail(key, new Property(value), title);
+	}
+
+	/**
+	 * Add an observation detail, whose value is of type string.
+	 * 
+	 * @param key   The detail key.
+	 * @param value The detail string value.
+	 * @param title The detail title, e.g. for use in table column, observation
+	 *              details.
+	 */
+	public void addDetail(String key, String value, String title) {
+		addDetail(key, new Property(value), title);
+	}
+
+	/**
 	 * @return details map value given a key, if it exists, otherwise the empty
 	 *         string.
 	 */
-	public String getDetail(String key) {
-		return detailExists(key) ? details.get(key) : "";
+	public Property getDetail(String key) {
+		return detailExists(key) ? details.get(key) : Property.NO_VALUE;
 	}
 
 	/**
 	 * @return detail titles map value given a key
 	 */
-	public String getDetailTitle(String key) {
-		return detailTitles.get(key);
-	}
+//	public String getDetailTitle(String key) {
+//		return detailTitles.get(key);
+//	}
+
+	/**
+	 * @return detail types map value given a key
+	 */
+//	public Class<?> getDetailType(String key) {
+//		return detailTypes.get(key);
+//	}
 
 	/**
 	 * Does the specified detail key exist?
@@ -482,14 +558,14 @@ public class ValidObservation extends Observation {
 	 * @return the obsCode
 	 */
 	public String getObsCode() {
-		return getDetail(obsCodeKey);
+		return getDetail(obsCodeKey).getStrVal();
 	}
 
 	/**
 	 * @param obsCode the obsCode to set
 	 */
 	public void setObsCode(String obsCode) {
-		addDetail(obsCodeKey, obsCode, obsCodeTitle);
+		addDetail(obsCodeKey, new Property(obsCode), obsCodeTitle);
 	}
 
 	/**
@@ -515,14 +591,14 @@ public class ValidObservation extends Observation {
 	 * @return the name
 	 */
 	public String getName() {
-		return getDetail(nameKey);
+		return getDetail(nameKey).getStrVal();
 	}
 
 	/**
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
-		addDetail(nameKey, name, nameTitle);
+		addDetail(nameKey, new Property(name), nameTitle);
 	}
 
 	/**
@@ -607,56 +683,56 @@ public class ValidObservation extends Observation {
 	 * @return the compStar1
 	 */
 	public String getCompStar1() {
-		return getDetail(compStar1Key);
+		return getDetail(compStar1Key).getStrVal();
 	}
 
 	/**
 	 * @param compStar1 the compStar1 to set
 	 */
 	public void setCompStar1(String compStar1) {
-		addDetail(compStar1Key, compStar1, compStar1Title);
+		addDetail(compStar1Key, new Property(compStar1), compStar1Title);
 	}
 
 	/**
 	 * @return the compStar2
 	 */
 	public String getCompStar2() {
-		return getDetail(compStar2Key);
+		return getDetail(compStar2Key).getStrVal();
 	}
 
 	/**
 	 * @param compStar2 the compStar2 to set
 	 */
 	public void setCompStar2(String compStar2) {
-		addDetail(compStar2Key, compStar2, compStar2Title);
+		addDetail(compStar2Key, new Property(compStar2), compStar2Title);
 	}
 
 	/**
 	 * @return the charts
 	 */
 	public String getCharts() {
-		return getDetail(chartsKey);
+		return getDetail(chartsKey).getStrVal();
 	}
 
 	/**
 	 * @param charts the charts to set
 	 */
 	public void setCharts(String charts) {
-		addDetail(chartsKey, charts, chartsTitle);
+		addDetail(chartsKey, new Property(charts), chartsTitle);
 	}
 
 	/**
 	 * @return the comments
 	 */
 	public String getComments() {
-		return getDetail(commentsKey);
+		return getDetail(commentsKey).getStrVal();
 	}
 
 	/**
 	 * @param comments the comments to set
 	 */
 	public void setComments(String comments) {
-		addDetail(commentsKey, comments, commentsTitle);
+		addDetail(commentsKey, new Property(comments), commentsTitle);
 	}
 
 	/**
@@ -677,21 +753,21 @@ public class ValidObservation extends Observation {
 	 * @return the airmass
 	 */
 	public String getAirmass() {
-		return getDetail(airmassKey);
+		return getDetail(airmassKey).getStrVal();
 	}
 
 	/**
 	 * @param airmass the airmass to set
 	 */
 	public void setAirmass(String airmass) {
-		addDetail(airmassKey, airmass, airmassTitle);
+		addDetail(airmassKey, new Property(airmass), airmassTitle);
 	}
 
 	/**
 	 * @return the cMag
 	 */
 	public String getCMag() {
-		return getDetail(cMagKey);
+		return getDetail(cMagKey).getStrVal();
 	}
 
 	/**
@@ -701,21 +777,21 @@ public class ValidObservation extends Observation {
 		if ("0.ensemb".equals(cMag)) {
 			cMag = "Ensemble";
 		}
-		addDetail(cMagKey, cMag, cMagTitle);
+		addDetail(cMagKey, new Property(cMag), cMagTitle);
 	}
 
 	/**
 	 * @return the kMag
 	 */
 	public String getKMag() {
-		return getDetail(kMagKey);
+		return getDetail(kMagKey).getStrVal();
 	}
 
 	/**
 	 * @param kMag the kMag to set
 	 */
 	public void setKMag(String kMag) {
-		addDetail(kMagKey, kMag, kMagTitle);
+		addDetail(kMagKey, new Property(kMag), kMagTitle);
 	}
 
 	/**
@@ -736,14 +812,14 @@ public class ValidObservation extends Observation {
 	 * @return the affiliation
 	 */
 	public String getAffiliation() {
-		return getDetail(affiliationKey);
+		return getDetail(affiliationKey).getStrVal();
 	}
 
 	/**
 	 * @param affiliation the affiliation to set
 	 */
 	public void setAffiliation(String affiliation) {
-		addDetail(affiliationKey, affiliation, affiliationTitle);
+		addDetail(affiliationKey, new Property(affiliation), affiliationTitle);
 	}
 
 	/**
@@ -764,14 +840,14 @@ public class ValidObservation extends Observation {
 	 * @return the group
 	 */
 	public String getGroup() {
-		return getDetail(groupKey);
+		return getDetail(groupKey).getStrVal();
 	}
 
 	/**
 	 * @param group the group of filters used for this observation
 	 */
 	public void setGroup(String group) {
-		addDetail(groupKey, group, groupTitle);
+		addDetail(groupKey, new Property(group), groupTitle);
 	}
 
 	/**
@@ -792,42 +868,42 @@ public class ValidObservation extends Observation {
 	 * @return the ADS Reference
 	 */
 	public String getADSRef() {
-		return getDetail(pubrefKey);
+		return getDetail(pubrefKey).getStrVal();
 	}
 
 	/**
 	 * @param ADS Reference the ADS Reference to set
 	 */
 	public void setADSRef(String adsRef) {
-		addDetail(pubrefKey, adsRef, pubrefTitle);
+		addDetail(pubrefKey, new Property(adsRef), pubrefTitle);
 	}
 
 	/**
 	 * @return the digitizer
 	 */
 	public String getDigitizer() {
-		return getDetail(digitizerKey);
+		return getDetail(digitizerKey).getStrVal();
 	}
 
 	/**
 	 * @param digitizer the digitizer to set
 	 */
 	public void setDigitizer(String digitizer) {
-		addDetail(digitizerKey, digitizer, digitizerTitle);
+		addDetail(digitizerKey, new Property(digitizer), digitizerTitle);
 	}
 
 	/**
 	 * @return the credit
 	 */
 	public String getCredit() {
-		return getDetail(creditKey);
+		return getDetail(creditKey).getStrVal();
 	}
 
 	/**
 	 * @param credit the organization to be credited for the observation
 	 */
 	public void setCredit(String credit) {
-		addDetail(creditKey, credit, creditTitle);
+		addDetail(creditKey, new Property(credit), creditTitle);
 	}
 
 	/**

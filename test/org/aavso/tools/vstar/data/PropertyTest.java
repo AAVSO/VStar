@@ -31,6 +31,7 @@ public class PropertyTest extends TestCase {
 		assertEquals(Property.propType.INTEGER, prop.getType());
 		assertEquals(42, prop.getIntVal());
 		assertEquals("42", prop.toString());
+		assertEquals(Integer.class, prop.getClazz());
 	}
 
 	public void testRealProp() {
@@ -38,6 +39,7 @@ public class PropertyTest extends TestCase {
 		assertEquals(Property.propType.REAL, prop.getType());
 		Tolerance.areClose(42.0, prop.getRealVal(), 1e-6, true);
 		assertEquals("42.0", prop.toString());
+		assertEquals(Double.class, prop.getClazz());
 	}
 	
 	public void testBooleanProp() {
@@ -45,6 +47,7 @@ public class PropertyTest extends TestCase {
 		assertEquals(Property.propType.BOOLEAN, prop.getType());
 		assertEquals(true, prop.getBoolVal());
 		assertEquals("true", prop.toString());
+		assertEquals(Boolean.class, prop.getClazz());
 	}
 	
 	public void testStringProp() {
@@ -52,5 +55,12 @@ public class PropertyTest extends TestCase {
 		assertEquals(Property.propType.STRING, prop.getType());
 		assertEquals("42", prop.getStrVal());
 		assertEquals("42", prop.toString());
+		assertEquals(String.class, prop.getClazz());
+	}
+
+	public void testNoProp() {
+		Property prop = new Property();
+		assertEquals(Property.propType.NONE, prop.getType());
+		assertEquals(Void.class, prop.getClazz());
 	}
 }
