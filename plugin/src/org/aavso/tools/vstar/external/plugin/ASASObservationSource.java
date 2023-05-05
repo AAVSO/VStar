@@ -284,9 +284,9 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 			success &= 1 == asasObs.size();
 
 			ValidObservation ob = asasObs.get(0);
-			success &= "195229+0100.3".equals(ob.getDetail("DESIGNATION"));
-			success &= "30163".equals(ob.getDetail("FRAME"));
-			success &= "A".equals(ob.getDetail("CLASS"));
+			success &= "195229+0100.3".equals(ob.getDetail("DESIGNATION").getStrVal());
+			success &= "30163".equals(ob.getDetail("FRAME").getStrVal());
+			success &= "A".equals(ob.getDetail("CLASS").getStrVal());
 			success &= 2452140.58808 == ob.getJD();
 			success &= 5.114 == ob.getMag();
 			success &= 0.039 == ob.getMagnitude().getUncertainty();
