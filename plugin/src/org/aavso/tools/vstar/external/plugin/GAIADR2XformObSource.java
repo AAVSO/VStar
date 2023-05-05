@@ -18,6 +18,11 @@
 package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Container;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -26,6 +31,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -88,19 +94,8 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 			paramGaiaRelease = paramDialog.isGaiaDR2() ? GaiaRelease.DR2 : GaiaRelease.DR3;			
 			setAdditive(paramDialog.isLoadAdditive());
 
+			String url = paramDialog.getGaiaURL();
 			try {
-				String releaseStr = "&RELEASE=Gaia+DR";  
-				switch (paramGaiaRelease) {
-					case DR2:
-						releaseStr += "2";
-						break;
-					case DR3:
-						releaseStr += "3";
-						break;
-					default:
-						releaseStr = "";
-				}
-				String url = BASE_URL + paramDialog.getSourceID() + releaseStr;
 				urls.add(new URL(url));
 			} catch (MalformedURLException e) {
 				throw new ObservationReadError("Cannot construct Gaia"
@@ -141,7 +136,7 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 		private JRadioButton gaiaDR2;
 		private JRadioButton gaiaDR3;
 		
-		private String sourceID;
+		private String gaiaURL = null;
 
 		/**
 		 * Constructor
@@ -158,6 +153,8 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 			topPane.add(createReleaseRadioButtonsPane(false));
 			
 			topPane.add(createParameterPane());
+			
+			topPane.add(createGetURLPane());
 			
 			topPane.add(createIgnoreRejectFlagsCheckboxPane(false));
 
@@ -235,9 +232,33 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 
 			return panel;
 		}
+		
+		private JPanel createGetURLPane() {
+			JPanel panel = new JPanel();
+			panel.setBorder(BorderFactory.createTitledBorder("URL"));
 
-		public String getSourceID() {
-			return sourceID;
+			JButton getUrlButton = new JButton("Copy Gaia URL to clipboard");
+			
+			getUrlButton.addActionListener(
+					new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							String url = constructURL();
+							if (url != null) {
+								Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+								clipboard.setContents(new StringSelection(url), null);
+								MessageBox.showMessageDialog("Gaia", "Gaia URL has been copied to the clipboard");
+							}
+						}
+					}
+				);
+			
+			panel.add(getUrlButton);
+
+			return panel;
+		}
+
+		public String getGaiaURL() {
+			return gaiaURL;
 		}
 
 		/**
@@ -285,7 +306,7 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 
 		@Override
 		public void showDialog() {
-			sourceID = null;
+			gaiaURL = null;
 
 			SwingUtilities.invokeLater( new Runnable() { 
 				public void run() {
@@ -309,18 +330,27 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 		 */
 		@Override
 		protected void okAction() {
-			sourceID = sourceIDField.getValue();
-			if (sourceID != null) sourceID = sourceID.trim();
-			if (sourceID == null || "".equals(sourceID) || !sourceID.matches("[0-9]+")) {
-				sourceIDField.getUIComponent().requestFocusInWindow();
-				MessageBox.showErrorDialog("Gaia", "Gaia source ID must be numeric");
+			gaiaURL = constructURL();
+			if (gaiaURL == null)
 				return;
-			}
 
 			cancelled = false;
 			setVisible(false);
 			dispose();
 		}
+		
+		private String constructURL() {
+			String sourceID = sourceIDField.getValue();
+			if (sourceID != null) sourceID = sourceID.trim();
+			if (sourceID == null || "".equals(sourceID) || !sourceID.matches("[0-9]+")) {
+				sourceIDField.getUIComponent().requestFocusInWindow();
+				MessageBox.showErrorDialog("Gaia", "Gaia source ID must be numeric");
+				return null;
+			}
+			
+			return BASE_URL + sourceID + "&RELEASE=Gaia+DR" + (isGaiaDR2() ? "2" : "3");
+		}
+		
 	}
 
 }
