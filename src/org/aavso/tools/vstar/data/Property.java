@@ -119,7 +119,7 @@ public class Property implements Comparable {
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -145,30 +145,6 @@ public class Property implements Comparable {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		String str;
-
-		switch (type) {
-		case INTEGER:
-			str = String.valueOf(intVal);
-			break;
-		case REAL:
-			str = String.valueOf(realVal);
-			break;
-		case BOOLEAN:
-			str = String.valueOf(boolVal);
-			break;
-		case STRING:
-			str = strVal;
-			break;
-		case NONE:
-		default:
-			str = "";
-		}
-
-		return str;
-	}
 
 	@Override
 	public int compareTo(Object o) {
@@ -196,5 +172,30 @@ public class Property implements Comparable {
 		}
 
 		return result;
+	}
+
+	@Override
+	public String toString() {
+		String str;
+
+		switch (type) {
+		case INTEGER:
+			str = String.valueOf(intVal);
+			break;
+		case REAL:
+			str = String.valueOf(realVal);
+			break;
+		case BOOLEAN:
+			str = String.valueOf(boolVal);
+			break;
+		case STRING:
+			str = strVal;
+			break;
+		case NONE:
+		default:
+			str = "";
+		}
+
+		return str;
 	}
 }

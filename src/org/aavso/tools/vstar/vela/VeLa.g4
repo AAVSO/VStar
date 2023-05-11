@@ -55,6 +55,11 @@ grammar VeLa;
 // - Allow a type called ANY or variant types such as (real | string | list)
 // - Refinement types ala Wadler's complement to blame, e.g. f(n:real{n >= 0})
 // - Doc strings for functions; use ;; rather than -- ?
+// - Bitwise operators:
+//   o AND, OR, NOT but just applied to integers
+//   o add XOR
+//   o {lr}shift/rot?
+//   o binary literals
 
 // ** Parser rules **
 

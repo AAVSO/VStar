@@ -472,7 +472,14 @@ public class VeLaInterpreter {
 					}
 					break;
 				case NOT:
-					stack.push(new Operand(Type.BOOLEAN, !operand.booleanVal()));
+					switch(operand.getType()) {
+					case BOOLEAN:
+						stack.push(new Operand(Type.BOOLEAN, !operand.booleanVal()));
+						break;
+					case INTEGER:
+						stack.push(new Operand(Type.INTEGER, ~operand.intVal()));
+						break;
+					}
 					break;
 				default:
 					break;
@@ -753,10 +760,24 @@ public class VeLaInterpreter {
 			}
 			break;
 		case AND:
-			stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() & operand2.booleanVal()));
+			switch (type) {
+			case BOOLEAN:
+				stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() & operand2.booleanVal()));
+				break;
+			case INTEGER:
+				stack.push(new Operand(Type.INTEGER, operand1.intVal() & operand2.intVal()));
+				break;
+			}
 			break;
 		case OR:
-			stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() | operand2.booleanVal()));
+			switch (type) {
+			case BOOLEAN:
+				stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() | operand2.booleanVal()));
+				break;
+			case INTEGER:
+				stack.push(new Operand(Type.INTEGER, operand1.intVal() | operand2.intVal()));
+				break;
+			}
 			break;
 		case EQUAL:
 			switch (type) {
