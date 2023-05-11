@@ -149,9 +149,17 @@ booleanExpression
 
 conjunctiveExpression
 :
+    exclusiveOrExpression
+    (
+        AND exclusiveOrExpression
+    )*
+;
+
+exclusiveOrExpression
+:
     logicalNegationExpression
     (
-        AND logicalNegationExpression
+        XOR logicalNegationExpression
     )*
 ;
 
@@ -505,6 +513,11 @@ AND
     [Aa] [Nn] [Dd]
 ;
 
+XOR
+:
+    [Xx] [Oo] [Rr]
+;
+
 OR
 :
     [Oo] [Rr]
@@ -552,6 +565,8 @@ FALSE
 :
     [Ff] [Aa] [Ll] [Ss] [Ee]
 ;
+
+// TODO: add hex and bin digits with 0x and 0b prefixes
 
 fragment
 DIGIT

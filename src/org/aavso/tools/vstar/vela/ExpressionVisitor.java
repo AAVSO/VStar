@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.BlockContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BoolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.BooleanExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ConjunctiveExpressionContext;
+import org.aavso.tools.vstar.vela.VeLaParser.ExclusiveOrExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExponentiationExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.ExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.FactorContext;
@@ -159,6 +160,11 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 
 	@Override
 	public AST visitConjunctiveExpression(ConjunctiveExpressionContext ctx) {
+		return dyadicRule(ctx, ctx.exclusiveOrExpression(0).accept(this));
+	}
+
+	@Override
+	public AST visitExclusiveOrExpression(ExclusiveOrExpressionContext ctx) {
 		return dyadicRule(ctx, ctx.logicalNegationExpression(0).accept(this));
 	}
 

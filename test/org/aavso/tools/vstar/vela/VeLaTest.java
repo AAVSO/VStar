@@ -299,6 +299,41 @@ public class VeLaTest extends TestCase {
 		assertFalse(vela.booleanExpression("false"));
 	}
 
+	// Bitwise operations
+
+	public void testIntegerBitwiseAnd() {
+		Optional<Operand> maybeOperand = vela.program("10 and 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(2, operand.intVal());
+	}
+
+	public void testIntegerBitwiseOr() {
+		Optional<Operand> maybeOperand = vela.program("8 or 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(10, operand.intVal());
+	}
+
+	public void testIntegerBitwiseXor() {
+		Optional<Operand> maybeOperand = vela.program("10 xor 5");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(15, operand.intVal());
+	}
+
+	public void testIntegerBitwiseNot() {
+		// Note: "and 15" masks out all but the least significant 4 bits
+		Optional<Operand> maybeOperand = vela.program("not 8 and 15");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(7, operand.intVal());
+	}
+
 	// Relational expressions
 
 	public void testRealEquality() {
@@ -431,33 +466,6 @@ public class VeLaTest extends TestCase {
 		vela.pushEnvironment(new VeLaEnvironment<Operand>(env, boundConstants));
 		boolean result = vela.booleanExpression("not raining");
 		assertTrue(result);
-	}
-
-	// Bitwise operations
-	
-	public void testIntegerBitwiseAnd() {
-		Optional<Operand> maybeOperand = vela.program("10 and 2");
-		assert maybeOperand.isPresent();
-		Operand operand = maybeOperand.get();
-		assertEquals(Type.INTEGER, operand.getType());
-		assertEquals(2, operand.intVal());
-	}
-
-	public void testIntegerBitwiseOr() {
-		Optional<Operand> maybeOperand = vela.program("8 or 2");
-		assert maybeOperand.isPresent();
-		Operand operand = maybeOperand.get();
-		assertEquals(Type.INTEGER, operand.getType());
-		assertEquals(10, operand.intVal());
-	}
-
-	public void testIntegerBitwiseNot() {
-		// Note: "and 15" masks out all but the least significant 4 bits
-		Optional<Operand> maybeOperand = vela.program("not 8 and 15");
-		assert maybeOperand.isPresent();
-		Operand operand = maybeOperand.get();
-		assertEquals(Type.INTEGER, operand.getType());
-		assertEquals(7, operand.intVal());
 	}
 	
 	// Variables

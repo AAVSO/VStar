@@ -769,6 +769,16 @@ public class VeLaInterpreter {
 				break;
 			}
 			break;
+		case XOR:
+			switch (type) {
+			case BOOLEAN:
+				stack.push(new Operand(Type.BOOLEAN, operand1.booleanVal() ^ operand2.booleanVal()));
+				break;
+			case INTEGER:
+				stack.push(new Operand(Type.INTEGER, operand1.intVal() ^ operand2.intVal()));
+				break;
+			}
+			break;
 		case OR:
 			switch (type) {
 			case BOOLEAN:
