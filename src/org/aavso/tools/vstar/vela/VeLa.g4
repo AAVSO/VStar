@@ -141,25 +141,26 @@ whileLoop
 
 booleanExpression
 :
+    exclusiveOrExpression
+    (
+        OR exclusiveOrExpression
+    )*
+;
+
+
+exclusiveOrExpression
+:
     conjunctiveExpression
     (
-        OR conjunctiveExpression
+        XOR conjunctiveExpression
     )*
 ;
 
 conjunctiveExpression
 :
-    exclusiveOrExpression
-    (
-        AND exclusiveOrExpression
-    )*
-;
-
-exclusiveOrExpression
-:
     logicalNegationExpression
     (
-        XOR logicalNegationExpression
+        AND logicalNegationExpression
     )*
 ;
 

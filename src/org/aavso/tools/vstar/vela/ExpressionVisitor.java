@@ -155,16 +155,16 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 
 	@Override
 	public AST visitBooleanExpression(BooleanExpressionContext ctx) {
-		return dyadicRule(ctx, ctx.conjunctiveExpression(0).accept(this));
-	}
-
-	@Override
-	public AST visitConjunctiveExpression(ConjunctiveExpressionContext ctx) {
 		return dyadicRule(ctx, ctx.exclusiveOrExpression(0).accept(this));
 	}
 
 	@Override
 	public AST visitExclusiveOrExpression(ExclusiveOrExpressionContext ctx) {
+		return dyadicRule(ctx, ctx.conjunctiveExpression(0).accept(this));
+	}
+
+	@Override
+	public AST visitConjunctiveExpression(ConjunctiveExpressionContext ctx) {
 		return dyadicRule(ctx, ctx.logicalNegationExpression(0).accept(this));
 	}
 
