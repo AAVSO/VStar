@@ -45,6 +45,7 @@ import org.aavso.tools.vstar.vela.VeLaParser.RealContext;
 import org.aavso.tools.vstar.vela.VeLaParser.RelationalExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SelectionExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SequenceContext;
+import org.aavso.tools.vstar.vela.VeLaParser.ShiftExpressionContext;
 import org.aavso.tools.vstar.vela.VeLaParser.StringContext;
 import org.aavso.tools.vstar.vela.VeLaParser.SymbolContext;
 import org.aavso.tools.vstar.vela.VeLaParser.TypeContext;
@@ -62,7 +63,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 
 	private VeLaInterpreter interpreter;
-	
+
 	public ExpressionVisitor(VeLaInterpreter interpreter) {
 		this.interpreter = interpreter;
 	}
@@ -84,22 +85,19 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 		AST symbol = ctx.symbol().accept(this);
 		String binder = ctx.getChild(1).getText();
 		AST value = ctx.expression().accept(this);
-		return new AST("<-".equals(binder) ? Operation.BIND : Operation.IS,
-				symbol, value);
+		return new AST("<-".equals(binder) ? Operation.BIND : Operation.IS, symbol, value);
 	}
 
 	@Override
 	public AST visitWhileLoop(WhileLoopContext ctx) {
-		return new AST(Operation.WHILE, ctx.booleanExpression().accept(this),
-				ctx.block().accept(this));
+		return new AST(Operation.WHILE, ctx.booleanExpression().accept(this), ctx.block().accept(this));
 	}
 
 	@Override
 	public AST visitNamedFundef(NamedFundefContext ctx) {
 		AST ast = new AST(Operation.FUNDEF);
 		ast.addChild(ctx.symbol().accept(this));
-		ctx.formalParameter()
-				.forEach(param -> ast.addChild(param.accept(this)));
+		ctx.formalParameter().forEach(param -> ast.addChild(param.accept(this)));
 		if (ctx.type() != null) {
 			// Optional return type
 			ast.addChild(ctx.type().accept(this));
@@ -111,8 +109,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	@Override
 	public AST visitAnonFundef(AnonFundefContext ctx) {
 		AST ast = new AST(Operation.FUNDEF);
-		ctx.formalParameter()
-				.forEach(param -> ast.addChild(param.accept(this)));
+		ctx.formalParameter().forEach(param -> ast.addChild(param.accept(this)));
 		if (ctx.type() != null) {
 			// Optional return type
 			ast.addChild(ctx.type().accept(this));
@@ -169,8 +166,7 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	}
 
 	@Override
-	public AST visitLogicalNegationExpression(
-			LogicalNegationExpressionContext ctx) {
+	public AST visitLogicalNegationExpression(LogicalNegationExpressionContext ctx) {
 		AST ast = ctx.relationalExpression().accept(this);
 
 		if ("not".equalsIgnoreCase(ctx.getChild(0).getText())) {
@@ -182,6 +178,11 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 
 	@Override
 	public AST visitRelationalExpression(RelationalExpressionContext ctx) {
+		return dyadicRule(ctx, ctx.shiftExpression(0).accept(this));
+	}
+
+	@Override
+	public AST visitShiftExpression(ShiftExpressionContext ctx) {
 		return dyadicRule(ctx, ctx.additiveExpression(0).accept(this));
 	}
 
@@ -288,7 +289,19 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	@Override
 	public AST visitInteger(IntegerContext ctx) {
 		String token = ctx.INTEGER().getText();
-		Operand intLiteral = new Operand(Type.INTEGER, Long.parseLong(token));
+		int radix = 10;
+		if (token.length() > 2) {
+			String prefix = token.substring(0, 2);
+			if (prefix.equalsIgnoreCase("0b")) {
+				token = token.substring(2);
+				radix = 2;
+			}
+			if (prefix.equalsIgnoreCase("0x")) {
+				token = token.substring(2);
+				radix = 16;
+			}
+		}
+		Operand intLiteral = new Operand(Type.INTEGER, Long.parseLong(token, radix));
 		return new AST(token, intLiteral);
 	}
 
@@ -331,10 +344,8 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	/**
 	 * A general method to handle dyadic productions.
 	 * 
-	 * @param ctx
-	 *            The rule's context.
-	 * @param left
-	 *            The initial left AST.
+	 * @param ctx  The rule's context.
+	 * @param left The initial left AST.
 	 * @return The final AST.
 	 */
 	private AST dyadicRule(RuleContext ctx, AST left) {
@@ -357,14 +368,14 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 	/**
 	 * Optionally optimse a dyadic AST in the presence of literal children.
 	 * 
-	 * @param op the operation
-	 * @param left the left child AST
+	 * @param op    the operation
+	 * @param left  the left child AST
 	 * @param right the right child AST
 	 * @return optionally optimised AST
 	 */
 	private AST optimisedDyadicOpAST(String op, AST left, AST right) {
 		AST ast = null;
-		
+
 		if (left.isLiteral() && right.isLiteral()) {
 			// perform a constant folding optimisation for dyadic
 			// expressions in the presence of literal children by
@@ -383,14 +394,14 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 		} else {
 			ast = new AST(Operation.getBinaryOp(op), left, right);
 		}
-		
+
 		return ast;
 	}
 
 	/**
 	 * Optionally optimse a monadic AST in the presence of a literal child.
 	 * 
-	 * @param op the operation
+	 * @param op  the operation
 	 * @param ast the child AST
 	 * @return optionally optimised AST
 	 */
@@ -413,23 +424,21 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 		} else {
 			ast = new AST(op, ast);
 		}
-		
+
 		return ast;
 	}
-	
+
 	// TODO: move into a numeric utils class with a static import
 
 	/**
 	 * Parse a string, returning a double primitive value, or if no valid double
-	 * value is present, throw a NumberFormatException. The string is first
-	 * trimmed of leading and trailing whitespace.
+	 * value is present, throw a NumberFormatException. The string is first trimmed
+	 * of leading and trailing whitespace.
 	 * 
-	 * @param str
-	 *            The string that (hopefully) contains a number.
-	 * @return The double value corresponding to the initial parseable portion
-	 *         of the string.
-	 * @throws NumberFormatException
-	 *             If no valid double value is present.
+	 * @param str The string that (hopefully) contains a number.
+	 * @return The double value corresponding to the initial parseable portion of
+	 *         the string.
+	 * @throws NumberFormatException If no valid double value is present.
 	 */
 	private double parseDouble(String str) throws NumberFormatException {
 		if (str == null) {
@@ -452,8 +461,10 @@ public class ExpressionVisitor extends VeLaBaseVisitor<AST> {
 			// We use parsePosition to be sure that the input string is parsed to the end.
 			// Without parsePosition the parse() method may return a valid result for
 			// a part of the string (parsing is terminated at the first invalid symbol).
-			// For example, a string "1.234" parsed under uk_UA, fr_FR, or other European locales
-			// without parsePosition is converted to 1. If parsePosition is used, we can check
+			// For example, a string "1.234" parsed under uk_UA, fr_FR, or other European
+			// locales
+			// without parsePosition is converted to 1. If parsePosition is used, we can
+			// check
 			// if the string is parsed completely and throw an exception if not.
 			Number number = FORMAT.parse(str, parsePosition);
 			if (number == null) {

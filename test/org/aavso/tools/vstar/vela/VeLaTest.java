@@ -301,8 +301,32 @@ public class VeLaTest extends TestCase {
 
 	// Bitwise operations
 
-	public void testIntegerBitwiseAnd() {
+	public void testIntegerBitwiseAndDecimal() {
 		Optional<Operand> maybeOperand = vela.program("10 and 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(2, operand.intVal());
+	}
+
+	public void testIntegerBitwiseAndBinary() {
+		Optional<Operand> maybeOperand = vela.program("0b1010 and 0B10");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(0b10, operand.intVal());
+	}
+
+	public void testIntegerBitwiseAndHexadecimalUpper() {
+		Optional<Operand> maybeOperand = vela.program("0xA and 0X2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(2, operand.intVal());
+	}
+
+	public void testIntegerBitwiseAndHexadecimalLower() {
+		Optional<Operand> maybeOperand = vela.program("0xa and 2");
 		assert maybeOperand.isPresent();
 		Operand operand = maybeOperand.get();
 		assertEquals(Type.INTEGER, operand.getType());
@@ -334,6 +358,30 @@ public class VeLaTest extends TestCase {
 		assertEquals(7, operand.intVal());
 	}
 
+	public void testIntegerShiftLeft() {
+		Optional<Operand> maybeOperand = vela.program("1 << 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(4, operand.intVal());
+	}
+
+	public void testIntegerShiftRightMSBZero() {
+		Optional<Operand> maybeOperand = vela.program("4 >> 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(1, operand.intVal());
+	}
+
+	public void testIntegerShiftRightMSBOne() {
+		Optional<Operand> maybeOperand = vela.program("(not 0) >> 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(~0, operand.intVal());
+	}
+	
 	// Relational expressions
 
 	public void testRealEquality() {

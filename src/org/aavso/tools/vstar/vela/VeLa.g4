@@ -55,11 +55,6 @@ grammar VeLa;
 // - Allow a type called ANY or variant types such as (real | string | list)
 // - Refinement types ala Wadler's complement to blame, e.g. f(n:real{n >= 0})
 // - Doc strings for functions; use ;; rather than -- ?
-// - Bitwise operators:
-//   o AND, OR, NOT but just applied to integers
-//   o add XOR
-//   o {lr}shift/rot?
-//   o binary literals
 
 // ** Parser rules **
 
@@ -171,7 +166,7 @@ logicalNegationExpression
 
 relationalExpression
 :
-    additiveExpression
+    shiftExpression
     (
         (
             EQUAL
@@ -182,8 +177,20 @@ relationalExpression
             | LESS_THAN_OR_EQUAL
             | APPROXIMATELY_EQUAL
             | IN
-        ) additiveExpression
+        ) shiftExpression
     )?
+;
+
+shiftExpression
+:
+    additiveExpression
+    (
+        (
+            SHIFT_LEFT
+            | SHIFT_RIGHT
+            
+        ) additiveExpression
+    )*
 ;
 
 additiveExpression
@@ -462,6 +469,16 @@ APPROXIMATELY_EQUAL
     '=~'
 ;
 
+SHIFT_LEFT
+:
+    '<<'
+;
+
+SHIFT_RIGHT
+:
+    '>>'
+;
+
 // Homage to SQL, Python, ...
 
 IN
@@ -531,21 +548,23 @@ NOT
 
 INTEGER
 :
-    DIGIT+
+    DEC_DIGIT+
+    | ([0] [Xx] HEX_DIGIT+)
+    | ([0] [Bb] BIN_DIGIT+)
 ;
 
 REAL
 :
-    DIGIT+
+    DEC_DIGIT+
     (
-        POINT DIGIT+
+        POINT DEC_DIGIT+
     )?
     (
-        EXPONENT_INDICATOR MINUS? DIGIT+
+        EXPONENT_INDICATOR MINUS? DEC_DIGIT+
     )?
-    | POINT DIGIT+
+    | POINT DEC_DIGIT+
     (
-        EXPONENT_INDICATOR MINUS? DIGIT+
+        EXPONENT_INDICATOR MINUS? DEC_DIGIT+
     )?
 ;
 
@@ -567,12 +586,22 @@ FALSE
     [Ff] [Aa] [Ll] [Ss] [Ee]
 ;
 
-// TODO: add hex and bin digits with 0x and 0b prefixes
-
 fragment
-DIGIT
+DEC_DIGIT
 :
     [0-9]
+;
+
+fragment
+HEX_DIGIT
+:
+    DEC_DIGIT | [a-z] | [A-Z]
+;
+
+fragment
+BIN_DIGIT
+:
+    [0-1]
 ;
 
 fragment
@@ -599,7 +628,7 @@ IDENT
     )
     (
         LETTER
-        | DIGIT
+        | DEC_DIGIT
         | SYMBOL
     )*
 ;

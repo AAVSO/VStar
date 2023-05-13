@@ -892,6 +892,20 @@ public class VeLaInterpreter {
 				stack.push(new Operand(Type.BOOLEAN, operand2.stringVal().contains(operand1.stringVal())));
 			}
 			break;
+		case SHL:
+			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.INTEGER, operand1.intVal() << operand2.intVal()));
+				break;
+			}
+			break;
+		case SHR:
+			switch (type) {
+			case INTEGER:
+				stack.push(new Operand(Type.INTEGER, operand1.intVal() >> operand2.intVal()));
+				break;
+			}
+			break;
 		default:
 			break;
 		}
