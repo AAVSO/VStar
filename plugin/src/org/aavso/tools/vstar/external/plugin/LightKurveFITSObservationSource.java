@@ -21,27 +21,22 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.aavso.tools.vstar.data.DateInfo;
-import org.aavso.tools.vstar.data.InvalidObservation;
-import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
-import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.exception.ObservationReadError;
+import org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
-import org.aavso.tools.vstar.ui.mediator.StarInfo;
 
 import nom.tam.fits.BasicHDU;
 import nom.tam.fits.BinaryTableHDU;
-import nom.tam.fits.Fits;
-import nom.tam.fits.FitsException;
 import nom.tam.fits.ImageHDU;
 
 // PMAK, 2020-APR-24
 // 1) LightKurve FITS loader based on KEPLER/TESS plugin version 0.2
 // PMAK, 2020-SEP-09
 // 1) Added common VeLa filter support
+// PMAK, 2023-03-28
+// 1) LightKurveFITSObservationRetriever inherits TESSObservationRetrieverBase
 
 /**
  * LightKurve FITS loader
@@ -73,12 +68,12 @@ public class LightKurveFITSObservationSource extends ObservationSourcePluginBase
 
 	@Override
 	public String getDescription() {
-		return "Lightkurve output observation source v0.2";
+		return "Lightkurve output observation source v0.4";
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "New Star from Lightkurve FITS File v0.2...";
+		return "New Star from Lightkurve FITS File v0.4...";
 	}
 
 	@Override
@@ -93,173 +88,76 @@ public class LightKurveFITSObservationSource extends ObservationSourcePluginBase
 		return new LightKurveFITSObservationRetriever();
 	}
 
-	private class RawObservationData {
-		int row;
-		double time;
-		double intensity;
-		double error;
-	}
+	class LightKurveFITSObservationRetriever extends TESSObservationRetrieverBase {
 
-	class LightKurveFITSObservationRetriever extends AbstractObservationRetriever {
-
-		private BasicHDU[] hdus = null;
-		
-		private String objName = null;
-		
 		public LightKurveFITSObservationRetriever() {
-			super(getVelaFilterStr());
+			super(LightKurveFITSObservationSource.this);
 		}
 
 		@Override
-		public void retrieveObservations() throws ObservationReadError,
-				InterruptedException {
-					
-			setBarycentric(true);
-			try {
-				// BasicHDU initialization moved to getNumberOfRecords
-				retrieveLightKurveObservations(hdus);
-			} catch (Exception e) {
-				throw new ObservationReadError(e.getLocalizedMessage());
+		public boolean validateFITS(BasicHDU[] hdus) {
+			if (!(hdus.length > 1 && hdus[0] instanceof ImageHDU && hdus[1] instanceof BinaryTableHDU))
+				return false;
+			BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
+			if (!"TIME".equals(tableHDU.getColumnName(0)) ||
+				!"FLUX".equals(tableHDU.getColumnName(1)) ||
+				!"FLUX_ERR".equals(tableHDU.getColumnName(2))) {
+				return false;
 			}
+			return true;
 		}
-
-		// Collect observations from the table
-		private void retrieveLightKurveObservations(BasicHDU[] hdus)
-				throws FitsException, ObservationReadError {
-
-			// LightKurve FITS contains primary HDU having keywords only, binary table extension, and image extension (aperture).
-			if (hdus.length > 1 && hdus[0] instanceof ImageHDU && hdus[1] instanceof BinaryTableHDU) {
-
-				// Lists to store observations before median level adjust
-				List<RawObservationData> rawObsList = new ArrayList<RawObservationData>();
-				List<InvalidObservation> invalidObsList = new ArrayList<InvalidObservation>();
-
-				ImageHDU imageHDU = (ImageHDU) hdus[0];
-				String telescope = imageHDU.getTelescope();
-				
-				SeriesType lightKurveSeries = dataSeriesLightKurve;
-				
-				BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
-
-				// PMAK: Check field names to be sure we are using correct FITS.
-				if (!"TIME".equals(tableHDU.getColumnName(0)) ||
-					!"FLUX".equals(tableHDU.getColumnName(1)) ||
-					!"FLUX_ERR".equals(tableHDU.getColumnName(2))) {
-					throw new ObservationReadError("Not a valid FITS file");
-				}
-
-				double timeConstant = 0;
-				if ("TESS".equals(telescope)) {
-					lightKurveSeries = dataSeriesLightKurveTESS;
-					timeConstant = 2457000;
-				}
-				if ("Kepler".equals(telescope)) {
-					lightKurveSeries = dataSeriesLightKurveKepler;
-					timeConstant = 2454833;
-				}
-				
-				for (int row = 0; row < tableHDU.getNRows()	&& !wasInterrupted(); row++) {
-					try {
-						double barytime = ((double[]) tableHDU.getElement(row, 0))[0];
-						float flux      = ((float[]) tableHDU.getElement(row, 1))[0];
-						float flux_err  = ((float[]) tableHDU.getElement(row, 2))[0];
-
-						if (!Float.isInfinite(flux)
-								&& !Float.isInfinite(flux_err)
-								&& !Float.isNaN(flux)
-								&& !Float.isNaN(flux_err)) {
-
-							double bjd = barytime + timeConstant;
-							// Store data to temporary list
-							RawObservationData rawObs = new RawObservationData();
-							rawObs.row = row;
-							rawObs.time = bjd;
-							rawObs.intensity = flux;
-							rawObs.error = flux_err;
-							rawObsList.add(rawObs);
-						}
-					} catch (Exception e) {
-						String input = tableHDU.getRow(row).toString();
-						String error = e.getLocalizedMessage();
-						InvalidObservation ob = new InvalidObservation(input, error);
-						ob.setRecordNumber(row);
-						// Store observation in a temporary list
-						//addInvalidObservation(ob);
-						invalidObsList.add(ob);
-					}
-				}
-
-				// Calculating magShift (median of all points)
-				double magShift = 15.0; // arbitrary value
-				
-				// There was code in Kepler/TESS plugin to determine zero level.
-				// There is no info in LightKurve header to do such adjustment.
-				
-				for (RawObservationData rawObs : rawObsList) {
-					double mag = magShift - 2.5 * Math.log10(rawObs.intensity);
-					double magErr = 1.086 * rawObs.error / rawObs.intensity;
-
-					ValidObservation ob = new ValidObservation();
-					if (objName != null && !"".equals(objName.trim())) {
-						ob.setName(objName);
-					} else {
-						ob.setName(getInputName());
-					}
-					ob.setDateInfo(new DateInfo(rawObs.time));
-					ob.setMagnitude(new Magnitude(mag, magErr));
-					ob.setBand(lightKurveSeries);
-					ob.setRecordNumber(rawObs.row);
-					collectObservation(ob);
-					incrementProgress();
-				}
-
-				for (InvalidObservation ob : invalidObsList) {
-					addInvalidObservation(ob);
-					incrementProgress();
-				}
-			} else {
-				throw new ObservationReadError("Not a valid FITS file");
+		
+		public SeriesType getSeriesType(BasicHDU[] hdus) {
+			ImageHDU infohdu = (ImageHDU)hdus[0];
+			String telescope = infohdu.getTelescope();
+			if ("TESS".equals(telescope)) {
+				return dataSeriesLightKurveTESS;
 			}
-		}
-
-		@Override
-		public Integer getNumberOfRecords() throws ObservationReadError {
-			try {
-				Fits fits = new Fits(getInputStreams().get(0));
-				hdus = fits.read();
-				if (hdus.length > 1 && hdus[1] instanceof BinaryTableHDU) {
-					BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
-					return tableHDU.getNRows();
-				} else {
-					throw new ObservationReadError("Not a valid FITS file");
-				}
-			} catch (Exception e) {
-				throw new ObservationReadError(e.getLocalizedMessage());
+			if ("Kepler".equals(telescope)) {
+				return dataSeriesLightKurveKepler;
 			}
+			return dataSeriesLightKurve;
 		}
 		
 		@Override
-		public String getSourceName() {
-			return getInputName();
+		public double getRefMagnitude(BasicHDU[] hdus) {
+			return INVALID_MAG;			
 		}
-
+		
+		@Override
+		public String getRefMagnitudeDescription(BasicHDU[] hdus) {
+			return null;
+		}
+		
+		@Override
+		public Double getTimeRef(BasicHDU[] hdus) {
+			ImageHDU infohdu = (ImageHDU)hdus[0];
+			String telescope = infohdu.getTelescope();
+			if ("TESS".equals(telescope)) {
+				return 2457000.0;
+			}
+			if ("Kepler".equals(telescope)) {
+				return 2454833.0;
+			}
+			return null;
+		}
+		
+		@Override
+		public int getColumnIndex(BasicHDU[] hdus, BinaryTableFieldType field) {
+			if (field == BinaryTableFieldType.TIME)
+				return 0;
+			if (field == BinaryTableFieldType.FLUX)
+				return 1;
+			if (field == BinaryTableFieldType.FLUX_ERROR)
+				return 2;
+			return -1;
+		}
+		
 		@Override
 		public String getSourceType() {
 			return "Lightkurve FITS File";
 		}
-
-		@Override
-		public StarInfo getStarInfo() {
-
-			String name = objName;
-
-			if (name == null || "".equals(name.trim())) {
-				name = getSourceName();
-			}
-
-			return new StarInfo(this, name);
-		}
 		
-	}
+	}		
 	
 }

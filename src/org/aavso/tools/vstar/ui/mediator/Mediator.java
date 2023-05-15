@@ -33,7 +33,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
@@ -138,7 +137,6 @@ import org.aavso.tools.vstar.ui.task.PhasePlotTask;
 import org.aavso.tools.vstar.ui.task.PluginManagerOperationTask;
 import org.aavso.tools.vstar.ui.undo.IUndoableAction;
 import org.aavso.tools.vstar.ui.undo.UndoableActionManager;
-import org.aavso.tools.vstar.util.ObservationInserter;
 import org.aavso.tools.vstar.util.Triple;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.PreviousCyclePhaseComparator;
@@ -176,14 +174,9 @@ public class Mediator {
 
 	private static IMainUI ui;
 
-	// Valid and invalid observation lists and series category map.
+	// Valid and invalid observation lists and series category maps.
 	private List<ValidObservation> validObsList;
 	private List<InvalidObservation> invalidObsList;
-
-	// Observation inserter utility class used to properly add observations from
-	// new (user defined) series, created by copying existing observations and
-	// associating them with a new SeriesType instance.
-	private ObservationInserter obsInserter;
 
 	// Note: it would be useful to update these with mean obs, excluded obs etc
 	// so they could be used in places where currently the model must be
@@ -339,7 +332,6 @@ public class Mediator {
 		// These (among other things) are created for each new star.
 		this.validObsList = null;
 		this.invalidObsList = null;
-		this.obsInserter = null;
 		this.validObservationCategoryMap = null;
 		this.phasedValidObservationCategoryMap = null;
 		this.obsAndMeanPlotModel = null;
@@ -823,7 +815,8 @@ public class Mediator {
 	// up to date with models, filters, new series. We handle means separately,
 	// although it would be more consistent if we did not. For example, perhaps
 	// we should just reconstruct this map each time it is required, from the
-	// obs model.
+	// obs model. For user-defined series, the obs list is also updated.
+	// Deriving this from the map would also be worth consideration.
 	// ************************************************************************
 
 	// Returns a model selection listener that updates the observation
@@ -872,13 +865,17 @@ public class Mediator {
 	}
 
 	// Returns a series creation listener that updates the observation
-	// category map with the series.
+	// category map and observation list with the series.
 	protected Listener<SeriesCreationMessage> createSeriesCreationListener() {
 		return new Listener<SeriesCreationMessage>() {
 			@Override
-			public void update(SeriesCreationMessage info) {
-				validObservationCategoryMap.put(info.getType(), info.getObs());
-				validObsList = obsInserter.addValidObservations(info.getObs());
+			public void update(SeriesCreationMessage msg) {
+				try {
+					StarInfo info = getLatestNewStarMessage().getStarInfo();
+					info.getRetriever().collectAllObservations(msg.getObs(), info.getRetriever().getSourceName());
+				} catch (ObservationReadError e) {
+					MessageBox.showErrorDialog("New Series", "Invalid observations");
+				}
 			}
 
 			@Override
@@ -1197,10 +1194,10 @@ public class Mediator {
 		}
 
 		List<ValidObservation> validObsList = starInfo.getRetriever().getValidObservations();
-		ObservationInserter obsInserter = new ObservationInserter(validObsList);
+
 		List<InvalidObservation> invalidObsList = starInfo.getRetriever().getInvalidObservations();
 
-		Map<SeriesType, List<ValidObservation>> validObservationCategoryMap = starInfo.getRetriever()
+		Map<SeriesType, List<ValidObservation>> newObsCategoryMap = starInfo.getRetriever()
 				.getValidObservationCategoryMap();
 
 		// Table models.
@@ -1220,24 +1217,18 @@ public class Mediator {
 
 			freeListeners();
 
-			// Create a message to notify whoever is listening that a new star
-			// has been loaded.
-			NewStarMessage newStarMsg = new NewStarMessage(newStarType, starInfo, validObsList,
-					validObservationCategoryMap, starInfo.getRetriever().getMinMag(),
-					starInfo.getRetriever().getMaxMag(), starInfo.getRetriever().getSourceName());
-
 			if (!addObs) {
 				newStarMessageList.clear();
 			} else {
 				// Exclude all but the most recent new star message if the newly
-				// loaded dataset's series set is the same as that of any
-				// previously loaded dataset.
-				Set<SeriesType> newSeriesTypes = validObservationCategoryMap.keySet();
-
+				// loaded dataset's series+observations are the same as that
+				// of any previously loaded dataset.
 				List<NewStarMessage> dupMessages = new ArrayList<NewStarMessage>();
 
-				for (NewStarMessage msg : newStarMessageList) {
-					if (newSeriesTypes.equals(msg.getObsCategoryMap().keySet())) {
+				for (NewStarMessage msg : getNewStarMessageList()) {
+					// We need to check that both SeriesType and the corresponding observations are
+					// the same.
+					if (newObsCategoryMap.entrySet().equals(msg.getObsCategoryMap().entrySet())) {
 						dupMessages.add(msg);
 					}
 				}
@@ -1247,17 +1238,23 @@ public class Mediator {
 				}
 			}
 
+			// Create a message to notify whoever is listening that a new star
+			// has been loaded.
+			NewStarMessage newStarMsg = new NewStarMessage(newStarType, starInfo, validObsList, newObsCategoryMap,
+					starInfo.getRetriever().getMinMag(), starInfo.getRetriever().getMaxMag(),
+					starInfo.getRetriever().getSourceName());
+
 			newStarMessageList.add(newStarMsg);
 
 			// This is a specific fix for tracker 3007948.
 			this.discrepantObservationNotifier = new Notifier<DiscrepantObservationMessage>();
 
 			// Observation table and plot.
-			validObsTableModel = new ValidObservationTableModel(validObsList,
+			validObsTableModel = new ValidObservationTableModel(newObsCategoryMap, validObsList,
 					newStarType.getRawDataTableColumnInfoSource());
 
 			// Observation-and-mean table and plot.
-			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(validObservationCategoryMap, JDCoordSource.instance,
+			obsAndMeanPlotModel = new ObservationAndMeanPlotModel(newObsCategoryMap, JDCoordSource.instance,
 					JDComparator.instance, JDTimeElementEntity.instance, null);
 
 			if (false) {
@@ -1292,73 +1289,73 @@ public class Mediator {
 				getProgressNotifier()
 						.notifyListeners(new ProgressInfo(ProgressType.INCREMENT_PROGRESS, obsArtefactProgressAmount));
 			}
+
+			if (!invalidObsList.isEmpty()) {
+				invalidObsTableModel = new InvalidObservationTableModel(invalidObsList);
+			}
+
+			// The observation table pane contains valid and potentially
+			// invalid data components. Tell the valid data table to have
+			// a horizontal scrollbar if there will be too many columns.
+
+			boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
+					|| (newStarType == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE && !addObs);
+
+			obsListPane = new ObservationListPane(starInfo.getDesignation(), validObsTableModel, invalidObsTableModel,
+					enableColumnAutoResize, obsAndMeanPlotModel.getVisibleSeries(), AnalysisType.RAW_DATA);
+
+			// We also create the means list pane.
+			meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(meanObsTableModel,
+					null);
+
+			// Create a message to notify whoever is listening that the analysis
+			// type has changed (we could have been viewing a phase plot for a
+			// different star before now) passing GUI components in the message.
+			analysisType = AnalysisType.RAW_DATA;
+
+			AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(analysisType, obsAndMeanChartPane,
+					obsListPane, meansListPane, ViewModeType.PLOT_OBS_MODE);
+
+			// Commit to using the new observation lists and category map,
+			// first making old values available for garbage collection.
+			// TODO: It would be worth considering doing this at the start
+			// of this method, not at the end, so more memory is free.
+
+			if (this.validObsList != null) {
+				this.validObsList.clear();
+			}
+
+			if (this.invalidObsList != null) {
+				this.invalidObsList.clear();
+			}
+
+			if (this.validObservationCategoryMap != null) {
+				this.validObservationCategoryMap.clear();
+			}
+
+			if (this.phasedValidObservationCategoryMap != null) {
+				// In case we did a phase plot, free this up.
+				this.phasedValidObservationCategoryMap.clear();
+				this.phasedValidObservationCategoryMap = null;
+			}
+
+			// Throw away old artefacts from raw and phase plot,
+			// if there was (at least) one.
+			analysisTypeMap.clear();
+			analysisTypeMap.put(analysisType, analysisTypeMsg);
+
+			// Suggest garbage collection.
+			System.gc();
+
+			// Store new data.
+			this.validObsList = validObsList;
+			this.invalidObsList = invalidObsList;
+			this.validObservationCategoryMap = newObsCategoryMap;
+
+			// Notify listeners of new star and analysis type.
+			newStarNotifier.notifyListeners(getLatestNewStarMessage());
+			analysisTypeChangeNotifier.notifyListeners(analysisTypeMsg);
 		}
-
-		if (!invalidObsList.isEmpty()) {
-			invalidObsTableModel = new InvalidObservationTableModel(invalidObsList);
-		}
-
-		// The observation table pane contains valid and potentially
-		// invalid data components. Tell the valid data table to have
-		// a horizontal scrollbar if there will be too many columns.
-
-		boolean enableColumnAutoResize = newStarType == NewStarType.NEW_STAR_FROM_SIMPLE_FILE
-				|| (newStarType == NewStarType.NEW_STAR_FROM_ARBITRARY_SOURCE && !addObs);
-
-		obsListPane = new ObservationListPane(starInfo.getDesignation(), validObsTableModel, invalidObsTableModel,
-				enableColumnAutoResize, obsAndMeanPlotModel.getVisibleSeries(), AnalysisType.RAW_DATA);
-
-		// We also create the means list pane.
-		meansListPane = new SyntheticObservationListPane<AbstractMeanObservationTableModel>(meanObsTableModel, null);
-
-		// Create a message to notify whoever is listening that the analysis
-		// type has changed (we could have been viewing a phase plot for a
-		// different star before now) passing GUI components in the message.
-		analysisType = AnalysisType.RAW_DATA;
-
-		AnalysisTypeChangeMessage analysisTypeMsg = new AnalysisTypeChangeMessage(analysisType, obsAndMeanChartPane,
-				obsListPane, meansListPane, ViewModeType.PLOT_OBS_MODE);
-
-		// Commit to using the new observation lists and category map,
-		// first making old values available for garbage collection.
-		// TODO: It would be worth considering doing this at the start
-		// of this method, not at the end, so more memory is free.
-
-		if (this.validObsList != null) {
-			this.validObsList.clear();
-		}
-
-		if (this.invalidObsList != null) {
-			this.invalidObsList.clear();
-		}
-
-		if (this.validObservationCategoryMap != null) {
-			this.validObservationCategoryMap.clear();
-		}
-
-		if (this.phasedValidObservationCategoryMap != null) {
-			// In case we did a phase plot, free this up.
-			this.phasedValidObservationCategoryMap.clear();
-			this.phasedValidObservationCategoryMap = null;
-		}
-
-		// Throw away old artefacts from raw and phase plot,
-		// if there was (at least) one.
-		analysisTypeMap.clear();
-		analysisTypeMap.put(analysisType, analysisTypeMsg);
-
-		// Suggest garbage collection.
-		System.gc();
-
-		// Store new data.
-		this.validObsList = validObsList;
-		this.obsInserter = obsInserter;
-		this.invalidObsList = invalidObsList;
-		this.validObservationCategoryMap = validObservationCategoryMap;
-
-		// Notify listeners of new star and analysis type.
-		newStarNotifier.notifyListeners(getLatestNewStarMessage());
-		analysisTypeChangeNotifier.notifyListeners(analysisTypeMsg);
 	}
 
 	// Request the J2000.0 RA in HH:MM:SS.n
@@ -1518,7 +1515,8 @@ public class Mediator {
 		// o indeed: is this needed now anyway? see plot model/pane code
 
 		// Table and plot models.
-		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(validObsList,
+		ValidObservationTableModel validObsTableModel = new ValidObservationTableModel(
+				phasedValidObservationCategoryMap, validObsList, // TODO: phased obs?
 				getLatestNewStarMessage().getNewStarType().getPhasePlotTableColumnInfoSource());
 
 		// Observation-and-mean plot and table.

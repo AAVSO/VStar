@@ -3,8 +3,10 @@
 	<description>Generic build file to make plugin building easier.</description>
 
 	<property name="src" location="src/org/aavso/tools/vstar/external/plugin" />
+	<property name="src_lib" location="src/org/aavso/tools/vstar/external/lib" />
 	<property name="test" location="test" />
 	<property name="pkg" value="org.aavso.tools.vstar.external.plugin" />
+	<property name="pkg_lib" value="org.aavso.tools.vstar.external.lib" />
 	<property name="plugin_dir" value="vstar_plugins" />
 	<property name="plugin_lib_dir" value="vstar_plugin_libs" />
 	<property name="build" location="build" />
@@ -12,19 +14,21 @@
 	<property name="test_report" location="test_report" />
 	<property name="build.classes" location="./build" />
 	<property name="dist" location="dist/" />
+	<property name="dist_lib" location="dist_lib/" />
 	<property name="vstar_plugins_zip_dir" location="vstar-plugins" />
 	<property name="plugins_list_file" value=".plugins.lst" />
 
-   <target name="init">
-        <!-- Create the time stamp -->
-        <tstamp />
+	<target name="init">
+		<!-- Create the time stamp -->
+		<tstamp />
 
-        <!-- Create the build directory structure used by compile and test. -->
-        <mkdir dir="${build}" />
-        <mkdir dir="${dist}" />
-        <mkdir dir="${test_build}" />
-        <mkdir dir="${test_report}" />
-    </target>
+		<!-- Create the build directory structure used by compile and test. -->
+		<mkdir dir="${build}" />
+		<mkdir dir="${dist}" />
+		<mkdir dir="${dist_lib}" />
+		<mkdir dir="${test_build}" />
+		<mkdir dir="${test_report}" />
+	</target>
 
 	<target name="compile" depends="init" description="compile the source ">
 		<path id="libs">
@@ -35,16 +39,18 @@
 		</path>
 		<mkdir dir="${build}" />
 		<!-- Compile the java code from ${src} into ${build} -->
+		<javac compiler="modern" source="1.8" target="1.8"  encoding="UTF-8" srcdir="${src_lib}" destdir="${build}" classpathref="libs" />		
 		<javac compiler="modern" source="1.8" target="1.8"  encoding="UTF-8" srcdir="${src}" destdir="${build}" classpathref="libs" />
 	</target>
 
 	<target name="dist" depends="compile" description="generate the distribution">
 
 		<mkdir dir="${dist}" />
+		<mkdir dir="${dist_lib}" />
 
 		<!-- I don't like the idea of forcing people to install and use ant.contrib
-         so right now this is just a huge list of targets add your new plugin here
-	     as another jar task line (comment by Adam Weber)-->
+		so right now this is just a huge list of targets add your new plugin here
+		as another jar task line (comment by Adam Weber)-->
 		<jar jarfile="${dist}/${pkg}.AAVSOnetEpochPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOnetEpochPhotometryObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.AAVSOUploadFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/AAVSOUploadFileFormatObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.AoVPeriodSearch.jar" basedir="${build.classes}" includes="**/AoVPeriodSearch**.class" />
@@ -61,13 +67,9 @@
 		<jar jarfile="${dist}/${pkg}.VSXquery.jar" basedir="${build.classes}" includes="**/VSXquery**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaObSource.jar" basedir="${build.classes}" includes="**/VeLaObSource**.class" />
 		<jar jarfile="${dist}/${pkg}.FourierModelCreator.jar" basedir="${build.classes}" includes="**/FourierModelCreator**.class" />
-		<jar jarfile="${dist}/${pkg}.GAIADR2XformObSource.jar" basedir="${build.classes}" includes="**/GAIADR2XformObSource**.class" />
 		<jar jarfile="${dist}/${pkg}.HJDConverter.jar" basedir="${build.classes}" includes="**/HJDConverter**.class" />
 		<jar jarfile="${dist}/${pkg}.HipparcosObservationSource.jar" basedir="${build.classes}" includes="**/HipparcosObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class" />
-		<jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="**/KeplerFITSObservationSource**.class" />
-        <jar jarfile="${dist}/${pkg}.LightKurveFITSObservationSource.jar" basedir="${build.classes}" includes="**/LightKurveFITSObservationSource**.class" />
-		<jar jarfile="${dist}/${pkg}.QLPFITSObservationSource.jar" basedir="${build.classes}" includes="**/QLPFITSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.MagnitudeBaselineShifter.jar" basedir="${build.classes}" includes="**/MagnitudeBaselineShifter**.class" />
 		<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class" />
 		<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class" />
@@ -78,6 +80,16 @@
 		<jar jarfile="${dist}/${pkg}.VeLaModelCreator.jar" basedir="${build.classes}" includes="**/VeLaModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaObservationTransformer.jar" basedir="${build.classes}" includes="**/VeLaObservationTransformer**.class" />
 		<jar jarfile="${dist}/${pkg}.JulianDateObservationsFilter.jar" basedir="${build.classes}" includes="**/JulianDateObservationsFilter**.class" />
+		<jar jarfile="${dist}/${pkg}.ZTFObSource.jar" basedir="${build.classes}" includes="**/ZTFObSource**.class" excludes="**/ZTFObSourceBase**.class"/>
+		<jar jarfile="${dist}/${pkg}.ZTFFileObSource.jar" basedir="${build.classes}" includes="**/ZTFFileObSource**.class" />
+		<jar jarfile="${dist_lib}/${pkg_lib}.ZTFObSourceBase.jar" basedir="${build.classes}" includes="**/ZTFObSourceBase**.class" />
+		<jar jarfile="${dist}/${pkg}.GAIADR2XformObSource.jar" basedir="${build.classes}" includes="**/GAIADR2XformObSource**.class" />
+		<jar jarfile="${dist}/${pkg}.GAIADR2XformFileObSource.jar" basedir="${build.classes}" includes="**/GAIADR2XformFileObSource**.class" />
+		<jar jarfile="${dist_lib}/${pkg_lib}.GaiaObSourceBase.jar" basedir="${build.classes}" includes="**/GaiaObSourceBase**.class" />
+		<jar jarfile="${dist}/${pkg}.KeplerFITSObservationSource.jar" basedir="${build.classes}" includes="**/KeplerFITSObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.LightKurveFITSObservationSource.jar" basedir="${build.classes}" includes="**/LightKurveFITSObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.QLPFITSObservationSource.jar" basedir="${build.classes}" includes="**/QLPFITSObservationSource**.class" />
+		<jar jarfile="${dist_lib}/${pkg_lib}.TESSObservationRetrieverBase.jar" basedir="${build.classes}" includes="**/TESSObservationRetrieverBase**.class" />						
 		<!--
 		<jar jarfile="${dist}/${pkg}.DifferentialPhotometry.jar" basedir="${build.classes}" includes="**/DifferentialPhotometry**.class" />
 		<jar jarfile="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/IRISAutomaticPhotometryObservationSource**.class" />
@@ -171,6 +183,9 @@
 			<fileset dir="${dist}" includes="**/*.jar" />
 		</copy>
 		<copy todir="${user.home}/${plugin_lib_dir}" file="lib/tamfits.jar" />
+		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.GaiaObSourceBase.jar" />
+		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.ZTFObSourceBase.jar" />
+		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.TESSObservationRetrieverBase.jar" />
 	</target>
 
 	<target name="aavso" depends="dist" description="Create a .plugins.lst and zip file containing the plug-ins for AAVSO">
@@ -193,13 +208,9 @@
 		<copy file="${dist}/${pkg}.VSXquery.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VeLaObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.FourierModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.GAIADR2XformObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.HJDConverter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.HipparcosObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.JDToDateTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.KeplerFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-        <copy file="${dist}/${pkg}.LightKurveFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
-		<copy file="${dist}/${pkg}.QLPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MagnitudeBaselineShifter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.NSVSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -210,6 +221,16 @@
 		<copy file="${dist}/${pkg}.VeLaModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VeLaObservationTransformer.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.JulianDateObservationsFilter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.ZTFObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.ZTFFileObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist_lib}/${pkg_lib}.ZTFObSourceBase.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.GAIADR2XformObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.GAIADR2XformFileObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist_lib}/${pkg_lib}.GaiaObSourceBase.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.KeplerFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.LightKurveFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.QLPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist_lib}/${pkg_lib}.TESSObservationRetrieverBase.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" overwrite="true" />
 		<!--
 		<copy file="${dist}/${pkg}.DifferentialPhotometry.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -218,6 +239,7 @@
 		-->
 		<copy file="lib/tamfits.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" />
 
+		<delete file="${plugins_list_file}" />
 		<echo file="${plugins_list_file}" message="${pkg}.AAVSOnetEpochPhotometryObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.AAVSOUploadFileFormatObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.AoVPeriodSearch.jar${line.separator}" append="true" />
@@ -234,13 +256,9 @@
 		<echo file="${plugins_list_file}" message="${pkg}.VSXquery.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FourierModelCreator.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.GAIADR2XformObSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HJDConverter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HipparcosObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JDToDateTool.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.KeplerFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
-        <echo file="${plugins_list_file}" message="${pkg}.LightKurveFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.QLPFITSObservationSource.jar => tamfits.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MagnitudeBaselineShifter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />
@@ -251,6 +269,13 @@
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaModelCreator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObservationTransformer.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JulianDateObservationsFilter.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.ZTFObSource.jar => ${pkg_lib}.ZTFObSourceBase.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.ZTFFileObSource.jar => ${pkg_lib}.ZTFObSourceBase.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.GAIADR2XformObSource.jar => ${pkg_lib}.GaiaObSourceBase.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.GAIADR2XformFileObSource.jar => ${pkg_lib}.GaiaObSourceBase.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.KeplerFITSObservationSource.jar => tamfits.jar,org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.LightKurveFITSObservationSource.jar => tamfits.jar,org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.QLPFITSObservationSource.jar => tamfits.jar,org.aavso.tools.vstar.external.lib.TESSObservationRetrieverBase.jar${line.separator}" append="true" />
 		<!--
 		<echo file="${plugins_list_file}" message="${pkg}.DifferentialPhotometry.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.IRISAutomaticPhotometryObservationSource.jar${line.separator}" append="true" />

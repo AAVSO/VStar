@@ -56,9 +56,15 @@ public class StandardPhaseCoordSource implements ICoordSource {
 	public double getXCoord(int series, int item,
 			Map<Integer, List<ValidObservation>> seriesNumToObSrcListMap) {
 
-		List<ValidObservation> obs = seriesNumToObSrcListMap.get(series);
+		double phase;
 
-		return obs.get(item).getStandardPhase();
+		try {
+			phase = seriesNumToObSrcListMap.get(series).get(item).getStandardPhase();
+		} catch (Exception e) {
+			phase = Double.NaN;
+		}
+
+		return phase;
 	}
 
 	/**
