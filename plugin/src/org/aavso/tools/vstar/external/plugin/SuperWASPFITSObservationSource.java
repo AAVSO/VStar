@@ -220,12 +220,12 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 								ob.setBand(loadRaw ? superWaspSeries_raw : superWaspSeries);
 								ob.setRecordNumber(row);
 								ob.addDetail("IMAGE_ID", imageId, "Image ID");
-								ob.addDetail("CCDX", ccdX + "", "CCD X");
-								ob.addDetail("CCDY", ccdY + "", "CCD Y");
-								ob.addDetail("RAW_FLUX", rawFlux + "", "Raw Flux");
-								ob.addDetail("RAW_FLUX_ERR", rawFluxErr + "", "Raw Flux Error");
-								ob.addDetail("TAM_FLUX", tamFlux + "", "TAM Flux");
-								ob.addDetail("TAM_FLUX_ERR", tamFluxErr + "", "TAM Flux Error");
+								ob.addDetail("CCDX", Double.valueOf(ccdX) + "", "CCD X");
+								ob.addDetail("CCDY", Double.valueOf(ccdY) + "", "CCD Y");
+								ob.addDetail("RAW_FLUX", Double.valueOf(rawFlux) + "", "Raw Flux");
+								ob.addDetail("RAW_FLUX_ERR", Double.valueOf(rawFluxErr) + "", "Raw Flux Error");
+								ob.addDetail("TAM_FLUX", Double.valueOf(tamFlux) + "", "TAM Flux");
+								ob.addDetail("TAM_FLUX_ERR", Double.valueOf(tamFluxErr) + "", "TAM Flux Error");
 //								ob.addDetail("FLAG", flag + "", "Flag");
 								obs.add(ob);
 							}
