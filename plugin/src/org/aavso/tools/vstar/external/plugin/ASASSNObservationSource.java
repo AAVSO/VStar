@@ -90,7 +90,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  * 2458002.51147,2017-09-06.0125694,be,2.03,14.729,>14.729,99.990,3.640,0.985[,V]
  * ...
  *
- * New format ASAS-SN Phometry Database added by PMAK (updated 2023-01-11 to reflect ASAS-SN portal changes):
+ * New format ASAS-SN Photometry Database added by PMAK (updated 2023-01-11 to reflect ASAS-SN portal changes):
  *
  * hjd,camera,mag,mag_err,flux,flux_err
  * 2457981.84031,bc,11.221,0.02,124.549,2.292
