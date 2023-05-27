@@ -520,10 +520,22 @@ public abstract class GaiaObSourceBase extends ObservationSourcePluginBase {
 			if (!transformNeeded) {
 				observation.addDetail("REJECTED_BY_PHOTOMETRY", rejectedByPhotometry, "rejected_by_photometry");
 				observation.addDetail("REJECTED_BY_VARIABILITY", rejectedByVariability, "rejected_by_variability");
-				observation.addDetail("OTHER_FLAGS", fields[fieldIndices.get("other_flags")], "other_flags");
+				addDetailAsInteger(observation, "other_flags", fields[fieldIndices.get("other_flags")]);
 			}
 
 			return observation;
+		}
+		
+		void addDetailAsInteger(ValidObservation observation, String key, String detail) {
+			if (detail != null) {
+				Integer i;
+				try {
+					i = Integer.valueOf(detail.trim());
+				} catch (NumberFormatException e) {
+					return;
+				}
+				observation.addDetail(key.toUpperCase(), i, key);
+			}
 		}
 
 		@Override

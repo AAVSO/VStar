@@ -267,12 +267,36 @@ public abstract class ZTFObSourceBase extends ObservationSourcePluginBase {
 
 			//observation.setComments("");
 
-			observation.addDetail("CATFLAGS", fields[fieldIndices.get("catflags")], "catflags");
-			observation.addDetail("EXPTIME", fields[fieldIndices.get("exptime")], "exptime");
-			observation.addDetail("AIRMASS", fields[fieldIndices.get("airmass")], "airmass");
+			addDetailAsInteger(observation, "catflags", fields[fieldIndices.get("catflags")]);
+			addDetailAsDouble(observation, "exptime", fields[fieldIndices.get("exptime")]);			
+			addDetailAsDouble(observation, "airmass", fields[fieldIndices.get("airmass")]);
 			// todo: add other details
 			
 			return observation;
+		}
+		
+		void addDetailAsInteger(ValidObservation observation, String key, String detail) {
+			if (detail != null) {
+				Integer i;
+				try {
+					i = Integer.valueOf(detail.trim());
+				} catch (NumberFormatException e) {
+					return;
+				}
+				observation.addDetail(key.toUpperCase(), i, key);
+			}
+		}
+
+		void addDetailAsDouble(ValidObservation observation, String key, String detail) {
+			if (detail != null) {
+				Double d;
+				try {
+					d = Double.valueOf(detail.trim());
+				} catch (NumberFormatException e) {
+					return;
+				}
+				observation.addDetail(key.toUpperCase(), d, key);
+			}
 		}
 
 		@Override

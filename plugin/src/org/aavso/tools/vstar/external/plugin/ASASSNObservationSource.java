@@ -39,6 +39,7 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.Property;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
@@ -210,8 +211,17 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 
 	class ASASSNFileReader extends AbstractObservationRetriever {
 
+		private class ObsDetailInfo {
+			public Integer index;
+			public Property.propType type;
+			public ObsDetailInfo(Integer index, Property.propType type) {
+				this.index = index;
+				this.type = type;
+			}
+		}
+		
 		private Map<String, Integer> fieldIndices;
-		private Map<String, Integer> optionalFieldIndices;
+		private Map<String, ObsDetailInfo> optionalFieldIndices;
 
 		private List<String> lines;
 		
@@ -251,7 +261,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			this.loadASASSN_g_as_Sloan_g = loadASASSN_g_as_Sloan_g;
 			
 			fieldIndices = new HashMap<String, Integer>();
-			optionalFieldIndices = new HashMap<String, Integer>();
+			optionalFieldIndices = new HashMap<String, ObsDetailInfo>();
 			
 			julianDayValidator = new JulianDayValidator();
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
@@ -352,31 +362,31 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			// Optional fields
 						
 			index = indexInArrayIgnoreCase("UT Date", fields);
-			optionalFieldIndices.put("UT", index);
+			optionalFieldIndices.put("UT", new ObsDetailInfo(index, Property.propType.STRING));
 			
 			index = indexInArrayIgnoreCase("Camera", fields);
-			optionalFieldIndices.put("CAMERA", index);
+			optionalFieldIndices.put("CAMERA", new ObsDetailInfo(index, Property.propType.STRING));
 
 			index = indexInArrayIgnoreCase("FWHM", fields);
-			optionalFieldIndices.put("FWHM", index);
+			optionalFieldIndices.put("FWHM", new ObsDetailInfo(index, Property.propType.REAL));
 			
 			index = indexInArrayIgnoreCase("Limit", fields);
-			optionalFieldIndices.put("LIMIT", index);
+			optionalFieldIndices.put("LIMIT", new ObsDetailInfo(index, Property.propType.REAL));
 			
 			index = indexInArrayIgnoreCase("flux(mJy)", fields);
 			if (index < 0) {
 				index = indexInArrayIgnoreCase("flux", fields);
 			}
-			optionalFieldIndices.put("FLUX", index);
+			optionalFieldIndices.put("FLUX", new ObsDetailInfo(index, Property.propType.REAL));
 
 			index = indexInArrayIgnoreCase("flux_err", fields);
 			if (index < 0) {
 				index = indexInArrayIgnoreCase("Flux Error", fields);
 			}
-			optionalFieldIndices.put("FLUX_ERR", index);
+			optionalFieldIndices.put("FLUX_ERR", new ObsDetailInfo(index, Property.propType.REAL));
 			
 			index = indexInArrayIgnoreCase("Quality", fields);
-			optionalFieldIndices.put("QUALITY", index);
+			optionalFieldIndices.put("QUALITY", new ObsDetailInfo(index, Property.propType.STRING));
 			
 			return fields;
 		}
@@ -476,26 +486,19 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			List<String> keys = new ArrayList<String>(optionalFieldIndices.keySet());
 			Collections.sort(keys);
 			for (String key : keys) {			
-				int i = optionalFieldIndices.get(key);
-				if (i >= 0) {
-					observation.addDetail(key.toUpperCase(), fields[i].trim(), key);
+				ObsDetailInfo info = optionalFieldIndices.get(key);
+				if (info.index >= 0) {
+					switch (info.type) {
+						case REAL:
+							addDetailAsDouble(observation, key, fields[info.index]);
+							break;
+						default:
+							observation.addDetail(key.toUpperCase(), fields[info.index].trim(), key);
+					}
+					
 				}
 			}
 			
-				mag.setUncertainty(err);
-				observation.setName(getInputName());
-				observation.setMagnitude(mag);
-				observation.setDateInfo(hjd);
-				observation.setRecordNumber(lineNum);
-				observation.setBand(series);
-				observation.addDetail("UT", fields[1], "UT Date");
-				observation.addDetail("CAMERA", fields[2], "Camera");
-				observation.addDetail("FWHM", Double.valueOf(fields[3]), "FWHM");
-				observation.addDetail("LIMIT", Double.valueOf(fields[4]), "Limit");
-				observation.addDetail("FLUX", Double.valueOf(fields[7]), "Flux (mJy)");
-				observation.addDetail("FLUX_ERR", Double.valueOf(fields[8]), "Flux error");
-				observation.addDetail("FILTER", filter, "Filter");
-
 			// Include original ASAS-SN band
 			index = fieldIndices.get("FILTER");
 			if (index < 0) {
@@ -505,6 +508,18 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			}
 			
 			return observation;
+		}
+		
+		void addDetailAsDouble(ValidObservation observation, String key, String detail) {
+			if (detail != null) {
+				Double d;
+				try {
+					d = Double.valueOf(detail.trim());
+				} catch (NumberFormatException e) {
+					return;
+				}
+				observation.addDetail(key.toUpperCase(), d, key);
+			}
 		}
 
 		@Override
