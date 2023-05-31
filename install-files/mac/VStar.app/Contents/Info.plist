@@ -26,12 +26,14 @@
 <string>1</string>
 <key>NSHumanReadableCopyright</key>
 <string></string>
+<key>NSHighResolutionCapable</key>
+<true/>
 <key>JVMMainClassName</key>
 <string>org.aavso.tools.vstar.ui.VStar</string>
 <key>JVMOptions</key>
 <array>
 <string>-Xms800m</string>
-<string>-Xmx1500m</string>
+<string>-Xmx8g</string>
 <string>-splash:$APP_ROOT/Contents/Java/vstaricon.png</string>
 </array>
 <key>JVMArguments</key>
