@@ -4,143 +4,67 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>Resources/en.lproj/Localizable.strings</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			1x7GcvnGdR/b251TU0nrD14zM/c=
-			</data>
-			<key>optional</key>
-			<true/>
-		</dict>
-		<key>Resources/vstaricon.icns</key>
+		<key>Resources/Scripts/main.scpt</key>
 		<data>
-		6E9Z2YLhSLdtvpqHhmnRjXeQrew=
+		vqMj5Ii6cspjKwyn6UJhhh8bjRo=
+		</data>
+		<key>Resources/applet.icns</key>
+		<data>
+		sINd6lbiqHD5dL8c6u79cFvVXhw=
+		</data>
+		<key>Resources/applet.rsrc</key>
+		<data>
+		SYkIq5sE0shsC5TdDDUXyvHR9uA=
+		</data>
+		<key>Resources/description.rtfd/TXT.rtf</key>
+		<data>
+		n/X9p2bMC8UsbIQeCclfr2IlAS8=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
-		<key>Java/antlr-runtime-4.5.3.jar</key>
+		<key>Resources/Scripts/main.scpt</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Jgnjbxj36NWTzBzd+yrHdtyWuOA=
+			vqMj5Ii6cspjKwyn6UJhhh8bjRo=
 			</data>
 			<key>hash2</key>
 			<data>
-			k7ygjsmVyuqvYL34ADWgvoUH/Nq9PCYY/Yxaq0REp1I=
+			+hqGaEthSFAATz+nk79I2/718KaFf1Pnx/8LOJUCYPo=
 			</data>
 		</dict>
-		<key>Java/commons-math-2.2.jar</key>
+		<key>Resources/applet.icns</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			SHe4XTiCdfmUpc/H7OtzqARdMAY=
+			sINd6lbiqHD5dL8c6u79cFvVXhw=
 			</data>
 			<key>hash2</key>
 			<data>
-			FZk7sqPPUPMpG0D8mAoxZqCYTntfGrvlIyFR/ZSVRYQ=
+			J7weZ6vlnv9r32tS5HFcyuPXl2StdDnfepLxAixlryk=
 			</data>
 		</dict>
-		<key>Java/javacsv.jar</key>
+		<key>Resources/applet.rsrc</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			r+1Gyt1GNFO78AdiXs+jr6wJfzc=
+			SYkIq5sE0shsC5TdDDUXyvHR9uA=
 			</data>
 			<key>hash2</key>
 			<data>
-			SoYYb1IZBvYZb2bkMf9QnV+2aWRLUMVxSwc2HlxYu24=
+			3fQ1IJrglrmFNpAUDQxPUOm9byjfzttBpK9lcwKljRM=
 			</data>
 		</dict>
-		<key>Java/jcommon-1.0.16.jar</key>
+		<key>Resources/description.rtfd/TXT.rtf</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			NI+eAt/ZgrEFEzrqf3ArrKRCc2Q=
+			n/X9p2bMC8UsbIQeCclfr2IlAS8=
 			</data>
 			<key>hash2</key>
 			<data>
-			KZOvic5ZihwhZN/0vJIWbY94d5amVlJc9sHyGBP+vu0=
-			</data>
-		</dict>
-		<key>Java/jfreechart-1.0.13.jar</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			jOsVAoz5uZwlyId1qykvqifTAwo=
-			</data>
-			<key>hash2</key>
-			<data>
-			/lOJFm3lO+oFPSvEFOYn7yxGZ3/5wioCAGBxS490nDI=
-			</data>
-		</dict>
-		<key>Java/jmathplot.jar</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			umYyK/MdV0giHba+7YxfVAwdft8=
-			</data>
-			<key>hash2</key>
-			<data>
-			QKPFsRBwdc2ieIgOgWXjMC3VhXupoNXfviBV3KVyRP4=
-			</data>
-		</dict>
-		<key>Java/nico-camargo-toolbar-icons-4.0.jar</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			OwbKjvFiKprIJnKyKReETQmMcxU=
-			</data>
-			<key>hash2</key>
-			<data>
-			R+ykrh1Jh6u9T4WyiLKBFwbZ/0dIxwcxe8RVuVdog8Y=
-			</data>
-		</dict>
-		<key>Java/vstar.jar</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			7Dq9npfEkia2qVmngCXbUomLyZs=
-			</data>
-			<key>hash2</key>
-			<data>
-			YFZa0rQ06GkqDpnsJr9RYmbeiScYfYXpz2CqUlWd9cs=
-			</data>
-		</dict>
-		<key>Java/vstaricon.png</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			axZrXs3tn3kqxuXTGt4yOJv9ccI=
-			</data>
-			<key>hash2</key>
-			<data>
-			77ZaWjY/fq85uGV59MfpzcJNXkj7RvEPT9RxDVR1fjk=
-			</data>
-		</dict>
-		<key>Resources/en.lproj/Localizable.strings</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			1x7GcvnGdR/b251TU0nrD14zM/c=
-			</data>
-			<key>hash2</key>
-			<data>
-			+mlNWeuECqXqVd3n2W7JqWMCbbafAJeOxo6lFCIMGvg=
-			</data>
-			<key>optional</key>
-			<true/>
-		</dict>
-		<key>Resources/vstaricon.icns</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			6E9Z2YLhSLdtvpqHhmnRjXeQrew=
-			</data>
-			<key>hash2</key>
-			<data>
-			QZcZNgTk2+KUR62wdxUZ+Sxsc5UbLiovriWdWifNhhI=
+			K8IxUdXWmiFCYgm2lc9jFlhlPDhX1gGst1jP7NT/6Vw=
 			</data>
 		</dict>
 	</dict>

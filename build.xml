@@ -204,18 +204,26 @@
 
 	<target name="mac" depends="dist,javadoc" description="Create a standalone distribution archive for Mac">
 		<echo message="Creating Mac app and DMG" />
-
+<!--
 		<copy todir="${dist_mac}/VStar.app">
 		    <fileset dir="${install_files}/mac/VStar.app" />
 		</copy>
-
+-->
+		<!--
 		<exec executable="chmod">
 			<arg line="ugo+x ${dist_mac}/VStar.app/Contents/MacOS/JavaAppLauncher"/>
 		</exec>
-		
-	    <copy file="${dist}/vstar.jar" todir="${dist_mac}/VStar.app/Contents/Java" />
+		-->
+<!--
+	    <copy file="VStar.sh" todir="${dist_mac}/VStar.app/Contents/MacOS" />
 
-        <copy todir="${dist_mac}/VStar.app/Contents/Java">
+	    <mkdir dir="${dist_mac}/VStar.app/Contents/MacOS/dist"/>
+
+	    <copy file="${dist}/vstar.jar" todir="${dist_mac}/VStar.app/Contents/MacOS/dist" />
+
+		<mkdir dir="${dist_mac}/VStar.app/Contents/MacOS/extlib"/>
+		
+        <copy todir="${dist_mac}/VStar.app/Contents/MacOS/extlib">
             <fileset dir="${extlib}">
                 <include name="commons-math-2.2.jar" />
                 <include name="javacsv.jar" />
@@ -226,47 +234,49 @@
                 <include name="vstaricon.png" />
             </fileset>
         </copy>
-		
+-->
+	    <exec executable="./script/create_mac_app.sh" />
+
 	    <echo message="codesign: signing" />
         <exec executable="codesign">
               <arg value="-s" />
               <arg value="${mac_identity}" />
-              <arg value="${dist_mac}/VStar.app/Contents/Java/commons-math-2.2.jar" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/commons-math-2.2.jar" />
         </exec>
         <exec executable="codesign">
               <arg value="-s" />
               <arg value="${mac_identity}" />
-              <arg value="${dist_mac}/VStar.app/Contents/Java/javacsv.jar" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/javacsv.jar" />
         </exec>
         <exec executable="codesign">
               <arg value="-s" />
               <arg value="${mac_identity}" />
-              <arg value="${dist_mac}/VStar.app/Contents/Java/jfreechart-1.5.2.jar" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/jfreechart-1.5.2.jar" />
         </exec>
         <exec executable="codesign">
               <arg value="-s" />
               <arg value="${mac_identity}" />
-              <arg value="${dist_mac}/VStar.app/Contents/Java/jmathplot.jar" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/jmathplot.jar" />
         </exec>
         <exec executable="codesign">
               <arg value="-s" />
               <arg value="${mac_identity}" />
-              <arg value="${dist_mac}/VStar.app/Contents/Java/antlr-runtime-4.5.3.jar" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/antlr-runtime-4.5.3.jar" />
         </exec>
         <exec executable="codesign">
               <arg value="-s" />
               <arg value="${mac_identity}" />
-              <arg value="${dist_mac}/VStar.app/Contents/Java/nico-camargo-toolbar-icons-4.0.jar" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/nico-camargo-toolbar-icons-4.0.jar" />
         </exec>
         <exec executable="codesign">
               <arg value="-s" />
               <arg value="${mac_identity}" />
-              <arg value="${dist_mac}/VStar.app/Contents/Java/vstaricon.png" />
+              <arg value="${dist_mac}/VStar.app/Contents/MacOS/extlib/vstaricon.png" />
         </exec>
 		<exec executable="codesign">
 		      <arg value="-s" />
 		      <arg value="${mac_identity}" />
-		      <arg value="${dist_mac}/VStar.app/Contents/Java/vstar.jar" />
+		      <arg value="${dist_mac}/VStar.app/Contents/MacOS/dist/vstar.jar" />
 	    </exec>
 	    <exec executable="codesign">
 	        <arg value="-s" />
@@ -274,6 +284,19 @@
 	        <arg value="${dist_mac}/VStar.app" />
 	    </exec>
 
+	    <exec executable="codesign">
+	        <arg value="-s" />
+	        <arg value="${mac_identity}" />
+	        <arg value="${dist_mac}/VStar.app/Contents/MacOS/applet" />
+	    </exec>
+
+        <exec executable="codesign">
+            <arg value="-s" />
+            <arg value="${mac_identity}" />
+            <arg value="${dist_mac}/VStar.app/Contents/Resources/applet.icns" />
+        </exec>
+	
+<!--
 	    <exec executable="codesign">
 	        <arg value="-s" />
 	        <arg value="${mac_identity}" />
@@ -283,10 +306,11 @@
 	    <echo message="codesign: verifying" />
 	    <exec executable="codesign">
 	        <arg value="-d" />
-	        <arg value="--verbose=4" />
+	        
 	        <arg value="${dist_mac}/VStar.app" />
 	    </exec>
-
+-->
+				
 	    <echo message="spctl" />
 	    <exec executable="spctl">
 	        <arg value="--assess" />
@@ -464,11 +488,14 @@
 		<fileset dir="${javadoc}" includes="**/*" />
 		<fileset file="${javadoc}.zip" />
 		<fileset file="vstar*.zip" />
-		<fileset dir="VStar.app" includes="**/*" />
-		<dirset dir="VStar.app" />
-		<fileset file="*.dmg" />
-		<fileset file="*.exe" />
-		<fileset file="*.bat" />
+        <fileset file="*.dmg" />
+        <fileset file="*.exe" />
+        <fileset file="*.bat" />
 	</delete>
+	<!-- succeeeds where including VStar.app fileset or dirset above does not -->
+	<exec failifexecutionfails="no" failonerror="no" executable="rm">
+		<arg value="-rf" />
+		<arg value="VStar.app" />
+	</exec>
 </target>
 </project>
