@@ -126,9 +126,11 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 			BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
 			if (!"TIME".equals(tableHDU.getColumnName(0)) ||
 				!"SAP_FLUX".equals(tableHDU.getColumnName(2)) ||
-				// Sector56 QLP: KSPSAP_FLUX -> DET_FLUX, KSPSAP_FLUX_ERR -> DET_FLUX_ERR
-				!("KSPSAP_FLUX".equals(tableHDU.getColumnName(3)) || "DET_FLUX".equals(tableHDU.getColumnName(3))) ||
-				!("KSPSAP_FLUX_ERR".equals(tableHDU.getColumnName(4)) || "DET_FLUX_ERR".equals(tableHDU.getColumnName(4))) ||
+				!(
+						// Sector 56: column names was changed: KSPSAP_FLUX -> DET_FLUX, KSPSAP_FLUX_ERR -> DET_FLUX_ERR
+						("KSPSAP_FLUX".equals(tableHDU.getColumnName(3)) && "KSPSAP_FLUX_ERR".equals(tableHDU.getColumnName(4))) ||
+						("DET_FLUX".equals(tableHDU.getColumnName(3)) && "DET_FLUX_ERR".equals(tableHDU.getColumnName(4)))
+				) ||
 				!"QUALITY".equals(tableHDU.getColumnName(5))) {
 				return false;
 			}
