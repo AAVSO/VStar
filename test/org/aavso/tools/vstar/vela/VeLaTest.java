@@ -243,7 +243,7 @@ public class VeLaTest extends TestCase {
 		assertEquals(Type.INTEGER, operand.getType());
 		assertEquals(83, operand.intVal());
 	}
-
+	
 	// String expressions
 
 	// Note tests suggest the importance of using expressionToOperand() and
@@ -299,6 +299,89 @@ public class VeLaTest extends TestCase {
 		assertFalse(vela.booleanExpression("false"));
 	}
 
+	// Bitwise operations
+
+	public void testIntegerBitwiseAndDecimal() {
+		Optional<Operand> maybeOperand = vela.program("10 and 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(2, operand.intVal());
+	}
+
+	public void testIntegerBitwiseAndBinary() {
+		Optional<Operand> maybeOperand = vela.program("0b1010 and 0B10");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(0b10, operand.intVal());
+	}
+
+	public void testIntegerBitwiseAndHexadecimalUpper() {
+		Optional<Operand> maybeOperand = vela.program("0xA and 0X2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(2, operand.intVal());
+	}
+
+	public void testIntegerBitwiseAndHexadecimalLower() {
+		Optional<Operand> maybeOperand = vela.program("0xa and 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(2, operand.intVal());
+	}
+
+	public void testIntegerBitwiseOr() {
+		Optional<Operand> maybeOperand = vela.program("8 or 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(10, operand.intVal());
+	}
+
+	public void testIntegerBitwiseXor() {
+		Optional<Operand> maybeOperand = vela.program("10 xor 5");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(15, operand.intVal());
+	}
+
+	public void testIntegerBitwiseNot() {
+		// Note: "and 15" masks out all but the least significant 4 bits
+		Optional<Operand> maybeOperand = vela.program("not 8 and 15");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(7, operand.intVal());
+	}
+
+	public void testIntegerShiftLeft() {
+		Optional<Operand> maybeOperand = vela.program("1 << 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(4, operand.intVal());
+	}
+
+	public void testIntegerShiftRightMSBZero() {
+		Optional<Operand> maybeOperand = vela.program("4 >> 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(1, operand.intVal());
+	}
+
+	public void testIntegerShiftRightMSBOne() {
+		Optional<Operand> maybeOperand = vela.program("(not 0) >> 2");
+		assert maybeOperand.isPresent();
+		Operand operand = maybeOperand.get();
+		assertEquals(Type.INTEGER, operand.getType());
+		assertEquals(~0, operand.intVal());
+	}
+	
 	// Relational expressions
 
 	public void testRealEquality() {
@@ -432,7 +515,7 @@ public class VeLaTest extends TestCase {
 		boolean result = vela.booleanExpression("not raining");
 		assertTrue(result);
 	}
-
+	
 	// Variables
 
 	public void testVariableMeaningOfLife() {

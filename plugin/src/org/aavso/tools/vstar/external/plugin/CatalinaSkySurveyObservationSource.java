@@ -184,9 +184,9 @@ public class CatalinaSkySurveyObservationSource extends
 			observation.setRecordNumber(obNum);
 			observation.setBand(catalinaSeries);
 			observation.addDetail("MasterID", fields[0], "Master ID");
-			observation.addDetail("RA", fields[3], "RA");
-			observation.addDetail("Dec", fields[4], "Dec");
-			observation.addDetail("Blend", fields[6], "Blend");
+			observation.addDetail("RA", Double.valueOf(fields[3]), "RA");
+			observation.addDetail("Dec", Double.valueOf(fields[4]), "Dec");
+			observation.addDetail("Blend", Integer.valueOf(fields[6]), "Blend");
 
 			return observation;
 		}

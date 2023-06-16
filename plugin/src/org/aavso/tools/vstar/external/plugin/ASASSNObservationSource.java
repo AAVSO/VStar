@@ -39,6 +39,7 @@ import javax.swing.JPanel;
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.InvalidObservation;
 import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.Property;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
@@ -90,7 +91,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
  * 2458002.51147,2017-09-06.0125694,be,2.03,14.729,>14.729,99.990,3.640,0.985[,V]
  * ...
  *
- * New format ASAS-SN Phometry Database added by PMAK (updated 2023-01-11 to reflect ASAS-SN portal changes):
+ * New format ASAS-SN Photometry Database added by PMAK (updated 2023-01-11 to reflect ASAS-SN portal changes):
  *
  * hjd,camera,mag,mag_err,flux,flux_err
  * 2457981.84031,bc,11.221,0.02,124.549,2.292
@@ -210,8 +211,17 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 
 	class ASASSNFileReader extends AbstractObservationRetriever {
 
+		private class ObsDetailInfo {
+			public Integer index;
+			public Property.propType type;
+			public ObsDetailInfo(Integer index, Property.propType type) {
+				this.index = index;
+				this.type = type;
+			}
+		}
+		
 		private Map<String, Integer> fieldIndices;
-		private Map<String, Integer> optionalFieldIndices;
+		private Map<String, ObsDetailInfo> optionalFieldIndices;
 
 		private List<String> lines;
 		
@@ -251,7 +261,7 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			this.loadASASSN_g_as_Sloan_g = loadASASSN_g_as_Sloan_g;
 			
 			fieldIndices = new HashMap<String, Integer>();
-			optionalFieldIndices = new HashMap<String, Integer>();
+			optionalFieldIndices = new HashMap<String, ObsDetailInfo>();
 			
 			julianDayValidator = new JulianDayValidator();
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
@@ -352,31 +362,31 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			// Optional fields
 						
 			index = indexInArrayIgnoreCase("UT Date", fields);
-			optionalFieldIndices.put("UT", index);
+			optionalFieldIndices.put("UT", new ObsDetailInfo(index, Property.propType.STRING));
 			
 			index = indexInArrayIgnoreCase("Camera", fields);
-			optionalFieldIndices.put("CAMERA", index);
+			optionalFieldIndices.put("CAMERA", new ObsDetailInfo(index, Property.propType.STRING));
 
 			index = indexInArrayIgnoreCase("FWHM", fields);
-			optionalFieldIndices.put("FWHM", index);
+			optionalFieldIndices.put("FWHM", new ObsDetailInfo(index, Property.propType.REAL));
 			
 			index = indexInArrayIgnoreCase("Limit", fields);
-			optionalFieldIndices.put("LIMIT", index);
+			optionalFieldIndices.put("LIMIT", new ObsDetailInfo(index, Property.propType.REAL));
 			
 			index = indexInArrayIgnoreCase("flux(mJy)", fields);
 			if (index < 0) {
 				index = indexInArrayIgnoreCase("flux", fields);
 			}
-			optionalFieldIndices.put("FLUX", index);
+			optionalFieldIndices.put("FLUX", new ObsDetailInfo(index, Property.propType.REAL));
 
 			index = indexInArrayIgnoreCase("flux_err", fields);
 			if (index < 0) {
 				index = indexInArrayIgnoreCase("Flux Error", fields);
 			}
-			optionalFieldIndices.put("FLUX_ERR", index);
+			optionalFieldIndices.put("FLUX_ERR", new ObsDetailInfo(index, Property.propType.REAL));
 			
 			index = indexInArrayIgnoreCase("Quality", fields);
-			optionalFieldIndices.put("QUALITY", index);
+			optionalFieldIndices.put("QUALITY", new ObsDetailInfo(index, Property.propType.STRING));
 			
 			return fields;
 		}
@@ -476,9 +486,16 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			List<String> keys = new ArrayList<String>(optionalFieldIndices.keySet());
 			Collections.sort(keys);
 			for (String key : keys) {			
-				int i = optionalFieldIndices.get(key);
-				if (i >= 0) {
-					observation.addDetail(key.toUpperCase(), fields[i].trim(), key);
+				ObsDetailInfo info = optionalFieldIndices.get(key);
+				if (info.index >= 0) {
+					switch (info.type) {
+						case REAL:
+							addDetailAsDouble(observation, key, fields[info.index]);
+							break;
+						default:
+							observation.addDetail(key.toUpperCase(), fields[info.index].trim(), key);
+					}
+					
 				}
 			}
 			
@@ -491,6 +508,18 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 			}
 			
 			return observation;
+		}
+		
+		void addDetailAsDouble(ValidObservation observation, String key, String detail) {
+			if (detail != null) {
+				Double d;
+				try {
+					d = Double.valueOf(detail.trim());
+				} catch (NumberFormatException e) {
+					return;
+				}
+				observation.addDetail(key.toUpperCase(), d, key);
+			}
 		}
 
 		@Override

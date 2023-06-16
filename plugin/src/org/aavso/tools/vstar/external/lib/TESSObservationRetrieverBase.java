@@ -39,7 +39,6 @@ import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
-import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.apache.commons.math.stat.descriptive.rank.Median;
 
 import nom.tam.fits.BasicHDU;
@@ -60,6 +59,7 @@ public abstract class TESSObservationRetrieverBase extends AbstractObservationRe
 		QUALITY_FLAGS
 	}
 	
+	@SuppressWarnings("serial")
 	public class ObservationReadErrorFITS extends Exception {
 		
 		private double time;
@@ -269,15 +269,12 @@ public abstract class TESSObservationRetrieverBase extends AbstractObservationRe
 				ob.setMagnitude(new Magnitude(mag, magErr));
 				ob.setBand(seriesType);
 				ob.setRecordNumber(rawObs.row);
-				if (refMagDescription != null) {
-					ob.addDetail(
-							"HEADER_MAG",
-							refMag != INVALID_MAG ? NumericPrecisionPrefs.getOtherOutputFormat().format(refMag) : "",
-							refMagDescription);
+				if (refMagDescription != null && refMag != INVALID_MAG) {
+					ob.addDetail("HEADER_MAG", refMag, refMagDescription);
 				};
-				ob.addDetail("FLUX",NumericPrecisionPrefs.getOtherOutputFormat().format(rawObs.intensity), "Flux");
-				if (qalityFlagsColumn >= 0) {
-					ob.addDetail("QUALITY",	rawObs.quality != null ? rawObs.quality.toString() : "", "Quality");
+				ob.addDetail("FLUX", rawObs.intensity, "Flux");
+				if (qalityFlagsColumn >= 0 && rawObs.quality != null) {
+					ob.addDetail("QUALITY",	rawObs.quality, "Quality");
 				}
 				collectObservation(ob);
 				incrementProgress();

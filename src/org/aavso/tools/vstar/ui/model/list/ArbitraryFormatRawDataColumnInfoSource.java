@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.aavso.tools.vstar.data.Property;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -137,6 +138,12 @@ public class ArbitraryFormatRawDataColumnInfoSource implements
 			break;
 		case DISCREPANT_COLUMN:
 			clazz = Boolean.class;
+			break;
+		default:
+			clazz = Property.class;
+//			String key = ValidObservation.getDetailKey(index
+//					- DISCREPANT_COLUMN - 1);
+//			clazz = ValidObservation.getDetailTypes().get(key);
 			break;
 		}
 

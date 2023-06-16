@@ -136,9 +136,18 @@ whileLoop
 
 booleanExpression
 :
+    exclusiveOrExpression
+    (
+        OR exclusiveOrExpression
+    )*
+;
+
+
+exclusiveOrExpression
+:
     conjunctiveExpression
     (
-        OR conjunctiveExpression
+        XOR conjunctiveExpression
     )*
 ;
 
@@ -157,7 +166,7 @@ logicalNegationExpression
 
 relationalExpression
 :
-    additiveExpression
+    shiftExpression
     (
         (
             EQUAL
@@ -168,8 +177,20 @@ relationalExpression
             | LESS_THAN_OR_EQUAL
             | APPROXIMATELY_EQUAL
             | IN
-        ) additiveExpression
+        ) shiftExpression
     )?
+;
+
+shiftExpression
+:
+    additiveExpression
+    (
+        (
+            SHIFT_LEFT
+            | SHIFT_RIGHT
+            
+        ) additiveExpression
+    )*
 ;
 
 additiveExpression
@@ -448,6 +469,16 @@ APPROXIMATELY_EQUAL
     '=~'
 ;
 
+SHIFT_LEFT
+:
+    '<<'
+;
+
+SHIFT_RIGHT
+:
+    '>>'
+;
+
 // Homage to SQL, Python, ...
 
 IN
@@ -500,6 +531,11 @@ AND
     [Aa] [Nn] [Dd]
 ;
 
+XOR
+:
+    [Xx] [Oo] [Rr]
+;
+
 OR
 :
     [Oo] [Rr]
@@ -512,21 +548,23 @@ NOT
 
 INTEGER
 :
-    DIGIT+
+    DEC_DIGIT+
+    | ([0] [Xx] HEX_DIGIT+)
+    | ([0] [Bb] BIN_DIGIT+)
 ;
 
 REAL
 :
-    DIGIT+
+    DEC_DIGIT+
     (
-        POINT DIGIT+
+        POINT DEC_DIGIT+
     )?
     (
-        EXPONENT_INDICATOR MINUS? DIGIT+
+        EXPONENT_INDICATOR MINUS? DEC_DIGIT+
     )?
-    | POINT DIGIT+
+    | POINT DEC_DIGIT+
     (
-        EXPONENT_INDICATOR MINUS? DIGIT+
+        EXPONENT_INDICATOR MINUS? DEC_DIGIT+
     )?
 ;
 
@@ -549,9 +587,21 @@ FALSE
 ;
 
 fragment
-DIGIT
+DEC_DIGIT
 :
     [0-9]
+;
+
+fragment
+HEX_DIGIT
+:
+    DEC_DIGIT | [a-z] | [A-Z]
+;
+
+fragment
+BIN_DIGIT
+:
+    [0-1]
 ;
 
 fragment
@@ -578,7 +628,7 @@ IDENT
     )
     (
         LETTER
-        | DIGIT
+        | DEC_DIGIT
         | SYMBOL
     )*
 ;

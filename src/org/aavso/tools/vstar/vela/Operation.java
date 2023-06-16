@@ -27,14 +27,12 @@ import java.util.Map;
  */
 public enum Operation {
 
-	ADD("+", 2), SUB("-", 2), NEG("-", 1), MUL("*", 2), DIV("/", 2), POW("^", 2), AND(
-			"and", 2), OR("or", 2), NOT("not", 1), EQUAL("=", 2), NOT_EQUAL(
-			"<>", 2), GREATER_THAN(">", 2), LESS_THAN("<", 2), GREATER_THAN_OR_EQUAL(
-			">=", 2), LESS_THAN_OR_EQUAL("<=", 2), APPROXIMATELY_EQUAL("=~", 2), IN(
-			"in", 2), LIST("list"), PAIR("pair"), SEQUENCE("sequence", true), BIND(
-			"bind", true), IS("is", true), SYMBOL("symbol"), FUNDEF("fundef",
-			true), FUNCALL("func", true), SELECT("select", true), WHILE(
-			"while", true), SENTINEL("sentinel");
+	ADD("+", 2), SUB("-", 2), NEG("-", 1), MUL("*", 2), DIV("/", 2), POW("^", 2), AND("and", 2), XOR("xor", 2),
+	OR("or", 2), NOT("not", 1), EQUAL("=", 2), NOT_EQUAL("<>", 2), GREATER_THAN(">", 2), LESS_THAN("<", 2),
+	GREATER_THAN_OR_EQUAL(">=", 2), LESS_THAN_OR_EQUAL("<=", 2), APPROXIMATELY_EQUAL("=~", 2), IN("in", 2),
+	SHL("<<", 2), SHR(">>", 2), LIST("list"), PAIR("pair"), SEQUENCE("sequence", true), BIND("bind", true),
+	IS("is", true), SYMBOL("symbol"), FUNDEF("fundef", true), FUNCALL("func", true), SELECT("select", true),
+	WHILE("while", true), SENTINEL("sentinel");
 
 	private String symbol;
 	private int arity;

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import org.aavso.tools.vstar.data.Property;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -125,6 +126,26 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 			type = Type.STRING;
 		} else if (value instanceof Boolean) {
 			type = Type.BOOLEAN;
+		} else if (value instanceof Property) {
+			Property prop = (Property)value;
+			type = Type.propertyToVela(prop);
+			switch(prop.getType()) {
+				case INTEGER:
+					value = prop.getIntVal();
+					break;
+				case REAL:
+					value = prop.getRealVal();
+					break;
+				case BOOLEAN:
+					value = prop.getBoolVal();
+					break;
+				case STRING:
+					value = prop.getStrVal();
+					break;
+				case NONE:
+				default:
+					value = null;
+			}
 		}
 
 		return operand(type, name, value);

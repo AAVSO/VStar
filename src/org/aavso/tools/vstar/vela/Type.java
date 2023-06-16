@@ -19,6 +19,8 @@ package org.aavso.tools.vstar.vela;
 
 import java.util.List;
 
+import org.aavso.tools.vstar.data.Property;
+
 /**
  * VeLa: VStar expression Language
  * 
@@ -121,6 +123,31 @@ public enum Type {
 			vtype = FUNCTION;
 		} else {
 			throw new IllegalArgumentException("Invalid type: " + type);
+		}
+
+		return vtype;
+	}
+
+	public static Type propertyToVela(Property prop) {
+		Type vtype = null;
+
+		switch(prop.getType()) {
+		case INTEGER:
+			vtype = Type.INTEGER;
+			break;
+		case REAL:
+			vtype = Type.REAL;
+			break;
+		case BOOLEAN:
+			vtype = Type.BOOLEAN;
+			break;
+		case STRING:
+			vtype = Type.STRING;
+			break;
+		case NONE:
+		default:
+			vtype = Type.NONE;
+			break;
 		}
 
 		return vtype;
