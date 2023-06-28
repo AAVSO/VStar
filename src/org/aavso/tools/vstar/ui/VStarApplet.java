@@ -35,6 +35,7 @@ import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
  * The VStar applet.
+ * @deprecated
  */
 @SuppressWarnings("serial")
 public class VStarApplet extends JApplet implements IMainUI {
