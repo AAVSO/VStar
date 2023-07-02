@@ -19,8 +19,6 @@ package org.aavso.tools.vstar.ui;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.net.URL;
-import java.security.Policy;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
@@ -74,10 +72,6 @@ public class VStar {
 	private static String scriptPath = null;
 
 	public static void main(String[] args) {
-		// Apply VStar Java policy for all code.
-		URL policyUrl = Thread.currentThread().getContextClassLoader()
-				.getResource("/etc/vstar.java.policy");
-		Policy.getPolicy().refresh();
 
 		String os_name = "";
 		// For Mac OS X, make it look more native by using the screen
