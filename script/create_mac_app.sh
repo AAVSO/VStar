@@ -2,6 +2,8 @@
 #
 # Create Mac OSX application.
 
+rm -rf VStar.app
+
 cp -r install-files/mac/VStar.app .
 
 cp VStar.sh VStar.app/Contents/MacOS
