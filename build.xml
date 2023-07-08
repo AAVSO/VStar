@@ -18,7 +18,7 @@
 	<property name="dist_mac" location="." />
 	<property name="dist_win32" location="." />
 	<property name="install_files" location="install-files" />
-	<property name="dmg_template" location="${install_files}/vstar-template.dmg" />
+	<property name="dmg_template" location="${install_files}/mac/vstar-template.dmg" />
 	<property name="launch4j_dir" location="/Applications/Development/launch4j" />
 	<property name="vstar_volume" location="/Volumes/VStar" />
 	<property name="extlib" location="extlib" />
@@ -205,6 +205,7 @@
 	<target name="mac" depends="dist,javadoc" description="Create a standalone distribution archive for Mac">
 		<echo message="Creating Mac app and DMG" />
 
+		<echo message="VStar.app: creating" />
 	    <exec executable="./script/create_mac_app.sh" />
 
 	    <echo message="codesign: signing" />
@@ -284,7 +285,7 @@
 	    <delete dir="${vstar_volume}/Extras" />
 
 	    <echo message="create disk image: copying files" />
-	    <delete dir="${vstar_volume}/VStar.app" />
+	    <delete dir="${vstar_volume}/VStar.app" failonerror="true" />
 	    <exec executable="cp">
 	        <arg value="-r" />
 	        <arg value="${dist_mac}/VStar.app" />
@@ -443,14 +444,10 @@
 		<fileset dir="${javadoc}" includes="**/*" />
 		<fileset file="${javadoc}.zip" />
 		<fileset file="vstar*.zip" />
+		<fileset dir="VStar.app" />
         <fileset file="*.dmg" />
         <fileset file="*.exe" />
         <fileset file="*.bat" />
 	</delete>
-	<!-- succeeeds where including VStar.app fileset or dirset above does not -->
-	<exec failifexecutionfails="no" failonerror="no" executable="rm">
-		<arg value="-rf" />
-		<arg value="VStar.app" />
-	</exec>
 </target>
 </project>
