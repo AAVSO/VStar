@@ -90,8 +90,6 @@ public class VSXquery extends GeneralToolPluginBase {
 	
 	protected static final String sVSX_URL = "https://www.aavso.org/vsx/index.php?view=api.object&ident=";
 
-	private EphemerisDialog ephemerisDialog = null;
-
 	@Override
 	public void invoke() {
 		new QueryVSXdialog();
@@ -156,6 +154,8 @@ public class VSXquery extends GeneralToolPluginBase {
 		protected JButton resetButton;
 		protected JButton calcEphemeris;
 
+		private EphemerisDialog ephemerisDialog = null;
+		
 		/**
 		 * Constructor
 		 */
