@@ -212,7 +212,7 @@ public class AboutBox extends JDialog {
 
 		strBuf.append("For bug reports and fixes, documentation, plug-in\n");
 		strBuf.append("development, testing, and enthusiasm, thanks to\n");
-		strBuf.append("Cliff Kotnik, Dave Hinzel, Maksym Pyatnytskyy,\n");
+		strBuf.append("Maksym Pyatnytskyy, Cliff Kotnik, Sam Lee, Dave Hinzel,\n");
 		strBuf.append("Adam Weber, Paul York, Michelle Dadighat, Doug Welch,\n");
 		strBuf.append("Ken Mogul, Alan Plummer, Mark Blackford.\n\n");
 		

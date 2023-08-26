@@ -1288,7 +1288,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createHelpContentsListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				openHelpURLInWebBrowser("https://www.aavso.org/files/vstar/VStarUserManual.pdf");
+				openHelpURLInWebBrowser("https://github.com/AAVSO/VStar/blob/master/doc/user_manual/VStarUserManual.pdf");
 			}
 		};
 	}

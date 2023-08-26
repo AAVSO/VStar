@@ -12,6 +12,11 @@
                              % This is an alternative definition of
                              % \ip that is commented out.
 
+\usepackage{mathtools}
+
+% macros
+\def\floor#1{\lfloor #1 \rfloor}
+
 \begin{document}             % End of preamble and beginning of text.
 
 \maketitle                   % Produces the title.
@@ -21,16 +26,56 @@
 
 \section{Phase}
     \[ \phi = \frac{t - epoch}{P} \]
-    
-\section{Polynomial fit}
-    \[ y = f(t) = \beta_0 + \beta_1t + \beta_2t^2 + \beta_3t^3 + ... + \beta_nt^n \]
 
-\section{DCDFT standard scan}
+\section{WWZ}
+\subsection{Time Steps}
+    \[ quantize(x) =
+    \begin{cases}
+      5 \times 10^{\floor{log_{10}{x}}}, & \text{if } \frac{x}{10^{\floor{log_{10}{x}}}} >= 5 \\
+      2 \times 10^{\floor{log_{10}{x}}}, & \text{if } \frac{x}{10^{\floor{log_{10}{x}}}} >= 2 \\
+      1 \times 10^{\floor{log_{10}{x}}}, &  \text{if } \frac{x}{10^{\floor{log_{10}{x}}}} < 2
+    \end{cases}
+    \; \]
+    \[ t_{span} = t_n - t_1 \]
+    \[ t_{step} = quantize(\frac{t_{span}}{t_{div}}) \]
+    \[ tau_1 = t_{step} \times \frac{t_1}{t_{step} + 0.5} \]
+    \[ tau_n = t_{step} \times \frac{t_n}{t_{step} + 0.5} \]
+    \[ tau = [ tau_1, tau_1+t_{step}, tau_1+2t_{step}, tau_1+3t_{step}, ..., tau_n ] \]
+    where $\floor{log_{10}{x}}$ is the integer part of $log_{10}{x}$, $t_n$ is the maximum time value (e.g. maximum JD) in the dataset, $t_1$ is the minimum time value, $t_{div}$ is the number of time divisions specified by the user, $t_{step}$ is the resulting time step, and $tau$ is the set of time values upon which the time-frequency analysis is based. One set of WWZ statistics is computed per frequency per $tau$ value.  
+    
+    %\[ \frac{\mathrm{JD}_\mathrm{max} - %\mathrm{JD}_\mathrm{min} }{\mathrm{time} \, %\mathrm{divisions} } \]
+
+\newpage
+\section{Polynomial fit}
+\subsection{Equation}
+    \[ y = f(t) = \beta_0 + \beta_1t + \beta_2t^2 + \beta_3t^3 + ... + \beta_nt^n \]
+\subsection{Root Mean Square (RMS)}
+    \[ RMS = \sqrt{\frac{\sum^n_{i=1} {(y-\hat{y})^2}}{n}} \]
+    where $n$ is the number of observations, $y$ is the observed magnitude, and $\hat{y}$ is the model predicted magnitude (with $y$ - $\hat{y}$ giving the residual value).
+    
+\subsection{Akaike Information Criteria (AIC)}
+    \[ AIC = \frac{\sum^n_{i=1} {(y-\hat{y})^2}}{n} + 2deg \]
+    where $N$ is the number of observations, $y$ is the observed magnitude and $\hat{y}$ is the model predicted magnitude (with $y$ - $\hat{y}$ giving the residual value), and $deg$ is the polynomial's degree (e.g. 2 if the highest order term is $\beta_2t^2$).
+
+\subsection{Bayesian Information Criteria (BIC)}
+    \[ BIC = \frac{\sum^n_{i=1} {(y-\hat{y})^2}}{n} + deg\;ln(n) \]
+    where $n$ is the number of observations, $y$ is the observed magnitude, $\hat{y}$ is the model predicted magnitude (with $y$ - $\hat{y}$ giving the residual value), and $deg$ is the polynomial's degree (e.g. 2 if the highest order term is $\beta_2t^2$).
+
+\newpage
+\section{DCDFT}
+\subsection{standard scan}
     \[ \frac{1}{frequency} \]
     \[ \frac{1}{4T} \]
     \[ \frac{N}{4T} \]
-
-\section{WWZ time divisions}
-    \[ \frac{\mathrm{JD}_\mathrm{max} - \mathrm{JD}_\mathrm{min} }{\mathrm{time} \, \mathrm{divisions} } \]
+\subsection{period error}
+\subsubsection{standard error of the frequency}
+    \[ s_v = \sqrt{\frac{6s^2}{\pi^2 N A^2 T^2}} \]
+    where $s^2$ is the sample variance of the residuals:
+    \[ s^2 = \frac{\sum{(X - \bar{X})^2}}{N-1} \]
+    $N$ is the number of data points, $A$ is the semi-amplitude of the sinusoid for the period in question, and $T$ is the total time span of the data.
+\subsubsection{standard error of the semi-amplitude}
+    \[ s_A = \sqrt{\frac{2s^2}{N}} \]
+    where $A$ is the semi-amplitude of the sinusoid for the period in question, $s^2$ is the sample variance of the residuals, $N$ is the number of data points.
+    %\vspace{5pt} \newline
     
 \end{document}               
