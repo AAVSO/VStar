@@ -83,6 +83,9 @@ Key Changes:
  - #351: Make file-based ZTF plugin
  - #354: java.security.Policy deprecated
  - #360: ant clean target fails on Windows
+ - #366: various release updates including user manual revision table
+         update, CFF citation file addition, About box update, user manual
+         link change to GitHub in Help menu
  - #367: VSX Query plug-in: several instances share the same Ephemeris
          Dialog that may shows the incorrect title
   
