@@ -6,16 +6,16 @@ Notes:
 o Entries appear in reverse chronological order.
 o The version is composed of the form x.y.z where x is the major version 
   number, y indicates an intermediate change, z indicates a minor change.
-o The tag for each revision is applied to the VStar SourceForge Subversion 
-  repository. By navigating to that URL, the files that made up that release
+o The tag for each revision is applied to the VStar code repository.
+  By navigating to that URL, the files that made up that release
   can be viewed.
-o The subversion/git logs reveal the full details of what went into each 
-  release and who contributed what. The Key Changes sections below just 
-  summarise the key changes and features for each release, but are based 
-  upon log entries.
+o The code repository (subversion initially then git) logs reveal the
+  full details of what went into each release and who contributed what.
+  The Key Changes sections below summarise the key changes and features
+  for each release, based upon log entries.
 o Bug & Issue tracker entries cited below can be found here:
-  - https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
   - https://github.com/AAVSO/VStar/issues
+  - https://sourceforge.net/tracker/?func=browse&group_id=263306&atid=1152052
 
 Known Issues:
 o WWZ is brittle in the presence of gaps in the data. See ticket 328.
@@ -30,6 +30,65 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
+Date: Aug 26 2023
+Version: 2.23.0
+Tag: 2.23.0
+Key Changes:
+- #36:  Only one data element expected in AID CSV data stream
+- #40:  WWZ time steps computation documentation
+- #165: Documented chart properties tab in Preferences
+- #166: Update user manual re: series inversion checkbox in plot
+        control dialog
+- #180: File Open dialogue not showing Directory List correctly
+- #220 Create ZTF plugin
+- #243: Simple Filter (from dialog) string literals in Previous
+        Filter dialog description not valid VeLa
+- #253: Some filter mechanisms ignore user defined series
+- #284: User manual says at least Java 1.6 required but should be 1.8
+- #288: Observation list ordering by date error
+- #289: ASAS-SN plug-in cannot open precompiled light curves from
+        ASAS-SN photometry db
+- #291: Performance problems with large (~100K obs) datasets with many series
+- #294: Creating Fourier models sometimes fails with "cannot find specified
+        frequency" error
+- #297: Observation not being treated as fainter-than and being classified as
+        Bad (validation type)
+- #298: Change link to user manual from Help menu
+- #302: Create an installation recipe for Mac and Linux on wiki
+- #307: Bug fix for plugin build on Windows, misc. build improvement
+- #308: ANOVA result: getting java.lang.IllegalArgumentException: null
+- #310: VStar cannot load saved 'Residuals'
+- #311: VStar should quote the "comments" field while saving .csv data
+- #314: TESS/Kepler plugin magnitude conversion potentially skewed by bad data
+- #317: Add bitwise operators to VeLa
+- #318: make plugin ant clean works on Windows
+- #319: Simple filter fails with more than one Phase condition
+- #320: VeLa filter on Phase gives strange result
+- #319: Simple filter fails with more than one Phase condition
+- #321: Filter expression like "quality = 512" works for TESS files, but
+        not for QLP
+- #324: Provide means to know the valid names for columns used in VeLa filter
+- #325: Observation details are always strings
+- #327: Remove AAVSO Upload Format plugin GROUP field limit
+- #331: Mac OS X "missing files" in file open dialog problem persists
+- #332: The Gaia DR2 photometry plugin currently does not work because of
+        web-service unavailability
+- #337: Gaia plug-in interface tuning, release selection
+- #339: User created series do not persist across additive loads
+- #340: Release creation automation on branch merge via GitHub Actions
+- #342: Kepler/TESS, QLP, and Lightkurve plug-ins: make them derived from
+        TESSObSourceBase to reduce code duplication
+ - #347: Plugins miscellaneous fixes (ASAS-SN, Gaia, ZTF)
+ - #350: ASAS-SN Sky Patrol, Version 2.0: the plug-in must be enhanced
+ - #351: Make file-based ZTF plugin
+ - #354: java.security.Policy deprecated
+ - #360: ant clean target fails on Windows
+ - #366: various release updates including user manual revision table
+         update, CFF citation file addition, About box update, user manual
+         link change to GitHub in Help menu
+ - #367: VSX Query plug-in: several instances share the same Ephemeris
+         Dialog that may shows the incorrect title
+  
 Date: Jun 2 2022
 Version: 2.22.0
 Tag: 2.22.0

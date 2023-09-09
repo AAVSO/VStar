@@ -4,57 +4,8 @@ grammar VeLa;
 //       -     -          -- 
 
 // TODO:
-// - IF antecedent { consequent1 } ELSE { consequent2 } 
-// - Add .. operator as shorthand for creating numeric lists over a range
-//   o open-ended range: N.. => generator
-// - It would be more type safe to allow a signature instead of "function" **
-//   for function parameters, e.g. (real real) : real 
-//   or function (real real) : real
-// - Add compile() function **
-//   o compile() returns AST as list and/or S-expression string
-// - Allow S-expressions to be converted into ASTs, e.g. compile_sexpr() 
-//   => AST internally
-// - Generate Java class files from VeLa ASTs
-// - Functions should be properly tail recursive to allow loops
-//   o final AST in function is a recursive call, or
-//   o final SELECT AST consequent is a recursive call 
-//   o Detecting tail recursion is easy enough and not pushing VeLa 
-//     scopes is also easy, but eliminating recursive calls to eval() is harder; 
-//     compiling VeLa could do it; could we have an iteration within the loop call 
-//     Java code that handled this?
-//   o could continuation passing vs direct style combined with iteration help here?
-// - Add maps; -> as key-value pair delimiter, e.g. m <- [ key -> value, ... ];
-//   probably use ":" actually; we already use -> for select statements; could use 
-//   colon for that too
-// - Consider a typed vs heterogenous tuple type, e.g. record in homage to Pascal
-// - An object could just be created from a closure with multiple functions 
-//   accessible via an instance (function call) with "class", ".", "this"
-// - Object-based starting with maps; actually structs (object keyword) since
-//   keys in maps can be any value at all, not only bindings
-//   o Implicit (or explicit) reference to object available to functions in object
-//   o A function in an object could have either the non-function contents 
-//     of the map added to the current scope or a self/this variable pointed 
-//     to the map.
-//   o Indeed, an object is arguably just a scope, such that x.f() or
-//     x.a would involve object x being created (as a VeLaScope) and pushed
-//     onto the stack with look-ups for 'f' and 'a' then proceeding as 
-//     normal. VeLaScope's addAll() would permit multiple super classes; 
-//     to disambiguate function arguments from class instance variables, a
-//     'this' or 'self' or 'me' argument could be added to a function's actual 
-//     parameter list at invocation time. The object scope must be popped 
-//     when a function exits or by a method invocation handler in eval().
-//     A function could be marked as a method, for example.
-// - Consider omitting "function" prefix ala Java etc anonymous functions
-// - Consider a list subscript operator vs nth() **
-// - Require list elements to be all the same?
-//   o realistic & good for API calls
-//   o type checker must determine whether a lists's elements can be 
-//     coerced to the same value; perhaps declared as list<T> or checked
-//     upon each element addition
-// - Y-combinator in VeLa **
-// - Allow a type called ANY or variant types such as (real | string | list)
-// - Refinement types ala Wadler's complement to blame, e.g. f(n:real{n >= 0})
 // - Doc strings for functions; use ;; rather than -- ?
+// - Generate Java class files from VeLa ASTs
 
 // ** Parser rules **
 

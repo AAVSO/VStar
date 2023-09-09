@@ -46,6 +46,7 @@ import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
  * https://sourceforge.net/tracker/?func=detail&aid=2870716&group_id=263306
  * &atid=1152052 which will result in this being done better.
  */
+@SuppressWarnings("serial")
 public class AboutBox extends JDialog {
 
 	public AboutBox() {
@@ -185,7 +186,7 @@ public class AboutBox extends JDialog {
 		strBuf.append("000379097 from the National Science Foundation.\n\n");
 
 		strBuf.append("Lead Developer: David Benn\n");
-		strBuf.append("Contact: aavso@aavso.org\n");
+		strBuf.append("Contact: vstar@aavso.org\n");
 		strBuf.append("License: GNU Affero General Public License version 3\n\n");
 
 		strBuf.append("Illustrations of Epsilon Aurigae are by Citizen Sky\n");
@@ -211,7 +212,7 @@ public class AboutBox extends JDialog {
 
 		strBuf.append("For bug reports and fixes, documentation, plug-in\n");
 		strBuf.append("development, testing, and enthusiasm, thanks to\n");
-		strBuf.append("Cliff Kotnik, Dave Hinzel, Maksym Pyatnytskyy,\n");
+		strBuf.append("Maksym Pyatnytskyy, Cliff Kotnik, Sam Lee, Dave Hinzel,\n");
 		strBuf.append("Adam Weber, Paul York, Michelle Dadighat, Doug Welch,\n");
 		strBuf.append("Ken Mogul, Alan Plummer, Mark Blackford.\n\n");
 		

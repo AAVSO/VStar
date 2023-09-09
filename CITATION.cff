@@ -1,0 +1,61 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: VStar
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: David
+    family-names: Benn
+    affiliation: AAVSO
+    orcid: 'https://orcid.org/0000-0003-3839-8643'
+  - given-names: Sara
+    family-names: Beck
+    affiliation: AAVSO
+  - given-names: Maksym
+    family-names: Pyatnytskyy
+    affiliation: AAVSO
+  - given-names: Cliff
+    family-names: Kotnik
+    affiliation: AAVSO
+  - given-names: Sam
+    family-names: Lee
+  - given-names: Adam
+    family-names: Weber
+  - given-names: Michelle
+    family-names: Dadighat
+    affiliation: AAVSO
+  - given-names: Nico
+    family-names: Camargo
+    affiliation: Citizen Sky
+repository-code: 'https://github.com/AAVSO/VStar'
+url: 'https://www.aavso.org/vstar'
+abstract: >-
+  VStar is a multi-platform, free, open source application
+  for visualizing and analyzing time-series data. It is
+  primarily intended for use with variable star
+  observations, permitting light curves and phase plots to
+  be created, viewed in tabular form, filtered, and
+  analyzed. Period search, model creation, and
+  time-frequency analysis are supported. Data can be loaded
+  from the AAVSO International Database and various other
+  sources. VStar's feature set can be expanded via plug-ins,
+  for example, to read Kepler or Gaia mission data.
+keywords:
+  - variable stars
+  - period search
+  - period analysis
+  - time-frequency analysis
+  - discrete Fourier transform
+  - weighted wavelet z-transform
+  - Fourier models
+  - polynomial fits
+  - plug-in
+  - light curve
+  - phase plot
+license: AGPL-3.0
+version: 2.23.0
+date-released: '2023-08-27'
