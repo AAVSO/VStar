@@ -86,8 +86,7 @@ import org.aavso.tools.vstar.util.date.AbstractDateUtil;
  */
 public class VSXquery extends GeneralToolPluginBase {
 
-	private static String sVSXname = "";
-	
+	private static String lastVSXname = "";
 	protected static final String sVSX_URL = "https://www.aavso.org/vsx/index.php?view=api.object&ident=";
 
 	@Override
@@ -154,6 +153,7 @@ public class VSXquery extends GeneralToolPluginBase {
 		protected JButton resetButton;
 		protected JButton calcEphemeris;
 
+		private String starVSXname = "";
 		private EphemerisDialog ephemerisDialog = null;
 		
 		/**
@@ -206,7 +206,7 @@ public class VSXquery extends GeneralToolPluginBase {
 		
 		private JPanel createNamePane()	{
 			JPanel panel = new JPanel(new BorderLayout());
-			fieldVSXname = new TextField("VSX Name", sVSXname);
+			fieldVSXname = new TextField("VSX Name", lastVSXname);
 			fieldVSXname.getUIComponent().addKeyListener(new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
@@ -387,7 +387,7 @@ public class VSXquery extends GeneralToolPluginBase {
 					Double maxJD;
 					Double phase;
 					Double zoneOffset;
-					starName = sVSXname;
+					starName = starVSXname;
 					if (starName == null) starName = "";
 					period = fieldVSXperiod.getValue();
 					if (period == null || period <= 0) {
@@ -454,14 +454,15 @@ public class VSXquery extends GeneralToolPluginBase {
 
 		private void queryVSX() {
 			closeEphemerisDialog(false);
-			sVSXname = fieldVSXname.getValue().trim();
-			if ("".equals(sVSXname))
+			starVSXname = fieldVSXname.getValue().trim();
+			lastVSXname = starVSXname;
+			if ("".equals(starVSXname))
 				return;
 			resetVSXFields();
 			textArea.setText("Please wait...");			
 			setTitle("Wait...");
 			//pack();
-			SwingWorker<VSQqueryResult, VSQqueryResult> worker = new VSXquerySwingWorker(this, sVSXname);
+			SwingWorker<VSQqueryResult, VSQqueryResult> worker = new VSXquerySwingWorker(this, starVSXname);
 			queryButton.setEnabled(false);
 			phaseDialogButton.setEnabled(false);
 			resetButton.setEnabled(false);
