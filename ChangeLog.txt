@@ -30,7 +30,7 @@ o VStar "leaks" memory with ongoing use. The WebStart JNLP file and
 Release History
 ===============
 
-Date: Aug 26 2023
+Date: Oct 2 2023
 Version: 2.23.0
 Tag: 2.23.0
 Key Changes:
