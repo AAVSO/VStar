@@ -78,16 +78,16 @@ Key Changes:
 - #340: Release creation automation on branch merge via GitHub Actions
 - #342: Kepler/TESS, QLP, and Lightkurve plug-ins: make them derived from
         TESSObSourceBase to reduce code duplication
- - #347: Plugins miscellaneous fixes (ASAS-SN, Gaia, ZTF)
- - #350: ASAS-SN Sky Patrol, Version 2.0: the plug-in must be enhanced
- - #351: Make file-based ZTF plugin
- - #354: java.security.Policy deprecated
- - #360: ant clean target fails on Windows
- - #366: various release updates including user manual revision table
-         update, CFF citation file addition, About box update, user manual
-         link change to GitHub in Help menu
- - #367: VSX Query plug-in: several instances share the same Ephemeris
-         Dialog that may shows the incorrect title
+- #347: Plugins miscellaneous fixes (ASAS-SN, Gaia, ZTF)
+- #350: ASAS-SN Sky Patrol, Version 2.0: the plug-in must be enhanced
+- #351: Make file-based ZTF plugin
+- #354: java.security.Policy deprecated
+- #360: ant clean target fails on Windows
+- #366: various release updates including user manual revision table
+        update, CFF citation file addition, About box update, user manual
+        link change to GitHub in Help menu
+- #367: VSX Query plug-in: several instances share the same Ephemeris
+        Dialog that may shows the incorrect title
   
 Date: Jun 2 2022
 Version: 2.22.0
