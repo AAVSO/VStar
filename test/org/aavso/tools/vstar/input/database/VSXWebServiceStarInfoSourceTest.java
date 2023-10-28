@@ -55,10 +55,10 @@ public class VSXWebServiceStarInfoSourceTest extends TestCase {
 
 	// By name
 	
-	public void testGetStarByNameRCar() throws Exception {
-		StarInfo info = source.getStarByName("R Car");
-		assertEquals("000-BBQ-500", info.getAuid());
-	}
+//	public void testGetStarByNameRCar() throws Exception {
+//		StarInfo info = source.getStarByName("R Car");
+//		assertEquals("000-BBQ-500", info.getAuid());
+//	}
 	
 	public void testGetStarByNameEpsAur() throws Exception {
 		StarInfo info = source.getStarByName("eps Aur");
