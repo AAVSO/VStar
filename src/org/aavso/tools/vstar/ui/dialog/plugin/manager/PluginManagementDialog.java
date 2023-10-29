@@ -473,13 +473,12 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 			String desc = (String) pluginListModel.get(index);
 			Font f = l.getFont();
 			if (manager.isLocal(desc)) {
-				//l.setText("[Y] " + desc);
 				l.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
-			} else {
-				//l.setText("[N] " + desc);
-				l.setFont(f.deriveFont(f.getStyle() | ~Font.BOLD));
+				if (!manager.arePluginsEqual(desc)) {
+					l.setForeground(Color.GRAY);
+				}
 			}
 			return l;
-	     }
+		}
 	}
 }
