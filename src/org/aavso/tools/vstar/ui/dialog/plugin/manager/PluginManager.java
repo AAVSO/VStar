@@ -983,19 +983,16 @@ public class PluginManager {
 		List<Byte> byteList = new ArrayList<Byte>();
 		InputStream stream = url.openStream();
 		try {
-			int len = stream.available();
-			while (len > 0) {
-				byte[] bytes = new byte[len];
-				stream.read(bytes, 0, len);
-				for (byte b : bytes) {
-					byteList.add(b);
+			byte[] buf = new byte[4096];
+			int len;
+			while ((len = stream.read(buf)) > 0) {
+				for (int i = 0; i < len; i++) {
+					byteList.add(buf[i]);
 				}
-				len = stream.available();
 			}
 		} finally {
 			stream.close();
 		}
-
 		return byteList;
 	}
 
