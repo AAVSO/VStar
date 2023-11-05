@@ -25,8 +25,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -42,7 +42,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -478,7 +477,12 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 					String description = (String)(pluginListModel.get(index));
 					String plugin_doc_name = manager.getPluginDocName(description);
 					if (plugin_doc_name != null) {
-						urlStr += URLEncoder.encode(plugin_doc_name, StandardCharsets.UTF_8).replace("+", "%20");
+						try {
+							plugin_doc_name = URLEncoder.encode(plugin_doc_name, "UTF-8");
+						} catch (UnsupportedEncodingException ex) {
+							plugin_doc_name = "";
+						}
+						urlStr += plugin_doc_name.replace("+", "%20");
 					}
 				}
 				Mediator.openHelpURLInWebBrowser(urlStr);
