@@ -43,6 +43,7 @@ import org.aavso.tools.vstar.plugin.IPlugin;
 import org.aavso.tools.vstar.ui.VStar;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
+import org.aavso.tools.vstar.util.Pair;
 
 /**
  * This class manages plug-in installation, deletion, and update.
@@ -93,6 +94,11 @@ public class PluginManager {
 	private Map<String, String> remoteDescriptions;
 
 	/**
+	 * A mapping from description to remote plugin document names.
+	 */
+	private Map<String, String> remoteDocNames;
+	
+	/**
 	 * A mapping from plugin jar name to plugin files installed locally.
 	 */
 	private Map<String, File> localPlugins;
@@ -101,6 +107,11 @@ public class PluginManager {
 	 * A mapping from description to local plugin jar name.
 	 */
 	private Map<String, String> localDescriptions;
+	
+	/**
+	 * A mapping from description to local plugin document names.
+	 */
+	private Map<String, String> localDocNames;
 
 	/**
 	 * A mapping from plugin jar name to dependent library files available to be
@@ -289,6 +300,17 @@ public class PluginManager {
 	}
 
 	/**
+	 * @return the plugin document name.
+	 */
+	public String getPluginDocName(String description) {
+		String doc_name = localDocNames.get(description);
+		if (doc_name == null || "".equals(doc_name)) {
+			doc_name = remoteDocNames.get(description);
+		}
+		return doc_name;
+	}
+
+	/**
 	 * Does the plugin description correspond to a remote plugin?
 	 * 
 	 * @param description
@@ -394,6 +416,7 @@ public class PluginManager {
 
 		remotePlugins = new TreeMap<String, URL>();
 		remoteDescriptions = new TreeMap<String, String>();
+		remoteDocNames = new TreeMap<String, String>();
 		libs = new TreeMap<String, List<URL>>();
 		libDescriptions = new TreeMap<String, Set<String>>();
 		libRefs = new HashMap<String, Integer>();
@@ -473,6 +496,7 @@ public class PluginManager {
 			}
 
 			String plugin_desc = null;
+			String plugin_doc = null;
 			URL pluginUrl = null;
 			String className = pluginJarFileName.replace(".jar", "");			
 			try {
@@ -489,7 +513,9 @@ public class PluginManager {
 						depLibs.add(libUrl);							
 					}
 				}
-				plugin_desc = getPluginDescription(pluginUrl, className, depLibs);
+				Pair<String, String> info = getPluginDescription(pluginUrl, className, depLibs);
+				plugin_desc = info.first;
+				plugin_doc = info.second;
 			} catch (Exception e) {
 				//MessageBox.showErrorDialog("Plug-in Manager",
 				//	"Error reading remote plug-in information: " + className + ".\nErrror:\n" + 
@@ -505,6 +531,7 @@ public class PluginManager {
 			}
 			
 			remoteDescriptions.put(plugin_desc, pluginJarFileName);
+			remoteDocNames.put(plugin_desc, plugin_doc);
 			remotePlugins.put(pluginJarFileName, pluginUrl);
 
 			// Store dependent libs, if any exist, by plugin key.
@@ -586,6 +613,7 @@ public class PluginManager {
 
 		localPlugins = new TreeMap<String, File>();
 		localDescriptions = new TreeMap<String, String>();
+		localDocNames = new TreeMap<String, String>();
 
 		FilenameFilter jarFilter = new FilenameFilter() {
 			public boolean accept(File dir, String name) {
@@ -626,11 +654,14 @@ public class PluginManager {
 				// Load plugin, store mappings from jar name to plugin
 				// file and description.
 				String plugin_desc = null;
+				String plugin_doc = null;
 				String pluginJarFileName = file.getName();
 				String className = pluginJarFileName.replace(".jar", "");				
 				try {
 					localPlugins.put(pluginJarFileName, file);
-					plugin_desc = getPluginDescription(file.toURI().toURL(), className, depLibs);
+					Pair<String, String> info = getPluginDescription(file.toURI().toURL(), className, depLibs);
+					plugin_desc = info.first;
+					plugin_doc = info.second;
 				} catch (Exception e) {
 					//MessageBox.showErrorDialog("Plug-in Manager",
 					//	"Error reading local plugin information: " + className + ".\nError:\n" +
@@ -645,7 +676,8 @@ public class PluginManager {
 					continue;
 				}
 
-				localDescriptions.put(plugin_desc, pluginJarFileName);				
+				localDescriptions.put(plugin_desc, pluginJarFileName);
+				localDocNames.put(plugin_desc, plugin_doc);
 			}
 		}
 		if (errors.size() > 0) {
@@ -959,7 +991,7 @@ public class PluginManager {
 		}
 	}
 
-	private String getPluginDescription(URL url, String className, List<URL> depLibs)
+	private Pair<String, String> getPluginDescription(URL url, String className, List<URL> depLibs)
 		throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		List<URL> urlList = new ArrayList<URL>();
 		urlList.add(url);
@@ -969,7 +1001,7 @@ public class PluginManager {
 		try {
 			Class<?> clazz = loader.loadClass(className);
 			IPlugin plugin = (IPlugin) clazz.newInstance();
-			return plugin.getDescription();
+			return new Pair<String, String>(plugin.getDescription(), plugin.getDocName());
 		} finally {
 			loader.close();
 		}

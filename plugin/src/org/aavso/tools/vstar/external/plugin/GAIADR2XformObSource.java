@@ -126,6 +126,14 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 		return "New Star from Gaia DR2/DR3 Photometry ...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "GAIAPluginDoc.pdf";
+	}
+
 	@SuppressWarnings("serial")
 	private class GAIAParameterDialog extends AbstractOkCancelDialog {
 

@@ -70,6 +70,14 @@ public abstract class ObservationSinkPluginBase implements IPlugin {
 	public Map<String, String> getDelimiterSuffixValuePairs() {
 		return null;
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return null;
+	}
 
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()

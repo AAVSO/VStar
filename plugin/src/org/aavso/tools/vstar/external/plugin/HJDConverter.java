@@ -54,6 +54,14 @@ public class HJDConverter extends ObservationToolPluginBase {
 		return "Heliocentric JD Converter";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "HJD Converter.pdf";
+	}
+
 	@Override
 	public void invoke(ISeriesInfoProvider seriesInfo) {
 		NewStarMessage msg = Mediator.getInstance().getLatestNewStarMessage();

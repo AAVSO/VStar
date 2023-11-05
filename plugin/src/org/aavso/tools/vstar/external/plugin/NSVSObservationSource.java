@@ -64,6 +64,14 @@ public class NSVSObservationSource extends ObservationSourcePluginBase {
 		return "New Star from NSVS File...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "NSVS Plug In.pdf";
+	}
+
 	class NSVSFileReader extends AbstractObservationRetriever {
 
 		private State state;

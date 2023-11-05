@@ -96,4 +96,13 @@ public class ObserversBySeries extends ObservationToolPluginBase {
 	public String getDisplayName() {
 		return "Observers by Series";
 	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "ObserversBySeries.pdf";
+	}
+
 }

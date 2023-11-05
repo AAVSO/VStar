@@ -138,6 +138,14 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 		return str;
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "INSTRUCTIONS FOR USING THE KEPLER FITS v2.2 FILE VStar PLUG IN.pdf";
+	}
+
 	@Override
 	public List<String> getAdditionalFileExtensions() {
 		List<String> extensions = new ArrayList<String>();

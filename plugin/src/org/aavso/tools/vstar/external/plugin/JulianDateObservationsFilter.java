@@ -46,5 +46,13 @@ public class JulianDateObservationsFilter extends CustomFilterPluginBase {
 	public String getDisplayName() {
 		return "Julian Date Observations Filter";
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "JulianDateObservationsFilter.pdf";
+	}
 
 }

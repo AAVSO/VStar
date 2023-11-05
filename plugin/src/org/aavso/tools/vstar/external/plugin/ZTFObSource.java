@@ -125,6 +125,15 @@ public class ZTFObSource extends ZTFObSourceBase {
 		return "New Star from ZTF Photometry ...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "ZTFPluginDoc.pdf";
+	}
+
+
 	@SuppressWarnings("serial")
 	class ZTFParameterDialog extends AbstractOkCancelDialog {
 

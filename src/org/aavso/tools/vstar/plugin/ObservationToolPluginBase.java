@@ -49,6 +49,14 @@ abstract public class ObservationToolPluginBase implements IPlugin {
 	abstract public void invoke(ISeriesInfoProvider seriesInfo);
 
 	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return null;
+	}
+	
+	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */
 	@Override

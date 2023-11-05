@@ -54,4 +54,12 @@ public class ZTFFileObSource extends ZTFObSourceBase {
 		return "New Star from ZTF Photometry File ...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "ZTFPluginDoc.pdf";
+	}
+
 }

@@ -1288,7 +1288,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createHelpContentsListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				openHelpURLInWebBrowser("https://github.com/AAVSO/VStar/blob/master/doc/user_manual/VStarUserManual.pdf");
+				Mediator.openHelpURLInWebBrowser("https://github.com/AAVSO/VStar/blob/master/doc/user_manual/VStarUserManual.pdf");
 			}
 		};
 	}
@@ -1299,11 +1299,12 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createVStarOnlineListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				openHelpURLInWebBrowser("https://www.aavso.org/vstar-overview");
+				Mediator.openHelpURLInWebBrowser("https://www.aavso.org/vstar-overview");
 			}
 		};
 	}
 
+	/* Moved to Mediator
 	private void openHelpURLInWebBrowser(final String urlStr) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -1333,6 +1334,7 @@ public class MenuBar extends JMenuBar {
 			}
 		});
 	}
+	*/
 
 	/**
 	 * Returns the action listener to be invoked for Help->About...

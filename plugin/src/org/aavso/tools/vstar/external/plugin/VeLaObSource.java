@@ -134,6 +134,14 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		return "New Star from " + OBJ_NAME + "...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "VeLa Model Source Plug-In.pdf";
+	}
+
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
 		if (paramDialog == null)

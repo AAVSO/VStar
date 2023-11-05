@@ -104,6 +104,14 @@ public class VSXquery extends GeneralToolPluginBase {
 		return "VSX Query";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "VSX_Query_Plugin.pdf";
+	}
+
 	class DoubleField2 extends DoubleField {
 
 		private int MIN_DECIMAL_PLACES = 20;

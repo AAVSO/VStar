@@ -25,6 +25,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -66,6 +68,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 	private JButton updateButton;
 	private JButton deleteButton;
 	private JCheckBox allCheckBox;
+	private JButton helpButton;
 	private JButton closeProgramButton;
 
 	private final String DIALOG_TITLE = "Plug-in Manager";
@@ -91,6 +94,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+		topPane.add(createURLpane(PluginManager.getPluginsBaseUrl()));
 		topPane.add(createListPane());
 		topPane.add(createButtonPane());
 		topPane.add(createButtonPane2());
@@ -146,6 +150,13 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		pack();
 	}
 
+	private JPanel createURLpane(String pluginBaseURL) {
+		JPanel panel = new JPanel();
+		JLabel label = new JLabel(pluginBaseURL);
+		panel.add(label);
+		return panel;
+	}
+	
 	private JPanel createListPane() {
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -211,6 +222,10 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		});
 		panel.add(allCheckBox);
 
+		helpButton = new JButton("Help");
+		helpButton.addActionListener(createHelpButtonListener());
+		panel.add(helpButton);
+		
 		this.getRootPane().setDefaultButton(dismissButton);
 
 		return panel;
@@ -449,6 +464,24 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 				closePluginLoaders(); // under Windows, JAR file handles must be closed				
 				disableAllButtons();
 				Mediator.getInstance().performPluginManagerOperation(op);
+			}
+		};
+	}
+
+	// Return a listener for the "Help" button.
+	private ActionListener createHelpButtonListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String urlStr = "https://github.com/AAVSO/VStar/tree/master/plugin/doc/";
+				if (!allCheckBox.isSelected()) {
+					int index = pluginList.getSelectedIndex();
+					String description = (String)(pluginListModel.get(index));
+					String plugin_doc_name = manager.getPluginDocName(description);
+					if (plugin_doc_name != null) {
+						urlStr += URLEncoder.encode(plugin_doc_name, StandardCharsets.UTF_8).replace("+", "%20");
+					}
+				}
+				Mediator.openHelpURLInWebBrowser(urlStr);
 			}
 		};
 	}

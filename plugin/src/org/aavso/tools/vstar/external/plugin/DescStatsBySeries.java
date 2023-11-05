@@ -188,6 +188,14 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 		return "Descriptive statistics by series";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "DescStatsBySeries.pdf";
+	}
+
     // The calcMedian method can be moved to DescStats;
 	// some checks are excessive here. 
 	

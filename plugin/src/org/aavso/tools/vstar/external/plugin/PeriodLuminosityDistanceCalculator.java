@@ -252,4 +252,14 @@ public class PeriodLuminosityDistanceCalculator extends
 	public String getDisplayName() {
 		return "Leavitt's Law distance calculator";
 	}
+	
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "LeavittsLaw.pdf";
+	}
+	
 }

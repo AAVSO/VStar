@@ -119,6 +119,14 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 		return "AoV with Period Range";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "ASAS-SN Plug-In.pdf";
+	}
+
 	@Override
 	public void executeAlgorithm(List<ValidObservation> obs)
 			throws AlgorithmError, CancellationException {

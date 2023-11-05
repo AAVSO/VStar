@@ -66,4 +66,13 @@ public class APASSEpochPhotometryObservationSource extends
 	public boolean additionalAuthenticationSatisfied(LoginInfo loginInfo) {
 		return loginInfo.isMember();
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "AAVSOEpochObservationSource.pdf";
+	}
+	
 }

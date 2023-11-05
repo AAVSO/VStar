@@ -51,6 +51,14 @@ public class FourierModelCreator extends ModelCreatorPluginBase {
 		return "Fourier Model";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "FourierModelCreator.pdf";
+	}
+
 	@Override
 	public IModel getModel(List<ValidObservation> obs) {
 		PeriodAnalysisDerivedMultiPeriodicModel model = null;		

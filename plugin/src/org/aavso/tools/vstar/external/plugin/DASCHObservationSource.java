@@ -88,6 +88,14 @@ public class DASCHObservationSource extends ObservationSourcePluginBase {
 		return "New Star from DASCH File...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "DASCH Plug-In for VStar.pdf";
+	}
+
 	@Override
 	public List<String> getAdditionalFileExtensions() {
 		List<String> dbExtension = new ArrayList<String>();

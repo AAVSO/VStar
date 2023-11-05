@@ -19,10 +19,13 @@ package org.aavso.tools.vstar.ui.mediator;
 
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.print.PrinterException;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -2350,4 +2353,37 @@ public class Mediator {
 		// defer to Mediator.
 		System.exit(0);
 	}
+	
+	/**
+	 * Open a help page.
+	 */
+	public static void openHelpURLInWebBrowser(final String urlStr) {
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				// Try to open the VStar online page in the default web
+				// browser.
+				if (Desktop.isDesktopSupported()) {
+					Desktop desktop = Desktop.getDesktop();
+					URL url = null;
+					try {
+						url = new URL(urlStr);
+						if (desktop.isSupported(Desktop.Action.BROWSE)) {
+							try {
+								desktop.browse(url.toURI());
+							} catch (IOException e) {
+								MessageBox.showErrorDialog("VStar Help",
+										"Error reading from '" + urlStr + "'");
+							} catch (URISyntaxException e) {
+								MessageBox.showErrorDialog("VStar Help",
+										"Invalid address: '" + urlStr + "'");
+							}
+						}
+					} catch (MalformedURLException e) {
+						MessageBox.showErrorDialog("VStar Help", "Invalid address.");
+					}
+				}
+			}
+		});
+	}
+
 }

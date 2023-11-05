@@ -82,6 +82,14 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 		return "B-V series creator";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "BMinusVObservationSource.pdf";
+	}
+
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
 		return new BMinusVRetriever(requestTimeTolerance());
