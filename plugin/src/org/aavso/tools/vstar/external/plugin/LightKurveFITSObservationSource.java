@@ -81,7 +81,7 @@ public class LightKurveFITSObservationSource extends ObservationSourcePluginBase
 	 */
 	@Override
 	public String getDocName() {
-		return "Lightkurve_FITS_observation_source.pdf";
+		return "https://github.com/AAVSO/VStar/wiki/Observation-Source-Plug%E2%80%90ins#lightkurve-fits-file-reader";
 	}
 
 	@Override

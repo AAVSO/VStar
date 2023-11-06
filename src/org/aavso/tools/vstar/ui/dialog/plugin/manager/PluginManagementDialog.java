@@ -26,6 +26,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -477,12 +481,24 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 					String description = (String)(pluginListModel.get(index));
 					String plugin_doc_name = manager.getPluginDocName(description);
 					if (plugin_doc_name != null) {
-						try {
-							plugin_doc_name = URLEncoder.encode(plugin_doc_name, "UTF-8");
-						} catch (UnsupportedEncodingException ex) {
-							plugin_doc_name = "";
+						// plugin_doc_name can be a file name (without path) resided in the base plug-in doc directory.
+						// In this case it may contain spaces and other special characters.
+						// Or it can be a document URL, in this case, spaces and special characters must be properly encoded (i.e. %20 instead of space).
+						// First, we try to convert the string into URI.
+						// If the conversion was successful, the string is presumably a full document path.
+						// If not, consider it as a file name.
+						URI uri = getURIfromStringSafe(plugin_doc_name);
+						if (uri != null) {
+							urlStr = uri.toString();
 						}
-						urlStr += plugin_doc_name.replace("+", "%20");
+						else {
+							try {
+								plugin_doc_name = URLEncoder.encode(plugin_doc_name, "UTF-8").replace("+", "%20");
+							} catch (UnsupportedEncodingException ex) {
+								plugin_doc_name = "";
+							}
+							urlStr = urlStr += plugin_doc_name;
+						}
 					}
 				}
 				Mediator.openHelpURLInWebBrowser(urlStr);
@@ -490,6 +506,16 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		};
 	}
 
+	private URI getURIfromStringSafe(String s) {
+		try {
+			return (new URL(s)).toURI();
+		} catch (MalformedURLException ex) {
+			return null;
+		} catch (URISyntaxException ex) {
+			return null;
+		}
+	}
+	
 	// Return a listener for the "Close Program" button.
 	private ActionListener createCloseProgramButtonListener() {
 		return new ActionListener() {

@@ -124,7 +124,7 @@ public class AoVPeriodSearch extends PeriodAnalysisPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "ASAS-SN Plug-In.pdf";
+		return "AoV Period Analysis Plug-In.pdf";
 	}
 
 	@Override

@@ -102,7 +102,7 @@ public class ObserversBySeries extends ObservationToolPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "ObserversBySeries.pdf";
+		return "https://github.com/AAVSO/VStar/wiki/Observation-Tool-Plug%E2%80%90ins#observers-by-series";
 	}
 
 }

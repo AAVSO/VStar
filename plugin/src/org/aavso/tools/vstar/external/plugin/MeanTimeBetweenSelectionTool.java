@@ -67,7 +67,7 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "MeanTimeBetweenSelectionTool.pdf";
+		return "https://github.com/AAVSO/VStar/wiki/Observation-Tool-Plug%E2%80%90ins#mean-time-between-selections-accumulator";
 	}
 
 	@SuppressWarnings("serial")

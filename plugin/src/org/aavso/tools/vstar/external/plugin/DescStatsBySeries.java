@@ -193,7 +193,7 @@ public class DescStatsBySeries extends ObservationToolPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "DescStatsBySeries.pdf";
+		return "https://github.com/AAVSO/VStar/wiki/Observation-Tool-Plug%E2%80%90ins#descriptive-statistics-by-series";
 	}
 
     // The calcMedian method can be moved to DescStats;

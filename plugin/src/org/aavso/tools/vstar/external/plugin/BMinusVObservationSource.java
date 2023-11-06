@@ -87,7 +87,7 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "BMinusVObservationSource.pdf";
+		return "https://github.com/AAVSO/VStar/wiki/Observation-Source-Plug%E2%80%90ins#b-v-series-creator";
 	}
 
 	@Override

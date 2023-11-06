@@ -103,7 +103,7 @@ public class AAVSOUploadFileFormatObservationSource extends ObservationSourcePlu
 	 */
 	@Override
 	public String getDocName() {
-		return "AAVSOUploadFileFormatObservationSource.pdf";
+		return "https://github.com/AAVSO/VStar/wiki/Observation-Source-Plug%E2%80%90ins#aavso-upload-file-visual-and-extended-format-reader";
 	}
 
 	class AAVSOUploadFileFormatRetriever extends AbstractObservationRetriever {

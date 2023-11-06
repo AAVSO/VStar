@@ -52,7 +52,7 @@ public class JulianDateObservationsFilter extends CustomFilterPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "JulianDateObservationsFilter.pdf";
+		return "https://github.com/AAVSO/VStar/wiki/Custom-Filter-Plug%E2%80%90ins#julian-date-observations-filter";
 	}
 
 }

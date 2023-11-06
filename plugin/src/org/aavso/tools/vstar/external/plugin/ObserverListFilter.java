@@ -80,7 +80,7 @@ public class ObserverListFilter extends CustomFilterPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "ObserverListFilter.pdf";
+		return "https://github.com/AAVSO/VStar/wiki/Custom-Filter-Plug%E2%80%90ins#filter-for-list-of-observers";
 	}
 
 	public String[] getObserverList() {

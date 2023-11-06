@@ -78,7 +78,7 @@ public class JDToDateTool extends GeneralToolPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "JDToDateTool.pdf";
+		return("https://github.com/AAVSO/VStar/wiki/General-Tool-Plug%E2%80%90ins#name-convert-jd-to-calendar-date");
 	}
 	
 	// Current Julian Day value
