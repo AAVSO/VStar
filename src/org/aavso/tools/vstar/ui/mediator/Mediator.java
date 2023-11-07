@@ -24,9 +24,12 @@ import java.awt.Dimension;
 import java.awt.print.PrinterException;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2385,5 +2388,42 @@ public class Mediator {
 			}
 		});
 	}
+	
+	/**
+	 * Plug-in help
+	 */
+	public static void openPluginHelp(String plugin_doc_name) {
+		String urlStr = "https://github.com/AAVSO/VStar/tree/master/plugin/doc/";
+		if (plugin_doc_name != null) {
+			// plugin_doc_name can be a file name (without path) resided in the base plug-in doc directory.
+			// In this case it may contain spaces and other special characters.
+			// Or it can be a document URL, in this case, spaces and special characters must be properly encoded (i.e. %20 instead of space).
+			// First, we try to convert the string into URI.
+			// If the conversion was successful, the string is presumably a full document path.
+			// If not, consider it as a file name.
+			URI uri = getURIfromStringSafe(plugin_doc_name);
+			if (uri != null) {
+				urlStr = uri.toString();
+			}
+			else {
+				try {
+					plugin_doc_name = URLEncoder.encode(plugin_doc_name, "UTF-8").replace("+", "%20");
+				} catch (UnsupportedEncodingException ex) {
+					plugin_doc_name = "";
+				}
+				urlStr = urlStr += plugin_doc_name;
+			}
+		}
+		Mediator.openHelpURLInWebBrowser(urlStr);
+	}
 
+	private static URI getURIfromStringSafe(String s) {
+		try {
+			return (new URL(s)).toURI();
+		} catch (MalformedURLException ex) {
+			return null;
+		} catch (URISyntaxException ex) {
+			return null;
+		}
+	}
 }
