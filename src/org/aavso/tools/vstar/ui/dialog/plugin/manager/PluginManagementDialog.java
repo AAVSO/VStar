@@ -192,6 +192,10 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 	private JPanel createButtonPane() {
 		JPanel panel = new JPanel(new FlowLayout());
 
+		helpButton = new JButton("Help");
+		helpButton.addActionListener(createHelpButtonListener());
+		panel.add(helpButton);
+		
 		dismissButton = new JButton("Dismiss");
 		dismissButton.addActionListener(createDismissButtonListener());
 		dismissButton.setEnabled(true);
@@ -225,10 +229,6 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		});
 		panel.add(allCheckBox);
 
-		helpButton = new JButton("Help");
-		helpButton.addActionListener(createHelpButtonListener());
-		panel.add(helpButton);
-		
 		this.getRootPane().setDefaultButton(dismissButton);
 
 		return panel;

@@ -55,7 +55,6 @@ import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.Pair;
-import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
@@ -190,42 +189,12 @@ public class ZTFObSource extends ZTFObSourceBase {
 
 			topPane.add(createAdditiveLoadCheckboxPane(additiveChecked));
 			
-			// OK, Cancel
-			topPane.add(createButtonPane());
+			// Help, Cancel, OK
+			topPane.add(createButtonPane2());
 
 			contentPane.add(topPane);
 
 			this.pack();
-		}
-
-		@Override
-		protected JPanel createButtonPane() {
-			JPanel panel = new JPanel();
-
-			// to-do: localize
-			JButton helpButton = new JButton("Help");
-			helpButton.addActionListener(createHelpButtonListener());
-			panel.add(helpButton);
-			
-			JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
-			cancelButton.addActionListener(createCancelButtonListener());
-			panel.add(cancelButton);
-
-			okButton = new JButton(LocaleProps.get("OK_BUTTON"));
-			okButton.addActionListener(createOKButtonListener());
-			panel.add(okButton);
-
-			this.getRootPane().setDefaultButton(okButton);
-
-			return panel;
-		}
-
-		private ActionListener createHelpButtonListener() {
-			return new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					Mediator.openPluginHelp(getDocName());
-				}
-			};
 		}
 
 		private void searchParamPaneUpdateFocus() {
@@ -431,7 +400,15 @@ public class ZTFObSource extends ZTFObSourceBase {
 			searchParamPaneUpdateFocus();			
 			super.showDialog();			
 		}
-		
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+		 */
+		@Override
+		protected void helpAction() {
+			Mediator.openPluginHelp(getDocName());
+		}
+
 		/**
 		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
 		 */

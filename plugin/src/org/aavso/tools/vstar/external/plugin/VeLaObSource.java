@@ -506,6 +506,11 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		protected JPanel createButtonPane() {
 			JPanel panel = new JPanel(new FlowLayout());
 
+			// to-do: localize
+			JButton helpButton = new JButton("Help");
+			helpButton.addActionListener(createHelpButtonListener());
+			panel.add(helpButton);
+			
 			JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
 			cancelButton.addActionListener(cancelListener);
 			panel.add(cancelButton);
@@ -676,7 +681,15 @@ public class VeLaObSource extends ObservationSourcePluginBase {
             
             return doc;
 		}
-		
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+		 */
+		@Override
+		protected void helpAction() {
+			Mediator.openPluginHelp(getDocName());
+		}
+
 		/**
 		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
 		 */

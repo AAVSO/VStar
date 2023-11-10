@@ -322,13 +322,16 @@ public class VSXquery extends GeneralToolPluginBase {
 		}
 
 		private JPanel createButtonPane3(ActionListener cancelListener) {
-			JPanel panel = new JPanel(new BorderLayout());
+			JPanel panel = new JPanel();
+			JButton helpButton = new JButton("Help");
+			helpButton.addActionListener(createHelpButtonListener());
+			panel.add(helpButton);
 			JButton cancelButton = new JButton("Close");
 			cancelButton.addActionListener(cancelListener);
-			panel.add(cancelButton, BorderLayout.LINE_START);
+			panel.add(cancelButton);
 			resetButton = new JButton("Reset");
 			resetButton.addActionListener(createResetButtonListener());
-			panel.add(resetButton, BorderLayout.LINE_END);
+			panel.add(resetButton);
 
 			return panel;
 		}
@@ -342,6 +345,15 @@ public class VSXquery extends GeneralToolPluginBase {
 			};
 		}
 
+		// Return a listener for the "Help" button.
+		protected ActionListener createHelpButtonListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Mediator.openPluginHelp(getDocName());
+				}
+			};
+		}
+		
 		// Return a listener for the "Reset" button.
 		private ActionListener createResetButtonListener() {
 			return new ActionListener() {
