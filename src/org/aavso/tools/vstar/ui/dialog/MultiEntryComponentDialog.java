@@ -41,20 +41,26 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 
 	private List<ITextComponent<?>> fields;
+	
+	private String helpTopic = null;
 
 	/**
 	 * Constructor
 	 * 
 	 * @param title
 	 *            Title for the dialog.
+	 * @param helpTopic
+	 *            The help topic: an absolute URL or a plug-in doc name. 
 	 * @param fields
 	 *            The list of fields.
 	 * @param additionalUIComponent
 	 *            An optional addition UI component.
 	 */
 	public MultiEntryComponentDialog(String title,
+			String helpTopic,			
 			List<ITextComponent<?>> fields,
-			Optional<JComponent> additionalUIComponent) {
+			Optional<JComponent> additionalUIComponent
+			) {
 		super(title);
 		this.fields = fields;
 
@@ -70,14 +76,38 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 			topPane.add(additionalUIComponent.get());
 		}
 
-		// OK, Cancel
-		topPane.add(createButtonPane());
+		if (helpTopic == null || "".equals(helpTopic)) {
+			// OK, Cancel
+			topPane.add(createButtonPane());
+		} else {
+			// OK, Cancel, Help
+			topPane.add(createButtonPane2());
+			this.helpTopic = helpTopic;
+		}
 
 		contentPane.add(topPane);
 
 		this.pack();
 		setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.setVisible(true);
+	}
+	
+	/**
+	 * Constructor
+	 * 
+	 * @param title
+	 *            Title for the dialog.
+	 * @param fields
+	 *            The list of fields.
+	 * @param additionalUIComponent
+	 *            An optional addition UI component.
+	 * @param helpTopic
+	 *            The help topic: an absolute URL or a plug-in doc name. 
+	 */
+	public MultiEntryComponentDialog(String title,
+			List<ITextComponent<?>> fields,
+			Optional<JComponent> additionalUIComponent) {
+		this(title, null, fields, additionalUIComponent);
 	}
 
 	/**
@@ -105,6 +135,20 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 		this(title, Arrays.asList(fields), Optional.empty());
 	}
 
+	/**
+	 * Constructor
+	 * 
+	 * @param title
+	 *            Title for the dialog.
+	 * @param fields
+	 *            The variable list of fields.
+	 * @param helpTopic
+	 *            The help topic: an absolute URL or a plug-in doc name. 
+	 */
+	public MultiEntryComponentDialog(String title, String helpTopic, ITextComponent<?>... fields) {
+		this(title, helpTopic, Arrays.asList(fields), Optional.empty());
+	}
+	
 	// Add the fields.
 	private JPanel createParameterPane() {
 		JPanel panel = new JPanel();
@@ -119,6 +163,14 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 		return panel;
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+	 */
+	@Override
+	protected void helpAction() {
+		Mediator.openPluginHelp(helpTopic);
+	}
+	
 	/**
 	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
 	 */

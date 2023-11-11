@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ModelCreatorPluginBase;
@@ -66,7 +67,7 @@ public class FourierModelCreator extends ModelCreatorPluginBase {
 			// Catch all possible errors: getHarmonics() may generate an error if one of frequencies < 0, etc.			
 			IntegerField numPeriodField = new IntegerField("Number of Periods", 0, null, 1);
 			MultiEntryComponentDialog numPeriodsDialog = new MultiEntryComponentDialog(
-					"Period Count", numPeriodField);
+					"Period Count", getDocName(), numPeriodField);
 			
 			if (!numPeriodsDialog.isCancelled()) {
 				int numPeriods = numPeriodField.getValue();
@@ -80,7 +81,7 @@ public class FourierModelCreator extends ModelCreatorPluginBase {
 
 				HarmonicInputDialog dialog = new HarmonicInputDialog(
 						DocumentManager.findActiveWindow(), userSelectedFreqs,
-						freqToHarmonicsMap);
+						freqToHarmonicsMap, getDocName());
 			
 				if (!dialog.isCancelled()) { 
 					List<Harmonic> harmonics = dialog.getHarmonics();

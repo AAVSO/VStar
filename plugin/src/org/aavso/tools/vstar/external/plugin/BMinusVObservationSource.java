@@ -120,8 +120,8 @@ public class BMinusVObservationSource extends ObservationSourcePluginBase {
 				List<ITextComponent<?>> fields = new ArrayList<ITextComponent<?>>();
 				fields.add(timeToleranceField);
 
-				MultiEntryComponentDialog dlg = new MultiEntryComponentDialog("B,V Time Delta", fields,
-						Optional.of(velaFilterFieldAndPanel.second));
+				MultiEntryComponentDialog dlg = new MultiEntryComponentDialog("B,V Time Delta", getDocName(),
+						fields,	Optional.of(velaFilterFieldAndPanel.second));
 
 				Optional<Double> value = Optional.of(timeToleranceField.getValue());
 

@@ -358,7 +358,10 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			topPane.add(createAdditiveLoadCheckboxPane());
 
 			// OK, Cancel
-			topPane.add(createButtonPane());
+			//topPane.add(createButtonPane());
+			
+			// OK, Cancel, Help
+			topPane.add(createButtonPane2());
 
 			contentPane.add(topPane);
 
@@ -579,6 +582,14 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 		 */
 		public String getVelaFilterStr() {
 			return velaFilterFieldPanelPair.first.getValue().trim();
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+		 */
+		@Override
+		protected void helpAction() {
+			Mediator.openPluginHelp(getDocName());
 		}
 
 		/**
