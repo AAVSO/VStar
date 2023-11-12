@@ -31,6 +31,7 @@ import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
@@ -52,6 +53,11 @@ public class TextFormatObservationSourcePlugin extends
 	@Override
 	public String getDescription() {
 		return "Observation source for AAVSO download and simple formats";
+	}
+
+	@Override
+	public String getDocName() {
+		return Help.getAAVSOtextFormatHelpPage();
 	}
 
 	@Override

@@ -33,6 +33,7 @@ import javax.swing.JScrollPane;
 
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.model.Harmonic;
 
 /**
@@ -179,7 +180,7 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 	 */
 	@Override
 	protected void helpAction() {
-		Mediator.openPluginHelp(helpTopic);
+		Help.openPluginHelp(helpTopic);
 	}
 
 	/**

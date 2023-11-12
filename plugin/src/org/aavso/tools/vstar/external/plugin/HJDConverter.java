@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -39,6 +38,7 @@ import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.RAInfo;
+import org.aavso.tools.vstar.util.help.Help;
 
 /**
  * Converts currently loaded observations to HJD if they are not already
@@ -162,7 +162,7 @@ public class HJDConverter extends ObservationToolPluginBase {
 		 */
 		@Override
 		protected void helpAction() {
-			Mediator.openPluginHelp(helpTopic);
+			Help.openPluginHelp(helpTopic);
 		}
 
 		/**

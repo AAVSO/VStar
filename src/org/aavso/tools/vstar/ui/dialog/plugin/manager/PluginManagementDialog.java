@@ -48,6 +48,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.help.Help;
 
 /**
  * The plugin management dialog.
@@ -475,7 +476,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 					String description = (String)(pluginListModel.get(index));
 					plugin_doc_name = manager.getPluginDocName(description);
 				}
-				Mediator.openPluginHelp(plugin_doc_name);
+				Help.openPluginHelp(plugin_doc_name);
 			}
 		};
 	}

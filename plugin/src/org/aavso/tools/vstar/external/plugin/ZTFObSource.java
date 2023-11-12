@@ -52,9 +52,9 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextField;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
@@ -406,7 +406,7 @@ public class ZTFObSource extends ZTFObSourceBase {
 		 */
 		@Override
 		protected void helpAction() {
-			Mediator.openPluginHelp(getDocName());
+			Help.openPluginHelp(getDocName());
 		}
 
 		/**

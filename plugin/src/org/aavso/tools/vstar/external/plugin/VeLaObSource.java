@@ -76,6 +76,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.NumberFieldBase;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.vela.Operand;
@@ -723,7 +724,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		 */
 		@Override
 		protected void helpAction() {
-			Mediator.openPluginHelp(getDocName());
+			Help.openPluginHelp(getDocName());
 		}
 
 		/**

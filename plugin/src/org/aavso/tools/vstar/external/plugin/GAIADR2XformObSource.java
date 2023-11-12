@@ -46,8 +46,8 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextField;
-import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.help.Help;
 
 public class GAIADR2XformObSource extends GaiaObSourceBase {
 
@@ -331,7 +331,7 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 		 */
 		@Override
 		protected void helpAction() {
-			Mediator.openPluginHelp(getDocName());
+			Help.openPluginHelp(getDocName());
 		}
 
 		/**

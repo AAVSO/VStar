@@ -66,6 +66,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 //12/02/2018 C. Kotnik added name to observations so they can be
 //saved and reloaded from a file.
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.help.Help;
 
 /**
  * The base class for URL based AAVSO photometry observation source plugins.
@@ -589,7 +590,7 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 		 */
 		@Override
 		protected void helpAction() {
-			Mediator.openPluginHelp(getDocName());
+			Help.openPluginHelp(getDocName());
 		}
 
 		/**

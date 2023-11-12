@@ -30,6 +30,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.help.Help;
 
 /**
  * This dialog class permits multiple named, ranged, numeric (double) values to
@@ -168,7 +169,7 @@ public class MultiEntryComponentDialog extends AbstractOkCancelDialog {
 	 */
 	@Override
 	protected void helpAction() {
-		Mediator.openPluginHelp(helpTopic);
+		Help.openPluginHelp(helpTopic);
 	}
 	
 	/**

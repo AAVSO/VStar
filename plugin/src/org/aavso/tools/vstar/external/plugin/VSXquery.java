@@ -78,6 +78,7 @@ import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.util.date.YMD;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
@@ -349,7 +350,7 @@ public class VSXquery extends GeneralToolPluginBase {
 		protected ActionListener createHelpButtonListener() {
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Mediator.openPluginHelp(getDocName());
+					Help.openPluginHelp(getDocName());
 				}
 			};
 		}
