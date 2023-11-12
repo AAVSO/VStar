@@ -225,7 +225,7 @@ public class AdditiveLoadFileOrUrlChooser {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Optional<ObservationSourcePluginBase> plugin = getSelectedPlugin();
-				Help.openPluginHelp(!plugin.isEmpty() ? plugin.get().getDocName() : null);
+				Help.openPluginHelp(plugin.isPresent() ? plugin.get().getDocName() : null);
 			}
 		});
 
