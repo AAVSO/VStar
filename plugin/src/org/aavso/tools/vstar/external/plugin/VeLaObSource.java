@@ -512,8 +512,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		protected JPanel createButtonPane() {
 			JPanel panel = new JPanel(new FlowLayout());
 
-			// to-do: localize
-			JButton helpButton = new JButton("Help");
+			JButton helpButton = new JButton(LocaleProps.get("HELP_MENU"));
 			helpButton.addActionListener(createHelpButtonListener());
 			panel.add(helpButton);
 			

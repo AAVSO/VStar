@@ -77,8 +77,7 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	protected JPanel createButtonPane2() {
 		JPanel panel = new JPanel();
 
-		// to-do: localize
-		JButton helpButton = new JButton("Help");
+		JButton helpButton = new JButton(LocaleProps.get("HELP_MENU"));
 		helpButton.addActionListener(createHelpButtonListener());
 		panel.add(helpButton);
 		

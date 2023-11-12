@@ -54,6 +54,8 @@ public interface IPlugin {
 
 	/**
 	 * Get a document file name for this plugin.
+	 * Can be a full (absolute) URL or a file name that assumes
+	 * the plugin doc directory as a base URL.
 	 */
 	abstract public String getDocName();
 	
