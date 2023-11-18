@@ -61,6 +61,14 @@ public class MeanTimeBetweenSelectionTool extends GeneralToolPluginBase {
 	public String getDisplayName() {
 		return "Mean time between selections";
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "https://github.com/AAVSO/VStar/wiki/Observation-Tool-Plug%E2%80%90ins#mean-time-between-selections-accumulator";
+	}
 
 	@SuppressWarnings("serial")
 	class ObservationCollectionDialog extends JDialog {

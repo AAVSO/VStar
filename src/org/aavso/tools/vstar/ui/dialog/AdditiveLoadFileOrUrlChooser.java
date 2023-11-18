@@ -41,6 +41,7 @@ import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
@@ -172,6 +173,8 @@ public class AdditiveLoadFileOrUrlChooser {
 	private JPanel createPluginsList() {
 		JPanel pane = new JPanel();
 
+		pane.setBorder(BorderFactory.createTitledBorder("Source"));
+		
 		for (ObservationSourcePluginBase plugin : PluginLoader
 				.getObservationSourcePlugins()) {
 
@@ -196,7 +199,7 @@ public class AdditiveLoadFileOrUrlChooser {
 		pluginChooser = new JComboBox<String>(plugins.keySet().toArray(
 				new String[0]));
 		pluginChooser.setSelectedItem(LocaleProps.get("TEXT_FORMAT_FILE"));
-		pluginChooser.setBorder(BorderFactory.createTitledBorder("Source"));
+		//pluginChooser.setBorder(BorderFactory.createTitledBorder("Source"));
 
 		pluginChooser
 				.addActionListener(e -> {
@@ -215,6 +218,18 @@ public class AdditiveLoadFileOrUrlChooser {
 				});
 
 		pane.add(pluginChooser);
+
+		JButton helpButton = new JButton("?");
+
+		helpButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Optional<ObservationSourcePluginBase> plugin = getSelectedPlugin();
+				Help.openPluginHelp(plugin.isPresent() ? plugin.get().getDocName() : null);
+			}
+		});
+
+		pane.add(helpButton);
 
 		return pane;
 	}

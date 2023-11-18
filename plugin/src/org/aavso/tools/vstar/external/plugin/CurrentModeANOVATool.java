@@ -72,4 +72,13 @@ public class CurrentModeANOVATool extends GeneralToolPluginBase {
 	public String getDisplayName() {
 		return "Current Mode ANOVA";
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "CurrentModeANOVA.pdf";
+	}
+	
 }

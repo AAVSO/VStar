@@ -119,6 +119,14 @@ public class SuperWASPFITSObservationSource extends ObservationSourcePluginBase 
 		return "New Star from SuperWASP FITS File v2...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "SuperWASPFITSObservationSource.pdf";
+	}
+
 	class FITSObservationRetriever extends AbstractObservationRetriever {
 
 		public FITSObservationRetriever() {

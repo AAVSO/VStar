@@ -47,6 +47,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.help.Help;
 
 public class GAIADR2XformObSource extends GaiaObSourceBase {
 
@@ -126,6 +127,14 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 		return "New Star from Gaia DR2/DR3 Photometry ...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "GAIAPluginDoc.pdf";
+	}
+
 	@SuppressWarnings("serial")
 	private class GAIAParameterDialog extends AbstractOkCancelDialog {
 
@@ -164,8 +173,8 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 
 			topPane.add(createAdditiveLoadCheckboxPane(additiveChecked));
 
-			// OK, Cancel
-			topPane.add(createButtonPane());
+			// Help, Cancel, OK
+			topPane.add(createButtonPane2());
 
 			contentPane.add(topPane);
 
@@ -316,7 +325,15 @@ public class GAIADR2XformObSource extends GaiaObSourceBase {
 			
 			super.showDialog();			
 		}
-		
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+		 */
+		@Override
+		protected void helpAction() {
+			Help.openPluginHelp(getDocName());
+		}
+
 		/**
 		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
 		 */

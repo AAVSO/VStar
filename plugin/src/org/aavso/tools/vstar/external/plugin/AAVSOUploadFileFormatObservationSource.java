@@ -97,6 +97,14 @@ public class AAVSOUploadFileFormatObservationSource extends ObservationSourcePlu
 	public String getDisplayName() {
 		return "New Star from AAVSO Upload Format File...";
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "https://github.com/AAVSO/VStar/wiki/Observation-Source-Plug%E2%80%90ins#aavso-upload-file-visual-and-extended-format-reader";
+	}
 
 	class AAVSOUploadFileFormatRetriever extends AbstractObservationRetriever {
 		private String fileType;

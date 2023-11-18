@@ -78,6 +78,7 @@ import org.aavso.tools.vstar.ui.dialog.PhaseParameterDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.util.date.YMD;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
 
@@ -102,6 +103,14 @@ public class VSXquery extends GeneralToolPluginBase {
 	@Override
 	public String getDisplayName() {
 		return "VSX Query";
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "VSX_Query_Plugin.pdf";
 	}
 
 	class DoubleField2 extends DoubleField {
@@ -314,13 +323,16 @@ public class VSXquery extends GeneralToolPluginBase {
 		}
 
 		private JPanel createButtonPane3(ActionListener cancelListener) {
-			JPanel panel = new JPanel(new BorderLayout());
+			JPanel panel = new JPanel();
+			JButton helpButton = new JButton("Help");
+			helpButton.addActionListener(createHelpButtonListener());
+			panel.add(helpButton);
 			JButton cancelButton = new JButton("Close");
 			cancelButton.addActionListener(cancelListener);
-			panel.add(cancelButton, BorderLayout.LINE_START);
+			panel.add(cancelButton);
 			resetButton = new JButton("Reset");
 			resetButton.addActionListener(createResetButtonListener());
-			panel.add(resetButton, BorderLayout.LINE_END);
+			panel.add(resetButton);
 
 			return panel;
 		}
@@ -334,6 +346,15 @@ public class VSXquery extends GeneralToolPluginBase {
 			};
 		}
 
+		// Return a listener for the "Help" button.
+		protected ActionListener createHelpButtonListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					Help.openPluginHelp(getDocName());
+				}
+			};
+		}
+		
 		// Return a listener for the "Reset" button.
 		private ActionListener createResetButtonListener() {
 			return new ActionListener() {

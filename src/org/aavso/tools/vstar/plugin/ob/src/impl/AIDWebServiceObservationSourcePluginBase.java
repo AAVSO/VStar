@@ -16,6 +16,7 @@ import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.dialog.StarSelectorDialog;
 import org.aavso.tools.vstar.ui.mediator.NewStarType;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 public abstract class AIDWebServiceObservationSourcePluginBase extends
@@ -205,6 +206,11 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 	}
 
 	@Override
+	public String getDocName() {
+		return Help.getAIDWebServiceHelpPage();
+	}
+
+	@Override
 	public InputType getInputType() {
 		return InputType.URL;
 	}
@@ -215,6 +221,7 @@ public abstract class AIDWebServiceObservationSourcePluginBase extends
 		List<URL> urls = new ArrayList<URL>();
 
 		starSelector = StarSelectorDialog.getInstance();
+		starSelector.setPluginDocName(getDocName());
 
 		// Ask for object information.
 		starSelector.showDialog();

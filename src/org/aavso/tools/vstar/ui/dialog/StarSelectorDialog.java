@@ -42,6 +42,7 @@ import org.aavso.tools.vstar.ui.dialog.series.AIDSeriesSelectionPane;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.date.AbstractDateUtil;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
@@ -85,6 +86,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	// Regex pattern for AUID (AAVSO unique ID per star).
 	private static Pattern auidPattern = Pattern
 			.compile("^\\d{3}\\-\\w{3}\\-\\d{3}$");
+
+	private String pluginDocName = null;
 
 	/**
 	 * Constructor (singleton)
@@ -142,7 +145,8 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		// Default layout manager of content pane is BorderLayout
 		contentPane.add(leftPane, BorderLayout.LINE_START);
 		contentPane.add(rightPane, BorderLayout.LINE_END);
-		contentPane.add(createButtonPane(), BorderLayout.PAGE_END);
+		//contentPane.add(createButtonPane(), BorderLayout.PAGE_END);
+		contentPane.add(createButtonPane2(), BorderLayout.PAGE_END);
 
 		// this.addWindowListener(this.createWindowListener());
 
@@ -267,6 +271,10 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 	 */
 	public void setStarField(String text) {
 		starField.setText(text);
+	}
+
+	public void setPluginDocName(String pluginDocName) {
+		this.pluginDocName = pluginDocName;
 	}
 
 	// GUI components
@@ -539,6 +547,10 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		return str.replace("\'", "");
 	}
 
+	protected void helpAction() {
+		Help.openPluginHelp(pluginDocName);
+	}
+	
 	protected void cancelAction() {
 		// Nothing to do.
 	}

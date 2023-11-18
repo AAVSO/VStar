@@ -47,6 +47,14 @@ abstract public class ObservationTransformerPluginBase implements IPlugin {
 			ISeriesInfoProvider seriesInfo, Set<SeriesType> series);
 
 	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return null;
+	}
+	
+	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */
 	@Override

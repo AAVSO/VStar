@@ -109,6 +109,15 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	 */
 	public abstract InputType getInputType();
 
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return null;
+	}
+	
 	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */

@@ -89,6 +89,14 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 		return str;
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "QLP_FITS_PlugIn.pdf";
+	}
+
 	@Override
 	public List<String> getAdditionalFileExtensions() {
 		List<String> extensions = new ArrayList<String>();

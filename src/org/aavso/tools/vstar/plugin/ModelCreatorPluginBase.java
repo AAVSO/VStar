@@ -62,6 +62,14 @@ abstract public class ModelCreatorPluginBase implements IPlugin {
 	abstract public String getDisplayName();
 
 	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return null;
+	}
+	
+	/**
 	 * Set parameters for this model creator plugin invocation.
 	 * @param params The parameters to set.
 	 */

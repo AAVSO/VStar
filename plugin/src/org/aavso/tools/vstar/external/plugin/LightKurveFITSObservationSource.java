@@ -76,6 +76,14 @@ public class LightKurveFITSObservationSource extends ObservationSourcePluginBase
 		return "New Star from Lightkurve FITS File v0.4...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "https://github.com/AAVSO/VStar/wiki/Observation-Source-Plug%E2%80%90ins#lightkurve-fits-file-reader";
+	}
+
 	@Override
 	public List<String> getAdditionalFileExtensions() {
 		List<String> extensions = new ArrayList<String>();

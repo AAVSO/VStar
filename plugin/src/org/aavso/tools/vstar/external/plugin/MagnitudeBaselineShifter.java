@@ -56,6 +56,14 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 		return "Magnitude Baseline Shifter";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "Magnitude Baseline Shifter Plug-In.pdf";
+	}
+
 	@Override
 	public IUndoableAction createAction(ISeriesInfoProvider seriesInfo,
 			Set<SeriesType> series) {

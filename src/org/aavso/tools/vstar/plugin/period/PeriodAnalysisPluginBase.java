@@ -79,6 +79,14 @@ abstract public class PeriodAnalysisPluginBase implements IPlugin {
 	abstract public String getDescription();
 
 	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return null;
+	}
+	
+	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */
 	@Override

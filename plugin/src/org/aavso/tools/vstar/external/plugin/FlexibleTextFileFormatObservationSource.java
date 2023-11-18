@@ -200,6 +200,14 @@ public class FlexibleTextFileFormatObservationSource extends
 		return "New Star from Flexible Text Format File...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "FlexibleTextFileFormat Plug-In.pdf";
+	}
+
 	class FlexibleTextFileFormatRetriever extends AbstractObservationRetriever {
 		private char delimiter = DEFAULT_DELIMITER;
 		private boolean multispaceDelimiter = false;

@@ -90,6 +90,14 @@ public class ASASObservationSource extends ObservationSourcePluginBase {
 		return "New Star from ASAS File...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "ASAS Plug-In.pdf";
+	}
+
 	@Override
 	public AbstractObservationRetriever getObservationRetriever() {
 		return new ASASFileReader();

@@ -64,6 +64,14 @@ abstract public class CustomFilterPluginBase implements IPlugin {
 	abstract protected Pair<String, String> filter(List<ValidObservation> obs);
 
 	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return null;
+	}
+	
+	/**
 	 * @see org.aavso.tools.vstar.plugin.IPlugin#getGroup()
 	 */
 	@Override

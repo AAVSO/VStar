@@ -23,10 +23,6 @@ import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -79,8 +75,8 @@ import org.aavso.tools.vstar.ui.mediator.message.ZoomRequestMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ZoomType;
 import org.aavso.tools.vstar.ui.model.plot.ObservationAndMeanPlotModel;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
-import org.aavso.tools.vstar.ui.resources.ResourceAccessor;
 import org.aavso.tools.vstar.ui.vela.VeLaDialog;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
 
@@ -1288,7 +1284,7 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createHelpContentsListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				openHelpURLInWebBrowser("https://github.com/AAVSO/VStar/blob/master/doc/user_manual/VStarUserManual.pdf");
+				Help.openVStarManual();
 			}
 		};
 	}
@@ -1299,11 +1295,12 @@ public class MenuBar extends JMenuBar {
 	public ActionListener createVStarOnlineListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				openHelpURLInWebBrowser("https://www.aavso.org/vstar-overview");
+				Help.openVStarWebPage();
 			}
 		};
 	}
 
+	/* Moved to Mediator
 	private void openHelpURLInWebBrowser(final String urlStr) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -1333,6 +1330,7 @@ public class MenuBar extends JMenuBar {
 			}
 		});
 	}
+	*/
 
 	/**
 	 * Returns the action listener to be invoked for Help->About...

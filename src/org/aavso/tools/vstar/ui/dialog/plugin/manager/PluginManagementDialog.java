@@ -40,7 +40,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -49,6 +48,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.help.Help;
 
 /**
  * The plugin management dialog.
@@ -66,6 +66,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 	private JButton updateButton;
 	private JButton deleteButton;
 	private JCheckBox allCheckBox;
+	private JButton helpButton;
 	private JButton closeProgramButton;
 
 	private final String DIALOG_TITLE = "Plug-in Manager";
@@ -91,6 +92,7 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 		topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+		topPane.add(createURLpane(PluginManager.getPluginsBaseUrl()));
 		topPane.add(createListPane());
 		topPane.add(createButtonPane());
 		topPane.add(createButtonPane2());
@@ -146,6 +148,13 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 		pack();
 	}
 
+	private JPanel createURLpane(String pluginBaseURL) {
+		JPanel panel = new JPanel();
+		JLabel label = new JLabel(pluginBaseURL);
+		panel.add(label);
+		return panel;
+	}
+	
 	private JPanel createListPane() {
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -178,6 +187,10 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 	private JPanel createButtonPane() {
 		JPanel panel = new JPanel(new FlowLayout());
 
+		helpButton = new JButton("Help");
+		helpButton.addActionListener(createHelpButtonListener());
+		panel.add(helpButton);
+		
 		dismissButton = new JButton("Dismiss");
 		dismissButton.addActionListener(createDismissButtonListener());
 		dismissButton.setEnabled(true);
@@ -449,6 +462,21 @@ public class PluginManagementDialog extends JDialog implements ListSelectionList
 				closePluginLoaders(); // under Windows, JAR file handles must be closed				
 				disableAllButtons();
 				Mediator.getInstance().performPluginManagerOperation(op);
+			}
+		};
+	}
+
+	// Return a listener for the "Help" button.
+	private ActionListener createHelpButtonListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String plugin_doc_name = null;
+				if (!allCheckBox.isSelected()) {
+					int index = pluginList.getSelectedIndex();
+					String description = (String)(pluginListModel.get(index));
+					plugin_doc_name = manager.getPluginDocName(description);
+				}
+				Help.openPluginHelp(plugin_doc_name);
 			}
 		};
 	}

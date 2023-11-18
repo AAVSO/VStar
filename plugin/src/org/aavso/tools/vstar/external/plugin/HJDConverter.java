@@ -17,10 +17,18 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.awt.Container;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
@@ -30,6 +38,7 @@ import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.RAInfo;
+import org.aavso.tools.vstar.util.help.Help;
 
 /**
  * Converts currently loaded observations to HJD if they are not already
@@ -54,6 +63,14 @@ public class HJDConverter extends ObservationToolPluginBase {
 		return "Heliocentric JD Converter";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "HJD Converter.pdf";
+	}
+
 	@Override
 	public void invoke(ISeriesInfoProvider seriesInfo) {
 		NewStarMessage msg = Mediator.getInstance().getLatestNewStarMessage();
@@ -70,7 +87,11 @@ public class HJDConverter extends ObservationToolPluginBase {
 						"No observations with Julian Date");
 				return;
 			}
+			/*
 			if (!MessageBox.showConfirmDialog("Non-Heliocentric Observations", count + " Julian Date observations found. Convert them to HJD?"))
+				return;
+			*/
+			if (!showConfirmDialog2("Non-Heliocentric Observations", count + " Julian Date observations found. Convert them to HJD?", getDocName()))
 				return;
 			Pair<RAInfo, DecInfo> coords = getCoordinates(msg.getStarInfo());
 			if (coords != null) {
@@ -92,6 +113,77 @@ public class HJDConverter extends ObservationToolPluginBase {
 		}
 	}
 
+	private boolean showConfirmDialog2(String title, String msg, String helpTopic) {
+		ConfirmDialogWithHelp dlg = new ConfirmDialogWithHelp(title, msg, helpTopic);
+		return !dlg.isCancelled();
+	}
+	
+	@SuppressWarnings("serial")
+	private class ConfirmDialogWithHelp extends AbstractOkCancelDialog {
+		
+		String helpTopic;
+		
+		ConfirmDialogWithHelp(String title, String msg, String helpTopic) {
+			super(title);
+			
+			this.helpTopic = helpTopic;
+			
+			Container contentPane = this.getContentPane();
+
+			JPanel topPane = new JPanel();
+			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			
+			topPane.add(createMessagePane(msg));
+
+			// OK, Cancel, Help
+			JPanel buttonPane = createButtonPane2();
+			topPane.add(buttonPane);
+			this.helpTopic = helpTopic;
+
+			contentPane.add(topPane);
+			
+			this.pack();
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
+			okButton.requestFocusInWindow();
+			this.setVisible(true);
+			
+		}
+		
+		private JPanel createMessagePane(String msg) {
+			JPanel panel = new JPanel();
+			JLabel labelMsg = new JLabel(msg);
+			panel.add(labelMsg);
+			return panel;
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+		 */
+		@Override
+		protected void helpAction() {
+			Help.openPluginHelp(helpTopic);
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+		 */
+		@Override
+		protected void cancelAction() {
+			// Nothing to do.
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+		 */
+		@Override
+		protected void okAction() {
+			cancelled = false;
+			setVisible(false);
+			dispose();
+		}
+	}
+	
 	/**
 	 * Return RA and Dec. First look for coordinates in any of our loaded
 	 * datasets. Use the first coordinates found. We are making the simplifying

@@ -54,6 +54,7 @@ import org.aavso.tools.vstar.ui.dialog.TextArea;
 import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.NumberParser;
 
 /**
@@ -125,6 +126,15 @@ public class ZTFObSource extends ZTFObSourceBase {
 		return "New Star from ZTF Photometry ...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "ZTFPluginDoc.pdf";
+	}
+
+
 	@SuppressWarnings("serial")
 	class ZTFParameterDialog extends AbstractOkCancelDialog {
 
@@ -179,14 +189,14 @@ public class ZTFObSource extends ZTFObSourceBase {
 
 			topPane.add(createAdditiveLoadCheckboxPane(additiveChecked));
 			
-			// OK, Cancel
-			topPane.add(createButtonPane());
+			// Help, Cancel, OK
+			topPane.add(createButtonPane2());
 
 			contentPane.add(topPane);
 
 			this.pack();
 		}
-		
+
 		private void searchParamPaneUpdateFocus() {
 			SwingUtilities.invokeLater( new Runnable() { 
 				public void run() {
@@ -390,7 +400,15 @@ public class ZTFObSource extends ZTFObSourceBase {
 			searchParamPaneUpdateFocus();			
 			super.showDialog();			
 		}
-		
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+		 */
+		@Override
+		protected void helpAction() {
+			Help.openPluginHelp(getDocName());
+		}
+
 		/**
 		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
 		 */

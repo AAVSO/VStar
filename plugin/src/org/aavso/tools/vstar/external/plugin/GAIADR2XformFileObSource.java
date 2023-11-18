@@ -71,7 +71,15 @@ public class GAIADR2XformFileObSource extends GaiaObSourceBase {
 	public String getDisplayName() {
 		return "New Star from Gaia DR2/DR3 Photometry File...";
 	}
-	
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "GAIAPluginDoc.pdf";
+	}
+
 	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#getObservationRetriever()
 	 */

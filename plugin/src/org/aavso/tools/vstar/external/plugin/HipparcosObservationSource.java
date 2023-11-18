@@ -81,6 +81,14 @@ public class HipparcosObservationSource extends ObservationSourcePluginBase {
 		return "New Star from Hipparcos File...";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "HipparcosObservationSource.pdf";
+	}
+
 	class HipparcosFileReader extends AbstractObservationRetriever {
 
 		private State state;

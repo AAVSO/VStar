@@ -97,6 +97,14 @@ public class CatalinaSkySurveyObservationSource extends
 	}
 
 	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "VStar Retrieval of Catalina Sky Survey Data_updated20140602.pdf";
+	}
+
+	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#getObservationRetriever()
 	 */
 	@Override

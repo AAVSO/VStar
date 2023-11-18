@@ -75,6 +75,14 @@ public class ObserverListFilter extends CustomFilterPluginBase {
 		return "Observer List Filter";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "https://github.com/AAVSO/VStar/wiki/Custom-Filter-Plug%E2%80%90ins#filter-for-list-of-observers";
+	}
+
 	public String[] getObserverList() {
 		String str = JOptionPane.showInputDialog("Enter observer codes separated by spaces:");
 

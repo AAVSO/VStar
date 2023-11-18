@@ -66,6 +66,14 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 		return "VeLa Model";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "VeLa Model Creator Plug-In.pdf";
+	}
+
 	@Override
 	public IModel getModel(List<ValidObservation> obs) {
 		VeLaModel velaModel = new VeLaModel(obs);

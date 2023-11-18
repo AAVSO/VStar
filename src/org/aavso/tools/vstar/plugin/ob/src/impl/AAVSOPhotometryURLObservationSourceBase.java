@@ -66,6 +66,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 //12/02/2018 C. Kotnik added name to observations so they can be
 //saved and reloaded from a file.
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.help.Help;
 
 /**
  * The base class for URL based AAVSO photometry observation source plugins.
@@ -358,7 +359,10 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 			topPane.add(createAdditiveLoadCheckboxPane());
 
 			// OK, Cancel
-			topPane.add(createButtonPane());
+			//topPane.add(createButtonPane());
+			
+			// OK, Cancel, Help
+			topPane.add(createButtonPane2());
 
 			contentPane.add(topPane);
 
@@ -579,6 +583,14 @@ public class AAVSOPhotometryURLObservationSourceBase extends
 		 */
 		public String getVelaFilterStr() {
 			return velaFilterFieldPanelPair.first.getValue().trim();
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+		 */
+		@Override
+		protected void helpAction() {
+			Help.openPluginHelp(getDocName());
 		}
 
 		/**

@@ -178,6 +178,14 @@ public class ASASSNObservationSource extends ObservationSourcePluginBase {
 	public String getDisplayName() {
 		return "New Star from ASAS-SN V2.0 File...";
 	}
+	
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "ASAS-SN Plug-In.pdf";
+	}
 
 	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#getObservationRetriever()

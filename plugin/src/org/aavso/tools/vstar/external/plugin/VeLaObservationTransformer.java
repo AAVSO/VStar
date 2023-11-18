@@ -62,6 +62,14 @@ public class VeLaObservationTransformer extends
 		return "VeLa observation transformation tool";
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "VeLa Observation Transformer Plug-In.pdf";
+	}
+
 	@Override
 	public IUndoableAction createAction(ISeriesInfoProvider seriesInfo,
 			Set<SeriesType> series) {

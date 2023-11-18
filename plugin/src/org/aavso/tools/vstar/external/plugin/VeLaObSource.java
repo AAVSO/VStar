@@ -76,6 +76,7 @@ import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.NumberFieldBase;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.aavso.tools.vstar.vela.Operand;
@@ -132,6 +133,14 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 	@Override
 	public String getDisplayName() {
 		return "New Star from " + OBJ_NAME + "...";
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "VeLa Model Source Plug-In.pdf";
 	}
 
 	@Override
@@ -335,6 +344,7 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		private JTextArea codeArea;
 		private JCheckBox addToCurrent;
 		private JButton clearButton;
+		private JButton testButton;
 		private JButton loadButton;
 		private JButton saveButton;
 		
@@ -483,6 +493,11 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			panel.add(clearButton);
 			clearButton.addActionListener(createClearButtonActionListener());
 
+			// to-do: localize
+			testButton = new JButton("Test");
+			panel.add(testButton);
+			testButton.addActionListener(createTestButtonActionListener());
+
 			loadButton = new JButton(LocaleProps.get("LOAD_BUTTON"));
 			panel.add(loadButton);
 			loadButton.addActionListener(createLoadButtonActionListener());
@@ -498,6 +513,10 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		protected JPanel createButtonPane() {
 			JPanel panel = new JPanel(new FlowLayout());
 
+			JButton helpButton = new JButton(LocaleProps.get("HELP_MENU"));
+			helpButton.addActionListener(createHelpButtonListener());
+			panel.add(helpButton);
+			
 			JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
 			cancelButton.addActionListener(cancelListener);
 			panel.add(cancelButton);
@@ -522,7 +541,16 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 				}
 			};
 		}
-		
+
+		ActionListener createTestButtonActionListener() {
+			return new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					testInput();
+				}
+			};
+		}
+
 		private ActionListener createLoadButtonActionListener() {
 			return new ActionListener() {
 				@Override
@@ -547,6 +575,28 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			points.setValue(null);
 			jDflavour.setSelectedIndex(dateTypeToSelectedIndex("HJD"));
 			codeArea.setText("");
+		}
+		
+		private void testInput() {
+			minJD.setValue(2457504.8);
+			maxJD.setValue(2457505.0);
+			points.setValue(501);
+			jDflavour.setSelectedIndex(dateTypeToSelectedIndex("HJD"));
+			codeArea.setText(
+					"# test model\n\n" +
+					"zeroPoint is 2457504.93 # time zero point\n" +
+					"magZeroPoint is 13.69\n" +
+					"period is 0.0850674\n\n" +
+					"f(t: real): real {\n" +
+					"   magZeroPoint\n" +
+					"   + 0.091481685488957 * cos(2*PI*(1/period)*(t-zeroPoint)) + 0.114900355450183 * sin(2*PI*(1/period)*(t-zeroPoint))\n" +
+					"   - 0.031986371275697 * cos(2*PI*(2/period)*(t-zeroPoint)) - 0.029782272061918 * sin(2*PI*(2/period)*(t-zeroPoint))\n" +
+					"   - 0.005402185898561 * cos(2*PI*(3/period)*(t-zeroPoint)) + 0.001484256405225 * sin(2*PI*(3/period)*(t-zeroPoint))\n" +
+					"   + 0.006091217702922 * cos(2*PI*(4/period)*(t-zeroPoint)) + 0.001654399074451 * sin(2*PI*(4/period)*(t-zeroPoint))\n" +
+					"   - 0.004698206584795 * cos(2*PI*(5/period)*(t-zeroPoint)) - 0.000039671630067 * sin(2*PI*(4/period)*(t-zeroPoint))\n" +
+					"   + 0.003549883073703 * cos(2*PI*(6/period)*(t-zeroPoint)) + 0.000022578051393 * sin(2*PI*(6/period)*(t-zeroPoint))\n" +
+					"}\n");
+
 		}
 		
 		private void readVelaXML() {
@@ -668,7 +718,15 @@ public class VeLaObSource extends ObservationSourcePluginBase {
             
             return doc;
 		}
-		
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+		 */
+		@Override
+		protected void helpAction() {
+			Help.openPluginHelp(getDocName());
+		}
+
 		/**
 		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
 		 */

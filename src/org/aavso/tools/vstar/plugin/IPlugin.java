@@ -53,6 +53,13 @@ public interface IPlugin {
 	abstract public String getDescription();
 
 	/**
+	 * Get a document file name for this plugin.
+	 * Can be a full (absolute) URL or a file name that assumes
+	 * the plugin doc directory as a base URL.
+	 */
+	abstract public String getDocName();
+	
+	/**
 	 * Get the group to which this plugin belongs (may be null).
 	 */
 	abstract public String getGroup();

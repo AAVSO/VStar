@@ -33,6 +33,7 @@ import javax.swing.JScrollPane;
 
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.model.Harmonic;
 
 /**
@@ -46,6 +47,8 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 	private List<Harmonic> harmonicsPerSelectedPeriod;
 
 	private List<HarmonicPeriodPane> harmonicPeriodPanes;
+	
+	private String helpTopic = null;
 
 	/**
 	 * Constructor
@@ -57,10 +60,13 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 	 *            The user selected frequencies.
 	 * @param lastHarmonicSearchResult
 	 *            The most recent harmonic search result.
+	 * @param helpTopic
+	 *            The help topic: an absolute URL or a plug-in doc name. 
 	 */
 	public HarmonicInputDialog(Component parent,
 			List<Double> userSelectedFreqs,
-			Map<Double, List<Harmonic>> freqToHarmonicsMap) {
+			Map<Double, List<Harmonic>> freqToHarmonicsMap,
+			String helpTopic) {
 		super("Periods (days)");
 
 		this.freqToHarmonics = freqToHarmonicsMap;
@@ -77,8 +83,14 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 				createHarmonicPerUserPeriodPane(userSelectedFreqs));
 		topPane.add(harmonicPerUserPeriodScroller);
 
-		// OK, Cancel
-		topPane.add(createButtonPane());
+		if (helpTopic == null || "".equals(helpTopic)) {
+			// OK, Cancel
+			topPane.add(createButtonPane());
+		} else {
+			// OK, Cancel, Help
+			topPane.add(createButtonPane2());
+			this.helpTopic = helpTopic;
+		}
 
 		contentPane.add(topPane);
 
@@ -86,6 +98,24 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 		setLocationRelativeTo(Mediator.getUI().getContentPane());
 		this.setVisible(true);
 	}
+
+	/**
+	 * Constructor
+	 * 
+	 * @param parent
+	 *            The parent component relative to which this dialog should be
+	 *            displayed.
+	 * @param userSelectedFreqs
+	 *            The user selected frequencies.
+	 * @param lastHarmonicSearchResult
+	 *            The most recent harmonic search result.
+	 */
+	public HarmonicInputDialog(Component parent,
+			List<Double> userSelectedFreqs,
+			Map<Double, List<Harmonic>> freqToHarmonicsMap) {
+		this(parent, userSelectedFreqs, freqToHarmonicsMap, null);
+	}
+
 
 	private JPanel createHarmonicPerUserPeriodPane(
 			List<Double> userSelectedFreqs) {
@@ -143,6 +173,14 @@ public class HarmonicInputDialog extends AbstractOkCancelDialog {
 		}
 
 		return harmonicsPerSelectedPeriod;
+	}
+
+	/**
+	 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+	 */
+	@Override
+	protected void helpAction() {
+		Help.openPluginHelp(helpTopic);
 	}
 
 	/**

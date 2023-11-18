@@ -72,6 +72,27 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 
 		return panel;
 	}
+	
+	// Help, Cancel, OK
+	protected JPanel createButtonPane2() {
+		JPanel panel = new JPanel();
+
+		JButton helpButton = new JButton(LocaleProps.get("HELP_MENU"));
+		helpButton.addActionListener(createHelpButtonListener());
+		panel.add(helpButton);
+		
+		JButton cancelButton = new JButton(LocaleProps.get("CANCEL_BUTTON"));
+		cancelButton.addActionListener(createCancelButtonListener());
+		panel.add(cancelButton);
+
+		okButton = new JButton(LocaleProps.get("OK_BUTTON"));
+		okButton.addActionListener(createOKButtonListener());
+		panel.add(okButton);
+
+		this.getRootPane().setDefaultButton(okButton);
+
+		return panel;
+	}
 
 	// Return a listener for the "OK" button.
 	protected ActionListener createOKButtonListener() {
@@ -89,6 +110,15 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 				cancelAction();
 				setVisible(false);
 				dispose();
+			}
+		};
+	}
+	
+	// Return a listener for the "Help" button.
+	protected ActionListener createHelpButtonListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				helpAction();
 			}
 		};
 	}
@@ -149,4 +179,12 @@ abstract public class AbstractOkCancelDialog extends JDialog {
 	 * Implemented this method to execute cancel button action.
 	 */
 	abstract protected void cancelAction();
+
+	/**
+	 * Override this method to execute an Help button action.
+	 */
+	protected void helpAction() {
+		// do nothing
+	}
+
 }

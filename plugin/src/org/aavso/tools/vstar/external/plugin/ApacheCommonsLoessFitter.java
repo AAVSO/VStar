@@ -66,6 +66,14 @@ public class ApacheCommonsLoessFitter extends ModelCreatorPluginBase {
 		return getDescription();
 	}
 
+	/**
+	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+	 */
+	@Override
+	public String getDocName() {
+		return "ApacheCommonsLoessFilter.pdf";
+	}
+
 	@Override
 	public IModel getModel(List<ValidObservation> obs) {
 		LoessFitCreator fitCreator = new LoessFitCreator(obs);
