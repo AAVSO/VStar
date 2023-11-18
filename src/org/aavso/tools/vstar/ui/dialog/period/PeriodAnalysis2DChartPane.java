@@ -38,8 +38,6 @@ import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
-import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -74,6 +72,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	private Listener<PeriodAnalysisSelectionMessage> periodAnalysisSelectionListener;
 	private Listener<PeriodAnalysisRefinementMessage> periodAnalysisRefinementListener;
 	private Listener<HarmonicSearchResultMessage> harmonicSearchListener;
+	
+	private String chartPaneID = null;
 
 	/**
 	 * Constructor
@@ -112,6 +112,14 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	public Dimension getPreferredSize() {
 	    return new Dimension(DEFAULT_CHART_PANEL_WIDTH, DEFAULT_CHART_PANEL_HEIGHT);
 	}	
+	
+	public void setChartPaneID(String chartPaneID) {
+		this.chartPaneID = chartPaneID;
+	}
+	
+	public String getChartPaneID() {
+		return chartPaneID;
+	}
 	
 	/**
 	 * @return the chart
@@ -204,6 +212,7 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 					this, dataPoint, item);
 			if (message != null) {
+				message.setName(Mediator.getParentDialogName(this));
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
 			}
@@ -252,6 +261,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysis2DChartPane.this), info))
+					return;
 				if (info.getSource() != parent) {
 					double x = info.getDataPoint().getValue(model.getDomainType());
 					double y = info.getDataPoint().getValue(model.getRangeType());
@@ -276,6 +287,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		return new Listener<PeriodAnalysisRefinementMessage>() {
 			@Override
 			public void update(PeriodAnalysisRefinementMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysis2DChartPane.this), info))
+					return;
 				chart.getXYPlot().clearAnnotations();
 				for (PeriodAnalysisDataPoint dataPoint : info.getNewTopHits()) {
 					// if (model.getRangeType() ==
@@ -302,7 +315,12 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		return new Listener<HarmonicSearchResultMessage>() {
 			@Override
 			public void update(HarmonicSearchResultMessage info) {
-				new HarmonicInfoDialog(info, pane);
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysis2DChartPane.this), info))
+					return;
+				String id = PeriodAnalysis2DChartPane.this.getChartPaneID();
+				if (id != null && id.equals("PlotPane0")) {
+					new HarmonicInfoDialog(info, pane);
+				}
 			}
 
 			@Override

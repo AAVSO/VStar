@@ -22,6 +22,8 @@ package org.aavso.tools.vstar.ui.mediator.message;
  */
 public class MessageBase {
 
+	private String name;
+	
 	protected Object source;
 
 	public MessageBase(Object source) {
@@ -33,5 +35,13 @@ public class MessageBase {
 	 */
 	public Object getSource() {
 		return source;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
 	}
 }

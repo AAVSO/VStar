@@ -73,6 +73,8 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 	protected Listener<HarmonicSearchResultMessage> harmonicSearchResultListener;
 	protected Listener<PeriodAnalysisSelectionMessage> periodAnalysisSelectionListener;
 
+	private boolean valueChangedDisabled = false;
+
 	/**
 	 * Constructor
 	 * 
@@ -143,6 +145,9 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 	 * has "settled". This event could be consumed by other views such as plots.
 	 */
 	public void valueChanged(ListSelectionEvent e) {
+		if (valueChangedDisabled)
+			return;
+
 		if (e.getSource() == table.getSelectionModel() && table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
 			int row = table.getSelectedRow();
 
@@ -151,6 +156,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(this,
 						model.getDataPointFromRow(row), row);
+				message.setName(Mediator.getParentDialogName(this));
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier().notifyListeners(message);
 			}
 		}
@@ -202,6 +208,8 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 		return new Listener<HarmonicSearchResultMessage>() {
 			@Override
 			public void update(HarmonicSearchResultMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisDataTablePane.this), info))
+					return;
 				freqToHarmonicsMap.put(info.getDataPoint().getFrequency(), info.getHarmonics());
 			}
 
@@ -222,6 +230,8 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisDataTablePane.this), info))
+					return;
 				if (info.getSource() != parent) {
 					// Find data point in table.
 					int row = -1;
@@ -251,7 +261,12 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 						int rowHeight = table.getRowHeight(row);
 						table.scrollRectToVisible(new Rectangle(colWidth, rowHeight * row, colWidth, rowHeight));
 
-						table.setRowSelectionInterval(row, row);
+						valueChangedDisabled = true;
+						try {
+							table.setRowSelectionInterval(row, row);
+						} finally {
+							valueChangedDisabled = false;
+						}
 						enableButtons();
 					}
 				} else {

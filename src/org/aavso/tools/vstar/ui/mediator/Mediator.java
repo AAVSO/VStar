@@ -86,6 +86,7 @@ import org.aavso.tools.vstar.ui.mediator.message.ExcludedObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.FilteredObservationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.MeanSourceSeriesChangeMessage;
+import org.aavso.tools.vstar.ui.mediator.message.MessageBase;
 import org.aavso.tools.vstar.ui.mediator.message.ModelCreationMessage;
 import org.aavso.tools.vstar.ui.mediator.message.ModelSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.MultipleObservationSelectionMessage;
@@ -2349,6 +2350,32 @@ public class Mediator {
 		// need a document model including undo for this;
 		// defer to Mediator.
 		System.exit(0);
+	}
+
+	public static JDialog getParentDialog(Component c) {
+		while (c != null) {
+			if (c instanceof JDialog) {
+				return (JDialog)c;
+			}
+			c = c.getParent();
+		}
+		return null;
+	}
+	
+	public static String getParentDialogName(Component c) {
+		while (c != null) {
+			if (c instanceof JDialog) {
+				return c.getName();
+			}
+			c = c.getParent();
+		}
+		return null;
+	}
+	
+	public static boolean isMsgForDialog(JDialog dlg, MessageBase msg) {
+		if (dlg == null || msg == null || msg.getName() == null)
+			return false;
+		return msg.getName().equals(dlg.getName());
 	}
 	
 }

@@ -139,6 +139,7 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 			int item = entity.getItem();
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 					this, model.getStats().get(item), item);
+			message.setName(Mediator.getParentDialogName(this));
 			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 					.notifyListeners(message);
 		}
@@ -163,6 +164,8 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(WWZPlotPane.this), info))
+					return;
 				if (info.getSource() != parent) {
 					// Find the datapoint in the model (could be minimal or full
 					// stats).

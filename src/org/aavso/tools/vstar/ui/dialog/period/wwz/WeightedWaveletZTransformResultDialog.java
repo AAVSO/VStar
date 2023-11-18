@@ -182,6 +182,7 @@ public class WeightedWaveletZTransformResultDialog extends
 	protected void newPhasePlotButtonAction() {
 		PeriodChangeMessage message = new PeriodChangeMessage(this,
 				selectedDataPoint.getPeriod());
+		message.setName(this.getName());
 		Mediator.getInstance().getPeriodChangeNotifier().notifyListeners(
 				message);
 	}
@@ -196,6 +197,7 @@ public class WeightedWaveletZTransformResultDialog extends
 				.getFrequency());
 		HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
 				harmonics, selectedDataPoint);
+		msg.setName(this.getName());
 		Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
 	}
 
@@ -227,6 +229,8 @@ public class WeightedWaveletZTransformResultDialog extends
 	private Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			public void update(PeriodAnalysisSelectionMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(WeightedWaveletZTransformResultDialog.this), info))
+					return;
 				setNewPhasePlotButtonState(true);
 				selectedDataPoint = info.getDataPoint();
 			}

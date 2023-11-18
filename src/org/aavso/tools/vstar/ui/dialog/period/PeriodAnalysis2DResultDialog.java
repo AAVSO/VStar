@@ -159,6 +159,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		plotPanes = new ArrayList<PeriodAnalysis2DChartPane>();
 
 		// Add plots.
+		int n = 0;
 		for (PeriodAnalysis2DPlotModel model : plotModels) {
 			boolean permitlogarithmic = model.getRangeType() == PeriodAnalysisCoordinateType.POWER;
 
@@ -193,7 +194,9 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 					+ model.getDomainType();
 
 			namedComponents.add(new NamedComponent(tabName, plot));
+			plot.setChartPaneID("PlotPane" + Integer.toString(n));
 			plotPanes.add(plot);
+			n += 1;
 		}
 
 		// Add data table view.
@@ -219,6 +222,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	protected void newPhasePlotButtonAction() {
 		PeriodChangeMessage message = new PeriodChangeMessage(this,
 				selectedDataPoint.getPeriod());
+		message.setName(this.getName());
 		Mediator.getInstance().getPeriodChangeNotifier()
 				.notifyListeners(message);
 	}
@@ -231,6 +235,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 				selectedDataPoint.getFrequency(), data);
 		HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
 				harmonics, selectedDataPoint);
+		msg.setName(this.getName());
 		Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
 	}
 
@@ -239,6 +244,8 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	private Listener<PeriodAnalysisSelectionMessage> createPeriodAnalysisListener() {
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			public void update(PeriodAnalysisSelectionMessage info) {
+				if (!Mediator.isMsgForDialog(PeriodAnalysis2DResultDialog.this, info))
+					return;
 				setNewPhasePlotButtonState(true);
 				setFindHarmonicsButtonState(true);
 				selectedDataPoint = info.getDataPoint();

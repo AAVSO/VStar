@@ -58,6 +58,8 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 	private JButton refineButton;
 
 	private Listener<PeriodAnalysisRefinementMessage> periodAnalysisRefinementListener;
+	
+	private boolean valueChangedDisabled = false;
 
 	/**
 	 * Constructor.
@@ -170,7 +172,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 							PeriodAnalysisRefinementMessage msg = new PeriodAnalysisRefinementMessage(
 									this, data, topHits, newTopHits);
-
+							msg.setName(Mediator.getParentDialogName(PeriodAnalysisTopHitsTablePane.this));
 							Mediator.getInstance()
 									.getPeriodAnalysisRefinementNotifier()
 									.notifyListeners(msg);
@@ -197,6 +199,8 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisTopHitsTablePane.this), info))
+					return;
 				if (info.getSource() != parent) {
 					// Find data point in top hits table.
 					int row = -1;
@@ -229,7 +233,12 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 						table.scrollRectToVisible(new Rectangle(colWidth,
 								rowHeight * row, colWidth, rowHeight));
 
-						table.setRowSelectionInterval(row, row);
+						valueChangedDisabled = true;
+						try {
+							table.setRowSelectionInterval(row, row);
+						} finally {
+							valueChangedDisabled = false;
+						}
 						enableButtons();
 					}
 				} else {
@@ -260,6 +269,9 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 	 */
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
+		if (valueChangedDisabled)
+			return;
+
 		if (e.getSource() == table.getSelectionModel()
 				&& table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
 			// Which row in the top hits table was selected?
@@ -269,6 +281,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 				row = table.convertRowIndexToModel(row);
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 						this, model.getDataPointFromRow(row), row);
+				message.setName(Mediator.getParentDialogName(this));
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
 			}
@@ -282,6 +295,8 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 		return new Listener<PeriodAnalysisRefinementMessage>() {
 			@Override
 			public void update(PeriodAnalysisRefinementMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisTopHitsTablePane.this), info))
+					return;
 				resultantDataPoints.addAll(info.getNewTopHits());
 			}
 
