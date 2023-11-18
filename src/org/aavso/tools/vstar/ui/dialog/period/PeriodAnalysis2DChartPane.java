@@ -318,7 +318,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysis2DChartPane.this), info))
 					return;
 				String id = PeriodAnalysis2DChartPane.this.getChartPaneID();
-				if (id != null && id.equals("PlotPane0")) {
+				String currentID = info.getIDstring();
+				if (currentID != null && currentID.equals(id)) {
 					new HarmonicInfoDialog(info, pane);
 				}
 			}

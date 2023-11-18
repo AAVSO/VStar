@@ -2363,13 +2363,12 @@ public class Mediator {
 	}
 	
 	public static String getParentDialogName(Component c) {
-		while (c != null) {
-			if (c instanceof JDialog) {
-				return c.getName();
-			}
-			c = c.getParent();
+		JDialog dlg = getParentDialog(c);
+		if (dlg != null) {
+			return dlg.getName();
+		} else {
+			return null;
 		}
-		return null;
 	}
 	
 	public static boolean isMsgForDialog(JDialog dlg, MessageBase msg) {

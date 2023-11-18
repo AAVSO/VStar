@@ -30,6 +30,7 @@ import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.ui.NamedComponent;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
@@ -42,6 +43,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisAlgorithm;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
+import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.DatasetRenderingOrder;
 
@@ -69,6 +71,10 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	private IPeriodAnalysisDatum selectedDataPoint;
 
 	private Listener<PeriodAnalysisSelectionMessage> periodAnalysisListener;
+	
+	private JTabbedPane tabbedPane;
+	
+	private String findHarmonicsButtonText;
 
 	/**
 	 * Constructor
@@ -95,6 +101,8 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		assert searchType == PeriodAnalysisCoordinateType.PERIOD
 				|| searchType == PeriodAnalysisCoordinateType.FREQUENCY;
 
+		findHarmonicsButtonText = LocaleProps.get("FIND_HARMONICS_BUTTON");
+		
 		selectedDataPoint = null;
 
 		resultDataMap = algorithm.getResultSeries();
@@ -147,7 +155,8 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	}
 
 	protected Component createContent() {
-		return createTabs();
+		tabbedPane = createTabs();
+		return tabbedPane;
 	}
 
 	// Return the tabs containing table and plots of frequency vs one of the
@@ -229,6 +238,17 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 
 	@Override
 	protected void findHarmonicsButtonAction() {
+		String chartID = null;
+		Component c = tabbedPane.getSelectedComponent();
+		if (c instanceof PeriodAnalysis2DChartPane) {
+			chartID = ((PeriodAnalysis2DChartPane)c).getChartPaneID();
+		}
+		
+		if (chartID == null) {
+			MessageBox.showMessageDialog("Find Harmonic", "Please select a tab with a chart");
+			return;
+		}
+		
 		List<Double> data = algorithm.getResultSeries().get(
 				PeriodAnalysisCoordinateType.FREQUENCY);
 		List<Harmonic> harmonics = findHarmonics(
@@ -236,6 +256,7 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
 				harmonics, selectedDataPoint);
 		msg.setName(this.getName());
+		msg.setIDstring(chartID);
 		Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
 	}
 
@@ -249,6 +270,9 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 				setNewPhasePlotButtonState(true);
 				setFindHarmonicsButtonState(true);
 				selectedDataPoint = info.getDataPoint();
+				// Sometimes the cross-hair does not coincide with the real selection.
+				// Let's indicate the selected frequency on the button...  
+				findHarmonicsButton.setText(findHarmonicsButtonText + " [" + NumericPrecisionPrefs.formatOther(selectedDataPoint.getFrequency()) + "]");
 			}
 
 			public boolean canBeRemoved() {

@@ -18,8 +18,13 @@
 package org.aavso.tools.vstar.ui.dialog.model;
 
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -62,8 +67,6 @@ public class HarmonicInfoDialog extends JDialog implements
 
 	private Map<String, Harmonic> harmonicMap;
 
-	private JButton dismissButton;
-
 	/**
 	 * Constructor.
 	 * 
@@ -96,6 +99,13 @@ public class HarmonicInfoDialog extends JDialog implements
 
 		getContentPane().add(topPane);
 		pack();
+		
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we) {
+				dismiss();
+			}
+		});
+		
 		setLocationRelativeTo(Mediator.getUI().getContentPane());
 		setVisible(true);
 	}
@@ -128,11 +138,16 @@ public class HarmonicInfoDialog extends JDialog implements
 	private JPanel createButtonPane() {
 		JPanel panel = new JPanel(new FlowLayout());
 
-		dismissButton = new JButton("Dismiss");
+		JButton dismissButton = new JButton("Dismiss");
 		dismissButton.addActionListener(createDismissButtonListener());
 		dismissButton.setEnabled(true);
 		panel.add(dismissButton);
 
+		JButton copyButton = new JButton("Copy");
+		copyButton.addActionListener(createCopyButtonListener());
+		copyButton.setEnabled(true);
+		panel.add(copyButton);
+		
 		this.getRootPane().setDefaultButton(dismissButton);
 
 		return panel;
@@ -147,30 +162,46 @@ public class HarmonicInfoDialog extends JDialog implements
 				String desc = (String) harmonicListModel
 						.get(selectedModelIndex);
 				Harmonic harmonic = harmonicMap.get(desc);
-				plotPane
-						.setCrossHair(harmonic.getFrequency(),
-								findNthRangeValueFromFrequency(harmonic
-										.getFrequency()));
+				double x = harmonic.getFrequency();
+				double y = findNthChartRangeValueFromFrequency(x);
+				// 'y' is not the exact value because the chart resolution is limited.
+				plotPane.setCrossHair(x, y);								
 			}
 		}
 	}
 
 	// Return the range value corresponding to the specified frequency.
-	private Double findNthRangeValueFromFrequency(double frequency) {
+	private Double findNthChartRangeValueFromFrequency(double frequency) {
 		Double value = null;
 
 		List<Double> freqVals = plotPane.getModel().getDomainValues();
 		List<Double> rangeVals = plotPane.getModel().getRangeValues();
 
+		// We take points from the chart; the number of chart points (typically, 100)
+		// is less than the number of calculated frequencies among which 
+		// the harmonic had been searched (see PeriodAnalysisDialogBase.findHarmonics()).
+		// So we cannot directly compare 'frequency' with chart values, and even
+		// Tolerance() will not help much.
+		// We assume, however, that the point of interest exists on the chart.
+		// So, we simply try to find the closest chart point.
+		
 		int i = 0;
+		Double minDif = null; 
 		while (i < freqVals.size()) {
-			if (freqVals.get(i) == frequency) {
+			double f = freqVals.get(i); // we assume get() returns non-null
+			double dif = Math.abs(f - frequency);
+			if (minDif != null) {
+				if (dif < minDif) {
+					minDif = dif;
+					value = rangeVals.get(i);
+				}
+			} else {
+				minDif = dif;
 				value = rangeVals.get(i);
-				break;
 			}
 			i++;
 		}
-
+		
 		if (value == null) {
 			throw new IllegalArgumentException("Unknown frequency");
 		}
@@ -178,15 +209,34 @@ public class HarmonicInfoDialog extends JDialog implements
 		return value;
 	}
 
+	private void dismiss() {
+		setVisible(false);
+		dispose();
+		// Restore the plot's cross hair.
+		plotPane.setCrossHair(startX, startY);
+	}
+	
 	// Return a listener for the "Dismiss" button.
 	private ActionListener createDismissButtonListener() {
 		return new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-				dispose();
-				// Restore the plot's cross hair.
-				plotPane.setCrossHair(startX, startY);
+				dismiss();
 			}
 		};
 	}
+	
+	// Return a listener for the "Dismiss" button.
+	private ActionListener createCopyButtonListener() {
+		return new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String s = "";
+				for (int i = 0; i < harmonicListModel.size(); i++) {
+					s += harmonicListModel.get(i).toString() + "\n";
+				}
+				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clipboard.setContents(new StringSelection(s) , null);
+			}
+		};
+	}
+
 }

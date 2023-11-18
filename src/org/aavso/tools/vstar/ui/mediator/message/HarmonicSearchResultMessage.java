@@ -30,6 +30,7 @@ public class HarmonicSearchResultMessage extends MessageBase {
 
 	private List<Harmonic> harmonics;
 	private IPeriodAnalysisDatum dataPoint;
+	private String iDstring = null;
 	
 	/**
 	 * Constructor
@@ -59,5 +60,13 @@ public class HarmonicSearchResultMessage extends MessageBase {
 	 */
 	public IPeriodAnalysisDatum getDataPoint() {
 		return dataPoint;
+	}
+	
+	public void setIDstring(String s) {
+		iDstring = s;
+	}
+	
+	public String getIDstring() {
+		return iDstring; 
 	}
 }
