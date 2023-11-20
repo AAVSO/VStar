@@ -171,6 +171,10 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 				List<PeriodAnalysisDataPoint> dataPoints = new ArrayList<PeriodAnalysisDataPoint>();
 				List<Double> userSelectedFreqs = new ArrayList<Double>();
 				int[] selectedTableRowIndices = table.getSelectedRows();
+				if (selectedTableRowIndices.length < 1) {
+					MessageBox.showMessageDialog(LocaleProps.get("CREATE_MODEL_BUTTON"), "Please select a row");
+					return;
+				}
 				for (int row : selectedTableRowIndices) {
 					int modelRow = table.convertRowIndexToModel(row);
 

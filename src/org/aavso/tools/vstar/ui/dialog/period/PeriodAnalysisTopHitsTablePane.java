@@ -240,6 +240,8 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 							valueChangedDisabled = false;
 						}
 						enableButtons();
+					} else {
+						table.clearSelection();
 					}
 				} else {
 					enableButtons();

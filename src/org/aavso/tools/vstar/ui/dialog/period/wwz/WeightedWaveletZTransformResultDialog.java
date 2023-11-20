@@ -31,7 +31,6 @@ import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.ui.NamedComponent;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodChangeMessage;
 import org.aavso.tools.vstar.ui.model.list.WWZDataTableModel;
@@ -39,7 +38,6 @@ import org.aavso.tools.vstar.ui.model.plot.WWZ2DPlotModel;
 import org.aavso.tools.vstar.ui.model.plot.WWZ3DPlotModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
-import org.aavso.tools.vstar.util.model.Harmonic;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.wwz.WWZCoordinateType;
@@ -193,14 +191,15 @@ public class WeightedWaveletZTransformResultDialog extends
 
 	@Override
 	protected void findHarmonicsButtonAction() {
-		List<Harmonic> harmonics = findHarmonicsFromWWZStats(selectedDataPoint
-				.getFrequency());
-		HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
-				harmonics, selectedDataPoint);
-		msg.setName(this.getName());
-		Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
+//		List<Harmonic> harmonics = findHarmonicsFromWWZStats(selectedDataPoint
+//				.getFrequency());
+//		HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
+//				harmonics, selectedDataPoint);
+//		msg.setName(this.getName());
+//		Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
 	}
 
+/*
 	// TODO: Refactor so that the base class method takes an interface
 	// with a method that returns a frequency from a sequence. Then
 	// List<Double> or List<WWZStatistic> can be wrapped in an object
@@ -223,6 +222,7 @@ public class WeightedWaveletZTransformResultDialog extends
 
 		return harmonics;
 	}
+*/	
 
 	// Enable the new phase plot button and store the selected
 	// period analysis data point.

@@ -177,7 +177,7 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 	 *            The data in which to search; assumed to be frequencies.
 	 * @return A list of harmonic objects.
 	 */
-	protected List<Harmonic> findHarmonics(double freq, List<Double> data) {
+	protected List<Harmonic> findHarmonics(double freq, List<Double> data, double tolerance) {
 		List<Harmonic> harmonics = new ArrayList<Harmonic>();
 		harmonics.add(new Harmonic(freq, Harmonic.FUNDAMENTAL));
 		int n = Harmonic.FUNDAMENTAL + 1;
@@ -185,13 +185,13 @@ abstract public class PeriodAnalysisDialogBase extends JDialog implements
 		for (int i = 0; i < data.size(); i++) {
 			
 			double potentialHarmonic = data.get(i) / n;
-			
+
 			// Check if the data is a harmonic of the frequency within
 			// a relative tolerance range
-			if(Tolerance.areClose(potentialHarmonic, freq, 1e-3, false)){
+			if (Tolerance.areClose(potentialHarmonic, freq, tolerance, false)) {
 				harmonics.add(new Harmonic(freq * n, n));
 				n++; 
-			  }
+			}
 		}
 
 		return harmonics;

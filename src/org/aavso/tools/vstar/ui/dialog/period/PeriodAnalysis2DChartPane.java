@@ -45,6 +45,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.DatasetChangeListener;
@@ -195,6 +196,15 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	}
 
 	public void chartMouseClicked(ChartMouseEvent event) {
+		// The cross-hair appears if the user clicks the chart even if there is no
+		// 'entity' under the mouse. This means that the cross-hair selection
+		// does not always coincide with the selected data point.
+		// Let's show the cross-hair only if an 'entity' is behind it. 
+		
+		XYPlot plot = event.getChart().getXYPlot();
+		plot.setDomainCrosshairVisible(false);
+		plot.setRangeCrosshairVisible(false);
+		
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int item = entity.getItem();
@@ -208,6 +218,9 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 					dataPoint = plotModel.getDataPointFromItem(item);
 				}
 			}
+			
+			plot.setDomainCrosshairVisible(true);
+			plot.setRangeCrosshairVisible(true);
 
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 					this, dataPoint, item);
@@ -230,6 +243,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	public void setCrossHair(double x, double y) {
 		chart.getXYPlot().setDomainCrosshairValue(x);
 		chart.getXYPlot().setRangeCrosshairValue(y);
+		chart.getXYPlot().setDomainCrosshairVisible(true);
+		chart.getXYPlot().setRangeCrosshairVisible(true);
 	}
 
 	public void chartMouseMoved(ChartMouseEvent event) {
@@ -268,8 +283,11 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 					double y = info.getDataPoint().getValue(model.getRangeType());
 
 					if (x != Double.NaN && y != Double.NaN) {
-						chart.getXYPlot().setDomainCrosshairValue(x);
-						chart.getXYPlot().setRangeCrosshairValue(y);
+						XYPlot plot = chart.getXYPlot();
+						plot.setDomainCrosshairValue(x);
+						plot.setRangeCrosshairValue(y);
+						plot.setDomainCrosshairVisible(true);
+						plot.setRangeCrosshairVisible(true);		
 					}
 				}
 			}

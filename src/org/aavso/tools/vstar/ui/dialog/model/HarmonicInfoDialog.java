@@ -25,7 +25,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -46,6 +45,7 @@ import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.util.model.Harmonic;
+import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 /**
@@ -99,7 +99,7 @@ public class HarmonicInfoDialog extends JDialog implements
 
 		getContentPane().add(topPane);
 		pack();
-		
+
 		this.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
 				dismiss();
@@ -162,51 +162,17 @@ public class HarmonicInfoDialog extends JDialog implements
 				String desc = (String) harmonicListModel
 						.get(selectedModelIndex);
 				Harmonic harmonic = harmonicMap.get(desc);
-				double x = harmonic.getFrequency();
-				double y = findNthChartRangeValueFromFrequency(x);
-				// 'y' is not the exact value because the chart resolution is limited.
-				plotPane.setCrossHair(x, y);								
-			}
-		}
-	}
-
-	// Return the range value corresponding to the specified frequency.
-	private Double findNthChartRangeValueFromFrequency(double frequency) {
-		Double value = null;
-
-		List<Double> freqVals = plotPane.getModel().getDomainValues();
-		List<Double> rangeVals = plotPane.getModel().getRangeValues();
-
-		// We take points from the chart; the number of chart points (typically, 100)
-		// is less than the number of calculated frequencies among which 
-		// the harmonic had been searched (see PeriodAnalysisDialogBase.findHarmonics()).
-		// So we cannot directly compare 'frequency' with chart values, and even
-		// Tolerance() will not help much.
-		// We assume, however, that the point of interest exists on the chart.
-		// So, we simply try to find the closest chart point.
-		
-		int i = 0;
-		Double minDif = null; 
-		while (i < freqVals.size()) {
-			double f = freqVals.get(i); // we assume get() returns non-null
-			double dif = Math.abs(f - frequency);
-			if (minDif != null) {
-				if (dif < minDif) {
-					minDif = dif;
-					value = rangeVals.get(i);
+				double x;
+				if (plotPane.getModel().getDomainType() == PeriodAnalysisCoordinateType.FREQUENCY) { 
+					x = harmonic.getFrequency();
+				} else if (plotPane.getModel().getDomainType() == PeriodAnalysisCoordinateType.PERIOD) { 
+					x = harmonic.getPeriod();
+				} else {
+					return;
 				}
-			} else {
-				minDif = dif;
-				value = rangeVals.get(i);
+				plotPane.setCrossHair(x, 0);
 			}
-			i++;
 		}
-		
-		if (value == null) {
-			throw new IllegalArgumentException("Unknown frequency");
-		}
-
-		return value;
 	}
 
 	private void dismiss() {

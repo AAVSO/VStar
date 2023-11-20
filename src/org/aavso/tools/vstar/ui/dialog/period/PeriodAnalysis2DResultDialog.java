@@ -30,7 +30,9 @@ import org.aavso.tools.vstar.plugin.PluginComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisComponentFactory;
 import org.aavso.tools.vstar.plugin.period.PeriodAnalysisDialogBase;
 import org.aavso.tools.vstar.ui.NamedComponent;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
@@ -75,6 +77,11 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	private JTabbedPane tabbedPane;
 	
 	private String findHarmonicsButtonText;
+
+	private static final double FREQUENCY_RELATIVE_TOLERANCE = 1e-3;
+	
+	private double currentTolerance = FREQUENCY_RELATIVE_TOLERANCE;
+	DoubleField toleranceField;
 
 	/**
 	 * Constructor
@@ -249,15 +256,24 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 			return;
 		}
 		
-		List<Double> data = algorithm.getResultSeries().get(
-				PeriodAnalysisCoordinateType.FREQUENCY);
-		List<Harmonic> harmonics = findHarmonics(
-				selectedDataPoint.getFrequency(), data);
+		MultiEntryComponentDialog paramDialog = createParamDialog();
+		if (paramDialog.isCancelled()) {
+			return;
+		}
+		currentTolerance = toleranceField.getValue();
+		//List<Double> data = algorithm.getResultSeries().get(PeriodAnalysisCoordinateType.FREQUENCY);
+		List<Double> data = algorithm.getTopHits().get(PeriodAnalysisCoordinateType.FREQUENCY);
+		List<Harmonic> harmonics = findHarmonics(selectedDataPoint.getFrequency(), data, currentTolerance);
 		HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
 				harmonics, selectedDataPoint);
 		msg.setName(this.getName());
 		msg.setIDstring(chartID);
 		Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
+	}
+	
+	private MultiEntryComponentDialog createParamDialog() {
+		toleranceField = new DoubleField("Relative Frequency Tolerance", 0.0, 1.0, currentTolerance); 
+		return new MultiEntryComponentDialog("Find Harmonics", toleranceField);
 	}
 
 	// Enable the new phase plot button and store the selected
