@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.aavso.tools.vstar.auth.AAVSOPostAuthenticationSource;
+import org.aavso.tools.vstar.auth.AAVSOPostUserPassXMLAuthenticationSource;
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
@@ -60,7 +60,7 @@ public class Authenticator {
 		this.authenticated = false;
 
 		this.authenticators = new ArrayList<IAuthenticationSource>();
-		this.authenticators.add(new AAVSOPostAuthenticationSource());
+		this.authenticators.add(new AAVSOPostUserPassXMLAuthenticationSource());
 	}
 
 	/**

@@ -45,6 +45,7 @@ public interface IAuthenticationSource {
 
 	/**
 	 * Returns the login type for this authenticator.
+	 * @deprecated
 	 * 
 	 * @return The login type.
 	 */
