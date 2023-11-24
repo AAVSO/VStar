@@ -139,7 +139,7 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 			int item = entity.getItem();
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 					this, model.getStats().get(item), item);
-			message.setName(Mediator.getParentDialogName(this));
+			message.setTag(Mediator.getParentDialogName(this));
 			Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 					.notifyListeners(message);
 		}

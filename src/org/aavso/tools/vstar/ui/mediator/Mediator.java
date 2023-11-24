@@ -2372,9 +2372,9 @@ public class Mediator {
 	}
 	
 	public static boolean isMsgForDialog(JDialog dlg, MessageBase msg) {
-		if (dlg == null || msg == null || msg.getName() == null)
+		if (dlg == null || msg == null || msg.getTag() == null)
 			return false;
-		return msg.getName().equals(dlg.getName());
+		return msg.getTag().equals(dlg.getName());
 	}
 	
 }

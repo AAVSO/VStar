@@ -22,7 +22,7 @@ package org.aavso.tools.vstar.ui.mediator.message;
  */
 public class MessageBase {
 
-	private String name;
+	private String tag;
 	
 	protected Object source;
 
@@ -37,11 +37,11 @@ public class MessageBase {
 		return source;
 	}
 	
-	public void setName(String name) {
-		this.name = name;
+	public void setTag(String name) {
+		this.tag = name;
 	}
 	
-	public String getName() {
-		return name;
+	public String getTag() {
+		return tag;
 	}
 }

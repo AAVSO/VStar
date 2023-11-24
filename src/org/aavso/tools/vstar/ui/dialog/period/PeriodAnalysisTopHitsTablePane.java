@@ -59,8 +59,6 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 	private Listener<PeriodAnalysisRefinementMessage> periodAnalysisRefinementListener;
 	
-	private boolean valueChangedDisabled = false;
-
 	/**
 	 * Constructor.
 	 * 
@@ -172,7 +170,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 
 							PeriodAnalysisRefinementMessage msg = new PeriodAnalysisRefinementMessage(
 									this, data, topHits, newTopHits);
-							msg.setName(Mediator.getParentDialogName(PeriodAnalysisTopHitsTablePane.this));
+							msg.setTag(Mediator.getParentDialogName(PeriodAnalysisTopHitsTablePane.this));
 							Mediator.getInstance()
 									.getPeriodAnalysisRefinementNotifier()
 									.notifyListeners(msg);
@@ -233,15 +231,20 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 						table.scrollRectToVisible(new Rectangle(colWidth,
 								rowHeight * row, colWidth, rowHeight));
 
-						valueChangedDisabled = true;
+						boolean state = disableValueChangeEvent();
 						try {
 							table.setRowSelectionInterval(row, row);
 						} finally {
-							valueChangedDisabled = false;
+							setValueChangedDisabledState(state);
 						}
 						enableButtons();
 					} else {
-						table.clearSelection();
+						boolean state = disableValueChangeEvent();
+						try {
+							table.clearSelection();
+						} finally {
+							setValueChangedDisabledState(state);
+						}
 					}
 				} else {
 					enableButtons();
@@ -271,7 +274,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 	 */
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		if (valueChangedDisabled)
+		if (isValueChangeDisabled())
 			return;
 
 		if (e.getSource() == table.getSelectionModel()
@@ -283,7 +286,7 @@ public class PeriodAnalysisTopHitsTablePane extends PeriodAnalysisDataTablePane 
 				row = table.convertRowIndexToModel(row);
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 						this, model.getDataPointFromRow(row), row);
-				message.setName(Mediator.getParentDialogName(this));
+				message.setTag(Mediator.getParentDialogName(this));
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
 			}

@@ -218,12 +218,14 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		// Add data table view.
 		dataTablePane = new PeriodAnalysisDataTablePane(dataTableModel,
 				algorithm, false);
+		dataTablePane.setTablePaneID("DataTable");
 		namedComponents.add(new NamedComponent(LocaleProps.get("DATA_TAB"),
 				dataTablePane));
 
 		// Add top-hits table view.
 		topHitsTablePane = new PeriodAnalysisTopHitsTablePane(
 				topHitsTableModel, dataTableModel, algorithm);
+		topHitsTablePane.setTablePaneID("TopHitsTable");
 		namedComponents.add(new NamedComponent(LocaleProps.get("TOP_HITS_TAB"),
 				topHitsTablePane));
 
@@ -238,21 +240,23 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 	protected void newPhasePlotButtonAction() {
 		PeriodChangeMessage message = new PeriodChangeMessage(this,
 				selectedDataPoint.getPeriod());
-		message.setName(this.getName());
+		message.setTag(this.getName());
 		Mediator.getInstance().getPeriodChangeNotifier()
 				.notifyListeners(message);
 	}
 
 	@Override
 	protected void findHarmonicsButtonAction() {
-		String chartID = null;
+		String componentID = null;
 		Component c = tabbedPane.getSelectedComponent();
 		if (c instanceof PeriodAnalysis2DChartPane) {
-			chartID = ((PeriodAnalysis2DChartPane)c).getChartPaneID();
+			componentID = ((PeriodAnalysis2DChartPane)c).getChartPaneID();
+		} else if (c instanceof PeriodAnalysisDataTablePane) {
+			componentID = ((PeriodAnalysisDataTablePane)c).getTablePaneID();
 		}
 		
-		if (chartID == null) {
-			MessageBox.showMessageDialog("Find Harmonic", "Please select a tab with a chart");
+		if (componentID == null) {
+			MessageBox.showMessageDialog("Find Harmonic", "Not implemented for this view");
 			return;
 		}
 		
@@ -265,9 +269,9 @@ public class PeriodAnalysis2DResultDialog extends PeriodAnalysisDialogBase {
 		List<Double> data = algorithm.getTopHits().get(PeriodAnalysisCoordinateType.FREQUENCY);
 		List<Harmonic> harmonics = findHarmonics(selectedDataPoint.getFrequency(), data, currentTolerance);
 		HarmonicSearchResultMessage msg = new HarmonicSearchResultMessage(this,
-				harmonics, selectedDataPoint);
-		msg.setName(this.getName());
-		msg.setIDstring(chartID);
+				harmonics, selectedDataPoint, currentTolerance);
+		msg.setTag(this.getName());
+		msg.setIDstring(componentID);
 		Mediator.getInstance().getHarmonicSearchNotifier().notifyListeners(msg);
 	}
 	

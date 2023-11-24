@@ -29,6 +29,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.model.HarmonicInfoDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
@@ -225,7 +226,7 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 					this, dataPoint, item);
 			if (message != null) {
-				message.setName(Mediator.getParentDialogName(this));
+				message.setTag(Mediator.getParentDialogName(this));
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
 			}
@@ -333,12 +334,16 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		return new Listener<HarmonicSearchResultMessage>() {
 			@Override
 			public void update(HarmonicSearchResultMessage info) {
-				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysis2DChartPane.this), info))
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(pane), info))
 					return;
-				String id = PeriodAnalysis2DChartPane.this.getChartPaneID();
+				String id = pane.getChartPaneID();
 				String currentID = info.getIDstring();
 				if (currentID != null && currentID.equals(id)) {
-					new HarmonicInfoDialog(info, pane);
+					if (info.getHarmonics().size() > 0) {
+						new HarmonicInfoDialog(info, pane);
+					} else {
+						MessageBox.showMessageDialog("Harmonics", "No top hit for this frequency");
+					}
 				}
 			}
 

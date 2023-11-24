@@ -180,7 +180,7 @@ public class WeightedWaveletZTransformResultDialog extends
 	protected void newPhasePlotButtonAction() {
 		PeriodChangeMessage message = new PeriodChangeMessage(this,
 				selectedDataPoint.getPeriod());
-		message.setName(this.getName());
+		message.setTag(this.getName());
 		Mediator.getInstance().getPeriodChangeNotifier().notifyListeners(
 				message);
 	}
