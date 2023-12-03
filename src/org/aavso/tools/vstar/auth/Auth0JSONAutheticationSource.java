@@ -47,7 +47,7 @@ public class Auth0JSONAutheticationSource implements IAuthenticationSource {
 	private boolean authenticated = false;
 
 	@Override
-	public boolean authenticate(String username, String password) throws AuthenticationError, ConnectionException {
+	public boolean authenticate(String uuid, String code) throws AuthenticationError, ConnectionException {
 		try {
 			// Open a connection to the end-point.
 			URL url = new URL(AUTH_URL);
@@ -59,9 +59,6 @@ public class Auth0JSONAutheticationSource implements IAuthenticationSource {
 			conn.setRequestMethod("POST");
 
 			// Construct the JSON POST body.
-			String uuid = username;
-			String code = password;
-
 			StringBuffer jsonBuf = new StringBuffer();
 			
 			jsonBuf.append("{\n");

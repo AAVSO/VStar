@@ -33,7 +33,7 @@ public class AuthenticationTask extends SwingWorker<Boolean, Void> {
 	private List<IAuthenticationSource> authenticators;
 
 	/**
-	 * Constructor.
+	 * Constructor
 	 * 
 	 * @param authenticators
 	 *            A list of authentication sources to try.

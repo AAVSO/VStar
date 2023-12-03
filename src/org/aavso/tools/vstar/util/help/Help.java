@@ -45,7 +45,7 @@ public class Help {
 	public static void openVStarManual() {
 		openHelpURLInWebBrowser("https://github.com/AAVSO/VStar/blob/master/doc/user_manual/VStarUserManual.pdf");
 	}
-	
+
 	/**
 	 * Open the VStar Web page.
 	 */
@@ -92,10 +92,16 @@ public class Help {
 	 * Open a help page.
 	 */
 	public static void openHelpURLInWebBrowser(final String urlStr) {
+		openURLInWebBrowser(urlStr, "VStar Help");
+	}
+
+	/**
+	 * Open a web page.
+	 */
+	public static void openURLInWebBrowser(final String urlStr, final String errorTitle) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				// Try to open the VStar online page in the default web
-				// browser.
+				// Try to open a web page in the default web browser.
 				if (Desktop.isDesktopSupported()) {
 					Desktop desktop = Desktop.getDesktop();
 					URL url = null;
@@ -105,15 +111,15 @@ public class Help {
 							try {
 								desktop.browse(url.toURI());
 							} catch (IOException e) {
-								MessageBox.showErrorDialog("VStar Help",
+								MessageBox.showErrorDialog(errorTitle,
 										"Error reading from '" + urlStr + "'");
 							} catch (URISyntaxException e) {
-								MessageBox.showErrorDialog("VStar Help",
+								MessageBox.showErrorDialog(errorTitle,
 										"Invalid address: '" + urlStr + "'");
 							}
 						}
 					} catch (MalformedURLException e) {
-						MessageBox.showErrorDialog("VStar Help", "Invalid address.");
+						MessageBox.showErrorDialog(errorTitle, "Invalid address.");
 					}
 				}
 			}

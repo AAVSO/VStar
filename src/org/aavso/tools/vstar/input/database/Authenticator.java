@@ -18,26 +18,21 @@
 package org.aavso.tools.vstar.input.database;
 
 import java.awt.Cursor;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.aavso.tools.vstar.auth.AAVSOPostUserPassXMLAuthenticationSource;
+import org.aavso.tools.vstar.auth.Auth0JSONAutheticationSource;
 import org.aavso.tools.vstar.exception.AuthenticationError;
 import org.aavso.tools.vstar.exception.CancellationException;
 import org.aavso.tools.vstar.exception.ConnectionException;
-import org.aavso.tools.vstar.ui.dialog.LoginDialog;
-import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.AuthCodeLoginDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 
 /**
  * This class is responsible for authenticating against one or more
  * authentication sources, caching results such as whether authentication has
  * happened, user name, observer code.
- * 
- * generateHexDigest() was adapted from Zapper's UserInfo.encryptPassword()
  */
 public class Authenticator {
 
@@ -60,7 +55,7 @@ public class Authenticator {
 		this.authenticated = false;
 
 		this.authenticators = new ArrayList<IAuthenticationSource>();
-		this.authenticators.add(new AAVSOPostUserPassXMLAuthenticationSource());
+		this.authenticators.add(new Auth0JSONAutheticationSource());
 	}
 
 	/**
@@ -79,20 +74,20 @@ public class Authenticator {
 		while (!cancelled && !authenticated && retries > 0) {
 			Mediator.getUI().getStatusPane().setMessage("Authenticating...");
 
-			LoginDialog loginDialog = new LoginDialog("AAVSO Web Login");
+			AuthCodeLoginDialog loginDialog = new AuthCodeLoginDialog("AAVSO Authentication");
 
 			cancelled = loginDialog.isCancelled();
 
 			if (!cancelled) {
-				String username = loginDialog.getUsername();
-				String password = new String(loginDialog.getPassword());
+				String uuid = loginDialog.getUUID();
+				String code = new String(loginDialog.getCode());
 
 				try {
 					Mediator.getUI().setCursor(
 							Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 					AuthenticationTask task = new AuthenticationTask(
-							authenticators, username, password);
+							authenticators, uuid, code);
 
 					task.execute();
 					authenticated = task.get();
@@ -119,34 +114,5 @@ public class Authenticator {
 		if (!authenticated) {
 			throw new AuthenticationError("Unable to authenticate.");
 		}
-	}
-
-	/**
-	 * Generate a string consisting of 2 hex digits per byte of a MD5 message
-	 * digest.
-	 * 
-	 * @param str
-	 *            the string to generate a digest from
-	 * @return the message digest as hex digits
-	 */
-	protected static String generateHexDigest(String str) {
-		String digest = null;
-
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.reset();
-			md.update(str.getBytes());
-			byte messageDigest[] = md.digest();
-			StringBuffer hexString = new StringBuffer();
-			for (int byteVal : messageDigest) {
-				hexString.append(String.format("%02x", 0xFF & byteVal));
-			}
-			digest = hexString.toString();
-		} catch (NoSuchAlgorithmException e) {
-			MessageBox.showErrorDialog(Mediator.getUI().getComponent(),
-					"Error generating digest", e);
-		}
-
-		return digest;
 	}
 }
