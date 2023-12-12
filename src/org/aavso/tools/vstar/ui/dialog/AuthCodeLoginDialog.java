@@ -49,6 +49,8 @@ public class AuthCodeLoginDialog extends AbstractOkCancelDialog {
 
 	private static final String AUTH_URL_PREFIX = "https://apps.aavso.org/auth/external?app=vstar&identifier=";
 
+	private String intro;
+
 	private Container contentPane;
 
 	private JTextField authCodeField;
@@ -63,6 +65,8 @@ public class AuthCodeLoginDialog extends AbstractOkCancelDialog {
 	public AuthCodeLoginDialog(String intro) {
 		super("Login");
 
+		this.intro = intro;
+
 		contentPane = this.getContentPane();
 
 		JPanel topPane = new JPanel();
@@ -72,7 +76,6 @@ public class AuthCodeLoginDialog extends AbstractOkCancelDialog {
 		uuid = UUID.randomUUID().toString();
 		String loginURL = AUTH_URL_PREFIX + uuid;
 
-		topPane.add(createIntroPane(intro));
 		topPane.add(createOpenURLPane(loginURL));
 		topPane.add(createURLPane(loginURL));
 		topPane.add(createAuthCodePane());
@@ -85,17 +88,9 @@ public class AuthCodeLoginDialog extends AbstractOkCancelDialog {
 		this.setVisible(true);
 	}
 
-	private JPanel createIntroPane(String intro) {
-		JPanel panel = new JPanel(new BorderLayout());
-
-		panel.add(new JLabel(intro));
-
-		return panel;
-	}
-
 	private JPanel createOpenURLPane(String loginURL) {
-		JPanel panel = new JPanel(new BorderLayout());
-//		panel.setBorder(BorderFactory.createTitledBorder("AAVSO web login"));
+		JPanel panel = new JPanel();
+		panel.setBorder(BorderFactory.createTitledBorder(this.intro));
 		JButton loginButton = new JButton("Authenticate");
 		loginButton.addActionListener(new ActionListener() {
 			@Override
