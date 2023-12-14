@@ -22,8 +22,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.util.Calendar;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -31,9 +29,12 @@ import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.SeriesType;
@@ -301,10 +302,16 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 		double jd = dateUtil.calendarToJD(year - 2, month, day);
 		minJDField = new JTextField(NumericPrecisionPrefs.formatTime(jd));
-		minJDField.addActionListener(createMinJDFieldActionListener());
-		minJDField.addFocusListener(createMinJDFieldFocusListener());
+		//minJDField.addActionListener(createMinJDFieldActionListener());
+		//minJDField.addFocusListener(createMinJDFieldFocusListener());
+		minJDField.getDocument().addDocumentListener(createJDFieldDocumentListener(minJDField));
 		minJDField.setToolTipText(dateUtil.jdToCalendar(jd));
 		panel.add(minJDField);
+		
+		JButton convButton = new JButton("...");
+		convButton.setName("ButtonMinJD");
+		convButton.addActionListener(createConvButtonListener());
+		panel.add(convButton);
 
 		return panel;
 	}
@@ -317,14 +324,92 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 
 		double jd = dateUtil.calendarToJD(year, month, day);
 		maxJDField = new JTextField(NumericPrecisionPrefs.formatTime(jd));
-		maxJDField.addActionListener(createMaxJDFieldActionListener());
-		maxJDField.addFocusListener(createMaxJDFieldFocusListener());
+		//maxJDField.addActionListener(createMaxJDFieldActionListener());
+		//maxJDField.addFocusListener(createMaxJDFieldFocusListener());
+		maxJDField.getDocument().addDocumentListener(createJDFieldDocumentListener(maxJDField));
 		maxJDField.setToolTipText(dateUtil.jdToCalendar(jd));
 		panel.add(maxJDField);
+		
+		JButton convButton = new JButton("...");
+		convButton.setName("ButtonMaxJD");
+		convButton.addActionListener(createConvButtonListener());
+		panel.add(convButton);
 
 		return panel;
 	}
 
+	private ActionListener createConvButtonListener() {
+		return new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() instanceof JButton) {
+					JButton b = (JButton)e.getSource();
+					JTextField field = null;
+					String dialogTitle = null;
+					if ("ButtonMinJD".equals(b.getName())) {
+						field = minJDField;
+						dialogTitle = LocaleProps.get("NEW_STAR_FROM_AID_DLG_MINIMUM_JD");
+					} else if ("ButtonMaxJD".equals(b.getName())) {
+						field = maxJDField;
+						dialogTitle = LocaleProps.get("NEW_STAR_FROM_AID_DLG_MAXIMUM_JD");
+					}
+					if (field != null) {
+						String dateText = field.getText();
+						Double date = NumberParser.parseDouble(dateText);
+						DateToJdDialog dlg = new DateToJdDialog(dialogTitle);						
+						dlg.setJD(date);
+						dlg.showDialog();
+						if (!dlg.isCancelled()) {
+							field.setToolTipText(null);
+							double jd = dlg.getJD(); 
+							field.setText(NumericPrecisionPrefs.formatTime(jd));
+							field.setToolTipText(dateUtil.jdToCalendar(jd));
+						}
+					}
+				}
+			}
+		};
+	}
+	
+	private DocumentListener createJDFieldDocumentListener(JTextField source) {
+		return new DocumentListener() {
+			
+			private JTextField sourceField = source;
+			
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateToolTip(e);
+			}
+			
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateToolTip(e);
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateToolTip(e);
+			}
+			
+			private void updateToolTip(DocumentEvent e) {
+				if (sourceField != null) {
+					String calendarString = null;					
+					String text = sourceField.getText().trim();
+					if (!"".equals(text)) {
+						try {
+							double d = NumberParser.parseDouble(text);
+							calendarString = dateUtil.jdToCalendar(d);
+						} catch (Exception ex) {
+							calendarString = null;
+						}
+					}
+					sourceField.setToolTipText(calendarString);
+					//System.out.println("Tooltip for " + sourceField.getName() + " was set to: " + (calendarString == null ? "<null>" : calendarString));					
+				}
+			}
+		};
+	}
+	
 	private JPanel createOptionsPane() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
@@ -411,35 +496,35 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		};
 	}
 
-	// Return listeners for the minimum Julian Day field.
-
-	private ActionListener createMinJDFieldActionListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// checkInput();
-				minJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
-						.parseDouble(minJDField.getText())));
-			}
-		};
-	}
-
-	private FocusListener createMinJDFieldFocusListener() {
-		return new FocusListener() {
-			String prevString = "";
-
-			public void focusGained(FocusEvent e) {
-			}
-
-			public void focusLost(FocusEvent e) {
-				String current = minJDField.getText();
-				if (!prevString.equals(current)) {
-					minJDField.setToolTipText(dateUtil
-							.jdToCalendar(NumberParser.parseDouble(current)));
-					prevString = current;
-				}
-			}
-		};
-	}
+//	// Return listeners for the minimum Julian Day field.
+//
+//	private ActionListener createMinJDFieldActionListener() {
+//		return new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				// checkInput();
+//				minJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
+//						.parseDouble(minJDField.getText())));
+//			}
+//		};
+//	}
+//
+//	private FocusListener createMinJDFieldFocusListener() {
+//		return new FocusListener() {
+//			String prevString = "";
+//
+//			public void focusGained(FocusEvent e) {
+//			}
+//
+//			public void focusLost(FocusEvent e) {
+//				String current = minJDField.getText();
+//				if (!prevString.equals(current)) {
+//					minJDField.setToolTipText(dateUtil
+//							.jdToCalendar(NumberParser.parseDouble(current)));
+//					prevString = current;
+//				}
+//			}
+//		};
+//	}
 
 	// Return a listener for the all-data checkbox.
 	private ActionListener createAllDataCheckBoxActionListener() {
@@ -459,35 +544,35 @@ public class StarSelectorDialog extends AbstractOkCancelDialog {
 		};
 	}
 
-	// Return listeners for the maximum Julian Day field.
-
-	private ActionListener createMaxJDFieldActionListener() {
-		return new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// checkInput();
-				maxJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
-						.parseDouble(maxJDField.getText())));
-			}
-		};
-	}
-
-	private FocusListener createMaxJDFieldFocusListener() {
-		return new FocusListener() {
-			String prevString = "";
-
-			public void focusGained(FocusEvent e) {
-			}
-
-			public void focusLost(FocusEvent e) {
-				String current = maxJDField.getText();
-				if (!prevString.equals(current)) {
-					maxJDField.setToolTipText(dateUtil
-							.jdToCalendar(NumberParser.parseDouble(current)));
-					prevString = current;
-				}
-			}
-		};
-	}
+//	// Return listeners for the maximum Julian Day field.
+//
+//	private ActionListener createMaxJDFieldActionListener() {
+//		return new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				// checkInput();
+//				maxJDField.setToolTipText(dateUtil.jdToCalendar(NumberParser
+//						.parseDouble(maxJDField.getText())));
+//			}
+//		};
+//	}
+//
+//	private FocusListener createMaxJDFieldFocusListener() {
+//		return new FocusListener() {
+//			String prevString = "";
+//
+//			public void focusGained(FocusEvent e) {
+//			}
+//
+//			public void focusLost(FocusEvent e) {
+//				String current = maxJDField.getText();
+//				if (!prevString.equals(current)) {
+//					maxJDField.setToolTipText(dateUtil
+//							.jdToCalendar(NumberParser.parseDouble(current)));
+//					prevString = current;
+//				}
+//			}
+//		};
+//	}
 
 	// Check that we have valid input in an appropriate subset
 	// of dialog widgets. The dialog will not be dismissed until
