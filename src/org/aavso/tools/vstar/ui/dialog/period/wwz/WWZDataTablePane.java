@@ -128,6 +128,7 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener,
 
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 						this, model.getDataPointFromRow(row), row);
+				message.setTag(Mediator.getParentDialogName(this));
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
 			}
@@ -173,6 +174,8 @@ public class WWZDataTablePane extends JPanel implements ListSelectionListener,
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(WWZDataTablePane.this), info))
+					return;
 				if (info.getSource() != parent) {
 					// Find data point in table.
 					int row = -1;

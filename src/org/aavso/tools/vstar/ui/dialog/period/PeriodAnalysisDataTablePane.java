@@ -38,6 +38,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableRowSorter;
 
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.model.HarmonicInfoDialog;
 import org.aavso.tools.vstar.ui.dialog.model.HarmonicInputDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
@@ -72,6 +73,10 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 
 	protected Listener<HarmonicSearchResultMessage> harmonicSearchResultListener;
 	protected Listener<PeriodAnalysisSelectionMessage> periodAnalysisSelectionListener;
+
+	private String tablePaneID = null;
+	
+	private boolean valueChangedDisabledState = false;
 
 	/**
 	 * Constructor
@@ -143,6 +148,9 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 	 * has "settled". This event could be consumed by other views such as plots.
 	 */
 	public void valueChanged(ListSelectionEvent e) {
+		if (isValueChangeDisabled())
+			return;
+
 		if (e.getSource() == table.getSelectionModel() && table.getRowSelectionAllowed() && !e.getValueIsAdjusting()) {
 			int row = table.getSelectedRow();
 
@@ -151,6 +159,7 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 
 				PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(this,
 						model.getDataPointFromRow(row), row);
+				message.setTag(Mediator.getParentDialogName(this));
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier().notifyListeners(message);
 			}
 		}
@@ -165,6 +174,10 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 				List<PeriodAnalysisDataPoint> dataPoints = new ArrayList<PeriodAnalysisDataPoint>();
 				List<Double> userSelectedFreqs = new ArrayList<Double>();
 				int[] selectedTableRowIndices = table.getSelectedRows();
+				if (selectedTableRowIndices.length < 1) {
+					MessageBox.showMessageDialog(LocaleProps.get("CREATE_MODEL_BUTTON"), "Please select a row");
+					return;
+				}
 				for (int row : selectedTableRowIndices) {
 					int modelRow = table.convertRowIndexToModel(row);
 
@@ -199,10 +212,23 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 	 * (fundamental) frequency to harmonics.
 	 */
 	protected Listener<HarmonicSearchResultMessage> createHarmonicSearchResultListener() {
+		final PeriodAnalysisDataTablePane tablePane = this;
 		return new Listener<HarmonicSearchResultMessage>() {
 			@Override
 			public void update(HarmonicSearchResultMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(tablePane), info))
+					return;
 				freqToHarmonicsMap.put(info.getDataPoint().getFrequency(), info.getHarmonics());
+	
+				String id = tablePane.getTablePaneID();
+				String currentID = info.getIDstring();
+				if (currentID != null && currentID.equals(id)) {
+					if (info.getHarmonics().size() > 0) {
+						new HarmonicInfoDialog(info, tablePane);
+					} else {
+						MessageBox.showMessageDialog("Harmonics", "No top hit for this frequency");
+					}
+				}
 			}
 
 			@Override
@@ -222,6 +248,8 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysisDataTablePane.this), info))
+					return;
 				if (info.getSource() != parent) {
 					// Find data point in table.
 					int row = -1;
@@ -251,7 +279,12 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 						int rowHeight = table.getRowHeight(row);
 						table.scrollRectToVisible(new Rectangle(colWidth, rowHeight * row, colWidth, rowHeight));
 
-						table.setRowSelectionInterval(row, row);
+						boolean state = disableValueChangeEvent();
+						try {
+							table.setRowSelectionInterval(row, row);
+						} finally {
+							setValueChangedDisabledState(state);
+						}
 						enableButtons();
 					}
 				} else {
@@ -288,4 +321,34 @@ public class PeriodAnalysisDataTablePane extends JPanel implements ListSelection
 		Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 				.removeListenerIfWilling(periodAnalysisSelectionListener);
 	}
+
+	public void setTablePaneID(String tablePaneID) {
+		this.tablePaneID = tablePaneID;
+	}
+	
+	public String getTablePaneID() {
+		return tablePaneID;
+	}
+	
+	/**
+	 * @return the table
+	 */
+	public JTable getTable() {
+		return table;
+	}
+
+	public boolean disableValueChangeEvent() {
+		boolean state = valueChangedDisabledState;
+		valueChangedDisabledState = true;
+		return state;
+	}
+
+	public void setValueChangedDisabledState(boolean state) {
+		valueChangedDisabledState = state;
+	}
+	
+	public boolean isValueChangeDisabled() {
+		return valueChangedDisabledState;
+	}
+	
 }

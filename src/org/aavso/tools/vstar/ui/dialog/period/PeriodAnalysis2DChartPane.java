@@ -29,6 +29,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.model.HarmonicInfoDialog;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.HarmonicSearchResultMessage;
@@ -38,8 +39,6 @@ import org.aavso.tools.vstar.ui.model.plot.PeriodAnalysis2DPlotModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.aavso.tools.vstar.util.notification.Listener;
-import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
-import org.aavso.tools.vstar.util.period.PeriodAnalysisCoordinateType;
 import org.aavso.tools.vstar.util.period.dcdft.PeriodAnalysisDataPoint;
 import org.jfree.chart.ChartMouseEvent;
 import org.jfree.chart.ChartMouseListener;
@@ -47,6 +46,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.DatasetChangeListener;
@@ -74,6 +74,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	private Listener<PeriodAnalysisSelectionMessage> periodAnalysisSelectionListener;
 	private Listener<PeriodAnalysisRefinementMessage> periodAnalysisRefinementListener;
 	private Listener<HarmonicSearchResultMessage> harmonicSearchListener;
+	
+	private String chartPaneID = null;
 
 	/**
 	 * Constructor
@@ -112,6 +114,14 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	public Dimension getPreferredSize() {
 	    return new Dimension(DEFAULT_CHART_PANEL_WIDTH, DEFAULT_CHART_PANEL_HEIGHT);
 	}	
+	
+	public void setChartPaneID(String chartPaneID) {
+		this.chartPaneID = chartPaneID;
+	}
+	
+	public String getChartPaneID() {
+		return chartPaneID;
+	}
 	
 	/**
 	 * @return the chart
@@ -187,6 +197,15 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	}
 
 	public void chartMouseClicked(ChartMouseEvent event) {
+		// The cross-hair appears if the user clicks the chart even if there is no
+		// 'entity' under the mouse. This means that the cross-hair selection
+		// does not always coincide with the selected data point.
+		// Let's show the cross-hair only if an 'entity' is behind it. 
+		
+		XYPlot plot = event.getChart().getXYPlot();
+		plot.setDomainCrosshairVisible(false);
+		plot.setRangeCrosshairVisible(false);
+		
 		if (event.getEntity() instanceof XYItemEntity) {
 			XYItemEntity entity = (XYItemEntity) event.getEntity();
 			int item = entity.getItem();
@@ -200,10 +219,14 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 					dataPoint = plotModel.getDataPointFromItem(item);
 				}
 			}
+			
+			plot.setDomainCrosshairVisible(true);
+			plot.setRangeCrosshairVisible(true);
 
 			PeriodAnalysisSelectionMessage message = new PeriodAnalysisSelectionMessage(
 					this, dataPoint, item);
 			if (message != null) {
+				message.setTag(Mediator.getParentDialogName(this));
 				Mediator.getInstance().getPeriodAnalysisSelectionNotifier()
 						.notifyListeners(message);
 			}
@@ -221,6 +244,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 	public void setCrossHair(double x, double y) {
 		chart.getXYPlot().setDomainCrosshairValue(x);
 		chart.getXYPlot().setRangeCrosshairValue(y);
+		chart.getXYPlot().setDomainCrosshairVisible(true);
+		chart.getXYPlot().setRangeCrosshairVisible(true);
 	}
 
 	public void chartMouseMoved(ChartMouseEvent event) {
@@ -252,13 +277,18 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		return new Listener<PeriodAnalysisSelectionMessage>() {
 			@Override
 			public void update(PeriodAnalysisSelectionMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysis2DChartPane.this), info))
+					return;
 				if (info.getSource() != parent) {
 					double x = info.getDataPoint().getValue(model.getDomainType());
 					double y = info.getDataPoint().getValue(model.getRangeType());
 
 					if (x != Double.NaN && y != Double.NaN) {
-						chart.getXYPlot().setDomainCrosshairValue(x);
-						chart.getXYPlot().setRangeCrosshairValue(y);
+						XYPlot plot = chart.getXYPlot();
+						plot.setDomainCrosshairValue(x);
+						plot.setRangeCrosshairValue(y);
+						plot.setDomainCrosshairVisible(true);
+						plot.setRangeCrosshairVisible(true);		
 					}
 				}
 			}
@@ -276,6 +306,8 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		return new Listener<PeriodAnalysisRefinementMessage>() {
 			@Override
 			public void update(PeriodAnalysisRefinementMessage info) {
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(PeriodAnalysis2DChartPane.this), info))
+					return;
 				chart.getXYPlot().clearAnnotations();
 				for (PeriodAnalysisDataPoint dataPoint : info.getNewTopHits()) {
 					// if (model.getRangeType() ==
@@ -302,7 +334,17 @@ public class PeriodAnalysis2DChartPane extends JPanel implements
 		return new Listener<HarmonicSearchResultMessage>() {
 			@Override
 			public void update(HarmonicSearchResultMessage info) {
-				new HarmonicInfoDialog(info, pane);
+				if (!Mediator.isMsgForDialog(Mediator.getParentDialog(pane), info))
+					return;
+				String id = pane.getChartPaneID();
+				String currentID = info.getIDstring();
+				if (currentID != null && currentID.equals(id)) {
+					if (info.getHarmonics().size() > 0) {
+						new HarmonicInfoDialog(info, pane);
+					} else {
+						MessageBox.showMessageDialog("Harmonics", "No top hit for this frequency");
+					}
+				}
 			}
 
 			@Override

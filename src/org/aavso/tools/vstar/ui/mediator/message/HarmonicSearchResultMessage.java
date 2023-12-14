@@ -30,6 +30,8 @@ public class HarmonicSearchResultMessage extends MessageBase {
 
 	private List<Harmonic> harmonics;
 	private IPeriodAnalysisDatum dataPoint;
+	private double tolerance;
+	private String iDstring = null;
 	
 	/**
 	 * Constructor
@@ -40,11 +42,12 @@ public class HarmonicSearchResultMessage extends MessageBase {
 	 * @param dataPoint The datapoint associated with the first harmonic.
 	 */
 	public HarmonicSearchResultMessage(Object source, List<Harmonic> harmonics,
-			IPeriodAnalysisDatum dataPoint) {
+			IPeriodAnalysisDatum dataPoint, double tolerance) {
 		super(source);
 
 		this.harmonics = harmonics;
 		this.dataPoint = dataPoint;
+		this.tolerance = tolerance;
 	}
 
 	/**
@@ -60,4 +63,17 @@ public class HarmonicSearchResultMessage extends MessageBase {
 	public IPeriodAnalysisDatum getDataPoint() {
 		return dataPoint;
 	}
+	
+	public void setIDstring(String s) {
+		iDstring = s;
+	}
+	
+	public String getIDstring() {
+		return iDstring; 
+	}
+
+	public double getTolerance() {
+		return tolerance;
+	}
+
 }
