@@ -38,9 +38,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This class authenticates an AAVSO user via an http POST method.
+ * This class authenticates an AAVSO user via an http POST method that makes use
+ * of a VSX web service to obtain user information.
+ * @deprecated
  */
-public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
+public class AAVSOPostUserPassXMLAuthenticationSource implements IAuthenticationSource {
 
 	private static final String AUTH_URL = "https://www.aavso.org/apps/api-auth/";
 
@@ -48,12 +50,12 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 	private boolean authenticated;
 	private String userID;
 
-	public AAVSOPostAuthenticationSource(String endPoint) {
+	public AAVSOPostUserPassXMLAuthenticationSource(String endPoint) {
 		this.endPoint = endPoint;
 		authenticated = false;
 	}
 
-	public AAVSOPostAuthenticationSource() {
+	public AAVSOPostUserPassXMLAuthenticationSource() {
 		this(AUTH_URL);
 	}
 
@@ -67,8 +69,7 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 	}
 
 	@Override
-	public boolean authenticate(String username, String password)
-			throws AuthenticationError, ConnectionException {
+	public boolean authenticate(String username, String password) throws AuthenticationError, ConnectionException {
 
 		try {
 			// Create a POST request for the authentication end point.
@@ -94,11 +95,9 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 			// Create the POST message data.
 			String usernameEncoded = URLEncoder.encode(username, "UTF-8");
 			String passwordEncoded = URLEncoder.encode(password, "UTF-8");
-			String data = String.format("%s=%s&%s=%s", "username",
-					usernameEncoded, "password", passwordEncoded);
+			String data = String.format("%s=%s&%s=%s", "username", usernameEncoded, "password", passwordEncoded);
 
-			conn.setRequestProperty("Content-Length",
-					String.valueOf(data.length()));
+			conn.setRequestProperty("Content-Length", String.valueOf(data.length()));
 
 			// Send the POST request.
 			OutputStream os = conn.getOutputStream();
@@ -116,10 +115,10 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 			}
 
 			processResponse(conn);
-			
+
 			VSXWebServiceMemberInfo memberInfo = new VSXWebServiceMemberInfo();
 			memberInfo.retrieveUserInfo(userID, ResourceAccessor.getLoginInfo());
-			
+
 		} catch (MalformedURLException e) {
 			throw new ConnectionException(e.getLocalizedMessage());
 		} catch (IOException e) {
@@ -139,8 +138,8 @@ public class AAVSOPostAuthenticationSource implements IAuthenticationSource {
 	}
 
 	// Process the POST response, extracting ID, authentication token.
-	private void processResponse(HttpsURLConnection conn) throws IOException,
-			ParserConfigurationException, SAXException {
+	private void processResponse(HttpsURLConnection conn)
+			throws IOException, ParserConfigurationException, SAXException {
 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();

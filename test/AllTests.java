@@ -18,7 +18,7 @@
 
 import java.util.Locale;
 
-import org.aavso.tools.vstar.auth.AAVSOPostAuthenticationSourceTest;
+import org.aavso.tools.vstar.auth.AuthenticationSourceTest;
 import org.aavso.tools.vstar.auth.VSXWebServiceMemberInfoTest;
 import org.aavso.tools.vstar.data.filter.ObservationFilterTest;
 import org.aavso.tools.vstar.data.validation.CKMagValidationTest;
@@ -66,7 +66,7 @@ public class AllTests {
 		TestSuite suite = new TestSuite("Test suite for VStar");
 		
 		// $JUnit-BEGIN$
-		suite.addTestSuite(AAVSOPostAuthenticationSourceTest.class);
+		suite.addTestSuite(AuthenticationSourceTest.class);
 		suite.addTestSuite(VSXWebServiceMemberInfoTest.class);
 		suite.addTestSuite(ObservationFilterTest.class);
 		suite.addTestSuite(CKMagValidationTest.class);
