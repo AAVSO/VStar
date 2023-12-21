@@ -5,7 +5,7 @@
 APP_DIR=$(dirname "$0")
 
 # 32 or 64 bit?
-VER=`uname -a | grep _64`
+VER=`uname -a | grep 64`
 
 if [ "$VER" != "" ]; then
     # 64 bit, so determine half of available memory for Mac OS X or Linux
