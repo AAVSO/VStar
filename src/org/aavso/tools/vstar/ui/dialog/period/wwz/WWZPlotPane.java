@@ -29,6 +29,7 @@ import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.PeriodAnalysisSelectionMessage;
 import org.aavso.tools.vstar.ui.model.plot.WWZ2DPlotModel;
 import org.aavso.tools.vstar.util.IStartAndCleanup;
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.period.IPeriodAnalysisDatum;
 import org.aavso.tools.vstar.util.period.wwz.WWZStatistic;
@@ -114,23 +115,26 @@ public class WWZPlotPane extends JPanel implements ChartMouseListener,
 		chart.getXYPlot().setRenderer(renderer);
 	}
 
-	protected void configureChart() {
-		chart.getXYPlot().setBackgroundPaint(Color.WHITE);
+    protected void configureChart() {
+        chart.getXYPlot().setBackgroundPaint(Color.WHITE);
 
-		chart.getXYPlot().setDomainCrosshairValue(0);
-		chart.getXYPlot().setRangeCrosshairValue(0);
+        chart.getXYPlot().setDomainCrosshairValue(0);
+        chart.getXYPlot().setRangeCrosshairValue(0);
 
-		chart.getXYPlot().setDomainCrosshairVisible(true);
-		chart.getXYPlot().setRangeCrosshairVisible(true);
+        chart.getXYPlot().setDomainCrosshairVisible(true);
+        chart.getXYPlot().setRangeCrosshairVisible(true);
 
-		if (Double.isFinite(maxRange - minRange))
-			chart.getXYPlot().getRangeAxis()
-				.setRange(new Range(minRange, maxRange));
-		else
-			chart.getXYPlot().getRangeAxis()
-				.setRange(new Range(-Double.MAX_VALUE / 2,
-						Double.MAX_VALUE / 2));
-	}
+        double rangeDelta = maxRange - minRange;
+
+        if (Double.isFinite(rangeDelta) && 
+                !Tolerance.areClose(rangeDelta, 0.0, 1e-12, true)) {
+            chart.getXYPlot().getRangeAxis().setRange(
+                    new Range(minRange, maxRange));
+        } else {
+            chart.getXYPlot().getRangeAxis().setRange(
+                    new Range(-Double.MAX_VALUE / 2, Double.MAX_VALUE / 2));
+        }
+    }
 
 	@Override
 	public void chartMouseClicked(ChartMouseEvent event) {
