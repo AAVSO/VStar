@@ -31,7 +31,7 @@
 	<!-- Classpaths -->
 
 	<path id="build.classpath">
-		<fileset dir="${extlib}" includes="*.jar" excludes="junit*.jar" />
+		<fileset dir="${extlib}" includes="*.jar" excludes="junit*.jar,quicktheories*.jar" />
 	</path>
 
 	<path id="test.classpath">

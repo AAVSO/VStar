@@ -28,6 +28,9 @@ code.
   o vstaricon.png
     This image was also created by Nico Camargo and is used for the
     splash screen and desktop icon.
+
+  o quicktheories-0.26.jar
+    https://github.com/quicktheories/QuickTheories
     
 The libraries are covered under the following licenses and plain text 
 copies of the licenses are included in the ./extlib directory. See the 
