@@ -29,12 +29,9 @@ code.
     This image was also created by Nico Camargo and is used for the
     splash screen and desktop icon.
 
-  o quicktheories-0.26.jar
-    https://github.com/quicktheories/QuickTheories
-    
 The libraries are covered under the following licenses and plain text 
-copies of the licenses are included in the ./extlib directory. See the 
-URL for the web page of each project for more information.
+copies of the licenses are included in the doc/license directory.
+See the URL for the web page of each project for more information.
 
   o Apache License
     apache-LICENSE.txt
@@ -67,22 +64,24 @@ URL for the web page of each project for more information.
     * ANTLR4 http://www.antlr.org
        
 If you are a developer who wishes to contribute toward coding or 
-testing VStar, the following libraries must be downloaded for unit 
-testing purposes:
+testing VStar, apart from JUnit 3 (junit.jar), the following libraries
+must be downloaded (e.g. from https://mvnrepository.com) for unit 
+testing purposes. Note that none of these libraries are redistributed
+as part of a VStar release.
 
- - JUnit
-     o Unit test framework
-     o junit-4.13-rc-2.jar
-     o hamcrest-core-1.3.jar 
-     o http://www.junit.org
-          
- - Cobertura 1.9.3:
-     o http://cobertura.sourceforge.net
-     o Unpack the cobertura-1.9.3 archive into the extlib directory.
-     o This is used in build-dev.xml for code coverage.
+  o Property based testing framework
+    - quicktheories-0.26.jar
+    - https://github.com/quicktheories/QuickTheories
 
-and the following are used by Ant (see build.xml) to build the Mac OS X
-DMG release archive:
+For mutation testing, additional libraries are required.
 
- - AppBundler and dependent XMLLib.jar
-     o https://github.com/joshmarinacci/AppBundler 
+  o pitest mutation testing framework
+    - https://pitest.org
+    - pitest-1.15.3.jar
+    - pitest-ant-1.15.3.jar
+    - pitest-entry-1.15.3.jar
+    - testng-7.9.0.jar
+    - JUnit 4 (or 5) required by pitest
+      o under EPL-1.0 licence: can't be linked or distributed with VStar
+	    - junit-4.12.jar
+        - hamcrest-core-1.3.jar
