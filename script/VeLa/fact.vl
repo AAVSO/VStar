@@ -1,4 +1,4 @@
-#!/usr/bin/env /Users/david/vstar/VeLa.sh --verbose
+#!/usr/bin/env /Users/david/vstar/script/VeLa/VeLa.sh --verbose
 
 n!(n:integer) : integer {
     when

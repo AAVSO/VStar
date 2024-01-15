@@ -1,6 +1,6 @@
 #!/usr/bin/env VeLa.sh --restart
 
--- VeLa Read Eval Print Loop (REPL)
+# VeLa Read Eval Print Loop (REPL)
 
 read() : string {
   str <- ""
@@ -9,8 +9,8 @@ read() : string {
   while not done {
     ch <- nextchar()
     str <- when 
-	     ch = "." -> { done <- true str } -- "true str" seems confusing; need optional ";" => "true; str"?
-       ch <> "" -> str + ch
+	     ch = "." -> { done <- true str } # optional ";"? => "true; str"?
+         ch <> "" -> str + ch
   }
 
   str
