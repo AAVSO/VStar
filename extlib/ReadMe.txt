@@ -83,5 +83,6 @@ For mutation testing, additional libraries are required.
     - testng-7.9.0.jar
     - JUnit 4 (or 5) required by pitest
       o under EPL-1.0 licence: can't be linked or distributed with VStar
-	    - junit-4.12.jar
+        and not currently included here
+        - junit-4.12.jar
         - hamcrest-core-1.3.jar

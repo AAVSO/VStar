@@ -48,7 +48,7 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
 
     private final static double DELTA = 0.001;
 
-    private final static boolean VERBOSE = false;
+    private final static boolean VERBOSE = true;
 
     private final static boolean ADD_VSTAR_API = false;
 
@@ -99,6 +99,16 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
                         DELTA, true));
     }
 
+    // Note: reveals a bug in which a positive max long value can't be parsed
+    // because it has been separated from its unary negation which should
+    // happen in the lexer.
+//    public void testIntProperty() {
+//        String expr = String.format("%d", -9223372036854775808L);
+//        Number expected = -9223372036854775808L;
+//        Number actual = vela.expressionToOperand(expr).intVal();
+//        assertEquals(expected, actual);
+//    }
+
     public void testPosExponent() {
         commonNumericLocaleTest("3.141592E5", 314159.2, 1e-6);
     }
@@ -122,19 +132,19 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         });
     }
 
-    // Note: reveals a bug in which a positive max long value can't be parsed
-    // because it was been separated from its unary negation which should
-    // happen in the lexer.
-//    public void testIntProperty() {
-//        String expr = String.format("%d", -9223372036854775808L);
-//        Number expected = -9223372036854775808L;
-//        Number actual = vela.expressionToOperand(expr).intVal();
-//        assertEquals(expected, actual);
-//    }
-
     public void testSubtraction() {
         double result = vela.realExpression("2457580.25-1004");
         assertTrue(Tolerance.areClose(2456576.25, result, DELTA, true));
+    }
+
+    // PBT: Any two integers subtracted in VeLa should equal the difference
+    // of those two integers (longs in VeLa); should actually be longs()
+    // but see testIntProperty().
+    public void testAnyIntegerSubtraction() {
+        qt().forAll(integers().all(), integers().all()).check((n, m) -> {
+            String expr = String.format("%d-%d", (long)n, (long)m);
+            return (long)n - (long)m == vela.expressionToOperand(expr).intVal();
+        });
     }
 
     public void testMultiplication() {
@@ -142,9 +152,29 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
         assertTrue(Tolerance.areClose(24575802.5, result, DELTA, true));
     }
 
+    // PBT: Any two integers multiplied in VeLa should equal the product
+    // of those two integers (longs in VeLa); should actually be longs()
+    // but see testIntProperty().
+    public void testAnyIntegerMultiplication() {
+        qt().forAll(integers().all(), integers().all()).check((n, m) -> {
+            String expr = String.format("%d*%d", (long)n, (long)m);
+            return (long)n * (long)m == vela.expressionToOperand(expr).intVal();
+        });
+    }
+
     public void testDivision() {
         double result = vela.realExpression("2457580.25/10");
         assertTrue(Tolerance.areClose(245758.025, result, DELTA, true));
+    }
+
+    // PBT: Any two integers divided in VeLa should equal the quotient
+    // of those two integers (longs in VeLa); should actually be longs()
+    // but see testIntProperty().
+    public void testAnyIntegerDivision() {
+        qt().forAll(integers().all(), integers().all()).assuming((n,m) -> m != 0).check((n, m) -> {
+            String expr = String.format("%d/%d", (long)n, (long)m);
+            return (long)n / (long)m == vela.expressionToOperand(expr).intVal();
+        });
     }
 
     public void testAddSubMul() {
@@ -1425,22 +1455,22 @@ public class VeLaTest extends TestCase implements WithQuickTheories {
     // Comments
 
     public void testComments1() {
-        double result = vela.realExpression("-- comment test\n\r12+2");
+        double result = vela.realExpression("# comment test\n\r12+2");
         assertTrue(Tolerance.areClose(14.0, result, DELTA, true));
     }
 
     public void testComments2() {
-        double result = vela.realExpression("-- comment test\r\n12+2");
+        double result = vela.realExpression("# comment test\r\n12+2");
         assertTrue(Tolerance.areClose(14.0, result, DELTA, true));
     }
 
     public void testComments3() {
-        double result = vela.realExpression("-- comment test\n12+2");
+        double result = vela.realExpression("# comment test\n12+2");
         assertTrue(Tolerance.areClose(14.0, result, DELTA, true));
     }
 
     public void testComments4() {
-        Optional<Operand> operand = vela.program("-- comment test");
+        Optional<Operand> operand = vela.program("# comment test");
         assertFalse(operand.isPresent());
     }
 
