@@ -1,4 +1,4 @@
-#!/usr/bin/env VeLa.sh --restart
+#!/usr/bin/env ./VeLa.sh --restart
 
 # VeLa Read Eval Print Loop (REPL)
 
