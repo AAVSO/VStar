@@ -630,7 +630,6 @@ COMMENT
 // The first pays homage to SQL. The second is a concession to the shebang mechanism.
 
     (
-        '--'
-        | '#'
+       '#'
     ) ~[\r\n]* -> skip
 ;

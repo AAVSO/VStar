@@ -29,11 +29,12 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.util.stats.epoch.AlphaOmegaMeanJDEpochStrategy;
 import org.aavso.tools.vstar.util.stats.epoch.MaxMagEpochStrategy;
 import org.aavso.tools.vstar.util.stats.epoch.MinMagEpochStrategy;
+import org.quicktheories.WithQuickTheories;
 
 /**
  * Phase calculation UTs.
  */
-public class PhaseCalcsTest extends TestCase {
+public class PhaseCalcsTest extends TestCase implements WithQuickTheories {
 
 	private final static double[] mags1 = { 3, 3.5, 3.6, 3.2, 3.1 };
 	private final static double[] jds1 = { 2450001.5, 2450002, 2450003.5, 2450004.5, 2450005 };
@@ -95,6 +96,25 @@ public class PhaseCalcsTest extends TestCase {
 		assertEquals(-0.875, observations.get(3).getPreviousCyclePhase());
 	}
 	
+    // This says that given valid inputs, the phase should always
+	// be in the range 0..1 inclusive.
+    public void testPhaseInRangeProperty() {
+        // choose a reasonable JD/epoch, and period ranges
+        double minJD = 2400000;
+        double maxJD = 2460000;
+        double minPeriod = 0.0001;
+        double maxPeriod = 1e6;
+
+        qt().forAll(
+                doubles().between(minJD, maxJD),
+                doubles().between(minJD, maxJD),
+                doubles().from(minPeriod).upToAndIncluding(maxPeriod))
+                .check((jd, epoch, period) -> {
+                    double phase = PhaseCalcs.calcStandardPhase(jd, epoch, period);
+                    return phase >= 0 && phase <= 1;
+                });
+    }
+
 	// Helpers
 
 	// Populates and returns a list of valid observations with supplied

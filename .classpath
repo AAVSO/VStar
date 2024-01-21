@@ -14,6 +14,7 @@
 	<classpathentry kind="lib" path="extlib/jmathplot.jar"/>
 	<classpathentry kind="lib" path="extlib/junit.jar"/>
 	<classpathentry kind="lib" path="extlib/nico-camargo-toolbar-icons-4.0.jar"/>
+	<classpathentry kind="lib" path="extlib/quicktheories-0.26.jar"/>
 	<classpathentry kind="lib" path="plugin/lib/tamfits.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
