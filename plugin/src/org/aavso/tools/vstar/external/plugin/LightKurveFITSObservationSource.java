@@ -96,6 +96,11 @@ public class LightKurveFITSObservationSource extends ObservationSourcePluginBase
 		return new LightKurveFITSObservationRetriever();
 	}
 
+   @Override
+    public boolean isMultipleFileSelectionAllowed() {
+        return true;
+    }
+
 	class LightKurveFITSObservationRetriever extends TESSObservationRetrieverBase {
 
 		public LightKurveFITSObservationRetriever() {

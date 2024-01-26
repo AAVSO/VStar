@@ -69,6 +69,9 @@ public class AdditiveLoadFileOrUrlChooser {
 	 */
 	public AdditiveLoadFileOrUrlChooser(boolean allowURL) {
 		fileChooser = new JFileChooser();
+
+	    fileChooser.setMultiSelectionEnabled(true);
+
 		urlProvided = false;
 		plugins = new TreeMap<String, ObservationSourcePluginBase>();
 
@@ -215,6 +218,8 @@ public class AdditiveLoadFileOrUrlChooser {
 
 					boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;
 					urlRequestButton.setEnabled(urlAllowed);
+					
+					fileChooser.setMultiSelectionEnabled(plugin.isMultipleFileSelectionAllowed());
 				});
 
 		pane.add(pluginChooser);
@@ -248,10 +253,18 @@ public class AdditiveLoadFileOrUrlChooser {
 	}
 
 	/**
-	 * @return The selected file.
+	 * @return The selected files.
 	 */
-	public File getSelectedFile() {
-		return fileChooser.getSelectedFile();
+	public File[] getSelectedFiles() {
+	    File[] selectedFiles = null;
+	    
+	    if (fileChooser.isMultiSelectionEnabled()) {
+	        selectedFiles = fileChooser.getSelectedFiles();
+	    } else {
+	        selectedFiles = new File[] {fileChooser.getSelectedFile()};
+	    }
+	    
+	    return selectedFiles;
 	}
 
 	/**
@@ -286,7 +299,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	public boolean isLoadAdditive() {
 		return additiveLoadCheckbox.isSelected();
 	}
-
+	
 	/**
 	 * Return the optional currently selected observation source plugin.
 	 * 

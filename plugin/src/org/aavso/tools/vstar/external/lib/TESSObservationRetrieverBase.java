@@ -25,6 +25,7 @@
 
 package org.aavso.tools.vstar.external.lib;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -94,8 +95,8 @@ public abstract class TESSObservationRetrieverBase extends AbstractObservationRe
 		Integer quality;
 	}
 	
-	private BasicHDU[] hdus = null;
-	
+	private List<BasicHDU[]> hdusList = null;
+
 	private String objName = null;
 	
 	private ObservationSourcePluginBase hostPlugin;
@@ -103,6 +104,7 @@ public abstract class TESSObservationRetrieverBase extends AbstractObservationRe
 	public TESSObservationRetrieverBase(ObservationSourcePluginBase hostPlugin) {
 		super(hostPlugin.getVelaFilterStr());
 		this.hostPlugin = hostPlugin;
+		this.hdusList = new ArrayList<BasicHDU[]>();
 	}
 	
 	/**
@@ -153,8 +155,10 @@ public abstract class TESSObservationRetrieverBase extends AbstractObservationRe
 				
 		setJDflavour(JDflavour.BJD);
 		try {
-			// BasicHDU initialization moved to getNumberOfRecords
-			retrieveObservations(hdus);
+            // BasicHDU initialization in getNumberOfRecords
+		    for (BasicHDU[] hdus : hdusList) {
+    	        retrieveObservations(hdus);
+		    }
 		} catch (Exception e) {
 			throw new ObservationReadError(e.getLocalizedMessage());
 		}
@@ -164,8 +168,10 @@ public abstract class TESSObservationRetrieverBase extends AbstractObservationRe
 			throws FitsException, ObservationReadError {
 
 		if (!validateFITS(hdus)) {
-			throw new ObservationReadError("Not a valid FITS file");
-		}
+		    String msg =
+                    String.format("Not a valid FITS file: %s",
+                    getSourceName());
+            throw new ObservationReadError(msg);		}
 		
 		// KEPLER, TESS, QLP and LightKurve FITS
 		if (hdus.length > 1 && hdus[0] instanceof ImageHDU && hdus[1] instanceof BinaryTableHDU) {
@@ -285,27 +291,41 @@ public abstract class TESSObservationRetrieverBase extends AbstractObservationRe
 				incrementProgress();
 			}
 		} else {
-			throw new ObservationReadError("Not a valid FITS file");
-		}
-		
+		    String msg =
+                    String.format("Not a valid FITS file: %s",
+                    getSourceName());
+            throw new ObservationReadError(msg);		}
 	}
 	
 	@Override
 	public Integer getNumberOfRecords() throws ObservationReadError {
-		if (hdus == null) {
+
+	    hdusList.clear();
+	    
+	    for (InputStream fitsStream : hostPlugin.getInputStreams()) {
 			try {
-				Fits fits = new Fits(hostPlugin.getInputStreams().get(0));
-				hdus = fits.read();
+				Fits fits = new Fits(fitsStream);
+				BasicHDU[] hdus = fits.read();
+	            if (hdus.length > 1 && hdus[1] instanceof BinaryTableHDU) {
+	                hdusList.add(hdus);
+	            } else {
+	                String msg =
+	                        String.format("Not a valid FITS file: %s",
+	                        getSourceName());
+	                throw new ObservationReadError(msg);
+	            }
 			} catch (Exception e) {
 				throw new ObservationReadError(e.getLocalizedMessage());
 			}
-		}
-		if (hdus.length > 1 && hdus[1] instanceof BinaryTableHDU) {
-			BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
-			return tableHDU.getNRows();
-		} else {
-			throw new ObservationReadError("Not a valid FITS file");
-		}
+	    }
+
+	    int records = 0;
+	    for (BasicHDU[] hdus : hdusList) {
+            BinaryTableHDU tableHDU = (BinaryTableHDU) hdus[1];
+            records += tableHDU.getNRows();
+	    }
+
+	    return records;
 	}
 
 	@Override

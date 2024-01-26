@@ -166,8 +166,13 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 		loadRawData = paramDialog.getLoadRaw();
 		return new KeplerFITSObservationRetriever(loadRawData);
 	}
+	
+	@Override
+    public boolean isMultipleFileSelectionAllowed() {
+        return true;
+    }
 
-	class KeplerFITSObservationRetriever extends TESSObservationRetrieverBase {
+    class KeplerFITSObservationRetriever extends TESSObservationRetrieverBase {
 
 		private static final String BJDREF_INT   = "BJDREFI";
 		private static final String BJDREF_FLOAT = "BJDREFF";
@@ -283,6 +288,8 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 		public String getSourceType() {
 			return "Kepler/TESS FITS File";
 		}
+		
+		
 	}		
 
 	@SuppressWarnings("serial")
@@ -338,7 +345,6 @@ public class KeplerFITSObservationSource extends ObservationSourcePluginBase {
 			return panel;
 		}
 
-	
 		/**
 		 * 
 		 */

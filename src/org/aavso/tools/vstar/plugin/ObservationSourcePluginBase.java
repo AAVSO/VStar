@@ -245,20 +245,27 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	}
 
 	/**
-	 * @return the isAdditive
+	 * @return are loads currently additive?
 	 */
 	public boolean isAdditive() {
 		return isAdditive;
 	}
 
 	/**
-	 * @param isAdditive the isAdditive to set
+	 * @param isAdditive should loads be additive?
 	 */
 	public void setAdditive(boolean isAdditive) {
 		this.isAdditive = isAdditive;
 	}
 
 	/**
+	 * @return whether multiple file selection is permitted
+	 */
+	public boolean isMultipleFileSelectionAllowed() {
+        return false;
+    }
+
+    /**
 	 * @return the velaFilterStr
 	 */
 	public String getVelaFilterStr() {

@@ -147,17 +147,22 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						obSourcePlugin
 								.setAdditive(fileChooser.isLoadAdditive());
 
+						// Set multiple file selection state now that we know
+						// what plugin we have.
+
 						if (fileChooser.isUrlProvided()) {
 							String urlStr = fileChooser.getUrlString();
 							URL url = new URL(urlStr);
 							streams.add(url.openConnection().getInputStream());
 							obSourcePlugin.setInputInfo(streams, urlStr);
 						} else {
-							File file = fileChooser.getSelectedFile();
-							if (file != null) {
-								streams.add(new FileInputStream(file));
-								obSourcePlugin.setInputInfo(streams,
-										file.getName());
+							File[] selectedFiles = fileChooser.getSelectedFiles();
+							if (selectedFiles.length != 0) {
+							    for (File file : selectedFiles) {
+    								streams.add(new FileInputStream(file));
+    								obSourcePlugin.setInputInfo(streams,
+    										file.getName());
+							    }
 							} else {
 								throw new CancellationException();
 							}
