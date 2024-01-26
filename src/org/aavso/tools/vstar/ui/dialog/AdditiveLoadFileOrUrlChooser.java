@@ -114,7 +114,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	/**
 	 * Set file chooser extensions filter.
 	 * 
-	 * @param extensions
+	 * @param extensions the list of extensions to filter files with
 	 */
 	public synchronized void setFileExtensions(List<String> extensions) {
 		fileChooser.removeChoosableFileFilter(fileChooser.getFileFilter());
@@ -206,20 +206,7 @@ public class AdditiveLoadFileOrUrlChooser {
 
 		pluginChooser
 				.addActionListener(e -> {
-					String name = (String) pluginChooser.getSelectedItem();
-					ObservationSourcePluginBase plugin = plugins.get(name);
-
-					List<String> additional = new ArrayList<String>();
-					additional.addAll(DEFAULT_EXTENSIONS);
-					if (plugin.getAdditionalFileExtensions() != null) {
-						additional.addAll(plugin.getAdditionalFileExtensions());
-					}
-					setFileExtensions(additional);
-
-					boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;
-					urlRequestButton.setEnabled(urlAllowed);
-					
-					fileChooser.setMultiSelectionEnabled(plugin.isMultipleFileSelectionAllowed());
+		            updateFileAndUrlWidgetsForPlugin();
 				});
 
 		pane.add(pluginChooser);
@@ -249,9 +236,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	 */
 	public synchronized boolean showDialog(Component parent) {
 	    if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
-            String name = (String) pluginChooser.getSelectedItem();
-            ObservationSourcePluginBase plugin = plugins.get(name);
-            fileChooser.setMultiSelectionEnabled(plugin.isMultipleFileSelectionAllowed());
+	        updateFileAndUrlWidgetsForPlugin();
 	    }
 
 		int result = fileChooser.showOpenDialog(parent);
@@ -337,5 +322,25 @@ public class AdditiveLoadFileOrUrlChooser {
 	 */
 	public synchronized void reset() {
 		setUrlProvided(false);
+	}
+
+	// Helpers
+
+	private void updateFileAndUrlWidgetsForPlugin() {
+        String name = (String) pluginChooser.getSelectedItem();
+        ObservationSourcePluginBase plugin = plugins.get(name);
+
+        fileChooser.setMultiSelectionEnabled(plugin.isMultipleFileSelectionAllowed());
+
+        if (plugin.getAdditionalFileExtensions() != null) {
+            List<String> newFileExtensions = new ArrayList<String>();
+            newFileExtensions.addAll(plugin.getAdditionalFileExtensions());
+            setFileExtensions(newFileExtensions);
+        } else {
+            setFileExtensions(DEFAULT_EXTENSIONS);
+        }
+
+        boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;
+        urlRequestButton.setEnabled(urlAllowed);
 	}
 }

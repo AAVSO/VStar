@@ -101,14 +101,6 @@ public class PluginComponentFactory {
 			if (!fileChoosers.containsKey(id)) {
 				fileChoosers
 						.put(id, new AdditiveLoadFileOrUrlChooser(allowURL));
-
-				if (additionalFileExtensions != null) {
-					List<String> newFileExtensions = new ArrayList<String>();
-					newFileExtensions.addAll(additionalFileExtensions);
-					newFileExtensions.addAll(fileChoosers.get(id)
-							.getDefaultFileExtensions());
-					fileChoosers.get(id).setFileExtensions(newFileExtensions);
-				}
 			}
 			fileChooser = fileChoosers.get(id);
 			fileChooser.reset();
@@ -116,7 +108,13 @@ public class PluginComponentFactory {
 			fileChooser = new AdditiveLoadFileOrUrlChooser(allowURL);
 		}
 
-	    fileChooser.setMultiFileSelectionState(allowMultipleFileSelection);
+        fileChooser.setMultiFileSelectionState(allowMultipleFileSelection);
+
+        List<String> newFileExtensions = new ArrayList<String>();
+        if (additionalFileExtensions != null) {
+            newFileExtensions.addAll(additionalFileExtensions);
+            fileChooser.setFileExtensions(newFileExtensions);
+        }
 
 		// Was a file chosen or a URL string accepted?
 		boolean approved = false;

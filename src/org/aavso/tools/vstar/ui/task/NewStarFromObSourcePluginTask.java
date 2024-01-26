@@ -161,6 +161,9 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 							if (selectedFiles.length != 0) {
 							    for (File file : selectedFiles) {
     								streams.add(new FileInputStream(file));
+    								// TODO: call this once, but also create
+    								// a map of names to streams within plugin
+    								// Indeed, do we even use file.getName() in plugins?
     								obSourcePlugin.setInputInfo(streams,
     										file.getName());
 							    }
