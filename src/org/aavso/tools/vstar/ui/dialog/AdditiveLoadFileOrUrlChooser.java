@@ -248,6 +248,12 @@ public class AdditiveLoadFileOrUrlChooser {
 	 * @return Whether the dialog was "approved".
 	 */
 	public synchronized boolean showDialog(Component parent) {
+	    if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
+            String name = (String) pluginChooser.getSelectedItem();
+            ObservationSourcePluginBase plugin = plugins.get(name);
+            fileChooser.setMultiSelectionEnabled(plugin.isMultipleFileSelectionAllowed());
+	    }
+
 		int result = fileChooser.showOpenDialog(parent);
 		return result == JFileChooser.APPROVE_OPTION;
 	}
