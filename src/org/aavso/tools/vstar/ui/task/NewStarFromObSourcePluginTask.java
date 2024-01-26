@@ -125,7 +125,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 									obSourcePlugin.getDisplayName(),
 									obSourcePlugin
 											.getAdditionalFileExtensions(),
-									obSourcePlugin.getInputType() == InputType.FILE_OR_URL);
+									obSourcePlugin.getInputType() == InputType.FILE_OR_URL,
+									obSourcePlugin.isMultipleFileSelectionAllowed());
 
 					if (fileChooser != null) {
 						// Which plugin was selected in the end?

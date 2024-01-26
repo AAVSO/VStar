@@ -151,8 +151,6 @@ public class MenuBar extends JMenuBar {
 
 	private Mediator mediator = Mediator.getInstance();
 
-	private AdditiveLoadFileOrUrlChooser fileOpenDialog;
-
 	// Plug-in menu name to plug-in object maps.
 	private Map<String, ObservationSourcePluginBase> menuItemNameToObSourcePlugin;
 	private Map<String, CustomFilterPluginBase> menuItemNameToCustomFilterPlugin;
@@ -239,8 +237,6 @@ public class MenuBar extends JMenuBar {
 
 		this.parent = parent;
 		this.uiType = uiType;
-
-		this.fileOpenDialog = new AdditiveLoadFileOrUrlChooser(false);
 
 		createFileMenu();
 		createEditMenu();

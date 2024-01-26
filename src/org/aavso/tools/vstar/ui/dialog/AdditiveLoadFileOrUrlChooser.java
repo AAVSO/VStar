@@ -253,6 +253,15 @@ public class AdditiveLoadFileOrUrlChooser {
 	}
 
 	/**
+	 * Set the multiple file selection state.
+	 * 
+	 * @param isAllowed Is multiple file selection permitted?
+	 */
+	public void setMultiFileSelectionState(boolean isAllowed) {
+	    fileChooser.setMultiSelectionEnabled(isAllowed);
+	}
+
+	/**
 	 * @return The selected files.
 	 */
 	public File[] getSelectedFiles() {
