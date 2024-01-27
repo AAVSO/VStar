@@ -39,6 +39,7 @@ import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.apache.commons.math.stat.descriptive.rank.Median;
 
@@ -294,7 +295,8 @@ public abstract class TESSObservationRetrieverBase extends AbstractObservationRe
 		    String msg =
                     String.format("Not a valid FITS file: %s",
                     getSourceName());
-            throw new ObservationReadError(msg);		}
+            throw new ObservationReadError(msg);
+        }
 	}
 	
 	@Override
@@ -309,13 +311,13 @@ public abstract class TESSObservationRetrieverBase extends AbstractObservationRe
 	            if (hdus.length > 1 && hdus[1] instanceof BinaryTableHDU) {
 	                hdusList.add(hdus);
 	            } else {
-	                String msg =
+	                MessageBox.showErrorDialog("FITS Read Error",
 	                        String.format("Not a valid FITS file: %s",
-	                        getSourceName());
-	                throw new ObservationReadError(msg);
+	                                  hostPlugin.nameFromStream(fitsStream)));
 	            }
 			} catch (Exception e) {
-				throw new ObservationReadError(e.getLocalizedMessage());
+                MessageBox.showErrorDialog("FITS Read Error",
+                        e.getLocalizedMessage());
 			}
 	    }
 
