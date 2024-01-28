@@ -35,8 +35,6 @@ import org.aavso.tools.vstar.util.model.IModel;
 import org.aavso.tools.vstar.util.notification.Listener;
 import org.aavso.tools.vstar.util.stats.BinningResult;
 import org.aavso.tools.vstar.util.stats.PhaseCalcs;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.SeriesRenderingOrder;
 
 /**
  * This class manages the creation of VStar "documents", i.e. models and GUI
@@ -45,8 +43,11 @@ import org.jfree.chart.plot.SeriesRenderingOrder;
  * cache GUI components (and by association, their models) permitting reuse of these
  * and updates to models. TODO: call it ComponentManager instead?
  */
+@SuppressWarnings("serial")
 public class DocumentManager {
 
+    private Mediator mediator;
+    
 	// Model and residuals maps.
 	private Map<String, SyntheticObservationListPane<AbstractModelObservationTableModel>> rawDataModelComponents;
 	private Map<String, SyntheticObservationListPane<AbstractModelObservationTableModel>> phasedModelComponents;
@@ -59,17 +60,19 @@ public class DocumentManager {
 	private double period;
 
 	// state of user-controllable plot pane characteristics
-	private boolean showErrorBars = true;
-	private boolean showCrossHairs = true;
-	private boolean invertRange = true;
-	private boolean invertSeriesOrder = true;
-	private boolean joinMeans = true;
+	private Map<AnalysisType, Boolean> showErrorBars;
+	private Map<AnalysisType, Boolean> showCrossHairs;
+	private Map<AnalysisType, Boolean> invertRange;
+	private Map<AnalysisType, Boolean> invertSeriesOrder;
+	private Map<AnalysisType, Boolean> joinMeans;
 	
 	private Map<String, String> statsInfo;
 
 	private static int filterNum = 0;
 
 	public DocumentManager() {
+	    mediator = Mediator.getInstance();
+
 		rawDataModelComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
 		phasedModelComponents = new HashMap<String, SyntheticObservationListPane<AbstractModelObservationTableModel>>();
 
@@ -80,6 +83,31 @@ public class DocumentManager {
 		epoch = 0;
 		period = 0;
 
+		showErrorBars = new HashMap<AnalysisType, Boolean>() {{
+		    put(AnalysisType.RAW_DATA, true);
+            put(AnalysisType.PHASE_PLOT, true);
+		}};
+		
+		showCrossHairs = new HashMap<AnalysisType, Boolean>() {{
+            put(AnalysisType.RAW_DATA, true);
+            put(AnalysisType.PHASE_PLOT, true);
+        }};
+        
+        invertRange = new HashMap<AnalysisType, Boolean>() {{
+            put(AnalysisType.RAW_DATA, true);
+            put(AnalysisType.PHASE_PLOT, true);
+        }};
+        
+        invertSeriesOrder = new HashMap<AnalysisType, Boolean>() {{
+            put(AnalysisType.RAW_DATA, true);
+            put(AnalysisType.PHASE_PLOT, true);
+        }};
+        
+        joinMeans = new HashMap<AnalysisType, Boolean>() {{
+            put(AnalysisType.RAW_DATA, true);
+            put(AnalysisType.PHASE_PLOT, true);
+        }};
+        
 		statsInfo = new TreeMap<String, String>();
 	}
 
@@ -100,45 +128,50 @@ public class DocumentManager {
 	// ** user-controllable plot pane methods **
 	
 	public void toggleErrorBarState() {
-		showErrorBars = !showErrorBars;
+	    togglePlotControlState(showErrorBars);
 	}
 
 	public void toggleCrossHairState() {
-		showCrossHairs = !showCrossHairs;
+	    togglePlotControlState(showCrossHairs);
 	}
 
 	public void toggleRangeAxisInversionState() {
-		invertRange = !invertRange;
+	    togglePlotControlState(invertRange);
 	}
 	
 	public void toggleSeriesOrderInversionState() {
-		invertSeriesOrder = !invertSeriesOrder;
+	    togglePlotControlState(invertSeriesOrder);
 	}
 
 	public void toggleJoinMeansState() {
-		joinMeans = !joinMeans;
+	    togglePlotControlState(joinMeans);
 	}
 
 	public boolean shouldShowErrorBars() {
-		return showErrorBars;
+		return showErrorBars.get(mediator.getAnalysisType());
 	}
 
 	public boolean shouldShowCrossHairs() {
-		return showCrossHairs;
+		return showCrossHairs.get(mediator.getAnalysisType());
 	}
 
 	public boolean shouldInvertRange() {
-		return invertRange;
+		return invertRange.get(mediator.getAnalysisType());
 	}
 
 	public boolean shouldInvertSeriesOrder() {
-		return invertSeriesOrder;
+		return invertSeriesOrder.get(mediator.getAnalysisType());
 	}
 
 	public boolean shouldJoinMeans() {
-		return joinMeans;
+		return joinMeans.get(mediator.getAnalysisType());
 	}
 
+	private void togglePlotControlState(Map<AnalysisType, Boolean> map) {
+	    AnalysisType analysisType = mediator.getAnalysisType();
+        map.put(analysisType, !map.get(analysisType));
+	}
+	
 	// ** List pane methods **
 
 	public SyntheticObservationListPane<AbstractModelObservationTableModel> getModelListPane(

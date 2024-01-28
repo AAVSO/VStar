@@ -1727,7 +1727,6 @@ public class Mediator {
 
 	/**
 	 * Open the plot control dialog relevant to the current analysis mode.<br/>
-	 * TODO: move to DocumentManager
 	 */
 	public void showPlotControlDialog() {
 		String title = null;
