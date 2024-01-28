@@ -365,7 +365,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			ValidObservation.restore();
 			done();
 			MessageBox.showErrorDialog(
-					"New Star From Observation Source Read Error",
+					"Observation Source Read Error",
 					t.getLocalizedMessage());
 		}
 	}
