@@ -88,31 +88,33 @@ public class PluginComponentFactory {
 	 *            or null if none.
 	 * @param allowURL
 	 *            Should a URL entry be allowed?
+	 * @param allowMultipleFileSelection
+	 *            Should multiple file selection be permitted?
 	 * 
 	 * @return The file chooser or null if no file was selected.
 	 */
 	public static AdditiveLoadFileOrUrlChooser chooseFileForReading(String id,
-			List<String> additionalFileExtensions, boolean allowURL) {
+			List<String> additionalFileExtensions, boolean allowURL, boolean allowMultipleFileSelection) {
 		AdditiveLoadFileOrUrlChooser fileChooser = null;
 
 		if (id != null) {
 			if (!fileChoosers.containsKey(id)) {
 				fileChoosers
 						.put(id, new AdditiveLoadFileOrUrlChooser(allowURL));
-
-				if (additionalFileExtensions != null) {
-					List<String> newFileExtensions = new ArrayList<String>();
-					newFileExtensions.addAll(additionalFileExtensions);
-					newFileExtensions.addAll(fileChoosers.get(id)
-							.getDefaultFileExtensions());
-					fileChoosers.get(id).setFileExtensions(newFileExtensions);
-				}
 			}
 			fileChooser = fileChoosers.get(id);
 			fileChooser.reset();
 		} else {
 			fileChooser = new AdditiveLoadFileOrUrlChooser(allowURL);
 		}
+
+        fileChooser.setMultiFileSelectionState(allowMultipleFileSelection);
+
+        List<String> newFileExtensions = new ArrayList<String>();
+        if (additionalFileExtensions != null) {
+            newFileExtensions.addAll(additionalFileExtensions);
+            fileChooser.setFileExtensions(newFileExtensions);
+        }
 
 		// Was a file chosen or a URL string accepted?
 		boolean approved = false;

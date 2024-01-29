@@ -115,6 +115,11 @@ public class QLPFITSObservationSource extends ObservationSourcePluginBase {
 		return new QLPFITSObservationRetriever(loadRawData);
 	}
 
+   @Override
+    public boolean isMultipleFileSelectionAllowed() {
+        return true;
+    }
+
 	class QLPFITSObservationRetriever extends TESSObservationRetrieverBase {
 
 		private static final String BJDREF_INT   = "BJDREFI";

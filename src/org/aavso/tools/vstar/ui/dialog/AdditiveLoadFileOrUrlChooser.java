@@ -69,6 +69,9 @@ public class AdditiveLoadFileOrUrlChooser {
 	 */
 	public AdditiveLoadFileOrUrlChooser(boolean allowURL) {
 		fileChooser = new JFileChooser();
+
+	    fileChooser.setMultiSelectionEnabled(true);
+
 		urlProvided = false;
 		plugins = new TreeMap<String, ObservationSourcePluginBase>();
 
@@ -111,7 +114,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	/**
 	 * Set file chooser extensions filter.
 	 * 
-	 * @param extensions
+	 * @param extensions the list of extensions to filter files with
 	 */
 	public synchronized void setFileExtensions(List<String> extensions) {
 		fileChooser.removeChoosableFileFilter(fileChooser.getFileFilter());
@@ -203,18 +206,7 @@ public class AdditiveLoadFileOrUrlChooser {
 
 		pluginChooser
 				.addActionListener(e -> {
-					String name = (String) pluginChooser.getSelectedItem();
-					ObservationSourcePluginBase plugin = plugins.get(name);
-
-					List<String> additional = new ArrayList<String>();
-					additional.addAll(DEFAULT_EXTENSIONS);
-					if (plugin.getAdditionalFileExtensions() != null) {
-						additional.addAll(plugin.getAdditionalFileExtensions());
-					}
-					setFileExtensions(additional);
-
-					boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;
-					urlRequestButton.setEnabled(urlAllowed);
+		            updateFileAndUrlWidgetsForPlugin();
 				});
 
 		pane.add(pluginChooser);
@@ -243,15 +235,36 @@ public class AdditiveLoadFileOrUrlChooser {
 	 * @return Whether the dialog was "approved".
 	 */
 	public synchronized boolean showDialog(Component parent) {
+	    if (!PluginManager.shouldAllObsSourcePluginsBeInFileMenu()) {
+	        updateFileAndUrlWidgetsForPlugin();
+	    }
+
 		int result = fileChooser.showOpenDialog(parent);
 		return result == JFileChooser.APPROVE_OPTION;
 	}
 
 	/**
-	 * @return The selected file.
+	 * Set the multiple file selection state.
+	 * 
+	 * @param isAllowed Is multiple file selection permitted?
 	 */
-	public File getSelectedFile() {
-		return fileChooser.getSelectedFile();
+	public void setMultiFileSelectionState(boolean isAllowed) {
+	    fileChooser.setMultiSelectionEnabled(isAllowed);
+	}
+
+	/**
+	 * @return The selected files.
+	 */
+	public File[] getSelectedFiles() {
+	    File[] selectedFiles = null;
+	    
+	    if (fileChooser.isMultiSelectionEnabled()) {
+	        selectedFiles = fileChooser.getSelectedFiles();
+	    } else {
+	        selectedFiles = new File[] {fileChooser.getSelectedFile()};
+	    }
+	    
+	    return selectedFiles;
 	}
 
 	/**
@@ -286,7 +299,7 @@ public class AdditiveLoadFileOrUrlChooser {
 	public boolean isLoadAdditive() {
 		return additiveLoadCheckbox.isSelected();
 	}
-
+	
 	/**
 	 * Return the optional currently selected observation source plugin.
 	 * 
@@ -309,5 +322,25 @@ public class AdditiveLoadFileOrUrlChooser {
 	 */
 	public synchronized void reset() {
 		setUrlProvided(false);
+	}
+
+	// Helpers
+
+	private void updateFileAndUrlWidgetsForPlugin() {
+        String name = (String) pluginChooser.getSelectedItem();
+        ObservationSourcePluginBase plugin = plugins.get(name);
+
+        fileChooser.setMultiSelectionEnabled(plugin.isMultipleFileSelectionAllowed());
+
+        if (plugin.getAdditionalFileExtensions() != null) {
+            List<String> newFileExtensions = new ArrayList<String>();
+            newFileExtensions.addAll(plugin.getAdditionalFileExtensions());
+            setFileExtensions(newFileExtensions);
+        } else {
+            setFileExtensions(DEFAULT_EXTENSIONS);
+        }
+
+        boolean urlAllowed = plugin.getInputType() == InputType.FILE_OR_URL;
+        urlRequestButton.setEnabled(urlAllowed);
 	}
 }

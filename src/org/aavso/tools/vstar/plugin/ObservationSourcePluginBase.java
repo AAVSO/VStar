@@ -22,7 +22,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.aavso.tools.vstar.data.SeriesType;
@@ -50,6 +52,8 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 
 	protected List<InputStream> inputStreams;
 	protected String inputName;
+	
+	protected Map<InputStream, String> streamNameMap;
 
 	protected boolean isAdditive;
 
@@ -64,6 +68,7 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	protected ObservationSourcePluginBase(String username, String password) {
 		this.userName = username;
 		this.password = password;
+		streamNameMap = new HashMap<InputStream, String>();
 		isAdditive = false;
 		velaFilterStr = "";
 	}
@@ -129,9 +134,11 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	/**
 	 * Sets the input streams and a representative name for these.
 	 * 
+	 * TODO: wondering whether this needs to be deprecated
+	 * 
 	 * @param inputStreams The input streams. Multiple streams may be required, e.g.
 	 *                     one per filter or one to access data and another to
-	 *                     access catalog information.
+	 *                     access catalog information or multiple selected files.
 	 * @param inputName    A name associated with the input (e.g. file, URL).
 	 */
 	public void setInputInfo(List<InputStream> inputStreams, String inputName) {
@@ -139,6 +146,34 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 		this.inputName = inputName;
 	}
 
+	/**
+	 * Empty the stream-name map.
+	 */
+	public void clearStreamNameMap() {
+	    streamNameMap.clear();
+	}
+	
+	/**
+	 * Add an input-name, stream pair to the stream-name map,
+	 * e.g. for error reporting.
+	 * 
+     * @param stream The input stream associated with the input name.
+	 * @param name A name associated with the input (e.g. file, URL).
+	 */
+	public void addStreamNamePair(InputStream stream, String name) {
+	    streamNameMap.put(stream, name);
+	}
+	
+	/**
+	 * Given an input stream, return the corresponding name.
+	 * 
+	 * @param stream The input stream.
+	 * @return The corresponding name.
+	 */
+	public String nameFromStream(InputStream stream) {
+	    return streamNameMap.get(stream);
+	}
+	
 	/**
 	 * Return a list of file extension strings to be added to the default file
 	 * extensions in the file chooser, or null if none are to be added (the
@@ -245,20 +280,27 @@ public abstract class ObservationSourcePluginBase implements IPlugin {
 	}
 
 	/**
-	 * @return the isAdditive
+	 * @return are loads currently additive?
 	 */
 	public boolean isAdditive() {
 		return isAdditive;
 	}
 
 	/**
-	 * @param isAdditive the isAdditive to set
+	 * @param isAdditive should loads be additive?
 	 */
 	public void setAdditive(boolean isAdditive) {
 		this.isAdditive = isAdditive;
 	}
 
 	/**
+	 * @return whether multiple file selection is permitted
+	 */
+	public boolean isMultipleFileSelectionAllowed() {
+        return false;
+    }
+
+    /**
 	 * @return the velaFilterStr
 	 */
 	public String getVelaFilterStr() {

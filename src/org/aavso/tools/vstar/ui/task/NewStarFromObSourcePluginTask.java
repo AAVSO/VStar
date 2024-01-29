@@ -43,7 +43,6 @@ import org.aavso.tools.vstar.ui.dialog.Checkbox;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
 import org.aavso.tools.vstar.ui.dialog.TextField;
-import org.aavso.tools.vstar.ui.dialog.plugin.manager.PluginManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressType;
@@ -111,8 +110,11 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				List<File> files = obSourcePlugin.getFiles();
 				if (files != null) {
 					String fileNames = "";
+                    obSourcePlugin.clearStreamNameMap(); 
 					for (File file : files) {
-						streams.add(new FileInputStream(file));
+					    InputStream stream = new FileInputStream(file);
+                        obSourcePlugin.addStreamNamePair(stream, file.getName());
+						streams.add(stream);
 						fileNames += file.getName() + ", ";
 					}
 					fileNames = fileNames.substring(0,
@@ -125,7 +127,8 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 									obSourcePlugin.getDisplayName(),
 									obSourcePlugin
 											.getAdditionalFileExtensions(),
-									obSourcePlugin.getInputType() == InputType.FILE_OR_URL);
+									obSourcePlugin.getInputType() == InputType.FILE_OR_URL,
+									obSourcePlugin.isMultipleFileSelectionAllowed());
 
 					if (fileChooser != null) {
 						// Which plugin was selected in the end?
@@ -147,17 +150,31 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						obSourcePlugin
 								.setAdditive(fileChooser.isLoadAdditive());
 
+						// Set multiple file selection state now that we know
+						// what plugin we have.
+
 						if (fileChooser.isUrlProvided()) {
 							String urlStr = fileChooser.getUrlString();
 							URL url = new URL(urlStr);
-							streams.add(url.openConnection().getInputStream());
+							InputStream stream = url.openConnection().getInputStream();
+							streams.add(stream);
 							obSourcePlugin.setInputInfo(streams, urlStr);
+                            obSourcePlugin.clearStreamNameMap(); 
+                            obSourcePlugin.addStreamNamePair(stream, urlStr);
 						} else {
-							File file = fileChooser.getSelectedFile();
-							if (file != null) {
-								streams.add(new FileInputStream(file));
-								obSourcePlugin.setInputInfo(streams,
-										file.getName());
+							File[] selectedFiles = fileChooser.getSelectedFiles();
+							if (selectedFiles.length != 0) {
+				                String fileNames = "";
+				                obSourcePlugin.clearStreamNameMap(); 
+							    for (File file : selectedFiles) {
+							        InputStream stream = new FileInputStream(file);
+    								streams.add(stream);    								
+    		                        obSourcePlugin.addStreamNamePair(stream, file.getName());
+    		                        fileNames += file.getName() + ", ";
+			                    }
+			                    fileNames = fileNames.substring(0,
+			                            fileNames.lastIndexOf(", "));
+			                    obSourcePlugin.setInputInfo(streams, fileNames);
 							} else {
 								throw new CancellationException();
 							}
@@ -187,8 +204,11 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 				List<URL> urls = obSourcePlugin.getURLs();
 				if (urls != null) {
 					String urlStrs = "";
+                    obSourcePlugin.clearStreamNameMap();
 					for (URL url : urls) {
-						streams.add(url.openStream());
+					    InputStream stream = url.openStream();
+						streams.add(stream);
+                        obSourcePlugin.addStreamNamePair(stream, url.getPath());
 						urlStrs += url.getPath() + ", ";
 					}
 					urlStrs = urlStrs.substring(0, urlStrs.lastIndexOf(", "));
@@ -209,8 +229,11 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 						obSourcePlugin.setAdditive(additiveLoadCheckbox
 								.getValue());
 						URL url = new URL(urlStr);
-						streams.add(url.openStream());
+						InputStream stream = url.openStream();
+						streams.add(stream);
 						obSourcePlugin.setInputInfo(streams, urlStr);
+	                    obSourcePlugin.clearStreamNameMap();
+                        obSourcePlugin.addStreamNamePair(stream, urlStr);
 					} else {
 						throw new CancellationException();
 					}
@@ -220,7 +243,6 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 
 			case NONE:
 				obSourcePlugin.setInputInfo(null, null);
-				String str = obSourcePlugin.getVelaFilterStr();
 				break;
 			}
 
@@ -343,7 +365,7 @@ public class NewStarFromObSourcePluginTask extends SwingWorker<Void, Void> {
 			ValidObservation.restore();
 			done();
 			MessageBox.showErrorDialog(
-					"New Star From Observation Source Read Error",
+					"Observation Source Read Error",
 					t.getLocalizedMessage());
 		}
 	}
