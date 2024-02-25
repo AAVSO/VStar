@@ -316,6 +316,24 @@ public abstract class AbstractObservationRetriever {
 	}
 
 	/**
+	 * Returns the custom domain title.
+	 * 
+	 * @return The custom domain title.
+	 */
+	public String getDomainTitle() {
+		return null;
+	}
+
+	/**
+	 * Returns the custom range title.
+	 * 
+	 * @return The custom range title.
+	 */
+	public String getRangeTitle() {
+		return null;
+	}
+	
+	/**
 	 * Set the VeLa filter string.
 	 * 
 	 * @param velaFilterStr

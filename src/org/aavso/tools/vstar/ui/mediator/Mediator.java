@@ -1270,8 +1270,15 @@ public class Mediator {
 			getDocumentManager().addStatsInfo("Confidence Interval",
 					"Mean error bars denote 95% Confidence Interval (twice Standard Error)");
 
+			String plotName;
+			String designation = starInfo.getDesignation();
+			// If star's designation starts with '^', do not prefix it with "Light Curve for"
+			if (designation != null && designation.length() > 0 && "^".equals(designation.substring(0, 1)))
+				plotName = designation.substring(1);
+			else
+				plotName = LocaleProps.get("LIGHT_CURVE") + " " + LocaleProps.get("FOR") + " " + designation;
 			obsAndMeanChartPane = createObservationAndMeanPlotPane(
-					LocaleProps.get("LIGHT_CURVE") + " " + LocaleProps.get("FOR") + " " + starInfo.getDesignation(),
+					plotName,
 					null, obsAndMeanPlotModel, starInfo.getRetriever());
 
 			obsAndMeanPlotModel.getMeansChangeNotifier()
@@ -1572,6 +1579,9 @@ public class Mediator {
 
 		obsAndMeanPlotModel2.getMeansChangeNotifier().addListener(meanObsTableModel);
 
+		// If star's name starts with '^', remove the first char (see "LIGHT_CURVE")
+		if (objName != null && objName.length() > 0 && "^".equals(objName.substring(0, 1)))
+			objName = objName.substring(1);
 		PhaseAndMeanPlotPane obsAndMeanChartPane = createPhaseAndMeanPlotPane(
 				LocaleProps.get("PHASE_PLOT") + " " + LocaleProps.get("FOR") + " " + objName, subTitle,
 				obsAndMeanPlotModel1, obsAndMeanPlotModel2, epoch, period,
