@@ -74,6 +74,7 @@ import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.IntegerField;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.dialog.NumberFieldBase;
+import org.aavso.tools.vstar.ui.dialog.TextField;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.help.Help;
@@ -108,6 +109,9 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 	private int points = 0;
 	private JDflavour jDflavour = JDflavour.UNKNOWN;	
 	private String veLaCode = null;
+	private String titleX = null;
+	private String titleY = null;
+	private String objectName = null;
 	
 	private static ParameterDialog paramDialog;
 	
@@ -157,10 +161,16 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		points = paramDialog.getPoints();
 		jDflavour = paramDialog.getJDflavour();		
 		veLaCode = paramDialog.getCode();
+		titleX = paramDialog.getTitleX();
+		titleY = paramDialog.getTitleY();
+		objectName = paramDialog.getObjectName();
 		
 		isAdditive = paramDialog.isAdditive();
 				
-		inputName = OBJ_NAME;
+		if (objectName == null || "".equals(objectName.trim()))
+			inputName = OBJ_NAME;
+		else
+			inputName = objectName;
 		
 		seriesNameAndDescription = getSeriesNameAndDescription();
 		
@@ -318,16 +328,23 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		
 		@Override
 		public StarInfo getStarInfo() {
-			String name = OBJ_NAME;
-			if (name == null || "".equals(name)) {
-				name = getSourceName();
-			}
+			String name = getSourceName();
 			return new StarInfo(this, name);
 		}
 
 		@Override
 		public Integer getNumberOfRecords() throws ObservationReadError {
 			return points;
+		}
+		
+		@Override
+		public String getDomainTitle() {
+			return titleX;
+		}
+
+		@Override
+		public String getRangeTitle() {
+			return titleY;
 		}
 
 	}
@@ -343,6 +360,9 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 		private JComboBox<String> jDflavour;
 		private JTextArea codeArea;
 		private JCheckBox addToCurrent;
+		private TextField titleXfield;
+		private TextField titleYfield;
+		private TextField objectNameField;
 		private JButton clearButton;
 		private JButton testButton;
 		private JButton loadButton;
@@ -368,6 +388,18 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			return codeArea.getText();
 		}
 		
+		public String getTitleX() {
+			return titleXfield.getValue();
+		}
+
+		public String getTitleY() {
+			return titleYfield.getValue();
+		}
+
+		public String getObjectName() {
+			return objectNameField.getValue();
+		}
+
 		public JDflavour getJDflavour() {
 			switch (jDflavour.getSelectedIndex()) {
 				case 0: return JDflavour.JD;
@@ -423,6 +455,8 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 			
 			topPane.add(createControlPane());
+			topPane.add(createControlPane2());
+
 			topPane.add(createCodePane());
 			//topPane.add(createFileControlPane());
 			
@@ -475,6 +509,24 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			return panel;
 		}
 		
+		private JPanel createControlPane2() {
+			JPanel panel = new JPanel(new FlowLayout());
+			
+			titleXfield = new TextField("Domain Axis Title");
+			((JTextField)(titleXfield.getUIComponent())).setColumns(30);
+			panel.add(titleXfield.getUIComponent());
+
+			titleYfield = new TextField("Range Axis Title");
+			((JTextField)(titleYfield.getUIComponent())).setColumns(30);
+			panel.add(titleYfield.getUIComponent());
+
+			objectNameField = new TextField("Object Name");
+			((JTextField)(objectNameField.getUIComponent())).setColumns(30);
+			panel.add(objectNameField.getUIComponent());
+			
+			return panel;
+		}
+
 		private JPanel createCodePane() {
 			JPanel panel = new JPanel();
 			panel.setLayout((LayoutManager) new BoxLayout(panel, BoxLayout.PAGE_AXIS));
@@ -575,6 +627,9 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 			points.setValue(null);
 			jDflavour.setSelectedIndex(dateTypeToSelectedIndex("HJD"));
 			codeArea.setText("");
+			titleXfield.setValue("");
+			titleYfield.setValue("");
+			objectNameField.setValue("");
 		}
 		
 		private void testInput() {
@@ -596,7 +651,9 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 					"   - 0.004698206584795 * cos(2*PI*(5/period)*(t-zeroPoint)) - 0.000039671630067 * sin(2*PI*(4/period)*(t-zeroPoint))\n" +
 					"   + 0.003549883073703 * cos(2*PI*(6/period)*(t-zeroPoint)) + 0.000022578051393 * sin(2*PI*(6/period)*(t-zeroPoint))\n" +
 					"}\n");
-
+			titleXfield.setValue("");
+			titleYfield.setValue("");
+			objectNameField.setValue("");
 		}
 		
 		private void readVelaXML() {
@@ -649,6 +706,9 @@ public class VeLaObSource extends ObservationSourcePluginBase {
 	        	((JTextField)(maxJD.getUIComponent())).setText(getNodeTextContent(element, "maxJD"));
 	        	((JTextField)(points.getUIComponent())).setText(getNodeTextContent(element, "points"));
        			jDflavour.setSelectedIndex(dateTypeToSelectedIndex(getNodeTextContent(element, "datetype")));
+       			((JTextField)(titleXfield.getUIComponent())).setText(getNodeTextContent(element, "domainTitle"));
+       			((JTextField)(titleYfield.getUIComponent())).setText(getNodeTextContent(element, "rangeTitle"));
+       			((JTextField)(objectNameField.getUIComponent())).setText(getNodeTextContent(element, "objectName"));
 	        } else {
 	        	throw new Exception("The document root is not VELA_MODEL");
 	        }
@@ -710,6 +770,18 @@ public class VeLaObSource extends ObservationSourcePluginBase {
           
             element = doc.createElement("datetype");
             element.appendChild(doc.createTextNode(jDflavourToString(getJDflavour())));
+            root.appendChild(element);
+            
+            element = doc.createElement("domainTitle");
+            element.appendChild(doc.createTextNode(titleXfield.getStringValue()));
+            root.appendChild(element);
+
+            element = doc.createElement("rangeTitle");
+            element.appendChild(doc.createTextNode(titleYfield.getStringValue()));
+            root.appendChild(element);
+
+            element = doc.createElement("objectName");
+            element.appendChild(doc.createTextNode(objectNameField.getStringValue()));
             root.appendChild(element);
             
             element = doc.createElement("code");
