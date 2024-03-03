@@ -61,6 +61,8 @@ import org.aavso.tools.vstar.vela.VeLaEvalError;
 // This pligin reads text files having the following format:
 //
 // #NAME=(object name). May appear in any line.
+// #TITLEX=(axis title). May appear in any line.
+// #TITLEY=(axis title). May appear in any line.
 // #DATE=(date column type: JD or HJD or BJD, default: JD). May appear before observations only.
 // #DELIM=(delimiter, default: comma). May appear in any line (i.e. to change delimiter)
 // #FILTER=(default value, if not specified in FILTER column). May appear in any line (i.e. to change filter)
@@ -216,6 +218,8 @@ public class FlexibleTextFileFormatObservationSource extends
 		private String defFilter = "";
 		private String defObsCode = "";
 		private String filterVeLa = "";
+		private String titleX = "";
+		private String titleY = "";
 		private double magShift = 0.0;
 		private double dateAdd = 0.0;
 		private boolean ignoreValidationErrors = false;
@@ -495,6 +499,10 @@ public class FlexibleTextFileFormatObservationSource extends
 					initFieldMap(pair[1].toUpperCase());
 					if (timeColumn < 0 || magColumn < 0)
 						return "#FIELDS directive must specify at least Time and Mag fields!";
+				} else if ("#TITLEX".equals(pair[0])) {
+					titleX = pair[1];
+				} else if ("#TITLEY".equals(pair[0])) {
+					titleY = pair[1];
 				}
 
 			}
@@ -849,7 +857,7 @@ public class FlexibleTextFileFormatObservationSource extends
 
 		@Override
 		public String getSourceType() {
-			return "Flexible Text Format File V1.0";
+			return "Flexible Text Format File V1.1";
 		}
 
 		@Override
@@ -862,6 +870,16 @@ public class FlexibleTextFileFormatObservationSource extends
 			}
 
 			return new StarInfo(this, name);
+		}
+		
+		@Override
+		public String getDomainTitle() {
+			return titleX;
+		}
+
+		@Override
+		public String getRangeTitle() {
+			return titleY;
 		}
 
 		private boolean isEmpty(String str) {

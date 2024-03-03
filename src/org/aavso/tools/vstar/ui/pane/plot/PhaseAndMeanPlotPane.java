@@ -89,8 +89,7 @@ public class PhaseAndMeanPlotPane extends ObservationAndMeanPlotPane {
 			AbstractObservationRetriever retriever,
 			PhasedObservationAndMeanPlotModel... obsAndMeanModels) {
 
-		super(title, subTitle, PHASE, getBrightnessAxisLabel(retriever
-				.getBrightnessUnits()), obsAndMeanModels[0], bounds, retriever);
+		super(title, subTitle, PHASE, getBrightnessAxisLabel(retriever), obsAndMeanModels[0], bounds, retriever);
 
 		this.epoch = epoch;
 		this.period = period;

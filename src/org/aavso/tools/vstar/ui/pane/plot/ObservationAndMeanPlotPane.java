@@ -126,8 +126,8 @@ public class ObservationAndMeanPlotPane extends AbstractObservationPlotPane<Obse
 	public ObservationAndMeanPlotPane(String title, String subTitle, ObservationAndMeanPlotModel obsAndMeanModel,
 			Dimension bounds, AbstractObservationRetriever retriever) {
 
-		this(title, subTitle, getTimeAxisLabel(retriever.getTimeUnits()),
-				getBrightnessAxisLabel(retriever.getBrightnessUnits()), obsAndMeanModel, bounds, retriever);
+		this(title, subTitle, getTimeAxisLabel(retriever),
+				getBrightnessAxisLabel(retriever), obsAndMeanModel, bounds, retriever);
 	}
 
 	/**

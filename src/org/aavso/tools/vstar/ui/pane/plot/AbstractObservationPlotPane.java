@@ -492,15 +492,27 @@ abstract public class AbstractObservationPlotPane<T extends ObservationAndMeanPl
 	/**
 	 * @return The time axis label.
 	 */
-	protected static String getTimeAxisLabel(String units) {
-		return String.format(LocaleProps.get("TIME"));
+	protected static String getTimeAxisLabel(AbstractObservationRetriever retriever) {
+		// Custom axis title
+		String axis_title;
+		axis_title = retriever.getDomainTitle();
+		if (axis_title != null && !"".equals(axis_title))
+			return axis_title;
+		else
+			return String.format(LocaleProps.get("TIME"));
 	}
 
 	/**
 	 * @return The brightness axis label.
 	 */
-	protected static String getBrightnessAxisLabel(String units) {
-		return String.format("%s (%s)", LocaleProps.get("BRIGHTNESS"), units);
+	protected static String getBrightnessAxisLabel(AbstractObservationRetriever retriever) {
+		// Custom axis title
+		String axis_title;
+		axis_title = retriever.getRangeTitle();
+		if (axis_title != null && !"".equals(axis_title))
+			return axis_title;
+		else
+			return String.format("%s (%s)", LocaleProps.get("BRIGHTNESS"), retriever.getBrightnessUnits());
 	}
 
 	/**
