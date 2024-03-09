@@ -68,12 +68,18 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	 */
 	protected Void doInBackground() throws Exception {
 		
+	    PrintWriter writer = null;
+	    
 		try {
-		    PrintWriter writer = new PrintWriter(outFile);
+		    writer = new PrintWriter(outFile);
 			plugin.save(writer, observations, delimiter);
         } catch (Exception ex) {
             MessageBox.showErrorDialog("Observation File Save Error",
                     ex.getLocalizedMessage());
+        } finally {
+            if (writer != null) {
+                writer.flush();
+            }
         }
 
 		return null;
