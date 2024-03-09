@@ -25,9 +25,7 @@ import java.util.List;
 
 import org.aavso.tools.vstar.data.DateInfo;
 import org.aavso.tools.vstar.data.Magnitude;
-import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
-import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
@@ -84,7 +82,6 @@ public class SimpleFormatObservationSinkPlugin extends CommonTextFormatSinkPlugi
         List<ValidObservation> obs = new ArrayList<ValidObservation>();
 
         String obsCode = "FOOBAR";
-        String targetName = "Yo Yo";
 
         ValidObservation ob1 = new ValidObservation();
         ob1.setDateInfo(new DateInfo(2459645.1234));
@@ -97,16 +94,21 @@ public class SimpleFormatObservationSinkPlugin extends CommonTextFormatSinkPlugi
         ob2.setMagnitude(new Magnitude(5.1, 0.002));
         ob2.setObsCode(obsCode);
         obs.add(ob2);
-
-        StringWriter strWriter = new StringWriter();
-        PrintWriter writer = new PrintWriter(strWriter);
+        
+        PrintWriter writer = null;
+        StringWriter strWriter = null;
+        
         try {
+            strWriter = new StringWriter();
+            writer = new PrintWriter(strWriter);
             save(writer, obs, ",");
         } catch (Exception e) {
             success = false;
         } finally {
             // see ObsListFileSaveTask.doInBackground()
-            writer.flush();
+            if (strWriter != null && writer != null) {
+                writer.flush();
+            }
         }
 
         if (success) {
