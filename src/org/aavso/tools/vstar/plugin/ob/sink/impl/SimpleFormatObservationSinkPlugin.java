@@ -19,9 +19,15 @@ package org.aavso.tools.vstar.plugin.ob.sink.impl;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.aavso.tools.vstar.data.DateInfo;
+import org.aavso.tools.vstar.data.Magnitude;
+import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
+import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.ViewModeType;
@@ -70,4 +76,49 @@ public class SimpleFormatObservationSinkPlugin extends CommonTextFormatSinkPlugi
 			Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.INCREMENT_PROGRESS);
 		}
 	}
+
+    @Override
+    public Boolean test() {
+        boolean success = true;
+
+        List<ValidObservation> obs = new ArrayList<ValidObservation>();
+
+        String obsCode = "FOOBAR";
+        String targetName = "Yo Yo";
+
+        ValidObservation ob1 = new ValidObservation();
+        ob1.setDateInfo(new DateInfo(2459645.1234));
+        ob1.setMagnitude(new Magnitude(5, 0.001));
+        ob1.setObsCode(obsCode);
+        obs.add(ob1);
+
+        ValidObservation ob2 = new ValidObservation();
+        ob2.setDateInfo(new DateInfo(2459645.2345));
+        ob2.setMagnitude(new Magnitude(5.1, 0.002));
+        ob2.setObsCode(obsCode);
+        obs.add(ob2);
+
+        StringWriter strWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(strWriter);
+        try {
+            save(writer, obs, ",");
+        } catch (Exception e) {
+            success = false;
+        } finally {
+            // see ObsListFileSaveTask.doInBackground()
+            writer.flush();
+        }
+
+        if (success) {
+            StringBuffer actual = strWriter.getBuffer();
+
+            StringBuffer expected = new StringBuffer();
+            expected.append("2459645.1234,5.0,0.001,FOOBAR,\n");
+            expected.append("2459645.2345,5.1,0.002,FOOBAR,\n");
+
+            success = actual.toString().equals(expected.toString());
+        }
+
+        return success;
+    }
 }
