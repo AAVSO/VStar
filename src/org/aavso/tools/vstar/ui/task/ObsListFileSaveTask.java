@@ -41,6 +41,7 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	private List<ValidObservation> observations;
 	private File outFile;
 	private String delimiter;
+	private String error;
 
 	/**
 	 * Constructor.
@@ -68,20 +69,14 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	 */
 	protected Void doInBackground() throws Exception {
 		
-	    PrintWriter writer = null;
+	    error = null;
 	    
-		try {
-		    writer = new PrintWriter(outFile);
+		try (PrintWriter writer = new PrintWriter(outFile)) {
 			plugin.save(writer, observations, delimiter);
         } catch (Exception ex) {
-            MessageBox.showErrorDialog("Observation File Save Error",
-                    ex.getLocalizedMessage());
-        } finally {
-            if (writer != null) {
-                writer.flush();
-            }
+        	error = ex.getLocalizedMessage();
         }
-
+		
 		return null;
 	}
 
@@ -89,6 +84,10 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
+		if (error != null) {
+            MessageBox.showErrorDialog("Observation File Save Error", error);
+		}
+		
 		Mediator.getInstance().getProgressNotifier()
 				.notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
 
