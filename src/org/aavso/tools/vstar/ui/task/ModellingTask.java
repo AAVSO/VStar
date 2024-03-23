@@ -35,7 +35,7 @@ import org.aavso.tools.vstar.util.stats.PhaseCalcs;
 public class ModellingTask extends SwingWorker<Void, Void> {
 
 	private boolean error;
-	private Throwable exception;
+	private String errorMsg;
 	private IModel model;
 
 	private Listener<StopRequestMessage> stopListener;
@@ -75,7 +75,7 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 			}
 		} catch (Throwable t) {
 			error = true;
-			exception = t;
+			errorMsg = t.getLocalizedMessage();
 		} finally {
 			Mediator.getInstance().getStopRequestNotifier()
 					.removeListenerIfWilling(stopListener);
@@ -91,7 +91,7 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 	 */
 	public void done() {
 	    if (error) {
-	        MessageBox.showErrorDialog(model.getKind() + " Error", exception);
+	        MessageBox.showErrorDialog(model.getKind() + " Error", errorMsg);
 	    } else if (!isCancelled()) {
 			ModelSelectionMessage selectionMsg = new ModelSelectionMessage(
 					this, model);
