@@ -25,6 +25,7 @@ import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
@@ -40,6 +41,7 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	private List<ValidObservation> observations;
 	private File outFile;
 	private String delimiter;
+	private String error;
 
 	/**
 	 * Constructor.
@@ -67,10 +69,14 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	 */
 	protected Void doInBackground() throws Exception {
 		
+	    error = null;
+	    
 		try (PrintWriter writer = new PrintWriter(outFile)) {
 			plugin.save(writer, observations, delimiter);
-		}
-
+        } catch (Exception ex) {
+        	error = ex.getLocalizedMessage();
+        }
+		
 		return null;
 	}
 
@@ -78,6 +84,10 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
+		if (error != null) {
+            MessageBox.showErrorDialog("Observation File Save Error", error);
+		}
+		
 		Mediator.getInstance().getProgressNotifier()
 				.notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
 
@@ -86,7 +96,5 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 
 		Mediator.getInstance().getProgressNotifier()
 				.notifyListeners(ProgressInfo.CLEAR_PROGRESS);
-
-		// TODO: how to detect task cancellation and clean up map etc
 	}
 }
