@@ -71,6 +71,9 @@ public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 		
 	    error = null;
 	    
+	    Mediator.getInstance().getProgressNotifier().notifyListeners(
+                ProgressInfo.BUSY_PROGRESS);
+
 		try (PrintWriter writer = new PrintWriter(outFile)) {
 			plugin.save(writer, observations, delimiter);
         } catch (Exception ex) {
