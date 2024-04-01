@@ -31,72 +31,74 @@ import org.aavso.tools.vstar.ui.undo.IUndoableAction;
  */
 public class UndoableActionTask extends SwingWorker<Void, Void> {
 
-	private IUndoableAction action;
-	private UndoableActionType type;
+    private String error;
+    private IUndoableAction action;
+    private UndoableActionType type;
 
-	/**
-	 * Constructor
-	 */
-	public UndoableActionTask(IUndoableAction action, UndoableActionType type) {
-		this.action = action;
-		this.type = type;
-	}
+    /**
+     * Constructor
+     */
+    public UndoableActionTask(IUndoableAction action, UndoableActionType type) {
+        this.action = action;
+        this.type = type;
+        this.error = null;
+    }
 
-	/**
-	 * @see javax.swing.SwingWorker#doInBackground()
-	 */
-	protected Void doInBackground() throws Exception {
+    /**
+     * @see javax.swing.SwingWorker#doInBackground()
+     */
+    protected Void doInBackground() throws Exception {
 
-		Mediator.getUI().getStatusPane()
-				.setMessage("Performing " + action.getDisplayString() + "...");
-		try {
-			// Reset undo/redo actions of this type if we are starting from
-			// scratch with a "do" action.
-			if (type == UndoableActionType.DO) {
-				Mediator.getInstance().getUndoableActionManager()
-						.clearPendingAction(action.getDisplayString());
-			}
+        Mediator.getUI().getStatusPane().setMessage("Performing " + action.getDisplayString() + "...");
+ 
+        try {
+            // Reset undo/redo actions of this type if we are starting from
+            // scratch with a "do" action.
+            if (type == UndoableActionType.DO) {
+                Mediator.getInstance().getUndoableActionManager().clearPendingAction(action.getDisplayString());
+            }
 
-			// Execute an action...
-			boolean ok = action.execute(type);
+            // Execute an action...
+            boolean ok = action.execute(type);
 
-			// ...update the UI...
-			Mediator.getInstance().updatePlotsAndTables();
+            // ...update the UI...
+            Mediator.getInstance().updatePlotsAndTables();
 
-			if (ok) {
-				// ...then add an undo/redo operation.
-				UndoableActionType nextType = null;
+            if (ok) {
+                // ...then add an undo/redo operation.
+                UndoableActionType nextType = null;
 
-				switch (type) {
-				case DO:
-				case REDO:
-					nextType = UndoableActionType.UNDO;
-					break;
-				case UNDO:
-					nextType = UndoableActionType.REDO;
-					break;
-				}
+                switch (type) {
+                case DO:
+                case REDO:
+                    nextType = UndoableActionType.UNDO;
+                    break;
+                case UNDO:
+                    nextType = UndoableActionType.REDO;
+                    break;
+                }
 
-				Mediator.getInstance().getUndoableActionManager()
-						.addAction(action, nextType);
-			}
-		} catch (Throwable t) {
-			MessageBox.showErrorDialog(action.getDisplayString() + " Error", t);
-		} finally {
-			Mediator.getUI().getStatusPane().setMessage("");
-		}
+                Mediator.getInstance().getUndoableActionManager().addAction(action, nextType);
+            }
+        } catch (Throwable t) {
+            error = t.getLocalizedMessage();
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * Executed in event dispatching thread.
-	 */
-	public void done() {
-		Mediator.getInstance().getProgressNotifier()
-				.notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
+    /**
+     * Executed in event dispatching thread.
+     */
+    public void done() {
+        if (error != null) {
+            MessageBox.showErrorDialog(action.getDisplayString() + " Error", error);
+        }
 
-		Mediator.getInstance().getProgressNotifier()
-				.notifyListeners(ProgressInfo.CLEAR_PROGRESS);
-	}
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
+
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.CLEAR_PROGRESS);
+
+        Mediator.getUI().getStatusPane().setMessage("");
+    }
 }

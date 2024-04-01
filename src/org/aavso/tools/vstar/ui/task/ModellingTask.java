@@ -46,7 +46,7 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 	 *            The model algorithm to execute.
 	 */
 	public ModellingTask(IModel model) {
-		error = null;
+		this.error = null;
 		this.model = model;
 
 		stopListener = createStopRequestListener();
@@ -59,6 +59,9 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 
 		Mediator.getInstance().getStopRequestNotifier().addListener(
 				stopListener);
+
+        Mediator.getInstance().getProgressNotifier().notifyListeners(
+                ProgressInfo.START_PROGRESS);
 
 		Mediator.getUI().getStatusPane().setMessage(
 				"Performing " + model.getKind() + "...");

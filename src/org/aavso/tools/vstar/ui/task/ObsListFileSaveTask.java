@@ -37,67 +37,60 @@ import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
  */
 public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 
-	private ObservationSinkPluginBase plugin;
-	private List<ValidObservation> observations;
-	private File outFile;
-	private String delimiter;
-	private String error;
+    private ObservationSinkPluginBase plugin;
+    private List<ValidObservation> observations;
+    private File outFile;
+    private String delimiter;
+    private String error;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param plugin
-	 *            The observation sink plugin.
-	 * @param observations
-	 *            Observation list.
-	 * @param outFile
-	 *            Output file.
-	 * @param delimiter
-	 *            The field delimiter to use.
-	 */
-	public ObsListFileSaveTask(ObservationSinkPluginBase plugin,
-			List<ValidObservation> observations, File outFile, String delimiter) {
-		super();
-		this.plugin = plugin;
-		this.observations = observations;
-		this.outFile = outFile;
-		this.delimiter = delimiter;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param plugin       The observation sink plugin.
+     * @param observations Observation list.
+     * @param outFile      Output file.
+     * @param delimiter    The field delimiter to use.
+     */
+    public ObsListFileSaveTask(ObservationSinkPluginBase plugin, List<ValidObservation> observations, File outFile,
+            String delimiter) {
+        super();
+        this.plugin = plugin;
+        this.observations = observations;
+        this.outFile = outFile;
+        this.delimiter = delimiter;
+        this.error = null;
+    }
 
-	/**
-	 * @see javax.swing.SwingWorker#doInBackground()
-	 */
-	protected Void doInBackground() throws Exception {
-		
-	    error = null;
-	    
-	    Mediator.getInstance().getProgressNotifier().notifyListeners(
-                ProgressInfo.BUSY_PROGRESS);
+    /**
+     * @see javax.swing.SwingWorker#doInBackground()
+     */
+    protected Void doInBackground() throws Exception {
 
-		try (PrintWriter writer = new PrintWriter(outFile)) {
-			plugin.save(writer, observations, delimiter);
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
+
+        Mediator.getUI().getStatusPane().setMessage("Saving " + outFile.getName() + "...");
+
+        try (PrintWriter writer = new PrintWriter(outFile)) {
+            plugin.save(writer, observations, delimiter);
         } catch (Exception ex) {
-        	error = ex.getLocalizedMessage();
+            error = ex.getLocalizedMessage();
         }
-		
-		return null;
-	}
 
-	/**
-	 * Executed in event dispatching thread.
-	 */
-	public void done() {
-		if (error != null) {
+        return null;
+    }
+
+    /**
+     * Executed in event dispatching thread.
+     */
+    public void done() {
+        if (error != null) {
             MessageBox.showErrorDialog("Observation File Save Error", error);
-		}
-		
-		Mediator.getInstance().getProgressNotifier()
-				.notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
+        }
 
-		Mediator.getUI().getStatusPane()
-				.setMessage("Saved '" + outFile.getAbsolutePath() + "'");
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
 
-		Mediator.getInstance().getProgressNotifier()
-				.notifyListeners(ProgressInfo.CLEAR_PROGRESS);
-	}
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.CLEAR_PROGRESS);
+
+        Mediator.getUI().getStatusPane().setMessage("Saved '" + outFile.getAbsolutePath() + "'");
+    }
 }
