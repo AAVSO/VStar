@@ -25,6 +25,7 @@ import javax.swing.SwingWorker;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 
@@ -36,57 +37,60 @@ import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
  */
 public class ObsListFileSaveTask extends SwingWorker<Void, Void> {
 
-	private ObservationSinkPluginBase plugin;
-	private List<ValidObservation> observations;
-	private File outFile;
-	private String delimiter;
+    private ObservationSinkPluginBase plugin;
+    private List<ValidObservation> observations;
+    private File outFile;
+    private String delimiter;
+    private String error;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param plugin
-	 *            The observation sink plugin.
-	 * @param observations
-	 *            Observation list.
-	 * @param outFile
-	 *            Output file.
-	 * @param delimiter
-	 *            The field delimiter to use.
-	 */
-	public ObsListFileSaveTask(ObservationSinkPluginBase plugin,
-			List<ValidObservation> observations, File outFile, String delimiter) {
-		super();
-		this.plugin = plugin;
-		this.observations = observations;
-		this.outFile = outFile;
-		this.delimiter = delimiter;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param plugin       The observation sink plugin.
+     * @param observations Observation list.
+     * @param outFile      Output file.
+     * @param delimiter    The field delimiter to use.
+     */
+    public ObsListFileSaveTask(ObservationSinkPluginBase plugin, List<ValidObservation> observations, File outFile,
+            String delimiter) {
+        super();
+        this.plugin = plugin;
+        this.observations = observations;
+        this.outFile = outFile;
+        this.delimiter = delimiter;
+        this.error = null;
+    }
 
-	/**
-	 * @see javax.swing.SwingWorker#doInBackground()
-	 */
-	protected Void doInBackground() throws Exception {
-		
-		try (PrintWriter writer = new PrintWriter(outFile)) {
-			plugin.save(writer, observations, delimiter);
-		}
+    /**
+     * @see javax.swing.SwingWorker#doInBackground()
+     */
+    protected Void doInBackground() throws Exception {
 
-		return null;
-	}
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
 
-	/**
-	 * Executed in event dispatching thread.
-	 */
-	public void done() {
-		Mediator.getInstance().getProgressNotifier()
-				.notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
+        Mediator.getUI().getStatusPane().setMessage("Saving " + outFile.getName() + "...");
 
-		Mediator.getUI().getStatusPane()
-				.setMessage("Saved '" + outFile.getAbsolutePath() + "'");
+        try (PrintWriter writer = new PrintWriter(outFile)) {
+            plugin.save(writer, observations, delimiter);
+        } catch (Exception ex) {
+            error = ex.getLocalizedMessage();
+        }
 
-		Mediator.getInstance().getProgressNotifier()
-				.notifyListeners(ProgressInfo.CLEAR_PROGRESS);
+        return null;
+    }
 
-		// TODO: how to detect task cancellation and clean up map etc
-	}
+    /**
+     * Executed in event dispatching thread.
+     */
+    public void done() {
+        if (error != null) {
+            MessageBox.showErrorDialog("Observation File Save Error", error);
+        }
+
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
+
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.CLEAR_PROGRESS);
+
+        Mediator.getUI().getStatusPane().setMessage("Saved '" + outFile.getAbsolutePath() + "'");
+    }
 }

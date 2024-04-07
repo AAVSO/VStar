@@ -34,7 +34,7 @@ import org.aavso.tools.vstar.util.stats.PhaseCalcs;
  */
 public class ModellingTask extends SwingWorker<Void, Void> {
 
-	private boolean error;
+	private String error;
 	private IModel model;
 
 	private Listener<StopRequestMessage> stopListener;
@@ -46,7 +46,7 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 	 *            The model algorithm to execute.
 	 */
 	public ModellingTask(IModel model) {
-		error = false;
+		this.error = null;
 		this.model = model;
 
 		stopListener = createStopRequestListener();
@@ -59,6 +59,9 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 
 		Mediator.getInstance().getStopRequestNotifier().addListener(
 				stopListener);
+
+        Mediator.getInstance().getProgressNotifier().notifyListeners(
+                ProgressInfo.START_PROGRESS);
 
 		Mediator.getUI().getStatusPane().setMessage(
 				"Performing " + model.getKind() + "...");
@@ -73,8 +76,7 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 				PhaseCalcs.setPhases(model.getResiduals(), epoch, period);
 			}
 		} catch (Throwable t) {
-			error = true;
-			MessageBox.showErrorDialog(model.getKind() + " Error", t);
+			error = t.getLocalizedMessage();
 		} finally {
 			Mediator.getInstance().getStopRequestNotifier()
 					.removeListenerIfWilling(stopListener);
@@ -89,7 +91,9 @@ public class ModellingTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		if (!error && !isCancelled()) {
+	    if (error != null) {
+	        MessageBox.showErrorDialog(model.getKind() + " Error", error);
+	    } else if (!isCancelled()) {
 			ModelSelectionMessage selectionMsg = new ModelSelectionMessage(
 					this, model);
 			Mediator.getInstance().getModelSelectionNofitier().notifyListeners(

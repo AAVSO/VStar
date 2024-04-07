@@ -32,75 +32,73 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public class PluginManagerOperationTask extends SwingWorker<Void, Void> {
 
-	private PluginManagementOperation op;
+    private String error;
 
-	private Listener<StopRequestMessage> stopListener;
+    private PluginManagementOperation op;
 
-	/**
-	 * Constructor
-	 * 
-	 * @param manager
-	 *            The plugin manager.
-	 * @param message
-	 *            The message to display. on the status bar.
-	 */
-	public PluginManagerOperationTask(PluginManagementOperation op) {
-		this.op = op;
-		stopListener = createStopRequestListener();
-	}
+    private Listener<StopRequestMessage> stopListener;
 
-	/**
-	 * @see javax.swing.SwingWorker#doInBackground()
-	 */
-	protected Void doInBackground() throws Exception {
+    /**
+     * Constructor
+     *
+     * @param manager The plugin manager.
+     * @param message The message to display. on the status bar.
+     */
+    public PluginManagerOperationTask(PluginManagementOperation op) {
+        this.error = null;
+        this.op = op;
+        stopListener = createStopRequestListener();
+    }
 
-		Mediator.getInstance().getProgressNotifier().notifyListeners(
-				ProgressInfo.START_PROGRESS);
-		Mediator.getInstance().getProgressNotifier().notifyListeners(
-				ProgressInfo.BUSY_PROGRESS);
+    /**
+     * @see javax.swing.SwingWorker#doInBackground()
+     */
+    protected Void doInBackground() throws Exception {
 
-		Mediator.getInstance().getStopRequestNotifier().addListener(
-				stopListener);
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.START_PROGRESS);
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.BUSY_PROGRESS);
 
-		Mediator.getUI().getStatusPane().setMessage(op.getMessage() + "...");
-		try {
-			op.execute();
-		} catch (Throwable t) {
-			MessageBox.showErrorDialog("Plugin Manager: " + op.getMessage(), t
-					.getLocalizedMessage());
-		} finally {
-			Mediator.getInstance().getStopRequestNotifier()
-					.removeListenerIfWilling(stopListener);
-		}
+        Mediator.getInstance().getStopRequestNotifier().addListener(stopListener);
 
-		Mediator.getUI().getStatusPane().setMessage("");
+        Mediator.getUI().getStatusPane().setMessage(op.getMessage() + "...");
 
-		return null;
-	}
+        try {
+            op.execute();
+        } catch (Throwable t) {
+            error = t.getLocalizedMessage();
+        } finally {
+            Mediator.getInstance().getStopRequestNotifier().removeListenerIfWilling(stopListener);
+        }
 
-	/**
-	 * Executed in event dispatching thread.
-	 */
-	public void done() {
-		Mediator.getInstance().getProgressNotifier().notifyListeners(
-				ProgressInfo.COMPLETE_PROGRESS);
+        Mediator.getUI().getStatusPane().setMessage("");
 
-		Mediator.getInstance().getProgressNotifier().notifyListeners(
-				ProgressInfo.CLEAR_PROGRESS);
-	}
+        return null;
+    }
 
-	// Creates a stop request listener to interrupt the operation.
-	private Listener<StopRequestMessage> createStopRequestListener() {
-		return new Listener<StopRequestMessage>() {
-			@Override
-			public void update(StopRequestMessage info) {
-				op.interrupt();
-			}
+    /**
+     * Executed in event dispatching thread
+     */
+    public void done() {
+        if (error != null) {
+            MessageBox.showErrorDialog("Plugin Manager: " + op.getMessage(), error);
+        }
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.COMPLETE_PROGRESS);
 
-			@Override
-			public boolean canBeRemoved() {
-				return true;
-			}
-		};
-	}
+        Mediator.getInstance().getProgressNotifier().notifyListeners(ProgressInfo.CLEAR_PROGRESS);
+    }
+
+    // Creates a stop request listener to interrupt the operation.
+    private Listener<StopRequestMessage> createStopRequestListener() {
+        return new Listener<StopRequestMessage>() {
+            @Override
+            public void update(StopRequestMessage info) {
+                op.interrupt();
+            }
+
+            @Override
+            public boolean canBeRemoved() {
+                return true;
+            }
+        };
+    }
 }

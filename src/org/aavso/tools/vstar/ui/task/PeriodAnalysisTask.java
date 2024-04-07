@@ -39,6 +39,7 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 
+    private String error;
 	private PeriodAnalysisPluginBase periodAnalysisPlugin;
 	private SeriesType sourceSeriesType;
 	private List<ValidObservation> obs;
@@ -63,6 +64,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		this.periodAnalysisPlugin = plugin;
 		this.sourceSeriesType = sourceSeriesType;
 		this.obs = obs;
+		this.error = null;
 		this.successful = true;
 
 		stopListener = createStopRequestListener();
@@ -76,6 +78,9 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 		Mediator.getInstance().getStopRequestNotifier().addListener(
 				stopListener);
 
+        Mediator.getInstance().getProgressNotifier().notifyListeners(
+                ProgressInfo.START_PROGRESS);
+
 		Mediator.getUI().getStatusPane().setMessage(
 				LocaleProps.get("STATUS_PANE_PERFORMING_PERIOD_ANALYSIS"));
 		try {
@@ -84,7 +89,7 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 			successful = false;
 		} catch (Throwable t) {
 			successful = false;
-			MessageBox.showErrorDialog("Period Analysis Error", t);
+			error = t.getLocalizedMessage();
 		} finally {
 			Mediator.getInstance().getStopRequestNotifier()
 					.removeListenerIfWilling(stopListener);
@@ -97,7 +102,9 @@ public class PeriodAnalysisTask extends SwingWorker<Void, Void> {
 	 * Executed in event dispatching thread.
 	 */
 	public void done() {
-		if (!isCancelled() && successful) {
+	    if (error != null) {
+	        MessageBox.showErrorDialog("Period Analysis Error", error);
+	    } else if (!isCancelled() && successful) {
 			JDialog dialog = periodAnalysisPlugin.getDialog(sourceSeriesType);
 			if (dialog != null) {
 				dialog.setVisible(true);
