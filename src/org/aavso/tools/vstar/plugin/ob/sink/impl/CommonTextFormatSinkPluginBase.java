@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
+import org.aavso.tools.vstar.util.help.Help;
 
 /**
  * Common base class for text format sink plugins.
@@ -51,4 +52,10 @@ public abstract class CommonTextFormatSinkPluginBase extends ObservationSinkPlug
 	public Map<String, String> getDelimiterSuffixValuePairs() {
 		return SUFFIXES;
 	}
+	
+	@Override
+	public String getDocName() {
+		return Help.getAAVSOtextFormatSinkHelpPage();
+	}
+
 }

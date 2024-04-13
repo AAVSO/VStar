@@ -38,6 +38,10 @@ public class Help {
 	public static String getAAVSOtextFormatHelpPage() {
 		return "https://github.com/AAVSO/VStar/wiki/Observation-Source-Plug%E2%80%90ins#aavso-download-and-simple-formats-reader";
 	}
+	
+	public static String getAAVSOtextFormatSinkHelpPage() {
+		return "https://github.com/AAVSO/VStar/wiki/Observation-Sink-Plug%E2%80%90ins#aavso-download-and-simple-observation-sinks";
+	}
 
 	/**
 	 * Open the VStar manual page.
