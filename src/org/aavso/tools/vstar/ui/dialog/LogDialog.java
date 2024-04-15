@@ -79,6 +79,7 @@ public class LogDialog extends JDialog implements ActionListener {
 		JButton copyButton = new JButton("Copy Log to Clipboard");
 		copyButton.addActionListener(e -> {
 			ClipboardUtils.copyToClipboard(logTextArea.getText());
+			MessageBox.showMessageDialog("Log", "Log text copied to clipboard");
 		});
 		buttonPane.add(copyButton);
 
