@@ -33,10 +33,11 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.util.ClipboardUtils;
 import org.aavso.tools.vstar.util.help.Help;
 
 /**
- * This class encapsulates the behaviour of an authentication code-based modal
+ * This class encapsulates the behaviour of an authentication code modal
  * login dialog box.
  * 
  * It requests and validates an authentication code field, only being dismissed
@@ -106,11 +107,13 @@ public class AuthCodeLoginDialog extends AbstractOkCancelDialog {
 
 	private JPanel createURLPane(String loginURL) {
 		JPanel panel = new JPanel(new BorderLayout());
-		panel.setBorder(BorderFactory.createTitledBorder("AAVSO login web page link"));
-		String loginUrlHTML = loginURL;
-		JTextArea urlTextArea = new JTextArea("Or, enter\n\n" + loginUrlHTML + "\n\ninto a web browser");
-		urlTextArea.setEditable(false);
-		panel.add(urlTextArea);
+		panel.setBorder(BorderFactory.createTitledBorder("Or, paste URL into browser"));
+		JButton copyButton = new JButton("Copy URL to Clipboard");
+        copyButton.addActionListener(e -> {
+            ClipboardUtils.copyToClipboard(loginURL);
+            MessageBox.showMessageDialog("Authentication", "Authentication URL copied to clipboard");
+        });
+        panel.add(copyButton);
 
 		return panel;
 	}
