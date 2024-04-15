@@ -17,7 +17,10 @@
  */
 package org.aavso.tools.vstar.ui.dialog;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,12 +28,14 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.plugin.ObservationSinkPluginBase;
 import org.aavso.tools.vstar.ui.resources.PluginLoader;
+import org.aavso.tools.vstar.util.help.Help;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 
 /**
@@ -127,6 +132,8 @@ public class DelimitedFieldFileSaveChooser {
 	private JPanel createPluginsList() {
 		JPanel pane = new JPanel();
 
+		pane.setBorder(BorderFactory.createTitledBorder("Type"));
+		
 		plugins = new HashMap<String, ObservationSinkPluginBase>();
 
 		for (ObservationSinkPluginBase plugin : PluginLoader
@@ -137,8 +144,9 @@ public class DelimitedFieldFileSaveChooser {
 
 		pluginChooser = new JComboBox<String>(plugins.keySet().toArray(
 				new String[0]));
-		pluginChooser.setSelectedItem(LocaleProps.get("TEXT_FORMAT_FILE"));
-		pluginChooser.setBorder(BorderFactory.createTitledBorder("Type"));
+		
+		pluginChooser.setSelectedItem(LocaleProps.get("DOWNLOAD_FORMAT_FILE"));
+		//pluginChooser.setBorder(BorderFactory.createTitledBorder("Type"));
 
 		pluginChooser.addActionListener(e -> {
 			String name = (String) pluginChooser.getSelectedItem();
@@ -152,6 +160,18 @@ public class DelimitedFieldFileSaveChooser {
 		}
 
 		pane.add(pluginChooser);
+		
+		JButton helpButton = new JButton("?");
+		
+		helpButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ObservationSinkPluginBase plugin = getSelectedPlugin();
+				Help.openPluginHelp(plugin != null ? plugin.getDocName() : null);
+			}
+		});
+
+		pane.add(helpButton);
 
 		return pane;
 	}
@@ -188,7 +208,8 @@ public class DelimitedFieldFileSaveChooser {
 	 */
 	private JPanel createDelimiterSelectionPane() {
 		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		//panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+		panel.setLayout(new BorderLayout());
 		panel.setBorder(BorderFactory.createTitledBorder("Delimiter"));
 
 		delimiterChooser.addActionListener(e -> {
@@ -202,8 +223,10 @@ public class DelimitedFieldFileSaveChooser {
 			delimiter = delimiters.get(name);
 		}
 
-		panel.add(delimiterChooser);
+		//panel.add(delimiterChooser);
+		panel.add(delimiterChooser, BorderLayout.PAGE_START);
 
 		return panel;
 	}
+	
 }
