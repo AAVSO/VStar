@@ -108,6 +108,7 @@ public class Authenticator {
 		Mediator.getUI().getStatusPane().setMessage("");
 
 		if (cancelled) {
+		    Mediator.getUI().setCursor(null);
 			throw new CancellationException();
 		}
 
