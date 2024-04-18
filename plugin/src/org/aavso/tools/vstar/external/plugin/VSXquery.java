@@ -41,7 +41,9 @@ import org.w3c.dom.Element;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.Image;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -52,8 +54,10 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
@@ -87,8 +91,19 @@ import org.aavso.tools.vstar.util.date.AbstractDateUtil;
  */
 public class VSXquery extends GeneralToolPluginBase {
 
+	protected static final String VSX_URL = 
+			"https://www.aavso.org/vsx/index.php?view=api.object&ident=";
+	
+	protected static final String IMAGE_URL_TEMPLATE = 
+			"https://archive.stsci.edu/cgi-bin/dss_search?v=poss2ukstu_red&r=%s&d=%s&e=J2000&h=5&w=5&f=gif&c=none&fov=NONE&v3=";
+	
+	protected static final String IMAGE_TITLE_TEMPLATE = 
+			"POSS2/UKSTU Red 5'x5': RA= %s; Dec= %s";
+
+	protected static final String SIMBAD_URL_TEMPLATE =
+			"https://simbad.u-strasbg.fr/simbad/sim-coo?Coord=%s+%s&CooFrame=ICRS&CooEqui=2000.0&CooEpoch=J2000&Radius.unit=arcmin&Radius=10";
+	
 	private static String lastVSXname = "";
-	protected static final String sVSX_URL = "https://www.aavso.org/vsx/index.php?view=api.object&ident=";
 
 	@Override
 	public void invoke() {
@@ -161,9 +176,15 @@ public class VSXquery extends GeneralToolPluginBase {
 		protected JButton phaseDialogButton;
 		protected JButton resetButton;
 		protected JButton calcEphemeris;
+		protected JButton showImage;
+		protected JButton goSIMBAD;
 
 		private String starVSXname = "";
 		private EphemerisDialog ephemerisDialog = null;
+		
+		private Double starRA = null;
+		private Double starDec = null;
+		private ImageDialog imageDialog = null;
 		
 		/**
 		 * Constructor
@@ -185,15 +206,22 @@ public class VSXquery extends GeneralToolPluginBase {
 			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 			topPane.add(createNamePane());
-			topPane.add(createInfoPane());
+			topPane.add(createInfoPane1());
+			topPane.add(createInfoPane2());
+			topPane.add(createInfoPane3());
+			topPane.add(createInfoPane4());
 			topPane.add(createButtonPane());
 			topPane.add(createParamPane2());
 			topPane.add(createButtonPane2());
+			topPane.add(new JLabel(" "));
+			topPane.add(new JSeparator(SwingConstants.HORIZONTAL));
+			topPane.add(new JLabel(" "));
+			topPane.add(createButtonPane3());
 			//topPane.add(new JPanel());
 			topPane.add(new JLabel(" "));
 			topPane.add(new JSeparator(SwingConstants.HORIZONTAL));
 			topPane.add(new JLabel(" "));
-			topPane.add(createButtonPane3(cancelListener));
+			topPane.add(createButtonPaneX(cancelListener));
 
 			//this.getRootPane().setDefaultButton(queryButton);
 
@@ -203,6 +231,7 @@ public class VSXquery extends GeneralToolPluginBase {
 				public void windowClosing(WindowEvent we) {
 					closed = true;
 					closeEphemerisDialog(true);
+					closeImageDialog(true);
 				}
 			});
 			this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -235,7 +264,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			return panel;
 		}
 
-		private JPanel createInfoPane()	{
+		private JPanel createInfoPane1() {
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
 
@@ -243,6 +272,13 @@ public class VSXquery extends GeneralToolPluginBase {
 			textArea.setEditable(false);
 			JScrollPane scrollPane = new JScrollPane(textArea);
 			panel.add(scrollPane);
+
+			return panel;
+		}
+		
+		private JPanel createInfoPane2() {
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(0, 2));
 
 			fieldVSXvarType = new TextField("Variability Type", "");
 			fieldVSXvarType.setEditable(false);
@@ -252,11 +288,23 @@ public class VSXquery extends GeneralToolPluginBase {
 			fieldVSXspectralType.setEditable(false);
 			panel.add(fieldVSXspectralType.getUIComponent());
 
+			return panel;
+		}
+
+		private JPanel createInfoPane3() {
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+
 			fieldVSXcoordinates =  new TextField("J2000.0", "");
 			fieldVSXcoordinates.setEditable(false);
 			panel.add(fieldVSXcoordinates.getUIComponent());
 
-			panel.add(new JLabel(" "));
+			return panel;
+		}
+
+		private JPanel createInfoPane4() {
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(0, 2));
 
 			fieldVSXperiod = new DoubleField2("Period", null, null, null);
 			fieldVSXperiod.setValue(0.0);
@@ -270,7 +318,7 @@ public class VSXquery extends GeneralToolPluginBase {
 
 			return panel;
 		}
-
+		
 		private JPanel createButtonPane() {
 			JPanel panel = new JPanel(new BorderLayout());
 
@@ -315,14 +363,27 @@ public class VSXquery extends GeneralToolPluginBase {
 
 		private JPanel createButtonPane2() {
 			JPanel panel = new JPanel(new BorderLayout());
+			//JPanel panel = new JPanel();
 			calcEphemeris = new JButton("Calculate Ephemeris");
 			calcEphemeris.addActionListener(createEphemerisButtonListener());
 			panel.add(calcEphemeris);
-			//calcEphemeris.setEnabled(false);
 			return panel;
 		}
 
-		private JPanel createButtonPane3(ActionListener cancelListener) {
+		private JPanel createButtonPane3() {
+			//JPanel panel = new JPanel(new BorderLayout());
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridLayout(0, 2));			
+			showImage = new JButton("Show Image");
+			showImage.addActionListener(createImageButtonListener());
+			panel.add(showImage);
+			goSIMBAD = new JButton("SIMBAD");
+			goSIMBAD.addActionListener(createSIMBADButtonListener());
+			panel.add(goSIMBAD);
+			return panel;
+		}
+		
+		private JPanel createButtonPaneX(ActionListener cancelListener) {
 			JPanel panel = new JPanel();
 			JButton helpButton = new JButton("Help");
 			helpButton.addActionListener(createHelpButtonListener());
@@ -360,6 +421,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					closeEphemerisDialog(false);
+					closeImageDialog(false);
 					fieldVSXname.setValue("");
 					resetVSXFields();
 					setDefaultEphemerisParams();
@@ -373,7 +435,7 @@ public class VSXquery extends GeneralToolPluginBase {
 				public void actionPerformed(ActionEvent e) {
 					Double period = fieldVSXperiod.getValue();
 					if (period == null || period <= 0) {
-						MessageBox.showErrorDialog(QueryVSXdialog.this, "Error", "Period must be > 0");
+						ShowError("Period must be > 0");
 						return;
 					}
 					Mediator mediator = Mediator.getInstance();
@@ -391,6 +453,7 @@ public class VSXquery extends GeneralToolPluginBase {
 				public void actionPerformed(ActionEvent e) {
 					closed = true;
 					closeEphemerisDialog(true);
+					closeImageDialog(true);
 					setVisible(false);
 					dispose();
 				}
@@ -448,9 +511,6 @@ public class VSXquery extends GeneralToolPluginBase {
 						ephemerisDialog.setVisible(true);
 					}
 				}
-				private void ShowError(String msg) {
-					MessageBox.showErrorDialog(QueryVSXdialog.this, "Error", msg);
-				}
 			};
 		}
 
@@ -464,7 +524,51 @@ public class VSXquery extends GeneralToolPluginBase {
 			}
 		}
 
+		// Return a listener for the "Show Image" button.
+		private ActionListener createImageButtonListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (starRA == null || starDec == null) {
+						ShowError("RA/Dec not specified");
+						return;
+					}
+					if (imageDialog == null) {
+						imageDialog = new ImageDialog(QueryVSXdialog.this, starRA, starDec);
+					} else {
+						imageDialog.setVisible(false);
+						imageDialog.updateImage(starRA, starDec);
+						imageDialog.setVisible(true);
+					}
+				}
+			};
+		}
+
+		private void closeImageDialog(boolean destroy) {
+			if (imageDialog != null) {
+				imageDialog.setVisible(false);
+				if (destroy) {
+					imageDialog.dispose();
+					imageDialog = null;
+				}
+			}
+		}
+		
+		private ActionListener createSIMBADButtonListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (starRA == null || starDec == null) {
+						ShowError("RA/Dec not specified");
+						return;
+					}
+					String sURL = String.format(SIMBAD_URL_TEMPLATE, starRA.toString(), starDec.toString());
+					Help.openURLInWebBrowser(sURL, "Error");
+				}
+			};
+		}
+		
 		private void resetVSXFields() {
+			starRA = null;
+			starDec = null;
 			textArea.setText("");
 			fieldVSXperiod.setValue(0.0);
 			fieldVSXepoch.setValue(0.0);
@@ -475,6 +579,7 @@ public class VSXquery extends GeneralToolPluginBase {
 
 		private void queryVSX() {
 			closeEphemerisDialog(false);
+			closeImageDialog(false);
 			starVSXname = fieldVSXname.getValue().trim();
 			lastVSXname = starVSXname;
 			if ("".equals(starVSXname))
@@ -488,9 +593,14 @@ public class VSXquery extends GeneralToolPluginBase {
 			phaseDialogButton.setEnabled(false);
 			resetButton.setEnabled(false);
 			calcEphemeris.setEnabled(false);
+			showImage.setEnabled(false);
+			goSIMBAD.setEnabled(false);
 			worker.execute();
 		}
-	
+		
+		private void ShowError(String msg) {
+			MessageBox.showErrorDialog(QueryVSXdialog.this, "Error", msg);
+		}
 	}
 
 
@@ -603,6 +713,75 @@ public class VSXquery extends GeneralToolPluginBase {
 		}
 
 	}
+	
+	@SuppressWarnings("serial")
+	class ImageDialog extends JDialog {
+		
+		private JLabel label = null;
+		
+		protected ImageDialog(JDialog parent, Double starRA, Double starDec) {
+			super(parent, "Image");
+			setModalityType(Dialog.ModalityType.MODELESS);
+			
+			ActionListener cancelListener = createCancelButtonListener();
+			getRootPane().registerKeyboardAction(cancelListener, 
+					KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), 
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+			Container contentPane = this.getContentPane();
+
+			JPanel panel = new JPanel();
+			panel.setLayout(new BorderLayout());
+			
+			label = new JLabel();			
+			panel.add(label, BorderLayout.CENTER);
+
+			updateImage(starRA, starDec);
+
+			JButton cancelButton = new JButton("Close");
+			cancelButton.addActionListener(cancelListener);
+			panel.add(cancelButton, BorderLayout.PAGE_END);
+
+			contentPane.add(panel);
+
+			this.pack();
+			setLocationRelativeTo(parent);
+			this.setVisible(true);
+			
+		}
+		
+		protected void updateImage(Double starRA, Double starDec)
+		{
+			if (starRA != null && starDec != null) {
+				String sTitle = String.format(IMAGE_TITLE_TEMPLATE, starRA.toString(), starDec.toString());
+				this.setTitle(sTitle);
+				String sURL = String.format(IMAGE_URL_TEMPLATE, starRA.toString(), starDec.toString());
+				try {
+					getParent().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+					try {
+						Image image = ImageIO.read(new URL(sURL));
+						if (image == null)
+							throw new Exception("Cannot retrieve image");
+						label.setIcon(new ImageIcon(image));
+						this.pack();
+					} finally {
+						getParent().setCursor(null);
+					}
+				} catch (Exception e) {
+					MessageBox.showErrorDialog(this, "Error", e.getLocalizedMessage());
+				}
+			}
+		}
+		
+		private ActionListener createCancelButtonListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					setVisible(false);
+				}
+			};
+		}
+
+	}
 
 	class VSQqueryResult {
 		protected String name;
@@ -702,6 +881,8 @@ public class VSXquery extends GeneralToolPluginBase {
 					dialog.phaseDialogButton.setEnabled(true);
 					dialog.resetButton.setEnabled(true);
 					dialog.calcEphemeris.setEnabled(true);
+					dialog.showImage.setEnabled(true);
+					dialog.goSIMBAD.setEnabled(true);
 					dialog.fieldVSXname.setValue(vsxName);
 					if (vsxResult != null) {
 						dialog.textArea.setText(vsxResult.stringResult);
@@ -711,8 +892,8 @@ public class VSXquery extends GeneralToolPluginBase {
 						dialog.fieldVSXvarType.setValue(vsxResult.varType);
 						dialog.fieldVSXspectralType.setValue(vsxResult.spType);
 						dialog.fieldVSXcoordinates.setValue(vsxResult.getCoordinates());
-						//dialog.phaseDialogButton.setEnabled(true);
-						//dialog.calcEphemeris.setEnabled(true);
+						dialog.starRA = vsxResult.ra2000;
+						dialog.starDec = vsxResult.declination2000;
 					} else {
 						dialog.textArea.setText(error);
 						dialog.fieldVSXperiod.setValue(0.0);
@@ -720,6 +901,8 @@ public class VSXquery extends GeneralToolPluginBase {
 						dialog.fieldVSXvarType.setValue("");
 						dialog.fieldVSXspectralType.setValue("");
 						dialog.fieldVSXcoordinates.setValue("");
+						dialog.starRA = null;
+						dialog.starDec = null;
 					}
 					dialog.pack();
 				}
@@ -732,7 +915,7 @@ public class VSXquery extends GeneralToolPluginBase {
 			String result = "";
 
 			// Example: https://www.aavso.org/vsx/index.php?view=api.object&ident=pmak+v41
-			String sURL = VSXquery.sVSX_URL + URLEncoder.encode(sVSXname, StandardCharsets.UTF_8.name());
+			String sURL = VSXquery.VSX_URL + URLEncoder.encode(sVSXname, StandardCharsets.UTF_8.name());
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			URL url = new URL(sURL);
