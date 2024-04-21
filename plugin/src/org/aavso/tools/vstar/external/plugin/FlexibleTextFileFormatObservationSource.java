@@ -101,6 +101,8 @@ import org.aavso.tools.vstar.vela.VeLaEvalError;
 //        "FILTER" == "BAND"
 //        "COMMENTS" == "NOTES"
 //        "FLAG" == "VALIDATION"
+//   3) #DELIM can be tab, comma, space, multispace, 
+//      or a single ASCII character with an ordinal value between 32 and 126 
 //
 
 /**
@@ -562,23 +564,24 @@ public class FlexibleTextFileFormatObservationSource extends
 				delimChar = ' ';
 				multispace = true;
 			} else {
-				int ordVal;
-				try {
-					ordVal = Integer.parseInt(delim);
-				} catch (NumberFormatException e) {
-					if (delim.length() != 1) {
-						return new Pair<String, String>(null, "Invalid delimiter specification");
-					}
-					// returns the first char of the delimiter
-					delimChar = delim.charAt(0);
-					return new Pair<String, String>(String.valueOf(delimChar), null);
+				if (delim.length() != 1) {
+					return new Pair<String, String>(null, 
+							"Invalid delimiter specification. " + 
+							"Allowed values: tab, comma, space, multispace, " + 
+							"or a single ASCII character with an ordinal value between 32 and 126");
 				}
-				if (ordVal < 32 || ordVal > 126) {
-					return new Pair<String, String>(
-							null,
-							String.format("Ordinal delimiter value '%d' out of range 32..126", ordVal));
+				delimChar = delim.charAt(0);
+				if (delimChar == '"') {
+					return new Pair<String, String>(null, 
+							"Invalid delimiter specification: \" is not allowed");
 				}
-				delimChar = (char)ordVal;
+				if ((int)delimChar < 32 || (int)delimChar > 126) {
+					return new Pair<String, String>(null, 
+							"Invalid delimiter specification. " + 
+							"Allowed values: tab, comma, space, multispace, " + 
+							"or a single ASCII character with an ordinal value between 32 and 126");
+				}
+				return new Pair<String, String>(String.valueOf(delimChar), null);
 			}
 			String delimCharAsString;
 			if (!multispace) {
