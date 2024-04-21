@@ -1,5 +1,4 @@
 /**
-/**
  * VStar: a statistical analysis tool for variable star data.
  * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
  *
@@ -23,7 +22,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.awt.Color;
 
@@ -33,11 +34,11 @@ import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidationType;
+import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.data.validation.InclusiveRangePredicate;
 import org.aavso.tools.vstar.data.validation.JulianDayValidator;
 import org.aavso.tools.vstar.data.validation.MagnitudeFieldValidator;
 import org.aavso.tools.vstar.data.validation.UncertaintyValueValidator;
-//import org.aavso.tools.vstar.data.validation.ObserverCodeValidator;
 import org.aavso.tools.vstar.data.validation.ValflagValidator;
 import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.exception.ObservationValidationError;
@@ -46,7 +47,6 @@ import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.plugin.InputType;
 import org.aavso.tools.vstar.plugin.ObservationSourcePluginBase;
 import org.aavso.tools.vstar.ui.mediator.StarInfo;
-import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.util.Pair;
 
 import org.aavso.tools.vstar.vela.VeLaInterpreter;
@@ -58,63 +58,6 @@ import org.aavso.tools.vstar.vela.VeLaEvalError;
 
 // Author: PMAK (AAVSO) [profile: https://www.aavso.org/user/61706]
 
-// This pligin reads text files having the following format:
-//
-// #NAME=(object name). May appear in any line.
-// #TITLEX=(axis title). May appear in any line.
-// #TITLEY=(axis title). May appear in any line.
-// #DATE=(date column type: JD or HJD or BJD, default: JD). May appear before observations only.
-// #DELIM=(delimiter, default: comma). May appear in any line (i.e. to change delimiter)
-// #FILTER=(default value, if not specified in FILTER column). May appear in any line (i.e. to change filter)
-// #OBSCODE=(default Observer Code value, if not specified in ObsCode column). May appear in any line (i.e. to change ObsCode)
-// #MAGSHIFT=(value to be added to magnitudes, default = 0.0). May appear in any line (i.e. to change magnitude shift)
-// #DATEADD=(value to be added to date values, default = 0.0). May appear in any line (i.e. to change value to be added to dates)
-// #ERROR=(N to ignore all validation errors but time and mag; Y: do not ignore errors; any other values are ignored). May appear in any line.
-// #ESCAPINGQUOTES=(N: use "" iside quotes; Y: use \" inside quotes; any other values are ignored). May appear in any line.
-// #VELAFILTER=<VeLa expression>
-// #DEFINESERIES=<new user-defined series>
-// #any comment
-// <JD|HJD|BJD><delim><MAG>[<delim><MAG_ERR>[<delim><ODSCODE>[<delim>[<VALIDATION_FLAG>[<delim><FILTER>[<delim><any additional fields are ignored>]]]]]]
-//
-// Only date and magnitude values are required, all others are optional.
-// Names of directives are case insensitive, e.g. #MagShift is the same as #MAGSHIFT
-// Observer Code is not validated (intentionally)
-//
-// You may specify an order of fields in an input file using #FIELDS directive.
-// Valid field designations:
-//   Time   : julian daty field, mandatory
-//   Mag    : magnitude field, mandatory
-//   MagErr : uncertainty field, optional
-//   ObsCode: observation code field, optional
-//   Flag   : validation flag field, optional
-//   Filter : filter field, optional
-// Any other field names are ignored, the empty name is allowed.
-//
-// Example1 (any extra columns will be ignored): 
-//   #FIELDS=Time,Mag,MagErr,ObsCode,Flag,Filter
-// Example2 (file contains Time values at the first column, 
-//           Magnitude values in the second column and Filter values in the 6th column. 
-//           Other columns (between Mag and Filter and any extra columns) will be ignored: 
-//   #FIELDS=Time,Mag,,,,Filter
-//
-// If a line contains fewer fields then specified, missing colums get default values.
-//
-// Example:
-//
-// #NAME=Star Name
-// #MAGSHIFT=-0.08
-// #DATE=JD
-// #JD,Mag,Mag Error,ObsCode,Flag,Filter(Band)
-// 2458033.3141,13.308,0.040,PMAK,,V
-// 2458037.2615,13.150,0.030,PMAK,,V
-// 2458039.3227,13.086,0.010,PMAK,,V
-// 2458043.1981,13.001,0.020,PMAK,,V
-// 2458045.2762,12.959,0.030,PMAK,,V
-// 2458045.2866,12.970,0.040,PMAK,,V
-// 2458049.2442,12.951,0.025,PMAK,,V
-// <..>
-//
-//
 // PMAK 2019-06-23:
 //   1) delimiter can be one-char only
 //   2) splitWithQuotes() instead of split()
@@ -150,6 +93,15 @@ import org.aavso.tools.vstar.vela.VeLaEvalError;
 //   2) VeLa Filter code improved
 //   3) addObservationWarning helper
 //
+// PMAK 2024-04-19:
+//   1) If there is no #FIELD directive, only Time and Mag columns are recognized.
+//   2) Synonyms: 
+//        "MAG" == "MAGNITUDE"
+//        "MAGERR" == "UNCERTAINTY"
+//        "FILTER" == "BAND"
+//        "COMMENTS" == "NOTES"
+//        "FLAG" == "VALIDATION"
+//
 
 /**
  * This plug-in class reads Flexible Text Format File (PMAK)
@@ -157,8 +109,14 @@ import org.aavso.tools.vstar.vela.VeLaEvalError;
 public class FlexibleTextFileFormatObservationSource extends
 		ObservationSourcePluginBase {
 
+	private static final String FIELD_ERROR = " field specified more than once";
+	
 	private static final char DEFAULT_DELIMITER = ',';
 	private static final char DEFAULT_QUOTEMARK = '"';
+	
+	public enum KnownFields {
+		TIME, MAG, MAGERR, OBSCODE, FLAG, FILTER, NAME, COMMENTS;
+	}
 
 	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#getCurrentStarName
@@ -191,7 +149,7 @@ public class FlexibleTextFileFormatObservationSource extends
 	 */
 	@Override
 	public String getDescription() {
-		return "Flexible Text File Format Reader";
+		return "Flexible Text File Format Reader v1.2";
 	}
 
 	/**
@@ -199,7 +157,7 @@ public class FlexibleTextFileFormatObservationSource extends
 	 */
 	@Override
 	public String getDisplayName() {
-		return "New Star from Flexible Text Format File...";
+		return "New Star from Flexible Text Format v1.2 File...";
 	}
 
 	/**
@@ -213,7 +171,6 @@ public class FlexibleTextFileFormatObservationSource extends
 	class FlexibleTextFileFormatRetriever extends AbstractObservationRetriever {
 		private char delimiter = DEFAULT_DELIMITER;
 		private boolean multispaceDelimiter = false;
-		private String dateType = "JD";
 		private String objName = "";
 		private String defFilter = "";
 		private String defObsCode = "";
@@ -224,15 +181,9 @@ public class FlexibleTextFileFormatObservationSource extends
 		private double dateAdd = 0.0;
 		private boolean ignoreValidationErrors = false;
 		private boolean escapingQuotes = false;
-		private int timeColumn = 0;
-		private int magColumn = 1;
-		private int magErrColumn = 2;
-		private int obsCodeColumn = 3;
-		private int flagColumn = 4;
-		private int filterColumn = 5;
-		private int nameColumn = -1;
-		private int commentsColumn = -1;
 		private List<String> lines = null;
+		
+		private Hashtable<KnownFields, Integer> fieldMap; 
 
 		private JulianDayValidator julianDayValidator;
 		private MagnitudeFieldValidator magnitudeFieldValidator;
@@ -249,10 +200,15 @@ public class FlexibleTextFileFormatObservationSource extends
 			super(getVelaFilterStr());
 			julianDayValidator = new JulianDayValidator();
 			magnitudeFieldValidator = new MagnitudeFieldValidator();
-			uncertaintyValueValidator = new UncertaintyValueValidator(
-					new InclusiveRangePredicate(0, 1));
+			uncertaintyValueValidator = new UncertaintyValueValidator(new InclusiveRangePredicate(0, 1));
 			// observerCodeValidator = new ObserverCodeValidator();
-			valflagValidator = new ValflagValidator("G|D|T|P|V|Z");
+			valflagValidator = new ValflagValidator("G|D|T|P|U|V|Z");
+
+			fieldMap = new Hashtable<KnownFields, Integer>();
+			for (KnownFields f : KnownFields.values())
+				fieldMap.put(f, -1);
+			// Minimum required set of fields
+			initFieldMap("TIME,MAGNITUDE");
 		}
 
 		@Override
@@ -261,7 +217,6 @@ public class FlexibleTextFileFormatObservationSource extends
 
 			try {
 				int lineNum = 0;
-				int readErrorCount = 0;
 				boolean terminateReading = false;
 
 				for (String line : lines) {
@@ -269,39 +224,37 @@ public class FlexibleTextFileFormatObservationSource extends
 						break;
 					lineNum++;
 					try {
-						if (line != null) {
-							line = line.replaceFirst("\n", "").replaceFirst(
-									"\r", "");
-							if (!isEmpty(line)) {
-								if (line.startsWith("#")) {
-									String errorText = handleDirective(line);
-									if (errorText != null) {
-										terminateReading = true;
-										throw new ObservationValidationError(
-												"Reading terminated due to fatal error: "
-														+ errorText);
-									}
+						if (line == null) continue;
+						line = line.replaceFirst("\n", "").replaceFirst("\r", "");
+						if (isNullOrEmpty(line)) continue;
+						if (line.startsWith("#")) {
+							Pair<Boolean, String> errorState = handleDirective(line);
+							if (errorState != null) {
+								if (errorState.first) {
+									terminateReading = true;
+									throw new ObservationValidationError(
+											"\nLine: " + Integer.toString(lineNum) + "\n" +
+											"Reading terminated due to error:\n" + 
+											errorState.second);
 								} else {
-									String[] fields = splitWithQuotes(line,
-											delimiter, multispaceDelimiter, 
-											DEFAULT_QUOTEMARK,
-											escapingQuotes);
-									ValidObservation ob = readNextObservation(
-											fields, lineNum);
-									if (ob != null)
-										collectObservation(ob);
+									throw new ObservationValidationError(errorState.second);
 								}
 							}
+						} else {
+							String[] fields = splitWithQuotes(line,	delimiter, multispaceDelimiter,	DEFAULT_QUOTEMARK, escapingQuotes);
+							ValidObservation ob = readNextObservation(fields);
+							if (ob != null) {
+								ob.setRecordNumber(lineNum);
+								collectObservation(ob);
+							}
 						}
+						
 						incrementProgress();
 					} catch (ObservationValidationError e) {
-						readErrorCount++;
-
-						String error = e.getLocalizedMessage();
-						if (error == null || isEmpty(error))
+						String error = e.getMessage();
+						if (isNullOrEmpty(error))
 							error = e.toString();
-						InvalidObservation invalidOb = new InvalidObservation(
-								line, error);
+						InvalidObservation invalidOb = new InvalidObservation(line, error);
 						invalidOb.setRecordNumber(lineNum);
 						addInvalidObservation(invalidOb);
 
@@ -310,18 +263,16 @@ public class FlexibleTextFileFormatObservationSource extends
 
 						incrementProgress();
 					} catch (ObservationValidationWarning e) {
-						readErrorCount++;
 
-						String error = e.getLocalizedMessage();
-						if (error == null || isEmpty(error))
+						String error = e.getMessage();
+						if (isNullOrEmpty(error))
 							error = e.toString();
-						InvalidObservation invalidOb = new InvalidObservation(
-								line, error, true);
+						InvalidObservation invalidOb = new InvalidObservation(line, error, true);
 						invalidOb.setRecordNumber(lineNum);
 						addInvalidObservation(invalidOb);
 
 						ValidObservation ob = e.getObservation();
-						if (ob != null) { // should never be null.
+						if (ob != null) { // can be null because of VeLa filter
 							ob.setRecordNumber(lineNum);
 							collectObservation(ob);
 						}
@@ -334,25 +285,12 @@ public class FlexibleTextFileFormatObservationSource extends
 				// even if no valid records read.
 				if (validObservations.isEmpty()) {
 					if (!invalidObservations.isEmpty()) {
-						InvalidObservation ob = invalidObservations.get(0);
-						throw new ObservationReadError(
-								"No observations read.\n"
-										+ "The first read error: "
-										+ ob.getError());
+						InvalidObservation ob = invalidObservations.get(invalidObservations.size() - 1);
+						throw new ObservationReadError("No observations read.\nThe first fatal error: " + ob.getError());
 					}
 				}
-
-				// Notify the user if there were errors.
-				if (readErrorCount > 0) {
-					MessageBox.showWarningDialog(getDescription(),
-							"There are errors.\n"
-									+ "See 'Observations' pane for details.");
-				}
-
 			} catch (Exception e) {
-				throw new ObservationReadError(
-						"Error while reading observation source.\n"
-								+ e.toString());
+				throw new ObservationReadError("Error while reading observation source.\n"	+ e.toString());
 			}
 		}
 
@@ -371,43 +309,42 @@ public class FlexibleTextFileFormatObservationSource extends
 		// Read all lines from the source.
 		private void readLines() throws IOException {
 			lines = new ArrayList<String>();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					getInputStreams().get(0)));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(getInputStreams().get(0)));
 			String line = null;
 			while ((line = reader.readLine()) != null) {
 				lines.add(line);
 			}
 		}
 
-		private String[] splitDirective(String line) {
-			if (line == null)
+		private Pair<String, String> splitDirective(String line) {
+			if (line == null || line.length() < 2)
+				return null;
+			if (line.charAt(1) == '#' || line.charAt(1) == ' ')
 				return null;
 			int eqPos = line.indexOf('=');
 			if (eqPos < 0)
 				return null;
 			String s1 = line.substring(0, eqPos);
 			String s2 = line.substring(eqPos + 1);
-			return new String[] { s1, s2 };
+			return new Pair<String, String>(s1, s2);
 		}
 
 		// If a line starts with #, it's either a directive or a comment.
-		// Returns null on success or ERROR_TEXT on error.
-		private String handleDirective(String line)
-				throws ObservationValidationError {
+		// Returns null on success or ERROR_TEXT
+		private Pair<Boolean, String> handleDirective(String line) {
+			Pair<Boolean, String> result = new Pair<Boolean, String>(true, null); 
 			// Do not use split: there can be '=' in the right part.
-			// String[] pair = line.split("="); // do not uppercase!
-			String[] pair = splitDirective(line);
-
+			Pair<String, String> pair = splitDirective(line);
 			// If a name-value pair, process as a directive, otherwise assume
 			// it is a comment and ignore.
-			if (pair != null && pair.length == 2) {
-				pair[0] = pair[0].trim().toUpperCase();
-				pair[1] = pair[1].trim();
-
-				if ("#DELIM".equals(pair[0])) {
-					Pair<String, String> translated_delim = translateDelimiter(pair[1]);
+			if (pair != null) {
+				pair.first = pair.first.trim().toUpperCase();
+				pair.second = pair.second.trim();
+				if ("#DELIM".equals(pair.first)) {
+					Pair<String, String> translated_delim = translateDelimiter(pair.second);
 					if (translated_delim.first == null) {
-						return translated_delim.second; // error text
+						result.second = translated_delim.second; // error text
+						return result;
 					} else {
 						// test for 'multispace' delimiter (special case)
 						if ("  ".equals(translated_delim.first)) {
@@ -418,141 +355,204 @@ public class FlexibleTextFileFormatObservationSource extends
 							multispaceDelimiter = false;
 						}
 					}
-
-				} else if ("#DATE".equals(pair[0])) {
+				} else if ("#DATE".equals(pair.first)) {
 					if (!validObservations.isEmpty()) {
-						return "#DATE directive must be specified before observations!";
+						result.second =  "#DATE directive must be specified before observations!";
+						return result;
 					}
-					dateType = pair[1].toUpperCase();
-					setBarycentric(false);
-					setHeliocentric(false);
-					if ("HJD".equals(dateType)) {
-						setHeliocentric(true);
+					String dateType = pair.second.toUpperCase();
+					if ("JD".equals(dateType)) {
+						setJDflavour(JDflavour.JD);
+					} else if ("HJD".equals(dateType)) {
+						setJDflavour(JDflavour.HJD);
 					} else if ("BJD".equals(dateType)) {
-						setBarycentric(true);
+						setJDflavour(JDflavour.BJD);
+					} else {
+						setJDflavour(JDflavour.JD);
+						result.first = false; // not a critical error
+						result.second = "Unsupported date type: " + dateType + "; JD is assumed.";
+						return result;
 					}
-				} else if ("#NAME".equals(pair[0])) {
-					objName = pair[1];
-				} else if ("#FILTER".equals(pair[0])) {
-					defFilter = pair[1];
-				} else if ("#OBSCODE".equals(pair[0])) {
-					defObsCode = pair[1];
-				} else if ("#VELAFILTER".equals(pair[0])) {
-					filterVeLa = pair[1];
-				} else if ("#DEFINESERIES".equals(pair[0])) {
-					String newSeries = pair[1];
-					if (!isEmpty(newSeries)) {
+				} else if ("#NAME".equals(pair.first)) {
+					objName = pair.second;
+				} else if ("#FILTER".equals(pair.first)) {
+					defFilter = pair.second;
+				} else if ("#BAND".equals(pair.first)) { // the same as #FILTER
+					defFilter = pair.second;
+				} else if ("#OBSCODE".equals(pair.first)) {
+					defObsCode = pair.second;
+				} else if ("#VELAFILTER".equals(pair.first)) {
+					filterVeLa = pair.second;
+				} else if ("#DEFINESERIES".equals(pair.first)) {
+					String newSeries = pair.second;
+					if (!isNullOrEmpty(newSeries)) {
 						String[] items = newSeries.split(",");
 						if (items.length > 2 && items[0].trim().length() > 0
 								&& items[1].trim().length() > 0
 								&& items[2].trim().length() > 0) {
 							try {
 								// New user-defined series
-								SeriesType.create(items[0].trim(),
-										items[1].trim(),
-										Color.decode(items[2].trim()), false,
-										false);
+								Color color = Color.decode(items[2].trim());
+								SeriesType.create(items[0].trim(), items[1].trim(), color, false, false);
 							} catch (Exception e) {
-								// do not return error! Instead, throw
-								// ObservationValidationError.
-								// return "#DEFINESERIES directive is invalid!";
-								throw new ObservationValidationError(
-										"#DEFINESERIES directive is invalid: "
-												+ e.toString());
+								result.first = false; // not a critical error
+								result.second = "#DEFINESERIES directive is invalid!";
+								return result;
 							}
 						} else {
-							throw new ObservationValidationError(
-									"#DEFINESERIES directive is invalid!");
+							result.first = false; // not a critical error
+							result.second = "#DEFINESERIES directive is invalid!";
+							return result;
 						}
 					}
-				} else if ("#MAGSHIFT".equals(pair[0])) {
+				} else if ("#MAGSHIFT".equals(pair.first)) {
 					double d = 0;
 					try {
-						d = Double.parseDouble(pair[1]);
+						d = Double.parseDouble(pair.second);
 					} catch (NumberFormatException e) {
-						return "#MAGSHIFT directive contains invalid floating-point value!";
+						result.second = "#MAGSHIFT directive contains invalid floating-point value!";
+						return result;
 					}
 					magShift = d;
-				} else if ("#DATEADD".equals(pair[0])) {
+				} else if ("#DATEADD".equals(pair.first)) {
 					double d = 0;
 					try {
-						d = Double.parseDouble(pair[1]);
+						d = Double.parseDouble(pair.second);
 					} catch (NumberFormatException e) {
-						return "#DATEADD directive contains invalid floating-point value!";
+						result.second = "#DATEADD directive contains invalid floating-point value!";
+						return result;
 					}
 					dateAdd = d;
-				} else if ("#ERROR".equals(pair[0])) {
-					if ("N".equalsIgnoreCase(pair[1]))
+				} else if ("#ERROR".equals(pair.first)) {
+					if ("N".equalsIgnoreCase(pair.second))
 						ignoreValidationErrors = true;
-					else if ("Y".equalsIgnoreCase(pair[1]))
+					else if ("Y".equalsIgnoreCase(pair.second))
 						ignoreValidationErrors = false;
-					else
-						;
-				} else if ("#ESCAPINGQUOTES".equals(pair[0])) {
-					if ("N".equalsIgnoreCase(pair[1]))
+					else {
+						result.second = "#ERROR directive is invalid";
+						return result;
+					}
+				} else if ("#ESCAPINGQUOTES".equals(pair.first)) {
+					if ("N".equalsIgnoreCase(pair.second))
 						escapingQuotes = false;
-					else if ("Y".equalsIgnoreCase(pair[1]))
+					else if ("Y".equalsIgnoreCase(pair.second))
 						escapingQuotes = true;
-					else
-						;
-				} else if ("#FIELDS".equals(pair[0])) {
-					initFieldMap(pair[1].toUpperCase());
-					if (timeColumn < 0 || magColumn < 0)
-						return "#FIELDS directive must specify at least Time and Mag fields!";
-				} else if ("#TITLEX".equals(pair[0])) {
-					titleX = pair[1];
-				} else if ("#TITLEY".equals(pair[0])) {
-					titleY = pair[1];
+					else {
+						result.second = "#ESCAPINGQUOTES directive is invalid";
+						return result;
+					}
+				} else if ("#FIELDS".equals(pair.first)) {
+					Pair<Boolean, String> errorState = initFieldMap(pair.second.toUpperCase());
+					if (errorState != null) {
+						if (errorState.first) {
+							result.second = errorState.second;
+							return result;
+						}
+					}
+					if (fieldMap.get(KnownFields.TIME) < 0 || fieldMap.get(KnownFields.MAG) < 0) {
+						result.second = "#FIELDS directive must specify at least Time and Mag fields!";
+						return result;
+					}
+					if (errorState != null) {
+						result.first = false; // not a critical error
+						result.second = errorState.second;
+						return result;
+					}
+				} else if ("#TITLEX".equals(pair.first)) {
+					titleX = pair.second;
+				} else if ("#TITLEY".equals(pair.first)) {
+					titleY = pair.second;
 				}
-
 			}
 			return null;
 		}
 
-		private void initFieldMap(String dataFieldsString) {
-			timeColumn = -1;
-			magColumn = -1;
-			magErrColumn = -1;
-			obsCodeColumn = -1;
-			flagColumn = -1;
-			filterColumn = -1;
-			nameColumn = -1;
-			commentsColumn = -1;
+		private boolean setFieldMapValue(KnownFields key, int value) {
+			if (fieldMap.get(key) < 0) {
+				fieldMap.replace(key, value);
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		private Pair<Boolean, String> initFieldMap(String dataFieldsString) {
+			Pair<Boolean, String>result = new Pair<Boolean, String>(true, null); 
+			for (Map.Entry<KnownFields, Integer> entry : fieldMap.entrySet()) {
+				fieldMap.replace(entry.getKey(), -1);
+			}
+			String unsupportedFields = null;
 			String[] dataFields = dataFieldsString.split(",");
 			for (int fieldNum = 0; fieldNum < dataFields.length; fieldNum++) {
 				String field = dataFields[fieldNum].trim();
-				if ("TIME".equals(field) && timeColumn < 0)
-					timeColumn = fieldNum;
-				else if ("MAG".equals(field) && magColumn < 0)
-					magColumn = fieldNum;
-				else if ("MAGERR".equals(field) && magErrColumn < 0)
-					magErrColumn = fieldNum;
-				else if ("OBSCODE".equals(field) && obsCodeColumn < 0)
-					obsCodeColumn = fieldNum;
-				else if ("FLAG".equals(field) && flagColumn < 0)
-					flagColumn = fieldNum;
-				else if ("FILTER".equals(field) && filterColumn < 0)
-					filterColumn = fieldNum;
-				else if ("NAME".equals(field) && nameColumn < 0)
-					nameColumn = fieldNum;
-				else if ("COMMENTS".equals(field) && commentsColumn < 0)
-					commentsColumn = fieldNum;
+				if ("TIME".equals(field)) {
+					if (!setFieldMapValue(KnownFields.TIME, fieldNum)) {
+						result.second = "TIME" + FIELD_ERROR;
+						return result;
+					}
+				} else if ("MAG".equals(field) || "MAGNITUDE".equals(field))
+				{
+					if (!setFieldMapValue(KnownFields.MAG, fieldNum)) {
+						result.second = "MAG/MAGNITUDE" + FIELD_ERROR;
+						return result;
+					}
+				} else if ("MAGERR".equals(field) || "UNCERTAINTY".equals(field)) {
+					if (!setFieldMapValue(KnownFields.MAGERR, fieldNum)) {
+						result.second = "MAGERR/UNCERTAINTY" + FIELD_ERROR;
+						return result;
+					}
+				} else if ("OBSCODE".equals(field)) {
+					if (!setFieldMapValue(KnownFields.OBSCODE, fieldNum)) {
+						result.second = "OBSCODE" + FIELD_ERROR;
+						return result;
+					}
+				} else if ("FLAG".equals(field) || "VALIDATION".equals(field)) {
+					if (!setFieldMapValue(KnownFields.FLAG, fieldNum)) {
+						result.second = "FLAG/VALIDATION" + FIELD_ERROR;
+						return result;
+					}
+				} else if ("FILTER".equals(field) || "BAND".equals(field)) {
+					if (!setFieldMapValue(KnownFields.FILTER, fieldNum)) {
+						result.second = "FILTER/BAND" + FIELD_ERROR;
+						return result;
+					}
+				} else if ("NAME".equals(field)) {
+					if (!setFieldMapValue(KnownFields.NAME, fieldNum)) {
+						result.second = "NAME" + FIELD_ERROR;
+						return result;
+					}
+				} else if ("COMMENTS".equals(field) || "NOTES".equals(field)) {
+					if (!setFieldMapValue(KnownFields.COMMENTS, fieldNum)) {
+						result.second = "COMMENTS/NOTES" + FIELD_ERROR;
+						return result;
+					}
+				} else if ("".equals(field) || "*".equals(field)) {
+					// ignore
+				} else {
+					if (unsupportedFields != null)
+						unsupportedFields = unsupportedFields + ",";
+					else
+						unsupportedFields = "";
+					unsupportedFields = unsupportedFields + field;
+				}
 			}
+			if (unsupportedFields != null) {
+				result.first = false; // not a critical error
+				result.second = "These fields are not supported yet and will be ignored: " + unsupportedFields;
+				return result;
+			} else
+				return null;
 		}
 
 		// Translate the delimiter.
 		// Returns <delim, null> on success or <null, "ERROR_TEXT"> on error.
 		private Pair<String, String> translateDelimiter(String delim) {
-			if (delim == null || delim == "")
-				return new Pair<String, String>(
-						String.valueOf(DEFAULT_DELIMITER), null);
+			if (isNullOrEmpty(delim))
+				return new Pair<String, String>(String.valueOf(DEFAULT_DELIMITER), null);
 
 			char delimChar;
 			boolean multispace = false;
-			if ("".equals(delim)) {
-				delimChar = DEFAULT_DELIMITER; // otherwise an error occurred in
-				                               // 'delimChar = delim.charAt(0);'
-			} else if ("tab".equalsIgnoreCase(delim)) {
+		    if ("tab".equalsIgnoreCase(delim)) {
 				delimChar = '\t';
 			} else if ("comma".equalsIgnoreCase(delim)) {
 				delimChar = ',';
@@ -567,22 +567,18 @@ public class FlexibleTextFileFormatObservationSource extends
 					ordVal = Integer.parseInt(delim);
 				} catch (NumberFormatException e) {
 					if (delim.length() != 1) {
-						return new Pair<String, String>(null, 
-								"Invalid delimites specification");
+						return new Pair<String, String>(null, "Invalid delimiter specification");
 					}
 					// returns the first char of the delimiter
 					delimChar = delim.charAt(0);
-					return new Pair<String, String>(String.valueOf(delimChar),
-							null);
+					return new Pair<String, String>(String.valueOf(delimChar), null);
 				}
 				if (ordVal < 32 || ordVal > 126) {
 					return new Pair<String, String>(
 							null,
-							String.format(
-									"Ordinal delimiter value '%d' out of range 32..126",
-									ordVal));
+							String.format("Ordinal delimiter value '%d' out of range 32..126", ordVal));
 				}
-				delimChar = (char) ordVal;
+				delimChar = (char)ordVal;
 			}
 			String delimCharAsString;
 			if (!multispace) {
@@ -596,132 +592,135 @@ public class FlexibleTextFileFormatObservationSource extends
 		}
 
 		// Read the next observation.
-		private ValidObservation readNextObservation(String[] fields,
-				int lineNum) throws ObservationValidationError,
-				ObservationValidationWarning {
+		private ValidObservation readNextObservation(String[] fields) 
+				throws ObservationValidationError, ObservationValidationWarning {
 
 			String observationWarnings = null;
 
-			if (timeColumn < 0 || magColumn < 0 || fields.length <= timeColumn
-					|| fields.length <= magColumn) {
+			int timeColumn = fieldMap.get(KnownFields.TIME);
+			int magColumn = fieldMap.get(KnownFields.MAG);
+			if (timeColumn < 0 || magColumn < 0 || 
+					fields.length <= timeColumn	|| fields.length <= magColumn) {
 				throw new ObservationValidationError(
 						"At least two fields expected: Time and Magnitude");
 			}
 
 			ValidObservation observation = new ValidObservation();
 
-			// observation.setName(getStarInfo().getDesignation());
-
-			if (!"JD".equals(dateType) && !"HJD".equals(dateType)
-					&& !"BJD".equals(dateType)) {
-				observationWarnings = addObservationWarning(
-						observationWarnings, "Unsupported date type: "
-								+ dateType);
-			}
-			DateInfo dateInfo = julianDayValidator.validate(fields[timeColumn]
-					.trim());
+			DateInfo dateInfo = julianDayValidator.validate(fields[timeColumn].trim());
 			// dateInfo.setJulianDay(dateInfo.getJulianDay() + dateAdd);
 			// observation.setDateInfo(dateInfo);
 			// Rev. 1630: DateInfo.setJulianDay() removed. Compatible code:
-			observation.setDateInfo(new DateInfo(dateInfo.getJulianDay()
-					+ dateAdd));
+			observation.setDateInfo(new DateInfo(dateInfo.getJulianDay() + dateAdd));
 
-			Magnitude magnitude = magnitudeFieldValidator
-					.validate(fields[magColumn].trim());
+			Magnitude magnitude = magnitudeFieldValidator.validate(fields[magColumn].trim());
 			if (magnitude.isBrighterThan()) {
-				throw new ObservationValidationError(
-						"Was '>' intended (brighter than) or '<'?"); // See
-																		// CommonTextFormatValidator.java
+				String error = "Was '>' intended (brighter than) or '<'?";
+				if (!ignoreValidationErrors) {
+					throw new ObservationValidationError(error); // See CommonTextFormatValidator.java
+				} else {
+					observationWarnings = addObservationWarning(observationWarnings, error);
+				}
 			}
 			magnitude.setMagValue(magnitude.getMagValue() + magShift);
 
+			int magErrColumn = fieldMap.get(KnownFields.MAGERR);
 			if (magErrColumn >= 0 && fields.length > magErrColumn) {
 				String uncertaintyStr = fields[magErrColumn].trim();
-				if (!isEmpty(uncertaintyStr)) {
+				if (!isNullOrEmpty(uncertaintyStr)) {
 					try {
-						double uncertainty = uncertaintyValueValidator
-								.validate(uncertaintyStr);
+						double uncertainty = uncertaintyValueValidator.validate(uncertaintyStr);
 						magnitude.setUncertainty(uncertainty);
 					} catch (ObservationValidationError e) {
 						if (!ignoreValidationErrors) {
 							throw e;
 						} else {
 							String error = e.getMessage();
-							if (error == null || isEmpty(error))
+							if (isNullOrEmpty(error))
 								error = e.toString();
-							observationWarnings = addObservationWarning(
-									observationWarnings, error);
+							observationWarnings = addObservationWarning(observationWarnings, error);
 						}
 					}
 				}
 			}
 
-			// observation.setMagnitude must be set AFTER assignment of
-			// uncertainty (because of caching!)
+			// observation.setMagnitude must be set AFTER assignment of the uncertainty
 			observation.setMagnitude(magnitude);
-			observation.setRecordNumber(lineNum);
 
 			String obscode = defObsCode;
+			int obsCodeColumn = fieldMap.get(KnownFields.OBSCODE);
 			if (obsCodeColumn >= 0 && fields.length > obsCodeColumn) {
 				obscode = fields[obsCodeColumn].trim();
-				if (isEmpty(obscode)) {
+				if (isNullOrEmpty(obscode)) {
 					obscode = defObsCode;
 				}
 			}
-			if (!isEmpty(obscode)) {
+			if (!isNullOrEmpty(obscode)) {
 				// observation.setObsCode(observerCodeValidator.validate(obscode));
 				observation.setObsCode(obscode);
 			}
 
+			int flagColumn = fieldMap.get(KnownFields.FLAG);
 			if (flagColumn >= 0 && fields.length > flagColumn) {
 				String valflag = fields[flagColumn].trim();
-				if (!isEmpty(valflag)) {
+				if (!isNullOrEmpty(valflag)) {
 					try {
-						ValidationType validationType = valflagValidator
-								.validate(valflag);
+						ValidationType validationType = valflagValidator.validate(valflag);
 						observation.setValidationType(validationType);
 					} catch (ObservationValidationError e) {
 						if (!ignoreValidationErrors) {
 							throw e;
 						} else {
+							observation.setValidationType(null);
 							String error = e.getMessage();
-							if (error == null || isEmpty(error))
+							if (isNullOrEmpty(error))
 								error = e.toString();
-							observationWarnings = addObservationWarning(
-									observationWarnings, error);
+							observationWarnings = addObservationWarning(observationWarnings, error);
 						}
 					}
+					ValidationType vt = observation.getValidationType();
+					if (vt != null)
+						observation.addDetail("Validation", vt.toString(), "Validation");
+					else
+						observation.addDetail("Validation", "?", "Validation");
 				}
 			}
 
 			SeriesType band = SeriesType.Unspecified;
 			String filter = "";
+			int filterColumn = fieldMap.get(KnownFields.FILTER);
 			if (filterColumn >= 0 && fields.length > filterColumn) {
 				filter = fields[filterColumn].trim();
 			}
-			if (isEmpty(filter)) {
+			if (isNullOrEmpty(filter)) {
 				filter = defFilter;
 			}
-			if (!isEmpty(filter)) {
+			if (!isNullOrEmpty(filter)) {
 				band = SeriesType.getSeriesFromShortName(filter);
 			}
 			observation.setBand(band);
 
 			String name = "";
+			int nameColumn = fieldMap.get(KnownFields.NAME);
 			if (nameColumn >= 0 && fields.length > nameColumn) {
 				name = fields[nameColumn].trim();
 			}
-			if (isEmpty(name)) {
+			if (isNullOrEmpty(name)) {
 				name = getStarInfo().getDesignation();
+			} else {
+				if (isNullOrEmpty(objName)) {
+					objName = name;
+				}
 			}
 			observation.setName(name);
 
+			int commentsColumn = fieldMap.get(KnownFields.COMMENTS);
 			if (commentsColumn >= 0 && fields.length > commentsColumn) {
 				String comments = fields[commentsColumn].trim();
 				observation.setComments(comments);
 			}
 
-			if (filterVeLa != null && !isEmpty(filterVeLa)) {
+			if (!isNullOrEmpty(filterVeLa)) {
 				if (vela == null)
 					vela = new VeLaInterpreter();
 
@@ -734,17 +733,14 @@ public class FlexibleTextFileFormatObservationSource extends
 						if (result.get().getType() == Type.BOOLEAN) {
 							includeObservation = result.get().booleanVal();
 						} else {
-							observationWarnings = addObservationWarning(
-									observationWarnings,
-									"VeLa filter error: Expected a Boolean value");
+							observationWarnings = addObservationWarning(observationWarnings, "VeLa filter error: Expected a Boolean value");
 						}
 					}
 				} catch (VeLaParseError | VeLaEvalError e) {
 					String error = e.getMessage();
-					if (error == null || isEmpty(error))
+					if (isNullOrEmpty(error))
 						error = e.toString();
-					observationWarnings = addObservationWarning(
-							observationWarnings, "VeLa filter error: " + error);
+					observationWarnings = addObservationWarning(observationWarnings, "VeLa filter error: " + error);
 				} finally {
 					vela.popEnvironment();
 				}
@@ -755,8 +751,7 @@ public class FlexibleTextFileFormatObservationSource extends
 			}
 
 			if (observationWarnings != null) {
-				throw new ObservationValidationWarning("Warning: "
-						+ observationWarnings, observation);
+				throw new ObservationValidationWarning("Warning: " + observationWarnings, observation);
 			}
 
 			return observation;
@@ -857,7 +852,7 @@ public class FlexibleTextFileFormatObservationSource extends
 
 		@Override
 		public String getSourceType() {
-			return "Flexible Text Format File V1.1";
+			return "Flexible Text Format File v1.2";
 		}
 
 		@Override
@@ -865,7 +860,7 @@ public class FlexibleTextFileFormatObservationSource extends
 
 			String name = objName;
 
-			if (name == null || isEmpty(name)) {
+			if (isNullOrEmpty(name)) {
 				name = getSourceName();
 			}
 
@@ -882,8 +877,8 @@ public class FlexibleTextFileFormatObservationSource extends
 			return titleY;
 		}
 
-		private boolean isEmpty(String str) {
-			return str != null && "".equals(str.trim());
+		private boolean isNullOrEmpty(String s) {
+			return s == null || s.trim().length() == 0;
 		}
 
 	}
