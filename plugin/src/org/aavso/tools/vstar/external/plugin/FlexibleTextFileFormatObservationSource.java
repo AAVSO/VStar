@@ -94,7 +94,7 @@ import org.aavso.tools.vstar.vela.VeLaEvalError;
 //   3) addObservationWarning helper
 //
 // PMAK 2024-04-19:
-//   1) If there is no #FIELD directive, only Time and Mag columns are recognized.
+//   1) If there is no #FIELDS directive, only Time and Mag columns are recognized.
 //   2) Synonyms: 
 //        "MAG" == "MAGNITUDE"
 //        "MAGERR" == "UNCERTAINTY"
@@ -122,7 +122,6 @@ public class FlexibleTextFileFormatObservationSource extends
 
 	/**
 	 * @see org.aavso.tools.vstar.plugin.ObservationSourcePluginBase#getCurrentStarName
-	 *      ()
 	 */
 	@Override
 	public String getCurrentStarName() {

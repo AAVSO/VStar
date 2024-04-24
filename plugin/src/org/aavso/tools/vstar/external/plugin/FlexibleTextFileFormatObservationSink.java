@@ -209,15 +209,11 @@ public class FlexibleTextFileFormatObservationSink extends CommonTextFormatSinkP
 	}
 	
 	private String quoteForCSV(String field) {
-		field = field.replace("\"", "\"\"");
-		return "\"" + field + "\"";
+		return "\"" + field.replace("\"", "\"\"") + "\"";
 	}
 
 	private String quoteForCSVifNeeded(String field, String delimiter) {
-		if (field.contains(delimiter))
-			return quoteForCSV(field);
-		else
-			return field;
+		return field.contains(delimiter) ? quoteForCSV(field) : field;
 	}
 	
 	private boolean isNullOrEmpty(String s) {
