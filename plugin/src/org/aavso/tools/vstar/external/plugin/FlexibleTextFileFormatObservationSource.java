@@ -150,7 +150,7 @@ public class FlexibleTextFileFormatObservationSource extends
 	 */
 	@Override
 	public String getDescription() {
-		return "Flexible Text File Format Reader v1.2";
+		return "Flexible Text File Format Reader";
 	}
 
 	/**

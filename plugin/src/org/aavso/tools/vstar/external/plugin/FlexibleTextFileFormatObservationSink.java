@@ -44,6 +44,11 @@ public class FlexibleTextFileFormatObservationSink extends CommonTextFormatSinkP
 	public void save(PrintWriter writer, List<ValidObservation> obs, String delimiter) throws IOException {
 		saveObsToFileInFlexTextFormat(writer, obs, delimiter);
 	}
+
+	@Override
+	public String getDescription() {
+		return "Flexible Text Format File Sink";
+	}
 	
 	@Override
 	public String getDisplayName() {
@@ -56,11 +61,6 @@ public class FlexibleTextFileFormatObservationSink extends CommonTextFormatSinkP
 	@Override
 	public String getDocName() {
 		return "FlexibleTextFileFormat Sink.pdf";
-	}
-
-	@Override
-	public String getDescription() {
-		return "Save as Flexible Text Format File v1.2";
 	}
 
 	private void saveObsToFileInFlexTextFormat(PrintWriter writer, List<ValidObservation> obs, String delimiter)
