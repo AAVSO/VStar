@@ -60,7 +60,7 @@ public class FlexibleTextFileFormatObservationSink extends CommonTextFormatSinkP
 	 */
 	@Override
 	public String getDocName() {
-		return "FlexibleTextFileFormat Sink.pdf";
+		return "FlexibleTextFileFormat Plug-In.pdf";
 	}
 
 	private void saveObsToFileInFlexTextFormat(PrintWriter writer, List<ValidObservation> obs, String delimiter)
