@@ -188,7 +188,9 @@ public class FlexibleTextFileFormatObservationSink extends CommonTextFormatSinkP
 		buf.append(quoteForCSVifNeeded(ob.getBand().getShortName(), delimiter));
 		buf.append(delimiter);
 		
-		buf.append(quoteForCSVifNeeded(!isNullOrEmpty(ob.getObsCode()) ? ob.getObsCode() : "", delimiter));
+		if (!isNullOrEmpty(ob.getObsCode())) {
+			buf.append(quoteForCSVifNeeded(ob.getObsCode(), delimiter));
+		}
 		buf.append(delimiter);
 		
 		if (ob.getComments() != null) {
