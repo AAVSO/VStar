@@ -67,12 +67,6 @@ public class FlexibleTextFileFormatObservationSink extends CommonTextFormatSinkP
 			throws IOException {
 
 		Mediator mediator = Mediator.getInstance();		
-		AnalysisType analysisType = mediator.getAnalysisType();		
-		
-		boolean includeJD = mediator.getViewMode() == ViewModeType.LIST_OBS_MODE || analysisType == AnalysisType.RAW_DATA;
-		if (!includeJD) {
-			throw new IOException("Please select Raw Data to save this view");
-		}
 		
 		// Flexible Text Format header
 		writer.write("## VStar Flexible Text Format 1.2\n\n");
