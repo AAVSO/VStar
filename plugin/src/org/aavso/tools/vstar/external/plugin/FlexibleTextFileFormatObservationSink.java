@@ -79,7 +79,7 @@ public class FlexibleTextFileFormatObservationSink extends CommonTextFormatSinkP
 		  }
 		}		
 		
-		writer.write("#FIELDS=Time,Magnitude,Uncertainty,Band,ObsCode,Notes,Validation,Name\n");
+		writer.write("#FIELDS=Time,Mag,MagErr,Filter,ObsCode,Comments,Flag,Name\n");
 		writer.write("#DELIM=" + delimiterKey + "\n\n");
 		
 		JDflavour jDflavour = null;
