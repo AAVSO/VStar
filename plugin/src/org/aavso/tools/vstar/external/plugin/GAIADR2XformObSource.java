@@ -51,7 +51,7 @@ import org.aavso.tools.vstar.util.help.Help;
 
 public class GAIADR2XformObSource extends GaiaObSourceBase {
 
-	private final String BASE_URL = "https://gea.esac.esa.int/data-server/data?RETRIEVAL_TYPE=epoch_photometry&FORMAT=CSV&ID=";
+	private final String BASE_URL = "https://gea.esac.esa.int/data-server/data?RETRIEVAL_TYPE=EPOCH_PHOTOMETRY&FORMAT=CSV&ID=";
 
 	// Create static VeLa filter field here since cannot create it in
 	// inner dialog class.
