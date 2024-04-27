@@ -1189,8 +1189,8 @@ public class ValidObservation extends Observation {
 		}
 		buf.append(delimiter);
 
-		if (details.keySet().contains(obsCodeKey)) {
-			buf.append(details.get(obsCodeKey));
+		if (nonEmptyDetailExists(obsCodeKey)) {
+			buf.append(quoteForCSVifNeeded(details.get(obsCodeKey).toString(), delimiter));
 		}
 		buf.append(delimiter);
 
@@ -1248,36 +1248,36 @@ public class ValidObservation extends Observation {
 		}
 		buf.append(delimiter);
 
-		buf.append(this.getBand().getShortName());
+		buf.append(quoteForCSVifNeeded(this.getBand().getShortName(), delimiter));
 		buf.append(delimiter);
 
 		if (nonEmptyDetailExists(obsCodeKey)) {
-			buf.append(details.get(obsCodeKey));
+			buf.append(quoteForCSVifNeeded(details.get(obsCodeKey).toString(), delimiter));
 		}
 		buf.append(delimiter);
 
 		if (this.getCommentCode() != null) {
-			buf.append(this.getCommentCode().getOrigString());
+			buf.append(quoteForCSVifNeeded(this.getCommentCode().getOrigString(), delimiter));
 		}
 		buf.append(delimiter);
 
 		if (this.getCompStar1() != null) {
-			buf.append(this.getCompStar1());
+			buf.append(quoteForCSVifNeeded(this.getCompStar1(), delimiter));
 		}
 		buf.append(delimiter);
 
 		if (this.getCompStar2() != null) {
-			buf.append(this.getCompStar2());
+			buf.append(quoteForCSVifNeeded(this.getCompStar2(), delimiter));
 		}
 		buf.append(delimiter);
 
 		if (this.getCharts() != null) {
-			buf.append(this.getCharts());
+			buf.append(quoteForCSVifNeeded(this.getCharts(), delimiter));
 		}
 		buf.append(delimiter);
 
 		if (this.getComments() != null) {
-			buf.append(quoteForCSV(this.getComments()));
+			buf.append(quoteForCSVifNeeded(this.getComments(), delimiter));
 		}
 		buf.append(delimiter);
 
@@ -1309,39 +1309,39 @@ public class ValidObservation extends Observation {
 		}
 		buf.append(delimiter);
 
-		buf.append(!isEmpty(this.getName()) ? this.getName() : "Unknown");
+		buf.append(quoteForCSVifNeeded(!isEmpty(this.getName()) ? this.getName() : "Unknown", delimiter));
 		buf.append(delimiter);
 
 		// Affiliation
 		if (getAffiliation() != null) {
-			buf.append(getAffiliation());
+			buf.append(quoteForCSVifNeeded(getAffiliation(), delimiter));
 		}
 		buf.append(delimiter);
 
-		buf.append(this.getMType() != null ? this.getMType().getShortName() : MTypeType.STD.getShortName());
+		buf.append(quoteForCSVifNeeded(this.getMType() != null ? this.getMType().getShortName() : MTypeType.STD.getShortName(), delimiter));
 		buf.append(delimiter);
 
 		// Group
 		if (getGroup() != null) {
-			buf.append(getGroup());
+			buf.append(quoteForCSVifNeeded(getGroup(), delimiter));
 		}
 		buf.append(delimiter);
 
 		// ADS Reference
 		if (getADSRef() != null) {
-			buf.append(getADSRef());
+			buf.append(quoteForCSVifNeeded(getADSRef(), delimiter));
 		}
 		buf.append(delimiter);
 
 		// Digitizer
 		if (getDigitizer() != null) {
-			buf.append(getDigitizer());
+			buf.append(quoteForCSVifNeeded(getDigitizer(), delimiter));
 		}
 		buf.append(delimiter);
 
 		// Credit
 		if (getCredit() != null) {
-			buf.append(getCredit());
+			buf.append(quoteForCSVifNeeded(getCredit(), delimiter));
 		}
 		buf.append(delimiter);
 
@@ -1484,7 +1484,17 @@ public class ValidObservation extends Observation {
 	 * @return The quoted field
 	 */
 	private String quoteForCSV(String field) {
-		field = field.replace("\"", "\"\"");
-		return "\"" + field + "\"";
+		return "\"" + field.replace("\"", "\"\"") + "\"";
+	}
+
+	/**
+	 * Double-quote the argument only if the delimiter occurs in the argument. 
+	 * 
+	 * @param field The field to be quoted
+	 * @param delimiter field delimiter
+	 * @return The quoted field
+	 */
+	private String quoteForCSVifNeeded(String field, String delimiter) {
+		return field.contains(delimiter) ? quoteForCSV(field) : field;
 	}
 }
