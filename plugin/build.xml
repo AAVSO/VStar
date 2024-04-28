@@ -64,6 +64,7 @@
 		<jar jarfile="${dist}/${pkg}.DASCHObservationSource.jar" basedir="${build.classes}" includes="**/DASCHObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.DescStatsBySeries.jar" basedir="${build.classes}" includes="**/DescStatsBySeries**.class" />
 		<jar jarfile="${dist}/${pkg}.FlexibleTextFileFormatObservationSource.jar" basedir="${build.classes}" includes="**/FlexibleTextFileFormatObservationSource**.class" />
+		<jar jarfile="${dist}/${pkg}.FlexibleTextFileFormatObservationSink.jar" basedir="${build.classes}" includes="**/FlexibleTextFileFormatObservationSink**.class" />
 		<jar jarfile="${dist}/${pkg}.VSXquery.jar" basedir="${build.classes}" includes="**/VSXquery**.class" />
 		<jar jarfile="${dist}/${pkg}.VeLaObSource.jar" basedir="${build.classes}" includes="**/VeLaObSource**.class" />
 		<jar jarfile="${dist}/${pkg}.FourierModelCreator.jar" basedir="${build.classes}" includes="**/FourierModelCreator**.class" />
@@ -205,6 +206,7 @@
 		<copy file="${dist}/${pkg}.DASCHObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.DescStatsBySeries.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.FlexibleTextFileFormatObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.FlexibleTextFileFormatObservationSink.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VSXquery.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.VeLaObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.FourierModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -253,6 +255,7 @@
 		<echo file="${plugins_list_file}" message="${pkg}.DASCHObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.DescStatsBySeries.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FlexibleTextFileFormatObservationSource.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.FlexibleTextFileFormatObservationSink.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VSXquery.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FourierModelCreator.jar${line.separator}" append="true" />
