@@ -31,7 +31,6 @@ import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.plugin.ob.sink.impl.CommonTextFormatSinkPluginBase;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.ViewModeType;
 import org.aavso.tools.vstar.ui.mediator.message.ProgressInfo;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
 import org.jfree.chart.ChartPanel;
@@ -179,16 +178,16 @@ public class FlexibleTextFileFormatObservationSink extends CommonTextFormatSinkP
 		}
 		buf.append(delimiter);
 		
-		buf.append(quoteForCSVifNeeded(ob.getBand().getShortName(), delimiter));
+		buf.append(ValidObservation.quoteForCSVifNeeded(ob.getBand().getShortName(), delimiter));
 		buf.append(delimiter);
 		
 		if (!isNullOrEmpty(ob.getObsCode())) {
-			buf.append(quoteForCSVifNeeded(ob.getObsCode(), delimiter));
+			buf.append(ValidObservation.quoteForCSVifNeeded(ob.getObsCode(), delimiter));
 		}
 		buf.append(delimiter);
 		
 		if (ob.getComments() != null) {
-			buf.append(quoteForCSVifNeeded(ob.getComments(), delimiter));
+			buf.append(ValidObservation.quoteForCSVifNeeded(ob.getComments(), delimiter));
 		}
 		buf.append(delimiter);
 		
@@ -197,19 +196,11 @@ public class FlexibleTextFileFormatObservationSink extends CommonTextFormatSinkP
 		}
 		buf.append(delimiter);
 		
-		buf.append(quoteForCSVifNeeded(!isNullOrEmpty(ob.getName()) ? ob.getName() : "Unknown", delimiter));
+		buf.append(ValidObservation.quoteForCSVifNeeded(!isNullOrEmpty(ob.getName()) ? ob.getName() : "Unknown", delimiter));
 		//buf.append(delimiter);
 		
 		buf.append("\n");
 		return buf.toString();
-	}
-	
-	private String quoteForCSV(String field) {
-		return "\"" + field.replace("\"", "\"\"") + "\"";
-	}
-
-	private String quoteForCSVifNeeded(String field, String delimiter) {
-		return field.contains(delimiter) ? quoteForCSV(field) : field;
 	}
 	
 	private boolean isNullOrEmpty(String s) {
