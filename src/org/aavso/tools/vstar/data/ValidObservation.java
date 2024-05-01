@@ -1483,7 +1483,7 @@ public class ValidObservation extends Observation {
 	 * @param field The field to be quoted
 	 * @return The quoted field
 	 */
-	private String quoteForCSV(String field) {
+	public static String quoteForCSV(String field) {
 		return "\"" + field.replace("\"", "\"\"") + "\"";
 	}
 
@@ -1494,7 +1494,7 @@ public class ValidObservation extends Observation {
 	 * @param delimiter field delimiter
 	 * @return The quoted field
 	 */
-	private String quoteForCSVifNeeded(String field, String delimiter) {
+	public static String quoteForCSVifNeeded(String field, String delimiter) {
 		return field.contains(delimiter) ? quoteForCSV(field) : field;
 	}
 }
