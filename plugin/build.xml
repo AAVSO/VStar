@@ -69,8 +69,10 @@
 		<jar jarfile="${dist}/${pkg}.VeLaObSource.jar" basedir="${build.classes}" includes="**/VeLaObSource**.class" />
 		<jar jarfile="${dist}/${pkg}.FourierModelCreator.jar" basedir="${build.classes}" includes="**/FourierModelCreator**.class" />
 		<jar jarfile="${dist}/${pkg}.HJDConverter.jar" basedir="${build.classes}" includes="**/HJDConverter**.class" />
+		<jar jarfile="${dist}/${pkg}.BJDConverter.jar" basedir="${build.classes}" includes="**/BJDConverter**.class" />
 		<jar jarfile="${dist}/${pkg}.HipparcosObservationSource.jar" basedir="${build.classes}" includes="**/HipparcosObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.JDToDateTool.jar" basedir="${build.classes}" includes="**/JDToDateTool**.class" />
+		<jar jarfile="${dist}/${pkg}.JDtoBJDTool.jar" basedir="${build.classes}" includes="**/JDtoBJDTool**.class" />
 		<jar jarfile="${dist}/${pkg}.MagnitudeBaselineShifter.jar" basedir="${build.classes}" includes="**/MagnitudeBaselineShifter**.class" />
 		<jar jarfile="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" basedir="${build.classes}" includes="**/MeanTimeBetweenSelectionTool**.class" />
 		<jar jarfile="${dist}/${pkg}.NSVSObservationSource.jar" basedir="${build.classes}" includes="**/NSVSObservationSource**.class" />
@@ -211,8 +213,10 @@
 		<copy file="${dist}/${pkg}.VeLaObSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.FourierModelCreator.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.HJDConverter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.BJDConverter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.HipparcosObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.JDToDateTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
+		<copy file="${dist}/${pkg}.JDtoBJDTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MagnitudeBaselineShifter.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.MeanTimeBetweenSelectionTool.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.NSVSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -260,8 +264,10 @@
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FourierModelCreator.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HJDConverter.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.BJDConverter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HipparcosObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JDToDateTool.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.JDtoBJDTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MagnitudeBaselineShifter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />
