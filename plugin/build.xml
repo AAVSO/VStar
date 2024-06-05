@@ -93,6 +93,7 @@
 		<jar jarfile="${dist}/${pkg}.LightKurveFITSObservationSource.jar" basedir="${build.classes}" includes="**/LightKurveFITSObservationSource**.class" />
 		<jar jarfile="${dist}/${pkg}.QLPFITSObservationSource.jar" basedir="${build.classes}" includes="**/QLPFITSObservationSource**.class" />
 		<jar jarfile="${dist_lib}/${pkg_lib}.TESSObservationRetrieverBase.jar" basedir="${build.classes}" includes="**/TESSObservationRetrieverBase**.class" />						
+		<jar jarfile="${dist_lib}/${pkg_lib}.ConvertHelper.jar" basedir="${build.classes}" includes="**/ConvertHelper**.class" />						
 		<!--
 		<jar jarfile="${dist}/${pkg}.DifferentialPhotometry.jar" basedir="${build.classes}" includes="**/DifferentialPhotometry**.class" />
 		<jar jarfile="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" basedir="${build.classes}" includes="**/IRISAutomaticPhotometryObservationSource**.class" />
@@ -189,6 +190,7 @@
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.GaiaObSourceBase.jar" />
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.ZTFObSourceBase.jar" />
 		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.TESSObservationRetrieverBase.jar" />
+		<copy todir="${user.home}/${plugin_lib_dir}" file="${dist_lib}/${pkg_lib}.ConvertHelper.jar" />
 	</target>
 
 	<target name="aavso" depends="dist" description="Create a .plugins.lst and zip file containing the plug-ins for AAVSO">
@@ -237,6 +239,7 @@
 		<copy file="${dist}/${pkg}.LightKurveFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.QLPFITSObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist_lib}/${pkg_lib}.TESSObservationRetrieverBase.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" overwrite="true" />
+		<copy file="${dist_lib}/${pkg_lib}.ConvertHelper.jar" todir="${vstar_plugins_zip_dir}/${plugin_lib_dir}" overwrite="true" />
 		<!--
 		<copy file="${dist}/${pkg}.DifferentialPhotometry.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
 		<copy file="${dist}/${pkg}.IRISAutomaticPhotometryObservationSource.jar" todir="${vstar_plugins_zip_dir}/${plugin_dir}" overwrite="true" />
@@ -263,11 +266,11 @@
 		<echo file="${plugins_list_file}" message="${pkg}.VSXquery.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FourierModelCreator.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.HJDConverter.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.BJDConverter.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.HJDConverter.jar => {pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.BJDConverter.jar => {pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HipparcosObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JDToDateTool.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.JDtoBJDTool.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.JDtoBJDTool.jar => {pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MagnitudeBaselineShifter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />

@@ -19,13 +19,7 @@ package org.aavso.tools.vstar.external.plugin;
 
 import java.awt.Container;
 import java.awt.Cursor;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -48,6 +42,8 @@ import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.RAInfo;
 import org.aavso.tools.vstar.util.help.Help;
 
+import org.aavso.tools.vstar.external.lib.ConvertHelper;
+
 /**
  * Converts currently loaded observations to BJD_TDB if they are not already
  * in BJD_TDB.
@@ -58,9 +54,7 @@ import org.aavso.tools.vstar.util.help.Help;
  */
 public class BJDConverter extends ObservationToolPluginBase {
 
-	private static final String ASTROUTILS_URL = "https://astroutils.astronomy.osu.edu";
-	
-	private static final String URL_TEMPLATE = ASTROUTILS_URL + "/time/convert.php?JDS=%s&RA=%s&DEC=%s&FUNCTION=%s";
+	private static final int CHUNK_SIZE = 200;
 	
 	private static Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
 	
@@ -225,19 +219,24 @@ public class BJDConverter extends ObservationToolPluginBase {
 	private Pair<RAInfo, DecInfo> getCoordinates(StarInfo info) {
 		RAInfo ra = info.getRA();
 		DecInfo dec = info.getDec();
-		Pair<RAInfo, DecInfo> coords = null;
 
 		if (ra == null || dec == null) {
 			// Ask the user for J2000.0 RA/DEC and if that is cancelled,
 			// indicate that BJD conversion cannot take place.
-			ra = Mediator.getInstance().requestRA();
-			if (ra != null)
-				dec = Mediator.getInstance().requestDec();
+			ConvertHelper.CoordDialog coordDialog = new ConvertHelper.CoordDialog();
+			if (coordDialog.isCancelled()) {
+				return null;
+			}
+			Pair<RAInfo, DecInfo> coordinates = coordDialog.getCoordinates();
+			ra = coordinates.first;
+			dec = coordinates.second;
 		}
 
 		if (ra != null && dec != null) {
-			coords = new Pair<RAInfo, DecInfo>(ra, dec);
-		}		return coords;
+			return new Pair<RAInfo, DecInfo>(ra, dec);
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -316,8 +315,6 @@ public class BJDConverter extends ObservationToolPluginBase {
 		else
 			throw new Exception("Invalid JD flavor");
 		
-		int chunkSize = 100;
-		
 		List<ValidObservation> obs_chunk = null;
 		
 		int counter = 0;
@@ -330,7 +327,7 @@ public class BJDConverter extends ObservationToolPluginBase {
 			}
 			obs_chunk.add(ob);
 			counter++;
-			if (counter == chunkSize) {
+			if (counter == CHUNK_SIZE) {
 				result.addAll(convertChunk(obs_chunk, ra, dec, func));
 				obs_chunk = null;
 				counter = 0;
@@ -345,62 +342,13 @@ public class BJDConverter extends ObservationToolPluginBase {
 		return result;
 	}
 	
-	private class ConvertResult {
-		public String text = null;
-		public String error = null;
-	}
-	
 	private List<Double> convertChunk(List<ValidObservation> obs_chunk, RAInfo ra, DecInfo dec, String func) throws Exception {
-		List<Double> result = new ArrayList<Double>();
-		
-		String times = null;
-		
+		List<Double> times = new ArrayList<Double>();
 		for (ValidObservation ob : obs_chunk) {
-			double d = ob.getJD();
-			if (times != null) times += ","; else times = "";
-			times += String.valueOf(d);
+			times.add(ob.getJD());
 		}
-		
-		String urlString = String.format(URL_TEMPLATE, times, String.valueOf(ra.toDegrees()), String.valueOf(dec.toDegrees()), func);
-		ConvertResult convertResult = getTextFromURLstring(urlString);
-		if (convertResult != null && convertResult.error != null) {
-			throw new Exception(convertResult == null ? "Unknown Error" : convertResult.error);
-		}
-		List<String> tempList = new ArrayList<String>(Arrays.asList(convertResult.text.split("\n")));
-		if (tempList.size() != obs_chunk.size()) {
-			throw new Exception("Server returned invalid result:\n" + convertResult.text);
-		}
-		for (int i = 0; i < obs_chunk.size(); i++) {
-			String s1 = tempList.get(i);
-			double d1;
-			try {
-				d1 = Double.parseDouble(s1);
-			} catch (NumberFormatException e) {
-				throw new Exception("Server returned invalid result:\n" + convertResult.text);
-			}
-			result.add(d1);
-		}
+		List<Double> result = ConvertHelper.getConvertedListOfTimes(times, ra.toDegrees(), dec.toDegrees(), func);
 		return result;
-	}
-	
-	private ConvertResult getTextFromURLstring(String urlString) {
-		ConvertResult result = new ConvertResult();
-		try {
-			URL url = new URL(urlString);
-			InputStream stream = url.openConnection().getInputStream();
-			StringBuilder textBuilder = new StringBuilder();
-		    try (Reader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
-		        int c = 0;
-		        while ((c = reader.read()) != -1) {
-		            textBuilder.append((char) c);
-		        }
-			    result.text = textBuilder.toString();
-			    return result;
-		    }
-		} catch (Exception ex) {
-			result.error = ex.toString();
-			return result;
-		}
 	}
 	
 }

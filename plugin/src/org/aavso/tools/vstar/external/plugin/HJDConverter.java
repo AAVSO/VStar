@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
+import org.aavso.tools.vstar.external.lib.ConvertHelper;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
 import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
@@ -200,19 +201,24 @@ public class HJDConverter extends ObservationToolPluginBase {
 	private Pair<RAInfo, DecInfo> getCoordinates(StarInfo info) {
 		RAInfo ra = info.getRA();
 		DecInfo dec = info.getDec();
-		Pair<RAInfo, DecInfo> coords = null;
 
 		if (ra == null || dec == null) {
 			// Ask the user for J2000.0 RA/DEC and if that is cancelled,
 			// indicate that HJD conversion cannot take place.
-			ra = Mediator.getInstance().requestRA();
-			if (ra != null)
-				dec = Mediator.getInstance().requestDec();
+			ConvertHelper.CoordDialog coordDialog = new ConvertHelper.CoordDialog();
+			if (coordDialog.isCancelled()) {
+				return null;
+			}
+			Pair<RAInfo, DecInfo> coordinates = coordDialog.getCoordinates();
+			ra = coordinates.first;
+			dec = coordinates.second;
 		}
 
 		if (ra != null && dec != null) {
-			coords = new Pair<RAInfo, DecInfo>(ra, dec);
-		}		return coords;
+			return new Pair<RAInfo, DecInfo>(ra, dec);
+		}
+		
+		return null;
 	}
 	
 	/**

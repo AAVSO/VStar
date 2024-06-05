@@ -1,0 +1,419 @@
+/**
+ * VStar: a statistical analysis tool for variable star data.
+ * Copyright (C) 2010  AAVSO (http://www.aavso.org/)
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+ */
+
+package org.aavso.tools.vstar.external.lib;
+
+import java.awt.Container;
+import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import org.aavso.tools.vstar.input.database.VSXWebServiceStarInfoSource;
+import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
+import org.aavso.tools.vstar.ui.dialog.DoubleField;
+import org.aavso.tools.vstar.ui.dialog.IntegerField;
+import org.aavso.tools.vstar.ui.dialog.MessageBox;
+import org.aavso.tools.vstar.ui.dialog.NumberFieldBase;
+import org.aavso.tools.vstar.ui.mediator.Mediator;
+import org.aavso.tools.vstar.ui.mediator.StarInfo;
+import org.aavso.tools.vstar.util.Pair;
+import org.aavso.tools.vstar.util.Triple;
+import org.aavso.tools.vstar.util.coords.DecInfo;
+import org.aavso.tools.vstar.util.coords.EpochType;
+import org.aavso.tools.vstar.util.coords.RAInfo;
+
+public class ConvertHelper {
+
+	public static final String ASTROUTILS_URL = "https://astroutils.astronomy.osu.edu";
+	public static final String URL_TEMPLATE = ASTROUTILS_URL + "/time/convert.php?JDS=%s&RA=%s&DEC=%s&FUNCTION=%s";
+	
+	@SuppressWarnings("serial")
+	public static class CoordPane extends JPanel {
+		
+		private IntegerField2 raHour;
+		private IntegerField2 raMin;
+		private DoubleField2 raSec;
+		
+		private IntegerField2 decDeg;
+		private IntegerField2 decMin;
+		private DoubleField2 decSec;
+		
+		private JButton bByName;
+	
+		private static Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
+	
+		public CoordPane(RAInfo ra, DecInfo dec, boolean vertical) {
+			super();
+			
+			if (vertical)
+				setLayout(new BoxLayout (this, BoxLayout.Y_AXIS));    
+			
+			JPanel subpanel = this;
+	
+			if (vertical) {
+				subpanel = new JPanel();
+				this.add(subpanel);
+			}
+				
+			if (vertical)
+				subpanel.add(new JLabel("RA:"));
+			else
+				subpanel.add(new JLabel("RA: "));
+			
+			raHour = new IntegerField2("Hour", 0, 23, null);
+			NumberFieldHelper.setNumberFieldColumns(raHour, 6);
+			subpanel.add(raHour.getUIComponent());			
+			
+			raMin = new IntegerField2("Min", 0, 59, null);
+			NumberFieldHelper.setNumberFieldColumns(raMin, 6);
+			subpanel.add(raMin.getUIComponent());
+			
+			raSec = new DoubleField2("Sec", 0.0, 60.0, null);
+			NumberFieldHelper.setNumberFieldColumns(raSec, 6);
+			subpanel.add(raSec.getUIComponent());
+			
+			if (vertical) {
+				subpanel = new JPanel();
+				this.add(subpanel);
+			}
+			
+			if (vertical)
+				subpanel.add(new JLabel("Dec:"));
+			else
+				subpanel.add(new JLabel("    Dec: "));
+			
+			decDeg = new IntegerField2("Deg", -90, 90, null);
+			NumberFieldHelper.setNumberFieldColumns(decDeg, 6);
+			subpanel.add(decDeg.getUIComponent());
+			
+			decMin = new IntegerField2("Min", 0, 59, null);
+			NumberFieldHelper.setNumberFieldColumns(decMin, 6);
+			subpanel.add(decMin.getUIComponent());
+			
+			decSec = new DoubleField2("Sec", 0.0, 60.0, null);
+			NumberFieldHelper.setNumberFieldColumns(decSec, 6);
+			subpanel.add(decSec.getUIComponent());
+			
+			if (vertical)
+				;
+			else
+				subpanel.add(new JLabel("    "));
+			
+			bByName = new JButton("VSX Name");
+			bByName.addActionListener(createByNameButtonListener());
+			
+			this.add(bByName);
+			
+			if (ra != null && dec != null) {
+				setCoordinates(ra, dec);
+			}
+		}
+	
+		public Pair<RAInfo, DecInfo> getCoordinates() {
+			Integer valRaHour = null;
+			Integer valRaMin = null;
+			Double valRaSec = null;
+			Integer valDecDeg = null;
+			Integer valDecMin = null;
+			Double valDecSec = null;
+	
+			if ((valRaHour = raHour.getAndCheck()) == null) return null;
+			if ((valRaMin = raMin.getAndCheck()) == null) return null;
+			if ((valRaSec = raSec.getAndCheck()) == null) return null;
+			if ((valDecDeg = decDeg.getAndCheck()) == null) return null;
+			if ((valDecMin = decMin.getAndCheck()) == null) return null;
+			if ((valDecSec = decSec.getAndCheck()) == null) return null;
+			
+			RAInfo ra = new RAInfo(EpochType.J2000, valRaHour, valRaMin, valRaSec);
+			DecInfo dec = new DecInfo(EpochType.J2000, valDecDeg, valDecMin, valDecSec);
+			
+			return new Pair<RAInfo, DecInfo>(ra, dec);
+		}
+	
+		private ActionListener createByNameButtonListener() {
+			return new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					VSXName();
+				}
+			};
+		}
+
+		private void VSXName() {
+			String name = JOptionPane.showInputDialog("VSX Object Name");
+			if (name == null || "".equals(name.trim()))
+				return;
+			Cursor defaultCursor = null;
+			Container container = this.getParent();
+			if (container != null) {
+				defaultCursor = container.getCursor();
+				container.setCursor(waitCursor);
+			}
+			try {
+				StarInfo starInfo;
+				VSXWebServiceStarInfoSource infoSrc = new VSXWebServiceStarInfoSource();
+				try {
+					starInfo = infoSrc.getStarByName(name);
+				} catch (Exception ex) {
+					MessageBox.showErrorDialog("Error", ex.getMessage());
+					return;
+				}
+	
+				Triple<Integer, Integer, Double> ra = starInfo.getRA().toHMS();
+				Triple<Integer, Integer, Double> dec = starInfo.getDec().toDMS();
+				
+				raHour.setValue(ra.first);
+				raMin.setValue(ra.second);
+				raSec.setValue(ra.third);
+	
+				decDeg.setValue(dec.first);
+				decMin.setValue(dec.second);
+				decSec.setValue(dec.third);
+				
+			} finally {
+				if (container != null && defaultCursor != null) {
+					container.setCursor(defaultCursor);
+				}
+			}
+			
+		}
+		
+		public void setCoordinates(RAInfo raInfo, DecInfo decInfo) {
+			
+			Triple<Integer, Integer, Double> ra = raInfo.toHMS();
+			Triple<Integer, Integer, Double> dec = decInfo.toDMS();
+			
+			raHour.setValue(ra.first);
+			raMin.setValue(ra.second);
+			raSec.setValue(ra.third);
+
+			decDeg.setValue(dec.first);
+			decMin.setValue(dec.second);
+			decSec.setValue(dec.third);
+		}
+		
+		private class IntegerField2 extends IntegerField {
+	
+			public IntegerField2(String name, Integer min, Integer max, Integer initial) {
+				super(name, min, max, initial);
+			}
+	
+			public Integer getAndCheck() {
+				return (Integer)NumberFieldHelper.getAndCheck(this);
+			}
+		}
+
+		private class DoubleField2 extends DoubleField {
+	
+			public DoubleField2(String name, Double min, Double max, Double initial) {
+				super(name, min, max, initial);
+			}
+	
+			public Double getAndCheck() {
+				return (Double)NumberFieldHelper.getAndCheck(this);
+			}
+		}
+	
+		private static class NumberFieldHelper {
+			
+			private static JTextField setNumberFieldColumns(NumberFieldBase<?> field, int columns) {
+				JTextField textField = (JTextField)(field.getUIComponent());
+				textField.setColumns(columns);
+				return textField;
+			}
+			
+			// Get value of IntegerField, show message in case of error and set focus to the field
+			public static Number getAndCheck(NumberFieldBase<?> input) {
+				Number value;
+				try {
+					value = input.getValue();
+				} catch (Exception e) {
+					// We should never be here as soon as getValue catches parseInteger() exceptions.  
+					value = null;
+				}
+				if (value == null) {
+					MessageBox.showErrorDialog("Error", input.getName() + ": Invalid value!\n" +
+							"Value must be integer.\n" +
+							numberFieldInfo(input));				
+					(input.getUIComponent()).requestFocus();
+					((JTextField)(input.getUIComponent())).selectAll();
+				}
+				return value;
+			}
+			
+			private static String numberFieldInfo(NumberFieldBase<?> field) {
+				String s = "";
+				if (field.getMin() == null && field.getMax() != null)
+					s = "Only values <= " + field.getMax() + " allowed.";
+				else if (field.getMin() != null && field.getMax() == null)
+					s = "Only values >= " + field.getMin() + " allowed.";
+				else if (field.getMin() != null && field.getMax() != null)
+					s = "Only values between " + field.getMin() + " and " + field.getMax() + " allowed.";
+				return s; 
+			}
+		}
+	}
+	
+	@SuppressWarnings("serial")
+	public static class CoordDialog extends AbstractOkCancelDialog {
+		
+		private CoordPane coordPane;
+		
+		public CoordDialog() {
+			super("Coordinates");
+			
+			Container contentPane = this.getContentPane();
+			JPanel topPane = new JPanel();
+			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			
+			coordPane = new CoordPane(null, null, true);
+			
+			topPane.add(coordPane);
+			
+			// OK, Cancel
+			topPane.add(createButtonPane());
+
+			contentPane.add(topPane);
+
+			this.pack();
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
+			this.setVisible(true);
+			
+		}
+		
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+		 */
+		@Override
+		protected void cancelAction() {
+			// Nothing to do.
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+		 */
+		@Override
+		protected void okAction() {
+			boolean ok = true;
+
+			if (getCoordinates() == null) {
+				ok = false;
+			}
+
+			if (ok) {
+				cancelled = false;
+				setVisible(false);
+				dispose();
+			}
+		}
+		
+		public Pair<RAInfo, DecInfo> getCoordinates() {
+			return coordPane.getCoordinates();
+		}
+		
+	}
+	
+	public static List<Double> getConvertedListOfTimes(List<Double> times, double ra, double dec, String func)
+			throws Exception {
+
+		Pair<String, String> result = getTextFromURLstring(getURLstring(times, ra, dec, func));
+		if (result.second != null) {
+			throw new Exception(result.second);
+		}
+		
+		List<String> tempList = new ArrayList<String>(Arrays.asList(result.first.split("\n")));
+
+		List<Double>out_times = new ArrayList<Double>();
+		for (String s1 : tempList) {
+			double d;
+			try {
+				d = Double.parseDouble(s1);
+			} catch (NumberFormatException e) {
+				throw new Exception("The server returned an invalid output:\n" + result.first);
+			}
+			out_times.add(d);
+		}
+		
+		if (out_times.size() != times.size()) {
+			throw new Exception("The server returned an invalid output:\n" + result.first);
+		}
+			
+		return out_times;
+	}
+		
+	private static String getURLstring(List<Double> times, double ra, double dec, String func) {
+
+		String s = null;
+		
+		for (Double d : times) {
+			if (s != null) s += ","; else s = "";
+			s += String.valueOf(d);
+		}
+	
+		return String.format(URL_TEMPLATE, s, String.valueOf(ra), String.valueOf(dec), func);
+	}
+		
+	private static Pair<String, String> getTextFromURLstring(String urlString) 
+			throws IOException, MalformedURLException, UnsupportedEncodingException {
+		Pair<String, String> result = new Pair<String, String>(null, null); 
+		
+		URL url = new URL(urlString);
+		URLConnection connection = url.openConnection();
+		if (!(connection instanceof HttpURLConnection)) {
+			result.second = "Not an HttpURLConnection";
+			return result;
+		}
+		if (((HttpURLConnection)connection).getResponseCode() != HttpURLConnection.HTTP_OK) {
+			result.second = ((HttpURLConnection)connection).getResponseMessage();
+			return result;
+		}
+		
+		InputStream stream = connection.getInputStream();
+		StringBuilder textBuilder = new StringBuilder();
+	    try (Reader reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"))) {
+	        int c = 0;
+	        while ((c = reader.read()) != -1) {
+	            textBuilder.append((char) c);
+	        }
+	        result.first = textBuilder.toString();
+	        return result;
+	    }
+	
+	}
+}
