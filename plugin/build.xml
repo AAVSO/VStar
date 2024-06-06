@@ -266,11 +266,11 @@
 		<echo file="${plugins_list_file}" message="${pkg}.VSXquery.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.VeLaObSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.FourierModelCreator.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.HJDConverter.jar => {pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.BJDConverter.jar => {pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.HJDConverter.jar => ${pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.BJDConverter.jar => ${pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.HipparcosObservationSource.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.JDToDateTool.jar${line.separator}" append="true" />
-		<echo file="${plugins_list_file}" message="${pkg}.JDtoBJDTool.jar => {pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
+		<echo file="${plugins_list_file}" message="${pkg}.JDtoBJDTool.jar => ${pkg_lib}.ConvertHelper.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MagnitudeBaselineShifter.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.MeanTimeBetweenSelectionTool.jar${line.separator}" append="true" />
 		<echo file="${plugins_list_file}" message="${pkg}.NSVSObservationSource.jar${line.separator}" append="true" />

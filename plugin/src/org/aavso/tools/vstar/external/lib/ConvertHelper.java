@@ -193,14 +193,14 @@ public class ConvertHelper {
 				Triple<Integer, Integer, Double> ra = raInfo.toHMS();
 				raHour.setValue(ra.first);
 				raMin.setValue(ra.second);
-				raSec.setValue(ra.third);
+				raSec.setValue(Math.round(ra.third * 100.0) / 100.0); //!!
 			}
 			
 			if (decInfo != null) {
 				Triple<Integer, Integer, Double> dec = decInfo.toDMS();
 				decDeg.setValue(dec.first);
 				decMin.setValue(dec.second);
-				decSec.setValue(dec.third);
+				decSec.setValue(Math.round(dec.third * 100.0) / 100.0); //!!
 			}
 		}
 		
