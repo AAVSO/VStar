@@ -58,9 +58,6 @@ import org.aavso.tools.vstar.util.prefs.NumericPrecisionPrefs;
 
 public class JDtoBJDTool extends GeneralToolPluginBase {
 	
-	//RAInfo lastRA = null;
-	//DecInfo lastDec = null;
-	
 	@Override
 	public void invoke() {
 		new JDtoBJDToolDialog();
@@ -87,8 +84,6 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 	@SuppressWarnings("serial")
 	class JDtoBJDToolDialog extends JDialog {
 		
-		private static final String sTITLE = "BJD Converter";
-		
 		private ConvertHelper.CoordPane coordPane;
 		
 		private JTextArea textArea1;
@@ -104,7 +99,7 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 		 */
 		public JDtoBJDToolDialog()	{
 			super(DocumentManager.findActiveWindow());
-			setTitle(sTITLE);
+			setTitle("BJD Converter");
 			setModalityType(Dialog.ModalityType.MODELESS);
 			
 			ActionListener cancelListener = createCancelButtonListener();
@@ -118,7 +113,6 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
 			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-			//coordPane = new ConvertHelper.CoordPane(lastRA, lastDec, false);
 			coordPane = new ConvertHelper.CoordPane(null, null, false);
 			
 			topPane.add(coordPane);
@@ -142,10 +136,13 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 		private JPanel createMainPane() {
 			JPanel panel = new JPanel();
 			textArea1 = new JTextArea(20, 30);
+			textArea1.setBorder(BorderFactory.createTitledBorder("JD or HJD"));
 			panel.add(new JScrollPane(textArea1), BorderLayout.EAST);
 			panel.add(createButtonPane(), BorderLayout.CENTER);
 			textArea2 = new JTextArea(20, 30);
 			textArea2.setEditable(false);
+			textArea2.setBackground(this.getBackground());
+			textArea2.setBorder(BorderFactory.createTitledBorder("BJD_TDB"));
 			panel.add(new JScrollPane(textArea2), BorderLayout.WEST);
 			return panel;
 		}
@@ -251,46 +248,41 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 			
 			if (coord == null) return;
 			
-			//lastRA = coord.first;
-			//lastDec = coord.second;
-			//double ra = lastRA.toDegrees();
-			//double dec = lastDec.toDegrees();
-			
 			double ra = coord.first.toDegrees();
 			double dec = coord.second.toDegrees(); 
 			
-			String s = textArea1.getText().trim();
+			String input_string = textArea1.getText().trim();
 			
-			if ("".equals(s)) {
+			if ("".equals(input_string)) {
 				MessageBox.showErrorDialog("Error", "Empty list");
 				return;
 			}
 
-			List<String> tempList = new ArrayList<String>(Arrays.asList(s.split("\n")));
+			List<String> tempList = new ArrayList<String>(Arrays.asList(input_string.split("\\s+")));
 			List<Double> times = new ArrayList<Double>();
-			s = null;
-			for (String s1: tempList) {
-				String s2 = s1.trim();
-				if (!"".equals(s2)) {
+			String parsedInput = null;
+			for (String s1 : tempList) {
+				String substring = s1.trim();
+				if (!"".equals(substring)) {
 					double d;
 					try {
-						d = NumberParser.parseDouble(s2);
+						d = NumberParser.parseDouble(substring);
 					} catch (Exception ex) {
 						String error = ex.getMessage();
 						if (error == null || "".equals(error))
 							error = ex.toString();
-						MessageBox.showErrorDialog("Error", "Cannot convert " + s2 + " to double.\nError: " + error);
+						MessageBox.showErrorDialog("Error", "Cannot convert " + substring + " to double.\nError: " + error);
 						return;
 					}
 					times.add(d);
-					if (s != null) 
-						s += "\n";
+					if (parsedInput != null) 
+						parsedInput += "\n";
 					else
-						s = "";
-					s += s2;
+						parsedInput = "";
+					parsedInput += substring;
 				}
 			}
-			textArea1.setText(s);
+			textArea1.setText(parsedInput);
 			
 			if ("utc2hjd".equals(func)) {
 				performLocalConvertUTC2HJD(times, ra, dec);
@@ -358,9 +350,9 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 		@Override
 		protected ConvertResult doInBackground() throws Exception {
 			ConvertResult result = new ConvertResult();
+			result.error = null;			
 			try {
 				result.out_times = ConvertHelper.getConvertedListOfTimes(times, ra, dec, func);
-				result.error = null;
 			} catch (Exception ex) {
 				result.out_times = null;
 				result.error = ex.getMessage();
@@ -406,8 +398,6 @@ public class JDtoBJDTool extends GeneralToolPluginBase {
 				}
 			}
 		}
-				
-				
 		
 	}
 

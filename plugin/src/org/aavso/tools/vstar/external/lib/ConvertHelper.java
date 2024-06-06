@@ -57,12 +57,17 @@ import org.aavso.tools.vstar.util.Triple;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.EpochType;
 import org.aavso.tools.vstar.util.coords.RAInfo;
+import org.aavso.tools.vstar.util.help.Help;
 
 public class ConvertHelper {
 
 	public static final String ASTROUTILS_URL = "https://astroutils.astronomy.osu.edu";
 	public static final String URL_TEMPLATE = ASTROUTILS_URL + "/time/convert.php?JDS=%s&RA=%s&DEC=%s&FUNCTION=%s";
 	
+	
+	/**
+	 * A pane for entering RA/Dec with a button that gets coordinates from the VSX server by the VSX star name 
+	 */
 	@SuppressWarnings("serial")
 	public static class CoordPane extends JPanel {
 		
@@ -78,6 +83,15 @@ public class ConvertHelper {
 	
 		private static Cursor waitCursor = new Cursor(Cursor.WAIT_CURSOR);
 	
+		/**
+		 * 
+		 * @param ra
+		 *                 initial RA value
+		 * @param dec
+		 *                 initial Dec value
+		 * @param vertical
+		 *                 layout
+		 */
 		public CoordPane(RAInfo ra, DecInfo dec, boolean vertical) {
 			super();
 			
@@ -91,10 +105,7 @@ public class ConvertHelper {
 				this.add(subpanel);
 			}
 				
-			if (vertical)
-				subpanel.add(new JLabel("RA:"));
-			else
-				subpanel.add(new JLabel("RA: "));
+			subpanel.add(new JLabel("RA: "));
 			
 			raHour = new IntegerField2("Hour", 0, 23, null);
 			NumberFieldHelper.setNumberFieldColumns(raHour, 6);
@@ -140,12 +151,16 @@ public class ConvertHelper {
 			
 			this.add(bByName);
 			
-			if (ra != null && dec != null) {
-				setCoordinates(ra, dec);
-			}
+			setCoordinates(ra, dec);
 		}
 	
+		/**
+		 * 
+		 * @return
+		 *          returns coordinates as a Pair<RAInfo, DecInfo>  
+		 */
 		public Pair<RAInfo, DecInfo> getCoordinates() {
+			
 			Integer valRaHour = null;
 			Integer valRaMin = null;
 			Double valRaSec = null;
@@ -166,6 +181,29 @@ public class ConvertHelper {
 			return new Pair<RAInfo, DecInfo>(ra, dec);
 		}
 	
+		/**
+		 * Sets the initial coordinates
+		 * 
+		 * @param raInfo
+		 * @param decInfo
+		 */
+		public void setCoordinates(RAInfo raInfo, DecInfo decInfo) {
+			
+			if (raInfo != null) {
+				Triple<Integer, Integer, Double> ra = raInfo.toHMS();
+				raHour.setValue(ra.first);
+				raMin.setValue(ra.second);
+				raSec.setValue(ra.third);
+			}
+			
+			if (decInfo != null) {
+				Triple<Integer, Integer, Double> dec = decInfo.toDMS();
+				decDeg.setValue(dec.first);
+				decMin.setValue(dec.second);
+				decSec.setValue(dec.third);
+			}
+		}
+		
 		private ActionListener createByNameButtonListener() {
 			return new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -174,8 +212,11 @@ public class ConvertHelper {
 			};
 		}
 
+		/**
+		 * Queries VSX for object's coordinates by an object name entered by the user 
+		 */
 		private void VSXName() {
-			String name = JOptionPane.showInputDialog("VSX Object Name");
+			String name = JOptionPane.showInputDialog(Mediator.getUI().getContentPane(), "VSX Object Name");
 			if (name == null || "".equals(name.trim()))
 				return;
 			Cursor defaultCursor = null;
@@ -193,17 +234,8 @@ public class ConvertHelper {
 					MessageBox.showErrorDialog("Error", ex.getMessage());
 					return;
 				}
-	
-				Triple<Integer, Integer, Double> ra = starInfo.getRA().toHMS();
-				Triple<Integer, Integer, Double> dec = starInfo.getDec().toDMS();
 				
-				raHour.setValue(ra.first);
-				raMin.setValue(ra.second);
-				raSec.setValue(ra.third);
-	
-				decDeg.setValue(dec.first);
-				decMin.setValue(dec.second);
-				decSec.setValue(dec.third);
+				setCoordinates(starInfo.getRA(), starInfo.getDec());
 				
 			} finally {
 				if (container != null && defaultCursor != null) {
@@ -213,20 +245,9 @@ public class ConvertHelper {
 			
 		}
 		
-		public void setCoordinates(RAInfo raInfo, DecInfo decInfo) {
-			
-			Triple<Integer, Integer, Double> ra = raInfo.toHMS();
-			Triple<Integer, Integer, Double> dec = decInfo.toDMS();
-			
-			raHour.setValue(ra.first);
-			raMin.setValue(ra.second);
-			raSec.setValue(ra.third);
-
-			decDeg.setValue(dec.first);
-			decMin.setValue(dec.second);
-			decSec.setValue(dec.third);
-		}
-		
+		/**
+		 * An extension of the IntegerField class with more user-friendly error checking  
+		 */
 		private class IntegerField2 extends IntegerField {
 	
 			public IntegerField2(String name, Integer min, Integer max, Integer initial) {
@@ -238,6 +259,9 @@ public class ConvertHelper {
 			}
 		}
 
+		/**
+		 * An extension of the DoubleField class with more user-friendly error checking  
+		 */
 		private class DoubleField2 extends DoubleField {
 	
 			public DoubleField2(String name, Double min, Double max, Double initial) {
@@ -251,10 +275,9 @@ public class ConvertHelper {
 	
 		private static class NumberFieldHelper {
 			
-			private static JTextField setNumberFieldColumns(NumberFieldBase<?> field, int columns) {
+			private static void setNumberFieldColumns(NumberFieldBase<?> field, int columns) {
 				JTextField textField = (JTextField)(field.getUIComponent());
 				textField.setColumns(columns);
-				return textField;
 			}
 			
 			// Get value of IntegerField, show message in case of error and set focus to the field
@@ -263,7 +286,7 @@ public class ConvertHelper {
 				try {
 					value = input.getValue();
 				} catch (Exception e) {
-					// We should never be here as soon as getValue catches parseInteger() exceptions.  
+					// We should never be here as far as getValue catches exceptions.  
 					value = null;
 				}
 				if (value == null) {
@@ -289,6 +312,9 @@ public class ConvertHelper {
 		}
 	}
 	
+	/**
+	 * A general-purpose dialog for entering coordinates; utilizes CoordPane
+	 */
 	@SuppressWarnings("serial")
 	public static class CoordDialog extends AbstractOkCancelDialog {
 		
@@ -349,6 +375,125 @@ public class ConvertHelper {
 		
 	}
 	
+	/**
+	 * Return RA and Dec. First look for coordinates in any of our loaded
+	 * datasets. Use the first coordinates found. We are making the simplifying
+	 * assumption that all data sets correspond to the same object! If not
+	 * found, ask the user to enter them. If none are supplied, null is
+	 * returned.
+	 * 
+	 * @param info
+	 *            a StarInfo object possibly containing coordinates
+	 * @param otherCoords
+	 *            Coordinates to use if info contains none.
+	 * @return A pair of coordinates: RA and Declination
+	 */
+	public static Pair<RAInfo, DecInfo> getCoordinates(StarInfo info) {
+		RAInfo ra = info.getRA();
+		DecInfo dec = info.getDec();
+
+		if (ra == null || dec == null) {
+			ConvertHelper.CoordDialog coordDialog = new ConvertHelper.CoordDialog();
+			if (coordDialog.isCancelled()) {
+				return null;
+			}
+			Pair<RAInfo, DecInfo> coordinates = coordDialog.getCoordinates();
+			ra = coordinates.first;
+			dec = coordinates.second;
+		}
+
+		if (ra != null && dec != null) {
+			return new Pair<RAInfo, DecInfo>(ra, dec);
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * This dialog can be moved to the VStar main package. 
+	 */
+	@SuppressWarnings("serial")
+	public static class ConfirmDialogWithHelp extends AbstractOkCancelDialog {
+		
+		String helpTopic;
+		
+		public ConfirmDialogWithHelp(String title, String msg, String helpTopic) {
+			super(title);
+			
+			this.helpTopic = helpTopic;
+			
+			Container contentPane = this.getContentPane();
+
+			JPanel topPane = new JPanel();
+			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
+			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			
+			topPane.add(createMessagePane(msg));
+
+			// OK, Cancel, Help
+			JPanel buttonPane = createButtonPane2();
+			topPane.add(buttonPane);
+			this.helpTopic = helpTopic;
+
+			contentPane.add(topPane);
+			
+			this.pack();
+			setLocationRelativeTo(Mediator.getUI().getContentPane());
+			okButton.requestFocusInWindow();
+			this.setVisible(true);
+			
+		}
+		
+		private JPanel createMessagePane(String msg) {
+			JPanel panel = new JPanel();
+			JLabel labelMsg = new JLabel(msg);
+			panel.add(labelMsg);
+			return panel;
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
+		 */
+		@Override
+		protected void helpAction() {
+			Help.openPluginHelp(helpTopic);
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
+		 */
+		@Override
+		protected void cancelAction() {
+			// Nothing to do.
+		}
+
+		/**
+		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
+		 */
+		@Override
+		protected void okAction() {
+			cancelled = false;
+			setVisible(false);
+			dispose();
+		}
+	}
+	
+	/**
+	 * Uses the https://astroutils.astronomy.osu.edu service for conversion
+	 * 
+	 * @param times
+	 *                   a list of JD or HJD epochs
+	 * @param ra
+	 *                   star's RA
+	 * @param dec
+	 *                   star's Dec
+	 * @param func
+	 *                   'utc2bjd': converts JD in UTC to BJD_TDB
+	 *                   'hjd2bjd': converts HJD to BJD_TDB
+	 * @return
+	 *                  a list of BJD_TBD epochs
+	 * @throws Exception
+	 */
 	public static List<Double> getConvertedListOfTimes(List<Double> times, double ra, double dec, String func)
 			throws Exception {
 
@@ -359,6 +504,10 @@ public class ConvertHelper {
 		
 		List<String> tempList = new ArrayList<String>(Arrays.asList(result.first.split("\n")));
 
+		if (tempList.size() != times.size()) {
+			throw new Exception("The server returned an invalid output:\n" + result.first);
+		}
+		
 		List<Double>out_times = new ArrayList<Double>();
 		for (String s1 : tempList) {
 			double d;
@@ -370,10 +519,6 @@ public class ConvertHelper {
 			out_times.add(d);
 		}
 		
-		if (out_times.size() != times.size()) {
-			throw new Exception("The server returned an invalid output:\n" + result.first);
-		}
-			
 		return out_times;
 	}
 		
@@ -399,6 +544,7 @@ public class ConvertHelper {
 			result.second = "Not an HttpURLConnection";
 			return result;
 		}
+		
 		if (((HttpURLConnection)connection).getResponseCode() != HttpURLConnection.HTTP_OK) {
 			result.second = ((HttpURLConnection)connection).getResponseMessage();
 			return result;

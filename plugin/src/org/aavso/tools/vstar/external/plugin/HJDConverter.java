@@ -33,7 +33,6 @@ import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.util.Pair;
@@ -94,7 +93,7 @@ public class HJDConverter extends ObservationToolPluginBase {
 			*/
 			if (!showConfirmDialog2("Non-Heliocentric Observations", count + " Julian Date observations found. Convert them to HJD?", getDocName()))
 				return;
-			Pair<RAInfo, DecInfo> coords = getCoordinates(msg.getStarInfo());
+			Pair<RAInfo, DecInfo> coords = ConvertHelper.getCoordinates(msg.getStarInfo());
 			if (coords != null) {
 				count = Mediator.getInstance().convertObsToHJD(obs, coords.first, coords.second);
 				if (count != 0) {				
@@ -115,110 +114,8 @@ public class HJDConverter extends ObservationToolPluginBase {
 	}
 
 	private boolean showConfirmDialog2(String title, String msg, String helpTopic) {
-		ConfirmDialogWithHelp dlg = new ConfirmDialogWithHelp(title, msg, helpTopic);
+		ConvertHelper.ConfirmDialogWithHelp dlg = new ConvertHelper.ConfirmDialogWithHelp(title, msg, helpTopic);
 		return !dlg.isCancelled();
-	}
-	
-	@SuppressWarnings("serial")
-	private class ConfirmDialogWithHelp extends AbstractOkCancelDialog {
-		
-		String helpTopic;
-		
-		ConfirmDialogWithHelp(String title, String msg, String helpTopic) {
-			super(title);
-			
-			this.helpTopic = helpTopic;
-			
-			Container contentPane = this.getContentPane();
-
-			JPanel topPane = new JPanel();
-			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-			
-			topPane.add(createMessagePane(msg));
-
-			// OK, Cancel, Help
-			JPanel buttonPane = createButtonPane2();
-			topPane.add(buttonPane);
-			this.helpTopic = helpTopic;
-
-			contentPane.add(topPane);
-			
-			this.pack();
-			setLocationRelativeTo(Mediator.getUI().getContentPane());
-			okButton.requestFocusInWindow();
-			this.setVisible(true);
-			
-		}
-		
-		private JPanel createMessagePane(String msg) {
-			JPanel panel = new JPanel();
-			JLabel labelMsg = new JLabel(msg);
-			panel.add(labelMsg);
-			return panel;
-		}
-
-		/**
-		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
-		 */
-		@Override
-		protected void helpAction() {
-			Help.openPluginHelp(helpTopic);
-		}
-
-		/**
-		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
-		 */
-		@Override
-		protected void cancelAction() {
-			// Nothing to do.
-		}
-
-		/**
-		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
-		 */
-		@Override
-		protected void okAction() {
-			cancelled = false;
-			setVisible(false);
-			dispose();
-		}
-	}
-	
-	/**
-	 * Return RA and Dec. First look for coordinates in any of our loaded
-	 * datasets. Use the first coordinates found. We are making the simplifying
-	 * assumption that all data sets correspond to the same object! If not
-	 * found, ask the user to enter them. If none are supplied, null is
-	 * returned.
-	 * 
-	 * @param info
-	 *            a StarInfo object possibly containing coordinates
-	 * @param otherCoords
-	 *            Coordinates to use if info contains none.
-	 * @return A pair of coordinates: RA and Declination
-	 */
-	private Pair<RAInfo, DecInfo> getCoordinates(StarInfo info) {
-		RAInfo ra = info.getRA();
-		DecInfo dec = info.getDec();
-
-		if (ra == null || dec == null) {
-			// Ask the user for J2000.0 RA/DEC and if that is cancelled,
-			// indicate that HJD conversion cannot take place.
-			ConvertHelper.CoordDialog coordDialog = new ConvertHelper.CoordDialog();
-			if (coordDialog.isCancelled()) {
-				return null;
-			}
-			Pair<RAInfo, DecInfo> coordinates = coordDialog.getCoordinates();
-			ra = coordinates.first;
-			dec = coordinates.second;
-		}
-
-		if (ra != null && dec != null) {
-			return new Pair<RAInfo, DecInfo>(ra, dec);
-		}
-		
-		return null;
 	}
 	
 	/**

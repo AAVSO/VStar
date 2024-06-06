@@ -22,25 +22,17 @@ import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.data.ValidObservation.JDflavour;
 import org.aavso.tools.vstar.plugin.ObservationToolPluginBase;
-import org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog;
 import org.aavso.tools.vstar.ui.dialog.MessageBox;
 import org.aavso.tools.vstar.ui.mediator.AnalysisType;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
-import org.aavso.tools.vstar.ui.mediator.StarInfo;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.model.plot.ISeriesInfoProvider;
 import org.aavso.tools.vstar.util.Pair;
 import org.aavso.tools.vstar.util.coords.DecInfo;
 import org.aavso.tools.vstar.util.coords.RAInfo;
-import org.aavso.tools.vstar.util.help.Help;
 
 import org.aavso.tools.vstar.external.lib.ConvertHelper;
 
@@ -94,7 +86,7 @@ public class BJDConverter extends ObservationToolPluginBase {
 			}
 			if (!showConfirmDialog2("BJD_TDB Converter", count + " JD or/and HJD observations found. Convert them to BJD_TDB?", getDocName()))
 				return;
-			Pair<RAInfo, DecInfo> coords = getCoordinates(msg.getStarInfo());
+			Pair<RAInfo, DecInfo> coords = ConvertHelper.getCoordinates(msg.getStarInfo());
 			if (coords != null) {
 				Pair<Integer, Integer> result = null;
 				Container contentPane = Mediator.getUI().getContentPane();
@@ -133,110 +125,8 @@ public class BJDConverter extends ObservationToolPluginBase {
 	}
 
 	private boolean showConfirmDialog2(String title, String msg, String helpTopic) {
-		ConfirmDialogWithHelp dlg = new ConfirmDialogWithHelp(title, msg, helpTopic);
+		ConvertHelper.ConfirmDialogWithHelp dlg = new ConvertHelper.ConfirmDialogWithHelp(title, msg, helpTopic);
 		return !dlg.isCancelled();
-	}
-	
-	@SuppressWarnings("serial")
-	private class ConfirmDialogWithHelp extends AbstractOkCancelDialog {
-		
-		String helpTopic;
-		
-		ConfirmDialogWithHelp(String title, String msg, String helpTopic) {
-			super(title);
-			
-			this.helpTopic = helpTopic;
-			
-			Container contentPane = this.getContentPane();
-
-			JPanel topPane = new JPanel();
-			topPane.setLayout(new BoxLayout(topPane, BoxLayout.PAGE_AXIS));
-			topPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-			
-			topPane.add(createMessagePane(msg));
-
-			// OK, Cancel, Help
-			JPanel buttonPane = createButtonPane2();
-			topPane.add(buttonPane);
-			this.helpTopic = helpTopic;
-
-			contentPane.add(topPane);
-			
-			this.pack();
-			setLocationRelativeTo(Mediator.getUI().getContentPane());
-			okButton.requestFocusInWindow();
-			this.setVisible(true);
-			
-		}
-		
-		private JPanel createMessagePane(String msg) {
-			JPanel panel = new JPanel();
-			JLabel labelMsg = new JLabel(msg);
-			panel.add(labelMsg);
-			return panel;
-		}
-
-		/**
-		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#helpAction()
-		 */
-		@Override
-		protected void helpAction() {
-			Help.openPluginHelp(helpTopic);
-		}
-
-		/**
-		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#cancelAction()
-		 */
-		@Override
-		protected void cancelAction() {
-			// Nothing to do.
-		}
-
-		/**
-		 * @see org.aavso.tools.vstar.ui.dialog.AbstractOkCancelDialog#okAction()
-		 */
-		@Override
-		protected void okAction() {
-			cancelled = false;
-			setVisible(false);
-			dispose();
-		}
-	}
-	
-	/**
-	 * Return RA and Dec. First look for coordinates in any of our loaded
-	 * datasets. Use the first coordinates found. We are making the simplifying
-	 * assumption that all data sets correspond to the same object! If not
-	 * found, ask the user to enter them. If none are supplied, null is
-	 * returned.
-	 * 
-	 * @param info
-	 *            a StarInfo object possibly containing coordinates
-	 * @param otherCoords
-	 *            Coordinates to use if info contains none.
-	 * @return A pair of coordinates: RA and Declination
-	 */
-	private Pair<RAInfo, DecInfo> getCoordinates(StarInfo info) {
-		RAInfo ra = info.getRA();
-		DecInfo dec = info.getDec();
-
-		if (ra == null || dec == null) {
-			// Ask the user for J2000.0 RA/DEC and if that is cancelled,
-			// indicate that BJD conversion cannot take place.
-			ConvertHelper.CoordDialog coordDialog = new ConvertHelper.CoordDialog();
-			if (coordDialog.isCancelled()) {
-				return null;
-			}
-			Pair<RAInfo, DecInfo> coordinates = coordDialog.getCoordinates();
-			ra = coordinates.first;
-			dec = coordinates.second;
-		}
-
-		if (ra != null && dec != null) {
-			return new Pair<RAInfo, DecInfo>(ra, dec);
-		}
-		
-		return null;
 	}
 	
 	/**
@@ -265,23 +155,24 @@ public class BJDConverter extends ObservationToolPluginBase {
 	}
 
 	Pair<Integer, Integer> convertObsToTDB(List<ValidObservation> obs, RAInfo ra, DecInfo dec) {
+
+		// Convert times first, without touching observations.
+		// If something goes wrong, the observations remain intact. 
 		List<ValidObservation> obsJD = collectObservationsOfType(obs, JDflavour.JD);
 		List<ValidObservation> obsHJD = collectObservationsOfType(obs, JDflavour.HJD);
-		List<Double> timesUTCtoBJD;
-		List<Double> timesHJDtoBJD;
+		
+		List<Double> timesUTCtoBJD = null;
+		List<Double> timesHJDtoBJD = null;
+
 		try {
-			timesUTCtoBJD = getConvertedTimes(obsJD, ra, dec, JDflavour.JD);
-		} catch (Exception ex) {
-			MessageBox.showErrorDialog("Error", ex.getMessage());
-			return null;
-		}
-		try {
+			timesUTCtoBJD = getConvertedTimes(obsJD, ra, dec, JDflavour.JD);		
 			timesHJDtoBJD = getConvertedTimes(obsHJD, ra, dec, JDflavour.HJD);
 		} catch (Exception ex) {
 			MessageBox.showErrorDialog("Error", ex.getMessage());
 			return null;
 		}
-		
+
+		// Here, we are setting converted times.
 		for (int i = 0; i < obsJD.size(); i++) {
 			obsJD.get(i).setJD(timesUTCtoBJD.get(i));
 			obsJD.get(i).setJDflavour(JDflavour.BJD);
@@ -290,7 +181,9 @@ public class BJDConverter extends ObservationToolPluginBase {
 			obsHJD.get(i).setJD(timesHJDtoBJD.get(i));
 			obsHJD.get(i).setJDflavour(JDflavour.BJD);
 		}
+		
 		return new Pair<Integer, Integer>(obsJD.size(), obsHJD.size());
+		
 	}
 	
 	private List<ValidObservation> collectObservationsOfType(List<ValidObservation> obs, JDflavour f) {
@@ -304,7 +197,6 @@ public class BJDConverter extends ObservationToolPluginBase {
 	}
 
 	private List<Double> getConvertedTimes(List<ValidObservation> obs, RAInfo ra, DecInfo dec, JDflavour f) throws Exception {
-		List<Double> result = new ArrayList<Double>(); 
 		
 		String func = null;
 		
@@ -314,9 +206,9 @@ public class BJDConverter extends ObservationToolPluginBase {
 			func = "hjd2bjd";
 		else
 			throw new Exception("Invalid JD flavor");
-		
+
+		List<Double> result = new ArrayList<Double>();
 		List<ValidObservation> obs_chunk = null;
-		
 		int counter = 0;
 		for (ValidObservation ob : obs) {
 			if (ob.getJDflavour() != f) {
