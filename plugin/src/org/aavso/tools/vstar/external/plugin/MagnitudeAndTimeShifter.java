@@ -32,28 +32,30 @@ import org.aavso.tools.vstar.ui.undo.IUndoableAction;
 import org.aavso.tools.vstar.util.notification.Listener;
 
 /**
- * This plugin allows the magnitude baseline of a set of observations to be
- * reversibly shifted up or down by a specified amount.
+ * This plugin allows the time and/or magnitude of a set of observations to be
+ * reversibly shifted by a specified amount.
  */
-public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
+public class MagnitudeAndTimeShifter extends ObservationTransformerPluginBase {
 
-	private double shift, origShift;
+	private double magShift, origMagShift;
+	private double timeShift, origTimeShift;
 	private boolean firstInvocation;
 
-	public MagnitudeBaselineShifter() {
+	public MagnitudeAndTimeShifter() {
 		super();
-		origShift = shift = 0;
+		origTimeShift = timeShift = 0;
+		origMagShift = magShift = 0;
 		firstInvocation = true;
 	}
 
 	@Override
 	public String getDisplayName() {
-		return "Magnitude Baseline Shifter";
+		return "Magnitude and Time Shifter";
 	}
 
 	@Override
 	public String getDescription() {
-		return "Magnitude Baseline Shifter";
+		return "Magnitude and Time Shifter";
 	}
 
 	/**
@@ -61,7 +63,7 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 	 */
 	@Override
 	public String getDocName() {
-		return "Magnitude Baseline Shifter Plug-In.pdf";
+		return "Magnitude and Time Shifter Plug-In.pdf";
 	}
 
 	@Override
@@ -78,7 +80,7 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 		return new IUndoableAction() {
 			@Override
 			public String getDisplayString() {
-				return "shifted magnitude baseline";
+				return "shifted time/magnitude";
 			}
 
 			@Override
@@ -94,15 +96,21 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 				case UNDO:
 				case REDO:
 					// For an undo or a redo operation, negate the shift.
-					shift = -shift;
+				    timeShift = -timeShift;
+					magShift = -magShift;
 					break;
 				}
 
-				if (shift != 0) {
-					for (SeriesType seriesType : series) {
-						for (ValidObservation ob : seriesInfo
-								.getObservations(seriesType)) {
-							ob.setMag(ob.getMag() + shift);
+                if (timeShift != 0 || magShift != 0) {
+                    for (SeriesType seriesType : series) {
+                        for (ValidObservation ob : seriesInfo
+                                .getObservations(seriesType)) {
+                            if (timeShift != 0) {
+                                ob.setJD(ob.getJD() + timeShift);
+                            }
+                            if (magShift != 0) {
+                                ob.setMag(ob.getMag() + magShift);
+                            }
 						}
 					}
 				}
@@ -118,7 +126,7 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 	protected Listener<NewStarMessage> getNewStarListener() {
 		return new Listener<NewStarMessage>() {
 			public void update(NewStarMessage info) {
-				origShift = shift = 0;
+				origMagShift = magShift = 0;
 			}
 
 			public boolean canBeRemoved() {
@@ -128,21 +136,24 @@ public class MagnitudeBaselineShifter extends ObservationTransformerPluginBase {
 	}
 
 	/**
-	 * Invoke dialog to request magnitude shift value.
+	 * Invoke dialog to request time and magnitude shift values.
 	 * 
 	 * @return Whether the dialog was dismissed but not cancelled.
 	 */
 	private boolean invokeDialog() {
 		boolean ok = true;
 
-		DoubleField shiftField = new DoubleField("Shift", null, null, origShift);
-		MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
-				"Magnitude Shift", shiftField);
+		DoubleField magShiftField = new DoubleField("Magnitude Shift", null, null, origMagShift);
+        DoubleField timeShiftField = new DoubleField("Time Shift", null, null, origTimeShift);
+
+        MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
+				"Magnitude and Time Shift", timeShiftField, magShiftField);
 
 		ok = !dialog.isCancelled();
 
 		if (ok) {
-			origShift = shift = shiftField.getValue();
+			origMagShift = magShift = magShiftField.getValue();
+			origTimeShift = timeShift = timeShiftField.getValue();
 		}
 
 		return ok;
