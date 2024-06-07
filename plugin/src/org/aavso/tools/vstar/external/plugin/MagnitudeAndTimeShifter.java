@@ -28,6 +28,7 @@ import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase;
 import org.aavso.tools.vstar.ui.dialog.DoubleField;
 import org.aavso.tools.vstar.ui.dialog.MultiEntryComponentDialog;
+import org.aavso.tools.vstar.ui.mediator.DocumentManager;
 import org.aavso.tools.vstar.ui.mediator.Mediator;
 import org.aavso.tools.vstar.ui.mediator.message.NewStarMessage;
 import org.aavso.tools.vstar.ui.mediator.message.UndoableActionType;
@@ -104,14 +105,25 @@ public class MagnitudeAndTimeShifter extends ObservationTransformerPluginBase {
                 }
 
                 if (timeShift != 0 || magShift != 0) {
+                    Mediator mediator = Mediator.getInstance();
+                    DocumentManager docMgr = mediator.getDocumentManager();
+
                     for (SeriesType seriesType : series) {
                         for (ValidObservation ob : seriesInfo.getObservations(seriesType)) {
                             if (timeShift != 0) {
                                 ob.setJD(ob.getJD() + timeShift);
                             }
+
                             if (magShift != 0) {
                                 ob.setMag(ob.getMag() + magShift);
                             }
+                        }
+
+                        if (docMgr.phasePlotExists()) {
+                            // update phase plot to reflect changes
+                            double epoch = docMgr.getEpoch();
+                            double period = docMgr.getPeriod();
+                            mediator.setPhasesForSeries(seriesType, epoch, period);
                         }
                     }
                 }
@@ -185,7 +197,7 @@ public class MagnitudeAndTimeShifter extends ObservationTransformerPluginBase {
         success &= ob.getMag() == TestInfo.MAG + MAG_SHIFT;
 
         action.execute(UndoableActionType.UNDO);
-        success &= ob.getJD() == TestInfo.JD ;
+        success &= ob.getJD() == TestInfo.JD;
         success &= ob.getMag() == TestInfo.MAG;
 
         action.execute(UndoableActionType.REDO);
