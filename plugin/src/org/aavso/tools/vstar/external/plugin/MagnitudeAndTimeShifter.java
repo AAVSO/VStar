@@ -17,8 +17,12 @@
  */
 package org.aavso.tools.vstar.external.plugin;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import org.aavso.tools.vstar.data.Magnitude;
 import org.aavso.tools.vstar.data.SeriesType;
 import org.aavso.tools.vstar.data.ValidObservation;
 import org.aavso.tools.vstar.plugin.ObservationTransformerPluginBase;
@@ -37,125 +41,202 @@ import org.aavso.tools.vstar.util.notification.Listener;
  */
 public class MagnitudeAndTimeShifter extends ObservationTransformerPluginBase {
 
-	private double magShift, origMagShift;
-	private double timeShift, origTimeShift;
-	private boolean firstInvocation;
+    private double magShift, origMagShift;
+    private double timeShift, origTimeShift;
+    private boolean firstInvocation;
 
-	public MagnitudeAndTimeShifter() {
-		super();
-		origTimeShift = timeShift = 0;
-		origMagShift = magShift = 0;
-		firstInvocation = true;
-	}
+    public MagnitudeAndTimeShifter() {
+        super();
+        origTimeShift = timeShift = 0;
+        origMagShift = magShift = 0;
+        firstInvocation = true;
+    }
 
-	@Override
-	public String getDisplayName() {
-		return "Magnitude and Time Shifter";
-	}
+    @Override
+    public String getDisplayName() {
+        return "Magnitude and Time Shifter";
+    }
 
-	@Override
-	public String getDescription() {
-		return "Magnitude and Time Shifter";
-	}
+    @Override
+    public String getDescription() {
+        return "Magnitude and Time Shifter";
+    }
 
-	/**
-	 * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
-	 */
-	@Override
-	public String getDocName() {
-		return "Magnitude and Time Shifter Plug-In.pdf";
-	}
+    /**
+     * @see org.aavso.tools.vstar.plugin.IPlugin#getDocName()
+     */
+    @Override
+    public String getDocName() {
+        return "Magnitude and Time Shifter Plug-In.pdf";
+    }
 
-	@Override
-	public IUndoableAction createAction(ISeriesInfoProvider seriesInfo,
-			Set<SeriesType> series) {
+    @Override
+    public IUndoableAction createAction(ISeriesInfoProvider seriesInfo, Set<SeriesType> series) {
 
-		if (firstInvocation) {
-			Mediator.getInstance().getNewStarNotifier()
-					.addListener(getNewStarListener());
+        if (!inTestMode() && firstInvocation) {
+            Mediator.getInstance().getNewStarNotifier().addListener(getNewStarListener());
 
-			firstInvocation = false;
-		}
+            firstInvocation = false;
+        }
 
-		return new IUndoableAction() {
-			@Override
-			public String getDisplayString() {
-				return "shifted time/magnitude";
-			}
+        return new IUndoableAction() {
+            @Override
+            public String getDisplayString() {
+                return "shifted time/magnitude";
+            }
 
-			@Override
-			public boolean execute(UndoableActionType type) {
-				boolean ok = true;
-				switch (type) {
-				case DO:
-					// For a do operation, invoke the dialog when the action is
-					// executed.
-					ok = invokeDialog();
-					break;
-					
-				case UNDO:
-				case REDO:
-					// For an undo or a redo operation, negate the shift.
-				    timeShift = -timeShift;
-					magShift = -magShift;
-					break;
-				}
+            @Override
+            public boolean execute(UndoableActionType type) {
+                boolean ok = true;
+                switch (type) {
+                case DO:
+                    // For a do operation, invoke the dialog when the action is
+                    // executed.
+                    ok = invokeDialog();
+                    break;
+
+                case UNDO:
+                case REDO:
+                    // For an undo or a redo operation, negate the shift.
+                    timeShift = -timeShift;
+                    magShift = -magShift;
+                    break;
+                }
 
                 if (timeShift != 0 || magShift != 0) {
                     for (SeriesType seriesType : series) {
-                        for (ValidObservation ob : seriesInfo
-                                .getObservations(seriesType)) {
+                        for (ValidObservation ob : seriesInfo.getObservations(seriesType)) {
                             if (timeShift != 0) {
                                 ob.setJD(ob.getJD() + timeShift);
                             }
                             if (magShift != 0) {
                                 ob.setMag(ob.getMag() + magShift);
                             }
-						}
-					}
-				}
-				
-				return ok;
-			}
-		};
-	}
+                        }
+                    }
+                }
 
-	/**
-	 * Get the new star listener for this plugin.
-	 */
-	protected Listener<NewStarMessage> getNewStarListener() {
-		return new Listener<NewStarMessage>() {
-			public void update(NewStarMessage info) {
-				origMagShift = magShift = 0;
-			}
+                return ok;
+            }
+        };
+    }
 
-			public boolean canBeRemoved() {
-				return false;
-			}
-		};
-	}
+    /**
+     * Get the new star listener for this plugin.
+     */
+    protected Listener<NewStarMessage> getNewStarListener() {
+        return new Listener<NewStarMessage>() {
+            public void update(NewStarMessage info) {
+                origMagShift = magShift = 0;
+            }
 
-	/**
-	 * Invoke dialog to request time and magnitude shift values.
-	 * 
-	 * @return Whether the dialog was dismissed but not cancelled.
-	 */
-	private boolean invokeDialog() {
-		boolean ok = true;
+            public boolean canBeRemoved() {
+                return false;
+            }
+        };
+    }
 
-		DoubleField magShiftField = new DoubleField("Magnitude Shift", null, null, origMagShift);
-        DoubleField timeShiftField = new DoubleField("Time Shift", null, null, origTimeShift);
+    /**
+     * Invoke dialog to request time and magnitude shift values.
+     * 
+     * @return Whether the dialog was dismissed but not cancelled.
+     */
+    private boolean invokeDialog() {
+        boolean ok = true;
 
-        MultiEntryComponentDialog dialog = new MultiEntryComponentDialog(
-				"Magnitude and Time Shift", timeShiftField, magShiftField);
+        if (!inTestMode()) {
+            DoubleField magShiftField = new DoubleField("Magnitude Shift", null, null, origMagShift);
+            DoubleField timeShiftField = new DoubleField("Time Shift", null, null, origTimeShift);
 
-		ok = !dialog.isCancelled();
+            MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("Magnitude and Time Shift", timeShiftField,
+                    magShiftField);
 
-		if (ok) {
-			origMagShift = magShift = magShiftField.getValue();
-			origTimeShift = timeShift = timeShiftField.getValue();
-		}
+            ok = !dialog.isCancelled();
 
-		return ok;
-	}
+            if (ok) {
+                origMagShift = magShift = magShiftField.getValue();
+                origTimeShift = timeShift = timeShiftField.getValue();
+            }
+        }
+
+        return ok;
+    }
+
+    // Test methods
+
+    @Override
+    public Boolean test() {
+        boolean success = true;
+
+        setTestMode(true);
+
+        ISeriesInfoProvider provider = new TestInfo();
+        IUndoableAction action = createAction(provider, provider.getVisibleSeries());
+        ValidObservation ob = provider.getObservations(SeriesType.Visual).get(0);
+
+        final int TIME_SHIFT = 10;
+        final int MAG_SHIFT = 20;
+
+        timeShift = TIME_SHIFT;
+        magShift = MAG_SHIFT;
+
+        action.execute(UndoableActionType.DO);
+        success &= ob.getJD() == TestInfo.JD + TIME_SHIFT;
+        success &= ob.getMag() == TestInfo.MAG + MAG_SHIFT;
+
+        action.execute(UndoableActionType.UNDO);
+        success &= ob.getJD() == TestInfo.JD ;
+        success &= ob.getMag() == TestInfo.MAG;
+
+        action.execute(UndoableActionType.REDO);
+        success &= ob.getJD() == TestInfo.JD + TIME_SHIFT;
+        success &= ob.getMag() == TestInfo.MAG + MAG_SHIFT;
+
+        return success;
+    }
+
+    class TestInfo implements ISeriesInfoProvider {
+        public static final int JD = 2450000;
+        public static final int MAG = 5;
+
+        private Set<SeriesType> series;
+        private List<ValidObservation> obs;
+
+        TestInfo() {
+            series = new HashSet<SeriesType>();
+            series.add(SeriesType.Visual);
+
+            obs = new ArrayList<ValidObservation>();
+            ValidObservation ob = new ValidObservation();
+            ob.setJD(JD);
+            ob.setMagnitude(new Magnitude(MAG, 0));
+            ob.setObsCode("BAR");
+            obs.add(ob);
+        }
+
+        @Override
+        public Set<SeriesType> getVisibleSeries() {
+            return series;
+        }
+
+        @Override
+        public int getSeriesCount() {
+            return series.size();
+        }
+
+        @Override
+        public Set<SeriesType> getSeriesKeys() {
+            return series;
+        }
+
+        @Override
+        public boolean seriesExists(SeriesType type) {
+            return series.contains(type);
+        }
+
+        @Override
+        public List<ValidObservation> getObservations(SeriesType type) {
+            return obs;
+        }
+    }
 }
