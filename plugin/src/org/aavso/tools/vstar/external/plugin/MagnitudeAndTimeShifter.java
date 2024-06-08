@@ -160,7 +160,7 @@ public class MagnitudeAndTimeShifter extends ObservationTransformerPluginBase {
             DoubleField magShiftField = new DoubleField("Magnitude Shift", null, null, origMagShift);
             DoubleField timeShiftField = new DoubleField("Time Shift", null, null, origTimeShift);
 
-            MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("Magnitude and Time Shift", timeShiftField,
+            MultiEntryComponentDialog dialog = new MultiEntryComponentDialog("Shifts", timeShiftField,
                     magShiftField);
 
             ok = !dialog.isCancelled();
