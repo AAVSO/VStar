@@ -19,12 +19,14 @@ package org.aavso.tools.vstar.plugin.ob.src.impl;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.aavso.tools.vstar.exception.ObservationReadError;
 import org.aavso.tools.vstar.input.AbstractObservationRetriever;
 import org.aavso.tools.vstar.input.text.ObservationSourceAnalyser;
 import org.aavso.tools.vstar.input.text.TextFormatObservationReader;
@@ -76,53 +78,47 @@ public class TextFormatObservationSourcePlugin extends
 	}
 
 	@Override
-	public AbstractObservationRetriever getObservationRetriever() {
+	public AbstractObservationRetriever getObservationRetriever() throws IOException, ObservationReadError {
 
 		AbstractObservationRetriever retriever = null;
 
 		byte[] allBytes = null;
 		List<byte[]> byteArrayList = new ArrayList<byte[]>();
 		int total = 0;
-		try {
-			InputStream stream = getInputStreams().get(0);
 
-			BufferedReader streamReader = new BufferedReader(
-					new InputStreamReader(stream));
+		InputStream stream = getInputStreams().get(0);
 
-			// Obtain bytes from stream in order to re-use in analyser and
-			// reader.
-			String line;
-			while ((line = streamReader.readLine()) != null) {
+		BufferedReader streamReader = new BufferedReader(
+				new InputStreamReader(stream));
 
-				byte[] bytes = line.getBytes();
-				byteArrayList.add(bytes);
-				total += bytes.length + 1;
-			}
+		// Obtain bytes from stream in order to re-use in analyser and
+		// reader.
+		String line;
+		while ((line = streamReader.readLine()) != null) {
 
-			int i = 0;
-			allBytes = new byte[total];
-			for (byte[] bytes : byteArrayList) {
-				for (byte b : bytes) {
-					allBytes[i++] = b;
-				}
-				allBytes[i++] = '\n';
-			}
-
-			// Analyse the observation file and create an observation retriever.
-			analyser = new ObservationSourceAnalyser(new LineNumberReader(
-					new InputStreamReader(new ByteArrayInputStream(allBytes))),
-					getInputName());
-			analyser.analyse();
-
-			retriever = new TextFormatObservationReader(new LineNumberReader(
-					new InputStreamReader(new ByteArrayInputStream(allBytes))),
-					analyser, getVelaFilterStr());
-
-		} catch (Exception e) {
-			// TODO: move analyser creation into reader class so we can handle
-			// this more efficiently, passing top-level stream not reader...or perhaps
-			// pass lines, handling exception there
+			byte[] bytes = line.getBytes();
+			byteArrayList.add(bytes);
+			total += bytes.length + 1;
 		}
+
+		int i = 0;
+		allBytes = new byte[total];
+		for (byte[] bytes : byteArrayList) {
+			for (byte b : bytes) {
+				allBytes[i++] = b;
+			}
+			allBytes[i++] = '\n';
+		}
+
+		// Analyse the observation file and create an observation retriever.
+		analyser = new ObservationSourceAnalyser(new LineNumberReader(
+				new InputStreamReader(new ByteArrayInputStream(allBytes))),
+				getInputName());
+		analyser.analyse();
+
+		retriever = new TextFormatObservationReader(new LineNumberReader(
+				new InputStreamReader(new ByteArrayInputStream(allBytes))),
+				analyser, getVelaFilterStr());
 
 		return retriever;
 	}
