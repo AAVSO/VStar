@@ -24,6 +24,7 @@ import org.aavso.tools.vstar.ui.model.plot.JDCoordSource;
 import org.aavso.tools.vstar.ui.model.plot.StandardPhaseCoordSource;
 import org.aavso.tools.vstar.ui.vela.VeLaDialog;
 import org.aavso.tools.vstar.util.ApacheCommonsDerivativeBasedExtremaFinder;
+import org.aavso.tools.vstar.util.Tolerance;
 import org.aavso.tools.vstar.util.comparator.JDComparator;
 import org.aavso.tools.vstar.util.comparator.StandardPhaseComparator;
 import org.aavso.tools.vstar.util.locale.LocaleProps;
@@ -169,22 +170,32 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 		// Create a VeLa model.
 		IModel createModel() {
 			IModel model = null;
+			String modelFuncStr = null;
+			String modelNameStr = null;
+			boolean ok = false;
 
-			// TODO: possible race condition here since we sometimes don't
-			// see the dialog and VStar hangs; a log entry shows a NPE
-
-			if (velaDialog == null) {
-
-				velaDialog = new VeLaDialog(
-						"Function Code [model: f(t), optional derivative: df(t)]");
-
+			if (inTestMode()) {
+			    modelFuncStr = getModelFunc();
+			    modelNameStr = getModelName();
+			    ok = true;
 			} else {
-				velaDialog.showDialog();
+			    if (velaDialog == null) {
+			        velaDialog = new VeLaDialog(
+			                "Function Code [model: f(t), optional derivative: df(t)]");
+			    } else {
+			        velaDialog.showDialog();
+			    }
+
+			    if (!velaDialog.isCancelled()) {
+			        modelFuncStr = velaDialog.getCode();
+			        modelNameStr = velaDialog.getPath();
+                    ok = true;
+			    }
 			}
 
-			if (!velaDialog.isCancelled()) {
-				String velaModelFunctionStr = velaDialog.getCode();
-				String modelName = velaDialog.getPath();
+			if (ok) {
+			    String velaModelFunctionStr = modelFuncStr;
+	            String modelName = modelNameStr;
 				// double resolution = resolutionField.getValue();
 
 				model = new IModel() {
@@ -388,4 +399,67 @@ public class VeLaModelCreator extends ModelCreatorPluginBase {
 			return model;
 		}
 	}
+
+	// Plug-in test
+
+    @Override
+    public Boolean test() {
+        boolean success = true;
+        
+        setTestMode(true);
+        
+        try {
+            IModel model = getModel(createObs());
+            model.execute();
+            success &= model.hasFuncDesc();
+            String desc = getModelName() + " applied to Visual series";
+            success &= model.getDescription().equals(desc);
+            success &= !model.getFit().isEmpty();
+            success &= !model.getResiduals().isEmpty();
+            success &= model.getFit().size() == model.getResiduals().size();
+            success &= Tolerance.areClose(12.34620932, model.getFit().get(0).getMag(), 1e-6, true);
+        } catch (Exception e) {
+            success = false;
+        }
+
+        setTestMode(false);
+
+        return success;
+    }
+    
+    private String getModelFunc() {
+        String func = "";
+
+        func += "f(t:real) : real {\n";
+        func += "  11.7340392\n";
+        func += "  -0.6588158 * cos(2*PI*0.0017177*(t-2451700))\n";
+        func += "  +1.3908874 * sin(2*PI*0.0017177*(t-2451700))";
+        func += "}\n";
+        
+        return func;
+    }
+    
+    private String getModelName() {
+        return "test model";
+    }
+    
+    private List<ValidObservation> createObs() {
+        List<ValidObservation> obs = new ArrayList<ValidObservation>();
+
+        ValidObservation ob = new ValidObservation();
+        ob.setMagnitude(new Magnitude(11, 0.1));
+        ob.setDateInfo(new DateInfo(2447121.5));
+        ob.setBand(SeriesType.Visual);
+        ob.setObsCode("ABC");
+        obs.add(ob);
+
+        ob = new ValidObservation();
+        ob.setMagnitude(new Magnitude(11.05, 0.02));
+        ob.setDateInfo(new DateInfo(2447121.501));
+        ob.setBand(SeriesType.Johnson_V);
+        ob.setObsCode("XYZ");
+        obs.add(ob);
+
+        return obs;
+    }
 }
