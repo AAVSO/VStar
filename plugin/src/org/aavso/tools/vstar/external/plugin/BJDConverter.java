@@ -84,7 +84,7 @@ public class BJDConverter extends ObservationToolPluginBase {
 						"No observations with JD or HJD");
 				return;
 			}
-			if (!showConfirmDialog2("BJD_TDB Converter", count + " JD or/and HJD observations found. Convert them to BJD_TDB?", getDocName()))
+			if (!showConfirmDialog("BJD_TDB Converter", count + " JD or/and HJD observations found. Convert them to BJD_TDB?", getDocName()))
 				return;
 			Pair<RAInfo, DecInfo> coords = ConvertHelper.getCoordinates(msg.getStarInfo());
 			if (coords != null) {
@@ -124,7 +124,7 @@ public class BJDConverter extends ObservationToolPluginBase {
 		}
 	}
 
-	private boolean showConfirmDialog2(String title, String msg, String helpTopic) {
+	private boolean showConfirmDialog(String title, String msg, String helpTopic) {
 		ConvertHelper.ConfirmDialogWithHelp dlg = new ConvertHelper.ConfirmDialogWithHelp(title, msg, helpTopic);
 		return !dlg.isCancelled();
 	}

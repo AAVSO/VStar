@@ -87,11 +87,7 @@ public class HJDConverter extends ObservationToolPluginBase {
 						"No observations with Julian Date");
 				return;
 			}
-			/*
-			if (!MessageBox.showConfirmDialog("Non-Heliocentric Observations", count + " Julian Date observations found. Convert them to HJD?"))
-				return;
-			*/
-			if (!showConfirmDialog2("Non-Heliocentric Observations", count + " Julian Date observations found. Convert them to HJD?", getDocName()))
+			if (!showConfirmDialog("Non-Heliocentric Observations", count + " Julian Date observations found. Convert them to HJD?", getDocName()))
 				return;
 			Pair<RAInfo, DecInfo> coords = ConvertHelper.getCoordinates(msg.getStarInfo());
 			if (coords != null) {
@@ -113,7 +109,7 @@ public class HJDConverter extends ObservationToolPluginBase {
 		}
 	}
 
-	private boolean showConfirmDialog2(String title, String msg, String helpTopic) {
+	private boolean showConfirmDialog(String title, String msg, String helpTopic) {
 		ConvertHelper.ConfirmDialogWithHelp dlg = new ConvertHelper.ConfirmDialogWithHelp(title, msg, helpTopic);
 		return !dlg.isCancelled();
 	}
