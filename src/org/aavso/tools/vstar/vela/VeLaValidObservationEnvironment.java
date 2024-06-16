@@ -89,8 +89,12 @@ public class VeLaValidObservationEnvironment extends VeLaEnvironment<Operand> {
 			}
 		} else {
 			if (columnInfoSource != null) {
-				int index = columnInfoSource.getColumnIndexByName(name);
-				operand = objToOperand(name, columnInfoSource.getTableColumnValue(index, ob));
+			    try {
+			        int index = columnInfoSource.getColumnIndexByName(name);
+			        operand = objToOperand(name, columnInfoSource.getTableColumnValue(index, ob));
+			    } catch (IllegalArgumentException e) {
+			        // default to a null operand 
+			    }
 			}
 		}
 
